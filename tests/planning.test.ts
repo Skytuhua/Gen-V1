@@ -10,6 +10,7 @@ import { PLANNING_TOOLS } from '../packages/core/planning-tools.ts';
 import type { DomainContext } from '../packages/capabilities/index.ts';
 import {createRuntime} from '../packages/runtime/index.ts';
 import {accountResolver,beginAccountLogin} from '../packages/core/accounts.ts';
+import {applySkillOperations} from '../packages/core/skills.ts';
 
 const cleanups: (() => Promise<void>)[] = [];
 afterEach(async () => { for (const clean of cleanups.splice(0)) await clean(); });
@@ -46,6 +47,12 @@ function setup() {
   const tool = (i: number, name: string, args = {}) => children[i].callbacks.onTool({ name, args }, children[i].input!);
   return { store, coordinator, ctx, controller, children, domain, hooks, directory, tasks, waitStarted, event, tool, revoke: () => { valid = false; } };
 }
+
+it('lets auxiliary readers load shared skills while denying library mutations',async()=>{
+ const x=setup();x.store.internal('fixture.skill',null,()=>applySkillOperations(x.store,[{action:'create',name:'inspect-failure',description:'Inspect a failing check using actual evidence.',content:'Read the failing assertion before changing its source.',baseRevision:0}],{kind:'user'}));
+ const pending=x.coordinator.delegate(x.ctx,{commandId:'read-skills',tasks:x.tasks()},x.controller.signal);await x.waitStarted();
+ try{expect(await x.tool(0,'skills_list')).toMatchObject({skills:[expect.objectContaining({name:'inspect-failure'})]});expect(await x.tool(0,'skill_view',{name:'inspect-failure'})).toMatchObject({content:'Read the failing assertion before changing its source.'});await expect(x.tool(0,'skill_manage',{operations:[]})).rejects.toMatchObject({code:'AGENT_TOOL_DENIED'});}finally{x.event(0,'settled');await pending;}
+});
 
 it('pins auxiliary readers to the parent account before asynchronous runtime creation',async()=>{
  const x=setup(),accountId=crypto.randomUUID(),parent=x.store.get<Thread>('thread',x.ctx.threadId)!;

@@ -17,6 +17,7 @@ const protocol = () => new HarnessError('OFFICIAL_PROTOCOL_INVALID', 'Official C
 function deferred<T>() { let resolve!: (value: T) => void; let reject!: (error: Error) => void; const promise = new Promise<T>((yes, no) => { resolve = yes; reject = no; }); void promise.catch(() => {}); return { promise, resolve, reject }; }
 function safeError(value: unknown): HarnessError {
   const frame = value as { code?: unknown } | undefined;
+  if (frame?.code === 'OFFICIAL_PROCESS_IO_FAILED') return new HarnessError('OFFICIAL_PROCESS_IO_FAILED', 'The native Cursor connection closed unexpectedly. Reconnect the provider and refresh models.');
   const candidate = typeof frame?.code === 'string' ? new HarnessError(frame.code, '') : value;
   const safe = cursorSafeError(candidate); return new HarnessError(safe.code, safe.message);
 }
@@ -30,10 +31,12 @@ function startWorker(dataDir: string, cwd: string, spawnChild: typeof spawn, own
   let child: ChildProcess;
   try { child = spawnChild(command.file, command.args, { cwd, env: officialRuntimeEnvironment(dataDir, 'cursor-sdk', cwd), stdio: ['ignore', 'pipe', 'pipe', 'ipc'], detached: process.platform !== 'win32', windowsHide: true }); }
   catch (error) { throw safeError(error); }
+  const exited = deferred<void>(); const closeAck = deferred<void>(); let closed = false;
+  const failed = () => exited.reject(safeError(new HarnessError('OFFICIAL_PROCESS_IO_FAILED', '')));
+  child.on('error', failed); child.stdout?.on('error', failed); child.stderr?.on('error', failed);
   own?.(child); // Must precede readiness, SDK initialization and every asynchronous wait.
   child.stdout?.resume(); child.stderr?.resume();
-  const exited = deferred<void>(); const closeAck = deferred<void>(); let closed = false;
-  child.once('exit', () => exited.resolve()); child.once('error', error => exited.reject(safeError(error)));
+  child.once('exit', () => exited.resolve());
   child.on('message', (frame: any) => { if (frame?.type === 'closed') closeAck.resolve(); });
   const send = (message: unknown) => new Promise<void>((resolve, reject) => {
     if (closed || child.exitCode !== null || child.signalCode !== null) { reject(aborted()); return; }
@@ -66,7 +69,11 @@ export async function openCursor(context: DriverContext, spawnChild: typeof spaw
   context.ready(driver); // Startup cancellation owns the driver before the first await.
   const fail = (error: unknown) => {
     failure = safeError(error); startup.reject(failure);
-    if (context.current() && !closed && !settled) { settled = true; context.event('error', { message: failure.message }); context.event('settled', { aborted: false }); }
+    if (context.current() && !closed && !settled) {
+      settled = true;
+      try { context.event('error', { message: failure.message }); } catch { /* Notification cannot prevent teardown. */ }
+      try { context.event('settled', { aborted: false }); } catch { /* Notification cannot prevent teardown. */ }
+    }
     void driver.close().catch(() => {});
   };
   worker.child.on('message', (value: unknown) => {

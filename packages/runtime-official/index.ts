@@ -18,7 +18,7 @@ export { officialRuntimeCommand, officialRuntimeHome, officialRuntimeEnvironment
 export type { OfficialProvider } from './environment.ts';
 export interface OfficialRuntimeDependencies {
   claudeSdk?: ClaudeSdk;
-  claudeHistory?: (dataDir: string, manifest: ManifestState) => Promise<HistoryReceipt[]>;
+  claudeHistory?: (dataDir: string, manifest: ManifestState, spawnProcess?: typeof spawn) => Promise<HistoryReceipt[]>;
   spawn?: typeof spawn;
 }
 interface Authority {
@@ -220,23 +220,28 @@ export function createOfficialRuntime({ dataDir }: { dataDir: string }, dependen
     compact(ctx, sessionPath, modelId) { return queue({ ...ctx, sessionPath, modelId, inputId: '', prompt: '', resources: [] }, true); },
     async history(sessionPath) {
       if (disposed) throw new HarnessError('OFFICIAL_DISPOSED', 'Official runtime is disposed.');
-      const manifest = await readManifest(storage, sessionPath);
-      if (manifest.value.sessionId) {
-        let receipts: HistoryReceipt[];
-        if (manifest.value.provider === 'claude-code') receipts = await (dependencies.claudeHistory ?? (await import('./history.ts')).claudeHistory)(storage, manifest);
-        else if (manifest.value.provider === 'gemini-cli') receipts = await (await import('./gemini.ts')).geminiHistory(storage, manifest, dependencies.spawn ?? spawn);
-        else if (manifest.value.provider === 'cursor-sdk') receipts = await auxiliary('cursor-sdk', async authority => {
-          const value = await (await import('./cursor.ts')).cursorHistory(storage, manifest, ownedSpawn(authority));
-          assert(authority); return value;
+      return serial(`official-history-${randomUUID()}`, async () => {
+        if (disposed) throw new HarnessError('OFFICIAL_DISPOSED', 'Official runtime is disposed.');
+        const manifest = await readManifest(storage, sessionPath);
+        return auxiliary(manifest.value.provider, async authority => {
+          authority.manifest = manifest;
+          let receipts: HistoryReceipt[] = [];
+          if (manifest.value.sessionId) {
+            if (manifest.value.provider === 'claude-code') receipts = await (dependencies.claudeHistory ?? (await import('./history.ts')).claudeHistory)(storage, manifest, ownedSpawn(authority));
+            else if (manifest.value.provider === 'gemini-cli') receipts = await (await import('./gemini.ts')).geminiHistory(storage, manifest, ownedSpawn(authority), { current: () => current(authority), ready(driver) { authority.driver = driver; if (!current(authority)) void driver.close().catch(() => {}); } });
+            else if (manifest.value.provider === 'cursor-sdk') receipts = await (await import('./cursor.ts')).cursorHistory(storage, manifest, ownedSpawn(authority));
+            else throw new HarnessError('OFFICIAL_PROVIDER_UNAVAILABLE', 'The official session provider is unknown.');
+            assert(authority);
+            for (const receipt of receipts) {
+              const existing = manifest.value.inputs[receipt.uuid];
+              if (existing && JSON.stringify(existing.inputIds) === JSON.stringify(receipt.inputIds)) existing.observed = true;
+            }
+            await saveManifest(manifest); assert(authority);
+          }
+          assert(authority);
+          return [...new Set(Object.values(manifest.value.inputs).filter(receipt => receipt.observed).flatMap(receipt => receipt.inputIds))];
         });
-        else throw new HarnessError('OFFICIAL_PROVIDER_UNAVAILABLE', 'The official session provider is unknown.');
-        for (const receipt of receipts) {
-          const existing = manifest.value.inputs[receipt.uuid];
-          if (existing && JSON.stringify(existing.inputIds) === JSON.stringify(receipt.inputIds)) existing.observed = true;
-        }
-        await saveManifest(manifest);
-      }
-      return [...new Set(Object.values(manifest.value.inputs).filter(receipt => receipt.observed).flatMap(receipt => receipt.inputIds))];
+      });
     },
     async dispose() {
       disposed = true;

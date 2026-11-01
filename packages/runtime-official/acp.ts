@@ -8,6 +8,9 @@ export class AcpConnection {
   private closed = false;
   private readonly pending = new Map<number, { resolve(value: any): void; reject(error: Error): void; timer: ReturnType<typeof setTimeout> }>();
   constructor(private readonly process: ChildProcess, private readonly update: (method: string, params: any) => void) {
+    const failed = () => this.close(new HarnessError('OFFICIAL_PROCESS_IO_FAILED', 'The native Gemini connection closed unexpectedly. Reconnect the provider and refresh models.'));
+    process.on('error', failed);
+    for (const stream of [process.stdin, process.stdout, process.stderr]) stream?.on('error', failed);
     process.stdout?.setEncoding('utf8');
     process.stdout?.on('data', chunk => {
       this.buffer += chunk;
@@ -20,9 +23,7 @@ export class AcpConnection {
         catch { this.close(new HarnessError('OFFICIAL_PROTOCOL_INVALID', 'Official ACP emitted an invalid JSON-RPC frame.')); }
       }
     });
-    process.once('error', error => this.close(error));
     process.once('exit', () => this.close(new HarnessError('OFFICIAL_PROCESS_EXITED', 'Official Gemini CLI exited. Persisted history will determine input delivery.')));
-    process.stdin?.on('error', error => this.close(error));
   }
   private send(value: unknown): void {
     if (this.closed || !this.process.stdin?.writable) throw new HarnessError('OFFICIAL_PROCESS_EXITED', 'Official ACP input is closed.');

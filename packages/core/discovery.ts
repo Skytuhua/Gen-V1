@@ -39,6 +39,7 @@ export async function discoverCapabilities(args: Record<string, unknown>) {
     presentation: { width: ['compact', 'standard', 'wide'], frame: ['card', 'canvas'], guide: 'Compose around the actual working object and decision. Inline surfaces match composer width; chat owns scrolling. Use neutral selections, stable state and artifact identity; secondary evidence belongs in inspection.' },
     planning: { tools: ['plan_update', 'task_delegate'], maxConcurrentAgents: 3, childAccess: 'read-only' },
     memory: { tool: 'task_memory', scope: 'thread', totalBytes: 4096 },
+    skills:{tools:['skills_list','skill_view','skill_manage'],scope:'application',disclosure:'Metadata first; load one skill or supporting file. Text never grants permissions.',learning:'Owned background review, revisioned writes and optional user approval.'},
     generatedApps: { available: false, reason: 'Execution-isolation acceptance remains pending; use the trusted catalog.' },
   };
 }

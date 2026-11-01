@@ -32,7 +32,7 @@ export async function launchHost(options:HostOptions,overrides:Partial<HostFacto
  const hostPort=port(options.port,'HARNESS_PORT'),widgetPort=port(options.widgetPort,'HARNESS_WIDGET_PORT');
  if(hostPort===widgetPort)throw new Error('The host and widget ports must be different.');
  if(!options.dataDir.trim())throw new Error('The harness data directory must be nonempty.');
- const make:HostFactories={createStore:dataDir=>new Store(dataDir),createRuntime,createService:(store,runtime)=>new Service(store,runtime),buildServer,buildWidgetServer,...overrides};
+ const make:HostFactories={createStore:dataDir=>new Store(dataDir),createRuntime,createService:(store,runtime)=>new Service(store,runtime,{learningRuntimeFactory:()=>make.createRuntime({dataDir:store.dataDir,accounts:accountResolver(store)})}),buildServer,buildWidgetServer,...overrides};
  let store:Store|undefined,runtime:ReturnType<typeof createRuntime>|undefined,service:Service|undefined,app:Awaited<ReturnType<typeof buildServer>>|undefined,widgets:Awaited<ReturnType<typeof buildWidgetServer>>|undefined,closing:Promise<void>|undefined,accepting=false;
  const close=()=>closing??= (async()=>{
   accepting=false;

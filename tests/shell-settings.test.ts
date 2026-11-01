@@ -33,9 +33,11 @@ describe('pinned T3 settings inventory', () => {
     // Frozen before the representation change: covers every ID, title, section and search term.
     expect(createHash('sha256').update(JSON.stringify(T3_SETTINGS_ROWS)).digest('hex')).toBe('2893f2e3a1de79b9c628ac73fe7670c686088f86c9f18acce61df3936c1d727e');
   });
-  it('retains every static indexed row, all 21 navigation sections, and both supplemental pages', () => {
+  it('retains every static indexed row, original navigation, supplemental pages and skill controls', () => {
     expect(T3_SETTINGS_ROWS).toHaveLength(136);
-    expect(SETTINGS_SECTIONS).toHaveLength(23);
+    expect(SETTINGS_SECTIONS).toHaveLength(24);
+    expect(SETTINGS_SECTIONS).toContainEqual(['skills', 'Skills & learning']);
+    expect(SETTINGS_ROWS.find(row => row.id === 'harness-skills')).toMatchObject({section:'skills',title:'Skills & learning'});
     expect(new Set(SETTINGS_ROWS.map(row => row.id)).size).toBe(SETTINGS_ROWS.length);
     for (const [section] of SETTINGS_SECTIONS) expect(SETTINGS_ROWS.some(row => row.section === section), section).toBe(true);
     for (const row of T3_SETTINGS_ROWS) expect(SETTINGS_ROWS.find(item => item.id === row.id)).toEqual(row);

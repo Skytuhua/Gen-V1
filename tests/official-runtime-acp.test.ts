@@ -16,7 +16,7 @@ async function data(auth = 'oauth-personal') {
   await writeFile(join(config, 'settings.json'), JSON.stringify({ security: { auth: { selectedType: auth } } }));
   return dir;
 }
-function acp(options: { version?: number; http?: boolean; google?: boolean; config?: boolean; holdPrompt?: boolean; replay?: string[];commands?:boolean } = {}) {
+function acp(options: { version?: number; http?: boolean; google?: boolean; config?: boolean; holdPrompt?: boolean; holdInitialize?:boolean; replay?: string[];commands?:boolean } = {}) {
   const messages: any[] = []; const children: any[] = []; const calls: any[] = [];
   const spawn = vi.fn((_file: string, _args: string[], settings: any) => {
     calls.push({ file: _file, args: _args, settings });
@@ -31,7 +31,7 @@ function acp(options: { version?: number; http?: boolean; google?: boolean; conf
     child.stdin = new Writable({ write(chunk, _encoding, done) {
       for (const line of chunk.toString().trim().split('\n')) {
         const message = JSON.parse(line); messages.push(message);
-        if (message.method === 'initialize') reply(message, { protocolVersion: options.version ?? 1, authMethods: options.google === false ? [] : [{ id: 'oauth-personal', name: 'Log in with Google' }], agentCapabilities: { loadSession: true, mcpCapabilities: { http: options.http !== false } } });
+        if (message.method === 'initialize' && !options.holdInitialize) reply(message, { protocolVersion: options.version ?? 1, authMethods: options.google === false ? [] : [{ id: 'oauth-personal', name: 'Log in with Google' }], agentCapabilities: { loadSession: true, mcpCapabilities: { http: options.http !== false } } });
         else if (message.method === 'authenticate') reply(message, {});
         else if (message.method === 'session/new' || message.method === 'session/load') {
           for (const text of options.replay ?? []) update({ sessionUpdate: 'user_message_chunk', content: { type: 'text', text } });
@@ -53,6 +53,28 @@ function acp(options: { version?: number; http?: boolean; google?: boolean; conf
 }
 
 describe('official Gemini CLI ACP runtime', () => {
+  it.each(['stdout','stderr'] as const)('settles an active Gemini %s failure even when the error observer throws',async stream=>{
+    const fake=acp({holdPrompt:true}),events:RuntimeEvent[]=[],runtime=createOfficialRuntime({dataDir:await data()},{spawn:fake.spawn});
+    runtime.configure({onEvent:event=>{events.push(event);if(event.type==='error')throw Error('Synthetic observer failure');},onTool:async()=>null});
+    try{
+      await runtime.start(run());await vi.waitFor(()=>expect(fake.messages.some(message=>message.method==='session/prompt')).toBe(true));
+      expect(()=>fake.children[0][stream].emit('error',Object.assign(Error('Private native diagnostic'),{code:'ENOTCONN'}))).not.toThrow();
+      await vi.waitFor(()=>expect(events.some(event=>event.type==='settled')).toBe(true));
+      expect(events.find(event=>event.type==='error')?.message).toBe('The native Gemini connection closed unexpectedly. Reconnect the provider and refresh models.');
+      expect(events.some(event=>event.type==='input.processing')).toBe(false);
+    }finally{await runtime.dispose();}
+  });
+  it('cancels the owned Gemini history fallback before disposal reports completion',async()=>{
+    const directory=await data(),manifest=await openManifest(directory,'gemini-cli','thread',null);manifest.value.sessionId='official-session';await saveManifest(manifest);
+    const fake=acp({holdInitialize:true}),runtime=createOfficialRuntime({dataDir:directory},{spawn:fake.spawn});
+    const history=runtime.history(manifest.path).catch(error=>error);let finished=false;void history.then(()=>{finished=true;});
+    try{
+      await vi.waitFor(()=>expect(fake.children).toHaveLength(1));
+      await runtime.dispose();
+      expect(finished).toBe(true);expect(fake.children[0].stdin.writableEnded).toBe(true);
+      expect(await history).toMatchObject({code:expect.stringMatching(/^OFFICIAL_/)});
+    }finally{fake.children.forEach(child=>child.stdin.end());await history;await runtime.dispose();}
+  });
   it.each([true,false])('compacts a resumed native session only when compress is advertised (%s)',async advertised=>{
     const directory=await data(),manifest=await openManifest(directory,'gemini-cli','thread',null);manifest.value.sessionId='official-session';await saveManifest(manifest);
     const fake=acp({commands:advertised,replay:['historical content']}),events:RuntimeEvent[]=[],runtime=createOfficialRuntime({dataDir:directory},{spawn:fake.spawn});

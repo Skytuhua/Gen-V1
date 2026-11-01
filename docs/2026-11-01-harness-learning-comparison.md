@@ -1,0 +1,75 @@
+# Procedural learning and open-source architecture comparison
+
+Last updated: 2026-11-01. Research baseline: `a9543794bffa5daacdf86a5e38b1f013acd99652`.
+
+The Harness now implements the core Hermes-style procedural-learning loop: discover a reusable procedure, load it when needed, improve it through versioned tools, and reuse it in another conversation. Eligible completed responses can trigger a separate model review. This is an adaptation of that loop, not a copy of the entire Hermes product or proof of equal quality with every open-source harness.
+
+## Pinned primary sources
+
+These are architecture references, not a popularity or performance ranking. Source and selected upstream tests were inspected; the upstream applications and their test suites were not run.
+
+| Project | Exact source revision | License | Useful pattern and Harness decision |
+| --- | --- | --- | --- |
+| Hermes Agent | [`c627ec84664d43e0b18b95d9d86d8963747d56c7`](https://github.com/NousResearch/hermes-agent/tree/c627ec84664d43e0b18b95d9d86d8963747d56c7) | MIT | Adapt procedural skills, actual post-turn review, usage/provenance, optional write approval and recoverable curation. |
+| Codex | [`67f0994b532b8740f14b5b738af7b7b2a915b1d6`](https://github.com/openai/codex/tree/67f0994b532b8740f14b5b738af7b7b2a915b1d6) | Apache-2.0; NOTICE | Adopt bounded discovery and explicit reads. Keep the existing Store and permission owner instead of importing the larger memory extraction/consolidation service. |
+| OpenCode | [`5e066ac922ba016dd4a225cd5dea16af829c5b8f`](https://github.com/anomalyco/opencode/tree/5e066ac922ba016dd4a225cd5dea16af829c5b8f) | MIT | Refresh the skill catalog when procedures change; preserve permission checks. No additional Effect/service/plugin framework. |
+| Pi | [`b556cfe5b0300a91f39c7bc5369a65a25fb7fcd5`](https://github.com/earendil-works/pi/tree/b556cfe5b0300a91f39c7bc5369a65a25fb7fcd5) | MIT | Validate skill metadata, expose bodies progressively, retain durable session history. Continue using the existing Pi adapter with explicit host tools. |
+| Goose | [`b23d21cabd9b4de0c045dcdd731821a3a15c2bfc`](https://github.com/aaif-goose/goose/tree/b23d21cabd9b4de0c045dcdd731821a3a15c2bfc) | Apache-2.0 | Keep skill loading under live session and permission authority; test discover → load → reuse. No separate recipe/workflow engine. |
+| Aider | [`5dc9490bb35f9729ef2c95d00a19ccd30c26339c`](https://github.com/Aider-AI/aider/tree/5dc9490bb35f9729ef2c95d00a19ccd30c26339c) | Apache-2.0 | Keep context selection bounded and cache useful metadata. No whole-repository context injection or new repository index for procedural learning. |
+
+Pi's canonical repository is `earendil-works/pi`; `badlogic/pi-mono` redirects there. Goose's canonical repository is `aaif-goose/goose`; `block/goose` redirects there. The references pin source bytes so later upstream changes do not silently redefine this comparison.
+
+### What the source supports
+
+- **Hermes:** [skill tools](https://github.com/NousResearch/hermes-agent/blob/c627ec84664d43e0b18b95d9d86d8963747d56c7/tools/skills_tool.py#L290) separate metadata from body/support-file reads. Its [background reviewer](https://github.com/NousResearch/hermes-agent/blob/c627ec84664d43e0b18b95d9d86d8963747d56c7/agent/background_review.py#L966) is actual detached inference with inherited routing, not just a prompt reminder. [Fresh-read guards](https://github.com/NousResearch/hermes-agent/blob/c627ec84664d43e0b18b95d9d86d8963747d56c7/tools/skill_manager_guards.py#L164), [index deltas](https://github.com/NousResearch/hermes-agent/blob/c627ec84664d43e0b18b95d9d86d8963747d56c7/agent/skills_index_delta.py#L101) and [idle curation](https://github.com/NousResearch/hermes-agent/blob/c627ec84664d43e0b18b95d9d86d8963747d56c7/agent/curator.py#L106) make persistence and later reuse part of the lifecycle.
+- **Codex:** [listing](https://github.com/openai/codex/blob/67f0994b532b8740f14b5b738af7b7b2a915b1d6/codex-rs/ext/skills/src/tools/list.rs#L32), [reading](https://github.com/openai/codex/blob/67f0994b532b8740f14b5b738af7b7b2a915b1d6/codex-rs/ext/skills/src/tools/read.rs#L103) and [rendering](https://github.com/openai/codex/blob/67f0994b532b8740f14b5b738af7b7b2a915b1d6/codex-rs/ext/skills/src/render.rs#L169) apply separate response/context budgets. Its [phase-one extraction](https://github.com/openai/codex/blob/67f0994b532b8740f14b5b738af7b7b2a915b1d6/codex-rs/memories/write/src/phase1.rs#L120) and [phase-two consolidation](https://github.com/openai/codex/blob/67f0994b532b8740f14b5b738af7b7b2a915b1d6/codex-rs/memories/write/src/phase2.rs#L48) have their own job and workspace ownership. That larger pipeline is unnecessary for the requested active-task procedures.
+- **OpenCode:** [skill instructions](https://github.com/anomalyco/opencode/blob/5e066ac922ba016dd4a225cd5dea16af829c5b8f/packages/core/src/skill/instructions.ts#L25) advertise metadata, honor denied/explicit-only skills and send catalog deltas. [Compaction](https://github.com/anomalyco/opencode/blob/5e066ac922ba016dd4a225cd5dea16af829c5b8f/packages/core/src/session/compaction.ts#L129) reserves context and bounds recovery attempts. These principles do not require adopting its whole architecture.
+- **Pi:** [skill validation/discovery](https://github.com/earendil-works/pi/blob/b556cfe5b0300a91f39c7bc5369a65a25fb7fcd5/packages/coding-agent/src/core/skills.ts#L277) and [metadata rendering](https://github.com/earendil-works/pi/blob/b556cfe5b0300a91f39c7bc5369a65a25fb7fcd5/packages/coding-agent/src/core/skills.ts#L350) keep source identity and loading explicit. Its [session tree](https://github.com/earendil-works/pi/blob/b556cfe5b0300a91f39c7bc5369a65a25fb7fcd5/packages/coding-agent/src/core/session-manager.ts#L977) preserves append-only history; [compaction](https://github.com/earendil-works/pi/blob/b556cfe5b0300a91f39c7bc5369a65a25fb7fcd5/packages/coding-agent/src/core/compaction/compaction.ts#L193) distinguishes reported usage from estimates.
+- **Goose:** [skill dispatch](https://github.com/aaif-goose/goose/blob/b23d21cabd9b4de0c045dcdd731821a3a15c2bfc/crates/goose/src/agents/state_machine/ops_skills.rs#L327) uses a live session lease and ordinary permission disposition. [Lifecycle tests](https://github.com/aaif-goose/goose/blob/b23d21cabd9b4de0c045dcdd731821a3a15c2bfc/crates/goose/src/agents/state_machine/tests/prompt_skill_lifecycle.rs#L50) explicitly separate discovery, body/support-file loading and newly created skill visibility.
+- **Aider:** [RepoMap](https://github.com/Aider-AI/aider/blob/5dc9490bb35f9729ef2c95d00a19ccd30c26339c/aider/repomap.py#L24) starts with a 1,024-token map budget, caches work and constrains expansion by the available context window. That is a repository-map design, not an autonomous skill-generation system; the transferable lesson here is bounded context.
+
+## What is integrated
+
+The application owns one skill library in its existing SQLite Store. No Python runtime, additional database, daemon or new dependency was added. The same registered host tools serve Pi and the official runtime adapters.
+
+| Area | Implemented behavior | Main source |
+| --- | --- | --- |
+| Discover and reuse | `skills_list` returns bounded metadata pages; `skill_view` loads one selected body or supporting text file. Changed metadata reaches subsequent turns. Ambient SDK directory scanning stays disabled. | [skills.ts](../packages/core/skills.ts), [tool-definitions.ts](../packages/runtime-pi/tool-definitions.ts), [service.ts](../packages/core/service.ts) |
+| Evolve safely | `skill_manage.operations[]` creates, patches/rewrites, writes/removes supporting files, archives, restores or rolls back. One transaction commits the batch, immutable versions retain its history, and exact base revisions reject stale writes. | [skills.ts](../packages/core/skills.ts), [store.ts](../packages/storage/store.ts) |
+| Automatic review | A separate owned runtime reviews an eligible completed response using its captured model/account. It can inspect skills, search app conversations and save lessons. No change is a valid result. | [learning.ts](../packages/core/learning.ts), [learning-context.ts](../packages/core/learning-context.ts), [host.ts](../apps/server/host.ts) |
+| Ownership and cost | At most one review; foreground work preempts it. Dispatch is restricted, existing targets require review-local reads, late callbacks lose authority, and uncertain teardown remains visibly blocked. Status records actual runtime usage when available and committed changes. Restart does not replay paid review work. | [learning.ts](../packages/core/learning.ts), [service.ts](../packages/core/service.ts) |
+| User control | Settings → Skills provides inspection/editing, enable/disable, protection, archive/restore, history/rollback, optional batch approval and review cancellation. Bodies/proposal details load through authenticated, noncached reads. | [SkillLibrary.tsx](../apps/web/src/SkillLibrary.tsx), [server.ts](../apps/server/server.ts) |
+| Reversible curation | Weekly after two idle hours, deterministic curation marks unused managed agent skills stale after 14 days and archives after 30. User-maintained, disabled and protected skills are preserved. | [skills.ts](../packages/core/skills.ts), [service.ts](../packages/core/service.ts) |
+| Explicit learning and recall | `/learn` asks the foreground agent to distill a proven workflow or supplied sources. `session_search` returns bounded, source-labeled conversation excerpts; these grant no execution authority. | [learning-context.ts](../packages/core/learning-context.ts) |
+
+Defaults enable learning reviews, automatic agent writes and idle curation. Optional approval stages agent writes until the user approves the complete batch. Set the review interval to zero or disable automatic reviews to avoid that additional inference. Plan mode and auxiliary readers can read procedures but cannot mutate the library; independent side conversations retain their existing narrower tool boundary.
+
+The library allows 128 records, 32 supporting files per skill, 64 KiB per body/file, 128 KiB per package and 32 operations per batch. Listing/history are paged and byte-bounded. Full bodies and supporting files stay out of general snapshots and skill-read events. Support paths are virtual text identifiers, not filesystem grants.
+
+## Deliberate Hermes differences
+
+| Hermes behavior | Harness adaptation |
+| --- | --- |
+| Default nudge cadence counts ten tool-calling agent-loop iterations. | Counts ten foreground **host tool calls** by default, then checks eligibility after settlement. Different SDKs do not expose one uniform iteration counter. This is not a forced skill write every ten calls. |
+| Detached reviewer inherits the original system/tool/cache setup and supports configurable routing. | Uses the existing shared runtime factory with the source task's selected model, account and thinking level; a detached session receives a bounded canonical excerpt and host tools. Exact native prompt/cache parity and alternate review routing are not claimed. |
+| Background inference has iteration and cumulative input limits. | Limits a review to 16 tool calls, 60 seconds, and 64 KiB of host prompt plus returned tool results. SDK/provider system-prompt overhead is outside that byte counter; it is not a total billed-token or monetary cap. |
+| Filesystem skill packages, ledger manifests and backup blobs support recovery. | App-owned immutable SQLite versions and transactions provide batch atomicity, provenance, rollback and recoverable archives. User reads can return a canonical SKILL.md document; supporting resources remain text. |
+| Skill viewing may preprocess inline shell and ensure dependencies. | Loading is data-only. Scripts and dependency installation require the existing explicit execution/approval path. Skill text cannot grant access or approve an effect. |
+| Optional project/external roots, marketplace, memory providers, user modeling, learning graphs and broader platform integrations. | These are outside this integration. No arbitrary root scan, global Codex-profile modification, additional memory backend, visual learning graph or new scheduler. |
+| Curator includes optional model-based consolidation. | Deterministic idle curation only; no consolidation inference or permanent autonomous deletion. |
+| Rich cross-session retrieval and source-learning surfaces. | Bounded SQL text search over this app's stored conversations and a `/learn` authoring request through existing tools. No FTS/vector service, autonomous URL importer or new file access. |
+
+The Hermes MIT notice and source manifest are retained under [third-party/hermes-agent](../third-party/hermes-agent/README.md) and included by desktop packaging. This change adapts Hermes guidance and behavior; it does not vendor the other projects or their skill corpora.
+
+## Quality and evidence boundaries
+
+Acceptance is split by what it proves:
+
+- Library/owner/Service tests exercise atomic batches, fresh reads, revision conflicts, protected ownership, approvals, rollback, restart/reuse, cancellation, bounds, teardown and curation using real app storage with deterministic runtime adapters.
+- Provider integration tests cover all nine advertised IDs: `openai`, `openai-codex`, `github-copilot`, `xai`, `claude-code`, `gemini-cli`, `cursor-sdk`, `kimi-coding` and `opencode-go`. They exercise the real router and shared Service, including source-account pinning after a default-account change. Installed SDK/MCP and authenticated HTTP checks cover tool registration, dispatch and private-body boundaries. These are routing/protocol tests, not live provider inference.
+- Browser tests exercise skill inspection, edits/conflicts, approvals, history, archive/restore, controls and retained drafts with explicit fixtures. Visual checks cover narrow/desktop themes and reduced motion; they do not establish autonomous learning quality.
+- Native process/history regression tests cover the pipe and auxiliary-session ownership paths used by automatic reviews. Packaged bootstrap, actual signed-in model behavior and long-term skill usefulness remain distinct acceptance scopes.
+
+Final full-suite/build/package results are recorded in the [verification report](2026-11-01-hermes-learning-verification.md). A passing local suite does not prove live-account entitlements, correct autonomous procedure selection, fewer future failures or parity with every upstream product. The existing [source-review limits](source-review-20261101.md), [account acceptance limits](subscription-accounts-parity-20261101.md) and [desktop/display boundaries](native-multi-monitor.md) remain applicable.
+
+The next useful quality gate is a small live-model trial: complete a real granted task, inspect the generated procedure and its provenance, restart, then use it on a different task and verify the result. Record model/account, actual usage, changes and failures. There is no reason to add more architecture before that loop demonstrates useful learning.

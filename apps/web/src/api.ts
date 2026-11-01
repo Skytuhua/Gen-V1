@@ -44,6 +44,8 @@ export async function command(type: string, payload: Record<string, unknown> = {
 }
 
 export const getSnapshot = () => authenticated(() => fetch('/api/snapshot', { credentials: 'same-origin', cache: 'no-store' })).then(read<Snapshot>);
+export const getSkill=(name:string,options:{path?:string;revision?:number;versionOffset?:number;includeInactive?:boolean}={})=>{const query=new URLSearchParams(Object.entries(options).filter(([,value])=>value!==undefined).map(([key,value])=>[key,String(value)])).toString();return authenticated(()=>fetch(`/api/skills/${encodeURIComponent(name)}${query?'?'+query:''}`,{credentials:'same-origin',cache:'no-store'})).then(read<import('../../../packages/contracts/skills.ts').SkillDetail>);};
+export const getSkillProposal=(id:string)=>authenticated(()=>fetch(`/api/skill-proposals/${encodeURIComponent(id)}`,{credentials:'same-origin',cache:'no-store'})).then(read<import('../../../packages/contracts/skills.ts').SkillProposal>);
 export const getModels = (refresh = false, threadId?: string) => {
   const query = new URLSearchParams({ ...(refresh ? { refresh: '1' } : {}), ...(threadId ? { threadId } : {}) }).toString();
   return authenticated(() => fetch(`/api/models${query ? `?${query}` : ''}`, { credentials: 'same-origin', cache: 'no-store' })).then(read<{ models: ModelInfo[]; error?: string }>);

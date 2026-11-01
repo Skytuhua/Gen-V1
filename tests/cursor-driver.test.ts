@@ -29,6 +29,18 @@ function transport(onInit?: (child: any, init: any) => void) {
 const wire = { uuid: 'wire-uuid', text: '[harness-input:v1] {"inputId":"input-1","inputIds":["input-1"],"threadId":"thread","runId":"run-host","epoch":3}\n{"prompt":"hello","resources":[]}', inputIds: ['input-1'] };
 
 describe('Cursor official worker facade', () => {
+  it.each(['stdout','stderr'] as const)('contains Cursor %s errors and settles even when the error observer throws',async stream=>{
+    const {openCursor}=await import('../packages/runtime-official/cursor.ts');
+    const f=await fixture(),t=transport(child=>child.emit('message',{type:'ready',sessionId:'native-session',models:[{id:'cursor-sdk/native-model',provider:'cursor-sdk',name:'Native'}]}));
+    const driver=await openCursor(f.ctx,t.spawn as any,'native-model');
+    const event=f.ctx.event;f.ctx.event=(type,value)=>{event(type,value);if(type==='error')throw Error('Synthetic observer failure');};
+    try{
+      expect(()=>t.children[0][stream].emit('error',Object.assign(Error('Private native diagnostic'),{code:'ENOTCONN'}))).not.toThrow();
+      await vi.waitFor(()=>expect(f.events.some(event=>event.type==='settled')).toBe(true));
+      expect(f.events.find(event=>event.type==='error')?.message).toBe('The native Cursor connection closed unexpectedly. Reconnect the provider and refresh models.');
+      await vi.waitFor(()=>expect(t.children[0].exitCode).toBe(0));
+    }finally{await driver.close();}
+  });
   it('exists without importing or starting the native SDK in the host', async () => {
     const module = await import('../packages/runtime-official/cursor.ts').catch(() => undefined);
     expect(module?.openCursor, 'native work must have an existing authority-owned facade').toBeTypeOf('function');

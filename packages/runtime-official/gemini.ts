@@ -75,7 +75,7 @@ export async function openGemini(context: DriverContext, spawnProcess: typeof sp
     env: { ...officialRuntimeEnvironment(context.dataDir, 'gemini-cli'), NO_BROWSER: 'true', GEMINI_CLI_SYSTEM_SETTINGS_PATH: settingsPath, GEMINI_SYSTEM_MD: promptPath },
     stdio: ['pipe', 'pipe', 'pipe'], detached: process.platform !== 'win32', windowsHide: true,
   });
-  context.own(child); child.stderr?.resume();
+  context.own(child);
   let closed = false;
   let sessionId = context.manifest.value.sessionId;
   let replaying = !!sessionId;
@@ -109,6 +109,7 @@ export async function openGemini(context: DriverContext, spawnProcess: typeof sp
     if (update.sessionUpdate === 'agent_message_chunk' && update.content?.type === 'text' && typeof update.content.text === 'string') content += update.content.text;
     if (update.sessionUpdate === 'usage_update') contextUsage = { contextTokens: finite(update.used), contextWindow: finite(update.size) };
   });
+  child.stderr?.resume();
   const assert = () => { if (!context.current() || closed) throw new HarnessError('OFFICIAL_RUN_ABORTED', 'Official run authority was revoked.'); };
   async function prompt(text: string) {
     assert();
@@ -134,7 +135,11 @@ export async function openGemini(context: DriverContext, spawnProcess: typeof sp
         if (!queue.length) context.event('settled', { aborted: result.stopReason === 'cancelled' });
       }
     } catch (error) {
-      if (context.current() && !closed) { context.event('error', { message: error instanceof Error ? error.message : 'Official Gemini CLI failed. Delivery remains uncertain.' }); context.event('settled', { aborted: false }); }
+      if (context.current() && !closed) {
+        try { context.event('error', { message: error instanceof Error ? error.message : 'Official Gemini CLI failed. Delivery remains uncertain.' }); } catch { /* Notification cannot prevent settlement. */ }
+        try { context.event('settled', { aborted: false }); } catch { /* Notification cannot prevent teardown. */ }
+        await driver.close();
+      }
     } finally { processing = false; }
   }
   const driver: OfficialDriver = {
@@ -197,17 +202,18 @@ export async function openGemini(context: DriverContext, spawnProcess: typeof sp
   } catch (error) { await driver.close(); throw error; }
 }
 
-export async function geminiHistory(dataDir: string, manifest: ManifestState, spawnProcess: typeof spawn): Promise<HistoryReceipt[]> {
+export async function geminiHistory(dataDir: string, manifest: ManifestState, spawnProcess: typeof spawn, owner?: Pick<DriverContext, 'current' | 'ready'>): Promise<HistoryReceipt[]> {
   const native = await import('./gemini-native-history.ts');
   if (await native.findGeminiNativeSession(dataDir, manifest)) return native.readGeminiNativeHistory(dataDir, manifest);
   let current = true;
+  const active = () => current && (owner?.current() ?? true);
   const children = new Set<ChildProcess>();
   let driver: OfficialDriver | undefined;
-  const mcp = await createHostMcp({ ctx: { threadId: manifest.value.threadId, runId: 'history', epoch: 0 }, current: () => current, onTool: async () => { throw new Error('History replay cannot execute host tools.'); }, tools: [] });
+  const mcp = await createHostMcp({ ctx: { threadId: manifest.value.threadId, runId: 'history', epoch: 0 }, current: active, onTool: async () => { throw new Error('History replay cannot execute host tools.'); }, tools: [] });
   try {
     await secureDirectory(dataDir, dirname(manifest.path));
-    driver = await openGemini({ dataDir, taskDir: dirname(manifest.path), manifest, mcp, current: () => current,
-      event() {}, observed: async () => [], inputIds: () => [], own(child) { children.add(child); child.once('exit', () => children.delete(child)); }, ready(value) { driver = value; },
+    driver = await openGemini({ dataDir, taskDir: dirname(manifest.path), manifest, mcp, current: active,
+      event() {}, observed: async () => [], inputIds: () => [], own(child) { children.add(child); child.once('exit', () => children.delete(child)); }, ready(value) { driver = value; owner?.ready(value); },
     }, spawnProcess, undefined, true);
     return Object.entries(manifest.value.inputs).filter(([, receipt]) => receipt.observed).map(([uuid, receipt]) => ({ uuid, inputIds: [...receipt.inputIds] }));
   } finally {

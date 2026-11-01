@@ -9,11 +9,12 @@ import { DEPENDENCY_NOTICES } from './dependency-notices';
 import {DraftTransfer} from './DraftTransfer';
 import {useDesktop} from './desktop-context';
 import { Connections, matchingSubscriptionConnections } from './Connections';
+import {SkillLibrary} from './SkillLibrary';
 import { version } from '../../../package.json';
 
 export const SETTINGS_SECTIONS = [
   ['general', 'General'], ['appearance', 'Appearance'], ['chat', 'Chat'], ['diffs', 'Diffs & pull requests'], ['keybindings', 'Keybindings'], ['snap-shot', 'SnapShots'],
-  ['providers', 'Providers'], ['threads', 'Threads'], ['browser', 'Browser'], ['devices', 'Devices'], ['scheduled-tasks', 'Scheduled tasks'],
+  ['providers', 'Providers'], ['skills', 'Skills & learning'], ['threads', 'Threads'], ['browser', 'Browser'], ['devices', 'Devices'], ['scheduled-tasks', 'Scheduled tasks'],
   ['projects', 'Projects'], ['source-control', 'Source control'], ['worktrees', 'Worktrees'], ['connections', 'Environments'], ['access', 'Sharing & access'], ['secrets', 'Secrets'],
   ['maintenance', 'Maintenance'], ['labs', 'Labs'], ['about', 'About'], ['archived', 'Archive'], ['diagnostics', 'Diagnostics'], ['licenses', 'Licenses'],
 ] as const;
@@ -54,6 +55,8 @@ export const SETTINGS_ROWS = [
   extra('harness-live-usage','Live usage','chat','tokens context plan subscription quota cost live meter bottom right'),
   extra('harness-font-size', 'Font size', 'appearance', 'text typography pixels'), extra('harness-motion-duration', 'Motion duration', 'appearance', 'animation speed milliseconds'),
   extra('harness-local-models', 'Available models', 'providers', 'pi runtime connection refresh authentication'),
+  extra('harness-skills','Skills & learning','skills','skill library self improvement automatic learning reviews approval agent writes tool calls interval idle curation archive restore rollback'),
+  extra('harness-hermes-license','Hermes Agent learning','licenses','self improvement skills Nous Research MIT'),
   extra('harness-runtime', 'Local runtime', 'connections', 'Pi browser host'),
   extra('harness-export-diagnostics', 'Workspace diagnostics', 'diagnostics', 'host connection counts accepted sequence'),
   extra('harness-licenses', 'Application and dependency notices', 'licenses', 'license source repository attribution'),
@@ -85,7 +88,7 @@ const unavailableReasons: Record<string, string> = {
 export function settingAvailability(row: SettingsInventoryRow): Availability {
   if (supportedT3Shortcuts[row.id] || row.id === 'keybindings') return 'Adapted';
   if (preferenceRows[row.id]) return preferenceRows[row.id]!.adapted ? 'Adapted' : 'Working';
-  if (['harness-draft-transfer','color-scheme', 'harness-export-diagnostics', 'harness-licenses', 'harness-local-models', 'panel-licenses-dependency-license-notices'].includes(row.id) || row.id.startsWith('harness-keybinding-') || row.id.startsWith('license-')) return 'Working';
+  if (['harness-draft-transfer','color-scheme', 'harness-export-diagnostics', 'harness-licenses', 'harness-hermes-license', 'harness-skills', 'harness-local-models', 'panel-licenses-dependency-license-notices'].includes(row.id) || row.id.startsWith('harness-keybinding-') || row.id.startsWith('license-')) return 'Working';
   if (['providers', 'default-model', 'archive', 'project-overview', 'app-version', 'open-source-licenses', 'diagnostics', 'harness-runtime'].includes(row.id)) return 'Adapted';
   return 'Unavailable';
 }
@@ -126,6 +129,7 @@ export function Settings({ snapshot, modelError, refresh, loadModels, close, add
 
   const preferences = getPreferences(snapshot.settings);
   useEffect(() => { dialog.current?.showModal(); }, []);
+  useLayoutEffect(() => { if(section==='skills'&&!query.trim())dialog.current?.querySelector<HTMLElement>('.settings-navigation [aria-current="page"]')?.scrollIntoView({block:'nearest',inline:'nearest'}); }, [section,query]);
   const persist = async (payload: Record<string, unknown>) => {
     setBusy(true); setSaved(false); setError('');
     try { await command('settings.update', payload); await refresh(); setSaved(true); }
@@ -162,16 +166,19 @@ export function Settings({ snapshot, modelError, refresh, loadModels, close, add
       case 'harness-runtime': return { description: desktop?'Runs locally in the Windows app. Connect a subscription in Providers, then refresh models.':'Uses the local host. Connect a subscription with pnpm agent:login in the project terminal, then refresh models.', control: <span className="settings-value">Local host</span> };
       case 'open-source-licenses': return { description: 'Source and dependency license information for this application and the pinned T3 reference.', control: <button className="secondary" onClick={() => { setQuery(''); setSection('licenses'); }}>View licenses</button> };
       case 'harness-licenses': return { description: 'Account picker code is adapted from T3 Code. Copyright (c) 2026 T3 Tools Inc., MIT License. See third-party/t3code for the complete license and pinned source notices.', control: <a href="https://github.com/pingdotgg/t3code/blob/8760d063e903406c8e8f695b0852c0a15fc1e00f/LICENSE" target="_blank" rel="noreferrer">T3 source license<ExternalLink size={12} /></a> };
+      case 'harness-hermes-license': return {description:'Skill learning is adapted from Hermes Agent. Copyright (c) 2025 Nous Research, MIT License. The pinned source and complete notice are retained under third-party/hermes-agent.',control:<a href="https://github.com/NousResearch/hermes-agent/blob/c627ec84664d43e0b18b95d9d86d8963747d56c7/LICENSE" target="_blank" rel="noreferrer">Hermes source license<ExternalLink size={12}/></a>};
+      case 'harness-skills': return {description:'Inspect reusable procedures, review proposed changes and control automatic learning.',control:<button className="secondary" onClick={()=>{setQuery('');setSection('skills');}}>Open skills and learning</button>};
       case 'panel-licenses-dependency-license-notices': return { description: 'The direct dependencies below were checked against their installed package manifests. Full transitive distribution notices are not yet assembled in this browser interface.', control: <span className="settings-value">{DEPENDENCY_NOTICES.length} direct dependencies</span> };
       default: return { description: unavailableReasons[row.section] ?? 'This T3 capability has no implemented adapter.', control: <button className="secondary" disabled>Unavailable</button> };
     }
   };
-  return <dialog ref={dialog} className="settings-dialog" aria-label="Settings" onCancel={close} onClick={event => { if (event.target === event.currentTarget) close(); }}>
+  return <dialog ref={dialog} className={`settings-dialog${!tokens.length&&section==='skills'?' settings-skills':''}`} aria-label="Settings" onCancel={close} onClick={event => { if (event.target === event.currentTarget) close(); }}>
     <header><button className="icon-button" aria-label="Close settings" onClick={close}><ArrowLeft size={17} /></button><strong>Settings</strong><span className="settings-save-state" role="status">{busy ? 'Saving…' : saved ? <><Check size={12} />Saved</> : null}</span><button className="icon-button" aria-label="Dismiss settings" onClick={close}><X size={17} /></button></header>
-    <div className="settings-layout"><aside className="settings-navigation"><label className="settings-search"><Search size={14} /><input type="search" aria-label="Search all settings" placeholder="Search settings" value={query} onChange={event => setQuery(event.target.value)} /></label><nav aria-label="Settings sections">{SETTINGS_SECTIONS.map(([id, label], index) => <button key={id} className={`${!tokens.length && section === id ? 'selected' : ''} ${[6, 11, 14, 17, 21].includes(index) ? 'settings-group-start' : ''}`} onClick={() => { setQuery(''); setSection(id); }} aria-current={!tokens.length && section === id ? 'page' : undefined}>{label}</button>)}</nav><a className="settings-reference" href={T3_SETTINGS_SOURCE} target="_blank" rel="noreferrer">T3 reference · da8cc591<ExternalLink size={11} /></a></aside>
+    <div className="settings-layout"><aside className="settings-navigation"><label className="settings-search"><Search size={14} /><input type="search" aria-label="Search all settings" placeholder="Search settings" value={query} onChange={event => setQuery(event.target.value)} /></label><nav aria-label="Settings sections">{SETTINGS_SECTIONS.map(([id, label]) => <button key={id} className={`${!tokens.length && section === id ? 'selected' : ''} ${['providers','projects','connections','maintenance','diagnostics'].includes(id) ? 'settings-group-start' : ''}`} onClick={() => { setQuery(''); setSection(id); }} aria-current={!tokens.length && section === id ? 'page' : undefined}>{label}</button>)}</nav><a className="settings-reference" href={T3_SETTINGS_SOURCE} target="_blank" rel="noreferrer">T3 reference · da8cc591<ExternalLink size={11} /></a></aside>
     <main className="settings-content"><div className="settings-page-heading"><h1>{heading}</h1><p>Each setting shows what is supported here.</p></div>{error && <p role="alert" className="notice error-text">{error}</p>}
-      {rows.map(row => { const { description, control } = details(row); const availability = settingAvailability(row); return <section key={row.id} className="settings-row" data-setting-id={row.id} data-availability={availability.toLowerCase()}><div className="settings-row-copy"><h2><span>{row.title}</span><span className={`availability availability-${availability.toLowerCase()}`}>{availability}</span></h2>{tokens.length > 0 && <span className="settings-result-section">{SETTINGS_SECTIONS.find(item => item[0] === row.section)?.[1]}</span>}<p>{description}</p></div><div className="settings-row-control">{control}</div></section>; })}
-      {!rows.length && !subscriptionCount && <p className="settings-empty">No matching settings. Search covers every section, including unavailable capabilities.</p>}
+      {rows.filter(row=>tokens.length||section!=='skills'||row.id!=='harness-skills').map(row => { const { description, control } = details(row); const availability = settingAvailability(row); return <section key={row.id} className="settings-row" data-setting-id={row.id} data-availability={availability.toLowerCase()}><div className="settings-row-copy"><h2><span>{row.title}</span><span className={`availability availability-${availability.toLowerCase()}`}>{availability}</span></h2>{tokens.length > 0 && <span className="settings-result-section">{SETTINGS_SECTIONS.find(item => item[0] === row.section)?.[1]}</span>}<p>{description}</p></div><div className="settings-row-control">{control}</div></section>; })}
+      {!tokens.length&&section==='skills'&&<SkillLibrary snapshot={snapshot} preferences={preferences} update={update} refresh={refresh} busy={busy}/>}
+      {!rows.length && !subscriptionCount && section!=='skills' && <p className="settings-empty">No matching settings. Search covers every section, including unavailable capabilities.</p>}
       {!tokens.length && section === 'archived' && snapshot.archivedThreads?.map(thread => <section key={thread.id} className="settings-row"><div className="settings-row-copy"><h2>{thread.title}</h2><p>{thread.projectName ?? 'Conversation'} · {thread.status}</p></div><button className="secondary" disabled={busy} onClick={() => { setBusy(true); void command('thread.restore', {}, thread.id).then(refresh).catch(cause => setError(String(cause))).finally(() => setBusy(false)); }}>Restore thread</button></section>)}
       {(!tokens.length && section === 'providers' || subscriptionCount > 0) && <Connections models={newTaskModels} snapshot={snapshot} refresh={refresh} loadModels={refreshModels} query={tokens.length ? query : ''} />}
       {!tokens.length && section === 'licenses' && <div className="settings-license-notes"><p>Core interface: React (MIT), lucide-react (ISC), json-render (Apache-2.0). PDF: pdf-lib (MIT), PDF.js (Apache-2.0). Local server: Fastify (MIT). Validation: Ajv and Zod (MIT). These package names identify installed dependencies; their license files remain authoritative.</p></div>}
