@@ -1,7 +1,6 @@
 import Ajv from "ajv";
 import { HarnessError, type WidgetDefinition } from "../contracts/index.ts";
 import { createHash } from "node:crypto";
-import { widgetShellDocument, WIDGET_SHELL_CSP } from "../widgets/document.ts";
 const ajv = new Ajv({ allErrors: true, strict: false, validateFormats: false });
 // Enable only after storage, startup, and browser responsiveness gates pass.
 export const GENERATED_APPS_ENABLED = false;
@@ -44,8 +43,4 @@ export function widgetDefinition(args: Record<string, unknown>): WidgetDefinitio
     admitSchema(args[name] as Record<string, unknown>);
   }
   return { html: args.html, hash: createHash("sha256").update(args.html).digest("hex"), inputSchema: args.inputSchema as Record<string, unknown>, eventSchema: args.eventSchema as Record<string, unknown>, stateSchema: args.stateSchema as Record<string, unknown>, stateSchemaVersion: Number(args.stateSchemaVersion ?? 1) };
-}
-export const WIDGET_CSP = WIDGET_SHELL_CSP;
-export function widgetDocument(_widget: WidgetDefinition, artifactId: string): string {
-  return widgetShellDocument(artifactId);
 }

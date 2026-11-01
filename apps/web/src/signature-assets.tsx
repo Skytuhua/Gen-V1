@@ -56,16 +56,14 @@ export async function fetchSignaturePng(resourceId: string, signal?: AbortSignal
   } finally { clearTimeout(timer); }
 }
 
-type Assets = { pending: boolean; beginPreparation():()=>void; preview(stateKey: string): string | undefined; error(stateKey: string): string | undefined; save(stateKey: string, bytes: Uint8Array): void; clear(stateKey: string): void; retry(): void; get(resourceId: string, signal?: AbortSignal): Promise<Uint8Array> };
+type Assets = { beginPreparation():()=>void; preview(stateKey: string): string | undefined; error(stateKey: string): string | undefined; save(stateKey: string, bytes: Uint8Array): void; clear(stateKey: string): void; retry(): void; get(resourceId: string, signal?: AbortSignal): Promise<Uint8Array> };
 const Context = createContext<Assets | null>(null);
 export const useDocumentAssets = () => useContext(Context);
-export const useHasPendingDocumentAssets = () => useDocumentAssets()?.pending ?? false;
 
 /** Write-ahead PNG journal survives refresh; replay uses the same host command ID. */
 export function DocumentAssetProvider({ threadId, stateId = '', children }: { threadId: string; stateId?: string; children: ReactNode }) {
   const store = useStateStore(), key = keyFor(threadId, stateId);
   const revision = useSyncExternalStore(subscribe, () => version);
-  const records = read(key);
   useEffect(() => {
     let alive = true;
     for (const record of read(key)) {
@@ -85,7 +83,6 @@ export function DocumentAssetProvider({ threadId, stateId = '', children }: { th
     return () => { alive = false; };
   }, [key, threadId, revision, store]);
   const value = useMemo<Assets>(() => ({
-    pending: records.length > 0||(preparationCounts.get(key)??0)>0,
     beginPreparation:()=>{preparationCounts.set(key,(preparationCounts.get(key)??0)+1);emit();let completed=false;return()=>{if(completed)return;completed=true;const remaining=(preparationCounts.get(key)??1)-1;if(remaining>0)preparationCounts.set(key,remaining);else preparationCounts.delete(key);emit();};},
     preview: stateKey => { const record = read(key).find(item => item.stateKey === stateKey); return record ? `data:image/png;base64,${record.base64}` : undefined; },
     error: stateKey => read(key).find(item => item.stateKey === stateKey)?.error,

@@ -7,7 +7,8 @@ import { z } from "zod";
 import { Service } from "../../packages/core/service.ts";
 import { HarnessError, type ArtifactRecord, type ResourceGrant } from "../../packages/contracts/index.ts";
 import { inside } from "../../packages/core/security.ts";
-import { WIDGET_CSP, widgetDocument, GENERATED_APPS_ENABLED } from "../../packages/core/widgets.ts";
+import { GENERATED_APPS_ENABLED } from "../../packages/core/widgets.ts";
+import { WIDGET_SHELL_CSP, widgetShellDocument } from "../../packages/widgets/document.ts";
 import { WIDGET_WORKER_PATH, WIDGET_WORKER_CSP } from "../../packages/widgets/protocol.ts";
 import {SessionCredentials} from '../../packages/core/credential-slots.ts';
 import { streamEvents } from './event-stream.ts';
@@ -186,7 +187,7 @@ export async function buildWidgetServer(service: Service, mounts: MountRegistry,
     if (!mount || mount.expiresAt < Date.now() || mount.artifactId !== request.params.id || mount.revision !== Number(request.params.revision)) return reply.code(403).send("Mount ticket expired. Reopen the interface.");
     const artifact = service.store.get<ArtifactRecord>("artifactVersion", mount.artifactId + "@" + mount.revision);
     if (!artifact?.widget) return reply.code(404).send("Widget unavailable");
-    return reply.header("Content-Security-Policy", WIDGET_CSP).header("Referrer-Policy", "no-referrer").header("X-Content-Type-Options", "nosniff").header("Cache-Control", "no-store").type("text/html; charset=utf-8").send(widgetDocument(artifact.widget, artifact.id));
+    return reply.header("Content-Security-Policy", WIDGET_SHELL_CSP).header("Referrer-Policy", "no-referrer").header("X-Content-Type-Options", "nosniff").header("Cache-Control", "no-store").type("text/html; charset=utf-8").send(widgetShellDocument(artifact.id));
   });
   return app;
 }

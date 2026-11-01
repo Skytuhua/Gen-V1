@@ -34,10 +34,8 @@ Integration:
   the existing React bridge still validates schemas/actions and owns durability.
 - Parent checkpoints include `clientId: widget:${artifactId}:${mountId}`, exactly
   the client ID used by `edit.begin`. A checkpoint resolves only on host receipt.
-- Discovery should expose `WIDGET_RUNTIME` from `protocol.ts`, including supported
-  and unsupported capabilities and limits. `ui_discover` currently returns it
-  under `generatedApps.runtime`, the style guide under `generatedApps.style`,
-  and `available:false` with the pending-gate reason. Final production-host,
+- `ui_discover` reports generated apps as unavailable with the pending-gate
+  reason. Supported APIs, limits and styles are documented below. Final production-host,
   isolation and browser responsiveness evidence must precede enablement.
 
 The receiver sandbox is `allow-scripts` only. Opaque origin rules deny native
@@ -49,8 +47,7 @@ PDF.js workers used by DocumentPreview; generated apps do not gain canvas/PDF AP
 
 ## Host-owned styles
 
-`theme.ts` exports `WIDGET_BASE_CSS`, injected by the fixed shell, and
-`WIDGET_STYLE_GUIDE`, exposed through discovery. Generated markup can use
+`theme.ts` exports `WIDGET_BASE_CSS`, injected by the fixed shell. Generated markup can use
 `task-stack`, `task-row`, `task-split`, `task-panel`, `task-caption`, `task-choice`,
 `task-actions`, `task-primary`, `task-status` and `task-branch` without copying
 shell CSS. The host supplies `--foreground`, `--muted-foreground`, `--card`,

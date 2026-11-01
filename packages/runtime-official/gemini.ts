@@ -3,7 +3,6 @@ import { randomUUID } from 'node:crypto';
 import { readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { HarnessError, type ModelInfo } from '../contracts/index.ts';
-import { messageInputIds } from '../runtime-pi/input-envelope.ts';
 import { terminateProcessTree } from '../runtime-pi/process-tree.ts';
 import { hostSystemPrompt } from '../runtime-pi/tool-definitions.ts';
 import {MODEL_ONLY_SYSTEM_PROMPT,MODEL_ONLY_MAX_WIRE_BYTES} from '../runtime/model-only.ts';
@@ -12,6 +11,7 @@ import { officialRuntimeCommand, officialRuntimeEnvironment, officialRuntimeHome
 import { bounded, finite, type DriverContext, type HistoryReceipt, type OfficialDriver, type WireInput } from './internal.ts';
 import { saveManifest, secureDirectory, type ManifestState } from './manifest.ts';
 import { createHostMcp } from './mcp.ts';
+import { leadingReceipts } from './receipts.ts';
 
 const BUILTIN_TOOLS = ['list_directory', 'read_file', 'read_many_files', 'glob', 'grep_search', 'run_shell_command', 'write_file', 'replace', 'web_fetch', 'google_web_search', 'write_todos', 'activate_skill', 'ask_user', 'get_internal_docs', 'invoke_agent', 'enter_plan_mode', 'exit_plan_mode', 'update_topic', 'complete_task', 'read_mcp_resource', 'list_mcp_resources', 'list_background_processes', 'read_background_output', 'tracker_create_task', 'tracker_update_task', 'tracker_get_task', 'tracker_list_tasks', 'tracker_add_dependency', 'tracker_visualize', 'take_snapshot'];
 
@@ -33,16 +33,6 @@ function advertisedModels(response: any): { models: ModelInfo[]; configId?: stri
   const choices = response.models?.availableModels;
   if (!Array.isArray(choices)) throw new HarnessError('OFFICIAL_MODEL_UNAVAILABLE', 'The official Gemini session did not advertise models.');
   return { models: choices.filter((model: any) => typeof model.modelId === 'string' && model.modelId && !/[\s\u0000]/.test(model.modelId)).map((model: any) => ({ id: `gemini-cli/${model.modelId}`, provider: 'gemini-cli', name: typeof model.name === 'string' ? model.name : model.modelId })) };
-}
-
-function replayReceipts(manifest: ManifestState, text: string): HistoryReceipt[] {
-  const ids = messageInputIds({ role: 'user', content: text });
-  if (!ids.length) return [];
-  try {
-    const marker = JSON.parse(text.slice('[harness-input:v1] '.length, text.indexOf('\n')));
-    if (marker.threadId !== manifest.value.threadId) return [];
-    return Object.entries(manifest.value.inputs).flatMap(([uuid, receipt]) => receipt.runId === marker.runId && receipt.epoch === marker.epoch && JSON.stringify(receipt.inputIds) === JSON.stringify(ids) ? [{ uuid, inputIds: [...ids] }] : []);
-  } catch { return []; }
 }
 
 /** Published ACP v1 is supported explicitly. V2 has a different acceptance/state lifecycle. */
@@ -102,7 +92,7 @@ export async function openGemini(context: DriverContext, spawnProcess: typeof sp
     }
     if (update.sessionUpdate === 'user_message_chunk' && update.content?.type === 'text' && typeof update.content.text === 'string') {
       if (replaying || historyOnly) {
-        for (const receipt of replayReceipts(context.manifest, update.content.text)) context.manifest.value.inputs[receipt.uuid].observed = true;
+        for (const receipt of leadingReceipts(context.manifest, update.content.text)) context.manifest.value.inputs[receipt.uuid].observed = true;
         historyWrites.push(saveManifest(context.manifest));
       } else if (activeWire && update.content.text === activeWire.text) historyWrites.push(context.observed(activeWire.uuid));
     }

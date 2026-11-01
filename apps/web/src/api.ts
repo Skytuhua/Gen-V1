@@ -50,7 +50,6 @@ export const getModels = (refresh = false, threadId?: string) => {
   const query = new URLSearchParams({ ...(refresh ? { refresh: '1' } : {}), ...(threadId ? { threadId } : {}) }).toString();
   return authenticated(() => fetch(`/api/models${query ? `?${query}` : ''}`, { credentials: 'same-origin', cache: 'no-store' })).then(read<{ models: ModelInfo[]; error?: string }>);
 };
-export const getSource = (id: string) => authenticated(() => fetch(`/api/artifacts/${encodeURIComponent(id)}/source`, { credentials: 'same-origin' })).then(async response => { if (!response.ok) throw new Error('Source could not be loaded.'); return response.text(); });
 export interface ResourceTree { path: string; entries: { name: string; path: string; kind: 'file' | 'directory'; bytes: number }[]; truncated: boolean }
 export const getResourceTree = (id: string, path = '') => authenticated(() => fetch(`/api/resources/${encodeURIComponent(id)}/tree${path ? '?path=' + encodeURIComponent(path) : ''}`, { credentials: 'same-origin', cache: 'no-store' })).then(read<ResourceTree>);
 export const getResourceContent = (id: string, path = '', signal?: AbortSignal) => authenticated(() => fetch(`/api/resources/${encodeURIComponent(id)}/content${path ? '?path=' + encodeURIComponent(path) : ''}`, { credentials: 'same-origin', cache: 'no-store', signal, redirect: 'error' }));

@@ -16,7 +16,7 @@ import {PlanningQuestionSchema} from '../contracts/planning-question.ts';
 import { getPreferences, mergePreferences } from "../contracts/preferences.ts";
 import {accountResolver,assertAccountAvailable,changeAccount,modelProvider} from './accounts.ts';
 import {isConnectionProviderId} from '../contracts/connections.ts';
-import {applySkillOperations,curateSkills,decideSkillProposal,listSkills,setSkillFlags,skillIndex,viewSkill} from './skills.ts';
+import {applySkillOperations,curateSkills,decideSkillProposal,listSkills,setSkillFlags,skillIndex,viewSkill,viewSkillProposal} from './skills.ts';
 import {LearningCoordinator,type LearningJob,type LearningOutcome,type LearningToolResult} from './learning.ts';
 import {LEARN_REQUEST,learningReviewPrompt,searchSessions} from './learning-context.ts';
 import type {SkillActor,SkillChangeResult} from '../contracts/skills.ts';
@@ -70,7 +70,7 @@ export class Service {
   private get reviewing():boolean{return this.source?.runtime.reviewBusy??this.learning.busy;}
   private cancelReview():Promise<void>{return this.source?.runtime.cancelBackground()??this.learning.cancel();}
   async skillDetail(name:string,options:Parameters<typeof viewSkill>[2]={}){return this.source?this.source.library.view(name,options):viewSkill(this.store,name,options);}
-  async skillProposal(id:string){return this.source?this.source.library.proposal(id):(await import('./skills.ts')).viewSkillProposal(this.store,id);}
+  async skillProposal(id:string){return this.source?this.source.library.proposal(id):viewSkillProposal(this.store,id);}
   sourceEvent(event:HermesEvent):void {
     if(this.closed||!this.source)return;
     if(event.event==='library'){this.background(this.source.library.refresh());return;}

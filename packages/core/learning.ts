@@ -11,7 +11,7 @@ export interface LearningHooks {
  result(job:LearningJob,outcome:LearningOutcome):void|Promise<void>;
 }
 interface Owner {
- job:LearningJob;context:RunContext;creating:Promise<RuntimeAdapter>;adapter?:RuntimeAdapter;startup?:Promise<void>;
+ job:LearningJob;context:RunContext;creating:Promise<RuntimeAdapter>;startup?:Promise<void>;
  closed:boolean;finished:boolean;closing?:Promise<void>;stopped:Promise<void>;release():void;timer:ReturnType<typeof setTimeout>;
  pending:Set<Promise<unknown>>;reads:Map<string,number>;outcome:LearningOutcome;
 }
@@ -37,7 +37,7 @@ export class LearningCoordinator {
   let release!:()=>void;const stopped=new Promise<void>(done=>{release=done;});
   const context={threadId:'learning-'+randomUUID(),runId:randomUUID(),epoch:0};
   let owner!:Owner;
-  const creating=Promise.resolve().then(()=>this.hooks.factory(job)).then(adapter=>{owner.adapter=adapter;return adapter;});
+  const creating=Promise.resolve().then(()=>this.hooks.factory(job));
   owner={job,context,creating,closed:false,finished:false,stopped,release,pending:new Set(),reads:new Map(),outcome:{status:'completed',toolCalls:0,inputBytes,appliedChanges:0},timer:setTimeout(()=>{void this.close(owner,'timeout',true).catch(()=>{});},LEARNING_LIMITS.timeoutMs)};
   owner.timer.unref?.();this.owner=owner;
   try{

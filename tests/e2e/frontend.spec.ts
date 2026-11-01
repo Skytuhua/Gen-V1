@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import type { ArtifactRecord, HostCommand, Snapshot, Thread } from '../../packages/contracts';
-import { widgetDocument } from '../../packages/core/widgets';
+import { widgetShellDocument } from '../../packages/widgets/document';
 import { build } from 'esbuild';
 import { WIDGET_WORKER_CSP } from '../../packages/widgets/protocol';
 
@@ -125,8 +125,7 @@ async function host(page: Page, initial = snapshot(), hasModels = true) {
   });
   await page.route('http://localhost:4318/widget/**', async route => {
     const id = new URL(route.request().url()).pathname.split('/')[2];
-    const artifact = state.snapshot.artifacts.find(item => item.id === id)!;
-    return route.fulfill({ contentType: 'text/html', body: widgetDocument(artifact.widget!, artifact.id) });
+    return route.fulfill({ contentType: 'text/html', body: widgetShellDocument(id) });
   });
   await page.route('**/widget-runtime/worker.js', async route => route.fulfill({ contentType: 'text/javascript', headers: { 'Content-Security-Policy': WIDGET_WORKER_CSP, 'X-Content-Type-Options': 'nosniff' }, body: Buffer.from((await workerBundle).outputFiles[0]!.contents) }));
   return state;

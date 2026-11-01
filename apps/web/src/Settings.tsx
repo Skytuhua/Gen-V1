@@ -106,7 +106,7 @@ function ShortcutInput({ action, label, value, save, busy }: { action: string; l
   return <input aria-label={`${label} shortcut`} title="Focus and press a shortcut" readOnly value={value} disabled={busy} onKeyDown={event => { if (event.key === 'Tab') return; event.preventDefault(); if (['Control', 'Meta', 'Alt', 'Shift'].includes(event.key)) return; const key = event.key === ',' ? 'Comma' : event.key.length === 1 ? event.key.toUpperCase() : event.key; save(action, [event.ctrlKey ? 'Ctrl' : '', event.metaKey ? 'Meta' : '', event.altKey ? 'Alt' : '', event.shiftKey ? 'Shift' : '', key].filter(Boolean).join('+')); }} />;
 }
 
-export function Settings({ snapshot, modelError, refresh, loadModels, close, addResource, initialSection = 'general' }: { snapshot: Snapshot; models: ModelInfo[]; modelError: string; refresh: () => Promise<void>; loadModels: (refresh?: boolean) => Promise<void>; close: () => void; addResource: () => void; initialSection?: string }) {
+export function Settings({ snapshot, modelError, refresh, loadModels, close, addResource, initialSection = 'general' }: { snapshot: Snapshot; modelError: string; refresh: () => Promise<void>; loadModels: (refresh?: boolean) => Promise<void>; close: () => void; addResource: () => void; initialSection?: string }) {
   const desktop=useDesktop();
   const dialog = useRef<HTMLDialogElement>(null);
   const [section, setSection] = useState(initialSection);
