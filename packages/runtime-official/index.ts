@@ -60,7 +60,7 @@ export function createOfficialRuntime({ dataDir }: { dataDir: string }, dependen
       }
       await authority.manifest?.write;
       authorities.delete(authority);
-    })();
+    })().catch(()=>{throw new HarnessError('RUNTIME_TEARDOWN_FAILED','The official runtime did not close completely. Account sign-in remains blocked.');});
     return authority.closing;
   }
   function own(authority: Authority, child: ChildProcess): void {
@@ -102,8 +102,7 @@ export function createOfficialRuntime({ dataDir }: { dataDir: string }, dependen
         if (type === 'session.identity') { void saveManifest(manifest).catch(() => stop(authority)); return; }
         if (type === 'settled') {
           authority.settled = true;
-          callbacks?.onEvent({ ...value, ...authority.ctx, type });
-          void stop(authority).catch(() => {});
+          void stop(authority).then(()=>{callbacks?.onEvent({ ...value, ...authority.ctx, type });},()=>{callbacks?.onEvent({...authority.ctx,type:'error',message:'The official runtime did not close completely. Account sign-in remains blocked.'});});
           return;
         }
         callbacks?.onEvent({ ...value, ...authority.ctx, type });
@@ -197,6 +196,8 @@ export function createOfficialRuntime({ dataDir }: { dataDir: string }, dependen
           }))));
         }
         if(disposed)throw new HarnessError('OFFICIAL_DISPOSED','Official runtime is disposed.');
+        const teardown=values.find(result=>result.status==='rejected'&&result.reason instanceof HarnessError&&result.reason.code==='RUNTIME_TEARDOWN_FAILED');
+        if(teardown?.status==='rejected')throw teardown.reason;
         modelCache=values.flatMap(result=>result.status==='fulfilled'?result.value:[]);return modelCache;
        })().finally(()=>{modelDiscovery=undefined;});
       }

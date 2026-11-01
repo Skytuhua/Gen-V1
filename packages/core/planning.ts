@@ -7,6 +7,7 @@ import {
 } from '../contracts/planning.ts';
 import { digest, Store } from '../storage/store.ts';
 import { handleDomainTool, type DomainContext } from '../capabilities/index.ts';
+import {accountResolver,assertAccountAvailable,modelProvider} from './accounts.ts';
 
 export interface PlanningHooks {
   store: Store;
@@ -116,6 +117,8 @@ export class PlanningCoordinator {
     if (this.active.size + args.tasks.length > 3) throw new HarnessError('AGENT_LIMIT', 'At most three auxiliary readers may work at once');
     const thread = this.hooks.store.get<Thread>('thread', ctx.threadId);
     if (!thread?.modelId) throw new HarnessError('MODEL_REQUIRED', 'Select the parent subscription model before delegation');
+    const accountId=thread.accountId??null;
+    assertAccountAvailable(this.hooks.store,modelProvider(thread.modelId),accountId);
     const plan = this.plan(ctx.threadId);
     if (plan.agents.length + args.tasks.length > 24) throw new HarnessError('AGENT_HISTORY_LIMIT', 'This plan has reached its 24-job history limit');
     if (args.tasks.some(task => task.stepId && !plan.steps.some(step => step.id === task.stepId))) throw new HarnessError('UNKNOWN_PLAN_STEP', 'Agent tasks may reference only existing plan steps');
@@ -133,12 +136,12 @@ export class PlanningCoordinator {
       this.assert(ctx, signal); this.put(ctx.threadId, plan); this.hooks.store.put('planningBatch', batch.id, ctx.threadId, batch); return { commandId: batch.id, jobIds: batch.jobIds };
     });
     const resources = this.hooks.store.all<ResourceGrant>('resource', ctx.threadId).map(grant => ({ ...grant, writable: false }));
-    const promise = this.runBatch(ctx, args, jobs, thread.modelId, resources, signal, batch);
+    const promise = this.runBatch(ctx, args, jobs, thread.modelId,accountId, resources, signal, batch);
     this.batches.set(args.commandId, promise);
     try { return await promise; } finally { if (this.batches.get(args.commandId) === promise) this.batches.delete(args.commandId); }
   }
-  private async runBatch(ctx: RunContext, args: DelegateArgs, jobs: AgentJob[], modelId: string, resources: ResourceGrant[], signal: AbortSignal, batch: Batch): Promise<DelegationResult> {
-    await Promise.all(jobs.map((job, index) => this.runJob(ctx, args.tasks[index], job, modelId, resources, signal)));
+  private async runBatch(ctx: RunContext, args: DelegateArgs, jobs: AgentJob[], modelId: string,accountId:string|null, resources: ResourceGrant[], signal: AbortSignal, batch: Batch): Promise<DelegationResult> {
+    await Promise.all(jobs.map((job, index) => this.runJob(ctx, args.tasks[index], job, modelId,accountId, resources, signal)));
     const result: DelegationResult = { commandId: batch.id, jobs: this.plan(ctx.threadId).agents.filter(job => batch.jobIds.includes(job.id)) };
     this.hooks.store.internal('delegation.finished', ctx.threadId, () => {
       const current = this.hooks.store.get<Batch>('planningBatch', batch.id);
@@ -148,7 +151,7 @@ export class PlanningCoordinator {
     });
     return result;
   }
-  private async runJob(ctx: RunContext, task: DelegateArgs['tasks'][number], record: AgentJob, modelId: string, resources: ResourceGrant[], signal: AbortSignal): Promise<void> {
+  private async runJob(ctx: RunContext, task: DelegateArgs['tasks'][number], record: AgentJob, modelId: string,accountId:string|null, resources: ResourceGrant[], signal: AbortSignal): Promise<void> {
     let runtime: RuntimeAdapter | undefined;
     let job: ActiveJob | undefined;
     let abort: (() => void) | undefined;
@@ -162,7 +165,7 @@ export class PlanningCoordinator {
       this.active.set(record.id, activeJob);
       abort = () => { void this.stopJob(activeJob, 'cancelled').catch(() => {}); };
       signal.addEventListener('abort', abort, { once: true });
-      const creating = Promise.resolve().then(() => this.hooks.runtimeFactory?.() ?? import('../runtime/index.ts').then(({ createRuntime }) => createRuntime({ dataDir: this.hooks.store.dataDir }))).then(adapter => {
+      const creating = Promise.resolve().then(() => this.hooks.runtimeFactory?.() ?? import('../runtime/index.ts').then(({ createRuntime }) => createRuntime({ dataDir: this.hooks.store.dataDir,accounts:accountResolver(this.hooks.store) }))).then(adapter => {
         if (activeJob.closed) { void adapter.dispose().catch(() => {}); throw new HarnessError('CANCELLED_RUN', 'Startup was cancelled'); }
         return adapter;
       });
@@ -173,7 +176,8 @@ export class PlanningCoordinator {
       adapter.configure({ onEvent: event => this.event(activeJob, event), onTool: (call, supplied) => this.tool(activeJob, call, supplied) });
       this.change(ctx, record.id, previous => ({ ...previous, status: 'working' }));
       const inputId = randomUUID();
-      const input: StartRun = { ...child, prompt: this.prompt(task), modelId, thinkingLevel:this.hooks.store.get<Thread>("thread",ctx.threadId)?.thinkingLevel, sessionPath: null, inputId, inputIds: [inputId], resources };
+      assertAccountAvailable(this.hooks.store,modelProvider(modelId),accountId);
+      const input: StartRun = { ...child,accountId, prompt: this.prompt(task), modelId, thinkingLevel:this.hooks.store.get<Thread>("thread",ctx.threadId)?.thinkingLevel, sessionPath: null, inputId, inputIds: [inputId], resources };
       const started = adapter.start(input).catch(error => { this.fail(activeJob, error); });
       // Settlement/cancellation may arrive during startup. It must still release the root RPC.
       await Promise.race([started.then(() => done), done]);

@@ -33,6 +33,28 @@ function scripted(account: Record<string, unknown> = { apiProvider: 'firstParty'
 const run = (extra: Partial<StartRun> = {}): StartRun => ({ threadId: 'thread', runId: 'run-1', epoch: 1, modelId: 'claude-code/advertised-model', inputId: 'input-1', prompt: 'hello', resources: [], sessionPath: null, ...extra });
 
 describe('official Claude SDK runtime', () => {
+  it('withholds natural settlement until native interrupt and close have completed',async()=>{
+    const fake=scripted(),events:RuntimeEvent[]=[],runtime=createOfficialRuntime({dataDir:await mkdtemp(join(tmpdir(),'official-settlement-teardown-'))},fake.dependencies),barrier=deferred<void>();
+    runtime.configure({onEvent:event=>events.push(event),onTool:async()=>null});
+    try{
+      await runtime.start(run());await vi.waitFor(()=>expect(fake.accepted).toHaveLength(1));
+      const query=fake.query.mock.results[0].value;query.interrupt.mockImplementation(()=>barrier.promise);
+      fake.events.push({type:'result',subtype:'success',session_id:fake.options.sessionId,user_message_uuids:[fake.accepted[0].uuid],queued_turn_count:0});
+      await vi.waitFor(()=>expect(query.interrupt).toHaveBeenCalled());expect(events.some(event=>event.type==='settled')).toBe(false);
+      barrier.resolve();await vi.waitFor(()=>expect(events.some(event=>event.type==='settled')).toBe(true));expect(fake.closeCount).toBe(1);
+    }finally{barrier.resolve();await runtime.dispose();}
+  });
+  it('never reports successful settlement when native close fails',async()=>{
+    const fake=scripted(),events:RuntimeEvent[]=[],runtime=createOfficialRuntime({dataDir:await mkdtemp(join(tmpdir(),'official-teardown-failure-'))},fake.dependencies);
+    runtime.configure({onEvent:event=>events.push(event),onTool:async()=>null});
+    try{
+      await runtime.start(run());await vi.waitFor(()=>expect(fake.accepted).toHaveLength(1));
+      fake.query.mock.results[0].value.close=()=>{fake.events.stop();throw Error('Synthetic native close failure');};
+      fake.events.push({type:'result',subtype:'success',session_id:fake.options.sessionId,user_message_uuids:[fake.accepted[0].uuid],queued_turn_count:0});
+      await vi.waitFor(()=>expect(events.some(event=>event.type==='error'&&String(event.message).includes('did not close completely'))).toBe(true));
+      expect(events.some(event=>event.type==='settled')).toBe(false);await expect(runtime.cancel(run())).rejects.toMatchObject({code:'RUNTIME_TEARDOWN_FAILED'});await expect(runtime.dispose()).rejects.toMatchObject({code:'RUNTIME_TEARDOWN_FAILED'});
+    }finally{fake.events.stop();await runtime.dispose().catch(()=>{});}
+  });
   it.each(['high',null])('applies the selected effort %s before submitting input',async thinkingLevel=>{
     const fake=scripted(),runtime=createOfficialRuntime({dataDir:await mkdtemp(join(tmpdir(),'official-effort-'))},fake.dependencies);
     runtime.configure({onEvent(){},onTool:async()=>null});

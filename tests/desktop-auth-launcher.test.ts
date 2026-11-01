@@ -2,10 +2,22 @@ import {describe,it,expect} from 'vitest';
 import {mkdtemp,mkdir,writeFile,readFile} from 'node:fs/promises';
 import {join,resolve} from 'node:path';
 import {tmpdir} from 'node:os';
-import {launchDesktopSignIn,desktopSignInArguments,quoteWindowsArgument} from '../apps/desktop/auth-launcher.ts';
+import {launchDesktopSignIn,desktopSignInArguments,parseDesktopSignInTarget,quoteWindowsArgument} from '../apps/desktop/auth-launcher.ts';
 import {execFileSync} from 'node:child_process';
 
 describe('packaged subscription sign-in',()=>{
+ it('validates both IPC account fields and preserves legacy provider calls',()=>{
+  const accountId='8933cc31-976d-4f76-a183-035c4b3263e8';
+  expect(parseDesktopSignInTarget({provider:'openai',accountId})).toEqual({provider:'openai',accountId});
+  expect(parseDesktopSignInTarget('claude-code')).toEqual({provider:'claude-code'});
+  expect(parseDesktopSignInTarget(undefined)).toEqual({provider:'openai'});
+  for(const value of [{provider:'openai',accountId,exec:'cmd'}, {provider:'openai',accountId:'../other'}, Object.assign(Object.create({provider:'openai'}),{accountId,exec:'cmd'}), ['openai',accountId]])expect(()=>parseDesktopSignInTarget(value)).toThrow();
+ });
+ it('targets an explicit opaque account without accepting a renderer profile path',()=>{
+  const root=resolve('host'),data=resolve('data'),id='8933cc31-976d-4f76-a183-035c4b3263e8';
+  expect(desktopSignInArguments(root,data,'claude-code',id).slice(-4)).toEqual(['--provider','claude-code','--account-id',id]);
+  expect(()=>desktopSignInArguments(root,data,'openai','../other')).toThrow();
+ });
  it('uses only the fixed bundled login entry and a file URL loader',()=>{
   const root=resolve('a folder with spaces');
   const args=desktopSignInArguments(root,resolve('data folder'));

@@ -7,7 +7,7 @@ import { dirname, join, resolve } from "node:path";
 import { HarnessError, type ResourceGrant } from "../contracts/index.ts";
 import { assertNotStorage, resolveGrant, PROTECTED_STORAGE_DIRECTORIES } from "./security.ts";
 
-type GuardPath = { path: string; leaf: boolean; dev?: string; ino?: string; empty?: boolean; tree?: boolean; readOnly?: boolean };
+type GuardPath = { path: string; leaf: boolean; dev?: string; ino?: string; empty?: boolean; tree?: boolean; readOnly?: boolean; allowChildWrites?:boolean; childWriteRoot?:string };
 export interface GuardEntry { readonly path: string; readonly directory: boolean; readonly dev: string; readonly ino: string; readonly size: number }
 interface GuardSession { rpc(request: Record<string, unknown>): Promise<readonly GuardEntry[]>; exited: boolean }
 const sessions = new AsyncLocalStorage<GuardSession>();
@@ -16,6 +16,7 @@ function active(signal: AbortSignal) { if (signal.aborted) throw new HarnessErro
 
 /** Application-scoped Windows namespace guard; never an OS sandbox for project code. */
 export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal, action: (manifest: readonly GuardEntry[]) => Promise<T>): Promise<T> {
+  if(paths.some(path=>path.allowChildWrites&&path.leaf))throw new HarnessError('CAPABILITY_DENIED','Child-write sharing is supported only for directory namespace guards.');
   active(signal);
   const session = sessions.getStore();
   if (session) {

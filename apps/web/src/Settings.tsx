@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { ArrowLeft, Check, ExternalLink, Search, X } from 'lucide-react';
 import type { ModelInfo, Snapshot } from '../../../packages/contracts';
 import { getPreferences, type UiPreferences } from '../../../packages/contracts/preferences';
-import { command } from './api';
+import { command, getModels } from './api';
 import { T3_SETTINGS_ROWS, T3_PANEL_ROWS, T3_SETTINGS_SOURCE, type SettingsInventoryRow } from './settings-inventory';
 import './settings.css';
 import { DEPENDENCY_NOTICES } from './dependency-notices';
@@ -103,7 +103,7 @@ function ShortcutInput({ action, label, value, save, busy }: { action: string; l
   return <input aria-label={`${label} shortcut`} title="Focus and press a shortcut" readOnly value={value} disabled={busy} onKeyDown={event => { if (event.key === 'Tab') return; event.preventDefault(); if (['Control', 'Meta', 'Alt', 'Shift'].includes(event.key)) return; const key = event.key === ',' ? 'Comma' : event.key.length === 1 ? event.key.toUpperCase() : event.key; save(action, [event.ctrlKey ? 'Ctrl' : '', event.metaKey ? 'Meta' : '', event.altKey ? 'Alt' : '', event.shiftKey ? 'Shift' : '', key].filter(Boolean).join('+')); }} />;
 }
 
-export function Settings({ snapshot, models, modelError, refresh, loadModels, close, addResource, initialSection = 'general' }: { snapshot: Snapshot; models: ModelInfo[]; modelError: string; refresh: () => Promise<void>; loadModels: (refresh?: boolean) => Promise<void>; close: () => void; addResource: () => void; initialSection?: string }) {
+export function Settings({ snapshot, modelError, refresh, loadModels, close, addResource, initialSection = 'general' }: { snapshot: Snapshot; models: ModelInfo[]; modelError: string; refresh: () => Promise<void>; loadModels: (refresh?: boolean) => Promise<void>; close: () => void; addResource: () => void; initialSection?: string }) {
   const desktop=useDesktop();
   const dialog = useRef<HTMLDialogElement>(null);
   const [section, setSection] = useState(initialSection);
@@ -111,6 +111,18 @@ export function Settings({ snapshot, models, modelError, refresh, loadModels, cl
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [saved, setSaved] = useState(false);
+  const [newTaskModels, setNewTaskModels] = useState<ModelInfo[]>([]);
+  const [newTaskModelError, setNewTaskModelError] = useState(modelError);
+  const catalogRequest = useRef(0);
+  const selectedAccountsKey = JSON.stringify(Object.entries(snapshot.settings.selectedAccounts ?? {}).sort(([left], [right]) => left.localeCompare(right)));
+  const catalogSelection = useRef(selectedAccountsKey); catalogSelection.current = selectedAccountsKey;
+  const loadNewTaskModels = useCallback(async (force = false) => {
+    const request = ++catalogRequest.current, selection = catalogSelection.current;
+    try { const result = await getModels(force); if (request === catalogRequest.current && selection === catalogSelection.current) { setNewTaskModels(result.models); setNewTaskModelError(result.error ?? ''); } }
+    catch (cause) { if (request === catalogRequest.current && selection === catalogSelection.current) { setNewTaskModels([]); setNewTaskModelError(cause instanceof Error ? cause.message : 'Models could not be loaded.'); } }
+  }, []);
+  useLayoutEffect(() => { setNewTaskModels([]); setNewTaskModelError(''); void loadNewTaskModels(); return () => { catalogRequest.current++; }; }, [loadNewTaskModels, selectedAccountsKey]);
+  const refreshModels = async (force = false) => { await Promise.all([loadModels(force), loadNewTaskModels(force)]); };
 
   const preferences = getPreferences(snapshot.settings);
   useEffect(() => { dialog.current?.showModal(); }, []);
@@ -139,8 +151,8 @@ export function Settings({ snapshot, models, modelError, refresh, loadModels, cl
     switch (row.id) {
       case 'keybindings': return { description: 'Six workspace actions have editable bindings below. Commands without a corresponding action remain unavailable.', control: <span className="settings-value">6 supported actions</span> };
       case 'color-scheme': return { description: 'Follow your device color scheme, or choose light or dark.', control: <select aria-label="Color scheme" disabled={busy} value={snapshot.settings.theme} onChange={event => void persist({ theme: event.target.value })}><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select> };
-      case 'providers': case 'harness-local-models': return { description: `${models.length} ${models.length === 1 ? 'model' : 'models'} reported by connected runtimes. Credentials stay in their private connection stores. ${modelError}`, control: <button className="secondary" disabled={busy} onClick={() => void loadModels(true)}>Refresh models</button> };
-      case 'default-model': return { description: 'Default model for new work. Available models and reasoning levels follow the selected connection.', control: <select aria-label="Default model" disabled={busy || !models.length} value={snapshot.settings.modelId ?? ''} onChange={event => void persist({ modelId: event.target.value })}><option value="" disabled>Select model</option>{models.map(model => <option key={model.id} value={model.id}>{model.name}</option>)}</select> };
+      case 'providers': case 'harness-local-models': return { description: `${newTaskModels.length} ${newTaskModels.length === 1 ? 'model' : 'models'} reported by connected runtimes. Credentials stay in their private connection stores. ${newTaskModelError}`, control: <button className="secondary" disabled={busy} onClick={() => void refreshModels(true)}>Refresh models</button> };
+      case 'default-model': return { description: 'Default model for new work. Available models and reasoning levels follow the selected account for new tasks.', control: <select aria-label="Default model" disabled={busy || !newTaskModels.length} value={snapshot.settings.modelId ?? ''} onChange={event => void persist({ modelId: event.target.value })}><option value="" disabled>Select model</option>{newTaskModels.map(model => <option key={model.id} value={model.id}>{model.name}</option>)}</select> };
       case 'archive': return { description: `${snapshot.archivedThreads?.length ?? 0} archived threads. Restore reopens the saved thread; it does not resume a run.`, control: <span className="settings-value">{snapshot.archivedThreads?.length ?? 0} archived</span> };
       case 'project-overview': return { description: `${snapshot.resources.filter(item => item.kind === 'project').length} explicitly granted project folders. Access remains scoped to the resource grant.`, control: <button className="secondary" onClick={addResource}>Add resource</button> };
       case 'app-version': return { description: `Generative Harness ${version} · T3 source reference da8cc591dadd75819ae62961da4a882767efb145.`, control: <span className="settings-value">{desktop?'Windows desktop':'Browser build'}</span> };
@@ -149,7 +161,7 @@ export function Settings({ snapshot, models, modelError, refresh, loadModels, cl
       case 'harness-export-diagnostics': return { description: `Accepted event sequence ${snapshot.seq}. ${snapshot.threads.length} active threads, ${snapshot.artifacts.length} artifacts, ${snapshot.resources.length} grants, ${snapshot.operations.filter(item => item.status === 'unknown').length} uncertain operations. Model credentials and file contents are not included.`, control: <button className="secondary" onClick={() => void refresh().catch(cause => setError(String(cause)))}>Refresh snapshot</button> };
       case 'harness-runtime': return { description: desktop?'Runs locally in the Windows app. Connect a subscription in Providers, then refresh models.':'Uses the local host. Connect a subscription with pnpm agent:login in the project terminal, then refresh models.', control: <span className="settings-value">Local host</span> };
       case 'open-source-licenses': return { description: 'Source and dependency license information for this application and the pinned T3 reference.', control: <button className="secondary" onClick={() => { setQuery(''); setSection('licenses'); }}>View licenses</button> };
-      case 'harness-licenses': return { description: 'This is a separate application using T3 as a design reference. See package manifests and installed package LICENSE files for the exact dependency notices.', control: <a href="https://github.com/pingdotgg/t3code/blob/da8cc591dadd75819ae62961da4a882767efb145/LICENSE" target="_blank" rel="noreferrer">T3 source license<ExternalLink size={12} /></a> };
+      case 'harness-licenses': return { description: 'Account picker code is adapted from T3 Code. Copyright (c) 2026 T3 Tools Inc., MIT License. See third-party/t3code for the complete license and pinned source notices.', control: <a href="https://github.com/pingdotgg/t3code/blob/8760d063e903406c8e8f695b0852c0a15fc1e00f/LICENSE" target="_blank" rel="noreferrer">T3 source license<ExternalLink size={12} /></a> };
       case 'panel-licenses-dependency-license-notices': return { description: 'The direct dependencies below were checked against their installed package manifests. Full transitive distribution notices are not yet assembled in this browser interface.', control: <span className="settings-value">{DEPENDENCY_NOTICES.length} direct dependencies</span> };
       default: return { description: unavailableReasons[row.section] ?? 'This T3 capability has no implemented adapter.', control: <button className="secondary" disabled>Unavailable</button> };
     }
@@ -161,7 +173,7 @@ export function Settings({ snapshot, models, modelError, refresh, loadModels, cl
       {rows.map(row => { const { description, control } = details(row); const availability = settingAvailability(row); return <section key={row.id} className="settings-row" data-setting-id={row.id} data-availability={availability.toLowerCase()}><div className="settings-row-copy"><h2><span>{row.title}</span><span className={`availability availability-${availability.toLowerCase()}`}>{availability}</span></h2>{tokens.length > 0 && <span className="settings-result-section">{SETTINGS_SECTIONS.find(item => item[0] === row.section)?.[1]}</span>}<p>{description}</p></div><div className="settings-row-control">{control}</div></section>; })}
       {!rows.length && !subscriptionCount && <p className="settings-empty">No matching settings. Search covers every section, including unavailable capabilities.</p>}
       {!tokens.length && section === 'archived' && snapshot.archivedThreads?.map(thread => <section key={thread.id} className="settings-row"><div className="settings-row-copy"><h2>{thread.title}</h2><p>{thread.projectName ?? 'Conversation'} · {thread.status}</p></div><button className="secondary" disabled={busy} onClick={() => { setBusy(true); void command('thread.restore', {}, thread.id).then(refresh).catch(cause => setError(String(cause))).finally(() => setBusy(false)); }}>Restore thread</button></section>)}
-      {(!tokens.length && section === 'providers' || subscriptionCount > 0) && <Connections models={models} query={tokens.length ? query : ''} />}
+      {(!tokens.length && section === 'providers' || subscriptionCount > 0) && <Connections models={newTaskModels} snapshot={snapshot} refresh={refresh} loadModels={refreshModels} query={tokens.length ? query : ''} />}
       {!tokens.length && section === 'licenses' && <div className="settings-license-notes"><p>Core interface: React (MIT), lucide-react (ISC), json-render (Apache-2.0). PDF: pdf-lib (MIT), PDF.js (Apache-2.0). Local server: Fastify (MIT). Validation: Ajv and Zod (MIT). These package names identify installed dependencies; their license files remain authoritative.</p></div>}
     </main></div>
   </dialog>;

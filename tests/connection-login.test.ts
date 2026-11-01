@@ -4,6 +4,13 @@ import {connectionLoginMain,parseConnectionLogin} from '../packages/runtime-logi
 import {SUBSCRIPTION_CONNECTIONS} from '../packages/contracts/connections.ts';
 const cursor=vi.hoisted(()=>({login:vi.fn(async()=>{})}));
 vi.mock('../packages/runtime-official/cursor.ts',()=>({cursorLogin:cursor.login}));
+vi.mock('../packages/runtime-login/account-login.ts',()=>({withAccountLogin:async(request:{dataDir:string},run:(dataDir:string)=>Promise<void>)=>run(request.dataDir)}));
+
+it('accepts a saved opaque account ID and rejects paths or ambiguous duplicate flags',()=>{
+ const accountId='8933cc31-976d-4f76-a183-035c4b3263e8';
+ expect(parseConnectionLogin(['--provider','openai','--account-id',accountId])).toMatchObject({provider:'openai',accountId});
+ for(const args of [['--account-id','../other'],['--account-id',''],['--account-id',accountId,'--account-id',accountId],['--provider','openai','--provider','xai']])expect(()=>parseConnectionLogin(args)).toThrow();
+});
 
 it('routes fixed official providers to native login and retains Pi login options',async()=>{
  const pi=vi.fn(async()=>{}),official=vi.fn(async()=>{}),directory=resolve('.harness-login-fixture');

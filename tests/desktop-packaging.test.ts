@@ -6,6 +6,7 @@ describe('desktop distribution custody',()=>{
  it('requires every fixed provider entry and published distribution before accepting a package',()=>{
   expect(REQUIRED_RUNTIME_FILES).toEqual(expect.arrayContaining([
    'host/packages/runtime-login/index.ts','host/packages/runtime/index.ts',
+   'host/third-party/t3code/LICENSE',
    'host/packages/runtime-official/index.ts','host/packages/runtime-pi/worker.ts',
    'host/node_modules/@anthropic-ai/claude-agent-sdk/sdk.mjs',
    'host/node_modules/@anthropic-ai/claude-agent-sdk-win32-x64/claude.exe',

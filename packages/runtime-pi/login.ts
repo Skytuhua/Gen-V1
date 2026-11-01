@@ -90,7 +90,7 @@ export async function loginMain(args = process.argv.slice(2)) {
   const provider = requireSubscriptionProvider(option("--provider") ?? "openai");
   const label = subscriptionProviderLabel(provider);
   const control = new AbortController();
-  const stop = () => control.abort(); process.once("SIGINT", stop);
+  const stop = () => control.abort(); process.once("SIGINT", stop); process.once("SIGTERM", stop);
   process.stderr.write(`Sign in with ${label}. Credentials stay in ${taskPaths(dataDir, "login").authPath}.\nNo app-side API billing fallback; provider Extra Usage still applies.\n`);
   try {
     await loginSubscription({ dataDir, provider, interaction: {
@@ -113,7 +113,7 @@ export async function loginMain(args = process.argv.slice(2)) {
       },
     } });
     process.stderr.write(`${label} connection saved. Refresh the harness model list.\n`);
-  } finally { process.removeListener("SIGINT", stop); }
+  } finally { process.removeListener("SIGINT", stop); process.removeListener("SIGTERM", stop); }
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

@@ -5,6 +5,8 @@ import {join} from 'node:path';
 import {Store} from '../packages/storage/store.ts';
 import {Service} from '../packages/core/service.ts';
 import type {RunContext,RuntimeAdapter,RuntimeCallbacks,StartRun,Thread} from '../packages/contracts/index.ts';
+import {createRuntime} from '../packages/runtime/index.ts';
+import {accountResolver,beginAccountLogin} from '../packages/core/accounts.ts';
 
 class ScriptedRuntime implements RuntimeAdapter {
  callbacks!:RuntimeCallbacks;starts:StartRun[]=[];cancels:RunContext[]=[];disposed=0;failure?:Error;
@@ -27,6 +29,13 @@ it('awaits adapter cleanup already started by normal side settlement',async()=>{
  expect(done).toBe(true);expect(adapter.disposed).toBe(1);
 });
 afterEach(async()=>{for(const cleanup of cleanups.splice(0))await cleanup();});
+it('retains side account use until its native cancellation has completed',async()=>{
+ let x!:Awaited<ReturnType<typeof setup>>,release!:()=>void;const native=new ScriptedRuntime();native.cancel=async ctx=>{native.cancels.push(ctx);await new Promise<void>(done=>{release=done;});};
+ x=await setup(()=>createRuntime({dataDir:x.store.dataDir,accounts:accountResolver(x.store)},{pi:()=>native,official:()=>new ScriptedRuntime()}));x.main.models=async()=>[{id:'openai/model',provider:'openai',name:'OpenAI'}];
+ const side=await x.createSide();await x.send('message.send',{content:'Side',modelId:'openai/model'},side.id);await vi.waitFor(()=>expect(native.starts).toHaveLength(1));await x.send('run.stop',{},side.id);
+ try{expect(x.service.thread(side.id).runId).toBeNull();expect(()=>beginAccountLogin(x.store,'openai',null)).toThrow(expect.objectContaining({code:'ACCOUNT_BUSY'}));}finally{release();}
+ await vi.waitFor(()=>expect(x.store.all('accountUse')).toHaveLength(0));
+});
 async function setup(factory?:()=>RuntimeAdapter|Promise<RuntimeAdapter>){
  const root=mkdtempSync(join(tmpdir(),'harness-side-')),store=new Store(root),main=new ScriptedRuntime(),sides:ScriptedRuntime[]=[];
  const service=new Service(store,main,{sideRuntimeFactory:factory??(()=>{const side=new ScriptedRuntime();sides.push(side);return side;})});await service.recover();

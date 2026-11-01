@@ -18,6 +18,12 @@ async function setup(){
  cleanups.push(async()=>{await app.close();await service.dispose();store.close();rmSync(dir,{recursive:true,force:true})});
  return {app,service,store};
 }
+it('routes authenticated model discovery through thread scope and rejects malformed queries',async()=>{
+ const {app,service}=await setup(),boot=await app.inject({url:'/api/bootstrap',headers:{host:'127.0.0.1:4317'}}),headers={host:'127.0.0.1:4317',cookie:String(boot.headers['set-cookie']).split(';')[0]},models=vi.spyOn(service,'models').mockResolvedValue([{id:'openai/scoped',provider:'openai',name:'Scoped'}]);
+ const result=await app.inject({url:'/api/models?refresh=1&threadId=bound-thread',headers});expect(result.statusCode).toBe(200);expect(result.json().models[0].id).toBe('openai/scoped');expect(models).toHaveBeenCalledWith({refresh:true,threadId:'bound-thread'});
+ for(const url of ['/api/models?threadId=','/api/models?threadId=a&threadId=b','/api/models?refresh=no'])expect((await app.inject({url,headers})).statusCode).toBe(400);
+ expect((await app.inject({url:'/api/models?threadId=bound-thread',headers:{host:'127.0.0.1:4317'}})).statusCode).toBe(401);
+});
 it('reuses one serialized snapshot per committed sequence without bypassing authentication or invalidation',async()=>{
  const {app,store}=await setup(),boot=await app.inject({url:'/api/bootstrap',headers:{host:'127.0.0.1:4317'}}),headers={host:'127.0.0.1:4317',cookie:String(boot.headers['set-cookie']).split(';')[0]},snapshot=vi.spyOn(store,'snapshot');
  try {

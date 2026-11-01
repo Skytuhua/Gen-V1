@@ -59,7 +59,7 @@ describe('official Gemini CLI ACP runtime', () => {
     runtime.configure({onEvent:event=>events.push(event),onTool:async()=>null});
     try{
       const compact=runtime.compact(run(),manifest.path,'gemini-cli/official-model');
-      if(advertised){await compact;expect(events.map(event=>event.type)).toEqual(expect.arrayContaining(['compaction.start','compaction.end','settled']));expect(fake.messages.find(message=>message.method==='session/prompt').params.prompt).toEqual([{type:'text',text:'/compress'}]);}
+      if(advertised){await compact;await vi.waitFor(()=>expect(events.map(event=>event.type)).toEqual(expect.arrayContaining(['compaction.start','compaction.end','settled'])));expect(fake.messages.find(message=>message.method==='session/prompt').params.prompt).toEqual([{type:'text',text:'/compress'}]);}
       else{await expect(compact).rejects.toMatchObject({code:'OFFICIAL_COMPACTION_UNSUPPORTED'});expect(fake.messages.some(message=>message.method==='session/prompt')).toBe(false);}
       expect(events.some(event=>event.type==='assistant.message'||event.type==='input.processing')).toBe(false);
     }finally{await runtime.dispose();}

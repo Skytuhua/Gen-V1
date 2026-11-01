@@ -170,10 +170,10 @@ describe("Pi model discovery cache", () => {
 });
 
 async function modelServer() {
-  const models = vi.fn(async (_options?: { refresh?: boolean }) => catalog);
+  const models = vi.fn(async (_options?: { refresh?: boolean; threadId?: string }) => catalog);
   const path=mkdtempSync(join(tmpdir(),'model-server-')),store=new Store(path);
   cleanups.push(async()=>{store.close();rmSync(path,{recursive:true,force:true});});
-  const app = await buildServer({ runtime: { models },store } as unknown as Service, { port: 4317, dev: true });
+  const app = await buildServer({ models,store } as unknown as Service, { port: 4317, dev: true });
   cleanups.push(() => app.close());
   const boot = await app.inject({ url: "/api/bootstrap", headers: { host: "127.0.0.1:4317" } });
   const headers = { host: "127.0.0.1:4317", cookie: String(boot.headers["set-cookie"]).split(";")[0] };
@@ -186,7 +186,7 @@ describe("model refresh API", () => {
     const response = await app.inject({ url: `/api/models?refresh=${value}`, headers });
     expect(response.statusCode).toBe(200);
     expect(response.json()).toEqual({ models: catalog });
-    expect(models).toHaveBeenCalledExactlyOnceWith({ refresh: true });
+    expect(models).toHaveBeenCalledExactlyOnceWith({ refresh: true, threadId: undefined });
     expect(response.headers["cache-control"]).toBe("no-store");
   });
 
@@ -196,7 +196,14 @@ describe("model refresh API", () => {
     const response = await app.inject({ url: "/api/models", headers });
     expect(response.statusCode).toBe(200);
     expect(response.json()).toEqual({ models: [], error: "Sign in again" });
-    expect(models).toHaveBeenCalledExactlyOnceWith({ refresh: false });
+    expect(models).toHaveBeenCalledExactlyOnceWith({ refresh: false, threadId: undefined });
+  });
+
+  it('forwards the owning thread with an explicit catalog refresh', async () => {
+    const { app, models, headers } = await modelServer();
+    const response = await app.inject({url: '/api/models?refresh=1&threadId=saved-thread', headers});
+    expect(response.json()).toEqual({models: catalog});
+    expect(models).toHaveBeenCalledExactlyOnceWith({refresh: true, threadId: 'saved-thread'});
   });
 
   it.each(["", "false", "0", "yes", "1&refresh=true"])("rejects invalid refresh=%s before discovery", async value => {

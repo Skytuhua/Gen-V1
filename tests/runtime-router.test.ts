@@ -1,10 +1,18 @@
-import {expect,it,vi} from 'vitest';
+import {afterEach,expect,it,vi} from 'vitest';
 import {join,resolve} from 'node:path';
+import {mkdtempSync,mkdirSync,rmSync,symlinkSync,writeFileSync} from 'node:fs';
+import {tmpdir} from 'node:os';
 import {createRuntime} from '../packages/runtime/index.ts';
 import type {RuntimeAdapter,RuntimeCallbacks,StartRun} from '../packages/contracts/index.ts';
 import {SUBSCRIPTION_CONNECTIONS} from '../packages/contracts/connections.ts';
+import {accountProfileRoot} from '../packages/runtime/account-profile.ts';
+import type {ConnectionAccount} from '../packages/contracts/accounts.ts';
+import {taskPaths,validateSessionPath} from '../packages/runtime-pi/session.ts';
 
 const root=resolve('.harness-runtime-router-fixture');
+const temporary:string[]=[];
+const profileFixture=()=>{const dir=mkdtempSync(join(tmpdir(),'harness-account-router-'));temporary.push(dir);return dir;};
+afterEach(()=>{for(const path of temporary.splice(0))rmSync(path,{recursive:true,force:true});});
 const input=(modelId='openai/model'):StartRun=>({threadId:'thread',runId:'run',epoch:1,modelId,sessionPath:null,inputId:'input',prompt:'A supplied task',resources:[]});
 function adapter(){
  let callbacks:RuntimeCallbacks;
@@ -88,4 +96,59 @@ it('routes private Cursor history to the official adapter and rejects cross-prov
  await f.runtime.history(session);expect(f.official.runtime.history).toHaveBeenCalledWith(session);expect(f.pi.runtime.history).not.toHaveBeenCalled();
  await expect(f.runtime.start({...input('claude-code/sonnet'),sessionPath:session})).rejects.toMatchObject({code:'RUNTIME_SESSION_MISMATCH'});
  expect(f.official.runtime.start).not.toHaveBeenCalled();
+});
+
+it('lazily isolates account adapters, pins routing and denies cross-account sessions',async()=>{
+ const root=profileFixture();
+ const account:ConnectionAccount={id:crypto.randomUUID(),providerId:'openai',label:'A',enabled:true,createdAt:'now',updatedAt:'now'};
+ const other:ConnectionAccount={...account,id:crypto.randomUUID(),label:'B'};
+ const created:{root:string;pi:ReturnType<typeof adapter>;official?:ReturnType<typeof adapter>}[]=[];
+ const runtime=createRuntime({dataDir:root,accounts:{get:id=>id===account.id?account:id===other.id?other:null}},{pi:options=>{const item={root:options.dataDir,pi:adapter()};created.push(item);return item.pi.runtime;},official:options=>{const item=created.find(item=>item.root===options.dataDir)!;item.official=adapter();return item.official.runtime;}});
+ runtime.configure({onEvent:()=>{},onTool:async()=>null});expect(created).toHaveLength(1);
+ await runtime.start({...input(),accountId:account.id});expect(created).toHaveLength(2);
+ expect(created[1].root).toBe(accountProfileRoot(root,account));expect(created[1].pi.runtime.start).toHaveBeenCalledOnce();expect(created[0].pi.runtime.start).not.toHaveBeenCalled();
+ await expect(runtime.followUp({...input(),accountId:other.id})).rejects.toMatchObject({code:'RUNTIME_ACCOUNT_MISMATCH'});
+ await runtime.cancel(input());
+ const session=join(created[1].root,'sessions','thread.jsonl');await runtime.history(session,account.id);expect(created[1].pi.runtime.history).toHaveBeenCalledWith(session);
+ await expect(runtime.history(session,other.id)).rejects.toMatchObject({code:'RUNTIME_SESSION_INVALID'});
+ await expect(runtime.history(session,null)).rejects.toMatchObject({code:'RUNTIME_SESSION_INVALID'});
+ await expect(runtime.start({...input(),accountId:'unknown'})).rejects.toMatchObject({code:'ACCOUNT_NOT_FOUND'});
+ await expect(runtime.start({...input('gemini-cli/pro'),accountId:account.id})).rejects.toMatchObject({code:'ACCOUNT_PROVIDER_MISMATCH'});
+ await runtime.dispose();for(const item of created){expect(item.pi.runtime.dispose).toHaveBeenCalledOnce();expect(item.official!.runtime.dispose).toHaveBeenCalledOnce();}
+});
+
+it('scopes named-account model discovery to its provider and blocks a profile being signed in',async()=>{
+ const root=profileFixture();
+ const account:ConnectionAccount={id:crypto.randomUUID(),providerId:'openai',label:'A',enabled:false,createdAt:'now',updatedAt:'now'};let signingIn=false;
+ const pi=adapter(),official=adapter(),runtime=createRuntime({dataDir:root,accounts:{get:id=>id===account.id?account:null,isSigningIn:()=>signingIn}},{pi:()=>pi.runtime,official:()=>official.runtime});
+ vi.mocked(pi.runtime.models).mockResolvedValue([{id:'openai/model',provider:'openai',name:'A'},{id:'github-copilot/model',provider:'github-copilot',name:'Other'}]);
+ vi.mocked(official.runtime.models).mockResolvedValue([{id:'gemini-cli/pro',provider:'gemini-cli',name:'Other'}]);
+ expect(await runtime.models({accountId:account.id})).toEqual([{id:'openai/model',provider:'openai',name:'A'}]);expect(official.runtime.models).not.toHaveBeenCalled();
+ signingIn=true;await expect(runtime.models({accountId:account.id})).rejects.toMatchObject({code:'ACCOUNT_SIGNING_IN'});await runtime.dispose();
+});
+
+it('rejects redirected named-account directories before any auth or session adapter call',async()=>{
+ const root=profileFixture(),outside=profileFixture(),account:ConnectionAccount={id:crypto.randomUUID(),providerId:'openai',label:'A',enabled:true,createdAt:'now',updatedAt:'now'};
+ mkdirSync(join(root,'accounts'));symlinkSync(outside,accountProfileRoot(root,account),'junction');
+ const pi=adapter(),official=adapter(),runtime=createRuntime({dataDir:root,accounts:{get:()=>account}},{pi:()=>pi.runtime,official:()=>official.runtime});runtime.configure({onEvent:()=>{},onTool:async()=>null});
+ await expect(runtime.start({...input(),accountId:account.id})).rejects.toMatchObject({code:'CAPABILITY_DENIED'});expect(pi.runtime.start).not.toHaveBeenCalled();
+ await expect(runtime.models({accountId:account.id})).rejects.toMatchObject({code:'CAPABILITY_DENIED'});expect(pi.runtime.models).not.toHaveBeenCalled();
+ await runtime.dispose();
+});
+
+it('rejects a resolver that changes the provider of an already acquired account profile',async()=>{
+ const root=profileFixture();let account:ConnectionAccount={id:crypto.randomUUID(),providerId:'openai',label:'A',enabled:true,createdAt:'now',updatedAt:'now'};
+ const pi=adapter(),official=adapter(),runtime=createRuntime({dataDir:root,accounts:{get:()=>account}},{pi:()=>pi.runtime,official:()=>official.runtime});
+ await runtime.models({accountId:account.id});account={...account,providerId:'gemini-cli'};
+ await expect(runtime.models({accountId:account.id})).rejects.toMatchObject({code:'ACCOUNT_PROVIDER_MISMATCH'});expect(official.runtime.models).not.toHaveBeenCalled();await runtime.dispose();
+});
+
+it('denies a descendant Pi junction before actual session validation can resolve another account history',async()=>{
+ const root=profileFixture(),account:ConnectionAccount={id:crypto.randomUUID(),providerId:'openai',label:'A',enabled:true,createdAt:'now',updatedAt:'now'},other={...account,id:crypto.randomUUID(),label:'B'},aRoot=accountProfileRoot(root,account),bRoot=accountProfileRoot(root,other);
+ const bSessions=taskPaths(bRoot,'task').sessionsDir;mkdirSync(bSessions,{recursive:true});writeFileSync(join(bSessions,'saved.jsonl'),JSON.stringify({type:'session',id:'saved',version:3})+'\n');mkdirSync(aRoot,{recursive:true});symlinkSync(join(bRoot,'pi'),join(aRoot,'pi'),'junction');
+ const pi=adapter(),official=adapter(),runtime=createRuntime({dataDir:root,accounts:{get:id=>id===account.id?account:null}},{pi:options=>{pi.runtime.history=vi.fn(async path=>[await validateSessionPath(options.dataDir,path)]);return pi.runtime;},official:()=>official.runtime});
+ const aSession=join(taskPaths(aRoot,'task').sessionsDir,'saved.jsonl');
+ // The underlying lexical-root validator alone follows this junction into B.
+ expect(await validateSessionPath(aRoot,aSession)).toBe(join(bSessions,'saved.jsonl'));
+ await expect(runtime.history(aSession,account.id)).rejects.toMatchObject({code:'CAPABILITY_DENIED'});expect(pi.runtime.history).not.toHaveBeenCalled();await runtime.dispose();
 });

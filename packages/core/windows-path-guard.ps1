@@ -35,10 +35,11 @@ public static class HarnessPathGuard {
   static List<ManifestEntry> Manifest;
   public static void Begin(string id) { Held = new List<SafeFileHandle>(); Groups.Add(id, Held); Manifest = new List<ManifestEntry>(); Manifests.Add(id, Manifest); }
   public static ManifestEntry[] GetManifest(string id) { return Manifests[id].ToArray(); }
-  static Info Pin(string path, bool directory, bool readOnly = false) {
-    // Directories deny write/delete opens; files share ordinary writes but deny deletion.
+  static Info Pin(string path, bool directory, bool readOnly = false, bool allowChildWrites = false, bool createMarker = false) {
+    // Strict directory guards deny write/delete opens; files share writes but deny deletion.
     // Include data/list access: attribute-only opens do not enforce Windows sharing denial.
-    var handle = CreateFile(path, directory ? 0x81u : 0x80000080u, directory || readOnly ? 1u : 3u, IntPtr.Zero, 3, 0x02200000, IntPtr.Zero);
+    var sharing = directory ? 1u : (readOnly ? 1u : 3u);
+    var handle = CreateFile(path, directory ? 0x81u : 0x80000080u, sharing, IntPtr.Zero, createMarker ? 4u : 3u, 0x02200000, IntPtr.Zero);
     if (handle.IsInvalid) { handle.Dispose(); throw new Win32Exception(Marshal.GetLastWin32Error()); }
     Held.Add(handle);
     Info info;
@@ -52,18 +53,35 @@ public static class HarnessPathGuard {
     if (actual.StartsWith(@"\\?\UNC\", StringComparison.OrdinalIgnoreCase)) actual = @"\\" + actual.Substring(8);
     else if (actual.StartsWith(@"\\?\", StringComparison.Ordinal)) actual = actual.Substring(4);
     if (!String.Equals(actual.TrimEnd('\\'), path.TrimEnd('\\'), StringComparison.OrdinalIgnoreCase)) throw new IOException("Opened resource path changed");
+    if (directory && allowChildWrites) {
+      // NTFS requires an empty directory to establish a reparse point:
+      // https://learn.microsoft.com/en-us/windows/win32/fileio/reparse-points
+      // Pin an ordinary marker before relaxing write sharing for native atomic saves.
+      // Its read-only, deny-delete handle keeps the directory nonempty throughout use.
+      Pin(Path.Combine(path, ".harness-directory-guard"), false, true, false, true);
+      var writable = CreateFile(path, 0x81u, 3u, IntPtr.Zero, 3, 0x02200000, IntPtr.Zero);
+      if (writable.IsInvalid) { writable.Dispose(); throw new Win32Exception(Marshal.GetLastWin32Error()); }
+      Held.Add(writable);
+      Info verified;
+      if (!GetFileInformationByHandle(writable, out verified) || verified.Volume != info.Volume || verified.IndexHigh != info.IndexHigh || verified.IndexLow != info.IndexLow || (verified.Attributes & 0x400) != 0) throw new IOException("Account directory identity changed");
+      handle.Dispose();
+    }
     return info;
   }
-  public static void Acquire(string path, bool leaf, string volume, string index, bool empty, bool tree, bool readOnly) {
+  static bool Within(string path, string root) { return String.Equals(path, root, StringComparison.OrdinalIgnoreCase) || path.StartsWith(root + "\\", StringComparison.OrdinalIgnoreCase); }
+  public static void Acquire(string path, bool leaf, string volume, string index, bool empty, bool tree, bool readOnly, bool allowChildWrites, string childWriteRoot) {
+    if (allowChildWrites && leaf) throw new IOException("Child writes require a directory namespace guard");
     path = Path.GetFullPath(path);
     // Local disk paths only. Device/UNC namespaces have different identity semantics.
     if (path.Length < 3 || path[1] != ':' || path[2] != '\\' || path.Substring(2).Contains(":")) throw new IOException("Only local ordinary paths are supported");
-    string current = Path.GetPathRoot(path); Pin(current, true);
+    childWriteRoot = allowChildWrites ? Path.GetFullPath(String.IsNullOrEmpty(childWriteRoot) ? path : childWriteRoot).TrimEnd('\\') : "";
+    if (allowChildWrites && !Within(path.TrimEnd('\\'), childWriteRoot)) throw new IOException("Child-write scope must contain its guarded directory");
+    string current = Path.GetPathRoot(path); Pin(current, true, false, allowChildWrites && Within(current.TrimEnd('\\'), childWriteRoot));
     string[] parts = path.Substring(current.Length).Split(new char[]{'\\'}, StringSplitOptions.RemoveEmptyEntries);
     for (int i=0; i<parts.Length; i++) {
       current = Path.Combine(current, parts[i]);
       bool last = i == parts.Length-1;
-      if (!last || Directory.Exists(current)) Pin(current, true);
+      if (!last || allowChildWrites || Directory.Exists(current)) Pin(current, true, false, allowChildWrites && Within(current.TrimEnd('\\'), childWriteRoot));
       else if (leaf) Pin(current, false, readOnly);
     }
     if (leaf && !String.IsNullOrEmpty(volume)) {
@@ -162,7 +180,7 @@ try {
     $request = $line | ConvertFrom-Json
     if ($request.command -eq 'acquire') {
       [HarnessPathGuard]::Begin([string]$request.id)
-      foreach ($entry in $request.paths) { [HarnessPathGuard]::Acquire([string]$entry.path, [bool]$entry.leaf, [string]$entry.dev, [string]$entry.ino, [bool]$entry.empty, [bool]$entry.tree, [bool]$entry.readOnly) }
+      foreach ($entry in $request.paths) { [HarnessPathGuard]::Acquire([string]$entry.path, [bool]$entry.leaf, [string]$entry.dev, [string]$entry.ino, [bool]$entry.empty, [bool]$entry.tree, [bool]$entry.readOnly, [bool]$entry.allowChildWrites, [string]$entry.childWriteRoot) }
     } elseif ($request.command -eq 'release') { [HarnessPathGuard]::Release([string]$request.id) }
     elseif ($request.command -eq 'removeOwned') { [HarnessPathGuard]::RemoveOwned([string]$request.path, [string]$request.dev, [string]$request.ino, [bool]$request.empty, [bool]$request.directory) }
     elseif ($request.command -eq 'replaceOwned') { [HarnessPathGuard]::ReplaceOwned([string]$request.source, [string]$request.destination, [string]$request.dev, [string]$request.ino, [string]$request.sha256, [string]$request.targetDev, [string]$request.targetIno, [string]$request.targetSha256) }

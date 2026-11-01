@@ -9,20 +9,23 @@ import {loginMain} from '../runtime-pi/login.ts';
 import {safeError} from '../runtime-pi/sdk.ts';
 import {terminateProcessTree} from '../runtime-pi/process-tree.ts';
 import {officialRuntimeCommand,officialRuntimeEnvironment,officialRuntimeHome} from '../runtime-official/environment.ts';
+import {isAccountId} from '../contracts/accounts.ts';
+import {withAccountLogin} from './account-login.ts';
 
-interface LoginRequest {provider:ConnectionProviderId;dataDir:string;noOpen:boolean}
+interface LoginRequest {provider:ConnectionProviderId;dataDir:string;noOpen:boolean;accountId?:string}
 export function parseConnectionLogin(args:string[]):LoginRequest{
- let provider:unknown='openai',dataDir:string|undefined,noOpen=false;
+ let provider:unknown='openai',dataDir:string|undefined,noOpen=false,accountId:string|undefined;const seen=new Set<string>();
  for(let index=0;index<args.length;index++){
   const flag=args[index];
+  if(seen.has(flag))throw Error('Each login option may be supplied only once.');seen.add(flag);
   if(flag==='--no-open'){noOpen=true;continue;}
-  if(flag!=='--provider'&&flag!=='--data-dir')throw Error('Unsupported login argument. Secrets are entered only in the connection console.');
+  if(flag!=='--provider'&&flag!=='--data-dir'&&flag!=='--account-id')throw Error('Unsupported login argument. Secrets are entered only in the connection console.');
   const value=args[++index];if(!value||value.startsWith('--'))throw Error('A login option is missing its value.');
-  if(flag==='--provider')provider=value;else dataDir=value;
+  if(flag==='--provider')provider=value;else if(flag==='--account-id'){if(!isAccountId(value))throw Error('Choose a saved subscription account.');accountId=value;}else dataDir=value;
  }
  if(!isConnectionProviderId(provider))throw Error('Choose an available connection from Settings.');
  if(isOfficialRuntimeProviderId(provider)&&noOpen)throw Error('This provider uses its native sign-in flow; --no-open applies to Pi OAuth connections.');
- return {provider,dataDir:resolve(dataDir??process.env.HARNESS_DATA_DIR??join(process.env.LOCALAPPDATA??homedir(),'GenerativeHarness')),noOpen};
+ return {provider,dataDir:resolve(dataDir??process.env.HARNESS_DATA_DIR??join(process.env.LOCALAPPDATA??homedir(),'GenerativeHarness')),noOpen,...(accountId?{accountId}:{})};
 }
 
 async function officialLogin({provider,dataDir}:{provider:OfficialRuntimeProviderId;dataDir:string}):Promise<void>{
@@ -53,10 +56,12 @@ async function officialLogin({provider,dataDir}:{provider:OfficialRuntimeProvide
 }
 
 export async function connectionLoginMain(args=process.argv.slice(2),dependencies={pi:loginMain,official:officialLogin}):Promise<void>{
- if(args.includes('--help')){process.stderr.write(`pnpm agent:login [--data-dir PATH] [--provider ${SUBSCRIPTION_CONNECTIONS.filter(row=>isConnectionProviderId(row.id)).map(row=>row.id).join('|')}] [--no-open]\nSecrets stay in the connection console. Official runtimes authenticate directly in isolated app profiles. No app-side billing fallback; provider usage settings apply.\n`);return;}
+ if(args.includes('--help')){process.stderr.write(`pnpm agent:login [--data-dir PATH] [--provider ${SUBSCRIPTION_CONNECTIONS.filter(row=>isConnectionProviderId(row.id)).map(row=>row.id).join('|')}] [--account-id SAVED_ID] [--no-open]\nSecrets stay in the connection console. Official runtimes authenticate directly in isolated app profiles. No app-side billing fallback; provider usage settings apply.\n`);return;}
  const request=parseConnectionLogin(args);
- if(isOfficialRuntimeProviderId(request.provider))await dependencies.official({provider:request.provider,dataDir:request.dataDir});
- else await dependencies.pi(args);
+ await withAccountLogin(request,async dataDir=>{
+  if(isOfficialRuntimeProviderId(request.provider))await dependencies.official({provider:request.provider,dataDir});
+  else await dependencies.pi(request.accountId?['--provider',request.provider,'--data-dir',dataDir,...(request.noOpen?['--no-open']:[])]:args);
+ });
 }
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
  void connectionLoginMain().catch(error=>{process.stderr.write(safeError(error)+'\n');process.exitCode=1;});

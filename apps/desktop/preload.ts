@@ -7,7 +7,7 @@ ipcRenderer.on(channels.closeRequest,(_event,requestId:unknown)=>{
 });
 const bridge:DesktopBridge={
  getContext:()=>ipcRenderer.invoke(channels.context),ready:()=>ipcRenderer.invoke(channels.ready),detach:surface=>ipcRenderer.invoke(channels.detach,surface),reattach:()=>ipcRenderer.invoke(channels.reattach),minimize:()=>ipcRenderer.invoke(channels.minimize),resetBounds:()=>ipcRenderer.invoke(channels.reset),focus:id=>ipcRenderer.invoke(channels.focus,id),list:()=>ipcRenderer.invoke(channels.list),browser:command=>ipcRenderer.invoke(channels.browser,command),
- signIn:provider=>ipcRenderer.invoke(channels.signIn,provider),
+ signIn:(provider,accountId)=>ipcRenderer.invoke(channels.signIn,...(accountId!==undefined?[{provider,accountId}]:[provider])),
  onState:listener=>{const receive=(_event:Electron.IpcRendererEvent,state:DesktopState)=>listener(state);ipcRenderer.on(channels.state,receive);return()=>ipcRenderer.removeListener(channels.state,receive);},
  onCloseRequested:handler=>{closeHandlers.add(handler);return()=>closeHandlers.delete(handler);},
  onWorkspaceChanged:listener=>{const receive=(_event:Electron.IpcRendererEvent,value:unknown)=>{if(!value||typeof value!=='object')return;const change=value as Record<string,unknown>;if(Object.keys(change).length===2&&typeof change.connected==='boolean'&&Number.isSafeInteger(change.sequence)&&Number(change.sequence)>=0)listener({connected:change.connected,sequence:Number(change.sequence)});};ipcRenderer.on(channels.workspaceChanged,receive);return()=>ipcRenderer.removeListener(channels.workspaceChanged,receive);},

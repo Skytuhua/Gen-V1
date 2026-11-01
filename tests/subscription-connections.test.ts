@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createSubscriptionRuntime, selectSubscriptionModel, subscriptionModels } from '../packages/runtime-pi/models.ts';
-import { loginSubscription } from '../packages/runtime-pi/login.ts';
+import { loginMain, loginSubscription } from '../packages/runtime-pi/login.ts';
 
 const fixture = vi.hoisted(() => ({ sdk: undefined as any }));
 vi.mock('../packages/runtime-pi/credentials.ts', () => ({ createLiteralCredentialStore: async (authPath: string) => ({ read: async (provider: string) => fixture.sdk.readStoredCredential(provider, authPath) }) }));
@@ -38,6 +38,23 @@ beforeEach(() => fakeSdk());
 afterEach(() => { vi.restoreAllMocks(); });
 
 describe('subscription connection boundaries', () => {
+  it.each(['SIGINT', 'SIGTERM'] as const)('cancels an owned native login on %s and removes its signal handlers', async signalName => {
+    const { runtime } = fakeSdk(); let signal: AbortSignal | undefined;
+    const before = [process.listenerCount('SIGINT'), process.listenerCount('SIGTERM')];
+    vi.spyOn(process.stderr, 'write').mockReturnValue(true);
+    runtime.login.mockImplementation(async (_provider, _method, channel) => {
+      signal = (channel as { signal: AbortSignal }).signal;
+      await new Promise<void>((_resolve, reject) => signal!.addEventListener('abort', () => reject(Error('Synthetic login cancelled')), { once: true }));
+    });
+    const outcome = loginMain(['--provider', 'openai', '--data-dir', 'synthetic-login-only', '--no-open']).then(() => null, error => error as Error);
+    try {
+      await expect.poll(() => !!signal).toBe(true);
+      process.emit(signalName);
+      expect(signal!.aborted).toBe(true);
+      expect((await outcome)?.message).toBe('Synthetic login cancelled');
+      expect([process.listenerCount('SIGINT'), process.listenerCount('SIGTERM')]).toEqual(before);
+    } finally { process.emit('SIGINT'); await outcome; }
+  });
   it('discovers only approved OAuth providers and strips every API-key resolver', async () => {
     const { sdk, runtime } = fakeSdk({ openai: 'oauth', 'github-copilot': 'oauth', xai: 'oauth', anthropic: 'oauth', google: 'api_key' });
     expect((await subscriptionModels('fake-auth')).map(model => model.provider)).toEqual(['openai', 'github-copilot', 'xai']);

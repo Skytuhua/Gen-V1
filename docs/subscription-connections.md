@@ -1,6 +1,20 @@
 # Subscription connections
 
-Last updated: 2026-10-31.
+Last updated: 2026-11-01.
+
+## Multiple subscription accounts
+
+The source build supports named accounts per available provider, using T3 Code's separate-provider-instance model. In **Settings → Providers**, add a local label, connect that account explicitly, then choose **Use** for new tasks. Desktop opens the fixed native sign-in console; browser users receive `pnpm agent:login --provider PROVIDER --account-id SAVED_ID`. The command without an account ID still targets the existing legacy profile. Adding or selecting an account does not start sign-in or a task.
+
+Each named account has a private, hashed profile namespace. Existing credentials are not copied or moved. The first accepted message binds a task to its account; changing defaults cannot move an existing chat, history, compaction, side conversation or planning reader to another account. Older tasks keep the existing legacy profile. Account labels and opaque IDs are public local metadata; provider credentials never enter the settings snapshot.
+
+**Remove** disables future selection and preserves profiles and established task bindings. **Restore** makes the saved connection available again. Credential changes are refused while that account still owns native work or teardown. Login ownership is retained while its process remains alive, including a cancellation that has not finished; another account is never substituted.
+
+An abandoned login reservation survives console exit, lease expiry and host restart until confirmed cleanup; a dead console alone cannot prove that its native children stopped. A reported unconfirmed shutdown also prevents ordinary lease cleanup. These cases require investigation and confirmed native shutdown before metadata recovery; retrying or restoring the account does not clear them. Windows account directories retain pinned ordinary `.harness-directory-guard` files while in use, allowing native atomic file updates while keeping their directory namespaces nonempty and protected. These guards apply within the chosen harness data directory and do not turn native runtimes into an OS sandbox.
+
+The account namespace and picker mechanics are copied/adapted from pinned T3 Code commit `8760d063e903406c8e8f695b0852c0a15fc1e00f`. Exact sources, changes and hashes are recorded in the [third-party attribution](../third-party/t3code/README.md), with the complete MIT license retained for distribution. Existing Pi and official runtimes handle authentication; T3's managed ChatGPT broker, arbitrary environment overrides, automatic account rotation and API-key billing fallback are not introduced.
+
+This feature is a source-build change. Previously published installers and account-specific live sign-in/inference acceptance retain their separate verification status.
 
 Current v0.5.1 source implements nine connection IDs through Pi OAuth, dedicated plan keys and official runtimes, including the reviewed Cursor preview connection. The [verified v0.5.1 installer](evidence/runtime-clarity-20261031/report.md) includes all nine and repairs unsupported-compaction presentation and Cursor bootstrap Git context. The preserved [v0.5.0 package](evidence/cursor-subscription-20261031/report.md) also contains nine; v0.4.1 contains the earlier eight. Provider-specific live sign-in/inference acceptance remains separate. Availability in Settings means an integration exists; it does not establish local authentication, account entitlement or successful inference. See the [Cursor contract and verification limits](plans/cursor-subscription-adapter-20261031.md).
 

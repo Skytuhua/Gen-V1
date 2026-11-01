@@ -4,6 +4,7 @@ export const NODE_VERSION='24.22.2';
 export const NODE_ARCHIVE_SHA256='ca1bff5d8ead13c9f2ea404a176db46bd430704d5b5113734049fa365e7799e2';
 export const REQUIRED_RUNTIME_FILES=[
  'node/node.exe','host/apps/server/main.ts','host/node_modules/tsx/dist/loader.mjs',
+ 'host/third-party/t3code/LICENSE',
  'host/node_modules/fastify/package.json','host/node_modules/@earendil-works/pi-coding-agent/package.json',
  'host/packages/runtime/index.ts','host/packages/runtime-login/index.ts','host/packages/runtime-pi/worker.ts',
  'host/packages/runtime-official/index.ts','host/node_modules/@anthropic-ai/claude-agent-sdk/sdk.mjs',

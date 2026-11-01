@@ -19,7 +19,7 @@ export interface DesktopBridge {
   detach(surface:DesktopSurface):Promise<DesktopWindowInfo>;
   reattach():Promise<void>;
   minimize():Promise<void>;
-  signIn(provider?:string):Promise<void>;
+  signIn(provider?:string,accountId?:string):Promise<void>;
   resetBounds():Promise<void>;
   focus(windowId:string):Promise<void>;
   list():Promise<DesktopWindowInfo[]>;

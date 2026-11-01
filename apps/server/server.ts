@@ -74,9 +74,10 @@ export async function buildServer(service: Service, options: ServerOptions) {
   });
   app.get("/api/models", async (request, reply) => {
     reply.header("Cache-Control", "no-store");
-    const { refresh } = request.query as { refresh?: unknown };
+    const { refresh,threadId } = request.query as { refresh?: unknown;threadId?:unknown };
     if (refresh !== undefined && refresh !== "1" && refresh !== "true") throw new HarnessError("INVALID_INPUT", "Model refresh must be 1 or true");
-    try { return { models: await service.runtime.models({ refresh: refresh !== undefined }) }; }
+    if(threadId!==undefined&&(typeof threadId!=='string'||!threadId||threadId.length>200))throw new HarnessError('INVALID_INPUT','Choose a valid thread for model discovery');
+    try { return { models: await service.models({ refresh: refresh !== undefined,threadId:threadId as string|undefined }) }; }
     catch (error) { return { models: [], error: error instanceof Error ? error.message : "Pi is unavailable" }; }
   });
   app.post("/api/commands", async request => service.command(commandSchema.parse(request.body)));

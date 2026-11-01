@@ -96,7 +96,7 @@ export class Store {
     for (const ref of refs) { const key = ref.id + "@" + ref.revision; if (!seen.has(key)) { const item = this.get<Snapshot["data"][number]>("dataVersion", key); if (item) { data.push(item); seen.add(key); } } }
     return {
       seq: this.sequence, threads, archivedThreads: allThreads.filter(thread => archived.has(thread.id)), messages: this.all("message"), artifacts, userStates: this.all("userState"),
-      data, requests, operations: this.all("operation"), resources: this.all("resource"), memory: this.all('taskMemory'),
+      data, requests, accounts: this.all('account'), operations: this.all("operation"), resources: this.all("resource"), memory: this.all('taskMemory'),
       usage: Object.fromEntries(this.all<{ id: string; value: unknown }>("usage").map(x => [x.id, x.value])) as Snapshot["usage"],
       settings: this.get("settings", "global") ?? { theme: "dark", modelId: null },
       activeThreadId: threads.find(t => !t.sideParentId && t.runId !== null && (t.status === "working" || t.status === "awaiting_input"))?.id ?? null

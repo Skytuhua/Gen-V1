@@ -10,9 +10,9 @@ import {allowRemoteBrowserUrl,clampDesktopBounds,isTrustedDesktopSender,needsEdi
 import {createBrowserProxy,type BrowserProxy} from './browser-proxy.ts';
 import {nodeSidecarArguments} from './backend-policy.ts';
 import {releaseOwnedBrowsers} from './browser-lifecycle.ts';
-import {launchDesktopSignIn,type DesktopSignInHandle} from './auth-launcher.ts';
+import {launchDesktopSignIn,parseDesktopSignInTarget,type DesktopSignInHandle} from './auth-launcher.ts';
 import {captureDesktopPlacement,parseDesktopPlacement,placeOnDesktopDisplay,restoreDesktopPlacement,retainDesktopPlacement,type DesktopDisplay,type DesktopPlacement} from './display-layout.ts';
-import {isConnectionProviderId,type ConnectionProviderId} from '../../packages/contracts/connections.ts';
+import type {ConnectionProviderId} from '../../packages/contracts/connections.ts';
 import {workspaceEvents} from './workspace-events.ts';
 
 interface BrowserRecord {id:string;view:WebContentsView;state:DesktopBrowserState;owner?:WindowRecord;generation:number;networkReady:Promise<void>}
@@ -32,13 +32,14 @@ function handoff<T>(action:()=>Promise<T>):Promise<T>{const next=handoffQueue.ca
 const root=resolve(process.env.HARNESS_DESKTOP_HOST_ROOT??(app.isPackaged?join(process.resourcesPath,'host'):join(dirname(fileURLToPath(import.meta.url)),'../..')));
 const nodePath=resolve(process.env.HARNESS_DESKTOP_NODE_PATH??join(process.resourcesPath,'node','node.exe'));
 const backendDataDir=resolve(testData?join(testData,'host'):process.env.HARNESS_DATA_DIR??join(process.env.LOCALAPPDATA??app.getPath('home'),'GenerativeHarness'));
-let signInHandle:DesktopSignInHandle|undefined,signInStarting:Promise<void>|undefined,signInControl:AbortController|undefined,signInProvider:ConnectionProviderId|undefined;
-async function beginSignIn(provider:ConnectionProviderId='openai'){
+let signInHandle:DesktopSignInHandle|undefined,signInStarting:Promise<void>|undefined,signInControl:AbortController|undefined,signInTarget:string|undefined;
+async function beginSignIn(provider:ConnectionProviderId='openai',accountId?:string){
  if(quitting)throw Error('The application is closing.');
- if((signInStarting||signInHandle)&&signInProvider!==provider)throw Error('Finish or close the current provider sign-in before starting another.');
+ const target=JSON.stringify([provider,accountId??null]);
+ if((signInStarting||signInHandle)&&signInTarget!==target)throw Error('Finish or close the current account sign-in before starting another.');
  if(signInStarting)return signInStarting;if(signInHandle)return;
- const control=new AbortController();signInControl=control;signInProvider=provider;
- signInStarting=(async()=>{const handle=await launchDesktopSignIn({nodePath,hostRoot:root,dataDir:backendDataDir,provider,signal:control.signal});signInHandle=handle;if(quitting)await handle.cancel();void handle.completion.catch(()=>{}).finally(()=>{if(signInHandle===handle)signInHandle=undefined;if(signInControl===control)signInControl=undefined;if(!signInHandle)signInProvider=undefined;});})().finally(()=>{signInStarting=undefined;if(!signInHandle)signInProvider=undefined;});
+ const control=new AbortController();signInControl=control;signInTarget=target;
+ signInStarting=(async()=>{const handle=await launchDesktopSignIn({nodePath,hostRoot:root,dataDir:backendDataDir,provider,accountId,signal:control.signal});signInHandle=handle;if(quitting)await handle.cancel();void handle.completion.catch(()=>{}).finally(()=>{if(signInHandle===handle)signInHandle=undefined;if(signInControl===control)signInControl=undefined;if(!signInHandle)signInTarget=undefined;});})().finally(()=>{signInStarting=undefined;if(!signInHandle)signInTarget=undefined;});
  return signInStarting;
 }
 const preload=join(dirname(fileURLToPath(import.meta.url)),'preload.cjs');
@@ -158,7 +159,7 @@ function registerIpc(){
   try{if(!await requestClose(record))throw Error('Save the window edits before attaching it');if(main.window.isDestroyed())throw Error('The main window closed before attachment. Your detached view is still available.');if(record.browser)moveBrowser(record.browser,main,true);const surface=record.surface;destroyWindow(record);broadcast(surface);}catch(error){cancelClose(record);throw error;}
  }));
  handle(channels.minimize,record=>record.window.minimize());
- handle(channels.signIn,(_record,value)=>{if(value!==undefined&&!isConnectionProviderId(value))throw Error('Unsupported subscription provider. Sign-in accepts no executable arguments.');return beginSignIn(value??'openai');});
+ handle(channels.signIn,(_record,value)=>{const target=parseDesktopSignInTarget(value);return beginSignIn(target.provider,target.accountId);});
  handle(channels.reset,record=>resetWindowPosition(record));
  handle(channels.focus,(_record,value)=>{if(!desktopId(value))throw Error('Invalid window identity');const target=windows.get(value);if(!target)throw Error('Window is no longer open');if(target.window.isMinimized())target.window.restore();target.window.show();target.window.focus();});
  handle(channels.closeAnswer,(record,value)=>{if(!value||typeof value!=='object'||Array.isArray(value))throw Error('Invalid close acknowledgment');const answer=value as Record<string,unknown>,request=record.closeRequest;if(Object.keys(answer).length!==2||typeof answer.allow!=='boolean'||!request||answer.requestId!==request.id)throw Error('Stale close acknowledgment');clearTimeout(request.timer);request.resolve(answer.allow);});

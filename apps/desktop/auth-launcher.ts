@@ -2,17 +2,25 @@ import {spawn,type ChildProcess} from 'node:child_process';
 import {isAbsolute,basename,join,resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {isConnectionProviderId,type ConnectionProviderId} from '../../packages/contracts/connections.ts';
+import {isAccountId} from '../../packages/contracts/accounts.ts';
 
-export interface DesktopSignInOptions {nodePath:string;hostRoot:string;dataDir:string;provider?:ConnectionProviderId;signal?:AbortSignal}
+export interface DesktopSignInOptions {nodePath:string;hostRoot:string;dataDir:string;provider?:ConnectionProviderId;accountId?:string;signal?:AbortSignal}
 export interface DesktopSignInHandle {completion:Promise<void>;cancel():Promise<void>}
 
 export function quoteWindowsArgument(value:string):string {
  if(/[\u0000-\u001f]/.test(value))throw Error('Invalid sign-in argument');
  return '"'+value.replace(/(\\*)"/g,'$1$1\\"').replace(/(\\+)$/,'$1$1')+'"';
 }
-export function desktopSignInArguments(hostRoot:string,dataDir:string,provider:ConnectionProviderId='openai'):string[] {
+export function parseDesktopSignInTarget(value:unknown):{provider:ConnectionProviderId;accountId?:string}{
+ if(value===undefined)return {provider:'openai'};
+ if(isConnectionProviderId(value))return {provider:value};
+ if(value&&typeof value==='object'&&!Array.isArray(value)&&Object.keys(value).length===2&&['provider','accountId'].every(key=>Object.hasOwn(value,key))){const input=value as Record<string,unknown>;if(isConnectionProviderId(input.provider)&&isAccountId(input.accountId))return {provider:input.provider,accountId:input.accountId};}
+ throw Error('Choose an available provider and saved account. Sign-in accepts no executable arguments.');
+}
+export function desktopSignInArguments(hostRoot:string,dataDir:string,provider:ConnectionProviderId='openai',accountId?:string):string[] {
  if(!isConnectionProviderId(provider))throw Error('Unsupported subscription provider');
- return ['--import',pathToFileURL(join(hostRoot,'node_modules/tsx/dist/loader.mjs')).href,join(hostRoot,'packages/runtime-login/index.ts'),'--data-dir',dataDir,'--provider',provider];
+ if(accountId!==undefined&&!isAccountId(accountId))throw Error('Choose a saved subscription account.');
+ return ['--import',pathToFileURL(join(hostRoot,'node_modules/tsx/dist/loader.mjs')).href,join(hostRoot,'packages/runtime-login/index.ts'),'--data-dir',dataDir,'--provider',provider,...(accountId?['--account-id',accountId]:[])];
 }
 
 // Only this fixed helper is executed. Paths/arguments arrive as JSON data on
@@ -53,7 +61,7 @@ function paths(options:DesktopSignInOptions){
  for(const path of [options.nodePath,options.hostRoot,options.dataDir])if(!isAbsolute(path)||/[\u0000-\u001f"]/.test(path))throw Error('Desktop sign-in paths are invalid');
  if(basename(options.nodePath).toLowerCase()!=='node.exe')throw Error('The bundled Node executable is required for sign-in');
  const systemRoot=resolve(process.env.SystemRoot??'C:/Windows');
- return {executable:join(systemRoot,'System32/WindowsPowerShell/v1.0/powershell.exe'),taskkill:join(systemRoot,'System32/taskkill.exe'),arguments:desktopSignInArguments(resolve(options.hostRoot),resolve(options.dataDir),options.provider).map(quoteWindowsArgument).join(' ')};
+ return {executable:join(systemRoot,'System32/WindowsPowerShell/v1.0/powershell.exe'),taskkill:join(systemRoot,'System32/taskkill.exe'),arguments:desktopSignInArguments(resolve(options.hostRoot),resolve(options.dataDir),options.provider,options.accountId).map(quoteWindowsArgument).join(' ')};
 }
 
 export async function launchDesktopSignIn(options:DesktopSignInOptions):Promise<DesktopSignInHandle>{

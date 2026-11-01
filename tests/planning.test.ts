@@ -8,6 +8,8 @@ import { PlanningCoordinator, type PlanningHooks } from '../packages/core/planni
 import { agentProgress, PlanUpdateSchema } from '../packages/contracts/planning.ts';
 import { PLANNING_TOOLS } from '../packages/core/planning-tools.ts';
 import type { DomainContext } from '../packages/capabilities/index.ts';
+import {createRuntime} from '../packages/runtime/index.ts';
+import {accountResolver,beginAccountLogin} from '../packages/core/accounts.ts';
 
 const cleanups: (() => Promise<void>)[] = [];
 afterEach(async () => { for (const clean of cleanups.splice(0)) await clean(); });
@@ -44,6 +46,23 @@ function setup() {
   const tool = (i: number, name: string, args = {}) => children[i].callbacks.onTool({ name, args }, children[i].input!);
   return { store, coordinator, ctx, controller, children, domain, hooks, directory, tasks, waitStarted, event, tool, revoke: () => { valid = false; } };
 }
+
+it('pins auxiliary readers to the parent account before asynchronous runtime creation',async()=>{
+ const x=setup(),accountId=crypto.randomUUID(),parent=x.store.get<Thread>('thread',x.ctx.threadId)!;
+ x.store.internal('fixture.account',parent.id,()=>{x.store.put('account',accountId,null,{id:accountId,providerId:'openai',label:'Parent',enabled:true,createdAt:'now',updatedAt:'now'});x.store.put('thread',parent.id,parent.id,{...parent,accountId,modelId:'openai/model'});});
+ const pending=x.coordinator.delegate(x.ctx,{commandId:'bound-account',tasks:x.tasks()},x.controller.signal);await x.waitStarted();
+ try{expect(x.children[0].input).toMatchObject({accountId,modelId:'openai/model'});}finally{x.event(0,'settled');await pending;}
+});
+
+it('retains auxiliary account use after parent revocation until native cancellation completes',async()=>{
+ const x=setup(),parent=x.store.get<Thread>('thread',x.ctx.threadId)!,factory=x.hooks.runtimeFactory!;let release!:()=>void;
+ x.store.internal('fixture.provider',parent.id,()=>x.store.put('thread',parent.id,parent.id,{...parent,modelId:'openai/model'}));
+ x.hooks.runtimeFactory=()=>{const native=factory() as RuntimeAdapter;native.cancel=vi.fn(()=>new Promise<void>(done=>{release=done;}));return createRuntime({dataDir:x.store.dataDir,accounts:accountResolver(x.store)},{pi:()=>native,official:()=>({...native,configure:()=>{}})});};
+ const pending=x.coordinator.delegate(x.ctx,{commandId:'auxiliary-use',tasks:x.tasks()},x.controller.signal);await x.waitStarted();
+ x.store.internal('fixture.revoke',parent.id,()=>x.store.put('thread',parent.id,parent.id,{...parent,modelId:'openai/model',runId:null,status:'stopped'}));const cancelling=x.coordinator.cancel(x.ctx);
+ try{expect(()=>beginAccountLogin(x.store,'openai',null)).toThrow(expect.objectContaining({code:'ACCOUNT_BUSY'}));}finally{release();await cancelling;await pending;}
+ expect(x.store.all('accountUse')).toHaveLength(0);
+});
 
 describe('durable plan and real auxiliary jobs', () => {
   it('advertises only strict bounded JSON schemas and rejects forged or oversized plan state', () => {

@@ -3,6 +3,7 @@ import {homedir} from 'node:os';
 import {Store} from '../../packages/storage/store.ts';
 import {Service} from '../../packages/core/service.ts';
 import {createRuntime} from '../../packages/runtime/index.ts';
+import {accountResolver} from '../../packages/core/accounts.ts';
 import {buildServer,buildWidgetServer,type MountRegistry} from './server.ts';
 
 export interface HostOptions {dataDir:string;port:number;widgetPort:number;dev:boolean}
@@ -46,7 +47,7 @@ export async function launchHost(options:HostOptions,overrides:Partial<HostFacto
   if(failures.length)throw new AggregateError(failures,`Could not close the harness: ${failures[0] instanceof Error?failures[0].message:'resource cleanup failed'}`);
  })();
  try {
-  store=make.createStore(resolve(options.dataDir));runtime=make.createRuntime({dataDir:store.dataDir});service=make.createService(store,runtime);
+  store=make.createStore(resolve(options.dataDir));runtime=make.createRuntime({dataDir:store.dataDir,accounts:accountResolver(store)});service=make.createService(store,runtime);
   const mounts:MountRegistry=new Map();
   app=await make.buildServer(service,{port:hostPort,widgetPort,dev:options.dev,mounts});
   widgets=await make.buildWidgetServer(service,mounts,widgetPort);

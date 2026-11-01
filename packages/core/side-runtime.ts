@@ -10,6 +10,7 @@ export class SideRuntime {
  private closed=false;
  constructor(private factory:()=>RuntimeAdapter|Promise<RuntimeAdapter>,private callbacks:RuntimeCallbacks){}
  async start(input:StartRun):Promise<void>{
+  input={...input};
   if(this.closed)throw new HarnessError('RUNTIME_DISPOSED','Side conversations have closed.');
   if(this.owners.has(input.threadId))throw new HarnessError('RUN_BUSY','Wait for this side response to finish.');
   if(this.owners.size>=2)throw new HarnessError('SIDE_CHAT_LIMIT','At most two side conversations may work at once.');

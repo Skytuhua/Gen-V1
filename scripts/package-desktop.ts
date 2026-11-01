@@ -14,6 +14,7 @@ await copySources(resolve('packages'));await copySources(resolve('apps/server'))
 async function copyTree(source:string,target:string){await mkdir(target,{recursive:true});for(const entry of await readdir(source,{withFileTypes:true})){if(entry.isSymbolicLink())throw Error('Asset links are unsupported');const input=join(source,entry.name),output=join(target,entry.name);if(entry.isDirectory())await copyTree(input,output);else await copyFile(input,output);}}
 await copyTree(resolve('dist/web'),resolve(host,'dist/web'));await copyTree(resolve('dist/widget-runtime'),resolve(host,'dist/widget-runtime'));
 await copyTree(resolve('dist/desktop-app'),resolve(stage,'desktop-app'));
+await copyTree(resolve('third-party/t3code'),resolve(host,'third-party/t3code'));
 const pkg=JSON.parse(await readFile('package.json','utf8'));await writeFile(resolve(host,'package.json'),JSON.stringify({...pkg,scripts:{}},null,2));await copyFile('pnpm-lock.yaml',resolve(host,'pnpm-lock.yaml'));await writeFile(resolve(host,'.npmrc'),'node-linker=hoisted\npackage-import-method=copy\n');
 const pnpm=process.env.npm_execpath;if(!pnpm)throw Error('Use pnpm desktop:package so the locked package manager is available');
 const install=packageManagerInvocation(pnpm,process.execPath,runtimeInstallArguments(host));await run(install.file,install.args,host);

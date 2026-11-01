@@ -17,6 +17,7 @@ import { useShellLayout, matchesShortcut } from './shell-layout';
 import { ResizeHandle, WorkspacePanel } from './WorkspacePanel';
 import { WorkspaceProvider } from './workspace-context';
 import './shell.css';
+import './connections.css';
 import { ContextInspector } from './ContextInspector';
 import {PlanningQuestion} from './PlanningQuestion';
 import {UsageFooter} from './UsageFooter';
@@ -36,6 +37,7 @@ type SettingsComponent = typeof import('./Settings').Settings;
 let loadedSettings: SettingsComponent | undefined;
 
 const emptySnapshot: Snapshot = { seq: 0, threads: [], messages: [], artifacts: [], userStates: [], data: [], requests: [], operations: [], resources: [], usage: {}, settings: { theme: 'dark', modelId: null }, activeThreadId: null };
+const hasPinnedAccount = (thread: Thread | undefined, snapshot: Snapshot) => Boolean(thread && (thread.accountId !== undefined || thread.modelId || thread.sessionPath || thread.runId || thread.epoch > 0 || snapshot.messages.some(message => message.threadId === thread.id)));
 const messageOf = (error: unknown) => error instanceof Error ? error.message : 'The request could not be completed.';
 
 function Dialog({ title, children, close }: { title: string; children: ReactNode; close: () => void }) {
@@ -219,7 +221,7 @@ function Composer({ thread, models, modelId, setModelId, snapshot, ensureThread,
       <textarea ref={input} aria-label="Message" placeholder={dragging ? 'Drop files to attach' : 'Ask anything, or bring something to work on…'} value={draft} disabled={!ready} onChange={event => updateDraft(event.target.value)} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing && (preferences.sendShortcut === 'enter' || event.ctrlKey || event.metaKey)) { event.preventDefault(); void send(); } }} rows={1} />
       <ComposerToolbar models={models} modelId={modelId} onModelChange={id=>{chooseThinking('');setModelId(id);}} thinkingLevel={thinkingLevel} onThinkingChange={chooseThinking} projectLabel={project?.label} changeSummary={changes} onProject={()=>project?browseProject(project.id):addResource()} onChanges={inspectChanges} onCreatePR={preparePR} onTranscript={text=>{const current=draftLatest.current;updateDraft(current+(current&&!/\s$/.test(current)?' ':'')+text);}} disabled={busy||!ready} working={working} separateActions
         leading={<><button type="button" className="icon-button attach-button" aria-label="Attach files" title="Attach files" disabled={busy} onClick={()=>file.current?.click()}><Plus size={18}/></button><input type="file" multiple ref={file} hidden onChange={event=>{if(event.target.files)void upload(event.target.files);event.target.value='';}}/></>}
-        runtime={<><span className="pill runtime-pill" title="Local Pi runtime"><Laptop size={14}/>Local</span><label className="mode-picker"><span className="sr-only">Task mode</span><select aria-label="Task mode" disabled={working||busy} value={thread?.mode??'build'} onChange={event=>{const mode=event.target.value;void runAction(async()=>{try{const id=await ensureThread(id=>migrateDraft(id,draft,true));await command('thread.mode',{mode},id);await refresh();}catch(cause){setError(messageOf(cause));}});}}><option value="build">Build</option><option value="plan">Plan</option></select></label></>}
+        runtime={<>{hasPinnedAccount(thread, snapshot) && <span className="composer-account" title="Pinned account for this task">{thread?.accountId == null ? 'Legacy connection' : snapshot.accounts?.find(account => account.id === thread?.accountId)?.label ?? 'Unavailable account'}</span>}<span className="pill runtime-pill" title="Local Pi runtime"><Laptop size={14}/>Local</span><label className="mode-picker"><span className="sr-only">Task mode</span><select aria-label="Task mode" disabled={working||busy} value={thread?.mode??'build'} onChange={event=>{const mode=event.target.value;void runAction(async()=>{try{const id=await ensureThread(id=>migrateDraft(id,draft,true));await command('thread.mode',{mode},id);await refresh();}catch(cause){setError(messageOf(cause));}});}}><option value="build">Build</option><option value="plan">Plan</option></select></label></>}
         context={preferences.showComposerContext&&<span ref={contextAnchor} className="context-anchor"><button type="button" className="icon-button context-button" aria-label="Inspect context usage" aria-expanded={contextOpen} onClick={()=>setContextOpen(value=>!value)}><SlidersHorizontal size={15}/></button>{contextOpen&&<ContextInspector usage={thread?snapshot.usage[thread.id]:undefined} thread={thread} close={()=>setContextOpen(false)} refresh={refresh}/>}</span>}
         trailing={working?<>{/^\/(?:btw|side)(?:\s|$)/i.test(draft.trim())&&<button type="button" className="send-button" aria-label="Send side question" disabled={busy||!ready} onClick={()=>void send()}><ArrowUp size={17}/></button>}<button type="button" className="send-button stop-button" aria-label="Stop agent" onClick={()=>{void command('run.stop',{},thread!.id).then(()=>refresh()).catch(error=>setError(messageOf(error)));}}><CircleStop size={20}/></button></>:<button className="send-button" aria-label="Send message" disabled={busy||unavailable||!draft.trim()||!ready} title={unavailable?'Connect an available model in Settings to send.':'Send message (Enter)'}>{busy?<LoaderCircle size={17} className="spinning"/>:<ArrowUp size={19}/>}</button>}
       />
@@ -321,15 +323,47 @@ export function App() {
     refreshPending.current = (async () => { do { refreshAgain.current = false; apply(await getSnapshot()); } while (refreshAgain.current); })();
     try { await refreshPending.current; } finally { refreshPending.current = null; }
   }, [apply]);
-  const loadModels = useCallback(async (refresh = false) => { try { const result = await getModels(refresh); setModels(result.models); setModelError(result.error ?? ''); setModelId(previous => previous && result.models.some(item => item.id === previous) ? previous : snapshotRef.current.settings.modelId ?? result.models[0]?.id ?? ''); } catch (error) { setModelError(messageOf(error)); } }, []);
+  const modelThread = snapshot.threads.find(item => item.id === selectedId) ?? (pinnedThreadId ? undefined : snapshot.threads.find(item => item.id === snapshot.activeThreadId));
+  const modelThreadRef = useRef(modelThread); modelThreadRef.current = modelThread;
+  const modelBinding = hasPinnedAccount(modelThread, snapshot) ? modelThread?.accountId ?? null : undefined;
+  const selectedAccountsKey = JSON.stringify(Object.entries(snapshot.settings.selectedAccounts ?? {}).sort(([left], [right]) => left.localeCompare(right)));
+  const modelOwner = `${modelThread?.id ?? 'new'}:${modelBinding === undefined ? 'unbound' : modelBinding ?? 'legacy'}`;
+  const modelContext = modelBinding === undefined ? `${modelOwner}:${selectedAccountsKey}` : modelOwner;
+  const modelContextRef = useRef(modelContext); modelContextRef.current = modelContext;
+  const loadedModelOwner = useRef('');
+  const modelRequest = useRef(0);
+  const loadModels = useCallback(async (refresh = false) => {
+    const owner = modelThreadRef.current, ownerId = owner?.id, context = modelContextRef.current, request = ++modelRequest.current;
+    try {
+      const result = await getModels(refresh, ownerId);
+      if (request !== modelRequest.current || modelContextRef.current !== context) return;
+      setModels(result.models); setModelError(result.error ?? '');
+      setModelId(previous => {
+        if (previous && result.models.some(item => item.id === previous)) return previous;
+        // Bound tasks never silently move to another account or model when its
+        // pinned connection is unavailable. Setup and model changes are explicit.
+        if (hasPinnedAccount(owner, snapshotRef.current)) return owner?.modelId ?? previous;
+        const preferred = owner?.modelId ?? snapshotRef.current.settings.modelId;
+        return result.models.some(item => item.id === preferred) ? preferred! : result.models[0]?.id ?? preferred ?? '';
+      });
+    } catch (error) { if (request === modelRequest.current && modelContextRef.current === context) { setModels([]); setModelError(messageOf(error)); } }
+  }, []);
   const acceptedModel = useRef<string | null | undefined>(undefined);
   useEffect(() => {
     const saved = snapshot.settings.modelId;
-    if (!loaded || acceptedModel.current === saved || saved && !models.some(model => model.id === saved)) return;
+    if (!loaded || hasPinnedAccount(modelThreadRef.current, snapshotRef.current) || acceptedModel.current === saved || saved && !models.some(model => model.id === saved)) return;
     acceptedModel.current = saved;
     if (saved) setModelId(saved);
   }, [loaded, models, snapshot.settings.modelId]);
-  useEffect(() => { let active = true; void bootstrap().then(async () => { await refresh(); if (active) { setLoaded(true); setError(''); } await loadModels(); }).catch(error => { if (active) setError(messageOf(error)); }); return () => { active = false; }; }, [refresh, loadModels]);
+  useEffect(() => { let active = true; void bootstrap().then(async () => { await refresh(); if (active) { setLoaded(true); setError(''); } }).catch(error => { if (active) setError(messageOf(error)); }); return () => { active = false; }; }, [refresh]);
+  useLayoutEffect(() => {
+    if (!loaded) return;
+    setModels([]); setModelError('');
+    if (loadedModelOwner.current !== modelOwner) setModelId(modelThreadRef.current?.modelId ?? snapshotRef.current.settings.modelId ?? '');
+    loadedModelOwner.current = modelOwner;
+    void loadModels();
+    return () => { modelRequest.current++; };
+  }, [loaded, modelOwner, modelContext, loadModels]);
   useEffect(() => { if (!loaded) return; return subscribe(snapshotRef.current.seq, () => { void refresh().catch(error => setError(messageOf(error))); }, setOnline, refresh); }, [loaded, refresh]);
   useEffect(() => { const query = matchMedia('(prefers-color-scheme: dark)'); const change = () => setSystemDark(query.matches); query.addEventListener('change', change); return () => query.removeEventListener('change', change); }, []);
   const theme = snapshot.settings.theme === 'system' ? systemDark ? 'dark' : 'light' : snapshot.settings.theme;

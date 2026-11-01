@@ -132,10 +132,10 @@ async function host(page: Page, initial = snapshot(), hasModels = true) {
   return state;
 }
 
-test('the accepted Settings model reaches the composer and the next sent message', async ({ page }) => {
-  const initial = populated(); initial.settings.modelId = 'test/first';
+test('the accepted Settings model reaches a new task composer and its next sent message', async ({ page }) => {
+  const initial = snapshot(); initial.settings.modelId = 'test/first';
   const state = await host(page, initial);
-  await page.route('**/api/models', route => route.fulfill({ json: { models: [{ id: 'test/first', name: 'First', provider: 'test' }, { id: 'test/second', name: 'Second', provider: 'test' }] } }));
+  await page.route('**/api/models*', route => route.fulfill({ json: { models: [{ id: 'test/first', name: 'First', provider: 'test' }, { id: 'test/second', name: 'Second', provider: 'test' }] } }));
   await page.goto('/');
   await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toHaveValue('test/first');
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
