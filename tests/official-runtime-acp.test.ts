@@ -53,6 +53,18 @@ function acp(options: { version?: number; http?: boolean; google?: boolean; conf
 }
 
 describe('official Gemini CLI ACP runtime', () => {
+  it('provides a model-only Gemini session without native MCP tools and preserves Hermes markup',async()=>{
+    const fake=acp({holdPrompt:true,http:false}),events:RuntimeEvent[]=[],onTool=vi.fn(async()=>null),runtime=createOfficialRuntime({dataDir:await data(),modelOnly:true},{spawn:fake.spawn});
+    runtime.configure({onEvent:event=>events.push(event),onTool});
+    try{
+      await runtime.start(run());await vi.waitFor(()=>expect(fake.messages.some(message=>message.method==='session/prompt')).toBe(true));
+      expect(fake.messages.find(message=>message.method==='session/new')?.params.mcpServers).toEqual([]);
+      const env=fake.calls[0].settings.env,settings=JSON.parse(await readFile(env.GEMINI_CLI_SYSTEM_SETTINGS_PATH,'utf8')),system=await readFile(env.GEMINI_SYSTEM_MD,'utf8');
+      expect(settings.mcp.allowed).toEqual([]);expect(settings.mcpServers).toEqual({});expect(settings.tools.core).toEqual(['mcp_host_no_tools']);expect(system).toContain('text-model transport for Hermes');expect(system).not.toContain('ui_present');
+      const content='<tool_call>{"name":"skill_manage"}</tool_call>\n日本語';fake.children[0].update({sessionUpdate:'agent_message_chunk',content:{type:'text',text:content}});fake.children[0].reply(fake.messages.find(message=>message.method==='session/prompt'),{stopReason:'end_turn'});
+      await vi.waitFor(()=>expect(events.some(event=>event.type==='assistant.message'&&event.content===content)).toBe(true));expect(onTool).not.toHaveBeenCalled();
+    }finally{await runtime.dispose();}
+  });
   it.each(['stdout','stderr'] as const)('settles an active Gemini %s failure even when the error observer throws',async stream=>{
     const fake=acp({holdPrompt:true}),events:RuntimeEvent[]=[],runtime=createOfficialRuntime({dataDir:await data()},{spawn:fake.spawn});
     runtime.configure({onEvent:event=>{events.push(event);if(event.type==='error')throw Error('Synthetic observer failure');},onTool:async()=>null});

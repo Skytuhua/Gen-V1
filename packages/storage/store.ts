@@ -89,16 +89,18 @@ export class Store {
     const allThreads = this.all<Snapshot["threads"][number]>("thread");
     const archivedRows = this.db.prepare("SELECT id,body FROM entities WHERE kind=?").all("archivedThread") as { id: string; body: string }[];
     const archived = new Set(archivedRows.filter(row => JSON.parse(row.body)).map(row => row.id));
+    const visibleRows=this.db.prepare("SELECT body FROM entities WHERE kind=? AND (thread_id IS NULL OR thread_id NOT IN (SELECT value FROM json_each(?)))"),archivedIds=JSON.stringify([...archived]);
+    const visible=<T>(kind:string):T[] => (visibleRows.all(kind,archivedIds) as {body:string}[]).map(row=>JSON.parse(row.body) as T);
     const threads = allThreads.filter(thread => !archived.has(thread.id));
-    const artifacts = this.all<Snapshot["artifacts"][number]>("artifact"), requests = this.all<Snapshot["requests"][number]>("request");
-    const data = this.all<Snapshot["data"][number]>("data"), seen = new Set(data.map(d => d.id + "@" + d.revision));
+    const artifacts = visible<Snapshot["artifacts"][number]>("artifact"), requests = visible<Snapshot["requests"][number]>("request");
+    const data = visible<Snapshot["data"][number]>("data"), seen = new Set(data.map(d => d.id + "@" + d.revision));
     const refs = [...artifacts.flatMap(a => Object.values(a.bindings).flatMap(b => b.mode === "snapshot" ? [b.ref] : [])), ...requests.flatMap(r => r.basis)];
     for (const ref of refs) { const key = ref.id + "@" + ref.revision; if (!seen.has(key)) { const item = this.get<Snapshot["data"][number]>("dataVersion", key); if (item) { data.push(item); seen.add(key); } } }
     const skillUsage=new Map((this.db.prepare('SELECT id,body FROM entities WHERE kind=?').all('skillUsage') as {id:string;body:string}[]).map(row=>[row.id,JSON.parse(row.body) as {count:number;lastUsedAt:string}]));
     return {
-      seq: this.sequence, threads, archivedThreads: allThreads.filter(thread => archived.has(thread.id)), messages: this.all("message"), artifacts, userStates: this.all("userState"),
-      data, requests, accounts: this.all('account'), skills:this.all<import('../contracts/skills.ts').SkillSummary>('skill').map(skill=>{const usage=skillUsage.get(skill.name);return usage?{...skill,useCount:usage.count,lastUsedAt:usage.lastUsedAt}:skill;}),skillProposals:(this.db.prepare("SELECT json_remove(body,'$.operations') AS body FROM entities WHERE kind=? AND json_extract(body,'$.status')='pending'").all('skillProposal') as {body:string}[]).map(row=>JSON.parse(row.body)),learning:this.get('learningStatus','global')??{supported:false,status:'idle',lastReview:null},operations: this.all("operation"), resources: this.all("resource"), memory: this.all('taskMemory'),
-      usage: Object.fromEntries(this.all<{ id: string; value: unknown }>("usage").map(x => [x.id, x.value])) as Snapshot["usage"],
+      seq: this.sequence, threads, archivedThreads: allThreads.filter(thread => archived.has(thread.id)), messages: visible("message"), artifacts, userStates: visible("userState"),
+      data, requests, accounts: this.all('account'), skills:this.all<import('../contracts/skills.ts').SkillSummary>('skill').map(skill=>{const usage=skillUsage.get(skill.name);return usage?{...skill,useCount:usage.count,lastUsedAt:usage.lastUsedAt}:skill;}),skillProposals:(this.db.prepare("SELECT json_remove(body,'$.operations') AS body FROM entities WHERE kind=? AND json_extract(body,'$.status')='pending'").all('skillProposal') as {body:string}[]).map(row=>JSON.parse(row.body)),learning:this.get('learningStatus','global')??{supported:false,status:'idle',lastReview:null},operations: visible("operation"), resources: visible("resource"), memory: visible('taskMemory'),
+      usage: Object.fromEntries(visible<{ id: string; value: unknown }>("usage").map(x => [x.id, x.value])) as Snapshot["usage"],
       settings: this.get("settings", "global") ?? { theme: "dark", modelId: null },
       activeThreadId: threads.find(t => !t.sideParentId && t.runId !== null && (t.status === "working" || t.status === "awaiting_input"))?.id ?? null
     };

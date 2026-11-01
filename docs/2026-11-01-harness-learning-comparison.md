@@ -1,5 +1,7 @@
 # Procedural learning and open-source architecture comparison
 
+Historical implementation report. The [original Hermes source integration](2026-11-01-hermes-source-integration.md) supersedes this report's TypeScript learning engine and intentional algorithm differences. The pinned upstream research remains useful; this report's implementation and test results do not establish acceptance of the source replacement.
+
 Last updated: 2026-11-01. Research baseline: `a9543794bffa5daacdf86a5e38b1f013acd99652`.
 
 The Harness now implements the core Hermes-style procedural-learning loop: discover a reusable procedure, load it when needed, improve it through versioned tools, and reuse it in another conversation. Eligible completed responses can trigger a separate model review. This is an adaptation of that loop, not a copy of the entire Hermes product or proof of equal quality with every open-source harness.

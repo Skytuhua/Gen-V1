@@ -11,6 +11,16 @@ const cleanups:(()=>Promise<void>)[]=[];
 afterEach(async()=>{for(const close of cleanups.splice(0).reverse())await close();});
 const user:SkillActor={kind:'user'},agent:SkillActor={kind:'agent',threadId:'source-thread',runId:'source-run',evidence:['operation:verified']};
 const timestamp='2026-11-01T12:00:00.000Z';
+it('lets read-only planners load exact source names without mixing underscore history matches',()=>{
+ const x=fixture();x.create('legacy-template',user);const template=viewSkill(x.store,'legacy-template').skill;
+ x.store.internal('fixture.source',null,()=>{for(const name of ['verify_source.v1','verifyXsource.v1']){const skill={...template,name,protected:true};x.store.put('skill',name,null,skill);x.store.put('hermesSkill',name,null,{name,fingerprint:name});x.store.put('skillVersion',`${name}@1`,null,{revision:1,at:timestamp,actor:user,action:name,skill:{...skill,content:'Read the actual projected source.',files:{}}});}});
+ const loaded=viewSkill(x.store,'verify_source.v1');expect(loaded.content).toContain('actual projected source');expect(loaded.versions.map(version=>version.action)).toEqual(['verify_source.v1']);
+ expect(()=>x.change([{action:'create',name:'legacy_bad.name',description:'A legacy write.',content:'Keep legacy validation.',baseRevision:0}],user)).toThrow(expect.objectContaining({code:'INVALID_SKILL'}));
+});
+it('keeps pending migration records out of planner discovery while preserving explicit inspection',()=>{
+ const x=fixture();x.create('legacy-pending',user);x.store.internal('fixture.pending',null,()=>x.store.put('skill','legacy-pending',null,{...viewSkill(x.store,'legacy-pending').skill,migrationError:'Needs an explicit migration.'}));
+ expect(listSkills(x.store).skills).toEqual([]);expect(()=>viewSkill(x.store,'legacy-pending')).toThrow(expect.objectContaining({code:'SKILL_DISABLED'}));expect(viewSkill(x.store,'legacy-pending',{includeInactive:true}).content).toContain('Inspect the exact source.');
+});
 function fixture(){
  const root=realpathSync(tmpdir()),directory=mkdtempSync(join(root,'harness-skills-'));let store=new Store(directory);
  cleanups.push(async()=>{store.close();if(realpathSync(directory)!==resolve(directory)||!directory.startsWith(root+sep)||lstatSync(directory).isSymbolicLink())throw Error('Unsafe skill fixture cleanup');await rm(directory,{recursive:true,force:true,maxRetries:5,retryDelay:50});});

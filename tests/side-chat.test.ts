@@ -86,10 +86,10 @@ it('cancels a failing side runtime without cancelling the parent',async()=>{
  const failing=new ScriptedRuntime();failing.failure=new Error('Scripted startup error');const x=await setup(()=>failing);await x.ask(x.parent.id);const side=await x.createSide();await x.ask(side.id);
  await vi.waitFor(()=>expect(x.service.thread(side.id).status).toBe('interrupted'));expect(failing.cancels).toHaveLength(1);expect(x.main.cancels).toHaveLength(0);expect(x.service.thread(x.parent.id).runId).not.toBeNull();
 });
-it('does not wait for a stopped factory on shutdown and ignores its late events',async()=>{
+it('waits for a stopped factory cleanup on shutdown and never starts its late adapter',async()=>{
  let resolve!:(value:RuntimeAdapter)=>void;const creating=new Promise<RuntimeAdapter>(done=>{resolve=done;}),late=new ScriptedRuntime(),x=await setup(()=>creating),side=await x.createSide();
  await x.ask(side.id);await vi.waitFor(()=>expect(x.service.thread(side.id).runId).not.toBeNull());
- await x.service.dispose();resolve(late);await vi.waitFor(()=>expect(late.disposed).toBe(1));expect(late.starts).toHaveLength(0);
+ let disposed=false;const closing=x.service.dispose().then(()=>{disposed=true;});await Promise.resolve();expect(disposed).toBe(false);resolve(late);await closing;expect(late.disposed).toBe(1);expect(late.starts).toHaveLength(0);
 });
 it('revokes the old side owner before settlement so it cannot mutate a later run',async()=>{
  const x=await setup(),side=await x.createSide();await x.ask(side.id);await vi.waitFor(()=>expect(x.sides[0]?.starts).toHaveLength(1));const old=x.sides[0].starts[0];x.sides[0].finish();

@@ -8,8 +8,9 @@ import { selectSubscriptionModel, subscriptionModels,thinkingForModel } from "./
 import { safeError } from "./sdk.ts";
 import { openTaskSession, taskPaths } from "./session.ts";
 import { createHostResourceLoader, createHostTools, loadDomainTools } from "./tool-definitions.ts";
+import {assertModelOnlyInput} from '../runtime/model-only.ts';
 
-interface Command { type: "command"; requestId: string; command: "models" | "start" | "followUp" | "compact" | "abort"; dataDir: string; input?: StartRun; ctx?: RunContext }
+interface Command { type: "command"; requestId: string; command: "models" | "start" | "followUp" | "compact" | "abort"; dataDir: string; input?: StartRun; ctx?: RunContext;modelOnly?:boolean }
 let session: AgentSession | undefined;
 let bridge: ToolBridge | undefined;
 let context: RunContext | undefined;
@@ -40,15 +41,15 @@ async function initialize(command: Command) {
   const { sdk, runtime, model } = await selectSubscriptionModel(paths.authPath, input.modelId);
   if (shuttingDown) throw new Error("Pi run aborted during initialization.");
   bridge = new ToolBridge(context, send);
-  const customTools = createHostTools(await loadDomainTools(), (id, name, args, signal) => bridge!.call(id, name, args, signal));
+  const customTools = command.modelOnly?[]:createHostTools(await loadDomainTools(), (id, name, args, signal) => bridge!.call(id, name, args, signal));
   const sessionManager = await openTaskSession(command.dataDir, input);
   if (shuttingDown) throw new Error("Pi run aborted during initialization.");
   const created = await sdk.createAgentSession({
     cwd: paths.taskDir, agentDir: paths.agentDir, modelRuntime: runtime, model,
     thinkingLevel:thinkingForModel(model,input.thinkingLevel),
-    sessionManager, resourceLoader: createHostResourceLoader(sdk, input.memory),
+    sessionManager, resourceLoader: createHostResourceLoader(sdk, input.memory,command.modelOnly),
     settingsManager: sdk.SettingsManager.inMemory({ cacheWarming: "off", retry: { enabled: true, maxRetries: 2 }, compaction: { enabled: true } }),
-    tools: customTools.map(tool => tool.name), customTools,
+    tools: customTools.map(tool => tool.name), customTools,...(command.modelOnly?{noTools:'all' as const}:{}),
   });
   session = created.session;
   if (shuttingDown) { session.dispose(); throw new Error("Pi run aborted during initialization."); }
@@ -70,6 +71,7 @@ async function initialize(command: Command) {
 
 async function handle(command: Command) {
   if (command.command === "models") return subscriptionModels(taskPaths(command.dataDir, "models").authPath);
+  if(command.modelOnly&&command.input)assertModelOnlyInput(command.input);
   assertInputAuthority();
   if (command.command === "start" || (command.command === "compact" && !session)) await initialize(command);
   if (!session || !context || !sameContext(command.input ?? command.ctx, context)) throw new Error("Stale Pi worker context.");

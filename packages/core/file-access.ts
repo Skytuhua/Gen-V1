@@ -9,30 +9,33 @@ import { assertNotStorage, resolveGrant, PROTECTED_STORAGE_DIRECTORIES } from ".
 
 type GuardPath = { path: string; leaf: boolean; dev?: string; ino?: string; empty?: boolean; tree?: boolean; readOnly?: boolean; allowChildWrites?:boolean; childWriteRoot?:string };
 export interface GuardEntry { readonly path: string; readonly directory: boolean; readonly dev: string; readonly ino: string; readonly size: number }
-interface GuardSession { rpc(request: Record<string, unknown>): Promise<readonly GuardEntry[]>; exited: boolean }
+interface GuardSession { rpc(request: Record<string, unknown>): Promise<readonly GuardEntry[]>; exited: boolean; loss:Set<()=>void> }
 const sessions = new AsyncLocalStorage<GuardSession>();
 const denied = () => new HarnessError("CAPABILITY_DENIED", "Cannot establish a stable ordinary filesystem resource guard");
 function active(signal: AbortSignal) { if (signal.aborted) throw new HarnessError("CANCELLED", "Filesystem operation cancelled"); }
 
 /** Application-scoped Windows namespace guard; never an OS sandbox for project code. */
-export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal, action: (manifest: readonly GuardEntry[]) => Promise<T>): Promise<T> {
+export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal, action: (manifest: readonly GuardEntry[]) => Promise<T>,onLoss?:()=>void): Promise<T> {
   if(paths.some(path=>path.allowChildWrites&&path.leaf))throw new HarnessError('CAPABILITY_DENIED','Child-write sharing is supported only for directory namespace guards.');
   active(signal);
   const session = sessions.getStore();
   if (session) {
     const id = randomUUID();
     const manifest = await session.rpc({ command: "acquire", id, paths });
+    if(onLoss)session.loss.add(onLoss);
     try { active(signal); const value = await action(manifest); if (session.exited) throw denied(); return value; }
-    finally { if (!session.exited) await session.rpc({ command: "release", id }); }
+    finally { if(onLoss)session.loss.delete(onLoss);if (!session.exited) await session.rpc({ command: "release", id }); }
   }
   if (process.platform !== "win32") throw denied();
   // Use the system binary and a fixed script: no shell, profiles, PATH lookup or command interpolation.
   const executable = join(process.env.SystemRoot ?? "C:\\Windows", "System32", "WindowsPowerShell", "v1.0", "powershell.exe");
   const child = spawn(executable, ["-NoLogo", "-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-File", fileURLToPath(new URL("./windows-path-guard.ps1", import.meta.url))], { stdio: ["pipe", "pipe", "pipe"], windowsHide: true });
   child.stdout.setEncoding("utf8");
-  const current: GuardSession = { exited: false, rpc: async () => [] };
-  child.once("exit", () => { current.exited = true; });
-  child.once("error", () => { current.exited = true; });
+  const current: GuardSession = { exited: false, rpc: async () => [],loss:new Set(onLoss?[onLoss]:[]) };
+  let releasing=false;
+  const lost=()=>{current.exited=true;if(!releasing)for(const notify of current.loss)try{notify();}catch{/* A loss observer cannot stop guard teardown. */}};
+  child.once("exit", lost);
+  child.once("error", lost);
   let diagnostics = "";
   child.stderr.on("data", bytes => { if (diagnostics.length < 1024) diagnostics += String(bytes); });
   const closed = new Promise<void>(finish => child.once("close", () => { current.exited = true; finish(); }));
@@ -73,6 +76,7 @@ export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal, 
     if (current.exited) throw denied();
     return value;
   } finally {
+    releasing=true;current.loss.clear();
     child.stdin.end();
     const timer = setTimeout(() => child.kill(), 2000);
     await closed; clearTimeout(timer);

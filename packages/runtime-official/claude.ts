@@ -6,6 +6,7 @@ import { hostSystemPrompt } from '../runtime-pi/tool-definitions.ts';
 import { officialRuntimeCommand, officialRuntimeEnvironment } from './environment.ts';
 import { asyncQueue, bounded, finite, textContent, type DriverContext, type OfficialDriver } from './internal.ts';
 import { saveManifest } from './manifest.ts';
+import {MODEL_ONLY_SYSTEM_PROMPT} from '../runtime/model-only.ts';
 
 export type ClaudeSdk = Pick<typeof import('@anthropic-ai/claude-agent-sdk'), 'query'>;
 
@@ -44,9 +45,9 @@ export async function openClaude(context: DriverContext, sdk: ClaudeSdk, modelId
     ...(resuming ? { resume: context.manifest.value.sessionId! } : { sessionId: context.manifest.value.sessionId! }),
     tools: [], settingSources: [], strictMcpConfig: true,
     skills: [], plugins: [], agents: {},
-    systemPrompt: hostSystemPrompt(context.memory),
+    systemPrompt: context.modelOnly?MODEL_ONLY_SYSTEM_PROMPT:hostSystemPrompt(context.memory),
     permissionMode: 'default', includePartialMessages: true,
-    mcpServers: { host: { type: 'http', url: context.mcp.url, headers: context.mcp.headers } },
+    mcpServers: context.modelOnly?{}:{ host: { type: 'http', url: context.mcp.url, headers: context.mcp.headers } },
     canUseTool: async (name, args) => permit(name) ? { behavior: 'allow', updatedInput: args } : { behavior: 'deny', message: 'Only current-run host MCP tools are permitted.' },
     hooks: { PreToolUse: [{ hooks: [async hook => ({ hookSpecificOutput: { hookEventName: 'PreToolUse' as const, permissionDecision: permit('tool_name' in hook ? String(hook.tool_name) : '') ? 'allow' as const : 'deny' as const, permissionDecisionReason: 'Host-only run authority.' } })] }] },
     spawnClaudeCodeProcess: options => {
@@ -100,6 +101,7 @@ export async function openClaude(context: DriverContext, sdk: ClaudeSdk, modelId
       for await (const message of query) {
         if (!context.current() || closed) continue;
         const frame = message as any;
+        if(context.modelOnly&&Array.isArray(frame.message?.content)&&frame.message.content.some((block:any)=>block?.type==='tool_use'))throw new HarnessError('MODEL_ONLY_TOOL_DENIED','The native model attempted to execute a tool.');
         if (frame.parent_tool_use_id) continue;
         if (frame.session_id && typeof frame.session_id === 'string') {
           const expected = context.manifest.value.sessionId;

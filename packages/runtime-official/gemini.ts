@@ -6,6 +6,7 @@ import { HarnessError, type ModelInfo } from '../contracts/index.ts';
 import { messageInputIds } from '../runtime-pi/input-envelope.ts';
 import { terminateProcessTree } from '../runtime-pi/process-tree.ts';
 import { hostSystemPrompt } from '../runtime-pi/tool-definitions.ts';
+import {MODEL_ONLY_SYSTEM_PROMPT,MODEL_ONLY_MAX_WIRE_BYTES} from '../runtime/model-only.ts';
 import { AcpConnection } from './acp.ts';
 import { officialRuntimeCommand, officialRuntimeEnvironment, officialRuntimeHome } from './environment.ts';
 import { bounded, finite, type DriverContext, type HistoryReceipt, type OfficialDriver, type WireInput } from './internal.ts';
@@ -58,7 +59,7 @@ export async function openGemini(context: DriverContext, spawnProcess: typeof sp
   if (!core.length) core.push('mcp_host_no_tools');
   const settings = {
     tools: { core, exclude: BUILTIN_TOOLS },
-    mcp: { allowed: ['host'], autoAllowInHeadless: false },
+    mcp: { allowed: context.modelOnly?[]:['host'], autoAllowInHeadless: false },
     mcpServers: {},
     hooksConfig: { enabled: false },
     security: { allowedExtensions: ['(?!)'], auth: { selectedType: 'oauth-personal' } },
@@ -67,7 +68,7 @@ export async function openGemini(context: DriverContext, spawnProcess: typeof sp
     telemetry: { enabled: false },
     advanced: { autoConfigureMemory: false },
   };
-  await Promise.all([writeFile(settingsPath, JSON.stringify(settings), { mode: 0o600 }), writeFile(promptPath, hostSystemPrompt(context.memory), { mode: 0o600 })]);
+  await Promise.all([writeFile(settingsPath, JSON.stringify(settings), { mode: 0o600 }), writeFile(promptPath, context.modelOnly?MODEL_ONLY_SYSTEM_PROMPT:hostSystemPrompt(context.memory), { mode: 0o600 })]);
   if (!context.current()) throw new HarnessError('OFFICIAL_RUN_ABORTED', 'Official run authority was revoked.');
   const command = officialRuntimeCommand('gemini-cli');
   const child = spawnProcess(command.file, [...command.args, '--acp', '--extensions', '__harness_no_extensions__', '--allowed-mcp-server-names', 'host'], {
@@ -108,7 +109,7 @@ export async function openGemini(context: DriverContext, spawnProcess: typeof sp
     if (replaying || historyOnly || initializing) return;
     if (update.sessionUpdate === 'agent_message_chunk' && update.content?.type === 'text' && typeof update.content.text === 'string') content += update.content.text;
     if (update.sessionUpdate === 'usage_update') contextUsage = { contextTokens: finite(update.used), contextWindow: finite(update.size) };
-  });
+  },context.modelOnly?MODEL_ONLY_MAX_WIRE_BYTES:undefined);
   child.stderr?.resume();
   const assert = () => { if (!context.current() || closed) throw new HarnessError('OFFICIAL_RUN_ABORTED', 'Official run authority was revoked.'); };
   async function prompt(text: string) {
@@ -169,13 +170,13 @@ export async function openGemini(context: DriverContext, spawnProcess: typeof sp
     const initialization = await rpc.request('initialize', { protocolVersion: 1, clientInfo: { name: 'generative-harness', version: '0.4.1' }, clientCapabilities: { terminal: false, fs: { readTextFile: false, writeTextFile: false }, auth: { terminal: false } } });
     assert();
     if (initialization.protocolVersion !== 1) throw new HarnessError('OFFICIAL_ACP_UNSUPPORTED', 'This pinned Gemini CLI connection requires negotiated ACP v1. ACP v2 uses a different prompt acceptance and state lifecycle and is not enabled.');
-    if (initialization.agentCapabilities?.mcpCapabilities?.http !== true) throw new HarnessError('OFFICIAL_ACP_UNSUPPORTED', 'The official Gemini CLI did not advertise HTTP MCP support.');
+    if (!context.modelOnly&&initialization.agentCapabilities?.mcpCapabilities?.http !== true) throw new HarnessError('OFFICIAL_ACP_UNSUPPORTED', 'The official Gemini CLI did not advertise HTTP MCP support.');
     if (!initialization.authMethods?.some((method: any) => method.id === 'oauth-personal')) throw new HarnessError('OFFICIAL_SUBSCRIPTION_REQUIRED', 'The official Gemini CLI did not advertise Google account login.');
     await rpc.request('authenticate', { methodId: 'oauth-personal' }); assert();
     if (sessionId && initialization.agentCapabilities?.loadSession !== true) throw new HarnessError('OFFICIAL_RESUME_UNSUPPORTED', 'The official Gemini CLI did not advertise session loading.');
     const response = await rpc.request(sessionId ? 'session/load' : 'session/new', {
       ...(sessionId ? { sessionId } : {}), cwd: context.taskDir,
-      mcpServers: [{ type: 'http', name: 'host', url: context.mcp.url, headers: Object.entries(context.mcp.headers).map(([name, value]) => ({ name, value })) }],
+      mcpServers: context.modelOnly?[]:[{ type: 'http', name: 'host', url: context.mcp.url, headers: Object.entries(context.mcp.headers).map(([name, value]) => ({ name, value })) }],
     });
     assert();
     const id = sessionId ?? response.sessionId;

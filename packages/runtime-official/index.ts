@@ -13,6 +13,7 @@ import { officialRuntimeHome, type OfficialProvider } from './environment.ts';
 import { openManifest, readManifest, saveManifest, secureDirectory, type ManifestState } from './manifest.ts';
 import { createHostMcp, type HostMcp } from './mcp.ts';
 import { bounded, type DriverContext, type HistoryReceipt, type OfficialDriver } from './internal.ts';
+import {assertModelOnlyInput} from '../runtime/model-only.ts';
 
 export { officialRuntimeCommand, officialRuntimeHome, officialRuntimeEnvironment } from './environment.ts';
 export type { OfficialProvider } from './environment.ts';
@@ -33,7 +34,7 @@ function providerModel(modelId: string): { provider: OfficialProvider; modelId: 
   return { provider: match[1], modelId: match[2] };
 }
 
-export function createOfficialRuntime({ dataDir }: { dataDir: string }, dependencies: OfficialRuntimeDependencies = {}): RuntimeAdapter {
+export function createOfficialRuntime({ dataDir,modelOnly }: { dataDir: string;modelOnly?:boolean }, dependencies: OfficialRuntimeDependencies = {}): RuntimeAdapter {
   const storage = resolve(dataDir);
   const authorities = new Set<Authority>();
   const runs = new Map<string, Authority>();
@@ -91,11 +92,11 @@ export function createOfficialRuntime({ dataDir }: { dataDir: string }, dependen
     assert(authority);
     await prepareHome(authority.provider); assert(authority);
     const manifest = authority.manifest = await openManifest(storage, authority.provider, authority.ctx.threadId, sessionPath); assert(authority);
-    const tools = createHostTools(await loadDomainTools(), async () => { throw new Error('Official tools execute through the host MCP bridge.'); }); assert(authority);
-    const mcp = authority.mcp = await createHostMcp({ ctx: authority.ctx, current: () => current(authority), onTool: (call, ctx) => callbacks!.onTool(call, ctx), tools: tools.map(tool => ({ name: tool.name, description: tool.description, parameters: tool.parameters as Record<string, unknown> })) });
+    const tools = modelOnly?[]:createHostTools(await loadDomainTools(), async () => { throw new Error('Official tools execute through the host MCP bridge.'); }); assert(authority);
+    const mcp = authority.mcp = await createHostMcp({ ctx: authority.ctx, current: () => current(authority), onTool: (call, ctx) => {if(modelOnly)throw new HarnessError('MODEL_ONLY_TOOL_DENIED','Native tools are unavailable to the Hermes model transport.');return callbacks!.onTool(call, ctx);}, tools: tools.map(tool => ({ name: tool.name, description: tool.description, parameters: tool.parameters as Record<string, unknown> })) });
     if (!current(authority)) { await mcp.close(); assert(authority); }
     return {
-      dataDir: storage, taskDir: dirname(manifest.path), manifest, mcp, memory,thinkingLevel,
+      dataDir: storage, taskDir: dirname(manifest.path), manifest, mcp, memory,thinkingLevel,...(modelOnly?{modelOnly:true}:{}),
       current: () => current(authority),
       event(type, value = {}) {
         if (!current(authority)) return;
@@ -137,6 +138,7 @@ export function createOfficialRuntime({ dataDir }: { dataDir: string }, dependen
   }
   async function deliver(authority: Authority, input: StartRun): Promise<void> {
     assert(authority);
+    if(modelOnly)assertModelOnlyInput(input);
     if (input.modelId !== `${authority.provider}/${providerModel(input.modelId).modelId}`) throw new HarnessError('OFFICIAL_SESSION_MISMATCH', 'A follow-up cannot switch official providers.');
     if (authority.modelId !== input.modelId) throw new HarnessError('OFFICIAL_MODEL_MISMATCH', 'Stop the active run before changing models.');
     const text = encodeInput(input);
@@ -149,6 +151,7 @@ export function createOfficialRuntime({ dataDir }: { dataDir: string }, dependen
   function queue(input: StartRun, compact: boolean): Promise<void> {
     if (disposed) return Promise.reject(new HarnessError('OFFICIAL_DISPOSED', 'Official runtime is disposed.'));
     if (!callbacks) return Promise.reject(new HarnessError('OFFICIAL_NOT_CONFIGURED', 'Configure runtime callbacks before starting work.'));
+    if(modelOnly){try{assertModelOnlyInput(input);}catch(error){return Promise.reject(error);}}
     if (!input.threadId || !input.runId || !Number.isSafeInteger(input.epoch) || input.epoch < 0) return Promise.reject(new HarnessError('OFFICIAL_CONTEXT_INVALID', 'Invalid official runtime context.'));
     let model: ReturnType<typeof providerModel>;
     try { model = providerModel(input.modelId); }

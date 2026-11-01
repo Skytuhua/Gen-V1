@@ -7,6 +7,32 @@ const cleanups: (() => void)[] = [];
 afterEach(() => { for (const cleanup of cleanups.splice(0)) cleanup(); });
 function setup() { const dir = mkdtempSync(join(tmpdir(), "harness-store-")); const store = new Store(dir); cleanups.push(() => { store.close(); rmSync(dir, { recursive: true, force: true }); }); return store; }
 describe("durable command storage", () => {
+  it('omits archived thread bodies from global snapshots while retaining them for restore',()=>{
+    const store=setup(),large='x'.repeat(1024*1024);
+    store.internal('fixture.archived',null,()=>{
+      store.put('thread','old',null,{id:'old',title:'Archived task',status:'ready',runId:null});store.put('archivedThread','old',null,true);
+      store.put('message','old-message','old',{id:'old-message',threadId:'old',content:large});
+      for(const kind of ['artifact','request','userState','data','operation','resource','taskMemory'])store.put(kind,'old-'+kind,'old',{id:'old-'+kind,threadId:'old',bindings:{},basis:[],revision:1,value:'Archived private body',values:{note:'Archived private body'}});
+      store.put('usage','old','old',{id:'old',value:{inputTokens:123}});
+    });
+    const archived=store.snapshot();expect(archived.threads).toEqual([]);expect(archived.archivedThreads?.map(thread=>thread.id)).toEqual(['old']);
+    for(const values of [archived.messages,archived.artifacts,archived.requests,archived.userStates,archived.data,archived.operations,archived.resources,archived.memory])expect(values).toEqual([]);
+    expect(archived.usage).toEqual({});expect(JSON.stringify(archived).length).toBeLessThan(4096);
+    expect(store.get<{content:string}>('message','old-message')?.content).toBe(large);
+    store.internal('fixture.restore',null,()=>store.remove('archivedThread','old'));
+    const restored=store.snapshot();expect(restored.messages).toMatchObject([{id:'old-message',content:large}]);expect(restored.artifacts).toHaveLength(1);expect(restored.data).toHaveLength(1);expect(restored.usage).toEqual({old:{inputTokens:123}});
+  });
+  it('retains global entities and a visible child when its parent is archived',()=>{
+    const store=setup();store.internal('fixture.child',null,()=>{
+      store.put('thread','parent',null,{id:'parent',title:'Parent',status:'ready',runId:null});store.put('archivedThread','parent',null,true);
+      store.put('thread','child',null,{id:'child',sideParentId:'parent',title:'Child',status:'ready',runId:null});
+      store.put('message','child-message','child',{id:'child-message',threadId:'child',content:'Keep visible child'});
+      store.put('data','global',null,{id:'global',revision:1,value:'Global data'});store.put('taskMemory','global-memory',null,{id:'global-memory',note:'Global note'});
+      store.put('artifact','child-artifact','child',{id:'child-artifact',bindings:{source:{mode:'snapshot',ref:{id:'parent-source',revision:1}}}});
+      store.put('data','parent-source','parent',{id:'parent-source',revision:2,value:'Unreferenced archived current value'});store.put('dataVersion','parent-source@1','parent',{id:'parent-source',revision:1,value:'Explicitly pinned child source'});
+    });
+    const snapshot=store.snapshot();expect(snapshot.threads.map(thread=>thread.id)).toEqual(['child']);expect(snapshot.messages).toMatchObject([{id:'child-message'}]);expect(snapshot.data).toEqual([{id:'global',revision:1,value:'Global data'},{id:'parent-source',revision:1,value:'Explicitly pinned child source'}]);expect(snapshot.memory).toMatchObject([{id:'global-memory'}]);
+  });
   it('keeps snapshot query counts constant as threads grow while preserving archived content and pinned versions', () => {
     const store = setup();
     const thread = (id: string) => ({ id, title: id, status: 'ready', runId: null });

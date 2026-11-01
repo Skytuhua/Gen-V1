@@ -1,0 +1,2 @@
+third-party/hermes-agent/upstream/** -text
+third-party/hermes-agent/runtime-requirements.txt -text

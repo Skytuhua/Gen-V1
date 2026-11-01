@@ -5,9 +5,10 @@ import {createOfficialRuntime} from '../runtime-official/index.ts';
 import {isConnectionProviderId,isOfficialRuntimeProviderId,SUBSCRIPTION_PROVIDER_IDS,OFFICIAL_RUNTIME_PROVIDER_IDS,type ConnectionProviderId,type OfficialRuntimeProviderId} from '../contracts/connections.ts';
 import type {AccountUseLease,ConnectionAccount,RuntimeAccountResolver} from '../contracts/accounts.ts';
 import {accountProfileRoot,withAccountProfile} from './account-profile.ts';
+import {assertModelOnlyInput} from './model-only.ts';
 
 type Provider='pi'|OfficialRuntimeProviderId;
-type Factories={pi:(options:{dataDir:string})=>RuntimeAdapter;official:(options:{dataDir:string})=>RuntimeAdapter};
+type Factories={pi:(options:{dataDir:string;modelOnly?:boolean})=>RuntimeAdapter;official:(options:{dataDir:string;modelOnly?:boolean})=>RuntimeAdapter};
 type Pair={root:string;pi:RuntimeAdapter;official:RuntimeAdapter};
 type Selection={provider:Provider;adapter:RuntimeAdapter;modelId:string;accountId:string|null};
 type Owner=Selection&{ctx:RunContext;closed:boolean;closing?:Promise<void>;lease?:AccountUseLease};
@@ -15,7 +16,7 @@ const key=(ctx:RunContext)=>JSON.stringify([ctx.threadId,ctx.runId,ctx.epoch]);
 const providerForModel=(modelId:string):Provider=>{const provider=modelId.split('/')[0];return isOfficialRuntimeProviderId(provider)?provider:'pi';};
 
 /** Routes execution; each adapter retains its own protocol, auth and session validation. */
-export function createRuntime(options:{dataDir:string;accounts?:RuntimeAccountResolver},factories:Factories={pi:createPiRuntime,official:createOfficialRuntime}):RuntimeAdapter{
+export function createRuntime(options:{dataDir:string;accounts?:RuntimeAccountResolver;modelOnly?:boolean},factories:Factories={pi:createPiRuntime,official:createOfficialRuntime}):RuntimeAdapter{
  const root=resolve(options.dataDir),pairs=new Map<string|null,Pair>(),owners=new Map<string,Owner>(),adapters=new Set<RuntimeAdapter>(),probes=new Map<string,{adapter:RuntimeAdapter;lease:AccountUseLease}>();
  let callbacks:RuntimeCallbacks|undefined,disposed=false;
  const active=()=>{if(disposed)throw new HarnessError('RUNTIME_DISPOSED','The runtime has closed.');};
@@ -31,7 +32,8 @@ export function createRuntime(options:{dataDir:string;accounts?:RuntimeAccountRe
  function pair(account:ConnectionAccount|null):Pair {
   active();const id=account?.id??null,dataDir=account?accountProfileRoot(root,account):root,cached=pairs.get(id);
   if(cached){if(cached.root!==dataDir)throw new HarnessError('ACCOUNT_PROVIDER_MISMATCH','This saved account changed providers.');return cached;}
-  const pi=factories.pi({dataDir}),official=factories.official({dataDir}),created={root:dataDir,pi,official};
+  const adapterOptions=options.modelOnly?{dataDir,modelOnly:true}:{dataDir};
+  const pi=factories.pi(adapterOptions),official=factories.official(adapterOptions),created={root:dataDir,pi,official};
   for(const adapter of [pi,official])adapter.configure({
    onEvent(event){
     let current:Owner;try{current=owner(event,adapter);}catch{return;}
@@ -40,7 +42,7 @@ export function createRuntime(options:{dataDir:string;accounts?:RuntimeAccountRe
     }
     callbacks?.onEvent(event);
    },
-   async onTool(call,ctx){owner(ctx,adapter);if(!callbacks)throw new HarnessError('RUNTIME_NOT_CONFIGURED','The runtime is not configured.');const result=await callbacks.onTool(call,ctx);owner(ctx,adapter);return result;},
+   async onTool(call,ctx){owner(ctx,adapter);if(options.modelOnly)throw new HarnessError('MODEL_ONLY_TOOL_DENIED','Native tools are unavailable to the Hermes model transport.');if(!callbacks)throw new HarnessError('RUNTIME_NOT_CONFIGURED','The runtime is not configured.');const result=await callbacks.onTool(call,ctx);owner(ctx,adapter);return result;},
   });adapters.add(pi);adapters.add(official);pairs.set(id,created);return created;
  }
  pair(null);
@@ -97,8 +99,8 @@ export function createRuntime(options:{dataDir:string;accounts?:RuntimeAccountRe
    });
    if(!models.length&&results.some(result=>result.status==='rejected'))throw new HarnessError('AI_AUTH_REQUIRED','No signed-in subscription runtime is available. Connect a provider in Settings and refresh models.');return models;
   },
-  async start(input:StartRun){const captured={...input},selected=reserve(captured,choose(captured.modelId,captured.sessionPath,captured.accountId)),account=resolveAccount(selected.accountId);try{await withAccountProfile(root,account,async()=>{owner(captured,selected.adapter);available(captured.modelId.split('/')[0],selected.accountId);await selected.adapter.start(captured);},undefined,captured.threadId);}catch(error){await close(selected);throw error;}},
-  async followUp(input){active();const captured={...input},current=owners.get(key(captured));if(!current)throw new HarnessError('STALE_RUN','Start or resume this task under fresh run authority.');if(current.accountId!==(captured.accountId??null))throw new HarnessError('RUNTIME_ACCOUNT_MISMATCH','This run belongs to another account.');if(current.modelId!==captured.modelId)throw new HarnessError('RUNTIME_MODEL_MISMATCH','Stop the active run before changing models.');choose(captured.modelId,captured.sessionPath,captured.accountId);const account=resolveAccount(current.accountId);await withAccountProfile(root,account,async()=>{owner(captured,current.adapter);available(captured.modelId.split('/')[0],current.accountId);await current.adapter.followUp(captured);},undefined,captured.threadId);},
+  async start(input:StartRun){if(options.modelOnly)assertModelOnlyInput(input);const captured={...input},selected=reserve(captured,choose(captured.modelId,captured.sessionPath,captured.accountId)),account=resolveAccount(selected.accountId);try{await withAccountProfile(root,account,async()=>{owner(captured,selected.adapter);available(captured.modelId.split('/')[0],selected.accountId);await selected.adapter.start(captured);},undefined,captured.threadId);}catch(error){await close(selected);throw error;}},
+  async followUp(input){active();if(options.modelOnly)assertModelOnlyInput(input);const captured={...input},current=owners.get(key(captured));if(!current)throw new HarnessError('STALE_RUN','Start or resume this task under fresh run authority.');if(current.accountId!==(captured.accountId??null))throw new HarnessError('RUNTIME_ACCOUNT_MISMATCH','This run belongs to another account.');if(current.modelId!==captured.modelId)throw new HarnessError('RUNTIME_MODEL_MISMATCH','Stop the active run before changing models.');choose(captured.modelId,captured.sessionPath,captured.accountId);const account=resolveAccount(current.accountId);await withAccountProfile(root,account,async()=>{owner(captured,current.adapter);available(captured.modelId.split('/')[0],current.accountId);await current.adapter.followUp(captured);},undefined,captured.threadId);},
   async cancel(ctx){const current=owners.get(key(ctx));if(current)await close(current);},
   async compact(ctx,sessionPath,modelId,accountId){const selected=reserve(ctx,choose(modelId,sessionPath,accountId)),account=resolveAccount(selected.accountId);try{await withAccountProfile(root,account,async()=>{owner(ctx,selected.adapter);available(modelId.split('/')[0],selected.accountId);await selected.adapter.compact(ctx,sessionPath,modelId);},undefined,ctx.threadId);await close(selected);}catch(error){await close(selected);throw error;}},
   async history(sessionPath,accountId){active();const account=resolveAccount(accountId),selected=pair(account),provider=providerForSession(sessionPath,selected);if(account&&isOfficialRuntimeProviderId(account.providerId)&&provider!==account.providerId)throw new HarnessError('RUNTIME_SESSION_MISMATCH','This session belongs to another provider.');if(account&&!isOfficialRuntimeProviderId(account.providerId)&&provider!=='pi')throw new HarnessError('RUNTIME_SESSION_MISMATCH','This session belongs to another provider.');return withAccountProfile(root,account,async()=>{active();const adapter=provider==='pi'?selected.pi:selected.official;return probe(adapter,account?[account.providerId]:provider==='pi'?probeProviders(null,false):[provider],account?.id??null,()=>adapter.history(sessionPath));});},

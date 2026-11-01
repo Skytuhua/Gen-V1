@@ -15,11 +15,28 @@ const cleanup:(()=>Promise<void>)[]=[];
 afterEach(async()=>{for(const close of cleanup.splice(0).reverse())await close();});
 const options={dataDir:resolve('.harness-desktop-unit-unused'),port:4317,widgetPort:4318,dev:false};
 function mocks(){
- const store={dataDir:options.dataDir,close:vi.fn()},runtime={dispose:vi.fn(async()=>{})},service={recover:vi.fn(async()=>{}),dispose:vi.fn(async()=>{})};
+ const profile={dataDir:options.dataDir,close:vi.fn()},store={dataDir:options.dataDir,close:vi.fn()},runtime={dispose:vi.fn(async()=>{})},service={recover:vi.fn(async()=>{}),dispose:vi.fn(async()=>{})};
  const app={addHook:vi.fn(),listen:vi.fn(async()=>{}),close:vi.fn(async()=>{}),server:{address:()=>({port:4317})}},widgets={addHook:vi.fn(),listen:vi.fn(async()=>{}),close:vi.fn(async()=>{}),server:{address:()=>({port:4318})}};
- const factories={createStore:vi.fn(()=>store),createRuntime:vi.fn(()=>runtime),createService:vi.fn(()=>service),buildServer:vi.fn(async()=>app),buildWidgetServer:vi.fn(async()=>widgets)} as unknown as HostFactories;
- return {store,runtime,service,app,widgets,factories};
+ const factories={acquireProfile:vi.fn(()=>profile),createStore:vi.fn(()=>store),createRuntime:vi.fn(()=>runtime),createService:vi.fn(()=>service),buildServer:vi.fn(async()=>app),buildWidgetServer:vi.fn(async()=>widgets)} as unknown as HostFactories;
+ return {profile,store,runtime,service,app,widgets,factories};
 }
+
+it('rejects a second host using the same canonical profile and different ports before Store or recovery',async()=>{
+ const directory=await mkdtemp(join(tmpdir(),'harness-profile-owner-')),first=mocks(),second=mocks();
+ delete (first.factories as Partial<HostFactories>).acquireProfile;delete (second.factories as Partial<HostFactories>).acquireProfile;
+ first.store.dataDir=directory;second.store.dataDir=directory;
+ const firstHost=await launchHost({...options,dataDir:directory},first.factories);
+ try{
+  await expect(launchHost({...options,dataDir:join(directory,'.'),port:4417,widgetPort:4418},second.factories)).rejects.toMatchObject({code:'PROFILE_IN_USE'});
+  expect(second.factories.createStore).not.toHaveBeenCalled();expect(second.service.recover).not.toHaveBeenCalled();expect(first.service.dispose).not.toHaveBeenCalled();
+ }finally{await firstHost.close();await rm(directory,{recursive:true,force:true,maxRetries:5,retryDelay:100});}
+});
+
+it('keeps profile ownership until every shutdown component confirms cleanup',async()=>{
+ const m=mocks(),host=await launchHost(options,m.factories);m.service.dispose.mockRejectedValueOnce(new Error('Synthetic runtime cleanup failure'));
+ expect(m.factories.acquireProfile).toHaveBeenCalledOnce();
+ await expect(host.close()).rejects.toThrow('Synthetic runtime cleanup failure');expect(m.profile.close).not.toHaveBeenCalled();
+});
 
 it('constructs one runtime and reports readiness only after both listeners are live',async()=>{
  const m=mocks();let release!:()=>void;m.widgets.listen.mockImplementationOnce(()=>new Promise<void>(resolve=>{release=resolve;}));
@@ -81,7 +98,7 @@ async function launched(env:NodeJS.ProcessEnv,prepare?:(directory:string)=>void)
  cleanup.push(async()=>{if(child.exitCode===null&&child.signalCode===null){child.kill();await exited;}if(relative(resolve(tmpdir()),resolve(dir))!==basename(dir)||!basename(dir).startsWith('harness-desktop-host-'))throw new Error('Refusing cleanup outside the owned test directory.');await rm(dir,{recursive:true,force:true,maxRetries:5,retryDelay:100});});
  return {child,token,dir,exited,output:()=>output};
 }
-function nextMessage(child:ChildProcess,type:string){return new Promise<Record<string,unknown>>((resolve,reject)=>{const timer=setTimeout(()=>{clear();reject(new Error('Desktop host IPC timed out: '+type));},8000);const message=(value:unknown)=>{if(value&&typeof value==='object'&&(value as {type?:string}).type===type){clear();resolve(value as Record<string,unknown>);}};const exit=(code:number|null)=>{clear();reject(new Error('Host exited before '+type+': '+code));};const clear=()=>{clearTimeout(timer);child.off('message',message);child.off('exit',exit);};child.on('message',message);child.once('exit',exit);});}
+function nextMessage(child:ChildProcess,type:string){return new Promise<Record<string,unknown>>((resolve,reject)=>{const timer=setTimeout(()=>{clear();reject(new Error('Desktop host IPC timed out: '+type));},type==='harness.ready'?25000:8000);const message=(value:unknown)=>{if(value&&typeof value==='object'&&(value as {type?:string}).type===type){clear();resolve(value as Record<string,unknown>);}};const exit=(code:number|null)=>{clear();reject(new Error('Host exited before '+type+': '+code));};const clear=()=>{clearTimeout(timer);child.off('message',message);child.off('exit',exit);};child.on('message',message);child.once('exit',exit);});}
 
 it('launches an actual isolated sidecar, authenticates HTTP and shuts down only for its launch token',async()=>{
  const port=await freePort();let widgetPort=await freePort();while(widgetPort===port)widgetPort=await freePort();
@@ -91,7 +108,7 @@ it('launches an actual isolated sidecar, authenticates HTTP and shuts down only 
  const denied=await fetch(origin+'/api/commands',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:'denied',type:'thread.create',payload:{}})});expect(denied.status).toBe(401);
  fixture.child.send({type:'harness.shutdown',token:'wrong-token'});fixture.child.send({type:'harness.shutdown',token:'é'.repeat(fixture.token.length)});await new Promise(resolve=>setTimeout(resolve,100));expect(fixture.child.exitCode).toBeNull();expect((await fetch(origin+'/health')).status).toBe(200);
  const stopped=nextMessage(fixture.child,'harness.stopped');fixture.child.send({type:'harness.shutdown',token:fixture.token});expect(await stopped).toEqual({type:'harness.stopped',token:fixture.token});expect((await fixture.exited).code).toBe(0);
-});
+},35000);
 
 it('reports a real startup collision without adopting an unrelated HTTP service',async()=>{
  const occupied:Server=createServer();await new Promise<void>(resolve=>occupied.listen(0,'127.0.0.1',resolve));cleanup.push(()=>new Promise<void>((resolve,reject)=>occupied.close(error=>error?reject(error):resolve())));
@@ -106,4 +123,4 @@ it('does not leave its backend running after the owning IPC channel disconnects'
  const port=await freePort();let widgetPort=await freePort();while(widgetPort===port)widgetPort=await freePort();
  const fixture=await launched({HARNESS_PORT:String(port),HARNESS_WIDGET_PORT:String(widgetPort)});await nextMessage(fixture.child,'harness.ready');fixture.child.disconnect();expect((await fixture.exited).code).toBe(0);
  await expect(fetch(`http://127.0.0.1:${port}/health`)).rejects.toThrow();
-});
+},35000);

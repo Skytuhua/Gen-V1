@@ -8,10 +8,11 @@ import { officialRuntimeEnvironment } from './environment.ts';
 import { secureDirectory, within } from './manifest.ts';
 import { assertCursorLoginUrl, CURSOR_LOGIN_BACKEND, CURSOR_LOGIN_WEBSITE, cursorAuthRequired, cursorCredentialStore } from './cursor-credentials.ts';
 import { createCursorMcpGate } from './cursor-mcp.ts';
+import {MODEL_ONLY_MAX_WIRE_BYTES} from '../runtime/model-only.ts';
 
 export interface CursorWorkerInit {
   mode: 'run' | 'discover' | 'history' | 'login'; dataDir: string; taskDir?: string;
-  sessionId?: string | null; modelId?: string; thinkingLevel?: string | null; systemPrompt?: string;
+  sessionId?: string | null; modelId?: string; thinkingLevel?: string | null; systemPrompt?: string;modelOnly?:boolean;
   mcp?: { url: string; headers: Record<string, string>; names: string[] };
 }
 export type CursorWorkerEvent =
@@ -113,12 +114,13 @@ export async function runCursorWorker(init: CursorWorkerInit, emit: (event: Curs
   if (!init.mcp || typeof init.systemPrompt !== 'string' || !init.systemPrompt.trim()) throw invalid();
   const url = new URL(init.mcp.url);
   if (url.protocol !== 'http:' || url.hostname !== '127.0.0.1' || url.pathname !== '/mcp' || url.username || url.password || url.search || url.hash || !url.port || Object.keys(init.mcp.headers).length !== 1 || !/^Bearer [^\s]+$/.test(init.mcp.headers.Authorization ?? init.mcp.headers.authorization ?? '') || !Array.isArray(init.mcp.names) || init.mcp.names.some(name => !/^[a-z][a-z0-9_]*$/.test(name))) throw invalid();
+  if((init.modelOnly!==undefined&&typeof init.modelOnly!=='boolean')||(init.modelOnly&&init.mcp.names.length))throw invalid();
   if (init.sessionId && !sessionValid(init.sessionId)) throw invalid();
   if (init.sessionId) await readHistory(init.sessionId);
   let closed = false; let settled = false; let active: Run | undefined;
   let activeWire: WireInput | undefined; let entry: { uuid: string; native: boolean; acknowledged: boolean; promise: Promise<void>; resolve(): void; reject(error: Error): void } | undefined;
   const gate = await createCursorMcpGate(init.mcp, init.mcp.names, async () => { const current = entry; if (closed || settled || !activeWire || !current || current.uuid !== activeWire.uuid) throw aborted(); await current.promise; if (closed || settled || current !== entry || !current.native || !current.acknowledged) throw aborted(); });
-  const options: AgentOptions = { apiKey: credentials!.apiKey, model: { id: init.modelId! }, tools: ['mcp'], agents: {}, systemPrompt: init.systemPrompt, local: { cwd: taskDir, settingSources: [], store: nativeStore, enableAgentRetries: false }, mcpServers: { host: { type: 'http', url: gate.url, headers: gate.headers } } };
+  const options: AgentOptions = { apiKey: credentials!.apiKey, model: { id: init.modelId! }, tools: init.modelOnly?[]:['mcp'], agents: {}, systemPrompt: init.systemPrompt, local: { cwd: taskDir, settingSources: [], store: nativeStore, enableAgentRetries: false }, mcpServers: init.modelOnly?{}:{ host: { type: 'http', url: gate.url, headers: gate.headers } } };
   let agent: SDKAgent;
   try { agent = init.sessionId ? await sdk.Agent.resume(init.sessionId, options) : await sdk.Agent.create(options); }
   catch (error) { await gate.close(); throw error; }
@@ -128,7 +130,7 @@ export async function runCursorWorker(init: CursorWorkerInit, emit: (event: Curs
   const controller: CursorWorkerController = {
     async submit(wire) {
       assert();
-      if (!wire || !sessionValid(wire.uuid) || typeof wire.text !== 'string' || Buffer.byteLength(wire.text) > 2 * 1024 * 1024 || !wire.text.startsWith('[harness-input:v1] ') || !Array.isArray(wire.inputIds)) throw invalid();
+      if (!wire || !sessionValid(wire.uuid) || typeof wire.text !== 'string' || Buffer.byteLength(wire.text) > (init.modelOnly?MODEL_ONLY_MAX_WIRE_BYTES:2*1024*1024) || !wire.text.startsWith('[harness-input:v1] ') || !Array.isArray(wire.inputIds)) throw invalid();
       queued++;
       const operation = chain.then(async () => {
         assert();
@@ -151,10 +153,11 @@ export async function runCursorWorker(init: CursorWorkerInit, emit: (event: Curs
         for await (const frame of run.stream()) {
           if (closed) throw aborted();
           if (frame.agent_id !== agent.agentId || frame.run_id !== run.id) throw invalid();
-          if (frame.type === 'system' && frame.tools?.some(tool => tool !== 'mcp')) throw new HarnessError('OFFICIAL_TOOL_POLICY', 'Cursor exposed an unexpected native tool.');
+          if (frame.type === 'system' && frame.tools?.some(tool => init.modelOnly||tool !== 'mcp')) throw new HarnessError('OFFICIAL_TOOL_POLICY', 'Cursor exposed an unexpected native tool.');
           // SDK `summary` updates use the public `task` display category. Native
           // Task execution is excluded by the MCP-only tool capability above.
           if (frame.type === 'tool_call') {
+            if(init.modelOnly)throw new HarnessError('MODEL_ONLY_TOOL_DENIED','The native model attempted to execute a tool.');
             const allowed = new Set(init.mcp!.names.flatMap(name => [name, `host__${name}`, `mcp__host__${name}`]));
             const fields = frame.args as { providerIdentifier?: unknown; toolName?: unknown } | undefined;
             const args = { ...mcpCalls.get(frame.call_id), ...fields };

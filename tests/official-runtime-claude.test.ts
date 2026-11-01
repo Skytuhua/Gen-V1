@@ -33,6 +33,13 @@ function scripted(account: Record<string, unknown> = { apiProvider: 'firstParty'
 const run = (extra: Partial<StartRun> = {}): StartRun => ({ threadId: 'thread', runId: 'run-1', epoch: 1, modelId: 'claude-code/advertised-model', inputId: 'input-1', prompt: 'hello', resources: [], sessionPath: null, ...extra });
 
 describe('official Claude SDK runtime', () => {
+  it('uses a tool-free model-only SDK session and preserves Hermes tool text as assistant content',async()=>{
+    const fake=scripted(),events:RuntimeEvent[]=[],onTool=vi.fn(async()=>null),runtime=createOfficialRuntime({dataDir:await mkdtemp(join(tmpdir(),'official-text-')),modelOnly:true},fake.dependencies);
+    runtime.configure({onEvent:event=>events.push(event),onTool});
+    try{await runtime.start(run());await vi.waitFor(()=>expect(fake.accepted).toHaveLength(1));expect(fake.options).toMatchObject({tools:[],mcpServers:{},skills:[],plugins:[],agents:{}});expect(fake.options.systemPrompt).toContain('text-model transport for Hermes');expect(fake.options.systemPrompt).not.toContain('ui_present');expect((await fake.options.canUseTool('mcp__host__skill_manage',{},{})).behavior).toBe('deny');
+      const content='<tool_call>{"name":"skill_manage"}</tool_call>';fake.events.push({type:'assistant',session_id:fake.options.sessionId,message:{content:[{type:'text',text:content}]}});await vi.waitFor(()=>expect(events.some(event=>event.type==='assistant.message'&&event.content===content)).toBe(true));expect(onTool).not.toHaveBeenCalled();
+    }finally{await runtime.dispose();}
+  });
   it('withholds natural settlement until native interrupt and close have completed',async()=>{
     const fake=scripted(),events:RuntimeEvent[]=[],runtime=createOfficialRuntime({dataDir:await mkdtemp(join(tmpdir(),'official-settlement-teardown-'))},fake.dependencies),barrier=deferred<void>();
     runtime.configure({onEvent:event=>events.push(event),onTool:async()=>null});

@@ -11,7 +11,6 @@ import { WIDGET_CSP, widgetDocument, GENERATED_APPS_ENABLED } from "../../packag
 import { WIDGET_WORKER_PATH, WIDGET_WORKER_CSP } from "../../packages/widgets/protocol.ts";
 import {SessionCredentials} from '../../packages/core/credential-slots.ts';
 import { streamEvents } from './event-stream.ts';
-import {viewSkill,viewSkillProposal} from '../../packages/core/skills.ts';
 
 type Mount = { artifactId: string; revision: number; expiresAt: number };
 export type MountRegistry = Map<string, Mount>;
@@ -83,8 +82,8 @@ export async function buildServer(service: Service, options: ServerOptions) {
   });
   app.post("/api/commands", async request => service.command(commandSchema.parse(request.body)));
   const skillRead=z.strictObject({path:z.string().min(1).max(1024).optional(),revision:z.coerce.number().int().positive().optional(),versionOffset:z.coerce.number().int().nonnegative().optional(),includeInactive:z.enum(['true','false']).optional()});
-  app.get<{Params:{name:string}}>('/api/skills/:name',async(request,reply)=>{reply.header('Cache-Control','no-store');const args=skillRead.parse(request.query);return viewSkill(service.store,request.params.name,{...args,includeInactive:args.includeInactive==='true'});});
-  app.get<{Params:{id:string}}>('/api/skill-proposals/:id',async(request,reply)=>{reply.header('Cache-Control','no-store');return viewSkillProposal(service.store,request.params.id);});
+  app.get<{Params:{name:string}}>('/api/skills/:name',async(request,reply)=>{reply.header('Cache-Control','no-store');const args=skillRead.parse(request.query);return service.skillDetail(request.params.name,{...args,includeInactive:args.includeInactive==='true'});});
+  app.get<{Params:{id:string}}>('/api/skill-proposals/:id',async(request,reply)=>{reply.header('Cache-Control','no-store');return service.skillProposal(request.params.id);});
   const credentialScope=z.strictObject({threadId:z.string().min(1).max(200),artifactRevision:z.coerce.number().int().positive()});
   const credentialWrite=credentialScope.extend({version:z.number().int().nonnegative(),token:z.string().min(1).max(8192)}).strict();
   const credentialRemove=credentialScope.extend({version:z.number().int().nonnegative()}).strict();

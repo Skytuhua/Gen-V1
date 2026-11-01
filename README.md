@@ -14,7 +14,7 @@ The source build also supports [multiple subscription accounts](docs/subscriptio
 
 The [account parity and switcher review](docs/subscription-accounts-parity-20261101.md) records the searchable animated model picker, corrected Claude process failure, nine-provider native metadata/restart checks and a separate fresh installer candidate. Full T3 managed-account parity and live signed-in provider acceptance remain open.
 
-The source now includes [Hermes-style procedural learning](docs/2026-11-01-harness-learning-comparison.md): a shared versioned skill library, bounded automatic reviews using the task's selected model/account, optional write approval and reversible idle curation. The linked report compares pinned Hermes, Codex, OpenCode, Pi, Goose and Aider sources, explains the simplified design and separates routing tests from live learning quality. Published installers are unchanged.
+The source now integrates the [original Hermes Agent engine](docs/2026-11-01-hermes-source-integration.md), pinned with its MIT notice and source hashes. Its original conversation loop, skill tools, learning prompts, automatic reviews, curator and filesystem ledger run through the selected subscription account's native adapter. Source skill packages are canonical; SQLite projects the UI and preserves legacy history. The current regression passed 982 tests, nine functional browser checks, TypeScript and web/desktop builds; live OpenAI text, learning/approval and fresh-session reuse also passed. Published installers are unchanged.
 
 [Download the unsigned v0.5.2 Windows x64 installer](dist/desktop-release-0.5.2/Generative-Harness-Setup-0.5.2-win-x64.exe) (459 MB). Two targeted frontend fixes avoid rebuilding unchanged artifact inputs and table cells. The [release report](docs/evidence/snapshot-performance-20261031/release.md) records 628 passing unit tests, four actual-host performance regressions, TypeScript/build, package custody and 14 native scenarios. The broad browser run needed one unchanged-source cold-PDF rerun; clean installation is unverified because the safety check preserved an existing installation. Additional subscription sign-ins remain deferred.
 
@@ -36,7 +36,7 @@ The historical [v0.4 provider-expansion milestone](docs/provider-expansion-miles
 
 The [private online review](https://generative-harness-video-review.skytuhua.chatgpt.site/reviews/t3-centered-20261031/index.html) shows the centered shell, working objects, connections and thread memory. Its two new videos use explicit synthetic data and a scripted runtime; they do not establish fresh Pi generation, live OAuth or physical multi-monitor acceptance. Earlier genuine Pi recordings remain separately labeled in the archive.
 
-A local conversation workspace for Windows and the browser, inspired by the supplied Phil Pitus videos, with T3-style navigation and Pi as the runtime. The agent chooses when a task interface helps, updates the same artifact and continues from durable user actions. The trusted catalog has 48 components. Generated-code applications remain disabled pending final execution-isolation acceptance.
+A local conversation workspace for Windows and the browser, inspired by the supplied Phil Pitus videos, with T3-style navigation, the original Hermes primary agent loop and account-aware native model adapters. The agent chooses when a task interface helps, updates the same artifact and continues from durable user actions. The trusted catalog has 48 components. Generated-code applications remain disabled pending final execution-isolation acceptance.
 
 Version 0.2.0 added image feedback pins, supplied schedule selection and log exploration, with the comprehensive correctness/security repairs. Its [application and review report](docs/evidence/comprehensive-review-20261030/report.md) remains the previous delivery record.
 
@@ -54,19 +54,24 @@ The previous expansion added smoother, interruptible spring motion, software-dev
 
 The desktop package bundles Electron and Node; it does not require an installed Node or pnpm. In desktop **Settings → Providers**, choose an available subscription connection, complete its secure console/system-browser flow and refresh models. The current installer offers ChatGPT / Codex, legacy Codex, GitHub Copilot and xAI / Grok OAuth, dedicated Kimi Code/OpenCode Go plan keys, and published official Claude Code/Gemini CLI runtimes plus the Cursor preview. Availability does not establish sign-in, account entitlement or live inference. See [subscription connections and pending providers](docs/subscription-connections.md). There is no application-side API-key billing fallback; provider Extra Usage settings still apply.
 
-For development, use **Node 24.10+** and pnpm 10.30.3:
+For current-source development, install **Node 24.10+**, **pnpm 10.30.3** and **Windows x64 CPython 3.14**. Install the pinned Hermes dependencies into their isolated project target:
 
 ```powershell
 pnpm install --frozen-lockfile
+py -3.14 -m pip install --no-cache-dir --no-compile --target .harness-hermes-python-deps -r third-party/hermes-agent/runtime-requirements.txt
 pnpm agent:login
 pnpm dev
 ```
 
 Complete ChatGPT subscription sign-in in your system browser. Then open **http://127.0.0.1:5173**, refresh models in Settings and select one. No provider API-key fallback is enabled. The login helper hides pasted redirect codes; do not paste credentials into conversation.
 
+Runtime startup does not install Python, dependencies, skills or models. Python runs with `-I -S -B` and an app-owned home; global/user site packages and ambient credentials are excluded. See [Hermes source and runtime setup](third-party/hermes-agent/README.md) for the pinned dependency inventory and optional installed-interpreter selection.
+
 The host listens on 127.0.0.1:4317 and generated apps on a separate origin, localhost:4318. Production: `pnpm build`, then `pnpm start` and open http://127.0.0.1:4317.
 
 `pnpm desktop:dev` builds and launches the native shell. `pnpm desktop:package` produces an unsigned per-user Windows x64 installer under `dist/desktop-release-<version>`, using pinned Electron 45.2.0 and a checksum-verified Node 24.22.2 distribution. Setup extracts once; later launches run the installed application directly. Setup does not automatically launch the app, request elevation or delete task data on uninstall. The app owns its backend and refuses to adopt an unrelated service already occupying its port. The [v0.4 package verification](docs/evidence/provider-package-20261031/report.md) records the failed portable candidate separately.
+
+Current-source packaging also validates and bundles the selected Python interpreter, isolated dependencies and exact Hermes source. Its offline preflight measured 107.4 MiB for that payload; no new installer or full staging tree has been built for this integration. Existing release destinations are preserved; use `pnpm desktop:package --output-root <directory>` for a separate output root.
 
 Use each surface's **Detach** control and the detached window's **Dock window** control. New detached windows open on their source window's display; saved surfaces restore their bounds. Use **Window → Move to Display** or **Ctrl+Alt+Left/Right** to move the focused native window. Disconnect rescue and reconnect restoration retain preferred placement. Minimize chat without hiding detached tools or cancelling tasks. Native Reset centers a reachable window on its current display. Geometry tests and 15 actual-display checks on one 150% display cover the stated v0.3 behavior; [physical multi-monitor and mixed-DPI transitions remain unverified](docs/native-multi-monitor.md).
 
@@ -108,6 +113,8 @@ pnpm build
 
 Tests distinguish real local file/SQLite/PDF/process execution, intercepted browser protocol fixtures, actual-host browser integration and authenticated Pi generation. The [v0.3 delivery report](docs/evidence/t3-centered-workspace-20261031/report.md) retains its full suites and visual evidence. The [provider report](docs/provider-expansion-milestone.md) records its 532-test source run and retained Windows launcher timing limits; the [v0.4 package report](docs/evidence/provider-package-20261031/report.md) records 20 focused checks, 14 native checks, actual install/restart/uninstall and genuine existing-host Pi evidence. These are separate scopes, not an additive total. Physical multi-monitor transitions, live native provider accounts and rich autonomous interaction remain open. Generated-code enablement and the 36-run pilot remain deferred.
 
+The [current original-source integration report](docs/2026-11-01-hermes-source-integration.md) separates real Python/ACP/HTTP integration with scripted model responses from authenticated inference and packaged execution. Historical 864-unit/548-browser learning results describe the earlier TypeScript implementation and do not validate this source replacement.
+
 Create disposable cross-category fixtures in a new destination:
 
 ```powershell
@@ -120,4 +127,4 @@ See [capability APIs](packages/capabilities/README.md), [catalog conventions](pa
 
 This is a browser/Node app, not an OS sandbox. Approved test recipes execute granted project code with local user privileges. External SQLite operations require a closed rollback-journal database; WAL/hot journals fail closed. PDF support covers declared form fields, legacy typed marks, multiple drawn strokes and bounded canonical PNG marks; OCR, certificate signing and email/delivery are not included. Trusted PDF preview processing runs in a bounded, terminable worker.
 
-The generated-app design runs model JavaScript only in an opaque-origin worker, with bounded DOM messages and a termination watchdog. It provides no hard memory quota; `GENERATED_APPS_ENABLED=false` remains in force. Final host/widget acceptance remains open. Thread notes are bounded reminders, not cross-thread learning. Remote access, multiple independent primary runs and mutating subagents remain later work. Current source and the verified v0.5.0 installer include nine connection IDs; live native account acceptance remains pending. Gemini/Cursor compaction is unavailable. The separate OpenCode agent runtime remains pending and Meta/Muse remains unavailable. Current delegation retains at most 24 jobs per thread.
+The generated-app design runs model JavaScript only in an opaque-origin worker, with bounded DOM messages and a termination watchdog. It provides no hard memory quota; `GENERATED_APPS_ENABLED=false` remains in force. Final host/widget acceptance remains open. Thread notes are bounded reminders; cross-thread procedural learning belongs to the separate source-owned skill library. Remote access, multiple independent primary runs and mutating subagents remain later work. Current source and the verified v0.5.0 installer include nine connection IDs; live native account acceptance remains pending. Original Hermes source compaction uses its owned session and selected model/account; direct native Gemini/Cursor compaction remains unavailable. The separate OpenCode agent runtime remains pending and Meta/Muse remains unavailable. Current delegation retains at most 24 jobs per thread. Composer predictions currently have a [design and preview](docs/superpowers/specs/2026-11-01-composer-predictions-design.md), not a production suggestion service.

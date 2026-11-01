@@ -7,6 +7,7 @@ import { terminateProcessTree } from '../runtime-pi/process-tree.ts';
 import { officialRuntimeCommand, officialRuntimeEnvironment } from './environment.ts';
 import { findGeminiNativeSession } from './gemini-native-history.ts';
 import { bounded, finite, type DriverContext, type OfficialDriver, type WireInput } from './internal.ts';
+import {MODEL_ONLY_MAX_WIRE_BYTES} from '../runtime/model-only.ts';
 
 /** Native --resume emits only current-turn stream-json, avoiding ACP v1 replay ambiguity. */
 export async function openGeminiHeadless(context: DriverContext, spawnProcess: typeof spawn, modelId?: string): Promise<OfficialDriver> {
@@ -24,7 +25,7 @@ export async function openGeminiHeadless(context: DriverContext, spawnProcess: t
   // host server definition for native headless mode, which has no ACP MCP argument.
   const settingsPath = join(context.taskDir, `headless-settings-${randomUUID()}.json`);
   const source = JSON.parse(await readFile(config.settingsPath, 'utf8'));
-  source.mcpServers = { host: { httpUrl: context.mcp.url, headers: context.mcp.headers, trust: true, includeTools: [...context.mcp.names] } };
+  source.mcpServers = context.modelOnly?{}:{ host: { httpUrl: context.mcp.url, headers: context.mcp.headers, trust: true, includeTools: [...context.mcp.names] } };
   await writeFile(settingsPath, JSON.stringify(source), { mode: 0o600 });
   let closed = false;
   let active: ChildProcess | undefined;
@@ -76,7 +77,7 @@ export async function openGeminiHeadless(context: DriverContext, spawnProcess: t
     child.stdout?.on('data', chunk => {
       if (!context.current() || closed || failure) return;
       buffer += chunk;
-      if (Buffer.byteLength(buffer) > 4 * 1024 * 1024) { failure = new HarnessError('OFFICIAL_PROTOCOL_INVALID', 'Official Gemini JSON frame exceeded its bounded limit.'); void terminateProcessTree(child); return; }
+      if (Buffer.byteLength(buffer) > (context.modelOnly?MODEL_ONLY_MAX_WIRE_BYTES:4*1024*1024)) { failure = new HarnessError('OFFICIAL_PROTOCOL_INVALID', 'Official Gemini JSON frame exceeded its bounded limit.'); void terminateProcessTree(child); return; }
       let newline: number;
       while ((newline = buffer.indexOf('\n')) !== -1) {
         const line = buffer.slice(0, newline); buffer = buffer.slice(newline + 1);

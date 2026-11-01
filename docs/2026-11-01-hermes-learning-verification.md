@@ -1,5 +1,7 @@
 # Procedural learning verification
 
+Historical verification of the earlier TypeScript implementation. Its 864 unit passes, 548 distinct browser passes and packaged/native checks do not validate the subsequent [original Hermes source integration](2026-11-01-hermes-source-integration.md). Current source, runtime and acceptance scopes are recorded separately there.
+
 Implementation baseline: `a9543794bffa5daacdf86a5e38b1f013acd99652`. The final implementation commit is recorded in the delivery message. See the [pinned architecture comparison](2026-11-01-harness-learning-comparison.md) for implemented behavior, intentional differences and source licenses.
 
 ## Completed checks

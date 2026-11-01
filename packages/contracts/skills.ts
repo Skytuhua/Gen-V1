@@ -4,6 +4,7 @@ export interface SkillSummary {
  name:string;description:string;category:string;revision:number;state:SkillState;enabled:boolean;protected:boolean;
  origin:'user'|'agent';managed:boolean;author:SkillActor['kind'];sourceThreadId?:string;sourceRunId?:string;
  createdAt:string;updatedAt:string;lastUsedAt:string|null;useCount:number;patchCount:number;
+ migrationError?:string;
 }
 export interface SkillVersionSummary {revision:number;at:string;actor:SkillActor;action:string}
 export interface SkillDetail {skill:SkillSummary;content:string;document?:string;files:string[];versions:SkillVersionSummary[];nextVersionOffset:number|null}

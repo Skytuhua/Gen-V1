@@ -20,7 +20,7 @@ interface Worker {
 }
 interface RunAuthority { ctx: RunContext; revoked: boolean; settled?: boolean; worker?: Worker }
 
-export function createPiRuntime({ dataDir }: { dataDir: string }): RuntimeAdapter {
+export function createPiRuntime({ dataDir,modelOnly }: { dataDir: string;modelOnly?:boolean }): RuntimeAdapter {
   const storage = resolve(dataDir);
   let callbacks: RuntimeCallbacks | undefined;
   let disposed = false;
@@ -75,7 +75,7 @@ export function createPiRuntime({ dataDir }: { dataDir: string }): RuntimeAdapte
         worker.pending.delete(message.requestId); clearTimeout(pending.timer);
         if (typeof message.error === "string") pending.reject(new HarnessError(typeof message.code === "string" ? message.code : "PI_WORKER_ERROR", message.error)); else pending.resolve(message.value);
       } else if (message.type === "ready" && worker.ctx && sameContext(message.ctx, worker.ctx) && current(worker)) {
-        worker.allowed = new Set(message.tools);
+        worker.allowed = new Set(modelOnly?[]:message.tools);
       } else if (message.type === "event" && worker.ctx && sameContext(message.ctx, worker.ctx) && sameContext(message.event, worker.ctx) && current(worker)) {
         if (message.event.type === "settled") {
           worker.active = false;
@@ -108,7 +108,7 @@ export function createPiRuntime({ dataDir }: { dataDir: string }): RuntimeAdapte
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => { worker.pending.delete(requestId); reject(new Error(`Pi ${command} did not acknowledge within ${timeoutMs / 1000} seconds.`)); }, timeoutMs);
       worker.pending.set(requestId, { resolve, reject, timer });
-      worker.process.send({ type: "command", requestId, command, dataDir: storage, ...args }, error => {
+      worker.process.send({ type: "command", requestId, command, dataDir: storage, ...(modelOnly?{modelOnly:true}:{}), ...args }, error => {
         if (!error) return;
         const pending = worker.pending.get(requestId);
         if (pending) { clearTimeout(timer); worker.pending.delete(requestId); reject(error); }

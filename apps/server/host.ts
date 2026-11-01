@@ -5,10 +5,13 @@ import {Service} from '../../packages/core/service.ts';
 import {createRuntime} from '../../packages/runtime/index.ts';
 import {accountResolver} from '../../packages/core/accounts.ts';
 import {buildServer,buildWidgetServer,type MountRegistry} from './server.ts';
+import {acquireProfileLease,type ProfileLease} from './profile-lease.ts';
+import {createHermesService} from './hermes-service.ts';
 
 export interface HostOptions {dataDir:string;port:number;widgetPort:number;dev:boolean}
 export interface RunningHost {origin:string;widgetOrigin:string;pid:number;close():Promise<void>}
 export interface HostFactories {
+ acquireProfile:typeof acquireProfileLease;
  createStore(dataDir:string):Store;
  createRuntime:typeof createRuntime;
  createService(store:Store,runtime:ReturnType<typeof createRuntime>):Service;
@@ -32,8 +35,8 @@ export async function launchHost(options:HostOptions,overrides:Partial<HostFacto
  const hostPort=port(options.port,'HARNESS_PORT'),widgetPort=port(options.widgetPort,'HARNESS_WIDGET_PORT');
  if(hostPort===widgetPort)throw new Error('The host and widget ports must be different.');
  if(!options.dataDir.trim())throw new Error('The harness data directory must be nonempty.');
- const make:HostFactories={createStore:dataDir=>new Store(dataDir),createRuntime,createService:(store,runtime)=>new Service(store,runtime,{learningRuntimeFactory:()=>make.createRuntime({dataDir:store.dataDir,accounts:accountResolver(store)})}),buildServer,buildWidgetServer,...overrides};
- let store:Store|undefined,runtime:ReturnType<typeof createRuntime>|undefined,service:Service|undefined,app:Awaited<ReturnType<typeof buildServer>>|undefined,widgets:Awaited<ReturnType<typeof buildWidgetServer>>|undefined,closing:Promise<void>|undefined,accepting=false;
+ const make:HostFactories={acquireProfile:acquireProfileLease,createStore:dataDir=>new Store(dataDir),createRuntime,createService:createHermesService,buildServer,buildWidgetServer,...overrides};
+ let profile:ProfileLease|undefined,store:Store|undefined,runtime:ReturnType<typeof createRuntime>|undefined,service:Service|undefined,app:Awaited<ReturnType<typeof buildServer>>|undefined,widgets:Awaited<ReturnType<typeof buildWidgetServer>>|undefined,closing:Promise<void>|undefined,accepting=false;
  const close=()=>closing??= (async()=>{
   accepting=false;
   // Begin revoking task authority immediately, independently of HTTP/SSE close.
@@ -44,10 +47,12 @@ export async function launchHost(options:HostOptions,overrides:Partial<HostFacto
   ]);
   const failures:unknown[]=results.filter((result):result is PromiseRejectedResult=>result.status==='rejected').map(result=>result.reason);
   try{store?.close();}catch(error){failures.push(error);}
+  if(!failures.length)try{profile?.close();}catch(error){failures.push(error);}
   if(failures.length)throw new AggregateError(failures,`Could not close the harness: ${failures[0] instanceof Error?failures[0].message:'resource cleanup failed'}`);
  })();
  try {
-  store=make.createStore(resolve(options.dataDir));runtime=make.createRuntime({dataDir:store.dataDir,accounts:accountResolver(store)});service=make.createService(store,runtime);
+  profile=make.acquireProfile(resolve(options.dataDir));
+  store=make.createStore(profile.dataDir);runtime=make.createRuntime({dataDir:store.dataDir,accounts:accountResolver(store)});service=make.createService(store,runtime);
   const mounts:MountRegistry=new Map();
   app=await make.buildServer(service,{port:hostPort,widgetPort,dev:options.dev,mounts});
   widgets=await make.buildWidgetServer(service,mounts,widgetPort);

@@ -2,7 +2,7 @@ import { realpath, stat } from "node:fs/promises";
 import { lstatSync, realpathSync, statSync } from "node:fs";
 import { isAbsolute, relative, resolve, dirname, basename, sep } from "node:path";
 import { HarnessError, type ResourceGrant } from "../contracts/index.ts";
-export const PROTECTED_STORAGE_DIRECTORIES = ['pi', 'artifacts', 'official', 'accounts'] as const;
+export const PROTECTED_STORAGE_DIRECTORIES = ['pi', 'artifacts', 'official', 'accounts', 'hermes'] as const;
 
 export function inside(parent: string, child: string): boolean {
   const rel = relative(parent, child);
@@ -38,7 +38,7 @@ export function assertNotStorage(path: string, dataDir: string): void {
     try { if (lstatSync(resolve(root, child)).isSymbolicLink()) throw new HarnessError("CAPABILITY_DENIED", "Protected storage must not be redirected"); }
     catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; }
   }
-  const protectedPaths = ["harness.sqlite", "harness.sqlite-wal", "harness.sqlite-shm", ...PROTECTED_STORAGE_DIRECTORIES].map(p => resolve(root, p));
+  const protectedPaths = ["harness.sqlite", "harness.sqlite-wal", "harness.sqlite-shm", ".host-lease.sqlite", ".host-lease.sqlite-wal", ".host-lease.sqlite-shm", ...PROTECTED_STORAGE_DIRECTORIES].map(p => resolve(root, p));
   if (protectedPaths.some(p => inside(p, path))) throw new HarnessError("CAPABILITY_DENIED", "Task tools cannot access harness storage or credentials");
   try { if (statSync(path).isFile() && statSync(path).nlink !== 1) throw new HarnessError("CAPABILITY_DENIED", "Files with multiple hardlinks cannot be granted"); }
   catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; }

@@ -5,6 +5,7 @@ import type { PiSdk } from "./sdk.ts";
 import { PRESENTATION_POLICY } from "./presentation-policy.ts";
 import {PLANNING_TOOLS} from '../core/planning-tools.ts';
 import {SKILL_LEARNING_POLICY} from '../core/learning-context.ts';
+import {MODEL_ONLY_SYSTEM_PROMPT} from '../runtime/model-only.ts';
 
 export interface ToolMetadata { name: string; description: string; parameters: Record<string, unknown> }
 const id = Type.String({ minLength: 1, maxLength: 200 });
@@ -77,7 +78,7 @@ export function hostSystemPrompt(memory?: string) {
   return "You are the assistant in Generative Harness. Work on the user's durable task using only host tools. Treat the JSON prompt in each harness-input envelope as user input; its first line identifies durable delivery. Resource IDs grant access through domain tools only. Call ui_discover before composing; ui_inspect reads task summaries and authoritative userStates. ui_present creates or updates a structured surface using a full spec and artifactId/baseRevision for updates. ui_create_widget creates or updates an interactive app using the injected window.harness bridge. ui_arrange changes placement, ui_request_input requests a decision, and ui_close archives a surface. Preserve artifact identity, stable state keys, edits, evidence and provenance. Sourced data publication belongs to domain executors; model annotations are presentation only. Mutations must be prepared by domain tools and explicitly approved by the user; operation_execute can only execute the exact preapproved host intent. Never invent approval or claim execution without a successful host receipt. Use task_finish with outcome/evidence only when work is complete and pending operations/decisions are resolved. Parent tool results and host-delivered inputs are authoritative.\n\n" + PRESENTATION_POLICY+'\n\n'+SKILL_LEARNING_POLICY + (memory ? '\n\n' + MEMORY_INSTRUCTIONS + memory : '');
 }
 
-export function createHostResourceLoader(sdk: Pick<PiSdk, "createExtensionRuntime">, memory?: string) {
+export function createHostResourceLoader(sdk: Pick<PiSdk, "createExtensionRuntime">, memory?: string,modelOnly=false) {
   const extensions = { extensions: [], errors: [], runtime: sdk.createExtensionRuntime() };
   return {
     getExtensions: () => extensions,
@@ -85,9 +86,9 @@ export function createHostResourceLoader(sdk: Pick<PiSdk, "createExtensionRuntim
     getPrompts: () => ({ prompts: [], diagnostics: [] }),
     getThemes: () => ({ themes: [], diagnostics: [] }),
     getAgentsFiles: () => ({ agentsFiles: [] }),
-    getSystemPrompt: () => hostSystemPrompt(),
+    getSystemPrompt: () => modelOnly?MODEL_ONLY_SYSTEM_PROMPT:hostSystemPrompt(),
     getSystemPromptSource: () => undefined,
-    getAppendSystemPrompt: () => memory ? [MEMORY_INSTRUCTIONS + memory] : [], getAppendSystemPromptSources: () => [],
+    getAppendSystemPrompt: () => !modelOnly&&memory ? [MEMORY_INSTRUCTIONS + memory] : [], getAppendSystemPromptSources: () => [],
     extendResources: () => {}, reload: async () => {},
   } satisfies import("@earendil-works/pi-coding-agent").ResourceLoader;
 }

@@ -36,7 +36,7 @@ export function listSkills(store:Store,options:{query?:string;includeInactive?:b
  const query=options.query===undefined?'':text(options.query,'skill searches',1000,true),tokens=query.toLocaleLowerCase().trim().split(/\s+/).filter(Boolean);
  const all=store.all<SkillSummary>('skill').sort((a,b)=>a.name.localeCompare(b.name));
  const catalogId=digest(all.map(({name,revision,state,enabled,protected:pin})=>({name,revision,state,enabled,protected:pin})));
- const records=all.filter(skill=>(options.includeInactive||skill.enabled&&skill.state!=='archived')&&tokens.every(token=>`${skill.name} ${skill.description} ${skill.category}`.toLocaleLowerCase().includes(token)));
+ const records=all.filter(skill=>(options.includeInactive||skill.enabled&&skill.state!=='archived'&&!skill.migrationError)&&tokens.every(token=>`${skill.name} ${skill.description} ${skill.category}`.toLocaleLowerCase().includes(token)));
  const usages=new Map(store.db.prepare('SELECT id,body FROM entities WHERE kind=?').all('skillUsage').map(row=>{const item=row as {id:string;body:string};return[item.id,JSON.parse(item.body) as SkillUsage] as const;}));
  const page:SkillPage={skills:[],nextOffset:null,catalogId};
  for(let i=offset;i<records.length&&page.skills.length<limit;i++){const saved=records[i],value=usages.get(saved.name),summary=value?{...saved,useCount:value.count,lastUsedAt:value.lastUsedAt}:saved;const next={...page,skills:[...page.skills,summary],nextOffset:i+1<records.length?i+1:null};if(Buffer.byteLength(JSON.stringify(next))>SKILL_LIMITS.responseBytes){page.nextOffset=i;break;}page.skills.push(summary);page.nextOffset=i+1<records.length?i+1:null;}
@@ -44,14 +44,14 @@ export function listSkills(store:Store,options:{query?:string;includeInactive?:b
 }
 
 export function viewSkill(store:Store,name:string,options:{path?:string;revision?:number;includeInactive?:boolean;useId?:string;versionOffset?:number}={}):SkillDetail {
- nameOf(name);let record=current(store,name);if(!record)fail('Skill not found.','NOT_FOUND');
- if(!options.includeInactive&&(!record!.enabled||record!.state==='archived'))fail('This skill is disabled or unavailable.','SKILL_DISABLED');
+ if(typeof name!=='string'||store.get<{name:string}>('hermesSkill',name)?.name!==name)nameOf(name);let record=current(store,name);if(!record)fail('Skill not found.','NOT_FOUND');
+ if(!options.includeInactive&&(!record!.enabled||record!.state==='archived'||record!.migrationError))fail('This skill is disabled or unavailable.','SKILL_DISABLED');
  if(options.revision!==undefined){if(!Number.isSafeInteger(options.revision)||options.revision<1)fail('Choose a saved skill revision.');const version=store.get<SkillVersion>('skillVersion',`${name}@${options.revision}`);if(!version)fail('Skill revision not found.','NOT_FOUND');record=structuredClone(version!.skill);}
  const path=options.path??'SKILL.md';if(path!=='SKILL.md')pathOf(path);
  const content=path==='SKILL.md'?record!.content:record!.files[path];if(content===undefined)fail('Supporting file not found.','NOT_FOUND');
  if(options.useId!==undefined){const useId=text(options.useId,'skill use identities',200),key=`${name}:${digest(useId)}`;if(options.revision!==undefined&&options.revision!==store.get<SkillSummary>('skill',name)?.revision)fail('Historical inspection cannot count as current skill use.');if(!store.get('skillUse',key)){const previous=store.get<SkillUsage>('skillUsage',name);const value={count:(previous?.count??0)+1,lastUsedAt:at()};store.put('skillUse',key,null,{name,useId});store.put('skillUsage',name,null,value);record={...record!,useCount:value.count,lastUsedAt:value.lastUsedAt};}}
  const offset=options.versionOffset??0;if(!Number.isSafeInteger(offset)||offset<0)fail('Choose a valid skill history page.');
- const rows=store.db.prepare("SELECT json_extract(body,'$.revision') AS revision,json_extract(body,'$.at') AS at,json_extract(body,'$.actor') AS actor,json_extract(body,'$.action') AS action FROM entities WHERE kind=? AND id LIKE ? ORDER BY revision DESC LIMIT 21 OFFSET ?").all('skillVersion',`${name}@%`,offset) as {revision:number;at:string;actor:string;action:string}[];
+ const rows=store.db.prepare("SELECT json_extract(body,'$.revision') AS revision,json_extract(body,'$.at') AS at,json_extract(body,'$.actor') AS actor,json_extract(body,'$.action') AS action FROM entities WHERE kind=? AND id LIKE ? ESCAPE '\\' AND json_extract(body,'$.skill.name')=? ORDER BY revision DESC LIMIT 21 OFFSET ?").all('skillVersion',`${name.replace(/[\\%_]/g,value=>'\\'+value)}@%`,name,offset) as {revision:number;at:string;actor:string;action:string}[];
  const versions:SkillVersionSummary[]=[];let nextVersionOffset:number|null=null;
  for(let i=0;i<Math.min(rows.length,20);i++){const row=rows[i],entry={...row,actor:JSON.parse(row.actor) as SkillActor};if(Buffer.byteLength(JSON.stringify([...versions,entry]))>SKILL_LIMITS.responseBytes){nextVersionOffset=offset+i;break;}versions.push(entry);nextVersionOffset=i+1<rows.length?offset+i+1:null;}
  return {skill:metadata(record!),content:content!,...(path==='SKILL.md'?{document:`---\nname: ${JSON.stringify(record!.name)}\ndescription: ${JSON.stringify(record!.description)}\n---\n\n${content}`} : {}),files:Object.keys(record!.files).sort(),versions,nextVersionOffset};

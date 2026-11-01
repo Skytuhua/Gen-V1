@@ -14,12 +14,12 @@ async function fixture() {
   await writeFile(join(home, 'sdk-browser-login.json'), JSON.stringify({ version: 1, provenance: 'cursor-sdk-official-browser', credentials: { version: 1, backendUrl: 'https://api2.cursor.sh', apiKey: 'private-browser-user-key', apiKeyExpiresAtMs: Date.now() + 60_000, createdAtMs: Date.now() } }));
   return { dataDir, taskDir, home };
 }
-function nativeSdk() {
+function nativeSdk(modelOnly=false) {
   let options: any; let rows: any[] = []; const sent: any[] = []; const calls: string[] = [];
   const agent = { agentId: 'agent-native', close: vi.fn(), send: vi.fn(async (text, opts) => {
     sent.push({ text, opts });
     return { id: 'run-native', agentId: 'agent-native', async *stream() {
-      yield { type: 'system', subtype: 'init', agent_id: 'agent-native', run_id: 'run-native', tools: ['mcp'] };
+      yield { type: 'system', subtype: 'init', agent_id: 'agent-native', run_id: 'run-native', tools: modelOnly?[]:['mcp'] };
       yield { type: 'user', agent_id: 'agent-native', run_id: 'run-native', message: { role: 'user', content: [{ type: 'text', text }] } };
       yield { type: 'assistant', agent_id: 'agent-native', run_id: 'run-native', message: { role: 'assistant', content: [{ type: 'text', text: 'Done' }] } };
     }, wait: async () => ({ id: 'run-native', status: 'finished', usage: { inputTokens: 7, outputTokens: 2 } }), cancel: vi.fn() };
@@ -34,6 +34,10 @@ function nativeSdk() {
 const wire = { uuid: 'wire-uuid', text: '[harness-input:v1] {"inputId":"input-1","inputIds":["input-1"],"threadId":"thread","runId":"run-host","epoch":3}\n{"prompt":"hello","resources":[]}', inputIds: ['input-1'] };
 
 describe('Cursor private SDK worker', () => {
+  it.each([false,true])('retains the default 2MiB wire bound and accepts a larger model-only transcript: %s',async modelOnly=>{
+    const f=await fixture(),native=nativeSdk(modelOnly),events:any[]=[],controller=await runCursorWorker({mode:'run',...f,modelId:'native-model',systemPrompt:'Model text only',...(modelOnly?{modelOnly:true}:{}),mcp:{url:'http://127.0.0.1:3031/mcp',headers:{Authorization:'Bearer token'},names:[]}},event=>events.push(event),async()=>native.sdk);
+    try{const large={...wire,text:wire.text+'x'.repeat(3*1024*1024)};if(modelOnly){expect(native.options).toMatchObject({tools:[],mcpServers:{}});await expect(controller!.submit({...wire,text:wire.text+'x'.repeat(32*1024*1024)})).rejects.toMatchObject({code:'OFFICIAL_PROTOCOL_INVALID'});expect(native.sent).toHaveLength(0);await controller!.submit(large);expect(native.sent[0].text).toBe(large.text);}else{await expect(controller!.submit(large)).rejects.toMatchObject({code:'OFFICIAL_PROTOCOL_INVALID'});expect(native.sent).toHaveLength(0);}}finally{await controller!.close();}
+  });
   it('provides an isolated worker without eagerly importing the SDK', async () => {
     const module = await import('../packages/runtime-official/cursor-worker.ts').catch(() => undefined);
     expect(module?.runCursorWorker, 'worker must exist before a native SDK can be initialized').toBeTypeOf('function');

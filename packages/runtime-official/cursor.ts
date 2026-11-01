@@ -11,6 +11,7 @@ import { saveManifest, secureDirectory, type ManifestState } from './manifest.ts
 import { leadingReceipts } from './receipts.ts';
 import { assertCursorLoginUrl, cursorAuthPath } from './cursor-credentials.ts';
 import { cursorSafeError, type CursorWorkerEvent, type CursorWorkerInit } from './cursor-worker.ts';
+import {MODEL_ONLY_SYSTEM_PROMPT,MODEL_ONLY_MAX_WIRE_BYTES} from '../runtime/model-only.ts';
 
 const aborted = () => new HarnessError('OFFICIAL_RUN_ABORTED', 'Official Cursor run authority was revoked.');
 const protocol = () => new HarnessError('OFFICIAL_PROTOCOL_INVALID', 'Official Cursor returned invalid session or run evidence.');
@@ -79,7 +80,7 @@ export async function openCursor(context: DriverContext, spawnChild: typeof spaw
   worker.child.on('message', (value: unknown) => {
     processing = processing.then(async () => {
       if (!context.current() || closed || settled) return;
-      if (!value || typeof value !== 'object' || Buffer.byteLength(JSON.stringify(value)) > 4 * 1024 * 1024) throw protocol();
+      if (!value || typeof value !== 'object' || Buffer.byteLength(JSON.stringify(value)) > (context.modelOnly?MODEL_ONLY_MAX_WIRE_BYTES:4*1024*1024)) throw protocol();
       const frame = value as CursorWorkerEvent;
       if (frame.type === 'error') throw safeError(frame);
       if (frame.type === 'ready') {
@@ -107,7 +108,7 @@ export async function openCursor(context: DriverContext, spawnChild: typeof spaw
   });
   void worker.exited.then(() => { if (!closed && !settled) fail(protocol()); }, fail);
   try {
-    await worker.send({ type: 'initialize', init: { mode: 'run', dataDir: context.dataDir, taskDir: context.taskDir, sessionId: context.manifest.value.sessionId, modelId, thinkingLevel: context.thinkingLevel, systemPrompt: hostSystemPrompt(context.memory), mcp: { url: context.mcp.url, headers: context.mcp.headers, names: [...context.mcp.names] } } satisfies CursorWorkerInit });
+    await worker.send({ type: 'initialize', init: { mode: 'run', dataDir: context.dataDir, taskDir: context.taskDir, sessionId: context.manifest.value.sessionId, modelId, thinkingLevel: context.thinkingLevel, systemPrompt: context.modelOnly?MODEL_ONLY_SYSTEM_PROMPT:hostSystemPrompt(context.memory),...(context.modelOnly?{modelOnly:true}:{}), mcp: { url: context.mcp.url, headers: context.mcp.headers, names: [...context.mcp.names] } } satisfies CursorWorkerInit });
     await bounded(startup.promise, 30_000, 'Official Cursor initialization timed out.'); assert(); return driver;
   } catch (error) { await driver.close(); throw safeError(error); }
 }

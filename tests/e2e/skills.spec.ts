@@ -34,9 +34,19 @@ test('empty libraries and automatic review controls work with old snapshots',asy
  const x=await fixture(page,{empty:true});delete (x.snapshot as Snapshot).skills;delete (x.snapshot as Snapshot).skillProposals;delete (x.snapshot as Snapshot).learning;await x.open();await expect(page.getByRole('heading',{name:'Skills & learning',exact:true})).toBeVisible();await expect(page.getByText('No saved skills yet.',{exact:true})).toBeVisible();expect(x.reads).toBe(0);
  await page.getByRole('switch',{name:'Automatic learning reviews',exact:true}).click();await expect.poll(()=>x.snapshot.settings.preferences).toMatchObject({learningEnabled:false});
  await page.getByRole('switch',{name:'Require approval for agent writes',exact:true}).click();await expect.poll(()=>x.snapshot.settings.preferences).toMatchObject({learningApproval:true});
- await page.getByRole('spinbutton',{name:'Review after tool calls',exact:true}).fill('20');await expect.poll(()=>x.snapshot.settings.preferences).toMatchObject({learningInterval:20});
+ await page.getByRole('spinbutton',{name:'Review after model iterations',exact:true}).fill('20');await expect.poll(()=>x.snapshot.settings.preferences).toMatchObject({learningInterval:20});
  await page.getByRole('switch',{name:'Idle curation',exact:true}).click();await expect.poll(()=>x.snapshot.settings.preferences).toMatchObject({skillCurator:false});
  await expect(page.getByText('Uses the task’s selected model and subscription quota.',{exact:true})).toBeVisible();
+});
+
+test('pending legacy migration keeps saved instructions and supporting files readable',async({page})=>{
+ const x=await fixture(page);x.snapshot.skills[0].migrationError='This legacy skill needs migration before activation.';await x.open();
+ await page.getByRole('button',{name:'Inspect verify-release',exact:true}).click();
+ await expect(page.getByText(/Saved instructions, supporting files, history and drafts remain available to read/)).toBeVisible();
+ await expect(page.getByRole('textbox',{name:'Instructions for verify-release',exact:true})).toBeDisabled();
+ await expect(page.getByRole('button',{name:'Save skill',exact:true})).toBeDisabled();
+ await page.getByRole('button',{name:'View references/checks.md',exact:true}).click();
+ await expect(page.getByText('Use the receipt hash as the source of truth.',{exact:true})).toBeVisible();
 });
 test('inspect, edit, supporting files, flags and recoverable archive use current revisions',async({page})=>{
  const x=await fixture(page);await x.open();expect(x.reads).toBe(0);await page.getByRole('button',{name:'Inspect verify-release',exact:true}).click();await expect(page.getByRole('textbox',{name:'Instructions for verify-release',exact:true})).toHaveValue(detail().content);expect(x.reads).toBe(1);
