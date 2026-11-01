@@ -1,0 +1,9 @@
+# Frontend rebuild and recorded review
+
+Approved scope: retain the browser-first local React/Pi application; desktop packaging later. Fix PDF frame starvation/flicker and signing, implement T3-style wider shell and all settings inventory, reusable progressive Q&A/graphs/migration/map/context, then deliver nine actual-app MP4s plus catalog coverage and genuine Pi evidence. Generated applications remain disabled; full 36-run pilot deferred.
+
+T3 baseline: da8cc591dadd75819ae62961da4a882767efb145. Historical motion targets: 180 ms panes, 650 ms PDF focus, 220–320 ms layout, 120 ms answer chunks, 60 ms follow-ups, 450 ms graph paths, 400 ms changed cells, 140–180 ms popovers; the current [motion direction](motion-refinement.md) supersedes exact timings. Inline artifacts now share the composer's chosen width, including compact/standard/wide metadata. Signing keeps the PDF and controls paired at 620 px available width or more and stacks below that measure. Unsupported T3 features remain searchable and disabled with reasons.
+
+Nine recordings: signing, vertical dark PR, vertical light PR, migration, context, progressive Q&A, map/comparison, complete catalog, shell/settings. The later approved direction makes the vertical reference authoritative for PR work in both themes; horizontal graphs remain available for other relationships and catalog coverage. Target 1920×1080 at 30 fps, H.264 without generated intermediate frames. Local operations/live Pi are distinguished from illustrative external effects. Handoff is a single embedded-video review index; do not require the user to operate the app to verify it.
+
+Preserve exact approval, evidence versions, durable submissions, draft recovery, cancellation and resource guards. Keep one renderer per artifact when moving into a workspace pane. Use bounded canonical image marks for Generate/Upload and retain legacy mark formats. Test changed behavior first; final full checks and one coherent independent review.

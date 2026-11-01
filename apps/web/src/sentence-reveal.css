@@ -1,0 +1,6 @@
+.sentence-reveal{position:relative}
+.sentence-reveal-layer{position:absolute;inset:0;display:block;pointer-events:none;user-select:none;z-index:1}
+.sentence-reveal-veil{position:absolute;display:block;pointer-events:none;user-select:none;will-change:width}
+.sentence-reveal-edge{position:absolute;width:5px;pointer-events:none;background:linear-gradient(0deg,transparent 15%,color-mix(in srgb,var(--accent) 45%,transparent) 16% 28%,transparent 29% 55%,color-mix(in srgb,var(--text) 25%,transparent) 56% 65%,transparent 66%);animation:sentence-edge-glitch 90ms steps(2,end) infinite;transform:translateX(-2px)}
+@keyframes sentence-edge-glitch{50%{clip-path:inset(8% 0 22%);transform:translateX(-1px)}100%{clip-path:inset(23% 0 4%);transform:translateX(-3px)}}
+@media(prefers-reduced-motion:reduce){.sentence-reveal-layer{display:none}}

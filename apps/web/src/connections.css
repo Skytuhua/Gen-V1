@@ -1,0 +1,9 @@
+.connection-list { margin-top: 28px; }.connection-list>header h2 { font-size: 17px; margin: 0 0 8px; }
+.connection-list p { font-size: 13px; line-height: 1.55; color: var(--muted); margin: 8px 0 14px; }
+.connection-row { border-top: 1px solid var(--border); padding: 20px 0; }
+.connection-row>header,.connection-row>footer { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.connection-row strong { font-size: 14px; }.connection-row>header span { margin-left: auto; font-size: 11px; }
+.connection-ready { color: var(--success); }.connection-pending { color: var(--muted); }
+.connection-row a { display: inline-flex; gap: 5px; align-items: center; margin-left: auto; font-size: 12px; color: var(--muted); }
+.connection-row code { padding: 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 11px; overflow-wrap: anywhere; }
+@media(max-width:600px) { .connection-row>header span { margin-left: 0; }.connection-row a { margin-left: 0; } }
