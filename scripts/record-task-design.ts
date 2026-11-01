@@ -5,7 +5,7 @@ import {resolve,join} from 'node:path';
 import {setTimeout as delay} from 'node:timers/promises';
 import {expect,type Page,type Locator} from '@playwright/test';
 import {CAPABILITIES,validateSurface} from '../packages/ui-catalog/index.ts';
-import type {HostCommand,Snapshot} from '../packages/contracts/index.ts';
+import type {HostCommand} from '../packages/contracts/index.ts';
 import {taskFixture,serveTaskFixture} from '../tests/e2e/task-interface-fixture.ts';
 import {createSigningPdfFixture} from '../tests/e2e/document-preview-fixture.ts';
 import {proceduralComparisonPng} from './expanded-review-host.ts';

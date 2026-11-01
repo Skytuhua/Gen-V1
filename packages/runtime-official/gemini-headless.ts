@@ -7,7 +7,6 @@ import { terminateProcessTree } from '../runtime-pi/process-tree.ts';
 import { officialRuntimeCommand, officialRuntimeEnvironment } from './environment.ts';
 import { findGeminiNativeSession } from './gemini-native-history.ts';
 import { bounded, finite, type DriverContext, type OfficialDriver, type WireInput } from './internal.ts';
-import { saveManifest } from './manifest.ts';
 
 /** Native --resume emits only current-turn stream-json, avoiding ACP v1 replay ambiguity. */
 export async function openGeminiHeadless(context: DriverContext, spawnProcess: typeof spawn, modelId?: string): Promise<OfficialDriver> {

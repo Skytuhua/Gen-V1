@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -7,6 +7,27 @@ const cleanups: (() => void)[] = [];
 afterEach(() => { for (const cleanup of cleanups.splice(0)) cleanup(); });
 function setup() { const dir = mkdtempSync(join(tmpdir(), "harness-store-")); const store = new Store(dir); cleanups.push(() => { store.close(); rmSync(dir, { recursive: true, force: true }); }); return store; }
 describe("durable command storage", () => {
+  it('keeps snapshot query counts constant as threads grow while preserving archived content and pinned versions', () => {
+    const store = setup();
+    const thread = (id: string) => ({ id, title: id, status: 'ready', runId: null });
+    store.internal('fixture', null, () => {
+      store.put('thread', 'visible', null, thread('visible')); store.put('thread', 'archived', null, thread('archived'));
+      store.put('archivedThread', 'archived', null, true); store.put('archivedThread', 'visible', null, false);
+      store.put('message', 'retained', 'archived', { id: 'retained', content: 'Keep archived history' });
+      store.put('artifact', 'artifact', 'visible', { bindings: { source: { mode: 'snapshot', ref: { id: 'source', revision: 1 } } } });
+      store.put('data', 'source', 'visible', { id: 'source', revision: 2, value: 'current' });
+      store.put('dataVersion', 'source@1', 'visible', { id: 'source', revision: 1, value: 'pinned' });
+    });
+    const queries = vi.spyOn(store.db, 'prepare');
+    const first = store.snapshot(), count = queries.mock.calls.length;
+    store.internal('more-threads', null, () => { for (let n = 0; n < 100; n++) store.put('thread', `thread-${n}`, null, thread(`thread-${n}`)); });
+    queries.mockClear(); const next = store.snapshot();
+    expect(queries.mock.calls.length).toBe(count); expect(count).toBeLessThanOrEqual(20);
+    expect(first.threads.map(item => item.id)).toEqual(['visible']); expect(first.archivedThreads?.map(item => item.id)).toEqual(['archived']);
+    expect(next.threads).toHaveLength(101); expect(next.messages).toEqual(first.messages);
+    expect(next.data).toEqual(first.data); expect(next.data.map(item => item.value)).toEqual(['current', 'pinned']);
+    queries.mockRestore();
+  });
   it("commits internal state and events atomically without creating retry receipts", () => {
     const store=setup(),seen:unknown[]=[];
     store.subscribe(event=>seen.push({event,value:store.get("sample","internal")}));

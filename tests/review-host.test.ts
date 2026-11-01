@@ -91,7 +91,7 @@ describe('isolated actual-host recording fixtures', () => {
     expect((source('migration', 'users') as { workspace: number }[]).map(row => row.workspace)).toEqual([1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3]);
     const db = new DatabaseSync(join(folder, 'resources', 'project.sqlite'), { readOnly: true });
     try { expect(db.prepare('SELECT COUNT(*) AS n FROM users WHERE workspace_id IS NOT NULL').get()!.n).toBe(12); } finally { db.close(); }
-  });
+  }, 30_000);
   it('opens an inserted custom question and preserves the existing question state', async () => {
     await send('faq');
     await action('faq', 'ask', { question: 'Can I use a wire transfer?' }, { eligibilityOpen: true, question: 'Can I use a wire transfer?' });

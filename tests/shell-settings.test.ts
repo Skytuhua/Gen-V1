@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { createHash } from 'node:crypto';
 import { matchesShortcut, readShellLayout } from '../apps/web/src/shell-layout';
 import { SETTINGS_ROWS, SETTINGS_SECTIONS, settingAvailability } from '../apps/web/src/Settings';
 import { T3_SETTINGS_ROWS } from '../apps/web/src/settings-inventory';
@@ -28,6 +29,10 @@ describe('recoverable browser shell layout', () => {
 });
 
 describe('pinned T3 settings inventory', () => {
+  it('preserves the exact pinned row content and ordering', () => {
+    // Frozen before the representation change: covers every ID, title, section and search term.
+    expect(createHash('sha256').update(JSON.stringify(T3_SETTINGS_ROWS)).digest('hex')).toBe('2893f2e3a1de79b9c628ac73fe7670c686088f86c9f18acce61df3936c1d727e');
+  });
   it('retains every static indexed row, all 21 navigation sections, and both supplemental pages', () => {
     expect(T3_SETTINGS_ROWS).toHaveLength(136);
     expect(SETTINGS_SECTIONS).toHaveLength(23);

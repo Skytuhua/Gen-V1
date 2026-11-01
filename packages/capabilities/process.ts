@@ -1,5 +1,6 @@
 import { spawn } from "node:child_process";
 import { join } from "node:path";
+import { StringDecoder } from 'node:string_decoder';
 import { HarnessError } from "../contracts/index.ts";
 export interface ProcessResult { status: "succeeded" | "failed" | "cancelled"; exitCode: number | null; signal: string | null; cancelled: boolean; timedOut: boolean; stdout: string; stderr: string; truncated: boolean }
 export function processEnvironment(): NodeJS.ProcessEnv {
@@ -11,9 +12,19 @@ export async function runProcess(command: string, args: string[], cwd: string, s
   if (signal.aborted) throw new HarnessError("CANCELLED", "Operation cancelled before process start");
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, { cwd, env: processEnvironment(), shell: false, windowsHide: true, detached: process.platform !== "win32", stdio: ["ignore", "pipe", "pipe"] });
-    let stdout = "", stderr = "", truncated = false, cancelled = false, timedOut = false, settled = false;
-    const append = (current: string, data: Buffer) => { const next = current + data.toString("utf8"); if (Buffer.byteLength(next) > 256 * 1024) { truncated = true; return next.slice(0, 128 * 1024); } return next; };
-    child.stdout.on("data", data => { stdout = append(stdout, data); }); child.stderr.on("data", data => { stderr = append(stderr, data); });
+    let truncated = false, cancelled = false, timedOut = false, settled = false;
+    const capture = (stream: NodeJS.ReadableStream) => {
+      let text = '', bytes = 0, full = false;
+      stream.setEncoding('utf8');
+      stream.on('data', (chunk: string) => {
+        if (full) return;
+        const data = Buffer.from(chunk), remaining = 256 * 1024 - bytes;
+        if (data.length > remaining) { truncated = true; full = true; chunk = new StringDecoder('utf8').write(data.subarray(0, remaining)); }
+        text += chunk; bytes += Buffer.byteLength(chunk);
+      });
+      return () => text;
+    };
+    const stdout = capture(child.stdout), stderr = capture(child.stderr);
     let treeKill: Promise<void> | undefined;
     function stop() {
       if (!child.pid || settled || treeKill) return;
@@ -32,6 +43,6 @@ export async function runProcess(command: string, args: string[], cwd: string, s
     const cleanup = () => { clearTimeout(timer); signal.removeEventListener("abort", onAbort); };
     child.once("spawn", () => { progress(`Started ${command === process.execPath ? "node --test" : "git"} (PID ${child.pid})`); if (signal.aborted) onAbort(); });
     child.once("error", error => { settled = true; cleanup(); reject(error); });
-    child.once("close", async (exitCode, terminationSignal) => { cleanup(); await treeKill; settled = true; progress(`Process exited: ${exitCode ?? terminationSignal ?? "unknown"}`); resolve({ status: cancelled ? "cancelled" : !timedOut && exitCode === 0 ? "succeeded" : "failed", exitCode, signal: terminationSignal, cancelled, timedOut, stdout, stderr, truncated }); });
+    child.once("close", async (exitCode, terminationSignal) => { cleanup(); await treeKill; settled = true; progress(`Process exited: ${exitCode ?? terminationSignal ?? "unknown"}`); resolve({ status: cancelled ? "cancelled" : !timedOut && exitCode === 0 ? "succeeded" : "failed", exitCode, signal: terminationSignal, cancelled, timedOut, stdout: stdout(), stderr: stderr(), truncated }); });
   });
 }

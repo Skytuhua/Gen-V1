@@ -1,5 +1,5 @@
 import type { ChildProcess } from 'node:child_process';
-import type { ModelInfo, RuntimeEvent } from '../contracts/index.ts';
+import type { ModelInfo } from '../contracts/index.ts';
 import type { ManifestState } from './manifest.ts';
 import type { HostMcp } from './mcp.ts';
 

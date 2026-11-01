@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, useMemo, type CSSProperties, type ReactNode } from 'react';
-import { Archive, ArrowUp, Check, ChevronDown, ChevronRight, CircleHelp, CircleStop, File, Folder, FolderPlus, Laptop, LoaderCircle, Menu, MessageSquare, Mic, MoreHorizontal, PanelLeftClose, PenLine, Plus, Search, Settings2, SlidersHorizontal, SquarePen, WifiOff, X } from 'lucide-react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, useMemo, type ComponentProps, type CSSProperties, type ReactNode } from 'react';
+import { Archive, ArrowUp, Check, ChevronDown, ChevronRight, CircleHelp, CircleStop, File, Folder, Laptop, LoaderCircle, Menu, MessageSquare, MoreHorizontal, PanelLeftClose, PenLine, Plus, SlidersHorizontal, WifiOff, X } from 'lucide-react';
 import type { InputRequest, ModelInfo, Operation, Snapshot, Thread,Message } from '../../../packages/contracts';
 import { bootstrap, command, getModels, getSnapshot, subscribe } from './api';
 import { journalCompareAndSwap, journalGeneration, journalRead, journalReadRecord, journalSubscribe, journalWrite } from './journal';
@@ -8,9 +8,10 @@ import { Markdown } from './Markdown';
 import { groupWorkActivity, WorkActivity } from './WorkActivity';
 import { display, schemaDefaults, SchemaFields } from './registry';
 import { useModalRegion } from './focus';
-import Ajv from 'ajv';
-import { getPreferences, type UiPreferences } from '../../../packages/contracts/preferences';
-import { Settings } from './Settings';
+import { validateSchema } from './schema-validator';
+import { matchingThreads } from './thread-search';
+import { hasPendingDocumentAssets } from './signature-assets';
+import { getPreferences } from '../../../packages/contracts/preferences';
 import { ShellSidebar, threadStatus } from './ShellSidebar';
 import { useShellLayout, matchesShortcut } from './shell-layout';
 import { ResizeHandle, WorkspacePanel } from './WorkspacePanel';
@@ -31,14 +32,39 @@ import {journalFlush} from './journal';
 import {SideChat,type SideChatHandle} from './SideChat';
 import {createConversationScroll} from './conversation-scroll';
 
+type SettingsComponent = typeof import('./Settings').Settings;
+let loadedSettings: SettingsComponent | undefined;
+
 const emptySnapshot: Snapshot = { seq: 0, threads: [], messages: [], artifacts: [], userStates: [], data: [], requests: [], operations: [], resources: [], usage: {}, settings: { theme: 'dark', modelId: null }, activeThreadId: null };
 const messageOf = (error: unknown) => error instanceof Error ? error.message : 'The request could not be completed.';
-const decisionAjv = new Ajv({ strict: false, validateFormats: false });
 
 function Dialog({ title, children, close }: { title: string; children: ReactNode; close: () => void }) {
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => { ref.current?.showModal(); }, []);
   return <dialog ref={ref} className="dialog" aria-label={title} onCancel={close} onClick={event => { if (event.target === event.currentTarget) close(); }}><header><h2>{title}</h2><button className="icon-button" aria-label="Close dialog" onClick={close}><X size={17} /></button></header>{children}</dialog>;
+}
+
+function SettingsWindow(props: ComponentProps<SettingsComponent>) {
+  const desktop = useDesktop();
+  const opener = useRef(document.activeElement as HTMLElement | null);
+  const [Settings, setSettings] = useState(() => loadedSettings);
+  const [error, setError] = useState(''), [reloading, setReloading] = useState(false);
+  useEffect(() => () => { if (opener.current?.isConnected) opener.current.focus({ preventScroll: true }); }, []);
+  useEffect(() => {
+    if (Settings) return;
+    let active = true;
+    void import('./Settings').then(module => { loadedSettings = module.Settings; if (active) setSettings(() => module.Settings); }).catch(() => { if (active) setError('Settings could not load. Try again or close this window.'); });
+    return () => { active = false; };
+  }, [Settings]);
+  const reload = async () => {
+    setReloading(true);
+    try {
+      if (props.snapshot.threads.some(thread => hasPendingDocumentAssets(thread.id))) { setError('Wait for the signature mark to finish saving, or clear it before reloading.'); return; }
+      await desktop?.prepareHandoff(); await journalFlush(); window.location.reload();
+    } catch (cause) { setError(`Drafts could not be saved. ${messageOf(cause)} Keep this window open and retry.`); }
+    finally { setReloading(false); }
+  };
+  return Settings ? <Settings {...props} /> : <Dialog title="Settings" close={props.close}>{error ? <><p role="alert">{error}</p><button className="primary" disabled={reloading} onClick={() => void reload()}>Reload to retry</button></> : <p role="status">Opening settings…</p>}</Dialog>;
 }
 
 function AssistantProse({message,arrivals,active}:{message:Message;arrivals:Set<string>;active:boolean}){
@@ -72,7 +98,7 @@ function InputDecision({ request, refresh, snapshot }: { request: InputRequest; 
     const version = journalGeneration(key);
     try {
       const response = objectSchema ? values : text;
-      if (!withdraw && !decisionAjv.validate(request.responseSchema, response)) throw new Error('The response does not match the requested schema. Check the required fields and values.');
+      if (!withdraw && !validateSchema(request.responseSchema, response, false)) throw new Error('The response does not match the requested schema. Check the required fields and values.');
       await command(withdraw ? 'request.withdraw' : 'request.respond', { requestId: request.id, revision: request.revision, ...(!withdraw ? { response } : {}) }, request.threadId); await journalCompareAndSwap(key, version, null); await refresh();
     } catch (error) { setError(messageOf(error)); } finally { setBusy(false); }
   };
@@ -107,7 +133,7 @@ function ResourcePicker({ threadId, close, refresh }: { threadId: string; close:
 }
 
 type PrepareThread = (id: string) => Promise<unknown>;
-function Composer({ thread, models, modelId, setModelId, modelError, snapshot, ensureThread, busy, runAction, refresh, setup, openResource, browseProject, inspectChanges, reportError,onSide }: { thread: Thread | undefined; models: ModelInfo[]; modelId: string; setModelId: (id: string) => void; modelError: string; snapshot: Snapshot; ensureThread: (prepare: PrepareThread) => Promise<string>; busy: boolean; runAction: (action: () => Promise<void>) => Promise<void>; refresh: () => Promise<void>; setup: () => void; openResource: (id: string) => void; browseProject:(id:string)=>void;inspectChanges:()=>void; reportError: (error: string) => void;onSide:(content:string)=>Promise<void> }) {
+function Composer({ thread, models, modelId, setModelId, snapshot, ensureThread, busy, runAction, refresh, setup, openResource, browseProject, inspectChanges, reportError,onSide }: { thread: Thread | undefined; models: ModelInfo[]; modelId: string; setModelId: (id: string) => void; snapshot: Snapshot; ensureThread: (prepare: PrepareThread) => Promise<string>; busy: boolean; runAction: (action: () => Promise<void>) => Promise<void>; refresh: () => Promise<void>; setup: () => void; openResource: (id: string) => void; browseProject:(id:string)=>void;inspectChanges:()=>void; reportError: (error: string) => void;onSide:(content:string)=>Promise<void> }) {
   const key = thread?.id ?? 'new';
   const draftTarget = useRef(key);
   const [draft, setDraft] = useState('');
@@ -360,9 +386,7 @@ export function App() {
   const conversationMotion=useRef<ReturnType<typeof createConversationScroll>|null>(null);
   useEffect(()=>()=>conversationMotion.current?.dispose(),[]);
   const messages = snapshot.messages.filter(item => item.threadId === thread?.id);
-  const artifacts = snapshot.artifacts.filter(item => item.threadId === thread?.id && item.lifecycle === 'active');
   const requests = snapshot.requests.filter(item => item.threadId === thread?.id && item.status === 'pending');
-  const operations = snapshot.operations.filter(item => item.threadId === thread?.id);
   useLayoutEffect(() => {
     const element = conversation.current;
     if (!element || !loaded) return;
@@ -387,10 +411,8 @@ export function App() {
     if (!discard && !confirmed && preferences.archiveConfirmation) { setConfirmArchive(id); setThreadMenu(false); return; }
     try { await command('thread.archive', {}, id); setDirtyWidgets(previous => Object.fromEntries(Object.entries(previous).filter(([, threadId]) => threadId !== id))); setArchiveThread(null); select(null); await refresh(); } catch (error) { setError(messageOf(error)); }
   };
-  const matching = snapshot.threads.filter(item => !item.sideParentId&&`${item.title} ${item.projectName ?? ''} ${snapshot.messages.filter(message => message.threadId === item.id).map(message => message.content).join(' ')}`.toLocaleLowerCase().includes(search.toLocaleLowerCase())).toSorted((a, b) => preferences.projectOrder === 'manual' ? (a.presentation?.order ?? 0) - (b.presentation?.order ?? 0) || b.updatedAt.localeCompare(a.updatedAt) : b.updatedAt.localeCompare(a.updatedAt));
-  const projects = [...new Set(matching.map(item => item.projectName ?? 'Conversations'))];
+  const matching = useMemo(() => matchingThreads(snapshot.threads, snapshot.messages, search, preferences.projectOrder), [snapshot.threads, snapshot.messages, search, preferences.projectOrder]);
   const updateModel = (id: string) => { setModelId(id); void command('settings.update', { modelId: id }).then(() => refresh()).catch(error => setError(messageOf(error))); };
-  const changeTheme = (value: 'light' | 'dark' | 'system') => { void command('settings.update', { theme: value }).then(() => refresh()).catch(error => setError(messageOf(error))); };
   const detachedPlan=useDetachedSurface(thread?{kind:'plan',threadId:thread.id}:null),detachedThread=useDetachedSurface(thread?{kind:'thread',threadId:thread.id}:null),detachedNavigation=useDetachedSurface({kind:'navigation'});
   const pendingThread=usePendingSurface(thread?{kind:'thread',threadId:thread.id}:null);
   const threadHeld=Boolean(detachedThread||detachingThread||pendingThread||desktop?.closing);
@@ -433,7 +455,7 @@ export function App() {
       </div></div>; })}</div>
       <div className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</div>
       {latestAvailable && <button className="jump-latest secondary" onClick={() => { const position=conversationMotion.current?.jump();if(position)readingPositions.current.set(thread?.id??'new',position);setLatestAvailable(false); }}>Jump to latest<ArrowUp size={13} /></button>}
-      <div style={{display:'contents'}} inert={threadHeld}>{loaded ? <Composer key={thread?.id ?? 'new'} thread={thread} models={models} modelId={modelId} setModelId={updateModel} modelError={modelError} snapshot={snapshot} ensureThread={ensureThread} busy={composerBusy || threadCreating} runAction={runComposerAction} refresh={refresh} setup={() => { setSettingsSection('providers'); setSettingsOpen(true); }} openResource={setResourcePicker} browseProject={id=>{setFocusedResource(id);setLayout(value=>({...value,rightPanelOpen:true,activeTab:'files'}));}} inspectChanges={()=>setLayout(value=>({...value,rightPanelOpen:true,activeTab:'diff'}))} reportError={setError} onSide={async content=>{setSideOpen(true);if(!sideChat.current)throw new Error("The side conversation is still opening.");await sideChat.current.ask(content);}} /> : <div className="composer-dock" role="status"><span className="muted">Opening conversation…</span></div>}</div>
+      <div style={{display:'contents'}} inert={threadHeld}>{loaded ? <Composer key={thread?.id ?? 'new'} thread={thread} models={models} modelId={modelId} setModelId={updateModel} snapshot={snapshot} ensureThread={ensureThread} busy={composerBusy || threadCreating} runAction={runComposerAction} refresh={refresh} setup={() => { setSettingsSection('providers'); setSettingsOpen(true); }} openResource={setResourcePicker} browseProject={id=>{setFocusedResource(id);setLayout(value=>({...value,rightPanelOpen:true,activeTab:'files'}));}} inspectChanges={()=>setLayout(value=>({...value,rightPanelOpen:true,activeTab:'diff'}))} reportError={setError} onSide={async content=>{setSideOpen(true);if(!sideChat.current)throw new Error("The side conversation is still opening.");await sideChat.current.ask(content);}} /> : <div className="composer-dock" role="status"><span className="muted">Opening conversation…</span></div>}</div>
     </main>
 
     <FloatingRail plan={<FloatingWindow id="plan" title="Task plan" open={planOpen&&!detachedPlan} onDetach={desktop&&thread?()=>{void desktop.detachSurface({kind:'plan',threadId:thread.id}).catch(cause=>setError(messageOf(cause)));}:undefined} onClose={dismissPlan} anchor="top-right" defaultSize={{width:376,height:180}} minSize={{width:280,height:80}} sizing="content" focusOnOpen={planFocusOnOpen} expandRequest={planExpandRequest} resetPosition><PlanStatus key={thread?.id??'new'} snapshot={snapshot} threadId={thread?.id} /></FloatingWindow>} usage={<UsageFooter threadId={thread?.id} usage={thread?snapshot.usage[thread.id]:undefined} visible={preferences.showUsageFooter} />} />
@@ -445,7 +467,7 @@ export function App() {
     {confirmArchive && <Dialog title="Archive thread?" close={() => setConfirmArchive(null)}><p>The saved conversation will move to Archive in Settings. Restore it there whenever you need it.</p><footer className="dialog-actions"><button className="quiet" onClick={() => setConfirmArchive(null)}>Cancel</button><button className="primary" onClick={() => { const id = confirmArchive; setConfirmArchive(null); void archive(id, false, true); }}>Archive thread</button></footer></Dialog>}
     {archiveThread && <Dialog title="Uncheckpointed widget edits" close={() => setArchiveThread(null)}><p>Checkpoint your widget edits before archiving this thread, or explicitly discard them.</p><footer className="dialog-actions"><button className="secondary" onClick={() => { select(archiveThread); setArchiveThread(null); }}>Return to checkpoint</button><button className="quiet" onClick={() => void archive(archiveThread, true)}>Discard edits and archive</button></footer></Dialog>}
     {resourcePicker && <ResourcePicker threadId={resourcePicker} close={() => setResourcePicker(null)} refresh={refresh} />}
-    {settingsOpen && <Settings initialSection={settingsSection} snapshot={snapshot} models={models} modelError={modelError} refresh={refresh} loadModels={loadModels} close={() => setSettingsOpen(false)} addResource={() => { setSettingsOpen(false); void ensureThread(async () => {}).then(setResourcePicker).catch(error => setError(messageOf(error))); }} />}
+    {settingsOpen && <SettingsWindow initialSection={settingsSection} snapshot={snapshot} models={models} modelError={modelError} refresh={refresh} loadModels={loadModels} close={() => setSettingsOpen(false)} addResource={() => { setSettingsOpen(false); void ensureThread(async () => {}).then(setResourcePicker).catch(error => setError(messageOf(error))); }} />}
     {rename && thread && <Dialog title="Rename thread" close={() => setRename(false)}><form onSubmit={event => { event.preventDefault(); void command('thread.rename', { title: title.trim() }, thread.id).then(async () => { await refresh(); setRename(false); }).catch(error => setError(messageOf(error))); }}><label className="field">Thread name<input autoFocus required value={title} maxLength={180} onChange={event => setTitle(event.target.value)} /></label><footer className="dialog-actions"><button type="button" className="quiet" onClick={() => setRename(false)}>Cancel</button><button className="primary" disabled={!title.trim()}>Save name</button></footer></form></Dialog>}
   </div></WorkspaceProvider>;
 }

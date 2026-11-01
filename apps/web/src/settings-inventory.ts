@@ -22,821 +22,146 @@ export const T3_PANEL_ROWS: SettingsInventoryRow[] = [
   ...panelRows('secrets', ['Secret provider name', 'Secret provider command', 'Vault account']),
   ...panelRows('licenses', ['Dependency license notices']),
 ];
-export const T3_SETTINGS_ROWS: SettingsInventoryRow[] = [
-  {
-    "id": "storage-worktree-keep-when",
-    "title": "Keep worktrees with local changes",
-    "section": "worktrees",
-    "terms": "any local files uncommitted changes edited tracked files ignored env build output cleanup ,"
-  },
-  {
-    "id": "storage-delete-now",
-    "title": "Delete now",
-    "section": "maintenance",
-    "terms": "storage cleanup run now results report removed kept failed"
-  },
-  {
-    "id": "storage-worktrees",
-    "title": "Worktree cleanup",
-    "section": "worktrees",
-    "terms": "disk storage delete deleted archived threads old inactive merged unchanged worktrees retention days project inherit off custom ,"
-  },
-  {
-    "id": "storage-worktrees-location",
-    "title": "Worktree location",
-    "section": "worktrees",
-    "terms": "worktree location folder directory path drive external disk"
-  },
-  {
-    "id": "storage-artifacts",
-    "title": "Artifacts and logs",
-    "section": "maintenance",
-    "terms": "disk storage browser screenshots captures rotated logs cleanup retention"
-  },
-  {
-    "id": "project-defaults",
-    "title": "Project defaults and overrides",
-    "section": "threads",
-    "terms": "model workspace environments projects inheritance checkout"
-  },
-  {
-    "id": "project-overview",
-    "title": "Project overview",
-    "section": "projects",
-    "terms": "name icon emoji image checkout remove delete"
-  },
-  {
-    "id": "default-model",
-    "title": "Default model",
-    "section": "threads",
-    "terms": "new thread project provider reasoning effort"
-  },
-  {
-    "id": "default-permissions",
-    "title": "Permissions",
-    "section": "threads",
-    "terms": "new thread default runtime mode supervised approvals auto accept edits full access ,"
-  },
-  {
-    "id": "color-scheme",
-    "title": "Color scheme",
-    "section": "appearance",
-    "terms": "appearance light dark system mode"
-  },
-  {
-    "id": "theme",
-    "title": "Themes",
-    "section": "appearance",
-    "terms": "appearance colors palette custom import"
-  },
-  {
-    "id": "setting-appearance-contrast",
-    "title": "Contrast",
-    "section": "appearance",
-    "terms": "colors borders interface"
-  },
-  {
-    "id": "setting-glass-opacity",
-    "title": "Glass opacity",
-    "section": "appearance",
-    "terms": "transparent transparency solid menus dialogs composer"
-  },
-  {
-    "id": "diff-color-scheme",
-    "title": "Diff colors",
-    "section": "diffs",
-    "terms": "red green blue orange additions deletions changes counts palette colorblind"
-  },
-  {
-    "id": "chat-width",
-    "title": "Chat width",
-    "section": "appearance",
-    "terms": "wide full width column layout messages composer monitor"
-  },
-  {
-    "id": "thread-details-items",
-    "title": "Thread details",
-    "section": "appearance",
-    "terms": "customize show hide panel card environment editor scripts branch pull request git changes servers automations lineage usage limits 5 hour weekly quota tokens context window ,"
-  },
-  {
-    "id": "effort-display",
-    "title": "Effort display",
-    "section": "appearance",
-    "terms": "reasoning effort thinking bars graph word label level composer"
-  },
-  {
-    "id": "math-rendering",
-    "title": "Render math",
-    "section": "appearance",
-    "terms": "latex tex katex equations formulas markdown"
-  },
-  {
-    "id": "panel-animations",
-    "title": "Panel animations",
-    "section": "appearance",
-    "terms": ""
-  },
-  {
-    "id": "environment-identification",
-    "title": "Environment identification",
-    "section": "appearance",
-    "terms": "dev nightly latest channel artwork pill label hide none"
-  },
-  {
-    "id": "interface-font",
-    "title": "Interface font",
-    "section": "appearance",
-    "terms": "typography family size system sans"
-  },
-  {
-    "id": "prompt-font",
-    "title": "Prompt font",
-    "section": "appearance",
-    "terms": "typography family size composer input"
-  },
-  {
-    "id": "code-font",
-    "title": "Code font",
-    "section": "appearance",
-    "terms": "typography family size monospace code blocks diffs file previews"
-  },
-  {
-    "id": "terminal-font",
-    "title": "Terminal font",
-    "section": "appearance",
-    "terms": "typography family size monospace output"
-  },
-  {
-    "id": "separate-fonts",
-    "title": "Separate fonts",
-    "section": "appearance",
-    "terms": "typography advanced prompt code terminal font family size individually"
-  },
-  {
-    "id": "font-smoothing",
-    "title": "Font smoothing",
-    "section": "appearance",
-    "terms": "typography text grayscale anti aliasing macos thin"
-  },
-  {
-    "id": "word-wrap",
-    "title": "Word wrap",
-    "section": "appearance",
-    "terms": "long lines code blocks diffs file previews"
-  },
-  {
-    "id": "composer-context",
-    "title": "Composer context",
-    "section": "appearance",
-    "terms": ""
-  },
-  {
-    "id": "project-grouping",
-    "title": "Project grouping",
-    "section": "general",
-    "terms": "combine matching repositories environments sidebar"
-  },
-  {
-    "id": "project-order",
-    "title": "Project order",
-    "section": "general",
-    "terms": "sort projects sidebar manual created recent"
-  },
-  {
-    "id": "snooze-options",
-    "title": "Snooze options",
-    "section": "threads",
-    "terms": "snooze presets times later tonight tomorrow next week remind"
-  },
-  {
-    "id": "snooze-limited-threads",
-    "title": "Snooze until limits reset",
-    "section": "threads",
-    "terms": "usage quota rate limit reset wake recover continue"
-  },
-  {
-    "id": "auto-resume-limited-threads",
-    "title": "Resume after usage limits",
-    "section": "threads",
-    "terms": "usage quota rate limit reset recover continue"
-  },
-  {
-    "id": "working-shelf",
-    "title": "Working section",
-    "section": "general",
-    "terms": "hide fold running monitoring threads inbox sidebar shelf"
-  },
-  {
-    "id": "boring-sidebar",
-    "title": "Boring sidebar (group by project)",
-    "section": "labs",
-    "terms": "beta folders project tree legacy old classic sidebar"
-  },
-  {
-    "id": "boring-sidebar-multiline",
-    "title": "Two-line folder rows",
-    "section": "labs",
-    "terms": "beta boring sidebar folder rows multiline branch pull request details"
-  },
-  {
-    "id": "guest-links",
-    "title": "Guest links",
-    "section": "labs",
-    "terms": "beta share guest invite link teammate watch t3 connect tunnel"
-  },
-  {
-    "id": "linked-environments-beta",
-    "title": "Linked environments",
-    "section": "labs",
-    "terms": "beta link another machine vps peer agents work there delegate"
-  },
-  {
-    "id": "simlock-hosts",
-    "title": "Simlock device hosts (alpha)",
-    "section": "labs",
-    "terms": "beta alpha simlock callstack simulator emulator ios android pool lease gateway"
-  },
-  {
-    "id": "auto-settle-inactive-threads",
-    "title": "Auto-settle inactive threads",
-    "section": "threads",
-    "terms": "sidebar inactivity days no activity automatically"
-  },
-  {
-    "id": "compact-idle-threads",
-    "title": "Compact idle threads",
-    "section": "providers",
-    "terms": "claude context compaction idle cache tokens usage summary resume"
-  },
-  {
-    "id": "auto-settle-merged-threads",
-    "title": "Auto-settle merged threads",
-    "section": "threads",
-    "terms": "pull request merge closed automatically sidebar"
-  },
-  {
-    "id": "keep-threads-with-pull-requests",
-    "title": "Keep threads with a PR",
-    "section": "threads",
-    "terms": "pull request inactivity auto-settle merge close sidebar"
-  },
-  {
-    "id": "days-before-auto-settle",
-    "title": "Days of inactivity before auto-settle",
-    "section": "threads",
-    "terms": "thread timeout activity sidebar"
-  },
-  {
-    "id": "thread-notifications",
-    "title": "Thread notifications",
-    "section": "general",
-    "terms": "notification sound alert completion input approval desktop"
-  },
-  {
-    "id": "in-app-notifications",
-    "title": "In-app notifications",
-    "section": "general",
-    "terms": "notification toast popup completion input approval failure"
-  },
-  {
-    "id": "time-format",
-    "title": "Time format",
-    "section": "general",
-    "terms": "timestamp clock locale system browser os 12 hour 24 hour"
-  },
-  {
-    "id": "response-streaming",
-    "title": "Response streaming",
-    "section": "threads",
-    "terms": "output token paragraph buffered wait turn legacy"
-  },
-  {
-    "id": "hide-whitespace-changes",
-    "title": "Hide whitespace changes",
-    "section": "diffs",
-    "terms": "diff ignore spaces edits default"
-  },
-  {
-    "id": "default-diff-file-state",
-    "title": "Default diff file state",
-    "section": "diffs",
-    "terms": "collapsed expanded collapse expand files pull request pr code tab"
-  },
-  {
-    "id": "diff-layout",
-    "title": "Diff layout",
-    "section": "diffs",
-    "terms": "stacked split side by side unified inline view"
-  },
-  {
-    "id": "proactive-panels",
-    "title": "Proactive panels",
-    "section": "diffs",
-    "terms": "automatically open diff pull request pr right panel agent completion"
-  },
-  {
-    "id": "skills-in-slash-menu",
-    "title": "Show skills in slash menu",
-    "section": "chat",
-    "terms": "command menu dollar $ slash /"
-  },
-  {
-    "id": "composer-rich-text",
-    "title": "Rich text composer",
-    "section": "chat",
-    "terms": "composer rich text tiptap bold italic markdown styled wysiwyg"
-  },
-  {
-    "id": "send-shortcut",
-    "title": "Send shortcut",
-    "section": "chat",
-    "terms": "enter return command ctrl multiline prompt new line composer"
-  },
-  {
-    "id": "follow-up-behavior",
-    "title": "Follow-up behavior",
-    "section": "chat",
-    "terms": "queue steer running turn send default behavior composer"
-  },
-  {
-    "id": "provider-update-checks",
-    "title": "Provider update checks",
-    "section": "maintenance",
-    "terms": "installed cli versions newer available codex claude cursor grok fx opencode"
-  },
-  {
-    "id": "continue-threads-after-server-update",
-    "title": "Continue threads after restarts",
-    "section": "maintenance",
-    "terms": "resume running active interrupted work restart reboot machine crash desktop update automatically ,"
-  },
-  {
-    "id": "background-activity",
-    "title": "Background activity",
-    "section": "maintenance",
-    "terms": "balanced performance battery saver advanced git fetch provider health refresh host power monitor idle policy ,"
-  },
-  {
-    "id": "new-threads",
-    "title": "New threads",
-    "section": "threads",
-    "terms": "default workspace mode draft local worktree"
-  },
-  {
-    "id": "worktree-submodules",
-    "title": "Submodules",
-    "section": "worktrees",
-    "terms": "git submodule init recursive top-level none worktree t3.json"
-  },
-  {
-    "id": "start-from-origin",
-    "title": "Start from remote",
-    "section": "worktrees",
-    "terms": "new worktrees start remote origin latest fetched branch local"
-  },
-  {
-    "id": "add-project-starts-in",
-    "title": "Add project starts in",
-    "section": "threads",
-    "terms": "base directory folder browser path home"
-  },
-  {
-    "id": "unpin-confirmation",
-    "title": "Unpin confirmation",
-    "section": "general",
-    "terms": "ask before thread pinned section"
-  },
-  {
-    "id": "archive-confirmation",
-    "title": "Archive confirmation",
-    "section": "general",
-    "terms": "ask before thread second click inline action"
-  },
-  {
-    "id": "delete-confirmation",
-    "title": "Delete confirmation",
-    "section": "general",
-    "terms": "ask before thread chat history"
-  },
-  {
-    "id": "quit-confirmation",
-    "title": "Quit shortcut",
-    "section": "general",
-    "terms": "confirmation desktop app exit direct hold double click press twice"
-  },
-  {
-    "id": "text-generation-model",
-    "title": "Text generation model",
-    "section": "threads",
-    "terms": "generated thread titles source control content default provider"
-  },
-  {
-    "id": "thread-title-instructions",
-    "title": "Thread title instructions",
-    "section": "threads",
-    "terms": "generated thread titles prompt custom style naming rename regenerate"
-  },
-  {
-    "id": "app-version",
-    "title": "Version",
-    "section": "about",
-    "terms": "about check for updates download install upgrade release"
-  },
-  {
-    "id": "update-track",
-    "title": "Update track",
-    "section": "about",
-    "terms": "release channel stable latest nightly prerelease"
-  },
-  {
-    "id": "cli-command",
-    "title": "t3 command",
-    "section": "about",
-    "terms": "cli terminal shell path install command line"
-  },
-  {
-    "id": "mobile-app",
-    "title": "Mobile app",
-    "section": "about",
-    "terms": "phone tablet iPhone iPad iOS Android App Store Google Play QR"
-  },
-  {
-    "id": "privacy-policy",
-    "title": "Privacy policy",
-    "section": "about",
-    "terms": "telemetry analytics usage data tracking legal opt out"
-  },
-  {
-    "id": "telemetry-export",
-    "title": "OpenTelemetry export",
-    "section": "diagnostics",
-    "terms": "OTel OTLP telemetry export endpoints logs traces metrics Grafana"
-  },
-  {
-    "id": "diagnostics",
-    "title": "Diagnostics",
-    "section": "maintenance",
-    "terms": "logs traces processes resource history failures spans cpu memory"
-  },
-  {
-    "id": "open-source-licenses",
-    "title": "Open source licenses",
-    "section": "about",
-    "terms": ""
-  },
-  {
-    "id": "legacy-plan-mode",
-    "title": "Plan mode (legacy)",
-    "section": "labs",
-    "terms": "build plan composer old"
-  },
-  {
-    "id": "legacy-context-window-indicator",
-    "title": "Context window indicator (legacy)",
-    "section": "labs",
-    "terms": "composer meter usage tokens circle old"
-  },
-  {
-    "id": "keybindings",
-    "title": "Keybindings",
-    "section": "keybindings",
-    "terms": "keyboard shortcuts hotkeys commands bindings json"
-  },
-  {
-    "id": "snap-shot-enabled",
-    "title": "SnapShots",
-    "section": "snap-shot",
-    "terms": "window capture screenshot"
-  },
-  {
-    "id": "snap-shot-accessibility",
-    "title": "Include app text",
-    "section": "snap-shot",
-    "terms": "capture accessibility data text UI structure elements privacy omit agent context ,"
-  },
-  {
-    "id": "snap-shot-shortcut",
-    "title": "Capture shortcut",
-    "section": "snap-shot",
-    "terms": ""
-  },
-  {
-    "id": "snap-shot-sound",
-    "title": "Capture sound",
-    "section": "snap-shot",
-    "terms": ""
-  },
-  {
-    "id": "snap-shot-flash",
-    "title": "Capture flash",
-    "section": "snap-shot",
-    "terms": ""
-  },
-  {
-    "id": "snap-shot-animations",
-    "title": "Capture animations",
-    "section": "snap-shot",
-    "terms": ""
-  },
-  {
-    "id": "providers",
-    "title": "Providers",
-    "section": "providers",
-    "terms": "agents cli codex claude cursor grok fx opencode antigravity google sign in sign out install subscription instances authentication api key models configuration binary path config directory endpoint arguments environment variables display name accent color custom favorite hidden auto compact ,"
-  },
-  {
-    "id": "usage-providers",
-    "title": "Usage providers",
-    "section": "providers",
-    "terms": "usage sources CLIProxyAPI CLI proxy hub quota subscription limits management key add remove ,"
-  },
-  {
-    "id": "cursor-keychain-usage",
-    "title": "Cursor account usage",
-    "section": "providers",
-    "terms": "cursor macOS keychain usage tokens cost limits permission"
-  },
-  {
-    "id": "provider-health-check-interval",
-    "title": "Health check interval",
-    "section": "providers",
-    "terms": "refresh availability versions auth state models background probes seconds off"
-  },
-  {
-    "id": "agent-browser-access",
-    "title": "Agent browser access",
-    "section": "browser",
-    "terms": "allow disable enable open drive preview tools sessions project override"
-  },
-  {
-    "id": "device-sources",
-    "title": "Device sources",
-    "section": "devices",
-    "terms": "device hosts ssh remote mac mini identity key connection eas expo cloud simlock pool gateway local simulators ,"
-  },
-  {
-    "id": "agent-device-access",
-    "title": "Agents can use devices",
-    "section": "devices",
-    "terms": "allow simulator emulator ios android drive tools sessions"
-  },
-  {
-    "id": "device-hub",
-    "title": "Use devices",
-    "section": "devices",
-    "terms": "device hub simulator emulator ios android install start version"
-  },
-  {
-    "id": "device-platform-support",
-    "title": "Local simulators",
-    "section": "devices",
-    "terms": "simulator support xcode android studio sdk avd runtime"
-  },
-  {
-    "id": "browser-profiles",
-    "title": "Browser profiles",
-    "section": "browser",
-    "terms": ""
-  },
-  {
-    "id": "browser-default-profile",
-    "title": "Default browser profile",
-    "section": "browser",
-    "terms": ""
-  },
-  {
-    "id": "browser-default-viewport",
-    "title": "Default browser viewport",
-    "section": "browser",
-    "terms": "preview size width height device desktop mobile rotate"
-  },
-  {
-    "id": "browser-default-zoom",
-    "title": "Default browser zoom",
-    "section": "browser",
-    "terms": "preview page scale tabs percent"
-  },
-  {
-    "id": "browser-default-appearance",
-    "title": "Default browser appearance",
-    "section": "browser",
-    "terms": "preview color scheme light dark system os"
-  },
-  {
-    "id": "browser-recording-frame-rate",
-    "title": "Browser recording frame rate",
-    "section": "browser",
-    "terms": ""
-  },
-  {
-    "id": "browser-recording-key-presses",
-    "title": "Show key presses in recordings",
-    "section": "browser",
-    "terms": "browser preview keyboard shortcuts keystrokes overlay capture"
-  },
-  {
-    "id": "browser-recording-mouse-presses",
-    "title": "Show mouse presses in recordings",
-    "section": "browser",
-    "terms": "browser preview clicks buttons drag overlay capture"
-  },
-  {
-    "id": "browser-link-target",
-    "title": "Open links in",
-    "section": "browser",
-    "terms": "links default browser in-app browser external open"
-  },
-  {
-    "id": "browser-search-engine",
-    "title": "Search engine",
-    "section": "browser",
-    "terms": "address bar duckduckgo google bing brave kagi ecosia custom"
-  },
-  {
-    "id": "pull-request-links-open-in-app",
-    "title": "Open pull requests in T3 Code",
-    "section": "diffs",
-    "terms": "pr links source control browser external click default pull request view panel ,"
-  },
-  {
-    "id": "browser-auto-show-floating-preview",
-    "title": "Auto-show floating preview",
-    "section": "browser",
-    "terms": "agent opens browser device simulator pop into view hide"
-  },
-  {
-    "id": "automatic-pull",
-    "title": "Automatically pull",
-    "section": "source-control",
-    "terms": "auto pull default branch current checkout fast forward upstream"
-  },
-  {
-    "id": "remove-agent-credits-on-merge",
-    "title": "Remove agent credits when merging",
-    "section": "source-control",
-    "terms": "pull request source control squash co-authored-by attribution claude codex generated ,"
-  },
-  {
-    "id": "pull-request-merge-method",
-    "title": "Default merge method",
-    "section": "source-control",
-    "terms": "pull request merge squash rebase last selected"
-  },
-  {
-    "id": "source-control",
-    "title": "Source control",
-    "section": "source-control",
-    "terms": "version control git source control hosting integrations credentials scan server environment ,"
-  },
-  {
-    "id": "git-fetch-interval",
-    "title": "Git fetch interval",
-    "section": "maintenance",
-    "terms": "automatic remote branch refresh background credentials security keys seconds off ,"
-  },
-  {
-    "id": "worktree-branch-naming",
-    "title": "Worktree branch naming",
-    "section": "worktrees",
-    "terms": "static semantic prefix custom prompt instructions feat fix refactor chore"
-  },
-  {
-    "id": "source-control-writing-style",
-    "title": "Source control writing style",
-    "section": "source-control",
-    "terms": "repository conventions conventional commits custom instructions change descriptions request titles ,"
-  },
-  {
-    "id": "follow-change-request-templates",
-    "title": "Follow change request templates",
-    "section": "source-control",
-    "terms": "repository pr pull request description structure"
-  },
-  {
-    "id": "source-control-writer-model",
-    "title": "Source control writer model",
-    "section": "source-control",
-    "terms": "override generated commit change request pr titles descriptions branch bookmark ,"
-  },
-  {
-    "id": "review-guides",
-    "title": "Review guides (beta)",
-    "section": "source-control",
-    "terms": "pull request pr guided review guide tour beta experimental"
-  },
-  {
-    "id": "review-guide-model",
-    "title": "Review guide model",
-    "section": "source-control",
-    "terms": "pull request pr guided review guide brief maintainer"
-  },
-  {
-    "id": "review-guide-instructions",
-    "title": "Review guide instructions",
-    "section": "source-control",
-    "terms": "pull request pr guided review guide preferences taste prompt custom"
-  },
-  {
-    "id": "project-actions",
-    "title": "Actions",
-    "section": "projects",
-    "terms": "commands scripts setup run dev server checkout worktree t3.json import"
-  },
-  {
-    "id": "environment-icon",
-    "title": "Environment icon",
-    "section": "access",
-    "terms": "machine glyph sidebar mac mini studio laptop desktop server cloud vm"
-  },
-  {
-    "id": "local-environment",
-    "title": "Local environment",
-    "section": "connections",
-    "terms": "turn off on disable enable local server agents remote only restart"
-  },
-  {
-    "id": "network-access",
-    "title": "Network access",
-    "section": "access",
-    "terms": "expose backend remote pairing local machine interfaces host restart"
-  },
-  {
-    "id": "tailscale-https",
-    "title": "Tailscale HTTPS",
-    "section": "access",
-    "terms": "serve magicdns endpoint remote secure network"
-  },
-  {
-    "id": "wsl-backend",
-    "title": "WSL backend",
-    "section": "access",
-    "terms": "windows subsystem linux distro second server projects stop windows backend restart ,"
-  },
-  {
-    "id": "t3-connect",
-    "title": "T3 Connect",
-    "section": "access",
-    "terms": "managed tunnel cloud other devices remote tunnels limit t3 chat"
-  },
-  {
-    "id": "hold-webhooks-while-offline",
-    "title": "Hold webhooks while offline",
-    "section": "access",
-    "terms": "webhook automations offline queue mailbox t3 connect"
-  },
-  {
-    "id": "publish-agent-activity",
-    "title": "Publish agent activity",
-    "section": "access",
-    "terms": "mobile push notifications live activities cloud tunnel"
-  },
-  {
-    "id": "connections-environment",
-    "title": "This machine",
-    "section": "access",
-    "terms": "connections server backend local remote access administrative permissions scope pairing links qr code authorized clients sessions revoke endpoint ,"
-  },
-  {
-    "id": "linked-environments",
-    "title": "Linked environments",
-    "section": "connections",
-    "terms": "link peer another machine vps agents work there handoff pairing code"
-  },
-  {
-    "id": "remote-environments",
-    "title": "Environments",
-    "section": "connections",
-    "terms": "add pair backend host code ssh config agent tunnel saved t3 connect"
-  },
-  {
-    "id": "load-balancing",
-    "title": "Load balancing",
-    "section": "connections",
-    "terms": "automatic machine environment resources cpu memory capacity preference weight shared projects ,"
-  },
-  {
-    "id": "pull-request-routing",
-    "title": "Pull request sharing",
-    "section": "connections",
-    "terms": "pull request routing trusted environments shared credentials permissions read actions source control source control ,"
-  },
-  {
-    "id": "secret-providers",
-    "title": "Secret providers",
-    "section": "secrets",
-    "terms": "1password vault credentials api key"
-  },
-  {
-    "id": "secret-providers-add",
-    "title": "Add secret provider",
-    "section": "secrets",
-    "terms": "new 1password vault op cli account"
-  },
-  {
-    "id": "archive",
-    "title": "Archived threads",
-    "section": "archived",
-    "terms": "restore reopen deleted history projects"
-  }
+// One pinned setting per row; labelled columns avoid repeating the same object shape.
+type IndexedSetting = [id: string, title: string, section: string, terms: string];
+const indexedSettings: IndexedSetting[] = [
+  ["storage-worktree-keep-when", "Keep worktrees with local changes", "worktrees", "any local files uncommitted changes edited tracked files ignored env build output cleanup ,"],
+  ["storage-delete-now", "Delete now", "maintenance", "storage cleanup run now results report removed kept failed"],
+  ["storage-worktrees", "Worktree cleanup", "worktrees", "disk storage delete deleted archived threads old inactive merged unchanged worktrees retention days project inherit off custom ,"],
+  ["storage-worktrees-location", "Worktree location", "worktrees", "worktree location folder directory path drive external disk"],
+  ["storage-artifacts", "Artifacts and logs", "maintenance", "disk storage browser screenshots captures rotated logs cleanup retention"],
+  ["project-defaults", "Project defaults and overrides", "threads", "model workspace environments projects inheritance checkout"],
+  ["project-overview", "Project overview", "projects", "name icon emoji image checkout remove delete"],
+  ["default-model", "Default model", "threads", "new thread project provider reasoning effort"],
+  ["default-permissions", "Permissions", "threads", "new thread default runtime mode supervised approvals auto accept edits full access ,"],
+  ["color-scheme", "Color scheme", "appearance", "appearance light dark system mode"],
+  ["theme", "Themes", "appearance", "appearance colors palette custom import"],
+  ["setting-appearance-contrast", "Contrast", "appearance", "colors borders interface"],
+  ["setting-glass-opacity", "Glass opacity", "appearance", "transparent transparency solid menus dialogs composer"],
+  ["diff-color-scheme", "Diff colors", "diffs", "red green blue orange additions deletions changes counts palette colorblind"],
+  ["chat-width", "Chat width", "appearance", "wide full width column layout messages composer monitor"],
+  ["thread-details-items", "Thread details", "appearance", "customize show hide panel card environment editor scripts branch pull request git changes servers automations lineage usage limits 5 hour weekly quota tokens context window ,"],
+  ["effort-display", "Effort display", "appearance", "reasoning effort thinking bars graph word label level composer"],
+  ["math-rendering", "Render math", "appearance", "latex tex katex equations formulas markdown"],
+  ["panel-animations", "Panel animations", "appearance", ""],
+  ["environment-identification", "Environment identification", "appearance", "dev nightly latest channel artwork pill label hide none"],
+  ["interface-font", "Interface font", "appearance", "typography family size system sans"],
+  ["prompt-font", "Prompt font", "appearance", "typography family size composer input"],
+  ["code-font", "Code font", "appearance", "typography family size monospace code blocks diffs file previews"],
+  ["terminal-font", "Terminal font", "appearance", "typography family size monospace output"],
+  ["separate-fonts", "Separate fonts", "appearance", "typography advanced prompt code terminal font family size individually"],
+  ["font-smoothing", "Font smoothing", "appearance", "typography text grayscale anti aliasing macos thin"],
+  ["word-wrap", "Word wrap", "appearance", "long lines code blocks diffs file previews"],
+  ["composer-context", "Composer context", "appearance", ""],
+  ["project-grouping", "Project grouping", "general", "combine matching repositories environments sidebar"],
+  ["project-order", "Project order", "general", "sort projects sidebar manual created recent"],
+  ["snooze-options", "Snooze options", "threads", "snooze presets times later tonight tomorrow next week remind"],
+  ["snooze-limited-threads", "Snooze until limits reset", "threads", "usage quota rate limit reset wake recover continue"],
+  ["auto-resume-limited-threads", "Resume after usage limits", "threads", "usage quota rate limit reset recover continue"],
+  ["working-shelf", "Working section", "general", "hide fold running monitoring threads inbox sidebar shelf"],
+  ["boring-sidebar", "Boring sidebar (group by project)", "labs", "beta folders project tree legacy old classic sidebar"],
+  ["boring-sidebar-multiline", "Two-line folder rows", "labs", "beta boring sidebar folder rows multiline branch pull request details"],
+  ["guest-links", "Guest links", "labs", "beta share guest invite link teammate watch t3 connect tunnel"],
+  ["linked-environments-beta", "Linked environments", "labs", "beta link another machine vps peer agents work there delegate"],
+  ["simlock-hosts", "Simlock device hosts (alpha)", "labs", "beta alpha simlock callstack simulator emulator ios android pool lease gateway"],
+  ["auto-settle-inactive-threads", "Auto-settle inactive threads", "threads", "sidebar inactivity days no activity automatically"],
+  ["compact-idle-threads", "Compact idle threads", "providers", "claude context compaction idle cache tokens usage summary resume"],
+  ["auto-settle-merged-threads", "Auto-settle merged threads", "threads", "pull request merge closed automatically sidebar"],
+  ["keep-threads-with-pull-requests", "Keep threads with a PR", "threads", "pull request inactivity auto-settle merge close sidebar"],
+  ["days-before-auto-settle", "Days of inactivity before auto-settle", "threads", "thread timeout activity sidebar"],
+  ["thread-notifications", "Thread notifications", "general", "notification sound alert completion input approval desktop"],
+  ["in-app-notifications", "In-app notifications", "general", "notification toast popup completion input approval failure"],
+  ["time-format", "Time format", "general", "timestamp clock locale system browser os 12 hour 24 hour"],
+  ["response-streaming", "Response streaming", "threads", "output token paragraph buffered wait turn legacy"],
+  ["hide-whitespace-changes", "Hide whitespace changes", "diffs", "diff ignore spaces edits default"],
+  ["default-diff-file-state", "Default diff file state", "diffs", "collapsed expanded collapse expand files pull request pr code tab"],
+  ["diff-layout", "Diff layout", "diffs", "stacked split side by side unified inline view"],
+  ["proactive-panels", "Proactive panels", "diffs", "automatically open diff pull request pr right panel agent completion"],
+  ["skills-in-slash-menu", "Show skills in slash menu", "chat", "command menu dollar $ slash /"],
+  ["composer-rich-text", "Rich text composer", "chat", "composer rich text tiptap bold italic markdown styled wysiwyg"],
+  ["send-shortcut", "Send shortcut", "chat", "enter return command ctrl multiline prompt new line composer"],
+  ["follow-up-behavior", "Follow-up behavior", "chat", "queue steer running turn send default behavior composer"],
+  ["provider-update-checks", "Provider update checks", "maintenance", "installed cli versions newer available codex claude cursor grok fx opencode"],
+  ["continue-threads-after-server-update", "Continue threads after restarts", "maintenance", "resume running active interrupted work restart reboot machine crash desktop update automatically ,"],
+  ["background-activity", "Background activity", "maintenance", "balanced performance battery saver advanced git fetch provider health refresh host power monitor idle policy ,"],
+  ["new-threads", "New threads", "threads", "default workspace mode draft local worktree"],
+  ["worktree-submodules", "Submodules", "worktrees", "git submodule init recursive top-level none worktree t3.json"],
+  ["start-from-origin", "Start from remote", "worktrees", "new worktrees start remote origin latest fetched branch local"],
+  ["add-project-starts-in", "Add project starts in", "threads", "base directory folder browser path home"],
+  ["unpin-confirmation", "Unpin confirmation", "general", "ask before thread pinned section"],
+  ["archive-confirmation", "Archive confirmation", "general", "ask before thread second click inline action"],
+  ["delete-confirmation", "Delete confirmation", "general", "ask before thread chat history"],
+  ["quit-confirmation", "Quit shortcut", "general", "confirmation desktop app exit direct hold double click press twice"],
+  ["text-generation-model", "Text generation model", "threads", "generated thread titles source control content default provider"],
+  ["thread-title-instructions", "Thread title instructions", "threads", "generated thread titles prompt custom style naming rename regenerate"],
+  ["app-version", "Version", "about", "about check for updates download install upgrade release"],
+  ["update-track", "Update track", "about", "release channel stable latest nightly prerelease"],
+  ["cli-command", "t3 command", "about", "cli terminal shell path install command line"],
+  ["mobile-app", "Mobile app", "about", "phone tablet iPhone iPad iOS Android App Store Google Play QR"],
+  ["privacy-policy", "Privacy policy", "about", "telemetry analytics usage data tracking legal opt out"],
+  ["telemetry-export", "OpenTelemetry export", "diagnostics", "OTel OTLP telemetry export endpoints logs traces metrics Grafana"],
+  ["diagnostics", "Diagnostics", "maintenance", "logs traces processes resource history failures spans cpu memory"],
+  ["open-source-licenses", "Open source licenses", "about", ""],
+  ["legacy-plan-mode", "Plan mode (legacy)", "labs", "build plan composer old"],
+  ["legacy-context-window-indicator", "Context window indicator (legacy)", "labs", "composer meter usage tokens circle old"],
+  ["keybindings", "Keybindings", "keybindings", "keyboard shortcuts hotkeys commands bindings json"],
+  ["snap-shot-enabled", "SnapShots", "snap-shot", "window capture screenshot"],
+  ["snap-shot-accessibility", "Include app text", "snap-shot", "capture accessibility data text UI structure elements privacy omit agent context ,"],
+  ["snap-shot-shortcut", "Capture shortcut", "snap-shot", ""],
+  ["snap-shot-sound", "Capture sound", "snap-shot", ""],
+  ["snap-shot-flash", "Capture flash", "snap-shot", ""],
+  ["snap-shot-animations", "Capture animations", "snap-shot", ""],
+  ["providers", "Providers", "providers", "agents cli codex claude cursor grok fx opencode antigravity google sign in sign out install subscription instances authentication api key models configuration binary path config directory endpoint arguments environment variables display name accent color custom favorite hidden auto compact ,"],
+  ["usage-providers", "Usage providers", "providers", "usage sources CLIProxyAPI CLI proxy hub quota subscription limits management key add remove ,"],
+  ["cursor-keychain-usage", "Cursor account usage", "providers", "cursor macOS keychain usage tokens cost limits permission"],
+  ["provider-health-check-interval", "Health check interval", "providers", "refresh availability versions auth state models background probes seconds off"],
+  ["agent-browser-access", "Agent browser access", "browser", "allow disable enable open drive preview tools sessions project override"],
+  ["device-sources", "Device sources", "devices", "device hosts ssh remote mac mini identity key connection eas expo cloud simlock pool gateway local simulators ,"],
+  ["agent-device-access", "Agents can use devices", "devices", "allow simulator emulator ios android drive tools sessions"],
+  ["device-hub", "Use devices", "devices", "device hub simulator emulator ios android install start version"],
+  ["device-platform-support", "Local simulators", "devices", "simulator support xcode android studio sdk avd runtime"],
+  ["browser-profiles", "Browser profiles", "browser", ""],
+  ["browser-default-profile", "Default browser profile", "browser", ""],
+  ["browser-default-viewport", "Default browser viewport", "browser", "preview size width height device desktop mobile rotate"],
+  ["browser-default-zoom", "Default browser zoom", "browser", "preview page scale tabs percent"],
+  ["browser-default-appearance", "Default browser appearance", "browser", "preview color scheme light dark system os"],
+  ["browser-recording-frame-rate", "Browser recording frame rate", "browser", ""],
+  ["browser-recording-key-presses", "Show key presses in recordings", "browser", "browser preview keyboard shortcuts keystrokes overlay capture"],
+  ["browser-recording-mouse-presses", "Show mouse presses in recordings", "browser", "browser preview clicks buttons drag overlay capture"],
+  ["browser-link-target", "Open links in", "browser", "links default browser in-app browser external open"],
+  ["browser-search-engine", "Search engine", "browser", "address bar duckduckgo google bing brave kagi ecosia custom"],
+  ["pull-request-links-open-in-app", "Open pull requests in T3 Code", "diffs", "pr links source control browser external click default pull request view panel ,"],
+  ["browser-auto-show-floating-preview", "Auto-show floating preview", "browser", "agent opens browser device simulator pop into view hide"],
+  ["automatic-pull", "Automatically pull", "source-control", "auto pull default branch current checkout fast forward upstream"],
+  ["remove-agent-credits-on-merge", "Remove agent credits when merging", "source-control", "pull request source control squash co-authored-by attribution claude codex generated ,"],
+  ["pull-request-merge-method", "Default merge method", "source-control", "pull request merge squash rebase last selected"],
+  ["source-control", "Source control", "source-control", "version control git source control hosting integrations credentials scan server environment ,"],
+  ["git-fetch-interval", "Git fetch interval", "maintenance", "automatic remote branch refresh background credentials security keys seconds off ,"],
+  ["worktree-branch-naming", "Worktree branch naming", "worktrees", "static semantic prefix custom prompt instructions feat fix refactor chore"],
+  ["source-control-writing-style", "Source control writing style", "source-control", "repository conventions conventional commits custom instructions change descriptions request titles ,"],
+  ["follow-change-request-templates", "Follow change request templates", "source-control", "repository pr pull request description structure"],
+  ["source-control-writer-model", "Source control writer model", "source-control", "override generated commit change request pr titles descriptions branch bookmark ,"],
+  ["review-guides", "Review guides (beta)", "source-control", "pull request pr guided review guide tour beta experimental"],
+  ["review-guide-model", "Review guide model", "source-control", "pull request pr guided review guide brief maintainer"],
+  ["review-guide-instructions", "Review guide instructions", "source-control", "pull request pr guided review guide preferences taste prompt custom"],
+  ["project-actions", "Actions", "projects", "commands scripts setup run dev server checkout worktree t3.json import"],
+  ["environment-icon", "Environment icon", "access", "machine glyph sidebar mac mini studio laptop desktop server cloud vm"],
+  ["local-environment", "Local environment", "connections", "turn off on disable enable local server agents remote only restart"],
+  ["network-access", "Network access", "access", "expose backend remote pairing local machine interfaces host restart"],
+  ["tailscale-https", "Tailscale HTTPS", "access", "serve magicdns endpoint remote secure network"],
+  ["wsl-backend", "WSL backend", "access", "windows subsystem linux distro second server projects stop windows backend restart ,"],
+  ["t3-connect", "T3 Connect", "access", "managed tunnel cloud other devices remote tunnels limit t3 chat"],
+  ["hold-webhooks-while-offline", "Hold webhooks while offline", "access", "webhook automations offline queue mailbox t3 connect"],
+  ["publish-agent-activity", "Publish agent activity", "access", "mobile push notifications live activities cloud tunnel"],
+  ["connections-environment", "This machine", "access", "connections server backend local remote access administrative permissions scope pairing links qr code authorized clients sessions revoke endpoint ,"],
+  ["linked-environments", "Linked environments", "connections", "link peer another machine vps agents work there handoff pairing code"],
+  ["remote-environments", "Environments", "connections", "add pair backend host code ssh config agent tunnel saved t3 connect"],
+  ["load-balancing", "Load balancing", "connections", "automatic machine environment resources cpu memory capacity preference weight shared projects ,"],
+  ["pull-request-routing", "Pull request sharing", "connections", "pull request routing trusted environments shared credentials permissions read actions source control source control ,"],
+  ["secret-providers", "Secret providers", "secrets", "1password vault credentials api key"],
+  ["secret-providers-add", "Add secret provider", "secrets", "new 1password vault op cli account"],
+  ["archive", "Archived threads", "archived", "restore reopen deleted history projects"],
 ];
+export const T3_SETTINGS_ROWS: SettingsInventoryRow[] = indexedSettings.map(
+  ([id, title, section, terms]) => ({ id, title, section, terms }),
+);

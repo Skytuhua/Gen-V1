@@ -23,7 +23,7 @@ test('a window opened from Thread options animates once without replaying on sna
  await expect.poll(count).toBe(1);await host.publish();snapshot.settings.theme='light';await host.publish();await expect.poll(count).toBe(1);
 });
 test('settings opens with bounded motion and reduced motion removes travel',async({page})=>{
- await serveTaskFixture(page,fixture());await page.goto('/');await page.getByRole('button',{name:'Settings',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Settings',exact:true});await expect(dialog).toBeVisible();expect(await dialog.evaluate(node=>node.getAnimations().length)).toBeGreaterThan(0);
+ await serveTaskFixture(page,fixture());await page.goto('/');await page.getByRole('button',{name:'Settings',exact:true}).click();const dialog=page.locator('dialog.settings-dialog');await expect(dialog).toBeVisible();await expect(dialog).toHaveAttribute('aria-label','Settings');expect(await dialog.evaluate(node=>node.getAnimations().length)).toBeGreaterThan(0);
  await page.getByRole('button',{name:'Close settings',exact:true}).click();await page.emulateMedia({reducedMotion:'reduce'});await page.getByRole('button',{name:'Settings',exact:true}).click();await expect(dialog).toBeVisible();const frames=await dialog.evaluate(node=>node.getAnimations().flatMap(animation=>(animation.effect as KeyframeEffect).getKeyframes()).map(frame=>frame.transform).filter(value=>value!==undefined));expect(frames.every(value=>value==='none')).toBe(true);
 });
 test('navigation shows actual recency without repeating idle status but retains accessible task state',async({page})=>{

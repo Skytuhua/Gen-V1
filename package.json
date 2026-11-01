@@ -14,7 +14,7 @@
     "build:widgets": "node scripts/build-widgets.mjs",
     "typecheck": "tsc --noEmit",
     "test": "pnpm build:widgets && vitest run",
-    "test:e2e": "pnpm build:widgets && playwright test",
+    "test:e2e": "pnpm build && playwright test",
     "agent:login": "tsx packages/runtime-login/index.ts",
     "fixtures:create": "tsx scripts/create-fixtures.ts",
     "eval": "tsx evals/runner.ts",

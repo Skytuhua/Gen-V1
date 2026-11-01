@@ -7,7 +7,7 @@ import { deflateSync, crc32 } from 'node:zlib';
 import { Store } from '../packages/storage/store.ts';
 import { Service } from '../packages/core/service.ts';
 import { buildServer } from '../apps/server/server.ts';
-import type { ArtifactRecord, DataRecord, Operation, ResourceGrant, RunContext, RuntimeAdapter, RuntimeCallbacks, StartRun, SurfaceSpec, Thread, UserStateRecord } from '../packages/contracts/index.ts';
+import type { ArtifactRecord, DataRecord, Operation, ResourceGrant, RunContext, RuntimeAdapter, RuntimeCallbacks, StartRun, SurfaceSpec, Thread } from '../packages/contracts/index.ts';
 import { createSigningPdfFixture } from '../tests/e2e/document-preview-fixture.ts';
 import {SOFTWARE_FIXTURE_DATA} from './software-development-fixtures.ts';
 import { catalogSpec, EVERYDAY_REVIEW_DATA, INTERACTION_REVIEW_DATA, faqSpec, graphData, graphSpec, MAP_DATA, mapSpec, migrationSpec, REVIEW_PROVENANCE, SIGNING_BOX, signingSpec, type PRPhase } from './review-fixtures.ts';

@@ -8,6 +8,8 @@ This repository contains the buildable application, tests, scripts and reference
 
 The [source review](docs/source-review-20261101.md) records the latest corrections, verification scope and remaining file-replacement limitation.
 
+The [performance and cleanup audit](docs/lean-performance-audit-20261101.md) records the measured search/snapshot improvements, smaller initial bundle, simplified source and validation/session hardening.
+
 [Download the unsigned v0.5.2 Windows x64 installer](dist/desktop-release-0.5.2/Generative-Harness-Setup-0.5.2-win-x64.exe) (459 MB). Two targeted frontend fixes avoid rebuilding unchanged artifact inputs and table cells. The [release report](docs/evidence/snapshot-performance-20261031/release.md) records 628 passing unit tests, four actual-host performance regressions, TypeScript/build, package custody and 14 native scenarios. The broad browser run needed one unchanged-source cold-PDF rerun; clean installation is unverified because the safety check preserved an existing installation. Additional subscription sign-ins remain deferred.
 
 The [v0.5.1 release](docs/evidence/runtime-clarity-20261031/report.md) retains its separate clean install/restart/uninstall proof and runtime/settings repairs. Nine connection IDs are integrated; live-account acceptance remains separate.

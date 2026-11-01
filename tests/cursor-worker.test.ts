@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { createServer } from 'node:http';
 import { describe, expect, it, vi } from 'vitest';
-import { runCursorWorker, type CursorWorkerController } from '../packages/runtime-official/cursor-worker.ts';
+import { runCursorWorker } from '../packages/runtime-official/cursor-worker.ts';
 import { assertCursorLoginUrl, cursorCredentialStore } from '../packages/runtime-official/cursor-credentials.ts';
 
 async function fixture() {

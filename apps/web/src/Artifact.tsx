@@ -3,7 +3,7 @@ import {ArtifactInline} from './task-context';
 import { Component, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type ErrorInfo, type ReactNode } from 'react';
 import { ActionProvider, Renderer, StateProvider, VisibilityProvider } from '@json-render/react';
 import { Archive, Check, CircleDot, LoaderCircle, TriangleAlert, Code2, Maximize2, Minimize2, Pin, RotateCcw, X, PanelRightOpen } from 'lucide-react';
-import Ajv from 'ajv';
+import { validateSchema } from './schema-validator';
 import type { ArtifactRecord, Snapshot, UserStateRecord } from '../../../packages/contracts';
 import { command } from './api';
 import { useArtifactState } from './artifact-state';
@@ -25,7 +25,6 @@ class ArtifactBoundary extends Component<{ children: ReactNode; resetKey: string
   componentDidUpdate(previous: { resetKey: string }) { if (previous.resetKey !== this.props.resetKey && this.state.error) this.setState({ error: '' }); }
   render() { return this.state.error ? <div className="notice" role="alert">This artifact could not be displayed. Your conversation and saved state are retained.<details><summary>Error details</summary>{this.state.error}</details><button className="secondary" onClick={() => this.setState({ error: '' })}><RotateCcw size={14} />Retry rendering</button></div> : this.props.children; }
 }
-const ajv = new Ajv({ strict: false });
 export function Artifact({ artifact: incoming, snapshot, theme, refresh, onDirtyWidget, animateEntry = false,active=true,suspended=false }: { artifact: ArtifactRecord; snapshot: Snapshot; theme: 'light' | 'dark'; refresh: (snapshot?: Snapshot) => Promise<void>; onDirtyWidget?: (id: string, threadId: string, dirty: boolean) => void; animateEntry?: boolean;active?:boolean;suspended?:boolean }) {
   const workspace = useWorkspace();
   const desktop=useDesktop(),surface={kind:'artifact' as const,threadId:incoming.threadId,artifactId:incoming.id};
@@ -90,7 +89,7 @@ export function Artifact({ artifact: incoming, snapshot, theme, refresh, onDirty
     if (hasPendingDocumentAssets(artifact.threadId, artifact.stateId)) throw new Error('Wait for the signature mark to finish saving before submitting.');
     const definition = artifact.actions[actionId];
     if (!definition) throw new Error('This action is no longer available.');
-    if (definition.schema && !ajv.validate(definition.schema, payload)) throw new Error('The action values do not match its schema.');
+    if (definition.schema && !validateSchema(definition.schema, payload)) throw new Error('The action values do not match its schema.');
     if (artifact.kind === 'widget' && widgetDirty) throw new Error('Checkpoint your widget edits before submitting this action.');
     const send = (baseStateRevision: number, submittedState: unknown) => command('action.submit', { artifactId: artifact.id, revision: artifact.revision, actionId, payload, clientId, baseStateRevision, submittedState, dataRevisions: Object.fromEntries(Object.values(artifact.bindings).map(binding => [binding.mode === 'snapshot' ? binding.ref.id : binding.id, binding.mode === 'snapshot' ? binding.ref.revision : snapshot.data.filter(row => row.id === binding.id).reduce((value, row) => Math.max(value, row.revision), 0)])) }, artifact.threadId);
     const receipt = artifact.kind === 'structured' ? await state.submit(send) as Awaited<ReturnType<typeof send>> : await send(effectiveRecord?.revision ?? 0, effectiveRecord?.values ?? {});

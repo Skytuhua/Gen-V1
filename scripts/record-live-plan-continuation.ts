@@ -1,10 +1,9 @@
 /** Records actual Pi plan/delegation behavior, separately from artifact-generation acceptance. */
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {join,resolve} from 'node:path';
-import {randomUUID} from 'node:crypto';
 import {request,expect} from '@playwright/test';
 import {openCaptureBrowser,recordWindow,closeCapture} from './review-capture.ts';
-import type {Snapshot,Thread} from '../packages/contracts';
+import type {Snapshot} from '../packages/contracts';
 import {PlanRecordSchema,PLANNING_PROVENANCE} from '../packages/contracts/planning.ts';
 const root=resolve('docs/evidence/frontend-review/smooth-expanded-20261030');
 const prior=JSON.parse(await readFile(join(root,'genuine-confirmation/software/proof.json'),'utf8'));

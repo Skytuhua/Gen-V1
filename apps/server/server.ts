@@ -10,6 +10,7 @@ import { inside } from "../../packages/core/security.ts";
 import { WIDGET_CSP, widgetDocument, GENERATED_APPS_ENABLED } from "../../packages/core/widgets.ts";
 import { WIDGET_WORKER_PATH, WIDGET_WORKER_CSP } from "../../packages/widgets/protocol.ts";
 import {SessionCredentials} from '../../packages/core/credential-slots.ts';
+import { streamEvents } from './event-stream.ts';
 
 type Mount = { artifactId: string; revision: number; expiresAt: number };
 export type MountRegistry = Map<string, Mount>;
@@ -20,8 +21,9 @@ const mime = (path: string) => ({ ".html": "text/html", ".js": "text/javascript"
 export async function buildServer(service: Service, options: ServerOptions) {
   const app = Fastify({ logger: false, bodyLimit: 29 * 1024 * 1024 });
   const sessions = new Map<string, { csrf: string; expiresAt: number }>();
+  let snapshotCache: { seq: number; json: string } | undefined;
   const credentials=new SessionCredentials(service.store);
-  app.addHook('onClose',async()=>credentials.dispose());
+  app.addHook('onClose',async()=>{snapshotCache=undefined;return credentials.dispose();});
   const mounts = options.mounts ?? new Map<string, Mount>();
   const widgetPort = options.widgetPort ?? 4318;
   const origins = new Set(["http://127.0.0.1:" + options.port, "http://localhost:" + options.port, ...(options.dev ? ["http://127.0.0.1:5173", "http://localhost:5173"] : [])]);
@@ -44,19 +46,32 @@ export async function buildServer(service: Service, options: ServerOptions) {
     const session = cookie ? sessions.get(cookie) : undefined;
     if (!session || session.expiresAt < Date.now()) return reply.code(401).send({ error: { code: "AUTH_REQUIRED", message: "Reconnect to the local host" } });
     if (request.method !== "GET" && request.method !== "HEAD") {
-      const csrf = String(request.headers["x-harness-csrf"] ?? "");
-      if (csrf.length !== session.csrf.length || !timingSafeEqual(Buffer.from(csrf), Buffer.from(session.csrf))) return reply.code(403).send({ error: { code: "CSRF_REQUIRED", message: "Refresh the local session before sending commands" } });
+      const csrf = Buffer.from(String(request.headers["x-harness-csrf"] ?? "")), expected = Buffer.from(session.csrf);
+      if (csrf.length !== expected.length || !timingSafeEqual(csrf, expected)) return reply.code(403).send({ error: { code: "CSRF_REQUIRED", message: "Refresh the local session before sending commands" } });
     }
   });
   app.get("/api/bootstrap", async (request, reply) => {
     const existing = /(?:^|;\s*)harness_session=([a-f0-9]+)/.exec(request.headers.cookie ?? "")?.[1];
     let token = existing, session = token ? sessions.get(token) : undefined;
     if (!session || session.expiresAt < Date.now()) { token = randomBytes(32).toString("hex"); session = { csrf: randomBytes(32).toString("hex"), expiresAt: Date.now() + 24 * 60 * 60 * 1000 }; sessions.set(token, session); }
-    if (sessions.size > 1000) for (const [key, entry] of sessions) if (entry.expiresAt < Date.now()) sessions.delete(key);
+    if (sessions.size > 1000) {
+      for (const [key, entry] of sessions) if (entry.expiresAt < Date.now()) sessions.delete(key);
+      while (sessions.size > 1000) sessions.delete(sessions.keys().next().value!);
+    }
     reply.header("Set-Cookie", "harness_session=" + token + "; Path=/; HttpOnly; SameSite=Strict; Max-Age=86400").header("Cache-Control", "no-store");
     return { csrfToken: session.csrf, widgetOrigin: "http://localhost:" + widgetPort };
   });
-  app.get("/api/snapshot", async (_request, reply) => { reply.header("Cache-Control", "no-store"); return service.store.snapshot(); });
+  app.get("/api/snapshot", async (_request, reply) => {
+    const seq = service.store.sequence;
+    let json = snapshotCache?.seq === seq ? snapshotCache.json : undefined;
+    if (json === undefined) {
+      json = JSON.stringify(service.store.snapshot());
+      // One immutable response per committed sequence, shared by local windows.
+      // Keep large workspaces responsive without retaining unbounded payloads.
+      snapshotCache = Buffer.byteLength(json) <= 16 * 1024 * 1024 ? { seq, json } : undefined;
+    }
+    return reply.header("Cache-Control", "no-store").type('application/json').send(json);
+  });
   app.get("/api/models", async (request, reply) => {
     reply.header("Cache-Control", "no-store");
     const { refresh } = request.query as { refresh?: unknown };
@@ -86,13 +101,8 @@ export async function buildServer(service: Service, options: ServerOptions) {
     const after = Number(query.after ?? 0);
     if (!Number.isSafeInteger(after) || after < 0) throw new HarnessError("INVALID_INPUT", "Event cursor is invalid");
     reply.hijack(); reply.raw.writeHead(200, { "Content-Type": "text/event-stream", "Cache-Control": "no-cache, no-transform", Connection: "keep-alive", "X-Accel-Buffering": "no" });
-    streams.add(reply.raw); let cursor = after;
-    const send = (event: import("../../packages/contracts/index.ts").WorkspaceEvent) => { if (event.seq <= cursor || reply.raw.destroyed) return; cursor = event.seq; reply.raw.write("id: " + event.seq + "\nevent: workspace\ndata: " + JSON.stringify(event) + "\n\n"); };
-    const unsubscribe = service.store.subscribe(send);
-    for (const event of service.store.eventsAfter(after)) send(event);
-    reply.raw.write(": connected\n\n");
-    const heartbeat = setInterval(() => { if (!reply.raw.destroyed) reply.raw.write(": heartbeat\n\n"); }, 15000);
-    request.raw.on("close", () => { clearInterval(heartbeat); unsubscribe(); streams.delete(reply.raw); });
+    streams.add(reply.raw);
+    streamEvents(reply.raw, service.store, after, () => streams.delete(reply.raw));
   });
   app.get<{ Params: { id: string } }>("/api/artifacts/:id/source", async (request, reply) => {
     const artifact = service.store.get<ArtifactRecord>("artifact", request.params.id);
@@ -158,7 +168,10 @@ export async function buildServer(service: Service, options: ServerOptions) {
     try { if (!(await stat(path)).isFile()) path = join(root, "index.html"); } catch { path = join(root, "index.html"); }
     try { return reply.type(mime(path)).send(await readFile(path)); } catch { return reply.code(503).type("text/plain").send("Build the application with pnpm build, or use pnpm dev."); }
   });
-  app.addHook("preClose", async () => { for (const stream of streams) stream.end(); streams.clear(); });
+  app.addHook("preClose", async () => {
+    await Promise.all([...streams].map(stream => new Promise<void>(done => { stream.once('close', done); stream.destroy(); })));
+    streams.clear();
+  });
   return app;
 }
 export async function buildWidgetServer(service: Service, mounts: MountRegistry, port = 4318) {

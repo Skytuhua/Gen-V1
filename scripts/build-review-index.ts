@@ -121,7 +121,7 @@ export async function buildReviewIndex(input: string) {
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2), index = args.indexOf('--input');
-  if (index < 0 || !args[index + 1] || args[index + 1]!.startsWith('--') || args.some((arg, i) => i !== index && i !== index + 1)) {
+  if (index < 0 || !args[index + 1] || args[index + 1]!.startsWith('--') || args.some((_arg, i) => i !== index && i !== index + 1)) {
     console.error('Usage: pnpm exec tsx scripts/build-review-index.ts --input <recording-folder>'); process.exitCode = 1;
   } else {
     try { console.log(JSON.stringify(await buildReviewIndex(args[index + 1]!), null, 2)); }

@@ -1,4 +1,4 @@
-import { afterEach, expect, it } from "vitest";
+import { afterEach, expect, it, vi } from "vitest";
 import { mkdtempSync, rmSync, mkdirSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { randomUUID } from "node:crypto";
@@ -18,6 +18,20 @@ async function setup(){
  cleanups.push(async()=>{await app.close();await service.dispose();store.close();rmSync(dir,{recursive:true,force:true})});
  return {app,service,store};
 }
+it('reuses one serialized snapshot per committed sequence without bypassing authentication or invalidation',async()=>{
+ const {app,store}=await setup(),boot=await app.inject({url:'/api/bootstrap',headers:{host:'127.0.0.1:4317'}}),headers={host:'127.0.0.1:4317',cookie:String(boot.headers['set-cookie']).split(';')[0]},snapshot=vi.spyOn(store,'snapshot');
+ try {
+  const first=await app.inject({url:'/api/snapshot',headers}),second=await app.inject({url:'/api/snapshot',headers});
+  expect(first.statusCode).toBe(200);expect(first.headers['content-type']).toContain('application/json');expect(second.body).toBe(first.body);expect(snapshot).toHaveBeenCalledTimes(1);
+  expect((await app.inject({url:'/api/snapshot',headers:{host:'127.0.0.1:4317'}})).statusCode).toBe(401);expect(snapshot).toHaveBeenCalledTimes(1);
+  store.internal('fixture.change',null,()=>store.put('message','new',null,{id:'new',content:'Fresh committed data'}));
+  const next=await app.inject({url:'/api/snapshot',headers});expect(next.json().messages).toEqual([{id:'new',content:'Fresh committed data'}]);expect(snapshot).toHaveBeenCalledTimes(2);
+ } finally {snapshot.mockRestore();}
+});
+it('does not retain a serialized snapshot over the response-cache byte limit',async()=>{
+ const {app,store}=await setup(),base=store.snapshot(),snapshot=vi.spyOn(store,'snapshot').mockReturnValue({...base,messages:[{id:'large',threadId:'thread',role:'assistant',content:'x'.repeat(16*1024*1024),runId:null,createdAt:''}]}),boot=await app.inject({url:'/api/bootstrap',headers:{host:'127.0.0.1:4317'}}),headers={host:'127.0.0.1:4317',cookie:String(boot.headers['set-cookie']).split(';')[0]};
+ try {for(let n=0;n<2;n++)expect((await app.inject({url:'/api/snapshot',headers})).statusCode).toBe(200);expect(snapshot).toHaveBeenCalledTimes(2);} finally {snapshot.mockRestore();}
+});
 it("requires a browser session plus CSRF token for mutations",async()=>{
  const {app}=await setup();
  const denied=await app.inject({method:"POST",url:"/api/commands",headers:{host:"127.0.0.1:4317"},payload:{id:"a",type:"thread.create",payload:{}}});
@@ -28,6 +42,17 @@ it("requires a browser session plus CSRF token for mutations",async()=>{
  expect(created.statusCode).toBe(200);expect(created.json().result.title).toBe("Real thread");
  const csrfDenied=await app.inject({method:"POST",url:"/api/commands",headers:{host:"127.0.0.1:4317",cookie},payload:{id:"b",type:"thread.create",payload:{}}});
  expect(csrfDenied.statusCode).toBe(403);
+});
+it('rejects a multibyte CSRF token as forbidden instead of failing the host',async()=>{
+ const {app,store}=await setup(),boot=await app.inject({url:'/api/bootstrap',headers:{host:'127.0.0.1:4317'}}),cookie=String(boot.headers['set-cookie']).split(';')[0];
+ const result=await app.inject({method:'POST',url:'/api/commands',headers:{host:'127.0.0.1:4317',cookie,'x-harness-csrf':String.fromCharCode(233).repeat(64)},payload:{id:'invalid-csrf',type:'thread.create',payload:{}}});
+ expect(result.statusCode).toBe(403);expect(result.json().error.code).toBe('CSRF_REQUIRED');expect(store.all('thread')).toEqual([]);
+});
+it('bounds valid browser sessions and retains the most recently opened session',async()=>{
+ const {app}=await setup(),headers={host:'127.0.0.1:4317'};let first='',last='';
+ for(let n=0;n<1001;n++){const result=await app.inject({url:'/api/bootstrap',headers});last=String(result.headers['set-cookie']).split(';')[0];if(!n)first=last;}
+ expect((await app.inject({url:'/api/snapshot',headers:{...headers,cookie:first}})).statusCode).toBe(401);
+ expect((await app.inject({url:'/api/snapshot',headers:{...headers,cookie:last}})).statusCode).toBe(200);
 });
 it("rejects foreign origins and DNS rebinding hosts",async()=>{
  const {app}=await setup();

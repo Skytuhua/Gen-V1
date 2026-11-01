@@ -1,5 +1,5 @@
-import { afterEach, describe, expect, it } from "vitest";
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from "node:fs";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { mkdtempSync, writeFileSync, readFileSync, rmSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -20,6 +20,27 @@ async function setup() {
 }
 const spec={root:"main",elements:{main:{type:"Text",props:{text:"Evidence"}}}};
 describe("thread and UI integrity",()=>{
+ it('rejects an async decision schema before publishing a pending request',async()=>{
+  const x=await setup();await x.send('message.send',{content:'Ask',modelId:'test/model'},x.threadId);
+  await expect(x.service.tool({name:'ui_request_input',args:{title:'Choose',prompt:'Choose a value',responseSchema:{$async:true,type:'string',const:'allow'}}},x.ctx())).rejects.toMatchObject({code:'INVALID_SCHEMA'});
+  expect(x.store.all('request',x.threadId)).toEqual([]);
+ });
+ it('retains a recovered async request without accepting its invalid response',async()=>{
+  const x=await setup();await x.send('message.send',{content:'Ask',modelId:'test/model'},x.threadId);
+  const request=await x.service.tool({name:'ui_request_input',args:{title:'Choose',prompt:'Choose a value',responseSchema:{type:'string',const:'allow'}}},x.ctx()) as {requestId:string;revision:number};
+  x.store.internal('fixture.legacy-schema',x.threadId,()=>{const saved=x.store.get<Record<string,unknown>>('request',request.requestId)!;x.store.put('request',request.requestId,x.threadId,{...saved,responseSchema:{$async:true,type:'string',const:'allow'}});});
+  await expect(x.send('request.respond',{requestId:request.requestId,revision:request.revision,response:'deny'},x.threadId)).rejects.toMatchObject({code:'INVALID_SCHEMA'});
+  expect(x.store.get('request',request.requestId)).toMatchObject({status:'pending',revision:request.revision});
+ });
+ it('updates settings without materializing unrelated workspace content',async()=>{
+  const x=await setup(),snapshot=vi.spyOn(x.store,'snapshot').mockImplementation(()=>{throw new Error('Unrelated workspace must not be read');});
+  try {
+   await x.send('settings.update',{theme:'light',modelId:'test/model',preferences:{chatWidth:'comfortable'}});
+   expect(x.store.get('settings','global')).toMatchObject({theme:'light',modelId:'test/model',preferences:{chatWidth:'comfortable'}});
+   await expect(x.send('settings.update',{preferences:{unsupported:true}})).rejects.toMatchObject({code:'INVALID_INPUT'});
+   expect(snapshot).not.toHaveBeenCalled();
+  } finally {snapshot.mockRestore();}
+ });
  it("stores retry receipts only for UI tool calls with an explicit reusable command ID",async()=>{
   const x=await setup();await x.send("message.send",{content:"Inspect",modelId:"test/model"},x.threadId);
   const count=()=>Number((x.store.db.prepare("SELECT count(*) AS n FROM receipts").get() as {n:number}).n),before=count();

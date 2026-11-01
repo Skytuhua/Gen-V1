@@ -1,6 +1,6 @@
 import { randomUUID, createHash } from "node:crypto";
 import { mkdir, readFile, writeFile, stat, open } from "node:fs/promises";
-import { basename, join, resolve } from "node:path";
+import { basename, join } from "node:path";
 import { Store, digest } from "../storage/store.ts";
 import { assertNotStorage, canonical, resolveGrant } from "./security.ts";
 import { withResourceGrant } from "./file-access.ts";
@@ -14,7 +14,7 @@ import {PlanningCoordinator} from './planning.ts';
 import {SideRuntime} from './side-runtime.ts';
 import {PlanningQuestionSchema} from '../contracts/planning-question.ts';
 import { getPreferences, mergePreferences } from "../contracts/preferences.ts";
-import { HarnessError, EMPTY_USAGE, type ArtifactRecord, type DataRecord, type HostCommand, type InputRequest, type Message, type Operation, type ResourceGrant, type RunContext, type RuntimeAdapter, type RuntimeEvent, type RuntimeUsage, type StartRun, type SurfaceSpec, type Thread, type ToolCall, type UserStateRecord } from "../contracts/index.ts";
+import { HarnessError, EMPTY_USAGE, type ArtifactRecord, type DataRecord, type HostCommand, type InputRequest, type Message, type Operation, type ResourceGrant, type RunContext, type RuntimeAdapter, type RuntimeEvent, type RuntimeUsage, type Snapshot, type StartRun, type SurfaceSpec, type Thread, type ToolCall, type UserStateRecord } from "../contracts/index.ts";
 
 type Outbox = { id: string; threadId: string; content: string; status: "persisted" | "processing" | "handled"; runId: string | null; enteredRuntime?: boolean };
 type Lease = { id: string; threadId: string; clientId: string; fields: string[]; expiresAt: number };
@@ -165,7 +165,7 @@ export class Service {
       return thread;
     });
     if (command.type === "settings.update") return this.store.command(command, () => {
-      const settings = this.store.snapshot().settings;
+      const settings = this.store.get<Snapshot['settings']>('settings', 'global') ?? { theme: 'dark', modelId: null };
       if (Object.keys(p).some(key => !['theme', 'modelId', 'preferences'].includes(key))) throw new HarnessError('INVALID_INPUT', 'Unsupported setting');
       if (p.theme !== undefined && !["light", "dark", "system"].includes(String(p.theme))) throw new HarnessError("INVALID_INPUT", "Unknown theme");
       if (p.modelId !== undefined && p.modelId !== null && (typeof p.modelId !== 'string' || p.modelId.length > 200)) throw new HarnessError('INVALID_INPUT', 'Invalid model selection');

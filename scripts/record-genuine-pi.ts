@@ -71,7 +71,6 @@ function workingArtifact(value: Snapshot) { return value.artifacts.find(item => 
 function compositionIssues(artifact: ArtifactRecord | undefined) {
   if (!artifact?.spec) return ['No structured artifact was composed.'];
   const elements = Object.values(artifact.spec.elements), issues: string[] = [];
-  const parented = new Set(elements.flatMap(item => item.children ?? []));
   const disclosures = Object.entries(artifact.spec.elements).filter(([, item]) => item.type === 'Disclosure');
   const nested = disclosures.filter(([id]) => elements.some(item => item.type === 'Disclosure' && item.children?.includes(id)));
   if (disclosures.length - nested.length !== 3) issues.push('Need exactly three initial root questions.');
@@ -109,7 +108,6 @@ try {
   const disclosures = region.locator('.disclosure-trigger'); const titles = await disclosures.allTextContents(); proof.questionLabels = titles;
   await disclosures.nth(0).click(); await capture.page.waitForTimeout(650);
   const visible = region.locator('.disclosure-trigger:visible'); if (await visible.count() > 1) await visible.nth(1).click(); await capture.page.waitForTimeout(650);
-  const roots = region.locator('.disclosure-node').filter({ has: region.locator('.disclosure-trigger') });
   const inputNode = Object.values(artifact.spec!.elements).find(item => item.type === 'Input' && item.props.label === 'My visit notes')!;
   const draft = 'Thursday 14:30 with one guest; quiet work first, laser after the safety tour. What must I arrange ahead?';
   const notes = region.getByRole('textbox', { name: 'My visit notes', exact: true }); await notes.fill(draft);

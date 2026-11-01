@@ -78,19 +78,24 @@ export class Store {
   internal(type: string, threadId: string | null, apply: () => unknown): unknown {
     return this.commit(type,threadId,apply).result;
   }
-  eventsAfter(seq: number): WorkspaceEvent[] {
-    const rows = this.db.prepare("SELECT * FROM events WHERE seq>? ORDER BY seq").all(seq) as unknown as { seq: number; id: string; type: string; thread_id: string | null; payload: string; occurred_at: string }[];
+  eventsAfter(seq: number, limit?: number): WorkspaceEvent[] {
+    if (limit !== undefined && (!Number.isSafeInteger(limit) || limit < 1 || limit > 1000)) throw new HarnessError('INVALID_INPUT', 'Event page size must be between 1 and 1000');
+    const statement = this.db.prepare("SELECT * FROM events WHERE seq>? ORDER BY seq" + (limit === undefined ? '' : ' LIMIT ?'));
+    const rows = (limit === undefined ? statement.all(seq) : statement.all(seq, limit)) as unknown as { seq: number; id: string; type: string; thread_id: string | null; payload: string; occurred_at: string }[];
     return rows.map(row => ({ seq: row.seq, id: row.id, type: row.type, threadId: row.thread_id, payload: JSON.parse(row.payload), occurredAt: row.occurred_at }));
   }
   get sequence(): number { return Number((this.db.prepare("SELECT COALESCE(MAX(seq),0) AS seq FROM events").get() as { seq: number }).seq); }
   snapshot(): Snapshot {
-    const threads = this.all<Snapshot["threads"][number]>("thread").filter(t => !this.get("archivedThread", t.id));
+    const allThreads = this.all<Snapshot["threads"][number]>("thread");
+    const archivedRows = this.db.prepare("SELECT id,body FROM entities WHERE kind=?").all("archivedThread") as { id: string; body: string }[];
+    const archived = new Set(archivedRows.filter(row => JSON.parse(row.body)).map(row => row.id));
+    const threads = allThreads.filter(thread => !archived.has(thread.id));
     const artifacts = this.all<Snapshot["artifacts"][number]>("artifact"), requests = this.all<Snapshot["requests"][number]>("request");
     const data = this.all<Snapshot["data"][number]>("data"), seen = new Set(data.map(d => d.id + "@" + d.revision));
     const refs = [...artifacts.flatMap(a => Object.values(a.bindings).flatMap(b => b.mode === "snapshot" ? [b.ref] : [])), ...requests.flatMap(r => r.basis)];
     for (const ref of refs) { const key = ref.id + "@" + ref.revision; if (!seen.has(key)) { const item = this.get<Snapshot["data"][number]>("dataVersion", key); if (item) { data.push(item); seen.add(key); } } }
     return {
-      seq: this.sequence, threads, archivedThreads: this.all<Snapshot["threads"][number]>("thread").filter(t => this.get("archivedThread", t.id)), messages: this.all("message"), artifacts, userStates: this.all("userState"),
+      seq: this.sequence, threads, archivedThreads: allThreads.filter(thread => archived.has(thread.id)), messages: this.all("message"), artifacts, userStates: this.all("userState"),
       data, requests, operations: this.all("operation"), resources: this.all("resource"), memory: this.all('taskMemory'),
       usage: Object.fromEntries(this.all<{ id: string; value: unknown }>("usage").map(x => [x.id, x.value])) as Snapshot["usage"],
       settings: this.get("settings", "global") ?? { theme: "dark", modelId: null },

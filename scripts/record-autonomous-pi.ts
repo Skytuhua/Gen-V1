@@ -1,9 +1,9 @@
 /** Genuine subscription-only acceptance. No authored specs, host tools or UI instructions. */
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { expect, request } from '@playwright/test';
-import type { ArtifactRecord, CommandReceipt, Snapshot, Thread, WorkspaceEvent } from '../packages/contracts/index.ts';
+import type { CommandReceipt, Snapshot, Thread, WorkspaceEvent } from '../packages/contracts/index.ts';
 import { openCaptureBrowser, recordWindow, closeCapture } from './review-capture.ts';
 import { createFixtures } from './create-fixtures.ts';
 import { createSigningPdfFixture } from '../tests/e2e/document-preview-fixture.ts';

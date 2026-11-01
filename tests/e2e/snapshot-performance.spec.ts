@@ -149,7 +149,10 @@ test('profiles 30 unrelated committed events with an uninstrumented 2000 by 6 so
   const checkbox = page.getByRole('checkbox', { name: 'Select row 1', exact: true });
   const grid = page.getByLabel('Synthetic source records', { exact: true });
   await grid.evaluate(node => { node.scrollTop = 0; });
-  for (let index = 0; index < 4; index++) await checkbox.click();
+  for (const checked of [false, true, false, true]) {
+    await checkbox.click();
+    await expect(checkbox).toBeChecked({ checked });
+  }
   await settle(page);
   const timing = await page.evaluate(() => { const timing = (window as unknown as BrowserProbe).timing; timing.recording = false; return timing; });
   const report = { ...await metadata(page, fixture.artifact, fixture.data), samples, timing, summaries: {
@@ -162,6 +165,7 @@ test('profiles 30 unrelated committed events with an uninstrumented 2000 by 6 so
   expect(samples).toHaveLength(EVENT_COUNT);
   expect(host.snapshot().data.find(data => data.id === fixture.data.id)?.revision).toBe(1);
   await expect(checkbox).toBeChecked();
+  await expect.poll(() => host.snapshot().userStates.find(state => state.id === fixture.artifact.stateId)?.values.selection).toEqual(['row-0']);
   await expect(page.getByRole('textbox', { name: 'Performance review note', exact: true })).toHaveValue('Retain my review and selection across snapshots.');
 });
 

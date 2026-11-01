@@ -1,6 +1,6 @@
 import { expect, type Page, type Locator } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
-import type { ArtifactRecord, Operation } from '../packages/contracts/index.ts';
+import type { Operation } from '../packages/contracts/index.ts';
 import type { openReviewHost, Scenario } from './review-host.ts';
 import {SYNTHETIC_REVIEW_TOKEN} from './review-fixtures.ts';
 type Host = Awaited<ReturnType<typeof openReviewHost>>;
