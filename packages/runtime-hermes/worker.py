@@ -170,6 +170,8 @@ class Worker:
         workspace.mkdir(exist_ok=True)
         os.chdir(workspace)
         os.environ.update({"HERMES_HOME": str(self.home), "HOME": str(self.home), "USERPROFILE": str(self.home),
+                           "APPDATA": str(self.home / "roaming"), "LOCALAPPDATA": str(self.home / "local"),
+                           "PYTHON_MANAGER_AUTOMATIC_INSTALL": "false",
                            "HERMES_DISABLE_LAZY_INSTALLS": "1", "PYTHONDONTWRITEBYTECODE": "1",
                            "PYTHONIOENCODING": "utf-8"})
         dependencies = Path(params.get("dependencyRoot") or ROOT / ".harness-hermes-python-deps").resolve()

@@ -28,7 +28,16 @@ def scripted_acp() -> None:
         elif method == "session/prompt":
             prompt = msg["params"]["prompt"][0]["text"]
             # A separate process is started for every completion: inspect source history.
-            if "ALIAS_POLICY_FIXTURE" in prompt:
+            if "You are running as Hermes' background skill CURATOR." in prompt and "curator-source" in prompt:
+                if "Patched SKILL.md in skill 'curator-source'" in prompt:
+                    content = "Curator source review completed."
+                elif '"success": false' in prompt:
+                    content = "Curator fixture failed."
+                elif "CURATOR_ORIGINAL_PROCEDURE" in prompt:
+                    content = '<tool_call>' + json.dumps({"id": "curator-patch", "type": "function", "function": {"name": "skill_manage", "arguments": json.dumps({"action": "patch", "name": "curator-source", "old_string": "CURATOR_ORIGINAL_PROCEDURE", "new_string": "Read the original skill before applying a verified patch."})}}) + '</tool_call>'
+                else:
+                    content = '<tool_call>' + json.dumps({"id": "curator-view", "type": "function", "function": {"name": "skill_view", "arguments": json.dumps({"name": "curator-source"})}}) + '</tool_call>'
+            elif "ALIAS_POLICY_FIXTURE" in prompt:
                 if "Skill is disabled or protected by the host" in prompt:
                     content = "Alias policy retained."
                 else:
@@ -73,7 +82,7 @@ class WorkerFixture(unittest.TestCase):
             stream.close()
         self.tmp.cleanup()
 
-    def request(self, method, params, error_code=None):
+    def request(self, method, params, error_code=None, events=None):
         self.counter += 1
         self.proc.stdin.write(json.dumps({"id": self.counter, "method": method, "params": params}) + "\n")
         self.proc.stdin.flush()
@@ -82,6 +91,8 @@ class WorkerFixture(unittest.TestCase):
                 frame = self.frames.get(timeout=30)
             except queue.Empty:
                 self.fail("Worker timed out: " + "".join(self.stderr[-30:]))
+            if events is not None:
+                events.append(frame)
             if "hostCall" in frame:
                 call = frame["hostCall"]
                 self.proc.stdin.write(json.dumps({"hostResult": {"id": call["id"], "result": {}}}) + "\n")
@@ -270,6 +281,44 @@ class WorkerFixture(unittest.TestCase):
         self.request("skills.flags", {"name": "controlled", "enabled": False})
         self.request("skills.flags", {"name": "controlled", "enabled": True})
         self.assertTrue(self.request("skills.inspect", {"name": "controlled"})["usage"]["pinned"])
+
+    def test_original_curator_consolidation_reads_then_patches_an_eligible_skill(self):
+        self.hello(config={"auxiliary": {"background_review": {"enabled": False}, "curator": {"provider": "harness", "model": "fixture-model"}}})
+        document = "---\nname: curator-source\ndescription: Maintain verified source procedures.\n---\n\nCURATOR_ORIGINAL_PROCEDURE\n"
+        created = self.request("skills.manage", {"action": "create", "name": "curator-source", "content": document})
+        self.assertTrue(created["success"], created)
+        adopted = self.request("skills.flags", {"name": "curator-source", "managed": True})
+        self.assertTrue(adopted["success"], adopted)
+        before = self.request("skills.inspect", {"name": "curator-source"})
+        self.assertEqual(before["usage"]["created_by"], "agent")
+        self.assertFalse(before["usage"]["pinned"])
+        self.assertEqual(before["usage"]["state"], "active")
+        owner = {"ctx": {"threadId": "curator", "runId": "curator"}, "modelId": "fixture-model", "hostTools": [], "skillPolicy": {"enabled": True, "allowWrites": True}}
+        self.request("agent.start", {**owner, "prompt": "PLAIN_REPLY_ONLY: prepare the retained curator owner."})
+        self.until_settled()
+        events = []
+        self.request("skills.curate", {**owner, "consolidate": True, "brokerURL": "http://127.0.0.1/unused", "jobKey": "fixture-curator"}, events=events)
+        state = json.loads((Path(self.tmp.name) / "skills/.curator_state").read_text(encoding="utf8"))
+        self.assertIn("last_report_path", state, state)
+        report_dir = Path(state["last_report_path"])
+        report = json.loads((report_dir / "run.json").read_text(encoding="utf8"))
+        requests = [event for event in events if event.get("event") == "model_request"]
+        self.assertEqual(len(requests), 3, report)
+        self.assertTrue(all(event["ctx"]["phase"] == "background_review" for event in requests), requests)
+        expected = document.replace("CURATOR_ORIGINAL_PROCEDURE", "Read the original skill before applying a verified patch.")
+        path = Path(self.tmp.name) / "skills/curator-source/SKILL.md"
+        self.assertEqual(path.read_text(encoding="utf8"), expected)
+        self.assertEqual(self.request("skills.inspect", {"name": "curator-source"})["document"], expected)
+        self.assertIsNone(report["llm_error"], report)
+        self.assertEqual(report["model"], "fixture-model")
+        self.assertEqual(report["provider"], "harness")
+        self.assertEqual(report["llm_final"], "Curator source review completed.")
+        self.assertEqual([call["name"] for call in report["tool_calls"]], ["skill_view", "skill_manage"])
+        self.assertEqual(json.loads(report["tool_calls"][0]["arguments"]), {"name": "curator-source"})
+        self.assertEqual(json.loads(report["tool_calls"][1]["arguments"])["action"], "patch")
+        self.assertEqual(report["tool_call_counts"], {"skill_view": 1, "skill_manage": 1})
+        self.assertIn("llm: Curator source review completed.", state["last_run_summary"])
+        self.assertNotIn("LLM pass error", (report_dir / "REPORT.md").read_text(encoding="utf8"))
 
     def test_expected_source_state_refuses_stale_user_write(self):
         self.hello()

@@ -18,7 +18,15 @@ class OriginalHermesSource(unittest.TestCase):
     def test_every_vendored_file_matches_its_official_blob_and_sha256(self):
         manifest = json.loads((VENDOR / 'UPSTREAM_MANIFEST.json').read_text(encoding='utf-8'))
         self.assertEqual(manifest['commit'], 'c627ec84664d43e0b18b95d9d86d8963747d56c7')
-        self.assertGreater(len(manifest['files']), 100)
+        paths = [item['path'] for item in manifest['files']]
+        self.assertEqual(len(paths), len(set(paths)), 'Source manifest contains duplicate paths')
+        self.assertEqual(set(paths), {path.relative_to(SOURCE).as_posix()
+                                    for path in SOURCE.rglob('*') if path.is_file()})
+        self.assertTrue({'run_agent.py', 'agent/acp_client.py', 'agent/background_review.py',
+                         'agent/curator.py', 'agent/learn_prompt.py', 'agent/turn_finalizer.py',
+                         'tools/skills_tool.py', 'tools/skill_manager_tool.py',
+                         'tools/skill_manager_batch.py', 'tools/skill_manager_guards.py',
+                         'tools/skill_usage.py', 'tools/skill_ledger.py'}.issubset(paths))
         for item in manifest['files']:
             data = (SOURCE / item['path']).read_bytes()
             self.assertEqual(len(data), item['bytes'], item['path'])
