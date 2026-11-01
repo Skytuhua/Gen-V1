@@ -140,7 +140,8 @@ export function useArtifactState(artifact: ArtifactRecord, record: UserStateReco
 
   useEffect(() => {
     store.set('/inputs', inputs);
-    if (!loaded || dirty.current || !record || record.revision <= appliedRevision.current) return;
+    // A save receipt can advance the revision before its full snapshot arrives.
+    if (!loaded || dirty.current || !record || record.revision <= appliedRevision.current || record.revision < revision.current) return;
     revision.current = Math.max(revision.current, record.revision);
     appliedRevision.current = record.revision;
     // Suppress autosave for an accepted host update.

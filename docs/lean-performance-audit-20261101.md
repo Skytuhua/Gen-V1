@@ -2,6 +2,8 @@
 
 This is a local React/Node/SQLite coding harness with trusted task interfaces, durable artifacts and several runtime adapters. The audit assumed one local user, multiple windows/agents and long histories. Baseline: `2ce8aaf`. Source inventory, import reachability, strict compiler checks, dependency advisories, main flows and high-risk boundaries were reviewed; this is not a claim that every third-party SDK or live account was exercised.
 
+Measurements and source counts below describe cleanup commit `1412bd0`. The follow-up review at the end records the subsequently reproduced state race and its correction.
+
 ## Measured changes
 
 | Measurement | Before | After | Scope |
@@ -56,3 +58,13 @@ Application plus tooling removes **893 net lines and 59,601 bytes**. This includ
 Completed native-agent results were received and acknowledged. T3 task-status lookups for those native tasks returned `task_not_found`, so no matching child-thread IDs were available for recoverable archiving; no unrelated threads were archived.
 
 Live subscriptions, real provider quality, physical mixed-DPI/multi-monitor behavior and installer rebuilding remain deferred. Generated-code applications remain disabled. External atomic saves can still race approved file replacement; competing editors must be paused for exact replacement. Source/test readiness must not be promoted to unconditional production-release acceptance.
+
+## Follow-up review and acknowledged-state correction
+
+A fresh independent review covered all 48 files in `1412bd0`, independently passed 60 focused tests, and verified identical exported settings inventory content. It found no material regression in that cleanup. Five further runs of the original large-table click sequence also passed without per-click assertion waits.
+
+Boundary investigation then reproduced a preexisting state race independently of timing or table size: a snapshot skipped while a newer local edit was dirty could later replay after a still newer save receipt cleared the dirty flag. The renderer compared the incoming revision only against the last applied snapshot, so revision 2 could overwrite the visible revision 3 selection before the full revision 3 snapshot arrived.
+
+The correction rejects incoming state older than the locally acknowledged revision, while allowing equal or genuinely newer host state. One browser regression controls the save receipts, snapshot delivery and lease release with explicit barriers. It failed with the selection unchecked before the correction and passed three consecutive runs afterward; it also verifies that revision 4 from the host still applies without generating another save. This tests the actual hook, renderer, checkbox, journal and HTTP client, with synthetic server responses. It does not prove that this race caused the sole historical failure, although that trace's acknowledgment/snapshot ordering is consistent with it.
+
+Independent review approved the guard with no blocking finding. Its minor test-evidence note was corrected by observing beyond the 500 ms autosave debounce before asserting that the host update caused no further save; the strengthened test passed three consecutive runs. Final verification passed **698/698 unit tests**, the complete browser suite (**521 passed, six policy skips, zero failures**), strict typecheck, production build and diff checks. No additional production change was needed. Live subscriptions, physical monitor testing and installer rebuilding remain separate, unchanged gates.
