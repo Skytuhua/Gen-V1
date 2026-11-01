@@ -64,7 +64,7 @@ async function waitForRun(label: string, timeout: number) {
   throw new Error(`${label} exceeded its ${timeout / 1000}s bounded wait`);
 }
 async function sendPrompt(content: string) {
-  await expect(capture.page.getByRole('combobox', { name: 'Model', exact: true })).toHaveValue(modelId);
+  await expect(capture.page.getByRole('combobox', { name: 'Model', exact: true })).toHaveText(models.models.find((model: {id:string;name:string}) => model.id === modelId).name);
   const input = capture.page.getByRole('textbox', { name: 'Message', exact: true }); await input.fill(content); await capture.page.getByRole('button', { name: 'Send message', exact: true }).click();
 }
 function workingArtifact(value: Snapshot) { return value.artifacts.find(item => item.threadId === threadId && item.lifecycle === 'active' && item.kind === 'structured'); }
@@ -86,7 +86,7 @@ try {
   const grant = await command('resource.grant', { path: sourcePath, kind: 'file', writable: false }); const resource = grant.result as { id: string };
   proof.threadId = threadId; proof.resourceId = resource.id;
   await capture.page.evaluate(id => { localStorage.setItem('harness:selected-thread', id); localStorage.removeItem('harness:shell-layout:v1'); }, threadId); await capture.page.reload();
-  await expect(capture.page.getByRole('combobox', { name: 'Model', exact: true })).toHaveValue(modelId);
+  await expect(capture.page.getByRole('combobox', { name: 'Model', exact: true })).toHaveText(models.models.find((model: {id:string;name:string}) => model.id === modelId).name);
   await capture.page.evaluate(({ after, owner }) => {
     const state = window as unknown as { __genuineEvents: WorkspaceEvent[]; __genuineSource: EventSource };
     state.__genuineEvents = []; state.__genuineSource = new EventSource(`/api/events?after=${after}`);

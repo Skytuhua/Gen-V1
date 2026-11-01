@@ -25,6 +25,10 @@ export async function openClaude(context: DriverContext, sdk: ClaudeSdk, modelId
   let query: Query;
   let closed = false;
   let failed: Error | undefined;
+  let rejectIo!: (error: Error) => void;
+  const ioFailure = new Promise<never>((_, reject) => { rejectIo = reject; });
+  // Pipe errors can arrive after initialization as well as during native spawn.
+  void ioFailure.catch(() => {});
   let turnIds: string[] = [];
   let messageId = randomUUID();
   let emittedText = false;
@@ -48,6 +52,17 @@ export async function openClaude(context: DriverContext, sdk: ClaudeSdk, modelId
     spawnClaudeCodeProcess: options => {
       authority();
       const child = spawn(options.command, options.args, { cwd: options.cwd, env: options.env, stdio: ['pipe', 'pipe', 'pipe'], detached: process.platform !== 'win32', windowsHide: true, signal: options.signal });
+      const failIo = () => {
+        if (closed || failed || !context.current()) return;
+        failed = new HarnessError('OFFICIAL_PROCESS_IO_FAILED', 'The native Claude connection closed unexpectedly. Reconnect the provider and refresh models.');
+        rejectIo(failed); input.close(); compact?.reject(failed); compact = undefined;
+        // An observer failure must neither escape a native stream listener nor
+        // prevent the independent settlement/teardown notification.
+        try { context.event('error', { message: failed.message }); } catch {}
+        try { context.event('settled', { aborted: false }); } catch {}
+      };
+      child.on('error', failIo);
+      for (const stream of [child.stdin, child.stdout, child.stderr]) stream?.on('error', failIo);
       context.own(child);
       child.stderr?.resume();
       return child as ReturnType<NonNullable<Options['spawnClaudeCodeProcess']>>;
@@ -125,7 +140,7 @@ export async function openClaude(context: DriverContext, sdk: ClaudeSdk, modelId
   })();
   void processing;
   try {
-    const [account, models] = await bounded(Promise.all([query.accountInfo(), query.supportedModels()]), 30_000, 'Official Claude Code initialization timed out.');
+    const [account, models] = await bounded(Promise.race([Promise.all([query.accountInfo(), query.supportedModels()]), ioFailure]), 30_000, 'Official Claude Code initialization timed out.');
     authority(); assertClaudeSubscription(account);
     driver.models = models.filter(model => typeof model.value === 'string' && model.value && !/[\s\u0000]/.test(model.value)).map(model => ({ id: `claude-code/${model.value}`, provider: 'claude-code', name: model.displayName, ...(model.supportedEffortLevels?.length ? { thinkingLevels: [...model.supportedEffortLevels] } : {}) }));
     if (modelId) {

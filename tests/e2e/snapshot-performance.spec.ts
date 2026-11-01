@@ -6,6 +6,10 @@ import type { Page, TestInfo } from '@playwright/test';
 import type { ArtifactRecord, DataBinding, DataRecord, SurfaceSpec } from '../../packages/contracts/index.ts';
 import { browserCommand, FIXTURE_LABEL, HostFixture, openHost, sendFixture, test, expect } from '../host-fixture.ts';
 
+// Match the dedicated performance config for the 30-event benchmark phases.
+// Observation/latency thresholds remain unchanged in the broad browser suite.
+test.describe.configure({timeout:90_000});
+
 const ROW_COUNT = 2000, COLUMN_COUNT = 6, EVENT_COUNT = 30;
 const SENTINEL = '__snapshotPerformanceCell';
 const label = process.env.SNAPSHOT_PERFORMANCE_LABEL;

@@ -22,7 +22,7 @@ export class ContractRuntime implements RuntimeAdapter {
   activeRunContext: RunContext | undefined;
   constructor(readonly dataDir: string) {}
   configure(callbacks: RuntimeCallbacks) { this.callbacks = callbacks; }
-  async models() { return [{ id: 'fixture/host-contract', provider: 'test-runtime', name: FIXTURE_LABEL }]; }
+  async models() { return [{ id: 'fixture/host-contract', provider: 'fixture', name: FIXTURE_LABEL }]; }
   async history(sessionPath: string): Promise<string[]> { try { return JSON.parse(await readFile(sessionPath, 'utf8')); } catch { return []; } }
   async start(input: StartRun) { await this.deliver('start', input); }
   async followUp(input: StartRun) { await this.deliver('followUp', input); }
@@ -154,7 +154,7 @@ export { expect };
 export async function openHost(page: Page) {
   await page.goto(HOST_URL);
   await expect(page.getByRole('textbox', { name: 'Message', exact: true })).toBeVisible();
-  await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toHaveValue('fixture/host-contract');
+  await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toHaveText(FIXTURE_LABEL);
 }
 export async function sendFixture(page: Page, mode: string) {
   await page.getByRole('textbox', { name: 'Message', exact: true }).fill(`[fixture:${mode}] Verify the local host contract.`);

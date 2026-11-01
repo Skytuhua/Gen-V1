@@ -96,7 +96,7 @@ export async function recordExpandedReview(options:{output:string;scenarios?:Exp
     let index=0;
     for(const name of selected){
       const thread=host.threads[name];await host.service.command({id:randomUUID(),type:'settings.update',payload:{theme,modelId:'review/expanded-fixture',preferences:{showUsageFooter:true,archiveConfirmation:false}}});themeAudit.reset();
-      await browser.page.goto('http://127.0.0.1:4348');await browser.page.evaluate(id=>{localStorage.setItem('harness:selected-thread',id);for(const key of ['harness:plan-floating-open','harness:shell-layout:v1','harness:floating:plan:v1','harness:floating:usage:v1'])localStorage.removeItem(key);},thread.id);await browser.page.reload();await expect(browser.page.getByRole('combobox',{name:'Model',exact:true})).toHaveValue('review/expanded-fixture');
+      await browser.page.goto('http://127.0.0.1:4348');await browser.page.evaluate(id=>{localStorage.setItem('harness:selected-thread',id);for(const key of ['harness:plan-floating-open','harness:shell-layout:v1','harness:floating:plan:v1','harness:floating:usage:v1'])localStorage.removeItem(key);},thread.id);await browser.page.reload();await expect(browser.page.getByRole('combobox',{name:'Model',exact:true})).toHaveText('Local scripted UI review');
       await expect.poll(()=>browser.page.evaluate(()=>document.documentElement.dataset.theme)).toBe(theme);themeAudit.reset();
       await themeAudit.assert();
       const filename=`${String(++index).padStart(2,'0')}-${name}.mp4`,chapters:{title:string;startSeconds:number;frame:string}[]=[],stop=await recordWindow(browser.server,browser.page,join(output,filename)),started=performance.now();

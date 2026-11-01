@@ -32,7 +32,7 @@ try {
     await browser.page.goto('http://127.0.0.1:4347');
     await browser.page.evaluate(id => { localStorage.setItem('harness:selected-thread', id); localStorage.removeItem('harness:shell-layout:v1'); }, thread.id); await browser.page.reload();
     await expect(browser.page.getByRole('textbox', { name: 'Message', exact: true })).toBeVisible();
-    await expect(browser.page.getByRole('combobox', { name: 'Model', exact: true })).toHaveValue('review/local-fixture');
+    await expect(browser.page.getByRole('combobox', { name: 'Model', exact: true })).toHaveText('Local UI demo · no model inference');
     await expect.poll(()=>browser.page.evaluate(()=>document.documentElement.dataset.theme)).toBe(theme);
     // Bootstrap precedes the video. From this point, reloads and transient
     // opposite-theme changes remain part of the continuous capture audit.

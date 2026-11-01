@@ -65,7 +65,7 @@ try {
       const grant = await command('resource.grant', { path: item.source, kind: item.kind, writable: false }, owner); proof.sourceGrant = grant.result;
       if (item.id === 'agreement') await command('resource.grant', { path: join(output, 'sources/exports'), kind: 'export', writable: true }, owner);
       await capture.page.goto(baseURL); await capture.page.evaluate(id => localStorage.setItem('harness:selected-thread', id), owner); await capture.page.reload();
-      await expect(capture.page.getByRole('combobox', { name: 'Model', exact: true })).toHaveValue(modelId);
+      await expect(capture.page.getByRole('combobox', { name: 'Model', exact: true })).toHaveText(models.models.find((model: {id:string;name:string}) => model.id === modelId).name);
       const before = await state();
       await capture.page.evaluate(({ after, id }) => { const events: WorkspaceEvent[] = []; Object.assign(window, { naturalEvents: events }); const source = new EventSource(`/api/events?after=${after}`); source.addEventListener('workspace', event => { const e = JSON.parse((event as MessageEvent<string>).data); if (e.threadId === id) events.push(e); }); }, { after: before.seq, id: owner });
       stop = await recordWindow(capture.server, capture.page, join(folder, 'genuine.mp4'));

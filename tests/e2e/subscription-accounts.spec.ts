@@ -37,6 +37,11 @@ async function host(page: Page, snapshot = fixture()) {
   return { ...base, commands, discoveries, failNext(message: string) { fail = message; }, holdNext() { return new Promise<void>(resolve => { pending = resolve; }); }, release() { pending?.(); } };
 }
 async function openAccounts(page: Page) { await page.getByRole('button', { name: 'Settings', exact: true }).click(); await page.getByRole('button', { name: 'Providers', exact: true }).click(); return page.locator('.connection-row[data-provider="openai"]'); }
+async function expectCatalog(page: Page, modelName: string) {
+  await page.getByRole('combobox', { name: 'Model', exact: true }).click();
+  await expect(page.getByRole('listbox', { name: 'Available models', exact: true }).getByRole('option', { name: modelName, exact: true })).toBeVisible();
+  await page.getByRole('searchbox', { name: 'Search models', exact: true }).press('Escape');
+}
 
 test('explicit account CRUD persists two same-provider profiles without starting authentication', async ({ page }) => {
   const h = await host(page); await page.goto('/'); const provider = await openAccounts(page);
@@ -75,14 +80,14 @@ for (const emptyThread of [false, true]) test(`removing the default refreshes ${
   snapshot.settings.modelId = 'openai/personal-only';
   await host(page, snapshot);
   await page.route('**/api/models*', route => route.fulfill({ json: { models: snapshot.settings.selectedAccounts?.openai === personal ? [model('Personal only', 'openai/personal-only')] : [model('Legacy only', 'openai/legacy-only')] } }));
-  await page.goto('/'); await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toHaveValue('openai/personal-only');
+  await page.goto('/'); await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toHaveText('Personal only');
   const provider = await openAccounts(page); await provider.getByRole('button', { name: 'Remove Personal', exact: true }).click();
   await expect(provider).toContainText('Default for new tasks: Legacy connection');
   await page.getByRole('button', { name: 'Threads', exact: true }).click();
   await expect(page.getByRole('combobox', { name: 'Default model', exact: true })).toContainText('Legacy only');
   await expect(page.getByRole('combobox', { name: 'Default model', exact: true })).not.toContainText('Personal only');
   await page.getByRole('button', { name: 'Close settings', exact: true }).click();
-  await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toHaveValue('openai/legacy-only');
+  await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toHaveText('Legacy only');
   await expect(page.getByRole('combobox', { name: 'Model', exact: true })).not.toContainText('Personal only');
 });
 
@@ -92,7 +97,8 @@ for (const pinned of [false, true]) test(`external default changes refresh Setti
   const h = await host(page, snapshot), requests: string[] = [];
   await page.route('**/api/models*', route => { const url = new URL(route.request().url()); requests.push(url.search); const owner = snapshot.threads.find(thread => thread.id === url.searchParams.get('threadId')); const id = owner?.accountId ?? snapshot.settings.selectedAccounts?.openai; return route.fulfill({ json: { models: [model(id === work ? 'Work model' : 'Personal model'), model('Alternative model', 'openai/alternative')] } }); });
   await page.goto('/'); await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toContainText('Personal model');
-  await page.getByRole('combobox', { name: 'Model', exact: true }).selectOption('openai/alternative');
+  await page.getByRole('combobox', { name: 'Model', exact: true }).click();
+  await page.getByRole('option', { name: 'Alternative model', exact: true }).click();
   await openAccounts(page); await page.getByRole('button', { name: 'Threads', exact: true }).click();
   await expect(page.getByRole('combobox', { name: 'Default model', exact: true })).toContainText('Personal model');
   const pinnedReads = requests.filter(query => query.includes('threadId=task-thread')).length;
@@ -102,8 +108,8 @@ for (const pinned of [false, true]) test(`external default changes refresh Setti
   const catalogReads = requests.length; snapshot.settings.selectedAccounts = { openai: work }; snapshot.settings.theme = 'light'; await h.publish();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light'); expect(requests).toHaveLength(catalogReads);
   await page.getByRole('button', { name: 'Close settings', exact: true }).click();
-  await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toContainText(pinned ? 'Personal model' : 'Work model');
-  await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toHaveValue('openai/alternative');
+  await expectCatalog(page, pinned ? 'Personal model' : 'Work model');
+  await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toHaveText('Alternative model');
   expect(requests.filter(query => query.includes('threadId=task-thread'))).toHaveLength(pinnedReads);
 });
 
@@ -111,12 +117,28 @@ test('pending account actions block duplicate submissions and expose recoverable
   const h = await host(page); await page.goto('/'); const provider = await openAccounts(page);
   await provider.getByRole('radio', { name: 'Work', exact: true }).check(); const held = h.holdNext();
   await provider.getByRole('button', { name: 'Use account', exact: true }).click(); await held;
-  await expect(provider.getByRole('button', { name: 'Use account', exact: true })).toBeDisabled(); h.release();
+  await expect(provider.getByRole('button', { name: 'Saving default…', exact: true })).toBeDisabled(); h.release();
   await expect(provider.getByRole('button', { name: 'Add account', exact: true })).toBeEnabled();
   h.failNext('A task is using this account. Try again after it stops.');
   await provider.getByRole('button', { name: 'Remove Work', exact: true }).click();
   await expect(page.getByRole('alert')).toContainText('A task is using this account');
   await expect(provider.getByRole('radio', { name: 'Work', exact: true })).toBeEnabled();
+});
+
+test('an account radio is a pending choice until the new-task default is saved', async ({ page }) => {
+  const h = await host(page); await page.goto('/'); const provider = await openAccounts(page);
+  const personalRow = provider.locator(`[data-account-id="${personal}"]`), workRow = provider.locator(`[data-account-id="${work}"]`);
+  await expect(personalRow.getByText('Default', { exact: true })).toBeVisible();
+  await provider.getByRole('radio', { name: 'Work', exact: true }).check();
+  await expect(provider.getByRole('status')).toContainText('Work is selected. Use account to make it the default for new tasks.');
+  await expect(personalRow.getByText('Default', { exact: true })).toBeVisible();
+  expect(h.commands).toHaveLength(0);
+  const held = h.holdNext(); await provider.getByRole('button', { name: 'Use account', exact: true }).click(); await held;
+  await expect(provider.getByRole('button', { name: 'Saving default…', exact: true })).toBeDisabled();
+  await expect(provider.locator('.connection-accounts')).toHaveAttribute('aria-busy', 'true'); h.release();
+  await expect(workRow.getByText('Default', { exact: true })).toBeVisible();
+  await expect(personalRow.getByText('Default', { exact: true })).toHaveCount(0);
+  await expect(provider.getByRole('status')).toContainText('Work is the default for new tasks.');
 });
 
 test('bound thread catalogs follow their pinned account and ignore late discovery from another thread', async ({ page }) => {
@@ -146,7 +168,7 @@ test('bound thread catalogs follow their pinned account and ignore late discover
 test('a bound thread with no catalog keeps its saved model and offers explicit setup', async ({ page }) => {
   await host(page); await page.route('**/api/models*', route => route.fulfill({ json: { models: [], error: 'Sign in to this account to load its models.' } }));
   await page.goto('/'); await expect(page.locator('.composer-account')).toHaveText('Personal');
-  await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toHaveValue('openai/shared');
+  await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toHaveText('openai/shared');
   await page.getByRole('textbox', { name: 'Message', exact: true }).fill('Keep this task pinned'); await expect(page.getByRole('button', { name: 'Send message', exact: true })).toBeDisabled();
 });
 
@@ -156,7 +178,7 @@ test('pre-account tasks stay pinned to the legacy connection when a named defaul
   await page.route('**/api/models*', route => { const url = new URL(route.request().url()); discoveries.push(url.search); return route.fulfill({ json: { models: [] } }); });
   await page.goto('/'); await expect(page.locator('.composer-account')).toHaveText('Legacy connection');
   await expect.poll(() => discoveries).toContain('?threadId=task-thread');
-  await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toHaveValue('openai/shared');
+  await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toHaveText('openai/shared');
 });
 
 test('account labels fit the existing settings layout across dark, light, and narrow views', async ({ page }, testInfo) => {

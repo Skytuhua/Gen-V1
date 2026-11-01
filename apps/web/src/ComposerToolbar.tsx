@@ -1,5 +1,6 @@
 import {useLayoutEffect,useRef,useState,type ReactNode} from 'react';
 import type {ModelInfo} from '../../../packages/contracts';
+import {ModelPicker} from './ModelPicker';
 import './composer-toolbar.css';
 export interface ComposerToolbarProps {
  models:ModelInfo[];modelId:string;onModelChange:(id:string)=>void;
@@ -78,7 +79,7 @@ export function ComposerToolbar({models,modelId,onModelChange,thinkingLevel,onTh
    </div>
    <div className="composer-runtime-controls" role="group" aria-label="Model and voice">
     <label className="composer-select composer-thinking" title={levels.length?'Thinking effort':'Thinking effort is unavailable for this model'}>{brain}<select aria-label="Thinking effort" value={levels.includes(thinkingLevel)?thinkingLevel:''} disabled={locked||!levels.length} onChange={event=>onThinkingChange(event.target.value)}><option value="">Default</option>{levels.map(level=><option key={level} value={level}>{level.charAt(0).toUpperCase()+level.slice(1)}</option>)}</select>{chevron}</label>
-    <label className="composer-select composer-model" title={selected?.name??modelId}><select aria-label="Model" value={modelId} disabled={locked||!models.length} onChange={event=>onModelChange(event.target.value)}>{!selected&&<option value={modelId}>{modelId||'Select model'}</option>}{models.map(model=><option key={model.id} value={model.id}>{model.name}</option>)}</select>{chevron}</label>
+    <ModelPicker models={models} modelId={modelId} disabled={locked} onChange={onModelChange}/>
     {context}<button type="button" className={`composer-tool composer-voice ${listening?'is-listening':''}`} aria-label={!Voice?'Voice input unavailable':listening?'Stop voice input':'Start voice input'} aria-pressed={listening} title={!Voice?'Voice input is unavailable in this browser':listening?'Stop listening':'Dictate into your draft'} disabled={locked||!Voice} onClick={startVoice}>{microphone}<span className="sr-only">{listening?'Listening':''}</span></button>{trailing}
    </div>
   </div>

@@ -5,7 +5,7 @@
  * Source and complete license: third-party/t3code/README.md.
  */
 import { useRef, useState } from 'react';
-import { ExternalLink, LogIn } from 'lucide-react';
+import { Check, ExternalLink, LogIn } from 'lucide-react';
 import { SUBSCRIPTION_CONNECTIONS, isConnectionProviderId, type SubscriptionConnection } from '../../../packages/contracts/connections';
 import type { ModelInfo, Snapshot } from '../../../packages/contracts';
 import type { ConnectionAccount } from '../../../packages/contracts/accounts';
@@ -21,7 +21,7 @@ const LEGACY = 'legacy-connection';
 type AccountAction = (type: string, payload: Record<string, unknown>) => Promise<boolean>;
 function AccountPicker({ connection, accounts, selectedAccountId, busy, run, login, desktop }: {
   connection: SubscriptionConnection; accounts: ConnectionAccount[]; selectedAccountId: string | null | undefined;
-  busy: boolean; run: AccountAction; login: (providerId: string, accountId?: string) => Promise<void>; desktop: boolean;
+  busy: string; run: AccountAction; login: (providerId: string, accountId?: string) => Promise<void>; desktop: boolean;
 }) {
   const profiles = accounts.filter(account => account.providerId === connection.id && account.enabled);
   const providerAccounts = accounts.filter(account => account.providerId === connection.id);
@@ -33,23 +33,34 @@ function AccountPicker({ connection, accounts, selectedAccountId, busy, run, log
       ?? (selectedAccountId == null ? LEGACY : profiles[0]?.id ?? LEGACY);
   const [editing, setEditing] = useState<{ id?: string } | null>(null);
   const [label, setLabel] = useState('');
+  const [savingDefault, setSavingDefault] = useState(false);
   const selected = providerAccounts.find(account => account.id === selectedAccountId);
+  const defaultMethodId = selected?.enabled ? selected.id : LEGACY;
+  const choiceLabel = profiles.find(account => account.id === selectedMethodId)?.label ?? 'Legacy connection';
+  const changed = selectedMethodId !== defaultMethodId;
+  const useAccount = async () => {
+    if (busy || !changed) return;
+    setSavingDefault(true);
+    try { await run('account.select', { providerId: connection.id, accountId: selectedMethodId === LEGACY ? null : selectedMethodId }); }
+    finally { setSavingDefault(false); }
+  };
   const save = async () => {
     if (!label.trim() || busy) return;
     if (await run(editing?.id ? 'account.rename' : 'account.create', editing?.id ? { accountId: editing.id, label: label.trim() } : { providerId: connection.id, label: label.trim() })) { setEditing(null); setLabel(''); }
   };
-  return <div className="connection-accounts">
+  return <div className="connection-accounts" aria-busy={!!busy}>
     {providerAccounts.length > 0 && <><p className="connection-account-default">Default for new tasks: {selected?.enabled ? selected.label : 'Legacy connection'}</p>
-    <fieldset disabled={busy} className="connection-account-options"><legend className="sr-only">{connection.label} account for new tasks</legend>
-      <div className="connection-account-row"><label className="connection-account-choice"><input type="radio" name={`account-${connection.id}`} aria-label="Legacy connection" checked={selectedMethodId === LEGACY} onChange={() => setSelection(LEGACY)} /><span>Legacy connection</span></label></div>
-      {providerAccounts.map(account => <div className={`connection-account-row${account.enabled ? '' : ' connection-account-inactive'}`} key={account.id} data-account-id={account.id}>
-        <div className="connection-account-line"><label className="connection-account-choice"><input type="radio" name={`account-${connection.id}`} aria-label={account.label} disabled={!account.enabled} checked={selectedMethodId === account.id} onChange={() => setSelection(account.id)} /><span>{account.label}</span>{!account.enabled && <small>Removed</small>}</label>
+    <fieldset disabled={!!busy} className="connection-account-options"><legend className="sr-only">{connection.label} account for new tasks</legend>
+      <div className="connection-account-row" data-chosen={selectedMethodId === LEGACY}><label className="connection-account-choice"><input type="radio" name={`account-${connection.id}`} aria-label="Legacy connection" checked={selectedMethodId === LEGACY} onChange={() => setSelection(LEGACY)} /><span>Legacy connection</span>{defaultMethodId === LEGACY && <small className="connection-account-badge"><Check size={11} aria-hidden="true" />Default</small>}</label></div>
+      {providerAccounts.map(account => <div className={`connection-account-row${account.enabled ? '' : ' connection-account-inactive'}`} key={account.id} data-account-id={account.id} data-chosen={selectedMethodId === account.id}>
+        <div className="connection-account-line"><label className="connection-account-choice"><input type="radio" name={`account-${connection.id}`} aria-label={account.label} disabled={!account.enabled} checked={selectedMethodId === account.id} onChange={() => setSelection(account.id)} /><span>{account.label}</span>{account.enabled && defaultMethodId === account.id && <small className="connection-account-badge"><Check size={11} aria-hidden="true" />Default</small>}{!account.enabled && <small>Removed</small>}</label>
           <div className="connection-account-actions"><button className="quiet" aria-label={`Rename ${account.label}`} onClick={() => { setEditing({ id: account.id }); setLabel(account.label); }}>Rename</button>{account.enabled ? <button className="quiet" aria-label={`Remove ${account.label}`} title="Disable for new tasks. Keep its private profile and existing task bindings." onClick={() => void run('account.remove', { accountId: account.id })}>Remove</button> : <button className="quiet" aria-label={`Restore ${account.label}`} onClick={() => void run('account.restore', { accountId: account.id })}>Restore</button>}</div></div>
-        {account.enabled && <div className="connection-account-connect">{desktop ? <button className="secondary" aria-label={`Connect ${account.label}`} onClick={() => void login(connection.id, account.id)}><LogIn size={13} />Connect</button> : <code>pnpm agent:login --provider {connection.id} --account-id {account.id}</code>}</div>}
+        {account.enabled && <div className="connection-account-connect">{desktop ? <button className="secondary" aria-label={`Connect ${account.label}`} onClick={() => void login(connection.id, account.id)}><LogIn size={13} />{busy === `login:${account.id}` ? 'Opening…' : 'Connect'}</button> : <code>pnpm agent:login --provider {connection.id} --account-id {account.id}</code>}</div>}
       </div>)}
     </fieldset></>}
-    <div className="connection-account-toolbar">{providerAccounts.length > 0 && <button className="secondary" disabled={busy || selectedMethodId === (selectedAccountId ?? LEGACY)} onClick={() => void run('account.select', { providerId: connection.id, accountId: selectedMethodId === LEGACY ? null : selectedMethodId })}>Use account</button>}<button className="quiet" disabled={busy} onClick={() => { setEditing({}); setLabel(''); }}>Add account</button></div>
-    {editing && <form className="connection-account-form" onSubmit={event => { event.preventDefault(); void save(); }}><label>Account label<input autoFocus aria-label="Account label" value={label} maxLength={80} disabled={busy} placeholder="e.g. Personal or Work" onChange={event => setLabel(event.target.value)} /></label><button className="secondary" disabled={busy || !label.trim()}>Save account</button><button type="button" className="quiet" disabled={busy} onClick={() => { setEditing(null); setLabel(''); }}>Cancel</button></form>}
+    <div className="connection-account-toolbar">{providerAccounts.length > 0 && <button className="secondary" disabled={!!busy || !changed} onClick={() => void useAccount()}>{savingDefault ? 'Saving default…' : 'Use account'}</button>}<button className="quiet" disabled={!!busy} onClick={() => { setEditing({}); setLabel(''); }}>Add account</button></div>
+    {providerAccounts.length > 0 && <p role="status" className={changed ? 'connection-account-selection' : 'sr-only'}>{savingDefault ? `Saving ${choiceLabel} as the default for new tasks…` : changed ? `${choiceLabel} is selected. Use account to make it the default for new tasks.` : `${choiceLabel} is the default for new tasks.`}</p>}
+    {editing && <form className="connection-account-form" onSubmit={event => { event.preventDefault(); void save(); }}><label>Account label<input autoFocus aria-label="Account label" value={label} maxLength={80} disabled={!!busy} placeholder="e.g. Personal or Work" onChange={event => setLabel(event.target.value)} /></label><button className="secondary" disabled={!!busy || !label.trim()}>Save account</button><button type="button" className="quiet" disabled={!!busy} onClick={() => { setEditing(null); setLabel(''); }}>Cancel</button></form>}
     {providerAccounts.length > 0 && <p className="connection-account-help">Labels are local. Remove disables new selection and keeps the private profile. Existing tasks keep this account; restore it to select it again.</p>}
   </div>;
 }
@@ -76,7 +87,7 @@ export function Connections({ models, snapshot, refresh, loadModels, query = '' 
   return <section className="connection-list" aria-label="AI subscription connections"><header><h2>AI subscriptions</h2><p>Choose a local account for new tasks, connect it, then refresh models. Existing tasks keep their account. No automatic rotation or pay-as-you-go fallback. Provider Extra Usage settings still apply.</p></header>{notice && <p role="status">{notice}</p>}{error && <p role="alert" className="error-text">{error}</p>}{rows.map(connection => {
     const ready = connection.status === 'available', availableModels = models.filter(model => model.provider === connection.id);
     return <article key={connection.id} className="connection-row" data-provider={connection.id}><header><strong>{connection.label}</strong><span className={ready ? 'connection-ready' : 'connection-pending'}>{availableModels.length ? `${availableModels.length} models available` : ready ? 'Ready to connect' : 'Integration pending'}</span></header><p>{connection.description}</p>
-      {ready && <AccountPicker connection={connection} accounts={snapshot.accounts ?? []} selectedAccountId={isConnectionProviderId(connection.id) ? snapshot.settings.selectedAccounts?.[connection.id] : null} busy={!!busy} run={run} login={login} desktop={!!desktop} />}
+      {ready && <AccountPicker connection={connection} accounts={snapshot.accounts ?? []} selectedAccountId={isConnectionProviderId(connection.id) ? snapshot.settings.selectedAccounts?.[connection.id] : null} busy={busy} run={run} login={login} desktop={!!desktop} />}
       <footer>{ready ? desktop ? <button className="secondary" disabled={!!busy} onClick={() => void login(connection.id)}><LogIn size={14} />{busy === `login:${connection.id}` ? 'Opening…' : `Connect ${connection.label}`}</button> : <code>pnpm agent:login --provider {connection.id}</code> : <button className="secondary" disabled>Unavailable</button>}<a href={connection.sources[0]} target="_blank" rel="noreferrer">Connection details<ExternalLink size={12} /></a></footer></article>;
   })}</section>;
 }

@@ -137,13 +137,13 @@ test('the accepted Settings model reaches a new task composer and its next sent 
   const state = await host(page, initial);
   await page.route('**/api/models*', route => route.fulfill({ json: { models: [{ id: 'test/first', name: 'First', provider: 'test' }, { id: 'test/second', name: 'Second', provider: 'test' }] } }));
   await page.goto('/');
-  await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toHaveValue('test/first');
+  await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toHaveText('First');
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await page.getByRole('button', { name: 'Threads', exact: true }).click();
   await page.getByRole('combobox', { name: 'Default model', exact: true }).selectOption('test/second');
   await expect.poll(() => state.snapshot.settings.modelId).toBe('test/second');
   await page.getByRole('button', { name: 'Close settings', exact: true }).click();
-  await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toHaveValue('test/second');
+  await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toHaveText('Second');
   await page.getByRole('textbox', { name: 'Message', exact: true }).fill('Continue with the selected subscription model.');
   await page.getByRole('button', { name: 'Send message', exact: true }).click();
   await expect.poll(() => state.commands.find(command => command.type === 'message.send')?.payload.modelId).toBe('test/second');
