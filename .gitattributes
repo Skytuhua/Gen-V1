@@ -1,3 +1,4 @@
 third-party/hermes-agent/upstream/** -text
 third-party/hermes-agent/runtime-requirements.txt -text
 third-party/t3code/** -text
+scripts/cursor-offline-executor.mjs -text

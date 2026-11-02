@@ -64,6 +64,9 @@ jobs:
       - name: Check TypeScript
         run: pnpm typecheck
 
+      - name: Build web application
+        run: pnpm build
+
       - name: Run application regression tests
         run: pnpm test --maxWorkers=1
 
@@ -75,9 +78,6 @@ jobs:
 
       - name: Verify original Hermes worker behavior
         run: python -I -S -B tests/hermes_source_worker.py -v
-
-      - name: Build web application
-        run: pnpm build
 
       - name: Build desktop shell
         run: pnpm desktop:build
