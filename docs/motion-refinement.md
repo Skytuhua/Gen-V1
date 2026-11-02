@@ -1,0 +1,29 @@
+# Responsive motion and software work
+
+Last updated: 2026-11-01.
+
+The user now prioritizes smoother, more intuitive animation over reproducing the supplied videos' timings. Their chosen feel is more expressive, with subtle spring motion. The neutral shell, layouts, source boundaries and durable artifacts stay in place.
+
+The focal moment is an existing working object reshaping around the next useful task state: a question expands, a contextual step changes, or new evidence joins a graph. Motion keeps visible geometry and velocity through interruption, then settles with a small amount of give. Routine controls acknowledge input immediately; animation never delays submission, Stop or manual scrolling.
+
+Shared transitions use the existing browser animation APIs and small damped controllers. They avoid per-frame layout reads, repeated React-tree renders, duplicate CSS/JavaScript entrances and idle frame loops. Height changes are bounded to the affected content. Document/grid scrolling stops for a real user gesture and resumes only for a fresh explicit navigation intent. Restore and unchanged snapshots are quiet. Reduced motion keeps brief opacity feedback and removes travel, bounce, shimmer and stagger.
+
+New prose reveals by grapheme with a brief typing edge while preserving the real selectable DOM. Existing prose, copied code, user selections, fields and telemetry stay stable. Reduced motion reveals new prose immediately. Prepared text can open in the same artifact's editable Document window; docking, floating and reopening retain its draft. PDF signing keeps the source and controls paired at 620px available width or more.
+
+Software-development interfaces expand across debugging/test failures, architecture/API exploration and build/release/dependency work, with debugging first. Diagnostics, ChangeSet, ApiExplorer and Pipeline show supplied failures, patches, contracts and stage evidence; the agent chooses their composition through discovery without trigger words. Read-only exploration and stable local selection remain immediate. Tests and file mutations retain exact native approval. API examples do not send requests. Build execution, dependency installation and external release effects remain unavailable where no corresponding executor/connector exists.
+
+ImageCompare adds an immediate pointer/keyboard reveal between two granted images and a saved side-by-side view. Only its view-mode geometry uses spring motion; the reveal itself tracks input directly. It preserves the loaded image nodes while switching views, and clears old pixels when source/grant identity changes. Source images are not edited.
+
+The Plan window opens for a real validated plan without taking composer focus, fits its task/requirements/agent content, and supports vertical movement, reset and minimize. Closing dismisses the current plan until materially new work arrives; Thread options → Show plan reopens it. Its vertical sequence combines task requirements with actual read-only Pi reader jobs. A circular ring around each agent icon reflects declared checklist completion, or an explicit estimate when no checklist exists. Unknown progress stays indeterminate. Progress never advances just to make an animation look active. The plan uses the existing durable DataRecord/event path; up to three readers run within the parent task's authority, with 24 retained jobs per thread and no mutating or nested delegation.
+
+Planning choices reveal concise explanations and text/granted-image examples locally when available. A request for missing detail or more options returns durably to Pi while preserving the same question, selected option and draft. Pending, answered and failed/retryable states remain distinct. Plan mode is host-enforced read-only; no option or explanation implies approval. The toggleable bottom-right usage inspector keeps actual token/context, reported cost and subscription allowance values separate; absent measurements remain unavailable.
+
+Verification covers rapid reversal/retargeting, continuous content arrival, settled geometry, manual override, focus/state recovery, reduced motion and unchanged snapshots. Focused regressions and labelled light/dark/narrow fixtures exercise the new surfaces. One batched visual inspection and one confirmation bound the visual pass. The [expanded recording index](evidence/frontend-review/smooth-expanded-20261030/expanded/index.html) distinguishes scripted composition/telemetry from native approved test execution. The existing [private review site](https://generative-harness-video-review.skytuhua.chatgpt.site) is retained for the combined handoff; publication state, final full-suite totals and new authenticated generation remain final delivery checks.
+
+Historical reference/result evidence remains useful for layout and task hierarchy. It is not a claim of exact animation equivalence, first-attempt generation reliability, broader-category acceptance, generated-code enablement or the deferred 36-run pilot.
+
+## Compact continuity pass,1November2026
+
+Coordinate Plan/document width reservations with the conversation instead of snapping chat and composer sideways. Group folding retains the same thread rows, makes outgoing content inert immediately, and retargets its bounded height spring. Plan uses tighter repeated gaps while preserving agent-ring size, task labels and requirement detail.
+
+Review changes move only the material being examined, keeping decisions and comments steady. Parameter proposals expand and collapse locally; resetting the final proposal returns focus to its source control. Accepted software check changes receive brief status feedback; API examples transition inside the existing response pane. These effects follow actual state, settle on interaction/reduced motion, and remain quiet on snapshots, restore and theme changes. No fabricated waiting or execution progress is added.

@@ -1,0 +1,42 @@
+name: Bug report
+description: Report a reproducible problem with Gen V1.
+title: "[Bug] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: "Use synthetic or redacted data. Do not upload credentials, application profiles or private conversations. Follow SECURITY.md for sensitive findings."
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      placeholder: "Release version or source commit"
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: "Windows version, desktop or browser, and Node/Python versions for source builds."
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: "Include a minimal example with sample data."
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: "Add screenshots or short redacted logs if helpful."
+    validations:
+      required: true

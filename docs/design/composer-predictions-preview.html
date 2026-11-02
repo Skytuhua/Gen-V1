@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Composer predictions interaction</title>
+<style>
+html,body{margin:0;background:transparent}
+#composer-prediction-preview{--cp-surface:var(--card,light-dark(#fff,#0f0f0f));--cp-text:var(--foreground,light-dark(#202020,#eeeeec));--cp-muted:var(--muted-foreground,light-dark(#686868,#a0a09c));--cp-line:var(--border,light-dark(#dededb,#333332));--cp-selected:var(--secondary,light-dark(#f0f0ee,#1f1f1f));color:var(--cp-text);font-family:var(--font-sans,Inter,system-ui,sans-serif);font-size:14px;line-height:1.55;color-scheme:light dark;display:grid;gap:20px;max-width:760px}
+#composer-prediction-preview *{box-sizing:border-box}
+#composer-prediction-preview .conversation{display:grid;gap:12px;padding-top:4px}
+#composer-prediction-preview .speaker{font-weight:500;font-size:12px;color:var(--cp-muted);margin:0 0 3px}
+#composer-prediction-preview p{margin:0}
+#composer-prediction-preview .reply{max-width:630px}
+#composer-prediction-preview .user-message{margin-left:auto;max-width:90%;padding:10px 14px;background:var(--cp-selected);border-radius:16px;white-space:pre-wrap;overflow-wrap:anywhere}
+#composer-prediction-preview .composer{border:1px solid var(--cp-line);border-radius:16px;background:var(--cp-surface);padding:15px 15px 9px;min-width:0}
+#composer-prediction-preview .input-area{position:relative;min-height:76px}
+#composer-prediction-preview textarea,#composer-prediction-preview .ghost{font:inherit;letter-spacing:inherit;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere;width:100%;margin:0;padding:0;border:0}
+#composer-prediction-preview textarea{position:relative;z-index:1;display:block;resize:none;min-height:76px;background:transparent;color:var(--cp-text);caret-color:var(--cp-text);outline-offset:5px}
+#composer-prediction-preview .ghost{position:absolute;inset:0 auto auto 0;color:color-mix(in srgb,var(--cp-text) 66%,var(--cp-surface));pointer-events:none;animation:prediction-in 120ms ease-out}
+#composer-prediction-preview .toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;color:var(--cp-muted);font-size:12px;margin-top:12px}
+#composer-prediction-preview .model{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+#composer-prediction-preview .separator{color:var(--cp-line)}
+#composer-prediction-preview button{font:inherit;color:inherit;border:0;background:transparent;border-radius:6px}
+#composer-prediction-preview .send{background:var(--cp-text);color:var(--cp-surface);padding:6px 11px;min-height:32px;font-size:12px;font-weight:500}
+#composer-prediction-preview .send:disabled{opacity:.35}
+#composer-prediction-preview .caption{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--cp-muted);padding:0 2px}
+#composer-prediction-preview .accept{padding:0;min-height:28px;text-align:left}
+#composer-prediction-preview .touch-hint{display:none}
+#composer-prediction-preview kbd{font:inherit;border:1px solid var(--cp-line);border-radius:4px;padding:1px 4px;background:var(--cp-selected)}
+#composer-prediction-preview .preview-label{font-size:12px;color:var(--cp-muted)}
+#composer-prediction-preview .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+#composer-prediction-preview [hidden]{display:none!important}
+@keyframes prediction-in{from{opacity:0}to{opacity:1}}
+@media(max-width:440px){#composer-prediction-preview{font-size:16px}#composer-prediction-preview .input-area,#composer-prediction-preview textarea{min-height:100px}#composer-prediction-preview .accept,#composer-prediction-preview .send{min-height:44px}#composer-prediction-preview .model{gap:5px}}
+@media(pointer:coarse){#composer-prediction-preview .keyboard-hint{display:none}#composer-prediction-preview .touch-hint{display:inline}#composer-prediction-preview .accept,#composer-prediction-preview .send{min-height:44px}}
+@media(prefers-reduced-motion:reduce){#composer-prediction-preview .ghost{animation:none}}
+</style>
+</head>
+<body>
+<section id="composer-prediction-preview" aria-label="Composer prediction interaction preview">
+ <div class="conversation" aria-live="polite">
+  <div class="reply"><p class="speaker">Assistant</p><p>The audit found three bugs to fix first. The cleanup can then remove duplicate parsing and old styles while preserving the safeguards.</p></div>
+  <div class="user-message" data-sent hidden></div>
+ </div>
+ <form class="composer" aria-label="Preview composer">
+  <div class="input-area">
+   <div class="ghost" aria-hidden="true" data-ghost></div>
+   <textarea aria-label="Message" aria-describedby="prediction-preview-hint" rows="2" spellcheck="false"></textarea>
+  </div>
+  <div class="toolbar"><div class="model"><span>GPT-6.1 Sol</span><span class="separator" aria-hidden="true">·</span><span>Medium</span><span class="separator" aria-hidden="true">·</span><span>Build</span></div><button class="send" type="submit" disabled>Send ↑</button></div>
+ </form>
+ <div class="caption"><button class="accept" type="button" id="prediction-preview-hint" aria-label="Accept suggested message"><span class="keyboard-hint"><kbd>Tab</kbd> to accept <span aria-hidden="true">·</span> <kbd>Esc</kbd> to dismiss</span><span class="touch-hint">Use suggestion</span></button><span class="preview-label" data-status>Interaction preview only</span></div>
+ <div class="sr" role="status" data-announcement></div>
+</section>
+<script>
+(()=>{
+ const root=document.getElementById('composer-prediction-preview');
+ const input=root.querySelector('textarea'),ghost=root.querySelector('[data-ghost]'),form=root.querySelector('form'),send=root.querySelector('.send'),accept=root.querySelector('.accept'),status=root.querySelector('[data-status]'),sent=root.querySelector('[data-sent]'),announcement=root.querySelector('[data-announcement]');
+ const example='Fix the three bugs first. Keep it simple and don’t remove any safeguards.';
+ let candidate=example,composing=false;
+ function paint(){ghost.textContent=candidate;ghost.hidden=!candidate||Boolean(input.value);accept.hidden=!candidate||Boolean(input.value);if(candidate&&!input.value)input.setAttribute('aria-describedby','prediction-preview-hint');else input.removeAttribute('aria-describedby');send.disabled=!input.value.trim();input.style.height='auto';input.style.height=Math.max(matchMedia('(max-width:440px)').matches?100:76,input.scrollHeight)+'px';}
+ function take(){if(!candidate||input.value||composing)return;input.value=candidate;candidate='';paint();input.focus();input.setSelectionRange(input.value.length,input.value.length);status.textContent='Accepted as an editable draft';announcement.textContent='Suggestion accepted. Edit it or press Enter to send in this preview.';}
+ function dismiss(){candidate='';paint();status.textContent='Dismissed. Your message stays empty.';announcement.textContent='Suggestion dismissed.';}
+ input.addEventListener('input',()=>{candidate='';paint();status.textContent=input.value?'Your draft':'Interaction preview only';});
+ input.addEventListener('compositionstart',()=>{composing=true;candidate='';paint();});input.addEventListener('compositionend',()=>{composing=false;});
+ input.addEventListener('keydown',event=>{
+  if(composing||event.isComposing||event.keyCode===229)return;
+  if(event.key==='Tab'&&!event.shiftKey&&!event.ctrlKey&&!event.metaKey&&!event.altKey&&candidate&&!input.value){event.preventDefault();take();return;}
+  if(event.key==='Escape'&&candidate){event.preventDefault();event.stopPropagation();dismiss();return;}
+  if(event.key==='Enter'&&!event.shiftKey&&!event.ctrlKey&&!event.metaKey&&!event.altKey){event.preventDefault();if(input.value.trim())form.requestSubmit();}
+ });
+ accept.addEventListener('click',take);
+ form.addEventListener('submit',event=>{event.preventDefault();if(!input.value.trim())return;sent.textContent=input.value.trim();sent.hidden=false;input.value='';candidate='';paint();status.textContent='Sent in preview only';announcement.textContent='Message sent in preview only. No model was called.';});
+ input.addEventListener('focus',()=>{if(candidate)announcement.textContent='Suggested next message: '+candidate+' Press Tab to accept or Escape to dismiss.';});
+ paint();
+})();
+</script>
+</body>
+</html>
