@@ -64,15 +64,17 @@ Gen V1 is a beta. The preceding 0.6.0 development milestone passed **1,040 appli
 - Installer upgrade acceptance, the broader generation-quality pilot and physical mixed-DPI/multi-monitor acceptance remain open.
 - Gemini/Cursor native compaction, the separate OpenCode agent runtime and Meta/Muse access are not currently available.
 - Screenshots use sample data. Automated checks and screenshots do not establish production reliability or universal provider support.
+- Development dependency alerts remain open; the [release notes](https://github.com/Skytuhua/Gen-V1/releases/tag/v0.6.1) distinguish these from the packaged runtime.
 
 Release assets are unsigned Windows beta builds. Existing application data continues to use the `GenerativeHarness` storage namespace for compatibility.
 
 ## Develop and contribute
 
 ```powershell
+pnpm exec playwright install chromium
 pnpm typecheck
-pnpm test
 pnpm build
+pnpm test --maxWorkers=1
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for focused tests, browser checks and the review process. Report ordinary bugs through [GitHub Issues](https://github.com/Skytuhua/Gen-V1/issues); use the [security reporting guidance](SECURITY.md) for sensitive findings.

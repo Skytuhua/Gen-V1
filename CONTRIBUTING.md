@@ -15,10 +15,13 @@ Do not publish credentials, raw profiles, personal conversations or unredacted t
 ## Local checks
 
 ```powershell
+pnpm exec playwright install chromium
 pnpm typecheck
-pnpm test
 pnpm build
+pnpm test --maxWorkers=1
 ```
+
+The full suite includes browser checks against the built interface, so build it before running the tests.
 
 For a focused unit run after the widget assets have been built:
 
