@@ -10,7 +10,7 @@ export function UsageFooter({usage,visible}:{usage?:RuntimeUsage;visible:boolean
   const context=valid(usage?.contextTokens)&&valid(usage?.contextWindow)&&usage.contextWindow>0?Math.min(100,usage.contextTokens/usage.contextWindow*100):null;
   if(!visible)return null;
   const summary=<><Activity size={12} aria-hidden="true"/><span>{context===null?'Context unavailable':'Context'}</span>{context!==null&&<strong>{Math.round(context)}%</strong>}</>;
-  return <FloatingWindow id="usage" title="Live usage" ariaLabel="Live usage" anchor="bottom-right" minimizeOnly defaultSize={{width:320,height:200}} minSize={{width:260,height:140}} sizing="content" defaultCollapsed summary={summary} collapsedLabel="Inspect live usage" minimizeLabel="Minimize live usage" escapeBehavior="collapse" className="floating-usage-window">
+  return <FloatingWindow id="usage" title="Live usage" ariaLabel="Live usage" anchor="bottom-right" minimizeOnly defaultSize={{width:248,height:128}} minSize={{width:220,height:96}} sizing="content" defaultCollapsed summary={summary} collapsedLabel="Inspect live usage" minimizeLabel="Minimize live usage" escapeBehavior="collapse" className="floating-usage-window">
       <section className="floating-usage-details" aria-label="Runtime usage details">
         <div className="usage-context-summary"><span>Conversation space</span><strong>{context===null?'Not reported':`${Math.round(context)}% used`}</strong></div>
         {context!==null&&<div className="usage-context-track" role="progressbar" aria-label="Conversation space used" aria-valuenow={context} aria-valuemin={0} aria-valuemax={100}><span style={{width:`${context}%`}}/></div>}

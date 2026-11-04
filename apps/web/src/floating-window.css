@@ -47,6 +47,26 @@
 .floating-rail-slot .floating-window {position:absolute;max-width:100%;max-height:100%;pointer-events:auto;box-shadow:0 4px 18px #10121a12,0 0 0 1px var(--border);}
 .floating-rail-slot:has(>.floating-window[data-floating=true]) {overflow:visible;isolation:auto;}
 .floating-rail-slot .floating-window[data-floating=true] {position:fixed;max-width:none;max-height:none;}
+.project-context-floating {max-width:280px!important;}
+.floating-usage-window {max-width:248px!important;}
+.floating-rail-slot .project-context-floating {max-height:min(360px,44dvh,100%);}
+.floating-rail-slot .floating-usage-window {max-height:min(260px,35dvh,100%);}
+:is(.project-context-floating,.floating-usage-window)>.floating-window-header:not([data-compact=true]) {min-height:32px;flex-basis:32px;padding:2px 5px;}
+.project-context-floating .project-context-card .project-context-section {padding:6px 10px;}
+.project-context-floating .project-context-card .project-context-machine {min-height:25px;gap:6px;}
+.project-context-floating .project-context-card .project-context-machine strong {font-size:12px;}
+.project-context-floating .project-context-card .project-context-row {min-height:28px;font-size:12px;gap:6px;}
+.project-context-floating .project-context-card .project-context-tools {padding:0 10px 4px;}
+.project-context-floating .project-context-tools>summary {min-height:28px;font-size:11px;}
+.project-context-floating .project-context-card .project-context-note {font-size:11px;line-height:1.5;}
+.project-context-floating .project-context-card .project-context-plan {padding:4px 10px;}
+.floating-usage-window .floating-usage-details {padding:8px 10px;}
+.floating-usage-window .usage-context-summary {font-size:11px;gap:6px;flex-wrap:wrap;}
+.floating-usage-window .usage-context-summary>strong {font-size:13px;}
+.floating-usage-window .floating-usage-details .usage-context-track {height:3px;margin:6px 0 8px;}
+.floating-usage-window .usage-secondary-details>summary {min-height:24px;padding:3px 0;font-size:11px;}
+.floating-usage-window .floating-usage-details dl {gap:5px 9px;margin-top:7px;font-size:11px;}
+.floating-usage-window[data-minimize-only=true] .floating-window-summary {font-size:11px;gap:4px;}
 :root[data-theme=dark] .floating-window {box-shadow:0 12px 42px #0005,0 0 0 1px var(--border);}
 @media(max-width:700px) {.floating-window .plan-status {padding:16px 14px 22px;}.floating-window-summary {gap:7px;font-size:11px;}.floating-window-summary .usage-context-inline {display:none;}.floating-usage-details {padding:12px;}}
 @media(prefers-reduced-motion:reduce) {.floating-window {transition:none;}.floating-window-body,.usage-context-track>span {transition-duration:60ms;}}
