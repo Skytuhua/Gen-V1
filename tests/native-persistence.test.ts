@@ -1,6 +1,25 @@
 import {expect,it,vi} from 'vitest';
-import {createPersistenceQueue} from '../apps/desktop/persistence.ts';
+import {createPersistenceQueue,reconcileSavedWindows} from '../apps/desktop/persistence.ts';
 import {pluginDesktopRequiresGrant} from '../apps/desktop/window-policy.ts';
+import {type DesktopSurface,desktopSurfaceKey} from '../packages/desktop-contract/index.ts';
+it('keeps three closed local references without reopening them when the Store contains only main',()=>{
+ const local=[{surface:{kind:'navigation'} as DesktopSurface,open:false,marker:'navigation-bounds'},{surface:{kind:'thread',threadId:'thread-a'} as DesktopSurface,open:false,marker:'thread-bounds'},{surface:{kind:'plan',threadId:'thread-a'} as DesktopSurface,open:false,marker:'plan-bounds'}];
+ const active=[{surface:{kind:'main'} as DesktopSurface,open:true,marker:'authoritative-main'}];
+ const saved=reconcileSavedWindows(local,active);
+ expect(saved).toEqual([...local,...active]);expect(saved.filter(entry=>entry.open)).toEqual(active);
+});
+it('uses the complete surface identity and demotes stale local opens to closed history',()=>{
+ const old={surface:{kind:'plugin',pluginId:'example-plugin',scopeId:'project-a',surfaceId:'plan',resourceId:'order-old'} as DesktopSurface,open:true,marker:'old'};
+ const current={surface:{...old.surface,resourceId:'order-current'} as DesktopSurface,open:true,marker:'current'};
+ const saved=reconcileSavedWindows([old,{...current,marker:'stale-local'}],[current]);
+ expect(saved).toEqual([{...old,open:false},current]);
+ expect(saved.map(entry=>desktopSurfaceKey(entry.surface))).toEqual([desktopSurfaceKey(old.surface),desktopSurfaceKey(current.surface)]);
+});
+it('keeps newest history within the existing limit without displacing active windows',()=>{
+ const local=Array.from({length:24},(_,index)=>({surface:{kind:'thread',threadId:'thread-'+index} as DesktopSurface,open:false,marker:index}));
+ const active=[{surface:{kind:'main'} as DesktopSurface,open:true,marker:99}];
+ const saved=reconcileSavedWindows(local,active);expect(saved).toHaveLength(24);expect(saved).toEqual([...local.slice(1),...active]);
+});
 it('writes the final close state after every earlier in-flight state save',async()=>{
  const queue=createPersistenceQueue(),writes:string[]=[];let release!:()=>void;
  const gate=new Promise<void>(resolve=>{release=resolve;});

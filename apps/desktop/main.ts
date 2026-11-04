@@ -14,16 +14,16 @@ import {createBrowserProxy,type BrowserProxy} from './browser-proxy.ts';
 import {nodeSidecarArguments,waitForBackendReady} from './backend-policy.ts';
 import {releaseOwnedBrowsers,detachOwnedBrowser} from './browser-lifecycle.ts';
 import {launchDesktopSignIn,parseDesktopSignInTarget} from './auth-launcher.ts';
-import {captureDesktopPlacement,parseDesktopPlacement,placeOnDesktopDisplay,restoreDesktopPlacement,retainDesktopPlacement,type DesktopDisplay,type DesktopPlacement} from './display-layout.ts';
+import {captureDesktopPlacement,createNormalBounds,parseDesktopPlacement,placeOnDesktopDisplay,restoreDesktopPlacement,retainDesktopPlacement,type DesktopDisplay,type DesktopPlacement} from './display-layout.ts';
 import type {ConnectionProviderId} from '../../packages/contracts/connections.ts';
 import {createAccountLoginFlows} from './account-login.ts';
 import {workspaceEvents} from './workspace-events.ts';
 import {applyNativeLayout} from './layout-transaction.ts';
-import {createPersistenceQueue} from './persistence.ts';
+import {createPersistenceQueue,reconcileSavedWindows} from './persistence.ts';
 const persistence=createPersistenceQueue();
 
 interface BrowserRecord {id:string;view:WebContentsView;state:DesktopBrowserState;owner?:WindowRecord;generation:number;networkReady:Promise<void>}
-interface WindowRecord {id:string;surface:DesktopSurface;window:BrowserWindow;url:string;ready:boolean;settled:boolean;visible:boolean;placement?:DesktopPlacement;appliedBounds?:DesktopBounds;monitorRescued?:boolean;recoveries?:number;resolveReady:(value:DesktopWindowInfo)=>void;rejectReady:(error:Error)=>void;readyPromise:Promise<DesktopWindowInfo>;readyTimer:ReturnType<typeof setTimeout>;browser?:BrowserRecord;dockedBrowser?:BrowserRecord;closePromise?:Promise<boolean>;closeRequest?:{id:string;resolve:(allow:boolean)=>void;timer:ReturnType<typeof setTimeout>}}
+interface WindowRecord {id:string;surface:DesktopSurface;window:BrowserWindow;url:string;ready:boolean;settled:boolean;visible:boolean;normalBounds:ReturnType<typeof createNormalBounds>;placement?:DesktopPlacement;appliedBounds?:DesktopBounds;monitorRescued?:boolean;recoveries?:number;resolveReady:(value:DesktopWindowInfo)=>void;rejectReady:(error:Error)=>void;readyPromise:Promise<DesktopWindowInfo>;readyTimer:ReturnType<typeof setTimeout>;browser?:BrowserRecord;dockedBrowser?:BrowserRecord;closePromise?:Promise<boolean>;closeRequest?:{id:string;resolve:(allow:boolean)=>void;timer:ReturnType<typeof setTimeout>}}
 interface SavedWindow {surface:DesktopSurface;bounds:DesktopBounds;placement?:DesktopPlacement;open:boolean;visible?:boolean;alwaysOnTop?:boolean;dockedBrowserId?:string}
 const windows=new Map<string,WindowRecord>(),browsers=new Map<string,BrowserRecord>();
 const testData=process.env.HARNESS_DESKTOP_TEST_DATA_DIR;
@@ -53,7 +53,7 @@ const backendPort=Number(process.env.HARNESS_DESKTOP_PORT??4317),widgetPort=Numb
 function workAreas(){return screen.getAllDisplays().map(display=>display.workArea);}
 function displays():DesktopDisplay[]{const primary=screen.getPrimaryDisplay(),all=screen.getAllDisplays();return (all.length?all:[primary]).map(display=>({id:String(display.id),workArea:display.workArea,label:display.label,scaleFactor:display.scaleFactor,primary:display.id===primary.id}));}
 function info(record:WindowRecord):DesktopWindowInfo{return {id:record.id,surface:record.surface,ready:record.ready,minimized:record.window.isMinimized(),visible:record.visible,alwaysOnTop:record.window.isAlwaysOnTop(),bounds:record.window.getNormalBounds(),displayId:record.placement?.displayId};}
-function captureLayout():DesktopLayout{return {version:1,windows:[...windows.values()].filter(record=>!record.window.isDestroyed()).map(record=>({surface:record.surface,bounds:record.window.getNormalBounds(),visible:record.visible,alwaysOnTop:record.window.isAlwaysOnTop(),...(record.dockedBrowser?{dockedBrowserId:record.dockedBrowser.id}:{}),...(record.placement?{displayId:record.placement.displayId,placement:record.placement}:{})}))};}
+function captureLayout():DesktopLayout{return {version:1,windows:[...windows.values()].filter(record=>!record.window.isDestroyed()).map(record=>({surface:record.surface,bounds:record.normalBounds.read(),visible:record.visible,alwaysOnTop:record.window.isAlwaysOnTop(),...(record.dockedBrowser?{dockedBrowserId:record.dockedBrowser.id}:{}),...(record.placement?{displayId:record.placement.displayId,placement:record.placement}:{})}))};}
 function snapshot(record:WindowRecord):DesktopState{return {windows:[...windows.values()].map(info),...(record.browser?{browser:record.browser.state}:{}),...(record.dockedBrowser?{dockedBrowser:{browserId:record.dockedBrowser.id,state:record.dockedBrowser.state}}:{}),...(backendError?{backendError}:{}),...(layoutError?{layoutError}:{}),update:updateStatus,nativeTitleBar:process.platform==='win32'};}
 function broadcast(focusSurface?:DesktopSurface){for(const record of windows.values())if(!record.window.isDestroyed())record.window.webContents.send(channels.state,{...snapshot(record),...(record.surface.kind==='main'&&focusSurface?{focusSurface}:{})});}
 function cancelClose(record:WindowRecord){if(!record.window.isDestroyed())record.window.webContents.send(channels.state,{...snapshot(record),closeCancelled:true});}
@@ -67,7 +67,12 @@ function persist(){
  if(quitPending||quitting)return;
  clearTimeout(saveTimer);saveTimer=setTimeout(()=>{void persistence.enqueue(async()=>{await mkdir(dirname(stateFile),{recursive:true});await writeFile(stateFile,JSON.stringify({version:1,windows:saved.slice(-24)}),{encoding:'utf8',mode:0o600});if(!restoringLayout&&!layoutError){await backendRequest('harness.layout.save',{layout:captureLayout()});}}).catch(error=>{layoutError='Workspace layout could not be saved: '+String(error instanceof Error?error.message:error).slice(0,300);broadcast();});},180);
 }
-function remember(record:WindowRecord,open=true){if(record.window.isDestroyed())return;const key=desktopSurfaceKey(record.surface),bounds=record.window.getNormalBounds(),all=displays();
+function remember(record:WindowRecord,open=true){if(record.window.isDestroyed())return;
+ const normal=!record.window.isMaximized()&&!record.window.isMinimized()&&!record.window.isFullScreen();
+ // Windows/macOS provide manual intent events. Other platforms retain their
+ // normal-state geometry fallback; passive Windows frame reports never persist.
+ record.normalBounds.observe(record.window.getNormalBounds(),{manual:process.platform!=='win32'&&process.platform!=='darwin',normal});
+ const key=desktopSurfaceKey(record.surface),bounds=record.normalBounds.read(),all=displays();
  // Windows can move a native window before Electron emits display-removed.
  // Preserve its destination until our rescue has established a new baseline.
  const awaitingRescue=record.placement&&!all.some(display=>display.id===record.placement!.displayId)&&!record.monitorRescued;
@@ -75,10 +80,10 @@ function remember(record:WindowRecord,open=true){if(record.window.isDestroyed())
  if(record.placement&&all.some(display=>display.id===record.placement!.displayId))record.monitorRescued=false;
  const value={surface:record.surface,bounds,placement:record.placement,open,visible:record.visible,alwaysOnTop:record.window.isAlwaysOnTop(),...(record.dockedBrowser?{dockedBrowserId:record.dockedBrowser.id}:{})};saved=[...saved.filter(entry=>desktopSurfaceKey(entry.surface)!==key),value];if(saved.length>24){const live=new Set([...windows.values()].map(item=>desktopSurfaceKey(item.surface)));saved=[...saved.filter(entry=>live.has(desktopSurfaceKey(entry.surface))),...saved.filter(entry=>!live.has(desktopSurfaceKey(entry.surface)))].slice(0,24);}persist();}
 async function loadSaved(){try{const bytes=await readFile(stateFile,'utf8');if(bytes.length>128*1024)return;const raw=JSON.parse(bytes);if(raw.version!==1||!Array.isArray(raw.windows)||raw.windows.length>24)return;for(const entry of raw.windows){try{const surface=parseDesktopSurface(entry.surface);if(!desktopSurfaceAllowed(surface))continue;if(entry.bounds&&typeof entry.bounds==='object')saved.push({surface,bounds:clampDesktopBounds(entry.bounds,workAreas(),surfaceSize(surface)),placement:parseDesktopPlacement(entry.placement),open:entry.open===true,visible:entry.visible!==false,alwaysOnTop:entry.alwaysOnTop===true,...(surface.kind==='main'&&desktopId(entry.dockedBrowserId)?{dockedBrowserId:entry.dockedBrowserId}:{})});}catch{}}}catch{}}
-function applyPlacement(record:WindowRecord,bounds:DesktopBounds,preferred=record.placement){if(record.window.isDestroyed())return;record.placement=preferred;record.appliedBounds=bounds;record.window.setBounds(bounds);remember(record);}
+function applyPlacement(record:WindowRecord,bounds:DesktopBounds,preferred=record.placement){if(record.window.isDestroyed())return;record.placement=preferred;record.appliedBounds=bounds;record.normalBounds.apply(bounds);record.window.setBounds(bounds);remember(record);}
 function resetWindowPosition(record:WindowRecord){const all=displays(),current=captureDesktopPlacement(record.window.getBounds(),all),target=all.find(display=>display.id===current.displayId)!;const bounds=placeOnDesktopDisplay(surfaceSize(record.surface),target);applyPlacement(record,bounds,captureDesktopPlacement(bounds,all));}
 function focusedRecord(){const focused=BrowserWindow.getFocusedWindow();return [...windows.values()].find(record=>record.window===focused);}
-function moveWindowToDisplay(record:WindowRecord,id:string){const all=displays(),target=all.find(display=>display.id===id);if(!target)return;const bounds=placeOnDesktopDisplay(record.window.getNormalBounds(),target);applyPlacement(record,bounds,captureDesktopPlacement(bounds,all));}
+function moveWindowToDisplay(record:WindowRecord,id:string){const all=displays(),target=all.find(display=>display.id===id);if(!target)return;const bounds=placeOnDesktopDisplay(record.normalBounds.read(),target);applyPlacement(record,bounds,captureDesktopPlacement(bounds,all));}
 function moveToAdjacentDisplay(offset:number){const record=focusedRecord(),all=displays();if(!record||all.length<2)return;const current=captureDesktopPlacement(record.window.getBounds(),all),index=all.findIndex(display=>display.id===current.displayId);moveWindowToDisplay(record,all[(index+offset+all.length)%all.length].id);}
 function installApplicationMenu(){const all=displays();Menu.setApplicationMenu(Menu.buildFromTemplate([{label:'File',submenu:[{label:'Restore chat',click:()=>{void mainWindow();}},{type:'separator'},{label:'Quit Gen V1',accelerator:'Control+Shift+Q',click:()=>app.quit()}]},{label:'Window',submenu:[{role:'minimize'},{role:'zoom'},{label:'Move to Display',submenu:all.map((display,index)=>({label:(display.label||'Display '+(index+1))+(display.primary?' (Primary)':''),click:()=>{const record=focusedRecord();if(record)moveWindowToDisplay(record,display.id);}}))},{label:'Move to Next Display',accelerator:'Control+Alt+Right',enabled:all.length>1,click:()=>moveToAdjacentDisplay(1)},{label:'Move to Previous Display',accelerator:'Control+Alt+Left',enabled:all.length>1,click:()=>moveToAdjacentDisplay(-1)},{label:'Reset window position',click:()=>{const record=focusedRecord();if(record)resetWindowPosition(record);}}]}]));}
 function displayTitle(surface:DesktopSurface){return surface.kind==='plugin'?'Plug-in view':({main:'Gen V1',plan:'Task plan',usage:'Live usage',thread:'Chat',artifact:'Task artifact',agent:'Subagent',navigation:'Projects and threads',workspace:'Workspace',browser:'Browser'})[surface.kind];}
@@ -130,7 +135,7 @@ async function openSurface(raw:unknown,sourceBounds?:DesktopBounds,recoverSaved=
  native.on('query-session-end',()=>{osSessionEnding=true;});native.on('session-end',()=>{osSessionEnding=true;});
  let resolveReady!:(value:DesktopWindowInfo)=>void,rejectReady!:(error:Error)=>void;
  const readyPromise=new Promise<DesktopWindowInfo>((resolve,reject)=>{resolveReady=resolve;rejectReady=reject;});void readyPromise.catch(()=>{});
- const record:WindowRecord={id,surface,window:native,url,ready:false,settled:false,visible:previous?.visible!==false,placement:placement??captureDesktopPlacement(bounds,all),appliedBounds:bounds,monitorRescued:!!placement&&!all.some(display=>display.id===placement.displayId),resolveReady,rejectReady,readyPromise,readyTimer:setTimeout(()=>{if(record.ready)return;record.settled=true;record.rejectReady(Error('The detached window did not become ready. Your original view remains available.'));loseBrowserOwner(record);native.destroy();},20000)};
+ const record:WindowRecord={id,surface,window:native,url,ready:false,settled:false,visible:previous?.visible!==false,normalBounds:createNormalBounds(bounds),placement:placement??captureDesktopPlacement(bounds,all),appliedBounds:bounds,monitorRescued:!!placement&&!all.some(display=>display.id===placement.displayId),resolveReady,rejectReady,readyPromise,readyTimer:setTimeout(()=>{if(record.ready)return;record.settled=true;record.rejectReady(Error('The detached window did not become ready. Your original view remains available.'));loseBrowserOwner(record);native.destroy();},20000)};
  windows.set(id,record);broadcast();
  native.webContents.setWindowOpenHandler(()=>({action:'deny'}));native.webContents.on('will-attach-webview',event=>event.preventDefault());
  native.webContents.on('will-navigate',(event,next)=>{if(next!==url)event.preventDefault();});native.webContents.on('will-redirect',(event,next)=>{if(next!==url)event.preventDefault();});
@@ -138,6 +143,11 @@ async function openSurface(raw:unknown,sourceBounds?:DesktopBounds,recoverSaved=
  native.on('close',event=>{if(!quitting){event.preventDefault();void requestClose(record).then(allow=>{if(allow)destroyWindow(record);else cancelClose(record);}).catch(()=>cancelClose(record));}});
  native.on('closed',()=>{clearTimeout(record.readyTimer);if(!record.settled){record.settled=true;record.rejectReady(Error('The detached window closed before it was ready'));}windows.delete(id);if(record.closeRequest){clearTimeout(record.closeRequest.timer);record.closeRequest.resolve(false);}broadcast();});
  const resized=()=>{remember(record);if(record.browser){const [width,height]=native.getContentSize();record.browser.view.setBounds({x:0,y:96,width,height:Math.max(0,height-96)});}};
+ const manuallyPlaced=(_event:unknown,next:DesktopBounds)=>{
+  if(!record.ready||native.isMaximized()||native.isMinimized()||native.isFullScreen())return;
+  record.normalBounds.observe(next,{manual:true,normal:true});record.placement=captureDesktopPlacement(record.normalBounds.read(),displays());record.appliedBounds=record.normalBounds.read();record.monitorRescued=false;remember(record);
+ };
+ native.on('will-move',manuallyPlaced);native.on('will-resize',manuallyPlaced);
  native.on('move',resized);native.on('resize',resized);native.on('minimize',()=>broadcast());native.on('restore',()=>broadcast());
  native.webContents.on('render-process-gone',()=>{
   if(record.closeRequest){clearTimeout(record.closeRequest.timer);record.closeRequest.resolve(false);record.closeRequest=undefined;}
@@ -296,7 +306,7 @@ if(!app.requestSingleInstanceLock()){app.exit(0);}else{
   powerMonitor.on('shutdown',()=>{osSessionEnding=true;});
   installApplicationMenu();installTray();
   startupTimer=setTimeout(()=>{if(quitting||quitPending)return;startup=new BrowserWindow({width:420,height:190,resizable:false,maximizable:false,minimizable:false,title:'Opening Gen V1',autoHideMenuBar:true,backgroundColor:'#0f0f0f',webPreferences:{sandbox:true,contextIsolation:true,nodeIntegration:false}});startup.webContents.setWindowOpenHandler(()=>({action:'deny'}));startup.webContents.on('will-navigate',event=>event.preventDefault());void startup.loadFile(join(dirname(fileURLToPath(import.meta.url)),'startup.html')).catch(()=>{});},1200);
-  await startBackend();if(hostLayout)saved=hostLayout.windows.map(entry=>({...entry,open:true}));const initial=structuredClone(saved.filter(entry=>entry.open&&entry.surface.kind!=='main')),savedDocked=saved.find(entry=>entry.surface.kind==='main')?.dockedBrowserId;const main=await mainWindow();clearTimeout(startupTimer);startup?.destroy();startup=undefined;if(savedDocked)moveBrowser(browserRecord(savedDocked),main,true);
+  await startBackend();if(hostLayout)saved=reconcileSavedWindows(saved,hostLayout.windows.map(entry=>({...entry,open:true})));const initial=structuredClone(saved.filter(entry=>entry.open&&entry.surface.kind!=='main')),savedDocked=saved.find(entry=>entry.surface.kind==='main')?.dockedBrowserId;const main=await mainWindow();clearTimeout(startupTimer);startup?.destroy();startup=undefined;if(savedDocked)moveBrowser(browserRecord(savedDocked),main,true);
   const failures:string[]=[];for(const entry of initial)try{await openSurface(entry.surface,undefined,true);}catch(error){failures.push(displayTitle(entry.surface)+': '+String(error instanceof Error?error.message:error));}
   restoringLayout=false;if(failures.length){layoutError='Some saved windows could not restore. Their layout is retained: '+failures.join('; ').slice(0,800);broadcast();}else if(!layoutError)persist();
   startUpdater();

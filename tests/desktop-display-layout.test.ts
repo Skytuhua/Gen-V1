@@ -1,6 +1,6 @@
 import {describe,it,expect} from 'vitest';
 import {clampDesktopBounds} from '../apps/desktop/window-policy.ts';
-import {captureDesktopPlacement,restoreDesktopPlacement,placeOnDesktopDisplay,parseDesktopPlacement,retainDesktopPlacement,type DesktopDisplay} from '../apps/desktop/display-layout.ts';
+import {captureDesktopPlacement,createNormalBounds,restoreDesktopPlacement,placeOnDesktopDisplay,parseDesktopPlacement,retainDesktopPlacement,type DesktopDisplay} from '../apps/desktop/display-layout.ts';
 
 const displays:DesktopDisplay[]=[{id:'primary',primary:true,workArea:{x:0,y:0,width:1920,height:1040},scaleFactor:1},{id:'left',workArea:{x:-1280,y:-100,width:1280,height:960},scaleFactor:1.5}];
 
@@ -35,4 +35,18 @@ describe('multi-display window placement',()=>{
   expect(parseDesktopPlacement(undefined)).toBeUndefined();expect(parseDesktopPlacement({displayId:'left',bounds:{x:-1000,y:0,width:430,height:700},workArea:displays[1].workArea})).toMatchObject({displayId:'left'});
   for(const value of [{displayId:'left',bounds:{x:NaN,y:0,width:430,height:700},workArea:displays[1].workArea},{displayId:'left',bounds:{x:0,y:0,width:-1,height:700},workArea:displays[1].workArea},{displayId:[],bounds:{x:0,y:0,width:430,height:700},workArea:displays[1].workArea}])expect(parseDesktopPlacement(value)).toBeUndefined();
  });
+});
+it('does not feed platform normal-bounds drift back into saved geometry',()=>{
+ const original={x:152,y:45,width:1454,height:978},normal=createNormalBounds(original);
+ for(const observed of [{x:152,y:41,width:1457,height:981},{x:152,y:38,width:1461,height:983}]){
+  normal.observe(observed,{manual:false,normal:true});expect(normal.read()).toEqual(original);
+  normal.observe(observed,{manual:false,normal:false});expect(normal.read()).toEqual(original);
+ }
+});
+it('keeps precise manual normal-window changes and explicit programmatic placement',()=>{
+ const initial={x:152,y:45,width:1454,height:978},normal=createNormalBounds(initial),manual={...initial,x:153,width:1455};
+ normal.observe(manual,{manual:true,normal:true});expect(normal.read()).toEqual(manual);
+ normal.observe({x:0,y:0,width:1800,height:1200},{manual:true,normal:false});expect(normal.read()).toEqual(manual);
+ const rescue={x:10,y:10,width:1000,height:700};normal.apply(rescue);expect(normal.read()).toEqual(rescue);
+ const copy=normal.read();copy.x=99;expect(normal.read()).toEqual(rescue);
 });
