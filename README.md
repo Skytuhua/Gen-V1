@@ -23,7 +23,8 @@ Gen V1 combines a focused chat interface, task-specific views and a native deskt
 | Original Hermes engine | Copied, pinned Hermes source runs the primary conversation loop, skill tools, `/learn`, background reviews and curation. |
 | Subscription connections | Nine connection IDs route through native SDKs, CLIs, OAuth or dedicated plan keys. Saved accounts stay separate; existing tasks retain their account. |
 | Composer predictions | Optional ghost text suggests a next message. **Tab** accepts, the normal send shortcut sends, and **Escape** dismisses. Off by default. |
-| Native desktop | Detachable chats, artifacts, Plan and Usage views share one owned local backend. A separate browser surface keeps remote content apart from application privileges. |
+| Native desktop | The desktop shell shares one owned local backend. Existing child views keep their state; new detachment is currently unavailable. |
+| Optional plug-ins | Separately versioned packages use the [public plug-in API](docs/plugin-api.md) and keep their own data outside application updates. |
 
 Generated apps execute in opaque workers with validated DOM messages and a termination watchdog. Local file changes and supported operations retain explicit approval and resource boundaries.
 

@@ -6,18 +6,20 @@ import { HarnessError, type DataRecord, type Operation } from "../contracts/inde
 import { toolSchemas, descriptions, type ToolName, type PdfArgs } from "./schemas.ts";
 import { databaseJob, validateStatements } from "./database.ts";
 import { inspectPdf, renderPdf } from "./pdf.ts";
-import { runProcess } from "./process.ts";
+import { gitExecutable, runProcess } from "./process.ts";
 import { readBoundFile, removeOwnedFile, replaceOwnedFile, withPathGuard } from "../core/file-access.ts";
-import { withGitMetadata } from "./git-access.ts";
+import { withGitMetadata, type ManagedGitFamily } from "./git-access.ts";
 import { validateCanonicalPng } from './signature-png.ts';
 export interface DomainContext {
   threadId: string;
   signal: AbortSignal;
   resolveResource(id: string, relativePath?: string, write?: boolean): Promise<string>;
   withResource?<T>(id: string, relativePath: string | undefined, write: boolean, action: (path: string) => Promise<T>): Promise<T>;
+  managedGitFamily?(cwd: string): ManagedGitFamily | undefined | Promise<ManagedGitFamily | undefined>;
   publishData(value: unknown, provenance: string): DataRecord;
   prepareOperation(kind: string, args: Record<string, unknown>, resourceIds: string[], preconditions: Record<string, string>, description: string): Operation;
   progress(message: string, counts?: Record<string, number>): void;
+  completedWrite?(evidence:{path:string;sha256:string;bytes:number}):void;
 }
 export const DOMAIN_TOOLS = Object.entries(toolSchemas).map(([name, schema]) => ({ name, description: descriptions[name as ToolName], parameters: z.toJSONSchema(schema) as Record<string, unknown> }));
 const sha256 = (bytes: Uint8Array | string) => createHash("sha256").update(bytes).digest("hex");
@@ -62,15 +64,15 @@ function publish(ctx: DomainContext, value: unknown, source: string) {
 const gitPrefix = ["--no-pager", "--no-replace-objects", "-c", "core.fsmonitor=false", "-c", "diff.external=", "-c", "core.pager=cat", "-c", "core.hooksPath=", "-c", "core.untrackedCache=false", "-c", "core.attributesFile=", "-c", "core.excludesFile=", "-c", "mailmap.file=", "-c", "mailmap.blob=", "-c", "log.showSignature=false", "-c", "protocol.allow=never"];
 async function git(ctx: DomainContext, resourceId: string, args: string[]) {
   return access(ctx, resourceId, undefined, false, async cwd => {
-  return withGitMetadata(cwd, ctx.signal, async (metadata, worktree) => {
+  return withGitMetadata(cwd, ctx.signal, async (metadata, worktree,signal) => {
   const prefix = [...gitPrefix, `--git-dir=${metadata}`, `--work-tree=${worktree}`];
-  const top = await runProcess("git", [...prefix, "rev-parse", "--show-toplevel"], worktree, ctx.signal, m => ctx.progress(m));
+  const top = await runProcess(gitExecutable(), [...prefix, "rev-parse", "--show-toplevel"], worktree, signal, m => ctx.progress(m));
   if (top.exitCode !== 0 || top.cancelled || top.timedOut) throw new HarnessError("GIT_ERROR", "Selected resource is not an available repository", top);
   const [grantedRoot, gitRoot] = await Promise.all([realpath(worktree), realpath(top.stdout.trim())]);
   if (relative(grantedRoot, gitRoot) !== "") throw new HarnessError("GRANT_REQUIRED", "Grant the repository root explicitly");
-  const result = await runProcess("git", [...prefix, ...args], worktree, ctx.signal, m => ctx.progress(m));
+  const result = await runProcess(gitExecutable(), [...prefix, ...args], worktree, signal, m => ctx.progress(m));
   return publish(ctx, result, `resource:${resourceId}; git ${args[0]}; actual exit:${result.exitCode}`);
-  });
+  }, await ctx.managedGitFamily?.(cwd));
   });
 }
 export async function handleDomainTool(name: string, rawArgs: unknown, ctx: DomainContext): Promise<unknown> {
@@ -164,6 +166,7 @@ export async function executeDomainOperation(operation: Operation, ctx: DomainCo
         await replaceOwnedFile(temp, filename, identity, sha256(a.content), ctx.signal, operation.preconditions.sha256); moved = true;
       } finally { await file.close().catch(() => {}); if (!moved) await removeOwnedFile(temp, identity, new AbortController().signal).catch(() => {}); }
       const result = { resourceId: a.resourceId, path: a.path ?? null, sha256: sha256(a.content), bytes: Buffer.byteLength(a.content) };
+      ctx.completedWrite?.({path:filename,sha256:result.sha256,bytes:result.bytes});
       publish(ctx, result, `operation:${operation.id}; ${provenance(a.resourceId, a.path, result.sha256)}`); ctx.progress("File replacement complete", { completed: 1, total: 1 }); return result;
       });
     }

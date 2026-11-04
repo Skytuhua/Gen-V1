@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import type { z } from 'zod';
-import { HarnessError, type DataRecord, type ResourceGrant, type RunContext, type RuntimeAdapter, type RuntimeEvent, type StartRun, type Thread, type ToolCall } from '../contracts/index.ts';
+import { EMPTY_USAGE,HarnessError, type DataRecord,type Message, type ResourceGrant, type RunContext, type RuntimeAdapter, type RuntimeEvent,type RuntimeUsage, type StartRun, type Thread, type ToolCall } from '../contracts/index.ts';
 import {
   AgentProgressSchema, AgentUsageSchema, DelegateSchema, PlanRecordSchema, PlanUpdateSchema, PLANNING_PROVENANCE, planDataId,
   type AgentJob, type AgentUsage, type DelegateArgs, type PlanRecord,
@@ -26,6 +26,8 @@ interface Batch {
 interface ActiveJob {
   id: string; parent: RunContext; child: RunContext; signal: AbortSignal; runtime?: RuntimeAdapter;
   finish: boolean; closed: boolean; lastUsage: number; pendingUsage?: AgentUsage; resolve(): void;
+  creating?:Promise<RuntimeAdapter>;teardown?:Promise<void>;disposal?:Promise<void>;
+  assistantId?:string;lastFinal?:{id:string;content:string};
 }
 const readers = new Set(['repository_files', 'repository_read', 'repository_status', 'repository_diff', 'repository_log', 'text_import', 'knowledge_publish']);
 const terminal = new Set<AgentJob['status']>(['completed', 'needs_review', 'failed', 'cancelled', 'interrupted']);
@@ -64,6 +66,19 @@ export class PlanningCoordinator {
     if (this.closed || signal?.aborted) throw new HarnessError('CANCELLED_RUN', 'The parent run no longer owns this work');
     this.hooks.assertRun(ctx);
   }
+  hasActiveChildren(threadId:string):boolean{return [...this.active.values()].some(job=>job.parent.threadId===threadId);}
+  private assertChild(job:ActiveJob):void{
+    const child=this.hooks.store.get<Thread>('thread',job.child.threadId);
+    if(!child||child.kind!=='delegate'||child.jobId!==job.id||child.parentThreadId!==job.parent.threadId||child.runId!==job.child.runId||child.epoch!==job.child.epoch)throw new HarnessError('CANCELLED_RUN','The child transcript no longer owns this run');
+  }
+  /** The caller owns the transaction, including parent plan and child status projection. */
+  private projectJob(job:AgentJob):void{
+    if(!job.childThreadId)return;
+    const child=this.hooks.store.get<Thread>('thread',job.childThreadId);if(!child||child.jobId!==job.id)return;
+    const active=this.active.get(job.id),working=job.status==='working';
+    const status:Thread['status']=working?'working':job.status==='cancelled'?'stopped':job.status==='interrupted'?'interrupted':job.status==='failed'?'failed':job.status==='queued'?'ready':'completed';
+    this.hooks.store.put('thread',child.id,child.id,{...child,status,runId:working?active?.child.runId??child.runId:null,epoch:working?active?.child.epoch??child.epoch:child.epoch,error:job.error??null,updatedAt:job.updatedAt});
+  }
   private plan(threadId: string): PlanRecord { return this.inspect(threadId)?.value ?? { version: 1, title: 'Plan', steps: [], agents: [] }; }
   /** Caller must already own the surrounding Store transaction. */
   private put(threadId: string, value: PlanRecord): DataRecord & { value: PlanRecord } {
@@ -88,12 +103,13 @@ export class PlanningCoordinator {
       const plan = this.plan(ctx.threadId), index = plan.agents.findIndex(job => job.id === jobId);
       if (index < 0) throw new HarnessError('UNKNOWN_AGENT', 'Agent job does not belong to this thread');
       const next = apply(plan.agents[index]);
-      plan.agents[index] = { ...next, updatedAt: now() }; this.put(ctx.threadId, plan); return plan.agents[index];
+      plan.agents[index] = { ...next, updatedAt: now() }; this.put(ctx.threadId, plan);this.projectJob(plan.agents[index]); return plan.agents[index];
     }) as AgentJob;
   }
   progressFromChild(ctx: RunContext, jobId: string, raw: unknown): AgentJob {
     const job = this.active.get(jobId);
     if (!job || job.closed || !same(job.parent, ctx)) throw new HarnessError('CANCELLED_RUN', 'Agent job is no longer active');
+    this.assertChild(job);
     this.assert(ctx, job.signal);
     const args = parse(AgentProgressSchema, raw);
     return this.change(ctx, jobId, previous => {
@@ -124,7 +140,7 @@ export class PlanningCoordinator {
     if (plan.agents.length + args.tasks.length > 24) throw new HarnessError('AGENT_HISTORY_LIMIT', 'This plan has reached its 24-job history limit');
     if (args.tasks.some(task => task.stepId && !plan.steps.some(step => step.id === task.stepId))) throw new HarnessError('UNKNOWN_PLAN_STEP', 'Agent tasks may reference only existing plan steps');
     const createdAt = now();
-    const jobs: AgentJob[] = args.tasks.map(task => ({ id: randomUUID(), commandId: args.commandId, taskId: task.id, name: task.name, task: task.task,
+    const jobs: AgentJob[] = args.tasks.map(task => ({ id: randomUUID(),childThreadId:randomUUID(), commandId: args.commandId, taskId: task.id, name: task.name, task: task.task,
       ...(task.stepId ? { stepId: task.stepId } : {}), status: 'queued', requirements: task.requirements,
       completedRequirementIds: [], reportedPercent: null, createdAt, updatedAt: createdAt }));
     for (const job of jobs) if (job.stepId) {
@@ -134,7 +150,13 @@ export class PlanningCoordinator {
     plan.agents.push(...jobs); bounded(plan, 64 * 1024);
     const batch: Batch = { id: args.commandId, threadId: ctx.threadId, parent: { ...ctx }, hash: digest(args), jobIds: jobs.map(job => job.id), status: 'pending' };
     this.hooks.store.command(command, () => {
-      this.assert(ctx, signal); this.put(ctx.threadId, plan); this.hooks.store.put('planningBatch', batch.id, ctx.threadId, batch); return { commandId: batch.id, jobIds: batch.jobIds };
+      this.assert(ctx, signal); this.put(ctx.threadId, plan);
+      for(const [index,job]of jobs.entries()){
+        const child:Thread={id:job.childThreadId!,kind:'delegate',parentThreadId:thread.id,jobId:job.id,title:job.name,projectName:thread.projectName,projectId:thread.projectId,workspaceId:thread.workspaceId,createdAt,updatedAt:createdAt,status:'ready',epoch:0,runId:null,modelId:thread.modelId,accountId,thinkingLevel:thread.thinkingLevel,sessionPath:null,mode:'plan'};
+        const message:Message={id:randomUUID(),threadId:child.id,role:'user',content:`Task: ${job.task}\nInstructions: ${args.tasks[index].prompt}\nRequirements: ${JSON.stringify(job.requirements)}`,createdAt,runId:null};
+        this.hooks.store.put('thread',child.id,child.id,child);this.hooks.store.put('message',message.id,child.id,message);
+      }
+      this.hooks.store.put('planningBatch', batch.id, ctx.threadId, batch); return { commandId: batch.id, jobIds: batch.jobIds };
     });
     const resources = this.hooks.store.all<ResourceGrant>('resource', ctx.threadId).map(grant => ({ ...grant, writable: false }));
     const promise = this.runBatch(ctx, args, jobs, thread.modelId,accountId, resources, signal, batch);
@@ -153,12 +175,11 @@ export class PlanningCoordinator {
     return result;
   }
   private async runJob(ctx: RunContext, task: DelegateArgs['tasks'][number], record: AgentJob, modelId: string,accountId:string|null, resources: ResourceGrant[], signal: AbortSignal): Promise<void> {
-    let runtime: RuntimeAdapter | undefined;
     let job: ActiveJob | undefined;
     let abort: (() => void) | undefined;
     try {
       this.assert(ctx, signal);
-      const child = { threadId: `${ctx.threadId}:agent:${record.id}`, runId: randomUUID(), epoch: 1 };
+      const child = { threadId: record.childThreadId!, runId: randomUUID(), epoch: 1 };
       let resolve!: () => void; const done = new Promise<void>(res => { resolve = res; });
       const activeJob: ActiveJob = { id: record.id, parent: { ...ctx }, child, signal, finish: false, closed: false, lastUsage: -Infinity, resolve };
       job = activeJob;
@@ -166,12 +187,14 @@ export class PlanningCoordinator {
       this.active.set(record.id, activeJob);
       abort = () => { void this.stopJob(activeJob, 'cancelled').catch(() => {}); };
       signal.addEventListener('abort', abort, { once: true });
-      const creating = Promise.resolve().then(() => this.hooks.runtimeFactory?.() ?? import('../runtime/index.ts').then(({ createRuntime }) => createRuntime({ dataDir: this.hooks.store.dataDir,accounts:accountResolver(this.hooks.store) }))).then(adapter => {
-        if (activeJob.closed) { void adapter.dispose().catch(() => {}); throw new HarnessError('CANCELLED_RUN', 'Startup was cancelled'); }
+      const creating = activeJob.creating = Promise.resolve().then(() => {
+        this.assert(ctx,signal);if(activeJob.closed)throw new HarnessError('CANCELLED_RUN','Startup was cancelled');
+        return this.hooks.runtimeFactory?.() ?? import('../runtime/index.ts').then(({ createRuntime }) => {this.assert(ctx,signal);if(activeJob.closed)throw new HarnessError('CANCELLED_RUN','Startup was cancelled');return createRuntime({ dataDir: this.hooks.store.dataDir,accounts:accountResolver(this.hooks.store) });});
+      }).then(adapter => {
+        activeJob.runtime=adapter;
         return adapter;
       });
       const adapter = await Promise.race([creating, done.then(() => { throw new HarnessError('CANCELLED_RUN', 'Startup was cancelled'); })]);
-      runtime = adapter; activeJob.runtime = adapter;
       this.assert(ctx, signal);
       if (activeJob.closed) throw new HarnessError('CANCELLED_RUN', 'Startup was cancelled');
       adapter.configure({ onEvent: event => this.event(activeJob, event), onTool: (call, supplied) => this.tool(activeJob, call, supplied) });
@@ -187,8 +210,8 @@ export class PlanningCoordinator {
       else this.change(ctx, record.id, previous => terminal.has(previous.status) ? previous : { ...previous, status: signal.aborted ? 'cancelled' : 'failed', error: short(error) }, true);
     } finally {
       if (abort) signal.removeEventListener('abort', abort);
-      if (job) this.active.delete(job.id);
-      if (runtime) await runtime.dispose().catch(() => {});
+      if(job)try{await(job.teardown??this.disposeJob(job));if(this.active.get(job.id)===job)this.active.delete(job.id);}
+      catch(error){this.change(job.parent,job.id,previous=>({...previous,status:'failed',error:short(error)}),true);}
     }
   }
   private prompt(task: DelegateArgs['tasks'][number]): string {
@@ -196,6 +219,7 @@ export class PlanningCoordinator {
   }
   private async tool(job: ActiveJob, call: ToolCall, supplied: RunContext): Promise<unknown> {
     if (job.closed || !same(job.child, supplied)) throw new HarnessError('CANCELLED_RUN', 'The child context is no longer active');
+    this.assertChild(job);
     this.assert(job.parent, job.signal);
     if (call.name === 'agent_progress') { job.finish = false; return this.progressFromChild(job.parent, job.id, call.args); }
     if (call.name === 'task_finish') {
@@ -233,7 +257,8 @@ export class PlanningCoordinator {
   }
   private event(job: ActiveJob, event: RuntimeEvent): void {
     if (job.closed || !same(job.child, event)) return;
-    try { this.assert(job.parent, job.signal); } catch { void this.stopJob(job, 'cancelled').catch(() => {}); return; }
+    try { this.assert(job.parent, job.signal);this.assertChild(job); } catch { void this.stopJob(job, 'cancelled').catch(() => {}); return; }
+    if(['assistant.delta','assistant.message','activity','usage','session','error'].includes(event.type))this.projectEvent(job,event);
     if (event.type === 'error') { this.fail(job, event.message); return; }
     if (event.type === 'settled') {
       const previous = this.plan(job.parent.threadId).agents.find(item => item.id === job.id);
@@ -251,32 +276,74 @@ export class PlanningCoordinator {
       }
     }
   }
+  private projectEvent(job:ActiveJob,event:RuntimeEvent):void{
+    this.hooks.store.internal('agent.transcript',job.child.threadId,()=>{
+      this.assertChild(job);const child=this.hooks.store.get<Thread>('thread',job.child.threadId)!;
+      if(event.type==='session'&&typeof event.sessionPath==='string')this.hooks.store.put('thread',child.id,child.id,{...child,sessionPath:event.sessionPath,updatedAt:now()});
+      if(event.type==='usage'){
+        const previous=this.hooks.store.get<{value:RuntimeUsage}>('usage',child.id)?.value??EMPTY_USAGE;
+        this.hooks.store.put('usage',child.id,child.id,{id:child.id,value:{...previous,...(event.usage&&typeof event.usage==='object'?event.usage:{} )}});
+      }
+      if(['assistant.delta','assistant.message','activity','error'].includes(event.type)){
+        const assistant=event.type.startsWith('assistant.'),content=String(event.type==='assistant.delta'?event.delta??'':event.content??event.message??'');
+        let id=typeof event.messageId==='string'?event.messageId:randomUUID();
+        if(assistant){
+          if(event.type==='assistant.delta')id=job.assistantId??id;
+          else if(job.assistantId)id=job.assistantId;
+          else if(job.lastFinal?.content===content)id=job.lastFinal.id;
+        }
+        const old=this.hooks.store.get<Message>('message',id);if(old&&old.threadId!==child.id)throw new HarnessError('INVALID_AGENT_MESSAGE','Child message belongs to another thread');
+        const message:Message={id,threadId:child.id,role:assistant?'assistant':'activity',content:event.type==='assistant.delta'?(old?.content??'')+content:content,runId:job.child.runId,createdAt:old?.createdAt??now()};
+        this.hooks.store.put('message',id,child.id,message);
+        if(event.type==='assistant.delta')job.assistantId=id;
+        if(event.type==='assistant.message'){job.assistantId=undefined;job.lastFinal={id,content};}
+      }
+      return{jobId:job.id,type:event.type};
+    });
+  }
   private fail(job: ActiveJob, error: unknown): void {
     if (job.closed) return;
     void this.stopJob(job, job.signal.aborted ? 'cancelled' : 'failed', short(error)).catch(() => {});
   }
-  private async stopJob(job: ActiveJob, status: 'cancelled' | 'failed' | 'interrupted', error?: string): Promise<void> {
-    if (job.closed) return;
+  private disposeJob(job:ActiveJob):Promise<void>{
+    return job.disposal??=Promise.resolve().then(async()=>{await job.creating?.catch(()=>{});await job.runtime?.dispose();});
+  }
+  private stopJob(job: ActiveJob, status: 'cancelled' | 'failed' | 'interrupted', error?: string): Promise<void> {
+    if(job.teardown)return job.teardown;
+    if(job.closed)return job.teardown=this.disposeJob(job);
     job.closed = true;
-    this.change(job.parent, job.id, previous => terminal.has(previous.status) ? previous : { ...previous, status, ...(error ? { error } : {}) }, true);
-    try { await job.runtime?.cancel(job.child); } finally { job.resolve(); }
+    const previous=this.plan(job.parent.threadId).agents.find(item=>item.id===job.id);
+    if(previous&&!terminal.has(previous.status))this.change(job.parent, job.id, item => ({ ...item, status, ...(error ? { error } : {}) }), true);
+    // Register before cancellation can re-enter through callbacks. All callers,
+    // including the abort listener and runJob's finally, join this same barrier.
+    job.teardown=Promise.resolve().then(async()=>{
+      await job.creating?.catch(()=>{});
+      const failures:unknown[]=[];
+      try{await job.runtime?.cancel(job.child);}catch(error){failures.push(error);}
+      try{await this.disposeJob(job);}catch(error){failures.push(error);}
+      if(failures.length===1)throw failures[0];
+      if(failures.length)throw new AggregateError(failures,failures.map(error=>error instanceof Error?error.message:String(error)).join('; '));
+    });
+    job.resolve();return job.teardown;
   }
   async cancel(ctx: RunContext): Promise<void> {
-    await Promise.all([...this.active.values()].filter(job => same(job.parent, ctx)).map(job => this.stopJob(job, 'cancelled')));
+    const outcomes=await Promise.allSettled([...this.active.values()].filter(job => same(job.parent, ctx)).map(job => this.stopJob(job, 'cancelled'))),failures=outcomes.flatMap(outcome=>outcome.status==='rejected'?[outcome.reason]:[]);
+    if(failures.length===1)throw failures[0];
+    if(failures.length)throw new AggregateError(failures,failures.map(error=>error instanceof Error?error.message:String(error)).join('; '));
   }
   recover(): void {
     if (this.active.size) throw new HarnessError('AGENTS_ACTIVE', 'Recover before starting auxiliary sessions');
     for (const batch of this.hooks.store.all<Batch>('planningBatch')) if (batch.status === 'pending') {
       this.hooks.store.internal('delegation.interrupted', batch.threadId, () => {
         const plan = this.plan(batch.threadId);
-        for (const job of plan.agents) if (batch.jobIds.includes(job.id) && !terminal.has(job.status)) { job.status = 'interrupted'; job.updatedAt = now(); }
+        for (const job of plan.agents) if (batch.jobIds.includes(job.id) && !terminal.has(job.status)) { job.status = 'interrupted'; job.updatedAt = now();this.projectJob(job); }
         this.put(batch.threadId, plan); this.hooks.store.put('planningBatch', batch.id, batch.threadId, { ...batch, status: 'interrupted' }); return { commandId: batch.id };
       });
     }
   }
   async dispose(): Promise<void> {
     this.closed = true;
-    await Promise.all([...this.active.values()].map(job => this.stopJob(job, 'interrupted')));
-    await Promise.allSettled([...this.batches.values()]);
+    const outcomes=await Promise.allSettled([...this.active.values()].map(job => this.stopJob(job, 'interrupted')).concat([...this.batches.values()].map(batch=>batch.then(()=>{})))),failures=outcomes.flatMap(outcome=>outcome.status==='rejected'?[outcome.reason]:[]);
+    if(failures.length)throw new AggregateError(failures,'Could not close every delegated runtime. Native cleanup remains unconfirmed.');
   }
 }

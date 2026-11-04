@@ -5,7 +5,6 @@ import {agentProgress,type AgentJob,type PlanStep} from '../../../packages/contr
 import {selectPlanRecord} from './plan-visibility';
 import {MotionRegion} from './task-motion';
 import './plan-status.css';
-import {DetachButton} from './desktop-context';
 
 const agentLabels:Record<AgentJob['status'],string>={queued:'Queued',working:'Working',completed:'Completed',needs_review:'Needs review',failed:'Failed',cancelled:'Cancelled',interrupted:'Interrupted'};
 const stepLabels:Record<PlanStep['status'],string>={pending:'Pending',working:'In progress',completed:'Completed',blocked:'Blocked'};
@@ -14,8 +13,7 @@ const number=(value:number)=>new Intl.NumberFormat(undefined,{notation:'compact'
 function Requirement({label,completed}:{label:string;completed:boolean}){
   return <li className={completed?'is-complete':''}>{completed?<Check size={13} aria-hidden="true"/>:<Circle size={11} aria-hidden="true"/>}<span>{label}</span><span className="sr-only">{completed?'Complete':'Not complete'}</span></li>;
 }
-function AgentRow({job,threadId}:{job:AgentJob;threadId?:string}){
-  const [desktopError,setDesktopError]=useState('');
+function AgentRow({job}:{job:AgentJob;threadId?:string}){
   const [open,setOpen]=useState(false),id=useId(),progress=agentProgress(job),radius=17,circumference=2*Math.PI*radius;
   const usage=job.usage;
   return <li className={`plan-agent agent-${job.status}`} data-agent-id={job.id}>
@@ -27,7 +25,7 @@ function AgentRow({job,threadId}:{job:AgentJob;threadId?:string}){
       <span className="plan-agent-copy"><strong>{job.name}</strong><span>{job.task}</span></span>
       <span className="plan-agent-state"><span>{agentLabels[job.status]}</span>{progress!==null&&<strong aria-hidden="true">{progress}%</strong>}<ChevronDown size={12} aria-hidden="true"/></span>
     </button>
-    {threadId&&<div className="desktop-agent-window"><DetachButton label={job.name} surface={{kind:'agent',threadId,agentId:job.id}} onError={cause=>setDesktopError(cause.message)}/></div>}{desktopError&&<p className="error-text" role="alert">{desktopError}</p>}
+    
     <MotionRegion open={open} id={id} className="plan-agent-details">
       {job.summary&&<p>{job.summary}</p>}{job.error&&<p className="error-text" role="status">{job.error}</p>}
       {job.requirements.length>0?<><p className="plan-progress-basis">{job.completedRequirementIds.length} of {job.requirements.length} requirements complete</p><ul className="plan-requirements">{job.requirements.map(requirement=><Requirement key={requirement.id} label={requirement.label} completed={job.completedRequirementIds.includes(requirement.id)}/>)}</ul></>:<p className="plan-progress-basis">{progress===null?'Progress has not been reported.':'Progress reported by this agent.'}</p>}

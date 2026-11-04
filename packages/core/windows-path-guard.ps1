@@ -69,8 +69,8 @@ public static class HarnessPathGuard {
     return info;
   }
   static bool Within(string path, string root) { return String.Equals(path, root, StringComparison.OrdinalIgnoreCase) || path.StartsWith(root + "\\", StringComparison.OrdinalIgnoreCase); }
-  public static void Acquire(string path, bool leaf, string volume, string index, bool empty, bool tree, bool readOnly, bool allowChildWrites, string childWriteRoot) {
-    if (allowChildWrites && leaf) throw new IOException("Child writes require a directory namespace guard");
+  public static void Acquire(string path, bool leaf, string volume, string index, bool empty, bool tree, bool readOnly, bool allowChildWrites, string childWriteRoot, bool gitMetadataImport) {
+    if (allowChildWrites && leaf && String.IsNullOrEmpty(childWriteRoot)) throw new IOException("A pinned file requires an explicit ancestor write scope");
     path = Path.GetFullPath(path);
     // Local disk paths only. Device/UNC namespaces have different identity semantics.
     if (path.Length < 3 || path[1] != ':' || path[2] != '\\' || path.Substring(2).Contains(":")) throw new IOException("Only local ordinary paths are supported");
@@ -81,7 +81,7 @@ public static class HarnessPathGuard {
     for (int i=0; i<parts.Length; i++) {
       current = Path.Combine(current, parts[i]);
       bool last = i == parts.Length-1;
-      if (!last || allowChildWrites || Directory.Exists(current)) Pin(current, true, false, allowChildWrites && Within(current.TrimEnd('\\'), childWriteRoot));
+      if (!last || (!leaf && allowChildWrites) || Directory.Exists(current)) Pin(current, true, false, allowChildWrites && Within(current.TrimEnd('\\'), childWriteRoot));
       else if (leaf) Pin(current, false, readOnly);
     }
     if (leaf && !String.IsNullOrEmpty(volume)) {
@@ -90,21 +90,22 @@ public static class HarnessPathGuard {
       ulong identity = ((ulong)info.IndexHigh << 32) | info.IndexLow;
       if (info.Volume.ToString() != volume || identity.ToString() != index || (empty && (info.SizeHigh != 0 || info.SizeLow != 0))) throw new IOException("Guarded object identity changed");
     }
-    if (tree) { int visited = 0; long bytes = 0; Tree(path, 0, ref visited, ref bytes); }
+    if (gitMetadataImport && (!tree || leaf || !readOnly)) throw new IOException("Invalid Git metadata import policy");
+    if (tree) { int visited = 0; long bytes = 0; Tree(path, 0, ref visited, ref bytes, gitMetadataImport); }
   }
-  static void Tree(string path, int depth, ref int visited, ref long bytes) {
+  static void Tree(string path, int depth, ref int visited, ref long bytes, bool gitMetadataImport) {
     if (depth > 64) throw new IOException("Metadata depth limit exceeded");
     foreach (string child in Directory.EnumerateFileSystemEntries(path)) {
-      if (++visited > 10000) throw new IOException("Metadata entry limit exceeded");
+      if (++visited > (gitMetadataImport ? 100000 : 10000)) throw new IOException("Metadata entry limit exceeded");
       var attributes = File.GetAttributes(child);
       if ((attributes & FileAttributes.ReparsePoint) != 0) throw new IOException("Redirected metadata is unsupported");
       bool directory = (attributes & FileAttributes.Directory) != 0;
       Info info = Pin(child, directory, true);
       long size = directory ? 0 : ((long)info.SizeHigh << 32) | info.SizeLow;
-      if (size < 0 || size > 64 * 1024 * 1024 - bytes) throw new IOException("Snapshot byte limit exceeded");
+      if (size < 0 || size > (gitMetadataImport ? 8L * 1024 * 1024 * 1024 : 64L * 1024 * 1024) - bytes) throw new IOException("Snapshot byte limit exceeded");
       bytes += size;
       Manifest.Add(new ManifestEntry { path = child, directory = directory, dev = info.Volume.ToString(), ino = (((ulong)info.IndexHigh << 32) | info.IndexLow).ToString(), size = size });
-      if (directory) Tree(child, depth+1, ref visited, ref bytes);
+      if (directory) Tree(child, depth+1, ref visited, ref bytes, gitMetadataImport);
     }
   }
   public static void Release(string id) { var held = Groups[id]; for (int i=held.Count-1; i>=0; i--) held[i].Dispose(); Groups.Remove(id); Manifests.Remove(id); }
@@ -180,7 +181,7 @@ try {
     $request = $line | ConvertFrom-Json
     if ($request.command -eq 'acquire') {
       [HarnessPathGuard]::Begin([string]$request.id)
-      foreach ($entry in $request.paths) { [HarnessPathGuard]::Acquire([string]$entry.path, [bool]$entry.leaf, [string]$entry.dev, [string]$entry.ino, [bool]$entry.empty, [bool]$entry.tree, [bool]$entry.readOnly, [bool]$entry.allowChildWrites, [string]$entry.childWriteRoot) }
+      foreach ($entry in $request.paths) { [HarnessPathGuard]::Acquire([string]$entry.path, [bool]$entry.leaf, [string]$entry.dev, [string]$entry.ino, [bool]$entry.empty, [bool]$entry.tree, [bool]$entry.readOnly, [bool]$entry.allowChildWrites, [string]$entry.childWriteRoot, [bool]$entry.gitMetadataImport) }
     } elseif ($request.command -eq 'release') { [HarnessPathGuard]::Release([string]$request.id) }
     elseif ($request.command -eq 'removeOwned') { [HarnessPathGuard]::RemoveOwned([string]$request.path, [string]$request.dev, [string]$request.ino, [bool]$request.empty, [bool]$request.directory) }
     elseif ($request.command -eq 'replaceOwned') { [HarnessPathGuard]::ReplaceOwned([string]$request.source, [string]$request.destination, [string]$request.dev, [string]$request.ino, [string]$request.sha256, [string]$request.targetDev, [string]$request.targetIno, [string]$request.targetSha256) }
@@ -193,6 +194,7 @@ try {
 } catch {
   $failure = $_.Exception.GetBaseException()
   [Console]::Error.WriteLine('GUARD_NATIVE_ERROR:' + $failure.HResult)
+  [Console]::Error.WriteLine('GUARD_NATIVE_MESSAGE:' + $failure.Message)
   exit 1
 }
 finally { [HarnessPathGuard]::ReleaseAll() }

@@ -13,10 +13,13 @@ import { WIDGET_WORKER_PATH, WIDGET_WORKER_CSP } from "../../packages/widgets/pr
 import {SessionCredentials} from '../../packages/core/credential-slots.ts';
 import { streamEvents } from './event-stream.ts';
 import {registerAccountAuthRoutes} from './account-auth.ts';
+import {registerWorkspaceRoutes} from './workspace-routes.ts';
+import {registerPluginRoutes} from './plugin-routes.ts';
+import type {PluginRegistry} from '../../packages/plugins/host.ts';
 
 type Mount = { artifactId: string; revision: number; expiresAt: number };
 export type MountRegistry = Map<string, Mount>;
-export interface ServerOptions { port: number; dev: boolean; widgetPort?: number; mounts?: MountRegistry }
+export interface ServerOptions { port: number; dev: boolean; widgetPort?: number; mounts?: MountRegistry; plugins?:PluginRegistry; pluginError?:string; admitPluginRequest?:()=>boolean }
 const commandSchema = z.object({ id: z.string().min(1).max(200).regex(/^[a-zA-Z0-9:_-]+$/), type: z.string().min(1).max(100), threadId: z.string().max(200).optional(), payload: z.record(z.string(), z.unknown()) }).strict();
 const mime = (path: string) => ({ ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".woff2": "font/woff2", ".woff": "font/woff", ".pdf": "application/pdf", ".json": "application/json", ".txt": "text/plain", ".md": "text/plain", ".csv": "text/csv" })[extname(path).toLowerCase()] ?? "application/octet-stream";
 
@@ -63,6 +66,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
     reply.header("Set-Cookie", "harness_session=" + token + "; Path=/; HttpOnly; SameSite=Strict; Max-Age=86400").header("Cache-Control", "no-store");
     return { csrfToken: session.csrf, widgetOrigin: "http://localhost:" + widgetPort };
   });
+  registerPluginRoutes(app,options.plugins,'http://127.0.0.1:'+options.port,()=>service.store.snapshot().settings.theme,options.pluginError,options.admitPluginRequest);
   app.get("/api/snapshot", async (_request, reply) => {
     const seq = service.store.sequence;
     let json = snapshotCache?.seq === seq ? snapshotCache.json : undefined;
@@ -95,6 +99,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
     z.strictObject({}).optional().parse(request.body);reply.header('Cache-Control','no-store');await service.cancelComposerPredictions();return{cancelled:true};
   });
   registerAccountAuthRoutes(app,service);
+  registerWorkspaceRoutes(app,service);
   const skillRead=z.strictObject({path:z.string().min(1).max(1024).optional(),revision:z.coerce.number().int().positive().optional(),versionOffset:z.coerce.number().int().nonnegative().optional(),includeInactive:z.enum(['true','false']).optional()});
   app.get<{Params:{name:string}}>('/api/skills/:name',async(request,reply)=>{reply.header('Cache-Control','no-store');const args=skillRead.parse(request.query);return service.skillDetail(request.params.name,{...args,includeInactive:args.includeInactive==='true'});});
   app.get<{Params:{id:string}}>('/api/skill-proposals/:id',async(request,reply)=>{reply.header('Cache-Control','no-store');return service.skillProposal(request.params.id);});

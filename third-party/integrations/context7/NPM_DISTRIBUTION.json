@@ -1,0 +1,19 @@
+{
+  "name": "@upstash/context7-mcp",
+  "version": "4.4.4",
+  "shasum": "a61e85f1575cc967f97b2a7d8c1bf3f32fcfd05a",
+  "tarball": "https://registry.npmjs.org/@upstash/context7-mcp/-/context7-mcp-4.4.4.tgz",
+  "fileCount": 29,
+  "integrity": "sha512-T2DkjhweDnC2mRAclDiTrPG3KI1zYKhhjgY2SMKD9PVrbEaGD8x35VsIOqpwwDc2qiKBvfYCF/jqr+jQMu5PUA==",
+  "signatures": [
+    {
+      "sig": "MEQCIE/fCnPeokjj8wlsiPmEwmVBdrhN0AMwnCLDuhBZ9LtvAiBfMukCX3yBXV44mVaNPKgPWOkWBnGuW60rf005WveoGg==",
+      "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+    },
+    {
+      "sig": "MEUCIQCxP+IANEEjiG7ZwSOf20XrNIbvdDkhxNhil0e5ac4kpAIgDXSzZ0y0dN4uPaI9SAuE/UgQYIyfCspAImoF8qWjHOU=",
+      "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+    }
+  ],
+  "unpackedSize": 214143
+}

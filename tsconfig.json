@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "ES2023",
-    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ES2023",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "jsx": "react-jsx",
@@ -12,7 +16,32 @@
     "skipLibCheck": true,
     "allowImportingTsExtensions": true,
     "resolveJsonModule": true,
-    "types": ["node", "vite/client"]
+    "types": [
+      "node",
+      "vite/client"
+    ]
   },
-  "include": ["apps", "packages", "tests", "scripts", "evals", "*.ts"]
+  "include": [
+    "apps",
+    "packages",
+    "tests",
+    "scripts",
+    "evals",
+    "*.ts"
+  ],
+  "exclude": [
+    "apps/web/src/company/**",
+    "apps/server/company-*.ts",
+    "apps/desktop/company-task-policy.ts",
+    "packages/company-*/**",
+    "tests/company-*.test.ts",
+    "tests/company/**",
+    "tests/desktop-company-task.test.ts",
+    "tests/e2e/company*",
+    "tests/e2e/fixtures/company*",
+    "scripts/package-company-*.ts",
+    "scripts/company-host/**",
+    "scripts/company-requirements.ts",
+    "evals/company-manager.ts"
+  ]
 }

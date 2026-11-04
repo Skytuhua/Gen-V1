@@ -112,6 +112,19 @@ Optional host settings are `HARNESS_PORT` and `HARNESS_WIDGET_PORT`. Desktop dev
 
 ## Build a Windows installer
 
+The desktop packager also requires the ignored runtime inputs; a Node dependency
+install alone does not supply them. Prepare `.harness-hermes-python-deps/` from
+the pinned Hermes requirements above, `.harness-integrations-python-deps/` to
+match [the integration lock](../third-party/integrations/PYTHON_LOCK.json), and
+`.harness-tool-bundles/{git,gh}/` to match
+[the tool archive and file manifest](../third-party/git-tools/manifest.json).
+The integration lock records each distribution's wheel URL/hash and the exact
+installed file inventory. Tool archives must match their recorded release hashes
+before extraction. A reviewed offline runtime payload can supply these same
+inputs. Packaging verifies them and refuses a mismatch; do not regenerate the
+locks to admit a different local installation. None of these inputs requires a
+private plug-in checkout, profile, account or credential.
+
 ```powershell
 pnpm desktop:package
 ```

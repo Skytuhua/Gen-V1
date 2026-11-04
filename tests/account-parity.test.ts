@@ -137,11 +137,14 @@ it('delegates through Service using the parent account after future defaults cha
  await waitFor(()=>expect(child.adapter.start).toHaveBeenCalledOnce());
  const input=vi.mocked(child.adapter.start).mock.calls[0][0];
  expect(input).toMatchObject({accountId:a.id,modelId:mainRun.modelId,sessionPath:null});
- expect(input.threadId).toContain(`${parent.id}:agent:`);
+ const delegated=x.service.thread(input.threadId);
+ expect(delegated).toMatchObject({kind:'delegate',parentThreadId:parent.id,accountId:a.id,modelId:mainRun.modelId});
+ expect(delegated.id).not.toBe(parent.id);
  await child.tool(input,'agent_progress',{completedRequirementIds:['route']});
  await child.tool(input,'task_finish',{outcome:'Verified the synthetic account-scoped routing receipt.'});
  child.event(input,'settled');
- await expect(pending).resolves.toMatchObject({jobs:[{status:'completed',completedRequirementIds:['route']}]});
+ await expect(pending).resolves.toMatchObject({jobs:[{id:delegated.jobId,childThreadId:delegated.id,status:'completed',completedRequirementIds:['route']}]});
+ expect(x.service.thread(delegated.id)).toMatchObject({status:'completed',runId:null,accountId:a.id,parentThreadId:parent.id});
  expect(x.service.thread(parent.id)).toMatchObject({runId:mainRun.runId,accountId:a.id});
  expect(main.adapter.cancel).not.toHaveBeenCalled();
  expect(x.native(b)).toBeUndefined();

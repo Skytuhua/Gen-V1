@@ -1,4 +1,4 @@
-.composer-toolbar{container:composer-footer/inline-size;display:block;min-width:0;color:var(--muted);font-size:11px;line-height:1.2;margin-top:7px}
+.composer-toolbar{container:composer-footer/inline-size;display:block;min-width:0;color:var(--muted);font-size:12px;line-height:1.2;margin-top:7px}
 .composer-footer-main{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;min-height:29px}
 .composer-project-controls,.composer-runtime-controls{display:flex;align-items:center;min-width:0;gap:4px}
 .composer-runtime-controls{margin-left:auto}
@@ -8,7 +8,7 @@
 .composer-toolbar .composer-tool:active:not(:disabled){transform:scale(.96)}
 .composer-toolbar .composer-tool:disabled,.composer-toolbar .composer-select:has(select:disabled){opacity:.45;cursor:default}
 .composer-toolbar svg{width:15px;height:15px;flex:none}
-.composer-toolbar .composer-project{max-width:130px;background:var(--subtle);border-radius:15px;padding:5px 8px}
+.composer-toolbar .composer-project{max-width:168px;background:var(--subtle);border-radius:15px;padding:5px 8px}
 .composer-project>span{overflow:hidden;text-overflow:ellipsis}
 .composer-toolbar .runtime-pill{display:flex;min-height:29px;padding:5px 9px;font-size:11px}
 .composer-toolbar .attach-button{width:29px;height:29px;padding:5px}

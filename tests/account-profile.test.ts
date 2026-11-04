@@ -72,6 +72,15 @@ it('rejects a missing writable account directory before entering native work',as
  expect(entered).toBe(false);
 });
 
+it('rejects missing and file-valued writable directories without an explicit ancestor scope',async()=>{
+ const root=directory(),file=join(root,'file');writeFileSync(file,'synthetic');
+ for(const path of [join(root,'missing'),file]){
+  let entered=false;
+  await expect(withPathGuard([{path,leaf:false,allowChildWrites:true}],new AbortController().signal,async()=>{entered=true;})).rejects.toMatchObject({code:'CAPABILITY_DENIED'});
+  expect(entered).toBe(false);
+ }
+});
+
 it('keeps official home namespaces pinned while native credential files remain atomically replaceable',async()=>{
  const root=directory(),official={...account,providerId:'gemini-cli' as const};
  await withAccountProfile(root,official,async profile=>{

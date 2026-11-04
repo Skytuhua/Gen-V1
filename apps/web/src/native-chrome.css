@@ -1,0 +1,8 @@
+html[data-native-titlebar="true"] .workspace-switcher,
+html[data-native-titlebar="true"] .desktop-surface-header,
+html[data-native-titlebar="true"] .desktop-thread-only .workspace-header,
+html[data-native-titlebar="true"] .plugin-native-header,
+html[data-native-titlebar="true"] .desktop-navigation-only .brand-row,
+html[data-native-titlebar="true"] .desktop-browser-surface .desktop-browser-toolbar>header{min-height:42px;padding-right:144px;box-sizing:border-box;-webkit-app-region:drag}
+html[data-native-titlebar="true"] :is(.workspace-switcher,.desktop-surface-header,.workspace-header,.plugin-native-header,.desktop-navigation-only .brand-row,.desktop-browser-surface .desktop-browser-toolbar>header) :is(button,input,select,textarea,a,[role="button"],[role="tab"],[draggable="true"]),
+html[data-native-titlebar="true"] :is(.workspace-switcher,.desktop-surface-header,.workspace-header,.plugin-native-header,.desktop-navigation-only .brand-row,.desktop-browser-surface .desktop-browser-toolbar>header) .header-actions{-webkit-app-region:no-drag}

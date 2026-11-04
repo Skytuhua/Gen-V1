@@ -35,7 +35,9 @@ describe('pinned T3 settings inventory', () => {
   });
   it('retains every static indexed row, original navigation, supplemental pages and skill controls', () => {
     expect(T3_SETTINGS_ROWS).toHaveLength(136);
-    expect(SETTINGS_SECTIONS).toHaveLength(24);
+    expect(SETTINGS_SECTIONS).toHaveLength(25);
+    expect(SETTINGS_SECTIONS).toContainEqual(['integrations','Bundled integrations']);
+    expect(SETTINGS_ROWS.find(row=>row.id==='harness-integrations')).toMatchObject({section:'integrations',title:'Bundled integrations'});
     expect(SETTINGS_SECTIONS).toContainEqual(['skills', 'Skills & learning']);
     expect(SETTINGS_ROWS.find(row => row.id === 'harness-skills')).toMatchObject({section:'skills',title:'Skills & learning'});
     expect(new Set(SETTINGS_ROWS.map(row => row.id)).size).toBe(SETTINGS_ROWS.length);

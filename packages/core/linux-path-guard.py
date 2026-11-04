@@ -1,0 +1,322 @@
+"""Trusted OS setup for directory custody; never an inference/admission loader.
+
+Requires root/CAP_SYS_ADMIN. Runs Gen without capabilities in a private mount
+namespace, mapping inaccessible backing ownership into the runtime UID. The
+ordinary acquire/release protocol pins directories with kernel bind mounts.
+"""
+import argparse
+import ctypes
+import errno
+import fcntl
+import json
+import os
+import selectors
+import signal
+import socket
+import stat
+import sys
+import time
+
+LIBC = ctypes.CDLL(None, use_errno=True)
+LIMIT = 65536
+
+
+def checked(result):
+    if result < 0:
+        raise OSError(ctypes.get_errno(), "Linux directory custody operation failed")
+    return result
+
+
+def syscall(number, *arguments):
+    return checked(LIBC.syscall(ctypes.c_long(number), *arguments))
+
+
+class MountAttr(ctypes.Structure):
+    _fields_ = [(name, ctypes.c_ulonglong) for name in ("set", "clear", "propagation", "userns")]
+
+
+def identity_namespace(uid, gid, storage_uid, storage_gid):
+    ready_r, ready_w = os.pipe()
+    stop_r, stop_w = os.pipe()
+    child = os.fork()
+    if child == 0:
+        try:
+            os.close(ready_r)
+            os.close(stop_w)
+            os.unshare(0x10000000)  # CLONE_NEWUSER, mapping installed by trusted parent.
+            os.write(ready_w, b"1")
+            os.read(stop_r, 1)
+        finally:
+            os._exit(0)
+    os.close(ready_w)
+    os.close(stop_r)
+    try:
+        if os.read(ready_r, 1) != b"1":
+            raise PermissionError("User namespace unavailable")
+        for name, value in (
+            ("setgroups", "deny"),
+            ("uid_map", f"0 0 1\n{storage_uid} {uid} 1\n"),
+            ("gid_map", f"0 0 1\n{storage_gid} {gid} 1\n"),
+        ):
+            with open(f"/proc/{child}/{name}", "w", encoding="ascii") as target:
+                target.write(value)
+        return os.open(f"/proc/{child}/ns/user", os.O_RDONLY | os.O_CLOEXEC)
+    finally:
+        os.close(ready_r)
+        os.close(stop_w)
+        os.waitpid(child, 0)
+
+
+def private_profile(root, uid, gid):
+    if os.geteuid() != 0 or os.uname().machine != "x86_64" or not 0 < uid < 2**31 or not 0 < gid < 2**31:
+        raise PermissionError("Trusted Linux x64 setup is required")
+    if not os.path.isabs(root) or os.path.normpath(root) != root or root == "/":
+        raise PermissionError("Use a canonical private profile")
+    # The operator must reserve this UID for this one managed process tree.
+    # Unrelated same-UID processes could otherwise access its /proc view.
+    for name in os.listdir('/proc'):
+        if not name.isdecimal():
+            continue
+        try:
+            with open(f'/proc/{name}/status', encoding='ascii') as process:
+                for line in process:
+                    if line.startswith('Uid:') and uid in map(int, line.split()[1:]):
+                        raise PermissionError('Runtime UID is already in use')
+        except FileNotFoundError:
+            pass
+    current = "/"
+    for name in root.split("/")[1:]:
+        current = os.path.join(current, name)
+        info = os.lstat(current)
+        if not stat.S_ISDIR(info.st_mode) or stat.S_ISLNK(info.st_mode):
+            raise PermissionError("Ordinary private ancestry is required")
+        if current != root and (info.st_uid != 0 or info.st_mode & 0o022):
+            raise PermissionError("Private profile ancestors must be root-owned and non-writable")
+    info = os.stat(root)
+    if info.st_uid in (0, uid) or info.st_gid in (0, gid) or info.st_mode & 0o077:
+        raise PermissionError("Backing ownership must differ from runtime ownership and be private")
+    with open('/proc/self/mountinfo', encoding='utf-8') as mounts:
+        filesystem = None
+        longest = -1
+        for line in mounts:
+            mount, kind = line.split(' - ', 1)
+            target = mount.split()[4]
+            for escaped, value in (('\\040', ' '), ('\\011', '\t'), ('\\012', '\n'), ('\\134', '\\')):
+                target = target.replace(escaped, value)
+            if (target == '/' or root == target or root.startswith(target + '/')) and len(target) > longest:
+                filesystem, longest = kind.split()[0], len(target)
+        if filesystem != 'ext4':
+            raise PermissionError('This guarded runtime requires its verified local ext4 storage')
+    backing = os.open(root, os.O_PATH | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+    os.unshare(0x00020000)  # CLONE_NEWNS; no mounts propagate to the host.
+    checked(LIBC.mount(None, b"/", None, 0x40000 | 0x4000, None))
+    namespace = identity_namespace(uid, gid, info.st_uid, info.st_gid)
+    mount = -1
+    try:
+        mount = syscall(428, ctypes.c_int(-100), ctypes.c_char_p(os.fsencode(root)), ctypes.c_uint(1 | os.O_CLOEXEC))
+        attributes = MountAttr(1 << 20, 0, 0, namespace)  # MOUNT_ATTR_IDMAP
+        syscall(442, ctypes.c_int(mount), ctypes.c_char_p(b""), ctypes.c_uint(0x1000), ctypes.byref(attributes), ctypes.c_size_t(ctypes.sizeof(attributes)))
+        syscall(429, ctypes.c_int(mount), ctypes.c_char_p(b""), ctypes.c_int(-100), ctypes.c_char_p(os.fsencode(root)), ctypes.c_uint(4))
+    finally:
+        if mount >= 0:
+            os.close(mount)
+        os.close(namespace)
+    if os.stat(root).st_uid != uid or os.stat(root).st_gid != gid:
+        raise PermissionError("Kernel ownership mapping unavailable")
+    return backing
+
+
+class DirectoryGuard:
+    def __init__(self, root, uid):
+        self.root, self.uid, self.groups, self.pins = root, uid, {}, {}
+
+    def components(self, path):
+        if not isinstance(path, str) or len(path) > 4096 or "\0" in path or os.path.normpath(path) != path or not (path == self.root or path.startswith(self.root + "/")):
+            raise PermissionError("Outside private profile")
+        current = self.root
+        result = [current]
+        for name in path[len(self.root):].split("/"):
+            if name:
+                current += "/" + name
+                result.append(current)
+        return result
+
+    def pin(self, path):
+        if path in self.pins:
+            self.pins[path] += 1
+            return
+        fd = os.open(path, os.O_PATH | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+        try:
+            info = os.fstat(fd)
+            if not stat.S_ISDIR(info.st_mode) or info.st_uid != self.uid or info.st_mode & 0o022:
+                raise PermissionError("Private ordinary directory required")
+            if path != self.root:
+                name = os.fsencode(f"/proc/self/fd/{fd}")
+                checked(LIBC.mount(name, name, None, 4096, None))  # Mandatory rename/unlink protection.
+            after = os.stat(path, follow_symlinks=False)
+            if (after.st_dev, after.st_ino) != (info.st_dev, info.st_ino):
+                raise PermissionError("Directory identity changed")
+            self.pins[path] = 1
+        finally:
+            os.close(fd)
+
+    def release_paths(self, paths):
+        for path in sorted(paths, key=lambda value: value.count("/"), reverse=True):
+            if self.pins[path] == 1:
+                if path != self.root:
+                    checked(LIBC.umount2(os.fsencode(path), 0))
+                del self.pins[path]
+            else:
+                self.pins[path] -= 1
+
+    def request(self, request):
+        if not isinstance(request, dict) or not isinstance(request.get("id"), str) or len(request["id"]) > 128:
+            raise PermissionError("Invalid guard request")
+        command = request.get("command")
+        if command == "hello" and set(request) == {"command", "id"}:
+            return {"id": request["id"], "protocol": "gen-linux-directory-guard.v1", "root": self.root}
+        if command == "release" and set(request) == {"command", "id"}:
+            self.release_paths(self.groups.pop(request["id"]))
+        elif command == "acquire" and set(request) == {"command", "id", "paths"}:
+            entries = request["paths"]
+            if not isinstance(entries, list) or not 0 < len(entries) <= 256 or request["id"] in self.groups:
+                raise PermissionError("Invalid directory group")
+            held = []
+            try:
+                for entry in entries:
+                    if not isinstance(entry, dict) or set(entry) - {"path", "leaf", "dev", "ino", "empty", "tree", "readOnly", "allowChildWrites", "childWriteRoot", "gitMetadataImport"} or entry.get("leaf") is not False or any(entry.get(key) for key in ("tree", "readOnly", "empty", "gitMetadataImport")):
+                        raise PermissionError("Unsupported Linux guard policy")
+                    path = entry["path"]
+                    if "childWriteRoot" in entry:
+                        self.components(entry["childWriteRoot"])
+                        if path != entry["childWriteRoot"] and not path.startswith(entry["childWriteRoot"] + "/"):
+                            raise PermissionError("Invalid child write scope")
+                    for part in self.components(path):
+                        self.pin(part)
+                        held.append(part)
+                    info = os.stat(path, follow_symlinks=False)
+                    if ("dev" in entry or "ino" in entry) and (entry.get("dev"), entry.get("ino")) != (str(info.st_dev), str(info.st_ino)):
+                        raise PermissionError("Directory identity mismatch")
+                self.groups[request["id"]] = held
+            except BaseException:
+                self.release_paths(held)
+                raise
+        else:
+            raise PermissionError("Unsupported guard operation")
+        return {"id": request["id"], "entries": []}
+
+
+def launch(options):
+    root = options.state_root
+    backing = private_profile(root, options.uid, options.gid)
+    guard = DirectoryGuard(root, options.uid)
+    guard.pin(root)  # Profile identity remains anchored for the process lifetime.
+    checked(LIBC.prctl(36, 1, 0, 0, 0))  # CHILD_SUBREAPER: keep pins until descendants are gone.
+    parent, child = socket.socketpair()
+    channel_fd = fcntl.fcntl(child.fileno(), fcntl.F_DUPFD_CLOEXEC, 10)
+    backing_fd = fcntl.fcntl(backing, fcntl.F_DUPFD_CLOEXEC, 10)
+    pid = os.fork()
+    if pid == 0:
+        try:
+            os.dup2(channel_fd, 3, inheritable=True)
+            os.dup2(backing_fd, 4, inheritable=True)
+            os.closerange(5, os.sysconf("SC_OPEN_MAX"))
+            os.setsid()
+            os.setgroups([])
+            for capability in range(64):
+                if LIBC.prctl(24, capability, 0, 0, 0) != 0 and ctypes.get_errno() != errno.EINVAL:
+                    raise PermissionError("Cannot drop capability bounding set")
+            os.setresgid(options.gid, options.gid, options.gid)
+            os.setresuid(options.uid, options.uid, options.uid)
+            checked(LIBC.prctl(38, 1, 0, 0, 0))  # NO_NEW_PRIVS
+            env = dict(os.environ)
+            for name in ("NODE_OPTIONS", "NODE_PATH", "NODE_CHANNEL_FD", "ELECTRON_RUN_AS_NODE"):
+                env.pop(name, None)
+            env.update(HOME=root, USERPROFILE=root, HARNESS_COMPANY_DATA_DIR=root, HARNESS_HERMES_PYTHON=sys.executable)
+            os.chdir(root)
+            os.execve(options.command[0], options.command, env)
+        except BaseException:
+            os.write(2, b"The unprivileged Gen process could not start.\n")
+            os._exit(1)
+    child.close()
+    os.close(channel_fd)
+    os.close(backing_fd)
+    os.close(backing)
+    stopped = None
+    deadline = None
+
+    def terminate(_signal=None, _frame=None):
+        nonlocal deadline
+        deadline = deadline or time.monotonic() + 10
+        try:
+            os.kill(pid, signal.SIGTERM)
+        except ProcessLookupError:
+            pass
+
+    signal.signal(signal.SIGTERM, terminate)
+    signal.signal(signal.SIGINT, terminate)
+    selector = selectors.DefaultSelector()
+    selector.register(parent, selectors.EVENT_READ)
+    buffer = b""
+    connected = True
+    channel_lost_at = None
+    while True:
+        while True:
+            try:
+                ended, status = os.waitpid(-1, os.WNOHANG)
+            except ChildProcessError:
+                return stopped if stopped is not None else 1
+            if not ended:
+                break
+            if ended == pid:
+                stopped = os.waitstatus_to_exitcode(status)
+                deadline = time.monotonic() + 10
+        if channel_lost_at is not None and stopped is None and deadline is None and time.monotonic() - channel_lost_at >= 0.5:
+            terminate()
+        if deadline:
+            with open(f"/proc/self/task/{os.getpid()}/children", encoding="ascii") as children:
+                for value in children.read().split():
+                    try:
+                        os.kill(int(value), signal.SIGKILL if time.monotonic() >= deadline else signal.SIGTERM)
+                    except ProcessLookupError:
+                        pass
+        for key, _ in selector.select(0.1):
+            data = key.fileobj.recv(LIMIT + 1)
+            if not data:
+                selector.unregister(parent)
+                connected = False
+                # Node closes inherited descriptors just before normal process exit.
+                # Keep every mount pinned while allowing that exit to settle.
+                channel_lost_at = time.monotonic()
+                continue
+            buffer += data
+            if len(buffer) > LIMIT:
+                raise PermissionError("Guard request limit")
+            while b"\n" in buffer:
+                line, buffer = buffer.split(b"\n", 1)
+                request = json.loads(line)
+                try:
+                    reply = guard.request(request)
+                except (OSError, ValueError, KeyError, TypeError):
+                    reply = {"id": request.get("id"), "error": "CAPABILITY_DENIED"}
+                if connected:
+                    parent.sendall(json.dumps(reply, ensure_ascii=True).encode("ascii") + b"\n")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Trusted Linux directory-custody setup; no inference authority")
+    parser.add_argument("--uid", type=int, required=True)
+    parser.add_argument("--gid", type=int, required=True)
+    parser.add_argument("--state-root", required=True)
+    parser.add_argument("command", nargs=argparse.REMAINDER)
+    args = parser.parse_args()
+    if args.command[:1] == ["--"]:
+        args.command = args.command[1:]
+    if not args.command or not os.path.isabs(args.command[0]):
+        parser.error("An absolute verified Node command is required")
+    try:
+        sys.exit(launch(args))
+    except Exception:
+        # Never serialize configuration, credential paths or native exception data.
+        os.write(2, b"Trusted Linux directory custody could not be established.\n")
+        sys.exit(1)
