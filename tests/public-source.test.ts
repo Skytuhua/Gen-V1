@@ -1,8 +1,26 @@
 import {describe,expect,it} from 'vitest';
 import {readFileSync} from 'node:fs';
+import {mkdtemp,mkdir,writeFile,readFile,rm} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {execFileSync} from 'node:child_process';
 import {publicSourceFiles,publicRuntimeSourceFiles,publicSourceAllowed,publicRuntimeSourceAllowed,assertPublicPackageFiles} from '../scripts/public-source.ts';
 
 describe('reviewed public source allowlist',()=>{
+  it('preserves pinned integration bytes when Windows enables automatic CRLF checkout',async()=>{
+    const root=await mkdtemp(join(tmpdir(),'harness-public-byte-checkout-'));
+    const env={...process.env,GIT_CONFIG_NOSYSTEM:'1',GIT_CONFIG_GLOBAL:process.platform==='win32'?'NUL':'/dev/null'};
+    const git=(...args:string[])=>execFileSync('git',['-c','core.autocrlf=true','-c','core.hooksPath='+join(root,'disabled-hooks'),'-C',root,...args],{env,windowsHide:true});
+    const path='third-party/integrations/graphify/LICENSE',original=readFileSync(new URL('../'+path,import.meta.url));
+    try{
+      git('init','--quiet');await mkdir(join(root,'third-party/integrations/graphify'),{recursive:true});
+      await writeFile(join(root,'.gitattributes'),readFileSync(new URL('../.gitattributes',import.meta.url)));
+      await writeFile(join(root,path),original);git('add','--','.gitattributes',path);
+      const output=join(root,'checked-out');await mkdir(output);
+      git('checkout-index','--all','--prefix='+output.replaceAll('\\','/')+'/');
+      expect((await readFile(join(output,path))).equals(original)).toBe(true);
+    }finally{await rm(root,{recursive:true,force:true});}
+  });
   it('normalizes Windows separators while rejecting traversal, aliases and absolute paths',()=>{
     expect(publicRuntimeSourceAllowed('apps\\server\\main.ts')).toBe(true);
     for(const path of ['../apps/server/main.ts','apps/server/../server/main.ts','./apps/server/main.ts','apps//server/main.ts','/apps/server/main.ts','C:/apps/server/main.ts','apps/server/main.ts:stream','apps/server/%2e%2e/main.ts'])expect(publicSourceAllowed(path),path).toBe(false);

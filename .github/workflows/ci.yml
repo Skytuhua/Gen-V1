@@ -58,6 +58,21 @@ jobs:
       - name: Install isolated Hermes dependencies
         run: python -m pip install --disable-pip-version-check --no-warn-script-location --target .harness-hermes-python-deps -r third-party/hermes-agent/runtime-requirements.txt
 
+      - name: Install pinned integration wheels for regression tests
+        run: |
+          $lock = Get-Content -Raw -LiteralPath third-party/integrations/PYTHON_LOCK.json | ConvertFrom-Json
+          $requirements = foreach ($distribution in $lock.distributions) {
+            if ($distribution.name -notmatch '^[A-Za-z0-9][A-Za-z0-9._-]*$' -or
+                $distribution.sourceUrl -notmatch '^https://files\.pythonhosted\.org/[^?#\s]+\.whl$' -or
+                $distribution.wheelSha256 -notmatch '^[0-9a-f]{64}$') {
+              throw 'Invalid pinned integration wheel identity'
+            }
+            "$($distribution.name) @ $($distribution.sourceUrl) --hash=sha256:$($distribution.wheelSha256)"
+          }
+          $requirementsPath = Join-Path $env:RUNNER_TEMP 'gen-integration-wheel-requirements.txt'
+          $requirements | Set-Content -LiteralPath $requirementsPath -Encoding utf8
+          python -m pip install --disable-pip-version-check --no-warn-script-location --only-binary=:all: --no-deps --require-hashes --no-compile --target .harness-integrations-python-deps --requirement $requirementsPath
+
       - name: Install test browser
         run: pnpm exec playwright install chromium
 
