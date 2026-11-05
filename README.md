@@ -4,8 +4,6 @@
 
 Gen is a local AI workspace for Windows. Talk through a task, explore an interactive view of the work, and return to the conversation with your drafts and decisions intact.
 
-> **Preview status:** the published download and current main branch are v0.6.1. The gallery and demos show the newer 0.6.4 interface under review in [PR #1](https://github.com/Skytuhua/Gen-V1/pull/1).
-
 [Get started](docs/public/getting-started.md) · [Download the current preview](https://github.com/Skytuhua/Gen-V1/releases/tag/v0.6.1) · [Watch the demos](#see-gen-in-motion) · [Explore the features](docs/public/features.md)
 
 ![Gen’s dark workspace, with project navigation, a conversation, an interactive checkout trace and a comparison of next steps](docs/public/media/workspace-dark.png)
@@ -21,7 +19,7 @@ Some tasks need more than a reply. A trace needs a timeline. A decision needs a 
 - **Keep your tools close.** Project navigation and a compact composer surround the conversation. Dark and light themes, model search and reasoning controls keep the workspace familiar.
 - **Build a useful skill library.** The pinned original Hermes engine provides the conversation loop, skill tools, `/learn`, background reviews and curation. Inspect saved procedures and their revision history in Settings.
 - **Choose your connection.** Nine connection IDs support native subscription or dedicated plan-key routes. Accounts remain separate, and existing tasks retain their selected account. Live verification currently covers the OpenAI route; other integrations need their own account and entitlement checks.
-- **Preview the next extension system.** The 0.6.4 update in [PR #1](https://github.com/Skytuhua/Gen-V1/pull/1) adds independently versioned packages through a [public plug-in API](https://github.com/Skytuhua/Gen-V1/blob/cb504d0e392fde9e70883b7b7c2e808e13488b7c/docs/plugin-api.md). That update runs without a plug-in installed.
+- **Extend the workspace.** Optional, independently versioned packages use the [public plug-in API](docs/plugin-api.md). Gen runs without a plug-in installed.
 
 Optional next-message predictions are off by default. When enabled, **Tab** accepts a suggestion and **Escape** dismisses it; accepting text and sending a message remain separate actions.
 
@@ -80,8 +78,6 @@ py -3.14 -m pip install --no-cache-dir --no-compile --target .harness-hermes-pyt
 pnpm desktop:dev
 ```
 
-These commands run the current main branch. To inspect the newer interface shown in the demos, see the [source-preview instructions](docs/public/getting-started.md#inspect-the-newer-source-preview).
-
 For the browser interface, run `pnpm dev` and open `http://127.0.0.1:5173`. The application host remains on your machine. Model requests go to the provider you connect.
 
 Open **Settings → Providers**, add an account and choose **Connect**. Complete its native sign-in, refresh models and select an available model. See the [full setup and troubleshooting guide](docs/getting-started.md) for exact account, runtime and packaging requirements.
@@ -94,13 +90,13 @@ Conversations, attachments, credentials and receipts live in local application d
 
 Host grants and approval checks bound supported file and operation access. Generated-code interfaces run in opaque workers with validated messages and a termination watchdog; this is not a hard operating-system memory quota. Approved native runtimes and project tests execute with local-user privileges.
 
-[Architecture and recovery](docs/architecture.md) · [Connection reference](docs/subscription-connections.md) · [Security and local data](SECURITY.md) · [Plug-in API preview](https://github.com/Skytuhua/Gen-V1/blob/cb504d0e392fde9e70883b7b7c2e808e13488b7c/docs/plugin-api.md)
+[Architecture and recovery](docs/architecture.md) · [Connection reference](docs/subscription-connections.md) · [Security and local data](SECURITY.md) · [Public plug-in API](docs/plugin-api.md)
 
 ## Preview boundaries
 
 - OpenAI has recorded genuine signed-in task verification. A model in the picker does not establish live access to every provider.
 - Installed upgrade/update acceptance, the broader generation-quality pilot and physical mixed-DPI/multi-monitor acceptance remain open.
-- In the 0.6.4 source preview, new native detachment is unavailable. Context and usage tools minimize within the workspace.
+- New native detachment is currently unavailable. Context and usage tools minimize within the workspace.
 - Gemini/Cursor native compaction, the separate OpenCode agent runtime and Meta/Muse access are unavailable.
 - Published preview binaries are unsigned. Review the release’s notes and checksums before installing.
 

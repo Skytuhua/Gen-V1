@@ -2,12 +2,14 @@ import {createServer,type ServerResponse} from 'node:http';
 import {randomBytes,randomUUID,timingSafeEqual} from 'node:crypto';
 import {EMPTY_USAGE,HarnessError,type RuntimeAdapter,type RuntimeEvent,type RuntimeUsage,type StartRun} from '../contracts/index.ts';
 import {MODEL_ONLY_MAX_PROMPT_BYTES,MODEL_ONLY_MAX_WIRE_BYTES} from '../runtime/model-only.ts';
+import {hermesModelCapacity,type ModelCapacity} from '../runtime/model-capacity.ts';
 
 export interface ModelRequest {sequence:number;inputIds:string[];phase:'foreground'|'background_review'}
 export interface HermesBrokerOptions {
  input:StartRun;createRuntime:()=>RuntimeAdapter;
  onInput?:(ids:string[])=>void|Promise<void>;
  onUsage?:(usage:RuntimeUsage,request:ModelRequest)=>void;
+ capacity?:ModelCapacity;
 }
 export interface HermesBroker {
  readonly url:string;readonly key:string;
@@ -28,9 +30,9 @@ function deferred<T>(){let resolve!:(value:T)=>void,reject!:(error:unknown)=>voi
 export async function createHermesBroker(options:HermesBrokerOptions):Promise<HermesBroker>{
  const input=structuredClone(options.input),key=randomBytes(32).toString('base64url'),authorization=Buffer.from('Bearer '+key);
  let closed=false,pending:ModelRequest|undefined,lastSequence=0,closing:Promise<void>|undefined,cleanupError:unknown;
- let active:{runtime:RuntimeAdapter;ctx:StartRun;cancelled:boolean;completion:ReturnType<typeof deferred<void>>;operation:Promise<unknown>;cancel?:Promise<void>}|undefined;
+ let active:{runtime?:RuntimeAdapter;ctx:StartRun;controller:AbortController;cancelled:boolean;completion:ReturnType<typeof deferred<void>>;operation:Promise<unknown>;cancel?:Promise<void>}|undefined;
  const usages=new Map<number,RuntimeUsage>();
- const cancel=()=>{const owner=active;if(!owner)return Promise.resolve();return owner.cancel??=(async()=>{owner.cancelled=true;try{await owner.runtime.cancel(owner.ctx);owner.completion.reject(new HarnessError('HERMES_MODEL_CANCELLED','The owned model request was cancelled.'));}catch(error){cleanupError=error;owner.completion.reject(error);throw error;}})();};
+ const cancel=()=>{const owner=active;if(!owner)return Promise.resolve();return owner.cancel??=(async()=>{owner.cancelled=true;owner.controller.abort();try{await owner.runtime?.cancel(owner.ctx);owner.completion.reject(new HarnessError('HERMES_MODEL_CANCELLED','The owned model request was cancelled.'));}catch(error){cleanupError=error;owner.completion.reject(error);throw error;}})();};
  const send=(response:ServerResponse,status:number,value:unknown)=>{if(response.destroyed)return;const text=JSON.stringify(value);if(Buffer.byteLength(text)>MODEL_ONLY_MAX_WIRE_BYTES)throw invalid();response.writeHead(status,{'content-type':'application/json','cache-control':'no-store'});response.end(text);};
  const server=createServer((request,response)=>{
   const supplied=Buffer.from(typeof request.headers.authorization==='string'?request.headers.authorization:'');
@@ -44,20 +46,28 @@ export async function createHermesBroker(options:HermesBrokerOptions):Promise<He
    if(closed||response.destroyed||active||!pending)throw invalid();
    const metadata=pending;pending=undefined;
    const id=randomUUID(),nativeInput:StartRun={threadId:'hermes-model-'+id,runId:id,epoch:1,inputId:id,modelId:input.modelId,accountId:input.accountId??null,thinkingLevel:input.thinkingLevel,sessionPath:null,prompt:body.prompt,resources:[]};
-   const runtime=options.createRuntime(),completion=deferred<void>();void completion.promise.catch(()=>{});let content='',usage:RuntimeUsage|null=null,failure:unknown,entered=false,writes=Promise.resolve();
-   owner=active={runtime,ctx:nativeInput,cancelled:false,completion,operation:Promise.resolve()};
+   const completion=deferred<void>();void completion.promise.catch(()=>{});let content='',usage:RuntimeUsage|null=null,failure:unknown,entered=false,writes=Promise.resolve();
+   owner=active={ctx:nativeInput,controller:new AbortController(),cancelled:false,completion,operation:Promise.resolve()};
    const owned=owner;
-   runtime.configure({onTool:async()=>{throw new HarnessError('MODEL_ONLY_TOOL_DENIED','The model transport cannot execute host tools.');},onEvent(event:RuntimeEvent){
+   owned.operation=(async()=>{
+    let release:(()=>void)|undefined;
+    try{
+     release=await(options.capacity??hermesModelCapacity).acquire(input.modelId.split('/')[0],input.accountId??null,owned.controller.signal);
+     if(closed||owned.cancelled)throw new HarnessError('HERMES_MODEL_CANCELLED','The owned model request was cancelled.');
+     const runtime=owned.runtime=options.createRuntime();
+     runtime.configure({onTool:async()=>{throw new HarnessError('MODEL_ONLY_TOOL_DENIED','The model transport cannot execute host tools.');},onEvent(event:RuntimeEvent){
     if(active!==owned||owned.cancelled||event.threadId!==nativeInput.threadId||event.runId!==nativeInput.runId||event.epoch!==nativeInput.epoch)return;
     if(event.type==='input.processing'&&!entered&&Array.isArray(event.inputIds)&&event.inputIds.includes(id)){entered=true;if(metadata.phase==='foreground')writes=writes.then(()=>options.onInput?.([...metadata.inputIds]));}
     if(event.type==='assistant.message'&&typeof event.content==='string'&&!failure){if(Buffer.byteLength(event.content)>MODEL_ONLY_MAX_WIRE_BYTES-Buffer.byteLength(content))failure=invalid();else content+=event.content;}
     if(event.type==='usage')usage=measured(event.usage);
     if(event.type==='error')failure=new HarnessError('HERMES_NATIVE_FAILED','The selected native model could not complete its request.');
     if(event.type==='settled'){if(event.aborted===true)failure=new HarnessError('HERMES_MODEL_CANCELLED','The selected native model was cancelled.');completion.resolve();}
-   }});
-   owned.operation=(async()=>{
-    try{await runtime.start(nativeInput);await completion.promise;await writes;if(owned.cancelled||failure)throw failure??invalid();return{content,usage:usage??{...EMPTY_USAGE}};
-    }finally{const actual=usage??{...EMPTY_USAGE};usages.set(metadata.sequence,actual);try{options.onUsage?.(actual,metadata);}catch{/* Usage projection cannot prevent native teardown. */}try{await runtime.dispose();}catch(error){cleanupError=error;throw error;}finally{if(active===owned)active=undefined;}}
+     }});
+     await runtime.start(nativeInput);await completion.promise;await writes;if(owned.cancelled||failure)throw failure??invalid();return{content,usage:usage??{...EMPTY_USAGE}};
+    }finally{
+     if(owned.runtime){const actual=usage??{...EMPTY_USAGE};usages.set(metadata.sequence,actual);try{options.onUsage?.(actual,metadata);}catch{/* Usage projection cannot prevent native teardown. */}}
+     try{await owned.runtime?.dispose();release?.();}catch(error){cleanupError=error;throw error;}finally{if(active===owned)active=undefined;}
+    }
    })();
    // The native router emits settled only after its owned SDK/account teardown.
    const result=await owned.operation;if(!owned.cancelled)send(response,200,result);

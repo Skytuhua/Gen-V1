@@ -70,8 +70,19 @@ it('keeps a thread account immutable when defaults change and fails closed on ac
  expect(vi.mocked(f.runtime.start).mock.calls.at(-1)?.[0]).toMatchObject({accountId:a.id});
  expect((await f.service.models({threadId:thread.id}))).toHaveLength(1);
  expect(f.runtime.models).toHaveBeenLastCalledWith({accountId:a.id,refresh:undefined});
- await f.send('run.stop',{},thread.id);
+ let release!:()=>void;const cancellation=new Promise<void>(done=>{release=done;});
+ vi.mocked(f.runtime.cancel).mockImplementationOnce(()=>cancellation);
+ let stopped=false;const stopping=f.send('run.stop',{},thread.id).then(receipt=>{stopped=true;return receipt;});
+ const discoveries=vi.mocked(f.runtime.models).mock.calls.length,starts=vi.mocked(f.runtime.start).mock.calls.length;
+ try{
+  expect(f.service.thread(thread.id)).toMatchObject({status:'stopped',runId:null,accountId:a.id});expect(stopped).toBe(false);
+  await expect(f.send('run.resume',{modelId:'gemini-cli/pro'},thread.id)).rejects.toMatchObject({code:'RUN_BUSY'});
+  expect(f.runtime.models).toHaveBeenCalledTimes(discoveries);expect(f.runtime.start).toHaveBeenCalledTimes(starts);
+ }finally{release();await stopping;}
+ expect(stopped).toBe(true);
  await expect(f.send('run.resume',{modelId:'gemini-cli/pro'},thread.id)).rejects.toMatchObject({code:'ACCOUNT_PROVIDER_MISMATCH'});
+ expect(f.service.thread(thread.id)).toMatchObject({status:'stopped',runId:null,accountId:a.id,modelId:'openai/model'});
+ expect(f.runtime.models).toHaveBeenCalledTimes(discoveries);expect(f.runtime.start).toHaveBeenCalledTimes(starts);
 });
 
 it('binds prior-work records without an account field to the legacy profile',async()=>{
@@ -124,15 +135,24 @@ it('keeps expired sign-in reservations while the owning process is alive',async(
 it('retains account use after Stop clears the thread until native cancellation completes',async()=>{
  const f=fixture(true),thread=await f.thread();await f.send('message.send',{content:'Run',modelId:'openai/model'},thread.id);
  let release!:()=>void;vi.mocked(f.runtime.cancel).mockImplementationOnce(()=>new Promise(done=>{release=done;}));
- await f.send('run.stop',{},thread.id);expect(f.store.get<Thread>('thread',thread.id)?.runId).toBeNull();
- try{expect(()=>beginAccountLogin(f.store,'openai',null)).toThrow(expect.objectContaining({code:'ACCOUNT_BUSY'}));}finally{release();}
- await vi.waitFor(()=>expect(f.store.all('accountUse')).toHaveLength(0));const lease=beginAccountLogin(f.store,'openai',null);endAccountLogin(f.store,lease);
+ let stopped=false;const stopping=f.send('run.stop',{},thread.id).then(receipt=>{stopped=true;return receipt;});
+ try{
+  expect(f.service.thread(thread.id)).toMatchObject({status:'stopped',runId:null});expect(stopped).toBe(false);
+  expect(f.store.all('accountUse')).toHaveLength(1);
+  expect(()=>beginAccountLogin(f.store,'openai',null)).toThrow(expect.objectContaining({code:'ACCOUNT_BUSY'}));
+  await expect(f.send('run.resume',{},thread.id)).rejects.toMatchObject({code:'RUN_BUSY'});
+ }finally{release();await stopping;}
+ expect(stopped).toBe(true);expect(f.store.all('accountUse')).toHaveLength(0);
+ const lease=beginAccountLogin(f.store,'openai',null);endAccountLogin(f.store,lease);
 });
 
 it('keeps failed cancellation fail-closed until disposal proves native teardown',async()=>{
  const f=fixture(true),thread=await f.thread();await f.send('message.send',{content:'Run',modelId:'openai/model'},thread.id);
- vi.mocked(f.runtime.cancel).mockRejectedValueOnce(Error('Native termination failed'));await f.send('run.stop',{},thread.id);await vi.waitFor(()=>expect(f.runtime.cancel).toHaveBeenCalled());
+ vi.mocked(f.runtime.cancel).mockRejectedValueOnce(Error('Native termination failed'));
+ await expect(f.send('run.stop',{},thread.id)).rejects.toThrow('Native termination failed');
+ expect(f.service.thread(thread.id)).toMatchObject({status:'stopped',runId:null});expect(f.store.all('accountUse')).toHaveLength(1);
  expect(()=>beginAccountLogin(f.store,'openai',null)).toThrow(expect.objectContaining({code:'ACCOUNT_BUSY'}));
+ await expect(f.send('run.resume',{},thread.id)).rejects.toMatchObject({code:'RUN_BUSY'});
  await f.service.dispose();const lease=beginAccountLogin(f.store,'openai',null);endAccountLogin(f.store,lease);
 });
 

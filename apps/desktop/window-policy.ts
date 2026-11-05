@@ -1,6 +1,8 @@
 import {isIP} from 'node:net';
 import {lookup} from 'node:dns/promises';
-import {parseDesktopSurface,type DesktopSurface,type DesktopBrowserCommand} from '../../packages/desktop-contract/index.ts';
+import {DESKTOP_CHANNELS,desktopSurfaceKey,parseDesktopSurface,type DesktopSurface,type DesktopBrowserCommand} from '../../packages/desktop-contract/index.ts';
+import {pluginFrameSource} from '../../packages/plugins/frame-protocol.ts';
+import {pluginSurfaceSchema} from '../../packages/plugins/contracts.ts';
 export interface DesktopBounds {x:number;y:number;width:number;height:number}
 export function clampDesktopBounds(value:Partial<DesktopBounds>|undefined,areas:DesktopBounds[],size={width:1000,height:740}):DesktopBounds {
  const displays=areas.filter(area=>[area.x,area.y,area.width,area.height].every(Number.isFinite)&&area.width>0&&area.height>0);
@@ -11,6 +13,31 @@ export function clampDesktopBounds(value:Partial<DesktopBounds>|undefined,areas:
  return {x:Math.round(x),y:Math.round(y),width:Math.round(width),height:Math.round(height)};
 }
 export function trustedDesktopUrl(origin:string,id:string):string {return new URL('/?desktopWindow='+encodeURIComponent(id),origin).href;}
+/** Only host-authored plug-in frame URLs and the existing separate widget shell
+ * can enter native subframes. Main-frame/sender checks remain independent. */
+export function trustedDesktopSubframe(raw:string,origin:string,widgetOrigin:string):boolean {
+ try{
+  const url=new URL(raw);if(url.username||url.password)return false;
+  if(url.origin===widgetOrigin)return /^\/widget\/[^/]+\/[1-9]\d*$/.test(url.pathname);
+  if(url.origin!==new URL(origin).origin)return false;
+  const match=/^\/plugins\/([^/]+)\/frame$/.exec(url.pathname),session=url.searchParams.get('session'),theme=url.searchParams.get('theme');
+  if(!match||!session||(theme!=='light'&&theme!=='dark'))return false;
+  const surface=url.searchParams.has('scopeId')||url.searchParams.has('surfaceId')||url.searchParams.has('resourceId')?pluginSurfaceSchema.parse({kind:'plugin',pluginId:match[1],scopeId:url.searchParams.get('scopeId'),surfaceId:url.searchParams.get('surfaceId'),...(url.searchParams.has('resourceId')?{resourceId:url.searchParams.get('resourceId')}:{})}):undefined;
+  return url.href===new URL(pluginFrameSource(match[1],session,theme,surface),origin).href;
+ }catch{return false;}
+}
+const pluginChannels=new Set<string>([DESKTOP_CHANNELS.theme,DESKTOP_CHANNELS.context,DESKTOP_CHANNELS.ready,DESKTOP_CHANNELS.list,DESKTOP_CHANNELS.control,DESKTOP_CHANNELS.minimize,DESKTOP_CHANNELS.reset,DESKTOP_CHANNELS.focus,DESKTOP_CHANNELS.closeAnswer,DESKTOP_CHANNELS.detach,DESKTOP_CHANNELS.reattach]);
+export function pluginDesktopChannelAllowed(channel:string){return pluginChannels.has(channel);}
+export function pluginDesktopRequiresGrant(channel:string){return channel!==DESKTOP_CHANNELS.closeAnswer;}
+export function nativeTitlebarTheme(value:unknown){if(value!=='light'&&value!=='dark')throw Error('Invalid window theme.');return {color:value==='light'?'#ffffff':'#0f0f0f',symbolColor:value==='light'?'#1f1f1f':'#eeeeee',height:42};}
+export function nativeTitlebarOptions(platform:string){return platform==='win32'?{titleBarStyle:'hidden' as const,titleBarOverlay:nativeTitlebarTheme('dark')}:{ };}
+export function desktopSurfaceAllowed(surface:DesktopSurface):boolean {parseDesktopSurface(surface);return true;}
+/** Existing child custody and saved references remain valid; new detach requests
+ * cannot create another native editor while this feature is retired. */
+export function requireExistingDetachedSurface(surface:DesktopSurface,existing:DesktopSurface[]):void {
+ parseDesktopSurface(surface);
+ if(!existing.some(value=>desktopSurfaceKey(value)===desktopSurfaceKey(surface)))throw Error('Opening detached views is currently unavailable.');
+}
 export function isTrustedDesktopSender(expected:{id:number;url:string},sender:{id:number;url:string;mainFrame:boolean}):boolean{return sender.mainFrame&&sender.id===expected.id&&sender.url===expected.url;}
 export function parseBrowserCommand(raw:unknown):DesktopBrowserCommand {
  if(!raw||typeof raw!=='object'||Array.isArray(raw)||Object.getPrototypeOf(raw)!==Object.prototype)throw Error('Invalid browser command');
@@ -36,8 +63,9 @@ export function remoteBrowserUrl(raw:string):URL {
 export async function allowRemoteBrowserUrl(raw:string,resolver:(hostname:string)=>Promise<{address:string}[]>=hostname=>lookup(hostname,{all:true,verbatim:true})):Promise<boolean>{
  try{const url=remoteBrowserUrl(raw),host=url.hostname.replace(/^\[|\]$/g,'');if(isIP(host))return publicAddress(host);let timer:ReturnType<typeof setTimeout>|undefined;try{const addresses=await Promise.race([resolver(host),new Promise<never>((_,reject)=>{timer=setTimeout(()=>reject(Error('Lookup timed out')),2500);})]);return addresses.length>0&&addresses.length<=32&&addresses.every(item=>publicAddress(item.address));}finally{clearTimeout(timer);}}catch{return false;}
 }
-export function surfaceSize(surface:DesktopSurface){parseDesktopSurface(surface);return surface.kind==='main'||surface.kind==='thread'?{width:1440,height:960}:surface.kind==='browser'?{width:1160,height:860}:['plan','usage','navigation','agent'].includes(surface.kind)?{width:430,height:720}:{width:1000,height:800};}
+export function surfaceSize(surface:DesktopSurface){parseDesktopSurface(surface);return surface.kind==='main'||surface.kind==='thread'?{width:1440,height:960}:surface.kind==='browser'?{width:1160,height:860}:['plan','usage','navigation','agent','plugin'].includes(surface.kind)?{width:430,height:720}:{width:1000,height:800};}
 export function needsEditorHandoff(target:DesktopSurface,source:DesktopSurface):boolean {
+ if(target.kind==='plugin')return source.kind==='main'||source.kind==='plugin'&&desktopSurfaceKey(target)===desktopSurfaceKey(source);
  const editable=target.kind==='thread'||target.kind==='artifact'||target.kind==='workspace'&&target.tab==='artifact';if(!editable)return false;
  if(source.kind==='main')return true;
  return 'threadId'in target&&'threadId'in source&&target.threadId===source.threadId&&(source.kind==='thread'||source.kind==='artifact'||source.kind==='workspace');

@@ -10,9 +10,7 @@ The [v0.6.1 prerelease](https://github.com/Skytuhua/Gen-V1/releases/tag/v0.6.1) 
 
 There is no published stable 0.6.4 download yet. Use the source setup instructions for the newer interface shown in the gallery. Release availability can change; check the [release list](https://github.com/Skytuhua/Gen-V1/releases) before choosing an installer.
 
-## 0.6.4 source preview
-
-The application update is under review in [PR #1](https://github.com/Skytuhua/Gen-V1/pull/1). It has not replaced the v0.6.1 main branch or published installer. The repository presentation can be updated independently of that application merge.
+## Current 0.6.4 source
 
 The current source keeps the original conversation workspace, project/thread navigation, compact composer, neutral dark/light themes and interactive task catalog. Changes include:
 

@@ -57,6 +57,7 @@ for(const chatWidth of ['comfortable','wide'] as const)for(const width of [1440,
  const contentWidth=await page.locator('.surface-split').evaluate(node=>node.getBoundingClientRect().width);
  if(contentWidth>=620){expect(pdf!.x+pdf!.width).toBeLessThanOrEqual(bounds!.x);expect(Math.abs(pdf!.y-bounds!.y)).toBeLessThan(2);}
  else {expect(bounds!.y+bounds!.height).toBeLessThanOrEqual(pdf!.y);expect(bounds!.height).toBeLessThan(220);expect(footer!.y-(body!.y+body!.height)).toBeLessThan(36);}
+ expect(footer!.y-(body!.y+body!.height)).toBeLessThan(36);
  const composer=await page.locator('.composer').boundingBox(),artifact=await page.locator('.artifact').boundingBox();
  expect(Math.abs(artifact!.x-composer!.x)).toBeLessThan(2);expect(Math.abs(artifact!.width-composer!.width)).toBeLessThan(2);
  expect(await page.locator('.document-preview-scroll').evaluate(node=>getComputedStyle(node).overflowY)).toBe('hidden');

@@ -11,11 +11,11 @@ const snapshot=()=>{
  value.usage['task-thread']={...EMPTY_USAGE,inputTokens:12640,outputTokens:820,contextTokens:35000,contextWindow:200000};return value;
 };
 const captureDirectory=process.env.RESERVED_RAIL_CAPTURE_DIR;
-async function showPlan(page:Page){const panel=page.getByRole('region',{name:'Task plan window',exact:true});if(!await panel.isVisible()){await page.getByRole('button',{name:'Thread options',exact:true}).click();await page.getByRole('button',{name:'Show plan',exact:true}).click();}await expect(panel).toBeVisible();return panel;}
-async function showUsage(page:Page){const usage=page.getByRole('region',{name:'Live usage',exact:true});if(!await usage.isVisible())await page.getByRole('button',{name:'Show live usage',exact:true}).click();await expect(usage).toBeVisible();return usage;}
+async function showPlan(page:Page){const panel=page.getByRole('region',{name:'Project context window',exact:true});await expect(panel).toBeVisible();return panel;}
+async function showUsage(page:Page){const usage=page.getByRole('region',{name:'Live usage',exact:true});await expect(usage).toBeVisible();return usage;}
 async function open(page:Page,value=snapshot()){
  await serveTaskFixture(page,value);await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();await showPlan(page);await showUsage(page);
- const plan=page.getByRole('region',{name:'Task plan window',exact:true});await expect(plan).toBeVisible();await expect.poll(()=>plan.evaluate(el=>el.getAnimations().filter(a=>a.playState==='running').length)).toBe(0);return plan;
+ const plan=page.getByRole('region',{name:'Project context window',exact:true});await expect(plan).toBeVisible();await expect.poll(()=>plan.evaluate(el=>el.getAnimations().filter(a=>a.playState==='running').length)).toBe(0);return plan;
 }
 
 test('workspace artifact stays inside its panel beside expanded Plan and keeps the same renderer',async({page})=>{
@@ -23,34 +23,41 @@ test('workspace artifact stays inside its panel beside expanded Plan and keeps t
  const text=await page.getByText('Inspect the checkout calculation.',{exact:true}).elementHandle();await page.getByRole('button',{name:'Open artifact in workspace',exact:true}).click();
  const panel=page.getByRole('complementary',{name:'Workspace panel',exact:true}),artifact=page.locator('.artifact-in-workspace');await expect(panel).toBeVisible();await expect(artifact).toBeVisible();
  await showPlan(page);await showUsage(page);
- await expect.poll(async()=>{const w=await panel.boundingBox(),a=await artifact.boundingBox();return Boolean(w&&a&&Math.abs(w.x+w.width-1520)<1&&a.x>=w.x&&a.x+a.width<=w.x+w.width+1);}).toBe(true);
+ await expect.poll(async()=>{const w=await panel.boundingBox(),a=await artifact.boundingBox();return Boolean(w&&a&&Math.abs(w.x+w.width-1920)<1&&a.x>=w.x&&a.x+a.width<=w.x+w.width+1);}).toBe(true);
  expect(await page.getByText('Inspect the checkout calculation.',{exact:true}).evaluate((node,old)=>node===old,text)).toBe(true);
 });
-test('expanding compact usage restores its remembered full height rather than the compact slot height',async({page})=>{
- await page.setViewportSize({width:1600,height:1080});await open(page);const usage=page.getByRole('region',{name:'Live usage',exact:true});await usage.getByRole('button',{name:'Inspect live usage',exact:true}).click();await expect.poll(async()=>Math.round((await usage.boundingBox())!.height)).toBe(314);
+test('expanded usage stays compact and readable instead of reserving an oversized tool',async({page})=>{
+ await page.setViewportSize({width:1600,height:1080});await open(page);const usage=page.getByRole('region',{name:'Live usage',exact:true});await usage.getByRole('button',{name:'Inspect live usage',exact:true}).click();await expect(usage).toHaveAttribute('data-collapsed','false');await expect(usage.getByText('Conversation space',{exact:true})).toBeVisible();await expect.poll(async()=>Math.round((await usage.boundingBox())!.height)).toBeLessThanOrEqual(280);
 });
-test('a lone explicitly opened compact usage bar takes only its actual height on narrow screens',async({page})=>{
- await page.setViewportSize({width:390,height:844});const value=snapshot();value.data=[];await serveTaskFixture(page,value);await page.goto('/');await expect(page.getByRole('region',{name:'Live usage',exact:true})).toBeHidden();await showUsage(page);
- await expect.poll(async()=>Math.round((await page.getByRole('complementary',{name:'Task tools',exact:true}).boundingBox())!.height)).toBeLessThanOrEqual(64);
+test('both protected tools minimize to a compact flow region on narrow screens',async({page})=>{
+ await page.setViewportSize({width:390,height:844});const value=snapshot();value.data=[];await serveTaskFixture(page,value);await page.goto('/');await showUsage(page);
+ await expect(page.getByRole('region',{name:'Project context window',exact:true})).toHaveAttribute('data-collapsed','true');
+ await expect.poll(async()=>Math.round((await page.getByRole('complementary',{name:'Task tools',exact:true}).boundingBox())!.height)).toBeLessThanOrEqual(110);
  await expect.poll(async()=>Math.round((await page.getByRole('region',{name:'Live usage',exact:true}).boundingBox())!.height)).toBe(36);
 });
-test('dismissing every tool leaves no right column beside an explicitly opened workspace panel',async({page})=>{
- await page.setViewportSize({width:1600,height:1000});const plan=await open(page);await plan.getByRole('button',{name:'Close Task plan',exact:true}).click();await page.getByRole('button',{name:'Close Live usage',exact:true}).click();await expect.poll(()=>page.locator('.floating-rail').evaluate(node=>node.getBoundingClientRect().width)).toBe(0);
- await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();await expect.poll(async()=>{const main=await page.locator('.workspace').boundingBox(),panel=await page.locator('.workspace-right').boundingBox();return Math.abs(main!.x+main!.width-panel!.x)<1&&Math.abs(panel!.x+panel!.width-1600)<1;}).toBe(true);
+test('minimized tools leave the full chat width beside an explicitly opened artifact panel',async({page})=>{
+ await page.setViewportSize({width:1600,height:1000});const plan=await open(page);await plan.getByRole('button',{name:'Minimize Project context',exact:true}).click();await expect(plan).toBeVisible();expect((await page.locator('.workspace').boundingBox())!.x+(await page.locator('.workspace').boundingBox())!.width).toBeCloseTo(1600,0);
+ await page.getByRole('button',{name:'Open artifact in workspace',exact:true}).click();await expect.poll(async()=>{const main=await page.locator('.workspace').boundingBox(),panel=await page.locator('.workspace-right').boundingBox();return Math.abs(main!.x+main!.width-panel!.x)<1&&Math.abs(panel!.x+panel!.width-1600)<1;}).toBe(true);
 });
-test('expanded Plan reserves usable room and shifts conversation and composer together',async({page})=>{
- await page.setViewportSize({width:1440,height:1000});const plan=await open(page),usage=page.getByRole('region',{name:'Live usage',exact:true});const main=await page.locator('.workspace').boundingBox(),composer=await page.locator('.composer-dock').boundingBox();
- expect(main!.x+main!.width).toBeLessThanOrEqual((await plan.boundingBox())!.x-8);expect(composer!.x+composer!.width/2).toBeCloseTo(main!.x+main!.width/2,0);const conversation=await page.locator('.conversation').boundingBox();expect(conversation!.x+conversation!.width).toBeLessThanOrEqual((await plan.boundingBox())!.x-8);
- const p=await plan.boundingBox(),u=await usage.boundingBox();expect(p!.y+p!.height).toBeLessThanOrEqual(u!.y-8);
+test('expanded context keeps the header and composer across the full available chat frame',async({page})=>{
+ await page.setViewportSize({width:1440,height:1000});const plan=await open(page);
+ const main=(await page.locator('.workspace').boundingBox())!,header=(await page.locator('.workspace-header').boundingBox())!,composer=(await page.locator('.composer-dock').boundingBox())!;
+ expect(main.x+main.width).toBeCloseTo(1440,0);expect(header.x+header.width).toBeCloseTo(main.x+main.width,0);expect(composer.x+composer.width/2).toBeCloseTo(main.x+main.width/2,0);
+ expect((await plan.boundingBox())!.x).toBeGreaterThan(main.x);
 });
-test('dragging and keyboard movement only change vertical position, and both expanded windows stay apart',async({page})=>{
- await page.setViewportSize({width:1600,height:1100});const plan=await open(page),move=plan.getByRole('button',{name:'Move Task plan',exact:true}),before=await plan.boundingBox(),handle=await move.boundingBox();await page.mouse.move(handle!.x+20,handle!.y+12);await page.mouse.down();await page.mouse.move(handle!.x-150,handle!.y+62,{steps:10});await page.mouse.up();await expect.poll(async()=>Math.round((await plan.boundingBox())!.y)).toBe(Math.round(before!.y+50));expect((await plan.boundingBox())!.x).toBeCloseTo(before!.x,0);
- await move.focus();await move.press('ArrowLeft');await move.press('ArrowRight');expect((await plan.boundingBox())!.x).toBeCloseTo(before!.x,0);const usage=page.getByRole('region',{name:'Live usage',exact:true});await usage.getByRole('button',{name:'Inspect live usage',exact:true}).click();await expect.poll(async()=>{const p=await plan.boundingBox(),u=await usage.boundingBox();return p!.y+p!.height<=u!.y-8;}).toBe(true);
+
+test('protected context has only minimize controls while keeping the composer draft',async({page})=>{
+ await page.setViewportSize({width:1600,height:1100});const plan=await open(page);
+ await page.getByRole('textbox',{name:'Message',exact:true}).fill('Keep composing');
+ await expect(plan.getByRole('button',{name:/^Move |^Resize |^Detach |^Close |^Reset /})).toHaveCount(0);await plan.getByRole('button',{name:'Minimize Project context',exact:true}).click();await expect(plan).toBeVisible();await plan.getByRole('button',{name:'Expand Project context',exact:true}).click();await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('Keep composing');
 });
-test('closing and minimizing Plan restore full conversation width and preserve mounted content',async({page})=>{
- await page.setViewportSize({width:1440,height:1000});const plan=await open(page),body=await page.getByRole('region',{name:'Task plan',exact:true}).elementHandle(),before=await page.locator('.workspace').boundingBox();await plan.getByRole('button',{name:'Close Task plan',exact:true}).click();await page.getByRole('button',{name:'Close Live usage',exact:true}).click();
- await expect.poll(async()=>(await page.locator('.workspace').boundingBox())!.width).toBeCloseTo(before!.width+400,0);await showPlan(page);await plan.getByRole('button',{name:'Minimize Task plan',exact:true}).click();await expect.poll(async()=>(await page.locator('.workspace').boundingBox())!.width).toBeCloseTo(before!.width+400,0);await plan.getByRole('button',{name:'Expand Task plan',exact:true}).click();expect(await page.getByRole('region',{name:'Task plan',exact:true}).evaluate((el,old)=>el===old,body)).toBe(true);
+
+test('minimizing context leaves no blank lane and preserves the artifact renderer',async({page})=>{
+ await page.setViewportSize({width:1440,height:1000});const plan=await open(page),body=await page.getByText('Inspect the checkout calculation.',{exact:true}).elementHandle(),before=(await page.locator('.workspace').boundingBox())!;
+ await plan.getByRole('button',{name:'Minimize Project context',exact:true}).click();await expect.poll(async()=>(await page.locator('.workspace').boundingBox())!.width).toBeCloseTo(before.width,0);
+ await plan.getByRole('button',{name:'Expand Project context',exact:true}).click();expect(await page.getByText('Inspect the checkout calculation.',{exact:true}).evaluate((node,old)=>node===old,body)).toBe(true);
 });
+
 test('narrow explicit tools occupy a bounded flow region without covering composer or Stop',async({page})=>{
  await page.setViewportSize({width:390,height:844});await page.emulateMedia({reducedMotion:'reduce'});const value=snapshot();value.threads[0].status='working';value.threads[0].runId='fixture-run';await serveTaskFixture(page,value);await page.goto('/');await showPlan(page);const usage=await showUsage(page);await usage.getByRole('button',{name:'Inspect live usage',exact:true}).click();
  const rail=page.getByRole('complementary',{name:'Task tools',exact:true});await expect(rail).toBeVisible();const main=await page.locator('.workspace').boundingBox(),region=await rail.boundingBox();expect(main!.y+main!.height).toBeLessThanOrEqual(region!.y+1);

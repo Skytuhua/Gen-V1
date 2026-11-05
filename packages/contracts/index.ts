@@ -1,6 +1,6 @@
 export type TaskStatus = "ready" | "working" | "awaiting_input" | "stopped" | "interrupted" | "completed" | "failed";
 export interface ModelInfo { id: string; provider: string; name: string; thinkingLevels?: string[] }
-export interface Thread { id: string; title: string; projectName: string | null; createdAt: string; updatedAt: string; status: TaskStatus; epoch: number; runId: string | null; modelId: string | null; sessionPath: string | null; accountId?: string | null; mode?: 'plan' | 'build'; sideParentId?:string; thinkingLevel?:string|null; error?: string | null; presentation?: { pinned?: boolean; unread?: boolean; settled?: boolean; order?: number } }
+export interface Thread { id: string; title: string; projectName: string | null; createdAt: string; updatedAt: string; status: TaskStatus; epoch: number; runId: string | null; modelId: string | null; sessionPath: string | null; accountId?: string | null; mode?: 'plan' | 'build'; kind?:'main'|'side'|'delegate'; parentThreadId?:string;jobId?:string;projectId?:string;workspaceId?:string;sideParentId?:string; thinkingLevel?:string|null; error?: string | null; presentation?: { pinned?: boolean; unread?: boolean; settled?: boolean; order?: number } }
 export interface Message { id: string; threadId: string; role: "user" | "assistant" | "activity"; content: string; createdAt: string; runId: string | null }
 export interface TaskMemory { id: string; threadId: string; key: string; content: string; revision: number; author: 'user' | 'agent'; updatedAt: string }
 export interface ElementSpec { type: string; props: Record<string, unknown>; children?: string[] }
@@ -22,12 +22,16 @@ export interface LearningStatus {supported:boolean;status:'idle'|'reviewing'|'bl
 export interface WorkspaceEvent { seq: number; id: string; type: string; threadId: string | null; payload: unknown; occurredAt: string }
 export interface Snapshot { seq: number; threads: Thread[]; archivedThreads?: Thread[]; accounts?: import('./accounts.ts').ConnectionAccount[]; skills?:import('./skills.ts').SkillSummary[];skillProposals?:import('./skills.ts').SkillProposalSummary[];learning?:LearningStatus; messages: Message[]; artifacts: ArtifactRecord[]; userStates: UserStateRecord[]; data: DataRecord[]; requests: InputRequest[]; operations: Operation[]; resources: ResourceGrant[]; memory?: TaskMemory[]; usage: Record<string, RuntimeUsage>; settings: { theme: "light" | "dark" | "system"; modelId: string | null; selectedAccounts?: import('./accounts.ts').AccountSelections; preferences?: import('./preferences.ts').PreferencePatch }; activeThreadId: string | null }
 export interface RunContext { threadId: string; runId: string; epoch: number }
+/** Host custody only: never accepted from tool arguments or encoded into model prompts. */
+export interface ApprovedWriteOrigin extends RunContext {sessionPath:string;modelId:string;accountId:string|null;projectId:string;workspaceId:string;projectRoot:string}
+export interface CompletedWriteReceipt {operationId:string;revision:number;inputId:string;origin:ApprovedWriteOrigin;path:string;sha256:string;bytes:number;delivery?:RunContext}
+export interface WriteHookDiagnostic {operationId:string;revision:number;inputId:string;status:'applied'|'failed'|'stale'|'disabled'|'no_project'|'scope_unavailable'|'unknown';message:string}
 export interface HostCommand { id: string; type: string; threadId?: string; payload: Record<string, unknown> }
 export interface CommandReceipt { commandId: string; eventSeq: number; result: unknown }
 export interface ToolCall { name: string; args: Record<string, unknown> }
 export interface RuntimeEvent { type: string; threadId: string; runId: string; epoch: number; [key: string]: unknown }
 export interface RuntimeCallbacks { onEvent: (event: RuntimeEvent) => void; onTool: (call: ToolCall, ctx: RunContext) => Promise<unknown> }
-export interface StartRun extends RunContext { prompt: string; modelId: string; thinkingLevel?:string|null; sessionPath: string | null; accountId?: string | null; inputId: string; inputIds?: string[]; resources: ResourceGrant[]; memory?: string }
+export interface StartRun extends RunContext { prompt: string; modelId: string; thinkingLevel?:string|null; sessionPath: string | null; accountId?: string | null; inputId: string; inputIds?: string[]; resources: ResourceGrant[]; memory?: string; completedWrites?:CompletedWriteReceipt[] }
 export interface RuntimeAdapter {
   configure(callbacks: RuntimeCallbacks): void;
   models(options?: { refresh?: boolean; accountId?: string | null }): Promise<ModelInfo[]>;

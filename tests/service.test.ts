@@ -49,11 +49,19 @@ describe("thread and UI integrity",()=>{
   const first=await x.service.tool(call,x.ctx());expect(await x.service.tool(call,x.ctx())).toEqual(first);expect(count()).toBe(before+1);
   await expect(x.service.tool({...call,args:{...call.args,title:"Changed"}},x.ctx())).rejects.toMatchObject({code:"DUPLICATE_COMMAND"});
  });
- it("binds one thread/task/session and blocks another run without losing its draft",async()=>{
+ it("admits three main threads and rejects a fourth without acknowledging its draft",async()=>{
   const x=await setup();await x.send("message.send",{content:"Inspect",modelId:"test/model"},x.threadId);
-  const next=await x.send("thread.create",{title:"B"});const id=(next.result as Thread).id;
+  const ids:string[]=[];for(const title of ['B','C','D'])ids.push(((await x.send('thread.create',{title})).result as Thread).id);
+  for(const id of ids.slice(0,2))await x.send('message.send',{content:'Other',modelId:'test/model'},id);
+  const id=ids[2];
   await expect(x.send("message.send",{content:"Other",modelId:"test/model"},id)).rejects.toMatchObject({code:"RUN_BUSY"});
   expect(x.store.all("message",id)).toHaveLength(0);
+ });
+
+ it('rejects user sends and run mutations against read-only delegate threads',async()=>{
+  const x=await setup(),parent=x.store.get<Thread>('thread',x.threadId)!;x.store.internal('fixture.delegate',parent.id,()=>x.store.put('thread','delegate','delegate',{...parent,id:'delegate',kind:'delegate',parentThreadId:parent.id,jobId:'job'}));
+  for(const type of ['message.send','run.resume','run.stop','run.compact','resource.grant','thread.mode'])await expect(x.send(type,{content:'forged',modelId:'test/model'},'delegate')).rejects.toMatchObject({code:'DELEGATE_READ_ONLY'});
+  expect(x.store.all('outbox','delegate')).toEqual([]);
  });
  it("rejects late presentation after Stop while leaving committed UI intact",async()=>{
   const x=await setup();await x.send("message.send",{content:"Inspect",modelId:"test/model"},x.threadId);

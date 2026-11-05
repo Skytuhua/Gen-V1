@@ -2,8 +2,6 @@
 
 Gen keeps the conversation at the center. A task interface adds a way to inspect, edit or decide without replacing the discussion that explains the work.
 
-This tour shows the 0.6.4 source preview under review in [PR #1](https://github.com/Skytuhua/Gen-V1/pull/1). The published installer and current main branch remain v0.6.1; newer controls and the plug-in API are not included in that download.
-
 [Get started](getting-started.md) · [Watch the demos](media/README.md#demos) · [Release status](release-notes.md)
 
 ## Interactive work, inline
@@ -62,7 +60,7 @@ The narrow capture is a browser layout demonstration. It does not establish a mo
 
 Plug-in API v1 supports separately versioned packages, declared capabilities and their own durable state. The host checks compatibility and file manifests; data stays outside application updates. Gen builds and opens without an installed plug-in.
 
-The API requires Gen 0.6.4; packages declare supported versions. See [the source-preview API and packaging contract](https://github.com/Skytuhua/Gen-V1/blob/cb504d0e392fde9e70883b7b7c2e808e13488b7c/docs/plugin-api.md) for manifests, install/update behavior and bridge boundaries. No particular external service or plug-in’s live authority is implied.
+The API requires Gen 0.6.4; packages declare supported versions. See [the public API and packaging contract](../plugin-api.md) for manifests, install/update behavior and bridge boundaries. No particular external service or plug-in’s live authority is implied.
 
 ## Local application, connected inference
 

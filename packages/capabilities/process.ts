@@ -1,24 +1,32 @@
 import { spawn } from "node:child_process";
 import { join } from "node:path";
+import {existsSync} from 'node:fs';
+import {fileURLToPath} from 'node:url';
 import { StringDecoder } from 'node:string_decoder';
 import { HarnessError } from "../contracts/index.ts";
 export interface ProcessResult { status: "succeeded" | "failed" | "cancelled"; exitCode: number | null; signal: string | null; cancelled: boolean; timedOut: boolean; stdout: string; stderr: string; truncated: boolean }
+export function gitExecutable():string{
+  const bundled=process.env.HARNESS_BUNDLED_GIT??fileURLToPath(new URL('../../.harness-tool-bundles/git/cmd/git.exe',import.meta.url));
+  if(existsSync(bundled))return bundled;
+  if(process.env.HARNESS_PACKAGED==='1')throw new HarnessError('CAPABILITY_DENIED','Bundled Git is missing from this installation.');
+  return 'git';
+}
 export function processEnvironment(): NodeJS.ProcessEnv {
   const env: NodeJS.ProcessEnv = {};
   for (const name of ["PATH", "Path", "SystemRoot", "WINDIR", "TEMP", "TMP", "HOME", "USERPROFILE", "APPDATA", "LOCALAPPDATA"]) if (process.env[name]) env[name] = process.env[name];
   return { ...env, GIT_CONFIG_NOSYSTEM: "1", GIT_CONFIG_GLOBAL: process.platform === "win32" ? "NUL" : "/dev/null", GIT_OPTIONAL_LOCKS: "0", GIT_TERMINAL_PROMPT: "0", GIT_NO_LAZY_FETCH: "1" };
 }
-export async function runProcess(command: string, args: string[], cwd: string, signal: AbortSignal, progress: (message: string) => void, timeoutMs = 120_000): Promise<ProcessResult> {
+export async function runProcess(command: string, args: string[], cwd: string, signal: AbortSignal, progress: (message: string) => void, timeoutMs = 120_000, environment:NodeJS.ProcessEnv={},outputLimit=256*1024): Promise<ProcessResult> {
   if (signal.aborted) throw new HarnessError("CANCELLED", "Operation cancelled before process start");
   return new Promise((resolve, reject) => {
-    const child = spawn(command, args, { cwd, env: processEnvironment(), shell: false, windowsHide: true, detached: process.platform !== "win32", stdio: ["ignore", "pipe", "pipe"] });
+    const child = spawn(command, args, { cwd, env: {...processEnvironment(),...environment}, shell: false, windowsHide: true, detached: process.platform !== "win32", stdio: ["ignore", "pipe", "pipe"] });
     let truncated = false, cancelled = false, timedOut = false, settled = false;
     const capture = (stream: NodeJS.ReadableStream) => {
       let text = '', bytes = 0, full = false;
       stream.setEncoding('utf8');
       stream.on('data', (chunk: string) => {
         if (full) return;
-        const data = Buffer.from(chunk), remaining = 256 * 1024 - bytes;
+        const data = Buffer.from(chunk), remaining = outputLimit - bytes;
         if (data.length > remaining) { truncated = true; full = true; chunk = new StringDecoder('utf8').write(data.subarray(0, remaining)); }
         text += chunk; bytes += Buffer.byteLength(chunk);
       });

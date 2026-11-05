@@ -12,7 +12,7 @@ export function createConversationScroll(element:HTMLElement){
  const write=(value:number)=>{element.scrollTop=Math.min(maximum(),Math.max(0,value));ownedTop=element.scrollTop;};
  let spring=createSpringValue(element.scrollTop,write);
  const interrupt=()=>{spring.dispose();spring=createSpringValue(element.scrollTop,write);ownedTop=undefined;following=false;};
- const follow=()=>{if(!disposed&&following)spring.to(maximum(),preference.matches||document.visibilityState==='hidden'||!element.getClientRects().length);};
+ const follow=()=>{if(!disposed&&!dragging&&following)spring.to(maximum(),preference.matches||document.visibilityState==='hidden'||!element.getClientRects().length);};
  const observed=new Set<Element>();
  const observer=new ResizeObserver(follow);
  observer.observe(element);
@@ -50,6 +50,12 @@ export function createConversationScroll(element:HTMLElement){
  document.addEventListener('visibilitychange',settleHidden);
  preference.addEventListener('change',motionChanged);
  return {
+  beginManualScroll(){if(!disposed){dragging=true;interrupt();}},
+  scrollTo(top:number):ConversationPosition{
+   if(!disposed&&Number.isFinite(top)){interrupt();element.scrollTop=Math.max(0,Math.min(maximum(),top));following=!dragging&&nearTail();}
+   return {top:element.scrollTop,tail:following};
+  },
+  endManualScroll(){if(!disposed){dragging=false;following=nearTail();}},
   update(id:string,position:ConversationPosition,anchor?:ConversationAnchor){
    if(disposed)return;
    observeContent();

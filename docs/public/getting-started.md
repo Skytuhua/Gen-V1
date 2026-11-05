@@ -18,8 +18,6 @@ This is a prerelease. There is no published stable 0.6.4 installer yet. The curr
 
 Use Windows x64 with Node.js **24.10.0 or newer**, pnpm **10.30.3** and CPython **3.14** with pip. Desktop verification targets Windows; macOS and Linux desktop acceptance are not established.
 
-The commands below use the current main branch, v0.6.1. The newer interface and plug-in API shown in the gallery are still under review in [PR #1](https://github.com/Skytuhua/Gen-V1/pull/1).
-
 From PowerShell:
 
 ```powershell
@@ -46,17 +44,6 @@ Choose one entry:
 | Built browser interface | `pnpm build`, then `pnpm start` | `http://127.0.0.1:4317` |
 
 Development starts the backend on loopback port 4317 and the generated-app receiver on 4318. Keep ports distinct and avoid sharing a profile between active instances. Remote or multi-user hosting is not an accepted deployment mode.
-
-### Inspect the newer source preview
-
-To inspect the 0.6.4 source used for the gallery, select its review branch after cloning and before installing dependencies:
-
-```powershell
-git fetch origin feat/restore-harness-private-plugin-boundary
-git switch --detach FETCH_HEAD
-```
-
-Then follow the dependency and isolated-profile setup above. This is an application source preview, separate from the published v0.6.1 installer; its merge and installed-update acceptance remain pending. The following navigation tour describes that newer interface.
 
 ## Connect an account
 

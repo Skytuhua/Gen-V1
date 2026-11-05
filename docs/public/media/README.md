@@ -2,8 +2,6 @@
 
 These screenshots and recordings show the actual public Gen interface, rendered in Chromium from source commit `cb504d0e392fde9e70883b7b7c2e808e13488b7c` (0.6.4 source). The conversations, project labels, model catalog, trace, checklist and skills are **authored sample data**.
 
-That application source is under review in [PR #1](https://github.com/Skytuhua/Gen-V1/pull/1). The current main branch and published installer are v0.6.1, so the gallery is a preview of the upcoming interface.
-
 No personal conversation, account, credential or application profile was used. The examples make no live model requests and execute no external changes. Model entries demonstrate the picker; they do not establish account entitlement or provider availability. The browser captures do not establish native installation or updater acceptance.
 
 [Back to Gen](../../../README.md) · [Feature tour](../features.md) · [Preview limits](../release-notes.md)

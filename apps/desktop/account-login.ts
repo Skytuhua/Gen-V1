@@ -13,6 +13,7 @@ export function createAccountLoginFlows(launch: (provider: ConnectionProviderId,
   };
   const status = (id: string) => { const flow = history.get(id); return flow ? { ...flow } : null; };
   return {
+    isBusy:()=>active!==undefined,
     status,
     async start(providerId: ConnectionProviderId, accountId: string | null): Promise<AccountLoginFlow> {
       if (active) {
