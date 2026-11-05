@@ -5,26 +5,27 @@ labels: []
 body:
   - type: markdown
     attributes:
-      value: "Use synthetic or redacted data. Do not upload credentials, application profiles or private conversations. Follow SECURITY.md for sensitive findings."
+      value: "Thanks for reporting a problem. Search existing issues first and use synthetic or redacted data. Do not upload credentials, application profiles or private conversations. For sensitive findings, follow [SECURITY.md](https://github.com/Skytuhua/Gen-V1/blob/main/SECURITY.md)."
   - type: input
     id: version
     attributes:
       label: Version or commit
-      placeholder: "Release version or source commit"
+      placeholder: "For example: v0.6.4, or the commit used for a source build"
     validations:
       required: true
   - type: textarea
     id: environment
     attributes:
       label: Environment
-      description: "Windows version, desktop or browser, and Node/Python versions for source builds."
+      description: "Windows version, desktop or browser (include browser version), and Node/Python versions for source builds. Do not include private paths or account identifiers."
     validations:
       required: true
   - type: textarea
     id: reproduce
     attributes:
       label: Steps to reproduce
-      description: "Include a minimal example with sample data."
+      description: "List the smallest steps that reproduce the problem, using sample data. Say whether it happens every time or intermittently."
+      placeholder: "1. Open ...\n2. Select ...\n3. Observe ..."
     validations:
       required: true
   - type: textarea
@@ -37,6 +38,11 @@ body:
     id: actual
     attributes:
       label: Actual behavior
-      description: "Add screenshots or short redacted logs if helpful."
+      description: "Describe what happened. Screenshots or short redacted logs are helpful; caption any sample data or scripted behavior and remove credentials, account identifiers and private paths."
     validations:
       required: true
+  - type: textarea
+    id: workaround
+    attributes:
+      label: Workaround or additional context
+      description: "Optional. Include anything you tried or a related issue. You do not need to know the cause."

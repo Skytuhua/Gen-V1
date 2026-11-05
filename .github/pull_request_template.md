@@ -2,13 +2,20 @@
 
 Describe the concrete problem and resulting behavior.
 
+Related issue:
+
 ## Verification
 
 - Checks run and results:
-- Checks skipped or remaining acceptance gates:
-- Screenshots for visible changes (identify sample data):
+- Checks skipped and why; remaining acceptance gates:
+- For documentation changes, links and formatting reviewed:
+- Screenshots or recording for visible changes (caption sample data or scripted behavior):
 
 ## Review notes
 
 - Relevant ownership, recovery or compatibility considerations:
-- No credentials, personal profiles or raw private traces are included.
+- Anything you would like help reviewing:
+
+- [ ] This PR has one focused scope agreed with the maintainer.
+- [ ] Shared examples and images are synthetic or redacted; no credentials, personal profiles or private traces are included.
+- [ ] Generated output is excluded, and applicable third-party notices are preserved.
