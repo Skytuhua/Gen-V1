@@ -75,7 +75,7 @@ it('moves a dragged tab to the center target and minimizes to a reachable strip'
 });
 it('rejects an incoming conversation that cannot fit its actual minimum',async()=>{
  const tab=await page();try{
-  await issue(tab,'pane.join',{paneId:'right'});await tab.setViewportSize({width:600,height:700});await tab.waitForFunction(()=>document.querySelectorAll('[data-split-pane]').length===1);
+  await issue(tab,'pane.join',{paneId:'right'});await tab.setViewportSize({width:600,height:700});await tab.waitForFunction(()=>document.querySelector('.split-workspace.is-narrow')?.getBoundingClientRect().width===600);
   const target=await tab.locator('[data-split-pane="pane-main"] .split-pane-slot').boundingBox();if(!target)throw Error('Missing pane');
   const dataTransfer=await tab.evaluateHandle(()=>{const data=new DataTransfer();data.setData('application/x-gen-thread',JSON.stringify({threadId:'two',binding:{authority:{kind:'local'},threadId:'two'}}));return data;});
   await tab.locator('.split-workspace').dispatchEvent('drop',{dataTransfer,clientX:target.x+target.width-1,clientY:target.y+target.height/2});

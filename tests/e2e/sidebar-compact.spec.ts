@@ -6,13 +6,23 @@ test.beforeEach(async({page})=>{
  await page.goto('/sidebar-compact-check');
  await expect(page.getByRole('complementary',{name:'Thread navigation'})).toBeVisible();
 });
-test('compact rows lead with title, keep readable metadata and preserve detail access',async({page})=>{
+test('compact rows show project monogram chip, readable title and metadata, and preserve detail access',async({page})=>{
+ const searchBox=await page.getByRole('textbox',{name:'Search threads',exact:true}).boundingBox();
+ const filterBox=await page.getByRole('button',{name:'Filter threads',exact:true}).boundingBox();
+ const newThreadBox=await page.getByRole('button',{name:'New thread',exact:true}).boundingBox();
+ expect(Math.abs(searchBox!.y-filterBox!.y)).toBeLessThanOrEqual(4);
+ expect(Math.abs(searchBox!.y-newThreadBox!.y)).toBeLessThanOrEqual(4);
+
  const row=page.locator('.sidebar-thread-row').first(),item=row.locator('.thread-item');
- await expect(item.locator(':scope > :first-child')).toHaveClass('thread-item-title');
- expect((await row.boundingBox())!.height).toBeLessThanOrEqual(56);
- expect(await item.locator('.thread-item-title').evaluate(node=>getComputedStyle(node).fontSize)).toBe('14px');
- expect(await item.locator('.thread-item-meta').evaluate(node=>parseFloat(getComputedStyle(node).fontSize))).toBeGreaterThanOrEqual(12);
- await expect(page.locator('.thread-project-name,.thread-item-context')).toHaveCount(0);
+ await expect(item.locator(':scope > :first-child')).toHaveClass('thread-item-header');
+ await expect(item.locator('.thread-project-monogram')).toHaveText('EP');
+ await expect(item.locator('.thread-project-label')).toHaveText('Example project');
+ await expect(item.locator('.thread-branch-meta')).toContainText('feature/compact-sidebar');
+ expect((await row.boundingBox())!.height).toBeLessThanOrEqual(74);
+ expect((await page.locator('.sidebar-thread-row').nth(3).boundingBox())!.height).toBeLessThanOrEqual(58);
+ expect(await item.evaluate(node=>getComputedStyle(node).borderLeftWidth)).toBe('0px');
+ expect(await item.locator('.thread-item-title').evaluate(node=>parseFloat(getComputedStyle(node).fontSize))).toBeGreaterThanOrEqual(13);
+ expect(await item.locator('.thread-item-meta').evaluate(node=>parseFloat(getComputedStyle(node).fontSize))).toBeGreaterThanOrEqual(11.5);
  await expect(item).toHaveAttribute('title',/feature\/compact-sidebar.*openai\/gpt-6.1-sol/);
  await row.getByRole('button',{name:/Options for/}).focus();
  await page.keyboard.press('Enter');

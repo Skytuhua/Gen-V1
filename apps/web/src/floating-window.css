@@ -25,14 +25,11 @@
 .floating-window-body[data-collapsed=true] {opacity:0;visibility:hidden;transition:opacity 100ms ease-out,visibility 0s 100ms;}
 .floating-window .plan-status {padding:16px 16px 20px;}
 .floating-window-content {display:flow-root;min-width:0;}
-.composer-header-utilities {display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap;min-width:0;}
-.composer-header-utilities:has(.resource-strip) {margin-bottom:8px;}
+.composer-header-utilities {display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;min-width:0;margin-bottom:8px;}
+.composer-header-utilities:empty {display:none;margin-bottom:0;}
 .composer-header-utilities>.resource-strip {flex:1 1 180px;min-width:0;margin:0;overflow:hidden;}
 .composer-header-utilities>.resource-strip .resource-chip {max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .composer-header-utilities>.composer-secondary-actions {flex:0 1 auto;margin:0 0 0 auto;}
-.composer-header-utilities:not(:has(.resource-strip)) {height:0;position:relative;}
-.composer-header-utilities:not(:has(.resource-strip))>.composer-secondary-actions {position:absolute;right:0;top:0;}
-.composer:not(:has(.resource-strip))>textarea {padding-right:160px;}
 .floating-window-interaction,.floating-window-interaction * {user-select:none!important;}
 .floating-usage-details {padding:12px 14px;}
 .floating-usage-details dl {display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px 14px;margin:10px 0 0;font-size:12px;line-height:1.5;font-variant-numeric:tabular-nums;}
@@ -52,10 +49,10 @@
 .floating-rail-slot .project-context-floating {max-height:min(360px,44dvh,100%);}
 .floating-rail-slot .floating-usage-window {max-height:min(260px,35dvh,100%);}
 :is(.project-context-floating,.floating-usage-window)>.floating-window-header:not([data-compact=true]) {min-height:32px;flex-basis:32px;padding:2px 5px;}
-.project-context-floating .project-context-card .project-context-section {padding:6px 10px;}
-.project-context-floating .project-context-card .project-context-machine {min-height:25px;gap:6px;}
+.project-context-floating .project-context-card .project-context-section {padding:8px 10px;}
+.project-context-floating .project-context-card .project-context-machine {min-height:27px;gap:7px;padding:2px 4px;}
 .project-context-floating .project-context-card .project-context-machine strong {font-size:12px;}
-.project-context-floating .project-context-card .project-context-row {min-height:28px;font-size:12px;gap:6px;}
+.project-context-floating .project-context-card .project-context-row {min-height:30px;font-size:12px;gap:8px;padding:4px 7px;border-radius:7px;}
 .project-context-floating .project-context-card .project-context-tools {padding:0 10px 4px;}
 .project-context-floating .project-context-tools>summary {min-height:28px;font-size:11px;}
 .project-context-floating .project-context-card .project-context-note {font-size:11px;line-height:1.5;}

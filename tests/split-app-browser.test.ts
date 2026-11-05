@@ -29,10 +29,10 @@ describe.runIf(enabled)('actual App split workspace',()=>{
  },20000);
  afterAll(async()=>{try{await browser?.close();}finally{if(server&&server.exitCode===null){server.kill();await new Promise<void>(resolve=>{const timer=setTimeout(resolve,2000);server!.once('exit',()=>{clearTimeout(timer);resolve();});});}}});
 
- async function fixture({plan=false,plugins=[],retainedCanvas=false,retainedPlan=false,unstarted=false,width=1600,deferPluginFlush=false}:{plan?:boolean;plugins?:PluginManifest[];retainedCanvas?:boolean;retainedPlan?:boolean;unstarted?:boolean;width?:number;deferPluginFlush?:boolean}={}){
+ async function fixture({plan=false,plugins=[],retainedCanvas=false,retainedPlan=false,unstarted=false,width=1600,deferPluginFlush=false,mode='split'}:{plan?:boolean;plugins?:PluginManifest[];retainedCanvas?:boolean;retainedPlan?:boolean;unstarted?:boolean;width?:number;deferPluginFlush?:boolean;mode?:'split'|'chat'}={}){
   const page=await browser!.newPage({viewport:{width,height:1000}});page.setDefaultTimeout(7000);
   const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));
-  await page.addInitScript(()=>{if(window.parent===window)localStorage.setItem('harness:selected-thread','thread-a');});
+  await page.addInitScript((initialMode)=>{if(window.parent===window){localStorage.setItem('harness:selected-thread','thread-a');if(initialMode==='split')localStorage.setItem('harness:workspace-mode:v3','split');}},mode);
   const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Synthetic artifact retained in the original renderer'}}}});
   const main={...snapshot.threads[0]!,id:'thread-a',title:'First investigation',projectId:'project-a',projectName:'First project',modelId:'test/model-a'};
   snapshot.threads=[main,{...main,id:'thread-b',title:'Second investigation',projectId:'project-b',projectName:'Second project',modelId:'test/model-b'},{...main,id:'agent-a',title:'Inspect source',kind:'delegate',parentThreadId:'thread-a',status:'working'},{...main,id:'side-a',title:'Related discussion',kind:'side',sideParentId:'thread-a'}];
@@ -88,8 +88,10 @@ describe.runIf(enabled)('actual App split workspace',()=>{
   </script></body></html>`});});
   await page.route('**/split-app-check',route=>route.fulfill({contentType:'text/html',body:`<html><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${fixtureModule}');</script></body></html>`}));
   await page.goto(origin+'/split-app-check');
-  if(width<700)await page.getByRole('combobox',{name:'Active workspace area',exact:true}).selectOption('pane-main');
-  await page.locator('[data-split-view="thread:thread-a"]').getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});
+  if(mode==='split'){
+   if(width<700)await page.getByRole('combobox',{name:'Active workspace area',exact:true}).selectOption('pane-main');
+   await page.locator('[data-split-view="thread:thread-a"]').getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});
+  }else await page.locator('.shell-workarea').getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});
   return{...host,page,errors,splitCommands,workspaceCommands,envelope,profiles,get layout(){return layout;},async issue(type:string,payload:Record<string,unknown>){layout=applySplitWorkspaceCommand(layout,type,payload);await page.evaluate(()=>window.dispatchEvent(new Event('harness:workspace-changed')));}};
  }
 
@@ -206,7 +208,40 @@ describe.runIf(enabled)('actual App split workspace',()=>{
   const present=await fixture({plugins:[plugin],deferPluginFlush:true});try{
    const studio=present.page.getByRole('button',{name:'Studio',exact:true});expect(await studio.count()).toBe(1);await studio.click();const frame=present.page.getByTitle('Studio',{exact:true});await frame.waitFor({state:'visible'});expect(await frame.getAttribute('sandbox')).toBe('allow-scripts');expect(await frame.getAttribute('src')).toContain('&workspace=studio&view=map');
    const scoped=present.page.frames().find(value=>value.url().includes('/plugins/sample-visuals/frame'))!;await scoped.waitForFunction(()=>(window as any).fixtureConnected===true);await present.page.getByRole('navigation',{name:'Installed plug-ins',exact:true}).getByRole('button',{name:'Sample visuals',exact:true}).click();await scoped.waitForFunction(()=>(window as any).fixtureFlushPending.length>0);expect(await frame.isVisible()).toBe(true);expect(await studio.getAttribute('aria-pressed')).toBe('true');expect(await present.page.getByTitle('Sample visuals',{exact:true}).count()).toBe(0);await scoped.evaluate(()=>(window as any).releaseFixtureFlush());await present.page.getByTitle('Sample visuals',{exact:true}).waitFor({state:'visible'});expect(await frame.isVisible()).toBe(false);
-   const workspace=present.page.getByRole('button',{name:'Workspace',exact:true});expect(await workspace.isVisible()).toBe(true);await workspace.click();await present.page.locator('[data-split-view="thread:thread-a"]').getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});expect(present.errors).toEqual([]);
-  }finally{await present.page.close();}
+   const workspace=present.page.getByRole('button',{name:'Workspace',exact:true});expect(await workspace.isVisible()).toBe(true);await workspace.click();await present.page.locator('.shell-workarea').getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});expect(await present.page.locator('.split-workspace').count()).toBe(0);expect(present.errors).toEqual([]);
+   }finally{await present.page.close();}
+ },30000);
+
+ it('defaults to single-chat view with a top-right workspace panel toggle, hides right popups while open, and removes the split history bar',async()=>{
+  const host=await fixture({mode:'chat',plan:true}),{page}=host;try{
+   expect(await page.locator('.split-workspace').count()).toBe(0);
+   const message=page.locator('.shell-workarea').getByRole('textbox',{name:'Message',exact:true});await message.waitFor({state:'visible'});
+   const actionsBox=await page.locator('.composer .composer-secondary-actions').boundingBox(),inputBox=await message.boundingBox();
+   expect(actionsBox).not.toBeNull();expect(inputBox).not.toBeNull();expect(actionsBox!.y+actionsBox!.height).toBeLessThanOrEqual(inputBox!.y+1);
+   const overview=page.getByRole('region',{name:'Project overview window',exact:true});await overview.waitFor({state:'visible'});
+   await page.locator('.sidebar-thread-row').first().getByRole('button',{name:/Options for/}).click();
+   expect(await page.getByRole('button',{name:'Place in workspace',exact:false}).count()).toBe(0);
+   await page.keyboard.press('Escape');
+   await page.getByRole('button',{name:'Panels',exact:true}).click();
+   expect(await page.getByRole('button',{name:'Add Conversation panel',exact:true}).count()).toBe(0);
+   await page.getByRole('button',{name:'Add Usage panel',exact:true}).click();
+   await page.getByRole('complementary',{name:'Workspace panel',exact:true}).waitFor({state:'visible'});
+   await page.getByRole('button',{name:'Hide workspace panel',exact:true}).click();
+   await page.keyboard.press('Escape');
+   await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();
+   const panel=page.getByRole('complementary',{name:'Workspace panel',exact:true});await panel.waitFor({state:'visible'});
+   await overview.waitFor({state:'hidden'});
+   expect(await panel.getByRole('tab',{name:'Plan',exact:true}).isVisible()).toBe(true);expect(await panel.getByRole('tab',{name:'Notes',exact:true}).isVisible()).toBe(true);
+   await page.getByRole('button',{name:'Hide workspace panel',exact:true}).click();await panel.waitFor({state:'hidden'});await overview.waitFor({state:'visible'});
+   if(await overview.getByRole('button',{name:'Expand Project overview',exact:true}).isVisible())await overview.getByRole('button',{name:'Expand Project overview',exact:true}).click();
+   await overview.getByRole('region',{name:'Plan summary',exact:true}).getByRole('button',{name:'Open full plan',exact:false}).click();
+   await panel.waitFor({state:'visible'});await overview.waitFor({state:'hidden'});await panel.getByRole('region',{name:'Task plan',exact:true}).waitFor({state:'visible'});
+   expect(await panel.locator('.plan-overall-fill').evaluate(node=>(node as HTMLElement).style.width)).toBe('50%');
+   await page.getByRole('button',{name:'Close workspace panel',exact:true}).click();await panel.waitFor({state:'hidden'});await overview.waitFor({state:'visible'});
+   await page.getByRole('button',{name:'Layouts',exact:true}).click();await page.getByRole('button',{name:'Use split workspace',exact:true}).click();
+   await page.locator('[data-split-view="thread:thread-a"]').getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});
+   expect(await page.getByRole('button',{name:'Undo layout',exact:true}).count()).toBe(0);expect(await page.getByRole('button',{name:'Redo',exact:true}).count()).toBe(0);expect(await page.getByRole('button',{name:'Restore last layout',exact:true}).count()).toBe(0);expect(await page.locator('.split-workspace-hint').count()).toBe(0);
+   expect(host.errors).toEqual([]);
+  }finally{await page.close();}
  },30000);
 });

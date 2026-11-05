@@ -25,10 +25,10 @@ const edgeLabel:Record<SplitDropEdge,string>={left:'Left',right:'Side by side',t
 const defaultTitle=(view:SurfaceRef)=>view.kind==='thread'?'Conversation':view.kind.replaceAll('-',' ');
 
 /** View bodies keep one stable DOM parent; layout changes only reposition their slots. */
-export function WorkspaceSplitLayout({layout,onCommand,renderView,title=defaultTitle,onDropThread,editorOptions=[],onSelectEditor,prepare,showHistory=true,className=''}:WorkspaceSplitLayoutProps){
+export function WorkspaceSplitLayout({layout,onCommand,renderView,title=defaultTitle,onDropThread,editorOptions=[],onSelectEditor,prepare,className=''}:WorkspaceSplitLayoutProps){
  const root=useRef<HTMLDivElement>(null),slots=useRef(new Map<string,HTMLDivElement>()),resize=useRef<ResizeGesture|null>(null),corner=useRef<CornerGesture|null>(null),pending=useRef(false);
- const[rects,setRects]=useState<Record<string,SlotRect>>({}),[size,setSize]=useState({width:0,height:0}),[previewRatio,setPreviewRatio]=useState<{id:string;ratio:number}|null>(null),[drop,setDrop]=useState<{paneId:string;edge:SplitDropEdge;outer?:boolean;joinFrom?:string}|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState(''),[hint,setHint]=useState(true);
- const minimum=minimumSplitSize(layout),narrow=size.width>0&&(size.width<700||size.width<minimum.width);
+ const[rects,setRects]=useState<Record<string,SlotRect>>({}),[size,setSize]=useState({width:0,height:0}),[previewRatio,setPreviewRatio]=useState<{id:string;ratio:number}|null>(null),[drop,setDrop]=useState<{paneId:string;edge:SplitDropEdge;outer?:boolean;joinFrom?:string}|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState('');
+ const minimum=minimumSplitSize(layout),narrow=size.width>0&&(size.width<700||size.width<minimum.width),topBar=narrow?30:0;
  const measure=useCallback(()=>{
   const host=root.current;if(!host)return;const basis=host.getBoundingClientRect(),next:Record<string,SlotRect>={};
   for(const[id,slot]of slots.current){const rect=slot.getBoundingClientRect();next[id]={left:rect.left-basis.left,top:rect.top-basis.top,width:rect.width,height:rect.height};}
@@ -46,7 +46,7 @@ export function WorkspaceSplitLayout({layout,onCommand,renderView,title=defaultT
  useEffect(()=>{const escape=(event:globalThis.KeyboardEvent)=>{if(event.key==='Escape'&&(resize.current||corner.current||drop)){event.preventDefault();cancel();}};window.addEventListener('keydown',escape);return()=>window.removeEventListener('keydown',escape);},[cancel,drop]);
  useEffect(()=>{cancel();},[layout.id,cancel]);
  const fitSplit=(paneId:string,edge:SplitDropEdge,outer=false,incoming?:SurfaceRef|'thread')=>{
-  const slot=outer?{width:size.width,height:size.height-30}:rects[paneId];if(!slot)return false;const pane=layout.panes[paneId],view=pane?.activeViewId?layout.views[pane.activeViewId]:undefined,minimum=outer?minimumSplitSize(layout):minimumViewSize(view),horizontal=edge==='left'||edge==='right';
+  const slot=outer?{width:size.width,height:size.height-topBar}:rects[paneId];if(!slot)return false;const pane=layout.panes[paneId],view=pane?.activeViewId?layout.views[pane.activeViewId]:undefined,minimum=outer?minimumSplitSize(layout):minimumViewSize(view),horizontal=edge==='left'||edge==='right';
   const added=incoming==='thread'?{width:320,height:220}:minimumViewSize(incoming);
   return horizontal?slot.width>=minimum.width+added.width+6:slot.height>=minimum.height+added.height+6;
  };
@@ -57,7 +57,7 @@ export function WorkspaceSplitLayout({layout,onCommand,renderView,title=defaultT
  const locateDrop=(event:DragEvent<HTMLDivElement>)=>{
   const host=root.current;if(!host)return null;const box=host.getBoundingClientRect(),x=event.clientX-box.left,y=event.clientY-box.top;
   const entry=Object.entries(rects).find(([paneId,rect])=>(!narrow||paneId===layout.focusedPaneId)&&rect.width>0&&rect.height>0&&x>=rect.left&&x<=rect.left+rect.width&&y>=rect.top-36&&y<=rect.top+rect.height);
-  if(!entry)return null;const[paneId,rect]=entry,outerEdge:SplitDropEdge|undefined=!narrow?(x<16?'left':x>box.width-16?'right':y>box.height-16?'bottom':y<50?'top':undefined):undefined;return{paneId,edge:outerEdge??splitDropEdge({x:x-rect.left,y:y-rect.top,width:rect.width,height:rect.height}),...(outerEdge?{outer:true}:{})};
+  if(!entry)return null;const[paneId,rect]=entry,outerEdge:SplitDropEdge|undefined=!narrow?(x<16?'left':x>box.width-16?'right':y>box.height-16?'bottom':y<topBar+20?'top':undefined):undefined;return{paneId,edge:outerEdge??splitDropEdge({x:x-rect.left,y:y-rect.top,width:rect.width,height:rect.height}),...(outerEdge?{outer:true}:{})};
  };
  const recognized=(event:DragEvent)=>Array.from(event.dataTransfer.types).some(type=>type===GEN_THREAD_DRAG_TYPE||type===GEN_VIEW_DRAG_TYPE);
  const dragOver=(event:DragEvent<HTMLDivElement>)=>{if(!recognized(event))return;event.preventDefault();event.dataTransfer.dropEffect='move';setDrop(locateDrop(event));};
@@ -104,10 +104,10 @@ export function WorkspaceSplitLayout({layout,onCommand,renderView,title=defaultT
  const visibleOwner=new Map<string,string>();for(const pane of Object.values(layout.panes))if(!pane.collapsed&&pane.activeViewId&&(!narrow||pane.id===layout.focusedPaneId))visibleOwner.set(pane.activeViewId,pane.id);
  const overlay=drop?rects[drop.paneId]:undefined;
  return <div ref={root} className={`split-workspace${narrow?' is-narrow':''} ${className}`} data-workspace-id={layout.id} aria-busy={busy} onPointerDownCapture={event=>{const paneId=(event.target as HTMLElement).closest<HTMLElement>('[data-split-view]')?.dataset.paneId;if(paneId&&paneId!==layout.focusedPaneId&&!busy)void send('pane.focus',{paneId},false);}} onDragOver={dragOver} onDragLeave={event=>{if(!event.currentTarget.contains(event.relatedTarget as Node|null))setDrop(null);}} onDrop={dropView}>
-  <div className="split-workspace-tools">{showHistory&&<><button disabled={busy||!layout.undoDepth} onClick={()=>{void send('history.undo',{});}}>Undo layout</button><button disabled={busy||!layout.redoDepth} onClick={()=>{void send('history.redo',{});}}>Redo</button><button disabled={busy||layout.revision===0} onClick={()=>{void send('layout.restore',{});}}>Restore last layout</button></>}{narrow&&<label>Area<select aria-label="Active workspace area" value={layout.focusedPaneId} onChange={event=>{void send('pane.focus',{paneId:event.target.value},false);}}>{splitPaneIds(layout.root).map(paneId=>{const viewId=layout.panes[paneId]!.activeViewId;return <option key={paneId} value={paneId}>{viewId?title(layout.views[viewId]!):'Empty area'}</option>;})}</select></label>}{hint&&<span className="split-workspace-hint">Drag a thread to an edge. Hover a divider or corner to arrange.<button aria-label="Dismiss workspace hint" onClick={()=>setHint(false)}>×</button></span>}</div>
+  {narrow&&<div className="split-workspace-tools"><label>Area<select aria-label="Active workspace area" value={layout.focusedPaneId} onChange={event=>{void send('pane.focus',{paneId:event.target.value},false);}}>{splitPaneIds(layout.root).map(paneId=>{const viewId=layout.panes[paneId]!.activeViewId;return <option key={paneId} value={paneId}>{viewId?title(layout.views[viewId]!):'Empty area'}</option>;})}</select></label></div>}
   {error&&<p role="alert" className="split-layout-error">{error}<button onClick={()=>setError('')}>Dismiss</button></p>}
   <div className="split-tree">{narrow?renderPane(layout.focusedPaneId):renderNode(layout.root)}</div>
   <div className="split-surface-plane">{Object.values(layout.views).map(view=>{const paneId=visibleOwner.get(view.id),slot=paneId?rects[paneId]:undefined,active=Boolean(slot&&slot.width>0&&slot.height>0);return <div key={view.id} className="split-surface" data-split-view={view.id} data-pane-id={paneId} style={active?{left:slot!.left,top:slot!.top,width:slot!.width,height:slot!.height}:{display:'none'}} inert={!active} aria-hidden={!active}>{renderView(view,active)}</div>;})}</div>
-  {drop&&overlay&&<div className={`split-drop-preview edge-${drop.edge}`} style={drop.outer?{left:0,top:30,width:size.width,height:size.height-30}:{left:overlay.left,top:overlay.top,width:overlay.width,height:overlay.height}}><span>{drop.joinFrom?'Join into this area':edgeLabel[drop.edge]}</span></div>}
+  {drop&&overlay&&<div className={`split-drop-preview edge-${drop.edge}`} style={drop.outer?{left:0,top:topBar,width:size.width,height:size.height-topBar}:{left:overlay.left,top:overlay.top,width:overlay.width,height:overlay.height}}><span>{drop.joinFrom?'Join into this area':edgeLabel[drop.edge]}</span></div>}
  </div>;
 }

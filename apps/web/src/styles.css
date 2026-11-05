@@ -80,7 +80,7 @@ button:has(>svg.lucide-x):hover:not(:disabled),button:has(>svg.lucide-circle-x):
 .local-status { display:flex; gap:5px; align-items:center; color:var(--muted); font-size:10px; }
 .local-status>span { background:var(--muted); width:5px; height:5px; border-radius:50%; }
 .workspace { flex:1; min-width:0; display:flex; flex-direction:column; position:relative; }
-.workspace-header { height:62px; flex:0 0 62px; padding:0 26px; display:flex; gap:12px; align-items:center; justify-content:space-between; }
+.workspace-header { height:52px; flex:0 0 52px; padding:0 20px; display:flex; gap:12px; align-items:center; justify-content:space-between; }
 .breadcrumb { display:flex; align-items:center; gap:9px; font-size:12px; min-width:0; color:var(--muted); }
 .breadcrumb strong { color:var(--text); font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .breadcrumb-slash { opacity:.55; margin:0 3px; }
@@ -124,11 +124,10 @@ button:has(>svg.lucide-x):hover:not(:disabled),button:has(>svg.lucide-circle-x):
 .activity li+li { margin-top:6px; }
 .activity .markdown { font-size:14px; }
 .composer-dock { flex:0 0 auto; width:calc(100% - 64px); max-width:760px; margin:0 auto; padding:0 0 18px; position:relative; }
-.composer { border:1px solid var(--border); border-radius:14px; background:var(--surface); padding:10px 11px 8px; }
+.composer { border:1px solid var(--border); border-radius:15px; background:var(--surface); padding:11px 14px 10px; }
 .composer:focus-within { border-color:color-mix(in srgb,var(--accent) 42%,var(--border)); }
 .composer.dragging { border-color:var(--accent); background:var(--accent-soft); }
 .composer-input { position:relative; min-width:0; overflow:hidden; }
-.composer:not(:has(.resource-strip))>.composer-input { margin-right:160px; }
 .composer-input>textarea { display:block; width:100%; background:transparent; border:0; outline:0; padding:0; min-height:26px; max-height:220px; resize:none; line-height:1.6; font-size:14px; border-radius:0; overflow-wrap:break-word; }
 .composer-prediction-text { position:absolute; inset:0 0 auto; min-height:26px; line-height:1.6; font-size:14px; white-space:pre-wrap; overflow-wrap:break-word; color:var(--muted); pointer-events:none; animation:composer-prediction-in 120ms ease-out; }
 .composer-prediction-controls { display:flex; color:var(--muted); font-size:inherit; }
