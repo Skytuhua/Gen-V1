@@ -12,6 +12,7 @@ import { Connections, matchingSubscriptionConnections } from './Connections';
 import {SkillLibrary} from './SkillLibrary';
 import {IntegrationSettings} from './IntegrationSettings';
 import {UpdateControl} from './UpdateControl';
+import {AppearanceSettings,NotificationSettings} from './AppearanceSettings';
 import { version } from '../../../package.json';
 
 export const SETTINGS_SECTIONS = [
@@ -53,6 +54,9 @@ const extra = (id: string, title: string, section: string, terms = ''): Settings
 export const SETTINGS_ROWS = [
   ...T3_SETTINGS_ROWS,
   ...T3_PANEL_ROWS,
+  extra('harness-personalization','Theme and background','appearance','theme dark light system color scheme background wallpaper image accent preview reset'),
+  extra('harness-project-colors','Project colors','appearance','project identity saturated color customization'),
+  extra('harness-notification-controls','Notification preferences','general','notification volume sound privacy quiet hours preview'),
   extra('harness-draft-transfer','Move browser drafts','maintenance','draft import export backup desktop migration'),
   extra('harness-composer-predictions', 'Suggest my next message', 'chat', 'suggestions predictions composer next message selected model subscription quota'),
   extra('harness-font-size', 'Font size', 'appearance', 'text typography pixels'), extra('harness-motion-duration', 'Motion duration', 'appearance', 'animation speed milliseconds'),
@@ -91,7 +95,7 @@ const unavailableReasons: Record<string, string> = {
 export function settingAvailability(row: SettingsInventoryRow): Availability {
   if (supportedT3Shortcuts[row.id] || row.id === 'keybindings') return 'Adapted';
   if (preferenceRows[row.id]) return preferenceRows[row.id]!.adapted ? 'Adapted' : 'Working';
-  if (['harness-integrations','harness-draft-transfer','color-scheme', 'harness-export-diagnostics', 'harness-licenses', 'harness-hermes-license', 'harness-skills', 'harness-local-models', 'panel-licenses-dependency-license-notices'].includes(row.id) || row.id.startsWith('harness-keybinding-') || row.id.startsWith('license-')) return 'Working';
+  if (['harness-personalization','harness-project-colors','harness-notification-controls','harness-integrations','harness-draft-transfer','color-scheme', 'harness-export-diagnostics', 'harness-licenses', 'harness-hermes-license', 'harness-skills', 'harness-local-models', 'panel-licenses-dependency-license-notices'].includes(row.id) || row.id.startsWith('harness-keybinding-') || row.id.startsWith('license-')) return 'Working';
   if (['providers', 'default-model', 'archive', 'project-overview', 'app-version', 'open-source-licenses', 'diagnostics', 'harness-runtime'].includes(row.id)) return 'Adapted';
   return 'Unavailable';
 }
@@ -109,7 +113,7 @@ function ShortcutInput({ action, label, value, save, busy }: { action: string; l
   return <input aria-label={`${label} shortcut`} title="Focus and press a shortcut" readOnly value={value} disabled={busy} onKeyDown={event => { if (event.key === 'Tab') return; event.preventDefault(); if (['Control', 'Meta', 'Alt', 'Shift'].includes(event.key)) return; const key = event.key === ',' ? 'Comma' : event.key.length === 1 ? event.key.toUpperCase() : event.key; save(action, [event.ctrlKey ? 'Ctrl' : '', event.metaKey ? 'Meta' : '', event.altKey ? 'Alt' : '', event.shiftKey ? 'Shift' : '', key].filter(Boolean).join('+')); }} />;
 }
 
-export function Settings({ snapshot, modelError, refresh, loadModels, close, addResource, initialSection = 'general' }: { snapshot: Snapshot; modelError: string; refresh: () => Promise<void>; loadModels: (refresh?: boolean) => Promise<void>; close: () => void; addResource: () => void; initialSection?: string }) {
+export function Settings({ snapshot, modelError, refresh, loadModels, close, addResource, initialSection = 'general', environmentSettings }: { environmentSettings?:ReactNode; snapshot: Snapshot; modelError: string; refresh: () => Promise<void>; loadModels: (refresh?: boolean) => Promise<void>; close: () => void; addResource: () => void; initialSection?: string }) {
   const desktop=useDesktop();
   const dialog = useRef<HTMLDialogElement>(null);
   const [section, setSection] = useState(initialSection);
@@ -138,12 +142,12 @@ export function Settings({ snapshot, modelError, refresh, loadModels, close, add
   useLayoutEffect(() => { if(section==='skills'&&!query.trim())dialog.current?.querySelector<HTMLElement>('.settings-navigation [aria-current="page"]')?.scrollIntoView({block:'nearest',inline:'nearest'}); }, [section,query]);
   const persist = async (payload: Record<string, unknown>) => {
     setBusy(true); setSaved(false); setError('');
-    try { await command('settings.update', payload); await refresh(); setSaved(true); }
-    catch (cause) { setError(cause instanceof Error ? cause.message : 'Settings could not be saved.'); }
+    try { await command('settings.update', payload); await refresh(); setSaved(true); return true; }
+    catch (cause) { setError(cause instanceof Error ? cause.message : 'Settings could not be saved.'); return false; }
     finally { setBusy(false); }
   };
   const update = async (value: Partial<UiPreferences>) => {
-    if (value.threadNotifications === 'notifications' || value.threadNotifications === 'both') {
+    if (!desktop && (value.threadNotifications === 'notifications' || value.threadNotifications === 'both')) {
       if (!('Notification' in window)) { setError('Browser notifications are unavailable in this browser.'); return; }
       if (await Notification.requestPermission() !== 'granted') { setError('Notification permission was not granted. Your saved preference has not changed.'); return; }
     }
@@ -153,6 +157,11 @@ export function Settings({ snapshot, modelError, refresh, loadModels, close, add
   const rows = SETTINGS_ROWS.filter(row => tokens.length ? tokens.every(token => `${row.title} ${row.terms} ${SETTINGS_SECTIONS.find(item => item[0] === row.section)?.[1] ?? ''} ${settingAvailability(row)} ${unavailableReasons[row.section] ?? ''}`.toLocaleLowerCase().includes(token)) : row.section === section);
   const subscriptionCount = tokens.length ? matchingSubscriptionConnections(query).length : 0;
   const heading = tokens.length ? `Search results (${rows.length + subscriptionCount})` : SETTINGS_SECTIONS.find(item => item[0] === section)?.[1];
+  const showAppearance=!tokens.length&&section==='appearance'||tokens.length>0&&rows.some(row=>['harness-personalization','harness-project-colors','color-scheme'].includes(row.id));
+  const showNotificationOptions=!tokens.length&&section==='general'||tokens.length>0&&rows.some(row=>row.id==='harness-notification-controls');
+  const customRows=new Set(['harness-personalization','harness-project-colors','harness-notification-controls']);
+  const displayedRows=rows.filter(row=>!customRows.has(row.id)&&(!showAppearance||row.id!=='color-scheme')&&(tokens.length||section!=='skills'||row.id!=='harness-skills'));
+  const availableRows=displayedRows.filter(row=>settingAvailability(row)!=='Unavailable'),unavailableRows=displayedRows.filter(row=>settingAvailability(row)==='Unavailable');
   const details = (row: SettingsInventoryRow): { description: string; control: ReactNode } => {
     if (supportedT3Shortcuts[row.id]) { const action = supportedT3Shortcuts[row.id]!; return { description: 'Focus and press a shortcut to change this binding.', control: <ShortcutInput action={action} label={row.title} value={preferences.keybindings[action]} busy={busy} save={(key, value) => void update({ keybindings: { ...preferences.keybindings, [key]: value } })} /> }; }
     if (row.id.startsWith('license-')) { const item = DEPENDENCY_NOTICES.find(([name]) => name === row.title)!; return { description: `Installed version ${item[1]} · ${item[2]}. The installed package's complete LICENSE and NOTICE files remain authoritative.`, control: <a href={`https://www.npmjs.com/package/${encodeURIComponent(item[0])}/v/${item[1]}`} target="_blank" rel="noreferrer">Package notice<ExternalLink size={12} /></a> }; }
@@ -179,15 +188,21 @@ export function Settings({ snapshot, modelError, refresh, loadModels, close, add
       default: return { description: unavailableReasons[row.section] ?? 'This T3 capability has no implemented adapter.', control: <button className="secondary" disabled>Unavailable</button> };
     }
   };
+  const renderRow=(row:SettingsInventoryRow)=>{const {description,control}=details(row),availability=settingAvailability(row);return <section key={row.id} className="settings-row" data-setting-id={row.id} data-availability={availability.toLowerCase()}><div className="settings-row-copy"><h2><span>{row.title}</span>{availability==='Unavailable'&&<span className="availability">Unavailable</span>}</h2>{tokens.length>0&&<span className="settings-result-section">{SETTINGS_SECTIONS.find(item=>item[0]===row.section)?.[1]}</span>}<p>{description}</p></div><div className="settings-row-control">{control}</div></section>;};
   return <dialog ref={dialog} className={`settings-dialog${!tokens.length&&section==='skills'?' settings-skills':''}`} aria-label="Settings" onCancel={close} onClick={event => { if (event.target === event.currentTarget) close(); }}>
     <header><button className="icon-button" aria-label="Close settings" onClick={close}><ArrowLeft size={17} /></button><strong>Settings</strong><span className="settings-save-state" role="status">{busy ? 'Saving…' : saved ? <><Check size={12} />Saved</> : null}</span><button className="icon-button" aria-label="Dismiss settings" onClick={close}><X size={17} /></button></header>
     <div className="settings-layout"><aside className="settings-navigation"><label className="settings-search"><Search size={14} /><input type="search" aria-label="Search all settings" placeholder="Search settings" value={query} onChange={event => setQuery(event.target.value)} /></label><nav aria-label="Settings sections">{SETTINGS_SECTIONS.map(([id, label]) => <button key={id} className={`${!tokens.length && section === id ? 'selected' : ''} ${['providers','projects','connections','maintenance','diagnostics'].includes(id) ? 'settings-group-start' : ''}`} onClick={() => { setQuery(''); setSection(id); }} aria-current={!tokens.length && section === id ? 'page' : undefined}>{label}</button>)}</nav><a className="settings-reference" href={T3_SETTINGS_SOURCE} target="_blank" rel="noreferrer">T3 reference · da8cc591<ExternalLink size={11} /></a></aside>
-    <main className="settings-content"><div className="settings-page-heading"><h1>{heading}</h1><p>Each setting shows what is supported here.</p></div>{error && <p role="alert" className="notice error-text">{error}</p>}
+    <main className="settings-content"><div className="settings-page-heading"><h1>{heading}</h1><span className="settings-scope">This device</span></div>{error && <p role="alert" className="notice error-text">{error}</p>}
       {(!tokens.length&&section==='about'||tokens.length&&/updat/i.test(query))&&<UpdateControl/>}
-      {rows.filter(row=>tokens.length||section!=='skills'||row.id!=='harness-skills').map(row => { const { description, control } = details(row); const availability = settingAvailability(row); return <section key={row.id} className="settings-row" data-setting-id={row.id} data-availability={availability.toLowerCase()}><div className="settings-row-copy"><h2><span>{row.title}</span><span className={`availability availability-${availability.toLowerCase()}`}>{availability}</span></h2>{tokens.length > 0 && <span className="settings-result-section">{SETTINGS_SECTIONS.find(item => item[0] === row.section)?.[1]}</span>}<p>{description}</p></div><div className="settings-row-control">{control}</div></section>; })}
+      {showAppearance&&<AppearanceSettings preferences={preferences} theme={snapshot.settings.theme} threads={snapshot.threads} busy={busy} save={(patch,theme)=>persist({preferences:patch,...(theme?{theme}:{})})}/>}
+      {(tokens.length?displayedRows:availableRows).map(renderRow)}
+      {!tokens.length&&unavailableRows.length>0&&<details className="settings-unavailable"><summary>More settings <small>{unavailableRows.length} unavailable</small></summary>{unavailableRows.map(renderRow)}</details>}
+      {showNotificationOptions&&<NotificationSettings preferences={preferences} busy={busy} update={update}/>}
+      {!tokens.length&&section==='connections'&&environmentSettings}
+
       {!tokens.length&&section==='skills'&&<SkillLibrary snapshot={snapshot} preferences={preferences} update={update} refresh={refresh} busy={busy}/>}
       {(!tokens.length&&section==='integrations'||tokens.length>0&&rows.some(row=>row.id==='harness-integrations'))&&<IntegrationSettings query={tokens.length?query:''}/>}
-      {!rows.length && !subscriptionCount && section!=='skills' && <p className="settings-empty">No matching settings. Search covers every section, including unavailable capabilities.</p>}
+      {!rows.length && !subscriptionCount && section!=='skills' && <p className="settings-empty">No matching settings.</p>}
       {!tokens.length && section === 'archived' && snapshot.archivedThreads?.map(thread => <section key={thread.id} className="settings-row"><div className="settings-row-copy"><h2>{thread.title}</h2><p>{thread.projectName ?? 'Conversation'} · {thread.status}</p></div><button className="secondary" disabled={busy} onClick={() => { setBusy(true); void command('thread.restore', {}, thread.id).then(refresh).catch(cause => setError(String(cause))).finally(() => setBusy(false)); }}>Restore thread</button></section>)}
       {(!tokens.length && section === 'providers' || subscriptionCount > 0) && <Connections models={newTaskModels} snapshot={snapshot} refresh={refresh} loadModels={refreshModels} query={tokens.length ? query : ''} />}
       {!tokens.length && section === 'licenses' && <div className="settings-license-notes"><p>Core interface: React (MIT), lucide-react (ISC), json-render (Apache-2.0). PDF: pdf-lib (MIT), PDF.js (Apache-2.0). Local server: Fastify (MIT). Validation: Ajv and Zod (MIT). These package names identify installed dependencies; their license files remain authoritative.</p></div>}

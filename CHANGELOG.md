@@ -2,7 +2,20 @@
 
 Changes are grouped by release. Verification scopes are recorded separately from feature availability.
 
-## Unreleased — 0.6.4 source preview
+## Unreleased — 0.6.5 visual workspace preview
+
+- Add a durable split workspace with existing-thread dragging, retained editors,
+  parked-view recovery, undo/redo and named layouts; preserve legacy canvases.
+- Unify the project overview and canonical plan summary, with a separate full
+  plan area and narrow-screen focus preservation.
+- Add meaningful project colors, reversible appearance controls, organized
+  settings, protected environment values, and durable Inbox/custom attention.
+- Add generic optional plug-in workspaces and the independent Personal Visuals
+  plug-in. New desktop detachment remains deferred.
+
+See [usage](docs/visual-workspace.md) and [verification boundaries](docs/visual-workspace-verification.md).
+
+## 0.6.4 source preview
 
 - Add a public plug-in API with separate package versions, integrity and compatibility checks, and data retained outside application updates.
 - Add controlled stable-update checks with idle, save and clean-shutdown gates. Installed-version update acceptance remains open.

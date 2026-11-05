@@ -42,7 +42,7 @@ beforeAll(async()=>{
  // Match the real installed-package ordering: the server injects the actual
  // classic GenPluginUI host runtime in <head>, before the private UI script.
  const runtimeJs=await bundle(`export * from './apps/web/src/plugin-runtime.tsx';`,false,'GenPluginUI');
- const childJs=`const client=window.GenPluginUI;window.client=client;window.__lastFlush='';addEventListener('message',event=>{if(event.data?.type==='gen.plugin.flush')window.__lastFlush=event.data.id;});client.pluginReady();void client.pluginRequest('state.read',{key:'initial'}).then(value=>{document.getElementById('result').textContent=value.private;});`;
+ const childJs=`const client=window.GenPluginUI;window.client=client;window.__lastFlush='';addEventListener('message',event=>{if(event.data?.type==='gen.plugin.flush')window.__lastFlush=event.data.id;});let started=false;const activate=()=>{if(!started&&client.isPluginActive()){started=true;client.pluginReady();void client.pluginRequest('state.read',{key:'initial'}).then(value=>{document.getElementById('result').textContent=value.private;});}};client.onPluginVisibility(activate);activate();`;
  app.get('/plugin-runtime/runtime.js',(_request,reply)=>reply.type('text/javascript').send(runtimeJs));
  app.get('/plugin-runtime/runtime.css',(_request,reply)=>reply.type('text/css').send(''));
  app.get('/__custody-parent.js',(_request,reply)=>reply.type('text/javascript').send(parentJs));

@@ -159,6 +159,29 @@ Validate the complete reference against current authority in `validateSurface`. 
 
 The frame bridge provides bounded `window.capabilities`, `window.list`, `window.detach` and `window.reattach` operations. Availability comes from the actual native owner; browser builds do not fabricate native support. Lists are limited to the owning plug-in. Keep one editor for a given reference, flush before transfer, and yield the embedded task body while its native child owns that state.
 
+## Optional workspaces in Gen 0.6.5
+
+SDK package 1.1.0 adds optional `workspaces` metadata while keeping API version 1.
+Each contribution declares an ID, title and registered `entryView`; the verified
+host admits only that installed tuple. Use `compatibleGenVersions: ">=0.6.5 <0.7.0"`
+when consuming this extension. Gen's built-in workspaces remain available when
+the plug-in is absent or removed. No private preset belongs in the public shell.
+
+The opaque shared runtime exports `WorkspaceSplitLayout`, pure `splitWorkspace`
+helpers and the data/callback-only `InboxView`. The personal Inbox hook, personal
+Store, account commands and desktop bridge are not exported. A plug-in journals
+its own layout and supplies its own authorized records/actions.
+
+`isPluginActive` and `onPluginVisibility` report verified parent visibility;
+`projectColor` and `onPluginAppearance` provide only that plug-in's scoped color
+preferences. Hidden frames should pause observation work. Multiple retained entry
+views that share a draft key must yield their editor while inactive and recover
+canonical saved state on activation, or implement an equivalent conflict-aware
+single-writer protocol. A flush alone cannot refresh a stale retained editor.
+
+New desktop detachment is unavailable. Existing typed references and guarded
+child return remain only for recovery; workspace contributions do not bypass it.
+
 ## Verification boundaries
 
 Test no-plug-in startup, installed-package integrity, denied operations, unavailable capabilities, cross-scope rejection, stale requests, saved-state recovery, removal and compatibility changes. Inspect frontend output, native bundles, packaged host inputs and source maps independently. The public source/runtime allowlists are exact reviewed inputs; unknown files require an explicit review and manifest edit.

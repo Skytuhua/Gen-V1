@@ -3,11 +3,16 @@ import {z} from 'zod';
 export const pluginIdSchema=z.string().min(1).max(80).regex(/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/).refine(value=>!['data','host','frontend','constructor','prototype'].includes(value));
 const identity=z.string().min(1).max(200).regex(/^[A-Za-z0-9][A-Za-z0-9_.:-]*$/).refine(value=>!['__proto__','constructor','prototype'].includes(value));
 export const pluginVersionSchema=z.string().max(100).regex(/^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/);
+const contributionId=z.string().min(1).max(100).regex(/^[A-Za-z0-9][A-Za-z0-9_.:-]*$/).refine(value=>!['__proto__','constructor','prototype'].includes(value));
+export const pluginWorkspaceContributionSchema=z.strictObject({id:contributionId,title:z.string().trim().min(1).max(100),icon:contributionId.optional(),entryView:contributionId,defaultLayout:contributionId.optional()});
+export type PluginWorkspaceContribution=z.infer<typeof pluginWorkspaceContributionSchema>;
+export const pluginWorkspacesSchema=z.array(pluginWorkspaceContributionSchema).max(16).refine(values=>new Set(values.map(value=>value.id)).size===values.length,'Workspace IDs must be unique.');
 export const pluginPathSchema=z.string().min(1).max(240).refine(value=>value.split('/').every(part=>/^[A-Za-z0-9][A-Za-z0-9_.-]*$/.test(part)&&!/[. ]$/.test(part)&&! /^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(part)),'Use a bounded relative package path without traversal or links.');
 export const pluginManifestSchema=z.strictObject({
  id:pluginIdSchema,name:z.string().trim().min(1).max(100),version:pluginVersionSchema,apiVersion:z.literal(1),compatibleGenVersions:z.string().trim().min(1).max(200),
  frontendEntry:pluginPathSchema.refine(value=>value.startsWith('frontend/')&&value.endsWith('.html'),'The frontend entry must be HTML under frontend/.'),
  hostEntry:pluginPathSchema.refine(value=>value.startsWith('host/')&&value.endsWith('.mjs'),'The host entry must be ESM under host/.'),
+ workspaces:pluginWorkspacesSchema.optional(),
 });
 export type PluginManifest=z.infer<typeof pluginManifestSchema>;
 export const pluginSurfaceSchema=z.strictObject({kind:z.literal('plugin'),pluginId:pluginIdSchema,scopeId:identity,surfaceId:identity,resourceId:identity.optional()});

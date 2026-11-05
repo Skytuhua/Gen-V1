@@ -10,3 +10,25 @@
 .project-context-tools[open]>summary>svg{transform:rotate(180deg)}
 .project-context-card .project-context-detail label,.project-context-card .project-context-note,.project-context-card .project-context-lineage button{font-size:12px}
 .project-context-card .project-context-plan{padding:6px 12px}
+.project-context-group {border-top:1px solid var(--border);padding:0 12px;}
+.project-context-group>summary {display:flex;align-items:center;gap:8px;list-style:none;font-size:12px;min-height:34px;color:var(--muted);}
+.project-context-group>summary::-webkit-details-marker {display:none;}
+.project-context-group>summary>span {flex:1;}
+.project-context-group>summary>small {font-size:11px;font-variant-numeric:tabular-nums;}
+.project-context-group[open]>summary>svg:last-child {transform:rotate(180deg);}
+.project-context-group .project-context-lineage {padding:0 2px 8px;}
+.project-context-group .project-context-note {font-size:11px;padding:0 2px 8px;}
+.project-context-lineage [data-agent-status=working] {color:var(--success);}
+.project-context-lineage [data-agent-status=awaiting_input] {color:var(--pending);}
+.project-context-automations {list-style:none;margin:0;padding:0 2px 8px;}
+.project-context-automations li {display:flex;flex-direction:column;gap:3px;padding:5px 0;font-size:12px;}
+.project-context-automations small {font-size:10px;}
+.project-context-plan-summary {padding:12px;border-top:1px solid var(--border);}
+.project-context-summary-title {display:flex;align-items:flex-start;gap:8px;margin-bottom:9px;}
+.project-context-summary-title strong {font-size:12px;line-height:1.5;font-weight:550;overflow-wrap:anywhere;}
+.project-context-summary-title>svg {margin-top:2px;color:var(--accent);}
+.project-context-summary-progress {height:4px;background:var(--hover);border-radius:3px;overflow:hidden;}
+.project-context-summary-progress>span {display:block;height:100%;background:var(--project-accent,var(--accent));}
+.project-context-plan-summary p {font-size:11px;line-height:1.5;color:var(--muted);margin-top:6px;}
+.project-context-plan-summary .project-context-summary-blocked {color:var(--pending);}
+.project-context-plan-summary .quiet {font-size:11px;min-height:28px;padding:5px 0;margin-top:4px;}

@@ -1,16 +1,17 @@
 import {useEffect,useLayoutEffect,useRef,useState} from 'react';
-import {pluginSurfaceSchema,type PluginManifest,type PluginSurface} from '../../../packages/plugins/contracts';
+import {pluginSurfaceSchema,type PluginManifest,type PluginSurface,type PluginWorkspaceContribution} from '../../../packages/plugins/contracts';
 import {parsePluginFrameRequest,pluginFrameReply,pluginFrameSource,pluginWindowOperation} from '../../../packages/plugins/frame-protocol';
 import {authenticated,csrfToken,read} from './api';
 import {DesktopWindowActions,useDesktop,useDesktopCloseGuard} from './desktop-context';
 import './plugins.css';
 import {desktopSurfaceKey} from '../../../packages/desktop-contract';
 
-type PluginFrameProps={plugin:PluginManifest;theme:'light'|'dark';active?:boolean;surface?:PluginSurface;onReady?:()=>void};
-export function PluginFrame(props:PluginFrameProps){const [generation,reload]=useState(0);return <PluginFrameBody key={`${props.surface?desktopSurfaceKey(props.surface):props.plugin.id}:${generation}`} {...props} reload={()=>reload(value=>value+1)}/>;}
-function PluginFrameBody({plugin,theme,active=true,surface,onReady,reload}:PluginFrameProps&{reload:()=>void}) {
+type PluginFrameProps={plugin:PluginManifest;theme:'light'|'dark';active?:boolean;surface?:PluginSurface;workspace?:PluginWorkspaceContribution;projectColors?:Record<string,string>;onReady?:()=>void};
+export function PluginFrame(props:PluginFrameProps){const [generation,reload]=useState(0);return <PluginFrameBody key={`${props.surface?desktopSurfaceKey(props.surface):props.plugin.id}:${props.workspace?.id??'conversation'}:${generation}`} {...props} reload={()=>reload(value=>value+1)}/>;}
+function PluginFrameBody({plugin,theme,active=true,surface,workspace,projectColors={},onReady,reload}:PluginFrameProps&{reload:()=>void}) {
   const desktop=useDesktop();
   const desktopCurrent=useRef(desktop),readyCurrent=useRef(onReady);desktopCurrent.current=desktop;readyCurrent.current=onReady;
+  const presentationCurrent=useRef({active,projectColors});presentationCurrent.current={active,projectColors};
   const frame=useRef<HTMLIFrameElement>(null),[session]=useState(()=>crypto.randomUUID()),[initialTheme]=useState(theme),[error,setError]=useState('');
   const pending=useRef(new Map<string,AbortController>()),flushes=useRef(new Map<string,{resolve:()=>void;reject:()=>void;timer:ReturnType<typeof setTimeout>}>());
   const pendingData=useRef(new Set<string>());
@@ -18,6 +19,7 @@ function PluginFrameBody({plugin,theme,active=true,surface,onReady,reload}:Plugi
   // owned by one document, so no reply or saved-state acknowledgement can move
   // to its replacement, even before the replacement's load event.
   const bridge=useRef<MessagePort|null>(null),loaded=useRef(false),bootstrapped=useRef(false),revoked=useRef(false);
+  const sendPresentation=()=>{const presentation=presentationCurrent.current,colors:Record<string,string>={};for(const[key,value]of Object.entries(presentation.projectColors)){try{const identity:unknown=JSON.parse(key);if(Array.isArray(identity)&&identity.length===4&&identity[0]==='plugin'&&identity[1]===plugin.id)colors[key]=value;}catch{/* A plug-in receives only its own opaque color preferences. */}}bridge.current?.postMessage({type:'gen.plugin.visibility',session,active:presentation.active&&document.visibilityState!=='hidden'});bridge.current?.postMessage({type:'gen.plugin.appearance',session,projectColors:colors});};
   const revoke=()=>{revoked.current=true;bridge.current?.close();bridge.current=null;for(const controller of pending.current.values())controller.abort();pending.current.clear();pendingData.current.clear();for(const item of flushes.current.values()){clearTimeout(item.timer);item.reject();}flushes.current.clear();};
   const unavailable=()=>{revoke();setError('This plug-in view changed unexpectedly. Reload the plug-in to reconnect. Saved work is retained.');};
   const focused=useRef<{target:PluginSurface;id:string}|null>(null),focusSurface=desktop?.state.focusSurface;
@@ -28,8 +30,9 @@ function PluginFrameBody({plugin,theme,active=true,surface,onReady,reload}:Plugi
     await new Promise<void>((resolve,reject)=>{const id=crypto.randomUUID(),timer=setTimeout(()=>{flushes.current.delete(id);reject(Error('The plug-in could not confirm saved state. Keep this window open.'));},20000);flushes.current.set(id,{resolve,reject:()=>reject(Error('The plug-in has unsaved work.')),timer});bridge.current!.postMessage({type:'gen.plugin.flush',session,id});});
     if(pendingData.current.size)throw Error('Wait for the plug-in request to finish before closing.');
   };
-  useDesktopCloseGuard(`plugin:${plugin.id}`,flush);
+  useDesktopCloseGuard(`plugin:${plugin.id}:${workspace?.id??'conversation'}`,flush);
   useEffect(()=>{bridge.current?.postMessage({type:'gen.plugin.theme',session,theme});},[theme,session]);
+  useEffect(()=>{sendPresentation();const changed=()=>sendPresentation();document.addEventListener('visibilitychange',changed);return()=>document.removeEventListener('visibilitychange',changed);},[active,projectColors,session]);
   useEffect(()=>{bridge.current?.postMessage({type:'gen.plugin.state-changed',session});},[desktop?.state.windows,session]);
   useEffect(()=>{sendFocusedSurface();},[focusSurface,plugin.id,session]);
   useLayoutEffect(()=>{
@@ -42,7 +45,7 @@ function PluginFrameBody({plugin,theme,active=true,surface,onReady,reload}:Plugi
       if(!alive||revoked.current||bridge.current!==port)return;
       const value=event.data;
       if(value?.type==='gen.plugin.disconnected'&&value.session===session){unavailable();return;}
-      if(value?.type==='gen.plugin.ready'&&value.pluginId===plugin.id&&value.session===session){readyCurrent.current?.();sendFocusedSurface();return;}
+      if(value?.type==='gen.plugin.ready'&&value.pluginId===plugin.id&&value.session===session){readyCurrent.current?.();sendFocusedSurface();sendPresentation();return;}
       if(value?.type==='gen.plugin.saves-retried'&&value.session===session){setError(value.ok===true?'':'Draft saving is still unavailable. Keep this view open.');return;}
       if(value?.type==='gen.plugin.flushed'&&value.session===session){const item=flushes.current.get(value.id);if(item){flushes.current.delete(value.id);clearTimeout(item.timer);if(value.ok===true)item.resolve();else item.reject();}return;}
       if(value?.type==='gen.plugin.abort'&&value.session===session&&value.pluginId===plugin.id){pending.current.get(value.id)?.abort();return;}
@@ -76,11 +79,12 @@ function PluginFrameBody({plugin,theme,active=true,surface,onReady,reload}:Plugi
       if(bootstrapped.current||loaded.current||revoked.current){port.close();return;}
       bootstrapped.current=true;bridge.current=port;port.onmessage=event=>changed(event,port);port.onmessageerror=unavailable;port.start();
       port.postMessage({type:'gen.plugin.connected',session});
+      sendPresentation();
     };
     addEventListener('message',connect);
     return()=>{alive=false;removeEventListener('message',connect);revoke();};
   },[plugin.id,session]);
-  return <section className="plugin-workspace" aria-label={plugin.name} hidden={!active}>{!surface&&<header className="workspace-header plugin-native-header"><strong>{plugin.name}</strong><DesktopWindowActions/></header>}{error&&<p className="notice" role="alert">{error}{revoked.current?<button className="quiet" onClick={reload}>Reload plug-in</button>:<><button className="quiet" onClick={()=>bridge.current?.postMessage({type:'gen.plugin.retry-saves',session})}>Retry saving drafts</button><button className="quiet" onClick={()=>setError('')}>Dismiss</button></>}</p>}<iframe ref={frame} title={plugin.name} src={pluginFrameSource(plugin.id,session,initialTheme,surface)} sandbox="allow-scripts" referrerPolicy="no-referrer" onLoad={()=>{if(loaded.current||!bridge.current||revoked.current){unavailable();return;}loaded.current=true;bridge.current.postMessage({type:'gen.plugin.theme',session,theme});}}/></section>;
+  return <section className="plugin-workspace" aria-label={workspace?.title??plugin.name} hidden={!active}>{!surface&&!workspace&&<header className="workspace-header plugin-native-header"><strong>{plugin.name}</strong><DesktopWindowActions/></header>}{error&&<p className="notice" role="alert">{error}{revoked.current?<button className="quiet" onClick={reload}>Reload plug-in</button>:<><button className="quiet" onClick={()=>bridge.current?.postMessage({type:'gen.plugin.retry-saves',session})}>Retry saving drafts</button><button className="quiet" onClick={()=>setError('')}>Dismiss</button></>}</p>}<iframe ref={frame} title={workspace?.title??plugin.name} src={pluginFrameSource(plugin.id,session,initialTheme,surface,workspace)} sandbox="allow-scripts" referrerPolicy="no-referrer" onLoad={()=>{if(loaded.current||!bridge.current||revoked.current){unavailable();return;}loaded.current=true;bridge.current.postMessage({type:'gen.plugin.theme',session,theme});}}/></section>;
 }
-export function usePluginCatalog(){const [catalog,setCatalog]=useState<{plugins:PluginManifest[];theme?:string;error?:string}>({plugins:[]});useEffect(()=>{let active=true;void authenticated(()=>fetch('/api/plugins',{credentials:'same-origin',cache:'no-store'})).then(read<{plugins:PluginManifest[];theme?:string;error?:string}>).then(value=>{if(active&&Array.isArray(value.plugins))setCatalog(value);}).catch(()=>{});return()=>{active=false;};},[]);return catalog;}
+export function usePluginCatalog(enabled=true){const [catalog,setCatalog]=useState<{plugins:PluginManifest[];theme?:string;error?:string}>({plugins:[]});useEffect(()=>{if(!enabled)return;let active=true;void authenticated(()=>fetch('/api/plugins',{credentials:'same-origin',cache:'no-store'})).then(read<{plugins:PluginManifest[];theme?:string;error?:string}>).then(value=>{if(active&&Array.isArray(value.plugins))setCatalog(value);}).catch(()=>{});return()=>{active=false;};},[enabled]);return catalog;}
 export function useInstalledPlugins(){return usePluginCatalog().plugins;}

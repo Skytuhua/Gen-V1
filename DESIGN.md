@@ -2,9 +2,9 @@
 
 Last updated: 2026-10-31.
 
-The supplied Phil Pitus videos are the behavioral and visual reference. The [T3-centered milestone](docs/t3-centered-milestone.md) updates the shell within the earlier [Frontend Rebuild and Recorded UI Review](docs/frontend-rebuild-plan.md), using T3 baseline `da8cc591dadd75819ae62961da4a882767efb145`. The same local React/Pi workspace runs in the browser and the native Windows Electron owner, with detachable views and one supervised Node backend.
+The supplied Phil Pitus videos are the behavioral and visual reference. The [T3-centered milestone](docs/t3-centered-milestone.md) updates the shell within the earlier [Frontend Rebuild and Recorded UI Review](docs/frontend-rebuild-plan.md), using T3 baseline `da8cc591dadd75819ae62961da4a882767efb145`. The same local React/Pi workspace runs in the browser and the native Windows Electron owner with one supervised Node backend. The [visual workspace preview](docs/visual-workspace.md) uses splits by default; new desktop detachment is deferred and existing child recovery remains guarded.
 
-Use the latest user-supplied T3 screenshot as the palette authority: pure black workspace, near-black #0F0F0F task surfaces, neutral #1F1F1F selected surfaces and fine gray borders. Light mode uses neutral white/gray equivalents. Blue is reserved for small primary actions and keyboard focus, never a wash across selected rows, controls or panels. Semantic amber, green, red and purple communicate source-backed states; meaningful graph/diff colors remain. Close-X marks are red. No dashboard metric grid.
+Use the latest user-supplied T3 screenshot as the palette authority: pure black workspace, near-black #0F0F0F task surfaces, neutral #1F1F1F selected surfaces and fine gray borders. Light mode uses neutral white/gray equivalents. Strong project accents identify stable typed project ownership; separate labelled status marks communicate source-backed activity. Accent/focus colors never wash across the entire shell. Background customization preserves opaque readable content surfaces. Meaningful graph/diff colors remain. Close-X marks are red. No dashboard metric grid.
 
 Dark is the primary theme for fresh profiles and review recordings; preserve saved Light/System choices and the original colors of documents and images.
 
