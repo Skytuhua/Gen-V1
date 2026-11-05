@@ -88,7 +88,7 @@ The controller terminates an unresponsive worker through a watchdog. This is app
 
 ## Native desktop and recovery
 
-Electron uses a real Node sidecar for the host and narrowly typed preload methods for trusted application windows. Remote browser content has no application bridge or Node access. Detachable surfaces retain their identities, placements and edit-handoff acknowledgments.
+Electron uses a real Node sidecar for the host and narrowly typed preload methods for trusted application windows. Remote browser content has no application bridge or Node access. New native detachment is unavailable; existing child surfaces retain their identities, placements and edit-handoff acknowledgments for recovery.
 
 Restart recovers durable tasks, artifact state and draft journals. Interrupted work remains visible and is not automatically repeated. Resume uses saved native/source evidence and receipts; it does not turn an uncertain operation into a completed one.
 

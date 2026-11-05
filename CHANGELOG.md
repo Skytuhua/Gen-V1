@@ -2,6 +2,17 @@
 
 Changes are grouped by release. Verification scopes are recorded separately from feature availability.
 
+## Unreleased — 0.6.4 source preview
+
+- Add a public plug-in API with separate package versions, integrity and compatibility checks, and data retained outside application updates.
+- Add controlled stable-update checks with idle, save and clean-shutdown gates. Installed-version update acceptance remains open.
+- Refine the sidebar, project selection, composer mode/model controls, canvas and protected context/usage tools.
+- Preserve closed native-window history and stable intended bounds; add compact startup feedback using supported native controls.
+- Retire new native detachment while retaining existing child recovery and saved layouts.
+- Add current public guides, screenshots and captioned demo videos using authored sample data.
+
+This source preview is not a published stable download. See the [current preview notes](docs/public/release-notes.md) for available downloads and exact verification scopes.
+
 ## 0.6.1 beta — Gen V1 publication
 
 - Introduce the Gen V1 project name and professional repository documentation.

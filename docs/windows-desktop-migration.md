@@ -1,8 +1,10 @@
 # Windows desktop migration and detachable surfaces
 
-Current Windows delivery: [v0.4.1 installer and verification](evidence/ui-working-object-package-20261031/report.md). Earlier versioned evidence below retains its original scope.
+> Current preview: new native detachment is unavailable. Existing child-window recovery and saved placements are retained. See the [current feature guide](public/features.md) and [preview release notes](public/release-notes.md).
 
-Status: native Electron window ownership, detachable surfaces, the isolated browser and packaged-Node sidecar are implemented. Packaged launch and final verification are recorded separately in the desktop delivery evidence. The browser Plan connector line is removed and Reset position is available.
+This page records the historical Windows migration design. Original v0.4.1 installer verification is retained separately; its archived reference is `evidence/ui-working-object-package-20261031/report.md`. Requirements and versioned evidence below retain their original scope.
+
+Historical status: native Electron window ownership, detachable surfaces, the isolated browser and packaged-Node sidecar were implemented for that milestone. Packaged launch and final verification were recorded separately in the desktop delivery evidence. The controls described below do not describe current detachment availability.
 
 ## Required desktop behavior
 

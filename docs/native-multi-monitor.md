@@ -1,5 +1,7 @@
 # Multi-monitor detached windows
 
+> Historical milestone: new native detachment is currently unavailable. Existing child-window recovery and saved placements are retained. Physical mixed-DPI and multi-monitor acceptance remains a separate gate. See the [current preview notes](public/release-notes.md).
+
 Last updated: 2026-10-31.
 
 Detached chat, artifacts, Plan, Usage, navigation, workspace and browser windows remain independent native Electron windows. They share the existing backend and save/lease handoff. Moving a window never creates another task runtime or bypasses a pending edit.
