@@ -189,7 +189,16 @@ export async function buildServer(service: Service, options: ServerOptions) {
     const root = resolve("dist/web"); let path = resolve(root, "." + decodeURIComponent(request.url.split("?")[0]));
     if (!inside(root, path)) throw new HarnessError("CAPABILITY_DENIED", "Path is unavailable");
     try { if (!(await stat(path)).isFile()) path = join(root, "index.html"); } catch { path = join(root, "index.html"); }
-    try { return reply.type(mime(path)).send(await readFile(path)); } catch { return reply.code(503).type("text/plain").send("Build the application with pnpm build, or use pnpm dev."); }
+    try {
+      const type=mime(path);
+      if(type==='text/html'){
+        // frame-src on the embedding document governs self-navigation of its
+        // opaque children. A plug-in's own frame-src only governs grandchildren.
+        const origin='http://'+String(request.headers.host),frames=(options.plugins?.list()??[]).map(plugin=>`${origin}/plugins/${plugin.id}/frame`);
+        reply.header('Content-Security-Policy',`frame-src ${[...frames,`http://localhost:${widgetPort}/widget/`].join(' ')}; object-src 'none'; base-uri 'self'`);
+      }
+      return reply.type(type).send(await readFile(path));
+    } catch { return reply.code(503).type("text/plain").send("Build the application with pnpm build, or use pnpm dev."); }
   });
   app.addHook("preClose", async () => {
     await Promise.all([...streams].map(stream => new Promise<void>(done => { stream.once('close', done); stream.destroy(); })));

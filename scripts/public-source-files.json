@@ -708,6 +708,7 @@
     "tests/plan-visibility.test.ts",
     "tests/planning-service.test.ts",
     "tests/planning.test.ts",
+    "tests/plugin-frame-custody.test.ts",
     "tests/plugin-frame.test.ts",
     "tests/plugin-host.test.ts",
     "tests/plugin-journal.test.ts",
