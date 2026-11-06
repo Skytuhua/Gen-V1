@@ -5,6 +5,7 @@ import './github-sign-in.css';
 
 const deviceUrl='https://github.com/login/device';
 const flowSchema=z.object({id:z.string().uuid(),userCode:z.string().min(1).max(40),url:z.literal(deviceUrl),expiresAt:z.number().finite(),interval:z.number().int().min(1000).max(60000)});
+const cancelSchema=z.discriminatedUnion('status',[z.object({status:z.literal('cancelled')}),z.object({status:z.literal('authenticated'),login:z.string().regex(/^[A-Za-z0-9-]{1,100}$/)})]);
 type Flow=z.infer<typeof flowSchema>;
 const errorMessage=(error:unknown)=>error instanceof z.ZodError?'GitHub returned an invalid sign-in response. Start a new sign-in.':error instanceof Error?error.message:'GitHub sign-in failed. Try again.';
 const auth=<T,>(action:string,payload:unknown={})=>authenticated(()=>fetch('/api/github/auth/'+action,{method:'POST',credentials:'same-origin',cache:'no-store',keepalive:action==='cancel',headers:{'Content-Type':'application/json','x-harness-csrf':csrfToken},body:JSON.stringify(payload)})).then(read<T>);
@@ -17,7 +18,7 @@ export function GitHubSignIn({active=true,onAuthenticated}:{active?:boolean;onAu
  const cancel=async(id:string,label:string,generation:number)=>{
   if(current(generation)){setCancelling(true);setError('');}
   try{
-   const result=z.discriminatedUnion('status',[z.object({status:z.literal('cancelled')}),z.object({status:z.literal('authenticated'),login:z.string().regex(/^[A-Za-z0-9-]{1,100}$/)})]).parse(await auth('cancel',{flowId:id}));
+   const result=cancelSchema.parse(await auth('cancel',{flowId:id}));
    if(current(generation)){
     owned.current=null;setCancelId(null);setStatus(result.status==='authenticated'?'Sign-in completed as '+result.login+' before cancellation.':label);
     if(result.status==='authenticated')void Promise.resolve().then(()=>onSuccess.current?.()).catch(reason=>{if(current(generation))setError(errorMessage(reason));});
@@ -27,8 +28,17 @@ export function GitHubSignIn({active=true,onAuthenticated}:{active?:boolean;onAu
   finally{if(current(generation))setCancelling(false);}
  };
  useEffect(()=>{
-  mounted.current=active;if(active){setFlow(null);setStarting(false);}
-  return()=>{mounted.current=false;epoch.current++;const id=owned.current;owned.current=null;if(id)void auth('cancel',{flowId:id}).catch(()=>{});};
+  mounted.current=active;setFlow(null);setStarting(false);setCancelling(false);setCopied(false);pendingStart.current=null;
+  if(!active)return;
+  setCancelId(owned.current);setStatus(owned.current?'Cancellation not confirmed.':'');if(!owned.current)setError('');
+  return()=>{
+   mounted.current=false;epoch.current++;const id=owned.current;
+   if(id)void auth('cancel',{flowId:id}).then(value=>{
+    const result=cancelSchema.parse(value);if(owned.current!==id)return;owned.current=null;
+    if(mounted.current){setCancelId(null);setCancelling(false);setError('');setStatus(result.status==='authenticated'?'Sign-in completed as '+result.login+' before cancellation.':'Sign-in cancelled');
+     if(result.status==='authenticated')void Promise.resolve().then(()=>onSuccess.current?.()).catch(reason=>{if(mounted.current)setError(errorMessage(reason));});}
+   }).catch(reason=>{if(owned.current===id&&mounted.current){setCancelId(id);setCancelling(false);setError(errorMessage(reason));setStatus('Cancellation not confirmed.');}});
+  };
  },[active]);
  const stop=(label='Sign-in cancelled')=>{
   const generation=++epoch.current,id=owned.current;pendingStart.current=null;setStarting(false);setFlow(null);setCopied(false);

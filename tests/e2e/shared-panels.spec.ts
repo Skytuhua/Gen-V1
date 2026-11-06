@@ -187,6 +187,25 @@ test('profile sign-in wraps within narrow tools in both themes and keeps keyboar
  }
 });
 
+for(const outcome of ['success','failure'] as const)test(`retained profile sign-in reactivates after cancellation ${outcome}`,async({page})=>{
+ await profileAuthFixture(page);await page.goto('/shared-panels-check?auth-retained=1');
+ const cancellations:Route[]=[];await page.route('**/api/github/auth/cancel',route=>{cancellations.push(route);});
+ const leaf=page.getByRole('region',{name:'GitHub sign-in',exact:true});
+ await leaf.getByRole('button',{name:'Sign in to GitHub',exact:true}).click();await expect(leaf.getByText('ABCD-EFGH',{exact:true})).toBeVisible();
+ await leaf.getByRole('button',{name:'Cancel sign-in',exact:true}).click();await expect.poll(()=>cancellations.length).toBe(1);
+ await page.getByRole('button',{name:'Toggle sign-in active'}).click();await expect.poll(()=>cancellations.length).toBe(2);
+ for(const route of cancellations)await route.fulfill(outcome==='success'?{json:{status:'cancelled'}}:{status:503,json:{error:{code:'UNAVAILABLE',message:'Cancellation unavailable'}}});
+ await page.getByRole('button',{name:'Toggle sign-in active'}).click();
+ if(outcome==='failure'){
+  await expect(leaf.getByRole('button',{name:'Retry cancellation',exact:true})).toBeEnabled();
+  await expect(leaf.getByRole('button',{name:'Sign in to GitHub',exact:true})).toBeDisabled();
+  await page.route('**/api/github/auth/cancel',route=>route.fulfill({json:{status:'cancelled'}}));
+  await leaf.getByRole('button',{name:'Retry cancellation',exact:true}).click();
+ }
+ await expect(leaf.getByRole('button',{name:'Sign in to GitHub',exact:true})).toBeEnabled();
+ await expect(leaf).not.toContainText('Cancelling sign-in');
+});
+
 test('profile cancellation reports sign-in completion when the host commit already won',async({page})=>{
  const host=await profileAuthFixture(page);host.holdPoll();await host.panel.getByRole('button',{name:'Sign in to GitHub',exact:true}).click();await expect.poll(()=>host.actions.some(item=>item.action==='poll')).toBe(true);await page.route('**/api/github/auth/cancel',route=>route.fulfill({json:{status:'authenticated',login:'completed-user'}}));await host.panel.getByRole('button',{name:'Cancel sign-in',exact:true}).click();await expect(host.panel).toContainText('Sign-in completed as completed-user before cancellation.');await host.releasePoll();await expect(host.panel).not.toContainText('stale-user');await expect(host.panel).not.toContainText('Sign-in cancelled');
 });
