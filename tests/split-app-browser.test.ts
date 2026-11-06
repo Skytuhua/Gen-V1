@@ -29,8 +29,8 @@ describe.runIf(enabled)('actual App split workspace',()=>{
  },20000);
  afterAll(async()=>{try{await browser?.close();}finally{if(server&&server.exitCode===null){server.kill();await new Promise<void>(resolve=>{const timer=setTimeout(resolve,2000);server!.once('exit',()=>{clearTimeout(timer);resolve();});});}}});
 
- async function fixture({plan=false,plugins=[],retainedCanvas=false,retainedPlan=false,unstarted=false,width=1600,deferPluginFlush=false,mode='split'}:{plan?:boolean;plugins?:PluginManifest[];retainedCanvas?:boolean;retainedPlan?:boolean;unstarted?:boolean;width?:number;deferPluginFlush?:boolean;mode?:'split'|'chat'}={}){
-  const page=await browser!.newPage({viewport:{width,height:1000}});page.setDefaultTimeout(7000);
+ async function fixture({plan=false,plugins=[],retainedCanvas=false,retainedPlan=false,unstarted=false,width=1600,height=1000,deferPluginFlush=false,mode='split'}:{plan?:boolean;plugins?:PluginManifest[];retainedCanvas?:boolean;retainedPlan?:boolean;unstarted?:boolean;width?:number;height?:number;deferPluginFlush?:boolean;mode?:'split'|'chat'}={}){
+  const page=await browser!.newPage({viewport:{width,height}});page.setDefaultTimeout(7000);
   const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));
   await page.addInitScript((initialMode)=>{if(window.parent===window){localStorage.setItem('harness:selected-thread','thread-a');if(initialMode==='split')localStorage.setItem('harness:workspace-mode:v3','split');}},mode);
   const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Synthetic artifact retained in the original renderer'}}}});
@@ -246,4 +246,52 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    expect(host.errors).toEqual([]);
   }finally{await page.close();}
  },30000);
+ it('a browser dock shares the tool width budget and preserves chat space',async()=>{
+  const{page}=await fixture({width:1440,height:900,mode:'chat'});
+  try{
+   await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();
+   await page.evaluate(()=>{const slot=document.createElement('section');slot.className='desktop-browser-dock';slot.setAttribute('aria-label','Synthetic browser geometry');slot.textContent='Browser slot geometry';(document.querySelector('.workspace-tools')??document.querySelector('.shell-workarea'))!.appendChild(slot);});
+   const boxes=await page.evaluate(()=>{const box=(selector:string)=>{const a=document.querySelector(selector)!.getBoundingClientRect();return{x:a.x,y:a.y,right:a.right,bottom:a.bottom,width:a.width};};return{chat:box('.summary-layout>.workspace'),panel:box('.workspace-right'),browser:box('.desktop-browser-dock'),owner:box('.shell-workarea')};});
+   expect(boxes.chat.width).toBeGreaterThanOrEqual(420);expect(boxes.chat.right).toBeLessThanOrEqual(boxes.panel.x);
+   expect(boxes.browser.right).toBeLessThanOrEqual(boxes.owner.right+1);expect(boxes.browser.y).toBeGreaterThanOrEqual(boxes.panel.bottom);
+  }finally{await page.close();}
+ },20000);
+ it('selected artifacts stay inside the stacked tool content without replacing their renderer',async()=>{
+  const{page}=await fixture({width:900,height:700,mode:'chat'});
+  try{
+   const artifact=page.locator('.artifact').first(),original=await artifact.elementHandle();
+   await artifact.getByRole('button',{name:'Open artifact in workspace',exact:true}).click();
+   await page.locator('.artifact-in-workspace').waitFor({state:'visible'});
+   const bounds=await page.evaluate(()=>{const box=(selector:string)=>{const a=document.querySelector(selector)!.getBoundingClientRect();return{x:a.x,y:a.y,right:a.right,bottom:a.bottom};};return{artifact:box('.artifact-in-workspace'),content:box('.workspace-panel-content')};});
+   expect(bounds.artifact.y).toBeGreaterThanOrEqual(bounds.content.y);expect(bounds.artifact.bottom).toBeLessThanOrEqual(bounds.content.bottom);
+   expect(bounds.artifact.x).toBeGreaterThanOrEqual(bounds.content.x);expect(bounds.artifact.right).toBeLessThanOrEqual(bounds.content.right);
+   expect(await artifact.evaluate((node,old)=>node===old,original)).toBe(true);
+  }finally{await page.close();}
+ },20000);
+ for(const size of [{width:1920,height:1080},{width:1440,height:900},{width:1024,height:768}])it(`panel bounds retain chat and title bar at drag extremes ${size.width}x${size.height}`,async()=>{
+  const{page}=await fixture({...size,mode:'chat'});
+  try{
+   await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();
+   const separator=page.getByRole('separator',{name:'Resize workspace panel',exact:true});
+   for(const end of [1,size.width-1]){
+    const handle=(await separator.boundingBox())!;await page.mouse.move(handle.x+handle.width/2,handle.y+30);await page.mouse.down();await page.mouse.move(end,handle.y+30,{steps:5});await page.mouse.up();
+    await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
+    const boxes=await page.evaluate(()=>{const box=(selector:string)=>{const a=document.querySelector(selector)!.getBoundingClientRect();return{x:a.x,y:a.y,right:a.right,bottom:a.bottom,width:a.width,height:a.height};};return{chat:box('.summary-layout>.workspace'),panel:box('.workspace-right'),owner:box('.shell-workarea'),title:box('.workspace-switcher'),overflow:document.documentElement.scrollWidth-innerWidth};});
+    expect(boxes.chat.width).toBeGreaterThanOrEqual(420);expect(boxes.panel.width).toBeLessThanOrEqual(Math.min(720,boxes.owner.width-426)+1);
+    expect(boxes.chat.right).toBeLessThanOrEqual(boxes.panel.x);expect(boxes.panel.y).toBeGreaterThanOrEqual(boxes.title.bottom);
+    expect(boxes.panel.right).toBeLessThanOrEqual(boxes.owner.right+1);expect(boxes.overflow).toBeLessThanOrEqual(1);
+   }
+   expect(await page.getByRole('button',{name:'Maximize workspace panel',exact:true}).count()).toBe(0);
+  }finally{await page.close();}
+ },30000);
+ it('panel bounds stack tools below chat in a narrow workarea',async()=>{
+  const{page}=await fixture({width:900,height:700,mode:'chat'});
+  try{
+   await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();
+   const boxes=await page.evaluate(()=>{const box=(selector:string)=>{const a=document.querySelector(selector)!.getBoundingClientRect();return{x:a.x,y:a.y,right:a.right,bottom:a.bottom,width:a.width,height:a.height};};return{chat:box('.summary-layout>.workspace'),panel:box('.workspace-right'),owner:box('.shell-workarea'),title:box('.workspace-switcher')};});
+   expect(boxes.panel.y).toBeGreaterThanOrEqual(boxes.chat.bottom);expect(boxes.panel.bottom).toBeLessThanOrEqual(boxes.owner.bottom+1);
+   expect(boxes.panel.height).toBeLessThanOrEqual(boxes.owner.height*.45+1);expect(boxes.chat.height).toBeGreaterThanOrEqual(240);
+   expect(boxes.panel.y).toBeGreaterThanOrEqual(boxes.title.bottom);
+  }finally{await page.close();}
+ },20000);
 });

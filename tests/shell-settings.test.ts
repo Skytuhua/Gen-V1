@@ -12,7 +12,7 @@ describe('recoverable browser shell layout', () => {
   it('bounds untrusted persisted dimensions and rejects unknown tabs and group states', () => {
     vi.stubGlobal('localStorage', { getItem: () => JSON.stringify({ sidebarWidth: 90000, rightPanelWidth: -8, activeTab: 'pretend-terminal', folded: { valid: true, invalid: 'yes' } }) });
     const value = readShellLayout();
-    expect(value.sidebarWidth).toBe(380); expect(value.rightPanelWidth).toBe(360); expect(value.activeTab).toBe('artifact'); expect(value.folded).toEqual({ valid: true });
+    expect(value.sidebarWidth).toBe(380); expect(value.rightPanelWidth).toBe(280); expect(value.activeTab).toBe('artifact'); expect(value.folded).toEqual({ valid: true });
   });
   it('uses a usable layout when browser storage is corrupt or unavailable', () => {
     vi.stubGlobal('localStorage', { getItem: () => '{broken' }); expect(readShellLayout().sidebarWidth).toBe(248);
