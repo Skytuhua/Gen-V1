@@ -35,7 +35,7 @@ export const researchClient = {
   fileReference: (selection: ResearchSelection, resourceId: string, relativePath?: string, signal?: AbortSignal) => get<ResearchFileReference>(selection, '/file-reference', {resourceId, relativePath}, signal),
   capture: (selection: ResearchSelection, payload: Payload<'research.source.capture'>, commandId?: string) => send(selection, 'research.source.capture', payload, commandId),
   bookmark: (selection: ResearchSelection, payload: Payload<'research.source.bookmark'>, commandId?: string) => send(selection, 'research.source.bookmark', payload, commandId),
-  save: (selection: ResearchSelection, payload: Payload<'research.document.save'>) => send(selection, 'research.document.save', payload),
+  save: (selection: ResearchSelection, payload: Payload<'research.document.save'>, commandId?: string) => send(selection, 'research.document.save', payload, commandId),
 };
 
 /** Do not echo server/provider messages: they can contain revoked resource paths. */

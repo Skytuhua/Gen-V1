@@ -27,7 +27,7 @@ function ResearchBody({selection, topic, onNavigate, grantedFiles = [], browserC
   const [cursors, setCursors] = useState<{sources: string | null; documents: string | null}>({sources: null, documents: null});
   const [pending, setPending] = useState(true), [error, setError] = useState(''), [refresh, setRefresh] = useState(0);
   const [importOpen, setImportOpen] = useState(false), [menuOpen, setMenuOpen] = useState(false), [draftVersion, setDraftVersion] = useState(0), [target, setTarget] = useState<string>();
-  const [passage, setPassage] = useState<ResearchPassage>(), [width, setWidth] = useState(244), [chatSize, setChatSize] = useState(45);
+  const [passage, setPassage] = useState<ResearchPassage>(), [passageVisit, setPassageVisit] = useState(0), [width, setWidth] = useState(244), [chatSize, setChatSize] = useState(45);
   const owner = useRef<HTMLDivElement>(null), current = useRef(true), pageRequest = useRef(false);
   useEffect(() => {current.current = true; return () => {current.current = false;};}, []);
   const bump = () => setDraftVersion(v => v + 1);
@@ -89,9 +89,9 @@ function ResearchBody({selection, topic, onNavigate, grantedFiles = [], browserC
         onPointerUp={event => event.currentTarget.releasePointerCapture(event.pointerId)} />
       <div className="research-reading" aria-label="Selected research item">
         {resource ? resource.kind === 'source' ? <SourcePanel key={JSON.stringify(resource)} selection={selection} resource={resource} onCite={cite} /> :
-          <DocumentEditor key={resource.id} selection={selection} resource={resource} drafts={drafts} version={draftVersion} onChange={bump} onInspect={ref => setPassage({...ref})} onSaved={id => {setRefresh(v => v + 1); navigate({kind: 'document', id});}} /> :
+          <DocumentEditor key={resource.id} selection={selection} resource={resource} drafts={drafts} version={draftVersion} onChange={bump} onInspect={ref => {setPassage({...ref}); setPassageVisit(value => value + 1);}} onSaved={id => {setRefresh(v => v + 1); navigate({kind: 'document', id});}} /> :
           <div className="research-empty"><p>Select a source or start a findings document.</p><button onClick={() => create('findings')}>Start findings</button></div>}
-        {passage && <PassageInspector key={JSON.stringify(passage)} selection={selection} passage={passage} onClose={() => setPassage(undefined)} />}
+        {passage && <PassageInspector key={JSON.stringify([passage, passageVisit])} selection={selection} passage={passage} onClose={() => setPassage(undefined)} />}
       </div>
       {chat && <aside className="research-chat" aria-label="Research chat" hidden={!chatOpen}><label className="research-chat-size">Chat height<input type="range" aria-label="Chat height" min={20} max={50} value={chatSize} onChange={event => setChatSize(Number(event.target.value))} /></label><div className="research-chat-content">{chat}</div></aside>}
     </div>
@@ -126,18 +126,23 @@ function DocumentEditor({selection, resource, drafts, onChange, onInspect, onSav
   async function save(copy = false) {
     if (!draft || saving.current) return;
     saving.current = true; setPending(true); setError(''); setStatus('');
-    const sent = {...draft, ...(copy ? {id: crypto.randomUUID(), expectedRevision: 0} : {})};
+    const attempt = drafts.beginSave(selection, draft.id, copy), sent = attempt.sent;
+    let acknowledged = false;
     try {
-      await researchClient.save(selection, {documentId: sent.id, title: sent.title.trim(), kind: sent.kind, body: sent.body, citations: sent.citations, expectedRevision: sent.expectedRevision});
-      const document = await researchClient.document(selection, sent.id, sent.expectedRevision + 1);
-      if (copy) drafts.open(selection, document); else drafts.saved(selection, sent, document);
-      if (live.current) {setLoaded(document); setStatus(`Saved revision ${document.revision}`); onChange(); onSaved(sent.id);}
+      const receipt = await researchClient.save(selection, {documentId: sent.id, title: sent.title, kind: sent.kind, body: sent.body, citations: sent.citations, expectedRevision: sent.expectedRevision}, attempt.commandId);
+      const result = receipt.result as {documentId?: unknown; revision?: unknown; sha256?: unknown} | null;
+      if (receipt.commandId !== attempt.commandId || result?.documentId !== sent.id || result.revision !== sent.expectedRevision + 1 || typeof result.sha256 !== 'string' || !/^[a-f0-9]{64}$/.test(result.sha256)) throw Error('Save receipt unavailable. Retry this save.');
+      drafts.saved(selection, sent, {revision: result.revision as number, sha256: result.sha256}); drafts.finishSave(selection, draft.id, attempt, copy); acknowledged = true;
+      if (live.current) {setStatus(`Saved revision ${result.revision}`); onChange();}
+      const document = await researchClient.document(selection, sent.id, result.revision as number);
+      if (live.current) setLoaded(document);
     } catch (cause) {
-      if (cause instanceof ApiError && cause.code === 'PRECONDITION_FAILED') {
+      if (!acknowledged && cause instanceof ApiError && ['PRECONDITION_FAILED', 'ACCESS_DENIED', 'CAPABILITY_DENIED', 'NOT_FOUND', 'INVALID_CITATION', 'INVALID_SOURCE', 'RESOURCE_LIMIT'].includes(cause.code)) drafts.finishSave(selection, draft.id, attempt, copy);
+      if (!acknowledged && cause instanceof ApiError && cause.code === 'PRECONDITION_FAILED') {
         try {const remote = await researchClient.document(selection, sent.id); drafts.open(selection, remote); if (live.current) setLoaded(remote);} catch { /* Retain the original CAS and draft even when the conflict read is offline. */ }
       }
       if (live.current) {setError(researchError(cause)); onChange();}
-    } finally {saving.current = false; if (live.current) setPending(false);}
+    } finally {saving.current = false; if (live.current) {setPending(false); if (acknowledged) onSaved(sent.id);}}
   }
   return <LoadingState pending={pending && !draft} hasContent={Boolean(draft)} label="Loading document…">
     {draft && <article className="research-document"><h2>{draft.title}</h2><p className="research-meta">{draft.kind === 'findings' ? 'Findings · synthesis' : 'Working notes'} · {draft.dirty ? 'Unsaved draft' : `Saved revision ${draft.expectedRevision}`}</p>

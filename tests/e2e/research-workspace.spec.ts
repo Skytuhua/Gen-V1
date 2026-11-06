@@ -24,6 +24,73 @@ test.beforeEach(async ({page}) => {
   await page.route(url => url.pathname === '/research-workspace', route => route.fulfill({contentType: 'text/html', body: `<html data-theme="dark"><head><meta name="viewport" content="width=device-width, initial-scale=1"></head><body><div id="root" style="height:100dvh"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${encodeURI(fixture)}');</script></body></html>`}));
   await page.goto('/research-workspace'); await action(page, 'reset'); await page.reload();
 });
+
+test('late source text cannot return after blur and grant revocation', async ({page}) => {
+  await page.getByRole('button', {name: 'Add source', exact: true}).click();
+  await page.getByRole('combobox', {name: 'Source type', exact: true}).click();
+  await page.getByRole('option', {name: 'Granted file', exact: true}).click();
+  await page.getByRole('textbox', {name: 'Source title', exact: true}).fill('Revocable evidence');
+  await page.getByRole('button', {name: 'Verify granted file', exact: true}).click();
+  await page.getByRole('button', {name: 'Capture source', exact: true}).click();
+  await expect(page.getByRole('heading', {name: 'Revocable evidence', exact: true})).toBeVisible();
+  let release!: () => void, captured = false;
+  const held = new Promise<void>(resolve => {release = resolve;});
+  await page.route('**/api/research/sources/*/passage?**', async route => {
+    const response = await route.fetch(); captured = true; await held;
+    try {await route.fulfill({response});} catch { /* An aborted consumer must not accept this delayed result. */ }
+  });
+  await page.getByRole('button', {name: 'Read captured source', exact: true}).click();
+  await expect.poll(() => captured).toBe(true);
+  await page.evaluate(() => window.dispatchEvent(new Event('blur'))); await action(page, 'revoke'); release();
+  await expect(page.getByRole('button', {name: 'Read captured source', exact: true})).toBeEnabled();
+  await expect(page.getByRole('textbox', {name: 'Captured passage', exact: true})).toHaveCount(0);
+});
+
+test('an acknowledged save survives a failed readback and continues at the saved revision', async ({page}) => {
+  await newFindings(page); await page.getByRole('textbox', {name: 'Document body', exact: true}).fill('Committed findings');
+  let failed = false;
+  await page.route('**/api/research/documents/**', async route => {if (!failed) {failed = true; await route.abort('internetdisconnected');} else await route.continue();});
+  await page.getByRole('button', {name: 'Save document', exact: true}).click();
+  await expect(page.locator('.research-document > p.research-meta')).toContainText('Saved revision 1');
+  await page.getByRole('textbox', {name: 'Document body', exact: true}).fill('Next revision');
+  await page.getByRole('button', {name: 'Save document', exact: true}).click();
+  await expect(page.locator('.research-document > p.research-meta')).toContainText('Saved revision 2');
+  await expect(page.getByRole('region', {name: 'Saved version'})).toHaveCount(0);
+});
+
+test('an uncertain save reuses its command and original text across remount while preserving later edits', async ({page}) => {
+  await newFindings(page); const body = page.getByRole('textbox', {name: 'Document body', exact: true}); await body.fill('First committed text');
+  const sent: {id: string; payload: {body: string}}[] = []; let fail = true;
+  await page.route('**/api/commands', async route => {
+    const input = route.request().postDataJSON();
+    if (input.type !== 'research.document.save') return route.continue();
+    sent.push(input);
+    if (fail) {fail = false; await route.fetch(); return route.fulfill({status: 503, json: {error: {code: 'TEMPORARY', message: 'Acknowledgement unavailable'}}});}
+    return route.continue();
+  });
+  await page.getByRole('button', {name: 'Save document', exact: true}).click(); await expect(page.getByRole('alert')).toBeVisible();
+  await body.fill('Later local text'); await page.getByRole('button', {name: 'Toggle workspace'}).click(); await page.getByRole('button', {name: 'Toggle workspace'}).click();
+  await page.getByRole('button', {name: /Untitled findings/}).click(); await expect(body).toHaveValue('Later local text');
+  await page.getByRole('button', {name: 'Save document', exact: true}).click();
+  await expect(page.getByRole('status')).toContainText('Saved revision 1');
+  expect(sent).toHaveLength(2); expect(sent[1].id).toBe(sent[0].id); expect(sent[1].payload.body).toBe('First committed text');
+  await expect(body).toHaveValue('Later local text');
+  await page.getByRole('button', {name: 'Save document', exact: true}).click(); await expect(page.getByRole('status')).toContainText('Saved revision 2');
+  expect(sent[2].id).not.toBe(sent[0].id);
+});
+
+test('citation reads keep their exact identity through an unrelated parent rerender', async ({page}) => {
+  await importText(page); await page.getByRole('button', {name: 'Read captured source', exact: true}).click();
+  await expect(page.getByRole('textbox', {name: 'Captured passage', exact: true})).toHaveValue('abc');
+  await page.getByRole('button', {name: 'Cite passage in findings', exact: true}).click();
+  let reads = 0; page.on('request', request => {if (request.url().includes('/passage?')) reads++;});
+  await page.getByRole('button', {name: /Inspect citation 1/}).click();
+  const inspector = page.getByRole('region', {name: 'Passage inspector'});
+  await expect(inspector.locator('blockquote')).toHaveText('abc'); expect(reads).toBe(1);
+  await page.getByRole('button', {name: 'Show chat', exact: true}).click();
+  await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+  await expect(inspector.locator('blockquote')).toHaveText('abc'); expect(reads).toBe(1);
+});
 test('imports real text, saves complete findings, reloads, and inspects the pinned exact passage', async ({page}) => {
   await importText(page, 'α research\nExact evidence.');
   await page.getByRole('button', {name: 'Read captured source', exact: true}).click();

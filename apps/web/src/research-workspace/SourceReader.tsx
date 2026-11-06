@@ -1,8 +1,8 @@
-import {useEffect, useState} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import type {ResearchPassage, ResearchSource} from '../../../../packages/contracts/research';
 import {ApiError} from '../api';
 import {PendingStatus} from '../LoadingState';
-import {researchClient, researchError, type ResearchSelection} from './client';
+import {researchClient, researchError, researchScope, type ResearchSelection} from './client';
 
 export function SourceIdentity({source}: {source: ResearchSource}) {
   const identity = source.identity;
@@ -16,23 +16,27 @@ export function SourceIdentity({source}: {source: ResearchSource}) {
 export function SourceReader({selection, source, onCite}: {selection: ResearchSelection; source: ResearchSource; onCite: (passage: ResearchPassage) => void}) {
   const [page, setPage] = useState<{text: string; ref: ResearchPassage; status: string}>(), [error, setError] = useState(''), [pending, setPending] = useState(false);
   const [range, setRange] = useState<{start: number; end: number}>(), [history, setHistory] = useState<number[]>([]);
+  const reader = useRef<AbortController | undefined>(undefined), scope = researchScope(selection);
   useEffect(() => {
     // Re-check cached file text on focus; revocation must not replay a cached passage.
-    const clear = () => {setPage(undefined); setRange(undefined);};
-    window.addEventListener('blur', clear); return () => window.removeEventListener('blur', clear);
-  }, []);
+    const clear = () => {reader.current?.abort(); reader.current = undefined; setPage(undefined); setRange(undefined); setPending(false);};
+    clear(); window.addEventListener('blur', clear);
+    return () => {reader.current?.abort(); reader.current = undefined; window.removeEventListener('blur', clear);};
+  }, [scope, source.id, source.revision, source.sha256, source.bytes, source.status]);
   async function load(start: number) {
     if (!source.sha256) return;
+    reader.current?.abort(); const controller = reader.current = new AbortController();
+    const active = () => reader.current === controller && !controller.signal.aborted;
     setPending(true); setError(''); setPage(undefined); setRange(undefined);
     try {
       let end = Math.min(source.bytes, start + 64000);
       // A page boundary can bisect one UTF-8 character. Move only its end back to a valid boundary.
       for (let attempt = 0; ; attempt++, end--) {
         const ref = {sourceId: source.id, revision: source.revision, sha256: source.sha256, start, end};
-        try {const result = await researchClient.passage(selection, ref); setPage({...result, ref}); break;}
-        catch (cause) {if (!(cause instanceof ApiError) || cause.code !== 'INVALID_SOURCE' || attempt === 3) throw cause;}
+        try {const result = await researchClient.passage(selection, ref, controller.signal); if (active()) setPage({...result, ref}); break;}
+        catch (cause) {if (!active() || !(cause instanceof ApiError) || cause.code !== 'INVALID_SOURCE' || attempt === 3) throw cause;}
       }
-    } catch (cause) {setError(researchError(cause));} finally {setPending(false);}
+    } catch (cause) {if (active()) setError(researchError(cause));} finally {if (active()) setPending(false);}
   }
   return <article className="research-document"><h2>{source.title}</h2><SourceIdentity source={source} />
     {source.status !== 'captured' ? <p>Bookmark only. Page content has not been read.</p> : <>
