@@ -57,7 +57,7 @@ export function DockedSummary({ id, title, children, open = true, defaultCollaps
   }, [expandRequest, open]);
   return <section ref={panel} className={`docked-summary ${className}`} aria-label={ariaLabel ?? `${title} window`}
     hidden={!open} data-collapsed={collapsed} data-summary-id={id} onKeyDown={event => {
-      if (event.key !== 'Escape' || event.defaultPrevented || event.nativeEvent.isComposing || collapsed) return;
+      if (event.key !== 'Escape' || event.defaultPrevented || event.nativeEvent.isComposing || event.nativeEvent.keyCode === 229 || collapsed) return;
       event.preventDefault(); event.stopPropagation(); change(true); disclosure.current?.focus({ preventScroll: true });
     }}>
     <header className="docked-summary-header"><button ref={disclosure} type="button" className="docked-summary-toggle"
