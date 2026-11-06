@@ -123,8 +123,9 @@ function DocumentEditor({selection, resource, drafts, onChange, onInspect, onSav
   }, [resource.id, resource.revision, retry]);
   const draft = drafts.get(selection, resource.id);
   function edit(patch: Partial<Pick<ResearchDraft, 'title' | 'body' | 'citations'>>) {drafts.edit(selection, resource.id, patch); setStatus(''); onChange();}
+  const canSave = Boolean(draft && !pending && draft.title.trim() && draft.dirty && !draft.conflict);
   async function save(copy = false) {
-    if (!draft || saving.current) return;
+    if (!draft || saving.current || (copy ? pending : !canSave)) return;
     saving.current = true; setPending(true); setError(''); setStatus('');
     const attempt = drafts.beginSave(selection, draft.id, copy), sent = attempt.sent;
     let acknowledged = false;
@@ -132,12 +133,13 @@ function DocumentEditor({selection, resource, drafts, onChange, onInspect, onSav
       const receipt = await researchClient.save(selection, {documentId: sent.id, title: sent.title, kind: sent.kind, body: sent.body, citations: sent.citations, expectedRevision: sent.expectedRevision}, attempt.commandId);
       const result = receipt.result as {documentId?: unknown; revision?: unknown; sha256?: unknown} | null;
       if (receipt.commandId !== attempt.commandId || result?.documentId !== sent.id || result.revision !== sent.expectedRevision + 1 || typeof result.sha256 !== 'string' || !/^[a-f0-9]{64}$/.test(result.sha256)) throw Error('Save receipt unavailable. Retry this save.');
-      drafts.saved(selection, sent, {revision: result.revision as number, sha256: result.sha256}); drafts.finishSave(selection, draft.id, attempt, copy); acknowledged = true;
+      if (!drafts.finishSave(selection, draft.id, attempt, copy, {revision: result.revision as number, sha256: result.sha256})) return;
+      acknowledged = true;
       if (live.current) {setStatus(`Saved revision ${result.revision}`); onChange();}
       const document = await researchClient.document(selection, sent.id, result.revision as number);
       if (live.current) setLoaded(document);
     } catch (cause) {
-      if (!acknowledged && cause instanceof ApiError && ['PRECONDITION_FAILED', 'ACCESS_DENIED', 'CAPABILITY_DENIED', 'NOT_FOUND', 'INVALID_CITATION', 'INVALID_SOURCE', 'RESOURCE_LIMIT'].includes(cause.code)) drafts.finishSave(selection, draft.id, attempt, copy);
+      if (!acknowledged && cause instanceof ApiError && ['INVALID_INPUT', 'PRECONDITION_FAILED', 'ACCESS_DENIED', 'CAPABILITY_DENIED', 'NOT_FOUND', 'INVALID_CITATION', 'INVALID_SOURCE', 'RESOURCE_LIMIT'].includes(cause.code)) drafts.finishSave(selection, draft.id, attempt, copy);
       if (!acknowledged && cause instanceof ApiError && cause.code === 'PRECONDITION_FAILED') {
         try {const remote = await researchClient.document(selection, sent.id); drafts.open(selection, remote); if (live.current) setLoaded(remote);} catch { /* Retain the original CAS and draft even when the conflict read is offline. */ }
       }
@@ -148,9 +150,9 @@ function DocumentEditor({selection, resource, drafts, onChange, onInspect, onSav
     {draft && <article className="research-document"><h2>{draft.title}</h2><p className="research-meta">{draft.kind === 'findings' ? 'Findings · synthesis' : 'Working notes'} · {draft.dirty ? 'Unsaved draft' : `Saved revision ${draft.expectedRevision}`}</p>
       <label>Document title<input aria-label="Document title" maxLength={300} value={draft.title} onChange={event => edit({title: event.target.value})} /></label>
       <label>Document body<textarea aria-label="Document body" rows={14} value={draft.body} onChange={event => edit({body: event.target.value})} onKeyDown={event => {
-        if ((event.ctrlKey || event.metaKey) && event.key === 'Enter' && !isComposing(event)) {event.preventDefault(); if (!draft.conflict) void save();}
+        if ((event.ctrlKey || event.metaKey) && event.key === 'Enter' && !isComposing(event)) {event.preventDefault(); void save();}
       }} /></label>
-      <div className="research-actions"><button disabled={pending || !draft.title.trim() || !draft.dirty || Boolean(draft.conflict)} onClick={() => void save()}>Save document</button><PendingStatus pending={pending} label="Saving document…" />{status && <span role="status">{status}</span>}</div>
+      <div className="research-actions"><button disabled={!canSave} onClick={() => void save()}>Save document</button><PendingStatus pending={pending} label="Saving document…" />{status && <span role="status">{status}</span>}</div>
       {loaded && <details className="research-meta"><summary>Saved document identity</summary><p>Revision {loaded.revision} · {loaded.savedAt}</p><code>{loaded.sha256}</code></details>}
       {draft.conflict && <section className="research-conflict" aria-label="Saved version"><h3>Saved version · revision {draft.conflict.revision}</h3><p>Your draft is preserved above.</p><pre>{draft.conflict.body}</pre><button disabled={pending} onClick={() => void save(true)}>Save draft as separate document</button></section>}
       {draft.citations.length > 0 && <section aria-label="Document citations"><h3>Citations</h3><ol>{draft.citations.map((ref, index) => <li key={`${index}:${ref.sourceId}`}><button aria-label={`Inspect citation ${index + 1}, revision ${ref.revision}, bytes ${ref.start} to ${ref.end}`} onClick={() => onInspect(ref)}>Source {index + 1} · r{ref.revision} · bytes {ref.start}–{ref.end}</button><span className="research-meta">{loaded?.citations.find(item => JSON.stringify([item.sourceId, item.revision, item.sha256, item.start, item.end]) === JSON.stringify([ref.sourceId, ref.revision, ref.sha256, ref.start, ref.end]))?.status ?? 'unverified'} · live source unverified</span><button aria-label={`Remove citation ${index + 1}`} onClick={() => edit({citations: draft.citations.filter((_, i) => i !== index)})}>Remove</button></li>)}</ol></section>}
