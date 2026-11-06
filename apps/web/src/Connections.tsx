@@ -100,7 +100,7 @@ function AccountPicker({ connection, accounts, selectedAccountId, busy, run, log
   </div>;
 }
 
-export function Connections({ snapshot, refresh, loadModels, query = '' }: { models: ModelInfo[]; snapshot: Snapshot; refresh: () => Promise<void>; loadModels: (refresh?: boolean) => Promise<void>; query?: string }) {
+export function Connections({ snapshot, refresh, loadModels, query = '' }: { models: ModelInfo[]; snapshot: Pick<Snapshot, 'settings' | 'accounts'>; refresh: () => Promise<void>; loadModels: (refresh?: boolean) => Promise<void>; query?: string }) {
   const desktop = useDesktop();
   const [busy, setBusy] = useState(''), [notice, setNotice] = useState(''), [error, setError] = useState('');
   const pending = useRef(false);

@@ -14,6 +14,8 @@ import { IntegrationSettings } from './IntegrationSettings';
 import { UpdateControl } from './UpdateControl';
 import { AppearanceSettings, NotificationSettings } from './AppearanceSettings';
 import { version } from '../../../package.json';
+import {settingsDataFromSnapshot, type SettingsData} from './settings-data';
+import {snapshotDraftReferences, type DraftReferenceSource} from './draft-transfer';
 import './settings.css';
 
 // Selective T3 Code presentation adaptation; see third-party/t3code/README.md.
@@ -71,7 +73,15 @@ function PreferenceControl({ item, preferences, update, busy }: { item: Settings
 function ShortcutInput({ action, label, value, save, busy }: { action: string; label: string; value: string; save: (key: string, value: string) => void; busy: boolean }) {
   return <input aria-label={`${label} shortcut`} title="Focus and press a shortcut" readOnly value={value} disabled={busy} onKeyDown={event => { if (event.nativeEvent.isComposing || event.keyCode === 229 || event.key === 'Tab') return; event.preventDefault(); event.stopPropagation(); if (['Control', 'Meta', 'Alt', 'Shift'].includes(event.key)) return; const key = event.key === ',' ? 'Comma' : event.key.length === 1 ? event.key.toUpperCase() : event.key; save(action, [event.ctrlKey ? 'Ctrl' : '', event.metaKey ? 'Meta' : '', event.altKey ? 'Alt' : '', event.shiftKey ? 'Shift' : '', key].filter(Boolean).join('+')); }}/>;
 }
-export function Settings({ snapshot, modelError, refresh, loadModels, close, addResource, initialSection = 'general', environmentSettings, openBrowser }: { environmentSettings?: ReactNode; openBrowser?: (url: string) => Promise<void>; snapshot: Snapshot; modelError: string; refresh: () => Promise<void>; loadModels: (refresh?: boolean) => Promise<void>; close: () => void; addResource: () => void; initialSection?: string }) {
+export interface SettingsActions {
+  environmentSettings?: ReactNode; openBrowser?: (url: string) => Promise<void>;
+  modelError: string; refresh: () => Promise<void>; loadModels: (refresh?: boolean) => Promise<void>;
+  close: () => void; addResource: () => void; initialSection?: string;
+}
+export function Settings({snapshot, ...actions}: SettingsActions & {snapshot: Snapshot}) {
+  return <SettingsView {...actions} data={settingsDataFromSnapshot(snapshot)} draftReferences={() => Promise.resolve(snapshotDraftReferences(snapshot))}/>;
+}
+export function SettingsView({data, draftReferences, modelError, refresh, loadModels, close, addResource, initialSection = 'general', environmentSettings, openBrowser}: SettingsActions & {data: SettingsData; draftReferences: DraftReferenceSource}) {
   const desktop = useDesktop();
   const navigation = useRef<HTMLElement>(null), content = useRef<HTMLElement>(null);
   const target = legacySections[initialSection] ?? initialSection;
@@ -79,7 +89,7 @@ export function Settings({ snapshot, modelError, refresh, loadModels, close, add
   const [query, setQuery] = useState(''), [busy, setBusy] = useState(false), [error, setError] = useState(''), [saved, setSaved] = useState(false);
   const [newTaskModels, setNewTaskModels] = useState<ModelInfo[]>([]), [newTaskModelError, setNewTaskModelError] = useState(modelError);
   const catalogRequest = useRef(0), catalogRead = useRef<AbortController|null>(null);
-  const selectedAccountsKey = JSON.stringify(Object.entries(snapshot.settings.selectedAccounts ?? {}).sort(([left], [right]) => left.localeCompare(right)));
+  const selectedAccountsKey = JSON.stringify(Object.entries(data.settings.selectedAccounts ?? {}).sort(([left], [right]) => left.localeCompare(right)));
   const catalogSelection = useRef(selectedAccountsKey); catalogSelection.current = selectedAccountsKey;
   const loadNewTaskModels = useCallback(async (force = false) => {
     const request = ++catalogRequest.current, selection = catalogSelection.current;
@@ -90,7 +100,7 @@ export function Settings({ snapshot, modelError, refresh, loadModels, close, add
   }, []);
   useLayoutEffect(() => { setNewTaskModels([]); setNewTaskModelError(''); void loadNewTaskModels(); return () => { catalogRequest.current++; catalogRead.current?.abort(); catalogRead.current = null; }; }, [loadNewTaskModels, selectedAccountsKey]);
   const refreshModels = async (force = false) => { await Promise.all([loadModels(force), loadNewTaskModels(force)]); };
-  const preferences = getPreferences(snapshot.settings);
+  const preferences = getPreferences(data.settings);
   const [browserUrl, setBrowserUrl] = useState(preferences.browserStartUrl);
   useLayoutEffect(() => { navigation.current?.querySelector<HTMLElement>('[aria-current="page"]')?.scrollIntoView({ block: 'nearest' }); content.current?.scrollTo(0, 0); }, [section]);
   const persist = async (payload: Record<string, unknown>) => {
@@ -121,12 +131,12 @@ export function Settings({ snapshot, modelError, refresh, loadModels, close, add
     if (item.id.startsWith('license-')) { const notice = DEPENDENCY_NOTICES.find(([name]) => name === item.title)!; return { description: `Version ${notice[1]} · ${notice[2]}. Complete LICENSE and NOTICE files remain in the installed package.`, control: <a href={`https://www.npmjs.com/package/${encodeURIComponent(notice[0])}/v/${notice[1]}`} target="_blank" rel="noreferrer">Package notice<ExternalLink size={12}/></a> }; }
     switch (item.id) {
       case 'harness-local-models': return { description: `${newTaskModels.length} models reported by connected runtimes.`, control: <button type="button" className="secondary" disabled={busy} onClick={() => void refreshModels(true)}>Refresh models</button> };
-      case 'default-model': return { description: 'Used for new work. Existing conversations keep their selected model and account.', control: <Select aria-label="Default model" disabled={busy || newTaskModels.length === 0} value={snapshot.settings.modelId ?? ''} options={[{ value: '', label: 'Select model', disabled: true }, ...newTaskModels.map(model => ({ value: model.id, label: model.name }))]} onValueChange={modelId => void persist({ modelId })}/> };
+      case 'default-model': return { description: 'Used for new work. Existing conversations keep their selected model and account.', control: <Select aria-label="Default model" disabled={busy || newTaskModels.length === 0} value={data.settings.modelId ?? ''} options={[{ value: '', label: 'Select model', disabled: true }, ...newTaskModels.map(model => ({ value: model.id, label: model.name }))]} onValueChange={modelId => void persist({ modelId })}/> };
       case 'harness-runtime': return { description: desktop ? 'Runs locally in the Windows app.' : 'Uses the local host. Connect a subscription with pnpm agent:login in the project terminal.', control: <span className="settings-value">Local host</span> };
       case 'project-overview': return { description: 'Access stays scoped to each explicit resource grant. Git and working-copy actions remain in the project workspace.', control: <button type="button" className="secondary" onClick={addResource}>Add resource</button> };
-      case 'archive': return { description: 'Restore reopens a saved conversation without resuming its run.', control: <span className="settings-value">{snapshot.archivedThreads?.length ?? 0} archived</span> };
-      case 'harness-draft-transfer': return { description: 'Transfer browser-local drafts. Existing or incompatible desktop entries stay available for review.', control: <DraftTransfer snapshot={snapshot}/> };
-      case 'harness-export-diagnostics': return { description: `Accepted event ${snapshot.seq} · ${snapshot.threads.length} threads · ${snapshot.artifacts.length} artifacts · ${snapshot.resources.length} grants · ${snapshot.operations.filter(item => item.status === 'unknown').length} uncertain operations. Credentials and file contents are excluded.`, control: <button type="button" className="secondary" disabled={busy} onClick={() => { setBusy(true); void refresh().catch(cause => setError(String(cause))).finally(() => setBusy(false)); }}>Refresh snapshot</button> };
+      case 'archive': return { description: 'Restore reopens a saved conversation without resuming its run.', control: <span className="settings-value">{data.counts.archivedThreads} archived</span> };
+      case 'harness-draft-transfer': return { description: 'Transfer browser-local drafts. Existing or incompatible desktop entries stay available for review.', control: <DraftTransfer references={draftReferences}/> };
+      case 'harness-export-diagnostics': return { description: `Accepted event ${data.sequence} · ${data.counts.threads} threads · ${data.counts.artifacts} artifacts · ${data.counts.resources} grants · ${data.counts.uncertainOperations} uncertain operations. Credentials and file contents are excluded.`, control: <button type="button" className="secondary" disabled={busy} onClick={() => { setBusy(true); void refresh().catch(cause => setError(String(cause))).finally(() => setBusy(false)); }}>Refresh settings</button> };
       case 'harness-licenses': return { description: 'Settings presentation and account selection adapted from T3 Code, pinned 8760d063. Copyright (c) 2026 T3 Tools Inc. Full MIT notice and selective source ranges/hashes: third-party/t3code.', control: <a href="https://github.com/pingdotgg/t3code/blob/8760d063e903406c8e8f695b0852c0a15fc1e00f/LICENSE" target="_blank" rel="noreferrer">MIT notice<ExternalLink size={12}/></a> };
       case 'harness-hermes-license': return { description: 'Skill learning adapted from Hermes Agent. Copyright (c) 2025 Nous Research. Complete MIT notice retained in third-party/hermes-agent.', control: <a href="https://github.com/NousResearch/hermes-agent/blob/c627ec84664d43e0b18b95d9d86d8963747d56c7/LICENSE" target="_blank" rel="noreferrer">MIT notice<ExternalLink size={12}/></a> };
       case 'harness-dependency-notices': return { description: 'Direct package notices are listed below. Full transitive distribution notices are not assembled in this interface.', control: <span className="settings-value">{DEPENDENCY_NOTICES.length} packages</span> };
@@ -141,16 +151,16 @@ export function Settings({ snapshot, modelError, refresh, loadModels, close, add
     </aside>
     <main ref={content} className="settings-content" aria-label="Settings content"><div className="settings-page-heading"><h1>{heading}</h1><span className="settings-save-state" role="status">{busy ? 'Saving…' : saved ? <><Check size={12}/>Saved</> : null}</span></div>
       {error && <p role="alert" className="notice error-text">{error}</p>}
-      {showAppearance && <AppearanceSettings preferences={preferences} theme={snapshot.settings.theme} threads={snapshot.threads} busy={busy} save={(patch, theme) => persist({ preferences: patch, ...(theme ? { theme } : {}) })}/>}
+      {showAppearance && <AppearanceSettings preferences={preferences} theme={data.settings.theme} projects={data.projects} busy={busy} save={(patch, theme) => persist({ preferences: patch, ...(theme ? { theme } : {}) })}/>}
       {rows.filter(item => !customRows.has(item.id)).map(item => { const { description, control } = details(item); return <section key={item.id} className="settings-row" data-setting-id={item.id} data-availability="working"><div className="settings-row-copy"><h2>{item.title}</h2>{searching && <span className="settings-result-section">{SETTINGS_SECTIONS.find(([id]) => id === item.section)?.[1]}</span>}<p>{description}</p></div><div className="settings-row-control">{control}</div></section>; })}
       {matches('harness-notification-controls') && <NotificationSettings preferences={preferences} busy={busy} update={update}/>}
       {matches('harness-runtime') && environmentSettings}
-      {matches('harness-skills') && <SkillLibrary snapshot={snapshot} preferences={preferences} update={update} refresh={refresh} busy={busy}/>}
+      {matches('harness-skills') && <SkillLibrary snapshot={data} preferences={preferences} update={update} refresh={refresh} busy={busy}/>}
       {matches('harness-integrations') && <IntegrationSettings/>}
-      {(matches('harness-accounts') || subscriptions > 0) && <Connections models={newTaskModels} snapshot={snapshot} refresh={refresh} loadModels={refreshModels} query={searching ? query : ''}/>}
+      {(matches('harness-accounts') || subscriptions > 0) && <Connections models={newTaskModels} snapshot={data} refresh={refresh} loadModels={refreshModels} query={searching ? query : ''}/>}
       {newTaskModelError && rows.some(item => item.section === 'providers') && <p role="alert" className="error-text">{newTaskModelError}</p>}
-      {matches('project-overview') && <div className="settings-records">{snapshot.resources.map(resource => <div key={resource.id}><strong>{resource.label}</strong><span>{resource.kind} · {resource.writable ? 'Approved changes allowed' : 'Read only'}</span><code>{resource.path}</code></div>)}</div>}
-      {matches('archive') && <div className="settings-records">{snapshot.archivedThreads?.length ? snapshot.archivedThreads.map(thread => <section className="settings-row" key={thread.id}><div className="settings-row-copy"><h2>{thread.title}</h2><p>{thread.projectName ?? 'Conversation'} · {thread.status}</p></div><button type="button" className="secondary" disabled={busy} onClick={() => { setBusy(true); void command('thread.restore', {}, thread.id).then(refresh).catch(cause => setError(String(cause))).finally(() => setBusy(false)); }}>Restore thread</button></section>) : <p className="settings-empty">No archived threads.</p>}</div>}
+      {matches('project-overview') && <div className="settings-records">{data.resources.map(resource => <div key={resource.id}><strong>{resource.label}</strong><span>{resource.kind} · {resource.writable ? 'Approved changes allowed' : 'Read only'}</span><code>{resource.path}</code></div>)}</div>}
+      {matches('archive') && <div className="settings-records">{data.counts.archivedThreads !== data.archivedThreads.length && <p className="settings-empty">Showing {data.archivedThreads.length} archived conversations available in navigation. The total also includes conversations outside this list.</p>}{data.archivedThreads?.length ? data.archivedThreads.map(thread => <section className="settings-row" key={thread.id}><div className="settings-row-copy"><h2>{thread.title}</h2><p>{thread.projectName ?? 'Conversation'} · {thread.status}</p></div><button type="button" className="secondary" disabled={busy} onClick={() => { setBusy(true); void command('thread.restore', {}, thread.id).then(refresh).catch(cause => setError(String(cause))).finally(() => setBusy(false)); }}>Restore thread</button></section>) : <p className="settings-empty">{data.counts.archivedThreads ? 'No archived conversations are available in navigation.' : 'No archived threads.'}</p>}</div>}
       {matches('app-version') && <><p className="settings-version">Gen V1 {version} · {desktop ? 'Windows desktop' : 'Browser build'}</p><UpdateControl/></>}
       {matches('browser-start-page') && <section className="settings-card"><h2>Manual browser</h2>{openBrowser ? <form onSubmit={event => { event.preventDefault(); void persist({ preferences: { browserStartUrl: browserUrl } }); }}><label className="field">Start page<input aria-label="Browser start page" type="url" placeholder="Blank page" maxLength={2048} value={browserUrl} disabled={busy} onChange={event => setBrowserUrl(event.target.value)}/></label><div className="settings-inline-controls"><button className="secondary" disabled={busy || browserUrl === preferences.browserStartUrl}>Save start page</button><button type="button" className="secondary" disabled={busy} onClick={() => { setBusy(true); void openBrowser(preferences.browserStartUrl).then(close).catch(cause => setError(String(cause))).finally(() => setBusy(false)); }}>Open browser</button></div></form> : <p className="settings-card-intro">Open the manual browser from the Windows desktop workspace. Navigation, reload and stop stay in its toolbar.</p>}</section>}
       {rows.length === 0 && subscriptions === 0 && <p className="settings-empty">No matching settings.</p>}
