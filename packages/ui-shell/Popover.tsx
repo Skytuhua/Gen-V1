@@ -79,7 +79,7 @@ export function Popover({ anchor, contentRef, initialFocus, open, present = open
     data-state={open ? 'open' : 'closed'} aria-hidden={!open} inert={!open}
     style={{ ...style, ...geometry, position: 'fixed' }} onKeyDown={event => {
       onKeyDown?.(event);
-      if (event.key === 'Escape' && !event.defaultPrevented && !event.nativeEvent.isComposing) {
+      if (event.key === 'Escape' && !event.defaultPrevented && !event.nativeEvent.isComposing && event.keyCode !== 229) {
         event.preventDefault(); event.stopPropagation(); dismiss.current(); anchor.current?.focus();
       }
     }}>{children}</div>, root);
