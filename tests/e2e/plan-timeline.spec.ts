@@ -9,6 +9,14 @@ test.beforeEach(async ({ page }) => {
   await page.evaluate(() => document.fonts.ready);
 });
 
+test("does not keep a removed owner working after an authoritative snapshot drops its plan and thread", async ({page}) => {
+  await expect(page.locator('[data-agent-id="ui"] > .plan-agent-top')).toContainText("Working");
+  const removed = timelineSnapshot(); removed.threads = []; removed.data = [];
+  await page.evaluate(snapshot => window.planFixture.update(snapshot), removed);
+  await expect(page.locator('[data-agent-id="ui"]')).toHaveCount(0);
+  await expect(page.getByRole('heading', {name: 'Plan unavailable', exact: true})).toBeVisible();
+});
+
 test("all details are expanded and assigned branches nest and rejoin before the dependent step", async ({
   page,
 }) => {

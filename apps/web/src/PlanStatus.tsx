@@ -18,6 +18,7 @@ export interface PlanStatusProps {
   threadId?: string;
   loading?: boolean;
   error?: string;
+  focusAgentId?: string;
   onOpenAgentTranscript?: (job: AgentJob, threadId: string) => void;
 }
 type PlanContext = Pick<Thread, "runId" | "epoch" | "status">;
@@ -41,7 +42,7 @@ function readCollapse(): Record<string, boolean> {
   }
 }
 
-export function PlanStatus({ snapshot, threadId, loading, error, onOpenAgentTranscript }: PlanStatusProps) {
+export function PlanStatus({ snapshot, threadId, loading, error, focusAgentId, onOpenAgentTranscript }: PlanStatusProps) {
   const prefix = useId();
   const incoming = snapshot.data
     .filter(
@@ -53,6 +54,7 @@ export function PlanStatus({ snapshot, threadId, loading, error, onOpenAgentTran
     threadId?: string;
     record: PlanSnapshot | null;
     owner?: PlanContext;
+    unavailable?: boolean;
   }>({
     threadId,
     record: null,
@@ -60,11 +62,12 @@ export function PlanStatus({ snapshot, threadId, loading, error, onOpenAgentTran
   const previous = retained.threadId === threadId ? retained.record : null;
   const previousOwner = retained.threadId === threadId ? retained.owner : undefined;
   let owner: PlanContext | undefined = snapshot.threads.find((thread) => thread.id === threadId);
+  const unavailable = !loading && !error && !owner && Boolean(previousOwner || incoming || retained.threadId === threadId && retained.unavailable);
   if (
     previousOwner &&
-    (!owner ||
-      owner.epoch < previousOwner.epoch ||
-      (owner.epoch === previousOwner.epoch && owner.runId !== null && owner.runId !== previousOwner.runId))
+    ((!owner && (loading || error)) ||
+      owner && (owner.epoch < previousOwner.epoch ||
+      (owner.epoch === previousOwner.epoch && owner.runId !== null && owner.runId !== previousOwner.runId)))
   )
     owner = previousOwner;
   if (
@@ -75,6 +78,7 @@ export function PlanStatus({ snapshot, threadId, loading, error, onOpenAgentTran
   )
     owner = previousOwner;
   let record = incoming && isNewerPlanSnapshot(previous, incoming) ? incoming : previous;
+  if (unavailable) record = null;
   let invalidLinks = false;
   if (record && record !== previous) {
     try {
@@ -85,8 +89,8 @@ export function PlanStatus({ snapshot, threadId, loading, error, onOpenAgentTran
     }
   }
   // A revision belongs to one thread. Clear the fence before accepting its replacement.
-  if (retained.threadId !== threadId || retained.record !== record || retained.owner !== owner)
-    setRetained({ threadId, record, owner });
+  if (retained.threadId !== threadId || retained.record !== record || retained.owner !== owner || retained.unavailable !== unavailable)
+    setRetained({ threadId, record, owner, unavailable });
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>(readCollapse);
   useEffect(() => {
     try {
@@ -109,7 +113,7 @@ export function PlanStatus({ snapshot, threadId, loading, error, onOpenAgentTran
     }
   }, [record, owner]);
   const invalid =
-    invalidLinks ||
+    unavailable || invalidLinks ||
     Boolean(
       incoming && (!record || incoming.revision > record.revision) && !isNewerPlanSnapshot(null, incoming),
     ) ||
@@ -157,6 +161,12 @@ export function PlanStatus({ snapshot, threadId, loading, error, onOpenAgentTran
     timeline.steps.every((step) => open("step", step.id)) &&
     plan.agents.every((job) => open("agent", job.id));
   const agentProps = { open, toggle, snapshot, threadId: timeline.threadId, onOpenAgentTranscript };
+  if (focusAgentId) {
+    const lanes = [...timeline.steps.flatMap(step => step.agents), ...timeline.unassignedAgents];
+    for (const lane of lanes) lanes.push(...lane.children);
+    const lane = lanes.find(item => item.job.id === focusAgentId);
+    return lane ? <section className="plan-status" aria-label={`Agent plan: ${lane.job.name}`}><ul className="plan-agent-lanes"><AgentLane lane={lane} {...agentProps}/></ul></section> : <p role="alert">This subagent record is no longer available.</p>;
+  }
   const jump = () => {
     if (!current) return;
     setCollapsed((old) => ({ ...old, [identity("step", current.id)]: false }));
