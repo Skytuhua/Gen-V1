@@ -1,6 +1,7 @@
 import {useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {WorkspacePanel} from '../../apps/web/src/WorkspacePanel';
+import {GitHubSignIn} from '../../apps/web/src/GitHubSignIn';
 import {WorkspaceLauncher} from '../../apps/web/src/WorkspacePanelBodies';
 import {WorkspaceSurfaceBody} from '../../apps/web/src/WorkspaceSurfaceBody';
 import {WorkspaceProvider,type WorkspaceTab} from '../../apps/web/src/workspace-context';
@@ -21,8 +22,10 @@ function WebEditor({name}:{name:string}){
  return <label>{name}<input aria-label={name+' editor'} value={draft} onChange={event=>setDraft(event.target.value)}/></label>;
 }
 function Fixture(){
+ const [authActive,setAuthActive]=useState(true);
  const [layout,setLayout]=useState(()=>({...readShellLayout(),rightPanelOpen:true})),[error,setError]=useState(''),[editors,setEditors]=useState(true),[refreshes,setRefreshes]=useState(0);
  const [panels,setPanels]=useState(true),mode=new URLSearchParams(location.search).get('pr-panels');
+ if(new URLSearchParams(location.search).has('auth-retained'))return <><button onClick={()=>setAuthActive(value=>!value)}>Toggle sign-in active</button><div hidden={!authActive}><GitHubSignIn active={authActive}/></div></>;
  const prepare=async()=>{setError('');try{await prepareEditorHandoff();setEditors(false);}catch(cause){setError((cause as Error).message);}};
  if(mode)return <><button onClick={()=>setPanels(value=>!value)}>{panels?'Hide PR bodies':'Show PR bodies'}</button><button onClick={()=>void prepare()}>Prepare PR handoff</button>{error&&<p role="alert">{error}</p>}{!editors&&<output>PR handoff ready</output>}{panels&&['first','second'].map(id=><section key={id} aria-label={id+' PR panel'}><WorkspaceSurfaceBody panelId={'pr-'+id} kind={mode==='linked'?'linked-pull-requests':mode==='diff'?'diff':'pull-request'} binding={{authority:{kind:'local'},projectId:'project-one',threadId:'task-thread'}} snapshot={snapshot} refresh={async()=>{}}/></section>)}</>;
  return <WorkspaceProvider value={{activeArtifactId:null,requestOpenArtifact:()=>{},closeArtifact:()=>{},rightPanelOpen:true,activeTab:layout.activeTab,setActiveTab:(tab:WorkspaceTab)=>setLayout(value=>({...value,activeTab:tab}))}}>

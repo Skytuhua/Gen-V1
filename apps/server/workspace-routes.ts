@@ -6,6 +6,7 @@ import {HarnessError} from '../../packages/contracts/index.ts';
 import {integrationIdSchema} from '../../packages/contracts/integrations.ts';
 import {workspaceHost,githubFor} from './workspace-host.ts';
 import {registerEnvironmentRoutes} from './environment-routes.ts';
+import {registerGitHubAuthRoutes} from './github-auth-routes.ts';
 import {SplitWorkspaceRepository} from '../../packages/core/split-workspace.ts';
 
 const identifier=z.string().regex(/^[a-zA-Z0-9:_.-]{1,200}$/),record=z.record(z.string(),z.unknown());
@@ -21,6 +22,7 @@ export function registerWorkspaceRoutes(app:FastifyInstance,service:Service){
  app.post('/api/split-workspace/commands',{bodyLimit:128*1024},async request=>split.command(envelope.parse(request.body)));
  registerEnvironmentRoutes(app,service);
  const host=workspaceHost(service),{projects,terminals}=host,github=githubFor(host);projects.workspace.migrateProjects();
+ registerGitHubAuthRoutes(app,github.auth);
  app.addHook('onClose',async()=>{await terminals.dispose();await projects.dispose();});
  app.get('/api/workspace',async()=>projects.workspace.read());
  app.post('/api/workspace/commands',async request=>{const input=envelope.parse(request.body);return input.type==='workspace.project.connect'?projects.connect(input):projects.workspace.command(input);});
@@ -39,8 +41,6 @@ export function registerWorkspaceRoutes(app:FastifyInstance,service:Service){
   const{projectId}=z.object({projectId:identifier}).parse(request.params),input=envelope.parse(request.body),existing=service.store.receipt({...input,type:'project.'+input.type,payload:{...input.payload,projectId}});if(existing)return existing;
   const command={...input,type:'project.'+input.type,payload:{...input.payload,projectId}},p=input.payload,binding=await projects.binding(projectId,input.threadId);
   if(input.type==='refresh')return projects.context(projectId,input.threadId);
-  if(input.type==='github-login')return github.login(projectId,input.threadId);
-  if(input.type==='github-login-status')return github.auth.poll(z.string().uuid().parse(p.flowId));
   if(input.type==='create-pr')return github.create(projectId,input.threadId,p);
   if(input.type==='review-pr')return github.review(projectId,input.threadId,p);
   if(input.type==='link-pr'){const pullNumber=z.number().int().positive().parse(p.number),details=await github.details(projectId,input.threadId,pullNumber),key=JSON.stringify([projectId,input.threadId??null,details.repo,pullNumber]);return service.store.command(command,()=>{service.store.put('linkedPullRequest',key,input.threadId??null,{projectId,threadId:input.threadId,...details,linkedAt:new Date().toISOString()});return details;});}
