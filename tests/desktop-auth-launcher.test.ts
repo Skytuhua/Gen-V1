@@ -2,6 +2,7 @@ import {describe,it,expect} from 'vitest';
 import {mkdtemp,mkdir,writeFile,readFile} from 'node:fs/promises';
 import {join,resolve} from 'node:path';
 import {tmpdir} from 'node:os';
+import {pathToFileURL} from 'node:url';
 import {launchDesktopSignIn,desktopSignInArguments,parseDesktopSignInTarget,quoteWindowsArgument} from '../apps/desktop/auth-launcher.ts';
 import {execFileSync} from 'node:child_process';
 
@@ -21,7 +22,7 @@ describe('packaged subscription sign-in',()=>{
  it('uses only the fixed bundled login entry and a file URL loader',()=>{
   const root=resolve('a folder with spaces');
   const args=desktopSignInArguments(root,resolve('data folder'));
-  expect(args).toEqual(['--import',new URL('file:///'+root.replaceAll('\\','/')+'/node_modules/tsx/dist/loader.mjs').href,join(root,'packages/runtime-login/index.ts'),'--data-dir',resolve('data folder'),'--provider','openai']);
+  expect(args).toEqual(['--import',pathToFileURL(join(root,'node_modules/tsx/dist/loader.mjs')).href,join(root,'packages/runtime-login/index.ts'),'--data-dir',resolve('data folder'),'--provider','openai']);
   expect(args.join(' ')).not.toContain('pnpm');
  });
  it('quotes Windows argument data without turning it into script text',()=>{
