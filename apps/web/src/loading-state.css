@@ -1,0 +1,16 @@
+.tool-loading-state { min-width: 0; }
+.loading-state-skeleton { visibility: hidden; }
+.loading-state-skeleton[data-visible="true"] { visibility: visible; }
+.loading-state-rows { display: grid; gap: var(--ui-space-1, 4px); padding: var(--ui-panel-inset, 12px); }
+.loading-state-row { display: flex; align-items: center; gap: var(--ui-space-2, 8px); min-height: var(--ui-row-compact, 32px); }
+.loading-skeleton { display: block; flex: none; background: var(--hover); border-radius: 6px; }
+.loading-skeleton-icon { width: 16px; height: 16px; }
+.loading-skeleton-line { width: 64%; height: 12px; }
+.loading-state-row:first-child .loading-skeleton-line { width: 76%; }
+.loading-state-row:last-child .loading-skeleton-line { width: 44%; }
+.loading-state-status { margin: 0; padding: var(--ui-space-1, 4px) var(--ui-panel-inset, 12px); color: var(--muted); font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
+/* Static, opaque feedback also covers Reduced/Off motion and transparency preferences. */
+@media (forced-colors: active) {
+  .loading-skeleton { background: GrayText; }
+  .loading-state-status { color: CanvasText; }
+}

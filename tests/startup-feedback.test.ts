@@ -43,13 +43,14 @@ describe('static startup feedback', () => {
             chrome: bounds('.startup-chrome'),
             heading: bounds('h1'),
             description: bounds('p'),
-            progress: bounds('[role="progressbar"]'),
+            mark: bounds('.startup-mark'),
+            pending: bounds('.startup-pending'),
           };
         });
         expect(geometry.scrollWidth).toBeLessThanOrEqual(viewport.width);
         expect(geometry.scrollHeight).toBeLessThanOrEqual(viewport.height);
         expect(geometry.chrome?.height).toBe(42);
-        for (const [name, rect] of Object.entries({heading: geometry.heading, description: geometry.description, progress: geometry.progress})) {
+        for (const [name, rect] of Object.entries({heading: geometry.heading, description: geometry.description, mark: geometry.mark, pending: geometry.pending})) {
           expect(rect, `${name} must exist`).not.toBeNull();
           expect(rect!.top, `${name} overlaps OS overlay`).toBeGreaterThanOrEqual(42);
           expect(rect!.left).toBeGreaterThanOrEqual(12);
@@ -57,7 +58,7 @@ describe('static startup feedback', () => {
           expect(rect!.bottom, `${name} is clipped`).toBeLessThanOrEqual(viewport.height - 8);
           expect(rect!.height).toBeGreaterThan(0);
         }
-        expect(geometry.progress!.top).toBeGreaterThanOrEqual(geometry.description!.bottom);
+        expect(geometry.description!.top).toBeGreaterThanOrEqual(geometry.heading!.bottom);
       } finally {
         await page.close();
       }
@@ -69,12 +70,13 @@ describe('static startup feedback', () => {
     const page = await browser.newPage();
     try {
       await page.goto(startupUrl);
-      expect(await page.getByRole('heading', {name: 'Opening Gen V1', level: 1}).count()).toBe(1);
+      expect(await page.getByRole('heading', {name: 'Opening your workspace', level: 1}).count()).toBe(1);
       expect(await page.getByRole('status').count()).toBe(1);
       expect(await page.getByRole('status').getAttribute('aria-live')).toBe('polite');
-      const progress = page.getByRole('progressbar', {name: 'Opening workspace'});
-      expect(await progress.count()).toBe(1);
-      expect(await progress.getAttribute('aria-valuenow')).toBeNull();
+      expect(await page.getByRole('progressbar').count()).toBe(0);
+      expect(await page.locator('[aria-valuenow]').count()).toBe(0);
+      expect(await page.locator('p').count()).toBe(1);
+      expect((await page.locator('p').innerText()).length).toBeLessThan(45);
       expect(await page.locator('script, iframe, button, input, a, [onclick]').count()).toBe(0);
       expect(await page.locator('meta[http-equiv="Content-Security-Policy"]').getAttribute('content')).toBe("default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'");
       expect(source).not.toMatch(/https?:\/\//i);
@@ -84,21 +86,22 @@ describe('static startup feedback', () => {
     }
   });
 
-  it('honors reduced motion while retaining a visible indeterminate progress marker', async () => {
+  it('keeps a static pending glyph in full and reduced motion without an idle animation loop', async () => {
     const page = await browser.newPage({viewport: {width: 420, height: 190}});
     try {
       await page.goto(startupUrl);
-      const marker = () => page.locator('[role="progressbar"]').evaluate(node => {
-        const style = getComputedStyle(node, '::before');
-        return {animation: style.animationName, width: parseFloat(style.width), height: parseFloat(style.height), background: style.backgroundColor};
+      expect(await page.locator('.startup-pending').count()).toBe(1);
+      const marker = () => page.locator('.startup-pending').evaluate(node => {
+        const style = getComputedStyle(node);
+        return {animation: style.animationName, width: parseFloat(style.width), height: parseFloat(style.height), opacity: style.opacity};
       });
-      expect((await marker()).animation).not.toBe('none');
+      expect((await marker()).animation).toBe('none');
       await page.emulateMedia({reducedMotion: 'reduce'});
       const reduced = await marker();
       expect(reduced.animation).toBe('none');
       expect(reduced.width).toBeGreaterThan(0);
       expect(reduced.height).toBeGreaterThan(0);
-      expect(reduced.background).not.toBe('rgba(0, 0, 0, 0)');
+      expect(Number(reduced.opacity)).toBeGreaterThan(0);
     } finally {
       await page.close();
     }
