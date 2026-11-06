@@ -134,6 +134,8 @@ describe('project leaf loading states', () => {
       await page.emulateMedia({reducedMotion:'reduce'});
       await page.evaluate(()=>document.documentElement.dataset.theme='dark');
       await page.clock.runFor(160);
+      // Timer completion schedules a React commit; observe the committed state before geometry.
+      await page.locator('.loading-state-skeleton[data-visible="true"]').waitFor({state:'visible'});
       const line=await page.locator('.loading-skeleton-line').first().boundingBox();
       expect(line?.width).toBeGreaterThan(180);
       expect(await page.locator('.loading-skeleton-line').first().isVisible()).toBe(true);
