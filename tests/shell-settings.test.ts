@@ -55,13 +55,14 @@ describe('reported context measurements', () => {
     expect(contextSegments(EMPTY_USAGE)).toBeNull();
     expect(contextSegments({ ...EMPTY_USAGE, contextTokens: 30 })).toBeNull();
   });
-  it('uses only reported categories and a computed remainder of accepted context', () => {
+  it('uses reported categories without fabricating an unreported remainder', () => {
     const value = contextSegments({ ...EMPTY_USAGE, contextTokens: 42000, contextWindow: 100000, contextBreakdown: [{ label: 'System', tokens: 14000 }, { label: 'Conversation', tokens: 20000 }] })!;
-    expect(value.ratio).toBe(42); expect(value.free).toBe(58000); expect(value.categorized).toBe(true);
-    expect(value.categories.map(item => [item.label, item.tokens, item.width])).toEqual([['System', 14000, 14], ['Conversation', 20000, 20], ['Other used context', 8000, 8]]);
+    expect(value.ratio).toBe(42); expect(value.free).toBeUndefined(); expect(value.categorized).toBe(true);
+    expect(value.categories.map(item => [item.label, item.tokens])).toEqual([['System', 14000], ['Messages', 20000]]);
+    expect(value.categories[0].width).toBeCloseTo(14);
   });
   it('rejects inconsistent partitions without fabricating categories', () => {
     const value = contextSegments({ ...EMPTY_USAGE, contextTokens: 20, contextWindow: 100, contextBreakdown: [{ label: 'Impossible', tokens: 90 }] })!;
-    expect(value.categorized).toBe(false); expect(value.categories).toEqual([{ label: 'Used', tokens: 20, width: 20 }]);
+    expect(value.categorized).toBe(false); expect(value.categories).toEqual([]);
   });
 });

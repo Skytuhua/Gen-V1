@@ -1,40 +1,75 @@
-import { useId, useState, type CSSProperties } from 'react';
+import { useId, useRef, useState, useEffect, type CSSProperties } from 'react';
 import type { RuntimeUsage } from '../../../packages/contracts';
+import { Popover } from '../../../packages/ui-shell/Popover';
+import { isComposing } from '../../../packages/ui-shell/list-navigation';
 import './context-inspector.css';
 
 const contextFormatter = new Intl.NumberFormat(undefined, { notation: 'compact', maximumFractionDigits: 1 });
 export const contextNumber = (tokens: number) => contextFormatter.format(tokens);
+export const contextTokenCount = (value: unknown): value is number => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
+export interface ContextCategoryReport { label: string; tokens: number; subitems?: { label: string; tokens: number }[] }
+export type ContextUsage = Omit<RuntimeUsage, 'contextBreakdown'> & { contextBreakdown?: ContextCategoryReport[] };
+const labels = ['System', 'Tools & MCP', 'Skills', 'Messages', 'Reserved', 'Free'] as const;
+function categoryLabel(label: string) {
+  if (/^(tools|mcp|tools & mcp)$/i.test(label)) return 'Tools & MCP';
+  if (/^(messages|conversation)$/i.test(label)) return 'Messages';
+  return labels.find(value => value.toLowerCase() === label.toLowerCase());
+}
 
-export function contextSegments(usage?: RuntimeUsage) {
-  if (usage?.contextTokens == null || usage.contextWindow == null || usage.contextWindow <= 0 || !Number.isFinite(usage.contextTokens) || !Number.isFinite(usage.contextWindow) || usage.contextTokens < 0) return null;
-  const used = usage.contextTokens, total = usage.contextWindow, ratio = Math.min(100, used / total * 100);
-  const reported = usage.contextBreakdown;
-  const valid = reported && reported.length > 0 && reported.length <= 20 && reported.every(item => typeof item.label === 'string' && item.label.trim() && Number.isFinite(item.tokens) && item.tokens >= 0) && reported.reduce((sum, item) => sum + item.tokens, 0) <= used;
-  const categories = valid ? reported.map(item => ({ ...item })) : [{ label: 'Used', tokens: used }];
-  const classified = categories.reduce((sum, item) => sum + item.tokens, 0);
-  if (valid && classified < used) categories.push({ label: 'Other used context', tokens: used - classified });
-  return { used, total, ratio, free: Math.max(0, total - used), categorized: Boolean(valid), categories: categories.map(item => ({ ...item, width: used > 0 ? item.tokens / used * ratio : 0 })) };
+export function contextSegments(usage?: ContextUsage) {
+  if (!contextTokenCount(usage?.contextTokens) || !contextTokenCount(usage.contextWindow) || usage.contextWindow === 0 || usage.contextTokens > usage.contextWindow) return null;
+  const used = usage.contextTokens, total = usage.contextWindow, ratio = used / total * 100;
+  const reported = Array.isArray(usage.contextBreakdown) ? usage.contextBreakdown : undefined;
+  const mapped = reported?.every(item => item && typeof item === 'object') ? reported.map(item => ({ ...item, label: typeof item.label === 'string' ? categoryLabel(item.label.trim()) : undefined })) : undefined;
+  const allocated = mapped?.filter(item => item.label !== 'Free' && item.label !== 'Reserved').reduce((sum, item) => sum + item.tokens, 0) ?? 0;
+  const reserved = mapped?.find(item => item.label === 'Reserved')?.tokens ?? 0;
+  const free = mapped?.find(item => item.label === 'Free')?.tokens;
+  const valid = Boolean(mapped?.length && mapped.length <= 6 && new Set(mapped.map(item => item.label)).size === mapped.length &&
+    mapped.every(item => item.label && contextTokenCount(item.tokens)) && allocated <= used && used + reserved + (free ?? 0) <= total);
+  const categories = valid ? mapped!.map(item => ({ ...item, label: item.label!, width: item.tokens / total * 100,
+    subitems: Array.isArray(item.subitems) && item.subitems.length <= 100 && item.subitems.every(child => child && typeof child.label === 'string' && child.label.trim() && contextTokenCount(child.tokens)) && item.subitems.reduce((sum, child) => sum + child.tokens, 0) <= item.tokens ? item.subitems : undefined,
+  })).sort((a, b) => labels.indexOf(a.label) - labels.indexOf(b.label)) : [];
+  return { used, total, ratio, free: valid ? free : undefined, categorized: valid,
+    complete: valid && allocated === used && used + reserved + (free ?? 0) === total, categories };
 }
 function categoryColor(label: string) {
-  if (/^system$/i.test(label)) return 'var(--context-system)';
-  if (/^(mcp|tools)$/i.test(label)) return 'var(--context-tools)';
-  if (/^skills$/i.test(label)) return 'var(--context-skills)';
-  if (/^(messages|conversation)$/i.test(label)) return 'var(--context-messages)';
-  return 'var(--context-other)';
+  return `var(--context-${label === 'Tools & MCP' ? 'tools' : label.toLowerCase()})`;
 }
 
-export function ContextMeter({ usage, busy = false }: { usage?: RuntimeUsage; busy?: boolean }) {
+function Category({ item, total, id }: { item: ContextCategoryReport & { width: number }; total: number; id: string }) {
+  const anchor = useRef<HTMLButtonElement>(null), detail = useRef<HTMLDivElement>(null);
+  const [hovered, setHovered] = useState(false), [focused, setFocused] = useState(false), [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (!hovered && !focused) { setOpen(false); return; }
+    const timer = setTimeout(() => setOpen(true), 120); return () => clearTimeout(timer);
+  }, [hovered, focused]);
+  return <div className="context-category-entry">
+    <button ref={anchor} className="context-category-row" type="button" aria-describedby={open ? id : undefined}
+      onPointerEnter={() => setHovered(true)} onPointerLeave={() => setHovered(false)} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
+      onKeyDown={event => {
+        if (isComposing(event)) return;
+        if (event.key === 'Escape' && open) { event.preventDefault(); event.stopPropagation(); setOpen(false); }
+        if (open && (event.key === 'PageDown' || event.key === 'PageUp')) { event.preventDefault(); detail.current?.scrollBy({ top: event.key === 'PageDown' ? 100 : -100 }); }
+      }}>
+      <i aria-hidden="true" style={{ '--context-color': categoryColor(item.label) } as CSSProperties} /><span>{item.label}</span><strong>{contextNumber(item.tokens)}</strong>
+    </button>
+    <Popover anchor={anchor} contentRef={detail} open={open} width={220} height={Math.min(360, 90 + (item.subitems?.length ?? (item.label === 'Reserved' ? 1 : 0)) * 28)}
+      role="tooltip" id={id} className="context-category-detail" onDismiss={() => setOpen(false)}>
+      <strong>{item.label}</strong><span>{new Intl.NumberFormat().format(item.tokens)} tokens · {(item.tokens / total * 100).toFixed(1)}%</span>
+      {item.subitems?.map((child, index) => <div className="context-subitem" key={index}><span>{child.label}</span><span>{new Intl.NumberFormat().format(child.tokens)}</span></div>)}
+      {item.label === 'Reserved' && !item.subitems?.length && <span>Capacity reserved by the runtime.</span>}
+    </Popover>
+  </div>;
+}
+
+export function ContextMeter({ usage, busy = false, accepted = false }: { usage?: ContextUsage; busy?: boolean; accepted?: boolean }) {
   const value = contextSegments(usage), id = useId();
-  const [inspected, setInspected] = useState<string | null>(null);
-  if (!value) return <div className="context-meter"><div className="context-meter-unknown" aria-label="Context measurement unavailable" /><p className="context-categories-note">Category breakdown unavailable</p></div>;
-  const entries = [...value.categories, { label: 'Free', tokens: value.free, width: Math.max(0, 100 - value.ratio) }];
-  return <div className="context-meter" role="group" aria-label="Reported context breakdown" aria-busy={busy}>
+  if (!value) return <div className="context-meter"><div className="context-meter-unknown" aria-label="Context measurement not reported" /><p className="context-categories-note">Context not reported</p></div>;
+  return <div className={`context-meter${accepted ? ' context-measurement-accepted' : ''}`} role="group" aria-label="Reported context breakdown" aria-busy={busy}>
     <progress className="sr-only" aria-label="Context used" value={value.ratio} max={100} />
-    <div className="context-segment-bar">{entries.filter(item => item.tokens > 0).map(item => <button key={item.label} type="button" style={{ width: `${item.width}%`, '--context-color': item.label === 'Free' ? 'var(--context-free)' : categoryColor(item.label) } as CSSProperties} className={`context-segment${item.label === 'Free' ? ' context-free' : ''}`} aria-label={`${item.label}: ${contextNumber(item.tokens)} tokens`} data-tooltip={`${item.label} · ${contextNumber(item.tokens)} tokens`}><span className="sr-only">{item.label}</span></button>)}{busy && <span className="context-compaction-shimmer" aria-hidden="true" />}</div>
-    <div className="context-category-grid">{entries.map(item => <div className="context-category-entry" key={item.label}>
-      <button className="context-category-row" type="button" aria-describedby={inspected === item.label ? `${id}-${item.label}` : undefined} onPointerEnter={() => setInspected(item.label)} onPointerLeave={() => setInspected(null)} onFocus={() => setInspected(item.label)} onBlur={() => setInspected(null)}><i style={{ '--context-color': item.label === 'Free' ? 'var(--context-free)' : categoryColor(item.label) } as CSSProperties} /><span>{item.label}</span><strong>{contextNumber(item.tokens)}</strong></button>
-      {inspected === item.label && <div id={`${id}-${item.label}`} role="tooltip" className="context-category-detail"><strong>{item.label}</strong><span>{contextNumber(item.tokens)} of {contextNumber(value.total)} context tokens</span><span>{(item.tokens / value.total * 100).toFixed(1)}% of context capacity</span></div>}
-    </div>)}</div>
-    {!value.categorized && <p className="context-categories-note">Category breakdown unavailable</p>}
+    <div className="context-segment-bar" aria-hidden="true">{value.categories.map(item => <i key={item.label} style={{ width: `${item.width}%`, '--context-color': categoryColor(item.label) } as CSSProperties} className="context-segment" />)}{busy && <span className="context-compaction-shimmer" />}</div>
+    <div className="context-category-grid">{value.categories.map((item, index) => <Category key={item.label} item={item} total={value.total} id={`${id}-${index}`} />)}</div>
+    {!value.categorized && <p className="context-categories-note">Category breakdown not reported</p>}
+    {value.categorized && !value.complete && <p className="context-categories-note">Partial category breakdown</p>}
   </div>;
 }
