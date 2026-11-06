@@ -254,3 +254,32 @@ test('bounded regions remain readable in dark/light, narrow/short, density, and 
   }
   await testInfo.attach('geometry', {body: JSON.stringify(geometry, null, 2), contentType: 'application/json'});
 });
+
+test('a source read completed after blur cannot restore text before access is rechecked', async ({page}) => {
+ await importText(page, 'Sensitive captured material');
+ await page.evaluate(() => {
+  const original = window.fetch.bind(window);
+  window.fetch = (...args) => original(...args).finally(() => {
+   if (String(args[0]).includes('/passage?')) (window as Window & {researchReadSettled?: boolean}).researchReadSettled = true;
+  });
+ });
+ let release!: () => void;
+ const held = new Promise<void>(resolve => {release = resolve;});
+ let requested!: () => void;
+ const captured = new Promise<void>(resolve => {requested = resolve;});
+ await page.route('**/api/research/sources/*/passage?**', async route => {
+  const response = await route.fetch(); requested(); await held;
+  await route.fulfill({response}).catch(() => {});
+ });
+ await page.getByRole('button', {name: 'Read captured source', exact: true}).click();
+ await captured;
+ await page.evaluate(() => window.dispatchEvent(new Event('blur')));
+ release();
+ await page.waitForFunction(() => (window as Window & {researchReadSettled?: boolean}).researchReadSettled);
+ await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+ await expect(page.getByRole('status')).toHaveCount(0);
+ await expect(page.getByRole('textbox', {name: 'Captured passage', exact: true})).toHaveCount(0);
+ await page.unroute('**/api/research/sources/*/passage?**');
+ await page.getByRole('button', {name: 'Read captured source', exact: true}).click();
+ await expect(page.getByRole('textbox', {name: 'Captured passage', exact: true})).toHaveValue('Sensitive captured material');
+});
