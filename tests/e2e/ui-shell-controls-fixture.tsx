@@ -37,11 +37,11 @@ function Fixture() {
       <input aria-label="Following field" defaultValue="Keep draft" />
       <button type="submit">Submit choice</button><button type="reset">Reset choice</button>
     </form>
-    <ActionMenu label="Actions" open={menu} onOpenChange={setMenu} items={[
+    <fieldset data-testid="action-fieldset" style={{ padding: 0, border: 0 }}><ActionMenu label="Actions" open={menu} onOpenChange={setMenu} items={[
       { id: 'disabled', label: 'Unavailable', disabled: true, onSelect: () => setAction('wrong') },
       { id: 'alpha', label: 'Alpha', onSelect: () => setAction('alpha') },
       { id: 'delta', label: 'Delta', checked: true, onSelect: () => setAction('delta') },
-    ]} />
+    ]} /></fieldset>
     <button type="button" onClick={() => setDisabled(!disabled)}>Toggle disabled</button>
     <output aria-label="Result">{action}</output>
   </>;
