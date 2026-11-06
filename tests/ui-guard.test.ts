@@ -30,6 +30,22 @@ function lintText(name: string, text: string) {
 }
 
 describe('type-aware rendered numeric guards', () => {
+  it('follows declared map callbacks and array-returning components', () => {
+    expect(numeric(lintText('declared-render.tsx', `declare const count: number;
+function row() { return count && 'text'; }
+const children = [count && <span/>];
+export const View = () => children;
+export const Mapped = <div>{[1].map(row)}</div>;`)).map(item=>item.line)).toEqual([2,3]);
+  });
+  it('keeps hoisted discarded callbacks equivalent to inline handlers, while checking dual render use', () => {
+    expect(numeric(lintText('discarded-callback.tsx', `declare const count: number;
+const onClick = () => count && <span/>;
+function declaredHandler() { return count && <span/>; }
+export const View = <><button onClick={onClick}/><button onClick={declaredHandler}/><button onClick={()=>count && <span/>}/></>;`))).toEqual([]);
+    expect(numeric(lintText('dual-use-callback.tsx', `declare const count: number;
+const row = () => count && <span/>;
+export const View = <><button onClick={row}/>{[1].map(row)}</>;`))).toHaveLength(1);
+  });
   it('rejects aliases, optional numbers, mapped/array children, nested conditionals and component returns', () => {
     const violations = numeric(lintFixture('numeric-negative'));
     expect(violations.map(item => item.line)).toEqual([9, 11, 12, 13, 14, 14, 15, 17, 18, 19, 21, 22]);
@@ -69,6 +85,18 @@ export const View = <>{([count && <b/>]) || null}{([1].map(() => count && 'text'
 });
 
 describe('overlay architecture policy', () => {
+  it('checks helper HTML at srcdoc and explicit HTML response sinks without flagging unused documentation', () => {
+    expect(lintText('rendered-document.ts', `declare const frame: HTMLIFrameElement;
+declare const reply: any;
+function widgetDocument() { return '<dialog>New modal</dialog>'; }
+frame.srcdoc = widgetDocument();
+reply.type('text/html; charset=utf-8').send(widgetDocument());
+const documentation = '<dialog>Unused documentation</dialog>';`).map(item=>item.line)).toEqual([4,5]);
+    expect(lintText('iframe-document.tsx', `declare const frame: HTMLIFrameElement;
+const html = '<dialog>New modal</dialog>';
+frame.setAttribute('srcdoc', html);
+export const View = <><iframe srcDoc={html}/><div dangerouslySetInnerHTML={{__html: html}}/></>;`).map(item=>item.line)).toEqual([3,4,4]);
+  });
   it('rejects intrinsic overlays, roles, class templates, imported portal aliases and imperative DOM overlays', () => {
     const violations = lintFixture('overlays-negative').filter(item => item.rule === 'ad-hoc-overlay');
     expect(violations.map(item => item.line)).toEqual([6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 18, 19]);
@@ -122,6 +150,15 @@ it('scans every public frontend and trusted receiver root, including new untrack
   const result = scanUi(root);
   expect(result.files).toEqual(expect.arrayContaining(paths));
   expect(result.violations.map(item => item.file)).toEqual(expect.arrayContaining(paths));
+});
+
+it('follows an imported trusted document helper at a discovered server HTML response sink', () => {
+  source('tsconfig.json', JSON.stringify({ compilerOptions: { jsx: 'preserve', strict: true, types: [] } }));
+  source('packages/widgets/rendered-document.ts', "export function widgetShellDocument() { return '<dialog>New modal</dialog>'; }");
+  source('apps/server/rendered-page.ts', `import {widgetShellDocument} from '../../packages/widgets/rendered-document';
+declare const reply: any;
+reply.type('text/html; charset=utf-8').send(widgetShellDocument());`);
+  expect(scanUi(root).violations.some(item=>item.file==='apps/server/rendered-page.ts' && item.rule==='ad-hoc-overlay')).toBe(true);
 });
 
 it('the CLI exits nonzero for seeded numeric and overlay violations in an existing legacy file', () => {

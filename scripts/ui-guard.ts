@@ -53,6 +53,19 @@ function initializer(expression: ts.Expression, checker: ts.TypeChecker): ts.Exp
   if (declaration && (ts.isVariableDeclaration(declaration) || ts.isPropertyAssignment(declaration))) return declaration.initializer;
 }
 
+function callable(expression: ts.Expression, checker: ts.TypeChecker, seen = new Set<ts.Node>()): ts.FunctionDeclaration | ts.FunctionExpression | ts.ArrowFunction | ts.MethodDeclaration | undefined {
+  expression = unwrap(expression);
+  if (seen.has(expression)) return;
+  seen.add(expression);
+  if (ts.isArrowFunction(expression) || ts.isFunctionExpression(expression)) return expression;
+  const value = initializer(expression, checker);
+  if (value) return callable(value, checker, seen);
+  let symbol = checker.getSymbolAtLocation(ts.isPropertyAccessExpression(expression) ? expression.name : expression);
+  if (symbol && symbol.flags & ts.SymbolFlags.Alias) symbol = checker.getAliasedSymbol(symbol);
+  return symbol?.declarations?.find((node): node is ts.FunctionDeclaration | ts.MethodDeclaration =>
+    (ts.isFunctionDeclaration(node) || ts.isMethodDeclaration(node)) && Boolean(node.body));
+}
+
 function strings(expression: ts.Expression, checker: ts.TypeChecker, seen = new Set<ts.Node>()): string[] {
   expression = unwrap(expression);
   if (seen.has(expression)) return [];
@@ -60,6 +73,19 @@ function strings(expression: ts.Expression, checker: ts.TypeChecker, seen = new 
   if (ts.isStringLiteralLike(expression)) return [expression.text];
   if (ts.isTemplateExpression(expression)) return [expression.head.text, ...expression.templateSpans.flatMap(span => [...strings(span.expression, checker, seen), span.literal.text])];
   if (ts.isConditionalExpression(expression)) return [...strings(expression.whenTrue, checker, seen), ...strings(expression.whenFalse, checker, seen)];
+  if (ts.isCallExpression(expression)) {
+    const fn = callable(expression.expression, checker), values: string[] = [];
+    if (fn?.body) {
+      if (!ts.isBlock(fn.body)) return strings(fn.body, checker, seen);
+      const visit = (node: ts.Node) => {
+        if (ts.isFunctionLike(node)) return;
+        if (ts.isReturnStatement(node) && node.expression) values.push(...strings(node.expression, checker, seen));
+        else ts.forEachChild(node, visit);
+      };
+      ts.forEachChild(fn.body, visit);
+    }
+    return values;
+  }
   const value = initializer(expression, checker);
   if (value) return strings(value, checker, seen);
   const type = checker.getTypeAtLocation(expression);
@@ -205,6 +231,24 @@ export function lintUiProgram(program: ts.Program, files: string[], root: string
     const source = program.getSourceFile(file);
     if (!source) throw Error(`UI source was not parsed: ${file}`);
     const path = portable(relative(root, source.fileName));
+    const references = new Map<ts.Symbol, ts.Identifier[]>(), discarded = new Map<ts.Node, boolean>();
+    const collectReferences = (node: ts.Node) => {
+      if (ts.isIdentifier(node)) { const symbol = checker.getSymbolAtLocation(node); if (symbol) references.set(symbol, [...(references.get(symbol) ?? []), node]); }
+      ts.forEachChild(node, collectReferences);
+    };
+    collectReferences(source);
+    function discardedCallback(node: ts.Node): boolean {
+      if (discarded.has(node)) return discarded.get(node)!;
+      const name = ts.isFunctionDeclaration(node) ? node.name : (ts.isArrowFunction(node) || ts.isFunctionExpression(node)) && ts.isVariableDeclaration(node.parent) ? node.parent.name : undefined;
+      const symbol = name && ts.isIdentifier(name) ? checker.getSymbolAtLocation(name) : undefined;
+      const uses = symbol ? (references.get(symbol) ?? []).filter(reference => reference !== name) : [];
+      const result = uses.length > 0 && uses.every(reference => {
+        let parent: ts.Node = reference;
+        while (ts.isParenthesizedExpression(parent.parent) || ts.isAsExpression(parent.parent) || ts.isNonNullExpression(parent.parent)) parent = parent.parent;
+        return ts.isJsxExpression(parent.parent) && ts.isJsxAttribute(parent.parent.parent) && parent.parent.parent.name.getText(source) !== 'children';
+      });
+      discarded.set(node, result); return result;
+    }
     function report(node: ts.Node, rule: UiViolation['rule'], message: string) {
       const start = node.getStart(source), key = `${path}:${start}:${rule}`;
       if (emitted.has(key)) return;
@@ -238,8 +282,8 @@ export function lintUiProgram(program: ts.Program, files: string[], root: string
       } else if (ts.isCallExpression(expression) && ts.isPropertyAccessExpression(expression.expression)
         && ['map', 'flatMap', 'from'].includes(expression.expression.name.text)) {
         for (const argument of expression.arguments) {
-          const callback = unwrap(initializer(argument, checker) ?? argument);
-          if (ts.isArrowFunction(callback) || ts.isFunctionExpression(callback)) returned(callback.body, true, seen);
+          const callback = callable(argument, checker);
+          if (callback?.body) returned(callback.body, true, seen);
         }
       } else {
         const value = initializer(expression, checker);
@@ -255,11 +299,16 @@ export function lintUiProgram(program: ts.Program, files: string[], root: string
       };
       ts.forEachChild(body, visit);
     }
-    function containsJsxValue(expression: ts.Expression): boolean {
+    function containsJsxValue(expression: ts.Expression, seen = new Set<ts.Node>()): boolean {
       expression = unwrap(expression);
+      if (seen.has(expression)) return false;
+      seen = new Set(seen).add(expression);
       if (ts.isJsxElement(expression) || ts.isJsxSelfClosingElement(expression) || ts.isJsxFragment(expression)) return true;
-      if (ts.isBinaryExpression(expression)) return containsJsxValue(expression.left) || containsJsxValue(expression.right);
-      if (ts.isConditionalExpression(expression)) return containsJsxValue(expression.whenTrue) || containsJsxValue(expression.whenFalse);
+      if (ts.isBinaryExpression(expression)) return containsJsxValue(expression.left, seen) || containsJsxValue(expression.right, seen);
+      if (ts.isConditionalExpression(expression)) return containsJsxValue(expression.whenTrue, seen) || containsJsxValue(expression.whenFalse, seen);
+      if (ts.isArrayLiteralExpression(expression)) return expression.elements.some(item => !ts.isOmittedExpression(item) && containsJsxValue(ts.isSpreadElement(item) ? item.expression : item, seen));
+      const value = initializer(expression, checker);
+      if (value) return containsJsxValue(value, seen);
       return false;
     }
     function jsxType(type: ts.Type): boolean {
@@ -272,8 +321,9 @@ export function lintUiProgram(program: ts.Program, files: string[], root: string
       }));
     }
     function nonRenderingAttribute(node: ts.Node): boolean {
-      for (let owner: ts.Node | undefined = node.parent; owner; owner = owner.parent) {
+      for (let owner: ts.Node | undefined = node; owner; owner = owner.parent) {
         if (ts.isJsxAttribute(owner) && owner.name.getText(source) !== 'children') return true;
+        if (ts.isFunctionLike(owner) && discardedCallback(owner)) return true;
       }
       return false;
     }
@@ -290,6 +340,8 @@ export function lintUiProgram(program: ts.Program, files: string[], root: string
         if (name === 'role' && values.some(item => overlayRoles.has(item))) reason ||= `overlay role ${values.join('/')}`;
         if (name === 'popover' || name === 'aria-modal') reason ||= `native ${name} surface`;
         if (['className', 'class'].includes(name) && values.some(overlayClass)) reason ||= 'overlay surface class';
+        if (['srcDoc', 'srcdoc'].includes(name) && values.some(markupOverlay)) reason ||= 'iframe overlay markup';
+        if (name === 'dangerouslySetInnerHTML' && value && objectProperties(value, checker).some(([key, html]) => key === '__html' && strings(html, checker).some(markupOverlay))) reason ||= 'React DOM overlay markup';
         if (name === 'style' && value && fixedOverlay(objectProperties(value, checker).map(([key, item]) => [key, strings(item, checker)[0] ?? item.getText(source)]))) reason ||= 'fixed/absolute overlay geometry';
       }
       if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) {
@@ -316,13 +368,20 @@ export function lintUiProgram(program: ts.Program, files: string[], root: string
             if (names.includes('role') && values.some(value => overlayRoles.has(value))
               || names.includes('popover') || names.includes('aria-modal')
               || names.includes('class') && values.some(overlayClass)) reason = 'imperative overlay attributes';
+            if (names.includes('srcdoc') && values.some(markupOverlay)) reason = 'iframe overlay markup';
           }
           if (method === 'insertAdjacentHTML' && args[1] && strings(args[1], checker).some(markupOverlay)) reason = 'DOM overlay markup';
+          const receiver = unwrap(node.expression.expression);
+          if (method === 'send' && args[0] && ts.isCallExpression(receiver) && ts.isPropertyAccessExpression(receiver.expression)) {
+            const html = receiver.expression.name.text === 'type' ? receiver.arguments[0]
+              : receiver.expression.name.text === 'header' && receiver.arguments[0] && strings(receiver.arguments[0], checker).some(value => value.toLowerCase() === 'content-type') ? receiver.arguments[1] : undefined;
+            if (html && strings(html, checker).some(value => /^text\/html(?:\s*;|$)/i.test(value)) && strings(args[0], checker).some(markupOverlay)) reason = 'HTML response overlay markup';
+          }
         }
       } else if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.EqualsToken && ts.isPropertyAccessExpression(node.left)) {
         const name = node.left.name.text, values = strings(node.right, checker);
         if (name === 'className' && values.some(overlayClass)) reason = 'imperative overlay class';
-        if (['innerHTML', 'outerHTML'].includes(name) && values.some(markupOverlay)) reason = 'DOM overlay markup';
+        if (['innerHTML', 'outerHTML', 'srcdoc'].includes(name) && values.some(markupOverlay)) reason = 'DOM overlay markup';
         if (name === 'cssText' && values.some(value => fixedOverlay(value.split(';').map(part => part.split(':').map(text => text.trim()) as [string, string])))) reason = 'imperative overlay geometry';
       }
       if (reason) report(node, 'ad-hoc-overlay', `${reason}: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.`);
@@ -375,7 +434,7 @@ export function scanUi(root: string) {
       else if (['.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs', '.html', '.css'].includes(extname(path)) && !path.endsWith('.d.ts')) files.push(path);
     }
   }
-  for (const directory of ['apps/web', 'apps/desktop', 'packages']) discover(join(root, directory));
+  for (const directory of ['apps/web', 'apps/desktop', 'apps/server', 'packages']) discover(join(root, directory));
   const plugins = join(root, 'plugins');
   if (existsSync(plugins)) for (const entry of readdirSync(plugins, { withFileTypes: true })) if (entry.isDirectory()) discover(join(plugins, entry.name, 'src'));
   files.sort();
