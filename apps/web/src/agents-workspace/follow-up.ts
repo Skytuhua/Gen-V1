@@ -9,7 +9,7 @@ export function createPersonalChildFollowUp(parentThreadId: (agent: AgentSummary
  const targets = new Map<string, {revision: number; target: AgentFollowUpTarget}>(), listeners = new Set<(id: string, ticket: AgentInputTicket) => void>();
  const tickets = new Map<string, {agentId: string; ticket: AgentInputTicket}>(), abort = new AbortController();
  let timer: ReturnType<typeof setTimeout> | undefined, polling = false;
- const active = (ticket: AgentInputTicket) => ['queued', 'processing'].includes(ticket.status);
+ const active = (ticket: AgentInputTicket) => ['queued', 'processing', 'delivery_uncertain'].includes(ticket.status);
  const schedule = () => {if (!timer && !abort.signal.aborted && [...tickets.values()].some(value => active(value.ticket))) timer = setTimeout(() => {timer = undefined; void poll();}, 1500);};
  const poll = async () => {
   if (polling || abort.signal.aborted) return; polling = true;

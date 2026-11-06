@@ -105,3 +105,19 @@ describe('compact agent workspace', () => {
   release(history([message('First')])); await settle(); expect(f.transport.history).toHaveBeenCalledTimes(2); f.controller.dispose();
  });
 });
+
+it('keeps messages between disjoint live history pages reachable', async () => {
+ const item = (id: string) => message(id, {id});
+ let latest = false;
+ const f = fixture({history: vi.fn(async q => q.cursor === 'gap'
+  ? history([item('middle'), item('new')], {sequence: 11, nextCursor: 'old'})
+  : q.cursor === 'old' ? history([item('old')], {sequence: 11})
+  : latest ? history([item('newest')], {sequence: 11, nextCursor: 'gap'})
+  : history([item('old')]))});
+ try {
+  await f.controller.start(); f.controller.setVisible(['a']); await settle();
+  latest = true; await f.controller.retryHistory('a');
+  for (let i = 0; i < 3 && f.controller.transcript('a').cursor; i++) await f.controller.loadEarlier('a');
+  expect(f.controller.transcript('a').messages.map(value => value.id)).toEqual(['old', 'middle', 'new', 'newest']);
+ } finally {f.controller.dispose();}
+});

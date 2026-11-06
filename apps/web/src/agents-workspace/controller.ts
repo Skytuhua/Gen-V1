@@ -167,11 +167,23 @@ export class AgentsWorkspaceController {
   const abort = new AbortController(); this.histories.set(id, abort);
   state.pending = true; state.error = ''; this.emit();
   try {
-   const page = await this.transport.history({agentId: id, limit: 40, ...(earlier ? {cursor: state.cursor!} : {})}, abort.signal);
-   personal(page);
-   if (page.agentId !== id) throw Error('Conversation changed. Retry history.');
+   let page = await this.transport.history({agentId: id, limit: 40, ...(earlier ? {cursor: state.cursor!} : {})}, abort.signal);
+   const known = new Set(state.messages.map(message => message.id)), cursors = new Set<string>();
    const messages: MessageSlice[] = [];
-   for (const message of page.messages) messages.push(await this.complete(message, id, abort.signal));
+   // A live burst can push every cached message out of the newest page. Read
+   // back to the cached boundary before merging, or the middle becomes unreachable.
+   while (true) {
+    personal(page);
+    if (page.agentId !== id) throw Error('Conversation changed. Retry history.');
+    const part: MessageSlice[] = [];
+    for (const message of page.messages) part.push(await this.complete(message, id, abort.signal));
+    messages.unshift(...part);
+    if (abort.signal.aborted || this.disposed) return;
+    if (earlier || !known.size || messages.some(message => known.has(message.id)) || !page.nextCursor) break;
+    if (cursors.has(page.nextCursor)) throw Error('History paging did not advance. Retry history.');
+    cursors.add(page.nextCursor);
+    page = await this.transport.history({agentId: id, limit: 40, cursor: page.nextCursor}, abort.signal);
+   }
    if (abort.signal.aborted || this.disposed) return;
    if (page.sequence < state.sequence) return;
    const ids = new Set(messages.map(message => message.id)), retained = state.messages.filter(message => !ids.has(message.id));

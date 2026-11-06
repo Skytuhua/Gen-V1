@@ -37,3 +37,17 @@ it('rejects wrong parent/linkage and oversized follow-up text before transport',
  mocks.target.mockResolvedValue(target); await value.prepare!(child);
  await expect(value.send({agent: child, content: 'x'.repeat(32769), commandId: 'id'})).rejects.toThrow(); expect(mocks.send).not.toHaveBeenCalled();
 });
+
+it('refreshes uncertain tickets when later executor evidence confirms handling', async () => {
+ vi.useFakeTimers();
+ const value = adapter(), seen: string[] = [];
+ try {
+  await value.prepare!(child);
+  mocks.ticket.mockResolvedValueOnce({...ticket, status: 'delivery_uncertain'}).mockResolvedValue({...ticket, status: 'handled'});
+  value.subscribe((_id, current) => seen.push(current.status));
+  await value.send({agent: child, content: 'First', commandId: 'id'});
+  await vi.advanceTimersByTimeAsync(1500);
+  expect(seen).toEqual(['handled']);
+  expect(mocks.send).toHaveBeenCalledTimes(1);
+ } finally {value.dispose?.(); vi.useRealTimers();}
+});
