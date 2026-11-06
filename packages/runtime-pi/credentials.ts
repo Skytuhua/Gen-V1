@@ -87,13 +87,13 @@ function nativeStorage() {
 }
 
 /** Host-only snapshot under the guardian's existing-mount write barrier.
- * The caller retains profile/use custody through a bounded synchronous commit
+ * The caller retains profile/use custody through a bounded operation (at most five minutes)
  * and release. Expiry revokes authority but never restores writes by itself. */
 export async function acquireLiteralCredentialLease(authPath: string, options: {signal: AbortSignal; maxHoldMs: number}): Promise<LiteralCredentialLease> {
   const unavailable = () => new HarnessError('PI_CREDENTIAL_LEASE_UNAVAILABLE', 'Protected credential evidence is unavailable.');
   const uncertain = () => new HarnessError('PI_CREDENTIAL_LEASE_RELEASE_UNCERTAIN', 'Credential evidence custody did not settle. Retain caller custody.');
   if (process.platform !== 'linux' || !options || !(options.signal instanceof AbortSignal)
-    || !Number.isSafeInteger(options.maxHoldMs) || options.maxHoldMs < 1 || options.maxHoldMs > 20000
+    || !Number.isSafeInteger(options.maxHoldMs) || options.maxHoldMs < 1 || options.maxHoldMs > 300000
     || typeof authPath !== 'string' || !isAbsolute(authPath) || resolve(authPath) !== authPath) throw unavailable();
   options.signal.throwIfAborted();
   // Native SDK locks alone cannot fence delayed refresh writers after lock loss.

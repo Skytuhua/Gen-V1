@@ -25,7 +25,16 @@ describe('protected credential evidence capability', () => {
     expect(typeof credentialHooks.acquireLiteralCredentialLease).toBe('function');
     if (process.platform !== 'linux') await expect(acquire('/never-opened/auth.json', {signal: new AbortController().signal, maxHoldMs: 1000})).rejects.toMatchObject({code: 'PI_CREDENTIAL_LEASE_UNAVAILABLE'});
   });
-  it.each([0, -1, 20001, Number.NaN, Number.POSITIVE_INFINITY])('rejects unbounded hold %s without native credential activity', async maxHoldMs => {
+  it.each([20001, 300000])('honors cancellation for a finite operation hold of %sms before native activity', async maxHoldMs => {
+    const original = Object.getOwnPropertyDescriptor(process, 'platform')!;
+    const cancel = new AbortController(), reason = new Error('Synthetic operation already cancelled');
+    cancel.abort(reason);
+    Object.defineProperty(process, 'platform', {...original, value: 'linux'});
+    try {
+      await expect(acquire(join(tmpdir(), 'never-opened-credential.json'), {signal: cancel.signal, maxHoldMs})).rejects.toBe(reason);
+    } finally { Object.defineProperty(process, 'platform', original); }
+  });
+  it.each([0, -1, 300001, Number.NaN, Number.POSITIVE_INFINITY])('rejects unbounded hold %s without native credential activity', async maxHoldMs => {
     const {store, authPath} = await storage({openai: oauth}), before = await readFile(authPath);
     await expect(acquire(authPath, {signal: new AbortController().signal, maxHoldMs})).rejects.toMatchObject({code: 'PI_CREDENTIAL_LEASE_UNAVAILABLE'});
     expect(await readFile(authPath)).toEqual(before);

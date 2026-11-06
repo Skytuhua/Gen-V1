@@ -294,7 +294,7 @@ class DirectoryGuard:
 
     def acquire_credential(self, auth, duration):
         parent = self.credential_parent(auth)
-        if type(duration) is not int or not 1 <= duration <= 20000 or parent not in self.credentials or any(value['parent'] == parent for value in self.barriers.values()):
+        if type(duration) is not int or not 1 <= duration <= 300000 or parent not in self.credentials or any(value['parent'] == parent for value in self.barriers.values()):
             raise PermissionError('Credential parent is unavailable')
         prepared = self.credentials[parent]
         mounts = self.credential_mounts(prepared, False)

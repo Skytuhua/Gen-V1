@@ -21,6 +21,10 @@ describe('Linux private directory guards',()=>{
 
 describe('Linux credential read barriers',()=>{
  const root='/private/state',parent=root+'/accounts/provider-auth-'+'a'.repeat(64)+'/pi';
+ it.each([20001,300000])('honors pre-acquisition cancellation for a bounded operation hold of %sms',async maxHoldMs=>{
+  const cancel=new AbortController(),reason=new Error('Synthetic operation already cancelled');cancel.abort(reason);
+  await expect(acquireLinuxCredentialReadBarrier(parent+'/auth.json',{signal:cancel.signal,maxHoldMs})).rejects.toBe(reason);
+ });
  it('admits only a named account native Pi credential path',()=>{
   expect(validateLinuxCredentialPath(parent+'/auth.json',root)).toBe(parent);
  });
