@@ -226,3 +226,14 @@ it('rejects out-of-order concurrent read responses by scope and exact checkpoint
   expect(inventoryUpdateDisposition(first, third)).toBe('resync');
   expect(inventoryUpdateDisposition({ ...first, scopeKey: 'new-filter' }, third)).toBe('stale');
 });
+
+it('refreshes an owning ancestor when the parent itself is excluded by the inventory filter', () => {
+  const x = setup(); x.putThread(thread('parent', {status: 'ready'})); x.putPlan('parent', [job('reader', 'working')]);
+  const p = x.open(), first = p.inventory({statuses: ['working']}), unrelated = p.inventory({statuses: ['failed']});
+  expect(first.items.map(item => item.jobId)).toEqual(['reader']);
+  expect(first.ancestors[0].title).toBe('parent');
+  x.putThread(thread('parent', {status: 'ready', title: 'Renamed parent'}));
+  const update = p.updates({after: first.sequence, scopeKey: first.scopeKey, statuses: ['working']});
+  expect(update.ancestors.map(item => item.title)).toEqual(['Renamed parent']);
+  expect(p.updates({after: unrelated.sequence, scopeKey: unrelated.scopeKey, statuses: ['failed']}).ancestors).toEqual([]);
+});
