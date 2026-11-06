@@ -13,8 +13,9 @@ export function clampDesktopBounds(value:Partial<DesktopBounds>|undefined,areas:
  return {x:Math.round(x),y:Math.round(y),width:Math.round(width),height:Math.round(height)};
 }
 export function trustedDesktopUrl(origin:string,id:string):string {return new URL('/?desktopWindow='+encodeURIComponent(id),origin).href;}
-/** Only host-authored plug-in frame URLs and the existing separate widget shell
- * can enter native subframes. Main-frame/sender checks remain independent. */
+/** Only canonical plug-in frame URLs and the existing separate widget shell
+ * can enter native subframes. The host route checks installed declarations;
+ * main-frame/sender checks remain independent. */
 export function trustedDesktopSubframe(raw:string,origin:string,widgetOrigin:string):boolean {
  try{
   const url=new URL(raw);if(url.username||url.password)return false;
@@ -23,7 +24,8 @@ export function trustedDesktopSubframe(raw:string,origin:string,widgetOrigin:str
   const match=/^\/plugins\/([^/]+)\/frame$/.exec(url.pathname),session=url.searchParams.get('session'),theme=url.searchParams.get('theme');
   if(!match||!session||(theme!=='light'&&theme!=='dark'))return false;
   const surface=url.searchParams.has('scopeId')||url.searchParams.has('surfaceId')||url.searchParams.has('resourceId')?pluginSurfaceSchema.parse({kind:'plugin',pluginId:match[1],scopeId:url.searchParams.get('scopeId'),surfaceId:url.searchParams.get('surfaceId'),...(url.searchParams.has('resourceId')?{resourceId:url.searchParams.get('resourceId')}:{})}):undefined;
-  return url.href===new URL(pluginFrameSource(match[1],session,theme,surface),origin).href;
+  const workspace=url.searchParams.has('workspace')||url.searchParams.has('view')?{id:url.searchParams.get('workspace')??'',title:'Workspace',entryView:url.searchParams.get('view')??''}:undefined;
+  return raw===new URL(pluginFrameSource(match[1],session,theme,surface,workspace),origin).href;
  }catch{return false;}
 }
 const pluginChannels=new Set<string>([DESKTOP_CHANNELS.theme,DESKTOP_CHANNELS.context,DESKTOP_CHANNELS.ready,DESKTOP_CHANNELS.list,DESKTOP_CHANNELS.control,DESKTOP_CHANNELS.minimize,DESKTOP_CHANNELS.reset,DESKTOP_CHANNELS.focus,DESKTOP_CHANNELS.closeAnswer,DESKTOP_CHANNELS.detach,DESKTOP_CHANNELS.reattach]);
