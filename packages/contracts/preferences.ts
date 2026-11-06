@@ -3,6 +3,7 @@ import { z } from 'zod';
 const font = z.enum(['system', 'Inter', 'Arial', 'Georgia']);
 export const PROJECT_PALETTE = { blue: '#4F6EFF', violet: '#9855F7', cyan: '#00A6BD', orange: '#F07524', rose: '#E84876', green: '#16A36D' } as const;
 export type ProjectAccent = keyof typeof PROJECT_PALETTE;
+export const projectColorSchema = z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Choose a six-digit hex color, such as #4F6EFF.');
 const projectColorKey = z.string().max(1000).refine(value => {
   try {
     const parts: unknown = JSON.parse(value);
@@ -30,7 +31,7 @@ export const preferencesSchema = z.strictObject({
   notificationVolume: z.number().finite().min(0).max(1), notificationPreview: z.enum(['full', 'title', 'private']), notificationQuietHours: quietHours,
   appearanceAccent: z.enum(['blue', 'violet', 'cyan', 'orange', 'rose', 'green']),
   backgroundStyle: z.enum(['solid', 'graphite', 'midnight', 'image']), backgroundImage: rasterImage.nullable(), backgroundOpacity: z.number().finite().min(0).max(1),
-  projectColors: z.record(projectColorKey, z.enum(['#4F6EFF', '#9855F7', '#00A6BD', '#F07524', '#E84876', '#16A36D'])).refine(value => Object.keys(value).length <= 200, 'Keep at most 200 project color overrides.'),
+  projectColors: z.record(projectColorKey, projectColorSchema).refine(value => Object.keys(value).length <= 200, 'Keep at most 200 project color overrides.'),
   diffLayout: z.enum(['stacked', 'split']), hideWhitespace: z.boolean(), diffDefaultExpanded: z.boolean(), diffColors: z.enum(['red-green', 'blue-orange']),
   showThreadDetails: z.boolean(), showComposerContext: z.boolean(), showUsageFooter:z.boolean(), wordWrap: z.boolean(), keybindings,
   learningEnabled:z.boolean(),learningApproval:z.boolean(),learningInterval:z.number().int().min(0).max(100),skillCurator:z.boolean(),
