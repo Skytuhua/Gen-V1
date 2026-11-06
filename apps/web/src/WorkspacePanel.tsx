@@ -33,6 +33,8 @@ export function WorkspacePanel({ snapshot, threadId, preferences, layout, setWid
       const left = Math.max(0, rect.left, bounds.left) + 12, top = Math.max(0, rect.top, bounds.top) + 12;
       const right = Math.min(innerWidth, rect.right, bounds.right) - 12, bottom = Math.min(innerHeight, rect.bottom, bounds.bottom) - 12;
       const values = [left, top, Math.max(0, right - left), Math.max(0, bottom - top)], key = JSON.stringify(values);
+      // Entrance transforms change the visual slot without a ResizeObserver notification.
+      if (body.parentElement?.getAnimations().some(animation => animation.playState === 'running')) schedule();
       if (key === last) return; last = key;
       keys.forEach((name,index) => owner.style.setProperty(`--artifact-dock-${name}`,`${values[index]}px`));
       owner.dataset.artifactDockReady = String(values[2] > 0 && values[3] > 0);
@@ -40,8 +42,10 @@ export function WorkspacePanel({ snapshot, threadId, preferences, layout, setWid
     const schedule = () => { if (!frame) frame = requestAnimationFrame(() => { frame = 0; measure(); }); };
     measure(); const observer = new ResizeObserver(schedule);
     observer.observe(body); observer.observe(owner); if (body.parentElement) observer.observe(body.parentElement);
+    const motionEvents = ['animationstart','animationend','animationcancel','transitionrun','transitionend','transitioncancel'];
+    motionEvents.forEach(name => body.parentElement?.addEventListener(name,schedule));
     window.addEventListener('resize',schedule); window.addEventListener('scroll',schedule,true); document.fonts?.addEventListener('loadingdone',schedule);
-    return () => { cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener('resize',schedule); window.removeEventListener('scroll',schedule,true); document.fonts?.removeEventListener('loadingdone',schedule); delete owner.dataset.artifactDockReady; keys.forEach(name => owner.style.removeProperty(`--artifact-dock-${name}`)); };
+    return () => { cancelAnimationFrame(frame); observer.disconnect(); motionEvents.forEach(name => body.parentElement?.removeEventListener(name,schedule)); window.removeEventListener('resize',schedule); window.removeEventListener('scroll',schedule,true); document.fonts?.removeEventListener('loadingdone',schedule); delete owner.dataset.artifactDockReady; keys.forEach(name => owner.style.removeProperty(`--artifact-dock-${name}`)); };
   },[standalone,workspace.activeTab,workspace.activeArtifactId]);
   const [handoffError,setHandoffError]=useState('');
   useEffect(()=>setHandoffError(''),[threadId,workspace.activeTab]);
