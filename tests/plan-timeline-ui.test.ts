@@ -2,6 +2,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { PlanStatus } from "../apps/web/src/PlanStatus";
+import { DelegatedAgentTranscript } from "../apps/web/src/DelegatedAgentTranscript";
 import { timelineSnapshot } from "./e2e/plan-timeline-fixture";
 import type { PlanRecord } from "../packages/contracts/planning";
 
@@ -9,6 +10,14 @@ const render = (snapshot = timelineSnapshot()) =>
   renderToStaticMarkup(createElement(PlanStatus, { snapshot, threadId: "thread-a" }));
 
 describe("plan timeline presentation", () => {
+  it("renders the existing nested delegated transcript from its complete canonical plan", () => {
+    const html = renderToStaticMarkup(createElement(DelegatedAgentTranscript, {snapshot: timelineSnapshot(), threadId: 'thread-a', agentId: 'child'}));
+    expect(html).toContain('Evidence helper');
+    expect(html).toContain('Completed');
+    expect(html).not.toContain('Plan unavailable');
+    expect(html).not.toContain('data-agent-id="core"');
+    expect(html).toContain('Read-only delegated transcript');
+  });
   it("expands all steps and agent details, with the plan title only in accessible context", () => {
     const html = render();
     expect(html).not.toContain("<h3>Improve the workspace</h3>");
