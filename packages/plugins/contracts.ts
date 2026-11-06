@@ -1,4 +1,5 @@
 import {z} from 'zod';
+import {pluginSkillsMetadataSchema} from '../contracts/skill-catalog.ts';
 
 export const pluginIdSchema=z.string().min(1).max(80).regex(/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/).refine(value=>!['data','host','frontend','constructor','prototype'].includes(value));
 const identity=z.string().min(1).max(200).regex(/^[A-Za-z0-9][A-Za-z0-9_.:-]*$/).refine(value=>!['__proto__','constructor','prototype'].includes(value));
@@ -13,6 +14,7 @@ export const pluginManifestSchema=z.strictObject({
  frontendEntry:pluginPathSchema.refine(value=>value.startsWith('frontend/')&&value.endsWith('.html'),'The frontend entry must be HTML under frontend/.'),
  hostEntry:pluginPathSchema.refine(value=>value.startsWith('host/')&&value.endsWith('.mjs'),'The host entry must be ESM under host/.'),
  workspaces:pluginWorkspacesSchema.optional(),
+ skills:pluginSkillsMetadataSchema.optional(),
 });
 export type PluginManifest=z.infer<typeof pluginManifestSchema>;
 export const pluginSurfaceSchema=z.strictObject({kind:z.literal('plugin'),pluginId:pluginIdSchema,scopeId:identity,surfaceId:identity,resourceId:identity.optional()});

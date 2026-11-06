@@ -17,10 +17,13 @@ import {registerWorkspaceRoutes} from './workspace-routes.ts';
 import {registerAttentionRoutes} from './attention-routes.ts';
 import {registerPluginRoutes} from './plugin-routes.ts';
 import type {PluginRegistry} from '../../packages/plugins/host.ts';
+import {registerSkillCatalogRoutes} from './skill-catalog-routes.ts';
+import {createPersonalSkillCatalog} from '../../packages/skill-catalog/adapters.ts';
+import type {SkillCatalogRepository} from '../../packages/skill-catalog/repository.ts';
 
 type Mount = { artifactId: string; revision: number; expiresAt: number };
 export type MountRegistry = Map<string, Mount>;
-export interface ServerOptions { port: number; dev: boolean; widgetPort?: number; mounts?: MountRegistry; plugins?:PluginRegistry; pluginError?:string; admitPluginRequest?:()=>boolean }
+export interface ServerOptions { port: number; dev: boolean; widgetPort?: number; mounts?: MountRegistry; plugins?:PluginRegistry; pluginError?:string; admitPluginRequest?:()=>boolean; skillCatalog?:SkillCatalogRepository }
 const commandSchema = z.object({ id: z.string().min(1).max(200).regex(/^[a-zA-Z0-9:_-]+$/), type: z.string().min(1).max(100), threadId: z.string().max(200).optional(), payload: z.record(z.string(), z.unknown()) }).strict();
 const mime = (path: string) => ({ ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".woff2": "font/woff2", ".woff": "font/woff", ".pdf": "application/pdf", ".json": "application/json", ".txt": "text/plain", ".md": "text/plain", ".csv": "text/csv" })[extname(path).toLowerCase()] ?? "application/octet-stream";
 
@@ -102,6 +105,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
   registerAccountAuthRoutes(app,service);
   registerWorkspaceRoutes(app,service);
   registerAttentionRoutes(app,service);
+  registerSkillCatalogRoutes(app,options.skillCatalog??createPersonalSkillCatalog(service.store));
   const skillRead=z.strictObject({path:z.string().min(1).max(1024).optional(),revision:z.coerce.number().int().positive().optional(),versionOffset:z.coerce.number().int().nonnegative().optional(),includeInactive:z.enum(['true','false']).optional()});
   app.get<{Params:{name:string}}>('/api/skills/:name',async(request,reply)=>{reply.header('Cache-Control','no-store');const args=skillRead.parse(request.query);return service.skillDetail(request.params.name,{...args,includeInactive:args.includeInactive==='true'});});
   app.get<{Params:{id:string}}>('/api/skill-proposals/:id',async(request,reply)=>{reply.header('Cache-Control','no-store');return service.skillProposal(request.params.id);});
