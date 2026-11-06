@@ -12,7 +12,7 @@ import {fileURLToPath} from 'node:url';
 import {DESKTOP_CHANNELS as channels,desktopId,desktopSurfaceKey,parseDesktopSurface,parseDesktopLayout,parseDesktopWindowControl,type DesktopLayout,type DesktopLayoutEntry,type DesktopSurface,type DesktopWindowInfo,type DesktopContext,type DesktopState,type DesktopBrowserState} from '../../packages/desktop-contract/index.ts';
 import {allowRemoteBrowserUrl,clampDesktopBounds,pluginDesktopChannelAllowed,pluginDesktopRequiresGrant,nativeTitlebarOptions,nativeTitlebarTheme,requireExistingDetachedSurface,desktopSurfaceAllowed,isTrustedDesktopSender,parseBrowserCommand,remoteBrowserUrl,surfaceSize,trustedDesktopUrl,trustedDesktopSubframe,type DesktopBounds} from './window-policy.ts';
 import {createBrowserProxy,type BrowserProxy} from './browser-proxy.ts';
-import {nodeSidecarArguments,waitForBackendReady} from './backend-policy.ts';
+import {nodeSidecarArguments,requestBackendShutdown,waitForBackendReady} from './backend-policy.ts';
 import {releaseOwnedBrowsers,detachOwnedBrowser} from './browser-lifecycle.ts';
 import {ensureMainDockedBrowser} from './docked-browser.ts';
 import {launchDesktopSignIn,parseDesktopSignInTarget} from './auth-launcher.ts';
@@ -297,7 +297,7 @@ async function stopBackend():Promise<boolean>{
  let timer:ReturnType<typeof setTimeout>|undefined;
  const stopped=new Promise<boolean>(resolve=>child.once('exit',code=>resolve(code===0)));
  try{
-  try{child.send({type:'harness.shutdown',token});}catch{clean=false;}
+  requestBackendShutdown(child,token,()=>{clean=false;});
   const graceful=await Promise.race([stopped,new Promise<false>(resolve=>{timer=setTimeout(()=>resolve(false),11000);})]);
   if(!graceful&&child.pid){if(process.platform==='win32'){await new Promise<void>(resolve=>{const kill=spawn(join(process.env.SystemRoot??'C:/Windows','System32/taskkill.exe'),['/PID',String(child.pid),'/T','/F'],{windowsHide:true,stdio:'ignore'});kill.once('error',()=>resolve());kill.once('exit',()=>resolve());});}else child.kill('SIGKILL');}
   return clean&&graceful&&acknowledged;

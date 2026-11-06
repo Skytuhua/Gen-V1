@@ -345,12 +345,49 @@ export function lintUiProgram(program: ts.Program, files: string[], root: string
       if (symbol && symbol.flags & ts.SymbolFlags.Alias) symbol = checker.getAliasedSymbol(symbol);
       return Boolean(symbol?.declarations?.some(declaration => primitiveImplementations[portable(relative(root, declaration.getSourceFile().fileName))]));
     }
+    function sharedAncestor(node: ts.Node): boolean {
+      for(let owner=node.parent;owner;owner=owner.parent){
+        if(ts.isFunctionLike(owner))return false;
+        if(ts.isJsxElement(owner)&&sharedConsumer(owner.openingElement.tagName))return true;
+      }
+      return false;
+    }
+    function jsxValue(node:ts.JsxOpeningLikeElement,name:string):ts.Expression|undefined{
+      const prop=node.attributes.properties.find((item):item is ts.JsxAttribute=>ts.isJsxAttribute(item)&&item.name.getText(source)===name);
+      return prop?.initializer&&(ts.isJsxExpression(prop.initializer)?prop.initializer.expression:ts.isStringLiteral(prop.initializer)?prop.initializer:undefined);
+    }
+    const idPrinter=ts.createPrinter({removeComments:true});
+    function identityExpressions(value:ts.Expression|undefined):string[]{
+      if(!value)return[];value=unwrap(value);
+      if(ts.isConditionalExpression(value))return[...identityExpressions(value.whenTrue),...identityExpressions(value.whenFalse)];
+      if(value.kind===ts.SyntaxKind.UndefinedKeyword||ts.isIdentifier(value)&&value.text==='undefined')return[];
+      const symbols:number[]=[];
+      const collect=(node:ts.Node)=>{if(ts.isIdentifier(node)){const declaration=checker.getSymbolAtLocation(node)?.declarations?.[0];if(declaration)symbols.push(declaration.getStart());}ts.forEachChild(node,collect);};collect(value);
+      return[idPrinter.printNode(ts.EmitHint.Expression,value,value.getSourceFile())+'@'+symbols.join(',')];
+    }
+    const sharedIds=new WeakMap<ts.Node,Set<string>>();
+    function sharedRoleOwner(node:ts.Node):boolean{
+      if(sharedAncestor(node))return true;
+      if(!ts.isJsxOpeningElement(node)&&!ts.isJsxSelfClosingElement(node))return false;
+      if(!['button','input'].includes(node.tagName.getText(source)))return false;
+      const controls=identityExpressions(jsxValue(node,'aria-controls'));if(!controls.length)return false;
+      let scope:ts.Node=node;while(scope.parent&&!ts.isFunctionLike(scope)&&!ts.isSourceFile(scope))scope=scope.parent;
+      let ids=sharedIds.get(scope);
+      if(!ids){ids=new Set();const found=ids;
+        const collect=(item:ts.Node)=>{
+          if(item!==scope&&ts.isFunctionLike(item))return;
+          if((ts.isJsxOpeningElement(item)||ts.isJsxSelfClosingElement(item))&&(sharedConsumer(item.tagName)||sharedAncestor(item)))for(const key of identityExpressions(jsxValue(item,'id')))found.add(key);
+          ts.forEachChild(item,collect);
+        };collect(scope);sharedIds.set(scope,ids);
+      }
+      return controls.every(key=>ids.has(key));
+    }
     function architecture(node: ts.Node) {
       if (primitiveImplementations[path]) return;
       let reason = '';
       function attribute(name: string, value?: ts.Expression) {
         const values = value ? strings(value, checker) : [];
-        if (name === 'role' && values.some(item => overlayRoles.has(item))) reason ||= `overlay role ${values.join('/')}`;
+        if (name === 'role' && values.some(item => overlayRoles.has(item))&&!sharedRoleOwner(node)) reason ||= `overlay role ${values.join('/')}`;
         if (name === 'popover' || name === 'aria-modal') reason ||= `native ${name} surface`;
         if (['className', 'class'].includes(name) && values.some(overlayClass)) reason ||= 'overlay surface class';
         if (['srcDoc', 'srcdoc'].includes(name) && values.some(markupOverlay)) reason ||= 'iframe overlay markup';
