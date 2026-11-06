@@ -67,7 +67,7 @@ export function SideChat({parent,snapshot,modelId,open,onClose,refresh,ref}:{par
    </div>
    {error&&<p className="side-chat-error error-text" role="alert">{error}</p>}
    {side&&['stopped','interrupted','failed'].includes(side.status)?<div className="side-chat-resume"><span>{side.status==='stopped'?'Side response stopped.':'Side response interrupted.'}</span><button className="secondary" disabled={busy||!modelId} onClick={()=>void execute('run.resume')}>Resume side response</button></div>:<form className="side-chat-composer" onSubmit={event=>{event.preventDefault();void send().catch(()=>{});}}>
-    <textarea ref={input} aria-label="Side question" placeholder="Ask a side question…" rows={2} value={draft} disabled={!ready} onChange={event=>updateDraft(event.target.value)} onKeyDown={event=>{if(event.key==='Enter'&&!event.shiftKey&&!event.nativeEvent.isComposing){event.preventDefault();void send().catch(()=>{});}}}/>
+    <textarea ref={input} aria-label="Side question" placeholder="Ask a side question…" rows={2} value={draft} disabled={!ready} onChange={event=>updateDraft(event.target.value)} onKeyDown={event=>{if(event.nativeEvent.isComposing||event.nativeEvent.keyCode===229)return;if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();void send().catch(()=>{});}}}/>
     {working?<button type="button" className="icon-button" aria-label="Stop side response" disabled={busy} onClick={()=>void execute('run.stop')}><CircleStop size={19}/></button>:<button className="send-button" aria-label="Send side question" disabled={busy||!ready||!draft.trim()||!modelId}>{busy?<LoaderCircle size={16} className="spinning"/>:<ArrowUp size={17}/>}</button>}
    </form>}
   </div>
