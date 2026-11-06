@@ -1,0 +1,22 @@
+declare const count: number;
+declare const optional: number | undefined;
+declare const title: string;
+declare const enabled: boolean;
+declare function sideEffect(): void;
+declare function takesNumber(value: number | void): string;
+type Positive = 1 | 2;
+declare const positive: Positive;
+export const cases = <>
+  {count > 0 && <span>Comparison</span>}
+  {Boolean(optional) && <span>Coercion</span>}
+  {!!count && <span>Double negation</span>}
+  {title && <span>Text gate</span>}
+  {positive && <span>Nonzero literals</span>}
+  {count ? <span>Conditional test</span> : null}
+  {(count && <span>Fallback removes zero</span>) || null}
+  {takesNumber(count && sideEffect())}
+  <button onClick={() => count && sideEffect()} data-count={count && 'present'}
+    disabled={count && enabled} title={count && title}>Action</button>
+  <button onClick={() => count && <span>Discarded callback result</span>}
+    data-render={() => count && <span>Ordinary attribute</span>}>Action</button>
+</>;
