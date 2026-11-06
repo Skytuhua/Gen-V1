@@ -43,3 +43,7 @@ export const splitWorkspaceLayoutSchema=z.unknown().superRefine(boundedTree).tra
  if(Object.keys(layout.views).length>SPLIT_WORKSPACE_LIMITS.views)issue('Too many workspace views.');
  return layout;
 });
+
+/** Opt-in command result; the layout-only response remains valid for existing callers. */
+export const splitProfileSaveResultSchema=z.strictObject({version:z.literal(2),layout:splitWorkspaceLayoutSchema,profile:z.strictObject({id:splitWorkspaceIdSchema,updatedAt:z.string().datetime()})});
+export type SplitProfileSaveResult=z.infer<typeof splitProfileSaveResultSchema>;
