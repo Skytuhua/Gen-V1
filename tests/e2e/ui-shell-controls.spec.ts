@@ -11,6 +11,28 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/ui-shell-controls');
 });
 
+test('required validation retains visible focus and blocks submission until corrected', async ({ page }) => {
+  await page.goto('/ui-shell-controls?primitives=1&required=1');
+  const trigger=page.getByRole('combobox',{name:'Choice',exact:true});
+  await page.getByRole('button',{name:'Submit choice'}).click();
+  await expect(trigger).toBeFocused();await expect(trigger).toHaveAttribute('aria-invalid','true');
+  await expect(page.getByLabel('Result')).toHaveText('');
+  await expect(page.getByText('Choose an option.',{exact:true})).toBeVisible();
+  await trigger.click();await page.getByRole('option',{name:'Alpha',exact:true}).click();
+  await expect(trigger).not.toHaveAttribute('aria-invalid','true');
+  await page.getByRole('button',{name:'Submit choice'}).click();await expect(page.getByLabel('Result')).toContainText('"a"');
+});
+
+test('a fieldset disabling an open Select closes it and blocks a queued selection', async ({ page }) => {
+  await page.goto('/ui-shell-controls?primitives=1');
+  const trigger=page.getByRole('combobox',{name:'Choice',exact:true});await trigger.click();
+  const delta=page.getByRole('option',{name:'Delta',exact:true});
+  await delta.evaluate(node=>{const fieldset=document.querySelector('[data-testid="choice-fieldset"]') as HTMLFieldSetElement;fieldset.disabled=true;(node as HTMLElement).click();});
+  await expect(trigger).toHaveText('Charlie');await expect(page.getByRole('listbox',{name:'Choice'})).toHaveCount(0);
+  await page.getByTestId('choice-fieldset').evaluate(node=>{(node as HTMLFieldSetElement).disabled=false;});
+  await expect(trigger).toBeEnabled();await trigger.click();await page.getByRole('option',{name:'Delta',exact:true}).click();await expect(trigger).toHaveText('Delta');
+});
+
 test('Panels supports keyboard typeahead, invokes the existing tool owner and returns focus', async ({ page }) => {
   const trigger = page.getByRole('button', { name: 'Panels', exact: true });
   await trigger.focus();

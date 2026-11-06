@@ -22,27 +22,39 @@ export function Select({ value, onValueChange, options, 'aria-label': label, id,
   const native = useRef<HTMLSelectElement>(null), initial = useRef(value), change = useRef(onValueChange);
   change.current = onValueChange;
   const [open, setOpen] = useState(false);
-  const listId = useId(), start = useRef<'selected' | 'last' | string>('selected');
+  const [fieldsetDisabled, setFieldsetDisabled] = useState(false), [invalid, setInvalid] = useState(false);
+  const listId = useId(), errorId = useId(), start = useRef<'selected' | 'last' | string>('selected');
+  const effectivelyDisabled = Boolean(disabled || fieldsetDisabled), showInvalid = invalid && required && value === '';
   const selected = options.findIndex(option => option.value === value);
   const close = () => { setOpen(false); anchor.current?.focus(); };
   const choose = (index: number) => {
-    if (disabled || !options[index] || options[index].disabled) return;
+    if (disabled || native.current?.matches(':disabled')) { setOpen(false); return; }
+    if (!options[index] || options[index].disabled) return;
     close(); if (options[index].value !== value) onValueChange(options[index].value);
   };
   const navigation = useListNavigation(options, choose, close);
   useEffect(() => { if (disabled) setOpen(false); }, [disabled]);
   useEffect(() => {
+    const update = () => { const blocked = Boolean(native.current?.matches(':disabled')); setFieldsetDisabled(blocked); if (blocked) setOpen(false); };
+    const observer = new MutationObserver(update);
+    for (let owner = native.current?.parentElement; owner; owner = owner.parentElement) {
+      if (owner instanceof HTMLFieldSetElement) observer.observe(owner, { attributes: true, attributeFilter: ['disabled'] });
+    }
+    update(); return () => observer.disconnect();
+  }, [disabled]);
+  useEffect(() => {
     const owner = native.current?.form;
     const reset = (event: Event) => queueMicrotask(() => {
       if (event.defaultPrevented || !native.current) return;
       const next = [...native.current.options].find(option => option.value === initial.current)?.value ?? native.current.options[0]?.value ?? '';
-      native.current.value = next; change.current(next); setOpen(false);
+      native.current.value = next; change.current(next); setOpen(false); setInvalid(false);
     });
     owner?.addEventListener('reset', reset);
     return () => owner?.removeEventListener('reset', reset);
   }, [form]);
   return <span className="ui-select">
-    <button ref={anchor} id={id} type="button" role="combobox" aria-label={label} aria-expanded={open && !disabled}
+    <button ref={anchor} id={id} type="button" role="combobox" aria-label={label} aria-expanded={open && !effectivelyDisabled}
+      aria-invalid={showInvalid || undefined} aria-describedby={showInvalid ? errorId : undefined}
       aria-controls={open ? listId : undefined} aria-haspopup="listbox" aria-required={required} disabled={disabled}
       className="ui-select-trigger" onClick={() => { start.current = 'selected'; navigation.reset(); setOpen(!open); }}
       onKeyDown={event => {
@@ -53,10 +65,11 @@ export function Select({ value, onValueChange, options, 'aria-label': label, id,
         }
       }}><span>{options[selected]?.label ?? ''}</span><ChevronDown size={14} aria-hidden="true" /></button>
     <select ref={native} className="ui-select-native" aria-hidden="true" tabIndex={-1} name={name} form={form} disabled={disabled} required={required}
-      value={value} onChange={event => onValueChange(event.target.value)} onInvalid={() => anchor.current?.focus()}>
+      value={value} onChange={event => onValueChange(event.target.value)} onInvalid={event => { event.preventDefault(); setInvalid(true); anchor.current?.focus(); }}>
       {options.map(option => <option key={option.value} value={option.value} disabled={option.disabled}>{option.label}</option>)}
     </select>
-    <Popover anchor={anchor} contentRef={content} open={open && !disabled} width={280} height={Math.min(420, options.length * 36 + 26)} preferredSide="below"
+    {showInvalid && <span id={errorId}>Choose an option.</span>}
+    <Popover anchor={anchor} contentRef={content} open={open && !effectivelyDisabled} width={280} height={Math.min(420, options.length * 36 + 26)} preferredSide="below"
       id={listId} role="listbox" aria-label={label} tabIndex={-1} className="ui-control-popup"
       onDismiss={() => setOpen(false)} onKeyDown={navigation.onKeyDown} onReady={() => {
         content.current?.focus();
@@ -64,7 +77,7 @@ export function Select({ value, onValueChange, options, 'aria-label': label, id,
         if (start.current !== 'selected' && start.current !== 'last') navigation.type(start.current, -1);
       }}>
       {options.map((option, index) => <button key={option.value} ref={node => { navigation.rows.current[index] = node; }}
-        type="button" role="option" tabIndex={-1} aria-selected={option.value === value} disabled={option.disabled}
+        type="button" role="option" tabIndex={-1} aria-selected={option.value === value} disabled={effectivelyDisabled || option.disabled}
         className="ui-control-option" onFocus={() => navigation.onFocus(index)} onClick={() => choose(index)}>
         <span>{option.label}</span><Check size={14} aria-hidden="true" style={{ visibility: option.value === value ? 'visible' : 'hidden' }} />
       </button>)}

@@ -20,20 +20,20 @@ const snapshot = { resources: [
 ] } as Snapshot;
 
 function Fixture() {
+  const query = new URLSearchParams(location.search);
   const [action, setAction] = useState('');
   const [open, setOpen] = useState(false);
   const [menu, setMenu] = useState(false);
-  const [value, setValue] = useState('c');
+  const [value, setValue] = useState(query.has('required') ? '' : 'c');
   const [disabled, setDisabled] = useState(false);
-  const query = new URLSearchParams(location.search);
   const large = query.has('large');
   const controls = <>
     <form id="controls-form" onSubmit={event => { event.preventDefault(); setAction(JSON.stringify([...new FormData(event.currentTarget)])); }}>
-      <Select aria-label="Choice" name="choice" value={large ? value === 'c' ? '99' : value : value} onValueChange={setValue} disabled={disabled}
+      <fieldset data-testid="choice-fieldset" style={{ padding: 0, border: 0 }}><Select aria-label="Choice" name="choice" required={query.has('required')} value={large ? value === 'c' ? '99' : value : value} onValueChange={setValue} disabled={disabled}
         options={large ? Array.from({ length: 100 }, (_, index) => ({ value: String(index), label: `Option ${index}` })) : [
-          { value: 'a', label: 'Alpha' }, { value: 'b', label: 'Beta unavailable', disabled: true },
+          ...(query.has('required') ? [{ value: '', label: 'Choose an option' }] : []), { value: 'a', label: 'Alpha' }, { value: 'b', label: 'Beta unavailable', disabled: true },
           { value: 'c', label: 'Charlie' }, { value: 'd', label: 'Delta' },
-        ]} />
+        ]} /></fieldset>
       <input aria-label="Following field" defaultValue="Keep draft" />
       <button type="submit">Submit choice</button><button type="reset">Reset choice</button>
     </form>
