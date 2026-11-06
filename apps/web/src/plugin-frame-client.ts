@@ -1,6 +1,7 @@
 import type {PluginFrameRequest} from '../../../packages/plugins/frame-protocol';
 import {pluginWindowOperation} from '../../../packages/plugins/frame-protocol';
 import {pluginSurfaceSchema,type PluginSurface} from '../../../packages/plugins/contracts';
+import {projectColor as sharedProjectColor} from './project-colors';
 
 interface Pending {resolve:(value:unknown)=>void;reject:(cause:Error)=>void;timer:ReturnType<typeof setTimeout>;cleanup:()=>void;blocksClose:boolean}
 const pending=new Map<string,Pending>();
@@ -8,6 +9,12 @@ const editorGuards=new Map<string,()=>Promise<void>>();
 const journalIntents=new Map<string,{value:unknown}>(),journalWrites=new Map<string,Promise<void>>();
 const surfaceListeners=new Set<(surface:PluginSurface)=>void>();
 const stateListeners=new Set<()=>void>();
+const visibilityListeners=new Set<(active:boolean)=>void>(),appearanceListeners=new Set<()=>void>();
+let pluginActive=false,projectColors:Record<string,string>={};
+export const isPluginActive=()=>pluginActive;
+export function onPluginVisibility(listener:(active:boolean)=>void){visibilityListeners.add(listener);return()=>{visibilityListeners.delete(listener);};}
+export function onPluginAppearance(listener:()=>void){appearanceListeners.add(listener);return()=>{appearanceListeners.delete(listener);};}
+export function projectColor(scopeId:string,projectId:string){return sharedProjectColor({kind:'plugin',pluginId,scopeId},projectId,projectColors);}
 let lastSurfaceFocus='';
 export function onPluginSurfaceFocus(listener:(surface:PluginSurface)=>void){surfaceListeners.add(listener);return()=>{surfaceListeners.delete(listener);};}
 const session=new URLSearchParams(location.search).get('session')??'';
@@ -21,6 +28,7 @@ const connectionTimer=setTimeout(()=>disconnect(),20000);
 function send(value:unknown){if(!closed)bridge?.postMessage(value);}
 function disconnect(){
  if(closed)return;send({type:'gen.plugin.disconnected',session});closed=true;connected=false;clearTimeout(connectionTimer);bridge?.close();bridge=null;
+ pluginActive=false;for(const listener of visibilityListeners)listener(false);
  const cause=Error('The plug-in connection changed. Reload the plug-in to reconnect.');rejectConnection(cause);
  for(const item of pending.values()){clearTimeout(item.timer);item.cleanup();item.reject(cause);}pending.clear();
 }
@@ -71,6 +79,12 @@ function receive(event:MessageEvent){
     void pluginFlush().then(()=>send({type:'gen.plugin.flushed',session,id:value.id,ok:true}),()=>send({type:'gen.plugin.flushed',session,id:value.id,ok:false}));
   }else if(value.type==='gen.plugin.theme'&&value.session===session&&(value.theme==='light'||value.theme==='dark')){
     document.documentElement.dataset.theme=value.theme;
+  }else if(value.type==='gen.plugin.visibility'&&value.session===session&&typeof value.active==='boolean'){
+    pluginActive=value.active;for(const listener of visibilityListeners)listener(pluginActive);
+  }else if(value.type==='gen.plugin.appearance'&&value.session===session&&value.projectColors&&typeof value.projectColors==='object'&&!Array.isArray(value.projectColors)){
+    const entries=Object.entries(value.projectColors);if(entries.length>200)return;
+    const next:Record<string,string>={};for(const[key,color]of entries){if(key.length>512||typeof color!=='string'||!/^#[0-9A-Fa-f]{6}$/.test(color))continue;try{const identity:unknown=JSON.parse(key);if(Array.isArray(identity)&&identity.length===4&&identity[0]==='plugin'&&identity[1]===pluginId&&identity.every(value=>typeof value==='string'))next[key]=color;}catch{/* Invalid preference keys do not become plug-in data. */}}
+    projectColors=next;for(const listener of appearanceListeners)listener();
   }else if(value.type==='gen.plugin.retry-saves'&&value.session===session){
     void retryJournalWrites().then(()=>send({type:'gen.plugin.saves-retried',session,ok:true}),()=>send({type:'gen.plugin.saves-retried',session,ok:false}));
   }else if(value.type==='gen.plugin.state-changed'&&value.session===session){

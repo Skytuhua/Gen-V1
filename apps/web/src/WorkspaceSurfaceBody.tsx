@@ -6,6 +6,7 @@ import {ApiError,authenticated,csrfToken,read} from './api.ts';
 import {UsageSummary,WorkspaceLauncher,GrantedFiles,RecordedDiffPanel,OutputPanel} from './WorkspacePanelBodies.tsx';
 import {getPreferences,type UiPreferences} from '../../../packages/contracts/preferences.ts';
 import {Artifact} from './Artifact.tsx';
+import {PlanStatus} from './PlanStatus.tsx';
 import {TaskMemory} from './TaskMemory.tsx';
 import {z} from 'zod';
 import {journalRead,journalWrite,journalSubscribe,journalFlush,journalGeneration,journalCompareAndSwap} from './journal.ts';
@@ -56,6 +57,7 @@ export function WorkspaceSurfaceBody({kind,binding,snapshot,refresh,active=true,
  const threadId=binding.threadId??snapshot.activeThreadId??undefined,thread=snapshot.threads.find(item=>item.id===threadId),projectId=binding.projectId??thread?.projectId;
  if(binding.authority.kind!=='local')return <p className="panel-note">This panel requires its owning plug-in adapter.</p>;
  const prefs=preferences??getPreferences(snapshot.settings);
+ if(kind==='plan')return <PlanStatus snapshot={snapshot} threadId={threadId}/>;
  if(kind==='notes')return binding.threadId&&snapshot.threads.some(item=>item.id===binding.threadId)?<TaskMemory key={binding.threadId} snapshot={snapshot} threadId={binding.threadId}/>:<p className="panel-note">Choose the owning conversation to use these notes.</p>;
  if(kind==='usage')return <><UsageSummary usage={threadId?snapshot.usage[threadId]:undefined}/><TaskMemory snapshot={snapshot} threadId={threadId}/></>;
  if(kind==='artifact')return <ArtifactSurface binding={binding} snapshot={snapshot} refresh={refresh} active={active}/>;

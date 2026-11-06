@@ -8,6 +8,7 @@ or restrict the rights their licenses grant.
 | --- | --- | --- |
 | Original Hermes Agent engine, learning and skills | Nous Research; commit `c627ec84664d43e0b18b95d9d86d8963747d56c7` | [MIT notice](third-party/hermes-agent/LICENSE), [integration and source manifest](third-party/hermes-agent/README.md) |
 | Identified T3 Code account and interface components | T3 Tools Inc.; commit `8760d063e903406c8e8f695b0852c0a15fc1e00f` | [MIT notice](third-party/t3code/LICENSE), [adaptation inventory](third-party/t3code/README.md) |
+| Selective Vespin Inbox column behavior | Stage Inc.; commit `7f0bfe954a958858235b91d82293043ab5541433` | [Apache-2.0 license](third-party/vespin/LICENSE), [notices](third-party/vespin/NOTICE), [adaptation inventory](third-party/vespin/provenance.json) |
 
 The retained original Hermes files are an unchanged subset of the pinned source.
 Host transport and permission integration live outside that upstream tree. The

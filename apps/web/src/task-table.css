@@ -9,7 +9,7 @@
 .task-table td { position:relative; height:34px; min-width:90px; max-width:420px; padding:8px 12px; border-bottom:1px solid color-mix(in srgb,var(--border) 65%,transparent); border-right:1px solid color-mix(in srgb,var(--border) 65%,transparent); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .task-table tr:last-child td { border-bottom:0; }
 .task-table tr>:last-child { border-right:0; }
-.task-table tr[data-active="true"] { box-shadow:inset 2px 0 var(--success); }
+.task-table tr[data-active="true"] { background:color-mix(in srgb,var(--hover) 55%,transparent); }
 .task-table-value { position:relative; display:inline-block; vertical-align:baseline; line-height:16px; }
 .task-table td[data-change=updated]>.task-table-value { color:var(--success); }
 .task-table-before { display:inline-flex; align-items:baseline; line-height:16px; max-width:130px; overflow:hidden; text-overflow:ellipsis; vertical-align:baseline; color:var(--muted); font-size:10px; }

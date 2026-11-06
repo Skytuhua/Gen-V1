@@ -42,6 +42,7 @@ export function isTrustedDesktopSender(expected:{id:number;url:string},sender:{i
 export function parseBrowserCommand(raw:unknown):DesktopBrowserCommand {
  if(!raw||typeof raw!=='object'||Array.isArray(raw)||Object.getPrototypeOf(raw)!==Object.prototype)throw Error('Invalid browser command');
  const value=raw as Record<string,unknown>;
+ if(value.type==='open'&&Object.keys(value).length===1)return {type:'open'};
  if(value.type==='navigate'&&Object.keys(value).length===2&&typeof value.url==='string'&&value.url.length<=4096)return {type:'navigate',url:value.url};
  if(value.type==='bounds'&&Object.keys(value).length===2&&value.bounds&&typeof value.bounds==='object'&&!Array.isArray(value.bounds)){const bounds=value.bounds as Record<string,unknown>;if(Object.keys(bounds).length===4&&['x','y','width','height'].every(key=>typeof bounds[key]==='number'&&Number.isFinite(bounds[key])&&Math.abs(bounds[key] as number)<=20000))return {type:'bounds',bounds:bounds as unknown as DesktopBounds};}
  if(['back','forward','reload','stop'].includes(String(value.type))&&Object.keys(value).length===1)return {type:value.type as 'back'|'forward'|'reload'|'stop'};

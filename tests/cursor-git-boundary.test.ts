@@ -72,7 +72,7 @@ it('reestablishes the actual worker cwd boundary before importing the SDK', asyn
     const preload = join(f.directory, 'capture-before-sdk.mjs');
     await writeFile(preload, `import {registerHooks} from 'node:module';registerHooks({resolve(specifier,context,next){if(specifier==='@cursor/sdk'){process.send?.({type:'fixture.environment',cwd:process.cwd(),ceiling:process.env.GIT_CEILING_DIRECTORIES,global:process.env.GIT_CONFIG_GLOBAL,system:process.env.GIT_CONFIG_SYSTEM,noSystem:process.env.GIT_CONFIG_NOSYSTEM});throw new Error('Fixture blocked SDK import before any authentication or network.');}return next(specifier,context);}});`);
     const command = officialRuntimeCommand('cursor-sdk');
-    child = spawn(command.file, ['--import', pathToFileURL(preload).href, ...command.args], { cwd: f.taskDir, env: officialRuntimeEnvironment(f.dataDir, 'cursor-sdk', f.taskDir), windowsHide: true, stdio: ['ignore', 'ignore', 'ignore', 'ipc'] });
+    child = spawn(command.file, ['--import', pathToFileURL(preload).href, ...command.args], { cwd: f.taskDir, env: officialRuntimeEnvironment(f.dataDir, 'cursor-sdk', f.taskDir), detached: process.platform !== 'win32', windowsHide: true, stdio: ['ignore', 'ignore', 'ignore', 'ipc'] });
     const evidence = new Promise<Record<string, unknown>>((accept, reject) => {
       timer = setTimeout(() => reject(new Error('Owned worker did not reach guarded SDK import.')), 5000);
       child!.once('error', reject); child!.once('exit', () => reject(new Error('Owned worker exited before evidence.')));

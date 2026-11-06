@@ -8,6 +8,8 @@ import {buildServer,buildWidgetServer,type MountRegistry} from './server.ts';
 import {acquireProfileLease,type ProfileLease} from './profile-lease.ts';
 import {createHermesService} from './hermes-service.ts';
 import {WorkspaceRepository} from '../../packages/core/workspace-layout.ts';
+import {AttentionRepository} from '../../packages/core/attention.ts';
+import type {AttentionDelivery} from '../../packages/contracts/attention.ts';
 import {parseDesktopLayout,type DesktopLayout} from '../../packages/desktop-contract/index.ts';
 import {randomUUID} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
@@ -15,7 +17,7 @@ import {loadInstalledPlugins,type PluginRegistry} from '../../packages/plugins/h
 import {checkInstalledCompatibility} from '../../packages/plugins/installation.ts';
 
 export interface HostOptions {dataDir:string;port:number;widgetPort:number;dev:boolean;pluginDir?:string}
-export interface RunningHost {origin:string;widgetOrigin:string;pid:number;close():Promise<void>;nativeLayout?:DesktopLayout;stopAll():Promise<{stopped:number;errors?:string[]}>;saveNativeLayout(layout:unknown):Promise<void>;validatePluginSurface?(surface:unknown):Promise<boolean>;pluginCompatibility?(version:string):Promise<{allowed:boolean}>;updateReadiness?():Promise<{idle:boolean}>;prepareUpdateClose?():Promise<{idle:boolean}>}
+export interface RunningHost {attentionRead?():Promise<AttentionDelivery>;attentionAction?(type:'open'|'dismiss',eventId:string):Promise<{threadId?:string;dismissed?:boolean}>;origin:string;widgetOrigin:string;pid:number;close():Promise<void>;nativeLayout?:DesktopLayout;stopAll():Promise<{stopped:number;errors?:string[]}>;saveNativeLayout(layout:unknown):Promise<void>;validatePluginSurface?(surface:unknown):Promise<boolean>;pluginCompatibility?(version:string):Promise<{allowed:boolean}>;updateReadiness?():Promise<{idle:boolean}>;prepareUpdateClose?():Promise<{idle:boolean}>}
 export interface HostFactories {
  acquireProfile:typeof acquireProfileLease;
  createStore(dataDir:string):Store;
@@ -78,11 +80,13 @@ export async function launchHost(options:HostOptions,overrides:Partial<HostFacto
   if(!hostAddress||typeof hostAddress==='string'||!widgetAddress||typeof widgetAddress==='string')throw new Error('The local harness did not establish its loopback listeners.');
   await service.recover();
   accepting=true;
-  const workspace=()=>new WorkspaceRepository(store!);
+  const workspace=()=>new WorkspaceRepository(store!),attention=new AttentionRepository(store!);
   return {origin:`http://127.0.0.1:${hostAddress.port}`,widgetOrigin:`http://localhost:${widgetAddress.port}`,pid:process.pid,close,
    get nativeLayout(){return store&&typeof store.get==='function'?workspace().read().state.nativeLayout:undefined;},
    async saveNativeLayout(layout){if(!accepting)throw Error('Host is not accepting layout saves.');workspace().command({id:randomUUID(),type:'workspace.native.update',payload:{layout:parseDesktopLayout(layout)}});},
    stopAll:()=>service!.stopAll(),
+   async attentionRead(){if(!accepting)throw Error('The host is not accepting attention requests.');return attention.claimDelivery();},
+   async attentionAction(type,eventId){if(!accepting)throw Error('The host is not accepting attention requests.');if(type==='open')return attention.markOpen(eventId);attention.command({id:randomUUID(),eventId,type:'dismiss-popup'});return{dismissed:true};},
    validatePluginSurface:async surface=>await plugins?.validateSurface(surface as Parameters<PluginRegistry['validateSurface']>[0])===true,
    async pluginCompatibility(version){
     // Reload the active inventory for this decision; a separately installed

@@ -14,6 +14,7 @@ import {SessionCredentials} from '../../packages/core/credential-slots.ts';
 import { streamEvents } from './event-stream.ts';
 import {registerAccountAuthRoutes} from './account-auth.ts';
 import {registerWorkspaceRoutes} from './workspace-routes.ts';
+import {registerAttentionRoutes} from './attention-routes.ts';
 import {registerPluginRoutes} from './plugin-routes.ts';
 import type {PluginRegistry} from '../../packages/plugins/host.ts';
 
@@ -100,6 +101,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
   });
   registerAccountAuthRoutes(app,service);
   registerWorkspaceRoutes(app,service);
+  registerAttentionRoutes(app,service);
   const skillRead=z.strictObject({path:z.string().min(1).max(1024).optional(),revision:z.coerce.number().int().positive().optional(),versionOffset:z.coerce.number().int().nonnegative().optional(),includeInactive:z.enum(['true','false']).optional()});
   app.get<{Params:{name:string}}>('/api/skills/:name',async(request,reply)=>{reply.header('Cache-Control','no-store');const args=skillRead.parse(request.query);return service.skillDetail(request.params.name,{...args,includeInactive:args.includeInactive==='true'});});
   app.get<{Params:{id:string}}>('/api/skill-proposals/:id',async(request,reply)=>{reply.header('Cache-Control','no-store');return service.skillProposal(request.params.id);});

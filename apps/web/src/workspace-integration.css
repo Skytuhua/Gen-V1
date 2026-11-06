@@ -1,0 +1,10 @@
+.personal-workarea{display:flex;flex-direction:column;flex:1;min-width:0;min-height:0;position:relative;overflow:hidden}.personal-workarea[hidden]{display:none}
+.split-root-workarea{display:flex;position:relative;flex:1;min-width:0;min-height:0;overflow:hidden}.split-root-workarea>.split-workspace{flex:1}
+.split-thread-owner{height:100%;min-height:0;min-width:0;overflow:hidden}.split-thread-owner>.app-shell.embedded-thread-app{display:flex;width:100%;height:100%;min-height:0;overflow:hidden}
+.embedded-thread-app>.workspace-layout-workarea{display:flex;flex:1;min-height:0;min-width:0}.embedded-thread-app .personal-workarea,.embedded-thread-app .shell-workarea{height:100%;min-height:0;min-width:0;width:100%}
+.embedded-thread-app .workspace{min-height:0;min-width:0;width:100%}.embedded-thread-app .workspace-header{min-height:40px;padding:8px 14px}.embedded-thread-app .composer-dock{padding:8px 12px 14px}.embedded-thread-app .composer-dock:after{display:none}
+.embedded-thread-app .mobile-menu,.embedded-thread-app .desktop-sidebar-toggle{display:none}.split-root-workarea>.floating-rail{position:absolute;top:42px;right:10px;bottom:10px;left:auto;width:min(300px,calc(100% - 20px));flex:none}
+.environment-settings{max-width:760px}.environment-settings form{display:grid;gap:12px;padding:16px;border:1px solid var(--border);border-radius:10px;margin-top:16px}.environment-settings .settings-row small{display:block;margin-top:4px;color:var(--muted)}
+.workspace-layout-workarea>.plugin-workspace{flex:1;min-height:0}.workspace-layout-workarea>.plugin-workspace iframe{min-height:0}
+@media(max-width:1100px){.split-root-workarea>.floating-rail{height:min(520px,calc(100% - 64px));padding:0;gap:8px}.split-root-workarea>.floating-rail[data-plan-collapsed=true][data-usage-collapsed=true]{height:104px}.split-root-workarea>.floating-rail[data-plan-collapsed=true][data-usage-collapsed=false]{height:min(360px,calc(100% - 64px))}}
+@media(max-width:700px){.split-root-workarea>.floating-rail{top:auto;bottom:8px;max-height:calc(100% - 64px);right:8px}.embedded-thread-app .composer-dock{padding:6px 8px 10px}}
