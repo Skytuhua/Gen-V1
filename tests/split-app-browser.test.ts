@@ -251,9 +251,9 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    await page.getByRole('button',{name:'Panels',exact:true}).click();
    expect(await page.getByRole('menuitem',{name:'Add Conversation panel',exact:true}).count()).toBe(0);
    await page.getByRole('menuitem',{name:'Add Usage panel',exact:true}).click();
-   await page.getByRole('dialog',{name:'Usage',exact:true}).waitFor({state:'visible'});
-   expect(await page.getByRole('complementary',{name:'Workspace panel',exact:true}).count()).toBe(0);
-   await page.keyboard.press('Escape');
+   const usage=page.getByRole('dialog',{name:'Usage',exact:true});await usage.waitFor({state:'visible'});
+   expect(await page.getByRole('complementary',{name:'Workspace panel',exact:true}).isVisible()).toBe(false);
+   await page.keyboard.press('Escape');await usage.waitFor({state:'hidden'});
    await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();
    const panel=page.getByRole('complementary',{name:'Workspace panel',exact:true});await panel.waitFor({state:'visible'});
    await overview.waitFor({state:'hidden'});
@@ -284,8 +284,10 @@ describe.runIf(enabled)('actual App split workspace',()=>{
   const{page}=await fixture({width:900,height:700,mode:'chat'});
   try{
    const artifact=page.locator('.artifact').first(),original=await artifact.elementHandle();
+   await page.addStyleTag({content:'.workspace-right {animation-duration:1s!important;animation-timing-function:steps(1,end)!important;}'});
    await artifact.getByRole('button',{name:'Open artifact in workspace',exact:true}).click();
    await page.locator('.artifact-in-workspace').waitFor({state:'visible'});
+   await page.locator('.workspace-right').evaluate(async node=>{await Promise.all(node.getAnimations().map(animation=>animation.finished));await new Promise<void>(resolve=>requestAnimationFrame(()=>resolve()));});
    const bounds=await page.evaluate(()=>{const box=(selector:string)=>{const a=document.querySelector(selector)!.getBoundingClientRect();return{x:a.x,y:a.y,right:a.right,bottom:a.bottom};};return{artifact:box('.artifact-in-workspace'),content:box('.workspace-panel-content')};});
    expect(bounds.artifact.y).toBeGreaterThanOrEqual(bounds.content.y);expect(bounds.artifact.bottom).toBeLessThanOrEqual(bounds.content.bottom);
    expect(bounds.artifact.x).toBeGreaterThanOrEqual(bounds.content.x);expect(bounds.artifact.right).toBeLessThanOrEqual(bounds.content.right);

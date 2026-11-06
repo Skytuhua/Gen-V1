@@ -62,6 +62,37 @@ export const View = () => <>{[1].map(row)}<div children={count && 'text'}/></>;
 export { render };`);
     expect(numeric(violations).map(item => item.line)).toEqual([2, 3, 4]);
   });
+  it('checks numeric children supplied through JSX spreads and shorthand factory props', () => {
+    expect(numeric(lintText('spread-children.tsx', `declare const count: number;
+const children = count && 'spread child';
+const props = { children };
+export const View = <div {...props}/>;`)).map(item => item.line)).toEqual([2]);
+    expect(numeric(lintText('shorthand-children.ts', `import { createElement } from 'react';
+declare const count: number;
+const children = count && 'factory child';
+createElement('div', { children });`)).map(item => item.line)).toEqual([3]);
+  });
+  it('uses the effective children value when spreads or factory arguments override children props', () => {
+    expect(numeric(lintText('overridden-children.tsx', `import { createElement } from 'react';
+declare const count: number;
+const props = { children: count && 'discarded' };
+export const View = <><div {...props}>Visible child</div><div {...props} children="Visible child"/><div {...props} {...{children:'Visible child'}}/><div children={count && 'discarded'}>Visible child</div><div children={count && 'discarded'} {...{children:'Visible child'}}/></>;
+createElement('div', props, 'Visible child');`))).toEqual([]);
+  });
+  it('treats inline JSX whitespace as an explicit override of children props', () => {
+    expect(numeric(lintText('inline-whitespace-children.tsx', `declare const count: number;
+const props = { children: count && 'discarded' };
+export const View = <><div {...props}> </div><div children={count && 'discarded'}> </div><div {...props}>\t</div><div {...props}>&#32;</div><div {...props}>\u00a0</div><div {...props}> {/* Inline comment */} </div></>;`))).toEqual([]);
+  });
+  it('keeps children props effective when JSX only contains multiline indentation', () => {
+    expect(numeric(lintText('indented-children.tsx', `declare const count: number;
+const props = { children: count && 'visible zero' };
+export const View = <><div {...props}>
+  \t
+</div><div {...props}>
+  {/* This comment is not an explicit child. */}
+</div></>;`)).map(item => item.line)).toEqual([2]);
+  });
   it('checks number constraints, length aliases, enums and bigint zero without rejecting known nonzero literals', () => {
     expect(numeric(lintText('numeric-types.tsx', `declare const rows: string[];
 const length = rows.length;

@@ -230,15 +230,21 @@ export class AgentProjection implements PersonalAgentInventory {
     const result: InventoryUpdates = { authority: this.authority, scopeKey, fromSequence: after, sequence: this.sequence,
       resync: after < this.floor || after > this.sequence, upserts: [], removed: [], ancestors: [], transcripts: [] };
     if (result.resync) return result;
-    const ids = new Set<string>(), transcript = new Map<string, number>(), visible = new Set(visibleAgentIds);
+    const ids = new Set<string>(), ancestorIds = new Set<string>(), transcript = new Map<string, number>(), visible = new Set(visibleAgentIds);
     for (const change of this.changes) if (change.sequence > after) {
       for (const item of [...change.before, ...change.after]) if (this.matches(item, scope)) ids.add(item.agentId);
+      // Filtered children still render their owning parent. Its metadata can change
+      // without changing a matching child or making the parent match the filter.
+      for (const item of change.after) if (!item.parentId && item.threadId &&
+        this.groups.get(item.threadId)?.some(child => child.parentId === item.agentId && this.matches(child, scope))) ancestorIds.add(item.agentId);
       for (const id of change.transcriptIds) if (visible.has(id)) transcript.set(id, change.sequence);
     }
-    if (ids.size > 100) return { ...result, resync: true };
+    if (ids.size + ancestorIds.size > 100) return { ...result, resync: true };
     for (const id of ids) { const item = this.items.get(id); if (item && this.matches(item, scope)) result.upserts.push(item); else result.removed.push(id); }
     result.upserts.sort((a, b) => cmp(a.orderKey, b.orderKey));
-    result.ancestors = this.ancestors(result.upserts);
+    const ancestors = new Map(this.ancestors(result.upserts).map(item => [item.agentId, item]));
+    for (const id of ancestorIds) { const item = this.items.get(id); if (item) ancestors.set(id, item); }
+    result.ancestors = [...ancestors.values()].sort((a, b) => cmp(a.orderKey, b.orderKey));
     result.transcripts = [...transcript].flatMap(([agentId, sequence]) => { const item = this.items.get(agentId); return item && this.matches(item, scope) ? [{ agentId, sequence }] : []; });
     return result;
   }

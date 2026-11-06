@@ -49,7 +49,8 @@ function mayRenderZero(type: ts.Type, checker: ts.TypeChecker): boolean {
 function initializer(expression: ts.Expression, checker: ts.TypeChecker): ts.Expression | undefined {
   if (!ts.isIdentifier(expression) && !ts.isPropertyAccessExpression(expression)) return;
   const symbol = checker.getSymbolAtLocation(ts.isPropertyAccessExpression(expression) ? expression.name : expression);
-  const declaration = symbol?.valueDeclaration;
+  const binding = symbol?.valueDeclaration;
+  const declaration = binding && ts.isShorthandPropertyAssignment(binding) ? checker.getShorthandAssignmentValueSymbol(binding)?.valueDeclaration : binding;
   if (declaration && (ts.isVariableDeclaration(declaration) || ts.isPropertyAssignment(declaration))) return declaration.initializer;
 }
 
@@ -110,9 +111,21 @@ function objectProperties(expression: ts.Expression, checker: ts.TypeChecker, se
   if (!ts.isObjectLiteralExpression(expression)) return [];
   return expression.properties.flatMap(property => {
     if (ts.isSpreadAssignment(property)) return objectProperties(property.expression, checker, seen);
+    if (ts.isShorthandPropertyAssignment(property)) return [[property.name.text, property.name] as [string, ts.Expression]];
     if (ts.isPropertyAssignment(property) && (ts.isIdentifier(property.name) || ts.isStringLiteral(property.name))) return [[property.name.text, property.initializer] as [string, ts.Expression]];
     return [];
   });
+}
+
+function jsxTextEmitsChild(text: string): boolean {
+  // JSX erases multiline indentation, but inline whitespace overrides children props.
+  let lineBreak = false;
+  for (let index = 0; index < text.length; index++) {
+    const character = text.charCodeAt(index);
+    if (!ts.isWhiteSpaceLike(character)) return true;
+    if (ts.isLineBreak(character)) lineBreak = true;
+  }
+  return !lineBreak;
 }
 
 function fixedOverlay(properties: [string, string][]): boolean {
@@ -425,15 +438,34 @@ export function lintUiProgram(program: ts.Program, files: string[], root: string
     }
     function visit(node: ts.Node) {
       architecture(node);
-      if (!nonRenderingAttribute(node) && ts.isJsxExpression(node) && node.expression && (ts.isJsxElement(node.parent) || ts.isJsxFragment(node.parent)
-        || ts.isJsxAttribute(node.parent) && node.parent.name.getText(source) === 'children')) rendered(node.expression);
+      if (!nonRenderingAttribute(node) && ts.isJsxExpression(node) && node.expression
+        && (ts.isJsxElement(node.parent) || ts.isJsxFragment(node.parent))) rendered(node.expression);
+      if (!nonRenderingAttribute(node) && (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node))) {
+        // React uses explicit nested children before any children prop; otherwise the last prop wins.
+        const nested = ts.isJsxOpeningElement(node) && node.parent.children.some(child =>
+          ts.isJsxText(child) ? jsxTextEmitsChild(child.text) : !ts.isJsxExpression(child) || Boolean(child.expression));
+        if (!nested) {
+          let child: ts.Expression | undefined;
+          for (const property of node.attributes.properties) {
+            if (ts.isJsxSpreadAttribute(property)) {
+              for (const [name, value] of objectProperties(property.expression, checker)) if (name === 'children') child = value;
+            } else if (ts.isJsxAttribute(property) && property.name.getText(source) === 'children') {
+              child = property.initializer && ts.isJsxExpression(property.initializer) ? property.initializer.expression : undefined;
+            }
+          }
+          if (child) rendered(child);
+        }
+      }
       if (!nonRenderingAttribute(node) && ts.isReturnStatement(node) && node.expression
         && (containsJsxValue(node.expression) || jsxType(checker.getTypeAtLocation(node.expression)))) rendered(node.expression);
       if (!nonRenderingAttribute(node) && ts.isArrowFunction(node) && !ts.isBlock(node.body) && containsJsxValue(node.body)) rendered(node.body);
       if (!nonRenderingAttribute(node) && ts.isCallExpression(node)) {
         if (importedFrom(node.expression, checker, 'react', 'createElement')) {
           for (const child of node.arguments.slice(2)) rendered(child);
-          if (node.arguments[1]) for (const [name, value] of objectProperties(node.arguments[1], checker)) if (name === 'children') rendered(value);
+          if (node.arguments.length <= 2 && node.arguments[1]) {
+            const child = new Map(objectProperties(node.arguments[1], checker)).get('children');
+            if (child) rendered(child);
+          }
         }
         if (importedFrom(node.expression, checker, 'react-dom', 'createPortal') && node.arguments[0]) rendered(node.arguments[0]);
       }
