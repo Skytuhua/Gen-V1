@@ -1,0 +1,4 @@
+// Shared installed-package fixture: the host injects its runtime before this UI.
+export const trustedPluginManifest={id:'sample-plugin',name:'Sample plug-in',version:'1.0.0',apiVersion:1,compatibleGenVersions:'^0.6.4',frontendEntry:'frontend/index.html',hostEntry:'host/main.mjs'};
+export const trustedPluginDocument='<html><head></head><body><output id="result">Opening</output><script src="/__custody-child.js"></script></body></html>';
+export const trustedPluginScript=`const client=window.GenPluginUI;window.client=client;window.__lastFlush='';addEventListener('message',event=>{if(event.data?.type==='gen.plugin.flush')window.__lastFlush=event.data.id;});client.pluginReady();void client.pluginRequest('state.read',{key:'initial'}).then(value=>{document.getElementById('result').textContent=value.private;});`;
