@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { ModelRuntime } from '@earendil-works/pi-coding-agent';
 import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from 'vitest';
 import { createLiteralCredentialStore } from '../packages/runtime-pi/credentials.ts';
+import * as credentialHooks from '../packages/runtime-pi/credentials.ts';
 
 const directories: string[] = [];
 const child = createRequire(import.meta.url)('node:child_process') as typeof import('node:child_process');
@@ -16,6 +17,42 @@ beforeEach(() => {
   spawn = vi.spyOn(child, 'spawnSync').mockImplementation(() => { throw new Error('Synthetic command intercepted; nothing executed.'); });
   syncBuiltinESMExports();
   vi.stubGlobal('fetch', vi.fn(async () => { throw new Error('No network in credential fixtures.'); }));
+});
+
+describe('protected credential evidence capability', () => {
+  const acquire = (...args: Parameters<typeof credentialHooks.acquireLiteralCredentialLease>) => credentialHooks.acquireLiteralCredentialLease(...args);
+  it('refuses the new evidence capability outside Linux before opening storage', async () => {
+    expect(typeof credentialHooks.acquireLiteralCredentialLease).toBe('function');
+    if (process.platform !== 'linux') await expect(acquire('/never-opened/auth.json', {signal: new AbortController().signal, maxHoldMs: 1000})).rejects.toMatchObject({code: 'PI_CREDENTIAL_LEASE_UNAVAILABLE'});
+  });
+  it.each([20001, 300000])('honors cancellation for a finite operation hold of %sms before native activity', async maxHoldMs => {
+    const original = Object.getOwnPropertyDescriptor(process, 'platform')!;
+    const cancel = new AbortController(), reason = new Error('Synthetic operation already cancelled');
+    cancel.abort(reason);
+    Object.defineProperty(process, 'platform', {...original, value: 'linux'});
+    try {
+      await expect(acquire(join(tmpdir(), 'never-opened-credential.json'), {signal: cancel.signal, maxHoldMs})).rejects.toBe(reason);
+    } finally { Object.defineProperty(process, 'platform', original); }
+  });
+  it.each([0, -1, 300001, Number.NaN, Number.POSITIVE_INFINITY])('rejects unbounded hold %s without native credential activity', async maxHoldMs => {
+    const {store, authPath} = await storage({openai: oauth}), before = await readFile(authPath);
+    await expect(acquire(authPath, {signal: new AbortController().signal, maxHoldMs})).rejects.toMatchObject({code: 'PI_CREDENTIAL_LEASE_UNAVAILABLE'});
+    expect(await readFile(authPath)).toEqual(before);
+    await store.modify('opencode-go', async () => plan);
+  });
+  it('rejects an already-cancelled request without changing credentials', async () => {
+    const {authPath} = await storage({openai: oauth}), before = await readFile(authPath), cancel = new AbortController();
+    cancel.abort();
+    await expect(acquire(authPath, {signal: cancel.signal, maxHoldMs: 1000})).rejects.toBeDefined();
+    expect(await readFile(authPath)).toEqual(before);
+  });
+  (process.platform === 'linux' ? it : it.skip)('refuses an unprepared path without the actual root guardian, leaving native SDK storage usable', async () => {
+    const {store, authPath} = await storage({openai: oauth}), before = await readFile(authPath);
+    await expect(acquire(authPath, {signal: new AbortController().signal, maxHoldMs: 1000})).rejects.toBeDefined();
+    expect(await readFile(authPath)).toEqual(before);
+    await store.modify('opencode-go', async () => plan);
+    expect(await store.read('opencode-go')).toEqual(plan);
+  });
 });
 afterEach(async () => {
   expect(exec).not.toHaveBeenCalled(); expect(spawn).not.toHaveBeenCalled();
