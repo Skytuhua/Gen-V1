@@ -42,7 +42,8 @@ async function fixture() {
     incoming.setEncoding('utf8'); incoming.on('data', chunk => { text += chunk; }); incoming.on('error', () => {});
     await new Promise<void>(done => setImmediate(done));
   };
-  const release = () => { releaseRequested = true; if (response?.writableLength === 0) { blocked = false; response.emit('drain'); } };
+  // A forced false also needs a synthetic drain when Node accepted the chunk below its high water mark.
+  const release = () => { releaseRequested = true; if (response && !response.writableNeedDrain) { blocked = false; response.emit('drain'); } };
   const publish = (count: number) => { for (let n = 0; n < count; n++) store.internal('fixture.progress', null, () => 'x'.repeat(48 * 1024)); };
   cleanups.push(async () => {
     release(); incoming?.destroy(); request?.destroy(); await app.close(); await service.dispose(); store.close();
