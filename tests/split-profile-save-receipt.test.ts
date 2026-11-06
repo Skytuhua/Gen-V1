@@ -1,4 +1,4 @@
-import {afterEach,expect,it} from 'vitest';
+import {afterEach,expect,it,vi} from 'vitest';
 import {mkdtemp,realpath,lstat,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join,resolve,sep} from 'node:path';
@@ -44,4 +44,21 @@ it('renames metadata without replacing the saved arrangement or current history'
   expect(after.layout).toEqual(before.layout);expect(after.createdAt).toBe(before.createdAt);expect(after.name).toBe('Renamed');expect({...f.repo.read(),revision:0}).toEqual({...current,revision:0});
   for(const name of ['', 'bad\nname','x'.repeat(101)])expect(()=>f.repo.command(f.command('profile.rename',{profileId:id,name}))).toThrow();
   expect(()=>f.repo.command(f.command('profile.rename',{workspaceId:'foreign',baseRevision:0,profileId:id,name:'Foreign'}))).toThrow();
+});
+
+it('changes the saved version when geometry is overwritten or renamed within the same clock tick',async()=>{
+  vi.useFakeTimers({toFake:['Date']});vi.setSystemTime(new Date('2026-11-06T00:00:00.000Z'));
+  try{
+    const f=await fixture(),first=saved(f.repo.command(f.command('profile.save',{name:'Original',resultVersion:2})).result);
+    f.repo.command(f.command('pane.split',{paneId:'pane-main',newPaneId:'other',splitId:'columns',axis:'horizontal'}));
+    const second=saved(f.repo.command(f.command('profile.save',{profileId:first.profile.id,name:'Updated',resultVersion:2})).result);
+    expect(second.profile.updatedAt).not.toBe(first.profile.updatedAt);
+    expect(f.repo.readProfiles().find(profile=>profile.id===first.profile.id)?.updatedAt).toBe(second.profile.updatedAt);
+    f.repo.command(f.command('profile.rename',{profileId:first.profile.id,name:'Renamed'}));
+    const renamed=f.repo.readProfiles().find(profile=>profile.id===first.profile.id)!;
+    expect(renamed.updatedAt).not.toBe(second.profile.updatedAt);
+    vi.setSystemTime(new Date('2026-11-05T00:00:00.000Z'));
+    const third=saved(f.repo.command(f.command('profile.save',{profileId:first.profile.id,name:'After clock rollback',resultVersion:2})).result);
+    expect(third.profile.updatedAt>renamed.updatedAt).toBe(true);
+  }finally{vi.useRealTimers();}
 });
