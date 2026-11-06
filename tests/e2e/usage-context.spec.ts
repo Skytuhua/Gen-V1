@@ -157,3 +157,14 @@ test('optional summary keeps whole-header disclosure and opens the same Usage th
   await header.focus(); await page.keyboard.press('Space'); await expect(summary.getByRole('button', { name: 'Open Usage', exact: true })).toBeVisible();
   await summary.getByRole('button', { name: 'Open Usage', exact: true }).click(); await expect(usage(page)).toBeVisible();
 });
+
+test('invalidating a receipt ends accepted motion immediately and after its timer deadline',async({page})=>{
+  await page.emulateMedia({reducedMotion:'no-preference'});await page.goto('/usage-context');await update(page,'categories');
+  await page.getByRole('button',{name:'Inspect context',exact:true}).click();await update(page,'accepted');
+  await expect(context(page).locator('.context-measurement-accepted')).toHaveCount(1);
+  await update(page,'cancelled');await expect(context(page)).toContainText('Compaction stopped');
+  expect(await context(page).locator('.context-measurement-accepted').count()).toBe(0);
+  expect(await context(page).locator('.context-receipt-pulse').count()).toBe(0);
+  await page.waitForTimeout(750);
+  expect(await context(page).locator('.context-measurement-accepted,.context-receipt-pulse').count()).toBe(0);
+});

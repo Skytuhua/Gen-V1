@@ -51,9 +51,10 @@ function ContextSession({ usage, thread, close, refresh, onError, anchor, compac
   const measured = contextSegments(usage), unavailable = unavailableCompaction(thread);
   const reported = ownedCompaction(thread, compaction), accepted = acceptedCompaction(thread, compaction, usage);
   const lastReceipt = useRef(accepted?.receipt.id);
-  const playingReceipt = animateReceipt || Boolean(accepted && lastReceipt.current !== accepted.receipt.id);
+  const playingReceipt = Boolean(accepted && (animateReceipt || lastReceipt.current !== accepted.receipt.id));
   useEffect(() => {
-    if (!accepted || lastReceipt.current === accepted.receipt.id) return;
+    if (!accepted) { setAnimateReceipt(false); return; }
+    if (lastReceipt.current === accepted.receipt.id) return;
     lastReceipt.current = accepted.receipt.id; setAnimateReceipt(true);
     const timer = setTimeout(() => setAnimateReceipt(false), 600); return () => clearTimeout(timer);
   }, [accepted?.receipt.id]);
