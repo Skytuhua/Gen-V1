@@ -35,6 +35,25 @@ function barrier() {
   return { promise, release };
 }
 
+async function isExecuting(pid: number): Promise<boolean> {
+  try { process.kill(pid, 0); }
+  catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ESRCH") return false;
+    throw error;
+  }
+  if (process.platform !== "linux") return true;
+  try {
+    const stat = await readFile(`/proc/${pid}/stat`, "utf8");
+    // A container's init may retain dead descendants as zombies until reaping.
+    const state = stat.slice(stat.lastIndexOf(")") + 1).match(/^ ([A-Za-z]) /)?.[1];
+    if (!state) throw new Error(`Could not read the execution state of fixture process ${pid}.`);
+    return state !== "Z" && state !== "X";
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return false;
+    throw error;
+  }
+}
+
 function mockWorkers() {
   const children: any[] = [];
   const commands: any[] = [];
@@ -504,8 +523,10 @@ describe("isolated process adapter", () => {
     const child = spawn(process.execPath, ["-e", "const {spawn}=require('node:child_process'); const c=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{stdio:'ignore'}); process.send({pid:c.pid}); setInterval(()=>{},1000);"], { stdio: ["ignore", "ignore", "ignore", "ipc"], detached: process.platform !== "win32", windowsHide: true });
     const descendant = await new Promise<number>((resolve, reject) => { child.once("message", (message: any) => resolve(message.pid)); child.once("error", reject); });
     try {
+      expect(await isExecuting(descendant)).toBe(true);
       await terminateProcessTree(child);
-      expect(() => process.kill(descendant, 0)).toThrow();
+      expect(child.exitCode !== null || child.signalCode !== null).toBe(true);
+      await vi.waitFor(async () => { expect(await isExecuting(descendant)).toBe(false); });
     } finally {
       if (child.exitCode === null && child.signalCode === null) child.kill("SIGKILL");
       try { process.kill(descendant, "SIGKILL"); } catch {}
