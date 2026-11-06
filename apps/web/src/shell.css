@@ -1,3 +1,4 @@
+.app-shell {min-height:0;}
 .app-shell { font-family:var(--interface-font); font-size:var(--interface-font-size,14px); --narrative-width:760px; --artifact-standard-width:1040px; --artifact-compact-width:760px; }
 .shell-workarea {position:relative;display:flex;flex:1;min-width:0;min-height:0;--task-rail-height:0px;padding-right:0;transition:padding-right var(--panel-motion,220ms) cubic-bezier(.2,.85,.2,1.035);}
 .shell-workarea>.workspace {order:1;min-height:0;}
