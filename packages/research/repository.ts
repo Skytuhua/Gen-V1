@@ -74,10 +74,12 @@ export class PersonalResearchRepository implements ResearchProvider {
     if (bytes.length !== source.bytes || bytes.length > RESEARCH_SOURCE_BYTES || researchHash(bytes) !== ref.sha256) throw new HarnessError('SOURCE_CHANGED', 'The stored source failed its integrity check.');
     return {source, bytes};
   }
-  passage(context: ResearchContext, input: ResearchPassage): {text: string; sourceRevision: number; status: 'current-capture' | 'stale'} {
-    const ref = researchPassageSchema.parse(input), {bytes} = this.material(context, ref);
+  private passageText(ref: ResearchPassage, bytes: Buffer) {
     if (ref.end > bytes.length) throw new HarnessError('INVALID_CITATION', 'The passage falls outside this captured revision.');
-    const text = utf8(bytes.subarray(ref.start, ref.end));
+    return utf8(bytes.subarray(ref.start, ref.end));
+  }
+  passage(context: ResearchContext, input: ResearchPassage): {text: string; sourceRevision: number; status: 'current-capture' | 'stale'} {
+    const ref = researchPassageSchema.parse(input), {bytes} = this.material(context, ref), text = this.passageText(ref, bytes);
     return {text, sourceRevision: ref.revision, status: this.source(context, ref.sourceId).revision === ref.revision ? 'current-capture' : 'stale'};
   }
   document(context: ResearchContext, documentId: string, revision?: number) {
@@ -103,7 +105,7 @@ export class PersonalResearchRepository implements ResearchProvider {
     if (query.cursor) {
       const [payload, signature, extra] = query.cursor.split('.');
       const expected = createHmac('sha256', this.cursorSecret).update(payload ?? '').digest('base64url');
-      if (!signature || extra !== undefined || signature.length !== expected.length || !timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) throw new HarnessError('INVALID_CURSOR', 'Choose a current research page.');
+      if (!signature || extra !== undefined || signature.length !== expected.length || !/^[A-Za-z0-9_-]+$/.test(signature) || !timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) throw new HarnessError('INVALID_CURSOR', 'Choose a current research page.');
       try {
         const decoded = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
         if (decoded.binding !== binding || typeof decoded.after !== 'string' || !/^[a-f0-9]{64}:[A-Za-z0-9:_-]{1,200}$/.test(decoded.after)) throw Error();
@@ -156,7 +158,16 @@ export class PersonalResearchRepository implements ResearchProvider {
         guard();
         return this.store.command(command, () => {
           guard(); cas('researchDocument', data.documentId);
-          for (const ref of data.citations) this.passage(context, ref);
+          const groups = new Map<string, ResearchPassage[]>();
+          for (const ref of data.citations) {
+            const identity = JSON.stringify([ref.sourceId, ref.revision, ref.sha256]);
+            const group = groups.get(identity); if (group) group.push(ref); else groups.set(identity, [ref]);
+          }
+          // Validate each immutable capture once; retain only one decoded material at a time.
+          for (const refs of groups.values()) {
+            const {bytes} = this.material(context, refs[0]);
+            for (const ref of refs) this.passageText(ref, bytes);
+          }
           const record: ResearchDocument = {...context, id: data.documentId, kind: data.kind, title: data.title, body: data.body, sha256: researchHash(bytes), revision: data.expectedRevision + 1, savedAt: new Date().toISOString(), citations: data.citations};
           const {body: _body, citations: _citations, ...head} = record;
           this.store.put('researchDocumentVersion', versionKey(context, record.id, record.revision), context.threadId, record);
