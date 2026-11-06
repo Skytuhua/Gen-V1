@@ -44,6 +44,14 @@ test('composition Escape and Enter neither close the popup nor select a model', 
   await expect(trigger).toHaveAttribute('aria-expanded', 'true');
 });
 
+test('legacy composition Escape keeps the model popup and owning dialog open', async ({ page }) => {
+  const trigger = page.getByRole('combobox', { name: 'Model', exact: true });
+  await trigger.click();
+  await page.getByRole('searchbox', { name: 'Search models' }).dispatchEvent('keydown', { key: 'Escape', keyCode: 229 });
+  await expect(trigger).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.getByRole('dialog', { name: 'Fixture settings' })).toBeVisible();
+});
+
 test('first opening a long catalog reveals the committed selected model', async ({ page }) => {
   await page.goto('/ui-shell-overlays?large=1');
   await page.getByRole('combobox', { name: 'Model', exact: true }).click();
