@@ -67,9 +67,10 @@ export function jobStepId(job: AgentJob, jobs: AgentJob[], steps: PlanStep[]): s
 export function projectPlanTimeline(record: PlanSnapshot, thread?: Pick<Thread, 'runId' | 'epoch' | 'status'> | null, source?: CanonicalPlanJobs): PlanTimeline {
   const plan = record.value, jobs = canonicalPlanJobs(plan, record.threadId, source);
   const sourceIds = new Set(source?.jobs.map(job => job.id));
+  const jobRun = (job: AgentJob) => job.parentRun ?? (sourceIds.has(job.id) ? source : plan.run);
   const lanes = new Map<string, PlanAgentLane>();
   for (const job of jobs) {
-    const run = job.parentRun ?? (sourceIds.has(job.id) ? source : plan.run);
+    const run = jobRun(job);
     const stale = (plan.runState && plan.runState !== 'running') || (thread && (!thread.runId || (run && (run.runId !== thread.runId || run.epoch !== thread.epoch))));
     lanes.set(job.id, { job: stale && (job.status === 'queued' || job.status === 'working') ? { ...job, status: 'interrupted' } : job, children: [] });
   }
@@ -84,10 +85,10 @@ export function projectPlanTimeline(record: PlanSnapshot, thread?: Pick<Thread, 
   }
   const steps = ordered.map((step, index): PlanTimelineStep => {
     const all = assignedTo(step.id), reportedStatus = stepState(step);
-    const current = all.filter(lane => !lane.job.parentRun || !plan.run ||
-      lane.job.parentRun.runId === plan.run.runId && lane.job.parentRun.epoch === plan.run.epoch);
+    const current = all.filter(lane => { const run = jobRun(lane.job); return !run || !plan.run ||
+      run.runId === plan.run.runId && run.epoch === plan.run.epoch; });
     // Model completion cannot hide live, failed or unreviewed canonical work.
-    const status = current.some(lane => lane.job.status === 'failed') ? 'failed'
+    const status = plan.runState === 'failed' && reportedStatus === 'failed' || current.some(lane => lane.job.status === 'failed') ? 'failed'
       : current.some(lane => lane.job.status === 'working' || lane.job.status === 'queued') ? 'running'
       : current.some(lane => lane.job.status === 'cancelled') ? 'cancelled'
       : current.some(lane => lane.job.status === 'interrupted') ? 'interrupted'

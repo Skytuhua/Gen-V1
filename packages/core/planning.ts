@@ -107,7 +107,7 @@ export class PlanningCoordinator {
       this.assert(ctx);
       const previous = this.inspect(ctx.threadId), plan = previous?.value ?? this.plan(ctx.threadId);
       if ((next.baseRevision ?? 0) !== (previous?.revision ?? 0)) throw new HarnessError('STALE_PLAN', 'Read the latest plan revision before updating it', { current: previous });
-      const knownSteps = [...plan.steps, ...next.steps.filter(step => !plan.steps.some(old => old.id === step.id))];
+      const knownSteps = [...plan.steps, ...next.steps.filter(step => !plan.steps.some(old => old.id === step.id)).map(step => ({ ...step, agentIds: [] }))];
       const jobs = canonicalPlanJobs({ ...plan, steps: knownSteps }, ctx.threadId, this.hooks.canonicalJobs?.read(ctx.threadId));
       const assignments = new Map(knownSteps.map(step => [step.id, jobs.filter(job => jobStepId(job, jobs, knownSteps) === step.id).map(job => job.id)]));
       for (const [id, assigned] of assignments) if (assigned.length && !next.steps.some(step => step.id === id)) {

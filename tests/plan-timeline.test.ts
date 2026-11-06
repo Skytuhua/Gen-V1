@@ -100,6 +100,15 @@ it('forbids model assignment rebinding, invented jobs and removing assigned step
   expect(x.coordinator.inspect(x.ctx.threadId)!.revision).toBe(1);
 });
 
+it('allows a new step to retain an assignment supplied by the canonical host job itself', () => {
+  const x = setup(); x.update();
+  x.hooks.canonicalJobs = { read: () => ({ threadId: x.ctx.threadId, runId: x.ctx.runId, epoch: x.ctx.epoch,
+    jobs: [job('reader', { stepId: 'new-host-step' })] }) };
+  x.update([step('build'), step('new-host-step', { agentIds: ['reader'] })]);
+  expect(x.coordinator.timeline(x.ctx.threadId)!.steps.find(item => item.id === 'new-host-step')!.agents[0].job.id).toBe('reader');
+  expect(x.coordinator.inspect(x.ctx.threadId)!.value.agents).toEqual([]);
+});
+
 it('joins nested canonical jobs through an injected read-only provider without duplicating them in storage', () => {
   const x = setup();
   const snapshot = { threadId: x.ctx.threadId, runId: x.ctx.runId, epoch: x.ctx.epoch,
