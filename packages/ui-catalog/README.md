@@ -11,7 +11,7 @@ The trusted frontend registry should follow these exact props. No arbitrary styl
 | Stack | `gap?: none/xs/sm/md/lg`, `align?: start/center/end/stretch` |
 | Grid | `columns?: 1..6`, `gap?` |
 | Split | `ratio?: 0.1..0.9`, `gap?` |
-| Tabs | `labels: string[]`, `stateKey: string` |
+| Tabs | `labels: string[]` (unique by exact string equality), `stateKey: string`, `statusBinding?` |
 | Panel | `title?`, `description?` |
 | Disclosure | `title`, `text?`, `stateKey`, `defaultOpen?: boolean` |
 | Text | `text`, `tone?: default/muted/success/warning/danger`, `size?: sm/md/lg` |
@@ -47,6 +47,8 @@ The trusted frontend registry should follow these exact props. No arbitrary styl
 The extended pack schemas are the authority for their complete props. `ui_discover({details:true})` also supplies source-data schemas for development, everyday and interaction packs. ReviewQueue submits content feedback, never operation approval. EditableTable submits typed changed-cell proposals; ParameterControls submits typed values. Both preserve incomplete local drafts, validate before submitting and leave source writes to the existing broker and native approval boundary.
 
 `stateKey` is a bare persistent field name, such as `selectedRows` or `faqOpen`; the frontend maps it to `/values/<stateKey>`. Keys start with a letter/underscore and contain up to 128 letters, digits, underscores or hyphens; `__proto__`, `prototype` and `constructor` are denied. Do not put `/values/` in the prop. Choices, step navigation, disclosures and table selections are local state interactions and require no model call. Table `rowKey` identifies a field in each bound row, defaulting to `id`. Tabs store the selected label and retain panels mounted when switching. Steps stores the stable step key and also retains its panels; navigation is not proof of task completion.
+
+Tabs require unique labels by exact string equality, with no trimming, case folding or Unicode normalization. The published labels schema declares `uniqueItems: true`, and admission rejects duplicates with `INVALID_SURFACE`. Saved surfaces with ambiguous duplicate labels show an alert without rendering tab controls or child panels or rewriting saved selection. Unique tabs retain their mounted drafts; an unknown saved label displays the first tab without rewriting state merely on render.
 
 `dataBinding` and `rowsBinding` are bare aliases into `/inputs/<alias>` in the artifact's resolved data namespace. They are not JSON pointers, expressions or raw data IDs. Bindings belong to `ArtifactRecord.bindings`; use snapshot/live `DataBinding` records there. Opaque `resourceId` values are separate from alias/state names and accept UUIDs starting with digits. The host rejects composition when any component resourceId is missing or owned by another thread.
 
