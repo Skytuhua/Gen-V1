@@ -350,7 +350,7 @@ export function lintUiProgram(program: ts.Program, files: string[], root: string
       if(value.kind===ts.SyntaxKind.UndefinedKeyword||ts.isIdentifier(value)&&value.text==='undefined')return[];
       const symbols:number[]=[];
       const collect=(node:ts.Node)=>{if(ts.isIdentifier(node)){const declaration=checker.getSymbolAtLocation(node)?.declarations?.[0];if(declaration)symbols.push(declaration.getStart());}ts.forEachChild(node,collect);};collect(value);
-      return[idPrinter.printNode(ts.EmitHint.Expression,value,source)+'@'+symbols.join(',')];
+      return[idPrinter.printNode(ts.EmitHint.Expression,value,value.getSourceFile())+'@'+symbols.join(',')];
     }
     const sharedIds=new WeakMap<ts.Node,Set<string>>();
     function sharedRoleOwner(node:ts.Node):boolean{
