@@ -37,7 +37,7 @@ All Agents uses vertical project rows, horizontally scrolling parent-chat column
 
 Plan, Code Review and Research each have one 36px contextual toolbar and 16px outer inset. Do not repeat their visible workspace/plan title below the tab. Preserve unique document titles. Plans use expanded vertical steps with 18px separation and concurrent branches under their owning step; checks, blockers and reported versus accepted completion remain distinct.
 
-Side-by-side chat keeps at least 420px; tools stay between 280px and min(720px, available width minus 420px minus a 6px divider). Stack tools below chat when the work area is under 706px. Never cover native caption controls. Project overview and compact Live Usage belong in normal-flow docks; the entire header is an accessible disclosure, while body actions stay independent.
+Side-by-side chat keeps at least 420px; tools stay between 280px and min(720px, available width minus 420px minus a 6px divider). Stack tools below chat when the work area is under 706px. Stacked tool bodies keep at least 128 CSS pixels (`--ui-tool-body-min`), in addition to their actual chrome (53px workspace header; 96px Browser toolbar). Reserve 240px for chat and 6px between regions. When these minima cannot fit, the normal-flow tool/chat owner scrolls below the fixed title bar; closing tools releases their share. Do not fake native bounds, shrink type or cover another owner to fit the stack. Never cover native caption controls. Project overview and compact Live Usage belong in normal-flow docks; the entire header is an accessible disclosure, while body actions stay independent.
 
 ### Spacing, color and compact surfaces
 
