@@ -1,4 +1,4 @@
-import { useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { ArrowDownToLine, GitBranch, MoreHorizontal, TriangleAlert } from "lucide-react";
 import type { Snapshot, Thread } from "../../../packages/contracts";
 import type { AgentJob } from "../../../packages/contracts/planning";
@@ -21,6 +21,25 @@ export interface PlanStatusProps {
   onOpenAgentTranscript?: (job: AgentJob, threadId: string) => void;
 }
 type PlanContext = Pick<Thread, "runId" | "epoch" | "status">;
+const collapseStorageKey = "harness:plan-collapse:v1";
+const boundedCollapse = (value: Record<string, unknown>) =>
+  Object.fromEntries(
+    Object.entries(value)
+      .filter(([key, collapsed]) => key.length <= 400 && collapsed === true)
+      .slice(-128),
+  ) as Record<string, boolean>;
+function readCollapse(): Record<string, boolean> {
+  try {
+    const raw = localStorage.getItem(collapseStorageKey);
+    if (!raw || raw.length > 65536) return {};
+    const value: unknown = JSON.parse(raw);
+    return value && typeof value === "object" && !Array.isArray(value)
+      ? boundedCollapse(value as Record<string, unknown>)
+      : {};
+  } catch {
+    return {};
+  }
+}
 
 export function PlanStatus({ snapshot, threadId, loading, error, onOpenAgentTranscript }: PlanStatusProps) {
   const prefix = useId();
@@ -68,7 +87,14 @@ export function PlanStatus({ snapshot, threadId, loading, error, onOpenAgentTran
   // A revision belongs to one thread. Clear the fence before accepting its replacement.
   if (retained.threadId !== threadId || retained.record !== record || retained.owner !== owner)
     setRetained({ threadId, record, owner });
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>(readCollapse);
+  useEffect(() => {
+    try {
+      localStorage.setItem(collapseStorageKey, JSON.stringify(boundedCollapse(collapsed)));
+    } catch {
+      /* Optional disclosure preferences never block the plan. */
+    }
+  }, [collapsed]);
   const [menuOpen, setMenuOpen] = useState(false);
   const identity = (kind: string, id: string) => JSON.stringify([threadId, kind, id]);
   const open = (kind: string, id: string) => !collapsed[identity(kind, id)];

@@ -159,6 +159,21 @@ test("deep nested agents and long output labels fit a 280px panel without hiding
   await page.screenshot({ path: test.info().outputPath("deep-narrow.png") });
 });
 
+test("manual collapse survives reopening the plan with the same exact thread and step identity", async ({
+  page,
+}) => {
+  await page.locator('[data-step-id="build"] > .plan-step-summary').click();
+  await page.reload();
+  await expect(page.locator('[data-step-id="build"] > .plan-step-summary')).toHaveAttribute(
+    "aria-expanded",
+    "false",
+  );
+  await expect(page.locator('[data-step-id="verify"] > .plan-step-summary')).toHaveAttribute(
+    "aria-expanded",
+    "true",
+  );
+});
+
 for (const theme of ["dark", "light"])
   for (const zoom of [1, 1.25, 1.5]) {
     test(`${theme} narrow/short ${zoom * 100}% geometry and reduced motion`, async ({ page }) => {
