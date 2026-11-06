@@ -88,6 +88,44 @@ it('retains auxiliary account use after parent revocation until native cancellat
 });
 
 describe('durable plan and real auxiliary jobs', () => {
+  it('retains cancelled job history without overriding a later run of the same stable step', async () => {
+    const x = setup();
+    const steps = [{ id: 'read', title: 'Read sources', status: 'working', requirements: [] }];
+    x.coordinator.updatePlan(x.ctx, { title: 'Read', steps });
+    const first = x.coordinator.delegate(x.ctx, { commandId: 'old-lane', tasks: [{ ...x.tasks()[0], stepId: 'read' }] }, x.controller.signal);
+    await x.waitStarted(); await x.coordinator.cancel(x.ctx); await first;
+    x.ctx.runId = 'new-run'; x.ctx.epoch++;
+    const thread = x.store.get<Thread>('thread', x.ctx.threadId)!;
+    x.store.internal('new.run', x.ctx.threadId, () => { x.store.put('thread', thread.id, thread.id, { ...thread, runId: x.ctx.runId, epoch: x.ctx.epoch }); x.coordinator.beginRun(x.ctx); });
+    x.coordinator.updatePlan(x.ctx, { title: 'Read', steps, baseRevision: x.coordinator.inspect(x.ctx.threadId)!.revision });
+    const second = x.coordinator.delegate(x.ctx, { commandId: 'new-lane', tasks: [{ ...x.tasks()[0], stepId: 'read' }] }, x.controller.signal);
+    await x.waitStarted(2);
+    await x.tool(1, 'agent_progress', { completedRequirementIds: ['read'] });
+    await x.tool(1, 'task_finish', { outcome: 'Source inspected' }); x.event(1, 'settled'); await second;
+    const before = x.coordinator.inspect(x.ctx.threadId)!;
+    x.coordinator.updatePlan(x.ctx, { title: 'Read', steps: [{ ...steps[0], status: 'completed' }], baseRevision: before.revision });
+    expect(x.coordinator.timeline(x.ctx.threadId)!.steps[0].agents.map(lane => lane.job.status)).toEqual(['cancelled', 'completed']);
+    expect(x.coordinator.timeline(x.ctx.threadId)!.steps[0].status).toBe('completed');
+  });
+  it('retains actual running job assignments across replans and never accepts 100% as host approval', async () => {
+    const x = setup();
+    x.coordinator.updatePlan(x.ctx, { title: 'Investigate', steps: [{ id: 'read', title: 'Read sources', status: 'working', requirements: [] }] });
+    const pending = x.coordinator.delegate(x.ctx, { commandId: 'replan-live', tasks: x.tasks(2).map(task => ({ ...task, stepId: 'read' })) }, x.controller.signal);
+    await x.waitStarted(2);
+    try {
+      const before = x.coordinator.inspect(x.ctx.threadId)!;
+      const result = x.coordinator.updatePlan(x.ctx, { title: 'Investigate', baseRevision: before.revision,
+        steps: [{ id: 'read', title: 'Read and reconcile sources', status: 'completed', requirements: [] }] });
+      expect(result.value.steps[0].agentIds).toEqual(before.value.steps[0].agentIds);
+      expect(x.coordinator.timeline(x.ctx.threadId)!.steps[0].status).toBe('running');
+      await x.tool(0, 'agent_progress', { completedRequirementIds: ['read'] });
+      await x.tool(0, 'task_finish', { outcome: 'Source inspected' }); x.event(0, 'settled');
+      await x.tool(1, 'agent_progress', { completedRequirementIds: ['read'] }); x.event(1, 'settled');
+      await pending;
+      expect(x.coordinator.timeline(x.ctx.threadId)!.steps[0].status).toBe('review_required');
+      expect(x.coordinator.inspect(x.ctx.threadId)!.value.authority).toBe('proposal');
+    } finally { x.controller.abort(); await pending; }
+  });
   it('advertises only strict bounded JSON schemas and rejects forged or oversized plan state', () => {
     expect(PLANNING_TOOLS.map(tool => tool.name)).toEqual(['plan_update', 'task_delegate', 'agent_progress']);
     for (const tool of PLANNING_TOOLS) {
@@ -102,7 +140,7 @@ describe('durable plan and real auxiliary jobs', () => {
   it('publishes one same-thread versioned data identity, preserving host-owned agents', async () => {
     const x = setup();
     const first = x.coordinator.updatePlan(x.ctx, { title: 'Repair tests', steps: [{ id: 'diagnose', title: 'Diagnose', status: 'working', requirements: [{ id: 'read', label: 'Read failure', completed: false }] }] });
-    const second = x.coordinator.updatePlan(x.ctx, { title: 'Repair tests', steps: [{ id: 'diagnose', title: 'Diagnose', status: 'completed', requirements: [{ id: 'read', label: 'Read failure', completed: true }] }] });
+    const second = x.coordinator.updatePlan(x.ctx, { title: 'Repair tests', baseRevision: first.revision, steps: [{ id: 'diagnose', title: 'Diagnose', status: 'completed', requirements: [{ id: 'read', label: 'Read failure', completed: true }] }] });
     expect(second.id).toBe(first.id); expect(second.revision).toBe(2); expect(second.provenance).toBe('harness:plan');
     expect(x.store.get('dataVersion', first.id + '@1')).toEqual(first);
     expect(x.store.snapshot().data).toHaveLength(1);
