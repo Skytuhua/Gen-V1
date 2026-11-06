@@ -15,6 +15,16 @@ vi.mock('../apps/web/src/journal', () => ({
  journalCompareAndSwap: async (key: string, generation: string, value: unknown) => {if (records.get(key)?.generation !== generation) return false; records.set(key, {value, generation: crypto.randomUUID()}); return true;},
 }));
 beforeEach(() => {records.clear(); writes.pause = undefined;});
+it('clears the old uncertain delivery warning when the same ticket is confirmed handled', async () => {
+ let notify!: (id: string, current: AgentInputTicket) => void;
+ const followUp = {canSend: () => true, send: async () => ({...ticket, status: 'delivery_uncertain' as const}), subscribe: (listener: typeof notify) => {notify = listener; return () => {};}};
+ const owner = createSharedAgentComposers({sendParent: async () => {}, stopParent: async () => {}, followUp}), child = agent('child', {parentId: 'parent', rootId: 'parent', jobId: 'job', readOnly: true});
+ await owner.prepare(child); await owner.edit(child, 'Durable follow-up'); await owner.submit(child);
+ expect(owner.getSnapshot(child).error).toContain('uncertain');
+ notify(child.agentId, {...ticket, status: 'handled'});
+ expect(owner.getSnapshot(child).ticket?.status).toBe('handled');
+ expect(owner.getSnapshot(child).error).toBe(''); owner.dispose();
+});
 it('shares one draft and pending send, retains later text and reuses an uncertain command id', async () => {
  let resolve!: () => void; const send = vi.fn(async (_input: import('../apps/web/src/agents-workspace/composer').AgentSend): Promise<void> => {await new Promise<void>(r => {resolve = r;}); throw Error('Connection lost');});
  const owner = createSharedAgentComposers({sendParent: send, stopParent: async () => {}}), a = agent('a');
@@ -48,4 +58,17 @@ it('Stop prevents a not-yet-dispatched parent send and locks its child composer'
  writes.pause = new Promise<void>(resolve => {release = resolve;}); const sending = owner.submit(parent); const stopping = owner.stop(parent);
  expect(owner.canSend(child)).toBe(false); finishStop(); await stopping; release(); await sending;
  expect(send).not.toHaveBeenCalled(); expect(owner.getSnapshot(parent).draft).toBe('Saved before Stop'); owner.dispose();
+});
+it('parent Stop fences an already queued child before journal persistence releases transport', async () => {
+ let release!: () => void, finish!: () => void;
+ const followUp = {canSend: () => true, send: vi.fn(async () => ticket), subscribe: () => () => {}};
+ const owner = createSharedAgentComposers({sendParent: async () => {}, stopParent: () => new Promise<void>(resolve => {finish = resolve;}), followUp});
+ const parent = agent('parent'), child = agent('child', {parentId: parent.agentId, rootId: parent.agentId, jobId: 'job', readOnly: true});
+ await owner.prepare(parent); await owner.prepare(child); await owner.edit(child, 'Retain this child input');
+ writes.pause = new Promise<void>(resolve => {release = resolve;});
+ const sending = owner.submit(child), stopping = owner.stop(parent);
+ try {
+  expect(owner.canSend(child)).toBe(false); release(); await sending;
+  expect(followUp.send).not.toHaveBeenCalled(); expect(owner.getSnapshot(child).draft).toBe('Retain this child input'); expect(owner.getSnapshot(child).retry).toBe(true);
+ } finally {release(); finish(); await stopping; owner.dispose();}
 });

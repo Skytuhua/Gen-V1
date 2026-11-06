@@ -25,11 +25,19 @@ export function visibleLease(ids: readonly string[], offset: number): string[] {
  if (unique.length <= 24) return unique;
  return Array.from({length: 24}, (_, i) => unique[(offset + i) % unique.length]);
 }
-export interface TranscriptState {messages: MessageSlice[]; cursor: string | null; sequence: number; pending: boolean; error: string; loaded: boolean}
-export interface ViewState {top: number; left: number; atEnd: boolean; collapsed: boolean; unread: boolean; focus?: 'composer' | 'transcript'}
+export interface TranscriptState {messages: MessageSlice[]; cursor: string | null; gaps: {beforeId: string; cursor: string}[]; sequence: number; pending: boolean; error: string; loaded: boolean}
+export interface ViewState {top: number; left: number; atEnd: boolean; collapsed: boolean; unread: boolean; focus?: 'composer' | 'transcript'; anchorId?: string; anchorOffset?: number}
 export interface AgentsWorkspaceState {agents: AgentSummary[]; scope: AgentScope; scopeKey: string; sequence: number; pending: boolean; connected: boolean; error: string; version: number}
-const emptyTranscript = (): TranscriptState => ({messages: [], cursor: null, sequence: -1, pending: false, error: '', loaded: false});
+const emptyTranscript = (): TranscriptState => ({messages: [], cursor: null, gaps: [], sequence: -1, pending: false, error: '', loaded: false});
 const personal = (value: {authority: string}) => {if (value.authority !== 'personal') throw Error('This workspace requires a Personal inventory.');};
+function mergeInventory(agents: Map<string, AgentSummary>, matching: Set<string>, update: InventoryUpdates) {
+ for (const id of update.removed) {agents.delete(id); matching.delete(id);}
+ for (const agent of update.upserts) matching.add(agent.agentId);
+ for (const agent of [...update.ancestors, ...update.upserts]) if (!agents.has(agent.agentId) || agents.get(agent.agentId)!.revision <= agent.revision) agents.set(agent.agentId, agent);
+ const required = new Set(matching);
+ for (const id of required) {const parent = agents.get(id)?.parentId; if (parent && agents.has(parent)) required.add(parent);}
+ for (const id of agents.keys()) if (!required.has(id)) agents.delete(id);
+}
 
 /** One host-owned instance outlives virtual rows. dispose aborts every reader. */
 export class AgentsWorkspaceController {
@@ -64,17 +72,18 @@ export class AgentsWorkspaceController {
   const abort = this.scopeAbort = new AbortController();
   this.emit({scope, pending: true, connected: false, error: ''});
   try {
-   // A cursor is a projection checkpoint. Restart if paging crosses a mutation.
+   // Membership-changing mutations invalidate cursors; progress can advance between pages.
    for (let attempt = 0; attempt < 3; attempt++) {
     const agents = new Map<string, AgentSummary>(), cursors = new Set<string>(), matching = new Set<string>();
-    let cursor: string | undefined, checkpoint: {scopeKey: string; sequence: number} | undefined, changed = false;
+    let cursor: string | undefined, checkpoint: {scopeKey: string; sequence: number} | undefined, lastSequence = -1, changed = false;
     do {
      let page;
      try {page = await this.transport.inventory({...scope, limit: 100, ...(cursor ? {cursor} : {})}, abort.signal);}
      catch (cause) {if (cursor && cause instanceof ApiError && cause.code === 'RESYNC_REQUIRED') {changed = true; break;} throw cause;}
      if (abort.signal.aborted || this.disposed) return; personal(page);
-     if (checkpoint && (checkpoint.scopeKey !== page.scopeKey || checkpoint.sequence !== page.sequence)) {changed = true; break;}
+     if (checkpoint && (checkpoint.scopeKey !== page.scopeKey || page.sequence < lastSequence)) {changed = true; break;}
      checkpoint ??= page;
+     lastSequence = page.sequence;
      for (const agent of [...page.ancestors, ...page.items]) if (!agents.has(agent.agentId) || agents.get(agent.agentId)!.revision <= agent.revision) agents.set(agent.agentId, agent);
      for (const agent of page.items) matching.add(agent.agentId);
      cursor = page.nextCursor ?? undefined;
@@ -82,7 +91,11 @@ export class AgentsWorkspaceController {
      if (cursor) cursors.add(cursor);
     } while (cursor);
     if (changed) continue;
-    this.matching = matching; this.emit({agents: [...agents.values()], scopeKey: checkpoint!.scopeKey, sequence: checkpoint!.sequence, pending: false});
+    const update = await this.transport.updates({...scope, scopeKey: checkpoint!.scopeKey, after: checkpoint!.sequence, visibleAgentIds: []}, abort.signal);
+    if (abort.signal.aborted || this.disposed) return; personal(update);
+    if (update.resync || update.scopeKey !== checkpoint!.scopeKey || update.fromSequence !== checkpoint!.sequence || update.sequence < lastSequence) continue;
+    mergeInventory(agents, matching, update);
+    this.matching = matching; this.emit({agents: [...agents.values()], scopeKey: checkpoint!.scopeKey, sequence: update.sequence, pending: false});
     this.updateLease(); return;
    }
    throw Error('Agents changed while loading. Retry loading.');
@@ -131,18 +144,13 @@ export class AgentsWorkspaceController {
   if (disposition === 'stale') return;
   if (disposition === 'resync') {await this.setScope(this.state.scope); return;}
   const agents = new Map(this.state.agents.map(agent => [agent.agentId, agent]));
-  for (const id of update.removed) {agents.delete(id); this.matching.delete(id);}
-  for (const agent of update.upserts) this.matching.add(agent.agentId);
-  for (const agent of [...update.ancestors, ...update.upserts]) if (!agents.has(agent.agentId) || agents.get(agent.agentId)!.revision <= agent.revision) agents.set(agent.agentId, agent);
-  const required = new Set(this.matching);
-  for (const id of required) {const parent = agents.get(id)?.parentId; if (parent && agents.has(parent)) required.add(parent);}
-  for (const id of agents.keys()) if (!required.has(id)) agents.delete(id);
+  mergeInventory(agents, this.matching, update);
   this.emit({agents: [...agents.values()], sequence: update.sequence});
   const changed = new Set(update.transcripts.map(item => item.agentId));
   // Filtered parents are containers, so the API may omit their transcript invalidation.
   for (const id of this.leased) if (agents.has(id) && (changed.has(id) || !this.matching.has(id))) void this.loadHistory(id, false, true);
  }
- loadEarlier(id: string) {return this.loadHistory(id, true);}
+ loadEarlier(id: string, beforeId?: string) {return this.loadHistory(id, true, false, beforeId);}
  retryHistory(id: string) {return this.loadHistory(id, false, true);}
  private async complete(message: MessageSlice, id: string, signal: AbortSignal): Promise<MessageSlice> {
   let full = {...message}, points = [...message.content].length; const cursors = new Set<string>();
@@ -159,38 +167,36 @@ export class AgentsWorkspaceController {
   if (points !== full.contentLength) throw Error('Message content is incomplete. Retry history.');
   return full;
  }
- private async loadHistory(id: string, earlier = false, force = false): Promise<void> {
+ private async loadHistory(id: string, earlier = false, force = false, beforeId?: string): Promise<void> {
   if (this.disposed || !this.leased.includes(id)) return;
   const state = this.transcript(id);
   if (state.pending) {if (force) this.dirty.add(id); return;}
-  if (earlier && !state.cursor || !earlier && state.loaded && !force) return;
+  const gap = earlier ? beforeId ? state.gaps.find(item => item.beforeId === beforeId) : state.gaps[0] : undefined;
+  if (earlier && !gap && !state.cursor || !earlier && state.loaded && !force) return;
   const abort = new AbortController(); this.histories.set(id, abort);
   state.pending = true; state.error = ''; this.emit();
   try {
-   let page = await this.transport.history({agentId: id, limit: 40, ...(earlier ? {cursor: state.cursor!} : {})}, abort.signal);
-   const known = new Set(state.messages.map(message => message.id)), cursors = new Set<string>();
+   const page = await this.transport.history({agentId: id, limit: 40, ...(earlier ? {cursor: gap?.cursor ?? state.cursor!} : {})}, abort.signal);
+   personal(page);
+   if (page.agentId !== id) throw Error('Conversation changed. Retry history.');
    const messages: MessageSlice[] = [];
-   // A live burst can push every cached message out of the newest page. Read
-   // back to the cached boundary before merging, or the middle becomes unreachable.
-   while (true) {
-    personal(page);
-    if (page.agentId !== id) throw Error('Conversation changed. Retry history.');
-    const part: MessageSlice[] = [];
-    for (const message of page.messages) part.push(await this.complete(message, id, abort.signal));
-    messages.unshift(...part);
-    if (abort.signal.aborted || this.disposed) return;
-    if (earlier || !known.size || messages.some(message => known.has(message.id)) || !page.nextCursor) break;
-    if (cursors.has(page.nextCursor)) throw Error('History paging did not advance. Retry history.');
-    cursors.add(page.nextCursor);
-    page = await this.transport.history({agentId: id, limit: 40, cursor: page.nextCursor}, abort.signal);
-   }
+   for (const message of page.messages) messages.push(await this.complete(message, id, abort.signal));
    if (abort.signal.aborted || this.disposed) return;
    if (page.sequence < state.sequence) return;
    const ids = new Set(messages.map(message => message.id)), retained = state.messages.filter(message => !ids.has(message.id));
    const changed = messages.some(message => state.messages.find(old => old.id === message.id)?.content !== message.content);
    // Pages already carry canonical row order; equal timestamps and IDs cannot reconstruct it.
-   state.messages = earlier ? [...messages, ...retained] : [...retained, ...messages];
-   state.cursor = earlier || !state.loaded ? page.nextCursor : state.cursor;
+   if (gap) {
+    const anchor = state.messages.findIndex(message => message.id === gap.beforeId), prefix = state.messages.slice(0, anchor), suffix = state.messages.slice(anchor);
+    state.messages = [...prefix.filter(message => !ids.has(message.id)), ...messages, ...suffix.filter(message => !ids.has(message.id))];
+    state.gaps = state.gaps.filter(item => item !== gap);
+    if (page.nextCursor && messages.length && !prefix.some(message => ids.has(message.id))) state.gaps.push({beforeId: messages[0].id, cursor: page.nextCursor});
+   } else {
+    if (!earlier && state.loaded && state.messages.length && messages.length && page.nextCursor && !state.messages.some(message => ids.has(message.id))) state.gaps.push({beforeId: messages[0].id, cursor: page.nextCursor});
+    state.messages = earlier ? [...messages, ...retained] : [...retained, ...messages];
+    state.cursor = earlier || !state.loaded ? page.nextCursor : state.cursor;
+   }
+   state.gaps.sort((a, b) => state.messages.findIndex(message => message.id === a.beforeId) - state.messages.findIndex(message => message.id === b.beforeId));
    state.sequence = page.sequence; state.loaded = true;
    if (changed && !earlier && !this.view(id).atEnd) this.setView(id, {unread: true});
   } catch (cause) {if (!abort.signal.aborted && !this.disposed) state.error = cause instanceof Error ? cause.message : 'History could not load. Retry history.';}

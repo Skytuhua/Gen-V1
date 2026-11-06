@@ -1,4 +1,4 @@
-import {createContext, useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode} from 'react';
+import {Fragment, createContext, useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode} from 'react';
 import {ChevronDown, ChevronRight, ExternalLink, Search, Send, Square, X} from 'lucide-react';
 import {Select} from '../../../../packages/ui-shell/Select';
 import {isComposing} from '../../../../packages/ui-shell/list-navigation';
@@ -109,7 +109,9 @@ function Transcript({agent, controller}: {agent: AgentSummary; controller: Agent
  useLayoutEffect(() => {
   const element = log.current; if (!element || !state.loaded) return;
   const old = previous.current, first = state.messages[0]?.id ?? '';
+  const anchor = view.anchorId && [...element.querySelectorAll<HTMLElement>('[data-message-id]')].find(node => node.dataset.messageId === view.anchorId);
   if (view.atEnd) element.scrollTop = element.scrollHeight;
+  else if (anchor && view.anchorOffset !== undefined) element.scrollTop += anchor.getBoundingClientRect().top - element.getBoundingClientRect().top - view.anchorOffset;
   else if (!old.initialized) element.scrollTop = view.top;
   else if (old.first !== first) element.scrollTop = view.top + element.scrollHeight - old.height;
   previous.current = {height: element.scrollHeight, first, initialized: true};
@@ -117,12 +119,13 @@ function Transcript({agent, controller}: {agent: AgentSummary; controller: Agent
  }, [state.messages, state.loaded, controller, agent.agentId, view.atEnd]);
  return <div className="agents-transcript-wrap"><div className="agents-transcript" role="log" aria-label={`${agent.title} messages`} aria-live="off" tabIndex={0} ref={log} onFocus={() => controller.setView(agent.agentId, {focus: 'transcript'})} onScroll={event => {
   const element = event.currentTarget, atEnd = element.scrollHeight - element.clientHeight - element.scrollTop < 24;
-  controller.setView(agent.agentId, {top: element.scrollTop, atEnd, ...(atEnd ? {unread: false} : {})});
+  const top = element.getBoundingClientRect().top, anchor = [...element.querySelectorAll<HTMLElement>('[data-message-id]')].find(node => node.getBoundingClientRect().bottom > top);
+  controller.setView(agent.agentId, {top: element.scrollTop, atEnd, anchorId: anchor?.dataset.messageId, anchorOffset: anchor ? anchor.getBoundingClientRect().top - top : undefined, ...(atEnd ? {unread: false} : {})});
  }}>
   {state.cursor && <button type="button" className="agents-earlier" disabled={state.pending} onClick={() => {void controller.loadEarlier(agent.agentId);}}>Load earlier messages</button>}
   {!state.loaded && !state.error && <p className="agents-transcript-empty">{state.pending ? 'Loading messages…' : 'Messages load as they come into view.'}</p>}
   {state.loaded && !state.messages.length && <p className="agents-transcript-empty">No messages yet.</p>}
-  {state.messages.map(message => <article className={`agents-message agents-message-${message.role}`} key={message.id}><span className="agents-message-role">{message.role}</span><Markdown text={message.content}/></article>)}
+  {state.messages.map(message => <Fragment key={message.id}>{state.gaps.some(gap => gap.beforeId === message.id) && <button type="button" className="agents-earlier" disabled={state.pending} onClick={() => {void controller.loadEarlier(agent.agentId, message.id);}}>Load missing messages</button>}<article className={`agents-message agents-message-${message.role}`} data-message-id={message.id}><span className="agents-message-role">{message.role}</span><Markdown text={message.content}/></article></Fragment>)}
   {state.error && <div className="agents-error" role="alert">{state.error}<button type="button" onClick={() => {void controller.retryHistory(agent.agentId);}}>Retry history</button></div>}
  </div>{view.unread && <button type="button" className="agents-new-output" onClick={() => {controller.setView(agent.agentId, {atEnd: true, unread: false}, true); log.current?.scrollTo({top: log.current.scrollHeight});}}>New output</button>}</div>;
 }

@@ -48,8 +48,9 @@ export function createSharedAgentComposers(actions: {sendParent(input: AgentSend
   if (agent.parentId && [...entries.values()].some(value => (value.agent.agentId === agent.parentId || value.agent.agentId === agent.rootId) && value.state.stopping)) return false;
   return state.ready && !state.busy && !state.stopping && supports(agent) && (agent.parentId ? Boolean(actions.followUp?.canSend(agent)) : Boolean(agent.modelId));
  };
+ const ticketError = (ticket?: ChildInputTicket) => ticket && ['rejected', 'interrupted', 'delivery_uncertain'].includes(ticket.status) ? ticket.error ?? `Follow-up ${ticket.status.replaceAll('_', ' ')}.` : '';
  const unsubscribeTickets = actions.followUp?.subscribe((id, ticket) => {
-  for (const value of entries.values()) if (value.state.ticket?.id === ticket.id) emit(value, {ticket});
+  for (const value of entries.values()) if (value.state.ticket?.id === ticket.id) emit(value, {ticket, error: value.state.error === ticketError(value.state.ticket) ? ticketError(ticket) : value.state.error});
   void journalWrite(`agents-ticket:${id}`, ticket).catch(() => {});
  });
  const prepare = async (agent: AgentSummary) => {
@@ -87,7 +88,7 @@ export function createSharedAgentComposers(actions: {sendParent(input: AgentSend
     if (agent.parentId) {
      const ticket = await actions.followUp!.send({agent, content: pending.content, commandId: pending.commandId});
      await journalWrite(ticketKey(agent), ticket); emit(value, {ticket});
-     if (['rejected', 'interrupted', 'delivery_uncertain'].includes(ticket.status)) emit(value, {error: ticket.error ?? `Follow-up ${ticket.status.replaceAll('_', ' ')}.`});
+     if (ticketError(ticket)) emit(value, {error: ticketError(ticket)});
     } else await actions.sendParent({agent, content: pending.content, commandId: pending.commandId});
     await journalCompareAndSwap(key(agent), pending.generation, '');
     await journalWrite(pendingKey(agent), null); value.pending = undefined;
@@ -99,7 +100,7 @@ export function createSharedAgentComposers(actions: {sendParent(input: AgentSend
   async stop(agent) {
    const value = entry(agent); if (agent.parentId || !agent.threadId || agent.readOnly || agent.status !== 'working' || value.state.stopping) return;
    value.stopEpoch++; emit(value, {stopping: true, error: ''});
-   for (const child of entries.values()) if (child.agent.parentId === agent.agentId || child.agent.rootId === agent.agentId) emit(child, {});
+   for (const child of entries.values()) if (child !== value && (child.agent.parentId === agent.agentId || child.agent.rootId === agent.agentId)) {child.stopEpoch++; emit(child, {});}
    try {await actions.stopParent(agent);} catch (cause) {emit(value, {error: cause instanceof Error ? cause.message : 'Stop failed. Retry Stop.'});}
    finally {emit(value, {stopping: false}); for (const child of entries.values()) if (child.agent.parentId === agent.agentId || child.agent.rootId === agent.agentId) emit(child, {});}
   },
