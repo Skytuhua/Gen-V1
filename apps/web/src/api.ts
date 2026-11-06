@@ -44,6 +44,7 @@ export async function command(type: string, payload: Record<string, unknown> = {
 }
 
 export const getSnapshot = () => authenticated(() => fetch('/api/snapshot', { credentials: 'same-origin', cache: 'no-store' })).then(read<Snapshot>);
+export const getShellSettings = () => authenticated(() => fetch('/api/shell-settings', { credentials: 'same-origin', cache: 'no-store' })).then(read<Pick<Snapshot['settings'],'theme'|'preferences'>>);
 export interface ComposerPrediction { suggestion: string | null; replyId: string; modelId: string }
 export function getComposerPrediction(input: { threadId: string; replyId: string; modelId: string }, signal: AbortSignal) {
   return authenticated(() => fetch('/api/composer-prediction', { method: 'POST', credentials: 'same-origin', signal, headers: { 'Content-Type': 'application/json', 'x-harness-csrf': csrfToken }, body: JSON.stringify(input) })).then(read<ComposerPrediction>);

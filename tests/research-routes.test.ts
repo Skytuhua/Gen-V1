@@ -1,6 +1,5 @@
 import {afterEach, expect, it} from 'vitest';
 import {buildServer} from '../apps/server/server.ts';
-import {registerResearchRoutes} from '../apps/server/research-routes.ts';
 import {Service} from '../packages/core/service.ts';
 import type {RuntimeAdapter} from '../packages/contracts/index.ts';
 import {abcHash, command, researchFixture, textSource} from './research-fixture.ts';
@@ -11,11 +10,10 @@ async function fixture() {
   const f = await researchFixture();
   const runtime: RuntimeAdapter = {configure() {}, models: async () => [], start: async () => {}, followUp: async () => {}, cancel: async () => {}, compact: async () => {}, history: async () => [], dispose: async () => {}};
   const service = new Service(f.store, runtime), app = await buildServer(service, {port: 4317, dev: false});
-  registerResearchRoutes(app, {research: f.repository, command: c => f.repository.command(c)});
   cleanups.push(async () => {await app.close(); await service.dispose(); await f.close();});
   const host = {host: '127.0.0.1:4317'}, boot = await app.inject({url: '/api/bootstrap', headers: host});
   const headers = {...host, cookie: String(boot.headers['set-cookie']).split(';')[0], 'x-harness-csrf': boot.json().csrfToken};
-  return {...f, app, host, headers};
+  return {...f, repository: service.research, app, host, headers};
 }
 const query = '?authority=personal&threadId=thread-a&projectId=project-a';
 

@@ -5,7 +5,8 @@ import { readBoundFile, withResourceGrant } from "../../packages/core/file-acces
 import { resolve, extname, basename, join } from "node:path";
 import { z } from "zod";
 import { Service } from "../../packages/core/service.ts";
-import { HarnessError, type ArtifactRecord, type ResourceGrant } from "../../packages/contracts/index.ts";
+import { HarnessError, type ArtifactRecord, type ResourceGrant, type Snapshot } from "../../packages/contracts/index.ts";
+import {getPreferences,preferencesSchema} from '../../packages/contracts/preferences.ts';
 import { inside } from "../../packages/core/security.ts";
 import { GENERATED_APPS_ENABLED } from "../../packages/core/widgets.ts";
 import { WIDGET_SHELL_CSP, widgetShellDocument } from "../../packages/widgets/document.ts";
@@ -18,6 +19,7 @@ import {registerAttentionRoutes} from './attention-routes.ts';
 import {registerPluginRoutes} from './plugin-routes.ts';
 import type {PluginRegistry} from '../../packages/plugins/host.ts';
 import {registerSkillCatalogRoutes} from './skill-catalog-routes.ts';
+import {registerResearchRoutes} from './research-routes.ts';
 import {createPersonalSkillCatalog} from '../../packages/skill-catalog/adapters.ts';
 import type {SkillCatalogRepository} from '../../packages/skill-catalog/repository.ts';
 import {registerAgentInventoryRoutes} from './agent-inventory-routes.ts';
@@ -25,6 +27,7 @@ import {AgentProjection} from '../../packages/agent-projection/index.ts';
 import type {PersonalAgentInventory} from '../../packages/contracts/agent-inventory.ts';
 
 type Mount = { artifactId: string; revision: number; expiresAt: number };
+const shellPreferencesSchema=z.object({...preferencesSchema.shape,keybindings:z.object(preferencesSchema.shape.keybindings.shape)});
 export type MountRegistry = Map<string, Mount>;
 export interface ServerOptions { port: number; dev: boolean; widgetPort?: number; mounts?: MountRegistry; plugins?:PluginRegistry; pluginError?:string; admitPluginRequest?:()=>boolean; skillCatalog?:SkillCatalogRepository; agentInventory?:PersonalAgentInventory }
 const commandSchema = z.object({ id: z.string().min(1).max(200).regex(/^[a-zA-Z0-9:_-]+$/), type: z.string().min(1).max(100), threadId: z.string().max(200).optional(), payload: z.record(z.string(), z.unknown()) }).strict();
@@ -74,6 +77,11 @@ export async function buildServer(service: Service, options: ServerOptions) {
     return { csrfToken: session.csrf, widgetOrigin: "http://localhost:" + widgetPort };
   });
   registerPluginRoutes(app,options.plugins,'http://127.0.0.1:'+options.port,()=>service.store.snapshot().settings.theme,options.pluginError,options.admitPluginRequest);
+  app.get('/api/shell-settings',async(_request,reply)=>{
+    reply.header('Cache-Control','no-store');
+    const settings=service.store.get<Snapshot['settings']>('settings','global')??{theme:'dark',modelId:null};
+    return{theme:settings.theme==='light'||settings.theme==='system'?settings.theme:'dark',preferences:shellPreferencesSchema.parse(getPreferences(settings))};
+  });
   app.get("/api/snapshot", async (_request, reply) => {
     const seq = service.store.sequence;
     let json = snapshotCache?.seq === seq ? snapshotCache.json : undefined;
@@ -112,6 +120,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
   registerAgentInventoryRoutes(app,agentInventory);
   if(!options.agentInventory)app.addHook('onClose',async()=>{agentInventory.dispose();});
   registerSkillCatalogRoutes(app,options.skillCatalog??createPersonalSkillCatalog(service.store));
+  registerResearchRoutes(app,{research:service.research,command:command=>service.command(command)});
   const skillRead=z.strictObject({path:z.string().min(1).max(1024).optional(),revision:z.coerce.number().int().positive().optional(),versionOffset:z.coerce.number().int().nonnegative().optional(),includeInactive:z.enum(['true','false']).optional()});
   app.get<{Params:{name:string}}>('/api/skills/:name',async(request,reply)=>{reply.header('Cache-Control','no-store');const args=skillRead.parse(request.query);return service.skillDetail(request.params.name,{...args,includeInactive:args.includeInactive==='true'});});
   app.get<{Params:{id:string}}>('/api/skill-proposals/:id',async(request,reply)=>{reply.header('Cache-Control','no-store');return service.skillProposal(request.params.id);});
