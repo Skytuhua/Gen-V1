@@ -1,0 +1,11 @@
+import { Popover as SharedPopover } from './packages/ui-shell/Popover';
+declare const props: any;
+export const cases = <>
+  <SharedPopover {...props} role="dialog" className="feature-popover"><button role="menuitem">Action</button></SharedPopover>
+  <section role="region"><h2>Modal documentation</h2></section>
+  <div className="settings-dialog-actions">Normal flow footer</div>
+  <details><summary>Details</summary>Inline content</details>
+</>;
+const documentation = '<dialog>Example only</dialog>';
+function createPortal() { return documentation; }
+createPortal();
