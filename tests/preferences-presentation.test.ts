@@ -10,7 +10,8 @@ describe('compact settings and unified context presentation', () => {
   it('offers scoped appearance choices with explicit Preview, Apply, Cancel and reset', () => {
     const html = renderToStaticMarkup(createElement(AppearanceSettings, { preferences: getPreferences({}), theme: 'dark', threads: [], busy: false, save: async () => true }));
     expect(html).toContain('aria-label="Interface accent"');
-    expect(html).toContain('Workspace background');
+    expect(html).toContain('Custom accent');
+    expect(html).not.toContain('Choose image');
     for (const label of ['Preview', 'Cancel', 'Apply', 'Reset appearance', 'Project colors']) expect(html).toContain(label);
     expect(html).not.toContain('data:image/svg');
   });
