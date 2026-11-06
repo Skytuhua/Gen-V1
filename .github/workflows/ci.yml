@@ -58,6 +58,12 @@ jobs:
       - name: Install optional visuals plug-in dependencies
         run: pnpm --dir plugins/personal-visuals install --ignore-workspace --frozen-lockfile
 
+      - name: Exercise UI guard negative and positive fixtures
+        run: pnpm test:ui-guard
+
+      - name: Enforce type-aware JSX and overlay architecture policy
+        run: pnpm lint:ui
+
       - name: Install isolated Hermes dependencies
         run: python -m pip install --disable-pip-version-check --no-warn-script-location --target .harness-hermes-python-deps -r third-party/hermes-agent/runtime-requirements.txt
 

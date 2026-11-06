@@ -1,0 +1,22 @@
+import type { Count } from './types';
+declare const count: Count;
+declare const optional: number | undefined;
+declare const enabled: boolean;
+declare const rows: { total?: number }[];
+declare const payload: { count?: number } | undefined;
+declare function identity<T>(value: T): T;
+const alias = count;
+const content = alias && <span>Alias</span>;
+export const cases = <>
+  {count && <span>Count</span>}
+  {optional && <span>Optional</span>}
+  {payload?.count && <span>Optional property</span>}
+  {enabled ? count && <span>Nested</span> : optional && <span>Other</span>}
+  {enabled && (count && <span>Chained</span>)}
+  {content}
+  {rows.map(row => row.total && <span>Mapped</span>)}
+  {[count && <span>Array</span>]}
+  {(count && <span>Nullish does not remove zero</span>) ?? null}
+</>;
+export function Returned() { return count && <span>Returned</span>; }
+export const Arrow = () => optional && <span>Arrow</span>;

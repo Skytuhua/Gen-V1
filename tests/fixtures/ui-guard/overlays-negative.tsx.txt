@@ -1,0 +1,19 @@
+import { createPortal as mount } from 'react-dom';
+import * as Dom from 'react-dom';
+const portalAlias = mount;
+declare const root: HTMLElement;
+export const cases = <>
+  <select><option>Choice</option></select>
+  <dialog>Native dialog outside primitive</dialog>
+  <div role="dialog" aria-modal="true">Modal</div>
+  <div role="menu">Menu</div>
+  <div role="listbox">Select</div>
+  <div popover="auto">Native popover</div>
+  <div className={`custom-dropdown ${true ? 'open' : ''}`}>Dropdown</div>
+  <div className="new-modal-backdrop">Backdrop</div>
+  {mount(<p>Portal</p>, root)}
+  {Dom.createPortal(<p>Namespace portal</p>, root)}
+  {portalAlias(<p>Alias portal</p>, root)}
+</>;
+document.createElement('dialog');
+root.setAttribute('role', 'menu');
