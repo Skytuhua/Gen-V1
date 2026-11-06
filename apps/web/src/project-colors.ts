@@ -1,4 +1,4 @@
-import { PROJECT_PALETTE } from '../../../packages/contracts/preferences.ts';
+import { PROJECT_PALETTE, projectColorSchema } from '../../../packages/contracts/preferences.ts';
 import type { WorkspaceAuthority } from '../../../packages/contracts/workspace.ts';
 export { PROJECT_PALETTE };
 
@@ -10,7 +10,7 @@ export function projectColorKey(authority: WorkspaceAuthority, projectId: string
 export function projectColor(authority: WorkspaceAuthority, projectId?: string, overrides: Record<string, string> = {}): string | undefined {
   if (!projectId) return undefined;
   const key = projectColorKey(authority, projectId), overridden = overrides[key];
-  if (overridden && Object.values(PROJECT_PALETTE).includes(overridden as typeof PROJECT_PALETTE[keyof typeof PROJECT_PALETTE])) return overridden;
+  if (overridden && projectColorSchema.safeParse(overridden).success) return overridden;
   let hash = 2166136261;
   for (const character of key) hash = Math.imul(hash ^ character.charCodeAt(0), 16777619);
   const palette = Object.values(PROJECT_PALETTE);
