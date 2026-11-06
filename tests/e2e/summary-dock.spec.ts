@@ -59,6 +59,8 @@ test('Escape respects composition and collapse restores the disclosure focus', a
   const draft = panel.getByRole('textbox', { name: 'Overview draft' }); await draft.focus();
   await draft.dispatchEvent('keydown', { key: 'Escape', isComposing: true });
   await expect(panel).toHaveAttribute('data-collapsed', 'false');
+  await draft.dispatchEvent('keydown', { key: 'Escape', keyCode: 229 });
+  await expect(panel).toHaveAttribute('data-collapsed', 'false');
   await draft.press('Escape');
   await expect(panel.getByRole('button', { name: 'Expand Project overview' })).toBeFocused();
   await page.keyboard.press('Escape'); await expect(panel).toBeVisible();
