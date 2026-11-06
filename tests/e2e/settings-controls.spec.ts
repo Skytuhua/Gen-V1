@@ -38,6 +38,52 @@ async function scalarText(content: Locator) {
   });
 }
 
+test('font sizes accept individual keystrokes and commit only bounded values',async({page})=>{
+  const {dialog,nav,commands}=await openSettings(page);await nav.getByRole('button',{name:'Appearance',exact:true}).click();
+  const size=dialog.getByRole('spinbutton',{name:'Chat size',exact:true});await size.focus();await size.press('Control+a');await size.pressSequentially('20');
+  await expect(size).toHaveValue('20');await dialog.getByRole('button',{name:'Apply',exact:true}).click();
+  await expect.poll(()=>commands.filter(command=>command.type==='settings.update').at(-1)?.payload.preferences).toMatchObject({chatFontSize:20});
+  await size.focus();await size.press('Control+a');await size.press('Backspace');await size.press('Tab');await expect(size).toHaveValue('20');
+  await size.focus();await size.press('Control+a');await size.pressSequentially('99');await size.press('Tab');await expect(size).toHaveValue('20');
+});
+
+test('saving a project color preserves the active appearance preview',async({page})=>{
+  const host=await openSettings(page);host.snapshot.threads[0].projectId='preview-project';host.snapshot.threads[0].projectName='Preview project';await host.publish();
+  await host.nav.getByRole('button',{name:'Appearance',exact:true}).click();await host.dialog.getByRole('combobox',{name:'Density',exact:true}).click();await page.getByRole('option',{name:/^Touch/}).click();
+  await host.dialog.getByRole('button',{name:'Preview',exact:true}).click();await expect(page.locator('html')).toHaveAttribute('data-density','touch');
+  await host.dialog.getByRole('textbox',{name:'Custom color for Preview project',exact:true}).fill('#123abc');await host.dialog.getByRole('button',{name:'Save color',exact:true}).click();
+  await expect(host.dialog.getByRole('button',{name:'Reset color for Preview project',exact:true})).toBeVisible();
+  const painted=await page.evaluate(async()=>{const values=[];for(let index=0;index<5;index++){await new Promise(requestAnimationFrame);values.push(document.documentElement.dataset.density);}return values;});
+  expect(painted.every(value=>value==='touch')).toBe(true);await expect(host.dialog.getByRole('status').filter({hasText:/^Preview$/})).toBeVisible();
+  await host.dialog.getByRole('button',{name:'Cancel',exact:true}).click();await expect(page.locator('html')).toHaveAttribute('data-density','comfortable');
+  expect(getPreferences(host.snapshot.settings).projectColors['["local","preview-project"]']).toBe('#123abc');
+});
+
+async function installManualBrowserFixture(page:Page){
+  await page.addInitScript(()=>{
+    const context={windowId:'main',surface:{kind:'main'},windows:[]},calls:unknown[]=[];
+    (window as unknown as {manualBrowserCalls:unknown[]}).manualBrowserCalls=calls;
+    window.harnessDesktop={getContext:async()=>context,ready:async()=>context,list:async()=>[],reattach:async()=>{},minimize:async()=>{},resetBounds:async()=>{},focus:async()=>{},browser:async(value:unknown)=>{calls.push(value);},onState:()=>()=>{},onCloseRequested:()=>()=>{},onWorkspaceChanged:()=>()=>{}} as unknown as NonNullable<Window['harnessDesktop']>;
+  });
+}
+
+test('browser launch leaves the draft and owning modal intact when its save guard rejects',async({page})=>{
+  await installManualBrowserFixture(page);const {dialog,nav}=await openSettings(page);
+  await page.evaluate(async()=>{const path='/src/editor-handoff.ts';const module=await import(path);module.registerEditorHandoff('synthetic-browser-block',async()=>{throw Error('Keep this draft safe');});});
+  await nav.getByRole('button',{name:'Browser',exact:true}).click();await dialog.getByRole('button',{name:'Open browser',exact:true}).click();
+  await expect(dialog.getByRole('alert')).toContainText('Keep this draft safe');await expect(dialog).toBeVisible();
+  expect(await page.evaluate(()=>(window as unknown as {manualBrowserCalls:unknown[]}).manualBrowserCalls)).toEqual([]);
+  await expect(page.locator('textarea[aria-label="Message"]')).toHaveValue('Retain this conversation draft');
+});
+
+test('desktop browser opens from the default anchored workspace after the save guard',async({page})=>{
+  await installManualBrowserFixture(page);
+  const {dialog,nav,commands}=await openSettings(page);await nav.getByRole('button',{name:'Browser',exact:true}).click();
+  await dialog.getByRole('button',{name:'Open browser',exact:true}).click();
+  await expect.poll(()=>page.evaluate(()=>(window as unknown as {manualBrowserCalls:unknown[]}).manualBrowserCalls)).toContainEqual({type:'open'});
+  await expect(dialog).toHaveCount(0);expect(commands.filter(command=>command.type==='thread.create')).toHaveLength(0);
+});
+
 test('Environments and every section stay free of stray scalars through blank, matching, empty and reset search', async ({ page }, info) => {
   const { dialog, nav, search, composer } = await openSettings(page);
   await nav.getByRole('button', { name: 'Models & Accounts', exact: true }).click();
