@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, useMemo, type ComponentProps, type CSSProperties, type ReactNode } from 'react';
-import { ArrowUp, Bot, Check, ChevronDown, ChevronRight, CircleHelp, CircleStop, File, Folder, Laptop, LoaderCircle, Menu, MessageSquare, PanelLeftOpen, PanelRight, PenLine, Plus, SlidersHorizontal, WifiOff, X } from 'lucide-react';
+import { ArrowUp, Bot, Check, ChevronDown, ChevronRight, CircleHelp, CircleStop, Folder, Laptop, LoaderCircle, Menu, MessageSquare, PanelLeftOpen, PanelRight, PenLine, Plus, SlidersHorizontal, WifiOff, X } from 'lucide-react';
 import type { InputRequest, ModelInfo, Operation, Snapshot, Thread,Message } from '../../../packages/contracts';
 import { ApiError, bootstrap, command, getModels, getSnapshot, subscribe } from './api';
 import { journalCompareAndSwap, journalGeneration, journalRead, journalReadRecord, journalSubscribe, journalWrite } from './journal';
@@ -26,6 +26,7 @@ import {workspacePanelBounds} from './panel-geometry';
 import {createPlanVisibility,selectPlanRecord} from './plan-visibility';
 import {ComposerToolbar,ComposerTaskActions} from './ComposerToolbar';
 import {ComposerView} from './ComposerView';
+import {ComposerAttachments} from './ComposerAttachments';
 import {PluginFrame,usePluginCatalog} from './PluginFrame';
 import {recordedChangeSummary} from './composer-evidence';
 import {useDesktop,useDesktopCloseGuard,useDesktopReady,useDetachedSurface,usePendingSurface} from './desktop-context';
@@ -266,15 +267,18 @@ function Composer({ thread, models, modelId, setModelId, snapshot, ensureThread,
   return <div className="composer-dock">
     {error && <div className="composer-error" role="alert">{error}<button className="icon-button" aria-label="Dismiss composer error" onClick={() => setError('')}><X size={14} /></button></div>}
     <ComposerView className={dragging ? 'dragging' : ''} onSubmit={event => { event.preventDefault(); void send(); }} onDragOver={event => { event.preventDefault(); setDragging(true); }} onDragLeave={event => { if (!event.currentTarget.contains(event.relatedTarget as Node)) setDragging(false); }} onDrop={event => { event.preventDefault(); setDragging(false); if (event.dataTransfer.files.length) void upload(event.dataTransfer.files); }}>
-      <div className="composer-header-utilities">{resources.some(resource=>resource.kind!=='project') && <div className="resource-strip">{resources.filter(resource=>resource.kind!=='project').map(resource => <span key={resource.id} className="resource-chip" title={`${resource.path} · ${resource.writable ? 'Approved writes allowed' : 'Read only'}`}>{resource.kind === 'project' ? <Folder size={12} /> : <File size={12} />}{resource.label}</span>)}</div>}<ComposerTaskActions changeSummary={changes} onChanges={inspectChanges} onCreatePR={preparePR} disabled={busy||!ready} working={working}/></div>
+      <ComposerAttachments resources={resources}/>
+      <div className="composer-entry-row">
       <div className="composer-input">
-        <textarea ref={input} aria-label="Message" placeholder={prediction.candidate ? '' : dragging ? 'Drop files to attach' : 'Ask anything, or bring something to work on…'} value={draft} disabled={!ready} onChange={event => updateDraft(event.target.value)} onPaste={prediction.dismiss} onCompositionStart={prediction.dismiss} onKeyDown={event => {
+        <textarea ref={input} aria-label="Message" placeholder={prediction.candidate ? '' : dragging ? 'Drop files to attach' : 'Ask anything…'} value={draft} disabled={!ready} onChange={event => updateDraft(event.target.value)} onPaste={prediction.dismiss} onCompositionStart={prediction.dismiss} onKeyDown={event => {
           if (event.nativeEvent.isComposing || event.nativeEvent.keyCode === 229) return;
           if (prediction.candidate && event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); prediction.dismiss(); return; }
           if (event.key === 'Tab' && !event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey && acceptPrediction()) { event.preventDefault(); return; }
           if (event.key === 'Enter' && !event.shiftKey && (preferences.sendShortcut === 'enter' || event.ctrlKey || event.metaKey)) { event.preventDefault(); void send(); }
         }} rows={1} />
         {prediction.candidate && <div ref={ghost} className="composer-prediction-text" aria-hidden="true">{prediction.candidate}</div>}
+      </div>
+      <ComposerTaskActions changeSummary={changes} onChanges={inspectChanges} onCreatePR={preparePR} disabled={busy||!ready} working={working}/>
       </div>
       <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">{prediction.candidate ? `Suggested message: ${prediction.candidate} Tab to accept. Escape to dismiss.` : ''}</span>
       <ComposerToolbar models={models} modelId={modelId} onModelChange={id=>{chooseThinking('');setModelId(id);}} thinkingLevel={thinkingLevel} onThinkingChange={chooseThinking} projectLabel={thread?.projectName??project?.label} changeSummary={changes} onProject={async()=>{if(!selectProject){await addResource();return;}const opener=document.activeElement as HTMLElement|null;const id=await ensureThread(id=>migrateDraft(id,draftLatest.current,true));selectProject(id,opener);}} onChanges={inspectChanges} onCreatePR={preparePR} onTranscript={text=>{const current=draftLatest.current;updateDraft(current+(current&&!/\s$/.test(current)?' ':'')+text);}} disabled={busy||!ready} working={working} separateActions

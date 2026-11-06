@@ -219,7 +219,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    expect(await page.locator('.split-workspace').count()).toBe(0);
    const message=page.locator('.shell-workarea').getByRole('textbox',{name:'Message',exact:true});await message.waitFor({state:'visible'});
    const actionsBox=await page.locator('.composer .composer-secondary-actions').boundingBox(),inputBox=await message.boundingBox();
-   expect(actionsBox).not.toBeNull();expect(inputBox).not.toBeNull();expect(actionsBox!.y+actionsBox!.height).toBeLessThanOrEqual(inputBox!.y+1);
+   expect(actionsBox).not.toBeNull();expect(inputBox).not.toBeNull();expect(Math.abs(actionsBox!.y-inputBox!.y)).toBeLessThanOrEqual(6);expect(inputBox!.x+inputBox!.width).toBeLessThanOrEqual(actionsBox!.x);
    const overview=page.getByRole('region',{name:'Project overview window',exact:true});await overview.waitFor({state:'visible'});
    await page.locator('.sidebar-thread-row').first().getByRole('button',{name:/Options for/}).click();
    expect(await page.getByRole('button',{name:'Place in workspace',exact:false}).count()).toBe(0);
