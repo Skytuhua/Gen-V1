@@ -3,7 +3,7 @@ import { useLayoutEffect, useRef, type RefObject } from 'react';
 const focusable = 'button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), a[href], summary, iframe, [tabindex="0"]';
 
 // Apply modal behavior to the existing DOM branch, preserving artifact identity.
-export function useModalRegion(ref: RefObject<HTMLElement | null>, active: boolean, close: () => void, initial: string) {
+export function useModalRegion(ref: RefObject<HTMLElement | null>, active: boolean, close: () => void, initial: string, companion?: RefObject<HTMLElement | null>) {
   const closeRef = useRef(close); closeRef.current = close;
   useLayoutEffect(() => {
     const region = ref.current;
@@ -14,7 +14,7 @@ export function useModalRegion(ref: RefObject<HTMLElement | null>, active: boole
       for (let branch: HTMLElement = region; branch.parentElement && branch !== document.body; branch = branch.parentElement) {
         // Native dialogs own their top-layer modality. Marking the dialog
         // itself inert would disable it even after showModal().
-        for (const sibling of branch.parentElement.children) if (sibling !== branch && sibling instanceof HTMLElement && !(sibling instanceof HTMLDialogElement) && !siblings.has(sibling)) {
+        for (const sibling of branch.parentElement.children) if (sibling !== branch && sibling !== companion?.current && sibling instanceof HTMLElement && !(sibling instanceof HTMLDialogElement) && !siblings.has(sibling)) {
           siblings.set(sibling, sibling.inert); sibling.inert = true;
         }
       }
@@ -44,5 +44,5 @@ export function useModalRegion(ref: RefObject<HTMLElement | null>, active: boole
       siblings.forEach((wasInert, element) => { element.inert = wasInert; });
       if (previous?.isConnected) previous.focus();
     };
-  }, [ref, active, initial]);
+  }, [ref, active, initial, companion]);
 }
