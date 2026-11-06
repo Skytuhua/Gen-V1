@@ -1,4 +1,5 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
+import { resolve } from 'node:path';
 import type { HostCommand } from '../../packages/contracts';
 import { getPreferences, type UiPreferences } from '../../packages/contracts/preferences';
 import { serveTaskFixture, taskFixture } from './task-interface-fixture';
@@ -144,12 +145,19 @@ test('appearance preview, cancel, failed apply and retry preserve accepted prefe
   await dialog.getByRole('combobox', {name:'Density',exact:true}).click();
   await dialog.getByRole('option', {name:'Touch · 44 px',exact:true}).click();
   await dialog.getByRole('spinbutton', {name:'Chat size',exact:true}).fill('18');
+  await dialog.getByRole('combobox', {name:'Chat width',exact:true}).click();
+  await dialog.getByRole('option', {name:'Full available width',exact:true}).click();
+  await dialog.getByRole('combobox', {name:'Motion',exact:true}).click();
+  await dialog.getByRole('option', {name:'Off',exact:true}).click();
   await dialog.getByRole('button', {name:'Preview',exact:true}).click();
   await expect(page.locator('html')).toHaveAttribute('data-density','touch');
+  await expect(page.locator('.app-shell')).toHaveAttribute('data-chat-width','full');
+  await expect(page.locator('html')).toHaveAttribute('data-motion','off');
   expect(await page.locator('html').evaluate(node => node.style.getPropertyValue('--chat-font-size'))).toBe('18px');
   expect(commands.filter(command => command.type === 'settings.update')).toEqual([]);
   await dialog.getByRole('button', {name:'Cancel',exact:true}).click();
   await expect(page.locator('html')).toHaveAttribute('data-density','comfortable');
+  await expect(page.locator('.app-shell')).toHaveAttribute('data-chat-width','wide');
   await dialog.getByRole('spinbutton', {name:'Chat size',exact:true}).fill('19');
   await page.route('**/api/commands', route => route.request().postDataJSON().type === 'settings.update' ? route.fulfill({status:503,json:{error:{message:'Synthetic save failure'}}}) : route.fallback());
   await dialog.getByRole('button', {name:'Apply',exact:true}).click();
@@ -183,4 +191,26 @@ for(const theme of ['dark','light'] as const) test(`${theme} short narrow settin
   expect(await dialog.evaluate(node=>node.scrollWidth<=node.clientWidth)).toBe(true);
   expect(await dialog.locator('main').evaluate(node=>node.scrollWidth<=node.clientWidth)).toBe(true);
   await dialog.screenshot({path:info.outputPath('appearance-short-narrow.png')});
+});
+
+test('manual-browser start page persists and the injected adapter opens the accepted value',async({page})=>{
+  const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Synthetic browser preference fixture'}}}});
+  await serveTaskFixture(page,snapshot);
+  await page.addInitScript(value=>Object.assign(window,{settingsFixture:value,openedUrls:[]}),snapshot);
+  await page.route('**/api/commands',async route=>{
+    const command=route.request().postDataJSON() as HostCommand;
+    if(command.type==='settings.update') snapshot.settings.preferences={...getPreferences(snapshot.settings),...command.payload.preferences as Partial<UiPreferences>};
+    snapshot.seq++;await route.fulfill({json:{commandId:command.id,seq:snapshot.seq,result:{}}});
+  });
+  const fixture='/@fs/'+resolve('tests/e2e/settings-manual-browser-fixture.tsx').replaceAll('\\','/');
+  await page.route(url=>url.pathname==='/settings-manual-fixture',route=>route.fulfill({contentType:'text/html',body:`<html data-theme="dark"><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${encodeURI(fixture)}');</script></body></html>`}));
+  await page.goto('/settings-manual-fixture');
+  const dialog=page.getByRole('dialog',{name:'Settings',exact:true});
+  await dialog.getByRole('textbox',{name:'Browser start page',exact:true}).fill('https://example.com/review');
+  await dialog.getByRole('button',{name:'Save start page',exact:true}).click();
+  await expect.poll(()=>getPreferences(snapshot.settings).browserStartUrl).toBe('https://example.com/review');
+  await dialog.getByRole('textbox',{name:'Browser start page',exact:true}).fill('https://example.com/unsaved');
+  await dialog.getByRole('button',{name:'Open browser',exact:true}).click();
+  expect(await page.evaluate(()=>(window as unknown as {openedUrls:string[]}).openedUrls)).toEqual(['https://example.com/review']);
+  await expect(dialog).toHaveCount(0);
 });
