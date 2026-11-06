@@ -107,7 +107,7 @@ export interface LinuxCredentialReadBarrier{
 
 /** Kernel read-only custody; expiration revokes authority without restoring writes. */
 export async function acquireLinuxCredentialReadBarrier(authPath:string,options:{signal:AbortSignal;maxHoldMs:number}):Promise<LinuxCredentialReadBarrier>{
- if(!options||!(options.signal instanceof AbortSignal)||!Number.isSafeInteger(options.maxHoldMs)||options.maxHoldMs<1||options.maxHoldMs>20000)throw denied();
+ if(!options||!(options.signal instanceof AbortSignal)||!Number.isSafeInteger(options.maxHoldMs)||options.maxHoldMs<1||options.maxHoldMs>300000)throw denied();
  options.signal.throwIfAborted();
  const {root,session,request}=await connect(),parent=validateLinuxCredentialPath(authPath,root);
  const started=performance.now(),expiresAt=Date.now()+options.maxHoldMs;
