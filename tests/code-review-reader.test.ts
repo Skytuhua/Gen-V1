@@ -24,6 +24,46 @@ it('keeps active GitHub CLI CheckRuns pending when their conclusion is an empty 
   expect(normalizeChecks(statuses.map(status => ({__typename: 'CheckRun', name: status, status, conclusion: ''})))).toEqual(statuses.map(name => ({name, status: 'pending'})));
   expect(normalizeChecks([{name: 'finished', status: 'COMPLETED', conclusion: 'SUCCESS'}, {name: 'unrecognized', status: 'FUTURE_STATUS', conclusion: ''}])).toEqual([{name: 'finished', status: 'passed'}, {name: 'unrecognized', status: 'unknown'}]);
 });
+it.each([
+  ["IN_PROGRESS", ""],
+  ["IN_PROGRESS", null],
+  ["QUEUED", ""],
+  ["QUEUED", null],
+  ["WAITING", ""],
+  ["WAITING", null],
+  ["PENDING", ""],
+  ["PENDING", null],
+  ["REQUESTED", ""],
+  ["REQUESTED", null],
+  ["PENDING_DEPLOYMENT", ""],
+  ["PENDING_DEPLOYMENT", null],
+])("retains pending check status %s with conclusion %j", (status, conclusion) => {
+  expect(normalizeChecks([{ __typename: "CheckRun", name: "unit", status, conclusion }])).toEqual([
+    { name: "unit", status: "pending" },
+  ]);
+});
+it("preserves completed and unknown check conclusions and pending status contexts", () => {
+  expect(normalizeChecks([
+    { __typename: "CheckRun", name: "unit", status: "COMPLETED", conclusion: "SUCCESS" },
+    { __typename: "CheckRun", name: "build", status: "COMPLETED", conclusion: "FAILURE" },
+    { __typename: "CheckRun", name: "optional", status: "COMPLETED", conclusion: "SKIPPED" },
+    { __typename: "CheckRun", name: "empty", status: "COMPLETED", conclusion: "" },
+    { __typename: "CheckRun", name: "null", status: "COMPLETED", conclusion: null },
+    { __typename: "CheckRun", name: "future", status: "IN_PROGRESS", conclusion: "FUTURE_CONCLUSION" },
+    { __typename: "CheckRun", name: "unknown", status: "FUTURE_STATUS", conclusion: "" },
+    { __typename: "StatusContext", context: "lint", state: "PENDING", targetUrl: null },
+  ])).toEqual([
+    { name: "unit", status: "passed" },
+    { name: "build", status: "failed" },
+    { name: "optional", status: "neutral" },
+    { name: "empty", status: "unknown" },
+    { name: "null", status: "unknown" },
+    { name: "future", status: "unknown" },
+    { name: "unknown", status: "unknown" },
+    { name: "lint", status: "pending" },
+  ]);
+  expect(normalizeChecks(null)).toEqual([]);
+});
 it("does not claim completeness when the hunk context was truncated but changed-line totals still match", () => {
   expect(remotePatch(identity, file, "@@ -1,3 +1,3 @@\n-one\n+two\n context")).toMatchObject({
     state: "truncated",
