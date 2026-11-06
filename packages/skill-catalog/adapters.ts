@@ -4,11 +4,12 @@ import {homedir} from 'node:os';
 import {fileURLToPath} from 'node:url';
 import type {SkillSummary} from '../contracts/skills.ts';
 import type {Thread} from '../contracts/index.ts';
+import type {ProjectSummary} from '../contracts/workspace.ts';
 import type {Store} from '../storage/store.ts';
 import {readBoundFile,withPathGuard} from '../core/file-access.ts';
 import {readManifest,payloadPath} from '../integrations/manifest.ts';
 import {readPluginIndex,verifyPluginPackage} from '../plugins/installation.ts';
-import {ProjectTools} from '../workspace/tools.ts';
+import {ProjectTools,type WorkspaceBinding} from '../workspace/tools.ts';
 import {catalogFailure,captureSkillPackage,directoryCatalog,unavailableInventory} from './filesystem.ts';
 import {catalogHash,catalogItem,deniedItem,personalScope,unavailable,type CatalogCustody,type CatalogInventory,type CatalogItem,type SkillCatalogCapabilityProvider} from './repository.ts';
 import {SkillCatalogRepository} from './repository.ts';
@@ -60,7 +61,11 @@ export function projectCatalog(store:Store):SkillCatalogCapabilityProvider{
   if(context.threadId){const thread=store.get<Thread>('thread',context.threadId);if(!thread||thread.kind==='delegate'||projectId&&thread.projectId!==projectId)return unavailableInventory('project:connection','project','Project','denied');projectId=thread.projectId;}
   if(!projectId)return unavailableInventory('project:connection','project','Project','disconnected');
   try{
-   const before=await projects.binding(projectId,context.threadId),stamp=()=>catalogHash({project:store.get('workspaceProject',projectId!),root:store.get('workspaceProjectRoot',projectId!),thread:context.threadId?store.get<Thread>('thread',context.threadId):null,binding:before.workspace?store.get('workspaceBinding',before.workspace.id):null});
+   const before=await projects.binding(projectId,context.threadId),stamp=()=>{
+    const project=store.get<ProjectSummary>('workspaceProject',projectId!),root=store.get<{path:string;identity:{dev:string;ino:string}}>('workspaceProjectRoot',projectId!),thread=context.threadId?store.get<Thread>('thread',context.threadId):null,binding=before.workspace?store.get<WorkspaceBinding>('workspaceBinding',before.workspace.id):null;
+    // Only custody and authority identities fence a reference; unrelated presentation/run state does not.
+    return catalogHash({project:project&&{id:project.id,authority:project.authority,rootPath:project.rootPath},root:root&&{path:root.path,identity:root.identity},thread:thread&&{id:thread.id,kind:thread.kind,projectId:thread.projectId,workspaceId:thread.workspaceId},binding:binding&&{id:binding.id,threadId:binding.threadId,projectId:binding.projectId,familyId:binding.familyId,path:binding.path,identity:binding.identity,gitDirectory:binding.gitDirectory,gitDirectoryIdentity:binding.gitDirectoryIdentity,commonDirectory:binding.commonDirectory,commonDirectoryIdentity:binding.commonDirectoryIdentity}});
+   };
    const captured=stamp(),result:CatalogInventory={sources:[],items:[]};
    // Fixed skill roots only; never walk the whole project or accept a browser path.
    for(const suffix of ['.agents/skills','.codex/skills','.claude/skills']){

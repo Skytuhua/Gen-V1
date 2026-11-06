@@ -146,6 +146,25 @@ it('discovers only the selected worktree and invalidates its references after re
  expect((await repo.list({threadId:'thread'})).sources[0].availability).toEqual({status:'unavailable',reason:'disconnected'});
 });
 
+it.each(['title','status','project metadata','working-copy branch'])('preserves exact references and pagination after unrelated %s updates',async(change)=>{
+ const f=await fixture(),store=new Store(join(f.root,'stable-data'));cleanups.push(async()=>store.close());
+ const original=join(f.root,'original'),working=join(f.root,'working');await mkdir(original);await mkdir(working);
+ for(const name of ['alpha','beta']){const folder=join(working,'.agents','skills',name);await mkdir(folder,{recursive:true});await writeFile(join(folder,'SKILL.md'),`---\nname: ${name}\ndescription: Stable binding\n---\nunchanged`);}
+ const rootInfo=await lstat(original,{bigint:true}),workingInfo=await lstat(working,{bigint:true});
+ const project={id:'project',name:'Connected',authority:{kind:'local'},createdAt:'2026-11-05T00:00:00Z'},thread={id:'thread',kind:'main',projectId:'project',workspaceId:'working',title:'Original',status:'ready'},binding={id:'working',projectId:'project',threadId:'thread',path:working,identity:{dev:String(workingInfo.dev),ino:String(workingInfo.ino)},branch:'first'};
+ store.internal('test.seed',null,()=>{store.put('workspaceProject','project',null,project);store.put('workspaceProjectRoot','project',null,{path:original,identity:{dev:String(rootInfo.dev),ino:String(rootInfo.ino)}});store.put('workspaceBinding','working',null,binding);store.put('thread','thread','thread',thread);});
+ const repo=new SkillCatalogRepository([projectCatalog(store)]),page=await repo.list({threadId:'thread',limit:1}),ref=page.skills[0].ref!;expect(page.nextCursor).toBeTruthy();
+ store.internal('test.unrelated-update',null,()=>{
+  if(change==='title')store.put('thread','thread','thread',{...thread,title:'Renamed',updatedAt:'2026-11-05T00:00:01Z'});
+  if(change==='status')store.put('thread','thread','thread',{...thread,status:'working',runId:'live-run',epoch:4});
+  if(change==='project metadata')store.put('workspaceProject','project',null,{...project,repository:'https://example.test/new-display-metadata'});
+  if(change==='working-copy branch')store.put('workspaceBinding','working',null,{...binding,branch:'second'});
+ });
+ expect((await repo.checkReference(ref,{threadId:'thread'})).files).toHaveLength(1);
+ const next=await repo.list({threadId:'thread',limit:1,cursor:page.nextCursor!});expect(next.skills).toHaveLength(1);expect(next.skills[0].id).not.toBe(page.skills[0].id);
+ expect((await repo.list({threadId:'thread',limit:1})).skills[0].ref).toEqual(ref);
+});
+
 it('reuses the real bundled integration inventory and covers all declared skills across pages',async()=>{
  const manifest=JSON.parse(await readFile(resolve('third-party/integrations/manifest.json'),'utf8')) as {integrations:{skills:unknown[]}[]};
  const repo=new SkillCatalogRepository([bundledCatalog(resolve('.'))]),entries=await all(repo,30);
