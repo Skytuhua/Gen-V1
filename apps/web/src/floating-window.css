@@ -25,11 +25,6 @@
 .floating-window-body[data-collapsed=true] {opacity:0;visibility:hidden;transition:opacity 100ms ease-out,visibility 0s 100ms;}
 .floating-window .plan-status {padding:16px 16px 20px;}
 .floating-window-content {display:flow-root;min-width:0;}
-.composer-header-utilities {display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;min-width:0;margin-bottom:8px;}
-.composer-header-utilities:empty {display:none;margin-bottom:0;}
-.composer-header-utilities>.resource-strip {flex:1 1 180px;min-width:0;margin:0;overflow:hidden;}
-.composer-header-utilities>.resource-strip .resource-chip {max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.composer-header-utilities>.composer-secondary-actions {flex:0 1 auto;margin:0 0 0 auto;}
 .floating-window-interaction,.floating-window-interaction * {user-select:none!important;}
 .floating-usage-details {padding:12px 14px;}
 .floating-usage-details dl {display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px 14px;margin:10px 0 0;font-size:12px;line-height:1.5;font-variant-numeric:tabular-nums;}

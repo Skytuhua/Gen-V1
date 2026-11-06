@@ -1,0 +1,10 @@
+.composer-entry-row { display:flex; align-items:flex-start; gap:12px; min-width:0; }
+.composer-entry-row>.composer-input { flex:1; min-width:0; }
+.composer-entry-row>.composer-secondary-actions { flex:0 0 auto; flex-wrap:nowrap; align-items:center; margin:0; }
+.composer-attachment-band { display:grid; grid-template-rows:1fr; opacity:1; transform:translateY(0); transition:grid-template-rows var(--ui-motion-panel-enter,220ms) var(--ui-ease-enter,ease-out),opacity var(--ui-motion-panel-enter,220ms) ease-out,transform var(--ui-motion-panel-enter,220ms) var(--ui-ease-enter,ease-out); }
+.composer-attachment-clip { min-height:0; overflow:hidden; }
+.composer-attachment-clip>.resource-strip { margin:0; padding:0 0 8px; max-height:128px; overflow:auto; scrollbar-width:thin; }
+.composer-attachment-band[data-state=closing] { grid-template-rows:0fr; opacity:0; transform:translateY(4px); pointer-events:none; transition-duration:var(--ui-motion-panel-exit,180ms); transition-timing-function:ease-in; }
+@starting-style { .composer-attachment-band[data-state=open] { grid-template-rows:0fr; opacity:0; transform:translateY(4px); } }
+.app-shell[data-panel-animations=false] .composer-attachment-band { transition:none; }
+@media(prefers-reduced-motion:reduce) { .composer-attachment-band { transition:none; } }
