@@ -20,7 +20,7 @@ test('failed handoffs have one dismissible shell presenter and keep drafts and c
  expect(workspaceCommands).toHaveLength(0);expect(fixture.commands.filter(command=>command.type==='thread.create')).toHaveLength(0);
 });
 
-test('the shell error remains visible while a plug-in workspace owns the main surface',async({page})=>{
+test('the shell error remains visible while a plug-in workspace owns the main surface and Usage preserves its selection',async({page})=>{
  const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Synthetic plug-in workspace error'}}}});snapshot.artifacts=[];snapshot.userStates=[];snapshot.messages=[];snapshot.data=[];
  const host=await serveTaskFixture(page,snapshot),envelope={state:{version:1,revision:0,activeCanvasId:'main',canvases:[createWorkspaceCanvas('workspace','Workspace','main')],profiles:[],disabledKinds:[],integrations:{}},projects:[]};
  const plugin:PluginManifest={id:'sample-visuals',name:'Sample visuals',version:'1.0.0',apiVersion:1,compatibleGenVersions:'>=0.6.5 <0.7.0',frontendEntry:'frontend/index.html',hostEntry:'host/index.mjs',workspaces:[{id:'studio',title:'Studio',entryView:'map',defaultLayout:'studio'}]};
@@ -32,4 +32,8 @@ test('the shell error remains visible while a plug-in workspace owns the main su
  await page.evaluate(async()=>{const path='/src/editor-handoff.ts',module=await import(/* @vite-ignore */ path);module.registerEditorHandoff('synthetic-private-save',async()=>{throw Error('Source edits must be confirmed before leaving.');});});
  await page.getByRole('button',{name:'New thread',exact:true}).click();const error=page.getByRole('alert').filter({hasText:'Source edits must be confirmed before leaving.'});await expect(error).toBeVisible();await expect(error).toHaveCount(1);await expect(iframe).toBeVisible();
  await error.getByRole('button',{name:'Dismiss error',exact:true}).click();await expect(error).toHaveCount(0);await expect(iframe).toBeVisible();expect(host.commands.filter(command=>command.type==='thread.create')).toHaveLength(0);
+ await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeHidden();
+ await page.getByRole('button',{name:'Usage',exact:true}).click();await expect(page.getByRole('dialog',{name:'Usage',exact:true})).toBeVisible();
+ await expect(iframe).toBeVisible();await page.keyboard.press('Escape');await expect(iframe).toBeVisible();
+ await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeHidden();
 });
