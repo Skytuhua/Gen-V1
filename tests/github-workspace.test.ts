@@ -1,4 +1,5 @@
 import {afterEach,expect,it,vi} from 'vitest';
+import {syncBuiltinESMExports} from 'node:module';
 import {lstat,mkdir,mkdtemp,readFile,readdir,rm,writeFile} from 'node:fs/promises';
 import {dirname,join} from 'node:path';
 import {tmpdir} from 'node:os';
@@ -6,7 +7,7 @@ import {GitHubAuth} from '../packages/workspace/github-auth.ts';
 import {GitHubTools} from '../packages/workspace/github.ts';
 import type {ProjectTools} from '../packages/workspace/tools.ts';
 import type {TerminalHost} from '../packages/workspace/terminal.ts';
-const cleanup:(()=>Promise<void>)[]=[];afterEach(async()=>{vi.restoreAllMocks();for(const close of cleanup.splice(0).reverse())await close();});
+const cleanup:(()=>Promise<void>)[]=[];afterEach(async()=>{vi.restoreAllMocks();syncBuiltinESMExports();for(const close of cleanup.splice(0).reverse())await close();});
 it('keeps device authorization tokens private and requires a Gen V1 credential before CLI use',async()=>{
  const root=await mkdtemp(join(tmpdir(),'gen-gh-auth-'));cleanup.push(()=>rm(root,{recursive:true,force:true,maxRetries:5}));let now=Date.now();vi.spyOn(Date,'now').mockImplementation(()=>now);
  const request=vi.fn(async(url:unknown)=>new Response(JSON.stringify(String(url).endsWith('/device/code')?{device_code:'private-device-code',user_code:'ABCD-EFGH',verification_uri:'https://github.com/login/device',expires_in:900,interval:5}:String(url).endsWith('/access_token')?{access_token:'private-profile-token'}:{login:'fixture-user'}),{status:200,headers:{'Content-Type':'application/json'}}));
@@ -134,4 +135,40 @@ it.each(['success','verification failure'] as const)('retains publication state 
  run.mockImplementation(async(path,args)=>{const result=await original(path,args);if(args.includes('--body-file'))await writeFile(join(dirname(payloads[0].path),'unowned.txt'),'Keep this unexpected file');return result;});
  if(outcome==='success')await expect(github.create('project','thread',{...input,body:longBody})).resolves.toEqual({url,head:input.head,revision:input.revision,repo:'example/fixture'});else await expect(github.create('project','thread',{...input,body:longBody})).rejects.toMatchObject({code:'REVISION_CHANGED',details:{url},message:expect.stringContaining(url)});
  expect(warn).toHaveBeenCalled();expect(await readFile(join(dirname(payloads[0].path),'unowned.txt'),'utf8')).toBe('Keep this unexpected file');await expect(lstat(payloads[0].path)).rejects.toMatchObject({code:'ENOENT'});
+});
+
+function deferred<T>(){let resolve!:(value:T)=>void;const promise=new Promise<T>(accept=>{resolve=accept;});return{promise,resolve};}
+async function authFixture(){
+ const root=await mkdtemp(join(tmpdir(),'gen-gh-auth-'));cleanup.push(()=>rm(root,{recursive:true,force:true,maxRetries:5}));let now=Date.now();vi.spyOn(Date,'now').mockImplementation(()=>now);
+ const request=vi.fn(async(url:unknown)=>new Response(JSON.stringify(String(url).endsWith('/device/code')?{device_code:'private-code',user_code:'ABCD-EFGH',verification_uri:'https://github.com/login/device',expires_in:60,interval:1}:String(url).endsWith('/access_token')?{access_token:'new-profile-token'}:{login:'fixture-user'}),{status:200}));
+ const auth=new GitHubAuth(root,request as typeof fetch);return{root,auth,request,advance:(ms:number)=>{now+=ms;}};
+}
+it.each(['cancel','replace','expire'] as const)('fences %s while a token request is in flight',async(change)=>{
+ const{root,auth,request,advance}=await authFixture(),flow=await auth.start(),pending=deferred<Response>();advance(1001);request.mockImplementationOnce(()=>pending.promise);const poll=auth.poll(flow.id),rejected=expect(poll).rejects.toMatchObject({code:'GITHUB_AUTH_EXPIRED'});
+ if(change==='cancel')await auth.cancel(flow.id);else if(change==='replace')await auth.start();else advance(60000);
+ pending.resolve(new Response(JSON.stringify({access_token:'stale-profile-token'})));await rejected;await expect(lstat(join(root,'github','credentials.json'))).rejects.toMatchObject({code:'ENOENT'});
+});
+it('orders starts by invocation and refuses a delayed superseded start',async()=>{
+ const{auth,request}=await authFixture(),pending=deferred<Response>();request.mockImplementationOnce(()=>pending.promise);const first=auth.start(),rejected=expect(first).rejects.toMatchObject({code:'GITHUB_AUTH_EXPIRED'}),second=await auth.start();
+ pending.resolve(new Response(JSON.stringify({device_code:'old-code',user_code:'OLD-CODE',verification_uri:'https://github.com/login/device',expires_in:60,interval:1})));await rejected;expect(await auth.poll(second.id)).toEqual({status:'pending'});
+});
+it.each(['cancel','replace','expire'] as const)('fences %s during private credential writing before rename and preserves the prior token',async(change)=>{
+ const{auth,root,advance}=await authFixture();await mkdir(join(root,'github'));const prior=JSON.stringify({version:1,token:'prior-profile-token',login:'prior-user'});await writeFile(join(root,'github','credentials.json'),prior);
+ const flow=await auth.start();advance(1001);const entered=deferred<void>(),release=deferred<void>();const disk=(await import('node:fs/promises')).default,original=disk.writeFile;
+ vi.spyOn(disk,'writeFile').mockImplementation(async(...args:Parameters<typeof writeFile>)=>{await original(...args);if(String(args[0]).endsWith('.tmp')){entered.resolve();await release.promise;}});syncBuiltinESMExports();
+ const poll=auth.poll(flow.id),rejected=expect(poll).rejects.toMatchObject({code:'GITHUB_AUTH_EXPIRED'});await entered.promise;
+ if(change==='cancel')await auth.cancel(flow.id);else if(change==='replace')await auth.start();else advance(60000);release.resolve();await rejected;
+ expect(await readFile(join(root,'github','credentials.json'),'utf8')).toBe(prior);expect((await readdir(join(root,'github'))).filter(name=>name.endsWith('.tmp'))).toEqual([]);
+});
+it('serializes polling per flow and treats cancellation of an older flow as harmless',async()=>{
+ const{auth,request,advance}=await authFixture(),old=await auth.start(),flow=await auth.start();await auth.cancel(old.id);const pending=deferred<Response>();advance(1001);request.mockImplementationOnce(()=>pending.promise);const first=auth.poll(flow.id);advance(1001);expect(await auth.poll(flow.id)).toEqual({status:'pending'});expect(request).toHaveBeenCalledTimes(3);
+ pending.resolve(new Response(JSON.stringify({access_token:'current-profile-token'})));expect(await first).toEqual({status:'authenticated',login:'fixture-user'});
+});
+
+it('reports denial without mislabelling it as a cancelled sign-in',async()=>{
+ const{auth,request,advance}=await authFixture(),flow=await auth.start();advance(1001);request.mockImplementationOnce(async()=>new Response(JSON.stringify({error:'access_denied'})));await expect(auth.poll(flow.id)).rejects.toMatchObject({code:'GITHUB_AUTH_FAILED',message:expect.stringContaining('denied')});
+});
+
+it('reports a completed sign-in when credential commit wins the cancellation race',async()=>{
+ const{auth,advance}=await authFixture(),flow=await auth.start();advance(1001);expect(await auth.poll(flow.id)).toEqual({status:'authenticated',login:'fixture-user'});expect(auth.cancel(flow.id)).toEqual({status:'authenticated',login:'fixture-user'});expect(await auth.token()).toBe('new-profile-token');
 });

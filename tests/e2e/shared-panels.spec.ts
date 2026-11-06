@@ -130,3 +130,63 @@ test('failed PR recovery never overwrites the saved draft and can retry safely',
  await page.addInitScript(()=>{const w=window as any;w.__failPRRead=true;const original=IDBDatabase.prototype.transaction;IDBDatabase.prototype.transaction=function(...args:Parameters<IDBDatabase['transaction']>){if(w.__failPRRead&&(args[1]===undefined||args[1]==='readonly'))throw Error('Synthetic draft read unavailable');return original.apply(this,args);};});
  const{panel}=await pullRequestFixture(page);await expect(panel.getByRole('button',{name:'New draft PR',exact:true})).toBeDisabled();await expect(panel.getByRole('alert')).toContainText('draft read unavailable');await page.evaluate(()=>(window as any).__failPRRead=false);await panel.getByRole('button',{name:'Retry draft recovery',exact:true}).click();await expect(panel.getByRole('textbox',{name:'Title',exact:true})).toHaveValue('Saved before read failure');
 });
+
+async function profileAuthFixture(page:Page){
+ const actions:{action:string;payload:Record<string,unknown>}[]=[];let heldStart:Route|undefined,heldPoll:Route|undefined,holdStart=false,holdPoll=false,starts=0;
+ await page.route('**/api/bootstrap',route=>route.fulfill({json:{csrfToken:'fixture'}}));
+ const flow=(n:number)=>({id:`aaaaaaaa-aaaa-4aaa-8aaa-${String(n).padStart(12,'0')}`,userCode:n===1?'ABCD-EFGH':'NEXT-CODE',url:'https://github.com/login/device',expiresAt:Date.now()+60000,interval:1000});
+ await page.route('**/api/github/auth/*',async route=>{const action=new URL(route.request().url()).pathname.split('/').at(-1)!;actions.push({action,payload:route.request().postDataJSON()});if(action==='start'){starts++;if(holdStart){heldStart=route;return;}await route.fulfill({json:flow(starts)});}else if(action==='poll'){if(holdPoll){heldPoll=route;return;}await route.fulfill({json:{status:'pending'}});}else await route.fulfill({json:{status:'cancelled'}});});
+ await page.goto('/shared-panels-check');const panel=page.getByRole('complementary',{name:'Workspace panel'});await panel.getByRole('tab',{name:'Artifact',exact:true}).click();await panel.getByRole('button',{name:'Pull request',exact:true}).click();
+ return{panel,actions,flow,holdStart:()=>{holdStart=true;},holdPoll:()=>{holdPoll=true;},releaseStart:async()=>{await expect.poll(()=>!!heldStart).toBe(true);await heldStart!.fulfill({json:flow(1)});},releasePoll:async()=>{await expect.poll(()=>!!heldPoll).toBe(true);await heldPoll!.fulfill({json:{status:'authenticated',login:'stale-user'}});}};
+}
+test('profile sign-in works without a project and leaves the Terminal project gate intact',async({page,context})=>{
+ await context.grantPermissions(['clipboard-read','clipboard-write']);const{panel,actions}=await profileAuthFixture(page);await expect(panel.getByRole('button',{name:'Sign in to GitHub',exact:true})).toBeEnabled();await panel.getByRole('button',{name:'Sign in to GitHub',exact:true}).click();
+ await expect(panel.getByText('ABCD-EFGH',{exact:true})).toBeVisible();await expect(panel.getByRole('link',{name:'https://github.com/login/device',exact:true})).toHaveAttribute('href','https://github.com/login/device');await expect(panel).toContainText('Waiting for GitHub');await expect(panel).toContainText('Expires');
+ await panel.getByRole('button',{name:'Copy code',exact:true}).click();expect(await page.evaluate(()=>navigator.clipboard.readText())).toBe('ABCD-EFGH');await expect(panel.getByRole('status')).toContainText('Copied');await panel.getByRole('button',{name:'Cancel sign-in',exact:true}).click();await expect.poll(()=>actions.some(item=>item.action==='cancel')).toBe(true);await expect(panel).toContainText('Sign-in cancelled');
+ await panel.getByRole('tab',{name:'Terminal',exact:true}).click();await expect(panel).toContainText('Connect and select a project to use terminal');
+});
+test('cancelled profile sign-in ignores an authenticated stale poll response',async({page})=>{
+ const host=await profileAuthFixture(page);host.holdPoll();await host.panel.getByRole('button',{name:'Sign in to GitHub',exact:true}).click();await expect.poll(()=>host.actions.some(item=>item.action==='poll')).toBe(true);await host.panel.getByRole('button',{name:'Cancel sign-in',exact:true}).click();await host.releasePoll();await expect(host.panel).toContainText('Sign-in cancelled');await expect(host.panel).not.toContainText('stale-user');
+});
+test('cancel during start cancels the returned host flow without polling it',async({page})=>{
+ const host=await profileAuthFixture(page);host.holdStart();await host.panel.getByRole('button',{name:'Sign in to GitHub',exact:true}).click();await host.panel.getByRole('button',{name:'Cancel sign-in',exact:true}).click();await host.releaseStart();await expect.poll(()=>host.actions.some(item=>item.action==='cancel')).toBe(true);expect(host.actions.filter(item=>item.action==='poll')).toEqual([]);await expect(host.panel.getByText('ABCD-EFGH',{exact:true})).toHaveCount(0);
+});
+test('profile sign-in expires locally and cancels the host flow',async({page})=>{
+ const host=await profileAuthFixture(page);await page.clock.install();await host.panel.getByRole('button',{name:'Sign in to GitHub',exact:true}).click();await expect(host.panel.getByText('ABCD-EFGH',{exact:true})).toBeVisible();await page.clock.fastForward(61000);await expect(host.panel).toContainText('Sign-in expired');await expect.poll(()=>host.actions.some(item=>item.action==='cancel')).toBe(true);
+});
+test('profile sign-in reports start and cancellation failures with a retry',async({page})=>{
+ const host=await profileAuthFixture(page);await page.route('**/api/github/auth/start',route=>route.fulfill({status:400,json:{error:{message:'GitHub unavailable'}}}));await host.panel.getByRole('button',{name:'Sign in to GitHub',exact:true}).click();await expect(host.panel.getByRole('alert')).toContainText('GitHub unavailable');await page.unroute('**/api/github/auth/start');await host.panel.getByRole('button',{name:'Sign in to GitHub',exact:true}).click();await expect(host.panel.getByText('ABCD-EFGH',{exact:true})).toBeVisible();
+ await page.route('**/api/github/auth/cancel',route=>route.fulfill({status:500,json:{error:{message:'Cancel not confirmed'}}}));await host.panel.getByRole('button',{name:'Cancel sign-in',exact:true}).click();await expect(host.panel.getByRole('alert')).toContainText('Cancel not confirmed');await page.unroute('**/api/github/auth/cancel');await host.panel.getByRole('button',{name:'Retry cancellation',exact:true}).click();await expect(host.panel).toContainText('Sign-in cancelled');
+});
+
+test('profile sign-in expires while a poll is still in flight and ignores its late success',async({page})=>{
+ const host=await profileAuthFixture(page);await page.clock.install();host.holdPoll();await host.panel.getByRole('button',{name:'Sign in to GitHub',exact:true}).click();await expect(host.panel.getByText('ABCD-EFGH',{exact:true})).toBeVisible();await page.clock.fastForward(1100);await expect.poll(()=>host.actions.some(item=>item.action==='poll')).toBe(true);await page.clock.fastForward(61000);await expect(host.panel).toContainText('Sign-in expired');await host.releasePoll();await expect(host.panel).not.toContainText('stale-user');await expect.poll(()=>host.actions.some(item=>item.action==='cancel')).toBe(true);
+});
+
+test('replacement profile sign-in ignores the old poll without clearing the new code',async({page})=>{
+ const host=await profileAuthFixture(page);host.holdPoll();await host.panel.getByRole('button',{name:'Sign in to GitHub',exact:true}).click();await expect.poll(()=>host.actions.some(item=>item.action==='poll')).toBe(true);await host.panel.getByRole('button',{name:'Start new sign-in',exact:true}).click();await expect(host.panel.getByText('NEXT-CODE',{exact:true})).toBeVisible();await host.releasePoll();await expect(host.panel.getByText('NEXT-CODE',{exact:true})).toBeVisible();await expect(host.panel).not.toContainText('stale-user');
+});
+test('a stale cancelled start response cannot replace or clear a newer sign-in',async({page})=>{
+ const host=await profileAuthFixture(page);host.holdStart();await host.panel.getByRole('button',{name:'Sign in to GitHub',exact:true}).click();await host.panel.getByRole('button',{name:'Cancel sign-in',exact:true}).click();
+ await page.route('**/api/github/auth/start',route=>route.fulfill({json:host.flow(2)}));await host.panel.getByRole('button',{name:'Sign in to GitHub',exact:true}).click();await expect(host.panel.getByText('NEXT-CODE',{exact:true})).toBeVisible();await host.releaseStart();await expect.poll(()=>host.actions.some(item=>item.action==='cancel'&&item.payload.flowId===host.flow(1).id)).toBe(true);await expect(host.panel.getByText('NEXT-CODE',{exact:true})).toBeVisible();await expect(host.panel).toContainText('Waiting for GitHub');
+});
+test('a disconnected project can still sign in through the profile route',async({page})=>{
+ const host=await profileAuthFixture(page);await page.route('**/api/projects/project-one/**',route=>route.fulfill({status:400,json:{error:{code:'PROJECT_NOT_CONNECTED',message:'Project folder unavailable'}}}));await page.goto('/shared-panels-check?project=1');await host.panel.getByRole('tab',{name:'Pull request',exact:true}).click();await expect(host.panel.getByRole('alert').first()).toContainText('Project folder unavailable');await host.panel.getByRole('button',{name:'Sign in to GitHub',exact:true}).click();await expect(host.panel.getByText('ABCD-EFGH',{exact:true})).toBeVisible();expect(host.actions.find(item=>item.action==='start')?.payload).toEqual({});
+});
+test('invalid profile sign-in responses show one actionable error and never expose an arbitrary opener',async({page})=>{
+ const host=await profileAuthFixture(page);await page.route('**/api/github/auth/start',route=>route.fulfill({json:{...host.flow(1),url:'https://evil.example/device'}}));await host.panel.getByRole('button',{name:'Sign in to GitHub',exact:true}).click();await expect(host.panel.getByRole('alert')).toHaveText('GitHub returned an invalid sign-in response. Start a new sign-in.');await expect(host.panel.locator('a[href="https://evil.example/device"]')).toHaveCount(0);
+});
+
+test('profile sign-in wraps within narrow tools in both themes and keeps keyboard actions reachable',async({page})=>{
+ const host=await profileAuthFixture(page);await host.panel.getByRole('button',{name:'Sign in to GitHub',exact:true}).focus();await page.keyboard.press('Enter');await expect(host.panel.getByText('ABCD-EFGH',{exact:true})).toBeVisible();const leaf=host.panel.getByRole('region',{name:'GitHub sign-in',exact:true});
+ for(const theme of ['light','dark'])for(const width of [240,400]){
+  await page.evaluate(({theme,width})=>{document.documentElement.dataset.theme=theme;(document.querySelector('.github-sign-in') as HTMLElement).style.width=width+'px';},{theme,width});
+  expect(await leaf.evaluate(element=>element.scrollWidth<=element.clientWidth)).toBe(true);const bounds=await leaf.boundingBox();expect(bounds).not.toBeNull();
+  for(const control of await leaf.locator('button,a').all()){const rect=await control.boundingBox();expect(rect!.x).toBeGreaterThanOrEqual(bounds!.x+12);expect(rect!.x+rect!.width).toBeLessThanOrEqual(bounds!.x+bounds!.width-12);}
+  if(process.env.AUTH_EVIDENCE_DIR)await leaf.screenshot({path:process.env.AUTH_EVIDENCE_DIR+`/sign-in-${theme}-${width}.png`});
+ }
+});
+
+test('profile cancellation reports sign-in completion when the host commit already won',async({page})=>{
+ const host=await profileAuthFixture(page);host.holdPoll();await host.panel.getByRole('button',{name:'Sign in to GitHub',exact:true}).click();await expect.poll(()=>host.actions.some(item=>item.action==='poll')).toBe(true);await page.route('**/api/github/auth/cancel',route=>route.fulfill({json:{status:'authenticated',login:'completed-user'}}));await host.panel.getByRole('button',{name:'Cancel sign-in',exact:true}).click();await expect(host.panel).toContainText('Sign-in completed as completed-user before cancellation.');await host.releasePoll();await expect(host.panel).not.toContainText('stale-user');await expect(host.panel).not.toContainText('Sign-in cancelled');
+});
