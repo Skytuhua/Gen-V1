@@ -93,7 +93,7 @@ function SettingsWindow(props: ComponentProps<SettingsComponent>) {
     } catch (cause) { setError(`Drafts could not be saved. ${messageOf(cause)} Keep this window open and retry.`); }
     finally { setReloading(false); }
   };
-  return Settings ? <Settings {...props} /> : <Dialog title="Settings" close={props.close}>{error ? <><p role="alert">{error}</p><button className="primary" disabled={reloading} onClick={() => void reload()}>Reload to retry</button></> : <p role="status">Opening settings…</p>}</Dialog>;
+  return <Modal open title="Settings" onClose={props.close} className="settings-dialog">{Settings ? <Settings {...props} /> : <>{error ? <><p role="alert">{error}</p><button className="primary" disabled={reloading} onClick={() => void reload()}>Reload to retry</button></> : <p role="status">Opening settings…</p>}</>}</Modal>;
 }
 
 function AssistantProse({message,arrivals,active}:{message:Message;arrivals:Set<string>;active:boolean}){
@@ -653,6 +653,16 @@ export function App({embeddedThreadId,embeddedActive=true,onRequestThread}:{embe
     const bounds=document.querySelector('.split-root-workarea')?.getBoundingClientRect(),next=toolPlacementCommand(current,view,paneId,beside,{width:bounds?.width??window.innerWidth,height:Math.max(0,bounds?.height??window.innerHeight)});
     await splitState.send(next.type,{...next.payload,...(preserveFocus?{preserveFocus:true}:{})});
   };
+  const openManualBrowser=async(url:string)=>{
+    if(!desktop||desktop.context.surface.kind!=='main')throw Error('Open the browser from the desktop workspace.');
+    const owner=desktop.context.windowId;
+    await prepareWorkspace();
+    const checkOwner=async()=>{const current=await desktop.bridge.getContext();if(current.windowId!==owner||current.surface.kind!=='main')throw Error('The owning workspace changed.');};
+    await checkOwner();
+    if(splitEnabled&&splitState.layout)await openSplitTool('browser');else await desktop.bridge.browser({type:'open'});
+    await checkOwner();
+    if(url)await desktop.bridge.browser({type:'navigate',url});
+  };
   useEffect(()=>{
     if(!splitEnabled||!splitState.layout||!thread||!selectedPlan?.plan)return;
     const owningPane=Object.values(splitState.layout.panes).find(pane=>pane.activeViewId&&splitState.layout!.views[pane.activeViewId]?.kind==='thread'&&splitState.layout!.views[pane.activeViewId]?.binding.threadId===thread.id);if(!owningPane)return;
@@ -737,7 +747,7 @@ export function App({embeddedThreadId,embeddedActive=true,onRequestThread}:{embe
       colors={preferences.projectColors} busy={projectPicking} error={projectPickerError} onClose={closeProjectSelection} onSelect={pickProject} onColorChange={saveProjectColor}
       onAddProject={()=>{projectConnectPicker.current=projectPicker;setProjectPicker(null);openProjectConnect({});}}/>}
     {projectConnectOpen&&<Dialog title="Connect project" close={closeProjectConnect}><form onSubmit={event=>{event.preventDefault();const target=projectConnectTarget.current;void prepareWorkspace().then(()=>{if(target?.projectId&&snapshotRef.current.threads.find(item=>item.id===target.threadId)?.projectId!==target.projectId)throw Error('The owning project changed. Close this dialog and reopen it from that conversation.');return workspaceState.send('workspace.project.connect',{name:projectName,path:projectPath,...(target?.threadId?{threadId:target.threadId}:{})}).then(async()=>{if(target?.threadId)await reconcileSplitThreadProject(target.threadId);});}).then(async()=>{await refresh();closeProjectConnect();}).catch(cause=>setError(messageOf(cause)));}}><label className="field">Project name<input required maxLength={100} value={projectName} onChange={event=>setProjectName(event.target.value)}/></label><label className="field">Local folder<input required value={projectPath} onChange={event=>setProjectPath(event.target.value)} placeholder="C:\Projects\My project"/></label><footer className="dialog-actions"><button type="button" className="quiet" onClick={closeProjectConnect}>Cancel</button><button className="primary" disabled={!projectName.trim()||!projectPath.trim()}>Connect project</button></footer></form></Dialog>}
-    {settingsOpen && <SettingsWindow environmentSettings={<EnvironmentSettings/>} initialSection={settingsSection} snapshot={snapshot} modelError={modelError} refresh={refresh} loadModels={loadModels} close={() => setSettingsOpen(false)} addResource={() => { setSettingsOpen(false); void ensureThread(async () => {}).then(id=>openResourcePicker(id)).catch(error => setError(messageOf(error))); }} />}
+    {settingsOpen && <SettingsWindow openBrowser={desktop?.context.surface.kind==='main'?openManualBrowser:undefined} environmentSettings={<EnvironmentSettings/>} initialSection={settingsSection} snapshot={snapshot} modelError={modelError} refresh={refresh} loadModels={loadModels} close={() => setSettingsOpen(false)} addResource={() => { setSettingsOpen(false); void ensureThread(async () => {}).then(id=>openResourcePicker(id)).catch(error => setError(messageOf(error))); }} />}
     {rename && thread && <Dialog title="Rename thread" close={() => setRename(false)}><form onSubmit={event => { event.preventDefault(); void command('thread.rename', { title: title.trim() }, thread.id).then(async () => { await refresh(); setRename(false); }).catch(error => setError(messageOf(error))); }}><label className="field">Thread name<input autoFocus required value={title} maxLength={180} onChange={event => setTitle(event.target.value)} /></label><footer className="dialog-actions"><button type="button" className="quiet" onClick={() => setRename(false)}>Cancel</button><button className="primary" disabled={!title.trim()}>Save name</button></footer></form></Dialog>}
   </div></WorkspaceProvider>;
 }

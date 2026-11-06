@@ -5,9 +5,10 @@ import {createSpringValue} from './motion-spring';
 import {SentenceReveal} from './SentenceReveal';
 
 export const TASK_MOTION = Object.freeze({ step: 180, status: 220, height: 280, branch: 220, chunk: 120, sibling: 60, popover: 140, path: 450, check: 90 });
-export const reducedMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+export const reducedMotion = () => ['reduced','off'].includes(document.documentElement.dataset.motion ?? '') || matchMedia('(prefers-reduced-motion: reduce)').matches;
 export function animateTask(element: Element | null, frames: Keyframe[], duration: number) {
-  if (!element) return;
+  if (!element || document.documentElement.dataset.motion === 'off') return;
+  duration /= Number(document.documentElement.style.getPropertyValue('--motion-speed')) || 1;
   if (reducedMotion()) {
     if (!frames.some(frame => frame.opacity !== undefined)) return;
     const opacity = frames.map(frame => ({ ...(frame.opacity !== undefined ? { opacity: frame.opacity } : {}), ...(frame.offset !== undefined ? { offset: frame.offset } : {}) }));
