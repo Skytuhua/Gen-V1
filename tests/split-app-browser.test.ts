@@ -72,11 +72,13 @@ describe.runIf(enabled)('actual App split workspace',()=>{
      if(command.payload.baseRevision!==layout.revision)throw Error('The layout revision changed.');
      const profileId=String(command.payload.profileId??'layout-'+(profiles.size+1)),saved=profiles.get(profileId);
      if(type==='profile.save'){for(const view of Object.values(layout.views))authorize(view);profiles.set(profileId,{id:profileId,name:String(command.payload.name).trim(),updatedAt:stamp,layout:structuredClone(layout)});layout={...layout,revision:layout.revision+1};}
+     else if(type==='profile.rename'&&saved){saved.name=String(command.payload.name).trim();layout={...layout,revision:layout.revision+1};}
      else if(type==='profile.apply'&&saved){for(const view of Object.values(saved.layout.views))authorize(view);layout={...structuredClone(saved.layout),revision:layout.revision+1};}
      else if(type==='profile.remove'&&saved){profiles.delete(profileId);layout={...layout,revision:layout.revision+1};}
      else throw Error('The saved layout is no longer available.');
     }else{if(command.payload.view)authorize(command.payload.view as SurfaceRef);layout=applySplitWorkspaceCommand(layout,command.type,command.payload);}
-    const receipt={commandId:command.id,eventSeq:++snapshot.seq,result:layout};receipts.set(command.id,receipt);return route.fulfill({json:receipt});
+    const saved=command.type==='split-workspace.profile.save'&&command.payload.resultVersion===2?[...profiles.values()].find(profile=>profile.id===String(command.payload.profileId??'layout-'+profiles.size)):undefined;
+    const receipt={commandId:command.id,eventSeq:++snapshot.seq,result:saved?{version:2,layout,profile:{id:saved.id,updatedAt:saved.updatedAt}}:layout};receipts.set(command.id,receipt);return route.fulfill({json:receipt});
    }catch(cause){return route.fulfill({status:409,json:{error:{code:'WORKSPACE_CHANGED',message:cause instanceof Error?cause.message:'Layout changed'}}});}
   });
   await page.route('**/api/projects/*/context?*',route=>{const projectId=new URL(route.request().url()).pathname.split('/')[3]!,project=envelope.projects.find(value=>value.id===projectId)!;return route.fulfill({json:{project,machineName:'Synthetic host',editor:{available:false,label:'Editor'},branch:'feature/fixture',head:null,changes:{added:4,removed:1,files:2},lineage:[],scripts:[],capabilities:{git:true,terminal:false,pullRequests:false}}});});
@@ -202,6 +204,27 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    expect(presentation(host.layout)).toEqual(presentation(saved));expect(await a.inputValue()).toBe('First layout draft');expect(await b.inputValue()).toBe('Second layout draft');expect({...host.envelope,state:{...host.envelope.state,revision:retained.state.revision}}).toEqual(retained);expect(host.workspaceCommands.map(command=>command.type)).toEqual(['workspace.profile.apply']);expect(host.splitCommands.filter(command=>command.type==='split-workspace.profile.save')).toHaveLength(1);expect(host.splitCommands.filter(command=>command.type==='split-workspace.profile.apply')).toHaveLength(2);expect(host.errors).toEqual([]);
   }finally{await page.close();}
  },30000);
+
+ it('uses the exact host save receipt and preserves geometry during name-only Rename',async()=>{
+  const host=await fixture();const {page}=host;
+  try{
+   // Another client creates a layout after this window loaded its empty inventory.
+   host.profiles.set('unseen',{id:'unseen',name:'Desk',updatedAt:stamp,layout:structuredClone(host.layout)});
+   await page.getByRole('button',{name:'Layouts',exact:true}).click();await page.getByRole('button',{name:'Save current layout…',exact:true}).click();
+   await page.getByRole('textbox',{name:'Layout name',exact:true}).fill('Desk');await page.getByRole('button',{name:'Save',exact:true}).click();
+   await page.getByRole('dialog',{name:'Save current layout',exact:true}).waitFor({state:'hidden'});
+   const row=page.locator('.saved-layout-row[data-layout-key="split:layout-2"]');await row.getByText('Current',{exact:true}).waitFor({state:'visible'});
+   expect(host.splitCommands.filter(command=>command.type==='split-workspace.profile.save').map(command=>command.payload.resultVersion)).toEqual([2]);
+   const saved=structuredClone(host.profiles.get('layout-2')!.layout);
+   await host.issue('pane.resize',{splitId:'columns',ratio:.62});await row.getByText('Modified',{exact:true}).waitFor({state:'visible'});
+   const working=structuredClone(host.layout);
+   await row.getByRole('button',{name:'Actions for Desk',exact:true}).click();await page.getByRole('menuitem',{name:'Rename',exact:true}).click();
+   await page.getByRole('textbox',{name:'Layout name',exact:true}).fill('Review desk');await page.getByRole('button',{name:'Rename',exact:true}).click();
+   await page.getByRole('dialog',{name:'Rename layout',exact:true}).waitFor({state:'hidden'});
+   expect(host.profiles.get('layout-2')!.name).toBe('Review desk');expect(host.profiles.get('layout-2')!.layout).toEqual(saved);
+   expect({...host.layout,revision:0}).toEqual({...working,revision:0});expect(host.splitCommands.filter(command=>command.type==='split-workspace.profile.rename')).toHaveLength(1);expect(host.splitCommands.filter(command=>command.type==='split-workspace.profile.save')).toHaveLength(1);expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },20000);
 
  it('shows installed generic workspaces without replacing the personal workspace bar',async()=>{
   const absent=await fixture();try{expect(await absent.page.getByRole('button',{name:'Company',exact:true}).count()).toBe(0);expect(await absent.page.getByRole('button',{name:'Studio',exact:true}).count()).toBe(0);}finally{await absent.page.close();}

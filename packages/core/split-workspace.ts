@@ -1,7 +1,7 @@
 import {z} from 'zod';
 import {randomUUID} from 'node:crypto';
 import {HarnessError,type HostCommand,type Thread} from '../contracts/index.ts';
-import {SPLIT_WORKSPACE_LIMITS,splitWorkspaceIdSchema,splitWorkspaceLayoutSchema,type SplitWorkspaceLayout} from '../contracts/split-workspace.ts';
+import {SPLIT_WORKSPACE_LIMITS,splitWorkspaceIdSchema,splitWorkspaceLayoutSchema,splitProfileSaveResultSchema,type SplitWorkspaceLayout} from '../contracts/split-workspace.ts';
 import {panelBindingSchema,surfaceRefSchema,type SurfaceRef} from '../contracts/workspace.ts';
 import {Store,digest} from '../storage/store.ts';
 import {applySplitWorkspaceCommand,createSplitWorkspaceLayout} from './split-workspace-layout.ts';
@@ -38,9 +38,11 @@ export class SplitWorkspaceRepository {
   if(!command.type.startsWith('split-workspace.'))throw new HarnessError('INVALID_INPUT','Choose a split workspace operation.');
   return this.store.command(command,()=>{
    const workspaceId=splitWorkspaceIdSchema.parse(command.payload.workspaceId),revision=z.number().int().nonnegative().parse(command.payload.baseRevision),state=this.read(workspaceId),history=this.history(workspaceId),type=command.type.slice('split-workspace.'.length);
+   const resultVersion=type==='profile.save'&&command.payload.resultVersion!==undefined?z.literal(2).parse(command.payload.resultVersion):undefined;
+   let savedProfile:{id:string;updatedAt:string}|undefined;
    if(revision!==state.revision)throw new HarnessError('WORKSPACE_CHANGED','The layout revision changed. Refresh before applying this operation.');
    const added=command.payload.view===undefined?[]:[surfaceRefSchema.parse(command.payload.view)];if(type==='layout.seed')added.push(...z.array(surfaceRefSchema).max(100).parse(command.payload.views));for(const view of added)this.authorize(view);
-   let next:SplitWorkspaceLayout;const presentationOnly=type==='pane.focus'||type==='view.activate'||type==='profile.save'||type==='profile.remove'||type==='thread.reconcile';
+   let next:SplitWorkspaceLayout;const presentationOnly=type==='pane.focus'||type==='view.activate'||type==='profile.save'||type==='profile.rename'||type==='profile.remove'||type==='thread.reconcile';
    if(type==='thread.reconcile'){
     const input=z.strictObject({workspaceId:splitWorkspaceIdSchema,baseRevision:z.number().int().nonnegative(),viewId:splitWorkspaceIdSchema,expectedBinding:panelBindingSchema,projectId:splitWorkspaceIdSchema.nullable()}).parse(command.payload),target=state.views[input.viewId];
     if(!target||target.kind!=='thread'||target.binding.authority.kind!=='local'||!target.binding.threadId)throw new HarnessError('FORBIDDEN','Only an existing local conversation view can be reconciled.');
@@ -55,7 +57,10 @@ export class SplitWorkspaceRepository {
     if(!existing&&this.readProfiles(workspaceId).length>=50)throw new HarnessError('LAYOUT_LIMIT','Keep at most fifty saved layouts per workspace.');
     for(const view of Object.values(state.views))this.authorize(view);
     const stamp=new Date().toISOString(),id=existing?.id??randomUUID(),profile=profileSchema.parse({version:1,id,workspaceId,name,createdAt:existing?.createdAt??stamp,updatedAt:stamp,layout:{...structuredClone(state),revision:0,undoDepth:0,redoDepth:0}});
-    this.store.put('splitWorkspaceProfile',id,null,profile);next={...state,revision:state.revision+1};
+    this.store.put('splitWorkspaceProfile',id,null,profile);savedProfile={id,updatedAt:profile.updatedAt};next={...state,revision:state.revision+1};
+   }else if(type==='profile.rename'){
+    const saved=this.profile(command.payload.profileId,workspaceId),name=profileNameSchema.parse(command.payload.name);
+    this.store.put('splitWorkspaceProfile',saved.id,null,profileSchema.parse({...saved,name,updatedAt:new Date().toISOString()}));next={...state,revision:state.revision+1};
    }else if(type==='profile.apply'){
     const saved=this.profile(command.payload.profileId,workspaceId);for(const view of Object.values(saved.layout.views))this.authorize(view);
     history.undo.push(state);history.redo=[];next={...structuredClone(saved.layout),revision:state.revision+1};
@@ -71,7 +76,7 @@ export class SplitWorkspaceRepository {
    if(!presentationOnly)history.lastWorking=state;history.undo=history.undo.slice(-SPLIT_WORKSPACE_LIMITS.history);history.redo=history.redo.slice(-SPLIT_WORKSPACE_LIMITS.history);
    next=splitWorkspaceLayoutSchema.parse({...next,undoDepth:history.undo.length,redoDepth:history.redo.length});
    if(Object.values(next.views).some(view=>view.binding.authority.kind!=='local'))throw new HarnessError('FORBIDDEN','Personal split layouts cannot own a plug-in surface.');
-   this.store.put('splitWorkspaceLayout',workspaceId,null,next);this.store.put('splitWorkspaceHistory',workspaceId,null,historySchema.parse(history));return next;
+   this.store.put('splitWorkspaceLayout',workspaceId,null,next);this.store.put('splitWorkspaceHistory',workspaceId,null,historySchema.parse(history));return resultVersion===2?splitProfileSaveResultSchema.parse({version:2,layout:next,profile:savedProfile}):next;
   });
  }
 }

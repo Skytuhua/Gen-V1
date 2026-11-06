@@ -28,6 +28,6 @@ export function useSplitWorkspaceProfiles(enabled=true,workspaceId='workspace'){
 export function useSplitLayoutProfileActions(port:Parameters<typeof createSplitLayoutProfileActions>[0]){
  const latest=useRef(port);latest.current=port;
  const actions=useRef<ReturnType<typeof createSplitLayoutProfileActions>|null>(null);
- if(!actions.current)actions.current=createSplitLayoutProfileActions({profiles:()=>latest.current.profiles(),prepare:()=>latest.current.prepare(),send:(type,payload)=>latest.current.send(type,payload),refresh:()=>latest.current.refresh()});
+ if(!actions.current)actions.current=createSplitLayoutProfileActions({prepare:()=>latest.current.prepare(),save:(name,id)=>latest.current.save(name,id),send:(type,payload)=>latest.current.send(type,payload),refresh:()=>latest.current.refresh()});
  return actions.current;
 }
