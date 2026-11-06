@@ -28,7 +28,7 @@ import { MotionRegion } from './task-motion';
 import { UpdateControl } from './UpdateControl';
 import { useWorkspace } from './workspace-context';
 import './sidebar-context.css';
-import { threadDragPayload } from './project-colors';
+import { projectColor, threadDragPayload } from './project-colors';
 
 const threadAge = (value: string) => {
   const date = Date.parse(value);
@@ -304,7 +304,7 @@ export function ShellSidebar({
         >
           {compactSettled ? (
             <span className="thread-settled-line">
-              <span className="thread-project-monogram" aria-hidden="true">
+              <span className="thread-project-monogram" style={{ color: projectColor({ kind: 'local' }, item.projectId, preferences.projectColors) }} aria-hidden="true">
                 {projectMonogram(item.projectName)}
               </span>
               <span className="thread-item-title">
@@ -319,7 +319,7 @@ export function ShellSidebar({
             <>
               <span className="thread-item-header">
                 <span className="thread-project-chip">
-                  <span className="thread-project-monogram" aria-hidden="true">
+                  <span className="thread-project-monogram" style={{ color: projectColor({ kind: 'local' }, item.projectId, preferences.projectColors) }} aria-hidden="true">
                     {projectMonogram(item.projectName)}
                   </span>
                   {item.presentation?.pinned && <Pin size={10} className="thread-pin-icon" aria-hidden="true" />}
