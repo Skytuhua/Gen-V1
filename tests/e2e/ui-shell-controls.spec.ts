@@ -33,6 +33,23 @@ test('a fieldset disabling an open Select closes it and blocks a queued selectio
   await expect(trigger).toBeEnabled();await trigger.click();await page.getByRole('option',{name:'Delta',exact:true}).click();await expect(trigger).toHaveText('Delta');
 });
 
+test('a fieldset disabling an open ActionMenu blocks queued actions and closes through re-enabling', async ({ page }) => {
+  await page.goto('/ui-shell-controls?primitives=1');
+  const trigger = page.getByRole('button', { name: 'Actions', exact: true });
+  await trigger.click();
+  await page.getByRole('menuitem', { name: 'Alpha', exact: true }).evaluate(node => {
+    (document.querySelector('[data-testid="action-fieldset"]') as HTMLFieldSetElement).disabled = true;
+    (node as HTMLElement).click();
+  });
+  await expect(page.getByLabel('Result')).toHaveText('');
+  await expect(page.getByRole('menu', { name: 'Actions' })).toHaveCount(0);
+  await page.getByTestId('action-fieldset').evaluate(node => { (node as HTMLFieldSetElement).disabled = false; });
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  await trigger.click();
+  await page.getByRole('menuitem', { name: 'Alpha', exact: true }).click();
+  await expect(page.getByLabel('Result')).toHaveText('alpha');
+});
+
 test('Panels supports keyboard typeahead, invokes the existing tool owner and returns focus', async ({ page }) => {
   const trigger = page.getByRole('button', { name: 'Panels', exact: true });
   await trigger.focus();
