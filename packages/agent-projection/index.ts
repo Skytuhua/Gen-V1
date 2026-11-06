@@ -1,4 +1,4 @@
-import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
+import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 import { HarnessError, type Thread, type WorkspaceEvent } from '../contracts/index.ts';
 import { PLANNING_PROVENANCE, planDataId, type AgentJob } from '../contracts/planning.ts';
 import {
@@ -11,7 +11,7 @@ import { digest, type Store } from '../storage/store.ts';
 type Scope = ReturnType<typeof agentScopeSchema.parse>;
 interface Change { sequence: number; before: AgentSummary[]; after: AgentSummary[]; transcriptIds: string[] }
 interface Cursor { kind: string; scope: string; position: string | number; version: string | number; messageId?: string }
-interface MessageRow { row: number; id: string; threadId: string; role: MessageSlice['role']; createdAt: string; runId: string | null; content: string; contentLength: number }
+interface MessageRow { row: number; id: string; threadId: string; role: MessageSlice['role']; createdAt: string; runId: string | null; content: string; contentLength: number; contentIdentity: string | null }
 const cmp = (a: string, b: string) => a < b ? -1 : a > b ? 1 : 0;
 const rootId = (id: string) => 'thread:' + id;
 const jobId = (parent: string, job: string) => `job:${encodeURIComponent(parent)}:${encodeURIComponent(job)}`;
@@ -26,7 +26,6 @@ export class AgentProjection implements PersonalAgentInventory {
   private readonly groups = new Map<string, AgentSummary[]>();
   private readonly items = new Map<string, AgentSummary>();
   private readonly childOwners = new Map<string, string>();
-  private readonly transcriptRevisions = new Map<string, number>();
   private readonly actions = new Map<string, string | null>();
   private readonly listeners = new Set<() => void>();
   private readonly changes: Change[] = [];
@@ -36,11 +35,15 @@ export class AgentProjection implements PersonalAgentInventory {
   private stop: () => void;
 
   constructor(private readonly store: Store) {
+    store.db.function('gen_agent_message_identity', { deterministic: true }, body => {
+      if (typeof body !== 'string') throw Error('Invalid message body');
+      return createHash('sha256').update(body).digest('hex');
+    });
     this.sequence = this.floor = store.sequence;
     this.rebuild();
     this.stop = store.subscribe(event => this.onEvent(event));
   }
-  dispose() { this.stop(); this.listeners.clear(); this.changes.length = 0; this.groups.clear(); this.items.clear(); this.childOwners.clear(); this.transcriptRevisions.clear(); this.actions.clear(); }
+  dispose() { this.stop(); this.listeners.clear(); this.changes.length = 0; this.groups.clear(); this.items.clear(); this.childOwners.clear(); this.actions.clear(); }
   subscribe(listener: () => void) { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; }
 
   private scope(input: AgentScope): Scope {
@@ -156,7 +159,7 @@ export class AgentProjection implements PersonalAgentInventory {
     if (gap) { this.generation++; this.actions.clear(); this.rebuild(); this.changes.length = 0; this.floor = event.seq; }
     else {
       const before: AgentSummary[] = [], after: AgentSummary[] = [], transcriptIds: string[] = [];
-      const transcriptType = event.type === 'agent.transcript' ? (event.payload as { result?: { type?: string } } | null)?.result?.type : event.type.replace(/^runtime\./, '');
+      const transcriptType = event.type === 'operation.progress' ? 'activity' : event.type === 'agent.transcript' ? (event.payload as { result?: { type?: string } } | null)?.result?.type : event.type.replace(/^runtime\./, '');
       const global = event.type === 'thread.create' || event.type === 'workspace.recovered' || event.type.startsWith('workspace.project.');
       if (global) {
         // Project mutations may carry a thread address but still affect every member of that project.
@@ -167,7 +170,6 @@ export class AgentProjection implements PersonalAgentInventory {
         const current = this.store.get<Thread>('thread', event.threadId), owners = new Set([this.childOwners.get(event.threadId), current?.kind === 'delegate' ? current.parentThreadId : event.threadId]);
         for (const id of owners) if (id) { const change = this.replaceGroup(id); before.push(...change.before); after.push(...change.after); }
         if (['assistant.delta', 'assistant.message', 'activity', 'error'].includes(transcriptType ?? '') || /^(message\.send|input\.)/.test(event.type)) {
-          this.transcriptRevisions.set(event.threadId, event.seq);
           for (const item of after) if (item.threadId === event.threadId) transcriptIds.push(item.agentId);
         }
       }
@@ -191,14 +193,14 @@ export class AgentProjection implements PersonalAgentInventory {
     return live;
   }
   private historyScope(item: AgentSummary, includeArchived: boolean) { return digest({ agentId: item.agentId, threadId: item.threadId, includeArchived }); }
-  private contentVersion(threadId: string) { return `${this.generation}:${this.transcriptRevisions.get(threadId) ?? 0}`; }
+  private contentVersion(row: MessageRow) { return `${this.generation}:${row.contentIdentity ?? ''}`; }
   private messageSlice(row: MessageRow, scope: string, offset = 0): MessageSlice {
-    const next = offset + [...row.content].length, version = this.contentVersion(row.threadId);
+    const next = offset + [...row.content].length, version = this.contentVersion(row);
     return { id: row.id, threadId: row.threadId, role: row.role, createdAt: row.createdAt, runId: row.runId, content: row.content,
       contentOffset: offset, contentLength: row.contentLength,
       nextContentCursor: next < row.contentLength ? this.encode({ kind: 'content', scope, messageId: row.id, position: next, version }) : null };
   }
-  private messageSelect = "SELECT rowid AS row,id,json_extract(body,'$.threadId') AS threadId,json_extract(body,'$.role') AS role,json_extract(body,'$.createdAt') AS createdAt,json_extract(body,'$.runId') AS runId,substr(json_extract(body,'$.content'),?,4096) AS content,length(json_extract(body,'$.content')) AS contentLength FROM entities";
+  private messageSelect = "SELECT rowid AS row,id,json_extract(body,'$.threadId') AS threadId,json_extract(body,'$.role') AS role,json_extract(body,'$.createdAt') AS createdAt,json_extract(body,'$.runId') AS runId,substr(json_extract(body,'$.content'),?,4096) AS content,length(json_extract(body,'$.content')) AS contentLength,CASE WHEN length(json_extract(body,'$.content'))>4096 THEN gen_agent_message_identity(body) ELSE NULL END AS contentIdentity FROM entities";
   history(input: HistoryQuery): HistoryPage {
     const query = historyQuerySchema.parse(input), item = this.target(query.agentId, query.includeArchived), scope = this.historyScope(item, query.includeArchived);
     let before = Number.MAX_SAFE_INTEGER;
@@ -213,13 +215,12 @@ export class AgentProjection implements PersonalAgentInventory {
   content(input: ContentQuery): MessageSlice {
     const query = contentQuerySchema.parse(input), item = this.target(query.agentId, query.includeArchived), scope = this.historyScope(item, query.includeArchived);
     const cursor = this.decode(query.cursor, 'content', scope);
-    if (cursor.version !== this.contentVersion(item.threadId!)) throw resync();
     const offset = Number(cursor.position);
     if (!Number.isSafeInteger(offset) || offset < 1) throw invalidCursor();
     if (typeof cursor.messageId !== 'string' || !cursor.messageId || cursor.messageId.length > 500) throw invalidCursor();
     const row = this.store.db.prepare(this.messageSelect + " WHERE kind='message' AND id=? AND thread_id=? AND json_extract(body,'$.threadId')=?")
       .get(offset + 1, cursor.messageId, item.threadId!, item.threadId!) as MessageRow | undefined;
-    if (!row) throw resync();
+    if (!row || cursor.version !== this.contentVersion(row)) throw resync();
     return this.messageSlice(row, scope, offset);
   }
   updates(input: UpdatesQuery): InventoryUpdates {
