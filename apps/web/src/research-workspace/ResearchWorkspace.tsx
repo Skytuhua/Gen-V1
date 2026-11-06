@@ -112,6 +112,7 @@ function SourcePanel({selection, resource, onCite}: {selection: ResearchSelectio
 function DocumentEditor({selection, resource, drafts, onChange, onInspect, onSaved}: {selection: ResearchSelection; resource: ResearchResource; drafts: ResearchDrafts; version: number; onChange: () => void; onInspect: (ref: ResearchPassage) => void; onSaved: (id: string) => void}) {
   const [loaded, setLoaded] = useState<ResearchDocumentRead>(), [pending, setPending] = useState(false), [error, setError] = useState(''), [status, setStatus] = useState(''), [retry, setRetry] = useState(0);
   const live = useRef(true), saving = useRef(false);
+  const copyOperation = useRef<{signature: string; id: string; commandId: string} | undefined>(undefined);
   useEffect(() => {live.current = true; return () => {live.current = false;};}, []);
   useEffect(() => {
     if (drafts.get(selection, resource.id)?.expectedRevision === 0) return;
@@ -126,11 +127,14 @@ function DocumentEditor({selection, resource, drafts, onChange, onInspect, onSav
   async function save(copy = false) {
     if (!draft || saving.current) return;
     saving.current = true; setPending(true); setError(''); setStatus('');
-    const sent = {...draft, ...(copy ? {id: crypto.randomUUID(), expectedRevision: 0} : {})};
+    const signature = JSON.stringify([draft.title.trim(), draft.kind, draft.body, draft.citations]);
+    if (copy && copyOperation.current?.signature !== signature) copyOperation.current = {signature, id: crypto.randomUUID(), commandId: crypto.randomUUID()};
+    const operation = copy ? copyOperation.current! : undefined;
+    const sent = {...draft, ...(operation ? {id: operation.id, expectedRevision: 0} : {})};
     try {
-      await researchClient.save(selection, {documentId: sent.id, title: sent.title.trim(), kind: sent.kind, body: sent.body, citations: sent.citations, expectedRevision: sent.expectedRevision});
+      await researchClient.save(selection, {documentId: sent.id, title: sent.title.trim(), kind: sent.kind, body: sent.body, citations: sent.citations, expectedRevision: sent.expectedRevision}, operation?.commandId);
       const document = await researchClient.document(selection, sent.id, sent.expectedRevision + 1);
-      if (copy) drafts.open(selection, document); else drafts.saved(selection, sent, document);
+      if (copy) {drafts.open(selection, document); copyOperation.current = undefined;} else drafts.saved(selection, sent, document);
       if (live.current) {setLoaded(document); setStatus(`Saved revision ${document.revision}`); onChange(); onSaved(sent.id);}
     } catch (cause) {
       if (cause instanceof ApiError && cause.code === 'PRECONDITION_FAILED') {
