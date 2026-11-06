@@ -148,7 +148,7 @@ export class PlanningCoordinator {
     if (!record || record.value.run && (record.value.run.runId !== ctx.runId || record.value.run.epoch !== ctx.epoch)) return;
     const plan = record.value;
     let changed = plan.runState !== state;
-    for (const step of plan.steps) if (stepState(step) === 'running' || plan.agents.some(job => job.stepId === step.id && !terminal.has(job.status))) {
+    for (const step of plan.steps) if (stepState(step) === 'running' || plan.agents.some(job => job.stepId === step.id && (!job.parentRun || job.parentRun.runId === ctx.runId && job.parentRun.epoch === ctx.epoch) && !terminal.has(job.status))) {
       step.state = state; step.status = legacyStepStatus(state); changed = true;
     }
     if (changed) this.put(ctx.threadId, { ...plan, run: { runId: ctx.runId, epoch: ctx.epoch }, runState: state });

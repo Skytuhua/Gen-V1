@@ -321,3 +321,57 @@ test('bounded regions remain readable in dark/light, narrow/short, density, and 
   }
   await testInfo.attach('geometry', {body: JSON.stringify(geometry, null, 2), contentType: 'application/json'});
 });
+
+test('a source read completed after blur cannot restore text before access is rechecked', async ({page}) => {
+ await importText(page, 'Sensitive captured material');
+ await page.evaluate(() => {
+  const original = window.fetch.bind(window);
+  window.fetch = (...args) => original(...args).finally(() => {
+   if (String(args[0]).includes('/passage?')) (window as Window & {researchReadSettled?: boolean}).researchReadSettled = true;
+  });
+ });
+ let release!: () => void;
+ const held = new Promise<void>(resolve => {release = resolve;});
+ let requested!: () => void;
+ const captured = new Promise<void>(resolve => {requested = resolve;});
+ await page.route('**/api/research/sources/*/passage?**', async route => {
+  const response = await route.fetch(); requested(); await held;
+  await route.fulfill({response}).catch(() => {});
+ });
+ await page.getByRole('button', {name: 'Read captured source', exact: true}).click();
+ await captured;
+ await page.evaluate(() => window.dispatchEvent(new Event('blur')));
+ release();
+ await page.waitForFunction(() => (window as Window & {researchReadSettled?: boolean}).researchReadSettled);
+ await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+ await expect(page.getByRole('status')).toHaveCount(0);
+ await expect(page.getByRole('textbox', {name: 'Captured passage', exact: true})).toHaveCount(0);
+ await page.unroute('**/api/research/sources/*/passage?**');
+ await page.getByRole('button', {name: 'Read captured source', exact: true}).click();
+ await expect(page.getByRole('textbox', {name: 'Captured passage', exact: true})).toHaveValue('Sensitive captured material');
+});
+
+test('retrying an uncertain copy save keeps one document and its original local draft', async ({page}) => {
+ await newFindings(page);
+ await page.getByRole('textbox', {name: 'Document body', exact: true}).fill('Initial');
+ await page.getByRole('button', {name: 'Save document', exact: true}).click();
+ await expect(page.getByRole('status')).toContainText('Saved revision 1');
+ await page.getByRole('textbox', {name: 'Document body', exact: true}).fill('My retained draft');
+ await action(page, 'conflict');
+ await page.getByRole('button', {name: 'Save document', exact: true}).click();
+ await expect(page.getByRole('region', {name: 'Saved version'})).toBeVisible();
+ let lostAcknowledgments = 0;
+ await page.route('**/api/commands', async route => {
+  if (lostAcknowledgments < 2 && route.request().postDataJSON().type === 'research.document.save') {
+   lostAcknowledgments++; const response = await route.fetch(); expect(response.ok()).toBe(true);
+   await route.abort('internetdisconnected');
+  } else await route.continue();
+ });
+ await page.getByRole('button', {name: 'Save draft as separate document', exact: true}).click();
+ await expect(page.getByRole('alert')).toContainText('Check the connection');
+ await expect(page.getByRole('textbox', {name: 'Document body', exact: true})).toHaveValue('My retained draft');
+ await page.getByRole('button', {name: 'Save draft as separate document', exact: true}).click();
+ await expect(page.locator('.research-document > p.research-meta')).toContainText('Saved revision 1');
+ await page.getByRole('button', {name: 'Refresh research', exact: true}).click();
+ await expect(page.locator('.research-source-row')).toHaveCount(2);
+});
