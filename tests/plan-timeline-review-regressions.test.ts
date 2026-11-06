@@ -32,3 +32,9 @@ it.each(['working','cancelled'] as const)('host-confirmed run failure remains fa
  expect(x.coordinator.inspect(ctx.threadId)!.value.runState).toBe('failed');
  expect(x.coordinator.timeline(ctx.threadId)!.steps[0].status).toBe('failed');
 });
+it.each(['cancelled','interrupted','failed','review_required'] as const)('does not replace current completed work with %s because of an old active job',state=>{
+ const x=setup({version:1,title:'Task',run:{runId:ctx.runId,epoch:ctx.epoch},runState:'running',steps:[{...step('done'),state:'completed',agentIds:['host-job']}],agents:[job({stepId:'done',status:'working',parentRun:{runId:'prior-run',epoch:1}})]});
+ x.store.internal('run.ended',ctx.threadId,()=>x.coordinator.endRun(ctx,state));
+ expect(x.coordinator.inspect(ctx.threadId)!.value.steps[0].state).toBe('completed');
+ expect(x.coordinator.timeline(ctx.threadId)!.steps[0].status).toBe('completed');
+});
