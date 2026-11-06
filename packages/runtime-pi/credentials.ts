@@ -1,9 +1,11 @@
-import { readFileSync, statSync } from 'node:fs';
+import { closeSync, constants, fstatSync, lstatSync, openSync, readFileSync, readSync, statSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
-import { dirname, join } from 'node:path';
+import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import type { CreateModelRuntimeOptions } from '@earendil-works/pi-coding-agent';
 import { HarnessError } from '../contracts/index.ts';
+import { acquireLinuxCredentialReadBarrier } from '../core/linux-path-guard.ts';
 import { SUBSCRIPTION_OAUTH_PROVIDER_IDS, isSubscriptionProviderId } from '../contracts/connections.ts';
 import { isPlanCredential, isPlanProvider } from './plan-keys.ts';
 
@@ -18,6 +20,15 @@ interface Backend {
 interface NativeStorageModule {
   FileAuthStorageBackend: new (authPath: string) => Backend;
   AuthStorage: { fromStorage(backend: Backend): LiteralCredentialStore };
+}
+export interface LiteralCredentialLease {
+  readonly expiresAt: number;
+  readonly signal: AbortSignal;
+  readonly settled: Promise<void>;
+  assertCurrent(): void;
+  read(providerId: string): Credential | undefined;
+  /** A rejection means ownership is uncertain: retain the caller's profile/use holds. */
+  release(): Promise<void>;
 }
 const MAX_STORAGE_BYTES = 1024 * 1024;
 const RESERVED_KEYS = new Set(['__proto__', 'prototype', 'constructor']);
@@ -73,6 +84,87 @@ function nativeStorage() {
   // without importing an independently resolved transitive pi-ai version or replacing SDK methods.
   storageModule ??= import(storageModuleUrl()) as Promise<NativeStorageModule>;
   return storageModule;
+}
+
+/** Host-only snapshot under the guardian's existing-mount write barrier.
+ * The caller retains profile/use custody through a bounded operation (at most five minutes)
+ * and release. Expiry revokes authority but never restores writes by itself. */
+export async function acquireLiteralCredentialLease(authPath: string, options: {signal: AbortSignal; maxHoldMs: number}): Promise<LiteralCredentialLease> {
+  const unavailable = () => new HarnessError('PI_CREDENTIAL_LEASE_UNAVAILABLE', 'Protected credential evidence is unavailable.');
+  const uncertain = () => new HarnessError('PI_CREDENTIAL_LEASE_RELEASE_UNCERTAIN', 'Credential evidence custody did not settle. Retain caller custody.');
+  if (process.platform !== 'linux' || !options || !(options.signal instanceof AbortSignal)
+    || !Number.isSafeInteger(options.maxHoldMs) || options.maxHoldMs < 1 || options.maxHoldMs > 300000
+    || typeof authPath !== 'string' || !isAbsolute(authPath) || resolve(authPath) !== authPath) throw unavailable();
+  options.signal.throwIfAborted();
+  // Native SDK locks alone cannot fence delayed refresh writers after lock loss.
+  // The root guardian protects the existing mount used by every prepared native access.
+  const barrier = await acquireLinuxCredentialReadBarrier(authPath, options);
+  const revoked = new AbortController(), uid = BigInt(process.getuid!());
+  let authFd: number | undefined, invalid = false, original = '';
+  let snapshot: Record<string, unknown> = Object.create(null);
+  let releasePromise: Promise<void> | undefined;
+  let settledResolve!: () => void, settledReject!: (error: unknown) => void;
+  const settled = new Promise<void>((done, fail) => {settledResolve = done; settledReject = fail;});
+  void settled.catch(() => {});
+  const closeHandle = () => {if (authFd !== undefined) {const fd = authFd; authFd = undefined; closeSync(fd);}};
+  const invalidate = () => {
+    if (!invalid) {
+      invalid = true;
+      revoked.abort(new HarnessError('PI_CREDENTIAL_LEASE_LOST', 'Credential evidence is no longer current.'));
+    }
+  };
+  const content = () => {
+    if (authFd === undefined) throw unavailable();
+    const held = fstatSync(authFd, {bigint: true}), current = lstatSync(authPath, {bigint: true});
+    if (!held.isFile() || held.nlink !== 1n || held.uid !== uid || (held.mode & 0o077n) !== 0n
+      || current.isSymbolicLink() || current.dev !== held.dev || current.ino !== held.ino
+      || held.size > BigInt(MAX_STORAGE_BYTES)) throw unavailable();
+    const buffer = Buffer.alloc(Number(held.size) + 1); let size = 0;
+    while (size < buffer.length) {const read = readSync(authFd, buffer, size, buffer.length - size, size); if (!read) break; size += read;}
+    const after = fstatSync(authFd, {bigint: true}), named = lstatSync(authPath, {bigint: true});
+    if (BigInt(size) !== held.size || after.size !== held.size || after.nlink !== 1n
+      || after.mtimeNs !== held.mtimeNs || after.ctimeNs !== held.ctimeNs
+      || named.isSymbolicLink() || named.dev !== after.dev || named.ino !== after.ino) throw unavailable();
+    return buffer.subarray(0, size);
+  };
+  const digest = (bytes: Buffer) => createHash('sha256').update(bytes).digest('hex');
+  const release = () => {
+    if (!releasePromise) {
+      // Publish the promise before abort listeners can reenter release().
+      releasePromise = Promise.resolve().then(async () => {
+        let closeError = false;
+        try {closeHandle();} catch {closeError = true;}
+        try {await barrier.release();} catch {throw uncertain();}
+        if (closeError) throw uncertain();
+      });
+      void releasePromise.then(settledResolve, settledReject);
+      invalidate();
+      barrier.signal.removeEventListener('abort', invalidate);
+      snapshot = Object.create(null) as Record<string, unknown>;
+    }
+    return releasePromise;
+  };
+  const assertCurrent = () => {
+    if (invalid || options.signal.aborted) {invalidate(); throw unavailable();}
+    try {
+      barrier.assertCurrent();
+      if (digest(content()) !== original) throw unavailable();
+      barrier.assertCurrent();
+    } catch {invalidate(); throw unavailable();}
+  };
+  try {
+    barrier.assertCurrent();
+    // Nonblocking open refuses FIFO/device traps before the ordinary-file check.
+    authFd = openSync(authPath, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
+    const bytes = content(); snapshot = parseData(bytes.toString('utf8')); original = digest(bytes);
+    barrier.signal.addEventListener('abort', invalidate, {once: true});
+    assertCurrent();
+    return Object.freeze({expiresAt: barrier.expiresAt, signal: revoked.signal, settled, assertCurrent,
+      read(providerId: string) {assertCurrent(); return admitted(providerId, snapshot[providerId]);}, release});
+  } catch {
+    await release();
+    throw unavailable();
+  }
 }
 
 /** SDK file locks and mutations, with app-owned literal reads before any runtime refresh can run. */
