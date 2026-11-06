@@ -37,28 +37,6 @@
       "disposition": "retained-geometry"
     },
     {
-      "file": "apps/web/src/AppearanceSettings.tsx",
-      "line": 39,
-      "column": 123,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "1e74241cb76ce55d6d21733f1b01d7dd465939181a09cbaa2d988fe055e82cc2",
-      "reason": "SETTINGS: move background/privacy controls to shared Select.",
-      "evidence": "<select aria-label=\"Workspace background\" value={draft.backgroundStyle} onChange={event => updateDraft({ backgroundStyle: event.target.value as UiPreferences['backgroundStyle'] })}><option value=\"solid\">Solid</option><op",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/AppearanceSettings.tsx",
-      "line": 52,
-      "column": 832,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "5683e3e59262796019dbbde82bef02aa6ec157215c8c272e39d64b937b4acf96",
-      "reason": "SETTINGS: move background/privacy controls to shared Select.",
-      "evidence": "<select aria-label=\"Notification preview privacy\" disabled={busy} value={preferences.notificationPreview} onChange={event => void update({ notificationPreview: event.target.value as UiPreferences['notificationPreview'] }",
-      "disposition": "staged-migration"
-    },
-    {
       "file": "apps/web/src/Artifact.tsx",
       "line": 121,
       "column": 41,
@@ -79,39 +57,6 @@
       "reason": "Retained geometry: bounded conversation scrollbar, not a popup.",
       "evidence": ".chat-scroll-indicator{position:absolute;inset:8px auto 8px 2px;width:24px;z-index:2;touch-action:none;cursor:pointer;outline-offset:-2px}",
       "disposition": "retained-geometry"
-    },
-    {
-      "file": "apps/web/src/context-inspector.css",
-      "line": 27,
-      "column": 1,
-      "rule": "ad-hoc-overlay",
-      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "b34d0ea9c4c4aff9f81a522633af625e69df06426d99409b08f5f18072224c65",
-      "reason": "USAGE: replace category detail geometry with shared anchored Popover.",
-      "evidence": ".context-category-detail { position:absolute; z-index:4; bottom:calc(100% + 6px); left:0; width:max-content; max-width:230px; display:grid; gap:5px; padding:10px 12px; border:1px solid var(--border); border-radius:9px; b",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/ContextInspector.tsx",
-      "line": 92,
-      "column": 10,
-      "rule": "ad-hoc-overlay",
-      "message": "overlay surface class: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "7aae6b2f5ab8d217f837408440db297836eefc4e1f8413c6af3c237843c7403a",
-      "reason": "USAGE: migrate context inspector to shared Popover.",
-      "evidence": "<div ref={panel} className=\"context-popover context-inspector\" role=\"dialog\" aria-label=\"Context inspector\" onKeyDown={event=>{if(event.key==='Escape'){event.preventDefault();event.stopPropagation();close();if(opener.cur",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/ContextMeter.tsx",
-      "line": 36,
-      "column": 36,
-      "rule": "ad-hoc-overlay",
-      "message": "overlay role tooltip: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "36c21705441389b4553452911ef2c3bb36fb33f6692987067a9f0e6dd63aa63d",
-      "reason": "USAGE: replace context segment tooltip with shared anchored tooltip.",
-      "evidence": "<div id={`${id}-${item.label}`} role=\"tooltip\" className=\"context-category-detail\"><strong>{item.label}</strong><span>{contextNumber(item.tokens)} of {contextNumber(value.total)} context tokens</span><span>{(item.tokens ",
-      "disposition": "staged-migration"
     },
     {
       "file": "apps/web/src/document-preview.css",
@@ -376,61 +321,6 @@
       "reason": "Retained geometry: noninteractive reveal layer; no popup or modality.",
       "evidence": ".sentence-reveal-layer{position:absolute;inset:0;display:block;pointer-events:none;user-select:none;z-index:1}",
       "disposition": "retained-geometry"
-    },
-    {
-      "file": "apps/web/src/settings.css",
-      "line": 2,
-      "column": 1,
-      "rule": "ad-hoc-overlay",
-      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "83667bc50474a15ad1c1806d740512712e8323e53c5f27411d60e986385fd79f",
-      "reason": "SETTINGS: move dialog backdrop styling to shared Modal.",
-      "evidence": ".settings-dialog::backdrop { background:#0006; }",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/Settings.tsx",
-      "line": 108,
-      "column": 34,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "f0e87175d6a32e8e28fa280264017694924015ed21d9b91585d6785e9c2b1149",
-      "reason": "SETTINGS/SHELL2: migrate settings dialog and preference selectors to shared Modal/Select.",
-      "evidence": "<select aria-label={row.title} disabled={busy} value={String(value)} onChange={event => void update({ [definition.key]: event.target.value })}>{definition.options.map((option, index) => <option value={option} key={option",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/Settings.tsx",
-      "line": 173,
-      "column": 120,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "3220f85b2846bb56b2ca30aa3e786309684e7245af6883428ba77b0f64ebe7ac",
-      "reason": "SETTINGS/SHELL2: migrate settings dialog and preference selectors to shared Modal/Select.",
-      "evidence": "<select aria-label=\"Color scheme\" disabled={busy} value={snapshot.settings.theme} onChange={event => void persist({ theme: event.target.value })}><option value=\"system\">System</option><option value=\"light\">Light</option>",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/Settings.tsx",
-      "line": 175,
-      "column": 172,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "d767761b3f2cf620dc563e25dc419830a684da1339162239f9b6658502021f1a",
-      "reason": "SETTINGS/SHELL2: migrate settings dialog and preference selectors to shared Modal/Select.",
-      "evidence": "<select aria-label=\"Default model\" disabled={busy || !newTaskModels.length} value={snapshot.settings.modelId ?? ''} onChange={event => void persist({ modelId: event.target.value })}><option value=\"\" disabled>Select model",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/Settings.tsx",
-      "line": 192,
-      "column": 10,
-      "rule": "ad-hoc-overlay",
-      "message": "native <dialog>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "16a516ae177f446a17dd8ce4133eeb5cfe6521b64b172b11e48a88813aafdb6d",
-      "reason": "SETTINGS/SHELL2: migrate settings dialog and preference selectors to shared Modal/Select.",
-      "evidence": "<dialog ref={dialog} className={`settings-dialog${!tokens.length&&section==='skills'?' settings-skills':''}`} aria-label=\"Settings\" onCancel={close} onClick={event => { if (event.target === event.currentTarget) close(); ",
-      "disposition": "staged-migration"
     },
     {
       "file": "apps/web/src/shell.css",
@@ -727,39 +617,6 @@
       "fingerprint": "8c573d8afc2a298880088d7a81901b2a2ae638cb69758f66c198efdc35cf6bd4",
       "reason": "CONTROLS2/LAYOUT: Panels moves to ActionMenu; Layouts/saved canvas controls remain staged for later migration.",
       "evidence": "<select aria-label=\"Saved canvas\" value={active?.id??''} onChange={event=>run(async()=>{await prepare();await send('workspace.canvas.select',{canvasId:event.target.value});})}>{envelope.state.canvases.map(canvas=><option",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/WorkspaceControls.tsx",
-      "line": 21,
-      "column": 1355,
-      "rule": "ad-hoc-overlay",
-      "message": "overlay surface class: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "187ddbfdef52fab0ee58a1186f151a77fe59f1721ab23cf50524637253329734",
-      "reason": "CONTROLS2/LAYOUT: Panels moves to ActionMenu; Layouts/saved canvas controls remain staged for later migration.",
-      "evidence": "<div className=\"workspace-menu\">{splitWorkspace?<><h3>Split layouts</h3><p className=\"workspace-menu-note\">Your current arrangement saves automatically. Named layouts keep panes and tabs; drafts stay with their conversat",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/WorkspaceControls.tsx",
-      "line": 21,
-      "column": 1641,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "865581bd4db126c752896bd72a1e0bb7d5100e46224eb6482002d1e1a6c700a0",
-      "reason": "CONTROLS2/LAYOUT: Panels moves to ActionMenu; Layouts/saved canvas controls remain staged for later migration.",
-      "evidence": "<select aria-label=\"Saved split layout\" value={profileId} onChange={event=>{setProfileId(event.target.value);setProfileName(splitProfiles.find(profile=>profile.id===event.target.value)?.name??'My workspace');}}><option v",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/WorkspaceControls.tsx",
-      "line": 21,
-      "column": 2925,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "6f3ac8919b046a7107b25ce03300955809fedeadf63e377b809fd79c5e77a424",
-      "reason": "CONTROLS2/LAYOUT: Panels moves to ActionMenu; Layouts/saved canvas controls remain staged for later migration.",
-      "evidence": "<select aria-label=\"Workspace profile\" value={profileId} onChange={event=>{setProfileId(event.target.value);setProfileName(envelope.state.profiles.find(profile=>profile.id===event.target.value)?.name??'My workspace');}}>",
       "disposition": "staged-migration"
     },
     {
