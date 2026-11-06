@@ -2,7 +2,7 @@ import { expect, it } from "vitest";
 import { mkdtemp, rm, truncate, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { readLocalComparison, remotePatch } from "../packages/workspace/code-review.ts";
+import { normalizeChecks, readLocalComparison, remotePatch } from "../packages/workspace/code-review.ts";
 import type { ComparisonFile, PullRequestComparisonIdentity } from "../packages/contracts/code-review.ts";
 
 const identity: PullRequestComparisonIdentity = {
@@ -19,6 +19,11 @@ const identity: PullRequestComparisonIdentity = {
   semantics: "merge-base",
 };
 const file: ComparisonFile = { path: "file", status: "modified", untracked: false, additions: 1, deletions: 1 };
+it('keeps active GitHub CLI CheckRuns pending when their conclusion is an empty string', () => {
+  const statuses = ['QUEUED', 'IN_PROGRESS', 'WAITING', 'REQUESTED'];
+  expect(normalizeChecks(statuses.map(status => ({__typename: 'CheckRun', name: status, status, conclusion: ''})))).toEqual(statuses.map(name => ({name, status: 'pending'})));
+  expect(normalizeChecks([{name: 'finished', status: 'COMPLETED', conclusion: 'SUCCESS'}, {name: 'unrecognized', status: 'FUTURE_STATUS', conclusion: ''}])).toEqual([{name: 'finished', status: 'passed'}, {name: 'unrecognized', status: 'unknown'}]);
+});
 it("does not claim completeness when the hunk context was truncated but changed-line totals still match", () => {
   expect(remotePatch(identity, file, "@@ -1,3 +1,3 @@\n-one\n+two\n context")).toMatchObject({
     state: "truncated",
