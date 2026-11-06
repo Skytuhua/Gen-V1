@@ -92,8 +92,9 @@ export async function journalCompareAndSwap(key: string, generation: string | un
     const request = entries.get(key);
     let replacement: JournalRecord | undefined;
     request.onsuccess = () => {
-      if ((request.result as JournalRecord | undefined)?.generation !== generation || memory.get(key)?.generation !== generation) return;
-      const record = { value, updatedAt: Date.now(), generation: crypto.randomUUID() };
+      const durable = request.result as JournalRecord | undefined, local = memory.get(key);
+      if (durable?.generation !== generation || local?.generation !== generation) return;
+      const record = { value, updatedAt: Math.max(Date.now(), (local?.updatedAt ?? 0) + 1, (durable?.updatedAt ?? 0) + 1), generation: crypto.randomUUID() };
       entries.put(record, key);
       replacement = record;
     };
