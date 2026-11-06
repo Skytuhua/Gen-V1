@@ -10,12 +10,14 @@ import errno
 import fcntl
 import json
 import os
+import re
 import selectors
 import signal
 import socket
 import stat
 import sys
 import time
+import uuid
 
 LIBC = ctypes.CDLL(None, use_errno=True)
 LIMIT = 65536
@@ -33,6 +35,37 @@ def syscall(number, *arguments):
 
 class MountAttr(ctypes.Structure):
     _fields_ = [(name, ctypes.c_ulonglong) for name in ("set", "clear", "propagation", "userns")]
+
+
+class CustodyUncertain(PermissionError):
+    pass
+
+
+def mount_records():
+    def decode(value):
+        return re.sub(r"\\(040|011|012|134)", lambda match: chr(int(match[1], 8)), value)
+    with open('/proc/self/mountinfo', encoding='utf-8') as mounts:
+        result = []
+        for line in mounts:
+            mount, filesystem = line.split(' - ', 1)
+            parts = mount.split()
+            result.append(dict(id=parts[0], dev=parts[2], root=decode(parts[3]), path=decode(parts[4]), flags=parts[5].split(','), filesystem=filesystem.split()[0]))
+        return result
+
+
+def mount_id(fd):
+    with open(f'/proc/self/fdinfo/{fd}', encoding='ascii') as info:
+        return next(line.split()[1] for line in info if line.startswith('mnt_id:'))
+
+
+def within(root, path):
+    return path == root or path.startswith(root.rstrip('/') + '/')
+
+
+def mount_readonly(fd, enabled):
+    attributes = MountAttr(1 if enabled else 0, 0 if enabled else 1, 0, 0)
+    # Change existing mounts recursively; creating a new cover leaves old FDs writable.
+    syscall(442, ctypes.c_int(fd), ctypes.c_char_p(b''), ctypes.c_uint(0x1000 | 0x8000), ctypes.byref(attributes), ctypes.c_size_t(ctypes.sizeof(attributes)))
 
 
 def identity_namespace(uid, gid, storage_uid, storage_gid):
@@ -129,6 +162,179 @@ def private_profile(root, uid, gid):
 class DirectoryGuard:
     def __init__(self, root, uid):
         self.root, self.uid, self.groups, self.pins = root, uid, {}, {}
+        self.credentials, self.barriers = {}, {}
+
+    def credential_parent(self, auth):
+        if not isinstance(auth, str) or not auth.startswith(self.root + '/') or not re.fullmatch(r'accounts/provider-auth-[a-f0-9]{64}/pi/auth\.json', auth[len(self.root) + 1:]):
+            raise PermissionError('A named account credential path is required')
+        return os.path.dirname(auth)
+
+    def prepare_credential(self, auth):
+        parent = self.credential_parent(auth)
+        if parent in self.credentials:
+            return
+        held, fd = [], -1
+        try:
+            for part in self.components(parent):
+                self.pin(part)
+                held.append(part)
+            fd = os.open(parent, os.O_PATH | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
+            self.credentials[parent] = dict(path=parent, fd=fd, mount=mount_id(fd), identity=os.fstat(fd), held=held)
+            fd = -1  # Preparation retains its own ancestry pins before any native access.
+        except BaseException:
+            if fd >= 0:
+                os.close(fd)
+            self.release_paths(held)
+            raise
+
+    def credential_mounts(self, prepared, readonly):
+        records = mount_records()
+        target = next(record for record in records if record['id'] == prepared['mount'])
+        parent = prepared['path']
+        current = os.stat(parent, follow_symlinks=False)
+        original = prepared['identity']
+        if target['path'] != parent or (current.st_dev, current.st_ino) != (original.st_dev, original.st_ino) or current.st_uid != self.uid or current.st_mode & 0o022:
+            raise PermissionError('Credential mount identity changed')
+        descendants = []
+        for record in records:
+            if within(parent, record['path']):
+                relative = os.path.relpath(record['path'], parent)
+                expected = target['root'] if relative == '.' else os.path.join(target['root'], relative)
+                if record['path'] not in self.pins or record['dev'] != target['dev'] or record['root'] != expected or record['filesystem'] != 'ext4' or not stat.S_ISDIR(os.stat(record['path']).st_mode) or ('ro' in record['flags']) != readonly:
+                    raise PermissionError('Unsupported credential submount')
+                descendants.append(record['id'])
+            elif record['dev'] == target['dev'] and (within(record['root'], target['root']) or within(target['root'], record['root'])) and not within(record['path'], parent) and 'ro' not in record['flags']:
+                raise PermissionError('Writable credential mount alias')
+        return set(descendants)
+
+    def credential_processes(self, prepared, mounts):
+        parent = prepared['path']
+        auth = parent + '/auth.json'
+        identity = os.stat(auth, follow_symlinks=False)
+        if not stat.S_ISREG(identity.st_mode) or identity.st_nlink != 1 or identity.st_uid != self.uid:
+            raise PermissionError('An existing ordinary credential inode is required')
+        namespace = os.stat('/proc/self/ns/mnt').st_ino
+
+        def runtime_tasks():
+            result, examined = {}, 0
+            processes = [name for name in os.listdir('/proc') if name.isdecimal()]
+            if len(processes) > 8192:
+                raise PermissionError('Process inventory exceeds its bound')
+            for process in processes:
+                task_root = '/proc/' + process + '/task'
+                try:
+                    threads = os.listdir(task_root)
+                except (FileNotFoundError, ProcessLookupError):
+                    continue
+                examined += len(threads)
+                if examined > 32768:
+                    raise PermissionError('Thread inventory exceeds its bound')
+                for thread in threads:
+                    if not thread.isdecimal():
+                        raise PermissionError('Unknown thread inventory')
+                    base = task_root + '/' + thread
+                    try:
+                        with open(base + '/status', encoding='ascii') as status:
+                            fields = dict(line.split(':', 1) for line in status if ':' in line)
+                        owners = tuple(map(int, fields['Uid'].split()))
+                        if self.uid not in owners:
+                            continue
+                        if owners != (self.uid,) * 4 or int(fields['Tgid']) != int(process):
+                            raise PermissionError('Runtime thread ownership differs')
+                        with open(base + '/stat', encoding='ascii') as stream:
+                            started = stream.read().rsplit(')', 1)[1].split()[19]
+                        result[base] = (owners, started)
+                    except (FileNotFoundError, ProcessLookupError):
+                        # A selected runtime disappearing is caught by the final inventory.
+                        continue
+            if not result:
+                raise PermissionError('Runtime thread inventory unavailable')
+            return result
+
+        before = runtime_tasks()
+        for base in before:
+            try:
+                if os.stat(base + '/ns/mnt').st_ino != namespace:
+                    raise PermissionError('Runtime thread mount namespace differs')
+                names = os.listdir(base + '/fd')
+                if len(names) > 4096 or any(not name.isdecimal() for name in names):
+                    raise PermissionError('Runtime descriptor inventory exceeds its bound')
+                endpoints = [base + '/fd/' + name for name in names] + [base + '/cwd', base + '/root']
+                for entry in endpoints:
+                    target, info = os.readlink(entry), os.stat(entry)
+                    # Include covered ancestry: openat on an old accounts/profile FD
+                    # can skip later child bind mounts, even before auth.json existed.
+                    relevant = target.startswith('/') and (within(parent, target) or within(target, parent))
+                    relevant = relevant or (info.st_dev, info.st_ino) == (identity.st_dev, identity.st_ino)
+                    if not relevant:
+                        continue
+                    if stat.S_ISDIR(info.st_mode) and info.st_uid != self.uid and not info.st_mode & 0o077:
+                        # FD4 is the deliberately inaccessible foreign-owned 0700
+                        # backing root. Its directory cannot be traversed by this UID.
+                        continue
+                    if not target.startswith('/') or target.endswith(' (deleted)'):
+                        raise PermissionError('Unknown credential descriptor target')
+                    held = os.open(entry, os.O_PATH | os.O_CLOEXEC)
+                    visible = -1
+                    try:
+                        visible = os.open(target, os.O_PATH | os.O_NOFOLLOW | os.O_CLOEXEC)
+                        current = os.fstat(visible)
+                        if (current.st_dev, current.st_ino) != (info.st_dev, info.st_ino) or mount_id(held) != mount_id(visible):
+                            raise PermissionError('Preexisting credential ancestry descriptor alias')
+                    finally:
+                        if visible >= 0:
+                            os.close(visible)
+                        os.close(held)
+                if set(os.listdir(base + '/fd')) != set(names) or os.stat(base + '/ns/mnt').st_ino != namespace:
+                    raise PermissionError('Runtime thread descriptors changed during scan')
+            except (FileNotFoundError, ProcessLookupError):
+                raise PermissionError('Runtime thread changed during scan') from None
+        if runtime_tasks() != before:
+            raise PermissionError('Runtime thread inventory changed during scan')
+
+    def acquire_credential(self, auth, duration):
+        parent = self.credential_parent(auth)
+        if type(duration) is not int or not 1 <= duration <= 300000 or parent not in self.credentials or any(value['parent'] == parent for value in self.barriers.values()):
+            raise PermissionError('Credential parent is unavailable')
+        prepared = self.credentials[parent]
+        mounts = self.credential_mounts(prepared, False)
+        self.credential_processes(prepared, mounts)
+        held = [record['path'] for record in mount_records() if record['id'] in mounts]
+        for path in held:
+            self.pin(path)
+        identifier = uuid.uuid4().hex
+        barrier = dict(parent=parent, mounts=mounts, held=held, expires=time.monotonic() + duration / 1000, fenced=False)
+        self.barriers[identifier] = barrier
+        try:
+            mount_readonly(prepared['fd'], True)
+            barrier['fenced'] = True
+            if self.credential_mounts(prepared, True) != mounts:
+                raise PermissionError('Credential mount set changed')
+            self.credential_processes(prepared, mounts)
+            try:
+                os.lstat(auth + '.lock')
+            except FileNotFoundError:
+                return identifier, sorted(mounts)
+            raise PermissionError('A native credential lock is present')
+        except BaseException:
+            self.release_credential(identifier)
+            raise
+
+    def release_credential(self, identifier):
+        barrier = self.barriers[identifier]
+        if barrier['fenced']:
+            prepared = self.credentials[barrier['parent']]
+            try:
+                if self.credential_mounts(prepared, True) != barrier['mounts']:
+                    raise PermissionError('Credential mount set changed')
+                mount_readonly(prepared['fd'], False)
+                barrier['fenced'] = False
+                if self.credential_mounts(prepared, False) != barrier['mounts']:
+                    raise PermissionError('Credential restoration did not settle')
+            except BaseException as error:
+                raise CustodyUncertain('Retain credential custody') from error
+        self.release_paths(barrier['held'])
+        del self.barriers[identifier]
 
     def components(self, path):
         if not isinstance(path, str) or len(path) > 4096 or "\0" in path or os.path.normpath(path) != path or not (path == self.root or path.startswith(self.root + "/")):
@@ -145,6 +351,8 @@ class DirectoryGuard:
         if path in self.pins:
             self.pins[path] += 1
             return
+        if any(value['fenced'] and within(value['parent'], path) for value in self.barriers.values()):
+            raise PermissionError('Credential mount set is fenced')
         fd = os.open(path, os.O_PATH | os.O_DIRECTORY | os.O_NOFOLLOW | os.O_CLOEXEC)
         try:
             info = os.fstat(fd)
@@ -175,6 +383,15 @@ class DirectoryGuard:
         command = request.get("command")
         if command == "hello" and set(request) == {"command", "id"}:
             return {"id": request["id"], "protocol": "gen-linux-directory-guard.v1", "root": self.root}
+        if command == 'credential-prepare' and set(request) == {'command', 'id', 'authPath'}:
+            self.prepare_credential(request['authPath'])
+            return {'id': request['id']}
+        if command == 'credential-acquire' and set(request) == {'command', 'id', 'authPath', 'maxHoldMs'}:
+            identifier, mounts = self.acquire_credential(request['authPath'], request['maxHoldMs'])
+            return {'id': request['id'], 'leaseId': identifier, 'mountIds': mounts}
+        if command == 'credential-release' and set(request) == {'command', 'id', 'leaseId'}:
+            self.release_credential(request['leaseId'])
+            return {'id': request['id']}
         if command == "release" and set(request) == {"command", "id"}:
             self.release_paths(self.groups.pop(request["id"]))
         elif command == "acquire" and set(request) == {"command", "id", "paths"}:
@@ -297,7 +514,9 @@ def launch(options):
                 request = json.loads(line)
                 try:
                     reply = guard.request(request)
-                except (OSError, ValueError, KeyError, TypeError):
+                except CustodyUncertain:
+                    reply = {"id": request.get("id"), "error": "CREDENTIAL_BARRIER_UNCERTAIN"}
+                except (OSError, ValueError, KeyError, TypeError, StopIteration):
                     reply = {"id": request.get("id"), "error": "CAPABILITY_DENIED"}
                 if connected:
                     parent.sendall(json.dumps(reply, ensure_ascii=True).encode("ascii") + b"\n")
