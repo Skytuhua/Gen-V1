@@ -16,17 +16,6 @@
     },
     {
       "file": "apps/web/src/App.tsx",
-      "line": 71,
-      "column": 10,
-      "rule": "ad-hoc-overlay",
-      "message": "native <dialog>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "1e20b7a012f15bfc4d7496b1583c1456a27cb0910a5f4369890da338ce29fdf9",
-      "reason": "SHELL2: parent replaces local dialog, select and thread menu with shared Modal/Select/ActionMenu.",
-      "evidence": "<dialog ref={ref} className=\"dialog\" aria-label={title} onCancel={close} onClick={event => { if (event.target === event.currentTarget) close(); }}><header><h2>{title}</h2><button className=\"icon-button\" aria-label=\"Close",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/App.tsx",
       "line": 160,
       "column": 481,
       "rule": "ad-hoc-overlay",
@@ -34,17 +23,6 @@
       "fingerprint": "da6aad5ff20c9bf6292224f2299bdb66eecef2759be87d1097dc4eea377105b6",
       "reason": "SHELL2: parent replaces local dialog, select and thread menu with shared Modal/Select/ActionMenu.",
       "evidence": "<select value={kind} onChange={event => setKind(event.target.value)}><option value=\"project\">Project folder</option><option value=\"file\">File</option><option value=\"database\">SQLite database</option><option value=\"export",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/App.tsx",
-      "line": 666,
-      "column": 312,
-      "rule": "ad-hoc-overlay",
-      "message": "overlay surface class: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "30822a8600763093bce6b70623e74ff47d340fe729157b956830cabe3fb0929a",
-      "reason": "SHELL2: parent replaces local dialog, select and thread menu with shared Modal/Select/ActionMenu.",
-      "evidence": "<button className=\"icon-button mobile-menu\" aria-label=\"Open navigation\" onClick={() => setSidebarOpen(true)}><Menu size={18} /></button><div className=\"breadcrumb\">{thread?.projectName && <><Folder size={13} /><span>{th",
       "disposition": "staged-migration"
     },
     {
@@ -299,39 +277,6 @@
       "reason": "Retained geometry: map point markers anchored to their map, not a popup.",
       "evidence": ".task-map-point { position:absolute; display:flex; align-items:center; justify-content:center; width:32px; height:32px; padding:6px; border-radius:50%; transform:translate(-50%,-50%); color:var(--text); background:var(--",
       "disposition": "retained-geometry"
-    },
-    {
-      "file": "apps/web/src/model-picker.css",
-      "line": 9,
-      "column": 1,
-      "rule": "ad-hoc-overlay",
-      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "49a2adbf08e8a0fc5001cd7838a3c3aba52a63efc29d72453d2a9449539d2ac8",
-      "reason": "PICKERS: remove residual picker overlay geometry after full shared Select migration.",
-      "evidence": ".model-picker-popover{position:fixed;z-index:80;display:grid;grid-template-columns:48px minmax(0,1fr);overflow:hidden;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:14px;font-fam",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/ModelPicker.tsx",
-      "line": 60,
-      "column": 3,
-      "rule": "ad-hoc-overlay",
-      "message": "overlay role combobox: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "a8e761f71ae3fa3f0f5546437ce6207d7163f5062ea0213c74457d77bbac28e9",
-      "reason": "PICKERS: move combobox/listbox interaction into shared Select; retain existing shared Popover consumer.",
-      "evidence": "<button ref={trigger} type=\"button\" role=\"combobox\" aria-label=\"Model\" aria-expanded={open} aria-haspopup={combined?'dialog':'listbox'} aria-controls={combined?id+'-picker':id+'-list'} disabled={locked} className=\"compos",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/ModelPicker.tsx",
-      "line": 74,
-      "column": 5,
-      "rule": "ad-hoc-overlay",
-      "message": "overlay role listbox: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "5ec26ebf48e0798fe5911aa09cc4a1633405e4981dbf0c157b2dbd2afeb62072",
-      "reason": "PICKERS: move combobox/listbox interaction into shared Select; retain existing shared Popover consumer.",
-      "evidence": "<div id={id+'-list'} role=\"listbox\" aria-label=\"Available models\" className=\"model-picker-list\">",
-      "disposition": "staged-migration"
     },
     {
       "file": "apps/web/src/plan-status.css",
@@ -818,17 +763,6 @@
       "disposition": "staged-migration"
     },
     {
-      "file": "apps/web/src/WorkspaceControls.tsx",
-      "line": 21,
-      "column": 5340,
-      "rule": "ad-hoc-overlay",
-      "message": "overlay surface class: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "187ddbfdef52fab0ee58a1186f151a77fe59f1721ab23cf50524637253329734",
-      "reason": "CONTROLS2/LAYOUT: Panels moves to ActionMenu; Layouts/saved canvas controls remain staged for later migration.",
-      "evidence": "<div className=\"workspace-menu\"><h3>Panel types</h3>{WORKSPACE_PANEL_KINDS.filter(kind=>!standardChat||['artifact','plan','files','diff','notes','output','usage','terminal','pull-request','linked-pull-requests'].includes",
-      "disposition": "staged-migration"
-    },
-    {
       "file": "apps/web/src/WorkspacePanel.tsx",
       "line": 34,
       "column": 137,
@@ -837,17 +771,6 @@
       "fingerprint": "59bcc2984c56ef904f8b0b25e1643b7505f42821abc9f25c1c6b30491a3a23ce",
       "reason": "SHELL2: parent moves artifact selector to shared Select.",
       "evidence": "<select aria-label=\"Workspace artifact\" value={activeArtifact?.id ?? ''} onChange={event => workspace.requestOpenArtifact(event.target.value)}><option value=\"\">Choose an artifact</option>{artifacts.map(artifact => <optio",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/WorkspacePanelBodies.tsx",
-      "line": 72,
-      "column": 128,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "c6fae12319d7a10947c3d64e86583f5a085ca0465c90878e5a84a63f47a9784a",
-      "reason": "CONTROLS2: migrate granted resource selector to shared Select.",
-      "evidence": "<select aria-label=\"Granted resource\" value={active} onChange={event => { setResourceId(event.target.value); setPath(''); setSelected(null); }} disabled={!grants.length}>{!grants.length && <option value=\"\">No granted res",
       "disposition": "staged-migration"
     },
     {

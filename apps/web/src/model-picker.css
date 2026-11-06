@@ -6,7 +6,7 @@
 .model-picker-trigger>svg[data-open]{transition:transform 160ms ease-out}
 .model-picker-trigger>svg[data-open=true]{transform:rotate(180deg)}
 .composer-toolbar .model-picker-trigger[aria-expanded=true]{background:var(--selection-bg)}
-.model-picker-popover{position:fixed;display:flex;flex-direction:column;box-sizing:border-box;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--muted) transparent;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:10px;font-family:inherit;font-size:14px;line-height:1.4;transform-origin:bottom right;--model-picker-travel:4px;animation:model-picker-in var(--ui-motion-popup-enter) var(--ui-ease-enter) both}
+.model-picker-popover{display:flex;flex-direction:column;box-sizing:border-box;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--muted) transparent;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:10px;font-family:inherit;font-size:14px;line-height:1.4;transform-origin:bottom right;--model-picker-travel:4px;animation:model-picker-in var(--ui-motion-popup-enter) var(--ui-ease-enter) both}
 .model-picker-popover[data-side=below]{transform-origin:top right;--model-picker-travel:-4px}
 .model-picker-popover[data-state=closed]{pointer-events:none;animation:model-picker-out 100ms ease-in both}
 .model-picker-main{display:flex;flex-direction:column;flex:1;min-width:0;min-height:150px}

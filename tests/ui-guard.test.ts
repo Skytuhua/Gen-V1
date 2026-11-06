@@ -85,6 +85,24 @@ export const View = <>{([count && <b/>]) || null}{([1].map(() => count && 'text'
 });
 
 describe('overlay architecture policy', () => {
+  it('allows inline list semantics owned by shared surfaces and triggers controlling their exact IDs', () => {
+    source('packages/ui-shell/Modal.tsx', 'export declare function Modal(props: any): JSX.Element;');
+    expect(lintText('shared-list-ownership.tsx', `import {Popover} from './packages/ui-shell/Popover';
+import {Modal} from './packages/ui-shell/Modal';
+export function Model() { const id='model'; const open=true; return <><button role="combobox" aria-controls={open?id+'-list':undefined}/><Popover id={id+'-surface'}><div id={id+'-list'} role="listbox"/></Popover></>; }
+export const Project = <Modal><input role="combobox"/><div role="listbox"/></Modal>;`)).toEqual([]);
+  });
+  it('does not approve unrelated controls or native/positioned overlays merely beside a shared consumer', () => {
+    const result=lintText('unowned-list.tsx', `import {Popover} from './packages/ui-shell/Popover';
+export const View = <><button role="combobox" aria-controls="unowned"/><div id="unowned" role="listbox"/><Popover id="owned"><dialog/><div role="menu" style={{position:'fixed',zIndex:4}}/></Popover></>;`);
+    expect(result.filter(item=>item.rule==='ad-hoc-overlay')).toHaveLength(4);
+  });
+  it.each(['literal','template'])('preserves %s contents when checking exact shared popup IDs',kind=>{
+    const control=kind==='literal'?'"owned id"':'{`owned ${suffix}`}';
+    const target=kind==='literal'?'"ownedid"':'{`owned${suffix}`}';
+    expect(lintText(`id-${kind}.tsx`, `import {Popover} from './packages/ui-shell/Popover';
+export function View(){const suffix='id';return <><button role="combobox" aria-controls=${control}/><Popover id=${target}/></>;}`).filter(item=>item.rule==='ad-hoc-overlay')).toHaveLength(1);
+  });
   it('checks helper HTML at srcdoc and explicit HTML response sinks without flagging unused documentation', () => {
     expect(lintText('rendered-document.ts', `declare const frame: HTMLIFrameElement;
 declare const reply: any;
