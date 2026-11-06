@@ -3,10 +3,10 @@ import {resolve} from 'node:path';
 import type {AgentSummary} from '../../packages/contracts/agent-inventory';
 const fixture = '/@fs/' + resolve('tests/e2e/agents-workspace-fixture.tsx').replaceAll('\\', '/');
 const agent = (id: string, patch: Partial<AgentSummary> = {}): AgentSummary => ({agentId: id, parentId: null, rootId: id, jobId: null, threadId: id, projectId: 'a', projectName: 'Alpha', title: id, status: 'working', modelId: 'test/model', currentAction: 'Reading project sources', reportedPercent: 35, createdAt: '2026-11-06', updatedAt: '2026-11-06', orderKey: id, revision: 1, archived: false, readOnly: false, metadata: 'thread', ...patch});
-async function setup(page: Page, candidate = false) {
+async function setup(page: Page, candidate = false, burstHistory = false) {
  const requests: string[] = [], commands: {id: string; type: string; threadId: string; payload: {content?: string}}[] = [];
  const agents = [agent('parent-00'), agent('child-active', {parentId: 'parent-00', rootId: 'parent-00', jobId: 'job', readOnly: true}), agent('child-done', {parentId: 'parent-00', rootId: 'parent-00', status: 'completed', readOnly: true}), ...Array.from({length: 32}, (_, i) => agent('parent-' + String(i + 1).padStart(2, '0'))), agent('beta-parent', {projectId: 'b', projectName: 'Beta'})];
- let failSend = false, output = 'Current transcript output', sequence = 10, ticketStatus = 'processing';
+ let failSend = false, output = 'Current transcript output', sequence = 10, ticketStatus = 'processing', messageTotal = 40;
  const target = {authority: 'personal', parentThreadId: 'parent-00', jobId: 'job', parentRun: {runId: 'parent-run', epoch: 1}, childRun: {threadId: 'child-active', runId: 'child-run', epoch: 1}};
  await page.route('**/api/**', async route => {
   const url = new URL(route.request().url()); requests.push(url.pathname + url.search);
@@ -28,6 +28,11 @@ async function setup(page: Page, candidate = false) {
   }
   if (url.pathname === '/api/agents/history') {
    const id = url.searchParams.get('agentId')!, earlier = url.searchParams.has('cursor');
+   if (burstHistory) {
+    const end = earlier ? Number(url.searchParams.get('cursor')) - 1 : messageTotal, start = Math.max(1, end - 39);
+    const messages = Array.from({length: end - start + 1}, (_, i) => {const number = start + i, content = `Transcript message ${number}. ` + 'Readable source output. '.repeat(8); return {id: 'burst-' + number, threadId: id, role: 'assistant', createdAt: '2026-11-06', runId: 'r', content, contentOffset: 0, contentLength: content.length, nextContentCursor: null};});
+    return route.fulfill({json: {authority: 'personal', agentId: id, threadId: id, sequence, nextCursor: start > 1 ? String(start) : null, messages}});
+   }
    return route.fulfill({json: {authority: 'personal', agentId: id, threadId: id, sequence, nextCursor: earlier ? null : 'older', messages: Array.from({length: earlier ? 3 : 12}, (_, i) => ({id: (earlier ? 'old-' : 'm-') + i, threadId: id, role: 'assistant', createdAt: `2026-11-${earlier ? '05' : '06'}T00:00:${String(i).padStart(2, '0')}Z`, runId: 'r', content: `${id}: ${output} ${i}.\n` + 'Source details remain readable. '.repeat(8), contentOffset: 0, contentLength: (`${id}: ${output} ${i}.\n` + 'Source details remain readable. '.repeat(8)).length, nextContentCursor: null}))}});
   }
   if (url.pathname === '/api/agents/updates') return route.fulfill({json: {authority: 'personal', scopeKey: 'scope', fromSequence: Number(url.searchParams.get('after')), sequence, resync: false, upserts: [], removed: [], ancestors: [], transcripts: Number(url.searchParams.get('after')) < sequence ? [{agentId: 'parent-00', sequence}] : []}});
@@ -36,8 +41,27 @@ async function setup(page: Page, candidate = false) {
  });
  await page.route('**/agents-workspace-check*', route => route.fulfill({contentType: 'text/html', body: `<html data-theme="dark"><head><meta name="viewport" content="width=device-width, initial-scale=1"></head><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${encodeURI(fixture)}');</script></body></html>`}));
  await page.goto('/agents-workspace-check' + (candidate ? '?candidate=1' : ''));
- return {requests, commands, fail: (value: boolean) => {failSend = value;}, output: (value: string) => {output = value; sequence++;}, ticket: (value: string) => {ticketStatus = value;}};
+ return {requests, commands, fail: (value: boolean) => {failSend = value;}, output: (value: string) => {output = value; sequence++;}, ticket: (value: string) => {ticketStatus = value;}, burst: (total: number) => {messageTotal = total; sequence++;}};
 }
+
+test('missing history remains reachable after offscreen bursts without moving the message being read', async ({page}) => {
+ const h = await setup(page, false, true), log = page.getByRole('log', {name: 'parent-00 messages', exact: true}), row = page.getByRole('region', {name: 'Alpha agents', exact: true});
+ await expect(log).toContainText('Transcript message 40.');
+ await page.getByRole('button', {name: 'Search agents', exact: true}).focus();
+ await row.evaluate(node => {node.scrollLeft = node.scrollWidth;}); await expect(log).toHaveCount(0);
+ h.burst(140); await row.evaluate(node => {node.scrollLeft = 0;});
+ await expect(log.getByRole('button', {name: 'Load missing messages', exact: true})).toBeVisible();
+ const reading = log.locator('article').filter({hasText: 'Transcript message 110.'});
+ await reading.evaluate(node => {const owner = node.closest('[role="log"]')!; owner.scrollTop += node.getBoundingClientRect().top - owner.getBoundingClientRect().top - 20;});
+ await expect.poll(() => log.evaluate(node => node.scrollTop)).toBeGreaterThan(0);
+ const before = await reading.evaluate(node => node.getBoundingClientRect().top);
+ await log.getByRole('button', {name: 'Load missing messages', exact: true}).evaluate((node: HTMLButtonElement) => node.click());
+ await expect(log).toContainText('Transcript message 61.');
+ await expect.poll(() => reading.evaluate(node => node.getBoundingClientRect().top)).toBeCloseTo(before, 0);
+ await log.getByRole('button', {name: 'Load missing messages', exact: true}).evaluate((node: HTMLButtonElement) => node.click());
+ await expect(log.locator('article')).toHaveCount(140);
+ expect(await log.locator('article').evaluateAll(nodes => nodes.map(node => Number(node.textContent!.match(/Transcript message (\d+)/)![1])))).toEqual(Array.from({length: 140}, (_, i) => i + 1));
+});
 
 test('project rows expose working parent and nested child transcripts before any details click', async ({page}) => {
  const h = await setup(page); const parent = page.getByRole('group', {name: 'Agent parent-00', exact: true});

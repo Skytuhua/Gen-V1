@@ -12,6 +12,13 @@ const adapters: ReturnType<typeof createPersonalChildFollowUp>[] = [];
 beforeEach(() => {vi.clearAllMocks(); mocks.records.clear(); mocks.target.mockResolvedValue(target); mocks.send.mockResolvedValue({result: {ticketId: 'id', status: 'queued'}}); mocks.ticket.mockResolvedValue(ticket);});
 afterEach(() => {adapters.splice(0).forEach(adapter => adapter.dispose?.());});
 function adapter() {const value = createPersonalChildFollowUp(() => 'parent'); adapters.push(value); return value;}
+it('reconciles a recovered uncertain ticket when the host later confirms its answer without sending again', async () => {
+ const value = adapter(), listener = vi.fn(); value.subscribe(listener);
+ mocks.ticket.mockResolvedValue({...ticket, status: 'handled'});
+ value.track!(child, {...ticket, status: 'delivery_uncertain'});
+ await vi.waitFor(() => expect(listener).toHaveBeenCalledWith(child.agentId, expect.objectContaining({status: 'handled'})));
+ expect(mocks.ticket).toHaveBeenCalledWith('parent', 'id', expect.any(AbortSignal)); expect(mocks.send).not.toHaveBeenCalled();
+});
 it('reads the exact target and current ticket, never reports immutable queued admission as current', async () => {
  const value = adapter(); expect(value.canSend(child)).toBe(false); await value.prepare!(child); expect(value.canSend(child)).toBe(true);
  const current = await value.send({agent: child, content: 'Follow up', commandId: 'stable-id'});
