@@ -20,6 +20,16 @@ function setup() {
   return { store, service, command };
 }
 describe('UI preferences and thread presentation', () => {
+  it('persists new appearance choices while retaining existing grants, colors and unknown-owned preference data', async () => {
+    const { store, command } = setup();
+    store.internal('test.preferences.seeded', null, () => store.put('settings', 'global', null, { theme: 'light', modelId: 'saved/model', preferences: { fontSize: 18, interfaceFont: 'Georgia', projectColors: { '["local","project-a"]': '#4F6EFF' }, futureLane: { recordId: 'retained' }, keybindings: { futureAction: 'Alt+F' } } }));
+    const before = store.snapshot();
+    await command('settings.update', { preferences: { density: 'touch', customAccent: '#2468AC', uiFontSize: 15, chatFontSize: 20, codeFontSize: 16, controlRadius: 10, motion: 'reduced', motionSpeed: .75, browserStartUrl: 'https://example.com/' } });
+    await command('settings.update', { preferences: { keybindings: { search: 'Alt+K' } } });
+    expect(store.snapshot().settings).toMatchObject({ theme: 'light', modelId: 'saved/model', preferences: { density: 'touch', interfaceFont: 'Georgia', projectColors: { '["local","project-a"]': '#4F6EFF' }, futureLane: { recordId: 'retained' }, keybindings: { search: 'Alt+K', futureAction: 'Alt+F' } } });
+    expect(store.snapshot().resources).toEqual(before.resources);
+    expect(store.snapshot().archivedThreads).toEqual(before.archivedThreads);
+  });
   it('adds wide defaults without rewriting the old theme or selected model', async () => {
     const { store, command } = setup();
     store.internal('fixture.settings', null, () => store.put('settings', 'global', null, { theme: 'dark', modelId: 'subscription/model' }));

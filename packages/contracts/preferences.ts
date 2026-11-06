@@ -21,6 +21,12 @@ const keybindings = z.strictObject({
   openSettings: z.string().min(1).max(80), stop: z.string().min(1).max(80),
 });
 export const preferencesSchema = z.strictObject({
+  density: z.enum(['compact', 'comfortable', 'touch']), uiFontSize: z.number().int().min(13).max(16),
+  chatFontSize: z.number().int().min(14).max(20), codeFontSize: z.number().int().min(12).max(18),
+  controlRadius: z.union([z.literal(0), z.literal(6), z.literal(10)]),
+  customAccent: projectColorSchema.nullable(), motion: z.enum(['system', 'reduced', 'off']),
+  motionSpeed: z.union([z.literal(.75), z.literal(1), z.literal(1.25)]),
+  browserStartUrl: z.string().max(2048).refine(value => { if (value === '') return true; try { const url = new URL(value); return ['https:', 'http:'].includes(url.protocol) && !url.username && !url.password; } catch { return false; } }, 'Use an HTTP or HTTPS address without credentials, or leave blank.'),
   chatWidth: z.enum(['comfortable', 'wide', 'full']), fontSize: z.number().int().min(12).max(20),
   interfaceFont: font, promptFont: font, codeFont: z.enum(['monospace', 'Consolas', 'Cascadia Code']),
   contrast: z.enum(['normal', 'high']), panelAnimations: z.boolean(), motionDuration: z.number().int().min(0).max(400),
@@ -39,7 +45,9 @@ export const preferencesSchema = z.strictObject({
 export type UiPreferences = z.infer<typeof preferencesSchema>;
 export type PreferencePatch = Partial<Omit<UiPreferences, 'keybindings'>> & { keybindings?: Partial<UiPreferences['keybindings']> };
 export const DEFAULT_PREFERENCES: UiPreferences = {
-  chatWidth: 'wide', fontSize: 14, interfaceFont: 'system', promptFont: 'system', codeFont: 'monospace',
+  density: 'comfortable', uiFontSize: 14, chatFontSize: 14, codeFontSize: 14, controlRadius: 6,
+  customAccent: null, motion: 'system', motionSpeed: 1, browserStartUrl: '',
+  chatWidth: 'wide', fontSize: 14, interfaceFont: 'Inter', promptFont: 'system', codeFont: 'monospace',
   contrast: 'normal', panelAnimations: true, motionDuration: 220, sendShortcut: 'enter', composerPredictions: false,
   projectGrouping: true, projectOrder: 'recent', showWorkingSection: true, timeFormat: 'system',
   archiveConfirmation: true, deleteConfirmation: true, unpinConfirmation: false, threadNotifications: 'off', inAppNotifications: true,
@@ -53,8 +61,24 @@ export const DEFAULT_PREFERENCES: UiPreferences = {
 const patchSchema = preferencesSchema.partial().extend({ keybindings: keybindings.partial().optional() }).strict();
 export function mergePreferences(current: UiPreferences, patch: unknown): UiPreferences {
   const next = patchSchema.parse(patch);
-  return preferencesSchema.parse({ ...current, ...next, keybindings: { ...current.keybindings, ...next.keybindings } });
+  return readPreferences({ ...current, ...next, keybindings: { ...current.keybindings, ...next.keybindings } });
 }
 export function getPreferences(settings: { preferences?: PreferencePatch }): UiPreferences {
-  return mergePreferences(DEFAULT_PREFERENCES, settings.preferences ?? {});
+  return readPreferences(settings.preferences ?? {});
+}
+
+// Read unknown stored fields losslessly; new command patches still use the strict schema.
+function readPreferences(stored: PreferencePatch): UiPreferences {
+  const known = Object.fromEntries(Object.keys(preferencesSchema.shape).filter(key => Object.hasOwn(stored, key)).map(key => [key, stored[key as keyof PreferencePatch]]));
+  const bindings = Object.fromEntries(Object.keys(keybindings.shape).filter(key => Object.hasOwn(stored.keybindings ?? {}, key)).map(key => [key, stored.keybindings?.[key as keyof UiPreferences['keybindings']]]));
+  const legacySize = stored.fontSize ?? DEFAULT_PREFERENCES.fontSize;
+  const parsed = preferencesSchema.parse({ ...DEFAULT_PREFERENCES, ...known,
+    interfaceFont: stored.interfaceFont ?? (Object.keys(stored).length ? 'system' : DEFAULT_PREFERENCES.interfaceFont),
+    uiFontSize: stored.uiFontSize ?? Math.max(13, Math.min(16, legacySize)),
+    chatFontSize: stored.chatFontSize ?? Math.max(14, Math.min(20, legacySize)),
+    codeFontSize: stored.codeFontSize ?? Math.max(12, Math.min(18, legacySize)),
+    motion: stored.motion ?? (stored.panelAnimations === false ? 'off' : 'system'),
+    keybindings: { ...DEFAULT_PREFERENCES.keybindings, ...bindings },
+  });
+  return { ...stored, ...parsed, keybindings: { ...stored.keybindings, ...parsed.keybindings } };
 }
