@@ -33,21 +33,20 @@ describe('pinned T3 settings inventory', () => {
     // Frozen before the representation change: covers every ID, title, section and search term.
     expect(createHash('sha256').update(JSON.stringify(T3_SETTINGS_ROWS)).digest('hex')).toBe('2893f2e3a1de79b9c628ac73fe7670c686088f86c9f18acce61df3936c1d727e');
   });
-  it('retains every static indexed row, original navigation, supplemental pages and skill controls', () => {
+  it('retains the historical inventory as evidence and exposes supported consolidated navigation', () => {
     expect(T3_SETTINGS_ROWS).toHaveLength(136);
-    expect(SETTINGS_SECTIONS).toHaveLength(25);
-    expect(SETTINGS_SECTIONS).toContainEqual(['integrations','Bundled integrations']);
-    expect(SETTINGS_ROWS.find(row=>row.id==='harness-integrations')).toMatchObject({section:'integrations',title:'Bundled integrations'});
-    expect(SETTINGS_SECTIONS).toContainEqual(['skills', 'Skills & learning']);
+    expect(SETTINGS_SECTIONS).toHaveLength(12);
+    expect(SETTINGS_ROWS.find(row=>row.id==='harness-integrations')).toMatchObject({section:'skills',title:'Bundled integrations'});
+    expect(SETTINGS_SECTIONS).toContainEqual(['skills', 'Skills & Integrations']);
     expect(SETTINGS_ROWS.find(row => row.id === 'harness-skills')).toMatchObject({section:'skills',title:'Skills & learning'});
     expect(new Set(SETTINGS_ROWS.map(row => row.id)).size).toBe(SETTINGS_ROWS.length);
     for (const [section] of SETTINGS_SECTIONS) expect(SETTINGS_ROWS.some(row => row.section === section), section).toBe(true);
-    for (const row of T3_SETTINGS_ROWS) expect(SETTINGS_ROWS.find(item => item.id === row.id)).toEqual(row);
+    expect(SETTINGS_ROWS.every(row => settingAvailability(row) === 'Working')).toBe(true);
   });
-  it('classifies all unsupported desktop and service capabilities as unavailable', () => {
-    for (const row of SETTINGS_ROWS.filter(row => ['browser', 'devices', 'snap-shot', 'scheduled-tasks', 'secrets', 'worktrees', 'source-control', 'access'].includes(row.section))) expect(settingAvailability(row), row.id).toBe('Unavailable');
+  it('removes unsupported desktop and service placeholders from the visible index', () => {
+    expect(SETTINGS_ROWS.filter(row => ['devices', 'snap-shot', 'scheduled-tasks', 'secrets', 'worktrees', 'source-control', 'access'].includes(row.section))).toEqual([]);
     expect(settingAvailability(SETTINGS_ROWS.find(row => row.id === 'chat-width')!)).toBe('Working');
-    expect(settingAvailability(SETTINGS_ROWS.find(row => row.id === 'delete-confirmation')!)).toBe('Unavailable');
+    expect(SETTINGS_ROWS.some(row => row.id === 'delete-confirmation')).toBe(false);
   });
 });
 

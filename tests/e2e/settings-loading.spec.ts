@@ -29,7 +29,7 @@ test('Settings load on demand, retain focus and drafts, and reuse the loaded mod
     await fixture.publish();
     await expect(search).toHaveValue('chat width');
     expect(await search.evaluate((node, previous) => node === previous, original)).toBe(true);
-    await settings.getByRole('button', { name: 'Close settings', exact: true }).click();
+    await settings.getByRole('button', { name: 'Close dialog', exact: true }).click();
     await expect(composer).toHaveValue('Keep my next message');
     await expect(composer).toBeFocused();
     const opener = page.getByRole('button', { name: 'Settings', exact: true });
@@ -58,7 +58,7 @@ test('a failed Settings chunk preserves the conversation and can be safely reloa
   const settings = page.locator('dialog.settings-dialog'); await expect(settings).toBeVisible();
   await expect(settings.getByRole('searchbox', { name: 'Search all settings', exact: true })).toBeVisible();
   expect(requests).toBe(2); expect(pageErrors).toEqual([]);
-  await settings.getByRole('button', { name: 'Close settings', exact: true }).click();
+  await settings.getByRole('button', { name: 'Close dialog', exact: true }).click();
   await expect(opener).toBeFocused(); await expect(note).toHaveValue('Keep the artifact draft');
 });
 
