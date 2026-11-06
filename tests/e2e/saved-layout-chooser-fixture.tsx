@@ -1,0 +1,22 @@
+import {useState} from 'react';
+import {createRoot} from 'react-dom/client';
+import {WorkspaceControls} from '../../apps/web/src/WorkspaceControls';
+import {useSplitWorkspaceProfiles} from '../../apps/web/src/split-workspace-profiles';
+import {createSplitWorkspaceLayout} from '../../packages/core/split-workspace-layout';
+import type {WorkspaceEnvelope} from '../../packages/contracts/workspace';
+import '../../apps/web/src/styles.css';
+
+const stamp='2026-11-05T12:00:00.000Z';
+const query=new URLSearchParams(location.search);
+const initial=createSplitWorkspaceLayout();
+const original:WorkspaceEnvelope={projects:[],state:{version:1,revision:0,activeCanvasId:'main',disabledKinds:[],integrations:{},profiles:query.has('legacy')?[{version:1,id:'old',name:'Recovered desk',createdAt:stamp,updatedAt:stamp,activeCanvasId:'old-main',canvases:[{version:1,id:'old-main',name:'Old workspace',preset:'workspace',viewport:{x:0,y:0,zoom:1},panels:[],filter:'all',projectIds:[]}],disabledKinds:[],integrations:{}}]:[],canvases:[{version:1,id:'main',name:'Workspace',preset:'workspace',viewport:{x:0,y:0,zoom:1},panels:[],filter:'all',projectIds:[]}]}};
+function Fixture(){
+ const [envelope,setEnvelope]=useState(original),[layout,setLayout]=useState(initial),[profiles,setProfiles]=useState(query.has('empty')?[]:Array.from({length:query.has('large')?50:2},(_,i)=>({id:'layout-'+i,name:i===0?'Coding':'Review '+i,updatedAt:stamp}))),[calls,setCalls]=useState<string[]>([]),[loading,setLoading]=useState(query.has('loading')),[error,setError]=useState(query.has('error')?'Saved layouts could not load.':''),[mode,setMode]=useState<'split'|'chat'|'retained-canvas'>('split');
+ const record=async(action:string)=>{setCalls(value=>[...value,action]);if(query.has('delay'))await new Promise(resolve=>setTimeout(resolve,400));if(query.has('failure'))throw Error('The saved layout could not be applied.');};
+ const save=async(name:string,id?:string)=>{await record('save:'+(id??'new'));const selected=id??'created-'+profiles.length;setProfiles(values=>[...values.filter(p=>p.id!==selected),{id:selected,name,updatedAt:stamp}]);return{id:selected,layout,updatedAt:stamp};};
+ const props={splitLayout:layout,splitProfilesLoading:loading,splitProfilesError:error,refreshSplitProfiles:async()=>{setLoading(false);setError('');},renameSplitProfile:async(id:string,name:string)=>{await record('rename:'+id);setProfiles(values=>values.map(p=>p.id===id?{...p,name}:p));}};
+ return <main style={{padding:'60px 12px 12px'}}><p>Synthetic saved-layout interaction fixture</p><textarea aria-label="Conversation draft" defaultValue="Keep this unsent draft"/><WorkspaceControls {...props} envelope={envelope} prepare={async()=>{}} send={async(type,payload)=>{await record(type);let next=envelope;if(type==='workspace.profile.apply')next={...envelope,state:{...envelope.state,...envelope.state.profiles.find(p=>p.id===payload?.profileId),profiles:envelope.state.profiles,revision:envelope.state.revision+1}};setEnvelope(next);return next;}} panels={[]} title={p=>p.id} addPanel={async()=>{}} updatePanel={async()=>{}} workspaceMode={mode} onWorkspaceMode={setMode} splitWorkspace={mode==='split'} splitProfiles={profiles} saveSplitProfile={save} applySplitProfile={async id=>{await record('apply:'+id);setLayout(initial);return initial;}} removeSplitProfile={async id=>{await record('remove:'+id);setProfiles(values=>values.filter(p=>p.id!==id));}}/>
+ <button onClick={()=>setLayout(value=>({...value,panes:{...value.panes,'pane-main':{...value.panes['pane-main']!,collapsed:!value.panes['pane-main']!.collapsed}}}))}>Change arrangement</button><button onClick={()=>setProfiles(values=>values.map(p=>({...p,updatedAt:'2026-11-05T13:00:00.000Z'})))}>Change saved record</button><output aria-label="Calls">{calls.join(',')}</output><output aria-label="Mode">{mode}</output><button>After chooser</button></main>;
+}
+function MetadataFixture(){const[workspace,setWorkspace]=useState('one'),state=useSplitWorkspaceProfiles(true,workspace);return <main><button onClick={()=>setWorkspace('two')}>Other workspace</button><button onClick={()=>void state.refresh().catch(()=>{})}>Refresh</button><output aria-label="Metadata">{state.profiles.map(p=>p.name).join(',')}</output><output aria-label="Metadata error">{state.error}</output></main>;}
+createRoot(document.getElementById('root')!).render(query.has('metadata')?<MetadataFixture/>:<Fixture/>);

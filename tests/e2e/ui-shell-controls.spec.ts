@@ -206,8 +206,10 @@ test('Panels failures stay visible and Layouts keeps its saved-layout controls',
   await page.getByRole('menuitem', { name: 'Add Files panel' }).click();
   await expect(page.getByRole('alert')).toHaveText('The owner rejected this tool.');
   await page.getByRole('button', { name: 'Layouts', exact: true }).click();
-  await expect(page.getByRole('textbox', { name: 'Profile name' })).toHaveValue('My workspace');
-  await expect(page.getByRole('button', { name: 'Save as new', exact: true })).toBeVisible();
+  await expect(page.getByRole('dialog', { name: 'Saved layouts', exact: true })).toBeVisible();
+  await expect(page.getByText('No saved layouts yet.', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Save current layout\u2026', exact: true })).toBeDisabled();
+  await expect(page.getByRole('textbox', { name: 'Layout name' })).toHaveCount(0);
 });
 
 test('Panels fits a short window with a visible scrollbar and reachable last action', async ({ page }) => {
