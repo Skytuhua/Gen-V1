@@ -117,6 +117,17 @@ function objectProperties(expression: ts.Expression, checker: ts.TypeChecker, se
   });
 }
 
+function jsxTextEmitsChild(text: string): boolean {
+  // JSX erases multiline indentation, but inline whitespace overrides children props.
+  let lineBreak = false;
+  for (let index = 0; index < text.length; index++) {
+    const character = text.charCodeAt(index);
+    if (!ts.isWhiteSpaceLike(character)) return true;
+    if (ts.isLineBreak(character)) lineBreak = true;
+  }
+  return !lineBreak;
+}
+
 function fixedOverlay(properties: [string, string][]): boolean {
   const values = new Map(properties);
   return ['fixed', 'absolute'].includes(values.get('position') ?? '') && (values.has('zIndex') || values.has('z-index'));
@@ -395,7 +406,7 @@ export function lintUiProgram(program: ts.Program, files: string[], root: string
       if (!nonRenderingAttribute(node) && (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node))) {
         // React uses explicit nested children before any children prop; otherwise the last prop wins.
         const nested = ts.isJsxOpeningElement(node) && node.parent.children.some(child =>
-          ts.isJsxText(child) ? child.text.trim().length > 0 : !ts.isJsxExpression(child) || Boolean(child.expression));
+          ts.isJsxText(child) ? jsxTextEmitsChild(child.text) : !ts.isJsxExpression(child) || Boolean(child.expression));
         if (!nested) {
           let child: ts.Expression | undefined;
           for (const property of node.attributes.properties) {
