@@ -27,7 +27,7 @@ export function useModalRegion(ref: RefObject<HTMLElement | null>, active: boole
     focus();
     const key = (event: KeyboardEvent) => {
       if (nativeModal()) return;
-      if (event.key === 'Escape') {
+      if (event.key === 'Escape' && !event.isComposing && event.keyCode !== 229) {
         const child=event.target instanceof Element?event.target.closest('[data-escape-scope]'):null;
         if(child&&child!==region&&region.contains(child))return;
         event.preventDefault(); event.stopPropagation(); closeRef.current();
