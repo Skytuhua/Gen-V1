@@ -27,16 +27,20 @@ export function WorkspacePanel({ snapshot, threadId, preferences, layout, setWid
     const body = content.current, owner = body?.closest<HTMLElement>('.shell-workarea[data-tool-layout]');
     if (!body || !owner || standalone) return;
     const keys = ['left','top','width','height'] as const;
+    let animationFrame = 0;
     const measure = () => {
+      cancelAnimationFrame(animationFrame);
       const rect = body.getBoundingClientRect();
       const values = [rect.left + 12, rect.top + 12, Math.max(0, rect.width - 24), Math.max(0, rect.height - 24)];
       keys.forEach((key,index) => owner.style.setProperty(`--artifact-dock-${key}`,`${values[index]}px`));
       owner.dataset.artifactDockReady = String(rect.width > 0 && rect.height > 0);
+      // Entrance transforms move the visual slot without notifying ResizeObserver.
+      if (body.parentElement?.getAnimations().some(animation => animation.playState === 'running')) animationFrame = requestAnimationFrame(measure);
     };
     measure(); const observer = new ResizeObserver(measure);
     observer.observe(body); observer.observe(owner); if (body.parentElement) observer.observe(body.parentElement);
     window.addEventListener('resize',measure); document.fonts?.addEventListener('loadingdone',measure);
-    return () => { observer.disconnect(); window.removeEventListener('resize',measure); document.fonts?.removeEventListener('loadingdone',measure); delete owner.dataset.artifactDockReady; keys.forEach(key => owner.style.removeProperty(`--artifact-dock-${key}`)); };
+    return () => { cancelAnimationFrame(animationFrame); observer.disconnect(); window.removeEventListener('resize',measure); document.fonts?.removeEventListener('loadingdone',measure); delete owner.dataset.artifactDockReady; keys.forEach(key => owner.style.removeProperty(`--artifact-dock-${key}`)); };
   },[standalone,workspace.activeTab,workspace.activeArtifactId]);
   const [handoffError,setHandoffError]=useState('');
   useEffect(()=>setHandoffError(''),[threadId,workspace.activeTab]);
