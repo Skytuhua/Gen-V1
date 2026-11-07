@@ -11,6 +11,33 @@ async function choose(page: Page, name: string, label: string) {
   await page.getByRole('option', {name: label, exact: true}).click();
 }
 
+test('review: unmatched catalog displays its placeholder without changing saved state',async({page})=>{
+ await page.goto(fixture+'?overflow=1');await expect(page.getByRole('combobox',{name:'Catalog choice',exact:true})).toHaveText('Choose an option');await expect(page.getByLabel('Catalog state')).toHaveText('{"catalog":"one"}');
+});
+
+test('review: explicitly clearing unmatched catalog commits the empty selection',async({page})=>{
+ await page.goto(fixture+'?overflow=1');await expect(page.getByLabel('Catalog state')).toHaveText('{"catalog":"one"}');await choose(page,'Catalog choice','Choose an option');await expect(page.getByLabel('Catalog state')).toHaveText('{"catalog":""}');
+});
+
+test('review: explicitly omitting an unmatched optional false value removes its property',async({page})=>{
+ await page.goto(fixture+'?review=optional-false');await expect(page.getByLabel('Enum state')).toHaveText('{"required":false}');await choose(page,'Optional choice','Choose\u2026');await expect(page.getByLabel('Enum state')).toHaveText('{}');await page.getByRole('button',{name:'Submit enums',exact:true}).click();await expect(page.getByLabel('Submitted enums')).toHaveText('{}');
+});
+
+for(const [initial,selected] of [['empty','a'],['false','true']])test(`review: actual ${initial} enum startup retains placeholder and required feedback`,async({page})=>{
+ await page.goto(fixture+'?review='+initial);const trigger=page.getByRole('combobox',{name:'Required choice',exact:true});await expect(trigger).toHaveText('Choose\u2026');
+ await page.getByRole('button',{name:'Submit enums',exact:true}).click();await expect(trigger).toHaveAttribute('aria-invalid','true');await expect(page.getByLabel('Submitted enums')).toHaveText('');
+ await expect(page.getByLabel('Enum state')).toHaveText(initial==='empty'?'{"required":""}':'{"required":false}');await choose(page,'Required choice',selected);await page.getByRole('button',{name:'Submit enums',exact:true}).click();await expect(page.getByLabel('Submitted enums')).toHaveText(initial==='empty'?'{"required":"a"}':'{"required":true}');
+});
+
+for(const initial of ['object-default','object-restored','array-restored'])test(`review: reordered JSON keys match the ${initial} enum without rewriting values`,async({page})=>{
+ await page.goto(fixture+'?review='+initial);await expect(page.getByRole('combobox',{name:'Required choice',exact:true})).toContainText('"a": 1');
+ const expected=initial==='array-restored'?'{"required":[{"b":2,"a":1}]}':'{"required":{"b":2,"a":1}}';await expect(page.getByLabel('Enum state')).toHaveText(expected);await page.getByRole('button',{name:'Submit enums',exact:true}).click();await expect(page.getByLabel('Submitted enums')).toHaveText(expected);
+});
+
+test('review: JSON array order remains significant and an unmatched value stays stored',async({page})=>{
+ await page.goto(fixture+'?review=array-order');const trigger=page.getByRole('combobox',{name:'Required choice',exact:true});await expect(trigger).toHaveText('Choose\u2026');await page.getByRole('button',{name:'Submit enums',exact:true}).click();await expect(trigger).toHaveAttribute('aria-invalid','true');await expect(page.getByLabel('Enum state')).toHaveText('{"required":[2,1]}');await expect(page.getByLabel('Submitted enums')).toHaveText('');
+});
+
 test('catalog keyboard selection commits strings, Escape cancels and neighboring editors retain identity', async ({page}) => {
   const trigger = page.getByRole('combobox', {name: 'Catalog choice', exact: true});
   const draft = page.getByRole('textbox', {name: 'Neighboring draft'}), editor = page.getByRole('textbox', {name: 'Neighboring editor'});

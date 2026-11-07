@@ -24,8 +24,8 @@ export function Select({ value, onValueChange, options, 'aria-label': label, id,
   const [open, setOpen] = useState(false);
   const [fieldsetDisabled, setFieldsetDisabled] = useState(false), [invalid, setInvalid] = useState(false);
   const listId = useId(), errorId = useId(), start = useRef<'selected' | 'last' | string>('selected');
-  const effectivelyDisabled = Boolean(disabled || fieldsetDisabled), showInvalid = invalid && required && value === '';
   const selected = options.findIndex(option => option.value === value);
+  const effectivelyDisabled = Boolean(disabled || fieldsetDisabled), showInvalid = invalid && required && (value === '' || selected < 0);
   const close = () => { setOpen(false); anchor.current?.focus(); };
   const choose = (index: number) => {
     if (disabled || native.current?.matches(':disabled')) { setOpen(false); return; }
@@ -63,7 +63,7 @@ export function Select({ value, onValueChange, options, 'aria-label': label, id,
           event.preventDefault(); navigation.reset(); start.current = event.key === 'ArrowUp' ? 'last' : event.key === 'ArrowDown' ? 'selected' : event.key;
           setOpen(true);
         }
-      }}><span>{options[selected]?.label ?? ''}</span><ChevronDown size={14} aria-hidden="true" /></button>
+      }}><span>{options[selected]?.label ?? options.find(option => option.value === '')?.label ?? ''}</span><ChevronDown size={14} aria-hidden="true" /></button>
     <select ref={native} className="ui-select-native" aria-hidden="true" tabIndex={-1} name={name} form={form} disabled={disabled} required={required}
       value={value} onChange={event => onValueChange(event.target.value)} onInvalid={event => { event.preventDefault(); setInvalid(true); anchor.current?.focus(); }}>
       {options.map(option => <option key={option.value} value={option.value} disabled={option.disabled}>{option.label}</option>)}
