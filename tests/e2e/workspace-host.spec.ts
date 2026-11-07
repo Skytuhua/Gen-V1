@@ -415,3 +415,53 @@ test('desktop ownership change prevents a slash mode retry after authentication 
  await expect(page.getByRole('alert').filter({hasText:'The command owner changed'})).toBeVisible();
  expect(attempts).toBe(1);
 });
+
+async function installOwnerPublisher(page: Page) {
+ const originalInit=page.addInitScript.bind(page);
+ page.addInitScript=async(fn:any,arg:any)=>{
+  await originalInit(fn,arg);
+  if(arg?.native)await originalInit(()=>{
+   (window as any).harnessDesktop.onState=(notify:(state:unknown)=>void)=>{
+    (window as any).publishOwner=(away:boolean)=>notify({windows:away?[{id:'existing-child',surface:{kind:'thread',threadId:'parent-a'},title:'Restored thread'}]:[]});
+    return()=>{};
+   };
+  });
+ };
+}
+
+test('a native owner roundtrip before auth retry still rejects the stale mode',async({page})=>{
+ await installOwnerPublisher(page); await fixture(page,{native:true,working:false});
+ const input=page.getByRole('textbox',{name:'Message to Project investigation',exact:true});
+ const sent:unknown[]=[];let attempts=0, release!:()=>void;const gate=new Promise<void>(resolve=>{release=resolve;});
+ await page.route('**/api/commands',async route=>{
+  const command=route.request().postDataJSON();if(command.type!=='thread.mode')return route.fallback();attempts++;sent.push(command);
+  if(attempts===1){await gate;return route.fulfill({status:401,json:{error:{code:'AUTH_REQUIRED',message:'Session renewed'}}});}
+  return route.fulfill({json:{commandId:command.id,seq:1,result:{}}});
+ });
+ await input.fill('/plan');await expect(page.getByRole('option',{name:'/plan Switch to Plan'})).toBeVisible();await input.press('Enter');
+ await expect.poll(()=>attempts).toBe(1);
+ await page.evaluate(()=>(window as any).publishOwner(true));await expect(input).toBeDisabled();
+ await page.evaluate(()=>(window as any).publishOwner(false));await expect(input).toBeEnabled();release();
+ await expect(page.getByRole('alert').filter({hasText:'The command owner changed'})).toBeVisible();expect(attempts).toBe(1);
+});
+
+test('unmounting the monitor before native takeover rejects a stale mode retry',async({page})=>{
+ await installOwnerPublisher(page); await fixture(page,{native:true,working:false});
+ const input=page.getByRole('textbox',{name:'Message to Project investigation',exact:true});
+ const sent:unknown[]=[];let attempts=0, release!:()=>void;const gate=new Promise<void>(resolve=>{release=resolve;});
+ await page.route('**/api/commands',async route=>{
+  const command=route.request().postDataJSON();if(command.type!=='thread.mode')return route.fallback();attempts++;sent.push(command);
+  if(attempts===1){await gate;return route.fulfill({status:401,json:{error:{code:'AUTH_REQUIRED',message:'Session renewed'}}});}
+  return route.fulfill({json:{commandId:command.id,seq:1,result:{}}});
+ });
+ await input.fill('/plan');await expect(page.getByRole('option',{name:'/plan Switch to Plan'})).toBeVisible();await input.press('Enter');
+ await expect.poll(()=>attempts).toBe(1);
+ await page.getByRole('button',{name:'Open conversation Project investigation',exact:true}).click();
+ await expect(input).toHaveCount(0);
+ await page.evaluate(()=>(window as any).publishOwner(true));
+ await expect(page.getByText('This conversation is open in another window.',{exact:false})).toBeVisible();release();
+ await expect.poll(()=>attempts,{timeout:1500}).toBe(1);
+ await page.waitForTimeout(300);
+ console.log(JSON.stringify({scenario:'unmount-then-native-takeover',attempts,sent}));
+ expect(attempts).toBe(1);
+});
