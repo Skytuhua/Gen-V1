@@ -10,7 +10,7 @@ const failure=(route:Route,code='HTTP_ERROR')=>json(route,{error:{code,message:'
 function deferred(){let resolve!:()=>void;const promise=new Promise<void>(done=>{resolve=done;});return {promise,resolve};}
 const audits=new WeakMap<Page,{blocked:string[];errors:string[]}>();
 test.afterEach(async({page})=>{const audit=audits.get(page);if(audit){expect(audit.blocked).toEqual([]);expect(audit.errors).toEqual([]);}});
-async function mount(page:Page,options:{baseline?:boolean;unbound?:boolean;bootstrap?:(route:Route,index:number)=>Promise<void>;create?:(route:Route,body:Record<string,unknown>)=>Promise<void>;read?:(route:Route,index:number)=>Promise<void>;command?:(route:Route,body:Record<string,unknown>)=>Promise<void>}={}){
+async function mount(page:Page,options:{unbound?:boolean;bootstrap?:(route:Route,index:number)=>Promise<void>;create?:(route:Route,body:Record<string,unknown>)=>Promise<void>;read?:(route:Route,index:number)=>Promise<void>;command?:(route:Route,body:Record<string,unknown>)=>Promise<void>}={}){
  const requests:RequestRecord[]=[],blocked:string[]=[],errors:string[]=[];let reads=0,bootstraps=0;audits.set(page,{blocked,errors});
  page.on('pageerror',error=>errors.push(error.message));
  await page.route('**/*',async route=>{
@@ -25,19 +25,12 @@ async function mount(page:Page,options:{baseline?:boolean;unbound?:boolean;boots
   if(/^\/api\/terminals\/[^/]+\/commands$/.test(url.pathname)&&body){if(options.command)await options.command(route,body);else await json(route,result(url.pathname.split('/').at(-2),'',{exited:body.type==='stop'}));return;}
   blocked.push(request.url());await route.abort();
  });
- const query=new URLSearchParams();if(options.baseline)query.set('baseline','');if(options.unbound)query.set('unbound','');
+ const query=new URLSearchParams();if(options.unbound)query.set('unbound','');
  await page.goto('/tests/e2e/fixtures/terminal-read.html?'+query);
  await expect(page.locator('.xterm')).toHaveCount(1);
  return {requests,blocked,errors,creates:()=>requests.filter(item=>item.path==='/api/terminals'),reads:()=>requests.filter(item=>item.method==='GET'&&item.path.startsWith('/api/terminals/')),stops:()=>requests.filter(item=>item.body?.type==='stop')};
 }
 const text=(page:Page)=>page.evaluate(()=>window.terminalFixture.text());
-
-test('frozen original freezes output after one failed read and offers no read retry',async({page},info)=>{
- const api=await mount(page,{baseline:true,read:route=>failure(route)});
- await expect(page.getByRole('alert')).toContainText('Synthetic transient');await page.waitForTimeout(1100);
- expect(api.reads()).toHaveLength(1);await expect(page.getByRole('button',{name:'Retry',exact:true})).toHaveCount(0);await expect.poll(()=>text(page)).toContain('before');
- await page.screenshot({path:info.outputPath('01-baseline-frozen.png')});expect(api.blocked).toEqual([]);expect(api.errors).toEqual([]);
-});
 
 test('read Retry resumes the same cursor and real xterm without duplicate or lost output',async({page},info)=>{
  const gate=deferred();
