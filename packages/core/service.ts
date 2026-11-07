@@ -59,6 +59,7 @@ export class Service {
   readonly planning: PlanningCoordinator;
   readonly learning:LearningCoordinator;
   private aborts = new Map<string, AbortController>();
+  private controllerWork = new WeakMap<AbortController, number>();
   private pending = new Set<Promise<unknown>>();
   private researchAborts = new Set<AbortController>();
   // Grants may overlap or alias the same file. Serialize effects service-wide
@@ -93,16 +94,31 @@ export class Service {
   private background(promise: Promise<unknown>): void {
     this.pending.add(promise); void promise.catch(() => {}).finally(() => this.pending.delete(promise));
   }
+  private retainController(control:AbortController):void {
+    this.controllerWork.set(control,(this.controllerWork.get(control)??0)+1);
+  }
+  private releaseController(threadId:string,control:AbortController):void {
+    const remaining=(this.controllerWork.get(control)??1)-1;
+    if(remaining)this.controllerWork.set(control,remaining);else this.controllerWork.delete(control);
+    this.retireController(threadId,control);
+  }
+  private retireController(threadId:string,control:AbortController|undefined):void {
+    // Foreground settlement does not finish an in-flight runtime call, queued
+    // effect, or native teardown. Late completions cannot release a newer owner.
+    if(!control||this.aborts.get(threadId)!==control||this.controllerWork.has(control)||this.store.get<Thread>('thread',threadId)?.runId||[...this.teardowns.values()].some(owner=>owner.ctx.threadId===threadId))return;
+    this.aborts.delete(threadId);
+  }
   private cancelRun(input:RunContext,side:boolean):Promise<void>{
     const ctx:RunContext={threadId:input.threadId,runId:input.runId,epoch:input.epoch};
     const key=JSON.stringify([ctx.threadId,ctx.runId,ctx.epoch]),previous=this.teardowns.get(key);if(previous)return previous.promise;
+    const control=this.aborts.get(ctx.threadId);
     const cancel=(runtime:Pick<RuntimeAdapter,'cancel'>):Promise<void>=>{try{return runtime.cancel(ctx);}catch(error){return Promise.reject(error);}};
     const promise=Promise.allSettled([cancel(this.planning),cancel(side?this.sideRuntime:this.runtime)]).then(outcomes=>{
       const failures=outcomes.flatMap(outcome=>outcome.status==='rejected'?[outcome.reason]:[]);
       if(failures.length===1)throw failures[0];
       if(failures.length)throw new AggregateError(failures,failures.map(error=>error instanceof Error?error.message:String(error)).join('; '));
     }),owner={ctx:{...ctx},side,promise};this.teardowns.set(key,owner);
-    void promise.then(()=>{if(this.teardowns.get(key)===owner)this.teardowns.delete(key);},()=>{/* Unconfirmed native teardown retains its admission hold. */});return promise;
+    void promise.then(()=>{if(this.teardowns.get(key)===owner)this.teardowns.delete(key);this.retireController(ctx.threadId,control);},()=>{/* Unconfirmed native teardown retains its admission hold. */});return promise;
   }
   async stopAll():Promise<{stopped:number;errors?:string[]}>{
     const targets=this.store.all<Thread>('thread').filter(thread=>thread.kind!=='delegate'&&(thread.runId||this.mainAdmissions.has(thread.id)));
@@ -557,7 +573,10 @@ export class Service {
       case "request.withdraw": {
         const request = this.request(thread.id, p.requestId, p.revision);
         this.store.put("request", request.id, thread.id, { ...request, revision: request.revision + 1, status: "withdrawn" });
-        for (const op of this.store.all<Operation>("operation", thread.id).filter(o => o.status === "prepared")) this.store.put("operation", op.id, thread.id, { ...op, status: "cancelled", revision: op.revision + 1 });
+        for (const op of this.store.all<Operation>("operation", thread.id).filter(o => o.status === "prepared")) {
+          const next: Operation = { ...op, status: "cancelled", revision: op.revision + 1 };
+          this.store.put("operation", op.id, thread.id, next); this.operationData(next);
+        }
         this.updateGateStatus(thread.id); return { withdrawn: true };
       }
       case "request.respond": return this.acceptRequest(thread, this.request(thread.id, p.requestId, p.revision), p.response);
@@ -765,8 +784,10 @@ export class Service {
     if(this.source&&!thread.sideParentId&&contents.some(content=>/^\/learn(?:\s|$)/i.test(content.trim())))try{contents=await Promise.all(contents.map(async content=>/^\/learn(?:\s|$)/i.test(content.trim())?(await this.source!.runtime.sourceRequest<{prompt:string}>('learn.prompt',{request:content.trim().replace(/^\/learn\s*/i,'')})).prompt:content));}catch(error){this.runtimeFailure(ctx,error);return;}
     const input: StartRun = { ...ctx,accountId:binding.accountId, memory: taskMemoryContext(this.store, threadId), modelId, thinkingLevel:thread.thinkingLevel, sessionPath: thread.sessionPath, inputId: inputs[0].id, inputIds: inputs.map(i => i.id), resources: thread.sideParentId?[]:this.store.all("resource", threadId), ...(completedWrites.length?{completedWrites}:{}),prompt: guidance+inputs.map((input,index) => "Input " + input.id + ":\n" + contents[index]).join("\n\n") };
     if (!this.aborts.has(threadId) || !thread.runId) this.aborts.set(threadId, new AbortController());
+    const control=this.aborts.get(threadId)!;this.retainController(control);
     try { this.assertRun(ctx);this.assertBinding(this.thread(threadId),modelProvider(input.modelId),binding);if(thread.sideParentId)await this.sideRuntime.start(input);else if (thread.runId) await this.runtime.followUp(input); else await this.runtime.start(input); }
     catch (error) { this.runtimeFailure(ctx, error); }
+    finally { this.releaseController(threadId,control); }
     }catch(error){
       const current=this.store.get<Thread>('thread',threadId);
       if(!this.closed&&preparing&&current?.epoch===preparingEpoch&&!current.runId&&!['stopped','interrupted'].includes(current.status))this.store.internal('input.preparation_failed',threadId,()=>{this.store.put('thread',threadId,threadId,{...current,status:'interrupted',error:error instanceof Error?error.message:String(error),updatedAt:now()});return{error:'Workspace preparation failed; the input remains saved.'};});
@@ -793,6 +814,7 @@ export class Service {
     const thread = this.store.get<Thread>("thread", event.threadId);
     if (!thread || event.epoch !== thread.epoch || event.runId !== thread.runId) return;
     if (event.type === "error") { this.runtimeFailure(event, new Error(String(event.message))); return; }
+    const control=this.aborts.get(thread.id);
     this.store.internal("runtime." + event.type, thread.id, () => {
       if(event.type==='write.hook'&&event.diagnostic&&typeof event.diagnostic==='object'){
         const diagnostic=event.diagnostic as WriteHookDiagnostic,input=this.store.get<Outbox>('outbox',diagnostic.inputId),receipt=input?.completedWrite;
@@ -835,6 +857,7 @@ export class Service {
       }
       return { runId: event.runId };
     });
+    if (event.type === "settled") this.retireController(thread.id,control);
     if (event.type === "settled" && !event.aborted) {
       // Hermes may still be closing its background review here. Only this
       // accepted transition mints the slot; request admission waits for cleanup.
@@ -961,6 +984,7 @@ export class Service {
     if (!requested) throw new HarnessError('NOT_FOUND', 'Operation unavailable');
     const control = this.aborts.get(requested.threadId) ?? new AbortController();
     this.aborts.set(requested.threadId, control);
+    this.retainController(control);
     const previous = this.operationQueue;
     let release!: () => void;
     this.operationQueue = new Promise<void>(resolve => { release = resolve; });
@@ -970,7 +994,7 @@ export class Service {
       // lend a new run's controller to an already queued effect.
       if (this.closed || control.signal.aborted) throw new HarnessError('CANCELLED_RUN', 'Queued operation was stopped');
       return await this.executeOperation(id, control);
-    } finally { release(); }
+    } finally { this.releaseController(requested.threadId,control);release(); }
   }
   private async executeOperation(id: string, control: AbortController): Promise<unknown> {
     const op = this.store.get<Operation>("operation", id);
@@ -1033,7 +1057,10 @@ export class Service {
     this.store.internal("workspace.recovered", null, () => {
       const learning=this.store.get<Snapshot['learning']>('learningStatus','global'),last=learning?.lastReview;
       this.store.put('learningStatus','global',null,{...learning,supported:this.learningSupported,status:'idle',lastCuratedAt:learning?.lastCuratedAt??now(),lastReview:last?.status==='reviewing'?{...last,status:'cancelled',finishedAt:now(),error:'The interrupted review was not restarted.'}:last??null});
-      for (const op of this.store.all<Operation>("operation").filter(o => o.status === "running")) this.store.put("operation", op.id, op.threadId, { ...op, status: "unknown", error: "Execution was interrupted before its outcome was recorded" });
+      for (const op of this.store.all<Operation>("operation").filter(o => o.status === "running")) {
+        const next: Operation = { ...op, status: "unknown", error: "Execution was interrupted before its outcome was recorded" };
+        this.store.put("operation", op.id, op.threadId, next); this.operationData(next);
+      }
       for (const thread of this.store.all<Thread>("thread").filter(t => t.runId)) { this.failUnansweredDetails({threadId:thread.id,runId:thread.runId!,epoch:thread.epoch},"The explanation was interrupted. Resume the task to retry."); this.store.put("thread", thread.id, thread.id, { ...thread, epoch: thread.epoch + 1, runId: null, status: "interrupted", updatedAt: now() }); }
       return { inferenceCalls: 0 };
     });

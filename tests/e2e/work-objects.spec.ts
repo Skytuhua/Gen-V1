@@ -35,6 +35,62 @@ test('trace preserves real hierarchy, filters, zoom and honest unavailable timin
 test('trace tree keyboard and collapse keep supplied spans discoverable',async({page})=>{
  await fixture(page,'TraceWaterfall',suppliedTrace);await page.goto('/');const root=page.getByRole('treeitem',{name:'Import request',exact:true});await root.focus();await root.press('ArrowDown');await expect(page.getByRole('treeitem',{name:'Validate grant',exact:true})).toBeFocused();await page.getByRole('button',{name:'Collapse Parse document',exact:true}).click();await expect(page.getByRole('treeitem',{name:'Read source bytes',exact:true})).toHaveCount(0);await page.getByRole('searchbox',{name:'Filter spans',exact:true}).fill('source');await expect(page.getByRole('treeitem',{name:'Read source bytes',exact:true})).toBeVisible();await expect(page.getByRole('treeitem',{name:'Parse document',exact:true})).toBeVisible();
 });
+
+const navigationTrace={revision:'navigation-1',spans:[{id:'parent',name:'Parent',status:'ok'},{id:'branch',parentId:'parent',name:'Branch',status:'ok'},{id:'leaf',parentId:'branch',name:'Leaf',status:'error'},{id:'other',name:'Other root',status:'unknown'}]};
+async function traceState(page:Page,names:string[],entry:string,expanded:Record<string,boolean>,focused=entry){
+ const tree=page.getByRole('tree',{name:'Supplied spans',exact:true});
+ await expect(tree.getByRole('treeitem')).toHaveCount(names.length);
+ expect(await tree.getByRole('treeitem').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('aria-label')))).toEqual(names);
+ for(const name of names)await expect(tree.getByRole('treeitem',{name,exact:true})).toBeVisible();
+ const current=tree.getByRole('treeitem',{name:entry,exact:true});await expect(current).toHaveAttribute('tabindex','0');
+ expect(await tree.locator('*').evaluateAll(nodes=>nodes.filter(node=>node instanceof HTMLElement&&node.tabIndex>=0&&!node.matches(':disabled')).map(node=>node.getAttribute('aria-label')))).toEqual([entry]);
+ for(const [name,value] of Object.entries(expanded))await expect(tree.getByRole('treeitem',{name,exact:true})).toHaveAttribute('aria-expanded',String(value));
+ if(focused)await expect(tree.getByRole('treeitem',{name:focused,exact:true})).toBeFocused();
+}
+
+test('trace horizontal arrows traverse visible parents and children',async({page})=>{
+ await fixture(page,'TraceWaterfall',navigationTrace);await page.goto('/');
+ const item=(name:string)=>page.getByRole('treeitem',{name,exact:true}),all=['Parent','Branch','Leaf','Other root'];
+ await item('Leaf').click();await item('Leaf').press('ArrowLeft');await expect.soft(item('Branch')).toBeFocused();
+ await item('Parent').click();await item('Parent').press('ArrowRight');await expect(item('Branch')).toBeFocused();await expect(item('Branch')).toHaveAttribute('aria-selected','true');await traceState(page,all,'Branch',{Parent:true,Branch:true});
+ await item('Leaf').click();await item('Leaf').press('ArrowLeft');await traceState(page,all,'Branch',{Parent:true,Branch:true});await expect(item('Branch')).toHaveAttribute('aria-selected','true');
+ await item('Branch').press('ArrowLeft');await traceState(page,['Parent','Branch','Other root'],'Branch',{Parent:true,Branch:false});
+ await item('Branch').press('ArrowLeft');await traceState(page,['Parent','Branch','Other root'],'Parent',{Parent:true,Branch:false});
+ await item('Branch').click();await item('Branch').press('ArrowRight');await traceState(page,all,'Branch',{Parent:true,Branch:true});
+ await item('Branch').press('ArrowRight');await traceState(page,all,'Leaf',{Parent:true,Branch:true});await expect(item('Leaf')).toHaveAttribute('aria-selected','true');
+ await item('Leaf').press('ArrowRight');await traceState(page,all,'Leaf',{Parent:true,Branch:true});
+ await item('Other root').click();await item('Other root').press('ArrowLeft');await traceState(page,all,'Other root',{Parent:true,Branch:true});
+});
+
+test('trace has one sequential tree entry and keeps pointer collapse',async({page})=>{
+ await fixture(page,'TraceWaterfall',navigationTrace);await page.goto('/');const item=(name:string)=>page.getByRole('treeitem',{name,exact:true}),status=page.getByRole('combobox',{name:'Span status',exact:true});
+ await traceState(page,['Parent','Branch','Leaf','Other root'],'Parent',{Parent:true,Branch:true},'');
+ await status.focus();await page.keyboard.press('Tab');await expect(item('Parent')).toBeFocused();await page.keyboard.press('Shift+Tab');await expect(status).toBeFocused();await page.keyboard.press('Tab');await item('Parent').press('ArrowDown');await traceState(page,['Parent','Branch','Leaf','Other root'],'Branch',{Parent:true,Branch:true});
+ await item('Branch').press('End');await traceState(page,['Parent','Branch','Leaf','Other root'],'Other root',{Parent:true,Branch:true});await item('Other root').press('Home');await traceState(page,['Parent','Branch','Leaf','Other root'],'Parent',{Parent:true,Branch:true});
+ await item('Parent').press('ArrowDown');await item('Branch').press('ArrowDown');await traceState(page,['Parent','Branch','Leaf','Other root'],'Leaf',{Parent:true,Branch:true});
+ await page.getByRole('button',{name:'Collapse Branch',exact:true}).click();await traceState(page,['Parent','Branch','Other root'],'Parent',{Parent:true,Branch:false});await expect(page.getByRole('button',{name:'Expand Branch',exact:true})).toBeVisible();
+ await item('Parent').press('End');await item('Other root').press('ArrowUp');await traceState(page,['Parent','Branch','Other root'],'Branch',{Parent:true,Branch:false});await item('Branch').press('ArrowDown');await traceState(page,['Parent','Branch','Other root'],'Other root',{Parent:true,Branch:false});
+ await page.getByRole('button',{name:'Expand Branch',exact:true}).click();await traceState(page,['Parent','Branch','Leaf','Other root'],'Other root',{Parent:true,Branch:true},'');
+ await status.focus();await page.keyboard.press('Tab');await expect(item('Other root')).toBeFocused();await page.keyboard.press('Shift+Tab');await expect(status).toBeFocused();
+});
+
+test('trace filtered descendants and stale source retain truthful state',async({page})=>{
+ const {host}=await fixture(page,'TraceWaterfall',navigationTrace,{view:{selectedId:'branch',collapsedIds:['branch'],query:'',status:'all',zoom:1,sourceRevision:'navigation-1'}});await page.goto('/');
+ const item=(name:string)=>page.getByRole('treeitem',{name,exact:true}),filter=page.getByRole('searchbox',{name:'Filter spans',exact:true}),status=page.getByRole('combobox',{name:'Span status',exact:true}),ask=page.getByRole('button',{name:'Ask about span',exact:true});
+ await filter.fill('Leaf');await expect(item('Branch')).toHaveAttribute('aria-expanded','true');await traceState(page,['Parent','Branch','Leaf'],'Branch',{Parent:true,Branch:true},'');
+ await item('Branch').focus();await item('Branch').press('ArrowRight');await traceState(page,['Parent','Branch','Leaf'],'Leaf',{Parent:true,Branch:true});await item('Leaf').press('ArrowLeft');await traceState(page,['Parent','Branch','Leaf'],'Branch',{Parent:true,Branch:true});
+ await item('Branch').press('ArrowLeft');await traceState(page,['Parent','Branch','Leaf'],'Parent',{Parent:true,Branch:true});await item('Parent').press('ArrowLeft');await traceState(page,['Parent','Branch','Leaf'],'Parent',{Parent:true,Branch:true});
+ await expect.poll(()=>(host.snapshot.userStates[0].values.view as any).collapsedIds).toEqual(['branch']);await filter.fill('');await traceState(page,['Parent','Branch','Other root'],'Parent',{Parent:true,Branch:false},'');
+ await status.selectOption('error');await traceState(page,['Parent','Branch','Leaf'],'Parent',{Parent:true,Branch:true},'');await item('Branch').click();await item('Branch').press('ArrowRight');await traceState(page,['Parent','Branch','Leaf'],'Leaf',{Parent:true,Branch:true});await item('Leaf').press('ArrowLeft');await item('Branch').press('ArrowLeft');await traceState(page,['Parent','Branch','Leaf'],'Parent',{Parent:true,Branch:true});
+ await status.selectOption('all');await traceState(page,['Parent','Branch','Other root'],'Parent',{Parent:true,Branch:false},'');
+ host.setInput('data',{...navigationTrace,revision:'navigation-2'});await host.publish();await expect(ask).toBeDisabled();await filter.fill('Leaf');await status.selectOption('error');await page.getByRole('button',{name:'Collapse Branch',exact:true}).click();await expect(ask).toBeDisabled();await expect.poll(()=>(host.snapshot.userStates[0].values.view as any).sourceRevision).toBe('navigation-1');expect(host.commands.filter(command=>command.type==='action.submit')).toHaveLength(0);
+ // Restore the latent collapse while filters still force its descendants visible.
+ await page.getByRole('button',{name:'Collapse Branch',exact:true}).click();await expect.poll(()=>(host.snapshot.userStates[0].values.view as any).collapsedIds).toEqual(['branch']);await page.reload();await expect(filter).toHaveValue('Leaf');await expect(status).toHaveValue('error');await traceState(page,['Parent','Branch','Leaf'],'Parent',{Parent:true,Branch:true},'');await expect(ask).toBeDisabled();
+ await item('Parent').focus();await item('Parent').press('ArrowRight');await traceState(page,['Parent','Branch','Leaf'],'Branch',{Parent:true,Branch:true});await expect(ask).toBeEnabled();await ask.click();await expect.poll(()=>host.commands.filter(command=>command.type==='action.submit').length).toBe(1);expect(host.commands.find(command=>command.type==='action.submit')!.payload.payload).toEqual({sourceRevision:'navigation-2',spanId:'branch'});
+ await filter.fill('no matching span');await expect(page.getByRole('treeitem')).toHaveCount(0);expect(await page.getByRole('tree').locator('*').evaluateAll(nodes=>nodes.filter(node=>node instanceof HTMLElement&&node.tabIndex>=0&&!node.matches(':disabled')).length)).toBe(0);await expect(page.getByText('No supplied spans match these filters.',{exact:true})).toBeVisible();await filter.focus();await page.keyboard.press('Tab');await expect(status).toBeFocused();await page.keyboard.press('Shift+Tab');await expect(filter).toBeFocused();
+ await filter.fill('');await status.selectOption('all');await traceState(page,['Parent','Branch','Other root'],'Branch',{Parent:true,Branch:false},'');
+});
+
 test('trace source revisions cannot be refreshed by editing a local filter',async({page})=>{
  const {host}=await fixture(page,'TraceWaterfall',suppliedTrace);await page.goto('/');await page.getByRole('treeitem',{name:'Parse document',exact:true}).click();host.setInput('data',{...suppliedTrace,revision:'trace-5'});await host.publish();await page.getByRole('searchbox',{name:'Filter spans',exact:true}).fill('Parse');await expect(page.getByRole('button',{name:'Ask about span',exact:true})).toBeDisabled();await page.getByRole('treeitem',{name:'Parse document',exact:true}).click();await expect(page.getByRole('button',{name:'Ask about span',exact:true})).toBeEnabled();
 });

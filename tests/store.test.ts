@@ -71,6 +71,67 @@ describe("durable command storage", () => {
     expect(calls).toBe(1); expect(store.eventsAfter(0)).toHaveLength(1);
     expect(() => store.command({ ...command, payload: { value: 2 } }, () => null)).toThrow(/reused/i);
   });
+  it("delivers reentrant committed events in sequence order to every subscriber", () => {
+    const store = setup(), seenA: { seq: number; type: string }[] = [], seenB: { seq: number; type: string }[] = [];
+    const delivery: string[] = [];
+    let innerReceipt: ReturnType<Store['command']> | undefined;
+    store.subscribe(event => {
+      seenA.push({ seq: event.seq, type: event.type }); delivery.push(`A:${event.seq}`);
+      if (event.type === 'outer') {
+        innerReceipt = store.command({ id: 'inner', type: 'inner', payload: {} }, () => 'inner result');
+        delivery.push(`receipt:${innerReceipt.eventSeq}`);
+      }
+    });
+    store.subscribe(event => { seenB.push({ seq: event.seq, type: event.type }); delivery.push(`B:${event.seq}`); });
+
+    const outerReceipt = store.command({ id: 'outer', type: 'outer', payload: {} }, () => 'outer result');
+    delivery.push('returned');
+
+    const expected = [{ seq: 1, type: 'outer' }, { seq: 2, type: 'inner' }];
+    expect(seenB).toEqual(expected); expect(seenA).toEqual(expected);
+    expect(innerReceipt).toEqual({ commandId: 'inner', eventSeq: 2, result: 'inner result' });
+    expect(outerReceipt).toEqual({ commandId: 'outer', eventSeq: 1, result: 'outer result' });
+    expect(delivery).toEqual(['A:1', 'receipt:2', 'B:1', 'A:2', 'B:2', 'returned']);
+  });
+  it("continues FIFO delivery after a subscriber commits and throws", () => {
+    const store = setup(), seenA: number[] = [], seenB: number[] = [], seenC: number[] = [];
+    const innerCommand = { id: 'inner', type: 'inner', payload: {} };
+    let failure: unknown, innerReceipt: ReturnType<Store['command']> | undefined, replay: ReturnType<Store['command']> | undefined, replayApplied = false;
+    store.subscribe(event => {
+      seenA.push(event.seq);
+      if (event.type !== 'outer') return;
+      try {
+        store.internal('failed', null, () => {
+          store.put('sample', 'rolled-back', null, { value: 'discarded' });
+          store.internal('nested', null, () => 'must not commit');
+        });
+      } catch (error) { failure = error; }
+      innerReceipt = store.command(innerCommand, () => { store.put('sample', 'inner', null, { value: 'inner' }); return 'inner result'; });
+      replay = store.command(innerCommand, () => { replayApplied = true; return 'must not apply'; });
+      throw new Error('subscriber failure');
+    });
+    store.subscribe(event => seenB.push(event.seq));
+    store.subscribe(event => seenC.push(event.seq));
+
+    const outerReceipt = store.command({ id: 'outer', type: 'outer', payload: {} }, () => {
+      store.put('sample', 'outer', null, { value: 'outer' }); return 'outer result';
+    });
+
+    expect(seenB).toEqual([1, 2]); expect(seenC).toEqual([1, 2]); expect(seenA).toEqual([1, 2]);
+    expect(failure).toBeInstanceOf(Error); expect((failure as Error).message).toBe('Nested command transaction');
+    expect(store.get('sample', 'rolled-back')).toBeNull();
+    expect(store.get('sample', 'outer')).toEqual({ value: 'outer' }); expect(store.get('sample', 'inner')).toEqual({ value: 'inner' });
+    expect(store.eventsAfter(0).map(event => ({ seq: event.seq, type: event.type }))).toEqual([{ seq: 1, type: 'outer' }, { seq: 2, type: 'inner' }]);
+    expect(outerReceipt).toEqual({ commandId: 'outer', eventSeq: 1, result: 'outer result' });
+    expect(innerReceipt).toEqual({ commandId: 'inner', eventSeq: 2, result: 'inner result' });
+    expect(replay).toEqual(innerReceipt); expect(replayApplied).toBe(false);
+    expect(store.receipt({ id: 'outer', type: 'outer', payload: {} })).toEqual(outerReceipt);
+    expect(store.receipt(innerCommand)).toEqual(innerReceipt);
+
+    expect(store.internal('later', null, () => 'later result')).toBe('later result');
+    expect(seenA).toEqual([1, 2, 3]); expect(seenB).toEqual([1, 2, 3]); expect(seenC).toEqual([1, 2, 3]);
+    expect(store.eventsAfter(0).map(event => event.type)).toEqual(['outer', 'inner', 'later']);
+  });
   it("rolls back projection and event together on failure", () => {
     const store = setup();
     expect(() => store.command({ id: "bad", type: "test", payload: {} }, () => { store.put("sample", "one", null, { value: 1 }); throw new Error("rollback"); })).toThrow("rollback");

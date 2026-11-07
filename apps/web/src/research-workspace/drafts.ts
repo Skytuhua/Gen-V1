@@ -30,10 +30,6 @@ export class ResearchDrafts {
     const next = {...draft, ...patch, dirty: true, edit: draft.edit + 1};
     this.records.set(this.key(selection, id), next); return next;
   }
-  saved(selection: ResearchSelection, sent: ResearchDraft, saved: {revision: number; sha256: string}) {
-    const current = this.get(selection, sent.id) ?? sent;
-    this.records.set(this.key(selection, sent.id), {...current, expectedRevision: saved.revision, dirty: current.edit !== sent.edit, conflict: undefined});
-  }
   beginSave(selection: ResearchSelection, id: string, copy = false) {
     const key = this.key(selection, id) + (copy ? ':copy' : ':write');
     if (!this.attempts.has(key)) {
@@ -42,9 +38,18 @@ export class ResearchDrafts {
     }
     return this.attempts.get(key)!;
   }
-  finishSave(selection: ResearchSelection, id: string, attempt: {commandId: string}, copy = false) {
+  finishSave(selection: ResearchSelection, id: string, attempt: {commandId: string}, copy = false, saved?: {revision: number; sha256: string}) {
     const key = this.key(selection, id) + (copy ? ':copy' : ':write');
-    if (this.attempts.get(key)?.commandId === attempt.commandId) this.attempts.delete(key);
+    const active = this.attempts.get(key);
+    if (active?.commandId !== attempt.commandId) return false;
+    // A receipt may arrive from multiple mounted editors; only its current owner can reconcile it.
+    this.attempts.delete(key);
+    if (saved) {
+      const sent = active.sent, current = this.get(selection, sent.id) ?? sent;
+      if (current.expectedRevision > sent.expectedRevision) return false;
+      this.records.set(this.key(selection, sent.id), {...current, expectedRevision: saved.revision, dirty: current.edit !== sent.edit, conflict: undefined});
+    }
+    return true;
   }
 }
 // Remounting a workspace preserves unsaved drafts without placing source material in browser storage.

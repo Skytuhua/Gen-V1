@@ -1,14 +1,14 @@
 import {useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode} from 'react';
 import {Menu, PanelLeftOpen, X} from 'lucide-react';
 import type {ThreadNavigationRow} from '../../../packages/contracts/shell-read-models';
-import type {WorkspacePreset} from '../../../packages/contracts/workspace';
+import type {PanelBinding, WorkspacePreset} from '../../../packages/contracts/workspace';
 import {getPreferences} from '../../../packages/contracts/preferences';
 import {Modal} from '../../../packages/ui-shell/Modal';
 import {CompactSettings} from './CompactSettings';
 import {ResizeHandle} from './WorkspacePanel';
 import {bootstrap, command, getShellSettings} from './api';
 import {AgentsWorkspace, AgentsWorkspaceController, createPersonalAgentComposers, createPersonalChildFollowUp, type SharedAgentComposers} from './agents-workspace';
-import {useDesktop, useDesktopCloseGuard, useDesktopReady} from './desktop-context';
+import {detachedSurface, pendingSurface, useDesktop, useDesktopCloseGuard, useDesktopReady} from './desktop-context';
 import {prepareEditorHandoff} from './editor-handoff';
 import {useModalRegion} from './focus';
 import {journalFlush} from './journal';
@@ -25,7 +25,8 @@ import './workspace-host.css';
 export type ConversationIntent = 'model' | 'settings' | 'usage' | 'new-thread' | 'connect-project' | 'resources' | 'linked-pull-requests';
 export interface ConversationHost {
   workspace: ReturnType<typeof useWorkspaceState>;
-  choosePreset(preset: WorkspacePreset): Promise<void>;
+  choosePreset(preset: WorkspacePreset, binding?: PanelBinding): Promise<void>;
+  selectThread(id: string | undefined): void;
   initialThreadId?: string;
   intent?: {id: number; kind: ConversationIntent};
   consumeIntent(id: number): void;
@@ -36,11 +37,18 @@ const prepare = async () => {await journalFlush(); await prepareEditorHandoff();
 
 /** Resolve the main window's canonical workspace before mounting a conversation owner. */
 export function WorkspaceHost({conversation}: {conversation: (host: ConversationHost) => ReactNode}) {
+  const desktop = useDesktop(), desktopOwner = useRef(desktop); desktopOwner.current = desktop;
+  const ownership = useRef({signature: '', epoch: 0});
+  const signature = JSON.stringify([desktop?.closing, desktop?.context.windowId, desktop?.windows.map(window => [window.id, window.surface]), desktop?.pending]);
+  if (ownership.current.signature !== signature) ownership.current = {signature, epoch: ownership.current.epoch + 1};
   const workspace = useWorkspaceState(true, {listenNative: false});
   const [settings, setSettings] = useState<Awaited<ReturnType<typeof getShellSettings>>>(), [error, setError] = useState('');
   const [intent, setIntent] = useState<ConversationHost['intent']>(), intentSequence = useRef(0), selected = useRef<string | undefined>(undefined), pending = useRef(false), alive = useRef(true);
   const [controller] = useState(() => new AgentsWorkspaceController());
-  const [composers] = useState(() => createPersonalAgentComposers(createPersonalChildFollowUp(agent => controller.getSnapshot().agents.find(parent => parent.agentId === agent.parentId)?.threadId ?? undefined)));
+  const [composers] = useState(() => createPersonalAgentComposers(createPersonalChildFollowUp(agent => controller.getSnapshot().agents.find(parent => parent.agentId === agent.parentId)?.threadId ?? undefined), agent => {
+    const current = desktopOwner.current, surface = agent.threadId ? {kind: 'thread' as const, threadId: agent.threadId} : null;
+    return !alive.current || current?.closing || detachedSurface(current, surface) || pendingSurface(current, surface) ? undefined : ownership.current.epoch;
+  }));
   const inventory = useSyncExternalStore(controller.subscribe, controller.getSnapshot);
   const loadSettings = useCallback(async () => {const value = await getShellSettings(); if (alive.current) setSettings(value);}, []);
   useEffect(() => {alive.current = true; void bootstrap().then(loadSettings).catch(cause => {if (alive.current) setError(message(cause));}); return () => {alive.current = false;};}, [loadSettings]);
@@ -52,7 +60,7 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
   const invalidOwner = Boolean(workspace.envelope && !preset);
   const failure = error || workspace.error || (invalidOwner ? 'The saved workspace is unavailable. Retry to reload it.' : '');
   useDesktopReady(Boolean((monitored && !inventory.pending && (inventory.scopeKey || inventory.error)) || failure));
-  const changeWorkspace = async (next: WorkspacePreset, beforeSelect?: () => Promise<void>) => {
+  const changeWorkspace = async (next: WorkspacePreset, beforeSelect?: () => Promise<void>, binding?: PanelBinding) => {
     if (pending.current) throw Error('A workspace change is already in progress.');
     if (!workspace.envelope) throw Error('Wait for the workspace to load.');
     pending.current = true;
@@ -60,11 +68,17 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
       await prepare(); await loadSettings();
       await beforeSelect?.();
       const canvas = workspace.envelope.state.canvases.find(value => value.preset === next);
-      await workspace.send(canvas ? 'workspace.canvas.select' : 'workspace.canvas.create', canvas ? {canvasId: canvas.id} : {name: next, preset: next});
+      let threadId = binding?.authority.kind === 'local' ? binding.threadId : undefined;
+      if (!canvas && !binding && (next === 'research' || next === 'code-review')) {
+        let id = selected.current;
+        if (!id) try {id = localStorage.getItem('harness:selected-thread') ?? undefined;} catch { /* The server still validates an unbound preset. */ }
+        if (id) threadId = (await getShellNavigationItem(id)).id;
+      }
+      await workspace.send(canvas ? 'workspace.canvas.select' : 'workspace.canvas.create', canvas ? {canvasId: canvas.id} : {name: next, preset: next, ...(threadId ? {threadId} : {})});
       if (alive.current) setError('');
     } finally {pending.current = false;}
   };
-  const choosePreset = (next: WorkspacePreset) => changeWorkspace(next);
+  const choosePreset = (next: WorkspacePreset, binding?: PanelBinding) => changeWorkspace(next, undefined, binding);
   const openConversation = async (id?: string, kind?: ConversationIntent) => {
     const previous = selected.current; let changed = false;
     try {
@@ -82,7 +96,7 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
     <PendingStatus pending={!failure} label="Opening workspace…"/>
     {failure && <div role="alert">{failure}<button onClick={retry}>Retry workspace</button></div>}
   </main>;
-  if (preset !== 'all-agents') return conversation({workspace, choosePreset, initialThreadId: selected.current, intent, consumeIntent: id => setIntent(current => current?.id === id ? undefined : current), composers});
+  if (preset !== 'all-agents') return conversation({workspace, choosePreset, initialThreadId: selected.current, selectThread: id => {selected.current = id;}, intent, consumeIntent: id => setIntent(current => current?.id === id ? undefined : current), composers});
   return <MonitorShell workspace={workspace} settings={settings} controller={controller} composers={composers} choosePreset={choosePreset}
     refreshSettings={loadSettings} openConversation={openConversation} error={error} dismissError={() => setError('')} fail={fail}/>;
 }
@@ -127,7 +141,7 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
     };
     window.addEventListener('keydown', key); return () => window.removeEventListener('keydown', key);
   }, [keybindings, mobile]);
-  const closeSettings = () => fail(async () => {await prepare(); setSettingsOpen(false); await refreshSettings();});
+  const closeSettings = () => fail(async () => {await prepare(); setSettingsOpen(false); await Promise.all([refreshSettings(), navigation.refresh()]);});
   const openBrowser = desktop?.context.surface.kind === 'main' ? async (url: string) => {
     const owner = desktop.context.windowId;
     await prepare();

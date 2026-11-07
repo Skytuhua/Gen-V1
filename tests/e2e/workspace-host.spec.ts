@@ -62,7 +62,7 @@ async function fixture(page: Page, {native = false, delayed = false, unavailable
   const module = '/@fs/' + encodeURI(fileURLToPath(new URL('./workspace-app-fixture.tsx', import.meta.url)).replaceAll('\\', '/'));
   await page.route('**/workspace-host-check', route => route.fulfill({contentType: 'text/html', body: `<html><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${module}');</script></body></html>`}));
   await page.goto('/workspace-host-check');
-  return {requests, commands, release: () => release?.(), recover: () => {failed = false; envelope.state.activeCanvasId = 'all-agents';}};
+  return {requests, commands, snapshot, release: () => release?.(), recover: () => {failed = false; envelope.state.activeCanvasId = 'all-agents';}};
 }
 
 test('cold restored monitor resolves its owner before any global conversation read', async ({page}) => {
@@ -273,4 +273,112 @@ test('keyboard and status Stop share the ordinary composer pending owner', async
   await expect.poll(() => calls).toBe(1);
   release();
   await expect.poll(() => h.commands.filter(command => command.type === 'run.stop').length).toBe(1);
+});
+
+test('review: returning through All Agents retains the latest conversation selection', async ({page}) => {
+ await fixture(page, {working:false});
+ await page.getByRole('button',{name:'Open conversation Project investigation',exact:true}).click();
+ await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Empty draft stays in navigation Ready',exact:true}).click();
+ await page.getByRole('textbox',{name:'Message',exact:true}).fill('Draft belongs to latest B');
+ await page.getByRole('button',{name:'All Agents',exact:true}).click();
+ await expect(page.getByRole('region',{name:'Agent workspace',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Workspace',exact:true}).click();
+ await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('Draft belongs to latest B');
+});
+
+for (const fromMonitor of [false, true]) for (const [preset, label] of [['research', 'Research'], ['code-review', 'Code Review']]) test(`review: first ${label} canvas creation carries the selected conversation from ${fromMonitor ? 'monitor' : 'conversation'}`, async ({page}) => {
+ const originalRoute=page.route.bind(page);
+ page.route=async (url:any, handler:any, options:any)=>{
+  if(url==='**/api/workspace') return originalRoute(url, async route=>{
+   const fake={...route, fulfill:async (opts:any)=>{opts.json.state.canvases=opts.json.state.canvases.filter((c:any)=>c.preset!==preset);return route.fulfill(opts);}};
+   return handler(fake);
+  },options);
+  return originalRoute(url,handler,options);
+ };
+ await fixture(page, {working:false});
+ await page.getByRole('button',{name:'Open conversation Project investigation',exact:true}).click();
+ await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Empty draft stays in navigation Ready',exact:true}).click();
+ if (fromMonitor) {await page.getByRole('button',{name:'All Agents',exact:true}).click(); await expect(page.getByRole('region',{name:'Agent workspace',exact:true})).toBeVisible();}
+ const created=page.waitForRequest(request=>request.url().endsWith('/api/workspace/commands')&&request.postDataJSON().type==='workspace.canvas.create');
+ await page.getByRole('button',{name:label,exact:true}).click();
+ expect((await created).postDataJSON().payload).toMatchObject({preset,threadId:'empty-draft'});
+});
+
+test('review: restored archived conversation becomes available in monitor navigation', async ({page})=>{
+ const h = await fixture(page,{working:false});
+ const composer = page.getByRole('textbox', {name:'Message to Project investigation', exact:true});
+ await composer.fill('Keep the monitor draft through restore');
+ let restored=false;
+ const row={id:'restored-thread',title:'Restored canonical conversation',status:'ready' as const,runId:null,projectId:null,projectName:null,createdAt:'2026-11-06',updatedAt:'2026-11-06'};
+ await page.route('**/api/shell/settings',route=>route.fulfill({json:{sequence:1,settings:{theme:'dark'},accounts:[],skills:[],skillProposals:[],learning:{supported:true,status:'idle',lastReview:null},projects:[],resources:[],resourcePage:{total:0,nextCursor:null},counts:{threads:3,archivedThreads:restored?0:1,artifacts:0,resources:0,uncertainOperations:0}}}));
+ await page.route('**/api/shell/archive?*',route=>route.fulfill({json:{sequence:1,total:restored?0:1,items:restored?[]:[row],nextCursor:null}}));
+ await page.route('**/api/shell/navigation?*',route=>route.fulfill({json:{sequence:2,total:restored?1:0,items:restored?[row]:[],nextCursor:null,order:'created-desc',stats:{pinned:0,working:0,waiting:0,settled:1,minOrder:0,maxOrder:0}}}));
+ await page.route('**/api/shell/navigation/restored-thread', route=>route.fulfill({json:row}));
+ await page.route('**/api/commands',async route=>{if(route.request().postDataJSON().type==='thread.restore'){restored=true;h.snapshot.threads.push({...h.snapshot.threads[0],...row,projectId:undefined});}await route.fallback();});
+ await page.getByRole('button',{name:'Settings',exact:true}).click();
+ const dialog=page.getByRole('dialog',{name:'Settings',exact:true});
+ await dialog.getByRole('button',{name:'Data & Recovery',exact:true}).click();
+ await dialog.getByRole('button',{name:'Restore thread',exact:true}).click();
+ await expect.poll(()=>restored).toBe(true);
+ await page.keyboard.press('Escape'); await expect(dialog).toHaveCount(0);
+ await expect(page.getByRole('button',{name:'Restored canonical conversation Ready',exact:true})).toBeVisible();
+ await expect(composer).toHaveValue('Keep the monitor draft through restore');
+ expect(h.requests.filter(path=>path==='/api/snapshot')).toEqual([]);
+ await page.getByRole('button',{name:'Restored canonical conversation Ready',exact:true}).click();
+ await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeVisible();
+ await page.getByRole('textbox',{name:'Message',exact:true}).fill('Open restored owner');
+ await page.getByRole('button',{name:'Send message',exact:true}).click();
+ await expect.poll(()=>h.commands.find(command=>command.type==='message.send')?.threadId).toBe('restored-thread');
+});
+test('review: restored native thread owner keeps the monitor composer inert', async ({page})=>{
+ const originalInit=page.addInitScript.bind(page);
+ page.addInitScript=async (fn:any,arg:any)=>{
+  await originalInit(fn,arg);
+  if(arg?.native)await originalInit(()=>{
+   const bridge=(window as any).harnessDesktop, original=bridge.getContext;
+   bridge.focus=async(id:string)=>{(window as any).focusedOwner=id;};
+   bridge.getContext=async()=>({...await original(),windows:[{id:'existing-child',surface:{kind:'thread',threadId:'parent-a'},title:'Restored thread'}]});
+  });
+ };
+ const {commands} = await fixture(page,{native:true,working:true});
+ const input=page.getByRole('textbox',{name:'Message to Project investigation',exact:true});
+ await expect(input).toBeVisible();
+ expect(await input.evaluate(node=>Boolean(node.closest('[inert]'))||node.hasAttribute('disabled'))).toBe(true);
+ await expect(page.getByRole('button', {name:'Stop Project investigation', exact:true})).toBeDisabled();
+ await page.getByRole('button', {name:'Focus existing window', exact:true}).click();
+ await expect.poll(()=>page.evaluate(()=>(window as any).focusedOwner)).toBe('existing-child');
+ expect(commands.filter(command=>['message.send','run.stop'].includes(command.type))).toEqual([]);
+});
+
+test('desktop ownership updates hold monitor send and Stop then preserve the draft on return', async ({page}) => {
+ const originalInit = page.addInitScript.bind(page);
+ page.addInitScript = async (fn: any, arg: any) => {
+  await originalInit(fn, arg);
+  if (arg?.native) await originalInit(() => {
+   const bridge = (window as any).harnessDesktop;
+   bridge.onState = (notify: (state: unknown) => void) => {
+    (window as any).publishOwner = (owned: boolean) => notify({windows: owned ? [{id:'existing-child',surface:{kind:'thread',threadId:'parent-a'},title:'Restored thread'}] : []});
+    return () => {};
+   };
+   bridge.focus = async () => {};
+  });
+ };
+ const h = await fixture(page, {native:true, working:true});
+ const composer = page.getByRole('textbox', {name:'Message to Project investigation',exact:true});
+ await page.route('**/api/skill-catalog?*',route=>route.fulfill({json:{scope:{kind:'personal'},sources:[],skills:[],inventoryRevision:'a'.repeat(64),nextCursor:null}}));
+ await composer.fill('Keep across native ownership /model');
+ await expect(page.getByRole('listbox', {name:'Commands and skills'})).toBeVisible();
+ await page.evaluate(() => (window as any).publishOwner(true));
+ await expect(composer).toBeDisabled();
+ await expect(page.getByRole('listbox', {name:'Commands and skills'})).toHaveCount(0);
+ await expect(page.getByRole('button', {name:'Stop Project investigation',exact:true})).toBeDisabled();
+ expect(h.commands.filter(command=>['message.send','run.stop'].includes(command.type))).toEqual([]);
+ await page.evaluate(() => (window as any).publishOwner(false));
+ await expect(composer).toBeEnabled(); await expect(composer).toHaveValue('Keep across native ownership /model');
+ await composer.fill('Keep across native ownership');
+ await page.getByRole('button', {name:'Send to Project investigation',exact:true}).click();
+ await expect.poll(()=>h.commands.filter(command=>command.type==='message.send').length).toBe(1);
+ expect(h.commands.find(command=>command.type==='message.send')).toMatchObject({threadId:'parent-a',payload:{content:'Keep across native ownership'}});
 });

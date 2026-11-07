@@ -536,6 +536,7 @@ function ConversationWorkspace({embeddedThreadId,embeddedActive=true,onRequestTh
   useLayoutEffect(() => { document.documentElement.dataset.theme = theme; }, [theme]);
   useDesktopReady(loaded&&!embeddedThreadId);
   const thread = snapshot.threads.find(item => item.id === selectedId) ?? (pinnedThreadId?undefined:snapshot.threads.find(item => item.id === snapshot.activeThreadId));
+  useLayoutEffect(() => {if (thread) host?.selectThread(thread.id);}, [host, thread?.id]);
   const localWorkspaceState=useWorkspaceState(loaded&&!host&&!navigationOnly&&(!pinnedThreadId||Boolean(embeddedThreadId))),workspaceState=host?.workspace??localWorkspaceState,workspaceEnvelope=workspaceState.envelope,activeCanvas=workspaceEnvelope?.state.canvases.find(canvas=>canvas.id===workspaceEnvelope.state.activeCanvasId),canvasActive=Boolean(activeCanvas&&(activeCanvas.preset!=='workspace'||retainedWorkspace)&&!pinnedThreadId&&!navigationOnly),canvasPanels=useMemo(()=>activeCanvas?(activeCanvas.preset==='all-agents'?liveThreadPanels(snapshot.threads,activeCanvas):activeCanvas.panels):[],[activeCanvas,snapshot.threads]);
   const splitEnabled=loaded&&!pinnedThreadId&&!navigationOnly&&workspaceMode==='split'&&(!activeCanvas||activeCanvas.preset==='workspace');
   const splitProfiles=useSplitWorkspaceProfiles(splitEnabled);
