@@ -29,8 +29,9 @@
 .task-node-conflicts { display:inline-flex; justify-content:center; min-width:16px; padding:0 4px; color:var(--pending); background:color-mix(in srgb,var(--pending) 10%,transparent); border:1px solid color-mix(in srgb,var(--pending) 22%,transparent); border-radius:50%; font-size:10px; }
 .task-node-status { display:inline-flex; margin-left:auto; flex-shrink:0; }
 .task-graph-vertical .task-node:has(.task-node-meta) .task-node-status { display:none; }
-.task-node-popover { position:fixed; z-index:100; display:flex; flex-direction:column; gap:9px; width:min(420px,calc(100vw - 16px)); max-height:min(420px,calc(100vh - 16px)); padding:13px 15px; border:1px solid var(--border); border-radius:12px; background:var(--surface); color:var(--text); box-shadow:0 8px 28px #0003; font-size:13px; line-height:1.5; overflow:auto; overscroll-behavior:contain; animation:task-popover-in 140ms ease-out both; }
-.task-conflict-popover { width:min(480px,calc(100vw - 16px)); }
+.task-node-popover { box-sizing:border-box; padding:13px 15px; border:1px solid var(--border); border-radius:12px; background:var(--surface); color:var(--text); box-shadow:0 8px 28px #0003; font-size:13px; line-height:1.5; overflow:auto; overscroll-behavior:contain; }
+.task-node-details { display:flex; flex-direction:column; gap:9px; }
+.task-check-popover { padding:7px 10px; font-size:12px; }
 .task-node-popover strong { font-weight:500; }
 .task-node-context-detail,.task-node-context-meta { color:var(--muted); font-size:11px; }
 .task-node-context-meta { display:flex; gap:9px; flex-wrap:wrap; }
@@ -70,8 +71,6 @@
 .task-node.task-node-merge-pulse { animation:task-merge-pulse 700ms cubic-bezier(.22,1,.36,1) both; }
 .task-graph-check { position:relative; display:flex; align-items:center; gap:5px; padding:3px 8px; border:1px solid var(--border); border-radius:14px; font-size:12px; line-height:1.4; animation:task-check-in 180ms ease-out both; cursor:default; }
 .task-graph-check>span:first-of-type { color:var(--text); }
-.task-check-tooltip { position:absolute; z-index:9; bottom:calc(100% + 7px); left:0; width:max-content; max-width:min(320px,75vw); padding:7px 10px; border:1px solid var(--border); border-radius:8px; color:var(--text); background:var(--surface); box-shadow:0 6px 20px #0002; font-size:12px; opacity:0; visibility:hidden; pointer-events:none; transition:opacity 140ms,visibility 140ms; }
-.task-graph-check:hover .task-check-tooltip,.task-graph-check:focus-visible .task-check-tooltip { opacity:1; visibility:visible; }
 .task-graph-footer-row { display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:42px; }
 .task-graph-summary { display:flex; align-items:center; gap:8px; min-width:0; padding:6px 0; font-size:14px; line-height:1.5; transition:color 160ms; }
 .task-graph-summary>svg { flex-shrink:0; }
@@ -97,6 +96,13 @@
 @keyframes task-check-in { from { opacity:0; transform:translateY(3px); } to { opacity:1; transform:translateY(0); } }
 @keyframes task-checks-out { from { opacity:1; } to { opacity:0; } }
 @keyframes task-merge-pulse { 0%,25% { background:color-mix(in srgb,var(--graph-purple) 17%,transparent); } 100% { background:transparent; } }
-@keyframes task-popover-in { from { opacity:0; transform:translateY(3px); } to { opacity:1; transform:translateY(0); } }
 @media(max-width:600px) { .task-node-author,.task-node-time { display:none; } .task-node-meta { gap:6px; } .task-node-hash { font-size:10px; } .task-graph-footer-row { gap:8px; } .task-graph-summary { font-size:12px; } .task-graph-summary small { max-width:36ch; } .task-graph-footer-actions button { padding:5px 9px; } }
 @media(prefers-reduced-motion:reduce) { .task-graph .graph-edge,.task-graph-check,.task-node-popover,.task-graph-checks.is-leaving,.task-node.task-node-merge-pulse { animation:none; } .task-graph * { transition:none!important; } }
+
+.task-node-popover[data-side="below"] { --graph-tip-offset:-3px; transform-origin:top left; }
+.task-node-popover[data-side="above"] { --graph-tip-offset:3px; transform-origin:bottom left; }
+.task-node-popover[data-state="open"] { animation:graph-tip-in var(--ui-motion-tooltip-enter,160ms) var(--ui-ease-enter,ease-out) both; }
+.task-node-popover[data-state="closed"] { animation:graph-tip-out var(--ui-motion-tooltip-exit,120ms) ease-in both; }
+@keyframes graph-tip-in { from { opacity:0; transform:translateY(var(--graph-tip-offset)) scale(.95); } to { opacity:1; transform:none; } }
+@keyframes graph-tip-out { from { opacity:1; transform:none; } to { opacity:0; transform:translateY(var(--graph-tip-offset)) scale(.95); } }
+@media(prefers-reduced-motion:reduce) { .task-node-popover[data-state] { animation:none; } }
