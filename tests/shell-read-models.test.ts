@@ -128,3 +128,27 @@ it('does not turn a stale selected archived ID into an active navigation row', a
   const archive = await f.app.inject({url: '/api/shell/navigation?archived=true', headers: f.headers});
   expect(archive.json()).toMatchObject({items: [{id: 'archived'}]});
 });
+
+it('pages a separate complete Personal archive including side conversations without changing navigation', async () => {
+  const f = await fixture();
+  f.store.internal('archive.fixture', null, () => {
+    const base = f.store.get<Thread>('thread', 'empty')!;
+    for (const [id, sideParentId] of [['side-archive', 'empty'], ['private-side', 'company']] as const) {
+      f.store.put('thread', id, id, {...base, id, title: id, kind: 'side', sideParentId});
+      f.store.put('archivedThread', id, id, true);
+    }
+  });
+  const first = await f.app.inject({url: '/api/shell/archive?limit=1', headers: f.headers});
+  expect(first.statusCode).toBe(200);
+  expect(first.json()).toMatchObject({total: 2, items: [{id: 'side-archive'}]});
+  const next = await f.app.inject({url: '/api/shell/archive?limit=1&cursor=' + encodeURIComponent(first.json().nextCursor), headers: f.headers});
+  expect(next.json()).toMatchObject({total: 2, items: [{id: 'archived'}], nextCursor: null});
+  const navigation = await f.app.inject({url: '/api/shell/navigation?archived=true', headers: f.headers});
+  expect(navigation.json()).toMatchObject({total: 1, items: [{id: 'archived'}]});
+  expect((await f.app.inject({url: '/api/shell/settings', headers: f.headers})).json().counts.archivedThreads).toBe(2);
+  expect(first.body + next.body).not.toMatch(/private-side|NEVER_PUBLISH|DO_NOT_PUBLISH_SESSION|SOURCE_BODY/);
+  expect((await f.app.inject({url: '/api/shell/archive', headers: {host: f.headers.host}})).statusCode).toBe(401);
+  expect((await f.app.inject({url: '/api/shell/archive?authority=company', headers: f.headers})).statusCode).toBe(400);
+  expect((await f.app.inject({url: '/api/shell/navigation?archived=true&cursor=' + encodeURIComponent(first.json().nextCursor), headers: f.headers})).statusCode).toBe(400);
+  expect(f.snapshot).not.toHaveBeenCalled();
+});

@@ -10,6 +10,7 @@ export function registerShellReadRoutes(app: FastifyInstance, store: Store) {
   app.get('/api/shell/navigation', request => models.navigation(page.extend({archived: z.enum(['true', 'false']).transform(value => value === 'true').optional(), text: z.string().max(200).optional()}).parse(request.query)));
   app.get<{Params: {id: string}}>('/api/shell/navigation/:id', request => {z.strictObject({}).parse(request.query); return models.navigationItem(z.string().min(1).max(200).parse(request.params.id));});
   app.get('/api/shell/settings', request => {z.strictObject({}).parse(request.query); return models.settings();});
+  app.get('/api/shell/archive', request => models.archive(page.parse(request.query)));
   app.get('/api/shell/resources', request => models.resources(page.parse(request.query)));
   app.post('/api/shell/draft-references', request => models.draftReferences(z.strictObject({keys: z.array(z.string().min(1).max(2048)).max(500)}).parse(request.body).keys));
 }

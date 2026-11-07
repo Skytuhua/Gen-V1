@@ -15,7 +15,7 @@ async function setup(page: Page) {
     if (path === '/api/bootstrap') return route.fulfill({json: {csrfToken: 'fixture'}});
     if (path === '/api/shell/settings') return route.fulfill({json: model});
     if (path === '/api/shell/resources') return route.fulfill({json: {sequence: 7, total: 125, items: grants.slice(100), nextCursor: null}});
-    if (path === '/api/shell/navigation') return route.fulfill({json: {sequence: 7, total: archives.length, order: 'created-desc', stats: {pinned: 0, working: 0, waiting: 0, settled: 0, minOrder: 0, maxOrder: 0}, items: url.searchParams.has('cursor') ? archives.slice(100) : archives.slice(0, 100), nextCursor: !url.searchParams.has('cursor') && archives.length > 100 ? 'archive-100' : null}});
+    if (path === '/api/shell/archive') return route.fulfill({json: {sequence: 7, total: archives.length, items: url.searchParams.has('cursor') ? archives.slice(100) : archives.slice(0, 100), nextCursor: !url.searchParams.has('cursor') && archives.length > 100 ? 'archive-100' : null}});
     if (path === '/api/models') return route.fulfill({json: {models: [{id: model.settings.selectedAccounts?.openai === 'account-two' ? 'model-two' : 'model-one', name: model.settings.selectedAccounts?.openai === 'account-two' ? 'Second model' : 'First model', provider: 'openai'}]}});
     if (path === '/api/commands') {
       const command = route.request().postDataJSON() as HostCommand; commands.push(command);

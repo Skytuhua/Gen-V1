@@ -1,4 +1,4 @@
-import {Fragment, createContext, useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode} from 'react';
+import {Fragment, createContext, useContext, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode} from 'react';
 import {ChevronDown, ChevronRight, ExternalLink, Search, Send, Square, X} from 'lucide-react';
 import {Select} from '../../../../packages/ui-shell/Select';
 import {isComposing} from '../../../../packages/ui-shell/list-navigation';
@@ -67,18 +67,22 @@ function VirtualSlot({children, className, label}: {children: ReactNode; classNa
   {near || held ? children : <button type="button" className="agents-virtual-reveal" onFocus={() => setHeld(true)} onClick={() => setHeld(true)}>Show {label}</button>}
  </div>;
 }
+function ColumnScroll({controller, id, children}: {controller: AgentsWorkspaceController; id: string; children: ReactNode}) {
+ const restore = useCallback((element: HTMLDivElement | null) => {if (element) element.scrollTop = controller.view('$column:' + id).top;}, [controller, id]);
+ return <div className="agents-column-scroll" ref={restore} onScroll={event => controller.setView('$column:' + id, {top: event.currentTarget.scrollTop})}>{children}</div>;
+}
 function Project({row, controller, ...props}: {row: ProjectRow} & Omit<AgentsWorkspaceProps, 'projects'>) {
- const id = '$project:' + (row.id ?? '$none'), strip = useRef<HTMLDivElement>(null), color = projectColor({kind: 'local'}, row.id ?? undefined, props.preferences?.projectColors);
- useLayoutEffect(() => {if (strip.current) strip.current.scrollLeft = controller.view(id).left;});
+ const id = '$project:' + (row.id ?? '$none'), color = projectColor({kind: 'local'}, row.id ?? undefined, props.preferences?.projectColors);
+ const restoreStrip = useCallback((element: HTMLDivElement | null) => {if (element) element.scrollLeft = controller.view(id).left;}, [controller, id]);
  const count = (nodes: AgentNode[]): number => nodes.reduce((total, node) => total + Number(node.agent.status === 'working') + count(node.children), 0);
  return <section className="agents-project" role="region" aria-label={`Project ${row.name}`}>
   <header className="agents-project-header"><span className="agents-project-mark" style={{'--project-color': color} as CSSProperties} aria-hidden="true">{row.name.slice(0, 1).toUpperCase()}</span><h2>{row.name}</h2><span>{count(row.parents)} working</span></header>
   <VirtualSlot className="agents-project-slot" label={`${row.name} agents`}>
-   <div className="agents-parent-strip" ref={strip} role="region" aria-label={`${row.name} agents`} tabIndex={0} onScroll={event => controller.setView(id, {left: event.currentTarget.scrollLeft})} onKeyDown={event => {
+   <div className="agents-parent-strip" ref={restoreStrip} role="region" aria-label={`${row.name} agents`} tabIndex={0} onScroll={event => controller.setView(id, {left: event.currentTarget.scrollLeft})} onKeyDown={event => {
     if (event.target !== event.currentTarget || isComposing(event) || event.altKey || event.metaKey || event.ctrlKey) return;
     if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {event.preventDefault(); event.currentTarget.scrollBy({left: event.key === 'ArrowRight' ? 476 : -476, behavior: 'instant'});}
    }}>
-    {row.parents.map(node => <VirtualSlot className="agents-column-slot" key={node.agent.agentId} label={node.agent.title}><div className="agents-column-scroll" onScroll={event => controller.setView('$column:' + node.agent.agentId, {top: event.currentTarget.scrollTop})} ref={element => {if (element) element.scrollTop = controller.view('$column:' + node.agent.agentId).top;}}><Agent node={node} controller={controller} {...props}/></div></VirtualSlot>)}
+    {row.parents.map(node => <VirtualSlot className="agents-column-slot" key={node.agent.agentId} label={node.agent.title}><ColumnScroll controller={controller} id={node.agent.agentId}><Agent node={node} controller={controller} {...props}/></ColumnScroll></VirtualSlot>)}
    </div>
   </VirtualSlot>
  </section>;

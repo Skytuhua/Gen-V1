@@ -1,3 +1,4 @@
+import {settingsOperation} from './settings-operations';
 import {useEffect,useRef,useState} from 'react';
 import type {CommandReceipt,Snapshot} from '../../../packages/contracts';
 import type {SkillDetail,SkillOperation,SkillProposal,SkillProposalSummary,SkillSummary} from '../../../packages/contracts/skills';
@@ -48,7 +49,7 @@ function Proposal({proposal,act,locked}:{proposal:SkillProposalSummary;act:Act;l
 export function SkillLibrary({snapshot,preferences,update,refresh,busy}:{snapshot:Pick<Snapshot,'skills'|'skillProposals'|'learning'>;preferences:UiPreferences;update:(patch:Partial<UiPreferences>)=>Promise<void>;refresh:()=>Promise<void>;busy:boolean}){
  const [open,setOpen]=useState<string>(),[pending,setPending]=useState(false),[error,setError]=useState('');const owner=useRef(false);
  const skills=snapshot.skills??[],proposals=snapshot.skillProposals??[],locked=busy||pending;
- const act:Act=async(type,payload)=>{if(owner.current)throw Error('Wait for the current skill change to finish.');owner.current=true;setPending(true);setError('');try{const receipt=await command(type,payload);await refresh();return receipt;}finally{owner.current=false;setPending(false);}};
+ const act:Act=async(type,payload)=>{if(owner.current)throw Error('Wait for the current skill change to finish.');owner.current=true;setPending(true);setError('');try{return await settingsOperation(async()=>{const receipt=await command(type,payload);await refresh();return receipt;});}finally{owner.current=false;setPending(false);}};
  const run=(type:string,payload:Record<string,unknown>)=>void act(type,payload).catch(cause=>setError(message(cause)));
  const toggle=(name:string,key:'learningEnabled'|'learningApproval'|'skillCurator',description:string)=><section className="settings-row"><div className="settings-row-copy"><h2>{name}</h2><p>{description}</p></div><button className="skill-toggle" role="switch" aria-label={name} aria-checked={preferences[key]} disabled={locked} onClick={()=>void update({[key]:!preferences[key]})}><span className="settings-switch" aria-hidden="true"><span/></span></button></section>;
  const review=snapshot.learning?.lastReview;

@@ -21,7 +21,7 @@ import {
   Settings2,
   SquarePen,
 } from 'lucide-react';
-import type { Thread } from '../../../packages/contracts';
+import type {ThreadNavigationRow as Thread} from '../../../packages/contracts/shell-read-models';
 import type { UiPreferences } from '../../../packages/contracts/preferences';
 import type { ShellLayout } from './shell-layout';
 import { MotionRegion } from './task-motion';
@@ -84,6 +84,8 @@ export function ShellSidebar({
   onOpenUsage,
   onPlaceThread,
   onConnectProject,
+  pageControls,
+  orderBounds,
 }: {
   elementRef: RefObject<HTMLElement | null>;
   searchRef: RefObject<HTMLInputElement | null>;
@@ -92,6 +94,8 @@ export function ShellSidebar({
   layout: ShellLayout;
   preferences: UiPreferences;
   matching: Thread[];
+  pageControls?: ReactNode;
+  orderBounds?: {minOrder: number; maxOrder: number};
   selectedId?: string;
   loaded: boolean;
   creating: boolean;
@@ -223,7 +227,7 @@ export function ShellSidebar({
           <button
             type="button"
             onClick={() => {
-              const min = Math.min(0, ...matching.map(thread => thread.presentation?.order ?? 0));
+              const min = orderBounds?.minOrder ?? Math.min(0, ...matching.map(thread => thread.presentation?.order ?? 0));
               presentation(item, { order: min - 1 });
               setMenuId(null);
             }}
@@ -234,7 +238,7 @@ export function ShellSidebar({
           <button
             type="button"
             onClick={() => {
-              const max = Math.max(0, ...matching.map(thread => thread.presentation?.order ?? 0));
+              const max = orderBounds?.maxOrder ?? Math.max(0, ...matching.map(thread => thread.presentation?.order ?? 0));
               presentation(item, { order: max + 1 });
               setMenuId(null);
             }}
@@ -498,6 +502,7 @@ export function ShellSidebar({
         {loaded && !visibleMatching.length && (
           <div className="sidebar-empty">{search ? 'No matching threads.' : 'Your threads will appear here.'}</div>
         )}
+        {pageControls}
       </nav>
       {navigation}
       <div className="sidebar-footer" aria-label="App controls">
