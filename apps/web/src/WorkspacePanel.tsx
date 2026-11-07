@@ -1,5 +1,6 @@
 import {useEffect,useLayoutEffect,useRef,useState} from 'react';
 import {X} from 'lucide-react';
+import {Select} from '../../../packages/ui-shell/Select';
 import type {Snapshot} from '../../../packages/contracts';
 import type {UiPreferences} from '../../../packages/contracts/preferences';
 import {useWorkspace,type WorkspaceTab} from './workspace-context';
@@ -26,11 +27,12 @@ export function WorkspacePanel({ snapshot, threadId, preferences, layout, setWid
   useLayoutEffect(() => {
     const body = content.current, owner = body?.closest<HTMLElement>('.shell-workarea[data-tool-layout]');
     if (!body || !owner || standalone) return;
+    const toolbar = body.querySelector<HTMLElement>('.panel-toolbar');
     const keys = ['left','top','width','height'] as const;
     let frame = 0, last = '';
     const measure = () => {
       const rect = body.getBoundingClientRect(), bounds = owner.getBoundingClientRect();
-      const left = Math.max(0, rect.left, bounds.left) + 12, top = Math.max(0, rect.top, bounds.top) + 12;
+      const left = Math.max(0, rect.left, bounds.left) + 12, top = Math.max(0, rect.top, toolbar?.getBoundingClientRect().bottom ?? 0, bounds.top) + 12;
       const right = Math.min(innerWidth, rect.right, bounds.right) - 12, bottom = Math.min(innerHeight, rect.bottom, bounds.bottom) - 12;
       const values = [left, top, Math.max(0, right - left), Math.max(0, bottom - top)], key = JSON.stringify(values);
       if (key !== last) {
@@ -43,7 +45,7 @@ export function WorkspacePanel({ snapshot, threadId, preferences, layout, setWid
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(() => { frame = 0; measure(); }); };
     measure(); const observer = new ResizeObserver(schedule);
-    observer.observe(body); observer.observe(owner); if (body.parentElement) observer.observe(body.parentElement);
+    observer.observe(body); observer.observe(owner); if (toolbar) observer.observe(toolbar); if (body.parentElement) observer.observe(body.parentElement);
     const motionEvents = ['animationstart','animationend','animationcancel','transitionrun','transitionend','transitioncancel'];
     motionEvents.forEach(name => body.parentElement?.addEventListener(name,schedule));
     window.addEventListener('resize',schedule); window.addEventListener('scroll',schedule,true); document.fonts?.addEventListener('loadingdone',schedule);
@@ -59,7 +61,7 @@ export function WorkspacePanel({ snapshot, threadId, preferences, layout, setWid
     <header className="workspace-right-header"><div role="tablist" aria-label="Workspace views">{tabs.map(([id, label]) => <button role="tab" key={id} id={`workspace-tab-${id}`} aria-selected={workspace.activeTab === id} aria-controls={`workspace-view-${id}`} onClick={() => workspace.setActiveTab(id)}>{label}</button>)}</div><button className="icon-button" aria-label="Close workspace panel" onClick={close}><X size={15} /></button></header>
     {handoffError&&<p role="alert" className="error-text">{handoffError}</p>}
     <div ref={content} className="workspace-panel-content" role="tabpanel" id={`workspace-view-${workspace.activeTab}`} aria-labelledby={`workspace-tab-${workspace.activeTab}`}>
-      {workspace.activeTab === 'artifact' && <><div className="panel-toolbar"><label><span className="sr-only">Workspace artifact</span><select aria-label="Workspace artifact" value={activeArtifact?.id ?? ''} onChange={event => workspace.requestOpenArtifact(event.target.value)}><option value="">Choose an artifact</option>{artifacts.map(artifact => <option value={artifact.id} key={artifact.id}>{artifact.title}</option>)}</select></label></div>{!activeArtifact && <WorkspaceLauncher />}</>}
+      {workspace.activeTab === 'artifact' && <><div className="panel-toolbar"><Select aria-label="Workspace artifact" value={activeArtifact?.id ?? ''} onValueChange={workspace.requestOpenArtifact} options={[{value:'',label:'Choose an artifact'},...artifacts.map(artifact=>({value:artifact.id,label:artifact.title}))]}/></div>{!activeArtifact && <WorkspaceLauncher />}</>}
       {workspace.activeTab !== 'artifact' && <WorkspaceSurfaceBody kind={workspace.activeTab} binding={{authority:{kind:'local'},...(threadId?{threadId}:{}),...(preferredResourceId?{resourceId:preferredResourceId}:{})}} snapshot={snapshot} refresh={refresh} preferences={preferences}/>}
     </div>
   </aside>;

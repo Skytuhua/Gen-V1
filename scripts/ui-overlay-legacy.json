@@ -555,17 +555,6 @@
     },
     {
       "file": "apps/web/src/workspace-split.css",
-      "line": 12,
-      "column": 300,
-      "rule": "ad-hoc-overlay",
-      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "f0dc2859c47fc3ccbbd9484f1d4891fa80d23ce968f47ee12b5715b95653ba59",
-      "reason": "LAYOUT: migrate area actions menu; retain exact split-plane and drag-preview geometry.",
-      "evidence": ".split-area-menu-body{position:absolute;right:0;top:29px;display:flex;flex-direction:column;gap:3px;min-width:210px;max-height:min(420px,var(--split-menu-max-height,120px));box-sizing:border-box;overflow:auto;padding:7px",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/workspace-split.css",
       "line": 14,
       "column": 1,
       "rule": "ad-hoc-overlay",
@@ -584,72 +573,6 @@
       "fingerprint": "026b3c79ca87f5799ab8f37f9d568103cddc9dea10de0d76fc44e525168f2c55",
       "reason": "LAYOUT: migrate area actions menu; retain exact split-plane and drag-preview geometry.",
       "evidence": ".split-drop-preview{position:absolute;pointer-events:none;z-index:10;box-sizing:border-box;border:2px solid var(--focus,#8f9cff);background:color-mix(in srgb,var(--focus,#8f9cff) 15%,transparent);display:grid;place-items",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/WorkspacePanel.tsx",
-      "line": 34,
-      "column": 137,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "59bcc2984c56ef904f8b0b25e1643b7505f42821abc9f25c1c6b30491a3a23ce",
-      "reason": "SHELL2: parent moves artifact selector to shared Select.",
-      "evidence": "<select aria-label=\"Workspace artifact\" value={activeArtifact?.id ?? ''} onChange={event => workspace.requestOpenArtifact(event.target.value)}><option value=\"\">Choose an artifact</option>{artifacts.map(artifact => <optio",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/WorkspaceSplitLayout.tsx",
-      "line": 94,
-      "column": 5,
-      "rule": "ad-hoc-overlay",
-      "message": "overlay surface class: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "9139c1158a5a5fadf744fe6bc9a41c516a608bc55d3d50040d03215af6a3b284",
-      "reason": "LAYOUT: migrate area menu and editor/recovery/area selectors to shared ActionMenu/Select.",
-      "evidence": "<details className=\"split-area-menu\"><summary aria-label=\"Area actions\" title=\"Area actions\">⋯</summary><div className=\"split-area-menu-body\"><button disabled={busy||narrow} onClick={()=>{void splitPane(paneId,'right');}",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/WorkspaceSplitLayout.tsx",
-      "line": 94,
-      "column": 109,
-      "rule": "ad-hoc-overlay",
-      "message": "overlay surface class: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "d5979399750df23668c6645879cf97485a80810e9ea0cd160fcafe6e17d68724",
-      "reason": "LAYOUT: migrate area menu and editor/recovery/area selectors to shared ActionMenu/Select.",
-      "evidence": "<div className=\"split-area-menu-body\"><button disabled={busy||narrow} onClick={()=>{void splitPane(paneId,'right');}}>Split left / right</button><button disabled={busy||narrow} onClick={()=>{void splitPane(paneId,'bottom",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/WorkspaceSplitLayout.tsx",
-      "line": 94,
-      "column": 674,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "883874edf69de1834d6b5e87b72b0b6e95ed3e3b208289055dfadce1a7d03ff7",
-      "reason": "LAYOUT: migrate area menu and editor/recovery/area selectors to shared ActionMenu/Select.",
-      "evidence": "<select aria-label=\"Area editor\" value=\"\" onChange={event=>{const value=event.target.value;if(value)void run(()=>onSelectEditor(value,paneId));}}><option value=\"\">Change editor…</option>{editorOptions.map(option=><option",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/WorkspaceSplitLayout.tsx",
-      "line": 94,
-      "column": 1023,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "bd94a76daf7fb0cd5def1840c4efac7844a6ffe738e5a00f908fe955a99037cd",
-      "reason": "LAYOUT: migrate area menu and editor/recovery/area selectors to shared ActionMenu/Select.",
-      "evidence": "<select aria-label=\"Recover parked view\" value=\"\" onChange={event=>{if(event.target.value)void send('view.move',{viewId:event.target.value,paneId});}}><option value=\"\">Choose a parked view…</option>{layout.parkedViewIds.",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/WorkspaceSplitLayout.tsx",
-      "line": 107,
-      "column": 62,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "6ba0554bf00e7cd0c4075ba1581303e6f9cac8a8bcd5f3a094e7b85d0740c66a",
-      "reason": "LAYOUT: migrate area menu and editor/recovery/area selectors to shared ActionMenu/Select.",
-      "evidence": "<select aria-label=\"Active workspace area\" value={layout.focusedPaneId} onChange={event=>{void send('pane.focus',{paneId:event.target.value},false);}}>{splitPaneIds(layout.root).map(paneId=>{const viewId=layout.panes[pan",
       "disposition": "staged-migration"
     },
     {
