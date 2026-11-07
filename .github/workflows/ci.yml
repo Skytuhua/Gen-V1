@@ -58,6 +58,7 @@ jobs:
       - name: Build and verify the public plug-in API package
         run: |
           pnpm build:plugin-api
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           node --test tests/plugin-api-package.test.mjs
 
       - name: Install optional visuals plug-in dependencies
