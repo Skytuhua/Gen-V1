@@ -5,7 +5,9 @@ export interface ReviewOwner {authority: WorkspaceAuthority; projectId: string; 
 export type ReviewTarget = {kind: 'local'; scope: 'staged' | 'worktree'} | {kind: 'pull-request'; repo: string; number: number};
 export interface ReviewSelection {owner: ReviewOwner; target: ReviewTarget}
 export interface ActionIdentity {head: string; revision: string; branch: string}
-export interface ReviewDraft {version: 1; body: string; commitMessage: string; event: 'COMMENT' | 'APPROVE' | 'REQUEST_CHANGES'; basis: ComparisonIdentity; action: ActionIdentity | null; outcome: 'idle' | 'pending' | 'confirmed' | 'stale' | 'uncertain' | 'revoked'}
+export type ReviewOperationPayload = {paths: string[]; revision: string; expectedHead: string} | {message: string; revision: string; expectedHead: string} | {number: number; event: 'COMMENT' | 'APPROVE' | 'REQUEST_CHANGES'; body: string; head: string; revision: string};
+export interface ReviewOperation {operationId: string; operation: 'stage' | 'unstage' | 'commit' | 'review-pr'; selection: ReviewSelection; comparison: ComparisonIdentity; action: ActionIdentity; payload: ReviewOperationPayload}
+export interface ReviewDraft {version: 1; body: string; commitMessage: string; event: 'COMMENT' | 'APPROVE' | 'REQUEST_CHANGES'; basis: ComparisonIdentity; action: ActionIdentity | null; outcome: 'idle' | 'pending' | 'confirmed' | 'stale' | 'uncertain' | 'revoked'; operation?: ReviewOperation}
 export const comparisonKey = (identity: ComparisonIdentity): string => JSON.stringify(identity.kind === 'local'
   ? [identity.kind, identity.id, identity.scope, identity.headOid, identity.branch, identity.revision, identity.base.kind, identity.base.revision, identity.head.kind, identity.head.revision]
   : [identity.kind, identity.id, identity.repo, identity.number, identity.pullRequestId, identity.baseOid, identity.headOid, identity.mergeBaseOid, identity.baseRef, identity.headRef, identity.semantics]);
@@ -15,4 +17,8 @@ export const selectionKey = (selection: ReviewSelection): string => JSON.stringi
 const actionKey = (action: ActionIdentity | null) => action ? JSON.stringify([action.head, action.revision, action.branch]) : 'null';
 export const newDraft = (basis: ComparisonIdentity, action: ActionIdentity | null): ReviewDraft => ({version: 1, body: '', commitMessage: '', event: 'COMMENT', basis, action, outcome: 'idle'});
 export const canUseDraft = (draft: ReviewDraft, identity: ComparisonIdentity, action: ActionIdentity | null): boolean => draft.outcome === 'idle' && comparisonKey(draft.basis) === comparisonKey(identity) && actionKey(draft.action) === actionKey(action);
-export const rebindDraft = (draft: ReviewDraft, identity: ComparisonIdentity, action: ActionIdentity | null): ReviewDraft => ['pending', 'uncertain', 'revoked', 'confirmed'].includes(draft.outcome) ? draft : {...draft, basis: identity, action, outcome: 'idle'};
+export const rebindDraft = (draft: ReviewDraft, identity: ComparisonIdentity, action: ActionIdentity | null): ReviewDraft => {
+  if (['pending', 'uncertain', 'revoked', 'confirmed'].includes(draft.outcome)) return draft;
+  const {operation: _previousOperation, ...rest} = draft;
+  return {...rest, basis: identity, action, outcome: 'idle'};
+};

@@ -6,11 +6,11 @@ import {ActionMenu} from '../../../../packages/ui-shell/ActionMenu';
 import {isComposing} from '../../../../packages/ui-shell/list-navigation';
 import {ApiError} from '../api';
 import {journalCompareAndSwap, journalFlush, journalGeneration, journalRead, journalSubscribe, journalWrite} from '../journal';
-import {canUseDraft, comparisonKey, newDraft, ownerKey, rebindDraft, sameOwner, selectionKey, type ActionIdentity, type ReviewDraft, type ReviewOwner, type ReviewSelection} from './model';
+import {canUseDraft, comparisonKey, newDraft, ownerKey, rebindDraft, sameOwner, selectionKey, type ActionIdentity, type ReviewDraft, type ReviewOwner, type ReviewSelection, type ReviewOperation} from './model';
 import {codeReviewClient, reviewError} from './client';
 import './code-review-workspace.css';
 
-export interface ReviewActionContext {selection: ReviewSelection; comparison: ComparisonIdentity; action: ActionIdentity}
+export type ReviewActionContext = Omit<ReviewOperation, 'payload'>;
 export type ReviewActionResult = {state: 'confirmed' | 'stale' | 'uncertain' | 'revoked'};
 export type ReviewOutcomeResult = {state: 'confirmed' | 'not-applied' | 'uncertain' | 'revoked'};
 export interface ReviewWrites {
@@ -21,10 +21,10 @@ export interface ReviewWrites {
   onUnstage?: ReviewWrites['onStage'];
   onCommit?: (context: ReviewActionContext, payload: {message: string; revision: string; expectedHead: string}) => Promise<ReviewActionResult>;
   /** Open the parent's canonical creation/link UI; that owner still verifies and performs the write. */
-  onCreatePullRequest?: (context: ReviewActionContext) => void;
+  onCreatePullRequest?: (context: Omit<ReviewActionContext,'operation'|'operationId'>) => void;
   onLinkPullRequest?: (selection: ReviewSelection) => void;
   onReview?: (context: ReviewActionContext, payload: {number: number; event: 'COMMENT' | 'APPROVE' | 'REQUEST_CHANGES'; body: string; head: string; revision: string}) => Promise<ReviewActionResult>;
-  onInspectOutcome?: (context: Omit<ReviewActionContext, 'action'> & {action: ActionIdentity | null}) => Promise<ReviewOutcomeResult>;
+  onInspectOutcome?: (context: ReviewOperation) => Promise<ReviewOutcomeResult>;
 }
 export interface CodeReviewWorkspaceProps {
   selection: ReviewSelection;
@@ -97,17 +97,17 @@ function ComparisonBody({selection, writes}: CodeReviewWorkspaceProps) {
   }, [refresh, selectionKey(selection)]);
   const identity = comparison?.identity, action = actionIdentity(writes);
   const canWrite = !!comparison && writable(selection, comparison, writes);
-  const held = busy || refreshing || !draft.ready || !!draft.error || ['pending', 'uncertain', 'revoked'].includes(draft.value?.outcome ?? '');
+  const held = busy || refreshing || !draft.ready || !!draft.error || (['pending', 'uncertain', 'revoked'].includes(draft.value?.outcome ?? '') || !!draft.value?.operation && draft.value.outcome === 'stale');
   const selected = comparison?.files.find(file => file.path === path);
   const compatible = !!identity && !!draft.value && canUseDraft(draft.value, identity, action);
   const canReview = !!comparison && reviewable(selection, comparison, writes);
   const ownerBound = !!writes && sameOwner(selection.owner, writes.owner) && selection.owner.authority.kind === 'local';
   const rows = comparison?.files.filter(file => `${file.path} ${file.oldPath ?? ''}`.toLocaleLowerCase().includes(filter.toLocaleLowerCase())) ?? [];
   const load = () => setRefresh(value => value + 1);
-  async function perform(callback: (context: ReviewActionContext) => Promise<ReviewActionResult>, reviewWrite = false) {
+  async function perform(operation: ReviewOperation['operation'], payload: ReviewOperation['payload'], callback: (context: ReviewActionContext) => Promise<ReviewActionResult>, reviewWrite = false) {
     if (!comparison || !action || !canWrite || held || inFlight.current || !draft.value || (reviewWrite && (!compatible || !canReview))) return;
     inFlight.current = true; setBusy(true); setNotice(''); let started = false;
-    const captured = comparison, expectedAction = action, context: ReviewActionContext = {selection, comparison: captured.identity, action: expectedAction};
+    const captured = comparison, expectedAction = action, context: ReviewActionContext = {selection, comparison: captured.identity, action: expectedAction, operationId: crypto.randomUUID(), operation};
     try {
       const fresh = await codeReviewClient.comparison(selection);
       const currentWrites = latestWrites.current;
@@ -117,31 +117,32 @@ function ComparisonBody({selection, writes}: CodeReviewWorkspaceProps) {
         await draft.outcome('stale'); setNotice('Comparison or permission changed. Refresh before acting.'); load(); return;
       }
       // Persist the uncertain boundary before a canonical callback can start a write.
-      await draft.outcome('pending'); await journalFlush();
+      await draft.begin({...context,payload}); await journalFlush();
       if (!mounted.current || !writable(selection, captured, latestWrites.current) || (reviewWrite && !reviewable(selection, captured, latestWrites.current)) || JSON.stringify(actionIdentity(latestWrites.current)) !== JSON.stringify(expectedAction)) {
-        await draft.outcome('stale'); return;
+        await draft.outcome('stale',context.operationId); return;
       }
       started = true;
       const result = await callback(context);
       if (!result || !['confirmed', 'stale', 'uncertain', 'revoked'].includes(result.state)) throw Error('Canonical action outcome is unconfirmed.');
-      await draft.outcome(result.state);
+      await draft.outcome(result.state,context.operationId);
       if (mounted.current) {setNotice(result.state === 'confirmed' ? (reviewWrite ? 'Review submitted.' : 'Action confirmed.') : ''); if (result.state === 'confirmed' && !reviewWrite) load();}
     } catch {
-      await draft.outcome(started ? 'uncertain' : 'stale').catch(() => {});
+      await draft.outcome(started ? 'uncertain' : 'stale',context.operationId).catch(() => {});
       if (mounted.current && !started) setNotice('Comparison could not be verified. Refresh before acting.');
     } finally {inFlight.current = false; if (mounted.current) setBusy(false);}
   }
   const error = read.state === 'error' ? reviewError(new ApiError(read.error.code, '')) : '';
   const local = identity?.kind === 'local';
   const stage = () => {if (!writes || !selected || !action) return; const callback = identity?.kind === 'local' && identity.scope === 'staged' ? writes.onUnstage : writes.onStage;
-    if (callback) void perform(context => callback(context, {paths: [selected.path], revision: context.action.revision, expectedHead: context.action.head}));};
+    if (callback) {const payload={paths:[selected.path],revision:action.revision,expectedHead:action.head};void perform(identity?.kind==='local'&&identity.scope==='staged'?'unstage':'stage',payload,context=>callback(context,payload));}};
   async function inspectOutcome() {
-    if (!ownerBound || !writes?.onInspectOutcome || !draft.value || inFlight.current) return;
+    if (!ownerBound || !writes?.onInspectOutcome || !draft.value?.operation || inFlight.current) return;
     inFlight.current = true; setBusy(true);
     try {
-      const result = await writes.onInspectOutcome({selection, comparison: draft.value.basis, action: draft.value.action});
+      const operation=draft.value.operation;
+      const result = await writes.onInspectOutcome(operation);
       if (result && ['confirmed', 'not-applied', 'uncertain', 'revoked'].includes(result.state)) {
-        await draft.outcome(result.state === 'not-applied' ? 'stale' : result.state);
+        await draft.outcome(result.state === 'not-applied' ? 'stale' : result.state,operation.operationId);
         if (mounted.current) load();
       }
     } catch { /* Retain the uncertain boundary until the canonical owner can resolve it. */ }
@@ -184,21 +185,21 @@ function ComparisonBody({selection, writes}: CodeReviewWorkspaceProps) {
           onChange={event => {if (draft.value) void draft.save({...draft.value, body: event.target.value, outcome: draft.value.outcome === 'confirmed' ? 'idle' : draft.value.outcome}).catch(() => {});}} />
         {!draft.ready && <p role="status">Recovering review draft…</p>}
         {draft.error && <p role="alert">{draft.error} <button type="button" onClick={draft.retry}>Retry draft recovery</button></p>}
-        {draft.value && identity && !compatible && !['pending', 'uncertain', 'revoked', 'confirmed'].includes(draft.value.outcome) && <div className="cr-draft-state"><p>Draft belongs to an earlier comparison or working-copy revision.</p><button type="button" disabled={held} onClick={() => void draft.save(rebindDraft(draft.value!, identity, action)).catch(() => {})}>Use current comparison</button></div>}
+        {draft.value && identity && !compatible && !['pending', 'uncertain', 'revoked', 'confirmed'].includes(draft.value.outcome) && <div className="cr-draft-state"><p>Draft belongs to an earlier comparison or working-copy revision.</p><button type="button" disabled={busy || refreshing || !draft.ready || !!draft.error} onClick={() => void draft.save(rebindDraft(draft.value!, identity, action)).catch(() => {})}>Use current comparison</button></div>}
         {draft.value?.outcome === 'uncertain' && <p role="alert">Outcome uncertain. Inspect the canonical action before trying again.</p>}
         {draft.value?.outcome === 'revoked' && <p role="alert">Action access revoked. Your draft is preserved.</p>}
         {draft.value?.outcome === 'confirmed' && <p role="status">{local ? 'Action confirmed.' : 'Review submitted.'}</p>}
-        {draft.value?.outcome === 'uncertain' && ownerBound && writes?.onInspectOutcome && <button type="button" disabled={busy} onClick={() => void inspectOutcome()}>Inspect action outcome</button>}
+        {Boolean(draft.value?.operation && ['uncertain','revoked'].includes(draft.value.outcome)) && ownerBound && writes?.onInspectOutcome && <button type="button" disabled={busy} onClick={() => void inspectOutcome()}>Inspect action outcome</button>}
         {identity?.kind === 'pull-request' && <>
           <Select aria-label="Review decision" value={draft.value?.event ?? 'COMMENT'} disabled={!draft.ready || busy}
             options={[{value: 'COMMENT', label: 'Comment'}, {value: 'APPROVE', label: 'Approve'}, {value: 'REQUEST_CHANGES', label: 'Request changes'}]}
             onValueChange={value => {if (draft.value) void draft.save({...draft.value, event: value as ReviewDraft['event'], outcome: draft.value.outcome === 'confirmed' ? 'idle' : draft.value.outcome}).catch(() => {});}} />
           <button type="button" className="cr-submit" disabled={!writes?.onReview || !canReview || !compatible || held || comparison?.filesTruncated || !draft.value || (draft.value.event !== 'APPROVE' && !draft.value.body.trim())}
-            onClick={() => {if (!writes?.onReview || !draft.value || identity.kind !== 'pull-request') return; const captured = {...draft.value}; void perform(context => writes.onReview!(context, {number: identity.number, event: captured.event, body: captured.body, head: context.action.head, revision: context.action.revision}), true);}}>Submit review</button>
+            onClick={() => {if (!writes?.onReview || !draft.value || identity.kind !== 'pull-request') return; const captured = {...draft.value}; if(!action)return;const payload={number:identity.number,event:captured.event,body:captured.body,head:action.head,revision:action.revision};void perform('review-pr',payload,context=>writes.onReview!(context,payload),true);}}>Submit review</button>
           {!canReview && <p className="cr-meta">Review submission requires a writable working copy at this PR’s exact head.</p>}
         </>}
       </section>
-      {local && writes?.onCommit && <form className="cr-commit" onSubmit={event => {event.preventDefault(); const text = draft.value?.commitMessage ?? ''; if (writes.onCommit && text.trim()) void perform(context => writes.onCommit!(context, {message: text, revision: context.action.revision, expectedHead: context.action.head}));}}>
+      {local && writes?.onCommit && <form className="cr-commit" onSubmit={event => {event.preventDefault(); const text = draft.value?.commitMessage ?? ''; if (writes.onCommit && text.trim() && action) {const payload={message:text,revision:action.revision,expectedHead:action.head};void perform('commit',payload,context=>writes.onCommit!(context,payload));}}}>
         <label>Commit message<textarea rows={2} maxLength={4000} disabled={!draft.ready || !draft.value} value={draft.value?.commitMessage ?? ''} onChange={event => {if (draft.value) void draft.save({...draft.value, commitMessage: event.target.value}).catch(() => {});}} /></label>
         <button type="submit" disabled={!canWrite || held || !draft.value?.commitMessage.trim() || !writes.git.files.some(file => file.staged)}>Commit staged changes</button>
       </form>}
@@ -236,10 +237,23 @@ function Patch({selection, comparison, path, onInvalid}: {selection: ReviewSelec
   return <div className="cr-patch-state"><p>{({binary: 'Binary file · no text diff.', truncated: 'Patch exceeds the display limit. No partial patch is shown.', unavailable: 'Patch unavailable.', untracked: 'Untracked file · no indexed diff.', empty: 'No textual changes in this comparison.', text: 'Patch unavailable.'})[value.state]}</p>{value.reason && <p className="cr-meta">{({ 'patch-omitted': 'The provider omitted this patch.', 'unsupported-path': 'This path is unsupported.', conflict: 'Resolve the file conflict before reviewing a text diff.', 'resource-limit': 'The read exceeded its resource limit.', 'unsupported-file': 'This file type is unsupported.'})[value.reason]}</p>}</div>;
 }
 
-function validDraft(value: unknown): value is ReviewDraft {
+function validOperation(operation: ReviewOperation, selection?: ReviewSelection): boolean {
+  try {
+    if(!operation || !/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(operation.operationId) || !['stage','unstage','commit','review-pr'].includes(operation.operation))return false;
+    if(operation.selection.owner.authority.kind!=='local'||typeof operation.selection.owner.projectId!=='string'||!operation.selection.owner.projectId||(selection&&selectionKey(operation.selection)!==selectionKey(selection)))return false;
+    if(!['head','revision','branch'].every(key=>typeof operation.action?.[key as keyof ActionIdentity]==='string')||!comparisonKey(operation.comparison))return false;
+    const target=operation.selection.target,identity=operation.comparison,payload=operation.payload;
+    if(target.kind==='local' ? identity.kind!=='local'||target.scope!==identity.scope : identity.kind!=='pull-request'||target.repo!==identity.repo||target.number!==identity.number)return false;
+    if(payload.revision!==operation.action.revision)return false;
+    if(operation.operation==='review-pr')return identity.kind==='pull-request'&&'number' in payload&&payload.number===identity.number&&payload.head===operation.action.head&&['COMMENT','APPROVE','REQUEST_CHANGES'].includes(payload.event)&&typeof payload.body==='string'&&payload.body.length<=64000;
+    if(identity.kind!=='local'||!('expectedHead' in payload)||payload.expectedHead!==operation.action.head)return false;
+    return operation.operation==='commit' ? 'message' in payload&&typeof payload.message==='string'&&payload.message.length<=4000 : 'paths' in payload&&Array.isArray(payload.paths)&&payload.paths.length>0&&payload.paths.length<=1000&&payload.paths.every(path=>typeof path==='string'&&path.length>0&&path.length<=4096&&!path.includes('\0'));
+  }catch{return false;}
+}
+function validDraft(value: unknown, selection?: ReviewSelection): value is ReviewDraft {
   const draft = value as ReviewDraft | null;
   try {return !!draft && draft.version === 1 && typeof draft.body === 'string' && draft.body.length <= 64000 && typeof draft.commitMessage === 'string' && draft.commitMessage.length <= 4000 && ['COMMENT', 'APPROVE', 'REQUEST_CHANGES'].includes(draft.event)
-    && ['idle', 'pending', 'confirmed', 'stale', 'uncertain', 'revoked'].includes(draft.outcome) && !!comparisonKey(draft.basis) && (draft.action === null || ['head', 'revision', 'branch'].every(key => typeof draft.action?.[key as keyof ActionIdentity] === 'string'));} catch {return false;}
+    && ['idle', 'pending', 'confirmed', 'stale', 'uncertain', 'revoked'].includes(draft.outcome) && (draft.operation === undefined || validOperation(draft.operation,selection)) && !!comparisonKey(draft.basis) && (draft.action === null || ['head', 'revision', 'branch'].every(key => typeof draft.action?.[key as keyof ActionIdentity] === 'string'));} catch {return false;}
 }
 function useDraft(selection: ReviewSelection, identity: ComparisonIdentity | undefined, action: ActionIdentity | null) {
   const key = 'code-review:v1:' + selectionKey(selection), latest = useRef<ReviewDraft | null>(null), live = useRef(true);
@@ -248,14 +262,14 @@ function useDraft(selection: ReviewSelection, identity: ComparisonIdentity | und
     live.current = true; let current = true;
     const accept = (raw: unknown) => {
       if (!current || raw === undefined) return;
-      if (!validDraft(raw)) {setError('Saved draft could not be read. Keep this view open and retry.'); setReady(false); return;}
+      if (!validDraft(raw,selection)) {setError('Saved draft could not be read. Keep this view open and retry.'); setReady(false); return;}
       latest.current = raw; setValue(raw);
     };
     const unsubscribe = journalSubscribe(key, accept);
     void journalRead(key).then(async raw => {
       if (!current) return;
-      if (raw !== undefined && !validDraft(raw)) {accept(raw); return;}
-      const recovered = raw && validDraft(raw) ? raw : null;
+      if (raw !== undefined && !validDraft(raw,selection)) {accept(raw); return;}
+      const recovered = raw && validDraft(raw,selection) ? raw : null;
       if (recovered?.outcome === 'pending') {const uncertain = {...recovered, outcome: 'uncertain' as const}; accept(uncertain); await journalWrite(key, uncertain);}
       else if (recovered) accept(recovered);
       if (current) {setReady(true); setError('');}
@@ -267,9 +281,13 @@ function useDraft(selection: ReviewSelection, identity: ComparisonIdentity | und
     latest.current = next; if (live.current) setValue(next);
     try {await journalWrite(key, next);} catch (cause) {if (live.current) setError('Draft could not be saved. Keep this view open and retry.'); throw cause;}
   }
-  async function outcome(next: ReviewDraft['outcome']) {
-    const current = await journalRead(key), generation = journalGeneration(key);
-    if (!validDraft(current) || !await journalCompareAndSwap(key, generation, {...current, outcome: next})) throw Error('Draft changed while recording the action outcome.');
+  async function begin(operation: ReviewOperation) {
+    const current=await journalRead(key),generation=journalGeneration(key);
+    if(!validDraft(current,selection)||['pending','uncertain','revoked'].includes(current.outcome)||!await journalCompareAndSwap(key,generation,{...current,outcome:'pending',operation}))throw Error('Draft changed before recording the action.');
   }
-  return {value, ready, error, save, outcome, retry: () => {setError(''); setReady(false); setRecovery(current => current + 1);}};
+  async function outcome(next: ReviewDraft['outcome'],operationId?:string) {
+    const current = await journalRead(key), generation = journalGeneration(key);
+    if (!validDraft(current,selection) || (operationId===undefined ? ['pending','uncertain','revoked'].includes(current.outcome) : current.operation?.operationId!==operationId) || !await journalCompareAndSwap(key, generation, {...current, outcome: next})) throw Error('Draft changed while recording the action outcome.');
+  }
+  return {value, ready, error, save, begin, outcome, retry: () => {setError(''); setReady(false); setRecovery(current => current + 1);}};
 }

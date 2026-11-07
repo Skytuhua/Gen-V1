@@ -197,3 +197,41 @@ for (const theme of ['dark', 'light']) test(`first-render ${theme} geometry, ove
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({path: info.outputPath(`${theme}-narrow-short.png`)});
 });
+
+
+test('local uncertain recovery inspects the exact persisted operation after action revision changes',async({page})=>{
+  await page.goto('/review-fixture?uncertain&inspect');await expect(page.getByRole('button',{name:'Stage file',exact:true})).toBeEnabled();
+  await page.getByRole('textbox',{name:'Review draft',exact:true}).fill('Keep unrelated review draft');
+  await page.getByRole('button',{name:'Change action revision',includeHidden:true}).evaluate((button:HTMLButtonElement)=>button.click());
+  await page.getByRole('button',{name:'Stage file',exact:true}).click();await expect(page.getByText('Outcome uncertain. Inspect the canonical action before trying again.',{exact:true})).toBeVisible();
+  const sent=JSON.parse(await page.getByLabel('Canonical callback').textContent()??'null');expect(sent[0].action.revision).toBe('f'.repeat(64));
+  await page.reload();await page.getByRole('button',{name:'Inspect action outcome',exact:true}).click();
+  const inspected=JSON.parse(await page.getByLabel('Canonical inspection').textContent()??'null');expect(inspected.action.revision).toBe('f'.repeat(64));expect(inspected.comparison).toEqual(sent[0].comparison);
+  expect(inspected.operationId).toBeTruthy();expect(inspected.operationId).toBe(sent[0].operationId);expect(inspected.operation).toBe('stage');expect(inspected.payload.paths).toEqual(['src/first.ts']);
+  await expect(page.getByRole('textbox',{name:'Review draft',exact:true})).toHaveValue('Keep unrelated review draft');
+});
+
+test('revoked action can be canonically inspected after reload before explicit rebind',async({page})=>{
+  await page.goto('/review-fixture?revoked&inspect');const stage=page.getByRole('button',{name:'Stage file',exact:true});await expect(stage).toBeEnabled();
+  await page.getByRole('textbox',{name:'Review draft',exact:true}).fill('Keep revoked draft');await stage.click();await expect(page.getByText('Action access revoked. Your draft is preserved.',{exact:true})).toBeVisible();
+  await page.reload();await expect(stage).toBeDisabled();await expect(page.getByRole('button',{name:'Use current comparison',exact:true})).toHaveCount(0);
+  await page.getByRole('button',{name:'Inspect action outcome',exact:true}).click();await expect(page.getByRole('button',{name:'Use current comparison',exact:true})).toBeVisible();await expect(stage).toBeDisabled();
+  await page.getByRole('button',{name:'Use current comparison',exact:true}).click();await expect(stage).toBeEnabled();await expect(page.getByRole('textbox',{name:'Review draft',exact:true})).toHaveValue('Keep revoked draft');
+});
+
+
+test('an obsolete preflight cannot replace another persisted operation outcome',async({page})=>{
+  await page.goto('/review-fixture');await expect(page.getByRole('button',{name:'Stage file',exact:true})).toBeEnabled();
+  let release:(()=>Promise<void>)|undefined;await page.route('**/git/comparison?*',route=>{release=()=>route.fulfill({json:{state:'ready',value:comparison({...local,revision:'changed'})}});});
+  await page.getByRole('button',{name:'Stage file',exact:true}).click();await expect.poll(()=>!!release).toBe(true);
+  const operationId=await page.evaluate(async({local,modules})=>{
+    const journal=await import(modules.journal),model=await import(modules.model);
+    const selection={owner:{authority:{kind:'local' as const},projectId:'project-one',threadId:'copy-one'},target:{kind:'local' as const,scope:'worktree' as const}};
+    const key='code-review:v1:'+model.selectionKey(selection),draft=await journal.journalRead(key),operationId=crypto.randomUUID(),action={head:local.headOid,revision:'e'.repeat(64),branch:'topic'};
+    await journal.journalWrite(key,{...draft,outcome:'uncertain',operation:{operationId,operation:'stage',selection,comparison:local,action,payload:{paths:['src/second.ts'],revision:action.revision,expectedHead:action.head}}});return operationId;
+  },{local,modules:{journal:'/@fs/'+resolve('apps/web/src/journal.ts').replaceAll('\\','/'),model:'/@fs/'+resolve('apps/web/src/code-review-workspace/model.ts').replaceAll('\\','/')}});
+  await release!();await expect(page.getByRole('status').filter({hasText:/Comparison.*before acting/})).toBeVisible();
+  await expect(page.getByText('Outcome uncertain. Inspect the canonical action before trying again.',{exact:true})).toBeVisible();
+  const saved=await page.evaluate(async modules=>{const journal=await import(modules.journal),model=await import(modules.model);return journal.journalRead('code-review:v1:'+model.selectionKey({owner:{authority:{kind:'local'},projectId:'project-one',threadId:'copy-one'},target:{kind:'local',scope:'worktree'}}));},{journal:'/@fs/'+resolve('apps/web/src/journal.ts').replaceAll('\\','/'),model:'/@fs/'+resolve('apps/web/src/code-review-workspace/model.ts').replaceAll('\\','/')});
+  expect(saved.operation.operationId).toBe(operationId);expect(saved.outcome).toBe('uncertain');await expect(page.getByLabel('Canonical callback')).toHaveText('');
+});
