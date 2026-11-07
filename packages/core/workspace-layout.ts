@@ -1,11 +1,13 @@
 import {randomUUID,createHash} from 'node:crypto';
 import {z} from 'zod';
 import {HarnessError,type HostCommand,type Thread} from '../contracts/index.ts';
+import {threadNavigationRevision} from '../contracts/shell-read-models.ts';
 import {DEFAULT_INTEGRATIONS,integrationIdSchema,integrationPreferenceSchema} from '../contracts/integrations.ts';
 import {canvasLayoutSchema,nativeLayoutSchema,panelBindingSchema,panelBoundsSchema,panelPlacementSchema,surfaceRefSchema,workspaceIdSchema,workspacePanelKindSchema,workspacePresetSchema,workspaceStateSchema,type CanvasLayout,type PanelBinding,type PanelPlacement,type ProjectSummary,type WorkspaceEnvelope,type WorkspaceState} from '../contracts/workspace.ts';
 import {Store} from '../storage/store.ts';
 
 const name=z.string().trim().min(1).max(100),revision=z.number().int().nonnegative();
+const expectedReviewOwner=z.strictObject({projectId:workspaceIdSchema,workingCopyId:workspaceIdSchema,revision:z.string().min(1).max(2048)});
 const now=()=>new Date().toISOString();
 const missing=(kind:string)=>new HarnessError('NOT_FOUND',`The ${kind} is no longer available.`);
 export function createWorkspaceCanvas(preset:CanvasLayout['preset'],label:string,id:string=randomUUID(),binding?:PanelBinding):CanvasLayout{
@@ -36,9 +38,13 @@ export class WorkspaceRepository{
    const canvas=(id:unknown)=>{const value=state.canvases.find(item=>item.id===workspaceIdSchema.parse(id));if(!value)throw missing('canvas');return value;};
    const profile=(id:unknown)=>{const value=state.profiles.find(item=>item.id===workspaceIdSchema.parse(id));if(!value)throw missing('profile');return value;};
    const panel=(id:unknown)=>{const value=state.canvases.flatMap(item=>item.panels).find(item=>item.id===workspaceIdSchema.parse(id));if(!value)throw missing('panel');return value;};
-   const bindReview=(target:CanvasLayout,threadId:unknown)=>{
+   const bindReview=(target:CanvasLayout,threadId:unknown,expected?:unknown)=>{
     const owner=this.store.get<Thread>('thread',workspaceIdSchema.parse(threadId));
     if(!owner?.projectId||owner.kind==='side'||owner.kind==='delegate'||owner.sideParentId)throw new HarnessError('THREAD_REQUIRED','Choose a main project conversation for Code Review.');
+    if(expected!==undefined){
+     const claimed=expectedReviewOwner.parse(expected);
+     if(owner.projectId!==claimed.projectId||owner.workspaceId!==claimed.workingCopyId||threadNavigationRevision(owner)!==claimed.revision)throw new HarnessError('REVISION_CHANGED','The working copy changed. Reopen the current thread details.');
+    }
     const binding:PanelBinding={authority:{kind:'local'},threadId:owner.id,projectId:owner.projectId};
     const threads=target.panels.filter(item=>item.kind==='thread');
     const existing=threads.find(item=>item.id==='review-owner-'+target.id)??(threads.length===1?threads[0]:undefined);
@@ -47,10 +53,11 @@ export class WorkspaceRepository{
     target.projectIds=[owner.projectId];
    };
    if(type==='canvas.create'){
-    const data=z.strictObject({name,preset:workspacePresetSchema,projectIds:z.array(workspaceIdSchema).max(200).optional(),threadId:workspaceIdSchema.optional(),baseRevision:revision.optional()}).parse(p);
-    const ownerId=data.threadId??(data.preset==='research'?this.store.snapshot().activeThreadId:undefined),owner=ownerId?this.store.get<Thread>('thread',ownerId):undefined;if(data.threadId&&!owner)throw missing('conversation');const next=createWorkspaceCanvas(data.preset,data.name,undefined,owner?{authority:{kind:'local'},threadId:owner.id,...(owner.projectId?{projectId:owner.projectId}:{})}:undefined);next.projectIds=data.projectIds??next.projectIds;if(data.preset==='code-review'&&data.threadId)bindReview(next,data.threadId);state.canvases.push(next);state.activeCanvasId=next.id;
+    const data=z.strictObject({name,preset:workspacePresetSchema,projectIds:z.array(workspaceIdSchema).max(200).optional(),threadId:workspaceIdSchema.optional(),expected:expectedReviewOwner.optional(),baseRevision:revision.optional()}).parse(p);
+    if(data.expected&&(data.preset!=='code-review'||!data.threadId))throw new HarnessError('INVALID_INPUT','An exact review owner requires a Code Review conversation.');
+    const ownerId=data.threadId??(data.preset==='research'?this.store.snapshot().activeThreadId:undefined),owner=ownerId?this.store.get<Thread>('thread',ownerId):undefined;if(data.threadId&&!owner)throw missing('conversation');const next=createWorkspaceCanvas(data.preset,data.name,undefined,owner?{authority:{kind:'local'},threadId:owner.id,...(owner.projectId?{projectId:owner.projectId}:{})}:undefined);next.projectIds=data.projectIds??next.projectIds;if(data.preset==='code-review'&&data.threadId)bindReview(next,data.threadId,data.expected);state.canvases.push(next);state.activeCanvasId=next.id;
    }else if(type==='canvas.select'){
-    const target=canvas(p.canvasId);if(p.threadId!==undefined){if(target.preset!=='code-review')throw new HarnessError('INVALID_INPUT','Thread binding is available only in Code Review.');bindReview(target,p.threadId);}state.activeCanvasId=target.id;
+    const target=canvas(p.canvasId);if(p.expected!==undefined&&p.threadId===undefined)throw new HarnessError('INVALID_INPUT','An exact review owner needs a thread.');if(p.threadId!==undefined){if(target.preset!=='code-review')throw new HarnessError('INVALID_INPUT','Thread binding is available only in Code Review.');bindReview(target,p.threadId,p.expected);}state.activeCanvasId=target.id;
    }
    else if(type==='canvas.rename')canvas(p.canvasId).name=name.parse(p.name);
    else if(type==='canvas.delete'){

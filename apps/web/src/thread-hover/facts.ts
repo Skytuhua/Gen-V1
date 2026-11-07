@@ -35,6 +35,7 @@ export interface ThreadHoverFacts<Target = unknown> {
   readonly parent?: {readonly threadId: string; readonly title?: string};
   readonly childCount?: number;
   readonly pullRequests?: readonly ThreadHoverPullRequest<Target>[];
+  readonly pullRequestError?: string;
 }
 
 export function hoverScopeKey(scope: ThreadHoverScope): string {
@@ -44,7 +45,7 @@ export function hoverScopeKey(scope: ThreadHoverScope): string {
 }
 
 export function scopedThreadHoverFacts<Target>(facts: ThreadHoverFacts<Target>): ThreadHoverFacts<Target> {
-  const {branch, workingCopy, pullRequests, ...basic} = facts;
+  const {branch, workingCopy, pullRequests, pullRequestError, ...basic} = facts;
   return facts.scope.workingCopyId && facts.scope.revision ? facts : basic;
 }
 
