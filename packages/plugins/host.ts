@@ -39,7 +39,7 @@ const contentTypes:Record<string,string>={html:'text/html; charset=utf-8',js:'te
  * provided. These are trusted Node extensions; this API is not a code sandbox. */
 export async function loadInstalledPlugins(root:string,genVersion:string):Promise<PluginRegistry>{
  if(!validGenVersion(genVersion))throw Error('Gen needs a valid semantic version to load plug-ins.');
- const loaded=new Map<string,LoadedPlugin>();let closed=false,admissions=0;
+ const loaded=new Map<string,LoadedPlugin>();let closed=false,shutdownConfirmed=false,admissions=0,closing:Promise<void>|undefined;
  try{for(const record of await readPluginIndex(root)){
   const verified=await verifyPluginPackage(join(root,record.id,record.version),record.digest);if(verified.manifest.id!==record.id||verified.manifest.version!==record.version)throw unavailable();
   const entry:LoadedPlugin={record,verified,pending:new Set()};loaded.set(record.id,entry);
@@ -70,7 +70,16 @@ export async function loadInstalledPlugins(root:string,genVersion:string):Promis
   async readAsset(id,path){pluginPathSchema.parse(path);if(!path.startsWith('frontend/'))throw Error('Only verified frontend assets may be served.');const entry=await current(id),bytes=entry.verified.files.get(path);if(!bytes)throw Error('The plug-in frontend asset is unavailable.');const extension=path.split('.').at(-1)??'';if(!contentTypes[extension])throw Error('The plug-in frontend asset type is unavailable.');return {bytes:Buffer.from(bytes),contentType:contentTypes[extension]};},
   async validateSurface(surface){const parsed=pluginSurfaceSchema.safeParse(surface);if(!parsed.success)return false;try{const entry=await current(parsed.data.pluginId,true);if(!entry.instance!.validateSurface||await entry.instance!.validateSurface(structuredClone(parsed.data))!==true)return false;await current(parsed.data.pluginId,true);return true;}catch{return false;}},
   async compatibleWith(version){if(closed)throw unavailable();return checkInstalledCompatibility(root,version);},
-  async isBusy(){if(closed)return false;if(admissions)return true;for(const entry of loaded.values()){if(entry.pending.size)return true;try{if(entry.instance&&(!entry.instance.isBusy||await entry.instance.isBusy()!==false))return true;}catch{return true;}}return false;},
-  async close(){if(closed)return;closed=true;for(const entry of loaded.values())for(const request of entry.pending)request.abort();const results=await Promise.allSettled([...loaded.values()].map(entry=>entry.instance?.close()));if(results.some(result=>result.status==='rejected'))throw Error('A plug-in host could not confirm shutdown.');},
+  async isBusy(){if(closed)return !shutdownConfirmed;if(admissions)return true;for(const entry of loaded.values()){if(entry.pending.size)return true;try{if(entry.instance&&(!entry.instance.isBusy||await entry.instance.isBusy()!==false))return true;}catch{return true;}}return closed&&!shutdownConfirmed;},
+  async close(){
+   if(closing)return closing;closed=true;
+   // Retain one settlement: revoked admission does not confirm host cleanup.
+   closing=Promise.allSettled([...loaded.values()].map(entry=>Promise.resolve().then(()=>entry.instance?.close()))).then(results=>{
+    if(results.some(result=>result.status==='rejected'))throw Error('A plug-in host could not confirm shutdown.');
+    shutdownConfirmed=true;
+   });
+   for(const entry of loaded.values())for(const request of entry.pending)request.abort();
+   return closing;
+  },
  };
 }

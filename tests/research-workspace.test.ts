@@ -62,9 +62,10 @@ it('keeps a conflicting draft and the saved version separate and never advances 
 it('retains typing that arrives while an earlier document save completes', () => {
   const drafts = new ResearchDrafts();
   const original = drafts.create(selection, 'findings');
-  const sent = drafts.edit(selection, original.id, {body: 'Sent text'});
+  drafts.edit(selection, original.id, {body: 'Sent text'});
+  const attempt = drafts.beginSave(selection, original.id);
   drafts.edit(selection, original.id, {body: 'Newer typing'});
-  drafts.saved(selection, sent, {revision: 1, sha256: abcHash});
+  drafts.finishSave(selection, original.id, attempt, false, {revision: 1, sha256: abcHash});
   expect(drafts.get(selection, original.id)).toMatchObject({body: 'Newer typing', expectedRevision: 1, dirty: true});
 });
 
@@ -75,4 +76,71 @@ it('refuses Company selection before any personal read or command and sanitizes 
   expect(() => researchClient.save(company, {documentId: 'doc', expectedRevision: 0, title: 'Findings', kind: 'findings', body: '', citations: []})).toThrow('Personal research only');
   expect(fetch).not.toHaveBeenCalled();
   expect(researchError(new ApiError('CAPABILITY_DENIED', 'C:\\private\\secret.txt'))).not.toContain('private');
+});
+
+
+it('ignores retired acknowledgements without regressing CAS, clearing conflicts, or retiring a newer attempt', () => {
+  const drafts = new ResearchDrafts(), original = drafts.create(selection, 'findings');
+  drafts.edit(selection, original.id, {body: 'Revision one'});
+  const first = drafts.beginSave(selection, original.id);
+  drafts.finishSave(selection, original.id, first, false, {revision: 1, sha256: abcHash});
+  drafts.edit(selection, original.id, {body: 'Revision two'});
+  const second = drafts.beginSave(selection, original.id);
+  drafts.finishSave(selection, original.id, second, false, {revision: 2, sha256: abcHash});
+  drafts.edit(selection, original.id, {body: 'Local revision three'});
+  drafts.open(selection, {...context, id: original.id, revision: 3, title: 'Remote', kind: 'findings', body: 'Remote revision three', sha256: abcHash, savedAt: '2026-01-01', citations: []});
+  const current = drafts.get(selection, original.id), third = drafts.beginSave(selection, original.id);
+  expect(current).toMatchObject({expectedRevision: 2, body: 'Local revision three', dirty: true, conflict: {revision: 3}});
+  expect(drafts.finishSave(selection, original.id, first, false, {revision: 1, sha256: abcHash})).toBe(false);
+  expect(drafts.get(selection, original.id)).toBe(current);
+  expect(drafts.beginSave(selection, original.id)).toBe(third);
+});
+
+it('reconciles an active save exactly once without requiring a mounted editor', () => {
+  const drafts = new ResearchDrafts(), original = drafts.create(selection, 'findings');
+  const attempt = drafts.beginSave(selection, original.id);
+  expect(drafts.finishSave(selection, original.id, attempt, false, {revision: 1, sha256: abcHash})).toBe(true);
+  expect(drafts.get(selection, original.id)).toMatchObject({expectedRevision: 1, dirty: false});
+  const settled = drafts.get(selection, original.id);
+  expect(drafts.finishSave(selection, original.id, attempt, false, {revision: 1, sha256: abcHash})).toBe(false);
+  expect(drafts.get(selection, original.id)).toBe(settled);
+  expect(drafts.beginSave(selection, original.id).commandId).not.toBe(attempt.commandId);
+});
+
+it('keeps uncertain attempts immutable and releases definitive rejections for corrected content', () => {
+  const drafts = new ResearchDrafts(), original = drafts.create(selection, 'findings');
+  drafts.edit(selection, original.id, {title: '', body: 'Rejected body'});
+  const rejected = drafts.beginSave(selection, original.id);
+  drafts.edit(selection, original.id, {title: 'Corrected', body: 'Corrected body'});
+  expect(drafts.beginSave(selection, original.id)).toBe(rejected);
+  expect(rejected.sent).toMatchObject({title: '', body: 'Rejected body'});
+  drafts.finishSave(selection, original.id, rejected);
+  const corrected = drafts.beginSave(selection, original.id);
+  expect(corrected.commandId).not.toBe(rejected.commandId);
+  expect(corrected.sent).toMatchObject({title: 'Corrected', body: 'Corrected body', expectedRevision: 0});
+});
+
+it('retires copy acknowledgements once while retaining the original conflicting draft', () => {
+  const drafts = new ResearchDrafts(), original = drafts.create(selection, 'findings');
+  drafts.open(selection, {...context, id: original.id, revision: 1, title: 'Remote', kind: 'findings', body: 'Remote body', sha256: abcHash, savedAt: '2026-01-01', citations: []});
+  const originalDraft = drafts.get(selection, original.id), copy = drafts.beginSave(selection, original.id, true);
+  expect(drafts.finishSave(selection, original.id, copy, true, {revision: 1, sha256: abcHash})).toBe(true);
+  expect(drafts.get(selection, original.id)).toBe(originalDraft);
+  expect(drafts.get(selection, copy.sent.id)).toMatchObject({expectedRevision: 1, dirty: false, conflict: undefined});
+  drafts.edit(selection, copy.sent.id, {body: 'Later copy text'});
+  const later = drafts.get(selection, copy.sent.id);
+  expect(drafts.finishSave(selection, original.id, copy, true, {revision: 1, sha256: abcHash})).toBe(false);
+  expect(drafts.get(selection, copy.sent.id)).toBe(later);
+});
+
+it('does not lower a newer loaded revision when an older active acknowledgement arrives', () => {
+  const drafts = new ResearchDrafts();
+  const document = {...context, id: 'doc', revision: 1, title: 'Findings', kind: 'findings' as const, body: 'Saved one', sha256: abcHash, savedAt: '2026-01-01', citations: []};
+  drafts.open(selection, document);
+  const attempt = drafts.beginSave(selection, document.id);
+  drafts.open(selection, {...document, revision: 3, body: 'Saved three'});
+  const newer = drafts.get(selection, document.id);
+  expect(drafts.finishSave(selection, document.id, attempt, false, {revision: 2, sha256: abcHash})).toBe(false);
+  expect(drafts.get(selection, document.id)).toBe(newer);
+  expect(drafts.beginSave(selection, document.id).sent.expectedRevision).toBe(3);
 });

@@ -11,11 +11,12 @@ import {Store} from '../packages/storage/store.ts';
 import {Service} from '../packages/core/service.ts';
 import {buildServer} from '../apps/server/server.ts';
 import type {PluginRegistry} from '../packages/plugins/host.ts';
+import {trustedPluginDocument,trustedPluginManifest,trustedPluginScript} from './fixtures/trusted-plugin-frame.ts';
 
 let browser:Browser,app:Awaited<ReturnType<typeof buildServer>>,attacker:Server,service:Service,store:Store;
 let directory='',documentPath='',documentName='',origin='',attackerOrigin='',externalLoads=0;
 const operations:string[]=[],slow=new Map<string,(value:unknown)=>void>();
-const manifest={id:'sample-plugin',name:'Sample plug-in',version:'1.0.0',apiVersion:1,compatibleGenVersions:'^0.6.4',frontendEntry:'frontend/index.html',hostEntry:'host/main.mjs'};
+const manifest=trustedPluginManifest;
 const parentDocument='<!doctype html><html><body><div id="root"></div><button id="flush">Save and close</button><output id="saved"></output><script src="/__custody-parent.js"></script></body></html>';
 async function bundle(contents:string,development=false,globalName?:string){return (await build({stdin:{contents,resolveDir:resolve('.'),loader:'tsx'},bundle:true,write:false,platform:'browser',format:'iife',globalName,define:{'process.env.NODE_ENV':JSON.stringify(development?'development':'production')},nodePaths:(process.env.NODE_PATH??'').split(delimiter).filter(Boolean),loader:{'.css':'empty'}})).outputFiles[0].text;}
 async function listen(server:Server){await new Promise<void>(resolve=>server.listen(0,'127.0.0.1',resolve));return `http://127.0.0.1:${(server.address() as AddressInfo).port}`;}
@@ -32,7 +33,7 @@ beforeAll(async()=>{
  store=new Store(join(directory,'store'));
  // Only the real document/plug-in routes are exercised; no model/runtime starts.
  service={store,dispose:async()=>{}} as unknown as Service;
- const registry={list:()=>[manifest],validateSurface:async()=>true,readAsset:async()=>({bytes:Buffer.from('<html><head></head><body><output id="result">Opening</output><script src="/__custody-child.js"></script></body></html>'),contentType:'text/html'}),dispatch:async(_id:string,operation:string,input:{key?:string})=>{operations.push(input.key??operation);if(input.key==='slow')return new Promise(resolve=>slow.set('slow',resolve));return {private:'owner-only',key:input.key};}} as unknown as PluginRegistry;
+ const registry={list:()=>[manifest],validateSurface:async()=>true,readAsset:async()=>({bytes:Buffer.from(trustedPluginDocument),contentType:'text/html'}),dispatch:async(_id:string,operation:string,input:{key?:string})=>{operations.push(input.key??operation);if(input.key==='slow')return new Promise(resolve=>slow.set('slow',resolve));return {private:'owner-only',key:input.key};}} as unknown as PluginRegistry;
  app=await buildServer(service,{port,dev:false,widgetPort:Number(new URL(attackerOrigin).port),plugins:registry});
  const parentJs=await bundle(`import React from 'react';import {createRoot} from 'react-dom/client';import {PluginFrame} from './apps/web/src/PluginFrame.tsx';import {prepareEditorHandoff} from './apps/web/src/editor-handoff.ts';
   const manifest=${JSON.stringify(manifest)};window.__lastFlush='';window.__globalRequests=[];addEventListener('message',event=>{if(event.data?.type==='gen.plugin.request')window.__globalRequests.push(event.data.id);});const original=MessagePort.prototype.postMessage;MessagePort.prototype.postMessage=function(value,...rest){if(value?.type==='gen.plugin.flush')window.__lastFlush=value.id;return original.call(this,value,...rest);};
@@ -42,7 +43,7 @@ beforeAll(async()=>{
  // Match the real installed-package ordering: the server injects the actual
  // classic GenPluginUI host runtime in <head>, before the private UI script.
  const runtimeJs=await bundle(`export * from './apps/web/src/plugin-runtime.tsx';`,false,'GenPluginUI');
- const childJs=`const client=window.GenPluginUI;window.client=client;window.__lastFlush='';addEventListener('message',event=>{if(event.data?.type==='gen.plugin.flush')window.__lastFlush=event.data.id;});let started=false;const activate=()=>{if(!started&&client.isPluginActive()){started=true;client.pluginReady();void client.pluginRequest('state.read',{key:'initial'}).then(value=>{document.getElementById('result').textContent=value.private;});}};client.onPluginVisibility(activate);activate();`;
+ const childJs=trustedPluginScript;
  app.get('/plugin-runtime/runtime.js',(_request,reply)=>reply.type('text/javascript').send(runtimeJs));
  app.get('/plugin-runtime/runtime.css',(_request,reply)=>reply.type('text/css').send(''));
  app.get('/__custody-parent.js',(_request,reply)=>reply.type('text/javascript').send(parentJs));

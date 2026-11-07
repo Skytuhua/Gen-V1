@@ -10,8 +10,10 @@ const Context=createContext<DesktopValue|null>(null);
 export const useDesktop=()=>useContext(Context);
 export const surfaceKey=desktopSurfaceKey;
 function sameEditor(left:DesktopSurface,right:DesktopSurface){const artifact=(value:DesktopSurface)=>value.kind==='artifact'||value.kind==='workspace'&&value.tab==='artifact';return artifact(left)&&artifact(right)?'artifactId'in left&&'artifactId'in right&&left.artifactId===right.artifactId&&left.threadId===right.threadId:surfaceKey(left)===surfaceKey(right);}
-export function useDetachedSurface(surface:DesktopSurface|null){const desktop=useDesktop();return desktop&&surface?desktop.windows.find(info=>info.id!==desktop.context.windowId&&sameEditor(info.surface,surface)):undefined;}
-export function usePendingSurface(surface:DesktopSurface|null){const desktop=useDesktop();return Boolean(desktop&&surface&&desktop.pending.some(item=>sameEditor(item,surface)));}
+export function detachedSurface(desktop:DesktopValue|null,surface:DesktopSurface|null){return desktop&&surface?desktop.windows.find(info=>info.id!==desktop.context.windowId&&sameEditor(info.surface,surface)):undefined;}
+export function pendingSurface(desktop:DesktopValue|null,surface:DesktopSurface|null){return Boolean(desktop&&surface&&desktop.pending.some(item=>sameEditor(item,surface)));}
+export function useDetachedSurface(surface:DesktopSurface|null){return detachedSurface(useDesktop(),surface);}
+export function usePendingSurface(surface:DesktopSurface|null){return pendingSurface(useDesktop(),surface);}
 export function useDesktopCloseGuard(key:string,guard:()=>Promise<void>){const latest=useRef(guard);latest.current=guard;useEffect(()=>registerEditorHandoff(key,()=>latest.current()),[key]);}
 export function useDesktopReady(ready:boolean){const desktop=useDesktop();useEffect(()=>{if(ready&&desktop)void desktop.bridge.ready().catch(()=>{});},[ready,desktop?.bridge]);}
 export function DesktopProvider({bridge,context,children}:{bridge:DesktopBridge;context:DesktopContext;children:ReactNode}){

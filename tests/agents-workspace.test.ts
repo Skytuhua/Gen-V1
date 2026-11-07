@@ -32,6 +32,23 @@ describe('compact agent workspace', () => {
    expect(f.controller.transcript('a').messages.map(item => item.content)).toEqual(Array.from({length: 240}, (_, i) => String(i + 1)));
   } finally {f.controller.dispose();}
  });
+ it('keeps an offscreen gap reachable when later live pages overlap the newest cached block', async () => {
+  let total = 40;
+  const f = fixture({history: vi.fn(async q => {
+   const end = q.cursor ? Number(q.cursor) - 1 : total, start = Math.max(1, end - 39);
+   return history(Array.from({length: end - start + 1}, (_, index) => {const n = start + index; return message(String(n), {id: 'm-' + n, contentLength: String(n).length});}), {sequence: 11, nextCursor: start > 1 ? String(start) : null});
+  })});
+  try {
+   await f.controller.start(); f.controller.setVisible(['a']); await vi.waitFor(() => expect(f.controller.transcript('a').messages).toHaveLength(40));
+   total = 140; await f.controller.retryHistory('a');
+   total = 150; await f.controller.retryHistory('a');
+   expect(f.controller.transcript('a').gaps).toHaveLength(1);
+   expect(f.transport.history).toHaveBeenCalledTimes(3);
+   await f.controller.loadEarlier('a', 'm-101'); await f.controller.loadEarlier('a', 'm-61');
+   expect(f.controller.transcript('a').gaps).toHaveLength(0);
+   expect(f.controller.transcript('a').messages.map(item => item.content)).toEqual(Array.from({length: 150}, (_, i) => String(i + 1)));
+  } finally {f.controller.dispose();}
+ });
  it('accepts valid progress-only paging changes and catches up from the first checkpoint', async () => {
   const f = fixture({inventory: vi.fn(async q => q.cursor ? page([agent('b')], {sequence: 11}) : page([agent('a')], {nextCursor: 'second'})), updates: vi.fn(async q => ({authority: 'personal' as const, scopeKey: q.scopeKey, fromSequence: q.after, sequence: 11, resync: false, upserts: [agent('a', {revision: 11, currentAction: 'Current activity'})], ancestors: [], removed: [], transcripts: []}))});
   try {
@@ -148,4 +165,20 @@ describe('compact agent workspace', () => {
   expect(f.transport.history).toHaveBeenCalledTimes(1); expect(signal.aborted).toBe(false);
   release(history([message('First')])); await settle(); expect(f.transport.history).toHaveBeenCalledTimes(2); f.controller.dispose();
  });
+});
+
+it('keeps messages between disjoint live history pages reachable', async () => {
+ const item = (id: string) => message(id, {id});
+ let latest = false;
+ const f = fixture({history: vi.fn(async q => q.cursor === 'gap'
+  ? history([item('middle'), item('new')], {sequence: 11, nextCursor: 'old'})
+  : q.cursor === 'old' ? history([item('old')], {sequence: 11})
+  : latest ? history([item('newest')], {sequence: 11, nextCursor: 'gap'})
+  : history([item('old')]))});
+ try {
+  await f.controller.start(); f.controller.setVisible(['a']); await settle();
+  latest = true; await f.controller.retryHistory('a');
+  for (let i = 0; i < 3 && (f.controller.transcript('a').cursor || f.controller.transcript('a').gaps.length); i++) await f.controller.loadEarlier('a');
+  expect(f.controller.transcript('a').messages.map(value => value.id)).toEqual(['old', 'middle', 'new', 'newest']);
+ } finally {f.controller.dispose();}
 });
