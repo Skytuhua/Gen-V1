@@ -79,10 +79,34 @@ function Button({ element: { props } }: ComponentRenderProps) {
 function Chart({ element: { props } }: ComponentRenderProps) {
   const data = list(useData(props) ?? props.data);
   const xKey = string(props.xKey, 'label'), yKey = string(props.yKey, 'value');
-  const values = data.map(row => Number(obj(row)[yKey]) || 0);
-  const max = Math.max(1, ...values.map(Math.abs));
+  const values = data.map(row => {
+    try {
+      const value = Number(obj(row)[yKey]);
+      return Number.isFinite(value) ? value : 0;
+    } catch { return 0; }
+  });
+  const max = values.reduce((maximum, value) => Math.max(maximum, Math.abs(value)), 1);
   const line = props.kind === 'line' || props.kind === 'scatter';
-  return <figure className="chart"><figcaption>{string(props.title)}</figcaption>{!data.length ? <p className="muted">No chart data available.</p> : <><svg role="img" aria-label={string(props.title, 'Data chart')} viewBox={`0 0 600 ${line ? 250 : Math.max(80, data.length * 36)}`}><title>{string(props.title, 'Data chart')}</title>{line ? <><line x1="25" y1="215" x2="580" y2="215" stroke="var(--border)" />{props.kind === 'line' && <polyline fill="none" stroke="var(--accent)" strokeWidth="2" points={values.map((value, i) => `${30 + i / Math.max(1, values.length - 1) * 540},${210 - value / max * 180}`).join(' ')} />}{values.map((value, i) => <g key={i}><circle cx={30 + i / Math.max(1, values.length - 1) * 540} cy={210 - value / max * 180} r="4" fill="var(--accent)"><title>{display(obj(data[i])[xKey])}: {value}</title></circle><text x={30 + i / Math.max(1, values.length - 1) * 540} y="237" textAnchor="middle" fill="currentColor" fontSize="10">{display(obj(data[i])[xKey]).slice(0, 12)}</text></g>)}</> : data.map((row, i) => <g key={i} transform={`translate(0,${i * 36})`}><text x="0" y="23" fill="currentColor" fontSize="12">{display(obj(row)[xKey]).slice(0, 18)}</text><rect x="135" y="7" width={Math.abs(values[i]!) / max * 390} height="21" rx="3" fill="var(--accent)" /><text x="535" y="23" fill="currentColor" fontSize="12">{values[i]}</text></g>)}</svg><details><summary>View chart data</summary><pre>{JSON.stringify(data, null, 2)}</pre></details></>}</figure>;
+  // Normalize an overflowing signed range before subtraction. Ordinary ranges
+  // keep their precision, including very small or closely spaced endpoints.
+  const fraction = (value: number, minimum: number, maximum: number) => {
+    if (minimum === maximum) return .5;
+    const range = maximum - minimum;
+    if (Number.isFinite(range)) return (value - minimum) / range;
+    const scale = Math.max(Math.abs(minimum), Math.abs(maximum));
+    return (value / scale - minimum / scale) / (maximum / scale - minimum / scale);
+  };
+  const yMin = values.reduce((minimum, value) => Math.min(minimum, value), 0);
+  const yMax = values.reduce((maximum, value) => Math.max(maximum, value), 0);
+  const numericXs = data.map(row => obj(row)[xKey]).filter((value): value is number => typeof value === 'number' && Number.isFinite(value));
+  const numericX = props.kind === 'scatter' && numericXs.length === data.length;
+  const xMin = numericXs.reduce((minimum, value) => Math.min(minimum, value), Infinity);
+  const xMax = numericXs.reduce((maximum, value) => Math.max(maximum, value), -Infinity);
+  const points = values.map((value, i) => ({
+    x: 30 + (numericX ? fraction(numericXs[i]!, xMin, xMax) : i / Math.max(1, values.length - 1)) * 540,
+    y: yMin === yMax ? 210 : 210 - fraction(value, yMin, yMax) * 180,
+  }));
+  return <figure className="chart"><figcaption>{string(props.title)}</figcaption>{!data.length ? <p className="muted">No chart data available.</p> : <><svg role="img" aria-label={string(props.title, 'Data chart')} viewBox={`0 0 600 ${line ? 250 : Math.max(80, data.length * 36)}`}><title>{string(props.title, 'Data chart')}</title>{line ? <><line x1="25" y1="215" x2="580" y2="215" stroke="var(--border)" />{props.kind === 'line' && <polyline fill="none" stroke="var(--accent)" strokeWidth="2" points={points.map(point => `${point.x},${point.y}`).join(' ')} />}{values.map((value, i) => <g key={i}><circle cx={points[i]!.x} cy={points[i]!.y} r="4" fill="var(--accent)"><title>{display(obj(data[i])[xKey])}: {value}</title></circle><text x={points[i]!.x} y="237" textAnchor="middle" fill="currentColor" fontSize="10">{display(obj(data[i])[xKey]).slice(0, 12)}</text></g>)}</> : data.map((row, i) => <g key={i} transform={`translate(0,${i * 36})`}><text x="0" y="23" fill="currentColor" fontSize="12">{display(obj(row)[xKey]).slice(0, 18)}</text><rect x="135" y="7" width={Math.abs(values[i]!) / max * 390} height="21" rx="3" fill="var(--accent)" /><text x="535" y="23" fill="currentColor" fontSize="12">{values[i]}</text></g>)}</svg><details><summary>View chart data</summary><pre>{JSON.stringify(data, null, 2)}</pre></details></>}</figure>;
 }
 function TreeNode({ value, depth = 0 }: { value: unknown; depth?: number }) {
   if (depth > 12) return <span className="muted">Nested content exceeds display depth.</span>;
