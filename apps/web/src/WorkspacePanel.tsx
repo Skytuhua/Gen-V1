@@ -27,20 +27,25 @@ export function WorkspacePanel({ snapshot, threadId, preferences, layout, setWid
     const body = content.current, owner = body?.closest<HTMLElement>('.shell-workarea[data-tool-layout]');
     if (!body || !owner || standalone) return;
     const keys = ['left','top','width','height'] as const;
-    let animationFrame = 0;
+    let frame = 0, last = '';
     const measure = () => {
-      cancelAnimationFrame(animationFrame);
-      const rect = body.getBoundingClientRect();
-      const values = [rect.left + 12, rect.top + 12, Math.max(0, rect.width - 24), Math.max(0, rect.height - 24)];
-      keys.forEach((key,index) => owner.style.setProperty(`--artifact-dock-${key}`,`${values[index]}px`));
-      owner.dataset.artifactDockReady = String(rect.width > 0 && rect.height > 0);
+      const rect = body.getBoundingClientRect(), bounds = owner.getBoundingClientRect();
+      const left = Math.max(0, rect.left, bounds.left) + 12, top = Math.max(0, rect.top, bounds.top) + 12;
+      const right = Math.min(innerWidth, rect.right, bounds.right) - 12, bottom = Math.min(innerHeight, rect.bottom, bounds.bottom) - 12;
+      const values = [left, top, Math.max(0, right - left), Math.max(0, bottom - top)], key = JSON.stringify(values);
+      if (key !== last) {
+        last = key;
+        keys.forEach((name,index) => owner.style.setProperty(`--artifact-dock-${name}`,`${values[index]}px`));
+        owner.dataset.artifactDockReady = String(values[2] > 0 && values[3] > 0);
+      }
       // Entrance transforms move the visual slot without notifying ResizeObserver.
-      if (body.parentElement?.getAnimations().some(animation => animation.playState === 'running')) animationFrame = requestAnimationFrame(measure);
+      if (body.parentElement?.getAnimations().some(animation => animation.playState === 'running')) schedule();
     };
-    measure(); const observer = new ResizeObserver(measure);
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(() => { frame = 0; measure(); }); };
+    measure(); const observer = new ResizeObserver(schedule);
     observer.observe(body); observer.observe(owner); if (body.parentElement) observer.observe(body.parentElement);
-    window.addEventListener('resize',measure); document.fonts?.addEventListener('loadingdone',measure);
-    return () => { cancelAnimationFrame(animationFrame); observer.disconnect(); window.removeEventListener('resize',measure); document.fonts?.removeEventListener('loadingdone',measure); delete owner.dataset.artifactDockReady; keys.forEach(key => owner.style.removeProperty(`--artifact-dock-${key}`)); };
+    window.addEventListener('resize',schedule); window.addEventListener('scroll',schedule,true); document.fonts?.addEventListener('loadingdone',schedule);
+    return () => { cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener('resize',schedule); window.removeEventListener('scroll',schedule,true); document.fonts?.removeEventListener('loadingdone',schedule); delete owner.dataset.artifactDockReady; keys.forEach(name => owner.style.removeProperty(`--artifact-dock-${name}`)); };
   },[standalone,workspace.activeTab,workspace.activeArtifactId]);
   const [handoffError,setHandoffError]=useState('');
   useEffect(()=>setHandoffError(''),[threadId,workspace.activeTab]);
