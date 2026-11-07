@@ -169,8 +169,9 @@ export class AgentProjection implements PersonalAgentInventory {
         if (transcriptType === 'activity' || transcriptType === 'error') this.actions.delete(event.threadId);
         const current = this.store.get<Thread>('thread', event.threadId), owners = new Set([this.childOwners.get(event.threadId), current?.kind === 'delegate' ? current.parentThreadId : event.threadId]);
         for (const id of owners) if (id) { const change = this.replaceGroup(id); before.push(...change.before); after.push(...change.after); }
-        if (['assistant.delta', 'assistant.message', 'activity', 'error'].includes(transcriptType ?? '') || /^(message\.send|input\.)/.test(event.type)) {
-          for (const item of after) if (item.threadId === event.threadId) transcriptIds.push(item.agentId);
+        if (['assistant.delta', 'assistant.message', 'activity', 'error'].includes(transcriptType ?? '') || /^(message\.send|input\.)/.test(event.type) || event.type === 'agent.followUp') {
+          const inputThreadId=event.type==='agent.followUp'?(event.payload as {result?:{childThreadId?:string}})?.result?.childThreadId:event.threadId;
+          for (const item of after) if (item.threadId === inputThreadId) transcriptIds.push(item.agentId);
         }
       }
       const old = new Map(before.map(item => [item.agentId, item])), next = new Map(after.map(item => [item.agentId, item]));

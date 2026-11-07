@@ -374,6 +374,7 @@ export class Service {
   }
   async command(command: HostCommand) {
     if(this.updateClosing)throw new HarnessError('HOST_CLOSING','Gen is closing. Saved work is retained.');
+    if(command.type==='agent.followUp'){if(this.closed)throw new HarnessError('CANCELLED_RUN','The workspace has closed.');this.lastActivity=Date.now();return this.planning.followUp(command);}
     if(command.type.startsWith('research.')){
       if(this.closed)throw new HarnessError('CANCELLED_RUN','The workspace has closed.');
       this.lastActivity=Date.now();
