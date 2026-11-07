@@ -25,10 +25,10 @@ describe('Linux credential read barriers',()=>{
   const cancel=new AbortController(),reason=new Error('Synthetic operation already cancelled');cancel.abort(reason);
   await expect(acquireLinuxCredentialReadBarrier(parent+'/auth.json',{signal:cancel.signal,maxHoldMs})).rejects.toBe(reason);
  });
- it('admits only a named account native Pi credential path',()=>{
-  expect(validateLinuxCredentialPath(parent+'/auth.json',root)).toBe(parent);
+ it.each([parent,root+'/manager-runtime/accounts/provider-auth-'+'a'.repeat(64)+'/pi'])('admits the named account credential parent %s',credentialParent=>{
+  expect(validateLinuxCredentialPath(credentialParent+'/auth.json',root)).toBe(credentialParent);
  });
- it.each([root+'/pi/auth.json',parent+'/other.json',parent+'/../pi/auth.json',root+'/accounts/provider-auth-short/pi/auth.json','/outside/auth.json'])('rejects unsupported credential storage: %s',path=>{
+ it.each([root+'/pi/auth.json',parent+'/other.json',parent+'/../pi/auth.json',root+'/accounts/provider-auth-short/pi/auth.json',root+'/manager-home/accounts/provider-auth-'+'a'.repeat(64)+'/pi/auth.json',root+'/other/manager-runtime/accounts/provider-auth-'+'a'.repeat(64)+'/pi/auth.json',root+'/manager-runtime/../accounts/provider-auth-'+'a'.repeat(64)+'/pi/auth.json',root+'/manager-runtime/accounts/provider-auth-'+'A'.repeat(64)+'/pi/auth.json',parent+'/auth.json\n','/outside/auth.json'])('rejects unsupported credential storage: %s',path=>{
   expect(()=>validateLinuxCredentialPath(path,root)).toThrow();
  });
  it('requires the real inherited Linux guardian before accepting a barrier',async()=>{

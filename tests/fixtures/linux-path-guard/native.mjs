@@ -101,6 +101,14 @@ const {withAccountProfile,accountProfileRoot}=await moduleAt('packages/runtime/a
 const {createLiteralCredentialStore,acquireLiteralCredentialLease}=await moduleAt('packages/runtime-pi/credentials.ts');
 const {taskPaths,openTaskSession}=await moduleAt('packages/runtime-pi/session.ts');
 const signal=new AbortController().signal;
+// Run this mode under linux-path-guard.py with the source root and account-profile-child arguments.
+if(process.argv[3]==='account-profile-child'){
+ const dataDir=join(root,'manager-runtime');await mkdir(dataDir,{mode:0o700});
+ const account={id:'a9314811-0937-4f76-b565-445d57504ccc',providerId:'openai-codex',label:'Synthetic nested profile',enabled:true};
+ let entered=false;
+ await withAccountProfile(dataDir,account,async profile=>{entered=true;assert.equal(profile,accountProfileRoot(dataDir,account));},signal);
+ assert.equal(entered,true);console.log(JSON.stringify({scope:'LOCAL_NESTED_ACCOUNT_PROFILE',callbackEntered:true,modelCalls:0,realCredentials:false}));process.exit(0);
+}
 if(process.argv[3]==='credential-loss'){
  const keepalive=setInterval(()=>{},1000);
  const account={id:'a9314811-0937-4f76-b565-445d57504ccc',providerId:'openai-codex',label:'Synthetic guardian loss only',enabled:true};

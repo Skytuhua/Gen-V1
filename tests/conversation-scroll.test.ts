@@ -4,7 +4,10 @@ import {createConversationScroll} from '../apps/web/src/conversation-scroll';
 function fixture(){
  let now=0,nextFrame=0;
  const frames=new Map<number,FrameRequestCallback>();
- const page=Object.assign(new EventTarget(),{visibilityState:'visible'});
+ const root={dataset:{} as Record<string,string>};
+ const page=Object.assign(new EventTarget(),{visibilityState:'visible',documentElement:root});
+ const mutations=new Set<()=>void>();
+ vi.stubGlobal('MutationObserver',class{constructor(private callback:()=>void){}observe(){mutations.add(this.callback);}disconnect(){mutations.delete(this.callback);}});
  const preference=Object.assign(new EventTarget(),{matches:false});
  const content={} as Element;
  const element=Object.assign(new EventTarget(),{scrollTop:0,scrollHeight:1000,clientHeight:400,clientWidth:600,children:[content],getClientRects:()=>[{}]});
@@ -18,7 +21,7 @@ function fixture(){
  const scroll=createConversationScroll(element as unknown as HTMLElement);
  const tick=(count=1)=>{for(let i=0;i<count;i++){now+=16;const callbacks=[...frames.values()];frames.clear();callbacks.forEach(callback=>callback(now));}};
  const intent=(type:string,properties:Record<string,unknown>={})=>element.dispatchEvent(Object.assign(new Event(type),properties));
- return {element,scroll,tick,frames,page,preference,intent,resize:()=>resized([],{} as ResizeObserver)};
+ return {element,scroll,tick,frames,page,preference,intent,mutations,motion:(value:string)=>{root.dataset.motion=value;for(const notify of mutations)notify();},resize:()=>resized([],{} as ResizeObserver)};
 }
 afterEach(()=>vi.unstubAllGlobals());
 
@@ -102,4 +105,18 @@ it('settles immediately for reduced motion or hidden documents and releases all 
  f.preference.matches=false;f.element.scrollHeight=1800;f.scroll.update('one',{top:1000,tail:true});f.tick(2);expect(f.frames.size).toBe(1);
  f.page.visibilityState='hidden';f.page.dispatchEvent(new Event('visibilitychange'));expect(f.element.scrollTop).toBe(1400);expect(f.frames.size).toBe(0);
  f.page.visibilityState='visible';f.element.scrollHeight=2200;f.scroll.update('one',{top:1400,tail:true});expect(f.frames.size).toBe(1);f.scroll.dispose();expect(f.frames.size).toBe(0);f.tick(2);expect(f.element.scrollTop).toBe(1400);
+});
+
+for(const policy of ['off','reduced'])it(`saved ${policy} settles owned follow immediately without replay or moving a detached reader`,()=>{
+ const f=fixture();f.scroll.update('one',{top:0,tail:true});f.element.scrollHeight=1900;f.resize();f.tick(2);
+ expect(f.frames.size).toBe(1);expect(f.element.scrollTop).toBeLessThan(1500);
+ f.motion(policy);expect(f.element.scrollTop).toBe(1500);expect(f.frames.size).toBe(0);
+ f.motion('system');expect(f.frames.size).toBe(0);
+ f.scroll.beginManualScroll();f.scroll.scrollTo(120);f.motion(policy);expect(f.element.scrollTop).toBe(120);
+ f.scroll.endManualScroll();f.scroll.jump();expect(f.element.scrollTop).toBe(1500);expect(f.frames.size).toBe(0);
+ f.scroll.dispose();expect(f.mutations.size).toBe(0);f.motion('system');f.tick(3);expect(f.frames.size).toBe(0);
+});
+it('live System OS reduction settles its active follow',()=>{
+ const f=fixture();f.scroll.update('one',{top:0,tail:true});f.element.scrollHeight=1900;f.resize();f.tick(2);
+ f.preference.matches=true;f.preference.dispatchEvent(new Event('change'));expect(f.element.scrollTop).toBe(1500);expect(f.frames.size).toBe(0);f.scroll.dispose();
 });
