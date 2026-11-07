@@ -4,28 +4,6 @@
   "policy": "Per-occurrence migration inventory, not primitive approval. No directory exemption or regeneration command. Numeric gates are never excepted.",
   "entries": [
     {
-      "file": "apps/web/src/agent-inbox.css",
-      "line": 21,
-      "column": 1,
-      "rule": "ad-hoc-overlay",
-      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "9a7d3b456da1216ef9e4e90affeb4ddba738a2686b6be0207a6dcd4d6cecdbcc",
-      "reason": "INBOX: remove legacy options-menu placement after ActionMenu migration.",
-      "evidence": ".agent-inbox .inbox-options-menu{position:absolute;right:0;top:calc(100% + 4px);z-index:5;padding:5px;min-width:170px;border:1px solid var(--border);border-radius:9px;background:var(--surface);box-shadow:var(--elevation)",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/App.tsx",
-      "line": 160,
-      "column": 481,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "da6aad5ff20c9bf6292224f2299bdb66eecef2759be87d1097dc4eea377105b6",
-      "reason": "SHELL2: parent replaces local dialog, select and thread menu with shared Modal/Select/ActionMenu.",
-      "evidence": "<select value={kind} onChange={event => setKind(event.target.value)}><option value=\"project\">Project folder</option><option value=\"file\">File</option><option value=\"database\">SQLite database</option><option value=\"export",
-      "disposition": "staged-migration"
-    },
-    {
       "file": "apps/web/src/appearance.css",
       "line": 4,
       "column": 1,
@@ -125,17 +103,6 @@
       "disposition": "staged-migration"
     },
     {
-      "file": "apps/web/src/EnvironmentSettings.tsx",
-      "line": 11,
-      "column": 1015,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "e1bfa394ddf0128357786640f08773abc7b4a6d6784394cf2997a90750cc5396",
-      "reason": "SETTINGS: migrate environment scope to shared Select; preserve protected secret control.",
-      "evidence": "<select value={scope} disabled={busy} onChange={event=>{setScope(event.target.value);setValue('');}}><option value=\"device\">This device</option>{projects.map(project=><option key={project.id} value={'project:'+project.id",
-      "disposition": "staged-migration"
-    },
-    {
       "file": "apps/web/src/ExplorationTools.tsx",
       "line": 78,
       "column": 86,
@@ -169,50 +136,6 @@
       "disposition": "retained-geometry"
     },
     {
-      "file": "apps/web/src/InboxView.tsx",
-      "line": 26,
-      "column": 530,
-      "rule": "ad-hoc-overlay",
-      "message": "overlay surface class: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "ad1e9736178a5cff4277639a9e3d3a1c9794e651443bcbaecb9c3e0e592bd2df",
-      "reason": "INBOX: migrate options menu to shared ActionMenu.",
-      "evidence": "<div className=\"inbox-options-menu\" role=\"menu\" aria-label=\"View options\">{([['all','All'],['needs-you','Needs you'],['unread','Unread'],['completed','Completed']] as const).map(([id,label])=><button type=\"button\" role=\"",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/IntegrationSettings.tsx",
-      "line": 11,
-      "column": 876,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "2ecbff5d3c809f544aefe06a238a96335024f2e59a8ff3a4148b0e2c68c1c863",
-      "reason": "SETTINGS: migrate integration mode to shared Select.",
-      "evidence": "<select aria-label=\"Ponytail mode\" disabled={busy===item.id||!item.installed} value={item.mode??'full'} onChange={event=>update(item.id,'configure',{mode:event.target.value as PonytailMode})}><option value=\"off\">Off</opt",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/InteractionTools.tsx",
-      "line": 69,
-      "column": 35,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "452e5cef51bc5af1a7668c72e0cbd6876ecab3cac6133fe1e012646ecb01fb58",
-      "reason": "TOOLS: migrate interaction field selectors to shared Select; retain bindings.",
-      "evidence": "<select {...common} value={value===true?'true':value===false?'false':''} onChange={event=>onChange(event.target.value===''?null:event.target.value==='true')}><option value=\"\">Not set</option><option value=\"true\">Yes</opt",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/InteractionTools.tsx",
-      "line": 70,
-      "column": 34,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "bac772d1f675d449c8cd4966924e5a05ba02806d05320046060869a2de119a38",
-      "reason": "TOOLS: migrate interaction field selectors to shared Select; retain bindings.",
-      "evidence": "<select {...common} value={typeof value==='string'?value:''} onChange={event=>onChange(event.target.value||null)}><option value=\"\">Not set</option>{field.options.map(option=><option key={option.value} value={option.value",
-      "disposition": "staged-migration"
-    },
-    {
       "file": "apps/web/src/map-view.css",
       "line": 20,
       "column": 1,
@@ -222,83 +145,6 @@
       "reason": "Retained geometry: map point markers anchored to their map, not a popup.",
       "evidence": ".task-map-point { position:absolute; display:flex; align-items:center; justify-content:center; width:32px; height:32px; padding:6px; border-radius:50%; transform:translate(-50%,-50%); color:var(--text); background:var(--",
       "disposition": "retained-geometry"
-    },
-    {
-      "file": "apps/web/src/registry.tsx",
-      "line": 73,
-      "column": 56,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "c6f88ede450ddb3d3b7c45477015173ba9d8b48ff205a7f730ec0fd6c10a865c",
-      "reason": "TOOLS: move catalog selectors to shared Select; retain data bindings.",
-      "evidence": "<select value={value == null ? '' : String(value)} onChange={event => setValue(event.target.value)}><option value=\"\">{string(props.placeholder, 'Choose an option')}</option>{list(props.options).map((option, i) => { const",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/registry.tsx",
-      "line": 180,
-      "column": 44,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "fcbba7a3653dec606b2ae9212ea68e9b24a978e3f9a087ded563cf7b3ecdc726",
-      "reason": "TOOLS: move catalog selectors to shared Select; retain data bindings.",
-      "evidence": "<select required={required} value={value === undefined ? '' : String(options.findIndex(item => JSON.stringify(item) === JSON.stringify(value)))} onChange={event => onChange(event.target.value === '' ? undefined : options",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/relationship-graph.css",
-      "line": 32,
-      "column": 1,
-      "rule": "ad-hoc-overlay",
-      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "8a81ce9a263f0e984bc094cd746901555c6f596b0619c642b05acf0db5ab8b6f",
-      "reason": "VISUALS/HOVER: replace graph popover and check-tooltip placement with shared anchored primitives.",
-      "evidence": ".task-node-popover { position:fixed; z-index:100; display:flex; flex-direction:column; gap:9px; width:min(420px,calc(100vw - 16px)); max-height:min(420px,calc(100vh - 16px)); padding:13px 15px; border:1px solid var(--bor",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/relationship-graph.css",
-      "line": 73,
-      "column": 1,
-      "rule": "ad-hoc-overlay",
-      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "bb0414c6a2a63c1ec63418656d9f5498948468938073544d191676d52a0c5bf2",
-      "reason": "VISUALS/HOVER: replace graph popover and check-tooltip placement with shared anchored primitives.",
-      "evidence": ".task-check-tooltip { position:absolute; z-index:9; bottom:calc(100% + 7px); left:0; width:max-content; max-width:min(320px,75vw); padding:7px 10px; border:1px solid var(--border); border-radius:8px; color:var(--text); b",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/RelationshipGraph.tsx",
-      "line": 126,
-      "column": 65,
-      "rule": "ad-hoc-overlay",
-      "message": "React portal: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "c85ad6ee32c51605f46bb940b456f0a0dc41a123f4b61fa181ff7e2facd214ca",
-      "reason": "VISUALS/HOVER: migrate graph portal/popovers to shared anchored primitives.",
-      "evidence": "createPortal(<span ref={popup} className={`task-node-popover ${wide ? 'task-conflict-popover' : ''}`} role=\"tooltip\" id={id} style={position} onMouseLeave={event => { const anchor = marker.current?.parentElement; if (doc",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/RelationshipGraph.tsx",
-      "line": 126,
-      "column": 78,
-      "rule": "ad-hoc-overlay",
-      "message": "overlay surface class: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "66b5fcd96af38f1300b2cfe462d471679fe7eb4b62c999e635371d02fc3375e7",
-      "reason": "VISUALS/HOVER: migrate graph portal/popovers to shared anchored primitives.",
-      "evidence": "<span ref={popup} className={`task-node-popover ${wide ? 'task-conflict-popover' : ''}`} role=\"tooltip\" id={id} style={position} onMouseLeave={event => { const anchor = marker.current?.parentElement; if (document.activeE",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/RelationshipGraph.tsx",
-      "line": 231,
-      "column": 530,
-      "rule": "ad-hoc-overlay",
-      "message": "overlay surface class: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "5b939bca49a5e8aeea50e92023cb15ea10dc9b5f33e8476b9754b43fecb608bf",
-      "reason": "VISUALS/HOVER: migrate graph portal/popovers to shared anchored primitives.",
-      "evidence": "<span className=\"task-check-tooltip\" role=\"tooltip\" id={`${id}-check-${index}`}>{check.detail}</span>}</span>)}</div> : null}",
-      "disposition": "staged-migration"
     },
     {
       "file": "apps/web/src/sentence-reveal.css",
@@ -320,17 +166,6 @@
       "fingerprint": "adf4ebc215da54e913b16f8abd7aaf291daf56340d33bd90b839167a53007587",
       "reason": "LAYOUT: preserve floating rail until docked-layout recovery migration.",
       "evidence": ".floating-rail {position:absolute;inset:60px 12px 12px auto;z-index:34;order:3;display:flex;flex-direction:column;gap:8px;width:min(280px,calc(100% - 24px));min-width:0;min-height:0;padding:0;border:0;background:transpar",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/shell.css",
-      "line": 89,
-      "column": 1,
-      "rule": "ad-hoc-overlay",
-      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "04058a9bf5a1c5a0f87267d016c01f6f47507208a72f85e0e4d54584b14acba5",
-      "reason": "HOVER/SHELL2: remove thread menu geometry after ActionMenu migration.",
-      "evidence": ".thread-menu.sidebar-thread-menu { position:fixed; right:auto; top:auto; margin-top:-5px; margin-left:20px; z-index:65; width:190px; box-shadow:var(--elevation); }",
       "disposition": "staged-migration"
     },
     {
@@ -367,28 +202,6 @@
       "disposition": "staged-migration"
     },
     {
-      "file": "apps/web/src/ShellSidebar.tsx",
-      "line": 171,
-      "column": 9,
-      "rule": "ad-hoc-overlay",
-      "message": "overlay surface class: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "749db91a8f2045e770e65a8f4a28f03b3fd9232d7584b5dba29f1d4307694271",
-      "reason": "HOVER/SHELL2: migrate thread action menu to shared ActionMenu; preserve real actions.",
-      "evidence": "<div className=\"thread-menu sidebar-thread-menu\">",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/SideChat.tsx",
-      "line": 61,
-      "column": 120,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "821ec555e81042fae790b98bac6acdf6fe971a8373ff7f9b9af632ea032cb338",
-      "reason": "AGENTCHAT: move side conversation target selector to shared Select.",
-      "evidence": "<select aria-label=\"Side conversation history\" disabled={busy} value={side?.id??''} onChange={event=>select(event.target.value||null)}><option value=\"\">New question</option>{histories.map(thread=><option key={thread.id} ",
-      "disposition": "staged-migration"
-    },
-    {
       "file": "apps/web/src/software-development.css",
       "line": 115,
       "column": 1,
@@ -398,17 +211,6 @@
       "reason": "Retained geometry: noninteractive pipeline connection layer behind nodes.",
       "evidence": ".software-stage-connections { position:absolute; inset:0; width:100%; height:100%; z-index:-1; overflow:visible; pointer-events:none; }",
       "disposition": "retained-geometry"
-    },
-    {
-      "file": "apps/web/src/styles.css",
-      "line": 90,
-      "column": 1,
-      "rule": "ad-hoc-overlay",
-      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "d7ddc42db6e47fbb3811fb9c509ef1a995baad14a2e021f8eedfe97870392e9b",
-      "reason": "HOVER/SHELL2: remove thread menu geometry after ActionMenu migration.",
-      "evidence": ".thread-menu { position:absolute; right:0; top:34px; width:182px; padding:5px; background:var(--surface); border:1px solid var(--border); border-radius:10px; z-index:20; }",
-      "disposition": "staged-migration"
     },
     {
       "file": "apps/web/src/styles.css",
@@ -488,39 +290,6 @@
       "disposition": "retained-geometry"
     },
     {
-      "file": "apps/web/src/WorkObjects.tsx",
-      "line": 76,
-      "column": 204,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "25bcfe9aad0069974e270bb17a0f32cb74fb4d49013c7eb30cdb1ca200ceff37",
-      "reason": "TOOLS: migrate work-object selectors to shared Select.",
-      "evidence": "<select aria-label=\"Move selected card\" value={placements.get(selected.id)} disabled={stale} onChange={event=>move(selected.id,event.target.value)}>{data.lanes.map(lane=><option key={lane.id} value={lane.id}>{lane.label}",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/WorkObjects.tsx",
-      "line": 178,
-      "column": 252,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "90eaa05f9b335cee7f4d6d539fd3c5af87d39e2ee53be22a3f89bb7a57bd61e9",
-      "reason": "TOOLS: migrate work-object selectors to shared Select.",
-      "evidence": "<select aria-label=\"Span status\" value={status} onChange={event=>save({status:event.target.value})}><option value=\"all\">All statuses</option><option value=\"ok\">OK</option><option value=\"error\">Error</option><option value",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/WorkObjects.tsx",
-      "line": 178,
-      "column": 518,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "08f4ee79f7919cc6afbdd861a2311b2b94bd6707baa8466a421e2f329313c316",
-      "reason": "TOOLS: migrate work-object selectors to shared Select.",
-      "evidence": "<select aria-label=\"Timeline zoom\" value={zoom} onChange={event=>save({zoom:Number(event.target.value)})}><option value=\"1\">1x zoom</option><option value=\"2\">2x zoom</option><option value=\"4\">4x zoom</option></select>}</",
-      "disposition": "staged-migration"
-    },
-    {
       "file": "apps/web/src/workspace-canvas.css",
       "line": 37,
       "column": 1,
@@ -529,17 +298,6 @@
       "fingerprint": "645d45b60997bc4ffb0d8639cc1f4cb30be327e5454ca3da76a807a1761dbc48",
       "reason": "LAYOUT: migrate workspace menus; retain exact canvas plane until recovery migration.",
       "evidence": ".workspace-canvas-shell[data-embedded=true]{position:absolute;inset:72px 0 170px;z-index:32;pointer-events:none;background:transparent}",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/workspace-split.css",
-      "line": 12,
-      "column": 300,
-      "rule": "ad-hoc-overlay",
-      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "f0dc2859c47fc3ccbbd9484f1d4891fa80d23ce968f47ee12b5715b95653ba59",
-      "reason": "LAYOUT: migrate area actions menu; retain exact split-plane and drag-preview geometry.",
-      "evidence": ".split-area-menu-body{position:absolute;right:0;top:29px;display:flex;flex-direction:column;gap:3px;min-width:210px;max-height:min(420px,var(--split-menu-max-height,120px));box-sizing:border-box;overflow:auto;padding:7px",
       "disposition": "staged-migration"
     },
     {
@@ -562,83 +320,6 @@
       "fingerprint": "026b3c79ca87f5799ab8f37f9d568103cddc9dea10de0d76fc44e525168f2c55",
       "reason": "LAYOUT: migrate area actions menu; retain exact split-plane and drag-preview geometry.",
       "evidence": ".split-drop-preview{position:absolute;pointer-events:none;z-index:10;box-sizing:border-box;border:2px solid var(--focus,#8f9cff);background:color-mix(in srgb,var(--focus,#8f9cff) 15%,transparent);display:grid;place-items",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/WorkspaceControls.tsx",
-      "line": 21,
-      "column": 709,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "4803a8c61122443d19b9a861412437ab50d13e4b6bf06ca6ed29308cc111a8ad",
-      "reason": "CONTROLS2/LAYOUT: Panels moves to ActionMenu; Layouts/saved canvas controls remain staged for later migration.",
-      "evidence": "<select aria-label=\"Saved canvas\" value={active?.id??''} onChange={event=>run(async()=>{await prepare();await send('workspace.canvas.select',{canvasId:event.target.value});})}>{envelope.state.canvases.map(canvas=><option",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/WorkspacePanel.tsx",
-      "line": 34,
-      "column": 137,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "59bcc2984c56ef904f8b0b25e1643b7505f42821abc9f25c1c6b30491a3a23ce",
-      "reason": "SHELL2: parent moves artifact selector to shared Select.",
-      "evidence": "<select aria-label=\"Workspace artifact\" value={activeArtifact?.id ?? ''} onChange={event => workspace.requestOpenArtifact(event.target.value)}><option value=\"\">Choose an artifact</option>{artifacts.map(artifact => <optio",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/WorkspaceSplitLayout.tsx",
-      "line": 94,
-      "column": 5,
-      "rule": "ad-hoc-overlay",
-      "message": "overlay surface class: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "9139c1158a5a5fadf744fe6bc9a41c516a608bc55d3d50040d03215af6a3b284",
-      "reason": "LAYOUT: migrate area menu and editor/recovery/area selectors to shared ActionMenu/Select.",
-      "evidence": "<details className=\"split-area-menu\"><summary aria-label=\"Area actions\" title=\"Area actions\">⋯</summary><div className=\"split-area-menu-body\"><button disabled={busy||narrow} onClick={()=>{void splitPane(paneId,'right');}",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/WorkspaceSplitLayout.tsx",
-      "line": 94,
-      "column": 109,
-      "rule": "ad-hoc-overlay",
-      "message": "overlay surface class: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "d5979399750df23668c6645879cf97485a80810e9ea0cd160fcafe6e17d68724",
-      "reason": "LAYOUT: migrate area menu and editor/recovery/area selectors to shared ActionMenu/Select.",
-      "evidence": "<div className=\"split-area-menu-body\"><button disabled={busy||narrow} onClick={()=>{void splitPane(paneId,'right');}}>Split left / right</button><button disabled={busy||narrow} onClick={()=>{void splitPane(paneId,'bottom",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/WorkspaceSplitLayout.tsx",
-      "line": 94,
-      "column": 674,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "883874edf69de1834d6b5e87b72b0b6e95ed3e3b208289055dfadce1a7d03ff7",
-      "reason": "LAYOUT: migrate area menu and editor/recovery/area selectors to shared ActionMenu/Select.",
-      "evidence": "<select aria-label=\"Area editor\" value=\"\" onChange={event=>{const value=event.target.value;if(value)void run(()=>onSelectEditor(value,paneId));}}><option value=\"\">Change editor…</option>{editorOptions.map(option=><option",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/WorkspaceSplitLayout.tsx",
-      "line": 94,
-      "column": 1023,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "bd94a76daf7fb0cd5def1840c4efac7844a6ffe738e5a00f908fe955a99037cd",
-      "reason": "LAYOUT: migrate area menu and editor/recovery/area selectors to shared ActionMenu/Select.",
-      "evidence": "<select aria-label=\"Recover parked view\" value=\"\" onChange={event=>{if(event.target.value)void send('view.move',{viewId:event.target.value,paneId});}}><option value=\"\">Choose a parked view…</option>{layout.parkedViewIds.",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/WorkspaceSplitLayout.tsx",
-      "line": 107,
-      "column": 62,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "6ba0554bf00e7cd0c4075ba1581303e6f9cac8a8bcd5f3a094e7b85d0740c66a",
-      "reason": "LAYOUT: migrate area menu and editor/recovery/area selectors to shared ActionMenu/Select.",
-      "evidence": "<select aria-label=\"Active workspace area\" value={layout.focusedPaneId} onChange={event=>{void send('pane.focus',{paneId:event.target.value},false);}}>{splitPaneIds(layout.root).map(paneId=>{const viewId=layout.panes[pan",
       "disposition": "staged-migration"
     },
     {

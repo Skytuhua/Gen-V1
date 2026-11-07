@@ -29,7 +29,7 @@ function Fixture() {
   const large = query.has('large');
   const controls = <>
     <form id="controls-form" onSubmit={event => { event.preventDefault(); setAction(JSON.stringify([...new FormData(event.currentTarget)])); }}>
-      <fieldset data-testid="choice-fieldset" style={{ padding: 0, border: 0 }}><Select aria-label="Choice" name="choice" required={query.has('required')} value={large ? value === 'c' ? '99' : value : value} onValueChange={setValue} disabled={disabled}
+      <fieldset data-testid="choice-fieldset" style={{ padding: 0, border: 0 }}><Select aria-label="Choice" aria-invalid={query.has('controlled-invalid') || undefined} name="choice" required={query.has('required')} value={large ? value === 'c' ? '99' : value : value} onValueChange={setValue} disabled={disabled}
         options={large ? Array.from({ length: 100 }, (_, index) => ({ value: String(index), label: `Option ${index}` })) : [
           ...(query.has('required') ? [{ value: '', label: 'Choose an option' }] : []), { value: 'a', label: 'Alpha' }, { value: 'b', label: 'Beta unavailable', disabled: true },
           { value: 'c', label: 'Charlie' }, { value: 'd', label: 'Delta' },

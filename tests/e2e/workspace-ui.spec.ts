@@ -4,19 +4,26 @@ import {resolve} from 'node:path';
 import {taskFixture,serveTaskFixture} from './task-interface-fixture';
 import {planDataId,PLANNING_PROVENANCE} from '../../packages/contracts/planning';
 import type {WorkspaceEnvelope,PanelPlacement} from '../../packages/contracts/workspace';
+import type {DesktopSurface} from '../../packages/desktop-contract';
+import {panelDesktopSurface} from '../../apps/web/src/workspace-native';
+import {createSplitWorkspaceLayout} from '../../packages/core/split-workspace-layout';
 
 const fixtureModule='/@fs/'+encodeURI(resolve(import.meta.dirname,'workspace-app-fixture.tsx').replaceAll('\\','/'));
 
-async function nativeBridge(page:Page){await page.addInitScript(()=>{
+async function nativeBridge(page:Page,saved:DesktopSurface|null=null){await page.addInitScript(saved=>{
  const w=window as any,surface=JSON.parse(sessionStorage.getItem('workspace-test-surface')??'{"kind":"main"}'),focusSurface=JSON.parse(sessionStorage.getItem('workspace-test-focus')??'null');
- let windows:any[]=[{id:'main',surface:{kind:'main'},ready:true,minimized:false,visible:true}],listener:any;
+ let windows:any[]=[{id:'main',surface:{kind:'main'},ready:true,minimized:false,visible:true},...(saved?[{id:'native',surface:saved,ready:true,minimized:false,visible:true}]:[])],listener:any;
  const context=()=>({windowId:surface.kind==='main'?'main':'native',surface,windows,...(focusSurface?{focusSurface}:{})});
- w.__workspaceNativeCalls=[];w.__workspaceSetDesktop=(value:any)=>listener?.(value);
+ w.__workspaceNativeCalls=[];w.__workspaceSetDesktop=(value:any)=>{if(value.windows)windows=value.windows;listener?.(value);};
  w.harnessDesktop={getContext:async()=>context(),ready:async()=>context(),onState:(fn:any)=>{listener=fn;return()=>{};},onCloseRequested:(fn:any)=>{w.__workspaceClose=fn;return()=>{};},list:async()=>windows,
  detach:async(value:any)=>{w.__workspaceNativeCalls.push(['detach',value]);const native={id:'native',surface:value,visible:true,ready:true,minimized:false};windows=[windows[0],native];listener?.({windows});return native;},
  reattach:async()=>{},focus:async()=>{},browser:async(value:any)=>{w.__workspaceNativeCalls.push(['browser',value]);},control:async(value:any)=>{w.__workspaceNativeCalls.push(['control',value]);const info=windows.find(info=>info.id===value.windowId);if(!info)throw Error('Missing native window');if(w.__failNativeControl){w.__failNativeControl=false;throw Error('Synthetic native visibility refused');}info.visible=value.visible;listener?.({windows:[...windows]});}
  };
-});}
+},saved);}
+
+async function returnSavedNative(page:Page,surface:DesktopSurface){
+ await page.evaluate(surface=>(window as any).__workspaceSetDesktop({windows:[{id:'main',surface:{kind:'main'},ready:true,minimized:false,visible:true}],focusSurface:surface}),surface);
+}
 
 const stamp='2026-11-02T00:00:00Z';
 async function pendingReads(page:Page,kind:'models'|'context'){
@@ -37,6 +44,8 @@ async function pendingReads(page:Page,kind:'models'|'context'){
 }
 const panel=(id:string,threadId:string,x:number,kind:PanelPlacement['kind']='thread'):PanelPlacement=>({id,kind,canvasId:'canvas',binding:{authority:{kind:'local'},threadId,...(kind==='agent'?{agentId:'agent-one'}:{})},placement:'canvas',visible:true,collapsed:false,bounds:{x,y:56,width:480,height:600},order:0,alwaysOnTop:false});
 async function fixture(page:Page,panels:PanelPlacement[],beforeCommand?:(type:string,envelope:WorkspaceEnvelope)=>void|{code:string;message:string},preset:'custom'|'workspace'='custom'){
+ // This suite exercises explicit retained canvas recovery; normal Custom is covered by workspace-host.
+ if(preset==='custom')await page.addInitScript(()=>localStorage.setItem('harness:workspace-mode:v3','retained-canvas'));
  const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Unused artifact fixture'}}}});
  snapshot.artifacts=[];snapshot.userStates=[];snapshot.settings.theme='dark';
  snapshot.threads[0]={...snapshot.threads[0],title:'Main investigation'};
@@ -44,34 +53,38 @@ async function fixture(page:Page,panels:PanelPlacement[],beforeCommand?:(type:st
  snapshot.messages=[{id:'parent-message',threadId:'task-thread',role:'assistant',content:'Parent transcript only',runId:null,createdAt:stamp},...Array.from({length:105},(_,index)=>({id:'child-'+index,threadId:'child',role:'assistant' as const,content:'Actual child message '+index,runId:null,createdAt:stamp}))];
  snapshot.data.push({id:planDataId('task-thread'),threadId:'task-thread',revision:1,provenance:PLANNING_PROVENANCE,createdAt:stamp,value:{version:1,title:'Parent plan',steps:[],agents:[{id:'agent-one',name:'Delegated investigation',commandId:'delegate-command',taskId:'delegate-task',createdAt:stamp,updatedAt:stamp,completedRequirementIds:[],reportedPercent:null,status:'working',task:'Inspect the child source',childThreadId:'child',requirements:[]}]}});
  const host=await serveTaskFixture(page,snapshot);
+ const splitLayout=createSplitWorkspaceLayout('workspace');
+ await page.route('**/api/split-workspace?workspaceId=workspace',route=>route.fulfill({json:splitLayout}));
  const envelope:WorkspaceEnvelope={projects:[],state:{version:1,revision:0,activeCanvasId:'canvas',canvases:[{version:1,id:'canvas',name:'Acceptance',preset,viewport:{x:0,y:0,zoom:1},panels,filter:'active',projectIds:[]}],profiles:[],disabledKinds:[],integrations:{}}};
  await page.route('**/api/workspace',route=>route.fulfill({json:envelope}));
  await page.route('**/api/workspace/commands',async route=>{const command=route.request().postDataJSON();const rejection=beforeCommand?.(command.type,envelope);if(rejection)return route.fulfill({status:409,json:{error:rejection}});if(command.payload.baseRevision!==undefined&&command.payload.baseRevision!==envelope.state.revision)return route.fulfill({status:400,json:{error:{code:'WORKSPACE_CHANGED',message:'The workspace revision changed.'}}});if(command.type==='workspace.canvas.viewport')Object.assign(envelope.state.canvases[0].viewport,command.payload);if(command.type==='workspace.canvas.select')envelope.state.activeCanvasId=command.payload.canvasId;if(command.type==='workspace.panel.add')panels.push({...command.payload.panel,canvasId:command.payload.canvasId,placement:'canvas',visible:true,collapsed:false,bounds:command.payload.bounds,order:panels.length,alwaysOnTop:false});if(command.type==='workspace.panel.update')Object.assign(panels.find(panel=>panel.id===command.payload.panelId)!,command.payload.patch);envelope.state.revision++;await route.fulfill({json:{commandId:command.id,seq:snapshot.seq,result:envelope}});});
  await page.route('**/workspace-app-check',route=>route.fulfill({contentType:'text/html',body:`<html><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${fixtureModule}');</script></body></html>`}));
- await page.goto('/workspace-app-check');
+ const bootstrapped=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/bootstrap'&&response.ok());
+ await page.goto('/workspace-app-check');await bootstrapped;
  if(await page.evaluate(()=>sessionStorage.getItem('workspace-test-surface')===JSON.stringify({kind:'navigation'})))await expect(page.getByRole('complementary',{name:'Thread navigation',exact:true})).toBeVisible();
  else if(preset==='custom')await expect(page.getByRole('region',{name:'Acceptance canvas',exact:true})).toBeVisible();
  else await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeVisible();
  return {...host,envelope};
 }
 
-test('primary Workspace shows added tools and preserves its chat draft through pin hide and reload',async({page})=>{
+test('primary Workspace keeps tools fixed and preserves its anchored draft through close reopen and reload',async({page})=>{
  const host=await fixture(page,[],undefined,'workspace'),draft=page.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Keep the primary draft');
  await page.getByRole('button',{name:'Panels',exact:false}).click();await page.getByRole('menuitem',{name:'Add Files panel',exact:true}).click();
- const files=page.locator('.canvas-panel-files');await expect(files).toBeVisible();
- if(await page.locator('.workspace-menu').isVisible())await page.getByRole('button',{name:'Panels',exact:true}).click();
- await files.getByRole('button',{name:'Pin Files',exact:true}).click();await expect(files).toHaveAttribute('data-pinned','true');
- await files.getByRole('button',{name:'Hide Files',exact:true}).click();await expect(files).toHaveCount(0);
- await page.getByRole('button',{name:'Panels',exact:false}).click();await page.getByRole('button',{name:'Show Files',exact:true}).click();
+ const files=page.getByRole('complementary',{name:'Workspace panel',exact:true});await expect(files).toBeVisible();
+ await expect(files.getByRole('tab',{name:'Files',exact:true})).toHaveAttribute('aria-selected','true');
+ await expect(page.locator('.canvas-panel-files')).toHaveCount(0);
+ await files.getByRole('button',{name:'Close workspace panel',exact:true}).click();await expect(files).toHaveCount(0);
+ await page.getByRole('button',{name:'Panels',exact:false}).click();await page.getByRole('menuitem',{name:'Add Files panel',exact:true}).click();
  await expect(files).toBeVisible();await expect(draft).toHaveValue('Keep the primary draft');
  await page.reload();await expect(files).toBeVisible();await expect(draft).toHaveValue('Keep the primary draft');
  expect(host.commands.some(command=>command.type==='run.stop')).toBe(false);
+ expect(host.envelope.state.canvases[0].panels).toHaveLength(0);
 });
 
-test('detached navigation footer opens typed views for its selected conversation',async({page})=>{
+test('retained navigation directs tools to the main workspace without creating detached owners',async({page})=>{
  await page.addInitScript(()=>sessionStorage.setItem('workspace-test-surface',JSON.stringify({kind:'navigation'})));await nativeBridge(page);await fixture(page,[],undefined,'workspace');
- await page.getByRole('button',{name:'Pull requests',exact:true}).click();await page.getByRole('button',{name:'Usage',exact:true}).click();
- await expect.poll(()=>page.evaluate(()=>(window as any).__workspaceNativeCalls.filter((value:any)=>value[0]==='detach').map((value:any)=>value[1]))).toEqual([{kind:'workspace',tab:'linked-pull-requests',threadId:'task-thread'},{kind:'workspace',tab:'usage',threadId:'task-thread'}]);
+ for(const label of ['Pull requests','Usage']){await page.getByRole('button',{name:label,exact:true}).click();await expect(page.getByRole('status').filter({hasText:'Open this tool in the main workspace.'})).toBeVisible();}
+ expect(await page.evaluate(()=>(window as any).__workspaceNativeCalls.filter((value:any)=>value[0]==='detach'))).toEqual([]);
 });
 
 test('opened native child survives a placement failure and metadata retry retains one owner and the chat draft',async({page})=>{
@@ -134,39 +147,38 @@ test('offscreen tool bodies unmount while zoom leaves the surrounding shell unch
 });
 
 for(const kind of ['thread','agent','artifact','context','plan','usage','navigation','browser'] as const)test(`docking specialized ${kind} restores its saved originating tile using canonical native identity`,async({page})=>{
- await nativeBridge(page);
  const value=panel(kind+'-origin','task-thread',24,kind);if(kind==='artifact')value.binding.artifactId='artifact';if(kind==='browser')value.binding.browserId='browser';
+ value.placement='native';const binding=structuredClone(value.binding),surface=panelDesktopSurface(value);await nativeBridge(page,surface);
  const host=await fixture(page,[value]);
-  await page.locator(`[data-panel-id="${value.id}"] > header`).getByRole('button',{name:/^Detach /}).click();
-  await expect.poll(()=>value.placement).toBe('native');
-  const calls=await page.evaluate(()=>(window as any).__workspaceNativeCalls),surface=calls.filter((call:any)=>call[0]==='detach').at(-1)[1];
-  await page.evaluate(surface=>sessionStorage.setItem('workspace-test-focus',JSON.stringify(surface)),surface);await page.reload();
+  await expect(page.locator(`[data-panel-id="${value.id}"]`)).toHaveCount(0);
+  await returnSavedNative(page,surface);
   await expect.poll(()=>value.placement).toBe('canvas');
   await expect(page.locator(`[data-panel-id="${value.id}"]`)).toBeVisible();
  expect(host.commands.some(command=>command.type==='run.stop')).toBe(false);
+ expect(value.binding).toEqual(binding);expect(host.envelope.state.canvases[0].panels.map(panel=>panel.id)).toEqual([value.id]);
+ expect(await page.evaluate(()=>(window as any).__workspaceNativeCalls.filter((value:any)=>value[0]==='detach'))).toEqual([]);
 });
 
 test('live native dock retries a concurrent layout revision without losing either draft',async({page})=>{
  await nativeBridge(page);let raceEnabled=false,conflicts=0;
- const host=await fixture(page,[],(type,envelope)=>{if(raceEnabled&&type==='workspace.panel.update'){raceEnabled=false;conflicts++;envelope.state.revision++;}});
- Object.assign(host.envelope.state.canvases[0],{preset:'all-agents',filter:'all'});host.envelope.state.revision++;
- await page.evaluate(()=>window.dispatchEvent(new Event('harness:workspace-changed')));
- const tile=page.locator('[data-panel-id="live-thread:canvas:task-thread"]'),main=tile.getByRole('textbox',{name:'Message',exact:true}),side=page.getByRole('textbox',{name:'Message to Side investigation',exact:true});
+ const value=panel('main-origin','task-thread',24),sideValue=panel('side-origin','side',528),surface=panelDesktopSurface(value);
+ const host=await fixture(page,[value,sideValue],(type,envelope)=>{if(raceEnabled&&type==='workspace.panel.update'){raceEnabled=false;conflicts++;envelope.state.revision++;}});
+ const tile=page.locator('[data-panel-id="main-origin"]'),main=tile.getByRole('textbox',{name:'Message',exact:true}),side=page.getByRole('textbox',{name:'Message to Side investigation',exact:true});
  await main.fill('Main native handoff draft');await side.fill('Independent side draft');
- await tile.locator(':scope > header').getByRole('button',{name:/^Detach /}).click();
- await expect.poll(()=>host.envelope.state.canvases[0].panels.find(panel=>panel.id==='live-thread:canvas:task-thread')?.placement).toBe('native');
+ value.placement='native';host.envelope.state.revision++;
+ await page.evaluate(surface=>{window.dispatchEvent(new Event('harness:workspace-changed'));(window as any).__workspaceSetDesktop({windows:[{id:'main',surface:{kind:'main'},ready:true,minimized:false,visible:true},{id:'native',surface,ready:true,minimized:false,visible:true}]});},surface);
+ await expect(tile.getByRole('button',{name:'Focus window',exact:true})).toBeVisible();
  raceEnabled=true;
- await page.evaluate(()=>(window as any).__workspaceSetDesktop({windows:[{id:'main',surface:{kind:'main'},ready:true,minimized:false}],focusSurface:{kind:'thread',threadId:'task-thread'}}));
+ await returnSavedNative(page,surface);
  await expect(tile).toBeVisible();await expect(main).toHaveValue('Main native handoff draft');await expect(side).toHaveValue('Independent side draft');
- expect(conflicts).toBe(1);expect(host.envelope.state.canvases[0].panels.find(panel=>panel.id==='live-thread:canvas:task-thread')?.placement).toBe('canvas');
+ expect(conflicts).toBe(1);expect(value.placement).toBe('canvas');expect(host.envelope.state.canvases[0].panels.map(panel=>panel.id)).toEqual(['main-origin','side-origin']);
 });
 
 test('native dock refuses a panel retargeted by a concurrent profile change',async({page})=>{
- await nativeBridge(page);let raceEnabled=false;const original=panel('origin','task-thread',24);
+ let raceEnabled=false;const original=panel('origin','task-thread',24);original.placement='native';const surface=panelDesktopSurface(original);await nativeBridge(page,surface);
  await fixture(page,[original],(type,envelope)=>{if(raceEnabled&&type==='workspace.panel.update'){raceEnabled=false;original.binding={...original.binding,threadId:'side'};original.visible=false;envelope.state.revision++;}});
- await page.locator('[data-panel-id="origin"] > header').getByRole('button',{name:/^Detach /}).click();
- await expect.poll(()=>original.placement).toBe('native');raceEnabled=true;
- await page.evaluate(()=>(window as any).__workspaceSetDesktop({windows:[{id:'main',surface:{kind:'main'},ready:true,minimized:false}],focusSurface:{kind:'thread',threadId:'task-thread'}}));
+ await expect(page.locator('[data-panel-id="origin"]')).toHaveCount(0);raceEnabled=true;
+ await returnSavedNative(page,surface);
  await expect(page.getByRole('alert').filter({hasText:'owning panel changed'})).toBeVisible();
  expect(original).toMatchObject({binding:{threadId:'side'},placement:'native',visible:false});
 });
@@ -180,13 +192,14 @@ for(const geometryOnly of [true,false])test(`canvas command ${geometryOnly?'retr
  expect(conflicts).toBe(1);
 });
 
-for(const liveProject of [false,true])test(`detach persists ${liveProject?'live project':'unbound selected task'} binding for reload and dock`,async({page})=>{
- await nativeBridge(page);const value=panel('context-origin','side',24,'context');
- if(liveProject)Object.assign(value.binding,{projectId:'unassigned',liveProject:true});else delete value.binding.threadId;
- await fixture(page,[value]);await page.locator('[data-panel-id="context-origin"] > header').getByRole('button',{name:/^Detach /}).click();
- await expect.poll(()=>value.placement).toBe('native');expect(value.binding.threadId).toBe('task-thread');
- await page.evaluate(()=>sessionStorage.setItem('workspace-test-focus','{"kind":"plan","threadId":"task-thread"}'));await page.reload();
+for(const liveProject of [false,true])test(`saved native ${liveProject?'live project':'selected task'} binding survives reload and dock`,async({page})=>{
+ const value=panel('context-origin','task-thread',24,'context');value.placement='native';
+ if(liveProject)Object.assign(value.binding,{projectId:'unassigned',liveProject:true});
+ const binding=structuredClone(value.binding),surface=panelDesktopSurface(value);await nativeBridge(page,surface);
+ await fixture(page,[value]);await page.reload();await expect(page.getByRole('region',{name:'Acceptance canvas',exact:true})).toBeVisible();await expect(page.locator('[data-panel-id="context-origin"]')).toHaveCount(0);
+ await returnSavedNative(page,surface);
  await expect.poll(()=>value.placement).toBe('canvas');await expect(page.locator('[data-panel-id="context-origin"]')).toBeVisible();
+ expect(value.binding).toEqual(binding);
 });
 
 test('side draft follows the native App composer and returns with rejected and newer pending edits intact',async({page})=>{
@@ -277,10 +290,10 @@ test('canvas project selection targets its owner and cancellation restores indep
  const first=page.locator('[data-panel-id="selected-main"]').getByRole('textbox',{name:'Message',exact:true}),owner=page.locator('[data-panel-id="other-main"]'),second=owner.getByRole('textbox',{name:'Message',exact:true}),opener=owner.getByRole('button',{name:'Select project',exact:true});
  await first.fill('Selected draft');await second.fill('Other owner draft');await opener.click();
  const dialog=page.getByRole('dialog',{name:'Select project',exact:true});await expect(dialog).toBeVisible();
- await dialog.getByRole('button',{name:'Done',exact:true}).click();await expect(opener).toBeFocused();
+ await dialog.getByRole('button',{name:'Cancel',exact:true}).click();await expect(opener).toBeFocused();
  let submitted:Record<string,any>|undefined;
  await page.route('**/api/workspace/commands',async route=>{const input=route.request().postDataJSON();if(input.type!=='workspace.project.connect')return route.fallback();submitted=input;return route.fulfill({json:{commandId:input.id,seq:host.snapshot.seq,result:host.envelope}});});
- await opener.click();await dialog.getByRole('button',{name:'Select Other local project',exact:true}).click();await expect(dialog).toHaveCount(0);
+ await opener.click();await dialog.getByRole('option',{name:'Other local project',exact:true}).click();await expect(dialog).toHaveCount(0);
  expect(submitted?.payload).toMatchObject({threadId:'other-main',name:'Other local project',path:'C:/Fixture/Owner'});
  expect(host.commands.some(command=>command.type==='resource.grant')).toBe(false);
  await expect(first).toHaveValue('Selected draft');await expect(second).toHaveValue('Other owner draft');await expect(opener).toBeFocused();
@@ -330,7 +343,7 @@ test('closing Settings cancels its pending catalog read and leaves the current w
  await page.getByRole('button',{name:'Settings',exact:true}).click();
  await expect(page.getByRole('dialog',{name:'Settings',exact:true})).toBeVisible();
  await expect.poll(async()=>(await reads()).filter(read=>read.url==='/api/models').length).toBe(1);
- await page.getByRole('button',{name:'Close settings',exact:true}).click();
+ await page.getByRole('dialog',{name:'Settings',exact:true}).getByRole('button',{name:'Close dialog',exact:true}).click();
  await expect.poll(async()=>(await reads()).find(read=>read.url==='/api/models')?.aborted).toBe(true);
  expect((await reads()).filter(read=>read.url.includes('threadId=task-thread')).every(read=>!read.aborted)).toBe(true);
  await page.evaluate(()=>(window as any).__pendingWorkspaceReads.filter((read:any)=>!read.aborted).forEach((read:any)=>read.complete()));

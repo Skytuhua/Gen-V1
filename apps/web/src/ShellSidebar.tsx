@@ -33,6 +33,7 @@ import {createThreadHoverCache} from './thread-hover/data';
 import type {ThreadHoverScope} from './thread-hover/facts';
 import {loadPersonalThreadHover,type ThreadHoverPRTarget} from './thread-hover/host';
 import { projectColor, threadDragPayload } from './project-colors';
+import { ActionMenu } from '../../../packages/ui-shell/ActionMenu';
 
 const threadAge = (value: string) => {
   const date = Date.parse(value);
@@ -170,106 +171,30 @@ export function ShellSidebar({
     : remaining;
 
   const renderMenu = (item: Thread) => (
-    <>
-      <button
-        type="button"
-        className="icon-button sidebar-thread-menu-button"
-        aria-label={`Options for ${item.title}`}
-        aria-expanded={menuId === item.id}
-        onClick={() => setMenuId(value => (value === item.id ? null : item.id))}
-      >
-        <MoreHorizontal size={14} />
-      </button>
-      {menuId === item.id && (
-        <div className="thread-menu sidebar-thread-menu">
-          {onPlaceThread && (
-            <button
-              type="button"
-              onClick={() => {
-                onPlaceThread(item);
-                setMenuId(null);
-              }}
-            >
-              Place in workspace
-              <kbd>Alt Enter</kbd>
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={() => {
-              rename(item);
-              setMenuId(null);
-            }}
-          >
-            Rename thread
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              presentation(item, { pinned: !item.presentation?.pinned });
-              setMenuId(null);
-            }}
-          >
-            <Pin size={13} />
-            {item.presentation?.pinned ? 'Unpin thread' : 'Pin thread'}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              presentation(item, { unread: !item.presentation?.unread });
-              setMenuId(null);
-            }}
-          >
-            <Circle size={12} />
-            {item.presentation?.unread ? 'Mark as read' : 'Mark as unread'}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              presentation(item, { settled: !item.presentation?.settled });
-              setMenuId(null);
-            }}
-          >
-            <Check size={13} />
-            {item.presentation?.settled ? 'Return to inbox' : 'Settle thread'}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              const min = orderBounds?.minOrder ?? Math.min(0, ...matching.map(thread => thread.presentation?.order ?? 0));
-              presentation(item, { order: min - 1 });
-              setMenuId(null);
-            }}
-          >
-            <ArrowUp size={13} />
-            Move to top
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              const max = orderBounds?.maxOrder ?? Math.max(0, ...matching.map(thread => thread.presentation?.order ?? 0));
-              presentation(item, { order: max + 1 });
-              setMenuId(null);
-            }}
-          >
-            <ArrowDown size={13} />
-            Move to bottom
-          </button>
-          <button
-            type="button"
-            disabled={Boolean(item.runId)}
-            title={item.runId ? 'Stop the task before archiving.' : undefined}
-            onClick={() => {
-              archive(item.id);
-              setMenuId(null);
-            }}
-          >
-            <Archive size={13} />
-            Archive thread
-          </button>
-        </div>
-      )}
-    </>
+    <span className="sidebar-thread-menu-button">
+      <ActionMenu label={`Options for ${item.title}`} icon={<MoreHorizontal size={14} aria-hidden="true" />} iconOnly
+        open={menuId === item.id} onOpenChange={open => setMenuId(open ? item.id : null)}
+        items={[
+          ...(onPlaceThread ? [{id: 'place', label: 'Place in workspace', shortcut: 'Alt Enter', onSelect: () => onPlaceThread(item)}] : []),
+          {id: 'rename', label: 'Rename thread', onSelect: () => rename(item)},
+          {id: 'pin', label: item.presentation?.pinned ? 'Unpin thread' : 'Pin thread', icon: <Pin size={13} />,
+            onSelect: () => presentation(item, {pinned: !item.presentation?.pinned})},
+          {id: 'unread', label: item.presentation?.unread ? 'Mark as read' : 'Mark as unread', icon: <Circle size={12} />,
+            onSelect: () => presentation(item, {unread: !item.presentation?.unread})},
+          {id: 'settle', label: item.presentation?.settled ? 'Return to inbox' : 'Settle thread', icon: <Check size={13} />,
+            onSelect: () => presentation(item, {settled: !item.presentation?.settled})},
+          {id: 'top', label: 'Move to top', icon: <ArrowUp size={13} />, onSelect: () => {
+            const min = orderBounds?.minOrder ?? Math.min(0, ...matching.map(thread => thread.presentation?.order ?? 0));
+            presentation(item, {order: min - 1});
+          }},
+          {id: 'bottom', label: 'Move to bottom', icon: <ArrowDown size={13} />, onSelect: () => {
+            const max = orderBounds?.maxOrder ?? Math.max(0, ...matching.map(thread => thread.presentation?.order ?? 0));
+            presentation(item, {order: max + 1});
+          }},
+          {id: 'archive', label: 'Archive thread', icon: <Archive size={13} />, disabled: Boolean(item.runId),
+            title: item.runId ? 'Stop the task before archiving.' : undefined, onSelect: () => archive(item.id)},
+        ]}/>
+    </span>
   );
 
   const row = (item: Thread, compactSettled = false) => {

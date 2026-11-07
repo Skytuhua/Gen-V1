@@ -1,0 +1,3 @@
+import {defineConfig} from '@playwright/test';
+import {resolve} from 'node:path';
+export default defineConfig({testDir:'.',testMatch:'graph-popovers.spec.ts',workers:1,timeout:30000,expect:{timeout:7000},outputDir:process.env.GEN_GRAPH_POPOVERS_OUTPUT??'.harness-graph-popovers-results',use:{baseURL:'http://127.0.0.1:5806',channel:'chrome',headless:true,serviceWorkers:'block',viewport:{width:1000,height:760},trace:'retain-on-failure',screenshot:'only-on-failure'},webServer:{command:'pnpm exec vite --config tests/e2e/graph-popovers.vite.config.ts --host 127.0.0.1 --port 5806 --strictPort',cwd:resolve(import.meta.dirname,'../..'),url:'http://127.0.0.1:5806/tests/e2e/fixtures/graph-popovers.html',reuseExistingServer:false}});

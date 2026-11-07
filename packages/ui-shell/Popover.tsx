@@ -12,12 +12,13 @@ export interface PopoverProps extends Omit<HTMLAttributes<HTMLDivElement>, 'chil
   height: number;
   preferredSide?: 'above' | 'below';
   align?: 'start' | 'end';
+  layoutRevision?: number;
   onDismiss: () => void;
   onReady?: () => void;
   children: ReactNode;
 }
 
-export function Popover({ anchor, contentRef, initialFocus, open, present = open, width, height, preferredSide, align,
+export function Popover({ anchor, contentRef, initialFocus, open, present = open, width, height, preferredSide, align, layoutRevision,
   onDismiss, onReady, children, className = '', style, onKeyDown, ...attributes }: PopoverProps) {
   const ownRef = useRef<HTMLDivElement>(null), content = contentRef ?? ownRef;
   const dismiss = useRef(onDismiss); dismiss.current = onDismiss;
@@ -67,7 +68,7 @@ export function Popover({ anchor, contentRef, initialFocus, open, present = open
       window.visualViewport?.removeEventListener('scroll', place);
       document.fonts?.removeEventListener('loadingdone', place);
     };
-  }, [open, anchor, content, width, height, preferredSide, align]);
+  }, [open, anchor, content, width, height, preferredSide, align, layoutRevision]);
 
   useLayoutEffect(() => {
     if (open && root) { initialFocus?.current?.focus(); ready.current?.(); }

@@ -8,7 +8,7 @@ const id=splitWorkspaceIdSchema;
 export function createSplitWorkspaceLayout(workspaceId='workspace'):SplitWorkspaceLayout{return{version:2,id:id.parse(workspaceId),revision:0,root:{kind:'pane',paneId:'pane-main'},panes:{'pane-main':{id:'pane-main',viewIds:[],collapsed:false}},views:{},parkedViewIds:[],focusedPaneId:'pane-main',undoDepth:0,redoDepth:0};}
 const canonical=(value:unknown):unknown=>Array.isArray(value)?value.map(canonical):value&&typeof value==='object'?Object.fromEntries(Object.entries(value).sort(([a],[b])=>a.localeCompare(b)).map(([key,value])=>[key,canonical(value)])):value;
 const ownerBinding=(view:SurfaceRef)=>Object.fromEntries(Object.entries(view.binding).filter(([key])=>key!=='liveProject'));
-const sameView=(a:SurfaceRef,b:SurfaceRef)=>a.kind===b.kind&&JSON.stringify(canonical(ownerBinding(a)))===JSON.stringify(canonical(ownerBinding(b)));
+export const sameSplitWorkspaceView=(a:SurfaceRef,b:SurfaceRef)=>a.kind===b.kind&&JSON.stringify(canonical(ownerBinding(a)))===JSON.stringify(canonical(ownerBinding(b)));
 export function splitPaneIds(node:SplitWorkspaceNode):string[]{return node.kind==='pane'?[node.paneId]:[...splitPaneIds(node.first),...splitPaneIds(node.second)];}
 export function splitNodeById(node:SplitWorkspaceNode,splitId:string):Extract<SplitWorkspaceNode,{kind:'split'}>|undefined{if(node.kind==='pane')return;return node.id===splitId?node:splitNodeById(node.first,splitId)??splitNodeById(node.second,splitId);}
 function replaceNode(node:SplitWorkspaceNode,paneId:string,replacement:SplitWorkspaceNode):SplitWorkspaceNode{return node.kind==='pane'?node.paneId===paneId?replacement:node:{...node,first:replaceNode(node.first,paneId,replacement),second:replaceNode(node.second,paneId,replacement)};}
@@ -26,8 +26,8 @@ export function applySplitWorkspaceCommand(input:SplitWorkspaceLayout,type:strin
  const unassign=(viewId:string)=>{for(const entry of Object.values(layout.panes)){entry.viewIds=entry.viewIds.filter(value=>value!==viewId);if(entry.activeViewId===viewId)entry.activeViewId=entry.viewIds.at(-1);}layout.parkedViewIds=layout.parkedViewIds.filter(value=>value!==viewId);};
  const park=(viewId:string)=>{unassign(viewId);layout.parkedViewIds.push(viewId);};
  const open=(targetId:unknown,raw:unknown,placement:unknown='tab')=>{
-  const target=pane(targetId),parsed=surfaceRefSchema.parse(raw),existing=Object.values(layout.views).find(value=>sameView(value,parsed));
-  if(Object.hasOwn(layout.views,parsed.id)&&!sameView(layout.views[parsed.id]!,parsed))invalid('An existing view ID cannot be rebound to a different owner.');
+  const target=pane(targetId),parsed=surfaceRefSchema.parse(raw),existing=Object.values(layout.views).find(value=>sameSplitWorkspaceView(value,parsed));
+  if(Object.hasOwn(layout.views,parsed.id)&&!sameSplitWorkspaceView(layout.views[parsed.id]!,parsed))invalid('An existing view ID cannot be rebound to a different owner.');
   const value=existing??parsed;
   if(placement!=='tab'&&placement!=='replace')invalid('Choose tab or replace placement.');
   if(placement==='replace'&&target.activeViewId&&target.activeViewId!==value.id)park(target.activeViewId);

@@ -1,5 +1,4 @@
-﻿import { Children, useContext, useId, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
-import { createPortal } from 'react-dom';
+﻿import { Children, useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import type { RefObject } from 'react';
 import { useStateStore, type ComponentRenderProps } from '@json-render/react';
 import { ArrowRight } from 'lucide-react';
@@ -7,6 +6,8 @@ import { relationshipData, type RelationshipData } from '../../../packages/ui-ca
 import { ArtifactInline, ArtifactTitle, inputPath, statePath } from './task-context';
 import { animateTask, MotionRegion, reducedMotion, TASK_MOTION } from './task-motion';
 import { StatusIcon } from './task-status';
+import {Popover} from '../../../packages/ui-shell/Popover';
+import {createThreadHoverInteraction} from './thread-hover/interaction';
 import './relationship-graph.css';
 
 type SourceNode = RelationshipData['nodes'][number];
@@ -89,41 +90,58 @@ function useGraphGeometry(target: Geometry, key: string, surface: RefObject<HTML
   return current.current;
 }
 
-function GraphTooltip({ id, children, wide = false }: { id: string; children: ReactNode; wide?: boolean }) {
-  const marker = useRef<HTMLSpanElement>(null), popup = useRef<HTMLSpanElement>(null);
-  const [position, setPosition] = useState<{ left: number; top: number } | null>(null);
-  const dismiss = useRef(() => {});
+const tooltipOwnerBlocked = (element: HTMLElement) => Boolean(element.closest('[inert], [hidden], [aria-hidden="true"]')) || element.matches(':disabled');
+function GraphTooltip({ id, children, wide = false, compact = false }: { id: string; children: ReactNode; wide?: boolean; compact?: boolean }) {
+  const marker = useRef<HTMLSpanElement>(null), anchor = useRef<HTMLElement>(null), popup = useRef<HTMLDivElement>(null);
+  const [open, setOpen] = useState(false), [present, setPresent] = useState(false), [body, setBody] = useState<HTMLDivElement | null>(null), [height, setHeight] = useState(260), [layoutRevision, setLayoutRevision] = useState(0);
+  const ownerAvailable = Boolean(anchor.current && !tooltipOwnerBlocked(anchor.current)), visible = open && ownerAvailable;
+  const shown = useRef(visible); shown.current = visible;
+  const interaction = useMemo(() => createThreadHoverInteraction(setOpen), []);
+  useEffect(() => () => interaction.dispose(), [interaction]);
   useLayoutEffect(() => {
-    const anchor = marker.current!.parentElement!;
-    let shown = false;
-    const place = () => {
-      const box = anchor.getBoundingClientRect(), width = Math.min(wide ? 480 : 420, innerWidth - 16), height = popup.current?.offsetHeight ?? 260;
-      const next = { left: Math.max(8, Math.min(box.left, innerWidth - width - 8)), top: box.bottom + height + 7 > innerHeight ? Math.max(8, box.top - height - 7) : box.bottom + 7 };
-      setPosition(previous => previous && Math.abs(previous.left - next.left) < .25 && Math.abs(previous.top - next.top) < .25 ? previous : next);
-    };
-    const show = () => { shown = true; marker.current?.setAttribute('data-graph-tooltip-active', ''); place(); };
-    const blur = () => { shown = false; marker.current?.removeAttribute('data-graph-tooltip-active'); setPosition(null); }; dismiss.current = blur;
-    const leave = (event: MouseEvent) => { if (document.activeElement !== anchor && !popup.current?.contains(event.relatedTarget as Node | null)) blur(); };
+    const element = marker.current!.parentElement!; anchor.current = element;
+    const allowed = () => {const blocked = tooltipOwnerBlocked(element); interaction.setBlocked(blocked); return !blocked;};
+    const enter = () => {if (allowed()) interaction.pointerEnter('trigger');}, leave = () => interaction.pointerLeave('trigger');
+    const focus = () => {if (allowed()) interaction.focus(true);}, blur = (event: FocusEvent) => {if (!popup.current?.contains(event.relatedTarget as Node | null)) interaction.focus(false);};
     const key = (event: KeyboardEvent) => {
-      if (!shown) return;
-      if (event.key === 'Escape') { event.stopPropagation(); blur(); }
-      else if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp'].includes(event.key) && popup.current) {
-        event.preventDefault(); popup.current.scrollBy({ top: (event.key.endsWith('Down') ? 1 : -1) * (event.key.startsWith('Page') ? 180 : 40) });
-      }
+      if (!shown.current || event.isComposing || event.keyCode === 229) return;
+      if (event.key === 'Escape') {event.preventDefault(); event.stopPropagation(); interaction.dismiss();}
+      else if (['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp'].includes(event.key)) {event.preventDefault(); popup.current?.scrollBy({top:(event.key.endsWith('Down') ? 1 : -1) * (event.key.startsWith('Page') ? 180 : 40)});}
     };
-    const move = () => { if (shown) place(); };
-    const graph = anchor.closest('.task-graph'); graph?.addEventListener('task-graph-layout', move);
-    anchor.addEventListener('mouseenter', show); anchor.addEventListener('mouseleave', leave); anchor.addEventListener('focus', show); anchor.addEventListener('blur', blur); anchor.addEventListener('keydown', key);
-    window.addEventListener('scroll', move, true); window.addEventListener('resize', move);
-    return () => { graph?.removeEventListener('task-graph-layout', move); anchor.removeEventListener('mouseenter', show); anchor.removeEventListener('mouseleave', leave); anchor.removeEventListener('focus', show); anchor.removeEventListener('blur', blur); anchor.removeEventListener('keydown', key); window.removeEventListener('scroll', move, true); window.removeEventListener('resize', move); };
-  }, [wide]);
+    const move = () => {if (shown.current) setLayoutRevision(value => value + 1);};
+    const graph = element.closest('.task-graph'); graph?.addEventListener('task-graph-layout', move);
+    element.addEventListener('mouseenter', enter); element.addEventListener('mouseleave', leave); element.addEventListener('focus', focus); element.addEventListener('blur', blur); element.addEventListener('keydown', key);
+    return () => {graph?.removeEventListener('task-graph-layout', move); element.removeEventListener('mouseenter', enter); element.removeEventListener('mouseleave', leave); element.removeEventListener('focus', focus); element.removeEventListener('blur', blur); element.removeEventListener('keydown', key);};
+  }, [interaction]);
+  useLayoutEffect(() => {marker.current?.toggleAttribute('data-graph-tooltip-active', visible);}, [visible]);
   useLayoutEffect(() => {
-    if (!position || !popup.current) return;
-    const anchor = marker.current!.parentElement!.getBoundingClientRect(), height = popup.current.offsetHeight;
-    const top = anchor.bottom + height + 7 > innerHeight ? Math.max(8, anchor.top - height - 7) : anchor.bottom + 7;
-    if (Math.abs(top - position.top) > .5) setPosition(previous => previous && { ...previous, top });
-  }, [position?.top, children]);
-  return <><span ref={marker} aria-hidden="true" />{position && createPortal(<span ref={popup} className={`task-node-popover ${wide ? 'task-conflict-popover' : ''}`} role="tooltip" id={id} style={position} onMouseLeave={event => { const anchor = marker.current?.parentElement; if (document.activeElement !== anchor && !anchor?.contains(event.relatedTarget as Node | null)) dismiss.current(); }}>{children}</span>, document.body)}</>;
+    if (visible) {setPresent(true); return;}
+    const animations = popup.current?.getAnimations() ?? [];
+    if (!animations.length) {setPresent(false); return;}
+    let current = true;
+    void Promise.allSettled(animations.map(animation => animation.finished)).then(() => {if (current) setPresent(false);});
+    return () => {current = false;};
+  }, [visible]);
+  useLayoutEffect(() => {
+    if (!open || !anchor.current) return;
+    const element = anchor.current, synchronize = () => interaction.setBlocked(tooltipOwnerBlocked(element));
+    synchronize();
+    const observer = new MutationObserver(synchronize);
+    for (let owner: HTMLElement | null = element; owner; owner = owner.parentElement) observer.observe(owner, {attributes:true, attributeFilter:['inert','hidden','aria-hidden','disabled']});
+    return () => observer.disconnect();
+  }, [open, interaction]);
+
+  useLayoutEffect(() => {
+    if (!visible || !body) return;
+    const measure = () => setHeight(Math.min(420, body.offsetHeight + (compact ? 16 : 28)));
+    measure(); const observer = new ResizeObserver(measure); observer.observe(body);
+    return () => observer.disconnect();
+  }, [visible, body, compact]);
+  return <><span ref={marker} aria-hidden="true" /><Popover anchor={anchor} contentRef={popup} open={visible} present={ownerAvailable && (visible || present)} width={compact ? 320 : wide ? 480 : 420} height={height} layoutRevision={layoutRevision} align="start" preferredSide="below"
+    role="tooltip" id={id} className={`task-node-popover ${compact ? 'task-check-popover' : ''}`} onDismiss={() => interaction.dismiss()}
+    onPointerEnter={() => interaction.pointerEnter('card')} onPointerLeave={() => interaction.pointerLeave('card')}>
+    <div ref={setBody} className="task-node-details">{children}</div>
+  </Popover></>;
 }
 
 function Excerpts({ node }: { node: SourceNode }) {
@@ -228,7 +246,7 @@ export function RelationshipGraph({ element: { props }, children }: ComponentRen
       </div>
     </div>
     <MotionRegion open={Boolean(checkView.items.length || summary || conflictCount || hasActions)} duration={TASK_MOTION.status} className="task-graph-footer">
-      {checkView.items.length ? <div className={`task-graph-checks${checkView.leaving ? ' is-leaving' : ''}`} aria-label="Source check summaries" aria-hidden={checkView.leaving || undefined} inert={checkView.leaving}>{checkView.items.map((check, index) => <span key={check.label} className={`task-graph-check status-${check.status}`} tabIndex={0} style={{ animationDelay: `${index * TASK_MOTION.check}ms` }} aria-describedby={`${id}-check-${index}`}><StatusIcon status={check.status} /><span>{check.label}</span>{check.detail && <span className="task-check-tooltip" role="tooltip" id={`${id}-check-${index}`}>{check.detail}</span>}</span>)}</div> : null}
+      {checkView.items.length ? <div className={`task-graph-checks${checkView.leaving ? ' is-leaving' : ''}`} aria-label="Source check summaries" aria-hidden={checkView.leaving || undefined} inert={checkView.leaving}>{checkView.items.map((check, index) => <span key={check.label} className={`task-graph-check status-${check.status}`} tabIndex={0} style={{ animationDelay: `${index * TASK_MOTION.check}ms` }} aria-describedby={`${id}-check-${index}`}><StatusIcon status={check.status} /><span>{check.label}</span>{check.detail && <GraphTooltip id={`${id}-check-${index}`} compact>{check.detail}</GraphTooltip>}</span>)}</div> : null}
       <div className="task-graph-footer-row">
         {(summary || conflictCount > 0) && <div ref={summaryElement} className={`task-graph-summary status-${summary?.status ?? 'pending'}`} role="status"><StatusIcon status={summary?.status ?? 'pending'} /><span>{conflictCount > 0 ? <button type="button" className="task-graph-conflict-summary" aria-label={`Inspect ${conflictCount} conflicts`} aria-describedby={conflictTip}>{summary?.label ?? `${conflictCount} conflicts`}<GraphTooltip id={conflictTip} wide><strong>{conflictCount} conflicts in the supplied source</strong>{conflicts.slice(0, 4).map(node => <span key={node.id} className="task-conflict-group"><strong>{node.label}</strong><Excerpts node={node} /></span>)}{conflicts.length > 4 && <small>Inspect source for {conflicts.length - 4} more comparisons.</small>}</GraphTooltip></button> : summary?.label}{summary?.detail && <small>{summary.detail}</small>}</span></div>}
         {hasActions && <div className="task-graph-footer-actions">{children}</div>}
