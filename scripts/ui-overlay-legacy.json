@@ -158,61 +158,6 @@
       "disposition": "staged-migration"
     },
     {
-      "file": "apps/web/src/relationship-graph.css",
-      "line": 32,
-      "column": 1,
-      "rule": "ad-hoc-overlay",
-      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "8a81ce9a263f0e984bc094cd746901555c6f596b0619c642b05acf0db5ab8b6f",
-      "reason": "VISUALS/HOVER: replace graph popover and check-tooltip placement with shared anchored primitives.",
-      "evidence": ".task-node-popover { position:fixed; z-index:100; display:flex; flex-direction:column; gap:9px; width:min(420px,calc(100vw - 16px)); max-height:min(420px,calc(100vh - 16px)); padding:13px 15px; border:1px solid var(--bor",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/relationship-graph.css",
-      "line": 73,
-      "column": 1,
-      "rule": "ad-hoc-overlay",
-      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "bb0414c6a2a63c1ec63418656d9f5498948468938073544d191676d52a0c5bf2",
-      "reason": "VISUALS/HOVER: replace graph popover and check-tooltip placement with shared anchored primitives.",
-      "evidence": ".task-check-tooltip { position:absolute; z-index:9; bottom:calc(100% + 7px); left:0; width:max-content; max-width:min(320px,75vw); padding:7px 10px; border:1px solid var(--border); border-radius:8px; color:var(--text); b",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/RelationshipGraph.tsx",
-      "line": 126,
-      "column": 65,
-      "rule": "ad-hoc-overlay",
-      "message": "React portal: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "c85ad6ee32c51605f46bb940b456f0a0dc41a123f4b61fa181ff7e2facd214ca",
-      "reason": "VISUALS/HOVER: migrate graph portal/popovers to shared anchored primitives.",
-      "evidence": "createPortal(<span ref={popup} className={`task-node-popover ${wide ? 'task-conflict-popover' : ''}`} role=\"tooltip\" id={id} style={position} onMouseLeave={event => { const anchor = marker.current?.parentElement; if (doc",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/RelationshipGraph.tsx",
-      "line": 126,
-      "column": 78,
-      "rule": "ad-hoc-overlay",
-      "message": "overlay surface class: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "66b5fcd96af38f1300b2cfe462d471679fe7eb4b62c999e635371d02fc3375e7",
-      "reason": "VISUALS/HOVER: migrate graph portal/popovers to shared anchored primitives.",
-      "evidence": "<span ref={popup} className={`task-node-popover ${wide ? 'task-conflict-popover' : ''}`} role=\"tooltip\" id={id} style={position} onMouseLeave={event => { const anchor = marker.current?.parentElement; if (document.activeE",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/RelationshipGraph.tsx",
-      "line": 231,
-      "column": 530,
-      "rule": "ad-hoc-overlay",
-      "message": "overlay surface class: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "5b939bca49a5e8aeea50e92023cb15ea10dc9b5f33e8476b9754b43fecb608bf",
-      "reason": "VISUALS/HOVER: migrate graph portal/popovers to shared anchored primitives.",
-      "evidence": "<span className=\"task-check-tooltip\" role=\"tooltip\" id={`${id}-check-${index}`}>{check.detail}</span>}</span>)}</div> : null}",
-      "disposition": "staged-migration"
-    },
-    {
       "file": "apps/web/src/sentence-reveal.css",
       "line": 2,
       "column": 1,
