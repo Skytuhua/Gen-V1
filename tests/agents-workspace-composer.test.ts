@@ -225,3 +225,20 @@ it('fences an ownership roundtrip even when the original window becomes editable
  writes.pause = new Promise<void>(resolve => {release = resolve;}); const sending = owner.submit(parent);
  ownership = 3; release(); await sending; expect(send).not.toHaveBeenCalled(); expect(owner.getSnapshot(parent).retry).toBe(true); owner.dispose();
 });
+
+
+it('validates the captured child submission before creating pending identity, without substituting a later draft', async () => {
+ const child = agent('child', {parentId: 'parent', rootId: 'parent', jobId: 'job', readOnly: true});
+ const followUp = {canSend: () => true, subscribe: () => () => {}, send: vi.fn(async () => ticket)};
+ const owner = createSharedAgentComposers({sendParent: async () => {}, stopParent: async () => {}, followUp});
+ try {
+  await owner.prepare(child); await owner.edit(child, 'Later valid text');
+  await owner.submit(child, {submission: {content: 'x'.repeat(32769), generation: 'captured', skills: []}});
+  expect(followUp.send).not.toHaveBeenCalled(); expect(records.has('agents-pending:child')).toBe(false);
+  expect(owner.getSnapshot(child)).toMatchObject({draft: 'Later valid text', retry: false});
+  await owner.edit(child, 'x'.repeat(32769));
+  await owner.submit(child, {submission: {content: 'Valid captured text', generation: 'captured', skills: []}});
+  expect(followUp.send).toHaveBeenCalledWith(expect.objectContaining({content: 'Valid captured text'}));
+  expect(owner.getSnapshot(child).draft).toHaveLength(32769);
+ } finally {owner.dispose();}
+});
