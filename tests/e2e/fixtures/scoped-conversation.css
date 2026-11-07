@@ -1,0 +1,6 @@
+/* Synthetic fixture framing only; production uses the parent's appearance tokens. */
+:root {font: 14px/1.5 system-ui; color-scheme: dark; --canvas: #080808; --surface: #111; --text: #eee; --muted: #aaa; --border: #333; --hover: #292929; --accent: #91a7ff; background: var(--canvas); color: var(--text);}
+:root[data-theme="light"] {color-scheme: light; --canvas: #fff; --surface: #f7f7f7; --text: #181818; --muted: #555; --border: #ddd; --hover: #eee; --accent: #354ba7;}
+body {margin: 0;} main {padding: 8px; min-width: 0;} main > p {margin: 0 0 4px;} main > output {margin-inline-start: 8px;}
+.fixture-pane {height: max(128px, calc(100dvh - 100px)); max-width: 620px;}
+textarea {box-sizing: border-box; width: 100%; height: 50px; resize: vertical; color: var(--text); background: var(--surface); border: 1px solid var(--border); font: inherit;}
