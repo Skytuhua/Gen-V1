@@ -33,6 +33,8 @@ async function fixtureHost(page: Page, bytes: Uint8Array, options: { snapshot?: 
     if (url.pathname === '/api/bootstrap') return route.fulfill({ json: { csrfToken: 'synthetic-token' } });
     if (url.pathname === '/api/models') return route.fulfill({ json: { models: [] } });
     if (url.pathname === '/api/snapshot') return route.fulfill({ json: state.snapshot });
+    if (url.pathname === '/api/shell-settings') return route.fulfill({ json: state.snapshot.settings });
+    if (url.pathname === '/api/workspace') return route.fulfill({ json: { projects: [], state: { version: 1, revision: 0, activeCanvasId: 'workspace', canvases: [{ id: 'workspace', name: 'Workspace', preset: 'workspace', panels: [], viewport: { x: 0, y: 0, zoom: 1 } }], profiles: [], disabledKinds: [], integrations: {} } } });
     if (url.pathname === '/api/resources/granted-pdf/content') {
       state.resourceUrls.push(url.href);
       return route.fulfill({ status: options.status ?? 200, contentType: 'application/pdf', ...(options.oversized ? { headers: { 'Content-Length': String(20 * 1024 * 1024 + 1) } } : {}), body: Buffer.from(bytes) });
@@ -256,6 +258,100 @@ test('real AcroForm edits reach the PDF canvas, focused field, pages, and derive
   expect(await preview(page).getByRole('link', { name: 'Download source PDF' }).getAttribute('href')).toContain('path=contracts%2FAgreement+%26+review.pdf');
   expect(await page.evaluate(() => (window as unknown as Record<string, unknown>).__pdfExecuted)).toBeUndefined();
   expect(externalRequests).toEqual([]); expect(errors).toEqual([]);
+});
+
+// Sample actual alpha pixels around normalized signature coordinates, independent of fonts or screenshots.
+async function signaturePixels(page: Page, x: number, y: number) {
+  return page.getByRole('application', { name: 'Draw visual signature' }).evaluate((element, point) => {
+    const canvas = element as HTMLCanvasElement, bounds = canvas.getBoundingClientRect();
+    const radius = Math.max(1, Math.round(4 * canvas.width / bounds.width));
+    const left = Math.max(0, Math.min(canvas.width - 1, Math.round(point.x * canvas.width) - radius));
+    const top = Math.max(0, Math.min(canvas.height - 1, Math.round(point.y * canvas.height) - radius));
+    const pixels = canvas.getContext('2d')!.getImageData(left, top, Math.min(radius * 2, canvas.width - left), Math.min(radius * 2, canvas.height - top)).data;
+    return Array.from(pixels).filter((_, index) => index % 4 === 3);
+  }, { x, y });
+}
+
+async function signatureJournal(page: Page) { return page.evaluate(async () => { const path = '/src/journal.ts'; return (await import(path)).journalReadRecord('state:pdf-state'); }); }
+
+test('idle keyboard cursor paints, moves and clamps without saving signature ink', async ({ page }) => {
+  const state = await fixtureHost(page, await createSigningPdfFixture());
+  const bootstrapped = page.waitForResponse(response => new URL(response.url()).pathname === '/api/bootstrap' && response.ok());
+  await page.goto('/'); await bootstrapped;
+  const signature = page.getByRole('application', { name: 'Draw visual signature' });
+  await expect(signature).toBeVisible();
+  await expect(preview(page).getByRole('status')).toContainText('Page 1 of 2');
+  await signature.focus();
+  const before = structuredClone(state.commands), journalBefore = await signatureJournal(page);
+  expect((await signaturePixels(page, .21, .5)).some(alpha => alpha > 0)).toBe(false);
+  await signature.press('ArrowRight');
+  expect(state.snapshot.userStates[0].values.visualSignature).toBeNull();
+  expect(state.commands).toEqual(before);
+  // This first idle arrow must paint even though there is no saved ink or resize/theme event.
+  expect((await signaturePixels(page, .21, .5)).some(alpha => alpha > 0)).toBe(true);
+  await signature.press('ArrowRight'); await signature.press('Shift+ArrowRight');
+  expect((await signaturePixels(page, .21, .5)).some(alpha => alpha > 0)).toBe(false);
+  expect((await signaturePixels(page, .27, .5)).some(alpha => alpha > 0)).toBe(true);
+  for (let i = 0; i < 6; i++) await signature.press('Shift+ArrowLeft');
+  for (let i = 0; i < 11; i++) await signature.press('Shift+ArrowUp');
+  expect((await signaturePixels(page, 0, 0)).some(alpha => alpha > 0)).toBe(true);
+  const topLeft = await signature.evaluate(element => (element as HTMLCanvasElement).toDataURL());
+  await signature.press('ArrowLeft'); await signature.press('ArrowUp');
+  expect(await signature.evaluate(element => (element as HTMLCanvasElement).toDataURL())).toBe(topLeft);
+  for (let i = 0; i < 21; i++) await signature.press('Shift+ArrowRight');
+  for (let i = 0; i < 21; i++) await signature.press('Shift+ArrowDown');
+  expect((await signaturePixels(page, 1, 1)).some(alpha => alpha > 0)).toBe(true);
+  const bottomRight = await signature.evaluate(element => (element as HTMLCanvasElement).toDataURL());
+  await signature.press('ArrowRight'); await signature.press('ArrowDown');
+  expect(await signature.evaluate(element => (element as HTMLCanvasElement).toDataURL())).toBe(bottomRight);
+  await signature.press('Escape');
+  expect((await signaturePixels(page, 1, 1)).some(alpha => alpha > 0)).toBe(false);
+  await expect(page.locator('[data-artifact-id="pdf-artifact"] [data-save-state]')).toHaveAttribute('data-save-state', 'saved');
+  expect(await signatureJournal(page)).toEqual(journalBefore);
+  expect(state.snapshot.userStates[0].values.visualSignature).toBeNull();
+  expect(state.commands.filter(command => ['state.save', 'action.submit', 'resource.upload'].includes(command.type))).toEqual(before.filter(command => ['state.save', 'action.submit', 'resource.upload'].includes(command.type)));
+  expect(state.pngs.size).toBe(0);
+  expect(await page.evaluate(() => localStorage.getItem('harness:signature-assets:v1:pdf-thread:pdf-state'))).toBeNull();
+  await expect(page.getByRole('button', { name: 'Undo last signature stroke' })).toBeDisabled();
+});
+
+test('idle cursor and Escape preserve keyboard ink and its undo history across draw canvas remounts', async ({ page }) => {
+  const state = await fixtureHost(page, await createSigningPdfFixture()); await page.goto('/');
+  await expect(preview(page).getByRole('status')).toContainText('Page 1 of 2');
+  const signature = page.getByRole('application', { name: 'Draw visual signature' });
+  await signature.focus(); await signature.press('ArrowRight'); await signature.press('Enter');
+  await signature.press('ArrowRight'); await signature.press('ArrowUp'); await signature.press('Space');
+  const saved = { kind: 'drawn', points: [{ x: .21, y: .5 }, { x: .21, y: .5 }, { x: .22, y: .5 }, { x: .22, y: .49 }] };
+  await expect.poll(() => state.snapshot.userStates[0].values.visualSignature).toEqual(saved);
+  await expect(page.locator('[data-artifact-id="pdf-artifact"] [data-save-state]')).toHaveAttribute('data-save-state', 'saved');
+  await signature.press('Escape');
+  const inkOnly = await signaturePixels(page, .22, .49), before = structuredClone(state.commands), journalBefore = await signatureJournal(page);
+  await signature.press('ArrowRight'); await signature.press('Shift+ArrowRight');
+  expect(await signaturePixels(page, .22, .49)).toEqual(inkOnly);
+  expect((await signaturePixels(page, .28, .49)).some(alpha => alpha > 0)).toBe(true);
+  await signature.press('Shift+ArrowDown');
+  expect((await signaturePixels(page, .28, .49)).some(alpha => alpha > 0)).toBe(false);
+  expect((await signaturePixels(page, .28, .54)).some(alpha => alpha > 0)).toBe(true);
+  await signature.press('Escape');
+  expect((await signaturePixels(page, .28, .54)).some(alpha => alpha > 0)).toBe(false);
+  expect(await signaturePixels(page, .22, .49)).toEqual(inkOnly);
+  await expect(page.locator('[data-artifact-id="pdf-artifact"] [data-save-state]')).toHaveAttribute('data-save-state', 'saved');
+  expect(await signatureJournal(page)).toEqual(journalBefore);
+  expect(state.snapshot.userStates[0].values.visualSignature).toEqual(saved);
+  expect(state.commands).toEqual(before);
+  await signature.press('Space'); await signature.press('Shift+ArrowRight'); await signature.press('Enter');
+  await expect.poll(() => (state.snapshot.userStates[0].values.visualSignature as { strokes?: unknown[] }).strokes?.length).toBe(2);
+  await signature.press('Escape'); await signature.press('Backspace');
+  await expect.poll(() => state.snapshot.userStates[0].values.visualSignature).toEqual(saved);
+  await page.getByRole('button', { name: 'Upload', exact: true }).click(); await expect(signature).toHaveCount(0);
+  await page.evaluate(() => { document.documentElement.dataset.theme = 'dark'; });
+  await page.getByRole('button', { name: 'Draw', exact: true }).click(); await signature.focus();
+  await signature.press('ArrowRight');
+  expect((await signaturePixels(page, .34, .54)).some(alpha => alpha > 0)).toBe(true);
+  expect(state.snapshot.userStates[0].values.visualSignature).toEqual(saved);
+  await signature.press('Escape'); await signature.press('Backspace');
+  await expect.poll(() => state.snapshot.userStates[0].values.visualSignature).toBeNull();
+  expect((await signaturePixels(page, .22, .49)).some(alpha => alpha > 0)).toBe(false);
 });
 
 test('drawn and keyboard marks stay normalized across theme, resize and remount; typed signatures update the PDF', async ({ page }) => {
