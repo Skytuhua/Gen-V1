@@ -165,11 +165,14 @@ for (const theme of ['dark', 'light'] as const) for (const zoom of [1, 1.25, 1.5
     await expect.poll(() => about.evaluate(node => { const style = getComputedStyle(node); return [style.backgroundColor, style.boxShadow]; })).not.toEqual(selectedStyle);
     await page.keyboard.press('Tab');
     await expect(about).toBeFocused();
-    const focus = await about.evaluate(node => { const style = getComputedStyle(node); return { visible: node.matches(':focus-visible'), width: style.outlineWidth, offset: style.outlineOffset, style: style.outlineStyle }; });
+    const focus = await about.evaluate(node => { const style = getComputedStyle(node); return { visible: node.matches(':focus-visible'), width: style.outlineWidth, offset: style.outlineOffset, style: style.outlineStyle, pixelRatio: devicePixelRatio }; });
     expect(focus.visible).toBe(true);
     expect(focus.style).toBe('solid');
     expect(parseFloat(focus.width) * zoom).toBeGreaterThanOrEqual(1.9);
-    expect(parseFloat(focus.offset)).toBe(-parseFloat(focus.width));
+    // CSS zoom can round outline width and offset differently; bound the outer edge in device pixels.
+    const inset = -(parseFloat(focus.offset) + parseFloat(focus.width)) * zoom * focus.pixelRatio;
+    expect(inset).toBeGreaterThanOrEqual(0);
+    expect(inset).toBeLessThanOrEqual(1);
     await expect(labs).toHaveAttribute('aria-current', 'page');
     const geometry = await nav.getByRole('button').evaluateAll(nodes => nodes.map(node => {
       const rect = node.getBoundingClientRect(), range = document.createRange(); range.selectNodeContents(node);

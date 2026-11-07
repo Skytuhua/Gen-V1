@@ -58,6 +58,8 @@ async function host(page: Page, initial = snapshot(), hasModels = true) {
     if (state.expired && url.pathname !== '/api/commands') return route.fulfill({ status: 401, json: { error: { code: 'AUTH_REQUIRED', message: 'Reconnect to the local host' } } });
     if (url.pathname === '/api/models') return route.fulfill({ json: { models: hasModels ? [{ id: 'test/model', provider: 'test', name: 'Test model' }] : [], ...(!hasModels ? { error: 'No authenticated model is available.' } : {}) } });
     if (url.pathname === '/api/snapshot') { state.snapshotReads++; return route.fulfill({ json: state.snapshot }); }
+    if (url.pathname === '/api/shell-settings') return route.fulfill({json: state.snapshot.settings});
+    if (url.pathname === '/api/workspace') return route.fulfill({json: {projects: [], state: {version: 1, revision: 0, activeCanvasId: 'workspace', canvases: [{id: 'workspace', name: 'Workspace', preset: 'workspace', panels: [], viewport: {x: 0, y: 0, zoom: 1}}], profiles: [], disabledKinds: [], integrations: {}}}});
     if (url.pathname.endsWith('/mount')) {
       state.mounts++;
       const artifact = state.snapshot.artifacts.find(item => item.id === url.pathname.split('/')[3])!;
@@ -329,7 +331,7 @@ test('workspace files, diffs and executor output show actual scoped snapshot evi
   await expect(panel.getByText('new value', { exact: true })).toBeVisible();
   await panel.getByRole('tab', { name: 'Output', exact: true }).click();
   await expect(panel).toContainText('one real fixture check passed');
-  await expect(panel).toContainText('Interactive terminals and PTY input are unavailable.');
+  await expect(panel).toContainText('Recorded executor receipts and output. Open Terminal for an interactive host session.');
 });
 
 test('sidebar presentation, ordering and keyboard resize leave runtime status unchanged', async ({ page }) => {
