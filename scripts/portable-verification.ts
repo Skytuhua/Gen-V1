@@ -13,10 +13,6 @@ export async function verificationPorts():Promise<[number,number,number]>{
  }finally{await Promise.all(servers.map(server=>new Promise<void>(done=>server.close(()=>done()))));}
 }
 
-export function assertWrapperRunning(child:{exitCode:number|null;signalCode:string|null}){
- if(child.exitCode!==null||child.signalCode!==null)throw Error('Portable wrapper exited before readiness: '+(child.exitCode??child.signalCode));
-}
-
 export function assertWrapperArguments(args:string[],nonce:string){
- if(!args.includes('--harness-verification='+nonce))throw Error('The connected browser does not belong to this portable launch');
+ if(!args.includes('--harness-verification='+nonce))throw Error('The connected browser does not belong to this verification launch');
 }

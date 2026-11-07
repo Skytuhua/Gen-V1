@@ -1,9 +1,39 @@
 import {test, expect, type Page} from '@playwright/test';
 import {taskFixture, serveTaskFixture} from './task-interface-fixture';
 const ref = (id: string) => ({version: 1, scope: {kind: 'personal'}, sourceId: 'personal:test', skillId: id, locator: 'a'.repeat(64), revision: 'b'.repeat(64), digest: 'c'.repeat(64), sourceBinding: 'd'.repeat(64)});
+async function retainSkill(page: Page, draft: string, retry = false) {
+  const binding = {id: '75ca7aab-c47b-4350-8b62-5a1776d17f3e', name: 'Procedure 03', source: 'Personal', ref: ref('skill-3')};
+  const pending = {commandId: '2ffde78e-3b25-4c4d-a987-25cc687a6588', content: 'Original request', generation: 'original-draft', modelId: 'test/original-model', thinkingLevel: 'high', skills: [binding]};
+  const entries: [string, unknown, string][] = [['draft:task-thread', draft, 'current-draft'], ['draft-skills:task-thread', [binding], 'current-skills']];
+  if (retry) entries.push(['agents-pending:task-thread', pending, 'original-pending']);
+  await page.addInitScript(entries => {
+    if (sessionStorage.getItem('retained-skill-fixture')) return;
+    sessionStorage.setItem('retained-skill-fixture', 'true');
+    for (const [key, value, generation] of entries) localStorage.setItem('harness:journal-pending:' + encodeURIComponent(key), JSON.stringify({value, generation, updatedAt: Date.now()}));
+  }, entries);
+  return {binding, pending};
+}
+async function journalValue(page: Page, key: string) {
+  return page.evaluate(key => new Promise<unknown>((resolve, reject) => {
+    const open = indexedDB.open('generative-harness-journal', 1);
+    open.onerror = () => reject(open.error);
+    open.onsuccess = () => {
+      const db = open.result, request = db.transaction('entries').objectStore('entries').get(key);
+      request.onsuccess = () => {resolve(request.result?.value); db.close();};
+      request.onerror = () => {reject(request.error); db.close();};
+    };
+  }), key);
+}
 async function fixture(page: Page) {
   const snapshot = taskFixture({root: 'text', elements: {text: {type: 'Text', props: {text: 'Command menu integration fixture'}}}});
   const host = await serveTaskFixture(page, snapshot), reads: string[] = [];
+  await page.route('**/api/commands', async route => {
+    const command = route.request().postDataJSON() as typeof host.commands[number];
+    if (command.type !== 'message.send' || command.payload.skills === undefined) return route.fallback();
+    host.commands.push(command);
+    // Match the current Service boundary: catalog readability never enables skill admission.
+    await route.fulfill({status: 400, json: {error: {code: 'SKILL_ADMISSION_UNAVAILABLE', message: 'Selected skills are unavailable for this runtime. Your draft is retained.', details: {sendAccepted: false}}}});
+  });
   await page.route('**/api/skill-catalog?*', async route => {
     const url = new URL(route.request().url()), query = url.searchParams.get('query')?.toLowerCase() ?? '', offset = url.searchParams.get('cursor') === 'page-two' ? 50 : 0; reads.push(url.search);
     const all = Array.from({length: 77}, (_, index) => ({id: 'skill-' + index, sourceId: 'personal:test', name: `Procedure ${String(index).padStart(2, '0')}`, description: 'A concise procedure for this task', files: 1, availability: {status: 'available'}, ref: ref('skill-' + index)})).filter(item => item.name.toLowerCase().includes(query));
@@ -12,14 +42,18 @@ async function fixture(page: Page) {
   await page.goto('/'); const input = page.getByRole('textbox', {name: 'Message', exact: true}); await expect(input).toBeEnabled(); await input.focus();
   return {...host, input, reads};
 }
-test('slash opens a compact command and paged installed-skill menu, preserving focus and never sending on selection', async ({page}) => {
+test('slash keeps installed skills browsable but unavailable for selection or sending', async ({page}) => {
   const f = await fixture(page); await f.input.fill('Explain this /');
   const menu = page.getByRole('listbox', {name: 'Commands and skills'}); await expect(menu).toBeVisible();
   await expect(menu.getByRole('option', {name: '/model Choose a model'})).toBeVisible();
   await expect(menu.getByRole('option', {name: /Procedure 00/})).toBeVisible();
-  await menu.getByRole('option', {name: /Procedure 00/}).click();
-  await expect(page.getByRole('group', {name: 'Selected skills'})).toContainText('Procedure 00');
-  await expect(f.input).toHaveValue('Explain this '); await expect(f.input).toBeFocused();
+  await expect(menu.getByRole('option', {name: /Procedure 00/})).toHaveAttribute('aria-disabled', 'true');
+  await expect(page.getByRole('status', {name: 'Skill selection unavailable'})).toContainText('Skill selection is unavailable for this runtime');
+  await menu.getByRole('option', {name: /Procedure 00/}).click({force: true});
+  await expect(page.getByRole('group', {name: 'Selected skills'})).toHaveCount(0);
+  await expect(f.input).toHaveValue('Explain this /'); await expect(f.input).toBeFocused();
+  await f.input.fill('/skill:00'); await expect(menu.getByRole('option', {name: /Procedure 00/})).toBeVisible(); await f.input.press('Enter');
+  await expect(f.input).toHaveValue('/skill:00');
   expect(f.commands.filter(command => command.type === 'message.send')).toHaveLength(0);
   await f.input.fill('/skill:'); await expect(menu.getByRole('option', {name: /Procedure 49/})).toBeAttached();
   await page.getByRole('button', {name: 'Load more skills'}).click(); await expect(menu.getByRole('option', {name: /Procedure 76/})).toBeAttached();
@@ -49,24 +83,53 @@ test('plan and default use canonical mode commands, while Escape can reopen afte
   await expect.poll(() => f.commands.filter(command => command.type === 'thread.mode').map(command => command.payload)).toEqual([{mode: 'plan'}, {mode: 'build'}]);
   expect(f.commands.filter(command => command.type === 'message.send')).toHaveLength(0);
 });
-test('selected skill identity survives reload and the Send payload retains the exact reference', async ({page}) => {
-  const f = await fixture(page); await f.input.fill('/skill:Procedure 03');
-  // Names with spaces are searched by typing the query without a slash-token-breaking space.
-  await f.input.fill('/03'); await expect(page.getByRole('option', {name: /Procedure 03/})).toBeVisible();
-  await page.getByRole('option', {name: /Procedure 03/}).click(); await f.input.fill('Use this procedure');
+test('retained unavailable skills survive reload and require explicit removal before a new send', async ({page}) => {
+  const {binding} = await retainSkill(page, 'Use this procedure');
+  const f = await fixture(page);
+  await expect(page.getByRole('status', {name: 'Selected skills unavailable'})).toContainText('Remove them to send a new message without skills');
+  await expect(page.getByRole('button', {name: 'Send message', exact: true})).toBeDisabled(); await f.input.press('Enter');
+  expect(f.commands.filter(command => command.type === 'message.send')).toHaveLength(0);
   await page.reload(); const input = page.getByRole('textbox', {name: 'Message', exact: true}); await expect(input).toHaveValue('Use this procedure');
   await expect(page.getByRole('group', {name: 'Selected skills'})).toContainText('Procedure 03');
+  await expect.poll(() => journalValue(page, 'draft-skills:task-thread')).toEqual([binding]);
+  await expect(page.getByRole('button', {name: 'Send message', exact: true})).toBeDisabled();
+  await page.getByRole('button', {name: 'Remove skill Procedure 03'}).click(); await expect(input).toHaveValue('Use this procedure');
+  await expect(page.getByRole('button', {name: 'Send message', exact: true})).toBeEnabled();
   await page.getByRole('button', {name: 'Send message', exact: true}).click();
   await expect.poll(() => f.commands.filter(command => command.type === 'message.send').length).toBe(1);
-  expect(f.commands.find(command => command.type === 'message.send')?.payload.skills).toEqual([ref('skill-3')]);
+  expect(f.commands.find(command => command.type === 'message.send')?.payload).not.toHaveProperty('skills');
   await expect(page.getByRole('group', {name: 'Selected skills'})).toHaveCount(0);
+  await expect(input).toHaveValue(''); await page.reload(); await expect(input).toHaveValue('');
 });
-test('a selected Personal skill cannot silently disappear into a side-question send',async({page})=>{
-  const f=await fixture(page);await f.input.fill('/03');await page.getByRole('option',{name:/Procedure 03/}).click();
-  await f.input.fill('/btw Explain the next step');await f.input.press('Enter');
-  await expect(page.getByRole('alert').filter({hasText:'Selected skills apply to the main conversation'})).toBeVisible();
+test('a retained Personal skill cannot silently disappear into a side-question send',async({page})=>{
+  await retainSkill(page, '/btw Explain the next step'); const f=await fixture(page); await f.input.press('Enter');
+  await expect(page.getByRole('status', {name: 'Selected skills unavailable'})).toBeVisible();
   expect(f.commands.filter(command=>command.type==='message.send')).toHaveLength(0);await expect(f.input).toHaveValue('/btw Explain the next step');
   await expect(page.getByRole('group',{name:'Selected skills'})).toContainText('Procedure 03');
+});
+test('a retained retry keeps its original identity after removal, reload and a later side-question draft', async ({page}) => {
+  const {pending} = await retainSkill(page, 'A later draft', true), f = await fixture(page);
+  await expect(page.getByRole('button', {name: 'Retry send', exact: true})).toBeEnabled();
+  await page.getByRole('button', {name: 'Remove skill Procedure 03'}).click();
+  await expect(page.getByRole('group', {name: 'Selected skills'})).toHaveCount(0);
+  await expect(page.getByRole('status').filter({hasText: 'Retry keeps the original message and skill selections'})).toBeVisible();
+  await f.input.fill('/btw A later side question'); await page.reload();
+  await expect(f.input).toHaveValue('/btw A later side question');
+  await expect.poll(() => journalValue(page, 'agents-pending:task-thread')).toEqual(pending);
+  await expect.poll(() => journalValue(page, 'draft-skills:task-thread')).toEqual([]);
+  await page.getByRole('button', {name: 'Retry send', exact: true}).click();
+  await expect.poll(() => f.commands.filter(command => command.type === 'message.send').length).toBe(1);
+  const retried = f.commands.find(command => command.type === 'message.send')!;
+  expect(retried).toEqual({id: pending.commandId, type: 'message.send', threadId: 'task-thread', payload: {content: pending.content, modelId: pending.modelId, thinkingLevel: pending.thinkingLevel, skills: [ref('skill-3')]}});
+  await expect(page.getByRole('alert').filter({hasText: 'Selected skills are unavailable for this runtime. Your draft is retained.'})).toBeVisible();
+  await expect(f.input).toHaveValue('/btw A later side question');
+  await expect.poll(() => journalValue(page, 'agents-pending:task-thread')).toBeNull();
+  expect(f.commands.filter(command => command.type.startsWith('side.'))).toHaveLength(0);
+  await f.input.fill('Send the later draft without skills'); await page.getByRole('button', {name: 'Send message', exact: true}).click();
+  await expect.poll(() => f.commands.filter(command => command.type === 'message.send').length).toBe(2);
+  const next = f.commands.filter(command => command.type === 'message.send')[1];
+  expect(next.id).not.toBe(pending.commandId); expect(next.payload).not.toHaveProperty('skills');
+  expect(next.payload.content).toBe('Send the later draft without skills'); await expect(f.input).toHaveValue('');
 });
 test('disconnected and unsupported sources remain visible without inventing skill entries',async({page})=>{
   const f=await fixture(page);await page.route('**/api/skill-catalog?*',route=>route.fulfill({json:{scope:{kind:'personal'},sources:[{id:'app',kind:'app',label:'Installed apps',availability:{status:'unavailable',reason:'unsupported'}},{id:'project',kind:'project',label:'Project',availability:{status:'unavailable',reason:'disconnected'}}],skills:[],inventoryRevision:'a'.repeat(64),nextCursor:null}}));

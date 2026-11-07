@@ -1,7 +1,7 @@
 import {publicRuntimeSourceAllowed} from './public-source.ts';
 import {createHash} from 'node:crypto';
-import {mkdir,lstat} from 'node:fs/promises';
-import {resolve} from 'node:path';
+import {mkdir,lstat,readFile,writeFile,copyFile} from 'node:fs/promises';
+import {resolve,dirname} from 'node:path';
 
 export function readDesktopOutputRoot(args:string[]):string{
  if(!args.length)return resolve('dist');
@@ -46,6 +46,21 @@ export const REQUIRED_RUNTIME_FILES=[
 ] as const;
 export function packageManagerInvocation(manager:string,node:string,args:string[]){return /\.exe$/i.test(manager)?{file:manager,args}:{file:node,args:[manager,...args]};}
 export function runtimeInstallArguments(host:string){return ['install','--ignore-workspace','--dir',host,'--lockfile-dir',host,'--prod','--frozen-lockfile','--offline','--ignore-scripts'];}
+export async function stageRuntimeInstall(root:string,host:string){
+ const pkg=JSON.parse(await readFile(resolve(root,'package.json'),'utf8'));
+ const patches={'node-pty@1.1.0':'patches/node-pty-1.1.0.patch'};
+ const directory=await lstat(resolve(root,'patches'));
+ if(!directory.isDirectory()||directory.isSymbolicLink())throw Error('Dependency patch directory must be an ordinary directory.');
+ for(const path of Object.values(patches)){
+  const input=resolve(root,path),info=await lstat(input);
+  if(!info.isFile()||info.isSymbolicLink()||info.size>2*1024*1024)throw Error('Invalid dependency patch: '+path);
+  const output=resolve(host,path);await mkdir(dirname(output),{recursive:true});await copyFile(input,output);
+ }
+ // --ignore-workspace keeps installation isolated and also ignores workspace patch settings.
+ await writeFile(resolve(host,'package.json'),JSON.stringify({...pkg,scripts:{},pnpm:{...pkg.pnpm,patchedDependencies:patches}},null,2));
+ await copyFile(resolve(root,'pnpm-lock.yaml'),resolve(host,'pnpm-lock.yaml'));
+ await writeFile(resolve(host,'.npmrc'),'node-linker=hoisted\npackage-import-method=copy\n');
+}
 export function runtimeSourceAllowed(path:string){return publicRuntimeSourceAllowed(path);}
 
 export function validateNodeArchive(bytes:Uint8Array,expected=NODE_ARCHIVE_SHA256){if(createHash('sha256').update(bytes).digest('hex')!==expected)throw Error('Bundled Node archive checksum mismatch');}

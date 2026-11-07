@@ -1,6 +1,6 @@
 # Getting started
 
-Last updated: 2026-11-01.
+Last updated: 2026-11-07.
 
 Gen V1 runs a local backend and a Windows desktop or browser interface. Model requests go to the provider you connect; local application storage is not a hosted service.
 
@@ -136,6 +136,31 @@ pnpm desktop:package --output-root .harness-release-output
 ```
 
 Check [the Gen V1 beta release](https://github.com/Skytuhua/Gen-V1/releases/tag/v0.6.1) for available assets and verification notes. Source builds do not imply that an installer upgrade or every provider account has been tested.
+
+## Run the checks
+
+```powershell
+pnpm typecheck
+pnpm test --maxWorkers=1
+pnpm test:e2e
+```
+
+The browser command builds the application and runs each spec with its assigned
+fixture server. The Memory fixture, actual-app and journal modes run separately.
+Results are retained in a new `.harness-browser-results/run-*` directory for each
+invocation. A failed suite stops the command with a nonzero exit status.
+
+To inspect the selected tests without starting a browser, or to rerun one suite:
+
+```powershell
+pnpm exec tsx scripts/test-browser.ts --list
+pnpm test:e2e --suite terminal-read
+```
+
+The selected configurations retain their browser channels, viewports and
+deadlines. Install the browser required by each configuration before running it.
+The suite list in `scripts/browser-suites.ts` is checked against every spec file;
+adding a spec requires assigning its fixture configuration there.
 
 ## Common startup issues
 

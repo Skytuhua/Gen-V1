@@ -1,7 +1,10 @@
 import {describe,it,expect} from 'vitest';
-import {runtimeSourceAllowed,validateNodeArchive,desktopBuilderConfig,packageManagerInvocation,runtimeInstallArguments,REQUIRED_RUNTIME_FILES} from '../scripts/desktop-assets.ts';
+import {runtimeSourceAllowed,validateNodeArchive,desktopBuilderConfig,packageManagerInvocation,runtimeInstallArguments,stageRuntimeInstall,REQUIRED_RUNTIME_FILES} from '../scripts/desktop-assets.ts';
 import {createHash} from 'node:crypto';
 import {readFileSync} from 'node:fs';
+import {mkdtemp,mkdir,readFile,writeFile,readdir,rm,symlink} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
 
 describe('desktop distribution custody',()=>{
  it('requires every fixed provider entry and published distribution before accepting a package',()=>{
@@ -23,6 +26,24 @@ describe('desktop distribution custody',()=>{
   ]));
  });
  it('isolates production installation from the parent development workspace',()=>{const args=runtimeInstallArguments('C:/build/host');expect(args).toContain('--ignore-workspace');expect(args.slice(args.indexOf('--dir'),args.indexOf('--dir')+2)).toEqual(['--dir','C:/build/host']);expect(args.slice(args.indexOf('--lockfile-dir'),args.indexOf('--lockfile-dir')+2)).toEqual(['--lockfile-dir','C:/build/host']);});
+ it('stages the exact dependency patch and standalone configuration without project scripts',async()=>{
+  const root=await mkdtemp(join(tmpdir(),'gen-runtime-install-')),host=join(root,'host'),patch='reviewed patch\n',lock='lockfileVersion: 9\n';
+  try{
+   await mkdir(join(root,'patches'));await writeFile(join(root,'patches/node-pty-1.1.0.patch'),patch);await writeFile(join(root,'patches/unreviewed.patch'),'private');
+   await writeFile(join(root,'package.json'),JSON.stringify({name:'fixture',scripts:{install:'must not run'},dependencies:{'node-pty':'1.1.0'},pnpm:{overrides:{example:'1.0.0'}}}));await writeFile(join(root,'pnpm-lock.yaml'),lock);
+   await stageRuntimeInstall(root,host);
+   expect(JSON.parse(await readFile(join(host,'package.json'),'utf8'))).toEqual({name:'fixture',scripts:{},dependencies:{'node-pty':'1.1.0'},pnpm:{overrides:{example:'1.0.0'},patchedDependencies:{'node-pty@1.1.0':'patches/node-pty-1.1.0.patch'}}});
+   expect(await readdir(join(host,'patches'))).toEqual(['node-pty-1.1.0.patch']);expect(await readFile(join(host,'patches/node-pty-1.1.0.patch'),'utf8')).toBe(patch);
+   expect(await readFile(join(host,'pnpm-lock.yaml'),'utf8')).toBe(lock);expect(await readFile(join(host,'.npmrc'),'utf8')).toBe('node-linker=hoisted\npackage-import-method=copy\n');
+  }finally{await rm(root,{recursive:true,force:true,maxRetries:5});}
+ });
+ it('rejects a dependency patch directory linked outside the source root',async()=>{
+  const directory=await mkdtemp(join(tmpdir(),'gen-runtime-patch-link-')),root=join(directory,'source'),outside=join(directory,'outside');
+  try{
+   await mkdir(root);await mkdir(outside);await writeFile(join(root,'package.json'),'{}');await symlink(outside,join(root,'patches'),'junction');
+   await expect(stageRuntimeInstall(root,join(directory,'host'))).rejects.toThrow(/ordinary directory/);
+  }finally{await rm(directory,{recursive:true,force:true,maxRetries:5});}
+ });
  it('requires the generic plugin runtime and updater while excluding private implementation',()=>{
   expect(REQUIRED_RUNTIME_FILES).toEqual(expect.arrayContaining(['host/packages/plugins/host.ts','host/node_modules/electron-updater/out/main.js','host/dist/plugin-runtime/runtime.js']));
   expect(REQUIRED_RUNTIME_FILES.some(path=>path.includes('company'))).toBe(false);

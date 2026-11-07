@@ -1,6 +1,6 @@
 import {createServer} from 'node:net';
 import {afterEach,expect,it} from 'vitest';
-import {verificationPorts,assertWrapperRunning,assertWrapperArguments} from '../scripts/portable-verification.ts';
+import {verificationPorts,assertWrapperArguments} from '../scripts/portable-verification.ts';
 
 const servers:ReturnType<typeof createServer>[]=[];
 afterEach(async()=>{await Promise.all(servers.splice(0).map(server=>new Promise<void>(done=>server.close(()=>done()))));});
@@ -10,12 +10,6 @@ it('allocates distinct available loopback ports while existing listeners remain 
  const occupied=(existing.address() as {port:number}).port;
  const ports=await verificationPorts();expect(new Set(ports).size).toBe(3);expect(ports).not.toContain(occupied);expect(existing.listening).toBe(true);
  for(const port of ports){const server=createServer();servers.push(server);await new Promise<void>((done,reject)=>{server.once('error',reject);server.listen(port,'127.0.0.1',done);});}
-});
-
-it('rejects a failed wrapper before a different endpoint can satisfy readiness',()=>{
- expect(()=>assertWrapperRunning({exitCode:1,signalCode:null})).toThrow(/wrapper exited/i);
- expect(()=>assertWrapperRunning({exitCode:null,signalCode:'SIGTERM'})).toThrow(/wrapper exited/i);
- expect(()=>assertWrapperRunning({exitCode:null,signalCode:null})).not.toThrow();
 });
 
 it('requires this launch nonce in the actual browser command line before inspecting or closing it',()=>{

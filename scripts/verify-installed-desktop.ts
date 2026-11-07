@@ -164,9 +164,9 @@ async function waitForOwnedExit(child:ChildProcess,timeoutMs=15000){
  let timer:ReturnType<typeof setTimeout>|undefined;
  try{await Promise.race([new Promise<void>(done=>child.once('close',()=>done())),new Promise<never>((_done,reject)=>{timer=setTimeout(()=>reject(Error('Installed application did not exit after closing its last window.')),timeoutMs);})]);}finally{clearTimeout(timer);}
 }
-async function launchInstalled(executable:string,directory:string,iteration:number,receipt:Record<string,unknown>,ports:readonly[number,number,number],company=false){
+async function launchInstalled(executable:string,directory:string,iteration:number,receipt:Record<string,unknown>,ports:readonly[number,number,number]){
  const [hostPort,widgetPort,debugPort]=ports,nonce=randomUUID(),origin='http://127.0.0.1:'+hostPort,debugOrigin='http://127.0.0.1:'+debugPort;
- const child=spawn(executable,[...(company?['--company']:[]),'--remote-debugging-port='+debugPort,'--remote-debugging-address=127.0.0.1','--enable-automation','--harness-verification='+nonce],{cwd:win32.dirname(executable),env:{...baseEnvironment(),HARNESS_DESKTOP_TEST_DATA_DIR:directory,HARNESS_DESKTOP_PORT:String(hostPort),HARNESS_COMPANY_PORT:String(hostPort),HARNESS_DESKTOP_WIDGET_PORT:String(widgetPort)},windowsHide:false,stdio:'ignore'});
+ const child=spawn(executable,['--remote-debugging-port='+debugPort,'--remote-debugging-address=127.0.0.1','--enable-automation','--harness-verification='+nonce],{cwd:win32.dirname(executable),env:{...baseEnvironment(),HARNESS_DESKTOP_TEST_DATA_DIR:directory,HARNESS_DESKTOP_PORT:String(hostPort),HARNESS_DESKTOP_WIDGET_PORT:String(widgetPort)},windowsHide:false,stdio:'ignore'});
  let browser:Browser|undefined,verifiedOwner=false,launchError:Error|undefined;const started=Date.now();child.once('error',error=>{launchError=error;});
  try{
   await expect.poll(async()=>{if(launchError)throw launchError;if(child.exitCode!==null||child.signalCode!==null)throw Error('Installed application exited before readiness.');try{return (await fetch(debugOrigin+'/json/version',{signal:AbortSignal.timeout(1000)})).ok;}catch{return false;}},{timeout:45000,intervals:[100,250,500]}).toBe(true);
@@ -174,34 +174,9 @@ async function launchInstalled(executable:string,directory:string,iteration:numb
   try{const {arguments:args}=await session.send('Browser.getBrowserCommandLine');assertWrapperArguments(args,nonce);if(!sameWindowsPath(args[0]??'',executable))throw Error('Debug browser is not the exact installed executable.');verifiedOwner=true;}finally{await session.detach();}
   await expect.poll(()=>browser!.contexts().flatMap(context=>context.pages()).some(page=>page.url().startsWith(origin+'/')),{timeout:30000}).toBe(true);
   const page=browser.contexts().flatMap(context=>context.pages()).find(page=>page.url().startsWith(origin+'/'))!;
-  const message=page.getByRole('textbox',{name:company?'Owner notes':'Message',exact:true});await expect(message).toBeEnabled({timeout:30000});const readyMs=Date.now()-started;
+  const message=page.getByRole('textbox',{name:'Message',exact:true});await expect(message).toBeEnabled({timeout:30000});const readyMs=Date.now()-started;
   expect(await page.evaluate(async()=>({surface:(await window.harnessDesktop!.getContext()).surface.kind,node:typeof (window as unknown as {process?:unknown}).process}))).toEqual({surface:'main',node:'undefined'});
-  if(company){
-   expect(new URL(page.url()).pathname).toBe('/company/communications');
-   expect(await page.evaluate(()=>window.harnessDesktop!.signIn('openai').then(()=>false,()=>true))).toBe(true);
-   await page.getByRole('button',{name:'Communications',exact:true}).click();
-   await expect(page.getByRole('region',{name:'Communication workspace',exact:true})).toBeVisible();
-   const source=page.getByLabel('Communication data source',{exact:true}),fixedUrl=page.url();
-   if(iteration===2){
-    await expect(message).toHaveValue('Keep this installed company note.');
-    await expect(source).toHaveValue('fixture');
-    await expect(page.getByText('Synthetic fixture · no live employees',{exact:true})).toBeVisible();
-    await source.selectOption('company');
-   }
-   const task=page.getByRole('region',{name:'Owner task',exact:true}),project=task.getByRole('textbox',{name:'Project ID',exact:true}),instruction=task.getByRole('textbox',{name:'Task outcome',exact:true});
-   await expect(instruction).toBeEnabled();
-   if(iteration===1){
-    await message.fill('Keep this installed company note.');
-    await project.fill('qa-project');await instruction.fill('Keep this installed task draft. Do not submit it.');
-   }else{await expect(project).toHaveValue('qa-project');await expect(instruction).toHaveValue('Keep this installed task draft. Do not submit it.');}
-   await expect(task.getByRole('button',{name:'Request plan',exact:true})).toBeDisabled();
-   await expect(task.getByRole('button',{name:'Authorize task unavailable',exact:true})).toBeDisabled();
-   await source.selectOption('fixture');
-   await expect(source).toHaveValue('fixture');
-   await expect(page.getByText('Synthetic fixture · no live employees',{exact:true})).toBeVisible();
-   expect(page.url()).toBe(fixedUrl);
-   await page.screenshot({path:join(directory,'installed-company-'+iteration+'.png')});
-  }else if(iteration===1){
+  if(iteration===1){
    await message.fill('Keep this installed-app draft.');
    await expect.poll(()=>page.evaluate(()=>new Promise<unknown>((accept,reject)=>{const opened=indexedDB.open('generative-harness-journal',1);opened.onerror=()=>reject(opened.error);opened.onsuccess=()=>{const db=opened.result,read=db.transaction('entries').objectStore('entries').get('draft:new');read.onsuccess=()=>{accept(read.result?.value);db.close();};read.onerror=()=>{reject(read.error);db.close();};};}))).toBe('Keep this installed-app draft.');
    await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByRole('button',{name:'Providers',exact:true}).click();
@@ -209,10 +184,10 @@ async function launchInstalled(executable:string,directory:string,iteration:numb
    await page.screenshot({path:join(directory,'installed-settings.png')});await page.locator('.connection-row[data-provider="gemini-cli"]').scrollIntoViewIfNeeded();await page.screenshot({path:join(directory,'installed-official-connections.png')});
    await page.getByRole('button',{name:'Close settings',exact:true}).click();await page.screenshot({path:join(directory,'installed-main.png')});
   }else await expect(message).toHaveValue('Keep this installed-app draft.');
-  expect((await fetch(origin+(company?'/api/bootstrap':'/health'),{signal:AbortSignal.timeout(1000)})).ok).toBe(true);
+  expect((await fetch(origin+'/health',{signal:AbortSignal.timeout(1000)})).ok).toBe(true);
   await page.evaluate(()=>window.close()).catch(error=>{if(!page.isClosed())throw error;});await waitForOwnedExit(child);assertInstalledCleanExit(child);
-  await expect.poll(async()=>{try{return (await fetch(origin+(company?'/api/bootstrap':'/health'),{signal:AbortSignal.timeout(1000)})).ok;}catch{return false;}},{timeout:15000}).toBe(false);
-  const result={iteration,mode:company?'company':'personal',readyMs,verifiedOwner,ports:{hostPort,widgetPort,debugPort},exitCode:child.exitCode,executable,passed:true,...(company?{companyData:'explicit synthetic fixture; no live task',recovered:iteration===2?['owner notes','source selection','unsent project and task draft']:[]}: {})};
+  await expect.poll(async()=>{try{return (await fetch(origin+'/health',{signal:AbortSignal.timeout(1000)})).ok;}catch{return false;}},{timeout:15000}).toBe(false);
+  const result={iteration,mode:'personal',readyMs,verifiedOwner,ports:{hostPort,widgetPort,debugPort},exitCode:child.exitCode,executable,passed:true};
   (receipt.launches as unknown[]).push(result);return result;
  }finally{
   if(verifiedOwner)await browser?.close().catch(()=>{});
@@ -230,7 +205,7 @@ export async function verifyInstalledDesktop(setupPath:string,expectedUnpackedPa
  // A nested evidence UUID path exceeds legacy nsisunz limits for Gemini assets.
  // Keep the exclusive application sibling short; evidence remains in its own directory.
  const installDirectory=join(workspace,'.harness-app-'+randomUUID().replaceAll('-','').slice(0,12)),version=(JSON.parse(await readFile(join(expectedUnpacked,'resources/host/package.json'),'utf8')) as {version:string}).version;
- const receipt:Record<string,unknown>={createdAt:new Date().toISOString(),setup,setupSha256:setupIdentity.sha256,expectedUnpacked,installDirectory,nsisGuid:nsisApplicationGuid(APP_ID),version,scope:'Owned temporary per-user installation, exact payload/provider custody, two personal and two company installed executable launches with local recovery, and identity-bound uninstall. Company fixture presentation is synthetic, not live task acceptance. No sign-in, credentials, inference or user-profile adoption.',inference:false,auth:false,launches:[],passed:false};
+ const receipt:Record<string,unknown>={createdAt:new Date().toISOString(),setup,setupSha256:setupIdentity.sha256,expectedUnpacked,installDirectory,nsisGuid:nsisApplicationGuid(APP_ID),version,scope:'Owned temporary per-user installation, exact payload/provider custody, two personal installed executable launches with local recovery, and identity-bound uninstall. No sign-in, credentials, inference or user-profile adoption.',inference:false,auth:false,launches:[],passed:false};
  let installedUninstaller:{path:string;identity:FileIdentity}|undefined,ownedCache:OwnedCache|undefined,installationInvoked=false,mainError:unknown;
  try{
   const before=await installPreflight(ownedDirectory);assertClearInstallPreflight(before);receipt.preflight=before;
@@ -251,7 +226,6 @@ export async function verifyInstalledDesktop(setupPath:string,expectedUnpackedPa
   // Native journals are origin-scoped: restart must use the same application ports.
   // A new nonce still proves ownership of each launched process independently.
   const executable=join(installDirectory,APP_FILE),ports=await verificationPorts();await launchInstalled(executable,ownedDirectory,1,receipt,ports);await launchInstalled(executable,ownedDirectory,2,receipt,ports);
-  await launchInstalled(executable,ownedDirectory,1,receipt,ports,true);await launchInstalled(executable,ownedDirectory,2,receipt,ports,true);
  }catch(error){mainError=error;receipt.error=error instanceof Error?error.message:'Installed verification failed.';}
  finally{
   if(installedUninstaller){

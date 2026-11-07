@@ -1,10 +1,12 @@
 import {describe,expect,it} from 'vitest';
 import {readFileSync} from 'node:fs';
-import {mkdtemp,mkdir,writeFile,readFile,rm} from 'node:fs/promises';
+import {mkdtemp,mkdir,writeFile,readFile,copyFile,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
-import {join} from 'node:path';
+import {dirname,join} from 'node:path';
 import {execFileSync} from 'node:child_process';
+import {build} from 'esbuild';
 import {publicSourceFiles,publicRuntimeSourceFiles,publicSourceAllowed,publicRuntimeSourceAllowed,assertPublicPackageFiles} from '../scripts/public-source.ts';
+import {runtimeSourceAllowed} from '../scripts/desktop-assets.ts';
 
 describe('reviewed public source allowlist',()=>{
   it('preserves pinned integration bytes when Windows enables automatic CRLF checkout',async()=>{
@@ -34,6 +36,28 @@ describe('reviewed public source allowlist',()=>{
     for(const path of ['apps/server/company-main.ts','apps/desktop/company-task-policy.ts','apps/web/src/company/ManagerPanel.tsx','packages/company-client/index.ts','packages/company-contracts/company-manager.v1.json','packages/company-manager/runtime.ts','scripts/package-company-host.ts','scripts/company-host/start-owner.ps1','tests/company-client.test.ts','tests/desktop-company-task.test.ts','tests/company/fixture.key','tests/e2e/company-manager.spec.ts','docs/superpowers/plans/2026-11-04-gen-plugin-execution.md','.gen-main/state.sqlite','userdata/secrets/owner.token','.env','packages/core/unreviewed-new-module.ts']){
       expect(publicSourceAllowed(path),path).toBe(false);expect(publicRuntimeSourceAllowed(path),path).toBe(false);
     }
+  });
+  it('resolves the staged host and worker entries using only admitted runtime sources',async()=>{
+    const root=await mkdtemp(join(tmpdir(),'harness-public-runtime-'));
+    try{
+      for(const path of publicSourceFiles){
+        if(!/^(?:packages|apps\/server)\//.test(path)||!runtimeSourceAllowed(path))continue;
+        const destination=join(root,path);await mkdir(dirname(destination),{recursive:true});
+        await copyFile(new URL('../'+path,import.meta.url),destination);
+      }
+      await build({absWorkingDir:root,entryPoints:['apps/server/main.ts','packages/runtime-login/index.ts','packages/runtime-pi/worker.ts','packages/runtime-official/cursor-worker.ts','packages/runtime-hermes/acp-server.ts'],outdir:'build',bundle:true,packages:'external',platform:'node',target:'node24',format:'esm',write:false,logLevel:'silent'});
+    }finally{await rm(root,{recursive:true,force:true});}
+  });
+  it('resolves the staged browser entry using only admitted public sources',async()=>{
+    const root=await mkdtemp(join(tmpdir(),'harness-public-browser-'));
+    try{
+      for(const path of publicSourceFiles){
+        if((path!=='package.json'&&!/^(?:apps\/web|packages|third-party\/vespin)\//.test(path))||!publicSourceAllowed(path))continue;
+        const destination=join(root,path);await mkdir(dirname(destination),{recursive:true});
+        await copyFile(new URL('../'+path,import.meta.url),destination);
+      }
+      await build({absWorkingDir:root,entryPoints:['apps/web/src/main.tsx'],outdir:'build',bundle:true,packages:'external',platform:'browser',target:'es2022',format:'esm',jsx:'automatic',loader:{'.svg':'file','.png':'file','.jpg':'file','.woff2':'file'},write:false,logLevel:'silent'});
+    }finally{await rm(root,{recursive:true,force:true});}
   });
   it('admits only enumerated inputs and rejects an unexpected payload source',()=>{
     expect(()=>assertPublicPackageFiles(publicRuntimeSourceFiles)).not.toThrow();

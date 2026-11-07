@@ -6,7 +6,7 @@ import {createRuntime} from '../packages/runtime/index.ts';
 import type {RuntimeAdapter,RuntimeCallbacks,StartRun} from '../packages/contracts/index.ts';
 import {SUBSCRIPTION_CONNECTIONS} from '../packages/contracts/connections.ts';
 import {accountProfileRoot} from '../packages/runtime/account-profile.ts';
-import type {ConnectionAccount} from '../packages/contracts/accounts.ts';
+import type {ConnectionAccount,RuntimeAccountResolver} from '../packages/contracts/accounts.ts';
 import {taskPaths,validateSessionPath} from '../packages/runtime-pi/session.ts';
 
 const root=resolve('.harness-runtime-router-fixture');
@@ -19,9 +19,9 @@ function adapter(){
  const runtime:RuntimeAdapter={configure:value=>{callbacks=value;},models:vi.fn(async()=>[]),start:vi.fn(async()=>{}),followUp:vi.fn(async()=>{}),cancel:vi.fn(async()=>{}),compact:vi.fn(async()=>{}),history:vi.fn(async()=>[]),dispose:vi.fn(async()=>{})};
  return {runtime,event:(type:string)=>callbacks.onEvent({...input(),type}),tool:()=>callbacks.onTool({name:'ui_inspect',args:{}},input())};
 }
-function fixture(){
+function fixture(accounts?:RuntimeAccountResolver){
  const pi=adapter(),official=adapter(),callbacks:RuntimeCallbacks={onEvent:vi.fn(),onTool:vi.fn(async()=>({ok:true}))};
- const runtime=createRuntime({dataDir:root},{pi:()=>pi.runtime,official:()=>official.runtime});runtime.configure(callbacks);
+ const runtime=createRuntime({dataDir:root,accounts},{pi:()=>pi.runtime,official:()=>official.runtime});runtime.configure(callbacks);
  return {runtime,pi,official,callbacks};
 }
 
@@ -69,7 +69,33 @@ it('routes compaction and history without passing official manifests to Pi or al
 });
 
 it('disposes both adapters and rejects new work after disposal',async()=>{
- const f=fixture();await f.runtime.dispose();expect(f.pi.runtime.dispose).toHaveBeenCalledOnce();expect(f.official.runtime.dispose).toHaveBeenCalledOnce();
+ const f=fixture();await f.runtime.dispose();await f.runtime.dispose();expect(f.pi.runtime.dispose).toHaveBeenCalledOnce();expect(f.official.runtime.dispose).toHaveBeenCalledOnce();
+ await expect(f.runtime.start(input())).rejects.toMatchObject({code:'RUNTIME_DISPOSED'});
+});
+
+it('keeps concurrent disposal pending and account ownership held until adapter cleanup completes',async()=>{
+ const lease={id:'run-lease',nonce:'nonce'},releaseUse=vi.fn(),f=fixture({get:()=>null,claimUse:()=>lease,releaseUse});
+ await f.runtime.start(input());
+ let release!:()=>void;const cleanup=new Promise<void>(done=>{release=done;});vi.mocked(f.pi.runtime.dispose).mockReturnValue(cleanup);
+ const completed=vi.fn(),first=f.runtime.dispose().then(completed),second=f.runtime.dispose().then(completed);
+ try{
+  await vi.waitFor(()=>expect(f.pi.runtime.dispose).toHaveBeenCalledOnce());
+  expect(completed).not.toHaveBeenCalled();expect(releaseUse).not.toHaveBeenCalled();
+  f.pi.event('assistant.delta');expect(f.callbacks.onEvent).not.toHaveBeenCalled();
+  await expect(f.pi.tool()).rejects.toMatchObject({code:'STALE_RUN'});
+  await expect(f.runtime.start(input())).rejects.toMatchObject({code:'RUNTIME_DISPOSED'});
+ }finally{release();await Promise.all([first,second]);}
+ expect(completed).toHaveBeenCalledTimes(2);expect(releaseUse).toHaveBeenCalledExactlyOnceWith(lease);
+ await f.runtime.dispose();expect(f.pi.runtime.dispose).toHaveBeenCalledOnce();expect(f.official.runtime.dispose).toHaveBeenCalledOnce();
+});
+
+it('retains failed disposal and its account ownership for every later caller',async()=>{
+ const lease={id:'run-lease',nonce:'nonce'},releaseUse=vi.fn(),f=fixture({get:()=>null,claimUse:()=>lease,releaseUse}),failure=Error('Native cleanup is unconfirmed');
+ await f.runtime.start(input());vi.mocked(f.pi.runtime.dispose).mockRejectedValue(failure);
+ const result=await f.runtime.dispose().catch(error=>error);
+ expect(result).toBeInstanceOf(AggregateError);expect(result.errors).toEqual([failure]);
+ await expect(f.runtime.dispose()).rejects.toBe(result);
+ expect(releaseUse).not.toHaveBeenCalled();expect(f.pi.runtime.dispose).toHaveBeenCalledOnce();expect(f.official.runtime.dispose).toHaveBeenCalledOnce();
  await expect(f.runtime.start(input())).rejects.toMatchObject({code:'RUNTIME_DISPOSED'});
 });
 

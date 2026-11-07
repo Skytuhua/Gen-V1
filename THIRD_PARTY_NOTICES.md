@@ -20,6 +20,12 @@ Their authors retain the licenses distributed with those packages. Published
 provider runtimes and SDKs remain governed by their respective terms; their
 presence does not imply endorsement or account entitlement.
 
+The pinned MIT-licensed `node-pty` 1.1.0 package includes the reviewed
+[Windows cleanup patch](patches/node-pty-1.1.0.patch). It closes the owned ConPTY
+input socket and output worker when a terminal exits naturally. The patch applies
+through pnpm in both source installations and the packaged desktop host; the
+upstream package license remains included.
+
 Historical comparison frames under `docs/reference/` depict their original
 owners' products and are identified in [the reference inventory](docs/reference-videos.md).
 They are reference material, not Gen V1 product screenshots. Current product
