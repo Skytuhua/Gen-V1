@@ -7,6 +7,7 @@ import { Store } from '../packages/storage/store.ts';
 import { Service } from '../packages/core/service.ts';
 import { buildServer } from '../apps/server/server.ts';
 import type { RuntimeAdapter, Thread } from '../packages/contracts/index.ts';
+import { PlanRecordSchema } from '../packages/contracts/planning.ts';
 
 const cleanups: (() => Promise<void>)[] = [];
 afterEach(async () => { for (const cleanup of cleanups.splice(0)) await cleanup(); });
@@ -81,7 +82,7 @@ it('keeps delegated transcript reads read-only through the existing command and 
     const parent = store.get<Thread>('thread', 'parent')!;
     store.put('thread', 'child', 'child', { ...parent, id: 'child', kind: 'delegate', parentThreadId: 'parent', jobId: 'reader' });
     store.put('data', 'plan:parent', 'parent', { id: 'plan:parent', threadId: 'parent', provenance: 'harness:plan', revision: 1,
-      value: { version: 1, title: 'Plan', steps: [], agents: [{ id: 'reader', name: 'Reader', status: 'working', childThreadId: 'child', createdAt: parent.createdAt, updatedAt: parent.updatedAt, reportedPercent: 100 }] } });
+      value: PlanRecordSchema.parse({ version: 1, title: 'Plan', steps: [], agents: [{ id: 'reader', commandId: 'delegate-read', taskId: 'read', name: 'Reader', task: 'Read the source', status: 'working', childThreadId: 'child', requirements: [], completedRequirementIds: [], createdAt: parent.createdAt, updatedAt: parent.updatedAt, reportedPercent: 100 }] }) });
     store.put('resource', 'grant', 'parent', { id: 'grant', threadId: 'parent', kind: 'project', path: '/host-only', label: 'Project', writable: true, createdAt: '' });
   });
   const page = (await app.inject({ url: '/api/agents', headers })).json(), child = page.items.find((a: { jobId: string }) => a.jobId);
