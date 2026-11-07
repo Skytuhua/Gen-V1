@@ -732,17 +732,30 @@ class Worker:
 
     def capture_bytes(self, path: Path, remaining: int) -> bytes:
         """Bound before reading/decoding, and refuse file substitution during the read."""
+        identity = lambda info: (info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns)
+
+        def capture_stat():
+            info = path.stat()
+            if info.st_size > remaining:
+                raise ValueError("Package capture exceeds the 32MiB aggregate raw-byte bound")
+            if os.name != "nt":
+                return info
+            # Windows stat() can expose creation time where fstat() exposes change time.
+            # Use comparable handles, retaining the immediate pathname identity check.
+            with path.open("rb") as metadata_file:
+                opened = os.fstat(metadata_file.fileno())
+            if identity(info)[:4] != identity(opened)[:4]:
+                raise SourceConflictError("Canonical package changed during capture")
+            return opened
+
         self.check_node(path)
-        before = path.stat()
-        if before.st_size > remaining:
-            raise ValueError("Package capture exceeds the 32MiB aggregate raw-byte bound")
+        before = capture_stat()
         with path.open("rb") as source_file:
             opened = os.fstat(source_file.fileno())
             data = source_file.read(remaining + 1)
             finished = os.fstat(source_file.fileno())
         self.check_node(path)
-        after = path.stat()
-        identity = lambda info: (info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns)
+        after = capture_stat()
         if len(data) > remaining:
             raise ValueError("Package capture exceeds the 32MiB aggregate raw-byte bound")
         if not identity(before) == identity(opened) == identity(finished) == identity(after):

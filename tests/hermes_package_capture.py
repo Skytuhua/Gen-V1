@@ -93,6 +93,64 @@ class CaptureTransport(unittest.TestCase):
             self.assertEqual(captured, raw)
             self.assertNotEqual(hashlib.sha256(captured).hexdigest(), hashlib.sha256(b"line\nnext\n").hexdigest())
 
+    def test_atomically_replaced_file_keeps_comparable_capture_metadata(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / ".usage.json"
+            pending = path.with_suffix(".pending")
+            path.write_bytes(b"{}")
+            pending.write_bytes(b'{"count":1}\n')
+            # Atomic writers can leave creation and metadata-change times distinct.
+            os.utime(pending, ns=(1_700_000_000_000_000_000,) * 2)
+            os.replace(pending, path)
+            self.assertEqual(module.Worker().capture_bytes(path, 12), b'{"count":1}\n')
+
+    def test_same_size_mutation_with_restored_mtime_is_refused(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "mutable.txt"
+            path.write_bytes(b"before")
+            before = path.stat()
+            original, changed = os.fstat, False
+
+            def interleave(fd):
+                nonlocal changed
+                result = original(fd)
+                if not changed:
+                    changed = True
+                    path.write_bytes(b"after!")
+                    os.utime(path, ns=(before.st_atime_ns, before.st_mtime_ns))
+                return result
+
+            with patch.object(module.os, "fstat", interleave):
+                with self.assertRaises(module.SourceConflictError):
+                    module.Worker().capture_bytes(path, 6)
+            self.assertTrue(changed)
+            self.assertEqual(path.stat().st_size, before.st_size)
+            self.assertEqual(path.stat().st_mtime_ns, before.st_mtime_ns)
+
+    def test_identical_file_substitution_before_open_is_refused(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            path = Path(temporary) / "source.txt"
+            pending = path.with_suffix(".pending")
+            path.write_bytes(b"source")
+            before = path.stat()
+            pending.write_bytes(b"source")
+            os.utime(pending, ns=(before.st_atime_ns, before.st_mtime_ns))
+            original, changed = Path.open, False
+
+            def interleave(target, *args, **kwargs):
+                nonlocal changed
+                if target == path and not changed:
+                    changed = True
+                    os.replace(pending, path)
+                return original(target, *args, **kwargs)
+
+            with patch.object(Path, "open", interleave):
+                with self.assertRaises(module.SourceConflictError):
+                    module.Worker().capture_bytes(path, 6)
+            self.assertTrue(changed)
+            self.assertEqual(path.stat().st_size, before.st_size)
+            self.assertEqual(path.stat().st_mtime_ns, before.st_mtime_ns)
+
 
 class PackageCapture(unittest.TestCase):
     @classmethod
@@ -230,11 +288,11 @@ class PackageCapture(unittest.TestCase):
                 if path == directory / "references/help.md" and not changed:
                     changed = True
                     if change == "file":
-                        main = directory / "SKILL.md"
-                        data = main.read_bytes()
-                        main.rename(directory / "old-main.txt")
-                        main.write_bytes(data)
-                        (directory / "old-main.txt").unlink()
+                        # Replace an already captured file regardless of Path sort order.
+                        data = path.read_bytes()
+                        path.rename(directory / "old-file.txt")
+                        path.write_bytes(data)
+                        (directory / "old-file.txt").unlink()
                     else:
                         moved = directory.with_name(name + "-moved")
                         directory.rename(moved)
