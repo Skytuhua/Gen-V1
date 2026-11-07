@@ -22,7 +22,7 @@ export function accentContrast(color: string, background: string): number {
 function AppearanceRow({ label, children, description }: { label: string; children: ReactNode; description?: string }) {
   return <div className="settings-card-row"><div><strong>{label}</strong>{description && <p>{description}</p>}</div><div className="settings-inline-controls">{children}</div></div>;
 }
-export function AppearanceSettings({ preferences, theme, threads, busy, save }: { preferences: UiPreferences; theme: Theme; threads: Thread[]; busy: boolean; save: (patch: Partial<UiPreferences>, theme?: Theme) => Promise<boolean> }) {
+export function AppearanceSettings({ preferences, theme, threads = [], projects: projectMetadata, busy, save }: { preferences: UiPreferences; theme: Theme; threads?: Pick<Thread, 'projectId' | 'projectName'>[]; projects?: {id: string; name: string}[]; busy: boolean; save: (patch: Partial<UiPreferences>, theme?: Theme) => Promise<boolean> }) {
   const [draft, setDraft] = useState(preferences), [draftTheme, setDraftTheme] = useState(theme), [preview, setPreview] = useState(false), [error, setError] = useState('');
   const [numberDrafts,setNumberDrafts]=useState<Partial<Record<'uiFontSize'|'chatFontSize'|'codeFontSize',string>>>({});
   const current = useRef({ preferences, theme }); current.current = { preferences, theme };
@@ -34,7 +34,7 @@ export function AppearanceSettings({ preferences, theme, threads, busy, save }: 
   const choices = (key: keyof UiPreferences, label: string, options: readonly (readonly [string, string])[]) => <Select aria-label={label} value={String(draft[key])} disabled={busy} options={options.map(([value, text]) => ({ value, label: text }))} onValueChange={value => change({ [key]: typeof draft[key] === 'number' ? Number(value) : value, ...(key === 'uiFontSize' ? { fontSize: Number(value) } : {}), ...(key === 'motion' ? { panelAnimations: value !== 'off' } : {}) })}/>;
   const size = (key: 'uiFontSize' | 'chatFontSize' | 'codeFontSize', label: string, min: number, max: number) => <input type="number" aria-label={label} min={min} max={max} step={1} disabled={busy} value={numberDrafts[key]??draft[key]} onChange={event => { const text=event.target.value,value=event.target.valueAsNumber;setNumberDrafts(current=>({...current,[key]:text})); if (Number.isInteger(value) && value >= min && value <= max) change({ [key]: value, ...(key === 'uiFontSize' ? { fontSize: value } : {}) }); }} onBlur={()=>setNumberDrafts(current=>{const next={...current};delete next[key];return next;})}/>;
   const fonts = [['Inter', 'Inter'], ['system', 'System'], ['Arial', 'Arial'], ['Georgia', 'Georgia']] as const;
-  const projects = [...new Map(threads.filter(thread => thread.projectId).map(thread => [thread.projectId!, { id: thread.projectId!, name: thread.projectName ?? 'Project' }])).values()];
+  const projects = projectMetadata ?? [...new Map(threads.filter(thread => thread.projectId).map(thread => [thread.projectId!, { id: thread.projectId!, name: thread.projectName ?? 'Project' }])).values()];
   return <div className="appearance-settings">
     <fieldset className="settings-card" disabled={busy}><legend>Appearance</legend>
       <AppearanceRow label="Theme"><Select aria-label="Color scheme" disabled={busy} value={draftTheme} options={[{ value: 'dark', label: 'Dark' }, { value: 'light', label: 'Light' }, { value: 'system', label: 'System' }]} onValueChange={value => { setDraftTheme(value as Theme); if (preview) applyTheme(value as Theme); }}/></AppearanceRow>
