@@ -375,3 +375,110 @@ test('retrying an uncertain copy save keeps one document and its original local 
  await page.getByRole('button', {name: 'Refresh research', exact: true}).click();
  await expect(page.locator('.research-source-row')).toHaveCount(2);
 });
+
+test('correcting an invalid title permits the next save and keyboard matches button eligibility', async ({page}) => {
+  await newFindings(page);
+  const title = page.getByRole('textbox', {name: 'Document title', exact: true});
+  const body = page.getByRole('textbox', {name: 'Document body', exact: true});
+  const save = page.getByRole('button', {name: 'Save document', exact: true});
+  const sent: {id: string; payload: {title: string}}[] = [];
+  await page.route('**/api/commands', async route => {
+    const input = route.request().postDataJSON(); if (input.type === 'research.document.save') sent.push(input);
+    await route.continue();
+  });
+  await title.fill(''); await body.fill('Retain these findings'); await expect(save).toBeDisabled();
+  await body.press('Control+Enter');
+  await title.fill('Valid findings'); await save.click();
+  await expect(page.locator('.research-document > p.research-meta')).toContainText('Saved revision 1');
+  expect(sent).toHaveLength(1); expect(sent[0].payload.title).toBe('Valid findings');
+  await expect(save).toBeDisabled(); await body.press('Control+Enter');
+  // A following browser task observes all shortcut dispatches without using a timing delay.
+  await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+  expect(sent).toHaveLength(1);
+});
+
+test('correcting a definitive INVALID_INPUT rejection starts a fresh command with corrected content', async ({page}) => {
+  await newFindings(page);
+  const body = page.getByRole('textbox', {name: 'Document body', exact: true});
+  const sent: {id: string; payload: {body: string}}[] = [];
+  await page.route('**/api/commands', async route => {
+    const input = route.request().postDataJSON(); if (input.type === 'research.document.save') sent.push(input);
+    await route.continue();
+  });
+  // Exceeds the document schema limit while staying below the HTTP body limit.
+  await body.fill('x'.repeat(2 * 1024 * 1024 + 1));
+  const rejected = page.waitForResponse(response => response.url().endsWith('/api/commands') && response.request().postDataJSON().type === 'research.document.save');
+  await page.getByRole('button', {name: 'Save document', exact: true}).click();
+  expect((await (await rejected).json()).error.code).toBe('INVALID_INPUT');
+  await expect(page.getByRole('alert')).toBeVisible();
+  await body.fill('Corrected findings'); await body.press('Control+Enter');
+  await expect.poll(() => sent.length).toBe(2);
+  expect(sent[1].id).not.toBe(sent[0].id); expect(sent[1].payload.body).toBe('Corrected findings');
+  await expect(page.locator('.research-document > p.research-meta')).toContainText('Saved revision 1');
+  await page.getByRole('button', {name: 'Toggle workspace'}).click(); await page.getByRole('button', {name: 'Toggle workspace'}).click();
+  await page.getByRole('button', {name: /Untitled findings/}).click(); await expect(body).toHaveValue('Corrected findings');
+});
+
+test('late duplicate receipt cannot regress the current draft revision', async ({page}) => {
+  await newFindings(page);
+  const body = page.getByRole('textbox', {name: 'Document body', exact: true});
+  await body.fill('Revision one');
+  let release!: () => void, captured = false, first = true;
+  const held = new Promise<void>(resolve => {release = resolve;});
+  const sent: {id: string; payload: {expectedRevision: number}}[] = [];
+  await page.evaluate(() => {
+    const original = window.fetch.bind(window);
+    (window as Window & {saveResponses?: number}).saveResponses = 0;
+    window.fetch = async (...args) => {
+      const response = await original(...args);
+      if (String(args[0]).endsWith('/api/commands')) {
+        await response.clone().json();
+        (window as Window & {saveResponses?: number}).saveResponses!++;
+      }
+      return response;
+    };
+  });
+  await page.route('**/api/commands', async route => {
+    const input = route.request().postDataJSON();
+    if (input.type !== 'research.document.save') return route.continue();
+    sent.push(input);
+    if (first) {first = false; const response = await route.fetch(); expect(response.ok()).toBe(true); captured = true; await held; await route.fulfill({response});}
+    else await route.continue();
+  });
+  await page.getByRole('button', {name: 'Save document', exact: true}).click(); await expect.poll(() => captured).toBe(true);
+  await page.getByRole('button', {name: 'Toggle workspace'}).click(); await page.getByRole('button', {name: 'Toggle workspace'}).click();
+  await page.getByRole('button', {name: /Untitled findings/}).click();
+  await body.fill('Revision two'); await page.getByRole('button', {name: 'Save document', exact: true}).click();
+  await expect(page.getByRole('status')).toContainText('Saved revision 1');
+  await page.getByRole('button', {name: 'Save document', exact: true}).click(); await expect(page.getByRole('status')).toContainText('Saved revision 2');
+  expect(sent[1].id).toBe(sent[0].id); expect(sent[2].id).not.toBe(sent[0].id);
+  release(); await page.waitForFunction(() => (window as Window & {saveResponses?: number}).saveResponses === 3);
+  await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+  await body.fill('Revision three'); await page.getByRole('button', {name: 'Save document', exact: true}).click();
+  await expect(page.locator('.research-document > p.research-meta')).toContainText('Saved revision 3');
+  expect(sent[3].payload.expectedRevision).toBe(2);
+  await expect(page.getByRole('region', {name: 'Saved version'})).toHaveCount(0);
+});
+
+test('an active receipt still reconciles after its editor unmounts without a retry', async ({page}) => {
+  await newFindings(page);
+  const body = page.getByRole('textbox', {name: 'Document body', exact: true});
+  await body.fill('Committed while hidden');
+  let release!: () => void, captured = false, first = true;
+  const held = new Promise<void>(resolve => {release = resolve;});
+  await page.route('**/api/commands', async route => {
+    if (first && route.request().postDataJSON().type === 'research.document.save') {
+      first = false; const response = await route.fetch(); expect(response.ok()).toBe(true);
+      captured = true; await held; await route.fulfill({response});
+    } else await route.continue();
+  });
+  await page.getByRole('button', {name: 'Save document', exact: true}).click(); await expect.poll(() => captured).toBe(true);
+  await page.getByRole('button', {name: 'Toggle workspace'}).click();
+  const readback = page.waitForResponse(response => response.url().includes('/api/research/documents/') && response.url().includes('revision=1'));
+  release(); await readback;
+  await page.getByRole('button', {name: 'Toggle workspace'}).click(); await page.getByRole('button', {name: /Untitled findings/}).click();
+  await expect(body).toHaveValue('Committed while hidden');
+  await expect(page.locator('.research-document > p.research-meta')).toContainText('Saved revision 1');
+  await body.fill('Next edit'); await page.getByRole('button', {name: 'Save document', exact: true}).click();
+  await expect(page.locator('.research-document > p.research-meta')).toContainText('Saved revision 2');
+});

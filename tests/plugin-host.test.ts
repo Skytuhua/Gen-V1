@@ -1,9 +1,10 @@
 import {createHash} from 'node:crypto';
-import {mkdtemp,mkdir,readFile,writeFile,symlink} from 'node:fs/promises';
+import {mkdtemp,mkdir,readFile,writeFile,symlink,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
+import {pathToFileURL} from 'node:url';
 import {describe,expect,it} from 'vitest';
-import {installPluginPackage,loadInstalledPlugins,removePlugin} from '../packages/plugins/host.ts';
+import {installPluginPackage,loadInstalledPlugins,removePlugin,type PluginRegistry} from '../packages/plugins/host.ts';
 import {pluginManifestSchema,pluginSurfaceSchema} from '../packages/plugins/contracts.ts';
 
 const hash=(value:string|Uint8Array)=>createHash('sha256').update(value).digest('hex');
@@ -35,3 +36,107 @@ describe('trusted separately installed plug-ins',()=>{
 
 it('checks a newly installed plugin against an already loaded registry without activating it twice',async()=>{const f=await fixture();const registry=await loadInstalledPlugins(f.root,'0.6.3');await installPluginPackage(f.source,f.root,f.digest,'0.6.3');expect(await registry.compatibleWith('0.7.0')).toMatchObject({compatible:false});await registry.close();});
 it('counts a dispatch as busy while its package verification is still pending',async()=>{const f=await fixture();await installPluginPackage(f.source,f.root,f.digest,'0.6.3');const registry=await loadInstalledPlugins(f.root,'0.6.3');const result=registry.dispatch(manifest.id,'echo',{},new AbortController().signal);expect(await registry.isBusy()).toBe(true);await result;await registry.close();});
+
+const shutdownError='A plug-in host could not confirm shutdown.';
+const shutdownHost=(synchronousFailure=false)=>`
+ function deferred(){let resolve,reject;const promise=new Promise((yes,no)=>{resolve=yes;reject=no;});return {promise,resolve,reject};}
+ export const control={gate:deferred(),entered:deferred(),request:deferred(),busy:deferred(),checking:deferred(),holdBusy:false,closes:0,aborted:false};
+ control.gate.promise.catch(()=>{});
+ export default {async activate(){return {
+  operations:{wait:async(_input,signal)=>{control.request.resolve();return new Promise(resolve=>signal.addEventListener('abort',()=>{control.aborted=true;resolve(null);},{once:true}));}},
+  validateSurface:async()=>true,isBusy:async()=>{if(control.holdBusy){control.checking.resolve();await control.busy.promise;}return false;},
+  close(){control.closes++;control.entered.resolve();${synchronousFailure?"throw Error('SYNTHETIC_PRIVATE_CLOSE_DETAIL');":"return control.gate.promise;"}}
+ };}};
+`;
+interface ShutdownControl {
+ gate:{promise:Promise<void>;resolve():void;reject(error:Error):void};
+ entered:{promise:Promise<void>};request:{promise:Promise<void>};
+ busy:{promise:Promise<void>;resolve():void};checking:{promise:Promise<void>};holdBusy:boolean;closes:number;aborted:boolean;
+}
+async function installShutdownHost(f:Awaited<ReturnType<typeof fixture>>,root=f.root):Promise<ShutdownControl>{
+ const installed=await installPluginPackage(f.source,root,f.digest,'0.6.3');
+ const module=await import(/* @vite-ignore */pathToFileURL(join(installed.directory,'host/main.mjs')).href+'?integrity='+f.digest);
+ return module.control;
+}
+function observeClose(registry:PluginRegistry){
+ let settled=false;
+ const result=registry.close().then(()=>{settled=true;return undefined;},error=>{settled=true;return error as Error;});
+ return {result,settled:()=>settled};
+}
+async function expectAdmissionRevoked(registry:PluginRegistry,id=manifest.id){
+ await expect(registry.dispatch(id,'wait',null,new AbortController().signal)).rejects.toThrow('The installed plug-in is unavailable.');
+ await expect(registry.readAsset(id,'frontend/index.html')).rejects.toThrow('The installed plug-in is unavailable.');
+ expect(await registry.validateSurface({kind:'plugin',pluginId:id,scopeId:'approved',surfaceId:'plan'})).toBe(false);
+}
+
+it('keeps pending and failed registry shutdown busy',async()=>{
+ const f=await fixture({host:shutdownHost()});let registry:PluginRegistry|undefined,control:ShutdownControl|undefined;
+ try{
+  control=await installShutdownHost(f);registry=await loadInstalledPlugins(f.root,'0.6.3');expect(await registry.isBusy()).toBe(false);
+  const request=registry.dispatch(manifest.id,'wait',null,new AbortController().signal).then(()=>undefined,error=>error as Error);
+  await control.request.promise;
+  const first=observeClose(registry),second=observeClose(registry);await control.entered.promise;
+  expect(await registry.isBusy()).toBe(true);expect(first.settled()).toBe(false);expect(second.settled()).toBe(false);expect(control.closes).toBe(1);
+  expect(control.aborted).toBe(true);expect((await request)?.message).toBe('The plug-in request was aborted.');
+  await expectAdmissionRevoked(registry);
+  control.gate.reject(Error('SYNTHETIC_PRIVATE_CLOSE_DETAIL'));
+  for(const result of await Promise.all([first.result,second.result]))expect(result?.message).toBe(shutdownError);
+  expect((await observeClose(registry).result)?.message).toBe(shutdownError);
+  expect(await registry.isBusy()).toBe(true);expect(control.closes).toBe(1);await expectAdmissionRevoked(registry);
+ }finally{control?.gate.resolve();await registry?.close().catch(()=>{});await rm(f.directory,{recursive:true,force:true});}
+});
+
+it('successful registry shutdown is idempotent and idle',async()=>{
+ const f=await fixture({host:shutdownHost()});let registry:PluginRegistry|undefined,control:ShutdownControl|undefined;
+ try{
+  control=await installShutdownHost(f);registry=await loadInstalledPlugins(f.root,'0.6.3');expect(await registry.isBusy()).toBe(false);
+  const first=observeClose(registry),second=observeClose(registry);await control.entered.promise;
+  expect(await registry.isBusy()).toBe(true);expect(first.settled()).toBe(false);expect(second.settled()).toBe(false);expect(control.closes).toBe(1);
+  await expectAdmissionRevoked(registry);control.gate.resolve();
+  expect(await first.result).toBeUndefined();expect(await second.result).toBeUndefined();await registry.close();
+  expect(await registry.isBusy()).toBe(false);expect(control.closes).toBe(1);await expectAdmissionRevoked(registry);
+ }finally{control?.gate.resolve();await registry?.close().catch(()=>{});await rm(f.directory,{recursive:true,force:true});}
+});
+
+it.each(['empty','incompatible'] as const)('successfully closes an %s registry without activating a host',async kind=>{
+ const f=await fixture({host:`throw Error('An incompatible host must not activate.');`});let registry:PluginRegistry|undefined;
+ try{
+  if(kind==='incompatible')await installPluginPackage(f.source,f.root,f.digest,'0.6.3');
+  registry=await loadInstalledPlugins(f.root,'0.7.0');expect(registry.list()).toHaveLength(kind==='empty'?0:1);
+  await Promise.all([registry.close(),registry.close()]);await registry.close();expect(await registry.isBusy()).toBe(false);await expectAdmissionRevoked(registry);
+ }finally{await registry?.close().catch(()=>{});await rm(f.directory,{recursive:true,force:true});}
+});
+
+it.each([false,true])('waits for every host and preserves aggregate shutdown failure (synchronous=%s)',async synchronousFailure=>{
+ const firstFixture=await fixture({manifest:{id:'shutdown-first'},host:shutdownHost(synchronousFailure)});
+ let secondFixture:Awaited<ReturnType<typeof fixture>>|undefined,registry:PluginRegistry|undefined,firstHost:ShutdownControl|undefined,secondHost:ShutdownControl|undefined;
+ try{
+  secondFixture=await fixture({manifest:{id:'shutdown-second'},host:shutdownHost()});
+  firstHost=await installShutdownHost(firstFixture);secondHost=await installShutdownHost(secondFixture,firstFixture.root);
+  registry=await loadInstalledPlugins(firstFixture.root,'0.6.3');expect(await registry.isBusy()).toBe(false);
+  const first=observeClose(registry),second=observeClose(registry);await firstHost.entered.promise;
+  expect(await registry.isBusy()).toBe(true);
+  await secondHost.entered.promise;expect(firstHost.closes).toBe(1);expect(secondHost.closes).toBe(1);
+  firstHost.gate.reject(Error('SYNTHETIC_PRIVATE_CLOSE_DETAIL'));
+  await new Promise<void>(resolve=>setImmediate(resolve));
+  expect(first.settled()).toBe(false);expect(second.settled()).toBe(false);expect(await registry.isBusy()).toBe(true);
+  secondHost.gate.resolve();
+  for(const result of await Promise.all([first.result,second.result]))expect(result?.message).toBe(shutdownError);
+  expect((await observeClose(registry).result)?.message).toBe(shutdownError);
+  expect(await registry.isBusy()).toBe(true);expect(firstHost.closes).toBe(1);expect(secondHost.closes).toBe(1);
+ }finally{
+  firstHost?.gate.resolve();secondHost?.gate.resolve();await registry?.close().catch(()=>{});
+  await rm(firstFixture.directory,{recursive:true,force:true});if(secondFixture)await rm(secondFixture.directory,{recursive:true,force:true});
+ }
+});
+
+it('keeps an in-flight idle check busy when shutdown begins before the host answers',async()=>{
+ const f=await fixture({host:shutdownHost()});let registry:PluginRegistry|undefined,control:ShutdownControl|undefined;
+ try{
+  control=await installShutdownHost(f);registry=await loadInstalledPlugins(f.root,'0.6.3');control.holdBusy=true;
+  const busy=registry.isBusy();await control.checking.promise;
+  const closing=observeClose(registry);await control.entered.promise;control.busy.resolve();
+  expect(await busy).toBe(true);expect(closing.settled()).toBe(false);
+  control.gate.resolve();expect(await closing.result).toBeUndefined();expect(await registry.isBusy()).toBe(false);
+ }finally{control?.busy.resolve();control?.gate.resolve();await registry?.close().catch(()=>{});await rm(f.directory,{recursive:true,force:true});}
+});
