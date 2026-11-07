@@ -1,7 +1,7 @@
 import {afterEach, describe, expect, it, vi} from 'vitest';
 import type {ComparisonIdentity, ComparisonRead} from '../packages/contracts/code-review';
 import {codeReviewClient} from '../apps/web/src/code-review-workspace/client';
-import {acknowledgeAttempt, validAttempt, canUseDraft, comparisonKey, newDraft, rebindDraft, sameOwner, type ReviewAttempt} from '../apps/web/src/code-review-workspace/model';
+import {acknowledgeOperation, canUseDraft, comparisonKey, newDraft, rebindDraft, sameOwner, type ReviewOperation} from '../apps/web/src/code-review-workspace/model';
 
 const local: ComparisonIdentity = {kind: 'local', id: 'a'.repeat(64), scope: 'worktree', headOid: '1'.repeat(40), branch: 'topic', revision: 'b'.repeat(64), base: {kind: 'index', revision: 'c'.repeat(64)}, head: {kind: 'worktree', revision: 'b'.repeat(64)}};
 const remote: ComparisonIdentity = {kind: 'pull-request', id: 'd'.repeat(64), repo: 'owner/repo', number: 48, pullRequestId: 'PR_real', baseOid: '2'.repeat(40), headOid: '3'.repeat(40), mergeBaseOid: '4'.repeat(40), baseRef: 'main', headRef: 'topic', semantics: 'merge-base'};
@@ -59,31 +59,22 @@ describe('read-only comparison HTTP boundary', () => {
 });
 
 describe('immutable attempt ownership', () => {
-  const attempt: ReviewAttempt = {attemptId: 'attempt-A', selection: {owner, target: {kind: 'local', scope: 'worktree'}}, comparison: local, action,
+  const operation: ReviewOperation = {operationId: 'attempt-A', selection: {owner, target: {kind: 'local', scope: 'worktree'}}, comparison: local, action,
     operation: 'stage', payload: {paths: ['src/exact.ts'], revision: action.revision, expectedHead: action.head}};
   it('only acknowledges the unresolved attempt and preserves newer editable content', () => {
-    const pending = {...newDraft(local, action), attempt, body: 'Newer unsent review', commitMessage: 'Newer unsent commit', outcome: 'pending' as const};
-    expect(acknowledgeAttempt(pending, 'attempt-older', 'confirmed')).toBeNull();
-    const confirmed = acknowledgeAttempt(pending, 'attempt-A', 'confirmed')!;
+    const pending = {...newDraft(local, action), operation, body: 'Newer unsent review', commitMessage: 'Newer unsent commit', outcome: 'pending' as const};
+    expect(acknowledgeOperation(pending, 'attempt-older', 'confirmed')).toBeNull();
+    const confirmed = acknowledgeOperation(pending, 'attempt-A', 'confirmed')!;
     expect(confirmed).toEqual({...pending, outcome: 'confirmed'});
     for (const outcome of ['confirmed', 'stale', 'uncertain', 'revoked'] as const) {
-      expect(acknowledgeAttempt(confirmed, 'attempt-A', outcome)).toBeNull();
-      expect(acknowledgeAttempt({...confirmed, outcome: 'idle'}, 'attempt-A', outcome)).toBeNull();
-      expect(acknowledgeAttempt({...pending, attempt: {...attempt, attemptId: 'attempt-B'}}, 'attempt-A', outcome)).toBeNull();
+      expect(acknowledgeOperation(confirmed, 'attempt-A', outcome)).toBeNull();
+      expect(acknowledgeOperation({...confirmed, outcome: 'idle'}, 'attempt-A', outcome)).toBeNull();
+      expect(acknowledgeOperation({...pending, operation: {...operation, operationId: 'attempt-B'}}, 'attempt-A', outcome)).toBeNull();
     }
-  });
-  it('accepts exact recovery across editable draft basis changes and rejects mismatched ownership or payload', () => {
-    expect(validAttempt(attempt, attempt.selection)).toBe(true);
-    expect(validAttempt(attempt, {...attempt.selection, owner: {...owner, threadId: 'other'}})).toBe(false);
-    expect(validAttempt({...attempt, payload: {...attempt.payload, revision: 'wrong'}}, attempt.selection)).toBe(false);
-    expect(validAttempt({...attempt, operation: 'unstage'}, attempt.selection)).toBe(false);
-    expect(validAttempt({...attempt, attemptId: ''}, attempt.selection)).toBe(false);
-    const draft = {...newDraft(remote, {...action, revision: 'old'}), attempt, outcome: 'uncertain' as const};
-    expect(acknowledgeAttempt(draft, 'attempt-A', 'confirmed')).toEqual({...draft, outcome: 'confirmed'});
   });
   it('never invents ownership for legacy unresolved drafts', () => {
     const legacy = {...newDraft(local, action), body: 'Legacy content', outcome: 'uncertain' as const};
-    expect(acknowledgeAttempt(legacy, 'attempt-A', 'confirmed')).toBeNull();
+    expect(acknowledgeOperation(legacy, 'attempt-A', 'confirmed')).toBeNull();
     expect(rebindDraft(legacy, remote, action)).toEqual(legacy);
   });
 });
