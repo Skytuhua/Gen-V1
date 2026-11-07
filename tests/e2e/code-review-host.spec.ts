@@ -404,3 +404,29 @@ test('a delayed linked PR verification cannot override a newer manual comparison
  await expect(page.getByRole('combobox',{name:'Comparison',exact:true})).toContainText('Staged changes');
  expect(h.requests.filter(path=>path.startsWith('/api/projects/project-a/pull-requests/48/comparison'))).toHaveLength(0);
 });
+
+test('a delayed linked PR verification cannot cancel a newer manual owner choice',async({page})=>{
+ const h=await fixture(page,{hover:true,startWorkspace:true,awaitSnapshot:true});
+ const fresh={...h.context,scopeKey:'7'.repeat(64),owner:{...h.context.owner,threadId:'review-b',title:'Sibling review'}};
+ await page.route('**/api/conversations/review-b**',route=>{const url=new URL(route.request().url()),owner={authority:'personal',threadId:'review-b',scopeKey:fresh.scopeKey,sequence:10};return route.fulfill({json:url.pathname.endsWith('/updates')?{...owner,fromSequence:10,owner:null,transcriptChanged:false,checkpoint:fresh.checkpoint}:url.pathname.endsWith('/transcript')?{...owner,messages:[],nextCursor:null}:fresh});});
+ await page.getByRole('button',{name:'Review changes Ready',exact:true}).hover();
+ const card=page.locator('.thread-hover-card');await expect(card.getByRole('button',{name:'Open PR #48 Exact remote PR',exact:true})).toBeVisible();
+ let reads=0,release!:()=>void,settle!:()=>void,finish!:()=>void,verificationRequest:Request|undefined;const held=new Promise<void>(resolve=>{release=resolve;}),settled=new Promise<void>(resolve=>{settle=resolve;}),finished=new Promise<void>(resolve=>{finish=resolve;});
+ const terminal=(request:Request)=>{if(request===verificationRequest)finish();};page.on('requestfinished',terminal);page.on('requestfailed',terminal);
+ await page.route('**/api/projects/project-a/pull-requests?*',async route=>{
+  const delayed=new URL(route.request().url()).searchParams.get('threadId')==='review-a'&&++reads===2;if(delayed){verificationRequest=route.request();await held;}
+  try{await route.fulfill({json:{repo:'owner/repo',items:[{number:48,title:'Exact remote PR'}]}});}finally{if(delayed)settle();}
+ });
+ try{
+  await card.getByRole('button',{name:'Open PR #48 Exact remote PR',exact:true}).click();
+  await expect.poll(()=>reads).toBe(2);
+  await choose(page,'Project and working copy','Alpha / Sibling review');
+  await expect(page.getByRole('combobox',{name:'Project and working copy',exact:true})).toContainText('Sibling review');
+  await expect(page.getByRole('region',{name:'Selected file diff'})).toContainText('exact local source');
+  expect(h.workspaceCommands).toContainEqual(expect.objectContaining({type:'workspace.canvas.select',payload:expect.objectContaining({threadId:'review-b',expected:expect.objectContaining({projectId:'project-a',workingCopyId:'copy-b'})})}));
+ }finally{release();}
+ await Promise.all([settled,finished]);page.off('requestfinished',terminal);page.off('requestfailed',terminal);
+ await expect(page.getByRole('combobox',{name:'Project and working copy',exact:true})).toContainText('Sibling review');
+ await expect(page.getByRole('combobox',{name:'Comparison',exact:true})).toContainText('Working copy');
+ expect(h.requests.filter(path=>path.startsWith('/api/projects/project-a/pull-requests/48/comparison'))).toHaveLength(0);
+});

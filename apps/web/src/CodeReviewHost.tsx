@@ -53,7 +53,7 @@ export function CodeReviewHost({canvas,workspace,composers,openConversation,dest
  const [admittedDestination,setAdmittedDestination]=useState<number>();
  const destinationPending=Boolean(destination&&destination.id!==admittedDestination);
  const desktop=useDesktop(),surface=binding?.threadId?{kind:'thread' as const,threadId:binding.threadId}:null,detached=useDetachedSurface(surface),nativePending=usePendingSurface(surface),held=Boolean(detached||nativePending||desktop?.closing);
- const nativeEpoch=desktop?.ownership(surface),fence=useRef({signature:'',version:0,active:true}),signature=JSON.stringify([key,currentContext?.scopeKey,conversation.state.phase,target,held,nativeEpoch,destination?.id,destinationPending,refresh,metadata?.scope,metadata?.pending,metadata?.error,metadata?.pullRequestError]);
+ const nativeEpoch=desktop?.ownership(surface),fence=useRef({signature:'',version:0,active:true}),signature=JSON.stringify([key,currentContext?.scopeKey,conversation.state.phase,target,held,nativeEpoch,destinationPending,refresh,metadata?.scope,metadata?.pending,metadata?.error,metadata?.pullRequestError]);
  if(fence.current.signature!==signature)fence.current={...fence.current,signature,version:fence.current.version+1};
  useEffect(()=>{fence.current.active=true;return()=>{fence.current.active=false;fence.current.version++;};},[]);
  const choosing=useRef(false),version=fence.current.version,isCurrent=useMemo(()=>()=>fence.current.active&&!held&&!destinationPending&&!choosing.current&&fence.current.version===version&&(!desktop||nativeEpoch!==undefined&&desktop.ownership(surface)===nativeEpoch),[signature,version]);
