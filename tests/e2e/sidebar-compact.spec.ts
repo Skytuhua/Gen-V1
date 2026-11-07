@@ -23,7 +23,7 @@ test('compact rows show project monogram chip, readable title and metadata, and 
  expect(await item.evaluate(node=>getComputedStyle(node).borderLeftWidth)).toBe('0px');
  expect(await item.locator('.thread-item-title').evaluate(node=>parseFloat(getComputedStyle(node).fontSize))).toBeGreaterThanOrEqual(13);
  expect(await item.locator('.thread-item-meta').evaluate(node=>parseFloat(getComputedStyle(node).fontSize))).toBeGreaterThanOrEqual(11.5);
- await expect(item).toHaveAttribute('title',/feature\/compact-sidebar.*openai\/gpt-6.1-sol/);
+ await expect(item).not.toHaveAttribute('title',/./);await item.hover();await expect(page.locator('.thread-hover-card')).toContainText('A long useful thread title that remains available in full');await expect(page.locator('.thread-hover-card')).toContainText('openai/gpt-6.1-sol');await page.keyboard.press('Escape');
  await row.getByRole('button',{name:/Options for/}).focus();
  await page.keyboard.press('Enter');
  await page.getByRole('button',{name:'Pin thread',exact:true}).click();
@@ -59,7 +59,7 @@ test('ready rows show age only while working and input states remain visible',as
  const ready=page.locator('.sidebar-thread-row').first();
  await expect(ready.locator('.thread-item-status')).toHaveCount(0);
  await expect(ready.locator('.thread-item-meta')).toHaveText(/^(now|\d+[mhd])$/);
- await expect(ready.locator('.thread-item')).toHaveAttribute('title',/Ready/);
+ await expect(ready.locator('.thread-item')).toHaveAttribute('aria-label',/Ready/);
  await expect(page.locator('.sidebar-thread-row').nth(1).locator('.thread-item-status')).toHaveText('Working');
  await expect(page.locator('.sidebar-thread-row').nth(2).locator('.thread-item-status')).toHaveText('Your input');
 });

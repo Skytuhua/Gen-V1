@@ -5,13 +5,14 @@ import {getPreferences, preferencesSchema} from '../contracts/preferences.ts';
 import {isConnectionProviderId} from '../contracts/connections.ts';
 import type {ConnectionAccount} from '../contracts/accounts.ts';
 import type {SkillSummary, SkillProposalSummary} from '../contracts/skills.ts';
+import {threadNavigationRevision} from '../contracts/shell-read-models.ts';
 import type {DraftTransferReferences, NavigationPage, ShellPage, ShellResourceRow, ShellSettingsReadModel, ThreadNavigationRow} from '../contracts/shell-read-models.ts';
 import {digest, type Store} from '../storage/store.ts';
 
 const preferences = z.object({...preferencesSchema.shape, keybindings: z.object(preferencesSchema.shape.keybindings.shape)});
 const pageInput = z.strictObject({limit: z.number().int().min(1).max(100).default(50), cursor: z.string().max(2048).optional()});
 const navInput = pageInput.extend({archived: z.boolean().default(false), text: z.string().trim().max(200).default('')});
-type Owner = ThreadNavigationRow & Pick<Thread, 'sideParentId'>;
+type Owner = ThreadNavigationRow & Pick<Thread, 'sideParentId' | 'epoch'>;
 const invalidCursor = () => new HarnessError('INVALID_CURSOR', 'Reload this metadata list.');
 const known = <T extends object>(value: T, keys: readonly (keyof T)[]): T => Object.fromEntries(keys.filter(key => Object.hasOwn(value, key)).map(key => [key, value[key]])) as T;
 
@@ -26,7 +27,7 @@ export class ShellReadModels {
   }
   private owners() {
     const projects = new Map(this.records<{id: string; authority: {kind?: string} | null}>('workspaceProject', ['id', 'authority']).map(project => [project.id, project]));
-    const all = this.records<Owner>('thread', ['id', 'title', 'projectId', 'projectName', 'createdAt', 'updatedAt', 'status', 'runId', 'kind', 'parentThreadId', 'sideParentId', 'presentation'], "AND json_extract(body,'$.id')=id AND (thread_id IS NULL OR thread_id=id)");
+    const all = this.records<Owner>('thread', ['id', 'title', 'projectId', 'projectName', 'createdAt', 'updatedAt', 'status', 'runId', 'kind', 'parentThreadId', 'sideParentId', 'presentation', 'workspaceId', 'epoch', 'modelId', 'thinkingLevel'], "AND json_extract(body,'$.id')=id AND (thread_id IS NULL OR thread_id=id)");
     const byId = new Map(all.map(thread => [thread.id, thread]));
     const personal = (thread: Owner) => {
       const seen = new Set<string>(); let current: Owner | undefined = thread;
@@ -44,8 +45,8 @@ export class ShellReadModels {
     return {all: all.filter(personal), archived};
   }
   private row(thread: Owner): ThreadNavigationRow {
-    const {id, title, projectId, projectName, createdAt, updatedAt, status, runId, kind, parentThreadId, presentation} = thread;
-    return {id, title, projectName, createdAt, updatedAt, status, runId, ...(projectId ? {projectId} : {}), ...(kind ? {kind} : {}), ...(parentThreadId ? {parentThreadId} : {}), ...(presentation ? {presentation: {pinned: presentation.pinned === true, unread: presentation.unread === true, settled: presentation.settled === true, ...(typeof presentation.order === 'number' ? {order: presentation.order} : {})}} : {})};
+    const {id, title, projectId, projectName, createdAt, updatedAt, status, runId, kind, parentThreadId, presentation, workspaceId, modelId, thinkingLevel} = thread;
+    return {id, title, projectName, createdAt, updatedAt, status, runId, modelId, thinkingLevel, ...(workspaceId ? {workspaceId} : {}), threadRevision: threadNavigationRevision(thread), ...(projectId ? {projectId} : {}), ...(kind ? {kind} : {}), ...(parentThreadId ? {parentThreadId} : {}), ...(presentation ? {presentation: {pinned: presentation.pinned === true, unread: presentation.unread === true, settled: presentation.settled === true, ...(typeof presentation.order === 'number' ? {order: presentation.order} : {})}} : {})};
   }
   private page<T extends {id: string}>(rows: T[], query: z.infer<typeof pageInput>, scope: unknown): ShellPage<T> {
     const scopeKey = digest(scope), membership = digest(rows.map(row => row.id)); let index = 0;

@@ -1,12 +1,12 @@
 import type {Snapshot, Thread} from '../../../packages/contracts';
-import type {ShellSettingsReadModel, ThreadNavigationRow} from '../../../packages/contracts/shell-read-models';
+import {threadNavigationRevision, type ShellSettingsReadModel, type ThreadNavigationRow} from '../../../packages/contracts/shell-read-models';
 
 /** Complete presentation metadata. Bodies and transfer references have separate owners. */
 export type SettingsData = Omit<ShellSettingsReadModel, 'resourcePage' | 'learning'> & {
   learning?: ShellSettingsReadModel['learning'];
   archivedThreads: ThreadNavigationRow[];
 };
-const navigationRow = ({id, title, projectId, projectName, createdAt, updatedAt, status, runId, kind, parentThreadId, presentation}: Thread): ThreadNavigationRow => ({id, title, projectId, projectName, createdAt, updatedAt, status, runId, kind, parentThreadId, presentation});
+const navigationRow = (thread: Thread): ThreadNavigationRow => {const {id,title,projectId,projectName,createdAt,updatedAt,status,runId,kind,parentThreadId,presentation,workspaceId,modelId,thinkingLevel}=thread;return {id,title,projectId,projectName,createdAt,updatedAt,status,runId,kind,parentThreadId,presentation,workspaceId,modelId,thinkingLevel,threadRevision:threadNavigationRevision(thread)};};
 
 /** Existing conversation callers already own these records; never fetch a Snapshot here. */
 export function settingsDataFromSnapshot(snapshot: Snapshot): SettingsData {
