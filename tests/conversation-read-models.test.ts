@@ -148,6 +148,19 @@ it('bounds Unicode content in SQL, continues exactly and rejects same-length rep
   expect(() => f.reads.content({...scope, cursor: first.nextContentCursor!})).toThrow(/resync/i);
 });
 
+it.each(['prefix\ud83dsuffix', 'a'.repeat(4095) + '\ud83d' + 'suffix'])('fails closed when SQLite decoding changes the Unicode slice length (%#)', content => {
+  const f = fixture(); f.message('malformed', content);
+  expect(() => f.reads.history(f.scope())).toThrow(/unavailable/i);
+});
+
+it('fails closed before returning a malformed Unicode continuation or cursor', () => {
+  const f = fixture(); f.message('malformed', 'a'.repeat(4096) + 'prefix\ud83dsuffix');
+  const scope = f.scope(), first = f.reads.history(scope).messages[0];
+  expect(first.content).toBe('a'.repeat(4096));
+  expect(first.nextContentCursor).not.toBeNull();
+  expect(() => f.reads.content({...scope, cursor: first.nextContentCursor!})).toThrow(/unavailable/i);
+});
+
 it('rejects tampered, cross-owner, cross-kind, restored-repository and malformed scope cursors', () => {
   const f = fixture(); f.message('large', 'x'.repeat(10000)); f.message('second', 'Two');
   const scope = f.scope(), page = f.reads.history({...scope, limit: 1}), chunk = f.reads.history(scope).messages[0];

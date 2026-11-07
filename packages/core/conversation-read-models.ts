@@ -189,7 +189,11 @@ export class ConversationReadModels {
   }
   private slice(row: MessageRow, scope: string, offset = 0): ConversationMessage {
     if (typeof row.content !== 'string') throw unavailable();
-    const next = offset + [...row.content].length;
+    const length = [...row.content].length;
+    // SQLite counts an unpaired escaped surrogate once but its UTF-8 decoder can
+    // return several replacement characters. Never publish mismatched offsets.
+    if (!Number.isSafeInteger(row.contentLength) || row.contentLength < offset || length !== Math.min(4096, row.contentLength - offset)) throw unavailable();
+    const next = offset + length;
     return conversationMessageSchema.parse({id: row.id, threadId: row.threadId, role: row.role, createdAt: row.createdAt, runId: row.runId, revision: row.revision,
       content: row.content, contentOffset: offset, contentLength: row.contentLength,
       nextContentCursor: next < row.contentLength ? this.encode({kind: 'content', scope, position: next, messageId: row.id, row: row.row, revision: row.revision}) : null});
