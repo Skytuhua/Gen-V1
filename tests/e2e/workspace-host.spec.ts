@@ -378,3 +378,36 @@ test('desktop ownership updates hold monitor send and Stop then preserve the dra
  await expect.poll(()=>h.commands.filter(command=>command.type==='message.send').length).toBe(1);
  expect(h.commands.find(command=>command.type==='message.send')).toMatchObject({threadId:'parent-a',payload:{content:'Keep across native ownership'}});
 });
+
+
+test('desktop ownership change prevents a slash mode retry after authentication renewal', async ({page}) => {
+ const originalInit=page.addInitScript.bind(page);
+ page.addInitScript=async(fn:any,arg:any)=>{
+  await originalInit(fn,arg);
+  if(arg?.native)await originalInit(()=>{
+   (window as any).harnessDesktop.onState=(notify:(state:unknown)=>void)=>{
+    (window as any).publishOwner=()=>notify({windows:[{id:'existing-child',surface:{kind:'thread',threadId:'parent-a'},title:'Restored thread'}]});
+    return()=>{};
+   };
+  });
+ };
+ await fixture(page,{native:true,working:false});
+ const input=page.getByRole('textbox',{name:'Message to Project investigation',exact:true});
+ let attempts=0;
+ await page.route('**/api/commands',async route=>{
+  const command=route.request().postDataJSON();
+  if(command.type!=='thread.mode')return route.fallback();
+  attempts++;
+  if(attempts===1){
+   await page.evaluate(()=>(window as any).publishOwner());
+   await expect(input).toBeDisabled();
+   return route.fulfill({status:401,json:{error:{code:'AUTH_REQUIRED',message:'Session renewed'}}});
+  }
+  return route.fulfill({json:{commandId:command.id,seq:1,result:{}}});
+ });
+ await input.fill('/plan');
+ await expect(page.getByRole('option',{name:'/plan Switch to Plan'})).toBeVisible();
+ await input.press('Enter');
+ await expect(page.getByRole('alert').filter({hasText:'The command owner changed'})).toBeVisible();
+ expect(attempts).toBe(1);
+});
