@@ -8,27 +8,41 @@ const head='1'.repeat(40),revision='e'.repeat(64);
 const local:CodeReviewComparison['identity']={kind:'local',id:'a'.repeat(64),scope:'worktree',headOid:head,branch:'topic',revision:'b'.repeat(64),base:{kind:'index',revision:'c'.repeat(64)},head:{kind:'worktree',revision:'b'.repeat(64)}};
 const remote:CodeReviewComparison['identity']={kind:'pull-request',id:'d'.repeat(64),repo:'owner/repo',number:48,pullRequestId:'PR_48',baseOid:'2'.repeat(40),headOid:head,mergeBaseOid:'4'.repeat(40),baseRef:'main',headRef:'topic',semantics:'merge-base'};
 const files=[{path:'src/first.ts',status:'MM',index:'M',worktree:'M',staged:true,untracked:false,binary:false,added:1,removed:1,additions:1,deletions:1}];
-async function fixture(page:Page,{unbound=false,wrongProject=false,native=false,paged=false,side=false,readOnly=false,awaitComparison=false,linkedPrUnavailable=false,hover=false,startWorkspace=false,initialCopy=true}={}){
+async function fixture(page:Page,{unbound=false,wrongProject=false,native=false,paged=false,side=false,readOnly=false,awaitComparison=false,linkedPrUnavailable=false,hover=false,startWorkspace=false,initialCopy=true,projectless=false,missingReview=false,awaitSnapshot=false}={}){
  const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Synthetic Code Review host fixture'}}}});
  snapshot.threads[0]={...snapshot.threads[0],id:'review-a',title:'Review changes',projectId:'project-a',projectName:'Alpha',status:'ready',runId:null,...(side?{kind:'side' as const}:{})};snapshot.activeThreadId='review-a';snapshot.artifacts=[];snapshot.userStates=[];snapshot.data=[];snapshot.messages=[];
  if(hover){snapshot.threads[0]={...snapshot.threads[0],workspaceId:initialCopy?'copy-a':undefined,modelId:'test/model-a',thinkingLevel:'high'};snapshot.threads.push({...snapshot.threads[0],id:'review-b',title:'Sibling review',workspaceId:'copy-b',modelId:'test/model-b',thinkingLevel:'low'});}
+ if(projectless){snapshot.threads.push({...snapshot.threads[0],id:'personal-a',title:'Personal notes',projectId:undefined,projectName:null,workspaceId:undefined});snapshot.activeThreadId='personal-a';}
  snapshot.settings={theme:'dark',modelId:'test/model',preferences:{showUsageFooter:false}};
  const {commands}=await serveTaskFixture(page,snapshot);
- await page.addInitScript(({native})=>{
-  localStorage.setItem('harness:selected-thread','irrelevant-thread');localStorage.setItem('harness:shell-layout:v1',JSON.stringify({sidebarCollapsed:false}));
+ await page.addInitScript(({native,projectless})=>{
+  localStorage.setItem('harness:selected-thread',projectless?'personal-a':'irrelevant-thread');localStorage.setItem('harness:shell-layout:v1',JSON.stringify({sidebarCollapsed:false}));
   if(native){const context={windowId:'main',surface:{kind:'main'},windows:[],nativeTitleBar:true};Object.assign(window,{harnessDesktop:{getContext:async()=>context,ready:async()=>context,setTheme:async()=>{},onState:(notify:(state:unknown)=>void)=>{Object.assign(window,{publishReviewOwner:(away:boolean)=>notify({windows:away?[{id:'other',surface:{kind:'thread',threadId:'review-a'},title:'Review owner'}]:[]})});return()=>{};},onCloseRequested:()=>()=>{},list:async()=>[],onWorkspaceChanged:()=>()=>{}}});}
- },{native});
+ },{native,projectless});
  const requests:string[]=[];page.on('request',request=>{const url=new URL(request.url());if(url.pathname.startsWith('/api/'))requests.push(url.pathname+url.search);});
  const row=snapshot.threads[0],projects=[{id:'project-a',name:'Alpha',authority:{kind:'local'},rootPath:'C:/synthetic/alpha'}];
  const binding={authority:{kind:'local'},threadId:'review-a',projectId:wrongProject?'foreign-project':'project-a'};
  const panel={id:'review-owner',canvasId:'code-review',kind:'thread',binding,placement:'canvas',visible:true,collapsed:false,bounds:{x:0,y:0,width:600,height:500},order:0,alwaysOnTop:false};
- const canvases=['workspace','all-agents','code-review','research','custom'].map(preset=>({id:preset,name:preset,preset,panels:preset==='code-review'&&!unbound?[panel]:[],viewport:{x:0,y:0,zoom:1}}));
+ const canvases=['workspace','all-agents','code-review','research','custom'].filter(preset=>!missingReview||preset!=='code-review').map(preset=>({id:preset,name:preset,preset,panels:preset==='code-review'&&!unbound?[panel]:[],viewport:{x:0,y:0,zoom:1}}));
  const envelope={projects,state:{version:1,revision:1,activeCanvasId:startWorkspace?'workspace':'code-review',canvases,profiles:[],disabledKinds:[],integrations:{}}};
  await page.route('**/api/workspace',route=>route.fulfill({json:envelope}));
  const workspaceCommands:Record<string,any>[]=[];
- await page.route('**/api/workspace/commands',route=>{const input=route.request().postDataJSON();workspaceCommands.push(input);if(input.type==='workspace.canvas.select'){const target=canvases.find(canvas=>canvas.id===input.payload.canvasId)!;if(input.payload.threadId){const selected=snapshot.threads.find(item=>item.id===input.payload.threadId)!;const binding={authority:{kind:'local'},threadId:selected.id,projectId:selected.projectId!};const existing=target.panels.find(item=>item.kind==='thread');if(existing)existing.binding=binding;else target.panels.push({...panel,id:'review-owner-'+target.id,binding});}envelope.state.activeCanvasId=target.id;}if(input.type==='workspace.panel.update')Object.assign(panel,input.payload.patch);if(input.type==='workspace.panel.add')canvases.find(canvas=>canvas.id===input.payload.canvasId)?.panels.push({...panel,...input.payload.panel});envelope.state.revision++;return route.fulfill({json:{commandId:input.id,seq:1,result:envelope}});});
+ await page.route('**/api/workspace/commands',route=>{
+  const input=route.request().postDataJSON();workspaceCommands.push(input);
+  if(input.type==='workspace.canvas.select'||input.type==='workspace.canvas.create'){
+   const creating=input.type==='workspace.canvas.create',target=creating?{id:input.payload.preset,name:input.payload.name,preset:input.payload.preset,panels:[] as typeof panel[],viewport:{x:0,y:0,zoom:1}}:canvases.find(canvas=>canvas.id===input.payload.canvasId)!;
+   if(input.payload.threadId){
+    const selected=snapshot.threads.find(item=>item.id===input.payload.threadId);
+    // Match the canonical atomic bindReview precondition before mutating the fixture layout.
+    if(target.preset==='code-review'&&(!selected?.projectId||selected.kind==='side'||selected.kind==='delegate'||selected.sideParentId))return route.fulfill({status:409,json:{error:{code:'THREAD_REQUIRED',message:'Choose a main project conversation for Code Review.'}}});
+    const binding={authority:{kind:'local'},threadId:selected!.id,projectId:selected!.projectId!};const existing=target.panels.find(item=>item.kind==='thread');if(existing)existing.binding=binding;else target.panels.push({...panel,id:'review-owner-'+target.id,binding});
+   }
+   if(creating)canvases.push(target);envelope.state.activeCanvasId=target.id;
+  }
+  if(input.type==='workspace.panel.update')Object.assign(panel,input.payload.patch);if(input.type==='workspace.panel.add')canvases.find(canvas=>canvas.id===input.payload.canvasId)?.panels.push({...panel,...input.payload.panel});envelope.state.revision++;return route.fulfill({json:{commandId:input.id,seq:1,result:envelope}});
+ });
  await page.route('**/api/shell-settings',route=>route.fulfill({json:snapshot.settings}));
- await page.route('**/api/shell/navigation?*',route=>{const second=new URL(route.request().url()).searchParams.has('cursor');return route.fulfill({json:{sequence:1,total:paged?2:1,items:paged&&second?[{...row,id:'older-copy',title:'Older working copy'}]:hover?snapshot.threads:[row],nextCursor:paged&&!second?'page-2':null,order:'created-desc',stats:{pinned:0,working:0,waiting:0,settled:paged?2:1,minOrder:0,maxOrder:0}}});});
+ await page.route('**/api/shell/navigation?*',route=>{const second=new URL(route.request().url()).searchParams.has('cursor');return route.fulfill({json:{sequence:1,total:paged?2:1,items:paged&&second?[{...row,id:'older-copy',title:'Older working copy'}]:(hover||projectless)?snapshot.threads:[row],nextCursor:paged&&!second?'page-2':null,order:'created-desc',stats:{pinned:0,working:0,waiting:0,settled:paged?2:1,minOrder:0,maxOrder:0}}});});
  await page.route('**/api/shell/navigation/*',route=>route.fulfill({json:snapshot.threads.find(item=>item.id===new URL(route.request().url()).pathname.split('/').at(-1))??row}));
  const context={...scopedContext,readOnly:side||readOnly,researchEligible:!side&&!readOnly,owner:{...scopedContext.owner,threadId:row.id,title:row.title,projectId:'project-a',projectName:'Alpha',modelId:'test/model'},sequence:10};
  await page.route('**/api/conversations/**',route=>{const url=new URL(route.request().url()),owner={authority:'personal',threadId:row.id,scopeKey:context.scopeKey,sequence:10};return route.fulfill({json:url.pathname.endsWith('/updates')?{...owner,fromSequence:10,owner:null,transcriptChanged:false,checkpoint:context.checkpoint}:url.pathname.endsWith('/transcript')?{...owner,messages:[],nextCursor:null}:context});});
@@ -47,8 +61,9 @@ async function fixture(page:Page,{unbound=false,wrongProject=false,native=false,
  });
  const module='/@fs/'+encodeURI(fileURLToPath(new URL('./workspace-app-fixture.tsx',import.meta.url)).replaceAll('\\','/'));
  await page.route('**/code-review-host-check',route=>route.fulfill({contentType:'text/html',body:`<html><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${module}');</script></body></html>`}));
+ const snapshotReady=awaitSnapshot?page.waitForResponse(response=>new URL(response.url()).pathname==='/api/snapshot'&&response.ok()):null;
  const comparisonReady=awaitComparison?page.waitForResponse(response=>new URL(response.url()).pathname==='/api/projects/project-a/git/comparison'&&response.ok()):null;
- await page.goto('/code-review-host-check');if(comparisonReady)await comparisonReady;return{context,row,requests,commands,workspaceCommands,actions,inspections,setOutcome:(value:string)=>{outcome=value;},setInspection:(value:string)=>{inspection=value;}};
+ await page.goto('/code-review-host-check');if(snapshotReady)await snapshotReady;if(comparisonReady)await comparisonReady;return{context,row,requests,commands,workspaceCommands,actions,inspections,setOutcome:(value:string)=>{outcome=value;},setInspection:(value:string)=>{inspection=value;}};
 }
 async function choose(page:Page,label:string,value:string){await page.getByRole('combobox',{name:label,exact:true}).click();await page.getByRole('option',{name:value,exact:true}).click();}
 test('cold Code Review shows its bound diff without a conversation snapshot or agent inventory',async({page})=>{
@@ -75,7 +90,7 @@ test('uncertain review inspection sends the original operation and never repeats
  const h=await fixture(page);h.setOutcome('uncertain');h.setInspection('not-applied');await choose(page,'Comparison','#48 Exact remote PR');await page.getByRole('textbox',{name:'Review draft',exact:true}).fill('Keep uncertain draft');await page.getByRole('button',{name:'Submit review',exact:true}).click();await page.getByRole('button',{name:'Inspect action outcome',exact:true}).click();await expect.poll(()=>h.inspections.length).toBe(1);expect(h.actions).toHaveLength(1);expect(h.inspections[0]).toMatchObject({operationId:h.actions[0]!.id,operation:'review-pr',selection:{owner:{projectId:'project-a',threadId:'review-a'},target:{kind:'pull-request',repo:'owner/repo',number:48}},comparison:remote,payload:h.actions[0]!.payload});await expect(page.getByRole('button',{name:'Use current comparison',exact:true})).toBeVisible();await expect(page.getByRole('textbox',{name:'Review draft',exact:true})).toHaveValue('Keep uncertain draft');
 });
 test('a native owner roundtrip prevents an authenticated write retry',async({page})=>{
- await fixture(page,{native:true});let posts=0;await page.route('**/api/projects/project-a/actions',async route=>{posts++;await page.evaluate(()=>{const publish=Reflect.get(window,'publishReviewOwner');publish(true);publish(false);});return route.fulfill({status:403,json:{error:{code:'AUTH_REQUIRED',message:'Renew session'}}});});await page.getByRole('button',{name:'Stage file',exact:true}).click();await expect(page.getByRole('button',{name:'Inspect action outcome',exact:true})).toBeVisible();expect(posts).toBe(1);
+ await fixture(page,{native:true,awaitComparison:true});let posts=0;await page.route('**/api/projects/project-a/actions',async route=>{posts++;await page.evaluate(()=>{const publish=Reflect.get(window,'publishReviewOwner');publish(true);publish(false);});return route.fulfill({status:403,json:{error:{code:'AUTH_REQUIRED',message:'Renew session'}}});});await page.getByRole('button',{name:'Stage file',exact:true}).click();await expect(page.getByRole('button',{name:'Inspect action outcome',exact:true})).toBeVisible();expect(posts).toBe(1);
 });
 
 test('terminal starts only when opened and stops polling when hidden',async({page})=>{
@@ -208,7 +223,7 @@ test('actual fresh Git failure still holds local tools when linked PR discovery 
 });
 
 test('sidebar cards keep sibling copies separate and open the exact linked PR',async({page})=>{
- const h=await fixture(page,{hover:true});await expect(page.getByRole('region',{name:'Code review workspace',exact:true})).toBeVisible();
+ const h=await fixture(page,{hover:true,awaitComparison:true});await expect(page.getByRole('region',{name:'Code review workspace',exact:true})).toBeVisible();
  await page.getByRole('button',{name:'Review changes Ready',exact:true}).hover();const card=page.locator('.thread-hover-card');await expect(card).toBeVisible();await expect(card).toContainText('C:/copies/review-a');await expect(card).toContainText('branch-review-a');await expect(card).toContainText('test/model-a');await expect(card).toContainText('high');
  await page.mouse.move(1000,700);await expect(card).toBeHidden();
  await page.getByRole('button',{name:'Sibling review Ready',exact:true}).hover();await expect(card).toBeVisible();await expect(card).toContainText('C:/copies/review-b');await expect(card).toContainText('branch-review-b');await expect(card).not.toContainText('branch-review-a');
@@ -298,4 +313,36 @@ test('destination recheck holds mounted tools and discards its response after ow
  }finally{release();}
  await expect(page.getByRole('combobox',{name:'Project and working copy',exact:true})).toContainText('Sibling review');
  expect(h.requests.some(path=>path.startsWith('/api/projects/project-a/pull-requests/48/comparison?threadId=review-a'))).toBe(false);
+});
+
+for(const missingReview of [true,false])test(`ordinary projectless Personal navigation ${missingReview?'creates the owner picker':'selects the existing review owner'}`,async({page})=>{
+ const h=await fixture(page,{startWorkspace:true,projectless:true,missingReview,awaitSnapshot:missingReview});
+ await expect(page.getByRole('button',{name:'Personal notes Ready',exact:true})).toHaveAttribute('aria-current','page');
+ await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();
+ await page.getByRole('button',{name:'Code Review',exact:true}).click();
+ await expect(page.getByRole('button',{name:'Code Review',exact:true})).toHaveAttribute('aria-pressed','true');
+ await expect(page.getByRole('alert').filter({hasText:'Choose a main project conversation for Code Review.'})).toHaveCount(0);
+ const picker=page.getByRole('combobox',{name:'Project and working copy',exact:true});await expect(picker).toBeVisible();
+ if(missingReview){await expect(picker).toContainText('Choose a project conversation');expect(h.requests.some(path=>path.includes('/git/comparison'))).toBe(false);}
+ else {await expect(picker).toContainText('Alpha / Review changes');await expect(page.getByRole('region',{name:'Selected file diff'})).toContainText('exact local source');}
+ const transition=h.workspaceCommands.find(item=>item.type===(missingReview?'workspace.canvas.create':'workspace.canvas.select'));expect(transition).toBeDefined();expect(transition!.payload.threadId).toBeUndefined();
+ expect(h.requests.filter(path=>path.startsWith('/api/projects/')&&path.includes('threadId=personal-a'))).toEqual([]);
+});
+
+test('ordinary Code Review fallback ignores a selected projectless Personal conversation',async({page})=>{
+ const h=await fixture(page,{startWorkspace:true,projectless:true,missingReview:true});
+ await expect(page.getByRole('button',{name:'Personal notes Ready',exact:true})).toHaveAttribute('aria-current','page');
+ await page.getByRole('button',{name:'Research',exact:true}).click();await expect(page.getByRole('button',{name:'Research',exact:true})).toHaveAttribute('aria-pressed','true');
+ await page.getByRole('button',{name:'Code Review',exact:true}).click();await expect(page.getByRole('button',{name:'Code Review',exact:true})).toHaveAttribute('aria-pressed','true');
+ await expect(page.getByRole('combobox',{name:'Project and working copy',exact:true})).toContainText('Choose a project conversation');
+ expect(h.workspaceCommands.find(item=>item.type==='workspace.canvas.create')?.payload.threadId).toBeUndefined();
+ expect(h.requests.filter(path=>path.startsWith('/api/projects/'))).toEqual([]);
+});
+
+test('ordinary project conversation navigation retains the atomic Code Review owner',async({page})=>{
+ const h=await fixture(page,{startWorkspace:true,awaitSnapshot:true});
+ await page.getByRole('button',{name:'Code Review',exact:true}).click();
+ await expect(page.getByRole('button',{name:'Code Review',exact:true})).toHaveAttribute('aria-pressed','true');
+ await expect(page.getByRole('region',{name:'Selected file diff'})).toContainText('exact local source');
+ expect(h.workspaceCommands).toHaveLength(1);expect(h.workspaceCommands[0]).toMatchObject({type:'workspace.canvas.select',payload:{canvasId:'code-review',threadId:'review-a'}});
 });

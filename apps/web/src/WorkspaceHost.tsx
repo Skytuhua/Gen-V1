@@ -77,7 +77,13 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
       if (!canvas && !binding && (next === 'research' || next === 'code-review')) {
         let id = selected.current;
         if (!id) try {id = localStorage.getItem('harness:selected-thread') ?? undefined;} catch { /* The server still validates an unbound preset. */ }
-        if (id) threadId = (await getShellNavigationItem(id)).id;
+        if (id) threadId = next === 'code-review' ? id : (await getShellNavigationItem(id)).id;
+      }
+      // Ordinary preset navigation carries a suitable current owner, or opens the owner picker.
+      // Explicit PR destinations use beforeSelect and keep the strict atomic binding path.
+      if (next === 'code-review' && !beforeSelect && threadId) {
+        const row = await getShellNavigationItem(threadId);
+        if (row.id !== threadId || !row.projectId || row.kind === 'side' || row.kind === 'delegate') threadId = undefined;
       }
       await workspace.send(canvas ? 'workspace.canvas.select' : 'workspace.canvas.create', canvas ? {canvasId:canvas.id,...(next==='code-review'&&threadId?{threadId}:{})} : {name:next,preset:next,...(threadId?{threadId}:{})}, isCurrent);
       check(); if (alive.current) setError('');
