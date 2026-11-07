@@ -17,6 +17,7 @@ import {
 	VISUAL_LIMITS,
 } from "./contracts";
 import { diagramLayout, exampleDiagram, nodeColors } from "./diagram";
+import { prepareVisualDraft } from "./draft";
 import "./visuals.css";
 
 const host = runtime!;
@@ -472,9 +473,20 @@ function App() {
 			setError("The draft exceeds the 96 KiB limit.");
 			return;
 		}
+		acceptEdit(value);
+	}
+	function acceptEdit(
+		value: string,
+		staged?: ReturnType<typeof prepareVisualDraft>,
+	) {
+		if (staged) {
+			setDiagram(staged.document);
+			setSelected(staged.selected);
+		}
 		hasEdits.current = true;
 		latest.current = value;
 		setText(value);
+		if (staged) setError("");
 		setStatus("Saving draft…");
 		if (timer.current) clearTimeout(timer.current);
 		timer.current = setTimeout(() => {
@@ -483,20 +495,38 @@ function App() {
 		}, 250);
 	}
 	function stage(value: DiagramDocument) {
-		setDiagram(value);
-		setSelected("node:" + value.nodes[0].id);
-		edit(JSON.stringify(value, null, 2));
-		setPendingReplace(undefined);
+		try {
+			const prepared = prepareVisualDraft(value);
+			if (!readyRef.current || unconfirmed.current) return;
+			acceptEdit(prepared.text, prepared);
+			setPendingReplace(undefined);
+		} catch (cause) {
+			setError(
+				cause instanceof Error
+					? cause.message
+					: "The diagram could not be staged.",
+			);
+		}
 	}
 	function propose(value: DiagramDocument) {
-		if (
-			latest.current !==
-			(committed.current
-				? JSON.stringify(committed.current, null, 2)
-				: JSON.stringify(initial, null, 2))
-		)
-			setPendingReplace(value);
-		else stage(value);
+		try {
+			const prepared = prepareVisualDraft(value);
+			if (!readyRef.current || unconfirmed.current) return;
+			if (
+				latest.current !==
+				(committed.current
+					? JSON.stringify(committed.current, null, 2)
+					: JSON.stringify(initial, null, 2))
+			)
+				setPendingReplace(prepared.document);
+			else stage(prepared.document);
+		} catch (cause) {
+			setError(
+				cause instanceof Error
+					? cause.message
+					: "The diagram could not be staged.",
+			);
+		}
 	}
 	async function importFile(selectedFile: File | undefined) {
 		if (!selectedFile) return;
