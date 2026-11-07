@@ -1,6 +1,7 @@
 import { lstat } from 'node:fs/promises';
 import { join } from 'node:path';
-import { HarnessError, type HostCommand } from '../contracts/index.ts';
+import { HarnessError, type HostCommand, type Thread } from '../contracts/index.ts';
+import type { ProjectSummary } from '../contracts/workspace.ts';
 import {
   workspaceActionEnvelopeSchema,
   workspaceActionOperationSchema,
@@ -13,7 +14,7 @@ import {
 import { digest } from '../storage/store.ts';
 import { withPathGuard } from '../core/file-access.ts';
 import { privateFamilyForBinding, withPrivateGitFamily } from './git-storage.ts';
-import type { ProjectTools } from './tools.ts';
+import type { ProjectTools, WorkspaceBinding } from './tools.ts';
 import type { GitHubTools } from './github.ts';
 
 interface Intent {
@@ -25,6 +26,9 @@ interface Intent {
 }
 interface Fence {
   hash: string;
+  authority: string;
+  projectId: string;
+  threadId?: string;
   repo?: string;
   credential?: { path: string; dev: string; ino: string };
 }
@@ -52,54 +56,111 @@ export class WorkspaceActionOutcomes {
     this.store.receipt(command); // Also reject collisions with commands outside this helper.
     return intent;
   }
-  private async fence(projectId: string, input: WorkspaceActionEnvelope): Promise<Fence> {
+  /** Synchronous canonical identity, including the thread's selection and existing ABA epoch.
+   * Do not use global Store sequence: unrelated owners may change during an action. */
+  private authority(projectId: string, threadId?: string): string {
+    const project = this.store.get<ProjectSummary>('workspaceProject', projectId),
+      thread = threadId ? this.store.get<Thread>('thread', threadId) : null,
+      workspace = thread?.workspaceId ? this.store.get<WorkspaceBinding>('workspaceBinding', thread.workspaceId) : null,
+      root = this.store.get('workspaceProjectRoot', projectId);
+    if (
+      !project ||
+      project.id !== projectId ||
+      project.authority.kind !== 'local' ||
+      !root ||
+      !thread ||
+      thread.id !== threadId ||
+      thread.projectId !== projectId ||
+      thread.kind === 'delegate' ||
+      !workspace ||
+      workspace.id !== thread.workspaceId ||
+      workspace.threadId !== threadId ||
+      workspace.projectId !== projectId
+    )
+      throw denied();
+    const family = privateFamilyForBinding(this.store, workspace);
+    if (!family) throw denied();
+    return digest({
+      authority: project.authority,
+      root,
+      workspace,
+      family: family.privateFamily,
+      thread: { id: thread.id, projectId: thread.projectId, workspaceId: thread.workspaceId, kind: thread.kind, epoch: thread.epoch },
+    });
+  }
+  private current(fence: Fence): boolean {
+    try {
+      return this.authority(fence.projectId, fence.threadId) === fence.authority;
+    } catch {
+      return false;
+    }
+  }
+  private fence(projectId: string, input: WorkspaceActionEnvelope): Promise<Fence> {
+    return this.withFence(projectId, input, (fence) => fence);
+  }
+  private async withFence<T>(projectId: string, input: WorkspaceActionEnvelope, publish: (fence: Fence) => T): Promise<T> {
+    // Capture before binding(), which itself awaits filesystem identity checks.
+    const authority = this.authority(projectId, input.threadId);
     const binding = await this.projects.binding(projectId, input.threadId),
       workspace = binding.workspace;
     if (!workspace) throw denied();
     const family = privateFamilyForBinding(this.store, workspace);
     if (!family) throw denied();
     await withPrivateGitFamily(family, new AbortController().signal, async () => {});
-    let repo: string | undefined, credential: Fence['credential'], account: string | undefined;
+    let repo: string | undefined, credential: Fence['credential'];
+    const finish = (account?: string) => {
+      const fence: Fence = {
+        authority,
+        projectId,
+        threadId: input.threadId,
+        hash: digest({
+          profile: this.store.dataDir,
+          projectId,
+          threadId: input.threadId ?? null,
+          authority: binding.project.authority,
+          owner: authority,
+          path: binding.path,
+          workspace,
+          root: this.store.get('workspaceProjectRoot', projectId),
+          family: family.privateFamily,
+          repo: repo ?? null,
+          account: account ?? null,
+          credential: credential ?? null,
+        }),
+        repo,
+        credential,
+      };
+      if (!this.current(fence)) throw denied();
+      return publish(fence);
+    };
     if (input.type === 'review-pr') {
       repo = (await this.github.repo(projectId, input.threadId)).repo;
       const path = join(this.store.dataDir, 'github', 'credentials.json'),
         info = await lstat(path, { bigint: true });
       if (!info.isFile() || info.isSymbolicLink() || info.nlink !== 1n) throw denied();
       credential = { path, dev: String(info.dev), ino: String(info.ino) };
-      account = await withPathGuard([{ ...credential, leaf: true, readOnly: true }], new AbortController().signal, async () =>
-        digest(await this.github.auth.token()),
+      const value = await withPathGuard([{ ...credential, leaf: true, readOnly: true }], new AbortController().signal, async () =>
+        finish(digest(await this.github.auth.token())),
       );
+      // Guard release can await too; never return a projection for a changed owner.
+      if (this.authority(projectId, input.threadId) !== authority) throw denied();
+      return value;
     }
-    return {
-      hash: digest({
-        profile: this.store.dataDir,
-        projectId,
-        threadId: input.threadId ?? null,
-        authority: binding.project.authority,
-        path: binding.path,
-        workspace,
-        root: this.store.get('workspaceProjectRoot', projectId),
-        family: family.privateFamily,
-        repo: repo ?? null,
-        account: account ?? null,
-        credential: credential ?? null,
-      }),
-      repo,
-      credential,
-    };
+    return finish();
   }
   private result(command: HostCommand, intent: Intent, fence: Fence): WorkspaceActionExecution {
-    if (intent.version !== 1 || intent.ownerFence !== fence.hash) return { state: 'revoked' };
+    if (!this.current(fence) || intent.version !== 1 || intent.ownerFence !== fence.hash) return { state: 'revoked' };
     if (intent.status === 'not-applied') return { state: 'not-applied' };
     if (intent.status === 'confirmed') {
       const receipt = this.store.receipt(command),
         summary = receipt?.result;
       // Only our bounded summary is replayable; never return a legacy/private tool result.
       if (receipt && digest(summary) === digest(this.summary(command, 'confirmed'))) return { state: 'confirmed', receipt };
+      if (receipt && digest(summary) === digest(this.summary(command, 'revoked'))) return { state: 'revoked' };
     }
     return { state: 'uncertain' };
   }
-  private summary(command: HostCommand, state: 'confirmed' | 'not-applied' | 'uncertain') {
+  private summary(command: HostCommand, state: WorkspaceActionOutcome['state']) {
     return { operationId: command.id, operation: command.type.slice('project.'.length), state };
   }
   async execute(projectId: string, raw: unknown): Promise<WorkspaceActionExecution> {
@@ -114,8 +175,20 @@ export class WorkspaceActionOutcomes {
     } catch {
       return { state: 'revoked' };
     }
+    if (!this.current(fence)) return { state: 'revoked' };
     const existing = this.read(command);
-    if (existing) return this.result(command, existing, fence);
+    if (existing) {
+      try {
+        const result = await this.withFence(projectId, input, (fresh) => {
+          const current = this.read(command);
+          return fresh.hash === fence.hash && current ? this.result(command, current, fresh) : ({ state: 'revoked' } as const);
+        });
+        return this.current(fence) ? result : { state: 'revoked' };
+      } catch (error) {
+        if (error instanceof HarnessError && error.code === 'DUPLICATE_COMMAND') throw error;
+        return { state: 'revoked' };
+      }
+    }
     if (this.store.get('workspaceAction', input.id) || this.store.receipt(command)) return { state: 'uncertain' };
     let reserved = false;
     this.store.internal('project.action.prepared', input.threadId ?? null, () => {
@@ -137,7 +210,7 @@ export class WorkspaceActionOutcomes {
     let started = false;
     try {
       const write = async () => {
-        if ((await this.fence(projectId, input)).hash !== fence.hash) throw denied();
+        if ((await this.fence(projectId, input)).hash !== fence.hash || !this.current(fence)) throw denied();
         this.store.internal('project.action.started', input.threadId ?? null, () => {
           const current = this.read(command);
           if (!current || current.status !== 'prepared' || current.ownerFence !== fence.hash) throw denied();
@@ -145,23 +218,38 @@ export class WorkspaceActionOutcomes {
           return this.summary(command, 'uncertain');
         });
         started = true;
-        if (input.type === 'review-pr') return this.github.review(projectId, input.threadId, input.payload);
-        const current = await this.projects.gitStatus(projectId, input.threadId);
-        if (input.payload.expectedHead !== current.head) throw new HarnessError('REVISION_CHANGED', 'The reviewed commit changed.');
-        const payload = workspaceActionPayloadSchemas[input.type].parse(input.payload);
-        return this.projects.gitAction(projectId, input.threadId, { type: input.type, ...payload });
+        if (!this.current(fence)) throw denied(); // Store subscribers run before internal() returns.
+        let result: unknown;
+        if (input.type === 'review-pr') result = await this.github.review(projectId, input.threadId, input.payload);
+        else {
+          const current = await this.projects.gitStatus(projectId, input.threadId);
+          if (input.payload.expectedHead !== current.head) throw new HarnessError('REVISION_CHANGED', 'The reviewed commit changed.');
+          const payload = workspaceActionPayloadSchemas[input.type].parse(input.payload);
+          if (!this.current(fence)) throw denied();
+          result = await this.projects.gitAction(projectId, input.threadId, { type: input.type, ...payload });
+        }
+        let fresh: Fence | undefined;
+        try {
+          fresh = await this.fence(projectId, input);
+        } catch {
+          /* Known write evidence still belongs to the original intent. */
+        }
+        this.store.command(command, () => {
+          const current = this.read(command);
+          if (!current || current.status !== 'started' || current.ownerFence !== fence.hash) throw denied();
+          // A completed tool result is historical truth, even when access was revoked.
+          // Only publish a current-owner confirmation while the admitted fence still holds.
+          this.store.put(kind, input.id, input.threadId ?? null, { ...current, status: 'confirmed', result });
+          return this.summary(command, fresh?.hash === fence.hash && this.current(fence) ? 'confirmed' : 'revoked');
+        });
+        const current = this.read(command);
+        return current ? this.result(command, current, fence) : ({ state: 'uncertain' } as const);
       };
-      // Pin the actual profile credential for the entire remote call, including every tool await.
+      // Pin the actual profile credential through tool awaits, final account read and outcome commit.
       const result = fence.credential
         ? await withPathGuard([{ ...fence.credential, leaf: true, readOnly: true }], new AbortController().signal, write)
         : await write();
-      const receipt = this.store.command(command, () => {
-        const current = this.read(command);
-        if (!current || current.status !== 'started' || current.ownerFence !== fence.hash) throw denied();
-        this.store.put(kind, input.id, input.threadId ?? null, { ...current, status: 'confirmed', result });
-        return this.summary(command, 'confirmed');
-      });
-      return { state: 'confirmed', receipt };
+      return this.current(fence) ? result : { state: 'revoked' };
     } catch {
       if (started) return { state: 'uncertain' };
       // This invocation owns the reservation and has never entered a write tool.
@@ -170,9 +258,9 @@ export class WorkspaceActionOutcomes {
           const current = this.read(command);
           if (!current || current.status !== 'prepared' || current.ownerFence !== fence.hash) throw denied();
           this.store.put(kind, input.id, input.threadId ?? null, { ...current, status: 'not-applied' });
-          return this.summary(command, 'not-applied');
+          return this.summary(command, this.current(fence) ? 'not-applied' : 'revoked');
         });
-        return { state: 'not-applied' };
+        return this.current(fence) ? { state: 'not-applied' } : { state: 'revoked' };
       } catch {
         return { state: 'uncertain' };
       }
@@ -218,15 +306,19 @@ export class WorkspaceActionOutcomes {
       comparison.branch !== action.branch
     )
       return { state: 'uncertain' };
-    let fence: Fence;
+    let captured: Fence | undefined;
     try {
-      fence = await this.fence(owner.projectId, input);
-    } catch {
+      const result = await this.withFence(owner.projectId, input, (fence) => {
+        captured = fence;
+        if (target.kind === 'pull-request' && target.repo !== fence.repo) return { state: 'revoked' } as const;
+        const current = this.read(command);
+        if (!current) return { state: 'uncertain' } as const;
+        return { state: this.result(command, current, fence).state };
+      });
+      return captured && this.current(captured) ? result : { state: 'revoked' };
+    } catch (error) {
+      if (error instanceof HarnessError && error.code === 'DUPLICATE_COMMAND') throw error;
       return { state: 'revoked' };
     }
-    if (target.kind === 'pull-request' && target.repo !== fence.repo) return { state: 'revoked' };
-    const current = this.read(command);
-    if (!current) return { state: 'uncertain' };
-    return { state: this.result(command, current, fence).state };
   }
 }

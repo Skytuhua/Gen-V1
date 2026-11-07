@@ -2,6 +2,7 @@ import { z } from 'zod';
 import type { CommandReceipt } from './index.ts';
 import type { ComparisonIdentity } from './code-review.ts';
 
+// Durable command IDs retain the same domain at admission and read-only recovery.
 const identifier = z.string().regex(/^[a-zA-Z0-9:_.-]{1,200}$/);
 const revision = z.string().regex(/^[a-f0-9]{64}$/),
   oid = z.string().regex(/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/);
@@ -72,7 +73,7 @@ const pullComparison = z.strictObject({
   semantics: z.literal('merge-base'),
 });
 export const workspaceActionOperationSchema = z.strictObject({
-  operationId: z.string().uuid(),
+  operationId: identifier,
   operation: workspaceActionTypeSchema,
   selection: z.strictObject({
     owner: workspaceActionOwnerSchema,
