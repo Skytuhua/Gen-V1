@@ -1,0 +1,6 @@
+.terminal-read{min-width:0}
+.terminal-read>.panel-toolbar{flex-shrink:0}
+.terminal-read>.panel-toolbar>span{overflow-wrap:anywhere}
+.terminal-read>.error-text{flex-shrink:0;overflow-wrap:anywhere}
+.terminal-read>.panel-toolbar>button:focus-visible{outline:2px solid var(--text);outline-offset:2px}
+.terminal-read>.panel-toolbar>button:disabled{opacity:.5;cursor:default}

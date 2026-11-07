@@ -1,9 +1,13 @@
-import {test,expect,type Page,type Request} from '@playwright/test';
+import {test,expect,type Page,type Request,type Route} from '@playwright/test';
 import {fileURLToPath} from 'node:url';
 import {serveTaskFixture,taskFixture} from './task-interface-fixture';
 import {scopedContext} from '../scoped-conversation-fixture';
 import {threadNavigationRevision} from '../../packages/contracts/shell-read-models';
 import type {CodeReviewComparison} from '../../packages/contracts/code-review';
+function terminalResult(route:Route,output:string,cursor:number){
+ const request=route.request(),url=new URL(request.url()),body=request.method()==='POST'?request.postDataJSON():null;
+ return {id:body?.terminalId??decodeURIComponent(url.pathname.split('/')[3]),projectId:body?.projectId??url.searchParams.get('projectId'),threadId:body?.threadId??url.searchParams.get('threadId'),output:body?output:'',start:body?0:Number(url.searchParams.get('cursor')),cursor,exited:false,exitCode:null};
+}
 const head='1'.repeat(40),revision='e'.repeat(64);
 const local:CodeReviewComparison['identity']={kind:'local',id:'a'.repeat(64),scope:'worktree',headOid:head,branch:'topic',revision:'b'.repeat(64),base:{kind:'index',revision:'c'.repeat(64)},head:{kind:'worktree',revision:'b'.repeat(64)}};
 const remote:CodeReviewComparison['identity']={kind:'pull-request',id:'d'.repeat(64),repo:'owner/repo',number:48,pullRequestId:'PR_48',baseOid:'2'.repeat(40),headOid:head,mergeBaseOid:'4'.repeat(40),baseRef:'main',headRef:'topic',semantics:'merge-base'};
@@ -96,7 +100,7 @@ test('a native owner roundtrip prevents an authenticated write retry',async({pag
 });
 
 test('terminal starts only when opened and stops polling when hidden',async({page})=>{
- const h=await fixture(page);let opens=0;await page.route('**/api/terminals**',route=>{if(route.request().method()==='POST'&&new URL(route.request().url()).pathname==='/api/terminals')opens++;return route.fulfill({json:{id:'review-terminal',output:'Synthetic real terminal adapter',start:0,cursor:31,exited:false,exitCode:null}});});await expect(page.getByRole('region',{name:'Code review workspace',exact:true})).toBeVisible();expect(h.requests.filter(path=>path.startsWith('/api/terminals'))).toEqual([]);await page.getByRole('button',{name:'Terminal',exact:true}).click();await expect.poll(()=>opens).toBe(1);await expect(page.locator('.xterm-host')).toBeVisible();await page.getByRole('button',{name:'Terminal',exact:true}).click();await expect(page.locator('.xterm-host')).toBeHidden();
+ const h=await fixture(page);let opens=0;await page.route('**/api/terminals**',route=>{if(route.request().method()==='POST'&&new URL(route.request().url()).pathname==='/api/terminals')opens++;return route.fulfill({json:terminalResult(route,'Synthetic real terminal adapter',31)});});await expect(page.getByRole('region',{name:'Code review workspace',exact:true})).toBeVisible();expect(h.requests.filter(path=>path.startsWith('/api/terminals'))).toEqual([]);await page.getByRole('button',{name:'Terminal',exact:true}).click();await expect.poll(()=>opens).toBe(1);await expect(page.locator('.xterm-host')).toBeVisible();await expect(page.locator('.live-terminal').getByRole('status')).toHaveText('Running');await page.getByRole('button',{name:'Terminal',exact:true}).click();await expect(page.locator('.xterm-host')).toBeHidden();
 });
 for(const theme of ['dark','light'] as const)for(const size of [{width:1440,height:900},{width:1000,height:650},{width:800,height:450}])test(`compact review geometry ${theme} ${size.width}`,async({page})=>{
  await page.setViewportSize(size);await fixture(page);await expect(page.getByRole('region',{name:'Code review workspace',exact:true})).toBeVisible();await page.evaluate(theme=>document.documentElement.dataset.theme=theme,theme);
@@ -125,7 +129,7 @@ test('same-owner fresh-scope reacquisition retains presentation while holding to
  await page.route('**/api/projects/project-a/git/comparison/file?*',route=>route.fulfill({json:{identity:local,file:second,state:'text',text:'@@ -1 +1 @@\n-old\n+second file source'}}));
  await page.getByRole('button',{name:'Refresh comparison',exact:true}).click();await page.getByRole('button',{name:/src\/second.ts/}).click();
  const filter=page.getByRole('searchbox',{name:'Filter files'});await filter.fill('second');
- const terminalCommands:Record<string,any>[]=[];await page.route('**/api/terminals**',route=>{if(route.request().method()==='POST'&&new URL(route.request().url()).pathname.endsWith('/commands'))terminalCommands.push(route.request().postDataJSON());return route.fulfill({json:{id:'review-terminal',output:'Synthetic real terminal adapter',start:0,cursor:31,exited:false,exitCode:null}});});
+ const terminalCommands:Record<string,any>[]=[];await page.route('**/api/terminals**',route=>{if(route.request().method()==='POST'&&new URL(route.request().url()).pathname.endsWith('/commands'))terminalCommands.push(route.request().postDataJSON());return route.fulfill({json:terminalResult(route,'Synthetic real terminal adapter',31)});});
  await page.getByRole('button',{name:'Terminal',exact:true}).click();await expect(page.locator('.xterm-host .xterm')).toBeVisible();
  await page.getByRole('button',{name:'Agent chat',exact:true}).click();const message=page.getByRole('textbox',{name:'Message',exact:true});await message.fill('Retain review chat draft');
  h.setOutcome('uncertain');await page.getByRole('button',{name:'Stage file',exact:true}).click();await expect(page.getByRole('button',{name:'Inspect action outcome',exact:true})).toBeVisible();
@@ -166,7 +170,7 @@ test('logical owner changes reset presentation and fence an old authenticated ac
  await page.route('**/api/conversations/older-copy**',route=>{const url=new URL(route.request().url()),owner={authority:'personal',threadId:other.id,scopeKey:context.scopeKey,sequence:10};return route.fulfill({json:url.pathname.endsWith('/updates')?{...owner,fromSequence:10,owner:null,transcriptChanged:false,checkpoint:context.checkpoint}:url.pathname.endsWith('/transcript')?{...owner,messages:[],nextCursor:null}:context});});
  await page.getByRole('button',{name:'More conversations',exact:true}).click();
  await page.getByRole('searchbox',{name:'Filter files'}).fill('first');await page.getByRole('button',{name:'Agent chat',exact:true}).click();await page.getByRole('textbox',{name:'Message',exact:true}).fill('Original owner draft');
- await page.route('**/api/terminals**',route=>route.fulfill({json:{id:'review-terminal',output:'Synthetic terminal',start:0,cursor:18,exited:false,exitCode:null}}));
+ await page.route('**/api/terminals**',route=>route.fulfill({json:terminalResult(route,'Synthetic terminal',18)}));
  await page.getByRole('button',{name:'Terminal',exact:true}).click();await expect(page.locator('.xterm-host .xterm')).toBeVisible();
  const original=await region.elementHandle();let posts=0,release!:()=>void;const held=new Promise<void>(resolve=>{release=resolve;});
  await page.route('**/api/projects/project-a/actions',async route=>{posts++;await held;return route.fulfill({status:403,json:{error:{code:'AUTH_REQUIRED',message:'Renew session'}}});});
@@ -188,7 +192,7 @@ test('optional linked PR failure leaves local review usable before and after a f
  await expect(page.getByRole('alert').filter({hasText:/linked pull requests/i})).toBeVisible();await expect(page.getByRole('button',{name:'Pull request',exact:true})).toHaveCount(0);
  await page.getByRole('searchbox',{name:'Filter files'}).fill('first');await page.getByRole('button',{name:/src\/first.ts/}).click();
  await page.getByRole('button',{name:'Agent chat',exact:true}).click();const message=page.getByRole('textbox',{name:'Message',exact:true});await message.fill('Local review without GitHub');
- await page.route('**/api/terminals**',route=>route.fulfill({json:{id:'review-terminal',output:'Local terminal',start:0,cursor:14,exited:false,exitCode:null}}));
+ await page.route('**/api/terminals**',route=>route.fulfill({json:terminalResult(route,'Local terminal',14)}));
  await page.getByRole('button',{name:'Terminal',exact:true}).click();await expect(page.locator('.xterm-host .xterm')).toBeVisible();
  await stage.click();await expect.poll(()=>h.actions.length).toBe(1);await expect(stage).toBeEnabled();
  const original=await page.getByRole('region',{name:'Code review workspace',exact:true}).elementHandle();
