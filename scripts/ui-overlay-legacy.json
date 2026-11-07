@@ -125,17 +125,6 @@
       "disposition": "staged-migration"
     },
     {
-      "file": "apps/web/src/EnvironmentSettings.tsx",
-      "line": 11,
-      "column": 1015,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "e1bfa394ddf0128357786640f08773abc7b4a6d6784394cf2997a90750cc5396",
-      "reason": "SETTINGS: migrate environment scope to shared Select; preserve protected secret control.",
-      "evidence": "<select value={scope} disabled={busy} onChange={event=>{setScope(event.target.value);setValue('');}}><option value=\"device\">This device</option>{projects.map(project=><option key={project.id} value={'project:'+project.id",
-      "disposition": "staged-migration"
-    },
-    {
       "file": "apps/web/src/ExplorationTools.tsx",
       "line": 78,
       "column": 86,
@@ -177,17 +166,6 @@
       "fingerprint": "ad1e9736178a5cff4277639a9e3d3a1c9794e651443bcbaecb9c3e0e592bd2df",
       "reason": "INBOX: migrate options menu to shared ActionMenu.",
       "evidence": "<div className=\"inbox-options-menu\" role=\"menu\" aria-label=\"View options\">{([['all','All'],['needs-you','Needs you'],['unread','Unread'],['completed','Completed']] as const).map(([id,label])=><button type=\"button\" role=\"",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/IntegrationSettings.tsx",
-      "line": 11,
-      "column": 876,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "2ecbff5d3c809f544aefe06a238a96335024f2e59a8ff3a4148b0e2c68c1c863",
-      "reason": "SETTINGS: migrate integration mode to shared Select.",
-      "evidence": "<select aria-label=\"Ponytail mode\" disabled={busy===item.id||!item.installed} value={item.mode??'full'} onChange={event=>update(item.id,'configure',{mode:event.target.value as PonytailMode})}><option value=\"off\">Off</opt",
       "disposition": "staged-migration"
     },
     {
