@@ -21,6 +21,7 @@ import {useAppearance} from './useAppearance';
 import {useWorkspaceState} from './workspace-api';
 import {WorkspaceControls} from './WorkspaceControls';
 import {ResearchHost} from './ResearchHost';
+import {CodeReviewHost} from './CodeReviewHost';
 import './workspace-host.css';
 
 export type ConversationIntent = 'model' | 'settings' | 'usage' | 'new-thread' | 'connect-project' | 'resources' | 'linked-pull-requests';
@@ -94,9 +95,9 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
     <PendingStatus pending={!failure} label="Opening workspace…"/>
     {failure && <div role="alert">{failure}<button onClick={retry}>Retry workspace</button></div>}
   </main>;
-  if (preset !== 'all-agents' && preset !== 'research') return conversation({workspace, choosePreset, initialThreadId: selected.current, selectThread: id => {selected.current = id;}, intent, consumeIntent: id => setIntent(current => current?.id === id ? undefined : current), composers});
+  if (preset !== 'all-agents' && preset !== 'research' && preset !== 'code-review') return conversation({workspace, choosePreset, initialThreadId: selected.current, selectThread: id => {selected.current = id;}, intent, consumeIntent: id => setIntent(current => current?.id === id ? undefined : current), composers});
   return <MonitorShell workspace={workspace} settings={settings} controller={controller} composers={composers} choosePreset={choosePreset}
-    refreshSettings={loadSettings} openConversation={openConversation} error={error} dismissError={() => setError('')} fail={fail} content={preset==='research'?<ResearchHost canvas={workspace.envelope.state.canvases.find(value=>value.id===workspace.envelope!.state.activeCanvasId)!} workspace={workspace} composers={composers} openConversation={id=>openConversation(id)}/>:undefined}/>;
+    refreshSettings={loadSettings} openConversation={openConversation} error={error} dismissError={() => setError('')} fail={fail} content={preset==='code-review'?<CodeReviewHost canvas={workspace.envelope.state.canvases.find(value=>value.id===workspace.envelope!.state.activeCanvasId)!} workspace={workspace} composers={composers} openConversation={openConversation}/>:preset==='research'?<ResearchHost canvas={workspace.envelope.state.canvases.find(value=>value.id===workspace.envelope!.state.activeCanvasId)!} workspace={workspace} composers={composers} openConversation={id=>openConversation(id)}/>:undefined}/>;
 }
 
 function MonitorShell({workspace, settings, controller, composers, choosePreset, refreshSettings, openConversation, error, dismissError, fail, content}: {
