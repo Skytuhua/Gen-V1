@@ -1,7 +1,7 @@
 import {test, expect, type Page} from '@playwright/test';
 import {scopedContext as context, scopedMessage as message, scopedEnvelope as envelope} from '../scoped-conversation-fixture';
 
-async function fixture(page: Page, count = 15, long = false) {
+async function fixture(page: Page, count = 15, long = false, strict = false) {
   let epoch = 37, admittedEpoch = 37, sequence = 10, changed = false, revoked = false, working = false;
   let contextGate: Promise<void> | undefined, release: (() => void) | undefined;
   const reads: string[] = [];
@@ -24,7 +24,7 @@ async function fixture(page: Page, count = 15, long = false) {
     admittedEpoch = epoch;
     await route.fulfill({json: {...context, owner: {...context.owner, epoch}, sequence, checkpoint: 'cp' + sequence}});
   });
-  await page.goto('/tests/e2e/fixtures/scoped-conversation.html');
+  await page.goto('/tests/e2e/fixtures/scoped-conversation.html' + (strict ? '?strict=1' : ''));
   await expect(page.getByRole('textbox', {name: 'Supplied composer'})).toBeVisible();
   await expect(page.locator('[data-message-id]')).toHaveCount(count);
   return {reads, change: () => {changed = true; count++;}, epoch: () => {epoch++;}, activity: () => {working = true;}, holdContext: () => {contextGate = new Promise<void>(done => {release = done;}); return () => release?.();}, revoke: () => {revoked = true;}};
@@ -136,4 +136,25 @@ test('fences the rendered owner during canonical navigation, then uses the next 
   release(); await expect(page.getByLabel('Parent epoch')).toHaveText('91');
   await expect(scroll(page)).toContainText('Synthetic second owner');
   expect(await page.evaluate(() => window.scopedFixture.states.at(-1)?.threadId)).toBe('second-owner');
+});
+
+for(const strict of [false,true])test(`automatic transcript refresh preserves keyboard message focus (strict=${strict})`,async({page})=>{
+ const f=await fixture(page,1,true,strict);
+ await page.getByRole('button',{name:'Read more'}).focus();await page.keyboard.press('Enter');
+ const article=page.getByRole('article',{name:'Assistant'});await expect(article).toBeFocused();
+ let release!:()=>void;const gate=new Promise<void>(resolve=>{release=resolve;});
+ await page.route('**/api/conversations/exact-owner/transcript?*',async route=>{await gate;return route.fulfill({json:{...envelope,sequence:11,messages:[{...message('long','A\u{1f600}'),contentLength:5,nextContentCursor:'part-2'}],nextCursor:null}});});
+ f.change();await page.evaluate(()=>{void window.scopedFixture.poll();});
+ await expect(article).toHaveCount(0);release();await expect(article).toBeVisible();
+ await expect(article).toBeFocused();
+});
+test('automatic refresh does not take focus back from the supplied composer',async({page})=>{
+ const f=await fixture(page,1,true);
+ await page.getByRole('button',{name:'Read more'}).focus();await page.keyboard.press('Enter');
+ const article=page.getByRole('article',{name:'Assistant'});await expect(article).toBeFocused();
+ let release!:()=>void;const gate=new Promise<void>(resolve=>{release=resolve;});
+ await page.route('**/api/conversations/exact-owner/transcript?*',async route=>{await gate;return route.fulfill({json:{...envelope,sequence:11,messages:[{...message('long','A\u{1f600}'),contentLength:5,nextContentCursor:'part-2'}],nextCursor:null}});});
+ f.change();await page.evaluate(()=>{void window.scopedFixture.poll();});await expect(article).toHaveCount(0);
+ const composer=page.getByRole('textbox',{name:'Supplied composer'});await composer.focus();release();
+ await expect(article).toBeVisible();await expect(composer).toBeFocused();
 });

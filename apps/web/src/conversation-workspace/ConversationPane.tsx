@@ -14,6 +14,17 @@ export function ConversationPane({conversation: {state, reader}, hidden = false,
   const viewport = useRef<HTMLDivElement>(null);
   const reading = useRef<{key: string | null; follow: boolean; top: number; anchor: {id: string; offset: number} | null; latest: string | null}>({key: null, follow: true, top: 0, anchor: null, latest: null});
   const focusAfterRead = useRef<string | null>(null);
+  const focusedMessage = useRef<string | null>(null);
+  useLayoutEffect(() => {
+    const document = viewport.current?.ownerDocument; if (!document) return;
+    const rememberFocus = (event: FocusEvent) => {
+      const target = event.target as Element | null, article = target?.closest?.('[data-message-id]') as HTMLElement | null;
+      focusedMessage.current = article && viewport.current?.contains(article) ? article.dataset.messageId ?? null : null;
+    };
+    const releaseFocus = () => {focusedMessage.current = null;};
+    document.addEventListener('focusin', rememberFocus); document.addEventListener('pointerdown', releaseFocus, true);
+    return () => {document.removeEventListener('focusin', rememberFocus); document.removeEventListener('pointerdown', releaseFocus, true);};
+  }, []);
   const [atBottom, setAtBottom] = useState(true), [newMessages, setNewMessages] = useState(false);
   const latest = state.messages.at(-1)?.head.id ?? null;
   function remember() {
@@ -30,8 +41,9 @@ export function ConversationPane({conversation: {state, reader}, hidden = false,
     const element = viewport.current, value = reading.current;
     if (value.key !== state.selectionKey) {
       reading.current = {key: state.selectionKey, follow: true, top: 0, anchor: null, latest: null};
-      setAtBottom(true); setNewMessages(false); focusAfterRead.current = null;
+      setAtBottom(true); setNewMessages(false); focusAfterRead.current = null; focusedMessage.current = null;
     }
+    if (state.phase !== 'ready') focusedMessage.current = null;
     if (!element || hidden || !state.messages.length) return;
     const saved = reading.current;
     if (saved.latest && latest !== saved.latest && !saved.follow) setNewMessages(true);
@@ -45,16 +57,18 @@ export function ConversationPane({conversation: {state, reader}, hidden = false,
       }
     }
     restore();
-    if (focusAfterRead.current && !state.historyPending && !state.messages.some(item => item.pending)) {
-      if (document.activeElement === document.body) Array.from(element.querySelectorAll<HTMLElement>('[data-message-id]')).find(item => item.dataset.messageId === focusAfterRead.current)?.focus({preventScroll: true});
+    const restoreFocus = focusAfterRead.current ?? focusedMessage.current;
+    if (restoreFocus && !state.historyPending && !state.messages.some(item => item.pending)) {
+      if (element.ownerDocument.activeElement === element.ownerDocument.body) Array.from(element.querySelectorAll<HTMLElement>('[data-message-id]')).find(item => item.dataset.messageId === restoreFocus)?.focus({preventScroll: true});
       focusAfterRead.current = null;
+      if (!state.messages.some(item => item.head.id === restoreFocus)) focusedMessage.current = null;
     }
     remember();
     const observer = new ResizeObserver(restore);
     observer.observe(element);
     if (element.firstElementChild) observer.observe(element.firstElementChild);
     return () => observer.disconnect();
-  }, [state.selectionKey, state.messages, state.historyPending, hidden, latest]);
+  }, [state.selectionKey, state.messages, state.historyPending, state.phase, hidden, latest]);
   const pending = state.pending || state.historyPending;
   return <section className="scoped-conversation" hidden={hidden} aria-label="Optional conversation">
     {renderContext && <div className="scoped-conversation-context">{renderContext(state)}</div>}
