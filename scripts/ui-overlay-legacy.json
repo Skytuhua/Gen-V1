@@ -15,17 +15,6 @@
       "disposition": "staged-migration"
     },
     {
-      "file": "apps/web/src/App.tsx",
-      "line": 160,
-      "column": 481,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "da6aad5ff20c9bf6292224f2299bdb66eecef2759be87d1097dc4eea377105b6",
-      "reason": "SHELL2: parent replaces local dialog, select and thread menu with shared Modal/Select/ActionMenu.",
-      "evidence": "<select value={kind} onChange={event => setKind(event.target.value)}><option value=\"project\">Project folder</option><option value=\"file\">File</option><option value=\"database\">SQLite database</option><option value=\"export",
-      "disposition": "staged-migration"
-    },
-    {
       "file": "apps/web/src/appearance.css",
       "line": 4,
       "column": 1,
@@ -375,17 +364,6 @@
       "fingerprint": "749db91a8f2045e770e65a8f4a28f03b3fd9232d7584b5dba29f1d4307694271",
       "reason": "HOVER/SHELL2: migrate thread action menu to shared ActionMenu; preserve real actions.",
       "evidence": "<div className=\"thread-menu sidebar-thread-menu\">",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/SideChat.tsx",
-      "line": 61,
-      "column": 120,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "821ec555e81042fae790b98bac6acdf6fe971a8373ff7f9b9af632ea032cb338",
-      "reason": "AGENTCHAT: move side conversation target selector to shared Select.",
-      "evidence": "<select aria-label=\"Side conversation history\" disabled={busy} value={side?.id??''} onChange={event=>select(event.target.value||null)}><option value=\"\">New question</option>{histories.map(thread=><option key={thread.id} ",
       "disposition": "staged-migration"
     },
     {
