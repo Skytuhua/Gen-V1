@@ -211,6 +211,13 @@ export class WorkspaceActionOutcomes {
     try {
       const write = async () => {
         if ((await this.fence(projectId, input)).hash !== fence.hash || !this.current(fence)) throw denied();
+        const payload = workspaceActionPayloadSchemas[input.type].parse(input.payload);
+        if (input.type !== 'review-pr') {
+          const current = await this.projects.gitStatus(projectId, input.threadId);
+          if (input.payload.expectedHead !== current.head || payload.revision !== current.revision)
+            throw new HarnessError('REVISION_CHANGED', 'The reviewed changes are out of date.');
+        }
+        if (!this.current(fence)) throw denied();
         this.store.internal('project.action.started', input.threadId ?? null, () => {
           const current = this.read(command);
           if (!current || current.status !== 'prepared' || current.ownerFence !== fence.hash) throw denied();
@@ -221,13 +228,7 @@ export class WorkspaceActionOutcomes {
         if (!this.current(fence)) throw denied(); // Store subscribers run before internal() returns.
         let result: unknown;
         if (input.type === 'review-pr') result = await this.github.review(projectId, input.threadId, input.payload);
-        else {
-          const current = await this.projects.gitStatus(projectId, input.threadId);
-          if (input.payload.expectedHead !== current.head) throw new HarnessError('REVISION_CHANGED', 'The reviewed commit changed.');
-          const payload = workspaceActionPayloadSchemas[input.type].parse(input.payload);
-          if (!this.current(fence)) throw denied();
-          result = await this.projects.gitAction(projectId, input.threadId, { type: input.type, ...payload });
-        }
+        else result = await this.projects.gitAction(projectId, input.threadId, { type: input.type, ...payload });
         let fresh: Fence | undefined;
         try {
           fresh = await this.fence(projectId, input);

@@ -9,6 +9,8 @@ import {workspaceHost,githubFor} from './workspace-host.ts';
 import {registerEnvironmentRoutes} from './environment-routes.ts';
 import {registerGitHubAuthRoutes} from './github-auth-routes.ts';
 import {SplitWorkspaceRepository} from '../../packages/core/split-workspace.ts';
+import {WorkspaceActionOutcomes} from '../../packages/workspace/action-outcomes.ts';
+import {workspaceActionTypeSchema,workspaceActionOperationSchema} from '../../packages/contracts/workspace-action-outcomes.ts';
 
 const identifier=z.string().regex(/^[a-zA-Z0-9:_.-]{1,200}$/),record=z.record(z.string(),z.unknown());
 const envelope=z.strictObject({id:identifier,type:z.string().min(1).max(100),payload:record,threadId:identifier.optional()});
@@ -23,6 +25,14 @@ export function registerWorkspaceRoutes(app:FastifyInstance,service:Service){
  app.post('/api/split-workspace/commands',{bodyLimit:128*1024},async request=>split.command(envelope.parse(request.body)));
  registerEnvironmentRoutes(app,service);
  const host=workspaceHost(service),{projects,terminals}=host,github=githubFor(host);projects.workspace.migrateProjects();
+ const actionOutcomes=new WorkspaceActionOutcomes(projects,github);
+ // Read-only inspection uses POST so private journal payloads never enter URLs.
+ app.post('/api/projects/:projectId/action-outcomes/inspect',{bodyLimit:1024*1024},async(request,reply)=>{
+  reply.header('Cache-Control','no-store');
+  const{projectId}=z.object({projectId:identifier}).parse(request.params),operation=workspaceActionOperationSchema.parse(request.body);
+  if(operation.selection.owner.projectId!==projectId)throw new HarnessError('CAPABILITY_DENIED','The action belongs to another project.');
+  return actionOutcomes.inspect(operation);
+ });
  registerGitHubAuthRoutes(app,github.auth);
  app.addHook('onClose',async()=>{await terminals.dispose();await projects.dispose();});
  app.get('/api/workspace',async()=>projects.workspace.read());
@@ -59,16 +69,25 @@ export function registerWorkspaceRoutes(app:FastifyInstance,service:Service){
   return{repo,items:[...new Map(saved.map(value=>[value.item.number,value.item])).values()]};
  });
  app.get('/api/projects/:projectId/pull-requests/:number',async request=>{const{projectId,number}=z.object({projectId:identifier,number:z.coerce.number().int().positive()}).parse(request.params),{threadId}=querySchema.parse(request.query);return github.details(projectId,threadId,number);});
- app.post('/api/projects/:projectId/actions',async request=>{
-  const{projectId}=z.object({projectId:identifier}).parse(request.params),input=envelope.parse(request.body),existing=service.store.receipt({...input,type:'project.'+input.type,payload:{...input.payload,projectId}});if(existing)return existing;
+ app.post('/api/projects/:projectId/actions',{bodyLimit:1024*1024},async(request,reply)=>{
+  const{projectId}=z.object({projectId:identifier}).parse(request.params),input=envelope.parse(request.body);
+  if(workspaceActionTypeSchema.safeParse(input.type).success){
+   reply.header('Cache-Control','no-store');
+   const outcome=await actionOutcomes.execute(projectId,input);
+   if(outcome.state==='confirmed')return outcome.receipt;
+   reply.code(outcome.state==='revoked'?403:409);
+   const code=outcome.state==='revoked'?'CAPABILITY_DENIED':outcome.state==='not-applied'?'REVISION_CHANGED':'ACTION_UNCERTAIN';
+   const message=outcome.state==='revoked'?'Project access changed. Refresh before acting.':outcome.state==='not-applied'?'The reviewed changes are out of date. Refresh before acting.':'The outcome is uncertain. Inspect the original action before retrying.';
+   return{...outcome,error:{code,message}};
+  }
+  const existing=service.store.receipt({...input,type:'project.'+input.type,payload:{...input.payload,projectId}});if(existing)return existing;
   const command={...input,type:'project.'+input.type,payload:{...input.payload,projectId}},p=input.payload,binding=await projects.binding(projectId,input.threadId);
   if(input.type==='refresh')return projects.context(projectId,input.threadId);
   if(input.type==='create-pr')return github.create(projectId,input.threadId,p);
-  if(input.type==='review-pr')return github.review(projectId,input.threadId,p);
   if(input.type==='link-pr'){const pullNumber=z.number().int().positive().parse(p.number),details=await github.details(projectId,input.threadId,pullNumber),key=JSON.stringify([projectId,input.threadId??null,details.repo,pullNumber]);return service.store.command(command,()=>{service.store.put('linkedPullRequest',key,input.threadId??null,{projectId,threadId:input.threadId,...details,linkedAt:new Date().toISOString()});return details;});}
   if(input.type==='add-script'){const script={id:randomUUID(),projectId,name:z.string().trim().min(1).max(100).parse(p.name),command:z.string().trim().min(1).max(8000).parse(p.command)};return service.store.command(command,()=>{service.store.put('projectScript',script.id,null,script);return script;});}
   if(input.type==='run-script'){const script=service.store.get<{projectId:string;command:string}>('projectScript',identifier.parse(p.scriptId));if(!script||script.projectId!==projectId)throw new HarnessError('NOT_FOUND','Project script is unavailable.');return terminals.open({projectId,threadId:input.threadId,command:script.command});}
-  if(['stage','unstage','commit','branch'].includes(input.type)){
+  if(input.type==='branch'){
    const intent=service.store.get('workspaceAction',input.id);if(intent)throw new HarnessError('ACTION_UNCERTAIN','This action already started. Refresh Git status before trying a new action.');
    service.store.internal('project.action.started',input.threadId??null,()=>service.store.put('workspaceAction',input.id,input.threadId??null,{command,status:'started'}));
    const current=await projects.gitStatus(projectId,input.threadId);if(p.expectedHead!==undefined&&p.expectedHead!==current.head)throw new HarnessError('REVISION_CHANGED','The reviewed commit changed.');

@@ -79,7 +79,9 @@ it('starts, polls and cancels profile sign-in without resolving a project or thr
 it('rejects project and thread fields on profile auth while keeping project actions gated',async()=>{
  const{app,auth,binding}=await fixture();for(const payload of [{projectId:'missing'},{threadId:'gamma'}])expect((await app.inject({method:'POST',url:'/api/github/auth/start',payload})).statusCode).toBe(400);
  expect((await app.inject({method:'POST',url:'/api/github/auth/poll',payload:{flowId:'bad'}})).statusCode).toBe(400);expect(auth.start).not.toHaveBeenCalled();
- for(const type of ['github-login','github-login-status','create-pr','review-pr','link-pr'])expect((await app.inject({method:'POST',url:'/api/projects/missing/actions',payload:{id:'denied-'+type,type,payload:{}}})).statusCode).toBe(403);
+ for(const type of ['github-login','github-login-status','create-pr','link-pr'])expect((await app.inject({method:'POST',url:'/api/projects/missing/actions',payload:{id:'denied-'+type,type,payload:{}}})).statusCode).toBe(403);
+ expect((await app.inject({method:'POST',url:'/api/projects/missing/actions',payload:{id:'invalid-review',type:'review-pr',payload:{}}})).statusCode).toBe(400);
+ const review=await app.inject({method:'POST',url:'/api/projects/missing/actions',payload:{id:'denied-review',type:'review-pr',payload:{number:12,event:'COMMENT',body:'',head:'a'.repeat(40),revision:'c'.repeat(64)}}});expect(review.statusCode).toBe(403);expect(review.json()).toMatchObject({state:'revoked',error:{code:'CAPABILITY_DENIED'}});
  expect(binding).toHaveBeenCalled();expect(auth.start).not.toHaveBeenCalled();
 });
 
