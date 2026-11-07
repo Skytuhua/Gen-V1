@@ -33,8 +33,8 @@ export function ScopedConversationComposer({context,composers,openConversation,r
  const send=()=>{if(!held&&models.some(model=>model.id===modelId))void composers.submit(target);};
  async function mode(value:'plan'|'build'){
   if(working||held)throw Error('Wait for this conversation to become available.');
-  const version=fence.current.version;
-  await command('thread.mode',{mode:value},context.owner.threadId,undefined,()=>fence.current.active&&fence.current.version===version);
+  const version=fence.current.version, ownership=desktop?desktop.ownership(surface):0;
+  await command('thread.mode',{mode:value},context.owner.threadId,undefined,()=>fence.current.active&&fence.current.version===version&&ownership!==undefined&&(desktop?desktop.ownership(surface):0)===ownership);
   await refreshOwner();
  }
  return <div className="scoped-owner-composer-wrap">
