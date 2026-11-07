@@ -1,4 +1,4 @@
-.split-workspace{position:relative;display:flex;flex:1;flex-direction:column;min-width:0;min-height:0;overflow:hidden;background:var(--workspace-bg,#000);color:var(--text,#e7e7e7)}
+.split-workspace{--panel:var(--surface,#0f0f0f);--workspace-bg:var(--canvas,#000);--focus:var(--accent,#747ec9);--error:var(--danger,#ff8994);--selected:var(--selection-bg,#252525);position:relative;display:flex;flex:1;flex-direction:column;min-width:0;min-height:0;overflow:hidden;background:var(--workspace-bg,#000);color:var(--text,#e7e7e7)}
 .split-workspace-tools{display:flex;align-items:center;gap:4px;min-height:30px;padding:2px 8px;border-bottom:1px solid var(--border,#252525);font-size:11px;z-index:4;flex:none;background:var(--panel,#0f0f0f)}
 .split-workspace-tools button,.split-workspace-tools select{font:inherit;background:transparent;border:0;border-radius:5px;color:inherit;padding:4px 7px}.split-workspace-tools button:hover{background:var(--hover,#242424)}
 .split-workspace-tools button:disabled{opacity:.35}.split-workspace-tools label{display:flex;align-items:center;margin-left:auto;gap:4px}

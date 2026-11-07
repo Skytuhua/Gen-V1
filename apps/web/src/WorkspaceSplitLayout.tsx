@@ -16,6 +16,7 @@ export interface WorkspaceSplitLayoutProps {
  onSelectEditor?:(kind:string,paneId:string)=>Promise<void>;
  prepare?:()=>Promise<void>;
  showHistory?:boolean;
+ toolDock?:boolean;
  className?:string;
 }
 interface SlotRect {left:number;top:number;width:number;height:number}
@@ -25,10 +26,10 @@ const edgeLabel:Record<SplitDropEdge,string>={left:'Left',right:'Side by side',t
 const defaultTitle=(view:SurfaceRef)=>view.kind==='thread'?'Conversation':view.kind.replaceAll('-',' ');
 
 /** View bodies keep one stable DOM parent; layout changes only reposition their slots. */
-export function WorkspaceSplitLayout({layout,onCommand,renderView,title=defaultTitle,onDropThread,editorOptions=[],onSelectEditor,prepare,className=''}:WorkspaceSplitLayoutProps){
+export function WorkspaceSplitLayout({layout,onCommand,renderView,title=defaultTitle,onDropThread,editorOptions=[],onSelectEditor,prepare,toolDock=false,className=''}:WorkspaceSplitLayoutProps){
  const root=useRef<HTMLDivElement>(null),slots=useRef(new Map<string,HTMLDivElement>()),resize=useRef<ResizeGesture|null>(null),corner=useRef<CornerGesture|null>(null),pending=useRef(false);
  const[rects,setRects]=useState<Record<string,SlotRect>>({}),[size,setSize]=useState({width:0,height:0}),[previewRatio,setPreviewRatio]=useState<{id:string;ratio:number}|null>(null),[drop,setDrop]=useState<{paneId:string;edge:SplitDropEdge;outer?:boolean;joinFrom?:string}|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState('');
- const minimum=minimumSplitSize(layout),narrow=size.width>0&&(size.width<700||size.width<minimum.width),topBar=narrow?30:0;
+ const minimum=minimumSplitSize(layout),narrow=size.width>0&&(size.width<minimum.width||(toolDock?size.height<minimum.height:size.width<700)),topBar=narrow?30:0;
  const measure=useCallback(()=>{
   const host=root.current;if(!host)return;const basis=host.getBoundingClientRect(),next:Record<string,SlotRect>={};
   for(const[id,slot]of slots.current){const rect=slot.getBoundingClientRect();next[id]={left:rect.left-basis.left,top:rect.top-basis.top,width:rect.width,height:rect.height};}
@@ -94,7 +95,7 @@ export function WorkspaceSplitLayout({layout,onCommand,renderView,title=defaultT
     <details className="split-area-menu"><summary aria-label="Area actions" title="Area actions">⋯</summary><div className="split-area-menu-body"><button disabled={busy||narrow} onClick={()=>{void splitPane(paneId,'right');}}>Split left / right</button><button disabled={busy||narrow} onClick={()=>{void splitPane(paneId,'bottom');}}>Split above / below</button><button disabled={busy||Object.keys(layout.panes).length<2} onClick={()=>{void send('pane.join',{paneId});}}>Join adjacent area</button>{current&&<button disabled={busy} onClick={()=>{void send('view.park',{viewId:current.id});}}>Park current view</button>}{editorOptions.length>0&&onSelectEditor&&<label>Editor<select aria-label="Area editor" value="" onChange={event=>{const value=event.target.value;if(value)void run(()=>onSelectEditor(value,paneId));}}><option value="">Change editor…</option>{editorOptions.map(option=><option key={option.id} value={option.id}>{option.title}</option>)}</select></label>}{layout.parkedViewIds.length>0&&<label>Recover view<select aria-label="Recover parked view" value="" onChange={event=>{if(event.target.value)void send('view.move',{viewId:event.target.value,paneId});}}><option value="">Choose a parked view…</option>{layout.parkedViewIds.map(viewId=><option key={viewId} value={viewId}>{title(layout.views[viewId]!)}</option>)}</select></label>}</div></details>
     <button className="split-collapse" disabled={busy} aria-label={pane.collapsed?'Restore area':'Minimize area'} title={pane.collapsed&&current?title(current):undefined} aria-expanded={!pane.collapsed} onClick={()=>{void send('pane.collapse',{paneId,collapsed:!pane.collapsed},false);}}>{pane.collapsed?<><span aria-hidden="true">▾</span><span className="split-collapsed-title">{current?title(current):'Empty area'}</span></>:'▴'}</button>
    </header>
-   {!pane.collapsed&&<div className="split-pane-slot" ref={node=>{if(node)slots.current.set(paneId,node);else slots.current.delete(paneId);}}>{!current&&<div className="split-empty"><strong>Drag a thread here</strong><span>Drop at an edge to split, or in the middle to add a tab.</span></div>}</div>}
+   {!pane.collapsed&&<div className="split-pane-slot" ref={node=>{if(node)slots.current.set(paneId,node);else slots.current.delete(paneId);}}>{!current&&<div className="split-empty"><strong>{onDropThread?'Drag a thread here':'Add a tool'}</strong><span>{onDropThread?'Drop at an edge to split, or in the middle to add a tab.':'Choose a tool from Panels or the area menu. Split its area to arrange tools together.'}</span></div>}</div>}
   </section>;
  };
  const renderNode=(node:SplitWorkspaceNode):ReactNode=>{
