@@ -46,12 +46,12 @@
 .interaction-field{display:flex;flex-direction:column;gap:8px}
 .interaction-field>span{display:flex;align-items:baseline;gap:8px;font-size:12px}
 .interaction-field small{font-size:10px;font-weight:400;color:var(--muted)}
-.interaction-tools :is(textarea,input[type=text],input[type=number],select){border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:7px;padding:8px 10px;min-height:34px;min-width:0;font-size:12px;line-height:1.5;box-shadow:none}
+.interaction-tools :is(textarea,input[type=text],input[type=number],.ui-select-trigger){border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:7px;padding:8px 10px;min-height:34px;min-width:0;font-size:12px;line-height:1.5;box-shadow:none}
 .interaction-tools textarea{resize:vertical;min-height:85px;max-height:240px;width:100%}
 .interaction-tools .review-comment textarea{min-height:54px;max-height:180px}
 .interaction-tools .review-comment{gap:6px}
-.interaction-tools :is(input,select,textarea):focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.interaction-tools :is(input,select,textarea)[aria-invalid=true]{border-color:var(--danger)}
+.interaction-tools :is(input,.ui-select-trigger,textarea):focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.interaction-tools :is(input,.ui-select-trigger,textarea)[aria-invalid=true]{border-color:var(--danger)}
 .review-item-pagination{display:flex;justify-content:space-between;gap:14px;margin-top:12px}
 .review-item-pagination .quiet{font-size:11px;padding:4px 0}
 .editable-table-title{font-size:13px;font-weight:550;margin:0 0 12px}
@@ -69,7 +69,7 @@
 .editable-table :is(th,td)[data-field-type=choice]{min-width:114px;width:140px}
 .editable-table td.is-edited{background:var(--subtle)}
 .editable-table td:is(.is-edited):has([aria-invalid=true]){background:color-mix(in srgb,var(--danger) 7%,var(--surface))}
-.interaction-tools.editable-table td :is(input,select){width:100%;min-width:0;height:32px;min-height:32px;padding:5px 8px;font-size:11px;box-sizing:border-box}
+.interaction-tools.editable-table td :is(input,.ui-select-trigger){width:100%;min-width:0;height:32px;min-height:32px;padding:5px 8px;font-size:11px;box-sizing:border-box}
 .editable-table td input[role=spinbutton]{font-variant-numeric:tabular-nums}
 .editable-readonly{display:block;padding:7px 0;font-size:11px;color:var(--muted);overflow-wrap:anywhere}
 .editable-original{display:block;font-size:9px;line-height:14px;margin-top:3px;color:var(--muted);overflow-wrap:anywhere}
@@ -82,7 +82,7 @@
 .parameter-label p{font-size:11px;color:var(--muted);margin-top:4px;max-width:60ch}
 .parameter-label small{font-size:10px;color:var(--muted);display:block;margin-top:4px}
 .parameter-label .parameter-bounds{font-variant-numeric:tabular-nums}
-.parameter-row>input,.parameter-row>select{width:100%}
+.interaction-tools .ui-select,.interaction-tools .ui-select-trigger{width:100%}.parameter-row>input{width:100%}
 .parameter-range{display:grid;grid-template-columns:minmax(90px,1fr) 82px;align-items:center;gap:14px;min-width:0}
 .parameter-range input[type=range]{min-width:0;width:100%;accent-color:var(--text);padding:0;cursor:pointer}
 .parameter-range input[role=spinbutton]{width:100%;font-variant-numeric:tabular-nums;padding-right:5px}
@@ -125,6 +125,6 @@
  .editable-table-scroll td:not([data-readonly=true]){min-height:67px}
  .editable-table-scroll .editable-readonly{min-height:32px;padding:6px 0}
  .editable-table-scroll td.is-edited{background:transparent}
- .editable-table-scroll td.is-edited :is(input,select){background:var(--subtle)}
+ .editable-table-scroll td.is-edited :is(input,.ui-select-trigger){background:var(--subtle)}
  .editable-table-scroll .editable-original{margin-top:2px;white-space:normal}
 }

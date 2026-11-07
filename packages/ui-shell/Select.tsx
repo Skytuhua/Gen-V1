@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState, type AriaAttributes } from 'react';
 import { Check, ChevronDown } from 'lucide-react';
 import { Popover } from './Popover';
 import { isComposing, useListNavigation } from './list-navigation';
@@ -10,6 +10,7 @@ export interface SelectProps {
   onValueChange: (value: string) => void;
   options: readonly SelectOption[];
   'aria-label': string;
+  'aria-invalid'?: AriaAttributes['aria-invalid'];
   id?: string;
   name?: string;
   form?: string;
@@ -17,7 +18,7 @@ export interface SelectProps {
   required?: boolean;
 }
 
-export function Select({ value, onValueChange, options, 'aria-label': label, id, name, form, disabled, required }: SelectProps) {
+export function Select({ value, onValueChange, options, 'aria-label': label, 'aria-invalid': suppliedInvalid, id, name, form, disabled, required }: SelectProps) {
   const anchor = useRef<HTMLButtonElement>(null), content = useRef<HTMLDivElement>(null);
   const native = useRef<HTMLSelectElement>(null), initial = useRef(value), change = useRef(onValueChange);
   change.current = onValueChange;
@@ -54,7 +55,7 @@ export function Select({ value, onValueChange, options, 'aria-label': label, id,
   }, [form]);
   return <span className="ui-select">
     <button ref={anchor} id={id} type="button" role="combobox" aria-label={label} aria-expanded={open && !effectivelyDisabled}
-      aria-invalid={showInvalid || undefined} aria-describedby={showInvalid ? errorId : undefined}
+      aria-invalid={showInvalid ? true : suppliedInvalid} aria-describedby={showInvalid ? errorId : undefined}
       aria-controls={open ? listId : undefined} aria-haspopup="listbox" aria-required={required} disabled={disabled}
       className="ui-select-trigger" onClick={() => { start.current = 'selected'; navigation.reset(); setOpen(!open); }}
       onKeyDown={event => {
