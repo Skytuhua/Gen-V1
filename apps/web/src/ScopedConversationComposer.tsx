@@ -12,7 +12,7 @@ import {useDesktop, useDetachedSurface, usePendingSurface} from './desktop-conte
 import type {ConversationComposerTarget, SharedAgentComposers} from './agents-workspace/composer';
 
 /** Uses the ordinary owner's durable drafts, pending command identity, Send and Stop controller. */
-export function ScopedConversationComposer({context,composers,openConversation,refreshOwner}:{context:ConversationContext;composers:SharedAgentComposers;openConversation:(threadId:string)=>Promise<void>;refreshOwner:()=>Promise<void>}){
+export function ScopedConversationComposer({context,composers,openConversation,refreshOwner,placeholder='Ask about these sources...'}:{context:ConversationContext;composers:SharedAgentComposers;openConversation:(threadId:string)=>Promise<void>;refreshOwner:()=>Promise<void>;placeholder?:string}){
  const working=Boolean(context.owner.runId)||context.owner.status==='working';
  const [models,setModels]=useState<ModelInfo[]>([]),[modelId,setModelId]=useState(context.owner.modelId??''),[error,setError]=useState('');
  const target=useMemo<ConversationComposerTarget>(()=>({kind:'conversation',threadId:context.owner.threadId,modelId,working}),[context.owner.threadId,modelId,working]);
@@ -39,7 +39,7 @@ export function ScopedConversationComposer({context,composers,openConversation,r
  }
  return <div className="scoped-owner-composer-wrap">
   <div inert={held}><ComposerView className="scoped-owner-composer" onSubmit={event=>{event.preventDefault();send();}}>
-   <textarea ref={input} aria-label="Message" placeholder="Ask about these sources..." rows={2} value={state.draft} disabled={held||!state.ready} onChange={event=>{void composers.edit(target,event.target.value);}} onKeyDown={event=>{if(commands.current?.keyDown(event)||isComposing(event)||event.shiftKey||event.altKey||event.ctrlKey||event.metaKey)return;if(event.key==='Enter'){event.preventDefault();send();}}}/>
+   <textarea ref={input} aria-label="Message" placeholder={placeholder} rows={2} value={state.draft} disabled={held||!state.ready} onChange={event=>{void composers.edit(target,event.target.value);}} onKeyDown={event=>{if(commands.current?.keyDown(event)||isComposing(event)||event.shiftKey||event.altKey||event.ctrlKey||event.metaKey)return;if(event.key==='Enter'){event.preventDefault();send();}}}/>
    <ComposerSkillBindings bindings={state.skills??[]} disabled={held} onRemove={id=>{void composers.removeSkill(target,id).catch(()=>{});}}/>
    <ComposerCommands ref={commands} input={input} draft={state.draft} threadId={context.owner.threadId} projectId={context.owner.projectId??undefined} disabled={held||!state.ready||state.busy||state.stopping} onDraft={text=>{void composers.edit(target,text);}} onSkill={binding=>composers.addSkill(target,binding)} onModel={()=>picker.current?.open()} onMode={mode}/>
    <div className="scoped-owner-composer-actions">

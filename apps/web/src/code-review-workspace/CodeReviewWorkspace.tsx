@@ -31,9 +31,11 @@ export interface CodeReviewWorkspaceProps {
   owners: readonly {owner: ReviewOwner; label: string}[];
   pullRequests: readonly {repo: string; number: number; title: string}[];
   onNavigate: (selection: ReviewSelection) => void;
+  onRefresh?: () => void;
+  ownerControls?: ReactNode;
   writes?: ReviewWrites;
   chat?: ReactNode;
-  terminal?: ReactNode;
+  terminal?: ReactNode | ((active: boolean) => ReactNode);
 }
 export function CodeReviewWorkspace(props: CodeReviewWorkspaceProps) {
   const {selection, owners, pullRequests, onNavigate, chat, terminal} = props;
@@ -43,6 +45,7 @@ export function CodeReviewWorkspace(props: CodeReviewWorkspaceProps) {
     <header className="cr-toolbar">
       <Select aria-label="Project and working copy" value={ownerKey(selection.owner)} options={owners.map(item => ({value: ownerKey(item.owner), label: item.label}))}
         onValueChange={value => {const next = owners.find(item => ownerKey(item.owner) === value); if (next) onNavigate({owner: next.owner, target: {kind: 'local', scope: 'worktree'}});}} />
+      {props.ownerControls}
       <Select aria-label="Comparison" value={targetValue} options={[{value: 'worktree', label: 'Working copy'}, {value: 'staged', label: 'Staged changes'}, ...pullRequests.map(item => ({value: `pr:${item.repo}:${item.number}`, label: `#${item.number} ${item.title}`}))]}
         onValueChange={value => {const pr = pullRequests.find(item => value === `pr:${item.repo}:${item.number}`); onNavigate({...selection, target: pr ? {kind: 'pull-request', repo: pr.repo, number: pr.number} : {kind: 'local', scope: value === 'staged' ? 'staged' : 'worktree'}});}} />
       <span className="cr-toolbar-spacer" />
@@ -51,7 +54,7 @@ export function CodeReviewWorkspace(props: CodeReviewWorkspaceProps) {
     </header>
     <div className="cr-body">
       <ComparisonBody key={selectionKey(selection)} {...props} />
-      {Boolean(terminal) && <section className="cr-slot cr-terminal" aria-label="Terminal" hidden={!terminalOpen}>{terminal}</section>}
+      {Boolean(terminal) && <section className="cr-slot cr-terminal" aria-label="Terminal" hidden={!terminalOpen}>{typeof terminal === 'function' ? terminal(terminalOpen) : terminal}</section>}
       {Boolean(chat) && <section className="cr-slot cr-chat" aria-label="Agent chat" hidden={!chatOpen}>{chat}</section>}
     </div>
   </section>;
@@ -77,7 +80,7 @@ function reviewable(selection: ReviewSelection, comparison: CodeReviewComparison
     && review.item.headRefOid === identity.headOid && review.head === identity.headOid && review.revision === writes?.git.revision;
 }
 
-function ComparisonBody({selection, writes}: CodeReviewWorkspaceProps) {
+function ComparisonBody({selection, writes, onRefresh}: CodeReviewWorkspaceProps) {
   const [read, setRead] = useState<ComparisonRead>({state: 'loading'}), [refreshing, setRefreshing] = useState(false), [refresh, setRefresh] = useState(0);
   const [path, setPath] = useState(''), [filter, setFilter] = useState(''), [busy, setBusy] = useState(false), [notice, setNotice] = useState(''), [menuOpen, setMenuOpen] = useState(false);
   const mounted = useRef(true), inFlight = useRef(false), latestWrites = useRef(writes); latestWrites.current = writes;
@@ -103,7 +106,7 @@ function ComparisonBody({selection, writes}: CodeReviewWorkspaceProps) {
   const canReview = !!comparison && reviewable(selection, comparison, writes);
   const ownerBound = !!writes && sameOwner(selection.owner, writes.owner) && selection.owner.authority.kind === 'local';
   const rows = comparison?.files.filter(file => `${file.path} ${file.oldPath ?? ''}`.toLocaleLowerCase().includes(filter.toLocaleLowerCase())) ?? [];
-  const load = () => setRefresh(value => value + 1);
+  const load = () => {onRefresh?.(); setRefresh(value => value + 1);};
   async function perform(operation: ReviewOperation['operation'], payload: ReviewOperation['payload'], callback: (context: ReviewActionContext) => Promise<ReviewActionResult>, reviewWrite = false) {
     if (!comparison || !action || !canWrite || held || inFlight.current || !draft.value || (reviewWrite && (!compatible || !canReview))) return;
     inFlight.current = true; setBusy(true); setNotice(''); let started = false, admitted = false;
