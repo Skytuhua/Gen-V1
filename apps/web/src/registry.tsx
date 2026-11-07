@@ -127,6 +127,7 @@ function Tabs({ element: { props }, children, bindings }: ComponentRenderProps) 
   const parsed = tabStateData.safeParse(typeof props.statusBinding === 'string' ? store.get(`/inputs/${props.statusBinding}`) : undefined);
   const source = parsed.success ? parsed.data : undefined;
   const selected = source?.items.find(item => item.label === active);
+  if (new Set(labels).size !== labels.length) return <p role="alert">This saved tab view is invalid because its labels are not unique.</p>;
   return <div className={source ? 'task-tabs-operation' : undefined}>
     {source && (source.title || source.detail || source.status) && <header className="task-tabs-operation-header"><div>{source.title && source.title !== artifactTitle && <strong>{source.title}</strong>}{source.detail && <span>{source.detail}</span>}</div>{source.status && <StatusIcon status={source.status} />}</header>}
     <div className="surface-tabs" role="tablist" aria-label={string(props.label, 'Views')}>{labels.map((label, i) => {
