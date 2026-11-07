@@ -46,8 +46,9 @@ export function ResearchHost({canvas,workspace,composers,openConversation}:{canv
  const held=Boolean(detached||nativePending||desktop?.closing), fence=useRef({signature:'',version:0,active:true});
  const signature=JSON.stringify([key,context?.scopeKey,held]);if(fence.current.signature!==signature)fence.current={...fence.current,signature,version:fence.current.version+1};
  useEffect(()=>{fence.current.active=true;return()=>{fence.current.active=false;fence.current.version++;};},[]);
- const choosing=useRef(false), version=fence.current.version;
- const ownerGuard=useMemo(()=>()=>fence.current.active&&!held&&!choosing.current&&fence.current.version===version,[signature,version]);
+ // The native token records transitions even when React batches away an owner round trip.
+ const choosing=useRef(false), version=fence.current.version, ownership=desktop?desktop.ownership(surface):0;
+ const ownerGuard=useMemo(()=>()=>fence.current.active&&!held&&!choosing.current&&fence.current.version===version&&ownership!==undefined&&(desktop?desktop.ownership(surface):0)===ownership,[signature,version,ownership]);
  const eligible=Boolean(!changing&&!pending&&!error&&!bindingError&&admitted&&context&&conversation.state.phase==='ready'&&context.owner.threadId===admitted.row.id&&context.researchEligible&&context.owner.projectId===(binding?.projectId??admitted.row.projectId??null));
  const [files,setFiles]=useState<{key:string;items:ShellResourceRow[];cursor:string|null;pending:boolean;loaded:boolean;error?:string}>(),filesRead=useRef<AbortController | undefined>(undefined),currentScope=useRef(context?.scopeKey);currentScope.current=context?.scopeKey;
  useLayoutEffect(()=>()=>{filesRead.current?.abort();filesRead.current=undefined;},[context?.scopeKey]);
@@ -74,7 +75,7 @@ export function ResearchHost({canvas,workspace,composers,openConversation}:{canv
  },[admitted,navigation.page]);
  async function choose(id:string){
   if(!id||choosing.current||!ownerGuard())return;
-  choosing.current=true;const operationVersion=++fence.current.version, operationCurrent=()=>fence.current.active&&!held&&fence.current.version===operationVersion;
+  choosing.current=true;const operationVersion=++fence.current.version, operationOwnership=desktop?desktop.ownership(surface):0, operationCurrent=()=>fence.current.active&&!held&&fence.current.version===operationVersion&&operationOwnership!==undefined&&(desktop?desktop.ownership(surface):0)===operationOwnership;
   setChanging(true);setError('');
   try{
    const check=()=>{if(!operationCurrent())throw Error('The workspace owner changed. Retry from the current view.');};
