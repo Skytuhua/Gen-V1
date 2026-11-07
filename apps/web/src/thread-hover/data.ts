@@ -34,9 +34,10 @@ export function createThreadHoverDataController<Target = unknown>({load, cache =
       cancel();
       const scope = {...input, authority: {...input.authority}}, captured = generation, key = hoverScopeKey(scope);
       const cached = cache.get(scope);
-      if (cached) {publish({status: 'ready', scope, facts: cached}); return;}
+      // Git and linked PR facts can change without a thread metadata revision.
+      if (cached) publish({status: 'ready', scope, facts: cached});
       const controller = new AbortController(); pending = controller;
-      publish({status: 'loading', scope});
+      if (!cached) publish({status: 'loading', scope});
       const current = () => generation === captured && !controller.signal.aborted;
       void (async () => {
         try {

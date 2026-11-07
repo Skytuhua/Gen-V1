@@ -32,7 +32,7 @@ describe('exact thread hover ownership', () => {
 
   it('accepts ProjectContext facts only for exact thread, project, working-copy and revision', () => {
     const owner = scope();
-    const context: ProjectContext = {project: {id: 'project', name: 'Project', rootPath: owner.workingCopyId!, authority: owner.authority, createdAt: '2026-01-01T00:00:00Z'}, threadId: owner.threadId, revision: owner.revision, machineName: 'Windows host', branch: 'exact-branch', head: 'abc', editor: {available: true, label: 'Editor'}, changes: {added: null, removed: null, files: null}, lineage: [], scripts: [], capabilities: {git: true, terminal: false, pullRequests: false}};
+    const context: ProjectContext = {project: {id: 'project', name: 'Project', rootPath: 'C:/original-repository', authority: owner.authority, createdAt: '2026-01-01T00:00:00Z'}, threadId: owner.threadId, workingCopy: {id: owner.workingCopyId!, path: 'C:/actual-managed-copy'}, threadRevision: owner.revision, revision: 'separate-git-revision', machineName: 'Windows host', branch: 'exact-branch', head: 'abc', editor: {available: true, label: 'Editor'}, changes: {added: null, removed: null, files: null}, lineage: [], scripts: [], capabilities: {git: true, terminal: false, pullRequests: false}};
     expect(factsFromProjectContext(owner, 'Title', context)?.branch).toBe('exact-branch');
     for (const other of [scope({threadId: 'other'}), scope({projectId: 'other'}), scope({workingCopyId: 'other'}), scope({revision: 'other'}), scope({authority: {kind: 'plugin', pluginId: 'company', scopeId: 'team'}})]) expect(factsFromProjectContext(other, 'Title', context)).toBeNull();
     expect(factsFromProjectContext(owner, 'Title', {...context, threadId: undefined})).toBeNull();
@@ -62,10 +62,10 @@ describe('exact thread hover ownership', () => {
     expect(cancelled.getState()).toEqual({status: 'idle'}); expect(cache.get(scope())).toBeUndefined();
   });
 
-  it('reuses only exact cached revisions and handles synchronous source failures', async () => {
+  it('revalidates exact cached revisions and handles synchronous source failures', async () => {
     const cache = createThreadHoverCache(); cache.set(facts()); const load = vi.fn(() => {throw new Error('sync failure');});
     const controller = createThreadHoverDataController({cache, load, onChange: () => {}});
-    controller.activate(scope()); expect(controller.getState().status).toBe('ready'); expect(load).not.toHaveBeenCalled();
+    controller.activate(scope()); await flush(); expect(controller.getState().status).toBe('error'); expect(load).toHaveBeenCalledTimes(1);
     controller.activate(scope({revision: 'rev-2'})); await flush(); expect(controller.getState().status).toBe('error');
   });
 

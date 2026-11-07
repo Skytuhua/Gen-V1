@@ -6,6 +6,7 @@ import {z} from 'zod';
 import {Store} from '../storage/store.ts';
 import {HarnessError,type HostCommand,type ResourceGrant,type Thread} from '../contracts/index.ts';
 import type {ProjectContext,ProjectSummary} from '../contracts/workspace.ts';
+import {threadNavigationRevision} from '../contracts/shell-read-models.ts';
 import {WorkspaceRepository} from '../core/workspace-layout.ts';
 import {assertNotStorage,canonical,inside} from '../core/security.ts';
 import {gitExecutable} from '../capabilities/process.ts';
@@ -159,9 +160,12 @@ export class ProjectTools{
   }));
  }
  async context(projectId:string,threadId?:string):Promise<ProjectContext>{
-  const project=this.project(projectId),lineage=this.store.all<Thread>('thread').filter(item=>item.projectId===project.id).map(item=>({id:item.id,title:item.title,status:item.status,parentThreadId:item.parentThreadId,kind:item.kind})),scripts=this.store.all<{id:string;name:string;command:string;projectId:string}>('projectScript').filter(item=>item.projectId===project.id);
+  const admitted=await this.binding(projectId,threadId),project=admitted.project,captured=threadId?this.store.get<Thread>('thread',threadId):undefined,threadRevision=captured?threadNavigationRevision(captured):undefined;
+  const lineage=this.store.all<Thread>('thread').filter(item=>item.projectId===project.id).map(item=>({id:item.id,title:item.title,status:item.status,parentThreadId:item.parentThreadId,kind:item.kind})),scripts=this.store.all<{id:string;name:string;command:string;projectId:string}>('projectScript').filter(item=>item.projectId===project.id);
   let status:GitStatus|undefined,error:string|undefined;try{status=await this.gitStatus(projectId,threadId);}catch(reason){error=reason instanceof Error?reason.message:'Project status is unavailable.';}
-  return{project,...(threadId?{threadId}:{}),machineName:hostname(),editor:{available:true,label:'Default editor'},branch:status?.branch??null,head:status?.head??null,...(status?{revision:status.revision}:{}),changes:{added:status?status.files.reduce((sum,file)=>sum+(file.added??0),0):null,removed:status?status.files.reduce((sum,file)=>sum+(file.removed??0),0):null,files:status?.files.length??null},lineage,scripts,capabilities:{git:!!status,gitWrite:status?.gitWrite??false,untrackedIncluded:status?.untrackedIncluded??false,terminal:!!project.rootPath,pullRequests:!!status?.gitWrite},...(error?{error}:{})};
+  const current=await this.binding(projectId,threadId),latest=threadId?this.store.get<Thread>('thread',threadId):undefined;
+  if(current.path!==admitted.path||current.workspace?.id!==admitted.workspace?.id||threadId&&(!captured||!latest||threadNavigationRevision(latest)!==threadRevision))throw new HarnessError('REVISION_CHANGED','Conversation metadata changed. Retry the current thread.');
+  return{project,...(threadId?{threadId,threadRevision}:{}),...(admitted.workspace?{workingCopy:{id:admitted.workspace.id,path:admitted.path}}:{}),machineName:hostname(),editor:{available:true,label:'Default editor'},branch:status?.branch??null,head:status?.head??null,...(status?{revision:status.revision}:{}),changes:{added:status?status.files.reduce((sum,file)=>sum+(file.added??0),0):null,removed:status?status.files.reduce((sum,file)=>sum+(file.removed??0),0):null,files:status?.files.length??null},lineage,scripts,capabilities:{git:!!status,gitWrite:status?.gitWrite??false,untrackedIncluded:status?.untrackedIncluded??false,terminal:!!project.rootPath,pullRequests:!!status?.gitWrite},...(error?{error}:{})};
  }
  async files(projectId:string,threadId:string|undefined,relativePath=''){
   const{path}=await this.binding(projectId,threadId),target=relativePath?join(path,pathName.parse(relativePath)):path;if(!inside(path,await realpath(target)))throw new HarnessError('CAPABILITY_DENIED','Files stay inside the selected worktree.');

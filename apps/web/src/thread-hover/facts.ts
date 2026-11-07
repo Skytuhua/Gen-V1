@@ -35,6 +35,7 @@ export interface ThreadHoverFacts<Target = unknown> {
   readonly parent?: {readonly threadId: string; readonly title?: string};
   readonly childCount?: number;
   readonly pullRequests?: readonly ThreadHoverPullRequest<Target>[];
+  readonly pullRequestError?: string;
 }
 
 export function hoverScopeKey(scope: ThreadHoverScope): string {
@@ -44,16 +45,16 @@ export function hoverScopeKey(scope: ThreadHoverScope): string {
 }
 
 export function scopedThreadHoverFacts<Target>(facts: ThreadHoverFacts<Target>): ThreadHoverFacts<Target> {
-  const {branch, workingCopy, pullRequests, ...basic} = facts;
+  const {branch, workingCopy, pullRequests, pullRequestError, ...basic} = facts;
   return facts.scope.workingCopyId && facts.scope.revision ? facts : basic;
 }
 
 /** Adapts an already authenticated project read; no fetch, lineage totals or PR inference. */
 export function factsFromProjectContext(scope: ThreadHoverScope, title: string, context: ProjectContext): ThreadHoverFacts | null {
   const candidate: ThreadHoverScope = {authority: context.project.authority, threadId: context.threadId ?? '',
-    projectId: context.project.id, workingCopyId: context.project.rootPath ?? null, revision: context.revision ?? ''};
+    projectId: context.project.id, workingCopyId: context.workingCopy?.id ?? null, revision: context.threadRevision ?? ''};
   if (context.error || !scope.workingCopyId || !scope.revision || hoverScopeKey(scope) !== hoverScopeKey(candidate)) return null;
   return {scope, title, project: {name: context.project.name},
-    ...(context.machineName ? {machine: context.machineName} : {}), workingCopy: context.project.rootPath,
+    ...(context.machineName ? {machine: context.machineName} : {}), workingCopy: context.workingCopy?.path,
     ...(context.branch ? {branch: context.branch} : {})};
 }
