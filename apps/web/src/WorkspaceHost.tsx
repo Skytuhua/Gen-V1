@@ -63,7 +63,7 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
   const invalidOwner = Boolean(workspace.envelope && !preset);
   const failure = error || workspace.error || (invalidOwner ? 'The saved workspace is unavailable. Retry to reload it.' : '');
   useDesktopReady(Boolean((monitored && !inventory.pending && (inventory.scopeKey || inventory.error)) || failure));
-  const changeWorkspace = async (next: WorkspacePreset, beforeSelect?: () => Promise<void>, binding?: PanelBinding, isCurrent?: () => boolean) => {
+  const changeWorkspace = async (next: WorkspacePreset, beforeSelect?: () => Promise<void>, binding?: PanelBinding, isCurrent?: () => boolean, expectedScope?:ThreadHoverScope) => {
     const check = () => {if (isCurrent && !isCurrent()) throw Error('The workspace owner changed. Reopen the current details.');};
     check();
     if (pending.current) throw Error('A workspace change is already in progress.');
@@ -85,7 +85,10 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
         const row = await getShellNavigationItem(threadId);
         if (row.id !== threadId || !row.projectId || row.kind === 'side' || row.kind === 'delegate') threadId = undefined;
       }
-      await workspace.send(canvas ? 'workspace.canvas.select' : 'workspace.canvas.create', canvas ? {canvasId:canvas.id,...(next==='code-review'&&threadId?{threadId}:{})} : {name:next,preset:next,...(threadId?{threadId}:{})}, isCurrent);
+      const expected=expectedScope?{projectId:expectedScope.projectId,workingCopyId:expectedScope.workingCopyId,revision:expectedScope.revision}:undefined;
+      const ownerFields=threadId?{threadId,...(expected?{expected}:{})}:{};
+      const payload=canvas?{canvasId:canvas.id,...(next==='code-review'?ownerFields:{})}:{name:next,preset:next,...ownerFields};
+      await workspace.send(canvas ? 'workspace.canvas.select' : 'workspace.canvas.create',payload,isCurrent);
       check(); if (alive.current) setError('');
     } finally {pending.current = false;}
   };
@@ -97,7 +100,7 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
     try {await changeWorkspace('code-review',async()=>{
       const row=await getShellNavigationItem(scope.threadId);
       if(row.projectId!==scope.projectId||row.workspaceId!==scope.workingCopyId||(row.threadRevision??threadNavigationRevision(row))!==scope.revision)throw Error('Thread details changed. Reopen the current details.');
-    },{authority:{kind:'local'},threadId:scope.threadId,projectId:scope.projectId},isCurrent);
+    },{authority:{kind:'local'},threadId:scope.threadId,projectId:scope.projectId},isCurrent,scope);
     if(isCurrent())setReviewDestination({id:++intentSequence.current,scope,target});
     }catch(cause){if(alive.current)setError(message(cause));throw cause;}
   };

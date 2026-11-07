@@ -131,6 +131,7 @@ export function ThreadHoverCard<Target>({facts, loadFacts, cache: suppliedCache,
               {(pr.state || pr.checks) && <span className="thread-hover-pr-status">{[pr.state, pr.checks].filter(Boolean).join(' · ')}</span>}</span></div>}
           </li>)}
         </ul>}
+        {details.pullRequestError && <div className="thread-hover-error"><p className="thread-hover-message" role="status">{details.pullRequestError}</p><button type="button" onClick={() => controller?.activate(facts.scope)}>Retry pull requests</button></div>}
         {loading && <p className="thread-hover-message" role="status">Loading details…</p>}
         {error && <div className="thread-hover-error"><p className="thread-hover-message" role="status">Details unavailable.</p><button type="button" onClick={() => controller?.activate(facts.scope)}>Retry</button></div>}
         {!loading && !error && !knownRows.length && !details.pullRequests?.length && <p className="thread-hover-message">No additional details.</p>}

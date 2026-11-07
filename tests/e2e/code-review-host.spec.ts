@@ -1,4 +1,4 @@
-import {test,expect,type Page} from '@playwright/test';
+import {test,expect,type Page,type Request} from '@playwright/test';
 import {fileURLToPath} from 'node:url';
 import {serveTaskFixture,taskFixture} from './task-interface-fixture';
 import {scopedContext} from '../scoped-conversation-fixture';
@@ -32,9 +32,10 @@ async function fixture(page:Page,{unbound=false,wrongProject=false,native=false,
   if(input.type==='workspace.canvas.select'||input.type==='workspace.canvas.create'){
    const creating=input.type==='workspace.canvas.create',target=creating?{id:input.payload.preset,name:input.payload.name,preset:input.payload.preset,panels:[] as typeof panel[],viewport:{x:0,y:0,zoom:1}}:canvases.find(canvas=>canvas.id===input.payload.canvasId)!;
    if(input.payload.threadId){
-    const selected=snapshot.threads.find(item=>item.id===input.payload.threadId);
+    const selected=snapshot.threads.find(item=>item.id===input.payload.threadId)??{...row,id:input.payload.threadId};
     // Match the canonical atomic bindReview precondition before mutating the fixture layout.
     if(target.preset==='code-review'&&(!selected?.projectId||selected.kind==='side'||selected.kind==='delegate'||selected.sideParentId))return route.fulfill({status:409,json:{error:{code:'THREAD_REQUIRED',message:'Choose a main project conversation for Code Review.'}}});
+    if(input.payload.expected&&(selected.projectId!==input.payload.expected.projectId||selected.workspaceId!==input.payload.expected.workingCopyId||threadNavigationRevision(selected)!==input.payload.expected.revision))return route.fulfill({status:409,json:{error:{code:'REVISION_CHANGED',message:'The working copy changed. Reopen the current thread details.'}}});
     const binding={authority:{kind:'local'},threadId:selected!.id,projectId:selected!.projectId!};const existing=target.panels.find(item=>item.kind==='thread');if(existing)existing.binding=binding;else target.panels.push({...panel,id:'review-owner-'+target.id,binding});
    }
    if(creating)canvases.push(target);envelope.state.activeCanvasId=target.id;
@@ -209,7 +210,7 @@ test('optional linked PR failure leaves local review usable before and after a f
  await page.route('**/api/conversations/older-copy**',route=>{const url=new URL(route.request().url()),owner={authority:'personal',threadId:other.id,scopeKey:context.scopeKey,sequence:20};return route.fulfill({json:url.pathname.endsWith('/updates')?{...owner,fromSequence:20,owner:null,transcriptChanged:false,checkpoint:context.checkpoint}:url.pathname.endsWith('/transcript')?{...owner,messages:[],nextCursor:null}:context});});
  await page.getByRole('button',{name:'More conversations',exact:true}).click();await choose(page,'Project and working copy','Alpha / Older working copy');
  await expect(page.getByRole('combobox',{name:'Project and working copy',exact:true})).toContainText('Older working copy');await expect(stage).toBeEnabled();
- expect(h.workspaceCommands).toHaveLength(1);expect(h.workspaceCommands[0]).toMatchObject({type:'workspace.panel.update',payload:{patch:{binding:{threadId:'older-copy'}}}});
+ expect(h.workspaceCommands).toHaveLength(1);expect(h.workspaceCommands[0]).toMatchObject({type:'workspace.canvas.select',payload:{canvasId:'code-review',threadId:'older-copy'}});
 });
 
 test('actual fresh Git failure still holds local tools when linked PR discovery is unavailable',async({page})=>{
@@ -233,6 +234,7 @@ test('sidebar cards keep sibling copies separate and open the exact linked PR',a
  expect(h.requests.some(path=>path.startsWith('/api/projects/project-a/pull-requests/48/comparison?threadId=review-a'))).toBe(true);
  expect(h.requests.filter(path=>path==='/api/snapshot'||path.startsWith('/api/agents'))).toEqual([]);
  expect(h.workspaceCommands.filter(item=>item.type==='workspace.canvas.select'&&item.payload.threadId==='review-a')).toHaveLength(1);
+ expect(h.workspaceCommands.find(item=>item.type==='workspace.canvas.select'&&item.payload.threadId==='review-a')?.payload.expected).toEqual({projectId:'project-a',workingCopyId:'copy-a',revision:threadNavigationRevision(h.row)});
  expect(h.workspaceCommands.filter(item=>item.type==='workspace.panel.update'||item.type==='workspace.panel.add')).toHaveLength(0);
 });
 
@@ -252,6 +254,16 @@ test('reopening sidebar details refreshes branch and newly linked PR facts',asyn
  await trigger.hover();await expect(card).toContainText('old-branch');expect(await card.getByRole('button',{name:/Open PR/}).count()).toBe(0);
  await page.mouse.move(1000,700);await expect(card).toBeHidden();refreshed=true;
  await trigger.hover();await expect(card).toContainText('fresh-branch');await expect(card.getByRole('button',{name:'Open PR #49 Newly linked PR',exact:true})).toBeVisible();
+});
+
+test('sidebar preserves working-copy details when linked PR discovery is unavailable',async({page})=>{
+ await fixture(page,{hover:true,linkedPrUnavailable:true,awaitComparison:true});
+ await page.getByRole('button',{name:'Review changes Ready',exact:true}).hover();
+ const card=page.locator('.thread-hover-card');
+ await expect(card).toContainText('branch-review-a');
+ await expect(card.getByText('Linked pull requests are unavailable.')).toBeVisible();
+ await expect(card.getByRole('button',{name:'Retry pull requests'})).toBeVisible();
+ await expect(card.getByRole('button',{name:/Open PR/})).toHaveCount(0);
 });
 
 test('a failed hover PR transition preserves the active workspace and review owner',async({page})=>{
@@ -345,4 +357,50 @@ test('ordinary project conversation navigation retains the atomic Code Review ow
  await expect(page.getByRole('button',{name:'Code Review',exact:true})).toHaveAttribute('aria-pressed','true');
  await expect(page.getByRole('region',{name:'Selected file diff'})).toContainText('exact local source');
  expect(h.workspaceCommands).toHaveLength(1);expect(h.workspaceCommands[0]).toMatchObject({type:'workspace.canvas.select',payload:{canvasId:'code-review',threadId:'review-a'}});
+});
+
+test('a changed working-copy revision cannot select an old hover destination',async({page})=>{
+ const h=await fixture(page,{hover:true,startWorkspace:true,awaitSnapshot:true});
+ const trigger=page.getByRole('button',{name:'Review changes Ready',exact:true}),card=page.locator('.thread-hover-card');
+ await trigger.hover();await expect(card).toContainText('branch-review-a');
+ await page.route('**/api/shell/navigation/review-a',route=>route.fulfill({json:{...h.row,updatedAt:'2026-12-01T00:00:00Z',threadRevision:threadNavigationRevision({...h.row,updatedAt:'2026-12-01T00:00:00Z'})}}));
+ await card.getByRole('button',{name:'Open PR #48 Exact remote PR',exact:true}).click();
+ await expect(page.getByRole('alert').filter({hasText:'Thread details changed'})).toBeVisible();
+ await expect(page.getByRole('button',{name:'Code Review',exact:true})).toHaveAttribute('aria-pressed','false');
+ expect(h.workspaceCommands).toHaveLength(0);
+});
+
+test('a no-longer-linked PR remains a local review after selecting the exact conversation',async({page})=>{
+ const h=await fixture(page,{hover:true,startWorkspace:true,awaitSnapshot:true});
+ await page.getByRole('button',{name:'Review changes Ready',exact:true}).hover();
+ const card=page.locator('.thread-hover-card');await expect(card.getByRole('button',{name:'Open PR #48 Exact remote PR',exact:true})).toBeVisible();
+ await page.route('**/api/projects/project-a/pull-requests?*',route=>route.fulfill({json:{repo:'owner/repo',items:[]}}));
+ await card.getByRole('button',{name:'Open PR #48 Exact remote PR',exact:true}).click();
+ await expect(page.getByRole('button',{name:'Code Review',exact:true})).toHaveAttribute('aria-pressed','true');
+ await expect(page.getByRole('alert').filter({hasText:'no longer linked'})).toBeVisible();
+ await expect(page.getByRole('button',{name:'Stage file',exact:true})).toBeEnabled();
+ expect(h.requests.filter(path=>path.startsWith('/api/projects/project-a/pull-requests/48/comparison'))).toHaveLength(0);
+});
+
+test('a delayed linked PR verification cannot override a newer manual comparison',async({page})=>{
+ const h=await fixture(page,{hover:true,startWorkspace:true,awaitSnapshot:true});
+ await page.getByRole('button',{name:'Review changes Ready',exact:true}).hover();
+ const card=page.locator('.thread-hover-card');await expect(card.getByRole('button',{name:'Open PR #48 Exact remote PR',exact:true})).toBeVisible();
+ let reads=0,release!:()=>void,settle!:()=>void,finish!:()=>void,verificationRequest:Request|undefined;const held=new Promise<void>(resolve=>{release=resolve;}),settled=new Promise<void>(resolve=>{settle=resolve;}),finished=new Promise<void>(resolve=>{finish=resolve;});
+ const terminal=(request:Request)=>{if(request===verificationRequest)finish();};page.on('requestfinished',terminal);page.on('requestfailed',terminal);
+ await page.route('**/api/projects/project-a/pull-requests?*',async route=>{
+  const delayed=++reads===2;if(delayed){verificationRequest=route.request();await held;}
+  try{await route.fulfill({json:{repo:'owner/repo',items:[{number:48,title:'Exact remote PR'}]}});}finally{if(delayed)settle();}
+ });
+ try{
+  await card.getByRole('button',{name:'Open PR #48 Exact remote PR',exact:true}).click();
+  await expect.poll(()=>reads).toBe(2);
+  await page.getByRole('combobox',{name:'Comparison',exact:true}).click();
+  await page.getByRole('option',{name:'Staged changes',exact:true}).click();
+  await expect(page.getByRole('combobox',{name:'Comparison',exact:true})).toContainText('Staged changes');
+ }finally{release();}
+ await expect(page.getByRole('region',{name:'Code review workspace',exact:true})).toBeVisible();
+ await Promise.all([settled,finished]);page.off('requestfinished',terminal);page.off('requestfailed',terminal);
+ await expect(page.getByRole('combobox',{name:'Comparison',exact:true})).toContainText('Staged changes');
+ expect(h.requests.filter(path=>path.startsWith('/api/projects/project-a/pull-requests/48/comparison'))).toHaveLength(0);
 });
