@@ -252,7 +252,7 @@ for(const [kind,label] of [['file','File'],['database','SQLite database'],['expo
 test('monitor preserves unpin confirmation with a shared dialog and cancellation', async ({page}) => {
   const h = await fixture(page, {pinned: true});
   await page.getByRole('button', {name: 'Options for Project investigation', exact: true}).click();
-  await page.getByRole('button', {name: 'Unpin thread', exact: true}).click();
+  await page.getByRole('menuitem', {name: 'Unpin thread', exact: true}).click();
   const dialog = page.getByRole('dialog', {name: 'Unpin thread', exact: true});
   await expect(dialog).toBeVisible();
   expect(h.commands.filter(command => command.type === 'thread.presentation')).toHaveLength(0);
@@ -264,7 +264,7 @@ test('monitor preserves unpin confirmation with a shared dialog and cancellation
 test('monitor honors disabled archive confirmation without creating an extra dialog', async ({page}) => {
   const h = await fixture(page, {archiveConfirmation: false, working: false});
   await page.getByRole('button', {name: 'Options for Project investigation', exact: true}).click();
-  await page.getByRole('button', {name: 'Archive thread', exact: true}).click();
+  await page.getByRole('menuitem', {name: 'Archive thread', exact: true}).click();
   await expect.poll(() => h.commands.filter(command => command.type === 'thread.archive').length).toBe(1);
   await expect(page.getByRole('dialog', {name: 'Archive thread', exact: true})).toHaveCount(0);
 });
@@ -317,7 +317,7 @@ test('Settings close waits for an accepted preference save before applying monit
   try {await expect(dialog).toBeVisible();} finally {release();}
   await expect(dialog).toHaveCount(0);
   await page.getByRole('button', {name: 'Options for Project investigation', exact: true}).click();
-  await page.getByRole('button', {name: 'Archive thread', exact: true}).click();
+  await page.getByRole('menuitem', {name: 'Archive thread', exact: true}).click();
   await expect(page.getByRole('dialog', {name: 'Archive thread', exact: true})).toBeVisible();
   expect(h.commands.filter(command => command.type === 'thread.archive')).toHaveLength(0);
 });
@@ -724,7 +724,7 @@ test('Custom binds distinct artifacts and its Artifact menu resolves the active 
 
 test('Custom sidebar offers selection without movable conversation placement',async({page})=>{
  const h=await fixture(page,{working:false});await page.getByRole('button',{name:'Open conversation Project investigation',exact:true}).click();await page.getByRole('button',{name:'Custom',exact:true}).click();
- await page.getByRole('button',{name:'Options for Empty draft stays in navigation',exact:true}).click();await expect(page.getByRole('button',{name:/^Place in workspace/})).toHaveCount(0);
+ await page.getByRole('button',{name:'Options for Empty draft stays in navigation',exact:true}).click();await expect(page.getByRole('menuitem',{name:/^Place in workspace/})).toHaveCount(0);
  expect(h.dockCommands.filter(command=>JSON.stringify(command.payload).includes('"kind":"thread"'))).toEqual([]);
 });
 

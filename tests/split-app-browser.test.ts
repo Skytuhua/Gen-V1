@@ -246,7 +246,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    expect(actionsBox).not.toBeNull();expect(inputBox).not.toBeNull();expect(Math.abs(actionsBox!.y-inputBox!.y)).toBeLessThanOrEqual(6);expect(inputBox!.x+inputBox!.width).toBeLessThanOrEqual(actionsBox!.x);
    const overview=page.getByRole('region',{name:'Project overview window',exact:true});await overview.waitFor({state:'visible'});
    await page.locator('.sidebar-thread-row').first().getByRole('button',{name:/Options for/}).click();
-   expect(await page.getByRole('button',{name:'Place in workspace',exact:false}).count()).toBe(0);
+   expect(await page.getByRole('menuitem',{name:'Place in workspace',exact:false}).count()).toBe(0);
    await page.keyboard.press('Escape');
    await page.getByRole('button',{name:'Panels',exact:true}).click();
    expect(await page.getByRole('menuitem',{name:'Add Conversation panel',exact:true}).count()).toBe(0);
