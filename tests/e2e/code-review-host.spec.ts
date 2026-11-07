@@ -430,3 +430,28 @@ test('a delayed linked PR verification cannot cancel a newer manual owner choice
  await expect(page.getByRole('combobox',{name:'Comparison',exact:true})).toContainText('Working copy');
  expect(h.requests.filter(path=>path.startsWith('/api/projects/project-a/pull-requests/48/comparison'))).toHaveLength(0);
 });
+
+test('leaving Code Review discards a pending linked PR destination before returning',async({page})=>{
+ const h=await fixture(page,{hover:true,startWorkspace:true,awaitSnapshot:true});
+ await page.getByRole('button',{name:'Review changes Ready',exact:true}).hover();
+ const card=page.locator('.thread-hover-card');await expect(card.getByRole('button',{name:'Open PR #48 Exact remote PR',exact:true})).toBeVisible();
+ let reads=0,release!:()=>void,settle!:()=>void;
+ const held=new Promise<void>(resolve=>{release=resolve;}),settled=new Promise<void>(resolve=>{settle=resolve;});
+ await page.route('**/api/projects/project-a/pull-requests?*',async route=>{
+  const delayed=++reads===2;if(delayed)await held;
+  try{await route.fulfill({json:{repo:'owner/repo',items:[{number:48,title:'Exact remote PR'}]}});}finally{if(delayed)settle();}
+ });
+ try{
+  await card.getByRole('button',{name:'Open PR #48 Exact remote PR',exact:true}).click();
+  await expect.poll(()=>reads).toBe(2);
+  await page.keyboard.press('Escape');
+  await page.getByRole('button',{name:'Research',exact:true}).click();
+  await expect(page.getByRole('button',{name:'Research',exact:true})).toHaveAttribute('aria-pressed','true');
+ }finally{release();}
+ await settled;
+ await page.getByRole('button',{name:'Code Review',exact:true}).click();
+ await expect(page.getByRole('region',{name:'Selected file diff'})).toBeVisible();
+ await page.waitForLoadState('networkidle');
+ await expect(page.getByRole('combobox',{name:'Comparison',exact:true})).toContainText('Working copy');
+ expect(h.requests.filter(path=>path.startsWith('/api/projects/project-a/pull-requests/48/comparison'))).toHaveLength(0);
+});
