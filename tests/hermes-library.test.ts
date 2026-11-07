@@ -2,10 +2,13 @@ import {afterEach,expect,it,vi} from 'vitest';
 import {mkdtemp,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
+import {createHash} from 'node:crypto';
 import {Store} from '../packages/storage/store.ts';
 import {applySkillOperations} from '../packages/core/skills.ts';
 import {HermesSourceLibrary,type HermesLibrarySource} from '../packages/runtime-hermes/library.ts';
 import {HarnessError} from '../packages/contracts/index.ts';
+import {harnessCatalog} from '../packages/skill-catalog/adapters.ts';
+import {SkillCatalogRepository} from '../packages/skill-catalog/repository.ts';
 
 const cleanups:(()=>Promise<void>)[]=[];
 afterEach(async()=>{for(const cleanup of cleanups.splice(0).reverse())await cleanup();});
@@ -15,14 +18,15 @@ async function fixture(){
  const records=new Map<string,any>();let writes=0,failRefresh=false;
  const request=vi.fn(async(method:string,p:Record<string,any>):Promise<unknown>=>{
   if(method==='skills.list'){if(failRefresh)throw Error('Uncertain source read');return{skills:[...records.values()].map(x=>({name:x.name,description:x.description,category:'general'})),archived:[],usage:Object.fromEntries([...records].map(([n,x])=>[n,x.usage]))};}
-  if(method==='skills.snapshot')return{catalog:await request('skills.list',{}),inspections:Object.fromEntries(records),proposals:[]};
+  if(method==='skills.snapshot')return{catalog:await request('skills.list',{}),inspections:structuredClone(Object.fromEntries(records)),proposals:[]};
+  if(method==='skills.capture'){const x=structuredClone(records.get(p.name));return{inspection:x,files:{},...(x.versions[0]?{sourceId:x.versions[0].id}:{})};}
   if(method==='skills.inspect'){const x=records.get(p.name);if(!x)throw Error('Skill not found');return structuredClone(x);}
   if(method==='skills.compose')return{document:p.document?`${p.document.slice(0,p.document.indexOf('BODY:'))}BODY:${p.content??'old'}`:`---\nname: ${p.name}\ndescription: ${p.description}\n---\n\nBODY:${p.content}`,content:p.content??'old',frontmatter:{name:p.name,description:p.description}};
   if(method==='skills.proposals')return[];
   if(method==='skills.manage'||method==='skills.import'){
    expect(store.all('hermesIntent').length).toBeGreaterThan(0);writes++;
    const args=method==='skills.import'?p.payload:p;
-   for(const op of args.operations??[args])records.set(op.name,{name:op.name,description:'Procedure',category:'general',document:op.content,content:op.content.split('BODY:')[1]??op.content,frontmatter:{name:op.name},files:['SKILL.md'],fileHashes:{'SKILL.md':op.content},usage:{created_by:'learn',state:'active'},versions:[{id:`entry-${writes}`,skill:op.name,action:op.action,actor:'user',ts:'2026-11-01T00:00:00Z',before:[],after:[]}]});
+   for(const op of args.operations??[args])records.set(op.name,{name:op.name,description:'Procedure',category:'general',document:op.content,content:op.content.split('BODY:')[1]??op.content,frontmatter:{name:op.name},files:['SKILL.md'],fileHashes:{'SKILL.md':sha(op.content)},usage:{created_by:'learn',state:'active'},versions:[{id:`entry-${writes}`,skill:op.name,action:op.action,actor:'user',ts:'2026-11-01T00:00:00Z',before:[],after:[]}]});
    return{success:true};
   }
   if(method==='skills.flags'){const x=records.get(p.name);if(p.enabled!==undefined)x.usage.harness_enabled=p.enabled;if(p.protected!==undefined)x.usage.harness_protected=p.protected;if(p.legacyUsage&&!x.usage.harness_legacy_usage)Object.assign(x.usage,{use_count:p.legacyUsage.count,last_used_at:p.legacyUsage.lastUsedAt,patch_count:p.legacyUsage.patchCount,harness_legacy_usage:p.legacyUsage});return{success:true};}
@@ -59,7 +63,7 @@ it('retains uncertain intent and never blindly repeats a source write after refr
 
 it('preserves full source frontmatter at the single UI body translation boundary',async()=>{
  const x=await fixture();await x.library.initialize();await x.library.command(command);
- x.records.get('procedure').document='---\nname: procedure\ndescription: Procedure\nmetadata:\n  retained: true\n---\n\nBODY:old';x.records.get('procedure').fileHashes['SKILL.md']=x.records.get('procedure').document;
+ x.records.get('procedure').document='---\nname: procedure\ndescription: Procedure\nmetadata:\n  retained: true\n---\n\nBODY:old';x.records.get('procedure').fileHashes['SKILL.md']=sha(x.records.get('procedure').document);
  await x.library.refresh();const summary=x.store.all<any>('skill')[0];
  await x.library.command({id:'patch-command',type:'skill.manage',payload:{operations:[{action:'patch',name:'procedure',baseRevision:summary.revision,content:'new'}]}});
  expect(x.request.mock.calls.some(([method,p])=>method==='skills.compose'&&String(p.document).includes('retained: true'))).toBe(true);
@@ -121,4 +125,100 @@ it('does not acknowledge a pending command when its source record is missing',as
  const x=await fixture();await x.library.initialize();const original=x.source.request.bind(x.source);
  x.source.request=async<T>(method:string,p?:Record<string,unknown>)=>method==='skills.manage'?{success:true,staged:true,pending_id:'deadbeef'} as T:original<T>(method,p);
  await expect(x.library.command(command)).rejects.toMatchObject({code:'HERMES_RECONCILIATION_REQUIRED'});expect(x.store.receipt(command)).toBeNull();expect(x.store.get('hermesIntent',command.id)).not.toBeNull();
+});
+
+// The source boundary returns detached DTOs, as JSONL does, with actual raw hashes.
+const sha=(value:string)=>createHash('sha256').update(value).digest('hex');
+const packageRecord=(label:string,name='procedure')=>{
+ const document=`---\nname: ${name}\ndescription: Description ${label}\n---\n\nBody ${label}\n`,support=`Support ${label}\n`;
+ return{name,description:`Description ${label}`,category:'general',document,content:`Body ${label}\n`,files:['SKILL.md','references/help.md'],fileHashes:{'SKILL.md':sha(document),'references/help.md':sha(support)},usage:{state:'active'},versions:[{id:`tip-${label}`,ts:'2026-11-01T00:00:00Z',actor:'user',action:'patch',skill:name}],support};
+};
+async function captureFixture(){
+ const x=await fixture();let current:any=packageRecord('initial'),captures=0,pending:any[]=[],beforeRead:undefined|(()=>Promise<void>),transform:undefined|((value:any)=>any);
+ const historical=new Map([[current.versions[0].id,structuredClone(current)]]);
+ x.source.request=async<T>(method:string,p:Record<string,any>={})=>{
+  if(method==='skills.snapshot'){const {document,content,support,...inspection}=structuredClone(current);return{catalog:{skills:[{name:current.name}],archived:current.usage.state==='archived'?[current.name]:[],usage:{}},inspections:{[current.name]:inspection},proposals:structuredClone(pending)} as T;}
+  if(method==='skills.capture'||method==='skills.inspect'){
+   await beforeRead?.();
+   const row=structuredClone(p.revisionId?historical.get(p.revisionId):current)!;
+   if(method==='skills.inspect')return{...row,...(p.file_path?{fileContent:row.support}:{})} as T;
+   captures++;
+   const expected={documentHash:row.fileHashes['SKILL.md'],fileHashes:row.fileHashes,state:row.usage.state,enabled:row.usage.harness_enabled??true,protected:row.usage.harness_protected??false,tip:row.versions[0]?.id??null};
+   if(JSON.stringify(p.expected?.[row.name])!==JSON.stringify(expected))throw new HarnessError('STALE_SKILL','Canonical package changed');
+   const result={inspection:row,files:{'references/help.md':row.support},...(row.versions[0]?{sourceId:row.versions[0].id}:{})};return(transform?transform(result):result) as T;
+  }
+  throw Error('Unexpected capture fixture RPC '+method);
+ };
+ return{...x,get captures(){return captures;},update(fn:(row:any)=>void){fn(current);},set(label:string){current=packageRecord(label);historical.set(current.versions[0].id,structuredClone(current));},pause(fn?:()=>Promise<void>){beforeRead=fn;},transform(fn:(value:any)=>any){transform=fn;},pending(value:any[]){pending=value;}};
+}
+const projectionRows=(store:Store)=>['skill','skillVersion','hermesSkill','skillUsage','skillProposal','hermesProposal','hermesIntent'].map(kind=>[kind,store.all(kind)]);
+it('refuses A metadata with B body after a canonical change and commits no partial refresh',async()=>{
+ const x=await captureFixture();await x.library.refresh();const before=projectionRows(x.store);x.set('A');
+ let entered!:()=>void,resume!:()=>void;const started=new Promise<void>(done=>{entered=done;}),gate=new Promise<void>(done=>{resume=done;});
+ x.pause(async()=>{entered();await gate;});x.pending([{id:'proposal-B',created_at:1,origin:'foreground',payload:{action:'patch',name:'procedure',content:'proposal'}}]);
+ const refreshing=x.library.refresh().catch(error=>error);await started;x.set('B');resume();
+ const result=await refreshing;
+ expect({code:result?.code,rows:projectionRows(x.store)}).toEqual({code:'HERMES_RECONCILIATION_REQUIRED',rows:before});
+ x.pause();await x.library.refresh();const saved=x.store.get<any>('skillVersion','procedure@2');
+ expect(saved).toMatchObject({sourceId:'tip-B',skill:{description:'Description B',content:'Body B\n',files:{'references/help.md':'Support B\n'}}});
+ expect(x.store.all('skillVersion')).toHaveLength(2);expect((await x.library.view('procedure',{revision:2})).content).toBe(saved.skill.content);
+ await x.library.refresh();expect(x.store.all('skillVersion')).toHaveLength(2);
+});
+it.each(['missing','extra','main','missingMain','extraPath','duplicatePath','malformed','descriptor','sourceId'])('refuses an invalid successful capture DTO before commit: %s',async(mode)=>{
+ const x=await captureFixture();await x.library.refresh();const before=projectionRows(x.store);x.set('next');
+ x.transform(result=>{if(mode==='missing')delete result.files['references/help.md'];if(mode==='extra')result.files['extra.txt']='extra';if(mode==='main')result.files['SKILL.md']='main';if(mode==='missingMain')result.inspection.files=result.inspection.files.filter((path:string)=>path!=='SKILL.md');if(mode==='extraPath')result.inspection.files.push('references/extra.md');if(mode==='duplicatePath')result.inspection.files.push('references/help.md');if(mode==='malformed')result.inspection.content=null;if(mode==='descriptor')result.inspection.fileHashes['SKILL.md']=sha('unrelated');if(mode==='sourceId')result.sourceId='unrelated';return result;});
+ await expect(x.library.refresh()).rejects.toMatchObject({code:mode==='malformed'?'HERMES_PROTOCOL':'HERMES_RECONCILIATION_REQUIRED'});expect(projectionRows(x.store)).toEqual(before);
+});
+
+
+it('keeps real catalog custody unchanged on refused capture, then exposes coherent B bytes',async()=>{
+ const x=await captureFixture(),catalog=new SkillCatalogRepository([harnessCatalog(x.store)]);await x.library.refresh();
+ const first=(await catalog.list()).skills[0],custody=await catalog.checkReference(first.ref!);
+ x.set('B');x.transform(value=>{delete value.files['references/help.md'];return value;});
+ await expect(x.library.refresh()).rejects.toMatchObject({code:'HERMES_RECONCILIATION_REQUIRED'});
+ expect((await catalog.list()).skills[0]).toEqual(first);expect(await catalog.checkReference(first.ref!)).toEqual(custody);
+ x.transform(value=>value);await x.library.refresh();const next=(await catalog.list()).skills[0],record=packageRecord('B');
+ expect(next).toMatchObject({description:'Description B',files:2,availability:{status:'available'}});
+ expect((await catalog.checkReference(next.ref!)).files).toEqual([{path:'SKILL.md',bytes:Buffer.byteLength(record.document),digest:sha(record.document)},{path:'references/help.md',bytes:Buffer.byteLength(record.support),digest:sha(record.support)}]);
+ await expect(catalog.checkReference(first.ref!)).rejects.toMatchObject({code:'SKILL_CATALOG_CHANGED'});
+});
+
+it('keeps unchanged usage refresh cheap and captures archived, disabled and protected controls coherently',async()=>{
+ const x=await captureFixture();await x.library.refresh();expect(x.captures).toBe(1);
+ x.update(row=>{row.usage.use_count=7;});await x.library.refresh();expect(x.captures).toBe(1);expect(x.store.all('skillVersion')).toHaveLength(1);expect(x.store.get<any>('skill','procedure').useCount).toBe(7);
+ x.update(row=>Object.assign(row.usage,{state:'archived',harness_enabled:false,harness_protected:true}));await x.library.refresh();
+ expect(x.captures).toBe(2);expect(x.store.get<any>('skillVersion','procedure@2').skill).toMatchObject({state:'archived',enabled:false,protected:true});
+ await expect(x.library.view('procedure')).rejects.toMatchObject({code:'SKILL_DISABLED'});
+ expect((await x.library.view('procedure',{revision:2,includeInactive:true})).content).toBe('Body initial\n');
+ await x.library.refresh();expect(x.captures).toBe(2);expect(x.store.all('skillVersion')).toHaveLength(2);
+});
+
+it('retains captured immutable text for a genuinely ledger-less package',async()=>{
+ const x=await captureFixture();x.update(row=>{row.versions=[];});await x.library.refresh();
+ expect(x.store.get<any>('skillVersion','procedure@1').sourceId).toBeUndefined();x.set('later');
+ expect((await x.library.view('procedure',{revision:1})).content).toBe('Body initial\n');
+ expect((await x.library.view('procedure',{revision:1,path:'references/help.md'})).content).toBe('Support initial\n');
+});
+
+it.each(['STALE_SKILL','FileNotFoundError','ValueError','PermissionError','HERMES_PROTOCOL'])('translates capture refusal %s without retry or Store writes',async(code)=>{
+ const x=await captureFixture();await x.library.refresh();const before=projectionRows(x.store),original=x.source.request.bind(x.source);let attempts=0;x.set('later');
+ x.source.request=async<T>(method:string,params?:Record<string,unknown>)=>{if(method==='skills.capture'){attempts++;throw new HarnessError(code,'Capture refused');}return original<T>(method,params);};
+ await expect(x.library.refresh()).rejects.toMatchObject({code:'HERMES_RECONCILIATION_REQUIRED'});expect(attempts).toBe(1);expect(projectionRows(x.store)).toEqual(before);
+});
+
+it('does not commit an earlier successful package when a later capture fails',async()=>{
+ const x=await captureFixture();await x.library.refresh();const before=projectionRows(x.store),original=x.source.request.bind(x.source);x.set('changed');
+ x.source.request=async<T>(method:string,params?:Record<string,unknown>)=>{
+  if(method==='skills.capture'&&params?.name==='second')throw new HarnessError('STALE_SKILL','Second package changed');
+  const result=await original<any>(method,params);if(method==='skills.snapshot'){const second=packageRecord('second','second');result.catalog.skills.push({name:'second'});result.inspections.second=second;}return result as T;
+ };
+ await expect(x.library.refresh()).rejects.toMatchObject({code:'HERMES_RECONCILIATION_REQUIRED'});expect(x.captures).toBe(2);expect(projectionRows(x.store)).toEqual(before);
+});
+
+
+it('retains the uncertain command intent when post-write capture fails and never repeats the write',async()=>{
+ const x=await fixture();await x.library.initialize();const original=x.source.request.bind(x.source);let wrote=false;
+ x.source.request=async<T>(method:string,params?:Record<string,unknown>)=>{if(wrote&&method==='skills.capture')throw new HarnessError('STALE_SKILL','Canonical bytes changed after write');const result=await original<T>(method,params);if(method==='skills.manage')wrote=true;return result;};
+ await expect(x.library.command(command)).rejects.toMatchObject({code:'HERMES_RECONCILIATION_REQUIRED'});expect(x.store.receipt(command)).toBeNull();expect(x.store.get('hermesIntent',command.id)).not.toBeNull();expect(x.store.all('skillVersion')).toEqual([]);
+ await expect(x.library.command(command)).rejects.toMatchObject({code:'HERMES_RECONCILIATION_REQUIRED'});expect(x.writes).toBe(1);
 });

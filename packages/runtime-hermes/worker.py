@@ -41,10 +41,17 @@ sys.stdout = sys.stderr
 WRITE_LOCK = threading.Lock()
 
 
-def emit(frame):
+def frame_data(frame):
+    """One serializer and admission bound for captures and their emitted envelope."""
     data = json.dumps(frame, ensure_ascii=False, default=_json_default, allow_nan=False)
-    if len(data.encode("utf-8")) > MAX_FRAME_BYTES:
+    # The client bounds the JSONL buffer, including the terminating newline.
+    if len(data.encode("utf-8")) + 1 > MAX_FRAME_BYTES:
         raise ValueError("Worker response exceeds the 32MiB transport bound")
+    return data
+
+
+def emit(frame):
+    data = frame_data(frame)
     with WRITE_LOCK:
         WIRE.write(data + "\n")
         WIRE.flush()
@@ -472,14 +479,14 @@ class Worker:
                 report({**diagnostic, "status": "unknown", "message": "The source turn ended without confirming the post-edit callback; it will not replay."})
         return finish
 
-    def check_expected(self, expected):
+    def check_expected(self, expected, inspections=None):
         from tools import skill_manager_tool as manager
         for name, before in (expected or {}).items():
             if before is None:
                 if manager._find_skill(name) is not None:
                     raise SourceConflictError("Source package now exists")
                 continue
-            current = self.skills("skills.inspect", {"name": name})
+            current = inspections[name] if inspections is not None else self.skills("skills.inspect", {"name": name})
             usage = current["usage"]
             actual = {"documentHash": current["fileHashes"].get("SKILL.md"), "fileHashes": current["fileHashes"],
                 "enabled": usage.get("harness_enabled", True), "protected": usage.get("harness_protected", False),
@@ -717,6 +724,167 @@ class Worker:
             self.native_usage = []
             self.cancelled.clear()
             self.active_owner = True
+
+    def capture_bytes(self, path: Path, remaining: int) -> bytes:
+        """Bound before reading/decoding, and refuse file substitution during the read."""
+        self.check_node(path)
+        before = path.stat()
+        if before.st_size > remaining:
+            raise ValueError("Package capture exceeds the 32MiB aggregate raw-byte bound")
+        with path.open("rb") as source_file:
+            opened = os.fstat(source_file.fileno())
+            data = source_file.read(remaining + 1)
+            finished = os.fstat(source_file.fileno())
+        self.check_node(path)
+        after = path.stat()
+        identity = lambda info: (info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns)
+        if len(data) > remaining:
+            raise ValueError("Package capture exceeds the 32MiB aggregate raw-byte bound")
+        if not identity(before) == identity(opened) == identity(finished) == identity(after):
+            raise SourceConflictError("Canonical package changed during capture")
+        return data
+
+    def capture_directory(self, name: str) -> Path:
+        # The original finder reads whole documents before slicing frontmatter.
+        # Keep its directory-before-display-name lookup without unbounded reads.
+        from tools import skill_manager_tool as sm, skill_usage as su
+        from agent.skill_utils import parse_frontmatter
+        root = (self.home / "skills").resolve()
+        candidates = list(sm._iter_skill_dirs(root))
+        for directory in candidates:
+            if directory.name == name or directory.relative_to(root).as_posix() == name:
+                return directory
+        remaining = MAX_FRAME_BYTES
+        matches = []
+        for directory in candidates:
+            data = self.capture_bytes(directory / "SKILL.md", remaining)
+            remaining -= len(data)
+            metadata, _ = parse_frontmatter(data.decode("utf-8-sig").replace("\r\n", "\n").replace("\r", "\n")[:4000])
+            display = metadata.get("name")
+            if isinstance(display, str) and display[:sm.MAX_NAME_LENGTH] == name:
+                matches.append(directory)
+        if len(matches) == 1:
+            return matches[0]
+        if matches:
+            raise ValueError("Canonical package display name is ambiguous")
+        for main in su._archive_dir().rglob("SKILL.md"):
+            data = self.capture_bytes(main, remaining)
+            remaining -= len(data)
+            metadata, _ = parse_frontmatter(data.decode("utf-8-sig"))
+            if metadata.get("name", main.parent.name) == name:
+                return main.parent
+        raise ValueError("Skill does not exist")
+
+    def capture_metadata(self, name: str) -> tuple:
+        from tools import skill_usage as su, skill_ledger as sl
+        usage_path, ledger_path = su._usage_file(), sl.ledger_path()
+        usage_bytes = self.capture_bytes(usage_path, MAX_FRAME_BYTES) if usage_path.exists() else b"{}"
+        ledger_bytes = self.capture_bytes(ledger_path, MAX_FRAME_BYTES) if ledger_path.exists() else b""
+        usage = json.loads(usage_bytes.decode("utf-8-sig"))
+        if not isinstance(usage, dict):
+            raise ValueError("Canonical usage is unavailable")
+        versions, entry_ids = [], []
+        for line in ledger_bytes.decode("utf-8-sig").splitlines():
+            if not line.strip():
+                continue
+            entry = json.loads(line)
+            if not isinstance(entry, dict):
+                raise ValueError("Canonical ledger is unavailable")
+            entry_ids.append(entry.get("id"))
+            if entry.get("skill") == name:
+                versions.append(entry)
+        versions.reverse()
+        if versions:
+            # Public historical inspect resolves IDs globally. A duplicate ID
+            # can select another skill or an earlier after-state of this skill.
+            tip = versions[0].get("id")
+            if not isinstance(tip, str) or not tip or entry_ids.count(tip) != 1:
+                raise ValueError("Canonical historical tip ID is unavailable or ambiguous")
+        return su._backfilled(usage.get(name)), versions, (usage_bytes, ledger_bytes)
+
+    def capture_package_bytes(self, directory: Path) -> tuple:
+        from tools import skill_manager_tool as sm
+        if not directory.resolve().is_relative_to((self.home / "skills").resolve()):
+            raise PermissionError("Only app-owned skill packages can be captured")
+        paths = [p.relative_to(directory).as_posix() for p in sorted(directory.rglob("*")) if p.is_file()]
+        if "SKILL.md" not in paths:
+            raise ValueError("Canonical package has no SKILL.md")
+        def identity(path):
+            info = path.stat()
+            return info.st_dev, info.st_ino
+        identities = {".": identity(directory)}
+        result, remaining = {}, MAX_FRAME_BYTES
+        for relative in paths:
+            target = directory / "SKILL.md"
+            if relative != "SKILL.md":
+                target, error = sm._resolve_supporting_file(directory, relative)
+                if error:
+                    raise ValueError(error.get("error", "Invalid supporting file"))
+            identities[relative] = identity(target)
+            data = self.capture_bytes(target, remaining)
+            remaining -= len(data)
+            result[relative] = data
+        return result, identities
+
+    def capture_skill(self, name: str) -> dict:
+        """One read-only package attempt; dispatch owns skill_lock and expected CAS."""
+        from agent.skill_utils import parse_frontmatter
+        from tools import skills_tool as st, skill_ledger as sl
+        self.guard_home()
+        directory = self.capture_directory(name)
+        usage, versions, metadata_bytes = self.capture_metadata(name)
+        raw, identities = self.capture_package_bytes(directory)
+        hashes = {path: hashlib.sha256(data).hexdigest() for path, data in raw.items()}
+        # Path.read_text(utf-8-sig) uses universal newlines for current files.
+        decoded = {path: data.decode("utf-8-sig").replace("\r\n", "\n").replace("\r", "\n") for path, data in raw.items()}
+        document = decoded.pop("SKILL.md")
+        metadata, body = parse_frontmatter(document)
+        inspection = {"name": metadata.get("name", name), "description": metadata.get("description", ""),
+            "category": st._get_category_from_path(directory / "SKILL.md"), "document": document, "content": body,
+            "frontmatter": metadata, "files": list(raw), "fileHashes": hashes, "usage": usage, "versions": versions}
+        result = {"inspection": inspection, "files": decoded}
+        if versions:
+            # Reconstruct the same original delta ledger as historical inspect.
+            # A tip is attached only when every referenced blob reproduces this capture.
+            state = {}
+            for entry in reversed(versions):
+                after = {part["path"]: part for part in entry.get("after") or []}
+                for part in entry.get("before") or []:
+                    if part["path"] not in after:
+                        state.pop(part["path"], None)
+                state.update(after)
+            main = next((part for part in state.values() if Path(part["path"]).name == "SKILL.md"), None)
+            if main is None:
+                raise ValueError("Canonical ledger tip has no historical package")
+            historical_directory = Path(main["path"]).parent.resolve()
+            if not historical_directory.is_relative_to((self.home / "skills").resolve()):
+                raise PermissionError("Only app-owned historical packages can be captured")
+            historical = {Path(part["path"]).relative_to(historical_directory).as_posix(): part["sha256"] for part in state.values()}
+            if historical != hashes:
+                raise SourceConflictError("Canonical ledger tip does not reproduce current file hashes")
+            remaining = MAX_FRAME_BYTES
+            for path, digest in historical.items():
+                if not isinstance(digest, str) or re.fullmatch("[a-f0-9]{64}", digest) is None:
+                    raise ValueError("Canonical historical blob hash is invalid")
+                data = self.capture_bytes(sl.blobs_dir() / digest, remaining)
+                remaining -= len(data)
+                if hashlib.sha256(data).hexdigest() != digest or data != raw[path]:
+                    raise SourceConflictError("Canonical historical blob does not reproduce current bytes")
+                # Historical inspect intentionally retains raw newline spelling.
+                # Compare only its existing universal-newline equivalent; exact
+                # raw hashes and bytes above remain mandatory for sourceId custody.
+                historical_text = data.decode("utf-8-sig").replace("\r\n", "\n").replace("\r", "\n")
+                if historical_text != (document if path == "SKILL.md" else decoded[path]):
+                    raise SourceConflictError("Canonical historical text does not reproduce current text")
+            result["sourceId"] = versions[0]["id"]
+        current, current_identities = self.capture_package_bytes(directory)
+        if current_identities != identities or {path: hashlib.sha256(data).hexdigest() for path, data in current.items()} != hashes:
+            raise SourceConflictError("Canonical package custody, paths or bytes changed during capture")
+        if self.capture_metadata(name)[2] != metadata_bytes or self.capture_directory(name) != directory:
+            raise SourceConflictError("Canonical package descriptor changed during capture")
+        self.guard_home()
+        frame_data({"id": getattr(self.library_context, "request_id", None), "result": result})
+        return result
 
     def skills(self, method, params, _guard=True):
         if _guard:
@@ -968,6 +1136,13 @@ class Worker:
             def invoke():
                 token = set_ledger_actor("user") if method in {"skills.manage", "skills.import", "skills.flags", "skills.rollback", "skills.decide"} else None
                 try:
+                    if method == "skills.capture":
+                        name, expected = params.get("name"), params.get("expected")
+                        if not isinstance(name, str) or not name or not isinstance(expected, dict) or set(expected) != {name} or not isinstance(expected[name], dict) or not expected[name]:
+                            raise ValueError("Package capture requires exactly its named expected descriptor")
+                        captured = self.capture_skill(name)
+                        self.check_expected(expected, {name: captured["inspection"]})
+                        return captured
                     self.check_expected(params.get("expected"))
                     return self.skills(method, {key: value for key, value in params.items() if key != "expected"})
                 finally:
@@ -1025,7 +1200,7 @@ class Worker:
         raise ValueError("Unknown worker method: " + method)
 
 
-METHODS = ["hello", "learn.prompt", "skills.tool", "skills.releaseOwner", "integrations.refresh", "skills.list", "skills.snapshot", "skills.view", "skills.inspect", "skills.compose", "skills.manage", "skills.import", "skills.stage", "skills.flags", "skills.versions", "skills.rollback", "skills.proposals", "skills.decide", "skills.curate", "agent.start", "agent.followUp", "agent.cancel", "agent.cancelBackground", "agent.history", "agent.compact", "agent.dispose"]
+METHODS = ["hello", "learn.prompt", "skills.tool", "skills.releaseOwner", "integrations.refresh", "skills.list", "skills.snapshot", "skills.capture", "skills.view", "skills.inspect", "skills.compose", "skills.manage", "skills.import", "skills.stage", "skills.flags", "skills.versions", "skills.rollback", "skills.proposals", "skills.decide", "skills.curate", "agent.start", "agent.followUp", "agent.cancel", "agent.cancelBackground", "agent.history", "agent.compact", "agent.dispose"]
 
 
 def main():
@@ -1034,12 +1209,15 @@ def main():
         request_id = request.get("id")
         try:
             method = request["method"]
+            worker.library_context.request_id = request_id
             result = worker.dispatch(method, request.get("params") or {})
             emit({"id": request_id, "result": result})
             if method == "agent.start":
                 worker.thread.start()
         except Exception as exc:
             emit({"id": request_id, "error": {"code": getattr(exc, "code", type(exc).__name__), "message": str(exc)}})
+        finally:
+            worker.library_context.__dict__.pop("request_id", None)
     # Keep stdin available to return native tool/usage results while an RPC
     # (curation/compaction/cancellation included) is waiting for actual source work.
     executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix="HermesRPC")
