@@ -2,6 +2,8 @@
 .task-memory>header { display: flex; align-items: center; gap: 8px; }
 .task-memory h3 { margin: 0; font-size: 14px; }
 .task-memory>header>span { margin-left: auto; color: var(--muted); font-size: 12px; }
+.task-memory>header>.icon-button { margin-left: auto; }
+.task-memory>header>span+.icon-button { margin-left: 0; }
 .task-memory>p { font-size: 12px; line-height: 1.5; }
 .memory-note { margin-top: 16px; display: grid; gap: 8px; }
 .memory-note>header { display: flex; gap: 8px; align-items: baseline; }
@@ -10,3 +12,8 @@
 .memory-note textarea,.memory-note input { width: 100%; box-sizing: border-box; background: var(--input-bg, var(--surface)); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 10px; font: inherit; resize: vertical; }
 .memory-note footer { display: flex; justify-content: flex-end; gap: 8px; }
 .memory-note footer>.icon-button { margin-right: auto; color: var(--danger); }
+.memory-note>header { flex-wrap: wrap; overflow-wrap: anywhere; }
+.memory-note details p { white-space: pre-wrap; overflow-wrap: anywhere; }
+.memory-recovery { margin: 8px 0 0; font-size: 12px; line-height: 1.5; }
+.memory-recovery p { margin: 0 0 8px; }
+.memory-resume { margin-top: 8px; }
