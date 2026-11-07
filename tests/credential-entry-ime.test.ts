@@ -1,5 +1,6 @@
 import {afterAll,beforeAll,describe,expect,it} from 'vitest';
 import {createServer,type Server} from 'node:http';
+import {basename} from 'node:path';
 import {build} from 'esbuild';
 import {chromium,expect as browserExpect,type Browser,type Page} from '@playwright/test';
 import type {SecureArtifactScope} from '../apps/web/src/secure-artifact-context';
@@ -22,7 +23,7 @@ beforeAll(async()=>{
     window.setActive=render;render(true);
   `},bundle:true,write:false,platform:'browser',format:'iife',jsx:'automatic',loader:{'.css':'empty'},define:{'process.env.NODE_ENV':'"production"'},plugins:[{
     name:'offline-credential-api',setup(plugin){
-      plugin.onResolve({filter:/^\.\/api$/},args=>args.importer.endsWith('/CredentialEntry.tsx')?{path:'credential-api',namespace:'offline'}:undefined);
+      plugin.onResolve({filter:/^\.\/api$/},args=>basename(args.importer)==='CredentialEntry.tsx'?{path:'credential-api',namespace:'offline'}:undefined);
       plugin.onLoad({filter:/.*/,namespace:'offline'},()=>({loader:'js',contents:`
         const query=new URLSearchParams(location.search),present=query.has('existing'),version=present?7:0;
         window.operations=[];
