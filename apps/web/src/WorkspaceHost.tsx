@@ -69,7 +69,7 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
   const desktop = useDesktop(), desktopOwner = useRef(desktop); desktopOwner.current = desktop;
   const workspace = useWorkspaceState(true, {listenNative: false});
   const [settings, setSettings] = useState<Awaited<ReturnType<typeof getShellSettings>>>(), [error, setError] = useState('');
-  const [reviewDestination,setReviewDestination]=useState<ThreadHoverDestination>();
+  const [reviewDestination,setReviewDestination]=useState<ThreadHoverDestination&{canvasId:string}>();
   const [intent, setIntent] = useState<ConversationHost['intent']>(), intentSequence = useRef(0), selected = useRef<string | undefined>(undefined), pending = useRef(false), alive = useRef(true);
   const [controller] = useState(() => new AgentsWorkspaceController());
   const [composers] = useState(() => createPersonalAgentComposers(createPersonalChildFollowUp(agent => controller.getSnapshot().agents.find(parent => parent.agentId === agent.parentId)?.threadId ?? undefined), agent => {
@@ -81,7 +81,11 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
   useEffect(() => {alive.current = true; void bootstrap().then(loadSettings).catch(cause => {if (alive.current) setError(message(cause));}); return () => {alive.current = false;};}, [loadSettings]);
   useEffect(() => () => {controller.dispose(); composers.dispose();}, [controller, composers]);
   useDesktopCloseGuard('workspace-host-journal', journalFlush);
-  const preset = workspace.envelope?.state.canvases.find(canvas => canvas.id === workspace.envelope?.state.activeCanvasId)?.preset;
+  const activeCanvasId = workspace.envelope?.state.activeCanvasId;
+  const preset = workspace.envelope?.state.canvases.find(canvas => canvas.id === activeCanvasId)?.preset;
+  useEffect(() => {
+    if (reviewDestination && reviewDestination.canvasId !== activeCanvasId) setReviewDestination(current => current?.id === reviewDestination.id ? undefined : current);
+  }, [activeCanvasId, reviewDestination]);
   const monitored = preset === 'all-agents' && Boolean(settings);
   useLayoutEffect(() => {if (!monitored) return; void controller.start(); return () => controller.pause();}, [monitored, controller]);
   const invalidOwner = Boolean(workspace.envelope && !preset);
@@ -112,20 +116,21 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
       const expected=expectedScope?{projectId:expectedScope.projectId,workingCopyId:expectedScope.workingCopyId,revision:expectedScope.revision}:undefined;
       const ownerFields=threadId?{threadId,...(expected?{expected}:{})}:{};
       const payload=canvas?{canvasId:canvas.id,...(next==='code-review'?ownerFields:{})}:{name:next,preset:next,...ownerFields};
-      await workspace.send(canvas ? 'workspace.canvas.select' : 'workspace.canvas.create',payload,isCurrent);
-      check(); if (alive.current) setError('');
+      const opened = await workspace.send(canvas ? 'workspace.canvas.select' : 'workspace.canvas.create',payload,isCurrent);
+      check(); if (alive.current) {setReviewDestination(undefined);setError('');}
+      return opened.state.activeCanvasId;
     } finally {pending.current = false;}
   };
-  const choosePreset = (next: WorkspacePreset, binding?: PanelBinding) => changeWorkspace(next, undefined, binding);
+  const choosePreset = async (next: WorkspacePreset, binding?: PanelBinding) => {await changeWorkspace(next, undefined, binding);};
   const openReview=async(target:ThreadHoverPRTarget,scope:ThreadHoverScope)=>{
     if(scope.authority.kind!=='local'||!scope.projectId||!scope.workingCopyId||!Number.isSafeInteger(target.number)||target.number<1||!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(target.repo))throw Error('This pull request destination is unavailable.');
     const surface={kind:'thread' as const,threadId:scope.threadId},epoch=desktopOwner.current?desktopOwner.current.ownership(surface):0;
     const isCurrent=()=>{const current=desktopOwner.current;return alive.current&&epoch!==undefined&&!current?.closing&&!detachedSurface(current,surface)&&!pendingSurface(current,surface)&&(!current||current.ownership(surface)===epoch);};
-    try {await changeWorkspace('code-review',async()=>{
+    try {const canvasId=await changeWorkspace('code-review',async()=>{
       const row=await getShellNavigationItem(scope.threadId);
       if(row.projectId!==scope.projectId||row.workspaceId!==scope.workingCopyId||(row.threadRevision??threadNavigationRevision(row))!==scope.revision)throw Error('Thread details changed. Reopen the current details.');
     },{authority:{kind:'local'},threadId:scope.threadId,projectId:scope.projectId},isCurrent,scope);
-    if(isCurrent())setReviewDestination({id:++intentSequence.current,scope,target});
+    if(isCurrent())setReviewDestination({id:++intentSequence.current,canvasId,scope,target});
     }catch(cause){if(alive.current)setError(message(cause));throw cause;}
   };
   const openConversation = async (id?: string, kind?: ConversationIntent) => {
@@ -147,7 +152,7 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
   </main>;
   if (preset !== 'all-agents' && preset !== 'research' && preset !== 'code-review') return conversation({workspace, choosePreset, initialThreadId: selected.current, selectThread: id => {selected.current = id;}, intent, consumeIntent: id => setIntent(current => current?.id === id ? undefined : current), composers, openReview});
   return <MonitorShell workspace={workspace} settings={settings} controller={controller} composers={composers} choosePreset={choosePreset}
-    refreshSettings={loadSettings} openConversation={openConversation} openReview={openReview} error={error} dismissError={() => setError('')} fail={fail} content={preset==='code-review'?<CodeReviewHost destination={reviewDestination} consumeDestination={id=>setReviewDestination(current=>current?.id===id?undefined:current)} canvas={workspace.envelope.state.canvases.find(value=>value.id===workspace.envelope!.state.activeCanvasId)!} workspace={workspace} composers={composers} openConversation={openConversation}/>:preset==='research'?<ResearchHost canvas={workspace.envelope.state.canvases.find(value=>value.id===workspace.envelope!.state.activeCanvasId)!} workspace={workspace} composers={composers} openConversation={id=>openConversation(id)}/>:undefined}/>;
+    refreshSettings={loadSettings} openConversation={openConversation} openReview={openReview} error={error} dismissError={() => setError('')} fail={fail} content={preset==='code-review'?<CodeReviewHost destination={reviewDestination?.canvasId===activeCanvasId?reviewDestination:undefined} consumeDestination={id=>setReviewDestination(current=>current?.id===id?undefined:current)} canvas={workspace.envelope.state.canvases.find(value=>value.id===workspace.envelope!.state.activeCanvasId)!} workspace={workspace} composers={composers} openConversation={openConversation}/>:preset==='research'?<ResearchHost canvas={workspace.envelope.state.canvases.find(value=>value.id===workspace.envelope!.state.activeCanvasId)!} workspace={workspace} composers={composers} openConversation={id=>openConversation(id)}/>:undefined}/>;
 }
 
 function MonitorShell({workspace, settings, controller, composers, choosePreset, refreshSettings, openConversation, openReview, error, dismissError, fail, content}: {
