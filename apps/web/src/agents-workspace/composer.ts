@@ -1,10 +1,10 @@
 import type {AgentSummary} from '../../../../packages/contracts/agent-inventory';
-import type {AgentInputTicket} from '../../../../packages/contracts/agent-input';
+import {AgentFollowUpSchema, type AgentInputTicket} from '../../../../packages/contracts/agent-input';
 import {command} from '../api';
 import {journalCompareAndSwap, journalGeneration, journalReadRecord, journalSubscribe, journalWrite} from '../journal';
 
 export type ChildInputTicket = AgentInputTicket;
-export interface AgentSend {agent: AgentSummary; content: string; commandId: string}
+export interface AgentSend {agent: AgentSummary; content: string; commandId: string; isCurrent?(): boolean}
 /** A real conversation owner can share drafts without joining the agent inventory. */
 export interface ConversationComposerTarget {kind: 'conversation'; threadId: string; modelId: string | null; working: boolean}
 export type ComposerTarget = AgentSummary | ConversationComposerTarget;
@@ -35,8 +35,9 @@ export interface SharedAgentComposers {
 }
 interface PendingSend {commandId: string; content: string; generation: string | undefined; modelId?: string | null; thinkingLevel?: string | null}
 interface Entry {agent: ComposerTarget; inventory?: AgentSummary; stopEpoch: number; state: ComposerState; pending?: PendingSend; prepared?: Promise<void>; listeners: Set<() => void>; unsubscribe?: () => void}
-export function createSharedAgentComposers(actions: {sendParent(input: ParentSend): Promise<void>; stopParent(agent: ComposerTarget): Promise<void>; followUp?: ChildFollowUpController}): SharedAgentComposers {
+export function createSharedAgentComposers(actions: {sendParent(input: ParentSend): Promise<void>; stopParent(agent: ComposerTarget): Promise<void>; followUp?: ChildFollowUpController; ownership?: (agent: ComposerTarget) => unknown}): SharedAgentComposers {
  const entries = new Map<string, Entry>();
+ const ownership = (agent: ComposerTarget) => actions.ownership ? actions.ownership(agent) : true;
  const key = (agent: ComposerTarget) => `draft:${identity(agent)}`;
  const pendingKey = (agent: ComposerTarget) => `agents-pending:${identity(agent)}`;
  const ticketKey = (agent: ComposerTarget) => `agents-ticket:${inventoryAgent(agent) ? agent.agentId : agent.threadId}`;
@@ -53,7 +54,7 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
  const canSend = (agent: ComposerTarget) => {
   const state = entry(agent).state;
   if (inventoryAgent(agent) && agent.parentId && [...entries.values()].some(value => (value.inventory?.agentId === agent.parentId || value.inventory?.agentId === agent.rootId) && value.state.stopping)) return false;
-  return state.ready && !state.busy && !state.stopping && supports(agent) && (inventoryAgent(agent) && agent.parentId ? Boolean(actions.followUp?.canSend(agent)) : Boolean(agent.modelId));
+  return ownership(agent) !== undefined && state.ready && !state.busy && !state.stopping && supports(agent) && (inventoryAgent(agent) && agent.parentId ? Boolean(actions.followUp?.canSend(agent)) : Boolean(agent.modelId));
  };
  const ticketError = (ticket?: ChildInputTicket) => ticket && ['rejected', 'interrupted', 'delivery_uncertain'].includes(ticket.status) ? ticket.error ?? `Follow-up ${ticket.status.replaceAll('_', ' ')}.` : '';
  const unsubscribeTickets = actions.followUp?.subscribe((id, ticket) => {
@@ -87,16 +88,28 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
   },
   async submit(agent, options) {
    const value = entry(agent); if (!canSend(agent) || !value.pending && !value.state.draft.trim()) return;
-   const stopEpoch = value.stopEpoch;
+   const stopEpoch = value.stopEpoch, owner = ownership(agent);
+   if (inventoryAgent(agent) && agent.parentId) {
+    const valid = AgentFollowUpSchema.shape.content.safeParse(value.pending?.content ?? value.state.draft.trim());
+    if (!valid.success) {
+     // This content cannot have passed local admission. Retire old invalid journals too.
+     emit(value, {busy: true, error: 'Enter a follow-up within the text limit.', retry: false});
+     try {if (value.pending) {await journalWrite(pendingKey(agent), null); value.pending = undefined;}}
+     catch {emit(value, {error: 'Draft recovery failed. Reopen this workspace to retry.', retry: true});}
+     finally {emit(value, {busy: false});}
+     return;
+    }
+   }
    const thinkingLevel = options?.thinkingLevel === undefined ? value.state.thinkingLevel : options.thinkingLevel;
    const pending = value.pending ?? {commandId: crypto.randomUUID(), content: value.state.draft.trim(), generation: journalGeneration(key(agent)), modelId: agent.modelId, ...(thinkingLevel !== undefined ? {thinkingLevel} : {})};
    value.pending = pending; emit(value, {busy: true, error: '', retry: false});
    try {
     // Persist before transport; retries after disconnect/reload keep the same command identity.
     await journalWrite(pendingKey(agent), pending);
+    if (ownership(agent) !== owner) {emit(value, {retry: true, error: 'The conversation owner changed. Message retained for retry.'}); return;}
     if (value.stopEpoch !== stopEpoch) {emit(value, {retry: true, error: 'Message retained after Stop. Retry when ready.'}); return;}
     if (inventoryAgent(agent) && agent.parentId) {
-     const ticket = await actions.followUp!.send({agent, content: pending.content, commandId: pending.commandId});
+     const ticket = await actions.followUp!.send({agent, content: pending.content, commandId: pending.commandId, isCurrent: () => ownership(agent) === owner && value.stopEpoch === stopEpoch});
      await journalWrite(ticketKey(agent), ticket); emit(value, {ticket});
      if (ticketError(ticket)) emit(value, {error: ticketError(ticket)});
     } else await actions.sendParent({threadId: identity(agent), modelId: pending.modelId === undefined ? agent.modelId : pending.modelId, ...(pending.thinkingLevel !== undefined ? {thinkingLevel: pending.thinkingLevel} : {}), content: pending.content, commandId: pending.commandId});
@@ -109,7 +122,7 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
   },
   async stop(agent) {
    const value = entry(agent), working = inventoryAgent(agent) ? !agent.parentId && Boolean(agent.threadId) && !agent.readOnly && agent.status === 'working' : agent.working;
-   if (!working || value.state.stopping) return;
+   if (!working || value.state.stopping || ownership(agent) === undefined) return;
    value.stopEpoch++; emit(value, {stopping: true, error: ''});
    const childOf = (child: Entry) => inventoryAgent(child.agent) && Boolean(value.inventory && (child.agent.parentId === value.inventory.agentId || child.agent.rootId === value.inventory.agentId));
    for (const child of entries.values()) if (child !== value && childOf(child)) {child.stopEpoch++; emit(child, {});}
@@ -120,10 +133,16 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
  };
 }
 /** The outer host adopts this owner for both its ordinary composer and agent columns. */
-export function createPersonalAgentComposers(followUp?: ChildFollowUpController): SharedAgentComposers {
+export function createPersonalAgentComposers(followUp?: ChildFollowUpController, ownership?: (agent: ComposerTarget) => unknown): SharedAgentComposers {
  return createSharedAgentComposers({
-  sendParent: async ({threadId, modelId, thinkingLevel, content, commandId}) => {await command('message.send', {content, modelId, ...(thinkingLevel !== undefined ? {thinkingLevel} : {})}, threadId, commandId);},
-  stopParent: async agent => {await command('run.stop', {}, identity(agent));},
-  followUp,
+  sendParent: async ({threadId, modelId, thinkingLevel, content, commandId}) => {
+   const target: ConversationComposerTarget = {kind: 'conversation', threadId, modelId, working: false}, owner = ownership?.(target);
+   await command('message.send', {content, modelId, ...(thinkingLevel !== undefined ? {thinkingLevel} : {})}, threadId, commandId, () => !ownership || owner !== undefined && ownership(target) === owner);
+  },
+  stopParent: async agent => {
+   const owner = ownership?.(agent);
+   await command('run.stop', {}, identity(agent), undefined, () => !ownership || owner !== undefined && ownership(agent) === owner);
+  },
+  followUp, ownership,
  });
 }

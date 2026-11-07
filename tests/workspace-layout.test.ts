@@ -77,3 +77,17 @@ it('hiding windows never changes running task state or account records',async()=
  expect(store.get('thread','live')).toEqual(thread);expect(store.get('account','private')).toEqual(account);
  expect(workspace.read().state.disabledKinds).toContain('thread');
 });
+
+for (const preset of ['research', 'code-review'] as const) it(`binds first ${preset} canvas to the explicit thread and canonical project instead of the active server thread`, async () => {
+ const {store, workspace} = await fixture();
+ const base = {title:'Owner', createdAt:'2026-01-01', updatedAt:'2026-01-01', epoch:0, modelId:null, sessionPath:null};
+ store.internal('fixture', null, () => {
+  store.put('thread', 'active-a', 'active-a', {...base,id:'active-a',projectId:'project-a',projectName:'A',status:'working',runId:'run-a'});
+  store.put('thread', 'selected-b', 'selected-b', {...base,id:'selected-b',projectId:'project-b',projectName:'B',status:'ready',runId:null});
+ });
+ expect(store.snapshot().activeThreadId).toBe('active-a');
+ command(workspace, 'first-'+preset, 'canvas.create', {name:preset,preset,threadId:'selected-b',baseRevision:workspace.read().state.revision});
+ const state=workspace.read().state, canvas=state.canvases.find(canvas=>canvas.id===state.activeCanvasId)!;
+ expect(canvas.projectIds).toEqual(['project-b']);
+ expect(canvas.panels.every(panel=>panel.binding.threadId==='selected-b'&&panel.binding.projectId==='project-b'&&panel.binding.authority.kind==='local')).toBe(true);
+});

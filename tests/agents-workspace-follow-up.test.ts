@@ -58,3 +58,11 @@ it('refreshes uncertain tickets when later executor evidence confirms handling',
   expect(mocks.send).toHaveBeenCalledTimes(1);
  } finally {value.dispose?.(); vi.useRealTimers();}
 });
+
+it('rechecks send ownership after asynchronous target recovery before transport', async () => {
+ const value = adapter(); await value.prepare!(child);
+ await expect(value.send({agent: child, content: 'Retain', commandId: 'held', isCurrent: () => false})).rejects.toThrow('owner changed');
+ expect(mocks.send).not.toHaveBeenCalled();
+ await value.send({agent: child, content: 'Retain', commandId: 'held', isCurrent: () => true});
+ expect(mocks.send).toHaveBeenCalledWith('parent', expect.objectContaining({content: 'Retain', childRun: target.childRun}), 'held', expect.any(Function));
+});
