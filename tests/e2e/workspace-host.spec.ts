@@ -633,11 +633,11 @@ test('Custom arranges Terminal below Files while the anchored composer stays mou
  const dock=page.getByRole('complementary',{name:'Custom tools',exact:true});
  await expect(dock.getByRole('navigation',{name:'Project files',exact:true})).toContainText('fixture.ts');
  await dock.getByLabel('Area actions',{exact:true}).click();
- await expect(dock.getByRole('button',{name:'Split above / below',exact:true})).toBeEnabled();
- await dock.getByRole('button',{name:'Split above / below',exact:true}).click();
+ await expect(page.getByRole('menuitem',{name:'Split above / below',exact:true})).toBeEnabled();
+ await page.getByRole('menuitem',{name:'Split above / below',exact:true}).click();
  await expect.poll(()=>Object.keys(h.dockLayouts.get('custom')!.panes).length).toBe(2);
  const empty=dock.locator('[data-split-pane]').filter({hasText:'Add a tool'});
- await empty.getByLabel('Area actions',{exact:true}).click();await empty.getByRole('combobox',{name:'Area editor',exact:true}).selectOption('terminal');
+ await empty.getByLabel('Area actions',{exact:true}).click();await page.getByRole('menuitem',{name:'Editor: Terminal',exact:true}).click();
  await expect.poll(()=>terminalStarts).toBe(1);
  const files=await dock.locator('[data-split-view="files:parent-a"]').boundingBox(),terminal=await dock.locator('[data-split-view^="terminal:parent-a:"]').boundingBox();
  expect(terminal!.y).toBeGreaterThan(files!.y+files!.height);
@@ -675,6 +675,23 @@ async function addCustomArtifacts(page:Page,h:Awaited<ReturnType<typeof fixture>
  h.snapshot.artifacts.push({...source,id:'artifact-a',title:'Artifact A',threadId:'parent-a',stateId:'state-a'},{...source,id:'artifact-b',title:'Artifact B',threadId:'parent-a',stateId:'state-b'});
  await h.publish();await expect(page.locator('.workspace [data-artifact-id="artifact-a"]')).toBeVisible();
 }
+
+test('Workspace artifact uses the shared chooser and retains the anchored chat draft',async({page})=>{
+ const h=await fixture(page,{working:false});await page.getByRole('button',{name:'Open conversation Project investigation',exact:true}).click();
+ await page.getByRole('button',{name:'Workspace',exact:true}).click();await addCustomArtifacts(page,h);
+ const draft=page.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Retain the conversation draft');const node=await draft.elementHandle();
+ await page.locator('.workspace [data-artifact-id="artifact-a"]').getByRole('button',{name:'Open artifact in workspace',exact:true}).click();
+ const chooser=page.getByRole('combobox',{name:'Workspace artifact',exact:true});
+ await expect(page.locator('.artifact-in-workspace')).toBeVisible();
+ const toolbar=await page.locator('.workspace-right .panel-toolbar').boundingBox(),artifact=await page.locator('.artifact-in-workspace').boundingBox();
+ expect(artifact!.y).toBeGreaterThanOrEqual(toolbar!.y+toolbar!.height);
+ await chooser.click();
+ await expect(page.getByRole('listbox',{name:'Workspace artifact',exact:true})).toBeVisible();
+ await page.getByRole('option',{name:'Artifact B',exact:true}).click();await expect(chooser).toContainText('Artifact B');
+ await expect(page.locator('[data-artifact-id="artifact-b"].artifact-in-workspace')).toContainText('Synthetic artifact contents');
+ await expect(draft).toHaveValue('Retain the conversation draft');expect(await draft.evaluate((element,original)=>element===original,node)).toBe(true);
+ expect(h.commands.filter(command=>['message.send','thread.create'].includes(command.type))).toHaveLength(0);
+});
 
 test('Custom keeps artifact contents mounted while its tools are hidden',async({page})=>{
  const h=await fixture(page,{working:false});await page.getByRole('button',{name:'Open conversation Project investigation',exact:true}).click();await page.getByRole('button',{name:'Custom',exact:true}).click();await addCustomArtifacts(page,h);
