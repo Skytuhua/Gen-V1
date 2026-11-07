@@ -82,7 +82,7 @@ export function TerminalBody({projectId,threadId,terminalId,active,openAnother,i
    const requestedId=terminalId??saved??pending??(pendingId.current?.key===key?pendingId.current.id:crypto.randomUUID());
    pendingId.current={key,id:requestedId};
    // The host deduplicates caller IDs; retain an unconfirmed attempt on remount.
-   if(!terminalId&&!saved)try{localStorage.setItem(key+':pending',requestedId);}catch{}
+   if(!terminalId&&!saved)try{localStorage.setItem(key+':pending',requestedId);}catch{throw new Error('Could not retain the terminal start ID. Open a terminal from the workspace.');}
    const first=await post<TerminalRead>('/api/terminals',{projectId,...(threadId?{threadId}:{}),terminalId:requestedId,cols:instance.cols,rows:instance.rows},ownerCurrent);
    if(!ownerCurrent())return;
    matches(first,requestedId);confirmedId=first.id;setAcknowledged(true);
