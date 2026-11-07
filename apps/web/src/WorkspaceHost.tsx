@@ -39,16 +39,13 @@ const prepare = async () => {await journalFlush(); await prepareEditorHandoff();
 /** Resolve the main window's canonical workspace before mounting a conversation owner. */
 export function WorkspaceHost({conversation}: {conversation: (host: ConversationHost) => ReactNode}) {
   const desktop = useDesktop(), desktopOwner = useRef(desktop); desktopOwner.current = desktop;
-  const ownership = useRef({signature: '', epoch: 0});
-  const signature = JSON.stringify([desktop?.closing, desktop?.context.windowId, desktop?.windows.map(window => [window.id, window.surface]), desktop?.pending]);
-  if (ownership.current.signature !== signature) ownership.current = {signature, epoch: ownership.current.epoch + 1};
   const workspace = useWorkspaceState(true, {listenNative: false});
   const [settings, setSettings] = useState<Awaited<ReturnType<typeof getShellSettings>>>(), [error, setError] = useState('');
   const [intent, setIntent] = useState<ConversationHost['intent']>(), intentSequence = useRef(0), selected = useRef<string | undefined>(undefined), pending = useRef(false), alive = useRef(true);
   const [controller] = useState(() => new AgentsWorkspaceController());
   const [composers] = useState(() => createPersonalAgentComposers(createPersonalChildFollowUp(agent => controller.getSnapshot().agents.find(parent => parent.agentId === agent.parentId)?.threadId ?? undefined), agent => {
     const current = desktopOwner.current, surface = agent.threadId ? {kind: 'thread' as const, threadId: agent.threadId} : null;
-    return !alive.current || current?.closing || detachedSurface(current, surface) || pendingSurface(current, surface) ? undefined : ownership.current.epoch;
+    return !alive.current || current?.closing || detachedSurface(current, surface) || pendingSurface(current, surface) ? undefined : current ? current.ownership(surface) : 0;
   }));
   const inventory = useSyncExternalStore(controller.subscribe, controller.getSnapshot);
   const loadSettings = useCallback(async () => {const value = await getShellSettings(); if (alive.current) setSettings(value);}, []);

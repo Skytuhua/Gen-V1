@@ -5,11 +5,12 @@ import {taskFixture,serveTaskFixture} from './task-interface-fixture';
 
 type FixtureKind='toolbar'|'markdown'|'combined';
 async function mount(page:Page,kind:FixtureKind,props:Record<string,unknown>){
- await serveTaskFixture(page,taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Fixture'}}}}));await page.goto('/');
- const modules={react:'/@fs/'+resolve('node_modules/.vite/deps/react.js').replaceAll('\\','/'),dom:'/@fs/'+resolve('node_modules/.vite/deps/react-dom_client.js').replaceAll('\\','/')};
+ await serveTaskFixture(page,taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Fixture'}}}}));await page.goto('/');await expect(page.locator('html')).toHaveAttribute('data-motion','system');
+ const source=await (await page.request.get('/src/Markdown.tsx')).text(),main=await (await page.request.get('/src/main.tsx')).text();
+ const modules={react:source.match(/["']([^"']*\/react\.js[^"']*)["']/)![1],dom:main.match(/["']([^"']*\/react-dom_client\.js[^"']*)["']/)![1]};
  await page.evaluate(async({kind,props,modules})=>{
   const reactModule=await import(modules.react),domModule=await import(modules.dom),React=reactModule.default??reactModule,DOM=domModule.default??domModule,entry=kind==='toolbar'?'/src/ComposerToolbar.tsx':'/src/Markdown.tsx',module=await import(entry),Component=kind==='toolbar'?module.ComposerToolbar:module.Markdown;
-  const target=document.createElement('section');target.className='component-fixture';target.setAttribute('aria-label','Component fixture');target.style.cssText='position:fixed;inset:0;padding:32px;background:var(--surface);z-index:10000;overflow:auto';document.body.append(target);const root=DOM.createRoot(target);const events:{type:string;value?:unknown}[]=[];
+  document.documentElement.style.setProperty('--ui-popup-layer','10001');const target=document.createElement('section');target.className='component-fixture';target.setAttribute('aria-label','Component fixture');target.style.cssText='position:fixed;inset:0;padding:32px;background:var(--surface);z-index:10000;overflow:auto';document.body.append(target);const root=DOM.createRoot(target);const events:{type:string;value?:unknown}[]=[];
   let current={...props};const callbacks={onModelChange:(value:string)=>events.push({type:'model',value}),onThinkingChange:(value:string)=>events.push({type:'thinking',value}),onProject:()=>events.push({type:'project'}),onChanges:()=>events.push({type:'changes'}),onCreatePR:()=>events.push({type:'pr'}),onTranscript:(value:string)=>events.push({type:'transcript',value})};
   const toolbarEntry='/src/ComposerToolbar.tsx',toolbarModule=kind==='combined'?await import(toolbarEntry):null;
   const render=()=>root.render(kind==='combined'?
@@ -29,15 +30,15 @@ const events=(page:Page)=>page.evaluate(()=>(window as unknown as {componentFixt
 
 test('composer exposes concise project, changes and PR actions and only actual thinking levels',async({page})=>{
  await mount(page,'toolbar',props);const fixture=page.getByRole('region',{name:'Component fixture',exact:true});
- await fixture.getByRole('button',{name:'Open project folder',exact:true}).click();await fixture.getByRole('button',{name:'Inspect changes',exact:true}).click();await fixture.getByRole('button',{name:'Create PR',exact:true}).click();
+ await fixture.getByRole('button',{name:'Select project',exact:true}).click();await fixture.getByRole('button',{name:'Inspect changes',exact:true}).click();await fixture.getByRole('button',{name:'Create PR',exact:true}).click();
  expect((await events(page)).map(item=>item.type)).toEqual(['project','changes','pr']);await expect(fixture).toContainText('+12');await expect(fixture).toContainText('−4');
- const effort=fixture.getByRole('combobox',{name:'Thinking effort',exact:true});await expect(effort.locator('option')).toHaveText(['Default','Low','Medium','High']);await effort.selectOption('high');expect((await events(page)).at(-1)).toMatchObject({type:'thinking',value:'high'});
- await update(page,{working:true});await expect(effort).toBeDisabled();await expect(fixture.getByRole('combobox',{name:'Model',exact:true})).toBeDisabled();await expect(fixture.getByRole('button',{name:'Create PR',exact:true})).toBeDisabled();
+ const model=fixture.getByRole('combobox',{name:'Model',exact:true});await model.click();await page.getByRole('button',{name:'Reasoning: Medium',exact:true}).click();await expect(page.getByRole('menuitemcheckbox')).toHaveText(['Default','Low','Medium','High']);await page.getByRole('menuitemcheckbox',{name:'High',exact:true}).click();expect((await events(page)).at(-1)).toMatchObject({type:'thinking',value:'high'});
+ await update(page,{working:true});await expect(page.getByRole('dialog',{name:'Model and reasoning',exact:true})).not.toBeVisible();await expect(fixture.getByRole('combobox',{name:'Model',exact:true})).toBeDisabled();await expect(fixture.getByRole('button',{name:'Create PR',exact:true})).toBeDisabled();
 });
 
 test('composer unknown counts and unsupported thinking remain unavailable instead of invented',async({page})=>{
  await mount(page,'toolbar',{...props,models:[{id:'test/sol',name:'Sol',provider:'test'}],changeSummary:undefined});const fixture=page.getByRole('region',{name:'Component fixture',exact:true});
- await expect(fixture.getByRole('button',{name:'Inspect changes',exact:true})).toHaveText('Changes');await expect(fixture.getByRole('combobox',{name:'Thinking effort',exact:true})).toBeDisabled();await expect(fixture).not.toContainText('+0');await expect(fixture).not.toContainText('Ultra');
+ await expect(fixture.getByRole('button',{name:'Inspect changes',exact:true})).toHaveText('Changes');await fixture.getByRole('combobox',{name:'Model',exact:true}).click();await expect(page.getByRole('dialog',{name:'Model and reasoning',exact:true})).toContainText('No reasoning settings');await expect(page.getByRole('button',{name:/^Reasoning:/})).toHaveCount(0);await expect(fixture).not.toContainText('+0');await expect(fixture).not.toContainText('Ultra');
 });
 
 test('voice returns final text once, never sends, and rejects callbacks from an unmounted composer',async({page})=>{
@@ -81,9 +82,15 @@ test('replacing prose reveals the changed middle and preserves an unchanged sele
 });
 
 test('new tokens do not cancel an already running reveal and restored history stays quiet',async({page})=>{
- await mount(page,'markdown',{text:'Opening.',animate:true,initialReveal:false});const root=page.locator('.component-fixture .markdown');
- await update(page,{text:'Opening. First arrival.'});await root.locator('[data-reveal-start]').first().evaluate(node=>Object.assign(window,{firstReveal:node,firstAnimation:node.getAnimations()[0]}));
- await update(page,{text:'Opening. First arrival. Second arrival.'});expect(await root.locator('.sentence-reveal-edge').count()).toBe(1);expect(await page.evaluate(()=>{const stored=window as unknown as {firstReveal:HTMLElement;firstAnimation:Animation};return stored.firstReveal.isConnected&&stored.firstAnimation.playState!=='idle';})).toBe(true);
+ await mount(page,'markdown',{text:'Opening.',animate:true,initialReveal:false});const root=page.locator('.component-fixture .markdown');await expect(root).toHaveText('Opening.');
+ const result=await page.evaluate(()=>new Promise<{edges:number;connected:boolean;state:AnimationPlayState}>(resolve=>{
+  const root=document.querySelector('.component-fixture .markdown')!;let cover:Element|null=null,animation:Animation|undefined;
+  const observer=new MutationObserver(()=>{
+   if(!cover){cover=root.querySelector('[data-reveal-start]');if(!cover)return;animation=cover.getAnimations()[0];(window as unknown as {componentFixture:{update:(next:Record<string,unknown>)=>void}}).componentFixture.update({text:'Opening. First arrival. Second arrival.'});}
+   else if(root.textContent?.includes('Second arrival.')){observer.disconnect();resolve({edges:root.querySelectorAll('.sentence-reveal-edge').length,connected:cover.isConnected,state:animation!.playState});}
+  });observer.observe(root,{childList:true,subtree:true,characterData:true});(window as unknown as {componentFixture:{update:(next:Record<string,unknown>)=>void}}).componentFixture.update({text:'Opening. First arrival.'});
+ }));
+ expect(result.edges).toBe(1);expect(result.connected).toBe(true);expect(result.state).not.toBe('idle');
  await page.evaluate(()=>(window as unknown as {componentFixture:{unmount:()=>void}}).componentFixture.unmount());expect(await page.locator('[data-reveal-start]').count()).toBe(0);
 });
 
@@ -96,11 +103,26 @@ test('voice is revoked when work begins and interim transcripts never reach the 
 
 test('fresh prose may reveal once while code stays immediately readable and unsupported voice explains why',async({page})=>{
  await page.addInitScript(()=>Object.defineProperties(window,{SpeechRecognition:{value:undefined,configurable:true},webkitSpeechRecognition:{value:undefined,configurable:true}}));await mount(page,'toolbar',props);const voice=page.getByRole('region',{name:'Component fixture',exact:true}).getByRole('button',{name:'Voice input unavailable',exact:true});await expect(voice).toBeDisabled();await expect(voice).toHaveAttribute('title','Voice input is unavailable in this browser');
- await page.evaluate(()=>(window as unknown as {componentFixture:{unmount:()=>void}}).componentFixture.unmount());await mount(page,'markdown',{text:'A fresh answer.\n\n```js\nconst ready = true;\n```',animate:true,initialReveal:true});const root=page.locator('.component-fixture .markdown');await expect(root.locator('[data-reveal-start]').first()).toBeAttached();await expect(root.locator('pre')).toHaveText('const ready = true;\n');expect(await root.locator('pre [data-reveal-start]').count()).toBe(0);
+ await page.addInitScript(()=>{const records:{connected:boolean;inCode:boolean}[]=[];Object.assign(window,{initialProseReveals:records});const animate=Element.prototype.animate;Element.prototype.animate=function(frames,options){if(this.hasAttribute('data-reveal-start'))records.push({connected:this.isConnected,inCode:Boolean(this.closest('pre,code'))});return animate.call(this,frames,options);};});
+ await page.evaluate(()=>(window as unknown as {componentFixture:{unmount:()=>void}}).componentFixture.unmount());await mount(page,'markdown',{text:'A fresh answer.\n\n```js\nconst ready = true;\n```',animate:true,initialReveal:true});const root=page.locator('.component-fixture .markdown');await expect(root.locator('pre')).toHaveText('const ready = true;\n');
+ const reveals=await page.evaluate(()=>(window as unknown as {initialProseReveals:{connected:boolean;inCode:boolean}[]}).initialProseReveals);expect(reveals.length).toBeGreaterThan(0);expect(reveals.every(reveal=>reveal.connected&&!reveal.inCode)).toBe(true);expect(await root.locator('pre [data-reveal-start]').count()).toBe(0);
 });
 
 const captureDirectory=process.env.COMPOSER_MOTION_CAPTURE_DIR;
 if(captureDirectory)for(const mode of ['light','dark','narrow'] as const)test(`capture composer and sentence arrival ${mode}`,async({page})=>{
  await page.setViewportSize(mode==='narrow'?{width:390,height:844}:{width:1440,height:1000});await mount(page,'combined',{...props,text:'The checkout failure is isolated to the total calculation.'});await page.evaluate(mode=>document.documentElement.dataset.theme=mode==='dark'?'dark':'light',mode);await mkdir(captureDirectory,{recursive:true});
  await expect(page.locator('.component-fixture .composer-toolbar')).toBeVisible();await update(page,{text:'The checkout failure is isolated to the total calculation.\n\nThe patch preserves the public API and adds coverage for discounts.'});await expect(page.locator('.component-fixture .markdown')).toContainText('adds coverage for discounts');await expect(page.locator('.component-fixture [data-reveal-start]')).toHaveCount(0);await page.screenshot({path:resolve(captureDirectory,`composer-prose-${mode}.png`)});
+});
+
+for(const policy of ['off','reduced'] as const)test(`app ${policy} settles active prose and admits no new reveal`,async({page})=>{
+ await page.emulateMedia({reducedMotion:'no-preference'});await mount(page,'markdown',{text:'Stable opening.',animate:true});
+ const root=page.locator('.component-fixture .markdown');await expect(root).toHaveText('Stable opening.');
+ await page.evaluate(policy=>Object.assign(window,{proseSettlement:new Promise(resolve=>{
+  const observer=new MutationObserver(()=>{const before=document.querySelectorAll('.component-fixture [data-reveal-start]').length;if(!before)return;observer.disconnect();document.documentElement.dataset.motion=policy;queueMicrotask(()=>resolve({before,after:document.querySelectorAll('.component-fixture [data-reveal-start]').length}));});observer.observe(document.querySelector('.component-fixture')!,{childList:true,subtree:true});
+ })}),policy);
+ await update(page,{text:'Stable opening. A deliberately long arriving sentence keeps its reveal active while preferences change.'});
+ const result=await page.evaluate(()=>(window as unknown as {proseSettlement:Promise<{before:number;after:number}>}).proseSettlement);expect(result.before).toBeGreaterThan(0);expect(result.after).toBe(0);
+ await update(page,{text:'Stable opening. Another sentence arrives with reduced travel.'});await expect(root).toHaveText('Stable opening. Another sentence arrives with reduced travel.');expect(await root.locator('[data-reveal-start]').count()).toBe(0);
+ await page.evaluate(()=>document.documentElement.dataset.motion='system');expect(await root.locator('[data-reveal-start]').count()).toBe(0);
+ await page.evaluate(()=>(window as unknown as {componentFixture:{unmount:()=>void}}).componentFixture.unmount());expect(await root.count()).toBe(0);
 });

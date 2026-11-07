@@ -1,5 +1,6 @@
 import {createElement,useLayoutEffect,useRef,type ReactNode} from 'react';
 import './sentence-reveal.css';
+import {readMotionPolicy,observeMotionPolicy} from './motion-policy';
 export interface SentenceRevealProps {text:string;children:ReactNode;animate?:boolean;initialReveal?:boolean;className?:string;as?:'div'|'p';revealClassName?:string}
 interface TextRun {node:Text;start:number;end:number}
 interface TextMap {text:string;runs:TextRun[]}
@@ -48,9 +49,9 @@ export function SentenceReveal({text,children,animate=false,initialReveal=false,
   }
   const interact=()=>clear();element.addEventListener('pointerdown',interact);element.addEventListener('focusin',interact);element.addEventListener('keydown',interact);document.addEventListener('selectionchange',remember);
   const observer=new ResizeObserver(()=>paint.current?.());observer.observe(element);
-  const motion=matchMedia('(prefers-reduced-motion: reduce)'),settle=()=>clear();motion.addEventListener('change',settle);
+  const settle=()=>clear(),stopObservingMotion=observeMotionPolicy(policy=>{if(policy!=='full')clear();});
   const theme=new MutationObserver(settle);theme.observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
-  return()=>{element.removeEventListener('pointerdown',interact);element.removeEventListener('focusin',interact);element.removeEventListener('keydown',interact);document.removeEventListener('selectionchange',remember);observer.disconnect();theme.disconnect();motion.removeEventListener('change',settle);clear();};
+  return()=>{element.removeEventListener('pointerdown',interact);element.removeEventListener('focusin',interact);element.removeEventListener('keydown',interact);document.removeEventListener('selectionchange',remember);observer.disconnect();theme.disconnect();stopObservingMotion();clear();};
  },[]);
  useLayoutEffect(()=>{
   const element=root.current,container=layer.current;if(!element||!container)return;
@@ -66,7 +67,7 @@ export function SentenceReveal({text,children,animate=false,initialReveal=false,
   }
   if(!map){clear();previous.current=null;return;}
   const old=previous.current;previous.current=map.text;
-  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reduced=readMotionPolicy()!=='full';
   const position=()=>{
    const current=textMap(element,true);if(!current)return clear();
    const bounds=element.getBoundingClientRect(),color=background(element);let count=0;

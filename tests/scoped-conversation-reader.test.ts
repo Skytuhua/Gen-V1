@@ -49,6 +49,79 @@ describe('scoped Personal reader', () => {
     expect(r.getSnapshot().messages[0]).toMatchObject({head, text: 'A😀é𐐀', loadedCodePoints: 5, tail: {contentOffset: 2, revision: head.revision}});
     expect(urls.filter(url => url.includes('/content'))).toHaveLength(1);
   });
+  it.each([10, 12])('keeps the 8192-point expansion when an unrelated poll overtakes the final seq-%i chunk', async sequence => {
+    const head = {...message('long', 'A'.repeat(4096)), contentLength: 12288, nextContentCursor: 'part-2'};
+    const late = deferred<unknown>(), started = deferred<void>();
+    const phases: string[] = []; let signal: AbortSignal | null | undefined;
+    route = (url, nextSignal) => {
+      if (url.pathname.endsWith('/transcript')) return {...envelope, messages: [head], nextCursor: null};
+      if (url.pathname.endsWith('/content')) {
+        if (url.searchParams.get('cursor') === 'part-2') return {...envelope, message: {...head, content: 'B'.repeat(4096), contentOffset: 4096, nextContentCursor: 'part-3'}};
+        signal = nextSignal; started.resolve(); return late.promise;
+      }
+      if (url.pathname.endsWith('/updates')) {
+        const first = url.searchParams.get('checkpoint') === 'checkpoint-10';
+        return {...envelope, fromSequence: first ? 10 : 11, sequence: first ? 11 : 13, owner: null, transcriptChanged: false, checkpoint: first ? 'cp11' : 'cp13'};
+      }
+      return context;
+    };
+    const r = reader(state => phases.push(state.phase)); await r.select(selection); await r.loadContent('long');
+    expect(r.getSnapshot().messages[0]).toMatchObject({loadedCodePoints: 8192, text: 'A'.repeat(4096) + 'B'.repeat(4096)});
+    const pending = r.loadContent('long'); await started.promise; await r.poll();
+    expect(r.getSnapshot().context).toMatchObject({sequence: 11, checkpoint: 'cp11'});
+    late.resolve({...envelope, sequence, message: {...head, content: 'C'.repeat(4096), contentOffset: 8192, nextContentCursor: null}}); await pending;
+    expect(r.getSnapshot().messages[0].loadedCodePoints).toBe(12288);
+    expect(r.getSnapshot()).toMatchObject({phase: 'ready', context: {sequence: 11, checkpoint: 'cp11'}, pending: false, nextCursor: null});
+    expect(r.getSnapshot().messages[0]).toMatchObject({head, text: 'A'.repeat(4096) + 'B'.repeat(4096) + 'C'.repeat(4096), loadedCodePoints: 12288, pending: false, tail: {contentOffset: 8192, nextContentCursor: null}});
+    expect(signal?.aborted).toBe(false); expect(phases).not.toContain('resync');
+    // A content capture never fabricates the signed update checkpoint or skips events.
+    await r.poll();
+    expect(r.getSnapshot().context).toMatchObject({sequence: 13, checkpoint: 'cp13'});
+    expect(new URL(urls.at(-1)!, 'http://synthetic').searchParams.get('checkpoint')).toBe('cp11');
+  });
+  it.each([10, 12])('keeps ordered history and its cursor when an unrelated poll overtakes a seq-%i page', async sequence => {
+    const late = deferred<unknown>(), started = deferred<void>(); let signal: AbortSignal | null | undefined;
+    const phases: string[] = [];
+    route = (url, nextSignal) => {
+      if (url.pathname.endsWith('/transcript')) {
+        const cursor = url.searchParams.get('cursor');
+        if (cursor === 'older-2') {signal = nextSignal; started.resolve(); return late.promise;}
+        if (cursor === 'older-1') return {...envelope, messages: [message('previous')], nextCursor: 'older-2'};
+        if (cursor === 'older-3') return {...envelope, sequence: 13, messages: [message('oldest')], nextCursor: null};
+        return {...envelope, messages: [message('recent')], nextCursor: 'older-1'};
+      }
+      if (url.pathname.endsWith('/updates')) return {...envelope, fromSequence: 10, sequence: 11, owner: null, transcriptChanged: false, checkpoint: 'cp11'};
+      return context;
+    };
+    const r = reader(state => phases.push(state.phase)); await r.select(selection); await r.loadOlder();
+    const pending = r.loadOlder(); await started.promise; await r.poll();
+    late.resolve({...envelope, sequence, messages: [message('earlier'), message('previous')], nextCursor: 'older-3'}); await pending;
+    expect(r.getSnapshot().messages.map(item => item.head.id)).toEqual(['earlier', 'previous', 'recent']);
+    expect(r.getSnapshot()).toMatchObject({phase: 'ready', context: {sequence: 11, checkpoint: 'cp11'}, historyPending: false, nextCursor: 'older-3'});
+    expect(signal?.aborted).toBe(false); expect(phases).not.toContain('resync');
+    await r.loadOlder();
+    expect(r.getSnapshot().messages.map(item => item.head.id)).toEqual(['oldest', 'earlier', 'previous', 'recent']);
+    expect(r.getSnapshot().nextCursor).toBeNull();
+  });
+  it.each(['epoch', 'scope', 'revocation'])('ignores a late newer content capture after genuine %s invalidation', async change => {
+    const head = {...message('long', 'old'), contentLength: 6, nextContentCursor: 'part-2'};
+    const late = deferred<unknown>(), started = deferred<void>(); let contexts = 0, signal: AbortSignal | null | undefined;
+    route = (url, nextSignal) => {
+      if (url.pathname.endsWith('/transcript')) return {...envelope, messages: [head], nextCursor: null};
+      if (url.pathname.endsWith('/content')) {signal = nextSignal; started.resolve(); return late.promise;}
+      if (url.pathname.endsWith('/updates')) {
+        if (change === 'revocation') return Response.json({error: {code: 'CAPABILITY_DENIED'}}, {status: 403});
+        const owner = {...context, owner: {...context.owner, epoch: change === 'epoch' ? 38 : 37}, scopeKey: change === 'scope' ? 'd'.repeat(64) : context.scopeKey, sequence: 11, checkpoint: 'cp11'};
+        return {...envelope, fromSequence: 10, sequence: 11, owner, transcriptChanged: false, checkpoint: 'cp11'};
+      }
+      return ++contexts === 1 ? context : Response.json({error: {code: 'CAPABILITY_DENIED'}}, {status: 403});
+    };
+    const r = reader(); await r.select(selection); const pending = r.loadContent('long'); await started.promise; await r.poll();
+    expect(r.getSnapshot()).toMatchObject({phase: 'revoked', context: null, messages: []});
+    late.resolve({...envelope, sequence: 12, message: {...head, content: 'end', contentOffset: 3, nextContentCursor: null}}); await pending;
+    expect(signal?.aborted).toBe(true);
+    expect(r.getSnapshot()).toMatchObject({phase: 'revoked', context: null, messages: []});
+  });
   it('clears context and text before reacquiring the same owner on resync', async () => {
     const states: {phase: string; context: unknown; count: number}[] = [];
     const next = deferred<unknown>(); let contexts = 0;
