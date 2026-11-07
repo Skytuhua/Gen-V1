@@ -21,7 +21,7 @@ const canonicalPlan=()=>({id:planDataId('thread-a'),threadId:'thread-a',revision
 describe.runIf(enabled)('actual App split workspace',()=>{
  let server:ChildProcess|undefined,browser:Browser|undefined,serverLog='';
  beforeAll(async()=>{
-  server=spawn(process.execPath,['node_modules/vite/bin/vite.js','--host','127.0.0.1','--port','5598','--strictPort'],{cwd:root,windowsHide:true,stdio:['ignore','pipe','pipe']});
+  server=spawn(process.execPath,['node_modules/vite/bin/vite.js','--config','tests/e2e/vite.config.ts','--host','127.0.0.1','--port','5598','--strictPort'],{cwd:root,windowsHide:true,stdio:['ignore','pipe','pipe']});
   server.stdout?.on('data',chunk=>{serverLog+=String(chunk);});server.stderr?.on('data',chunk=>{serverLog+=String(chunk);});
   let ready=false;for(let i=0;i<100;i++){if(server.exitCode!==null)throw Error('Owned Vite exited: '+serverLog);try{const response=await fetch(origin,{signal:AbortSignal.timeout(500)});if(response.ok){ready=true;break;}}catch{}await new Promise(resolve=>setTimeout(resolve,100));}
   if(!ready)throw Error('Owned Vite did not start: '+serverLog);
@@ -92,7 +92,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
   await page.route('**/split-app-check',route=>route.fulfill({contentType:'text/html',body:`<html><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${fixtureModule}');</script></body></html>`}));
   await page.goto(origin+'/split-app-check');
   if(mode==='split'){
-   if(width<700)await page.getByRole('combobox',{name:'Active workspace area',exact:true}).selectOption('pane-main');
+   if(width<700){await page.getByRole('combobox',{name:'Active workspace area',exact:true}).click();await page.getByRole('option',{name:'First investigation',exact:true}).click();}
    await page.locator('[data-split-view="thread:thread-a"]').getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});
   }else await page.locator('.shell-workarea').getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});
   return{...host,page,errors,splitCommands,workspaceCommands,envelope,profiles,get layout(){return layout;},async issue(type:string,payload:Record<string,unknown>){layout=applySplitWorkspaceCommand(layout,type,payload);await page.evaluate(()=>window.dispatchEvent(new Event('harness:workspace-changed')));}};
@@ -106,8 +106,8 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    const dataTransfer=await page.evaluateHandle(()=>new DataTransfer());await page.locator('[data-split-pane="right"] [role="tab"]').dispatchEvent('dragstart',{dataTransfer});
    const rect=await page.locator('[data-split-pane="pane-main"] .split-pane-slot').boundingBox();if(!rect)throw Error('Missing target pane');await page.locator('.split-workspace').dispatchEvent('drop',{dataTransfer,clientX:rect.x+rect.width/2,clientY:rect.y+rect.height/2});
    await b.waitFor({state:'visible'});expect(await b.inputValue()).toBe('Second independent draft');expect(await page.evaluate(()=>(window as any).savedDraft===document.querySelector('[data-split-view="thread:thread-b"] textarea'))).toBe(true);
-   await page.locator('[data-split-pane="pane-main"] .split-area-menu summary').click();await page.getByRole('button',{name:'Park current view',exact:true}).click();await a.waitFor({state:'visible'});expect(await a.inputValue()).toBe('First independent draft');
-   if((await page.locator('[data-split-pane="pane-main"] .split-area-menu').getAttribute('open'))===null)await page.locator('[data-split-pane="pane-main"] .split-area-menu summary').click();await page.getByRole('combobox',{name:'Recover parked view'}).selectOption('thread:thread-b');await b.waitFor({state:'visible'});expect(await b.inputValue()).toBe('Second independent draft');
+   await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();await page.getByRole('menuitem',{name:'Park current view',exact:true}).click();await a.waitFor({state:'visible'});expect(await a.inputValue()).toBe('First independent draft');
+   await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();await page.getByRole('menuitem',{name:'Recover: Second investigation',exact:true}).click();await b.waitFor({state:'visible'});expect(await b.inputValue()).toBe('Second independent draft');
    await page.route('**/api/commands',async route=>{const command=route.request().postDataJSON() as HostCommand;if(command.type==='message.send'){host.commands.push(command);return route.fulfill({status:409,json:{error:{code:'RUN_BUSY',message:'Synthetic send rejected'}}});}await route.fallback();});
    await second.getByRole('button',{name:'Send message',exact:true}).click();await page.getByRole('alert').filter({hasText:'Synthetic send rejected'}).waitFor();expect(host.commands.find(command=>command.type==='message.send')?.threadId).toBe('thread-b');
    await page.reload();const restoredA=first.locator('textarea[aria-label="Message"]'),restoredB=second.locator('textarea[aria-label="Message"]');await restoredA.waitFor({state:'attached'});await restoredB.waitFor({state:'attached'});expect(await restoredA.inputValue()).toBe('First independent draft');expect(await restoredB.inputValue()).toBe('Second independent draft');expect(host.errors).toEqual([]);
@@ -246,7 +246,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    expect(actionsBox).not.toBeNull();expect(inputBox).not.toBeNull();expect(Math.abs(actionsBox!.y-inputBox!.y)).toBeLessThanOrEqual(6);expect(inputBox!.x+inputBox!.width).toBeLessThanOrEqual(actionsBox!.x);
    const overview=page.getByRole('region',{name:'Project overview window',exact:true});await overview.waitFor({state:'visible'});
    await page.locator('.sidebar-thread-row').first().getByRole('button',{name:/Options for/}).click();
-   expect(await page.getByRole('button',{name:'Place in workspace',exact:false}).count()).toBe(0);
+   expect(await page.getByRole('menuitem',{name:'Place in workspace',exact:false}).count()).toBe(0);
    await page.keyboard.press('Escape');
    await page.getByRole('button',{name:'Panels',exact:true}).click();
    expect(await page.getByRole('menuitem',{name:'Add Conversation panel',exact:true}).count()).toBe(0);

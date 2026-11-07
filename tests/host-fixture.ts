@@ -164,7 +164,8 @@ export async function sendFixture(page: Page, mode: string) {
 export async function grantFixtureFile(page: Page, host: HostFixture) {
   await page.getByRole('button', { name: 'Add resource', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: 'Add a resource' });
-  await dialog.getByLabel('Resource type').selectOption('file');
+  await dialog.getByRole('combobox',{name:'Resource type',exact:true}).click();
+  await dialog.getByRole('option',{name:'File',exact:true}).click();
   await dialog.getByRole('textbox', { name: 'Absolute local path' }).fill(host.sourceFile);
   await dialog.getByLabel('Allow approved changes').check();
   await dialog.getByRole('button', { name: 'Add resource', exact: true }).click();

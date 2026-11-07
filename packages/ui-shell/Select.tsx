@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState, type AriaAttributes } from 'react';
 import { Check, ChevronDown } from 'lucide-react';
 import { Popover } from './Popover';
 import { isComposing, useListNavigation } from './list-navigation';
@@ -10,6 +10,7 @@ export interface SelectProps {
   onValueChange: (value: string) => void;
   options: readonly SelectOption[];
   'aria-label': string;
+  'aria-invalid'?: AriaAttributes['aria-invalid'];
   id?: string;
   name?: string;
   form?: string;
@@ -17,15 +18,15 @@ export interface SelectProps {
   required?: boolean;
 }
 
-export function Select({ value, onValueChange, options, 'aria-label': label, id, name, form, disabled, required }: SelectProps) {
+export function Select({ value, onValueChange, options, 'aria-label': label, 'aria-invalid': suppliedInvalid, id, name, form, disabled, required }: SelectProps) {
   const anchor = useRef<HTMLButtonElement>(null), content = useRef<HTMLDivElement>(null);
   const native = useRef<HTMLSelectElement>(null), initial = useRef(value), change = useRef(onValueChange);
   change.current = onValueChange;
   const [open, setOpen] = useState(false);
   const [fieldsetDisabled, setFieldsetDisabled] = useState(false), [invalid, setInvalid] = useState(false);
   const listId = useId(), errorId = useId(), start = useRef<'selected' | 'last' | string>('selected');
-  const effectivelyDisabled = Boolean(disabled || fieldsetDisabled), showInvalid = invalid && required && value === '';
   const selected = options.findIndex(option => option.value === value);
+  const effectivelyDisabled = Boolean(disabled || fieldsetDisabled), showInvalid = invalid && required && (value === '' || selected < 0);
   const close = () => { setOpen(false); anchor.current?.focus(); };
   const choose = (index: number) => {
     if (disabled || native.current?.matches(':disabled')) { setOpen(false); return; }
@@ -54,7 +55,7 @@ export function Select({ value, onValueChange, options, 'aria-label': label, id,
   }, [form]);
   return <span className="ui-select">
     <button ref={anchor} id={id} type="button" role="combobox" aria-label={label} aria-expanded={open && !effectivelyDisabled}
-      aria-invalid={showInvalid || undefined} aria-describedby={showInvalid ? errorId : undefined}
+      aria-invalid={showInvalid ? true : suppliedInvalid} aria-describedby={showInvalid ? errorId : undefined}
       aria-controls={open ? listId : undefined} aria-haspopup="listbox" aria-required={required} disabled={disabled}
       className="ui-select-trigger" onClick={() => { start.current = 'selected'; navigation.reset(); setOpen(!open); }}
       onKeyDown={event => {
@@ -63,7 +64,7 @@ export function Select({ value, onValueChange, options, 'aria-label': label, id,
           event.preventDefault(); navigation.reset(); start.current = event.key === 'ArrowUp' ? 'last' : event.key === 'ArrowDown' ? 'selected' : event.key;
           setOpen(true);
         }
-      }}><span>{options[selected]?.label ?? ''}</span><ChevronDown size={14} aria-hidden="true" /></button>
+      }}><span>{options[selected]?.label ?? options.find(option => option.value === '')?.label ?? ''}</span><ChevronDown size={14} aria-hidden="true" /></button>
     <select ref={native} className="ui-select-native" aria-hidden="true" tabIndex={-1} name={name} form={form} disabled={disabled} required={required}
       value={value} onChange={event => onValueChange(event.target.value)} onInvalid={event => { event.preventDefault(); setInvalid(true); anchor.current?.focus(); }}>
       {options.map(option => <option key={option.value} value={option.value} disabled={option.disabled}>{option.label}</option>)}
