@@ -5,6 +5,7 @@ import {WORK_OBJECT_SCHEMAS,WORK_OBJECT_DATA_SCHEMAS,boundedWorkObjectData,readB
 import {ArtifactInline,ArtifactTitle,inputPath,statePath,useTaskAction} from './task-context';
 import {MotionRegion,reducedMotion} from './task-motion';
 import {createSpringValue} from './motion-spring';
+import {readMotionPolicy,observeMotionPolicy} from './motion-policy';
 import './work-objects.css';
 
 const object=(value:unknown):Record<string,unknown>=>value&&typeof value==='object'&&!Array.isArray(value)?value as Record<string,unknown>:{};
@@ -33,7 +34,11 @@ function useBoardMotion(ref:RefObject<HTMLDivElement|null>,layout:string){
   }
   positions.current=next;
  },[layout,ref]);
- useLayoutEffect(()=>{const preference=matchMedia('(prefers-reduced-motion: reduce)');const settle=()=>{if(!preference.matches)return;springs.current.forEach(spring=>spring.dispose());springs.current=[];ref.current?.querySelectorAll<HTMLElement>('[data-work-card]').forEach(card=>{card.style.transform='';});};preference.addEventListener('change',settle);return()=>{preference.removeEventListener('change',settle);springs.current.forEach(spring=>spring.dispose());};},[ref]);
+ useLayoutEffect(()=>{
+  const settle=()=>{springs.current.forEach(spring=>spring.dispose());springs.current=[];ref.current?.querySelectorAll<HTMLElement>('[data-work-card]').forEach(card=>{card.style.transform='';});};
+  const stopObservingMotion=observeMotionPolicy(policy=>{if(policy!=='full')settle();});
+  return()=>{stopObservingMotion();settle();};
+ },[ref]);
 }
 
 export function WorkflowBoard({element:{props}}:ComponentRenderProps){
@@ -81,13 +86,20 @@ export function WorkflowBoard({element:{props}}:ComponentRenderProps){
 }
 
 // Selection decoration is event-driven: restored state never replays it.
-function selectionHalo(target:HTMLElement|null){
- if(!target||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
- target.querySelector('.work-selection-halo')?.remove();
- const halo=document.createElement('span');halo.className='work-selection-halo';halo.setAttribute('aria-hidden','true');target.append(halo);
- const animation=halo.animate([{opacity:0,borderColor:'color-mix(in srgb,var(--accent) 40%,transparent)'},{opacity:.8,borderColor:'color-mix(in srgb,#8471bc 55%,transparent)',offset:.35},{opacity:0,borderColor:'color-mix(in srgb,var(--accent) 30%,transparent)'}],{duration:360,easing:'cubic-bezier(.16,1,.3,1)'});
- const motion=matchMedia('(prefers-reduced-motion: reduce)'),settle=()=>{animation.cancel();halo.remove();observer.disconnect();motion.removeEventListener('change',settle);};
- const observer=new MutationObserver(settle);observer.observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});motion.addEventListener('change',settle);animation.onfinish=settle;
+function useSelectionHalo(){
+ const cleanup=useRef<(()=>void)|undefined>(undefined);
+ useLayoutEffect(()=>()=>cleanup.current?.(),[]);
+ return (target:HTMLElement|null)=>{
+  cleanup.current?.();cleanup.current=undefined;
+  if(!target||readMotionPolicy()!=='full')return;
+  const halo=document.createElement('span');halo.className='work-selection-halo';halo.setAttribute('aria-hidden','true');target.append(halo);
+  const animation=halo.animate([{opacity:0,borderColor:'color-mix(in srgb,var(--accent) 40%,transparent)'},{opacity:.8,borderColor:'color-mix(in srgb,#8471bc 55%,transparent)',offset:.35},{opacity:0,borderColor:'color-mix(in srgb,var(--accent) 30%,transparent)'}],{duration:360,easing:'cubic-bezier(.16,1,.3,1)'});
+  let disposed=false;
+  const settle=()=>{if(disposed)return;disposed=true;observer.disconnect();stopObservingMotion();animation.removeEventListener('finish',settle);animation.removeEventListener('cancel',settle);animation.cancel();halo.remove();};
+  const observer=new MutationObserver(settle);observer.observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+  const stopObservingMotion=observeMotionPolicy(policy=>{if(policy!=='full')settle();});
+  animation.addEventListener('finish',settle);animation.addEventListener('cancel',settle);cleanup.current=settle;
+ };
 }
 const nodeIcons={client:Monitor,service:Server,store:Database,queue:Layers};
 function architectureLayout(data:ArchitectureData,availableWidth?:number){
@@ -105,6 +117,7 @@ function architectureLayout(data:ArchitectureData,availableWidth?:number){
  return {width,height,positions,labels:new Map(data.layers.map((layer,index)=>[layer.id,{x:30+index*190,y:19}]))};
 }
 export function ArchitectureCanvas({element:{props}}:ComponentRenderProps){
+ const selectionHalo=useSelectionHalo();
  const inline=useContext(ArtifactInline),viewport=useRef<HTMLDivElement>(null),[availableWidth,setAvailableWidth]=useState(360);
  const p=WORK_OBJECT_SCHEMAS.ArchitectureCanvas.parse(props),store=useStateStore(),action=useTaskAction(),raw=store.get(inputPath(p.dataBinding)),markerId=useId().replace(/[^a-zA-Z0-9_-]/g,''),stage=useRef<HTMLDivElement>(null),[selectionError,setSelectionError]=useState('');
  const parsed=useMemo(()=>boundedWorkObjectData('ArchitectureCanvas',raw)?WORK_OBJECT_DATA_SCHEMAS.ArchitectureCanvas.safeParse(raw):null,[raw]),data=parsed?.success?parsed.data:null,saved=object(store.get(statePath(p.stateKey)));
@@ -153,6 +166,7 @@ function traceLayout(spans:Span[],query:string,status:string,collapsed:Set<strin
 }
 const milliseconds=(value:number)=>`${new Intl.NumberFormat(undefined,{maximumFractionDigits:2}).format(value)} ms`;
 export function TraceWaterfall({element:{props}}:ComponentRenderProps){
+ const selectionHalo=useSelectionHalo();
  const inline=useContext(ArtifactInline);
  const p=WORK_OBJECT_SCHEMAS.TraceWaterfall.parse(props),store=useStateStore(),action=useTaskAction(),raw=store.get(inputPath(p.dataBinding)),tree=useRef<HTMLDivElement>(null),scroll=useRef<HTMLDivElement>(null),[selectionError,setSelectionError]=useState(''),[viewportWidth,setViewportWidth]=useState(0);
  const parsed=useMemo(()=>boundedWorkObjectData('TraceWaterfall',raw)?WORK_OBJECT_DATA_SCHEMAS.TraceWaterfall.safeParse(raw):null,[raw]),data=parsed?.success?parsed.data:null,saved=object(store.get(statePath(p.stateKey))),query=typeof saved.query==='string'?saved.query.slice(0,200):'',status=['ok','error','unknown'].includes(String(saved.status))?String(saved.status):'all',zoom=[1,2,4].includes(Number(saved.zoom))?Number(saved.zoom):1;

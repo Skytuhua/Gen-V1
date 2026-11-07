@@ -76,7 +76,8 @@ export function createConversationReader(options: {onState?: (state: Conversatio
     const version = generation, transcript = transcriptVersion;
     return {signal: controller.signal, valid: () => current(version) && transcript === transcriptVersion && !controller.signal.aborted, done: () => reads.delete(controller)};
   }
-  function checkSequence(sequence: number) {if (!state.context || sequence < state.context.sequence) throw invalid();}
+  // Unrelated polls may overtake a read; its captured context remains the minimum.
+  function checkSequence(sequence: number, context: ConversationContext) {if (sequence < context.sequence) throw invalid();}
   async function history(version: number, replace: boolean, previous: readonly ReadMessage[] = [], canResync = true) {
     const context = state.context;
     if (!context || !current(version)) return;
@@ -89,7 +90,7 @@ export function createConversationReader(options: {onState?: (state: Conversatio
       for (let i = 0; i < requestedPages; i++) {
         const page = await getConversationHistory(context, {limit: PAGE_SIZE, cursor}, fence.signal);
         if (!fence.valid()) return;
-        checkSequence(page.sequence);
+        checkSequence(page.sequence, context);
         const batch: ReadMessage[] = [];
         for (const message of page.messages) {
           const duplicate = seen.get(message.id);
@@ -167,7 +168,7 @@ export function createConversationReader(options: {onState?: (state: Conversatio
       try {
         const page = await getConversationContent(context, message.tail, fence.signal);
         if (!fence.valid()) return;
-        checkSequence(page.sequence);
+        checkSequence(page.sequence, context);
         const count = message.loadedCodePoints + [...page.message.content].length;
         if (count > MAX_CONTENT) {patch({pending: false, limited: true}); return;}
         patch({tail: page.message, text: message.text + page.message.content, loadedCodePoints: count, pending: false, limited: count >= MAX_CONTENT && page.message.nextContentCursor !== null});

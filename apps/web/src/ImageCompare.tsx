@@ -5,6 +5,7 @@ import { IMAGE_COMPARE_SCHEMAS, type ImageCompareProps } from '../../../packages
 import { useDocumentEvidence } from './document-evidence';
 import { ArtifactTitle, statePath } from './task-context';
 import { createSpringValue } from './motion-spring';
+import { readMotionPolicy, observeMotionPolicy } from './motion-policy';
 import './image-compare.css';
 
 type View = { percent: number; mode: 'overlay' | 'split' };
@@ -33,12 +34,10 @@ function ImagePair({ props, view, change }: { props: ImageCompareProps; view: Vi
   useLayoutEffect(() => {
     const initial = view.mode === 'split' ? 100 : 0;
     spring.current = createSpringValue(initial, applyGeometry); applyGeometry(initial);
-    const media = matchMedia('(prefers-reduced-motion: reduce)');
-    const reduce = () => { if (media.matches) spring.current?.to(stage.current?.dataset.mode === 'split' ? 100 : 0, true); };
-    media.addEventListener('change', reduce);
-    return () => { spring.current?.dispose(); spring.current = null; media.removeEventListener('change', reduce); };
+    const stopObservingMotion = observeMotionPolicy(policy => { if (policy !== 'full') spring.current?.to(stage.current?.dataset.mode === 'split' ? 100 : 0, true); });
+    return () => { stopObservingMotion(); spring.current?.dispose(); spring.current = null; };
   }, []);
-  useLayoutEffect(() => { spring.current?.to(view.mode === 'split' ? 100 : 0, matchMedia('(prefers-reduced-motion: reduce)').matches); }, [view.mode]);
+  useLayoutEffect(() => { spring.current?.to(view.mode === 'split' ? 100 : 0, readMotionPolicy() !== 'full'); }, [view.mode]);
   useLayoutEffect(() => { applyGeometry(spring.current?.value ?? (view.mode === 'split' ? 100 : 0)); }, [view.percent]);
   useEffect(() => {
     if (ready || error) return;

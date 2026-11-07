@@ -89,7 +89,7 @@ function connect(){return broker??=(async()=>{
 
 const uncertain=()=>new HarnessError('PI_CREDENTIAL_LEASE_RELEASE_UNCERTAIN','Credential mount ownership did not settle. Retain caller custody.');
 export function validateLinuxCredentialPath(authPath:string,root:string):string{
- if(typeof authPath!=='string'||!authPath.startsWith(root+'/')||!/^accounts\/provider-auth-[a-f0-9]{64}\/pi\/auth\.json$/.test(authPath.slice(root.length+1)))throw denied();
+ if(typeof authPath!=='string'||!authPath.startsWith(root+'/')||!/^(?:manager-runtime\/)?accounts\/provider-auth-[a-f0-9]{64}\/pi\/auth\.json$/.test(authPath.slice(root.length+1)))throw denied();
  return posix.dirname(authPath);
 }
 
