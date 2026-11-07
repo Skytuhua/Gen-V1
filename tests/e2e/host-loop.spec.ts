@@ -78,7 +78,8 @@ test('durable decision validation and acceptance continue the same owning runtim
   expect(invalid).toMatchObject({ status: 400, body: { error: { code: 'INVALID_INPUT' } } });
   await expect(decision).toBeVisible(); expect(host.snapshot().requests[0]?.status).toBe('pending');
   expect(host.runtime.deliveries).toHaveLength(1);
-  await decision.getByLabel('choice').selectOption('Keep');
+  await decision.getByRole('combobox', { name: 'choice', exact: true }).click();
+  await page.getByRole('option', { name: 'Keep', exact: true }).click();
   await decision.getByRole('textbox', { name: 'Decision rationale' }).fill('short');
   await decision.getByRole('button', { name: 'Continue', exact: true }).click();
   await expect(decision.getByRole('alert')).toContainText('The response does not match the requested schema. Check the required fields and values.');
