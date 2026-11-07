@@ -315,17 +315,6 @@ progress::-moz-progress-bar { background:var(--text); border-radius:4px; }
 .working-status,.resume-row { display:flex; align-items:center; gap:9px; color:var(--muted); font-size:12px; margin:22px 0 0; line-height:1.6; }
 .resume-row { justify-content:space-between; }
 .working-status .quiet { padding:4px 7px; min-height:25px; }
-.context-popover { position:absolute; right:0; bottom:calc(100% + 10px); width:340px; max-width:100%; border:1px solid var(--border); background:var(--surface); border-radius:15px; z-index:25; overflow:hidden; font-variant-numeric:tabular-nums; }
-.context-popover>header { display:flex; justify-content:space-between; align-items:center; padding:12px 15px 4px; font-size:13px; }
-.context-popover>header strong { font-weight:500; }
-.context-body { padding:6px 17px 16px; }
-.context-body>span { font-size:12px; color:var(--muted); }
-.context-body>progress { margin:11px 0; }
-.context-body dl { display:grid; grid-template-columns:1fr 1fr; gap:9px 12px; font-size:12px; margin:4px 0 12px; }
-.context-body dt { color:var(--muted); }
-.context-body dd { text-align:right; margin:0; }
-.context-body p { font-size:10px; line-height:1.6; }
-.context-popover>footer { border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; padding:11px 15px; color:var(--muted); font-size:11px; text-transform:capitalize; }
 .dialog { width:440px; max-width:calc(100vw - 32px); max-height:calc(100dvh - 50px); padding:22px; border:1px solid var(--border); border-radius:16px; color:var(--text); background:var(--surface); box-shadow:var(--elevation); }
 .dialog::backdrop { background:#0006; }
 .dialog>header { display:flex; align-items:center; justify-content:space-between; margin-bottom:21px; }
