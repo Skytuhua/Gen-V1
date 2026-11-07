@@ -555,6 +555,29 @@ for (const mode of [
 		},
 	);
 
+test("direct image grant returns to root without retaining a preview or crashing", async ({ page }) => {
+	const errors: string[] = [];
+	page.on("pageerror", error => errors.push(error.message));
+	const go = await fixture(page, "?granted=1");
+	await granted(page, [{ ...entry("photo.png"), path: "" }]);
+	const png = Buffer.from(
+		"iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/l9sAAAAASUVORK5CYII=",
+		"base64",
+	);
+	await page.route("**/api/resources/*/content*", route =>
+		route.fulfill({ contentType: "image/png", body: png }),
+	);
+	await go();
+	await page.getByRole("button", { name: "photo.png", exact: true }).click();
+	await expect(page.getByRole("img", { name: "photo.png" })).toBeVisible();
+	await page.getByRole("button", { name: "Granted root", exact: true }).click();
+	await expect(page.getByRole("region", { name: "File content" })).toContainText("Choose a file");
+	await expect(page.getByRole("img", { name: "photo.png" })).toHaveCount(0);
+	await page.getByRole("button", { name: "photo.png", exact: true }).click();
+	await expect(page.getByRole("img", { name: "photo.png" })).toBeVisible();
+	expect(errors).toEqual([]);
+});
+
 test("granted images revoke object URLs on refresh, selection and owner change", async ({
 	page,
 }) => {

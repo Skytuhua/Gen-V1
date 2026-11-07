@@ -146,7 +146,7 @@ function GrantedReader({
 	);
 	const folder = useFilesRead(path, true, readFolder),
 		preview = useFilesRead(selected?.path ?? "", !!selected, readFile),
-		value = preview.value;
+		value = selected ? preview.value : null;
 	const download = selected
 		? `/api/resources/${encodeURIComponent(active)}/content${selected.path ? "?path=" + encodeURIComponent(selected.path) : ""}`
 		: undefined;
