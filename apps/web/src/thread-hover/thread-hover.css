@@ -1,0 +1,50 @@
+@import '../../../../packages/ui-shell/tokens.css';
+
+.thread-hover-card {
+  box-sizing: border-box;
+  padding: var(--ui-panel-inset);
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+  animation: thread-hover-enter var(--ui-motion-tooltip-enter) var(--ui-ease-enter);
+  transition: opacity var(--ui-motion-tooltip-exit) ease-in-out;
+}
+.thread-hover-card[data-state="closed"] { opacity: 0; pointer-events: none; animation: none; }
+.thread-hover-body { display: flex; flex-direction: column; gap: var(--ui-space-2); min-width: 0; }
+.thread-hover-title { margin: 0; font-size: 16px; font-weight: 600; line-height: 1.4; white-space: pre-wrap; }
+.thread-hover-project { display: flex; align-items: baseline; gap: var(--ui-space-2); min-width: 0; }
+.thread-hover-monogram { flex-shrink: 0; font-size: 12px; font-weight: 600; }
+.thread-hover-dot { flex: 0 0 8px; height: 8px; align-self: center; border-radius: 50%; background: currentColor; }
+.thread-hover-facts { display: flex; flex-direction: column; gap: var(--ui-space-1); margin: 0; }
+.thread-hover-fact { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: var(--ui-space-2); }
+.thread-hover-fact dt { color: var(--muted); }
+.thread-hover-fact dd { min-width: 0; margin: 0; white-space: pre-wrap; }
+.thread-hover-prs { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--ui-nav-gap); }
+.thread-hover-pr {
+  display: flex; align-items: start; gap: var(--ui-space-2); width: 100%; min-height: var(--ui-row-compact);
+  padding: var(--ui-control-inset); border: 0; border-radius: 6px; background: transparent;
+  color: inherit; font: inherit; text-align: start; white-space: normal; overflow-wrap: anywhere;
+}
+.thread-hover-pr svg { flex-shrink: 0; margin-top: 2px; }
+.thread-hover-pr > span { min-width: 0; }
+.thread-hover-pr-title { display: block; }
+.thread-hover-pr-status { display: block; color: var(--muted); }
+button.thread-hover-pr { cursor: pointer; }
+button.thread-hover-pr:hover { background: var(--hover); }
+.thread-hover-card :is(button, a):focus-visible, .thread-hover-card:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.thread-hover-message { margin: 0; color: var(--muted); font: inherit; }
+.thread-hover-error { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ui-space-2); }
+.thread-hover-error button { min-height: var(--ui-row-compact); padding: var(--ui-control-inset); border-radius: 6px; font: inherit; }
+[data-density="touch"] .thread-hover-card button { min-height: var(--ui-row-touch); }
+@keyframes thread-hover-enter { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .thread-hover-card { animation: none; transition: none; } }
+@media (forced-colors: active) { .thread-hover-card { border-color: CanvasText; background: Canvas; color: CanvasText; } }
