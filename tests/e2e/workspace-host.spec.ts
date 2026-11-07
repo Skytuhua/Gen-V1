@@ -61,7 +61,10 @@ async function fixture(page: Page, {native = false, delayed = false, unavailable
   });
   const module = '/@fs/' + encodeURI(fileURLToPath(new URL('./workspace-app-fixture.tsx', import.meta.url)).replaceAll('\\', '/'));
   await page.route('**/workspace-host-check', route => route.fulfill({contentType: 'text/html', body: `<html><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${module}');</script></body></html>`}));
+  // Start business assertions after the real app has loaded its modules and bootstrapped.
+  const bootstrapped = page.waitForResponse(response => new URL(response.url()).pathname === '/api/bootstrap' && response.ok());
   await page.goto('/workspace-host-check');
+  await bootstrapped;
   return {requests, commands, snapshot, release: () => release?.(), recover: () => {failed = false; envelope.state.activeCanvasId = 'all-agents';}};
 }
 
@@ -381,4 +384,172 @@ test('desktop ownership updates hold monitor send and Stop then preserve the dra
  await page.getByRole('button', {name:'Send to Project investigation',exact:true}).click();
  await expect.poll(()=>h.commands.filter(command=>command.type==='message.send').length).toBe(1);
  expect(h.commands.find(command=>command.type==='message.send')).toMatchObject({threadId:'parent-a',payload:{content:'Keep across native ownership'}});
+});
+
+
+test('desktop ownership change prevents a slash mode retry after authentication renewal', async ({page}) => {
+ const originalInit=page.addInitScript.bind(page);
+ page.addInitScript=async(fn:any,arg:any)=>{
+  await originalInit(fn,arg);
+  if(arg?.native)await originalInit(()=>{
+   (window as any).harnessDesktop.onState=(notify:(state:unknown)=>void)=>{
+    (window as any).publishOwner=()=>notify({windows:[{id:'existing-child',surface:{kind:'thread',threadId:'parent-a'},title:'Restored thread'}]});
+    return()=>{};
+   };
+  });
+ };
+ await fixture(page,{native:true,working:false});
+ const input=page.getByRole('textbox',{name:'Message to Project investigation',exact:true});
+ let attempts=0;
+ await page.route('**/api/commands',async route=>{
+  const command=route.request().postDataJSON();
+  if(command.type!=='thread.mode')return route.fallback();
+  attempts++;
+  if(attempts===1){
+   await page.evaluate(()=>(window as any).publishOwner());
+   await expect(input).toBeDisabled();
+   return route.fulfill({status:401,json:{error:{code:'AUTH_REQUIRED',message:'Session renewed'}}});
+  }
+  return route.fulfill({json:{commandId:command.id,seq:1,result:{}}});
+ });
+ await input.fill('/plan');
+ await expect(page.getByRole('option',{name:'/plan Switch to Plan'})).toBeVisible();
+ await input.press('Enter');
+ await expect(page.getByRole('alert').filter({hasText:'The command owner changed'})).toBeVisible();
+ expect(attempts).toBe(1);
+});
+
+async function installOwnerPublisher(page: Page) {
+ const originalInit=page.addInitScript.bind(page);
+ page.addInitScript=async(fn:any,arg:any)=>{
+  await originalInit(fn,arg);
+  if(arg?.native)await originalInit(()=>{
+   (window as any).harnessDesktop.onState=(notify:(state:unknown)=>void)=>{
+    (window as any).publishOwner=(away:boolean,threadId='parent-a')=>notify({windows:away?[{id:'existing-child',surface:{kind:'thread',threadId},ready:true,minimized:false}]:[]});
+    return()=>{};
+   };
+  });
+ };
+}
+
+test('a native owner roundtrip before auth retry still rejects the stale mode',async({page})=>{
+ await installOwnerPublisher(page); await fixture(page,{native:true,working:false});
+ const input=page.getByRole('textbox',{name:'Message to Project investigation',exact:true});
+ const sent:unknown[]=[];let attempts=0, release!:()=>void;const gate=new Promise<void>(resolve=>{release=resolve;});
+ await page.route('**/api/commands',async route=>{
+  const command=route.request().postDataJSON();if(command.type!=='thread.mode')return route.fallback();attempts++;sent.push(command);
+  if(attempts===1){await gate;return route.fulfill({status:401,json:{error:{code:'AUTH_REQUIRED',message:'Session renewed'}}});}
+  return route.fulfill({json:{commandId:command.id,seq:1,result:{}}});
+ });
+ await input.fill('/plan');await expect(page.getByRole('option',{name:'/plan Switch to Plan'})).toBeVisible();await input.press('Enter');
+ await expect.poll(()=>attempts).toBe(1);
+ await page.evaluate(()=>(window as any).publishOwner(true));await expect(input).toBeDisabled();
+ await page.evaluate(()=>(window as any).publishOwner(false));await expect(input).toBeEnabled();release();
+ await expect(page.getByRole('alert').filter({hasText:'The command owner changed'})).toBeVisible();expect(attempts).toBe(1);
+});
+
+test('unmounting the monitor before native takeover rejects a stale mode retry',async({page})=>{
+ await installOwnerPublisher(page); await fixture(page,{native:true,working:false});
+ const input=page.getByRole('textbox',{name:'Message to Project investigation',exact:true});
+ const sent:unknown[]=[];let attempts=0, release!:()=>void;const gate=new Promise<void>(resolve=>{release=resolve;});
+ await page.route('**/api/commands',async route=>{
+  const command=route.request().postDataJSON();if(command.type!=='thread.mode')return route.fallback();attempts++;sent.push(command);
+  if(attempts===1){await gate;return route.fulfill({status:401,json:{error:{code:'AUTH_REQUIRED',message:'Session renewed'}}});}
+  return route.fulfill({json:{commandId:command.id,seq:1,result:{}}});
+ });
+ await input.fill('/plan');await expect(page.getByRole('option',{name:'/plan Switch to Plan'})).toBeVisible();await input.press('Enter');
+ await expect.poll(()=>attempts).toBe(1);
+ await page.getByRole('button',{name:'Open conversation Project investigation',exact:true}).click();
+ await expect(input).toHaveCount(0);
+ await page.evaluate(()=>(window as any).publishOwner(true));
+ await expect(page.getByText('This conversation is open in another window.',{exact:false})).toBeVisible();release();
+ await expect.poll(()=>attempts,{timeout:1500}).toBe(1);
+ await page.waitForTimeout(300);
+ console.log(JSON.stringify({scenario:'unmount-then-native-takeover',attempts,sent}));
+ expect(attempts).toBe(1);
+});
+
+test('synchronous native owner roundtrip fences the pending mode retry and permits a later explicit attempt',async({page})=>{
+ await installOwnerPublisher(page);await fixture(page,{native:true,working:false});
+ const input=page.getByRole('textbox',{name:'Message to Project investigation',exact:true});
+ const sent:{id:string;type:string;threadId:string;payload:unknown}[]=[];
+ let release!:()=>void;const gate=new Promise<void>(resolve=>{release=resolve;});
+ await page.route('**/api/commands',async route=>{
+  const command=route.request().postDataJSON();if(command.type!=='thread.mode')return route.fallback();sent.push(command);
+  if(sent.length===1){await gate;return route.fulfill({status:401,json:{error:{code:'AUTH_REQUIRED',message:'Session renewed'}}});}
+  return route.fulfill({json:{commandId:command.id,seq:1,result:{}}});
+ });
+ await input.fill('/plan');await expect(page.getByRole('option',{name:'/plan Switch to Plan'})).toBeVisible();await input.press('Enter');
+ await expect.poll(()=>sent.length).toBe(1);
+ // Both trusted callbacks run in one task: there is no DOM wait or React render between them.
+ await page.evaluate(()=>{(window as any).publishOwner(true);(window as any).publishOwner(false);});
+ release();
+ await expect(page.getByRole('alert').filter({hasText:'The command owner changed'})).toBeVisible();
+ expect(sent).toHaveLength(1);expect(sent[0]).toMatchObject({type:'thread.mode',threadId:'parent-a',payload:{mode:'plan'}});
+ await expect(input).toBeEnabled();await input.fill('/default');
+ await expect(page.getByRole('option',{name:'/default Switch to Build'})).toBeVisible();await input.press('Enter');
+ await expect.poll(()=>sent.length).toBe(2);
+ expect(sent[1]).toMatchObject({type:'thread.mode',threadId:'parent-a',payload:{mode:'build'}});
+ expect(sent[1].id).not.toBe(sent[0].id);
+});
+
+test('native takeover immediately before the mode callback prevents its initial dispatch',async({page})=>{
+ await installOwnerPublisher(page);const h=await fixture(page,{native:true,working:false});
+ const input=page.getByRole('textbox',{name:'Message to Project investigation',exact:true});
+ await input.fill('/plan');await expect(page.getByRole('option',{name:'/plan Switch to Plan'})).toBeVisible();
+ // ComposerCommands resumes onMode after this frame. Deliver the native callback
+ // inside that frame, before its promise continuation and before a rendered hold.
+ await page.evaluate(()=>{
+  const frame=window.requestAnimationFrame.bind(window);
+  window.requestAnimationFrame=callback=>frame(time=>{
+   window.requestAnimationFrame=frame;
+   (window as any).publishOwner(true);
+   (window as any).ownerCallbackSawEnabled=!document.querySelector<HTMLTextAreaElement>('textarea[aria-label="Message to Project investigation"]')!.disabled;
+   callback(time);
+  });
+ });
+ await input.press('Enter');
+ await expect(page.getByRole('alert').filter({hasText:'The command owner changed'})).toBeVisible();
+ expect(await page.evaluate(()=>(window as any).ownerCallbackSawEnabled)).toBe(true);
+ expect(h.commands.filter(command=>command.type==='thread.mode')).toHaveLength(0);
+ await expect(input).toBeDisabled();
+});
+
+test('unrelated native owner roundtrip preserves a pending mode retry and its command identity',async({page})=>{
+ await installOwnerPublisher(page);await fixture(page,{native:true,working:false});
+ const input=page.getByRole('textbox',{name:'Message to Project investigation',exact:true});
+ const sent:unknown[]=[];let release!:()=>void;const gate=new Promise<void>(resolve=>{release=resolve;});
+ await page.route('**/api/commands',async route=>{
+  const command=route.request().postDataJSON();if(command.type!=='thread.mode')return route.fallback();sent.push(command);
+  if(sent.length===1){await gate;return route.fulfill({status:401,json:{error:{code:'AUTH_REQUIRED',message:'Session renewed'}}});}
+  return route.fulfill({json:{commandId:command.id,seq:1,result:{}}});
+ });
+ await input.fill('/plan');await expect(page.getByRole('option',{name:'/plan Switch to Plan'})).toBeVisible();await input.press('Enter');
+ await expect.poll(()=>sent.length).toBe(1);
+ await page.evaluate(()=>{(window as any).publishOwner(true,'empty-draft');(window as any).publishOwner(false,'empty-draft');});release();
+ await expect.poll(()=>sent.length).toBe(2);expect(sent[1]).toEqual(sent[0]);
+ await expect(input).toBeEnabled();
+});
+
+for(const type of ['message.send','run.stop'] as const)test(`synchronous native owner roundtrip fences the pending ${type} auth retry`,async({page})=>{
+ await installOwnerPublisher(page);await fixture(page,{native:true,working:type==='run.stop'});
+ const input=page.getByRole('textbox',{name:'Message to Project investigation',exact:true});
+ const sent:unknown[]=[];let release!:()=>void;const gate=new Promise<void>(resolve=>{release=resolve;});
+ await page.route('**/api/commands',async route=>{
+  const command=route.request().postDataJSON();if(command.type!==type)return route.fallback();sent.push(command);
+  if(sent.length===1){await gate;return route.fulfill({status:401,json:{error:{code:'AUTH_REQUIRED',message:'Session renewed'}}});}
+  return route.fulfill({json:{commandId:command.id,seq:1,result:{}}});
+ });
+ await expect(input).toBeEnabled();
+ if(type==='message.send')await input.fill('Keep the pending owner message');
+ await page.getByRole('button',{name:`${type==='message.send'?'Send to':'Stop'} Project investigation`,exact:true}).click();
+ await expect.poll(()=>sent.length).toBe(1);
+ await page.evaluate(()=>{(window as any).publishOwner(true);(window as any).publishOwner(false);});release();
+ await expect(page.getByRole('alert').filter({hasText:'The command owner changed'})).toBeVisible();expect(sent).toHaveLength(1);
+ if(type==='message.send'){
+  await expect(input).toHaveValue('Keep the pending owner message');
+  await page.getByRole('button',{name:'Retry send to Project investigation',exact:true}).click();
+  await expect.poll(()=>sent.length).toBe(2);expect(sent[1]).toEqual(sent[0]);
+  await expect(input).toHaveValue('');
+ }
 });
