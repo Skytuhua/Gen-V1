@@ -81,7 +81,7 @@ test('explicit reopening focuses the header and hiding restores its connected op
 test('usage preference and cold reload retain collapse without stale visibility keys', async ({ page }) => {
   const usage = page.getByRole('region', { name: 'Live usage', exact: true });
   await usage.getByRole('button', { name: 'Inspect live usage' }).click();
-  await expect(usage).toContainText('18% used');
+  await expect(usage.getByRole('region', { name: 'Runtime usage details' }).locator('dd').first()).toHaveText('18,000');
   await page.getByRole('button', { name: 'Toggle usage preference' }).click(); await expect(usage).toHaveCount(0);
   await page.getByRole('button', { name: 'Toggle usage preference' }).click();
   await expect(usage).toHaveAttribute('data-collapsed', 'false');

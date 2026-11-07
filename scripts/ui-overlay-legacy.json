@@ -224,17 +224,6 @@
       "disposition": "retained-geometry"
     },
     {
-      "file": "apps/web/src/plan-status.css",
-      "line": 89,
-      "column": 1,
-      "rule": "ad-hoc-overlay",
-      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "2b89cf0461936187d8a76c1d9bc8ff060050bdf7b2ab15cbf043b4b0aff177c2",
-      "reason": "USAGE: retain existing compact usage footer until Usage migration; not itself a dropdown.",
-      "evidence": ".usage-footer {position:fixed;right:15px;bottom:9px;z-index:39;color:var(--muted);max-width:calc(100vw - 24px);}",
-      "disposition": "staged-migration"
-    },
-    {
       "file": "apps/web/src/registry.tsx",
       "line": 73,
       "column": 56,
@@ -346,17 +335,6 @@
     },
     {
       "file": "apps/web/src/shell.css",
-      "line": 192,
-      "column": 1,
-      "rule": "ad-hoc-overlay",
-      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "0f737f4aed7dd633ff4602f46d5d2f9ac63409fa7d3e4037b928a276792f98c1",
-      "reason": "USAGE/HOVER: replace CSS context tooltip with shared anchored tooltip.",
-      "evidence": ".context-segment:is(:hover,:focus-visible):after { content:attr(data-tooltip); position:absolute; z-index:2; bottom:calc(100% + 7px); left:50%; transform:translateX(-50%); white-space:nowrap; color:var(--text); backgroun",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/shell.css",
       "line": 207,
       "column": 1,
       "rule": "ad-hoc-overlay",
@@ -456,17 +434,6 @@
     },
     {
       "file": "apps/web/src/styles.css",
-      "line": 318,
-      "column": 1,
-      "rule": "ad-hoc-overlay",
-      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "eb6bd219ebc7097de1f65ba8af2091f8ccf2e958db84504f581a3950f5558ffb",
-      "reason": "USAGE: replace context popover geometry with shared Popover.",
-      "evidence": ".context-popover { position:absolute; right:0; bottom:calc(100% + 10px); width:340px; max-width:100%; border:1px solid var(--border); background:var(--surface); border-radius:15px; z-index:25; overflow:hidden; font-varia",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/styles.css",
       "line": 330,
       "column": 1,
       "rule": "ad-hoc-overlay",
@@ -555,17 +522,6 @@
     },
     {
       "file": "apps/web/src/workspace-canvas.css",
-      "line": 5,
-      "column": 541,
-      "rule": "ad-hoc-overlay",
-      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "0f13c870eb973b81993168b59453a7d1bc31b0774bdc416b3c9bbe663599c3a3",
-      "reason": "LAYOUT: migrate workspace menus; retain exact canvas plane until recovery migration.",
-      "evidence": ".workspace-menu{position:absolute;right:0;top:calc(100% + 6px);z-index:70;width:min(360px,calc(100vw - 24px));max-height:min(620px,75dvh);overflow:auto;background:var(--surface,#0f0f0f);border:1px solid var(--border);bor",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/workspace-canvas.css",
       "line": 37,
       "column": 1,
       "rule": "ad-hoc-overlay",
@@ -614,7 +570,7 @@
       "column": 709,
       "rule": "ad-hoc-overlay",
       "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "8c573d8afc2a298880088d7a81901b2a2ae638cb69758f66c198efdc35cf6bd4",
+      "fingerprint": "4803a8c61122443d19b9a861412437ab50d13e4b6bf06ca6ed29308cc111a8ad",
       "reason": "CONTROLS2/LAYOUT: Panels moves to ActionMenu; Layouts/saved canvas controls remain staged for later migration.",
       "evidence": "<select aria-label=\"Saved canvas\" value={active?.id??''} onChange={event=>run(async()=>{await prepare();await send('workspace.canvas.select',{canvasId:event.target.value});})}>{envelope.state.canvases.map(canvas=><option",
       "disposition": "staged-migration"
