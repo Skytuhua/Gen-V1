@@ -4,6 +4,7 @@ import {z} from 'zod';
 import type {Service} from '../../packages/core/service.ts';
 import {HarnessError} from '../../packages/contracts/index.ts';
 import {integrationIdSchema} from '../../packages/contracts/integrations.ts';
+import {ComparisonFileRequestSchema,ComparisonScopeSchema} from '../../packages/contracts/code-review.ts';
 import {workspaceHost,githubFor} from './workspace-host.ts';
 import {registerEnvironmentRoutes} from './environment-routes.ts';
 import {registerGitHubAuthRoutes} from './github-auth-routes.ts';
@@ -28,6 +29,27 @@ export function registerWorkspaceRoutes(app:FastifyInstance,service:Service){
  app.post('/api/workspace/commands',async request=>{const input=envelope.parse(request.body);return input.type==='workspace.project.connect'?projects.connect(input):projects.workspace.command(input);});
  app.get('/api/projects/:projectId/context',async request=>{const{projectId}=z.object({projectId:identifier}).parse(request.params),{threadId}=querySchema.parse(request.query);return projects.context(projectId,threadId);});
  app.get('/api/projects/:projectId/git',async request=>{const{projectId}=z.object({projectId:identifier}).parse(request.params),{threadId}=querySchema.parse(request.query);return projects.gitStatus(projectId,threadId);});
+ // Read-only comparison dependencies; retain existing action/review routes verbatim.
+ app.get('/api/projects/:projectId/git/comparison',async(request,reply)=>{
+  reply.header('Cache-Control','no-store');
+  const{projectId}=z.object({projectId:identifier}).parse(request.params),{threadId,scope}=ComparisonScopeSchema.extend({threadId:identifier.optional()}).parse(request.query);
+  return projects.gitComparison(projectId,threadId,{scope});
+ });
+ app.get('/api/projects/:projectId/git/comparison/file',async(request,reply)=>{
+  reply.header('Cache-Control','no-store');
+  const{projectId}=z.object({projectId:identifier}).parse(request.params),{threadId,...input}=ComparisonFileRequestSchema.extend({threadId:identifier.optional()}).parse(request.query);
+  return projects.gitComparisonFile(projectId,threadId,input);
+ });
+ app.get('/api/projects/:projectId/pull-requests/:number/comparison',async(request,reply)=>{
+  reply.header('Cache-Control','no-store');
+  const{projectId,number}=z.object({projectId:identifier,number:z.coerce.number().int().positive()}).parse(request.params),{threadId}=z.strictObject({threadId:identifier.optional()}).parse(request.query);
+  return github.comparison(projectId,threadId,number);
+ });
+ app.get('/api/projects/:projectId/pull-request-comparison/file',async(request,reply)=>{
+  reply.header('Cache-Control','no-store');
+  const{projectId}=z.object({projectId:identifier}).parse(request.params),{threadId,...input}=ComparisonFileRequestSchema.extend({threadId:identifier.optional()}).parse(request.query);
+  return github.comparisonFile(projectId,threadId,input);
+ });
  app.get('/api/projects/:projectId/files',async request=>{const{projectId}=z.object({projectId:identifier}).parse(request.params),{threadId,path}=querySchema.parse(request.query);return projects.files(projectId,threadId,path);});
  app.get('/api/projects/:projectId/file',async request=>{const{projectId}=z.object({projectId:identifier}).parse(request.params),{threadId,path}=querySchema.parse(request.query);return projects.file(projectId,threadId,z.string().min(1).parse(path));});
  app.get('/api/projects/:projectId/pull-requests',async request=>{

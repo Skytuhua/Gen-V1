@@ -15,6 +15,33 @@ vi.mock('../apps/web/src/journal', () => ({
  journalCompareAndSwap: async (key: string, generation: string, value: unknown) => {if (records.get(key)?.generation !== generation) return false; records.set(key, {value, generation: crypto.randomUUID()}); return true;},
 }));
 beforeEach(() => {records.clear(); writes.pause = undefined;});
+it('shares an ordinary conversation owner with its agent column without manufacturing inventory', async () => {
+ const sends = vi.fn(async (_input: unknown): Promise<void> => {throw Error('Connection lost');});
+ const owner = createSharedAgentComposers({sendParent: sends, stopParent: async () => {}});
+ const conversation = {kind: 'conversation' as const, threadId: 'a', modelId: 'first-model', working: false};
+ const column = agent('a');
+ await owner.prepare(conversation); await owner.edit(conversation, 'Original');
+ expect(owner.getSnapshot(column)).toBe(owner.getSnapshot(conversation));
+ await owner.submit(conversation, {thinkingLevel: 'high'});
+ const first = sends.mock.calls[0][0];
+ expect(first).toMatchObject({threadId: 'a', modelId: 'first-model', thinkingLevel: 'high', content: 'Original'});
+ await owner.edit(column, 'Later edit'); sends.mockImplementation(async () => {});
+ await owner.submit({...column, modelId: 'changed-model'});
+ expect(sends.mock.calls[1][0]).toEqual(first);
+ expect(owner.getSnapshot(conversation).draft).toBe('Later edit'); owner.dispose();
+});
+it('blocks a nested child while its canonical parent is stopped from the ordinary conversation', async () => {
+ let finish!: () => void;
+ const followUp = {canSend: () => true, send: async () => ticket, subscribe: () => () => {}};
+ const owner = createSharedAgentComposers({sendParent: async () => {}, stopParent: () => new Promise<void>(resolve => {finish = resolve;}), followUp});
+ const parent = agent('thread:parent', {threadId: 'parent', rootId: 'thread:parent'});
+ const conversation = {kind: 'conversation' as const, threadId: 'parent', modelId: 'model', working: true};
+ const child = agent('job:parent:child', {threadId: 'child', parentId: parent.agentId, rootId: parent.agentId, jobId: 'job', readOnly: true});
+ await owner.prepare(parent); await owner.prepare(conversation); await owner.prepare(child);
+ const stopping = owner.stop(conversation);
+ expect(owner.canSend(child)).toBe(false);
+ finish(); await stopping; owner.dispose();
+});
 it('clears the old uncertain delivery warning when the same ticket is confirmed handled', async () => {
  let notify!: (id: string, current: AgentInputTicket) => void;
  const followUp = {canSend: () => true, send: async () => ({...ticket, status: 'delivery_uncertain' as const}), subscribe: (listener: typeof notify) => {notify = listener; return () => {};}};
@@ -26,7 +53,7 @@ it('clears the old uncertain delivery warning when the same ticket is confirmed 
  expect(owner.getSnapshot(child).error).toBe(''); owner.dispose();
 });
 it('shares one draft and pending send, retains later text and reuses an uncertain command id', async () => {
- let resolve!: () => void; const send = vi.fn(async (_input: import('../apps/web/src/agents-workspace/composer').AgentSend): Promise<void> => {await new Promise<void>(r => {resolve = r;}); throw Error('Connection lost');});
+ let resolve!: () => void; const send = vi.fn(async (_input: import('../apps/web/src/agents-workspace/composer').ParentSend): Promise<void> => {await new Promise<void>(r => {resolve = r;}); throw Error('Connection lost');});
  const owner = createSharedAgentComposers({sendParent: send, stopParent: async () => {}}), a = agent('a');
  await owner.prepare(a); await owner.edit(a, 'First'); const sending = owner.submit(a); await vi.waitFor(() => expect(send).toHaveBeenCalledTimes(1));
  await owner.submit(a); expect(send).toHaveBeenCalledTimes(1); await owner.edit(a, 'Later'); resolve(); await sending;
@@ -71,4 +98,80 @@ it('parent Stop fences an already queued child before journal persistence releas
   expect(owner.canSend(child)).toBe(false); release(); await sending;
   expect(followUp.send).not.toHaveBeenCalled(); expect(owner.getSnapshot(child).draft).toBe('Retain this child input'); expect(owner.getSnapshot(child).retry).toBe(true);
  } finally {release(); finish(); await stopping; owner.dispose();}
+});
+
+it('captures journaled reasoning before a column sends and retains it on retry', async () => {
+ records.set('thinking:parent', {value: 'high', generation: 'reasoning-1'});
+ const send = vi.fn(async (_input: unknown): Promise<void> => {throw Error('Uncertain delivery');});
+ const owner = createSharedAgentComposers({sendParent: send, stopParent: async () => {}}), parent = agent('parent');
+ await owner.prepare(parent); await owner.edit(parent, 'Use the chosen reasoning'); await owner.submit(parent);
+ expect(send).toHaveBeenCalledWith(expect.objectContaining({thinkingLevel: 'high'}));
+ const command = send.mock.calls[0][0]; records.set('thinking:parent', {value: 'low', generation: 'reasoning-2'});
+ await owner.submit(parent); expect(send.mock.calls[1][0]).toEqual(command); owner.dispose();
+});
+
+import {AgentFollowUpSchema} from '../packages/contracts/agent-input';
+
+it('review: a locally rejected over-limit child draft can be corrected and sent', async () => {
+ const transported:string[]=[];
+ const followUp={canSend:()=>true,subscribe:()=>()=>{},send:async ({content}:{content:string})=>{
+  AgentFollowUpSchema.parse({jobId:'job', parentRun:ticket.parentRun,childRun:ticket.childRun,content});
+  transported.push(content);return ticket;
+ }};
+ const owner=createSharedAgentComposers({sendParent:async()=>{},stopParent:async()=>{},followUp});
+ const child=agent('child',{parentId:'parent',rootId:'parent',jobId:'job',readOnly:true});
+ try {
+  await owner.prepare(child);await owner.edit(child,'x'.repeat(32769));await owner.submit(child);
+  expect(transported).toEqual([]);expect(owner.getSnapshot(child).retry).toBe(false);
+  expect(records.has("agents-pending:child")).toBe(false);
+  await owner.edit(child,'Corrected valid follow-up');await owner.submit(child);
+  expect(transported).toEqual(['Corrected valid follow-up']);
+ } finally {owner.dispose();}
+});
+
+
+it('retires a recovered schema-invalid child pending identity while retaining corrected draft text', async () => {
+ const child = agent('child', {parentId: 'parent', rootId: 'parent', jobId: 'job', readOnly: true});
+ records.set('agents-pending:child', {value: {commandId: 'invalid-old', content: 'x'.repeat(32769), generation: 'old'}, generation: 'pending'});
+ records.set('draft:child', {value: 'Corrected after reload', generation: 'corrected'});
+ const followUp = {canSend: () => true, subscribe: () => () => {}, send: vi.fn(async () => ticket)};
+ const owner = createSharedAgentComposers({sendParent: async () => {}, stopParent: async () => {}, followUp});
+ await owner.prepare(child); await owner.submit(child);
+ expect(followUp.send).not.toHaveBeenCalled(); expect(owner.getSnapshot(child)).toMatchObject({retry: false, draft: 'Corrected after reload'});
+ await owner.submit(child); expect(followUp.send).toHaveBeenCalledWith(expect.objectContaining({content: 'Corrected after reload', commandId: expect.not.stringMatching('invalid-old')})); owner.dispose();
+});
+
+it('validates child UTF-8 byte bounds before persisting identity and preserves uncertain valid intent across remount', async () => {
+ const child = agent('child', {parentId: 'parent', rootId: 'parent', jobId: 'job', readOnly: true});
+ const followUp = {canSend: () => true, subscribe: () => () => {}, send: vi.fn(async (_input: unknown): Promise<AgentInputTicket> => {throw Error('Lost receipt');})};
+ const actions = {sendParent: async () => {}, stopParent: async () => {}, followUp};
+ let owner = createSharedAgentComposers(actions); await owner.prepare(child);
+ await owner.edit(child, '界'.repeat(22000)); await owner.submit(child);
+ expect(records.has('agents-pending:child')).toBe(false); expect(followUp.send).not.toHaveBeenCalled();
+ await owner.edit(child, 'Original valid intent'); await owner.submit(child); const first = followUp.send.mock.calls[0][0] as {content: string; commandId: string};
+ await owner.edit(child, 'Later edited text'); owner.dispose(); owner = createSharedAgentComposers(actions); await owner.prepare(child);
+ followUp.send.mockResolvedValue(ticket); await owner.submit(child);
+ expect(followUp.send.mock.calls[1][0]).toMatchObject({content: first.content, commandId: first.commandId});
+ expect(owner.getSnapshot(child).draft).toBe('Later edited text'); owner.dispose();
+});
+
+it('fences detached and pending owners, including stale send callbacks released after journal persistence', async () => {
+ let ownership: number | undefined = 1, release!: () => void;
+ const send = vi.fn(async () => {}), stop = vi.fn(async () => {});
+ const owner = createSharedAgentComposers({sendParent: send, stopParent: stop, ownership: () => ownership}), parent = agent('parent');
+ await owner.prepare(parent); await owner.edit(parent, 'Retain for the owning window');
+ ownership = undefined; await owner.submit(parent); await owner.stop(parent);
+ expect(send).not.toHaveBeenCalled(); expect(stop).not.toHaveBeenCalled(); expect(owner.canSend(parent)).toBe(false);
+ ownership = 2; writes.pause = new Promise<void>(resolve => {release = resolve;}); const sending = owner.submit(parent);
+ ownership = undefined; release(); await sending; expect(send).not.toHaveBeenCalled();
+ expect(owner.getSnapshot(parent)).toMatchObject({draft: 'Retain for the owning window', retry: true});
+ ownership = 3; writes.pause = undefined; await owner.submit(parent); expect(send).toHaveBeenCalledTimes(1); owner.dispose();
+});
+
+it('fences an ownership roundtrip even when the original window becomes editable again before dispatch', async () => {
+ let ownership = 1, release!: () => void;
+ const send = vi.fn(async () => {}), owner = createSharedAgentComposers({sendParent: send, stopParent: async () => {}, ownership: () => ownership}), parent = agent('parent');
+ await owner.prepare(parent); await owner.edit(parent, 'Do not dispatch a stale action');
+ writes.pause = new Promise<void>(resolve => {release = resolve;}); const sending = owner.submit(parent);
+ ownership = 3; release(); await sending; expect(send).not.toHaveBeenCalled(); expect(owner.getSnapshot(parent).retry).toBe(true); owner.dispose();
 });

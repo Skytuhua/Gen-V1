@@ -38,14 +38,15 @@ export function createPersonalChildFollowUp(parentThreadId: (agent: AgentSummary
    if (!abort.signal.aborted) targets.set(agent.agentId, {revision: agent.revision, target});
   },
   track(agent, ticket) {tickets.set(ticket.id, {agentId: agent.agentId, ticket}); if (active(ticket)) {void poll();}},
-  async send({agent, content, commandId}) {
+  async send({agent, content, commandId, isCurrent}) {
    const saved = await journalReadRecord<AgentFollowUpTarget>('agent-followup-target:' + commandId);
    const target = saved?.value ?? targets.get(agent.agentId)?.target;
    if (!target) throw Error('The active child target is unavailable. Reopen to retry.');
    validate(agent, target);
    const input = AgentFollowUpSchema.parse({jobId: target.jobId, parentRun: target.parentRun, childRun: target.childRun, content});
    if (!saved) await journalWrite('agent-followup-target:' + commandId, target);
-   const receipt = await sendAgentFollowUp(target.parentThreadId, input, commandId);
+   if (isCurrent && !isCurrent()) throw Error('The conversation owner changed. Follow-up retained for retry.');
+   const receipt = await (isCurrent ? sendAgentFollowUp(target.parentThreadId, input, commandId, isCurrent) : sendAgentFollowUp(target.parentThreadId, input, commandId));
    const ticketId = (receipt.result as {ticketId?: unknown} | undefined)?.ticketId;
    if (typeof ticketId !== 'string') throw Error('Follow-up receipt is unavailable. Retry delivery.');
    // The immutable admission receipt always says queued; only this read reports current state.

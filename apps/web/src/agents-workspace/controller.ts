@@ -56,6 +56,7 @@ export class AgentsWorkspaceController {
  private rotation?: ReturnType<typeof setInterval>;
  private retry?: ReturnType<typeof setTimeout>;
  private disposed = false;
+ private paused = false;
  private streamEpoch = 0;
  private queue = Promise.resolve();
  constructor(private transport: AgentTransport = personalAgentTransport) {}
@@ -65,9 +66,15 @@ export class AgentsWorkspaceController {
  view(id: string): ViewState {return this.views.get(id) ?? {top: 0, left: 0, atEnd: true, collapsed: false, unread: false};}
  setView(id: string, patch: Partial<ViewState>, notify = false) {this.views.set(id, {...this.view(id), ...patch}); if (notify) this.emit();}
  transcript(id: string): TranscriptState {if (!this.transcripts.has(id)) this.transcripts.set(id, emptyTranscript()); return this.transcripts.get(id)!;}
- start() {return this.setScope(this.state.scope);}
+ start() {this.paused = false; return this.setScope(this.state.scope);}
+ pause() {
+  this.paused = true; this.scopeAbort.abort(); this.stopStream();
+  this.histories.forEach((value, id) => {value.abort(); this.transcript(id).pending = false;}); this.histories.clear(); this.dirty.clear(); this.leased = [];
+  if (this.rotation) clearInterval(this.rotation); this.rotation = undefined;
+  this.emit({pending: false, connected: false});
+ }
  async setScope(scope: AgentScope): Promise<void> {
-  if (this.disposed) return;
+  if (this.disposed || this.paused) return;
   this.scopeAbort.abort(); this.stopStream(); this.histories.forEach((value, id) => {value.abort(); this.transcript(id).pending = false;}); this.histories.clear(); this.dirty.clear(); this.leased = [];
   const abort = this.scopeAbort = new AbortController();
   this.emit({scope, pending: true, connected: false, error: ''});
@@ -108,11 +115,12 @@ export class AgentsWorkspaceController {
   if (JSON.stringify(next) === JSON.stringify(this.visible)) return;
   this.visible = next; this.offset = 0;
   if (this.rotation) clearInterval(this.rotation);
+  if (this.paused || this.disposed) return;
   this.rotation = next.length > 24 ? setInterval(() => {this.offset += 24; this.updateLease();}, 2000) : undefined;
   this.updateLease();
  }
  private updateLease() {
-  if (this.disposed || this.state.pending || !this.state.scopeKey) return;
+  if (this.disposed || this.paused || this.state.pending || !this.state.scopeKey) return;
   const available = new Set(this.state.agents.filter(agent => agent.threadId).map(agent => agent.agentId));
   const previous = this.leased;
   this.leased = visibleLease(this.visible.filter(id => available.has(id)), this.offset);
@@ -122,7 +130,7 @@ export class AgentsWorkspaceController {
  }
  private stopStream() {this.streamEpoch++; this.streamAbort?.abort(); if (this.retry) clearTimeout(this.retry);}
  private connect() {
-  this.stopStream(); if (this.disposed || this.state.pending) return;
+  this.stopStream(); if (this.disposed || this.paused || this.state.pending) return;
   const abort = this.streamAbort = new AbortController(), epoch = this.streamEpoch;
   const query = {...this.state.scope, scopeKey: this.state.scopeKey, after: this.state.sequence, visibleAgentIds: this.leased};
   const active = () => !abort.signal.aborted && !this.disposed && epoch === this.streamEpoch;
@@ -168,7 +176,7 @@ export class AgentsWorkspaceController {
   return full;
  }
  private async loadHistory(id: string, earlier = false, force = false, beforeId?: string): Promise<void> {
-  if (this.disposed || !this.leased.includes(id)) return;
+  if (this.disposed || this.paused || !this.leased.includes(id)) return;
   const state = this.transcript(id);
   if (state.pending) {if (force) this.dirty.add(id); return;}
   const gap = earlier ? beforeId ? state.gaps.find(item => item.beforeId === beforeId) : state.gaps[0] : undefined;

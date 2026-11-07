@@ -44,8 +44,10 @@ export function WorkspacePanel({ snapshot, threadId, preferences, layout, setWid
     const schedule = () => { if (!frame) frame = requestAnimationFrame(() => { frame = 0; measure(); }); };
     measure(); const observer = new ResizeObserver(schedule);
     observer.observe(body); observer.observe(owner); if (body.parentElement) observer.observe(body.parentElement);
+    const motionEvents = ['animationstart','animationend','animationcancel','transitionrun','transitionend','transitioncancel'];
+    motionEvents.forEach(name => body.parentElement?.addEventListener(name,schedule));
     window.addEventListener('resize',schedule); window.addEventListener('scroll',schedule,true); document.fonts?.addEventListener('loadingdone',schedule);
-    return () => { cancelAnimationFrame(frame); observer.disconnect(); window.removeEventListener('resize',schedule); window.removeEventListener('scroll',schedule,true); document.fonts?.removeEventListener('loadingdone',schedule); delete owner.dataset.artifactDockReady; keys.forEach(name => owner.style.removeProperty(`--artifact-dock-${name}`)); };
+    return () => { cancelAnimationFrame(frame); observer.disconnect(); motionEvents.forEach(name => body.parentElement?.removeEventListener(name,schedule)); window.removeEventListener('resize',schedule); window.removeEventListener('scroll',schedule,true); document.fonts?.removeEventListener('loadingdone',schedule); delete owner.dataset.artifactDockReady; keys.forEach(name => owner.style.removeProperty(`--artifact-dock-${name}`)); };
   },[standalone,workspace.activeTab,workspace.activeArtifactId]);
   const [handoffError,setHandoffError]=useState('');
   useEffect(()=>setHandoffError(''),[threadId,workspace.activeTab]);

@@ -77,6 +77,11 @@ export class ShellReadModels {
     if (!row) throw new HarnessError('NOT_FOUND', 'Conversation metadata is unavailable.');
     return this.row(row);
   }
+  archive(input: unknown = {}): ShellPage<ThreadNavigationRow> {
+    const query = pageInput.parse(input), {all, archived} = this.owners();
+    const rows = all.filter(thread => archived.has(thread.id)).sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id)).map(thread => this.row(thread));
+    return this.page(rows, query, {kind: 'archive'});
+  }
   private visibleIds() {const {all, archived} = this.owners(); return all.filter(thread => !archived.has(thread.id)).map(thread => thread.id);}
   private visibleWhere() {return "AND (thread_id IS NULL OR thread_id IN (SELECT value FROM json_each(?)))";}
   resources(input: unknown = {}): ShellPage<ShellResourceRow> {

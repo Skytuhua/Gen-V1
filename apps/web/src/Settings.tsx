@@ -1,3 +1,5 @@
+import {settingsOperation, settleSettingsOperations} from './settings-operations';
+import {registerEditorHandoff} from './editor-handoff';
 import { useCallback, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { Check, ExternalLink, Search } from 'lucide-react';
 import type { ModelInfo, Snapshot } from '../../../packages/contracts';
@@ -83,6 +85,7 @@ export function Settings({snapshot, ...actions}: SettingsActions & {snapshot: Sn
 }
 export function SettingsView({data, draftReferences, modelError, refresh, loadModels, close, addResource, initialSection = 'general', environmentSettings, openBrowser}: SettingsActions & {data: SettingsData; draftReferences: DraftReferenceSource}) {
   const desktop = useDesktop();
+  useLayoutEffect(() => registerEditorHandoff('settings-writes', settleSettingsOperations), []);
   const navigation = useRef<HTMLElement>(null), content = useRef<HTMLElement>(null);
   const target = legacySections[initialSection] ?? initialSection;
   const [section, setSection] = useState(SETTINGS_SECTIONS.some(([id]) => id === target) ? target : 'general');
@@ -106,7 +109,7 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
   const persist = async (payload: Record<string, unknown>) => {
     if (busy) return false;
     setBusy(true); setSaved(false); setError('');
-    try { await command('settings.update', payload); await refresh(); setSaved(true); return true; }
+    try { await settingsOperation(async () => {await command('settings.update', payload); await refresh();}); setSaved(true); return true; }
     catch (cause) { setError(cause instanceof Error ? cause.message : 'Settings could not be saved. Retry your change.'); return false; }
     finally { setBusy(false); }
   };
@@ -160,7 +163,7 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
       {(matches('harness-accounts') || subscriptions > 0) && <Connections models={newTaskModels} snapshot={data} refresh={refresh} loadModels={refreshModels} query={searching ? query : ''}/>}
       {newTaskModelError && rows.some(item => item.section === 'providers') && <p role="alert" className="error-text">{newTaskModelError}</p>}
       {matches('project-overview') && <div className="settings-records">{data.resources.map(resource => <div key={resource.id}><strong>{resource.label}</strong><span>{resource.kind} · {resource.writable ? 'Approved changes allowed' : 'Read only'}</span><code>{resource.path}</code></div>)}</div>}
-      {matches('archive') && <div className="settings-records">{data.counts.archivedThreads !== data.archivedThreads.length && <p className="settings-empty">Showing {data.archivedThreads.length} archived conversations available in navigation. The total also includes conversations outside this list.</p>}{data.archivedThreads?.length ? data.archivedThreads.map(thread => <section className="settings-row" key={thread.id}><div className="settings-row-copy"><h2>{thread.title}</h2><p>{thread.projectName ?? 'Conversation'} · {thread.status}</p></div><button type="button" className="secondary" disabled={busy} onClick={() => { setBusy(true); void command('thread.restore', {}, thread.id).then(refresh).catch(cause => setError(String(cause))).finally(() => setBusy(false)); }}>Restore thread</button></section>) : <p className="settings-empty">{data.counts.archivedThreads ? 'No archived conversations are available in navigation.' : 'No archived threads.'}</p>}</div>}
+      {matches('archive') && <div className="settings-records">{data.counts.archivedThreads !== data.archivedThreads.length && <p className="settings-empty">Showing {data.archivedThreads.length} archived conversations available in navigation. The total also includes conversations outside this list.</p>}{data.archivedThreads?.length ? data.archivedThreads.map(thread => <section className="settings-row" key={thread.id}><div className="settings-row-copy"><h2>{thread.title}</h2><p>{thread.projectName ?? 'Conversation'} · {thread.status}</p></div><button type="button" className="secondary" disabled={busy} onClick={() => { setBusy(true); void settingsOperation(() => command('thread.restore', {}, thread.id).then(refresh)).catch(cause => setError(String(cause))).finally(() => setBusy(false)); }}>Restore thread</button></section>) : <p className="settings-empty">{data.counts.archivedThreads ? 'No archived conversations are available in navigation.' : 'No archived threads.'}</p>}</div>}
       {matches('app-version') && <><p className="settings-version">Gen V1 {version} · {desktop ? 'Windows desktop' : 'Browser build'}</p><UpdateControl/></>}
       {matches('browser-start-page') && <section className="settings-card"><h2>Manual browser</h2>{openBrowser ? <form onSubmit={event => { event.preventDefault(); void persist({ preferences: { browserStartUrl: browserUrl } }); }}><label className="field">Start page<input aria-label="Browser start page" type="url" placeholder="Blank page" maxLength={2048} value={browserUrl} disabled={busy} onChange={event => setBrowserUrl(event.target.value)}/></label><div className="settings-inline-controls"><button className="secondary" disabled={busy || browserUrl === preferences.browserStartUrl}>Save start page</button><button type="button" className="secondary" disabled={busy} onClick={() => { setBusy(true); void openBrowser(preferences.browserStartUrl).then(close).catch(cause => setError(String(cause))).finally(() => setBusy(false)); }}>Open browser</button></div></form> : <p className="settings-card-intro">Open the manual browser from the Windows desktop workspace. Navigation, reload and stop stay in its toolbar.</p>}</section>}
       {rows.length === 0 && subscriptions === 0 && <p className="settings-empty">No matching settings.</p>}

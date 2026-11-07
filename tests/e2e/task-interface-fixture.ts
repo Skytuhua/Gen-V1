@@ -33,9 +33,12 @@ export async function serveTaskFixture(page: Page, snapshot: Snapshot, action?: 
     if (path === '/api/bootstrap') return route.fulfill({ json: { csrfToken: 'fixture-csrf', widgetOrigin: 'http://localhost:4318' } });
     if (path === '/api/models') return route.fulfill({ json: { models: [{ id: 'test/model', provider: 'test', name: 'Fixture' }] } });
     if (path === '/api/snapshot') return route.fulfill({ json: snapshot });
+    if (path === '/api/shell-settings') return route.fulfill({json: snapshot.settings});
+    if (path === '/api/workspace') return route.fulfill({json: {projects: [], state: {version: 1, revision: 0, activeCanvasId: 'workspace', canvases: [{id: 'workspace', name: 'Workspace', preset: 'workspace', panels: [], viewport: {x: 0, y: 0, zoom: 1}}], profiles: [], disabledKinds: [], integrations: {}}}});
     if (path !== '/api/commands') return route.fulfill({ status: 404 });
     const command = route.request().postDataJSON() as HostCommand; commands.push(command);
     let result: unknown = {};
+    if (command.type === 'settings.update') snapshot.settings = {...snapshot.settings, ...command.payload, preferences: {...snapshot.settings.preferences, ...(command.payload.preferences as Record<string, unknown> | undefined)}};
     if (command.type === 'state.save') { snapshot.userStates[0].values = command.payload.values as Record<string, unknown>; snapshot.userStates[0].revision++; result = snapshot.userStates[0]; }
     if (command.type === 'action.submit') result = await action?.(command) ?? {};
     snapshot.seq++;

@@ -129,3 +129,17 @@ test('keeps the permanent sidebar recovery target clear of workspace navigation'
   const context = await recovery.evaluate(node => ({parent: node.parentElement?.className, ancestor: node.parentElement?.parentElement?.className, switcherParent: document.querySelector('.workspace-switcher')?.parentElement?.className, padding: getComputedStyle(document.querySelector('.workspace-switcher')!).paddingLeft}));
   expect(a.x + a.width <= b.x || b.x + b.width <= a.x || a.y + a.height <= b.y || b.y + b.height <= a.y, JSON.stringify({a, b, context})).toBe(true);
 });
+
+
+test('artifact dock follows a tool entrance transform without losing its scrolled viewport intersection', async ({page}) => {
+  await fixture(page, 1440, 900, true);
+  const artifact = page.locator('.artifact-in-workspace');
+  await expect(artifact).toBeVisible();
+  await page.addStyleTag({content: '@keyframes testToolEntrance {from {transform: translateX(72px)} to {transform: translateX(0)}} .workspace-right.test-tool-entrance {animation: testToolEntrance 1200ms linear !important}'});
+  await page.locator('.workspace-panel-content').evaluate(async body => {
+    body.parentElement!.classList.add('test-tool-entrance');
+    await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+  });
+  const delta = await artifact.evaluate(node => node.getBoundingClientRect().left - document.querySelector('.workspace-panel-content')!.getBoundingClientRect().left - 12);
+  expect(Math.abs(delta)).toBeLessThanOrEqual(3);
+});

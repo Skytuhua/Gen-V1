@@ -7,5 +7,6 @@ const get = <T,>(path: string, signal?: AbortSignal) => authenticated(() => fetc
 export const getShellNavigation = (input: ShellNavigationQuery = {}, signal?: AbortSignal) => get<NavigationPage>('/api/shell/navigation?' + query({...input}), signal);
 export const getShellNavigationItem = (id: string, signal?: AbortSignal) => get<ThreadNavigationRow>('/api/shell/navigation/' + encodeURIComponent(id), signal);
 export const getShellSettingsReadModel = (signal?: AbortSignal) => get<ShellSettingsReadModel>('/api/shell/settings', signal);
+export const getShellArchive = (input: {limit?: number; cursor?: string} = {}, signal?: AbortSignal) => get<ShellPage<ThreadNavigationRow>>('/api/shell/archive?' + query({...input}), signal);
 export const getShellResources = (input: {limit?: number; cursor?: string} = {}, signal?: AbortSignal) => get<ShellPage<ShellResourceRow>>('/api/shell/resources?' + query({...input}), signal);
 export const getDraftTransferReferences = (keys: string[], signal?: AbortSignal) => authenticated(() => fetch('/api/shell/draft-references', {method: 'POST', credentials: 'same-origin', cache: 'no-store', signal, headers: {'Content-Type': 'application/json', 'x-harness-csrf': csrfToken}, body: JSON.stringify({keys})})).then(read<DraftTransferReferences>);

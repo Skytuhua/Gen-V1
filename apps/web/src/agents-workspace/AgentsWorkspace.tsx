@@ -1,8 +1,9 @@
-import {Fragment, createContext, useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode} from 'react';
+import {Fragment, createContext, useContext, useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode} from 'react';
 import {ChevronDown, ChevronRight, ExternalLink, Search, Send, Square, X} from 'lucide-react';
 import {Select} from '../../../../packages/ui-shell/Select';
 import {isComposing} from '../../../../packages/ui-shell/list-navigation';
 import {agentStatuses, type AgentStatus, type AgentSummary} from '../../../../packages/contracts/agent-inventory';
+import {useDesktop, useDetachedSurface, usePendingSurface} from '../desktop-context';
 import {ComposerView} from '../ComposerView';
 import {PendingStatus} from '../LoadingState';
 import {Markdown} from '../Markdown';
@@ -67,18 +68,22 @@ function VirtualSlot({children, className, label}: {children: ReactNode; classNa
   {near || held ? children : <button type="button" className="agents-virtual-reveal" onFocus={() => setHeld(true)} onClick={() => setHeld(true)}>Show {label}</button>}
  </div>;
 }
+function ColumnScroll({controller, id, children}: {controller: AgentsWorkspaceController; id: string; children: ReactNode}) {
+ const restore = useCallback((element: HTMLDivElement | null) => {if (element) element.scrollTop = controller.view('$column:' + id).top;}, [controller, id]);
+ return <div className="agents-column-scroll" ref={restore} onScroll={event => controller.setView('$column:' + id, {top: event.currentTarget.scrollTop})}>{children}</div>;
+}
 function Project({row, controller, ...props}: {row: ProjectRow} & Omit<AgentsWorkspaceProps, 'projects'>) {
- const id = '$project:' + (row.id ?? '$none'), strip = useRef<HTMLDivElement>(null), color = projectColor({kind: 'local'}, row.id ?? undefined, props.preferences?.projectColors);
- useLayoutEffect(() => {if (strip.current) strip.current.scrollLeft = controller.view(id).left;});
+ const id = '$project:' + (row.id ?? '$none'), color = projectColor({kind: 'local'}, row.id ?? undefined, props.preferences?.projectColors);
+ const restoreStrip = useCallback((element: HTMLDivElement | null) => {if (element) element.scrollLeft = controller.view(id).left;}, [controller, id]);
  const count = (nodes: AgentNode[]): number => nodes.reduce((total, node) => total + Number(node.agent.status === 'working') + count(node.children), 0);
  return <section className="agents-project" role="region" aria-label={`Project ${row.name}`}>
   <header className="agents-project-header"><span className="agents-project-mark" style={{'--project-color': color} as CSSProperties} aria-hidden="true">{row.name.slice(0, 1).toUpperCase()}</span><h2>{row.name}</h2><span>{count(row.parents)} working</span></header>
   <VirtualSlot className="agents-project-slot" label={`${row.name} agents`}>
-   <div className="agents-parent-strip" ref={strip} role="region" aria-label={`${row.name} agents`} tabIndex={0} onScroll={event => controller.setView(id, {left: event.currentTarget.scrollLeft})} onKeyDown={event => {
+   <div className="agents-parent-strip" ref={restoreStrip} role="region" aria-label={`${row.name} agents`} tabIndex={0} onScroll={event => controller.setView(id, {left: event.currentTarget.scrollLeft})} onKeyDown={event => {
     if (event.target !== event.currentTarget || isComposing(event) || event.altKey || event.metaKey || event.ctrlKey) return;
     if (event.key === 'ArrowRight' || event.key === 'ArrowLeft') {event.preventDefault(); event.currentTarget.scrollBy({left: event.key === 'ArrowRight' ? 476 : -476, behavior: 'instant'});}
    }}>
-    {row.parents.map(node => <VirtualSlot className="agents-column-slot" key={node.agent.agentId} label={node.agent.title}><div className="agents-column-scroll" onScroll={event => controller.setView('$column:' + node.agent.agentId, {top: event.currentTarget.scrollTop})} ref={element => {if (element) element.scrollTop = controller.view('$column:' + node.agent.agentId).top;}}><Agent node={node} controller={controller} {...props}/></div></VirtualSlot>)}
+    {row.parents.map(node => <VirtualSlot className="agents-column-slot" key={node.agent.agentId} label={node.agent.title}><ColumnScroll controller={controller} id={node.agent.agentId}><Agent node={node} controller={controller} {...props}/></ColumnScroll></VirtualSlot>)}
    </div>
   </VirtualSlot>
  </section>;
@@ -132,14 +137,17 @@ function Transcript({agent, controller}: {agent: AgentSummary; controller: Agent
 function InlineComposer({agent, composers, controller}: {agent: AgentSummary; composers: SharedAgentComposers; controller: AgentsWorkspaceController}) {
  const state = useSyncExternalStore(listener => composers.subscribe(agent, listener), () => composers.getSnapshot(agent)), input = useRef<HTMLTextAreaElement>(null);
  useEffect(() => {void composers.prepare(agent);}, [composers, agent.threadId, agent.agentId, agent.revision]);
- const send = () => {void composers.submit(agent);};
- return <ComposerView className="agents-composer" onSubmit={event => {event.preventDefault(); send();}}>
-  <textarea ref={input} aria-label={`Message to ${agent.title}`} placeholder={agent.parentId ? 'Follow up…' : 'Message…'} rows={2} value={state.draft} disabled={!state.ready} onFocus={() => controller.setView(agent.agentId, {focus: 'composer'})} onChange={event => {void composers.edit(agent, event.target.value);}} onKeyDown={event => {if (isComposing(event) || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) return; if (event.key === 'Enter') {event.preventDefault(); send();}}}/>
+ const desktop = useDesktop(), surface = agent.threadId ? {kind: 'thread' as const, threadId: agent.threadId} : null;
+ const detached = useDetachedSurface(surface), pending = usePendingSurface(surface), held = Boolean(detached || pending || desktop?.closing);
+ const currentHeld = useRef(held); currentHeld.current = held;
+ const send = () => {if (!currentHeld.current) void composers.submit(agent);};
+ return <><div inert={held}><ComposerView className="agents-composer" onSubmit={event => {event.preventDefault(); send();}}>
+  <textarea ref={input} aria-label={`Message to ${agent.title}`} placeholder={agent.parentId ? 'Follow up…' : 'Message…'} rows={2} value={state.draft} disabled={held || !state.ready} onFocus={() => controller.setView(agent.agentId, {focus: 'composer'})} onChange={event => {void composers.edit(agent, event.target.value);}} onKeyDown={event => {if (isComposing(event) || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) return; if (event.key === 'Enter') {event.preventDefault(); send();}}}/>
   <div className="agents-composer-actions"><span role="status">{state.ticket ? `${state.ticket.status.replaceAll('_', ' ')}${state.ticket.error ? ': ' + state.ticket.error : ''}` : state.busy ? 'Sending…' : ''}</span>
-   {!agent.parentId && agent.status === 'working' && <button type="button" aria-label={`Stop ${agent.title}`} disabled={state.stopping} onClick={() => {void composers.stop(agent);}}><Square size={13}/>{state.stopping ? 'Stopping…' : 'Stop'}</button>}
-   <button type="submit" aria-label={`${state.retry ? 'Retry send to' : 'Send to'} ${agent.title}`} disabled={!composers.canSend(agent) || !state.retry && !state.draft.trim()}><Send size={14}/>{state.retry ? 'Retry send' : 'Send'}</button>
+   {!agent.parentId && agent.status === 'working' && <button type="button" aria-label={`Stop ${agent.title}`} disabled={held || state.stopping} onClick={() => {if (!currentHeld.current) void composers.stop(agent);}}><Square size={13}/>{state.stopping ? 'Stopping…' : 'Stop'}</button>}
+   <button type="submit" aria-label={`${state.retry ? 'Retry send to' : 'Send to'} ${agent.title}`} disabled={held || !composers.canSend(agent) || !state.retry && !state.draft.trim()}><Send size={14}/>{state.retry ? 'Retry send' : 'Send'}</button>
   </div>
   {!agent.parentId && !agent.modelId && <p className="agents-readonly">Choose a model in this conversation to send.</p>}
   {state.error && <p className="agents-error" role="alert">{state.error}</p>}
- </ComposerView>;
+ </ComposerView></div>{detached ? <button type="button" onClick={() => {void desktop?.bridge.focus(detached.id).catch(() => {});}}>Focus existing window</button> : pending && <p role="status">Opening conversation window…</p>}</>;
 }

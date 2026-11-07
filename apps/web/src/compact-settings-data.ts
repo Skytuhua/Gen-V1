@@ -1,5 +1,5 @@
 import type {ShellPage, ShellResourceRow, ThreadNavigationRow} from '../../../packages/contracts/shell-read-models';
-import {getShellNavigation, getShellResources, getShellSettingsReadModel} from './shell-read-api';
+import {getShellArchive, getShellResources, getShellSettingsReadModel} from './shell-read-api';
 import type {SettingsData} from './settings-data';
 
 async function complete<T extends {id: string}>(first: ShellPage<T>, next: (cursor: string) => Promise<ShellPage<T>>, signal: AbortSignal): Promise<T[]> {
@@ -29,10 +29,9 @@ export async function loadCompactSettings(signal: AbortSignal): Promise<Settings
   const model = await getShellSettingsReadModel(signal); signal.throwIfAborted();
   const [resources, archivedThreads] = await Promise.all([
     complete<ShellResourceRow>({sequence: model.sequence, total: model.resourcePage.total, items: model.resources, nextCursor: model.resourcePage.nextCursor}, cursor => getShellResources({limit: 100, cursor}, signal), signal),
-    getShellNavigation({archived: true, limit: 100}, signal).then(page => complete<ThreadNavigationRow>(page, cursor => getShellNavigation({archived: true, limit: 100, cursor}, signal), signal)),
+    getShellArchive({limit: 100}, signal).then(page => complete<ThreadNavigationRow>(page, cursor => getShellArchive({limit: 100, cursor}, signal), signal)),
   ]);
   signal.throwIfAborted();
-  // Archive navigation deliberately excludes side threads; its total is a different scope.
-  if (resources.length !== model.counts.resources) throw Error('Settings metadata changed while loading. Refresh to retry.');
+  if (resources.length !== model.counts.resources || archivedThreads.length !== model.counts.archivedThreads) throw Error('Settings metadata changed while loading. Refresh to retry.');
   return {sequence: model.sequence, settings: model.settings, accounts: model.accounts, skills: model.skills, skillProposals: model.skillProposals, learning: model.learning, projects: model.projects, resources, archivedThreads, counts: model.counts};
 }

@@ -19,6 +19,11 @@ const identity: PullRequestComparisonIdentity = {
   semantics: "merge-base",
 };
 const file: ComparisonFile = { path: "file", status: "modified", untracked: false, additions: 1, deletions: 1 };
+it('keeps active GitHub CLI CheckRuns pending when their conclusion is an empty string', () => {
+  const statuses = ['QUEUED', 'IN_PROGRESS', 'WAITING', 'REQUESTED'];
+  expect(normalizeChecks(statuses.map(status => ({__typename: 'CheckRun', name: status, status, conclusion: ''})))).toEqual(statuses.map(name => ({name, status: 'pending'})));
+  expect(normalizeChecks([{name: 'finished', status: 'COMPLETED', conclusion: 'SUCCESS'}, {name: 'unrecognized', status: 'FUTURE_STATUS', conclusion: ''}])).toEqual([{name: 'finished', status: 'passed'}, {name: 'unrecognized', status: 'unknown'}]);
+});
 it.each([
   ["IN_PROGRESS", ""],
   ["IN_PROGRESS", null],

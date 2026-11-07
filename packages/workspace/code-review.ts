@@ -323,7 +323,7 @@ export function normalizeChecks(rows: unknown[] | null): ComparisonCheck[] {
       .safeParse(row);
     if (!data.success) return { name: "Unknown check", status: "unknown" };
     const value = data.data,
-      state = value.conclusion || (value.state ?? value.status ?? "");
+      state = value.conclusion || value.state || value.status || "";
     return {
       name: value.name ?? value.context ?? "Unknown check",
       status: ["SUCCESS", "EXPECTED"].includes(state)

@@ -93,7 +93,7 @@ function ResearchBody({selection, topic, onNavigate, grantedFiles = [], browserC
           <div className="research-empty"><p>Select a source or start a findings document.</p><button onClick={() => create('findings')}>Start findings</button></div>}
         {passage && <PassageInspector key={JSON.stringify([passage, passageVisit])} selection={selection} passage={passage} onClose={() => setPassage(undefined)} />}
       </div>
-      {chat && <aside className="research-chat" aria-label="Research chat" hidden={!chatOpen}><label className="research-chat-size">Chat height<input type="range" aria-label="Chat height" min={20} max={50} value={chatSize} onChange={event => setChatSize(Number(event.target.value))} /></label><div className="research-chat-content">{chat}</div></aside>}
+      {Boolean(chat) && <aside className="research-chat" aria-label="Research chat" hidden={!chatOpen}><label className="research-chat-size">Chat height<input type="range" aria-label="Chat height" min={20} max={50} value={chatSize} onChange={event => setChatSize(Number(event.target.value))} /></label><div className="research-chat-content">{chat}</div></aside>}
     </div>
     <SourceImport selection={selection} open={importOpen} onClose={() => setImportOpen(false)} files={grantedFiles} browser={browserCapture} onCaptured={source => {setRefresh(v => v + 1); navigate({kind: 'source', id: source.id});}} />
   </section>;
