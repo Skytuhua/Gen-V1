@@ -55,6 +55,15 @@ jobs:
       - name: Install locked dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Install optional visuals plug-in dependencies
+        run: pnpm --dir plugins/personal-visuals install --ignore-workspace --frozen-lockfile
+
+      - name: Exercise UI guard negative and positive fixtures
+        run: pnpm test:ui-guard
+
+      - name: Enforce type-aware JSX and overlay architecture policy
+        run: pnpm lint:ui
+
       - name: Install isolated Hermes dependencies
         run: python -m pip install --disable-pip-version-check --no-warn-script-location --target .harness-hermes-python-deps -r third-party/hermes-agent/runtime-requirements.txt
 
@@ -79,11 +88,22 @@ jobs:
       - name: Check TypeScript
         run: pnpm typecheck
 
+      - name: Check and build the optional visuals plug-in
+        run: |
+          pnpm --dir plugins/personal-visuals typecheck
+          pnpm --dir plugins/personal-visuals build
+
       - name: Build web application
         run: pnpm build
 
       - name: Run application regression tests
         run: pnpm test --maxWorkers=1
+
+      - name: Exercise split workspace in the browser
+        env:
+          GEN_SPLIT_RENDERER_BROWSER: '1'
+          GEN_SPLIT_APP_BROWSER: '1'
+        run: pnpm exec vitest run tests/split-workspace-renderer.test.ts tests/split-app-browser.test.ts --maxWorkers=1
 
       - name: Verify original source custody
         run: python -I -S -B tests/hermes_source_contract.py -v

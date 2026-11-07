@@ -11,6 +11,8 @@ import {assertNotStorage,canonical,inside} from '../core/security.ts';
 import {gitExecutable} from '../capabilities/process.ts';
 import {readBoundFile,withPathGuard} from '../core/file-access.ts';
 import {directoryIdentity,importGitFamily,nativeGit,privateFamilyForBinding,sameIdentity,withLegacyGitView,withPrivateGitFamily} from './git-storage.ts';
+import {ComparisonFileRequestSchema,ComparisonScopeSchema,type ComparisonRead} from '../contracts/code-review.ts';
+import {ComparisonSnapshots,comparisonError,comparisonResult,readLocalComparison,readLocalComparisonFile} from './code-review.ts';
 
 interface Identity{dev:string;ino:string}
 export interface WorkspaceBinding {id:string;threadId:string;projectId:string;familyId?:string;path:string;branch:string;gitDirectory:string;commonDirectory:string;identity:Identity;gitDirectoryIdentity:Identity;commonDirectoryIdentity:Identity}
@@ -34,6 +36,7 @@ async function untrackedDigest(path:string,signal:AbortSignal){
 /** Explicit project enrollment and per-main-agent worktrees. Company references never fall back locally. */
 export class ProjectTools{
  readonly workspace:WorkspaceRepository;private readonly queues=new Map<string,Promise<unknown>>();
+ private readonly reviewComparisons=new ComparisonSnapshots();
  constructor(readonly store:Store,readonly options:ProjectToolOptions={}){this.workspace=new WorkspaceRepository(store);}
  private exclusive<T>(key:string,action:()=>Promise<T>):Promise<T>{const next=(this.queues.get(key)??Promise.resolve()).catch(()=>{}).then(action);this.queues.set(key,next);void next.finally(()=>{if(this.queues.get(key)===next)this.queues.delete(key);}).catch(()=>{});return next;}
  private gitExecutable(){return this.options.git??gitExecutable();}
@@ -120,6 +123,31 @@ export class ProjectTools{
   return{head,branch,revision:hash(JSON.stringify([head,branch,raw,diff,stagedDiff,untracked])),files,diff,stagedDiff,truncated:false,mode:managed?'managed':'legacy',gitWrite:managed,untrackedIncluded:managed};
  }
  async gitStatus(projectId:string,threadId?:string):Promise<GitStatus>{return this.exclusive(projectId,()=>this.withGitOperation(projectId,threadId,false,(metadata,path,signal,managed)=>this.status(metadata,path,signal,managed)));}
+ /** Read-only origin through the same attested managed/legacy Git boundary. */
+ async gitReviewOrigin(projectId:string,threadId?:string){return this.exclusive(projectId,async()=>{
+  const binding=await this.binding(projectId,threadId),signal=new AbortController().signal;
+  if(binding.workspace&&privateFamilyForBinding(this.store,binding.workspace))return this.git(binding.path,['remote','get-url','origin'],signal);
+  // Once enrolled, the Store-attested origin needs no source checkout or tracked-file projection.
+  const family=await importGitFamily(this.store,projectId,binding.path,binding.workspace,this.gitExecutable(),signal);
+  return withPathGuard([{path:family.commonDirectory,leaf:false}],signal,async()=>{
+   if(!sameIdentity(await directoryIdentity(family.commonDirectory),family.commonDirectoryIdentity))throw new HarnessError('CAPABILITY_DENIED','Private Git family changed.');
+   if(!family.origin)throw new HarnessError('GITHUB_REMOTE_REQUIRED','Use an enrolled origin hosted on github.com.');return family.origin;
+  });
+ });}
+ async gitComparison(projectId:string,threadId:string|undefined,input:unknown):Promise<ComparisonRead>{
+  const{scope}=ComparisonScopeSchema.parse(input),binding=await this.binding(projectId,threadId);
+  return this.exclusive(projectId,()=>this.withGitOperation(projectId,threadId,false,async(metadata,path,signal,managed)=>{
+   const owner=JSON.stringify([projectId,threadId??null,binding.path]);
+   try{const value=await readLocalComparison({git:args=>nativeGit(this.gitExecutable(),metadata,path,args,signal),path,signal,managed,owner},scope);this.reviewComparisons.save(owner,value);return comparisonResult(value);}catch(error){return comparisonError(error);}
+  }));
+ }
+ async gitComparisonFile(projectId:string,threadId:string|undefined,input:unknown){
+  const request=ComparisonFileRequestSchema.parse(input),binding=await this.binding(projectId,threadId);
+  return this.exclusive(projectId,()=>this.withGitOperation(projectId,threadId,false,async(metadata,path,signal,managed)=>{
+   const owner=JSON.stringify([projectId,threadId??null,binding.path]),entry=this.reviewComparisons.get(owner,request.comparisonId);
+   return readLocalComparisonFile({git:args=>nativeGit(this.gitExecutable(),metadata,path,args,signal),path,signal,managed,owner},entry.value,request.path);
+  }));
+ }
  async gitAction(projectId:string,threadId:string|undefined,input:{type:string;revision:string;paths?:string[];message?:string;name?:string}){
   return this.exclusive(projectId,()=>this.withGitOperation(projectId,threadId,true,async(metadata,path,signal,managed)=>{
    const current=await this.status(metadata,path,signal,managed);if(input.revision!==current.revision)throw new HarnessError('REVISION_CHANGED','The worktree changed. Refresh the review before applying this action.');const paths=z.array(pathName).min(1).max(1000).optional().parse(input.paths),git=(args:string[])=>nativeGit(this.gitExecutable(),metadata,path,args,signal);

@@ -1,0 +1,18 @@
+:root[data-appearance-accent] { --accent-solid:var(--project-accent-ink); --accent-hover:var(--project-accent-ink); --accent:var(--project-accent-ink); }
+:root[data-appearance-accent][data-theme=dark] { --accent:var(--project-accent); }
+.workspace-layout-workarea { position:relative; isolation:isolate; }
+.workspace-layout-workarea::before { content:''; position:absolute; inset:0; z-index:-1; pointer-events:none; background:var(--workspace-image,none) center/cover no-repeat; opacity:var(--workspace-image-opacity,.18); }
+:root[data-workspace-background=graphite] .workspace-layout-workarea { background:linear-gradient(135deg,var(--canvas),#15212a 180%); }
+:root[data-workspace-background=midnight] .workspace-layout-workarea { background:linear-gradient(145deg,var(--canvas),#22204c 180%); }
+:root[data-theme=light][data-workspace-background=graphite] .workspace-layout-workarea { background:linear-gradient(135deg,#fff,#dce4e9); }
+:root[data-theme=light][data-workspace-background=midnight] .workspace-layout-workarea { background:linear-gradient(145deg,#fff,#e3e1f4); }
+
+/* Persisted settings apply through root tokens; task media keeps its own styling. */
+.ui-modal.settings-dialog { font-family:var(--appearance-interface-font,inherit); }
+.app-shell :is(.message-content .markdown,.composer-input>textarea,.composer-prediction-text) { font-size:var(--chat-font-size,14px); }
+:root[data-appearance-accent] button.primary { color:var(--accent-ink); }
+.app-shell :is(.code-block pre,.diff,pre code) { font-size:var(--code-font-size,14px); }
+:root[data-density] :is(.ui-select-trigger,.ui-action-trigger,button.secondary,button.primary,input:not([type=checkbox],[type=radio],[type=range])) { min-height:var(--settings-row-height); }
+:root[data-density] :is(.ui-select-trigger,.ui-action-trigger,button.secondary,button.primary,input:not([type=checkbox],[type=radio],[type=range]),textarea) { border-radius:var(--control-radius); }
+:root[data-motion=off] :is(*, *::before, *::after) { animation:none!important;transition:none!important;scroll-behavior:auto!important; }
+:root[data-motion=reduced] :is(*, *::before, *::after) { animation:none!important;transition-property:opacity,color,background-color,border-color!important;scroll-behavior:auto!important; }

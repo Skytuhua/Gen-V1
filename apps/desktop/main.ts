@@ -1,9 +1,10 @@
-import {app,BrowserWindow,WebContentsView,ipcMain,session,screen,dialog,Menu,Tray,nativeImage,powerMonitor,type IpcMainInvokeEvent,type Session} from 'electron';
+import {app,BrowserWindow,WebContentsView,ipcMain,session,screen,dialog,Menu,Tray,nativeImage,powerMonitor,shell,type IpcMainInvokeEvent,type Session} from 'electron';
 import {spawn,type ChildProcess} from 'node:child_process';
 import {randomBytes,randomUUID} from 'node:crypto';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {mkdirSync,existsSync} from 'node:fs';
 import {createRequire} from 'node:module';
+import {GITHUB_DEVICE_URL,githubDevicePopup} from './github-device-policy.ts';
 import {createDesktopUpdater,type DesktopUpdater,type DesktopUpdateDriver,type UpdateStatus} from './updater.ts';
 import {checkInstalledCompatibility} from '../../packages/plugins/installation.ts';
 import {resolve,join,dirname} from 'node:path';
@@ -11,8 +12,10 @@ import {fileURLToPath} from 'node:url';
 import {DESKTOP_CHANNELS as channels,desktopId,desktopSurfaceKey,parseDesktopSurface,parseDesktopLayout,parseDesktopWindowControl,type DesktopLayout,type DesktopLayoutEntry,type DesktopSurface,type DesktopWindowInfo,type DesktopContext,type DesktopState,type DesktopBrowserState} from '../../packages/desktop-contract/index.ts';
 import {allowRemoteBrowserUrl,clampDesktopBounds,pluginDesktopChannelAllowed,pluginDesktopRequiresGrant,nativeTitlebarOptions,nativeTitlebarTheme,requireExistingDetachedSurface,desktopSurfaceAllowed,isTrustedDesktopSender,parseBrowserCommand,remoteBrowserUrl,surfaceSize,trustedDesktopUrl,trustedDesktopSubframe,type DesktopBounds} from './window-policy.ts';
 import {createBrowserProxy,type BrowserProxy} from './browser-proxy.ts';
-import {nodeSidecarArguments,waitForBackendReady} from './backend-policy.ts';
+import {nodeSidecarArguments,requestBackendShutdown,waitForBackendReady} from './backend-policy.ts';
 import {releaseOwnedBrowsers,detachOwnedBrowser} from './browser-lifecycle.ts';
+import {ensureMainDockedBrowser} from './docked-browser.ts';
+import {nativeBrowserBounds} from './browser-bounds.ts';
 import {launchDesktopSignIn,parseDesktopSignInTarget} from './auth-launcher.ts';
 import {captureDesktopPlacement,createNormalBounds,parseDesktopPlacement,placeOnDesktopDisplay,restoreDesktopPlacement,retainDesktopPlacement,type DesktopDisplay,type DesktopPlacement} from './display-layout.ts';
 import type {ConnectionProviderId} from '../../packages/contracts/connections.ts';
@@ -20,6 +23,8 @@ import {createAccountLoginFlows} from './account-login.ts';
 import {workspaceEvents} from './workspace-events.ts';
 import {applyNativeLayout} from './layout-transaction.ts';
 import {createPersistenceQueue,reconcileSavedWindows} from './persistence.ts';
+import {createAttentionPopups,attentionPopupHtml,type AttentionPopupAction,type AttentionPopupWindow} from './attention-popups.ts';
+import {attentionDeliverySchema} from '../../packages/contracts/attention.ts';
 const persistence=createPersistenceQueue();
 
 interface BrowserRecord {id:string;view:WebContentsView;state:DesktopBrowserState;owner?:WindowRecord;generation:number;networkReady:Promise<void>}
@@ -38,6 +43,7 @@ let startup:BrowserWindow|undefined,startupTimer:ReturnType<typeof setTimeout>|u
 let proxyPromise:Promise<BrowserProxy>|undefined;
 let handoffQueue:Promise<unknown>=Promise.resolve();
 let workspaceRelay:ReturnType<typeof workspaceEvents>|undefined;
+let attentionPopups:ReturnType<typeof createAttentionPopups>|undefined,attentionNative:BrowserWindow|undefined,attentionUrl='',attentionAction:((action:AttentionPopupAction)=>void|Promise<void>)|undefined;
 let tray:Tray|undefined,hostLayout:DesktopLayout|undefined,layoutError:string|undefined,restoringLayout=true;
 function handoff<T>(action:()=>Promise<T>):Promise<T>{const next=handoffQueue.catch(()=>{}).then(action);handoffQueue=next;return next;}
 const root=resolve(process.env.HARNESS_DESKTOP_HOST_ROOT??(app.isPackaged?join(process.resourcesPath,'host'):join(dirname(fileURLToPath(import.meta.url)),'../..')));
@@ -137,7 +143,7 @@ async function openSurface(raw:unknown,sourceBounds?:DesktopBounds,recoverSaved=
  const readyPromise=new Promise<DesktopWindowInfo>((resolve,reject)=>{resolveReady=resolve;rejectReady=reject;});void readyPromise.catch(()=>{});
  const record:WindowRecord={id,surface,window:native,url,ready:false,settled:false,visible:previous?.visible!==false,normalBounds:createNormalBounds(bounds),placement:placement??captureDesktopPlacement(bounds,all),appliedBounds:bounds,monitorRescued:!!placement&&!all.some(display=>display.id===placement.displayId),resolveReady,rejectReady,readyPromise,readyTimer:setTimeout(()=>{if(record.ready)return;record.settled=true;record.rejectReady(Error('The detached window did not become ready. Your original view remains available.'));loseBrowserOwner(record);native.destroy();},20000)};
  windows.set(id,record);broadcast();
- native.webContents.setWindowOpenHandler(()=>({action:'deny'}));native.webContents.on('will-attach-webview',event=>event.preventDefault());
+ native.webContents.setWindowOpenHandler(details=>githubDevicePopup(details,{surface,expectedUrl:url,currentUrl:native.webContents.mainFrame.url},()=>shell.openExternal(GITHUB_DEVICE_URL,{activate:true})));native.webContents.on('will-attach-webview',event=>event.preventDefault());
  native.webContents.on('will-navigate',(event,next)=>{if(next!==url)event.preventDefault();});native.webContents.on('will-redirect',(event,next)=>{if(next!==url)event.preventDefault();});
  native.webContents.on('will-frame-navigate',event=>{if(!event.isMainFrame&&!trustedDesktopSubframe(event.url,backendOrigin,`http://localhost:${widgetPort}`))event.preventDefault();});
  native.webContents.session.setPermissionRequestHandler((_contents,_permission,callback)=>callback(false));native.webContents.session.setPermissionCheckHandler(()=>false);
@@ -171,7 +177,7 @@ function requestClose(record:WindowRecord):Promise<boolean>{
 }
 function destroyWindow(record:WindowRecord){if(record.window.isDestroyed())return;remember(record,quitting);loseBrowserOwner(record);record.window.destroy();}
 async function mainWindow(){const existing=[...windows.values()].find(record=>record.surface.kind==='main');if(existing){existing.visible=true;if(existing.window.isMinimized())existing.window.restore();existing.window.show();existing.window.focus();remember(existing);broadcast();await existing.readyPromise;return existing;}const result=await openSurface({kind:'main'});return windows.get(result.id)!;}
-function backendRequest(type:'harness.stopAll'|'harness.layout.save'|'harness.plugin.validate'|'harness.update.readiness'|'harness.update.prepare',extra:Record<string,unknown>={}):Promise<Record<string,unknown>>{
+function backendRequest(type:'harness.stopAll'|'harness.layout.save'|'harness.plugin.validate'|'harness.update.readiness'|'harness.update.prepare'|'harness.attention.read'|'harness.attention.open'|'harness.attention.dismiss',extra:Record<string,unknown>={}):Promise<Record<string,unknown>>{
  const child=backend,token=launchToken,requestId=randomUUID(),reply=type==='harness.stopAll'?'harness.stoppedAll':type==='harness.layout.save'?'harness.layout.saved':type==='harness.plugin.validate'?'harness.plugin.validated':type+'.result';
  if(!child?.connected||child.exitCode!==null||child.signalCode)return Promise.reject(Error('The local backend is unavailable. Restore the workspace and retry.'));
  return new Promise((resolve,reject)=>{const finish=(error?:Error,value?:Record<string,unknown>)=>{clearTimeout(timer);child.removeListener('message',receive);child.removeListener('exit',exited);child.removeListener('disconnect',exited);if(error)reject(error);else resolve(value!);};const receive=(raw:unknown)=>{if(!raw||typeof raw!=='object'||Array.isArray(raw))return;const value=raw as Record<string,unknown>;if(value.type===reply&&value.token===token&&value.requestId===requestId){if(value.error)finish(Error(String(value.error).slice(0,500)));else finish(undefined,value);}};const exited=()=>finish(Error('The local backend disconnected before acknowledging the action.'));const timer=setTimeout(()=>finish(Error('The local backend did not acknowledge the action. Restore the workspace and retry.')),15000);child.on('message',receive);child.once('exit',exited);child.once('disconnect',exited);try{child.send({type,token,requestId,...extra},error=>{if(error)finish(error);});}catch(error){finish(error instanceof Error?error:Error(String(error)));}});
@@ -187,8 +193,28 @@ async function applyLayout(raw:DesktopLayout){
  const find=(entry:DesktopLayoutEntry)=>[...windows.values()].find(record=>desktopSurfaceKey(record.surface)===desktopSurfaceKey(entry.surface));
  try{await applyNativeLayout(next,{current:()=>captureLayout().windows,prepare:async entry=>{const record=find(entry);if(record&&!await requestClose(record))throw Error('Save the window edits before applying this profile. Your current layout is unchanged.');},open:async entry=>{if(entry.surface.kind!=='main')requireExistingDetachedSurface(entry.surface,[...windows.values()].map(record=>record.surface));const record=find(entry);if(!record||record.window.isDestroyed())throw Error('The existing window is no longer available.');},apply:async entry=>{const record=find(entry);if(!record)throw Error('A profile window is no longer available.');const placement=entry.placement??captureDesktopPlacement(entry.bounds,displays());applyPlacement(record,restoreDesktopPlacement(placement,displays(),surfaceSize(entry.surface)),placement);record.window.setAlwaysOnTop(entry.alwaysOnTop);if(record.dockedBrowser&&record.dockedBrowser.id!==entry.dockedBrowserId)detachOwnedBrowser(record,record.dockedBrowser,value=>record.window.contentView.removeChildView(value.view));if(entry.surface.kind==='browser')moveBrowser(browserRecord(entry.surface.browserId),record,false);if(entry.dockedBrowserId)moveBrowser(browserRecord(entry.dockedBrowserId),record,true);record.visible=entry.visible;if(entry.visible){if(record.window.isMinimized())record.window.restore();record.window.show();}else record.window.hide();remember(record);},close:async entry=>{const record=find(entry);if(record)destroyWindow(record);},resume:()=>{for(const record of windows.values())cancelClose(record);}});for(const browser of browsers.values())if(!browser.owner){browser.generation++;browsers.delete(browser.id);if(!browser.view.webContents.isDestroyed())browser.view.webContents.close({waitForBeforeUnload:false});}layoutError=undefined;}catch(error){saved=before;throw error;}finally{restoringLayout=wasRestoring;persist();broadcast();}
 }
+async function openAttention(eventId:string){
+ if(quitting||quitPending||!/^[A-Za-z0-9][A-Za-z0-9:_.-]{0,999}$/.test(eventId))throw Error('This inbox item is unavailable.');
+ const result=await backendRequest('harness.attention.open',{eventId});
+ if(!desktopId(result.threadId))throw Error('The owning conversation is unavailable.');
+ const main=await mainWindow();if(quitting||quitPending||main.window.isDestroyed())throw Error('The workspace is closing.');
+ if(main.window.isMinimized())main.window.restore();main.window.show();main.window.focus();main.window.webContents.send(channels.attentionSelected,{threadId:result.threadId});
+}
+async function createAttentionWindow():Promise<AttentionPopupWindow>{
+ const native=new BrowserWindow({width:364,height:132,show:false,frame:false,resizable:false,movable:false,minimizable:false,maximizable:false,fullscreenable:false,focusable:false,alwaysOnTop:true,skipTaskbar:true,transparent:true,hasShadow:true,title:'Gen V1 notification',webPreferences:{preload,partition:'gen-attention',sandbox:true,contextIsolation:true,nodeIntegration:false,webSecurity:true,allowRunningInsecureContent:false,spellcheck:false,autoplayPolicy:'no-user-gesture-required',additionalArguments:['--gen-attention-popup']}});
+ attentionNative=native;attentionUrl='data:text/html;charset=utf-8,'+encodeURIComponent(attentionPopupHtml(randomBytes(16).toString('hex')));native.setAlwaysOnTop(true,'floating');
+ native.webContents.setWindowOpenHandler(()=>({action:'deny'}));native.webContents.on('will-attach-webview',event=>event.preventDefault());native.webContents.on('will-navigate',event=>event.preventDefault());native.webContents.on('will-redirect',event=>event.preventDefault());native.webContents.session.setPermissionRequestHandler((_content,_permission,callback)=>callback(false));native.webContents.session.setPermissionCheckHandler(()=>false);
+ native.on('closed',()=>{if(attentionNative===native){attentionNative=undefined;attentionAction=undefined;attentionUrl='';}});
+ try{await native.loadURL(attentionUrl);}catch(error){if(!native.isDestroyed())native.destroy();throw error;}
+ return{render:value=>{if(!native.isDestroyed())native.webContents.send(channels.attentionPopupCards,value);},showInactive:()=>{if(!native.isDestroyed())native.showInactive();},hide:()=>{if(!native.isDestroyed())native.hide();},destroy:()=>{if(!native.isDestroyed())native.destroy();},setBounds:bounds=>{if(!native.isDestroyed())native.setBounds(bounds,false);},onAction:callback=>{if(attentionNative===native)attentionAction=callback;}};
+}
+function startAttention(){
+ attentionPopups=createAttentionPopups({read:async()=>attentionDeliverySchema.parse((await backendRequest('harness.attention.read')).delivery),open:openAttention,dismiss:async eventId=>{await backendRequest('harness.attention.dismiss',{eventId});},createWindow:createAttentionWindow,workArea:()=>{const main=[...windows.values()].find(record=>record.surface.kind==='main'&&!record.window.isDestroyed());return(main?screen.getDisplayMatching(main.window.getBounds()):screen.getPrimaryDisplay()).workArea;},focused:()=>[...windows.values()].some(record=>record.surface.kind==='main'&&!record.window.isDestroyed()&&record.window.isFocused())});attentionPopups.start();
+}
 function registerIpc(){
  const handle=(channel:string,action:(record:WindowRecord,value:unknown)=>unknown)=>ipcMain.handle(channel,async(event,value)=>{const record=authorize(event);if(record.surface.kind==='plugin'&&pluginDesktopRequiresGrant(channel)&&(await backendRequest('harness.plugin.validate',{surface:record.surface})).allowed!==true)throw Error('The plug-in window authority is unavailable.');if(record.surface.kind==='plugin'&&!pluginDesktopChannelAllowed(channel))throw Error('This action is unavailable in a plug-in window.');return action(record,value);});
+ ipcMain.handle(channels.attentionPopupAction,async(event,value:unknown)=>{const native=attentionNative;if(!native||native.isDestroyed()||event.sender.id!==native.webContents.id||event.senderFrame!==event.sender.mainFrame||event.senderFrame.url!==attentionUrl||event.sender.getURL()!==attentionUrl)throw Error('Notification action denied.');if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).length!==2)throw Error('Invalid notification action.');const action=value as Record<string,unknown>;if(!['open','dismiss','pause','resume'].includes(String(action.type))||typeof action.eventId!=='string'||!/^[A-Za-z0-9][A-Za-z0-9:_.-]{0,999}$/.test(action.eventId))throw Error('Invalid notification action.');await attentionAction?.(action as unknown as AttentionPopupAction);});
+ handle(channels.attentionOpen,async(record,value)=>{if(record.surface.kind!=='main'||typeof value!=='string')throw Error('Notification action denied.');await openAttention(value);});
  handle(channels.context,record=>context(record));
  handle(channels.theme,(record,value)=>{const theme=nativeTitlebarTheme(value);if(process.platform==='win32')record.window.setTitleBarOverlay(theme);});
  handle(channels.update,async(_record,value)=>{if(value!=='check'&&value!=='restart')throw Error('Invalid update action.');if(value==='check')return updater?await updater.check():updateStatus;if(updateStatus.state!=='ready'&&updateStatus.state!=='deferred')return updateStatus;if(osSessionEnding||signInFlows.isBusy()||(await backendRequest('harness.update.readiness')).idle!==true){updateStatus={state:'deferred',message:'Finish the current work before restarting to update.'};broadcast();return updateStatus;}restartForUpdate=true;app.quit();return updateStatus;});
@@ -228,8 +254,18 @@ function registerIpc(){
  });
  handle(channels.closeAnswer,(record,value)=>{if(!value||typeof value!=='object'||Array.isArray(value))throw Error('Invalid close acknowledgment');const answer=value as Record<string,unknown>,request=record.closeRequest;if(Object.keys(answer).length!==2||typeof answer.allow!=='boolean'||!request||answer.requestId!==request.id)throw Error('Stale close acknowledgment');clearTimeout(request.timer);request.resolve(answer.allow);});
  handle(channels.browser,async(record,raw)=>{
-  const command=parseBrowserCommand(raw),browser=record.browser??record.dockedBrowser;if(!browser)throw Error('No browser is attached to this window');const contents=browser.view.webContents;
-  if(command.type==='bounds'){if(!record.dockedBrowser)throw Error('Only the docked browser can set content bounds');const [width,height]=record.window.getContentSize(),bounds=command.bounds;if(bounds.x<0||bounds.y<0||bounds.width<0||bounds.height<0||bounds.x+bounds.width>width+1||bounds.y+bounds.height>height+1)throw Error('Browser bounds must fit the window');browser.view.setBounds({x:Math.round(bounds.x),y:Math.round(bounds.y),width:Math.floor(bounds.width),height:Math.floor(bounds.height)});return;}
+  const command=parseBrowserCommand(raw);
+  if(command.type==='open')return handoff(async()=>{
+   if(quitting||quitPending||record.window.isDestroyed()||windows.get(record.id)!==record)throw Error('The workspace is closing.');
+   const browser=ensureMainDockedBrowser(record,()=>browserRecord(randomUUID()),browser=>{moveBrowser(browser,record,true);browser.view.setBounds({x:0,y:0,width:0,height:0});},browser=>{
+    try{record.window.contentView.removeChildView(browser.view);}catch{}
+    if(!browser.view.webContents.isDestroyed())browser.view.webContents.close({waitForBeforeUnload:false});
+    if(browsers.get(browser.id)===browser)browsers.delete(browser.id);
+   });
+   browser.view.webContents.focus();remember(record);broadcast();
+  });
+  const browser=record.browser??record.dockedBrowser;if(!browser)throw Error('No browser is attached to this window');const contents=browser.view.webContents;
+  if(command.type==='bounds'){if(!record.dockedBrowser)throw Error('Only the docked browser can set content bounds');browser.view.setBounds(nativeBrowserBounds(command.bounds,record.window.getContentSize(),record.window.webContents.getZoomFactor()));return;}
   await browser.networkReady;const generation=++browser.generation;
   if(command.type==='navigate'){if(!await allowRemoteBrowserUrl(command.url))throw Error('Only public HTTP and HTTPS pages are allowed. Local and private-network requests are blocked.');if(generation!==browser.generation)return;browser.state.error=undefined;await contents.loadURL(remoteBrowserUrl(command.url).href).catch(error=>{if(generation===browser.generation){browser.state.error=error instanceof Error?error.message:'The page could not be loaded';browserState(browser);}});}
   else if(command.type==='back'&&contents.navigationHistory.canGoBack())contents.navigationHistory.goBack();
@@ -262,7 +298,7 @@ async function stopBackend():Promise<boolean>{
  let timer:ReturnType<typeof setTimeout>|undefined;
  const stopped=new Promise<boolean>(resolve=>child.once('exit',code=>resolve(code===0)));
  try{
-  try{child.send({type:'harness.shutdown',token});}catch{clean=false;}
+  requestBackendShutdown(child,token,()=>{clean=false;});
   const graceful=await Promise.race([stopped,new Promise<false>(resolve=>{timer=setTimeout(()=>resolve(false),11000);})]);
   if(!graceful&&child.pid){if(process.platform==='win32'){await new Promise<void>(resolve=>{const kill=spawn(join(process.env.SystemRoot??'C:/Windows','System32/taskkill.exe'),['/PID',String(child.pid),'/T','/F'],{windowsHide:true,stdio:'ignore'});kill.once('error',()=>resolve());kill.once('exit',()=>resolve());});}else child.kill('SIGKILL');}
   return clean&&graceful&&acknowledged;
@@ -288,7 +324,7 @@ async function closeApplication(){
  savedStateFlushed=!layoutError;
  try{await backendRequest('harness.layout.save',{layout:captureLayout()});}catch{savedStateFlushed=false;}
  if(!activeWorkAtClose&&savedStateFlushed&&updater){try{if((await backendRequest('harness.update.prepare')).idle!==true)activeWorkAtClose=true;}catch{activeWorkAtClose=true;}}
- quitting=true;for(const record of [...windows.values()])destroyWindow(record);clearTimeout(saveTimer);
+ quitting=true;attentionPopups?.stop();attentionPopups=undefined;for(const record of [...windows.values()])destroyWindow(record);clearTimeout(saveTimer);
  try{await persistence.enqueue(async()=>{await mkdir(dirname(stateFile),{recursive:true});await writeFile(stateFile,JSON.stringify({version:1,windows:saved.slice(-24)}),{encoding:'utf8',mode:0o600});});}catch{savedStateFlushed=false;}
  const backendStoppedCleanly=await stopBackend();
  for(const browser of browsers.values())if(!browser.view.webContents.isDestroyed())browser.view.webContents.close({waitForBeforeUnload:false});
@@ -310,7 +346,7 @@ if(!app.requestSingleInstanceLock()){app.exit(0);}else{
   await startBackend();if(hostLayout)saved=reconcileSavedWindows(saved,hostLayout.windows.map(entry=>({...entry,open:true})));const initial=structuredClone(saved.filter(entry=>entry.open&&entry.surface.kind!=='main')),savedDocked=saved.find(entry=>entry.surface.kind==='main')?.dockedBrowserId;const main=await mainWindow();clearTimeout(startupTimer);startup?.destroy();startup=undefined;if(savedDocked)moveBrowser(browserRecord(savedDocked),main,true);
   const failures:string[]=[];for(const entry of initial)try{await openSurface(entry.surface,undefined,true);}catch(error){failures.push(displayTitle(entry.surface)+': '+String(error instanceof Error?error.message:error));}
   restoringLayout=false;if(failures.length){layoutError='Some saved windows could not restore. Their layout is retained: '+failures.join('; ').slice(0,800);broadcast();}else if(!layoutError)persist();
-  startUpdater();
-  const displaysChanged=()=>{const all=displays();for(const record of windows.values()){record.monitorRescued=!!record.placement&&!all.some(display=>display.id===record.placement!.displayId);applyPlacement(record,restoreDesktopPlacement(record.placement,all,surfaceSize(record.surface)));}installApplicationMenu();};screen.on('display-removed',displaysChanged);screen.on('display-added',displaysChanged);screen.on('display-metrics-changed',displaysChanged);
+  startUpdater();startAttention();
+  const displaysChanged=()=>{attentionPopups?.displayChanged();const all=displays();for(const record of windows.values()){record.monitorRescued=!!record.placement&&!all.some(display=>display.id===record.placement!.displayId);applyPlacement(record,restoreDesktopPlacement(record.placement,all,surfaceSize(record.surface)));}installApplicationMenu();};screen.on('display-removed',displaysChanged);screen.on('display-added',displaysChanged);screen.on('display-metrics-changed',displaysChanged);
  }).catch(async error=>{clearTimeout(startupTimer);startup?.destroy();startup=undefined;const message=String(error instanceof Error?error.message:error).slice(0,1200);process.stderr.write('Gen V1 startup failed: '+message+'\n');quitting=true;await stopBackend();if(!testData)await dialog.showMessageBox({type:'error',title:'Gen V1 could not start',message,buttons:['Close']});app.exit(1);});
 }

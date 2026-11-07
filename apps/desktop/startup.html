@@ -12,25 +12,23 @@
     body{display:flex;flex-direction:column;color:#eee;font:13px/1.4 'Segoe UI',sans-serif}
     /* The native owner supplies the real OS controls in this clear top row. */
     .startup-chrome{flex:0 0 42px;height:42px;-webkit-app-region:drag;app-region:drag}
-    main{display:flex;flex:1;min-width:0;min-height:0;flex-direction:column;justify-content:center;padding:6px 20px 16px}
-    .startup-message{display:flex;flex-direction:column;gap:6px;min-width:0}
+    main{display:flex;flex:1;min-width:0;min-height:0;align-items:center;gap:12px;padding:8px 16px 16px}
+    .startup-mark{display:grid;place-items:center;flex:none;width:32px;height:32px;border:1px solid #444;border-radius:6px;color:#eee;font-size:16px;font-weight:600}
+    .startup-message{display:flex;flex:1;flex-direction:column;gap:4px;min-width:0}
     h1{margin:0;font-size:16px;line-height:1.25;font-weight:600}
-    p{margin:0;color:#aaa;overflow-wrap:break-word}
-    .progress{flex:none;height:3px;margin-top:14px;background:#292929;overflow:hidden;border-radius:3px}
-    .progress::before{display:block;content:'';width:32%;height:100%;background:#aaa;animation:open 1.5s ease-in-out infinite alternate}
-    @keyframes open{to{transform:translateX(215%)}}
-    @media(max-height:165px){main{padding:2px 16px 10px}.startup-message{gap:4px}p{font-size:12px}.progress{margin-top:10px}}
-    @media(prefers-reduced-motion:reduce){.progress::before{animation:none;transform:translateX(100%)}}
+    p{display:flex;align-items:center;gap:6px;margin:0;color:#aaa;overflow-wrap:break-word}
+    .startup-pending{flex:none;width:12px;height:12px;color:currentColor}
+    @media(forced-colors:active){html{background:Canvas}body,.startup-mark,p{color:CanvasText}.startup-mark{border-color:CanvasText}}
   </style>
 </head>
 <body>
   <div class="startup-chrome" aria-hidden="true"></div>
   <main aria-labelledby="startup-title">
+    <div class="startup-mark" aria-hidden="true">G</div>
     <div class="startup-message" role="status" aria-live="polite" aria-atomic="true">
-      <h1 id="startup-title">Opening Gen V1</h1>
-      <p id="startup-description">Your workspace is starting. Your saved conversations will appear shortly.</p>
+      <h1 id="startup-title">Opening your workspace</h1>
+      <p id="startup-description"><svg class="startup-pending" aria-hidden="true" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="6"/><path d="M8 4v4l2 2"/></svg>Waiting for the workspace…</p>
     </div>
-    <div class="progress" role="progressbar" aria-label="Opening workspace" aria-describedby="startup-description"></div>
   </main>
 </body>
 </html>

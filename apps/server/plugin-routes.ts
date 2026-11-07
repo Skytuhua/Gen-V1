@@ -24,6 +24,8 @@ export function registerPluginRoutes(app:FastifyInstance,registry:PluginRegistry
     const manifest=registry?.list().find(item=>item.id===request.params.id);if(!manifest||!registry)return reply.code(404).send(unavailable);
     try{
       const query=request.query as Record<string,unknown>;
+      const workspaceQuery=Object.hasOwn(query,'workspace')||Object.hasOwn(query,'view');
+      if(workspaceQuery&&(!manifest.workspaces?.some(value=>value.id===query.workspace&&value.entryView===query.view)||['scopeId','surfaceId','resourceId'].some(key=>Object.hasOwn(query,key))))return reply.code(403).send(unavailable);
       const protectedView=['scopeId','surfaceId','resourceId'].some(key=>Object.hasOwn(query,key));
       const parsed=protectedView?pluginSurfaceSchema.safeParse({kind:'plugin',pluginId:manifest.id,scopeId:query.scopeId,surfaceId:query.surfaceId,...(Object.hasOwn(query,'resourceId')?{resourceId:query.resourceId}:{})}):undefined;
       if(parsed&&!parsed.success)return reply.code(400).send(unavailable);

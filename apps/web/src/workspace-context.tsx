@@ -1,6 +1,6 @@
 import { createContext, useContext, type ReactNode } from 'react';
 
-export type WorkspaceTab = 'artifact' | 'files' | 'diff' | 'output' | 'usage' | 'terminal' | 'pull-request' | 'linked-pull-requests';
+export type WorkspaceTab = 'artifact' | 'plan' | 'files' | 'diff' | 'notes' | 'output' | 'usage' | 'terminal' | 'pull-request' | 'linked-pull-requests';
 export type DocumentWindowPlacement = 'docked' | 'floating';
 export interface OpenDocumentWindow { id:string; placement:DocumentWindowPlacement }
 export interface WorkspaceContextValue {

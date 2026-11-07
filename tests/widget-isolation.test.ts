@@ -202,6 +202,53 @@ describe('real browser worker isolation', () => {
     } finally { await page.close(); }
   });
 
+  for (const variant of ['native', 'legacy'] as const) it(`trusted composing iframe Escape never forwards shell dismissal (${variant})`, async context => {
+    const page = await browser.newPage();
+    try {
+      const frame = await mountComponent(page, [], () => false, '<textarea aria-label="Draft">Retained draft</textarea>');
+      const draft = frame.getByRole('textbox', { name: 'Draft' });
+      await draft.fill('Retained draft');
+      await browserExpect(draft).toHaveValue('Retained draft');
+      await draft.focus();
+      await draft.evaluate(element => {
+        (window as any).compositionKeys = [];
+        (window as any).retainedEditor = element;
+        // Observe native fields before the receiver's document capture handler.
+        window.addEventListener('keydown', event => (window as any).compositionKeys.push({
+          isTrusted: event.isTrusted, key: event.key, keyCode: event.keyCode, isComposing: event.isComposing,
+        }), true);
+      });
+      const session = await page.context().newCDPSession(page);
+      try {
+        if (variant === 'native') await session.send('Input.imeSetComposition', { text: 'Retained draft', selectionStart: 14, selectionEnd: 14, replacementStart: 0, replacementEnd: 14 });
+        const retained = await draft.inputValue();
+        const frameURL = await page.locator('iframe').getAttribute('src');
+        await session.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: variant === 'legacy' ? 229 : 27, nativeVirtualKeyCode: variant === 'legacy' ? 229 : 27 });
+        await session.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
+        const observed = await draft.evaluate(() => (window as any).compositionKeys[0]);
+        console.info('Trusted composing Escape observation', variant, JSON.stringify(observed));
+        expect(observed).toMatchObject({ isTrusted: true, key: 'Escape' });
+        const supported = variant === 'native' ? observed.isComposing === true : observed.keyCode === 229;
+        // Let messages posted by the receiver cross to the host before inspection.
+        await page.waitForTimeout(100);
+        if (supported) {
+          expect(await page.evaluate(() => (window as any).escaped)).toBe(0);
+          await browserExpect(draft).toHaveValue(retained);
+          await browserExpect(draft).toBeVisible();
+          expect(await draft.evaluate(element => element === (window as any).retainedEditor && element === document.activeElement)).toBe(true);
+          expect(await page.locator('iframe').getAttribute('src')).toBe(frameURL);
+        }
+        if (variant === 'native') await session.send('Input.imeSetComposition', { text: '', selectionStart: 0, selectionEnd: 0 });
+        // Even an unsupported native-IME probe must retain the ordinary trusted control.
+        const before = await page.evaluate(() => (window as any).escaped);
+        await draft.press('Escape');
+        await browserExpect.poll(() => page.evaluate(() => (window as any).escaped)).toBe(before + 1);
+        if (supported) expect(before).toBe(0);
+        else context.skip(`Pending supported/native IME run: Chromium CDP emitted ${JSON.stringify(observed)} for ${variant} composition`);
+      } finally { await session.detach(); }
+    } finally { await page.close(); }
+  });
+
   it('reuses a resumed dirty lease when iframe focus acquisition completes before the generated action', async () => {
     const page = await browser.newPage(); const commands: any[] = [];
     try {

@@ -57,7 +57,7 @@ async function fixture(page:Page,panels:PanelPlacement[],beforeCommand?:(type:st
 
 test('primary Workspace shows added tools and preserves its chat draft through pin hide and reload',async({page})=>{
  const host=await fixture(page,[],undefined,'workspace'),draft=page.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Keep the primary draft');
- await page.getByRole('button',{name:'Panels',exact:false}).click();await page.getByRole('button',{name:'Add Files panel',exact:true}).click();
+ await page.getByRole('button',{name:'Panels',exact:false}).click();await page.getByRole('menuitem',{name:'Add Files panel',exact:true}).click();
  const files=page.locator('.canvas-panel-files');await expect(files).toBeVisible();
  if(await page.locator('.workspace-menu').isVisible())await page.getByRole('button',{name:'Panels',exact:true}).click();
  await files.getByRole('button',{name:'Pin Files',exact:true}).click();await expect(files).toHaveAttribute('data-pinned','true');

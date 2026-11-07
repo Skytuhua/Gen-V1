@@ -1,0 +1,29 @@
+{
+	"name": "@gen-v1/personal-visuals",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"packageManager": "pnpm@10.30.3",
+	"scripts": {
+		"build": "node scripts/build.mjs",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"@gen-v1/plugin-api": "file:vendor/gen-v1-plugin-api-1.1.0.tgz",
+		"zod": "4.6.6"
+	},
+	"devDependencies": {
+		"esbuild": "0.25.12",
+		"typescript": "5.9.3",
+		"@types/node": "24.10.0",
+		"@types/react": "19.2.2",
+		"@types/react-dom": "19.2.2"
+	},
+	"peerDependencies": {
+		"react": "19.2.3",
+		"react-dom": "19.2.3"
+	},
+	"engines": {
+		"node": ">=24.10.0"
+	}
+}

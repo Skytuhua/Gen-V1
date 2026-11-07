@@ -11,6 +11,8 @@ import type {TerminalHost} from './terminal.ts';
 import {GitHubAuth} from './github-auth.ts';
 import {secureDirectory} from '../runtime-official/manifest.ts';
 import {readBoundFile,removeOwnedFile,withPathGuard} from '../core/file-access.ts';
+import {CODE_REVIEW_LIMITS,ComparisonFileRequestSchema,type CodeReviewComparison,type ComparisonPatch,type ComparisonRead,type PullRequestComparisonIdentity} from '../contracts/code-review.ts';
+import {ComparisonSnapshots,PullComparisonSchema,RemoteComparisonSchema,comparisonError,comparisonResult,normalizeChecks,remotePatch,reviewHash} from './code-review.ts';
 
 const repository=z.string().regex(/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/),number=z.number().int().positive();
 const bodyText=z.string().max(64000).refine(value=>Buffer.from(value,'utf8').toString('utf8')===value,'Pull request text must be valid Unicode.');
@@ -20,6 +22,7 @@ interface PullRequest{number:number;title:string;url:string;state:string;headRef
 /** Bundled GitHub CLI with a private sign-in profile and exact reviewed revisions. */
 export class GitHubTools{
  readonly auth:GitHubAuth;
+ private readonly reviewComparisons=new ComparisonSnapshots();
  constructor(private readonly projects:ProjectTools,_terminals:TerminalHost,private readonly executable=bundledGh){this.auth=new GitHubAuth(projects.store.dataDir);}
  private environment(){const root=join(this.projects.store.dataDir,'github');return{...processEnvironment(),HOME:root,USERPROFILE:root,GH_CONFIG_DIR:join(root,'config'),GH_HOST:'github.com',GH_PROMPT_DISABLED:'1',GH_NO_UPDATE_NOTIFIER:'1',GIT_TERMINAL_PROMPT:'0'};}
  private async run(path:string,args:string[]){const token=await this.auth.token();await mkdir(join(this.projects.store.dataDir,'github/config'),{recursive:true});return(await promisify(execFile)(this.executable,args,{cwd:path,env:{...this.environment(),GH_TOKEN:token},windowsHide:true,timeout:60000,maxBuffer:2*1024*1024,encoding:'utf8'})).stdout;}
@@ -40,7 +43,6 @@ export class GitHubTools{
  }
  async repo(projectId:string,threadId?:string){const{path}=await this.projects.binding(projectId,threadId),url=(await this.projects.git(path,['remote','get-url','origin'])).trim(),match=/^(?:https:\/\/github\.com\/|git@github\.com:)([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+?)(?:\.git)?$/.exec(url);if(!match)throw new HarnessError('GITHUB_REMOTE_REQUIRED','Use an origin remote hosted on github.com.');return{path,repo:repository.parse(match[1])};}
  async list(projectId:string,threadId?:string){const{path,repo}=await this.repo(projectId,threadId),items=JSON.parse(await this.run(path,['pr','list','--repo',repo,'--state','all','--limit','50','--json','number,title,url,state,headRefOid,headRefName,isDraft'])) as PullRequest[];return{repo,items};}
- async login(projectId:string,threadId?:string){await this.projects.binding(projectId,threadId);return this.auth.start();}
  async create(projectId:string,threadId:string|undefined,input:Record<string,unknown>){
   const{path,repo}=await this.repo(projectId,threadId),status=await this.projects.gitStatus(projectId,threadId);if(status.gitWrite!==true)throw new HarnessError('PROJECT_READ_ONLY','Pull request creation requires a writable managed working copy.');if(input.revision!==status.revision||input.head!==status.head)throw new HarnessError('REVISION_CHANGED','The reviewed working copy changed. Refresh before creating the pull request.');
   if(status.files.length)throw new HarnessError('UNCOMMITTED_CHANGES','Commit the reviewed changes before creating the pull request.');
@@ -60,7 +62,45 @@ export class GitHubTools{
   return created;
   });
  }
- async details(projectId:string,threadId:string|undefined,pullNumber:number){const{path,repo}=await this.repo(projectId,threadId),status=await this.projects.gitStatus(projectId,threadId),item=JSON.parse(await this.run(path,['pr','view',String(number.parse(pullNumber)),'--repo',repo,'--json','number,title,url,state,headRefOid,headRefName,isDraft,files,reviews,statusCheckRollup']));return{repo,item,head:status.head,revision:status.revision,canReview:status.gitWrite===true&&item.headRefOid===status.head};}
+ async details(projectId:string,threadId:string|undefined,pullNumber:number){const{path,repo}=await this.repo(projectId,threadId),status=await this.projects.gitStatus(projectId,threadId),item=JSON.parse(await this.run(path,['pr','view',String(number.parse(pullNumber)),'--repo',repo,'--json','number,title,url,state,baseRefOid,headRefOid,headRefName,isDraft,files,reviews,statusCheckRollup']));return{repo,item,head:status.head,revision:status.revision,canReview:status.gitWrite===true&&item.headRefOid===status.head};}
+ private async comparisonRepository(projectId:string,threadId?:string){
+  const{path}=await this.projects.binding(projectId,threadId),origin=(await this.projects.gitReviewOrigin(projectId,threadId)).trim(),match=/^(?:https:\/\/github\.com\/|git@github\.com:)([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+?)(?:\.git)?$/.exec(origin);
+  if(!match)throw new HarnessError('GITHUB_REMOTE_REQUIRED','Use an enrolled origin hosted on github.com.');
+  const repo=repository.parse(match[1]);return{path,repo,owner:JSON.stringify([projectId,threadId??null,path,repo])};
+ }
+ async comparison(projectId:string,threadId:string|undefined,pullNumber:number):Promise<ComparisonRead>{
+  const selected=number.parse(pullNumber),{path,repo,owner}=await this.comparisonRepository(projectId,threadId);
+  try{
+   const item=PullComparisonSchema.parse(JSON.parse(await this.run(path,['pr','view',String(selected),'--repo',repo,'--json','id,number,title,url,baseRefOid,headRefOid,baseRefName,headRefName,statusCheckRollup'])));
+   if(item.number!==selected||item.url!==`https://github.com/${repo}/pull/${selected}`)throw new HarnessError('COMPARISON_IDENTITY_CHANGED','The pull request identity did not match.');
+   // GitHub PRs use three-dot semantics. Both tips are immutable, not branch names.
+   const data=RemoteComparisonSchema.parse(JSON.parse(await this.run(path,['api',`repos/${repo}/compare/${item.baseRefOid}...${item.headRefOid}?per_page=1`])));
+   if(data.base_commit.sha!==item.baseRefOid)throw new HarnessError('COMPARISON_IDENTITY_CHANGED','The compared base did not match.');
+   const identity:PullRequestComparisonIdentity={kind:'pull-request',id:'',repo,number:selected,pullRequestId:item.id,baseOid:item.baseRefOid,headOid:item.headRefOid,mergeBaseOid:data.merge_base_commit.sha,baseRef:item.baseRefName,headRef:item.headRefName,semantics:'merge-base'};
+   identity.id=reviewHash([owner,identity]);
+   const files=data.files.map(file=>({path:file.filename,...(file.previous_filename?{oldPath:file.previous_filename}:{}),status:file.status,untracked:false,additions:file.additions,deletions:file.deletions,blobOid:file.sha}));
+   if(new Set(files.map(file=>file.path)).size!==files.length)throw new HarnessError('COMPARISON_INVALID','The comparison contains duplicate paths.');
+   const value:CodeReviewComparison={identity,files,filesTruncated:files.length===CODE_REVIEW_LIMITS.remoteFiles,checks:normalizeChecks(item.statusCheckRollup),observedAt:new Date().toISOString(),access:{mode:'remote',untrackedIncluded:false}};
+   const patches=new Map(files.map((file,i)=>[file.path,remotePatch(identity,file,data.files[i].patch)]));
+   // Keep only allowlisted blob identities, never upstream download/raw URLs.
+   this.reviewComparisons.save(owner,value,patches);
+   return comparisonResult(value);
+  }catch(error){return comparisonError(error);}
+ }
+ async comparisonFile(projectId:string,threadId:string|undefined,input:unknown):Promise<ComparisonPatch>{
+  const request=ComparisonFileRequestSchema.parse(input),{path,owner,repo}=await this.comparisonRepository(projectId,threadId),entry=this.reviewComparisons.get(owner,request.comparisonId),result=entry.patches?.get(request.path);
+  if(!result)throw new HarnessError('NOT_FOUND','The selected file is not in this comparison.');
+  if(result.state!=='unavailable'||result.reason!=='patch-omitted')return result;
+  const sha=result.file.blobOid;
+  if(!sha)throw new HarnessError('COMPARISON_EXPIRED','Refresh the comparison before reading this file.');
+  try{
+   const blob=z.object({sha:z.literal(sha),size:z.number().int().nonnegative(),encoding:z.literal('base64'),content:z.string()}).parse(JSON.parse(await this.run(path,['api',`repos/${repo}/git/blobs/${sha}`]))),bytes=Buffer.from(blob.content.replace(/\s/g,''),'base64');
+   if(blob.size>CODE_REVIEW_LIMITS.patchBytes)return{...result,state:'truncated',reason:'resource-limit'};
+   if(bytes.length!==blob.size)return result;
+   if(bytes.includes(0)||!Buffer.from(bytes.toString('utf8'),'utf8').equals(bytes))return{...result,state:'binary',reason:undefined};
+   return result;
+  }catch{return result;}
+ }
  async review(projectId:string,threadId:string|undefined,input:Record<string,unknown>){const pullNumber=number.parse(input.number),details=await this.details(projectId,threadId,pullNumber),{path}=await this.projects.binding(projectId,threadId),current=await this.projects.gitStatus(projectId,threadId);if(current.gitWrite!==true)throw new HarnessError('PROJECT_READ_ONLY','Pull request reviews require a writable managed working copy.');if(input.head!==details.head||input.revision!==details.revision||!details.canReview||current.head!==details.head||current.revision!==details.revision)throw new HarnessError('REVISION_CHANGED','The pull request and local reviewed revision must match exactly.');const event=z.enum(['APPROVE','REQUEST_CHANGES','COMMENT']).parse(input.event),body=bodyText.parse(input.body??''),target={url:`https://github.com/${details.repo}/pull/${pullNumber}`,head:details.head,revision:details.revision,repo:details.repo};return this.withInput(JSON.stringify({commit_id:details.head,event,body}),target,async file=>{
   const latest=await this.projects.gitStatus(projectId,threadId);if(latest.gitWrite!==true)throw new HarnessError('PROJECT_READ_ONLY','Pull request reviews require a writable managed working copy.');if(latest.head!==details.head||latest.revision!==details.revision)throw new HarnessError('REVISION_CHANGED','The pull request and local reviewed revision must match exactly.');
   return JSON.parse(await this.run(path,['api','--method','POST',`repos/${details.repo}/pulls/${pullNumber}/reviews`,'--input',file]));
