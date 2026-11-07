@@ -7,11 +7,14 @@ const now='2026-11-01T12:00:00.000Z';
 const summary=(revision=1):SkillSummary=>({name:'verify-release',description:'Verify a release using its actual receipts.',category:'development',revision,state:'active',enabled:true,protected:false,origin:'agent',managed:true,author:'agent',createdAt:now,updatedAt:now,lastUsedAt:now,useCount:2,patchCount:0});
 const detail=(revision=1):SkillDetail=>({skill:summary(revision),content:revision===1?'Read the receipt. Run the focused checks.':'Read the receipt. Run the focused checks before packaging.',files:['references/checks.md'],versions:[{revision:1,at:now,actor:{kind:'agent'},action:'create'},...(revision>1?[{revision,at:now,actor:{kind:'agent' as const},action:'patch'}]:[])],nextVersionOffset:null});
 type SkillSnapshot=Snapshot&{skills:SkillSummary[];skillProposals:SkillProposal[]};
-async function fixture(page:Page,options:{empty?:boolean;stale?:boolean;proposal?:boolean}={}){
+async function fixture(page:Page,options:{empty?:boolean;stale?:boolean;proposal?:boolean;sourceHistory?:boolean}={}){
  const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Synthetic skill management fixture.'}}}}) as SkillSnapshot;
  snapshot.skills=options.empty?[]:[summary()];snapshot.skillProposals=options.proposal?[{id:'proposal-1',createdAt:now,status:'pending',actor:{kind:'agent',threadId:'task-thread'},targets:['verify-release'],operations:[{action:'patch',name:'verify-release',baseRevision:1,oldText:'focused checks',newText:'focused checks before packaging'}]}]:[];snapshot.learning={supported:true,status:'idle',lastReview:null};
- const host=await serveTaskFixture(page,snapshot);let saved=detail(),stale=options.stale??false,reads=0;
- await page.route('**/api/skills/**',async route=>{const url=new URL(route.request().url());reads++;if(decodeURIComponent(url.pathname.split('/').pop()??'')!=='verify-release')return route.fulfill({status:404,json:{error:{code:'NOT_FOUND',message:'Skill not found.'}}});if(url.searchParams.get('path'))return route.fulfill({json:{...saved,content:'Use the receipt hash as the source of truth.'}});if(url.searchParams.get('revision')==='1')return route.fulfill({json:detail()});return route.fulfill({json:saved});});
+ const host=await serveTaskFixture(page,snapshot);let saved=detail(options.sourceHistory?2:1),stale=options.stale??false,reads=0;
+ await page.route('**/api/integrations',route=>route.request().method()==='GET'?route.fulfill({json:{integrations:[]}}):route.fallback());
+ if(options.sourceHistory){saved.versions=saved.versions.map(row=>({...row,sourceAvailability:'retained'}));snapshot.skills=[saved.skill];}
+ const historyControl:{error?:{code:string;message:string};beforeView?:()=>Promise<void>;beforeRestore?:()=>Promise<void>}={};
+ await page.route('**/api/skills/**',async route=>{const url=new URL(route.request().url());reads++;if(decodeURIComponent(url.pathname.split('/').pop()??'')!=='verify-release')return route.fulfill({status:404,json:{error:{code:'NOT_FOUND',message:'Skill not found.'}}});if(url.searchParams.get('path'))return route.fulfill({json:{...saved,content:'Use the receipt hash as the source of truth.'}});if(url.searchParams.get('revision')==='1'){await historyControl.beforeView?.();if(historyControl.error)return route.fulfill({status:400,json:{error:historyControl.error}});return route.fulfill({json:{...detail(),versions:saved.versions}});}return route.fulfill({json:saved});});
  await page.route('**/api/skill-proposals/proposal-1',route=>route.fulfill({json:snapshot.skillProposals[0]}));
  await page.route('**/api/commands',async route=>{
   const command=route.request().postDataJSON() as HostCommand;host.commands.push(command);const p=command.payload;
@@ -19,6 +22,7 @@ async function fixture(page:Page,options:{empty?:boolean;stale?:boolean;proposal
   if(command.type==='skill.flags'){saved={...saved,skill:{...saved.skill,...p,revision:saved.skill.revision+1}} as SkillDetail;snapshot.skills=[saved.skill];}
   if(command.type==='skill.manage'){
    const operation=(p.operations as {action:string;baseRevision:number;content?:string;description?:string;revision?:number}[])[0];
+   if(operation.action==='rollback'){await historyControl.beforeRestore?.();if(historyControl.error)return route.fulfill({status:400,json:{error:historyControl.error}});}
    if(stale&&operation.action==='patch'){stale=false;saved=detail(2);snapshot.skills=[saved.skill];return route.fulfill({status:409,json:{error:{code:'STALE_SKILL',message:'This skill changed. Your draft is retained.'}}});}
    if(operation.baseRevision!==saved.skill.revision)return route.fulfill({status:409,json:{error:{code:'STALE_SKILL',message:'This skill changed. Review the saved version.'}}});
    saved={...saved,skill:{...saved.skill,revision:saved.skill.revision+1,...(operation.description?{description:operation.description}:{}),...(operation.action==='delete'?{state:'archived' as const}:operation.action==='restore'?{state:'active' as const}:{} )},...(operation.content?{content:operation.content}:{}),...(operation.action==='rollback'?{content:detail().content}:{})};snapshot.skills=[saved.skill];
@@ -26,9 +30,49 @@ async function fixture(page:Page,options:{empty?:boolean;stale?:boolean;proposal
   if(command.type==='skill.decide'){snapshot.skillProposals=[];if(p.approve){saved=detail(2);snapshot.skills=[saved.skill];}}
   snapshot.seq++;await route.fulfill({json:{commandId:command.id,eventSeq:snapshot.seq,result:{status:'applied',changes:[saved.skill]}}});
  });
- const open=async()=>{await page.goto('/');const navigation=page.getByRole('button',{name:'Open navigation',exact:true});if(await navigation.isVisible())await navigation.click();await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByRole('button',{name:'Skills & learning',exact:true}).click();};
- return{snapshot,host,open,get reads(){return reads;}};
+ const open=async()=>{await page.goto('/');const navigation=page.getByRole('button',{name:'Open navigation',exact:true});if(await navigation.isVisible())await navigation.click();await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByRole('button',{name:'Skills & Integrations',exact:true}).click();};
+ return{snapshot,host,open,historyControl,get saved(){return saved;},get reads(){return reads;}};
 }
+
+const unavailable={code:'SKILL_SOURCE_UNAVAILABLE',message:'The original source for this revision is no longer available.'};
+function heldResponse(){let release!:()=>void,entered!:()=>void;const gate=new Promise<void>(done=>{release=done;}),started=new Promise<void>(done=>{entered=done;});return{release,started,wait:async()=>{entered();await gate;}};}
+async function writeNewerSkillDraft(page:Page){return page.evaluate(async()=>{const path='/src/journal.ts',journal=await import(path);const key='skill-draft:verify-release';await journal.journalWrite(key,{content:'Newer recovered instructions.',description:'Keep this draft.',baseRevision:2});return journal.journalReadRecord(key);});}
+async function readSkillDraft(page:Page){return page.evaluate(async()=>{const path='/src/journal.ts';return(await import(path)).journalReadRecord('skill-draft:verify-release');});}
+async function inspectHistory(page:Page){await page.getByRole('button',{name:'Inspect verify-release',exact:true}).click();await page.getByText('Revision history',{exact:true}).click();}
+
+test('source history retains metadata and disables unavailable views while current instructions stay editable',async({page})=>{
+ const x=await fixture(page,{sourceHistory:true});x.saved.versions[0].sourceAvailability='unavailable';await x.open();await inspectHistory(page);
+ const history=page.locator('.skill-history');await expect(history.getByText('Source unavailable',{exact:true})).toBeVisible();await expect(history.getByText('Source retained',{exact:true})).toBeVisible();
+ await expect(history).toContainText(now);await expect(history).toContainText('agent');await expect(history).toContainText('create');
+ await expect(page.getByRole('button',{name:'View revision 1',exact:true})).toBeDisabled();await expect(page.getByRole('button',{name:'View revision 2',exact:true})).toBeEnabled();
+ const input=page.getByRole('textbox',{name:'Instructions for verify-release',exact:true});await expect(input).toHaveValue(detail(2).content);await input.fill('Current instructions remain editable.');expect(x.host.commands).toHaveLength(0);expect(x.reads).toBe(1);
+});
+test('a retained source revision can be viewed without replacing current instructions',async({page})=>{
+ const x=await fixture(page,{sourceHistory:true});await x.open();await inspectHistory(page);await page.getByRole('button',{name:'View revision 1',exact:true}).click();
+ await expect(page.getByLabel('Historical skill version',{exact:true})).toContainText(detail().content);await expect(page.getByRole('textbox',{name:'Instructions for verify-release',exact:true})).toHaveValue(detail(2).content);
+ await expect(page.locator('.skill-history').getByText('Source retained',{exact:true})).toHaveCount(2);expect(x.host.commands).toHaveLength(0);expect(x.reads).toBe(2);
+});
+test('retirement during a history read marks only that row and preserves a newer draft generation',async({page})=>{
+ const x=await fixture(page,{sourceHistory:true}),held=heldResponse();x.historyControl.beforeView=held.wait;await x.open();await inspectHistory(page);
+ const input=page.getByRole('textbox',{name:'Instructions for verify-release',exact:true});await input.fill('Keep the open editor draft.');await page.getByRole('button',{name:'View revision 1',exact:true}).click();await held.started;
+ const newer=await writeNewerSkillDraft(page);x.historyControl.error=unavailable;held.release();
+ await expect(page.getByRole('alert')).toHaveText(unavailable.message);await expect(page.getByRole('button',{name:'View revision 1',exact:true})).toBeDisabled();await expect(page.getByRole('button',{name:'View revision 2',exact:true})).toBeEnabled();
+ await expect(input).toHaveValue('Keep the open editor draft.');expect(await readSkillDraft(page)).toEqual(newer);expect(x.host.commands).toHaveLength(0);expect(x.reads).toBe(2);
+ await x.open();await page.getByRole('button',{name:'Inspect verify-release',exact:true}).click();await expect(input).toHaveValue('Newer recovered instructions.');
+});
+test('retirement after historical detail rejects restore once and preserves the newer recovery draft',async({page})=>{
+ const x=await fixture(page,{sourceHistory:true}),held=heldResponse();await x.open();await inspectHistory(page);await page.getByRole('button',{name:'View revision 1',exact:true}).click();await expect(page.getByLabel('Historical skill version',{exact:true})).toBeVisible();
+ x.historyControl.beforeRestore=held.wait;await page.getByRole('button',{name:'Restore this revision',exact:true}).click();await held.started;
+ const newer=await writeNewerSkillDraft(page);x.historyControl.error=unavailable;held.release();
+ await expect(page.getByRole('alert')).toHaveText(unavailable.message);await expect(page.getByRole('button',{name:'Restore this revision',exact:true})).toBeDisabled();await expect(page.getByRole('button',{name:'View revision 1',exact:true})).toBeDisabled();
+ await expect(page.getByLabel('Historical skill version',{exact:true})).toContainText(detail().content);await expect(page.getByRole('textbox',{name:'Instructions for verify-release',exact:true})).toHaveValue(detail(2).content);
+ expect(await readSkillDraft(page)).toEqual(newer);expect(x.snapshot.skills[0].revision).toBe(2);expect(x.saved.content).toBe(detail(2).content);expect(x.host.commands.filter(row=>row.type==='skill.manage')).toHaveLength(1);expect(x.reads).toBe(2);
+});
+test('ordinary history transport failures stay retryable and do not retire source rows',async({page})=>{
+ const x=await fixture(page,{sourceHistory:true});x.historyControl.error={code:'HERMES_SOURCE_BUSY',message:'The canonical source is busy.'};await x.open();await inspectHistory(page);await page.getByRole('button',{name:'View revision 1',exact:true}).click();
+ await expect(page.getByRole('alert')).toHaveText('The canonical source is busy.');await expect(page.getByRole('button',{name:'View revision 1',exact:true})).toBeEnabled();await expect(page.getByText('Source unavailable',{exact:true})).toHaveCount(0);
+ x.historyControl.error=undefined;await page.getByRole('button',{name:'View revision 1',exact:true}).click();await expect(page.getByLabel('Historical skill version',{exact:true})).toContainText(detail().content);expect(x.host.commands).toHaveLength(0);expect(x.reads).toBe(3);
+});
 
 test('empty libraries and automatic review controls work with old snapshots',async({page})=>{
  const x=await fixture(page,{empty:true});delete (x.snapshot as Snapshot).skills;delete (x.snapshot as Snapshot).skillProposals;delete (x.snapshot as Snapshot).learning;await x.open();await expect(page.getByRole('heading',{name:'Skills & learning',exact:true})).toBeVisible();await expect(page.getByText('No saved skills yet.',{exact:true})).toBeVisible();expect(x.reads).toBe(0);
@@ -57,7 +101,7 @@ test('inspect, edit, supporting files, flags and recoverable archive use current
 });
 test('a conflicting skill edit survives refresh and reload until the user chooses a saved version',async({page})=>{
  const x=await fixture(page,{stale:true});await x.open();await page.getByRole('button',{name:'Inspect verify-release',exact:true}).click();const input=page.getByRole('textbox',{name:'Instructions for verify-release',exact:true});await input.fill('Keep my local review of the procedure.');await page.getByRole('button',{name:'Save skill',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Your draft is retained');await expect(input).toHaveValue('Keep my local review of the procedure.');
- await page.reload();await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByRole('button',{name:'Skills & learning',exact:true}).click();await page.getByRole('button',{name:'Inspect verify-release',exact:true}).click();await expect(input).toHaveValue('Keep my local review of the procedure.');
+ await page.reload();await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByRole('button',{name:'Skills & Integrations',exact:true}).click();await page.getByRole('button',{name:'Inspect verify-release',exact:true}).click();await expect(input).toHaveValue('Keep my local review of the procedure.');
  await page.getByRole('button',{name:'Review saved version',exact:true}).click();await expect(page.getByText(detail(2).content,{exact:true})).toBeVisible();await expect(input).toHaveValue('Keep my local review of the procedure.');await page.getByRole('button',{name:'Use saved version',exact:true}).click();await expect(input).toHaveValue(detail(2).content);
 });
 test('pending changes show the proposed text and require an explicit approval or rejection',async({page})=>{
@@ -81,7 +125,7 @@ test('skill controls and editors fit desktop and narrow light and dark views',as
  const x=await fixture(page);for(const width of [1440,390])for(const theme of ['dark','light'] as const){
   await page.setViewportSize({width,height:1000});await page.emulateMedia({reducedMotion:'reduce'});x.snapshot.settings.theme=theme;await x.open();
   await expect.poll(()=>page.locator('.settings-dialog').evaluate(node=>getComputedStyle(node).backgroundColor)).toBe(theme==='dark'?'rgb(15, 15, 15)':'rgb(255, 255, 255)');
-  const selectedSection=page.getByRole('button',{name:'Skills & learning',exact:true});await expect.poll(async()=>{const selected=await selectedSection.boundingBox(),nav=await page.getByRole('navigation',{name:'Settings sections',exact:true}).boundingBox();return Boolean(selected&&nav&&selected.x>=nav.x-1&&selected.x+selected.width<=nav.x+nav.width+1);}).toBe(true);
+  const selectedSection=page.getByRole('button',{name:'Skills & Integrations',exact:true});await expect.poll(async()=>{const selected=await selectedSection.boundingBox(),nav=await page.getByRole('navigation',{name:'Settings sections',exact:true}).boundingBox();return Boolean(selected&&nav&&selected.x>=nav.x-1&&selected.x+selected.width<=nav.x+nav.width+1);}).toBe(true);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:info.outputPath(`skills-${width}-${theme}-controls.png`)});
   await page.getByRole('button',{name:'Inspect verify-release',exact:true}).click();const editor=page.getByRole('textbox',{name:'Instructions for verify-release',exact:true});await expect(editor).toHaveValue(detail().content);await editor.scrollIntoViewIfNeeded();const box=await editor.boundingBox();expect(box!.x).toBeGreaterThanOrEqual(0);expect(box!.x+box!.width).toBeLessThanOrEqual(width);if(width===390)expect(box!.width).toBeGreaterThanOrEqual(250);await page.screenshot({path:info.outputPath(`skills-${width}-${theme}-editor.png`)});
  }
