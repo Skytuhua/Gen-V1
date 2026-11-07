@@ -202,28 +202,6 @@
       "disposition": "staged-migration"
     },
     {
-      "file": "apps/web/src/registry.tsx",
-      "line": 73,
-      "column": 56,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "c6f88ede450ddb3d3b7c45477015173ba9d8b48ff205a7f730ec0fd6c10a865c",
-      "reason": "TOOLS: move catalog selectors to shared Select; retain data bindings.",
-      "evidence": "<select value={value == null ? '' : String(value)} onChange={event => setValue(event.target.value)}><option value=\"\">{string(props.placeholder, 'Choose an option')}</option>{list(props.options).map((option, i) => { const",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/registry.tsx",
-      "line": 180,
-      "column": 44,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "fcbba7a3653dec606b2ae9212ea68e9b24a978e3f9a087ded563cf7b3ecdc726",
-      "reason": "TOOLS: move catalog selectors to shared Select; retain data bindings.",
-      "evidence": "<select required={required} value={value === undefined ? '' : String(options.findIndex(item => JSON.stringify(item) === JSON.stringify(value)))} onChange={event => onChange(event.target.value === '' ? undefined : options",
-      "disposition": "staged-migration"
-    },
-    {
       "file": "apps/web/src/relationship-graph.css",
       "line": 32,
       "column": 1,
@@ -475,39 +453,6 @@
       "reason": "Retained geometry: trace-local collapse control, not a popup.",
       "evidence": ".trace-collapse{position:absolute;top:12px;width:18px;height:23px;z-index:3;padding:0;color:var(--muted);display:grid;place-items:center}.trace-collapse:disabled{pointer-events:none;visibility:hidden}.trace-span:focus-vi",
       "disposition": "retained-geometry"
-    },
-    {
-      "file": "apps/web/src/WorkObjects.tsx",
-      "line": 76,
-      "column": 204,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "25bcfe9aad0069974e270bb17a0f32cb74fb4d49013c7eb30cdb1ca200ceff37",
-      "reason": "TOOLS: migrate work-object selectors to shared Select.",
-      "evidence": "<select aria-label=\"Move selected card\" value={placements.get(selected.id)} disabled={stale} onChange={event=>move(selected.id,event.target.value)}>{data.lanes.map(lane=><option key={lane.id} value={lane.id}>{lane.label}",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/WorkObjects.tsx",
-      "line": 178,
-      "column": 252,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "90eaa05f9b335cee7f4d6d539fd3c5af87d39e2ee53be22a3f89bb7a57bd61e9",
-      "reason": "TOOLS: migrate work-object selectors to shared Select.",
-      "evidence": "<select aria-label=\"Span status\" value={status} onChange={event=>save({status:event.target.value})}><option value=\"all\">All statuses</option><option value=\"ok\">OK</option><option value=\"error\">Error</option><option value",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/WorkObjects.tsx",
-      "line": 178,
-      "column": 518,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "08f4ee79f7919cc6afbdd861a2311b2b94bd6707baa8466a421e2f329313c316",
-      "reason": "TOOLS: migrate work-object selectors to shared Select.",
-      "evidence": "<select aria-label=\"Timeline zoom\" value={zoom} onChange={event=>save({zoom:Number(event.target.value)})}><option value=\"1\">1x zoom</option><option value=\"2\">2x zoom</option><option value=\"4\">4x zoom</option></select>}</",
-      "disposition": "staged-migration"
     },
     {
       "file": "apps/web/src/workspace-canvas.css",

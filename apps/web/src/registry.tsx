@@ -34,6 +34,7 @@ import { MapView } from './MapView';
 import { TaskHistory } from './TaskHistory';
 import { tabStateData } from '../../../packages/ui-catalog/workflow';
 import { StatusIcon } from './task-status';
+import { Select as ShellSelect } from '../../../packages/ui-shell/Select';
 const string = (value: unknown, fallback = '') => typeof value === 'string' ? value : fallback;
 const list = (value: unknown): unknown[] => Array.isArray(value) ? value : [];
 const obj = (value: unknown): Record<string, unknown> => value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};
@@ -70,7 +71,9 @@ function Input({ element: { props }, bindings }: ComponentRenderProps) {
 function Checkbox({ element: { props }, bindings }: ComponentRenderProps) { const [value, setValue] = useField(props, bindings); return <label className="check-field"><input type="checkbox" checked={value === true} disabled={props.disabled === true} onChange={event => setValue(event.target.checked)} />{string(props.label)}</label>; }
 function Select({ element: { props }, bindings }: ComponentRenderProps) {
   const [value, setValue] = useField(props, bindings);
-  return <label className="field">{string(props.label)}<select value={value == null ? '' : String(value)} onChange={event => setValue(event.target.value)}><option value="">{string(props.placeholder, 'Choose an option')}</option>{list(props.options).map((option, i) => { const item = obj(option); return <option key={i} value={typeof option === 'string' ? option : display(item.value)}>{typeof option === 'string' ? option : string(item.label, display(item.value))}</option>; })}</select></label>;
+  const options = [{value: '', label: string(props.placeholder, 'Choose an option')}, ...list(props.options).map(option => { const item = obj(option); return {value: typeof option === 'string' ? option : display(item.value), label: typeof option === 'string' ? option : string(item.label, display(item.value))}; })];
+  const selected = value == null ? '' : String(value);
+  return <label className="field">{string(props.label)}<ShellSelect aria-label={string(props.label, 'Choose an option')} value={selected} onValueChange={setValue} options={options}/></label>;
 }
 function Button({ element: { props } }: ComponentRenderProps) {
   const action = useTaskAction(), store = useStateStore();
@@ -191,19 +194,26 @@ export function SchemaFields({ schema, value, onChange }: { schema: Record<strin
   return <div className="schema-fields">{Object.entries(properties).map(([name, definition]) => <SchemaValue key={name} schema={obj(definition)} label={string(obj(definition).title, name)} value={value[name]} required={required.includes(name)} onChange={item => { const next = { ...value, [name]: item }; if (item === undefined) delete next[name]; onChange(next); }} />)}</div>;
 }
 
+function sameJsonValue(left: unknown, right: unknown): boolean {
+  if (left === right) return true;
+  if (!left || !right || typeof left !== 'object' || typeof right !== 'object') return false;
+  if (Array.isArray(left) || Array.isArray(right)) return Array.isArray(left) && Array.isArray(right) && left.length === right.length && left.every((value, index) => sameJsonValue(value, right[index]));
+  const a = left as Record<string, unknown>, b = right as Record<string, unknown>, keys = Object.keys(a);
+  return keys.length === Object.keys(b).length && keys.every(key => Object.hasOwn(b, key) && sameJsonValue(a[key], b[key]));
+}
 function SchemaValue({ schema, label, value, required, onChange }: { schema: Record<string, unknown>; label: string; value: unknown; required: boolean; onChange: (value: unknown) => void }) {
   const omittedDraft = useRef<unknown>(undefined);
   if (value !== undefined) omittedDraft.current = value;
+  if (Array.isArray(schema.enum)) {
+    const options = schema.enum, selected = value === undefined ? -1 : options.findIndex(item => sameJsonValue(item, value));
+    return <label className="field">{label}<ShellSelect aria-label={label} required={required} value={value === undefined ? '' : String(selected)} onValueChange={index => onChange(index === '' ? undefined : options[Number(index)])} options={[{value: '', label: 'Choose…'}, ...options.map((option, index) => ({value: String(index), label: display(option)}))]}/></label>;
+  }
   if (schema.type === 'object' || schema.properties || schema.type === 'array') {
     const present = required || value !== undefined;
     const values = list(value ?? omittedDraft.current), itemSchema = obj(schema.items);
     return <fieldset className="schema-fields"><legend>{label}</legend>{!required && <label className="check-field"><input type="checkbox" checked={present} onChange={event => onChange(event.target.checked ? omittedDraft.current ?? schemaDefaults(schema) : undefined)} />Include {label}</label>}<fieldset className={present ? "schema-fields" : undefined} hidden={!present} disabled={!present}>{schema.type === 'array' ? <>{values.map((item, index) => <div key={index}><SchemaValue schema={itemSchema} label={`${label} ${index + 1}`} value={item} required onChange={next => onChange(values.map((value, position) => position === index ? next : value))} /><button type="button" className="quiet" onClick={() => onChange(values.filter((_, position) => position !== index))}>Remove {label} {index + 1}</button></div>)}<button type="button" className="secondary" disabled={typeof schema.maxItems === 'number' && values.length >= schema.maxItems} onClick={() => onChange([...values, schemaDefaults(itemSchema) ?? ''])}>Add {label}</button></> : <SchemaFields schema={schema} value={obj(value ?? omittedDraft.current)} onChange={onChange} />}</fieldset></fieldset>;
   }
   if (schema.type === 'boolean') return <label className="check-field"><input type="checkbox" checked={value === true} onChange={event => onChange(event.target.checked)} />{label}</label>;
-  if (Array.isArray(schema.enum)) {
-    const options = schema.enum;
-    return <label className="field">{label}<select required={required} value={value === undefined ? '' : String(options.findIndex(item => JSON.stringify(item) === JSON.stringify(value)))} onChange={event => onChange(event.target.value === '' ? undefined : options[Number(event.target.value)])}><option value="">Choose…</option>{options.map((option, index) => <option key={index} value={index}>{display(option)}</option>)}</select></label>;
-  }
   const numeric = schema.type === 'number' || schema.type === 'integer';
   return <label className="field">{label}<input type={numeric ? 'number' : schema.format === 'email' ? 'email' : 'text'} step={schema.type === 'integer' ? 1 : 'any'} min={typeof schema.minimum === 'number' ? schema.minimum : undefined} max={typeof schema.maximum === 'number' ? schema.maximum : undefined} required={required} value={value == null ? '' : String(value)} onChange={event => onChange(numeric && event.target.value !== '' ? Number(event.target.value) : event.target.value)} />{schema.description ? <small>{string(schema.description)}</small> : null}</label>;
 }
