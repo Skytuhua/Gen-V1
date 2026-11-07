@@ -6,7 +6,7 @@ import {LoadingState, PendingStatus} from '../LoadingState';
 import {ApiError} from '../api';
 import {researchClient, researchError, researchScope, type ResearchDocumentHead, type ResearchDocumentRead, type ResearchResource, type ResearchSelection} from './client';
 import {researchDrafts, type ResearchDraft, type ResearchDrafts} from './drafts';
-import {SourceImport, type ResearchGrantedFile, type ResearchBrowserCapability} from './SourceImport';
+import {SourceImport, type ResearchGrantedFile, type ResearchBrowserCapability, type ResearchFilePage, type ResearchImportDraft} from './SourceImport';
 import {SourceReader} from './SourceReader';
 import {PassageInspector} from './PassageInspector';
 import './research-workspace.css';
@@ -14,15 +14,15 @@ import './research-workspace.css';
 export type {ResearchSelection, ResearchResource} from './client';
 export type {ResearchGrantedFile, ResearchBrowserCapability} from './SourceImport';
 export interface ResearchWorkspaceProps {
-  selection: ResearchSelection; topic: string; onNavigate: (selection: ResearchSelection) => void;
-  grantedFiles?: readonly ResearchGrantedFile[]; browserCapture?: ResearchBrowserCapability;
+  importDraft?:ResearchImportDraft; disabled?: boolean; ownerControl?: ReactNode; selection: ResearchSelection; topic: string; onNavigate: (selection: ResearchSelection) => void;
+  grantedFiles?: readonly ResearchGrantedFile[]; browserCapture?: ResearchBrowserCapability; filePage?: ResearchFilePage; onImportOpen?():void;
   chat?: ReactNode; chatOpen?: boolean; onChatOpenChange?: (open: boolean) => void; drafts?: ResearchDrafts;
 }
 export function ResearchWorkspace(props: ResearchWorkspaceProps) {
   if (props.selection.authority.kind !== 'personal') return <p role="alert">Research is available in personal conversations.</p>;
   return <ResearchBody key={researchScope(props.selection)} {...props} />;
 }
-function ResearchBody({selection, topic, onNavigate, grantedFiles = [], browserCapture, chat, chatOpen = false, onChatOpenChange, drafts = researchDrafts}: ResearchWorkspaceProps) {
+function ResearchBody({selection, importDraft, disabled=false, topic, ownerControl, onNavigate, grantedFiles = [], browserCapture, filePage, onImportOpen, chat, chatOpen = false, onChatOpenChange, drafts = researchDrafts}: ResearchWorkspaceProps) {
   const [resource, setResource] = useState<ResearchResource | null>(selection.resource), [sources, setSources] = useState<ResearchSource[]>([]), [documents, setDocuments] = useState<ResearchDocumentHead[]>([]);
   const [cursors, setCursors] = useState<{sources: string | null; documents: string | null}>({sources: null, documents: null});
   const [pending, setPending] = useState(true), [error, setError] = useState(''), [refresh, setRefresh] = useState(0);
@@ -62,8 +62,8 @@ function ResearchBody({selection, topic, onNavigate, grantedFiles = [], browserC
     bump(); navigate({kind: 'document', id: draft.id});
   }
   const localDrafts = drafts.all(selection), rows = [...documents, ...localDrafts.filter(d => !documents.some(item => item.id === d.id)).map(d => ({id: d.id, title: d.title, kind: d.kind, revision: d.expectedRevision}))];
-  return <section className="research-workspace" aria-label="Research workspace" data-chat={chatOpen && Boolean(chat)}>
-    <header className="research-toolbar"><span className="research-topic" title={topic}>{topic}</span><button onClick={() => setImportOpen(true)}>Add source</button>
+  return <section inert={disabled} className="research-workspace" aria-label="Research workspace" data-chat={chatOpen && Boolean(chat)}>
+    <header className="research-toolbar">{ownerControl??<span className="research-topic" title={topic}>{topic}</span>}<button onClick={() => {setImportOpen(true);onImportOpen?.();}}>Add source</button>
       <ActionMenu label="New document" open={menuOpen} onOpenChange={setMenuOpen} items={[{id: 'findings', label: 'Findings', onSelect: () => create('findings')}, {id: 'notes', label: 'Working notes', onSelect: () => create('working-notes')}]} />
       {onChatOpenChange && <button aria-pressed={chatOpen} onClick={() => onChatOpenChange(!chatOpen)}>{chatOpen ? 'Hide chat' : 'Show chat'}</button>}
     </header>
@@ -95,7 +95,7 @@ function ResearchBody({selection, topic, onNavigate, grantedFiles = [], browserC
       </div>
       {Boolean(chat) && <aside className="research-chat" aria-label="Research chat" hidden={!chatOpen}><label className="research-chat-size">Chat height<input type="range" aria-label="Chat height" min={20} max={50} value={chatSize} onChange={event => setChatSize(Number(event.target.value))} /></label><div className="research-chat-content">{chat}</div></aside>}
     </div>
-    <SourceImport selection={selection} open={importOpen} onClose={() => setImportOpen(false)} files={grantedFiles} browser={browserCapture} onCaptured={source => {setRefresh(v => v + 1); navigate({kind: 'source', id: source.id});}} />
+    <SourceImport draft={importDraft} disabled={disabled} selection={selection} open={importOpen} onClose={() => setImportOpen(false)} files={grantedFiles} browser={browserCapture} filePage={filePage} onCaptured={source => {setRefresh(v => v + 1); navigate({kind: 'source', id: source.id});}} />
   </section>;
 }
 
@@ -125,26 +125,29 @@ function DocumentEditor({selection, resource, drafts, onChange, onInspect, onSav
   function edit(patch: Partial<Pick<ResearchDraft, 'title' | 'body' | 'citations'>>) {drafts.edit(selection, resource.id, patch); setStatus(''); onChange();}
   const canSave = Boolean(draft && !pending && draft.title.trim() && draft.dirty && !draft.conflict);
   async function save(copy = false) {
+    if (selection.isCurrent&&!selection.isCurrent())return;
     if (!draft || saving.current || (copy ? pending : !canSave)) return;
     saving.current = true; setPending(true); setError(''); setStatus('');
     const attempt = drafts.beginSave(selection, draft.id, copy), sent = attempt.sent;
     let acknowledged = false;
     try {
       const receipt = await researchClient.save(selection, {documentId: sent.id, title: sent.title, kind: sent.kind, body: sent.body, citations: sent.citations, expectedRevision: sent.expectedRevision}, attempt.commandId);
+      if(selection.isCurrent&&!selection.isCurrent())return;
       const result = receipt.result as {documentId?: unknown; revision?: unknown; sha256?: unknown} | null;
       if (receipt.commandId !== attempt.commandId || result?.documentId !== sent.id || result.revision !== sent.expectedRevision + 1 || typeof result.sha256 !== 'string' || !/^[a-f0-9]{64}$/.test(result.sha256)) throw Error('Save receipt unavailable. Retry this save.');
       if (!drafts.finishSave(selection, draft.id, attempt, copy, {revision: result.revision as number, sha256: result.sha256})) return;
       acknowledged = true;
       if (live.current) {setStatus(`Saved revision ${result.revision}`); onChange();}
       const document = await researchClient.document(selection, sent.id, result.revision as number);
-      if (live.current) setLoaded(document);
+      if (live.current&&(!selection.isCurrent||selection.isCurrent())) setLoaded(document);
     } catch (cause) {
+      if(selection.isCurrent&&!selection.isCurrent()){if(live.current)setError(researchError(cause));return;}
       if (!acknowledged && cause instanceof ApiError && ['INVALID_INPUT', 'PRECONDITION_FAILED', 'ACCESS_DENIED', 'CAPABILITY_DENIED', 'NOT_FOUND', 'INVALID_CITATION', 'INVALID_SOURCE', 'RESOURCE_LIMIT'].includes(cause.code)) drafts.finishSave(selection, draft.id, attempt, copy);
       if (!acknowledged && cause instanceof ApiError && cause.code === 'PRECONDITION_FAILED') {
         try {const remote = await researchClient.document(selection, sent.id); drafts.open(selection, remote); if (live.current) setLoaded(remote);} catch { /* Retain the original CAS and draft even when the conflict read is offline. */ }
       }
       if (live.current) {setError(researchError(cause)); onChange();}
-    } finally {saving.current = false; if (live.current) {setPending(false); if (acknowledged) onSaved(sent.id);}}
+    } finally {saving.current = false; if (live.current) {setPending(false); if (acknowledged&&(!selection.isCurrent||selection.isCurrent())) onSaved(sent.id);}}
   }
   return <LoadingState pending={pending && !draft} hasContent={Boolean(draft)} label="Loading document…">
     {draft && <article className="research-document"><h2>{draft.title}</h2><p className="research-meta">{draft.kind === 'findings' ? 'Findings · synthesis' : 'Working notes'} · {draft.dirty ? 'Unsaved draft' : `Saved revision ${draft.expectedRevision}`}</p>

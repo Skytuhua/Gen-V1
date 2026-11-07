@@ -20,6 +20,7 @@ import {useShellNavigation} from './shell-navigation';
 import {useAppearance} from './useAppearance';
 import {useWorkspaceState} from './workspace-api';
 import {WorkspaceControls} from './WorkspaceControls';
+import {ResearchHost} from './ResearchHost';
 import './workspace-host.css';
 
 export type ConversationIntent = 'model' | 'settings' | 'usage' | 'new-thread' | 'connect-project' | 'resources' | 'linked-pull-requests';
@@ -96,17 +97,18 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
     <PendingStatus pending={!failure} label="Opening workspace…"/>
     {failure && <div role="alert">{failure}<button onClick={retry}>Retry workspace</button></div>}
   </main>;
-  if (preset !== 'all-agents') return conversation({workspace, choosePreset, initialThreadId: selected.current, selectThread: id => {selected.current = id;}, intent, consumeIntent: id => setIntent(current => current?.id === id ? undefined : current), composers});
+  if (preset !== 'all-agents' && preset !== 'research') return conversation({workspace, choosePreset, initialThreadId: selected.current, selectThread: id => {selected.current = id;}, intent, consumeIntent: id => setIntent(current => current?.id === id ? undefined : current), composers});
   return <MonitorShell workspace={workspace} settings={settings} controller={controller} composers={composers} choosePreset={choosePreset}
-    refreshSettings={loadSettings} openConversation={openConversation} error={error} dismissError={() => setError('')} fail={fail}/>;
+    refreshSettings={loadSettings} openConversation={openConversation} error={error} dismissError={() => setError('')} fail={fail} content={preset==='research'?<ResearchHost canvas={workspace.envelope.state.canvases.find(value=>value.id===workspace.envelope!.state.activeCanvasId)!} workspace={workspace} composers={composers} openConversation={id=>openConversation(id)}/>:undefined}/>;
 }
 
-function MonitorShell({workspace, settings, controller, composers, choosePreset, refreshSettings, openConversation, error, dismissError, fail}: {
+function MonitorShell({workspace, settings, controller, composers, choosePreset, refreshSettings, openConversation, error, dismissError, fail, content}: {
   workspace: ConversationHost['workspace']; settings: Awaited<ReturnType<typeof getShellSettings>>;
   controller: AgentsWorkspaceController; composers: SharedAgentComposers; choosePreset: ConversationHost['choosePreset'];
   refreshSettings: () => Promise<void>;
   openConversation: (id?: string, intent?: ConversationIntent) => Promise<void>; error: string; dismissError: () => void;
   fail: (action: () => Promise<unknown>) => void;
+  content?: ReactNode;
 }) {
   const desktop = useDesktop(), [layout, setLayout] = useShellLayout(), preferences = getPreferences(settings);
   const [search, setSearch] = useState(''), navigation = useShellNavigation(search), [open, setOpen] = useState(false);
@@ -180,9 +182,9 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
       <WorkspaceControls envelope={workspace.envelope} send={workspace.send} prepare={prepare} panels={[]} title={panel => panel.kind}
         onChoosePreset={choosePreset} toolsVisible={false} addPanel={async () => {throw Error('Choose Workspace or Custom to open tools.');}} updatePanel={async () => {throw Error('Choose Workspace or Custom to arrange tools.');}}/>
       {error && <div className="workspace-error" role="alert">{error}<button className="icon-button" aria-label="Dismiss error" onClick={dismissError}><X size={15}/></button></div>}
-      <div className="workspace-host-content" inert={settingsOpen}><AgentsWorkspace controller={controller} composers={composers} projects={workspace.envelope?.projects.filter(project => project.authority.kind === 'local')}
+      <div className="workspace-host-content" inert={settingsOpen}>{content ?? <AgentsWorkspace controller={controller} composers={composers} projects={workspace.envelope?.projects.filter(project => project.authority.kind === 'local')}
         preferences={{density: preferences.density === 'compact' ? 'compact' : 'comfortable', projectColors: preferences.projectColors}}
-        onOpenConversation={(id,kind) => fail(() => openConversation(id,kind))}/></div>
+        onOpenConversation={(id,kind) => fail(() => openConversation(id,kind))}/>}</div>
     </div>
     <Modal open={settingsOpen} title="Settings" className="settings-dialog" onClose={closeSettings}>
       {settingsOpen && <CompactSettings scopeKey="personal-main" close={closeSettings} addResource={() => action('resources')} openBrowser={openBrowser}/>}
