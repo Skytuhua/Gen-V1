@@ -936,8 +936,29 @@ class Worker:
             if found is None:
                 archived = su._match_skill_dir(su._archive_dir().rglob("SKILL.md"), params["name"])
                 found = {"path": archived} if archived else None
-            versions = sl.list_entries(skill=params["name"])
-            revision = sl.get_entry(params["revisionId"]) if params.get("revisionId") else None
+            # Original ledger readers collapse permission/decoding failures to
+            # empty history. Read metadata once so absence is actually known.
+            versions_verified = True
+            try:
+                try:
+                    ledger_bytes = sl.ledger_path().read_bytes()
+                except FileNotFoundError:
+                    ledger_bytes = b""
+                entries = []
+                for line in ledger_bytes.decode("utf-8-sig").splitlines():
+                    if not line.strip():
+                        continue
+                    entry = json.loads(line)
+                    if not isinstance(entry, dict) or not isinstance(entry.get("id"), str) or not entry["id"] or not isinstance(entry.get("skill"), str) or not entry["skill"]:
+                        raise ValueError("Canonical ledger metadata is invalid")
+                    entries.append(entry)
+                entries.reverse()
+                versions = [entry for entry in entries if entry["skill"] == params["name"]]
+                revision = next((entry for entry in entries if entry["id"] == params["revisionId"]), None) if params.get("revisionId") else None
+            except (OSError, UnicodeError, ValueError):
+                if params.get("revisionId"):
+                    raise
+                versions_verified, versions, revision = False, [], None
             if params.get("revisionId") and revision is None:
                 raise SkillSourceUnavailableError()
             if revision is not None and revision.get("skill") != params["name"]:
@@ -984,7 +1005,8 @@ class Worker:
             metadata, body = parse_frontmatter(document)
             result = {"name": metadata.get("name", params["name"]), "description": metadata.get("description", ""),
                 "category": st._get_category_from_path(directory / "SKILL.md"), "document": document, "content": body, "frontmatter": metadata,
-                "files": files, "usage": su.get_record(params["name"]), "versions": versions}
+                "files": files, "usage": su.get_record(params["name"]), "versions": versions,
+                **({"versionsVerified": False} if not versions_verified else {})}
             if revision:
                 result["fileHashes"] = {Path(item["path"]).relative_to(directory).as_posix(): item["sha256"] for item in snapshots}
             else:

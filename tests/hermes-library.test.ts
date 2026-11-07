@@ -201,6 +201,21 @@ it.each(['HERMES_SOURCE_BUSY','PermissionError','HERMES_PROTOCOL','INVALID_SKILL
  x.source.request=async<T>(method:string,p:Record<string,any>={})=>{if(method==='skills.inspect'&&p.revisionId)throw error;return original<T>(method,p);};
  await expect(x.library.view('procedure',{revision:1})).rejects.toBe(error);expect(projectionRows(x.store)).toEqual(before);
 });
+it.each(['PermissionError','OSError','UnicodeDecodeError'])('keeps unverified ledger history retryable while current content remains readable: %s',async(code)=>{
+ const x=await captureFixture();await x.library.refresh();x.set('B');await x.library.refresh();
+ const before=projectionRows(x.store),original=x.source.request.bind(x.source),error=new HarnessError(code,'Canonical ledger read failed');
+ x.source.request=async<T>(method:string,p:Record<string,any>={})=>{
+  if(method==='skills.inspect'&&p.revisionId)throw error;
+  const result=await original<any>(method,p);
+  return(method==='skills.inspect'?{...result,versions:[],versionsVerified:false}:result) as T;
+ };
+ const current=await x.library.view('procedure');expect(current.content).toBe('Body B\n');expect(current.versions.map(row=>row.revision)).toEqual([2,1]);expect(current.versions.every(row=>!Object.hasOwn(row,'sourceAvailability'))).toBe(true);
+ expect((await x.library.view('procedure',{path:'references/help.md'})).content).toBe('Support B\n');
+ await expect(x.library.view('procedure',{revision:1})).rejects.toBe(error);
+ const rollback={id:`unverified-ledger-${code}`,type:'skill.manage',payload:{operations:[{action:'rollback',name:'procedure',baseRevision:2,revision:1}]}};
+ await expect(x.library.command(rollback)).rejects.toBe(error);expect(x.calls.some(call=>call.method==='skills.manage')).toBe(false);expect(x.store.receipt(rollback)).toBeNull();expect(x.store.get('hermesIntent',rollback.id)).toBeNull();expect(projectionRows(x.store)).toEqual(before);
+ x.source.request=original;expect((await x.library.view('procedure')).versions).toMatchObject([{revision:2,sourceAvailability:'retained'},{revision:1,sourceAvailability:'retained'}]);expect((await x.library.view('procedure',{revision:1})).content).toBe('Body initial\n');
+});
 it('refuses A metadata with B body after a canonical change and commits no partial refresh',async()=>{
  const x=await captureFixture();await x.library.refresh();const before=projectionRows(x.store);x.set('A');
  let entered!:()=>void,resume!:()=>void;const started=new Promise<void>(done=>{entered=done;}),gate=new Promise<void>(done=>{resume=done;});

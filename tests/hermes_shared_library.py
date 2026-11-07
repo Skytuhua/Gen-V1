@@ -144,6 +144,68 @@ class SharedLibrary(unittest.TestCase):
             with self.assertRaises(PermissionError):
                 self.worker.skills("skills.inspect", {"name": name, "revisionId": revision})
 
+    def test_ledger_read_errors_remain_retryable_for_history(self):
+        from tools import skill_ledger as ledger
+        name = "history-ledger-errors"
+        initial = self.history_package(name)
+        params = {"name": name, "revisionId": initial["versions"][0]["id"]}
+        path = ledger.ledger_path()
+        original_bytes = path.read_bytes()
+        original_read = Path.read_bytes
+        for error_type in (PermissionError, OSError, UnicodeDecodeError, json.JSONDecodeError):
+            with self.subTest(error=error_type.__name__):
+                def ledger_error(candidate):
+                    if candidate == path:
+                        if error_type is UnicodeDecodeError:
+                            return b"\xff"
+                        if error_type is json.JSONDecodeError:
+                            return b"{broken json"
+                        raise error_type("Ledger read unavailable")
+                    return original_read(candidate)
+                with patch.object(Path, "read_bytes", ledger_error):
+                    with self.assertRaises(error_type) as raised:
+                        self.worker.skills("skills.inspect", params)
+                    self.assertNotEqual(getattr(raised.exception, "code", None), "SKILL_SOURCE_UNAVAILABLE")
+                self.assertEqual(self.worker.skills("skills.inspect", params)["document"], initial["document"])
+        self.assertEqual(path.read_bytes(), original_bytes)
+
+    def test_unverified_ledger_does_not_claim_current_history_is_retired(self):
+        from tools import skill_ledger as ledger
+        name = "history-ledger-current"
+        initial = self.history_package(name)
+        path = ledger.ledger_path()
+        original_read = Path.read_bytes
+        for failure in (PermissionError("Ledger permission denied"), OSError("Ledger I/O failed"), b"\xff", b"{broken json"):
+            with self.subTest(failure=repr(failure)):
+                def ledger_error(candidate):
+                    if candidate == path:
+                        if isinstance(failure, bytes):
+                            return failure
+                        raise failure
+                    return original_read(candidate)
+                with patch.object(Path, "read_bytes", ledger_error):
+                    current = self.worker.skills("skills.inspect", {"name": name})
+                    self.assertEqual(current["document"], initial["document"])
+                    self.assertEqual(current["fileHashes"], initial["fileHashes"])
+                    self.assertEqual(current.get("versionsVerified"), False)
+                    support = self.worker.skills("skills.inspect", {"name": name, "file_path": "references/help.md"})
+                    self.assertIn("Support A", support["fileContent"])
+                    self.assertEqual(support.get("versionsVerified"), False)
+
+    def test_actual_missing_ledger_confirms_retirement_without_blocking_current_reads(self):
+        from tools import skill_ledger as ledger
+        name = "history-missing-ledger"
+        initial = self.history_package(name)
+        path = ledger.ledger_path()
+        original = path.read_bytes()
+        self.addCleanup(path.write_bytes, original)
+        path.unlink()
+        self.assert_source_unavailable({"name": name, "revisionId": initial["versions"][0]["id"]})
+        current = self.worker.skills("skills.inspect", {"name": name})
+        self.assertEqual(current["document"], initial["document"])
+        self.assertEqual(current["versions"], [])
+        self.assertNotEqual(current.get("versionsVerified"), False)
+
     def test_read_only_caller_cannot_write_through_canonical_handler(self):
         result = self.tool("skill_manage", {"action": "create", "name": "forbidden",
             "content": "---\nname: forbidden\ndescription: A rejected source write.\n---\n\nNo write."}, writable=False)
