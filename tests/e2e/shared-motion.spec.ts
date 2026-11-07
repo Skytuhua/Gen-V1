@@ -156,3 +156,52 @@ test('the live-publication entrance hook plays once and never treats an ordinary
   for (const value of [true, false, true]) await page.evaluate(value => (window as unknown as { renderEntry: (value: boolean) => void }).renderEntry(value), value);
   expect(await page.evaluate(() => (window as unknown as { entryRecords: unknown[] }).entryRecords.length)).toBe(1);
 });
+
+for(const policy of ['off','reduced'] as const)test(`app ${policy} settles active task effects and region`,async({page})=>{
+ await page.emulateMedia({reducedMotion:'no-preference'});await fixture(page);
+ const button=page.getByRole('button',{name:'What should I bring?',exact:true});await button.click();
+ const result=await page.evaluate(async policy=>{
+  const path='/src/task-motion.tsx',{animateTask}=await import(path);const node=document.createElement('div');document.body.append(node);
+  const animation=animateTask(node,[{opacity:0,transform:'translateY(40px)'},{opacity:1,transform:'translateY(0)'}],1000);
+  const region=document.querySelector<HTMLElement>('.disclosure-node .task-motion-region')!;const before=region.getBoundingClientRect().height;
+  document.documentElement.dataset.motion=policy;await Promise.resolve();const result={before,height:region.getBoundingClientRect().height,state:animation?.playState,phase:region.dataset.motionPhase};node.remove();return result;
+ },policy);
+ expect(result.before).toBeGreaterThan(0);expect(result.height).toBe(0);expect(result.phase).toBe('closed');expect(result.state).toBe('idle');
+ await page.evaluate(()=>document.documentElement.dataset.motion='system');await expect(button).toBeFocused();expect(await page.locator('.disclosure-node .task-motion-region').first().evaluate(node=>node.getBoundingClientRect().height)).toBe(0);
+});
+
+for(const policy of ['off','reduced'] as const)test(`app ${policy} settles artifact entrance and releases its subscriptions on unmount`,async({page})=>{
+ await page.emulateMedia({reducedMotion:'no-preference'});await fixture(page);
+ const source=await (await page.request.get('/src/task-motion.tsx')).text(),main=await (await page.request.get('/src/main.tsx')).text();
+ const reactPath=source.match(/["']([^"']*\/react\.js[^"']*)["']/)![1],domPath=main.match(/["']([^"']*\/react-dom_client\.js[^"']*)["']/)![1];
+ await page.evaluate(async({reactPath,domPath})=>{
+  const react=await import(reactPath),React=react.default??react,dom=await import(domPath),path='/src/task-motion.tsx',{useArtifactEntrance}=await import(path);
+  const Original=MutationObserver,observers=new Set<MutationObserver>();window.MutationObserver=class extends Original{observe(target:Node,options?:MutationObserverInit){if(options?.attributeFilter?.includes('data-motion'))observers.add(this);super.observe(target,options);}disconnect(){observers.delete(this);super.disconnect();}};
+  const host=document.createElement('div');document.body.append(host);const root=(dom.createRoot??dom.default.createRoot)(host);
+  function Probe(){const ref=React.useRef(null);useArtifactEntrance(ref,true);return React.createElement('div',{ref,className:'policy-entry',style:{height:'160px',overflow:'visible'}},React.createElement('p',null,'A new artifact'));}
+  Object.assign(window,{entryPolicyObservers:observers,restartPolicyEntry:()=>root.render(React.createElement(Probe,{key:'again'})),unmountPolicyEntry:()=>{root.unmount();host.remove();window.MutationObserver=Original;}});root.render(React.createElement(Probe));
+ },{reactPath,domPath});
+ await expect(page.locator('.policy-entry')).toHaveAttribute('data-entry-phase','entering');
+ const result=await page.locator('.policy-entry').evaluate(async(node,policy)=>{document.documentElement.dataset.motion=policy;await Promise.resolve();return {phase:(node as HTMLElement).dataset.entryPhase,height:(node as HTMLElement).style.height,overflow:(node as HTMLElement).style.overflow,animations:node.getAnimations().length};},policy);
+ expect(result).toEqual({phase:'settled',height:'160px',overflow:'visible',animations:0});expect(await page.evaluate(()=>(window as unknown as {entryPolicyObservers:Set<MutationObserver>}).entryPolicyObservers.size)).toBe(0);
+ await page.evaluate(()=>document.documentElement.dataset.motion='system');await expect(page.locator('.policy-entry')).toHaveAttribute('data-entry-phase','settled');
+ await page.evaluate(()=>(window as unknown as {restartPolicyEntry:()=>void}).restartPolicyEntry());await expect(page.locator('.policy-entry')).toHaveAttribute('data-entry-phase','entering');expect(await page.evaluate(()=>(window as unknown as {entryPolicyObservers:Set<MutationObserver>}).entryPolicyObservers.size)).toBe(2);
+ await page.evaluate(()=>(window as unknown as {unmountPolicyEntry:()=>void}).unmountPolicyEntry());await expect(page.locator('.policy-entry')).toHaveCount(0);await expect.poll(()=>page.evaluate(()=>(window as unknown as {entryPolicyObservers:Set<MutationObserver>}).entryPolicyObservers.size)).toBe(0);
+});
+
+test('task effects release policy subscriptions on finish and cancellation and keep app Reduced opacity semantics',async({page})=>{
+ await fixture(page);
+ const result=await page.evaluate(async()=>{
+  const path='/src/task-motion.tsx',{animateTask}=await import(path),Original=MutationObserver,active=new Set<MutationObserver>();
+  window.MutationObserver=class extends Original{observe(target:Node,options?:MutationObserverInit){if(options?.attributeFilter?.includes('data-motion'))active.add(this);super.observe(target,options);}disconnect(){active.delete(this);super.disconnect();}};
+  const target=document.createElement('div');document.body.append(target);
+  try{
+   const first=animateTask(target,[{opacity:0},{opacity:1}],1000)!;const subscribed=active.size;const finished=new Promise(resolve=>first.addEventListener('finish',resolve,{once:true}));first.finish();await finished;const afterFinish=active.size;
+   const second=animateTask(target,[{opacity:0},{opacity:1}],1000)!;const cancelled=new Promise(resolve=>second.addEventListener('cancel',resolve,{once:true}));second.cancel();await cancelled;const afterCancel=active.size;
+   document.documentElement.dataset.motion='reduced';const reduced=animateTask(target,[{opacity:0,transform:'translateY(30px)'},{opacity:1,transform:'translateY(0)'}],1000)!;
+   const frames=reduced.effect!.getKeyframes(),duration=reduced.effect!.getTiming().duration;document.documentElement.dataset.motion='off';await Promise.resolve();const offState=reduced.playState,off=animateTask(target,[{opacity:0},{opacity:1}],1000);
+   return {subscribed,afterFinish,afterCancel,frames,duration,offState,off:off===undefined,remaining:active.size};
+  }finally{window.MutationObserver=Original;target.remove();}
+ });
+ expect(result.subscribed).toBe(1);expect(result.afterFinish).toBe(0);expect(result.afterCancel).toBe(0);expect(result.remaining).toBe(0);expect(result.off).toBe(true);expect(result.offState).toBe('idle');expect(Number(result.duration)).toBeLessThanOrEqual(80);expect(result.frames.every((frame:ComputedKeyframe)=>!('transform' in frame))).toBe(true);
+});

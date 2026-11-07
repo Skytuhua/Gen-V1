@@ -62,3 +62,10 @@ test('reduced motion and disposal do not leave delayed scroll work',async({page}
  await page.evaluate(()=>{window.conversationFixture.content.style.height='2400px';});await page.waitForTimeout(800);
  expect(await page.evaluate(()=>window.conversationFixture.element.scrollTop)).toBeCloseTo(held,0);
 });
+
+for(const policy of ['off','reduced'] as const)test(`app ${policy} settles following and preserves a detached reader`,async({page})=>{
+ await page.emulateMedia({reducedMotion:'no-preference'});await mount(page);
+ const position=await page.evaluate(async policy=>{const f=window.conversationFixture;f.content.style.height='1900px';f.controller.update('one',{top:440,tail:true});const before=f.element.scrollTop;document.documentElement.dataset.motion=policy;await Promise.resolve();const after=f.element.scrollTop;f.controller.beginManualScroll();f.controller.scrollTo(120);document.documentElement.dataset.motion='system';await Promise.resolve();document.documentElement.dataset.motion=policy;await Promise.resolve();return {before,after,detached:f.element.scrollTop};},policy);
+ expect(position).toEqual({before:440,after:1540,detached:120});
+ await page.evaluate(()=>{window.conversationFixture.controller.dispose();document.documentElement.dataset.motion='system';window.conversationFixture.content.style.height='2500px';});await page.waitForTimeout(50);expect(await page.evaluate(()=>window.conversationFixture.element.scrollTop)).toBe(120);
+});
