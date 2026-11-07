@@ -91,3 +91,20 @@ for (const preset of ['research', 'code-review'] as const) it(`binds first ${pre
  expect(canvas.projectIds).toEqual(['project-b']);
  expect(canvas.panels.every(panel=>panel.binding.threadId==='selected-b'&&panel.binding.projectId==='project-b'&&panel.binding.authority.kind==='local')).toBe(true);
 });
+
+it('selects Code Review and changes its owner in one transaction, preserving the previous canvas on failure',async()=>{
+ const {store,workspace}=await fixture(),original=workspace.read().state.activeCanvasId;
+ store.internal('fixture',null,()=>{for(const id of ['review-a','review-b'])store.put('thread',id,id,{id,projectId:'project-a',status:'ready',kind:'main'});});
+ const opened=command(workspace,'open','canvas.create',{name:'Review',preset:'code-review',threadId:'review-a'}).result as ReturnType<WorkspaceRepository['read']>;
+ const reviewId=opened.state.activeCanvasId;
+ expect(opened.state.canvases.find(item=>item.id===reviewId)?.panels.find(item=>item.kind==='thread')?.binding.threadId).toBe('review-a');
+ command(workspace,'back','canvas.select',{canvasId:original});
+ const before=workspace.read().state;
+ expect(()=>command(workspace,'denied','canvas.select',{canvasId:reviewId,threadId:'missing',baseRevision:before.revision})).toThrow();
+ expect(workspace.read().state).toEqual(before);
+ const selected=command(workspace,'switch','canvas.select',{canvasId:reviewId,threadId:'review-b',baseRevision:before.revision}).result as ReturnType<WorkspaceRepository['read']>;
+ expect(selected.state.activeCanvasId).toBe(reviewId);
+ expect(selected.state.revision).toBe(before.revision+1);
+ expect(selected.state.canvases.find(item=>item.id===reviewId)?.panels.find(item=>item.kind==='thread')?.binding.threadId).toBe('review-b');
+ expect(selected.state.canvases.find(item=>item.id===reviewId)?.panels.filter(item=>item.kind==='thread')).toHaveLength(1);
+});
