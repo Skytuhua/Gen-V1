@@ -33,11 +33,13 @@ export function WorkspacePanel({ snapshot, threadId, preferences, layout, setWid
       const left = Math.max(0, rect.left, bounds.left) + 12, top = Math.max(0, rect.top, bounds.top) + 12;
       const right = Math.min(innerWidth, rect.right, bounds.right) - 12, bottom = Math.min(innerHeight, rect.bottom, bounds.bottom) - 12;
       const values = [left, top, Math.max(0, right - left), Math.max(0, bottom - top)], key = JSON.stringify(values);
-      // Entrance transforms change the visual slot without a ResizeObserver notification.
+      if (key !== last) {
+        last = key;
+        keys.forEach((name,index) => owner.style.setProperty(`--artifact-dock-${name}`,`${values[index]}px`));
+        owner.dataset.artifactDockReady = String(values[2] > 0 && values[3] > 0);
+      }
+      // Entrance transforms move the visual slot without notifying ResizeObserver.
       if (body.parentElement?.getAnimations().some(animation => animation.playState === 'running')) schedule();
-      if (key === last) return; last = key;
-      keys.forEach((name,index) => owner.style.setProperty(`--artifact-dock-${name}`,`${values[index]}px`));
-      owner.dataset.artifactDockReady = String(values[2] > 0 && values[3] > 0);
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(() => { frame = 0; measure(); }); };
     measure(); const observer = new ResizeObserver(schedule);

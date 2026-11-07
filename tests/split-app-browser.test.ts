@@ -251,9 +251,9 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    await page.getByRole('button',{name:'Panels',exact:true}).click();
    expect(await page.getByRole('menuitem',{name:'Add Conversation panel',exact:true}).count()).toBe(0);
    await page.getByRole('menuitem',{name:'Add Usage panel',exact:true}).click();
-   await page.getByRole('dialog',{name:'Usage',exact:true}).waitFor({state:'visible'});
-   expect(await page.getByRole('complementary',{name:'Workspace panel',exact:true}).count()).toBe(0);
-   await page.keyboard.press('Escape');
+   const usage=page.getByRole('dialog',{name:'Usage',exact:true});await usage.waitFor({state:'visible'});
+   expect(await page.getByRole('complementary',{name:'Workspace panel',exact:true}).isVisible()).toBe(false);
+   await page.keyboard.press('Escape');await usage.waitFor({state:'hidden'});
    await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();
    const panel=page.getByRole('complementary',{name:'Workspace panel',exact:true});await panel.waitFor({state:'visible'});
    await overview.waitFor({state:'hidden'});
