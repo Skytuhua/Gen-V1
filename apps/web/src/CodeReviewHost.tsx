@@ -47,9 +47,9 @@ export function CodeReviewHost({canvas,workspace,composers,openConversation}:{ca
   return()=>controller.abort();
  },[key,retry]);
  const admitted=admission?.key===key?admission:undefined,conversation=useScopedConversation(admitted?.selection??null),currentContext=conversation.state.context;
- const [refresh,setRefresh]=useState(0),[metadata,setMetadata]=useState<{ownerKey:string;scope:string;git?:GitStatus;pullRequests:{repo:string;number:number;title:string}[];pending:boolean;error?:string}>(),[review,setReview]=useState<{key:string;value:NonNullable<ReviewWrites['review']>}>();
+ const [refresh,setRefresh]=useState(0),[metadata,setMetadata]=useState<{ownerKey:string;scope:string;git?:GitStatus;pullRequests:{repo:string;number:number;title:string}[];pending:boolean;error?:string;pullRequestError?:string}>(),[review,setReview]=useState<{key:string;value:NonNullable<ReviewWrites['review']>}>();
  const desktop=useDesktop(),surface=binding?.threadId?{kind:'thread' as const,threadId:binding.threadId}:null,detached=useDetachedSurface(surface),nativePending=usePendingSurface(surface),held=Boolean(detached||nativePending||desktop?.closing);
- const nativeEpoch=desktop?.ownership(surface),fence=useRef({signature:'',version:0,active:true}),signature=JSON.stringify([key,currentContext?.scopeKey,conversation.state.phase,target,held,nativeEpoch,refresh,metadata?.scope,metadata?.pending,metadata?.error]);
+ const nativeEpoch=desktop?.ownership(surface),fence=useRef({signature:'',version:0,active:true}),signature=JSON.stringify([key,currentContext?.scopeKey,conversation.state.phase,target,held,nativeEpoch,refresh,metadata?.scope,metadata?.pending,metadata?.error,metadata?.pullRequestError]);
  if(fence.current.signature!==signature)fence.current={...fence.current,signature,version:fence.current.version+1};
  useEffect(()=>{fence.current.active=true;return()=>{fence.current.active=false;fence.current.version++;};},[]);
  const choosing=useRef(false),version=fence.current.version,isCurrent=useMemo(()=>()=>fence.current.active&&!held&&!choosing.current&&fence.current.version===version&&(!desktop||nativeEpoch!==undefined&&desktop.ownership(surface)===nativeEpoch),[signature,version]);
@@ -63,7 +63,8 @@ export function CodeReviewHost({canvas,workspace,composers,openConversation}:{ca
  // Reader scopes rotate on reacquisition; presentation belongs to the validated logical owner.
  const presentationKey=owner?JSON.stringify([key,owner.authority,owner.projectId,owner.threadId]):'';
  const ownerMetadata=metadata?.ownerKey===presentationKey?metadata:undefined;
- const metadataReady=Boolean(ownerMetadata&&ownerMetadata.scope===scope&&!ownerMetadata.pending&&!ownerMetadata.error);
+ const metadataReady=Boolean(ownerMetadata?.git&&ownerMetadata.scope===scope&&!ownerMetadata.pending&&!ownerMetadata.error);
+ const pullRequestsReady=metadataReady&&!ownerMetadata?.pullRequestError;
  const reviewHeld=held||!eligible||!metadataReady;
  const reviewCurrent=useMemo(()=>()=>{const state=conversation.reader.getSnapshot();return metadataReady&&isCurrent()&&state.phase==='ready'&&state.context?.scopeKey===scope&&!state.context.readOnly&&!state.context.archived;},[isCurrent,scope,metadataReady]);
  useEffect(()=>{
@@ -71,7 +72,7 @@ export function CodeReviewHost({canvas,workspace,composers,openConversation}:{ca
   setMetadata(previous=>previous?.ownerKey===presentationKey?{...previous,pending:true}:undefined);
   void Promise.allSettled([get<GitStatus>(owner,'/git',controller.signal),get<{repo:string;items:{number:number;title:string}[]}>(owner,'/pull-requests?linked=1',controller.signal)]).then(([git,links])=>{
    if(controller.signal.aborted)return;
-   setMetadata({ownerKey:presentationKey,scope,git:git.status==='fulfilled'?git.value:undefined,pullRequests:links.status==='fulfilled'?links.value.items.map(item=>({repo:links.value.repo,...item})):[],pending:false,...(git.status==='rejected'||links.status==='rejected'?{error:'Review access or linked pull requests could not load.'}:{})});
+   setMetadata({ownerKey:presentationKey,scope,git:git.status==='fulfilled'?git.value:undefined,pullRequests:links.status==='fulfilled'?links.value.items.map(item=>({repo:links.value.repo,...item})):[],pending:false,...(git.status==='rejected'?{error:'Review access could not load.'}:{}),...(links.status==='rejected'?{pullRequestError:'Linked pull requests could not load.'}:{})});
   });return()=>controller.abort();
  },[presentationKey,scope,refresh]);
  const targetKey=JSON.stringify([scope,target]);
@@ -98,7 +99,7 @@ export function CodeReviewHost({canvas,workspace,composers,openConversation}:{ca
   }).then(read<T>);
  }
  async function submit(action:ReviewActionContext,payload:ReviewOperation['payload']):Promise<ReviewActionResult>{
-  if(!owner||!sameOwner(action.selection.owner,owner)||!reviewCurrent())return{state:'revoked'};
+  if(!owner||!sameOwner(action.selection.owner,owner)||!reviewCurrent()||action.operation==='review-pr'&&!pullRequestsReady)return{state:'revoked'};
   try{
    const receipt=await post<{commandId:string;result:{state?:string;operation?:string}}>('/actions',{id:action.operationId,type:action.operation,payload,threadId:owner.threadId});
    const confirmed=receipt.commandId===action.operationId&&receipt.result?.state==='confirmed'&&receipt.result.operation===action.operation;
@@ -106,19 +107,20 @@ export function CodeReviewHost({canvas,workspace,composers,openConversation}:{ca
   }catch(cause){return{state:cause instanceof ApiError&&cause.code==='CAPABILITY_DENIED'?'revoked':cause instanceof ApiError&&cause.code==='REVISION_CHANGED'?'stale':'uncertain'};}
  }
  async function inspect(operation:ReviewOperation):Promise<ReviewOutcomeResult>{
-  if(!owner||!sameOwner(operation.selection.owner,owner)||!reviewCurrent())return{state:'revoked'};
+  if(!owner||!sameOwner(operation.selection.owner,owner)||!reviewCurrent()||operation.operation==='review-pr'&&!pullRequestsReady)return{state:'revoked'};
   try{const result=await post<ReviewOutcomeResult>('/action-outcomes/inspect',operation);return result&&['confirmed','not-applied','uncertain','revoked'].includes(result.state)?result:{state:'uncertain'};}catch(cause){return{state:cause instanceof ApiError&&cause.code==='CAPABILITY_DENIED'?'revoked':'uncertain'};}
  }
  const rows=[...(admitted?[admitted.row]:[]),...(navigation.page?.items??[])].filter((row,index,all)=>row.projectId&&row.kind!=='delegate'&&row.kind!=='side'&&all.findIndex(other=>other.id===row.id)===index),owners=rows.map(row=>({owner:{authority:{kind:'local' as const},projectId:row.projectId!,threadId:row.id},label:(row.projectName??row.projectId)+' / '+row.title}));
  const moreOwners=navigation.page?.nextCursor?<button disabled={navigation.pending||reviewHeld} onClick={()=>{void navigation.more();}}>More conversations</button>:null;
  const picker=<div className="code-review-owner"><Select aria-label="Project and working copy" value={admitted?.row.id??''} options={[{value:'',label:'Choose a project conversation'},...rows.map(row=>({value:row.id,label:(row.projectName??row.projectId)+' / '+row.title}))]} disabled={held||changing||pending} onValueChange={id=>{void choose(id);}}/>{navigation.page?.nextCursor&&<button disabled={navigation.pending} onClick={()=>{void navigation.more();}}>More conversations</button>}</div>;
- const writes:ReviewWrites|undefined=owner&&ownerMetadata?.git?{owner,git:{...ownerMetadata.git,gitWrite:ownerMetadata.git.gitWrite===true&&!ownerMetadata.pending&&!reviewHeld},review:review?.key===targetKey?review.value:undefined,onStage:submit,onUnstage:submit,onCommit:submit,onReview:submit,onInspectOutcome:inspect,onCreatePullRequest:()=>{if(reviewCurrent())void openConversation(owner.threadId!,'linked-pull-requests').catch(()=>setError('Pull request tools could not open.'));},onLinkPullRequest:()=>{if(reviewCurrent())void openConversation(owner.threadId!,'linked-pull-requests').catch(()=>setError('Pull request tools could not open.'));}}:undefined;
+ const writes:ReviewWrites|undefined=owner&&ownerMetadata?.git?{owner,git:{...ownerMetadata.git,gitWrite:ownerMetadata.git.gitWrite===true&&!ownerMetadata.pending&&!reviewHeld},review:pullRequestsReady&&review?.key===targetKey?review.value:undefined,onStage:submit,onUnstage:submit,onCommit:submit,onInspectOutcome:inspect,...(pullRequestsReady?{onReview:submit,onCreatePullRequest:()=>{if(reviewCurrent())void openConversation(owner.threadId!,'linked-pull-requests').catch(()=>setError('Pull request tools could not open.'));},onLinkPullRequest:()=>{if(reviewCurrent())void openConversation(owner.threadId!,'linked-pull-requests').catch(()=>setError('Pull request tools could not open.'));}}:{})}:undefined;
  const failure=error||bindingError||conversation.state.error||(currentContext&&(currentContext.readOnly||currentContext.archived)?'Choose a main conversation connected to a project.':'');useDesktopReady(!pending&&(!binding?.threadId||Boolean(currentContext)||Boolean(failure)));
  return <div className="code-review-host">
   {detached&&<p className="code-review-notice">This conversation is open in another window.<button onClick={()=>{void desktop?.bridge.focus(detached.id);}}>Focus existing window</button></p>}
   {failure&&<p className="code-review-notice" role="alert">{failure}<button onClick={()=>{setRetry(value=>value+1);void conversation.reader.retry();}}>Retry conversation</button></p>}
   {!context&&picker}<PendingStatus pending={pending||conversation.state.pending||eligible&&!metadataReady} label="Opening review..."/>
   {ownerMetadata?.error&&<p className="code-review-notice" role="alert">{ownerMetadata.error}<button onClick={()=>setRefresh(value=>value+1)}>Retry access</button></p>}
+  {ownerMetadata?.pullRequestError&&<p className="code-review-notice" role="alert">{ownerMetadata.pullRequestError}<button onClick={()=>setRefresh(value=>value+1)}>Retry pull requests</button></p>}
   {selection&&context&&ownerMetadata&&<div className="code-review-bound" inert={reviewHeld}><CodeReviewWorkspace key={presentationKey} selection={selection} ownerControls={moreOwners} owners={owners} pullRequests={ownerMetadata.pullRequests} writes={writes} onRefresh={()=>setRefresh(value=>value+1)} onNavigate={next=>{if(!reviewCurrent())return;if(!sameOwner(next.owner,selection.owner))void choose(next.owner.threadId!);else{fence.current.version++;setTarget(next.target);}}}
    terminal={active=><TerminalBody projectId={selection.owner.projectId} threadId={selection.owner.threadId} active={active&&!reviewHeld} isCurrent={reviewCurrent}/>} chat={<ConversationPane conversation={conversation} renderComposer={()=><ScopedConversationComposer key={presentationKey} context={reviewHeld?{...context,readOnly:true}:context} composers={composers} openConversation={openConversation} refreshOwner={conversation.reader.poll} placeholder="Ask about these changes..."/>}/>}/></div>}
   {!binding?.threadId&&!failure&&<p className="code-review-notice">Choose a project conversation to review its working copy.</p>}
