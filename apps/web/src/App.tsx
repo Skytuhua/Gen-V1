@@ -317,10 +317,12 @@ function Composer({ modelPickerRequest, onModelPickerOpened, sharedComposers, th
       <div className="composer-input">
         <textarea ref={input} aria-label="Message" placeholder={prediction.candidate ? '' : dragging ? 'Drop files to attach' : 'Ask anything…'} value={draft} disabled={!ready} onChange={event => updateDraft(event.target.value)} onPaste={prediction.dismiss} onCompositionStart={prediction.dismiss} onKeyDown={event => {
           if (event.nativeEvent.isComposing || event.nativeEvent.keyCode === 229) return;
+          const submitKey = event.key === 'Enter' && !event.shiftKey && (preferences.sendShortcut === 'enter' || event.ctrlKey || event.metaKey);
+          if (submitKey && /^\/(?:btw|side)$/i.test(draft.trim())) { event.preventDefault(); void send(); return; }
           if(commands.current?.keyDown(event))return;
           if (prediction.candidate && event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); prediction.dismiss(); return; }
           if (event.key === 'Tab' && !event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey && acceptPrediction()) { event.preventDefault(); return; }
-          if (event.key === 'Enter' && !event.shiftKey && (preferences.sendShortcut === 'enter' || event.ctrlKey || event.metaKey)) { event.preventDefault(); void send(); }
+          if (submitKey) { event.preventDefault(); void send(); }
         }} rows={1} />
         {prediction.candidate && <div ref={ghost} className="composer-prediction-text" aria-hidden="true">{prediction.candidate}</div>}
       </div>
