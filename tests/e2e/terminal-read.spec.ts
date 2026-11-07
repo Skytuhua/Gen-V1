@@ -165,6 +165,15 @@ test('ownership revocation during authentication renewal cannot resend a creatio
  await expect.poll(()=>api.requests.filter(item=>item.path==='/api/bootstrap').length).toBe(2);await page.evaluate(()=>window.terminalFixture.revoke());gate.resolve();await page.waitForTimeout(650);expect(api.creates()).toHaveLength(1);expect(api.stops()).toEqual([]);expect(api.reads()).toEqual([]);
 });
 
+test('an old creation cannot borrow a replacement guard during an uncommitted owner handoff',async({page})=>{
+ const gate=deferred();const api=await mount(page,{bootstrap:async(route,index)=>{if(index>1)await gate.promise;await json(route,{csrfToken:'synthetic-csrf'});},create:route=>json(route,{error:{code:'CSRF_REQUIRED',message:'Synthetic expired session'}},403)});
+ await expect.poll(()=>api.requests.filter(item=>item.path==='/api/bootstrap').length).toBe(2);
+ await page.evaluate(()=>window.terminalFixture.replaceGuard());
+ await expect.poll(()=>page.evaluate(()=>window.terminalFixture.handoffRenders())).toBeGreaterThan(0);
+ gate.resolve();await page.waitForTimeout(650);
+ expect(api.creates()).toHaveLength(1);expect(api.stops()).toEqual([]);expect(api.reads()).toEqual([]);
+});
+
 test('an unbound start fails closed when its pending caller ID cannot be retained',async({page})=>{
  await page.addInitScript(()=>{const original=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(key.endsWith(':pending'))throw new DOMException('Synthetic storage unavailable','QuotaExceededError');return original.call(this,key,value);};});
  const api=await mount(page,{unbound:true});await expect(page.getByRole('status')).toHaveText('Start unconfirmed');await expect(page.getByRole('alert')).toContainText('retain');await expect(page.getByRole('button',{name:'Stop',exact:true})).toBeDisabled();

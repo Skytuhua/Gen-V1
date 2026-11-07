@@ -637,8 +637,14 @@ test('Custom arranges Terminal below Files while the anchored composer stays mou
  await page.setViewportSize({width:1600,height:1000});
  const h=await fixture(page,{working:false});
  await page.route('**/api/projects/project-a/files?*',route=>route.fulfill({json:{path:'',entries:[{name:'fixture.ts',path:'fixture.ts',kind:'file'}]}}));
- let terminalStarts=0;const terminalIds:string[]=[];
- await page.route('**/api/terminals',route=>{terminalStarts++;const id=route.request().postDataJSON().terminalId;terminalIds.push(id);return route.fulfill({json:{id,output:'Synthetic terminal transcript',start:0,cursor:29,exited:true,exitCode:0}});});
+ let terminalStarts=0;const terminalIds:string[]=[],terminalReads:URL[]=[];
+ await page.route('**/api/terminals**',route=>{
+  const request=route.request(),url=new URL(request.url());
+  if(request.method()==='POST'&&url.pathname==='/api/terminals'){terminalStarts++;const {terminalId:id,projectId,threadId}=request.postDataJSON();terminalIds.push(id);return route.fulfill({json:{id,projectId,threadId,output:'Synthetic terminal transcript',start:0,cursor:29,exited:terminalStarts>1,exitCode:terminalStarts>1?0:null}});}
+  if(request.method()==='GET'){terminalReads.push(url);if(terminalReads.length===1)return route.fulfill({status:503,json:{error:{code:'HTTP_ERROR',message:'Synthetic read interruption'}}});return route.fulfill({json:{id:decodeURIComponent(url.pathname.split('/')[3]),projectId:url.searchParams.get('projectId'),threadId:url.searchParams.get('threadId'),output:'',start:29,cursor:29,exited:true,exitCode:0}});}
+  if(request.method()==='POST'&&url.pathname.endsWith('/commands')){const {projectId,threadId}=request.postDataJSON();return route.fulfill({json:{id:decodeURIComponent(url.pathname.split('/')[3]),projectId,threadId,output:'',start:29,cursor:29,exited:false,exitCode:null}});}
+  return route.fulfill({status:404,json:{error:{code:'NOT_FOUND',message:'Unexpected synthetic terminal request'}}});
+ });
  await page.getByRole('button',{name:'Open conversation Project investigation',exact:true}).click();
  const draft=page.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Chat is anchored beside tools');const node=await draft.elementHandle();
  await page.getByRole('button',{name:'Custom',exact:true}).click();
@@ -652,6 +658,12 @@ test('Custom arranges Terminal below Files while the anchored composer stays mou
  const empty=dock.locator('[data-split-pane]').filter({hasText:'Add a tool'});
  await empty.getByLabel('Area actions',{exact:true}).click();await page.getByRole('menuitem',{name:'Editor: Terminal',exact:true}).click();
  await expect.poll(()=>terminalStarts).toBe(1);
+ await expect(dock.getByRole('status',{exact:true})).toHaveText('Read interrupted');
+ const terminalNode=await dock.locator('.xterm').elementHandle();
+ await dock.getByRole('button',{name:'Retry',exact:true}).click();
+ await expect(dock.getByRole('status',{exact:true})).toHaveText('Ended');
+ expect(terminalReads.map(url=>[url.pathname,url.searchParams.get('projectId'),url.searchParams.get('threadId'),url.searchParams.get('cursor')])).toEqual(Array.from({length:2},()=>['/api/terminals/'+terminalIds[0],'project-a','parent-a','29']));
+ expect(await dock.locator('.xterm').evaluate((element,original)=>element===original,terminalNode)).toBe(true);expect(terminalStarts).toBe(1);
  const files=await dock.locator('[data-split-view="files:parent-a"]').boundingBox(),terminal=await dock.locator('[data-split-view^="terminal:parent-a:"]').boundingBox();
  expect(terminal!.y).toBeGreaterThan(files!.y+files!.height);
  await expect(draft).toHaveValue('Chat is anchored beside tools');expect(await draft.evaluate((element,original)=>element===original,node)).toBe(true);
