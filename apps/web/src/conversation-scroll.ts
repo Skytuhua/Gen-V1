@@ -1,18 +1,18 @@
 import {createSpringValue} from './motion-spring';
+import {readMotionPolicy,observeMotionPolicy} from './motion-policy';
 
 export type ConversationPosition={top:number;tail:boolean};
 export type ConversationAnchor={height:number;top:number};
 
 /** Own only tail-following scrolls. Reading history and user intent always win. */
 export function createConversationScroll(element:HTMLElement){
- const preference=matchMedia('(prefers-reduced-motion: reduce)');
  let thread='',following=false,disposed=false,ownedTop:number|undefined,dragging=false;
  const maximum=()=>Math.max(0,element.scrollHeight-element.clientHeight);
  const nearTail=()=>maximum()-element.scrollTop<80;
  const write=(value:number)=>{element.scrollTop=Math.min(maximum(),Math.max(0,value));ownedTop=element.scrollTop;};
  let spring=createSpringValue(element.scrollTop,write);
  const interrupt=()=>{spring.dispose();spring=createSpringValue(element.scrollTop,write);ownedTop=undefined;following=false;};
- const follow=()=>{if(!disposed&&!dragging&&following)spring.to(maximum(),preference.matches||document.visibilityState==='hidden'||!element.getClientRects().length);};
+ const follow=()=>{if(!disposed&&!dragging&&following)spring.to(maximum(),readMotionPolicy()!=='full'||document.visibilityState==='hidden'||!element.getClientRects().length);};
  const observed=new Set<Element>();
  const observer=new ResizeObserver(follow);
  observer.observe(element);
@@ -38,7 +38,7 @@ export function createConversationScroll(element:HTMLElement){
   interrupt();if(['ArrowDown','PageDown','End',' '].includes(event.key)&&nearTail())following=true;
  };
  const settleHidden=()=>{if(document.visibilityState==='hidden'&&following)spring.to(maximum(),true);};
- const motionChanged=()=>{if(preference.matches&&following)spring.to(maximum(),true);};
+ const stopObservingMotion=observeMotionPolicy(policy=>{if(policy!=='full'&&following&&!dragging)spring.to(maximum(),true);});
  element.addEventListener('wheel',wheel,{passive:true});
  element.addEventListener('touchstart',touchStart,{passive:true});
  element.addEventListener('touchend',touchEnd,{passive:true});
@@ -48,7 +48,6 @@ export function createConversationScroll(element:HTMLElement){
  document.addEventListener('pointerup',pointerEnd);
  document.addEventListener('pointercancel',pointerEnd);
  document.addEventListener('visibilitychange',settleHidden);
- preference.addEventListener('change',motionChanged);
  return {
   beginManualScroll(){if(!disposed){dragging=true;interrupt();}},
   scrollTo(top:number):ConversationPosition{
@@ -73,7 +72,7 @@ export function createConversationScroll(element:HTMLElement){
   dispose(){
    if(disposed)return;disposed=true;spring.dispose();observer.disconnect();observed.clear();
    element.removeEventListener('wheel',wheel);element.removeEventListener('touchstart',touchStart);element.removeEventListener('touchend',touchEnd);element.removeEventListener('touchcancel',touchEnd);element.removeEventListener('pointerdown',pointerDown);element.removeEventListener('keydown',key);
-   document.removeEventListener('pointerup',pointerEnd);document.removeEventListener('pointercancel',pointerEnd);document.removeEventListener('visibilitychange',settleHidden);preference.removeEventListener('change',motionChanged);
+   document.removeEventListener('pointerup',pointerEnd);document.removeEventListener('pointercancel',pointerEnd);document.removeEventListener('visibilitychange',settleHidden);stopObservingMotion();
   },
  };
 }

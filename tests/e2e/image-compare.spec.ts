@@ -9,7 +9,9 @@ function png(width: number, height: number, rgb: [number, number, number]) {
   for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) for (let c = 0; c < 3; c++) rows[y * (width * 3 + 1) + 1 + x * 3 + c] = rgb[c];
   return Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), chunk('IHDR', header), chunk('IDAT', deflateSync(rows)), chunk('IEND', Buffer.alloc(0))]);
 }
+const bootstraps = new WeakMap<Page, Promise<void>>();
 async function fixture(page: Page, differentSizes = false) {
+  bootstraps.set(page, page.waitForResponse('**/api/snapshot').then(() => {}));
   const snapshot = taskFixture({ root: 'compare', elements: { compare: { type: 'ImageCompare', props: { beforeResourceId: 'before', afterResourceId: 'after', stateKey: 'comparison', title: 'Front elevation' } } } });
   snapshot.resources = ['before', 'after', 'replacement'].map(id => ({ id, threadId: 'task-thread', kind: 'file' as const, path: `C:/fixture/${id}.png`, label: `${id}.png`, writable: false, createdAt: '2026-10-30' }));
   const host = await serveTaskFixture(page, snapshot); let denied = false, delayed: Promise<void> | undefined, release = () => {}, requests = 0;
@@ -20,7 +22,7 @@ async function fixture(page: Page, differentSizes = false) {
   });
   return { ...host, requests: () => requests, deny() { denied = true; }, allow() { denied = false; }, hold() { delayed = new Promise<void>(resolve => { release = resolve; }); }, release() { release(); } };
 }
-const ready = (page: Page) => expect(page.getByRole('slider', { name: 'Comparison position', exact: true })).toBeEnabled();
+const ready = async (page: Page) => { await bootstraps.get(page); await expect(page.locator('html')).toHaveAttribute('data-motion', /^(system|reduced|off)$/); await expect(page.getByRole('slider', { name: 'Comparison position', exact: true })).toBeEnabled(); };
 test('comparison follows the pointer immediately and keeps keyboard and saved view state through reload', async ({ page }) => {
   const host = await fixture(page); await page.goto('/'); await ready(page);
   const slider = page.getByRole('slider', { name: 'Comparison position', exact: true }); await slider.focus(); await slider.press('End'); await expect(slider).toHaveValue('100'); await slider.press('Home'); await expect(slider).toHaveValue('0'); await slider.press('ArrowRight'); await expect(slider).toHaveValue('1');
@@ -45,7 +47,7 @@ test('mode changes keep the same loaded images and do not distort different sour
 });
 test('changing either source clears prior pixels while loading and a denied replacement stays cleared until retry', async ({ page }) => {
   const host = await fixture(page); await page.goto('/'); await ready(page); host.hold(); host.deny(); host.snapshot.artifacts[0].spec!.elements.compare.props.afterResourceId = 'replacement'; host.snapshot.artifacts[0].revision++; await host.publish();
-  await expect(page.getByRole('status')).toContainText('Loading images'); await expect(page.locator('.image-compare-stage')).toHaveAttribute('data-ready', 'false'); await expect(page.getByRole('slider', { name: 'Comparison position', exact: true })).toBeDisabled();
+  await expect(page.locator('.image-compare').getByRole('status')).toContainText('Loading images'); await expect(page.locator('.image-compare-stage')).toHaveAttribute('data-ready', 'false'); await expect(page.getByRole('slider', { name: 'Comparison position', exact: true })).toBeDisabled();
   host.release(); await expect(page.getByRole('alert')).toContainText('After image could not be loaded'); await expect(page.locator('.image-compare img')).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Retry images', exact: true })).toBeVisible();
   host.allow(); await page.getByRole('button', { name: 'Retry images', exact: true }).click(); await ready(page); await expect(page.getByRole('img', { name: 'After', exact: true })).toHaveAttribute('src', '/api/resources/replacement/content');
@@ -64,4 +66,40 @@ test('revoking either grant or moving it to another thread clears both images wi
   await expect(page.getByRole('alert')).toContainText('no longer available to this thread'); await expect(page.locator('.image-compare img')).toHaveCount(0); expect(host.requests()).toBe(requests);
   host.snapshot.resources.find(resource => resource.id === 'after')!.threadId = 'task-thread'; await host.publish(); await ready(page);
   host.snapshot.resources = host.snapshot.resources.filter(resource => resource.id !== 'before'); await host.publish(); await expect(page.getByRole('alert')).toContainText('no longer available to this thread'); await expect(page.locator('.image-compare img')).toHaveCount(0);
+});
+
+for(const policy of ['off','reduced'] as const){
+ test(`app ${policy} settles active image geometry without replay`,async({page})=>{
+  await page.emulateMedia({reducedMotion:'no-preference'});await fixture(page);await page.goto('/');await ready(page);
+  await page.getByRole('button',{name:'Side by side',exact:true}).click();
+  const values=await page.locator('.image-compare-stage').evaluate(async(node,policy)=>{const stage=node as HTMLElement,before=stage.style.getPropertyValue('--image-compare-width');document.documentElement.dataset.motion=policy;await Promise.resolve();const after=stage.style.getPropertyValue('--image-compare-width');document.documentElement.dataset.motion='system';await Promise.resolve();return {before,after,restored:stage.style.getPropertyValue('--image-compare-width')};},policy);
+  expect(values.before).not.toBe('50%');expect(values.after).toBe('50%');expect(values.restored).toBe('50%');
+ });
+ test(`saved ${policy} reload reaches image geometry immediately`,async({page})=>{
+  await page.emulateMedia({reducedMotion:'no-preference'});const host=await fixture(page);await page.goto('/');await ready(page);
+  await page.evaluate(async policy=>{await fetch('/api/commands',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:'saved-motion',type:'settings.update',payload:{preferences:{motion:policy}}})});},policy);
+  expect(host.snapshot.settings.preferences?.motion).toBe(policy);await page.reload();await ready(page);await expect(page.locator('html')).toHaveAttribute('data-motion',policy);
+  await page.getByRole('button',{name:'Side by side',exact:true}).click();expect(await page.locator('.image-compare-stage').evaluate(node=>(node as HTMLElement).style.getPropertyValue('--image-compare-width'))).toBe('50%');
+  const source=await (await page.request.get('/src/SentenceReveal.tsx')).text(),main=await (await page.request.get('/src/main.tsx')).text();
+  const reactPath=source.match(/["']([^"']*\/react\.js[^"']*)["']/)![1],domPath=main.match(/["']([^"']*\/react-dom_client\.js[^"']*)["']/)![1];
+  const position=await page.evaluate(async({reactPath,domPath})=>{
+   const react=await import(reactPath),React=react.default??react,dom=await import(domPath),revealPath='/src/SentenceReveal.tsx',scrollPath='/src/conversation-scroll.ts';
+   const {SentenceReveal}=await import(revealPath),{createConversationScroll}=await import(scrollPath);
+   const scroll=document.createElement('div'),body=document.createElement('div');scroll.style.cssText='height:100px;overflow:auto';body.style.height='500px';scroll.append(body);document.body.append(scroll);
+   const controller=createConversationScroll(scroll);controller.update('saved',{top:0,tail:true});body.style.height='1000px';controller.update('saved',{top:400,tail:true});const followed=scroll.scrollTop;controller.scrollTo(100);controller.jump();const jumped=scroll.scrollTop;controller.dispose();scroll.remove();
+   const host=document.createElement('div');host.className='saved-policy-prose';document.body.append(host);const root=(dom.createRoot??dom.default.createRoot)(host),animations:unknown[]=[];const animate=Element.prototype.animate;
+   Element.prototype.animate=function(frames,options){if(this.classList.contains('sentence-reveal-veil'))animations.push(frames);return animate.call(this,frames,options);};
+   root.render(React.createElement(SentenceReveal,{text:'Fresh prose after a saved preference reload.',animate:true,initialReveal:true},'Fresh prose after a saved preference reload.'));
+   Object.assign(window,{savedProseAnimations:animations,unmountSavedProse:()=>{root.unmount();host.remove();Element.prototype.animate=animate;}});return {followed,jumped};
+  },{reactPath,domPath});
+  expect(position).toEqual({followed:900,jumped:900});await expect(page.locator('.saved-policy-prose')).toHaveText('Fresh prose after a saved preference reload.');
+  expect(await page.locator('.saved-policy-prose [data-reveal-start]').count()).toBe(0);expect(await page.evaluate(()=>(window as unknown as {savedProseAnimations:unknown[]}).savedProseAnimations.length)).toBe(0);
+  await page.evaluate(()=>(window as unknown as {unmountSavedProse:()=>void}).unmountSavedProse());
+ });
+}
+
+test('System follows a live OS reduction without replaying image geometry',async({page})=>{
+ await page.emulateMedia({reducedMotion:'no-preference'});await fixture(page);await page.goto('/');await ready(page);await page.getByRole('button',{name:'Side by side',exact:true}).click();
+ await page.emulateMedia({reducedMotion:'reduce'});await expect.poll(()=>page.locator('.image-compare-stage').evaluate(node=>(node as HTMLElement).style.getPropertyValue('--image-compare-width'))).toBe('50%');
+ await page.emulateMedia({reducedMotion:'no-preference'});expect(await page.locator('.image-compare-stage').evaluate(node=>(node as HTMLElement).style.getPropertyValue('--image-compare-width'))).toBe('50%');
 });
