@@ -1,0 +1,8 @@
+.fixture { min-height: 100dvh; padding: 60px 24px 20px; }
+.fixture-label { font-size: 12px; color: var(--muted); }
+.fixture-owner { position: absolute; top: 105px; left: 24px; display: flex; align-items: start; gap: 16px; }
+.fixture.edge .fixture-owner { top: auto; left: auto; right: 10px; bottom: 20px; }
+.fixture-thread, .fixture-next, .fixture-outside { padding: 8px; min-height: 36px; border: 1px solid var(--border); border-radius: 6px; }
+.fixture-outside { position: absolute; top: 155px; left: 16px; }
+.fixture output { position: absolute; top: 36px; left: 24px; max-width: calc(100% - 48px); font-size: 12px; overflow-wrap: anywhere; }
+.fixture .dialog .fixture-owner { position: static; }
