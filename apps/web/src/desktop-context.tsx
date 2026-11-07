@@ -5,7 +5,7 @@ import {prepareEditorHandoff,registerEditorHandoff} from './editor-handoff';
 import './native-chrome.css';
 
 declare global {interface Window {harnessDesktop?:DesktopBridge}}
-type DesktopValue={bridge:DesktopBridge;context:DesktopContext;windows:DesktopWindowInfo[];browser?:DesktopState['browser'];state:DesktopState;prepareHandoff:()=>Promise<void>;registerClose:(key:string,guard:()=>Promise<void>)=>()=>void;closing:boolean;resumeEditing:()=>void;pending:DesktopSurface[];detachSurface:(surface:DesktopSurface,before?:()=>Promise<void>)=>Promise<DesktopWindowInfo>};
+type DesktopValue={bridge:DesktopBridge;context:DesktopContext;windows:DesktopWindowInfo[];browser?:DesktopState['browser'];state:DesktopState;prepareHandoff:()=>Promise<void>;registerClose:(key:string,guard:()=>Promise<void>)=>()=>void;closing:boolean;resumeEditing:()=>void;pending:DesktopSurface[];ownership:(surface:DesktopSurface|null)=>number|undefined;detachSurface:(surface:DesktopSurface,before?:()=>Promise<void>)=>Promise<DesktopWindowInfo>};
 const Context=createContext<DesktopValue|null>(null);
 export const useDesktop=()=>useContext(Context);
 export const surfaceKey=desktopSurfaceKey;
@@ -16,15 +16,34 @@ export function useDetachedSurface(surface:DesktopSurface|null){return detachedS
 export function usePendingSurface(surface:DesktopSurface|null){return pendingSurface(useDesktop(),surface);}
 export function useDesktopCloseGuard(key:string,guard:()=>Promise<void>){const latest=useRef(guard);latest.current=guard;useEffect(()=>registerEditorHandoff(key,()=>latest.current()),[key]);}
 export function useDesktopReady(ready:boolean){const desktop=useDesktop();useEffect(()=>{if(ready&&desktop)void desktop.bridge.ready().catch(()=>{});},[ready,desktop?.bridge]);}
+function surfaceOwners(windows:DesktopWindowInfo[],windowId:string){
+ const owners=new Map<string,string[]>();
+ for(const info of windows){if(info.id===windowId)continue;const key=surfaceKey(info.surface),ids=owners.get(key)??[];ids.push(info.id);owners.set(key,ids);}
+ return new Map([...owners].map(([key,ids])=>[key,JSON.stringify(ids.sort())]));
+}
 export function DesktopProvider({bridge,context,children}:{bridge:DesktopBridge;context:DesktopContext;children:ReactNode}){
  useLayoutEffect(()=>{if(!context.nativeTitleBar)return;document.documentElement.dataset.nativeTitlebar='true';const sync=()=>{const theme=document.documentElement.dataset.theme;if(theme==='light'||theme==='dark')void bridge.setTheme?.(theme).catch(()=>{});};const observer=new MutationObserver(sync);observer.observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});sync();return()=>{observer.disconnect();delete document.documentElement.dataset.nativeTitlebar;};},[bridge,context.nativeTitleBar]);
  const [state,setState]=useState<DesktopState>(context),[pending]=useState<DesktopSurface[]>([]),[closing,setClosing]=useState(false);
+ const owner=useRef({owners:surfaceOwners(context.windows,context.windowId),epochs:new Map<string,number>(),sequence:0,closing:false,closeEpoch:0});
+ const updateClosing=useCallback((value:boolean)=>{
+  const current=owner.current;if(current.closing!==value){current.closing=value;current.closeEpoch=++current.sequence;}setClosing(value);
+ },[]);
+ const ownership=useCallback((surface:DesktopSurface|null)=>{
+  const current=owner.current,key=surface&&surfaceKey(surface);
+  return current.closing||key&&current.owners.has(key)?undefined:Math.max(current.closeEpoch,key?current.epochs.get(key)??0:0);
+ },[]);
  const registerClose=registerEditorHandoff;
- useEffect(()=>bridge.onState(value=>{setState(value);if(value.closeCancelled)setClosing(false);}),[bridge]);
+ useEffect(()=>bridge.onState(value=>{
+  // Record every trusted transition before React can batch away an owner roundtrip.
+  const current=owner.current,next=surfaceOwners(value.windows,context.windowId);
+  for(const key of new Set([...current.owners.keys(),...next.keys()]))if(current.owners.get(key)!==next.get(key))current.epochs.set(key,++current.sequence);
+  current.owners=next;
+  if(value.closeCancelled)updateClosing(false);setState(value);
+ }),[bridge,context.windowId,updateClosing]);
  const prepareHandoff=prepareEditorHandoff;
- useEffect(()=>bridge.onCloseRequested(async()=>{setClosing(true);try{await prepareHandoff();return true;}catch{setClosing(false);return false;}}),[bridge,prepareHandoff]);
+ useEffect(()=>bridge.onCloseRequested(async()=>{updateClosing(true);try{await prepareHandoff();return true;}catch{updateClosing(false);return false;}}),[bridge,prepareHandoff,updateClosing]);
  const detachSurface=useCallback(async(surface:DesktopSurface)=>{const existing=state.windows.find(info=>surfaceKey(info.surface)===surfaceKey(surface));if(!existing)throw Error('Opening detached views is currently unavailable.');await bridge.focus(existing.id);return existing;},[bridge,state.windows]);
- const value=useMemo(()=>({bridge,context,...state,state,registerClose,prepareHandoff,pending,detachSurface,closing,resumeEditing:()=>setClosing(false)}),[bridge,context,state,registerClose,prepareHandoff,pending,detachSurface,closing]);
+ const value=useMemo(()=>({bridge,context,...state,state,registerClose,prepareHandoff,pending,ownership,detachSurface,closing,resumeEditing:()=>updateClosing(false)}),[bridge,context,state,registerClose,prepareHandoff,pending,ownership,detachSurface,closing,updateClosing]);
  return <Context value={value}>{children}</Context>;
 }
 /** Retained for source compatibility; detachment has no presentation entry. */
