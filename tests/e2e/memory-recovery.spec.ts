@@ -48,9 +48,13 @@ test('Delete keeps the existing editor lock until its exact-revision acknowledgm
 
 for (const fail of [false, true]) test(`a slow ${fail ? 'failed' : 'successful'} Save retains a newer local edit and its exact revision`, async ({ page }) => {
   const gate = deferred();
+  let saved = note(), attempts = 0;
   const commands = await mount(page, {}, async (route, command) => {
     await gate.promise;
-    await route.fulfill(fail ? { status: 503, json: { error: { code: 'SYNTHETIC_FAILURE', message: 'Synthetic save failed. Your draft is retained.' } } } : { json: { commandId: command.id, seq: 2, result: { ...note(), revision: 4 } } });
+    if (++attempts === 1 && fail) { await route.fulfill({ status: 503, json: { error: { code: 'SYNTHETIC_FAILURE', message: 'Synthetic save failed. Your draft is retained.' } } }); return; }
+    if (command.payload.baseRevision !== saved.revision) { await route.fulfill({ status: 400, json: { error: { code: 'STALE_MEMORY', message: 'This note changed. Inspect it before saving again.' } } }); return; }
+    saved = { ...saved, content: String(command.payload.content), revision: saved.revision + 1 };
+    await route.fulfill({ json: { commandId: command.id, seq: 2, result: saved } });
   });
   await expect(editor(page)).toBeEnabled(); await editor(page).fill('Submitted edit.');
   await page.getByRole('button', { name: 'Save note', exact: true }).click(); await expect.poll(() => commands.length).toBe(1);
@@ -58,9 +62,62 @@ for (const fail of [false, true]) test(`a slow ${fail ? 'failed' : 'successful'}
   gate.resolve(); await expect(page.getByRole('button', { name: 'Save note', exact: true })).toBeEnabled();
   await expect(editor(page)).toHaveValue('Newer unconfirmed edit.');
   expect(commands[0]).toMatchObject({ type: 'memory.save', threadId: 'thread-a', payload: { key: 'decision', content: 'Submitted edit.', baseRevision: 3 } });
-  expect(await page.evaluate(key => window.memoryFixture.read(key), savedKey)).toEqual({ key: 'decision', content: 'Newer unconfirmed edit.', baseRevision: 3 });
+  expect(await page.evaluate(key => window.memoryFixture.read(key), savedKey)).toEqual({ key: 'decision', content: 'Newer unconfirmed edit.', baseRevision: fail ? 3 : 4 });
+  await page.evaluate(saved => window.memoryFixture.publish([saved]), saved);
   await page.evaluate(() => window.memoryFixture.show(false)); await page.evaluate(() => window.memoryFixture.show(true));
   await expect(editor(page)).toHaveValue('Newer unconfirmed edit.');
+  await page.getByRole('button', { name: 'Save note', exact: true }).click(); await expect.poll(() => commands.length).toBe(2);
+  expect(commands[1]).toMatchObject({ type: 'memory.save', payload: { key: 'decision', content: 'Newer unconfirmed edit.', baseRevision: fail ? 3 : 4 } });
+  await expect.poll(() => saved.revision).toBe(fail ? 4 : 5); expect(saved.content).toBe('Newer unconfirmed edit.');
+  await expect.poll(() => page.evaluate(key => window.memoryFixture.read(key), savedKey)).toBeNull();
+});
+
+for (const changeKey of ['none', 'before', 'after'] as const) test(`a pending create retains a savable revision when its key changes ${changeKey === 'none' ? 'never' : changeKey + ' acknowledgment'}`, async ({ page }) => {
+  const gate = deferred(), saved = new Map<string, Note>();
+  const commands = await mount(page, { notes: [] }, async (route, command) => {
+    await gate.promise;
+    const key = String(command.payload.key), revision = saved.get(key)?.revision ?? 0;
+    if (command.payload.baseRevision !== revision) { await route.fulfill({ status: 400, json: { error: { code: 'STALE_MEMORY', message: 'This note changed. Inspect it before saving again.' } } }); return; }
+    const value = { ...note(key, revision + 1), content: String(command.payload.content) }; saved.set(key, value);
+    await route.fulfill({ json: { commandId: command.id, seq: 2, result: value } });
+  });
+  await page.getByRole('button', { name: 'Add memory note' }).click();
+  const key = page.getByRole('textbox', { name: 'Note key', exact: true }), content = page.getByRole('textbox', { name: 'New thread note', exact: true });
+  await key.fill('created'); await content.fill('Submitted create.');
+  await page.getByRole('button', { name: 'Add note', exact: true }).click(); await expect.poll(() => commands.length).toBe(1);
+  if (changeKey === 'before') await key.fill('different');
+  await content.fill('Later create edit.');
+  gate.resolve(); await expect(page.getByRole('button', { name: 'Add note', exact: true })).toBeEnabled();
+  if (changeKey === 'after') await key.fill('different');
+  const changedKey = changeKey !== 'none', expected = { key: changedKey ? 'different' : 'created', content: 'Later create edit.', baseRevision: changedKey ? 0 : 1 };
+  expect(await page.evaluate(key => window.memoryFixture.read(key), createKey)).toEqual(expected);
+  await page.evaluate(notes => window.memoryFixture.publish(notes), [...saved.values()]);
+  await page.evaluate(() => window.memoryFixture.show(false)); await page.evaluate(() => window.memoryFixture.show(true));
+  await expect(content).toHaveValue(expected.content); await expect(key).toHaveValue(expected.key);
+  await page.getByRole('button', { name: 'Add note', exact: true }).click(); await expect.poll(() => commands.length).toBe(2);
+  expect(commands[1]).toMatchObject({ type: 'memory.save', payload: expected });
+  await expect.poll(() => saved.get(expected.key)?.content).toBe(expected.content);
+  expect(saved.get(expected.key)?.revision).toBe(changedKey ? 1 : 2);
+  if (changedKey) expect(saved.get('created')?.content).toBe('Submitted create.');
+  await expect.poll(() => page.evaluate(key => window.memoryFixture.read(key), createKey)).toBeNull();
+});
+
+test('an acknowledged Save does not authorize overwriting a later external revision', async ({ page }) => {
+  const gate = deferred(); let saved = note();
+  const commands = await mount(page, {}, async (route, command) => {
+    await gate.promise;
+    if (command.payload.baseRevision !== saved.revision) { await route.fulfill({ status: 400, json: { error: { code: 'STALE_MEMORY', message: 'This note changed. Inspect it before saving again.' } } }); return; }
+    saved = { ...saved, content: String(command.payload.content), revision: saved.revision + 1 };
+    await route.fulfill({ json: { commandId: command.id, seq: 2, result: saved } });
+  });
+  await editor(page).fill('Submitted edit.'); await page.getByRole('button', { name: 'Save note', exact: true }).click(); await expect.poll(() => commands.length).toBe(1);
+  await editor(page).fill('Retained local edit.'); gate.resolve(); await expect(page.getByRole('button', { name: 'Save note', exact: true })).toBeEnabled();
+  saved = { ...saved, content: 'Later external edit.', revision: 5 }; await page.evaluate(saved => window.memoryFixture.publish([saved]), saved);
+  await page.getByRole('button', { name: 'Save note', exact: true }).click(); await expect.poll(() => commands.length).toBe(2);
+  expect(commands[1]).toMatchObject({ type: 'memory.save', payload: { content: 'Retained local edit.', baseRevision: 4 } });
+  await expect(page.getByRole('alert')).toHaveText('This note changed. Inspect it before saving again.');
+  await expect(editor(page)).toHaveValue('Retained local edit.'); expect(saved.content).toBe('Later external edit.');
+  expect(await page.evaluate(key => window.memoryFixture.read(key), savedKey)).toEqual({ key: 'decision', content: 'Retained local edit.', baseRevision: 4 });
 });
 
 test('Cancel and non-composing Escape keep the draft and restore Add focus', async ({ page }) => {
