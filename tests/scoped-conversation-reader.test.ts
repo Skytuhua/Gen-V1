@@ -70,6 +70,7 @@ describe('scoped Personal reader', () => {
     const pending = r.loadContent('long'); await started.promise; await r.poll();
     expect(r.getSnapshot().context).toMatchObject({sequence: 11, checkpoint: 'cp11'});
     late.resolve({...envelope, sequence, message: {...head, content: 'C'.repeat(4096), contentOffset: 8192, nextContentCursor: null}}); await pending;
+    expect(r.getSnapshot().messages[0].loadedCodePoints).toBe(12288);
     expect(r.getSnapshot()).toMatchObject({phase: 'ready', context: {sequence: 11, checkpoint: 'cp11'}, pending: false, nextCursor: null});
     expect(r.getSnapshot().messages[0]).toMatchObject({head, text: 'A'.repeat(4096) + 'B'.repeat(4096) + 'C'.repeat(4096), loadedCodePoints: 12288, pending: false, tail: {contentOffset: 8192, nextContentCursor: null}});
     expect(signal?.aborted).toBe(false); expect(phases).not.toContain('resync');
@@ -95,8 +96,8 @@ describe('scoped Personal reader', () => {
     const r = reader(state => phases.push(state.phase)); await r.select(selection); await r.loadOlder();
     const pending = r.loadOlder(); await started.promise; await r.poll();
     late.resolve({...envelope, sequence, messages: [message('earlier'), message('previous')], nextCursor: 'older-3'}); await pending;
-    expect(r.getSnapshot()).toMatchObject({phase: 'ready', context: {sequence: 11, checkpoint: 'cp11'}, historyPending: false, nextCursor: 'older-3'});
     expect(r.getSnapshot().messages.map(item => item.head.id)).toEqual(['earlier', 'previous', 'recent']);
+    expect(r.getSnapshot()).toMatchObject({phase: 'ready', context: {sequence: 11, checkpoint: 'cp11'}, historyPending: false, nextCursor: 'older-3'});
     expect(signal?.aborted).toBe(false); expect(phases).not.toContain('resync');
     await r.loadOlder();
     expect(r.getSnapshot().messages.map(item => item.head.id)).toEqual(['oldest', 'earlier', 'previous', 'recent']);
