@@ -197,3 +197,111 @@ for (const theme of ['dark', 'light']) test(`first-render ${theme} geometry, ove
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({path: info.outputPath(`${theme}-narrow-short.png`)});
 });
+
+async function savedDraft(page: Page, kind: 'local' | 'pull-request' = 'pull-request') {
+  return page.evaluate(async kind => {
+    const db = await new Promise<IDBDatabase>((resolve, reject) => {const request = indexedDB.open('generative-harness-journal', 1); request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error);});
+    const records = await new Promise<any[]>((resolve, reject) => {const request = db.transaction('entries').objectStore('entries').getAll(); request.onsuccess = () => resolve(request.result); request.onerror = () => reject(request.error);}); db.close();
+    return records.map(record => record.value).find(value => value?.version === 1 && value.basis.kind === kind);
+  }, kind);
+}
+async function settleCallback(page: Page, index: number, state = 'confirmed', reject = false) {await page.evaluate(detail => window.dispatchEvent(new CustomEvent('settle-callback', {detail})), {index, state, reject});}
+for (const late of ['confirmed', 'uncertain', 'reject']) test(`late A ${late} cannot resolve pending B or unlock C after independent inspection`, async ({page}) => {
+  await page.goto('/review-fixture?controlled&inspect&inspect-confirmed'); await choose(page, 'Comparison', '#48 Exact remote PR');
+  const draft = page.getByRole('textbox', {name: 'Review draft', exact: true});
+  await draft.fill('Review A'); await page.getByRole('button', {name: 'Submit review', exact: true}).click();
+  await expect(page.getByLabel('Canonical calls')).toContainText('Review A');
+  await choose(page, 'Comparison', 'Working copy'); await choose(page, 'Comparison', '#48 Exact remote PR');
+  await page.getByRole('button', {name: 'Inspect action outcome', exact: true}).click();
+  await expect(page.getByText('Review submitted.', {exact: true})).toBeVisible();
+  await draft.fill('Review B'); await page.getByRole('button', {name: 'Submit review', exact: true}).click();
+  await expect(page.getByLabel('Canonical calls')).toContainText('Review B');
+  await settleCallback(page, 0, late === 'reject' ? 'confirmed' : late, late === 'reject');
+  // A browser round trip through navigation lets the detached callback settle.
+  await choose(page, 'Comparison', 'Working copy');
+  expect((await savedDraft(page)).outcome).toBe('pending');
+  await choose(page, 'Comparison', '#48 Exact remote PR');
+  await draft.fill('New editable C');
+  await expect(page.getByRole('button', {name: 'Submit review', exact: true})).toBeDisabled();
+  expect((await savedDraft(page)).outcome).toBe('uncertain');
+  expect(JSON.parse(await page.getByLabel('Canonical calls').textContent() ?? '[]')).toHaveLength(2);
+  await settleCallback(page, 1);
+  await expect(page.getByText('Review submitted.', {exact: true})).toBeVisible();
+  await expect(draft).toHaveValue('New editable C');
+});
+for (const operation of ['stage', 'unstage', 'commit']) test(`recovers exact admitted ${operation} context and payload after stale editable basis`, async ({page}) => {
+  await page.goto('/review-fixture?uncertain&inspect');
+  if (operation !== 'stage') await choose(page, 'Comparison', 'Staged changes');
+  const old = operation === 'stage' ? local : staged;
+  const current = {...old, id: '7'.repeat(64), revision: '8'.repeat(64), base: {...old.base, revision: '9'.repeat(64)}};
+  await page.getByRole('textbox', {name: 'Review draft', exact: true}).fill('Keep earlier review draft');
+  await page.getByRole('textbox', {name: 'Commit message'}).fill('  Exact admitted commit\n');
+  await page.getByRole('button', {name: 'Change action revision', includeHidden: true}).evaluate((button: HTMLButtonElement) => button.click());
+  await page.route('**/git/comparison?*', route => route.fulfill({json: {state: 'ready', value: comparison(current)}}));
+  await page.route('**/git/comparison/file?*', route => route.fulfill({json: patch(current)}));
+  await page.getByRole('button', {name: 'Refresh comparison', exact: true}).click();
+  await page.getByRole('button', {name: operation === 'stage' ? 'Stage file' : operation === 'unstage' ? 'Unstage file' : 'Commit staged changes', exact: true}).click();
+  await expect(page.getByRole('button', {name: 'Inspect action outcome', exact: true})).toBeVisible();
+  const dispatched = JSON.parse(await page.getByLabel('Canonical callback').textContent() ?? 'null');
+  await page.getByRole('textbox', {name: 'Commit message'}).fill('Newer unsent commit');
+  await page.reload(); if (operation !== 'stage') await choose(page, 'Comparison', 'Staged changes');
+  await page.getByRole('button', {name: 'Inspect action outcome', exact: true}).click();
+  const inspected = JSON.parse(await page.getByLabel('Outcome inspection').textContent() ?? 'null');
+  expect(inspected.comparison).toEqual(current);
+  expect(inspected.action).toEqual({head: '1'.repeat(40), revision: 'f'.repeat(64), branch: 'topic'});
+  expect(inspected.selection).toEqual(dispatched[0].selection);
+  expect(inspected.attemptId).toBe(dispatched[0].attemptId);
+  expect(inspected.operation).toBe(operation);
+  expect(inspected.payload).toEqual(operation === 'commit' ? {message: '  Exact admitted commit\n', revision: 'f'.repeat(64), expectedHead: '1'.repeat(40)} : {paths: ['src/first.ts'], revision: 'f'.repeat(64), expectedHead: '1'.repeat(40)});
+  const saved = await savedDraft(page, 'local'); expect(saved.attempt).toEqual(inspected); expect(saved.basis).toEqual(old);
+  await expect(page.getByRole('textbox', {name: 'Review draft', exact: true})).toHaveValue('Keep earlier review draft');
+  await expect(page.getByRole('textbox', {name: 'Commit message'})).toHaveValue('Newer unsent commit');
+});
+
+for (const late of ['confirmed', 'uncertain', 'reject']) test(`detached ${late} inspection cannot acknowledge a newer pending review`, async ({page}) => {
+  await page.goto('/review-fixture?controlled&inspect&inspect-delayed'); await choose(page, 'Comparison', '#48 Exact remote PR');
+  const draft = page.getByRole('textbox', {name: 'Review draft', exact: true});
+  await draft.fill('Review A'); await page.getByRole('button', {name: 'Submit review', exact: true}).click();
+  await expect(page.getByLabel('Canonical calls')).toContainText('Review A');
+  const pendingA = await savedDraft(page); expect(pendingA.outcome).toBe('pending');
+  expect(pendingA.attempt.payload.body).toBe('Review A'); expect(pendingA.attempt.operation).toBe('review');
+  expect(pendingA.attempt.attemptId).toEqual(expect.any(String));
+  await choose(page, 'Comparison', 'Working copy'); await choose(page, 'Comparison', '#48 Exact remote PR');
+  await draft.fill('Unsent during inspection');
+  await page.getByRole('button', {name: 'Inspect action outcome', exact: true}).click();
+  expect(JSON.parse(await page.getByLabel('Outcome inspection').textContent() ?? 'null')).toEqual(pendingA.attempt);
+  await choose(page, 'Comparison', 'Working copy'); await choose(page, 'Comparison', '#48 Exact remote PR');
+  await page.getByRole('button', {name: 'Inspect action outcome', exact: true}).click();
+  await settleCallback(page, 2);
+  await expect(page.getByText('Review submitted.', {exact: true})).toBeVisible();
+  await expect(draft).toHaveValue('Unsent during inspection');
+  await draft.fill('Review B'); await page.getByRole('button', {name: 'Submit review', exact: true}).click();
+  await expect(page.getByLabel('Canonical calls')).toContainText('Review B');
+  const pendingB = await savedDraft(page); expect(pendingB.attempt.attemptId).not.toBe(pendingA.attempt.attemptId);
+  await settleCallback(page, 1, late === 'reject' ? 'confirmed' : late, late === 'reject');
+  await settleCallback(page, 0, 'uncertain');
+  await choose(page, 'Comparison', 'Working copy'); expect(await savedDraft(page)).toEqual(pendingB);
+  await choose(page, 'Comparison', '#48 Exact remote PR'); await draft.fill('New C after late inspections');
+  await expect(page.getByRole('button', {name: 'Submit review', exact: true})).toBeDisabled();
+  await settleCallback(page, 3);
+  await expect(page.getByText('Review submitted.', {exact: true})).toBeVisible(); await expect(draft).toHaveValue('New C after late inspections');
+});
+for (const outcome of ['pending', 'uncertain']) test(`legacy ${outcome} draft stays held without invented recovery payload`, async ({page}) => {
+  await page.goto('/review-fixture?inspect&inspect-confirmed'); await choose(page, 'Comparison', '#48 Exact remote PR');
+  await page.getByRole('textbox', {name: 'Review draft', exact: true}).fill('Exact legacy draft');
+  await expect.poll(async () => (await savedDraft(page))?.body).toBe('Exact legacy draft');
+  await page.evaluate(async outcome => {
+    const db = await new Promise<IDBDatabase>(resolve => {const request = indexedDB.open('generative-harness-journal', 1); request.onsuccess = () => resolve(request.result);});
+    await new Promise<void>((resolve, reject) => {const transaction = db.transaction('entries', 'readwrite'), store = transaction.objectStore('entries'), request = store.openCursor(); request.onsuccess = () => {const cursor = request.result; if (!cursor) return; const record = cursor.value; if (record.value?.basis?.kind === 'pull-request') {delete record.value.attempt; record.value.outcome = outcome; record.generation = crypto.randomUUID(); cursor.update(record);} cursor.continue();}; transaction.oncomplete = () => resolve(); transaction.onerror = () => reject(transaction.error);}); db.close();
+  }, outcome);
+  await page.reload(); await choose(page, 'Comparison', '#48 Exact remote PR');
+  await expect(page.getByRole('textbox', {name: 'Review draft', exact: true})).toHaveValue('Exact legacy draft');
+  await expect(page.getByRole('alert').filter({hasText: 'Saved action lacks an exact attempt record'})).toBeVisible();
+  await expect(page.getByRole('button', {name: 'Submit review', exact: true})).toBeDisabled();
+  await expect(page.getByRole('button', {name: 'Inspect action outcome', exact: true})).toHaveCount(0);
+  const saved = await savedDraft(page); expect(saved.outcome).toBe('uncertain'); expect(saved.attempt).toBeUndefined();
+  await page.getByRole('textbox', {name: 'Review draft', exact: true}).fill('Still editable legacy text');
+  await page.reload(); await choose(page, 'Comparison', '#48 Exact remote PR');
+  await expect(page.getByRole('textbox', {name: 'Review draft', exact: true})).toHaveValue('Still editable legacy text');
+  await expect(page.getByRole('button', {name: 'Submit review', exact: true})).toBeDisabled();
+});
