@@ -2,9 +2,10 @@ import {test,expect,type Page} from '@playwright/test';
 import {serveTaskFixture,taskFixture} from './task-interface-fixture';
 import type {HostCommand,Thread} from '../../packages/contracts';
 
-async function fixture(page:Page,{histories=false}={}){
- const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'The main investigation stays here.'}}}});snapshot.settings.theme='dark';snapshot.threads[0].status='working';snapshot.threads[0].runId='main-run';
+async function fixture(page:Page,{histories=false,working=true,sendShortcut='enter' as 'enter'|'mod-enter'}={}){
+ const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'The main investigation stays here.'}}}});snapshot.settings.theme='dark';snapshot.threads[0].status=working?'working':'ready';snapshot.threads[0].runId=working?'main-run':null;
  if(histories)for(const id of ['earlier','latest'])snapshot.threads.push({...snapshot.threads[0],id:'side-'+id,title:id==='earlier'?'Earlier question':'Latest question',sideParentId:'task-thread',status:'ready',runId:null});
+ snapshot.settings.preferences={...snapshot.settings.preferences,sendShortcut};
  const host=await serveTaskFixture(page,snapshot);let next=0,fail=false;
  await page.route('**/api/commands',async route=>{
   const command=route.request().postDataJSON() as HostCommand;host.commands.push(command);let result:unknown={};
@@ -22,6 +23,30 @@ async function openSide(page:Page){
  const main=page.getByRole('textbox',{name:'Message',exact:true});await main.fill('/side');await page.getByRole('button',{name:'Send side question',exact:true}).click();
  await expect(page.getByRole('region',{name:'Side conversation window',exact:true})).toBeVisible();
 }
+
+for(const alias of ['/side','/btw','/SIDE'])test(`bare ${alias} Enter opens the side conversation without dispatching or stopping the main agent`,async({page})=>{
+ const host=await fixture(page);await page.goto('/');const main=page.getByRole('textbox',{name:'Message',exact:true});await expect(main).toBeEnabled();await main.fill(alias);await main.press('Enter');
+ await expect(page.getByRole('region',{name:'Side conversation window',exact:true})).toBeVisible();await expect(main).toHaveValue('');
+ await expect(page.getByRole('button',{name:'Stop agent',exact:true})).toBeVisible();expect(host.commands.filter(command=>['thread.create','message.send','run.stop','run.resume'].includes(command.type))).toHaveLength(0);
+});
+
+test('side shortcut honors the configured modifier before opening',async({page})=>{
+ const host=await fixture(page,{sendShortcut:'mod-enter'});await page.goto('/');const main=page.getByRole('textbox',{name:'Message',exact:true});await expect(main).toBeEnabled();await main.fill('/side');await main.press('Enter');
+ await expect(page.getByRole('region',{name:'Side conversation window',exact:true})).toHaveCount(0);await expect(main).toHaveValue(/^\/side\s*$/);
+ await main.press('Control+Enter');await expect(page.getByRole('region',{name:'Side conversation window',exact:true})).toBeVisible();expect(host.commands.filter(command=>['thread.create','message.send','run.stop'].includes(command.type))).toHaveLength(0);
+});
+
+for(const alias of ['/side','/btw'])test(`a later model command in ${alias} keeps menu priority without sending`,async({page})=>{
+ const host=await fixture(page,{working:false});await page.goto('/');const main=page.getByRole('textbox',{name:'Message',exact:true});await expect(main).toBeEnabled();await main.fill(`${alias} Explain /model`);
+ await expect(page.getByRole('option',{name:'/model Choose a model',exact:true})).toBeVisible();await main.press('Enter');
+ await expect(page.getByLabel('Search models',{exact:true})).toBeVisible();await expect(main).toHaveValue(`${alias} Explain `);await expect(page.getByRole('region',{name:'Side conversation window',exact:true})).toHaveCount(0);
+ expect(host.commands.filter(command=>['thread.create','message.send','run.stop'].includes(command.type))).toHaveLength(0);
+});
+
+for(const event of [{key:'Enter',isComposing:true,keyCode:13},{key:'Enter',isComposing:false,keyCode:229}])test(`main IME does not invoke a side shortcut (${event.isComposing},${event.keyCode})`,async({page})=>{
+ const host=await fixture(page);await page.goto('/');const main=page.getByRole('textbox',{name:'Message',exact:true});await expect(main).toBeEnabled();await main.fill('/side');await main.dispatchEvent('keydown',event);
+ await expect(main).toHaveValue('/side');await expect(page.getByRole('region',{name:'Side conversation window',exact:true})).toHaveCount(0);expect(host.commands.filter(command=>['thread.create','message.send','run.stop'].includes(command.type))).toHaveLength(0);
+});
 
 test('shared side history preserves independent drafts and never sends on selection',async({page})=>{
  const host=await fixture(page,{histories:true});await page.goto('/');await openSide(page);
