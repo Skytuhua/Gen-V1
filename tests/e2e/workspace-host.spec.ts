@@ -236,6 +236,19 @@ test('compact Settings Add resource opens the existing resource grant flow', asy
   await expect(page.getByRole('dialog', {name: 'Add a resource', exact: true})).toBeVisible();
 });
 
+for(const [kind,label] of [['file','File'],['database','SQLite database'],['export','Export folder']])test(`resource kind ${kind} uses the modal-owned shared selector and preserves exact grant`,async({page})=>{
+ const h=await fixture(page,{working:false});await page.getByRole('button',{name:'Open conversation Project investigation',exact:true}).click();
+ await page.getByRole('button',{name:'Settings',exact:true}).click();const settings=page.getByRole('dialog',{name:'Settings',exact:true});
+ await settings.getByRole('button',{name:'Projects & Working Copies',exact:true}).click();await settings.getByRole('button',{name:'Add resource',exact:true}).click();
+ const dialog=page.getByRole('dialog',{name:'Add a resource',exact:true}),type=dialog.getByRole('combobox',{name:'Resource type',exact:true});
+ await type.click();await expect(dialog.getByRole('listbox',{name:'Resource type',exact:true})).toBeVisible();
+ await dialog.getByRole('option',{name:label,exact:true}).click();await expect(type).toContainText(label);
+ await dialog.getByRole('textbox',{name:'Absolute local path',exact:true}).fill('C:/synthetic/granted-item');await dialog.getByRole('checkbox',{name:'Allow approved changes',exact:true}).check();
+ expect(h.commands.filter(command=>command.type==='resource.grant')).toHaveLength(0);
+ await dialog.getByRole('button',{name:'Add resource',exact:true}).click();await expect(dialog).toBeHidden();
+ expect(h.commands.filter(command=>command.type==='resource.grant').map(({threadId,payload})=>({threadId,payload}))).toEqual([{threadId:'parent-a',payload:{path:'C:/synthetic/granted-item',kind,writable:true}}]);
+});
+
 test('monitor preserves unpin confirmation with a shared dialog and cancellation', async ({page}) => {
   const h = await fixture(page, {pinned: true});
   await page.getByRole('button', {name: 'Options for Project investigation', exact: true}).click();
