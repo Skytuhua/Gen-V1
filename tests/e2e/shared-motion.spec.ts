@@ -10,7 +10,8 @@ const spec: TaskSpec = { root: 'root', elements: {
 
 async function fixture(page: Page, followupsPending = false) {
   const value = taskFixture(structuredClone(spec), { answer: { status: 'ready', answer: 'Bring a photo ID.', followupsPending }, status: { status: 'neutral', label: 'Ready for review' } }, { open: true, note: 'Keep this draft' });
-  const host = await serveTaskFixture(page, value); await page.goto('/');
+  const host = await serveTaskFixture(page, value), bootstrap = page.waitForResponse('**/api/snapshot'); await page.goto('/'); await bootstrap;
+  await expect(page.locator('html')).toHaveAttribute('data-motion', 'system');
   await expect(page.getByRole('textbox', { name: 'Visit note' })).toBeVisible();
   await page.locator('.disclosure-node').first().evaluate(async node => { await Promise.all(node.getAnimations({ subtree: true }).filter(animation => animation.effect?.getTiming().iterations !== Infinity).map(animation => animation.finished.catch(() => {}))); });
   return host;
@@ -163,10 +164,11 @@ for(const policy of ['off','reduced'] as const)test(`app ${policy} settles activ
  const result=await page.evaluate(async policy=>{
   const path='/src/task-motion.tsx',{animateTask}=await import(path);const node=document.createElement('div');document.body.append(node);
   const animation=animateTask(node,[{opacity:0,transform:'translateY(40px)'},{opacity:1,transform:'translateY(0)'}],1000);
+  const completion=animation.finished.then(()=>'finished',()=>'cancelled');
   const region=document.querySelector<HTMLElement>('.disclosure-node .task-motion-region')!;const before=region.getBoundingClientRect().height;
-  document.documentElement.dataset.motion=policy;await Promise.resolve();const result={before,height:region.getBoundingClientRect().height,state:animation?.playState,phase:region.dataset.motionPhase};node.remove();return result;
+  document.documentElement.dataset.motion=policy;await Promise.resolve();const result={before,height:region.getBoundingClientRect().height,completion:await completion,effects:node.getAnimations().length,phase:region.dataset.motionPhase};node.remove();return result;
  },policy);
- expect(result.before).toBeGreaterThan(0);expect(result.height).toBe(0);expect(result.phase).toBe('closed');expect(result.state).toBe('idle');
+ expect(result.before).toBeGreaterThan(0);expect(result.height).toBe(0);expect(result.phase).toBe('closed');expect(result.completion).toBe('finished');expect(result.effects).toBe(0);
  await page.evaluate(()=>document.documentElement.dataset.motion='system');await expect(button).toBeFocused();expect(await page.locator('.disclosure-node .task-motion-region').first().evaluate(node=>node.getBoundingClientRect().height)).toBe(0);
 });
 
@@ -199,9 +201,102 @@ test('task effects release policy subscriptions on finish and cancellation and k
    const first=animateTask(target,[{opacity:0},{opacity:1}],1000)!;const subscribed=active.size;const finished=new Promise(resolve=>first.addEventListener('finish',resolve,{once:true}));first.finish();await finished;const afterFinish=active.size;
    const second=animateTask(target,[{opacity:0},{opacity:1}],1000)!;const cancelled=new Promise(resolve=>second.addEventListener('cancel',resolve,{once:true}));second.cancel();await cancelled;const afterCancel=active.size;
    document.documentElement.dataset.motion='reduced';const reduced=animateTask(target,[{opacity:0,transform:'translateY(30px)'},{opacity:1,transform:'translateY(0)'}],1000)!;
-   const frames=reduced.effect!.getKeyframes(),duration=reduced.effect!.getTiming().duration;document.documentElement.dataset.motion='off';await Promise.resolve();const offState=reduced.playState,off=animateTask(target,[{opacity:0},{opacity:1}],1000);
-   return {subscribed,afterFinish,afterCancel,frames,duration,offState,off:off===undefined,remaining:active.size};
+   const frames=reduced.effect!.getKeyframes(),duration=reduced.effect!.getTiming().duration,completion=reduced.finished.then(()=>'finished',()=>'cancelled');document.documentElement.dataset.motion='off';await Promise.resolve();const offCompletion=await completion,offEffects=target.getAnimations().length,off=animateTask(target,[{opacity:0},{opacity:1}],1000);
+   return {subscribed,afterFinish,afterCancel,frames,duration,offCompletion,offEffects,off:off===undefined,remaining:active.size};
   }finally{window.MutationObserver=Original;target.remove();}
  });
- expect(result.subscribed).toBe(1);expect(result.afterFinish).toBe(0);expect(result.afterCancel).toBe(0);expect(result.remaining).toBe(0);expect(result.off).toBe(true);expect(result.offState).toBe('idle');expect(Number(result.duration)).toBeLessThanOrEqual(80);expect(result.frames.every((frame:ComputedKeyframe)=>!('transform' in frame))).toBe(true);
+ expect(result.subscribed).toBe(1);expect(result.afterFinish).toBe(0);expect(result.afterCancel).toBe(0);expect(result.remaining).toBe(0);expect(result.off).toBe(true);expect(result.offCompletion).toBe('finished');expect(result.offEffects).toBe(0);expect(Number(result.duration)).toBeLessThanOrEqual(80);expect(result.frames.every((frame:ComputedKeyframe)=>!('transform' in frame))).toBe(true);
+});
+
+
+type CompletionProbe = { created: number; activeBefore: number; phaseBefore: string | undefined; completions: Promise<'finished'|'cancelled'>[] };
+async function settleRealTaskEffect(page: Page, selector: string, policy: 'off'|'reduced') {
+ await expect(page.locator('html')).toHaveAttribute('data-motion', 'system');
+ await page.evaluate(({selector,policy}) => {
+  const probe: CompletionProbe = {created:0,activeBefore:0,phaseBefore:undefined,completions:[]}, animations: Animation[] = [];
+  Object.assign(window,{taskCompletionProbe:probe});
+  const original=Element.prototype.animate;let scheduled=false;
+  Element.prototype.animate=function(frames,options){
+   const animation=original.call(this,frames,options);
+   if(this.matches(selector)){
+    probe.created++;animations.push(animation);probe.completions.push(animation.finished.then(()=>'finished' as const,()=>'cancelled' as const));
+    if(!scheduled){scheduled=true;queueMicrotask(()=>{
+     probe.activeBefore=animations.filter(item=>item.playState==='running').length;
+     probe.phaseBefore=(document.querySelector(selector) as HTMLElement|null)?.dataset.phase;
+     document.documentElement.dataset.motion=policy;
+    });}
+   }
+   return animation;
+  };
+ },{selector,policy});
+}
+async function completedWithoutReplay(page: Page, expectedEffects: number) {
+ const result=await page.evaluate(async()=>{const probe=(window as unknown as {taskCompletionProbe:CompletionProbe}).taskCompletionProbe;return {created:probe.created,activeBefore:probe.activeBefore,completions:await Promise.all(probe.completions)};});
+ expect(result.activeBefore).toBe(expectedEffects);expect(result.created).toBe(expectedEffects);expect(result.completions).toEqual(Array(expectedEffects).fill('finished'));
+ await page.evaluate(async()=>{document.documentElement.dataset.motion='system';await new Promise(requestAnimationFrame);await new Promise(requestAnimationFrame);});
+ expect(await page.evaluate(()=>(window as unknown as {taskCompletionProbe:CompletionProbe}).taskCompletionProbe.created)).toBe(expectedEffects);
+}
+for(const policy of ['off','reduced'] as const){
+ test(`R1 app ${policy} completes the real follow-up handoff without a stranded skeleton`,async({page})=>{
+  await page.emulateMedia({reducedMotion:'no-preference'});const host=await fixture(page,true);
+  const note=page.getByRole('textbox',{name:'Visit note'}),identity=await note.elementHandle();await note.focus();
+  await settleRealTaskEffect(page,'.disclosure-followups-pending',policy);
+  host.setInput('answer',{status:'ready',answer:'Bring a photo ID.',followupsPending:false});
+  host.snapshot.artifacts[0].spec!.elements.question.children!.push('newQuestion');
+  host.snapshot.artifacts[0].spec!.elements.newQuestion={type:'Disclosure',props:{title:'Does the guest need an ID too?',stateKey:'guestOpen',text:'Yes. Each guest needs identification.'}};
+  host.snapshot.artifacts[0].revision++;await host.publish();
+  await expect(page.locator('html')).toHaveAttribute('data-motion',policy);
+  expect(await page.evaluate(()=>(window as unknown as {taskCompletionProbe:CompletionProbe}).taskCompletionProbe.phaseBefore)).toBe('resolving');
+  await expect(page.locator('.disclosure-followups-pending')).toHaveCount(0);
+  await expect(page.locator('.disclosure-children').first()).toHaveAttribute('data-followup-arrival','idle');
+  await expect(page.getByRole('button',{name:'Does the guest need an ID too?',exact:true})).toBeVisible();
+  await completedWithoutReplay(page,1);await expect(page.locator('.disclosure-followups-pending')).toHaveCount(0);
+  expect(await note.evaluate((node,previous)=>node===previous,identity)).toBe(true);await expect(note).toBeFocused();await expect(note).toHaveValue('Keep this draft');
+ });
+ test(`R1 app ${policy} completes real step transitions without leaving panels`,async({page})=>{
+  await page.emulateMedia({reducedMotion:'no-preference'});
+  const steps:TaskSpec={root:'steps',elements:{steps:{type:'Steps',props:{stateKey:'step',defaultStep:'first',steps:[{key:'first',label:'First'},{key:'second',label:'Second'}]},children:['first','second']},first:{type:'Input',props:{stateKey:'firstNote',label:'First note'}},second:{type:'Input',props:{stateKey:'secondNote',label:'Second note'}}}};
+  await serveTaskFixture(page,taskFixture(steps,{}, {step:'first',firstNote:'First draft',secondNote:'Second draft'}));const bootstrap=page.waitForResponse('**/api/snapshot');await page.goto('/');await bootstrap;
+  await expect(page.getByRole('textbox',{name:'First note'})).toBeVisible();await settleRealTaskEffect(page,'.task-step-content > div',policy);
+  await page.getByRole('button',{name:'Next step',exact:true}).click();await expect(page.locator('html')).toHaveAttribute('data-motion',policy);
+  await expect(page.locator('.task-step-content > [data-phase="leaving"]')).toHaveCount(0);
+  await expect(page.locator('.task-step-content > [data-phase="inactive"]')).toHaveCount(1);await expect(page.locator('.task-step-content > [data-phase="inactive"]')).toBeHidden();
+  await expect(page.getByRole('textbox',{name:'Second note'})).toBeVisible();await expect(page.getByRole('textbox',{name:'Second note'})).toHaveValue('Second draft');
+  await completedWithoutReplay(page,2);await expect(page.locator('.task-step-content > [data-phase="leaving"]')).toHaveCount(0);
+ });
+ test(`R1 app ${policy} completes real status replacement without an outgoing shell`,async({page})=>{
+  await page.emulateMedia({reducedMotion:'no-preference'});const host=await fixture(page);
+  await settleRealTaskEffect(page,'.task-status-outgoing',policy);host.setInput('status',{status:'success',label:'Source checked'});await host.publish();
+  await expect(page.locator('html')).toHaveAttribute('data-motion',policy);
+  await expect(page.locator('.task-status-outgoing')).toHaveCount(0);await expect(page.getByRole('status').filter({hasText:'Source checked'})).toBeVisible();
+  await completedWithoutReplay(page,1);await expect(page.locator('.task-status-outgoing')).toHaveCount(0);await expect(page.locator('.task-status-block')).not.toContainText('Ready for review');
+ });
+}
+
+for(const policy of ['off','reduced'] as const)test(`R1 app ${policy} preserves the existing finished promise and native finish callback`,async({page})=>{
+ await page.emulateMedia({reducedMotion:'no-preference'});await fixture(page);
+ const result=await page.evaluate(async policy=>{
+  const path='/src/task-motion.tsx',{animateTask}=await import(path),target=document.createElement('div');document.body.append(target);
+  const animation=animateTask(target,[{opacity:0,transform:'translateY(30px)'},{opacity:1,transform:'translateY(0)'}],1000),events={finish:0,cancel:0};
+  const completion=animation.finished.then(()=>'finished',()=>'cancelled');animation.onfinish=()=>events.finish++;animation.oncancel=()=>events.cancel++;
+  Object.assign(window,{taskCompletionEvents:events});document.documentElement.dataset.motion=policy;
+  const outcome=await completion,effects=target.getAnimations().length;target.remove();return {outcome,effects};
+ },policy);
+ expect(result).toEqual({outcome:'finished',effects:0});
+ await expect.poll(()=>page.evaluate(()=>(window as unknown as {taskCompletionEvents:{finish:number;cancel:number}}).taskCompletionEvents)).toEqual({finish:1,cancel:0});
+ await page.evaluate(async()=>{document.documentElement.dataset.motion='system';await new Promise(requestAnimationFrame);await new Promise(requestAnimationFrame);});
+ expect(await page.evaluate(()=>(window as unknown as {taskCompletionEvents:{finish:number;cancel:number}}).taskCompletionEvents)).toEqual({finish:1,cancel:0});
+});
+
+for(const policy of ['off','reduced'] as const)test(`R1 app ${policy} preserves an explicit caller cancellation before policy delivery`,async({page})=>{
+ await page.emulateMedia({reducedMotion:'no-preference'});await fixture(page);
+ const result=await page.evaluate(async policy=>{
+  const path='/src/task-motion.tsx',{animateTask}=await import(path),target=document.createElement('div');document.body.append(target);
+  const animation=animateTask(target,[{opacity:0,transform:'translateY(30px)'},{opacity:1,transform:'translateY(0)'}],1000),events={finish:0,cancel:0};
+  const completion=animation.finished.then(()=>'finished',()=>'cancelled');animation.onfinish=()=>events.finish++;animation.oncancel=()=>events.cancel++;
+  animation.cancel();document.documentElement.dataset.motion=policy;const outcome=await completion;
+  await new Promise(requestAnimationFrame);await new Promise(requestAnimationFrame);
+  const result={outcome,events,state:animation.playState,effects:target.getAnimations().length};target.remove();return result;
+ },policy);
+ expect(result).toEqual({outcome:'cancelled',events:{finish:0,cancel:1},state:'idle',effects:0});
 });

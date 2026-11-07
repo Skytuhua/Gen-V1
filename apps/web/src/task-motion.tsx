@@ -20,7 +20,13 @@ export function animateTask(element: Element | null, frames: Keyframe[], duratio
   }
   const animation = element.animate(frames, { duration, easing: policy === 'reduced' ? 'ease-out' : 'cubic-bezier(.22,1,.36,1)' });
   const stopObservingMotion = observeMotionPolicy(next => {
-    if (next === 'off' || next === 'reduced' && policy === 'full' && travelling) { cleanup(); animation.cancel(); }
+    if (next === 'off' || next === 'reduced' && policy === 'full' && travelling) {
+      cleanup();
+      // Finish the existing handoff so callers can remove their temporary shells.
+      // Default fill:none releases the effect while preserving promise/event completion.
+      // A caller's cancel event may still be queued when the policy changes.
+      if (animation.playState === 'running' || animation.playState === 'paused') animation.finish();
+    }
   });
   const cleanup = () => {
     stopObservingMotion();animation.removeEventListener('finish',cleanup);animation.removeEventListener('cancel',cleanup);
