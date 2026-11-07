@@ -79,14 +79,7 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
         if (!id) try {id = localStorage.getItem('harness:selected-thread') ?? undefined;} catch { /* The server still validates an unbound preset. */ }
         if (id) threadId = (await getShellNavigationItem(id)).id;
       }
-      const result=await workspace.send(canvas ? 'workspace.canvas.select' : 'workspace.canvas.create', canvas ? {canvasId: canvas.id} : {name: next, preset: next, ...(threadId ? {threadId} : {})}, isCurrent);
-      check();
-      if(next==='code-review'&&binding){
-        const current=result.state.canvases.find(value=>value.id===result.state.activeCanvasId)!;
-        const threads=current.panels.filter(panel=>panel.kind==='thread'),panel=threads.find(panel=>panel.id==='review-owner-'+current.id)??(threads.length===1?threads[0]:undefined);
-        if(panel)await workspace.send('workspace.panel.update',{panelId:panel.id,patch:{binding}},isCurrent);
-        else await workspace.send('workspace.panel.add',{canvasId:current.id,panel:{id:'review-owner-'+current.id,kind:'thread',binding}},isCurrent);
-      }
+      await workspace.send(canvas ? 'workspace.canvas.select' : 'workspace.canvas.create', canvas ? {canvasId:canvas.id,...(next==='code-review'&&threadId?{threadId}:{})} : {name:next,preset:next,...(threadId?{threadId}:{})}, isCurrent);
       check(); if (alive.current) setError('');
     } finally {pending.current = false;}
   };

@@ -8,7 +8,7 @@ const head='1'.repeat(40),revision='e'.repeat(64);
 const local:CodeReviewComparison['identity']={kind:'local',id:'a'.repeat(64),scope:'worktree',headOid:head,branch:'topic',revision:'b'.repeat(64),base:{kind:'index',revision:'c'.repeat(64)},head:{kind:'worktree',revision:'b'.repeat(64)}};
 const remote:CodeReviewComparison['identity']={kind:'pull-request',id:'d'.repeat(64),repo:'owner/repo',number:48,pullRequestId:'PR_48',baseOid:'2'.repeat(40),headOid:head,mergeBaseOid:'4'.repeat(40),baseRef:'main',headRef:'topic',semantics:'merge-base'};
 const files=[{path:'src/first.ts',status:'MM',index:'M',worktree:'M',staged:true,untracked:false,binary:false,added:1,removed:1,additions:1,deletions:1}];
-async function fixture(page:Page,{unbound=false,wrongProject=false,native=false,paged=false,side=false,readOnly=false,hover=false,startWorkspace=false}={}){
+async function fixture(page:Page,{unbound=false,wrongProject=false,native=false,paged=false,side=false,readOnly=false,awaitComparison=false,linkedPrUnavailable=false,hover=false,startWorkspace=false}={}){
  const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Synthetic Code Review host fixture'}}}});
  snapshot.threads[0]={...snapshot.threads[0],id:'review-a',title:'Review changes',projectId:'project-a',projectName:'Alpha',status:'ready',runId:null,...(side?{kind:'side' as const}:{})};snapshot.activeThreadId='review-a';snapshot.artifacts=[];snapshot.userStates=[];snapshot.data=[];snapshot.messages=[];
  if(hover){snapshot.threads[0]={...snapshot.threads[0],workspaceId:'copy-a',modelId:'test/model-a',thinkingLevel:'high'};snapshot.threads.push({...snapshot.threads[0],id:'review-b',title:'Sibling review',workspaceId:'copy-b',modelId:'test/model-b',thinkingLevel:'low'});}
@@ -25,7 +25,8 @@ async function fixture(page:Page,{unbound=false,wrongProject=false,native=false,
  const canvases=['workspace','all-agents','code-review','research','custom'].map(preset=>({id:preset,name:preset,preset,panels:preset==='code-review'&&!unbound?[panel]:[],viewport:{x:0,y:0,zoom:1}}));
  const envelope={projects,state:{version:1,revision:1,activeCanvasId:startWorkspace?'workspace':'code-review',canvases,profiles:[],disabledKinds:[],integrations:{}}};
  await page.route('**/api/workspace',route=>route.fulfill({json:envelope}));
- await page.route('**/api/workspace/commands',route=>{const input=route.request().postDataJSON();if(input.type==='workspace.canvas.select')envelope.state.activeCanvasId=input.payload.canvasId;if(input.type==='workspace.panel.update')Object.assign(panel,input.payload.patch);if(input.type==='workspace.panel.add')canvases.find(canvas=>canvas.id===input.payload.canvasId)?.panels.push({...panel,...input.payload.panel});envelope.state.revision++;return route.fulfill({json:{commandId:input.id,seq:1,result:envelope}});});
+ const workspaceCommands:Record<string,any>[]=[];
+ await page.route('**/api/workspace/commands',route=>{const input=route.request().postDataJSON();workspaceCommands.push(input);if(input.type==='workspace.canvas.select'){const target=canvases.find(canvas=>canvas.id===input.payload.canvasId)!;if(input.payload.threadId){const selected=snapshot.threads.find(item=>item.id===input.payload.threadId)!;const binding={authority:{kind:'local'},threadId:selected.id,projectId:selected.projectId!};const existing=target.panels.find(item=>item.kind==='thread');if(existing)existing.binding=binding;else target.panels.push({...panel,id:'review-owner-'+target.id,binding});}envelope.state.activeCanvasId=target.id;}if(input.type==='workspace.panel.update')Object.assign(panel,input.payload.patch);if(input.type==='workspace.panel.add')canvases.find(canvas=>canvas.id===input.payload.canvasId)?.panels.push({...panel,...input.payload.panel});envelope.state.revision++;return route.fulfill({json:{commandId:input.id,seq:1,result:envelope}});});
  await page.route('**/api/shell-settings',route=>route.fulfill({json:snapshot.settings}));
  await page.route('**/api/shell/navigation?*',route=>{const second=new URL(route.request().url()).searchParams.has('cursor');return route.fulfill({json:{sequence:1,total:paged?2:1,items:paged&&second?[{...row,id:'older-copy',title:'Older working copy'}]:hover?snapshot.threads:[row],nextCursor:paged&&!second?'page-2':null,order:'created-desc',stats:{pinned:0,working:0,waiting:0,settled:paged?2:1,minOrder:0,maxOrder:0}}});});
  await page.route('**/api/shell/navigation/*',route=>route.fulfill({json:snapshot.threads.find(item=>item.id===new URL(route.request().url()).pathname.split('/').at(-1))??row}));
@@ -38,6 +39,7 @@ async function fixture(page:Page,{unbound=false,wrongProject=false,native=false,
   if(url.pathname.endsWith('/inspect')){inspections.push(route.request().postDataJSON());return route.fulfill({json:{state:inspection}});}
   if(url.pathname.endsWith('/context')){const item=snapshot.threads.find(item=>item.id===url.searchParams.get('threadId'))??row;return route.fulfill({json:{project:projects[0],threadId:item.id,workingCopy:{id:item.workspaceId,path:'C:/copies/'+item.id},threadRevision:threadNavigationRevision(item),revision:'git-'+item.id,machineName:'Exact host',branch:'branch-'+item.id,head,editor:{available:false,label:''},changes:{added:0,removed:0,files:0},lineage:[],scripts:[],capabilities:{git:true,gitWrite:true,terminal:true,pullRequests:true}}});}
   if(url.pathname.endsWith('/git'))return route.fulfill({json:{head,revision,branch:'topic',gitWrite:true,files}});
+  if(url.pathname.endsWith('/pull-requests')&&linkedPrUnavailable)return route.fulfill({status:409,json:{error:{code:'GITHUB_REMOTE_REQUIRED',message:'A GitHub origin is required for pull requests.'}}});
   if(url.pathname.endsWith('/pull-requests'))return route.fulfill({json:{repo:'owner/repo',items:[{number:48,title:'Exact remote PR',url:'https://github.com/owner/repo/pull/48'}]}});
   if(url.pathname.endsWith('/pull-requests/48'))return route.fulfill({json:{repo:'owner/repo',item:{number:48,headRefOid:head},head,revision,canReview:true}});
   const identity=url.pathname.includes('pull-request')?remote:url.searchParams.get('scope')==='staged'?{...local,scope:'staged'}:local;
@@ -45,11 +47,12 @@ async function fixture(page:Page,{unbound=false,wrongProject=false,native=false,
  });
  const module='/@fs/'+encodeURI(fileURLToPath(new URL('./workspace-app-fixture.tsx',import.meta.url)).replaceAll('\\','/'));
  await page.route('**/code-review-host-check',route=>route.fulfill({contentType:'text/html',body:`<html><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${module}');</script></body></html>`}));
- await page.goto('/code-review-host-check');return{row,context,requests,commands,actions,inspections,setOutcome:(value:string)=>{outcome=value;},setInspection:(value:string)=>{inspection=value;}};
+ const comparisonReady=awaitComparison?page.waitForResponse(response=>new URL(response.url()).pathname==='/api/projects/project-a/git/comparison'&&response.ok()):null;
+ await page.goto('/code-review-host-check');if(comparisonReady)await comparisonReady;return{context,row,requests,commands,workspaceCommands,actions,inspections,setOutcome:(value:string)=>{outcome=value;},setInspection:(value:string)=>{inspection=value;}};
 }
 async function choose(page:Page,label:string,value:string){await page.getByRole('combobox',{name:label,exact:true}).click();await page.getByRole('option',{name:value,exact:true}).click();}
 test('cold Code Review shows its bound diff without a conversation snapshot or agent inventory',async({page})=>{
- const h=await fixture(page);await expect(page.getByRole('region',{name:'Code review workspace',exact:true})).toBeVisible();await expect(page.getByRole('region',{name:'Selected file diff'})).toContainText('exact local source');
+ const h=await fixture(page);await expect(page.getByRole('region',{name:'Code review workspace',exact:true})).toBeVisible({timeout:15000});await expect(page.getByRole('region',{name:'Selected file diff'})).toContainText('exact local source');
  expect(h.requests.filter(path=>path==='/api/snapshot'||path.startsWith('/api/events')||path.startsWith('/api/agents'))).toEqual([]);expect(h.requests.some(path=>path.startsWith('/api/conversations/irrelevant-thread'))).toBe(false);
 });
 test('unbound Code Review asks for an explicit working-copy owner without creating a thread',async({page})=>{
@@ -97,19 +100,111 @@ test('bound working-copy selector can load older conversations',async({page})=>{
  await expect(page.getByRole('option',{name:'Alpha / Older working copy',exact:true})).toBeVisible();
  expect(h.requests.some(path=>path.startsWith('/api/shell/navigation?')&&path.includes('cursor=page-2'))).toBe(true);
 });
-test('same-owner reacquisition retains review and chat while holding tool actions',async({page})=>{
- const h=await fixture(page);const region=page.getByRole('region',{name:'Code review workspace',exact:true});await expect(region).toBeVisible();
+test('same-owner fresh-scope reacquisition retains presentation while holding tool actions',async({page})=>{
+ const h=await fixture(page,{awaitComparison:true,paged:true});const region=page.getByRole('region',{name:'Code review workspace',exact:true});await expect(region).toBeVisible();
+ await page.getByRole('button',{name:'More conversations',exact:true}).click();await expect.poll(()=>h.requests.some(path=>path.includes('cursor=page-2'))).toBe(true);
+ const second={...files[0],path:'src/second.ts'};
+ await page.route('**/api/projects/project-a/git/comparison?*',route=>route.fulfill({json:{state:'ready',value:{identity:local,files:[...files,second],filesTruncated:false,checks:[],observedAt:'2026-11-06',access:{mode:'managed',untrackedIncluded:true}}}}));
+ await page.route('**/api/projects/project-a/git/comparison/file?*',route=>route.fulfill({json:{identity:local,file:second,state:'text',text:'@@ -1 +1 @@\n-old\n+second file source'}}));
+ await page.getByRole('button',{name:'Refresh comparison',exact:true}).click();await page.getByRole('button',{name:/src\/second.ts/}).click();
+ const filter=page.getByRole('searchbox',{name:'Filter files'});await filter.fill('second');
+ const terminalCommands:Record<string,any>[]=[];await page.route('**/api/terminals**',route=>{if(route.request().method()==='POST'&&new URL(route.request().url()).pathname.endsWith('/commands'))terminalCommands.push(route.request().postDataJSON());return route.fulfill({json:{id:'review-terminal',output:'Synthetic real terminal adapter',start:0,cursor:31,exited:false,exitCode:null}});});
+ await page.getByRole('button',{name:'Terminal',exact:true}).click();await expect(page.locator('.xterm-host .xterm')).toBeVisible();
  await page.getByRole('button',{name:'Agent chat',exact:true}).click();const message=page.getByRole('textbox',{name:'Message',exact:true});await message.fill('Retain review chat draft');
- const original=await region.elementHandle();let sent=false,reacquiring=false,release!:()=>void;const held=new Promise<void>(resolve=>{release=resolve;});
- await page.route('**/api/conversations/review-a?*',async route=>{reacquiring=true;await held;await route.fulfill({json:h.context});});
- await page.route('**/api/conversations/review-a/updates?*',route=>{if(!sent){sent=true;return route.fulfill({status:400,json:{error:{code:'RESYNC_REQUIRED',message:'Reacquire unchanged owner'}}});}return route.fulfill({json:{authority:'personal',threadId:'review-a',scopeKey:h.context.scopeKey,sequence:10,fromSequence:10,owner:null,transcriptChanged:false,checkpoint:h.context.checkpoint}});});
+ h.setOutcome('uncertain');await page.getByRole('button',{name:'Stage file',exact:true}).click();await expect(page.getByRole('button',{name:'Inspect action outcome',exact:true})).toBeVisible();
+ const original=await region.elementHandle(),originalMessage=await message.elementHandle(),originalTerminal=await page.locator('.xterm-host').elementHandle();
+ const fresh={...h.context,scopeKey:'f'.repeat(64),sequence:20,checkpoint:'checkpoint-fresh-20'};
+ let sent=false,reacquiring=false,metadataPending=false,releaseContext!:()=>void,releaseMetadata!:()=>void;
+ const contextHeld=new Promise<void>(resolve=>{releaseContext=resolve;}),metadataHeld=new Promise<void>(resolve=>{releaseMetadata=resolve;});
+ await page.route('**/api/conversations/review-a?*',async route=>{reacquiring=true;await contextHeld;await route.fulfill({json:fresh});});
+ await page.route('**/api/conversations/review-a/transcript?*',route=>route.fulfill({json:{authority:'personal',threadId:'review-a',scopeKey:fresh.scopeKey,sequence:20,messages:[],nextCursor:null}}));
+ await page.route('**/api/conversations/review-a/updates?*',route=>{if(!sent){sent=true;return route.fulfill({status:400,json:{error:{code:'RESYNC_REQUIRED',message:'Reacquire unchanged owner'}}});}return route.fulfill({json:{authority:'personal',threadId:'review-a',scopeKey:fresh.scopeKey,sequence:20,fromSequence:20,owner:null,transcriptChanged:false,checkpoint:fresh.checkpoint}});});
+ await page.route('**/api/projects/project-a/git?*',async route=>{metadataPending=true;await metadataHeld;await route.fulfill({json:{head,revision,branch:'topic',gitWrite:true,files}});});
  try{
   await expect.poll(()=>reacquiring).toBe(true);expect(await original!.evaluate(node=>node.isConnected)).toBe(true);
-  await expect(page.locator('.code-review-bound')).toHaveAttribute('inert','');await expect(page.getByRole('button',{name:'Stage file',exact:true})).toBeDisabled();expect(h.actions).toHaveLength(0);
- }finally{release();}
+  await expect(page.locator('.code-review-bound')).toHaveAttribute('inert','');await expect(page.getByRole('button',{name:'Stage file',exact:true})).toBeDisabled();
+  releaseContext();await expect.poll(()=>metadataPending).toBe(true);
+  // A real server issues a new scope. Metadata is still unresolved, but this must be the same mounted presentation.
+  expect(await original!.evaluate(node=>node.isConnected)).toBe(true);expect(await originalMessage!.evaluate(node=>node.isConnected)).toBe(true);expect(await originalTerminal!.evaluate(node=>node.isConnected)).toBe(true);
+  await expect(page.locator('.code-review-bound')).toHaveAttribute('inert','');
+  await expect(page.getByRole('button',{name:'Stage file',exact:true})).toBeDisabled();await expect(message).toBeDisabled();
+  // Even direct event dispatch cannot turn retained metadata into command authority.
+  await page.getByRole('button',{name:'Inspect action outcome',exact:true}).dispatchEvent('click');
+  await page.locator('.cr-toolbar .ui-select-native').first().evaluate((select:HTMLSelectElement)=>{select.value=select.options[1]!.value;select.dispatchEvent(new Event('change',{bubbles:true}));});
+  await page.getByRole('button',{name:'Stop',exact:true}).dispatchEvent('click');
+  expect(h.actions).toHaveLength(1);expect(h.inspections).toHaveLength(0);expect(h.workspaceCommands).toHaveLength(0);expect(terminalCommands.filter(command=>command.type==='stop')).toHaveLength(0);expect(h.commands.filter(command=>command.type==='message.send')).toHaveLength(0);
+ }finally{releaseContext();releaseMetadata();}
  await expect(page.locator('.code-review-bound')).not.toHaveAttribute('inert','');
  await expect(page.getByRole('button',{name:'Agent chat',exact:true})).toHaveAttribute('aria-pressed','true');await expect(message).toHaveValue('Retain review chat draft');
- expect(await original!.evaluate(node=>node.isConnected)).toBe(true);
+ await expect(page.getByRole('button',{name:'Terminal',exact:true})).toHaveAttribute('aria-pressed','true');await expect(page.locator('.xterm-host .xterm')).toBeVisible();
+ await expect(filter).toHaveValue('second');await expect(page.getByRole('heading',{name:'src/second.ts',exact:true})).toBeVisible();
+ expect(await original!.evaluate(node=>node.isConnected)).toBe(true);expect(await originalMessage!.evaluate(node=>node.isConnected)).toBe(true);
+});
+
+test('logical owner changes reset presentation and fence an old authenticated action retry',async({page})=>{
+ const h=await fixture(page,{awaitComparison:true,paged:true});const region=page.getByRole('region',{name:'Code review workspace',exact:true});await expect(region).toBeVisible();
+ const other={...h.row,id:'older-copy',title:'Older working copy'},context={...h.context,scopeKey:'d'.repeat(64),checkpoint:'older-checkpoint',owner:{...h.context.owner,threadId:other.id,title:other.title}};
+ await page.route('**/api/shell/navigation?*',route=>route.fulfill({json:{sequence:1,total:2,items:[h.row,other],nextCursor:null,order:'created-desc',stats:{pinned:0,working:0,waiting:0,settled:2,minOrder:0,maxOrder:0}}}));
+ await page.route('**/api/shell/navigation/older-copy',route=>route.fulfill({json:other}));
+ await page.route('**/api/conversations/older-copy**',route=>{const url=new URL(route.request().url()),owner={authority:'personal',threadId:other.id,scopeKey:context.scopeKey,sequence:10};return route.fulfill({json:url.pathname.endsWith('/updates')?{...owner,fromSequence:10,owner:null,transcriptChanged:false,checkpoint:context.checkpoint}:url.pathname.endsWith('/transcript')?{...owner,messages:[],nextCursor:null}:context});});
+ await page.getByRole('button',{name:'More conversations',exact:true}).click();
+ await page.getByRole('searchbox',{name:'Filter files'}).fill('first');await page.getByRole('button',{name:'Agent chat',exact:true}).click();await page.getByRole('textbox',{name:'Message',exact:true}).fill('Original owner draft');
+ await page.route('**/api/terminals**',route=>route.fulfill({json:{id:'review-terminal',output:'Synthetic terminal',start:0,cursor:18,exited:false,exitCode:null}}));
+ await page.getByRole('button',{name:'Terminal',exact:true}).click();await expect(page.locator('.xterm-host .xterm')).toBeVisible();
+ const original=await region.elementHandle();let posts=0,release!:()=>void;const held=new Promise<void>(resolve=>{release=resolve;});
+ await page.route('**/api/projects/project-a/actions',async route=>{posts++;await held;return route.fulfill({status:403,json:{error:{code:'AUTH_REQUIRED',message:'Renew session'}}});});
+ await page.getByRole('button',{name:'Stage file',exact:true}).click();await expect.poll(()=>posts).toBe(1);
+ try{
+  await choose(page,'Project and working copy','Alpha / Older working copy');await expect(page.getByRole('combobox',{name:'Project and working copy',exact:true})).toContainText('Older working copy');
+  expect(await original!.evaluate(node=>node.isConnected)).toBe(false);
+  await expect(page.getByRole('searchbox',{name:'Filter files'})).toHaveValue('');await expect(page.getByRole('button',{name:'Agent chat',exact:true})).toHaveAttribute('aria-pressed','false');await expect(page.getByRole('button',{name:'Terminal',exact:true})).toHaveAttribute('aria-pressed','false');
+ }finally{release();}
+ await choose(page,'Project and working copy','Alpha / Review changes');
+ // Returning to the original owner observes the durable terminal outcome of the old callback.
+ await expect(page.getByRole('alert').filter({hasText:'Action access revoked.'})).toBeVisible();expect(posts).toBe(1);
+ await page.getByRole('button',{name:'Agent chat',exact:true}).click();await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('Original owner draft');
+});
+
+test('optional linked PR failure leaves local review usable before and after a fresh scope',async({page})=>{
+ const h=await fixture(page,{awaitComparison:true,paged:true,linkedPrUnavailable:true});
+ const stage=page.getByRole('button',{name:'Stage file',exact:true});await expect(stage).toBeEnabled();
+ await expect(page.getByRole('alert').filter({hasText:/linked pull requests/i})).toBeVisible();await expect(page.getByRole('button',{name:'Pull request',exact:true})).toHaveCount(0);
+ await page.getByRole('searchbox',{name:'Filter files'}).fill('first');await page.getByRole('button',{name:/src\/first.ts/}).click();
+ await page.getByRole('button',{name:'Agent chat',exact:true}).click();const message=page.getByRole('textbox',{name:'Message',exact:true});await message.fill('Local review without GitHub');
+ await page.route('**/api/terminals**',route=>route.fulfill({json:{id:'review-terminal',output:'Local terminal',start:0,cursor:14,exited:false,exitCode:null}}));
+ await page.getByRole('button',{name:'Terminal',exact:true}).click();await expect(page.locator('.xterm-host .xterm')).toBeVisible();
+ await stage.click();await expect.poll(()=>h.actions.length).toBe(1);await expect(stage).toBeEnabled();
+ const original=await page.getByRole('region',{name:'Code review workspace',exact:true}).elementHandle();
+ const fresh={...h.context,scopeKey:'9'.repeat(64),sequence:20,checkpoint:'local-fresh-20'};
+ let resync=false,metadataPending=false,release!:()=>void;const held=new Promise<void>(resolve=>{release=resolve;});
+ await page.route('**/api/conversations/review-a?*',route=>route.fulfill({json:fresh}));
+ await page.route('**/api/conversations/review-a/transcript?*',route=>route.fulfill({json:{authority:'personal',threadId:'review-a',scopeKey:fresh.scopeKey,sequence:20,messages:[],nextCursor:null}}));
+ await page.route('**/api/conversations/review-a/updates?*',route=>{if(!resync){resync=true;return route.fulfill({status:400,json:{error:{code:'RESYNC_REQUIRED',message:'Refresh local owner'}}});}return route.fulfill({json:{authority:'personal',threadId:'review-a',scopeKey:fresh.scopeKey,sequence:20,fromSequence:20,owner:null,transcriptChanged:false,checkpoint:fresh.checkpoint}});});
+ await page.route('**/api/projects/project-a/git?*',async route=>{metadataPending=true;await held;return route.fulfill({json:{head,revision,branch:'topic',gitWrite:true,files}});});
+ try{
+  await expect.poll(()=>metadataPending).toBe(true);expect(await original!.evaluate(node=>node.isConnected)).toBe(true);
+  await expect(page.locator('.code-review-bound')).toHaveAttribute('inert','');await expect(stage).toBeDisabled();await expect(message).toBeDisabled();
+ }finally{release();}
+ await expect(page.locator('.code-review-bound')).not.toHaveAttribute('inert','');await expect(stage).toBeEnabled();
+ await expect(page.getByRole('searchbox',{name:'Filter files'})).toHaveValue('first');await expect(message).toHaveValue('Local review without GitHub');expect(await original!.evaluate(node=>node.isConnected)).toBe(true);
+ await expect(page.getByRole('alert').filter({hasText:/linked pull requests/i})).toBeVisible();await expect(page.getByRole('button',{name:'Pull request',exact:true})).toHaveCount(0);
+ await stage.click();await expect.poll(()=>h.actions.length).toBe(2);await expect(stage).toBeEnabled();
+ const other={...h.row,id:'older-copy',title:'Older working copy'},context={...fresh,scopeKey:'8'.repeat(64),checkpoint:'other-local',owner:{...fresh.owner,threadId:other.id,title:other.title}};
+ await page.route('**/api/shell/navigation/older-copy',route=>route.fulfill({json:other}));
+ await page.route('**/api/conversations/older-copy**',route=>{const url=new URL(route.request().url()),owner={authority:'personal',threadId:other.id,scopeKey:context.scopeKey,sequence:20};return route.fulfill({json:url.pathname.endsWith('/updates')?{...owner,fromSequence:20,owner:null,transcriptChanged:false,checkpoint:context.checkpoint}:url.pathname.endsWith('/transcript')?{...owner,messages:[],nextCursor:null}:context});});
+ await page.getByRole('button',{name:'More conversations',exact:true}).click();await choose(page,'Project and working copy','Alpha / Older working copy');
+ await expect(page.getByRole('combobox',{name:'Project and working copy',exact:true})).toContainText('Older working copy');await expect(stage).toBeEnabled();
+ expect(h.workspaceCommands).toHaveLength(1);expect(h.workspaceCommands[0]).toMatchObject({type:'workspace.panel.update',payload:{patch:{binding:{threadId:'older-copy'}}}});
+});
+
+test('actual fresh Git failure still holds local tools when linked PR discovery is unavailable',async({page})=>{
+ const h=await fixture(page,{awaitComparison:true,linkedPrUnavailable:true});await expect(page.getByRole('button',{name:'Stage file',exact:true})).toBeEnabled();
+ await page.getByRole('button',{name:'Agent chat',exact:true}).click();const message=page.getByRole('textbox',{name:'Message',exact:true});await message.fill('Held local Git access');
+ await page.route('**/api/projects/project-a/git?*',route=>route.fulfill({status:403,json:{error:{code:'CAPABILITY_DENIED',message:'Git access revoked'}}}));
+ await page.getByRole('button',{name:'Refresh comparison',exact:true}).click();
+ await expect(page.getByRole('alert').filter({hasText:/review access/i})).toBeVisible();await expect(page.locator('.code-review-bound')).toHaveAttribute('inert','');await expect(message).toBeDisabled();
+ await page.getByRole('button',{name:'Send message',exact:true}).dispatchEvent('click');
+ expect(h.actions).toHaveLength(0);expect(h.commands.filter(command=>command.type==='message.send')).toHaveLength(0);await expect(page.getByRole('button',{name:'Pull request',exact:true})).toHaveCount(0);
 });
 
 test('sidebar cards keep sibling copies separate and open the exact linked PR',async({page})=>{
@@ -122,11 +217,13 @@ test('sidebar cards keep sibling copies separate and open the exact linked PR',a
  await expect(page.getByRole('region',{name:'Selected file diff'})).toContainText('exact pull-request source');
  expect(h.requests.some(path=>path.startsWith('/api/projects/project-a/pull-requests/48/comparison?threadId=review-a'))).toBe(true);
  expect(h.requests.filter(path=>path==='/api/snapshot'||path.startsWith('/api/agents'))).toEqual([]);
+ expect(h.workspaceCommands.filter(item=>item.type==='workspace.canvas.select'&&item.payload.threadId==='review-a')).toHaveLength(1);
+ expect(h.workspaceCommands.filter(item=>item.type==='workspace.panel.update'||item.type==='workspace.panel.add')).toHaveLength(0);
 });
 
 test('a native owner roundtrip prevents a linked-PR workspace binding retry',async({page})=>{
  await fixture(page,{hover:true,native:true});await expect(page.getByRole('region',{name:'Code review workspace',exact:true})).toBeVisible();let writes=0;
- await page.route('**/api/workspace/commands',async route=>{const input=route.request().postDataJSON();if(input.type==='workspace.panel.update'){writes++;await page.evaluate(()=>{const publish=Reflect.get(window,'publishReviewOwner');publish(true);publish(false);});return route.fulfill({status:403,json:{error:{code:'AUTH_REQUIRED',message:'Renew session'}}});}return route.fallback();});
+ await page.route('**/api/workspace/commands',async route=>{const input=route.request().postDataJSON();if(input.type==='workspace.canvas.select'&&input.payload.threadId){writes++;await page.evaluate(()=>{const publish=Reflect.get(window,'publishReviewOwner');publish(true);publish(false);});return route.fulfill({status:403,json:{error:{code:'AUTH_REQUIRED',message:'Renew session'}}});}return route.fallback();});
  await page.getByRole('button',{name:'Review changes Ready',exact:true}).hover();await page.locator('.thread-hover-card').getByRole('button',{name:'Open PR #48 Exact remote PR',exact:true}).click();
  await expect(page.getByRole('alert').filter({hasText:/own|changed|Reload|unavailable|Renew session/i}).first()).toBeVisible();expect(writes).toBe(1);
 });
@@ -142,9 +239,10 @@ test('reopening sidebar details refreshes branch and newly linked PR facts',asyn
  await trigger.hover();await expect(card).toContainText('fresh-branch');await expect(card.getByRole('button',{name:'Open PR #49 Newly linked PR',exact:true})).toBeVisible();
 });
 
-test('a failed hover PR transition from Workspace retains its error after the conversation unmounts',async({page})=>{
- await fixture(page,{hover:true,startWorkspace:true});await expect(page.getByRole('button',{name:'Code Review',exact:true})).toHaveAttribute('aria-pressed','false');
- await page.route('**/api/workspace/commands',route=>route.request().postDataJSON().type==='workspace.panel.update'?route.fulfill({status:409,json:{error:{code:'BINDING_REJECTED',message:'Exact review owner could not bind'}}}):route.fallback());
+test('a failed hover PR transition preserves the active workspace and review owner',async({page})=>{
+ const h=await fixture(page,{hover:true,startWorkspace:true});await expect(page.getByRole('button',{name:'Code Review',exact:true})).toHaveAttribute('aria-pressed','false');
+ await page.route('**/api/workspace/commands',route=>route.request().postDataJSON().type==='workspace.canvas.select'&&route.request().postDataJSON().payload.threadId==='review-b'?route.fulfill({status:409,json:{error:{code:'BINDING_REJECTED',message:'Exact review owner could not bind'}}}):route.fallback());
  await page.getByRole('button',{name:'Sibling review Ready',exact:true}).hover();await page.locator('.thread-hover-card').getByRole('button',{name:'Open PR #48 Exact remote PR',exact:true}).click();
- await expect(page.getByRole('button',{name:'Code Review',exact:true})).toHaveAttribute('aria-pressed','true');await expect(page.getByRole('alert').filter({hasText:'Exact review owner could not bind'})).toBeVisible();
+ await expect(page.getByRole('button',{name:'Code Review',exact:true})).toHaveAttribute('aria-pressed','false');await expect(page.getByRole('alert').filter({hasText:'Exact review owner could not bind'})).toBeVisible();
+ expect(h.workspaceCommands.filter(item=>item.type==='workspace.panel.update'||item.type==='workspace.panel.add')).toHaveLength(0);
 });

@@ -36,10 +36,22 @@ export class WorkspaceRepository{
    const canvas=(id:unknown)=>{const value=state.canvases.find(item=>item.id===workspaceIdSchema.parse(id));if(!value)throw missing('canvas');return value;};
    const profile=(id:unknown)=>{const value=state.profiles.find(item=>item.id===workspaceIdSchema.parse(id));if(!value)throw missing('profile');return value;};
    const panel=(id:unknown)=>{const value=state.canvases.flatMap(item=>item.panels).find(item=>item.id===workspaceIdSchema.parse(id));if(!value)throw missing('panel');return value;};
+   const bindReview=(target:CanvasLayout,threadId:unknown)=>{
+    const owner=this.store.get<Thread>('thread',workspaceIdSchema.parse(threadId));
+    if(!owner?.projectId||owner.kind==='side'||owner.kind==='delegate'||owner.sideParentId)throw new HarnessError('THREAD_REQUIRED','Choose a main project conversation for Code Review.');
+    const binding:PanelBinding={authority:{kind:'local'},threadId:owner.id,projectId:owner.projectId};
+    const threads=target.panels.filter(item=>item.kind==='thread');
+    const existing=threads.find(item=>item.id==='review-owner-'+target.id)??(threads.length===1?threads[0]:undefined);
+    if(existing)existing.binding=binding;
+    else target.panels.push(panelPlacementSchema.parse({id:'review-owner-'+target.id,kind:'thread',binding,canvasId:target.id,placement:'canvas',visible:true,collapsed:false,bounds:{x:24,y:24,width:540,height:380},order:target.panels.length,alwaysOnTop:false}));
+    target.projectIds=[owner.projectId];
+   };
    if(type==='canvas.create'){
     const data=z.strictObject({name,preset:workspacePresetSchema,projectIds:z.array(workspaceIdSchema).max(200).optional(),threadId:workspaceIdSchema.optional(),baseRevision:revision.optional()}).parse(p);
-    const ownerId=data.threadId??(data.preset==='research'?this.store.snapshot().activeThreadId:undefined),owner=ownerId?this.store.get<Thread>('thread',ownerId):undefined;if(data.threadId&&!owner)throw missing('conversation');const next=createWorkspaceCanvas(data.preset,data.name,undefined,owner?{authority:{kind:'local'},threadId:owner.id,...(owner.projectId?{projectId:owner.projectId}:{})}:undefined);next.projectIds=data.projectIds??next.projectIds;state.canvases.push(next);state.activeCanvasId=next.id;
-   }else if(type==='canvas.select')state.activeCanvasId=canvas(p.canvasId).id;
+    const ownerId=data.threadId??(data.preset==='research'?this.store.snapshot().activeThreadId:undefined),owner=ownerId?this.store.get<Thread>('thread',ownerId):undefined;if(data.threadId&&!owner)throw missing('conversation');const next=createWorkspaceCanvas(data.preset,data.name,undefined,owner?{authority:{kind:'local'},threadId:owner.id,...(owner.projectId?{projectId:owner.projectId}:{})}:undefined);next.projectIds=data.projectIds??next.projectIds;if(data.preset==='code-review'&&data.threadId)bindReview(next,data.threadId);state.canvases.push(next);state.activeCanvasId=next.id;
+   }else if(type==='canvas.select'){
+    const target=canvas(p.canvasId);if(p.threadId!==undefined){if(target.preset!=='code-review')throw new HarnessError('INVALID_INPUT','Thread binding is available only in Code Review.');bindReview(target,p.threadId);}state.activeCanvasId=target.id;
+   }
    else if(type==='canvas.rename')canvas(p.canvasId).name=name.parse(p.name);
    else if(type==='canvas.delete'){
     const target=canvas(p.canvasId);if(state.canvases.length===1)throw new HarnessError('LAST_CANVAS','Keep at least one canvas.');state.canvases=state.canvases.filter(item=>item!==target);if(state.activeCanvasId===target.id)state.activeCanvasId=state.canvases[0]!.id;
