@@ -280,3 +280,9 @@
 
 .shell-workarea[data-tool-layout=stacked]>.workspace-tools>.workspace-right { min-height:calc(53px + var(--ui-tool-body-min)); }
 .shell-workarea[data-tool-layout=stacked]>.workspace-tools>.desktop-browser-dock { min-height:calc(96px + var(--ui-tool-body-min)); }
+
+.custom-tools-dock { position:relative; display:flex; flex:1 1 0; flex-direction:column; min-width:0; min-height:0; }
+.shell-workarea[data-tool-layout=stacked]>.workspace-tools>.custom-tools-dock { min-height:calc(64px + var(--ui-tool-body-min)); }
+
+.shell-workarea[data-tool-layout=stacked]>.workspace-tools:has(>.custom-tools-dock) { --stacked-tool-min:calc(64px + var(--ui-tool-body-min)); }
+.workspace-tools[hidden] { display:none!important; }

@@ -37,6 +37,8 @@ async function pendingReads(page:Page,kind:'models'|'context'){
 }
 const panel=(id:string,threadId:string,x:number,kind:PanelPlacement['kind']='thread'):PanelPlacement=>({id,kind,canvasId:'canvas',binding:{authority:{kind:'local'},threadId,...(kind==='agent'?{agentId:'agent-one'}:{})},placement:'canvas',visible:true,collapsed:false,bounds:{x,y:56,width:480,height:600},order:0,alwaysOnTop:false});
 async function fixture(page:Page,panels:PanelPlacement[],beforeCommand?:(type:string,envelope:WorkspaceEnvelope)=>void|{code:string;message:string},preset:'custom'|'workspace'='custom'){
+ // This suite exercises explicit retained canvas recovery; normal Custom is covered by workspace-host.
+ if(preset==='custom')await page.addInitScript(()=>localStorage.setItem('harness:workspace-mode:v3','retained-canvas'));
  const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Unused artifact fixture'}}}});
  snapshot.artifacts=[];snapshot.userStates=[];snapshot.settings.theme='dark';
  snapshot.threads[0]={...snapshot.threads[0],title:'Main investigation'};

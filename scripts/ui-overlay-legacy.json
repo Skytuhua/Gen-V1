@@ -609,17 +609,6 @@
       "disposition": "staged-migration"
     },
     {
-      "file": "apps/web/src/WorkspaceControls.tsx",
-      "line": 21,
-      "column": 709,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "8c573d8afc2a298880088d7a81901b2a2ae638cb69758f66c198efdc35cf6bd4",
-      "reason": "CONTROLS2/LAYOUT: Panels moves to ActionMenu; Layouts/saved canvas controls remain staged for later migration.",
-      "evidence": "<select aria-label=\"Saved canvas\" value={active?.id??''} onChange={event=>run(async()=>{await prepare();await send('workspace.canvas.select',{canvasId:event.target.value});})}>{envelope.state.canvases.map(canvas=><option",
-      "disposition": "staged-migration"
-    },
-    {
       "file": "apps/web/src/WorkspacePanel.tsx",
       "line": 34,
       "column": 137,
