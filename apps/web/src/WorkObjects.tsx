@@ -6,6 +6,7 @@ import {ArtifactInline,ArtifactTitle,inputPath,statePath,useTaskAction} from './
 import {MotionRegion,reducedMotion} from './task-motion';
 import {createSpringValue} from './motion-spring';
 import {readMotionPolicy,observeMotionPolicy} from './motion-policy';
+import {Select} from '../../../packages/ui-shell/Select';
 import './work-objects.css';
 
 const object=(value:unknown):Record<string,unknown>=>value&&typeof value==='object'&&!Array.isArray(value)?value as Record<string,unknown>:{};
@@ -78,7 +79,7 @@ export function WorkflowBoard({element:{props}}:ComponentRenderProps){
     </section>;
    })}
   </div></div>
-  <MotionRegion open={Boolean(selected)}><div className="workflow-selected">{selected&&<><div><strong>{selected.title}</strong>{selected.detail&&<p>{selected.detail}</p>}</div><label><span>Move to</span><select aria-label="Move selected card" value={placements.get(selected.id)} disabled={stale} onChange={event=>move(selected.id,event.target.value)}>{data.lanes.map(lane=><option key={lane.id} value={lane.id}>{lane.label}</option>)}</select></label></>}</div></MotionRegion>
+  <MotionRegion open={Boolean(selected)}><div className="workflow-selected">{selected&&<><div><strong>{selected.title}</strong>{selected.detail&&<p>{selected.detail}</p>}</div><label><span>Move to</span><Select aria-label="Move selected card" value={placements.get(selected.id)??''} disabled={stale} onValueChange={laneId=>move(selected.id,laneId)} options={data.lanes.map(lane=>({value:lane.id,label:lane.label}))}/></label></>}</div></MotionRegion>
   {stale&&<div className="workflow-stale"><p>The source changed. Reset the local draft before proposing moves.</p><button type="button" className="secondary" onClick={()=>{const {previous,...checkpoint}=current();save({sourceRevision:data.revision,selectedId:null,placements:data.cards.map(card=>({cardId:card.id,laneId:card.laneId})),previous:checkpoint});}}>Reset to source</button></div>}
   <footer className="work-object-footer"><span>{proposal?`${proposal.moves.length} local ${proposal.moves.length===1?'move':'moves'}`:'Drag cards or use Alt + Left / Right'}</span>{p.actionId&&<button type="button" className="primary" disabled={action.busy||!proposal||stale} onClick={submit}>{action.busy?'Sending\u2026':p.actionLabel??'Send move proposal'}</button>}</footer>
   <ActionError error={selectionError||action.error}/><Source text={data.source}/>
@@ -207,7 +208,7 @@ export function TraceWaterfall({element:{props}}:ComponentRenderProps){
  const range=layout.end>layout.start?layout.end-layout.start:1,tabEntry=layout.rows.some(row=>row.span.id===selected?.id)?selected?.id:layout.rows[0]?.span.id,trackWidth=inline?Math.max(1,viewportWidth-labelWidth):Math.max(360,viewportWidth-220)*zoom;
  return <section className="work-object trace-waterfall" aria-label={data.title??'Trace waterfall'} style={{'--trace-label-width':`${labelWidth}px`} as CSSProperties}>
   <Heading title={data.title} caption={`${data.spans.length} supplied spans`}/>
-  <div className="trace-toolbar"><label className="trace-filter"><Search size={14}/><input type="search" aria-label="Filter spans" placeholder="Filter spans..." value={query} maxLength={200} onChange={event=>save({query:event.target.value})}/></label><select aria-label="Span status" value={status} onChange={event=>save({status:event.target.value})}><option value="all">All statuses</option><option value="ok">OK</option><option value="error">Error</option><option value="unknown">Unknown</option></select>{!inline&&<select aria-label="Timeline zoom" value={zoom} onChange={event=>save({zoom:Number(event.target.value)})}><option value="1">1x zoom</option><option value="2">2x zoom</option><option value="4">4x zoom</option></select>}</div>
+  <div className="trace-toolbar"><label className="trace-filter"><Search size={14}/><input type="search" aria-label="Filter spans" placeholder="Filter spans..." value={query} maxLength={200} onChange={event=>save({query:event.target.value})}/></label><Select aria-label="Span status" value={status} onValueChange={status=>save({status})} options={[{value:'all',label:'All statuses'},{value:'ok',label:'OK'},{value:'error',label:'Error'},{value:'unknown',label:'Unknown'}]}/>{!inline&&<Select aria-label="Timeline zoom" value={String(zoom)} onValueChange={zoom=>save({zoom:Number(zoom)})} options={[{value:'1',label:'1x zoom'},{value:'2',label:'2x zoom'},{value:'4',label:'4x zoom'}]}/>}</div>
   <div className="trace-scroll" ref={scroll}><div className="trace-timeline" style={{minWidth:labelWidth+trackWidth}}>
    <div className="trace-ruler"><span>Span / service</span><div style={{width:trackWidth}}>{layout.timed?[0,.25,.5,.75,1].map(tick=><span key={tick} style={{left:`${tick*100}%`}}>{milliseconds(layout.start+(layout.end-layout.start)*tick)}</span>):<span className="trace-no-time">Timing unavailable</span>}</div></div>
    <div className="trace-tree" role="tree" aria-label="Supplied spans" ref={tree}>{layout.rows.map(({span,depth,hasChildren,expanded},index)=>{

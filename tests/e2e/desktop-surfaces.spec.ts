@@ -59,9 +59,9 @@ test('review: startup does not expose an ownerless composer before the initial s
 
 for(const required of [false,true])test(`review: clearing an enum ${required?'retains required validation':'omits the optional response'}`,async({page})=>{
  await bridge(page);const snapshot=fixture();snapshot.requests=[{id:'enum-choice',threadId:'task-thread',artifactId:null,revision:1,title:'Choose a delivery route',prompt:'Choose a route if needed.',responseSchema:{type:'object',properties:{choice:{type:'string',title:'Delivery route',enum:['alpha','beta']}},...(required?{required:['choice']}:{})},basis:[],status:'pending'}];
- const host=await serveTaskFixture(page,snapshot);await page.goto('/');const select=page.getByRole('combobox',{name:'Delivery route',exact:true});await select.selectOption('1');await select.selectOption('');await expect(select).toHaveValue('');
+ const host=await serveTaskFixture(page,snapshot);await page.goto('/');const select=page.getByRole('combobox',{name:'Delivery route',exact:true});await select.click();await page.getByRole('option',{name:'beta',exact:true}).click();await select.click();await page.getByRole('option',{name:'Choose…',exact:true}).click();await expect(select).toHaveText('Choose…');
  await page.getByRole('button',{name:'Continue',exact:true}).click();
- if(required){expect(await select.evaluate(node=>(node as HTMLSelectElement).validity.valueMissing)).toBe(true);expect(host.commands.filter(command=>command.type==='request.respond')).toHaveLength(0);}
+ if(required){await expect(select).toHaveAttribute('aria-invalid','true');await expect(select).toBeFocused();expect(host.commands.filter(command=>command.type==='request.respond')).toHaveLength(0);}
  else{await expect.poll(()=>host.commands.filter(command=>command.type==='request.respond').length).toBe(1);expect(host.commands.find(command=>command.type==='request.respond')?.payload.response).toEqual({});}
 });
 
