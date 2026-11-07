@@ -12,7 +12,10 @@ import {z} from 'zod';
 import {journalRead,journalWrite,journalSubscribe,journalFlush,journalGeneration,journalCompareAndSwap} from './journal.ts';
 import {useDesktopCloseGuard} from './desktop-context.tsx';
 import {GitHubSignIn} from './GitHubSignIn.tsx';
+import {TerminalBody} from './TerminalBody.tsx';
+export {TerminalBody} from './TerminalBody.tsx';
 import './workspace-tools.css';
+import {ProjectFiles} from './files/ProjectFiles';
 
 const get=<T,>(url:string,signal?:AbortSignal)=>authenticated(()=>fetch(url,{credentials:'same-origin',cache:'no-store',signal})).then(read<T>);
 const post=<T,>(url:string,body:unknown,isCurrent?:()=>boolean)=>authenticated(()=>{if(isCurrent&&!isCurrent())throw new ApiError('CAPABILITY_DENIED','The owning workspace changed.');return fetch(url,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','x-harness-csrf':csrfToken},body:JSON.stringify(body)});}).then(read<T>);
@@ -24,13 +27,8 @@ function useProjectRequest<T>(url:string,active:boolean){
  useEffect(()=>{activeLoad.current=load;setValue(null);if(active)void load();return()=>{activeLoad.current=null;generation.current++;pending.current?.abort();pending.current=null;};},[load,active]);return{value,error,errorCode,load,setError};
 }
 function FilesBody({base,query,active,fallback}:{base:string;query:URLSearchParams;active:boolean;fallback:ReactNode}){
- const[path,setPath]=useState(''),[file,setFile]=useState<{text:string|null;binary:boolean;sha256:string}|null>(null),[fileName,setFileName]=useState(''),selection=useRef(0),params=new URLSearchParams(query);if(path)params.set('path',path);
- const{value,error,errorCode,load,setError}=useProjectRequest<{entries:{name:string;path:string;kind:string}[]}>(base+'/files?'+params,active);
- useEffect(()=>{setPath('');setFile(null);setFileName('');selection.current++;},[base,query.toString()]);
- const open=async(name:string)=>{const captured=++selection.current;try{const params=new URLSearchParams(query);params.set('path',name);const next=await get<{text:string|null;binary:boolean;sha256:string}>(base+'/file?'+params);if(selection.current===captured){setFile(next);setFileName(name);}}catch(error){if(selection.current===captured)setError(message(error));}};
- if(errorCode==='PROJECT_NOT_CONNECTED')return fallback;
- const directory=(next:string)=>{selection.current++;setPath(next);setFile(null);setFileName('');};
- return <div className="live-files"><div className="panel-toolbar"><button onClick={()=>directory(path.split('/').slice(0,-1).join('/'))}>Up</button><span>{path||'Project files'}</span><button onClick={()=>void load()}>Refresh</button></div>{error&&<p role="alert" className="error-text">{error}</p>}<div className="live-files-columns"><nav aria-label="Project files">{value?.entries.map(entry=><button key={entry.path} title={entry.path} onClick={()=>entry.kind==='directory'?directory(entry.path):void open(entry.path)}><span aria-hidden="true">{entry.kind==='directory'?'▸':'·'}</span> {entry.name}</button>)}</nav><section aria-label="File content">{file?<><strong>{fileName}</strong>{file.binary?<p>Binary file</p>:<pre>{file.text}</pre>}<small>SHA-256 {file.sha256}</small></>:<p className="panel-note">Choose a file to read its current worktree content.</p>}</section></div></div>;
+ const owner=base+'?'+query.toString();
+ return <ProjectFiles key={owner} base={base} query={query.toString()} active={active} fallback={fallback}/>;
 }
 function DiffBody({base,query,active,fallback}:{base:string;query:URLSearchParams;active:boolean;fallback:ReactNode}){
  const{value,error,errorCode,load,setError}=useProjectRequest<GitStatus>(base+'/git?'+query,active),[staged,setStaged]=useState(false),[pending,setPending]=useState(false);
@@ -38,22 +36,6 @@ function DiffBody({base,query,active,fallback}:{base:string;query:URLSearchParam
  if(errorCode==='PROJECT_NOT_CONNECTED')return fallback;
  const legacy=(value as (GitStatus&{mode?:string})|null)?.mode==='legacy';
  return <div className="live-review"><div className="panel-toolbar"><strong>Changes</strong><span>{value?.branch}</span><button onClick={()=>void load()}>Refresh</button><label><input type="checkbox" checked={staged} onChange={event=>setStaged(event.target.checked)}/>Staged</label></div>{error&&<p role="alert" className="error-text">{error}</p>}{legacy&&<p className="panel-note">Original working copy · tracked changes only. Git actions are available in an agent’s isolated working copy.</p>}{value&&<><small className="review-revision" title={value.revision}>Reviewing {value.head.slice(0,10)} · {value.files.length} changed files</small><ul className="live-change-list">{value.files.map(file=><li key={file.path}><span>{file.oldPath?file.oldPath+' → ':''}{file.path}</span><small>{file.binary?'Binary':file.untracked?'Untracked':`${file.index}${file.worktree} +${file.added??'?'} −${file.removed??'?'}`}</small><button disabled={pending||value.gitWrite!==true} onClick={()=>void apply(file.staged?'unstage':'stage',file.path)}>{file.staged?'Unstage':'Stage'}</button></li>)}</ul><pre className="live-diff" aria-label={staged?'Staged diff':'Unstaged diff'}>{(staged?value.stagedDiff:value.diff)||'No tracked changes in this view.'}</pre></>}</div>;
-}
-interface TerminalRead{id:string;output:string;start:number;cursor:number;exited:boolean;exitCode:number|null}
-export function TerminalBody({projectId,threadId,terminalId,active,openAnother,isCurrent}:{projectId:string;threadId?:string;terminalId?:string;active:boolean;openAnother?:()=>void|Promise<void>;isCurrent?:()=>boolean}){
- const element=useRef<HTMLDivElement>(null),terminal=useRef<import('@xterm/xterm').Terminal|null>(null),[error,setError]=useState(''),[ended,setEnded]=useState(false),[generation,setGeneration]=useState(0),current=useRef<string|undefined>(terminalId),key=`gen-terminal:${projectId}:${threadId??'project'}:${terminalId??'default'}`;
- useEffect(()=>{if(!active||!element.current)return;let disposed=false,timer:ReturnType<typeof setTimeout>|undefined,observer:ResizeObserver|undefined;let cursor=0,instance:import('@xterm/xterm').Terminal|undefined;
-  const ownerCurrent=()=>!disposed&&(!isCurrent||isCurrent());
-  const command=(body:Record<string,unknown>)=>post<TerminalRead>(`/api/terminals/${encodeURIComponent(current.current!)}/commands`,{projectId,...(threadId?{threadId}:{}),...body},ownerCurrent);
-  void(async()=>{const[{Terminal},{FitAddon}]=await Promise.all([import('@xterm/xterm'),import('@xterm/addon-fit'),import('@xterm/xterm/css/xterm.css')]);if(disposed)return;instance=new Terminal({convertEol:false,fontSize:13,scrollback:2000,theme:{background:'#101010',foreground:'#dedede'}});terminal.current=instance;const fit=new FitAddon();instance.loadAddon(fit);instance.open(element.current!);fit.fit();let saved: string|null=null;try{saved=localStorage.getItem(key);}catch{}
-   const first=await post<TerminalRead>('/api/terminals',{projectId,...(threadId?{threadId}:{}),terminalId:current.current??saved??crypto.randomUUID(),cols:instance.cols,rows:instance.rows},ownerCurrent);if(disposed)return;current.current=first.id;try{localStorage.setItem(key,first.id);}catch{}instance.write(first.output);cursor=first.cursor;setEnded(first.exited);
-   instance.onData(data=>{void command({type:'input',data}).catch(error=>setError(message(error)));});observer=new ResizeObserver(()=>{if(!instance||disposed)return;fit.fit();void command({type:'resize',cols:instance.cols,rows:instance.rows}).catch(error=>setError(message(error)));});observer.observe(element.current!);
-   const poll=async()=>{if(disposed||!current.current)return;try{const params=new URLSearchParams({projectId,cursor:String(cursor),...(threadId?{threadId}:{})}),next=await get<TerminalRead>(`/api/terminals/${encodeURIComponent(current.current)}?`+params);if(disposed)return;if(next.start>cursor)instance!.writeln('\r\n[Earlier output expired from the bounded host buffer]\r\n');instance!.write(next.output);cursor=next.cursor;setEnded(next.exited);if(!next.exited)timer=setTimeout(()=>void poll(),500);}catch(error){if(!disposed)setError(message(error));}};if(!first.exited)timer=setTimeout(()=>void poll(),250);
-  })().catch(error=>{if(!disposed)setError(message(error));});
-  return()=>{disposed=true;clearTimeout(timer);observer?.disconnect();instance?.dispose();terminal.current=null;};
- },[projectId,threadId,active,generation,key,isCurrent]);
- const restart=()=>{if(terminalId){if(openAnother)void Promise.resolve(openAnother()).catch(error=>setError(message(error)));return;}current.current=undefined;try{localStorage.removeItem(key);}catch{}setError('');setEnded(false);setGeneration(value=>value+1);};
- return <div className="live-terminal"><div className="panel-toolbar"><strong>Terminal</strong><span>{ended?'Exited':'Host session'}</span><button onClick={()=>{if(current.current)void post(`/api/terminals/${encodeURIComponent(current.current)}/commands`,{projectId,threadId,type:'stop'},isCurrent).then(()=>setEnded(true)).catch(error=>setError(message(error)));}}>Stop</button>{(ended||error)&&(!terminalId||openAnother?<button onClick={restart}>New terminal</button>:<span>Open a new terminal from the workspace.</span>)}</div>{error&&<p className="error-text" role="alert">{error}</p>}<div className="xterm-host" ref={element}/></div>;
 }
 export function WorkspaceSurfaceBody({kind,binding,snapshot,refresh,active=true,preferences,onSelectThread,onOpenTool,panelId}:{kind:WorkspacePanelKind;binding:PanelBinding;snapshot:Snapshot;refresh:()=>Promise<void>;active?:boolean;preferences?:UiPreferences;panelId?:string;onSelectThread?:(id:string)=>void|Promise<void>;onOpenTool?:(kind:WorkspacePanelKind)=>void|Promise<void>}){
  const threadId=binding.threadId??snapshot.activeThreadId??undefined,thread=snapshot.threads.find(item=>item.id===threadId),projectId=binding.projectId??thread?.projectId;

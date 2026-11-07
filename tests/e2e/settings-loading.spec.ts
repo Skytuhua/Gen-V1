@@ -3,13 +3,15 @@ import { serveTaskFixture, taskFixture } from './task-interface-fixture';
 
 test('Settings load on demand, retain focus and drafts, and reuse the loaded module', async ({ page }) => {
   const fixture = await serveTaskFixture(page, taskFixture({ root: 'note', elements: { note: { type: 'Input', props: { label: 'Review note', stateKey: 'note' } } } }));
-  let requests = 0, release!: () => void;
+  let requests = 0, release!: () => void, requested!: () => void;
   const delayed = new Promise<void>(resolve => { release = resolve; });
-  await page.route('**/src/Settings.tsx*', async route => { requests++; await delayed; await route.continue(); });
+  const requestedSettings = new Promise<void>(resolve => { requested = resolve; });
+  await page.route('**/src/Settings.tsx*', async route => { requests++; requested(); await delayed; await route.continue(); });
   try {
     await page.goto('/', { waitUntil: 'commit' });
     const composer = page.getByRole('textbox', { name: 'Message', exact: true });
-    await expect(composer).toBeEnabled(); expect(requests).toBe(0);
+    await Promise.race([composer.waitFor({state:'visible'}), requestedSettings]);
+    expect(requests).toBe(0); await expect(composer).toBeEnabled();
     await composer.fill('Keep my next message');
     await composer.press('Control+,');
     await expect(page.getByRole('status').filter({ hasText: 'Opening settings' })).toBeVisible();
@@ -64,16 +66,19 @@ test('a failed Settings chunk preserves the conversation and can be safely reloa
 
 test('failed draft persistence blocks Settings recovery reload and retains the memory draft', async ({ page }) => {
   await page.addInitScript(() => {
-    Object.defineProperty(indexedDB, 'open', { value: () => { throw Error('IDB unavailable'); } });
+    const transaction = IDBDatabase.prototype.transaction;
+    IDBDatabase.prototype.transaction = function(...args: Parameters<IDBDatabase['transaction']>) {if ((window as any).failDraftWrites && args[1] === 'readwrite') throw Error('IDB unavailable'); return transaction.apply(this, args);};
     const original = Storage.prototype.setItem;
-    Storage.prototype.setItem = function(key, value) { if (key.startsWith('harness:journal-pending:')) throw Error('Staging unavailable'); return original.call(this, key, value); };
+    Storage.prototype.setItem = function(key, value) { if ((window as any).failDraftWrites && key.startsWith('harness:journal-pending:')) throw Error('Staging unavailable'); return original.call(this, key, value); };
   });
   await serveTaskFixture(page, taskFixture({ root: 'text', elements: { text: { type: 'Text', props: { text: 'Current task' } } } }));
   await page.route('**/src/Settings.tsx*', route => route.abort('failed'));
-  await page.goto('/');
+  const bootstrapped = page.waitForResponse(response => new URL(response.url()).pathname === '/api/bootstrap' && response.ok());
+  await page.goto('/'); await bootstrapped;
   const composer = page.getByRole('textbox', { name: 'Message', exact: true }); await expect(composer).toBeEnabled();
+  await page.evaluate(() => {(window as any).failDraftWrites = true;});
   await composer.fill('Only memory retains this draft');
-  await expect(page.getByText('Draft could not be stored locally. Keep this tab open.', { exact: true })).toBeVisible();
+  await expect(page.getByText('Draft could not be saved. Keep this workspace open.', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
   const alert = page.getByRole('dialog', { name: 'Settings', exact: true }).getByRole('alert'); await expect(alert).toContainText('Settings could not load');
   let navigations = 0; page.on('framenavigated', frame => { if (frame === page.mainFrame()) navigations++; });
@@ -99,6 +104,7 @@ test('PNG preprocessing blocks Settings recovery reload before the mark reaches 
     const base64 = await page.evaluate(() => { const canvas = document.createElement('canvas'); canvas.width = 100; canvas.height = 50; canvas.getContext('2d')!.fillRect(10, 10, 70, 10); return canvas.toDataURL('image/png').split(',')[1]; });
     await page.getByLabel('Upload PNG signature', { exact: true }).setInputFiles({ name: 'mark.png', mimeType: 'image/png', buffer: Buffer.from(base64, 'base64') });
     await expect.poll(() => page.evaluate(() => typeof (window as unknown as { releaseMarkDecode?: unknown }).releaseMarkDecode)).toBe('function');
+    expect(await page.evaluate(async () => {const path='/src/signature-assets.tsx'; return (await import(path)).hasPendingDocumentAssets();})).toBe(true);
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
     const alert = page.getByRole('dialog', { name: 'Settings', exact: true }).getByRole('alert'); await expect(alert).toContainText('Settings could not load');
     let navigations = 0; page.on('framenavigated', frame => { if (frame === page.mainFrame()) navigations++; });

@@ -23,6 +23,11 @@ test('required validation retains visible focus and blocks submission until corr
   await page.getByRole('button',{name:'Submit choice'}).click();await expect(page.getByLabel('Result')).toContainText('"a"');
 });
 
+test('shared Select preserves caller-owned invalid feedback for an otherwise valid choice',async({page})=>{
+ await page.goto('/ui-shell-controls?primitives=1&controlled-invalid=1');await expect(page.getByRole('combobox',{name:'Choice',exact:true})).toHaveAttribute('aria-invalid','true');await expect(page.getByText('Choose an option.',{exact:true})).toHaveCount(0);
+ await page.goto('/ui-shell-controls?primitives=1');await expect(page.getByRole('combobox',{name:'Choice',exact:true})).not.toHaveAttribute('aria-invalid','true');
+});
+
 test('a fieldset disabling an open Select closes it and blocks a queued selection', async ({ page }) => {
   await page.goto('/ui-shell-controls?primitives=1');
   const trigger=page.getByRole('combobox',{name:'Choice',exact:true});await trigger.click();

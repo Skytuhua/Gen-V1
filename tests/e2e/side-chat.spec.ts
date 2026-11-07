@@ -2,8 +2,10 @@ import {test,expect,type Page} from '@playwright/test';
 import {serveTaskFixture,taskFixture} from './task-interface-fixture';
 import type {HostCommand,Thread} from '../../packages/contracts';
 
-async function fixture(page:Page){
- const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'The main investigation stays here.'}}}});snapshot.settings.theme='dark';snapshot.threads[0].status='working';snapshot.threads[0].runId='main-run';
+async function fixture(page:Page,{histories=false,working=true,sendShortcut='enter' as 'enter'|'mod-enter'}={}){
+ const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'The main investigation stays here.'}}}});snapshot.settings.theme='dark';snapshot.threads[0].status=working?'working':'ready';snapshot.threads[0].runId=working?'main-run':null;
+ if(histories)for(const id of ['earlier','latest'])snapshot.threads.push({...snapshot.threads[0],id:'side-'+id,title:id==='earlier'?'Earlier question':'Latest question',sideParentId:'task-thread',status:'ready',runId:null});
+ snapshot.settings.preferences={...snapshot.settings.preferences,sendShortcut};
  const host=await serveTaskFixture(page,snapshot);let next=0,fail=false;
  await page.route('**/api/commands',async route=>{
   const command=route.request().postDataJSON() as HostCommand;host.commands.push(command);let result:unknown={};
@@ -18,9 +20,59 @@ async function fixture(page:Page){
  return {...host,failNext:()=>{fail=true;},settle:async()=>{const side=snapshot.threads.find(item=>item.sideParentId)!;side.runId=null;side.status='ready';snapshot.messages.push({id:'side-answer-'+snapshot.seq,threadId:side.id,role:'assistant',content:'This explains the failure without stopping the main task.',createdAt:new Date().toISOString(),runId:'side-run'});await host.publish();}};
 }
 async function openSide(page:Page){
- const main=page.getByRole('textbox',{name:'Message',exact:true});await main.fill('/side');await main.press('Enter');
+ const main=page.getByRole('textbox',{name:'Message',exact:true});await main.fill('/side');await page.getByRole('button',{name:'Send side question',exact:true}).click();
  await expect(page.getByRole('region',{name:'Side conversation window',exact:true})).toBeVisible();
 }
+
+for(const alias of ['/side','/btw','/SIDE'])test(`bare ${alias} Enter opens the side conversation without dispatching or stopping the main agent`,async({page})=>{
+ const host=await fixture(page);await page.goto('/');const main=page.getByRole('textbox',{name:'Message',exact:true});await expect(main).toBeEnabled();await main.fill(alias);await main.press('Enter');
+ await expect(page.getByRole('region',{name:'Side conversation window',exact:true})).toBeVisible();await expect(main).toHaveValue('');
+ await expect(page.getByRole('button',{name:'Stop agent',exact:true})).toBeVisible();expect(host.commands.filter(command=>['thread.create','message.send','run.stop','run.resume'].includes(command.type))).toHaveLength(0);
+});
+
+test('side shortcut honors the configured modifier before opening',async({page})=>{
+ const host=await fixture(page,{sendShortcut:'mod-enter'});await page.goto('/');const main=page.getByRole('textbox',{name:'Message',exact:true});await expect(main).toBeEnabled();await main.fill('/side');await main.press('Enter');
+ await expect(page.getByRole('region',{name:'Side conversation window',exact:true})).toHaveCount(0);await expect(main).toHaveValue(/^\/side\s*$/);
+ await main.press('Control+Enter');await expect(page.getByRole('region',{name:'Side conversation window',exact:true})).toBeVisible();expect(host.commands.filter(command=>['thread.create','message.send','run.stop'].includes(command.type))).toHaveLength(0);
+});
+
+for(const alias of ['/side','/btw'])test(`a later model command in ${alias} keeps menu priority without sending`,async({page})=>{
+ const host=await fixture(page,{working:false});await page.goto('/');const main=page.getByRole('textbox',{name:'Message',exact:true});await expect(main).toBeEnabled();await main.fill(`${alias} Explain /model`);
+ await expect(page.getByRole('option',{name:'/model Choose a model',exact:true})).toBeVisible();await main.press('Enter');
+ await expect(page.getByLabel('Search models',{exact:true})).toBeVisible();await expect(main).toHaveValue(`${alias} Explain `);await expect(page.getByRole('region',{name:'Side conversation window',exact:true})).toHaveCount(0);
+ expect(host.commands.filter(command=>['thread.create','message.send','run.stop'].includes(command.type))).toHaveLength(0);
+});
+
+for(const event of [{key:'Enter',isComposing:true,keyCode:13},{key:'Enter',isComposing:false,keyCode:229}])test(`main IME does not invoke a side shortcut (${event.isComposing},${event.keyCode})`,async({page})=>{
+ const host=await fixture(page);await page.goto('/');const main=page.getByRole('textbox',{name:'Message',exact:true});await expect(main).toBeEnabled();await main.fill('/side');await main.dispatchEvent('keydown',event);
+ await expect(main).toHaveValue('/side');await expect(page.getByRole('region',{name:'Side conversation window',exact:true})).toHaveCount(0);expect(host.commands.filter(command=>['thread.create','message.send','run.stop'].includes(command.type))).toHaveLength(0);
+});
+
+test('shared side history preserves independent drafts and never sends on selection',async({page})=>{
+ const host=await fixture(page,{histories:true});await page.goto('/');await openSide(page);
+ const main=page.getByRole('textbox',{name:'Message',exact:true});await main.fill('Keep the main draft');
+ const side=page.getByRole('region',{name:'Side conversation window',exact:true}),input=side.getByRole('textbox',{name:'Side question',exact:true}),history=side.getByRole('combobox',{name:'Side conversation history',exact:true});
+ await expect(input).toBeEnabled();await input.fill('Unsent new question');await history.click();
+ await expect(page.getByRole('listbox',{name:'Side conversation history',exact:true})).toBeVisible();
+ await page.getByRole('option',{name:'Earlier question',exact:true}).click();await expect(history).toContainText('Earlier question');await expect(input).toHaveValue('');await expect(input).toBeEnabled();await input.fill('Unsent earlier follow-up');
+ await history.click();await page.getByRole('option',{name:'Latest question',exact:true}).click();await expect(input).toHaveValue('');await expect(input).toBeEnabled();await input.fill('Unsent latest follow-up');
+ await history.click();await page.getByRole('option',{name:'Earlier question',exact:true}).click();await expect(input).toHaveValue('Unsent earlier follow-up');
+ await history.click();await page.getByRole('option',{name:'New question',exact:true}).click();await expect(input).toHaveValue('Unsent new question');
+ await expect(main).toHaveValue('Keep the main draft');expect(host.commands.filter(command=>['thread.create','message.send','run.stop','run.resume'].includes(command.type))).toHaveLength(0);
+});
+
+test('side history stays disabled while its exact selected conversation is sending',async({page})=>{
+ const host=await fixture(page,{histories:true});let release!:()=>void,entered=false;const gate=new Promise<void>(resolve=>{release=resolve;});
+ await page.route('**/api/commands',async route=>{if(route.request().postDataJSON().type==='message.send'){entered=true;await gate;}await route.fallback();});
+ try{
+  await page.goto('/');await openSide(page);const side=page.getByRole('region',{name:'Side conversation window',exact:true}),history=side.getByRole('combobox',{name:'Side conversation history',exact:true});
+  await history.click();await page.getByRole('option',{name:'Earlier question',exact:true}).click();const input=side.getByRole('textbox',{name:'Side question',exact:true});await expect(input).toBeEnabled();await input.fill('Send only to the selected side conversation');
+  await side.getByRole('button',{name:'Send side question',exact:true}).click();await expect.poll(()=>entered).toBe(true);await expect(history).toBeDisabled();
+  await history.dispatchEvent('keydown',{key:'ArrowDown'});await expect(page.getByRole('listbox',{name:'Side conversation history',exact:true})).toHaveCount(0);
+  release();await expect(side.getByRole('button',{name:'Stop side response',exact:true})).toBeVisible();
+  expect(host.commands.filter(command=>command.type==='message.send').map(command=>command.threadId)).toEqual(['side-earlier']);expect(host.commands.some(command=>command.type==='thread.create')).toBe(false);
+ }finally{release?.();}
+});
 test('/btw opens independent floating conversation while the main run and Stop remain available',async({page})=>{
  const host=await fixture(page);await page.goto('/');const main=page.getByRole('textbox',{name:'Message',exact:true});await main.fill('/btw Why does this fail?');await main.press('Enter');
  const side=page.getByRole('region',{name:'Side conversation window',exact:true});await expect(side).toBeVisible();await expect(side.getByText('Why does this fail?',{exact:true})).toBeVisible();
@@ -30,7 +82,7 @@ test('/btw opens independent floating conversation while the main run and Stop r
  expect(await page.locator('.sidebar .thread-list').innerText()).not.toContain('Side question');
 });
 test('side drafts, history and same-session continuation survive reload without touching the main draft',async({page})=>{
- const host=await fixture(page);await page.goto('/');const main=page.getByRole('textbox',{name:'Message',exact:true});await main.fill('/side');await main.press('Enter');
+ const host=await fixture(page);await page.goto('/');const main=page.getByRole('textbox',{name:'Message',exact:true});await main.fill('/side');await page.getByRole('button',{name:'Send side question',exact:true}).click();
  const side=page.getByRole('region',{name:'Side conversation window',exact:true}),input=side.getByRole('textbox',{name:'Side question',exact:true});await input.fill('A draft for the side.');await page.reload();await openSide(page);await expect(input).toHaveValue('A draft for the side.');
  await side.getByRole('button',{name:'Send side question',exact:true}).click();await expect(side.getByRole('button',{name:'Stop side response',exact:true})).toBeVisible();await host.settle();await expect(side.getByText('This explains the failure without stopping the main task.',{exact:true})).toBeVisible();
  await main.fill('Keep my main draft');await input.fill('Explain the second point');await input.press('Enter');await expect(input).toHaveValue('');expect(host.commands.filter(command=>command.type==='thread.create')).toHaveLength(1);expect(host.commands.filter(command=>command.type==='message.send').map(command=>command.threadId)).toEqual(['side-1','side-1']);await expect(main).toHaveValue('Keep my main draft');

@@ -1,0 +1,4 @@
+body { margin: 0; font-family: 'Inter Variable', sans-serif; background: var(--bg); color: var(--text); }
+main { max-width: 440px; margin: 24px auto; padding: 0 12px; }
+.memory-fixture-label { color: var(--muted); font-size: 12px; }
+.memory-fixture-controls { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }

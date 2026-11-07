@@ -58,6 +58,8 @@ async function host(page: Page, initial = snapshot(), hasModels = true) {
     if (state.expired && url.pathname !== '/api/commands') return route.fulfill({ status: 401, json: { error: { code: 'AUTH_REQUIRED', message: 'Reconnect to the local host' } } });
     if (url.pathname === '/api/models') return route.fulfill({ json: { models: hasModels ? [{ id: 'test/model', provider: 'test', name: 'Test model' }] : [], ...(!hasModels ? { error: 'No authenticated model is available.' } : {}) } });
     if (url.pathname === '/api/snapshot') { state.snapshotReads++; return route.fulfill({ json: state.snapshot }); }
+    if (url.pathname === '/api/shell-settings') return route.fulfill({json: state.snapshot.settings});
+    if (url.pathname === '/api/workspace') return route.fulfill({json: {projects: [], state: {version: 1, revision: 0, activeCanvasId: 'workspace', canvases: [{id: 'workspace', name: 'Workspace', preset: 'workspace', panels: [], viewport: {x: 0, y: 0, zoom: 1}}], profiles: [], disabledKinds: [], integrations: {}}}});
     if (url.pathname.endsWith('/mount')) {
       state.mounts++;
       const artifact = state.snapshot.artifacts.find(item => item.id === url.pathname.split('/')[3])!;
@@ -336,11 +338,11 @@ test('sidebar presentation, ordering and keyboard resize leave runtime status un
   await page.setViewportSize({ width: 1440, height: 1000 });
   const state = await host(page, populated()); await page.goto('/');
   await page.getByRole('button', { name: 'Options for First task' }).click();
-  await page.getByRole('button', { name: 'Pin thread', exact: true }).click();
+  await page.getByRole('menuitem', { name: 'Pin thread', exact: true }).click();
   await expect.poll(() => state.snapshot.threads[0]?.presentation?.pinned).toBe(true);
   expect(state.snapshot.threads[0]!.status).toBe('ready');
   await page.getByRole('button', { name: 'Options for Second task' }).click();
-  await page.getByRole('button', { name: 'Settle thread', exact: true }).click();
+  await page.getByRole('menuitem', { name: 'Settle thread', exact: true }).click();
   await expect.poll(() => state.snapshot.threads[1]?.presentation?.settled).toBe(true);
   expect(state.snapshot.threads[1]!.status).toBe('ready');
   const resize = page.getByRole('separator', { name: 'Resize sidebar' });
@@ -916,13 +918,13 @@ test('dirty widgets require a checkpoint or explicit discard before thread archi
   const state = await host(page, widgetWorkspace()); await page.goto('/'); const frame = page.frameLocator('iframe[title="Review workspace"]');
   await frame.getByRole('textbox', { name: 'Widget note' }).fill('Preserve before archive');
   await expect(page.getByText('Uncheckpointed edits', { exact: true })).toBeVisible(); expect(await unloadIsGuarded(page)).toBe(true);
-  await page.getByRole('button', { name: 'Thread options' }).click(); await page.getByRole('button', { name: 'Archive thread', exact: true }).click();
+  await page.getByRole('button', { name: 'Options for First task', exact: true }).click(); await page.getByRole('menuitem', { name: 'Archive thread', exact: true }).click();
   await expect(page.getByRole('dialog', { name: 'Uncheckpointed widget edits' })).toBeVisible(); expect(state.commands.filter(cmd => cmd.type === 'thread.archive')).toHaveLength(0);
   await page.getByRole('button', { name: 'Return to checkpoint' }).click();
   await expect(frame.getByRole('textbox', { name: 'Widget note' })).toHaveValue('Preserve before archive'); expect(state.mounts).toBe(1);
   await frame.getByRole('button', { name: 'Checkpoint note' }).click(); await expect(frame.locator('#receipt')).toHaveText('Saved revision 1'); expect(await unloadIsGuarded(page)).toBe(false);
   await frame.getByRole('textbox', { name: 'Widget note' }).fill('Explicitly discarded'); await expect(page.getByText('Uncheckpointed edits', { exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'Thread options' }).click(); await page.getByRole('button', { name: 'Archive thread', exact: true }).click();
+  await page.getByRole('button', { name: 'Options for First task', exact: true }).click(); await page.getByRole('menuitem', { name: 'Archive thread', exact: true }).click();
   await page.getByRole('button', { name: 'Discard edits and archive', exact: true }).click(); await expect(page.locator('iframe')).toHaveCount(0);
   expect(state.snapshot.userStates[0].values).toEqual({ note: 'Preserve before archive' }); expect(await unloadIsGuarded(page)).toBe(false);
 });
@@ -998,8 +1000,8 @@ test('empty workspace, unavailable models, system theme, recovery and navigation
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
   await page.keyboard.press('Escape');
   await page.getByRole('button', { name: 'New thread', exact: false }).click();
-  await page.getByRole('button', { name: 'Thread options' }).click();
-  await page.getByRole('button', { name: 'Rename thread' }).click();
+  await page.getByRole('button', { name: 'Options for New thread', exact: true }).click();
+  await page.getByRole('menuitem', { name: 'Rename thread' }).click();
   await page.getByRole('textbox', { name: 'Thread name' }).fill('My local task');
   await page.getByRole('button', { name: 'Save name' }).click();
   await expect(page.locator('.breadcrumb')).toContainText('My local task');

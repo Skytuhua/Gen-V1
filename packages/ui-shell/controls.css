@@ -38,6 +38,7 @@
 }
 .ui-control-option > span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
 .ui-control-option > svg { flex-shrink: 0; }
+.ui-control-shortcut { flex-shrink: 0; margin-inline-start: auto; color: var(--muted, #a0a0a0); font-size: 11px; white-space: nowrap; }
 .ui-control-popup .ui-control-option:is([aria-selected="true"], [aria-checked="true"]) { background: var(--selection-bg, #1f1f1f); }
 .ui-control-popup .ui-control-option:hover:not(:disabled) { background: var(--hover, #262626); }
 .ui-control-popup .ui-control-option:focus-visible { outline: 2px solid var(--accent, #91a7ff); outline-offset: -2px; }
