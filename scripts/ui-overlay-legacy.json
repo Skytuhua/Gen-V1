@@ -4,17 +4,6 @@
   "policy": "Per-occurrence migration inventory, not primitive approval. No directory exemption or regeneration command. Numeric gates are never excepted.",
   "entries": [
     {
-      "file": "apps/web/src/agent-inbox.css",
-      "line": 21,
-      "column": 1,
-      "rule": "ad-hoc-overlay",
-      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "9a7d3b456da1216ef9e4e90affeb4ddba738a2686b6be0207a6dcd4d6cecdbcc",
-      "reason": "INBOX: remove legacy options-menu placement after ActionMenu migration.",
-      "evidence": ".agent-inbox .inbox-options-menu{position:absolute;right:0;top:calc(100% + 4px);z-index:5;padding:5px;min-width:170px;border:1px solid var(--border);border-radius:9px;background:var(--surface);box-shadow:var(--elevation)",
-      "disposition": "staged-migration"
-    },
-    {
       "file": "apps/web/src/appearance.css",
       "line": 4,
       "column": 1,
@@ -145,17 +134,6 @@
       "reason": "Retained geometry: image comparison labels anchored to their image, not a popup.",
       "evidence": ".image-compare-label { position:absolute; z-index:1; top:11px; max-width:calc(50% - 25px); padding:4px 7px; border-radius:4px; background:#121218c9; color:#fff; font-size:11px; line-height:1.4; overflow:hidden; white-spa",
       "disposition": "retained-geometry"
-    },
-    {
-      "file": "apps/web/src/InboxView.tsx",
-      "line": 26,
-      "column": 530,
-      "rule": "ad-hoc-overlay",
-      "message": "overlay surface class: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "ad1e9736178a5cff4277639a9e3d3a1c9794e651443bcbaecb9c3e0e592bd2df",
-      "reason": "INBOX: migrate options menu to shared ActionMenu.",
-      "evidence": "<div className=\"inbox-options-menu\" role=\"menu\" aria-label=\"View options\">{([['all','All'],['needs-you','Needs you'],['unread','Unread'],['completed','Completed']] as const).map(([id,label])=><button type=\"button\" role=\"",
-      "disposition": "staged-migration"
     },
     {
       "file": "apps/web/src/map-view.css",
