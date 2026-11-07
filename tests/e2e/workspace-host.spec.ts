@@ -102,6 +102,18 @@ test('explicit conversation navigation preserves its draft and returns to the pr
   expect(h.requests.filter(path => path === '/api/snapshot').length).toBe(count);
 });
 
+test('a monitor model intent is scoped to its conversation and consumed once before another Composer mounts', async ({page}) => {
+  await fixture(page,{working:false});
+  await page.route('**/api/skill-catalog?*',route=>route.fulfill({json:{scope:{kind:'personal'},sources:[],skills:[],inventoryRevision:'a'.repeat(64),nextCursor:null}}));
+  const input=page.getByRole('textbox',{name:'Message to Project investigation',exact:true});await input.fill('/model');
+  await expect(page.getByRole('listbox',{name:'Commands and skills'})).toBeVisible();await input.press('Enter');
+  await expect(page.getByRole('searchbox',{name:'Search models'})).toBeVisible();
+  await page.getByRole('searchbox',{name:'Search models'}).press('Escape');
+  await page.getByRole('button',{name:/Empty draft stays in navigation/}).first().click();
+  await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeVisible();
+  await expect(page.getByRole('searchbox',{name:'Search models'})).toHaveCount(0);
+});
+
 test('workspace resolution failure stays retryable without falling back to a global snapshot', async ({page}) => {
   const h = await fixture(page, {unavailable: true});
   await expect(page.getByRole('alert')).toContainText('Workspace unavailable');
