@@ -1,6 +1,6 @@
 import {useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode} from 'react';
 import {Menu, PanelLeftOpen, X} from 'lucide-react';
-import type {ThreadNavigationRow} from '../../../packages/contracts/shell-read-models';
+import {threadNavigationRevision,type ThreadNavigationRow} from '../../../packages/contracts/shell-read-models';
 import type {PanelBinding, WorkspacePreset} from '../../../packages/contracts/workspace';
 import {getPreferences} from '../../../packages/contracts/preferences';
 import {Modal} from '../../../packages/ui-shell/Modal';
@@ -22,6 +22,8 @@ import {useWorkspaceState} from './workspace-api';
 import {WorkspaceControls} from './WorkspaceControls';
 import {ResearchHost} from './ResearchHost';
 import {CodeReviewHost} from './CodeReviewHost';
+import type {ThreadHoverDestination,ThreadHoverPRTarget} from './thread-hover/host';
+import type {ThreadHoverScope} from './thread-hover/facts';
 import './workspace-host.css';
 
 export type ConversationIntent = 'model' | 'settings' | 'usage' | 'new-thread' | 'connect-project' | 'resources' | 'linked-pull-requests';
@@ -33,6 +35,7 @@ export interface ConversationHost {
   intent?: {id: number; kind: ConversationIntent};
   consumeIntent(id: number): void;
   composers: SharedAgentComposers;
+  openReview?(target:ThreadHoverPRTarget,scope:ThreadHoverScope):Promise<void>;
 }
 const message = (cause: unknown) => cause instanceof Error ? cause.message : 'The workspace could not open. Retry.';
 const prepare = async () => {await journalFlush(); await prepareEditorHandoff();};
@@ -42,6 +45,7 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
   const desktop = useDesktop(), desktopOwner = useRef(desktop); desktopOwner.current = desktop;
   const workspace = useWorkspaceState(true, {listenNative: false});
   const [settings, setSettings] = useState<Awaited<ReturnType<typeof getShellSettings>>>(), [error, setError] = useState('');
+  const [reviewDestination,setReviewDestination]=useState<ThreadHoverDestination>();
   const [intent, setIntent] = useState<ConversationHost['intent']>(), intentSequence = useRef(0), selected = useRef<string | undefined>(undefined), pending = useRef(false), alive = useRef(true);
   const [controller] = useState(() => new AgentsWorkspaceController());
   const [composers] = useState(() => createPersonalAgentComposers(createPersonalChildFollowUp(agent => controller.getSnapshot().agents.find(parent => parent.agentId === agent.parentId)?.threadId ?? undefined), agent => {
@@ -59,13 +63,15 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
   const invalidOwner = Boolean(workspace.envelope && !preset);
   const failure = error || workspace.error || (invalidOwner ? 'The saved workspace is unavailable. Retry to reload it.' : '');
   useDesktopReady(Boolean((monitored && !inventory.pending && (inventory.scopeKey || inventory.error)) || failure));
-  const changeWorkspace = async (next: WorkspacePreset, beforeSelect?: () => Promise<void>, binding?: PanelBinding) => {
+  const changeWorkspace = async (next: WorkspacePreset, beforeSelect?: () => Promise<void>, binding?: PanelBinding, isCurrent?: () => boolean) => {
+    const check = () => {if (isCurrent && !isCurrent()) throw Error('The workspace owner changed. Reopen the current details.');};
+    check();
     if (pending.current) throw Error('A workspace change is already in progress.');
     if (!workspace.envelope) throw Error('Wait for the workspace to load.');
     pending.current = true;
     try {
-      await prepare(); await loadSettings();
-      await beforeSelect?.();
+      await prepare(); check(); await loadSettings(); check();
+      await beforeSelect?.(); check();
       const canvas = workspace.envelope.state.canvases.find(value => value.preset === next);
       let threadId = binding?.authority.kind === 'local' ? binding.threadId : undefined;
       if (!canvas && !binding && (next === 'research' || next === 'code-review')) {
@@ -73,11 +79,29 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
         if (!id) try {id = localStorage.getItem('harness:selected-thread') ?? undefined;} catch { /* The server still validates an unbound preset. */ }
         if (id) threadId = (await getShellNavigationItem(id)).id;
       }
-      await workspace.send(canvas ? 'workspace.canvas.select' : 'workspace.canvas.create', canvas ? {canvasId: canvas.id} : {name: next, preset: next, ...(threadId ? {threadId} : {})});
-      if (alive.current) setError('');
+      const result=await workspace.send(canvas ? 'workspace.canvas.select' : 'workspace.canvas.create', canvas ? {canvasId: canvas.id} : {name: next, preset: next, ...(threadId ? {threadId} : {})}, isCurrent);
+      check();
+      if(next==='code-review'&&binding){
+        const current=result.state.canvases.find(value=>value.id===result.state.activeCanvasId)!;
+        const threads=current.panels.filter(panel=>panel.kind==='thread'),panel=threads.find(panel=>panel.id==='review-owner-'+current.id)??(threads.length===1?threads[0]:undefined);
+        if(panel)await workspace.send('workspace.panel.update',{panelId:panel.id,patch:{binding}},isCurrent);
+        else await workspace.send('workspace.panel.add',{canvasId:current.id,panel:{id:'review-owner-'+current.id,kind:'thread',binding}},isCurrent);
+      }
+      check(); if (alive.current) setError('');
     } finally {pending.current = false;}
   };
   const choosePreset = (next: WorkspacePreset, binding?: PanelBinding) => changeWorkspace(next, undefined, binding);
+  const openReview=async(target:ThreadHoverPRTarget,scope:ThreadHoverScope)=>{
+    if(scope.authority.kind!=='local'||!scope.projectId||!scope.workingCopyId||!Number.isSafeInteger(target.number)||target.number<1||!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(target.repo))throw Error('This pull request destination is unavailable.');
+    const surface={kind:'thread' as const,threadId:scope.threadId},epoch=desktopOwner.current?desktopOwner.current.ownership(surface):0;
+    const isCurrent=()=>{const current=desktopOwner.current;return alive.current&&epoch!==undefined&&!current?.closing&&!detachedSurface(current,surface)&&!pendingSurface(current,surface)&&(!current||current.ownership(surface)===epoch);};
+    try {await changeWorkspace('code-review',async()=>{
+      const row=await getShellNavigationItem(scope.threadId);
+      if(row.projectId!==scope.projectId||row.workspaceId!==scope.workingCopyId||(row.threadRevision??threadNavigationRevision(row))!==scope.revision)throw Error('Thread details changed. Reopen the current details.');
+    },{authority:{kind:'local'},threadId:scope.threadId,projectId:scope.projectId},isCurrent);
+    if(isCurrent())setReviewDestination({id:++intentSequence.current,scope,target});
+    }catch(cause){if(alive.current)setError(message(cause));throw cause;}
+  };
   const openConversation = async (id?: string, kind?: ConversationIntent) => {
     const previous = selected.current; let changed = false;
     try {
@@ -95,16 +119,17 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
     <PendingStatus pending={!failure} label="Opening workspace…"/>
     {failure && <div role="alert">{failure}<button onClick={retry}>Retry workspace</button></div>}
   </main>;
-  if (preset !== 'all-agents' && preset !== 'research' && preset !== 'code-review') return conversation({workspace, choosePreset, initialThreadId: selected.current, selectThread: id => {selected.current = id;}, intent, consumeIntent: id => setIntent(current => current?.id === id ? undefined : current), composers});
+  if (preset !== 'all-agents' && preset !== 'research' && preset !== 'code-review') return conversation({workspace, choosePreset, initialThreadId: selected.current, selectThread: id => {selected.current = id;}, intent, consumeIntent: id => setIntent(current => current?.id === id ? undefined : current), composers, openReview});
   return <MonitorShell workspace={workspace} settings={settings} controller={controller} composers={composers} choosePreset={choosePreset}
-    refreshSettings={loadSettings} openConversation={openConversation} error={error} dismissError={() => setError('')} fail={fail} content={preset==='code-review'?<CodeReviewHost canvas={workspace.envelope.state.canvases.find(value=>value.id===workspace.envelope!.state.activeCanvasId)!} workspace={workspace} composers={composers} openConversation={openConversation}/>:preset==='research'?<ResearchHost canvas={workspace.envelope.state.canvases.find(value=>value.id===workspace.envelope!.state.activeCanvasId)!} workspace={workspace} composers={composers} openConversation={id=>openConversation(id)}/>:undefined}/>;
+    refreshSettings={loadSettings} openConversation={openConversation} openReview={openReview} error={error} dismissError={() => setError('')} fail={fail} content={preset==='code-review'?<CodeReviewHost destination={reviewDestination} consumeDestination={id=>setReviewDestination(current=>current?.id===id?undefined:current)} canvas={workspace.envelope.state.canvases.find(value=>value.id===workspace.envelope!.state.activeCanvasId)!} workspace={workspace} composers={composers} openConversation={openConversation}/>:preset==='research'?<ResearchHost canvas={workspace.envelope.state.canvases.find(value=>value.id===workspace.envelope!.state.activeCanvasId)!} workspace={workspace} composers={composers} openConversation={id=>openConversation(id)}/>:undefined}/>;
 }
 
-function MonitorShell({workspace, settings, controller, composers, choosePreset, refreshSettings, openConversation, error, dismissError, fail, content}: {
+function MonitorShell({workspace, settings, controller, composers, choosePreset, refreshSettings, openConversation, openReview, error, dismissError, fail, content}: {
   workspace: ConversationHost['workspace']; settings: Awaited<ReturnType<typeof getShellSettings>>;
   controller: AgentsWorkspaceController; composers: SharedAgentComposers; choosePreset: ConversationHost['choosePreset'];
   refreshSettings: () => Promise<void>;
-  openConversation: (id?: string, intent?: ConversationIntent) => Promise<void>; error: string; dismissError: () => void;
+  openConversation: (id?: string, intent?: ConversationIntent) => Promise<void>;
+  openReview: (target:ThreadHoverPRTarget,scope:ThreadHoverScope)=>Promise<void>; error: string; dismissError: () => void;
   fail: (action: () => Promise<unknown>) => void;
   content?: ReactNode;
 }) {
@@ -161,7 +186,7 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
   const archiveRow = (row: ThreadNavigationRow) => mutate(async () => {await command('thread.archive', {}, row.id); await navigation.refresh(); setArchive(undefined);});
   return <div className="app-shell workspace-host" data-sidebar-collapsed={layout.sidebarCollapsed} style={{'--sidebar-width': layout.sidebarWidth + 'px'} as CSSProperties} inert={desktop?.closing}>
     {open && <button ref={scrim} className="sidebar-scrim" aria-label="Close navigation" onClick={() => setOpen(false)}/>}
-    <ShellSidebar elementRef={sidebar} searchRef={searchRef} mobile={mobile} open={open} layout={layout} preferences={preferences}
+    <ShellSidebar hoverBlocked={settingsOpen||Boolean(rename||archive||unpin)} onOpenThreadPR={(target,scope)=>fail(()=>openReview(target,scope))} elementRef={sidebar} searchRef={searchRef} mobile={mobile} open={open} layout={layout} preferences={preferences}
       matching={navigation.page?.items ?? []} loaded={Boolean(navigation.page)} creating={false} search={search} setSearch={setSearch}
       close={() => setOpen(false)} toggleCollapsed={() => setLayout(value => ({...value, sidebarCollapsed: !value.sidebarCollapsed}))}
       setFolded={(key, folded) => setLayout(value => ({...value, folded: {...value.folded, [key]: folded}}))}

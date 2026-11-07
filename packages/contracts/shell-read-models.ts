@@ -2,7 +2,11 @@ import type {Thread, Snapshot, ResourceGrant, LearningStatus} from './index.ts';
 import type {ConnectionAccount} from './accounts.ts';
 import type {SkillSummary, SkillProposalSummary} from './skills.ts';
 
-export type ThreadNavigationRow = Pick<Thread, 'id' | 'title' | 'projectId' | 'projectName' | 'createdAt' | 'updatedAt' | 'status' | 'runId' | 'kind' | 'parentThreadId' | 'presentation'>;
+export type ThreadNavigationRow = Pick<Thread, 'id' | 'title' | 'projectId' | 'projectName' | 'createdAt' | 'updatedAt' | 'status' | 'runId' | 'kind' | 'parentThreadId' | 'presentation'> & Partial<Pick<Thread,'workspaceId'|'modelId'|'thinkingLevel'>> & {threadRevision?: string};
+/** Presentation metadata identity, not command or credential authority. */
+export function threadNavigationRevision(thread: Pick<Thread,'id'|'updatedAt'> & Partial<Pick<Thread,'projectId'|'workspaceId'|'epoch'|'modelId'|'thinkingLevel'|'kind'|'parentThreadId'>>): string {
+  return JSON.stringify([thread.id,thread.projectId??null,thread.workspaceId??null,thread.epoch??null,thread.updatedAt,thread.modelId??null,thread.thinkingLevel??null,thread.kind??null,thread.parentThreadId??null]);
+}
 export interface ShellPage<T> {sequence: number; total: number; items: T[]; nextCursor: string | null}
 export interface NavigationPage extends ShellPage<ThreadNavigationRow> {
   order: 'created-desc';
