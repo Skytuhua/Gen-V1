@@ -26,7 +26,7 @@ async function fixture(page: Page, {native = false, delayed = false, unavailable
       const context = {windowId: 'main', surface: {kind: 'main'}, windows: [], nativeTitleBar: true};
       Object.assign(window, {harnessDesktop: {
         getContext: async () => context, ready: async () => {calls.ready++; return context;}, setTheme: async () => {},
-        onState: (notify: (state: unknown) => void) => {Object.assign(window,{publishResearchOwner:(away:boolean)=>notify({windows:away?[{id:'other',surface:{kind:'thread',threadId:'parent-a'},title:'Owning conversation'}]:[]})});return()=>{};}, onCloseRequested: () => () => {}, list: async () => [], browser: async () => {},
+        onState: (notify: (state: unknown) => void) => {Object.assign(window,{publishResearchOwner:(away:boolean,threadId='parent-a')=>notify({windows:away?[{id:'other',surface:{kind:'thread',threadId},title:'Owning conversation'}]:[]})});return()=>{};}, onCloseRequested: () => () => {}, list: async () => [], browser: async () => {},
         onAttentionOpen: (callback: (id: string) => void) => {attention.add(callback); return () => attention.delete(callback);},
         onWorkspaceChanged: (callback: (change: {connected: boolean; sequence: number}) => void) => {calls.subscriptions++; callbacks.add(callback); return () => callbacks.delete(callback);},
       }});
@@ -152,7 +152,7 @@ test('hidden chat still invalidates Research before delayed scope reacquisition'
 
 
 for (const kind of ['capture','bookmark','save'] as const) {
- test(`Research ${kind} cannot retry after native ownership moves away and returns`,async({page})=>{
+ test(`Research ${kind} cannot retry after synchronous native ownership moves away and returns`,async({page})=>{
   await fixture(page,{native:true,working:false});await expect(page.getByRole('region',{name:'Research workspace',exact:true})).toBeVisible();
   let release!:()=>void;const gate=new Promise<void>(resolve=>{release=resolve;});let attempts=0;
   const type=kind==='save'?'research.document.save':kind==='bookmark'?'research.source.bookmark':'research.source.capture';
@@ -170,21 +170,19 @@ for (const kind of ['capture','bookmark','save'] as const) {
    await page.getByRole('textbox',{name:'Source title',exact:true}).fill('Retained source');await page.getByRole('button',{name:kind==='bookmark'?'Save bookmark':'Capture source',exact:true}).click();
   }
   await expect.poll(()=>attempts).toBe(1);
-  await page.evaluate(()=>Reflect.get(window,'publishResearchOwner')(true));
-  await page.waitForTimeout(50);
-  await page.evaluate(()=>Reflect.get(window,'publishResearchOwner')(false));release();
+  await page.evaluate(()=>{Reflect.get(window,'publishResearchOwner')(true);Reflect.get(window,'publishResearchOwner')(false);});release();
   await expect(page.getByRole('alert').filter({hasText:'Could not reach research'})).toBeVisible();
   expect(attempts).toBe(1);
   await expect(page.getByRole('textbox',{name:kind==='save'?'Document body':'Source title',exact:true})).toHaveValue(kind==='save'?'Preserve this finding':'Retained source');
  });
 }
 
-test('Research owner selection cannot retry a layout write after a native ownership round trip',async({page})=>{
+test('Research owner selection cannot retry a layout write after a synchronous native ownership round trip',async({page})=>{
  await fixture(page,{native:true,working:false});await expect(page.getByRole('region',{name:'Research workspace',exact:true})).toBeVisible();
  let attempts=0,release!:()=>void;const gate=new Promise<void>(resolve=>{release=resolve;});
  await page.route('**/api/workspace/commands',async route=>{attempts++;if(attempts===1){await gate;return route.fulfill({status:401,json:{error:{code:'AUTH_REQUIRED'}}});}return route.fulfill({status:403,json:{error:{code:'FORBIDDEN'}}});});
  await page.getByRole('combobox',{name:'Research conversation',exact:true}).click();await page.getByRole('option',{name:'Empty draft stays in navigation',exact:true}).click();await expect.poll(()=>attempts).toBe(1);
- await page.evaluate(()=>Reflect.get(window,'publishResearchOwner')(true));await page.waitForTimeout(50);await page.evaluate(()=>Reflect.get(window,'publishResearchOwner')(false));release();
+ await page.evaluate(()=>{Reflect.get(window,'publishResearchOwner')(true);Reflect.get(window,'publishResearchOwner')(false);});release();
  await expect(page.getByRole('alert')).toBeVisible();expect(attempts).toBe(1);
 });
 
@@ -252,4 +250,58 @@ test('selecting a Research owner updates one conversation binding and retains le
  await page.getByRole('combobox',{name:'Research conversation',exact:true}).click();await page.getByRole('option',{name:'Empty draft stays in navigation',exact:true}).click();
  await expect(page.getByRole('region',{name:'Research workspace',exact:true})).toBeVisible();await expect(page.getByRole('combobox',{name:'Research conversation',exact:true})).toHaveText(/Empty draft/);await expect(page.getByRole('alert')).toHaveCount(0);
  expect(mutations).toHaveLength(1);expect(mutations[0]).toMatchObject({type:'workspace.panel.update',payload:{panelId:'research-owner',patch:{binding:{threadId:'empty-draft'}}}});
+});
+
+for(const unrelated of [false,true])test(`Research mode ${unrelated?'preserves unrelated':'fences synchronous'} native owner retry`,async({page})=>{
+ await fixture(page,{native:true,working:false});await page.getByRole('button',{name:'Show chat',exact:true}).click();
+ const input=page.getByRole('textbox',{name:'Message',exact:true});
+ const sent:{id:string;type:string;threadId:string;payload:unknown}[]=[];let release!:()=>void;const gate=new Promise<void>(resolve=>{release=resolve;});
+ await page.route('**/api/commands',async route=>{const command=route.request().postDataJSON();if(command.type!=='thread.mode')return route.fallback();sent.push(command);if(sent.length===1){await gate;return route.fulfill({status:401,json:{error:{code:'AUTH_REQUIRED'}}});}return route.fulfill({json:{commandId:command.id,seq:11,result:{}}});});
+ await input.fill('/plan');await expect(page.getByRole('option',{name:'/plan Switch to Plan'})).toBeVisible();await input.press('Enter');await expect.poll(()=>sent.length).toBe(1);
+ await page.evaluate(threadId=>{Reflect.get(window,'publishResearchOwner')(true,threadId);Reflect.get(window,'publishResearchOwner')(false,threadId);},unrelated?'empty-draft':'parent-a');release();
+ if(unrelated){await expect.poll(()=>sent.length).toBe(2);expect(sent[1]).toEqual(sent[0]);}
+ else {await expect(page.getByRole('alert').filter({hasText:'The command owner changed'})).toBeVisible();expect(sent).toHaveLength(1);}
+});
+
+test('Research immediate native takeover fences mode before render and initial dispatch',async({page})=>{
+ const h=await fixture(page,{native:true,working:false});await page.getByRole('button',{name:'Show chat',exact:true}).click();
+ const input=page.getByRole('textbox',{name:'Message',exact:true});await input.fill('/plan');await expect(page.getByRole('option',{name:'/plan Switch to Plan'})).toBeVisible();
+ await page.evaluate(()=>{const frame=window.requestAnimationFrame.bind(window);window.requestAnimationFrame=callback=>frame(time=>{window.requestAnimationFrame=frame;Reflect.get(window,'publishResearchOwner')(true);Reflect.set(window,'ownerCallbackSawEnabled',!document.querySelector<HTMLTextAreaElement>('textarea[aria-label="Message"]')!.disabled);callback(time);});});
+ await input.press('Enter');await expect(page.getByRole('alert').filter({hasText:'The command owner changed'})).toBeVisible();expect(await page.evaluate(()=>Reflect.get(window,'ownerCallbackSawEnabled'))).toBe(true);expect(h.commands.filter(command=>command.type==='thread.mode')).toHaveLength(0);
+});
+
+test('Research immediate native takeover fences save before render and initial dispatch',async({page})=>{
+ const h=await fixture(page,{native:true,working:false});await page.getByRole('button',{name:'Start findings',exact:true}).click();await page.getByRole('textbox',{name:'Document body',exact:true}).fill('Must remain local');
+ await page.evaluate(()=>{const button=[...document.querySelectorAll('button')].find(button=>button.textContent==='Save document')!;Reflect.get(window,'publishResearchOwner')(true);Reflect.set(window,'ownerCallbackSawEnabled',!button.disabled);button.click();});
+ await expect(page.getByText('This conversation is open in another window.',{exact:false})).toBeVisible();expect(await page.evaluate(()=>Reflect.get(window,'ownerCallbackSawEnabled'))).toBe(true);expect(h.commands.filter(command=>command.type==='research.document.save')).toHaveLength(0);
+});
+
+for(const outcome of ['accepted','INVALID_INPUT'] as const)test(`Research reconciles ${outcome} save after actual host navigation and unmount`,async({page})=>{
+ await fixture(page,{working:false});await page.getByRole('button',{name:'Start findings',exact:true}).click();const body=page.getByRole('textbox',{name:'Document body',exact:true});await body.fill('Revision one');
+ type Save={id:string;payload:{documentId:string;title:string;body:string;kind:string;citations:unknown[];expectedRevision:number}};
+ const sent:Save[]=[];let release!:()=>void;const gate=new Promise<void>(resolve=>{release=resolve;});let document:Record<string,unknown>|undefined;
+ await page.route('**/api/research/documents/**',route=>route.fulfill({json:document}));
+ await page.route('**/api/commands',async route=>{
+  const command:Save & {type:string}=route.request().postDataJSON();if(command.type!=='research.document.save')return route.fallback();sent.push(command);
+  if(sent.length===1){await gate;if(outcome==='INVALID_INPUT')return route.fulfill({status:400,json:{error:{code:'INVALID_INPUT'}}});}
+  const revision=command.payload.expectedRevision+1;
+  document={...command.payload,id:command.payload.documentId,authority:{kind:'personal'},threadId:'parent-a',projectId:'project-a',revision,sha256:'c'.repeat(64),savedAt:'2026-11-06T00:00:00Z'};
+  return route.fulfill({json:{commandId:command.id,seq:11,result:{documentId:command.payload.documentId,revision,sha256:'c'.repeat(64)}}});
+ });
+ await page.getByRole('button',{name:'Save document',exact:true}).click();await expect.poll(()=>sent.length).toBe(1);
+ await page.getByRole('button',{name:'All Agents',exact:true}).click();await expect(page.getByRole('region',{name:'Research workspace',exact:true})).toHaveCount(0);
+ const response=page.waitForResponse(response=>response.url().endsWith('/api/commands')&&response.request().postDataJSON().id===sent[0].id);release();await response;
+ await page.getByRole('button',{name:'Research',exact:true}).click();await page.getByRole('button',{name:/Untitled findings/}).click();await expect(body).toHaveValue('Revision one');
+ await body.fill('Revision two');await page.getByRole('button',{name:'Save document',exact:true}).click();await expect.poll(()=>sent.length).toBe(2);
+ expect(sent[1].id).not.toBe(sent[0].id);expect(sent[1].payload).toMatchObject({body:'Revision two',expectedRevision:outcome==='accepted'?1:0});
+ await expect(page.locator('.research-document > p.research-meta')).toContainText(`Saved revision ${outcome==='accepted'?2:1}`);
+});
+
+
+test('Research capture preserves an unrelated synchronous native owner retry',async({page})=>{
+ await fixture(page,{native:true,working:false});
+ const sent:{id:string;type:string;threadId:string;payload:unknown}[]=[];let release!:()=>void;const gate=new Promise<void>(resolve=>{release=resolve;});
+ await page.route('**/api/commands',async route=>{const command=route.request().postDataJSON();if(command.type!=='research.source.capture')return route.fallback();sent.push(command);if(sent.length===1){await gate;return route.fulfill({status:401,json:{error:{code:'AUTH_REQUIRED'}}});}return route.fulfill({status:400,json:{error:{code:'INVALID_INPUT'}}});});
+ await page.getByRole('button',{name:'Add source',exact:true}).click();await page.getByRole('textbox',{name:'Source title',exact:true}).fill('Unrelated control');await page.getByRole('textbox',{name:'Source text',exact:true}).fill('Retain evidence');await page.getByRole('button',{name:'Capture source',exact:true}).click();await expect.poll(()=>sent.length).toBe(1);
+ await page.evaluate(()=>{Reflect.get(window,'publishResearchOwner')(true,'empty-draft');Reflect.get(window,'publishResearchOwner')(false,'empty-draft');});release();await expect.poll(()=>sent.length).toBe(2);expect(sent[1]).toEqual(sent[0]);
 });

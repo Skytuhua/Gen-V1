@@ -132,17 +132,18 @@ function DocumentEditor({selection, resource, drafts, onChange, onInspect, onSav
     let acknowledged = false;
     try {
       const receipt = await researchClient.save(selection, {documentId: sent.id, title: sent.title, kind: sent.kind, body: sent.body, citations: sent.citations, expectedRevision: sent.expectedRevision}, attempt.commandId);
-      if(selection.isCurrent&&!selection.isCurrent())return;
+      // Reconcile the exact active attempt even after this view loses command authority.
       const result = receipt.result as {documentId?: unknown; revision?: unknown; sha256?: unknown} | null;
       if (receipt.commandId !== attempt.commandId || result?.documentId !== sent.id || result.revision !== sent.expectedRevision + 1 || typeof result.sha256 !== 'string' || !/^[a-f0-9]{64}$/.test(result.sha256)) throw Error('Save receipt unavailable. Retry this save.');
       if (!drafts.finishSave(selection, draft.id, attempt, copy, {revision: result.revision as number, sha256: result.sha256})) return;
       acknowledged = true;
+      if(selection.isCurrent&&!selection.isCurrent())return;
       if (live.current) {setStatus(`Saved revision ${result.revision}`); onChange();}
       const document = await researchClient.document(selection, sent.id, result.revision as number);
       if (live.current&&(!selection.isCurrent||selection.isCurrent())) setLoaded(document);
     } catch (cause) {
-      if(selection.isCurrent&&!selection.isCurrent()){if(live.current)setError(researchError(cause));return;}
       if (!acknowledged && cause instanceof ApiError && ['INVALID_INPUT', 'PRECONDITION_FAILED', 'ACCESS_DENIED', 'CAPABILITY_DENIED', 'NOT_FOUND', 'INVALID_CITATION', 'INVALID_SOURCE', 'RESOURCE_LIMIT'].includes(cause.code)) drafts.finishSave(selection, draft.id, attempt, copy);
+      if(selection.isCurrent&&!selection.isCurrent()){if(live.current)setError(researchError(cause));return;}
       if (!acknowledged && cause instanceof ApiError && cause.code === 'PRECONDITION_FAILED') {
         try {const remote = await researchClient.document(selection, sent.id); drafts.open(selection, remote); if (live.current) setLoaded(remote);} catch { /* Retain the original CAS and draft even when the conflict read is offline. */ }
       }
