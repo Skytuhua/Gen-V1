@@ -13,6 +13,7 @@ import {journalRead,journalWrite,journalSubscribe,journalFlush,journalGeneration
 import {useDesktopCloseGuard} from './desktop-context.tsx';
 import {GitHubSignIn} from './GitHubSignIn.tsx';
 import './workspace-tools.css';
+import {ProjectFiles} from './files/ProjectFiles';
 
 const get=<T,>(url:string,signal?:AbortSignal)=>authenticated(()=>fetch(url,{credentials:'same-origin',cache:'no-store',signal})).then(read<T>);
 const post=<T,>(url:string,body:unknown,isCurrent?:()=>boolean)=>authenticated(()=>{if(isCurrent&&!isCurrent())throw new ApiError('CAPABILITY_DENIED','The owning workspace changed.');return fetch(url,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','x-harness-csrf':csrfToken},body:JSON.stringify(body)});}).then(read<T>);
@@ -24,13 +25,8 @@ function useProjectRequest<T>(url:string,active:boolean){
  useEffect(()=>{activeLoad.current=load;setValue(null);if(active)void load();return()=>{activeLoad.current=null;generation.current++;pending.current?.abort();pending.current=null;};},[load,active]);return{value,error,errorCode,load,setError};
 }
 function FilesBody({base,query,active,fallback}:{base:string;query:URLSearchParams;active:boolean;fallback:ReactNode}){
- const[path,setPath]=useState(''),[file,setFile]=useState<{text:string|null;binary:boolean;sha256:string}|null>(null),[fileName,setFileName]=useState(''),selection=useRef(0),params=new URLSearchParams(query);if(path)params.set('path',path);
- const{value,error,errorCode,load,setError}=useProjectRequest<{entries:{name:string;path:string;kind:string}[]}>(base+'/files?'+params,active);
- useEffect(()=>{setPath('');setFile(null);setFileName('');selection.current++;},[base,query.toString()]);
- const open=async(name:string)=>{const captured=++selection.current;try{const params=new URLSearchParams(query);params.set('path',name);const next=await get<{text:string|null;binary:boolean;sha256:string}>(base+'/file?'+params);if(selection.current===captured){setFile(next);setFileName(name);}}catch(error){if(selection.current===captured)setError(message(error));}};
- if(errorCode==='PROJECT_NOT_CONNECTED')return fallback;
- const directory=(next:string)=>{selection.current++;setPath(next);setFile(null);setFileName('');};
- return <div className="live-files"><div className="panel-toolbar"><button onClick={()=>directory(path.split('/').slice(0,-1).join('/'))}>Up</button><span>{path||'Project files'}</span><button onClick={()=>void load()}>Refresh</button></div>{error&&<p role="alert" className="error-text">{error}</p>}<div className="live-files-columns"><nav aria-label="Project files">{value?.entries.map(entry=><button key={entry.path} title={entry.path} onClick={()=>entry.kind==='directory'?directory(entry.path):void open(entry.path)}><span aria-hidden="true">{entry.kind==='directory'?'▸':'·'}</span> {entry.name}</button>)}</nav><section aria-label="File content">{file?<><strong>{fileName}</strong>{file.binary?<p>Binary file</p>:<pre>{file.text}</pre>}<small>SHA-256 {file.sha256}</small></>:<p className="panel-note">Choose a file to read its current worktree content.</p>}</section></div></div>;
+ const owner=base+'?'+query.toString();
+ return <ProjectFiles key={owner} base={base} query={query.toString()} active={active} fallback={fallback}/>;
 }
 function DiffBody({base,query,active,fallback}:{base:string;query:URLSearchParams;active:boolean;fallback:ReactNode}){
  const{value,error,errorCode,load,setError}=useProjectRequest<GitStatus>(base+'/git?'+query,active),[staged,setStaged]=useState(false),[pending,setPending]=useState(false);
