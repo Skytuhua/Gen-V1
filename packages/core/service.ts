@@ -801,8 +801,12 @@ export class Service {
     this.store.internal("run.failed", thread.id, () => {
       this.failUnansweredDetails(ctx,'The explanation could not finish. Resume the task to retry.');
       const intent = this.store.get<{kind:string;previousStatus:Thread["status"]}>("runtimeIntent", ctx.runId);
-      if(intent?.kind!=="compaction")this.planning.endRun(ctx,"failed");
-      this.store.put("thread", thread.id, thread.id, { ...thread, runId: null, status: intent?.kind === "compaction" ? this.afterMaintenance(thread.id, intent.previousStatus) : "interrupted", error: error instanceof Error ? error.message : String(error), updatedAt: now() });
+      const stamp=now();
+      if(intent?.kind!=="compaction"){
+        this.planning.endRun(ctx,"failed");
+        if(!this.store.get('runFailure',ctx.runId))this.store.put('runFailure',ctx.runId,thread.id,{threadId:ctx.threadId,runId:ctx.runId,epoch:ctx.epoch,projectId:thread.projectId??null,occurredAt:stamp});
+      }
+      this.store.put("thread", thread.id, thread.id, { ...thread, runId: null, status: intent?.kind === "compaction" ? this.afterMaintenance(thread.id, intent.previousStatus) : "interrupted", error: error instanceof Error ? error.message : String(error), updatedAt: stamp });
       return { runId: ctx.runId };
     });
     // Clearing the projection must never detach a still-busy SDK session.
