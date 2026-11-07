@@ -109,12 +109,13 @@ test('chat header omits retired controls while sidebar rename and archive remain
  await fixture(page);
  const header=page.locator('.workspace-header');
  await expect(header.locator('.desktop-window-actions,.header-thread-status,.thread-menu-wrap')).toHaveCount(0);
- await expect(header.getByRole('button',{name:/detach|side conversation|workspace panel|project context|thread options/i})).toHaveCount(0);
+ await expect(header.getByRole('button',{name:/detach|side conversation|project context|thread options/i})).toHaveCount(0);
+ await expect(header.getByRole('button',{name:'Open workspace panel',exact:true})).toBeVisible();
  await expect(header.getByText('Ready',{exact:true})).toHaveCount(0);
  await expect(page.getByRole('button',{name:/detach/i})).toHaveCount(0);
  await page.getByRole('button',{name:'Options for Original chat',exact:true}).click();
- await expect(page.getByRole('button',{name:'Rename thread',exact:true})).toBeVisible();
- await expect(page.getByRole('button',{name:'Archive thread',exact:true})).toBeVisible();
+ await expect(page.getByRole('menuitem',{name:'Rename thread',exact:true})).toBeVisible();
+ await expect(page.getByRole('menuitem',{name:'Archive thread',exact:true})).toBeVisible();
 });
 
 test('a ready plan opens automatically and right-side tools can only be minimized',async({page})=>{
