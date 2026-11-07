@@ -32,6 +32,11 @@ MAX_FRAME_BYTES = 32 * 1024 * 1024
 BUNDLED_INTEGRATIONS = frozenset({"humanizer", "emil", "impeccable", "graphify", "promptfoo", "biome", "superpowers", "spec-kit", "context7", "ponytail"})
 class SourceConflictError(RuntimeError):
     code = "STALE_SKILL"
+class SkillSourceUnavailableError(ValueError):
+    code = "SKILL_SOURCE_UNAVAILABLE"
+
+    def __init__(self):
+        super().__init__("The original source for this revision is no longer available.")
 WIRE = sys.stdout
 WIRE.reconfigure(encoding="utf-8", errors="strict", newline="\n")
 sys.stdin.reconfigure(encoding="utf-8", errors="strict")
@@ -933,7 +938,9 @@ class Worker:
                 found = {"path": archived} if archived else None
             versions = sl.list_entries(skill=params["name"])
             revision = sl.get_entry(params["revisionId"]) if params.get("revisionId") else None
-            if params.get("revisionId") and (revision is None or revision.get("skill") != params["name"]):
+            if params.get("revisionId") and revision is None:
+                raise SkillSourceUnavailableError()
+            if revision is not None and revision.get("skill") != params["name"]:
                 raise ValueError("Revision does not belong to this skill")
             if revision is not None:
                 # Original entries contain changed paths only. This is the UI's
@@ -950,12 +957,19 @@ class Worker:
                 snapshots = list(state.values())
                 main = next((item for item in snapshots if Path(item["path"]).name == "SKILL.md"), None)
                 if main is None:
-                    raise ValueError("Revision has no after-state SKILL.md")
+                    raise SkillSourceUnavailableError()
                 directory = Path(main["path"]).parent.resolve()
                 if not directory.is_relative_to((self.home / "skills").resolve()):
                     raise PermissionError("Only app-owned skill packages can be inspected")
                 data = sl.read_blob(main["sha256"])
                 if data is None:
+                    # Upstream also returns None for unreadable/invalid blobs.
+                    # Only a confirmed missing referenced blob means retirement.
+                    if isinstance(main["sha256"], str) and re.fullmatch(r"[0-9a-f]+", main["sha256"]):
+                        try:
+                            (sl.blobs_dir() / main["sha256"]).stat()
+                        except FileNotFoundError:
+                            raise SkillSourceUnavailableError() from None
                     raise ValueError("Revision blob is unavailable")
                 document = data.decode("utf-8-sig")
                 files = [Path(item["path"]).relative_to(directory).as_posix() for item in snapshots]
@@ -990,6 +1004,11 @@ class Worker:
                     item = next((item for item in snapshots if Path(item["path"]).resolve() == target.resolve()), None)
                     data = sl.read_blob(item["sha256"]) if item else None
                     if data is None:
+                        if item and isinstance(item["sha256"], str) and re.fullmatch(r"[0-9a-f]+", item["sha256"]):
+                            try:
+                                (sl.blobs_dir() / item["sha256"]).stat()
+                            except FileNotFoundError:
+                                raise SkillSourceUnavailableError() from None
                         raise ValueError("Supporting file is absent in this revision")
                     result["fileContent"] = data.decode("utf-8-sig")
                 else:

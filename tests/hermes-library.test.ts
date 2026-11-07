@@ -135,13 +135,15 @@ const packageRecord=(label:string,name='procedure')=>{
 };
 async function captureFixture(){
  const x=await fixture();let current:any=packageRecord('initial'),captures=0,pending:any[]=[],beforeRead:undefined|(()=>Promise<void>),transform:undefined|((value:any)=>any);
- const historical=new Map([[current.versions[0].id,structuredClone(current)]]);
+ const historical=new Map([[current.versions[0].id,structuredClone(current)]]),calls:{method:string;params:Record<string,any>}[]=[];
  x.source.request=async<T>(method:string,p:Record<string,any>={})=>{
+  calls.push({method,params:structuredClone(p)});
   if(method==='skills.snapshot'){const {document,content,support,...inspection}=structuredClone(current);return{catalog:{skills:[{name:current.name}],archived:current.usage.state==='archived'?[current.name]:[],usage:{}},inspections:{[current.name]:inspection},proposals:structuredClone(pending)} as T;}
   if(method==='skills.capture'||method==='skills.inspect'){
    await beforeRead?.();
    const row=structuredClone(p.revisionId?historical.get(p.revisionId):current)!;
-   if(method==='skills.inspect')return{...row,...(p.file_path?{fileContent:row.support}:{})} as T;
+   if(!row)throw new HarnessError('SKILL_SOURCE_UNAVAILABLE','The original source for this revision is no longer available.');
+   if(method==='skills.inspect')return{...row,versions:structuredClone(current.versions),...(p.file_path?{fileContent:row.support}:{})} as T;
    captures++;
    const expected={documentHash:row.fileHashes['SKILL.md'],fileHashes:row.fileHashes,state:row.usage.state,enabled:row.usage.harness_enabled??true,protected:row.usage.harness_protected??false,tip:row.versions[0]?.id??null};
    if(JSON.stringify(p.expected?.[row.name])!==JSON.stringify(expected))throw new HarnessError('STALE_SKILL','Canonical package changed');
@@ -149,9 +151,56 @@ async function captureFixture(){
   }
   throw Error('Unexpected capture fixture RPC '+method);
  };
- return{...x,get captures(){return captures;},update(fn:(row:any)=>void){fn(current);},set(label:string){current=packageRecord(label);historical.set(current.versions[0].id,structuredClone(current));},pause(fn?:()=>Promise<void>){beforeRead=fn;},transform(fn:(value:any)=>any){transform=fn;},pending(value:any[]){pending=value;}};
+ return{...x,calls,get captures(){return captures;},retire(id:string){historical.delete(id);current.versions=current.versions.filter((row:any)=>row.id!==id);},update(fn:(row:any)=>void){fn(current);},set(label:string){const previous=current.versions;current=packageRecord(label);current.versions.push(...previous);historical.set(current.versions[0].id,structuredClone(current));},pause(fn?:()=>Promise<void>){beforeRead=fn;},transform(fn:(value:any)=>any){transform=fn;},pending(value:any[]){pending=value;}};
 }
 const projectionRows=(store:Store)=>['skill','skillVersion','hermesSkill','skillUsage','skillProposal','hermesProposal','hermesIntent'].map(kind=>[kind,store.all(kind)]);
+it('labels retained and retired source history from one canonical inspection without changing captured evidence',async()=>{
+ const x=await captureFixture();await x.library.refresh();x.set('B');await x.library.refresh();
+ const before=projectionRows(x.store),catalog=new SkillCatalogRepository([harnessCatalog(x.store)]),reference=(await catalog.list()).skills[0];
+ const retained=await x.library.view('procedure');
+ expect(retained.versions).toMatchObject([{revision:2,sourceAvailability:'retained'},{revision:1,sourceAvailability:'retained'}]);
+ const historical=await x.library.view('procedure',{revision:1});expect(historical.content).toBe('Body initial\n');expect(historical.document).toBe(packageRecord('initial').document);
+ expect((await x.library.view('procedure',{revision:1,path:'references/help.md'})).content).toBe('Support initial\n');
+ x.retire('tip-initial');x.calls.length=0;
+ const retired=await x.library.view('procedure');
+ expect(retired.versions).toEqual(retained.versions.map(row=>row.revision===1?{...row,sourceAvailability:'unavailable'}:row));
+ expect(retired.content).toBe('Body B\n');expect(retired.document).toBe(packageRecord('B').document);
+ expect(x.calls).toEqual([{method:'skills.inspect',params:{name:'procedure'}}]);expect(x.captures).toBe(2);expect(projectionRows(x.store)).toEqual(before);
+ expect((await catalog.list()).skills[0]).toEqual(reference);expect(await catalog.checkReference(reference.ref!)).toMatchObject({files:expect.arrayContaining([{path:'SKILL.md',bytes:Buffer.byteLength(packageRecord('B').document),digest:sha(packageRecord('B').document)}])});
+});
+it('keeps current reads independent when their historical source ID retires',async()=>{
+ const x=await captureFixture();await x.library.refresh();const before=projectionRows(x.store);x.retire('tip-initial');x.calls.length=0;
+ const current=await x.library.view('procedure');expect(current.content).toBe('Body initial\n');expect(current.versions).toMatchObject([{revision:1,sourceAvailability:'unavailable'}]);
+ expect((await x.library.view('procedure',{path:'references/help.md'})).content).toBe('Support initial\n');
+ expect(x.calls.every(call=>call.params.revisionId===undefined)).toBe(true);
+ await expect(x.library.view('procedure',{revision:1})).rejects.toMatchObject({code:'SKILL_SOURCE_UNAVAILABLE'});expect(projectionRows(x.store)).toEqual(before);expect(x.captures).toBe(1);
+});
+it('pages source availability without extra captures and leaves ledger-less history unqualified',async()=>{
+ const x=await captureFixture();x.update(row=>{row.versions=[];});await x.library.refresh();
+ for(let revision=2;revision<=22;revision++){x.set(String(revision));await x.library.refresh();}
+ x.retire('tip-2');x.calls.length=0;const first=await x.library.view('procedure'),last=await x.library.view('procedure',{versionOffset:20});
+ expect(first.versions).toHaveLength(20);expect(first.nextVersionOffset).toBe(20);
+ expect(last.versions).toMatchObject([{revision:2,sourceAvailability:'unavailable'},{revision:1}]);expect(last.versions[1]).not.toHaveProperty('sourceAvailability');expect(last.nextVersionOffset).toBeNull();
+ expect(x.calls).toHaveLength(2);expect(x.captures).toBe(22);
+ x.calls.length=0;expect((await x.library.view('procedure',{revision:1})).content).toBe('Body initial\n');expect(x.calls).toHaveLength(0);
+});
+it.each(['revision','support'])('refuses retired %s before rollback dispatch while preserving immutable versions and unrelated uncertainty',async(kind)=>{
+ const x=await captureFixture();await x.library.refresh();x.set('B');await x.library.refresh();await x.library.view('procedure',{revision:1});
+ const pending={hash:'unconfirmed',state:'uncertain',method:'skills.manage',params:{},at:'2026-11-01T00:00:00Z'};
+ x.store.internal('fixture.uncertainty',null,()=>x.store.put('hermesIntent','older-command',null,pending));const before=projectionRows(x.store),original=x.source.request.bind(x.source);
+ if(kind==='revision')x.retire('tip-initial');
+ x.source.request=async<T>(method:string,p:Record<string,any>={})=>{if(kind==='support'&&method==='skills.inspect'&&p.revisionId==='tip-initial'&&p.file_path)throw new HarnessError('SKILL_SOURCE_UNAVAILABLE','The original source for this revision is no longer available.');return original<T>(method,p);};
+ const rollback={id:'retired-rollback',type:'skill.manage',payload:{operations:[{action:'rollback',name:'procedure',baseRevision:2,revision:1}]}};
+ await expect(x.library.command(rollback)).rejects.toMatchObject({code:'SKILL_SOURCE_UNAVAILABLE'});
+ expect(x.calls.some(call=>call.method==='skills.manage')).toBe(false);expect(x.store.receipt(rollback)).toBeNull();expect(x.store.get('hermesIntent',rollback.id)).toBeNull();expect(projectionRows(x.store)).toEqual(before);
+ await expect(x.library.command({...rollback,id:'stale-rollback',payload:{operations:[{...rollback.payload.operations[0],baseRevision:1}]}})).rejects.toMatchObject({code:'STALE_SKILL'});
+ await expect(x.library.command({...rollback,id:'older-command'})).rejects.toMatchObject({code:'HERMES_RECONCILIATION_REQUIRED'});expect(x.store.get('hermesIntent','older-command')).toEqual(pending);
+});
+it.each(['HERMES_SOURCE_BUSY','PermissionError','HERMES_PROTOCOL','INVALID_SKILL','NOT_FOUND'])('preserves historical read failures without inferring retirement: %s',async(code)=>{
+ const x=await captureFixture();await x.library.refresh();const before=projectionRows(x.store),original=x.source.request.bind(x.source),error=new HarnessError(code,'Original read failure');
+ x.source.request=async<T>(method:string,p:Record<string,any>={})=>{if(method==='skills.inspect'&&p.revisionId)throw error;return original<T>(method,p);};
+ await expect(x.library.view('procedure',{revision:1})).rejects.toBe(error);expect(projectionRows(x.store)).toEqual(before);
+});
 it('refuses A metadata with B body after a canonical change and commits no partial refresh',async()=>{
  const x=await captureFixture();await x.library.refresh();const before=projectionRows(x.store);x.set('A');
  let entered!:()=>void,resume!:()=>void;const started=new Promise<void>(done=>{entered=done;}),gate=new Promise<void>(done=>{resume=done;});
