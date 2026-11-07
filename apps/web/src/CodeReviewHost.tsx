@@ -19,6 +19,7 @@ import {journalFlush} from './journal';
 import {prepareEditorHandoff} from './editor-handoff';
 import type {ConversationHost,ConversationIntent} from './WorkspaceHost';
 import './code-review-host.css';
+import type {ThreadHoverDestination} from './thread-hover/host';
 
 function reviewBinding(canvas:WorkspaceCanvas):{binding?:PanelBinding;error?:string}{
  const explicit=canvas.panels.find(panel=>panel.id==='review-owner-'+canvas.id&&panel.kind==='thread'),panels=explicit?[explicit]:canvas.panels.filter(panel=>panel.kind==='thread');
@@ -31,7 +32,7 @@ async function get<T>(owner:ReviewOwner,path:string,signal:AbortSignal):Promise<
  const query=new URLSearchParams(owner.threadId?{threadId:owner.threadId}:{}),separator=path.includes('?')?'&':'?';
  return authenticated(()=>fetch('/api/projects/'+encodeURIComponent(owner.projectId)+path+separator+query,{credentials:'same-origin',cache:'no-store',redirect:'error',signal})).then(read<T>);
 }
-export function CodeReviewHost({canvas,workspace,composers,openConversation}:{canvas:WorkspaceCanvas;workspace:ConversationHost['workspace'];composers:ConversationHost['composers'];openConversation:(id:string,intent?:ConversationIntent)=>Promise<void>}){
+export function CodeReviewHost({canvas,workspace,composers,openConversation,destination,consumeDestination}:{destination?:ThreadHoverDestination;consumeDestination?:(id:number)=>void;canvas:WorkspaceCanvas;workspace:ConversationHost['workspace'];composers:ConversationHost['composers'];openConversation:(id:string,intent?:ConversationIntent)=>Promise<void>}){
  const {binding,error:bindingError}=reviewBinding(canvas),key=JSON.stringify([canvas.id,binding?.threadId,binding?.projectId,bindingError]);
  const [admission,setAdmission]=useState<{key:string;row:ThreadNavigationRow;selection:ConversationSelection}>(),[error,setError]=useState(''),[pending,setPending]=useState(false),[retry,setRetry]=useState(0),[changing,setChanging]=useState(false),[target,setTarget]=useState<ReviewTarget>({kind:'local',scope:'worktree'});
  const navigation=useShellNavigation('');
@@ -62,6 +63,14 @@ export function CodeReviewHost({canvas,workspace,composers,openConversation}:{ca
  const reviewCurrent=useMemo(()=>()=>{const state=conversation.reader.getSnapshot();return isCurrent()&&state.phase==='ready'&&state.context?.scopeKey===scope&&!state.context.readOnly&&!state.context.archived;},[isCurrent,scope]);
  const [refresh,setRefresh]=useState(0),[metadata,setMetadata]=useState<{scope:string;git?:GitStatus;pullRequests:{repo:string;number:number;title:string}[];pending:boolean;error?:string}>(),[review,setReview]=useState<{key:string;value:NonNullable<ReviewWrites['review']>}>();
  const ownerMetadata=metadata?.scope===scope?metadata:undefined;
+ const appliedDestination=useRef<number|undefined>(undefined);
+ useEffect(()=>{
+  if(!destination||!eligible||!admitted||appliedDestination.current===destination.id)return;
+  appliedDestination.current=destination.id;
+  if(destination.scope.threadId===admitted.row.id&&destination.scope.projectId===admitted.row.projectId&&destination.scope.workingCopyId===admitted.row.workspaceId)setTarget({kind:'pull-request',...destination.target});
+  else setError('The pull request destination changed. Reopen the current thread details.');
+  consumeDestination?.(destination.id);
+ },[destination?.id,eligible,scope]);
  useEffect(()=>{
   if(!owner)return;const controller=new AbortController();
   setMetadata(previous=>previous?.scope===scope?{...previous,pending:true}:undefined);

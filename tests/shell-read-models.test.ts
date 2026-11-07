@@ -152,3 +152,13 @@ it('pages a separate complete Personal archive including side conversations with
   expect((await f.app.inject({url: '/api/shell/navigation?archived=true&cursor=' + encodeURIComponent(first.json().nextCursor), headers: f.headers})).statusCode).toBe(400);
   expect(f.snapshot).not.toHaveBeenCalled();
 });
+
+it('projects exact hover metadata and changes its revision when a copy is assigned without a timestamp change',async()=>{
+ const f=await fixture(),thread=f.store.get<Thread>('thread','empty')!;
+ f.store.internal('fixture',null,()=>{f.store.put('workspaceProject','local-project',null,{id:'local-project',authority:{kind:'local'},name:'Local'});f.store.put('thread',thread.id,thread.id,{...thread,projectId:'local-project',workspaceId:'copy-one',modelId:'exact/model',thinkingLevel:'high'});});
+ const first=await f.app.inject({url:'/api/shell/navigation/empty',headers:f.headers});
+ expect(first.statusCode).toBe(200);expect(first.json()).toMatchObject({workspaceId:'copy-one',modelId:'exact/model',thinkingLevel:'high'});expect(first.json().threadRevision).toEqual(expect.any(String));
+ f.store.internal('fixture',null,()=>{f.store.put('thread',thread.id,thread.id,{...f.store.get<Thread>('thread',thread.id)!,workspaceId:'copy-two'});});
+ const second=await f.app.inject({url:'/api/shell/navigation/empty',headers:f.headers});expect(second.json().updatedAt).toBe(first.json().updatedAt);expect(second.json().threadRevision).not.toBe(first.json().threadRevision);
+ expect(second.body).not.toMatch(/DO_NOT_PUBLISH_SESSION|NEVER_PUBLISH/);expect(f.snapshot).not.toHaveBeenCalled();
+});

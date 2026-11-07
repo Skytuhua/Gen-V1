@@ -21,13 +21,17 @@ import {
   Settings2,
   SquarePen,
 } from 'lucide-react';
-import type {ThreadNavigationRow as Thread} from '../../../packages/contracts/shell-read-models';
+import {threadNavigationRevision,type ThreadNavigationRow as Thread} from '../../../packages/contracts/shell-read-models';
 import type { UiPreferences } from '../../../packages/contracts/preferences';
 import type { ShellLayout } from './shell-layout';
 import { MotionRegion } from './task-motion';
 import { UpdateControl } from './UpdateControl';
 import { useWorkspace } from './workspace-context';
 import './sidebar-context.css';
+import {ThreadHoverCard} from './thread-hover/ThreadHoverCard';
+import {createThreadHoverCache} from './thread-hover/data';
+import type {ThreadHoverScope} from './thread-hover/facts';
+import {loadPersonalThreadHover,type ThreadHoverPRTarget} from './thread-hover/host';
 import { projectColor, threadDragPayload } from './project-colors';
 
 const threadAge = (value: string) => {
@@ -79,6 +83,8 @@ export function ShellSidebar({
   rename,
   archive,
   details = {},
+  hoverBlocked = false,
+  onOpenThreadPR,
   navigation,
   onOpenPullRequests,
   onOpenUsage,
@@ -108,6 +114,8 @@ export function ShellSidebar({
   detachNavigation?: () => void;
   detachThread?: (thread: Thread) => void;
   details?: Record<string, { branch?: string; provider?: string }>;
+  hoverBlocked?: boolean;
+  onOpenThreadPR?: (target:ThreadHoverPRTarget,scope:ThreadHoverScope)=>void;
   setSearch: (value: string) => void;
   close: () => void;
   toggleCollapsed: () => void;
@@ -120,6 +128,7 @@ export function ShellSidebar({
   archive: (id: string) => void;
 }) {
   const workspace = useWorkspace();
+  const [hoverCache]=useState(createThreadHoverCache<ThreadHoverPRTarget>);
   const [menuId, setMenuId] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'working' | 'waiting'>('all');
   const [showAllSettled, setShowAllSettled] = useState(false);
@@ -267,23 +276,18 @@ export function ShellSidebar({
     const branch = details[item.id]?.branch;
     const isWorking = Boolean(item.runId) || item.status === 'working';
     const showStatus = Boolean(item.runId) || item.status !== 'ready';
-    const itemTitle = [
-      item.title,
-      item.projectName,
-      threadStatus(item),
-      branch,
-      details[item.id]?.provider,
-      item.parentThreadId ? `Parent: ${matching.find(parent => parent.id === item.parentThreadId)?.title ?? item.parentThreadId}` : undefined,
-    ]
-      .filter(Boolean)
-      .join(' \u00b7 ');
+    const copy=item.kind==='side'||item.kind==='delegate'?null:item.workspaceId??null;
+    const scope:ThreadHoverScope={authority:{kind:'local'},threadId:item.id,projectId:item.projectId??null,workingCopyId:copy,revision:item.threadRevision??threadNavigationRevision(item)};
+
 
     return (
       <div
         key={item.id}
         className={`sidebar-thread-row ${compactSettled ? 'sidebar-settled-row' : ''} ${item.id === selectedId ? 'active' : ''} ${item.kind === 'delegate' ? 'sidebar-delegate' : ''}`}
       >
-        <button
+        <ThreadHoverCard facts={{scope,title:item.title,project:item.projectName?{name:item.projectName,monogram:projectMonogram(item.projectName)}:undefined,model:item.modelId??undefined,reasoning:item.thinkingLevel??undefined,activity:threadStatus(item),lastActivity:{label:threadAge(item.updatedAt),at:item.updatedAt},parent:item.parentThreadId?{threadId:item.parentThreadId,title:matching.find(parent=>parent.id===item.parentThreadId)?.title}:undefined}}
+          cache={hoverCache} loadFacts={copy&&scope.projectId?loadPersonalThreadHover:undefined} projectColors={preferences.projectColors} onOpenPR={onOpenThreadPR}
+          blocked={hoverBlocked||Boolean(menuId)||(!mobile&&layout.sidebarCollapsed)||(mobile&&!open)}>{trigger=><button {...trigger}
           type="button"
           className="thread-item"
           draggable
@@ -296,11 +300,12 @@ export function ShellSidebar({
             if (onPlaceThread && event.altKey && event.key === 'Enter') {
               event.preventDefault();
               onPlaceThread(item);
+              return;
             }
+            trigger.onKeyDown?.(event);
           }}
           aria-label={`${item.title} ${threadStatus(item)}`}
           aria-current={item.id === selectedId ? 'page' : undefined}
-          title={itemTitle}
           onClick={() => {
             select(item.id);
             setMenuId(null);
@@ -361,7 +366,7 @@ export function ShellSidebar({
             </>
           )}
           <span className="sr-only thread-item-state">{threadStatus(item)}</span>
-        </button>
+        </button>}</ThreadHoverCard>
         {renderMenu(item)}
       </div>
     );
