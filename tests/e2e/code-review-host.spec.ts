@@ -7,7 +7,7 @@ const head='1'.repeat(40),revision='e'.repeat(64);
 const local:CodeReviewComparison['identity']={kind:'local',id:'a'.repeat(64),scope:'worktree',headOid:head,branch:'topic',revision:'b'.repeat(64),base:{kind:'index',revision:'c'.repeat(64)},head:{kind:'worktree',revision:'b'.repeat(64)}};
 const remote:CodeReviewComparison['identity']={kind:'pull-request',id:'d'.repeat(64),repo:'owner/repo',number:48,pullRequestId:'PR_48',baseOid:'2'.repeat(40),headOid:head,mergeBaseOid:'4'.repeat(40),baseRef:'main',headRef:'topic',semantics:'merge-base'};
 const files=[{path:'src/first.ts',status:'MM',index:'M',worktree:'M',staged:true,untracked:false,binary:false,added:1,removed:1,additions:1,deletions:1}];
-async function fixture(page:Page,{unbound=false,wrongProject=false,native=false,paged=false,side=false,readOnly=false}={}){
+async function fixture(page:Page,{unbound=false,wrongProject=false,native=false,paged=false,side=false,readOnly=false,awaitComparison=false}={}){
  const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Synthetic Code Review host fixture'}}}});
  snapshot.threads[0]={...snapshot.threads[0],id:'review-a',title:'Review changes',projectId:'project-a',projectName:'Alpha',status:'ready',runId:null,...(side?{kind:'side' as const}:{})};snapshot.activeThreadId='review-a';snapshot.artifacts=[];snapshot.userStates=[];snapshot.data=[];snapshot.messages=[];
  snapshot.settings={theme:'dark',modelId:'test/model',preferences:{showUsageFooter:false}};
@@ -23,7 +23,8 @@ async function fixture(page:Page,{unbound=false,wrongProject=false,native=false,
  const canvases=['workspace','all-agents','code-review','research','custom'].map(preset=>({id:preset,name:preset,preset,panels:preset==='code-review'&&!unbound?[panel]:[],viewport:{x:0,y:0,zoom:1}}));
  const envelope={projects,state:{version:1,revision:1,activeCanvasId:'code-review',canvases,profiles:[],disabledKinds:[],integrations:{}}};
  await page.route('**/api/workspace',route=>route.fulfill({json:envelope}));
- await page.route('**/api/workspace/commands',route=>{const input=route.request().postDataJSON();if(input.type==='workspace.canvas.select')envelope.state.activeCanvasId=input.payload.canvasId;if(input.type==='workspace.panel.update')Object.assign(panel,input.payload.patch);if(input.type==='workspace.panel.add')canvases.find(canvas=>canvas.id===input.payload.canvasId)?.panels.push({...panel,...input.payload.panel});envelope.state.revision++;return route.fulfill({json:{commandId:input.id,seq:1,result:envelope}});});
+ const workspaceCommands:Record<string,any>[]=[];
+ await page.route('**/api/workspace/commands',route=>{const input=route.request().postDataJSON();workspaceCommands.push(input);if(input.type==='workspace.canvas.select')envelope.state.activeCanvasId=input.payload.canvasId;if(input.type==='workspace.panel.update')Object.assign(panel,input.payload.patch);if(input.type==='workspace.panel.add')canvases.find(canvas=>canvas.id===input.payload.canvasId)?.panels.push({...panel,...input.payload.panel});envelope.state.revision++;return route.fulfill({json:{commandId:input.id,seq:1,result:envelope}});});
  await page.route('**/api/shell-settings',route=>route.fulfill({json:snapshot.settings}));
  await page.route('**/api/shell/navigation?*',route=>{const second=new URL(route.request().url()).searchParams.has('cursor');return route.fulfill({json:{sequence:1,total:paged?2:1,items:paged&&second?[{...row,id:'older-copy',title:'Older working copy'}]:[row],nextCursor:paged&&!second?'page-2':null,order:'created-desc',stats:{pinned:0,working:0,waiting:0,settled:paged?2:1,minOrder:0,maxOrder:0}}});});
  await page.route('**/api/shell/navigation/*',route=>route.fulfill({json:row}));
@@ -42,7 +43,8 @@ async function fixture(page:Page,{unbound=false,wrongProject=false,native=false,
  });
  const module='/@fs/'+encodeURI(fileURLToPath(new URL('./workspace-app-fixture.tsx',import.meta.url)).replaceAll('\\','/'));
  await page.route('**/code-review-host-check',route=>route.fulfill({contentType:'text/html',body:`<html><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${module}');</script></body></html>`}));
- await page.goto('/code-review-host-check');return{context,requests,commands,actions,inspections,setOutcome:(value:string)=>{outcome=value;},setInspection:(value:string)=>{inspection=value;}};
+ const comparisonReady=awaitComparison?page.waitForResponse(response=>new URL(response.url()).pathname==='/api/projects/project-a/git/comparison'&&response.ok()):null;
+ await page.goto('/code-review-host-check');if(comparisonReady)await comparisonReady;return{context,row,requests,commands,workspaceCommands,actions,inspections,setOutcome:(value:string)=>{outcome=value;},setInspection:(value:string)=>{inspection=value;}};
 }
 async function choose(page:Page,label:string,value:string){await page.getByRole('combobox',{name:label,exact:true}).click();await page.getByRole('option',{name:value,exact:true}).click();}
 test('cold Code Review shows its bound diff without a conversation snapshot or agent inventory',async({page})=>{
@@ -94,17 +96,67 @@ test('bound working-copy selector can load older conversations',async({page})=>{
  await expect(page.getByRole('option',{name:'Alpha / Older working copy',exact:true})).toBeVisible();
  expect(h.requests.some(path=>path.startsWith('/api/shell/navigation?')&&path.includes('cursor=page-2'))).toBe(true);
 });
-test('same-owner reacquisition retains review and chat while holding tool actions',async({page})=>{
- const h=await fixture(page);const region=page.getByRole('region',{name:'Code review workspace',exact:true});await expect(region).toBeVisible();
+test('same-owner fresh-scope reacquisition retains presentation while holding tool actions',async({page})=>{
+ const h=await fixture(page,{awaitComparison:true,paged:true});const region=page.getByRole('region',{name:'Code review workspace',exact:true});await expect(region).toBeVisible();
+ await page.getByRole('button',{name:'More conversations',exact:true}).click();await expect.poll(()=>h.requests.some(path=>path.includes('cursor=page-2'))).toBe(true);
+ const second={...files[0],path:'src/second.ts'};
+ await page.route('**/api/projects/project-a/git/comparison?*',route=>route.fulfill({json:{state:'ready',value:{identity:local,files:[...files,second],filesTruncated:false,checks:[],observedAt:'2026-11-06',access:{mode:'managed',untrackedIncluded:true}}}}));
+ await page.route('**/api/projects/project-a/git/comparison/file?*',route=>route.fulfill({json:{identity:local,file:second,state:'text',text:'@@ -1 +1 @@\n-old\n+second file source'}}));
+ await page.getByRole('button',{name:'Refresh comparison',exact:true}).click();await page.getByRole('button',{name:/src\/second.ts/}).click();
+ const filter=page.getByRole('searchbox',{name:'Filter files'});await filter.fill('second');
+ const terminalCommands:Record<string,any>[]=[];await page.route('**/api/terminals**',route=>{if(route.request().method()==='POST'&&new URL(route.request().url()).pathname.endsWith('/commands'))terminalCommands.push(route.request().postDataJSON());return route.fulfill({json:{id:'review-terminal',output:'Synthetic real terminal adapter',start:0,cursor:31,exited:false,exitCode:null}});});
+ await page.getByRole('button',{name:'Terminal',exact:true}).click();await expect(page.locator('.xterm-host .xterm')).toBeVisible();
  await page.getByRole('button',{name:'Agent chat',exact:true}).click();const message=page.getByRole('textbox',{name:'Message',exact:true});await message.fill('Retain review chat draft');
- const original=await region.elementHandle();let sent=false,reacquiring=false,release!:()=>void;const held=new Promise<void>(resolve=>{release=resolve;});
- await page.route('**/api/conversations/review-a?*',async route=>{reacquiring=true;await held;await route.fulfill({json:h.context});});
- await page.route('**/api/conversations/review-a/updates?*',route=>{if(!sent){sent=true;return route.fulfill({status:400,json:{error:{code:'RESYNC_REQUIRED',message:'Reacquire unchanged owner'}}});}return route.fulfill({json:{authority:'personal',threadId:'review-a',scopeKey:h.context.scopeKey,sequence:10,fromSequence:10,owner:null,transcriptChanged:false,checkpoint:h.context.checkpoint}});});
+ h.setOutcome('uncertain');await page.getByRole('button',{name:'Stage file',exact:true}).click();await expect(page.getByRole('button',{name:'Inspect action outcome',exact:true})).toBeVisible();
+ const original=await region.elementHandle(),originalMessage=await message.elementHandle(),originalTerminal=await page.locator('.xterm-host').elementHandle();
+ const fresh={...h.context,scopeKey:'f'.repeat(64),sequence:20,checkpoint:'checkpoint-fresh-20'};
+ let sent=false,reacquiring=false,metadataPending=false,releaseContext!:()=>void,releaseMetadata!:()=>void;
+ const contextHeld=new Promise<void>(resolve=>{releaseContext=resolve;}),metadataHeld=new Promise<void>(resolve=>{releaseMetadata=resolve;});
+ await page.route('**/api/conversations/review-a?*',async route=>{reacquiring=true;await contextHeld;await route.fulfill({json:fresh});});
+ await page.route('**/api/conversations/review-a/transcript?*',route=>route.fulfill({json:{authority:'personal',threadId:'review-a',scopeKey:fresh.scopeKey,sequence:20,messages:[],nextCursor:null}}));
+ await page.route('**/api/conversations/review-a/updates?*',route=>{if(!sent){sent=true;return route.fulfill({status:400,json:{error:{code:'RESYNC_REQUIRED',message:'Reacquire unchanged owner'}}});}return route.fulfill({json:{authority:'personal',threadId:'review-a',scopeKey:fresh.scopeKey,sequence:20,fromSequence:20,owner:null,transcriptChanged:false,checkpoint:fresh.checkpoint}});});
+ await page.route('**/api/projects/project-a/git?*',async route=>{metadataPending=true;await metadataHeld;await route.fulfill({json:{head,revision,branch:'topic',gitWrite:true,files}});});
  try{
   await expect.poll(()=>reacquiring).toBe(true);expect(await original!.evaluate(node=>node.isConnected)).toBe(true);
-  await expect(page.locator('.code-review-bound')).toHaveAttribute('inert','');await expect(page.getByRole('button',{name:'Stage file',exact:true})).toBeDisabled();expect(h.actions).toHaveLength(0);
- }finally{release();}
+  await expect(page.locator('.code-review-bound')).toHaveAttribute('inert','');await expect(page.getByRole('button',{name:'Stage file',exact:true})).toBeDisabled();
+  releaseContext();await expect.poll(()=>metadataPending).toBe(true);
+  // A real server issues a new scope. Metadata is still unresolved, but this must be the same mounted presentation.
+  expect(await original!.evaluate(node=>node.isConnected)).toBe(true);expect(await originalMessage!.evaluate(node=>node.isConnected)).toBe(true);expect(await originalTerminal!.evaluate(node=>node.isConnected)).toBe(true);
+  await expect(page.locator('.code-review-bound')).toHaveAttribute('inert','');
+  await expect(page.getByRole('button',{name:'Stage file',exact:true})).toBeDisabled();await expect(message).toBeDisabled();
+  // Even direct event dispatch cannot turn retained metadata into command authority.
+  await page.getByRole('button',{name:'Inspect action outcome',exact:true}).dispatchEvent('click');
+  await page.locator('.cr-toolbar .ui-select-native').first().evaluate((select:HTMLSelectElement)=>{select.value=select.options[1]!.value;select.dispatchEvent(new Event('change',{bubbles:true}));});
+  await page.getByRole('button',{name:'Stop',exact:true}).dispatchEvent('click');
+  expect(h.actions).toHaveLength(1);expect(h.inspections).toHaveLength(0);expect(h.workspaceCommands).toHaveLength(0);expect(terminalCommands.filter(command=>command.type==='stop')).toHaveLength(0);expect(h.commands.filter(command=>command.type==='message.send')).toHaveLength(0);
+ }finally{releaseContext();releaseMetadata();}
  await expect(page.locator('.code-review-bound')).not.toHaveAttribute('inert','');
  await expect(page.getByRole('button',{name:'Agent chat',exact:true})).toHaveAttribute('aria-pressed','true');await expect(message).toHaveValue('Retain review chat draft');
- expect(await original!.evaluate(node=>node.isConnected)).toBe(true);
+ await expect(page.getByRole('button',{name:'Terminal',exact:true})).toHaveAttribute('aria-pressed','true');await expect(page.locator('.xterm-host .xterm')).toBeVisible();
+ await expect(filter).toHaveValue('second');await expect(page.getByRole('heading',{name:'src/second.ts',exact:true})).toBeVisible();
+ expect(await original!.evaluate(node=>node.isConnected)).toBe(true);expect(await originalMessage!.evaluate(node=>node.isConnected)).toBe(true);
+});
+
+test('logical owner changes reset presentation and fence an old authenticated action retry',async({page})=>{
+ const h=await fixture(page,{awaitComparison:true,paged:true});const region=page.getByRole('region',{name:'Code review workspace',exact:true});await expect(region).toBeVisible();
+ const other={...h.row,id:'older-copy',title:'Older working copy'},context={...h.context,scopeKey:'d'.repeat(64),checkpoint:'older-checkpoint',owner:{...h.context.owner,threadId:other.id,title:other.title}};
+ await page.route('**/api/shell/navigation?*',route=>route.fulfill({json:{sequence:1,total:2,items:[h.row,other],nextCursor:null,order:'created-desc',stats:{pinned:0,working:0,waiting:0,settled:2,minOrder:0,maxOrder:0}}}));
+ await page.route('**/api/shell/navigation/older-copy',route=>route.fulfill({json:other}));
+ await page.route('**/api/conversations/older-copy**',route=>{const url=new URL(route.request().url()),owner={authority:'personal',threadId:other.id,scopeKey:context.scopeKey,sequence:10};return route.fulfill({json:url.pathname.endsWith('/updates')?{...owner,fromSequence:10,owner:null,transcriptChanged:false,checkpoint:context.checkpoint}:url.pathname.endsWith('/transcript')?{...owner,messages:[],nextCursor:null}:context});});
+ await page.getByRole('button',{name:'More conversations',exact:true}).click();
+ await page.getByRole('searchbox',{name:'Filter files'}).fill('first');await page.getByRole('button',{name:'Agent chat',exact:true}).click();await page.getByRole('textbox',{name:'Message',exact:true}).fill('Original owner draft');
+ await page.route('**/api/terminals**',route=>route.fulfill({json:{id:'review-terminal',output:'Synthetic terminal',start:0,cursor:18,exited:false,exitCode:null}}));
+ await page.getByRole('button',{name:'Terminal',exact:true}).click();await expect(page.locator('.xterm-host .xterm')).toBeVisible();
+ const original=await region.elementHandle();let posts=0,release!:()=>void;const held=new Promise<void>(resolve=>{release=resolve;});
+ await page.route('**/api/projects/project-a/actions',async route=>{posts++;await held;return route.fulfill({status:403,json:{error:{code:'AUTH_REQUIRED',message:'Renew session'}}});});
+ await page.getByRole('button',{name:'Stage file',exact:true}).click();await expect.poll(()=>posts).toBe(1);
+ try{
+  await choose(page,'Project and working copy','Alpha / Older working copy');await expect(page.getByRole('combobox',{name:'Project and working copy',exact:true})).toContainText('Older working copy');
+  expect(await original!.evaluate(node=>node.isConnected)).toBe(false);
+  await expect(page.getByRole('searchbox',{name:'Filter files'})).toHaveValue('');await expect(page.getByRole('button',{name:'Agent chat',exact:true})).toHaveAttribute('aria-pressed','false');await expect(page.getByRole('button',{name:'Terminal',exact:true})).toHaveAttribute('aria-pressed','false');
+ }finally{release();}
+ await choose(page,'Project and working copy','Alpha / Review changes');
+ // Returning to the original owner observes the durable terminal outcome of the old callback.
+ await expect(page.getByRole('alert').filter({hasText:'Action access revoked.'})).toBeVisible();expect(posts).toBe(1);
+ await page.getByRole('button',{name:'Agent chat',exact:true}).click();await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('Original owner draft');
 });
