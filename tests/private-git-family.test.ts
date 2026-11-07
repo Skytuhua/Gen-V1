@@ -104,3 +104,9 @@ it('keeps incremental legacy objects out of the authoritative managed family',as
  expect(execFileSync('git',['--git-dir='+common,'cat-file','blob',oid],{windowsHide:true,encoding:'utf8'})).toBe(wanted);
  execFileSync('git',['--git-dir='+common,'fsck','--full','--no-reflogs'],{windowsHide:true,stdio:'pipe'});
 },60000);
+
+it.each(['side','legacy-side']as const)('rejects %s conversations at the canonical project-tool binding',async(mode)=>{
+ const f=await fixture();const now=new Date().toISOString(),thread:Thread={id:'read-only-side',title:'Side',projectId:f.projectId,projectName:'Fixture',createdAt:now,updatedAt:now,status:'ready',epoch:0,runId:null,modelId:null,sessionPath:null,...(mode==='side'?{kind:'side'}:{kind:'main',sideParentId:'parent'})};
+ f.store.internal('fixture',null,()=>f.store.put('thread',thread.id,thread.id,thread));
+ await expect(f.tools.binding(f.projectId,thread.id)).rejects.toMatchObject({code:'CAPABILITY_DENIED'});
+});
