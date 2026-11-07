@@ -158,28 +158,6 @@
       "disposition": "staged-migration"
     },
     {
-      "file": "apps/web/src/InteractionTools.tsx",
-      "line": 69,
-      "column": 35,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "452e5cef51bc5af1a7668c72e0cbd6876ecab3cac6133fe1e012646ecb01fb58",
-      "reason": "TOOLS: migrate interaction field selectors to shared Select; retain bindings.",
-      "evidence": "<select {...common} value={value===true?'true':value===false?'false':''} onChange={event=>onChange(event.target.value===''?null:event.target.value==='true')}><option value=\"\">Not set</option><option value=\"true\">Yes</opt",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/InteractionTools.tsx",
-      "line": 70,
-      "column": 34,
-      "rule": "ad-hoc-overlay",
-      "message": "native <select>: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "bac772d1f675d449c8cd4966924e5a05ba02806d05320046060869a2de119a38",
-      "reason": "TOOLS: migrate interaction field selectors to shared Select; retain bindings.",
-      "evidence": "<select {...common} value={typeof value==='string'?value:''} onChange={event=>onChange(event.target.value||null)}><option value=\"\">Not set</option>{field.options.map(option=><option key={option.value} value={option.value",
-      "disposition": "staged-migration"
-    },
-    {
       "file": "apps/web/src/map-view.css",
       "line": 20,
       "column": 1,
