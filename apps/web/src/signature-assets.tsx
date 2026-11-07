@@ -25,9 +25,9 @@ function write(key: string, records: Pending[]) {
   if (records.length) localStorage.setItem(key, JSON.stringify(records)); else localStorage.removeItem(key);
   emit();
 }
-export function hasPendingDocumentAssets(threadId: string, stateId?: string) {
-  if (stateId !== undefined) {const key=keyFor(threadId,stateId);return (preparationCounts.get(key)??0)>0||read(key).length>0;}
-  const start = `${prefix}${encodeURIComponent(threadId)}:`;
+export function hasPendingDocumentAssets(threadId?: string, stateId?: string) {
+  if (threadId !== undefined && stateId !== undefined) {const key=keyFor(threadId,stateId);return (preparationCounts.get(key)??0)>0||read(key).length>0;}
+  const start = threadId === undefined ? prefix : `${prefix}${encodeURIComponent(threadId)}:`;
   if([...preparationCounts].some(([key,count])=>key.startsWith(start)&&count>0))return true;
   for (let index = 0; index < localStorage.length; index++) { const key = localStorage.key(index); if (key?.startsWith(start) && read(key).length) return true; }
   return false;

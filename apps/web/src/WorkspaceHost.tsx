@@ -1,10 +1,9 @@
-import {useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type CSSProperties, type ReactNode} from 'react';
+import {useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type ComponentProps, type CSSProperties, type ReactNode} from 'react';
 import {Menu, PanelLeftOpen, X} from 'lucide-react';
 import {threadNavigationRevision,type ThreadNavigationRow} from '../../../packages/contracts/shell-read-models';
 import type {PanelBinding, WorkspacePreset} from '../../../packages/contracts/workspace';
 import {getPreferences} from '../../../packages/contracts/preferences';
 import {Modal} from '../../../packages/ui-shell/Modal';
-import {CompactSettings} from './CompactSettings';
 import {ResizeHandle} from './WorkspacePanel';
 import {bootstrap, command, getShellSettings} from './api';
 import {AgentsWorkspace, AgentsWorkspaceController, createPersonalAgentComposers, createPersonalChildFollowUp, type SharedAgentComposers} from './agents-workspace';
@@ -12,6 +11,7 @@ import {detachedSurface, pendingSurface, useDesktop, useDesktopCloseGuard, useDe
 import {prepareEditorHandoff} from './editor-handoff';
 import {useModalRegion} from './focus';
 import {journalFlush} from './journal';
+import {hasPendingDocumentAssets} from './signature-assets';
 import {PendingStatus} from './LoadingState';
 import {ShellSidebar} from './ShellSidebar';
 import {getShellNavigationItem} from './shell-read-api';
@@ -39,6 +39,30 @@ export interface ConversationHost {
 }
 const message = (cause: unknown) => cause instanceof Error ? cause.message : 'The workspace could not open. Retry.';
 const prepare = async () => {await journalFlush(); await prepareEditorHandoff();};
+
+type CompactSettingsComponent = typeof import('./CompactSettings').CompactSettings;
+let loadedCompactSettings: CompactSettingsComponent | undefined;
+function CompactSettingsContent(props: ComponentProps<CompactSettingsComponent>) {
+  const [Settings, setSettings] = useState(() => loadedCompactSettings), [error, setError] = useState(''), [reloading, setReloading] = useState(false);
+  const alive = useRef(true);
+  useLayoutEffect(() => {alive.current = true; return () => {alive.current = false;};}, []);
+  useEffect(() => {
+    if (Settings) return;
+    let active = true;
+    void import('./CompactSettings').then(module => {loadedCompactSettings = module.CompactSettings; if (active) setSettings(() => module.CompactSettings);}).catch(() => {if (active) setError('Settings could not load.');});
+    return () => {active = false;};
+  }, [Settings]);
+  const reload = async () => {
+    setReloading(true);
+    try {
+      if (hasPendingDocumentAssets()) {setError('Wait for the signature mark to finish saving, or clear it before reloading.'); return;}
+      await prepare();
+      if (alive.current) window.location.reload();
+    } catch (cause) {if (alive.current) setError(`Drafts could not be saved. ${message(cause)} Keep this window open and retry.`);}
+    finally {if (alive.current) setReloading(false);}
+  };
+  return Settings ? <Settings {...props}/> : error ? <><p role="alert">{error}</p><button className="primary" disabled={reloading} onClick={() => void reload()}>Reload to retry</button></> : <PendingStatus pending label="Opening settings…"/>;
+}
 
 /** Resolve the main window's canonical workspace before mounting a conversation owner. */
 export function WorkspaceHost({conversation}: {conversation: (host: ConversationHost) => ReactNode}) {
@@ -217,7 +241,7 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
         onOpenConversation={(id,kind) => fail(() => openConversation(id,kind))}/>}</div>
     </div>
     <Modal open={settingsOpen} title="Settings" className="settings-dialog" onClose={closeSettings}>
-      {settingsOpen && <CompactSettings scopeKey="personal-main" close={closeSettings} addResource={() => action('resources')} openBrowser={openBrowser}/>}
+      {settingsOpen && <CompactSettingsContent scopeKey="personal-main" close={closeSettings} addResource={() => action('resources')} openBrowser={openBrowser}/>}
     </Modal>
     <Modal open={Boolean(rename)} title="Rename thread" onClose={() => {if (!mutationPending.current) setRename(undefined);}}><form onSubmit={event => {event.preventDefault(); if (rename && title.trim()) mutate(async () => {await command('thread.rename', {title: title.trim()}, rename.id); await navigation.refresh(); setRename(undefined);});}}>
       <label>Thread name<input autoFocus disabled={mutationBusy} value={title} maxLength={180} onChange={event => setTitle(event.target.value)}/></label><button disabled={mutationBusy || !title.trim()}>Save name</button>

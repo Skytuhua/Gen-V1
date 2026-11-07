@@ -553,3 +553,39 @@ for(const type of ['message.send','run.stop'] as const)test(`synchronous native 
   await expect(input).toHaveValue('');
  }
 });
+
+test('monitor Settings code loads only on open and remains reusable after closing during loading',async({page})=>{
+ let release!:()=>void,requested!:()=>void;const gate=new Promise<void>(resolve=>release=resolve),firstChunk=new Promise<void>(resolve=>requested=resolve),chunks:string[]=[];
+ await page.route(/\/src\/(?:CompactSettings|Settings)\.tsx(?:\?|$)/,async route=>{chunks.push(new URL(route.request().url()).pathname);requested();await gate;await route.continue();});
+ const opening=fixture(page),monitor=page.getByRole('region',{name:'Agent workspace',exact:true});
+ try{
+  await Promise.race([monitor.waitFor({state:'visible'}),firstChunk]);expect(chunks).toEqual([]);
+  const h=await opening,opener=page.getByRole('button',{name:'Settings',exact:true}),dialog=page.getByRole('dialog',{name:'Settings',exact:true});
+  await opener.click();await expect(dialog.getByRole('status').filter({hasText:'Opening settings'})).toBeVisible();expect(chunks).toEqual(['/src/CompactSettings.tsx']);
+  await dialog.getByRole('button',{name:'Close dialog',exact:true}).click();await expect(dialog).toHaveCount(0);await expect(opener).toBeFocused();
+  await opener.click();await expect(dialog.getByRole('status').filter({hasText:'Opening settings'})).toBeVisible();expect(chunks).toEqual(['/src/CompactSettings.tsx']);
+  release();await expect(dialog.getByRole('searchbox',{name:'Search all settings',exact:true})).toBeVisible();
+  await dialog.getByRole('button',{name:'Close dialog',exact:true}).click();await opener.click();await expect(dialog.getByRole('searchbox',{name:'Search all settings',exact:true})).toBeVisible();
+  expect(chunks).toEqual(['/src/CompactSettings.tsx','/src/Settings.tsx']);expect(h.requests.some(path=>path.startsWith('/api/snapshot'))).toBe(false);
+ }finally{release();await opening.catch(()=>{});}
+});
+
+for(const blocker of ['assets','journal','handoff'] as const)test(`monitor Settings chunk recovery retains ${blocker} before reloading`,async({page})=>{
+ if(blocker==='journal')await page.addInitScript(()=>{
+  const transaction=IDBDatabase.prototype.transaction,setItem=Storage.prototype.setItem;
+  IDBDatabase.prototype.transaction=function(...args:Parameters<IDBDatabase['transaction']>){if((window as any).failSettingsWrites&&args[1]==='readwrite')throw Error('Synthetic journal unavailable');return transaction.apply(this,args);};
+  Storage.prototype.setItem=function(key,value){if((window as any).failSettingsWrites&&key.startsWith('harness:journal-pending:'))throw Error('Synthetic staging unavailable');return setItem.call(this,key,value);};
+ });
+ await page.route('**/src/CompactSettings.tsx*',route=>route.abort('failed'));
+ const h=await fixture(page);await expect(page.getByRole('region',{name:'Agent workspace',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Settings',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Settings',exact:true});await expect(dialog.getByRole('alert')).toContainText('Settings could not load');
+ if(blocker==='assets')await page.evaluate(()=>localStorage.setItem('harness:signature-assets:v1:unmounted-owner:state',JSON.stringify([{id:'pending',stateKey:'signature',base64:'YQ=='}])));
+ if(blocker==='handoff')await page.evaluate(async()=>{const path='/src/editor-handoff.ts';(window as any).releaseSettingsGuard=(await import(path)).registerEditorHandoff('settings-reload',async()=>{throw Error('Synthetic handoff refused');});});
+ if(blocker==='journal')expect(await page.evaluate(async()=>{(window as any).failSettingsWrites=true;const path='/src/journal.ts';return (await import(path)).journalWrite('settings-reload-test',{draft:'Retain memory draft'}).then(()=>false,()=>true);})).toBe(true);
+ let navigations=0;page.on('framenavigated',frame=>{if(frame===page.mainFrame())navigations++;});
+ await dialog.getByRole('button',{name:'Reload to retry',exact:true}).click();
+ await expect(dialog.getByRole('alert')).toContainText(blocker==='assets'?'signature mark':'Drafts could not be saved');expect(navigations).toBe(0);expect(h.requests.some(path=>path.startsWith('/api/snapshot'))).toBe(false);
+ if(blocker==='journal')expect(await page.evaluate(async()=>{const path='/src/journal.ts';return (await import(path)).journalRead('settings-reload-test');})).toEqual({draft:'Retain memory draft'});
+ await page.evaluate(()=>{localStorage.removeItem('harness:signature-assets:v1:unmounted-owner:state');(window as any).failSettingsWrites=false;(window as any).releaseSettingsGuard?.();});
+ await dialog.getByRole('button',{name:'Close dialog',exact:true}).click();await expect(dialog).toHaveCount(0);
+});
