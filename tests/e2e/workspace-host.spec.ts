@@ -636,6 +636,8 @@ test('Custom retains its previous canvas as explicit recovery without replacing 
 test('Custom arranges Terminal below Files while the anchored composer stays mounted',async({page})=>{
  await page.setViewportSize({width:1600,height:1000});
  const h=await fixture(page,{working:false});
+ h.snapshot.usage['parent-a']={contextTokens:null,contextWindow:null,inputTokens:111,outputTokens:22,cost:1,activity:'idle',sessionPercent:null,weeklyPercent:null};
+ h.snapshot.usage['empty-draft']={...h.snapshot.usage['parent-a'],inputTokens:222,cost:2};
  await page.route('**/api/projects/project-a/files?*',route=>route.fulfill({json:{path:'',entries:[{name:'fixture.ts',path:'fixture.ts',kind:'file'}]}}));
  let terminalStarts=0;const terminalIds:string[]=[],terminalReads:URL[]=[];
  await page.route('**/api/terminals**',route=>{
@@ -671,6 +673,11 @@ test('Custom arranges Terminal below Files while the anchored composer stays mou
  await page.getByRole('button',{name:'Layouts',exact:true}).click();await page.getByRole('button',{name:'Save current layout…',exact:true}).click();await page.getByRole('textbox',{name:'Layout name',exact:true}).fill('Files and terminal');await page.getByRole('button',{name:'Save',exact:true}).click();await expect(page.getByRole('button',{name:'Apply Files and terminal',exact:true})).toBeVisible();await page.keyboard.press('Escape');
  await page.getByRole('button',{name:/^Empty draft stays in navigation /}).click();await draft.fill('The other conversation keeps ownership');
  await dock.getByRole('tab',{name:'Files',exact:true}).click();await expect(draft).toHaveValue('The other conversation keeps ownership');
+ await page.getByRole('button',{name:'Panels',exact:true}).click();await page.getByRole('menuitem',{name:'Add Usage panel',exact:true}).click();
+ const usage=page.getByRole('dialog',{name:'Usage',exact:true});
+ await expect(usage.getByRole('region',{name:'test · Empty draft stays in navigation',exact:true})).toBeVisible();
+ await expect(usage.getByRole('region',{name:'test · Project investigation',exact:true})).toHaveCount(0);
+ await usage.getByRole('button',{name:'Close dialog',exact:true}).click();await expect(draft).toHaveValue('The other conversation keeps ownership');
  await page.getByRole('button',{name:'Layouts',exact:true}).click();await page.getByRole('button',{name:'Apply Files and terminal',exact:true}).click();
  await expect(draft).toHaveValue('The other conversation keeps ownership');expect(await dock.getByRole('navigation',{name:'Project files',exact:true}).evaluate((element,original)=>element===original,fileNode)).toBe(true);expect(terminalStarts).toBe(1);
  await page.reload();await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('The other conversation keeps ownership');await expect.poll(()=>terminalStarts).toBe(2);expect(new Set(terminalIds).size).toBe(1);
