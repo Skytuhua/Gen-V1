@@ -709,7 +709,7 @@ function ConversationWorkspace({embeddedThreadId,embeddedActive=true,onRequestTh
   };
   const openSplitTool=async(kind:WorkspacePanelKind,paneId=splitState.layout?.focusedPaneId,beside=false,ownerThreadId?:string,preserveFocus=false,explicitBinding?:PanelBinding)=>{
     if(explicitBinding&&explicitBinding.authority.kind!=='local')throw Error('Open this tool in its owning workspace.');
-    if(kind==='usage'){const current=splitState.layout,viewId=paneId?current?.panes[paneId]?.activeViewId:undefined,binding=viewId?current?.views[viewId]?.binding:undefined;if(binding&&binding.authority.kind!=='local')throw Error('Open usage in its owning workspace.');openUsage(ownerThreadId??(binding?.authority.kind==='local'?binding.threadId:undefined)??thread?.id);return;}
+    if(kind==='usage'){const current=splitState.layout,viewId=paneId?current?.panes[paneId]?.activeViewId:undefined,binding=viewId?current?.views[viewId]?.binding:undefined;if(binding&&binding.authority.kind!=='local')throw Error('Open usage in its owning workspace.');openUsage(ownerThreadId??(!customDock&&binding?.authority.kind==='local'?binding.threadId:undefined)??thread?.id);return;}
     const current=splitState.layout;if(!current||!paneId)throw Error('Wait for the workspace to load.');
     if(kind==='thread'){setNotice('Drag an existing thread from the sidebar into this area.');return;}
     const activeId=current.panes[paneId]?.activeViewId,basis=activeId?current.views[activeId]?.binding:undefined,ownerId=explicitBinding?.threadId??ownerThreadId??(!customDock&&basis?.authority.kind==='local'?basis.threadId:thread?.id),owner=snapshotRef.current.threads.find(item=>item.id===ownerId);
