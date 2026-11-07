@@ -51,9 +51,9 @@ export function scopedThreadHoverFacts<Target>(facts: ThreadHoverFacts<Target>):
 /** Adapts an already authenticated project read; no fetch, lineage totals or PR inference. */
 export function factsFromProjectContext(scope: ThreadHoverScope, title: string, context: ProjectContext): ThreadHoverFacts | null {
   const candidate: ThreadHoverScope = {authority: context.project.authority, threadId: context.threadId ?? '',
-    projectId: context.project.id, workingCopyId: context.project.rootPath ?? null, revision: context.revision ?? ''};
+    projectId: context.project.id, workingCopyId: context.workingCopy?.id ?? null, revision: context.threadRevision ?? ''};
   if (context.error || !scope.workingCopyId || !scope.revision || hoverScopeKey(scope) !== hoverScopeKey(candidate)) return null;
   return {scope, title, project: {name: context.project.name},
-    ...(context.machineName ? {machine: context.machineName} : {}), workingCopy: context.project.rootPath,
+    ...(context.machineName ? {machine: context.machineName} : {}), workingCopy: context.workingCopy?.path,
     ...(context.branch ? {branch: context.branch} : {})};
 }

@@ -15,7 +15,7 @@ const calls:string[]=[];
 Object.assign(window,{sidebarCompactCalls:calls});
 const context:DesktopContext={windowId:'main',surface:new URLSearchParams(location.search).has('navigation')?{kind:'navigation'}:{kind:'main'},windows:[],update:{state:'idle',message:'Up to date'}};
 const bridge={onState:()=>()=>{},onCloseRequested:()=>()=>{},update:async(action:string)=>{calls.push(`update:${action}`);return context.update;}} as unknown as DesktopBridge;
-const threads=Array.from({length:35},(_,index)=>({id:`thread-${index}`,title:index===0?'A long useful thread title that remains available in full':'Research question '+index,projectId:'project-one',projectName:'Example project',status:index===1?'working':index===2?'awaiting_input':'ready',runId:index===1?'run-one':null,modelId:null,sessionPath:null,epoch:0,createdAt:'2026-11-04T10:00:00Z',updatedAt:'2026-11-04T10:00:00Z'} as Thread));
+const threads=Array.from({length:35},(_,index)=>({id:`thread-${index}`,title:index===0?'A long useful thread title that remains available in full':'Research question '+index,projectId:'project-one',projectName:'Example project',status:index===1?'working':index===2?'awaiting_input':'ready',runId:index===1?'run-one':null,modelId:index===0?'openai/gpt-6.1-sol':null,sessionPath:null,epoch:0,createdAt:'2026-11-04T10:00:00Z',updatedAt:'2026-11-04T10:00:00Z'} as Thread));
 function Fixture(){
  const elementRef=useRef<HTMLElement>(null),searchRef=useRef<HTMLInputElement>(null),[activeTab,setActiveTab]=useState<WorkspaceTab>('artifact');
  const [layout,setLayout]=useState<ShellLayout>({sidebarCollapsed:false,sidebarWidth:248,rightPanelOpen:false,rightPanelWidth:520,rightPanelMaximized:false,activeTab:'artifact',activeArtifactId:null,folded:{}});

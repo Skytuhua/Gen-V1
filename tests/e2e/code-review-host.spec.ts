@@ -2,14 +2,16 @@ import {test,expect,type Page} from '@playwright/test';
 import {fileURLToPath} from 'node:url';
 import {serveTaskFixture,taskFixture} from './task-interface-fixture';
 import {scopedContext} from '../scoped-conversation-fixture';
+import {threadNavigationRevision} from '../../packages/contracts/shell-read-models';
 import type {CodeReviewComparison} from '../../packages/contracts/code-review';
 const head='1'.repeat(40),revision='e'.repeat(64);
 const local:CodeReviewComparison['identity']={kind:'local',id:'a'.repeat(64),scope:'worktree',headOid:head,branch:'topic',revision:'b'.repeat(64),base:{kind:'index',revision:'c'.repeat(64)},head:{kind:'worktree',revision:'b'.repeat(64)}};
 const remote:CodeReviewComparison['identity']={kind:'pull-request',id:'d'.repeat(64),repo:'owner/repo',number:48,pullRequestId:'PR_48',baseOid:'2'.repeat(40),headOid:head,mergeBaseOid:'4'.repeat(40),baseRef:'main',headRef:'topic',semantics:'merge-base'};
 const files=[{path:'src/first.ts',status:'MM',index:'M',worktree:'M',staged:true,untracked:false,binary:false,added:1,removed:1,additions:1,deletions:1}];
-async function fixture(page:Page,{unbound=false,wrongProject=false,native=false,paged=false,side=false,readOnly=false,awaitComparison=false,linkedPrUnavailable=false}={}){
+async function fixture(page:Page,{unbound=false,wrongProject=false,native=false,paged=false,side=false,readOnly=false,awaitComparison=false,linkedPrUnavailable=false,hover=false,startWorkspace=false}={}){
  const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Synthetic Code Review host fixture'}}}});
  snapshot.threads[0]={...snapshot.threads[0],id:'review-a',title:'Review changes',projectId:'project-a',projectName:'Alpha',status:'ready',runId:null,...(side?{kind:'side' as const}:{})};snapshot.activeThreadId='review-a';snapshot.artifacts=[];snapshot.userStates=[];snapshot.data=[];snapshot.messages=[];
+ if(hover){snapshot.threads[0]={...snapshot.threads[0],workspaceId:'copy-a',modelId:'test/model-a',thinkingLevel:'high'};snapshot.threads.push({...snapshot.threads[0],id:'review-b',title:'Sibling review',workspaceId:'copy-b',modelId:'test/model-b',thinkingLevel:'low'});}
  snapshot.settings={theme:'dark',modelId:'test/model',preferences:{showUsageFooter:false}};
  const {commands}=await serveTaskFixture(page,snapshot);
  await page.addInitScript(({native})=>{
@@ -21,13 +23,13 @@ async function fixture(page:Page,{unbound=false,wrongProject=false,native=false,
  const binding={authority:{kind:'local'},threadId:'review-a',projectId:wrongProject?'foreign-project':'project-a'};
  const panel={id:'review-owner',canvasId:'code-review',kind:'thread',binding,placement:'canvas',visible:true,collapsed:false,bounds:{x:0,y:0,width:600,height:500},order:0,alwaysOnTop:false};
  const canvases=['workspace','all-agents','code-review','research','custom'].map(preset=>({id:preset,name:preset,preset,panels:preset==='code-review'&&!unbound?[panel]:[],viewport:{x:0,y:0,zoom:1}}));
- const envelope={projects,state:{version:1,revision:1,activeCanvasId:'code-review',canvases,profiles:[],disabledKinds:[],integrations:{}}};
+ const envelope={projects,state:{version:1,revision:1,activeCanvasId:startWorkspace?'workspace':'code-review',canvases,profiles:[],disabledKinds:[],integrations:{}}};
  await page.route('**/api/workspace',route=>route.fulfill({json:envelope}));
  const workspaceCommands:Record<string,any>[]=[];
  await page.route('**/api/workspace/commands',route=>{const input=route.request().postDataJSON();workspaceCommands.push(input);if(input.type==='workspace.canvas.select')envelope.state.activeCanvasId=input.payload.canvasId;if(input.type==='workspace.panel.update')Object.assign(panel,input.payload.patch);if(input.type==='workspace.panel.add')canvases.find(canvas=>canvas.id===input.payload.canvasId)?.panels.push({...panel,...input.payload.panel});envelope.state.revision++;return route.fulfill({json:{commandId:input.id,seq:1,result:envelope}});});
  await page.route('**/api/shell-settings',route=>route.fulfill({json:snapshot.settings}));
- await page.route('**/api/shell/navigation?*',route=>{const second=new URL(route.request().url()).searchParams.has('cursor');return route.fulfill({json:{sequence:1,total:paged?2:1,items:paged&&second?[{...row,id:'older-copy',title:'Older working copy'}]:[row],nextCursor:paged&&!second?'page-2':null,order:'created-desc',stats:{pinned:0,working:0,waiting:0,settled:paged?2:1,minOrder:0,maxOrder:0}}});});
- await page.route('**/api/shell/navigation/*',route=>route.fulfill({json:row}));
+ await page.route('**/api/shell/navigation?*',route=>{const second=new URL(route.request().url()).searchParams.has('cursor');return route.fulfill({json:{sequence:1,total:paged?2:1,items:paged&&second?[{...row,id:'older-copy',title:'Older working copy'}]:hover?snapshot.threads:[row],nextCursor:paged&&!second?'page-2':null,order:'created-desc',stats:{pinned:0,working:0,waiting:0,settled:paged?2:1,minOrder:0,maxOrder:0}}});});
+ await page.route('**/api/shell/navigation/*',route=>route.fulfill({json:snapshot.threads.find(item=>item.id===new URL(route.request().url()).pathname.split('/').at(-1))??row}));
  const context={...scopedContext,readOnly:side||readOnly,researchEligible:!side&&!readOnly,owner:{...scopedContext.owner,threadId:row.id,title:row.title,projectId:'project-a',projectName:'Alpha',modelId:'test/model'},sequence:10};
  await page.route('**/api/conversations/**',route=>{const url=new URL(route.request().url()),owner={authority:'personal',threadId:row.id,scopeKey:context.scopeKey,sequence:10};return route.fulfill({json:url.pathname.endsWith('/updates')?{...owner,fromSequence:10,owner:null,transcriptChanged:false,checkpoint:context.checkpoint}:url.pathname.endsWith('/transcript')?{...owner,messages:[],nextCursor:null}:context});});
  const actions:Record<string,any>[]=[],inspections:Record<string,any>[]=[];let outcome='confirmed',inspection='confirmed';
@@ -35,6 +37,7 @@ async function fixture(page:Page,{unbound=false,wrongProject=false,native=false,
   const url=new URL(route.request().url());
   if(url.pathname.endsWith('/actions')){const input=route.request().postDataJSON();actions.push(input);return route.fulfill({status:outcome==='confirmed'?200:409,json:outcome==='confirmed'?{commandId:input.id,seq:1,result:{operationId:input.id,operation:input.type,state:'confirmed'}}:{state:outcome,error:{code:'ACTION_UNCERTAIN',message:'Outcome uncertain'}}});}
   if(url.pathname.endsWith('/inspect')){inspections.push(route.request().postDataJSON());return route.fulfill({json:{state:inspection}});}
+  if(url.pathname.endsWith('/context')){const item=snapshot.threads.find(item=>item.id===url.searchParams.get('threadId'))??row;return route.fulfill({json:{project:projects[0],threadId:item.id,workingCopy:{id:item.workspaceId,path:'C:/copies/'+item.id},threadRevision:threadNavigationRevision(item),revision:'git-'+item.id,machineName:'Exact host',branch:'branch-'+item.id,head,editor:{available:false,label:''},changes:{added:0,removed:0,files:0},lineage:[],scripts:[],capabilities:{git:true,gitWrite:true,terminal:true,pullRequests:true}}});}
   if(url.pathname.endsWith('/git'))return route.fulfill({json:{head,revision,branch:'topic',gitWrite:true,files}});
   if(url.pathname.endsWith('/pull-requests')&&linkedPrUnavailable)return route.fulfill({status:409,json:{error:{code:'GITHUB_REMOTE_REQUIRED',message:'A GitHub origin is required for pull requests.'}}});
   if(url.pathname.endsWith('/pull-requests'))return route.fulfill({json:{repo:'owner/repo',items:[{number:48,title:'Exact remote PR',url:'https://github.com/owner/repo/pull/48'}]}});
@@ -202,4 +205,41 @@ test('actual fresh Git failure still holds local tools when linked PR discovery 
  await expect(page.getByRole('alert').filter({hasText:/review access/i})).toBeVisible();await expect(page.locator('.code-review-bound')).toHaveAttribute('inert','');await expect(message).toBeDisabled();
  await page.getByRole('button',{name:'Send message',exact:true}).dispatchEvent('click');
  expect(h.actions).toHaveLength(0);expect(h.commands.filter(command=>command.type==='message.send')).toHaveLength(0);await expect(page.getByRole('button',{name:'Pull request',exact:true})).toHaveCount(0);
+});
+
+test('sidebar cards keep sibling copies separate and open the exact linked PR',async({page})=>{
+ const h=await fixture(page,{hover:true});await expect(page.getByRole('region',{name:'Code review workspace',exact:true})).toBeVisible();
+ await page.getByRole('button',{name:'Review changes Ready',exact:true}).hover();const card=page.locator('.thread-hover-card');await expect(card).toBeVisible();await expect(card).toContainText('C:/copies/review-a');await expect(card).toContainText('branch-review-a');await expect(card).toContainText('test/model-a');await expect(card).toContainText('high');
+ await page.mouse.move(1000,700);await expect(card).toBeHidden();
+ await page.getByRole('button',{name:'Sibling review Ready',exact:true}).hover();await expect(card).toBeVisible();await expect(card).toContainText('C:/copies/review-b');await expect(card).toContainText('branch-review-b');await expect(card).not.toContainText('branch-review-a');
+ await page.mouse.move(1000,700);await expect(card).toBeHidden();
+ await page.getByRole('button',{name:'Review changes Ready',exact:true}).hover();await expect(card).toBeVisible();await card.getByRole('button',{name:'Open PR #48 Exact remote PR',exact:true}).click();
+ await expect(page.getByRole('region',{name:'Selected file diff'})).toContainText('exact pull-request source');
+ expect(h.requests.some(path=>path.startsWith('/api/projects/project-a/pull-requests/48/comparison?threadId=review-a'))).toBe(true);
+ expect(h.requests.filter(path=>path==='/api/snapshot'||path.startsWith('/api/agents'))).toEqual([]);
+});
+
+test('a native owner roundtrip prevents a linked-PR workspace binding retry',async({page})=>{
+ await fixture(page,{hover:true,native:true});await expect(page.getByRole('region',{name:'Code review workspace',exact:true})).toBeVisible();let writes=0;
+ await page.route('**/api/workspace/commands',async route=>{const input=route.request().postDataJSON();if(input.type==='workspace.panel.update'){writes++;await page.evaluate(()=>{const publish=Reflect.get(window,'publishReviewOwner');publish(true);publish(false);});return route.fulfill({status:403,json:{error:{code:'AUTH_REQUIRED',message:'Renew session'}}});}return route.fallback();});
+ await page.getByRole('button',{name:'Review changes Ready',exact:true}).hover();await page.locator('.thread-hover-card').getByRole('button',{name:'Open PR #48 Exact remote PR',exact:true}).click();
+ await expect(page.getByRole('alert').filter({hasText:/own|changed|Reload|unavailable|Renew session/i}).first()).toBeVisible();expect(writes).toBe(1);
+});
+
+
+test('reopening sidebar details refreshes branch and newly linked PR facts',async({page})=>{
+ const h=await fixture(page,{hover:true});let refreshed=false;
+ await page.route('**/api/projects/project-a/pull-requests?*',route=>route.fulfill({json:{repo:'owner/repo',items:refreshed?[{number:49,title:'Newly linked PR'}]:[]}}));
+ await page.route('**/api/projects/project-a/context?*',route=>{const row=h.row;return route.fulfill({json:{project:{id:'project-a',name:'Alpha',authority:{kind:'local'},rootPath:'C:/synthetic/alpha'},threadId:'review-a',workingCopy:{id:'copy-a',path:'C:/copies/review-a'},threadRevision:threadNavigationRevision(row),branch:refreshed?'fresh-branch':'old-branch'}});});
+ const trigger=page.getByRole('button',{name:'Review changes Ready',exact:true}),card=page.locator('.thread-hover-card');
+ await trigger.hover();await expect(card).toContainText('old-branch');expect(await card.getByRole('button',{name:/Open PR/}).count()).toBe(0);
+ await page.mouse.move(1000,700);await expect(card).toBeHidden();refreshed=true;
+ await trigger.hover();await expect(card).toContainText('fresh-branch');await expect(card.getByRole('button',{name:'Open PR #49 Newly linked PR',exact:true})).toBeVisible();
+});
+
+test('a failed hover PR transition from Workspace retains its error after the conversation unmounts',async({page})=>{
+ await fixture(page,{hover:true,startWorkspace:true});await expect(page.getByRole('button',{name:'Code Review',exact:true})).toHaveAttribute('aria-pressed','false');
+ await page.route('**/api/workspace/commands',route=>route.request().postDataJSON().type==='workspace.panel.update'?route.fulfill({status:409,json:{error:{code:'BINDING_REJECTED',message:'Exact review owner could not bind'}}}):route.fallback());
+ await page.getByRole('button',{name:'Sibling review Ready',exact:true}).hover();await page.locator('.thread-hover-card').getByRole('button',{name:'Open PR #48 Exact remote PR',exact:true}).click();
+ await expect(page.getByRole('button',{name:'Code Review',exact:true})).toHaveAttribute('aria-pressed','true');await expect(page.getByRole('alert').filter({hasText:'Exact review owner could not bind'})).toBeVisible();
 });
