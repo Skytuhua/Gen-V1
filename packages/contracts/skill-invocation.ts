@@ -4,22 +4,18 @@ import {skillReferenceSchema, type SkillReference} from './skill-catalog.ts';
 
 const identity = z.string().min(1).max(240);
 const hash = z.string().regex(/^[a-f0-9]{64}$/);
-/** Host-produced selection context. No filesystem paths, credentials or resource grants. */
+/** Host-only Send context. No filesystem paths, credentials or resource grants. */
 export const skillInvocationAuthoritySchema = z.strictObject({
   kind: z.literal('personal'), authorityId: identity, threadId: identity,
   projectId: identity.nullable(), workspaceId: identity.nullable(), accountId: identity.nullable(),
   authorityRevision: hash,
 });
 export type SkillInvocationAuthority = z.infer<typeof skillInvocationAuthoritySchema>;
-export const boundSkillReferenceSchema = z.strictObject({
-  version: z.literal(1),
-  reference: skillReferenceSchema.refine(ref => ref.scope.kind === 'personal'),
-  authority: skillInvocationAuthoritySchema,
-});
+export const boundSkillReferenceSchema = skillReferenceSchema.refine(ref => ref.scope.kind === 'personal');
 /** Data only: selecting a reference neither reads its body nor admits a Send. */
 export type BoundSkillReference = z.infer<typeof boundSkillReferenceSchema>;
-export function bindSkillReference(reference: SkillReference, authority: SkillInvocationAuthority): BoundSkillReference {
-  return boundSkillReferenceSchema.parse({version: 1, reference, authority});
+export function bindSkillReference(reference: SkillReference): BoundSkillReference {
+  return boundSkillReferenceSchema.parse(reference);
 }
 
 /** message.send payload. Omit skills for an ordinary send; never drop an invalid pin. */

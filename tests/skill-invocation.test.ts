@@ -29,9 +29,9 @@ async function fixture() {
   const ref = (await catalog.list()).skills[0].ref!;
   let current = authority();
   const records = new Map<string, unknown>(), key = randomBytes(32), signal = new AbortController().signal;
-  const options = {catalog, currentAuthority: () => current, replayKey: key, findReplay: (id: string) => records.get(id) ?? null};
+  const options = {catalog, expectedAuthority: current, currentAuthority: () => current, replayKey: key, findReplay: (id: string) => records.get(id) ?? null};
   const host = new PersonalSkillInvocations(options);
-  const request = {commandId: 'command', payload: {content: 'Use this procedure', modelId: 'provider/model', skills: [{version: 1 as const, reference: ref, authority: current}]}};
+  const request = {commandId: 'command', payload: {content: 'Use this procedure', modelId: 'provider/model', skills: [ref]}};
   const runtime = {threadId: 'thread', runId: 'run', epoch: 1, accountId: 'account', inputId: 'command', prompt: 'original', modelId: 'provider/model', sessionPath: null, resources: []};
   return {root, folder, catalog, request, signal, host, options, records, runtime, setAuthority: (next: typeof current) => {current = next;}};
 }
@@ -40,7 +40,7 @@ it('materializes exact entry bytes and captured support without changing prompt 
   const f = await fixture(), admitted = await f.host.prepare(f.request, f.signal);
   const input = f.host.runtimeInput(f.runtime, [admitted], f.signal);
   expect(input.prompt).toBe('original'); expect(input.resources).toEqual([]);
-  expect(input.admittedSkillGuidance[0]).toMatchObject({inputId: 'command', trust: 'untrusted-guidance', reference: f.request.payload.skills[0].reference, entry: {text: document, bytes: Buffer.byteLength(document)}});
+  expect(input.admittedSkillGuidance[0]).toMatchObject({inputId: 'command', trust: 'untrusted-guidance', reference: f.request.payload.skills[0], entry: {text: document, bytes: Buffer.byteLength(document)}});
   expect(f.host.readSupportingFile(admitted, admitted.guidance[0].supportingFiles[0].handle, f.signal).toString()).toBe('first');
   await writeFile(join(f.folder, 'support.txt'), 'other');
   expect(f.host.readSupportingFile(admitted, admitted.guidance[0].supportingFiles[0].handle, f.signal).toString()).toBe('first');
@@ -50,7 +50,7 @@ it('materializes exact entry bytes and captured support without changing prompt 
 it('denies stale support, forged identity, cross-source and private-provider references', async () => {
   const f = await fixture();
   for (const patch of [{digest: 'b'.repeat(64)}, {sourceBinding: 'b'.repeat(64)}, {revision: 'b'.repeat(64)}, {sourceId: 'app:other'}, {scope: {kind: 'provider', providerId: 'company', scopeId: 'private'}}]) {
-    const request = structuredClone(f.request); Object.assign(request.payload.skills[0].reference, patch);
+    const request = structuredClone(f.request); Object.assign(request.payload.skills[0], patch);
     await expect(f.host.prepare(request, f.signal)).rejects.toMatchObject({code: 'SKILL_RESELECT'});
   }
   await writeFile(join(f.folder, 'support.txt'), 'other');
@@ -125,7 +125,7 @@ it('restores authenticated exact bytes across host restart without rediscovering
 
 it('rejects command-ID reuse with changed content, model, thinking, reference or authority', async () => {
   const f = await fixture(), admitted = await f.host.prepare(f.request, f.signal); f.records.set('command', admitted.record);
-  for (const patch of [{content: 'different'}, {modelId: 'other'}, {thinkingLevel: 'high'}, {skills: [{...f.request.payload.skills[0], reference: {...f.request.payload.skills[0].reference, revision: 'b'.repeat(64)}}]}]) {
+  for (const patch of [{content: 'different'}, {modelId: 'other'}, {thinkingLevel: 'high'}, {skills: [{...f.request.payload.skills[0], revision: 'b'.repeat(64)}]}]) {
     await expect(f.host.prepare({...f.request, payload: {...f.request.payload, ...patch}}, f.signal)).rejects.toMatchObject({code: 'SKILL_REPLAY_CONFLICT'});
   }
   f.setAuthority({...authority(), accountId: 'other'});
@@ -155,7 +155,7 @@ it('reads the exact Harness version/document with no latest-name or ambient proj
   const f = await fixture(), store = new Store(join(f.root, 'data')); cleanups.push(async () => store.close());
   store.internal('test.seed', null, () => applySkillOperations(store, [{action: 'create', name: 'learned', baseRevision: 0, description: 'Learned procedure', content: 'Version one'}], {kind: 'user'}));
   const catalog = new SkillCatalogRepository([harnessCatalog(store)]), ref = (await catalog.list()).skills[0].ref!;
-  const request = {...f.request, payload: {...f.request.payload, skills: [{...f.request.payload.skills[0], reference: ref}]}};
+  const request = {...f.request, payload: {...f.request.payload, skills: [ref]}};
   const host = new PersonalSkillInvocations({...f.options, catalog, readHarnessVersion: harnessVersionReader(store)});
   const admitted = await host.prepare(request, f.signal);
   expect(host.runtimeInput(f.runtime, [admitted], f.signal).admittedSkillGuidance[0].entry.text).toContain('Version one');
@@ -163,7 +163,7 @@ it('reads the exact Harness version/document with no latest-name or ambient proj
   await expect(host.prepare(request, f.signal)).rejects.toMatchObject({code: 'SKILL_RESELECT'});
   const wrong = new PersonalSkillInvocations({...f.options, catalog, readHarnessVersion: () => ({'SKILL.md': 'Version two'})});
   const current = (await catalog.list()).skills[0].ref!;
-  await expect(wrong.prepare({...request, payload: {...request.payload, skills: [{...request.payload.skills[0], reference: current}]}}, f.signal)).rejects.toMatchObject({code: 'SKILL_RESELECT'});
+  await expect(wrong.prepare({...request, payload: {...request.payload, skills: [current]}}, f.signal)).rejects.toMatchObject({code: 'SKILL_RESELECT'});
 });
 
 it.each(['files', 'fileBytes', 'packageBytes'] as const)('denies a package exceeding %s instead of silently truncating it', async limit => {
@@ -173,7 +173,7 @@ it.each(['files', 'fileBytes', 'packageBytes'] as const)('denies a package excee
   if (limit === 'packageBytes') for (let i = 0; i < 5; i++) await writeFile(join(f.folder, `file-${i}`), Buffer.alloc(1024 * 1024));
   const ref = (await f.catalog.list()).skills[0].ref;
   expect(ref).toBeTruthy();
-  const request = {...f.request, payload: {...f.request.payload, skills: [{...f.request.payload.skills[0], reference: ref}]}};
+  const request = {...f.request, payload: {...f.request.payload, skills: [ref]}};
   await expect(f.host.prepare(request, f.signal)).rejects.toMatchObject({code: 'SKILL_RESELECT'});
 });
 
@@ -183,9 +183,9 @@ it('rejects malformed payloads rather than accepting browser supplied text, path
 });
 
 it('selection preserves every reference field without a body read or admission capability, and bundles for browsers', async () => {
-  const f = await fixture(), selected = bindSkillReference(f.request.payload.skills[0].reference, authority());
-  expect(selected.reference).toEqual(f.request.payload.skills[0].reference);
-  expect(Object.keys(selected).sort()).toEqual(['authority', 'reference', 'version']);
+  const f = await fixture(), selected = bindSkillReference(f.request.payload.skills[0]);
+  expect(selected).toEqual(f.request.payload.skills[0]);
+  expect(Object.keys(selected).sort()).toEqual(['digest', 'locator', 'revision', 'scope', 'skillId', 'sourceBinding', 'sourceId', 'version']);
   expect(boundSkillReferenceSchema.safeParse({...selected, guidance: 'cached instructions'}).success).toBe(false);
   expect(skillInvocationSendPayloadSchema.safeParse({...f.request.payload, skills: Array(9).fill(selected)}).success).toBe(false);
   const result = await build({entryPoints: ['packages/contracts/skill-invocation.ts'], platform: 'browser', bundle: true, write: false});
@@ -202,7 +202,7 @@ it('preserves UTF-8 BOM and original line endings in admitted guidance', async (
   const f = await fixture(), exact = '\uFEFF' + document.replaceAll('\n', '\r\n');
   await writeFile(join(f.folder, 'SKILL.md'), exact);
   const ref = (await f.catalog.list()).skills[0].ref!;
-  const admitted = await f.host.prepare({...f.request, payload: {...f.request.payload, skills: [{...f.request.payload.skills[0], reference: ref}]}}, f.signal);
+  const admitted = await f.host.prepare({...f.request, payload: {...f.request.payload, skills: [ref]}}, f.signal);
   expect(admitted.guidance[0].entry.text).toBe(exact);
 });
 
@@ -210,10 +210,10 @@ it('admits all selected references in order, never silently dropping a stale sec
   const f = await fixture(), other = join(f.root, 'skills', 'other'); await mkdir(other);
   await writeFile(join(other, 'SKILL.md'), document.replace('Procedure', 'Other'));
   const page = await f.catalog.list();
-  const skills = page.skills.map(entry => bindSkillReference(entry.ref!, authority()));
+  const skills = page.skills.map(entry => bindSkillReference(entry.ref!));
   const request = {...f.request, payload: {...f.request.payload, skills}};
   const admitted = await f.host.prepare(request, f.signal);
-  expect(admitted.guidance.map(item => item.reference)).toEqual(skills.map(item => item.reference));
+  expect(admitted.guidance.map(item => item.reference)).toEqual(skills);
   await writeFile(join(other, 'SKILL.md'), 'changed');
   await expect(f.host.prepare(request, f.signal)).rejects.toMatchObject({code: 'SKILL_RESELECT'});
   await expect(f.host.prepare({...f.request, payload: {...f.request.payload, skills: [skills[0], skills[0]]}}, f.signal)).rejects.toMatchObject({code: 'SKILL_RESELECT'});
@@ -228,7 +228,7 @@ it('bounds Harness entry bytes before materializing an oversized saved document'
   });
   const catalog = new SkillCatalogRepository([harnessCatalog(store)]), ref = (await catalog.list()).skills[0].ref!;
   const host = new PersonalSkillInvocations({...f.options, catalog, readHarnessVersion: harnessVersionReader(store)});
-  await expect(host.prepare({...f.request, payload: {...f.request.payload, skills: [bindSkillReference(ref, authority())]}}, f.signal)).rejects.toMatchObject({code: 'SKILL_RESELECT'});
+  await expect(host.prepare({...f.request, payload: {...f.request.payload, skills: [bindSkillReference(ref)]}}, f.signal)).rejects.toMatchObject({code: 'SKILL_RESELECT'});
 });
 
 it('captures only a verified installed App package, without activating its host, and rechecks registry revocation', async () => {
@@ -240,7 +240,7 @@ it('captures only a verified installed App package, without activating its host,
   await writeFile(join(folder, 'plugin-files.json'), inventory);
   await writeFile(join(registry, 'active.json'), JSON.stringify({version: 1, plugins: [{id: 'example', version: '1.0.0', digest: catalogHash(inventory)}]}));
   const catalog = new SkillCatalogRepository([installedAppCatalog({root: registry})]), ref = (await catalog.list()).skills[0].ref!;
-  const request = {...f.request, payload: {...f.request.payload, skills: [bindSkillReference(ref, authority())]}};
+  const request = {...f.request, payload: {...f.request.payload, skills: [bindSkillReference(ref)]}};
   const host = new PersonalSkillInvocations({...f.options, catalog}), admitted = await host.prepare(request, f.signal);
   expect(admitted.guidance[0].entry.text).toBe(document);
   expect(host.readSupportingFile(admitted, admitted.guidance[0].supportingFiles[0].handle, f.signal).toString()).toBe('app support');
@@ -260,7 +260,7 @@ it('uses the bundled manifest pin and denies an index replacement between custod
   const manifestPath = join(f.root, 'third-party/integrations/manifest.json');
   await writeFile(manifestPath, JSON.stringify({version: 1, integrations}));
   const catalog = new SkillCatalogRepository([bundledCatalog(f.root)]), ref = (await catalog.list()).skills[0].ref!;
-  const request = {...f.request, payload: {...f.request.payload, skills: [bindSkillReference(ref, authority())]}};
+  const request = {...f.request, payload: {...f.request.payload, skills: [bindSkillReference(ref)]}};
   const host = new PersonalSkillInvocations({...f.options, catalog}); expect((await host.prepare(request, f.signal)).guidance[0].entry.text).toBe(document);
   const check = catalog.checkReference.bind(catalog); let calls = 0;
   const racing = new PersonalSkillInvocations({...f.options, catalog: {async checkReference(...args: Parameters<typeof check>) {
@@ -282,8 +282,8 @@ it('resolves only the connected canonical project/worktree and denies its root i
   });
   const selectedAuthority = {...authority(), projectId: 'project', workspaceId: 'working'}; f.setAuthority(selectedAuthority);
   const catalog = new SkillCatalogRepository([projectCatalog(store)]), ref = (await catalog.list({threadId: 'thread', projectId: 'project'})).skills[0].ref!;
-  const request = {...f.request, payload: {...f.request.payload, skills: [bindSkillReference(ref, selectedAuthority)]}};
-  const host = new PersonalSkillInvocations({...f.options, catalog}); expect((await host.prepare(request, f.signal)).guidance[0].entry.text).toBe(document);
+  const request = {...f.request, payload: {...f.request.payload, skills: [bindSkillReference(ref)]}};
+  const host = new PersonalSkillInvocations({...f.options, expectedAuthority: selectedAuthority, catalog}); expect((await host.prepare(request, f.signal)).guidance[0].entry.text).toBe(document);
   store.internal('test.swap', null, () => store.put('workspaceBinding', 'working', null, {id: 'working', projectId: 'project', threadId: 'thread', path: working, identity: {dev: '0', ino: '0'}}));
   await expect(host.prepare(request, f.signal)).rejects.toMatchObject({code: 'SKILL_RESELECT'});
 });
@@ -345,4 +345,11 @@ it('sanitizes authority-provider failures at precommit without leaking host path
   const admitted = await host.prepare(f.request, f.signal); failed = true;
   expect(() => host.assertCurrent(admitted, f.signal)).toThrowError(expect.objectContaining({code: 'SKILL_RESELECT'}));
   try {host.assertCurrent(admitted, f.signal);} catch (error) {expect(String(error)).not.toContain('private');}
+});
+
+it('accepts the parent raw skills array while taking expected authority only from host options', async () => {
+  const f = await fixture(), host = new PersonalSkillInvocations({...f.options, expectedAuthority: authority()});
+  const request = {...f.request, payload: {...f.request.payload, skills: [f.request.payload.skills[0]]}};
+  expect((await host.prepare(request, f.signal)).guidance[0].reference).toEqual(request.payload.skills[0]);
+  await expect(host.prepare({...request, payload: {...request.payload, authority: authority()}}, f.signal)).rejects.toMatchObject({code: 'SKILL_RESELECT'});
 });

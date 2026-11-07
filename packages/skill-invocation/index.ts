@@ -22,6 +22,8 @@ export type SkillInvocationRecord = z.infer<typeof recordSchema>;
 export interface PreparedSkillInvocation {readonly record: SkillInvocationRecord; readonly guidance: readonly AdmittedSkillGuidance[]}
 export interface PersonalSkillInvocationOptions {
   catalog: Pick<SkillCatalogRepository, 'checkReference'>;
+  /** Trusted Service context captured before asynchronous Send admission, never a browser field. */
+  expectedAuthority: SkillInvocationAuthority;
   /** Synchronous current authority, derived from host records, never the submitted snapshot. */
   currentAuthority(): SkillInvocationAuthority;
   /** Persist the same 32+ byte secret across restarts, outside browser data. */
@@ -53,11 +55,15 @@ function bounded(captures: readonly CapturedSkill[]): void {
 /** Preparation grants guidance custody only. The parent owns atomic commit and active-run admission. */
 export class PersonalSkillInvocations {
   private readonly key: Buffer;
+  private readonly authority: SkillInvocationAuthority;
   private readonly prepared = new WeakMap<PreparedSkillInvocation, SkillInvocationRecord>();
   private readonly settings = new WeakMap<PreparedSkillInvocation, {modelId: string; thinkingLevel?: string | null}>();
   constructor(private readonly options: PersonalSkillInvocationOptions) {
     if (options.replayKey.byteLength < 32) throw deny();
     this.key = Buffer.from(options.replayKey);
+    const authority = skillInvocationAuthoritySchema.safeParse(options.expectedAuthority);
+    if (!authority.success) throw deny();
+    this.authority = freeze(authority.data);
   }
   private mac(value: unknown): string {return createHmac('sha256', this.key).update(JSON.stringify(value)).digest('hex');}
   private current(expected: SkillInvocationAuthority, signal: AbortSignal): void {
@@ -72,8 +78,8 @@ export class PersonalSkillInvocations {
     try {
       const request = skillInvocationRequestSchema.parse(raw), {commandId, payload} = request;
       if (Buffer.byteLength(payload.content) > 64 * 1024) throw deny();
-      const authority = payload.skills[0].authority;
-      if (payload.skills.some(pin => catalogHash(pin.authority) !== catalogHash(authority)) || new Set(payload.skills.map(pin => catalogHash(pin.reference))).size !== payload.skills.length) throw deny();
+      const authority = this.authority;
+      if (new Set(payload.skills.map(reference => catalogHash(reference))).size !== payload.skills.length) throw deny();
       this.current(authority, signal);
       const requestDigest = catalogHash(request), saved = this.options.findReplay(commandId);
       let record: SkillInvocationRecord;
@@ -86,20 +92,20 @@ export class PersonalSkillInvocations {
         if (record.commandId !== commandId || record.requestDigest !== requestDigest) throw conflict();
         if (catalogHash(record.authority) !== catalogHash(authority) || record.captures.length !== payload.skills.length) throw deny();
         for (const [index, capture] of record.captures.entries()) {
-          if (catalogHash(capture.reference) !== catalogHash(payload.skills[index].reference)) throw deny();
+          if (catalogHash(capture.reference) !== catalogHash(payload.skills[index])) throw deny();
           verifyCaptured(capture);
         }
       } else {
         const captures: CapturedSkill[] = [];
-        for (const pin of payload.skills) {
+        for (const reference of payload.skills) {
           const context = {threadId: authority.threadId, ...(authority.projectId ? {projectId: authority.projectId} : {})};
           const recheck = async () => {
             this.current(authority, signal);
-            const custody = await abortable(this.options.catalog.checkReference(pin.reference, context), signal);
+            const custody = await abortable(this.options.catalog.checkReference(reference, context), signal);
             this.current(authority, signal); return custody;
           };
           const custody = await recheck();
-          const capture = await materialize(pin.reference, custody, signal, () => this.current(authority, signal), recheck, this.options.readHarnessVersion);
+          const capture = await materialize(reference, custody, signal, () => this.current(authority, signal), recheck, this.options.readHarnessVersion);
           captures.push(capture); bounded(captures);
         }
         const body = {version: 1 as const, commandId, requestDigest, authority, captures};
