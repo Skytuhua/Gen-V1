@@ -24,6 +24,7 @@ import {createPersonalSkillCatalog} from '../../packages/skill-catalog/adapters.
 import type {SkillCatalogRepository} from '../../packages/skill-catalog/repository.ts';
 import {registerAgentInventoryRoutes} from './agent-inventory-routes.ts';
 import {registerAgentInputRoutes} from './agent-input-routes.ts';
+import {registerShellReadRoutes} from './shell-read-routes.ts';
 import {AgentProjection} from '../../packages/agent-projection/index.ts';
 import type {PersonalAgentInventory} from '../../packages/contracts/agent-inventory.ts';
 
@@ -120,6 +121,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
   const agentInventory=options.agentInventory??new AgentProjection(service.store);
   registerAgentInventoryRoutes(app,agentInventory);
   registerAgentInputRoutes(app,service.planning);
+  registerShellReadRoutes(app,service.store);
   if(!options.agentInventory)app.addHook('onClose',async()=>{agentInventory.dispose();});
   registerSkillCatalogRoutes(app,options.skillCatalog??createPersonalSkillCatalog(service.store));
   registerResearchRoutes(app,{research:service.research,command:command=>service.command(command)});
