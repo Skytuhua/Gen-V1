@@ -8,6 +8,8 @@ export interface ActionMenuItem {
   id: string;
   label: string;
   accessibleLabel?: string;
+  title?: string;
+  shortcut?: string;
   icon?: ReactNode;
   disabled?: boolean;
   checked?: boolean;
@@ -65,9 +67,9 @@ export function ActionMenu({ label, icon, iconOnly, open, onOpenChange, disabled
       onReady={() => { content.current?.focus(); navigation.focus(navigation.edge(start.current)); }}>
       {items.map((item, index) => <button key={item.id} ref={node => { navigation.rows.current[index] = node; }}
         type="button" tabIndex={-1} role={item.checked === undefined ? 'menuitem' : 'menuitemcheckbox'}
-        aria-checked={item.checked} aria-label={item.accessibleLabel} disabled={item.disabled}
+        aria-checked={item.checked} aria-label={item.accessibleLabel} title={item.title} disabled={item.disabled}
         className="ui-control-option" onFocus={() => navigation.onFocus(index)} onClick={() => choose(index)}>
-        {item.icon}<span>{item.label}</span>{item.checked !== undefined && <Check size={14} aria-hidden="true" style={{ visibility: item.checked ? 'visible' : 'hidden' }} />}
+        {item.icon}<span>{item.label}</span>{item.shortcut && <kbd className="ui-control-shortcut" aria-hidden="true">{item.shortcut}</kbd>}{item.checked !== undefined && <Check size={14} aria-hidden="true" style={{ visibility: item.checked ? 'visible' : 'hidden' }} />}
       </button>)}
     </Popover>
   </>;

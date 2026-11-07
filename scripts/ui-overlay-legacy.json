@@ -236,17 +236,6 @@
     },
     {
       "file": "apps/web/src/shell.css",
-      "line": 89,
-      "column": 1,
-      "rule": "ad-hoc-overlay",
-      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "04058a9bf5a1c5a0f87267d016c01f6f47507208a72f85e0e4d54584b14acba5",
-      "reason": "HOVER/SHELL2: remove thread menu geometry after ActionMenu migration.",
-      "evidence": ".thread-menu.sidebar-thread-menu { position:fixed; right:auto; top:auto; margin-top:-5px; margin-left:20px; z-index:65; width:190px; box-shadow:var(--elevation); }",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/shell.css",
       "line": 192,
       "column": 1,
       "rule": "ad-hoc-overlay",
@@ -290,17 +279,6 @@
       "disposition": "staged-migration"
     },
     {
-      "file": "apps/web/src/ShellSidebar.tsx",
-      "line": 171,
-      "column": 9,
-      "rule": "ad-hoc-overlay",
-      "message": "overlay surface class: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "749db91a8f2045e770e65a8f4a28f03b3fd9232d7584b5dba29f1d4307694271",
-      "reason": "HOVER/SHELL2: migrate thread action menu to shared ActionMenu; preserve real actions.",
-      "evidence": "<div className=\"thread-menu sidebar-thread-menu\">",
-      "disposition": "staged-migration"
-    },
-    {
       "file": "apps/web/src/software-development.css",
       "line": 115,
       "column": 1,
@@ -310,17 +288,6 @@
       "reason": "Retained geometry: noninteractive pipeline connection layer behind nodes.",
       "evidence": ".software-stage-connections { position:absolute; inset:0; width:100%; height:100%; z-index:-1; overflow:visible; pointer-events:none; }",
       "disposition": "retained-geometry"
-    },
-    {
-      "file": "apps/web/src/styles.css",
-      "line": 90,
-      "column": 1,
-      "rule": "ad-hoc-overlay",
-      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "d7ddc42db6e47fbb3811fb9c509ef1a995baad14a2e021f8eedfe97870392e9b",
-      "reason": "HOVER/SHELL2: remove thread menu geometry after ActionMenu migration.",
-      "evidence": ".thread-menu { position:absolute; right:0; top:34px; width:182px; padding:5px; background:var(--surface); border:1px solid var(--border); border-radius:10px; z-index:20; }",
-      "disposition": "staged-migration"
     },
     {
       "file": "apps/web/src/styles.css",

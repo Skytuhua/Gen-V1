@@ -26,7 +26,7 @@ test('compact rows show project monogram chip, readable title and metadata, and 
  await expect(item).not.toHaveAttribute('title',/./);await item.hover();await expect(page.locator('.thread-hover-card')).toContainText('A long useful thread title that remains available in full');await expect(page.locator('.thread-hover-card')).toContainText('openai/gpt-6.1-sol');await page.keyboard.press('Escape');
  await row.getByRole('button',{name:/Options for/}).focus();
  await page.keyboard.press('Enter');
- await page.getByRole('button',{name:'Pin thread',exact:true}).click();
+ await page.getByRole('menuitem',{name:'Pin thread',exact:true}).click();
  expect(await page.evaluate(()=>(window as unknown as {sidebarCompactCalls:string[]}).sidebarCompactCalls)).toContain('presentation:{"pinned":true}');
 });
 test('footer invokes supplied actions and the single updater while plug-in navigation survives',async({page})=>{
@@ -71,9 +71,9 @@ test('detach callbacks expose no entrypoints and ordinary thread menus still wor
  const options=page.locator('.sidebar-thread-row').first().getByRole('button',{name:/Options for/});
  await options.click();
  await expect(page.getByRole('button',{name:/detach/i})).toHaveCount(0);
- await page.getByRole('button',{name:'Rename thread',exact:true}).click();
+ await page.getByRole('menuitem',{name:'Rename thread',exact:true}).click();
  await options.click();
- await page.getByRole('button',{name:'Archive thread',exact:true}).click();
+ await page.getByRole('menuitem',{name:'Archive thread',exact:true}).click();
  expect(await page.evaluate(()=>(window as unknown as {sidebarCompactCalls:string[]}).sidebarCompactCalls)).toEqual(['rename','archive']);
  await expect(page.getByRole('navigation',{name:'Installed plug-ins'})).toBeVisible();
 });
