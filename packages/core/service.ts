@@ -573,7 +573,10 @@ export class Service {
       case "request.withdraw": {
         const request = this.request(thread.id, p.requestId, p.revision);
         this.store.put("request", request.id, thread.id, { ...request, revision: request.revision + 1, status: "withdrawn" });
-        for (const op of this.store.all<Operation>("operation", thread.id).filter(o => o.status === "prepared")) this.store.put("operation", op.id, thread.id, { ...op, status: "cancelled", revision: op.revision + 1 });
+        for (const op of this.store.all<Operation>("operation", thread.id).filter(o => o.status === "prepared")) {
+          const next: Operation = { ...op, status: "cancelled", revision: op.revision + 1 };
+          this.store.put("operation", op.id, thread.id, next); this.operationData(next);
+        }
         this.updateGateStatus(thread.id); return { withdrawn: true };
       }
       case "request.respond": return this.acceptRequest(thread, this.request(thread.id, p.requestId, p.revision), p.response);
@@ -1051,7 +1054,10 @@ export class Service {
     this.store.internal("workspace.recovered", null, () => {
       const learning=this.store.get<Snapshot['learning']>('learningStatus','global'),last=learning?.lastReview;
       this.store.put('learningStatus','global',null,{...learning,supported:this.learningSupported,status:'idle',lastCuratedAt:learning?.lastCuratedAt??now(),lastReview:last?.status==='reviewing'?{...last,status:'cancelled',finishedAt:now(),error:'The interrupted review was not restarted.'}:last??null});
-      for (const op of this.store.all<Operation>("operation").filter(o => o.status === "running")) this.store.put("operation", op.id, op.threadId, { ...op, status: "unknown", error: "Execution was interrupted before its outcome was recorded" });
+      for (const op of this.store.all<Operation>("operation").filter(o => o.status === "running")) {
+        const next: Operation = { ...op, status: "unknown", error: "Execution was interrupted before its outcome was recorded" };
+        this.store.put("operation", op.id, op.threadId, next); this.operationData(next);
+      }
       for (const thread of this.store.all<Thread>("thread").filter(t => t.runId)) { this.failUnansweredDetails({threadId:thread.id,runId:thread.runId!,epoch:thread.epoch},"The explanation was interrupted. Resume the task to retry."); this.store.put("thread", thread.id, thread.id, { ...thread, epoch: thread.epoch + 1, runId: null, status: "interrupted", updatedAt: now() }); }
       return { inferenceCalls: 0 };
     });
