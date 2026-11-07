@@ -1,4 +1,4 @@
-import {useEffect,useId,useMemo,useRef,useState,type KeyboardEvent} from 'react';
+import {useEffect,useId,useMemo,useRef,useState,useImperativeHandle,type Ref,type KeyboardEvent} from 'react';
 import {Popover} from '../../../packages/ui-shell/Popover';
 import {ActionMenu} from '../../../packages/ui-shell/ActionMenu';
 import {isComposing} from '../../../packages/ui-shell/list-navigation';
@@ -7,14 +7,16 @@ import type {ModelInfo} from '../../../packages/contracts';
 import {SUBSCRIPTION_CONNECTIONS} from '../../../packages/contracts/connections';
 import './model-picker.css';
 
+export interface ModelPickerHandle {open():void}
 export interface ModelPickerProps {
+ ref?:Ref<ModelPickerHandle>;
  models:ModelInfo[];modelId:string;onChange:(id:string)=>void;disabled?:boolean;
  thinkingLevel?:string;onThinkingChange?:(level:string)=>void;
 }
 const providerLabel=(provider:string)=>SUBSCRIPTION_CONNECTIONS.find(connection=>connection.id===provider)?.label??provider;
 const effortLabel=(value:string)=>value==='xhigh'?'Extra high':value.replaceAll('_',' ').replaceAll('-',' ').replace(/\b\w/g,letter=>letter.toUpperCase());
 
-export function ModelPicker({models,modelId,onChange,disabled=false,thinkingLevel='',onThinkingChange}:ModelPickerProps){
+export function ModelPicker({ref,models,modelId,onChange,disabled=false,thinkingLevel='',onThinkingChange}:ModelPickerProps){
  const id=useId(),trigger=useRef<HTMLButtonElement>(null),popover=useRef<HTMLDivElement>(null),search=useRef<HTMLInputElement>(null);
  const [open,setOpen]=useState(false),[present,setPresent]=useState(false),[query,setQuery]=useState(''),[activeId,setActiveId]=useState(modelId);
  const [effortOpen,setEffortOpen]=useState(false),[keyboard,setKeyboard]=useState(false);
@@ -35,6 +37,7 @@ export function ModelPicker({models,modelId,onChange,disabled=false,thinkingLeve
  const name=selected?.name??(modelId||'Select model'),caption=combined&&selectedEffort?effortLabel(selectedEffort):'';
  function close(restoreFocus=false){setEffortOpen(false);setOpen(false);if(restoreFocus)trigger.current?.focus();}
  function show(){if(locked)return;setQuery('');setActiveId(modelId);setKeyboard(false);setPresent(true);setOpen(true);}
+ useImperativeHandle(ref,()=>({open:show}));
  function choose(model:ModelInfo){if(locked)return;onChange(model.id);if(!combined)close(true);}
  function chooseEffort(level:string){if(locked||!onThinkingChange||(level!==''&&!levels.includes(level)))return;onThinkingChange(level);close(true);}
  function navigate(event:KeyboardEvent<HTMLInputElement>){

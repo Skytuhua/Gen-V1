@@ -47,6 +47,9 @@ import {DelegatedAgentTranscript} from './DelegatedAgentTranscript';
 import {WorkspaceControls,panelLabels} from './WorkspaceControls';
 import {WorkspaceHost,type ConversationHost} from './WorkspaceHost';
 import type {SharedAgentComposers, ComposerState, ConversationComposerTarget} from './agents-workspace/composer';
+import {ComposerCommands,ComposerSkillBindings,type ComposerCommandsHandle} from './ComposerCommands';
+import type {ModelPickerHandle} from './ModelPicker';
+import {useComposerSkills,skillDraftKey,readSkillBindings,clearAcceptedSkills} from './composer-skill-drafts';
 import {useWorkspaceState} from './workspace-api';
 import {liveThreadPanels,delegatedThread,threadParent,threadProject,findCanvasPanelBounds} from './workspace-canvas-layout';
 import {panelDesktopSurface,panelsForDesktopSurface,panelNativeWindow} from './workspace-native';
@@ -168,7 +171,7 @@ function ResourcePicker({ threadId, close, refresh, opener }: { threadId: string
 
 type PrepareThread = (id: string) => Promise<unknown>;
 const emptyComposerState: ComposerState = {draft: '', ready: false, busy: false, stopping: false, error: '', retry: false};
-function Composer({ sharedComposers, thread, models, modelId, setModelId, snapshot, ensureThread, busy: externalBusy, runAction, refresh, setup, openResource, inspectChanges, reportError,onSide, predictionBlocked, selectProject }: { sharedComposers?: SharedAgentComposers; selectProject?:(id:string|undefined,opener?:HTMLElement|null,prepare?:PrepareThread)=>void; predictionBlocked: boolean; thread: Thread | undefined; models: ModelInfo[]; modelId: string; setModelId: (id: string) => void; snapshot: Snapshot; ensureThread: (prepare: PrepareThread) => Promise<string>; busy: boolean; runAction: (action: () => Promise<void>) => Promise<void>; refresh: () => Promise<void>; setup: () => void; openResource: (id: string, opener?: HTMLElement | null) => void; browseProject:(id:string)=>void;inspectChanges:()=>void; reportError: (error: string) => void;onSide:(content:string)=>Promise<void> }) {
+function Composer({ modelPickerRequest, onModelPickerOpened, sharedComposers, thread, models, modelId, setModelId, snapshot, ensureThread, busy: externalBusy, runAction, refresh, setup, openResource, inspectChanges, reportError,onSide, predictionBlocked, selectProject }: { modelPickerRequest?:number; onModelPickerOpened?:(request:number)=>void; sharedComposers?: SharedAgentComposers; selectProject?:(id:string|undefined,opener?:HTMLElement|null,prepare?:PrepareThread)=>void; predictionBlocked: boolean; thread: Thread | undefined; models: ModelInfo[]; modelId: string; setModelId: (id: string) => void; snapshot: Snapshot; ensureThread: (prepare: PrepareThread) => Promise<string>; busy: boolean; runAction: (action: () => Promise<void>) => Promise<void>; refresh: () => Promise<void>; setup: () => void; openResource: (id: string, opener?: HTMLElement | null) => void; browseProject:(id:string)=>void;inspectChanges:()=>void; reportError: (error: string) => void;onSide:(content:string)=>Promise<void> }) {
   const key = thread?.id ?? 'new';
   const draftTarget = useRef(key);
   const [localDraft, setDraft] = useState('');
@@ -191,7 +194,13 @@ function Composer({ sharedComposers, thread, models, modelId, setModelId, snapsh
   const preferences = getPreferences(snapshot.settings);
 
   const [dragging, setDragging] = useState(false);
-  const input = useRef<HTMLTextAreaElement>(null);
+  const input = useRef<HTMLTextAreaElement>(null), commands = useRef<ComposerCommandsHandle>(null), modelPicker = useRef<ModelPickerHandle>(null), openedModelRequest = useRef<number | undefined>(undefined);
+  const [skillOwner,setSkillOwner]=useState(key);
+  const localSkills = useComposerSkills(skillOwner, !shared), skills = shared ? sharedState.skills ?? [] : localSkills.skills;
+  const skillsReady = shared || localSkills.ready;
+  const [draftMode,setDraftMode]=useState<'plan'|'build'>('build');
+  useEffect(()=>{if(thread)return;let active=true;void journalRead<string>('mode:'+key).then(value=>{if(active)setDraftMode(value==='plan'?'plan':'build');}).catch(()=>{});return()=>{active=false;};},[key,thread?.id]);
+  useEffect(()=>{if(modelPickerRequest===undefined||openedModelRequest.current===modelPickerRequest||!models.length||working||busy)return;openedModelRequest.current=modelPickerRequest;modelPicker.current?.open();onModelPickerOpened?.(modelPickerRequest);},[modelPickerRequest,models,working,busy,onModelPickerOpened]);
   const file = useRef<HTMLInputElement>(null);
   const ghost = useRef<HTMLDivElement>(null);
   const resources = snapshot.resources.filter(item => item.threadId === thread?.id);
@@ -224,16 +233,23 @@ function Composer({ sharedComposers, thread, models, modelId, setModelId, snapsh
   const migrateDraft = async (id: string, fallback = draft, retireSource = false) => {
     const source = id !== key ? await journalReadRecord<string>(`draft:${key}`) : undefined;
     // New keystrokes follow the copied draft while snapshot/selection is pending.
-    draftTarget.current = id;
-    if(id!==key)await journalWrite('thinking:'+id,thinkingLatest.current);
+    draftTarget.current = id;setSkillOwner(id);
+    if(id!==key){
+      await journalWrite('thinking:'+id,thinkingLatest.current);
+      const selected=await journalReadRecord(skillDraftKey(key));
+      await journalWrite(skillDraftKey(id),readSkillBindings(selected?.value));
+      if(retireSource&&selected)await journalCompareAndSwap(skillDraftKey(key),selected.generation,[]);
+      if(!thread&&draftMode==='plan')await command('thread.mode',{mode:'plan'},id);
+    }
     const generation = id !== key ? await journalWrite(`draft:${id}`, source?.value ?? fallback) : journalGeneration(`draft:${key}`);
     if (id !== key && retireSource && source) await journalCompareAndSwap(`draft:${key}`, source.generation, '');
     return { source, generation };
   };
   const send = async () => {
-    if (busy || !draft.trim() && !(shared && sharedState.retry)) return;
+    if (busy || !skillsReady || !draft.trim() && !(shared && sharedState.retry)) return;
     const sideCommand=/^\/(?:btw|side)(?:\s|$)/i.exec(draft.trim());
     if(sideCommand){
+      if(skills.length){setError('Selected skills apply to the main conversation. Remove them or send a main message.');return;}
       if(!thread){setError('Start a main conversation before asking a side question.');return;}
       const generation=journalGeneration(`draft:${key}`);setError('');
       try{await onSide(draft.trim().slice(sideCommand[0].length).trim());await journalCompareAndSwap(`draft:${key}`,generation,'');}catch(cause){setError(messageOf(cause));}
@@ -242,17 +258,18 @@ function Composer({ sharedComposers, thread, models, modelId, setModelId, snapsh
     if (working || unavailable) return;
     await runAction(async () => {
       setError('');
-      const submittedDraft = draft;
+      const submittedDraft = draft, submittedSkills = skills.slice();
       const submittedGeneration = journalGeneration(`draft:${key}`);
       try {
         let migrated: Awaited<ReturnType<typeof migrateDraft>> | undefined;
         const id = await ensureThread(async id => { migrated = await migrateDraft(id, submittedDraft, true); });
         if (sharedComposers) {
           const target: ConversationComposerTarget = {kind: 'conversation', threadId: id, modelId, working: false};
-          await sharedComposers.prepare(target); await sharedComposers.submit(target, {thinkingLevel: thinkingLatest.current || null});
+          await sharedComposers.prepare(target); await sharedComposers.submit(target, {thinkingLevel: thinkingLatest.current || null,submission:{content:submittedDraft,generation:id===key?submittedGeneration:migrated&&migrated.source?.generation===submittedGeneration?migrated.generation:undefined,skills:submittedSkills}});
           await refresh(); return;
         }
-        await command('message.send', { content: submittedDraft.trim(), modelId, thinkingLevel:thinkingLevel||null }, id);
+        await command('message.send', { content: submittedDraft.trim(), modelId, thinkingLevel:thinkingLevel||null, ...(submittedSkills.length?{skills:submittedSkills.map(binding=>binding.ref)}:{}) }, id);
+        await clearAcceptedSkills(skillDraftKey(id),submittedSkills);
         await journalCompareAndSwap(`draft:${key}`, submittedGeneration, '');
         if (id !== key && migrated && migrated.source?.generation === submittedGeneration) await journalCompareAndSwap(`draft:${id}`, migrated.generation, '');
         await refresh();
@@ -281,15 +298,24 @@ function Composer({ sharedComposers, thread, models, modelId, setModelId, snapsh
       catch (error) { reportError(messageOf(error)); }
     });
   };
+  const chooseMode=async(mode:'plan'|'build')=>{
+    if(working||busy)throw Error('Wait for the active run to finish to change mode.');
+    if(!thread){await journalWrite('mode:'+key,mode);setDraftMode(mode);return;}
+    await command('thread.mode',{mode},thread.id);await refresh();
+  };
   const preparePR=()=>{const intent='Create a pull request for the current changes.';const current=draftLatest.current;updateDraft(current.startsWith(intent)?current:intent+(current.trim()?'\n\n'+current:''));input.current?.focus();};
   return <div className="composer-dock">
+    {localSkills.error&&!shared&&<p role="alert" className="composer-error">{localSkills.error}</p>}
     {error && <div className="composer-error" role="alert">{error}<button className="icon-button" aria-label="Dismiss composer error" onClick={() => setError('')}><X size={14} /></button></div>}
     <ComposerView className={dragging ? 'dragging' : ''} onSubmit={event => { event.preventDefault(); void send(); }} onDragOver={event => { event.preventDefault(); setDragging(true); }} onDragLeave={event => { if (!event.currentTarget.contains(event.relatedTarget as Node)) setDragging(false); }} onDrop={event => { event.preventDefault(); setDragging(false); if (event.dataTransfer.files.length) void upload(event.dataTransfer.files); }}>
       <ComposerAttachments resources={resources}/>
+      <ComposerSkillBindings bindings={skills} onRemove={id=>{void (sharedComposers&&sharedTarget?sharedComposers.removeSkill(sharedTarget,id):localSkills.remove(id)).catch(cause=>setError(messageOf(cause)));}}/>
+      <ComposerCommands ref={commands} input={input} draft={draft} threadId={thread?.id} projectId={thread?.projectId} disabled={!ready||!skillsReady||busy||predictionBlocked} onDraft={updateDraft} onSkill={binding=>sharedComposers&&sharedTarget?sharedComposers.addSkill(sharedTarget,binding):localSkills.add(binding)} onModel={()=>modelPicker.current?.open()} onMode={chooseMode}/>
       <div className="composer-entry-row">
       <div className="composer-input">
         <textarea ref={input} aria-label="Message" placeholder={prediction.candidate ? '' : dragging ? 'Drop files to attach' : 'Ask anything…'} value={draft} disabled={!ready} onChange={event => updateDraft(event.target.value)} onPaste={prediction.dismiss} onCompositionStart={prediction.dismiss} onKeyDown={event => {
           if (event.nativeEvent.isComposing || event.nativeEvent.keyCode === 229) return;
+          if(commands.current?.keyDown(event))return;
           if (prediction.candidate && event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); prediction.dismiss(); return; }
           if (event.key === 'Tab' && !event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey && acceptPrediction()) { event.preventDefault(); return; }
           if (event.key === 'Enter' && !event.shiftKey && (preferences.sendShortcut === 'enter' || event.ctrlKey || event.metaKey)) { event.preventDefault(); void send(); }
@@ -299,11 +325,11 @@ function Composer({ sharedComposers, thread, models, modelId, setModelId, snapsh
       <ComposerTaskActions changeSummary={changes} onChanges={inspectChanges} onCreatePR={preparePR} disabled={busy||!ready} working={working}/>
       </div>
       <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">{prediction.candidate ? `Suggested message: ${prediction.candidate} Tab to accept. Escape to dismiss.` : ''}</span>
-      <ComposerToolbar models={models} modelId={modelId} onModelChange={id=>{chooseThinking('');setModelId(id);}} thinkingLevel={thinkingLevel} onThinkingChange={chooseThinking} projectLabel={thread?.projectName??project?.label} changeSummary={changes} onProject={async()=>{if(!selectProject){await addResource();return;}const opener=document.activeElement as HTMLElement|null;selectProject(thread?.id,opener,thread?undefined:id=>migrateDraft(id,draftLatest.current,true));}} onChanges={inspectChanges} onCreatePR={preparePR} onTranscript={text=>{const current=draftLatest.current;updateDraft(current+(current&&!/\s$/.test(current)?' ':'')+text);}} disabled={busy||!ready} working={working} separateActions
+      <ComposerToolbar modelPickerRef={modelPicker} models={models} modelId={modelId} onModelChange={id=>{chooseThinking('');setModelId(id);}} thinkingLevel={thinkingLevel} onThinkingChange={chooseThinking} projectLabel={thread?.projectName??project?.label} changeSummary={changes} onProject={async()=>{if(!selectProject){await addResource();return;}const opener=document.activeElement as HTMLElement|null;selectProject(thread?.id,opener,thread?undefined:id=>migrateDraft(id,draftLatest.current,true));}} onChanges={inspectChanges} onCreatePR={preparePR} onTranscript={text=>{const current=draftLatest.current;updateDraft(current+(current&&!/\s$/.test(current)?' ':'')+text);}} disabled={busy||!ready} working={working} separateActions
         leading={<><button type="button" className="icon-button attach-button" aria-label="Attach files" title="Attach files" disabled={busy} onClick={()=>file.current?.click()}><Plus size={18}/></button><input type="file" multiple ref={file} hidden onChange={event=>{if(event.target.files)void upload(event.target.files);event.target.value='';}}/></>}
-        runtime={<>{thread?.accountId!=null&&<span className="composer-account" title="Account for this task">{snapshot.accounts?.find(account=>account.id===thread.accountId)?.label??'Account unavailable'}</span>}<span className="pill runtime-pill" title="Local workspace"><Laptop size={14}/>Local</span><button type="button" className="mode-toggle" aria-label="Task mode" aria-pressed={thread?.mode==='plan'} title={thread?.mode==='plan'?'Switch to Build':'Switch to Plan'} disabled={working||busy} onClick={()=>{const mode=thread?.mode==='plan'?'build':'plan';void runAction(async()=>{try{const id=await ensureThread(id=>migrateDraft(id,draft,true));await command('thread.mode',{mode},id);await refresh();}catch(cause){setError(messageOf(cause));}});}}>{thread?.mode==='plan'?<PenLine size={15}/>:<Bot size={15}/>}<span>{thread?.mode==='plan'?'Plan':'Build'}</span></button></>}
+        runtime={<>{thread?.accountId!=null&&<span className="composer-account" title="Account for this task">{snapshot.accounts?.find(account=>account.id===thread.accountId)?.label??'Account unavailable'}</span>}<span className="pill runtime-pill" title="Local workspace"><Laptop size={14}/>Local</span><button type="button" className="mode-toggle" aria-label="Task mode" aria-pressed={(thread?.mode??draftMode)==='plan'} title={(thread?.mode??draftMode)==='plan'?'Switch to Build':'Switch to Plan'} disabled={working||busy} onClick={()=>{void chooseMode((thread?.mode??draftMode)==='plan'?'build':'plan').catch(cause=>setError(messageOf(cause)));}}>{(thread?.mode??draftMode)==='plan'?<PenLine size={15}/>:<Bot size={15}/>}<span>{(thread?.mode??draftMode)==='plan'?'Plan':'Build'}</span></button></>}
         context={preferences.showComposerContext&&<span className="context-anchor"><button ref={contextAnchor} type="button" className="icon-button context-button" aria-label="Inspect context usage" aria-expanded={contextOpen} onClick={()=>setContextOpen(value=>!value)}><SlidersHorizontal size={15}/></button>{contextOpen&&<ContextInspector anchor={contextAnchor} usage={thread?snapshot.usage[thread.id]:undefined} thread={thread} close={()=>setContextOpen(false)} refresh={refresh}/>}</span>}
-        trailing={working?<>{/^\/(?:btw|side)(?:\s|$)/i.test(draft.trim())&&<button type="button" className="send-button" aria-label="Send side question" disabled={busy||!ready} onClick={()=>void send()}><ArrowUp size={17}/></button>}<button type="button" className="send-button stop-button" aria-label="Stop agent" disabled={shared && sharedState.stopping} onClick={()=>{void (sharedComposers && sharedTarget ? sharedComposers.stop(sharedTarget) : command('run.stop',{},thread!.id)).then(()=>refresh()).catch(error=>setError(messageOf(error)));}}><CircleStop size={20}/></button></>:<button className="send-button" aria-label={shared && sharedState.retry ? "Retry send" : "Send message"} disabled={busy||unavailable||!draft.trim() && !(shared && sharedState.retry)||!ready} title={unavailable?'Connect an available model in Settings to send.':'Send message (Enter)'}>{busy?<LoaderCircle size={17} className="spinning"/>:<ArrowUp size={19}/>}</button>}
+        trailing={working?<>{/^\/(?:btw|side)(?:\s|$)/i.test(draft.trim())&&<button type="button" className="send-button" aria-label="Send side question" disabled={busy||!ready} onClick={()=>void send()}><ArrowUp size={17}/></button>}<button type="button" className="send-button stop-button" aria-label="Stop agent" disabled={shared && sharedState.stopping} onClick={()=>{void (sharedComposers && sharedTarget ? sharedComposers.stop(sharedTarget) : command('run.stop',{},thread!.id)).then(()=>refresh()).catch(error=>setError(messageOf(error)));}}><CircleStop size={20}/></button></>:<button className="send-button" aria-label={shared && sharedState.retry ? "Retry send" : "Send message"} disabled={busy||!skillsReady||unavailable||!draft.trim() && !(shared && sharedState.retry)||!ready} title={unavailable?'Connect an available model in Settings to send.':'Send message (Enter)'}>{busy?<LoaderCircle size={17} className="spinning"/>:<ArrowUp size={19}/>}</button>}
       />
     </ComposerView>
     <div className="composer-caption">{prediction.candidate ? <span className="composer-prediction-controls"><span className="composer-prediction-keyboard" aria-hidden="true">Tab to accept · Esc to dismiss</span><button type="button" className="composer-prediction-use" onPointerDown={event => event.preventDefault()} onClick={acceptPrediction}>Use suggestion</button></span> : unavailable ? <button onClick={setup}>Connect a model to start<ChevronRight size={12} /></button> : null}</div>
@@ -728,11 +754,12 @@ function ConversationWorkspace({embeddedThreadId,embeddedActive=true,onRequestTh
     defaultCollapsed focusOnOpen={false} expandRequest={planExpandRequest||undefined}><ProjectContextSurface key={thread?.id??'new'} thread={thread} snapshot={snapshot} onContext={rememberProjectContext} onOpenDetailedPlan={()=>void openSplitTool('plan',undefined,true,thread?.id).catch(cause=>setError(messageOf(cause)))} onSelectThread={select} onShowChanges={()=>void openSplitTool('diff',undefined,true,thread?.id).catch(cause=>setError(messageOf(cause)))} onConnect={()=>openProjectConnect({threadId:thread?.id,projectId:thread?.projectId})}/></DockedSummary><UsageFooter threadId={thread?.id} usage={thread?snapshot.usage[thread.id]:undefined} visible={preferences.showUsageFooter} onOpenUsage={()=>openUsage()}/></SummaryDock>;
   const renderSplitRoot=()=>splitState.layout?<div className="split-root-workarea"><SummaryLayout active={!detachedPlan||preferences.showUsageFooter} summaries={contextSummaries}><WorkspaceSplitLayout layout={splitState.layout} onCommand={sendSplitCommand} prepare={prepareWorkspace} renderView={renderSplitView} title={view=>view.kind==='thread'?snapshot.threads.find(item=>item.id===view.binding.threadId)?.title??'Unavailable conversation':view.kind==='workspace'&&view.binding.resourceId==='agent-inbox'?'Agent inbox':panelLabels[view.kind]} onDropThread={placeSplitThread} editorOptions={['thread','browser','files','diff','notes','plan','terminal','linked-pull-requests','context','usage','inbox'].map(id=>({id,title:id==='inbox'?'Agent inbox':panelLabels[id as WorkspacePanelKind]}))} onSelectEditor={(kind,paneId)=>kind==='inbox'?openInbox(paneId):openSplitTool(kind as WorkspacePanelKind,paneId)}/></SummaryLayout>{splitState.error&&!layoutChooserOpen&&<p className="split-layout-error" role="alert">{splitState.error}</p>}</div>:<div className="loading-state" role="status">Opening workspace layout...</div>;
   const interfaceFont = preferences.interfaceFont === 'system' ? '-apple-system, BlinkMacSystemFont, "Inter Variable", "Segoe UI", system-ui, sans-serif' : preferences.interfaceFont === 'Inter' ? '"Inter Variable", sans-serif' : preferences.interfaceFont;
-  const handledHostIntent=useRef<number|undefined>(undefined);
+  const handledHostIntent=useRef<number|undefined>(undefined),[modelPickerRequest,setModelPickerRequest]=useState<{id:number;threadId?:string}>();
   useEffect(()=>{
     if(!loaded||!host?.intent||handledHostIntent.current===host.intent.id)return;
     handledHostIntent.current=host.intent.id;
     if(host.intent.kind==='settings'){setSettingsSection('general');setSettingsOpen(true);}
+    else if(host.intent.kind==='model')setModelPickerRequest({id:host.intent.id,threadId:host.initialThreadId??thread?.id});
     else if(host.intent.kind==='usage'){setUsageThreadId(thread?.id??null);setUsageOpen(true);}
     else if(host.intent.kind==='new-thread')void newThreadRef.current().catch(cause=>setError(messageOf(cause)));
     else if(host.intent.kind==='connect-project')setProjectConnectOpen(true);
@@ -780,7 +807,7 @@ function ConversationWorkspace({embeddedThreadId,embeddedActive=true,onRequestTh
       </div></div>; })}</div></div>
       <div className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</div>
       {latestAvailable && <button className="jump-latest secondary" onClick={() => { const position=conversationMotion.current?.jump();if(position)readingPositions.current.set(thread?.id??'new',position);setLatestAvailable(false); }}>Jump to latest<ArrowUp size={13} /></button>}
-      <div style={{display:'contents'}} inert={threadHeld}>{thread&&delegatedThread(thread)?<div className="canvas-thread-readonly">Read-only delegated transcript - continue in its parent conversation.</div>:loaded&&thread&&threadParent(thread)?<SideThreadComposer key={thread.id} thread={thread} modelId={modelId} refresh={refresh}/>:loaded ? <Composer sharedComposers={host?.composers} selectProject={openProjectSelection} predictionBlocked={Boolean(embeddedThreadId&&!embeddedActive) || threadHeld || Boolean(projectPicker) || projectConnectOpen || settingsOpen || usageOpen || Boolean(resourcePicker) || rename || (mobile && sidebarOpen)} key={thread?.id ?? 'new'} thread={thread} models={models} modelId={modelId} setModelId={updateModel} snapshot={snapshot} ensureThread={ensureThread} busy={composerBusy || threadCreating} runAction={runComposerAction} refresh={refresh} setup={() => { setSettingsSection('providers'); setSettingsOpen(true); }} openResource={openResourcePicker} browseProject={id=>{setFocusedResource(id);setLayout(value=>({...value,rightPanelOpen:true,activeTab:'files'}));}} inspectChanges={()=>setLayout(value=>({...value,rightPanelOpen:true,activeTab:'diff'}))} reportError={setError} onSide={async content=>{setSideOpen(true);if(!sideChat.current)throw new Error("The side conversation is still opening.");await sideChat.current.ask(content);}} /> : <div className="composer-dock" role="status"><span className="muted">Opening conversation…</span></div>}</div>
+      <div style={{display:'contents'}} inert={threadHeld}>{thread&&delegatedThread(thread)?<div className="canvas-thread-readonly">Read-only delegated transcript - continue in its parent conversation.</div>:loaded&&thread&&threadParent(thread)?<SideThreadComposer key={thread.id} thread={thread} modelId={modelId} refresh={refresh}/>:loaded ? <Composer modelPickerRequest={modelPickerRequest?.threadId===thread?.id?modelPickerRequest?.id:undefined} onModelPickerOpened={id=>setModelPickerRequest(current=>current?.id===id?undefined:current)} sharedComposers={host?.composers} selectProject={openProjectSelection} predictionBlocked={Boolean(embeddedThreadId&&!embeddedActive) || threadHeld || Boolean(projectPicker) || projectConnectOpen || settingsOpen || usageOpen || Boolean(resourcePicker) || rename || (mobile && sidebarOpen)} key={thread?.id ?? 'new'} thread={thread} models={models} modelId={modelId} setModelId={updateModel} snapshot={snapshot} ensureThread={ensureThread} busy={composerBusy || threadCreating} runAction={runComposerAction} refresh={refresh} setup={() => { setSettingsSection('providers'); setSettingsOpen(true); }} openResource={openResourcePicker} browseProject={id=>{setFocusedResource(id);setLayout(value=>({...value,rightPanelOpen:true,activeTab:'files'}));}} inspectChanges={()=>setLayout(value=>({...value,rightPanelOpen:true,activeTab:'diff'}))} reportError={setError} onSide={async content=>{setSideOpen(true);if(!sideChat.current)throw new Error("The side conversation is still opening.");await sideChat.current.ask(content);}} /> : <div className="composer-dock" role="status"><span className="muted">Opening conversation…</span></div>}</div>
     </main>
     </SummaryLayout>
 

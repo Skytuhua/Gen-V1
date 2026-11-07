@@ -2,6 +2,7 @@ import {beforeEach, expect, it, vi} from 'vitest';
 import {createSharedAgentComposers} from '../apps/web/src/agents-workspace/composer';
 import type {AgentSummary} from '../packages/contracts/agent-inventory';
 import type {AgentInputTicket} from '../packages/contracts/agent-input';
+import {ApiError} from '../apps/web/src/api';
 const ticket: AgentInputTicket = {id: 'ticket', messageId: 'message', parentThreadId: 'parent', jobId: 'job', parentRun: {runId: 'pr', epoch: 1}, childRun: {threadId: 'child', runId: 'cr', epoch: 1}, status: 'queued', createdAt: '', updatedAt: ''};
 const agent = (id: string, patch: Partial<AgentSummary> = {}): AgentSummary => ({agentId: id, parentId: null, rootId: id, jobId: null, threadId: id, projectId: 'p', projectName: 'Project', title: id, status: 'working', modelId: 'model', currentAction: null, reportedPercent: null, createdAt: '', updatedAt: '', orderKey: id, revision: 1, archived: false, readOnly: false, metadata: 'thread', ...patch});
 
@@ -15,6 +16,55 @@ vi.mock('../apps/web/src/journal', () => ({
  journalCompareAndSwap: async (key: string, generation: string, value: unknown) => {if (records.get(key)?.generation !== generation) return false; records.set(key, {value, generation: crypto.randomUUID()}); return true;},
 }));
 beforeEach(() => {records.clear(); writes.pause = undefined;});
+const binding = (id = crypto.randomUUID()): import('../apps/web/src/composer-commands').SkillBinding => ({id, name: 'Selected procedure', source: 'Personal', ref: {version: 1, scope: {kind: 'personal'}, sourceId: 'personal:test', skillId: 'procedure', locator: 'a'.repeat(64), revision: 'b'.repeat(64), digest: 'c'.repeat(64), sourceBinding: 'd'.repeat(64)}});
+it('shares and recovers bound skills with the real conversation owner, independent of literal text', async () => {
+ const selected = binding(), a = agent('a'), conversation = {kind: 'conversation' as const, threadId: 'a', modelId: 'model', working: false};
+ const owner = createSharedAgentComposers({sendParent: async () => {}, stopParent: async () => {}});
+ await owner.prepare(a); await owner.addSkill(a, selected); await owner.edit(a, '/skill:unbound');
+ expect(owner.getSnapshot(conversation).skills).toEqual([selected]); owner.dispose();
+ const restored = createSharedAgentComposers({sendParent: async () => {}, stopParent: async () => {}});
+ await restored.prepare(conversation); expect(restored.getSnapshot(a).skills).toEqual([selected]);
+ await restored.removeSkill(a, selected.id); expect(restored.getSnapshot(conversation).skills).toEqual([]); restored.dispose();
+});
+it('pins uncertain-send skill references and removes accepted selections while keeping new selections and later text', async () => {
+ const first = binding(), second = binding(), a = agent('a');
+ const send = vi.fn(async (_input: import('../apps/web/src/agents-workspace/composer').ParentSend): Promise<void> => {throw Error('Uncertain');});
+ const owner = createSharedAgentComposers({sendParent: send, stopParent: async () => {}});
+ await owner.prepare(a); await owner.edit(a, 'Original'); await owner.addSkill(a, first); await owner.submit(a);
+ expect(send.mock.calls[0][0]).toMatchObject({content: 'Original', skills: [first.ref]});
+ await owner.edit(a, 'Later'); await owner.addSkill(a, second); send.mockImplementation(async () => {}); await owner.submit(a);
+ expect(send.mock.calls[1][0]).toEqual(send.mock.calls[0][0]);
+ expect(owner.getSnapshot(a)).toMatchObject({draft: 'Later', skills: [second], retry: false}); owner.dispose();
+});
+it('restores the original bound pending send rather than replacing it from current selections', async () => {
+ const a = agent('a'), first = binding(), later = binding();
+ const firstOwner = createSharedAgentComposers({sendParent: async () => {throw Error('Disconnected');}, stopParent: async () => {}});
+ await firstOwner.prepare(a); await firstOwner.edit(a, 'First'); await firstOwner.addSkill(a, first); await firstOwner.submit(a);
+ await firstOwner.removeSkill(a, first.id); await firstOwner.addSkill(a, later); firstOwner.dispose();
+ const send = vi.fn(async (_input: import('../apps/web/src/agents-workspace/composer').ParentSend) => {});
+ const restored = createSharedAgentComposers({sendParent: send, stopParent: async () => {}}); await restored.prepare(a); await restored.submit(a);
+ expect(send.mock.calls[0][0].skills).toEqual([first.ref]); expect(restored.getSnapshot(a).skills).toEqual([later]); restored.dispose();
+});
+it('never promotes child follow-up into pinned Personal skill admission', async () => {
+ const owner = createSharedAgentComposers({sendParent: async () => {}, stopParent: async () => {}, followUp: {canSend: () => true, send: async () => ticket, subscribe: () => () => {}}});
+ const child = agent('child', {parentId: 'parent', rootId: 'parent', jobId: 'job', readOnly: true}); await owner.prepare(child);
+ await expect(owner.addSkill(child, binding())).rejects.toThrow(/parent conversation/i); owner.dispose();
+});
+it('uses the text and binding snapshot captured before async new-thread preparation', async () => {
+ const a = agent('new-thread'), first = binding(), later = binding(), send = vi.fn(async (_input: import('../apps/web/src/agents-workspace/composer').ParentSend) => {});
+ const owner = createSharedAgentComposers({sendParent: send, stopParent: async () => {}});
+ await owner.prepare(a); await owner.edit(a, 'Later text'); await owner.addSkill(a, first); await owner.addSkill(a, later);
+ await owner.submit(a, {submission: {content: 'Captured text', generation: 'old-generation', skills: [first]}});
+ expect(send.mock.calls[0][0]).toMatchObject({content: 'Captured text', skills: [first.ref]});
+ expect(owner.getSnapshot(a)).toMatchObject({draft: 'Later text', skills: [later]}); owner.dispose();
+});
+it('allows removing or reselecting a pin after an explicit host rejection before any send was accepted', async () => {
+ const a = agent('a'), selected = binding(), send = vi.fn(async (_input: import('../apps/web/src/agents-workspace/composer').ParentSend): Promise<void> => {throw new ApiError('SKILL_ADMISSION_UNAVAILABLE','Select again',{sendAccepted:false});});
+ const owner = createSharedAgentComposers({sendParent: send, stopParent: async () => {}}); await owner.prepare(a); await owner.edit(a,'Keep the draft'); await owner.addSkill(a,selected); await owner.submit(a);
+ expect(owner.getSnapshot(a)).toMatchObject({draft:'Keep the draft',skills:[selected],retry:false});
+ await owner.removeSkill(a,selected.id);send.mockImplementation(async()=>{});await owner.submit(a);
+ expect(send.mock.calls[1][0].skills).toBeUndefined();expect(send.mock.calls[1][0].commandId).not.toBe(send.mock.calls[0][0].commandId);owner.dispose();
+});
 it('shares an ordinary conversation owner with its agent column without manufacturing inventory', async () => {
  const sends = vi.fn(async (_input: unknown): Promise<void> => {throw Error('Connection lost');});
  const owner = createSharedAgentComposers({sendParent: sends, stopParent: async () => {}});
@@ -174,4 +224,21 @@ it('fences an ownership roundtrip even when the original window becomes editable
  await owner.prepare(parent); await owner.edit(parent, 'Do not dispatch a stale action');
  writes.pause = new Promise<void>(resolve => {release = resolve;}); const sending = owner.submit(parent);
  ownership = 3; release(); await sending; expect(send).not.toHaveBeenCalled(); expect(owner.getSnapshot(parent).retry).toBe(true); owner.dispose();
+});
+
+
+it('validates the captured child submission before creating pending identity, without substituting a later draft', async () => {
+ const child = agent('child', {parentId: 'parent', rootId: 'parent', jobId: 'job', readOnly: true});
+ const followUp = {canSend: () => true, subscribe: () => () => {}, send: vi.fn(async () => ticket)};
+ const owner = createSharedAgentComposers({sendParent: async () => {}, stopParent: async () => {}, followUp});
+ try {
+  await owner.prepare(child); await owner.edit(child, 'Later valid text');
+  await owner.submit(child, {submission: {content: 'x'.repeat(32769), generation: 'captured', skills: []}});
+  expect(followUp.send).not.toHaveBeenCalled(); expect(records.has('agents-pending:child')).toBe(false);
+  expect(owner.getSnapshot(child)).toMatchObject({draft: 'Later valid text', retry: false});
+  await owner.edit(child, 'x'.repeat(32769));
+  await owner.submit(child, {submission: {content: 'Valid captured text', generation: 'captured', skills: []}});
+  expect(followUp.send).toHaveBeenCalledWith(expect.objectContaining({content: 'Valid captured text'}));
+  expect(owner.getSnapshot(child).draft).toHaveLength(32769);
+ } finally {owner.dispose();}
 });

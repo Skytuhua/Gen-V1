@@ -22,7 +22,7 @@ import {useWorkspaceState} from './workspace-api';
 import {WorkspaceControls} from './WorkspaceControls';
 import './workspace-host.css';
 
-export type ConversationIntent = 'settings' | 'usage' | 'new-thread' | 'connect-project' | 'resources' | 'linked-pull-requests';
+export type ConversationIntent = 'model' | 'settings' | 'usage' | 'new-thread' | 'connect-project' | 'resources' | 'linked-pull-requests';
 export interface ConversationHost {
   workspace: ReturnType<typeof useWorkspaceState>;
   choosePreset(preset: WorkspacePreset, binding?: PanelBinding): Promise<void>;
@@ -182,7 +182,7 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
       {error && <div className="workspace-error" role="alert">{error}<button className="icon-button" aria-label="Dismiss error" onClick={dismissError}><X size={15}/></button></div>}
       <div className="workspace-host-content" inert={settingsOpen}><AgentsWorkspace controller={controller} composers={composers} projects={workspace.envelope?.projects.filter(project => project.authority.kind === 'local')}
         preferences={{density: preferences.density === 'compact' ? 'compact' : 'comfortable', projectColors: preferences.projectColors}}
-        onOpenConversation={id => fail(() => openConversation(id))}/></div>
+        onOpenConversation={(id,kind) => fail(() => openConversation(id,kind))}/></div>
     </div>
     <Modal open={settingsOpen} title="Settings" className="settings-dialog" onClose={closeSettings}>
       {settingsOpen && <CompactSettings scopeKey="personal-main" close={closeSettings} addResource={() => action('resources')} openBrowser={openBrowser}/>}

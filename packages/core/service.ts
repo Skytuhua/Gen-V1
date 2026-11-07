@@ -683,6 +683,9 @@ export class Service {
     if(busy.size>=3)throw new HarnessError('RUN_BUSY','Three main agents are working; your draft is preserved.',{threadIds:[...busy]});
   }
   private async sendMessage(command: HostCommand, thread: Thread) {
+    // Replaced by explicit verified admission when the runtime adapter is connected.
+    // Until then a selected reference must never become an ordinary unpinned send.
+    if (command.payload.skills !== undefined) throw new HarnessError('SKILL_ADMISSION_UNAVAILABLE', 'Selected skills are unavailable for this runtime. Your draft is retained.', {sendAccepted: false});
     this.assertNoOtherRun(thread.id);
     if (["stopped", "interrupted"].includes(thread.status)) throw new HarnessError("RESUME_REQUIRED", "Resume this thread before sending more work");
     const content = text(command.payload, "content", 64 * 1024), modelId = text(command.payload, "modelId", 300);

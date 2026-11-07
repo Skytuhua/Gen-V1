@@ -57,6 +57,8 @@ Place popups 8px from the trigger with 8px viewport clearance. Flip before shrin
 
 Useful icon-only tooltips retain accessible names and hover help. Pointer dwell is 350ms; rich cards have 120ms pointer-transfer grace and stay usable under pointer/focus. Keyboard focus exposes equivalent information. No tooltip opens while dragging or embeds another menu.
 
+The composer command menu uses a compact, opaque shared Popover with a 12px radius, 5px outer inset and 38px option rows. It opens above the caret owner with model/mode commands and paged installed-skill metadata; keep source availability visible even when no entries can load. Selection inserts an exact bound reference without sending. Preserve selected references beside the draft, allow removal, and retain both after a denied Send. Ambiguous retries retain the original command; an authenticated precommit rejection may release it for reselection. Literal slash text cannot grant skill authority. Personal pins cannot silently transfer into side or delegated sends.
+
 ### Motion tokens
 
 | Interaction | Enter / exit or duration |

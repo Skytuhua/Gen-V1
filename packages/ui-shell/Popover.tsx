@@ -11,12 +11,13 @@ export interface PopoverProps extends Omit<HTMLAttributes<HTMLDivElement>, 'chil
   width: number;
   height: number;
   preferredSide?: 'above' | 'below';
+  align?: 'start' | 'end';
   onDismiss: () => void;
   onReady?: () => void;
   children: ReactNode;
 }
 
-export function Popover({ anchor, contentRef, initialFocus, open, present = open, width, height, preferredSide,
+export function Popover({ anchor, contentRef, initialFocus, open, present = open, width, height, preferredSide, align,
   onDismiss, onReady, children, className = '', style, onKeyDown, ...attributes }: PopoverProps) {
   const ownRef = useRef<HTMLDivElement>(null), content = contentRef ?? ownRef;
   const dismiss = useRef(onDismiss); dismiss.current = onDismiss;
@@ -28,15 +29,25 @@ export function Popover({ anchor, contentRef, initialFocus, open, present = open
     if (!open || !anchor.current) return;
     const element = anchor.current, document = element.ownerDocument, window = document.defaultView!;
     // A body portal would be inert behind a native modal, including in a plug-in frame.
-    setRoot(element.closest<HTMLElement>('dialog[open], [role="dialog"][aria-modal="true"]') ?? document.body);
+    const portalRoot = element.closest<HTMLElement>('dialog[open], [role="dialog"][aria-modal="true"]') ?? document.body;
+    setRoot(portalRoot);
     const place = () => {
       if (!element.isConnected) return;
       const viewport = window.visualViewport;
       const left = viewport?.offsetLeft ?? 0, visibleTop = viewport?.offsetTop ?? 0;
       const visibleHeight = viewport?.height ?? window.innerHeight;
       const top = Math.max(visibleTop, document.documentElement.dataset.nativeTitlebar === 'true' ? 42 : 0);
-      const next = placePopover({ anchor: element.getBoundingClientRect(), width, height, preferredSide,
+      // DOMRects/visualViewport use viewport pixels. Fixed CSS lengths inside a
+      // zoomed portal root are scaled again; normalize only that CSS zoom, not
+      // native browser zoom (whose viewport coordinates already agree).
+      let zoom = 1;
+      for (let owner: HTMLElement | null = portalRoot; owner; owner = owner.parentElement) {
+        const value = Number.parseFloat(window.getComputedStyle(owner).zoom);
+        if (Number.isFinite(value) && value > 0) zoom *= value;
+      }
+      const physical = placePopover({ anchor: element.getBoundingClientRect(), width: width * zoom, height: height * zoom, preferredSide, align,
         viewport: { left, top, width: viewport?.width ?? window.innerWidth, height: Math.max(0, visibleTop + visibleHeight - top) } });
+      const next = {...physical, left: physical.left / zoom, top: physical.top / zoom, width: physical.width / zoom, height: physical.height / zoom};
       setPlacement(previous => previous && Object.keys(next).every(key => previous[key as keyof PopoverPlacement] === next[key as keyof PopoverPlacement]) ? previous : next);
     };
     place();
@@ -56,7 +67,7 @@ export function Popover({ anchor, contentRef, initialFocus, open, present = open
       window.visualViewport?.removeEventListener('scroll', place);
       document.fonts?.removeEventListener('loadingdone', place);
     };
-  }, [open, anchor, content, width, height, preferredSide]);
+  }, [open, anchor, content, width, height, preferredSide, align]);
 
   useLayoutEffect(() => {
     if (open && root) { initialFocus?.current?.focus(); ready.current?.(); }

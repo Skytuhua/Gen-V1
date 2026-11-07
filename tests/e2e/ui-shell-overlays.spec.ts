@@ -23,6 +23,15 @@ test('a model popup belongs to its native modal and keeps selection, draft and E
   await expect(page.getByRole('dialog', { name: 'Fixture settings' })).toBeVisible();
 });
 
+for(const zoom of [1.25,1.5])test(`modal-owned model popup remains inside viewport at CSS zoom ${zoom}`,async({page})=>{
+  await page.evaluate(zoom=>{document.documentElement.style.zoom=String(zoom);},zoom);
+  await page.getByRole('combobox',{name:'Model',exact:true}).click();
+  const popup=page.locator('.model-picker-popover');await expect(popup).toBeVisible();
+  const bounds=await popup.evaluate(node=>{const r=node.getBoundingClientRect();return{left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:innerWidth,height:innerHeight};});
+  expect(bounds.left).toBeGreaterThanOrEqual(0);expect(bounds.top).toBeGreaterThanOrEqual(42);expect(bounds.right).toBeLessThanOrEqual(bounds.width+1);expect(bounds.bottom).toBeLessThanOrEqual(bounds.height+1);
+  expect(await popup.evaluate(node=>Boolean(node.closest('dialog[open]')))).toBe(true);
+});
+
 test('blocking dialog backdrops blur the background without blurring their content', async ({ page }) => {
   const styles = await page.getByRole('dialog').evaluate(dialog => ({
     backdrop: getComputedStyle(dialog, '::backdrop').backdropFilter,
