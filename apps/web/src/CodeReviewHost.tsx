@@ -49,11 +49,13 @@ export function CodeReviewHost({canvas,workspace,composers,openConversation,dest
  },[key,retry]);
  const admitted=admission?.key===key?admission:undefined,conversation=useScopedConversation(admitted?.selection??null),currentContext=conversation.state.context;
  const [refresh,setRefresh]=useState(0),[metadata,setMetadata]=useState<{ownerKey:string;scope:string;git?:GitStatus;pullRequests:{repo:string;number:number;title:string}[];pending:boolean;error?:string;pullRequestError?:string}>(),[review,setReview]=useState<{key:string;value:NonNullable<ReviewWrites['review']>}>();
+ const [admittedDestination,setAdmittedDestination]=useState<number>();
+ const destinationPending=Boolean(destination&&destination.id!==admittedDestination);
  const desktop=useDesktop(),surface=binding?.threadId?{kind:'thread' as const,threadId:binding.threadId}:null,detached=useDetachedSurface(surface),nativePending=usePendingSurface(surface),held=Boolean(detached||nativePending||desktop?.closing);
- const nativeEpoch=desktop?.ownership(surface),fence=useRef({signature:'',version:0,active:true}),signature=JSON.stringify([key,currentContext?.scopeKey,conversation.state.phase,target,held,nativeEpoch,refresh,metadata?.scope,metadata?.pending,metadata?.error,metadata?.pullRequestError]);
+ const nativeEpoch=desktop?.ownership(surface),fence=useRef({signature:'',version:0,active:true}),signature=JSON.stringify([key,currentContext?.scopeKey,conversation.state.phase,target,held,nativeEpoch,destination?.id,destinationPending,refresh,metadata?.scope,metadata?.pending,metadata?.error,metadata?.pullRequestError]);
  if(fence.current.signature!==signature)fence.current={...fence.current,signature,version:fence.current.version+1};
  useEffect(()=>{fence.current.active=true;return()=>{fence.current.active=false;fence.current.version++;};},[]);
- const choosing=useRef(false),version=fence.current.version,isCurrent=useMemo(()=>()=>fence.current.active&&!held&&!choosing.current&&fence.current.version===version&&(!desktop||nativeEpoch!==undefined&&desktop.ownership(surface)===nativeEpoch),[signature,version]);
+ const choosing=useRef(false),version=fence.current.version,isCurrent=useMemo(()=>()=>fence.current.active&&!held&&!destinationPending&&!choosing.current&&fence.current.version===version&&(!desktop||nativeEpoch!==undefined&&desktop.ownership(surface)===nativeEpoch),[signature,version]);
  const eligible=Boolean(!changing&&!pending&&!error&&!bindingError&&admitted&&currentContext&&conversation.state.phase==='ready'&&!currentContext.readOnly&&!currentContext.archived&&currentContext.owner.threadId===admitted.row.id&&currentContext.owner.projectId&&currentContext.owner.projectId===(binding?.projectId??admitted.row.projectId));
  const previous=useRef<{key:string;context:NonNullable<typeof currentContext>}|undefined>(undefined);
  if(eligible&&currentContext)previous.current={key,context:currentContext};
@@ -66,16 +68,26 @@ export function CodeReviewHost({canvas,workspace,composers,openConversation,dest
  const ownerMetadata=metadata?.ownerKey===presentationKey?metadata:undefined;
  const metadataReady=Boolean(ownerMetadata?.git&&ownerMetadata.scope===scope&&!ownerMetadata.pending&&!ownerMetadata.error);
  const pullRequestsReady=metadataReady&&!ownerMetadata?.pullRequestError;
- const reviewHeld=held||!eligible||!metadataReady;
+ const reviewHeld=held||destinationPending||!eligible||!metadataReady;
  const reviewCurrent=useMemo(()=>()=>{const state=conversation.reader.getSnapshot();return metadataReady&&isCurrent()&&state.phase==='ready'&&state.context?.scopeKey===scope&&!state.context.readOnly&&!state.context.archived;},[isCurrent,scope,metadataReady]);
- const appliedDestination=useRef<number|undefined>(undefined);
+ // A sidebar destination can arrive after this mounted owner acquires its first copy.
+ // Revalidate canonical identity before refreshing context; hover display facts are not admission.
  useEffect(()=>{
-  if(!destination||!eligible||!admitted||appliedDestination.current===destination.id)return;
-  appliedDestination.current=destination.id;
-  if(destination.scope.threadId===admitted.row.id&&destination.scope.projectId===admitted.row.projectId&&destination.scope.workingCopyId===admitted.row.workspaceId)setTarget({kind:'pull-request',...destination.target});
-  else setError('The pull request destination changed. Reopen the current thread details.');
-  consumeDestination?.(destination.id);
- },[destination?.id,eligible,scope]);
+  if(!destination||!binding?.threadId||held)return;
+  const controller=new AbortController(),epoch=nativeEpoch;
+  const current=()=>!controller.signal.aborted&&(!desktop||epoch!==undefined&&desktop.ownership(surface)===epoch);
+  void getShellNavigationItem(binding.threadId,controller.signal).then(row=>{
+   if(!current())return;
+   if(destination.scope.authority.kind!=='local'||row.kind==='side'||row.kind==='delegate'||row.id!==binding.threadId||destination.scope.threadId!==row.id||destination.scope.projectId!==row.projectId||(binding.projectId!==undefined&&binding.projectId!==row.projectId)||!destination.scope.workingCopyId||destination.scope.workingCopyId!==row.workspaceId)throw Error('The pull request destination changed. Reopen the current thread details.');
+   setAdmission({key,row,selection:{target:{authority:'personal',threadId:row.id,includeArchived:false},navigationKey:key+row.updatedAt+':destination:'+destination.id}});
+   setTarget({kind:'pull-request',...destination.target});setAdmittedDestination(destination.id);
+   consumeDestination?.(destination.id);
+  }).catch(cause=>{
+   if(!current())return;
+   setError(cause instanceof Error?cause.message:'The pull request destination could not open.');setAdmittedDestination(destination.id);consumeDestination?.(destination.id);
+  });
+  return()=>controller.abort();
+ },[destination?.id,key,held,nativeEpoch]);
  useEffect(()=>{
   if(!owner)return;const controller=new AbortController();
   setMetadata(previous=>previous?.ownerKey===presentationKey?{...previous,pending:true}:undefined);

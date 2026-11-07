@@ -8,10 +8,10 @@ const head='1'.repeat(40),revision='e'.repeat(64);
 const local:CodeReviewComparison['identity']={kind:'local',id:'a'.repeat(64),scope:'worktree',headOid:head,branch:'topic',revision:'b'.repeat(64),base:{kind:'index',revision:'c'.repeat(64)},head:{kind:'worktree',revision:'b'.repeat(64)}};
 const remote:CodeReviewComparison['identity']={kind:'pull-request',id:'d'.repeat(64),repo:'owner/repo',number:48,pullRequestId:'PR_48',baseOid:'2'.repeat(40),headOid:head,mergeBaseOid:'4'.repeat(40),baseRef:'main',headRef:'topic',semantics:'merge-base'};
 const files=[{path:'src/first.ts',status:'MM',index:'M',worktree:'M',staged:true,untracked:false,binary:false,added:1,removed:1,additions:1,deletions:1}];
-async function fixture(page:Page,{unbound=false,wrongProject=false,native=false,paged=false,side=false,readOnly=false,awaitComparison=false,linkedPrUnavailable=false,hover=false,startWorkspace=false}={}){
+async function fixture(page:Page,{unbound=false,wrongProject=false,native=false,paged=false,side=false,readOnly=false,awaitComparison=false,linkedPrUnavailable=false,hover=false,startWorkspace=false,initialCopy=true}={}){
  const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Synthetic Code Review host fixture'}}}});
  snapshot.threads[0]={...snapshot.threads[0],id:'review-a',title:'Review changes',projectId:'project-a',projectName:'Alpha',status:'ready',runId:null,...(side?{kind:'side' as const}:{})};snapshot.activeThreadId='review-a';snapshot.artifacts=[];snapshot.userStates=[];snapshot.data=[];snapshot.messages=[];
- if(hover){snapshot.threads[0]={...snapshot.threads[0],workspaceId:'copy-a',modelId:'test/model-a',thinkingLevel:'high'};snapshot.threads.push({...snapshot.threads[0],id:'review-b',title:'Sibling review',workspaceId:'copy-b',modelId:'test/model-b',thinkingLevel:'low'});}
+ if(hover){snapshot.threads[0]={...snapshot.threads[0],workspaceId:initialCopy?'copy-a':undefined,modelId:'test/model-a',thinkingLevel:'high'};snapshot.threads.push({...snapshot.threads[0],id:'review-b',title:'Sibling review',workspaceId:'copy-b',modelId:'test/model-b',thinkingLevel:'low'});}
  snapshot.settings={theme:'dark',modelId:'test/model',preferences:{showUsageFooter:false}};
  const {commands}=await serveTaskFixture(page,snapshot);
  await page.addInitScript(({native})=>{
@@ -52,7 +52,7 @@ async function fixture(page:Page,{unbound=false,wrongProject=false,native=false,
 }
 async function choose(page:Page,label:string,value:string){await page.getByRole('combobox',{name:label,exact:true}).click();await page.getByRole('option',{name:value,exact:true}).click();}
 test('cold Code Review shows its bound diff without a conversation snapshot or agent inventory',async({page})=>{
- const h=await fixture(page);await expect(page.getByRole('region',{name:'Code review workspace',exact:true})).toBeVisible();await expect(page.getByRole('region',{name:'Selected file diff'})).toContainText('exact local source');
+ const h=await fixture(page,{awaitComparison:true});await expect(page.getByRole('region',{name:'Code review workspace',exact:true})).toBeVisible();await expect(page.getByRole('region',{name:'Selected file diff'})).toContainText('exact local source');
  expect(h.requests.filter(path=>path==='/api/snapshot'||path.startsWith('/api/events')||path.startsWith('/api/agents'))).toEqual([]);expect(h.requests.some(path=>path.startsWith('/api/conversations/irrelevant-thread'))).toBe(false);
 });
 test('unbound Code Review asks for an explicit working-copy owner without creating a thread',async({page})=>{
@@ -242,4 +242,57 @@ test('a failed hover PR transition from Workspace retains its error after the co
  await page.route('**/api/workspace/commands',route=>route.request().postDataJSON().type==='workspace.panel.update'?route.fulfill({status:409,json:{error:{code:'BINDING_REJECTED',message:'Exact review owner could not bind'}}}):route.fallback());
  await page.getByRole('button',{name:'Sibling review Ready',exact:true}).hover();await page.locator('.thread-hover-card').getByRole('button',{name:'Open PR #48 Exact remote PR',exact:true}).click();
  await expect(page.getByRole('button',{name:'Code Review',exact:true})).toHaveAttribute('aria-pressed','true');await expect(page.getByRole('alert').filter({hasText:'Exact review owner could not bind'})).toBeVisible();
+});
+
+async function openAssignedCopyDetails(page:Page,row:Awaited<ReturnType<typeof fixture>>['row']){
+ Object.assign(row,{workspaceId:'copy-a',updatedAt:'2026-11-07T12:00:00.000Z'});
+ const navigation=page.waitForResponse(response=>response.url().includes('/api/shell/navigation?')&&response.url().includes('text=Review')&&response.ok());
+ await page.getByRole('textbox',{name:'Search threads',exact:true}).fill('Review');await navigation;
+ await page.getByRole('button',{name:'Review changes Ready',exact:true}).hover();
+ const card=page.locator('.thread-hover-card');await expect(card).toContainText('C:/copies/review-a');
+ await expect(card.getByRole('button',{name:'Open PR #48 Exact remote PR',exact:true})).toBeVisible();return card;
+}
+
+test('mounted review admits the first assigned copy from refreshed sidebar PR details',async({page})=>{
+ const h=await fixture(page,{hover:true,initialCopy:false,awaitComparison:true});
+ const region=page.getByRole('region',{name:'Code review workspace',exact:true});await expect(page.getByRole('button',{name:'Stage file',exact:true})).toBeEnabled();
+ await page.getByRole('button',{name:'Agent chat',exact:true}).click();const message=page.getByRole('textbox',{name:'Message',exact:true});await message.fill('Keep first-copy chat');
+ const original=await region.elementHandle(),originalMessage=await message.elementHandle();
+ const card=await openAssignedCopyDetails(page,h.row);await card.getByRole('button',{name:'Open PR #48 Exact remote PR',exact:true}).click();
+ await expect(page.getByRole('region',{name:'Selected file diff'})).toContainText('exact pull-request source');
+ await expect(page.getByRole('alert').filter({hasText:'The pull request destination changed.'})).toHaveCount(0);
+ expect(await original!.evaluate(node=>node.isConnected)).toBe(true);expect(await originalMessage!.evaluate(node=>node.isConnected)).toBe(true);await expect(message).toHaveValue('Keep first-copy chat');
+ expect(h.requests.some(path=>path.startsWith('/api/projects/project-a/pull-requests/48/comparison?threadId=review-a'))).toBe(true);
+});
+
+for(const changed of ['workspace','thread','project'] as const)test(`destination admission rejects a fresh canonical ${changed} mismatch`,async({page})=>{
+ const h=await fixture(page,{hover:true,awaitComparison:true});await expect(page.getByRole('button',{name:'Stage file',exact:true})).toBeEnabled();
+ const card=await openAssignedCopyDetails(page,h.row);let checks=0;
+ await page.route('**/api/shell/navigation/review-a',route=>{checks++;return route.fulfill({json:checks===1?h.row:{...h.row,...(changed==='workspace'?{workspaceId:'copy-replaced'}:changed==='thread'?{id:'review-other'}:{projectId:'project-other'})}});});
+ await card.getByRole('button',{name:'Open PR #48 Exact remote PR',exact:true}).click();
+ await expect(page.getByRole('alert').filter({hasText:'The pull request destination changed.'})).toBeVisible();expect(checks).toBe(2);
+ expect(h.requests.some(path=>path.includes('/pull-requests/48/comparison'))).toBe(false);
+});
+
+test('destination recheck holds mounted tools and discards its response after owner changes',async({page})=>{
+ const h=await fixture(page,{hover:true,awaitComparison:true});await expect(page.getByRole('button',{name:'Stage file',exact:true})).toBeEnabled();
+ await page.getByRole('button',{name:'Agent chat',exact:true}).click();const message=page.getByRole('textbox',{name:'Message',exact:true});await message.fill('Hold destination chat');
+ const original=await page.getByRole('region',{name:'Code review workspace',exact:true}).elementHandle();
+ const card=await openAssignedCopyDetails(page,h.row);let checks=0,release!:()=>void;const held=new Promise<void>(resolve=>{release=resolve;});
+ await page.route('**/api/shell/navigation/review-a',async route=>{checks++;if(checks===2)await held;return route.fulfill({json:h.row});});
+ await card.getByRole('button',{name:'Open PR #48 Exact remote PR',exact:true}).click();
+ try{
+  await expect.poll(()=>checks).toBe(2);expect(await original!.evaluate(node=>node.isConnected)).toBe(true);
+  await expect(page.locator('.code-review-bound')).toHaveAttribute('inert','');await expect(message).toBeDisabled();await expect(page.getByRole('button',{name:'Stage file',exact:true})).toBeDisabled();
+  await page.getByRole('button',{name:'Send message',exact:true}).dispatchEvent('click');expect(h.commands.filter(command=>command.type==='message.send')).toHaveLength(0);expect(h.actions).toHaveLength(0);
+  // Switch the actual bound owner through a second sidebar destination while the first response is held.
+  await page.keyboard.press('Escape');await expect(card).toBeHidden();
+  const fresh={...h.context,scopeKey:'7'.repeat(64),owner:{...h.context.owner,threadId:'review-b',title:'Sibling review'}};
+  await page.route('**/api/conversations/review-b**',route=>{const url=new URL(route.request().url()),owner={authority:'personal',threadId:'review-b',scopeKey:fresh.scopeKey,sequence:10};return route.fulfill({json:url.pathname.endsWith('/updates')?{...owner,fromSequence:10,owner:null,transcriptChanged:false,checkpoint:fresh.checkpoint}:url.pathname.endsWith('/transcript')?{...owner,messages:[],nextCursor:null}:fresh});});
+  await page.getByRole('button',{name:'Sibling review Ready',exact:true}).hover();await card.getByRole('button',{name:'Open PR #48 Exact remote PR',exact:true}).click();
+  await expect(page.getByRole('combobox',{name:'Project and working copy',exact:true})).toContainText('Sibling review');
+  await expect(page.getByRole('region',{name:'Selected file diff'})).toContainText('exact pull-request source');expect(await original!.evaluate(node=>node.isConnected)).toBe(false);
+ }finally{release();}
+ await expect(page.getByRole('combobox',{name:'Project and working copy',exact:true})).toContainText('Sibling review');
+ expect(h.requests.some(path=>path.startsWith('/api/projects/project-a/pull-requests/48/comparison?threadId=review-a'))).toBe(false);
 });
