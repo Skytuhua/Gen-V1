@@ -27,7 +27,7 @@ function Fixture() {
           <button type="button" onClick={()=>setActions(value=>value+1)}>Open full plan</button>
           {details && <p data-testid="delayed-details">{'Delayed project detail with a long supplied name. '.repeat(120)}</p>}
         </DockedSummary>
-        <UsageFooter visible={usage} usage={{...EMPTY_USAGE,contextTokens:18000,contextWindow:100000}}/>
+        <UsageFooter visible={usage} usage={{...EMPTY_USAGE,inputTokens:18000,contextTokens:18000,contextWindow:100000}}/>
       </SummaryDock>}>
       <main className="workspace">
         <header className="workspace-header"><button type="button" onClick={() => setShow(value => !value)}>Toggle overview</button></header>

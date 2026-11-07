@@ -147,17 +147,6 @@
       "disposition": "retained-geometry"
     },
     {
-      "file": "apps/web/src/plan-status.css",
-      "line": 89,
-      "column": 1,
-      "rule": "ad-hoc-overlay",
-      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "2b89cf0461936187d8a76c1d9bc8ff060050bdf7b2ab15cbf043b4b0aff177c2",
-      "reason": "USAGE: retain existing compact usage footer until Usage migration; not itself a dropdown.",
-      "evidence": ".usage-footer {position:fixed;right:15px;bottom:9px;z-index:39;color:var(--muted);max-width:calc(100vw - 24px);}",
-      "disposition": "staged-migration"
-    },
-    {
       "file": "apps/web/src/sentence-reveal.css",
       "line": 2,
       "column": 1,
@@ -177,17 +166,6 @@
       "fingerprint": "adf4ebc215da54e913b16f8abd7aaf291daf56340d33bd90b839167a53007587",
       "reason": "LAYOUT: preserve floating rail until docked-layout recovery migration.",
       "evidence": ".floating-rail {position:absolute;inset:60px 12px 12px auto;z-index:34;order:3;display:flex;flex-direction:column;gap:8px;width:min(280px,calc(100% - 24px));min-width:0;min-height:0;padding:0;border:0;background:transpar",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/shell.css",
-      "line": 192,
-      "column": 1,
-      "rule": "ad-hoc-overlay",
-      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "0f737f4aed7dd633ff4602f46d5d2f9ac63409fa7d3e4037b928a276792f98c1",
-      "reason": "USAGE/HOVER: replace CSS context tooltip with shared anchored tooltip.",
-      "evidence": ".context-segment:is(:hover,:focus-visible):after { content:attr(data-tooltip); position:absolute; z-index:2; bottom:calc(100% + 7px); left:50%; transform:translateX(-50%); white-space:nowrap; color:var(--text); backgroun",
       "disposition": "staged-migration"
     },
     {
@@ -258,17 +236,6 @@
     },
     {
       "file": "apps/web/src/styles.css",
-      "line": 318,
-      "column": 1,
-      "rule": "ad-hoc-overlay",
-      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "eb6bd219ebc7097de1f65ba8af2091f8ccf2e958db84504f581a3950f5558ffb",
-      "reason": "USAGE: replace context popover geometry with shared Popover.",
-      "evidence": ".context-popover { position:absolute; right:0; bottom:calc(100% + 10px); width:340px; max-width:100%; border:1px solid var(--border); background:var(--surface); border-radius:15px; z-index:25; overflow:hidden; font-varia",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/styles.css",
       "line": 330,
       "column": 1,
       "rule": "ad-hoc-overlay",
@@ -321,17 +288,6 @@
       "reason": "Retained geometry: trace-local collapse control, not a popup.",
       "evidence": ".trace-collapse{position:absolute;top:12px;width:18px;height:23px;z-index:3;padding:0;color:var(--muted);display:grid;place-items:center}.trace-collapse:disabled{pointer-events:none;visibility:hidden}.trace-span:focus-vi",
       "disposition": "retained-geometry"
-    },
-    {
-      "file": "apps/web/src/workspace-canvas.css",
-      "line": 5,
-      "column": 541,
-      "rule": "ad-hoc-overlay",
-      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "0f13c870eb973b81993168b59453a7d1bc31b0774bdc416b3c9bbe663599c3a3",
-      "reason": "LAYOUT: migrate workspace menus; retain exact canvas plane until recovery migration.",
-      "evidence": ".workspace-menu{position:absolute;right:0;top:calc(100% + 6px);z-index:70;width:min(360px,calc(100vw - 24px));max-height:min(620px,75dvh);overflow:auto;background:var(--surface,#0f0f0f);border:1px solid var(--border);bor",
-      "disposition": "staged-migration"
     },
     {
       "file": "apps/web/src/workspace-canvas.css",
