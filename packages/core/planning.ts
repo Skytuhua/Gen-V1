@@ -9,6 +9,8 @@ import { digest, Store } from '../storage/store.ts';
 import { handleDomainTool, type DomainContext } from '../capabilities/index.ts';
 import {accountResolver,assertAccountAvailable,modelProvider} from './accounts.ts';
 import {listSkills,viewSkill} from './skills.ts';
+import { canonicalPlanJobs, jobStepId, legacyStepStatus, projectPlanTimeline, stepState, type CanonicalPlanJobProvider, type PlanTimeline } from './plan-timeline.ts';
+export { isNewerPlanSnapshot } from './plan-timeline.ts';
 
 export interface PlanningHooks {
   store: Store;
@@ -17,6 +19,8 @@ export interface PlanningHooks {
   /** The host context must bind publications and filesystem access to this original context. */
   domainContext(ctx: RunContext, signal: AbortSignal): DomainContext;
   runtimeFactory?: () => RuntimeAdapter | Promise<RuntimeAdapter>;
+  /** Read-only canonical Personal job projection. Never resolves a private Company runtime. */
+  canonicalJobs?: CanonicalPlanJobProvider;
 }
 export interface DelegationResult { commandId: string; jobs: AgentJob[] }
 interface Batch {
@@ -62,6 +66,10 @@ export class PlanningCoordinator {
     if (!record || record.threadId !== threadId || record.provenance !== PLANNING_PROVENANCE) return null;
     return { ...record, value: parse(PlanRecordSchema, record.value) };
   }
+  timeline(threadId: string): PlanTimeline | null {
+    const record = this.inspect(threadId);
+    return record ? projectPlanTimeline(record, this.hooks.store.get<Thread>('thread', threadId), this.hooks.canonicalJobs?.read(threadId)) : null;
+  }
   private assert(ctx: RunContext, signal?: AbortSignal): void {
     if (this.closed || signal?.aborted) throw new HarnessError('CANCELLED_RUN', 'The parent run no longer owns this work');
     this.hooks.assertRun(ctx);
@@ -92,10 +100,65 @@ export class PlanningCoordinator {
   }
   updatePlan(ctx: RunContext, args: unknown): DataRecord & { value: PlanRecord } {
     this.assert(ctx); const next = parse(PlanUpdateSchema, args);
-    const value = bounded({ ...this.plan(ctx.threadId), ...next }, 64 * 1024);
-    return this.hooks.store.internal('plan.updated', ctx.threadId, () => {
-      this.assert(ctx); return this.put(ctx.threadId, value);
-    }) as DataRecord & { value: PlanRecord };
+    const command = next.commandId ? { id: next.commandId, type: 'plan.updated', threadId: ctx.threadId, payload: { run: ctx, ...next } } : undefined;
+    const receipt = command && this.hooks.store.receipt(command);
+    if (receipt) return receipt.result as DataRecord & { value: PlanRecord };
+    const apply = () => {
+      this.assert(ctx);
+      const previous = this.inspect(ctx.threadId), plan = previous?.value ?? this.plan(ctx.threadId);
+      if ((next.baseRevision ?? 0) !== (previous?.revision ?? 0)) throw new HarnessError('STALE_PLAN', 'Read the latest plan revision before updating it', { current: previous });
+      const knownSteps = [...plan.steps, ...next.steps.filter(step => !plan.steps.some(old => old.id === step.id)).map(step => ({ ...step, agentIds: [] }))];
+      const jobs = canonicalPlanJobs({ ...plan, steps: knownSteps }, ctx.threadId, this.hooks.canonicalJobs?.read(ctx.threadId));
+      const assignments = new Map(knownSteps.map(step => [step.id, jobs.filter(job => jobStepId(job, jobs, knownSteps) === step.id).map(job => job.id)]));
+      for (const [id, assigned] of assignments) if (assigned.length && !next.steps.some(step => step.id === id)) {
+        throw new HarnessError('PLAN_ASSIGNMENT_CONFLICT', 'Keep assigned step IDs when replanning');
+      }
+      const steps = next.steps.map(step => {
+        const assigned = assignments.get(step.id) ?? [];
+        if (step.agentIds?.some(id => !assigned.includes(id))) throw new HarnessError('PLAN_ASSIGNMENT_CONFLICT', 'Only the host may assign or rebind canonical jobs');
+        const old = plan.steps.find(item => item.id === step.id);
+        // Verified observations survive model text replacement; only a host receipt may replace them.
+        const verified = old?.checks?.filter(check => check.status.startsWith('verified_')) ?? [];
+        if (verified.length && (old?.objective ?? old?.title) !== (step.objective ?? step.title) ||
+          verified.some(check => step.checks?.some(item => item.id === check.id && (item.label !== check.label || item.status === 'reported_failed')))) {
+          throw new HarnessError('PLAN_CHECK_CONFLICT', 'A verified check requires host reconciliation');
+        }
+        const checks = [...(step.checks ?? []).filter(check => !verified.some(item => item.id === check.id)), ...verified];
+        const state = step.state ?? stepState(step);
+        return { ...step, status: legacyStepStatus(state), dependsOn: step.dependsOn ?? [],
+          ...(checks.length ? { checks } : {}),
+          agentIds: assigned.filter(id => plan.agents.some(job => job.id === id)) };
+      });
+      const value = bounded({ ...plan, title: next.title, steps, authority: 'proposal', run: { runId: ctx.runId, epoch: ctx.epoch }, runState: 'running' }, 64 * 1024);
+      return this.put(ctx.threadId, value);
+    };
+    return (command ? this.hooks.store.command(command, apply).result : this.hooks.store.internal('plan.updated', ctx.threadId, apply)) as DataRecord & { value: PlanRecord };
+  }
+  /** Host lifecycle hooks join the existing service transaction; they never grant authority. */
+  beginRun(ctx: RunContext): void {
+    this.assert(ctx);
+    const record = this.inspect(ctx.threadId);
+    if (!record || record.value.run?.runId === ctx.runId && record.value.run.epoch === ctx.epoch) return;
+    const plan = record.value;
+    for (const step of plan.steps) if (stepState(step) === 'running') { step.state = 'interrupted'; step.status = 'blocked'; }
+    this.put(ctx.threadId, { ...plan, run: { runId: ctx.runId, epoch: ctx.epoch }, runState: 'running' });
+  }
+  endRun(ctx: RunContext, state: 'cancelled' | 'interrupted' | 'failed' | 'review_required'): void {
+    const record = this.inspect(ctx.threadId);
+    if (!record || record.value.run && (record.value.run.runId !== ctx.runId || record.value.run.epoch !== ctx.epoch)) return;
+    const plan = record.value;
+    let changed = plan.runState !== state;
+    for (const step of plan.steps) if (stepState(step) === 'running' || plan.agents.some(job => job.stepId === step.id && (!job.parentRun || job.parentRun.runId === ctx.runId && job.parentRun.epoch === ctx.epoch) && !terminal.has(job.status))) {
+      step.state = state; step.status = legacyStepStatus(state); changed = true;
+    }
+    if (changed) this.put(ctx.threadId, { ...plan, run: { runId: ctx.runId, epoch: ctx.epoch }, runState: state });
+  }
+  /** The canonical job producer calls this inside its own transaction after a real job change. */
+  refreshCanonicalJobs(threadId: string): void {
+    const record = this.inspect(threadId);
+    if (!record || !this.hooks.canonicalJobs) return;
+    canonicalPlanJobs(record.value, threadId, this.hooks.canonicalJobs.read(threadId));
+    this.put(threadId, record.value);
   }
   private change(ctx: RunContext, jobId: string, apply: (job: AgentJob) => AgentJob, lateTerminal = false): AgentJob {
     return this.hooks.store.internal('agent.updated', ctx.threadId, () => {
@@ -141,6 +204,7 @@ export class PlanningCoordinator {
     if (args.tasks.some(task => task.stepId && !plan.steps.some(step => step.id === task.stepId))) throw new HarnessError('UNKNOWN_PLAN_STEP', 'Agent tasks may reference only existing plan steps');
     const createdAt = now();
     const jobs: AgentJob[] = args.tasks.map(task => ({ id: randomUUID(),childThreadId:randomUUID(), commandId: args.commandId, taskId: task.id, name: task.name, task: task.task,
+      parentRun: { runId: ctx.runId, epoch: ctx.epoch },
       ...(task.stepId ? { stepId: task.stepId } : {}), status: 'queued', requirements: task.requirements,
       completedRequirementIds: [], reportedPercent: null, createdAt, updatedAt: createdAt }));
     for (const job of jobs) if (job.stepId) {
@@ -327,6 +391,8 @@ export class PlanningCoordinator {
     job.resolve();return job.teardown;
   }
   async cancel(ctx: RunContext): Promise<void> {
+    const record = this.inspect(ctx.threadId);
+    if (record && (!record.value.runState || record.value.runState === 'running')) this.hooks.store.internal('plan.cancelled', ctx.threadId, () => this.endRun(ctx, 'cancelled'));
     const outcomes=await Promise.allSettled([...this.active.values()].filter(job => same(job.parent, ctx)).map(job => this.stopJob(job, 'cancelled'))),failures=outcomes.flatMap(outcome=>outcome.status==='rejected'?[outcome.reason]:[]);
     if(failures.length===1)throw failures[0];
     if(failures.length)throw new AggregateError(failures,failures.map(error=>error instanceof Error?error.message:String(error)).join('; '));
@@ -340,8 +406,19 @@ export class PlanningCoordinator {
         this.put(batch.threadId, plan); this.hooks.store.put('planningBatch', batch.id, batch.threadId, { ...batch, status: 'interrupted' }); return { commandId: batch.id };
       });
     }
+    this.interruptPlans();
+  }
+  private interruptPlans(): void {
+    for (const record of this.hooks.store.all<DataRecord>('data').filter(record => record.provenance === PLANNING_PROVENANCE)) {
+      const plan = this.inspect(record.threadId)!.value;
+      if (plan.runState !== 'running' && !plan.steps.some(step => stepState(step) === 'running')) continue;
+      const thread = this.hooks.store.get<Thread>('thread', record.threadId);
+      const ctx = { threadId: record.threadId, runId: plan.run?.runId ?? thread?.runId ?? 'interrupted', epoch: plan.run?.epoch ?? thread?.epoch ?? 0 };
+      this.hooks.store.internal('plan.interrupted', record.threadId, () => this.endRun(ctx, 'interrupted'));
+    }
   }
   async dispose(): Promise<void> {
+    this.interruptPlans();
     this.closed = true;
     const outcomes=await Promise.allSettled([...this.active.values()].map(job => this.stopJob(job, 'interrupted')).concat([...this.batches.values()].map(batch=>batch.then(()=>{})))),failures=outcomes.flatMap(outcome=>outcome.status==='rejected'?[outcome.reason]:[]);
     if(failures.length)throw new AggregateError(failures,'Could not close every delegated runtime. Native cleanup remains unconfirmed.');
