@@ -14,5 +14,5 @@ export async function loadPersonalThreadHover(scope:ThreadHoverScope,signal:Abor
  const facts=factsFromProjectContext(scope,'',context.value),current=await getShellNavigationItem(scope.threadId,signal);
  if(!facts||current.projectId!==scope.projectId||current.workspaceId!==scope.workingCopyId||(current.threadRevision??threadNavigationRevision(current))!==scope.revision)throw Error('Thread metadata changed.');
  const saved=links.status==='fulfilled'&&/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(links.value.repo)?links.value:undefined;
- return {...facts,pullRequests:saved?.items.filter(item=>Number.isSafeInteger(item.number)&&item.number>0).map(item=>({id:saved.repo+'#'+item.number,label:'#'+item.number+' '+item.title,state:item.state,target:{repo:saved.repo,number:item.number}}))};
+ return {...facts,pullRequests:saved?.items.filter(item=>Number.isSafeInteger(item.number)&&item.number>0).map(item=>({id:saved.repo+'#'+item.number,label:'#'+item.number+' '+item.title,state:item.state,target:{repo:saved.repo,number:item.number}})),...(!saved?{pullRequestError:'Linked pull requests are unavailable.'}:{})};
 }
