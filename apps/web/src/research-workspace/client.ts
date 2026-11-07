@@ -2,7 +2,7 @@ import type {ResearchCommand, ResearchContext, ResearchDocument, ResearchFileRef
 import {ApiError, authenticated, command, read} from '../api';
 
 export type ResearchResource = {kind: 'source' | 'document'; id: string; revision?: number};
-export interface ResearchSelection extends ResearchContext {epoch: number; resource: ResearchResource | null}
+export interface ResearchSelection extends ResearchContext {isCurrent?: () => boolean; epoch: number; resource: ResearchResource | null}
 export type ResearchDocumentRead = Omit<ResearchDocument, 'citations'> & {citations: ReturnType<ResearchProvider['document']>['citations'][number][]};
 export type ResearchDocumentHead = Omit<ResearchDocument, 'body' | 'citations'>;
 export interface ResearchPage<T> {items: T[]; nextCursor: string | null}
@@ -19,11 +19,11 @@ function get<T>(selection: ResearchSelection, path: string, extra: Record<string
   const owner = context(selection), query = new URLSearchParams({authority: 'personal', threadId: owner.threadId});
   if (owner.projectId !== null) query.set('projectId', owner.projectId);
   for (const [key, value] of Object.entries(extra)) if (value !== undefined) query.set(key, value);
-  return authenticated(() => fetch(`/api/research${path}?${query}`, {credentials: 'same-origin', cache: 'no-store', redirect: 'error', signal})).then(read<T>);
+  return authenticated(() => {if(selection.isCurrent && !selection.isCurrent())throw Error('The research owner changed. Retry from the current view.');return fetch(`/api/research${path}?${query}`, {credentials: 'same-origin', cache: 'no-store', redirect: 'error', signal});}).then(read<T>);
 }
 function send<T extends ResearchCommand['type']>(selection: ResearchSelection, type: T, payload: Payload<T>, commandId?: string) {
   const owner = context(selection);
-  return command(type, {...owner, ...payload}, owner.threadId, commandId);
+  return command(type, {...owner, ...payload}, owner.threadId, commandId, selection.isCurrent);
 }
 export const researchClient = {
   list<K extends 'sources' | 'documents'>(selection: ResearchSelection, kind: K, cursor?: string, signal?: AbortSignal, limit = 40) {
