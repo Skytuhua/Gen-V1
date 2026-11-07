@@ -26,6 +26,7 @@ export function SignaturePad({ stateKey, label = 'Your signature', initialMode =
   const [editingName, setEditingName] = useState(!name);
   const canvas = useRef<HTMLCanvasElement>(null), drawing = useRef<{ pointerId: number | null; strokes: SignaturePoint[][] } | null>(null);
   const cursor = useRef<SignaturePoint>({ x: .2, y: .5 }), keyboard = useRef(false), uploadGeneration = useRef(0), id = useId();
+  const paint = useRef<(() => void) | null>(null), ink = useRef(signature); ink.current = signature;
   const generatedInitial = useRef(false);
   const reveal = useRef<HTMLDivElement>(null), revealAnimation = useRef<Animation | null>(null), revealRequest = useRef(0), revealed = useRef(0);
   const inkBounds = useRef({ left: 0, right: 1 });
@@ -36,10 +37,10 @@ export function SignaturePad({ stateKey, label = 'Your signature', initialMode =
   useEffect(() => { if (!generatedInitial.current && nameStateKey) setName(sourceName); }, [sourceName, nameStateKey]);
   useEffect(() => { let alive = true; void Promise.all(styles.map(item => document.fonts.load(`64px "${item.font}"`))).then(() => { if (alive) setReady(true); }).catch(() => { if (alive) setError('Signature fonts could not load. Draw or upload a PNG instead.'); }); return () => { alive = false; }; }, []);
   useEffect(() => { let alive = true; setImageUrl(''); if (signature?.kind === 'image' && assets) void assets.get(signature.resourceId).then(bytes => { if (alive) setImageUrl(pngDataUrl(bytes)); }).catch(cause => { if (alive) setError((cause as Error).message); }); return () => { alive = false; }; }, [serialized, assets]);
-  const write = (next: VisualSignature | null) => { uploadGeneration.current++; assets?.clear(stateKey); store.set(path, next); };
+  const write = (next: VisualSignature | null) => { uploadGeneration.current++; assets?.clear(stateKey); ink.current = next; store.set(path, next); };
   const markStrokes = () => drawing.current?.strokes ?? (signature?.kind === 'drawn' ? signatureStrokes(signature) : []);
   const saveStrokes = () => { const strokes = markStrokes().map(stroke => [...stroke]); write(strokes.length === 1 ? { kind: 'drawn', points: strokes[0] } : strokes.length ? { kind: 'drawn', strokes } : null); };
-  const clear = () => { generatedInitial.current = true; uploadGeneration.current++; drawing.current = null; keyboard.current = false; setError(''); write(null); };
+  const clear = () => { generatedInitial.current = true; uploadGeneration.current++; drawing.current = null; keyboard.current = false; setError(''); write(null); paint.current?.(); };
   const generate = (text: string, choice = style) => {
     generatedInitial.current = true; setError(''); setName(text); setStyle(choice); uploadGeneration.current++; revealRequest.current++;
     if (!text.trim()) { write(null); return; }
@@ -80,29 +81,30 @@ export function SignaturePad({ stateKey, label = 'Your signature', initialMode =
     const redraw = () => {
       const bounds = target.getBoundingClientRect(), ratio = Math.min(window.devicePixelRatio || 1, 2); target.width = Math.max(1, Math.round(bounds.width * ratio)); target.height = Math.max(1, Math.round(bounds.height * ratio));
       const context = target.getContext('2d'); if (!context) return; context.scale(ratio, ratio); context.strokeStyle = getComputedStyle(target).color; context.fillStyle = context.strokeStyle; context.lineWidth = 1.8; context.lineCap = 'round'; context.lineJoin = 'round';
-      const saved = JSON.parse(serialized) as VisualSignature | null;
-      if (saved?.kind === 'drawn') for (const stroke of signatureStrokes(saved)) { context.beginPath(); stroke.forEach((point, index) => { const x = point.x * bounds.width, y = point.y * bounds.height; if (!index) context.moveTo(x, y); else context.lineTo(x, y); }); context.stroke(); }
+      const saved = ink.current, strokes = drawing.current?.strokes ?? (saved?.kind === 'drawn' ? signatureStrokes(saved) : []);
+      for (const stroke of strokes) { context.beginPath(); stroke.forEach((point, index) => { const x = point.x * bounds.width, y = point.y * bounds.height; if (!index) context.moveTo(x, y); else context.lineTo(x, y); }); context.stroke(); }
       if (keyboard.current) { context.beginPath(); context.arc(cursor.current.x * bounds.width, cursor.current.y * bounds.height, 3, 0, Math.PI * 2); context.fill(); }
     };
-    redraw(); const resize = new ResizeObserver(redraw); resize.observe(target); const theme = new MutationObserver(redraw); theme.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class', 'style'] });
-    return () => { resize.disconnect(); theme.disconnect(); };
+    paint.current = redraw; redraw(); const resize = new ResizeObserver(redraw); resize.observe(target); const theme = new MutationObserver(redraw); theme.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class', 'style'] });
+    return () => { if (paint.current === redraw) paint.current = null; resize.disconnect(); theme.disconnect(); };
   }, [mode, serialized]);
   const pointAt = (event: PointerEvent<HTMLCanvasElement>) => { const bounds = event.currentTarget.getBoundingClientRect(); return { x: clamp((event.clientX - bounds.left) / Math.max(1, bounds.width)), y: clamp((event.clientY - bounds.top) / Math.max(1, bounds.height)) }; };
   const start = (event: PointerEvent<HTMLCanvasElement>) => {
-    if (!event.isPrimary || event.button !== 0) return; event.preventDefault(); event.currentTarget.focus(); event.currentTarget.setPointerCapture(event.pointerId); keyboard.current = false;
+    if (!event.isPrimary || event.button !== 0) return; event.preventDefault(); event.currentTarget.focus(); event.currentTarget.setPointerCapture(event.pointerId); keyboard.current = false; paint.current?.();
     const strokes = markStrokes().map(stroke => [...stroke]); if (strokes.flat().length > MAX_SIGNATURE_POINTS - 2) { setError('The signature reached 2000 points. Undo a stroke or clear it.'); return; }
     const point = pointAt(event); drawing.current = { pointerId: event.pointerId, strokes: [...strokes, [point, point]] }; saveStrokes();
   };
   const move = (event: PointerEvent<HTMLCanvasElement>) => { if (!drawing.current || drawing.current.pointerId !== event.pointerId) return; if (drawing.current.strokes.reduce((count, stroke) => count + stroke.length, 0) < MAX_SIGNATURE_POINTS) { drawing.current.strokes.at(-1)!.push(pointAt(event)); saveStrokes(); } };
   const finish = (event: PointerEvent<HTMLCanvasElement>) => { if (!drawing.current || drawing.current.pointerId !== event.pointerId) return; saveStrokes(); drawing.current = null; if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId); };
-  const undo = () => { const strokes = markStrokes().slice(0, -1); drawing.current = null; write(strokes.length === 1 ? { kind: 'drawn', points: strokes[0] } : strokes.length ? { kind: 'drawn', strokes } : null); };
+  const undo = () => { const strokes = markStrokes().slice(0, -1); drawing.current = null; write(strokes.length === 1 ? { kind: 'drawn', points: strokes[0] } : strokes.length ? { kind: 'drawn', strokes } : null); paint.current?.(); };
   const keyDown = (event: KeyboardEvent<HTMLCanvasElement>) => {
     if (['Delete', 'Backspace', 'Escape', 'Enter', ' ', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) event.preventDefault(); else return;
-    if (event.key === 'Delete') { clear(); return; } if (event.key === 'Backspace') { undo(); return; } if (event.key === 'Escape') { drawing.current = null; keyboard.current = false; return; }
+    if (event.key === 'Delete') { clear(); return; } if (event.key === 'Backspace') { undo(); return; } if (event.key === 'Escape') { drawing.current = null; keyboard.current = false; paint.current?.(); return; }
     keyboard.current = true;
-    if (event.key === 'Enter' || event.key === ' ') { if (drawing.current) drawing.current = null; else { const strokes = markStrokes(); if (strokes.flat().length > MAX_SIGNATURE_POINTS - 2) return; drawing.current = { pointerId: null, strokes: [...strokes, [cursor.current, cursor.current]] }; saveStrokes(); } return; }
+    if (event.key === 'Enter' || event.key === ' ') { if (drawing.current) drawing.current = null; else { const strokes = markStrokes(); if (strokes.flat().length > MAX_SIGNATURE_POINTS - 2) { paint.current?.(); return; } drawing.current = { pointerId: null, strokes: [...strokes, [cursor.current, cursor.current]] }; saveStrokes(); } paint.current?.(); return; }
     const step = event.shiftKey ? .05 : .01; cursor.current = { x: clamp(cursor.current.x + (event.key === 'ArrowLeft' ? -step : event.key === 'ArrowRight' ? step : 0)), y: clamp(cursor.current.y + (event.key === 'ArrowUp' ? -step : event.key === 'ArrowDown' ? step : 0)) };
     if (drawing.current && drawing.current.strokes.flat().length < MAX_SIGNATURE_POINTS) { drawing.current.strokes.at(-1)!.push(cursor.current); saveStrokes(); }
+    paint.current?.();
   };
   const preview = pendingUrl || imageUrl;
   const revealGenerated = (image: HTMLImageElement) => {
