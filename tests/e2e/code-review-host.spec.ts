@@ -12,7 +12,7 @@ const head='1'.repeat(40),revision='e'.repeat(64);
 const local:CodeReviewComparison['identity']={kind:'local',id:'a'.repeat(64),scope:'worktree',headOid:head,branch:'topic',revision:'b'.repeat(64),base:{kind:'index',revision:'c'.repeat(64)},head:{kind:'worktree',revision:'b'.repeat(64)}};
 const remote:CodeReviewComparison['identity']={kind:'pull-request',id:'d'.repeat(64),repo:'owner/repo',number:48,pullRequestId:'PR_48',baseOid:'2'.repeat(40),headOid:head,mergeBaseOid:'4'.repeat(40),baseRef:'main',headRef:'topic',semantics:'merge-base'};
 const files=[{path:'src/first.ts',status:'MM',index:'M',worktree:'M',staged:true,untracked:false,binary:false,added:1,removed:1,additions:1,deletions:1}];
-async function fixture(page:Page,{unbound=false,wrongProject=false,native=false,paged=false,side=false,readOnly=false,awaitComparison=false,linkedPrUnavailable=false,hover=false,startWorkspace=false,initialCopy=true,projectless=false,missingReview=false,awaitSnapshot=false}={}){
+async function fixture(page:Page,{unbound=false,wrongProject=false,native=false,paged=false,side=false,readOnly=false,awaitComparison=false,linkedPrUnavailable=false,hover=false,startWorkspace=false,initialCopy=true,projectless=false,missingReview=false,awaitSnapshot=false,savedCanvases=false}={}){
  const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Synthetic Code Review host fixture'}}}});
  snapshot.threads[0]={...snapshot.threads[0],id:'review-a',title:'Review changes',projectId:'project-a',projectName:'Alpha',status:'ready',runId:null,...(side?{kind:'side' as const}:{})};snapshot.activeThreadId='review-a';snapshot.artifacts=[];snapshot.userStates=[];snapshot.data=[];snapshot.messages=[];
  if(hover){snapshot.threads[0]={...snapshot.threads[0],workspaceId:initialCopy?'copy-a':undefined,modelId:'test/model-a',thinkingLevel:'high'};snapshot.threads.push({...snapshot.threads[0],id:'review-b',title:'Sibling review',workspaceId:'copy-b',modelId:'test/model-b',thinkingLevel:'low'});}
@@ -28,6 +28,7 @@ async function fixture(page:Page,{unbound=false,wrongProject=false,native=false,
  const binding={authority:{kind:'local'},threadId:'review-a',projectId:wrongProject?'foreign-project':'project-a'};
  const panel={id:'review-owner',canvasId:'code-review',kind:'thread',binding,placement:'canvas',visible:true,collapsed:false,bounds:{x:0,y:0,width:600,height:500},order:0,alwaysOnTop:false};
  const canvases=['workspace','all-agents','code-review','research','custom'].filter(preset=>!missingReview||preset!=='code-review').map(preset=>({id:preset,name:preset,preset,panels:preset==='code-review'&&!unbound?[panel]:[],viewport:{x:0,y:0,zoom:1}}));
+ if(savedCanvases)for(const preset of ['research','code-review'])canvases.push({id:preset+'-saved',name:'Saved '+preset,preset,panels:preset==='code-review'?[{...panel,id:'review-owner-'+preset+'-saved',canvasId:preset+'-saved'}]:[],viewport:{x:0,y:0,zoom:1}});
  const envelope={projects,state:{version:1,revision:1,activeCanvasId:startWorkspace?'workspace':'code-review',canvases,profiles:[],disabledKinds:[],integrations:{}}};
  await page.route('**/api/workspace',route=>route.fulfill({json:envelope}));
  const workspaceCommands:Record<string,any>[]=[];
@@ -433,4 +434,64 @@ test('a delayed linked PR verification cannot cancel a newer manual owner choice
  await expect(page.getByRole('combobox',{name:'Project and working copy',exact:true})).toContainText('Sibling review');
  await expect(page.getByRole('combobox',{name:'Comparison',exact:true})).toContainText('Working copy');
  expect(h.requests.filter(path=>path.startsWith('/api/projects/project-a/pull-requests/48/comparison'))).toHaveLength(0);
+});
+
+async function selectSavedCanvas(page:Page,canvasId:string,name:string,expectCommit=true){
+ const selector=page.getByRole('combobox',{name:/^Saved (canvas|workspace)$/}),native=await selector.evaluate(element=>element.tagName==='SELECT');
+ const committed=expectCommit?page.waitForResponse(response=>new URL(response.url()).pathname==='/api/workspace/commands'&&response.request().postDataJSON().payload.canvasId===canvasId&&response.ok()):null;
+ if(native)await selector.selectOption(canvasId);else{await selector.click();await page.getByRole('option',{name,exact:true}).click();}
+ if(committed){await committed;if(native)await expect(selector).toHaveValue(canvasId);else await expect(selector).toContainText(name);}
+}
+
+for(const path of ['preset','saved-research','saved-review'] as const)test(`leaving Code Review through ${path} discards a pending linked PR destination before returning`,async({page})=>{
+ const h=await fixture(page,{hover:true,startWorkspace:true,awaitSnapshot:true,savedCanvases:path!=='preset'});
+ await page.getByRole('button',{name:'Review changes Ready',exact:true}).hover();
+ const card=page.locator('.thread-hover-card');await expect(card.getByRole('button',{name:'Open PR #48 Exact remote PR',exact:true})).toBeVisible();
+ let reads=0,release!:()=>void,settle!:()=>void;
+ const held=new Promise<void>(resolve=>{release=resolve;}),settled=new Promise<void>(resolve=>{settle=resolve;});
+ await page.route('**/api/projects/project-a/pull-requests?*',async route=>{
+  const delayed=++reads===2;if(delayed)await held;
+  try{await route.fulfill({json:{repo:'owner/repo',items:[{number:48,title:'Exact remote PR'}]}});}finally{if(delayed)settle();}
+ });
+ try{
+  await card.getByRole('button',{name:'Open PR #48 Exact remote PR',exact:true}).click();
+  await expect.poll(()=>reads).toBe(2);
+  await page.keyboard.press('Escape');
+  if(path==='preset'){
+   await page.getByRole('button',{name:'Research',exact:true}).click();
+   await expect(page.getByRole('button',{name:'Research',exact:true})).toHaveAttribute('aria-pressed','true');
+  }else{
+   const canvasId=path==='saved-research'?'research-saved':'code-review-saved';
+   await selectSavedCanvas(page,canvasId,'Saved '+(path==='saved-research'?'research':'code-review'));
+   await expect.poll(()=>h.workspaceCommands.at(-1)?.payload.canvasId).toBe(canvasId);
+  }
+ }finally{release();}
+ await settled;
+ if(path==='preset')await page.getByRole('button',{name:'Code Review',exact:true}).click();
+ else{await selectSavedCanvas(page,'code-review','code-review');await expect.poll(()=>h.workspaceCommands.at(-1)?.payload.canvasId).toBe('code-review');}
+ await expect(page.getByRole('region',{name:'Selected file diff'})).toBeVisible();
+ await page.waitForLoadState('networkidle');
+ await expect(page.getByRole('combobox',{name:'Comparison',exact:true})).toContainText('Working copy');
+ expect(h.requests.filter(path=>path.startsWith('/api/projects/project-a/pull-requests/48/comparison'))).toHaveLength(0);
+});
+
+test('a failed saved canvas transition preserves its pending explicit PR destination',async({page})=>{
+ const h=await fixture(page,{hover:true,startWorkspace:true,awaitSnapshot:true,savedCanvases:true});
+ await page.getByRole('button',{name:'Review changes Ready',exact:true}).hover();
+ const card=page.locator('.thread-hover-card');await expect(card.getByRole('button',{name:'Open PR #48 Exact remote PR',exact:true})).toBeVisible();
+ let reads=0,release!:()=>void,rejectedCanvas:string|undefined;const held=new Promise<void>(resolve=>{release=resolve;});
+ await page.route('**/api/projects/project-a/pull-requests?*',async route=>{if(++reads===2)await held;await route.fulfill({json:{repo:'owner/repo',items:[{number:48,title:'Exact remote PR'}]}});});
+ await page.route('**/api/workspace/commands',route=>{
+  const input=route.request().postDataJSON();
+  if(input.type!=='workspace.canvas.select'||input.payload.canvasId!=='research-saved')return route.fallback();
+  rejectedCanvas=input.payload.canvasId;return route.fulfill({status:409,json:{error:{code:'SYNTHETIC_FAILURE',message:'The saved workspace could not open.'}}});
+ });
+ try{
+  await card.getByRole('button',{name:'Open PR #48 Exact remote PR',exact:true}).click();await expect.poll(()=>reads).toBe(2);
+  await page.keyboard.press('Escape');await selectSavedCanvas(page,'research-saved','Saved research',false);
+  await expect(page.getByRole('alert').filter({hasText:'The saved workspace could not open.'})).toBeVisible();expect(rejectedCanvas).toBe('research-saved');
+  await expect(page.getByRole('button',{name:'Code Review',exact:true})).toHaveAttribute('aria-pressed','true');
+ }finally{release();}
+ await expect(page.getByRole('region',{name:'Selected file diff'})).toContainText('exact pull-request source');
+ expect(h.requests.some(path=>path.startsWith('/api/projects/project-a/pull-requests/48/comparison?threadId=review-a'))).toBe(true);
 });
