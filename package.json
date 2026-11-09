@@ -8,6 +8,7 @@
     "node": ">=24.10.0"
   },
   "scripts": {
+    "capture:ui": "tsx scripts/capture-ui/index.ts",
     "dev": "node scripts/dev.mjs",
     "start": "tsx apps/server/main.ts",
     "build": "pnpm build:widgets && pnpm build:plugin-runtime && vite build",
