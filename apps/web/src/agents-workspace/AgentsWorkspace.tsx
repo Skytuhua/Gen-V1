@@ -7,7 +7,8 @@ import {useDesktop, useDetachedSurface, usePendingSurface} from '../desktop-cont
 import {ComposerView} from '../ComposerView';
 import {ComposerCommands,ComposerSkillBindings,type ComposerCommandsHandle} from '../ComposerCommands';
 import {command} from '../api';
-import {PendingStatus} from '../LoadingState';
+import {LoadingState} from '../LoadingState';
+import {AgentsSkeleton, ConversationSkeleton} from '../ViewSkeletons';
 import {Markdown} from '../Markdown';
 import {projectColor} from '../project-colors';
 import {groupAgents, type AgentNode, type AgentsWorkspaceController, type ProjectRow} from './controller';
@@ -49,13 +50,14 @@ export function AgentsWorkspace({controller, composers, onOpenConversation, pref
    <Select aria-label="Status filter" value={state.scope.statuses?.[0] ?? '$all'} options={[{value: '$all', label: 'All statuses'}, ...agentStatuses.map(value => ({value, label: statusLabel(value)}))]} onValueChange={value => {void controller.setScope({...state.scope, statuses: value === '$all' ? undefined : [value as AgentStatus]});}}/>
    <button type="button" className="agents-icon" aria-label={searchOpen ? 'Close agent search' : 'Search agents'} aria-expanded={searchOpen} onClick={() => {setSearchOpen(!searchOpen); if (searchOpen) setText(''); else requestAnimationFrame(() => search.current?.focus());}}>{searchOpen ? <X size={16}/> : <Search size={16}/>}</button>
    {searchOpen && <input ref={search} type="search" aria-label="Filter agents" placeholder="Find agent…" maxLength={200} value={text} onChange={event => setText(event.target.value)}/>}
-   <span className="agents-connectivity" role="status">{state.pending ? 'Loading…' : state.connected ? 'Live' : 'Reconnecting…'}</span>
+   <span className="agents-connectivity" role="status">{state.pending ? '' : state.connected ? 'Live' : 'Reconnecting…'}</span>
   </div>
   {state.error && <div className="agents-error" role="alert">{state.error}<button type="button" onClick={() => {void controller.start();}}>Retry connection</button></div>}
-  <PendingStatus pending={state.pending} label="Loading agents…"/>
   <div className="agents-projects" ref={viewport} onScroll={event => controller.setView('$workspace', {top: event.currentTarget.scrollTop})}>
-   {!state.pending && !rows.length && <p className="agents-empty">{state.scope.text || state.scope.statuses || state.scope.projectId !== undefined ? 'No agents match these filters.' : 'No agents yet. Open a conversation to begin.'}</p>}
+   <LoadingState pending={state.pending} hasContent={Boolean(state.scopeKey) || rows.length > 0} label="Loading agents…" skeleton={<AgentsSkeleton/>}>
+   {Boolean(state.scopeKey) && !rows.length && <p className="agents-empty">{state.scope.text || state.scope.statuses || state.scope.projectId !== undefined ? 'No agents match these filters.' : 'No agents yet. Open a conversation to begin.'}</p>}
    {rows.map(row => <Project key={row.id ?? '$none'} row={row} controller={controller} composers={composers} onOpenConversation={onOpenConversation} preferences={preferences}/>)}
+   </LoadingState>
   </div>
  </section></Visibility.Provider>;
 }
@@ -130,9 +132,11 @@ function Transcript({agent, controller}: {agent: AgentSummary; controller: Agent
   controller.setView(agent.agentId, {top: element.scrollTop, atEnd, anchorId: anchor?.dataset.messageId, anchorOffset: anchor ? anchor.getBoundingClientRect().top - top : undefined, ...(atEnd ? {unread: false} : {})});
  }}>
   {state.cursor && <button type="button" className="agents-earlier" disabled={state.pending} onClick={() => {void controller.loadEarlier(agent.agentId);}}>Load earlier messages</button>}
-  {!state.loaded && !state.error && <p className="agents-transcript-empty">{state.pending ? 'Loading messages…' : 'Messages load as they come into view.'}</p>}
+  <LoadingState pending={state.pending && !state.error} hasContent={state.loaded} label="Loading messages…" skeleton={<ConversationSkeleton/>}>
+  {!state.loaded && !state.error && <p className="agents-transcript-empty">Messages load as they come into view.</p>}
   {state.loaded && !state.messages.length && <p className="agents-transcript-empty">No messages yet.</p>}
   {state.messages.map(message => <Fragment key={message.id}>{state.gaps.some(gap => gap.beforeId === message.id) && <button type="button" className="agents-earlier" disabled={state.pending} onClick={() => {void controller.loadEarlier(agent.agentId, message.id);}}>Load missing messages</button>}<article className={`agents-message agents-message-${message.role}`} data-message-id={message.id}><span className="agents-message-role">{message.role}</span><Markdown text={message.content}/></article></Fragment>)}
+  </LoadingState>
   {state.error && <div className="agents-error" role="alert">{state.error}<button type="button" onClick={() => {void controller.retryHistory(agent.agentId);}}>Retry history</button></div>}
  </div>{view.unread && <button type="button" className="agents-new-output" onClick={() => {controller.setView(agent.agentId, {atEnd: true, unread: false}, true); log.current?.scrollTo({top: log.current.scrollHeight});}}>New output</button>}</div>;
 }

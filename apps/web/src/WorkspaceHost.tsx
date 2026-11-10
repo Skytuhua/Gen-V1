@@ -12,7 +12,8 @@ import {prepareEditorHandoff} from './editor-handoff';
 import {useModalRegion} from './focus';
 import {journalFlush} from './journal';
 import {hasPendingDocumentAssets} from './signature-assets';
-import {PendingStatus} from './LoadingState';
+import {LoadingState, PendingStatus} from './LoadingState';
+import {SettingsSkeleton, WorkspaceSkeleton} from './ViewSkeletons';
 import {ShellSidebar} from './ShellSidebar';
 import {getShellNavigationItem} from './shell-read-api';
 import {matchesShortcut, useShellLayout} from './shell-layout';
@@ -61,7 +62,7 @@ function CompactSettingsContent(props: ComponentProps<CompactSettingsComponent>)
     } catch (cause) {if (alive.current) setError(`Drafts could not be saved. ${message(cause)} Keep this window open and retry.`);}
     finally {if (alive.current) setReloading(false);}
   };
-  return Settings ? <Settings {...props}/> : error ? <><p role="alert">{error}</p><button className="primary" disabled={reloading} onClick={() => void reload()}>Reload to retry</button></> : <PendingStatus pending label="Opening settings…"/>;
+  return Settings ? <Settings {...props}/> : error ? <><p role="alert">{error}</p><button className="primary" disabled={reloading} onClick={() => void reload()}>Reload to retry</button></> : <LoadingState pending hasContent={false} label="Opening settings…" skeleton={<SettingsSkeleton/>} className="view-loading-state"/>;
 }
 
 /** Resolve the main window's canonical workspace before mounting a conversation owner. */
@@ -147,7 +148,7 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
   const fail = (action: () => Promise<unknown>) => {void action().catch(cause => {if (alive.current) setError(message(cause));});};
   const retry = () => fail(async () => {await Promise.all([workspace.refresh(), loadSettings()]); setError('');});
   if (!workspace.envelope || !settings || !preset) return <main className="workspace-host-bootstrap">
-    <PendingStatus pending={!failure} label="Opening workspace…"/>
+    {!failure && <LoadingState pending hasContent={false} label="Opening workspace…" skeleton={<WorkspaceSkeleton/>} className="view-loading-state"/>}
     {failure && <div role="alert">{failure}<button onClick={retry}>Retry workspace</button></div>}
   </main>;
   if (preset !== 'all-agents' && preset !== 'research' && preset !== 'code-review') return conversation({workspace, choosePreset, initialThreadId: selected.current, selectThread: id => {selected.current = id;}, intent, consumeIntent: id => setIntent(current => current?.id === id ? undefined : current), composers, openReview});

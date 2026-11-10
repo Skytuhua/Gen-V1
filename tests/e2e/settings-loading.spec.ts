@@ -15,6 +15,8 @@ test('Settings load on demand, retain focus and drafts, and reuse the loaded mod
     await composer.fill('Keep my next message');
     await composer.press('Control+,');
     await expect(page.getByRole('status').filter({ hasText: 'Opening settings' })).toBeVisible();
+    await expect(page.locator('.loading-state-skeleton .settings-navigation')).toBeVisible();
+    await expect(page.locator('.loading-state-skeleton .settings-row')).toHaveCount(3);
     expect(requests).toBe(1);
     await page.getByRole('button', { name: 'Close dialog', exact: true }).click();
     await expect(page.getByRole('dialog', { name: 'Settings', exact: true })).toHaveCount(0);

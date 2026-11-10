@@ -12,7 +12,8 @@ import {useScopedConversation} from './conversation-workspace/useScopedConversat
 import type {ConversationSelection} from './conversation-workspace/reader';
 import {ScopedConversationComposer} from './ScopedConversationComposer';
 import {useDesktop,useDetachedSurface,usePendingSurface,useDesktopReady} from './desktop-context';
-import {PendingStatus} from './LoadingState';
+import {LoadingState} from './LoadingState';
+import {ReviewWorkspaceSkeleton} from './ViewSkeletons';
 import {TerminalBody} from './WorkspaceSurfaceBody';
 import {getShellNavigationItem} from './shell-read-api';
 import {useShellNavigation} from './shell-navigation';
@@ -153,15 +154,18 @@ export function CodeReviewHost({canvas,workspace,composers,openConversation,dest
  const picker=<div className="code-review-owner"><Select aria-label="Project and working copy" value={admitted?.row.id??''} options={[{value:'',label:'Choose a project conversation'},...rows.map(row=>({value:row.id,label:(row.projectName??row.projectId)+' / '+row.title}))]} disabled={held||changing||pending} onValueChange={id=>{void choose(id);}}/>{navigation.page?.nextCursor&&<button disabled={navigation.pending} onClick={()=>{void navigation.more();}}>More conversations</button>}</div>;
  const writes:ReviewWrites|undefined=owner&&ownerMetadata?.git?{owner,git:{...ownerMetadata.git,gitWrite:ownerMetadata.git.gitWrite===true&&!ownerMetadata.pending&&!reviewHeld},review:pullRequestsReady&&review?.key===targetKey?review.value:undefined,onStage:submit,onUnstage:submit,onCommit:submit,onInspectOutcome:inspect,...(pullRequestsReady?{onReview:submit,onCreatePullRequest:()=>{if(reviewCurrent())void openConversation(owner.threadId!,'linked-pull-requests').catch(()=>setError('Pull request tools could not open.'));},onLinkPullRequest:()=>{if(reviewCurrent())void openConversation(owner.threadId!,'linked-pull-requests').catch(()=>setError('Pull request tools could not open.'));}}:{})}:undefined;
  const failure=error||bindingError||conversation.state.error||(currentContext&&(currentContext.readOnly||currentContext.archived)?'Choose a main conversation connected to a project.':'');useDesktopReady(!pending&&(!binding?.threadId||Boolean(currentContext)||Boolean(failure)));
+ const openingReview=!failure&&(pending||conversation.state.pending||eligible&&!metadataReady),hasReview=Boolean(selection&&context&&ownerMetadata);
  return <div className="code-review-host">
   {detached&&<p className="code-review-notice">This conversation is open in another window.<button onClick={()=>{void desktop?.bridge.focus(detached.id);}}>Focus existing window</button></p>}
   {failure&&<p className="code-review-notice" role="alert">{failure}<button onClick={()=>{setRetry(value=>value+1);void conversation.reader.retry();}}>Retry conversation</button></p>}
   {destinationError&&<p className="code-review-notice" role="alert">{destinationError}</p>}
-  {!context&&picker}<PendingStatus pending={pending||conversation.state.pending||eligible&&!metadataReady} label="Opening review..."/>
+  {!context&&picker}
   {ownerMetadata?.error&&<p className="code-review-notice" role="alert">{ownerMetadata.error}<button onClick={()=>setRefresh(value=>value+1)}>Retry access</button></p>}
   {ownerMetadata?.pullRequestError&&<p className="code-review-notice" role="alert">{ownerMetadata.pullRequestError}<button onClick={()=>setRefresh(value=>value+1)}>Retry pull requests</button></p>}
+  {(openingReview||hasReview)&&<LoadingState pending={openingReview} hasContent={hasReview} label="Opening review..." skeleton={<ReviewWorkspaceSkeleton/>} className="view-loading-state">
   {selection&&context&&ownerMetadata&&<div className="code-review-bound" inert={reviewHeld}><CodeReviewWorkspace key={presentationKey} selection={selection} ownerControls={moreOwners} owners={owners} pullRequests={ownerMetadata.pullRequests} writes={writes} onRefresh={()=>setRefresh(value=>value+1)} onNavigate={next=>{if(!reviewCurrent())return;if(!sameOwner(next.owner,selection.owner))void choose(next.owner.threadId!);else{discardDestination();fence.current.version++;setTarget(next.target);}}}
    terminal={active=><TerminalBody projectId={selection.owner.projectId} threadId={selection.owner.threadId} active={active&&!reviewHeld} isCurrent={reviewCurrent}/>} chat={<ConversationPane conversation={conversation} renderComposer={()=><ScopedConversationComposer key={presentationKey} context={reviewHeld?{...context,readOnly:true}:context} composers={composers} openConversation={openConversation} refreshOwner={conversation.reader.poll} placeholder="Ask about these changes..."/>}/>}/></div>}
+  </LoadingState>}
   {!binding?.threadId&&!failure&&<p className="code-review-notice">Choose a project conversation to review its working copy.</p>}
  </div>;
 }
