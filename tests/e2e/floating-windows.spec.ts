@@ -6,7 +6,8 @@ import {serveTaskFixture,taskFixture} from './task-interface-fixture';
 const now='2026-10-30T05:00:00.000Z';
 function fixture(){const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Investigating the checkout boundary.'}}}});snapshot.data.push({id:planDataId('task-thread'),threadId:'task-thread',revision:1,provenance:PLANNING_PROVENANCE,createdAt:now,value:{version:1,title:'Repair checkout failures',steps:[{id:'investigate',title:'Find the failing boundary',status:'working',requirements:[{id:'reproduce',label:'Reproduce the failure',completed:true},{id:'locate',label:'Locate the assertion',completed:false}],agentIds:[]}],agents:[]}});snapshot.usage['task-thread']={...EMPTY_USAGE,inputTokens:12640,outputTokens:820,contextTokens:35000,contextWindow:200000};return snapshot;}
 async function settledWindow(panel:ReturnType<Page['getByRole']>){await expect.poll(()=>panel.evaluate(node=>node.getAnimations().filter(animation=>animation.playState==='running').length)).toBe(0);}
-async function openPlan(page:Page){await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();const panel=page.getByRole('region',{name:'Project context window',exact:true});await expect(panel).toBeVisible();await settledWindow(panel);return panel;}
+async function showUsage(page:Page){const usage=page.getByRole('region',{name:'Live usage',exact:true});if(!await usage.isVisible())await page.getByRole('button',{name:'Show live usage',exact:true}).click();await expect(usage).toBeVisible();return usage;}
+async function openPlan(page:Page){await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();const panel=page.getByRole('region',{name:'Project context window',exact:true});await expect(panel).toBeVisible();await settledWindow(panel);await showUsage(page);return panel;}
 
 test('floating geometry rejects nonfinite storage and confines windows to a narrow viewport',()=>{
  const result=clampFloatingLayout({x:9000,y:-400,width:4000,height:5000,collapsed:false},{width:390,height:844,top:60,bottom:620},{width:280,height:180});
@@ -35,11 +36,11 @@ test('minimizing and Escape retain the same task content without a delete contro
 });
 
 test('live usage stays available and remembers its minimized state without close or resize controls',async({page})=>{
- await page.setViewportSize({width:1440,height:1000});await serveTaskFixture(page,fixture());await page.goto('/');let usage=page.getByRole('region',{name:'Live usage',exact:true});await expect(usage).toHaveAttribute('data-collapsed','true');
+ await page.setViewportSize({width:1440,height:1000});await serveTaskFixture(page,fixture());await page.goto('/');let usage=page.getByRole('region',{name:'Live usage',exact:true});await expect(usage).toBeHidden();await page.getByRole('button',{name:'Show live usage',exact:true}).click();await expect(usage).toHaveAttribute('data-collapsed','true');
  await expect(usage.getByRole('button',{name:/^Move |^Resize |^Close Live usage$|^Detach |^Reset /})).toHaveCount(0);
  await usage.getByRole('button',{name:'Inspect live usage',exact:true}).click();await expect(usage).toHaveAttribute('data-collapsed','false');
  await page.keyboard.press('Escape');await expect(usage).toHaveAttribute('data-collapsed','true');await expect(usage.getByRole('button',{name:'Inspect live usage',exact:true})).toBeFocused();
- await page.reload();usage=page.getByRole('region',{name:'Live usage',exact:true});await expect(usage).toBeVisible();await expect(usage).toHaveAttribute('data-collapsed','true');
+ await page.reload();await expect(usage).toBeHidden();await page.getByRole('button',{name:'Show live usage',exact:true}).click();usage=page.getByRole('region',{name:'Live usage',exact:true});await expect(usage).toBeVisible();await expect(usage).toHaveAttribute('data-collapsed','true');
 });
 
 test('both windows fit a narrow viewport, retain keyboard access and leave Stop available',async({page})=>{

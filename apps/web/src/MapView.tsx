@@ -14,9 +14,17 @@ export function MapView({ element: { props } }: ComponentRenderProps) {
   const saved = store.get(statePath(props.stateKey));
   const index = Math.max(0, points.findIndex(point => point.id === saved));
   const selected = points[index];
-  const [localTheme, setLocalTheme] = useState('paper');
+  const [localTheme, setLocalTheme] = useState<string>();
+  const [shellTheme, setShellTheme] = useState(() => document.documentElement.dataset.theme);
+  useEffect(() => {
+    const sync = () => setShellTheme(document.documentElement.dataset.theme);
+    const observer = new MutationObserver(sync);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    sync();
+    return () => observer.disconnect();
+  }, []);
   const storedTheme = typeof props.themeStateKey === 'string' ? store.get(statePath(props.themeStateKey)) : localTheme;
-  const theme = ['paper', 'terrain', 'night'].includes(String(storedTheme)) ? String(storedTheme) : 'paper';
+  const theme = ['paper', 'terrain', 'night'].includes(String(storedTheme)) ? String(storedTheme) : shellTheme === 'dark' ? 'night' : 'paper';
   const [feedback, setFeedback] = useState('');
   const carousel = useRef<HTMLDivElement>(null), userScrolling = useRef(false);
   const selectionIntent=useRef<string|undefined>(undefined),aligned=useRef(false);

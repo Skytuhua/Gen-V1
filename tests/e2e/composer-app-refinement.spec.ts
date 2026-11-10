@@ -88,7 +88,7 @@ test('a ready plan opens automatically and right-side tools can only be minimize
  const context=page.getByRole('region',{name:'Project context window',exact:true});
  host.snapshot.data.push({id:planDataId('task-thread'),threadId:'task-thread',revision:1,provenance:PLANNING_PROVENANCE,createdAt:'2026-11-04T00:00:00Z',value:{version:1,title:'Review the next steps',steps:[{id:'inspect',title:'Inspect the current draft',status:'working',requirements:[],agentIds:[]}],agents:[]}});
  await host.publish();await expect(context).toBeVisible();await expect(context.getByText('Inspect the current draft',{exact:true})).toBeVisible();await expect(draft).toBeFocused();
- const usage=page.getByRole('region',{name:'Live usage',exact:true});await expect(usage).toBeVisible();
+ const usage=page.getByRole('region',{name:'Live usage',exact:true});await page.getByRole('button',{name:'Show live usage',exact:true}).click();await expect(usage).toBeVisible();
  for(const tool of [context,usage])await expect(tool.getByRole('button',{name:/close |detach|reset .*position|resize|^move /i})).toHaveCount(0);
  await context.getByRole('button',{name:'Minimize Project context',exact:true}).click();await expect(context).toHaveAttribute('data-collapsed','true');await expect(context).toBeVisible();
  await context.getByRole('button',{name:'Expand Project context',exact:true}).click();await expect(context.getByText('Inspect the current draft',{exact:true})).toBeVisible();

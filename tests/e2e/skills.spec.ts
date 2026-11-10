@@ -26,7 +26,7 @@ async function fixture(page:Page,options:{empty?:boolean;stale?:boolean;proposal
   if(command.type==='skill.decide'){snapshot.skillProposals=[];if(p.approve){saved=detail(2);snapshot.skills=[saved.skill];}}
   snapshot.seq++;await route.fulfill({json:{commandId:command.id,eventSeq:snapshot.seq,result:{status:'applied',changes:[saved.skill]}}});
  });
- const open=async()=>{await page.goto('/');const navigation=page.getByRole('button',{name:'Open navigation',exact:true});if(await navigation.isVisible())await navigation.click();await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByRole('button',{name:'Skills & learning',exact:true}).click();};
+ const open=async()=>{await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeVisible();const navigation=page.getByRole('button',{name:'Open navigation',exact:true});if(await navigation.isVisible())await navigation.click();await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByRole('button',{name:'Skills & learning',exact:true}).click();};
  return{snapshot,host,open,get reads(){return reads;}};
 }
 

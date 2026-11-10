@@ -12,7 +12,7 @@ const snapshot=()=>{
 };
 const captureDirectory=process.env.RESERVED_RAIL_CAPTURE_DIR;
 async function showPlan(page:Page){const panel=page.getByRole('region',{name:'Project context window',exact:true});await expect(panel).toBeVisible();return panel;}
-async function showUsage(page:Page){const usage=page.getByRole('region',{name:'Live usage',exact:true});await expect(usage).toBeVisible();return usage;}
+async function showUsage(page:Page){const usage=page.getByRole('region',{name:'Live usage',exact:true});if(!await usage.isVisible())await page.getByRole('button',{name:'Show live usage',exact:true}).click();await expect(usage).toBeVisible();return usage;}
 async function open(page:Page,value=snapshot()){
  await serveTaskFixture(page,value);await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();await showPlan(page);await showUsage(page);
  const plan=page.getByRole('region',{name:'Project context window',exact:true});await expect(plan).toBeVisible();await expect.poll(()=>plan.evaluate(el=>el.getAnimations().filter(a=>a.playState==='running').length)).toBe(0);return plan;

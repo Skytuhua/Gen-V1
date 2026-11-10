@@ -1,19 +1,19 @@
-import {useId,useState,type ReactNode} from 'react';
-import {Bot,ChevronDown,ChevronRight,Code2,FileDiff,Folder,GitBranch,GitCommitHorizontal,ListChecks,LoaderCircle,Plus,Server,Terminal} from 'lucide-react';
+import {useState} from 'react';
+import {Bot,ChevronDown,ChevronRight,Code2,FileDiff,Folder,GitBranch,GitCommitHorizontal,LoaderCircle,Plus,Server,Terminal} from 'lucide-react';
 import type {ProjectContext} from '../../../packages/contracts/workspace.ts';
 import './project-context.css';
 
 export interface ProjectContextCardProps {
- context?:ProjectContext|null;loading?:boolean;error?:string;threadTitle?:string;plan?:ReactNode;planOpen?:boolean;onTogglePlan?:()=>void;
+ context?:ProjectContext|null;loading?:boolean;error?:string;threadTitle?:string;
  onAction?:(type:string,payload?:Record<string,unknown>)=>Promise<void>;
  onSelectThread?:(threadId:string)=>void;onShowChanges?:()=>void;onConnect?:()=>void;
 }
 /** Data and callbacks only: this card is safe to consume from either authority's shell. */
-export function ProjectContextCard({context,loading,error,threadTitle,plan,planOpen=false,onTogglePlan,onAction,onSelectThread,onShowChanges,onConnect}:ProjectContextCardProps){
- const planId=useId(),[expanded,setExpanded]=useState<'scripts'|'branch'|'commit'|'lineage'|null>(null),[busy,setBusy]=useState(false),[actionError,setActionError]=useState(''),[scriptName,setScriptName]=useState(''),[scriptCommand,setScriptCommand]=useState(''),[branch,setBranch]=useState(''),[commit,setCommit]=useState('');
+export function ProjectContextCard({context,loading,error,threadTitle,onAction,onSelectThread,onShowChanges,onConnect}:ProjectContextCardProps){
+ const [expanded,setExpanded]=useState<'scripts'|'branch'|'commit'|'lineage'|null>(null),[busy,setBusy]=useState(false),[actionError,setActionError]=useState(''),[scriptName,setScriptName]=useState(''),[scriptCommand,setScriptCommand]=useState(''),[branch,setBranch]=useState(''),[commit,setCommit]=useState('');
  const run=(type:string,payload:Record<string,unknown>={})=>{if(!onAction||busy)return;setBusy(true);setActionError('');void onAction(type,payload).then(()=>{setExpanded(null);setCommit('');}).catch(cause=>setActionError(cause instanceof Error?cause.message:'The project action could not finish.')).finally(()=>setBusy(false));};
  const toggle=(name:NonNullable<typeof expanded>)=>setExpanded(value=>value===name?null:name);
- const connected=Boolean(context&&(context.project.rootPath||context.capabilities.git||context.capabilities.terminal||context.editor.available));
+ const connected=Boolean(context);
  const total=(value:number)=>new Intl.NumberFormat(undefined,{notation:'compact',maximumFractionDigits:1}).format(value);
  const lineage=context?.lineage.toSorted((a,b)=>Number(b.status==='working')-Number(a.status==='working'))??[];
  return <div className="project-context-card" aria-label="Project context">
@@ -42,6 +42,5 @@ export function ProjectContextCard({context,loading,error,threadTitle,plan,planO
    {lineage.length>0&&<section className="project-context-section"><button className="project-context-row" aria-expanded={expanded==='lineage'} onClick={()=>toggle('lineage')}><Bot size={16}/><span>Previous agents</span><small>{lineage.length}</small><ChevronRight size={13}/></button>{expanded==='lineage'&&<div className="project-context-lineage">{lineage.map(item=><button key={item.id} disabled={!onSelectThread} onClick={()=>onSelectThread?.(item.id)} title={item.title+' · '+item.status}><span>{item.title}</span><small>{item.status==='working'?'Working':item.status==='awaiting_input'?'Your input':item.status}</small></button>)}</div>}</section>}
   </>}
   {(error||context?.error||actionError)&&<p role="alert" className="project-context-note error-text">{actionError||error||context?.error}</p>}
-  {plan&&<section className="project-context-plan"><button className="project-context-row" aria-expanded={planOpen} aria-controls={planId} onClick={onTogglePlan}><ListChecks size={16}/><span>Task plan</span>{planOpen?<ChevronDown size={14}/>:<ChevronRight size={14}/>}</button><div id={planId} className="project-plan-expansion" data-open={planOpen} inert={!planOpen}><div>{plan}</div></div></section>}
  </div>;
 }

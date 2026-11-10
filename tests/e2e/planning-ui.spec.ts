@@ -10,6 +10,23 @@ function fixture(){const snapshot=taskFixture({root:'text',elements:{text:{type:
 function question(snapshot:Snapshot){snapshot.requests=[{id:'decision-route',threadId:'task-thread',artifactId:null,revision:1,title:'Which repair should we explore?',prompt:'Choose a scope for the checkout repair.',responseSchema:{type:'string'},basis:[],status:'pending',presentation:{options:[{id:'focused',label:'Focused repair',description:'Keep the public API stable.'},{id:'broader',label:'Broader cleanup',description:'Include the nearby validation path.',explanation:'This includes the validation path and its shared tests.',examples:[{text:'Update the input validation and exercise both callers.'}]}],allowCustom:true}}];}
 async function openPlan(page:Page){await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();const rail=page.getByRole('region',{name:'Task plan',exact:true});if(!await rail.isVisible()){await page.getByRole('button',{name:'Thread options',exact:true}).click();await page.getByRole('button',{name:'Show plan',exact:true}).click();}await expect(rail).toBeVisible();}
 
+test('the automatically presented task plan is separate from project context',async({page})=>{
+  await serveTaskFixture(page,fixture());await page.goto('/');await openPlan(page);
+  const plan=page.getByRole('region',{name:'Task plan',exact:true});
+  await expect(plan).toBeVisible();
+  expect(await plan.evaluate(node=>node.closest('.project-context-card'))).toBeNull();
+  await expect(page.getByLabel('Project context',{exact:true})).toBeVisible();
+});
+
+test('a dismissed plan can be reopened directly without losing the draft',async({page})=>{
+  await serveTaskFixture(page,fixture());await page.goto('/');await openPlan(page);
+  const message=page.getByRole('textbox',{name:'Message',exact:true});await message.fill('Keep this draft');
+  const toggle=page.getByRole('button',{name:'Task plan',exact:true});await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-expanded','false');
+  await expect(page.getByRole('button',{name:'Show task plan',exact:true})).toBeVisible();await page.getByRole('button',{name:'Show task plan',exact:true}).click();
+  await expect(page.getByRole('region',{name:'Task plan',exact:true})).toBeVisible();await expect(message).toHaveValue('Keep this draft');
+});
+
 test('the plan rail uses real checklist progress and keeps unknown agent progress unknown',async({page})=>{
   const snapshot=fixture(),host=await serveTaskFixture(page,snapshot);await page.goto('/');await openPlan(page);
   const rail=page.getByRole('region',{name:'Task plan',exact:true});await expect(rail.getByText('Repair checkout failures',{exact:true})).toBeVisible();
@@ -24,8 +41,8 @@ test('the plan rail uses real checklist progress and keeps unknown agent progres
 });
 
 test('a plan from another thread is not presented as the current task',async({page})=>{
-  const snapshot=fixture();snapshot.data[0].threadId='another-thread';await serveTaskFixture(page,snapshot);await page.goto('/');await openPlan(page);
-  await expect(page.getByRole('region',{name:'Task plan',exact:true})).toContainText('No plan yet');await expect(page.getByText('Repair checkout failures',{exact:true})).toHaveCount(0);
+  const snapshot=fixture();snapshot.data[0].threadId='another-thread';await serveTaskFixture(page,snapshot);await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();
+  await expect(page.getByRole('region',{name:'Task plan',exact:true})).toHaveCount(0);await expect(page.getByText('Repair checkout failures',{exact:true})).toHaveCount(0);
 });
 
 test('planning option explanations request Pi once and retain selection through the updated question',async({page})=>{
@@ -93,13 +110,13 @@ test('failed planning detail requests show a recoverable error without losing th
 });
 
 test('live usage details dismiss with Escape and restore their trigger focus',async({page})=>{
-  await serveTaskFixture(page,fixture());await page.goto('/');await page.getByRole('button',{name:'Show live usage',exact:true}).click();const footer=page.getByRole('region',{name:'Live usage',exact:true}),trigger=footer.getByRole('button',{name:'Inspect live usage',exact:true});await trigger.click();await expect(footer.getByRole('region',{name:'Runtime usage details',exact:true})).toBeVisible();await footer.getByRole('button',{name:'Close live usage details',exact:true}).focus();await page.keyboard.press('Escape');await expect(footer.getByRole('region',{name:'Runtime usage details',exact:true})).toHaveCount(0);await expect(trigger).toBeFocused();
+  await serveTaskFixture(page,fixture());await page.goto('/');await page.getByRole('button',{name:'Show live usage',exact:true}).click();const footer=page.getByRole('region',{name:'Live usage',exact:true}),trigger=footer.getByRole('button',{name:'Inspect live usage',exact:true});await trigger.click();await expect(footer.getByRole('region',{name:'Runtime usage details',exact:true})).toBeVisible();await footer.getByRole('button',{name:'Minimize live usage',exact:true}).focus();await page.keyboard.press('Escape');await expect(footer.getByRole('region',{name:'Runtime usage details',exact:true})).toHaveCount(0);await expect(trigger).toBeFocused();
 });
 
 test('live usage remains visible and clickable above the open workspace panel',async({page})=>{
   const snapshot=fixture();snapshot.usage['task-thread']={...EMPTY_USAGE,inputTokens:12000,outputTokens:400};await serveTaskFixture(page,snapshot);await page.goto('/');await openPlan(page);await page.getByRole('button',{name:'Show live usage',exact:true}).click();
   const trigger=page.getByRole('button',{name:'Inspect live usage',exact:true});
-  expect(await trigger.evaluate(button=>{const box=button.getBoundingClientRect();return button.contains(document.elementFromPoint(box.left+box.width/2,box.top+box.height/2));})).toBe(true);
+  await expect.poll(()=>trigger.evaluate(button=>{const box=button.getBoundingClientRect();return button.contains(document.elementFromPoint(box.left+box.width/2,box.top+box.height/2));})).toBe(true);
   await trigger.click();await expect(page.getByRole('region',{name:'Runtime usage details',exact:true})).toBeVisible();
 });
 

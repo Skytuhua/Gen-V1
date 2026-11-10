@@ -1,7 +1,7 @@
 import {useContext,useEffect,useId,useLayoutEffect,useRef,useState,type CSSProperties,type KeyboardEvent,type PointerEvent,type ReactNode} from 'react';
 import {ChevronDown,ChevronUp,GripVertical,RotateCcw,X} from 'lucide-react';
 import {clampFloatingLayout,FLOATING_COLLAPSED_HEIGHT,readFloatingLayout,writeFloatingLayout,type FloatingAnchor,type FloatingLayout,type FloatingSize,type FloatingViewport} from './floating-layout';
-import {animateTask} from './task-motion';
+import {animateTask,reducedMotion} from './task-motion';
 import {FloatingRailSlotContext} from './FloatingRail';
 import './floating-window.css';
 export interface FloatingWindowProps {id:string;title:string;children:ReactNode;open?:boolean;onClose?:()=>void;anchor?:FloatingAnchor;defaultSize?:FloatingSize;minSize?:FloatingSize;defaultCollapsed?:boolean;summary?:ReactNode;collapsedLabel?:string;minimizeLabel?:string;ariaLabel?:string;className?:string;escapeBehavior?:'close'|'collapse';resetPosition?:boolean;onDetach?:()=>void|Promise<void>;minimizeOnly?:boolean;sizing?:'manual'|'content';focusOnOpen?:boolean;expandRequest?:number;storage?:{read:typeof readFloatingLayout;write:typeof writeFloatingLayout}}
@@ -13,8 +13,8 @@ const layerFor=(id:string)=>34+Math.min(4,Math.max(0,order.indexOf(id)));
 function removeLayer(id:string){const index=order.indexOf(id);if(index>=0){order.splice(index,1);listeners.forEach(listener=>listener());}}
 function bringForward(id:string){if(order.at(-1)===id)return;removeLayer(id);order.push(id);listeners.forEach(listener=>listener());}
 
-function viewport(collapsed:boolean,slot?:HTMLDivElement|null,inRail=false,floating=false,owner?:HTMLElement|null):FloatingViewport {
-  if(inRail&&!floating){const area=slot?.getBoundingClientRect();return {width:area?.width||352,height:area?.height||Math.max(180,innerHeight-84),top:0,bottom:area?.height||Math.max(180,innerHeight-84),gutter:0,pinned:'left'};}
+function viewport(collapsed:boolean,slot?:HTMLDivElement|null,inRail=false,floating=false,owner?:HTMLElement|null,anchor:FloatingAnchor='top-right'):FloatingViewport {
+  if(inRail&&!floating){const area=slot?.getBoundingClientRect(),height=area?.height||Math.max(180,innerHeight-84);const composer=anchor==='bottom-right'?document.querySelector<HTMLElement>('.composer-dock')?.getBoundingClientRect():undefined;const aboveComposer=composer&&area&&area.height>0?composer.top-area.top-10:0;return {width:area?.width||352,height,top:0,bottom:aboveComposer>80?aboveComposer:height,gutter:0,pinned:'left'};}
   const width=window.visualViewport?.width??window.innerWidth,height=window.visualViewport?.height??window.innerHeight;
   const workspace=(owner?.closest<HTMLElement>('.shell-workarea')??document.querySelector<HTMLElement>('.shell-workarea'))?.getBoundingClientRect();
   const header=(owner?.closest<HTMLElement>('.shell-workarea')?.querySelector<HTMLElement>('.workspace-header')??document.querySelector<HTMLElement>('.workspace-header'))?.getBoundingClientRect();
@@ -30,7 +30,7 @@ export function FloatingWindow({id,title,children,open=true,onClose,anchor='top-
   const rail=useContext(FloatingRailSlotContext);
   const shell=useRef<HTMLElement>(null),summaryButton=useRef<HTMLButtonElement>(null),moveButton=useRef<HTMLButtonElement>(null),minimizeButton=useRef<HTMLButtonElement>(null);
   const floating=useRef(!rail);
-  const areaFor=(collapsed:boolean,released=floating.current)=>{const area=viewport(collapsed,rail?.element.current,Boolean(rail),released,shell.current);return minimizeOnly&&rail&&!released?{...area,pinned:'right' as const}:area;};
+  const areaFor=(collapsed:boolean,released=floating.current)=>{const area=viewport(collapsed,rail?.element.current,Boolean(rail),released,shell.current,anchor);return minimizeOnly&&rail&&!released?{...area,pinned:'right' as const}:area;};
   const content=useRef<HTMLDivElement>(null),contentHeight=useRef(defaultSize.height);
   const opener=useRef<HTMLElement|null>(null),previousOpen=useRef<boolean|undefined>(undefined),previousCollapsed=useRef<boolean|undefined>(undefined),collapsedOrigin=useRef<{x:number;y:number}|undefined>(undefined),stopInteraction=useRef<()=>void>(()=>{}),entrance=useRef<Animation|undefined>(undefined);
   const description=useId(),bodyId=useId();
@@ -47,12 +47,12 @@ export function FloatingWindow({id,title,children,open=true,onClose,anchor='top-
   });
   const current=useRef(layout);current.current=layout;
   const resizeOrigin=useRef({layout,width:window.visualViewport?.width??window.innerWidth,height:window.visualViewport?.height??window.innerHeight});
-  const [layer,setLayer]=useState(()=>layerFor(id)),[interacting,setInteracting]=useState(false),[adjusting,setAdjusting]=useState(Boolean(rail));
+  const [layer,setLayer]=useState(()=>layerFor(id)),[interacting,setInteracting]=useState(false),[adjusting,setAdjusting]=useState(Boolean(rail)),[rendered,setRendered]=useState(open);
   const update=(next:FloatingLayout,persist=false,intent=persist)=>{
     floating.current=!rail||next.floating===true;
     const area=areaFor(next.collapsed),available=(area.bottom??area.height)-Math.max(area.top??0,next.y),preferred=sizing==='content'?{...next,height:next.collapsed?contentHeight.current:Math.min(contentHeight.current,Math.max(minSize.height,available))}:next,valid=clampFloatingLayout(rail&&!floating.current?{...preferred,width:minimizeOnly?Math.min(defaultSize.width,area.width):area.width}:preferred,area,minSize);current.current=valid;setLayout(valid);if(intent)resizeOrigin.current={layout:valid,width:area.width,height:area.height};if(persist)writeLayout(id,valid);
   };
-  useLayoutEffect(()=>{rail?.report({open,collapsed:layout.collapsed});},[rail,open,layout.collapsed]);
+  useLayoutEffect(()=>{rail?.report({open:open||rendered,collapsed:layout.collapsed});},[rail,open,rendered,layout.collapsed]);
   useLayoutEffect(()=>()=>rail?.report(null),[rail]);
   useEffect(()=>{const timer=setTimeout(()=>writeLayout(id,layout),120);return()=>clearTimeout(timer);},[id,layout,writeLayout]);
   useLayoutEffect(()=>{
@@ -61,7 +61,14 @@ export function FloatingWindow({id,title,children,open=true,onClose,anchor='top-
   },[id,open]);
   useLayoutEffect(()=>{
     const wasOpen=previousOpen.current;previousOpen.current=open;
-    if(!open){entrance.current?.cancel();stopInteraction.current();if(wasOpen&&shell.current?.contains(document.activeElement)&&opener.current?.isConnected)opener.current.focus({preventScroll:true});return;}
+    if(!open){
+      entrance.current?.cancel();stopInteraction.current();if(wasOpen&&shell.current?.contains(document.activeElement)&&opener.current?.isConnected)opener.current.focus({preventScroll:true});
+      const animation=wasOpen&&!reducedMotion()&&shell.current?.closest('.app-shell')?.getAttribute('data-panel-animations')!=='false'?animateTask(shell.current,[{opacity:1,transform:'translateY(0) scale(1)'},{opacity:0,transform:'translateY(4px) scale(.99)'}],120):undefined;
+      if(!animation){setRendered(false);return;}
+      let active=true;void animation.finished.then(()=>{if(active)setRendered(false);}).catch(()=>{});
+      return()=>{active=false;animation.cancel();};
+    }
+    setRendered(true);
     update(current.current);
     if(wasOpen)return;
     if(wasOpen===false)opener.current=document.activeElement instanceof HTMLElement?document.activeElement:null;
@@ -154,7 +161,7 @@ export function FloatingWindow({id,title,children,open=true,onClose,anchor='top-
     stopInteraction.current=finish;window.addEventListener('pointermove',move);window.addEventListener('pointerup',finish);window.addEventListener('pointercancel',finish);window.addEventListener('blur',finish);
   };
   const style:CSSProperties={left:layout.x,top:layout.y,width:layout.width,height:layout.collapsed?FLOATING_COLLAPSED_HEIGHT:layout.height,zIndex:layer};
-  return <section ref={shell} hidden={!open} className={`floating-window ${className}`} data-floating-id={id} data-floating={layout.floating===true||!rail} data-axis={minimizeOnly?'none':'both'} data-minimize-only={minimizeOnly} data-collapsed={layout.collapsed} data-interacting={interacting} data-adjusting={adjusting} style={style} aria-label={ariaLabel??`${title} window`} onFocusCapture={()=>bringForward(id)} onPointerDownCapture={()=>{entrance.current?.cancel();bringForward(id);}} onKeyDownCapture={()=>entrance.current?.cancel()} onKeyDown={event=>{
+  return <section ref={shell} hidden={!open&&!rendered} inert={!open} aria-hidden={!open} className={`floating-window ${className}`} data-floating-id={id} data-floating={layout.floating===true||!rail} data-axis={minimizeOnly?'none':'both'} data-minimize-only={minimizeOnly} data-collapsed={layout.collapsed} data-interacting={interacting} data-adjusting={adjusting} style={style} aria-label={ariaLabel??`${title} window`} onFocusCapture={()=>bringForward(id)} onPointerDownCapture={()=>{entrance.current?.cancel();bringForward(id);}} onKeyDownCapture={()=>entrance.current?.cancel()} onKeyDown={event=>{
     if(event.defaultPrevented||event.nativeEvent.isComposing||event.key!=='Escape')return;
     event.preventDefault();event.stopPropagation();if(minimizeOnly){if(!current.current.collapsed)collapse(true);}else if(escapeBehavior==='collapse'&&!current.current.collapsed)collapse(true);else close();
   }}>

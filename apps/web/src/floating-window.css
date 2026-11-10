@@ -1,4 +1,4 @@
-.floating-window {position:fixed;display:flex;flex-direction:column;overflow:hidden;min-width:0;background:var(--surface);color:var(--text);border-radius:13px;box-shadow:0 10px 40px #10121a24,0 0 0 1px var(--border);font-size:12px;transition:left 240ms cubic-bezier(.2,.85,.2,1.04),top 240ms cubic-bezier(.2,.85,.2,1.04),width 240ms cubic-bezier(.2,.85,.2,1.04),height 240ms cubic-bezier(.2,.85,.2,1.04);}
+.floating-window {position:fixed;display:flex;flex-direction:column;overflow:hidden;min-width:0;background:var(--surface);color:var(--text);border-radius:13px;box-shadow:0 10px 40px #10121a24,0 0 0 1px var(--border);font-size:12px;transition:left 240ms cubic-bezier(.2,.8,.2,1),top 240ms cubic-bezier(.2,.8,.2,1),width 240ms cubic-bezier(.2,.8,.2,1),height 240ms cubic-bezier(.2,.8,.2,1);}
 .floating-window[hidden] {display:none;}
 .floating-window[data-interacting=true] {transition:none;}
 .floating-window[data-adjusting=true] {transition:none;}

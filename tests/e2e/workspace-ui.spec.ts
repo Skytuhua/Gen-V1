@@ -55,6 +55,38 @@ async function fixture(page:Page,panels:PanelPlacement[],beforeCommand?:(type:st
  return {...host,envelope};
 }
 
+test('canvas chat does not offer a live usage launcher without a usage surface',async({page})=>{
+ await fixture(page,[panel('chat-origin','task-thread',24)]);
+ const chat=page.locator('[data-panel-id="chat-origin"]');
+ await expect(chat.getByRole('textbox',{name:'Message',exact:true})).toBeVisible();
+ await expect(chat.getByRole('button',{name:'Show live usage',exact:true})).toHaveCount(0);
+});
+
+test('workspace layout choices form a labeled group separate from tools',async({page})=>{
+ await fixture(page,[],undefined,'workspace');const layouts=page.getByRole('group',{name:'Workspace layouts',exact:true});
+ await expect(layouts.getByRole('button',{name:'Workspace',exact:true})).toHaveAttribute('aria-pressed','true');
+ await expect(layouts.getByRole('button',{name:'Research',exact:true})).toBeVisible();
+ await expect(layouts.getByRole('button',{name:'Profiles',exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'Profiles',exact:true})).toBeVisible();
+});
+
+test('workspace menus close with motion and return keyboard focus',async({page})=>{
+ await page.emulateMedia({reducedMotion:'no-preference'});
+ await page.addInitScript(()=>{const original=Element.prototype.animate;(window as any).__menuExits=[];Element.prototype.animate=function(frames,options){const animation=original.call(this,frames,options);if(this.classList.contains('workspace-menu')&&Array.isArray(frames)&&frames.at(-1)?.opacity===0)(window as any).__menuExits.push(animation.finished.catch(()=>{}));return animation;};});
+ await fixture(page,[],undefined,'workspace');const button=page.getByRole('button',{name:'Panels',exact:true});await button.click();
+ const menu=page.locator('.workspace-menu').filter({hasText:'Panel types'});await expect(menu).toBeVisible();await page.keyboard.press('Escape');
+ await expect(button).toBeFocused();await expect(menu).toHaveAttribute('inert','');await expect.poll(()=>page.evaluate(()=>(window as any).__menuExits.length)).toBe(1);
+ await page.keyboard.press('Enter');await page.evaluate(async()=>{await Promise.allSettled((window as any).__menuExits);});await expect(menu).toBeVisible();
+ await page.keyboard.press('Escape');await expect.poll(()=>page.evaluate(()=>(window as any).__menuExits.length)).toBe(2);
+ await page.evaluate(async()=>{await Promise.allSettled((window as any).__menuExits);});await expect(menu).toBeHidden();
+});
+
+test('workspace menus close immediately with reduced motion',async({page})=>{
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await page.addInitScript(()=>{const original=Element.prototype.animate;(window as any).__menuMotion=0;Element.prototype.animate=function(frames,options){if(this.classList.contains('workspace-menu'))(window as any).__menuMotion++;return original.call(this,frames,options);};});
+ await fixture(page,[],undefined,'workspace');const button=page.getByRole('button',{name:'Panels',exact:true});await button.click();
+ await page.keyboard.press('Escape');await expect(button).toBeFocused();await expect(page.locator('.workspace-menu')).toHaveCount(0);expect(await page.evaluate(()=>(window as any).__menuMotion)).toBe(0);
+});
+
 test('primary Workspace shows added tools and preserves its chat draft through pin hide and reload',async({page})=>{
  const host=await fixture(page,[],undefined,'workspace'),draft=page.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Keep the primary draft');
  await page.getByRole('button',{name:'Panels',exact:false}).click();await page.getByRole('button',{name:'Add Files panel',exact:true}).click();
