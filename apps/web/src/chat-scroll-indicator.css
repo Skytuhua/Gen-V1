@@ -1,9 +1,0 @@
-.conversation-frame{position:relative;display:flex;flex:1;min-width:0;min-height:0}
-.conversation-frame>.conversation-scroll{width:100%;scrollbar-width:none}
-.conversation-frame>.conversation-scroll::-webkit-scrollbar{display:none;width:0;height:0}
-.chat-scroll-indicator{position:absolute;inset:8px auto 8px 2px;width:24px;z-index:2;touch-action:none;cursor:pointer;outline-offset:-2px}
-.chat-scroll-indicator[data-scrollable=false]{visibility:hidden;pointer-events:none}
-.chat-scroll-track,.chat-scroll-thumb{position:absolute;top:0;bottom:0;left:8px;width:7px;background:repeating-linear-gradient(to bottom,var(--border) 0 2px,transparent 2px 5px);pointer-events:none}
-.chat-scroll-thumb{bottom:auto;background:repeating-linear-gradient(to bottom,var(--muted) 0 2px,transparent 2px 5px);will-change:transform;pointer-events:auto}
-.chat-scroll-indicator:hover .chat-scroll-thumb,.chat-scroll-indicator:focus-visible .chat-scroll-thumb{background:repeating-linear-gradient(to bottom,var(--text) 0 2px,transparent 2px 5px)}
-@media(max-width:700px){.chat-scroll-indicator{left:0;width:20px}.chat-scroll-track,.chat-scroll-thumb{left:5px;width:6px}.conversation-frame>.conversation-scroll{padding-left:12px}}
