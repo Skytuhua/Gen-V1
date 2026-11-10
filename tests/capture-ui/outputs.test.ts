@@ -18,6 +18,9 @@ function fixture(ids: readonly string[] = ['plugin-frame']) {
 const check = (f: ReturnType<typeof fixture>) => verifyCaptureOutputs(f.manifest, f.motion, f.reduced, f.strips);
 
 describe('capture output verification', () => {
+  it('includes the primary WO-5 desktop width without dropping existing widths', () => {
+    expect(captureWidths).toEqual([375, 768, 1024, 1440]);
+  });
   it('accepts complete output with captured, identical, and justified skipped cells', () => {
     const f = fixture(['plugin-frame', 'side-chat']);
     f.manifest.entries[0] = {...f.manifest.entries[0], status: 'identical-to-default'};

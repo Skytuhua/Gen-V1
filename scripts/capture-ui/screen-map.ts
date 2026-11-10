@@ -1,5 +1,5 @@
 export const keyStates = ['default', 'hover', 'focus', 'open', 'empty', 'error', 'loading'] as const;
-export const captureWidths = [375, 768, 1440] as const;
+export const captureWidths = [375, 768, 1024, 1440] as const;
 // WO-1.1b renderer additions: these require output-level state coverage, not
 // merely a registry mapping. Keep this explicit so reordering cannot hide one.
 export const requiredOutputScreenIds = [
