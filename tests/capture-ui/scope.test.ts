@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { discover, parseFilePaths, parseGitLog, type Run } from '../../scripts/capture-ui/scope';
+import { discover, resolveScope, parseFilePaths, parseGitLog, type Run } from '../../scripts/capture-ui/scope';
 
 vi.mock('node:child_process', () => ({ execFileSync: () => { throw Error('Unexpected real command'); } }));
 
@@ -49,6 +49,11 @@ describe('scope parsers', () => {
 });
 
 describe('scope discovery', () => {
+  it('does not invoke git or gh for baseline or explicit screen overrides', () => {
+    const unavailable: Run = () => {throw Error('not a git checkout');};
+    expect(resolveScope({scope:'baseline', screens:[], sinceDays:30}, unavailable).source).toBe('baseline');
+    expect(resolveScope({scope:'all', screens:['plugin-frame'], sinceDays:30}, unavailable).source).toBe('explicit-screens');
+  });
   it('keeps gh PRs and always appends the current branch with all local file sources', () => {
     const { run } = fakeRun({ [ghCommand]: JSON.stringify([merged]), ...branchResponses });
     const scope = discover(30, run, now);
@@ -90,25 +95,24 @@ describe('scope discovery', () => {
     expect(discover(30, run, now).pulls.map(pull => pull.title)).toEqual(['current branch work/ui-capture']);
   });
 
-  it('keeps readable local files when the origin comparison fails', () => {
+  it('fails rather than silently omitting changes when the origin comparison fails', () => {
     const { run } = fakeRun({
       [ghCommand]: '[]', ...branchResponses,
       'git diff --name-only -z origin/main...HEAD': Error('unknown origin/main'),
     });
-    const scope = discover(30, run, now);
-    expect(scope.pulls[0].files.map(file => file.path)).toEqual([
-      'docs/branch.md', 'docs/unstaged.md', 'docs/staged.md', 'docs/new file.md',
-    ]);
-    expect(scope.warnings.some(warning => warning.includes('unknown origin/main'))).toBe(true);
+    expect(() => discover(30, run, now)).toThrow(/branch diff.*unknown origin\/main/);
   });
 
-  it('returns a branch placeholder and warnings when gh and git are missing', () => {
+  it('fails when gh and git history discovery are unavailable', () => {
     const run: Run = cmd => { throw Error(`${cmd} ENOENT`); };
-    const scope = discover(30, run, now);
-    expect(scope.source).toBe('unavailable');
-    expect(scope.pulls).toHaveLength(1);
-    expect(scope.pulls[0]).toMatchObject({ title: 'current branch unknown', number: null, files: [] });
-    expect(scope.warnings.some(warning => warning.includes('gh ENOENT'))).toBe(true);
-    expect(scope.warnings.some(warning => warning.includes('git ENOENT'))).toBe(true);
+    expect(() => discover(30, run, now)).toThrow(/git history.*git ENOENT/);
+  });
+
+  it('fails if a discovered commit cannot be inspected', () => {
+    const { run } = fakeRun({ [ghCommand]: Error('gh unavailable'), ...branchResponses,
+      'git log origin/main --first-parent --since-as-filter=2026-10-10T00:00:00Z --format=%H%x09%cI%x09%s': 'aaa\t2026-11-08\tSquash (#1)',
+      'git diff-tree --no-commit-id --name-only -z -r aaa^1 aaa': Error('missing parent'),
+    });
+    expect(() => discover(30, run, now)).toThrow(/files unavailable.*missing parent/);
   });
 });

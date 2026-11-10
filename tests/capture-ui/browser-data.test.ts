@@ -13,6 +13,14 @@ it('provides real source records for side history, memory, and skills without cr
   expect(snapshot.memory?.[0].content).toBeTruthy(); expect(snapshot.skills?.[0].name).toBeTruthy();
   expect(browserApiResponse(new URL('http://local/api/artifacts/test/credentials/token'))).toEqual({present:false,version:0,expiresAt:null});
 });
+it('provides terminal responses for the actual requested session, including empty output', () => {
+  const url = new URL('http://local/api/terminals');
+  const session = browserApiResponse(url, {terminalId:'capture-terminal-second'}) as {id: string; output: string; cursor: number};
+  expect(session.id).toBe('capture-terminal-second');
+  expect(session.output).toContain('second session');
+  expect(session.cursor).toBe(session.output.length);
+  expect(browserApiResponse(url, {terminalId:session.id}, true)).toMatchObject({id:session.id, output:'', cursor:0});
+});
 it('loads the trusted plugin runtime after its root and gates iframe load on port acceptance', () => {
   const html = pluginDocument();
   expect(html.indexOf('id="root"')).toBeLessThan(html.indexOf('src="/capture-plugin/runtime.js"'));

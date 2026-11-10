@@ -4,17 +4,17 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { resolve, join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { aggregate, parseArgs, normalizeMotion, isReducedOffender, motionKey, table, hasDistinctRecipe, imageStatus, coverageMatrix, type Motion, type CaptureEntry } from './helpers';
-import { screens, keyStates, type Action } from './screen-map';
-import { discover } from './scope';
+import { parseArgs, normalizeMotion, isReducedOffender, motionKey, table, hasDistinctRecipe, imageStatus, coverageMatrix, type Motion, type CaptureEntry } from './helpers';
+import { screens, keyStates, captureWidths, type Action } from './screen-map';
+import { resolveScope } from './scope';
 import { collect, frameStrip } from './browser';
 import { apiResponse } from './api';
 import { shellSnapshot, shellRoute, shellInit } from './shell-api';
-import { scopeMarkdown, skipEntry } from './reports';
-import { captureExitCode, mergeMotionRecords, stripMotionErrors, closeAll, retryNavigation, loadWithReadiness, isSameOriginWebSocket, type StripMotionReference, type CaptureOutcome } from './runtime-helpers';
+import { scopeMarkdown, skipEntry, reducedMotionMarkdown } from './reports';
+import { captureExitCode, mergeMotionRecords, verifyCaptureOutputs, canCaptureStrip, closeAll, retryNavigation, loadWithReadiness, isSameOriginWebSocket, withDeadline, settlePool, type StripMotionReference, type CaptureOutcome } from './runtime-helpers';
 import { browserApiResponse } from './browser-data';
 import { taskAssetResponse } from './task-assets';
-import { createTaskSnapshot, taskSurface } from './task-data';
+import { createTaskSnapshot, taskSurface, TASK_RESOURCE_IDS } from './task-data';
 import { pluginDocument, pluginAssets } from './plugin-assets';
 import { captureServerOptions, warmPdfCapture } from './server-startup';
 
@@ -23,10 +23,11 @@ type StripEntry = StripMotionReference & CaptureOutcome & { path?: string; reaso
 async function main() {
   const started = performance.now();
   const args = parseArgs(process.argv.slice(2));
-  const scope = args.scope === 'baseline' ? { ...aggregate([]), source: 'baseline', warnings: [] } : discover(args.sinceDays);
+  const scope = resolveScope(args);
   const ids = args.screens.length ? args.screens : args.scope === 'diff' ? scope.screens : screens.map(s => s.id);
   for (const id of ids) if (!screens.some(s => s.id === id)) throw Error(`Unknown screen ${id}`);
   const selected = screens.filter(s => ids.includes(s.id));
+  const requirePluginEvidence = selected.some(screen => screen.id === 'plugin-frame');
   const out = resolve(args.out || `artifacts/ui-capture/${new Date().toISOString().replaceAll(':', '-')}`);
   await Promise.all(['strips', 'screenshots'].map(dir => mkdir(resolve(out, dir), { recursive: true })));
   const json = (name: string, data: unknown) => writeFile(resolve(out, `${name}.json`), JSON.stringify(data, null, 2));
@@ -35,6 +36,8 @@ async function main() {
   await md('scope', scopeMarkdown(scope));
   const entries: CaptureEntry[] = [], stripEntries: StripEntry[] = [];
   let motion: Motion[] = [], reduced: Motion[] = [];
+  let stripReservations = 0;
+  let pluginIframeStripReserved = false;
   const runErrors: string[] = [];
   const readinessRetries: { screen: string; state: string; width: number; reduced: boolean }[] = [];
   const seen = new Set<string>(), defaults = new Map<string, string>();
@@ -55,8 +58,13 @@ async function main() {
     // The actual application uses its own unchanged root config and page /.
     const appBase = process.env.BASE_URL ?? (selected.some(s => s.id === 'app-shell') ? await start('tests/e2e/vite.config.ts', 'app-shell') : '');
     browser = await chromium.launch({ headless: true });
-    const tile = await browser.newPage({ viewport: { width: 1200, height: 500 } });
-    for (const screen of selected) for (const width of [375, 768, 1440]) for (const state of keyStates) {
+    const captureBrowser = browser;
+    // States stay ordered per viewport, so identity checks have their default.
+    // A bounded pool avoids idle workers behind a screen with many slow states.
+    const jobs = selected.flatMap(screen => captureWidths.map(width => ({screen, width})));
+    const viewports = await settlePool(jobs, 6, async ({screen, width}) => {
+      const tile = await captureBrowser.newPage({ viewport: { width: 1200, height: 500 } });
+      try { for (const state of keyStates) {
       const recipe = screen.states[state];
       if (!recipe || recipe.skip) {
         entries.push(skipEntry(screen.id, state, width, recipe?.skip ?? (state === 'loading' ? 'Synchronous fixture: no fetch/loading query boundary' : 'No reachable state recipe in the existing fixture')));
@@ -74,7 +82,7 @@ async function main() {
         const held = new Promise<void>(resolve => { release = resolve; });
         let releasePlugin!: () => void;
         const pluginConnected = new Promise<void>(resolve => { releasePlugin = resolve; });
-        const context = await browser.newContext({ viewport: { width, height: 1000 }, reducedMotion: reduce ? 'reduce' : 'no-preference', serviceWorkers: screen.id === 'plugin-frame' ? 'allow' : 'block' });
+        const context = await captureBrowser.newContext({ viewport: { width, height: 1000 }, reducedMotion: reduce ? 'reduce' : 'no-preference', serviceWorkers: screen.id === 'plugin-frame' ? 'allow' : 'block' });
         const snapshot = shellSnapshot(recipe.api === 'empty');
         const errors: string[] = [];
         try {
@@ -85,7 +93,7 @@ async function main() {
           const page = await context.newPage();
           page.setDefaultTimeout(10000);
           // tsx's function-name helper must also exist in evaluated Chromium callbacks.
-          await page.addInitScript({ content: `
+          await context.addInitScript({ content: `
             globalThis.__name = (fn) => fn;
             ${screen.id === 'plugin-frame' ? `try { const sw = navigator.serviceWorker; if (sw) Object.defineProperty(sw, 'register', { value: () => Promise.reject(new Error('Capture does not start service workers')) }); } catch { /* Opaque sandbox already forbids service workers. */ }` : ''}
             globalThis.captureTracked = new Set();
@@ -114,11 +122,11 @@ async function main() {
             if (recipe.api === 'error' && url.pathname !== '/api/bootstrap') return route.fulfill({ status: 503, json: { error: { code: 'CAPTURE_503', message: 'Synthetic data unavailable. Retry.' } } });
             if (url.pathname.startsWith('/api/resources/') && url.pathname.endsWith('/content')) {
               const asset = await taskAssetResponse(decodeURIComponent(url.pathname.split('/')[3]));
-              if (asset) return route.fulfill({ contentType: asset.contentType, body: typeof asset.body === 'string' ? asset.body : Buffer.from(asset.body) });
+              if (asset) return route.fulfill({ contentType: asset.contentType, body: recipe.api === 'empty' && decodeURIComponent(url.pathname.split('/')[3]) === TASK_RESOURCE_IDS.document ? '' : typeof asset.body === 'string' ? asset.body : Buffer.from(asset.body) });
             }
-            if (screen.entry?.endsWith('task-surfaces.tsx') && url.pathname === '/api/snapshot') return route.fulfill({ json: createTaskSnapshot(taskSurface(new URLSearchParams(recipe.query).get('surface'))) });
+            if (screen.entry?.endsWith('task-surfaces.tsx') && url.pathname === '/api/snapshot') return route.fulfill({ json: createTaskSnapshot(taskSurface(new URLSearchParams(recipe.query).get('surface')), recipe.api === 'empty') });
             const payload = route.request().method() === 'POST' ? route.request().postDataJSON() as Record<string, unknown> : undefined;
-            const browserResponse = screen.entry?.endsWith('browser-surfaces.tsx') ? browserApiResponse(url, payload) : undefined;
+            const browserResponse = screen.entry?.endsWith('browser-surfaces.tsx') ? browserApiResponse(url, payload, recipe.api === 'empty') : undefined;
             if (browserResponse !== undefined) return route.fulfill({ json: browserResponse });
             const response = apiResponse(url, false, recipe.api === 'empty');
             if (response) return route.fulfill({ json: response });
@@ -140,17 +148,19 @@ async function main() {
           if (errors.length) throw Error(errors.join('; '));
           loaded = true;
           const initial = (await collect(page, screen.id, `${state}:load`, width, true)).map(normalizeMotion);
-          const actions: Action[] = recipe.steps ?? (recipe.selector && recipe.action ? [{ selector: recipe.selector, action: recipe.action, key: recipe.key }] : []);
+          if (recipe.event) await page.evaluate(({name, detail}) => window.dispatchEvent(new CustomEvent(name, {detail})), recipe.event);
+          const actions: Action[] = recipe.steps ?? (recipe.selector && recipe.action ? [{ selector: recipe.selector, action: recipe.action, key: recipe.key, value: recipe.value, frame: recipe.frame }] : []);
           for (const action of actions) {
-            const target = page.locator(action.selector).first();
+            const target = (action.frame ? page.frameLocator(action.frame) : page).locator(action.selector).first();
             if (action.optional && !await target.isVisible()) continue;
             if (action.action === 'press') await target.press(action.key ?? 'Enter', { timeout: 4000 });
+            else if (action.action === 'fill') await target.fill(action.value ?? '', { timeout: 4000 });
             else await target[action.action]({ timeout: 4000 });
           }
-          if (recipe.waitFor) await page.locator(recipe.waitFor).first().waitFor({ timeout: 4000 });
+          if (recipe.waitFor) await (recipe.frame ? page.frameLocator(recipe.frame) : page).locator(recipe.waitFor).first().waitFor({ timeout: 4000 });
           if (recipe.waitMs) await page.waitForTimeout(recipe.waitMs);
           if (recipe.api === 'loading') await Promise.race([holdStarted, page.waitForTimeout(4000).then(() => { throw Error('Loading recipe did not intercept a data request'); })]);
-          await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => resolve())));
+          await withDeadline(page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => resolve()))), 5000, 'Post-action animation frame');
           const records = (await collect(page, screen.id, state, width, true)).map(normalizeMotion);
           if (errors.length) throw Error(errors.join('; '));
           if (reduce) reduced = mergeMotionRecords(reduced, initial, records);
@@ -170,10 +180,14 @@ async function main() {
               const record = stripRecords[i], key = motionKey(record);
               if (seen.has(key)) continue;
               seen.add(key);
-              if (stripEntries.filter(s => s.status === 'captured').length >= args.maxStrips) { stripEntries.push({ screen: screen.id, state, width, selector: record.selector, motionKey: key, status: 'skipped', reason: 'max-strips cap', declaredSkip: true }); continue; }
+              const pluginCandidate = record.screen === 'plugin-frame' && record.frame !== 'main' && Boolean(record.frame.trim());
+              const needsPluginIframe = requirePluginEvidence && !pluginIframeStripReserved;
+              if (!canCaptureStrip(stripReservations, args.maxStrips, needsPluginIframe, pluginCandidate)) { stripEntries.push({ screen: screen.id, state, width, frame: record.frame, selector: record.selector, motionKey: key, status: 'skipped', reason: needsPluginIframe && args.maxStrips > 0 ? 'max-strips cap (one slot reserved for plugin iframe evidence)' : 'max-strips cap', declaredSkip: true }); continue; }
+              stripReservations++;
+              if (pluginCandidate) pluginIframeStripReserved = true;
               const path = `strips/${String(seen.size).padStart(3, '0')}-${screen.id}.png`;
-              try { await frameStrip(page, tile, i, resolve(out, path)); stripEntries.push({ screen: screen.id, state, width, selector: record.selector, motionKey: key, path, status: 'captured' }); }
-              catch (error) { stripEntries.push({ screen: screen.id, state, width, selector: record.selector, motionKey: key, status: 'failed', code: 'F', reason: String(error), optional: recipe.optional }); }
+              try { await frameStrip(page, tile, i, resolve(out, path)); stripEntries.push({ screen: screen.id, state, width, frame: record.frame, selector: record.selector, motionKey: key, path, status: 'captured' }); }
+              catch (error) { stripEntries.push({ screen: screen.id, state, width, frame: record.frame, selector: record.selector, motionKey: key, status: 'failed', code: 'F', reason: String(error), optional: recipe.optional }); }
             }
           }
         } catch (error) {
@@ -187,7 +201,9 @@ async function main() {
         }
       }
       console.log(`${screen.id}/${state}/${width}`);
-    }
+      } } finally { runErrors.push(...await closeAll([{name: `${screen.id}/${width} strip tiler`, close: () => tile.close()}])); }
+    });
+    viewports.forEach((result, index) => {if (result.status === 'rejected') runErrors.push(`${jobs[index].screen.id}/${jobs[index].width}: ${String(result.reason)}`);});
   } catch (error) { runErrors.push(String(error)); }
   finally {
     runErrors.push(...await closeAll([
@@ -196,7 +212,11 @@ async function main() {
     ]));
     if (cacheRoot) runErrors.push(...await closeAll([{ name: 'Vite optimizer cache', close: () => rm(cacheRoot!, { recursive: true, force: true }) }]));
   }
-  runErrors.push(...stripMotionErrors(stripEntries, motion));
+  const outputManifest = {screens: selected.map(screen => screen.id), widths: captureWidths, entries};
+  const offenders = reduced.filter(isReducedOffender);
+  const reducedReport = {thresholdMs: 1, records: reduced, offenders};
+  const outputErrors = verifyCaptureOutputs(outputManifest, motion, reducedReport, stripEntries);
+  runErrors.push(...outputErrors.map(reason => `Output check: ${reason}`));
   if (scope.unmapped.length) runErrors.push(`Unmapped renderer files: ${scope.unmapped.join(', ')}`);
   const exitCode = captureExitCode(entries, stripEntries, runErrors);
   const failed = exitCode !== 0;
@@ -205,15 +225,14 @@ async function main() {
     ...stripEntries.filter(e => captureExitCode([], [e]) !== 0),
     ...runErrors.map(reason => ({ status: 'failed', code: 'F', reason })),
   ];
-  const offenders = reduced.filter(isReducedOffender);
   const totals = { screens: selected.length, screenshots: entries.filter(e => e.status === 'captured').length, identicalToDefault: entries.filter(e => e.status === 'identical-to-default').length, motionRows: motion.length, uniqueAnimations: new Set(motion.map(motionKey)).size, strips: stripEntries.filter(e => e.status === 'captured').length, reducedMotionOffendersUnique: new Set(offenders.map(motionKey)).size, reducedMotionOffendersTotal: offenders.length };
   const matrix = coverageMatrix(selected.map(s => s.id), entries);
-  const manifest = { scope: args.scope, screens: selected.map(s => s.id), widths: [375, 768, 1440], desktopOnly: scope.desktopOnly, desktopNote: 'Native desktop surfaces are not captured by the web harness.', totals, screenshots: totals.screenshots, motionRecords: motion.length, reducedMotionOffenders: offenders.length, coverage: matrix, strips: stripEntries, entries, failed, failures, readinessRetries, runtimeSeconds: Math.round((performance.now() - started) / 1000) };
+  const manifest = { scope: args.scope, ...outputManifest, desktopOnly: scope.desktopOnly, desktopNote: 'Native desktop surfaces are not captured by the web harness.', totals, screenshots: totals.screenshots, motionRecords: motion.length, reducedMotionOffenders: offenders.length, coverage: matrix, strips: stripEntries, outputCheck: {passed: outputErrors.length === 0, errors: outputErrors}, failed, failures, readinessRetries, runtimeSeconds: Math.round((performance.now() - started) / 1000) };
   await Promise.all([
     json('motion', motion), md('motion', '# Motion\n\n' + table(motion.map(({ keyframes: _frames, ...m }) => m))),
-    json('reduced-motion', { thresholdMs: 1, records: reduced, offenders }), md('reduced-motion', '# Reduced motion offenders (>1ms)\n\n' + table(offenders.map(({ keyframes: _frames, ...m }) => m))),
+    json('reduced-motion', reducedReport), md('reduced-motion', reducedMotionMarkdown(reducedReport)),
     json('manifest', manifest),
-    md('index', `# UI capture\n\n${table([totals])}\nRuntime: ${manifest.runtimeSeconds}s. Readiness reloads: ${readinessRetries.length}.\n\n## Coverage matrix\n\nCells list captured widths. U = unsupported/explicit exclusion; E = empty recipe; I = identical to default; F = state action failure; L = screen load failure. Codes are followed by viewport width. Full reasons below and in manifest.json.\n\n${table(matrix)}\n${manifest.desktopNote}\n\n[Scope](scope.md) · [Motion](motion.md) · [Reduced motion](reduced-motion.md) · [Manifest](manifest.json)\n\n## Failures\n\n${table(failures)}\n## State outcomes and skipped reasons\n\n${table(entries.map(e => ({ screen: e.screen, state: e.state, width: e.width, reduced: e.reduced ?? false, status: e.status, path: e.path ?? '', reason: e.reason ?? '' })))}\n## Frame strips\n\n${table(stripEntries)}`),
+    md('index', `# UI capture\n\n${table([totals])}\nRuntime: ${manifest.runtimeSeconds}s. Readiness reloads: ${readinessRetries.length}.\n\n## Coverage matrix\n\nCells list captured widths. U = unsupported/explicit exclusion; E = empty recipe; I = identical to default; F = state action failure; L = screen load failure. Codes are followed by viewport width. Full reasons below and in manifest.json.\n\n${table(matrix)}\n${manifest.desktopNote}\n\n[Scope](scope.md) · [Motion](motion.md) · [Reduced motion](reduced-motion.md) · [Manifest](manifest.json)\n\n## Output checks\n\n${outputErrors.length ? table(outputErrors.map(reason => ({code: 'F', reason}))) : 'Passed. Iframe motion/strip/reduced-motion evidence and required state/width outcomes are complete.\n'}\n## Failures\n\n${table(failures)}\n## State outcomes and skipped reasons\n\n${table(entries.map(e => ({ screen: e.screen, state: e.state, width: e.width, reduced: e.reduced ?? false, status: e.status, path: e.path ?? '', reason: e.reason ?? '' })))}\n## Frame strips\n\n${table(stripEntries)}`),
   ]);
   console.log(`Capture written to ${out} (${manifest.runtimeSeconds}s)`);
   process.exitCode = exitCode;

@@ -1,7 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { aggregate, parseArgs, normalizeMotion, isReducedOffender, motionKey, type Motion, hasDistinctRecipe, imageStatus, coverageMatrix } from '../../scripts/capture-ui/helpers';
+import { aggregate, parseArgs, normalizeMotion, isReducedOffender, motionKey, frameTag, paddedClip, type Motion, hasDistinctRecipe, imageStatus, coverageMatrix } from '../../scripts/capture-ui/helpers';
 import { mapFile, screens, keyStates } from '../../scripts/capture-ui/screen-map';
-const motion: Motion = { screen: 'workspace', state: 'default', width: 375, selector: 'button', type: 'CSSAnimation', animationName: 'enter', transitionProperty: '', properties: ['opacity', 'transform', 'opacity'], duration: 100, delay: 0, easing: 'ease', iterations: 1, fill: 'both', keyframes: [] };
+const motion: Motion = { screen: 'workspace', state: 'default', width: 375, frame: 'main', selector: 'button', type: 'CSSAnimation', animationName: 'enter', transitionProperty: '', properties: ['opacity', 'transform', 'opacity'], duration: 100, delay: 0, easing: 'ease', iterations: 1, fill: 'both', keyframes: [] };
+it('tags nested frames without volatile server ports or query parameters', () => {
+  expect(frameTag([], 'http://localhost:123/')).toBe('main');
+  expect(frameTag([0, 1], 'http://localhost:123/plugins/tools?nonce=123')).toBe('frame:0.1 /plugins/tools');
+  expect(frameTag([0, 1], 'http://localhost:987/plugins/tools?nonce=456')).toBe('frame:0.1 /plugins/tools');
+});
+it('clips translated frame bounds to the main viewport, retaining collapsed endpoints', () => {
+  expect(paddedClip({x: 90, y: 40, width: 30, height: 0}, {width:100, height:100})).toEqual({x:82, y:32, width:18, height:16});
+  expect(paddedClip({x: -10, y: -10, width: 20, height: 20}, {width:100, height:100})).toEqual({x:0, y:0, width:18, height:18});
+  expect(paddedClip({x:200, y:200, width:10, height:10}, {width:100, height:100})).toBeNull();
+});
 describe('file mapping', () => {
   it('accumulates shared matches and normalizes Windows paths', () => {
     expect(mapFile('apps\\web\\src\\App.tsx').screens).toContain('app-shell');

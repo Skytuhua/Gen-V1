@@ -1,7 +1,7 @@
 import {deflateSync, crc32} from 'node:zlib';
 import {ANNOTATION_REVIEW_IMAGE} from '../exploration-review-data';
 import {createSigningPdfFixture} from '../../tests/e2e/document-preview-fixture';
-import {TASK_RESOURCE_IDS} from './task-data';
+import {TASK_RESOURCE_IDS, TASK_DOCUMENT_TEXT} from './task-data';
 
 // Bounded deterministic source assets, served through the same resource URLs as real grants.
 function png(width: number, height: number, pixel: (x: number, y: number) => number[]): Uint8Array {
@@ -30,6 +30,7 @@ const signature = () => png(960, 320, (x, y) => {
 let pdf: Promise<Uint8Array> | undefined;
 const cached = new Map<string, Uint8Array>();
 export async function taskAssetResponse(id: string): Promise<{contentType: string; body: Uint8Array | string} | null> {
+  if (id === TASK_RESOURCE_IDS.document) return {contentType: 'text/plain; charset=utf-8', body: TASK_DOCUMENT_TEXT};
   if (id === TASK_RESOURCE_IDS.pdf) return {contentType: 'application/pdf', body: await (pdf ??= createSigningPdfFixture({pages: 1}))};
   if (id === TASK_RESOURCE_IDS.annotation) return {contentType: 'image/svg+xml', body: ANNOTATION_REVIEW_IMAGE};
   if (![TASK_RESOURCE_IDS.before, TASK_RESOURCE_IDS.after, TASK_RESOURCE_IDS.signature].includes(id as typeof TASK_RESOURCE_IDS.before)) return null;

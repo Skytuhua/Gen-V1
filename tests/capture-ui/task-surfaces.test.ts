@@ -44,6 +44,18 @@ describe('task renderer capture sources', () => {
     expect(next.userStates[0].values.name).toBe('Alex Morgan');
     expect(next.artifacts[0].spec!.elements.pdf.props.title).toBe('Synthetic service agreement.pdf');
   });
+  it('keeps empty source variants schema-valid without mutating the populated fixtures', () => {
+    const data = (surface: typeof TASK_SURFACES[number], name: string) => createTaskSnapshot(surface, true).data.find(row => row.id.endsWith(`-input-${name}`))!.value;
+    expect(INTERACTION_DATA_SCHEMAS.EditableTable.parse(data('interactions', 'records')).rows).toEqual([]);
+    expect(INTERACTION_DATA_SCHEMAS.ReviewQueue.safeParse(data('interactions', 'review')).success).toBe(true);
+    for (const [name, schema] of Object.entries(WORK_OBJECT_DATA_SCHEMAS)) expect(schema.safeParse(data('work-objects', name)).success, name).toBe(true);
+    for (const [name, schema] of Object.entries(SOFTWARE_DATA_SCHEMAS)) expect(schema.safeParse(data('software', name)).success, name).toBe(true);
+    expect(EXPLORATION_DATA_SCHEMAS.SchedulePicker.parse(data('exploration', 'schedule')).slots).toEqual([]);
+    expect(EXPLORATION_DATA_SCHEMAS.LogExplorer.parse(data('exploration', 'logs')).events).toEqual([]);
+    expect(EVERYDAY_DATA_SCHEMAS.Comparison.safeParse(data('everyday', 'comparison')).success).toBe(true);
+    expect(createTaskSnapshot('table-disclosure', true).data.find(row => row.id.endsWith('-input-rows'))?.value).toEqual([]);
+    expect(createTaskSnapshot('interactions').data.find(row => row.id.endsWith('-input-records'))?.value).not.toEqual(data('interactions', 'records'));
+  });
   it('supplies a bounded real PDF and a valid transparent signature PNG', async () => {
     const pdf = await taskAssetResponse(TASK_RESOURCE_IDS.pdf), signature = await taskAssetResponse(TASK_RESOURCE_IDS.signature);
     const document = await PDFDocument.load(pdf!.body as Uint8Array);

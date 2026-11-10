@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { resolveConfig } from 'vite';
 import { captureServerOptions, pdfPrebundleIncludes, pdfWarmupRequests, warmPdfCapture } from '../../scripts/capture-ui/server-startup';
 import { captureExitCode, loadWithReadiness } from '../../scripts/capture-ui/runtime-helpers';
@@ -33,6 +33,22 @@ it('surfaces PDF warmup errors rather than starting captures with broken workers
   const error = Error('worker transform failed');
   await expect(warmPdfCapture({transformRequest: async () => {throw error;}, waitForRequestsIdle: async () => {}}, ['worker'])).rejects.toBe(error);
   await expect(warmPdfCapture({transformRequest: async () => null, waitForRequestsIdle: async () => {}}, ['worker'])).rejects.toThrow('no module');
+});
+it('fails startup when PDF warmup exceeds its deadline', async () => {
+  vi.useFakeTimers();
+  try {
+    const result = expect(warmPdfCapture({transformRequest: () => new Promise(() => {}), waitForRequestsIdle: async () => {}}, ['worker'], 50)).rejects.toThrow('PDF warmup exceeded 50ms deadline');
+    await vi.advanceTimersByTimeAsync(50);
+    await result;
+  } finally { vi.useRealTimers(); }
+});
+it('also bounds the PDF optimizer-idle wait after module transforms have completed', async () => {
+  vi.useFakeTimers();
+  try {
+    const result = expect(warmPdfCapture({transformRequest: async () => ({code: 'compiled', map: null}), waitForRequestsIdle: () => new Promise(() => {})}, ['worker'], 50)).rejects.toThrow('PDF warmup exceeded 50ms deadline');
+    await vi.advanceTimersByTimeAsync(50);
+    await result;
+  } finally { vi.useRealTimers(); }
 });
 
 describe('heavy document readiness', () => {

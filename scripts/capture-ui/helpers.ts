@@ -35,7 +35,7 @@ export function aggregate(prs: PullRequest[]) {
     nonUi: unique.filter(f => f.category === 'nonUi').map(f => f.path) };
 }
 export function hasDistinctRecipe(recipe: Recipe, defaultRecipe?: Recipe) {
-  return Boolean(recipe.api || recipe.action || recipe.steps?.length || recipe.query && recipe.query !== defaultRecipe?.query);
+  return Boolean(recipe.api || recipe.event || recipe.action || recipe.steps?.length || recipe.query && recipe.query !== defaultRecipe?.query);
 }
 export type CaptureEntry = { screen: string; state: string; width: number; status: string; reason?: string; code?: string; path?: string; hash?: string; heldRequests?: number; reduced?: boolean; loadFailure?: boolean; optional?: boolean; declaredSkip?: boolean };
 export function imageStatus(defaultHash: string | undefined, hash: string) {
@@ -49,12 +49,22 @@ export function coverageMatrix(ids: string[], entries: CaptureEntry[]) {
     return [state, [...(captured.length ? [captured.join(',')] : []), ...other].join('; ') || 'U'];
   })]));
 }
-export type Motion = { screen: string; state: string; width: number; selector: string; type: string; animationName: string; transitionProperty: string; properties: string[]; duration: number; delay: number; easing: string; iterations: number | string; fill: string; keyframes: unknown[] };
+export type Motion = { screen: string; state: string; width: number; frame: string; selector: string; type: string; animationName: string; transitionProperty: string; properties: string[]; duration: number; delay: number; easing: string; iterations: number | string; fill: string; keyframes: unknown[] };
+export function frameTag(indices: readonly number[], url: string) {
+  if (!indices.length) return 'main';
+  const pathname = new URL(url).pathname;
+  return `frame:${indices.join('.')} ${pathname}`;
+}
+export function paddedClip(box: {x: number; y: number; width: number; height: number}, viewport: {width: number; height: number}, padding = 8) {
+  const x = Math.max(0, box.x - padding), y = Math.max(0, box.y - padding);
+  const right = Math.min(viewport.width, box.x + box.width + padding), bottom = Math.min(viewport.height, box.y + box.height + padding);
+  return right > x && bottom > y ? {x, y, width: right - x, height: bottom - y} : null;
+}
 export function normalizeMotion(record: Motion): Motion {
   return { ...record, properties: [...new Set(record.properties)].sort(), duration: Number.isFinite(Number(record.duration)) ? Math.max(0, Number(record.duration)) : 0, delay: Number(record.delay) || 0, iterations: record.iterations === Infinity ? 'Infinity' : record.iterations };
 }
 export function isReducedOffender(record: Motion) { return record.duration > 1 && (record.iterations === 'Infinity' || Number(record.iterations) > 0); }
-export function motionKey(m: Motion) { return JSON.stringify([m.screen, m.selector, m.type, m.animationName, m.transitionProperty, m.properties, m.duration, m.delay, m.easing, m.iterations, m.fill, m.keyframes]); }
+export function motionKey(m: Motion) { return JSON.stringify([m.screen, m.frame, m.selector, m.type, m.animationName, m.transitionProperty, m.properties, m.duration, m.delay, m.easing, m.iterations, m.fill, m.keyframes]); }
 export function table(rows: Record<string, unknown>[]) {
   if (!rows.length) return '_None._\n';
   const keys = Object.keys(rows[0]);

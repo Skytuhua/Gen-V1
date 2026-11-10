@@ -4,9 +4,9 @@ import {Artifact} from '../../apps/web/src/Artifact';
 import {createTaskSnapshot, taskSurface} from './task-data';
 import '../../apps/web/src/styles.css';
 
-const surface = taskSurface(new URLSearchParams(location.search).get('surface'));
+const query = new URLSearchParams(location.search), surface = taskSurface(query.get('surface'));
 function TaskCapture() {
-  const [snapshot, setSnapshot] = useState(() => createTaskSnapshot(surface));
+  const [snapshot, setSnapshot] = useState(() => createTaskSnapshot(surface, query.get('variant') === 'empty'));
   useEffect(() => {
     if (surface !== 'document-window') return;
     // Exercise the actual launcher; the window keeps its own focus, portal and editing behavior.

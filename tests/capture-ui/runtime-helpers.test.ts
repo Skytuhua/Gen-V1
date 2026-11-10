@@ -1,8 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { motionKey, type Motion } from '../../scripts/capture-ui/helpers';
-import { captureExitCode, closeAll, isSameOriginWebSocket, mergeMotionRecords, retryNavigation, stripMotionErrors, type CaptureOutcome } from '../../scripts/capture-ui/runtime-helpers';
+import { captureExitCode, closeAll, isSameOriginWebSocket, mergeMotionRecords, retryNavigation, stripMotionErrors, withDeadline, settlePool, frameMotionErrors, type CaptureOutcome } from '../../scripts/capture-ui/runtime-helpers';
 
-const motion: Motion = { screen: 'workspace', state: 'default', width: 375, selector: 'button', type: 'CSSAnimation', animationName: 'enter', transitionProperty: '', properties: ['opacity'], duration: 100, delay: 0, easing: 'ease', iterations: 1, fill: 'both', keyframes: [{ opacity: 0 }, { opacity: 1 }] };
+const motion: Motion = { screen: 'workspace', state: 'default', width: 375, frame: 'main', selector: 'button', type: 'CSSAnimation', animationName: 'enter', transitionProperty: '', properties: ['opacity'], duration: 100, delay: 0, easing: 'ease', iterations: 1, fill: 'both', keyframes: [{ opacity: 0 }, { opacity: 1 }] };
 
 describe('capture exit decision', () => {
   it.each<CaptureOutcome>([
@@ -34,6 +34,14 @@ describe('capture exit decision', () => {
 });
 
 describe('merged motion inventory', () => {
+  it('retains identical selectors and animation names from different frames', () => {
+    const main = {...motion, frame: 'main'}, child = {...motion, frame: 'frame:0 /plugins/tools'};
+    expect(motionKey(main)).not.toBe(motionKey(child));
+    expect(mergeMotionRecords([main, child, child])).toHaveLength(2);
+    expect(frameMotionErrors(['plugin-frame'], [{...main, screen: 'plugin-frame'}])).toHaveLength(1);
+    expect(frameMotionErrors(['plugin-frame'], [{...child, screen: 'plugin-frame'}])).toEqual([]);
+    expect(frameMotionErrors(['workspace'], [])).toEqual([]);
+  });
   it('dedupes repeated load, action, and strip samples without losing state or width', () => {
     const result = mergeMotionRecords(
       [motion, { ...motion, state: 'default:load' }],
@@ -70,6 +78,32 @@ describe('merged motion inventory', () => {
 });
 
 describe('resource cleanup', () => {
+  it('applies the default 10-second deadline independently to every stalled closer', async () => {
+    vi.useFakeTimers();
+    try {
+      let settled = false, released = false;
+      const closing = closeAll([
+        {name: 'first', close: () => new Promise(() => {})},
+        {name: 'second', close: () => new Promise(() => {})},
+        {name: 'third', close: () => {released = true;}},
+      ]).then(errors => {settled = true; return errors;});
+      await vi.advanceTimersByTimeAsync(9999);
+      expect(released).toBe(true);
+      expect(settled).toBe(false);
+      await vi.advanceTimersByTimeAsync(1);
+      expect(await closing).toEqual(['first: Error: first exceeded 10000ms deadline', 'second: Error: second exceeded 10000ms deadline']);
+    } finally { vi.useRealTimers(); }
+  });
+  it('times out a stalled closer while still attempting every other closer', async () => {
+    vi.useFakeTimers();
+    try {
+      const released: string[] = [];
+      const closing = closeAll([{name: 'stalled', close: () => new Promise(() => {})}, {name: 'server', close: () => {released.push('server');}}], 20);
+      await vi.advanceTimersByTimeAsync(20);
+      expect(released).toEqual(['server']);
+      expect(await closing).toEqual(['stalled: Error: stalled exceeded 20ms deadline']);
+    } finally { vi.useRealTimers(); }
+  });
   it('runs subsequent closers after a synchronous throw and surfaces every failure', async () => {
     const released: string[] = [];
     const errors = await closeAll([
@@ -84,6 +118,38 @@ describe('resource cleanup', () => {
   it('reports no cleanup errors when every resource closes', async () => {
     expect(await closeAll([{ name: 'server', close: async () => undefined }])).toEqual([]);
   });
+});
+
+describe('operation deadlines', () => {
+  it('settles success and failure and cancels the deadline timer', async () => {
+    vi.useFakeTimers();
+    try {
+      expect(await withDeadline(Promise.resolve('ok'), 50, 'ready')).toBe('ok');
+      await expect(withDeadline(Promise.reject(Error('broken')), 50, 'ready')).rejects.toThrow('broken');
+      expect(vi.getTimerCount()).toBe(0);
+      const result = expect(withDeadline(new Promise(() => {}), 50, 'animation frame')).rejects.toThrow('animation frame exceeded 50ms deadline');
+      await vi.advanceTimersByTimeAsync(50);
+      await result;
+      expect(captureExitCode([{status:'skipped', code:'F'}])).toBe(1);
+    } finally { vi.useRealTimers(); }
+  });
+});
+
+it('bounds concurrent jobs and settles every item even after a rejection', async () => {
+  let active = 0, peak = 0;
+  const completed: number[] = [];
+  const results = await settlePool([0, 1, 2, 3, 4], 2, async item => {
+    active++; peak = Math.max(peak, active);
+    await Promise.resolve();
+    active--; completed.push(item);
+    if (item === 1) throw Error('viewport failed');
+  });
+  expect(peak).toBe(2);
+  expect(completed).toEqual([0, 1, 2, 3, 4]);
+  expect(results.map(result => result.status)).toEqual(['fulfilled', 'rejected', 'fulfilled', 'fulfilled', 'fulfilled']);
+  expect(results[1]).toMatchObject({reason: Error('viewport failed')});
+  expect(await settlePool([], 6, async () => {})).toEqual([]);
+  await expect(settlePool([1], 0, async () => {})).rejects.toThrow('positive integer');
 });
 
 describe('navigation retry', () => {

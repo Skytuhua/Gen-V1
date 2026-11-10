@@ -31,10 +31,10 @@ export function discover(days: number, run: Run = defaultRun, now: Date = new Da
   const warnings: string[] = [];
   const readGit = (args: string[], context: string) => {
     try { return run('git', args); }
-    catch (error) { warnings.push(`${context}: ${message(error)}`); return ''; }
+    catch (error) { throw Error(`${context}: ${message(error)}. Scope discovery requires complete git data; use --scope=baseline or --screens for a git-independent capture.`); }
   };
   let prs: PullRequest[] = [];
-  let source: 'gh' | 'git' | 'unavailable' = 'unavailable';
+  let source: 'gh' | 'git' = 'gh';
   try {
     prs = JSON.parse(run('gh', ['pr', 'list', '--state', 'merged', '--base', 'main', '--limit', '1000', '--search', `merged:>=${since}`, '--json', 'number,title,mergedAt,files'])) as PullRequest[];
     if (!Array.isArray(prs)) throw Error('Invalid gh PR response');
@@ -45,16 +45,17 @@ export function discover(days: number, run: Run = defaultRun, now: Date = new Da
     prs = [];
     try {
       // Filter the full walk so an older-dated commit cannot hide later commits.
-      const lines = run('git', ['log', 'origin/main', '--first-parent', `--since-as-filter=${since}T00:00:00Z`, '--format=%H%x09%cI%x09%s']);
+      const lines = readGit(['log', 'origin/main', '--first-parent', `--since-as-filter=${since}T00:00:00Z`, '--format=%H%x09%cI%x09%s'], 'git history unavailable');
       prs = parseGitLog(lines).map(({ sha, ...pr }) => ({
         ...pr,
         files: parseFilePaths(readGit(['diff-tree', '--no-commit-id', '--name-only', '-z', '-r', `${sha}^1`, sha], `git files unavailable for ${sha}`)).map(path => ({ path })),
       }));
       source = 'git';
-    } catch (error) { warnings.push(`git scope unavailable: ${message(error)}`); }
+    } catch (error) { throw Error(`gh discovery failed (${warnings[0]}); ${message(error)}`); }
   }
 
-  const branch = readGit(['rev-parse', '--abbrev-ref', 'HEAD'], 'git branch unavailable').trim() || 'unknown';
+  const branch = readGit(['rev-parse', '--abbrev-ref', 'HEAD'], 'git branch unavailable').trim();
+  if (!branch) throw Error('git branch unavailable: empty HEAD name');
   const branchFiles = [
     readGit(['diff', '--name-only', '-z', 'origin/main...HEAD'], 'git branch diff unavailable'),
     readGit(['diff', '--name-only', '-z'], 'git unstaged files unavailable'),
@@ -66,4 +67,9 @@ export function discover(days: number, run: Run = defaultRun, now: Date = new Da
     files: [...new Set(branchFiles)].map(path => ({ path })),
   });
   return { ...aggregate(prs), source, since, warnings };
+}
+
+export function resolveScope(options: {scope: string; screens: readonly string[]; sinceDays: number}, run: Run = defaultRun, now = new Date()) {
+  if (options.screens.length || options.scope === 'baseline') return {...aggregate([]), source: options.screens.length ? 'explicit-screens' : 'baseline', warnings: []};
+  return discover(options.sinceDays, run, now);
 }
