@@ -1,6 +1,6 @@
 .tool-loading-state { min-width: 0; }
 .loading-state-skeleton { visibility: hidden; }
-.loading-state-skeleton[data-visible="true"] { visibility: visible; }
+.loading-state-skeleton[data-visible="true"], .loading-state-skeleton[data-visible="true"] * { visibility: visible; }
 .loading-state-rows { display: grid; gap: var(--ui-space-1, 4px); padding: var(--ui-panel-inset, 12px); }
 .loading-state-row { display: flex; align-items: center; gap: var(--ui-space-2, 8px); min-height: var(--ui-row-compact, 32px); }
 .loading-skeleton { display: block; flex: none; background: var(--hover); border-radius: 6px; }
@@ -9,6 +9,29 @@
 .loading-state-row:first-child .loading-skeleton-line { width: 76%; }
 .loading-state-row:last-child .loading-skeleton-line { width: 44%; }
 .loading-state-status { margin: 0; padding: var(--ui-space-1, 4px) var(--ui-panel-inset, 12px); color: var(--muted); font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
+.view-loading-state { display: flex; flex: 1; flex-direction: column; min-height: 0; width: 100%; }
+.view-loading-state > [aria-busy], .view-loading-state > [aria-busy] > .loading-state-skeleton { display: flex; flex: 1; flex-direction: column; min-height: 0; }
+.view-loading-state > .loading-state-status { flex: none; }
+.loading-skeleton-control { width: 128px; max-width: 100%; height: var(--ui-row-compact); }
+.loading-skeleton-field { width: 100%; height: var(--ui-row-comfortable); }
+.loading-skeleton-editor { width: 100%; height: 160px; }
+.loading-workspace { display: flex; flex: 1; min-height: 0; min-width: 0; overflow: hidden; }
+.loading-workspace .sidebar { position: static; transform: none; }
+.loading-workspace .workspace { min-height: 0; }
+.loading-conversation { display: flex; flex-direction: column; gap: var(--ui-space-6); width: 100%; max-width: var(--narrative-width, 760px); margin-inline: auto; }
+.loading-message { width: 100%; }
+.loading-message-user { align-self: flex-end; width: 44%; padding: var(--ui-space-4); border: 1px solid var(--border); border-radius: var(--control-radius, 6px); }
+.loading-message .loading-state-rows { padding-inline: 0; }
+.loading-message .loading-skeleton-icon { display: none; }
+.loading-composer { display: flex; flex-direction: column; gap: var(--ui-space-6); padding: var(--ui-panel-inset); border: 1px solid var(--border); border-radius: var(--control-radius, 6px); background: var(--surface); }
+.loading-composer-controls { display: flex; align-items: center; justify-content: space-between; gap: var(--ui-space-2); }
+.loading-agent-composer { margin: var(--ui-space-2) var(--ui-panel-inset) var(--ui-panel-inset); }
+.loading-diff .loading-state-rows { padding-block: var(--ui-space-2); }
+.loading-diff .loading-state-row { min-height: var(--ui-space-6); }
+.loading-state-skeleton > .cr-main { flex: 1; }
+.loading-state-skeleton .cr-files, .loading-state-skeleton .cr-diff, .loading-state-skeleton .cr-context { padding-top: var(--ui-space-2); }
+.loading-state-skeleton .settings-row-copy { display: grid; gap: var(--ui-space-2); flex: 1; }
+.loading-state-skeleton .settings-row-copy .loading-skeleton-line { width: 76%; }
 /* Static, opaque feedback also covers Reduced/Off motion and transparency preferences. */
 @media (forced-colors: active) {
   .loading-skeleton { background: GrayText; }

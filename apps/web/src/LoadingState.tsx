@@ -16,10 +16,10 @@ export function Skeleton() {
 }
 
 /** The caller keeps its last-known data; refresh never replaces mounted children. */
-export function LoadingState({pending, hasContent, label, children}: {pending: boolean; hasContent: boolean; label: string; children: ReactNode}) {
+export function LoadingState({pending, hasContent, label, children, skeleton = <Skeleton/>, className = ''}: {pending: boolean; hasContent: boolean; label: string; children?: ReactNode; skeleton?: ReactNode; className?: string}) {
   const visible = useDelayedPending(pending);
-  return <div className="tool-loading-state">
-    <div aria-busy={pending}>{pending && !hasContent ? <div className="loading-state-skeleton" data-visible={visible}><Skeleton/></div> : children}</div>
+  return <div className={`tool-loading-state ${className}`}>
+    <div aria-busy={pending}>{pending && !hasContent ? <div className="loading-state-skeleton" data-visible={visible}>{skeleton}</div> : children}</div>
     {visible && <p className="loading-state-status" role="status">{label}</p>}
   </div>;
 }

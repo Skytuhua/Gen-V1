@@ -5,6 +5,8 @@ import {Select} from '../../../../packages/ui-shell/Select';
 import {ActionMenu} from '../../../../packages/ui-shell/ActionMenu';
 import {isComposing} from '../../../../packages/ui-shell/list-navigation';
 import {ApiError} from '../api';
+import {LoadingState, PendingStatus} from '../LoadingState';
+import {DiffSkeleton, ReviewComparisonSkeleton} from '../ViewSkeletons';
 import {journalCompareAndSwap, journalFlush, journalRead, journalReadRecord, journalSubscribe, journalWrite} from '../journal';
 import {acknowledgeOperation, canUseDraft, comparisonKey, newDraft, ownerKey, rebindDraft, sameOwner, selectionKey, type ActionIdentity, type ReviewDraft, type ReviewOwner, type ReviewSelection, type ReviewOperation} from './model';
 import {codeReviewClient, reviewError} from './client';
@@ -92,7 +94,7 @@ function ComparisonBody({selection, writes, onRefresh}: CodeReviewWorkspaceProps
     void codeReviewClient.comparison(selection, controller.signal).then(next => {
       if (controller.signal.aborted) return;
       if ((next.state === 'ready' || next.state === 'empty') && !matchesTarget(selection, next.value)) throw new ApiError('COMPARISON_IDENTITY_CHANGED', 'Comparison owner changed.');
-      setRead(next);
+      setRead(current => next.state === 'loading' && (current.state === 'ready' || current.state === 'empty') ? current : next);
       if (next.state === 'ready' || next.state === 'empty') setPath(current => next.value.files.some(file => file.path === current) ? current : next.value.files[0]?.path ?? '');
     }).catch(cause => {if (!controller.signal.aborted) setRead({state: 'error', error: {code: cause instanceof ApiError ? cause.code : '', message: ''}});})
       .finally(() => {if (!controller.signal.aborted) setRefreshing(false);});
@@ -151,13 +153,11 @@ function ComparisonBody({selection, writes, onRefresh}: CodeReviewWorkspaceProps
     } catch { /* Retain the uncertain boundary until the canonical owner can resolve it. */ }
     finally {inFlight.current = false; if (mounted.current) setBusy(false);}
   }
-  return <div className="cr-main">
+  return <LoadingState pending={read.state === 'loading' || refreshing} hasContent={read.state !== 'loading'} label={comparison ? 'Refreshing comparison…' : 'Loading comparison…'} skeleton={<ReviewComparisonSkeleton fileControls={<div className="cr-section-heading"><h2>Changed files</h2><button type="button" aria-label="Refresh comparison" disabled={refreshing} onClick={load}>Refresh</button></div>}/>} className="view-loading-state"><div className="cr-main">
     <nav className="cr-files" aria-label="Changed files">
       <div className="cr-section-heading"><h2>Changed files{comparison ? ` (${comparison.files.length}${comparison.filesTruncated ? '+' : ''})` : ''}</h2><button type="button" aria-label="Refresh comparison" disabled={refreshing || busy} onClick={load}>Refresh</button></div>
       <div className="cr-file-select"><Select aria-label="Changed file" value={path} disabled={!comparison || comparison.files.length === 0} options={comparison?.files.map(file => ({value: file.path, label: file.path})) ?? []} onValueChange={setPath} /></div>
       <label className="cr-filter">Filter files<input value={filter} onChange={event => setFilter(event.target.value)} type="search" /></label>
-      {read.state === 'loading' && <p role="status" className="cr-loading">Loading comparison…</p>}
-      {refreshing && comparison && <p role="status">Refreshing comparison…</p>}
       {error && <p role="alert">{error}</p>}
       {comparison?.access.mode === 'legacy' && <p className="cr-meta">Original working copy · tracked changes only</p>}
       {comparison?.filesTruncated && <p role="status">File list is incomplete. More files exist beyond the read limit.</p>}
@@ -186,7 +186,7 @@ function ComparisonBody({selection, writes, onRefresh}: CodeReviewWorkspaceProps
         <label htmlFor={`cr-draft-${selection.owner.projectId}`}>Review draft</label>
         <textarea id={`cr-draft-${selection.owner.projectId}`} value={draft.value?.body ?? ''} disabled={!draft.ready || !draft.value} maxLength={64000} rows={7}
           onChange={event => {if (draft.value) void draft.edit({body: event.target.value}).catch(() => {});}} />
-        {!draft.ready && <p role="status">Recovering review draft…</p>}
+        <PendingStatus pending={!draft.ready} label="Recovering review draft…"/>
         {draft.error && <p role="alert">{draft.error} <button type="button" onClick={draft.retry}>Retry draft recovery</button></p>}
         {draft.value && identity && !compatible && !['pending', 'uncertain', 'revoked', 'confirmed'].includes(draft.value.outcome) && <div className="cr-draft-state"><p>Draft belongs to an earlier comparison or working-copy revision.</p><button type="button" disabled={busy || refreshing || !draft.ready || !!draft.error} onClick={() => void draft.rebind(identity, action).catch(() => {})}>Use current comparison</button></div>}
         {draft.value?.outcome === 'uncertain' && <p role="alert">Outcome uncertain. Inspect the canonical action before trying again.</p>}
@@ -215,7 +215,7 @@ function ComparisonBody({selection, writes, onRefresh}: CodeReviewWorkspaceProps
       {busy && <p role="status">Verifying and applying action…</p>}
       {notice && <p role="status">{notice}</p>}
     </aside>
-  </div>;
+  </div></LoadingState>;
 }
 
 function Identity({identity}: {identity: ComparisonIdentity}) {
@@ -236,7 +236,7 @@ function Patch({selection, comparison, path, onInvalid}: {selection: ReviewSelec
     return () => controller.abort();
   }, [retry]);
   if (error) return <p role="alert">{error} <button type="button" onClick={() => setRetry(current => current + 1)}>Retry file</button></p>;
-  if (!value) return <p role="status" className="cr-loading">Loading file diff…</p>;
+  if (!value) return <LoadingState pending hasContent={false} label="Loading file diff…" skeleton={<DiffSkeleton/>} className="view-loading-state"/>;
   if (value.state === 'text' && value.text !== null) return <pre className="cr-patch" tabIndex={0} aria-label="Unified diff">{value.text.split('\n').map((line, index) => <span className="cr-line" data-kind={line.startsWith('@@') ? 'hunk' : line.startsWith('+') && !line.startsWith('+++') ? 'add' : line.startsWith('-') && !line.startsWith('---') ? 'delete' : 'context'} key={index}>{line}{'\n'}</span>)}</pre>;
   return <div className="cr-patch-state"><p>{({binary: 'Binary file · no text diff.', truncated: 'Patch exceeds the display limit. No partial patch is shown.', unavailable: 'Patch unavailable.', untracked: 'Untracked file · no indexed diff.', empty: 'No textual changes in this comparison.', text: 'Patch unavailable.'})[value.state]}</p>{value.reason && <p className="cr-meta">{({ 'patch-omitted': 'The provider omitted this patch.', 'unsupported-path': 'This path is unsupported.', conflict: 'Resolve the file conflict before reviewing a text diff.', 'resource-limit': 'The read exceeded its resource limit.', 'unsupported-file': 'This file type is unsupported.'})[value.reason]}</p>}</div>;
 }

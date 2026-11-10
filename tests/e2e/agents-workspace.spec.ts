@@ -3,10 +3,12 @@ import {resolve} from 'node:path';
 import type {AgentSummary} from '../../packages/contracts/agent-inventory';
 const fixture = '/@fs/' + resolve('tests/e2e/agents-workspace-fixture.tsx').replaceAll('\\', '/');
 const agent = (id: string, patch: Partial<AgentSummary> = {}): AgentSummary => ({agentId: id, parentId: null, rootId: id, jobId: null, threadId: id, projectId: 'a', projectName: 'Alpha', title: id, status: 'working', modelId: 'test/model', currentAction: 'Reading project sources', reportedPercent: 35, createdAt: '2026-11-06', updatedAt: '2026-11-06', orderKey: id, revision: 1, archived: false, readOnly: false, metadata: 'thread', ...patch});
-async function setup(page: Page, candidate = false, burstHistory = false) {
+async function setup(page: Page, candidate = false, burstHistory = false, delayed = false) {
  const requests: string[] = [], commands: {id: string; type: string; threadId: string; payload: {content?: string}}[] = [];
  const agents = [agent('parent-00'), agent('child-active', {parentId: 'parent-00', rootId: 'parent-00', jobId: 'job', readOnly: true}), agent('child-done', {parentId: 'parent-00', rootId: 'parent-00', status: 'completed', readOnly: true}), ...Array.from({length: 32}, (_, i) => agent('parent-' + String(i + 1).padStart(2, '0'))), agent('beta-parent', {projectId: 'b', projectName: 'Beta'})];
  let failSend = false, output = 'Current transcript output', sequence = 10, ticketStatus = 'processing', messageTotal = 40;
+ let release!: () => void;
+ let gate = delayed ? new Promise<void>(resolve => {release = resolve;}) : Promise.resolve();
  const target = {authority: 'personal', parentThreadId: 'parent-00', jobId: 'job', parentRun: {runId: 'parent-run', epoch: 1}, childRun: {threadId: 'child-active', runId: 'child-run', epoch: 1}};
  await page.route('**/api/**', async route => {
   const url = new URL(route.request().url()); requests.push(url.pathname + url.search);
@@ -21,6 +23,7 @@ async function setup(page: Page, candidate = false, burstHistory = false) {
    return route.fulfill({json: {id: commands.at(-1)!.id, status: 'accepted', result: commands.at(-1)!.type === 'agent.followUp' ? {ticketId: commands.at(-1)!.id, status: 'queued'} : null}});
   }
   if (url.pathname === '/api/agents') {
+   await gate;
    const text = url.searchParams.get('text'), project = url.searchParams.get('projectId');
    const items = agents.filter(a => (!text || a.title.includes(text)) && (project === null || a.projectId === project));
    const start = Number(url.searchParams.get('cursor') || 0), slice = items.slice(start, start + 15);
@@ -41,8 +44,31 @@ async function setup(page: Page, candidate = false, burstHistory = false) {
  });
  await page.route('**/agents-workspace-check*', route => route.fulfill({contentType: 'text/html', body: `<html data-theme="dark"><head><meta name="viewport" content="width=device-width, initial-scale=1"></head><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${encodeURI(fixture)}');</script></body></html>`}));
  await page.goto('/agents-workspace-check' + (candidate ? '?candidate=1' : ''));
- return {requests, commands, fail: (value: boolean) => {failSend = value;}, output: (value: string) => {output = value; sequence++;}, ticket: (value: string) => {ticketStatus = value;}, burst: (total: number) => {messageTotal = total; sequence++;}};
+ return {requests, commands, delay: () => {gate = new Promise<void>(resolve => {release = resolve;});}, release: () => release?.(), fail: (value: boolean) => {failSend = value;}, output: (value: string) => {output = value; sequence++;}, ticket: (value: string) => {ticketStatus = value;}, burst: (total: number) => {messageTotal = total; sequence++;}};
 }
+
+for (const width of [1440, 1024, 768]) test(`first agent reads reserve project rows and parent conversations at ${width}`, async ({page}) => {
+ await page.setViewportSize({width, height: 1000}); await page.emulateMedia({reducedMotion: 'reduce'});
+ const h = await setup(page, false, false, true);
+ try {
+  await expect(page.getByRole('status').filter({hasText: 'Loading agents'})).toBeVisible();
+  await expect(page.locator('.loading-agents .agents-project-header').first()).toBeVisible();
+  await expect(page.locator('.loading-agents .agents-transcript').first()).toBeVisible();
+  await expect(page.locator('.loading-agents .loading-composer').first()).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);
+  h.release(); const input = page.getByRole('textbox', {name: 'Message to parent-00', exact: true});
+  await input.fill('Keep this draft'); await input.focus();
+  await expect(page.locator('.loading-agents')).toHaveCount(0);
+  const original = await input.elementHandle();
+  h.delay();
+  await page.getByRole('combobox', {name: 'Status filter'}).click(); await page.getByRole('option', {name: 'working', exact: true}).click();
+  await expect(page.getByRole('status').filter({hasText: 'Loading agents'})).toBeVisible();
+  await expect(page.locator('.loading-agents')).toHaveCount(0);
+  await expect(input).toHaveValue('Keep this draft');
+  expect(await input.evaluate((node, original) => node === original, original)).toBe(true);
+  await input.focus(); expect(await input.evaluate(node => getComputedStyle(node).outlineStyle)).toBe('solid');
+ } finally {h.release();}
+});
 
 test('missing history remains reachable after offscreen bursts without moving the message being read', async ({page}) => {
  const h = await setup(page, false, true), log = page.getByRole('log', {name: 'parent-00 messages', exact: true}), row = page.getByRole('region', {name: 'Alpha agents', exact: true});

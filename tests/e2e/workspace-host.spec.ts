@@ -115,6 +115,9 @@ test('Custom keeps the anchored conversation and enables dock layout saving with
 
 test('cold restored monitor resolves its owner before any global conversation read', async ({page}) => {
   const h = await fixture(page, {delayed: true});
+  await expect(page.getByRole('status').filter({hasText: 'Opening workspace'})).toBeVisible();
+  await expect(page.locator('.loading-state-skeleton .sidebar')).toBeVisible();
+  await expect(page.locator('.loading-state-skeleton .composer-dock .loading-composer')).toBeVisible();
   await expect.poll(() => h.requests.filter(path => path === '/api/workspace').length).toBe(1);
   expect(h.requests.filter(path => path === '/api/snapshot')).toEqual([]);
   expect(h.requests.filter(path => path.startsWith('/api/models'))).toEqual([]);
@@ -169,6 +172,31 @@ test('workspace resolution failure stays retryable without falling back to a glo
   h.recover(); await page.getByRole('button', {name: 'Retry workspace', exact: true}).click();
   await expect(page.getByRole('region', {name: 'Agent workspace', exact: true})).toBeVisible();
   expect(h.requests.filter(path => path === '/api/snapshot')).toEqual([]);
+});
+
+test('compact Settings reserves sections while metadata loads and retains its search on refresh', async ({page}) => {
+  await fixture(page);
+  let release!: () => void;
+  let gate = new Promise<void>(resolve => {release = resolve;});
+  await page.route('**/api/shell/settings', async route => {await gate; await route.fallback();});
+  await page.getByRole('button', {name: 'Settings', exact: true}).click();
+  const dialog = page.getByRole('dialog', {name: 'Settings', exact: true});
+  try {
+    await expect(dialog.getByRole('status').filter({hasText: 'Opening settings'})).toBeVisible();
+    await expect(dialog.locator('.loading-state-skeleton .settings-navigation')).toBeVisible();
+    release();
+    const search = dialog.getByRole('searchbox', {name: 'Search all settings', exact: true});
+    await search.fill('workspace diagnostics'); const original = await search.elementHandle();
+    gate = new Promise<void>(resolve => {release = resolve;});
+    await dialog.getByRole('button', {name: 'Refresh settings', exact: true}).click();
+    await search.focus();
+    await expect(dialog.getByRole('status').filter({hasText: 'Opening settings'})).toBeVisible();
+    await expect(dialog.locator('.loading-state-skeleton')).toHaveCount(0);
+    await expect(search).toHaveValue('workspace diagnostics');
+    expect(await search.evaluate((node, original) => node === original && document.activeElement === node, original)).toBe(true);
+    release(); await expect(dialog.getByRole('status').filter({hasText: 'Opening settings'})).toHaveCount(0);
+    await expect(search).toHaveValue('workspace diagnostics');
+  } finally {release();}
 });
 
 test('Settings opens over the monitor with compact metadata and preserves the owner', async ({page}) => {
@@ -780,6 +808,8 @@ test('monitor Settings code loads only on open and remains reusable after closin
   await Promise.race([monitor.waitFor({state:'visible'}),firstChunk]);expect(chunks).toEqual([]);
   const h=await opening,opener=page.getByRole('button',{name:'Settings',exact:true}),dialog=page.getByRole('dialog',{name:'Settings',exact:true});
   await opener.click();await expect(dialog.getByRole('status').filter({hasText:'Opening settings'})).toBeVisible();expect(chunks).toEqual(['/src/CompactSettings.tsx']);
+  await expect(dialog.locator('.loading-state-skeleton .settings-navigation')).toBeVisible();
+  await expect(dialog.locator('.loading-state-skeleton .settings-row')).toHaveCount(3);
   await dialog.getByRole('button',{name:'Close dialog',exact:true}).click();await expect(dialog).toHaveCount(0);await expect(opener).toBeFocused();
   await opener.click();await expect(dialog.getByRole('status').filter({hasText:'Opening settings'})).toBeVisible();expect(chunks).toEqual(['/src/CompactSettings.tsx']);
   release();await expect(dialog.getByRole('searchbox',{name:'Search all settings',exact:true})).toBeVisible();
