@@ -1,6 +1,18 @@
-import { useCallback, useState, type ReactNode } from "react";
+import {
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+	type ReactNode,
+} from "react";
 import { authenticated, read } from "../api";
 import { FilesView, type FilesEntry } from "./FilesView";
+import { ProjectSearch } from "./ProjectSearch";
+import {
+	unavailableProjectSearch,
+	type ProjectSearchAdapter,
+	type ProjectSearchMatch,
+} from "./project-search-api";
 import { useFilesRead } from "./useFilesRead";
 
 interface ProjectFile {
@@ -8,19 +20,34 @@ interface ProjectFile {
 	binary: boolean;
 	sha256: string;
 }
-export function ProjectFiles({
-	base,
-	query,
-	active,
-	fallback,
-}: {
+interface ProjectFilesProps {
 	base: string;
 	query: string;
 	active: boolean;
 	fallback: ReactNode;
-}) {
+	searchAdapter?: ProjectSearchAdapter;
+}
+export function ProjectFiles(props: ProjectFilesProps) {
+	return <ProjectFilesReader key={props.base + "?" + props.query} {...props} />;
+}
+function ProjectFilesReader({
+	base,
+	query,
+	active,
+	fallback,
+	searchAdapter = unavailableProjectSearch,
+}: ProjectFilesProps) {
 	const [path, setPath] = useState(""),
-		[selected, setSelected] = useState<FilesEntry | null>(null);
+		[selected, setSelected] = useState<FilesEntry | null>(null),
+		[selectedMatch, setSelectedMatch] = useState<ProjectSearchMatch | null>(
+			null,
+		),
+		[searchRefresh, setSearchRefresh] = useState(0);
+	const matchLine = useRef<HTMLElement>(null);
+	const owner = {
+		projectId: decodeURIComponent(base.split("/").at(-1) ?? ""),
+		threadId: new URLSearchParams(query).get("threadId") ?? undefined,
+	};
 	const readFolder = useCallback(
 		(signal: AbortSignal) => {
 			const params = new URLSearchParams(query);
@@ -55,8 +82,23 @@ export function ProjectFiles({
 			active && !!selected,
 			readFile,
 		);
-	if (folder.errorCode === "PROJECT_NOT_CONNECTED") return fallback;
 	const file = preview.value;
+	const stale = !!(
+		selectedMatch &&
+		file &&
+		file.sha256.toLowerCase() !== selectedMatch.sha256.toLowerCase()
+	);
+	useEffect(() => {
+		if (!stale && !preview.pending)
+			matchLine.current?.scrollIntoView({
+				block: "center",
+				behavior: "instant",
+			});
+	}, [file, selectedMatch, stale, preview.pending]);
+	if (folder.errorCode === "PROJECT_NOT_CONNECTED") return fallback;
+	const line =
+		selectedMatch?.kind === "text" && !stale ? selectedMatch.line : undefined;
+	const lines = line && file?.text ? file.text.split("\n") : undefined;
 	return (
 		<FilesView
 			source="project"
@@ -64,10 +106,47 @@ export function ProjectFiles({
 			path={path}
 			folder={folder}
 			selected={selected}
+			projectSearch={{
+				available: searchAdapter.available,
+				body: (openPreview) => (
+					<ProjectSearch
+						adapter={searchAdapter}
+						owner={owner}
+						active={active}
+						refreshVersion={searchRefresh}
+						selected={selectedMatch}
+						onSelect={(match) => {
+							setSelectedMatch(match);
+							if (selected?.path === match.path) preview.refresh();
+							else
+								setSelected({
+									name: match.path.split("/").at(-1)!,
+									path: match.path,
+									kind: "file",
+								});
+							openPreview();
+						}}
+					/>
+				),
+			}}
 			preview={{
 				...preview,
 				body: file ? (
 					<>
+						{stale && (
+							<p className="files-message" role="status">
+								This file changed since the search. Showing current content;
+								refresh search results before using the matching line.
+							</p>
+						)}
+						{line && lines && line > lines.length && (
+							<p className="files-message" role="status">
+								The matching line is no longer available. Refresh the search.
+							</p>
+						)}
+						{line && lines && line <= lines.length && (
+							<p className="files-message files-limit">Matching line {line}</p>
+						)}
 						{file.binary ? (
 							<p className="files-message">
 								Binary file. Text preview is unavailable.
@@ -75,7 +154,21 @@ export function ProjectFiles({
 						) : file.text === "" ? (
 							<p className="files-message">Empty text file</p>
 						) : (
-							<pre>{file.text}</pre>
+							<pre>
+								{lines && line && line <= lines.length ? (
+									<>
+										{lines.slice(0, line - 1).join("\n")}
+										{line > 1 ? "\n" : ""}
+										<mark className="files-matching-line" ref={matchLine}>
+											{lines[line - 1]}
+										</mark>
+										{line < lines.length ? "\n" : ""}
+										{lines.slice(line).join("\n")}
+									</>
+								) : (
+									file.text
+								)}
+							</pre>
 						)}
 						<small className="files-checksum">SHA-256 {file.sha256}</small>
 					</>
@@ -87,14 +180,17 @@ export function ProjectFiles({
 					: undefined
 			}
 			onDirectory={(next) => {
+				setSelectedMatch(null);
 				setPath(next);
 				setSelected(null);
 			}}
 			onSelect={(entry) => {
+				setSelectedMatch(null);
 				if (selected?.path === entry.path) preview.refresh();
 				else setSelected(entry);
 			}}
 			onRefresh={() => {
+				setSearchRefresh((value) => value + 1);
 				folder.refresh();
 				preview.refresh();
 			}}
