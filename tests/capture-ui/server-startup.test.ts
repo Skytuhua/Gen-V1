@@ -4,17 +4,20 @@ import { captureServerOptions, pdfPrebundleIncludes, pdfWarmupRequests, warmPdfC
 import { captureExitCode, loadWithReadiness } from '../../scripts/capture-ui/runtime-helpers';
 import { screens } from '../../scripts/capture-ui/screen-map';
 
+// Vite resolves filesystem paths with forward slashes, including on Windows.
+const portablePath = (path: string | undefined) => path?.replaceAll('\\', '/');
+
 it('isolates resolved optimizer caches between app, fixtures, and capture invocations', async () => {
   const fixtureOptions = captureServerOptions('scripts/capture-ui/vite.config.ts', '/tmp/capture-first', 'fixtures');
   const appOptions = captureServerOptions('tests/e2e/vite.config.ts', '/tmp/capture-first', 'app-shell');
   const fixture = await resolveConfig(fixtureOptions, 'serve');
   const app = await resolveConfig(appOptions, 'serve');
-  expect(fixture.root).not.toBe(app.root);
-  expect(fixture.cacheDir).not.toBe(app.cacheDir);
-  expect(fixture.cacheDir).toBe(fixtureOptions.cacheDir);
+  expect(portablePath(fixture.root)).not.toBe(portablePath(app.root));
+  expect(portablePath(fixture.cacheDir)).not.toBe(portablePath(app.cacheDir));
+  expect(portablePath(fixture.cacheDir)).toBe(portablePath(fixtureOptions.cacheDir));
   expect(fixture.cacheDir).toContain('node_modules');
-  expect(app.cacheDir).toBe(appOptions.cacheDir);
-  expect(captureServerOptions('scripts/capture-ui/vite.config.ts', '/tmp/capture-second', 'fixtures').cacheDir).not.toBe(fixture.cacheDir);
+  expect(portablePath(app.cacheDir)).toBe(portablePath(appOptions.cacheDir));
+  expect(portablePath(captureServerOptions('scripts/capture-ui/vite.config.ts', '/tmp/capture-second', 'fixtures').cacheDir)).not.toBe(portablePath(fixture.cacheDir));
   expect(fixture.optimizeDeps.include).toEqual(expect.arrayContaining(pdfPrebundleIncludes));
   expect(fixture.optimizeDeps.entries).toContain('apps/web/src/pdf-draft.worker.ts');
 });
