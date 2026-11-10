@@ -210,15 +210,31 @@ for (const width of [1024, 1440]) test(`WorkspaceHost uses the same pointer hand
   await noLayoutTween(page);
 });
 
-test('inherited tokens and motion speed control both directions', async ({page}) => {
-  await fixture(page);
+for (const width of [1024, 1440]) for (const motionSpeed of [.75, 1.25]) {
+  test(`scaled preference tokens resolve once at ${motionSpeed}x and ${width}px`, async ({page}) => {
+    await page.setViewportSize({width, height: 1000}); await fixture(page, {motionSpeed});
+    await expect.poll(() => page.evaluate(() => document.documentElement.style.getPropertyValue('--motion-speed'))).toBe(String(motionSpeed));
+    for (const closed of [true, false]) {
+      const tokenDuration = await sidebar(page).evaluate((node, token) => Number.parseFloat(getComputedStyle(node).getPropertyValue(token)), closed ? '--ui-motion-panel-exit' : '--ui-motion-panel-enter');
+      expect(tokenDuration).toBeCloseTo((closed ? 180 : 220) / motionSpeed);
+      await (closed ? collapse(page) : open(page)).click();
+      const timing = await overlay(page).locator('.sidebar').evaluate(node => node.getAnimations()[0].effect!.getTiming());
+      expect.soft(timing.duration).toBe(tokenDuration);
+      expect(timing.easing).toBe(enter);
+      await finish(page);
+    }
+  });
+}
+
+test('inherited duration tokens are consumed as-is', async ({page}) => {
+  await fixture(page, {motionSpeed: 1.25});
   await shell(page).evaluate(node => {
     const style = (node as HTMLElement).style;
     style.setProperty('--ui-motion-panel-enter', '.3s'); style.setProperty('--ui-motion-panel-exit', '250ms');
-    style.setProperty('--ui-ease-enter', 'linear'); document.documentElement.style.setProperty('--motion-speed', '1.25');
+    style.setProperty('--ui-ease-enter', 'linear');
   });
-  await collapse(page).click(); expect((await motions(page)).at(-1)).toMatchObject({duration: 200, easing: 'linear'}); await finish(page);
-  await open(page).click(); expect((await motions(page)).at(-1)).toMatchObject({duration: 240, easing: 'linear'}); await finish(page);
+  await collapse(page).click(); expect((await motions(page)).at(-1)).toMatchObject({duration: 250, easing: 'linear'}); await finish(page);
+  await open(page).click(); expect((await motions(page)).at(-1)).toMatchObject({duration: 300, easing: 'linear'}); await finish(page);
 });
 
 for (const policy of ['os', 'reduced', 'off', 'panels', 'resize'] as const) {

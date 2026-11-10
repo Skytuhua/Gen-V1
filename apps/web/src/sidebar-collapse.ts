@@ -60,8 +60,7 @@ export function useSidebarCollapse(sidebar: RefObject<HTMLElement | null>, colla
     const from = current.animation ? {opacity: style.opacity, transform: style.transform} :
       {opacity: collapsed ? '1' : '0', transform: collapsed ? 'translateX(0px)' : 'translateX(-4px)'};
     const token = style.getPropertyValue(collapsed ? '--ui-motion-panel-exit' : '--ui-motion-panel-enter').trim();
-    const speed = Number(document.documentElement.style.getPropertyValue('--motion-speed')) || 1;
-    const duration = Number.parseFloat(token) * (token.endsWith('ms') ? 1 : 1000) / speed;
+    const duration = Number.parseFloat(token) * (token.endsWith('ms') ? 1 : 1000);
     if (!Number.isFinite(duration) || duration <= 0) {settle(); return;}
     current.animation?.cancel();
     element.dataset.collapseVisual = 'true';
