@@ -1,5 +1,12 @@
 .task-graph { --graph-blue:#688fde; --graph-teal:#69b9a0; --graph-purple:#a187df; min-width:0; margin:0; }
 .task-graph figcaption { font-size:14px; font-weight:500; margin-bottom:12px; }
+.ui-modal[open]:has(> .task-graph) { display:flex; flex-direction:column; }
+.ui-modal:has(> .task-graph) > .ui-modal-header { flex-shrink:0; }
+.ui-modal > .task-graph { display:flex; flex-direction:column; min-height:0; }
+.ui-modal > .task-graph > :not(.task-graph-viewport) { flex-shrink:0; }
+.ui-modal > .task-graph > .task-graph-viewport { min-height:0; }
+/* Reserve the visible footer while its motion region measures the opening dialog. */
+.ui-modal[open] > .task-graph > .task-graph-footer[data-open=true] { min-height:max-content; max-height:max-content; }
 .task-graph-viewport { position:relative; max-height:420px; overflow:auto; overscroll-behavior:contain; scrollbar-width:thin; border-radius:8px; }
 .task-graph-body { position:relative; }
 .task-graph-lines { position:absolute; inset:0 auto auto 0; pointer-events:none; overflow:visible; }
@@ -30,6 +37,8 @@
 .task-node-status { display:inline-flex; margin-left:auto; flex-shrink:0; }
 .task-graph-vertical .task-node:has(.task-node-meta) .task-node-status { display:none; }
 .task-node-popover { box-sizing:border-box; padding:13px 15px; border:1px solid var(--border); border-radius:12px; background:var(--surface); color:var(--text); box-shadow:0 8px 28px #0003; font-size:13px; line-height:1.5; overflow:auto; overscroll-behavior:contain; }
+/* Keep measured dialog tooltip coordinates from transitioning during entry. */
+.ui-modal .task-node-popover { transition-property:none; }
 .task-node-details { display:flex; flex-direction:column; gap:9px; }
 .task-check-popover { padding:7px 10px; font-size:12px; }
 .task-node-popover strong { font-weight:500; }
