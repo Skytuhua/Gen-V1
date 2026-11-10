@@ -165,6 +165,19 @@ export function RelationshipGraph({ element: { props }, children }: ComponentRen
   const geometryKey = parsed.success ? JSON.stringify(parsed.data.nodes.map(node => [node.id, node.lane, node.column])) : '';
   const summaryKey = parsed.success && parsed.data.summary ? `${parsed.data.summary.label}:${parsed.data.summary.status}` : '';
   const data = parsed.success ? parsed.data : undefined, nodes = data?.nodes ?? [], edges = data?.edges ?? [];
+  const edgeKeys = JSON.stringify(edges.map(edge => [edge.from, edge.to]));
+  // Mounts are snapshots (including expanded copies). Only later connections
+  // reveal; remember removed edges too so restoring them cannot replay a draw.
+  const revealedEdges = useRef(new Set(edges.map(edge => JSON.stringify([edge.from, edge.to]))));
+  useLayoutEffect(() => {
+    for (const path of surface.current?.querySelectorAll<SVGPathElement>('.graph-edge') ?? []) {
+      const key = JSON.stringify([path.dataset.from, path.dataset.to]);
+      if (revealedEdges.current.has(key)) continue;
+      revealedEdges.current.add(key);
+      path.dataset.reveal = 'true';
+      void Promise.allSettled(path.getAnimations().map(animation => animation.finished)).then(() => { delete path.dataset.reveal; });
+    }
+  }, [edgeKeys]);
   const horizontal = props.orientation === 'horizontal', schematic = horizontal && Boolean(data?.branchLabels?.length);
   const lanes = Math.max(0, ...nodes.map(node => node.lane ?? 0)) + 1, rail = Math.max(56, 22 + lanes * 18);
   const maxColumn = Math.max(1, ...nodes.map((node, index) => node.column ?? index), ...(data?.branchLabels?.map(branch => branch.column) ?? []));
