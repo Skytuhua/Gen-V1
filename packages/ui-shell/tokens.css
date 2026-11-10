@@ -43,6 +43,15 @@ dialog:modal::backdrop {
   background: var(--ui-modal-scrim);
   backdrop-filter: blur(var(--ui-modal-blur));
 }
+/* Backdrops need their own motion policy; element overrides do not reach them. */
+:root:is([data-motion="reduced"], [data-motion="off"]) dialog:modal::backdrop,
+.app-shell[data-panel-animations="false"] dialog:modal::backdrop {
+  animation: none !important;
+  transition: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  dialog:modal::backdrop { animation: none !important; transition: none !important; }
+}
 .ui-popover { z-index: var(--ui-popup-layer); }
 
 @media (prefers-reduced-transparency: reduce) {

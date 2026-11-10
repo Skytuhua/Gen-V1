@@ -1,4 +1,16 @@
 import {test,expect} from '@playwright/test';
+import {expectOpaqueEntry, expectVisibleKeyboardFocus, pauseNextEntry} from './overlay-motion-assertions';
+
+for (const width of [1024, 1440]) test(`graph focus and hover details stay opaque throughout entry at ${width}px`, async ({page}) => {
+ await page.setViewportSize({width, height: 1000});
+ const node = page.getByRole('button', {name: 'Map modules', exact: true}), tooltip = page.getByRole('tooltip');
+ await pauseNextEntry(page, '.task-node-popover[data-state="open"]');
+ await node.focus(); await expectVisibleKeyboardFocus(node); await expectOpaqueEntry(tooltip);
+ await node.press('Escape'); await expect(page.locator('.task-node-popover')).toHaveCount(0);
+ await page.getByRole('button', {name: 'Outside graph', exact: true}).focus();
+ await pauseNextEntry(page, '.task-node-popover[data-state="open"]'); await node.hover();
+ await expect(tooltip).toBeVisible(); await expectOpaqueEntry(tooltip);
+});
 test.beforeEach(async({page})=>{await page.route('**/*',route=>{const url=new URL(route.request().url());return url.origin==='http://127.0.0.1:5806'&&!url.pathname.startsWith('/api/')?route.continue():route.abort();});await page.goto('/tests/e2e/fixtures/graph-popovers.html');await expect(page.getByRole('button',{name:'Map modules',exact:true})).toBeVisible();});
 test('graph details stay owned by their modal and Escape leaves the diagram open',async({page})=>{
  await page.getByRole('button',{name:'Open diagram',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Diagram details',exact:true}),node=dialog.getByRole('button',{name:'Review dependencies',exact:true});await node.focus();const tooltip=dialog.getByRole('tooltip');await expect(tooltip).toContainText('export function total');await expect(tooltip).toHaveClass(/ui-popover/);await node.press('Escape');await expect(tooltip).toHaveCount(0);await expect(dialog).toBeVisible();await expect(node).toBeFocused();
