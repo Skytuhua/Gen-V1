@@ -10,11 +10,12 @@ void import('./plugins/personal-visuals/src/frontend').then(()=>{
 });`;
 
 export const pluginToolsParent=`<!doctype html><html><body style="margin:0"><script>
-window.calls=[];window.saved=null;window.failReads=false;window.delayReads=false;window.pendingReads=[];window.failWrites=false;
+window.calls=[];window.saved=null;window.failReads=false;window.delayReads=false;window.pendingReads=[];window.failWrites=false;window.visualReady=false;
 addEventListener('message',event=>{
  if(event.data?.type!=='gen.plugin.connect')return;
  const port=event.ports[0],session=event.data.session;window.bridge=port;
  port.onmessage=({data})=>{
+  if(data.type==='gen.plugin.ready'){window.visualReady=true;return;}
   if(data.type!=='gen.plugin.request')return;
   window.calls.push(data);
   const reply=()=>{

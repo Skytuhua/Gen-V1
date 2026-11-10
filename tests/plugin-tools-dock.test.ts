@@ -4,13 +4,29 @@ import {chromium,expect as browserExpect,type Browser,type Frame,type Locator} f
 import {resolve} from 'node:path';
 import {pluginToolsDockEntry,pluginToolsParent} from './fixtures/plugin-tools-dock';
 
-let browser:Browser,javascript:string,css:string;
+let browser:Browser,javascript:string,css:string,presentationImports:string[];
 beforeAll(async()=>{
- const bundle=await build({stdin:{contents:pluginToolsDockEntry,resolveDir:resolve('.'),loader:'tsx'},bundle:true,write:false,outfile:'plugin.js',format:'iife',platform:'browser',define:{'process.env.NODE_ENV':'"production"'},loader:{'.woff2':'dataurl','.woff':'dataurl','.ttf':'dataurl'},logOverride:{'empty-import-meta':'silent'}});
+ const pluginSource=resolve('plugins/personal-visuals/src');
+ const bundle=await build({stdin:{contents:pluginToolsDockEntry,resolveDir:resolve('.'),loader:'tsx'},bundle:true,write:false,metafile:true,outfile:'plugin.js',format:'iife',platform:'browser',define:{'process.env.NODE_ENV':'"production"'},loader:{'.woff2':'dataurl','.woff':'dataurl','.ttf':'dataurl'},logOverride:{'empty-import-meta':'silent'},plugins:[{
+  name:'shared-plugin-presentation',
+  setup(builder){
+   // Match the installed plug-in build. CI installs its own React package;
+   // its hooks must still use the host renderer's React, as the SDK requires.
+   builder.onResolve({filter:/^react(?:\/jsx-runtime)?$/},args=>{
+    if(args.resolveDir!==pluginSource)return;
+    return {path:resolve(pluginSource,args.path==='react'?'react.ts':'jsx-runtime.ts')};
+   });
+  },
+ }]});
  javascript=bundle.outputFiles.find(file=>file.path.endsWith('.js'))!.text;css=bundle.outputFiles.find(file=>file.path.endsWith('.css'))!.text;
+ presentationImports=Object.entries(bundle.metafile!.inputs).find(([path])=>path.replaceAll('\\','/')==='plugins/personal-visuals/src/frontend.tsx')![1].imports.map(value=>value.path.replaceAll('\\','/'));
  browser=await chromium.launch({headless:true,...(process.env.GEN_TEST_CHROMIUM_EXECUTABLE?{executablePath:process.env.GEN_TEST_CHROMIUM_EXECUTABLE}:{})});
 },30000);
 afterAll(async()=>{await browser?.close();});
+
+it('uses the host presentation runtime instead of a plug-in-local React copy',()=>{
+ expect(presentationImports).toEqual(expect.arrayContaining(['plugins/personal-visuals/src/react.ts','plugins/personal-visuals/src/jsx-runtime.ts']));
+});
 
 const legacy={x:1124,y:72,width:300,height:180,collapsed:false,floating:true};
 async function fixture(width:number,saved:unknown=null,failReads=false,delayReads=false){
@@ -39,7 +55,14 @@ async function fixture(width:number,saved:unknown=null,failReads=false,delayRead
  });
  await page.goto('http://127.0.0.1/plugin-dock-test');
  const frame=page.frames().find(value=>value.parentFrame())!;
- await frame.getByRole('button',{name:'Edit',exact:true}).waitFor({state:'visible'});
+ try{
+  // Document recovery emits ready independently of the dock's journal read.
+  await page.waitForFunction(()=>(window as any).visualReady===true);
+  await frame.getByRole('button',{name:'Edit',exact:true}).waitFor({state:'visible'});
+ }catch(cause){
+  await page.close();
+  throw new Error(`Plug-in fixture failed before Edit became visible. Browser errors: ${errors.join('; ')||'none'}`,{cause});
+ }
  return {page,frame,errors};
 }
 async function box(locator:Locator){const bounds=await locator.boundingBox();expect(bounds).not.toBeNull();return bounds!;}
