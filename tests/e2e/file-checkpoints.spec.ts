@@ -55,6 +55,7 @@ test('binary, missing and renamed files retain provenance',async({page})=>{
  for(const state of ['binary','missing','rename']){
   await page.goto('/file-checkpoints?state='+state);await page.getByRole('button',{name:'Review Before updating workspace layout',exact:true}).click();
   await expect(page.getByRole('region',{name:'Checkpoint review'})).toContainText(state==='rename'?'Renamed from src/old-name.ts':state);
+  await expect(page.getByRole('region',{name:'Checkpoint review'})).not.toContainText('No recorded diffs');
   await expect(page.getByRole('button',{name:'Restore selected files'})).toBeDisabled();
  }
 });

@@ -79,7 +79,7 @@ function CheckpointFiles({owner,adapter,checkpoint,preferences,onBack}:Pick<File
     {error?<div role="alert"><p>{error}</p><button type="button" onClick={()=>setAttempt(value=>value+1)}>Retry review</button></div>:!review?<p role="status">Loading checkpoint review…</p>:<>
       <p className="file-checkpoints-note">{checkpoint.provenance} · Revision {review.checkpointRevision}</p>
       {review.files.filter(file=>file.diff===null).map(file=><p className="file-checkpoints-note" key={file.path}>{file.oldPath?file.oldPath+' → ':''}{file.path} · {file.status==='available'?'No text comparison available':file.status}</p>)}
-      {review.files.length===0?<p>No files available for review.</p>:<RecordedDiffPanel snapshot={snapshot} threadId={owner.threadId??''} preferences={preferences}/>}
+      {review.files.length===0?<p>No files available for review.</p>:snapshot.data.length>0&&<RecordedDiffPanel snapshot={snapshot} threadId={owner.threadId??''} preferences={preferences}/>}
       <button type="button" disabled aria-describedby={reason}>Restore selected files</button><p id={reason} className="file-checkpoints-note">{adapter.restore.reason}</p>
     </>}
   </section>;
