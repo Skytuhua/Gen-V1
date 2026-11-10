@@ -1,6 +1,7 @@
 import {useLayoutEffect,useRef,useState,type ReactNode,type Ref} from 'react';
 import type {ModelInfo} from '../../../packages/contracts';
 import {ModelPicker,type ModelPickerHandle} from './ModelPicker';
+import {useComposerPointerPress} from './composer-pointer-press';
 import './composer-toolbar.css';
 export interface ComposerToolbarProps {
  modelPickerRef?:Ref<ModelPickerHandle>;
@@ -33,9 +34,10 @@ const close=<Glyph><path d="m5 5 10 10M15 5 5 15"/></Glyph>;
 const validCounts=(value:ComposerToolbarProps['changeSummary'])=>value&&Number.isSafeInteger(value.added)&&value.added>=0&&Number.isSafeInteger(value.removed)&&value.removed>=0?value:undefined;
 
 export function ComposerTaskActions({changeSummary,onChanges,onCreatePR,disabled=false,working=false}:Pick<ComposerToolbarProps,'changeSummary'|'onChanges'|'onCreatePR'|'disabled'|'working'>){
+ const pointerPress=useComposerPointerPress();
  const [error,setError]=useState(''),counts=validCounts(changeSummary);
  async function invoke(action:()=>void|Promise<void>){setError('');try{await action();}catch(reason){setError(reason instanceof Error?reason.message:'The action could not finish. Try again.');}}
- return <div className="composer-secondary-actions" role="group" aria-label="Task actions">
+ return <div className="composer-secondary-actions" role="group" aria-label="Task actions" {...pointerPress}>
   <button type="button" className="composer-context-chip composer-changes" aria-label="Inspect changes" title="Inspect recorded changes" disabled={disabled} onClick={()=>void invoke(onChanges)}>{changes}{counts?<span className="composer-change-counts"><span>+{counts.added}</span><span>−{counts.removed}</span></span>:<span>Changes</span>}</button>
   <button type="button" className="composer-context-chip composer-pr" aria-label="Create PR" title={working?'Wait for the active run to finish':'Ask the agent to prepare a pull request'} disabled={disabled||working} onClick={()=>void invoke(onCreatePR)}>{branch}<span>Create PR</span></button>
   {error&&<div className="composer-toolbar-error" role="alert">{error}<button type="button" className="composer-dismiss" aria-label="Dismiss task action error" onClick={()=>setError('')}>{close}</button></div>}
@@ -43,6 +45,7 @@ export function ComposerTaskActions({changeSummary,onChanges,onCreatePR,disabled
 }
 
 export function ComposerToolbar({modelPickerRef,models,modelId,onModelChange,thinkingLevel,onThinkingChange,projectLabel,changeSummary,onProject,onChanges,onCreatePR,onTranscript,disabled=false,working=false,separateActions=false,leading,runtime,context,trailing}:ComposerToolbarProps){
+ const pointerPress=useComposerPointerPress();
  const [listening,setListening]=useState(false),[error,setError]=useState('');
  const session=useRef<{recognition:VoiceRecognition;epoch:number;seen:Set<number>}|null>(null),epoch=useRef(0),transcript=useRef(onTranscript);
  transcript.current=onTranscript;
@@ -69,7 +72,7 @@ export function ComposerToolbar({modelPickerRef,models,modelId,onModelChange,thi
   try{recognition.start();setListening(true);}catch{revoke();setListening(false);setError('Voice input could not start. Try again.');}
  }
  async function invoke(action:()=>void|Promise<void>){setError('');try{await action();}catch(reason){setError(reason instanceof Error?reason.message:'The action could not finish. Try again.');}}
- return <div className="composer-toolbar" data-separated-actions={separateActions}>
+ return <div className="composer-toolbar" data-separated-actions={separateActions} {...pointerPress}>
   {!separateActions&&<ComposerTaskActions changeSummary={changeSummary} onChanges={onChanges} onCreatePR={onCreatePR} disabled={disabled} working={working}/>}
   <div className="composer-footer-main">
    <div className="composer-project-controls" role="group" aria-label="Project and runtime">
