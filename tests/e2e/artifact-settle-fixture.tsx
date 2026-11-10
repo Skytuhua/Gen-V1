@@ -15,6 +15,10 @@ function Fixture() {
   const [snapshot, setSnapshot] = useState(() => {
     const initial = structuredClone(source);
     if (new URLSearchParams(location.search).has('expanded')) initial.artifacts[0].placement = 'expanded';
+    if (new URLSearchParams(location.search).has('widget')) Object.assign(initial.artifacts[0], {
+      kind: 'widget', spec: null, bindings: {}, actions: {},
+      widget: { hash: 'settle-widget', html: '<p>Secure widget ready</p><label>Widget note<input id="note" aria-label="Widget note"></label><script>harness.onUpdate(h => { document.getElementById("note").value = h.state.note || ""; });</script>', inputSchema: { type: 'object' }, stateSchema: { type: 'object' }, eventSchema: { type: 'object' }, stateSchemaVersion: 1 },
+    });
     return initial;
   });
   const [visible, setVisible] = useState(restored), [fresh, setFresh] = useState(false), [generation, setGeneration] = useState(0);

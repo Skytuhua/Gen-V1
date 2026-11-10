@@ -16,6 +16,7 @@ import { useWorkspace } from './workspace-context';
 import { DocumentAssetProvider, hasPendingDocumentAssets } from './signature-assets';
 import { DocumentEvidenceProvider, type DocumentHandoffState } from './document-evidence';
 import { useArtifactEntrance } from './task-motion';
+import { PendingStatus } from './LoadingState';
 import {useDesktop,useDesktopCloseGuard,useDetachedSurface,usePendingSurface} from './desktop-context';
 import {journalFlush} from './journal';
 
@@ -120,7 +121,7 @@ export function Artifact({ artifact: incoming, snapshot, theme, refresh, onDirty
   };
   useDesktopCloseGuard(`artifact:${artifact.id}`,async()=>{if(detached)return;try{await prepareDetach();}catch(cause){setError(cause instanceof Error?cause.message:'Save the artifact before closing.');throw cause;}});
   // Mount once restored values can determine the first painted geometry.
-  if (!ready) return null;
+  if (!ready) return <PendingStatus pending label={`Restoring ${artifact.title}…`} />;
   const saveState = state.status === 'Saved' ? 'saved' : state.status.startsWith('Saving') ? 'saving' : state.status === 'Unsaved changes' || state.status.startsWith('Recovered draft') ? 'pending' : 'attention';
   return <ArtifactInline value={inline}><section ref={section} className={`artifact artifact-width-${artifact.presentation?.width ?? 'standard'} artifact-frame-${artifact.presentation?.frame ?? 'card'} ${expanded ? 'artifact-expanded' : ''} ${inWorkspace ? 'artifact-in-workspace' : ''} ${incoming.lifecycle === 'archived' ? 'artifact-archived' : ''}`} aria-label={artifact.title} role={expanded ? 'dialog' : undefined} aria-modal={expanded || undefined} data-artifact-id={artifact.id} data-artifact-inline={inline} data-document-handoff={documentHandoff}>
     <header className="artifact-header"><span className="artifact-title"><strong>{artifact.title}</strong></span><div className="artifact-tools">

@@ -1,5 +1,28 @@
 import { expect, type Page } from '@playwright/test';
-import { resolve } from 'node:path';
+import { basename, resolve } from 'node:path';
+import { build } from 'esbuild';
+import { WIDGET_WORKER_CSP } from '../../packages/widgets/protocol';
+import { WIDGET_BASE_CSS } from '../../packages/widgets/theme';
+
+let runtime: ReturnType<typeof build> | undefined;
+export async function holdWidgetMount(page: Page, failFirst = false) {
+  let release!: () => void, requests = 0;
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  await page.route('**/api/bootstrap', route => route.fulfill({ json: { csrfToken: 'settle-fixture', widgetOrigin: 'http://localhost:4318' } }));
+  await page.route('**/api/artifacts/*/mount', async route => {
+    const attempt = ++requests;
+    await gate;
+    if (failFirst && attempt === 1) return route.fulfill({ status: 503, json: { error: { message: 'Synthetic widget mount unavailable' } } });
+    return route.fulfill({ json: { url: 'http://localhost:4318/widget/task-surface#token=settle-token&mountId=settle-mount', token: 'settle-token', mountId: 'settle-mount', revision: 1 } });
+  });
+  const asset = async (name: string) => {
+    runtime ??= build({ entryPoints: ['packages/widgets/receiver.ts', 'packages/widgets/worker.ts'], outdir: '/tmp/artifact-settle-widget-assets', bundle: true, platform: 'browser', format: 'iife', write: false });
+    return (await runtime).outputFiles!.find(file => basename(file.path) === `${name}.js`)!.text;
+  };
+  await page.route('http://localhost:4318/widget/**', async route => route.fulfill({ contentType: 'text/html', body: `<!doctype html><style>${WIDGET_BASE_CSS}</style><body data-artifact-id="task-surface"><main id="harness-root"></main><script>${await asset('receiver')}</script></body>` }));
+  await page.route('**/widget-runtime/worker.js', async route => route.fulfill({ contentType: 'text/javascript', headers: { 'Content-Security-Policy': WIDGET_WORKER_CSP }, body: await asset('worker') }));
+  return { release, requests: () => requests };
+}
 
 type Paint = { height: number | null; afterTop: number; pending: boolean };
 type JournalWindow = Window & { artifactPaints: Paint[]; artifactJournalPending: boolean; releaseArtifactJournal: () => void };

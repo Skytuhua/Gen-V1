@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import { serveTaskFixture, taskFixture } from './task-interface-fixture';
-import { expectArtifactGeometry, holdArtifactJournal, releaseArtifactJournal, serveArtifactSettleFixture as fixture } from './artifact-settle-host';
+import { expectArtifactGeometry, holdArtifactJournal, holdWidgetMount, releaseArtifactJournal, serveArtifactSettleFixture as fixture } from './artifact-settle-host';
 
 const enter = 'cubic-bezier(0.16, 1, 0.3, 1)';
 type EntranceRecord = { target: string; duration: number; easing: string; durationToken: string; easingToken: string; frames: ComputedKeyframe[]; height: number; afterTop?: number };
@@ -161,6 +161,9 @@ for (const expanded of [false, true]) test(`delayed journal restoration preserve
   await fixture(page, '?restored' + (expanded ? '&expanded' : ''));
   const publishButton = page.getByRole('button', { name: 'Publish artifact', exact: true });
   await publishButton.focus();
+  await expect(page.getByRole('status')).toHaveText('Restoring Task surface…');
+  await expect(page.getByRole('status')).toBeVisible();
+  await expect(page.locator('.artifact')).toHaveCount(0);
   await releaseArtifactJournal(page);
   const note = page.getByRole('textbox', { name: 'Artifact note', exact: true });
   await expect(note).toHaveValue('Keep this saved note');
@@ -180,6 +183,36 @@ test('journal failure displays the full artifact without a smaller loading shell
   await expect(page.locator('.save-state')).toContainText('Local journal unavailable');
   await finish(page); await settled(page);
 });
+
+for (const width of [1024, 1440, 768]) for (const failFirst of [false, true]) {
+  test(`widget ${failFirst ? 'failure and retry' : 'delayed mount'} reserves its final geometry at ${width}`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 1000 });
+    await recordEntrances(page); await fixture(page, '?widget');
+    const mount = await holdWidgetMount(page, failFirst);
+    await page.getByRole('button', { name: 'Publish artifact', exact: true }).click();
+    await expect.poll(mount.requests).toBe(1);
+    await expect(page.getByRole('status')).toHaveText('Opening secure widget…');
+    await finish(page);
+    const pending = await expectArtifactGeometry(page);
+    mount.release();
+    if (failFirst) {
+      await expect(page.getByRole('alert')).toContainText('Synthetic widget mount unavailable');
+      expect((await expectArtifactGeometry(page)).final).toEqual(pending.final);
+      await page.getByRole('button', { name: 'Retry widget', exact: true }).click();
+    }
+    const frame = page.frameLocator('.widget-frame');
+    await expect(frame.getByText('Secure widget ready', { exact: true })).toBeVisible();
+    await expect(frame.getByRole('textbox', { name: 'Widget note', exact: true })).toHaveValue('Keep this saved note');
+    await expect(page.getByRole('status')).toHaveCount(0);
+    const final = await expectArtifactGeometry(page);
+    expect(final.final).toEqual(pending.final);
+    const sizes = await page.locator('.widget-frame').evaluate(node => ({ frame: node.getBoundingClientRect().height, slot: node.parentElement!.getBoundingClientRect().height }));
+    expect(sizes.slot).toBe(sizes.frame);
+    expect(await records(page)).toHaveLength(1);
+    await frame.getByRole('textbox', { name: 'Widget note', exact: true }).focus();
+    await expect(frame.getByRole('textbox', { name: 'Widget note', exact: true })).toBeFocused();
+  });
+}
 
 test('unmount cancels the active reveal and a restored host never replays', async ({ page }) => {
   await recordEntrances(page); await fixture(page); await publish(page);
