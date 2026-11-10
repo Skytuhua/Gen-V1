@@ -4,13 +4,17 @@ import {once} from 'node:events';
 import {cp,mkdir,mkdtemp,readFile,rm,stat,symlink,writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join,resolve} from 'node:path';
+import {pathToFileURL} from 'node:url';
 import {build} from 'esbuild';
 import {chromium,expect as browserExpect} from '@playwright/test';
 import {trustedPluginManifest} from './fixtures/trusted-plugin-frame.ts';
 
 const repository=resolve('.'),directories:string[]=[],children:ChildProcess[]=[];
+function signal(child:ChildProcess,value:'SIGINT'|'SIGTERM'){
+  if(process.platform==='win32')child.send(value);else child.kill(value);
+}
 afterEach(async()=>{
-  for(const child of children.splice(0))if(child.exitCode===null&&child.signalCode===null){const exited=once(child,'exit');child.kill('SIGTERM');await exited;}
+  for(const child of children.splice(0))if(child.exitCode===null&&child.signalCode===null){const exited=once(child,'exit');signal(child,'SIGTERM');await exited;}
   await Promise.all(directories.splice(0).map(directory=>rm(directory,{recursive:true,force:true})));
 });
 
@@ -30,13 +34,22 @@ async function scratch(brokenRuntime=false){
     import childProcess from 'node:child_process';
     import {syncBuiltinESMExports} from 'node:module';
     import {appendFileSync,statSync} from 'node:fs';
+    // Windows kill() terminates immediately. Deliver fixture signals over IPC
+    // so the real launcher and fixture handlers execute their cleanup paths.
+    if(process.platform==='win32')process.on('message',signal=>{
+      if((signal==='SIGINT'||signal==='SIGTERM')&&!process.emit(signal))process.exit(1);
+    });
     const spawn=childProcess.spawn;
     childProcess.spawn=(command,args,options)=>{
       const kind=args[0]==='--import'&&args[1]==='tsx'&&args[2]==='apps/server/main.ts'?'server':args[0]==='node_modules/vite/bin/vite.js'?'vite':null;
       if(!kind)return spawn(command,args,options);
       const assets=['dist/widget-runtime/worker.js','dist/widget-runtime/receiver.js','dist/plugin-runtime/runtime.js','dist/plugin-runtime/runtime.css'].map(path=>{try{return statSync(path).size;}catch{return 0;}});
       appendFileSync('launches.jsonl',JSON.stringify({kind,args,dev:options.env?.HARNESS_DEV,nodeEnv:(options.env??process.env).NODE_ENV,assets})+'\\n');
-      return kind==='server'?spawn(command,['--import','tsx',${JSON.stringify(join(repository,'tests/fixtures/dev-plugin-runtime-host.ts'))}],options):spawn(command,['--eval',"require('node:fs').appendFileSync('vite-started.log','started');setInterval(()=>{},1000);process.on('SIGTERM',()=>{require('node:fs').appendFileSync('stopped.log','vite\\\\n');process.exit(0);});"],options);
+      const fixtureArgs=kind==='server'?['--import','tsx',${JSON.stringify(join(repository,'tests/fixtures/dev-plugin-runtime-host.ts'))}]:['--eval',"require('node:fs').appendFileSync('vite-started.log','started');setInterval(()=>{},1000);process.on('SIGTERM',()=>{require('node:fs').appendFileSync('stopped.log','vite\\\\n');process.exit(0);});"];
+      if(process.platform==='win32')fixtureArgs.unshift('--import',import.meta.url);
+      const child=spawn(command,fixtureArgs,process.platform==='win32'?{...options,stdio:['inherit','inherit','inherit','ipc']}:options);
+      if(process.platform==='win32')child.kill=(signal='SIGTERM')=>{if(!child.connected)return false;child.send(signal);return true;};
+      return child;
     };
     syncBuiltinESMExports();
   `);
@@ -44,8 +57,9 @@ async function scratch(brokenRuntime=false){
 }
 
 function run(directory:string,dev=true){
-  const args=dev?['--import',join(directory,'launch-probe.mjs'),'scripts/dev.mjs']:['--import','tsx',join(repository,'tests/fixtures/dev-plugin-runtime-host.ts')];
-  const child=spawn(process.execPath,args,{cwd:directory,env:{...process.env,NODE_ENV:'development'},stdio:['ignore','pipe','pipe']});children.push(child);
+  const args=dev?['--import',pathToFileURL(join(directory,'launch-probe.mjs')).href,'scripts/dev.mjs']:['--import','tsx',join(repository,'tests/fixtures/dev-plugin-runtime-host.ts')];
+  if(process.platform==='win32'&&!dev)args.unshift('--import',pathToFileURL(join(directory,'launch-probe.mjs')).href);
+  const child=spawn(process.execPath,args,{cwd:directory,env:{...process.env,NODE_ENV:'development'},stdio:process.platform==='win32'?['ignore','pipe','pipe','ipc']:['ignore','pipe','pipe']});children.push(child);
   let output='';child.stdout!.on('data',chunk=>{output+=chunk;});child.stderr!.on('data',chunk=>{output+=chunk;});
   return {child,output:()=>output};
 }
@@ -98,7 +112,7 @@ it('prepares widgets and shared runtime before dev children, serves the trusted 
   }finally{await browser.close();}
   // Wait until both fixture children have installed their signal handlers.
   await expect.poll(()=>readFile(join(directory,'vite-started.log'),'utf8')).toBe('started');
-  const exited=once(dev.child,'exit');dev.child.kill('SIGINT');expect((await exited)[0]).toBe(0);
+  const exited=once(dev.child,'exit');signal(dev.child,'SIGINT');expect((await exited)[0]).toBe(0);
   await expect.poll(async()=>(await readFile(join(directory,'stopped.log'),'utf8')).trim().split('\n').sort()).toEqual(['server','vite']);
 },90000);
 
