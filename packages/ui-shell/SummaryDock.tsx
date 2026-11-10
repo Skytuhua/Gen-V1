@@ -31,10 +31,11 @@ export interface DockedSummaryProps {
 export function DockedSummary({ id, title, children, open = true, defaultCollapsed = true, summary, collapsedLabel,
   minimizeLabel, ariaLabel, className = '', focusOnOpen = false, expandRequest }: DockedSummaryProps) {
   const [collapsed, setCollapsed] = useState(() => readSummaryCollapsed(id, defaultCollapsed));
+  const [expansionPending, setExpansionPending] = useState(false);
   const panel = useRef<HTMLElement>(null), disclosure = useRef<HTMLButtonElement>(null), opener = useRef<HTMLElement | null>(null);
   const previousOpen = useRef<boolean | undefined>(undefined), bodyId = useId();
   const appliedExpansion = useRef<number | undefined>(undefined);
-  const change = (next: boolean) => { setCollapsed(next); writeSummaryCollapsed(id, next); };
+  const change = (next: boolean) => { setExpansionPending(false); setCollapsed(next); writeSummaryCollapsed(id, next); };
   useEffect(() => {
     const timer = setTimeout(() => writeSummaryCollapsed(id, collapsed), 120);
     return () => clearTimeout(timer);
@@ -51,10 +52,16 @@ export function DockedSummary({ id, title, children, open = true, defaultCollaps
     }
   }, [open, focusOnOpen]);
   useLayoutEffect(() => {
-    // A publication can expand the summary without taking focus or undoing a later manual collapse.
+    // Consume each publication once, so hide/reveal cannot undo a later manual collapse.
     if (expandRequest === undefined || !open || appliedExpansion.current === expandRequest) return;
-    appliedExpansion.current = expandRequest; change(false);
-  }, [expandRequest, open]);
+    appliedExpansion.current = expandRequest;
+    const dock = panel.current?.closest('.summary-dock');
+    if (!focusOnOpen && collapsed && dock && getComputedStyle(dock).flexDirection === 'row') {
+      // Keep released-rail headers compact until explicit expansion: a body would move the composer.
+      setExpansionPending(true); return;
+    }
+    change(false);
+  }, [expandRequest, open, focusOnOpen, collapsed]);
   return <section ref={panel} className={`docked-summary ${className}`} aria-label={ariaLabel ?? `${title} window`}
     hidden={!open} data-collapsed={collapsed} data-summary-id={id} onKeyDown={event => {
       if (event.key !== 'Escape' || event.defaultPrevented || event.nativeEvent.isComposing || event.nativeEvent.keyCode === 229 || collapsed) return;
@@ -62,8 +69,10 @@ export function DockedSummary({ id, title, children, open = true, defaultCollaps
     }}>
     <header className="docked-summary-header"><button ref={disclosure} type="button" className="docked-summary-toggle"
       aria-label={collapsed ? collapsedLabel ?? `Expand ${title}` : minimizeLabel ?? `Collapse ${title}`}
-      aria-expanded={!collapsed} aria-controls={bodyId} onClick={() => change(!collapsed)}>
-      <strong>{title}</strong>{summary != null && collapsed && <span className="docked-summary-caption" aria-hidden="true">{summary}</span>}
+      aria-expanded={!collapsed} aria-controls={bodyId} aria-describedby={expansionPending ? `${bodyId}-update` : undefined} onClick={() => change(!collapsed)}>
+      <strong>{title}</strong>{collapsed && (expansionPending
+        ? <span id={`${bodyId}-update`} className="docked-summary-caption" role="status">Update available</span>
+        : summary != null && <span className="docked-summary-caption" aria-hidden="true">{summary}</span>)}
       <ChevronDown size={14} aria-hidden="true" />
     </button></header>
     <div id={bodyId} className="docked-summary-content" hidden={collapsed} inert={collapsed || !open} aria-hidden={collapsed || !open}>{children}</div>

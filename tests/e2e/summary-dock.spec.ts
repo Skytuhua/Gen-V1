@@ -42,6 +42,8 @@ test('keyboard collapse keeps body identity and body actions independent', async
 
 test('external expansion preserves field focus and is not replayed on hide/reveal', async ({ page }) => {
   const panel = page.getByRole('region', { name: 'Project overview window', exact: true });
+  // Keep the side rail reserved; updates to a released rail are covered below.
+  await page.getByRole('region', { name: 'Live usage', exact: true }).getByRole('button', { name: 'Inspect live usage' }).click();
   await panel.getByText('Project overview', { exact: true }).click();
   const main = page.getByRole('textbox', { name: 'Main draft' }); await main.focus();
   await page.evaluate(() => window.dispatchEvent(new Event('summary-expand')));
@@ -90,8 +92,104 @@ test('usage preference and cold reload retain collapse without stale visibility 
   expect(await page.evaluate(() => (window as unknown as Window & { summaryResizeCount: number }).summaryResizeCount)).toBe(0);
 });
 
+for (const width of [1024, 1440]) {
+  for (const empty of [false, true]) {
+    test.describe(`${width}px ${empty ? 'empty' : 'populated'} conversation`, () => {
+      test.use({ viewport: { width, height: 1000 } });
+      test('releases the collapsed rail and restores it without remounting dock contents', async ({ page }) => {
+        await page.goto(`/summary-dock${empty ? '?empty=1' : ''}`);
+        const overview = page.getByRole('region', { name: 'Project overview window', exact: true });
+        const usage = page.getByRole('region', { name: 'Live usage', exact: true });
+        const draft = overview.getByRole('textbox', { name: 'Overview draft' }), original = await draft.elementHandle();
+        await draft.fill('Keep this overview edit through layout changes');
+        const chat = page.locator('.workspace'), owner = page.locator('.summary-layout-owner');
+        const expandedWidth = (await chat.boundingBox())!.width, ownerWidth = (await owner.boundingBox())!.width;
+        expect(ownerWidth - expandedWidth).toBeGreaterThanOrEqual(280);
+
+        await usage.getByRole('button', { name: 'Inspect live usage' }).click();
+        const overviewToggle = overview.getByRole('button', { name: /^(Collapse|Expand) Project overview$/ });
+        await overviewToggle.focus(); await overviewToggle.press('Enter');
+        expect((await chat.boundingBox())!.width).toBeCloseTo(expandedWidth, 0);
+        const usageToggle = usage.getByRole('button', { name: /^(Minimize live usage|Inspect live usage)$/ });
+        await usageToggle.focus(); await usageToggle.press('Enter');
+        await expect(usageToggle).toBeFocused();
+        expect((await chat.boundingBox())!.width).toBeCloseTo(ownerWidth, 0);
+        const bounds = (await owner.boundingBox())!, center = bounds.x + bounds.width / 2;
+        for (const selector of ['.conversation', '.composer-dock']) {
+          const box = (await page.locator(selector).boundingBox())!;
+          expect(box.x + box.width / 2).toBeCloseTo(center, 0);
+        }
+        for (const toggle of [overviewToggle, usageToggle]) {
+          await toggle.focus(); await toggle.press('ArrowRight');
+          await expect(toggle).toBeFocused(); await expect(toggle).toBeVisible();
+          await expect(toggle).toHaveCSS('outline-style', 'solid');
+          await expect(toggle).toHaveCSS('outline-width', '2px');
+          await expect(toggle).toHaveCSS('outline-offset', '-2px');
+          expect(await toggle.evaluate(node => {
+            const box = node.getBoundingClientRect();
+            return node.contains(document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2));
+          })).toBe(true);
+        }
+        await overviewToggle.press('Space');
+        expect((await chat.boundingBox())!.width).toBeCloseTo(expandedWidth, 0);
+        expect(await draft.evaluate((node, previous) => node === previous, original)).toBe(true);
+        await expect(draft).toHaveValue('Keep this overview edit through layout changes');
+        await overviewToggle.press('Enter');
+        await page.reload();
+        await expect(overview).toHaveAttribute('data-collapsed', 'true');
+        await expect(usage).toHaveAttribute('data-collapsed', 'true');
+        expect((await chat.boundingBox())!.width).toBeCloseTo(ownerWidth, 0);
+        await usage.getByRole('button', { name: 'Inspect live usage' }).press('Enter');
+        await expect(usage.getByRole('region', { name: 'Runtime usage details' })).toBeVisible();
+        expect((await chat.boundingBox())!.width).toBeCloseTo(expandedWidth, 0);
+      });
+      test('an unsolicited plan update keeps the released rail and focused composer in place', async ({ page }) => {
+        await page.goto(`/summary-dock${empty ? '?empty=1' : ''}`);
+        const overview = page.getByRole('region', { name: 'Project overview window', exact: true });
+        const usage = page.getByRole('region', { name: 'Live usage', exact: true });
+        await overview.getByRole('button', { name: 'Collapse Project overview' }).click();
+        await expect(overview).toHaveAttribute('data-collapsed', 'true');
+        await expect(usage).toHaveAttribute('data-collapsed', 'true');
+        const main = page.getByRole('textbox', { name: 'Main draft' });
+        await main.fill('Keep typing while a new plan arrives');
+        const geometry = () => page.locator('.conversation, .composer-dock').evaluateAll(nodes => nodes.map(node => {
+          const { x, y, width, bottom } = node.getBoundingClientRect();
+          return { x, y, width, bottom };
+        }));
+        const before = await geometry();
+        const workspace = page.locator('.workspace'), owner = page.locator('.summary-layout-owner');
+        const releasedWidth = (await owner.boundingBox())!.width;
+        expect(Math.abs((await workspace.boundingBox())!.width - releasedWidth)).toBeLessThanOrEqual(1);
+        await page.evaluate(() => window.dispatchEvent(new Event('summary-expand')));
+        await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+        await expect(main).toBeFocused();
+        const after = await geometry();
+        for (const [index, box] of before.entries()) {
+          for (const key of ['x', 'y', 'width', 'bottom'] as const) {
+            expect(Math.abs(after[index][key] - box[key]), `${index === 0 ? 'conversation' : 'composer'} ${key}`).toBeLessThanOrEqual(1);
+          }
+        }
+        expect(Math.abs((await workspace.boundingBox())!.width - releasedWidth)).toBeLessThanOrEqual(1);
+        await expect(overview).toHaveAttribute('data-collapsed', 'true');
+        await expect(overview.getByRole('textbox', { name: 'Overview draft' })).toBeHidden();
+        await expect(overview.getByRole('status')).toHaveText('Update available');
+        const toggle = overview.getByRole('button', { name: /^(Expand|Collapse) Project overview$/ });
+        await expect(toggle).toHaveAccessibleDescription('Update available');
+        await toggle.focus(); await toggle.press('ArrowRight');
+        await expect(toggle).toHaveCSS('outline-style', 'solid');
+        await expect(toggle).toHaveCSS('outline-width', '2px');
+        await toggle.press('Enter');
+        await expect(toggle).toBeFocused();
+        await expect(overview.getByRole('textbox', { name: 'Overview draft' })).toBeVisible();
+        await expect(overview.getByRole('status')).toHaveCount(0);
+        expect(releasedWidth - (await workspace.boundingBox())!.width).toBeGreaterThanOrEqual(280);
+      });
+    });
+  }
+}
+
 for (const scenario of [
-  { width: 1000, height: 650 }, { width: 706, height: 500 }, { width: 705, height: 500 },
+  { width: 1000, height: 650 }, { width: 768, height: 650 }, { width: 706, height: 500 }, { width: 705, height: 500 },
   { width: 680, height: 390 }, { width: 390, height: 600 },
 ]) {
   test.describe(`${scenario.width}x${scenario.height} cold owner`, () => {
