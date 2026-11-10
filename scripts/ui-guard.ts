@@ -15,6 +15,7 @@ export interface LegacyOverlay extends UiViolation { reason: string }
 
 // File approvals cover implementation internals, not new files in this directory.
 export const primitiveImplementations: Readonly<Record<string, string>> = {
+  'packages/ui-shell/ToolDock.tsx': 'Shared normal-flow tool owner; portals retain renderers from separate plug-in roots.',
   'packages/ui-shell/Popover.tsx': 'Shared anchored portal, dismissal and viewport placement primitive.',
   'packages/ui-shell/ActionMenu.tsx': 'Shared menu control; delegates placement and dismissal to Popover.',
   'packages/ui-shell/Select.tsx': 'Shared selection control and native form backing element.',
