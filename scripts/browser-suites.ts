@@ -64,6 +64,7 @@ export const browserSuites:BrowserSuite[] = [
   suite('plan-window-reset'),
   suite('project-app-integration', ['project-app-integration.spec.mjs']),
   suite('project-picker'),
+  suite('project-search'),
   suite('runtime-presentation'),
   suite('shared-panels'),
   suite('shell', ['frontend.spec.ts']),
