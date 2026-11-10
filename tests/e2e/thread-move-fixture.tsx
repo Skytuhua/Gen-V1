@@ -30,7 +30,7 @@ function Fixture() {
     projectOrder: query.has('recent') ? 'recent' as const : 'manual' as const };
   const matching = useMemo(() => matchingThreads(rows, [], search, preferences.projectOrder), [rows, search, preferences.projectOrder]);
   return <div className="app-shell" data-theme="dark" style={{ height: '100vh' }}>
-    <ShellSidebar key={generation} elementRef={elementRef} searchRef={searchRef} mobile={false} open layout={layout}
+    <ShellSidebar key={generation} elementRef={elementRef} searchRef={searchRef} mobile={false} open={false} layout={layout}
       preferences={preferences} matching={matching} selectedId="thread-4" loaded creating={false} search={search} setSearch={setSearch}
       close={() => {}} toggleCollapsed={() => {}} setFolded={(key, folded) => setLayout(value => ({ ...value, folded: { ...value.folded, [key]: folded } }))}
       select={() => {}} create={() => {}} settings={() => {}} rename={() => {}} archive={() => {}}

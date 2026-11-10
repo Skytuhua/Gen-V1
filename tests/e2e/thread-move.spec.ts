@@ -52,8 +52,12 @@ async function immediate(page: Page) {
 }
 
 for (const width of [1024, 1440]) {
-  test(`pointer moves FLIP only affected visible rows for 180ms with no stagger at ${width}`, async ({ page }) => {
+  test(`desktop pointer moves FLIP only affected visible rows for 180ms with drawer closed at ${width}`, async ({ page }) => {
     await page.setViewportSize({ width, height: 1000 }); await load(page, 'bounds');
+    const sidebar = page.getByRole('complementary', { name: 'Thread navigation' });
+    await expect(sidebar).toBeVisible();
+    await expect(sidebar).not.toHaveClass(/\bsidebar-open\b/);
+    await expect(sidebar).not.toHaveAttribute('inert');
     const before = await page.locator('.sidebar-thread-row').evaluateAll(nodes => Object.fromEntries(nodes.map(node => [(node as HTMLElement).dataset.threadId!, node.getBoundingClientRect().top])));
     await move(page, 'thread-4', 'top');
     expect(await order(page)).toEqual(['thread-4', 'thread-1', 'thread-2', 'thread-3', 'thread-5', 'thread-6']);

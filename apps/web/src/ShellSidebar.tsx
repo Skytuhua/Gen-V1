@@ -136,7 +136,7 @@ export function ShellSidebar({
   const [filter, setFilter] = useState<'all' | 'working' | 'waiting'>('all');
   const [showAllSettled, setShowAllSettled] = useState(false);
   const threadMove = useThreadMove(elementRef, matching,
-    preferences.projectOrder === 'manual' && !mobile && open && !layout.sidebarCollapsed,
+    preferences.projectOrder === 'manual' && !mobile && !layout.sidebarCollapsed,
     JSON.stringify([search, filter, showAllSettled, layout.folded, preferences.projectGrouping, preferences.showWorkingSection]));
 
   const visibleMatching = matching.filter(
