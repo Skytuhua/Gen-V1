@@ -1,4 +1,5 @@
 import {createElement} from 'react';
+import {readFileSync} from 'node:fs';
 import {renderToStaticMarkup} from 'react-dom/server';
 import {describe,expect,it} from 'vitest';
 import type {ProjectContext} from '../packages/contracts/workspace';
@@ -43,6 +44,15 @@ describe('proven duplicate removals',()=>{
   snapshot.memory=[{id:'n',threadId:'task-thread',key:'decision',content:'Owner note',revision:1,author:'user',updatedAt:'2026-11-10T00:00:00Z'}];
   const html=renderToStaticMarkup(createElement(WorkspaceSurfaceBody,{kind:'notes',binding:{authority:{kind:'local'},threadId:'task-thread'},snapshot,refresh:async()=>{},preferences:DEFAULT_PREFERENCES}));
   expect(html).toContain('Owner note');expect(html.match(/aria-label="Thread memory"/g)).toHaveLength(1);
+  const usageHtml=renderToStaticMarkup(createElement(WorkspaceSurfaceBody,{kind:'usage',binding:{authority:{kind:'local'},threadId:'task-thread'},snapshot,refresh:async()=>{},preferences:DEFAULT_PREFERENCES}));
+  expect(usageHtml).not.toContain('aria-label="Thread memory"');
+  expect(usageHtml).not.toContain('Note decision');
+ });
+ it('opts the production main and split summary owners into the retained composer Changes route',()=>{
+  const app=readFileSync(new URL('../apps/web/src/App.tsx',import.meta.url),'utf8');
+  const summaries=app.split('<ProjectContextSurface').slice(1).filter(value=>value.includes("key={thread?.id??'new'}"));
+  expect(summaries).toHaveLength(2);
+  for(const summary of summaries)expect(summary.split('/>')[0]).toContain('composerChangesAvailable={Boolean(thread&&!threadParent(thread)&&!delegatedThread(thread)&&!pinnedThreadId&&!embeddedThreadId)}');
  });
  it('respects the footer visibility preference',()=>{expect(renderToStaticMarkup(createElement(UsageFooter,{usage,visible:false}))).toBe('');});
 });

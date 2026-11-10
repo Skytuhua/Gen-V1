@@ -1,9 +1,30 @@
 import {expect,test} from '@playwright/test';
+import {shellInit,shellRoute,shellSnapshot} from '../../scripts/capture-ui/shell-api';
+import {projectContext} from '../../scripts/capture-ui/browser-data';
 
 test.beforeEach(async({page})=>{
  await page.addInitScript(()=>localStorage.setItem('harness:summary:usage:v1',JSON.stringify({collapsed:false})));
  await page.addInitScript(()=>{const requests:unknown[]=[];Object.defineProperty(window,'wo5Requests',{value:requests});window.addEventListener('redundant-request',event=>requests.push((event as CustomEvent).detail));});
  await page.route('**/api/**',route=>route.abort('blockedbyclient'));
+});
+test('production App hides the equivalent overview route and opens same-owner Changes from its composer',async({page})=>{
+ const snapshot=shellSnapshot();snapshot.threads[0].projectId='capture-project';
+ await page.addInitScript(shellInit);
+ await page.route('**/api/**',async route=>{
+  const path=new URL(route.request().url()).pathname;
+  if(path==='/api/projects/capture-project/context')return route.fulfill({json:{...projectContext,threadId:'one'}});
+  if(path==='/api/projects/capture-project/git'){
+   expect(new URL(route.request().url()).searchParams.get('threadId')).toBe('one');
+   return route.fulfill({json:{projectId:'capture-project',threadId:'one',head:'a'.repeat(40),revision:'b'.repeat(64),branch:'audit',files:[],diff:'Same-owner production diff',stagedDiff:'',gitWrite:false}});
+  }
+  return shellRoute(route,snapshot,false);
+ });
+ await page.goto('/actual-app');
+ await page.getByRole('button',{name:'Expand Project overview',exact:true}).click();
+ await expect(page.locator('.project-context-card')).toContainText('Audit project');
+ await expect(page.locator('.project-context-card').getByRole('button',{name:/^Changes/})).toHaveCount(0);
+ await page.getByRole('button',{name:'Inspect changes',exact:true}).click();
+ await expect(page.locator('.live-diff')).toContainText('Same-owner production diff');
 });
 for(const width of [1440,1024,768])test(`reduced UI keeps its destinations at ${width}`,async({page})=>{
  await page.setViewportSize({width,height:1000});await page.goto('/redundant-ui');
@@ -48,6 +69,8 @@ test('Notes preserves its unsaved draft through navigation and reload',async({pa
  await page.goto('/redundant-ui');await page.getByRole('button',{name:'Notes',exact:true}).click();
  const editor=page.getByRole('textbox',{name:'Note decision',exact:true});await expect(editor).toBeEnabled();await editor.fill('Keep this unsaved owner A note.');
  await page.getByRole('button',{name:'Usage panel',exact:true}).click();
+ await expect(page.getByRole('region',{name:'Thread memory',exact:true})).toHaveCount(0);
+ await expect(editor).toHaveCount(0);
  await page.getByRole('button',{name:'Notes',exact:true}).click();await expect(editor).toHaveValue('Keep this unsaved owner A note.');
  await page.reload();await page.getByRole('button',{name:'Notes',exact:true}).click();await expect(editor).toHaveValue('Keep this unsaved owner A note.');
  await expect(page.getByRole('region',{name:'Thread memory',exact:true})).toHaveCount(1);

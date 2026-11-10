@@ -581,6 +581,8 @@
     "scripts/build-task-design-review.mjs",
     "scripts/build-widgets.mjs",
     "scripts/capture-repository-screenshots.ts",
+    "scripts/capture-ui/browser-data.ts",
+    "scripts/capture-ui/shell-api.ts",
     "scripts/create-fixtures.ts",
     "scripts/cursor-mcp-metadata-probe.mjs",
     "scripts/cursor-offline-executor.mjs",

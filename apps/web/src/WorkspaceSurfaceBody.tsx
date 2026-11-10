@@ -43,7 +43,7 @@ export function WorkspaceSurfaceBody({kind,binding,snapshot,refresh,active=true,
  const prefs=preferences??getPreferences(snapshot.settings);
  if(kind==='plan')return <PlanStatus snapshot={snapshot} threadId={threadId}/>;
  if(kind==='notes')return binding.threadId&&snapshot.threads.some(item=>item.id===binding.threadId)?<TaskMemory key={binding.threadId} snapshot={snapshot} threadId={binding.threadId}/>:<p className="panel-note">Choose the owning conversation to use these notes.</p>;
- if(kind==='usage')return <><UsageSummary usage={threadId?snapshot.usage[threadId]:undefined}/><TaskMemory snapshot={snapshot} threadId={threadId}/></>;
+ if(kind==='usage')return <UsageSummary usage={threadId?snapshot.usage[threadId]:undefined}/>;
  if(kind==='artifact')return <ArtifactSurface binding={binding} snapshot={snapshot} refresh={refresh} active={active}/>;
  if(kind==='output')return <OutputPanel snapshot={snapshot} threadId={threadId} preferences={prefs}/>;
  if(kind==='workspace')return <WorkspaceLauncher onOpenTool={onOpenTool}/>;
