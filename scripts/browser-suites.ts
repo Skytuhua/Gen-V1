@@ -37,6 +37,7 @@ export const browserSuites:BrowserSuite[] = [
   suite('memory-recovery-app', undefined, {config:'tests/e2e/memory-recovery.playwright.config.ts', env:{GEN_MEMORY_MODE:'app'}}),
   suite('memory-recovery-journal', undefined, {config:'tests/e2e/memory-recovery.playwright.config.ts', env:{GEN_MEMORY_MODE:'journal'}}),
   suite('frontend-refinement', ['artifact-style.spec.ts', 'canvas-clarity.spec.ts', 'composer-app-refinement.spec.ts', 'context-compact.spec.ts', 'document-smoothness.spec.ts', 'drag-detach.spec.ts', 'floating-windows.spec.ts', 'free-floating.spec.ts', 'frontend-refinement.spec.ts', 'no-detach-canvas.spec.ts', 'reserved-rail.spec.ts', 'right-tools.spec.ts']),
+  suite('conversation-find'),
   suite('conversation-scroll'),
   suite('micro-motion', ['composer-integration.spec.ts', 'composer-motion.spec.ts', 'markdown.spec.ts', 'micro-motion.spec.ts', 'proactive-copy.spec.ts', 'progressive-fidelity.spec.ts', 'shared-motion.spec.ts', 'shared-smoothness.spec.ts']),
   suite('motion-tokens', ['document-pair-layout.spec.ts', 'motion-tokens.spec.ts']),
