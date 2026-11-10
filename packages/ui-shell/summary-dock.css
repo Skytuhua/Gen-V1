@@ -10,6 +10,7 @@
 .docked-summary[hidden],.docked-summary-content[hidden] { display:none; }
 .docked-summary-header { flex:none; min-width:0; }
 .docked-summary-toggle { display:flex; width:100%; min-height:36px; gap:8px; padding:8px 12px; text-align:left; }
+.docked-summary-toggle:focus-visible { outline-offset:-2px; }
 .docked-summary-toggle strong { flex:1; min-width:0; font-size:14px; font-weight:550; overflow-wrap:anywhere; }
 .docked-summary-toggle>svg { flex:none; color:var(--muted); transition:transform var(--ui-motion-panel-exit,180ms) var(--ui-ease-enter,ease-out); }
 .docked-summary-toggle[aria-expanded=true]>svg { transform:rotate(180deg); }
@@ -27,6 +28,13 @@
 .summary-usage dt { color:var(--muted); overflow-wrap:anywhere; }
 .summary-usage dd { margin:0; text-align:right; }
 .summary-overview .project-context-machine strong { white-space:normal; overflow-wrap:anywhere; }
+@container summary-owner (width >= 706px) {
+  /* Only expanded, visible bodies need a side column. Keep collapsed disclosures in normal flow. */
+  .summary-layout[data-summaries=true]:not(:has(>.summary-dock>.docked-summary:not([hidden])[data-collapsed=false])) { grid-template-columns:minmax(0,1fr); grid-template-rows:minmax(0,1fr) auto; }
+  .summary-dock:not(:has(>.docked-summary:not([hidden])[data-collapsed=false])) { flex-direction:row; justify-content:flex-end; padding:6px 12px 12px; }
+  .summary-dock:not(:has(>.docked-summary:not([hidden])[data-collapsed=false]))>.docked-summary { flex:0 1 300px; }
+  .summary-dock:not(:has(>.docked-summary:not([hidden])[data-collapsed=false]))>.summary-usage { margin-top:0; }
+}
 @container summary-owner (width < 706px) {
   .summary-layout { grid-template-columns:minmax(0,1fr); grid-template-rows:minmax(0,1fr) auto; }
   .summary-dock { --summary-min-height:56px; max-height:min(45cqh,max(var(--summary-min-height),calc(100cqh - 240px - var(--summary-layout-gap)))); padding:6px 12px 12px; }

@@ -31,7 +31,10 @@ function Fixture() {
       </SummaryDock>}>
       <main className="workspace">
         <header className="workspace-header"><button type="button" onClick={() => setShow(value => !value)}>Toggle overview</button></header>
-        <input aria-label="Main draft" defaultValue="Keep composer focus" />
+        <div className="conversation-scroll"><div className="conversation">
+          {new URLSearchParams(location.search).has('empty') ? <div className="empty-state"><h1>What are we working on?</h1></div> : <p>Review the workspace, sidebar and composer.</p>}
+        </div></div>
+        <div className="composer-dock"><div className="composer"><input aria-label="Main draft" defaultValue="Keep composer focus" /></div></div>
         <button type="button" onClick={() => setUsage(value => !value)}>Toggle usage preference</button>
         <button type="button" onClick={() => setRequests(value => value + 1)}>Expand from plan update</button>
         <output aria-label="Body actions">{actions}</output>
