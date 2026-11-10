@@ -1,5 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 import { PDFDocument } from 'pdf-lib';
+import { resolve } from 'node:path';
 import { createSigningPdfFixture } from './document-preview-fixture';
 import { serveTaskFixture, taskFixture, type TaskSpec } from './task-interface-fixture';
 
@@ -42,6 +43,42 @@ async function fixture(page: Page) {
 }
 const resetWrites = (page: Page) => page.evaluate(() => { (window as unknown as { pdfPanWrites: PanWrite[] }).pdfPanWrites = []; });
 const writes = (page: Page) => page.evaluate(() => (window as unknown as { pdfPanWrites: PanWrite[] }).pdfPanWrites);
+
+for (const layout of ['Stack', 'Split'] as const) for (const width of [768, 1024, 1440]) test(`PDF and direct signature controls in ${layout} pair by available artifact width at ${width}px`, async ({ page }) => {
+  await page.setViewportSize({ width, height: 1000 });
+  const source = await createSigningPdfFixture({ pages: 1 });
+  const snapshot = taskFixture({ root: 'pair', elements: {
+    pair: { type: layout, props: { gap: 'md' }, children: ['pdf', 'signature'] },
+    pdf: { type: 'DocumentPreview', props: { resourceId: 'pdf', title: 'Agreement.pdf', fit: 'page' } },
+    signature: { type: 'SignaturePad', props: { stateKey: 'signature', label: 'Signature controls', initialMode: 'draw' } },
+  } });
+  snapshot.settings.preferences = { chatWidth: 'full' };
+  snapshot.resources = [{ id: 'pdf', threadId: 'task-thread', kind: 'file', path: 'C:/fixture/agreement.pdf', label: 'Agreement.pdf', writable: false, createdAt: '2026-10-30' }];
+  await serveTaskFixture(page, snapshot);
+  await page.route('**/api/resources/pdf/content', route => route.fulfill({ contentType: 'application/pdf', body: Buffer.from(source) }));
+  // The embedded artifact has the same available measure as the audited screen.
+  const fixturePath = encodeURI('/@fs/' + resolve('tests/e2e/document-pair-fixture.tsx').replaceAll('\\', '/'));
+  await page.route('**/document-pair-check', route => route.fulfill({ contentType: 'text/html', body: `<html data-theme="dark"><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${fixturePath}');</script></body></html>` }));
+  await page.goto('/document-pair-check'); await expect(page.locator('.document-preview')).toHaveAttribute('data-preview-state', 'ready', { timeout: 15000 });
+  const pair = page.locator(':is(.surface-layout,.surface-split):has(>.document-preview):has(>.signature-pad)');
+  const geometry = () => pair.evaluate(node => {
+    const pdf = node.querySelector('.document-preview')!.getBoundingClientRect(), signature = node.querySelector('.signature-pad')!.getBoundingClientRect();
+    return { width: node.getBoundingClientRect().width, paired: pdf.right <= signature.left && Math.abs(pdf.top - signature.top) < 2, stacked: pdf.bottom <= signature.top || signature.bottom <= pdf.top };
+  });
+  expect((await geometry()).width).toBeGreaterThanOrEqual(620);
+  expect((await geometry()).paired).toBe(true);
+  const canvas = await page.locator('.document-preview canvas').elementHandle();
+  const draw = page.getByRole('button', { name: 'Draw', exact: true }); await draw.focus();
+  await expect(draw).toBeFocused(); await expect(draw).toHaveCSS('outline-style', 'solid'); await expect(draw).toHaveCSS('outline-width', '2px');
+  // Resize the actual named container around the same mounted PDF and controls.
+  for (const available of [619.5, 620, 619, 640]) {
+    await page.locator('.artifact-content').evaluate((node, available) => { (node as HTMLElement).style.width = `${available}px`; }, available);
+    await expect.poll(async () => (await geometry()).paired).toBe(available >= 620);
+    expect((await geometry()).stacked).toBe(available < 620);
+    await expect(draw).toBeFocused();
+    expect(await page.locator('.document-preview canvas').evaluate((node, previous) => node === previous, canvas)).toBe(true);
+  }
+});
 
 for(const chatWidth of ['comfortable','wide'] as const)for(const width of [1440,700,390])test(`paired inline PDF follows ${chatWidth} composer and stacks only when narrow at ${width}px`,async({page})=>{
  await page.setViewportSize({width,height:1000});

@@ -7,10 +7,14 @@ import {readMotionPolicy,observeMotionPolicy} from './motion-policy';
 
 export const TASK_MOTION = Object.freeze({ step: 180, status: 220, height: 280, branch: 220, chunk: 120, sibling: 60, popover: 140, path: 450, check: 90 });
 export const reducedMotion = () => readMotionPolicy() !== 'full';
-export function animateTask(element: Element | null, frames: Keyframe[], duration: number) {
+export function animateTask(element: Element | null, frames: Keyframe[], duration: number, tokens?: { duration: string; easing: string }) {
   if (!element) return;
   const policy = readMotionPolicy();
   if (policy === 'off') return;
+  const style = tokens ? getComputedStyle(element) : undefined;
+  const tokenDuration = tokens && style?.getPropertyValue(tokens.duration).trim();
+  if (tokenDuration) duration = Number.parseFloat(tokenDuration) * (tokenDuration.endsWith('ms') ? 1 : 1000);
+  const easing = tokens && style?.getPropertyValue(tokens.easing).trim() || 'cubic-bezier(.22,1,.36,1)';
   duration /= Number(document.documentElement.style.getPropertyValue('--motion-speed')) || 1;
   const travelling = frames.some(frame => Object.keys(frame).some(key => !['opacity','offset','easing','composite'].includes(key)));
   if (policy === 'reduced') {
@@ -18,7 +22,7 @@ export function animateTask(element: Element | null, frames: Keyframe[], duratio
     frames = frames.map(frame => ({ ...(frame.opacity !== undefined ? { opacity: frame.opacity } : {}), ...(frame.offset !== undefined ? { offset: frame.offset } : {}) }));
     duration = Math.min(duration, 80);
   }
-  const animation = element.animate(frames, { duration, easing: policy === 'reduced' ? 'ease-out' : 'cubic-bezier(.22,1,.36,1)' });
+  const animation = element.animate(frames, { duration, easing: policy === 'reduced' ? 'ease-out' : easing });
   const stopObservingMotion = observeMotionPolicy(next => {
     if (next === 'off' || next === 'reduced' && policy === 'full' && travelling) {
       cleanup();

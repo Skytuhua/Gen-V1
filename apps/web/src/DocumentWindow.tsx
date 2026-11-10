@@ -63,7 +63,7 @@ export function WindowDocument({props,text}:{props:Record<string,unknown>;text?:
  useEffect(()=>{if(scope?.active===false||scope?.editable===false)workspace.closeDocument?.(id);},[scope?.active,scope?.editable,id]);
  useEffect(()=>{if(!open){focused.current=false;return;}if(visibleSource!==undefined&&!focused.current){const target=editor.current??windowRef.current?.querySelector<HTMLElement>('button');if(target){focused.current=true;target.focus({preventScroll:true});}}},[open,visibleSource,portalRoot]);
  useEffect(()=>()=>{stopDrag.current();workspace.closeDocument?.(id);},[id]);
- useLayoutEffect(()=>{if(!open||!portalRoot)return;const animation=animateTask(windowRef.current,[{opacity:.4,transform:'translateX(14px) scale(.99)'},{opacity:1,transform:'translateX(0) scale(1)'}],260);return()=>animation?.cancel();},[open,portalRoot]);
+ useLayoutEffect(()=>{if(!open||!portalRoot)return;const animation=animateTask(windowRef.current,[{opacity:.4,transform:'translateX(14px) scale(.99)'},{opacity:1,transform:'translateX(0) scale(1)'}],220,{duration:'--ui-motion-panel-enter',easing:'--ui-ease-enter'});return()=>animation?.cancel();},[open,portalRoot]);
  useEffect(()=>{if(!open)return;const resize=()=>setPosition(before=>before?{x:Math.max(8,Math.min(innerWidth-80,before.x)),y:Math.max(8,Math.min(innerHeight-80,before.y))}:before);window.addEventListener('resize',resize);return()=>window.removeEventListener('resize',resize);},[open]);
  const move=(event:PointerEvent<HTMLButtonElement>)=>{
   if(event.button!==0)return;event.preventDefault();stopDrag.current();const box=windowRef.current!.getBoundingClientRect(),origin={x:event.clientX,y:event.clientY},pointerId=event.pointerId;let started=false;

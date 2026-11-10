@@ -65,7 +65,7 @@ export function FloatingWindow({id,title,children,open=true,onClose,anchor='top-
     update(current.current);
     if(wasOpen)return;
     if(wasOpen===false)opener.current=document.activeElement instanceof HTMLElement?document.activeElement:null;
-    const animation=shell.current?.closest('.app-shell')?.getAttribute('data-panel-animations')==='false'?undefined:animateTask(shell.current,[{opacity:.4,transform:'translateY(9px) scale(.985)'},{opacity:1,transform:'translateY(-1px) scale(1.002)',offset:.78},{opacity:1,transform:'translateY(0) scale(1)'}],280);
+    const animation=shell.current?.closest('.app-shell')?.getAttribute('data-panel-animations')==='false'?undefined:animateTask(shell.current,[{opacity:.4,transform:'translateY(9px) scale(.985)'},{opacity:1,transform:'translateY(0) scale(1)'}],220,{duration:'--ui-motion-panel-enter',easing:'--ui-ease-enter'});
     entrance.current=animation;
     if(wasOpen===false&&focusOnOpen)(minimizeOnly?(current.current.collapsed?summaryButton:minimizeButton):moveButton).current?.focus({preventScroll:true});
     return()=>animation?.cancel();

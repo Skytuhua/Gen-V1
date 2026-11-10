@@ -10,7 +10,7 @@ button:disabled { cursor:not-allowed; opacity:.45; }
 button,input,textarea,select,summary,a { -webkit-tap-highlight-color:transparent; }
 button,a,input,textarea,select,summary { outline-offset:3px; }
 :focus-visible { outline:2px solid var(--accent); }
-button { transition:background-color 180ms ease-out,color 180ms ease-out; }
+button { transition:background-color var(--ui-motion-hover) var(--ui-ease-move),color var(--ui-motion-hover) var(--ui-ease-move); }
 input,textarea,select { color:var(--text); background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:9px 11px; min-width:0; accent-color:var(--accent); caret-color:var(--accent); }
 input::placeholder,textarea::placeholder { color:var(--placeholder); opacity:1; }
 input[type="checkbox"] { padding:0; width:15px; height:15px; flex-shrink:0; }
@@ -173,7 +173,7 @@ button:has(>svg.lucide-x):hover:not(:disabled),button:has(>svg.lucide-circle-x):
 .artifact-state.is-dirty { color:var(--pending); }
 .artifact-body { padding:16px; min-height:80px; }
 .artifact-content { width:100%; max-width:1040px; margin:0 auto; container:artifact / inline-size; }
-@container artifact (max-width:619px) {
+@container artifact (width < 620px) {
   .surface-split:has(>.document-preview) { display:flex; flex-direction:column; }
   .surface-split:has(>.document-preview)>:not(.document-preview) { order:-1; }
 }
