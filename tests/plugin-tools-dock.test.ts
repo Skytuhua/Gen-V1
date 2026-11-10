@@ -13,13 +13,28 @@ beforeAll(async()=>{
 afterAll(async()=>{await browser?.close();});
 
 const legacy={x:1124,y:72,width:300,height:180,collapsed:false,floating:true};
-async function fixture(width:number,saved:unknown=null,failReads=false){
+async function fixture(width:number,saved:unknown=null,failReads=false,delayReads=false){
  const page=await browser.newPage({viewport:{width,height:1000},reducedMotion:'reduce'}),errors:string[]=[];
  page.setDefaultTimeout(3000);
  page.on('pageerror',error=>errors.push(error.message));
+ if(delayReads)await page.addInitScript(()=>{
+  // Observe every frame, starting before the runtime mounts, so a fallback
+  // split painted while journalRead is pending cannot escape the assertion.
+  const frames:Record<string,{x:number;y:number;width:number;height:number}>[]=[];
+  (window as any).dockFrames=frames;
+  const sample=()=>{
+   const dock=document.querySelector('.ui-tool-dock');
+   if(dock?.getBoundingClientRect().width){
+    const selectors={dock:'.ui-tool-dock',workarea:'#root',inspector:'.pv-inspector',canvas:'.pv-canvas',diagram:'.pv-canvas-viewport'};
+    frames.push(Object.fromEntries(Object.entries(selectors).map(([name,selector])=>{const {x,y,width,height}=document.querySelector(selector)!.getBoundingClientRect();return [name,{x,y,width,height}];})));
+   }
+   requestAnimationFrame(sample);
+  };
+  requestAnimationFrame(sample);
+ });
  await page.route('http://127.0.0.1/**',route=>{
   const path=new URL(route.request().url()).pathname;
-  const body=path==='/plugin.js'?javascript:path==='/plugin.css'?css:path==='/plugin'?'<html data-theme="dark"><head><meta name="gen-plugin-id" content="personal-visuals"><link rel="stylesheet" href="/plugin.css"></head><body><div id="root"></div><script src="/plugin.js"></script></body></html>':pluginToolsParent.replace('window.saved=null;window.failReads=false;',`window.saved=${JSON.stringify(saved)};window.failReads=${failReads};`);
+  const body=path==='/plugin.js'?javascript:path==='/plugin.css'?css:path==='/plugin'?'<html data-theme="dark"><head><meta name="gen-plugin-id" content="personal-visuals"><link rel="stylesheet" href="/plugin.css"></head><body><div id="root"></div><script src="/plugin.js"></script></body></html>':pluginToolsParent.replace('window.saved=null;window.failReads=false;window.delayReads=false;',`window.saved=${JSON.stringify(saved)};window.failReads=${failReads};window.delayReads=${delayReads};`);
   return route.fulfill({contentType:path.endsWith('.js')?'text/javascript':path.endsWith('.css')?'text/css':'text/html',body});
  });
  await page.goto('http://127.0.0.1/plugin-dock-test');
@@ -56,6 +71,59 @@ it.each([768,1024,1440])('keeps tools, diagram controls and readable inspector s
  }finally{await page.close();}
 });
 
+it.each([
+ {width:1024,saved:{...legacy,width:720},preferredWidth:720},
+ {width:1440,saved:{...legacy,width:720},preferredWidth:720},
+ {width:1024,saved:null,preferredWidth:400},
+ {width:1440,saved:{...legacy,width:undefined},preferredWidth:400},
+])('uses the settled split on its first visible frame after a delayed read at $width px (preferred $preferredWidth)',async({width,saved,preferredWidth})=>{
+ const {page,frame,errors}=await fixture(width,saved,false,true);
+ try{
+  await browserExpect.poll(()=>page.evaluate(()=>(window as any).pendingReads.length)).toBe(1);
+  await frame.evaluate(async()=>{for(let count=0;count<4;count++)await new Promise(requestAnimationFrame);});
+  expect(await frame.evaluate(()=>(window as any).dockFrames.length)).toBe(0);
+  await browserExpect(frame.getByRole('complementary',{name:'Tools',exact:true})).toBeHidden();
+  await expect(frame.evaluate(()=>(window as any).GenPluginUI.pluginFlush())).rejects.toThrow();
+  expect(await page.evaluate(()=>(window as any).calls.filter((call:any)=>call.operation==='state.write'))).toEqual([]);
+  await page.evaluate(()=>{(window as any).delayReads=false;for(const reply of (window as any).pendingReads.splice(0))reply();});
+  await frame.getByRole('button',{name:'Minimize Plugin tools',exact:true}).waitFor();
+  await frame.evaluate(async()=>{for(let count=0;count<12;count++)await new Promise(requestAnimationFrame);});
+  const frames=await frame.evaluate(()=>(window as any).dockFrames) as Record<string,{x:number;y:number;width:number;height:number}>[];
+  expect(frames.length).toBeGreaterThanOrEqual(12);
+  expect(frames[0].dock.width).toBe(Math.min(preferredWidth,width-426));
+  expect(frames[0].workarea.width).toBe(width-6-frames[0].dock.width);
+  for(const snapshot of frames)expect(snapshot).toEqual(frames[0]);
+  await geometry(frame,width);expect(errors).toEqual([]);
+ }finally{await page.close();}
+});
+
+it('expands on reopening when an expansion request arrived while collapsed and closed',async()=>{
+ const {page,frame,errors}=await fixture(1024,{...legacy,collapsed:true});
+ try{
+  const tool=frame.getByRole('region',{name:'Plugin tools window',exact:true,includeHidden:true}),draft=tool.getByRole('textbox',{name:'Tool draft'});
+  await tool.getByRole('button',{name:'Expand Plugin tools',exact:true}).waitFor();
+  await tool.getByRole('button',{name:'Close Plugin tools',exact:true}).click();await browserExpect(tool).toBeHidden();
+  await frame.evaluate(async()=>{(window as any).setToolsExpandRequest(1);await new Promise(requestAnimationFrame);});
+  await browserExpect(tool).toHaveAttribute('data-collapsed','true');
+  await frame.evaluate(()=>(window as any).setToolsOpen(true));
+  await browserExpect(draft).toBeVisible();await browserExpect(tool.getByRole('button',{name:'Minimize Plugin tools',exact:true})).toHaveAttribute('aria-expanded','true');
+  await browserExpect.poll(()=>page.evaluate(()=>(window as any).saved)).toEqual(legacy);expect(errors).toEqual([]);
+ }finally{await page.close();}
+});
+
+it('suppresses Close for minimize-only windows and keeps Escape minimizing',async()=>{
+ const {page,frame,errors}=await fixture(1024,legacy);
+ try{
+  const tool=frame.getByRole('region',{name:'Plugin tools window',exact:true}),draft=tool.getByRole('textbox',{name:'Tool draft'});
+  await draft.waitFor();await frame.evaluate(()=>(window as any).setToolsMinimizeOnly(true));
+  await browserExpect(tool.getByRole('button',{name:'Close Plugin tools',exact:true})).toHaveCount(0);
+  await draft.press('Escape');await browserExpect(draft).toBeHidden();await browserExpect(tool).toBeVisible();
+  const disclosure=tool.getByRole('button',{name:'Expand Plugin tools',exact:true});await browserExpect(disclosure).toHaveAttribute('aria-expanded','false');
+  await disclosure.press('Escape');await browserExpect(tool).toBeVisible();await browserExpect(draft).toBeHidden();
+  await browserExpect.poll(()=>page.evaluate(()=>(window as any).saved)).toEqual({...legacy,collapsed:true});expect(errors).toEqual([]);
+ }finally{await page.close();}
+});
+
 it('keeps drafts mounted through collapse, resize and close; journals collapse without overwriting legacy coordinates',async()=>{
  const {page,frame,errors}=await fixture(1440,legacy);
  try{
@@ -78,6 +146,8 @@ it('retains recovery and journal retry barriers for the dock',async()=>{
  const {page,frame}=await fixture(1024,legacy,true);
  try{
   await frame.getByRole('button',{name:'Retry recovery',exact:true}).waitFor();
+  expect((await box(frame.getByRole('complementary',{name:'Tools',exact:true}))).width).toBe(400);
+  await expect(frame.evaluate(()=>(window as any).GenPluginUI.pluginFlush())).rejects.toThrow();
   expect(await page.evaluate(()=>(window as any).calls.filter((call:any)=>call.operation==='state.write'))).toEqual([]);
   await page.evaluate(()=>{(window as any).failReads=false;(window as any).failWrites=true;});
   await frame.getByRole('button',{name:'Retry recovery',exact:true}).click();

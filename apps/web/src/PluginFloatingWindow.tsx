@@ -11,7 +11,7 @@ function DockedWindow({layout,onLayout,notice,...props}:FloatingWindowProps&{lay
  const {id,title,children,open=true,onClose,defaultCollapsed=false,summary,collapsedLabel,minimizeLabel,ariaLabel,className='',escapeBehavior='close',focusOnOpen=true,expandRequest}=props;
  const [collapsed,setCollapsed]=useState(typeof layout?.collapsed==='boolean'?layout.collapsed:defaultCollapsed),disclosure=useRef<HTMLButtonElement>(null),shell=useRef<HTMLElement>(null),previousOpen=useRef(open),opener=useRef<HTMLElement|null>(null),bodyId=useId();
  const collapse=(value:boolean)=>{setCollapsed(value);onLayout({...layout,collapsed:value});disclosure.current?.focus({preventScroll:true});};
- useLayoutEffect(()=>{if(expandRequest!==undefined&&open&&collapsed){setCollapsed(false);onLayout({...layout,collapsed:false});}},[expandRequest]);
+ useLayoutEffect(()=>{if(expandRequest!==undefined&&open&&collapsed){setCollapsed(false);onLayout({...layout,collapsed:false});}},[expandRequest,open]);
  useLayoutEffect(()=>{
   if(open&&!previousOpen.current){opener.current=document.activeElement instanceof HTMLElement?document.activeElement:null;if(focusOnOpen)disclosure.current?.focus({preventScroll:true});}
   if(!open&&previousOpen.current&&shell.current?.contains(document.activeElement)&&opener.current?.isConnected)opener.current.focus({preventScroll:true});
@@ -23,7 +23,7 @@ function DockedWindow({layout,onLayout,notice,...props}:FloatingWindowProps&{lay
  }}>
   <div className="floating-window-header" data-compact={collapsed}>
    <button ref={disclosure} type="button" className="floating-window-summary" aria-label={collapsed?(collapsedLabel??`Expand ${title}`):(minimizeLabel??`Minimize ${title}`)} aria-expanded={!collapsed} aria-controls={bodyId} onClick={()=>collapse(!collapsed)}><strong>{title}</strong>{collapsed&&summary}{collapsed?<ChevronUp size={13} aria-hidden="true"/>:<ChevronDown size={13} aria-hidden="true"/>}</button>
-   {onClose&&<button type="button" className="floating-window-control" aria-label={`Close ${title}`} onClick={onClose}><X size={13} aria-hidden="true"/></button>}
+   {!props.minimizeOnly&&onClose&&<button type="button" className="floating-window-control" aria-label={`Close ${title}`} onClick={onClose}><X size={13} aria-hidden="true"/></button>}
   </div>
   {notice}
   <div id={bodyId} className="floating-window-body" hidden={collapsed}><div className="floating-window-content">{children}</div></div>
@@ -43,5 +43,8 @@ export function PluginFloatingWindow(props:FloatingWindowProps){
  const hasRecovered=recovery?.id===props.id,preferredWidth=(hasRecovered?recovery.layout?.width:undefined)??props.defaultSize?.width??400;
  const width=Number.isFinite(preferredWidth)?Math.max(280,Math.min(720,preferredWidth)):400;
  const notice=error&&<p role="alert">{error} {hasRecovered?<button type="button" onClick={()=>{void retryJournalWrites().then(()=>setError(''),()=>setError('Window placement could not be saved. Keep this view open.'));}}>Retry saving</button>:<button type="button" onClick={()=>setRetryRecovery(value=>value+1)}>Retry recovery</button>}</p>;
- return <ToolDock width={width}>{hasRecovered?<DockedWindow key={props.id} {...props} layout={recovery.layout} onLayout={write} notice={notice}/>:<section hidden={props.open===false} className="floating-window plugin-tool-window" data-collapsed="false" aria-label={props.ariaLabel??`${props.title} window`}><div className="floating-window-header"><strong className="floating-window-title">{props.title}</strong></div>{notice||<p role="status">Recovering window placement…</p>}</section>}</ToolDock>;
+ // A loading dock would expose a fallback split that recovery can replace.
+ // Mount only once the read settles; failures retain the default-width retry UI.
+ if(!hasRecovered&&!error)return null;
+ return <ToolDock width={width}>{hasRecovered?<DockedWindow key={props.id} {...props} layout={recovery.layout} onLayout={write} notice={notice}/>:<section hidden={props.open===false} className="floating-window plugin-tool-window" data-collapsed="false" aria-label={props.ariaLabel??`${props.title} window`}><div className="floating-window-header"><strong className="floating-window-title">{props.title}</strong></div>{notice}</section>}</ToolDock>;
 }
