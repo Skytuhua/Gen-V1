@@ -18,6 +18,7 @@
   animation: thread-hover-enter var(--ui-motion-tooltip-enter) var(--ui-ease-enter);
   transition: opacity var(--ui-motion-tooltip-exit) ease-in-out;
 }
+.thread-hover-card[data-state="open"] { transition: none; }
 .thread-hover-card[data-state="closed"] { opacity: 0; pointer-events: none; animation: none; }
 .thread-hover-body { display: flex; flex-direction: column; gap: var(--ui-space-2); min-width: 0; }
 .thread-hover-title { margin: 0; font-size: 16px; font-weight: 600; line-height: 1.4; white-space: pre-wrap; }
@@ -45,6 +46,7 @@ button.thread-hover-pr:hover { background: var(--hover); }
 .thread-hover-error { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ui-space-2); }
 .thread-hover-error button { min-height: var(--ui-row-compact); padding: var(--ui-control-inset); border-radius: 6px; font: inherit; }
 [data-density="touch"] .thread-hover-card button { min-height: var(--ui-row-touch); }
-@keyframes thread-hover-enter { from { opacity: 0; } to { opacity: 1; } }
+/* Keep the surface opaque, including when an exit is interrupted by focus. */
+@keyframes thread-hover-enter { from, to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .thread-hover-card { animation: none; transition: none; } }
 @media (forced-colors: active) { .thread-hover-card { border-color: CanvasText; background: Canvas; color: CanvasText; } }

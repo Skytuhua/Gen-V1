@@ -112,6 +112,6 @@
 .task-node-popover[data-side="above"] { --graph-tip-offset:3px; transform-origin:bottom left; }
 .task-node-popover[data-state="open"] { animation:graph-tip-in var(--ui-motion-tooltip-enter,160ms) var(--ui-ease-enter,ease-out) both; }
 .task-node-popover[data-state="closed"] { animation:graph-tip-out var(--ui-motion-tooltip-exit,120ms) ease-in both; }
-@keyframes graph-tip-in { from { opacity:0; transform:translateY(var(--graph-tip-offset)) scale(.95); } to { opacity:1; transform:none; } }
+@keyframes graph-tip-in { from { transform:translateY(var(--graph-tip-offset)) scale(.95); } to { transform:none; } }
 @keyframes graph-tip-out { from { opacity:1; transform:none; } to { opacity:0; transform:translateY(var(--graph-tip-offset)) scale(.95); } }
 @media(prefers-reduced-motion:reduce) { .task-node-popover[data-state] { animation:none; } }

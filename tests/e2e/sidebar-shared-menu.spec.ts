@@ -1,10 +1,22 @@
 import {test, expect, type Page} from '@playwright/test';
 import {resolve} from 'node:path';
+import {expectOpaqueEntry, expectVisibleKeyboardFocus, pauseNextEntry} from './overlay-motion-assertions';
 
 const fixture = '/@fs/' + encodeURI(resolve(import.meta.dirname, 'sidebar-shared-menu-fixture.tsx').replaceAll('\\', '/'));
 const calls = (page: Page) => page.evaluate(() => (window as unknown as {sidebarMenuCalls: unknown[]}).sidebarMenuCalls);
 const options = (page: Page, title = 'Other conversation') => page.getByRole('button', {name: `Options for ${title}`, exact: true});
 const menu = (page: Page, title = 'Other conversation') => page.getByRole('menu', {name: `Options for ${title}`, exact: true});
+for (const width of [1024, 1440]) test(`sidebar focus and hover cards stay opaque throughout entry at ${width}px`, async ({page}) => {
+  await page.setViewportSize({width, height: 1000});
+  const row = page.getByRole('button', {name: 'Other conversation Working', exact: true});
+  const card = page.getByRole('dialog', {name: 'Thread details: Other conversation', exact: true});
+  await pauseNextEntry(page, '.thread-hover-card[data-state="open"]');
+  await row.focus(); await expectVisibleKeyboardFocus(row); await expectOpaqueEntry(card);
+  await row.press('Escape'); await expect(card).toHaveCount(0);
+  await page.getByRole('button', {name: 'Outside target', exact: true}).focus();
+  await pauseNextEntry(page, '.thread-hover-card[data-state="open"]'); await row.hover();
+  await expect(card).toBeVisible(); await expectOpaqueEntry(card);
+});
 test.beforeEach(async ({page}) => {
   await page.route('**/api/**', route => route.fulfill({json: {}}));
   await page.route('**/sidebar-shared-menu-check*', route => route.fulfill({contentType: 'text/html', body: `<html data-theme="${new URL(route.request().url()).searchParams.get('theme') === 'light' ? 'light' : 'dark'}"><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${fixture}');</script></body></html>`}));

@@ -1,4 +1,5 @@
 import {expect, test, type Page} from '@playwright/test';
+import {expectOpaqueEntry, expectVisibleKeyboardFocus, pauseNextEntry} from './overlay-motion-assertions';
 
 const trigger = (page: Page) => page.getByRole('button', {name: 'Thread trigger', exact: true});
 const card = (page: Page) => page.getByRole('dialog', {name: /^Thread details:/});
@@ -6,6 +7,17 @@ async function fixture(page: Page, query = '') {
   await page.goto('/' + query); await expect(trigger(page)).toBeVisible();
 }
 async function open(page: Page) {await trigger(page).focus(); await expect(card(page)).toBeVisible();}
+
+for (const width of [1024, 1440]) test(`thread focus and hover cards stay opaque throughout entry at ${width}px`, async ({page}) => {
+  await page.setViewportSize({width, height: 1000}); await fixture(page);
+  await pauseNextEntry(page, '.thread-hover-card[data-state="open"]');
+  await page.keyboard.press('Tab'); await expectVisibleKeyboardFocus(trigger(page));
+  await expectOpaqueEntry(card(page));
+  await trigger(page).press('Escape'); await expect(card(page)).toHaveCount(0);
+  await page.getByRole('button', {name: 'Next control'}).focus();
+  await pauseNextEntry(page, '.thread-hover-card[data-state="open"]'); await trigger(page).hover();
+  await expect(card(page)).toBeVisible(); await expectOpaqueEntry(card(page));
+});
 
 test('350ms dwell, 120ms pointer transfer, exact PR action and no pointer autofocus', async ({page}) => {
   await fixture(page); await page.clock.install(); await page.clock.pauseAt(new Date()); await trigger(page).hover();
