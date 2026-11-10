@@ -26,6 +26,7 @@ export const browserSuites:BrowserSuite[] = [
   suite('inbox-controls'),
   suite('memory-recovery', undefined, {env:{GEN_MEMORY_MODE:''}}),
   suite('research-host'),
+  suite('saved-drafts'),
   suite('saved-layout-chooser'),
   suite('scoped-conversation'),
   suite('settings-leaf-selects', ['settings-controls.spec.ts', 'settings-leaf-selects.spec.ts', 'settings-loading.spec.ts']),
