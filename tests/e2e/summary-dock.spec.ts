@@ -42,6 +42,8 @@ test('keyboard collapse keeps body identity and body actions independent', async
 
 test('external expansion preserves field focus and is not replayed on hide/reveal', async ({ page }) => {
   const panel = page.getByRole('region', { name: 'Project overview window', exact: true });
+  // Keep the side rail reserved; updates to a released rail are covered below.
+  await page.getByRole('region', { name: 'Live usage', exact: true }).getByRole('button', { name: 'Inspect live usage' }).click();
   await panel.getByText('Project overview', { exact: true }).click();
   const main = page.getByRole('textbox', { name: 'Main draft' }); await main.focus();
   await page.evaluate(() => window.dispatchEvent(new Event('summary-expand')));
@@ -140,6 +142,47 @@ for (const width of [1024, 1440]) {
         await usage.getByRole('button', { name: 'Inspect live usage' }).press('Enter');
         await expect(usage.getByRole('region', { name: 'Runtime usage details' })).toBeVisible();
         expect((await chat.boundingBox())!.width).toBeCloseTo(expandedWidth, 0);
+      });
+      test('an unsolicited plan update keeps the released rail and focused composer in place', async ({ page }) => {
+        await page.goto(`/summary-dock${empty ? '?empty=1' : ''}`);
+        const overview = page.getByRole('region', { name: 'Project overview window', exact: true });
+        const usage = page.getByRole('region', { name: 'Live usage', exact: true });
+        await overview.getByRole('button', { name: 'Collapse Project overview' }).click();
+        await expect(overview).toHaveAttribute('data-collapsed', 'true');
+        await expect(usage).toHaveAttribute('data-collapsed', 'true');
+        const main = page.getByRole('textbox', { name: 'Main draft' });
+        await main.fill('Keep typing while a new plan arrives');
+        const geometry = () => page.locator('.conversation, .composer-dock').evaluateAll(nodes => nodes.map(node => {
+          const { x, y, width, bottom } = node.getBoundingClientRect();
+          return { x, y, width, bottom };
+        }));
+        const before = await geometry();
+        const workspace = page.locator('.workspace'), owner = page.locator('.summary-layout-owner');
+        const releasedWidth = (await owner.boundingBox())!.width;
+        expect(Math.abs((await workspace.boundingBox())!.width - releasedWidth)).toBeLessThanOrEqual(1);
+        await page.evaluate(() => window.dispatchEvent(new Event('summary-expand')));
+        await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+        await expect(main).toBeFocused();
+        const after = await geometry();
+        for (const [index, box] of before.entries()) {
+          for (const key of ['x', 'y', 'width', 'bottom'] as const) {
+            expect(Math.abs(after[index][key] - box[key]), `${index === 0 ? 'conversation' : 'composer'} ${key}`).toBeLessThanOrEqual(1);
+          }
+        }
+        expect(Math.abs((await workspace.boundingBox())!.width - releasedWidth)).toBeLessThanOrEqual(1);
+        await expect(overview).toHaveAttribute('data-collapsed', 'true');
+        await expect(overview.getByRole('textbox', { name: 'Overview draft' })).toBeHidden();
+        await expect(overview.getByRole('status')).toHaveText('Update available');
+        const toggle = overview.getByRole('button', { name: /^(Expand|Collapse) Project overview$/ });
+        await expect(toggle).toHaveAccessibleDescription('Update available');
+        await toggle.focus(); await toggle.press('ArrowRight');
+        await expect(toggle).toHaveCSS('outline-style', 'solid');
+        await expect(toggle).toHaveCSS('outline-width', '2px');
+        await toggle.press('Enter');
+        await expect(toggle).toBeFocused();
+        await expect(overview.getByRole('textbox', { name: 'Overview draft' })).toBeVisible();
+        await expect(overview.getByRole('status')).toHaveCount(0);
+        expect(releasedWidth - (await workspace.boundingBox())!.width).toBeGreaterThanOrEqual(280);
       });
     });
   }
