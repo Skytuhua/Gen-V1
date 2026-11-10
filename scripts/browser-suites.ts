@@ -26,6 +26,7 @@ export const browserSuites:BrowserSuite[] = [
   suite('graph-popovers'),
   suite('inbox-controls'),
   suite('memory-recovery', undefined, {env:{GEN_MEMORY_MODE:''}}),
+  suite('redundant-ui'),
   suite('research-host'),
   suite('saved-layout-chooser'),
   suite('scoped-conversation'),
