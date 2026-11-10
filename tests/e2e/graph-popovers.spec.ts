@@ -54,8 +54,16 @@ for (const width of [768, 1024, 1440]) for (const overflowing of [false, true]) 
    expect(await body.evaluate(element => element.scrollTop)).toBeGreaterThan(0);
    await expect(dialog.getByRole('button', {name:'Additional source 20', exact:true})).toBeInViewport();
   }
-  for (const action of [dialog.getByRole('button', {name:'Close dialog'}), dialog.getByRole('button', {name:'Continue review'}), dialog.locator('.task-graph-relationships summary')]) {
-   await page.keyboard.press('Tab'); await action.focus(); await expect(action).toBeFocused();
+  const close = dialog.getByRole('button', {name:'Close dialog', exact:true});
+  await expect(close).toBeFocused();
+  // Tab into the graph, then Shift+Tab back to verify Close is reachable.
+  // Continue forward through every graph node and footer control to Inspect source.
+  const graphArea = dialog.locator('.task-graph-viewport');
+  const nodeLabels = ['Map modules', 'Review dependencies', 'Review findings', ...(overflowing ? Array.from({length:20}, (_, index) => `Additional source ${index + 1}`) : [])];
+  const tabOrder = [graphArea, close, graphArea, ...nodeLabels.map(name => dialog.getByRole('button', {name, exact:true})), dialog.locator('.task-graph-check'), dialog.getByRole('button', {name:'Inspect 1 conflicts', exact:true}), dialog.getByRole('button', {name:'Continue review', exact:true}), dialog.locator('.task-graph-relationships summary')];
+  for (const action of tabOrder) {
+   await page.keyboard.press(action === close ? 'Shift+Tab' : 'Tab'); await expect(action).toBeFocused();
+   await expect(action).toBeInViewport();
    expect(await action.evaluate(element => element.matches(':focus-visible') && getComputedStyle(element).outlineStyle !== 'none' && Number.parseFloat(getComputedStyle(element).outlineWidth) > 0)).toBe(true);
   }
   await page.screenshot({path:testInfo.outputPath('graph-dialog.png')});

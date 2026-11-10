@@ -37,8 +37,8 @@
 .task-node-status { display:inline-flex; margin-left:auto; flex-shrink:0; }
 .task-graph-vertical .task-node:has(.task-node-meta) .task-node-status { display:none; }
 .task-node-popover { box-sizing:border-box; padding:13px 15px; border:1px solid var(--border); border-radius:12px; background:var(--surface); color:var(--text); box-shadow:0 8px 28px #0003; font-size:13px; line-height:1.5; overflow:auto; overscroll-behavior:contain; }
-/* Keep measured placement coordinates from transitioning under reduced motion. */
-.task-node-popover { transition-property:none; }
+/* Keep measured dialog tooltip coordinates from transitioning during entry. */
+.ui-modal .task-node-popover { transition-property:none; }
 .task-node-details { display:flex; flex-direction:column; gap:9px; }
 .task-check-popover { padding:7px 10px; font-size:12px; }
 .task-node-popover strong { font-weight:500; }
