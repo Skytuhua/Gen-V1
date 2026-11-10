@@ -47,8 +47,8 @@ function open() {
     const request = indexedDB.open('generative-harness-journal', 1);
     request.onupgradeneeded = () => request.result.createObjectStore('entries');
     request.onsuccess = () => resolve(request.result);
-    request.onerror = () => { database = undefined; reject(request.error); };
-  });
+    request.onerror = () => reject(request.error);
+  }).catch(cause => { database = undefined; throw cause; });
 }
 export async function journalReadRecord<T>(key: string): Promise<JournalRecord<T> | undefined> {
   const local = memory.get(key);

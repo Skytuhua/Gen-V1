@@ -42,7 +42,10 @@ class SharedLibrary(unittest.TestCase):
             {"action": "create", "name": name, "content": document},
             {"action": "write_file", "name": name, "file_path": "references/help.md", "file_content": f"Support A for {name}.\n"}]})
         self.assertTrue(result["success"], result)
-        return self.worker.skills("skills.inspect", {"name": name})
+        inspection = self.worker.skills("skills.inspect", {"name": name})
+        # Current reads normalize newlines; revision blobs retain the writer's bytes.
+        inspection["_retained_document"] = (Path(self.tmp.name) / "skills" / name / "SKILL.md").read_bytes().decode("utf-8-sig")
+        return inspection
 
     def rewrite_history(self, transform):
         from tools import skill_ledger as ledger
@@ -63,7 +66,7 @@ class SharedLibrary(unittest.TestCase):
         initial = self.history_package(name)
         revision = initial["versions"][0]["id"]
         selected = {"name": name, "revisionId": revision}
-        self.assertEqual(self.worker.skills("skills.inspect", selected)["document"], initial["document"])
+        self.assertEqual(self.worker.skills("skills.inspect", selected)["document"], initial["_retained_document"])
         self.assertIn("Support A", self.worker.skills("skills.inspect", {**selected, "file_path": "references/help.md"})["fileContent"])
         self.rewrite_history(lambda rows: [row for row in rows if row["id"] != revision])
         self.assert_source_unavailable(selected)
@@ -166,7 +169,7 @@ class SharedLibrary(unittest.TestCase):
                     with self.assertRaises(error_type) as raised:
                         self.worker.skills("skills.inspect", params)
                     self.assertNotEqual(getattr(raised.exception, "code", None), "SKILL_SOURCE_UNAVAILABLE")
-                self.assertEqual(self.worker.skills("skills.inspect", params)["document"], initial["document"])
+                self.assertEqual(self.worker.skills("skills.inspect", params)["document"], initial["_retained_document"])
         self.assertEqual(path.read_bytes(), original_bytes)
 
     def test_unverified_ledger_does_not_claim_current_history_is_retired(self):

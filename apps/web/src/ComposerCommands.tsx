@@ -1,5 +1,5 @@
 import {useEffect, useId, useImperativeHandle, useLayoutEffect, useRef, useState, type KeyboardEvent, type Ref, type RefObject} from 'react';
-import {Bot, Check, LoaderCircle, Search, X} from 'lucide-react';
+import {Bot, LoaderCircle, Search, X} from 'lucide-react';
 import {Popover} from '../../../packages/ui-shell/Popover';
 import {isComposing} from '../../../packages/ui-shell/list-navigation';
 import type {SkillCatalogEntry, SkillCatalogPage} from '../../../packages/contracts/skill-catalog';
@@ -11,18 +11,18 @@ export interface ComposerCommandsHandle {keyDown(event: KeyboardEvent<HTMLTextAr
 interface Props {
   ref?: Ref<ComposerCommandsHandle>; input: RefObject<HTMLTextAreaElement | null>; draft: string;
   threadId?: string; projectId?: string; disabled?: boolean;
-  onDraft(text: string): void; onSkill(binding: SkillBinding): void | Promise<void>;
+  onDraft(text: string): void;
   onModel(): void | Promise<void>; onMode(mode: 'plan' | 'build'): void | Promise<void>;
 }
 type Builtin = {id: 'model' | 'plan' | 'default'; description: string};
 const builtins: Builtin[] = [{id: 'model', description: 'Choose a model'}, {id: 'plan', description: 'Switch to Plan'}, {id: 'default', description: 'Switch to Build'}];
 type Option = {id: string; builtin: Builtin} | {id: string; skill: SkillCatalogEntry};
-const available = (option: Option) => 'builtin' in option || option.skill.availability.status === 'available' && Boolean(option.skill.ref);
+const available = (option: Option) => 'builtin' in option;
 const availabilityLabel = {disabled: 'Disabled', disconnected: 'Disconnected', unsupported: 'Unavailable', denied: 'No access', changed: 'Changed', limit: 'Limit reached', invalid: 'Unavailable', missing: 'Not installed'};
 const reason = (item: SkillCatalogEntry) => item.availability.status === 'unavailable' ? availabilityLabel[item.availability.reason] : '';
 
-/** Metadata only: selection creates a reference; admission occurs at the host's Send boundary. */
-export function ComposerCommands({ref, input, draft, threadId, projectId, disabled = false, onDraft, onSkill, onModel, onMode}: Props) {
+/** Readable catalog metadata does not imply that the runtime admits selected skills. */
+export function ComposerCommands({ref, input, draft, threadId, projectId, disabled = false, onDraft, onModel, onMode}: Props) {
   const id = useId(), content = useRef<HTMLDivElement>(null), request = useRef(0), loadingMore = useRef(false);
   const [position, setPosition] = useState({caret: 0, end: 0, focused: false, composing: false});
   const [dismissed, setDismissed] = useState(''), [captured, setCaptured] = useState<{key: string; page: SkillCatalogPage} | null>(null), [loading, setLoading] = useState(false), [error, setError] = useState(''), [active, setActive] = useState('model'), [reload, setReload] = useState(0);
@@ -74,18 +74,10 @@ export function ComposerCommands({ref, input, draft, threadId, projectId, disabl
     const current = commandToken(element.value, element.selectionStart, element.selectionEnd); if (!current) return;
     close(); setError('');
     try {
-      if ('skill' in option) {
-        const source = page?.sources.find(item => item.id === option.skill.sourceId);
-        if (!source || !option.skill.ref) return;
-        await onSkill({id: crypto.randomUUID(), name: option.skill.name, source: source.label, ref: option.skill.ref});
-      }
-      // Do not apply an older token to text changed during a durable binding write.
       if (element.value !== draft) return;
       const replacement = replaceCommandToken(element.value, current); onDraft(replacement.text);
       await new Promise<void>(resolve => requestAnimationFrame(() => {if (element.isConnected) {element.focus(); element.setSelectionRange(replacement.caret, replacement.caret);} resolve();}));
-      if ('builtin' in option) {
-        if (option.builtin.id === 'model') await onModel(); else await onMode(option.builtin.id === 'plan' ? 'plan' : 'build');
-      }
+      if (option.builtin.id === 'model') await onModel(); else await onMode(option.builtin.id === 'plan' ? 'plan' : 'build');
     } catch (cause) {setError(cause instanceof Error ? cause.message : 'The command could not finish.');}
   };
   useImperativeHandle(ref, () => ({keyDown(event) {
@@ -115,6 +107,7 @@ export function ComposerCommands({ref, input, draft, threadId, projectId, disabl
           {'builtin' in option ? <><span className="composer-command-name">/{option.builtin.id}</span><span className="composer-command-description">{option.builtin.description}</span></> : <><span className="composer-command-name">/skill:{option.skill.name}</span><span className="composer-command-description" title={option.skill.description}>{reason(option.skill) || option.skill.description}</span><span className="composer-command-source">{page?.sources.find(source => source.id === option.skill.sourceId)?.label}</span></>}
         </div>)}
       </div>
+      {Boolean(page?.skills.length) && <div role="status" aria-label="Skill selection unavailable" className="composer-command-status">Skill selection is unavailable for this runtime. You can still browse installed skills.</div>}
       {loading && <div role="status" className="composer-command-status"><LoaderCircle size={13} className="spinning"/>Loading skills…</div>}
       {error ? <div role="alert" className="composer-command-status">{error}<button type="button" onClick={() => {setReload(value => value + 1);}}>Reload</button></div> : !loading && !options.length && !unavailableSources.length && <div role="status" className="composer-command-status"><Search size={14}/>No commands or skills found</div>}
       {Boolean(unavailableSources.length) && <div role="status" aria-label="Unavailable skill sources" className="composer-command-unavailable">{unavailableSources.map(source => <div key={source.id}><span>{source.label}</span><span>{source.availability.status === 'unavailable' ? availabilityLabel[source.availability.reason] : ''}</span></div>)}</div>}
@@ -124,7 +117,11 @@ export function ComposerCommands({ref, input, draft, threadId, projectId, disabl
     {!open && error && <div role="alert" className="composer-command-error">{error}<button type="button" aria-label="Dismiss command error" onClick={() => setError('')}><X size={13}/></button></div>}
   </>;
 }
-export function ComposerSkillBindings({bindings, onRemove, disabled = false}: {bindings: readonly SkillBinding[]; onRemove(id: string): void; disabled?: boolean}) {
-  if (!bindings.length) return null;
-  return <div role="group" aria-label="Selected skills" className="composer-skill-bindings">{bindings.map(binding => <span className="composer-skill-chip" key={binding.id}><Bot size={13} aria-hidden="true"/><span title={binding.source}>{binding.name}</span><Check size={11} aria-hidden="true"/><button type="button" aria-label={`Remove skill ${binding.name}`} disabled={disabled} onClick={() => onRemove(binding.id)}><X size={12}/></button></span>)}</div>;
+export function ComposerSkillBindings({bindings, onRemove, disabled = false, retry = false}: {bindings: readonly SkillBinding[]; onRemove(id: string): void; disabled?: boolean; retry?: boolean}) {
+  if (!bindings.length && !retry) return null;
+  return <>
+    {Boolean(bindings.length) && <p role="status" aria-label="Selected skills unavailable" className="composer-command-status">Selected skills are unavailable. Remove them to send a new message without skills.</p>}
+    {retry && <p role="status" className="composer-command-status">Retry keeps the original message and skill selections, including selections removed from this draft.</p>}
+    {Boolean(bindings.length) && <div role="group" aria-label="Selected skills" className="composer-skill-bindings">{bindings.map(binding => <span className="composer-skill-chip" key={binding.id}><Bot size={13} aria-hidden="true"/><span title={binding.source}>{binding.name}</span><button type="button" aria-label={`Remove skill ${binding.name}`} disabled={disabled} onClick={() => onRemove(binding.id)}><X size={12}/></button></span>)}</div>}
+  </>;
 }

@@ -93,3 +93,13 @@ it('closes admission before reporting update readiness',async()=>{
  const {service}=setup();expect(service.freezeForUpdate()).toBe(true);
  await expect(service.command({id:'late-create',type:'thread.create',payload:{}})).rejects.toThrow(/closing/i);
 });
+it('keeps late composer predictions from starting work after update admission closes',async()=>{
+ const prediction=adapter(),x=setup({predictionRuntimeFactory:()=>prediction.runtime});
+ await x.command('settings.update',{preferences:{composerPredictions:true,learningEnabled:false}});
+ const run=await x.start(),input=x.settle(run);await x.drain(run.threadId);
+ expect(x.service.freezeForUpdate()).toBe(true);
+ const result=x.service.composerPrediction(input);await turn();
+ expect(prediction.starts).toHaveLength(0);
+ expect(await result).toMatchObject({suggestion:null,replyId:input.replyId});
+ expect(x.service.isUpdateIdle()).toBe(true);
+});

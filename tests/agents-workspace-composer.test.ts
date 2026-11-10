@@ -8,15 +8,62 @@ const agent = (id: string, patch: Partial<AgentSummary> = {}): AgentSummary => (
 
 const records = vi.hoisted(() => new Map<string, {value: unknown; generation: string}>());
 const writes = vi.hoisted(() => ({pause: undefined as Promise<void> | undefined}));
+const recovery = vi.hoisted(() => ({error: undefined as Error | undefined, pause: undefined as Promise<void> | undefined, reads: [] as string[], subscriptions: new Set<() => void>()}));
 vi.mock('../apps/web/src/journal', () => ({
- journalReadRecord: async (key: string) => records.get(key),
+ journalReadRecord: async (key: string) => {recovery.reads.push(key); if (recovery.pause) await recovery.pause; if (recovery.error) throw recovery.error; return records.get(key);},
  journalWrite: async (key: string, value: unknown) => {if (key.startsWith('agents-pending:') && writes.pause) await writes.pause; const generation = crypto.randomUUID(); records.set(key, {value, generation}); return generation;},
  journalGeneration: (key: string) => records.get(key)?.generation,
- journalSubscribe: () => () => {},
+ journalSubscribe: () => {const remove = () => {recovery.subscriptions.delete(remove);}; recovery.subscriptions.add(remove); return remove;},
  journalCompareAndSwap: async (key: string, generation: string, value: unknown) => {if (records.get(key)?.generation !== generation) return false; records.set(key, {value, generation: crypto.randomUUID()}); return true;},
 }));
-beforeEach(() => {records.clear(); writes.pause = undefined;});
+beforeEach(() => {records.clear(); writes.pause = undefined; recovery.error = undefined; recovery.pause = undefined; recovery.reads = []; recovery.subscriptions.clear();});
 const binding = (id = crypto.randomUUID()): import('../apps/web/src/composer-commands').SkillBinding => ({id, name: 'Selected procedure', source: 'Personal', ref: {version: 1, scope: {kind: 'personal'}, sourceId: 'personal:test', skillId: 'procedure', locator: 'a'.repeat(64), revision: 'b'.repeat(64), digest: 'c'.repeat(64), sourceBinding: 'd'.repeat(64)}});
+it('retries failed recovery once for concurrent views and retains the exact pending send', async () => {
+ const target = {kind: 'conversation' as const, threadId: 'owner', modelId: 'current-model', working: false};
+ const pending = {commandId: 'retained-command', content: 'Original input', generation: 'original-draft', modelId: 'original-model', thinkingLevel: 'high'};
+ records.set('draft:owner', {value: 'Later draft', generation: 'later-draft'});
+ records.set('agents-pending:owner', {value: pending, generation: 'pending-record'});
+ const send = vi.fn(async (_input: import('../apps/web/src/agents-workspace/composer').ParentSend) => {});
+ const owner = createSharedAgentComposers({sendParent: send, stopParent: async () => {}});
+ let release = () => {};
+ try {
+  recovery.error = Error('Temporary storage failure');
+  await owner.prepare(target);
+  expect(owner.getSnapshot(target)).toMatchObject({ready: false, error: 'Draft recovery failed. Reopen this workspace to retry.'});
+  expect(recovery.subscriptions.size).toBe(0);
+  expect(records.get('agents-pending:owner')?.value).toEqual(pending);
+  recovery.error = undefined; recovery.pause = new Promise<void>(resolve => {release = resolve;});
+  const first = owner.prepare(target), subscriptionCount = recovery.subscriptions.size;
+  const second = owner.prepare(agent('owner'));
+  expect(subscriptionCount).toBeGreaterThan(0);
+  expect(recovery.subscriptions.size).toBe(subscriptionCount);
+  expect(recovery.reads.filter(key => key === 'draft:owner')).toHaveLength(2);
+  release(); await Promise.all([first, second]); recovery.pause = undefined;
+  expect(owner.getSnapshot(target)).toMatchObject({ready: true, draft: 'Later draft', retry: true, error: ''});
+  await owner.prepare(target);
+  expect(recovery.reads.filter(key => key === 'draft:owner')).toHaveLength(2);
+  expect(recovery.subscriptions.size).toBe(subscriptionCount);
+  await owner.submit(target);
+  expect(send).toHaveBeenCalledExactlyOnceWith({threadId: 'owner', modelId: 'original-model', thinkingLevel: 'high', content: 'Original input', commandId: 'retained-command'});
+  expect(owner.getSnapshot(target)).toMatchObject({draft: 'Later draft', retry: false});
+ } finally {release(); owner.dispose();}
+ expect(recovery.subscriptions.size).toBe(0);
+});
+it('keeps an unrelated Stop failure reported while recovery is retried', async () => {
+ const target = {kind: 'conversation' as const, threadId: 'owner', modelId: 'model', working: true};
+ records.set('draft:owner', {value: 'Retained draft', generation: 'draft'});
+ const owner = createSharedAgentComposers({sendParent: async () => {}, stopParent: async () => {throw Error('Stop is unavailable');}});
+ let release = () => {};
+ try {
+  recovery.error = Error('Temporary storage failure'); await owner.prepare(target);
+  recovery.error = undefined; recovery.pause = new Promise<void>(resolve => {release = resolve;});
+  const preparing = owner.prepare(target);
+  await owner.stop(target);
+  release(); await preparing;
+  expect(owner.getSnapshot(target)).toMatchObject({ready: true, draft: 'Retained draft', error: 'Stop is unavailable'});
+ } finally {release(); owner.dispose();}
+ expect(recovery.subscriptions.size).toBe(0);
+});
 it('shares and recovers bound skills with the real conversation owner, independent of literal text', async () => {
  const selected = binding(), a = agent('a'), conversation = {kind: 'conversation' as const, threadId: 'a', modelId: 'model', working: false};
  const owner = createSharedAgentComposers({sendParent: async () => {}, stopParent: async () => {}});

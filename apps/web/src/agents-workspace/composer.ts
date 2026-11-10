@@ -43,6 +43,7 @@ interface PendingSend {commandId: string; content: string; generation: string | 
 interface Entry {agent: ComposerTarget; inventory?: AgentSummary; stopEpoch: number; state: ComposerState; pending?: PendingSend; prepared?: Promise<void>; listeners: Set<() => void>; unsubscribe?: () => void}
 export function createSharedAgentComposers(actions: {sendParent(input: ParentSend): Promise<void>; stopParent(agent: ComposerTarget): Promise<void>; followUp?: ChildFollowUpController; ownership?: (agent: ComposerTarget) => unknown}): SharedAgentComposers {
  const entries = new Map<string, Entry>();
+ const recoveryError = 'Draft recovery failed. Reopen this workspace to retry.';
  const ownership = (agent: ComposerTarget) => actions.ownership ? actions.ownership(agent) : true;
  const key = (agent: ComposerTarget) => `draft:${identity(agent)}`;
  const pendingKey = (agent: ComposerTarget) => `agents-pending:${identity(agent)}`;
@@ -78,9 +79,12 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
     const [draft, pending, ticket, thinking, skills] = await Promise.all([journalReadRecord<string>(key(agent)), journalReadRecord<PendingSend | null>(pendingKey(agent)), journalReadRecord<ChildInputTicket>(ticketKey(agent)), journalReadRecord<string>('thinking:' + identity(agent)), journalReadRecord(skillDraftKey(identity(agent)))]);
     value.pending = pending?.value ?? undefined;
     if (value.pending?.skills) value.pending.skills = skillBindingsSchema.parse(value.pending.skills);
-    emit(value, {draft: draft?.value ?? '', skills: readSkillBindings(skills?.value), ready: true, retry: Boolean(value.pending), ticket: ticket?.value, thinkingLevel: typeof thinking?.value === 'string' ? thinking.value || null : undefined});
+    emit(value, {draft: draft?.value ?? '', skills: readSkillBindings(skills?.value), ready: true, retry: Boolean(value.pending), ticket: ticket?.value, thinkingLevel: typeof thinking?.value === 'string' ? thinking.value || null : undefined, error: value.state.error === recoveryError ? '' : value.state.error});
     if (ticket?.value && inventoryAgent(agent)) actions.followUp?.track?.(agent, ticket.value);
-   } catch {emit(value, {ready: false, error: 'Draft recovery failed. Reopen this workspace to retry.'});}
+   } catch {
+    value.unsubscribe?.(); value.unsubscribe = undefined; value.prepared = undefined;
+    emit(value, {ready: false, error: recoveryError});
+   }
   })());
   if (inventoryAgent(agent) && agent.parentId && actions.followUp?.prepare) {
    try {await actions.followUp.prepare(agent); emit(value, {});} catch (cause) {emit(value, {error: cause instanceof Error ? cause.message : 'Follow-up is unavailable. Reopen to retry.'});}

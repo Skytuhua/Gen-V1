@@ -141,7 +141,7 @@ export class Service {
   private get reviewing():boolean{return this.source?.runtime.reviewBusy??this.learning.busy;}
   private cancelReview():Promise<void>{return this.source?.runtime.cancelBackground()??this.learning.cancel();}
   private predictionBasis(threadId:string,settling=false):PredictionBasis|null {
-    if(this.closed||this.predictionMutations||!getPreferences(this.store.get<Snapshot['settings']>('settings','global')??{}).composerPredictions)return null;
+    if(this.closed||this.updateClosing||this.predictionMutations||!getPreferences(this.store.get<Snapshot['settings']>('settings','global')??{}).composerPredictions)return null;
     const thread=this.store.get<Thread>('thread',threadId);
     if(!thread||thread.sideParentId||!thread.modelId||thread.runId||!['ready','completed'].includes(thread.status)||this.store.get('archivedThread',thread.id)||this.store.all<Thread>('thread').some(item=>item.runId)||!settling&&(this.source?.runtime.sourceBusy||this.reviewing)||this.hasGate(thread.id)||this.store.all<Outbox>('outbox',thread.id).some(input=>input.status!=='handled')||this.store.all<Operation>('operation',thread.id).some(op=>['prepared','running','unknown'].includes(op.status)))return null;
     try{assertAccountAvailable(this.store,modelProvider(thread.modelId),thread.accountId??null);}catch{return null;}
@@ -725,6 +725,7 @@ export class Service {
     this.assertBinding(this.thread(thread.id),providerId,binding);
     const history = thread.sessionPath ? await this.runtime.history(thread.sessionPath,binding.accountId) : [];
     if(this.reviewing)await this.cancelReview();
+    this.assertNoOtherRun(thread.id);
     const receipt = this.store.command(command, () => {
       const current = this.thread(thread.id);
       this.assertBinding(current,providerId,binding);

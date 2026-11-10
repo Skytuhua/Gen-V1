@@ -90,6 +90,7 @@ The React interface and Windows Electron shell share a local Fastify host. SQLit
 
 - Installed upgrade/update acceptance, the broader generation-quality pilot and physical mixed-DPI/multi-monitor acceptance remain open.
 - New native detachment is unavailable. Context and usage tools minimize within the workspace.
+- The composer can browse installed skills. Binding a selected skill to a new message is unavailable.
 - Gemini/Cursor native compaction, the separate OpenCode agent runtime and Meta/Muse access are unavailable.
 - Generated-code interfaces use opaque workers, validated messages and a termination watchdog. This is not a hard operating-system memory quota. Approved native runtimes and project tests execute with local-user privileges.
 - Existing installations retain the `GenerativeHarness` storage namespace for compatibility.
