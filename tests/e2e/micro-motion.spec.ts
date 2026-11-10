@@ -1,19 +1,19 @@
 import {test,expect,type Page} from '@playwright/test';
-import {resolve} from 'node:path';
 import {serveTaskFixture,taskFixture,growingQaSpec} from './task-interface-fixture';
 
 async function mount(page:Page,kind:'markdown'|'artifact',props:Record<string,unknown>){
  await serveTaskFixture(page,taskFixture({root:'retained',elements:{retained:{type:'Text',props:{text:'Retained history.'}}}}));await page.goto('/');
- const modules={react:'/@fs/'+resolve('node_modules/.vite/deps/react.js').replaceAll('\\','/'),dom:'/@fs/'+resolve('node_modules/.vite/deps/react-dom_client.js').replaceAll('\\','/')};
+ const motionSource=await(await page.request.get('/src/task-motion.tsx')).text(),mainSource=await(await page.request.get('/src/main.tsx')).text();
+ const modules={react:motionSource.match(/["']([^"']*\/react\.js[^"']*)["']/)![1],dom:mainSource.match(/["']([^"']*\/react-dom_client\.js[^"']*)["']/)![1]};
  await page.evaluate(async({kind,props,modules})=>{
   const reactModule=await import(modules.react),domModule=await import(modules.dom),React=reactModule.default??reactModule,DOM=domModule.default??domModule;
   const motionPath='/src/task-motion.tsx',markdownPath='/src/Markdown.tsx';const motion=await import(motionPath),markdown=await import(markdownPath);
   const target=document.createElement('section');target.className='micro-motion-fixture';target.setAttribute('aria-label','Micro motion fixture');target.style.cssText='position:fixed;inset:0;padding:40px;background:var(--surface);z-index:10000;overflow:auto';document.body.append(target);
   function ArtifactProbe({value}:{value:Record<string,unknown>}){
-   const ref=React.useRef(null);motion.useArtifactEntrance(ref,value.enter===true);
+   const ref=React.useRef(null),body=React.useRef(null);motion.useArtifactEntrance(ref,value.enter===true,body);
    return React.createElement('section',{ref,className:'artifact micro-motion-artifact',style:{width:600,maxWidth:'100%',margin:0,padding:0,border:'1px solid #777',boxSizing:'border-box'}},
     React.createElement('header',{style:{height:36,minHeight:36,padding:0}},'A newly published task'),
-    React.createElement('div',{className:'artifact-body',style:{height:Number(value.bodyHeight),padding:12,boxSizing:'border-box'}},
+    React.createElement('div',{ref:body,className:'artifact-body',style:{height:Number(value.bodyHeight),padding:12,boxSizing:'border-box'}},
      React.createElement(markdown.Markdown,{text:String(value.text??'Live task description.'),animate:true}),
      React.createElement('input',{'aria-label':'Live task draft',defaultValue:'Keep my draft'})));
   }
@@ -42,13 +42,13 @@ test('a theme change clears the old-color reveal without replaying the text',asy
  await expect(page.locator('.micro-motion-fixture .markdown')).toHaveText('The retained result. A new detail is arriving.');
 });
 
-test('live artifact growth follows the asynchronously arriving body instead of popping after its placeholder',async({page})=>{
+test('live artifact growth uses natural layout without replaying the entrance or tweening height',async({page})=>{
  await mount(page,'artifact',{enter:true,bodyHeight:45,text:'Preparing the task.'});
- await page.evaluate(()=>{const node=document.querySelector<HTMLElement>('.micro-motion-artifact')!,samples:number[]=[];Object.assign(window,{entryHeights:samples});const start=performance.now();const sample=()=>{samples.push(node.getBoundingClientRect().height);if(performance.now()-start<850)requestAnimationFrame(sample);};sample();});
- await page.waitForTimeout(65);await update(page,{bodyHeight:340,text:'The complete task now includes the supplied material and useful controls.'});await page.waitForTimeout(900);
- const heights=await page.evaluate(()=>(window as unknown as{entryHeights:number[]}).entryHeights);expect(heights.length).toBeGreaterThan(10);
- expect(Math.max(...heights.slice(1).map((height,index)=>Math.abs(height-heights[index])))).toBeLessThan(100);
- expect(heights.at(-1)).toBeCloseTo(378,0);expect(await page.locator('.micro-motion-artifact').evaluate(node=>(node as HTMLElement).style.height)).toBe('');
+ const artifact=page.locator('.micro-motion-artifact');expect((await artifact.boundingBox())!.height).toBeCloseTo(118,0);
+ await update(page,{bodyHeight:340,text:'The complete task now includes the supplied material and useful controls.'});
+ await expect.poll(async()=>(await artifact.boundingBox())!.height).toBeCloseTo(378,0);
+ const heights=await artifact.evaluate(async node=>{const samples:number[]=[];for(let frame=0;frame<8;frame++){samples.push(node.getBoundingClientRect().height);await new Promise(requestAnimationFrame);}return samples;});
+ expect(heights.every(height=>height===378)).toBe(true);expect(await artifact.evaluate(node=>(node as HTMLElement).style.height)).toBe('');
  await expect(page.getByRole('textbox',{name:'Live task draft',exact:true})).toHaveValue('Keep my draft');
 });
 

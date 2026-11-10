@@ -41,46 +41,30 @@ export function animateTask(element: Element | null, frames: Keyframe[], duratio
 
 /** The host decides whether publication is new. Restoration and ordinary
  * snapshots never infer an entrance from component mounting alone. */
-export function useArtifactEntrance(ref: RefObject<HTMLElement | null>, animateEntry: boolean) {
+export function useArtifactEntrance(ref: RefObject<HTMLElement | null>, animateEntry: boolean, contentRef = ref) {
   const played = useRef(false), cleanup = useRef<(() => void) | undefined>(undefined);
   useLayoutEffect(() => {
-    const element = ref.current;
-    if (!animateEntry || played.current || !element) return;
+    const element = ref.current, content = contentRef.current;
+    if (!animateEntry || played.current || !element || !content) return;
     played.current = true;
-    const previousHeight = element.style.height, previousOverflow = element.style.overflow;
-    const fullMotion = !reducedMotion() && element.dataset.artifactInline !== 'false';
+    if (readMotionPolicy() !== 'full') { element.dataset.entryPhase = 'settled'; return; }
+    // Keep the body in normal flow: the shell occupies its final geometry from
+    // the first frame. Only this inner layer moves; no height handoff is needed.
     element.dataset.entryPhase = 'entering';
-    let finished = false, observer:ResizeObserver|undefined, deadline:ReturnType<typeof setTimeout>|undefined;
-    let height:ReturnType<typeof createSpringValue>|undefined;
-    const animation = animateTask(element, [{ opacity: .35, transform:'translateY(7px) scale(.992)', filter:'blur(1px)' }, { opacity: 1, transform:'translateY(0) scale(1)', filter:'blur(0)' }], 340);
+    let finished = false;
+    const animation = animateTask(content, [{ opacity: 0, transform: 'translateY(4px)' }, { opacity: 1, transform: 'translateY(0)' }], 220, { duration: '--ui-motion-panel-enter', easing: '--ui-ease-enter' });
     const restore = () => {
       if (finished) return; finished = true;
-      if(deadline!==undefined)clearTimeout(deadline);observer?.disconnect();height?.dispose();stopObservingMotion();
-      element.style.height = previousHeight; element.style.overflow = previousOverflow;
+      stopObservingMotion();
       element.dataset.entryPhase = 'settled';
       element.removeEventListener('pointerdown', stop); element.removeEventListener('focusin', stop);
     };
     const stop = () => { animation?.cancel(); restore(); };
-    const stopObservingMotion = observeMotionPolicy(policy => { if (policy === 'off' || policy === 'reduced' && fullMotion) stop(); });
+    const stopObservingMotion = observeMotionPolicy(policy => { if (policy !== 'full') stop(); });
     element.addEventListener('pointerdown', stop); element.addEventListener('focusin', stop);
-    if(fullMotion){
-      element.style.height='0px';element.style.overflow='clip';
-      height=createSpringValue(0,value=>{element.style.height=`${value}px`;},restore);
-      const measure=()=>{
-        if(finished)return;
-        // Journal recovery and lazy task children can arrive after the shell.
-        // Measure their natural extent only on a resize, never on each frame.
-        const current=element.style.height;element.style.height='auto';
-        const target=element.getBoundingClientRect().height;element.style.height=current;
-        height!.to(target);
-      };
-      observer=new ResizeObserver(measure);for(const child of element.children)observer.observe(child);
-      deadline=setTimeout(stop,900);
-      measure();
-    }
-    if (animation) void animation.finished.then(()=>{if(!fullMotion)restore();}).catch(restore); else if(!fullMotion)restore();
+    if (animation) void animation.finished.then(restore).catch(restore); else restore();
     cleanup.current = stop;
-  }, [animateEntry, ref]);
+  }, [animateEntry, ref, contentRef]);
   useLayoutEffect(() => () => cleanup.current?.(), []);
 }
 

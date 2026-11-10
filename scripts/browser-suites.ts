@@ -16,6 +16,7 @@ const suite = (name:string, specs=[`${name}.spec.ts`], options:Partial<BrowserSu
 export const browserSuites:BrowserSuite[] = [
   {name:'root', config:'playwright.config.ts', specs:rootBrowserSpecs},
   suite('agents-workspace', undefined, {env:{AGENTSUI_APP_CANDIDATE:'1'}}),
+  suite('artifact-settle', ['artifact-settle.spec.ts']),
   suite('browser-action'),
   suite('code-review-host'),
   suite('compact-model-picker', ['compact-model-picker.spec.ts', 'model-composer-refinement.spec.ts', 'subscription-accounts.spec.ts']),
