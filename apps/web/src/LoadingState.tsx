@@ -20,7 +20,7 @@ export function LoadingState({pending, hasContent, label, children, skeleton = <
   const visible = useDelayedPending(pending);
   return <div className={`tool-loading-state ${className}`}>
     <div aria-busy={pending}>{pending && !hasContent ? <div className="loading-state-skeleton" data-visible={visible}>{skeleton}</div> : children}</div>
-    {visible && <p className="loading-state-status" role="status">{label}</p>}
+    <p className="loading-state-status loading-state-status-slot" role={visible ? 'status' : undefined} aria-hidden={!visible} data-visible={visible}>{label}</p>
   </div>;
 }
 

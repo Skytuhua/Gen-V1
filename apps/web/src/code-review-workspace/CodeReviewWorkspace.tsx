@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState, type ReactNode} from 'react';
+import {useCallback, useEffect, useRef, useState, type ReactNode} from 'react';
 import type {CodeReviewComparison, ComparisonIdentity, ComparisonPatch, ComparisonRead} from '../../../../packages/contracts/code-review';
 import type {GitStatus} from '../../../../packages/workspace/tools';
 import {Select} from '../../../../packages/ui-shell/Select';
@@ -83,21 +83,31 @@ function reviewable(selection: ReviewSelection, comparison: CodeReviewComparison
 }
 
 function ComparisonBody({selection, writes, onRefresh}: CodeReviewWorkspaceProps) {
-  const [read, setRead] = useState<ComparisonRead>({state: 'loading'}), [refreshing, setRefreshing] = useState(false), [refresh, setRefresh] = useState(0);
+  const [read, setRead] = useState<ComparisonRead>({state: 'loading'}), [refreshing, setRefreshing] = useState(false), [reading, setReading] = useState(false), [refresh, setRefresh] = useState(0);
   const [path, setPath] = useState(''), [filter, setFilter] = useState(''), [busy, setBusy] = useState(false), [notice, setNotice] = useState(''), [menuOpen, setMenuOpen] = useState(false);
   const mounted = useRef(true), inFlight = useRef(false), latestWrites = useRef(writes); latestWrites.current = writes;
+  const restoreRefreshFocus = useRef(false);
+  const refreshControl = useCallback((button: HTMLButtonElement | null) => {
+    if (!button) return;
+    if (restoreRefreshFocus.current) {button.focus(); restoreRefreshFocus.current = false;}
+    // Ref cleanup runs before the focused skeleton control is removed.
+    return () => {restoreRefreshFocus.current = document.activeElement === button;};
+  }, []);
   const comparison = read.state === 'ready' || read.state === 'empty' ? read.value : null;
   const draft = useDraft(selection, comparison?.identity, actionIdentity(writes));
   useEffect(() => {mounted.current = true; return () => {mounted.current = false;};}, []);
   useEffect(() => {
-    const controller = new AbortController(); setRefreshing(true);
+    const controller = new AbortController(); setRefreshing(true); setReading(true);
     void codeReviewClient.comparison(selection, controller.signal).then(next => {
       if (controller.signal.aborted) return;
       if ((next.state === 'ready' || next.state === 'empty') && !matchesTarget(selection, next.value)) throw new ApiError('COMPARISON_IDENTITY_CHANGED', 'Comparison owner changed.');
       setRead(current => next.state === 'loading' && (current.state === 'ready' || current.state === 'empty') ? current : next);
+      // A loading fulfillment still holds writes and marks retained data pending;
+      // only the request ends, enabling Refresh as an explicit retry.
+      setRefreshing(next.state === 'loading');
       if (next.state === 'ready' || next.state === 'empty') setPath(current => next.value.files.some(file => file.path === current) ? current : next.value.files[0]?.path ?? '');
-    }).catch(cause => {if (!controller.signal.aborted) setRead({state: 'error', error: {code: cause instanceof ApiError ? cause.code : '', message: ''}});})
-      .finally(() => {if (!controller.signal.aborted) setRefreshing(false);});
+    }).catch(cause => {if (!controller.signal.aborted) {setRead({state: 'error', error: {code: cause instanceof ApiError ? cause.code : '', message: ''}}); setRefreshing(false);}})
+      .finally(() => {if (!controller.signal.aborted) setReading(false);});
     return () => controller.abort();
   }, [refresh, selectionKey(selection)]);
   const identity = comparison?.identity, action = actionIdentity(writes);
@@ -153,9 +163,9 @@ function ComparisonBody({selection, writes, onRefresh}: CodeReviewWorkspaceProps
     } catch { /* Retain the uncertain boundary until the canonical owner can resolve it. */ }
     finally {inFlight.current = false; if (mounted.current) setBusy(false);}
   }
-  return <LoadingState pending={read.state === 'loading' || refreshing} hasContent={read.state !== 'loading'} label={comparison ? 'Refreshing comparison…' : 'Loading comparison…'} skeleton={<ReviewComparisonSkeleton fileControls={<div className="cr-section-heading"><h2>Changed files</h2><button type="button" aria-label="Refresh comparison" disabled={refreshing} onClick={load}>Refresh</button></div>}/>} className="view-loading-state"><div className="cr-main">
+  return <LoadingState pending={read.state === 'loading' || refreshing} hasContent={read.state !== 'loading'} label={comparison ? 'Refreshing comparison…' : 'Loading comparison…'} skeleton={<ReviewComparisonSkeleton fileControls={<div className="cr-section-heading"><h2>Changed files</h2><button ref={refreshControl} type="button" aria-label="Refresh comparison" aria-disabled={reading} onClick={() => {if (!reading) load();}}>Refresh</button></div>}/>} className="view-loading-state"><div className="cr-main">
     <nav className="cr-files" aria-label="Changed files">
-      <div className="cr-section-heading"><h2>Changed files{comparison ? ` (${comparison.files.length}${comparison.filesTruncated ? '+' : ''})` : ''}</h2><button type="button" aria-label="Refresh comparison" disabled={refreshing || busy} onClick={load}>Refresh</button></div>
+      <div className="cr-section-heading"><h2>Changed files{comparison ? ` (${comparison.files.length}${comparison.filesTruncated ? '+' : ''})` : ''}</h2><button ref={refreshControl} type="button" aria-label="Refresh comparison" disabled={reading || busy} onClick={load}>Refresh</button></div>
       <div className="cr-file-select"><Select aria-label="Changed file" value={path} disabled={!comparison || comparison.files.length === 0} options={comparison?.files.map(file => ({value: file.path, label: file.path})) ?? []} onValueChange={setPath} /></div>
       <label className="cr-filter">Filter files<input value={filter} onChange={event => setFilter(event.target.value)} type="search" /></label>
       {error && <p role="alert">{error}</p>}

@@ -1,25 +1,27 @@
 import {afterAll, beforeAll, describe, expect, it} from 'vitest';
 import {build} from 'esbuild';
 import {readFile} from 'node:fs/promises';
-import {chromium, type Browser} from '@playwright/test';
+import {chromium, type Browser, type Locator} from '@playwright/test';
 
 const fixture = `
 import React, {useState} from 'react';
 import {createRoot} from 'react-dom/client';
+import {flushSync} from 'react-dom';
 import {LoadingState} from './apps/web/src/LoadingState';
 import {WorkspaceSkeleton, AgentsSkeleton, ReviewWorkspaceSkeleton, SettingsSkeleton} from './apps/web/src/ViewSkeletons';
 const skeletons = {workspace: WorkspaceSkeleton, agents: AgentsSkeleton, review: ReviewWorkspaceSkeleton, settings: SettingsSkeleton};
 function Fixture() {
  const [pending, setPending] = useState(true), [loaded, setLoaded] = useState(false);
- window.resolveLoad = () => {setLoaded(true); setPending(false);};
- window.refresh = () => setPending(true);
- window.finish = () => setPending(false);
+ window.resolveLoad = () => flushSync(() => {setLoaded(true); setPending(false);});
+ window.refresh = () => flushSync(() => setPending(true));
+ window.finish = () => flushSync(() => setPending(false));
  const Skeleton = skeletons[window.view];
+ const draft = <label>Retained draft<input defaultValue="Unsent edits"/></label>;
  return <LoadingState pending={pending} hasContent={loaded} label={'Opening ' + window.view + '…'} skeleton={<Skeleton/>} className="view-loading-state">
-  <label>Retained draft<input defaultValue="Unsent edits"/></label>
+  {window.view === 'workspace' ? <div className="workspace"><div className="conversation-scroll"/><div className="composer-dock">{draft}</div></div> : draft}
  </LoadingState>;
 }
-createRoot(document.getElementById('root')).render(<Fixture/>);
+flushSync(() => createRoot(document.getElementById('root')).render(<Fixture/>));
 `;
 type FixtureWindow = Window & {view: string; resolveLoad(): void; refresh(): void; finish(): void; retained?: Element};
 const views = {
@@ -28,6 +30,11 @@ const views = {
   review: ['.cr-toolbar', '.cr-files', '.cr-diff .cr-patch', '.cr-context .cr-draft'],
   settings: ['.settings-navigation', '.settings-page-heading', '.settings-row-copy', '.settings-row'],
 };
+async function expectStableBox(locator: Locator, before: Awaited<ReturnType<Locator['boundingBox']>>) {
+  const after = await locator.boundingBox();
+  expect(before).not.toBeNull(); expect(after).not.toBeNull();
+  for (const key of ['x', 'y', 'width', 'height'] as const) expect(Math.abs(after![key] - before![key]), key).toBeLessThanOrEqual(1);
+}
 
 describe('structure-matched first-load feedback', () => {
   let browser: Browser, script: string, css: string;
@@ -56,6 +63,7 @@ describe('structure-matched first-load feedback', () => {
     try {
       const skeleton = page.locator('.loading-state-skeleton');
       const before = await skeleton.boundingBox();
+      const beforeStructure = await Promise.all(structure.map(selector => skeleton.locator(selector).first().boundingBox()));
       expect(before?.width).toBeGreaterThan(width === 1440 && view === 'settings' ? 1000 : width - 50);
       expect(before?.height).toBeGreaterThan(600);
       expect(await skeleton.isVisible()).toBe(false);
@@ -63,7 +71,8 @@ describe('structure-matched first-load feedback', () => {
       await page.clock.runFor(149); expect(await skeleton.isVisible()).toBe(false);
       await page.clock.runFor(1); await skeleton.waitFor({state: 'visible'});
       expect(await page.getByRole('status').innerText()).toBe('Opening ' + view + '…');
-      expect((await skeleton.boundingBox())?.width).toBe(before?.width);
+      await expectStableBox(skeleton, before);
+      for (const [index, selector] of structure.entries()) await expectStableBox(skeleton.locator(selector).first(), beforeStructure[index]!);
       for (const selector of structure) expect(await skeleton.locator(selector).first().isVisible(), selector).toBe(true);
       expect(await skeleton.locator('input, textarea, button, [tabindex]').count()).toBe(0);
       const blocks = await skeleton.locator('.loading-skeleton').evaluateAll(nodes => nodes.filter(node => getComputedStyle(node).display !== 'none').map(node => {
@@ -86,15 +95,21 @@ describe('structure-matched first-load feedback', () => {
       await page.evaluate(() => (window as unknown as FixtureWindow).resolveLoad());
       const input = page.getByRole('textbox', {name: 'Retained draft'}); await input.waitFor();
       expect(await skeleton.count()).toBe(0); expect(await page.getByRole('status').count()).toBe(0);
+      const region = page.locator('.view-loading-state > [aria-busy]'), loadedRegion = await region.boundingBox(), loadedInput = await input.boundingBox();
       await input.focus(); await page.keyboard.press('ArrowLeft');
       await input.evaluate((node: HTMLInputElement) => {node.setSelectionRange(2, 7); (window as unknown as FixtureWindow).retained = node; (window as unknown as FixtureWindow).refresh();});
-      await page.clock.runFor(150);
+      await page.clock.runFor(149);
+      await expectStableBox(region, loadedRegion); await expectStableBox(input, loadedInput);
+      expect(await page.getByRole('status').count()).toBe(0);
+      await page.clock.runFor(1); await page.getByRole('status').waitFor({state: 'visible'});
+      await expectStableBox(region, loadedRegion); await expectStableBox(input, loadedInput);
       expect(await skeleton.count()).toBe(0);
       expect(await input.inputValue()).toBe('Unsent edits');
       expect(await input.evaluate((node: HTMLInputElement) => node === (window as unknown as FixtureWindow).retained && document.activeElement === node && node.selectionStart === 2 && node.selectionEnd === 7)).toBe(true);
       await expect.poll(() => input.evaluate(node => ({width: getComputedStyle(node).outlineWidth, style: getComputedStyle(node).outlineStyle}))).toEqual({width: '2px', style: 'solid'});
       await page.evaluate(() => (window as unknown as FixtureWindow).finish());
       await page.getByRole('status').waitFor({state: 'detached'});
+      await expectStableBox(region, loadedRegion); await expectStableBox(input, loadedInput);
     } finally {await page.close();}
   });
 

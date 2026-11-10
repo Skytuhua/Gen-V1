@@ -9,6 +9,8 @@
 .loading-state-row:first-child .loading-skeleton-line { width: 76%; }
 .loading-state-row:last-child .loading-skeleton-line { width: 44%; }
 .loading-state-status { margin: 0; padding: var(--ui-space-1, 4px) var(--ui-panel-inset, 12px); color: var(--muted); font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
+.loading-state-status-slot { visibility: hidden; }
+.loading-state-status-slot[data-visible="true"] { visibility: visible; }
 .view-loading-state { display: flex; flex: 1; flex-direction: column; min-height: 0; width: 100%; }
 .view-loading-state > [aria-busy], .view-loading-state > [aria-busy] > .loading-state-skeleton { display: flex; flex: 1; flex-direction: column; min-height: 0; }
 .view-loading-state > .loading-state-status { flex: none; }
