@@ -34,6 +34,8 @@ import type {ThreadHoverScope} from './thread-hover/facts';
 import {loadPersonalThreadHover,type ThreadHoverPRTarget} from './thread-hover/host';
 import { projectColor, threadDragPayload } from './project-colors';
 import { ActionMenu } from '../../../packages/ui-shell/ActionMenu';
+import { useThreadMove } from './sidebar-thread-move';
+import './sidebar-thread-move.css';
 
 const threadAge = (value: string) => {
   const date = Date.parse(value);
@@ -133,6 +135,9 @@ export function ShellSidebar({
   const [menuId, setMenuId] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'working' | 'waiting'>('all');
   const [showAllSettled, setShowAllSettled] = useState(false);
+  const threadMove = useThreadMove(elementRef, matching,
+    preferences.projectOrder === 'manual' && !mobile && open && !layout.sidebarCollapsed,
+    JSON.stringify([search, filter, showAllSettled, layout.folded, preferences.projectGrouping, preferences.showWorkingSection]));
 
   const visibleMatching = matching.filter(
     item =>
@@ -171,7 +176,7 @@ export function ShellSidebar({
     : remaining;
 
   const renderMenu = (item: Thread) => (
-    <span className="sidebar-thread-menu-button">
+    <span className="sidebar-thread-menu-button" {...threadMove.menuEvents}>
       <ActionMenu label={`Options for ${item.title}`} icon={<MoreHorizontal size={14} aria-hidden="true" />} iconOnly
         open={menuId === item.id} onOpenChange={open => setMenuId(open ? item.id : null)}
         items={[
@@ -185,10 +190,12 @@ export function ShellSidebar({
             onSelect: () => presentation(item, {settled: !item.presentation?.settled})},
           {id: 'top', label: 'Move to top', icon: <ArrowUp size={13} />, onSelect: () => {
             const min = orderBounds?.minOrder ?? Math.min(0, ...matching.map(thread => thread.presentation?.order ?? 0));
+            threadMove.prepare(item.id, min - 1);
             presentation(item, {order: min - 1});
           }},
           {id: 'bottom', label: 'Move to bottom', icon: <ArrowDown size={13} />, onSelect: () => {
             const max = orderBounds?.maxOrder ?? Math.max(0, ...matching.map(thread => thread.presentation?.order ?? 0));
+            threadMove.prepare(item.id, max + 1);
             presentation(item, {order: max + 1});
           }},
           {id: 'archive', label: 'Archive thread', icon: <Archive size={13} />, disabled: Boolean(item.runId),
@@ -208,6 +215,7 @@ export function ShellSidebar({
     return (
       <div
         key={item.id}
+        data-thread-id={item.id}
         className={`sidebar-thread-row ${compactSettled ? 'sidebar-settled-row' : ''} ${item.id === selectedId ? 'active' : ''} ${item.kind === 'delegate' ? 'sidebar-delegate' : ''}`}
       >
         <ThreadHoverCard facts={{scope,title:item.title,project:item.projectName?{name:item.projectName,monogram:projectMonogram(item.projectName)}:undefined,model:item.modelId??undefined,reasoning:item.thinkingLevel??undefined,activity:threadStatus(item),lastActivity:{label:threadAge(item.updatedAt),at:item.updatedAt},parent:item.parentThreadId?{threadId:item.parentThreadId,title:matching.find(parent=>parent.id===item.parentThreadId)?.title}:undefined}}

@@ -1,0 +1,2 @@
+/* Keep the deliberately moved row reachable while siblings cross its path. */
+.sidebar-thread-row[data-thread-moving] { z-index: 1; }

@@ -32,6 +32,7 @@ export const browserSuites:BrowserSuite[] = [
   suite('sidebar-shared-menu', ['sidebar-compact.spec.ts', 'sidebar-shared-menu.spec.ts'], {project:'sidebar-menu'}),
   suite('terminal-read'),
   suite('thread-hover'),
+  suite('thread-move', ['thread-move.spec.ts']),
   suite('usage-app-integration', ['mobile-navigation.spec.ts', 'shell-error-ownership.spec.ts', 'usage-app-integration.spec.ts']),
   suite('workspace-host'),
   suite('memory-recovery-app', undefined, {config:'tests/e2e/memory-recovery.playwright.config.ts', env:{GEN_MEMORY_MODE:'app'}}),
