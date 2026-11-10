@@ -468,6 +468,32 @@ body,
 		flex-wrap: wrap;
 	}
 }
+@container plugin-content (max-width: 700px) {
+	.pv-body {
+		flex-direction: column;
+	}
+	.pv-inspector {
+		width: 100%;
+		min-height: 120px;
+		max-height: 32%;
+		border-top: 1px solid var(--border, #292929);
+	}
+	.pv-header > div {
+		width: 100%;
+	}
+	.pv-canvas {
+		min-height: 200px;
+	}
+	.pv-legend small {
+		display: none;
+	}
+	.pv-editor {
+		max-height: 40%;
+	}
+	.pv-editor > div {
+		flex-wrap: wrap;
+	}
+}
 @media (prefers-reduced-motion: reduce) {
 	.pv-app * {
 		transition: none !important;

@@ -1,0 +1,19 @@
+/* Match the shell's fixed split budgets; the plug-in retains its own root. */
+body:has(>.ui-tool-dock>.plugin-tool-window:not([hidden])) {display:grid;grid-template-columns:minmax(420px,1fr) auto;grid-template-rows:minmax(0,1fr);gap:6px;overflow:auto;}
+body:has(>.ui-tool-dock>.plugin-tool-window:not([hidden]))>#root {position:relative;grid-area:1/1;min-width:0;min-height:240px;width:auto;height:100%;container:plugin-content / inline-size;}
+body:has(>.ui-tool-dock>.plugin-tool-window:not([hidden]))>div:empty:not(#root) {display:none;}
+.ui-tool-dock {grid-area:1/2;display:flex;flex-direction:column;gap:6px;min-width:280px;max-width:min(720px,calc(100vw - 426px));min-height:0;overflow:auto;background:var(--canvas);}
+.ui-tool-dock:not(:has(>.plugin-tool-window:not([hidden]))) {display:none;}
+.ui-tool-dock>.plugin-tool-window {position:relative;inset:auto;flex:1 0 calc(39px + var(--ui-tool-body-min,128px));width:100%;min-height:calc(39px + var(--ui-tool-body-min,128px));border:1px solid var(--border);border-radius:0;box-shadow:none;transition:none;}
+.ui-tool-dock>.plugin-tool-window[data-collapsed=true] {flex:0 0 auto;min-height:36px;}
+.plugin-tool-window>p {padding:12px;margin:0;}
+.plugin-tool-window :is(button,input,textarea,summary):focus-visible {outline:2px solid var(--accent);outline-offset:-2px;}
+.plugin-tool-window>.floating-window-header {flex-shrink:0;}
+.plugin-tool-window>.floating-window-header>.floating-window-summary {font-size:12px;white-space:normal;text-align:left;}
+.plugin-tool-window>.floating-window-body[hidden] {display:none;}
+.plugin-tool-window>.floating-window-body {padding:12px;}
+@media(max-width:705px) {
+ body:has(>.ui-tool-dock>.plugin-tool-window:not([hidden])) {grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(240px,1fr) auto;}
+ .ui-tool-dock {grid-area:2/1;width:100%!important;min-width:0;max-width:none;}
+ .ui-tool-dock:has(>.plugin-tool-window:not([hidden])[data-collapsed=false]) {height:max(calc(39px + var(--ui-tool-body-min,128px)),min(300px,45dvh));}
+}
