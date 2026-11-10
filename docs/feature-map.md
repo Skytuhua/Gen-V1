@@ -5,7 +5,7 @@ workspace presets and settings are application state, not separate URL routes.
 
 | Screen or flow | Owning files | Browser verification |
 | --- | --- | --- |
-| Conversation and composer | `App.tsx`, `Composer.tsx` | `shell`, `composer-commands` suites |
+| Conversation and composer | `App.tsx` (composer state), `ComposerView.tsx` (view) | `shell`, `composer-commands` suites |
 | Workspace presets | `WorkspaceHost.tsx`, `WorkspaceCanvas.tsx` | `workspace-host` suite |
 | Thread navigation and menus | `ShellSidebar.tsx`, `packages/ui-shell/ActionMenu.tsx` | `sidebar-shared-menu` suite |
 | Manual thread moves | `ShellSidebar.tsx`, `sidebar-thread-move.ts` | `thread-move` suite |
