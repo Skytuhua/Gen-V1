@@ -11,7 +11,8 @@ import { saveManifest, secureDirectory, type ManifestState } from './manifest.ts
 import { leadingReceipts } from './receipts.ts';
 import { assertCursorLoginUrl, cursorAuthPath } from './cursor-credentials.ts';
 import { cursorSafeError, type CursorWorkerEvent, type CursorWorkerInit } from './cursor-worker.ts';
-import {MODEL_ONLY_SYSTEM_PROMPT,MODEL_ONLY_MAX_WIRE_BYTES} from '../runtime/model-only.ts';
+import {modelOnlySystemPrompt,MODEL_ONLY_MAX_WIRE_BYTES} from '../runtime/model-only.ts';
+import type { AccountIdentity } from '../contracts/authentication.ts';
 
 const aborted = () => new HarnessError('OFFICIAL_RUN_ABORTED', 'Official Cursor run authority was revoked.');
 const protocol = () => new HarnessError('OFFICIAL_PROTOCOL_INVALID', 'Official Cursor returned invalid session or run evidence.');
@@ -108,12 +109,12 @@ export async function openCursor(context: DriverContext, spawnChild: typeof spaw
   });
   void worker.exited.then(() => { if (!closed && !settled) fail(protocol()); }, fail);
   try {
-    await worker.send({ type: 'initialize', init: { mode: 'run', dataDir: context.dataDir, taskDir: context.taskDir, sessionId: context.manifest.value.sessionId, modelId, thinkingLevel: context.thinkingLevel, systemPrompt: context.modelOnly?MODEL_ONLY_SYSTEM_PROMPT:hostSystemPrompt(context.memory),...(context.modelOnly?{modelOnly:true}:{}), mcp: { url: context.mcp.url, headers: context.mcp.headers, names: [...context.mcp.names] } } satisfies CursorWorkerInit });
+    await worker.send({ type: 'initialize', init: { mode: 'run', dataDir: context.dataDir, taskDir: context.taskDir, sessionId: context.manifest.value.sessionId, modelId, thinkingLevel: context.thinkingLevel, systemPrompt: context.modelOnly?modelOnlySystemPrompt(context.purpose):hostSystemPrompt(context.memory),...(context.modelOnly?{modelOnly:true,...(context.purpose?{purpose:context.purpose}:{})}:{}), mcp: { url: context.mcp.url, headers: context.mcp.headers, names: [...context.mcp.names] } } satisfies CursorWorkerInit });
     await bounded(startup.promise, 30_000, 'Official Cursor initialization timed out.'); assert(); return driver;
   } catch (error) { await driver.close(); throw safeError(error); }
 }
 
-async function operation(dataDir: string, init: CursorWorkerInit, spawnChild: typeof spawn, resultType: 'models' | 'history' | 'login-complete'): Promise<CursorWorkerEvent> {
+async function operation(dataDir: string, init: CursorWorkerInit, spawnChild: typeof spawn, resultType: 'models' | 'history' | 'login-complete' | 'auth-status' | 'logout-complete'): Promise<CursorWorkerEvent> {
   const cwd = init.taskDir ?? await secureDirectory(dataDir, officialRuntimeHome(dataDir, 'cursor-sdk'));
   const worker = startWorker(dataDir, cwd, spawnChild); const result = deferred<CursorWorkerEvent>();
   worker.child.on('message', (value: unknown) => {
@@ -145,4 +146,12 @@ export async function cursorHistory(dataDir: string, manifest: ManifestState, sp
 /** Explicit console mode is the only path that starts the official browser login. */
 export async function cursorLogin(dataDir: string): Promise<void> {
   await operation(dataDir, { mode: 'login', dataDir }, spawn, 'login-complete');
+}
+
+export async function cursorAccountStatus(dataDir: string): Promise<AccountIdentity | null> {
+  const frame = await operation(dataDir, { mode: 'auth-status', dataDir }, spawn, 'auth-status');
+  if (frame.type !== 'auth-status') throw protocol(); return frame.identity;
+}
+export async function cursorLocalSignout(dataDir: string): Promise<void> {
+  await operation(dataDir, { mode: 'logout', dataDir }, spawn, 'logout-complete');
 }

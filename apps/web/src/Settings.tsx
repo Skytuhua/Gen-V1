@@ -10,11 +10,13 @@ import {DraftTransfer} from './DraftTransfer';
 import {useDesktop} from './desktop-context';
 import { Connections, matchingSubscriptionConnections } from './Connections';
 import {SkillLibrary} from './SkillLibrary';
+import {IntegrationSettings} from './IntegrationSettings';
+import {UpdateControl} from './UpdateControl';
 import { version } from '../../../package.json';
 
 export const SETTINGS_SECTIONS = [
   ['general', 'General'], ['appearance', 'Appearance'], ['chat', 'Chat'], ['diffs', 'Diffs & pull requests'], ['keybindings', 'Keybindings'], ['snap-shot', 'SnapShots'],
-  ['providers', 'Providers'], ['skills', 'Skills & learning'], ['threads', 'Threads'], ['browser', 'Browser'], ['devices', 'Devices'], ['scheduled-tasks', 'Scheduled tasks'],
+  ['providers', 'Providers'], ['skills', 'Skills & learning'], ['integrations','Bundled integrations'], ['threads', 'Threads'], ['browser', 'Browser'], ['devices', 'Devices'], ['scheduled-tasks', 'Scheduled tasks'],
   ['projects', 'Projects'], ['source-control', 'Source control'], ['worktrees', 'Worktrees'], ['connections', 'Environments'], ['access', 'Sharing & access'], ['secrets', 'Secrets'],
   ['maintenance', 'Maintenance'], ['labs', 'Labs'], ['about', 'About'], ['archived', 'Archive'], ['diagnostics', 'Diagnostics'], ['licenses', 'Licenses'],
 ] as const;
@@ -29,7 +31,7 @@ const preferenceRows: Record<string, { key: keyof UiPreferences; options?: reado
   'panel-animations': { key: 'panelAnimations', description: 'Animate opening and resizing panels. Reduced motion is always respected.' },
   'word-wrap': { key: 'wordWrap', description: 'Wrap long lines in code, diffs, and file previews.' },
   'composer-context': { key: 'showComposerContext', description: 'Show the context usage inspector beside the composer.' },
-  'harness-live-usage': {key:'showUsageFooter',description:'Show live runtime tokens, context and reported cost in the bottom-right corner.'},
+  'harness-composer-predictions': { key: 'composerPredictions', description: 'Uses your selected model and subscription quota.' },
   'thread-details-items': { key: 'showThreadDetails', description: 'Show task status and thread details in the conversation header.', adapted: true },
   'project-grouping': { key: 'projectGrouping', description: 'Group threads by their project in the sidebar.', adapted: true },
   'project-order': { key: 'projectOrder', options: ['recent', 'created', 'manual'], description: 'Sort projects by recent activity, creation time, or your manual thread order.' },
@@ -52,10 +54,11 @@ export const SETTINGS_ROWS = [
   ...T3_SETTINGS_ROWS,
   ...T3_PANEL_ROWS,
   extra('harness-draft-transfer','Move browser drafts','maintenance','draft import export backup desktop migration'),
-  extra('harness-live-usage','Live usage','chat','tokens context plan subscription quota cost live meter bottom right'),
+  extra('harness-composer-predictions', 'Suggest my next message', 'chat', 'suggestions predictions composer next message selected model subscription quota'),
   extra('harness-font-size', 'Font size', 'appearance', 'text typography pixels'), extra('harness-motion-duration', 'Motion duration', 'appearance', 'animation speed milliseconds'),
   extra('harness-local-models', 'Available models', 'providers', 'pi runtime connection refresh authentication'),
   extra('harness-skills','Skills & learning','skills','skill library self improvement automatic learning reviews approval agent writes tool calls interval idle curation archive restore rollback'),
+  extra('harness-integrations','Bundled integrations','integrations','humanizer emil impeccable graphify promptfoo biome superpowers spec-kit context7 ponytail enabled disabled hooks mcp commands'),
   extra('harness-hermes-license','Hermes Agent learning','licenses','self improvement skills Nous Research MIT'),
   extra('harness-runtime', 'Local runtime', 'connections', 'Pi browser host'),
   extra('harness-export-diagnostics', 'Workspace diagnostics', 'diagnostics', 'host connection counts accepted sequence'),
@@ -88,7 +91,7 @@ const unavailableReasons: Record<string, string> = {
 export function settingAvailability(row: SettingsInventoryRow): Availability {
   if (supportedT3Shortcuts[row.id] || row.id === 'keybindings') return 'Adapted';
   if (preferenceRows[row.id]) return preferenceRows[row.id]!.adapted ? 'Adapted' : 'Working';
-  if (['harness-draft-transfer','color-scheme', 'harness-export-diagnostics', 'harness-licenses', 'harness-hermes-license', 'harness-skills', 'harness-local-models', 'panel-licenses-dependency-license-notices'].includes(row.id) || row.id.startsWith('harness-keybinding-') || row.id.startsWith('license-')) return 'Working';
+  if (['harness-integrations','harness-draft-transfer','color-scheme', 'harness-export-diagnostics', 'harness-licenses', 'harness-hermes-license', 'harness-skills', 'harness-local-models', 'panel-licenses-dependency-license-notices'].includes(row.id) || row.id.startsWith('harness-keybinding-') || row.id.startsWith('license-')) return 'Working';
   if (['providers', 'default-model', 'archive', 'project-overview', 'app-version', 'open-source-licenses', 'diagnostics', 'harness-runtime'].includes(row.id)) return 'Adapted';
   return 'Unavailable';
 }
@@ -117,14 +120,17 @@ export function Settings({ snapshot, modelError, refresh, loadModels, close, add
   const [newTaskModels, setNewTaskModels] = useState<ModelInfo[]>([]);
   const [newTaskModelError, setNewTaskModelError] = useState(modelError);
   const catalogRequest = useRef(0);
+  const catalogRead = useRef<AbortController|null>(null);
   const selectedAccountsKey = JSON.stringify(Object.entries(snapshot.settings.selectedAccounts ?? {}).sort(([left], [right]) => left.localeCompare(right)));
   const catalogSelection = useRef(selectedAccountsKey); catalogSelection.current = selectedAccountsKey;
   const loadNewTaskModels = useCallback(async (force = false) => {
     const request = ++catalogRequest.current, selection = catalogSelection.current;
-    try { const result = await getModels(force); if (request === catalogRequest.current && selection === catalogSelection.current) { setNewTaskModels(result.models); setNewTaskModelError(result.error ?? ''); } }
-    catch (cause) { if (request === catalogRequest.current && selection === catalogSelection.current) { setNewTaskModels([]); setNewTaskModelError(cause instanceof Error ? cause.message : 'Models could not be loaded.'); } }
+    catalogRead.current?.abort();const controller=new AbortController();catalogRead.current=controller;
+    try { const result = await getModels(force, undefined, controller.signal); if (request === catalogRequest.current && selection === catalogSelection.current) { setNewTaskModels(result.models); setNewTaskModelError(result.error ?? ''); } }
+    catch (cause) { if (!controller.signal.aborted && request === catalogRequest.current && selection === catalogSelection.current) { setNewTaskModels([]); setNewTaskModelError(cause instanceof Error ? cause.message : 'Models could not be loaded.'); } }
+    finally { if(catalogRead.current===controller)catalogRead.current=null; }
   }, []);
-  useLayoutEffect(() => { setNewTaskModels([]); setNewTaskModelError(''); void loadNewTaskModels(); return () => { catalogRequest.current++; }; }, [loadNewTaskModels, selectedAccountsKey]);
+  useLayoutEffect(() => { setNewTaskModels([]); setNewTaskModelError(''); void loadNewTaskModels(); return () => { catalogRequest.current++;catalogRead.current?.abort();catalogRead.current=null; }; }, [loadNewTaskModels, selectedAccountsKey]);
   const refreshModels = async (force = false) => { await Promise.all([loadModels(force), loadNewTaskModels(force)]); };
 
   const preferences = getPreferences(snapshot.settings);
@@ -153,13 +159,14 @@ export function Settings({ snapshot, modelError, refresh, loadModels, close, add
     if (preferenceRows[row.id]) return { description: preferenceRows[row.id]!.description, control: <PreferenceControl row={row} preferences={preferences} update={update} busy={busy} /> };
     if (row.id.startsWith('harness-keybinding-')) { const action = row.id.slice('harness-keybinding-'.length) as keyof UiPreferences['keybindings']; return { description: 'Click and press a shortcut. Saved bindings apply after the host accepts them.', control: <ShortcutInput action={action} label={row.title} value={preferences.keybindings[action] ?? ''} busy={busy} save={(key, value) => void update({ keybindings: { ...preferences.keybindings, [key]: value } })} /> }; }
     switch (row.id) {
+      case 'harness-integrations': return {description:'Manage installed skills, tools and hooks. Services start on use; disabling an integration keeps its output and cache.',control:<span className="settings-value">Bundled inventory</span>};
       case 'keybindings': return { description: 'Six workspace actions have editable bindings below. Commands without a corresponding action remain unavailable.', control: <span className="settings-value">6 supported actions</span> };
       case 'color-scheme': return { description: 'Follow your device color scheme, or choose light or dark.', control: <select aria-label="Color scheme" disabled={busy} value={snapshot.settings.theme} onChange={event => void persist({ theme: event.target.value })}><option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option></select> };
       case 'providers': case 'harness-local-models': return { description: `${newTaskModels.length} ${newTaskModels.length === 1 ? 'model' : 'models'} reported by connected runtimes. Credentials stay in their private connection stores. ${newTaskModelError}`, control: <button className="secondary" disabled={busy} onClick={() => void refreshModels(true)}>Refresh models</button> };
       case 'default-model': return { description: 'Default model for new work. Available models and reasoning levels follow the selected account for new tasks.', control: <select aria-label="Default model" disabled={busy || !newTaskModels.length} value={snapshot.settings.modelId ?? ''} onChange={event => void persist({ modelId: event.target.value })}><option value="" disabled>Select model</option>{newTaskModels.map(model => <option key={model.id} value={model.id}>{model.name}</option>)}</select> };
       case 'archive': return { description: `${snapshot.archivedThreads?.length ?? 0} archived threads. Restore reopens the saved thread; it does not resume a run.`, control: <span className="settings-value">{snapshot.archivedThreads?.length ?? 0} archived</span> };
       case 'project-overview': return { description: `${snapshot.resources.filter(item => item.kind === 'project').length} explicitly granted project folders. Access remains scoped to the resource grant.`, control: <button className="secondary" onClick={addResource}>Add resource</button> };
-      case 'app-version': return { description: `Generative Harness ${version} · T3 source reference da8cc591dadd75819ae62961da4a882767efb145.`, control: <span className="settings-value">{desktop?'Windows desktop':'Browser build'}</span> };
+      case 'app-version': return { description: `Gen V1 ${version} · T3 source reference da8cc591dadd75819ae62961da4a882767efb145.`, control: <span className="settings-value">{desktop?'Windows desktop':'Browser build'}</span> };
       case 'diagnostics': return { description: 'Inspect the current accepted workspace snapshot and connection details. Native telemetry is unavailable.', control: <button className="secondary" onClick={() => { setQuery(''); setSection('diagnostics'); }}>Open diagnostics</button> };
       case 'harness-draft-transfer': return {description:'Explicitly transfer browser-local drafts. Existing or incompatible desktop entries are retained for review.',control:<DraftTransfer snapshot={snapshot}/>};
       case 'harness-export-diagnostics': return { description: `Accepted event sequence ${snapshot.seq}. ${snapshot.threads.length} active threads, ${snapshot.artifacts.length} artifacts, ${snapshot.resources.length} grants, ${snapshot.operations.filter(item => item.status === 'unknown').length} uncertain operations. Model credentials and file contents are not included.`, control: <button className="secondary" onClick={() => void refresh().catch(cause => setError(String(cause)))}>Refresh snapshot</button> };
@@ -176,8 +183,10 @@ export function Settings({ snapshot, modelError, refresh, loadModels, close, add
     <header><button className="icon-button" aria-label="Close settings" onClick={close}><ArrowLeft size={17} /></button><strong>Settings</strong><span className="settings-save-state" role="status">{busy ? 'Saving…' : saved ? <><Check size={12} />Saved</> : null}</span><button className="icon-button" aria-label="Dismiss settings" onClick={close}><X size={17} /></button></header>
     <div className="settings-layout"><aside className="settings-navigation"><label className="settings-search"><Search size={14} /><input type="search" aria-label="Search all settings" placeholder="Search settings" value={query} onChange={event => setQuery(event.target.value)} /></label><nav aria-label="Settings sections">{SETTINGS_SECTIONS.map(([id, label]) => <button key={id} className={`${!tokens.length && section === id ? 'selected' : ''} ${['providers','projects','connections','maintenance','diagnostics'].includes(id) ? 'settings-group-start' : ''}`} onClick={() => { setQuery(''); setSection(id); }} aria-current={!tokens.length && section === id ? 'page' : undefined}>{label}</button>)}</nav><a className="settings-reference" href={T3_SETTINGS_SOURCE} target="_blank" rel="noreferrer">T3 reference · da8cc591<ExternalLink size={11} /></a></aside>
     <main className="settings-content"><div className="settings-page-heading"><h1>{heading}</h1><p>Each setting shows what is supported here.</p></div>{error && <p role="alert" className="notice error-text">{error}</p>}
+      {(!tokens.length&&section==='about'||tokens.length&&/updat/i.test(query))&&<UpdateControl/>}
       {rows.filter(row=>tokens.length||section!=='skills'||row.id!=='harness-skills').map(row => { const { description, control } = details(row); const availability = settingAvailability(row); return <section key={row.id} className="settings-row" data-setting-id={row.id} data-availability={availability.toLowerCase()}><div className="settings-row-copy"><h2><span>{row.title}</span><span className={`availability availability-${availability.toLowerCase()}`}>{availability}</span></h2>{tokens.length > 0 && <span className="settings-result-section">{SETTINGS_SECTIONS.find(item => item[0] === row.section)?.[1]}</span>}<p>{description}</p></div><div className="settings-row-control">{control}</div></section>; })}
       {!tokens.length&&section==='skills'&&<SkillLibrary snapshot={snapshot} preferences={preferences} update={update} refresh={refresh} busy={busy}/>}
+      {(!tokens.length&&section==='integrations'||tokens.length>0&&rows.some(row=>row.id==='harness-integrations'))&&<IntegrationSettings query={tokens.length?query:''}/>}
       {!rows.length && !subscriptionCount && section!=='skills' && <p className="settings-empty">No matching settings. Search covers every section, including unavailable capabilities.</p>}
       {!tokens.length && section === 'archived' && snapshot.archivedThreads?.map(thread => <section key={thread.id} className="settings-row"><div className="settings-row-copy"><h2>{thread.title}</h2><p>{thread.projectName ?? 'Conversation'} · {thread.status}</p></div><button className="secondary" disabled={busy} onClick={() => { setBusy(true); void command('thread.restore', {}, thread.id).then(refresh).catch(cause => setError(String(cause))).finally(() => setBusy(false)); }}>Restore thread</button></section>)}
       {(!tokens.length && section === 'providers' || subscriptionCount > 0) && <Connections models={newTaskModels} snapshot={snapshot} refresh={refresh} loadModels={refreshModels} query={tokens.length ? query : ''} />}

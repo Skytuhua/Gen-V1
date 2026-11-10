@@ -1,0 +1,24 @@
+name: Feature request
+description: Describe a user problem and a focused improvement.
+title: "[Feature] "
+labels: []
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you trying to solve?
+      description: "Describe the task and what makes it difficult today."
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: "Describe the smallest useful improvement."
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives and context
+      description: "Include existing workflows, examples or references if useful."

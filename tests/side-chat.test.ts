@@ -32,20 +32,36 @@ afterEach(async()=>{for(const cleanup of cleanups.splice(0))await cleanup();});
 it('retains side account use until its native cancellation has completed',async()=>{
  let x!:Awaited<ReturnType<typeof setup>>,release!:()=>void;const native=new ScriptedRuntime();native.cancel=async ctx=>{native.cancels.push(ctx);await new Promise<void>(done=>{release=done;});};
  x=await setup(()=>createRuntime({dataDir:x.store.dataDir,accounts:accountResolver(x.store)},{pi:()=>native,official:()=>new ScriptedRuntime()}));x.main.models=async()=>[{id:'openai/model',provider:'openai',name:'OpenAI'}];
- const side=await x.createSide();await x.send('message.send',{content:'Side',modelId:'openai/model'},side.id);await vi.waitFor(()=>expect(native.starts).toHaveLength(1));await x.send('run.stop',{},side.id);
- try{expect(x.service.thread(side.id).runId).toBeNull();expect(()=>beginAccountLogin(x.store,'openai',null)).toThrow(expect.objectContaining({code:'ACCOUNT_BUSY'}));}finally{release();}
+ const side=await x.createSide();await x.send('message.send',{content:'Side',modelId:'openai/model'},side.id);await vi.waitFor(()=>expect(native.starts).toHaveLength(1));let stopped=false;const stopping=x.send('run.stop',{},side.id).then(result=>{stopped=true;return result;});await vi.waitFor(()=>expect(native.cancels).toHaveLength(1));
+ try{expect(stopped).toBe(false);expect(x.service.thread(side.id).runId).toBeNull();expect(()=>beginAccountLogin(x.store,'openai',null)).toThrow(expect.objectContaining({code:'ACCOUNT_BUSY'}));}finally{release();await stopping;}
  await vi.waitFor(()=>expect(x.store.all('accountUse')).toHaveLength(0));
 });
 async function setup(factory?:()=>RuntimeAdapter|Promise<RuntimeAdapter>){
  const root=mkdtempSync(join(tmpdir(),'harness-side-')),store=new Store(root),main=new ScriptedRuntime(),sides:ScriptedRuntime[]=[];
  const service=new Service(store,main,{sideRuntimeFactory:factory??(()=>{const side=new ScriptedRuntime();sides.push(side);return side;})});await service.recover();
- cleanups.push(async()=>{await service.dispose();store.close();rmSync(root,{recursive:true,force:true});});
+ let closed=false;const close=async()=>{if(closed)return;closed=true;try{await service.dispose();}finally{store.close();rmSync(root,{recursive:true,force:true});}};cleanups.push(close);
  const send=(type:string,payload:Record<string,unknown>={},threadId?:string,id=crypto.randomUUID())=>service.command({id,type,payload,threadId});
  const parent=(await send('thread.create',{title:'Main task'})).result as Thread;
  const createSide=async()=>((await send('thread.create',{sideParentId:parent.id,title:'Side question'})).result as Thread);
  const ask=(id:string,content='Why did this assertion fail?')=>send('message.send',{content,modelId:'fixture/side'},id);
- return {store,main,sides,service,send,parent,createSide,ask};
+ return {store,main,sides,service,send,parent,createSide,ask,close};
 }
+it('holds the stopped side thread and its capacity until native teardown completes',async()=>{
+ const x=await setup(),first=await x.createSide(),second=await x.createSide(),third=await x.createSide();await x.ask(first.id);await x.ask(second.id);await vi.waitFor(()=>expect(x.sides).toHaveLength(2));
+ let release!:()=>void;const gate=new Promise<void>(done=>{release=done;});x.sides[0].cancel=async ctx=>{x.sides[0].cancels.push(ctx);await gate;};
+ const stopping=x.send('run.stop',{},first.id);await vi.waitFor(()=>expect(x.sides[0].cancels).toHaveLength(1));
+ try{
+  await expect(x.send('run.resume',{},first.id)).rejects.toMatchObject({code:'RUN_BUSY'});await expect(x.ask(third.id)).rejects.toMatchObject({code:'SIDE_CHAT_LIMIT'});expect(x.sides).toHaveLength(2);
+  release();await stopping;await x.send('run.resume',{},first.id);await vi.waitFor(()=>expect(x.sides[2]?.starts).toHaveLength(1));expect(x.sides).toHaveLength(3);
+ }finally{release();await stopping;}
+});
+it('retains failed side teardown admission and capacity holds',async()=>{
+ const x=await setup(),first=await x.createSide(),second=await x.createSide(),third=await x.createSide();await x.ask(first.id);await x.ask(second.id);await vi.waitFor(()=>expect(x.sides).toHaveLength(2));
+ x.sides[0].cancel=async ctx=>{x.sides[0].cancels.push(ctx);throw Error('Side cancellation was not confirmed.');};
+ await expect(x.send('run.stop',{},first.id)).rejects.toThrow('Side cancellation was not confirmed');
+ await expect(x.send('run.resume',{},first.id)).rejects.toMatchObject({code:'RUN_BUSY'});await expect(x.ask(third.id)).rejects.toMatchObject({code:'SIDE_CHAT_LIMIT'});expect(x.sides).toHaveLength(2);
+ await expect(x.close()).rejects.toThrow('Could not close every workspace runtime');
+});
 it('runs a bounded independent side session without stealing main authority or grants',async()=>{
  const x=await setup();await x.ask(x.parent.id,'Investigate the build.');const main=x.main.starts[0];
  x.store.internal('fixture',x.parent.id,()=>x.store.put('resource','private',x.parent.id,{id:'private',threadId:x.parent.id,path:'C:/private',kind:'project',writable:true}));
@@ -53,7 +69,7 @@ it('runs a bounded independent side session without stealing main authority or g
  await vi.waitFor(()=>expect(x.sides[0]?.starts).toHaveLength(1));const input=x.sides[0].starts[0];
  expect(input.resources).toEqual([]);expect(input.prompt).toContain('Investigate the build.');expect(input.prompt).toContain(x.parent.id);expect(input.prompt).toContain('quoted');
  expect(x.store.snapshot().activeThreadId).toBe(x.parent.id);expect(x.service.thread(x.parent.id).runId).toBe(main.runId);
- const other=(await x.send('thread.create',{title:'Another main'})).result as Thread;await expect(x.ask(other.id)).rejects.toMatchObject({code:'RUN_BUSY'});
+ const other=(await x.send('thread.create',{title:'Another main'})).result as Thread;await x.ask(other.id);await vi.waitFor(()=>expect(x.main.starts).toHaveLength(2));expect(x.main.starts[1].threadId).toBe(other.id);expect(x.sides[0].starts).toHaveLength(1);
  await x.send('run.stop',{},side.id);await vi.waitFor(()=>expect(x.sides[0].cancels).toHaveLength(1));expect(x.main.cancels).toHaveLength(0);
  x.sides[0].event(input,'assistant.message',{content:'Late',messageId:'late'});expect(x.store.get('message','late')).toBeNull();
 });

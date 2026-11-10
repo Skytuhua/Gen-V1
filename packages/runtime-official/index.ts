@@ -13,7 +13,7 @@ import { officialRuntimeHome, type OfficialProvider } from './environment.ts';
 import { openManifest, readManifest, saveManifest, secureDirectory, type ManifestState } from './manifest.ts';
 import { createHostMcp, type HostMcp } from './mcp.ts';
 import { bounded, type DriverContext, type HistoryReceipt, type OfficialDriver } from './internal.ts';
-import {assertModelOnlyInput} from '../runtime/model-only.ts';
+import {assertModelOnlyInput,PREDICTION_MAX_OUTPUT_BYTES,type ModelPurpose} from '../runtime/model-only.ts';
 
 export { officialRuntimeCommand, officialRuntimeHome, officialRuntimeEnvironment } from './environment.ts';
 export type { OfficialProvider } from './environment.ts';
@@ -24,7 +24,7 @@ export interface OfficialRuntimeDependencies {
 }
 interface Authority {
   ctx: RunContext; provider: OfficialProvider; revoked: boolean; settled: boolean;
-  modelId?: string;
+  modelId?: string;outputBytes?:number;
   mcp?: HostMcp; driver?: OfficialDriver; manifest?: ManifestState; children: Set<ChildProcess>; closing?: Promise<void>;
 }
 function providerModel(modelId: string): { provider: OfficialProvider; modelId: string } {
@@ -34,7 +34,8 @@ function providerModel(modelId: string): { provider: OfficialProvider; modelId: 
   return { provider: match[1], modelId: match[2] };
 }
 
-export function createOfficialRuntime({ dataDir,modelOnly }: { dataDir: string;modelOnly?:boolean }, dependencies: OfficialRuntimeDependencies = {}): RuntimeAdapter {
+export function createOfficialRuntime({ dataDir,modelOnly:requestedModelOnly,purpose }: { dataDir: string;modelOnly?:boolean;purpose?:ModelPurpose }, dependencies: OfficialRuntimeDependencies = {}): RuntimeAdapter {
+  const modelOnly=requestedModelOnly||purpose==='prediction';
   const storage = resolve(dataDir);
   const authorities = new Set<Authority>();
   const runs = new Map<string, Authority>();
@@ -91,15 +92,19 @@ export function createOfficialRuntime({ dataDir,modelOnly }: { dataDir: string;m
   async function context(authority: Authority, sessionPath: string | null, memory?: string,thinkingLevel?:string|null): Promise<DriverContext> {
     assert(authority);
     await prepareHome(authority.provider); assert(authority);
-    const manifest = authority.manifest = await openManifest(storage, authority.provider, authority.ctx.threadId, sessionPath); assert(authority);
+    const manifest = authority.manifest = await openManifest(storage, authority.provider, authority.ctx.threadId, sessionPath,purpose==='prediction'); assert(authority);
     const tools = modelOnly?[]:createHostTools(await loadDomainTools(), async () => { throw new Error('Official tools execute through the host MCP bridge.'); }); assert(authority);
     const mcp = authority.mcp = await createHostMcp({ ctx: authority.ctx, current: () => current(authority), onTool: (call, ctx) => {if(modelOnly)throw new HarnessError('MODEL_ONLY_TOOL_DENIED','Native tools are unavailable to the Hermes model transport.');return callbacks!.onTool(call, ctx);}, tools: tools.map(tool => ({ name: tool.name, description: tool.description, parameters: tool.parameters as Record<string, unknown> })) });
     if (!current(authority)) { await mcp.close(); assert(authority); }
     return {
-      dataDir: storage, taskDir: dirname(manifest.path), manifest, mcp, memory,thinkingLevel,...(modelOnly?{modelOnly:true}:{}),
+      dataDir: storage, taskDir: dirname(manifest.path), manifest, mcp, memory,thinkingLevel,...(modelOnly?{modelOnly:true}:{}),...(purpose?{purpose}:{}),
       current: () => current(authority),
       event(type, value = {}) {
         if (!current(authority)) return;
+        if(purpose==='prediction'&&(type==='assistant.delta'||type==='assistant.message')){
+          const bytes=Buffer.byteLength(String(type==='assistant.delta'?value.delta??'':value.content??''));if(type==='assistant.delta')authority.outputBytes=(authority.outputBytes??0)+bytes;
+          if(bytes>PREDICTION_MAX_OUTPUT_BYTES||(authority.outputBytes??0)>PREDICTION_MAX_OUTPUT_BYTES){void stop(authority).catch(()=>{});callbacks?.onEvent({...authority.ctx,type:'error',code:'PREDICTION_OUTPUT_LIMIT',message:'The prediction exceeded its output limit.'});return;}
+        }
         if (type === 'session.identity') { void saveManifest(manifest).catch(() => stop(authority)); return; }
         if (type === 'settled') {
           authority.settled = true;
@@ -138,7 +143,7 @@ export function createOfficialRuntime({ dataDir,modelOnly }: { dataDir: string;m
   }
   async function deliver(authority: Authority, input: StartRun): Promise<void> {
     assert(authority);
-    if(modelOnly)assertModelOnlyInput(input);
+    if(modelOnly)assertModelOnlyInput(input,purpose);
     if (input.modelId !== `${authority.provider}/${providerModel(input.modelId).modelId}`) throw new HarnessError('OFFICIAL_SESSION_MISMATCH', 'A follow-up cannot switch official providers.');
     if (authority.modelId !== input.modelId) throw new HarnessError('OFFICIAL_MODEL_MISMATCH', 'Stop the active run before changing models.');
     const text = encodeInput(input);
@@ -151,7 +156,7 @@ export function createOfficialRuntime({ dataDir,modelOnly }: { dataDir: string;m
   function queue(input: StartRun, compact: boolean): Promise<void> {
     if (disposed) return Promise.reject(new HarnessError('OFFICIAL_DISPOSED', 'Official runtime is disposed.'));
     if (!callbacks) return Promise.reject(new HarnessError('OFFICIAL_NOT_CONFIGURED', 'Configure runtime callbacks before starting work.'));
-    if(modelOnly){try{assertModelOnlyInput(input);}catch(error){return Promise.reject(error);}}
+    if(modelOnly){try{assertModelOnlyInput(input,purpose);}catch(error){return Promise.reject(error);}}
     if (!input.threadId || !input.runId || !Number.isSafeInteger(input.epoch) || input.epoch < 0) return Promise.reject(new HarnessError('OFFICIAL_CONTEXT_INVALID', 'Invalid official runtime context.'));
     let model: ReturnType<typeof providerModel>;
     try { model = providerModel(input.modelId); }
@@ -208,6 +213,7 @@ export function createOfficialRuntime({ dataDir,modelOnly }: { dataDir: string;m
     },
     start(input) { return queue(input, false); },
     followUp(input) {
+      if(purpose==='prediction')return Promise.reject(new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions cannot continue a conversation.'));
       return serial(input.threadId, async () => {
         const authority = runs.get(input.threadId);
         if (!authority || !sameContext(authority.ctx, input)) throw new HarnessError('OFFICIAL_STALE_RUN', 'No matching active official run for this follow-up.');
@@ -220,8 +226,9 @@ export function createOfficialRuntime({ dataDir,modelOnly }: { dataDir: string;m
       await Promise.all(matches.map(stop));
       if (!disposed && matches.length && !matches[0].settled) { matches[0].settled = true; callbacks?.onEvent({ ...matches[0].ctx, type: 'settled', aborted: true }); }
     },
-    compact(ctx, sessionPath, modelId) { return queue({ ...ctx, sessionPath, modelId, inputId: '', prompt: '', resources: [] }, true); },
+    compact(ctx, sessionPath, modelId) { if(purpose==='prediction')return Promise.reject(new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions cannot compact conversations.'));return queue({ ...ctx, sessionPath, modelId, inputId: '', prompt: '', resources: [] }, true); },
     async history(sessionPath) {
+      if(purpose==='prediction')throw new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions cannot read conversations.');
       if (disposed) throw new HarnessError('OFFICIAL_DISPOSED', 'Official runtime is disposed.');
       return serial(`official-history-${randomUUID()}`, async () => {
         if (disposed) throw new HarnessError('OFFICIAL_DISPOSED', 'Official runtime is disposed.');

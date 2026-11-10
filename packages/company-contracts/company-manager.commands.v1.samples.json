@@ -1,0 +1,816 @@
+{
+  "fixture_only": true,
+  "actual_company_records": false,
+  "actual_storage_receipts": false,
+  "note": "Synthetic shape/digest examples only; no mutation, model, employee admission or independent acceptance occurred.",
+  "examples": [
+    {
+      "operation": "mandate/set",
+      "request_schema": "MandateSetRequest",
+      "response_schema": "MandateSetResponse",
+      "request": {
+        "project_id": "alpha",
+        "message_id": "fixture-mandate-set-1",
+        "expected_head_digest": null,
+        "mandate": {
+          "goals": [
+            "Draft a small checklist improvement plan"
+          ],
+          "non_goals": [
+            "No live or paid action"
+          ],
+          "constraints": [
+            "Use approved permanent roster suggestions only"
+          ],
+          "prohibitions": [
+            "No native execution or publication"
+          ]
+        }
+      },
+      "response": {
+        "contract_id": "maritime-company-manager-commands",
+        "contract_version": "1.0.0-candidate.1",
+        "receipt": {
+          "type": "planning_storage_receipt",
+          "id": "storage-receipt-fixture-1",
+          "scope": {
+            "kind": "project",
+            "id": "alpha"
+          },
+          "operation": "mandate_set",
+          "record_ref": {
+            "type": "mandate",
+            "id": "mandate-alpha",
+            "scope": {
+              "kind": "project",
+              "id": "alpha"
+            },
+            "revision": 1,
+            "digest": "70af7da2cc83c4fcfc618596154f6cf04f57be21ad51eb25a4d1780a2edb2c87"
+          },
+          "request_digest": "7cd536314feb7bdccab354929d4b2f07c2d4ba6da4003ed41201db3d0e928da5",
+          "committed_at": 1793650000,
+          "evidence_scope": "authenticated_service_storage",
+          "authority": "planning_only",
+          "execution_authorized": false,
+          "dispatch_authorized": false,
+          "work_order_id": null
+        }
+      }
+    },
+    {
+      "operation": "intake/record",
+      "request_schema": "IntakeRecordRequest",
+      "response_schema": "IntakeRecordResponse",
+      "request": {
+        "project_id": "alpha",
+        "message_id": "fixture-intake-record-1",
+        "intake_id": null,
+        "expected_head_digest": null,
+        "mandate_ref": {
+          "type": "mandate",
+          "id": "mandate-alpha",
+          "scope": {
+            "kind": "project",
+            "id": "alpha"
+          },
+          "revision": 1,
+          "digest": "70af7da2cc83c4fcfc618596154f6cf04f57be21ad51eb25a4d1780a2edb2c87"
+        },
+        "intake": {
+          "client_request_id": "owner-fixture-request-1",
+          "instruction": "Plan one accessible checklist change using synthetic data.",
+          "success_criteria": [
+            "Describe expected behavior and future evidence"
+          ],
+          "constraints": [
+            "Do not execute the plan"
+          ]
+        }
+      },
+      "response": {
+        "contract_id": "maritime-company-manager-commands",
+        "contract_version": "1.0.0-candidate.1",
+        "receipt": {
+          "type": "planning_storage_receipt",
+          "id": "storage-receipt-fixture-2",
+          "scope": {
+            "kind": "project",
+            "id": "alpha"
+          },
+          "operation": "intake_record",
+          "record_ref": {
+            "type": "intake",
+            "id": "intake-fixture-1",
+            "scope": {
+              "kind": "project",
+              "id": "alpha"
+            },
+            "revision": 1,
+            "digest": "f7c6d6fdcb03d5fcd8aebdd7091096cf7bfd9c980203d2cb36f6e65f0798471b"
+          },
+          "request_digest": "a80f8622514c258dfda2e659a0950a398cee7c051c8a4918eda6231490842723",
+          "committed_at": 1793650000,
+          "evidence_scope": "authenticated_service_storage",
+          "authority": "planning_only",
+          "execution_authorized": false,
+          "dispatch_authorized": false,
+          "work_order_id": null
+        }
+      }
+    },
+    {
+      "operation": "proposal/submit",
+      "request_schema": "ProposalSubmitRequest",
+      "response_schema": "ProposalSubmitResponse",
+      "request": {
+        "project_id": "alpha",
+        "message_id": "fixture-proposal-submit-1",
+        "proposal_id": null,
+        "expected_head_digest": null,
+        "mandate_ref": {
+          "type": "mandate",
+          "id": "mandate-alpha",
+          "scope": {
+            "kind": "project",
+            "id": "alpha"
+          },
+          "revision": 1,
+          "digest": "70af7da2cc83c4fcfc618596154f6cf04f57be21ad51eb25a4d1780a2edb2c87"
+        },
+        "intake_ref": {
+          "type": "intake",
+          "id": "intake-fixture-1",
+          "scope": {
+            "kind": "project",
+            "id": "alpha"
+          },
+          "revision": 1,
+          "digest": "f7c6d6fdcb03d5fcd8aebdd7091096cf7bfd9c980203d2cb36f6e65f0798471b"
+        },
+        "local_draft": {
+          "id": "00000000-0000-4000-8000-000000000002",
+          "kind": "local_manager_draft",
+          "state": "unsubmitted",
+          "authority": "proposal_only",
+          "evidenceScope": "local_manager_output",
+          "requestId": "owner-fixture-request-1",
+          "projectId": "alpha",
+          "dispatchAuthorized": false,
+          "companyReceipt": null,
+          "permitId": "unverified-local-permit-reference",
+          "policyRevision": "unverified-local-policy-reference",
+          "sourceRefs": [
+            "00000000-0000-4000-8000-000000000001"
+          ],
+          "createdAt": 1793650000000,
+          "content": {
+            "summary": "Proposed checklist improvement only",
+            "interpretation": "The owner asked for a bounded plan, not execution.",
+            "assumptions": [
+              "Synthetic offline planning fixture"
+            ],
+            "tasks": [
+              {
+                "id": "draft-ui",
+                "title": "Describe the accessible checklist change",
+                "instructions": "Draft the proposed change and its acceptance checks.",
+                "dependsOn": [],
+                "proposedEmployeeId": "E10",
+                "sourceRefs": [
+                  "00000000-0000-4000-8000-000000000001"
+                ],
+                "deliverable": "documentation",
+                "requiredEvidence": [
+                  "Future keyboard walkthrough; not yet executed"
+                ]
+              }
+            ],
+            "blockers": [
+              {
+                "kind": "runtime",
+                "detail": "Native admission and execution remain unavailable."
+              }
+            ]
+          },
+          "digest": "0970645ef0900a5488c5259a945e368d18fb027b3acf6c54779fd4c75c5be5a2"
+        }
+      },
+      "response": {
+        "contract_id": "maritime-company-manager-commands",
+        "contract_version": "1.0.0-candidate.1",
+        "receipt": {
+          "type": "planning_storage_receipt",
+          "id": "storage-receipt-fixture-3",
+          "scope": {
+            "kind": "project",
+            "id": "alpha"
+          },
+          "operation": "proposal_submit",
+          "record_ref": {
+            "type": "proposal",
+            "id": "proposal-fixture-1",
+            "scope": {
+              "kind": "project",
+              "id": "alpha"
+            },
+            "revision": 1,
+            "digest": "10a6400d28352febbe00c550d6d6b7780c3bcffd2ebcfcec6cf008e41f12c198"
+          },
+          "request_digest": "702b4364d741546de90eedb54f21ad899c5c1665c4b39e8d232e008c6c26515e",
+          "committed_at": 1793650000,
+          "evidence_scope": "authenticated_service_storage",
+          "authority": "planning_only",
+          "execution_authorized": false,
+          "dispatch_authorized": false,
+          "work_order_id": null
+        }
+      }
+    },
+    {
+      "operation": "proposal/review",
+      "request_schema": "ProposalReviewRequest",
+      "response_schema": "ProposalReviewResponse",
+      "request": {
+        "project_id": "alpha",
+        "message_id": "fixture-proposal-review-1",
+        "proposal_ref": {
+          "type": "proposal",
+          "id": "proposal-fixture-1",
+          "scope": {
+            "kind": "project",
+            "id": "alpha"
+          },
+          "revision": 1,
+          "digest": "10a6400d28352febbe00c550d6d6b7780c3bcffd2ebcfcec6cf008e41f12c198"
+        },
+        "mandate_ref": {
+          "type": "mandate",
+          "id": "mandate-alpha",
+          "scope": {
+            "kind": "project",
+            "id": "alpha"
+          },
+          "revision": 1,
+          "digest": "70af7da2cc83c4fcfc618596154f6cf04f57be21ad51eb25a4d1780a2edb2c87"
+        },
+        "intake_ref": {
+          "type": "intake",
+          "id": "intake-fixture-1",
+          "scope": {
+            "kind": "project",
+            "id": "alpha"
+          },
+          "revision": 1,
+          "digest": "f7c6d6fdcb03d5fcd8aebdd7091096cf7bfd9c980203d2cb36f6e65f0798471b"
+        },
+        "expected_review_digest": null,
+        "decision": "reviewed",
+        "feedback": "Planning decision only; execution is not authorized."
+      },
+      "response": {
+        "contract_id": "maritime-company-manager-commands",
+        "contract_version": "1.0.0-candidate.1",
+        "receipt": {
+          "type": "planning_storage_receipt",
+          "id": "storage-receipt-fixture-4",
+          "scope": {
+            "kind": "project",
+            "id": "alpha"
+          },
+          "operation": "proposal_review",
+          "record_ref": {
+            "type": "proposal_review",
+            "id": "review-fixture-1",
+            "scope": {
+              "kind": "project",
+              "id": "alpha"
+            },
+            "revision": 1,
+            "digest": "56271d205dbafd8f1452a5f46043ca2eb809af9d15014e4ca0d42fb414e9585c"
+          },
+          "request_digest": "fc2a256438964ddfcaf815b6bfe1c2d7bdeea296ae86d0dce14533f11ede01c4",
+          "committed_at": 1793650000,
+          "evidence_scope": "authenticated_service_storage",
+          "authority": "planning_only",
+          "execution_authorized": false,
+          "dispatch_authorized": false,
+          "work_order_id": null
+        }
+      }
+    },
+    {
+      "operation": "planning-context",
+      "request_schema": "PlanningContextRequest",
+      "response_schema": "PlanningContextResponse",
+      "request": {
+        "project_id": "alpha",
+        "record_ref": {
+          "type": "proposal",
+          "id": "proposal-fixture-1",
+          "scope": {
+            "kind": "project",
+            "id": "alpha"
+          },
+          "revision": 1,
+          "digest": "10a6400d28352febbe00c550d6d6b7780c3bcffd2ebcfcec6cf008e41f12c198"
+        }
+      },
+      "response": {
+        "contract_id": "maritime-company-manager-commands",
+        "contract_version": "1.0.0-candidate.1",
+        "project_id": "alpha",
+        "status": "recorded",
+        "view": {
+          "record": {
+            "ref": {
+              "type": "proposal",
+              "id": "proposal-fixture-1",
+              "scope": {
+                "kind": "project",
+                "id": "alpha"
+              },
+              "revision": 1,
+              "digest": "10a6400d28352febbe00c550d6d6b7780c3bcffd2ebcfcec6cf008e41f12c198"
+            },
+            "previous_digest": null,
+            "body": {
+              "mandate_ref": {
+                "type": "mandate",
+                "id": "mandate-alpha",
+                "scope": {
+                  "kind": "project",
+                  "id": "alpha"
+                },
+                "revision": 1,
+                "digest": "70af7da2cc83c4fcfc618596154f6cf04f57be21ad51eb25a4d1780a2edb2c87"
+              },
+              "intake_ref": {
+                "type": "intake",
+                "id": "intake-fixture-1",
+                "scope": {
+                  "kind": "project",
+                  "id": "alpha"
+                },
+                "revision": 1,
+                "digest": "f7c6d6fdcb03d5fcd8aebdd7091096cf7bfd9c980203d2cb36f6e65f0798471b"
+              },
+              "local_draft": {
+                "id": "00000000-0000-4000-8000-000000000002",
+                "kind": "local_manager_draft",
+                "state": "unsubmitted",
+                "authority": "proposal_only",
+                "evidenceScope": "local_manager_output",
+                "requestId": "owner-fixture-request-1",
+                "projectId": "alpha",
+                "dispatchAuthorized": false,
+                "companyReceipt": null,
+                "permitId": "unverified-local-permit-reference",
+                "policyRevision": "unverified-local-policy-reference",
+                "sourceRefs": [
+                  "00000000-0000-4000-8000-000000000001"
+                ],
+                "createdAt": 1793650000000,
+                "content": {
+                  "summary": "Proposed checklist improvement only",
+                  "interpretation": "The owner asked for a bounded plan, not execution.",
+                  "assumptions": [
+                    "Synthetic offline planning fixture"
+                  ],
+                  "tasks": [
+                    {
+                      "id": "draft-ui",
+                      "title": "Describe the accessible checklist change",
+                      "instructions": "Draft the proposed change and its acceptance checks.",
+                      "dependsOn": [],
+                      "proposedEmployeeId": "E10",
+                      "sourceRefs": [
+                        "00000000-0000-4000-8000-000000000001"
+                      ],
+                      "deliverable": "documentation",
+                      "requiredEvidence": [
+                        "Future keyboard walkthrough; not yet executed"
+                      ]
+                    }
+                  ],
+                  "blockers": [
+                    {
+                      "kind": "runtime",
+                      "detail": "Native admission and execution remain unavailable."
+                    }
+                  ]
+                },
+                "digest": "0970645ef0900a5488c5259a945e368d18fb027b3acf6c54779fd4c75c5be5a2"
+              }
+            },
+            "recorded_by": "fixture-owner",
+            "recorded_at": 1793650000,
+            "origin": "owner_forwarded_unverified_local_draft",
+            "authority": "planning_only",
+            "execution_authorized": false,
+            "dispatch_authorized": false,
+            "work_order_id": null,
+            "native_provenance": {
+              "employee_id": null,
+              "machine_id": null,
+              "model_id": null,
+              "native_admission": "unavailable"
+            }
+          },
+          "current_head_ref": {
+            "type": "proposal",
+            "id": "proposal-fixture-1",
+            "scope": {
+              "kind": "project",
+              "id": "alpha"
+            },
+            "revision": 1,
+            "digest": "10a6400d28352febbe00c550d6d6b7780c3bcffd2ebcfcec6cf008e41f12c198"
+          },
+          "currentness": "current",
+          "state": "reviewed",
+          "linked_refs": {
+            "mandate_ref": {
+              "type": "mandate",
+              "id": "mandate-alpha",
+              "scope": {
+                "kind": "project",
+                "id": "alpha"
+              },
+              "revision": 1,
+              "digest": "70af7da2cc83c4fcfc618596154f6cf04f57be21ad51eb25a4d1780a2edb2c87"
+            },
+            "intake_ref": {
+              "type": "intake",
+              "id": "intake-fixture-1",
+              "scope": {
+                "kind": "project",
+                "id": "alpha"
+              },
+              "revision": 1,
+              "digest": "f7c6d6fdcb03d5fcd8aebdd7091096cf7bfd9c980203d2cb36f6e65f0798471b"
+            },
+            "proposal_ref": {
+              "type": "proposal",
+              "id": "proposal-fixture-1",
+              "scope": {
+                "kind": "project",
+                "id": "alpha"
+              },
+              "revision": 1,
+              "digest": "10a6400d28352febbe00c550d6d6b7780c3bcffd2ebcfcec6cf008e41f12c198"
+            }
+          },
+          "basis_current": true,
+          "latest_review": {
+            "ref": {
+              "type": "proposal_review",
+              "id": "review-fixture-1",
+              "scope": {
+                "kind": "project",
+                "id": "alpha"
+              },
+              "revision": 1,
+              "digest": "56271d205dbafd8f1452a5f46043ca2eb809af9d15014e4ca0d42fb414e9585c"
+            },
+            "proposal_ref": {
+              "type": "proposal",
+              "id": "proposal-fixture-1",
+              "scope": {
+                "kind": "project",
+                "id": "alpha"
+              },
+              "revision": 1,
+              "digest": "10a6400d28352febbe00c550d6d6b7780c3bcffd2ebcfcec6cf008e41f12c198"
+            },
+            "mandate_ref": {
+              "type": "mandate",
+              "id": "mandate-alpha",
+              "scope": {
+                "kind": "project",
+                "id": "alpha"
+              },
+              "revision": 1,
+              "digest": "70af7da2cc83c4fcfc618596154f6cf04f57be21ad51eb25a4d1780a2edb2c87"
+            },
+            "intake_ref": {
+              "type": "intake",
+              "id": "intake-fixture-1",
+              "scope": {
+                "kind": "project",
+                "id": "alpha"
+              },
+              "revision": 1,
+              "digest": "f7c6d6fdcb03d5fcd8aebdd7091096cf7bfd9c980203d2cb36f6e65f0798471b"
+            },
+            "decision": "reviewed",
+            "recorded_at": 1793650000
+          }
+        },
+        "unavailable": [
+          "company_wide_mandates",
+          "unregistered_project_intake",
+          "work_order_admission",
+          "history_listing",
+          "native_admission_provenance"
+        ]
+      }
+    }
+  ],
+  "immutable_record_examples": [
+    {
+      "schema": "MandateRecord",
+      "dto": {
+        "ref": {
+          "type": "mandate",
+          "id": "mandate-alpha",
+          "scope": {
+            "kind": "project",
+            "id": "alpha"
+          },
+          "revision": 1,
+          "digest": "70af7da2cc83c4fcfc618596154f6cf04f57be21ad51eb25a4d1780a2edb2c87"
+        },
+        "previous_digest": null,
+        "body": {
+          "goals": [
+            "Draft a small checklist improvement plan"
+          ],
+          "non_goals": [
+            "No live or paid action"
+          ],
+          "constraints": [
+            "Use approved permanent roster suggestions only"
+          ],
+          "prohibitions": [
+            "No native execution or publication"
+          ]
+        },
+        "recorded_by": "fixture-owner",
+        "recorded_at": 1793650000,
+        "origin": "authenticated_owner_input",
+        "authority": "planning_only",
+        "execution_authorized": false,
+        "dispatch_authorized": false,
+        "work_order_id": null,
+        "native_provenance": {
+          "employee_id": null,
+          "machine_id": null,
+          "model_id": null,
+          "native_admission": "unavailable"
+        }
+      }
+    },
+    {
+      "schema": "IntakeRecord",
+      "dto": {
+        "ref": {
+          "type": "intake",
+          "id": "intake-fixture-1",
+          "scope": {
+            "kind": "project",
+            "id": "alpha"
+          },
+          "revision": 1,
+          "digest": "f7c6d6fdcb03d5fcd8aebdd7091096cf7bfd9c980203d2cb36f6e65f0798471b"
+        },
+        "previous_digest": null,
+        "body": {
+          "mandate_ref": {
+            "type": "mandate",
+            "id": "mandate-alpha",
+            "scope": {
+              "kind": "project",
+              "id": "alpha"
+            },
+            "revision": 1,
+            "digest": "70af7da2cc83c4fcfc618596154f6cf04f57be21ad51eb25a4d1780a2edb2c87"
+          },
+          "intake": {
+            "client_request_id": "owner-fixture-request-1",
+            "instruction": "Plan one accessible checklist change using synthetic data.",
+            "success_criteria": [
+              "Describe expected behavior and future evidence"
+            ],
+            "constraints": [
+              "Do not execute the plan"
+            ]
+          }
+        },
+        "recorded_by": "fixture-owner",
+        "recorded_at": 1793650000,
+        "origin": "authenticated_owner_input",
+        "authority": "planning_only",
+        "execution_authorized": false,
+        "dispatch_authorized": false,
+        "work_order_id": null,
+        "native_provenance": {
+          "employee_id": null,
+          "machine_id": null,
+          "model_id": null,
+          "native_admission": "unavailable"
+        }
+      }
+    },
+    {
+      "schema": "ProposalRecord",
+      "dto": {
+        "ref": {
+          "type": "proposal",
+          "id": "proposal-fixture-1",
+          "scope": {
+            "kind": "project",
+            "id": "alpha"
+          },
+          "revision": 1,
+          "digest": "10a6400d28352febbe00c550d6d6b7780c3bcffd2ebcfcec6cf008e41f12c198"
+        },
+        "previous_digest": null,
+        "body": {
+          "mandate_ref": {
+            "type": "mandate",
+            "id": "mandate-alpha",
+            "scope": {
+              "kind": "project",
+              "id": "alpha"
+            },
+            "revision": 1,
+            "digest": "70af7da2cc83c4fcfc618596154f6cf04f57be21ad51eb25a4d1780a2edb2c87"
+          },
+          "intake_ref": {
+            "type": "intake",
+            "id": "intake-fixture-1",
+            "scope": {
+              "kind": "project",
+              "id": "alpha"
+            },
+            "revision": 1,
+            "digest": "f7c6d6fdcb03d5fcd8aebdd7091096cf7bfd9c980203d2cb36f6e65f0798471b"
+          },
+          "local_draft": {
+            "id": "00000000-0000-4000-8000-000000000002",
+            "kind": "local_manager_draft",
+            "state": "unsubmitted",
+            "authority": "proposal_only",
+            "evidenceScope": "local_manager_output",
+            "requestId": "owner-fixture-request-1",
+            "projectId": "alpha",
+            "dispatchAuthorized": false,
+            "companyReceipt": null,
+            "permitId": "unverified-local-permit-reference",
+            "policyRevision": "unverified-local-policy-reference",
+            "sourceRefs": [
+              "00000000-0000-4000-8000-000000000001"
+            ],
+            "createdAt": 1793650000000,
+            "content": {
+              "summary": "Proposed checklist improvement only",
+              "interpretation": "The owner asked for a bounded plan, not execution.",
+              "assumptions": [
+                "Synthetic offline planning fixture"
+              ],
+              "tasks": [
+                {
+                  "id": "draft-ui",
+                  "title": "Describe the accessible checklist change",
+                  "instructions": "Draft the proposed change and its acceptance checks.",
+                  "dependsOn": [],
+                  "proposedEmployeeId": "E10",
+                  "sourceRefs": [
+                    "00000000-0000-4000-8000-000000000001"
+                  ],
+                  "deliverable": "documentation",
+                  "requiredEvidence": [
+                    "Future keyboard walkthrough; not yet executed"
+                  ]
+                }
+              ],
+              "blockers": [
+                {
+                  "kind": "runtime",
+                  "detail": "Native admission and execution remain unavailable."
+                }
+              ]
+            },
+            "digest": "0970645ef0900a5488c5259a945e368d18fb027b3acf6c54779fd4c75c5be5a2"
+          }
+        },
+        "recorded_by": "fixture-owner",
+        "recorded_at": 1793650000,
+        "origin": "owner_forwarded_unverified_local_draft",
+        "authority": "planning_only",
+        "execution_authorized": false,
+        "dispatch_authorized": false,
+        "work_order_id": null,
+        "native_provenance": {
+          "employee_id": null,
+          "machine_id": null,
+          "model_id": null,
+          "native_admission": "unavailable"
+        }
+      }
+    },
+    {
+      "schema": "ReviewRecord",
+      "dto": {
+        "ref": {
+          "type": "proposal_review",
+          "id": "review-fixture-1",
+          "scope": {
+            "kind": "project",
+            "id": "alpha"
+          },
+          "revision": 1,
+          "digest": "56271d205dbafd8f1452a5f46043ca2eb809af9d15014e4ca0d42fb414e9585c"
+        },
+        "previous_digest": null,
+        "body": {
+          "proposal_ref": {
+            "type": "proposal",
+            "id": "proposal-fixture-1",
+            "scope": {
+              "kind": "project",
+              "id": "alpha"
+            },
+            "revision": 1,
+            "digest": "10a6400d28352febbe00c550d6d6b7780c3bcffd2ebcfcec6cf008e41f12c198"
+          },
+          "mandate_ref": {
+            "type": "mandate",
+            "id": "mandate-alpha",
+            "scope": {
+              "kind": "project",
+              "id": "alpha"
+            },
+            "revision": 1,
+            "digest": "70af7da2cc83c4fcfc618596154f6cf04f57be21ad51eb25a4d1780a2edb2c87"
+          },
+          "intake_ref": {
+            "type": "intake",
+            "id": "intake-fixture-1",
+            "scope": {
+              "kind": "project",
+              "id": "alpha"
+            },
+            "revision": 1,
+            "digest": "f7c6d6fdcb03d5fcd8aebdd7091096cf7bfd9c980203d2cb36f6e65f0798471b"
+          },
+          "decision": "reviewed",
+          "feedback": "Planning decision only; execution is not authorized."
+        },
+        "recorded_by": "fixture-owner",
+        "recorded_at": 1793650000,
+        "origin": "authenticated_owner_review",
+        "authority": "planning_only",
+        "execution_authorized": false,
+        "dispatch_authorized": false,
+        "work_order_id": null,
+        "native_provenance": {
+          "employee_id": null,
+          "machine_id": null,
+          "model_id": null,
+          "native_admission": "unavailable"
+        }
+      }
+    }
+  ],
+  "absent_mandate_example": {
+    "request_schema": "PlanningContextRequest",
+    "response_schema": "PlanningContextResponse",
+    "request": {
+      "project_id": "alpha",
+      "record_ref": null
+    },
+    "response": {
+      "contract_id": "maritime-company-manager-commands",
+      "contract_version": "1.0.0-candidate.1",
+      "project_id": "alpha",
+      "status": "not_recorded",
+      "view": null,
+      "unavailable": [
+        "company_wide_mandates",
+        "unregistered_project_intake",
+        "work_order_admission",
+        "history_listing",
+        "native_admission_provenance"
+      ]
+    }
+  },
+  "error_examples": [
+    {
+      "error": {
+        "code": "stale_basis"
+      }
+    },
+    {
+      "error": {
+        "code": "message_conflict"
+      }
+    },
+    {
+      "error": {
+        "code": "planning_storage_unavailable"
+      }
+    }
+  ]
+}

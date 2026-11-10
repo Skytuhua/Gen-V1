@@ -50,10 +50,10 @@ export class ContractRuntime implements RuntimeAdapter {
       return;
     }
     this.event('assistant.message', { messageId: randomUUID(), content: FIXTURE_LABEL, inputIds: input.inputIds ?? [input.inputId] });
-    if (input.prompt.includes('[fixture:widget]') || input.prompt.includes('[fixture:loop]')) {
+    if (input.prompt.includes('[fixture:widget]') || input.prompt.includes('[fixture:loop]') || input.prompt.includes('[fixture:startup]')) {
       await this.tool({ name: 'ui_create_widget', args: {
-        title: input.prompt.includes('[fixture:loop]') ? 'Untrusted loop fixture' : 'Growing knowledge notebook', purpose: FIXTURE_LABEL,
-        html: widgetHtml, inputSchema: { type: 'object', additionalProperties: false },
+        title: input.prompt.includes('[fixture:loop]') ? 'Untrusted loop fixture' : input.prompt.includes('[fixture:startup]') ? 'Startup failure fixture' : 'Growing knowledge notebook', purpose: FIXTURE_LABEL,
+        html: input.prompt.includes('[fixture:startup]') ? '<html><body><script>throw new Error("Controlled startup failure")</script></body></html>' : widgetHtml, inputSchema: { type: 'object', additionalProperties: false },
         eventSchema: { type: 'object', required: ['actionId', 'payload'], properties: { actionId: { const: 'continue' }, payload: { type: 'object', additionalProperties: false } }, additionalProperties: false },
         stateSchema: { type: 'object', required: ['note'], properties: { note: { type: 'string', maxLength: 2000 } }, additionalProperties: false },
         stateSchemaVersion: 1, initialState: { note: 'A small, source-linked notebook.' },

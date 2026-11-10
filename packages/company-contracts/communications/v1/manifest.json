@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "contract": "maritime-communications",
+  "candidate": "1.0.0-candidate.1",
+  "partial": true,
+  "executable": false,
+  "owner_plan_sha256": "0831d2f2e52cd9f9c832e895e3b739322ee07eda4c6074ea5deda020faedea09",
+  "supported": [
+    "strict raw JSON codec",
+    "closed artifact-free message.send discussion data",
+    "wire actor/class rejection"
+  ],
+  "unsupported": [
+    "Policy.authorize",
+    "authenticated current-generation or task authority",
+    "audience and artifact authorization",
+    "all other Section 6 record/query/command types",
+    "persistence and idempotency receipts",
+    "cursors/events/snapshots",
+    "HTTP/SSE/worker transport",
+    "live inference or dispatch"
+  ],
+  "normalization": {
+    "object_key_order": "lexicographic UTF-16 code units; explicit emission including numeric-looking keys",
+    "numbers": "integer-form tokens only, range -9007199254740991..9007199254740991; -0/decimal/exponent/nonfinite rejected",
+    "strings": "strict UTF-8; decoded duplicate keys and unpaired surrogates rejected; no Unicode or whitespace normalization",
+    "arrays": "order preserved",
+    "serialization": "compact JSON, Unicode literals; standard JSON short control escapes, lowercase u hex for remaining controls",
+    "depth_maximum": 64,
+    "raw_bytes_maximum": 32768
+  },
+  "argument_digest": "SHA-256 canonical UTF-8 of full command excluding only command_id; not principal identity or execution permission",
+  "files": {
+    "strict-json-value.schema.json": "980317764c7d686b46f438a73184971cfe5fae41f34d332817a45c921324ca62",
+    "discussion-command.schema.json": "ef5e4b198b3b150682e0915f3f5357cb634c11be5adaa96988aeb37b77040aec",
+    "golden/codec.json": "b27c8fcb41fbd20ccd0e52bc1fd5e4e5d1161c5aeda354ebd95192ac68807e65",
+    "golden/commands.json": "1bbcb949346ef82a5a30923271ccf7072ddc5a0e7b0c273f37af220e507f1a80"
+  }
+}

@@ -1,0 +1,160 @@
+{
+  "product": "Gen V1",
+  "source": {
+    "repository": "https://github.com/Skytuhua/Gen-V1",
+    "commit": "cb504d0e392fde9e70883b7b7c2e808e13488b7c",
+    "version": "0.6.4 source"
+  },
+  "capturedAtUtc": "2026-11-05T00:08:15.659368+00:00",
+  "scope": "Actual public browser interface with authored sample data. No personal profiles, live inference, sign-in, native installation or external operations.",
+  "method": {
+    "frontend": "Unmodified public DesktopEntry/App, served by an isolated loopback Vite fixture",
+    "reference": [
+      "scripts/capture-repository-screenshots.ts",
+      "tests/e2e/compact-tools-cleanup.spec.ts",
+      "tests/e2e/task-interface-fixture.ts"
+    ],
+    "screenshots": "Unedited application captures; desktop 1440 x 1200, narrow 390 x 844. The narrow view shows project context expanded.",
+    "videos": "Uninterrupted actual UI recordings at 1440 x 1000. Trimmed loading lead-in; 100-pixel caption band added outside UI; silent MP4/H.264 and WebM/VP9 copies.",
+    "posters": "Frames extracted from the encoded UI recordings.",
+    "animatedPreview": "Four-second silent excerpt, scaled and palette-optimized.",
+    "audio": "None. No stock media, music or generated application UI."
+  },
+  "files": [
+    {
+      "file": "models.png",
+      "bytes": 82682,
+      "sha256": "4d1e7a19fca3ba39cd66a39ab21494e48930852021455ea1ce161b4b51cfeafe",
+      "width": 1440,
+      "height": 1200
+    },
+    {
+      "file": "narrow.png",
+      "bytes": 36267,
+      "sha256": "ebd1178597ec66208da929986ab1a505d2c3d2dff677ec0541c949cf90e3af5e",
+      "width": 390,
+      "height": 844
+    },
+    {
+      "file": "plan-context.png",
+      "bytes": 93878,
+      "sha256": "02bdbb6fbf45e0387bff310f891e5f7de61fd5ca86b786dcf0f3aeadadb1b6c6",
+      "width": 1440,
+      "height": 1200
+    },
+    {
+      "file": "projects.png",
+      "bytes": 90321,
+      "sha256": "6350e296992469abb4afeb8446b610bc1fd170be6aa5a58904a0dc3066a6fcc5",
+      "width": 1440,
+      "height": 1200
+    },
+    {
+      "file": "README.md",
+      "bytes": 3907,
+      "sha256": "48a56eff9870d590f7e80b649bec3e027c2dcf403dcf28b4a842e05d2702df05"
+    },
+    {
+      "file": "skills.png",
+      "bytes": 95614,
+      "sha256": "95d6bc9fe9a12f7c4ca6523fb3c07835ab11262349f72995a9e93dcc80ac2100",
+      "width": 1440,
+      "height": 1200
+    },
+    {
+      "file": "task-preview.gif",
+      "bytes": 106854,
+      "sha256": "dfba59492beb778945c3a01552ad85653a1cda7174bd4fe4baac8604b8888a9a",
+      "width": 600,
+      "height": 458,
+      "codec": "gif",
+      "durationSeconds": 4.0
+    },
+    {
+      "file": "task-walkthrough-poster.jpg",
+      "bytes": 143308,
+      "sha256": "19d66077d149a1810fbdca8c8cb4fa4b55969186a9e1564fb35e0aa5618a7de1",
+      "width": 1440,
+      "height": 1100,
+      "codec": "mjpeg"
+    },
+    {
+      "file": "task-walkthrough.md",
+      "bytes": 1041,
+      "sha256": "5d7f662f05080f0ba7355d42c9e7676a481b7e119b334983487cd42a98352322"
+    },
+    {
+      "file": "task-walkthrough.mp4",
+      "bytes": 400282,
+      "sha256": "73d715b5d45099a41983221918aa3e7d9786a6a05ecba04ad0919cdfe589ff0a",
+      "width": 1440,
+      "height": 1100,
+      "codec": "h264",
+      "durationSeconds": 24.0
+    },
+    {
+      "file": "task-walkthrough.vtt",
+      "bytes": 469,
+      "sha256": "3d78977d45eb36bf8331b24a575a19319876ca9d9e03ca374992b539ed4f627b"
+    },
+    {
+      "file": "task-walkthrough.webm",
+      "bytes": 735558,
+      "sha256": "032949d803a64f5a9816aa2c9c2c82d7556a72a4e516835b6fb088fc472dc737",
+      "width": 1440,
+      "height": 1100,
+      "codec": "vp9",
+      "durationSeconds": 24.0
+    },
+    {
+      "file": "workspace-dark.png",
+      "bytes": 83251,
+      "sha256": "9060b1617761637be3c15f76f43db38b4c630df0bbfa78c1c949286000b4c346",
+      "width": 1440,
+      "height": 1200
+    },
+    {
+      "file": "workspace-light.png",
+      "bytes": 78690,
+      "sha256": "2bf9091d982081616ffc6816b3e46297c58ec642bdcfaf6e9538d9f55f4b56c7",
+      "width": 1440,
+      "height": 1200
+    },
+    {
+      "file": "workspace-tour-poster.jpg",
+      "bytes": 142751,
+      "sha256": "0c7860311aacf8d9d0dbe956dc4596099354364b73efb467ddcc0dc22d11ddf4",
+      "width": 1440,
+      "height": 1100,
+      "codec": "mjpeg"
+    },
+    {
+      "file": "workspace-tour.md",
+      "bytes": 1445,
+      "sha256": "4f3a6610592e28daa5f3b32c88a33f743ccd553e3896edb4503fb1f46a5351a3"
+    },
+    {
+      "file": "workspace-tour.mp4",
+      "bytes": 966418,
+      "sha256": "df70ab3ce55cb35d23c7241d4f51523ef89e191621f3cdd9171832f369076dfc",
+      "width": 1440,
+      "height": 1100,
+      "codec": "h264",
+      "durationSeconds": 60.0
+    },
+    {
+      "file": "workspace-tour.vtt",
+      "bytes": 702,
+      "sha256": "ece8de1d5f933802aed996631a3a9ea4e1116594d880c33cf5de9f8ca6f01527"
+    },
+    {
+      "file": "workspace-tour.webm",
+      "bytes": 1804640,
+      "sha256": "362e4f4ba653837c3ade689ac2425d248e8aa37585ff1c001103fcd9f02e5384",
+      "width": 1440,
+      "height": 1100,
+      "codec": "vp9",
+      "durationSeconds": 60.0
+    }
+  ]
+}

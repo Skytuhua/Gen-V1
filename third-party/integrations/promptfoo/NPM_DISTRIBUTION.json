@@ -1,0 +1,25 @@
+{
+  "name": "promptfoo",
+  "version": "0.125.1",
+  "shasum": "ecd2c6da218ecb4ed213bde96610cf4402c15cc2",
+  "tarball": "https://registry.npmjs.org/promptfoo/-/promptfoo-0.125.1.tgz",
+  "fileCount": 766,
+  "integrity": "sha512-nogBhixdp69icwkg1EI0syZ4zAmAjJyWeLcqxAkTldbHi0qirOslwHvkUQhQmg65lQLrIKyMOMLXlBlSc6LRrg==",
+  "signatures": [
+    {
+      "sig": "MEYCIQDP2eBfgb6P0xSCVZGY2WJiEzsugfM62jNpbYWiXBFT4wIhALako0+6cN8N6sRW4r9FU4sYaYjsjw4Z0QjaczXcPlpn",
+      "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+    },
+    {
+      "sig": "MEYCIQDDaAlkBUfAM73iHo9vpfjoTdVNogASwuTqbS1RBSyRCQIhAI+bSAkoQb7HM37059i428I81PLDFn5d+KgjHFRioMAH",
+      "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+    }
+  ],
+  "attestations": {
+    "url": "https://registry.npmjs.org/-/npm/v1/attestations/promptfoo@0.125.1",
+    "provenance": {
+      "predicateType": "https://slsa.dev/provenance/v1"
+    }
+  },
+  "unpackedSize": 32923855
+}

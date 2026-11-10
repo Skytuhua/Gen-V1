@@ -1,8 +1,9 @@
 import { randomUUID, createHash } from "node:crypto";
+import {privateFamilyForBinding} from '../workspace/git-storage.ts';
 import { mkdir, readFile, writeFile, stat, open } from "node:fs/promises";
 import { basename, join } from "node:path";
 import { Store, digest } from "../storage/store.ts";
-import { assertNotStorage, canonical, resolveGrant } from "./security.ts";
+import { assertNotStorage, canonical, inside, resolveGrant } from "./security.ts";
 import { withResourceGrant } from "./file-access.ts";
 import { admitSchema, validateJson, widgetDefinition, GENERATED_APPS_ENABLED } from "./widgets.ts";
 import { patchSpec, protectedFingerprint } from "./presentation.ts";
@@ -12,6 +13,7 @@ import { discoverCapabilities } from './discovery.ts';
 import { inspectTask } from './task-inspection.ts';
 import {PlanningCoordinator} from './planning.ts';
 import {SideRuntime} from './side-runtime.ts';
+import {ComposerPredictions,predictionContext,type PredictionBasis,type PredictionRequest} from './composer-prediction.ts';
 import {PlanningQuestionSchema} from '../contracts/planning-question.ts';
 import { getPreferences, mergePreferences } from "../contracts/preferences.ts";
 import {accountResolver,assertAccountAvailable,changeAccount,modelProvider} from './accounts.ts';
@@ -23,9 +25,10 @@ import type {SkillActor,SkillChangeResult} from '../contracts/skills.ts';
 import type {HermesEvent} from '../runtime-hermes/client.ts';
 import type {HermesRuntime} from '../runtime-hermes/index.ts';
 import type {HermesSourceLibrary} from '../runtime-hermes/library.ts';
+import type {ApprovedWriteOrigin,CompletedWriteReceipt,WriteHookDiagnostic} from '../contracts/index.ts';
 import { HarnessError, EMPTY_USAGE, type ArtifactRecord, type DataRecord, type HostCommand, type InputRequest, type Message, type Operation, type ResourceGrant, type RunContext, type RuntimeAdapter, type RuntimeEvent, type RuntimeUsage, type Snapshot, type StartRun, type SurfaceSpec, type Thread, type ToolCall, type UserStateRecord } from "../contracts/index.ts";
 
-type Outbox = { id: string; threadId: string; content: string; status: "persisted" | "processing" | "handled"; runId: string | null; enteredRuntime?: boolean;messageId?:string };
+type Outbox = { id: string; threadId: string; content: string; status: "persisted" | "processing" | "handled"; runId: string | null; enteredRuntime?: boolean;messageId?:string;completedWrite?:CompletedWriteReceipt;hookClaimed?:boolean;hookDiagnostic?:WriteHookDiagnostic };
 type Lease = { id: string; threadId: string; clientId: string; fields: string[]; expiresAt: number };
 type FinishRecord = { inputIds: string[]; invalidated?: boolean; [key: string]: unknown };
 const text = (p: Record<string, unknown>, key: string, max = 128 * 1024): string => {
@@ -38,6 +41,13 @@ const object = (value: unknown): Record<string, unknown> => {
 };
 const now = () => new Date().toISOString();
 interface SourceIntegration {runtime:Pick<HermesRuntime,'sourceBusy'|'reviewBusy'|'cancelBackground'|'sourceRequest'>;library:Pick<HermesSourceLibrary,'initialize'|'command'|'view'|'proposal'|'refresh'>}
+export interface ServiceOptions {
+  approvedWriteHooks?:boolean;
+  source?:SourceIntegration;sideRuntimeFactory?:()=>RuntimeAdapter|Promise<RuntimeAdapter>;planningRuntimeFactory?:()=>RuntimeAdapter|Promise<RuntimeAdapter>;
+  predictionRuntimeFactory?:()=>RuntimeAdapter|Promise<RuntimeAdapter>;learningRuntimeFactory?:(job:LearningJob)=>RuntimeAdapter|Promise<RuntimeAdapter>;
+  prepareWorkspace?:(thread:Thread)=>Promise<void>;
+  additionalTool?:(call:ToolCall,ctx:RunContext)=>Promise<unknown>;
+}
 export class Service {
   readonly planning: PlanningCoordinator;
   readonly learning:LearningCoordinator;
@@ -47,6 +57,7 @@ export class Service {
   // rather than assuming distinct resource IDs imply independent resources.
   private operationQueue: Promise<void> = Promise.resolve();
   private closed = false;
+  private updateClosing = false;
   private progressTimes = new Map<string, number>();
   private sideRuntime:SideRuntime;
   private learningCalls=new Map<string,number>();
@@ -55,20 +66,67 @@ export class Service {
   private lastActivity=Date.now();
   private curatorTimer:ReturnType<typeof setInterval>;
   private readonly source?:SourceIntegration;
-  constructor(readonly store: Store, readonly runtime: RuntimeAdapter,options:{source?:SourceIntegration;sideRuntimeFactory?:()=>RuntimeAdapter|Promise<RuntimeAdapter>;learningRuntimeFactory?:(job:LearningJob)=>RuntimeAdapter|Promise<RuntimeAdapter>}={}) {
+  private readonly predictions:ComposerPredictions;
+  private predictionMutations=0;
+  private readonly deliveries=new Map<string,Promise<void>>();
+  private readonly mainAdmissions=new Set<string>();
+  private readonly teardowns=new Map<string,{ctx:RunContext;side:boolean;promise:Promise<void>}>();
+  constructor(readonly store: Store, readonly runtime: RuntimeAdapter,private readonly options:ServiceOptions={}) {
     this.source=options.source;
-    this.planning=new PlanningCoordinator({store,assertRun:ctx=>this.assertRun(ctx),domainContext:(ctx,signal)=>this.context(ctx.threadId,signal,undefined,ctx)});
+    this.predictions=new ComposerPredictions({factory:()=>{if(!options.predictionRuntimeFactory)throw new HarnessError('PREDICTION_UNAVAILABLE','Composer predictions are unavailable in this host.');return options.predictionRuntimeFactory();},current:id=>this.predictionBasis(id)});
+    this.planning=new PlanningCoordinator({store,assertRun:ctx=>this.assertRun(ctx),domainContext:(ctx,signal)=>this.context(ctx.threadId,signal,undefined,ctx),runtimeFactory:options.planningRuntimeFactory});
     runtime.configure({ onEvent: event => this.onRuntimeEvent(event), onTool: (call, ctx) => this.tool(call, ctx) });
     this.sideRuntime=new SideRuntime(options.sideRuntimeFactory??(()=>import('../runtime/index.ts').then(({createRuntime})=>createRuntime({dataDir:store.dataDir,accounts:accountResolver(store)}))),{onEvent:event=>this.onRuntimeEvent(event),onTool:(call,ctx)=>this.tool(call,ctx)});
     this.learningSupported=Boolean(options.source||options.learningRuntimeFactory);
     this.learning=new LearningCoordinator({factory:job=>{if(!options.learningRuntimeFactory)throw new HarnessError('LEARNING_UNAVAILABLE','Automatic reviews are unavailable in this host.');return options.learningRuntimeFactory(job);},tool:(call,job,reads)=>this.learningTool(call,job,reads),result:(job,outcome)=>this.learningResult(job,outcome)});
-    this.curatorTimer=setInterval(()=>{if(!this.closed)this.curateIdle();},60_000);this.curatorTimer.unref();
+    this.curatorTimer=setInterval(()=>{if(!this.closed&&!this.updateClosing)this.curateIdle();},60_000);this.curatorTimer.unref();
   }
   private background(promise: Promise<unknown>): void {
     this.pending.add(promise); void promise.catch(() => {}).finally(() => this.pending.delete(promise));
   }
+  private cancelRun(input:RunContext,side:boolean):Promise<void>{
+    const ctx:RunContext={threadId:input.threadId,runId:input.runId,epoch:input.epoch};
+    const key=JSON.stringify([ctx.threadId,ctx.runId,ctx.epoch]),previous=this.teardowns.get(key);if(previous)return previous.promise;
+    const cancel=(runtime:Pick<RuntimeAdapter,'cancel'>):Promise<void>=>{try{return runtime.cancel(ctx);}catch(error){return Promise.reject(error);}};
+    const promise=Promise.allSettled([cancel(this.planning),cancel(side?this.sideRuntime:this.runtime)]).then(outcomes=>{
+      const failures=outcomes.flatMap(outcome=>outcome.status==='rejected'?[outcome.reason]:[]);
+      if(failures.length===1)throw failures[0];
+      if(failures.length)throw new AggregateError(failures,failures.map(error=>error instanceof Error?error.message:String(error)).join('; '));
+    }),owner={ctx:{...ctx},side,promise};this.teardowns.set(key,owner);
+    void promise.then(()=>{if(this.teardowns.get(key)===owner)this.teardowns.delete(key);},()=>{/* Unconfirmed native teardown retains its admission hold. */});return promise;
+  }
+  async stopAll():Promise<{stopped:number;errors?:string[]}>{
+    const targets=this.store.all<Thread>('thread').filter(thread=>thread.kind!=='delegate'&&(thread.runId||this.mainAdmissions.has(thread.id)));
+    const errors:string[]=[];
+    await Promise.all(targets.map(async thread=>{try{await this.command({id:randomUUID(),type:'run.stop',threadId:thread.id,payload:{}});}catch(error){errors.push(error instanceof Error?error.message:String(error));}}));
+    const outcomes=await Promise.allSettled([...this.teardowns.values()].map(owner=>owner.promise).concat([...this.deliveries.values(),this.cancelComposerPredictions(),this.cancelReview()]));
+    for(const outcome of outcomes)if(outcome.status==='rejected')errors.push(outcome.reason instanceof Error?outcome.reason.message:String(outcome.reason));
+    return{stopped:targets.length,...(errors.length?{errors:[...new Set(errors)]}:{})};
+  }
+  /** Host-owned evidence; cancelling work during shutdown never turns a busy
+   * close into permission to install an update. */
+  isUpdateIdle():boolean {
+    return !this.closed&&!this.aborts.size&&!this.pending.size&&!this.deliveries.size&&!this.mainAdmissions.size&&!this.teardowns.size&&!this.predictionMutations&&!this.predictions.busy&&!this.reviewing&&!this.learning.busy&&!this.source?.runtime.sourceBusy
+      &&!this.store.all<Thread>('thread').some(thread=>thread.runId||thread.status==='working'||thread.status==='awaiting_input'||this.planning.hasActiveChildren(thread.id))
+      &&!this.store.all<Operation>('operation').some(operation=>['prepared','running','unknown'].includes(operation.status))
+      &&!this.store.all<Outbox>('outbox').some(input=>input.status!=='handled')
+      &&!this.store.all<Lease>('lease').some(lease=>lease.expiresAt>Date.now());
+  }
+  freezeForUpdate():boolean {this.updateClosing=true;return this.isUpdateIdle();}
   private get reviewing():boolean{return this.source?.runtime.reviewBusy??this.learning.busy;}
   private cancelReview():Promise<void>{return this.source?.runtime.cancelBackground()??this.learning.cancel();}
+  private predictionBasis(threadId:string,settling=false):PredictionBasis|null {
+    if(this.closed||this.predictionMutations||!getPreferences(this.store.get<Snapshot['settings']>('settings','global')??{}).composerPredictions)return null;
+    const thread=this.store.get<Thread>('thread',threadId);
+    if(!thread||thread.sideParentId||!thread.modelId||thread.runId||!['ready','completed'].includes(thread.status)||this.store.get('archivedThread',thread.id)||this.store.all<Thread>('thread').some(item=>item.runId)||!settling&&(this.source?.runtime.sourceBusy||this.reviewing)||this.hasGate(thread.id)||this.store.all<Outbox>('outbox',thread.id).some(input=>input.status!=='handled')||this.store.all<Operation>('operation',thread.id).some(op=>['prepared','running','unknown'].includes(op.status)))return null;
+    try{assertAccountAvailable(this.store,modelProvider(thread.modelId),thread.accountId??null);}catch{return null;}
+    const messages=this.store.all<Message>('message',thread.id).filter(message=>message.role!=='activity'),reply=messages.at(-1);
+    if(!reply||reply.role!=='assistant'||!reply.content.trim()||!messages.some(message=>message.role==='user'))return null;
+    return{threadId,replyId:reply.id,modelId:thread.modelId,accountId:thread.accountId??null,epoch:thread.epoch,context:predictionContext(messages)};
+  }
+  composerPrediction(input:PredictionRequest,signal?:AbortSignal){return this.predictions.request(input,signal);}
+  /** Credential mutations and real work wait for the independently owned session. */
+  cancelComposerPredictions():Promise<void>{return this.predictions.cancel();}
   async skillDetail(name:string,options:Parameters<typeof viewSkill>[2]={}){return this.source?this.source.library.view(name,options):viewSkill(this.store,name,options);}
   async skillProposal(id:string){return this.source?this.source.library.proposal(id):viewSkillProposal(this.store,id);}
   sourceEvent(event:HermesEvent):void {
@@ -247,13 +305,32 @@ export class Service {
   }
   private operationData(operation: Operation, progress?: { message: string; counts?: unknown }): void {
     const old = this.store.get<DataRecord>("data", operation.id);
-    const record: DataRecord = { id: operation.id, threadId: operation.threadId, revision: (old?.revision ?? 0) + 1, value: { operationId: operation.id, status: operation.status, description: operation.description, ...(progress ? { message: progress.message, ...(progress.counts && typeof progress.counts === "object" ? progress.counts : {}) } : {}), ...(operation.result !== undefined ? { result: operation.result } : {}) }, provenance: "executor:operation:" + operation.id, createdAt: now() };
+    const hook=this.store.get<Outbox>('outbox','operation-result:'+operation.id)?.hookDiagnostic;
+    const record: DataRecord = { id: operation.id, threadId: operation.threadId, revision: (old?.revision ?? 0) + 1, value: { operationId: operation.id, status: operation.status, description: operation.description,...(hook?{postEditHook:hook}:{}), ...(progress ? { message: progress.message, ...(progress.counts && typeof progress.counts === "object" ? progress.counts : {}) } : {}), ...(operation.result !== undefined ? { result: operation.result } : {}) }, provenance: "executor:operation:" + operation.id, createdAt: now() };
     this.store.put("data", record.id, operation.threadId, record); this.store.put("dataVersion", record.id + "@" + record.revision, operation.threadId, record);
   }
-  private context(threadId: string, signal?: AbortSignal, operationId?: string, authority?: RunContext) {
+  private writeOrigin(thread:Thread,authority?:RunContext):ApprovedWriteOrigin|undefined {
+    if(!this.options.approvedWriteHooks||!authority||thread.sideParentId||thread.kind==='delegate'||!thread.sessionPath||!thread.modelId||!thread.projectId||!thread.workspaceId)return;
+    const binding=this.store.get<{id:string;threadId:string;projectId:string;path:string}>('workspaceBinding',thread.workspaceId),project=this.store.get<{authority:{kind:string}}>('workspaceProject',thread.projectId);
+    if(binding?.id!==thread.workspaceId||binding.threadId!==thread.id||binding.projectId!==thread.projectId||project?.authority.kind!=='local')return;
+    return {...authority,sessionPath:thread.sessionPath,modelId:thread.modelId,accountId:thread.accountId??null,projectId:thread.projectId,workspaceId:thread.workspaceId,projectRoot:binding.path};
+  }
+  private context(threadId: string, signal?: AbortSignal, operationId?: string, authority?: RunContext, completedWrite?:(evidence:{path:string;sha256:string;bytes:number})=>void) {
     const assertAuthority = () => { if (authority) this.assertRun(authority); };
     return {
-      threadId, signal: signal ?? new AbortController().signal,
+      threadId, signal: signal ?? new AbortController().signal,completedWrite,
+      managedGitFamily: (cwd: string) => {
+        assertAuthority();
+        // Git snapshots enumerate descendants, so a broad grant cannot include host storage.
+        if (inside(cwd, this.store.dataDir)) throw new HarnessError("CAPABILITY_DENIED", "Choose a Git repository outside harness application data.");
+        const thread = this.store.get<Thread>("thread", threadId);
+        if (!thread?.workspaceId) return undefined;
+        const binding = this.store.get<import("../workspace/tools.ts").WorkspaceBinding>("workspaceBinding", thread.workspaceId);
+        const project = thread.projectId ? this.store.get<import("../contracts/workspace.ts").ProjectSummary>("workspaceProject", thread.projectId) : undefined;
+        if (!binding || binding.id !== thread.workspaceId || binding.threadId !== threadId || binding.projectId !== thread.projectId || project?.authority.kind !== "local") throw new HarnessError("CAPABILITY_DENIED", "Managed working copy authority is unavailable");
+        if(binding.path!==cwd)return undefined;
+        return binding.familyId ? privateFamilyForBinding(this.store,binding) : binding;
+      },
       resolveResource: (id: string, relativePath?: string, write?: boolean) => { assertAuthority(); return this.resolveResource(threadId, id, relativePath, write); },
       withResource: <T>(id: string, relativePath: string | undefined, write: boolean, action: (path: string) => Promise<T>): Promise<T> => {
         assertAuthority();
@@ -268,7 +345,8 @@ export class Service {
         this.assertMutation(threadId);
         for (const id of resourceIds) { const grant = this.store.get<ResourceGrant>("resource", id); if (!grant || grant.threadId !== threadId) throw new HarnessError("CAPABILITY_DENIED", "Operation resource is not granted"); }
         const op: Operation = { id: randomUUID(), threadId, revision: 1, kind, args, resourceIds, preconditions, description, status: "prepared", approved: false, createdAt: now() };
-        this.store.internal("operation.prepared", threadId, () => { this.store.put("operation", op.id, threadId, op); this.operationData(op); return op; }); return op;
+        const thread=this.thread(threadId),capture=this.options.approvedWriteHooks&&kind==='file.replace'?{revision:op.revision,origin:this.writeOrigin(thread,authority),unavailable:thread.projectId&&thread.workspaceId?'scope_unavailable' as const:'no_project' as const}:undefined;
+        this.store.internal("operation.prepared", threadId, () => { this.store.put("operation", op.id, threadId, op); if(capture)this.store.put('operationWriteOrigin',op.id,threadId,capture);this.operationData(op); return op; }); return op;
       },
       progress: (message: string, counts?: unknown) => {
         if (this.closed) return;
@@ -286,7 +364,25 @@ export class Service {
     };
   }
   async command(command: HostCommand) {
-    const duplicate = this.store.receipt(command); if (duplicate) return duplicate;
+    if(this.updateClosing)throw new HarnessError('HOST_CLOSING','Gen is closing. Saved work is retained.');
+    const duplicate = this.store.receipt(command); if (duplicate) {
+      if(command.type==='run.stop'){
+        const owner=(duplicate.result as {nativeOwner?:RunContext})?.nativeOwner;
+        if(owner)await this.teardowns.get(JSON.stringify([owner.threadId,owner.runId,owner.epoch]))?.promise;
+      }
+      return duplicate;
+    }
+    const target=command.threadId?this.store.get<Thread>('thread',command.threadId):null;
+    if(target?.kind==='delegate'&&!['thread.rename','thread.presentation','thread.archive','thread.restore'].includes(command.type))throw new HarnessError('DELEGATE_READ_ONLY','Delegated transcripts are read-only. Control their work from the parent task.');
+    const preempts=['message.send','run.resume','run.compact','run.stop','thread.archive','settings.update','action.submit','request.respond','request.detail','operation.approve','operation.reject','learning.curate'].includes(command.type)||command.type.startsWith('account.');
+    if(!preempts)return this.executeCommand(command);
+    // Hold admission through asynchronous model discovery/history/teardown. A
+    // previous reply settling in that interval must not start optional work.
+    this.predictionMutations++;
+    try{const busy=this.predictions.busy,cancelled=this.cancelComposerPredictions();if(busy)await cancelled;return await this.executeCommand(command);}
+    finally{this.predictionMutations--;}
+  }
+  private async executeCommand(command:HostCommand){
     const p = command.payload;
     if(this.closed)throw new HarnessError('CANCELLED_RUN','The workspace has closed.');
     if(this.source?.runtime.sourceBusy&&command.type==='settings.update'&&p.preferences&&typeof p.preferences==='object'&&['learningEnabled','learningApproval','learningInterval','skillCurator'].some(key=>Object.hasOwn(p.preferences as object,key)))throw new HarnessError('HERMES_POLICY_BUSY','Stop the current response before changing learning controls.');
@@ -304,9 +400,13 @@ export class Service {
     if(command.type.startsWith('account.'))return this.store.command(command,()=>changeAccount(this.store,command));
     if (command.type === "thread.create") return this.store.command(command, () => {
       const parent=p.sideParentId===undefined?undefined:this.thread(text(p,'sideParentId',200));
-      if(parent?.sideParentId)throw new HarnessError('INVALID_INPUT','Open side questions from the main conversation.');
+      if(parent?.sideParentId||parent?.kind==='delegate')throw new HarnessError('INVALID_INPUT','Open side questions from the main conversation.');
       if(parent&&this.store.all<Thread>('thread').filter(item=>item.sideParentId===parent.id&&!this.store.get('archivedThread',item.id)).length>=24)throw new HarnessError('SIDE_CHAT_LIMIT','Archive an older side conversation before creating another.');
-      const thread: Thread = { id: randomUUID(), title: typeof p.title === "string" ? p.title.slice(0, 140) || "New thread" : parent?'Side question':"New thread", projectName: typeof p.projectName === "string" ? p.projectName : parent?.projectName??null, createdAt: now(), updatedAt: now(), status: "ready", epoch: 0, runId: null, modelId: null, sessionPath: null,...(parent?{sideParentId:parent.id,mode:'plan' as const,...(this.isAccountBound(parent)?{accountId:parent.accountId??null,modelId:parent.modelId}:{})}:{}) };
+      const projectId=p.projectId===undefined?parent?.projectId:text(p,'projectId',160);
+      if(projectId&&!/^[\w:.-]+$/.test(projectId))throw new HarnessError('INVALID_INPUT','Choose a valid connected project.');
+      const project=projectId?this.store.get<{name:string;authority:{kind:string}}>('workspaceProject',projectId):null;
+      if(projectId&&(!project||project.authority?.kind!=='local'))throw new HarnessError('CAPABILITY_DENIED','Choose a connected personal project.');
+      const thread: Thread = { id: randomUUID(),kind:parent?'side':'main',...(projectId?{projectId}:{}),...(parent?.workspaceId?{workspaceId:parent.workspaceId}:{}), title: typeof p.title === "string" ? p.title.slice(0, 140) || "New thread" : parent?'Side question':"New thread", projectName:project?.name??(typeof p.projectName === "string" ? p.projectName : parent?.projectName??null), createdAt: now(), updatedAt: now(), status: "ready", epoch: 0, runId: null, modelId: null, sessionPath: null,...(parent?{sideParentId:parent.id,parentThreadId:parent.id,mode:'plan' as const,...(this.isAccountBound(parent)?{accountId:parent.accountId??null,modelId:parent.modelId}:{})}:{}) };
       this.store.put("thread", thread.id, thread.id, thread);
       if(parent)this.store.put('sideContext',thread.id,thread.id,{parentId:parent.id,title:parent.title,capturedAt:now(),messages:this.store.all<Message>('message',parent.id).filter(message=>message.role!=='activity').slice(-8).map(message=>({id:message.id,role:message.role,content:message.content.slice(0,1500)}))});
       return thread;
@@ -330,11 +430,11 @@ export class Service {
     if (command.type === 'memory.save' || command.type === 'memory.delete') return this.store.command(command, () => changeTaskMemory(this.store, thread.id, command.type === 'memory.save' ? 'save' : 'delete', p, 'user'));
     if (command.type === "message.send") return this.sendMessage(command, thread);
     if (command.type === "run.stop") {
-      const ctx = { threadId: thread.id, runId: thread.runId ?? "", epoch: thread.epoch };
-      const receipt = this.store.command(command, () => { this.failUnansweredDetails(ctx,"The explanation was stopped. Resume the task to retry."); this.store.put("thread", thread.id, thread.id, { ...thread, epoch: thread.epoch + 1, runId: null, status: "stopped", updatedAt: now() }); return { stopped: true }; });
+      const pending=[...this.teardowns.values()].find(owner=>owner.ctx.threadId===thread.id);
+      const ctx = !thread.runId&&pending?pending.ctx:{ threadId: thread.id, runId: thread.runId ?? "", epoch: thread.epoch };
+      const receipt = this.store.command(command, () => { this.failUnansweredDetails(ctx,"The explanation was stopped. Resume the task to retry."); this.store.put("thread", thread.id, thread.id, { ...thread, epoch: thread.epoch + 1, runId: null, status: "stopped", updatedAt: now() }); return { stopped: true,nativeOwner:ctx }; });
       this.aborts.get(thread.id)?.abort();
-      this.background(this.planning.cancel(ctx));
-      this.background((thread.sideParentId?this.sideRuntime:this.runtime).cancel(ctx)); return receipt;
+      await this.cancelRun(ctx,!!thread.sideParentId); return receipt;
     }
     if (command.type === "run.resume") return this.resume(command, thread);
     if (command.type === "operation.reconcile") {
@@ -396,7 +496,7 @@ export class Service {
       }
       case "thread.archive": {
         if(thread.runId)throw new HarnessError("RUN_BUSY","Stop the thread before archiving");
-        if(this.store.all<Thread>('thread').some(side=>side.sideParentId===thread.id&&side.runId&&!this.store.get('archivedThread',side.id)))throw new HarnessError('RUN_BUSY','Finish or stop the side conversation before archiving this thread');
+        if(this.planning.hasActiveChildren(thread.id)||this.store.all<Thread>('thread').some(side=>(side.sideParentId===thread.id||side.parentThreadId===thread.id)&&side.runId&&!this.store.get('archivedThread',side.id)))throw new HarnessError('RUN_BUSY','Finish or stop the child conversation before archiving this thread');
         this.store.put("archivedThread",thread.id,thread.id,true);return {archived:true};
       }
       case "edit.begin": {
@@ -532,13 +632,19 @@ export class Service {
   }
   private assertNoOtherRun(threadId: string): void {
     const current=this.thread(threadId);
+    if([...this.teardowns.values()].some(owner=>owner.ctx.threadId===threadId))throw new HarnessError('RUN_BUSY','Wait for this task\'s native teardown before resuming.');
     if(current.sideParentId){
       if(current.runId)throw new HarnessError('RUN_BUSY','Wait for this side response to finish.');
-      if(this.store.all<Thread>('thread').filter(item=>item.sideParentId&&item.runId).length>=2)throw new HarnessError('SIDE_CHAT_LIMIT','At most two side conversations may work at once.');
+      const busy=new Set(this.store.all<Thread>('thread').filter(item=>item.sideParentId&&item.runId).map(item=>item.id));
+      for(const owner of this.teardowns.values())if(owner.side)busy.add(owner.ctx.threadId);
+      if(busy.size>=2)throw new HarnessError('SIDE_CHAT_LIMIT','At most two side conversations may work at once.');
       return;
     }
-    const other = this.store.all<Thread>("thread").find(t => !t.sideParentId&&t.runId && t.id !== threadId);
-    if (other) throw new HarnessError("RUN_BUSY", "Another thread is working; your draft is preserved", { threadId: other.id });
+    if(current.kind==='delegate')throw new HarnessError('DELEGATE_READ_ONLY','Delegated transcripts are read-only.');
+    const busy=new Set(this.store.all<Thread>('thread').filter(t=>!t.sideParentId&&t.kind!=='delegate'&&t.runId&&t.id!==threadId).map(t=>t.id));
+    for(const owner of this.teardowns.values())if(!owner.side&&owner.ctx.threadId!==threadId)busy.add(owner.ctx.threadId);
+    for(const id of this.mainAdmissions)if(id!==threadId)busy.add(id);
+    if(busy.size>=3)throw new HarnessError('RUN_BUSY','Three main agents are working; your draft is preserved.',{threadIds:[...busy]});
   }
   private async sendMessage(command: HostCommand, thread: Thread) {
     this.assertNoOtherRun(thread.id);
@@ -590,18 +696,44 @@ export class Service {
     }); this.background(this.deliverOutbox(thread.id)); return receipt;
   }
   async deliverOutbox(threadId: string): Promise<void> {
-    const thread = this.thread(threadId);
+    const previous=this.deliveries.get(threadId),work=previous?previous.catch(()=>{}).then(()=>this.deliverInputs(threadId)):this.deliverInputs(threadId);
+    this.deliveries.set(threadId,work);
+    try{await work;}finally{if(this.deliveries.get(threadId)===work)this.deliveries.delete(threadId);}
+  }
+  private async deliverInputs(threadId:string):Promise<void>{
+    let thread = this.thread(threadId);
     if (["stopped", "interrupted", "failed", "completed"].includes(thread.status) || !thread.modelId) return;
     if (thread.runId && (this.store.get<{kind:string}>("runtimeIntent", thread.runId)?.kind === "compaction" || this.store.get("finish", thread.runId))) return;
     this.assertNoOtherRun(threadId);
-    const inputs = this.store.all<Outbox>("outbox", threadId).filter(i => i.status === "persisted");
-    if (!inputs.length) return;
+    if(!this.store.all<Outbox>('outbox',threadId).some(i=>i.status==='persisted'&&(!thread.runId||!i.completedWrite)))return;
+    // Executor completions can enqueue input without a user command. Re-read
+    // the thread after teardown; no captured state survives the async boundary.
+    if(this.predictions.busy){this.predictionMutations++;try{await this.cancelComposerPredictions();await this.deliverInputs(threadId);}finally{this.predictionMutations--;}return;}
+    const preparing=!thread.sideParentId&&thread.kind!=='delegate'&&!thread.runId;
+    if(preparing)this.mainAdmissions.add(threadId);
+    const preparingEpoch=thread.epoch;
+    try{
+    if(preparing&&this.options.prepareWorkspace){const captured=thread;await this.options.prepareWorkspace(thread);thread=this.thread(threadId);if(thread.epoch!==captured.epoch||thread.runId!==captured.runId||thread.status!==captured.status)throw new HarnessError('CANCELLED_RUN','The task changed while preparing its workspace.');}
+    const inputs=this.store.all<Outbox>('outbox',threadId).filter(i=>i.status==='persisted'&&(!thread.runId||!i.completedWrite));if(!inputs.length)return;
+    const modelId=thread.modelId;if(!modelId)throw new HarnessError('MODEL_UNAVAILABLE','Choose a model before starting the prepared workspace.');
     const ctx = { threadId, runId: thread.runId ?? randomUUID(), epoch: thread.runId ? thread.epoch : thread.epoch + 1 };
-    const binding=this.binding(thread,modelProvider(thread.modelId));
+    const binding=this.binding(thread,modelProvider(modelId));
+    const completedWrites:CompletedWriteReceipt[]=[];
     this.store.internal("input.processing", threadId, () => {
-      this.assertBinding(this.thread(threadId),modelProvider(thread.modelId!),binding);
+      this.assertBinding(this.thread(threadId),modelProvider(modelId),binding);
       this.store.put("thread", threadId, threadId, { ...thread, ...ctx,accountId:binding.accountId, id: threadId, status: this.hasGate(threadId) ? "awaiting_input" : "working", updatedAt: now() });
-      for (const input of inputs) this.store.put("outbox", input.id, threadId, { ...input, status: "processing", runId: ctx.runId, enteredRuntime: false });
+      for (const input of inputs) {
+        let claimed:Partial<Outbox>={};const receipt=input.completedWrite;
+        if(receipt&&!input.hookClaimed){
+          const origin=this.writeOrigin(thread,receipt.origin),op=this.store.get<Operation>('operation',receipt.operationId);
+          const valid=origin&&JSON.stringify(origin)===JSON.stringify(receipt.origin)&&thread.epoch===receipt.origin.epoch&&!thread.runId&&op?.approved&&op.status==='succeeded'&&op.revision===receipt.revision&&inside(receipt.origin.projectRoot,receipt.path);
+          const overflow=valid&&completedWrites.length>=32;
+          claimed={hookClaimed:true,hookDiagnostic:{operationId:receipt.operationId,revision:receipt.revision,inputId:input.id,status:overflow?'failed':valid?'unknown':'stale',message:overflow?'Post-edit hook batch limit exceeded; the approved write remains succeeded.':valid?'Hook delivery claimed; completion is not yet known.':'The approved write no longer matches its source owner.'}};
+          if(valid&&!overflow)completedWrites.push({...receipt,delivery:ctx});
+        }
+        this.store.put("outbox", input.id, threadId, { ...input,...claimed,status: "processing", runId: ctx.runId, enteredRuntime: false });
+        if(receipt){const op=this.store.get<Operation>('operation',receipt.operationId);if(op)this.operationData(op);}
+      }
       return { runId: ctx.runId, inputIds: inputs.map(i => i.id) };
     });
     const sideContext=thread.sideParentId&&!thread.sessionPath?this.store.get('sideContext',threadId):null;
@@ -609,10 +741,15 @@ export class Service {
     if(!thread.sideParentId&&!this.source){const index=skillIndex(this.store);if(this.skillIndexes.get(thread.id)!==index){guidance+='Current procedure catalog changed (metadata only; use skills_list/skill_view for details).\n'+index+'\n\n';this.skillIndexes.set(thread.id,index);}if(inputs.some(input=>/^\/learn(?:\s|$)/i.test(input.content.trim())))guidance+=LEARN_REQUEST+'\n\n';}
     let contents=inputs.map(input=>input.content);
     if(this.source&&!thread.sideParentId&&contents.some(content=>/^\/learn(?:\s|$)/i.test(content.trim())))try{contents=await Promise.all(contents.map(async content=>/^\/learn(?:\s|$)/i.test(content.trim())?(await this.source!.runtime.sourceRequest<{prompt:string}>('learn.prompt',{request:content.trim().replace(/^\/learn\s*/i,'')})).prompt:content));}catch(error){this.runtimeFailure(ctx,error);return;}
-    const input: StartRun = { ...ctx,accountId:binding.accountId, memory: taskMemoryContext(this.store, threadId), modelId: thread.modelId, thinkingLevel:thread.thinkingLevel, sessionPath: thread.sessionPath, inputId: inputs[0].id, inputIds: inputs.map(i => i.id), resources: thread.sideParentId?[]:this.store.all("resource", threadId), prompt: guidance+inputs.map((input,index) => "Input " + input.id + ":\n" + contents[index]).join("\n\n") };
+    const input: StartRun = { ...ctx,accountId:binding.accountId, memory: taskMemoryContext(this.store, threadId), modelId, thinkingLevel:thread.thinkingLevel, sessionPath: thread.sessionPath, inputId: inputs[0].id, inputIds: inputs.map(i => i.id), resources: thread.sideParentId?[]:this.store.all("resource", threadId), ...(completedWrites.length?{completedWrites}:{}),prompt: guidance+inputs.map((input,index) => "Input " + input.id + ":\n" + contents[index]).join("\n\n") };
     if (!this.aborts.has(threadId) || !thread.runId) this.aborts.set(threadId, new AbortController());
     try { this.assertRun(ctx);this.assertBinding(this.thread(threadId),modelProvider(input.modelId),binding);if(thread.sideParentId)await this.sideRuntime.start(input);else if (thread.runId) await this.runtime.followUp(input); else await this.runtime.start(input); }
     catch (error) { this.runtimeFailure(ctx, error); }
+    }catch(error){
+      const current=this.store.get<Thread>('thread',threadId);
+      if(!this.closed&&preparing&&current?.epoch===preparingEpoch&&!current.runId&&!['stopped','interrupted'].includes(current.status))this.store.internal('input.preparation_failed',threadId,()=>{this.store.put('thread',threadId,threadId,{...current,status:'interrupted',error:error instanceof Error?error.message:String(error),updatedAt:now()});return{error:'Workspace preparation failed; the input remains saved.'};});
+      else throw error;
+    }finally{if(preparing)this.mainAdmissions.delete(threadId);}
   }
   private runtimeFailure(ctx: RunContext, error: unknown): void {
     if (this.closed) return;
@@ -626,8 +763,7 @@ export class Service {
     });
     // Clearing the projection must never detach a still-busy SDK session.
     this.aborts.get(thread.id)?.abort();
-    this.background(this.planning.cancel(ctx));
-    this.background((thread.sideParentId?this.sideRuntime:this.runtime).cancel({ threadId: ctx.threadId, runId: ctx.runId, epoch: ctx.epoch }).catch(() => {}).then(() => this.deliverOutbox(thread.id)));
+    this.background(this.cancelRun(ctx,!!thread.sideParentId).then(()=>this.deliverOutbox(thread.id)));
   }
   private onRuntimeEvent(event: RuntimeEvent): void {
     if (this.closed) return;
@@ -635,6 +771,10 @@ export class Service {
     if (!thread || event.epoch !== thread.epoch || event.runId !== thread.runId) return;
     if (event.type === "error") { this.runtimeFailure(event, new Error(String(event.message))); return; }
     this.store.internal("runtime." + event.type, thread.id, () => {
+      if(event.type==='write.hook'&&event.diagnostic&&typeof event.diagnostic==='object'){
+        const diagnostic=event.diagnostic as WriteHookDiagnostic,input=this.store.get<Outbox>('outbox',diagnostic.inputId),receipt=input?.completedWrite;
+        if(input?.hookClaimed&&input.runId===event.runId&&input.hookDiagnostic?.status==='unknown'&&receipt?.operationId===diagnostic.operationId&&receipt.revision===diagnostic.revision&&['applied','failed','stale','disabled','no_project','scope_unavailable','unknown'].includes(diagnostic.status)&&typeof diagnostic.message==='string'&&diagnostic.message.length<=500){this.store.put('outbox',input.id,thread.id,{...input,hookDiagnostic:diagnostic});const op=this.store.get<Operation>('operation',receipt.operationId);if(op)this.operationData(op,{message:'Post-edit hook: '+diagnostic.status});}
+      }
       if (event.type === "input.processing" && Array.isArray(event.inputIds)) {
         for (const id of event.inputIds) {
           const input = typeof id === "string" ? this.store.get<Outbox>("outbox", id) : null;
@@ -671,10 +811,17 @@ export class Service {
       }
       return { runId: event.runId };
     });
-    if (event.type === "settled" && !event.aborted) this.background(this.deliverOutbox(thread.id).then(()=>this.reviewAfter(event)));
+    if (event.type === "settled" && !event.aborted) {
+      // Hermes may still be closing its background review here. Only this
+      // accepted transition mints the slot; request admission waits for cleanup.
+      const basis=this.predictionBasis(thread.id,true),reply=basis?this.store.get<Message>('message',basis.replyId):null;
+      if(basis&&reply?.runId===event.runId&&!this.store.get('runtimeIntent',event.runId))this.predictions.settled(basis);
+      this.background(this.deliverOutbox(thread.id).then(()=>this.reviewAfter(event)));
+    }
   }
   async tool(call: ToolCall, ctx: RunContext): Promise<unknown> {
     const owningThread=this.assertRun(ctx);
+    if(owningThread.kind==='delegate')throw new HarnessError('AGENT_TOOL_DENIED','Delegated tools must use their parent-owned read-only coordinator.');
     if(owningThread.sideParentId&&call.name!=='task_finish')throw new HarnessError('SIDE_CHAT_READ_ONLY','Side conversations answer in text; files, mutations and delegation are unavailable.');
     if(!this.source&&!owningThread.sideParentId&&owningThread.mode!=='plan')this.learningCalls.set(ctx.threadId,(this.learningCalls.get(ctx.threadId)??0)+1);
     const controller = this.aborts.get(ctx.threadId);
@@ -692,6 +839,12 @@ export class Service {
       return args.commandId === undefined ? this.store.internal('memory.updated', ctx.threadId, apply) : this.store.command({ id: text(args, 'commandId', 200), type: 'task_memory', threadId: ctx.threadId, payload: args }, apply).result;
     }
     if(call.name==='plan_update')return this.planning.updatePlan({...ctx},args);
+    if(call.name==='integration_list'||call.name==='integration_call'){
+      if(!this.options.additionalTool)throw new HarnessError('INTEGRATION_UNAVAILABLE','Managed integrations are unavailable in this host.');
+      const selected={modelId:owningThread.modelId,accountId:owningThread.accountId??null,projectId:owningThread.projectId};
+      const result=await this.options.additionalTool(call,{...ctx}),current=this.assertRun(ctx);
+      if(current.modelId!==selected.modelId||(current.accountId??null)!==selected.accountId||current.projectId!==selected.projectId)throw new HarnessError('CANCELLED_RUN','The integration scope changed during execution.');return result;
+    }
     if(call.name==='task_delegate')return this.planning.delegate({...ctx},args,controller?.signal??new AbortController().signal);
     if(call.name==='agent_progress')throw new HarnessError('AGENT_TOOL_DENIED','Agent progress belongs to a delegated session');
     if (call.name === "ui_discover") return discoverCapabilities(args);
@@ -805,12 +958,13 @@ export class Service {
     this.store.internal("operation.started", op.threadId, () => { const started: Operation = { ...op, status: "running" }; this.store.put("operation", id, op.threadId, started); this.operationData(started); return { operationId: id }; });
     try {
       const domain = await import("../capabilities/index.ts");
-      const result = await domain.executeDomainOperation({ ...op, status: "running" }, this.context(op.threadId, control.signal, op.id));
+      let writeEvidence:{path:string;sha256:string;bytes:number}|undefined;
+      const result = await domain.executeDomainOperation({ ...op, status: "running" }, this.context(op.threadId, control.signal, op.id,undefined,evidence=>{writeEvidence=evidence;}));
       if (result && typeof result === "object" && "exitCode" in result && (result.exitCode !== 0 || ("cancelled" in result && result.cancelled) || ("timedOut" in result && result.timedOut))) {
         throw new HarnessError("OPERATION_FAILED", "The check did not finish successfully", result);
       }
       const renewedGrant = await this.replacementGrant(op, result);
-      if (!this.closed) this.store.internal("operation.succeeded", op.threadId, () => { const ended: Operation = { ...op, status: "succeeded", result }; if (renewedGrant) this.store.put("resource", renewedGrant.id, op.threadId, renewedGrant); this.store.put("operation", id, op.threadId, ended); this.operationData(ended); this.enqueueOperationResult(ended); return { operationId: id }; });
+      if (!this.closed) this.store.internal("operation.succeeded", op.threadId, () => { const ended: Operation = { ...op, status: "succeeded", result }; if (renewedGrant) this.store.put("resource", renewedGrant.id, op.threadId, renewedGrant); this.store.put("operation", id, op.threadId, ended); this.operationData(ended); this.enqueueOperationResult(ended,writeEvidence); return { operationId: id }; });
       this.background(this.deliverOutbox(op.threadId));
       return result;
     } catch (error) {
@@ -836,12 +990,18 @@ export class Service {
       } finally { await file.close(); }
     } catch { return null; }
   }
-  private enqueueOperationResult(operation: Operation): void {
+  private enqueueOperationResult(operation: Operation,writeEvidence?:{path:string;sha256:string;bytes:number}): void {
     const data = this.store.get<DataRecord>("data", operation.id), input: Outbox = {
       id: "operation-result:" + operation.id, threadId: operation.threadId, status: "persisted", runId: null,
       content: "Executor receipt: operation " + operation.id + " (" + operation.kind + ") is " + operation.status + ". " + (operation.error ?? "") + " Inspect evidence data " + data?.id + "@" + data?.revision + " and the operation ledger before continuing. Do not repeat a completed effect."
     };
+    if(this.options.approvedWriteHooks&&operation.kind==='file.replace'&&operation.status==='succeeded'){
+      const capture=this.store.get<{revision:number;origin?:ApprovedWriteOrigin;unavailable?:'scope_unavailable'|'no_project'}>('operationWriteOrigin',operation.id);
+      if(capture?.revision===operation.revision&&capture.origin&&writeEvidence)input.completedWrite={operationId:operation.id,revision:operation.revision,inputId:input.id,origin:capture.origin,...writeEvidence};
+      else input.hookDiagnostic={operationId:operation.id,revision:operation.revision,inputId:input.id,status:capture?.unavailable??'scope_unavailable',message:'No authenticated source/project write origin was captured; no hook was run.'};
+    }
     if (!this.store.get("outbox", input.id)) this.enqueueInput(input);
+    if(input.hookDiagnostic)this.operationData(operation);
   }
   async recover(): Promise<void> {
     if(this.source)await this.source.library.initialize();
@@ -856,7 +1016,7 @@ export class Service {
   }
   async dispose(): Promise<void> {
     this.closed=true;clearInterval(this.curatorTimer);for(const controller of this.aborts.values())controller.abort();
-    const settled=await Promise.allSettled([this.learning.dispose(),this.planning.dispose(),this.sideRuntime.dispose(),this.runtime.dispose()]);
+    const settled=await Promise.allSettled([this.predictions.dispose(),this.learning.dispose(),this.planning.dispose(),this.sideRuntime.dispose(),this.runtime.dispose()]);
     await Promise.allSettled([...this.pending]);
     const failures=settled.flatMap(result=>result.status==='rejected'?[result.reason]:[]);if(failures.length)throw new AggregateError(failures,'Could not close every workspace runtime.');
   }

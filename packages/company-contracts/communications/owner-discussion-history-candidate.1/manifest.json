@@ -1,0 +1,153 @@
+{
+  "contract": "maritime-owner-discussion-history",
+  "version": "1.0.0-candidate.1",
+  "status": "implemented_source_candidate_pending_joint_consumer_review",
+  "source_base": "bb00e555ea244ae05f94eb9f85ab20773e34f429",
+  "operation": {
+    "method": "GET",
+    "path": "/company/v1/projects/{project_id}/owner-discussion/history",
+    "normalized_request": "Closed Request: project from URL; absent limit resolves20, absent cursor resolvesnull; not a POST body.",
+    "query": {
+      "optional": [
+        "limit",
+        "cursor"
+      ],
+      "default_limit": 20,
+      "limit": "canonical decimal1..50, fixed normalized value for entire traversal",
+      "cursor": "server-issued unpadded base64url1..4096 chars; echo unchanged",
+      "maximum_raw_query_chars": 4160,
+      "duplicate_unknown_empty_percent_encoded_members": false
+    },
+    "body_bytes": 0
+  },
+  "transport": {
+    "scheme": "https",
+    "host": "127.0.0.1",
+    "tls_minimum": "1.2",
+    "exact_host_header_with_port": true,
+    "authorization": "one trusted-host owner Bearer header; cursor is never a credential",
+    "content_length": "absent or one exact0",
+    "forbidden_headers_even_empty": [
+      "Origin",
+      "Content-Type",
+      "Transfer-Encoding",
+      "Content-Encoding"
+    ],
+    "normal_cli_enabled": false,
+    "remote_owner_session": false
+  },
+  "authority": {
+    "permissions": [
+      "comms_read",
+      "comms_owner_discussion"
+    ],
+    "default_grants": false,
+    "current_checks": "Current registry owner, unrevoked Store coordinator, exact company/project and durable sole-owner room before protected reads/cursor interpretation and final return.",
+    "access_digest": "SHA256 C01canonical current kind/principal_id/sortedpermissions/sortedproject_ids/Storeprincipal/audience/visibilitypolicy. Excludes rotating credential ID, token fingerprint and expiry.",
+    "access_change": "Current denial401/403 first; still-authorized changed effective access409 RESYNC_REQUIRED.",
+    "unsupported_ABA": "No access epoch. Arbitrary remove-and-regrant under an alive issuer unsupported; registry replacement/restore requires listener recreation."
+  },
+  "snapshot": {
+    "kind": "append_only_room_cut",
+    "anchors": [
+      "exact historical Conversation reference",
+      "exact watermark Message reference including digest"
+    ],
+    "bound_fields": [
+      "stable principal",
+      "company/project/room",
+      "fixedlimit/filter/order",
+      "effectiveaccessdigest",
+      "snapshotID/incarnation",
+      "bothanchors",
+      "nextroomsequence",
+      "fixedUTCexpiry/monotonicdeadline"
+    ],
+    "later_appends": "Excluded above committed watermark; cannot shift traversed ranges.",
+    "repeat_cursor": "Stateless current-authorized same request returns identical successful bytes/range/items/next token until expiry, with no hidden advancement.",
+    "initial_request": "Always a new cut; never silently restart a continuation. After a lost initial reply, caller explicitly starts a new traversal.",
+    "completion": "Only for the issued owner-room cut; no full C07 manifest/event replay/SSE."
+  },
+  "lifetime": {
+    "default_seconds": 300,
+    "host_only_config_seconds": "1..900",
+    "expiry": "initialmin(issue+TTL, initialcredentialexpiry); never extended by pages or rotation",
+    "units": "integer UTC epoch milliseconds; observed_at is cut issue observation, not read freshness; internal monotonic deadline also enforced",
+    "checks": "Before reads and immediately before return; backward beforeissue409, wall or monotonicexpiry410."
+  },
+  "paging": {
+    "maximum_items": 50,
+    "maximum_response_utf8_bytes": 262144,
+    "maximum_cursor_chars": 4096,
+    "command_decoder_unchanged_bytes": 32768,
+    "select": "Indexed owner/room/scope sequences<=start<=watermark; limit+1 lookahead, noCOUNT.",
+    "validate": "Both cut anchors and every bounded selected wrapper/receipt/claim/journal before bytefit; no skip or corruption hidden by omission.",
+    "bytes": "Longest whole prefix includes cursor/envelope/escaping/references/digests; next=last ACTUALLY returned sequence-1.",
+    "range": "Initialstart=watermarkrevision; continuationstart=priornext; items contiguous descending; end=lastreturned.",
+    "terminal": "has_morefalse/cursornull/nextnull/end1; emptyinitial has null head/anchor/range and items[].",
+    "coverage": "partial/item_limit orbyte_limit whilemore; complete_for_cut/none onlyterminal; total_countnull"
+  },
+  "receiver_checks": [
+    "Retain permitted company/project, normalized fixedlimit, issued snapshot/cursor/range expectations before credential await. Cursor/principal prose/echo never grants access.",
+    "Strict rawoutput262144 beforeparse, command32768 unchanged. Validate closed schema and all frozen canonical records/fullrefs/digests. Reconstructed appendcommand is INTERNAL consistency only.",
+    "Validate watermark_head separately; first item matches watermark_message_ref on initialcut. Retain full snapshot/head/anchors exactly acrosspages; never infer snapshot from timestamps.",
+    "Require sequences=start-index, unique IDs/sequences within/acrosspages, start=priornext, end=last and next=end-1 whilemore. Terminal end1 or allnull for emptycut. No head substitution or kind:id collapse.",
+    "Bind requested_limit exactly. No limit/order/filter change; normalized absent20 and explicit20 are equivalent. URL query order irrelevant.",
+    "Snapshot issued<expires<=issued+900000, observation=issue; same incarnation/accessdigest/anchors acrosspages. Server owns signature/authority/monotonic checks.",
+    "On409/410 RESYNC_REQUIRED discard traversal and explicitly request a fresh cut; never splice snapshots or silently skip to head. No unbounded client auto-fetch required."
+  ],
+  "digests": {
+    "algorithm": "SHA256 lowerhex",
+    "canonicalization": "unchanged C01 strictUnicode/safeintegers/explicitUTF16keyorder/no normalization",
+    "page": "complete page excluding only own top-leveldigest",
+    "nested": "frozen original record/wrapper/receipt preimages unchanged"
+  },
+  "cursor_security": {
+    "encoding": "Canonical unpadded base64url closed canonicalpayload+32byte HMACSHA256; verify signature before JSON; protocol domain separation.",
+    "opacity": "Client echo only, not confidentiality. No secrets, private paths, token fingerprints or global sequences. Only authorized room sequence.",
+    "key": "Fresh per-listener host key/incarnation; key never serialized."
+  },
+  "restart_restore": {
+    "supported": "Stoplistener, offline existingStore restore, freshlistener/key/incarnation; oldtokens resync. Fixture performs real SQLite task-backup restore.",
+    "unsupported": "Live/in-place restore under aliveissuer, generalized restoreepoch/C17, fullC07 snapshot/events/SSE."
+  },
+  "errors": {
+    "400": "INVALID_REQUEST",
+    "401": "AUTHENTICATION_REQUIRED",
+    "403": "SCOPE_DENIED",
+    "404": "NOT_FOUND",
+    "409": "RESYNC_REQUIRED",
+    "410": "RESYNC_REQUIRED",
+    "503": "RECORDS_UNAVAILABLE"
+  },
+  "error_body": "Closed {schema_version:1,error:{code}}, no details.409 invalid/foreign/query/access/incarnation/lostcut;410 verifiedexpiry.",
+  "proof_scope": "Local synthetic Store/verifiedsamehostTLS historypagination only; no UI/eventdelivery/employee/model/native/account/cloud/pilot/fullC03C07/company acceptance.",
+  "assets": [
+    {
+      "path": "contracts/communications/owner-discussion-history-candidate.1/history.schema.json",
+      "sha256": "ee7a862e0a4acb4c4f4a752762b8ddebf054da4d6d19d720ee82f39b19fcb93a"
+    },
+    {
+      "path": "contracts/communications/owner-discussion-history-candidate.1/examples.json",
+      "sha256": "b1c5d64082aac470f20cd75482d86a9ba85f0fbf04c46a779b427b7f9c3daa12"
+    }
+  ],
+  "frozen_imports": [
+    {
+      "path": "contracts/communications/reads-candidate.1/records.schema.json",
+      "sha256": "98fd331df7aa5262eefbf7bf73a3396d7ffd3b40e13f186e4d9aaa3a735958af"
+    },
+    {
+      "path": "contracts/communications/owner-discussion-candidate.1/discussion.schema.json",
+      "sha256": "4a6b6fdd8cda6d2f3e8c13a5bd5cb17b9996f83b91dd40925741e990f2bc7a8a"
+    },
+    {
+      "path": "contracts/communications/owner-discussion-thread-candidate.1/manifest.json",
+      "sha256": "cd386b8a084f2619868219a673be2b718802be95bc90cfca96258e13e5c0f6d8"
+    },
+    {
+      "path": "contracts/communications/owner-discussion-thread-candidate.1/thread.schema.json",
+      "sha256": "442ed5428659ce3336639efd89d651bea54bb4db03bec1b0ca285700c8a173b4"
+    }
+  ]
+}

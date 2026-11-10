@@ -11,6 +11,8 @@ import {terminateProcessTree} from '../runtime-pi/process-tree.ts';
 import {officialRuntimeCommand,officialRuntimeEnvironment,officialRuntimeHome} from '../runtime-official/environment.ts';
 import {isAccountId} from '../contracts/accounts.ts';
 import {withAccountLogin} from './account-login.ts';
+import {readOfficialIdentity} from '../runtime-official/account-identity.ts';
+import {claudeAccountStatus} from '../runtime-official/claude-account.ts';
 
 interface LoginRequest {provider:ConnectionProviderId;dataDir:string;noOpen:boolean;accountId?:string}
 export function parseConnectionLogin(args:string[]):LoginRequest{
@@ -31,6 +33,7 @@ export function parseConnectionLogin(args:string[]):LoginRequest{
 async function officialLogin({provider,dataDir}:{provider:OfficialRuntimeProviderId;dataDir:string}):Promise<void>{
  if(provider==='cursor-sdk'){await (await import('../runtime-official/cursor.ts')).cursorLogin(dataDir);return;}
  if(provider!=='claude-code'&&provider!=='gemini-cli')throw Error('Unsupported official sign-in provider.');
+ if(provider==='claude-code'&&await readOfficialIdentity(dataDir,'claude-code'))throw Error('The official Claude CLI does not expose staged reconnect in this integration. This profile already has authenticated account metadata. Keep it and add a new local account to sign in again without risking replacement credentials.');
  const home=officialRuntimeHome(dataDir,provider),env=officialRuntimeEnvironment(dataDir,provider);
  await Promise.all([home,env.APPDATA!,env.LOCALAPPDATA!,env.TEMP!,env.XDG_CONFIG_HOME!,env.XDG_DATA_HOME!,env.XDG_STATE_HOME!,env.XDG_CACHE_HOME!,...(provider==='gemini-cli'?[join(home,'.gemini')]:[])].map(path=>mkdir(path,{recursive:true,mode:0o700})));
  const command=officialRuntimeCommand(provider);
@@ -53,6 +56,7 @@ async function officialLogin({provider,dataDir}:{provider:OfficialRuntimeProvide
  try{
   await new Promise<void>((done,reject)=>{child.once('error',()=>reject(Error('The bundled official sign-in runtime could not start.')));child.once('exit',(code,signal)=>code===0&&!signal?done():reject(Error('The official sign-in console closed without completing setup.')));});
  }finally{process.removeListener('SIGINT',stop);process.removeListener('SIGTERM',stop);await cancellation;}
+ if(provider==='claude-code')await claudeAccountStatus(dataDir);
 }
 
 export async function connectionLoginMain(args=process.argv.slice(2),dependencies={pi:loginMain,official:officialLogin}):Promise<void>{

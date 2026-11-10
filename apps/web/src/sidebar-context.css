@@ -1,0 +1,32 @@
+.sidebar .brand-row {height:50px;flex:0 0 50px;}
+.sidebar .navigation-actions {gap:4px;margin-bottom:12px;}
+.sidebar .search-field kbd {display:none;}
+.sidebar .search-field input {min-width:0;}
+.sidebar-filter {width:24px;height:26px;flex:0 0 24px;}
+
+.sidebar .thread-list {min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:none;}
+.sidebar .thread-list::-webkit-scrollbar {display:none;width:0;height:0;}
+.sidebar .thread-list:focus-visible {outline:1px solid var(--focus,var(--accent));outline-offset:-1px;}
+.sidebar .thread-group {margin-bottom:12px;}
+.sidebar .thread-group h2 {font-size:12px;padding:5px 7px;}
+.sidebar .sidebar-thread-row {margin-bottom:2px;}
+.sidebar .sidebar-thread-row .thread-item {gap:3px;min-height:52px;margin:0;padding:7px 30px 7px 9px;}
+.sidebar .sidebar-thread-row .thread-item-title {font-size:14px;font-weight:500;line-height:20px;}
+.sidebar .sidebar-thread-row.active .thread-item-title {font-weight:600;}
+.sidebar .thread-item-meta {gap:8px;min-width:0;font-size:12px;line-height:16px;text-transform:none;font-variant-numeric:tabular-nums;}
+.sidebar .thread-item-status {display:flex;align-items:center;gap:5px;min-width:0;overflow:hidden;white-space:nowrap;}
+.sidebar .thread-item-status>svg {flex:0 0 auto;}
+.sidebar .thread-item-status>span {overflow:hidden;text-overflow:ellipsis;}
+.sidebar .thread-item-meta[data-thread-state=working] .thread-item-status {color:var(--text);}
+.sidebar .thread-item-meta[data-thread-state=awaiting_input] .thread-item-status {color:var(--pending);}
+.sidebar .thread-item-meta time {flex:0 0 auto;color:var(--muted);}
+.sidebar .thread-item-kind {font-size:12px;color:var(--muted);}
+.sidebar .thread-item-kind::before {content:'·';margin-right:5px;}
+.sidebar .sidebar-delegate .thread-item {padding-left:17px;}
+.sidebar .sidebar-thread-menu-button {top:7px;}
+
+.sidebar .sidebar-footer {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;flex:0 0 auto;margin-top:8px;padding:8px 2px;}
+.sidebar .sidebar-footer>button {display:grid;place-items:center;min-width:32px;min-height:32px;padding:7px;border-radius:7px;color:var(--muted);}
+.sidebar .sidebar-footer>button:hover:not(:disabled),.sidebar .sidebar-footer>button:focus-visible {color:var(--text);background:var(--hover);}
+.sidebar .sidebar-footer>button:disabled {opacity:.45;cursor:default;}
+.sidebar .sidebar-footer>button>span {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0;}

@@ -2,10 +2,11 @@ import type { ChildProcess } from 'node:child_process';
 import type { ModelInfo } from '../contracts/index.ts';
 import type { ManifestState } from './manifest.ts';
 import type { HostMcp } from './mcp.ts';
+import type {ModelPurpose} from '../runtime/model-only.ts';
 
 export interface WireInput { uuid: string; text: string; inputIds: string[] }
 export interface DriverContext {
-  dataDir: string; taskDir: string; manifest: ManifestState; mcp: HostMcp; memory?: string; thinkingLevel?:string|null;modelOnly?:boolean;
+  dataDir: string; taskDir: string; manifest: ManifestState; mcp: HostMcp; memory?: string; thinkingLevel?:string|null;modelOnly?:boolean;purpose?:ModelPurpose;
   current(): boolean;
   event(type: string, value?: Record<string, unknown>): void;
   observed(uuid: string): Promise<string[]>;

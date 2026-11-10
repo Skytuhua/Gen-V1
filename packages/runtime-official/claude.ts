@@ -6,7 +6,8 @@ import { hostSystemPrompt } from '../runtime-pi/tool-definitions.ts';
 import { officialRuntimeCommand, officialRuntimeEnvironment } from './environment.ts';
 import { asyncQueue, bounded, finite, textContent, type DriverContext, type OfficialDriver } from './internal.ts';
 import { saveManifest } from './manifest.ts';
-import {MODEL_ONLY_SYSTEM_PROMPT} from '../runtime/model-only.ts';
+import {modelOnlySystemPrompt} from '../runtime/model-only.ts';
+import { bindOfficialIdentity, claudeIdentity } from './account-identity.ts';
 
 export type ClaudeSdk = Pick<typeof import('@anthropic-ai/claude-agent-sdk'), 'query'>;
 
@@ -45,7 +46,7 @@ export async function openClaude(context: DriverContext, sdk: ClaudeSdk, modelId
     ...(resuming ? { resume: context.manifest.value.sessionId! } : { sessionId: context.manifest.value.sessionId! }),
     tools: [], settingSources: [], strictMcpConfig: true,
     skills: [], plugins: [], agents: {},
-    systemPrompt: context.modelOnly?MODEL_ONLY_SYSTEM_PROMPT:hostSystemPrompt(context.memory),
+    systemPrompt: context.modelOnly?modelOnlySystemPrompt(context.purpose):hostSystemPrompt(context.memory),
     permissionMode: 'default', includePartialMessages: true,
     mcpServers: context.modelOnly?{}:{ host: { type: 'http', url: context.mcp.url, headers: context.mcp.headers } },
     canUseTool: async (name, args) => permit(name) ? { behavior: 'allow', updatedInput: args } : { behavior: 'deny', message: 'Only current-run host MCP tools are permitted.' },
@@ -73,7 +74,10 @@ export async function openClaude(context: DriverContext, sdk: ClaudeSdk, modelId
   const driver: OfficialDriver = {
     models: [],
     async submit(wire) {
-      authority(); pending.add(wire.uuid);
+      authority();
+      // accountInfo() is cached by the SDK. This process was checked before
+      // any input; the account lease prevents harness sign-in during its run.
+      pending.add(wire.uuid);
       input.push({ type: 'user', uuid: wire.uuid as `${string}-${string}-${string}-${string}-${string}`, parent_tool_use_id: null, client_composed: true, message: { role: 'user', content: wire.text.replace(/@/g, '\\u0040') } });
     },
     async compact() {
@@ -144,6 +148,7 @@ export async function openClaude(context: DriverContext, sdk: ClaudeSdk, modelId
   try {
     const [account, models] = await bounded(Promise.race([Promise.all([query.accountInfo(), query.supportedModels()]), ioFailure]), 30_000, 'Official Claude Code initialization timed out.');
     authority(); assertClaudeSubscription(account);
+    await bindOfficialIdentity(context.dataDir, 'claude-code', claudeIdentity(account)); authority();
     driver.models = models.filter(model => typeof model.value === 'string' && model.value && !/[\s\u0000]/.test(model.value)).map(model => ({ id: `claude-code/${model.value}`, provider: 'claude-code', name: model.displayName, ...(model.supportedEffortLevels?.length ? { thinkingLevels: [...model.supportedEffortLevels] } : {}) }));
     if (modelId) {
       if (!driver.models.some(model => model.id === `claude-code/${modelId}`)) throw new HarnessError('OFFICIAL_MODEL_UNAVAILABLE', 'The selected Claude Code model is not advertised by the authenticated official runtime. Refresh models and select an available model.');

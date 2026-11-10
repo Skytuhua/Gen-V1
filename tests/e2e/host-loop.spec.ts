@@ -262,7 +262,7 @@ test('cross-site infinite-loop widget leaves Settings, Stop and host navigation 
     await bounded(page.getByRole('button', { name: 'Settings', exact: true }).click({ timeout: 3000 }), 'Host Settings click');
     await expect(page.getByRole('dialog', { name: 'Settings', exact: true })).toBeVisible({ timeout: 3000 });
     observations.settingsOpenMs = performance.now() - start;
-    await page.getByRole('button', { name: 'Close dialog', exact: true }).click({ timeout: 3000 });
+    await page.getByRole('button', { name: 'Close settings', exact: true }).click({ timeout: 3000 });
     start = performance.now();
     await page.getByRole('button', { name: 'Stop agent', exact: true }).click({ timeout: 3000 });
     await expect.poll(() => host.snapshot().threads[0]?.status, { timeout: 3000 }).toBe('stopped');
@@ -285,6 +285,16 @@ test('cross-site infinite-loop widget leaves Settings, Stop and host navigation 
     // Context disposal runs in the browser process, even if its renderer is stuck.
     await bounded(page.context().close(), 'Dispose only this test browser context', 5000).catch(() => {});
   }
+});
+
+test('generated program startup failure preserves host controls and durable artifact state',async({page,host})=>{
+  test.skip(!GENERATED_APPS_ENABLED,'Requires generated-app execution.');
+  await openHost(page);await sendFixture(page,'startup');
+  await expect(region(page,'Startup failure fixture').getByRole('alert')).toContainText('runtime limit');
+  const artifact=host.artifact('widget');expect(host.snapshot().userStates.find(state=>state.id===artifact.stateId)?.values.note).toBe('A small, source-linked notebook.');
+  await page.getByRole('button',{name:'Settings',exact:true}).click({timeout:3000});await expect(page.getByRole('dialog',{name:'Settings',exact:true})).toBeVisible();await page.getByRole('button',{name:'Close settings',exact:true}).click();
+  await page.getByRole('button',{name:'Stop agent',exact:true}).click({timeout:3000});await expect.poll(()=>host.snapshot().threads[0]?.status).toBe('stopped');
+  await page.getByRole('button',{name:'New thread',exact:false}).click({timeout:3000});await expect.poll(()=>host.snapshot().threads.length).toBe(2);
 });
 
 test('the real host rejects generated apps while preserving its trusted interface', async ({ page, host }) => {

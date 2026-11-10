@@ -35,7 +35,7 @@ it('persists revisioned thread notes, exposes them, and restores them to the own
 });
 it('bounds memory and never treats notes as effect receipts or authority', async () => {
   const x = await fixture();
-  await expect(x.command('memory.save', { key: 'secret', content: 'sk-proj-abcdefghijklmnopqrstuvwxyz123456', baseRevision: 0 }, x.threadId)).rejects.toMatchObject({ code: 'INVALID_MEMORY' });
+  await expect(x.command('memory.save', { key: 'secret', content: 'sk-'+'0'.repeat(40), baseRevision: 0 }, x.threadId)).rejects.toMatchObject({ code: 'INVALID_MEMORY' });
   await expect(x.command('memory.save', { key: 'huge', content: 'a'.repeat(2000), baseRevision: 0 }, x.threadId)).rejects.toMatchObject({ code: 'INVALID_MEMORY' });
   await x.command('memory.save', { key: 'note', content: 'An agent note, not execution evidence.', baseRevision: 0 }, x.threadId);
   await x.command('message.send', { content: 'Continue', modelId: 'test/model' }, x.threadId);

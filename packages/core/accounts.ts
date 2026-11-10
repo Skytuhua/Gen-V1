@@ -6,7 +6,7 @@ import type {Store} from '../storage/store.ts';
 
 const leaseId=(providerId:ConnectionProviderId,accountId:string|null)=>JSON.stringify([providerId,accountId]);
 type LoginLease={id:string;nonce:string;expiresAt:number;ownerPid:number;shutdownUnconfirmed?:boolean};
-type AccountUse=AccountUseLease&{providerId:ConnectionProviderId;accountId:string|null;ownerPid:number};
+type AccountUse=AccountUseLease&{providerId:ConnectionProviderId;accountId:string|null;ownerPid:number;shutdownUnconfirmed?:boolean};
 export const modelProvider=(modelId:string)=>modelId.split('/')[0];
 export function accountResolver(store:Store):RuntimeAccountResolver {
  return {
@@ -27,6 +27,10 @@ function account(store:Store,id:unknown):ConnectionAccount {
 export function assertAccountAvailable(store:Store,providerId:string,accountId:string|null,allowDisabled=true):void {
  if(accountId!==null){const saved=account(store,accountId);if(saved.providerId!==providerId)throw new HarnessError('ACCOUNT_PROVIDER_MISMATCH','This account belongs to another provider.');if(!allowDisabled&&!saved.enabled)throw new HarnessError('ACCOUNT_DISABLED','Restore this account before selecting it.');}
  if(isConnectionProviderId(providerId)&&accountResolver(store).isSigningIn?.(providerId,accountId))throw new HarnessError('ACCOUNT_SIGNING_IN','Wait for account sign-in to finish before starting work.');
+ if(store.all<AccountUse>('accountUse').some(use=>use.providerId===providerId&&use.accountId===accountId&&use.shutdownUnconfirmed))throw new HarnessError('ACCOUNT_CLEANUP_UNCONFIRMED','Native account cleanup is unconfirmed. This account remains blocked.');
+}
+export function holdAccountUse(store:Store,lease:AccountUseLease):void {
+ store.internal('account.use.shutdown_unconfirmed',null,()=>{const use=store.get<AccountUse>('accountUse',lease.id);if(use?.nonce===lease.nonce)store.put('accountUse',lease.id,null,{...use,shutdownUnconfirmed:true});return {held:use?.nonce===lease.nonce};});
 }
 /** Login targets are explicit; omitted targets preserve the original legacy profile. */
 export function resolveLoginAccount(store:Store,providerId:ConnectionProviderId,accountId?:string|null):ConnectionAccount|null {

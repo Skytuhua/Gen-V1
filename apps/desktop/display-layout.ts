@@ -4,6 +4,15 @@ import {clampDesktopBounds,type DesktopBounds} from './window-policy.ts';
 export interface DesktopDisplay {id:string;workArea:DesktopBounds;label?:string;primary?:boolean;scaleFactor?:number}
 export interface DesktopPlacement {displayId:string;workArea:DesktopBounds;bounds:DesktopBounds}
 
+/** Keep intended normal bounds separate from passive platform frame reports.
+ * Windows frame/DPI round trips must not become the next restored rectangle. */
+export function createNormalBounds(initial:DesktopBounds){
+ let current:DesktopBounds;
+ const apply=(bounds:DesktopBounds)=>{if(!validBounds(bounds))throw Error('Invalid normal window bounds.');current={...bounds};};
+ apply(initial);
+ return {read:():DesktopBounds=>({...current}),apply,observe(bounds:DesktopBounds,state:{manual:boolean;normal:boolean}){if(state.manual&&state.normal)apply(bounds);}};
+}
+
 function validBounds(raw:unknown):raw is DesktopBounds {
  if(!raw||typeof raw!=='object'||Array.isArray(raw))return false;
  const value=raw as Record<string,unknown>;

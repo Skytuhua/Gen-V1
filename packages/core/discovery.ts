@@ -2,6 +2,7 @@ import { HarnessError } from '../contracts/index.ts';
 import * as catalog from '../ui-catalog/index.ts';
 import { DOMAIN_TOOLS } from '../capabilities/index.ts';
 import {COMPOSITION_EXAMPLES} from '../ui-catalog/composition-examples.ts';
+import {GENERATED_APPS_ENABLED} from './widgets.ts';
 
 /** Discovery is progressive: the cheap index never repeats every data schema. */
 export async function discoverCapabilities(args: Record<string, unknown>) {
@@ -40,6 +41,6 @@ export async function discoverCapabilities(args: Record<string, unknown>) {
     planning: { tools: ['plan_update', 'task_delegate'], maxConcurrentAgents: 3, childAccess: 'read-only' },
     memory: { tool: 'task_memory', scope: 'thread', totalBytes: 4096 },
     skills:{tools:['skills_list','skill_view','skill_manage'],scope:'application',disclosure:'Metadata first; load one skill or supporting file. Text never grants permissions.',learning:'Owned background review, revisioned writes and optional user approval.'},
-    generatedApps: { available: false, reason: 'Execution-isolation acceptance remains pending; use the trusted catalog.' },
+    generatedApps: { available: GENERATED_APPS_ENABLED, ...(!GENERATED_APPS_ENABLED?{reason:'Execution-isolation acceptance remains pending; use the trusted catalog.'}:{}) },
   };
 }

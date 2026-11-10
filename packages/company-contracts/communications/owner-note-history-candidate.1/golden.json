@@ -1,0 +1,851 @@
+{
+  "schema_version": 1,
+  "proof": "synthetic_contract",
+  "examples": {
+    "two_historical_pairs": {
+      "schema_version": 1,
+      "projection_type": "owner_note_history",
+      "company_id": "leo-company",
+      "scope": {
+        "kind": "project",
+        "id": "alpha"
+      },
+      "room_head": {
+        "availability": "present",
+        "company_id": "leo-company",
+        "id": "11111111-1111-4111-8111-111111111111",
+        "kind": "project_room",
+        "lifecycle": "open",
+        "observation": {
+          "source": "synthetic_fixture",
+          "evidence_scope": "synthetic_contract",
+          "live_verified": false
+        },
+        "record_type": "conversation",
+        "revision": 2,
+        "schema_version": 1,
+        "scope": {
+          "id": "alpha",
+          "kind": "project"
+        },
+        "task_ref": null,
+        "title": "Owner project notes",
+        "visibility_revision": 1,
+        "work_order_ref": null,
+        "digest": "77522f0dde8669790462b9b0ee3988f96f2a3861c488a517ebd90d8d6266aa12"
+      },
+      "items": [
+        {
+          "conversation": {
+            "availability": "present",
+            "company_id": "leo-company",
+            "id": "11111111-1111-4111-8111-111111111111",
+            "kind": "project_room",
+            "lifecycle": "open",
+            "observation": {
+              "source": "synthetic_fixture",
+              "evidence_scope": "synthetic_contract",
+              "live_verified": false
+            },
+            "record_type": "conversation",
+            "revision": 2,
+            "schema_version": 1,
+            "scope": {
+              "id": "alpha",
+              "kind": "project"
+            },
+            "task_ref": null,
+            "title": "Owner project notes",
+            "visibility_revision": 1,
+            "work_order_ref": null,
+            "digest": "77522f0dde8669790462b9b0ee3988f96f2a3861c488a517ebd90d8d6266aa12"
+          },
+          "message": {
+            "artifact_refs": [],
+            "availability": "present",
+            "body": "Synthetic owner discussion",
+            "company_id": "leo-company",
+            "conversation_ref": {
+              "kind": "conversation",
+              "id": "11111111-1111-4111-8111-111111111111",
+              "company_id": "leo-company",
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "availability": "available",
+              "revision": 2,
+              "digest": "77522f0dde8669790462b9b0ee3988f96f2a3861c488a517ebd90d8d6266aa12",
+              "unavailable_reason": null
+            },
+            "conversation_sequence": 2,
+            "correlation_ref": null,
+            "effective_priority": "normal",
+            "id": "00000000-0000-4000-8000-000000000002",
+            "kind": "note",
+            "observation": {
+              "source": "synthetic_fixture",
+              "evidence_scope": "synthetic_contract",
+              "live_verified": false
+            },
+            "record_type": "message",
+            "recorded_at_utc_epoch_ms": 1793664000000,
+            "recorded_author": {
+              "company_id": "leo-company",
+              "interpretation": "recorded_reference_only",
+              "principal_id": "fixture-owner",
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              }
+            },
+            "reply_to_message_ref": null,
+            "required_action": null,
+            "response_request_ref": null,
+            "revision": 1,
+            "schema_version": 1,
+            "scope": {
+              "id": "alpha",
+              "kind": "project"
+            },
+            "summary": "Synthetic owner note",
+            "visibility_revision": 1,
+            "digest": "be32ab594be66fd1508a351bf749578de92b93618771c8eadae273bb5d9e5fa2"
+          }
+        },
+        {
+          "conversation": {
+            "availability": "present",
+            "company_id": "leo-company",
+            "id": "11111111-1111-4111-8111-111111111111",
+            "kind": "project_room",
+            "lifecycle": "open",
+            "observation": {
+              "source": "synthetic_fixture",
+              "evidence_scope": "synthetic_contract",
+              "live_verified": false
+            },
+            "record_type": "conversation",
+            "revision": 1,
+            "schema_version": 1,
+            "scope": {
+              "id": "alpha",
+              "kind": "project"
+            },
+            "task_ref": null,
+            "title": "Owner project notes",
+            "visibility_revision": 1,
+            "work_order_ref": null,
+            "digest": "172aa1c0cac15e2a07cb742ba76edf6341f84f1a42218b515f6a168da55b108e"
+          },
+          "message": {
+            "artifact_refs": [],
+            "availability": "present",
+            "body": "Synthetic owner discussion",
+            "company_id": "leo-company",
+            "conversation_ref": {
+              "kind": "conversation",
+              "id": "11111111-1111-4111-8111-111111111111",
+              "company_id": "leo-company",
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "availability": "available",
+              "revision": 1,
+              "digest": "172aa1c0cac15e2a07cb742ba76edf6341f84f1a42218b515f6a168da55b108e",
+              "unavailable_reason": null
+            },
+            "conversation_sequence": 1,
+            "correlation_ref": null,
+            "effective_priority": "normal",
+            "id": "00000000-0000-4000-8000-000000000001",
+            "kind": "note",
+            "observation": {
+              "source": "synthetic_fixture",
+              "evidence_scope": "synthetic_contract",
+              "live_verified": false
+            },
+            "record_type": "message",
+            "recorded_at_utc_epoch_ms": 1793664000000,
+            "recorded_author": {
+              "company_id": "leo-company",
+              "interpretation": "recorded_reference_only",
+              "principal_id": "fixture-owner",
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              }
+            },
+            "reply_to_message_ref": null,
+            "required_action": null,
+            "response_request_ref": null,
+            "revision": 1,
+            "schema_version": 1,
+            "scope": {
+              "id": "alpha",
+              "kind": "project"
+            },
+            "summary": "Synthetic owner note",
+            "visibility_revision": 1,
+            "digest": "4e35b373f07214b9e687447c184c7c0acba7a76c41703087bfcee3c0cbab62bb"
+          }
+        }
+      ],
+      "requested_limit": 20,
+      "order": "conversation_sequence_descending",
+      "observed_at_utc_epoch_ms": 1793664000000,
+      "coverage": {
+        "status": "partial",
+        "truncation": "none_observed",
+        "total_count": null
+      },
+      "has_more": null,
+      "next_cursor": null,
+      "continuation": {
+        "status": "unavailable",
+        "reason": "cursor_issuance_replay_unimplemented"
+      },
+      "snapshot": {
+        "status": "unavailable",
+        "reason": "snapshot_protocol_unimplemented"
+      },
+      "observation": {
+        "source": "synthetic_fixture",
+        "evidence_scope": "synthetic_contract",
+        "live_verified": false
+      },
+      "digest": "3b7296d102ae8bcbe80f3574cc055a4f08ff9a63142383912f2d6cc3c78d444c"
+    },
+    "empty_observed": {
+      "schema_version": 1,
+      "projection_type": "owner_note_history",
+      "company_id": "leo-company",
+      "scope": {
+        "kind": "project",
+        "id": "alpha"
+      },
+      "room_head": null,
+      "items": [],
+      "requested_limit": 20,
+      "order": "conversation_sequence_descending",
+      "observed_at_utc_epoch_ms": 1793664000000,
+      "coverage": {
+        "status": "partial",
+        "truncation": "none_observed",
+        "total_count": null
+      },
+      "has_more": null,
+      "next_cursor": null,
+      "continuation": {
+        "status": "unavailable",
+        "reason": "cursor_issuance_replay_unimplemented"
+      },
+      "snapshot": {
+        "status": "unavailable",
+        "reason": "snapshot_protocol_unimplemented"
+      },
+      "observation": {
+        "source": "synthetic_fixture",
+        "evidence_scope": "synthetic_contract",
+        "live_verified": false
+      },
+      "digest": "1d207c1dc4f6a3273fc9e203775481edc0a51e601516fa3cfca2878e7031bb66"
+    },
+    "item_limited": {
+      "schema_version": 1,
+      "projection_type": "owner_note_history",
+      "company_id": "leo-company",
+      "scope": {
+        "kind": "project",
+        "id": "alpha"
+      },
+      "room_head": {
+        "availability": "present",
+        "company_id": "leo-company",
+        "id": "11111111-1111-4111-8111-111111111111",
+        "kind": "project_room",
+        "lifecycle": "open",
+        "observation": {
+          "source": "synthetic_fixture",
+          "evidence_scope": "synthetic_contract",
+          "live_verified": false
+        },
+        "record_type": "conversation",
+        "revision": 2,
+        "schema_version": 1,
+        "scope": {
+          "id": "alpha",
+          "kind": "project"
+        },
+        "task_ref": null,
+        "title": "Owner project notes",
+        "visibility_revision": 1,
+        "work_order_ref": null,
+        "digest": "77522f0dde8669790462b9b0ee3988f96f2a3861c488a517ebd90d8d6266aa12"
+      },
+      "items": [
+        {
+          "conversation": {
+            "availability": "present",
+            "company_id": "leo-company",
+            "id": "11111111-1111-4111-8111-111111111111",
+            "kind": "project_room",
+            "lifecycle": "open",
+            "observation": {
+              "source": "synthetic_fixture",
+              "evidence_scope": "synthetic_contract",
+              "live_verified": false
+            },
+            "record_type": "conversation",
+            "revision": 2,
+            "schema_version": 1,
+            "scope": {
+              "id": "alpha",
+              "kind": "project"
+            },
+            "task_ref": null,
+            "title": "Owner project notes",
+            "visibility_revision": 1,
+            "work_order_ref": null,
+            "digest": "77522f0dde8669790462b9b0ee3988f96f2a3861c488a517ebd90d8d6266aa12"
+          },
+          "message": {
+            "artifact_refs": [],
+            "availability": "present",
+            "body": "Synthetic owner discussion",
+            "company_id": "leo-company",
+            "conversation_ref": {
+              "kind": "conversation",
+              "id": "11111111-1111-4111-8111-111111111111",
+              "company_id": "leo-company",
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "availability": "available",
+              "revision": 2,
+              "digest": "77522f0dde8669790462b9b0ee3988f96f2a3861c488a517ebd90d8d6266aa12",
+              "unavailable_reason": null
+            },
+            "conversation_sequence": 2,
+            "correlation_ref": null,
+            "effective_priority": "normal",
+            "id": "00000000-0000-4000-8000-000000000002",
+            "kind": "note",
+            "observation": {
+              "source": "synthetic_fixture",
+              "evidence_scope": "synthetic_contract",
+              "live_verified": false
+            },
+            "record_type": "message",
+            "recorded_at_utc_epoch_ms": 1793664000000,
+            "recorded_author": {
+              "company_id": "leo-company",
+              "interpretation": "recorded_reference_only",
+              "principal_id": "fixture-owner",
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              }
+            },
+            "reply_to_message_ref": null,
+            "required_action": null,
+            "response_request_ref": null,
+            "revision": 1,
+            "schema_version": 1,
+            "scope": {
+              "id": "alpha",
+              "kind": "project"
+            },
+            "summary": "Synthetic owner note",
+            "visibility_revision": 1,
+            "digest": "be32ab594be66fd1508a351bf749578de92b93618771c8eadae273bb5d9e5fa2"
+          }
+        }
+      ],
+      "requested_limit": 1,
+      "order": "conversation_sequence_descending",
+      "observed_at_utc_epoch_ms": 1793664000000,
+      "coverage": {
+        "status": "partial",
+        "truncation": "item_limit",
+        "total_count": null
+      },
+      "has_more": null,
+      "next_cursor": null,
+      "continuation": {
+        "status": "unavailable",
+        "reason": "cursor_issuance_replay_unimplemented"
+      },
+      "snapshot": {
+        "status": "unavailable",
+        "reason": "snapshot_protocol_unimplemented"
+      },
+      "observation": {
+        "source": "synthetic_fixture",
+        "evidence_scope": "synthetic_contract",
+        "live_verified": false
+      },
+      "digest": "7360edb3a624541b05ae1c824833ea43808978d70729b060edda2193a11af30a"
+    }
+  },
+  "instructions": {
+    "mutations": "Deep-copy base; apply JSON-pointer sets; recompute each indicated rehash_messages index own message digest, then only outer digest. schema=false makes no supplemental claim. schema=true/supplemental=false must fail relational or recursive digest validation.",
+    "large_recipe": "Copy first pair of two_historical_pairs; fixed same room ID. Generate sequences50..1 with message UUID suffix lowercase hex(sequence) padded12. Set each conversation revision and message sequence, body=U+0001 repeated8192; recompute conversation digest, historical ref and message digest. Head is revision50. Requestedlimit50. Choose longest newest prefix whose complete signed canonical projection fits262144; omitted history is byte_limit. No text trimming or middle skip. Exact raw boundaries pad only trailing ASCII spaces."
+  },
+  "mutations": [
+    {
+      "name": "null_head_with_items",
+      "base": "two_historical_pairs",
+      "set": {
+        "/room_head": null
+      },
+      "schema": false
+    },
+    {
+      "name": "empty_with_claimed_omission",
+      "base": "empty_observed",
+      "set": {
+        "/coverage/truncation": "byte_limit"
+      },
+      "schema": false
+    },
+    {
+      "name": "head_without_latest_note",
+      "base": "two_historical_pairs",
+      "set": {
+        "/items": []
+      },
+      "schema": false
+    },
+    {
+      "name": "cursor_is_unavailable",
+      "base": "two_historical_pairs",
+      "set": {
+        "/next_cursor": "fake"
+      },
+      "schema": false
+    },
+    {
+      "name": "no_total",
+      "base": "two_historical_pairs",
+      "set": {
+        "/coverage/total_count": 2
+      },
+      "schema": false
+    },
+    {
+      "name": "no_complete_claim",
+      "base": "two_historical_pairs",
+      "set": {
+        "/coverage/status": "complete"
+      },
+      "schema": false
+    },
+    {
+      "name": "limit_is_positive",
+      "base": "two_historical_pairs",
+      "set": {
+        "/requested_limit": 0
+      },
+      "schema": false
+    },
+    {
+      "name": "limit_max50",
+      "base": "two_historical_pairs",
+      "set": {
+        "/requested_limit": 51
+      },
+      "schema": false
+    },
+    {
+      "name": "owner_notes_only",
+      "base": "two_historical_pairs",
+      "set": {
+        "/items/0/message/kind": "question"
+      },
+      "schema": false
+    },
+    {
+      "name": "wrong_project",
+      "base": "two_historical_pairs",
+      "set": {
+        "/items/0/message/scope/id": "beta"
+      },
+      "schema": true,
+      "supplemental": false,
+      "rehash_messages": [
+        0
+      ]
+    },
+    {
+      "name": "historical_ref_not_head",
+      "base": "two_historical_pairs",
+      "set": {
+        "/items/1/message/conversation_ref": {
+          "kind": "conversation",
+          "id": "11111111-1111-4111-8111-111111111111",
+          "company_id": "leo-company",
+          "scope": {
+            "id": "alpha",
+            "kind": "project"
+          },
+          "availability": "available",
+          "revision": 2,
+          "digest": "77522f0dde8669790462b9b0ee3988f96f2a3861c488a517ebd90d8d6266aa12",
+          "unavailable_reason": null
+        }
+      },
+      "schema": true,
+      "supplemental": false,
+      "rehash_messages": [
+        1
+      ]
+    },
+    {
+      "name": "ascending_rejected",
+      "base": "two_historical_pairs",
+      "set": {
+        "/items": [
+          {
+            "conversation": {
+              "availability": "present",
+              "company_id": "leo-company",
+              "id": "11111111-1111-4111-8111-111111111111",
+              "kind": "project_room",
+              "lifecycle": "open",
+              "observation": {
+                "source": "synthetic_fixture",
+                "evidence_scope": "synthetic_contract",
+                "live_verified": false
+              },
+              "record_type": "conversation",
+              "revision": 1,
+              "schema_version": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "task_ref": null,
+              "title": "Owner project notes",
+              "visibility_revision": 1,
+              "work_order_ref": null,
+              "digest": "172aa1c0cac15e2a07cb742ba76edf6341f84f1a42218b515f6a168da55b108e"
+            },
+            "message": {
+              "artifact_refs": [],
+              "availability": "present",
+              "body": "Synthetic owner discussion",
+              "company_id": "leo-company",
+              "conversation_ref": {
+                "kind": "conversation",
+                "id": "11111111-1111-4111-8111-111111111111",
+                "company_id": "leo-company",
+                "scope": {
+                  "id": "alpha",
+                  "kind": "project"
+                },
+                "availability": "available",
+                "revision": 1,
+                "digest": "172aa1c0cac15e2a07cb742ba76edf6341f84f1a42218b515f6a168da55b108e",
+                "unavailable_reason": null
+              },
+              "conversation_sequence": 1,
+              "correlation_ref": null,
+              "effective_priority": "normal",
+              "id": "00000000-0000-4000-8000-000000000001",
+              "kind": "note",
+              "observation": {
+                "source": "synthetic_fixture",
+                "evidence_scope": "synthetic_contract",
+                "live_verified": false
+              },
+              "record_type": "message",
+              "recorded_at_utc_epoch_ms": 1793664000000,
+              "recorded_author": {
+                "company_id": "leo-company",
+                "interpretation": "recorded_reference_only",
+                "principal_id": "fixture-owner",
+                "scope": {
+                  "id": "alpha",
+                  "kind": "project"
+                }
+              },
+              "reply_to_message_ref": null,
+              "required_action": null,
+              "response_request_ref": null,
+              "revision": 1,
+              "schema_version": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "summary": "Synthetic owner note",
+              "visibility_revision": 1,
+              "digest": "4e35b373f07214b9e687447c184c7c0acba7a76c41703087bfcee3c0cbab62bb"
+            }
+          },
+          {
+            "conversation": {
+              "availability": "present",
+              "company_id": "leo-company",
+              "id": "11111111-1111-4111-8111-111111111111",
+              "kind": "project_room",
+              "lifecycle": "open",
+              "observation": {
+                "source": "synthetic_fixture",
+                "evidence_scope": "synthetic_contract",
+                "live_verified": false
+              },
+              "record_type": "conversation",
+              "revision": 2,
+              "schema_version": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "task_ref": null,
+              "title": "Owner project notes",
+              "visibility_revision": 1,
+              "work_order_ref": null,
+              "digest": "77522f0dde8669790462b9b0ee3988f96f2a3861c488a517ebd90d8d6266aa12"
+            },
+            "message": {
+              "artifact_refs": [],
+              "availability": "present",
+              "body": "Synthetic owner discussion",
+              "company_id": "leo-company",
+              "conversation_ref": {
+                "kind": "conversation",
+                "id": "11111111-1111-4111-8111-111111111111",
+                "company_id": "leo-company",
+                "scope": {
+                  "id": "alpha",
+                  "kind": "project"
+                },
+                "availability": "available",
+                "revision": 2,
+                "digest": "77522f0dde8669790462b9b0ee3988f96f2a3861c488a517ebd90d8d6266aa12",
+                "unavailable_reason": null
+              },
+              "conversation_sequence": 2,
+              "correlation_ref": null,
+              "effective_priority": "normal",
+              "id": "00000000-0000-4000-8000-000000000002",
+              "kind": "note",
+              "observation": {
+                "source": "synthetic_fixture",
+                "evidence_scope": "synthetic_contract",
+                "live_verified": false
+              },
+              "record_type": "message",
+              "recorded_at_utc_epoch_ms": 1793664000000,
+              "recorded_author": {
+                "company_id": "leo-company",
+                "interpretation": "recorded_reference_only",
+                "principal_id": "fixture-owner",
+                "scope": {
+                  "id": "alpha",
+                  "kind": "project"
+                }
+              },
+              "reply_to_message_ref": null,
+              "required_action": null,
+              "response_request_ref": null,
+              "revision": 1,
+              "schema_version": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "summary": "Synthetic owner note",
+              "visibility_revision": 1,
+              "digest": "be32ab594be66fd1508a351bf749578de92b93618771c8eadae273bb5d9e5fa2"
+            }
+          }
+        ]
+      },
+      "schema": true,
+      "supplemental": false
+    },
+    {
+      "name": "duplicate_sequence",
+      "base": "two_historical_pairs",
+      "set": {
+        "/items/1/message/conversation_sequence": 2
+      },
+      "schema": true,
+      "supplemental": false,
+      "rehash_messages": [
+        1
+      ]
+    },
+    {
+      "name": "duplicate_message",
+      "base": "two_historical_pairs",
+      "set": {
+        "/items/1": {
+          "conversation": {
+            "availability": "present",
+            "company_id": "leo-company",
+            "id": "11111111-1111-4111-8111-111111111111",
+            "kind": "project_room",
+            "lifecycle": "open",
+            "observation": {
+              "source": "synthetic_fixture",
+              "evidence_scope": "synthetic_contract",
+              "live_verified": false
+            },
+            "record_type": "conversation",
+            "revision": 2,
+            "schema_version": 1,
+            "scope": {
+              "id": "alpha",
+              "kind": "project"
+            },
+            "task_ref": null,
+            "title": "Owner project notes",
+            "visibility_revision": 1,
+            "work_order_ref": null,
+            "digest": "77522f0dde8669790462b9b0ee3988f96f2a3861c488a517ebd90d8d6266aa12"
+          },
+          "message": {
+            "artifact_refs": [],
+            "availability": "present",
+            "body": "Synthetic owner discussion",
+            "company_id": "leo-company",
+            "conversation_ref": {
+              "kind": "conversation",
+              "id": "11111111-1111-4111-8111-111111111111",
+              "company_id": "leo-company",
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "availability": "available",
+              "revision": 2,
+              "digest": "77522f0dde8669790462b9b0ee3988f96f2a3861c488a517ebd90d8d6266aa12",
+              "unavailable_reason": null
+            },
+            "conversation_sequence": 2,
+            "correlation_ref": null,
+            "effective_priority": "normal",
+            "id": "00000000-0000-4000-8000-000000000002",
+            "kind": "note",
+            "observation": {
+              "source": "synthetic_fixture",
+              "evidence_scope": "synthetic_contract",
+              "live_verified": false
+            },
+            "record_type": "message",
+            "recorded_at_utc_epoch_ms": 1793664000000,
+            "recorded_author": {
+              "company_id": "leo-company",
+              "interpretation": "recorded_reference_only",
+              "principal_id": "fixture-owner",
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              }
+            },
+            "reply_to_message_ref": null,
+            "required_action": null,
+            "response_request_ref": null,
+            "revision": 1,
+            "schema_version": 1,
+            "scope": {
+              "id": "alpha",
+              "kind": "project"
+            },
+            "summary": "Synthetic owner note",
+            "visibility_revision": 1,
+            "digest": "be32ab594be66fd1508a351bf749578de92b93618771c8eadae273bb5d9e5fa2"
+          }
+        }
+      },
+      "schema": true,
+      "supplemental": false
+    },
+    {
+      "name": "stale_head",
+      "base": "two_historical_pairs",
+      "set": {
+        "/room_head": {
+          "availability": "present",
+          "company_id": "leo-company",
+          "id": "11111111-1111-4111-8111-111111111111",
+          "kind": "project_room",
+          "lifecycle": "open",
+          "observation": {
+            "source": "synthetic_fixture",
+            "evidence_scope": "synthetic_contract",
+            "live_verified": false
+          },
+          "record_type": "conversation",
+          "revision": 1,
+          "schema_version": 1,
+          "scope": {
+            "id": "alpha",
+            "kind": "project"
+          },
+          "task_ref": null,
+          "title": "Owner project notes",
+          "visibility_revision": 1,
+          "work_order_ref": null,
+          "digest": "172aa1c0cac15e2a07cb742ba76edf6341f84f1a42218b515f6a168da55b108e"
+        }
+      },
+      "schema": true,
+      "supplemental": false
+    },
+    {
+      "name": "over_requested_limit",
+      "base": "two_historical_pairs",
+      "set": {
+        "/requested_limit": 1
+      },
+      "schema": true,
+      "supplemental": false
+    },
+    {
+      "name": "label_is_not_live_proof",
+      "base": "two_historical_pairs",
+      "set": {
+        "/observation/live_verified": true
+      },
+      "schema": false
+    }
+  ],
+  "encoded_byte_recipe": {
+    "body_character": "U+0001",
+    "body_repeat": 8192,
+    "decoded_body_utf8_bytes": 8192,
+    "body_object": {
+      "raw_bytes": 49163,
+      "sha256": "382d17b8d1ab2355578e5ae407bcba60121db6acd074854033c128b7ea847c3e"
+    },
+    "full_50_pairs": {
+      "raw_bytes": 2542503,
+      "sha256": "f3c70084b3428ad38525251c091884cd521cac00391ac8e6166ae46d09942e03",
+      "raw_output_accepted": false
+    },
+    "retained_prefix_items": 5,
+    "retained_prefix": {
+      "raw_bytes": 255357,
+      "sha256": "1894a4426ad5b8f8e43677f82b8718d65d22500c20b89acea7a8880e2f3751e0"
+    },
+    "exact_raw_cap": {
+      "raw_bytes": 262144,
+      "sha256": "87ac3671b28dc1c14807ac872679cf949bdf26981d252f04f077ec26862deda3",
+      "raw_output_accepted": true
+    },
+    "one_raw_byte_over": {
+      "raw_bytes": 262145,
+      "sha256": "f4409bf3c99b16797799b585f017b6cbc82f29b1228637cfeafbd48ec791db7c",
+      "raw_output_accepted": false
+    },
+    "frozen_command_decoder_accepts_large_recipe": false,
+    "write_admission": "Output-boundary fixture only; it does not admit an8192-control-character body through the unchanged32768 raw command boundary."
+  }
+}

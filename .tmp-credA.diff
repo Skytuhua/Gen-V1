@@ -1,0 +1,137 @@
+﻿diff --git a/packages/runtime-pi/credentials.ts b/packages/runtime-pi/credentials.ts
+index 0f95787..e007cef 100644
+--- a/packages/runtime-pi/credentials.ts
++++ b/packages/runtime-pi/credentials.ts
+@@ -1,6 +1,7 @@
+-import { readFileSync, statSync } from 'node:fs';
++import { closeSync, constants, fstatSync, lstatSync, openSync, readFileSync, readSync, realpathSync, statfsSync, statSync, type BigIntStats } from 'node:fs';
++import { createHash } from 'node:crypto';
+ import { createRequire } from 'node:module';
+-import { dirname, join } from 'node:path';
++import { dirname, isAbsolute, join, resolve } from 'node:path';
+ import { pathToFileURL } from 'node:url';
+ import type { CreateModelRuntimeOptions } from '@earendil-works/pi-coding-agent';
+ import { HarnessError } from '../contracts/index.ts';
+@@ -19,6 +20,20 @@ interface NativeStorageModule {
+   FileAuthStorageBackend: new (authPath: string) => Backend;
+   AuthStorage: { fromStorage(backend: Backend): LiteralCredentialStore };
+ }
++// Exact Pi 1.4.0 TS-private/runtime method; no replacement backend or SDK mutation.
++interface NativeLockBackend extends Backend {
++  acquireLockAsync(signal: AbortSignal | undefined, onCompromised: (error: Error) => void): Promise<() => Promise<void>>;
++}
++
++export interface LiteralCredentialLease {
++  readonly expiresAt: number;
++  readonly signal: AbortSignal;
++  readonly settled: Promise<void>;
++  assertCurrent(): void;
++  read(providerId: string): Credential | undefined;
++  /** A rejection means ownership is uncertain: retain the caller's profile/use holds. */
++  release(): Promise<void>;
++}
+ const MAX_STORAGE_BYTES = 1024 * 1024;
+ const RESERVED_KEYS = new Set(['__proto__', 'prototype', 'constructor']);
+ function invalidStore() { return new HarnessError('PI_CREDENTIAL_STORE_INVALID', 'Credential storage is invalid or exceeds its limits. Restore a valid auth.json or sign in again.'); }
+@@ -75,6 +90,101 @@ function nativeStorage() {
+   return storageModule;
+ }
+ 
++/** Host-only, nonmutating native lock lease. New capability is Linux/ext4 only.
++ * Callers retain their native profile/use custody and must await release after
++ * the bounded synchronous commit/postcheck. No network/model operation belongs here. */
++export async function acquireLiteralCredentialLease(authPath: string, options: {signal: AbortSignal; maxHoldMs: number}): Promise<LiteralCredentialLease> {
++  const unavailable = () => new HarnessError('PI_CREDENTIAL_LEASE_UNAVAILABLE', 'Healthy native credential locking is unavailable.');
++  const uncertain = () => new HarnessError('PI_CREDENTIAL_LEASE_RELEASE_UNCERTAIN', 'Native credential ownership did not settle. Retain caller custody.');
++  if (process.platform !== 'linux' || !options || !(options.signal instanceof AbortSignal)
++    || !Number.isSafeInteger(options.maxHoldMs) || options.maxHoldMs < 1 || options.maxHoldMs > 20000
++    || typeof authPath !== 'string' || !isAbsolute(authPath) || resolve(authPath) !== authPath) throw unavailable();
++  options.signal.throwIfAborted();
++  // Local ext4 supplies stable open-directory identity; do not infer this on other filesystems.
++  try {if (statfsSync(dirname(authPath), {bigint: true}).type !== 0xef53n || realpathSync.native(dirname(authPath)) !== dirname(authPath)) throw unavailable();}
++  catch {throw unavailable();}
++  const native = await nativeStorage(), raw = new native.FileAuthStorageBackend(authPath) as NativeLockBackend;
++  if (typeof raw.acquireLockAsync !== 'function' || raw.acquireLockAsync.length !== 2) throw unavailable();
++  const revoked = new AbortController(), lockPath = authPath + '.lock', uid = BigInt(process.getuid!());
++  let authFd: number | undefined, lockFd: number | undefined, unlock: (() => Promise<void>) | undefined;
++  let lockIdentity: BigIntStats | undefined;
++  let nativeLost = false, published = false, invalid = false, timer: ReturnType<typeof setTimeout> | undefined;
++  let releasePromise: Promise<void> | undefined, deadline = 0, expiresAt = 0, original = '';
++  let snapshot: Record<string, unknown> = Object.create(null);
++  let settledResolve!: () => void, settledReject!: (error: unknown) => void;
++  const settled = new Promise<void>((done, fail) => {settledResolve = done; settledReject = fail;});
++  void settled.catch(() => {});
++  const closeHandles = () => {for (const fd of [lockFd, authFd]) if (fd !== undefined) closeSync(fd); lockFd = authFd = undefined;};
++  const identity = () => {
++    if (lockFd === undefined || !lockIdentity) throw unavailable();
++    const held = fstatSync(lockFd, {bigint: true}), current = lstatSync(lockPath, {bigint: true});
++    if (!held.isDirectory() || held.nlink === 0n || held.uid !== uid || current.isSymbolicLink()
++      || !current.isDirectory() || current.dev !== held.dev || current.ino !== held.ino
++      || held.dev !== lockIdentity.dev || held.ino !== lockIdentity.ino) throw unavailable();
++  };
++  const content = () => {
++    if (authFd === undefined) throw unavailable();
++    const held = fstatSync(authFd, {bigint: true}), current = lstatSync(authPath, {bigint: true});
++    if (!held.isFile() || held.nlink !== 1n || held.uid !== uid || current.isSymbolicLink()
++      || current.dev !== held.dev || current.ino !== held.ino || held.size > BigInt(MAX_STORAGE_BYTES)) throw unavailable();
++    const buffer = Buffer.alloc(Number(held.size) + 1); let size = 0;
++    while (size < buffer.length) {const read = readSync(authFd, buffer, size, buffer.length - size, size); if (!read) break; size += read;}
++    const after = fstatSync(authFd, {bigint: true}), named = lstatSync(authPath, {bigint: true});
++    if (BigInt(size) !== held.size || after.size !== held.size || after.nlink !== 1n
++      || after.mtimeNs !== held.mtimeNs || after.ctimeNs !== held.ctimeNs
++      || named.isSymbolicLink() || named.dev !== after.dev || named.ino !== after.ino) throw unavailable();
++    return buffer.subarray(0, size);
++  };
++  const digest = (bytes: Buffer) => createHash('sha256').update(bytes).digest('hex');
++  const invalidate = (reason: string, auto = true) => {
++    if (!invalid) {invalid = true; revoked.abort(new HarnessError('PI_CREDENTIAL_LEASE_LOST', 'Native credential lease is no longer current.', {reason}));}
++    if (auto && published) queueMicrotask(() => {void release().catch(() => {});});
++  };
++  const release = () => {
++    if (!releasePromise) {
++      invalidate('released', false); if (timer) clearTimeout(timer); options.signal.removeEventListener('abort', abort);
++      releasePromise = (async () => {
++        try {
++          // Never let a path-based native unlock delete a replacement directory.
++          identity(); if (nativeLost || !unlock) throw uncertain();
++          await unlock();
++        } catch {throw uncertain();}
++        finally {closeHandles();}
++      })();
++      void releasePromise.then(settledResolve, settledReject);
++    }
++    return releasePromise;
++  };
++  const abort = () => invalidate('aborted');
++  const assertCurrent = () => {
++    if (invalid) throw unavailable();
++    if (options.signal.aborted) {invalidate('aborted'); throw unavailable();}
++    if (performance.now() >= deadline || Date.now() >= expiresAt) {invalidate('expired'); throw unavailable();}
++    try {identity();} catch {invalidate('kernel-identity-changed'); throw unavailable();}
++    try {if (digest(content()) !== original) throw unavailable(); identity();}
++    catch {invalidate('storage-changed'); throw unavailable();}
++  };
++  try {
++    authFd = openSync(authPath, constants.O_RDONLY | constants.O_NOFOLLOW);
++    // Reject special/redirected storage before the SDK acquires anything.
++    content();
++    unlock = await raw.acquireLockAsync(options.signal, () => {nativeLost = true; invalidate('native-compromised');});
++    deadline = performance.now() + options.maxHoldMs; expiresAt = Date.now() + options.maxHoldMs;
++    lockFd = openSync(lockPath, constants.O_RDONLY | constants.O_DIRECTORY | constants.O_NOFOLLOW);
++    // Retain the actual kernel directory identity, not a serialized inode claim.
++    lockIdentity = fstatSync(lockFd, {bigint: true});
++    const bytes = content(); snapshot = parseData(bytes.toString('utf8')); original = digest(bytes);
++    if (nativeLost) throw unavailable(); assertCurrent();
++    options.signal.addEventListener('abort', abort, {once: true});
++    published = true; timer = setTimeout(() => invalidate('expired'), options.maxHoldMs);
++    return Object.freeze({expiresAt, signal: revoked.signal, settled, assertCurrent,
++      read(providerId: string) {assertCurrent(); return admitted(providerId, snapshot[providerId]);}, release});
++  } catch {
++    if (unlock) {await release();} else closeHandles();
++    throw unavailable();
++  }
++}
++
+ /** SDK file locks and mutations, with app-owned literal reads before any runtime refresh can run. */
+ export async function createLiteralCredentialStore(authPath: string): Promise<LiteralCredentialStore> {
+   const { FileAuthStorageBackend, AuthStorage } = await nativeStorage();

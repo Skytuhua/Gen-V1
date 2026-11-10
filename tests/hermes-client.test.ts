@@ -47,13 +47,19 @@ it('revokes source requests immediately if its lifetime namespace guard is lost'
 });
 it('drains owned host callbacks even when process cancellation fails',async()=>{
  let release!:()=>void;const gate=new Promise<void>(done=>{release=done;}),onHostCall=vi.fn(async()=>{await gate;return {};});
- const {client,home}=await fixture({onHostCall}),pending=client.request('host',{}).catch(error=>error);await vi.waitFor(()=>expect(onHostCall).toHaveBeenCalledOnce());
- let terminated=false;const terminate=processTree.terminateProcessTree,spy=vi.spyOn(processTree,'terminateProcessTree').mockImplementationOnce(async child=>{await terminate(child);terminated=true;throw new Error('Synthetic cancellation failure');});
- let closed=false;const stopping=client.dispose().then(()=>{closed=true;return null;},error=>{closed=true;return error;});
- try{await vi.waitFor(()=>expect(terminated).toBe(true));expect(closed).toBe(false);}finally{release();await pending;await stopping;spy.mockRestore();await client.dispose();cleanups.pop();await rm(home,{recursive:true,force:true,maxRetries:10,retryDelay:100});}
+ const {client}=await fixture({onHostCall}),pending=client.request('host',{}).catch(error=>error);
+ let stopping:Promise<unknown>|undefined,spy:{mockRestore():void}|undefined;
+ try{
+  await vi.waitFor(()=>expect(onHostCall).toHaveBeenCalledOnce(),{timeout:5000});
+  let terminated=false;const terminate=processTree.terminateProcessTree;spy=vi.spyOn(processTree,'terminateProcessTree').mockImplementationOnce(async child=>{await terminate(child);terminated=true;throw new Error('Synthetic cancellation failure');});
+  let closed=false;stopping=client.dispose().then(()=>{closed=true;return null;},error=>{closed=true;return error;});
+  await vi.waitFor(()=>expect(terminated).toBe(true),{timeout:5000});expect(closed).toBe(false);
+ }finally{release();await stopping;spy?.mockRestore();await client.dispose();await pending;}
  expect(await stopping).toBeInstanceOf(Error);
 });
 it('treats a denied host callback as an ordinary tool result during teardown',async()=>{
  let release!:()=>void;const gate=new Promise<void>(done=>{release=done;}),onHostCall=vi.fn(async()=>{await gate;throw new Error('Synthetic revoked tool');});
- const {client}=await fixture({onHostCall}),pending=client.request('host',{}).catch(error=>error);await vi.waitFor(()=>expect(onHostCall).toHaveBeenCalledOnce());const stopping=client.dispose();release();await pending;await expect(stopping).resolves.toBeUndefined();
+ const {client}=await fixture({onHostCall}),pending=client.request('host',{}).catch(error=>error);
+ try{await vi.waitFor(()=>expect(onHostCall).toHaveBeenCalledOnce(),{timeout:5000});const stopping=client.dispose();release();await pending;await expect(stopping).resolves.toBeUndefined();}
+ finally{release();await client.dispose();await pending;}
 });

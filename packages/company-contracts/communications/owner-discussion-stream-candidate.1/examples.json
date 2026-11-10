@@ -1,0 +1,2152 @@
+{
+  "contract": "maritime-owner-discussion-stream",
+  "version": "1.0.0-candidate.1",
+  "scope": "Actual synthetic producer goldens with fixed UUID/SQL randomness and fixed clocks. Cursors are synthetic test outputs, not issued authority for any service.",
+  "examples": [
+    {
+      "name": "snapshot_initial_cut2_floor1",
+      "page": {
+        "changes_cursor": null,
+        "company_id": "leo-company",
+        "coverage": {
+          "status": "partial",
+          "total_count": null,
+          "truncation": "item_limit"
+        },
+        "digest": "0ab74d9cd0fe15c15c399a31a0819166b97e87434ca75fc4edd861438f3ee34b",
+        "has_more": true,
+        "items": [
+          {
+            "company_id": "leo-company",
+            "conversation": {
+              "availability": "present",
+              "company_id": "leo-company",
+              "digest": "4564c0a2ec68ab3cdc29f6befdde955a478e7600b25124276ff0dbe6a238e555",
+              "id": "20000000-0000-4000-8000-000000000001",
+              "kind": "project_room",
+              "lifecycle": "open",
+              "observation": {
+                "evidence_scope": "stored_record",
+                "live_verified": false,
+                "source": "stored_record"
+              },
+              "record_type": "conversation",
+              "revision": 2,
+              "schema_version": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "task_ref": null,
+              "title": "Owner project discussion",
+              "visibility_revision": 1,
+              "work_order_ref": null
+            },
+            "digest": "6d36ddec31efb05eb8a234cd68fc02440abad6d10a83887779feab097d1e1a41",
+            "message": {
+              "artifact_refs": [],
+              "availability": "present",
+              "body": "Accepted text 2: é and 🌊",
+              "company_id": "leo-company",
+              "conversation_ref": {
+                "availability": "available",
+                "company_id": "leo-company",
+                "digest": "4564c0a2ec68ab3cdc29f6befdde955a478e7600b25124276ff0dbe6a238e555",
+                "id": "20000000-0000-4000-8000-000000000001",
+                "kind": "conversation",
+                "revision": 2,
+                "scope": {
+                  "id": "alpha",
+                  "kind": "project"
+                },
+                "unavailable_reason": null
+              },
+              "conversation_sequence": 2,
+              "correlation_ref": null,
+              "digest": "a5a2717b945f696738900e201b2495c6956492acd08ab4d7b3d102de53e0da87",
+              "effective_priority": "normal",
+              "id": "20000000-0000-4000-8000-000000000003",
+              "kind": "note",
+              "observation": {
+                "evidence_scope": "stored_record",
+                "live_verified": false,
+                "source": "stored_record"
+              },
+              "record_type": "message",
+              "recorded_at_utc_epoch_ms": 1793664000000,
+              "recorded_author": {
+                "company_id": "leo-company",
+                "interpretation": "recorded_reference_only",
+                "principal_id": "control",
+                "scope": {
+                  "id": "alpha",
+                  "kind": "project"
+                }
+              },
+              "reply_to_message_ref": null,
+              "required_action": null,
+              "response_request_ref": null,
+              "revision": 1,
+              "schema_version": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "summary": "Stored note 2",
+              "visibility_revision": 1
+            },
+            "observation": {
+              "evidence_scope": "stored_record",
+              "live_verified": false,
+              "source": "stored_record"
+            },
+            "projection_type": "owner_discussion_record",
+            "receipt": {
+              "action": "owner.discussion.append",
+              "command_id": "10000000-0000-4000-8000-000000000002",
+              "company_id": "leo-company",
+              "conversation_ref": {
+                "availability": "available",
+                "company_id": "leo-company",
+                "digest": "4564c0a2ec68ab3cdc29f6befdde955a478e7600b25124276ff0dbe6a238e555",
+                "id": "20000000-0000-4000-8000-000000000001",
+                "kind": "conversation",
+                "revision": 2,
+                "scope": {
+                  "id": "alpha",
+                  "kind": "project"
+                },
+                "unavailable_reason": null
+              },
+              "message_ref": {
+                "availability": "available",
+                "company_id": "leo-company",
+                "digest": "a5a2717b945f696738900e201b2495c6956492acd08ab4d7b3d102de53e0da87",
+                "id": "20000000-0000-4000-8000-000000000003",
+                "kind": "message",
+                "revision": 1,
+                "scope": {
+                  "id": "alpha",
+                  "kind": "project"
+                },
+                "unavailable_reason": null
+              },
+              "outcome": "stored",
+              "principal_id": "control",
+              "receipt_type": "owner_discussion_receipt",
+              "recorded_at_utc_epoch_ms": 1793664000000,
+              "request_digest": "af0f908dbae95e6f1ff909d7250b336388a8dd1b68529c157a07c731546d506d",
+              "schema_version": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              }
+            },
+            "schema_version": 1,
+            "scope": {
+              "id": "alpha",
+              "kind": "project"
+            }
+          }
+        ],
+        "limits": {
+          "max_cursor_chars": 4096,
+          "max_event_utf8_bytes": 65536,
+          "max_items": 50,
+          "max_response_utf8_bytes": 262144
+        },
+        "next_snapshot_cursor": "eyJhY2Nlc3NfZGlnZXN0IjoiODYzYWI0YmEzM2QyMDIyMjk3MzhkZmZkYTQ1Zjk0OWY3ZTk1YWU5ZDMzZTI1NmMwMjFkYTUzY2I2MDA2ZjE1ZCIsImFmdGVyX3Bvc2l0aW9uIjpudWxsLCJjb21wYW55X2lkIjoibGVvLWNvbXBhbnkiLCJleHBpcmVzX2F0X3V0Y19lcG9jaF9tcyI6MTc5MzY2NDMwMDAwMCwiZmxvb3JfY29udmVyc2F0aW9uX2RpZ2VzdCI6IjI0YTQ1ZGY5Y2YxYjQ5Y2ZiNjdhZDBkMmY1MzQyODRjODllODA2Y2I2MTNhNTZjYjQwZDE4MzIyNmU3Nzc4YmMiLCJmbG9vcl9tZXNzYWdlX2RpZ2VzdCI6IjczNWRhODI4MjkyZDIwNTMwMzAwZGZhMWE5OTYwYWJjYWUyMTA2N2NiN2M0ODE0MmEzMmZiOGU0OTEzMjc3NWQiLCJmbG9vcl9tZXNzYWdlX2lkIjoiMjAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDAyIiwiZmxvb3Jfc2VxdWVuY2UiOjEsImluY2FybmF0aW9uIjoiMjAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwOTAyIiwiaXNzdWVkX2F0X3V0Y19lcG9jaF9tcyI6MTc5MzY2NDAwMDAwMCwibGltaXQiOjEsIm1vZGUiOiJzbmFwc2hvdCIsIm1vbm90b25pY19kZWFkbGluZV9tcyI6MTMwMDAwMCwibmV4dF9zZXF1ZW5jZSI6MSwicHJpbmNpcGFsX2lkIjoiY29udHJvbCIsInByb2plY3RfaWQiOiJhbHBoYSIsInJvb21faWQiOiIyMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDAwMDEiLCJzbmFwc2hvdF9pZCI6IjIwMDAwMDAwLTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDkwMSIsInN0cmVhbV9lcG9jaCI6IjIwMDAwMDAwLTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDkwMCIsInZlcnNpb24iOjEsIndhdGVybWFya19jb252ZXJzYXRpb25fZGlnZXN0IjoiNDU2NGMwYTJlYzY4YWIzY2RjMjlmNmJlZmRkZTk1NWE0NzhlNzYwMGIyNTEyNDI3NmZmMGRiZTZhMjM4ZTU1NSIsIndhdGVybWFya19ldmVudF9kaWdlc3QiOiI0MDYyZjc5N2Q1ZmIwYjUwZThmMDRjMDhhMmQ4M2JmZDU0NzVhMDgxOGY5MDc1ZWE5YTc3ZGEwMjMyNTkyODI1Iiwid2F0ZXJtYXJrX2V2ZW50X2lkIjoiNmI4NmIyNzMtZDQ3My00ZTA3LThiMjItZWYyZDEyN2RlMzdiIiwid2F0ZXJtYXJrX21lc3NhZ2VfZGlnZXN0IjoiYTVhMjcxN2I5NDVmNjk2NzM4OTAwZTIwMWIyNDk1YzY5NTY0OTJhY2QwOGFiNGQ3YjNkMTAyZGU1M2UwZGE4NyIsIndhdGVybWFya19tZXNzYWdlX2lkIjoiMjAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDAzIiwid2F0ZXJtYXJrX3Bvc2l0aW9uIjoxLCJ3YXRlcm1hcmtfc2VxdWVuY2UiOjJ947bivXn9YJAWQafC7SthCKrybUi3pZEuysg84qV0oMk",
+        "observation": {
+          "evidence_scope": "stored_record",
+          "live_verified": false,
+          "source": "stored_record"
+        },
+        "observed_at_utc_epoch_ms": 1793664000000,
+        "order": "conversation_sequence_descending",
+        "projection_type": "owner_discussion_snapshot",
+        "range": {
+          "end_sequence": 2,
+          "next_sequence": 1,
+          "start_sequence": 2
+        },
+        "requested_limit": 1,
+        "room_head": {
+          "availability": "present",
+          "company_id": "leo-company",
+          "digest": "4564c0a2ec68ab3cdc29f6befdde955a478e7600b25124276ff0dbe6a238e555",
+          "id": "20000000-0000-4000-8000-000000000001",
+          "kind": "project_room",
+          "lifecycle": "open",
+          "observation": {
+            "evidence_scope": "stored_record",
+            "live_verified": false,
+            "source": "stored_record"
+          },
+          "record_type": "conversation",
+          "revision": 2,
+          "schema_version": 1,
+          "scope": {
+            "id": "alpha",
+            "kind": "project"
+          },
+          "task_ref": null,
+          "title": "Owner project discussion",
+          "visibility_revision": 1,
+          "work_order_ref": null
+        },
+        "schema_version": 1,
+        "scope": {
+          "id": "alpha",
+          "kind": "project"
+        },
+        "snapshot": {
+          "access_digest": "863ab4ba33d202229738dffda45f949f7e95ae9d33e256c021da53cb6006f15d",
+          "coverage_floor": {
+            "conversation_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "24a45df9cf1b49cfb67ad0d2f534284c89e806cb613a56cb40d183226e7778bc",
+              "id": "20000000-0000-4000-8000-000000000001",
+              "kind": "conversation",
+              "revision": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "message_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "735da828292d20530300dfa1a9960abcae21067cb7c48142a32fb8e49132775d",
+              "id": "20000000-0000-4000-8000-000000000002",
+              "kind": "message",
+              "revision": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "sequence": 1
+          },
+          "expires_at_utc_epoch_ms": 1793664300000,
+          "id": "20000000-0000-4000-8000-000000000901",
+          "incarnation": "20000000-0000-4000-8000-000000000902",
+          "issued_at_utc_epoch_ms": 1793664000000,
+          "kind": "owner_discussion_public_cut",
+          "stream_epoch": "20000000-0000-4000-8000-000000000900",
+          "visibility_revision": 1,
+          "watermark": {
+            "conversation_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "4564c0a2ec68ab3cdc29f6befdde955a478e7600b25124276ff0dbe6a238e555",
+              "id": "20000000-0000-4000-8000-000000000001",
+              "kind": "conversation",
+              "revision": 2,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "event_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "4062f797d5fb0b50e8f04c08a2d83bfd5475a0818f9075ea9a77da0232592825",
+              "id": "6b86b273-d473-4e07-8b22-ef2d127de37b",
+              "kind": "communication_event",
+              "revision": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "message_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "a5a2717b945f696738900e201b2495c6956492acd08ab4d7b3d102de53e0da87",
+              "id": "20000000-0000-4000-8000-000000000003",
+              "kind": "message",
+              "revision": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "position": 1
+          }
+        }
+      },
+      "canonical_utf8_bytes": 7855,
+      "canonical_sha256": "79d9d3d4ca4d9363ed75bb5fbafa0f905771b40bd3c7565cbd2514f1e9ec62da"
+    },
+    {
+      "name": "snapshot_terminal_after_append3",
+      "page": {
+        "changes_cursor": "eyJhY2Nlc3NfZGlnZXN0IjoiODYzYWI0YmEzM2QyMDIyMjk3MzhkZmZkYTQ1Zjk0OWY3ZTk1YWU5ZDMzZTI1NmMwMjFkYTUzY2I2MDA2ZjE1ZCIsImFmdGVyX3Bvc2l0aW9uIjoxLCJjb21wYW55X2lkIjoibGVvLWNvbXBhbnkiLCJleHBpcmVzX2F0X3V0Y19lcG9jaF9tcyI6MTc5MzY2NDMwMDAwMCwiZmxvb3JfY29udmVyc2F0aW9uX2RpZ2VzdCI6IjI0YTQ1ZGY5Y2YxYjQ5Y2ZiNjdhZDBkMmY1MzQyODRjODllODA2Y2I2MTNhNTZjYjQwZDE4MzIyNmU3Nzc4YmMiLCJmbG9vcl9tZXNzYWdlX2RpZ2VzdCI6IjczNWRhODI4MjkyZDIwNTMwMzAwZGZhMWE5OTYwYWJjYWUyMTA2N2NiN2M0ODE0MmEzMmZiOGU0OTEzMjc3NWQiLCJmbG9vcl9tZXNzYWdlX2lkIjoiMjAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDAyIiwiZmxvb3Jfc2VxdWVuY2UiOjEsImluY2FybmF0aW9uIjoiMjAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwOTAyIiwiaXNzdWVkX2F0X3V0Y19lcG9jaF9tcyI6MTc5MzY2NDAwMDAwMCwibGltaXQiOjEsIm1vZGUiOiJjaGFuZ2VzIiwibW9ub3RvbmljX2RlYWRsaW5lX21zIjoxMzAwMDAwLCJuZXh0X3NlcXVlbmNlIjpudWxsLCJwcmluY2lwYWxfaWQiOiJjb250cm9sIiwicHJvamVjdF9pZCI6ImFscGhhIiwicm9vbV9pZCI6IjIwMDAwMDAwLTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwMSIsInNuYXBzaG90X2lkIjoiMjAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwOTAxIiwic3RyZWFtX2Vwb2NoIjoiMjAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwOTAwIiwidmVyc2lvbiI6MSwid2F0ZXJtYXJrX2NvbnZlcnNhdGlvbl9kaWdlc3QiOiI0NTY0YzBhMmVjNjhhYjNjZGMyOWY2YmVmZGRlOTU1YTQ3OGU3NjAwYjI1MTI0Mjc2ZmYwZGJlNmEyMzhlNTU1Iiwid2F0ZXJtYXJrX2V2ZW50X2RpZ2VzdCI6IjQwNjJmNzk3ZDVmYjBiNTBlOGYwNGMwOGEyZDgzYmZkNTQ3NWEwODE4ZjkwNzVlYTlhNzdkYTAyMzI1OTI4MjUiLCJ3YXRlcm1hcmtfZXZlbnRfaWQiOiI2Yjg2YjI3My1kNDczLTRlMDctOGIyMi1lZjJkMTI3ZGUzN2IiLCJ3YXRlcm1hcmtfbWVzc2FnZV9kaWdlc3QiOiJhNWEyNzE3Yjk0NWY2OTY3Mzg5MDBlMjAxYjI0OTVjNjk1NjQ5MmFjZDA4YWI0ZDdiM2QxMDJkZTUzZTBkYTg3Iiwid2F0ZXJtYXJrX21lc3NhZ2VfaWQiOiIyMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDAwMDMiLCJ3YXRlcm1hcmtfcG9zaXRpb24iOjEsIndhdGVybWFya19zZXF1ZW5jZSI6Mn1SEV5IKEeCmaApIt6VG5YRrgvYc4yE4eSnquS9a2wYoQ",
+        "company_id": "leo-company",
+        "coverage": {
+          "status": "complete_for_cut",
+          "total_count": null,
+          "truncation": "none"
+        },
+        "digest": "7d99335bbdd1ee0660706d3a2e62d0f2dc1a4b3e2a3ac23ef7425d83430d4d24",
+        "has_more": false,
+        "items": [
+          {
+            "company_id": "leo-company",
+            "conversation": {
+              "availability": "present",
+              "company_id": "leo-company",
+              "digest": "24a45df9cf1b49cfb67ad0d2f534284c89e806cb613a56cb40d183226e7778bc",
+              "id": "20000000-0000-4000-8000-000000000001",
+              "kind": "project_room",
+              "lifecycle": "open",
+              "observation": {
+                "evidence_scope": "stored_record",
+                "live_verified": false,
+                "source": "stored_record"
+              },
+              "record_type": "conversation",
+              "revision": 1,
+              "schema_version": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "task_ref": null,
+              "title": "Owner project discussion",
+              "visibility_revision": 1,
+              "work_order_ref": null
+            },
+            "digest": "460f1887193e4388b2d5f68de813ef6c42fdbe06f4b2ced3be6da9694d90d9ab",
+            "message": {
+              "artifact_refs": [],
+              "availability": "present",
+              "body": "Accepted text 1: é and 🌊",
+              "company_id": "leo-company",
+              "conversation_ref": {
+                "availability": "available",
+                "company_id": "leo-company",
+                "digest": "24a45df9cf1b49cfb67ad0d2f534284c89e806cb613a56cb40d183226e7778bc",
+                "id": "20000000-0000-4000-8000-000000000001",
+                "kind": "conversation",
+                "revision": 1,
+                "scope": {
+                  "id": "alpha",
+                  "kind": "project"
+                },
+                "unavailable_reason": null
+              },
+              "conversation_sequence": 1,
+              "correlation_ref": null,
+              "digest": "735da828292d20530300dfa1a9960abcae21067cb7c48142a32fb8e49132775d",
+              "effective_priority": "normal",
+              "id": "20000000-0000-4000-8000-000000000002",
+              "kind": "note",
+              "observation": {
+                "evidence_scope": "stored_record",
+                "live_verified": false,
+                "source": "stored_record"
+              },
+              "record_type": "message",
+              "recorded_at_utc_epoch_ms": 1793664000000,
+              "recorded_author": {
+                "company_id": "leo-company",
+                "interpretation": "recorded_reference_only",
+                "principal_id": "control",
+                "scope": {
+                  "id": "alpha",
+                  "kind": "project"
+                }
+              },
+              "reply_to_message_ref": null,
+              "required_action": null,
+              "response_request_ref": null,
+              "revision": 1,
+              "schema_version": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "summary": "Stored note 1",
+              "visibility_revision": 1
+            },
+            "observation": {
+              "evidence_scope": "stored_record",
+              "live_verified": false,
+              "source": "stored_record"
+            },
+            "projection_type": "owner_discussion_record",
+            "receipt": {
+              "action": "owner.discussion.append",
+              "command_id": "10000000-0000-4000-8000-000000000001",
+              "company_id": "leo-company",
+              "conversation_ref": {
+                "availability": "available",
+                "company_id": "leo-company",
+                "digest": "24a45df9cf1b49cfb67ad0d2f534284c89e806cb613a56cb40d183226e7778bc",
+                "id": "20000000-0000-4000-8000-000000000001",
+                "kind": "conversation",
+                "revision": 1,
+                "scope": {
+                  "id": "alpha",
+                  "kind": "project"
+                },
+                "unavailable_reason": null
+              },
+              "message_ref": {
+                "availability": "available",
+                "company_id": "leo-company",
+                "digest": "735da828292d20530300dfa1a9960abcae21067cb7c48142a32fb8e49132775d",
+                "id": "20000000-0000-4000-8000-000000000002",
+                "kind": "message",
+                "revision": 1,
+                "scope": {
+                  "id": "alpha",
+                  "kind": "project"
+                },
+                "unavailable_reason": null
+              },
+              "outcome": "stored",
+              "principal_id": "control",
+              "receipt_type": "owner_discussion_receipt",
+              "recorded_at_utc_epoch_ms": 1793664000000,
+              "request_digest": "d10b7048163813a72a73db14e0b1a8c81b982eccd32420a5d9cd53f6ce9d3de5",
+              "schema_version": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              }
+            },
+            "schema_version": 1,
+            "scope": {
+              "id": "alpha",
+              "kind": "project"
+            }
+          }
+        ],
+        "limits": {
+          "max_cursor_chars": 4096,
+          "max_event_utf8_bytes": 65536,
+          "max_items": 50,
+          "max_response_utf8_bytes": 262144
+        },
+        "next_snapshot_cursor": null,
+        "observation": {
+          "evidence_scope": "stored_record",
+          "live_verified": false,
+          "source": "stored_record"
+        },
+        "observed_at_utc_epoch_ms": 1793664000000,
+        "order": "conversation_sequence_descending",
+        "projection_type": "owner_discussion_snapshot",
+        "range": {
+          "end_sequence": 1,
+          "next_sequence": null,
+          "start_sequence": 1
+        },
+        "requested_limit": 1,
+        "room_head": {
+          "availability": "present",
+          "company_id": "leo-company",
+          "digest": "4564c0a2ec68ab3cdc29f6befdde955a478e7600b25124276ff0dbe6a238e555",
+          "id": "20000000-0000-4000-8000-000000000001",
+          "kind": "project_room",
+          "lifecycle": "open",
+          "observation": {
+            "evidence_scope": "stored_record",
+            "live_verified": false,
+            "source": "stored_record"
+          },
+          "record_type": "conversation",
+          "revision": 2,
+          "schema_version": 1,
+          "scope": {
+            "id": "alpha",
+            "kind": "project"
+          },
+          "task_ref": null,
+          "title": "Owner project discussion",
+          "visibility_revision": 1,
+          "work_order_ref": null
+        },
+        "schema_version": 1,
+        "scope": {
+          "id": "alpha",
+          "kind": "project"
+        },
+        "snapshot": {
+          "access_digest": "863ab4ba33d202229738dffda45f949f7e95ae9d33e256c021da53cb6006f15d",
+          "coverage_floor": {
+            "conversation_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "24a45df9cf1b49cfb67ad0d2f534284c89e806cb613a56cb40d183226e7778bc",
+              "id": "20000000-0000-4000-8000-000000000001",
+              "kind": "conversation",
+              "revision": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "message_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "735da828292d20530300dfa1a9960abcae21067cb7c48142a32fb8e49132775d",
+              "id": "20000000-0000-4000-8000-000000000002",
+              "kind": "message",
+              "revision": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "sequence": 1
+          },
+          "expires_at_utc_epoch_ms": 1793664300000,
+          "id": "20000000-0000-4000-8000-000000000901",
+          "incarnation": "20000000-0000-4000-8000-000000000902",
+          "issued_at_utc_epoch_ms": 1793664000000,
+          "kind": "owner_discussion_public_cut",
+          "stream_epoch": "20000000-0000-4000-8000-000000000900",
+          "visibility_revision": 1,
+          "watermark": {
+            "conversation_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "4564c0a2ec68ab3cdc29f6befdde955a478e7600b25124276ff0dbe6a238e555",
+              "id": "20000000-0000-4000-8000-000000000001",
+              "kind": "conversation",
+              "revision": 2,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "event_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "4062f797d5fb0b50e8f04c08a2d83bfd5475a0818f9075ea9a77da0232592825",
+              "id": "6b86b273-d473-4e07-8b22-ef2d127de37b",
+              "kind": "communication_event",
+              "revision": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "message_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "a5a2717b945f696738900e201b2495c6956492acd08ab4d7b3d102de53e0da87",
+              "id": "20000000-0000-4000-8000-000000000003",
+              "kind": "message",
+              "revision": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "position": 1
+          }
+        }
+      },
+      "canonical_utf8_bytes": 7861,
+      "canonical_sha256": "cdef71ce1edb0422c38ba7e102191477dbb70e99f39cf563336fbc66981ee137"
+    },
+    {
+      "name": "catchup_message3",
+      "page": {
+        "caught_up": true,
+        "company_id": "leo-company",
+        "coverage": {
+          "status": "caught_up_through_observed",
+          "total_count": null,
+          "truncation": "none"
+        },
+        "digest": "4f74a6d2de212feab87a5144fd2c6f0d7dd277c697cbc2148f695dfddf7cd2cd",
+        "items": [
+          {
+            "digest": "7afd4dfc85231c16903b55df3850a111786622ca0e0e50de3b3b76ae135863a6",
+            "event": {
+              "accepted_command": {
+                "action": "owner.discussion.append",
+                "command_id": "10000000-0000-4000-8000-000000000003",
+                "principal_id": "control",
+                "request_digest": "0fedf18536b02ef8d7d800adbffc5dd33228f74c32828ca1043de1145c928dea"
+              },
+              "company_id": "leo-company",
+              "conversation_ref": {
+                "availability": "available",
+                "company_id": "leo-company",
+                "digest": "a63a4c70dbae37925e3cf91f0a88cbcfb37f23de4b08b53704e3ca45be9ae3b2",
+                "id": "20000000-0000-4000-8000-000000000001",
+                "kind": "conversation",
+                "revision": 3,
+                "scope": {
+                  "id": "alpha",
+                  "kind": "project"
+                },
+                "unavailable_reason": null
+              },
+              "digest": "d556e0086d9da3c2fd2daa2fafb3322b4bf4a1622e00dd9c93f16caed1373784",
+              "event_type": "owner_discussion.message_stored",
+              "id": "e7f6c011-7902-4c62-8958-4a44dc153642",
+              "message_ref": {
+                "availability": "available",
+                "company_id": "leo-company",
+                "digest": "1eed80d9e240a8ee64b0991d2c2a200bc5fbda91217869d517d78a008d53ae6e",
+                "id": "20000000-0000-4000-8000-000000000004",
+                "kind": "message",
+                "revision": 1,
+                "scope": {
+                  "id": "alpha",
+                  "kind": "project"
+                },
+                "unavailable_reason": null
+              },
+              "observation": {
+                "evidence_scope": "stored_record",
+                "live_verified": false,
+                "source": "stored_record"
+              },
+              "producer": {
+                "component": "owner_discussion_acceptance",
+                "kind": "company_service",
+                "version": 1
+              },
+              "record_type": "communication_event",
+              "recorded_at_utc_epoch_ms": 1793664000000,
+              "revision": 1,
+              "schema_version": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "sequence": 2,
+              "stream_epoch": "20000000-0000-4000-8000-000000000900",
+              "visibility_revision": 1
+            },
+            "record": {
+              "company_id": "leo-company",
+              "conversation": {
+                "availability": "present",
+                "company_id": "leo-company",
+                "digest": "a63a4c70dbae37925e3cf91f0a88cbcfb37f23de4b08b53704e3ca45be9ae3b2",
+                "id": "20000000-0000-4000-8000-000000000001",
+                "kind": "project_room",
+                "lifecycle": "open",
+                "observation": {
+                  "evidence_scope": "stored_record",
+                  "live_verified": false,
+                  "source": "stored_record"
+                },
+                "record_type": "conversation",
+                "revision": 3,
+                "schema_version": 1,
+                "scope": {
+                  "id": "alpha",
+                  "kind": "project"
+                },
+                "task_ref": null,
+                "title": "Owner project discussion",
+                "visibility_revision": 1,
+                "work_order_ref": null
+              },
+              "digest": "026ee69c0ff3d6f23d5ebc6c818886d12d82a84c09432838af08460ea03a72e3",
+              "message": {
+                "artifact_refs": [],
+                "availability": "present",
+                "body": "Accepted text 3: é and 🌊",
+                "company_id": "leo-company",
+                "conversation_ref": {
+                  "availability": "available",
+                  "company_id": "leo-company",
+                  "digest": "a63a4c70dbae37925e3cf91f0a88cbcfb37f23de4b08b53704e3ca45be9ae3b2",
+                  "id": "20000000-0000-4000-8000-000000000001",
+                  "kind": "conversation",
+                  "revision": 3,
+                  "scope": {
+                    "id": "alpha",
+                    "kind": "project"
+                  },
+                  "unavailable_reason": null
+                },
+                "conversation_sequence": 3,
+                "correlation_ref": null,
+                "digest": "1eed80d9e240a8ee64b0991d2c2a200bc5fbda91217869d517d78a008d53ae6e",
+                "effective_priority": "normal",
+                "id": "20000000-0000-4000-8000-000000000004",
+                "kind": "note",
+                "observation": {
+                  "evidence_scope": "stored_record",
+                  "live_verified": false,
+                  "source": "stored_record"
+                },
+                "record_type": "message",
+                "recorded_at_utc_epoch_ms": 1793664000000,
+                "recorded_author": {
+                  "company_id": "leo-company",
+                  "interpretation": "recorded_reference_only",
+                  "principal_id": "control",
+                  "scope": {
+                    "id": "alpha",
+                    "kind": "project"
+                  }
+                },
+                "reply_to_message_ref": null,
+                "required_action": null,
+                "response_request_ref": null,
+                "revision": 1,
+                "schema_version": 1,
+                "scope": {
+                  "id": "alpha",
+                  "kind": "project"
+                },
+                "summary": "Stored note 3",
+                "visibility_revision": 1
+              },
+              "observation": {
+                "evidence_scope": "stored_record",
+                "live_verified": false,
+                "source": "stored_record"
+              },
+              "projection_type": "owner_discussion_record",
+              "receipt": {
+                "action": "owner.discussion.append",
+                "command_id": "10000000-0000-4000-8000-000000000003",
+                "company_id": "leo-company",
+                "conversation_ref": {
+                  "availability": "available",
+                  "company_id": "leo-company",
+                  "digest": "a63a4c70dbae37925e3cf91f0a88cbcfb37f23de4b08b53704e3ca45be9ae3b2",
+                  "id": "20000000-0000-4000-8000-000000000001",
+                  "kind": "conversation",
+                  "revision": 3,
+                  "scope": {
+                    "id": "alpha",
+                    "kind": "project"
+                  },
+                  "unavailable_reason": null
+                },
+                "message_ref": {
+                  "availability": "available",
+                  "company_id": "leo-company",
+                  "digest": "1eed80d9e240a8ee64b0991d2c2a200bc5fbda91217869d517d78a008d53ae6e",
+                  "id": "20000000-0000-4000-8000-000000000004",
+                  "kind": "message",
+                  "revision": 1,
+                  "scope": {
+                    "id": "alpha",
+                    "kind": "project"
+                  },
+                  "unavailable_reason": null
+                },
+                "outcome": "stored",
+                "principal_id": "control",
+                "receipt_type": "owner_discussion_receipt",
+                "recorded_at_utc_epoch_ms": 1793664000000,
+                "request_digest": "0fedf18536b02ef8d7d800adbffc5dd33228f74c32828ca1043de1145c928dea",
+                "schema_version": 1,
+                "scope": {
+                  "id": "alpha",
+                  "kind": "project"
+                }
+              },
+              "schema_version": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              }
+            }
+          }
+        ],
+        "limits": {
+          "max_cursor_chars": 4096,
+          "max_event_utf8_bytes": 65536,
+          "max_items": 50,
+          "max_response_utf8_bytes": 262144
+        },
+        "next_cursor": "eyJhY2Nlc3NfZGlnZXN0IjoiODYzYWI0YmEzM2QyMDIyMjk3MzhkZmZkYTQ1Zjk0OWY3ZTk1YWU5ZDMzZTI1NmMwMjFkYTUzY2I2MDA2ZjE1ZCIsImFmdGVyX3Bvc2l0aW9uIjoyLCJjb21wYW55X2lkIjoibGVvLWNvbXBhbnkiLCJleHBpcmVzX2F0X3V0Y19lcG9jaF9tcyI6MTc5MzY2NDMwMDAwMCwiZmxvb3JfY29udmVyc2F0aW9uX2RpZ2VzdCI6IjI0YTQ1ZGY5Y2YxYjQ5Y2ZiNjdhZDBkMmY1MzQyODRjODllODA2Y2I2MTNhNTZjYjQwZDE4MzIyNmU3Nzc4YmMiLCJmbG9vcl9tZXNzYWdlX2RpZ2VzdCI6IjczNWRhODI4MjkyZDIwNTMwMzAwZGZhMWE5OTYwYWJjYWUyMTA2N2NiN2M0ODE0MmEzMmZiOGU0OTEzMjc3NWQiLCJmbG9vcl9tZXNzYWdlX2lkIjoiMjAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDAyIiwiZmxvb3Jfc2VxdWVuY2UiOjEsImluY2FybmF0aW9uIjoiMjAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwOTAyIiwiaXNzdWVkX2F0X3V0Y19lcG9jaF9tcyI6MTc5MzY2NDAwMDAwMCwibGltaXQiOjEsIm1vZGUiOiJjaGFuZ2VzIiwibW9ub3RvbmljX2RlYWRsaW5lX21zIjoxMzAwMDAwLCJuZXh0X3NlcXVlbmNlIjpudWxsLCJwcmluY2lwYWxfaWQiOiJjb250cm9sIiwicHJvamVjdF9pZCI6ImFscGhhIiwicm9vbV9pZCI6IjIwMDAwMDAwLTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwMSIsInNuYXBzaG90X2lkIjoiMjAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwOTAxIiwic3RyZWFtX2Vwb2NoIjoiMjAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwOTAwIiwidmVyc2lvbiI6MSwid2F0ZXJtYXJrX2NvbnZlcnNhdGlvbl9kaWdlc3QiOiI0NTY0YzBhMmVjNjhhYjNjZGMyOWY2YmVmZGRlOTU1YTQ3OGU3NjAwYjI1MTI0Mjc2ZmYwZGJlNmEyMzhlNTU1Iiwid2F0ZXJtYXJrX2V2ZW50X2RpZ2VzdCI6IjQwNjJmNzk3ZDVmYjBiNTBlOGYwNGMwOGEyZDgzYmZkNTQ3NWEwODE4ZjkwNzVlYTlhNzdkYTAyMzI1OTI4MjUiLCJ3YXRlcm1hcmtfZXZlbnRfaWQiOiI2Yjg2YjI3My1kNDczLTRlMDctOGIyMi1lZjJkMTI3ZGUzN2IiLCJ3YXRlcm1hcmtfbWVzc2FnZV9kaWdlc3QiOiJhNWEyNzE3Yjk0NWY2OTY3Mzg5MDBlMjAxYjI0OTVjNjk1NjQ5MmFjZDA4YWI0ZDdiM2QxMDJkZTUzZTBkYTg3Iiwid2F0ZXJtYXJrX21lc3NhZ2VfaWQiOiIyMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDAwMDMiLCJ3YXRlcm1hcmtfcG9zaXRpb24iOjEsIndhdGVybWFya19zZXF1ZW5jZSI6Mn2NTHmI62eeesK0tEI6Jrgyg4g744Yjc98LGZAVkjWtfw",
+        "observation": {
+          "evidence_scope": "stored_record",
+          "live_verified": false,
+          "source": "stored_record"
+        },
+        "observed_at_utc_epoch_ms": 1793664000000,
+        "order": "public_event_sequence_ascending",
+        "projection_type": "owner_discussion_changes",
+        "range": {
+          "after_position": 1,
+          "end_position": 2,
+          "observed_through_position": 2,
+          "start_position": 2
+        },
+        "requested_limit": 1,
+        "schema_version": 1,
+        "scope": {
+          "id": "alpha",
+          "kind": "project"
+        },
+        "snapshot": {
+          "access_digest": "863ab4ba33d202229738dffda45f949f7e95ae9d33e256c021da53cb6006f15d",
+          "coverage_floor": {
+            "conversation_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "24a45df9cf1b49cfb67ad0d2f534284c89e806cb613a56cb40d183226e7778bc",
+              "id": "20000000-0000-4000-8000-000000000001",
+              "kind": "conversation",
+              "revision": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "message_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "735da828292d20530300dfa1a9960abcae21067cb7c48142a32fb8e49132775d",
+              "id": "20000000-0000-4000-8000-000000000002",
+              "kind": "message",
+              "revision": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "sequence": 1
+          },
+          "expires_at_utc_epoch_ms": 1793664300000,
+          "id": "20000000-0000-4000-8000-000000000901",
+          "incarnation": "20000000-0000-4000-8000-000000000902",
+          "issued_at_utc_epoch_ms": 1793664000000,
+          "kind": "owner_discussion_public_cut",
+          "stream_epoch": "20000000-0000-4000-8000-000000000900",
+          "visibility_revision": 1,
+          "watermark": {
+            "conversation_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "4564c0a2ec68ab3cdc29f6befdde955a478e7600b25124276ff0dbe6a238e555",
+              "id": "20000000-0000-4000-8000-000000000001",
+              "kind": "conversation",
+              "revision": 2,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "event_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "4062f797d5fb0b50e8f04c08a2d83bfd5475a0818f9075ea9a77da0232592825",
+              "id": "6b86b273-d473-4e07-8b22-ef2d127de37b",
+              "kind": "communication_event",
+              "revision": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "message_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "a5a2717b945f696738900e201b2495c6956492acd08ab4d7b3d102de53e0da87",
+              "id": "20000000-0000-4000-8000-000000000003",
+              "kind": "message",
+              "revision": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "position": 1
+          }
+        }
+      },
+      "canonical_utf8_bytes": 8863,
+      "canonical_sha256": "5828ba408354d838e2f1653456135adbd8de35cc1a5c1d3dde0f4a58fbc7b308"
+    },
+    {
+      "name": "catchup_bounded_message4",
+      "page": {
+        "caught_up": false,
+        "company_id": "leo-company",
+        "coverage": {
+          "status": "partial",
+          "total_count": null,
+          "truncation": "item_limit"
+        },
+        "digest": "f78cd8ffaf8ec21e83ee677ca69b02a05e0f80500bacfd42f96b830e2f063d31",
+        "items": [
+          {
+            "digest": "ab68ebce79b5db2affec1ebde0dd5addb62e01c92f2c19c1d35eaf65d96beffd",
+            "event": {
+              "accepted_command": {
+                "action": "owner.discussion.append",
+                "command_id": "10000000-0000-4000-8000-000000000004",
+                "principal_id": "control",
+                "request_digest": "55f34cd946bc68720574c40e1493ab924b2d1b6ce5bc5650f8b234e403046b43"
+              },
+              "company_id": "leo-company",
+              "conversation_ref": {
+                "availability": "available",
+                "company_id": "leo-company",
+                "digest": "ab478b6327442c25ae7edf0be6a452e9fc03a05f434db305a5a70810fdd5c855",
+                "id": "20000000-0000-4000-8000-000000000001",
+                "kind": "conversation",
+                "revision": 4,
+                "scope": {
+                  "id": "alpha",
+                  "kind": "project"
+                },
+                "unavailable_reason": null
+              },
+              "digest": "36bad2c04886de9765219d5c89fe32b530ca2872103ecb96a60d74392efd29ac",
+              "event_type": "owner_discussion.message_stored",
+              "id": "4fc82b26-6b51-4fdb-8527-e629fa6598d7",
+              "message_ref": {
+                "availability": "available",
+                "company_id": "leo-company",
+                "digest": "063a4ae6a8fef36e2fb375701062c7dc1b279e3cda85bbd50b7c4a9afaf6a160",
+                "id": "20000000-0000-4000-8000-000000000005",
+                "kind": "message",
+                "revision": 1,
+                "scope": {
+                  "id": "alpha",
+                  "kind": "project"
+                },
+                "unavailable_reason": null
+              },
+              "observation": {
+                "evidence_scope": "stored_record",
+                "live_verified": false,
+                "source": "stored_record"
+              },
+              "producer": {
+                "component": "owner_discussion_acceptance",
+                "kind": "company_service",
+                "version": 1
+              },
+              "record_type": "communication_event",
+              "recorded_at_utc_epoch_ms": 1793664000000,
+              "revision": 1,
+              "schema_version": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "sequence": 3,
+              "stream_epoch": "20000000-0000-4000-8000-000000000900",
+              "visibility_revision": 1
+            },
+            "record": {
+              "company_id": "leo-company",
+              "conversation": {
+                "availability": "present",
+                "company_id": "leo-company",
+                "digest": "ab478b6327442c25ae7edf0be6a452e9fc03a05f434db305a5a70810fdd5c855",
+                "id": "20000000-0000-4000-8000-000000000001",
+                "kind": "project_room",
+                "lifecycle": "open",
+                "observation": {
+                  "evidence_scope": "stored_record",
+                  "live_verified": false,
+                  "source": "stored_record"
+                },
+                "record_type": "conversation",
+                "revision": 4,
+                "schema_version": 1,
+                "scope": {
+                  "id": "alpha",
+                  "kind": "project"
+                },
+                "task_ref": null,
+                "title": "Owner project discussion",
+                "visibility_revision": 1,
+                "work_order_ref": null
+              },
+              "digest": "56661ec61da0179cde8dce64b257af0302e8d044757a90b986b6351a9f1c6030",
+              "message": {
+                "artifact_refs": [],
+                "availability": "present",
+                "body": "Accepted text 4: é and 🌊",
+                "company_id": "leo-company",
+                "conversation_ref": {
+                  "availability": "available",
+                  "company_id": "leo-company",
+                  "digest": "ab478b6327442c25ae7edf0be6a452e9fc03a05f434db305a5a70810fdd5c855",
+                  "id": "20000000-0000-4000-8000-000000000001",
+                  "kind": "conversation",
+                  "revision": 4,
+                  "scope": {
+                    "id": "alpha",
+                    "kind": "project"
+                  },
+                  "unavailable_reason": null
+                },
+                "conversation_sequence": 4,
+                "correlation_ref": null,
+                "digest": "063a4ae6a8fef36e2fb375701062c7dc1b279e3cda85bbd50b7c4a9afaf6a160",
+                "effective_priority": "normal",
+                "id": "20000000-0000-4000-8000-000000000005",
+                "kind": "note",
+                "observation": {
+                  "evidence_scope": "stored_record",
+                  "live_verified": false,
+                  "source": "stored_record"
+                },
+                "record_type": "message",
+                "recorded_at_utc_epoch_ms": 1793664000000,
+                "recorded_author": {
+                  "company_id": "leo-company",
+                  "interpretation": "recorded_reference_only",
+                  "principal_id": "control",
+                  "scope": {
+                    "id": "alpha",
+                    "kind": "project"
+                  }
+                },
+                "reply_to_message_ref": null,
+                "required_action": null,
+                "response_request_ref": null,
+                "revision": 1,
+                "schema_version": 1,
+                "scope": {
+                  "id": "alpha",
+                  "kind": "project"
+                },
+                "summary": "Stored note 4",
+                "visibility_revision": 1
+              },
+              "observation": {
+                "evidence_scope": "stored_record",
+                "live_verified": false,
+                "source": "stored_record"
+              },
+              "projection_type": "owner_discussion_record",
+              "receipt": {
+                "action": "owner.discussion.append",
+                "command_id": "10000000-0000-4000-8000-000000000004",
+                "company_id": "leo-company",
+                "conversation_ref": {
+                  "availability": "available",
+                  "company_id": "leo-company",
+                  "digest": "ab478b6327442c25ae7edf0be6a452e9fc03a05f434db305a5a70810fdd5c855",
+                  "id": "20000000-0000-4000-8000-000000000001",
+                  "kind": "conversation",
+                  "revision": 4,
+                  "scope": {
+                    "id": "alpha",
+                    "kind": "project"
+                  },
+                  "unavailable_reason": null
+                },
+                "message_ref": {
+                  "availability": "available",
+                  "company_id": "leo-company",
+                  "digest": "063a4ae6a8fef36e2fb375701062c7dc1b279e3cda85bbd50b7c4a9afaf6a160",
+                  "id": "20000000-0000-4000-8000-000000000005",
+                  "kind": "message",
+                  "revision": 1,
+                  "scope": {
+                    "id": "alpha",
+                    "kind": "project"
+                  },
+                  "unavailable_reason": null
+                },
+                "outcome": "stored",
+                "principal_id": "control",
+                "receipt_type": "owner_discussion_receipt",
+                "recorded_at_utc_epoch_ms": 1793664000000,
+                "request_digest": "55f34cd946bc68720574c40e1493ab924b2d1b6ce5bc5650f8b234e403046b43",
+                "schema_version": 1,
+                "scope": {
+                  "id": "alpha",
+                  "kind": "project"
+                }
+              },
+              "schema_version": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              }
+            }
+          }
+        ],
+        "limits": {
+          "max_cursor_chars": 4096,
+          "max_event_utf8_bytes": 65536,
+          "max_items": 50,
+          "max_response_utf8_bytes": 262144
+        },
+        "next_cursor": "eyJhY2Nlc3NfZGlnZXN0IjoiODYzYWI0YmEzM2QyMDIyMjk3MzhkZmZkYTQ1Zjk0OWY3ZTk1YWU5ZDMzZTI1NmMwMjFkYTUzY2I2MDA2ZjE1ZCIsImFmdGVyX3Bvc2l0aW9uIjozLCJjb21wYW55X2lkIjoibGVvLWNvbXBhbnkiLCJleHBpcmVzX2F0X3V0Y19lcG9jaF9tcyI6MTc5MzY2NDMwMDAwMCwiZmxvb3JfY29udmVyc2F0aW9uX2RpZ2VzdCI6IjI0YTQ1ZGY5Y2YxYjQ5Y2ZiNjdhZDBkMmY1MzQyODRjODllODA2Y2I2MTNhNTZjYjQwZDE4MzIyNmU3Nzc4YmMiLCJmbG9vcl9tZXNzYWdlX2RpZ2VzdCI6IjczNWRhODI4MjkyZDIwNTMwMzAwZGZhMWE5OTYwYWJjYWUyMTA2N2NiN2M0ODE0MmEzMmZiOGU0OTEzMjc3NWQiLCJmbG9vcl9tZXNzYWdlX2lkIjoiMjAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDAyIiwiZmxvb3Jfc2VxdWVuY2UiOjEsImluY2FybmF0aW9uIjoiMjAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwOTAyIiwiaXNzdWVkX2F0X3V0Y19lcG9jaF9tcyI6MTc5MzY2NDAwMDAwMCwibGltaXQiOjEsIm1vZGUiOiJjaGFuZ2VzIiwibW9ub3RvbmljX2RlYWRsaW5lX21zIjoxMzAwMDAwLCJuZXh0X3NlcXVlbmNlIjpudWxsLCJwcmluY2lwYWxfaWQiOiJjb250cm9sIiwicHJvamVjdF9pZCI6ImFscGhhIiwicm9vbV9pZCI6IjIwMDAwMDAwLTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwMSIsInNuYXBzaG90X2lkIjoiMjAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwOTAxIiwic3RyZWFtX2Vwb2NoIjoiMjAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwOTAwIiwidmVyc2lvbiI6MSwid2F0ZXJtYXJrX2NvbnZlcnNhdGlvbl9kaWdlc3QiOiI0NTY0YzBhMmVjNjhhYjNjZGMyOWY2YmVmZGRlOTU1YTQ3OGU3NjAwYjI1MTI0Mjc2ZmYwZGJlNmEyMzhlNTU1Iiwid2F0ZXJtYXJrX2V2ZW50X2RpZ2VzdCI6IjQwNjJmNzk3ZDVmYjBiNTBlOGYwNGMwOGEyZDgzYmZkNTQ3NWEwODE4ZjkwNzVlYTlhNzdkYTAyMzI1OTI4MjUiLCJ3YXRlcm1hcmtfZXZlbnRfaWQiOiI2Yjg2YjI3My1kNDczLTRlMDctOGIyMi1lZjJkMTI3ZGUzN2IiLCJ3YXRlcm1hcmtfbWVzc2FnZV9kaWdlc3QiOiJhNWEyNzE3Yjk0NWY2OTY3Mzg5MDBlMjAxYjI0OTVjNjk1NjQ5MmFjZDA4YWI0ZDdiM2QxMDJkZTUzZTBkYTg3Iiwid2F0ZXJtYXJrX21lc3NhZ2VfaWQiOiIyMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDAwMDMiLCJ3YXRlcm1hcmtfcG9zaXRpb24iOjEsIndhdGVybWFya19zZXF1ZW5jZSI6Mn1H_RA9uR1IC-mNbygkXp5npovyv6IVlwcUQW1sv7SpOw",
+        "observation": {
+          "evidence_scope": "stored_record",
+          "live_verified": false,
+          "source": "stored_record"
+        },
+        "observed_at_utc_epoch_ms": 1793664000000,
+        "order": "public_event_sequence_ascending",
+        "projection_type": "owner_discussion_changes",
+        "range": {
+          "after_position": 2,
+          "end_position": 3,
+          "observed_through_position": 4,
+          "start_position": 3
+        },
+        "requested_limit": 1,
+        "schema_version": 1,
+        "scope": {
+          "id": "alpha",
+          "kind": "project"
+        },
+        "snapshot": {
+          "access_digest": "863ab4ba33d202229738dffda45f949f7e95ae9d33e256c021da53cb6006f15d",
+          "coverage_floor": {
+            "conversation_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "24a45df9cf1b49cfb67ad0d2f534284c89e806cb613a56cb40d183226e7778bc",
+              "id": "20000000-0000-4000-8000-000000000001",
+              "kind": "conversation",
+              "revision": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "message_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "735da828292d20530300dfa1a9960abcae21067cb7c48142a32fb8e49132775d",
+              "id": "20000000-0000-4000-8000-000000000002",
+              "kind": "message",
+              "revision": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "sequence": 1
+          },
+          "expires_at_utc_epoch_ms": 1793664300000,
+          "id": "20000000-0000-4000-8000-000000000901",
+          "incarnation": "20000000-0000-4000-8000-000000000902",
+          "issued_at_utc_epoch_ms": 1793664000000,
+          "kind": "owner_discussion_public_cut",
+          "stream_epoch": "20000000-0000-4000-8000-000000000900",
+          "visibility_revision": 1,
+          "watermark": {
+            "conversation_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "4564c0a2ec68ab3cdc29f6befdde955a478e7600b25124276ff0dbe6a238e555",
+              "id": "20000000-0000-4000-8000-000000000001",
+              "kind": "conversation",
+              "revision": 2,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "event_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "4062f797d5fb0b50e8f04c08a2d83bfd5475a0818f9075ea9a77da0232592825",
+              "id": "6b86b273-d473-4e07-8b22-ef2d127de37b",
+              "kind": "communication_event",
+              "revision": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "message_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "a5a2717b945f696738900e201b2495c6956492acd08ab4d7b3d102de53e0da87",
+              "id": "20000000-0000-4000-8000-000000000003",
+              "kind": "message",
+              "revision": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "position": 1
+          }
+        }
+      },
+      "canonical_utf8_bytes": 8851,
+      "canonical_sha256": "1cc58a09ef85e61fee5d4f1af25695aac5655f573382cb0ea3b567a836f4c862"
+    },
+    {
+      "name": "catchup_terminal_message5",
+      "page": {
+        "caught_up": true,
+        "company_id": "leo-company",
+        "coverage": {
+          "status": "caught_up_through_observed",
+          "total_count": null,
+          "truncation": "none"
+        },
+        "digest": "1a29aa09f4836e8d8fcd86c941c5e2fec9b41a3a1cdad00d73b658b37e39f5ee",
+        "items": [
+          {
+            "digest": "9ad1010758472579b375f5a7b74ba06dbbe57ba09baa81e8ab965d69bae455f5",
+            "event": {
+              "accepted_command": {
+                "action": "owner.discussion.append",
+                "command_id": "10000000-0000-4000-8000-000000000005",
+                "principal_id": "control",
+                "request_digest": "cf2088c28a90447715eac116808d9d05920bdaa2069476200642b4e7ccb171fa"
+              },
+              "company_id": "leo-company",
+              "conversation_ref": {
+                "availability": "available",
+                "company_id": "leo-company",
+                "digest": "7eeab252c5e30b303987541bf62f02db85352adcd0a0ee03e32441dab8a6c066",
+                "id": "20000000-0000-4000-8000-000000000001",
+                "kind": "conversation",
+                "revision": 5,
+                "scope": {
+                  "id": "alpha",
+                  "kind": "project"
+                },
+                "unavailable_reason": null
+              },
+              "digest": "184d3878360b203a3d42777aa29fa922cd3d60d13d0a123013d88d24c7e2ecd6",
+              "event_type": "owner_discussion.message_stored",
+              "id": "b17ef6d1-4523-4ec9-8400-f5ca38f748a1",
+              "message_ref": {
+                "availability": "available",
+                "company_id": "leo-company",
+                "digest": "738cd6ccd968caaeb84d054683537a73b8aa43c9cef15d8fc96c571f4c5a50fc",
+                "id": "20000000-0000-4000-8000-000000000006",
+                "kind": "message",
+                "revision": 1,
+                "scope": {
+                  "id": "alpha",
+                  "kind": "project"
+                },
+                "unavailable_reason": null
+              },
+              "observation": {
+                "evidence_scope": "stored_record",
+                "live_verified": false,
+                "source": "stored_record"
+              },
+              "producer": {
+                "component": "owner_discussion_acceptance",
+                "kind": "company_service",
+                "version": 1
+              },
+              "record_type": "communication_event",
+              "recorded_at_utc_epoch_ms": 1793664000000,
+              "revision": 1,
+              "schema_version": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "sequence": 4,
+              "stream_epoch": "20000000-0000-4000-8000-000000000900",
+              "visibility_revision": 1
+            },
+            "record": {
+              "company_id": "leo-company",
+              "conversation": {
+                "availability": "present",
+                "company_id": "leo-company",
+                "digest": "7eeab252c5e30b303987541bf62f02db85352adcd0a0ee03e32441dab8a6c066",
+                "id": "20000000-0000-4000-8000-000000000001",
+                "kind": "project_room",
+                "lifecycle": "open",
+                "observation": {
+                  "evidence_scope": "stored_record",
+                  "live_verified": false,
+                  "source": "stored_record"
+                },
+                "record_type": "conversation",
+                "revision": 5,
+                "schema_version": 1,
+                "scope": {
+                  "id": "alpha",
+                  "kind": "project"
+                },
+                "task_ref": null,
+                "title": "Owner project discussion",
+                "visibility_revision": 1,
+                "work_order_ref": null
+              },
+              "digest": "b23d05a56a83d4342a93b95228c9ea172656e6562aa05e77b150f523b8172cac",
+              "message": {
+                "artifact_refs": [],
+                "availability": "present",
+                "body": "Accepted text 5: é and 🌊",
+                "company_id": "leo-company",
+                "conversation_ref": {
+                  "availability": "available",
+                  "company_id": "leo-company",
+                  "digest": "7eeab252c5e30b303987541bf62f02db85352adcd0a0ee03e32441dab8a6c066",
+                  "id": "20000000-0000-4000-8000-000000000001",
+                  "kind": "conversation",
+                  "revision": 5,
+                  "scope": {
+                    "id": "alpha",
+                    "kind": "project"
+                  },
+                  "unavailable_reason": null
+                },
+                "conversation_sequence": 5,
+                "correlation_ref": null,
+                "digest": "738cd6ccd968caaeb84d054683537a73b8aa43c9cef15d8fc96c571f4c5a50fc",
+                "effective_priority": "normal",
+                "id": "20000000-0000-4000-8000-000000000006",
+                "kind": "note",
+                "observation": {
+                  "evidence_scope": "stored_record",
+                  "live_verified": false,
+                  "source": "stored_record"
+                },
+                "record_type": "message",
+                "recorded_at_utc_epoch_ms": 1793664000000,
+                "recorded_author": {
+                  "company_id": "leo-company",
+                  "interpretation": "recorded_reference_only",
+                  "principal_id": "control",
+                  "scope": {
+                    "id": "alpha",
+                    "kind": "project"
+                  }
+                },
+                "reply_to_message_ref": null,
+                "required_action": null,
+                "response_request_ref": null,
+                "revision": 1,
+                "schema_version": 1,
+                "scope": {
+                  "id": "alpha",
+                  "kind": "project"
+                },
+                "summary": "Stored note 5",
+                "visibility_revision": 1
+              },
+              "observation": {
+                "evidence_scope": "stored_record",
+                "live_verified": false,
+                "source": "stored_record"
+              },
+              "projection_type": "owner_discussion_record",
+              "receipt": {
+                "action": "owner.discussion.append",
+                "command_id": "10000000-0000-4000-8000-000000000005",
+                "company_id": "leo-company",
+                "conversation_ref": {
+                  "availability": "available",
+                  "company_id": "leo-company",
+                  "digest": "7eeab252c5e30b303987541bf62f02db85352adcd0a0ee03e32441dab8a6c066",
+                  "id": "20000000-0000-4000-8000-000000000001",
+                  "kind": "conversation",
+                  "revision": 5,
+                  "scope": {
+                    "id": "alpha",
+                    "kind": "project"
+                  },
+                  "unavailable_reason": null
+                },
+                "message_ref": {
+                  "availability": "available",
+                  "company_id": "leo-company",
+                  "digest": "738cd6ccd968caaeb84d054683537a73b8aa43c9cef15d8fc96c571f4c5a50fc",
+                  "id": "20000000-0000-4000-8000-000000000006",
+                  "kind": "message",
+                  "revision": 1,
+                  "scope": {
+                    "id": "alpha",
+                    "kind": "project"
+                  },
+                  "unavailable_reason": null
+                },
+                "outcome": "stored",
+                "principal_id": "control",
+                "receipt_type": "owner_discussion_receipt",
+                "recorded_at_utc_epoch_ms": 1793664000000,
+                "request_digest": "cf2088c28a90447715eac116808d9d05920bdaa2069476200642b4e7ccb171fa",
+                "schema_version": 1,
+                "scope": {
+                  "id": "alpha",
+                  "kind": "project"
+                }
+              },
+              "schema_version": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              }
+            }
+          }
+        ],
+        "limits": {
+          "max_cursor_chars": 4096,
+          "max_event_utf8_bytes": 65536,
+          "max_items": 50,
+          "max_response_utf8_bytes": 262144
+        },
+        "next_cursor": "eyJhY2Nlc3NfZGlnZXN0IjoiODYzYWI0YmEzM2QyMDIyMjk3MzhkZmZkYTQ1Zjk0OWY3ZTk1YWU5ZDMzZTI1NmMwMjFkYTUzY2I2MDA2ZjE1ZCIsImFmdGVyX3Bvc2l0aW9uIjo0LCJjb21wYW55X2lkIjoibGVvLWNvbXBhbnkiLCJleHBpcmVzX2F0X3V0Y19lcG9jaF9tcyI6MTc5MzY2NDMwMDAwMCwiZmxvb3JfY29udmVyc2F0aW9uX2RpZ2VzdCI6IjI0YTQ1ZGY5Y2YxYjQ5Y2ZiNjdhZDBkMmY1MzQyODRjODllODA2Y2I2MTNhNTZjYjQwZDE4MzIyNmU3Nzc4YmMiLCJmbG9vcl9tZXNzYWdlX2RpZ2VzdCI6IjczNWRhODI4MjkyZDIwNTMwMzAwZGZhMWE5OTYwYWJjYWUyMTA2N2NiN2M0ODE0MmEzMmZiOGU0OTEzMjc3NWQiLCJmbG9vcl9tZXNzYWdlX2lkIjoiMjAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDAyIiwiZmxvb3Jfc2VxdWVuY2UiOjEsImluY2FybmF0aW9uIjoiMjAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwOTAyIiwiaXNzdWVkX2F0X3V0Y19lcG9jaF9tcyI6MTc5MzY2NDAwMDAwMCwibGltaXQiOjEsIm1vZGUiOiJjaGFuZ2VzIiwibW9ub3RvbmljX2RlYWRsaW5lX21zIjoxMzAwMDAwLCJuZXh0X3NlcXVlbmNlIjpudWxsLCJwcmluY2lwYWxfaWQiOiJjb250cm9sIiwicHJvamVjdF9pZCI6ImFscGhhIiwicm9vbV9pZCI6IjIwMDAwMDAwLTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwMSIsInNuYXBzaG90X2lkIjoiMjAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwOTAxIiwic3RyZWFtX2Vwb2NoIjoiMjAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwOTAwIiwidmVyc2lvbiI6MSwid2F0ZXJtYXJrX2NvbnZlcnNhdGlvbl9kaWdlc3QiOiI0NTY0YzBhMmVjNjhhYjNjZGMyOWY2YmVmZGRlOTU1YTQ3OGU3NjAwYjI1MTI0Mjc2ZmYwZGJlNmEyMzhlNTU1Iiwid2F0ZXJtYXJrX2V2ZW50X2RpZ2VzdCI6IjQwNjJmNzk3ZDVmYjBiNTBlOGYwNGMwOGEyZDgzYmZkNTQ3NWEwODE4ZjkwNzVlYTlhNzdkYTAyMzI1OTI4MjUiLCJ3YXRlcm1hcmtfZXZlbnRfaWQiOiI2Yjg2YjI3My1kNDczLTRlMDctOGIyMi1lZjJkMTI3ZGUzN2IiLCJ3YXRlcm1hcmtfbWVzc2FnZV9kaWdlc3QiOiJhNWEyNzE3Yjk0NWY2OTY3Mzg5MDBlMjAxYjI0OTVjNjk1NjQ5MmFjZDA4YWI0ZDdiM2QxMDJkZTUzZTBkYTg3Iiwid2F0ZXJtYXJrX21lc3NhZ2VfaWQiOiIyMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDAwMDMiLCJ3YXRlcm1hcmtfcG9zaXRpb24iOjEsIndhdGVybWFya19zZXF1ZW5jZSI6Mn1M3rymy4YuyjcSSrbheOHcUCxAp-j7I2Hh8ay069bXqA",
+        "observation": {
+          "evidence_scope": "stored_record",
+          "live_verified": false,
+          "source": "stored_record"
+        },
+        "observed_at_utc_epoch_ms": 1793664000000,
+        "order": "public_event_sequence_ascending",
+        "projection_type": "owner_discussion_changes",
+        "range": {
+          "after_position": 3,
+          "end_position": 4,
+          "observed_through_position": 4,
+          "start_position": 4
+        },
+        "requested_limit": 1,
+        "schema_version": 1,
+        "scope": {
+          "id": "alpha",
+          "kind": "project"
+        },
+        "snapshot": {
+          "access_digest": "863ab4ba33d202229738dffda45f949f7e95ae9d33e256c021da53cb6006f15d",
+          "coverage_floor": {
+            "conversation_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "24a45df9cf1b49cfb67ad0d2f534284c89e806cb613a56cb40d183226e7778bc",
+              "id": "20000000-0000-4000-8000-000000000001",
+              "kind": "conversation",
+              "revision": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "message_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "735da828292d20530300dfa1a9960abcae21067cb7c48142a32fb8e49132775d",
+              "id": "20000000-0000-4000-8000-000000000002",
+              "kind": "message",
+              "revision": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "sequence": 1
+          },
+          "expires_at_utc_epoch_ms": 1793664300000,
+          "id": "20000000-0000-4000-8000-000000000901",
+          "incarnation": "20000000-0000-4000-8000-000000000902",
+          "issued_at_utc_epoch_ms": 1793664000000,
+          "kind": "owner_discussion_public_cut",
+          "stream_epoch": "20000000-0000-4000-8000-000000000900",
+          "visibility_revision": 1,
+          "watermark": {
+            "conversation_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "4564c0a2ec68ab3cdc29f6befdde955a478e7600b25124276ff0dbe6a238e555",
+              "id": "20000000-0000-4000-8000-000000000001",
+              "kind": "conversation",
+              "revision": 2,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "event_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "4062f797d5fb0b50e8f04c08a2d83bfd5475a0818f9075ea9a77da0232592825",
+              "id": "6b86b273-d473-4e07-8b22-ef2d127de37b",
+              "kind": "communication_event",
+              "revision": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "message_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "a5a2717b945f696738900e201b2495c6956492acd08ab4d7b3d102de53e0da87",
+              "id": "20000000-0000-4000-8000-000000000003",
+              "kind": "message",
+              "revision": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "position": 1
+          }
+        }
+      },
+      "canonical_utf8_bytes": 8863,
+      "canonical_sha256": "7c4e1d0db9fa96b94c5a6a31307b7bdf143c3b4ed95c1c0b1c9e69aef360fa4a"
+    },
+    {
+      "name": "idle_no_event",
+      "page": {
+        "caught_up": true,
+        "company_id": "leo-company",
+        "coverage": {
+          "status": "caught_up_through_observed",
+          "total_count": null,
+          "truncation": "none"
+        },
+        "digest": "9e276476f7385d86c908f9b2a35b56530075c4813d166d19ddeae728d4b00427",
+        "items": [],
+        "limits": {
+          "max_cursor_chars": 4096,
+          "max_event_utf8_bytes": 65536,
+          "max_items": 50,
+          "max_response_utf8_bytes": 262144
+        },
+        "next_cursor": "eyJhY2Nlc3NfZGlnZXN0IjoiODYzYWI0YmEzM2QyMDIyMjk3MzhkZmZkYTQ1Zjk0OWY3ZTk1YWU5ZDMzZTI1NmMwMjFkYTUzY2I2MDA2ZjE1ZCIsImFmdGVyX3Bvc2l0aW9uIjo0LCJjb21wYW55X2lkIjoibGVvLWNvbXBhbnkiLCJleHBpcmVzX2F0X3V0Y19lcG9jaF9tcyI6MTc5MzY2NDMwMDAwMCwiZmxvb3JfY29udmVyc2F0aW9uX2RpZ2VzdCI6IjI0YTQ1ZGY5Y2YxYjQ5Y2ZiNjdhZDBkMmY1MzQyODRjODllODA2Y2I2MTNhNTZjYjQwZDE4MzIyNmU3Nzc4YmMiLCJmbG9vcl9tZXNzYWdlX2RpZ2VzdCI6IjczNWRhODI4MjkyZDIwNTMwMzAwZGZhMWE5OTYwYWJjYWUyMTA2N2NiN2M0ODE0MmEzMmZiOGU0OTEzMjc3NWQiLCJmbG9vcl9tZXNzYWdlX2lkIjoiMjAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDAyIiwiZmxvb3Jfc2VxdWVuY2UiOjEsImluY2FybmF0aW9uIjoiMjAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwOTAyIiwiaXNzdWVkX2F0X3V0Y19lcG9jaF9tcyI6MTc5MzY2NDAwMDAwMCwibGltaXQiOjEsIm1vZGUiOiJjaGFuZ2VzIiwibW9ub3RvbmljX2RlYWRsaW5lX21zIjoxMzAwMDAwLCJuZXh0X3NlcXVlbmNlIjpudWxsLCJwcmluY2lwYWxfaWQiOiJjb250cm9sIiwicHJvamVjdF9pZCI6ImFscGhhIiwicm9vbV9pZCI6IjIwMDAwMDAwLTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwMSIsInNuYXBzaG90X2lkIjoiMjAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwOTAxIiwic3RyZWFtX2Vwb2NoIjoiMjAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwOTAwIiwidmVyc2lvbiI6MSwid2F0ZXJtYXJrX2NvbnZlcnNhdGlvbl9kaWdlc3QiOiI0NTY0YzBhMmVjNjhhYjNjZGMyOWY2YmVmZGRlOTU1YTQ3OGU3NjAwYjI1MTI0Mjc2ZmYwZGJlNmEyMzhlNTU1Iiwid2F0ZXJtYXJrX2V2ZW50X2RpZ2VzdCI6IjQwNjJmNzk3ZDVmYjBiNTBlOGYwNGMwOGEyZDgzYmZkNTQ3NWEwODE4ZjkwNzVlYTlhNzdkYTAyMzI1OTI4MjUiLCJ3YXRlcm1hcmtfZXZlbnRfaWQiOiI2Yjg2YjI3My1kNDczLTRlMDctOGIyMi1lZjJkMTI3ZGUzN2IiLCJ3YXRlcm1hcmtfbWVzc2FnZV9kaWdlc3QiOiJhNWEyNzE3Yjk0NWY2OTY3Mzg5MDBlMjAxYjI0OTVjNjk1NjQ5MmFjZDA4YWI0ZDdiM2QxMDJkZTUzZTBkYTg3Iiwid2F0ZXJtYXJrX21lc3NhZ2VfaWQiOiIyMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDAwMDMiLCJ3YXRlcm1hcmtfcG9zaXRpb24iOjEsIndhdGVybWFya19zZXF1ZW5jZSI6Mn1M3rymy4YuyjcSSrbheOHcUCxAp-j7I2Hh8ay069bXqA",
+        "observation": {
+          "evidence_scope": "stored_record",
+          "live_verified": false,
+          "source": "stored_record"
+        },
+        "observed_at_utc_epoch_ms": 1793664000000,
+        "order": "public_event_sequence_ascending",
+        "projection_type": "owner_discussion_changes",
+        "range": {
+          "after_position": 4,
+          "end_position": 4,
+          "observed_through_position": 4,
+          "start_position": null
+        },
+        "requested_limit": 1,
+        "schema_version": 1,
+        "scope": {
+          "id": "alpha",
+          "kind": "project"
+        },
+        "snapshot": {
+          "access_digest": "863ab4ba33d202229738dffda45f949f7e95ae9d33e256c021da53cb6006f15d",
+          "coverage_floor": {
+            "conversation_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "24a45df9cf1b49cfb67ad0d2f534284c89e806cb613a56cb40d183226e7778bc",
+              "id": "20000000-0000-4000-8000-000000000001",
+              "kind": "conversation",
+              "revision": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "message_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "735da828292d20530300dfa1a9960abcae21067cb7c48142a32fb8e49132775d",
+              "id": "20000000-0000-4000-8000-000000000002",
+              "kind": "message",
+              "revision": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "sequence": 1
+          },
+          "expires_at_utc_epoch_ms": 1793664300000,
+          "id": "20000000-0000-4000-8000-000000000901",
+          "incarnation": "20000000-0000-4000-8000-000000000902",
+          "issued_at_utc_epoch_ms": 1793664000000,
+          "kind": "owner_discussion_public_cut",
+          "stream_epoch": "20000000-0000-4000-8000-000000000900",
+          "visibility_revision": 1,
+          "watermark": {
+            "conversation_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "4564c0a2ec68ab3cdc29f6befdde955a478e7600b25124276ff0dbe6a238e555",
+              "id": "20000000-0000-4000-8000-000000000001",
+              "kind": "conversation",
+              "revision": 2,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "event_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "4062f797d5fb0b50e8f04c08a2d83bfd5475a0818f9075ea9a77da0232592825",
+              "id": "6b86b273-d473-4e07-8b22-ef2d127de37b",
+              "kind": "communication_event",
+              "revision": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "message_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "a5a2717b945f696738900e201b2495c6956492acd08ab4d7b3d102de53e0da87",
+              "id": "20000000-0000-4000-8000-000000000003",
+              "kind": "message",
+              "revision": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "position": 1
+          }
+        }
+      },
+      "canonical_utf8_bytes": 4396,
+      "canonical_sha256": "a5b0b08cc942f039caf663aa7c20eb236eac9cccf37def2cf50e9c70f4fd8c9d"
+    },
+    {
+      "name": "repeat_old_cursor_same_event_new_observed_boundary",
+      "page": {
+        "caught_up": false,
+        "company_id": "leo-company",
+        "coverage": {
+          "status": "partial",
+          "total_count": null,
+          "truncation": "item_limit"
+        },
+        "digest": "de29bc99e929537a3f4827f8d89d6ff9c54c44f2151359cbf955bd0e03ff6832",
+        "items": [
+          {
+            "digest": "7afd4dfc85231c16903b55df3850a111786622ca0e0e50de3b3b76ae135863a6",
+            "event": {
+              "accepted_command": {
+                "action": "owner.discussion.append",
+                "command_id": "10000000-0000-4000-8000-000000000003",
+                "principal_id": "control",
+                "request_digest": "0fedf18536b02ef8d7d800adbffc5dd33228f74c32828ca1043de1145c928dea"
+              },
+              "company_id": "leo-company",
+              "conversation_ref": {
+                "availability": "available",
+                "company_id": "leo-company",
+                "digest": "a63a4c70dbae37925e3cf91f0a88cbcfb37f23de4b08b53704e3ca45be9ae3b2",
+                "id": "20000000-0000-4000-8000-000000000001",
+                "kind": "conversation",
+                "revision": 3,
+                "scope": {
+                  "id": "alpha",
+                  "kind": "project"
+                },
+                "unavailable_reason": null
+              },
+              "digest": "d556e0086d9da3c2fd2daa2fafb3322b4bf4a1622e00dd9c93f16caed1373784",
+              "event_type": "owner_discussion.message_stored",
+              "id": "e7f6c011-7902-4c62-8958-4a44dc153642",
+              "message_ref": {
+                "availability": "available",
+                "company_id": "leo-company",
+                "digest": "1eed80d9e240a8ee64b0991d2c2a200bc5fbda91217869d517d78a008d53ae6e",
+                "id": "20000000-0000-4000-8000-000000000004",
+                "kind": "message",
+                "revision": 1,
+                "scope": {
+                  "id": "alpha",
+                  "kind": "project"
+                },
+                "unavailable_reason": null
+              },
+              "observation": {
+                "evidence_scope": "stored_record",
+                "live_verified": false,
+                "source": "stored_record"
+              },
+              "producer": {
+                "component": "owner_discussion_acceptance",
+                "kind": "company_service",
+                "version": 1
+              },
+              "record_type": "communication_event",
+              "recorded_at_utc_epoch_ms": 1793664000000,
+              "revision": 1,
+              "schema_version": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "sequence": 2,
+              "stream_epoch": "20000000-0000-4000-8000-000000000900",
+              "visibility_revision": 1
+            },
+            "record": {
+              "company_id": "leo-company",
+              "conversation": {
+                "availability": "present",
+                "company_id": "leo-company",
+                "digest": "a63a4c70dbae37925e3cf91f0a88cbcfb37f23de4b08b53704e3ca45be9ae3b2",
+                "id": "20000000-0000-4000-8000-000000000001",
+                "kind": "project_room",
+                "lifecycle": "open",
+                "observation": {
+                  "evidence_scope": "stored_record",
+                  "live_verified": false,
+                  "source": "stored_record"
+                },
+                "record_type": "conversation",
+                "revision": 3,
+                "schema_version": 1,
+                "scope": {
+                  "id": "alpha",
+                  "kind": "project"
+                },
+                "task_ref": null,
+                "title": "Owner project discussion",
+                "visibility_revision": 1,
+                "work_order_ref": null
+              },
+              "digest": "026ee69c0ff3d6f23d5ebc6c818886d12d82a84c09432838af08460ea03a72e3",
+              "message": {
+                "artifact_refs": [],
+                "availability": "present",
+                "body": "Accepted text 3: é and 🌊",
+                "company_id": "leo-company",
+                "conversation_ref": {
+                  "availability": "available",
+                  "company_id": "leo-company",
+                  "digest": "a63a4c70dbae37925e3cf91f0a88cbcfb37f23de4b08b53704e3ca45be9ae3b2",
+                  "id": "20000000-0000-4000-8000-000000000001",
+                  "kind": "conversation",
+                  "revision": 3,
+                  "scope": {
+                    "id": "alpha",
+                    "kind": "project"
+                  },
+                  "unavailable_reason": null
+                },
+                "conversation_sequence": 3,
+                "correlation_ref": null,
+                "digest": "1eed80d9e240a8ee64b0991d2c2a200bc5fbda91217869d517d78a008d53ae6e",
+                "effective_priority": "normal",
+                "id": "20000000-0000-4000-8000-000000000004",
+                "kind": "note",
+                "observation": {
+                  "evidence_scope": "stored_record",
+                  "live_verified": false,
+                  "source": "stored_record"
+                },
+                "record_type": "message",
+                "recorded_at_utc_epoch_ms": 1793664000000,
+                "recorded_author": {
+                  "company_id": "leo-company",
+                  "interpretation": "recorded_reference_only",
+                  "principal_id": "control",
+                  "scope": {
+                    "id": "alpha",
+                    "kind": "project"
+                  }
+                },
+                "reply_to_message_ref": null,
+                "required_action": null,
+                "response_request_ref": null,
+                "revision": 1,
+                "schema_version": 1,
+                "scope": {
+                  "id": "alpha",
+                  "kind": "project"
+                },
+                "summary": "Stored note 3",
+                "visibility_revision": 1
+              },
+              "observation": {
+                "evidence_scope": "stored_record",
+                "live_verified": false,
+                "source": "stored_record"
+              },
+              "projection_type": "owner_discussion_record",
+              "receipt": {
+                "action": "owner.discussion.append",
+                "command_id": "10000000-0000-4000-8000-000000000003",
+                "company_id": "leo-company",
+                "conversation_ref": {
+                  "availability": "available",
+                  "company_id": "leo-company",
+                  "digest": "a63a4c70dbae37925e3cf91f0a88cbcfb37f23de4b08b53704e3ca45be9ae3b2",
+                  "id": "20000000-0000-4000-8000-000000000001",
+                  "kind": "conversation",
+                  "revision": 3,
+                  "scope": {
+                    "id": "alpha",
+                    "kind": "project"
+                  },
+                  "unavailable_reason": null
+                },
+                "message_ref": {
+                  "availability": "available",
+                  "company_id": "leo-company",
+                  "digest": "1eed80d9e240a8ee64b0991d2c2a200bc5fbda91217869d517d78a008d53ae6e",
+                  "id": "20000000-0000-4000-8000-000000000004",
+                  "kind": "message",
+                  "revision": 1,
+                  "scope": {
+                    "id": "alpha",
+                    "kind": "project"
+                  },
+                  "unavailable_reason": null
+                },
+                "outcome": "stored",
+                "principal_id": "control",
+                "receipt_type": "owner_discussion_receipt",
+                "recorded_at_utc_epoch_ms": 1793664000000,
+                "request_digest": "0fedf18536b02ef8d7d800adbffc5dd33228f74c32828ca1043de1145c928dea",
+                "schema_version": 1,
+                "scope": {
+                  "id": "alpha",
+                  "kind": "project"
+                }
+              },
+              "schema_version": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              }
+            }
+          }
+        ],
+        "limits": {
+          "max_cursor_chars": 4096,
+          "max_event_utf8_bytes": 65536,
+          "max_items": 50,
+          "max_response_utf8_bytes": 262144
+        },
+        "next_cursor": "eyJhY2Nlc3NfZGlnZXN0IjoiODYzYWI0YmEzM2QyMDIyMjk3MzhkZmZkYTQ1Zjk0OWY3ZTk1YWU5ZDMzZTI1NmMwMjFkYTUzY2I2MDA2ZjE1ZCIsImFmdGVyX3Bvc2l0aW9uIjoyLCJjb21wYW55X2lkIjoibGVvLWNvbXBhbnkiLCJleHBpcmVzX2F0X3V0Y19lcG9jaF9tcyI6MTc5MzY2NDMwMDAwMCwiZmxvb3JfY29udmVyc2F0aW9uX2RpZ2VzdCI6IjI0YTQ1ZGY5Y2YxYjQ5Y2ZiNjdhZDBkMmY1MzQyODRjODllODA2Y2I2MTNhNTZjYjQwZDE4MzIyNmU3Nzc4YmMiLCJmbG9vcl9tZXNzYWdlX2RpZ2VzdCI6IjczNWRhODI4MjkyZDIwNTMwMzAwZGZhMWE5OTYwYWJjYWUyMTA2N2NiN2M0ODE0MmEzMmZiOGU0OTEzMjc3NWQiLCJmbG9vcl9tZXNzYWdlX2lkIjoiMjAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwMDAyIiwiZmxvb3Jfc2VxdWVuY2UiOjEsImluY2FybmF0aW9uIjoiMjAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwOTAyIiwiaXNzdWVkX2F0X3V0Y19lcG9jaF9tcyI6MTc5MzY2NDAwMDAwMCwibGltaXQiOjEsIm1vZGUiOiJjaGFuZ2VzIiwibW9ub3RvbmljX2RlYWRsaW5lX21zIjoxMzAwMDAwLCJuZXh0X3NlcXVlbmNlIjpudWxsLCJwcmluY2lwYWxfaWQiOiJjb250cm9sIiwicHJvamVjdF9pZCI6ImFscGhhIiwicm9vbV9pZCI6IjIwMDAwMDAwLTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwMSIsInNuYXBzaG90X2lkIjoiMjAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwOTAxIiwic3RyZWFtX2Vwb2NoIjoiMjAwMDAwMDAtMDAwMC00MDAwLTgwMDAtMDAwMDAwMDAwOTAwIiwidmVyc2lvbiI6MSwid2F0ZXJtYXJrX2NvbnZlcnNhdGlvbl9kaWdlc3QiOiI0NTY0YzBhMmVjNjhhYjNjZGMyOWY2YmVmZGRlOTU1YTQ3OGU3NjAwYjI1MTI0Mjc2ZmYwZGJlNmEyMzhlNTU1Iiwid2F0ZXJtYXJrX2V2ZW50X2RpZ2VzdCI6IjQwNjJmNzk3ZDVmYjBiNTBlOGYwNGMwOGEyZDgzYmZkNTQ3NWEwODE4ZjkwNzVlYTlhNzdkYTAyMzI1OTI4MjUiLCJ3YXRlcm1hcmtfZXZlbnRfaWQiOiI2Yjg2YjI3My1kNDczLTRlMDctOGIyMi1lZjJkMTI3ZGUzN2IiLCJ3YXRlcm1hcmtfbWVzc2FnZV9kaWdlc3QiOiJhNWEyNzE3Yjk0NWY2OTY3Mzg5MDBlMjAxYjI0OTVjNjk1NjQ5MmFjZDA4YWI0ZDdiM2QxMDJkZTUzZTBkYTg3Iiwid2F0ZXJtYXJrX21lc3NhZ2VfaWQiOiIyMDAwMDAwMC0wMDAwLTQwMDAtODAwMC0wMDAwMDAwMDAwMDMiLCJ3YXRlcm1hcmtfcG9zaXRpb24iOjEsIndhdGVybWFya19zZXF1ZW5jZSI6Mn2NTHmI62eeesK0tEI6Jrgyg4g744Yjc98LGZAVkjWtfw",
+        "observation": {
+          "evidence_scope": "stored_record",
+          "live_verified": false,
+          "source": "stored_record"
+        },
+        "observed_at_utc_epoch_ms": 1793664000000,
+        "order": "public_event_sequence_ascending",
+        "projection_type": "owner_discussion_changes",
+        "range": {
+          "after_position": 1,
+          "end_position": 2,
+          "observed_through_position": 4,
+          "start_position": 2
+        },
+        "requested_limit": 1,
+        "schema_version": 1,
+        "scope": {
+          "id": "alpha",
+          "kind": "project"
+        },
+        "snapshot": {
+          "access_digest": "863ab4ba33d202229738dffda45f949f7e95ae9d33e256c021da53cb6006f15d",
+          "coverage_floor": {
+            "conversation_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "24a45df9cf1b49cfb67ad0d2f534284c89e806cb613a56cb40d183226e7778bc",
+              "id": "20000000-0000-4000-8000-000000000001",
+              "kind": "conversation",
+              "revision": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "message_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "735da828292d20530300dfa1a9960abcae21067cb7c48142a32fb8e49132775d",
+              "id": "20000000-0000-4000-8000-000000000002",
+              "kind": "message",
+              "revision": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "sequence": 1
+          },
+          "expires_at_utc_epoch_ms": 1793664300000,
+          "id": "20000000-0000-4000-8000-000000000901",
+          "incarnation": "20000000-0000-4000-8000-000000000902",
+          "issued_at_utc_epoch_ms": 1793664000000,
+          "kind": "owner_discussion_public_cut",
+          "stream_epoch": "20000000-0000-4000-8000-000000000900",
+          "visibility_revision": 1,
+          "watermark": {
+            "conversation_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "4564c0a2ec68ab3cdc29f6befdde955a478e7600b25124276ff0dbe6a238e555",
+              "id": "20000000-0000-4000-8000-000000000001",
+              "kind": "conversation",
+              "revision": 2,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "event_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "4062f797d5fb0b50e8f04c08a2d83bfd5475a0818f9075ea9a77da0232592825",
+              "id": "6b86b273-d473-4e07-8b22-ef2d127de37b",
+              "kind": "communication_event",
+              "revision": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "message_ref": {
+              "availability": "available",
+              "company_id": "leo-company",
+              "digest": "a5a2717b945f696738900e201b2495c6956492acd08ab4d7b3d102de53e0da87",
+              "id": "20000000-0000-4000-8000-000000000003",
+              "kind": "message",
+              "revision": 1,
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "unavailable_reason": null
+            },
+            "position": 1
+          }
+        }
+      },
+      "canonical_utf8_bytes": 8851,
+      "canonical_sha256": "31fe53b6b9cd80394840961ba82efca801ee347702fcb7d86cb835816800eba4"
+    }
+  ],
+  "generated_recipes": [
+    {
+      "name": "encoded_escaped_whole_event_prefix",
+      "recipe": "Separate fresh Store; helpers in test_owner_discussion_stream_contract.py.recipe_for. Legacy1, install floor1; snapshot limit50, append12 with summary é*512/body U+0001*4000; fixed public SQL randomness and UUIDs are synthetic golden inputs only.",
+      "pages": [
+        {
+          "items": 8,
+          "canonical_utf8_bytes": 239608,
+          "canonical_sha256": "611498f1af2423fa1e62da3a56c839cb776d1aa667ae29fd904462be8cc8f187",
+          "range": {
+            "after_position": 0,
+            "end_position": 8,
+            "observed_through_position": 12,
+            "start_position": 1
+          }
+        },
+        {
+          "items": 4,
+          "canonical_utf8_bytes": 121829,
+          "canonical_sha256": "60f0ef35f29ab5f828d31036fd663f22e3d4297b81f961a60214cd35257f256a",
+          "range": {
+            "after_position": 8,
+            "end_position": 12,
+            "observed_through_position": 12,
+            "start_position": 9
+          }
+        }
+      ]
+    }
+  ],
+  "mutation_vectors": [
+    {
+      "example": 2,
+      "pointer": "/unknown",
+      "value": true,
+      "schema_valid": false,
+      "reason": "closed page"
+    },
+    {
+      "example": 2,
+      "pointer": "/schema_version",
+      "value": 2,
+      "schema_valid": false,
+      "reason": "fixed version"
+    },
+    {
+      "example": 2,
+      "pointer": "/items/0/event/revision",
+      "value": 2,
+      "schema_valid": false,
+      "reason": "fixed event revision"
+    },
+    {
+      "example": 2,
+      "pointer": "/items/0/event/producer/version",
+      "value": 2,
+      "schema_valid": false,
+      "reason": "fixed producer"
+    },
+    {
+      "example": 2,
+      "pointer": "/items/0/event/id",
+      "value": "20000000-0000-3000-8000-000000000001",
+      "schema_valid": false,
+      "reason": "public event UUIDv4"
+    },
+    {
+      "example": 2,
+      "pointer": "/items/0/event/accepted_command/principal_id",
+      "value": "bad\u0000principal",
+      "schema_valid": false,
+      "reason": "no NUL"
+    },
+    {
+      "example": 2,
+      "pointer": "/limits/max_response_utf8_bytes",
+      "value": 262145,
+      "schema_valid": false,
+      "reason": "fixed boundary"
+    },
+    {
+      "example": 2,
+      "pointer": "/next_cursor",
+      "value": "",
+      "schema_valid": false,
+      "reason": "nonempty continuation"
+    },
+    {
+      "example": 2,
+      "pointer": "/observation/live_verified",
+      "value": true,
+      "schema_valid": false,
+      "reason": "descriptive local proof"
+    },
+    {
+      "example": 2,
+      "pointer": "/scope/id",
+      "value": "beta",
+      "schema_valid": true,
+      "supplemental_valid": false,
+      "reason": "retained Alpha context; digests also invalid"
+    },
+    {
+      "example": 2,
+      "pointer": "/requested_limit",
+      "value": 2,
+      "schema_valid": true,
+      "supplemental_valid": false,
+      "reason": "retained query limit1"
+    },
+    {
+      "example": 2,
+      "pointer": "/items/0/event/sequence",
+      "value": 9,
+      "schema_valid": true,
+      "supplemental_valid": false,
+      "reason": "contiguous position/ref and digest mismatch"
+    },
+    {
+      "example": 2,
+      "pointer": "/items/0/event/stream_epoch",
+      "value": "20000000-0000-4000-8000-000000000777",
+      "schema_valid": true,
+      "supplemental_valid": false,
+      "reason": "retained feed binding"
+    },
+    {
+      "example": 2,
+      "pointer": "/items/0/event/message_ref/digest",
+      "value": "0000000000000000000000000000000000000000000000000000000000000000",
+      "schema_valid": true,
+      "supplemental_valid": false,
+      "reason": "full exact nested refs"
+    },
+    {
+      "example": 2,
+      "pointer": "/range/end_position",
+      "value": 9,
+      "schema_valid": true,
+      "supplemental_valid": false,
+      "reason": "end must equal last emitted event"
+    },
+    {
+      "example": 2,
+      "pointer": "/range/observed_through_position",
+      "value": 0,
+      "schema_valid": true,
+      "supplemental_valid": false,
+      "reason": "observed upper cannot precede returned range"
+    },
+    {
+      "example": 2,
+      "pointer": "/caught_up",
+      "value": false,
+      "schema_valid": true,
+      "supplemental_valid": false,
+      "reason": "caught up exactly through observed boundary"
+    },
+    {
+      "example": 2,
+      "pointer": "/snapshot/watermark/position",
+      "value": 99,
+      "schema_valid": true,
+      "supplemental_valid": false,
+      "reason": "snapshot immutable W=N-F"
+    },
+    {
+      "example": 1,
+      "pointer": "/changes_cursor",
+      "value": null,
+      "schema_valid": true,
+      "supplemental_valid": false,
+      "reason": "terminal baseline requires handoff cursor"
+    },
+    {
+      "example": 0,
+      "pointer": "/next_snapshot_cursor",
+      "value": null,
+      "schema_valid": true,
+      "supplemental_valid": false,
+      "reason": "partial baseline requires continuation"
+    }
+  ]
+}

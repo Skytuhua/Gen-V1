@@ -74,6 +74,7 @@ class WorkerFixture(unittest.TestCase):
         threading.Thread(target=lambda: [self.frames.put(json.loads(line)) for line in self.proc.stdout], daemon=True).start()
         threading.Thread(target=lambda: [self.stderr.append(line) for line in self.proc.stderr], daemon=True).start()
         self.counter = 0
+        self.host_calls = []
 
     def tearDown(self):
         self.proc.terminate()
@@ -95,7 +96,8 @@ class WorkerFixture(unittest.TestCase):
                 events.append(frame)
             if "hostCall" in frame:
                 call = frame["hostCall"]
-                self.proc.stdin.write(json.dumps({"hostResult": {"id": call["id"], "result": {}}}) + "\n")
+                self.host_calls.append(call["name"])
+                self.proc.stdin.write(json.dumps({"hostResult": {"id": call["id"], "result": {"acquired": True} if call["name"] == "$background.acquire" else {}}}) + "\n")
                 self.proc.stdin.flush()
             elif frame.get("id") == self.counter:
                 if error_code is not None:
@@ -104,8 +106,8 @@ class WorkerFixture(unittest.TestCase):
                 self.assertNotIn("error", frame, frame)
                 return frame["result"]
 
-    def hello(self, review=False, config=None):
-        return self.request("hello", {"home": self.tmp.name, "acpCommand": sys.executable, "acpArgs": ["-I", "-S", "-B", str(Path(__file__).resolve()), "scripted-acp"], "dependencyRoot": str(ROOT / ".harness-hermes-python-deps"), "config": config or {"auxiliary": {"background_review": {"enabled": review}}}})
+    def hello(self, review=False, config=None, managed_review=False):
+        return self.request("hello", {"home": self.tmp.name, "managedReview": managed_review, "acpCommand": sys.executable, "acpArgs": ["-I", "-S", "-B", str(Path(__file__).resolve()), "scripted-acp"], "dependencyRoot": str(ROOT / ".harness-hermes-python-deps"), "config": config or {"auxiliary": {"background_review": {"enabled": review}}}})
 
     def until_settled(self):
         events = []
@@ -115,7 +117,9 @@ class WorkerFixture(unittest.TestCase):
             except queue.Empty:
                 self.fail("No settlement: " + "".join(self.stderr[-30:]))
             if "hostCall" in frame:
-                self.proc.stdin.write(json.dumps({"hostResult": {"id": frame["hostCall"]["id"], "result": {}}}) + "\n")
+                call = frame["hostCall"]
+                self.host_calls.append(call["name"])
+                self.proc.stdin.write(json.dumps({"hostResult": {"id": call["id"], "result": {"acquired": True} if call["name"] == "$background.acquire" else {}}}) + "\n")
                 self.proc.stdin.flush()
             else:
                 events.append(frame)
@@ -173,8 +177,61 @@ class WorkerFixture(unittest.TestCase):
         self.assertEqual(saved["messages"], self.request("agent.history", {})["messages"])
         self.assertEqual(saved["format"], "hermes-source-session-v1")
 
+    def test_original_summary_compaction_executes_with_the_retained_dependency_subset(self):
+        self.hello(config={"compression": {"enabled": True, "protect_first_n": 0, "protect_last_n": 4, "abort_on_summary_failure": True}, "auxiliary": {"background_review": {"enabled": False}}})
+        history = [{"role": "user" if index % 2 == 0 else "assistant", "content": (f"Declared synthetic checkpoint {index}: approved edits retain their reviewed SHA and stale work needs new review. " * 8)} for index in range(12)]
+        params = {"ctx": {"threadId": "compact-fixture", "runId": "first", "epoch": 1}, "modelId": "fixture-model", "accountId": None, "prompt": "PLAIN_REPLY_ONLY", "history": history, "hostTools": [], "maxIterations": 2, "skillPolicy": {"enabled": False}, "sessionPath": self.session_path("compact-fixture")}
+        self.request("agent.start", params)
+        self.until_settled()
+        before = self.request("agent.history", {})["messages"]
+        # The scripted ACP process owns every completion; this broker address is never used.
+        result = self.request("agent.compact", {**params, "brokerURL": "http://127.0.0.1:1", "jobKey": "synthetic-unused"})
+        errors = Path(self.tmp.name) / "logs/errors.log"
+        self.assertTrue(result["compacted"], errors.read_text(encoding="utf8")[-6000:] if errors.exists() else result)
+        self.assertLess(len(result["messages"]), len(before))
+        self.assertEqual(result["messages"], json.loads(Path(params["sessionPath"]).read_text(encoding="utf8"))["messages"])
+        self.assertEqual(self.host_calls, ["$transport.usage", "$transport.usage"])
+
+    def test_completed_approved_write_reaches_original_post_edit_and_automatic_stop_gate(self):
+        self.hello()
+        project = Path(self.tmp.name) / "project"
+        project.mkdir()
+        path = project / "App.tsx"
+        path.write_text('export const App = () => <button>Continue</button>;\n', encoding="utf-8")
+        params = {"ctx": {"threadId": "approved-write", "runId": "prepare", "epoch": 1}, "sessionId": "approved-write", "modelId": "fixture-model", "accountId": None, "prompt": "PLAIN_REPLY_ONLY", "hostTools": [], "maxIterations": 4, "skillPolicy": {"enabled": False}, "sessionPath": self.session_path("approved-write"), "integrations": {"enabled": ["impeccable"]}, "projectRoot": str(project)}
+        self.request("agent.start", params)
+        first = self.until_settled()
+        self.assertFalse(any(frame.get("event") == "integration_hook" for frame in first))
+        origin = {**params["ctx"], "sessionPath": params["sessionPath"], "modelId": params["modelId"], "accountId": None, "projectId": "project", "workspaceId": "workspace", "projectRoot": str(project)}
+        params["ctx"] = {"threadId": "approved-write", "runId": "receipt", "epoch": 2}
+        params["inputIds"] = ["operation-result:approved"]
+        receipt = {"operationId": "approved", "revision": 1, "inputId": params["inputIds"][0], "origin": origin, "delivery": params["ctx"], "path": str(path), "sha256": hashlib.sha256(path.read_bytes()).hexdigest(), "bytes": path.stat().st_size}
+        params["completedWrites"] = [receipt]
+        self.request("agent.start", params)
+        events = self.until_settled()
+        diagnostics = [frame["data"]["diagnostic"] for frame in events if frame.get("event") == "write_hook"]
+        self.assertEqual([row["status"] for row in diagnostics], ["applied"], events)
+        executions = [frame["data"] for frame in events if frame.get("event") == "integration_hook"]
+        self.assertEqual([(row["event"], row["exitCode"]) for row in executions], [("PostToolUse", 0), ("Stop", 0)])
+        self.assertEqual(events[-1]["data"]["engineClass"], "run_agent.AIAgent")
+        # Reusing the delivery batch in another turn must not re-run a write hook.
+        params["ctx"] = {"threadId": "approved-write", "runId": "stale", "epoch": 3}
+        self.request("agent.start", params)
+        replay = self.until_settled()
+        self.assertFalse(any(frame.get("event") == "integration_hook" for frame in replay))
+        self.assertEqual([frame["data"]["diagnostic"]["status"] for frame in replay if frame.get("event") == "write_hook"], ["stale"])
+        # Valid custody with a freshly disabled integration gets an explicit skip.
+        params["ctx"] = {"threadId": "approved-write", "runId": "disabled", "epoch": 4}
+        receipt["origin"] = {**origin, "runId": "stale", "epoch": 3}
+        receipt["delivery"] = params["ctx"]
+        params["integrations"] = {"enabled": []}
+        self.request("agent.start", params)
+        disabled = self.until_settled()
+        self.assertEqual([frame["data"]["diagnostic"]["status"] for frame in disabled if frame.get("event") == "write_hook"], ["disabled"])
+        self.assertFalse(any(frame.get("event") == "integration_hook" for frame in disabled))
+
     def test_ten_plain_iterations_launch_the_original_review_fork(self):
-        self.hello(review=True)
+        self.hello(review=True, managed_review=True)
         params = {"ctx": {"threadId": "cadence", "runId": "zero"}, "modelId": "fixture-model", "prompt": "PLAIN_REPLY_ONLY AUTO_SKILL_FIXTURE: respond briefly.", "hostTools": [], "skillPolicy": {"enabled": True, "allowWrites": True}}
         instance = None
         for index in range(10):
@@ -189,6 +246,7 @@ class WorkerFixture(unittest.TestCase):
                 self.assertFalse(any(e.get("ctx", {}).get("phase") == "background_review" for e in events))
         self.assertEqual(settled["itersSinceSkill"], 0)
         self.assertTrue(any(e.get("event") == "model_request" and e["ctx"]["phase"] == "background_review" for e in events), events)
+        self.assertEqual(self.host_calls.count("$background.acquire"), 1)
         report = self.request("skills.list", {})
         self.assertEqual(report["usage"]["auto-source"]["created_by"], "agent")
 

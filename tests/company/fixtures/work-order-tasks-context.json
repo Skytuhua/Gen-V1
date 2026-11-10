@@ -1,0 +1,370 @@
+{
+  "provenance": {
+    "scope": "Public synthetic producer fixture only; retained before materialization, no credentials",
+    "producer_checkpoint": "20ea1aa0fa277d43c6904c2b35d761d5483820c5",
+    "proposal_raw_sha256": "06acf413af3064c58f30c5b245bee82cef898ec375baf87f7af79cf886c201cf",
+    "authorization_raw_sha256": "c93b5236e8345c699881d2b52b1d3689402132d8e7788f82916fc00381fb9533"
+  },
+  "context": {
+    "companyId": "leo-company",
+    "projectId": "alpha",
+    "principalId": "fixture-owner",
+    "proposal": {
+      "request": {
+        "project_id": "alpha",
+        "message_id": "actual-propose-1",
+        "instruction_id": "proposal-a6f982d2e4eed6408cd6ea6303e470e8ca7b05db867ab2a1219ea175c31c0253",
+        "expected_head_ref": null,
+        "plan": {
+          "summary": "One proposed pilot change; no worker has been admitted.",
+          "employee_ids": [
+            "E01",
+            "E10",
+            "E11"
+          ],
+          "budget_cents": 50,
+          "repository_inputs": [
+            {
+              "repository": "fixture/alpha",
+              "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "paths": [
+                "src/"
+              ]
+            }
+          ],
+          "steps": [
+            {
+              "key": "backend",
+              "employee_id": "E11",
+              "instruction": "Propose the bounded backend change.",
+              "depends_on": [],
+              "expected_artifact_types": [
+                "code"
+              ],
+              "acceptance_checks": [
+                "Focused backend checks pass"
+              ]
+            },
+            {
+              "key": "frontend",
+              "employee_id": "E10",
+              "instruction": "Propose the corresponding frontend change.",
+              "depends_on": [
+                "backend"
+              ],
+              "expected_artifact_types": [
+                "code",
+                "test_evidence"
+              ],
+              "acceptance_checks": [
+                "Focused frontend checks pass"
+              ]
+            },
+            {
+              "key": "review",
+              "employee_id": "E01",
+              "instruction": "Review the proposed result.",
+              "depends_on": [
+                "frontend"
+              ],
+              "expected_artifact_types": [
+                "report"
+              ],
+              "acceptance_checks": [
+                "Return a bounded reviewed result"
+              ]
+            }
+          ]
+        }
+      },
+      "response": {
+        "plan": {
+          "basis": {
+            "charter": {
+              "digest": "2116ecd93ad285be5337a5101a955ed04001883a87267e3f632b0498bd27a357",
+              "spec": {
+                "acceptance_checks": [],
+                "budget_cents": 500,
+                "id": "alpha",
+                "manager": "E01",
+                "name": "Alpha",
+                "permitted_paths": [
+                  "src/"
+                ],
+                "priority": "normal",
+                "purpose": "Synthetic WorkOrder authority fixture",
+                "repositories": [
+                  "fixture/alpha"
+                ],
+                "state": "proposed"
+              }
+            },
+            "instruction": {
+              "digest": "5a42b27ad901451b6d6999b92bfe8da00f5327cf8062490a95fae9ce01eb84d4",
+              "id": "proposal-a6f982d2e4eed6408cd6ea6303e470e8ca7b05db867ab2a1219ea175c31c0253",
+              "project_id": "alpha",
+              "record": {
+                "blockers": [
+                  "native_ordinary_chat_planner_absent",
+                  "native_dispatch_unavailable",
+                  "exact_existing_approvals_remain_required"
+                ],
+                "dispatch_authorized": false,
+                "evidence_scope": "local_owner_instruction",
+                "id": "proposal-a6f982d2e4eed6408cd6ea6303e470e8ca7b05db867ab2a1219ea175c31c0253",
+                "instruction": "Prepare one bounded pilot change with frontend, backend and manager review.",
+                "kind": "planning_proposal",
+                "live_ready": false,
+                "model_produced": false,
+                "planner": "capability_missing",
+                "project_id": "alpha",
+                "state": "planning_only"
+              }
+            },
+            "policy_version": 1,
+            "staffing": [
+              {
+                "approval_digest": "0e0cf456eded2ac6be585c09ef782d6a5850837abaab14f80f61b641af870b4c",
+                "approval_id": "98352c5afaefbd183448d044bf3a60d7cce205118226005bb7be517c2b40ba57",
+                "employee_id": "E01",
+                "expires_at_epoch_seconds": 1793671200,
+                "responsibility": "Synthetic pilot role E01"
+              },
+              {
+                "approval_digest": "9139c019e04cce8648ee772ca559e5317fd5a1d1cbc5e0e7c768ba9da1910b8c",
+                "approval_id": "4aa45edda5bd362fed8446763068a741b537abc384b235a46e91ffa15f87b1e0",
+                "employee_id": "E10",
+                "expires_at_epoch_seconds": 1793671200,
+                "responsibility": "Synthetic pilot role E10"
+              },
+              {
+                "approval_digest": "1833f91357f8bda66d2c80cdd69e0bfac36759b59a2b73de04e85a606376289b",
+                "approval_id": "cfbdc7569ba813b1cfe3d0dad97837f3d302671c387423eadbe9bf2cb28dc9b4",
+                "employee_id": "E11",
+                "expires_at_epoch_seconds": 1793671200,
+                "responsibility": "Synthetic pilot role E11"
+              }
+            ]
+          },
+          "company_id": "leo-company",
+          "digest": "cc6644dd9a7115cc45287bd23783775741f1086e624f76673dd923b29b2e3f92",
+          "id": "work-plan-3b20314a48b596db4beef76b3eb4f55c002ca491797bdcb2734e90d818fc1573",
+          "instruction_id": "proposal-a6f982d2e4eed6408cd6ea6303e470e8ca7b05db867ab2a1219ea175c31c0253",
+          "kind": "work_plan",
+          "origin": "owner_forwarded_unverified_plan",
+          "owner_principal": "fixture-owner",
+          "plan": {
+            "budget_cents": 50,
+            "employee_ids": [
+              "E01",
+              "E10",
+              "E11"
+            ],
+            "repository_inputs": [
+              {
+                "paths": [
+                  "src/"
+                ],
+                "repository": "fixture/alpha",
+                "revision": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+              }
+            ],
+            "steps": [
+              {
+                "acceptance_checks": [
+                  "Focused backend checks pass"
+                ],
+                "depends_on": [],
+                "employee_id": "E11",
+                "expected_artifact_types": [
+                  "code"
+                ],
+                "instruction": "Propose the bounded backend change.",
+                "key": "backend"
+              },
+              {
+                "acceptance_checks": [
+                  "Focused frontend checks pass"
+                ],
+                "depends_on": [
+                  "backend"
+                ],
+                "employee_id": "E10",
+                "expected_artifact_types": [
+                  "code",
+                  "test_evidence"
+                ],
+                "instruction": "Propose the corresponding frontend change.",
+                "key": "frontend"
+              },
+              {
+                "acceptance_checks": [
+                  "Return a bounded reviewed result"
+                ],
+                "depends_on": [
+                  "frontend"
+                ],
+                "employee_id": "E01",
+                "expected_artifact_types": [
+                  "report"
+                ],
+                "instruction": "Review the proposed result.",
+                "key": "review"
+              }
+            ],
+            "summary": "One proposed pilot change; no worker has been admitted."
+          },
+          "previous_digest": null,
+          "project_id": "alpha",
+          "recorded_at_epoch_seconds": 1793664000,
+          "revision": 1,
+          "schema_version": 1
+        },
+        "receipt": {
+          "accepted_at_epoch_seconds": 1793664000,
+          "action": "work_plan.propose",
+          "command_id": "actual-propose-1",
+          "company_id": "leo-company",
+          "digest": "5493db054a09b0e551c731e7a739982fe101651cfc9827fea887e7d0e4b2069c",
+          "dispatch_authorized": false,
+          "id": "work-plan-receipt-f8137d07f41924552a58cc6939c91f31dbf97d9126e48a0d61f7d5b4346c54c9",
+          "kind": "work_plan_receipt",
+          "live_ready": false,
+          "plan_ref": {
+            "digest": "cc6644dd9a7115cc45287bd23783775741f1086e624f76673dd923b29b2e3f92",
+            "id": "work-plan-3b20314a48b596db4beef76b3eb4f55c002ca491797bdcb2734e90d818fc1573",
+            "kind": "work_plan",
+            "project_id": "alpha",
+            "revision": 1
+          },
+          "principal_id": "fixture-owner",
+          "project_id": "alpha",
+          "request_digest": "4e16b9ffeebf4813438df1315f13fd5c259d9b2e47f16dbc80df32d651199e17",
+          "task_materialization": false,
+          "work_order_digest": null,
+          "work_order_id": null,
+          "work_order_stored": false
+        },
+        "schema_version": 1
+      }
+    },
+    "authorization": {
+      "request": {
+        "project_id": "alpha",
+        "message_id": "actual-authorize-1",
+        "plan_ref": {
+          "digest": "cc6644dd9a7115cc45287bd23783775741f1086e624f76673dd923b29b2e3f92",
+          "id": "work-plan-3b20314a48b596db4beef76b3eb4f55c002ca491797bdcb2734e90d818fc1573",
+          "kind": "work_plan",
+          "project_id": "alpha",
+          "revision": 1
+        },
+        "expires_at_epoch_seconds": 1793664900
+      },
+      "response": {
+        "authorization": {
+          "company_id": "leo-company",
+          "digest": "9e29a217eef419c3e4255b8c84cb4f51c6248de4dc975f745436d71e81021442",
+          "dispatch_authorized": false,
+          "expires_at_epoch_seconds": 1793664900,
+          "id": "work-plan-authorization-ec8174fcf9ad20729722070297430b3b32559d6ed8419bd15561a1a4baef5f10",
+          "instruction_id": "proposal-a6f982d2e4eed6408cd6ea6303e470e8ca7b05db867ab2a1219ea175c31c0253",
+          "kind": "work_plan_authorization",
+          "live_ready": false,
+          "owner_approval": {
+            "action": "create_work_order",
+            "actor": "Skytuhua",
+            "audit_ref": "work-plan:work-plan-3b20314a48b596db4beef76b3eb4f55c002ca491797bdcb2734e90d818fc1573:1:cc6644dd9a7115cc45287bd23783775741f1086e624f76673dd923b29b2e3f92",
+            "expires_at": 1793664900,
+            "id": "work-plan-approval-ec8174fcf9ad20729722070297430b3b32559d6ed8419bd15561a1a4baef5f10",
+            "policy_version": 1,
+            "scope": {
+              "budget_cents": 50,
+              "employee_ids": [
+                "E01",
+                "E10",
+                "E11"
+              ],
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "work_order_id": "work-plan-order-c321b52e62c31df7076e6cde4db29874a48551bd31fa83ebf44ef96db8318bc2"
+            }
+          },
+          "owner_principal": "fixture-owner",
+          "plan_ref": {
+            "digest": "cc6644dd9a7115cc45287bd23783775741f1086e624f76673dd923b29b2e3f92",
+            "id": "work-plan-3b20314a48b596db4beef76b3eb4f55c002ca491797bdcb2734e90d818fc1573",
+            "kind": "work_plan",
+            "project_id": "alpha",
+            "revision": 1
+          },
+          "policy_version": 1,
+          "project_id": "alpha",
+          "recorded_at_epoch_seconds": 1793664000,
+          "request": {
+            "expires_at_epoch_seconds": 1793664900,
+            "message_id": "actual-authorize-1",
+            "plan_ref": {
+              "digest": "cc6644dd9a7115cc45287bd23783775741f1086e624f76673dd923b29b2e3f92",
+              "id": "work-plan-3b20314a48b596db4beef76b3eb4f55c002ca491797bdcb2734e90d818fc1573",
+              "kind": "work_plan",
+              "project_id": "alpha",
+              "revision": 1
+            },
+            "project_id": "alpha"
+          },
+          "request_digest": "78a7de450ccce6696b87bba8774677503550256add85071dcf19c9f4a5437bb5",
+          "schema_version": 1,
+          "task_materialization": false,
+          "work_order": {
+            "approval_id": "work-plan-approval-ec8174fcf9ad20729722070297430b3b32559d6ed8419bd15561a1a4baef5f10",
+            "digest": "524d3bfa0be4dfd2b98e0f615a903262a07c2c0fb24bc48036e24ad2d500d031",
+            "expires_at_epoch_seconds": 1793664900,
+            "id": "work-plan-order-c321b52e62c31df7076e6cde4db29874a48551bd31fa83ebf44ef96db8318bc2",
+            "record": {
+              "budget_cents": 50,
+              "employee_ids": [
+                "E01",
+                "E10",
+                "E11"
+              ],
+              "scope": {
+                "id": "alpha",
+                "kind": "project"
+              },
+              "work_order_id": "work-plan-order-c321b52e62c31df7076e6cde4db29874a48551bd31fa83ebf44ef96db8318bc2"
+            }
+          }
+        },
+        "receipt": {
+          "accepted_at_epoch_seconds": 1793664000,
+          "action": "work_plan.authorize",
+          "command_id": "actual-authorize-1",
+          "company_id": "leo-company",
+          "digest": "90bc9de7a8b678729e823cdbded3c1662a33912fdefa6520c0498495e5653af7",
+          "dispatch_authorized": false,
+          "id": "work-plan-receipt-ec8174fcf9ad20729722070297430b3b32559d6ed8419bd15561a1a4baef5f10",
+          "kind": "work_plan_receipt",
+          "live_ready": false,
+          "plan_ref": {
+            "digest": "cc6644dd9a7115cc45287bd23783775741f1086e624f76673dd923b29b2e3f92",
+            "id": "work-plan-3b20314a48b596db4beef76b3eb4f55c002ca491797bdcb2734e90d818fc1573",
+            "kind": "work_plan",
+            "project_id": "alpha",
+            "revision": 1
+          },
+          "principal_id": "fixture-owner",
+          "project_id": "alpha",
+          "request_digest": "78a7de450ccce6696b87bba8774677503550256add85071dcf19c9f4a5437bb5",
+          "task_materialization": false,
+          "work_order_digest": "524d3bfa0be4dfd2b98e0f615a903262a07c2c0fb24bc48036e24ad2d500d031",
+          "work_order_id": "work-plan-order-c321b52e62c31df7076e6cde4db29874a48551bd31fa83ebf44ef96db8318bc2",
+          "work_order_stored": true
+        },
+        "schema_version": 1
+      }
+    }
+  }
+}

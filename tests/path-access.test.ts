@@ -19,7 +19,7 @@ const race = vi.hoisted(() => ({ beforeWorker: undefined as ((path: string) => v
 vi.mock("../packages/capabilities/process.ts", async importOriginal => {
   const original = await importOriginal<typeof import("../packages/capabilities/process.ts")>();
   return { ...original, runProcess: (...args: Parameters<typeof original.runProcess>) => {
-    if (args[0] === "git") race.beforeGit?.(args[1], args[2]);
+    if (args[0] === original.gitExecutable()) race.beforeGit?.(args[1], args[2]);
     return original.runProcess(...args);
   } };
 });

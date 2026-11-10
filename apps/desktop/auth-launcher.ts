@@ -40,7 +40,8 @@ try {
   $cancellation = [HarnessDesktopLogin]::ReadCancellation()
   while (-not $process.WaitForExit(100)) {
     if ($cancellation.IsCompleted) {
-      $process.Kill()
+      & "$env:SystemRoot\System32\taskkill.exe" /PID $process.Id /T /F 1>$null 2>$null
+      if ($LASTEXITCODE -ne 0 -and -not $process.HasExited) { throw 'Native shutdown could not be confirmed.' }
       $process.WaitForExit()
       [Console]::Out.WriteLine('{"type":"cancelled"}')
       exit 0
@@ -52,7 +53,7 @@ try {
   [Console]::Out.WriteLine('{"type":"error"}')
   exit 1
 } finally {
-  if ($process -and -not $process.HasExited) { try { $process.Kill() } catch {} }
+  if ($process -and -not $process.HasExited) { try { & "$env:SystemRoot\System32\taskkill.exe" /PID $process.Id /T /F 1>$null 2>$null } catch {} }
 }
 `;
 
@@ -72,14 +73,22 @@ export async function launchDesktopSignIn(options:DesktopSignInOptions):Promise<
  let acceptStart!:(handle:DesktopSignInHandle)=>void,rejectStart!:(error:Error)=>void,acceptCompletion!:()=>void,rejectCompletion!:(error:Error)=>void;
  const start=new Promise<DesktopSignInHandle>((accept,reject)=>{acceptStart=accept;rejectStart=reject;});
  const completion=new Promise<void>((accept,reject)=>{acceptCompletion=accept;rejectCompletion=reject;});void completion.catch(()=>{});
- const settle=(code:number|null)=>{if(finished)return;finished=true;clearTimeout(startTimer);options.signal?.removeEventListener('abort',abort);const message=cancelled?'Subscription sign-in cancelled.':failure??(!started?'The subscription sign-in console could not open.':'Subscription sign-in did not finish. Try again.');if(!startSettled){startSettled=true;rejectStart(Error(message));}if(!cancelled&&!failure&&started&&code===0&&exitCode===0)acceptCompletion();else rejectCompletion(Error(message));};
- // The fallback targets only the still-running helper spawned above. /T is
- // essential: killing PowerShell alone could leave its interactive Node alive.
- const terminateTree=()=>new Promise<void>(accept=>{if(!child.pid||child.exitCode!==null||child.signalCode){accept();return;}const kill=spawn(launch.taskkill,['/PID',String(child.pid),'/T','/F'],{windowsHide:true,stdio:'ignore'});kill.once('error',()=>accept());kill.once('exit',()=>accept());});
- const cancel=()=>stopping??= (async()=>{if(finished)return;cancelled=true;child.stdin?.write('cancel\n');let timer:ReturnType<typeof setTimeout>|undefined;try{await Promise.race([completion.catch(()=>{}),new Promise<void>(accept=>{timer=setTimeout(()=>{void terminateTree().then(accept);},5000);})]);}finally{clearTimeout(timer);}})();
- const abort=()=>{void cancel();};
+ const unconfirmed=()=>Object.assign(Error('Native shutdown could not be confirmed.'),{code:'RUNTIME_TEARDOWN_FAILED'});
+ const retainFailure=()=>{const error=unconfirmed();failure=error.message;if(!startSettled){startSettled=true;rejectStart(error);}rejectCompletion(error);};
+ const settle=(code:number|null)=>{if(finished)return;finished=true;clearTimeout(startTimer);options.signal?.removeEventListener('abort',abort);const message=cancelled?'Subscription sign-in cancelled.':failure??(!started?'The subscription sign-in console could not open.':'Subscription sign-in did not finish. Try again.');const error=cancelled&&failure?unconfirmed():Error(message);if(!startSettled){startSettled=true;rejectStart(error);}if(!cancelled&&!failure&&started&&code===0&&exitCode===0)acceptCompletion();else rejectCompletion(error);};
+ // Force termination targets only the helper process tree owned above.
+ const terminateTree=()=>new Promise<void>((accept,reject)=>{if(!child.pid||child.exitCode!==null||child.signalCode){accept();return;}const kill=spawn(launch.taskkill,['/PID',String(child.pid),'/T','/F'],{windowsHide:true,stdio:'ignore'});kill.once('error',()=>reject(unconfirmed()));kill.once('exit',code=>code===0||child.exitCode!==null||child.signalCode?accept():reject(unconfirmed()));});
+ const cancel=()=>stopping??=(async()=>{
+  if(finished)return;cancelled=true;child.stdin?.write('cancel\n');let timer:ReturnType<typeof setTimeout>|undefined;
+  const stopped=completion.catch(error=>{if(error?.code==='RUNTIME_TEARDOWN_FAILED')throw error;});
+  try{
+   await Promise.race([stopped,new Promise<void>((accept,reject)=>{timer=setTimeout(()=>{void terminateTree().then(accept,reject);},5000);})]);clearTimeout(timer);
+   if(!finished)await Promise.race([stopped,new Promise<never>((_accept,reject)=>{timer=setTimeout(()=>reject(unconfirmed()),5000);})]);
+  }catch(error){retainFailure();throw error;}finally{clearTimeout(timer);}
+ })();
+ const abort=()=>{void cancel().catch(()=>{});};
  const handle:DesktopSignInHandle={completion,cancel};
- const invalid=()=>{failure='The subscription sign-in console returned an invalid response.';void terminateTree();};
+ const invalid=()=>{failure='The subscription sign-in console returned an invalid response.';void terminateTree().catch(retainFailure);};
  child.once('error',()=>{failure='The subscription sign-in console could not open.';settle(null);});
  child.stdout?.on('data',chunk=>{
   buffer+=String(chunk);if(buffer.length>4096){invalid();return;}
@@ -93,7 +102,7 @@ export async function launchDesktopSignIn(options:DesktopSignInOptions):Promise<
   }
  });
  child.once('exit',settle);
- startTimer=setTimeout(()=>{failure='The subscription sign-in console did not become ready.';void terminateTree();},15000);
+ startTimer=setTimeout(()=>{failure='The subscription sign-in console did not become ready.';void terminateTree().catch(retainFailure);},15000);
  child.stdin?.on('error',()=>{});child.stdin?.write(JSON.stringify({nodePath:options.nodePath,hostRoot:options.hostRoot,arguments:launch.arguments})+'\n');
  options.signal?.addEventListener('abort',abort,{once:true});if(options.signal?.aborted)abort();
  return start;

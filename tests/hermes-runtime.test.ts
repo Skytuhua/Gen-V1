@@ -8,6 +8,20 @@ import {createHermesRuntime,type HermesRuntimeOptions,type HermesSourceClient} f
 import type {HermesClient,HermesEvent} from '../packages/runtime-hermes/client.ts';
 import {encodeInput} from '../packages/runtime-pi/input-envelope.ts';
 
+it('keeps private completed-write metadata off the default/company path and model envelope',async()=>{
+ const f=await fixture(),input=run({completedWrites:[{operationId:'op',revision:1,inputId:'operation-result:op',origin:{threadId:'thread',runId:'before',epoch:0,sessionPath:'not-admitted',modelId:'openai/model',accountId:null,projectId:'project',workspaceId:'worktree',projectRoot:'C:/private-project'},path:'C:/private-project/App.tsx',sha256:'a'.repeat(64),bytes:1}]});
+ try{await f.runtime.start(input);expect(f.start()).not.toHaveProperty('completedWrites');expect(f.start().prompt).not.toContain('private-project');await expect(f.runtime.followUp({...input,inputId:'next'})).rejects.toMatchObject({code:'HERMES_INPUT_INVALID'});await f.settle();}finally{await f.runtime.dispose();}
+});
+it('passes only a matching idle receipt through the optional host channel and rejects stale delivery',async()=>{
+ const f=await fixture({approvedWriteHooks:true,projectRoot:'C:/private-project'});
+ try{
+ await f.runtime.start(run());const session=f.start().sessionPath as string;await f.settle();
+ const input=run({runId:'after',epoch:2,inputId:'operation-result:op',sessionPath:session}),receipt={operationId:'op',revision:1,inputId:input.inputId,origin:{threadId:input.threadId,runId:'run',epoch:1,modelId:input.modelId,accountId:null,sessionPath:session,projectId:'project',workspaceId:'workspace',projectRoot:'C:/private-project'},delivery:{threadId:input.threadId,runId:input.runId,epoch:input.epoch},path:'C:/private-project/App.tsx',sha256:'a'.repeat(64),bytes:1};
+ await f.runtime.start({...input,completedWrites:[receipt]});expect(f.start().completedWrites).toEqual([receipt]);expect(f.start().prompt).not.toContain('private-project');await f.settle();
+ await f.runtime.start({...input,runId:'changed',epoch:3,inputId:'operation-result:op',completedWrites:[receipt]});expect(f.start().completedWrites).toEqual([]);expect(f.events).toContainEqual(expect.objectContaining({type:'write.hook',diagnostic:expect.objectContaining({status:'stale'})}));await f.settle();
+ }finally{await f.runtime.dispose();}
+});
+
 const run=(extra:Partial<StartRun>={}):StartRun=>({threadId:'thread',runId:'run',epoch:1,inputId:'input',modelId:'openai/model',accountId:null,sessionPath:null,prompt:'Original user prompt',resources:[],...extra});
 async function fixture(extra:Partial<HermesRuntimeOptions>={}){
  const dataDir=await mkdtemp(join(tmpdir(),'hermes-runtime-')),events:RuntimeEvent[]=[],sourceEvents:HermesEvent[]=[],sources:{options:ConstructorParameters<typeof HermesClient>[0];calls:{method:string;params:Record<string,unknown>}[];client:HermesSourceClient}[]=[],natives:{callbacks:RuntimeCallbacks;input:StartRun;runtime:RuntimeAdapter}[]=[];
@@ -73,7 +87,7 @@ it('keeps captured frozen settings during an active library read and restarts ex
  let interval=7;const f=await fixture({settings:async input=>({config:{skills:{creation_nudge_interval:input?7:interval}}})});try{await f.runtime.start(run());interval=11;await f.runtime.sourceRequest('skills.list');expect(f.sources).toHaveLength(1);await f.settle();await f.runtime.sourceRequest('skills.list');expect(f.sources).toHaveLength(2);expect(f.sources[0].client.dispose).toHaveBeenCalledOnce();expect(f.sourceEvents.some(event=>event.event==='configuration_restarted')).toBe(true);}finally{await f.runtime.dispose();}
 });
 it.each(['agent.compact','skills.curate'])('owns a fresh authenticated broker for the original %s maintenance RPC',async method=>{
- const f=await fixture({config:{model:{provider:'harness',default:'openai/model'}}});try{await f.runtime.start(run());const originalJob=f.start();await f.settle();const previous=f.source().client.request.bind(f.source().client);let captured:Record<string,unknown>|undefined;
+ const f=await fixture({config:{model:{provider:'harness',default:'openai/model'}}});try{await f.runtime.start(run());const originalJob=f.start();await f.settle();const previous=vi.mocked(f.source().client.request).getMockImplementation()!;let captured:Record<string,unknown>|undefined;
  vi.spyOn(f.source().client,'request').mockImplementation(async(name,params={})=>{if(name!==method)return previous(name,params);captured=params;f.event('model_request',{sequence:42,inputIds:[]});const response=fetch(params.brokerURL as string,{method:'POST',headers:{Authorization:'Bearer '+params.jobKey,'content-type':'application/json'},body:JSON.stringify({sessionId:'maintenance',modelId:params.modelId,prompt:'Original maintenance prompt'})});await vi.waitFor(()=>expect(f.natives[0]?.input).toBeDefined());const n=f.natives[0];n.callbacks.onEvent({...n.input,type:'input.processing',inputIds:[n.input.inputId]});n.callbacks.onEvent({...n.input,type:'assistant.message',content:'Original maintenance model text'});n.callbacks.onEvent({...n.input,type:'usage',usage:{inputTokens:31,outputTokens:4}});n.callbacks.onEvent({...n.input,type:'settled'});expect((await response).status).toBe(200);return{compacted:true,summary:'source curator result'} as any;});
  if(method==='agent.compact')await f.runtime.compact(run({runId:'maintenance',epoch:2}),originalJob.sessionPath as string,'openai/model',null);else expect(await f.runtime.sourceRequest('skills.curate',{consolidate:true})).toMatchObject({summary:'source curator result'});
  expect(captured).toMatchObject({modelId:'openai/model',accountId:null,sessionPath:originalJob.sessionPath});expect(captured?.jobKey).not.toBe(originalJob.jobKey);expect(f.events.filter(event=>event.type==='input.processing')).toHaveLength(0);expect(f.accounts.claimUse).toHaveBeenCalledTimes(2);expect(f.accounts.releaseUse).toHaveBeenCalledTimes(2);expect(f.source().options.timeoutMs).toBe(240_000);
@@ -117,4 +131,95 @@ it('launches the actual ACP server with an absolute loader from an isolated work
 });
 it('preserves original skill tools and avoids the built-in session_search collision in default host metadata',async()=>{
  const f=await fixture({hostTools:undefined});try{await f.runtime.start(run());const names=(f.start().hostTools as {name:string}[]).map(tool=>tool.name);expect(names).toContain('harness_session_search');expect(names).not.toContain('session_search');expect(names).not.toContain('skills_list');expect(names).not.toContain('skill_view');expect(names).not.toContain('skill_manage');await f.settle();}finally{await f.runtime.dispose();}
+});
+
+it('runs two same-account original source parents and cancels only the matching worker',async()=>{
+ const f=await fixture();try{
+  const first=run(),second=run({threadId:'other-thread',runId:'other-run',inputId:'other-input'});
+  await f.runtime.start(first);await f.runtime.start(second);expect(f.sources).toHaveLength(2);
+  const owner=f.sources[0],params=owner.calls.find(call=>call.method==='agent.start')!.params;
+  const cancelling=f.runtime.cancel(first);await vi.waitFor(()=>expect(owner.calls.some(call=>call.method==='agent.cancel')).toBe(true));
+  expect(f.sources[1].calls.some(call=>call.method==='agent.cancel')).toBe(false);
+  owner.options.onEvent?.({event:'settled',ctx:params.ctx as Record<string,unknown>,data:{cancelled:true}});await cancelling;
+  owner.options.onEvent?.({event:'assistant',ctx:params.ctx as Record<string,unknown>,data:{args:['stale']}});
+  expect(f.events.some(event=>event.content==='stale')).toBe(false);expect(f.runtime.sourceBusy).toBe(true);await f.settle();
+ }finally{await f.runtime.dispose();}
+});
+
+it('admits three main engines plus independent read-only readers through the canonical library',async()=>{
+ const f=await fixture({skillPolicy:{enabled:true,allowWrites:true}}),reader=f.runtime.createTaskRuntime();reader.configure({onEvent(){},onTool:async()=>({})});
+ try{
+  for(let i=0;i<3;i++)await f.runtime.start(run({threadId:'main-'+i,runId:'main-run-'+i,inputId:'input-'+i}));
+  await expect(f.runtime.start(run({threadId:'fourth',runId:'fourth'}))).rejects.toMatchObject({code:'HERMES_SOURCE_BUSY'});
+  await reader.start(run({threadId:'reader',runId:'reader-run',inputId:'reader-input'}));
+  const source=f.source(),params=f.start();expect(params.skillPolicy).toMatchObject({allowWrites:false,backgroundReview:false});expect(source.calls[0].params.sharedLibrary).toBe(true);
+  await source.options.onHostCall?.({id:'skill',name:'$library.tool',args:{name:'skill_view',args:{name:'source-procedure'},kw:{}},ctx:params.ctx as Record<string,unknown>});
+  expect(f.sources[0].calls.find(call=>call.method==='skills.tool')?.params).toMatchObject({name:'skill_view',policy:{allowWrites:false},ctx:{threadId:'reader',runId:'reader-run'}});
+ }finally{await reader.dispose();await f.runtime.dispose();}
+});
+
+it('serializes original reviews across workers and cancels a queued review admission',async()=>{
+ const f=await fixture();try{
+  await f.runtime.start(run());await f.runtime.start(run({threadId:'peer',runId:'peer-run',inputId:'peer-input'}));
+  const [first,second]=f.sources,firstCtx=first.calls.find(call=>call.method==='agent.start')!.params.ctx as Record<string,unknown>,secondCtx=second.calls.find(call=>call.method==='agent.start')!.params.ctx as Record<string,unknown>;
+  expect(await first.options.onHostCall?.({id:'review-1',name:'$background.acquire',args:{},ctx:firstCtx})).toEqual({acquired:true});
+  let granted=false;const queued=second.options.onHostCall!({id:'review-2',name:'$background.acquire',args:{},ctx:secondCtx}).then(()=>{granted=true;}).catch(error=>error);
+  await Promise.resolve();expect(granted).toBe(false);const cancelling=f.runtime.cancel({threadId:'peer',runId:'peer-run',epoch:1});
+  expect(await queued).toMatchObject({code:'MODEL_REQUEST_CANCELLED'});second.options.onEvent?.({event:'settled',ctx:secondCtx,data:{cancelled:true}});await cancelling;
+  first.options.onEvent?.({event:'foreground_settled',ctx:firstCtx,data:{}});first.options.onEvent?.({event:'settled',ctx:firstCtx,data:{}});
+ }finally{await f.runtime.dispose();}
+});
+
+it('revokes only requested integrations from each captured worker profile',async()=>{
+ const f=await fixture({settings:input=>({integrations:{enabled:input?.threadId==='peer'?['graphify']:['humanizer','impeccable'],ponytailMode:'full'}})});
+ try{
+  await f.runtime.start(run());await f.runtime.start(run({threadId:'peer',runId:'peer-run',inputId:'peer-input'}));await f.runtime.refreshIntegrations(['humanizer']);
+  expect(f.sources[0].calls.findLast(call=>call.method==='integrations.refresh')?.params).toMatchObject({config:{enabled:['impeccable'],ponytailMode:'full'}});
+  expect(f.sources[1].calls.findLast(call=>call.method==='integrations.refresh')?.params).toMatchObject({config:{enabled:['graphify'],ponytailMode:'full'}});
+ }finally{await f.runtime.dispose();}
+});
+
+it('applies explicit integration revocation to settings captured by a pending startup',async()=>{
+ let release!:()=>void;const pending=new Promise<void>(done=>{release=done;}),f=await fixture({settings:async()=>{await pending;return{integrations:{enabled:['humanizer'],ponytailMode:'full'}};}});
+ try{const starting=f.runtime.start(run());await f.runtime.refreshIntegrations(['humanizer']);release();await starting;expect(f.start().integrations).toMatchObject({enabled:[]});await f.settle();}finally{release?.();await f.runtime.dispose();}
+});
+
+it('sends explicit revocations and captured revisions while agent.start is already in flight',async()=>{
+ const f=await fixture({settings:input=>({integrations:{enabled:input?['humanizer']:[],ponytailMode:'full'}})});let release!:()=>void;
+ try{
+  await f.runtime.sourceRequest('skills.list');const source=f.source(),previous=source.client.request.bind(source.client),gate=new Promise<void>(done=>{release=done;});
+  source.client.request=async<T>(method:string,params:Record<string,unknown>={})=>{const reply=await previous<T>(method,params);if(method==='agent.start')await gate;return reply;};
+  const starting=f.runtime.start(run());await vi.waitFor(()=>expect(source.calls.some(call=>call.method==='agent.start')).toBe(true));await f.runtime.refreshIntegrations(['humanizer']);
+  const start=source.calls.find(call=>call.method==='agent.start')!.params,refresh=source.calls.findLast(call=>call.method==='integrations.refresh')!.params;
+  release();await starting;await f.settle();
+  expect(start).toMatchObject({integrationRevision:0,integrations:{enabled:['humanizer']}});
+  expect(refresh).toMatchObject({integrationRevision:1,disabledIds:['humanizer'],config:{enabled:[]}});
+  await f.runtime.start(run({runId:'later',epoch:2,inputId:'later'}));expect(f.start()).toMatchObject({integrationRevision:1,integrations:{enabled:['humanizer']}});await f.settle();
+ }finally{release?.();await f.runtime.dispose();}
+});
+
+it.each(['queue','admission'])('never dispatches a cancelled secondary library write after the canonical %s wait',async wait=>{
+ let holdSettings=false,release!:()=>void;const gate=new Promise<void>(done=>{release=done;}),f=await fixture({settings:async input=>{if(holdSettings&&input?.threadId==='thread')await gate;return{};}});
+ try{
+  await f.runtime.start(run());await f.runtime.start(run({threadId:'peer',runId:'peer-run',inputId:'peer-input'}));
+  const canonical=f.sources[0],peer=f.sources[1],ctx=peer.calls.find(call=>call.method==='agent.start')!.params.ctx as Record<string,unknown>,previous=canonical.client.request.bind(canonical.client),dispatched:string[]=[];
+  canonical.client.request=async<T>(method:string,params:Record<string,unknown>={})=>{if(method==='skills.tool'){dispatched.push(String(params.name));if(params.name==='skills_list')await gate;}return previous<T>(method,params);};
+  let blocker:Promise<unknown>;
+  if(wait==='queue'){blocker=f.runtime.sourceTool({name:'skills_list'});await vi.waitFor(()=>expect(dispatched).toEqual(['skills_list']));}
+  else{canonical.options.onEvent?.({event:'settled',ctx:canonical.calls.find(call=>call.method==='agent.start')!.params.ctx as Record<string,unknown>,data:{}});await vi.waitFor(()=>expect(f.runtime.sourceBusy).toBe(true));holdSettings=true;blocker=f.runtime.start(run({runId:'next',epoch:2,inputId:'next'}));}
+  const writing=peer.options.onHostCall!({id:'queued-write',name:'$library.tool',args:{name:'skill_manage',args:{action:'create',name:'cancelled'}},ctx}).catch(error=>error);
+  const cancelling=f.runtime.cancel(run({threadId:'peer',runId:'peer-run',inputId:'peer-input'}));peer.options.onEvent?.({event:'settled',ctx,data:{cancelled:true}});await cancelling;
+  expect(dispatched).not.toContain('skill_manage');release();await blocker;expect(await writing).toMatchObject({code:'HERMES_STALE_TOOL'});expect(dispatched).not.toContain('skill_manage');
+ }finally{release?.();await f.runtime.dispose();}
+});
+
+it('waits for an already dispatched shared write before confirming cancellation',async()=>{
+ const f=await fixture();let release!:()=>void;
+ try{
+  await f.runtime.start(run());await f.runtime.start(run({threadId:'peer',runId:'peer-run',inputId:'peer-input'}));const canonical=f.sources[0],peer=f.sources[1],ctx=peer.calls.find(call=>call.method==='agent.start')!.params.ctx as Record<string,unknown>,previous=canonical.client.request.bind(canonical.client),gate=new Promise<void>(done=>{release=done;});let dispatched=false,completed=false,cancelled=false;
+  canonical.client.request=async<T>(method:string,params:Record<string,unknown>={})=>{if(method==='skills.tool'&&params.name==='skill_manage'){dispatched=true;await gate;completed=true;}return previous<T>(method,params);};
+  const writing=peer.options.onHostCall!({id:'active-write',name:'$library.tool',args:{name:'skill_manage',args:{action:'create',name:'owned'}},ctx}).catch(error=>error);await vi.waitFor(()=>expect(dispatched).toBe(true));
+  const cancelling=f.runtime.cancel(run({threadId:'peer',runId:'peer-run',inputId:'peer-input'})).then(()=>{cancelled=true;});peer.options.onEvent?.({event:'settled',ctx,data:{cancelled:true}});
+  await new Promise<void>(done=>setImmediate(done));const acknowledgedBeforeWriteCompleted=cancelled;release();await cancelling;expect(acknowledgedBeforeWriteCompleted).toBe(false);expect(completed).toBe(true);expect(await writing).toMatchObject({code:'HERMES_STALE_TOOL'});
+ }finally{release?.();await f.runtime.dispose();}
 });

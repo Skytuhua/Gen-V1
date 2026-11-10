@@ -39,7 +39,7 @@ test('model search has an empty state and Escape, outside click, and Tab dismiss
   await trigger.click(); const search = page.getByRole('searchbox', { name: 'Search models', exact: true });
   await search.fill('no matching model');
   await expect(page.getByRole('listbox', { name: 'Available models', exact: true }).getByRole('option')).toHaveCount(0);
-  await expect(page.getByRole('status')).toContainText('No models found');
+  await expect(page.getByRole('status').filter({hasText:'No models found'})).toBeVisible();
   await search.press('Enter'); await expect(trigger).toHaveAttribute('aria-expanded', 'true');
   await search.press('Escape'); await expect(trigger).toBeFocused();
   await trigger.click(); await expect(search).toHaveValue('');

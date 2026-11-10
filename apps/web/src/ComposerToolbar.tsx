@@ -27,10 +27,8 @@ function Glyph({children}:{children:ReactNode}){return <svg viewBox="0 0 20 20" 
 const folder=<Glyph><path d="M2.5 6.2V4.5h5l1.5 2h8.5v9h-15z"/></Glyph>;
 const branch=<Glyph><circle cx="6" cy="4" r="1.7"/><circle cx="14" cy="5" r="1.7"/><circle cx="6" cy="16" r="1.7"/><path d="M6 5.8v8.4M14 6.8v1.6c0 3-8 1.2-8 4.3"/></Glyph>;
 const changes=<Glyph><path d="M5 3.5h7l3 3v10H5zM12 3.5v3h3M7.5 10h5M7.5 13h3"/></Glyph>;
-const brain=<Glyph><path d="M4 14v3M8 10v7M12 6v11M16 3v14"/></Glyph>;
 const microphone=<Glyph><rect x="7" y="2.5" width="6" height="10" rx="3"/><path d="M4.5 9a5.5 5.5 0 0 0 11 0M10 14.5v3M7.5 17.5h5"/></Glyph>;
 const close=<Glyph><path d="m5 5 10 10M15 5 5 15"/></Glyph>;
-const chevron=<Glyph><path d="m6 8 4 4 4-4"/></Glyph>;
 const validCounts=(value:ComposerToolbarProps['changeSummary'])=>value&&Number.isSafeInteger(value.added)&&value.added>=0&&Number.isSafeInteger(value.removed)&&value.removed>=0?value:undefined;
 
 export function ComposerTaskActions({changeSummary,onChanges,onCreatePR,disabled=false,working=false}:Pick<ComposerToolbarProps,'changeSummary'|'onChanges'|'onCreatePR'|'disabled'|'working'>){
@@ -47,7 +45,6 @@ export function ComposerToolbar({models,modelId,onModelChange,thinkingLevel,onTh
  const [listening,setListening]=useState(false),[error,setError]=useState('');
  const session=useRef<{recognition:VoiceRecognition;epoch:number;seen:Set<number>}|null>(null),epoch=useRef(0),transcript=useRef(onTranscript);
  transcript.current=onTranscript;
- const selected=models.find(model=>model.id===modelId),levels=[...new Set(selected?.thinkingLevels?.filter(level=>typeof level==='string'&&level.length>0)??[])];
  const Voice=voiceConstructor(),locked=disabled||working;
  function revoke(){const previous=session.current;session.current=null;epoch.current++;previous?.recognition.abort();}
  useLayoutEffect(()=>()=>{revoke();},[]);
@@ -75,11 +72,10 @@ export function ComposerToolbar({models,modelId,onModelChange,thinkingLevel,onTh
   {!separateActions&&<ComposerTaskActions changeSummary={changeSummary} onChanges={onChanges} onCreatePR={onCreatePR} disabled={disabled} working={working}/>}
   <div className="composer-footer-main">
    <div className="composer-project-controls" role="group" aria-label="Project and runtime">
-    {leading}<button type="button" className="composer-tool composer-project" aria-label={projectLabel?'Open project folder':'Add resource'} title={projectLabel??'Add a file, project or database'} disabled={disabled} onClick={()=>void invoke(onProject)}>{folder}<span>{projectLabel??'Add resource'}</span></button>{runtime}
+    {leading}<button type="button" className="composer-tool composer-project" aria-label="Select project" title={projectLabel?'Select project · '+projectLabel:'Select project'} disabled={disabled} onClick={()=>void invoke(onProject)}>{folder}<span>{projectLabel??'Select project'}</span></button>{runtime}
    </div>
    <div className="composer-runtime-controls" role="group" aria-label="Model and voice">
-    <label className="composer-select composer-thinking" title={levels.length?'Thinking effort':'Thinking effort is unavailable for this model'}>{brain}<select aria-label="Thinking effort" value={levels.includes(thinkingLevel)?thinkingLevel:''} disabled={locked||!levels.length} onChange={event=>onThinkingChange(event.target.value)}><option value="">Default</option>{levels.map(level=><option key={level} value={level}>{level.charAt(0).toUpperCase()+level.slice(1)}</option>)}</select>{chevron}</label>
-    <ModelPicker models={models} modelId={modelId} disabled={locked} onChange={onModelChange}/>
+    <ModelPicker models={models} modelId={modelId} thinkingLevel={thinkingLevel} onThinkingChange={onThinkingChange} disabled={locked} onChange={onModelChange}/>
     {context}<button type="button" className={`composer-tool composer-voice ${listening?'is-listening':''}`} aria-label={!Voice?'Voice input unavailable':listening?'Stop voice input':'Start voice input'} aria-pressed={listening} title={!Voice?'Voice input is unavailable in this browser':listening?'Stop listening':'Dictate into your draft'} disabled={locked||!Voice} onClick={startVoice}>{microphone}<span className="sr-only">{listening?'Listening':''}</span></button>{trailing}
    </div>
   </div>

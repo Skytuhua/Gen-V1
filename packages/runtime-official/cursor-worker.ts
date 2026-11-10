@@ -1,18 +1,20 @@
 import { lstat, realpath } from 'node:fs/promises';
 import { delimiter, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { AgentMessage, AgentOptions, ModelListItem, Run, SDKAgent, StoredSdkCredentials } from '@cursor/sdk';
+import type { AgentMessage, AgentOptions, ModelListItem, Run, SDKAgent, StoredSdkCredentials, SdkCredentialStore } from '@cursor/sdk';
 import { HarnessError, type ModelInfo } from '../contracts/index.ts';
 import { bounded, textContent, type WireInput } from './internal.ts';
 import { officialRuntimeEnvironment } from './environment.ts';
 import { secureDirectory, within } from './manifest.ts';
 import { assertCursorLoginUrl, CURSOR_LOGIN_BACKEND, CURSOR_LOGIN_WEBSITE, cursorAuthRequired, cursorCredentialStore } from './cursor-credentials.ts';
 import { createCursorMcpGate } from './cursor-mcp.ts';
-import {MODEL_ONLY_MAX_WIRE_BYTES} from '../runtime/model-only.ts';
+import {MODEL_ONLY_MAX_WIRE_BYTES,PREDICTION_MAX_OUTPUT_BYTES} from '../runtime/model-only.ts';
+import { assertSameIdentity, bindOfficialIdentity, cursorIdentity, readOfficialIdentity } from './account-identity.ts';
+import type { AccountIdentity } from '../contracts/authentication.ts';
 
 export interface CursorWorkerInit {
-  mode: 'run' | 'discover' | 'history' | 'login'; dataDir: string; taskDir?: string;
-  sessionId?: string | null; modelId?: string; thinkingLevel?: string | null; systemPrompt?: string;modelOnly?:boolean;
+  mode: 'run' | 'discover' | 'history' | 'login' | 'auth-status' | 'logout'; dataDir: string; taskDir?: string;
+  sessionId?: string | null; modelId?: string; thinkingLevel?: string | null; systemPrompt?: string;modelOnly?:boolean;purpose?:'prediction';
   mcp?: { url: string; headers: Record<string, string>; names: string[] };
 }
 export type CursorWorkerEvent =
@@ -22,18 +24,19 @@ export type CursorWorkerEvent =
   | { type: 'receipt'; sessionId: string; uuid: string; text: string }
   | { type: 'assistant'; uuid: string; text: string }
   | { type: 'usage'; uuid: string; inputTokens: number | null; outputTokens: number | null }
-  | { type: 'settled' } | { type: 'closed' } | { type: 'login-complete' }
+  | { type: 'settled' } | { type: 'closed' } | { type: 'login-complete' } | { type: 'logout-complete' }
+  | { type: 'auth-status'; identity: AccountIdentity | null }
   | { type: 'login-url'; url: string } | { type: 'error'; code: string; message: string };
 export interface CursorWorkerController { submit(input: WireInput): Promise<void>; acknowledgeReceipt(uuid: string, sessionId: string): void; close(): Promise<void> }
 type CursorSdk = Pick<typeof import('@cursor/sdk'), 'Cursor' | 'Agent' | 'JsonlLocalAgentStore'>;
 const aborted = () => new HarnessError('OFFICIAL_RUN_ABORTED', 'Official Cursor run authority was revoked.');
 const invalid = () => new HarnessError('OFFICIAL_PROTOCOL_INVALID', 'Official Cursor returned invalid session or run evidence.');
 const sessionValid = (id: unknown): id is string => typeof id === 'string' && /^[A-Za-z0-9_-]{1,200}$/.test(id) && !id.startsWith('bc-');
-const safeCodes = new Set(['OFFICIAL_SUBSCRIPTION_REQUIRED', 'OFFICIAL_MODEL_UNAVAILABLE', 'OFFICIAL_SESSION_MISMATCH', 'OFFICIAL_PROTOCOL_INVALID', 'OFFICIAL_RUN_ABORTED', 'OFFICIAL_TOOL_POLICY', 'OFFICIAL_WORKSPACE_UNSUPPORTED']);
+const safeCodes = new Set(['ACCOUNT_IDENTITY_MISMATCH', 'OFFICIAL_SUBSCRIPTION_REQUIRED', 'OFFICIAL_MODEL_UNAVAILABLE', 'OFFICIAL_SESSION_MISMATCH', 'OFFICIAL_PROTOCOL_INVALID', 'OFFICIAL_RUN_ABORTED', 'OFFICIAL_TOOL_POLICY', 'OFFICIAL_WORKSPACE_UNSUPPORTED']);
 /** Native exception text can contain credentials or request headers. */
 export function cursorSafeError(error: unknown): { type: 'error'; code: string; message: string } {
   const code = error instanceof HarnessError && safeCodes.has(error.code) ? error.code : 'OFFICIAL_CURSOR_FAILED';
-  const message = code === 'OFFICIAL_SUBSCRIPTION_REQUIRED' ? cursorAuthRequired().message : code === 'OFFICIAL_MODEL_UNAVAILABLE' ? 'Select an available model and supported parameters from the authenticated Cursor model catalog.' : code === 'OFFICIAL_RUN_ABORTED' ? aborted().message : code === 'OFFICIAL_WORKSPACE_UNSUPPORTED' ? `Cursor storage path cannot contain "${delimiter}". Choose another storage folder.` : 'The official Cursor SDK could not complete this operation. Delivery remains unresolved until canonical native history confirms it.';
+  const message = code === 'ACCOUNT_IDENTITY_MISMATCH' ? 'The authenticated Cursor user differs from this private profile. Existing credentials were retained during sign-in; add another local account for a different user.' : code === 'OFFICIAL_SUBSCRIPTION_REQUIRED' ? cursorAuthRequired().message : code === 'OFFICIAL_MODEL_UNAVAILABLE' ? 'Select an available model and supported parameters from the authenticated Cursor model catalog.' : code === 'OFFICIAL_RUN_ABORTED' ? aborted().message : code === 'OFFICIAL_WORKSPACE_UNSUPPORTED' ? `Cursor storage path cannot contain "${delimiter}". Choose another storage folder.` : 'The official Cursor SDK could not complete this operation. Delivery remains unresolved until canonical native history confirms it.';
   return { type: 'error', code, message };
 }
 function supportedSelection(row: ModelListItem): boolean {
@@ -53,24 +56,42 @@ function canonicalUserText(row: AgentMessage, sessionId: string): string | undef
 
 /** The fixed transport installs a private environment before calling this loader. */
 export async function runCursorWorker(init: CursorWorkerInit, emit: (event: CursorWorkerEvent) => void, loadSdk: () => Promise<CursorSdk> = () => import('@cursor/sdk')): Promise<CursorWorkerController | undefined> {
-  if (!['run', 'discover', 'history', 'login'].includes(init.mode) || typeof init.dataDir !== 'string' || !init.dataDir) throw invalid();
-  const store = cursorCredentialStore(init.dataDir, init.mode === 'login');
+  if (!['run', 'discover', 'history', 'login', 'auth-status', 'logout'].includes(init.mode) || typeof init.dataDir !== 'string' || !init.dataDir) throw invalid();
+  if (init.purpose !== undefined && (init.purpose !== 'prediction' || !init.modelOnly)) throw invalid();
+  const store = cursorCredentialStore(init.dataDir, init.mode === 'login' || init.mode === 'logout');
   let credentials: StoredSdkCredentials | undefined;
-  if (init.mode !== 'login' && init.mode !== 'history') { credentials = await store.load(); if (!credentials) throw cursorAuthRequired(); }
+  if (init.mode === 'run' || init.mode === 'discover' || init.mode === 'auth-status') { credentials = await store.load(); if (!credentials && init.mode !== 'auth-status') throw cursorAuthRequired(); }
   const sdk = await loadSdk();
   if (init.mode === 'login') {
-    await sdk.Cursor.auth.login({ backendUrl: CURSOR_LOGIN_BACKEND, websiteUrl: CURSOR_LOGIN_WEBSITE, store, openBrowser: true, apiKeyName: 'Generative Harness official browser login', onLoginUrl: url => emit({ type: 'login-url', url: assertCursorLoginUrl(url) }) });
-    if (!await store.load()) throw cursorAuthRequired();
+    let previous = await readOfficialIdentity(init.dataDir, 'cursor-sdk');
+    const existing = await store.load();
+    if (existing) {
+      const current = cursorIdentity(await sdk.Cursor.me({ apiKey: existing.apiKey })); assertSameIdentity(previous, current); previous ??= current;
+    }
+    // Login can only mutate this in-memory store until authenticated identity matches.
+    let staged: StoredSdkCredentials | undefined;
+    const staging: SdkCredentialStore = { load: async () => staged, save: async value => { staged = value; }, clear: async () => { staged = undefined; } };
+    await sdk.Cursor.auth.login({ backendUrl: CURSOR_LOGIN_BACKEND, websiteUrl: CURSOR_LOGIN_WEBSITE, store: staging, openBrowser: true, apiKeyName: 'Generative Harness official browser login', onLoginUrl: url => emit({ type: 'login-url', url: assertCursorLoginUrl(url) }) });
+    const status = await sdk.Cursor.auth.status({ store: staging });
+    if (!staged || status.status !== 'logged-in' || status.backendUrl !== CURSOR_LOGIN_BACKEND) throw cursorAuthRequired();
+    const identity = cursorIdentity(await sdk.Cursor.me({ apiKey: staged.apiKey })); assertSameIdentity(previous, identity);
+    await bindOfficialIdentity(init.dataDir, 'cursor-sdk', identity);
+    await store.save(staged);
     emit({ type: 'login-complete' }); return;
   }
+  if (init.mode === 'logout') { await sdk.Cursor.auth.logout({ store }); emit({ type: 'logout-complete' }); return; }
+  const authenticatedIdentity = async () => {
+    const status = await sdk.Cursor.auth.status({ store });
+    if (status.status !== 'logged-in' || status.backendUrl !== CURSOR_LOGIN_BACKEND || !credentials) throw cursorAuthRequired();
+    const identity = cursorIdentity(await sdk.Cursor.me({ apiKey: credentials.apiKey }));
+    await bindOfficialIdentity(init.dataDir, 'cursor-sdk', identity); return identity;
+  };
+  if (init.mode === 'auth-status') { emit({ type: 'auth-status', identity: credentials ? await authenticatedIdentity() : null }); return; }
   let nativeModels: ModelListItem[] = []; let models: ModelInfo[] = [];
   const accountCatalog = async () => {
     const currentCredentials = await store.load();
     if (!currentCredentials || currentCredentials.apiKey !== credentials?.apiKey || currentCredentials.backendUrl !== CURSOR_LOGIN_BACKEND) throw cursorAuthRequired();
-    const status = await sdk.Cursor.auth.status({ store });
-    if (status.status !== 'logged-in' || status.backendUrl !== CURSOR_LOGIN_BACKEND) throw cursorAuthRequired();
-    const identity = await sdk.Cursor.me({ apiKey: currentCredentials.apiKey });
-    if (!Number.isSafeInteger(identity.userId) || identity.userId! <= 0) throw cursorAuthRequired();
+    await authenticatedIdentity();
     const rows = await sdk.Cursor.models.list({ apiKey: currentCredentials.apiKey });
     return { rows, models: catalogModels(rows) };
   };
@@ -168,7 +189,11 @@ export async function runCursorWorker(init: CursorWorkerInit, emit: (event: Curs
             if (!nativeMcp && !allowed.has(frame.name)) throw new HarnessError('OFFICIAL_TOOL_POLICY', 'Cursor exposed an unexpected tool.');
             evidence = true;
           }
-          if (frame.type === 'assistant') { output += textContent(frame.message.content); if (output) evidence = true; }
+          if (frame.type === 'assistant') {
+            const text=textContent(frame.message.content);
+            if(init.purpose==='prediction'&&Buffer.byteLength(output)+Buffer.byteLength(text)>PREDICTION_MAX_OUTPUT_BYTES){await bounded(run.cancel(),500,'Prediction cancellation grace elapsed.').catch(()=>{});throw new HarnessError('PREDICTION_OUTPUT_LIMIT','The prediction exceeded its output limit.');}
+            output += text; if (output) evidence = true;
+          }
           if (frame.type === 'usage') usage = { inputTokens: frame.usage.inputTokens, outputTokens: frame.usage.outputTokens };
         }
         const result = await run.wait();

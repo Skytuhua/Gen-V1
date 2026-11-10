@@ -1,0 +1,170 @@
+{
+  "contract": "maritime-owner-work-plan",
+  "version": "1.0.0-candidate.1",
+  "status": "implemented_source_candidate_pending_joint_consumer_review",
+  "source_base": "50cbffd412bd11e9e28693882b60b6fe60d332f9",
+  "files": {
+    "work-plan.schema.json": {
+      "sha256": "62d9c2a8c2c563fec056fd73aae7090c385e82bddece214400fdb989ba661e49"
+    },
+    "examples.json": {
+      "sha256": "6cb796594481989f07713cde2a60b80f796d0d6d4ad831fb39c695819a86ec64"
+    }
+  },
+  "schema_id": "urn:maritime:owner-work-plan:1.0.0-candidate.1",
+  "operations": [
+    {
+      "name": "propose_work_plan",
+      "method": "POST",
+      "path": "/v1/owner/work-plan/propose",
+      "read_only": false,
+      "principal_kind": "owner",
+      "permission": "plan",
+      "request": "ProposeRequest",
+      "success": {
+        "status": 200,
+        "body": "ProposeResponse"
+      }
+    },
+    {
+      "name": "read_work_plan",
+      "method": "POST",
+      "path": "/v1/owner/work-plan/read",
+      "read_only": true,
+      "principal_kind": "owner",
+      "permission": "status",
+      "request": "ReadRequest",
+      "success": {
+        "status": 200,
+        "body": "ReadResponse"
+      }
+    },
+    {
+      "name": "authorize_work_plan",
+      "method": "POST",
+      "path": "/v1/owner/work-plan/authorize",
+      "read_only": false,
+      "principal_kind": "owner",
+      "permission": "authorize_work_order",
+      "permission_default_granted": false,
+      "request": "AuthorizeRequest",
+      "success": {
+        "status": 200,
+        "body": "AuthorizeResponse"
+      }
+    }
+  ],
+  "transport": {
+    "scheme": "http",
+    "host": "127.0.0.1",
+    "trusted_host_only": true,
+    "remote_ingress_available": false,
+    "browser_origin_forbidden": true,
+    "authorization": "One Bearer header from the trusted owner host, current registry and Store principal; never an employee/engine credential or payload identity.",
+    "content_type": "application/json",
+    "max_request_bytes": 32768,
+    "max_response_bytes": 262144,
+    "request_encoding": "strict UTF-8; BOM and UTF-16/32 rejected on these three paths only",
+    "response_encoding": "UTF-8 canonical JSON",
+    "same_host_loopback_does_not_establish_live_private_transport": true
+  },
+  "installation": {
+    "existing_store_only": true,
+    "explicit_operator_install": "WorkPlans.install(store); optional company_service.py --enable-work-plans",
+    "no_read_side_install": true,
+    "required_existing_authority": [
+      "registered project charter in approved or active state for new writes",
+      "current exact project staffing grants for selected E01/E10/E11",
+      "existing approved project and Store company budgets",
+      "current owner registry+Store principal and exact project scope"
+    ],
+    "production_pilot_charter_proved": false
+  },
+  "identity_and_retry": {
+    "namespace": "Existing settings service:owner-message:+SHA256(canonical([stable principal_id,message_id])); reciprocal conflict checks against existing canonical/legacy communication claims.",
+    "request_digest": "SHA256(UTF8(company.contracts.canonical([action,payload])))",
+    "actions": [
+      "work_plan.propose",
+      "work_plan.authorize"
+    ],
+    "current_auth_before_replay": true,
+    "replay_before_current_head_cas": true,
+    "exact_replay": "Same immutable original result under the same stable principal/message ID and normalized complete arguments, even after credential rotation, expiry or supersession, subject to current caller/project access.",
+    "conflict": "Changed action/project/arguments under the same stable principal/message ID are rejected.",
+    "automatic_retry": false,
+    "automatic_id_replacement": false,
+    "authorization_per_plan_revision": 1,
+    "authorization_renewal_available": false
+  },
+  "canonical": {
+    "implementation": "company.contracts.canonical + SHA-256; frozen C01 codec is unchanged",
+    "serialization": {
+      "sort_keys": true,
+      "separators": [
+        ",",
+        ":"
+      ],
+      "ensure_ascii": false,
+      "allow_nan": false,
+      "array_order_preserved": true,
+      "unicode_normalization": false
+    },
+    "record_digest_preimage": "For PlanRecord, Authorization and each Receipt: the complete record object excluding its own digest member.",
+    "instruction_digest_preimage": "Complete stored legacy PlanningProposal record, including instruction and planning-only flags.",
+    "charter_digest_preimage": "Complete immutable stored ProjectSpec registration snapshot; its state remains proposed and is not the current lifecycle.",
+    "staffing_approval_digest_preimage": "Complete original stored OwnerApproval for that staffing grant; underlying approval record is not inline, so this digest is a server-owned reference.",
+    "work_order_digest_preimage": "work_order.record only: {work_order_id,scope,employee_ids,budget_cents}. The outer authorization digest separately binds approval_id and expiry.",
+    "id_preimages": {
+      "plan": "work-plan- + SHA256(canonical([principal_id,instruction_id]))",
+      "receipt": "work-plan-receipt- + SHA256(canonical([principal_id,message_id]))",
+      "authorization": "work-plan-authorization- + SHA256(canonical([principal_id,message_id]))",
+      "work_order": "work-plan-order- + SHA256(canonical([principal_id,message_id,'work_plan.authorize']))",
+      "owner_approval": "work-plan-approval- + SHA256(canonical([principal_id,message_id]))"
+    }
+  },
+  "numbers": {
+    "wire": "All new numeric values are finite safe integers; bool/float values rejected. UTC epoch seconds, not JavaScript milliseconds. Cents are integers.",
+    "raw_request_lexemes": "Legacy JSON number parsing remains: -0 parses/canonicalizes to integer0; 1.0/1e0 produce floats and fail integer-field checks. NaN/Infinity and duplicate members are rejected.",
+    "staffing_expiry": "Floor of the existing grant's finite expiry seconds. Exact original grant contents, including fractional expiry if present, remain bound by approval_digest.",
+    "authorization_expiry": "now < expires_at_epoch_seconds <= now+3600, and no later than current owner credential or selected staffing grant expiry."
+  },
+  "supplemental_checks": [
+    "Structural JSON Schema validation does not establish authority, ownership or current eligibility.",
+    "New text limits are decoded UTF-8 byte limits: summary2048, step instruction2048, each acceptance check1024 and logical path256; schema maxLength is only a necessary character bound. Reject whitespace-only and NUL text and malformed Unicode.",
+    "Enforce complete raw request32768 and actual canonical encoded response262144 byte limits, including all envelopes, escaping, refs and digests.",
+    "Recheck independently retained project/instruction/plan/message ID/expiry and all original authorization arguments; response echoes and owner_principal prose never grant scope.",
+    "Validate every signed digest/ref/scope and nested instruction/charter/WorkOrder digest; preserve exact historical revision references.",
+    "Validate unique step keys, acyclic within-plan dependencies, employee membership, unique repositories and approved relative path boundaries; repository revisions are owner declarations, not verified runtime inputs.",
+    "Current auth, charter/staffing basis, policy version, approved project/Store budget and expiry are rechecked atomically before new authorization.",
+    "Read eligibility is separate from immutable acceptance. Historical receipts remain retrievable and replayable, with authorization_current false after expiry/supersession/basis invalidation.",
+    "Revision invalidation is permitted only before any Task record exists for the linked WorkOrder; otherwise scoped_replanning_unavailable. No project-wide cancellation occurs."
+  ],
+  "errors": {
+    "invalid_request": 400,
+    "authentication_required": 401,
+    "scope_denied": 403,
+    "not_found": 404,
+    "stale_plan": 409,
+    "stale_basis": 409,
+    "command_conflict": 409,
+    "already_authorized": 409,
+    "authorization_expired": 409,
+    "scoped_replanning_unavailable": 409,
+    "prerequisite_unavailable": 503,
+    "request_timeout": 408,
+    "request_too_large": 413,
+    "unsupported_media_type": 415
+  },
+  "authority": {
+    "provenance": "owner_forwarded_unverified_plan",
+    "work_order_stored": "Only exact owner authorization commits existing OwnerApproval/WorkOrder plus plan binding and immutable receipt together.",
+    "task_materialization": false,
+    "dispatch_authorized": false,
+    "live_ready": false,
+    "reservations_created": false,
+    "model_calls": 0,
+    "legacy_plan_unchanged": true,
+    "frozen_planning_candidate_activated": false
+  },
+  "proof_scope": "Actual local synthetic Store/service verification must be supplied by the reviewed parent source/fixture handoff. This manifest is a file-contract pin, not runtime negotiation, credential grant, production pilot charter, transport activation or full C08/APR/DAG/company acceptance."
+}

@@ -1,17 +1,72 @@
-import {describe,it,expect} from 'vitest';
+import {describe,it,expect,beforeEach,afterEach,vi} from 'vitest';
+import {EventEmitter} from 'node:events';
 import {desktopSurfaceKey,parseDesktopSurface} from '../packages/desktop-contract/index.ts';
-import {allowRemoteBrowserUrl,clampDesktopBounds,isTrustedDesktopSender,needsEditorHandoff,parseBrowserCommand,publicAddress,remoteBrowserUrl,trustedDesktopUrl} from '../apps/desktop/window-policy.ts';
+import {allowRemoteBrowserUrl,clampDesktopBounds,pluginDesktopChannelAllowed,desktopSurfaceAllowed,isTrustedDesktopSender,needsEditorHandoff,parseBrowserCommand,publicAddress,remoteBrowserUrl,trustedDesktopUrl} from '../apps/desktop/window-policy.ts';
+import {DESKTOP_CHANNELS} from '../packages/desktop-contract/index.ts';
 import {createBrowserProxy,pinnedBrowserTarget} from '../apps/desktop/browser-proxy.ts';
 import {createServer,request as httpRequest} from 'node:http';
 import {createServer as tcpServer,connect} from 'node:net';
-import {nodeSidecarArguments} from '../apps/desktop/backend-policy.ts';
-import {execFileSync} from 'node:child_process';
+import {nodeSidecarArguments,waitForBackendReady} from '../apps/desktop/backend-policy.ts';
+import {execFileSync,type ChildProcess} from 'node:child_process';
 import {resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {releaseOwnedBrowsers} from '../apps/desktop/browser-lifecycle.ts';
 import {desktopSignInArguments} from '../apps/desktop/auth-launcher.ts';
 
+describe('bounded backend readiness',()=>{
+ beforeEach(()=>vi.useFakeTimers());afterEach(()=>vi.useRealTimers());
+ const token='a'.repeat(64),origin='http://127.0.0.1:4357';
+ const fixture=()=>Object.assign(new EventEmitter(),{pid:1234}) as unknown as ChildProcess;
+ const clean=(child:ChildProcess)=>{for(const name of ['message','error','exit'])expect(child.listenerCount(name)).toBe(0);expect(vi.getTimerCount()).toBe(0);};
+ it('accepts the exact owned ready message after the former 25-second limit',async()=>{
+  const child=fixture(),message={type:'harness.ready',token,origin,pid:child.pid,nativeLayout:{version:1}};
+  const outcome=waitForBackendReady(child,token,4357,()=>'').then(value=>({value}),error=>({error}));
+  await vi.advanceTimersByTimeAsync(30000);child.emit('message',message);
+  expect(await outcome).toEqual({value:message});clean(child);
+ });
+ it('still refuses a backend that never becomes ready at the 60-second bound',async()=>{
+  const child=fixture();let settled=false;
+  const outcome=waitForBackendReady(child,token,4357,()=>'').then(()=>{settled=true;return null;},error=>{settled=true;return error as Error;});
+  await vi.advanceTimersByTimeAsync(59999);expect(settled).toBe(false);
+  await vi.advanceTimersByTimeAsync(1);expect(await outcome).toMatchObject({message:'The local backend did not become ready'});clean(child);
+ });
+ it('ignores foreign tokens, origins, PIDs and errors until its own ready message',async()=>{
+  const child=fixture(),message={type:'harness.ready',token,origin,pid:child.pid};let settled=false;
+  const ready=waitForBackendReady(child,token,4357,()=>'').then(value=>{settled=true;return value;});
+  for(const value of [null,[],{...message,token:'b'.repeat(64)},{...message,origin:'http://127.0.0.1:4358'},{...message,pid:9999},{type:'harness.error',token:'b'.repeat(64),message:'foreign failure'}])child.emit('message',value);
+  await vi.advanceTimersByTimeAsync(1000);expect(settled).toBe(false);
+  child.emit('message',message);expect(await ready).toEqual(message);clean(child);
+ });
+ it('fails immediately on a child error and removes readiness listeners',async()=>{
+  const child=fixture(),error=Error('Could not spawn owned backend'),rejected=expect(waitForBackendReady(child,token,4357,()=>'')).rejects.toBe(error);
+  child.emit('error',error);await rejected;clean(child);
+ });
+ it('fails immediately on child exit with the bounded diagnostic tail',async()=>{
+  const child=fixture(),stderr='x'.repeat(700)+'source failure',rejected=expect(waitForBackendReady(child,token,4357,()=>stderr)).rejects.toThrow('The local backend stopped during startup (23). '+stderr.slice(-500));
+  child.emit('exit',23);await rejected;clean(child);
+ });
+ it('fails immediately on an authenticated backend startup error',async()=>{
+  const child=fixture(),rejected=expect(waitForBackendReady(child,token,4357,()=>'')).rejects.toThrow('Original source initialization failed');
+  child.emit('message',{type:'harness.error',token,message:'Original source initialization failed'});await rejected;clean(child);
+ });
+});
+
 describe('native desktop surface authority',()=>{
+ it('retains the original personal sidecar and immutable native document URL',()=>{
+  expect(nodeSidecarArguments(resolve('.'))[2]).toBe(resolve('apps/server/main.ts'));
+  expect(trustedDesktopUrl('http://127.0.0.1:4317','main:1')).toBe('http://127.0.0.1:4317/?desktopWindow=main%3A1');
+ });
+ it('restricts plug-in native IPC to its window lifecycle',()=>{
+  const allowed=new Set<string>([DESKTOP_CHANNELS.theme,DESKTOP_CHANNELS.context,DESKTOP_CHANNELS.ready,DESKTOP_CHANNELS.list,DESKTOP_CHANNELS.control,DESKTOP_CHANNELS.minimize,DESKTOP_CHANNELS.reset,DESKTOP_CHANNELS.focus,DESKTOP_CHANNELS.closeAnswer,DESKTOP_CHANNELS.detach,DESKTOP_CHANNELS.reattach]);
+  for(const channel of Object.values(DESKTOP_CHANNELS))expect(pluginDesktopChannelAllowed(channel),channel).toBe(allowed.has(channel));
+  expect(pluginDesktopChannelAllowed('harness-desktop:unknown')).toBe(false);
+ });
+ it('keeps plug-in task ownership distinct from personal surfaces',()=>{
+  const task={kind:'plugin',pluginId:'example-plugin',scopeId:'alpha',surfaceId:'plan',resourceId:'order-alpha'} as const;
+  expect(desktopSurfaceAllowed(task)).toBe(true);
+  for(const personal of [{kind:'thread',threadId:'alpha'},{kind:'browser',browserId:'alpha'},{kind:'workspace'}] as const)expect(needsEditorHandoff(task,personal)).toBe(false);
+  expect(needsEditorHandoff(task,{kind:'main'})).toBe(true);expect(needsEditorHandoff(task,task)).toBe(true);expect(needsEditorHandoff(task,{...task,resourceId:'order-beta'})).toBe(false);
+ });
  it('passes only an explicitly supported subscription provider into the fixed sign-in helper',()=>{
   for(const provider of ['openai','openai-codex','github-copilot','xai'] as const)expect(desktopSignInArguments(resolve('.'),resolve('isolated-data'),provider).slice(-2)).toEqual(['--provider',provider]);
  });
@@ -24,8 +79,9 @@ describe('native desktop surface authority',()=>{
   expect(execFileSync(process.execPath,[...args.slice(0,2),'--eval','process.stdout.write("SIDECAR_LOADER_READY")'],{encoding:'utf8',windowsHide:true,env})).toBe('SIDECAR_LOADER_READY');
  });
  it('admits only bounded typed identities and registered surface properties',()=>{
+  expect(parseDesktopSurface({kind:'workspace',tab:'terminal'})).toEqual({kind:'workspace',tab:'terminal'});
   expect(parseDesktopSurface({kind:'artifact',threadId:'task-1',artifactId:'artifact-1'})).toEqual({kind:'artifact',threadId:'task-1',artifactId:'artifact-1'});
-  for(const value of [{kind:'artifact',artifactId:'a'},{kind:'agent',threadId:'t'},{kind:'usage'},{kind:'browser',browserId:'../host'},{kind:'workspace',tab:'terminal'},{kind:'plan',threadId:'t',url:'file:///secret'},{kind:'plan',threadId:'constructor'},{kind:'main',nodeIntegration:true},[],null,Object.create(null)])expect(()=>parseDesktopSurface(value)).toThrow();
+  for(const value of [{kind:'artifact',artifactId:'a'},{kind:'agent',threadId:'t'},{kind:'usage'},{kind:'browser',browserId:'../host'},{kind:'workspace',tab:'unknown'},{kind:'plan',threadId:'t',url:'file:///secret'},{kind:'plan',threadId:'constructor'},{kind:'main',nodeIntegration:true},[],null,Object.create(null)])expect(()=>parseDesktopSurface(value)).toThrow();
  });
  it('keeps task-specific windows distinct without accepting arbitrary window URLs',()=>{
   expect(desktopSurfaceKey({kind:'plan',threadId:'task-a'})).not.toBe(desktopSurfaceKey({kind:'plan',threadId:'task-b'}));

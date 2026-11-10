@@ -34,6 +34,29 @@ function nativeSdk(modelOnly=false) {
 const wire = { uuid: 'wire-uuid', text: '[harness-input:v1] {"inputId":"input-1","inputIds":["input-1"],"threadId":"thread","runId":"run-host","epoch":3}\n{"prompt":"hello","resources":[]}', inputIds: ['input-1'] };
 
 describe('Cursor private SDK worker', () => {
+  it('cancels oversized prediction output during streaming before waiting for completion',async()=>{
+    const f=await fixture(),native=nativeSdk(true),cancel=vi.fn(async()=>{}),wait=vi.fn(async()=>({id:'run-native',status:'finished'}));
+    native.agent.send=vi.fn(async()=>({id:'run-native',agentId:'agent-native',async *stream(){yield{type:'assistant',agent_id:'agent-native',run_id:'run-native',message:{role:'assistant',content:[{type:'text',text:'x'.repeat(4097)}]}};},wait,cancel})) as any;
+    const events:any[]=[],controller=await runCursorWorker({mode:'run',...f,modelId:'native-model',modelOnly:true,purpose:'prediction',systemPrompt:'Prediction',mcp:{url:'http://127.0.0.1:3031/mcp',headers:{Authorization:'Bearer token'},names:[]}},event=>events.push(event),async()=>native.sdk);
+    try{await expect(controller!.submit(wire)).rejects.toMatchObject({code:'PREDICTION_OUTPUT_LIMIT'});expect(cancel).toHaveBeenCalledOnce();expect(wait).not.toHaveBeenCalled();expect(events.some(event=>event.type==='assistant')).toBe(false);}finally{await controller!.close();}
+  });
+  it('stages reconnect and keeps the old credential when authenticated users differ', async () => {
+    const f = await fixture(), native = nativeSdk();
+    native.sdk.Cursor.me = vi.fn(async ({ apiKey }: any) => ({ userId: apiKey === 'private-browser-user-key' ? 42 : 99 }));
+    native.sdk.Cursor.auth.login = async ({ store }: any) => { await store.save({ version: 1, backendUrl: 'https://api2.cursor.sh', apiKey: 'wrong-account', createdAtMs: Date.now() }); };
+    await expect(runCursorWorker({ mode: 'login', ...f }, () => {}, async () => native.sdk)).rejects.toMatchObject({ code: 'ACCOUNT_IDENTITY_MISMATCH' });
+    expect((await cursorCredentialStore(f.dataDir).load())?.apiKey).toBe('private-browser-user-key');
+    expect(native.sdk.Agent.create).not.toHaveBeenCalled();
+  });
+  it('rejects identity drift before creating an agent or submitting to an existing one', async () => {
+    const f = await fixture(), native = nativeSdk();
+    const controller = await runCursorWorker({ mode: 'run', ...f, modelId: 'native-model', systemPrompt: 'Host', mcp: { url: 'http://127.0.0.1:3031/mcp', headers: { Authorization: 'Bearer token' }, names: [] } }, () => {}, async () => native.sdk);
+    native.sdk.Cursor.me = async () => ({ userId: 99 });
+    await expect(controller!.submit(wire)).rejects.toMatchObject({ code: 'ACCOUNT_IDENTITY_MISMATCH' });
+    expect(native.agent.send).not.toHaveBeenCalled(); await controller!.close();
+    await expect(runCursorWorker({ mode: 'run', ...f, modelId: 'native-model' }, () => {}, async () => native.sdk)).rejects.toMatchObject({ code: 'ACCOUNT_IDENTITY_MISMATCH' });
+    expect(native.sdk.Agent.create).toHaveBeenCalledTimes(1);
+  });
   it.each([false,true])('retains the default 2MiB wire bound and accepts a larger model-only transcript: %s',async modelOnly=>{
     const f=await fixture(),native=nativeSdk(modelOnly),events:any[]=[],controller=await runCursorWorker({mode:'run',...f,modelId:'native-model',systemPrompt:'Model text only',...(modelOnly?{modelOnly:true}:{}),mcp:{url:'http://127.0.0.1:3031/mcp',headers:{Authorization:'Bearer token'},names:[]}},event=>events.push(event),async()=>native.sdk);
     try{const large={...wire,text:wire.text+'x'.repeat(3*1024*1024)};if(modelOnly){expect(native.options).toMatchObject({tools:[],mcpServers:{}});await expect(controller!.submit({...wire,text:wire.text+'x'.repeat(32*1024*1024)})).rejects.toMatchObject({code:'OFFICIAL_PROTOCOL_INVALID'});expect(native.sent).toHaveLength(0);await controller!.submit(large);expect(native.sent[0].text).toBe(large.text);}else{await expect(controller!.submit(large)).rejects.toMatchObject({code:'OFFICIAL_PROTOCOL_INVALID'});expect(native.sent).toHaveLength(0);}}finally{await controller!.close();}

@@ -54,6 +54,22 @@ it('lets auxiliary readers load shared skills while denying library mutations',a
  try{expect(await x.tool(0,'skills_list')).toMatchObject({skills:[expect.objectContaining({name:'inspect-failure'})]});expect(await x.tool(0,'skill_view',{name:'inspect-failure'})).toMatchObject({content:'Read the failing assertion before changing its source.'});await expect(x.tool(0,'skill_manage',{operations:[]})).rejects.toMatchObject({code:'AGENT_TOOL_DENIED'});}finally{x.event(0,'settled');await pending;}
 });
 
+it('persists real delegate threads and deduplicated transcripts without settling the parent',async()=>{
+ const x=setup(),tasks=x.tasks(),pending=x.coordinator.delegate(x.ctx,{commandId:'transcript',tasks},x.controller.signal);await x.waitStarted();
+ try{
+  const job=x.coordinator.inspect(x.ctx.threadId)!.value.agents[0];expect(job.childThreadId).toBe(x.children[0].input!.threadId);
+  expect(x.store.get<Thread>('thread',job.childThreadId!)).toMatchObject({kind:'delegate',parentThreadId:x.ctx.threadId,jobId:job.id,status:'working'});
+  expect(x.store.all('message',job.childThreadId!)).toContainEqual(expect.objectContaining({role:'user',content:expect.stringContaining(tasks[0].prompt)}));
+  x.event(0,'assistant.delta',{messageId:'child-answer',delta:'Found '});x.event(0,'assistant.delta',{messageId:'child-answer',delta:'evidence.'});
+  x.event(0,'assistant.message',{messageId:'child-final',content:'Found evidence.'});x.event(0,'assistant.message',{messageId:'child-final',content:'Found evidence.'});
+  x.event(0,'activity',{message:'Reading source'});x.event(0,'session',{sessionPath:'owned-child-session'});x.event(0,'usage',{usage:{inputTokens:19,outputTokens:3}});
+  expect(x.store.all<{role:string;content:string}>('message',job.childThreadId!).filter(m=>m.role==='assistant')).toEqual([expect.objectContaining({content:'Found evidence.'})]);
+  expect(x.store.get<Thread>('thread',job.childThreadId!)?.sessionPath).toBe('owned-child-session');expect(x.store.get('usage',job.childThreadId!)).toMatchObject({value:{inputTokens:19}});
+  x.event(0,'settled');await pending;const before=x.store.sequence;x.event(0,'assistant.message',{content:'late'});expect(x.store.sequence).toBe(before);
+  expect(x.store.get<Thread>('thread',x.ctx.threadId)?.status).toBe('working');expect(x.store.get<Thread>('thread',job.childThreadId!)?.runId).toBeNull();
+ }finally{x.controller.abort();await pending;}
+});
+
 it('pins auxiliary readers to the parent account before asynchronous runtime creation',async()=>{
  const x=setup(),accountId=crypto.randomUUID(),parent=x.store.get<Thread>('thread',x.ctx.threadId)!;
  x.store.internal('fixture.account',parent.id,()=>{x.store.put('account',accountId,null,{id:accountId,providerId:'openai',label:'Parent',enabled:true,createdAt:'now',updatedAt:'now'});x.store.put('thread',parent.id,parent.id,{...parent,accountId,modelId:'openai/model'});});
@@ -62,9 +78,9 @@ it('pins auxiliary readers to the parent account before asynchronous runtime cre
 });
 
 it('retains auxiliary account use after parent revocation until native cancellation completes',async()=>{
- const x=setup(),parent=x.store.get<Thread>('thread',x.ctx.threadId)!,factory=x.hooks.runtimeFactory!;let release!:()=>void;
+ const x=setup(),parent=x.store.get<Thread>('thread',x.ctx.threadId)!,factory=x.hooks.runtimeFactory!;let release!:()=>void;const gate=new Promise<void>(done=>{release=done;});
  x.store.internal('fixture.provider',parent.id,()=>x.store.put('thread',parent.id,parent.id,{...parent,modelId:'openai/model'}));
- x.hooks.runtimeFactory=()=>{const native=factory() as RuntimeAdapter;native.cancel=vi.fn(()=>new Promise<void>(done=>{release=done;}));return createRuntime({dataDir:x.store.dataDir,accounts:accountResolver(x.store)},{pi:()=>native,official:()=>({...native,configure:()=>{}})});};
+ x.hooks.runtimeFactory=()=>{const native=factory() as RuntimeAdapter;native.cancel=vi.fn(()=>gate);return createRuntime({dataDir:x.store.dataDir,accounts:accountResolver(x.store)},{pi:()=>native,official:()=>({...native,configure:()=>{}})});};
  const pending=x.coordinator.delegate(x.ctx,{commandId:'auxiliary-use',tasks:x.tasks()},x.controller.signal);await x.waitStarted();
  x.store.internal('fixture.revoke',parent.id,()=>x.store.put('thread',parent.id,parent.id,{...parent,modelId:'openai/model',runId:null,status:'stopped'}));const cancelling=x.coordinator.cancel(x.ctx);
  try{expect(()=>beginAccountLogin(x.store,'openai',null)).toThrow(expect.objectContaining({code:'ACCOUNT_BUSY'}));}finally{release();await cancelling;await pending;}
@@ -164,7 +180,7 @@ describe('durable plan and real auxiliary jobs', () => {
 
   it('reserves startup slots and cancels a queued factory before any child starts', async () => {
     const x = setup(); let release!: () => void; const gate = new Promise<void>(resolve => { release = resolve; });
-    const create = x.hooks.runtimeFactory!; x.hooks.runtimeFactory = async () => { await gate; return create(); };
+    const create = vi.fn(x.hooks.runtimeFactory!); x.hooks.runtimeFactory = async () => { await gate; return create(); };
     const pending = x.coordinator.delegate(x.ctx, { commandId: 'startup', tasks: x.tasks(3) }, x.controller.signal);
     let extraError: unknown;
     const extra = x.coordinator.delegate(x.ctx, { commandId: 'extra', tasks: x.tasks() }, x.controller.signal).catch(error => { extraError = error; });
@@ -174,9 +190,21 @@ describe('durable plan and real auxiliary jobs', () => {
     await pending;
     expect(result, 'Cancellation must release pending startup').not.toBe(null);
     expect(result!.jobs.every(job => job.status === 'cancelled')).toBe(true);
-    await vi.waitFor(() => expect(x.children).toHaveLength(3));
     expect(extraError).toMatchObject({ code: 'AGENT_LIMIT' });
-    expect(x.children.every(child => !child.input && child.dispose.mock.calls.length === 1)).toBe(true);
+    expect(create).not.toHaveBeenCalled();expect(x.children).toHaveLength(0);
+  });
+
+  it('shares pending factory teardown between abort, cancel and dispose and never starts its late adapter',async()=>{
+    const x=setup();let releaseFactory!:()=>void,releaseDispose!:()=>void;const factoryGate=new Promise<void>(done=>{releaseFactory=done;}),disposeGate=new Promise<void>(done=>{releaseDispose=done;}),create=x.hooks.runtimeFactory!;
+    const factory=vi.fn(async()=>{await factoryGate;const adapter=await create();adapter.dispose=vi.fn(async()=>{await disposeGate;});return adapter;});x.hooks.runtimeFactory=factory;
+    const delegated=x.coordinator.delegate(x.ctx,{commandId:'factory-already-entered',tasks:x.tasks()},x.controller.signal);await vi.waitFor(()=>expect(factory).toHaveBeenCalledOnce());
+    x.revoke();x.controller.abort();let cancelled=false,disposed=false;const cancelling=x.coordinator.cancel(x.ctx).then(()=>{cancelled=true;}),disposing=x.coordinator.dispose().then(()=>{disposed=true;});
+    try{
+      await Promise.resolve();expect(cancelled).toBe(false);expect(disposed).toBe(false);expect(x.coordinator.hasActiveChildren(x.ctx.threadId)).toBe(true);
+      releaseFactory();await vi.waitFor(()=>expect(x.children).toHaveLength(1));await vi.waitFor(()=>expect(x.children[0].runtime.dispose).toHaveBeenCalledOnce());
+      expect(x.children[0].input).toBeUndefined();expect(x.children[0].cancel).toHaveBeenCalledOnce();expect(cancelled).toBe(false);expect(disposed).toBe(false);
+      releaseDispose();await Promise.all([cancelling,disposing,delegated]);expect(x.coordinator.hasActiveChildren(x.ctx.threadId)).toBe(false);
+    }finally{releaseFactory();releaseDispose();await Promise.allSettled([cancelling,disposing,delegated]);}
   });
 
   it('retains the final usage measurement even when intermediate events are coalesced', async () => {

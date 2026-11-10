@@ -1,0 +1,825 @@
+{
+  "manifest_version": 1,
+  "contract_id": "maritime-company-service",
+  "contract_version": "1.0.0-candidate.1",
+  "stability": "joint_review_candidate",
+  "wire_path_major": "/v1",
+  "runtime_advertises_contract_version": false,
+  "service_baseline": {
+    "repository": "Skytuhua/hermes-swarm-control",
+    "commit": "770b56620a6a8587a8c9e8e321e8c731cbb35807",
+    "request_auth_source_sha256": {
+      "src/company/service.py": "97755fb80972cec6cb68b091f11498a736af13970aba3d07f6dea7332c7182dc",
+      "src/company/manager_tools.py": "9c76ccb9c003531caa1d8f3b40b3fc0027fe11039d7ec131992966e186bd334b",
+      "src/company/contracts.py": "fe2198d02e5df5da466d8b522ac30a1dc4f97e2d9eb047308b82c200a28758a9"
+    }
+  },
+  "ownership": {
+    "maritime": "Authoritative service, registry, scheduler, budgets, approvals, mailbox, evidence, runtime admission and publishers",
+    "gen": "Isolated client, tools, UI and client conformance tests; no competing operational authority"
+  },
+  "e01_transition": {
+    "requested_outer_application": "gen_v1",
+    "retained_engine": "hermes",
+    "cutover_authorized": false,
+    "current_roster_configuration_changed": false,
+    "other_hermes_employees": 17,
+    "native_codex_employees": 14,
+    "model_id": "gpt-6.1-sol",
+    "e01_reasoning": "max",
+    "staff_reasoning": "xhigh"
+  },
+  "transport": {
+    "bind_host": "127.0.0.1",
+    "default_port": 0,
+    "remote_ingress_available": false,
+    "tls_available": false,
+    "methods": [
+      "POST"
+    ],
+    "authorization": "Bearer service-only token held by trusted host; never an API/native/GitHub credential",
+    "exact_host_header": "127.0.0.1:<bound-port>",
+    "content_type": "application/json",
+    "single_content_length_required": true,
+    "max_request_bytes": 32768,
+    "max_bearer_characters": 4096,
+    "max_instruction_or_handoff_characters": 16000,
+    "read_deadline_seconds_default": 3,
+    "read_deadline_seconds_max": 10,
+    "duplicate_json_keys_or_nonfinite_numbers": "rejected",
+    "extra_request_keys": "rejected",
+    "cors_origins_transfer_or_content_encoding": "unsupported",
+    "response_size_limit_or_pagination": "not advertised; clients must bound reads and report oversized/unsupported responses honestly"
+  },
+  "auth": {
+    "credential_fields": [
+      "id",
+      "token_sha256",
+      "kind",
+      "principal_id",
+      "project_ids",
+      "permissions",
+      "expires_at",
+      "employee_id?",
+      "machine_id?",
+      "revoked?"
+    ],
+    "registration_over_http": false,
+    "owner_kind": "existing coordinator principal",
+    "employee_and_machine": "distinct immutable bound identities",
+    "request_rechecks": [
+      "expiry",
+      "credential revocation",
+      "Store principal revocation",
+      "employee/machine binding",
+      "exact project/role/profile/staffing scope"
+    ],
+    "owner_credential_available_to_e01_model_tools": false,
+    "credential_file_edits_hot_reload": false,
+    "windows_operator_acl_verifier": "near-term reviewed implementation; generic loader still requires trusted callback"
+  },
+  "owner_message_idempotency": {
+    "key": [
+      "stable authenticated owner principal",
+      "message_id"
+    ],
+    "operations": [
+      "owner_plan",
+      "owner_start",
+      "owner_pause",
+      "owner_cancel"
+    ],
+    "same_exact_body": "recorded result",
+    "different_action_project_or_body": "rejected",
+    "survives_credential_rotation": true,
+    "employee_handoff": "separate credential-bound Mailbox deduplication; do not assume owner replay semantics"
+  },
+  "routes": [
+    {
+      "operation_id": "status",
+      "method": "POST",
+      "path": "/v1/status",
+      "request_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "scope": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "company"
+                  },
+                  "id": {
+                    "const": "leo-company"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "id"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "project"
+                  },
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9-]{0,62}$",
+                    "not": {
+                      "const": "company-ops"
+                    }
+                  }
+                },
+                "required": [
+                  "kind",
+                  "id"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          }
+        },
+        "required": [
+          "scope"
+        ],
+        "additionalProperties": false
+      },
+      "credential_kinds": [
+        "owner",
+        "employee",
+        "machine"
+      ],
+      "required_permission": "role/scoped permission",
+      "read_only": true,
+      "current_behavior": "Authoritative local read-only projection; owner projects filtered to credential allowlist; employee/finance/machine projections remain narrow."
+    },
+    {
+      "operation_id": "owner_plan",
+      "method": "POST",
+      "path": "/v1/owner/plan",
+      "request_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]{0,62}$",
+            "not": {
+              "const": "company-ops"
+            }
+          },
+          "instruction": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16000,
+            "allOf": [
+              {
+                "pattern": "\\S"
+              },
+              {
+                "not": {
+                  "pattern": "\\u0000"
+                }
+              }
+            ]
+          },
+          "message_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "allOf": [
+              {
+                "pattern": "\\S"
+              },
+              {
+                "not": {
+                  "pattern": "\\u0000"
+                }
+              }
+            ]
+          }
+        },
+        "required": [
+          "project_id",
+          "instruction",
+          "message_id"
+        ],
+        "additionalProperties": false
+      },
+      "credential_kinds": [
+        "owner"
+      ],
+      "required_permission": "plan",
+      "read_only": false,
+      "current_behavior": "Persists planning_only proposal and audit. No model invocation, WorkOrder, attempt or dispatch."
+    },
+    {
+      "operation_id": "owner_start",
+      "method": "POST",
+      "path": "/v1/owner/start",
+      "request_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "project_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{0,62}$",
+                "not": {
+                  "const": "company-ops"
+                }
+              },
+              "message_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "allOf": [
+                  {
+                    "pattern": "\\S"
+                  },
+                  {
+                    "not": {
+                      "pattern": "\\u0000"
+                    }
+                  }
+                ]
+              },
+              "proposal_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "allOf": [
+                  {
+                    "pattern": "\\S"
+                  },
+                  {
+                    "not": {
+                      "pattern": "\\u0000"
+                    }
+                  }
+                ]
+              }
+            },
+            "required": [
+              "project_id",
+              "message_id",
+              "proposal_id"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "project_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{0,62}$",
+                "not": {
+                  "const": "company-ops"
+                }
+              },
+              "message_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "allOf": [
+                  {
+                    "pattern": "\\S"
+                  },
+                  {
+                    "not": {
+                      "pattern": "\\u0000"
+                    }
+                  }
+                ]
+              },
+              "work_order_id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "allOf": [
+                  {
+                    "pattern": "\\S"
+                  },
+                  {
+                    "not": {
+                      "pattern": "\\u0000"
+                    }
+                  }
+                ]
+              }
+            },
+            "required": [
+              "project_id",
+              "message_id",
+              "work_order_id"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "credential_kinds": [
+        "owner"
+      ],
+      "required_permission": "start",
+      "read_only": false,
+      "current_behavior": "Validates exact current owner proposal or approved active WorkOrder; returns capability_missing with dispatch_authorized false."
+    },
+    {
+      "operation_id": "owner_pause",
+      "method": "POST",
+      "path": "/v1/owner/pause",
+      "request_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]{0,62}$",
+            "not": {
+              "const": "company-ops"
+            }
+          },
+          "message_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "allOf": [
+              {
+                "pattern": "\\S"
+              },
+              {
+                "not": {
+                  "pattern": "\\u0000"
+                }
+              }
+            ]
+          }
+        },
+        "required": [
+          "project_id",
+          "message_id"
+        ],
+        "additionalProperties": false
+      },
+      "credential_kinds": [
+        "owner"
+      ],
+      "required_permission": "pause",
+      "read_only": false,
+      "current_behavior": "Pauses the exact project scheduler; does not release uncertain/running occupancy or reservations."
+    },
+    {
+      "operation_id": "owner_cancel",
+      "method": "POST",
+      "path": "/v1/owner/cancel",
+      "request_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]{0,62}$",
+            "not": {
+              "const": "company-ops"
+            }
+          },
+          "message_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "allOf": [
+              {
+                "pattern": "\\S"
+              },
+              {
+                "not": {
+                  "pattern": "\\u0000"
+                }
+              }
+            ]
+          }
+        },
+        "required": [
+          "project_id",
+          "message_id"
+        ],
+        "additionalProperties": false
+      },
+      "credential_kinds": [
+        "owner"
+      ],
+      "required_permission": "cancel",
+      "read_only": false,
+      "current_behavior": "Cancels the exact project scope; retains running/uncertain occupancy until existing proof clears it."
+    },
+    {
+      "operation_id": "employee_tool",
+      "method": "POST",
+      "path": "/v1/employee/tool",
+      "request_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "project_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{0,62}$",
+                "not": {
+                  "const": "company-ops"
+                }
+              },
+              "tool": {
+                "const": "status_scoped"
+              },
+              "arguments": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "project_id",
+              "tool",
+              "arguments"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "project_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{0,62}$",
+                "not": {
+                  "const": "company-ops"
+                }
+              },
+              "tool": {
+                "const": "read_assignment"
+              },
+              "arguments": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "project_id",
+              "tool",
+              "arguments"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "project_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{0,62}$",
+                "not": {
+                  "const": "company-ops"
+                }
+              },
+              "tool": {
+                "const": "finance_aggregates"
+              },
+              "arguments": {
+                "type": "object",
+                "properties": {},
+                "required": [],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "project_id",
+              "tool",
+              "arguments"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "project_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{0,62}$",
+                "not": {
+                  "const": "company-ops"
+                }
+              },
+              "tool": {
+                "const": "read_artifact"
+              },
+              "arguments": {
+                "type": "object",
+                "properties": {
+                  "artifact_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "allOf": [
+                      {
+                        "pattern": "\\S"
+                      },
+                      {
+                        "not": {
+                          "pattern": "\\u0000"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "artifact_id"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "project_id",
+              "tool",
+              "arguments"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "project_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9-]{0,62}$",
+                "not": {
+                  "const": "company-ops"
+                }
+              },
+              "tool": {
+                "const": "handoff"
+              },
+              "arguments": {
+                "type": "object",
+                "properties": {
+                  "task_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "allOf": [
+                      {
+                        "pattern": "\\S"
+                      },
+                      {
+                        "not": {
+                          "pattern": "\\u0000"
+                        }
+                      }
+                    ]
+                  },
+                  "recipient": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "allOf": [
+                      {
+                        "pattern": "\\S"
+                      },
+                      {
+                        "not": {
+                          "pattern": "\\u0000"
+                        }
+                      }
+                    ]
+                  },
+                  "message_id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "allOf": [
+                      {
+                        "pattern": "\\S"
+                      },
+                      {
+                        "not": {
+                          "pattern": "\\u0000"
+                        }
+                      }
+                    ]
+                  },
+                  "text": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 16000,
+                    "allOf": [
+                      {
+                        "pattern": "\\S"
+                      },
+                      {
+                        "not": {
+                          "pattern": "\\u0000"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "task_id",
+                  "recipient",
+                  "message_id",
+                  "text"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "project_id",
+              "tool",
+              "arguments"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "credential_kinds": [
+        "employee"
+      ],
+      "required_permission": "intersection of credential, department role, profile, current project staffing and binding",
+      "read_only": false,
+      "current_behavior": "Only status/read/finance/inert-artifact or fixed result handoff. Handoff cannot dispatch workforce or create assignments."
+    },
+    {
+      "operation_id": "artifact_preview",
+      "method": "POST",
+      "path": "/v1/artifacts/preview",
+      "request_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]{0,62}$",
+            "not": {
+              "const": "company-ops"
+            }
+          },
+          "artifact_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "allOf": [
+              {
+                "pattern": "\\S"
+              },
+              {
+                "not": {
+                  "pattern": "\\u0000"
+                }
+              }
+            ]
+          }
+        },
+        "required": [
+          "project_id",
+          "artifact_id"
+        ],
+        "additionalProperties": false
+      },
+      "credential_kinds": [
+        "owner"
+      ],
+      "required_permission": "artifact_preview",
+      "read_only": true,
+      "current_behavior": "Requires trusted host Artifacts injection sharing Store; default CLI lacks it. Returns escaped inert HTML, never a file path or fetch URL."
+    },
+    {
+      "operation_id": "review_package",
+      "method": "POST",
+      "path": "/v1/review/package",
+      "request_schema": {
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
+        "type": "object",
+        "properties": {
+          "project_id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]{0,62}$",
+            "not": {
+              "const": "company-ops"
+            }
+          },
+          "work_order_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "allOf": [
+              {
+                "pattern": "\\S"
+              },
+              {
+                "not": {
+                  "pattern": "\\u0000"
+                }
+              }
+            ]
+          }
+        },
+        "required": [
+          "project_id",
+          "work_order_id"
+        ],
+        "additionalProperties": false
+      },
+      "credential_kinds": [
+        "owner"
+      ],
+      "required_permission": "review_package",
+      "read_only": false,
+      "current_behavior": "Requires trusted Review/Artifacts injection; synthetic_package_ready only, never live/company acceptance."
+    }
+  ],
+  "responses": {
+    "compatibility": "Allow additive data fields; fail closed on unknown authority/capability/schema semantics. Request keys remain exact.",
+    "owner_status_required_labels": {
+      "evidence_scope": "synthetic_only",
+      "live_ready": false,
+      "company_accepted": false,
+      "actual_live": {
+        "employees": 0,
+        "hermes": 0,
+        "codex": 0
+      }
+    },
+    "planning_required_labels": {
+      "kind": "planning_proposal",
+      "state": "planning_only",
+      "planner": "capability_missing",
+      "model_produced": false,
+      "dispatch_authorized": false,
+      "live_ready": false
+    },
+    "start_required_labels": {
+      "status": "capability_missing",
+      "dispatch_authorized": false,
+      "live_ready": false
+    },
+    "errors": {
+      "handler_shape": {
+        "error": "sanitized string"
+      },
+      "status_codes": [
+        400,
+        401,
+        403,
+        404,
+        408,
+        413,
+        415,
+        503
+      ],
+      "raw_http_parser_errors_may_be_non_json": true,
+      "render_upstream_error_html": false
+    }
+  },
+  "unsupported_capabilities": {
+    "public_events": {
+      "available": false,
+      "endpoint": null,
+      "cursor_ack_replay_schema": null
+    },
+    "remote_task_delivery": false,
+    "native_start_or_dispatch": false,
+    "model_workorder_planner": false,
+    "http_approval_or_principal_registration": false,
+    "http_publication": false,
+    "live_publisher_credentials": false,
+    "raw_store_schema_access": false,
+    "automatic_e01_cutover": false
+  },
+  "fixtures": {
+    "scope": "task-owned synthetic Store and fingerprint registry only",
+    "production_instance_or_credential_supplied": false,
+    "safe_read_only_initial_operation": "status",
+    "native_or_cloud_activation_proven": false,
+    "authoritative_source_tests": [
+      "tests/test_tools.py",
+      "tests/test_views.py",
+      "tests/test_departments.py",
+      "tests/test_private_registry.py"
+    ]
+  },
+  "near_term_additions": [
+    "Windows operator trusted ACL-only callback; no wire/auth/request shape change",
+    "Read-only nested marketing owner projections and owner-asserted export metrics; absent data/receipt/provenance remains unavailable"
+  ],
+  "version_policy": {
+    "candidate_acceptance": "both owners pin the exact manifest digest and implementation checkpoint in conformance tests",
+    "additive_response_fields": "compatible only when unknown data is inert; never grants authority",
+    "request_or_auth_or_mutation_or_event_semantics": "requires explicit joint revision and tests",
+    "capability_flag_or_manifest": "not activation authority"
+  }
+}

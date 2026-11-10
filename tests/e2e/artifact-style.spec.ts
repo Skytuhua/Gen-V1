@@ -81,6 +81,23 @@ async function host(page: Page, snapshot: Snapshot) {
   return { snapshot, commands };
 }
 
+for (const width of [1440, 960]) test(`long email choices retain readable width and compact navigation at ${width}px`, async ({page}) => {
+  await page.setViewportSize({width,height:1000});
+  const copy=structuredClone(signing);
+  copy.elements.choices.props.options=[{value:'legal@studio.example',label:'legal@studio.example',detail:'Select to replace the PDF Email field in the preview.'},{value:'alex@studio.example',label:'alex@studio.example',detail:'Previous address'}];
+  const state=await host(page,fixture(copy));await page.goto('/');
+  await expect(page.locator('.document-preview')).toHaveAttribute('data-preview-state','ready',{timeout:15000});
+  const choice=page.locator('.task-choice').first(),label=choice.locator('.task-choice-copy');
+  const row=await choice.boundingBox(),text=await label.boundingBox();
+  expect(text!.width).toBeGreaterThan(row!.width*.75);expect(row!.height).toBeLessThan(130);
+  expect(await choice.evaluate(node=>node.scrollWidth<=node.clientWidth)).toBe(true);
+  const content=await page.locator('.task-step-content').boundingBox(),navigation=await page.locator('.task-step-navigation').boundingBox();
+  expect(navigation!.y-content!.y-content!.height).toBeLessThan(36);
+  await page.getByRole('radio',{name:/legal@studio.example/}).check();
+  await expect.poll(()=>state.snapshot.userStates[0].values.email).toBe('legal@studio.example');
+  await page.reload();await expect(page.getByRole('radio',{name:/legal@studio.example/})).toBeChecked();
+});
+
 test('new composition schemas are strict, bounded and preserve stable step identities', () => {
   for (const spec of [signing, operational, faq]) expect(() => validateSurface(spec)).not.toThrow();
   const single = (type: string, props: Record<string, unknown>) => ({ root: 'a', elements: { a: { type, props } } });

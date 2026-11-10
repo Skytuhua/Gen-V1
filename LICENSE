@@ -1,0 +1,13 @@
+Gen V1 — first-party licensing status
+
+Copyright (c) 2026 Skytuhua. All rights reserved.
+
+The first-party application is currently unlicensed for redistribution. Making
+its source available does not grant additional rights to copy, modify, publish,
+distribute, sublicense or sell that first-party code. This records the existing
+UNLICENSED status; it does not introduce an open-source license.
+
+Third-party code, dependencies and reference material remain subject to their
+own licenses and owners' rights. In particular, the original Hermes Agent and
+the identified T3 Code components retain their MIT licenses and complete notices.
+See THIRD_PARTY_NOTICES.md for attribution and the applicable license files.

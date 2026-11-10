@@ -4,13 +4,13 @@ export class ApiError extends Error {
   constructor(public code: string, message: string, public details?: unknown) { super(message); }
 }
 
-async function read<T>(response: Response): Promise<T> {
+export async function read<T>(response: Response): Promise<T> {
   const body = await response.json();
   if (!response.ok) throw new ApiError(body.error?.code ?? 'HTTP_ERROR', body.error?.message ?? `Request failed (${response.status})`, body.error?.details);
   return body as T;
 }
 
-let csrfToken = '';
+export let csrfToken = '';
 export let widgetOrigin = 'http://localhost:4318';
 let bootstrapPromise: Promise<void> | undefined;
 export function bootstrap() {
@@ -22,7 +22,7 @@ async function renewSession(previous: Promise<void> | undefined) {
   await bootstrap();
 }
 
-async function authenticated(send: () => Promise<Response>) {
+export async function authenticated(send: () => Promise<Response>) {
   await bootstrap();
   const session = bootstrapPromise;
   let response = await send();
@@ -44,11 +44,15 @@ export async function command(type: string, payload: Record<string, unknown> = {
 }
 
 export const getSnapshot = () => authenticated(() => fetch('/api/snapshot', { credentials: 'same-origin', cache: 'no-store' })).then(read<Snapshot>);
+export interface ComposerPrediction { suggestion: string | null; replyId: string; modelId: string }
+export function getComposerPrediction(input: { threadId: string; replyId: string; modelId: string }, signal: AbortSignal) {
+  return authenticated(() => fetch('/api/composer-prediction', { method: 'POST', credentials: 'same-origin', signal, headers: { 'Content-Type': 'application/json', 'x-harness-csrf': csrfToken }, body: JSON.stringify(input) })).then(read<ComposerPrediction>);
+}
 export const getSkill=(name:string,options:{path?:string;revision?:number;versionOffset?:number;includeInactive?:boolean}={})=>{const query=new URLSearchParams(Object.entries(options).filter(([,value])=>value!==undefined).map(([key,value])=>[key,String(value)])).toString();return authenticated(()=>fetch(`/api/skills/${encodeURIComponent(name)}${query?'?'+query:''}`,{credentials:'same-origin',cache:'no-store'})).then(read<import('../../../packages/contracts/skills.ts').SkillDetail>);};
 export const getSkillProposal=(id:string)=>authenticated(()=>fetch(`/api/skill-proposals/${encodeURIComponent(id)}`,{credentials:'same-origin',cache:'no-store'})).then(read<import('../../../packages/contracts/skills.ts').SkillProposal>);
-export const getModels = (refresh = false, threadId?: string) => {
+export const getModels = (refresh = false, threadId?: string, signal?: AbortSignal) => {
   const query = new URLSearchParams({ ...(refresh ? { refresh: '1' } : {}), ...(threadId ? { threadId } : {}) }).toString();
-  return authenticated(() => fetch(`/api/models${query ? `?${query}` : ''}`, { credentials: 'same-origin', cache: 'no-store' })).then(read<{ models: ModelInfo[]; error?: string }>);
+  return authenticated(() => fetch(`/api/models${query ? `?${query}` : ''}`, { credentials: 'same-origin', cache: 'no-store', signal })).then(read<{ models: ModelInfo[]; error?: string }>);
 };
 export interface ResourceTree { path: string; entries: { name: string; path: string; kind: 'file' | 'directory'; bytes: number }[]; truncated: boolean }
 export const getResourceTree = (id: string, path = '') => authenticated(() => fetch(`/api/resources/${encodeURIComponent(id)}/tree${path ? '?path=' + encodeURIComponent(path) : ''}`, { credentials: 'same-origin', cache: 'no-store' })).then(read<ResourceTree>);

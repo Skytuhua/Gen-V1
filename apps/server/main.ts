@@ -1,5 +1,6 @@
 import {timingSafeEqual} from 'node:crypto';
 import {launchHost,readHostOptions,type RunningHost} from './host.ts';
+import {handleDesktopControl} from './desktop-controls.ts';
 
 const token=process.env.HARNESS_DESKTOP_LAUNCH_TOKEN;
 const validToken=token!==undefined&&/^[a-f0-9]{32,128}$/i.test(token);
@@ -23,6 +24,7 @@ process.on('message',(value:unknown)=>{
  if(!value||typeof value!=='object'||Array.isArray(value))return;
  const input=value as Record<string,unknown>;
  if(Object.keys(input).length===2&&input.type==='harness.shutdown'&&sameToken(input.token))void close();
+ else if(host&&validToken&&!requestedClose)void handleDesktopControl(input,token!,host,message);
 });
 
 try{
@@ -31,7 +33,7 @@ try{
  if(requestedClose)await close();
  else{
   process.stdout.write(`Harness host: ${host.origin}\n`);
-  if(validToken)await message({type:'harness.ready',token,origin:host.origin,pid:host.pid});
+  if(validToken)await message({type:'harness.ready',token,origin:host.origin,pid:host.pid,...(host.nativeLayout?{nativeLayout:host.nativeLayout}:{})});
  }
 }catch(error){
  const detail=error instanceof Error?error.message:'Could not start the local harness.';

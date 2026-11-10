@@ -1,0 +1,17 @@
+.company-context { margin-top:28px; padding-top:22px; border-top:1px solid var(--company-border); font-size:12px; overflow-wrap:anywhere; }
+.company-context>h4,.company-context section>h4 { margin:18px 0 7px; font-size:14px; font-weight:550; }
+.company-context p { margin:8px 0; white-space:pre-wrap; }
+.company-context ul { padding-left:20px; }
+.company-context details { margin:10px 0; }
+.company-context summary { cursor:pointer; color:var(--company-muted); }
+.company-context-actions { display:flex; align-items:flex-end; flex-wrap:wrap; gap:12px; margin:16px 0; }
+.company-context-actions label { display:grid; gap:5px; color:var(--company-muted); }
+.company-context-actions select { max-width:240px; padding:7px; border:1px solid var(--company-border); border-radius:6px; background:var(--company-surface); color:inherit; }
+.company-context-records { list-style:none; padding:0!important; display:grid; gap:10px; }
+.company-context-records>li { padding:10px 14px; border:1px solid var(--company-border); border-radius:8px; }
+.company-context-page,.company-context-pin { color:var(--company-muted); font-size:11px; }
+.company-context-reference .company-values { margin-top:8px; }
+.company-context-reference .company-values>div { grid-template-columns:minmax(100px,1fr) minmax(0,3fr); padding:7px 0; font-size:11px; }
+.company-context-dependencies .company-context-records>li { display:flex; align-items:flex-start; gap:12px; }
+.company-context-dependency-arrow { margin-top:10px; color:var(--company-muted); font-size:20px; }
+.company-context-dependencies .company-context-records>li>div { min-width:0; flex:1; }

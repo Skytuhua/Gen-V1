@@ -1,0 +1,370 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:maritime:communications:owner-discussion-candidate.1",
+  "$comment": "Closed additive implemented owner-only note contract. Apply strict UTF8 codec, command32768/output262144 encoded-byte limits and manifest supplemental checks. Structural JSON schema alone is insufficient.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/Command"
+    },
+    {
+      "$ref": "#/$defs/Receipt"
+    },
+    {
+      "$ref": "#/$defs/ReadBack"
+    },
+    {
+      "$ref": "#/$defs/Error"
+    }
+  ],
+  "$defs": {
+    "Command": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "action": {
+          "const": "owner.discussion.append"
+        },
+        "command_id": {
+          "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/Uuid"
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^[^\\u0000]*$"
+        },
+        "body": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8192,
+          "pattern": "^[^\\u0000]*$"
+        }
+      },
+      "required": [
+        "schema_version",
+        "action",
+        "command_id",
+        "summary",
+        "body"
+      ]
+    },
+    "Receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "receipt_type": {
+          "const": "owner_discussion_receipt"
+        },
+        "schema_version": {
+          "const": 1
+        },
+        "action": {
+          "const": "owner.discussion.append"
+        },
+        "outcome": {
+          "const": "stored"
+        },
+        "principal_id": {
+          "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/OpaqueExistingId"
+        },
+        "command_id": {
+          "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/Uuid"
+        },
+        "company_id": {
+          "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/CompanyId"
+        },
+        "scope": {
+          "allOf": [
+            {
+              "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/TaskScope"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "project"
+                }
+              }
+            }
+          ]
+        },
+        "request_digest": {
+          "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/Digest"
+        },
+        "conversation_ref": {
+          "allOf": [
+            {
+              "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/ConversationRef"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "availability": {
+                  "const": "available"
+                },
+                "unavailable_reason": {
+                  "type": "null"
+                },
+                "revision": {
+                  "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/Revision"
+                },
+                "digest": {
+                  "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/Digest"
+                }
+              }
+            }
+          ]
+        },
+        "message_ref": {
+          "allOf": [
+            {
+              "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/MessageRef"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "availability": {
+                  "const": "available"
+                },
+                "unavailable_reason": {
+                  "type": "null"
+                },
+                "revision": {
+                  "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/Revision"
+                },
+                "digest": {
+                  "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/Digest"
+                }
+              }
+            }
+          ]
+        },
+        "recorded_at_utc_epoch_ms": {
+          "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/UtcEpochMilliseconds"
+        }
+      },
+      "required": [
+        "receipt_type",
+        "schema_version",
+        "action",
+        "outcome",
+        "principal_id",
+        "command_id",
+        "company_id",
+        "scope",
+        "request_digest",
+        "conversation_ref",
+        "message_ref",
+        "recorded_at_utc_epoch_ms"
+      ]
+    },
+    "Conversation": {
+      "allOf": [
+        {
+          "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/Conversation"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "scope": {
+              "allOf": [
+                {
+                  "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/TaskScope"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "project"
+                    }
+                  }
+                }
+              ]
+            },
+            "kind": {
+              "const": "project_room"
+            },
+            "title": {
+              "const": "Owner project discussion"
+            },
+            "visibility_revision": {
+              "const": 1
+            },
+            "lifecycle": {
+              "const": "open"
+            },
+            "task_ref": {
+              "type": "null"
+            },
+            "work_order_ref": {
+              "type": "null"
+            }
+          }
+        }
+      ]
+    },
+    "Message": {
+      "allOf": [
+        {
+          "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/Message"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "scope": {
+              "allOf": [
+                {
+                  "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/TaskScope"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "project"
+                    }
+                  }
+                }
+              ]
+            },
+            "revision": {
+              "const": 1
+            },
+            "visibility_revision": {
+              "const": 1
+            },
+            "kind": {
+              "const": "note"
+            },
+            "effective_priority": {
+              "const": "normal"
+            },
+            "required_action": {
+              "type": "null"
+            },
+            "response_request_ref": {
+              "type": "null"
+            },
+            "artifact_refs": {
+              "type": "array",
+              "maxItems": 0
+            },
+            "reply_to_message_ref": {
+              "type": "null"
+            },
+            "correlation_ref": {
+              "type": "null"
+            }
+          }
+        }
+      ]
+    },
+    "ReadBack": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "projection_type": {
+          "const": "owner_discussion_record"
+        },
+        "company_id": {
+          "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/CompanyId"
+        },
+        "scope": {
+          "allOf": [
+            {
+              "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/TaskScope"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "project"
+                }
+              }
+            }
+          ]
+        },
+        "conversation": {
+          "$ref": "#/$defs/Conversation"
+        },
+        "message": {
+          "$ref": "#/$defs/Message"
+        },
+        "receipt": {
+          "$ref": "#/$defs/Receipt"
+        },
+        "observation": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": {
+              "const": "stored_record"
+            },
+            "evidence_scope": {
+              "const": "stored_record"
+            },
+            "live_verified": {
+              "const": false
+            }
+          },
+          "required": [
+            "source",
+            "evidence_scope",
+            "live_verified"
+          ]
+        },
+        "digest": {
+          "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/Digest"
+        }
+      },
+      "required": [
+        "schema_version",
+        "projection_type",
+        "company_id",
+        "scope",
+        "conversation",
+        "message",
+        "receipt",
+        "observation",
+        "digest"
+      ]
+    },
+    "Error": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "error": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "enum": [
+                "INVALID_REQUEST",
+                "AUTHENTICATION_REQUIRED",
+                "SCOPE_DENIED",
+                "NOT_FOUND",
+                "IDEMPOTENCY_CONFLICT",
+                "RECORDS_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "required": [
+        "schema_version",
+        "error"
+      ]
+    }
+  }
+}

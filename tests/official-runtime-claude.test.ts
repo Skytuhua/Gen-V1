@@ -33,6 +33,16 @@ function scripted(account: Record<string, unknown> = { apiProvider: 'firstParty'
 const run = (extra: Partial<StartRun> = {}): StartRun => ({ threadId: 'thread', runId: 'run-1', epoch: 1, modelId: 'claude-code/advertised-model', inputId: 'input-1', prompt: 'hello', resources: [], sessionPath: null, ...extra });
 
 describe('official Claude SDK runtime', () => {
+  it('checks authenticated metadata at each native initialization without claiming a fresh per-turn subject', async()=>{
+    const account={apiProvider:'firstParty',subscriptionType:'Claude Max',apiKeySource:'none',email:'first@example.test',organization:'org-a'};
+    const fake=scripted(account),dataDir=await mkdtemp(join(tmpdir(),'claude-identity-')),runtime=createOfficialRuntime({dataDir},fake.dependencies);
+    runtime.configure({onEvent:()=>{},onTool:async()=>null});
+    try{await runtime.start(run());await vi.waitFor(()=>expect(fake.accepted).toHaveLength(1));
+      const saved=JSON.parse(await readFile(join(dataDir,'official','claude-code','home','harness-account-identity.json'),'utf8'));expect(saved).toMatchObject({availability:'metadata',subject:null,email:'first@example.test'});
+    }finally{await runtime.dispose();}
+    const next=scripted({...account,email:'other@example.test'}),other=createOfficialRuntime({dataDir},next.dependencies);other.configure({onEvent:()=>{},onTool:async()=>null});
+    try{await expect(other.start(run({epoch:2,runId:'run-2',inputId:'input-2',prompt:'must remain local'}))).rejects.toMatchObject({code:'ACCOUNT_IDENTITY_MISMATCH'});expect(next.accepted).toHaveLength(0);}finally{await other.dispose();}
+  });
   it('uses a tool-free model-only SDK session and preserves Hermes tool text as assistant content',async()=>{
     const fake=scripted(),events:RuntimeEvent[]=[],onTool=vi.fn(async()=>null),runtime=createOfficialRuntime({dataDir:await mkdtemp(join(tmpdir(),'official-text-')),modelOnly:true},fake.dependencies);
     runtime.configure({onEvent:event=>events.push(event),onTool});

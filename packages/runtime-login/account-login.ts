@@ -18,7 +18,7 @@ export async function withAccountLogin(request: { dataDir: string; provider: Con
     await withAccountProfile(store.dataDir, account, async root => {
       try { await run(root); }
       catch (error) {
-        if ((error as {code?: unknown} | null)?.code === 'PI_CANCEL_UNCONFIRMED') holdAccountLogin(store, lease!);
+        if (['PI_CANCEL_UNCONFIRMED', 'RUNTIME_TEARDOWN_FAILED'].includes(String((error as {code?: unknown} | null)?.code))) holdAccountLogin(store, lease!);
         throw error;
       }
     });

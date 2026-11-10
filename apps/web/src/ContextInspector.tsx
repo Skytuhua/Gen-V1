@@ -1,5 +1,4 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { X } from 'lucide-react';
 import type { RuntimeUsage, Thread } from '../../../packages/contracts';
 import { command } from './api';
 import { ContextMeter, contextNumber, contextSegments } from './ContextMeter';
@@ -48,11 +47,12 @@ function useAcceptedMeasurement(usage: RuntimeUsage | undefined, identity: strin
 
 function Quota({ label, value }: { label: string; value: number | null | undefined }) {
   const valid = value != null && Number.isFinite(value) && value >= 0 && value <= 100;
-  return <div className="context-quota"><div><span>{label}</span><strong>{valid ? `${Math.round(value)}%` : 'Unavailable'}</strong></div>{valid ? <div className="context-quota-track" role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={value}><i style={{ width: `${value}%` }} /></div> : <div className="context-quota-unavailable" aria-hidden="true" />}</div>;
+  return <div className="context-quota"><div><span>{label}</span><strong>{valid ? `${Math.round(value)}%` : 'Unavailable'}</strong></div>{valid && <div className="context-quota-track" role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={value}><i style={{ width: `${value}%` }} /></div>}</div>;
 }
 
 export function ContextInspector({ usage, thread, close, refresh, onError }: { usage: RuntimeUsage | undefined; thread: Thread | undefined; close: () => void; refresh: () => Promise<void>; onError?: (message: string) => void }) {
   const panel = useRef<HTMLDivElement>(null);
+  const opener = useRef<HTMLElement|null>(document.activeElement instanceof HTMLElement ? document.activeElement : null);
   const identity = `${thread?.id ?? 'none'}:${thread?.sessionPath ?? 'none'}`;
   const displayed = useAcceptedMeasurement(usage, identity), measured = contextSegments(displayed);
   const [error, setError] = useState(''), [submitting, setSubmitting] = useState(false);
@@ -89,10 +89,11 @@ export function ContextInspector({ usage, thread, close, refresh, onError }: { u
   const compacting = usage?.activity === 'compacting';
   const countersSettled = displayed?.contextTokens === usage?.contextTokens && displayed?.contextWindow === usage?.contextWindow;
   const activity = compacting ? 'Summarizing messages' : !unavailable && receipt ? countersSettled ? `Freed ${contextNumber(receipt.before - receipt.after)} tokens` : '' : usage?.activity === 'running' ? 'Agent working' : usage?.activity === 'retrying' ? 'Retrying' : unavailable?.status ?? 'Context ready';
-  return <div ref={panel} className="context-popover context-inspector" role="dialog" aria-label="Context inspector">
-    <header><strong>Context <span>{measured ? `${Math.round(measured.ratio)}%` : 'Unavailable'}</span></strong><span className="context-inspector-total">{measured ? `${contextNumber(measured.used)} of ${contextNumber(measured.total)}` : 'Measurement unavailable'}</span><button className="icon-button" aria-label="Close context inspector" onClick={close}><X size={13} /></button></header>
-    <div className="context-inspector-breakdown"><ContextMeter usage={displayed} busy={compacting} /></div>
-    <div className="context-inspector-quotas"><Quota label="Session limit" value={usage?.sessionPercent} /><Quota label="Weekly limit" value={usage?.weeklyPercent} /><details className="context-inspector-details"><summary>Usage details</summary><dl><dt>Input tokens</dt><dd>{usage?.inputTokens == null ? 'Unavailable' : contextNumber(usage.inputTokens)}</dd><dt>Output tokens</dt><dd>{usage?.outputTokens == null ? 'Unavailable' : contextNumber(usage.outputTokens)}</dd><dt>Cost</dt><dd>{usage?.cost == null ? 'Unavailable' : new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 4 }).format(usage.cost)}</dd></dl><p>Reported by the runtime. Provider reset times and quota breakdowns are unavailable.</p></details></div>
+  return <div ref={panel} className="context-popover context-inspector" role="dialog" aria-label="Context inspector" onKeyDown={event=>{if(event.key==='Escape'){event.preventDefault();event.stopPropagation();close();if(opener.current?.isConnected)opener.current.focus({preventScroll:true});}}}>
+    <header><strong>Context <span>{measured ? `${Math.round(measured.ratio)}%` : 'Unavailable'}</span></strong>{measured&&<span className="context-inspector-total">{contextNumber(measured.used)} of {contextNumber(measured.total)}</span>}</header>
+    <div className="context-inspector-breakdown">{measured?<div className="context-inspector-track" role="progressbar" aria-label="Context used" aria-valuemin={0} aria-valuemax={100} aria-valuenow={measured.ratio} aria-valuetext={`${contextNumber(measured.used)} of ${contextNumber(measured.total)} tokens`}><i style={{width:`${measured.ratio}%`}}/>{compacting&&<span className="context-compaction-shimmer" aria-hidden="true"/>}</div>:<div className="context-meter-unknown" aria-label="Context measurement unavailable"/>}</div>
+    <div className="context-inspector-quotas"><Quota label="Session limit" value={usage?.sessionPercent} /><Quota label="Weekly limit" value={usage?.weeklyPercent} /></div>
+    <details className="context-inspector-details"><summary>Usage details</summary><ContextMeter usage={displayed} busy={compacting}/><dl><dt>Input tokens</dt><dd>{usage?.inputTokens == null ? 'Unavailable' : contextNumber(usage.inputTokens)}</dd><dt>Output tokens</dt><dd>{usage?.outputTokens == null ? 'Unavailable' : contextNumber(usage.outputTokens)}</dd><dt>Cost</dt><dd>{usage?.cost == null ? 'Unavailable' : new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 4 }).format(usage.cost)}</dd></dl></details>
     <footer><span role="status" aria-live="polite">{activity}</span><button className="accent-button" disabled={!thread?.sessionPath || Boolean(thread.runId) || compacting || submitting || Boolean(unavailable)} title={unavailable?.reason ?? (!thread?.sessionPath ? 'Start a session before compacting context.' : undefined)} aria-description={unavailable?.reason} onClick={() => void compact()}>{compacting ? 'Compacting…' : 'Compact now'}</button></footer>
     {error && <p className="error-text" role="alert">{error}</p>}
   </div>;

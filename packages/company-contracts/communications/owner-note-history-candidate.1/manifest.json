@@ -1,0 +1,40 @@
+{
+  "contract": "maritime-owner-note-history",
+  "version": "1.0.0-history-candidate.1",
+  "status": "review_candidate_file_contract_only",
+  "source_checkpoint_base": "e27f9443bfcac1fdf92b0d70dfab261a7fb7953b",
+  "files": [
+    {
+      "path": "history.schema.json",
+      "sha256": "56810ef076b97563bce763eba05bb55fb6f60aa5f76a960eae92c3628680ad74",
+      "bytes": 5723
+    },
+    {
+      "path": "golden.json",
+      "sha256": "f0afeb4ba60c5c11bfcd9c02f5c51d240ce7043351a5d5f9984ff80c7ea239e5",
+      "bytes": 28374
+    }
+  ],
+  "frozen_import": {
+    "schema_id": "urn:maritime:communications:reads-candidate.1",
+    "path": "contracts/communications/reads-candidate.1/records.schema.json",
+    "sha256": "98fd331df7aa5262eefbf7bf73a3396d7ffd3b40e13f186e4d9aaa3a735958af",
+    "checkpoint": "bdfbaae29d2838dcfa28f619b8a3d1c8bcb14113"
+  },
+  "method_nomination": "OwnerNotes.read_owner_note_history(*, token, scope, limit=20)",
+  "runtime_implemented": false,
+  "new_route": false,
+  "new_permission": false,
+  "raw_output_byte_limit": 262144,
+  "frozen_command_byte_limit": 32768,
+  "canonical": "Frozen C01 strict UTF8/JSON/safe-integer/UTF16-member-order semantics unchanged; each own digest omits only own top-level digest. Recompute nested records before aggregate.",
+  "supplemental_checks": [
+    "Independently authorized company/project equals root and every nested record/reference; current registry/coordinator/project auth precedes lookup and final return.",
+    "Observation labels are descriptive, not authority; all nested observation objects match the aggregate pair with live_verified=false.",
+    "Every retained Message references exactly its paired historical Conversation ID/revision/digest; room_head shares identity/scope but never substitutes for historical refs.",
+    "Owner-note-only fixed policy1: unique message IDs and sequences, strictly descending contiguous newest prefix, first sequence=head.revision; paired Conversation revision=message sequence. Each record field/UTF8/digest must satisfy frozen validators.",
+    "items.length<=requested_limit<=50; null head only with empty items/none_observed; present head requires nonempty prefix. No count/completeness/cursor/snapshot claim.",
+    "Full raw UTF8 input boundary262144 before parse; full actual canonical serialization includes envelope, escaping, head, every nested record and all digests. Never sum decoded text sizes. Byte-limit omissions take precedence over item-limit; none_observed never means complete.",
+    "Unknown/corrupt policy, missing latest note/head/revision, or selected-row corruption fails the whole operation, not a successful partial prefix. No skipped middle rows or trimmed bodies."
+  ]
+}

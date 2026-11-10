@@ -1,14 +1,14 @@
-# Generative Harness
+# Gen V1
 
 <!-- impeccable:product-schema 1 -->
 
 Last updated: 2026-10-31.
 
 ## Platform
-web, with a native Windows Electron owner sharing the same React frontend and Node/Pi backend
+web, with a native Windows Electron owner sharing the same React frontend and Node/Hermes backend
 
 ## Stack
-User-approved React, TypeScript, Vite, Node, SQLite, Pi SDK and json-render; Electron packages the existing application with a pinned real-Node sidecar.
+React, TypeScript, Vite, Node, SQLite, original Hermes Agent, native subscription adapters and json-render; Electron packages the application with pinned Node and isolated Python sidecars.
 
 ## Users
 A single local Windows user working with an agent across code, documents, data, research, planning and unfamiliar tasks.
@@ -17,11 +17,11 @@ A single local Windows user working with an agent across code, documents, data, 
 The conversation is the workspace. The agent creates and evolves interactive task applications, receives meaningful actions through them, and continues real work.
 
 ## Capabilities and Constraints
-Recreate T3's interface in a separate application, with the conversation centered in the available workspace. The right workspace panel and Usage are on demand; a real plan opens automatically without stealing composer focus and can be reopened from Thread options. Closed tools leave no blank rail. Prepared text opens in an editable document window that docks or floats while retaining the same draft. One thread owns one durable task and Pi session. Trusted structured composition has 48 components, including workflow boards, architecture schematics and trace waterfalls. Generated-code applications remain disabled behind their execution-isolation acceptance gate. Preserve edits, evidence, actions and recovery. Native detachable views share the same backend and durable object identities, remember display placement and recover after a display disconnects.
+Keep the conversation centered in the available workspace. The right workspace panel and Usage are on demand; a real plan opens automatically without stealing composer focus and can be reopened from Thread options. Closed tools leave no blank rail. Prepared text opens in an editable document window that docks or floats while retaining the same draft. One thread owns one durable task and original Hermes session, bound to a specific account. Trusted structured composition has 48 components, including workflow boards, architecture schematics and trace waterfalls. Generated-code applications execute in opaque workers with schema, message and watchdog limits after actual-host acceptance; no hard operating-system memory quota is claimed. Preserve edits, evidence, actions and recovery. Native detachable views share the same backend and durable object identities, remember display placement and recover after a display disconnects.
 
 Keep routine context small through a concise capability index, paged schema discovery, metadata-first inspection and explicit revision-pinned source reads. Thread memory retains at most 12 brief notes, 768 UTF-8 bytes each and 4 KiB total, visible and editable by the user. Notes support continuity across sessions and compaction; they never replace source evidence, resource grants or approval.
 
-Enabled subscription integrations are ChatGPT / Codex, legacy Codex, GitHub Copilot and xAI OAuth. This does not establish live sign-in, entitlement or inference. Almost-all-subscription coverage remains unfinished: Claude and Gemini official runtimes and Kimi Code/OpenCode Go dedicated plan-key connections are pending. API-key billing fallback remains disabled. See [the connection inventory](docs/subscription-connections.md) and [current milestone gates](docs/t3-centered-milestone.md).
+Nine connection IDs are implemented: ChatGPT / Codex, legacy Codex, GitHub Copilot and xAI OAuth; Claude and Gemini official runtimes; Cursor SDK browser login; and Kimi Code/OpenCode Go dedicated plan keys. Only the owned OpenAI route has live sign-in/task acceptance here. Other account entitlement and inference remain unverified. API-key billing fallback remains disabled. Optional composer predictions use the selected account/model in an independently owned tool-free session, stay outside the draft until accepted and are off by default. See [the connection inventory](docs/subscription-connections.md) and [verification scope](docs/2026-11-01-product-completion.md).
 
 ## Brand Commitments
 The six supplied Phil Pitus videos guide conversation proportions, composer, cards, typography, neutral palettes and contextual controls. Keep T3-style thread navigation around the conversation. The user's later motion direction is expressive, responsive and subtly springy. No green-tinted application background.

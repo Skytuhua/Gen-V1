@@ -22,6 +22,25 @@ function fixture(){
 }
 afterEach(()=>vi.unstubAllGlobals());
 
+it('lets the left scroll control hold history through streaming and resume following only after release',()=>{
+ const f=fixture();f.scroll.update('one',{top:0,tail:true});
+ f.scroll.beginManualScroll();expect(f.scroll.scrollTo(120)).toEqual({top:120,tail:false});
+ expect(f.scroll.remember()).toEqual({top:120,tail:false});
+ f.element.scrollHeight=1600;f.scroll.update('one',{top:120,tail:false});f.resize();f.tick(10);
+ expect(f.element.scrollTop).toBe(120);expect(f.frames.size).toBe(0);
+ f.scroll.scrollTo(1200);f.resize();f.tick(10);expect(f.frames.size).toBe(0);
+ f.scroll.endManualScroll();f.element.scrollHeight=1800;f.resize();f.tick(60);
+ expect(f.element.scrollTop).toBe(1400);f.scroll.dispose();
+});
+
+it('clamps explicit scrollbar positions and ignores invalid or disposed writes',()=>{
+ const f=fixture();f.scroll.update('one',{top:150,tail:false});
+ expect(f.scroll.scrollTo(-20)).toEqual({top:0,tail:false});
+ expect(f.scroll.scrollTo(900)).toEqual({top:600,tail:true});
+ f.scroll.scrollTo(Number.NaN);expect(f.element.scrollTop).toBe(600);
+ f.scroll.dispose();f.scroll.scrollTo(0);expect(f.element.scrollTop).toBe(600);
+});
+
 it('restores history immediately, then moves toward new content without detaching the tail',()=>{
  const f=fixture();f.scroll.update('one',{top:0,tail:true});expect(f.element.scrollTop).toBe(600);expect(f.frames.size).toBe(0);
  f.element.scrollHeight=1300;f.scroll.update('one',{top:600,tail:true});expect(f.element.scrollTop).toBe(600);f.tick(4);

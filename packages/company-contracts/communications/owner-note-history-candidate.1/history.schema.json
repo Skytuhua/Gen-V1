@@ -1,0 +1,255 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:maritime:communications:owner-note-history-candidate.1",
+  "$comment": "Additive file-contract nomination only; no method, decoder, route, grant, cursor or snapshot implemented. Frozen nested records remain unchanged. Enforce full raw UTF8 cap262144 before parse and supplemental checks in manifest.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "projection_type": {
+      "const": "owner_note_history"
+    },
+    "company_id": {
+      "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/CompanyId"
+    },
+    "scope": {
+      "allOf": [
+        {
+          "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/TaskScope"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "project"
+            }
+          }
+        }
+      ]
+    },
+    "room_head": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/OwnerConversation"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "items": {
+      "type": "array",
+      "maxItems": 50,
+      "items": {
+        "$ref": "#/$defs/HistoricalPair"
+      }
+    },
+    "requested_limit": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 50
+    },
+    "order": {
+      "const": "conversation_sequence_descending"
+    },
+    "observed_at_utc_epoch_ms": {
+      "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/UtcEpochMilliseconds"
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "const": "partial"
+        },
+        "truncation": {
+          "enum": [
+            "item_limit",
+            "byte_limit",
+            "none_observed"
+          ]
+        },
+        "total_count": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "status",
+        "truncation",
+        "total_count"
+      ]
+    },
+    "has_more": {
+      "type": "null"
+    },
+    "next_cursor": {
+      "type": "null"
+    },
+    "continuation": {
+      "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/ContinuationUnavailable"
+    },
+    "snapshot": {
+      "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/SnapshotUnavailable"
+    },
+    "observation": {
+      "allOf": [
+        {
+          "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/Observation"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "source": {
+              "enum": [
+                "synthetic_fixture",
+                "stored_record"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "digest": {
+      "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/Digest"
+    }
+  },
+  "required": [
+    "schema_version",
+    "projection_type",
+    "company_id",
+    "scope",
+    "room_head",
+    "items",
+    "requested_limit",
+    "order",
+    "observed_at_utc_epoch_ms",
+    "coverage",
+    "has_more",
+    "next_cursor",
+    "continuation",
+    "snapshot",
+    "observation",
+    "digest"
+  ],
+  "$defs": {
+    "OwnerConversation": {
+      "allOf": [
+        {
+          "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/Conversation"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "project_room"
+            },
+            "task_ref": {
+              "type": "null"
+            },
+            "work_order_ref": {
+              "type": "null"
+            },
+            "title": {
+              "const": "Owner project notes"
+            },
+            "lifecycle": {
+              "const": "open"
+            },
+            "visibility_revision": {
+              "const": 1
+            }
+          }
+        }
+      ]
+    },
+    "OwnerMessage": {
+      "allOf": [
+        {
+          "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/Message"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "note"
+            },
+            "effective_priority": {
+              "const": "normal"
+            },
+            "required_action": {
+              "type": "null"
+            },
+            "reply_to_message_ref": {
+              "type": "null"
+            },
+            "correlation_ref": {
+              "type": "null"
+            },
+            "visibility_revision": {
+              "const": 1
+            },
+            "revision": {
+              "const": 1
+            }
+          }
+        }
+      ]
+    },
+    "HistoricalPair": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "conversation": {
+          "$ref": "#/$defs/OwnerConversation"
+        },
+        "message": {
+          "$ref": "#/$defs/OwnerMessage"
+        }
+      },
+      "required": [
+        "conversation",
+        "message"
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "room_head": {
+            "type": "null"
+          }
+        },
+        "required": [
+          "room_head"
+        ]
+      },
+      "then": {
+        "properties": {
+          "items": {
+            "maxItems": 0,
+            "type": "array"
+          },
+          "coverage": {
+            "properties": {
+              "truncation": {
+                "const": "none_observed"
+              }
+            },
+            "type": "object"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "items": {
+            "minItems": 1,
+            "type": "array"
+          }
+        }
+      }
+    }
+  ]
+}

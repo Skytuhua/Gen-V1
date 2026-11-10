@@ -2,7 +2,7 @@ import { realpath, stat } from "node:fs/promises";
 import { lstatSync, realpathSync, statSync } from "node:fs";
 import { isAbsolute, relative, resolve, dirname, basename, sep } from "node:path";
 import { HarnessError, type ResourceGrant } from "../contracts/index.ts";
-export const PROTECTED_STORAGE_DIRECTORIES = ['pi', 'artifacts', 'official', 'accounts', 'hermes'] as const;
+export const PROTECTED_STORAGE_DIRECTORIES = ['pi', 'artifacts', 'official', 'accounts', 'hermes', 'github', 'git', 'integrations'] as const;
 
 export function inside(parent: string, child: string): boolean {
   const rel = relative(parent, child);

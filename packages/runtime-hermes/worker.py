@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -28,6 +29,7 @@ ROOT = Path(__file__).resolve().parents[2]
 SOURCE = ROOT / "third-party/hermes-agent/upstream"
 COMMIT = "c627ec84664d43e0b18b95d9d86d8963747d56c7"
 MAX_FRAME_BYTES = 32 * 1024 * 1024
+BUNDLED_INTEGRATIONS = frozenset({"humanizer", "emil", "impeccable", "graphify", "promptfoo", "biome", "superpowers", "spec-kit", "context7", "ponytail"})
 class SourceConflictError(RuntimeError):
     code = "STALE_SKILL"
 WIRE = sys.stdout
@@ -86,6 +88,16 @@ class Worker:
         self.transport_lock = threading.Lock()
         self.skill_lock = threading.RLock()
         self.home_identity = None
+        self.shared_library = False
+        self.managed_review = False
+        self.library_context = threading.local()
+        self.library_read_marks = {}
+        self.remote_review_tokens = {}
+        self.integrations = None
+        self.integration_lock = threading.RLock()
+        self.integration_config = {"enabled": [], "ponytailMode": "off"}
+        self.integration_revocations = {}
+        self.integration_revision = 0
 
     def guard_home(self):
         """Application namespace guard; original source is not an OS sandbox."""
@@ -115,7 +127,7 @@ class Worker:
             raise PermissionError("The Hermes home contains a non-file node")
 
     def current_ctx(self):
-        context = dict(self.ctx or {})
+        context = dict(getattr(self.library_context, "ctx", None) or self.ctx or {})
         provenance = sys.modules.get("tools.skill_provenance")
         context["phase"] = "background_review" if provenance and provenance.is_background_review() else "foreground"
         return context
@@ -161,6 +173,8 @@ class Worker:
         if str(home).startswith(("\\\\", "//")):
             raise PermissionError("Hermes home must be a local app-owned path")
         self.home = Path(os.path.abspath(home))
+        self.shared_library = params.get("sharedLibrary") is True
+        self.managed_review = params.get("managedReview") is True
         self.guard_home()
         self.home.mkdir(parents=True, exist_ok=True)
         self.guard_home()
@@ -256,17 +270,21 @@ class Worker:
             def guarded(args, _name=name, **kw):
                 return self.skill_tool(_name, args, kw)
             registry.register(name=name, toolset=entry.toolset, schema=entry.schema, handler=guarded, check_fn=entry.check_fn, override=True)
+        self.refresh_integrations(params.get("integrations") or {"enabled": [], "ponytailMode": "off"}, params.get("projectRoot"))
         self.ready = True
         return {"protocolVersion": 1, "sourceCommit": COMMIT, "pythonVersion": sys.version.split()[0],
                 "engineClass": "run_agent.AIAgent", "methods": METHODS}
 
     def guard_skill(self, args, write=False):
-        if self.policy.get("enabled") is False:
+        policy = getattr(self.library_context, "policy", None)
+        if policy is None:
+            policy = self.policy
+        if policy.get("enabled") is False:
             raise PermissionError("Skill learning is disabled by the host")
-        if write and self.policy.get("allowWrites") is not True:
+        if write and policy.get("allowWrites") is not True:
             raise PermissionError("Skill writes are disabled for this role")
-        disabled = set(self.policy.get("disabledNames") or [])
-        protected = set(self.policy.get("protectedNames") or [])
+        disabled = set(policy.get("disabledNames") or [])
+        protected = set(policy.get("protectedNames") or [])
         operations = args.get("operations")
         entries = operations if isinstance(operations, list) else [args]
         for entry in entries:
@@ -293,10 +311,48 @@ class Worker:
                 raise PermissionError("Skill is disabled or protected by the host")
 
     def skill_tool(self, name, args, kw):
+        if self.shared_library:
+            if name == "skill_manage":
+                for entry in args.get("operations", [args]):
+                    qualified = str(entry.get("name", args.get("name", ""))) if isinstance(entry, dict) else ""
+                    if ":" in qualified and qualified.removeprefix("plugin:").partition(":")[0] in BUNDLED_INTEGRATIONS:
+                        return json.dumps({"success": False, "error": "Bundled integration skills are immutable"})
+            if name == "skill_view" and ":" in str(args.get("name", "")) and str(args.get("name", "")).removeprefix("plugin:").partition(":")[0] in BUNDLED_INTEGRATIONS:
+                if self.integrations is None:
+                    return json.dumps({"success": False, "error": "Bundled integration is disabled"})
+                try:
+                    self.guard_skill(args)
+                    return self.integrations.local_skill_view(args.get("name"), args.get("file_path"), kw.get("task_id"))
+                except PermissionError as exc:
+                    return json.dumps({"success": False, "error": str(exc)})
+            review_token = None
+            if self.current_ctx().get("phase") == "background_review":
+                from tools.skill_manager_guards import _background_review_read_paths
+                marks = _background_review_read_paths.get()
+                review_token = self.remote_review_tokens.setdefault(marks, uuid.uuid4().hex)
+            result = self.host_call("$library.tool", {"name": name, "args": args,
+                "reviewToken": review_token,
+                "kw": {key: value for key, value in kw.items() if key in {"task_id", "session_id"} and isinstance(value, (str, int, bool))}})
+            if name == "skills_list":
+                value = parse_result(result)
+                if value.get("success"):
+                    from tools.skills_tool import sort_skills
+                    learned = [item for item in value.get("skills", []) if item.get("category") != "plugin" and not str(item.get("name", "")).startswith("plugin:")]
+                    bundled = self.integrations.local_skill_list() if self.integrations is not None else []
+                    bundled = [{key: val for key, val in item.items() if key != "frontmatter"} for item in bundled if not args.get("category") or item.get("category") == args["category"]]
+                    value["skills"] = sort_skills(learned + bundled)
+                    value["count"] = len(value["skills"])
+                    value["categories"] = sorted({item["category"] for item in value["skills"] if item.get("category")})
+                    if value["skills"]:
+                        value.pop("message", None)
+                    return json.dumps(value)
+            return result
         with self.skill_lock:
             try:
                 self.guard_home()
                 self.guard_skill(args, write=name == "skill_manage")
+                if name == "skill_manage" and self.integrations is not None:
+                    self.integrations.assert_mutable(args)
                 result = self.source_handlers[name](args, **kw)
                 self.guard_home()
                 if name == "skill_manage":
@@ -304,6 +360,117 @@ class Worker:
                 return result
             except PermissionError as exc:
                 return json.dumps({"success": False, "error": str(exc)})
+
+    def shared_skill_tool(self, params):
+        if self.shared_library:
+            raise PermissionError("A task worker cannot own the canonical library")
+        name, args, kw = params.get("name"), params.get("args"), params.get("kw") or {}
+        context = params.get("ctx") or {}
+        if name not in self.source_handlers or not isinstance(args, dict) or not isinstance(kw, dict):
+            raise PermissionError("Invalid canonical source tool")
+        if not all(context.get(key) is not None for key in ("threadId", "runId", "epoch")):
+            raise PermissionError("Canonical source tool requires captured ownership")
+        from tools.skill_provenance import set_current_write_origin, reset_current_write_origin
+        from tools.skill_manager_guards import _background_review_read_paths, _BackgroundReviewReadMarks
+        from tools.skill_ledger import set_ledger_actor, reset_ledger_actor
+        phase = "background_review" if context.get("phase") == "background_review" else "foreground"
+        key = tuple(context.get(field) for field in ("threadId", "runId", "epoch", "accountId", "reviewToken"))
+        with self.skill_lock:
+            self.library_context.policy = copy.deepcopy(params.get("policy") or {})
+            self.library_context.ctx = dict(context)
+            provenance = set_current_write_origin(phase)
+            actor = set_ledger_actor(None)  # Original derive_actor keeps foreground agent/review curator provenance.
+            marks = _background_review_read_paths.set(self.library_read_marks.setdefault(key, _BackgroundReviewReadMarks()))
+            try:
+                return self.skill_tool(name, args, kw)
+            finally:
+                _background_review_read_paths.reset(marks)
+                reset_ledger_actor(actor)
+                reset_current_write_origin(provenance)
+                self.library_context.ctx = None
+                self.library_context.policy = None
+
+    def refresh_integrations(self, config, project_root=None, revoke=False, disabled_ids=None, revision=None):
+        with self.integration_lock:
+            revision = self.integration_revision + int(revoke) if revision is None else revision
+            self.integration_revision = max(self.integration_revision, revision)
+            if revoke:
+                disabled_ids = set(disabled_ids if disabled_ids is not None else set(self.integration_config.get("enabled", [])) - set(config.get("enabled", [])))
+                for ident in disabled_ids:
+                    self.integration_revocations[ident] = max(self.integration_revocations.get(ident, 0), revision)
+            config = {**config, "enabled": [ident for ident in config.get("enabled", [])
+                if self.integration_revocations.get(ident, 0) <= revision and (not revoke or ident not in disabled_ids)]}
+            self.integration_config = copy.deepcopy(config)
+            if self.integrations is None:
+                if not config.get("enabled"):
+                    return {"enabled": [], "ponytailMode": "off"}
+                spec = importlib.util.spec_from_file_location("harness_bundled_integrations", ROOT / "packages/integrations/hermes.py")
+                if spec is None or spec.loader is None:
+                    raise RuntimeError("The bundled integration adapter is missing")
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                self.integrations = module.BundledIntegrations(ROOT, self.home)
+            return self.integrations.refresh(config, project_root)
+
+    def bind_review_admission(self, agent):
+        if not self.managed_review:
+            return
+        original = agent._spawn_background_review_now
+        def owned_review(*args, **kwargs):
+            if self.policy.get("backgroundReview") is False:
+                return
+            result = self.host_call("$background.acquire", {})
+            if not result or result.get("acquired") is not True or self.cancelled.is_set():
+                raise RuntimeError("The original review did not acquire its host owner")
+            return original(*args, **kwargs)
+        agent._spawn_background_review_now = owned_review
+
+    def bind_completed_writes(self, params):
+        receipts = params.get("completedWrites", [])
+        if not isinstance(receipts, list) or len(receipts) > 32:
+            raise ValueError("The completed-write batch exceeds its bound")
+        agent, ctx = self.agent, copy.deepcopy(self.ctx)
+        pending, admitted, seen = {}, [], set()
+
+        def report(diagnostic):
+            pending.pop(diagnostic["inputId"], None)
+            if self.params is params and self.ctx == ctx:
+                self.event("write_hook", {"diagnostic": diagnostic})
+
+        def guard():
+            return self.params is params and self.ctx == ctx and self.agent is agent and self.active_owner and self.foreground_active and not self.cancelled.is_set()
+
+        for receipt in receipts:
+            diagnostic = {key: receipt.get(key) for key in ("operationId", "revision", "inputId")}
+            origin, delivery = receipt.get("origin") or {}, receipt.get("delivery") or {}
+            valid = (isinstance(receipt.get("operationId"), str) and receipt["operationId"] not in seen
+                and receipt.get("inputId") == "operation-result:" + receipt["operationId"] and receipt["inputId"] in params.get("inputIds", [])
+                and all(delivery.get(key) == ctx.get(key) for key in ("threadId", "runId", "epoch"))
+                and origin.get("threadId") == ctx.get("threadId") and isinstance(origin.get("epoch"), int) and origin["epoch"] + 1 == ctx.get("epoch")
+                and origin.get("runId") != ctx.get("runId") and origin.get("modelId") == params.get("modelId")
+                and origin.get("accountId") == params.get("accountId") and origin.get("sessionPath") == params.get("sessionPath")
+                and bool(params.get("sessionPath")) and isinstance(origin.get("projectId"), str) and isinstance(origin.get("workspaceId"), str)
+                and isinstance(origin.get("projectRoot"), str) and origin["projectRoot"] == params.get("projectRoot")
+                and isinstance(receipt.get("revision"), int) and receipt["revision"] > 0
+                and isinstance(receipt.get("path"), str) and len(receipt["path"]) <= 32768
+                and isinstance(receipt.get("bytes"), int) and 0 <= receipt["bytes"] <= 32 * 1024 * 1024
+                and isinstance(receipt.get("sha256"), str) and re.fullmatch("[a-f0-9]{64}", receipt["sha256"]))
+            if not valid:
+                report({**diagnostic, "status": "stale", "message": "Completed-write custody does not match this source turn."})
+            elif self.integrations is None or "impeccable" not in self.integrations.enabled:
+                report({**diagnostic, "status": "disabled", "message": "Impeccable is disabled; no post-edit hook was run."})
+            else:
+                seen.add(receipt["operationId"])
+                pending[receipt["inputId"]] = diagnostic
+                admitted.append(receipt)
+        if self.integrations is not None:
+            self.integrations.on_hook_execution = lambda proof: self.event("integration_hook", proof) if guard() else None
+            self.integrations.bind_completed_writes(agent, admitted, guard, report)
+
+        def finish():
+            for diagnostic in list(pending.values()):
+                report({**diagnostic, "status": "unknown", "message": "The source turn ended without confirming the post-edit callback; it will not replay."})
+        return finish
 
     def check_expected(self, expected):
         from tools import skill_manager_tool as manager
@@ -365,13 +532,17 @@ class Worker:
                 if ownership != self.history_ownership(params):
                     raise PermissionError("Saved source session belongs to another thread or account")
                 history = saved["messages"]
-            self.params = dict(params)
+            params = dict(params)
+            with self.integration_lock:
+                params.setdefault("integrationRevision", self.integration_revision)
+            self.params = params
             self.ctx = params.get("ctx")
             self.policy = copy.deepcopy(params.get("skillPolicy") or {})
             self.history = history
             self.session_key = session_key
             self.cancelled.clear()
             self.followups = {}
+            self.remote_review_tokens = {}
             self.native_usage = []
             # Environment cannot switch while any original source owner is live.
             for name, key in (("HARNESS_HERMES_BROKER_URL", "brokerURL"), ("HARNESS_HERMES_JOB_KEY", "jobKey"), ("HARNESS_HERMES_MODEL_ID", "modelId")):
@@ -389,6 +560,7 @@ class Worker:
         try:
             # Real source constructor, real source conversation loop and review path.
             self.guard_home()
+            self.refresh_integrations(params.get("integrations") or {"enabled": [], "ponytailMode": "off"}, params.get("projectRoot"), revision=params.get("integrationRevision"))
             identity = self.binding_identity(params)
             if self.agent is None or self.agent_identity != identity:
                 if self.agent is not None:
@@ -401,7 +573,7 @@ class Worker:
                 acp_command=self.acp_command, acp_args=self.acp_args, model=params["modelId"],
                 enabled_toolsets=["harness"] + (["skills"] if self.policy.get("enabled") is not False else []),
                 quiet_mode=True, verbose_logging=False, skip_context_files=True, load_soul_identity=False, skip_memory=True,
-                skip_background_review=self.policy.get("enabled") is False, cwd=str(self.home / "workspace"),
+                skip_background_review=self.policy.get("enabled") is False or self.policy.get("backgroundReview") is False, cwd=str(self.home / "workspace"),
                 session_id=str(params.get("sessionId") or (self.ctx or {}).get("threadId") or uuid.uuid4().hex),
                 ephemeral_system_prompt=params.get("systemPrompt"),
                 reasoning_config={"enabled": params.get("thinkingLevel") not in (None, "off"), "effort": params.get("thinkingLevel") or "medium"},
@@ -411,6 +583,7 @@ class Worker:
                 interim_assistant_callback=lambda *a, **kw: self.event("assistant", {"args": a, "kwargs": kw}), **options)
                 self.agent_identity = identity
                 self.agent_instance = uuid.uuid4().hex
+                self.bind_review_admission(self.agent)
             if self.cancelled.is_set():
                 data["cancelled"] = True
                 return
@@ -418,10 +591,12 @@ class Worker:
             self.event("started", {"engineClass": "run_agent.AIAgent", "agentInstance": self.agent_instance,
                 "itersSinceSkill": self.agent._iters_since_skill, "tools": sorted(self.agent.valid_tool_names)})
             self.foreground_active = True
+            finish_writes = self.bind_completed_writes(params)
             try:
                 result = self.agent.run_conversation(params.get("prompt", ""), conversation_history=self.history,
                     task_id=str((self.ctx or {}).get("runId") or "harness"))
             finally:
+                finish_writes()
                 self.foreground_active = False
             self.history = copy.deepcopy(result.get("messages") or self.agent._last_messages or [])
             data["result"] = result
@@ -479,6 +654,8 @@ class Worker:
 
     def cancel(self):
         self.cancelled.set()
+        if self.integrations is not None:
+            self.integrations.cancel_hook_processes()
         agent = self.agent
         if agent is not None:
             agent.interrupt("Host cancelled the run", hard_cancel=True)
@@ -771,6 +948,18 @@ class Worker:
             return self.hello(params)
         if not self.ready:
             raise RuntimeError("hello must succeed before using the worker")
+        if method == "integrations.refresh":
+            return self.refresh_integrations(params.get("config") or {}, params.get("projectRoot"), revoke=True, disabled_ids=params.get("disabledIds"), revision=params.get("integrationRevision"))
+        if method == "skills.tool":
+            return self.shared_skill_tool(params)
+        if method == "skills.releaseOwner":
+            context = params.get("ctx") or {}
+            key = tuple(context.get(field) for field in ("threadId", "runId", "epoch", "accountId"))
+            with self.skill_lock:
+                for identity in list(self.library_read_marks):
+                    if identity[:4] == key:
+                        self.library_read_marks.pop(identity, None)
+            return {"released": True}
         if method == "learn.prompt":
             from agent.learn_prompt import build_learn_prompt
             return {"prompt": build_learn_prompt(params.get("request", ""))}
@@ -830,11 +1019,13 @@ class Worker:
             if self.agent:
                 self.agent.close()
                 self.agent = None
+            if self.integrations is not None:
+                self.integrations.dispose()
             return {"disposed": True}
         raise ValueError("Unknown worker method: " + method)
 
 
-METHODS = ["hello", "learn.prompt", "skills.list", "skills.snapshot", "skills.view", "skills.inspect", "skills.compose", "skills.manage", "skills.import", "skills.stage", "skills.flags", "skills.versions", "skills.rollback", "skills.proposals", "skills.decide", "skills.curate", "agent.start", "agent.followUp", "agent.cancel", "agent.cancelBackground", "agent.history", "agent.compact", "agent.dispose"]
+METHODS = ["hello", "learn.prompt", "skills.tool", "skills.releaseOwner", "integrations.refresh", "skills.list", "skills.snapshot", "skills.view", "skills.inspect", "skills.compose", "skills.manage", "skills.import", "skills.stage", "skills.flags", "skills.versions", "skills.rollback", "skills.proposals", "skills.decide", "skills.curate", "agent.start", "agent.followUp", "agent.cancel", "agent.cancelBackground", "agent.history", "agent.compact", "agent.dispose"]
 
 
 def main():

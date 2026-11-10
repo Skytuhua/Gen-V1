@@ -1,0 +1,152 @@
+{
+  "contract": "maritime-owner-discussion",
+  "version": "1.0.0-candidate.1",
+  "status": "implemented_source_candidate_pending_joint_consumer_review",
+  "source_base": "b11d59cddbcaacd4205a4c0bbc971b256f8894cf",
+  "operations": [
+    {
+      "name": "append_owner_discussion",
+      "method": "POST",
+      "path": "/company/v1/projects/{project_id}/owner-discussion/messages",
+      "body": "Command",
+      "success": {
+        "status": 200,
+        "body": "Receipt",
+        "replay": "exact stored receipt bytes; no replay flag"
+      }
+    },
+    {
+      "name": "read_owner_discussion",
+      "method": "GET",
+      "path": "/company/v1/projects/{project_id}/owner-discussion/conversations/{conversation_id}/messages/{message_id}",
+      "body_bytes": 0,
+      "success": {
+        "status": 200,
+        "body": "ReadBack",
+        "historical": "exact receipt-linked pair; never substitute current room head"
+      }
+    }
+  ],
+  "path_parameters": {
+    "project_id": "canonical [a-z][a-z0-9-]{0,62}, excluding company-ops",
+    "conversation_id": "canonical lowercase UUID",
+    "message_id": "canonical lowercase UUID",
+    "query_or_percent_encoding": false
+  },
+  "transport": {
+    "scheme": "https",
+    "host": "127.0.0.1",
+    "tls_minimum": "1.2",
+    "exact_host_header_with_port": true,
+    "authorization": "one Bearer header; trusted host credential only",
+    "post_content_type": "one application/json",
+    "post_content_length": "one canonical decimal1..32768",
+    "get_content_length": "absent or one exact0; no Content-Type",
+    "forbidden_headers_even_empty": [
+      "Origin",
+      "Transfer-Encoding",
+      "Content-Encoding"
+    ],
+    "normal_cli_enabled": false,
+    "remote_owner_session": false
+  },
+  "authority": {
+    "principal_source": "current trusted CredentialRegistry owner + current unrevoked Store coordinator",
+    "permissions": [
+      "comms_read",
+      "comms_owner_discussion"
+    ],
+    "default_grant": false,
+    "audience": "sole stable owner principal bound durably to this company/project discussion room on first accepted append; no caller actor/audience fields",
+    "other_owner_same_project": "denied before append/replay/read",
+    "current_auth": "checked under registry guard and Store transaction before replay/read and before commit; rechecked before response",
+    "employee_engine_access": false
+  },
+  "identity": {
+    "key": [
+      "stable principal_id",
+      "command_id"
+    ],
+    "actions": [
+      "owner_note.append",
+      "owner.discussion.append"
+    ],
+    "changed_normalized_arguments_action_company_or_project": "409 IDEMPOTENCY_CONFLICT",
+    "existing_owner_note_claims": "adopted transactionally at explicit discussion schema setup preserving receipt/record bytes",
+    "frozen_message_send": "remains disabled; no issue-time command activation",
+    "legacy_mailbox_and_planning": "unchanged historical protocols, not reinterpreted as canonical communication actions"
+  },
+  "limits": {
+    "command_raw_utf8_bytes": 32768,
+    "summary_utf8_bytes": 1024,
+    "body_utf8_bytes": 8192,
+    "response_raw_canonical_utf8_bytes": 262144,
+    "strict_codec": "frozen C01 duplicate keys/BOM/malformed UTF8/surrogates/noninteger numeric lexemes/-0/unsafe integers rejected; explicit UTF16 member ordering",
+    "timestamps": "UTC epoch milliseconds (2000 inclusive to2100 exclusive)"
+  },
+  "digests": {
+    "algorithm": "SHA256 lowercase hex",
+    "canonicalization": "unchanged frozen C01 explicit UTF16-key ordering, strict Unicode and safe integer tokens, no normalization",
+    "request_digest_preimage": {
+      "contract": "maritime-owner-discussion",
+      "version": 1,
+      "company_id": "independently retained company ID",
+      "scope": {
+        "kind": "project",
+        "id": "independently retained URL project ID"
+      },
+      "command": "complete decoded normalized Command including command_id/action/schema_version/summary/body"
+    },
+    "record_and_readback_digest": "canonical complete object excluding only its top-level digest field",
+    "typed_references": "exact kind/id/company_id/scope/availability/revision/digest/unavailable_reason; digest binds exact historical record"
+  },
+  "receiver_checks": [
+    "Retain company/project/raw command+command ID before send. Never derive expected scope or request digest from response echo.",
+    "Strict output decoder cap262144; do not change command32768. Validate closed Receipt and exact expected action/command/company/project/recomputed request_digest.",
+    "ReadBack company/project/IDs must match retained request and validated receipt. Validate Conversation and Message separately against frozen validators using independently permitted context.",
+    "Recompute both record digests and aggregate ReadBack digest. Compare complete typed Conversation/Message references to receipt and Message.conversation_ref to exact historical Conversation.",
+    "Message recorded_author.principal_id and receipt.principal_id must match, but remain descriptive data; they are not authentication proof.",
+    "Stored observation labels are descriptive, live_verified false. No live delivery, model acceptance, action approval, head CAS, cursor or snapshot implied."
+  ],
+  "errors": {
+    "400": "INVALID_REQUEST",
+    "401": "AUTHENTICATION_REQUIRED",
+    "403": "SCOPE_DENIED",
+    "404": "NOT_FOUND",
+    "409": "IDEMPOTENCY_CONFLICT",
+    "503": "RECORDS_UNAVAILABLE"
+  },
+  "error_body": "Error schema; no reflected details",
+  "response_headers": {
+    "Content-Type": "application/json; charset=utf-8",
+    "Cache-Control": "no-store",
+    "X-Content-Type-Options": "nosniff",
+    "Content-Security-Policy": "default-src 'none'; sandbox"
+  },
+  "recovery": "Caller retains exact command envelope/ID. No automatic retry, replacement ID, rebase or head CAS. On lost response, explicitly replay same envelope after current auth; server returns stored receipt.",
+  "proof_scope": "synthetic local temporary Store and verified same-host test TLS only; no remote browser/employee/model/cloud/pilot/fullC02C03C08 acceptance",
+  "assets": [
+    {
+      "path": "contracts/communications/owner-discussion-candidate.1/discussion.schema.json",
+      "sha256": "4a6b6fdd8cda6d2f3e8c13a5bd5cb17b9996f83b91dd40925741e990f2bc7a8a"
+    },
+    {
+      "path": "contracts/communications/owner-discussion-candidate.1/examples.json",
+      "sha256": "f2bac10ee73fa274f18913e89fcb7262143117f9a4584ade067a16956284d7ea"
+    }
+  ],
+  "frozen_imports": [
+    {
+      "path": "contracts/communications/reads-candidate.1/records.schema.json",
+      "sha256": "98fd331df7aa5262eefbf7bf73a3396d7ffd3b40e13f186e4d9aaa3a735958af"
+    },
+    {
+      "path": "contracts/communications/v1/manifest.json",
+      "sha256": "4762203741d169461130796dab86e39adb5effa1e6c52bf77e837ba41a5e1492"
+    },
+    {
+      "path": "contracts/communications/owner-history-read-candidate.1/manifest.json",
+      "sha256": "7022869daf40871777f8bd5368b2c75481f3cd4a1ce81bb737f2c92e0e6e60f3"
+    }
+  ]
+}

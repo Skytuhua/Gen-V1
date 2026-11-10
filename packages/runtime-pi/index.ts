@@ -10,6 +10,7 @@ import { routeToolCall, sameContext, type ToolRequest } from "./ipc.ts";
 import { safeError } from "./sdk.ts";
 import { taskPaths, validateSessionPath } from "./session.ts";
 import { terminateProcessTree } from "./process-tree.ts";
+import {assertModelOnlyInput,type ModelPurpose} from '../runtime/model-only.ts';
 
 interface Worker {
   process: ChildProcess; ctx?: RunContext; allowed: Set<string>; active: boolean; stopping: boolean;
@@ -20,7 +21,8 @@ interface Worker {
 }
 interface RunAuthority { ctx: RunContext; revoked: boolean; settled?: boolean; worker?: Worker }
 
-export function createPiRuntime({ dataDir,modelOnly }: { dataDir: string;modelOnly?:boolean }): RuntimeAdapter {
+export function createPiRuntime({ dataDir,modelOnly:requestedModelOnly,purpose }: { dataDir: string;modelOnly?:boolean;purpose?:ModelPurpose }): RuntimeAdapter {
+  const modelOnly=requestedModelOnly||purpose==='prediction';
   const storage = resolve(dataDir);
   let callbacks: RuntimeCallbacks | undefined;
   let disposed = false;
@@ -108,7 +110,7 @@ export function createPiRuntime({ dataDir,modelOnly }: { dataDir: string;modelOn
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => { worker.pending.delete(requestId); reject(new Error(`Pi ${command} did not acknowledge within ${timeoutMs / 1000} seconds.`)); }, timeoutMs);
       worker.pending.set(requestId, { resolve, reject, timer });
-      worker.process.send({ type: "command", requestId, command, dataDir: storage, ...(modelOnly?{modelOnly:true}:{}), ...args }, error => {
+      worker.process.send({ type: "command", requestId, command, dataDir: storage, ...(modelOnly?{modelOnly:true}:{}), ...(purpose?{purpose}:{}), ...args }, error => {
         if (!error) return;
         const pending = worker.pending.get(requestId);
         if (pending) { clearTimeout(timer); worker.pending.delete(requestId); reject(error); }
@@ -140,6 +142,7 @@ export function createPiRuntime({ dataDir,modelOnly }: { dataDir: string;modelOn
     return worker;
   }
   async function queueRun(input: StartRun, command: "start" | "compact", timeoutMs?: number): Promise<void> {
+    if(modelOnly)assertModelOnlyInput(input,purpose);
     assertContext(input);
     const ctx = { threadId: input.threadId, runId: input.runId, epoch: input.epoch };
     const original = { ...input, ...ctx, inputIds: input.inputIds && [...input.inputIds] };
@@ -180,7 +183,7 @@ export function createPiRuntime({ dataDir,modelOnly }: { dataDir: string;modelOn
       return structuredClone(await modelDiscovery);
     },
     start(input) { return queueRun(input, "start"); },
-    followUp(input) { return serial(input.threadId, async () => {
+    followUp(input) { if(purpose==='prediction')return Promise.reject(new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions cannot continue a conversation.'));return serial(input.threadId, async () => {
       assertContext(input);
       const worker = runs.get(input.threadId);
       if (!worker || !sameContext(worker.ctx, input) || worker.stopping || !worker.active) throw new HarnessError("PI_STALE_RUN", "No matching active Pi run for this follow-up. Start or resume the task first.");
@@ -199,10 +202,12 @@ export function createPiRuntime({ dataDir,modelOnly }: { dataDir: string;modelOn
       }
     },
     compact(ctx, sessionPath, modelId) {
+      if(purpose==='prediction')return Promise.reject(new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions cannot compact conversations.'));
       const input: StartRun = { ...ctx, sessionPath, modelId, prompt: "", inputId: "", resources: [] };
       return queueRun(input, "compact", 180_000);
     },
     async history(sessionPath) {
+      if(purpose==='prediction')throw new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions cannot read conversations.');
       const file = await validateSessionPath(storage, sessionPath);
       return extractInputIds(await readFile(file, "utf8"));
     },

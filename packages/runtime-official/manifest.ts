@@ -47,10 +47,16 @@ export async function readManifest(dataDir: string, sessionPath: string, provide
   return { path: realFile, value, dataDir };
 }
 
-export async function openManifest(dataDir: string, provider: OfficialProvider, threadId: string, sessionPath: string | null): Promise<ManifestState> {
+export async function openManifest(dataDir: string, provider: OfficialProvider, threadId: string, sessionPath: string | null,fresh=false): Promise<ManifestState> {
   if (sessionPath) return readManifest(dataDir, sessionPath, provider, threadId);
   const taskDir = await secureDirectory(dataDir, threadDirectory(dataDir, provider, threadId));
   const path = join(taskDir, 'session.json');
+  if(fresh){
+    const state:ManifestState={path,dataDir,value:{version:1,provider,threadId,sessionId:null,inputs:{}}};
+    try{await writeFile(path,JSON.stringify(state.value),{flag:'wx',mode:0o600});}
+    catch(error){if((error as NodeJS.ErrnoException).code==='EEXIST')throw new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions require a fresh conversation.');throw error;}
+    return state;
+  }
   try { return await readManifest(dataDir, path, provider, threadId); }
   catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; }
   const state: ManifestState = { path, dataDir, value: { version: 1, provider, threadId, sessionId: null, inputs: {} } };

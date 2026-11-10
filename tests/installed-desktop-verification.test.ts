@@ -24,7 +24,7 @@ describe('installed desktop verification custody',()=>{
   for(const value of [
    {...clear(),entries:[{hive:'HKCU',view:64,kind:'install',values:{InstallLocation:directory}}]},
    {...clear(),runningAppPids:[123]},
-   {...clear(),shortcuts:[{path:'C:\\fixture\\Generative Harness.lnk',present:true}]},
+   {...clear(),shortcuts:[{path:'C:\\fixture\\Gen V1.lnk',present:true}]},
    {...clear(),updaterCache:{path:'C:\\fixture\\cache',present:true}}
   ] as InstallPreflight[])expect(()=>assertClearInstallPreflight(value)).toThrow(/existing|running/i);
  });
@@ -34,18 +34,18 @@ describe('installed desktop verification custody',()=>{
   for(const path of ['relative/path','C:\\a"b','C:\\a\nb','C:\\a\0b'])expect(()=>installedCommandArguments('install',path)).toThrow();
  });
  it('accepts only a quoted exact owned uninstaller and known per-user flag',()=>{
-  expect(parseOwnedUninstaller('"'+directory+'\\Uninstall Generative Harness.exe" /currentuser',directory)).toBe(directory+'\\Uninstall Generative Harness.exe');
+  expect(parseOwnedUninstaller('"'+directory+'\\Uninstall Gen V1.exe" /currentuser',directory)).toBe(directory+'\\Uninstall Gen V1.exe');
   for(const command of [
-   '"C:\\other\\Uninstall Generative Harness.exe" /currentuser',
-   '"'+directory+'\\Uninstall Generative Harness.exe" /allusers',
-   '"'+directory+'\\Uninstall Generative Harness.exe" /delete-app-data',
-   directory+'\\Uninstall Generative Harness.exe /currentuser',
+   '"C:\\other\\Uninstall Gen V1.exe" /currentuser',
+   '"'+directory+'\\Uninstall Gen V1.exe" /allusers',
+   '"'+directory+'\\Uninstall Gen V1.exe" /delete-app-data',
+   directory+'\\Uninstall Gen V1.exe /currentuser',
    '"'+directory+'\\other.exe"'
   ])expect(()=>parseOwnedUninstaller(command,directory)).toThrow(/owned|uninstall/i);
  });
  it('requires matching per-user installation and uninstall entries before cleanup',()=>{
-  const entries=[{hive:'HKCU',view:64,kind:'install',values:{InstallLocation:directory}},{hive:'HKCU',view:64,kind:'uninstall',values:{UninstallString:'"'+directory+'\\Uninstall Generative Harness.exe" /currentuser',DisplayVersion:'0.4.0'}}] as const;
-  expect(assertOwnedInstallEntries([...entries],directory,'0.4.0')).toBe(directory+'\\Uninstall Generative Harness.exe');
+  const entries=[{hive:'HKCU',view:64,kind:'install',values:{InstallLocation:directory}},{hive:'HKCU',view:64,kind:'uninstall',values:{UninstallString:'"'+directory+'\\Uninstall Gen V1.exe" /currentuser',DisplayVersion:'0.4.0'}}] as const;
+  expect(assertOwnedInstallEntries([...entries],directory,'0.4.0')).toBe(directory+'\\Uninstall Gen V1.exe');
   expect(()=>assertOwnedInstallEntries([entries[0]],directory,'0.4.0')).toThrow();
   expect(()=>assertOwnedInstallEntries([...entries,{...entries[0],hive:'HKLM'}],directory,'0.4.0')).toThrow();
   expect(()=>assertOwnedInstallEntries([...entries],directory,'0.5.0')).toThrow();
@@ -54,8 +54,8 @@ describe('installed desktop verification custody',()=>{
   const fixture=await mkdtemp(join(tmpdir(),'harness-installed-manifest-'));
   try{
    const source=join(fixture,'source'),installed=join(fixture,'installed');
-   for(const path of [source,installed]){await mkdir(path);await mkdir(join(path,'resources'));await writeFile(join(path,'Generative Harness.exe'),'app');await writeFile(join(path,'resources','chunk.js'),'lazy');}
-   await writeFile(join(installed,'Uninstall Generative Harness.exe'),'uninstaller');
+   for(const path of [source,installed]){await mkdir(path);await mkdir(join(path,'resources'));await writeFile(join(path,'Gen V1.exe'),'app');await writeFile(join(path,'resources','chunk.js'),'lazy');}
+   await writeFile(join(installed,'Uninstall Gen V1.exe'),'uninstaller');
    const expected=await packageContentManifest(source);
    const actual=await packageContentManifest(installed,{installed:true});assertMatchingContents(expected,actual);
    await writeFile(join(installed,'resources','chunk.js'),'changed');

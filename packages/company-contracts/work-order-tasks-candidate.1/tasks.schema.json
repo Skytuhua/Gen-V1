@@ -1,0 +1,506 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://maritime-company.invalid/work-order-tasks/candidate.1",
+  "$defs": {
+    "SafeInteger": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 9007199254740991
+    },
+    "Digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$(?![\\s\\S])"
+    },
+    "Identifier": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$(?![\\s\\S])"
+    },
+    "ProjectId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{0,62}$(?![\\s\\S])",
+      "not": {
+        "const": "company-ops"
+      }
+    },
+    "Principal": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "PilotEmployee": {
+      "enum": [
+        "E01",
+        "E10",
+        "E11"
+      ]
+    },
+    "PlanRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "id",
+        "project_id",
+        "revision",
+        "digest"
+      ],
+      "properties": {
+        "kind": {
+          "const": "work_plan"
+        },
+        "id": {
+          "$ref": "#/$defs/Identifier"
+        },
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "revision": {
+          "$ref": "#/$defs/PositiveInteger"
+        },
+        "digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      }
+    },
+    "PositiveInteger": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "ProjectScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "id"
+      ],
+      "properties": {
+        "kind": {
+          "const": "project"
+        },
+        "id": {
+          "$ref": "#/$defs/ProjectId"
+        }
+      }
+    },
+    "Step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "employee_id",
+        "instruction",
+        "depends_on",
+        "expected_artifact_types",
+        "acceptance_checks"
+      ],
+      "properties": {
+        "key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]{0,31}$(?![\\s\\S])"
+        },
+        "employee_id": {
+          "$ref": "#/$defs/PilotEmployee"
+        },
+        "instruction": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "depends_on": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9-]{0,31}$(?![\\s\\S])"
+          },
+          "minItems": 0,
+          "maxItems": 12,
+          "uniqueItems": true
+        },
+        "expected_artifact_types": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "code",
+              "report",
+              "test_evidence"
+            ]
+          },
+          "minItems": 1,
+          "maxItems": 3,
+          "uniqueItems": true
+        },
+        "acceptance_checks": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          },
+          "minItems": 1,
+          "maxItems": 8
+        }
+      }
+    },
+    "RepositoryInput": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "repository",
+        "revision",
+        "paths"
+      ],
+      "properties": {
+        "repository": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "type": "string",
+          "pattern": "^(?:[0-9a-f]{40}|[0-9a-f]{64})$(?![\\s\\S])"
+        },
+        "paths": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LogicalPath"
+          },
+          "minItems": 1,
+          "maxItems": 8,
+          "uniqueItems": true
+        }
+      }
+    },
+    "LogicalPath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "Error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "error"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "error": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "code"
+          ],
+          "properties": {
+            "code": {
+              "enum": [
+                "invalid_request",
+                "authentication_required",
+                "scope_denied",
+                "not_found",
+                "stale_plan",
+                "stale_basis",
+                "command_conflict",
+                "already_authorized",
+                "authorization_expired",
+                "scoped_replanning_unavailable",
+                "prerequisite_unavailable",
+                "request_timeout",
+                "request_too_large",
+                "unsupported_media_type"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "WorkOrderRef": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Identifier"
+        },
+        "digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "id",
+        "digest"
+      ],
+      "additionalProperties": false
+    },
+    "Task": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/Identifier"
+        },
+        "work_order_id": {
+          "$ref": "#/$defs/Identifier"
+        },
+        "scope": {
+          "$ref": "#/$defs/ProjectScope"
+        },
+        "employee_id": {
+          "$ref": "#/$defs/PilotEmployee"
+        },
+        "input_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "binding_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "cost_cents": {
+          "$ref": "#/$defs/SafeInteger"
+        },
+        "playbook_digest": {
+          "const": "none"
+        }
+      },
+      "required": [
+        "id",
+        "work_order_id",
+        "scope",
+        "employee_id",
+        "input_digest",
+        "binding_digest",
+        "cost_cents",
+        "playbook_digest"
+      ],
+      "additionalProperties": false
+    },
+    "Input": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "work_plan_task_input"
+        },
+        "schema_version": {
+          "const": 1
+        },
+        "company_id": {
+          "const": "leo-company"
+        },
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "plan_ref": {
+          "$ref": "#/$defs/PlanRef"
+        },
+        "authorization_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "work_order_ref": {
+          "$ref": "#/$defs/WorkOrderRef"
+        },
+        "basis_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "step": {
+          "$ref": "#/$defs/Step"
+        },
+        "repository_inputs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RepositoryInput"
+          },
+          "minItems": 0,
+          "maxItems": 8,
+          "uniqueItems": true
+        },
+        "binding_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "reservation_ceiling_cents": {
+          "$ref": "#/$defs/SafeInteger"
+        }
+      },
+      "required": [
+        "kind",
+        "schema_version",
+        "company_id",
+        "project_id",
+        "plan_ref",
+        "authorization_digest",
+        "work_order_ref",
+        "basis_digest",
+        "step",
+        "repository_inputs",
+        "binding_digest",
+        "reservation_ceiling_cents"
+      ],
+      "additionalProperties": false
+    },
+    "TaskItem": {
+      "type": "object",
+      "properties": {
+        "step_key": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]{0,31}$(?![\\s\\S])"
+        },
+        "task": {
+          "$ref": "#/$defs/Task"
+        },
+        "input": {
+          "$ref": "#/$defs/Input"
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Identifier"
+          },
+          "minItems": 0,
+          "maxItems": 12,
+          "uniqueItems": true
+        },
+        "scheduler_hint_digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "step_key",
+        "task",
+        "input",
+        "dependencies",
+        "scheduler_hint_digest"
+      ],
+      "additionalProperties": false
+    },
+    "MaterializeRequest": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "message_id": {
+          "$ref": "#/$defs/Identifier"
+        },
+        "plan_ref": {
+          "$ref": "#/$defs/PlanRef"
+        },
+        "work_order_id": {
+          "$ref": "#/$defs/Identifier"
+        }
+      },
+      "required": [
+        "project_id",
+        "message_id",
+        "plan_ref",
+        "work_order_id"
+      ],
+      "additionalProperties": false
+    },
+    "Receipt": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "work_order_task_receipt"
+        },
+        "schema_version": {
+          "const": 1
+        },
+        "id": {
+          "$ref": "#/$defs/Identifier"
+        },
+        "action": {
+          "const": "work_order.materialize"
+        },
+        "company_id": {
+          "const": "leo-company"
+        },
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "principal_id": {
+          "$ref": "#/$defs/Principal"
+        },
+        "command_id": {
+          "$ref": "#/$defs/Identifier"
+        },
+        "request_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "plan_ref": {
+          "$ref": "#/$defs/PlanRef"
+        },
+        "authorization_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "work_order_ref": {
+          "$ref": "#/$defs/WorkOrderRef"
+        },
+        "accepted_at_epoch_seconds": {
+          "$ref": "#/$defs/SafeInteger"
+        },
+        "task_set_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "task_materialization": {
+          "const": true
+        },
+        "dispatch_authorized": {
+          "const": false
+        },
+        "live_ready": {
+          "const": false
+        },
+        "evidence_scope": {
+          "const": "synthetic_only"
+        },
+        "digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "kind",
+        "schema_version",
+        "id",
+        "action",
+        "company_id",
+        "project_id",
+        "principal_id",
+        "command_id",
+        "request_digest",
+        "plan_ref",
+        "authorization_digest",
+        "work_order_ref",
+        "accepted_at_epoch_seconds",
+        "task_set_digest",
+        "task_materialization",
+        "dispatch_authorized",
+        "live_ready",
+        "evidence_scope",
+        "digest"
+      ],
+      "additionalProperties": false
+    },
+    "MaterializeResponse": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "receipt": {
+          "$ref": "#/$defs/Receipt"
+        },
+        "tasks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/TaskItem"
+          },
+          "minItems": 1,
+          "maxItems": 12,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "schema_version",
+        "receipt",
+        "tasks"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

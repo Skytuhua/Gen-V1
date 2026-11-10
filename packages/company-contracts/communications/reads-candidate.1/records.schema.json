@@ -1,0 +1,1444 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:maritime:communications:reads-candidate.1",
+  "$comment": "Additive output-only, schema-only partial C01 review candidate. Strict raw OUTPUT boundary 262144 bytes is distinct from unchanged COMMAND decoder cap 32768. Apply manifest supplemental semantic/digest/byte checks; Ajv alone is insufficient. All objects closed; no executable actions.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/Conversation"
+    },
+    {
+      "$ref": "#/$defs/Message"
+    },
+    {
+      "$ref": "#/$defs/ConversationPage"
+    },
+    {
+      "$ref": "#/$defs/MessagePage"
+    }
+  ],
+  "$defs": {
+    "Uuid": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$",
+      "$comment": "Opaque lowercase hyphenated UUID shape, identical to frozen C01; no permission, ordering or existence semantics."
+    },
+    "ConversationId": {
+      "$ref": "#/$defs/Uuid"
+    },
+    "MessageId": {
+      "$ref": "#/$defs/Uuid"
+    },
+    "CorrelationId": {
+      "$ref": "#/$defs/Uuid"
+    },
+    "CompanyId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{0,62}$",
+      "$comment": "Reference to the existing immutable company identity, not a new company registry."
+    },
+    "TaskScope": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "project"
+            },
+            "id": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]{0,62}$",
+              "not": {
+                "const": "company-ops"
+              }
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "company_ops"
+            },
+            "id": {
+              "const": "company-ops"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ]
+        }
+      ],
+      "$comment": "Reuses company.contracts.TaskScope and frozen C01 exactly; company_ops is one scope, never a wildcard."
+    },
+    "Revision": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "Digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "$comment": "SHA-256 lowercase hex; schema checks shape only. Recompute using manifest preimage rules."
+    },
+    "UtcEpochMilliseconds": {
+      "type": "integer",
+      "minimum": 946684800000,
+      "maximum": 4102444799999,
+      "$comment": "UTC epoch milliseconds, 2000-01-01 inclusive to 2100-01-01 exclusive. Diagnostic clock, not freshness or causality proof. No legacy timestamps change."
+    },
+    "OpaqueExistingId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[^\u0000]*$",
+      "$comment": "maxLength is only a character ceiling. Also enforce the named UTF-8 byte maximum."
+    },
+    "TaskRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "task"
+        },
+        "id": {
+          "$ref": "#/$defs/OpaqueExistingId"
+        },
+        "company_id": {
+          "$ref": "#/$defs/CompanyId"
+        },
+        "scope": {
+          "$ref": "#/$defs/TaskScope"
+        },
+        "availability": {
+          "const": "unavailable"
+        },
+        "revision": {
+          "type": "null"
+        },
+        "digest": {
+          "type": "null"
+        },
+        "unavailable_reason": {
+          "const": "existing_record_metadata_unavailable"
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "company_id",
+        "scope",
+        "availability",
+        "revision",
+        "digest",
+        "unavailable_reason"
+      ],
+      "$comment": "Scoped reference only. Existing TaskSpec/work-order ownership remains unchanged; no authority, existence or revision is invented."
+    },
+    "WorkOrderRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "work_order"
+        },
+        "id": {
+          "$ref": "#/$defs/OpaqueExistingId"
+        },
+        "company_id": {
+          "$ref": "#/$defs/CompanyId"
+        },
+        "scope": {
+          "$ref": "#/$defs/TaskScope"
+        },
+        "availability": {
+          "const": "unavailable"
+        },
+        "revision": {
+          "type": "null"
+        },
+        "digest": {
+          "type": "null"
+        },
+        "unavailable_reason": {
+          "const": "existing_record_metadata_unavailable"
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "company_id",
+        "scope",
+        "availability",
+        "revision",
+        "digest",
+        "unavailable_reason"
+      ],
+      "$comment": "Scoped reference only. Existing TaskSpec/work-order ownership remains unchanged; no authority, existence or revision is invented."
+    },
+    "ConversationRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "conversation"
+        },
+        "id": {
+          "$ref": "#/$defs/ConversationId"
+        },
+        "company_id": {
+          "$ref": "#/$defs/CompanyId"
+        },
+        "scope": {
+          "$ref": "#/$defs/TaskScope"
+        },
+        "availability": {
+          "enum": [
+            "available",
+            "unavailable"
+          ]
+        },
+        "revision": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Revision"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "digest": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "unavailable_reason": {
+          "anyOf": [
+            {
+              "const": "linked_record_metadata_unavailable"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "company_id",
+        "scope",
+        "availability",
+        "revision",
+        "digest",
+        "unavailable_reason"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "availability": {
+                "const": "available"
+              }
+            },
+            "required": [
+              "availability"
+            ]
+          },
+          "then": {
+            "properties": {
+              "revision": {
+                "$ref": "#/$defs/Revision"
+              },
+              "digest": {
+                "$ref": "#/$defs/Digest"
+              },
+              "unavailable_reason": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "revision": {
+                "type": "null"
+              },
+              "digest": {
+                "type": "null"
+              },
+              "unavailable_reason": {
+                "const": "linked_record_metadata_unavailable"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "MessageRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "message"
+        },
+        "id": {
+          "$ref": "#/$defs/MessageId"
+        },
+        "company_id": {
+          "$ref": "#/$defs/CompanyId"
+        },
+        "scope": {
+          "$ref": "#/$defs/TaskScope"
+        },
+        "availability": {
+          "enum": [
+            "available",
+            "unavailable"
+          ]
+        },
+        "revision": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Revision"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "digest": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "unavailable_reason": {
+          "anyOf": [
+            {
+              "const": "linked_record_metadata_unavailable"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "company_id",
+        "scope",
+        "availability",
+        "revision",
+        "digest",
+        "unavailable_reason"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "availability": {
+                "const": "available"
+              }
+            },
+            "required": [
+              "availability"
+            ]
+          },
+          "then": {
+            "properties": {
+              "revision": {
+                "$ref": "#/$defs/Revision"
+              },
+              "digest": {
+                "$ref": "#/$defs/Digest"
+              },
+              "unavailable_reason": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "revision": {
+                "type": "null"
+              },
+              "digest": {
+                "type": "null"
+              },
+              "unavailable_reason": {
+                "const": "linked_record_metadata_unavailable"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "CorrelationRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "correlation"
+        },
+        "id": {
+          "$ref": "#/$defs/CorrelationId"
+        },
+        "company_id": {
+          "$ref": "#/$defs/CompanyId"
+        },
+        "scope": {
+          "$ref": "#/$defs/TaskScope"
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "company_id",
+        "scope"
+      ],
+      "$comment": "Correlation only; no existence, causality or authority claim."
+    },
+    "RecordedPrincipalRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "principal_id": {
+          "$ref": "#/$defs/OpaqueExistingId"
+        },
+        "company_id": {
+          "$ref": "#/$defs/CompanyId"
+        },
+        "scope": {
+          "$ref": "#/$defs/TaskScope"
+        },
+        "interpretation": {
+          "const": "recorded_reference_only"
+        }
+      },
+      "required": [
+        "principal_id",
+        "company_id",
+        "scope",
+        "interpretation"
+      ],
+      "$comment": "OUTPUT metadata from a future canonical producer. Not Credential, Principal, authenticator, permission, approval or current native generation. Registry-to-Store actor adapter is absent."
+    },
+    "Conversation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "record_type": {
+          "const": "conversation"
+        },
+        "id": {
+          "$ref": "#/$defs/ConversationId"
+        },
+        "schema_version": {
+          "const": 1
+        },
+        "availability": {
+          "const": "present"
+        },
+        "company_id": {
+          "$ref": "#/$defs/CompanyId"
+        },
+        "scope": {
+          "$ref": "#/$defs/TaskScope"
+        },
+        "revision": {
+          "$ref": "#/$defs/Revision"
+        },
+        "visibility_revision": {
+          "$ref": "#/$defs/Revision"
+        },
+        "digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "kind": {
+          "enum": [
+            "project_room",
+            "task_thread",
+            "company_ops"
+          ]
+        },
+        "task_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TaskRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "work_order_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/WorkOrderRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^[^\u0000]*$",
+          "$comment": "maxLength is only a character ceiling. Also enforce the named UTF-8 byte maximum."
+        },
+        "lifecycle": {
+          "enum": [
+            "open",
+            "closed",
+            "archived"
+          ]
+        },
+        "observation": {
+          "$ref": "#/$defs/Observation"
+        }
+      },
+      "required": [
+        "record_type",
+        "id",
+        "schema_version",
+        "availability",
+        "company_id",
+        "scope",
+        "revision",
+        "visibility_revision",
+        "digest",
+        "kind",
+        "task_ref",
+        "work_order_ref",
+        "title",
+        "lifecycle",
+        "observation"
+      ],
+      "$comment": "Output-only subset of Section 6.2. Present canonical records require real positive revisions and a recomputed digest. Fixtures are synthetic_contract only.",
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "task_thread"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "task_ref": {
+                "$ref": "#/$defs/TaskRef"
+              },
+              "work_order_ref": {
+                "$ref": "#/$defs/WorkOrderRef"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "task_ref": {
+                "type": "null"
+              },
+              "work_order_ref": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "project_room"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "scope": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "project"
+                  },
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9-]{0,62}$",
+                    "not": {
+                      "const": "company-ops"
+                    }
+                  }
+                },
+                "required": [
+                  "kind",
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "company_ops"
+              }
+            },
+            "required": [
+              "kind"
+            ]
+          },
+          "then": {
+            "properties": {
+              "scope": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "kind": {
+                    "const": "company_ops"
+                  },
+                  "id": {
+                    "const": "company-ops"
+                  }
+                },
+                "required": [
+                  "kind",
+                  "id"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "properties": {
+            "observation": {
+              "type": "object",
+              "properties": {
+                "source": {
+                  "enum": [
+                    "synthetic_fixture",
+                    "stored_record"
+                  ]
+                }
+              },
+              "required": [
+                "source"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "Message": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "record_type": {
+          "const": "message"
+        },
+        "id": {
+          "$ref": "#/$defs/MessageId"
+        },
+        "schema_version": {
+          "const": 1
+        },
+        "availability": {
+          "const": "present"
+        },
+        "company_id": {
+          "$ref": "#/$defs/CompanyId"
+        },
+        "scope": {
+          "$ref": "#/$defs/TaskScope"
+        },
+        "revision": {
+          "$ref": "#/$defs/Revision"
+        },
+        "visibility_revision": {
+          "$ref": "#/$defs/Revision"
+        },
+        "digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "conversation_ref": {
+          "$ref": "#/$defs/ConversationRef"
+        },
+        "recorded_author": {
+          "$ref": "#/$defs/RecordedPrincipalRef"
+        },
+        "kind": {
+          "enum": [
+            "question",
+            "answer",
+            "handoff",
+            "review_request",
+            "blocker",
+            "proposal",
+            "note"
+          ]
+        },
+        "body": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8192,
+          "pattern": "^[^\u0000]*$",
+          "$comment": "maxLength is only a character ceiling. Also enforce the named UTF-8 byte maximum."
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^[^\u0000]*$",
+          "$comment": "maxLength is only a character ceiling. Also enforce the named UTF-8 byte maximum."
+        },
+        "required_action": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024,
+              "pattern": "^[^\u0000]*$",
+              "$comment": "maxLength is only a character ceiling. Also enforce the named UTF-8 byte maximum."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "response_request_ref": {
+          "type": "null",
+          "$comment": "ResponseRequest canonical record/resolver unsupported; text is discussion, never an action grant."
+        },
+        "artifact_refs": {
+          "type": "array",
+          "maxItems": 0,
+          "$comment": "Unsupported until existing producer-origin-aware artifact resolver is integrated. No ArtifactRef/attempt/E29 producer invented."
+        },
+        "reply_to_message_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/MessageRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "correlation_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CorrelationRef"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "effective_priority": {
+          "enum": [
+            "normal",
+            "digest"
+          ],
+          "$comment": "Narrow output subset. urgent/control require policy/trusted incident authority outside this candidate."
+        },
+        "conversation_sequence": {
+          "$ref": "#/$defs/Revision"
+        },
+        "recorded_at_utc_epoch_ms": {
+          "$ref": "#/$defs/UtcEpochMilliseconds"
+        },
+        "observation": {
+          "$ref": "#/$defs/Observation"
+        }
+      },
+      "required": [
+        "record_type",
+        "id",
+        "schema_version",
+        "availability",
+        "company_id",
+        "scope",
+        "revision",
+        "visibility_revision",
+        "digest",
+        "conversation_ref",
+        "recorded_author",
+        "kind",
+        "body",
+        "summary",
+        "required_action",
+        "response_request_ref",
+        "artifact_refs",
+        "reply_to_message_ref",
+        "correlation_ref",
+        "effective_priority",
+        "conversation_sequence",
+        "recorded_at_utc_epoch_ms",
+        "observation"
+      ],
+      "$comment": "Discussion output only. Author/origin association must eventually be derived by the canonical producer; this schema neither authenticates nor grants authority.",
+      "allOf": [
+        {
+          "properties": {
+            "observation": {
+              "type": "object",
+              "properties": {
+                "source": {
+                  "enum": [
+                    "synthetic_fixture",
+                    "stored_record"
+                  ]
+                }
+              },
+              "required": [
+                "source"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "Coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "enum": [
+            "partial",
+            "unknown"
+          ]
+        },
+        "truncation": {
+          "enum": [
+            "item_limit",
+            "byte_limit",
+            "unknown",
+            "none_observed"
+          ]
+        },
+        "total_count": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "status",
+        "truncation",
+        "total_count"
+      ],
+      "$comment": "No complete claim or unauthorized total. none_observed says this sample did not hit a bound; it never means complete. Counts outside returned items are unknown."
+    },
+    "ContinuationUnavailable": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "const": "unavailable"
+        },
+        "reason": {
+          "const": "cursor_issuance_replay_unimplemented"
+        }
+      },
+      "required": [
+        "status",
+        "reason"
+      ]
+    },
+    "SnapshotUnavailable": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "const": "unavailable"
+        },
+        "reason": {
+          "const": "snapshot_protocol_unimplemented"
+        }
+      },
+      "required": [
+        "status",
+        "reason"
+      ]
+    },
+    "ConversationPage": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "page_type": {
+          "const": "conversation_page"
+        },
+        "company_id": {
+          "$ref": "#/$defs/CompanyId"
+        },
+        "scope": {
+          "$ref": "#/$defs/TaskScope"
+        },
+        "availability": {
+          "enum": [
+            "available",
+            "unavailable"
+          ]
+        },
+        "unavailable_reason": {
+          "anyOf": [
+            {
+              "const": "canonical_records_unimplemented"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "visibility_revision": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Revision"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "digest": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "items": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/$defs/Conversation"
+          }
+        },
+        "observed_at_utc_epoch_ms": {
+          "$ref": "#/$defs/UtcEpochMilliseconds"
+        },
+        "item_limit": {
+          "const": 50
+        },
+        "raw_byte_limit": {
+          "const": 262144
+        },
+        "coverage": {
+          "$ref": "#/$defs/Coverage"
+        },
+        "next_cursor": {
+          "type": "null"
+        },
+        "has_more": {
+          "type": "null"
+        },
+        "continuation": {
+          "$ref": "#/$defs/ContinuationUnavailable"
+        },
+        "snapshot": {
+          "$ref": "#/$defs/SnapshotUnavailable"
+        },
+        "observation": {
+          "$ref": "#/$defs/Observation"
+        }
+      },
+      "required": [
+        "schema_version",
+        "page_type",
+        "company_id",
+        "scope",
+        "availability",
+        "unavailable_reason",
+        "visibility_revision",
+        "digest",
+        "items",
+        "observed_at_utc_epoch_ms",
+        "item_limit",
+        "raw_byte_limit",
+        "coverage",
+        "next_cursor",
+        "has_more",
+        "continuation",
+        "snapshot",
+        "observation"
+      ],
+      "$comment": "File contract only; no route, authorization, persistence, snapshot or cursor issuer. Current runtime must remain unavailable with empty items, null digest/revision/counts; present fixtures are synthetic_contract.",
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "availability": {
+                "const": "available"
+              }
+            },
+            "required": [
+              "availability"
+            ]
+          },
+          "then": {
+            "properties": {
+              "unavailable_reason": {
+                "type": "null"
+              },
+              "visibility_revision": {
+                "$ref": "#/$defs/Revision"
+              },
+              "digest": {
+                "$ref": "#/$defs/Digest"
+              },
+              "coverage": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "status": {
+                    "const": "partial"
+                  },
+                  "truncation": {
+                    "enum": [
+                      "item_limit",
+                      "byte_limit",
+                      "unknown",
+                      "none_observed"
+                    ]
+                  },
+                  "total_count": {
+                    "type": "null"
+                  }
+                },
+                "required": [
+                  "status",
+                  "truncation",
+                  "total_count"
+                ]
+              },
+              "observation": {
+                "type": "object",
+                "properties": {
+                  "source": {
+                    "enum": [
+                      "synthetic_fixture",
+                      "stored_record"
+                    ]
+                  }
+                },
+                "required": [
+                  "source"
+                ]
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "unavailable_reason": {
+                "const": "canonical_records_unimplemented"
+              },
+              "visibility_revision": {
+                "type": "null"
+              },
+              "digest": {
+                "type": "null"
+              },
+              "items": {
+                "type": "array",
+                "maxItems": 0
+              },
+              "coverage": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "status": {
+                    "const": "unknown"
+                  },
+                  "truncation": {
+                    "const": "unknown"
+                  },
+                  "total_count": {
+                    "type": "null"
+                  }
+                },
+                "required": [
+                  "status",
+                  "truncation",
+                  "total_count"
+                ]
+              },
+              "observation": {
+                "type": "object",
+                "properties": {
+                  "source": {
+                    "enum": [
+                      "synthetic_fixture",
+                      "unavailable"
+                    ]
+                  }
+                },
+                "required": [
+                  "source"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "MessagePage": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "page_type": {
+          "const": "message_page"
+        },
+        "company_id": {
+          "$ref": "#/$defs/CompanyId"
+        },
+        "scope": {
+          "$ref": "#/$defs/TaskScope"
+        },
+        "availability": {
+          "enum": [
+            "available",
+            "unavailable"
+          ]
+        },
+        "unavailable_reason": {
+          "anyOf": [
+            {
+              "const": "canonical_records_unimplemented"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "visibility_revision": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Revision"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "digest": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Digest"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "items": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/$defs/Message"
+          }
+        },
+        "observed_at_utc_epoch_ms": {
+          "$ref": "#/$defs/UtcEpochMilliseconds"
+        },
+        "item_limit": {
+          "const": 50
+        },
+        "raw_byte_limit": {
+          "const": 262144
+        },
+        "coverage": {
+          "$ref": "#/$defs/Coverage"
+        },
+        "next_cursor": {
+          "type": "null"
+        },
+        "has_more": {
+          "type": "null"
+        },
+        "continuation": {
+          "$ref": "#/$defs/ContinuationUnavailable"
+        },
+        "snapshot": {
+          "$ref": "#/$defs/SnapshotUnavailable"
+        },
+        "conversation_ref": {
+          "$ref": "#/$defs/ConversationRef"
+        },
+        "observation": {
+          "$ref": "#/$defs/Observation"
+        }
+      },
+      "required": [
+        "schema_version",
+        "page_type",
+        "company_id",
+        "scope",
+        "availability",
+        "unavailable_reason",
+        "visibility_revision",
+        "digest",
+        "items",
+        "observed_at_utc_epoch_ms",
+        "item_limit",
+        "raw_byte_limit",
+        "coverage",
+        "next_cursor",
+        "has_more",
+        "continuation",
+        "snapshot",
+        "conversation_ref",
+        "observation"
+      ],
+      "$comment": "File contract only; no route, authorization, persistence, snapshot or cursor issuer. Current runtime must remain unavailable with empty items, null digest/revision/counts; present fixtures are synthetic_contract.",
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "availability": {
+                "const": "available"
+              }
+            },
+            "required": [
+              "availability"
+            ]
+          },
+          "then": {
+            "properties": {
+              "unavailable_reason": {
+                "type": "null"
+              },
+              "visibility_revision": {
+                "$ref": "#/$defs/Revision"
+              },
+              "digest": {
+                "$ref": "#/$defs/Digest"
+              },
+              "coverage": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "status": {
+                    "const": "partial"
+                  },
+                  "truncation": {
+                    "enum": [
+                      "item_limit",
+                      "byte_limit",
+                      "unknown",
+                      "none_observed"
+                    ]
+                  },
+                  "total_count": {
+                    "type": "null"
+                  }
+                },
+                "required": [
+                  "status",
+                  "truncation",
+                  "total_count"
+                ]
+              },
+              "observation": {
+                "type": "object",
+                "properties": {
+                  "source": {
+                    "enum": [
+                      "synthetic_fixture",
+                      "stored_record"
+                    ]
+                  }
+                },
+                "required": [
+                  "source"
+                ]
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "unavailable_reason": {
+                "const": "canonical_records_unimplemented"
+              },
+              "visibility_revision": {
+                "type": "null"
+              },
+              "digest": {
+                "type": "null"
+              },
+              "items": {
+                "type": "array",
+                "maxItems": 0
+              },
+              "coverage": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "status": {
+                    "const": "unknown"
+                  },
+                  "truncation": {
+                    "const": "unknown"
+                  },
+                  "total_count": {
+                    "type": "null"
+                  }
+                },
+                "required": [
+                  "status",
+                  "truncation",
+                  "total_count"
+                ]
+              },
+              "conversation_ref": {
+                "type": "object",
+                "properties": {
+                  "availability": {
+                    "const": "unavailable"
+                  }
+                },
+                "required": [
+                  "availability"
+                ]
+              },
+              "observation": {
+                "type": "object",
+                "properties": {
+                  "source": {
+                    "enum": [
+                      "synthetic_fixture",
+                      "unavailable"
+                    ]
+                  }
+                },
+                "required": [
+                  "source"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "Observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "enum": [
+            "synthetic_fixture",
+            "stored_record",
+            "unavailable"
+          ]
+        },
+        "evidence_scope": {
+          "enum": [
+            "synthetic_contract",
+            "stored_record",
+            "unavailable"
+          ]
+        },
+        "live_verified": {
+          "const": false
+        }
+      },
+      "required": [
+        "source",
+        "evidence_scope",
+        "live_verified"
+      ],
+      "$comment": "Descriptive output labels fixed per record revision; no authenticator, authority, runtime readiness or added read timestamp.",
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "source": {
+                "const": "synthetic_fixture"
+              }
+            },
+            "required": [
+              "source"
+            ]
+          },
+          "then": {
+            "properties": {
+              "evidence_scope": {
+                "const": "synthetic_contract"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "source": {
+                "const": "stored_record"
+              }
+            },
+            "required": [
+              "source"
+            ]
+          },
+          "then": {
+            "properties": {
+              "evidence_scope": {
+                "const": "stored_record"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "source": {
+                "const": "unavailable"
+              }
+            },
+            "required": [
+              "source"
+            ]
+          },
+          "then": {
+            "properties": {
+              "evidence_scope": {
+                "const": "unavailable"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

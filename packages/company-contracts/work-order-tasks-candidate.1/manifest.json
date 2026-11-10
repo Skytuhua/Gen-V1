@@ -1,0 +1,73 @@
+{
+  "contract": "maritime-work-order-tasks",
+  "version": "1.0.0-candidate.1",
+  "status": "implemented_synthetic_task_materialization_only",
+  "source_base": "2fdfb8403a4d8295a4246cc0fb4545f4b55bac9c",
+  "files": {
+    "tasks.schema.json": {
+      "bytes": 11517,
+      "sha256": "82176ce76a62543d5567bdd42ec06d1b58a94f31c446c65e9dbb1ad60c7f0418"
+    },
+    "examples.json": {
+      "bytes": 9702,
+      "sha256": "51ebd91e1ceaad269e9e5b6e0583e2cb109397779322cb8be7da55e66c772e0e"
+    }
+  },
+  "operation": {
+    "method": "POST",
+    "path": "/v1/owner/work-plan/materialize",
+    "required_permission": "start",
+    "request": "MaterializeRequest",
+    "response": "MaterializeResponse",
+    "error": "Error"
+  },
+  "transport": {
+    "origin": "same-host IPv4 loopback only",
+    "max_request_utf8_bytes": 32768,
+    "max_response_canonical_utf8_bytes": 262144,
+    "no_remote_owner_gateway": true
+  },
+  "compatibility": {
+    "frozen_legacy_start": "unchanged capability_missing",
+    "historical_work_plan_authorization_and_read": "unchanged; task_materialization false records remain historical",
+    "new_permission_grants": false,
+    "current_real_status_principal": "not authorized; operator route allowlist remains status only"
+  },
+  "authority": {
+    "exact_current_owner_project_plan_basis_order_expiry": true,
+    "target_bindings": "existing current synthetic-admitted Store bindings only; no request fields or native grant",
+    "reservation_ceiling": "entire exact approved WorkOrder budget per TaskSpec; not cost estimate; existing aggregate reservation caps stay authoritative",
+    "step_kind": "work only; no inferred independent review",
+    "scheduler": "register only; never qualify/tick/dispatch"
+  },
+  "identity": {
+    "claim": "existing stable principal_id + message_id namespace across owner actions/communications",
+    "action": "work_order.materialize",
+    "request_digest": "digest([action,exact request])",
+    "task_id": "work-plan-task- + digest([exact PlanRef,work_order_id,step.key])",
+    "input_digest": "digest(complete returned Input)",
+    "receipt_digest": "digest(receipt with digest member omitted)",
+    "task_set_digest": "digest(returned tasks array)",
+    "timestamps": "integer epoch seconds; no expiry renewal",
+    "retry": "explicit same command only; same accepted operation new ID conflicts; no automatic retries"
+  },
+  "supplemental_checks": [
+    "independently retain permitted company/project/plan_ref/work_order_id/message_id and reviewed authorization digest before credential await",
+    "compare every full task input with retained reviewed plan step/repository inputs/basis digest/authorization; response-derived fields are not independent approval",
+    "recompute exact request/input/receipt/task-set digests and stable task IDs; bind full scope and dependency IDs; reject duplicates",
+    "cost and reservation_ceiling equal retained approved WorkOrder budget; playbook none; all steps ordinary work",
+    "server atomically verifies snapshots/tasks/hints/receipt/pointer on replay; scheduler hint digest is server-owned metadata, not receiver proof of current readiness",
+    "enforce actual complete UTF8 bytes including envelope; all values finite safe integers on wire; inherited legacy work-plan canonical rules unchanged"
+  ],
+  "canonical": "existing company.contracts canonical/digest; SHA256 UTF8 ensure_ascii false sorted keys compact JSON; C01 lexical codec is NOT substituted",
+  "live_dispatch": false,
+  "company_accepted": false,
+  "fixture": {
+    "tool": "tools/work_order_tasks_fixture.py",
+    "seconds": "1..60;45 default",
+    "stdin_stop": "stop newline",
+    "authority": "task-owned synthetic alpha/beta; PUBLIC fixture tokens only",
+    "scope": "no model/runtime/cloud/account/operational DB reads"
+  },
+  "retained_runtime_proof": "D:/MaritimeVerification/work-order-tasks-20261104-01/actual-14/result.json; final current-source changed-input finite HTTP run,13captures,3tasks/0attempts/reservations/outbox; original actual10 retained"
+}

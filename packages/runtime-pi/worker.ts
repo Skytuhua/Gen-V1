@@ -8,9 +8,9 @@ import { selectSubscriptionModel, subscriptionModels,thinkingForModel } from "./
 import { safeError } from "./sdk.ts";
 import { openTaskSession, taskPaths } from "./session.ts";
 import { createHostResourceLoader, createHostTools, loadDomainTools } from "./tool-definitions.ts";
-import {assertModelOnlyInput} from '../runtime/model-only.ts';
+import {assertModelOnlyInput,PREDICTION_MAX_OUTPUT_BYTES,PREDICTION_MAX_TOKENS,type ModelPurpose} from '../runtime/model-only.ts';
 
-interface Command { type: "command"; requestId: string; command: "models" | "start" | "followUp" | "compact" | "abort"; dataDir: string; input?: StartRun; ctx?: RunContext;modelOnly?:boolean }
+interface Command { type: "command"; requestId: string; command: "models" | "start" | "followUp" | "compact" | "abort"; dataDir: string; input?: StartRun; ctx?: RunContext;modelOnly?:boolean;purpose?:ModelPurpose }
 let session: AgentSession | undefined;
 let bridge: ToolBridge | undefined;
 let context: RunContext | undefined;
@@ -31,8 +31,15 @@ function assertInputAuthority() {
 
 async function initialize(command: Command) {
   const input = command.input!;
+  const prediction=command.purpose==='prediction';let outputBytes=0,outputExceeded=false;
   context = { threadId: input.threadId, runId: input.runId, epoch: input.epoch };
   normalizer = new EventNormalizer(context, event => {
+    if(outputExceeded)return;
+    if(prediction&&(event.type==='assistant.delta'||event.type==='assistant.message')){
+      const bytes=Buffer.byteLength(String(event.type==='assistant.delta'?event.delta??'':event.content??''));
+      if(event.type==='assistant.delta')outputBytes+=bytes;
+      if(bytes>PREDICTION_MAX_OUTPUT_BYTES||outputBytes>PREDICTION_MAX_OUTPUT_BYTES){outputExceeded=true;shuttingDown=true;void session?.abort().catch(()=>{});send({type:'event',event:{...context,type:'error',code:'PREDICTION_OUTPUT_LIMIT',message:'The prediction exceeded its output limit.'},ctx:context});return;}
+    }
     // Revoke locally before the host can observe settlement and clear its active run.
     if (event.type === "settled") { settled = true; session?.clearQueue(); }
     send({ type: "event", event, ctx: context });
@@ -42,16 +49,17 @@ async function initialize(command: Command) {
   if (shuttingDown) throw new Error("Pi run aborted during initialization.");
   bridge = new ToolBridge(context, send);
   const customTools = command.modelOnly?[]:createHostTools(await loadDomainTools(), (id, name, args, signal) => bridge!.call(id, name, args, signal));
-  const sessionManager = await openTaskSession(command.dataDir, input);
+  const sessionManager = prediction?sdk.SessionManager.inMemory(paths.taskDir):await openTaskSession(command.dataDir, input);
   if (shuttingDown) throw new Error("Pi run aborted during initialization.");
   const created = await sdk.createAgentSession({
     cwd: paths.taskDir, agentDir: paths.agentDir, modelRuntime: runtime, model,
-    thinkingLevel:thinkingForModel(model,input.thinkingLevel),
-    sessionManager, resourceLoader: createHostResourceLoader(sdk, input.memory,command.modelOnly),
-    settingsManager: sdk.SettingsManager.inMemory({ cacheWarming: "off", retry: { enabled: true, maxRetries: 2 }, compaction: { enabled: true } }),
+    thinkingLevel:prediction?'off':thinkingForModel(model,input.thinkingLevel),
+    sessionManager, resourceLoader: createHostResourceLoader(sdk, input.memory,command.modelOnly,command.purpose),
+    settingsManager: sdk.SettingsManager.inMemory({ cacheWarming: "off", retry: { enabled: !prediction, maxRetries: prediction?0:2 }, compaction: { enabled: !prediction } }),
     tools: customTools.map(tool => tool.name), customTools,...(command.modelOnly?{noTools:'all' as const}:{}),
   });
   session = created.session;
+  if(prediction){const stream=session.agent.streamFunction;session.agent.streamFunction=(model,context,options)=>stream(model,context,{...options,maxTokens:PREDICTION_MAX_TOKENS});}
   if (shuttingDown) { session.dispose(); throw new Error("Pi run aborted during initialization."); }
   const allowed = new Set(customTools.map(tool => tool.name));
   if (session.getActiveToolNames().some(name => !allowed.has(name))) throw new Error("Pi SDK enabled a tool outside the host allowlist.");
@@ -71,7 +79,8 @@ async function initialize(command: Command) {
 
 async function handle(command: Command) {
   if (command.command === "models") return subscriptionModels(taskPaths(command.dataDir, "models").authPath);
-  if(command.modelOnly&&command.input)assertModelOnlyInput(command.input);
+  if(command.purpose==='prediction'&&(command.command==='followUp'||command.command==='compact'))throw new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions require a fresh conversation.');
+  if(command.modelOnly&&command.input)assertModelOnlyInput(command.input,command.purpose);
   assertInputAuthority();
   if (command.command === "start" || (command.command === "compact" && !session)) await initialize(command);
   if (!session || !context || !sameContext(command.input ?? command.ctx, context)) throw new Error("Stale Pi worker context.");

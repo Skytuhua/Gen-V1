@@ -10,7 +10,7 @@ import {hermesSettings} from '../packages/runtime-hermes/settings.ts';
 import type {RuntimeAdapter,RuntimeCallbacks,Thread} from '../packages/contracts/index.ts';
 
 it('runs original Python and ACP through the native broker, persists a skill and finishes through the real Service',async()=>{
- const directory=await mkdtemp(join(tmpdir(),'hermes-original-host-')),store=new Store(directory),events:string[]=[],prompts:string[]=[],sourceErrors:unknown[]=[];
+ const directory=await mkdtemp(join(tmpdir(),'hermes-original-host-')),store=new Store(directory),events:string[]=[],prompts:string[]=[],sourceErrors:unknown[]=[],instances:string[]=[],sequences:number[]=[];
  let completions=0,service:Service|undefined,resourceId='';
  const native=():RuntimeAdapter=>{let callbacks!:RuntimeCallbacks;return{configure:value=>{callbacks=value;},models:async()=>[{id:'openai/source-proof',provider:'openai',name:'Scripted native transport'}],start:async input=>{
   prompts.push(input.prompt);completions++;
@@ -20,7 +20,7 @@ it('runs original Python and ACP through the native broker, persists a skill and
   callbacks.onEvent({...input,type:'input.processing',inputIds:input.inputIds??[input.inputId]});callbacks.onEvent({...input,type:'assistant.message',content});callbacks.onEvent({...input,type:'usage',usage:{inputTokens:100,outputTokens:20,contextTokens:120,contextWindow:200000,cost:null}});callbacks.onEvent({...input,type:'settled'});
  },followUp:async()=>{},cancel:async()=>{},compact:async()=>{},history:async()=>[],dispose:async()=>{}};};
  store.internal('fixture.settings',null,()=>store.put('settings','global',null,{theme:'dark',modelId:null,preferences:{learningEnabled:false}}));
- const runtime=createHermesRuntime({dataDir:directory,nativeCatalog:native(),settings:input=>hermesSettings(store,input),onSourceEvent:event=>{events.push(event.event);const data=event.data as {error?:unknown;result?:{error?:unknown}}|undefined;if(data?.error||data?.result?.error)sourceErrors.push(data.error??data.result?.error);service?.sourceEvent(event);}},{createNativeRuntime:options=>{expect(options?.modelOnly).toBe(true);return native();}});
+ const runtime=createHermesRuntime({dataDir:directory,nativeCatalog:native(),settings:input=>hermesSettings(store,input),onSourceEvent:event=>{events.push(event.event);const data=event.data as {error?:unknown;result?:{error?:unknown};agentInstance?:string;sequence?:number}|undefined;if(event.event==='started'&&data?.agentInstance)instances.push(data.agentInstance);if(event.event==='model_request'&&data?.sequence)sequences.push(data.sequence);if(data?.error||data?.result?.error)sourceErrors.push(data.error??data.result?.error);service?.sourceEvent(event);}},{createNativeRuntime:options=>{expect(options?.modelOnly).toBe(true);return native();}});
  const library=new HermesSourceLibrary({store,source:{request:(method,params)=>runtime.sourceRequest(method,params)}});service=new Service(store,runtime,{source:{runtime,library}});
  try{
   await service.recover();const thread=(await service.command({id:crypto.randomUUID(),type:'thread.create',payload:{}})).result as Thread;
@@ -33,5 +33,8 @@ it('runs original Python and ACP through the native broker, persists a skill and
   expect(store.get<{enteredRuntime:boolean;status:string}>('outbox','source-input-proof')).toMatchObject({enteredRuntime:true,status:'handled'});
   const detail=await library.view('integrated-source',{includeInactive:true});expect(detail.content).toContain('Verify the real engine');expect(detail.document).toContain('retained: true');
   expect(detail.skill.managed).toBe(false);expect(store.snapshot().messages.filter(message=>message.content==='The original source completed the scripted transport.')).toHaveLength(1);
+  await service.command({id:'source-next-turn',threadId:thread.id,type:'message.send',payload:{content:'Continue the same conversation using its existing evidence.',modelId:'openai/source-proof'}});
+  await vi.waitFor(()=>expect(store.get<{status:string}>('outbox','source-next-turn')?.status,JSON.stringify({events,sourceErrors})).toBe('handled'),{timeout:60000,interval:100});await runtime.cancelBackground();
+  expect(store.get<{enteredRuntime:boolean}>('outbox','source-next-turn')?.enteredRuntime).toBe(true);expect(completions).toBe(5);expect(instances).toHaveLength(2);expect(instances[1]).toBe(instances[0]);expect(sequences).toEqual([1,2,3,4,5]);expect(sourceErrors).toEqual([]);
  }finally{await service.dispose();store.close();await rm(directory,{recursive:true,force:true,maxRetries:10,retryDelay:100});}
 },90000);

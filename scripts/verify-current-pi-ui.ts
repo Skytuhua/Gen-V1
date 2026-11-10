@@ -35,7 +35,7 @@ export function parseCurrentPiArguments(args:string[]){
 }
 export function assertCurrentCatalog(value:Awaited<ReturnType<typeof discoverCapabilities>>){
  const names=new Set(value.components.map(item=>item.name));
- if(value.components.length!==48||names.size!==48||!['TraceWaterfall','WorkflowBoard','ArchitectureCanvas','Comparison','Stats'].every(name=>names.has(name))||value.generatedApps.available!==false)throw Error('Current 48-component catalog preflight failed. No inference was requested.');
+ if(value.components.length!==48||names.size!==48||!['TraceWaterfall','WorkflowBoard','ArchitectureCanvas','Comparison','Stats'].every(name=>names.has(name))||typeof value.generatedApps.available!=='boolean')throw Error('Current 48-component catalog preflight failed. No inference was requested.');
 }
 export function buildCurrentPiPrompt(resourceId:string){
  if(!/^[a-zA-Z0-9:_-]+$/.test(resourceId))throw Error('Invalid source identity.');

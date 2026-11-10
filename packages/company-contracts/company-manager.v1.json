@@ -1,0 +1,1509 @@
+{
+  "manifest_version": 1,
+  "contract_id": "maritime-company-manager",
+  "contract_version": "1.0.0-candidate.1",
+  "stability": "joint_review_candidate",
+  "implemented": false,
+  "backend_baseline": "b21ed4298644a835d4ba05a304a458d87f4c2122",
+  "frozen_service_manifest_sha256": "80fcc2f4cddafaeb7811eb3d195f908ff974f06e79e3ca79d680188e4b1aad4c",
+  "transport": {
+    "bind_host": "127.0.0.1",
+    "methods": [
+      "POST"
+    ],
+    "authorization": "existing trusted owner-host Bearer registry credential with status permission and exact project scope; never given to an engine",
+    "remote_ingress_available": false,
+    "max_request_bytes": 32768,
+    "max_response_bytes": 262144,
+    "max_cursor_age_seconds": 900
+  },
+  "routes": [
+    {
+      "method": "POST",
+      "path": "/company-manager/v1/project-context",
+      "read_only": true,
+      "principal_kind": "owner",
+      "permission": "status",
+      "request_schema_ref": "urn:maritime:company-manager:1.0.0-candidate.1#/$defs/ProjectContextRequest",
+      "response_schema_ref": "urn:maritime:company-manager:1.0.0-candidate.1#/$defs/ProjectContextResponse"
+    },
+    {
+      "method": "POST",
+      "path": "/company-manager/v1/task-context",
+      "read_only": true,
+      "principal_kind": "owner",
+      "permission": "status",
+      "request_schema_ref": "urn:maritime:company-manager:1.0.0-candidate.1#/$defs/TaskContextRequest",
+      "response_schema_ref": "urn:maritime:company-manager:1.0.0-candidate.1#/$defs/TaskContextResponse"
+    }
+  ],
+  "json_schema": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:maritime:company-manager:1.0.0-candidate.1",
+    "$defs": {
+      "ProjectId": {
+        "type": "string",
+        "pattern": "^[a-z][a-z0-9-]{0,62}$",
+        "not": {
+          "const": "company-ops"
+        }
+      },
+      "Digest": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{64}$"
+      },
+      "DigestValue": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "status": {
+                "const": "available"
+              },
+              "value": {
+                "$ref": "#/$defs/Digest"
+              }
+            },
+            "required": [
+              "status",
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "properties": {
+              "status": {
+                "const": "unavailable"
+              },
+              "value": {
+                "type": "null"
+              }
+            },
+            "required": [
+              "status",
+              "value"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "Digests": {
+        "type": "object",
+        "properties": {
+          "revision": {
+            "$ref": "#/$defs/DigestValue"
+          },
+          "input": {
+            "$ref": "#/$defs/DigestValue"
+          },
+          "binding": {
+            "$ref": "#/$defs/DigestValue"
+          },
+          "content": {
+            "$ref": "#/$defs/DigestValue"
+          }
+        },
+        "required": [
+          "revision",
+          "input",
+          "binding",
+          "content"
+        ],
+        "additionalProperties": false
+      },
+      "Scope": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "const": "project"
+          },
+          "id": {
+            "$ref": "#/$defs/ProjectId"
+          }
+        },
+        "required": [
+          "kind",
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "Observation": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "enum": [
+              "recorded",
+              "stale",
+              "unavailable"
+            ]
+          },
+          "observed_at": {
+            "anyOf": [
+              {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "source": {
+            "enum": [
+              "stored_record",
+              "synthetic_fixture",
+              "unavailable"
+            ]
+          },
+          "evidence_scope": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+          },
+          "live_verified": {
+            "const": false
+          }
+        },
+        "required": [
+          "status",
+          "observed_at",
+          "source",
+          "evidence_scope",
+          "live_verified"
+        ],
+        "additionalProperties": false
+      },
+      "projectRef": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "const": "project"
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+          },
+          "scope": {
+            "$ref": "#/$defs/Scope"
+          },
+          "digests": {
+            "$ref": "#/$defs/Digests"
+          },
+          "observation": {
+            "$ref": "#/$defs/Observation"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "scope",
+          "digests",
+          "observation"
+        ],
+        "additionalProperties": false
+      },
+      "taskRef": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "const": "task"
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+          },
+          "scope": {
+            "$ref": "#/$defs/Scope"
+          },
+          "digests": {
+            "$ref": "#/$defs/Digests"
+          },
+          "observation": {
+            "$ref": "#/$defs/Observation"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "scope",
+          "digests",
+          "observation"
+        ],
+        "additionalProperties": false
+      },
+      "work_orderRef": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "const": "work_order"
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+          },
+          "scope": {
+            "$ref": "#/$defs/Scope"
+          },
+          "digests": {
+            "$ref": "#/$defs/Digests"
+          },
+          "observation": {
+            "$ref": "#/$defs/Observation"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "scope",
+          "digests",
+          "observation"
+        ],
+        "additionalProperties": false
+      },
+      "employeeRef": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "const": "employee"
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+          },
+          "scope": {
+            "$ref": "#/$defs/Scope"
+          },
+          "digests": {
+            "$ref": "#/$defs/Digests"
+          },
+          "observation": {
+            "$ref": "#/$defs/Observation"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "scope",
+          "digests",
+          "observation"
+        ],
+        "additionalProperties": false
+      },
+      "attemptRef": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "const": "attempt"
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+          },
+          "scope": {
+            "$ref": "#/$defs/Scope"
+          },
+          "digests": {
+            "$ref": "#/$defs/Digests"
+          },
+          "observation": {
+            "$ref": "#/$defs/Observation"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "scope",
+          "digests",
+          "observation"
+        ],
+        "additionalProperties": false
+      },
+      "machineRef": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "const": "machine"
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+          },
+          "scope": {
+            "$ref": "#/$defs/Scope"
+          },
+          "digests": {
+            "$ref": "#/$defs/Digests"
+          },
+          "observation": {
+            "$ref": "#/$defs/Observation"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "scope",
+          "digests",
+          "observation"
+        ],
+        "additionalProperties": false
+      },
+      "artifactRef": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "const": "artifact"
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+          },
+          "scope": {
+            "$ref": "#/$defs/Scope"
+          },
+          "digests": {
+            "$ref": "#/$defs/Digests"
+          },
+          "observation": {
+            "$ref": "#/$defs/Observation"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "scope",
+          "digests",
+          "observation"
+        ],
+        "additionalProperties": false
+      },
+      "review_receiptRef": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "const": "review_receipt"
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+          },
+          "scope": {
+            "$ref": "#/$defs/Scope"
+          },
+          "digests": {
+            "$ref": "#/$defs/Digests"
+          },
+          "observation": {
+            "$ref": "#/$defs/Observation"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "scope",
+          "digests",
+          "observation"
+        ],
+        "additionalProperties": false
+      },
+      "principalRef": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "const": "principal"
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+          },
+          "scope": {
+            "$ref": "#/$defs/Scope"
+          },
+          "digests": {
+            "$ref": "#/$defs/Digests"
+          },
+          "observation": {
+            "$ref": "#/$defs/Observation"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "scope",
+          "digests",
+          "observation"
+        ],
+        "additionalProperties": false
+      },
+      "context_pageRef": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "const": "context_page"
+          },
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+          },
+          "scope": {
+            "$ref": "#/$defs/Scope"
+          },
+          "digests": {
+            "$ref": "#/$defs/Digests"
+          },
+          "observation": {
+            "$ref": "#/$defs/Observation"
+          }
+        },
+        "required": [
+          "type",
+          "id",
+          "scope",
+          "digests",
+          "observation"
+        ],
+        "additionalProperties": false
+      },
+      "Project": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "$ref": "#/$defs/projectRef"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+          },
+          "purpose": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096,
+            "pattern": "^[^\\u0000]+$"
+          },
+          "state": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+          },
+          "manager": {
+            "$ref": "#/$defs/employeeRef"
+          },
+          "repositories": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "repository": {
+                  "type": "string",
+                  "maxLength": 256,
+                  "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"
+                },
+                "relative_paths": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 512,
+                    "pattern": "^(?!/)(?!.*[:\\\\])(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*//)[^\\u0000-\\u001f\\u007f]+$"
+                  },
+                  "maxItems": 64
+                }
+              },
+              "required": [
+                "repository",
+                "relative_paths"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 16
+          },
+          "staffing": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "employee": {
+                  "$ref": "#/$defs/employeeRef"
+                },
+                "responsibility": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 4096,
+                  "pattern": "^[^\\u0000]+$"
+                }
+              },
+              "required": [
+                "employee",
+                "responsibility"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 32
+          }
+        },
+        "required": [
+          "entity",
+          "name",
+          "purpose",
+          "state",
+          "manager",
+          "repositories",
+          "staffing"
+        ],
+        "additionalProperties": false
+      },
+      "Task": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "$ref": "#/$defs/taskRef"
+          },
+          "work_order": {
+            "$ref": "#/$defs/work_orderRef"
+          },
+          "employee": {
+            "$ref": "#/$defs/employeeRef"
+          },
+          "state": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+          }
+        },
+        "required": [
+          "entity",
+          "work_order",
+          "employee",
+          "state"
+        ],
+        "additionalProperties": false
+      },
+      "Dependency": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "$ref": "#/$defs/taskRef"
+          },
+          "expected_target_digest": {
+            "$ref": "#/$defs/DigestValue"
+          },
+          "state": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+          }
+        },
+        "required": [
+          "entity",
+          "expected_target_digest",
+          "state"
+        ],
+        "additionalProperties": false
+      },
+      "Attempt": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "$ref": "#/$defs/attemptRef"
+          },
+          "task": {
+            "$ref": "#/$defs/taskRef"
+          },
+          "employee": {
+            "$ref": "#/$defs/employeeRef"
+          },
+          "machine": {
+            "$ref": "#/$defs/machineRef"
+          },
+          "generation": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "state": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+          }
+        },
+        "required": [
+          "entity",
+          "task",
+          "employee",
+          "machine",
+          "generation",
+          "state"
+        ],
+        "additionalProperties": false
+      },
+      "Artifact": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "$ref": "#/$defs/artifactRef"
+          },
+          "origin": {
+            "enum": [
+              "employee_attempt",
+              "control_service"
+            ]
+          },
+          "task": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/taskRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "attempt": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/attemptRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "employee": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/employeeRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "machine": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/machineRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "generation": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "producer": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/principalRef"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "derivation_digest": {
+            "$ref": "#/$defs/DigestValue"
+          },
+          "filename": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 240,
+            "pattern": "^[^/\\\\\\u0000-\\u001f\\u007f]+$"
+          },
+          "media_type": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 83886080
+          },
+          "classification": {
+            "const": "private"
+          },
+          "media_verification": {
+            "const": "unavailable"
+          }
+        },
+        "required": [
+          "entity",
+          "origin",
+          "task",
+          "attempt",
+          "employee",
+          "machine",
+          "generation",
+          "producer",
+          "derivation_digest",
+          "filename",
+          "media_type",
+          "size_bytes",
+          "classification",
+          "media_verification"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "origin": {
+                  "const": "control_service"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "task": {
+                  "type": "null"
+                },
+                "attempt": {
+                  "type": "null"
+                },
+                "employee": {
+                  "type": "null"
+                },
+                "machine": {
+                  "type": "null"
+                },
+                "generation": {
+                  "type": "null"
+                },
+                "producer": {
+                  "$ref": "#/$defs/principalRef"
+                },
+                "derivation_digest": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "const": "available"
+                    },
+                    "value": {
+                      "$ref": "#/$defs/Digest"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "value"
+                  ],
+                  "additionalProperties": false
+                },
+                "entity": {
+                  "properties": {
+                    "digests": {
+                      "properties": {
+                        "input": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "const": "unavailable"
+                            },
+                            "value": {
+                              "type": "null"
+                            }
+                          },
+                          "required": [
+                            "status",
+                            "value"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "binding": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "const": "unavailable"
+                            },
+                            "value": {
+                              "type": "null"
+                            }
+                          },
+                          "required": [
+                            "status",
+                            "value"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "content": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "const": "available"
+                            },
+                            "value": {
+                              "$ref": "#/$defs/Digest"
+                            }
+                          },
+                          "required": [
+                            "status",
+                            "value"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "type": "object"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "task": {
+                  "$ref": "#/$defs/taskRef"
+                },
+                "attempt": {
+                  "$ref": "#/$defs/attemptRef"
+                },
+                "employee": {
+                  "$ref": "#/$defs/employeeRef"
+                },
+                "machine": {
+                  "$ref": "#/$defs/machineRef"
+                },
+                "generation": {
+                  "type": "integer",
+                  "minimum": 1
+                },
+                "producer": {
+                  "type": "null"
+                },
+                "derivation_digest": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "const": "unavailable"
+                    },
+                    "value": {
+                      "type": "null"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "value"
+                  ],
+                  "additionalProperties": false
+                },
+                "entity": {
+                  "properties": {
+                    "digests": {
+                      "properties": {
+                        "input": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "const": "available"
+                            },
+                            "value": {
+                              "$ref": "#/$defs/Digest"
+                            }
+                          },
+                          "required": [
+                            "status",
+                            "value"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "binding": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "const": "available"
+                            },
+                            "value": {
+                              "$ref": "#/$defs/Digest"
+                            }
+                          },
+                          "required": [
+                            "status",
+                            "value"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "content": {
+                          "type": "object",
+                          "properties": {
+                            "status": {
+                              "const": "available"
+                            },
+                            "value": {
+                              "$ref": "#/$defs/Digest"
+                            }
+                          },
+                          "required": [
+                            "status",
+                            "value"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "type": "object"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Review": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "$ref": "#/$defs/review_receiptRef"
+          },
+          "task": {
+            "$ref": "#/$defs/taskRef"
+          },
+          "target_digest": {
+            "$ref": "#/$defs/Digest"
+          },
+          "target_status": {
+            "enum": [
+              "current",
+              "stale",
+              "unavailable"
+            ]
+          },
+          "review_attempt": {
+            "$ref": "#/$defs/attemptRef"
+          },
+          "checks": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "check_id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+                },
+                "outcome": {
+                  "enum": [
+                    "pass",
+                    "fail",
+                    "blocked"
+                  ]
+                },
+                "artifact": {
+                  "$ref": "#/$defs/artifactRef"
+                }
+              },
+              "required": [
+                "check_id",
+                "outcome",
+                "artifact"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 50
+          },
+          "acceptance": {
+            "const": "not_inferred"
+          }
+        },
+        "required": [
+          "entity",
+          "task",
+          "target_digest",
+          "target_status",
+          "review_attempt",
+          "checks",
+          "acceptance"
+        ],
+        "additionalProperties": false
+      },
+      "Cursor": {
+        "anyOf": [
+          {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096,
+            "pattern": "^[A-Za-z0-9_-]+$"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "Page": {
+        "type": "object",
+        "properties": {
+          "entity": {
+            "$ref": "#/$defs/context_pageRef"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50
+          },
+          "returned_count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 50
+          },
+          "truncated": {
+            "type": "boolean"
+          },
+          "next_cursor": {
+            "$ref": "#/$defs/Cursor"
+          },
+          "boundary": {
+            "enum": [
+              "end",
+              "continuation",
+              "response_size_limit"
+            ]
+          },
+          "snapshot_digest": {
+            "$ref": "#/$defs/Digest"
+          },
+          "snapshot_status": {
+            "const": "consistent_at_observation"
+          }
+        },
+        "required": [
+          "entity",
+          "limit",
+          "returned_count",
+          "truncated",
+          "next_cursor",
+          "boundary",
+          "snapshot_digest",
+          "snapshot_status"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "truncated": {
+                  "const": false
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "next_cursor": {
+                  "type": "null"
+                },
+                "boundary": {
+                  "const": "end"
+                }
+              }
+            },
+            "else": {
+              "properties": {
+                "next_cursor": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "boundary": {
+                  "enum": [
+                    "continuation",
+                    "response_size_limit"
+                  ]
+                }
+              }
+            }
+          }
+        ]
+      },
+      "ProjectContextRequest": {
+        "type": "object",
+        "properties": {
+          "project_id": {
+            "$ref": "#/$defs/ProjectId"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50
+          },
+          "cursor": {
+            "$ref": "#/$defs/Cursor"
+          }
+        },
+        "required": [
+          "project_id",
+          "limit",
+          "cursor"
+        ],
+        "additionalProperties": false
+      },
+      "TaskContextRequest": {
+        "type": "object",
+        "properties": {
+          "project_id": {
+            "$ref": "#/$defs/ProjectId"
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50
+          },
+          "cursor": {
+            "$ref": "#/$defs/Cursor"
+          },
+          "task_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+          },
+          "section": {
+            "enum": [
+              "dependencies",
+              "attempts",
+              "artifacts",
+              "reviews"
+            ]
+          }
+        },
+        "required": [
+          "project_id",
+          "limit",
+          "cursor",
+          "task_id",
+          "section"
+        ],
+        "additionalProperties": false
+      },
+      "ProjectContextResponse": {
+        "type": "object",
+        "properties": {
+          "contract_id": {
+            "const": "maritime-company-manager"
+          },
+          "contract_version": {
+            "const": "1.0.0-candidate.1"
+          },
+          "project_id": {
+            "$ref": "#/$defs/ProjectId"
+          },
+          "unavailable": {
+            "const": [
+              "mandate",
+              "knowledge",
+              "canonical_dossier"
+            ]
+          },
+          "project": {
+            "$ref": "#/$defs/Project"
+          },
+          "tasks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/Task"
+            },
+            "maxItems": 50
+          },
+          "page": {
+            "$ref": "#/$defs/Page"
+          }
+        },
+        "required": [
+          "contract_id",
+          "contract_version",
+          "project_id",
+          "unavailable",
+          "project",
+          "tasks",
+          "page"
+        ],
+        "additionalProperties": false
+      },
+      "TaskContextResponse": {
+        "type": "object",
+        "properties": {
+          "contract_id": {
+            "const": "maritime-company-manager"
+          },
+          "contract_version": {
+            "const": "1.0.0-candidate.1"
+          },
+          "project_id": {
+            "$ref": "#/$defs/ProjectId"
+          },
+          "unavailable": {
+            "const": [
+              "mandate",
+              "knowledge",
+              "canonical_dossier"
+            ]
+          },
+          "task_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[^\\u0000-\\u001f\\u007f]+$"
+          },
+          "task": {
+            "$ref": "#/$defs/Task"
+          },
+          "section": {
+            "enum": [
+              "dependencies",
+              "attempts",
+              "artifacts",
+              "reviews"
+            ]
+          },
+          "items": {
+            "type": "array",
+            "items": {},
+            "maxItems": 50
+          },
+          "page": {
+            "$ref": "#/$defs/Page"
+          }
+        },
+        "required": [
+          "contract_id",
+          "contract_version",
+          "project_id",
+          "unavailable",
+          "task_id",
+          "task",
+          "section",
+          "items",
+          "page"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "section": {
+                  "const": "dependencies"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/Dependency"
+                  },
+                  "maxItems": 50
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "section": {
+                  "const": "attempts"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/Attempt"
+                  },
+                  "maxItems": 50
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "section": {
+                  "const": "artifacts"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/Artifact"
+                  },
+                  "maxItems": 50
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "section": {
+                  "const": "reviews"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/Review"
+                  },
+                  "maxItems": 50
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "enum": [
+                  "authentication_required",
+                  "scope_denied",
+                  "not_found",
+                  "invalid_request",
+                  "continuation_invalid",
+                  "snapshot_changed",
+                  "context_page_too_large",
+                  "context_unavailable"
+                ]
+              },
+              "restart_required": {
+                "type": "boolean"
+              },
+              "changed_snapshot": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "code",
+              "restart_required",
+              "changed_snapshot"
+            ],
+            "additionalProperties": false,
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "code": {
+                      "const": "snapshot_changed"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "restart_required": {
+                      "const": true
+                    },
+                    "changed_snapshot": {
+                      "const": true
+                    }
+                  }
+                },
+                "else": {
+                  "if": {
+                    "properties": {
+                      "code": {
+                        "const": "continuation_invalid"
+                      }
+                    }
+                  },
+                  "then": {
+                    "properties": {
+                      "restart_required": {
+                        "const": true
+                      },
+                      "changed_snapshot": {
+                        "const": false
+                      }
+                    }
+                  },
+                  "else": {
+                    "properties": {
+                      "restart_required": {
+                        "const": false
+                      },
+                      "changed_snapshot": {
+                        "const": false
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "error_schema_ref": "urn:maritime:company-manager:1.0.0-candidate.1#/$defs/Error",
+  "sample_file": "contracts/company-manager.v1.samples.json",
+  "runtime_invariants": [
+    "Authenticate and authorize the exact project before any lookup, count, cursor or projection; no owner-token fallback for engines or employees.",
+    "Every entity/reference scope must equal the request project. Task response task_id and task.entity.id must equal the requested task_id; recheck dependencies/artifacts/review attempts/check artifacts individually.",
+    "Cursor is opaque, integrity protected, expiring and bound to authenticated principal, credential identity, project, operation, task, section, limit, query and snapshot. No caller identity/scope is trusted from cursor plaintext.",
+    "Each response is assembled from one consistent read snapshot. Reject a changed continuation snapshot with 409 snapshot_changed and no partial records; reject invalid/expired/restarted-server cursors with 409 continuation_invalid.",
+    "Page returned_count equals array length and never exceeds limit. No total counts. Truncation always supplies continuation for remaining authorized rows; oversized mandatory headers fail 413 rather than silently dropping fields.",
+    "Only approved logical repository identities and relative boundaries are projected; omit no required scope/provenance field and expose no host path, storage_key, registry/token, raw SQL row or execution authority.",
+    "Artifact source origin and actual references are preserved. Controller exports never invent task, attempt, employee, machine or generation. Include a task artifact only through an existing checked task association.",
+    "Review reads retrieve sealed stored receipts only; no ready_for_owner/evaluate/collect mutation and no acceptance inference. Missing mandate/knowledge/canonical-dossier capabilities remain unavailable.",
+    "Reading pages must not create tasks, attempts, approvals, reservations, readiness receipts, effects or Store records."
+  ],
+  "http_errors": {
+    "authentication_required": 401,
+    "scope_denied": 403,
+    "not_found": 404,
+    "invalid_request": 400,
+    "continuation_invalid": 409,
+    "snapshot_changed": 409,
+    "context_page_too_large": 413,
+    "context_unavailable": 503
+  }
+}

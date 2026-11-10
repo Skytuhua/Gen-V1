@@ -1,5 +1,10 @@
 # Original Hermes source integration
 
+The later [0.6.0 completion report](2026-11-01-product-completion.md) records the
+reduced payload in a built installer, 1,040 passing checks, packaged native
+verification and a genuine packaged OpenAI/Hermes task with restart. Earlier
+milestones below retain their original verification scope.
+
 Last updated: 2026-11-01. The original-source integration now uses a reduced, byte-identical upstream subset. Current reduction checks and historical integration/live-model evidence are separated below; each result establishes its stated scope only.
 
 The production host now composes the original Hermes Python agent with the existing application. This replaces the earlier custom TypeScript approximation as the production learning and skill authority. The original conversation loop, `/learn` prompt, review fork, skill schemas, fuzzy patching, batch validation, curator, usage sidecar and filesystem ledger execute from copied upstream source.

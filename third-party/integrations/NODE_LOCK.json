@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "node": "24.22.2",
+  "files": [
+    {
+      "path": "node_modules/@biomejs/biome/bin/biome",
+      "bytes": 2676,
+      "sha256": "604b5fb4a8a461602c7d15dca699bd654ee5543dd580a2e986032aaa7bb6cfe3"
+    },
+    {
+      "path": "node_modules/@biomejs/biome/package.json",
+      "bytes": 1455,
+      "sha256": "e2b5973d4a68055c96189b3888954dd85177330f31b376700ac826f75336c505"
+    },
+    {
+      "path": "node_modules/@biomejs/cli-win32-x64/biome.exe",
+      "bytes": 104118272,
+      "sha256": "ed7aa62b0f22ac4258d3d8668e0af8d53085168d421a8d4ec708040c5e275c0c"
+    },
+    {
+      "path": "node_modules/@biomejs/cli-win32-x64/package.json",
+      "bytes": 368,
+      "sha256": "cc07da1d422ddfbfc690d1a6b78afed4523729477a25a53ec1a64047bd97e419"
+    },
+    {
+      "path": "node_modules/@upstash/context7-mcp/dist/index.js",
+      "bytes": 36459,
+      "sha256": "05aa837e6586447e02fcd97a13f992e4f625efa8498371610a82cea6d235eccc"
+    },
+    {
+      "path": "node_modules/@upstash/context7-mcp/package.json",
+      "bytes": 2509,
+      "sha256": "3b07c651e858c9c164a7a55d497d143f4f69c17060bbb20f11980b7e341f0644"
+    },
+    {
+      "path": "node_modules/promptfoo/dist/src/entrypoint.js",
+      "bytes": 3642,
+      "sha256": "6f356e4648a7c8eec6b2021d4e5f7a7b498cc90b91fb149c55c1de0cfea2d15f"
+    },
+    {
+      "path": "node_modules/promptfoo/package.json",
+      "bytes": 14751,
+      "sha256": "5a01c3551c2e8d49a8895f563760be907034008f34f49c5611522cb457bb95df"
+    }
+  ]
+}

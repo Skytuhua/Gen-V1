@@ -75,7 +75,7 @@ it.each(['constructor','__proto__','Uppercase','bad name','a'.repeat(65)])('reje
 });
 it('bounds content, support files, counts and obvious credential content',()=>{
  const x=fixture();
- for(const content of ['a'.repeat(65537),'private\u0000text','sk-proj-abcdefghijklmnopqrstuvwxyz1234567890'])expect(()=>x.create('bad-content',agent,content)).toThrow();
+ for(const content of ['a'.repeat(65537),'private\u0000text','sk-proj-'+'0'.repeat(40)])expect(()=>x.create('bad-content',agent,content)).toThrow();
  expect(()=>x.change([{action:'create',name:'bad-description',description:'d'.repeat(1025),content:'Good content.',baseRevision:0}])).toThrow();
  x.create();const files=Array.from({length:32},(_,i):SkillOperation=>({action:'write_file',name:'verified-workflow',baseRevision:i+1,path:`references/file-${i}.txt`,content:'a'}));x.change(files);
  expect(()=>x.change([{action:'write_file',name:'verified-workflow',baseRevision:33,path:'references/overflow.txt',content:'More'}])).toThrow();
@@ -123,7 +123,7 @@ it('uses existing command receipts for idempotent skill writes',()=>{
  const first=x.store.command(command,()=>applySkillOperations(x.store,operations,user));expect(x.store.command(command,()=>applySkillOperations(x.store,operations,user))).toEqual(first);expect(viewSkill(x.store,'receipt-workflow').versions).toHaveLength(1);
 });
 it('rejects ignored fields and malformed approval choices before staging or changing anything',()=>{
- const x=fixture();x.create();expect(()=>x.change([{action:'delete',name:'verified-workflow',baseRevision:1,content:'sk-proj-abcdefghijklmnopqrstuvwxyz1234567890'}],agent,{requireApproval:true})).toThrow();
+ const x=fixture();x.create();expect(()=>x.change([{action:'delete',name:'verified-workflow',baseRevision:1,content:'sk-proj-'+'0'.repeat(40)}],agent,{requireApproval:true})).toThrow();
  expect(listSkillProposals(x.store)).toEqual([]);
  const staged=x.change([{action:'patch',name:'verified-workflow',baseRevision:1,content:'Proposed.'}],agent,{requireApproval:true});
  expect(()=>x.store.internal('test.approval',null,()=>decideSkillProposal(x.store,staged.proposalId!,'false' as unknown as boolean))).toThrow();expect(listSkillProposals(x.store)).toHaveLength(1);

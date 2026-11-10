@@ -10,7 +10,7 @@ export function readShellLayout(): ShellLayout {
     const value = saved as Partial<ShellLayout>;
     return { ...defaults, sidebarCollapsed: value.sidebarCollapsed === true, sidebarWidth: typeof value.sidebarWidth === 'number' && Number.isFinite(value.sidebarWidth) ? Math.max(200, Math.min(380, value.sidebarWidth)) : defaults.sidebarWidth,
       rightPanelOpen: value.rightPanelOpen === true, rightPanelWidth: typeof value.rightPanelWidth === 'number' && Number.isFinite(value.rightPanelWidth) ? Math.max(360, Math.min(960, value.rightPanelWidth)) : defaults.rightPanelWidth,
-      rightPanelMaximized: value.rightPanelMaximized === true, activeTab: ['artifact', 'files', 'diff', 'output', 'usage'].includes(value.activeTab ?? '') ? value.activeTab! : 'artifact', activeArtifactId: typeof value.activeArtifactId === 'string' ? value.activeArtifactId : null,
+      rightPanelMaximized: value.rightPanelMaximized === true, activeTab: ['artifact', 'files', 'diff', 'output', 'usage', 'terminal', 'pull-request', 'linked-pull-requests'].includes(value.activeTab ?? '') ? value.activeTab! : 'artifact', activeArtifactId: typeof value.activeArtifactId === 'string' ? value.activeArtifactId : null,
       folded: value.folded && typeof value.folded === 'object' ? Object.fromEntries(Object.entries(value.folded).filter(([key, state]) => key.length < 220 && typeof state === 'boolean')) : {} };
   } catch { return defaults; }
 }

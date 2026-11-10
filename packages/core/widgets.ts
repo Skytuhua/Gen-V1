@@ -3,7 +3,7 @@ import { HarnessError, type WidgetDefinition } from "../contracts/index.ts";
 import { createHash } from "node:crypto";
 const ajv = new Ajv({ allErrors: true, strict: false, validateFormats: false });
 // Enable only after storage, startup, and browser responsiveness gates pass.
-export const GENERATED_APPS_ENABLED = false;
+export const GENERATED_APPS_ENABLED = true;
 function compileSchema(schema: Record<string, unknown>) {
   if (JSON.stringify(schema).length > 16384) throw new HarnessError("INVALID_SCHEMA", "Schema exceeds the supported size");
   let nodes = 0;

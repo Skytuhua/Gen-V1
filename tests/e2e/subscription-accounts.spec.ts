@@ -34,6 +34,8 @@ async function host(page: Page, snapshot = fixture()) {
     await route.fulfill({ json: { commandId: command.id, seq: ++snapshot.seq, result: row ?? snapshot.accounts!.at(-1) } });
   });
   await page.route('**/api/models*', async route => { const url = new URL(route.request().url()); discoveries.push(url.search); const thread = snapshot.threads.find(item => item.id === url.searchParams.get('threadId')); const id = thread?.accountId ?? snapshot.settings.selectedAccounts?.openai; await route.fulfill({ json: { models: [model(id === work ? 'Work model' : 'Personal model')] } }); });
+  await page.route('**/api/account-auth?*', route => { const query = new URL(route.request().url()).searchParams; return route.fulfill({json:{providerId:query.get('providerId'),accountId:query.get('accountId')||null,state:'configured',identity:{availability:'unavailable',subject:null,email:null,organization:null,subscription:null},lastCheckedAt:now,localSignout:!['claude-code','gemini-cli'].includes(query.get('providerId')!),message:'A credential is configured; authenticated identity is unavailable.'}}); });
+  await page.route('**/api/composer-prediction/cancel', route=>route.fulfill({json:{cancelled:true}}));
   return { ...base, commands, discoveries, failNext(message: string) { fail = message; }, holdNext() { return new Promise<void>(resolve => { pending = resolve; }); }, release() { pending?.(); } };
 }
 async function openAccounts(page: Page) { await page.getByRole('button', { name: 'Settings', exact: true }).click(); await page.getByRole('button', { name: 'Providers', exact: true }).click(); return page.locator('.connection-row[data-provider="openai"]'); }
@@ -208,4 +210,34 @@ test('desktop sign-in targets the chosen provider and account only on an explici
   expect(await page.evaluate(() => (window as any).__signIns)).toEqual([]);
   await provider.getByRole('button', { name: 'Connect Work', exact: true }).click();
   expect(await page.evaluate(() => (window as any).__signIns)).toEqual([['openai', work]]);
+});
+
+test('shows per-account readiness without turning model counts or local labels into authenticated identity',async({page})=>{
+  await host(page);
+  await page.route(`**/api/account-auth?providerId=openai&accountId=${work}`,route=>route.fulfill({json:{providerId:'openai',accountId:work,state:'signed-out',identity:{availability:'unavailable',subject:null,email:null,organization:null,subscription:null},lastCheckedAt:now,localSignout:true,message:'No credential configured.'}}));
+  await page.goto('/');const provider=await openAccounts(page),personalRow=provider.locator(`[data-account-id="${personal}"]`),workRow=provider.locator(`[data-account-id="${work}"]`);
+  await expect(personalRow).toContainText('Credential configured');await expect(personalRow).toContainText('Authenticated identity unavailable.');await expect(workRow).toContainText('signed out');
+  await expect(provider.locator('header').first()).not.toContainText('models available');await expect(provider).not.toContainText('Verified provider user');
+  await expect(personalRow.getByRole('button',{name:'Sign out locally',exact:true})).toBeEnabled();await expect(workRow.getByRole('button',{name:'Sign out locally',exact:true})).toBeDisabled();
+});
+
+test('desktop owned sign-in exposes completion, cancellation and retry on its account row',async({page})=>{
+  await page.addInitScript(()=>{
+    const w=window as any;let active:any=null,count=0;w.__cancelled=[];
+    w.harnessDesktop={getContext:async()=>({windowId:'main',surface:{kind:'main'},windows:[]}),ready:async()=>({}),onState:()=>()=>{},onCloseRequested:()=>()=>{},list:async()=>[],browser:async()=>({}),
+      signIn:async(providerId:string,accountId:string)=>active={id:`flow-${++count}`,providerId,accountId,state:'waiting',startedAt:new Date().toISOString(),updatedAt:new Date().toISOString(),message:'Complete native sign-in.'},
+      signInStatus:async(id:string)=>active?.id===id?active:null,
+      cancelSignIn:async(id:string)=>{w.__cancelled.push(id);active={...active,state:'cancelled',updatedAt:new Date().toISOString(),message:'Owned console closed.'};return active;}};
+  });
+  await host(page);await page.goto('/');const provider=await openAccounts(page),row=provider.locator(`[data-account-id="${work}"]`);
+  await row.getByRole('button',{name:'Connect Work',exact:true}).click();await expect(row).toContainText('Complete native sign-in.');await expect(row.getByRole('button',{name:'Cancel sign-in',exact:true})).toBeVisible();
+  await row.getByRole('button',{name:'Cancel sign-in',exact:true}).click();await expect(row).toContainText('Owned console closed.');await expect(row.getByRole('button',{name:'Retry sign-in',exact:true})).toBeEnabled();
+  expect(await page.evaluate(()=>(window as any).__cancelled)).toEqual(['flow-1']);await row.getByRole('button',{name:'Retry sign-in',exact:true}).click();await expect(row.getByRole('button',{name:'Cancel sign-in',exact:true})).toBeVisible();
+});
+
+test('local signout names its scope and preserves account metadata',async({page})=>{
+  await host(page);let target:any;
+  await page.route('**/api/account-auth/signout',async route=>{target=route.request().postDataJSON();await route.fulfill({json:{...target,state:'signed-out',identity:{availability:'unavailable',subject:null,email:null,organization:null,subscription:null},lastCheckedAt:now,localSignout:true,message:'Local credentials removed. Remote sessions and provider grants were not revoked.'}});});
+  await page.goto('/');const provider=await openAccounts(page),row=provider.locator(`[data-account-id="${work}"]`);await row.getByRole('button',{name:'Sign out locally',exact:true}).click();
+  await expect(row).toContainText('Remote sessions and provider grants were not revoked.');expect(target).toEqual({providerId:'openai',accountId:work});await expect(row.getByRole('button',{name:'Rename Work',exact:true})).toBeVisible();
 });

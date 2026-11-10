@@ -7,7 +7,7 @@ import {verificationPorts,assertWrapperRunning,assertWrapperArguments} from './p
 import {SUBSCRIPTION_CONNECTIONS} from '../packages/contracts/connections.ts';
 
 const {version}=JSON.parse(await readFile(new URL('../package.json',import.meta.url),'utf8')) as {version:string};
-const executable=resolve(process.argv[2]??`dist/desktop-release-${version}/Generative-Harness-${version}-win-x64.exe`);
+const executable=resolve(process.argv[2]??`dist/desktop-release-${version}/Gen-V1-${version}-win-x64.exe`);
 const directory=resolve('.harness-desktop-portable/run-'+Date.now());await mkdir(directory,{recursive:true});
 const [hostPort,widgetPort,debugPort]=await verificationPorts(),nonce=randomUUID(),origin='http://127.0.0.1:'+hostPort,debugOrigin='http://127.0.0.1:'+debugPort;
 const env=Object.fromEntries(Object.entries({...process.env,HARNESS_DESKTOP_TEST_DATA_DIR:directory,HARNESS_DESKTOP_PORT:String(hostPort),HARNESS_DESKTOP_WIDGET_PORT:String(widgetPort)}).filter((entry):entry is [string,string]=>typeof entry[1]==='string'));

@@ -1,0 +1,218 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:maritime:communications:v1:discussion-command",
+  "$comment": "Partial C01 data only. Apply strict raw codec first, UTF-8 byte limits and combined audience uniqueness/count 1..8 in addition to this schema. No Policy.authorize or execution.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "command_id": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+    },
+    "action": {
+      "const": "message.send"
+    },
+    "scope": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "project"
+            },
+            "id": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]{0,62}$",
+              "not": {
+                "const": "company-ops"
+              }
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ]
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "company_ops"
+            },
+            "id": {
+              "const": "company-ops"
+            }
+          },
+          "required": [
+            "kind",
+            "id"
+          ]
+        }
+      ]
+    },
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "conversation_id": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+        },
+        "kind": {
+          "enum": [
+            "question",
+            "answer",
+            "handoff",
+            "review_request",
+            "blocker",
+            "proposal",
+            "note"
+          ]
+        },
+        "task_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[^\\u0000]*$",
+          "$comment": "maxLength is a structural ceiling; the codec enforces this maximum in UTF-8 bytes."
+        },
+        "attempt_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[^\\u0000]*$",
+          "$comment": "maxLength is a structural ceiling; the codec enforces this maximum in UTF-8 bytes."
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1024,
+          "pattern": "^[^\\u0000]*$",
+          "$comment": "maxLength is a structural ceiling; the codec enforces this maximum in UTF-8 bytes."
+        },
+        "body": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 8192,
+          "pattern": "^[^\\u0000]*$",
+          "$comment": "maxLength is a structural ceiling; the codec enforces this maximum in UTF-8 bytes."
+        },
+        "required_action": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1024,
+              "pattern": "^[^\\u0000]*$",
+              "$comment": "maxLength is a structural ceiling; the codec enforces this maximum in UTF-8 bytes."
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "response_required": {
+          "type": "boolean"
+        },
+        "recipient_employee_ids": {
+          "type": "array",
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^E(?:0[1-9]|[12][0-9]|3[0-2])$"
+          }
+        },
+        "observer_employee_ids": {
+          "type": "array",
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^E(?:0[1-9]|[12][0-9]|3[0-2])$"
+          }
+        },
+        "artifact_refs": {
+          "type": "array",
+          "maxItems": 0,
+          "$comment": "Nonempty artifact references unsupported in partial C01."
+        },
+        "reply_to_message_id": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "conversation_id",
+        "kind",
+        "task_id",
+        "attempt_id",
+        "summary",
+        "body",
+        "required_action",
+        "response_required",
+        "recipient_employee_ids",
+        "observer_employee_ids",
+        "artifact_refs",
+        "reply_to_message_id"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "response_required": {
+                "const": true
+              }
+            },
+            "required": [
+              "response_required"
+            ]
+          },
+          "then": {
+            "properties": {
+              "required_action": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024,
+                "pattern": "^[^\\u0000]*$",
+                "$comment": "maxLength is a structural ceiling; the codec enforces this maximum in UTF-8 bytes."
+              },
+              "recipient_employee_ids": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": 1
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "required_action": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "command_id",
+    "action",
+    "scope",
+    "payload"
+  ]
+}

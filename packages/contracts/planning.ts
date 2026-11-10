@@ -25,7 +25,7 @@ export const AgentUsageSchema = z.object({
 }).strict();
 export const AgentJobSchema = z.object({
   id, commandId: id, taskId: id, name: label, task: z.string().trim().min(1).max(1000),
-  stepId: id.optional(), status: z.enum(['queued', 'working', 'completed', 'needs_review', 'failed', 'cancelled', 'interrupted']),
+  stepId: id.optional(), childThreadId:id.optional(), status: z.enum(['queued', 'working', 'completed', 'needs_review', 'failed', 'cancelled', 'interrupted']),
   requirements: z.array(requirement).max(16).refine(uniqueIds, 'Requirement IDs must be unique'),
   completedRequirementIds: z.array(id).max(16), reportedPercent: percentage,
   evidence: z.array(z.object({ id: z.string().min(1).max(200), revision: z.number().int().positive() }).strict()).max(8).optional(),

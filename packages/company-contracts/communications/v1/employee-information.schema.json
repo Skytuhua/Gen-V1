@@ -1,0 +1,944 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:maritime:communications:v1:employee-information",
+  "$comment": "Additive same-v1 employee information specialization. Frozen C01 command and reads definitions are imported unchanged. Strict raw JSON, supplemental UTF-8/encoded-byte, retained-scope, digest/ref/authority checks are mandatory; structural schema alone is insufficient. No employee runtime or live admission is established.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/Command"
+    },
+    {
+      "$ref": "#/$defs/Receipt"
+    },
+    {
+      "$ref": "#/$defs/Delivery"
+    },
+    {
+      "$ref": "#/$defs/Event"
+    },
+    {
+      "$ref": "#/$defs/InformationItem"
+    },
+    {
+      "$ref": "#/$defs/Inbox"
+    },
+    {
+      "$ref": "#/$defs/Error"
+    }
+  ],
+  "$defs": {
+    "Uuid": {
+      "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/Uuid"
+    },
+    "Digest": {
+      "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/Digest"
+    },
+    "CompanyId": {
+      "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/CompanyId"
+    },
+    "Revision": {
+      "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/Revision"
+    },
+    "UtcEpochMilliseconds": {
+      "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/UtcEpochMilliseconds"
+    },
+    "OpaqueExistingId": {
+      "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/OpaqueExistingId"
+    },
+    "ProjectScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "project"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]{0,62}$",
+          "not": {
+            "const": "company-ops"
+          }
+        }
+      },
+      "required": [
+        "kind",
+        "id"
+      ]
+    },
+    "Observation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "const": "stored_record"
+        },
+        "evidence_scope": {
+          "const": "stored_record"
+        },
+        "live_verified": {
+          "const": false
+        }
+      },
+      "required": [
+        "source",
+        "evidence_scope",
+        "live_verified"
+      ]
+    },
+    "Actor": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "principal_id": {
+          "$ref": "#/$defs/OpaqueExistingId"
+        },
+        "employee_id": {
+          "type": "string",
+          "pattern": "^E(?:0[1-9]|[12][0-9]|3[0-2])$"
+        },
+        "machine_id": {
+          "$ref": "#/$defs/OpaqueExistingId"
+        },
+        "generation": {
+          "$ref": "#/$defs/Revision"
+        },
+        "scope": {
+          "$ref": "#/$defs/ProjectScope"
+        },
+        "task_id": {
+          "$ref": "#/$defs/OpaqueExistingId"
+        },
+        "attempt_id": {
+          "$ref": "#/$defs/OpaqueExistingId"
+        },
+        "work_order_id": {
+          "$ref": "#/$defs/OpaqueExistingId"
+        },
+        "input_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "binding_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "playbook_digest": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Digest"
+            },
+            {
+              "const": "none"
+            }
+          ]
+        },
+        "lease_until_utc_epoch_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "admission_evidence_scope": {
+          "const": "synthetic_only"
+        },
+        "live_verified": {
+          "const": false
+        }
+      },
+      "required": [
+        "principal_id",
+        "employee_id",
+        "machine_id",
+        "generation",
+        "scope",
+        "task_id",
+        "attempt_id",
+        "work_order_id",
+        "input_digest",
+        "binding_digest",
+        "playbook_digest",
+        "lease_until_utc_epoch_ms",
+        "admission_evidence_scope",
+        "live_verified"
+      ],
+      "$comment": "Descriptive accepted/current protected context, not authentication. Exactly fourteen fields. Immutable binding excludes only lease_until_utc_epoch_ms; lease values may differ after legitimate renewal. attempt_id is an existing opaque ID, not necessarily UUID. playbook_digest retains the existing none sentinel."
+    },
+    "CorrelationRef": {
+      "allOf": [
+        {
+          "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/CorrelationRef"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "scope": {
+              "$ref": "#/$defs/ProjectScope"
+            }
+          }
+        }
+      ]
+    },
+    "ConversationRef": {
+      "allOf": [
+        {
+          "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/ConversationRef"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "scope": {
+              "$ref": "#/$defs/ProjectScope"
+            },
+            "availability": {
+              "const": "available"
+            },
+            "revision": {
+              "$ref": "#/$defs/Revision"
+            },
+            "digest": {
+              "$ref": "#/$defs/Digest"
+            },
+            "unavailable_reason": {
+              "const": null
+            }
+          }
+        }
+      ]
+    },
+    "MessageRef": {
+      "allOf": [
+        {
+          "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/MessageRef"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "scope": {
+              "$ref": "#/$defs/ProjectScope"
+            },
+            "availability": {
+              "const": "available"
+            },
+            "revision": {
+              "$ref": "#/$defs/Revision"
+            },
+            "digest": {
+              "$ref": "#/$defs/Digest"
+            },
+            "unavailable_reason": {
+              "const": null
+            }
+          }
+        }
+      ]
+    },
+    "DeliveryRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "delivery"
+        },
+        "id": {
+          "$ref": "#/$defs/Uuid"
+        },
+        "company_id": {
+          "$ref": "#/$defs/CompanyId"
+        },
+        "scope": {
+          "$ref": "#/$defs/ProjectScope"
+        },
+        "availability": {
+          "const": "available"
+        },
+        "revision": {
+          "const": 1
+        },
+        "digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "unavailable_reason": {
+          "const": null
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "company_id",
+        "scope",
+        "availability",
+        "revision",
+        "digest",
+        "unavailable_reason"
+      ]
+    },
+    "EventRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "const": "communication_event"
+        },
+        "id": {
+          "$ref": "#/$defs/Uuid"
+        },
+        "company_id": {
+          "$ref": "#/$defs/CompanyId"
+        },
+        "scope": {
+          "$ref": "#/$defs/ProjectScope"
+        },
+        "availability": {
+          "const": "available"
+        },
+        "revision": {
+          "const": 1
+        },
+        "digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "unavailable_reason": {
+          "const": null
+        }
+      },
+      "required": [
+        "kind",
+        "id",
+        "company_id",
+        "scope",
+        "availability",
+        "revision",
+        "digest",
+        "unavailable_reason"
+      ]
+    },
+    "Conversation": {
+      "allOf": [
+        {
+          "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/Conversation"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "task_thread"
+            },
+            "scope": {
+              "$ref": "#/$defs/ProjectScope"
+            },
+            "title": {
+              "const": "Employee information discussion"
+            },
+            "lifecycle": {
+              "const": "open"
+            },
+            "visibility_revision": {
+              "const": 1
+            },
+            "observation": {
+              "$ref": "#/$defs/Observation"
+            }
+          }
+        }
+      ]
+    },
+    "Message": {
+      "allOf": [
+        {
+          "$ref": "urn:maritime:communications:reads-candidate.1#/$defs/Message"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "scope": {
+              "$ref": "#/$defs/ProjectScope"
+            },
+            "kind": {
+              "const": "note"
+            },
+            "revision": {
+              "const": 1
+            },
+            "visibility_revision": {
+              "const": 1
+            },
+            "required_action": {
+              "const": null
+            },
+            "response_request_ref": {
+              "const": null
+            },
+            "reply_to_message_ref": {
+              "const": null
+            },
+            "correlation_ref": {
+              "$ref": "#/$defs/CorrelationRef"
+            },
+            "effective_priority": {
+              "const": "normal"
+            },
+            "observation": {
+              "$ref": "#/$defs/Observation"
+            }
+          }
+        }
+      ]
+    },
+    "Command": {
+      "allOf": [
+        {
+          "$ref": "urn:maritime:communications:v1:discussion-command"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "scope": {
+              "$ref": "#/$defs/ProjectScope"
+            },
+            "payload": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "note"
+                },
+                "required_action": {
+                  "const": null
+                },
+                "response_required": {
+                  "const": false
+                },
+                "recipient_employee_ids": {
+                  "type": "array",
+                  "minItems": 1,
+                  "maxItems": 1
+                },
+                "observer_employee_ids": {
+                  "type": "array",
+                  "maxItems": 0
+                },
+                "artifact_refs": {
+                  "type": "array",
+                  "maxItems": 0
+                },
+                "reply_to_message_id": {
+                  "const": null
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "Delivery": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "record_type": {
+          "const": "delivery"
+        },
+        "id": {
+          "$ref": "#/$defs/Uuid"
+        },
+        "revision": {
+          "const": 1
+        },
+        "company_id": {
+          "$ref": "#/$defs/CompanyId"
+        },
+        "scope": {
+          "$ref": "#/$defs/ProjectScope"
+        },
+        "visibility_revision": {
+          "const": 1
+        },
+        "message_ref": {
+          "$ref": "#/$defs/MessageRef"
+        },
+        "recipient": {
+          "$ref": "#/$defs/Actor"
+        },
+        "inbox_sequence": {
+          "$ref": "#/$defs/Revision"
+        },
+        "state": {
+          "const": "accepted"
+        },
+        "correlation_ref": {
+          "$ref": "#/$defs/CorrelationRef"
+        },
+        "recorded_at_utc_epoch_ms": {
+          "$ref": "#/$defs/UtcEpochMilliseconds"
+        },
+        "expires_at_utc_epoch_ms": {
+          "$ref": "#/$defs/UtcEpochMilliseconds"
+        },
+        "observation": {
+          "$ref": "#/$defs/Observation"
+        },
+        "digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "received_at": {
+          "const": null
+        },
+        "consumed_at": {
+          "const": null
+        }
+      },
+      "required": [
+        "schema_version",
+        "record_type",
+        "id",
+        "revision",
+        "company_id",
+        "scope",
+        "visibility_revision",
+        "message_ref",
+        "recipient",
+        "inbox_sequence",
+        "state",
+        "correlation_ref",
+        "recorded_at_utc_epoch_ms",
+        "expires_at_utc_epoch_ms",
+        "observation",
+        "digest",
+        "received_at",
+        "consumed_at"
+      ]
+    },
+    "Event": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "record_type": {
+          "const": "communication_event"
+        },
+        "id": {
+          "$ref": "#/$defs/Uuid"
+        },
+        "revision": {
+          "const": 1
+        },
+        "company_id": {
+          "$ref": "#/$defs/CompanyId"
+        },
+        "scope": {
+          "$ref": "#/$defs/ProjectScope"
+        },
+        "visibility_revision": {
+          "const": 1
+        },
+        "event_type": {
+          "const": "message.accepted"
+        },
+        "producer": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "kind": {
+              "const": "company_service"
+            },
+            "component": {
+              "const": "communications_acceptance"
+            },
+            "version": {
+              "const": 1
+            }
+          },
+          "required": [
+            "kind",
+            "component",
+            "version"
+          ]
+        },
+        "conversation_ref": {
+          "$ref": "#/$defs/ConversationRef"
+        },
+        "message_ref": {
+          "$ref": "#/$defs/MessageRef"
+        },
+        "delivery_ref": {
+          "$ref": "#/$defs/DeliveryRef"
+        },
+        "sender": {
+          "$ref": "#/$defs/Actor"
+        },
+        "recipient": {
+          "$ref": "#/$defs/Actor"
+        },
+        "sequence": {
+          "$ref": "#/$defs/Revision"
+        },
+        "correlation_ref": {
+          "$ref": "#/$defs/CorrelationRef"
+        },
+        "recorded_at_utc_epoch_ms": {
+          "$ref": "#/$defs/UtcEpochMilliseconds"
+        },
+        "expires_at_utc_epoch_ms": {
+          "$ref": "#/$defs/UtcEpochMilliseconds"
+        },
+        "observation": {
+          "$ref": "#/$defs/Observation"
+        },
+        "digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "schema_version",
+        "record_type",
+        "id",
+        "revision",
+        "company_id",
+        "scope",
+        "visibility_revision",
+        "event_type",
+        "producer",
+        "conversation_ref",
+        "message_ref",
+        "delivery_ref",
+        "sender",
+        "recipient",
+        "sequence",
+        "correlation_ref",
+        "recorded_at_utc_epoch_ms",
+        "expires_at_utc_epoch_ms",
+        "observation",
+        "digest"
+      ]
+    },
+    "Receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "record_type": {
+          "const": "command_receipt"
+        },
+        "id": {
+          "$ref": "#/$defs/Uuid"
+        },
+        "revision": {
+          "const": 1
+        },
+        "company_id": {
+          "$ref": "#/$defs/CompanyId"
+        },
+        "scope": {
+          "$ref": "#/$defs/ProjectScope"
+        },
+        "principal_id": {
+          "$ref": "#/$defs/OpaqueExistingId"
+        },
+        "command_id": {
+          "$ref": "#/$defs/Uuid"
+        },
+        "action": {
+          "const": "message.send"
+        },
+        "argument_digest": {
+          "$ref": "#/$defs/Digest"
+        },
+        "outcome": {
+          "const": "accepted_information"
+        },
+        "conversation_ref": {
+          "$ref": "#/$defs/ConversationRef"
+        },
+        "message_ref": {
+          "$ref": "#/$defs/MessageRef"
+        },
+        "delivery_ref": {
+          "$ref": "#/$defs/DeliveryRef"
+        },
+        "event_ref": {
+          "$ref": "#/$defs/EventRef"
+        },
+        "sender": {
+          "$ref": "#/$defs/Actor"
+        },
+        "recipient": {
+          "$ref": "#/$defs/Actor"
+        },
+        "correlation_ref": {
+          "$ref": "#/$defs/CorrelationRef"
+        },
+        "recorded_at_utc_epoch_ms": {
+          "$ref": "#/$defs/UtcEpochMilliseconds"
+        },
+        "expires_at_utc_epoch_ms": {
+          "$ref": "#/$defs/UtcEpochMilliseconds"
+        },
+        "observation": {
+          "$ref": "#/$defs/Observation"
+        },
+        "digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "schema_version",
+        "record_type",
+        "id",
+        "revision",
+        "company_id",
+        "scope",
+        "principal_id",
+        "command_id",
+        "action",
+        "argument_digest",
+        "outcome",
+        "conversation_ref",
+        "message_ref",
+        "delivery_ref",
+        "event_ref",
+        "sender",
+        "recipient",
+        "correlation_ref",
+        "recorded_at_utc_epoch_ms",
+        "expires_at_utc_epoch_ms",
+        "observation",
+        "digest"
+      ]
+    },
+    "InformationItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "projection_type": {
+          "const": "employee_information"
+        },
+        "company_id": {
+          "$ref": "#/$defs/CompanyId"
+        },
+        "scope": {
+          "$ref": "#/$defs/ProjectScope"
+        },
+        "conversation": {
+          "$ref": "#/$defs/Conversation"
+        },
+        "message": {
+          "$ref": "#/$defs/Message"
+        },
+        "delivery": {
+          "$ref": "#/$defs/Delivery"
+        },
+        "event": {
+          "$ref": "#/$defs/Event"
+        },
+        "receipt": {
+          "$ref": "#/$defs/Receipt"
+        },
+        "observation": {
+          "$ref": "#/$defs/Observation"
+        },
+        "digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "schema_version",
+        "projection_type",
+        "company_id",
+        "scope",
+        "conversation",
+        "message",
+        "delivery",
+        "event",
+        "receipt",
+        "observation",
+        "digest"
+      ]
+    },
+    "Coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "enum": [
+            "observed",
+            "partial"
+          ]
+        },
+        "truncation": {
+          "enum": [
+            "none",
+            "item_limit",
+            "byte_limit"
+          ]
+        },
+        "total_count": {
+          "const": null
+        }
+      },
+      "required": [
+        "status",
+        "truncation",
+        "total_count"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "type": "object",
+            "properties": {
+              "truncation": {
+                "const": "none"
+              }
+            },
+            "required": [
+              "truncation"
+            ]
+          },
+          "then": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "const": "observed"
+              }
+            }
+          },
+          "else": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "const": "partial"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "Inbox": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "projection_type": {
+          "const": "employee_inbox"
+        },
+        "company_id": {
+          "$ref": "#/$defs/CompanyId"
+        },
+        "scope": {
+          "$ref": "#/$defs/ProjectScope"
+        },
+        "recipient": {
+          "$ref": "#/$defs/Actor"
+        },
+        "items": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "$ref": "#/$defs/InformationItem"
+          }
+        },
+        "requested_limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50
+        },
+        "order": {
+          "const": "recipient_sequence_descending"
+        },
+        "observed_at_utc_epoch_ms": {
+          "$ref": "#/$defs/UtcEpochMilliseconds"
+        },
+        "coverage": {
+          "$ref": "#/$defs/Coverage"
+        },
+        "next_cursor": {
+          "const": null
+        },
+        "has_more": {
+          "const": null
+        },
+        "limits": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "max_items": {
+              "const": 50
+            },
+            "max_response_utf8_bytes": {
+              "const": 262144
+            },
+            "continuation": {
+              "const": false
+            }
+          },
+          "required": [
+            "max_items",
+            "max_response_utf8_bytes",
+            "continuation"
+          ]
+        },
+        "observation": {
+          "$ref": "#/$defs/Observation"
+        },
+        "digest": {
+          "$ref": "#/$defs/Digest"
+        }
+      },
+      "required": [
+        "schema_version",
+        "projection_type",
+        "company_id",
+        "scope",
+        "recipient",
+        "items",
+        "requested_limit",
+        "order",
+        "observed_at_utc_epoch_ms",
+        "coverage",
+        "next_cursor",
+        "has_more",
+        "limits",
+        "observation",
+        "digest"
+      ]
+    },
+    "Error": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "error": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "enum": [
+                "INVALID_REQUEST",
+                "AUTHENTICATION_REQUIRED",
+                "SCOPE_DENIED",
+                "NOT_FOUND",
+                "IDEMPOTENCY_CONFLICT",
+                "AUTHORITY_UNAVAILABLE",
+                "RECORDS_UNAVAILABLE"
+              ]
+            }
+          },
+          "required": [
+            "code"
+          ]
+        }
+      },
+      "required": [
+        "schema_version",
+        "error"
+      ]
+    }
+  }
+}

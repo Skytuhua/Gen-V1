@@ -10,7 +10,7 @@ export const preferencesSchema = z.strictObject({
   chatWidth: z.enum(['comfortable', 'wide', 'full']), fontSize: z.number().int().min(12).max(20),
   interfaceFont: font, promptFont: font, codeFont: z.enum(['monospace', 'Consolas', 'Cascadia Code']),
   contrast: z.enum(['normal', 'high']), panelAnimations: z.boolean(), motionDuration: z.number().int().min(0).max(400),
-  sendShortcut: z.enum(['enter', 'mod-enter-multiline', 'mod-enter']),
+  sendShortcut: z.enum(['enter', 'mod-enter-multiline', 'mod-enter']), composerPredictions: z.boolean(),
   projectGrouping: z.boolean(), projectOrder: z.enum(['recent', 'created', 'manual']), showWorkingSection: z.boolean(),
   timeFormat: z.enum(['system', '12h', '24h']), archiveConfirmation: z.boolean(), deleteConfirmation: z.boolean(), unpinConfirmation: z.boolean(),
   threadNotifications: z.enum(['off', 'notifications', 'sound', 'both']), inAppNotifications: z.boolean(),
@@ -22,7 +22,7 @@ export type UiPreferences = z.infer<typeof preferencesSchema>;
 export type PreferencePatch = Partial<Omit<UiPreferences, 'keybindings'>> & { keybindings?: Partial<UiPreferences['keybindings']> };
 export const DEFAULT_PREFERENCES: UiPreferences = {
   chatWidth: 'wide', fontSize: 14, interfaceFont: 'system', promptFont: 'system', codeFont: 'monospace',
-  contrast: 'normal', panelAnimations: true, motionDuration: 220, sendShortcut: 'enter',
+  contrast: 'normal', panelAnimations: true, motionDuration: 220, sendShortcut: 'enter', composerPredictions: false,
   projectGrouping: true, projectOrder: 'recent', showWorkingSection: true, timeFormat: 'system',
   archiveConfirmation: true, deleteConfirmation: true, unpinConfirmation: false, threadNotifications: 'off', inAppNotifications: true,
   diffLayout: 'split', hideWhitespace: false, diffDefaultExpanded: true, diffColors: 'red-green',

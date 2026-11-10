@@ -5,7 +5,7 @@ import { dirname, join } from 'node:path';
 import { HarnessError, type ModelInfo } from '../contracts/index.ts';
 import { terminateProcessTree } from '../runtime-pi/process-tree.ts';
 import { hostSystemPrompt } from '../runtime-pi/tool-definitions.ts';
-import {MODEL_ONLY_SYSTEM_PROMPT,MODEL_ONLY_MAX_WIRE_BYTES} from '../runtime/model-only.ts';
+import {modelOnlySystemPrompt,MODEL_ONLY_MAX_WIRE_BYTES,PREDICTION_MAX_OUTPUT_BYTES} from '../runtime/model-only.ts';
 import { AcpConnection } from './acp.ts';
 import { officialRuntimeCommand, officialRuntimeEnvironment, officialRuntimeHome } from './environment.ts';
 import { bounded, finite, type DriverContext, type HistoryReceipt, type OfficialDriver, type WireInput } from './internal.ts';
@@ -39,6 +39,7 @@ function advertisedModels(response: any): { models: ModelInfo[]; configId?: stri
 export async function openGemini(context: DriverContext, spawnProcess: typeof spawn, modelId?: string, historyOnly = false): Promise<OfficialDriver> {
   await assertGoogleLogin(context.dataDir);
   if (!context.current()) throw new HarnessError('OFFICIAL_RUN_ABORTED', 'Official run authority was revoked.');
+  if(context.purpose==='prediction'&&context.manifest.value.sessionId)throw new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions require a fresh conversation.');
   if (context.manifest.value.sessionId && !historyOnly) return (await import('./gemini-headless.ts')).openGeminiHeadless(context, spawnProcess, modelId);
   const connectionId=randomUUID();
   const settingsPath = join(context.taskDir, `runtime-settings-${connectionId}.json`);
@@ -58,7 +59,7 @@ export async function openGemini(context: DriverContext, spawnProcess: typeof sp
     telemetry: { enabled: false },
     advanced: { autoConfigureMemory: false },
   };
-  await Promise.all([writeFile(settingsPath, JSON.stringify(settings), { mode: 0o600 }), writeFile(promptPath, context.modelOnly?MODEL_ONLY_SYSTEM_PROMPT:hostSystemPrompt(context.memory), { mode: 0o600 })]);
+  await Promise.all([writeFile(settingsPath, JSON.stringify(settings), { mode: 0o600 }), writeFile(promptPath, context.modelOnly?modelOnlySystemPrompt(context.purpose):hostSystemPrompt(context.memory), { mode: 0o600 })]);
   if (!context.current()) throw new HarnessError('OFFICIAL_RUN_ABORTED', 'Official run authority was revoked.');
   const command = officialRuntimeCommand('gemini-cli');
   const child = spawnProcess(command.file, [...command.args, '--acp', '--extensions', '__harness_no_extensions__', '--allowed-mcp-server-names', 'host'], {
@@ -97,7 +98,10 @@ export async function openGemini(context: DriverContext, spawnProcess: typeof sp
       } else if (activeWire && update.content.text === activeWire.text) historyWrites.push(context.observed(activeWire.uuid));
     }
     if (replaying || historyOnly || initializing) return;
-    if (update.sessionUpdate === 'agent_message_chunk' && update.content?.type === 'text' && typeof update.content.text === 'string') content += update.content.text;
+    if (update.sessionUpdate === 'agent_message_chunk' && update.content?.type === 'text' && typeof update.content.text === 'string'){
+      if(context.purpose==='prediction'&&Buffer.byteLength(content)+Buffer.byteLength(update.content.text)>PREDICTION_MAX_OUTPUT_BYTES){context.event('error',{code:'PREDICTION_OUTPUT_LIMIT',message:'The prediction exceeded its output limit.'});void driver.close();return;}
+      content += update.content.text;
+    }
     if (update.sessionUpdate === 'usage_update') contextUsage = { contextTokens: finite(update.used), contextWindow: finite(update.size) };
   },context.modelOnly?MODEL_ONLY_MAX_WIRE_BYTES:undefined);
   child.stderr?.resume();

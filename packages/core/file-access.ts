@@ -7,16 +7,16 @@ import { dirname, join, resolve } from "node:path";
 import { HarnessError, type ResourceGrant } from "../contracts/index.ts";
 import { assertNotStorage, resolveGrant, PROTECTED_STORAGE_DIRECTORIES } from "./security.ts";
 
-type GuardPath = { path: string; leaf: boolean; dev?: string; ino?: string; empty?: boolean; tree?: boolean; readOnly?: boolean; allowChildWrites?:boolean; childWriteRoot?:string };
+type GuardPath = { path: string; leaf: boolean; dev?: string; ino?: string; empty?: boolean; tree?: boolean; readOnly?: boolean; allowChildWrites?:boolean; childWriteRoot?:string; gitMetadataImport?:boolean };
 export interface GuardEntry { readonly path: string; readonly directory: boolean; readonly dev: string; readonly ino: string; readonly size: number }
 interface GuardSession { rpc(request: Record<string, unknown>): Promise<readonly GuardEntry[]>; exited: boolean; loss:Set<()=>void> }
 const sessions = new AsyncLocalStorage<GuardSession>();
 const denied = () => new HarnessError("CAPABILITY_DENIED", "Cannot establish a stable ordinary filesystem resource guard");
 function active(signal: AbortSignal) { if (signal.aborted) throw new HarnessError("CANCELLED", "Filesystem operation cancelled"); }
 
-/** Application-scoped Windows namespace guard; never an OS sandbox for project code. */
+/** Application-scoped namespace guard; never an OS sandbox for project code. */
 export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal, action: (manifest: readonly GuardEntry[]) => Promise<T>,onLoss?:()=>void): Promise<T> {
-  if(paths.some(path=>path.allowChildWrites&&path.leaf))throw new HarnessError('CAPABILITY_DENIED','Child-write sharing is supported only for directory namespace guards.');
+  if(paths.some(path=>path.allowChildWrites&&path.leaf&&!path.childWriteRoot))throw new HarnessError('CAPABILITY_DENIED','A pinned file requires an explicit ancestor write scope.');
   active(signal);
   const session = sessions.getStore();
   if (session) {
@@ -25,6 +25,10 @@ export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal, 
     if(onLoss)session.loss.add(onLoss);
     try { active(signal); const value = await action(manifest); if (session.exited) throw denied(); return value; }
     finally { if(onLoss)session.loss.delete(onLoss);if (!session.exited) await session.rpc({ command: "release", id }); }
+  }
+  if(process.platform==='linux') {
+    const {withLinuxDirectoryGuard}=await import('./linux-path-guard.ts');
+    return withLinuxDirectoryGuard(paths,signal,(current,manifest)=>sessions.run(current,()=>action(manifest)),onLoss);
   }
   if (process.platform !== "win32") throw denied();
   // Use the system binary and a fixed script: no shell, profiles, PATH lookup or command interpolation.
@@ -44,16 +48,17 @@ export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal, 
     const pending = queue.then(() => new Promise<readonly GuardEntry[]>((accept, reject) => {
       if (current.exited) return reject(denied());
       let output = "";
-      const timer = setTimeout(() => finish(denied()), 15_000);
-      const failed = () => finish(new HarnessError("CAPABILITY_DENIED", "Cannot establish a stable ordinary filesystem resource guard", { nativeCode: /GUARD_NATIVE_ERROR:([-0-9]+)/.exec(diagnostics)?.[1] ?? "unavailable" }));
+      const metadataImport = Array.isArray(request.paths) && (request.paths as GuardPath[]).some(path => path.gitMetadataImport);
+      const timer = setTimeout(() => finish(denied()), metadataImport ? 120_000 : 15_000);
+      const failed = () => finish(new HarnessError(/limit exceeded/i.test(diagnostics)?"RESOURCE_LIMIT":"CAPABILITY_DENIED", "Cannot establish a stable ordinary filesystem resource guard", { nativeCode: /GUARD_NATIVE_ERROR:([-0-9]+)/.exec(diagnostics)?.[1] ?? "unavailable",nativeMessage:/GUARD_NATIVE_MESSAGE:([^\r\n]*)/.exec(diagnostics)?.[1] }));
       const data = (bytes: string) => {
         output += bytes;
-        if (output.length > 16 * 1024 * 1024) return finish(denied());
+        if (output.length > (metadataImport ? 64 : 16) * 1024 * 1024) return finish(denied());
         if (!output.endsWith("\n")) return;
         if (output.trim() === request.id) return finish();
         try {
           const response = JSON.parse(output);
-          if (response.id !== request.id || !Array.isArray(response.entries) || response.entries.length > 10000) return finish(denied());
+          if (response.id !== request.id || !Array.isArray(response.entries) || response.entries.length > (metadataImport ? 100000 : 10000)) return finish(denied());
           for (const entry of response.entries) {
             if (typeof entry.path !== "string" || typeof entry.directory !== "boolean" || !/^\d+$/.test(entry.dev) || !/^\d+$/.test(entry.ino) || !Number.isSafeInteger(entry.size) || entry.size < 0) return finish(denied());
             Object.freeze(entry);
@@ -139,4 +144,27 @@ export async function readBoundFile(path: string, maxBytes: number, identity?: P
     if ((await file.stat()).nlink !== 1) throw denied();
     return bytes.subarray(0, length);
   } finally { await file.close(); }
+}
+
+/** Metadata import only: caller holds the captured source's read-only lease. */
+export async function copyBoundGitMetadata(entry: GuardEntry, destination: string, signal: AbortSignal, created: (identity: {dev: bigint; ino: bigint}) => void): Promise<void> {
+  active(signal);
+  const source = await open(entry.path, 'r');
+  try {
+    const info = await source.stat({bigint:true});
+    if (!info.isFile() || info.nlink !== 1n || String(info.dev) !== entry.dev || String(info.ino) !== entry.ino || info.size !== BigInt(entry.size)) throw denied();
+    const target = await open(destination, 'wx', 0o600);
+    try {
+      const targetInfo = await target.stat({bigint:true});created(targetInfo);
+      const buffer = Buffer.alloc(1024 * 1024);let offset = 0;
+      while(offset < entry.size) {
+        active(signal);const {bytesRead} = await source.read(buffer, 0, Math.min(buffer.length, entry.size-offset), offset);
+        if(!bytesRead)throw denied();let written=0;
+        while(written<bytesRead){const part=await target.write(buffer,written,bytesRead-written,offset+written);if(!part.bytesWritten)throw denied();written+=part.bytesWritten;}
+        offset+=bytesRead;
+      }
+      const after=await source.stat({bigint:true});
+      if(after.size!==info.size||after.nlink!==1n)throw denied();
+    } finally {await target.close();}
+  } finally {await source.close();}
 }

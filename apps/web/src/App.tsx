@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, useMemo, type ComponentProps, type CSSProperties, type ReactNode } from 'react';
-import { Archive, ArrowUp, Check, ChevronDown, ChevronRight, CircleHelp, CircleStop, File, Folder, Laptop, LoaderCircle, Menu, MessageSquare, MoreHorizontal, PanelLeftClose, PenLine, Plus, SlidersHorizontal, WifiOff, X } from 'lucide-react';
+import { ArrowUp, Bot, Check, ChevronDown, ChevronRight, CircleHelp, CircleStop, File, Folder, Laptop, LoaderCircle, Menu, MessageSquare, PanelLeftOpen, PenLine, Plus, SlidersHorizontal, WifiOff, X } from 'lucide-react';
 import type { InputRequest, ModelInfo, Operation, Snapshot, Thread,Message } from '../../../packages/contracts';
-import { bootstrap, command, getModels, getSnapshot, subscribe } from './api';
+import { ApiError, bootstrap, command, getModels, getSnapshot, subscribe } from './api';
 import { journalCompareAndSwap, journalGeneration, journalRead, journalReadRecord, journalSubscribe, journalWrite } from './journal';
 import { Artifact } from './Artifact';
 import { Markdown } from './Markdown';
@@ -23,15 +23,29 @@ import {PlanningQuestion} from './PlanningQuestion';
 import {UsageFooter} from './UsageFooter';
 import {FloatingWindow} from './FloatingWindow';
 import {FloatingRail} from './FloatingRail';
-import {PlanStatus} from './PlanStatus';
 import {createPlanVisibility,selectPlanRecord} from './plan-visibility';
 import {ComposerToolbar,ComposerTaskActions} from './ComposerToolbar';
+import {ComposerView} from './ComposerView';
+import {PluginFrame,usePluginCatalog} from './PluginFrame';
 import {recordedChangeSummary} from './composer-evidence';
-import {useDesktop,useDesktopCloseGuard,useDesktopReady,useDetachedSurface,usePendingSurface,DesktopWindowActions,DetachButton} from './desktop-context';
+import {useDesktop,useDesktopCloseGuard,useDesktopReady,useDetachedSurface,usePendingSurface} from './desktop-context';
 import {DesktopBrowserDock} from './DesktopBrowser';
 import {journalFlush} from './journal';
+import {prepareEditorHandoff} from './editor-handoff';
 import {SideChat,type SideChatHandle} from './SideChat';
 import {createConversationScroll} from './conversation-scroll';
+import {ChatScrollIndicator} from './ChatScrollIndicator';
+import {useComposerPrediction} from './useComposerPrediction';
+import {WorkspaceCanvas} from './WorkspaceCanvas';
+import {DelegatedAgentTranscript} from './DelegatedAgentTranscript';
+import {WorkspaceControls,panelLabels} from './WorkspaceControls';
+import {useWorkspaceState} from './workspace-api';
+import {liveThreadPanels,delegatedThread,threadParent,threadProject,findCanvasPanelBounds} from './workspace-canvas-layout';
+import {panelDesktopSurface,panelsForDesktopSurface,panelNativeWindow} from './workspace-native';
+import type {PanelBinding,PanelPlacement,WorkspacePanelKind,ProjectContext} from '../../../packages/contracts/workspace.ts';
+import {WorkspaceSurfaceBody} from './WorkspaceSurfaceBody';
+import {ProjectContextSurface} from './ProjectContextSurface';
+import {DesktopBrowserSlot,DesktopBrowserToolbar} from './DesktopBrowser';
 
 type SettingsComponent = typeof import('./Settings').Settings;
 let loadedSettings: SettingsComponent | undefined;
@@ -125,7 +139,8 @@ export function OperationDecision({ operation, refresh }: { operation: Operation
   return <section className="decision" data-operation-id={operation.id} aria-label={approve ? 'Operation approval' : 'Operation outcome'}><header><span className="pending-dot" />{reconcile ? 'Inspect uncertain outcome' : approve ? 'Review operation' : 'Operation receipt'}<span className="badge">{approve ? 'Approval needed' : operation.status}</span></header><p>{caption}</p><details><summary>Changes and preconditions</summary><pre>{JSON.stringify({ description: operation.description, kind: operation.kind, args: operation.args, resources: operation.resourceIds, preconditions: operation.preconditions }, null, 2)}</pre></details>{operation.result !== undefined && <details><summary>Executor result</summary><pre>{display(operation.result)}</pre></details>}{operation.error && <p className="error-text">{operation.error}</p>}{reconcile && <p className="muted">Inspect the actual outcome before resuming. Reconciliation reads evidence without repeating this operation.</p>}{error && <p role="alert" className="error-text">{error}</p>}{(approve || reconcile) && <div className="decision-actions">{approve && <button className="quiet" disabled={busy} onClick={() => void execute('operation.reject')}>Decline operation</button>}<button className={approve ? 'primary' : 'secondary'} disabled={busy} onClick={() => void execute(reconcile ? 'operation.reconcile' : 'operation.approve')}>{busy ? 'Checking…' : reconcile ? 'Reconcile outcome' : 'Approve operation'}{approve && <Check size={14} />}</button></div>}</section>;
 }
 
-function ResourcePicker({ threadId, close, refresh }: { threadId: string; close: () => void; refresh: () => Promise<void> }) {
+function ResourcePicker({ threadId, close, refresh, opener }: { threadId: string; close: () => void; refresh: () => Promise<void>; opener: HTMLElement | null }) {
+  useEffect(() => () => { requestAnimationFrame(() => { if (opener?.isConnected) opener.focus({ preventScroll: true }); }); }, [opener]);
   const [path, setPath] = useState('');
   const [kind, setKind] = useState('project');
   const [writable, setWritable] = useState(false);
@@ -135,7 +150,7 @@ function ResourcePicker({ threadId, close, refresh }: { threadId: string; close:
 }
 
 type PrepareThread = (id: string) => Promise<unknown>;
-function Composer({ thread, models, modelId, setModelId, snapshot, ensureThread, busy, runAction, refresh, setup, openResource, browseProject, inspectChanges, reportError,onSide }: { thread: Thread | undefined; models: ModelInfo[]; modelId: string; setModelId: (id: string) => void; snapshot: Snapshot; ensureThread: (prepare: PrepareThread) => Promise<string>; busy: boolean; runAction: (action: () => Promise<void>) => Promise<void>; refresh: () => Promise<void>; setup: () => void; openResource: (id: string) => void; browseProject:(id:string)=>void;inspectChanges:()=>void; reportError: (error: string) => void;onSide:(content:string)=>Promise<void> }) {
+function Composer({ thread, models, modelId, setModelId, snapshot, ensureThread, busy, runAction, refresh, setup, openResource, inspectChanges, reportError,onSide, predictionBlocked, selectProject }: { selectProject?:(id:string,opener?:HTMLElement|null)=>void; predictionBlocked: boolean; thread: Thread | undefined; models: ModelInfo[]; modelId: string; setModelId: (id: string) => void; snapshot: Snapshot; ensureThread: (prepare: PrepareThread) => Promise<string>; busy: boolean; runAction: (action: () => Promise<void>) => Promise<void>; refresh: () => Promise<void>; setup: () => void; openResource: (id: string, opener?: HTMLElement | null) => void; browseProject:(id:string)=>void;inspectChanges:()=>void; reportError: (error: string) => void;onSide:(content:string)=>Promise<void> }) {
   const key = thread?.id ?? 'new';
   const draftTarget = useRef(key);
   const [draft, setDraft] = useState('');
@@ -152,15 +167,35 @@ function Composer({ thread, models, modelId, setModelId, snapshot, ensureThread,
   const [dragging, setDragging] = useState(false);
   const input = useRef<HTMLTextAreaElement>(null);
   const file = useRef<HTMLInputElement>(null);
+  const ghost = useRef<HTMLDivElement>(null);
   const working = Boolean(thread?.runId) || thread?.status === 'working';
   const resources = snapshot.resources.filter(item => item.threadId === thread?.id);
   const unavailable = !models.length || !models.some(model => model.id === modelId);
   const project=resources.find(resource=>resource.kind==='project');const changes=useMemo(()=>recordedChangeSummary(snapshot.data,thread?.id),[snapshot.data,thread?.id]);
   useEffect(()=>{const model=models.find(model=>model.id===modelId);if(model&&thinkingLevel&&!model.thinkingLevels?.includes(thinkingLevel))chooseThinking('');},[models,modelId,thinkingLevel]);
   useEffect(() => { let current = true; void journalRead<string>(`draft:${key}`).then(value => { if (current) { setDraft(value ?? ''); setReady(true); } }).catch(() => { if (current) { setReady(true); setError('Draft recovery is unavailable. Keep this tab open until your message is sent.'); } }); return () => { current = false; }; }, [key]);
-  useEffect(() => journalSubscribe(`draft:${key}`, value => { if (draftTarget.current === key) setDraft(typeof value === 'string' ? value : ''); }), [key]);
-  useEffect(() => { if (input.current) { input.current.style.height = 'auto'; input.current.style.height = `${Math.min(220, input.current.scrollHeight)}px`; } }, [draft]);
-  const updateDraft = (value: string) => { setDraft(value); void journalWrite(`draft:${draftTarget.current}`, value).catch(() => setError('Draft could not be stored locally. Keep this tab open.')); };
+  useEffect(() => journalSubscribe(`draft:${key}`, value => { if (draftTarget.current === key) { prediction.dismiss(); setDraft(typeof value === 'string' ? value : ''); } }), [key]);
+  const prediction = useComposerPrediction({ thread, snapshot, modelId, enabled: preferences.composerPredictions, ready, blocked: predictionBlocked || busy || unavailable || contextOpen, draft, generation: journalGeneration(`draft:${key}`), input });
+  useLayoutEffect(() => {
+    const textarea = input.current;
+    if (!textarea) return;
+    const resize = () => {
+      textarea.style.height = 'auto';
+      const limit = Number.parseFloat(getComputedStyle(textarea).maxHeight) || 220;
+      const previewHeight = ghost.current?.scrollHeight ?? 0;
+      // A whole-message preview must be fully visible before it can be accepted.
+      if (previewHeight > limit) { if (ghost.current) ghost.current.hidden = true; prediction.dismiss(); }
+      textarea.style.height = `${Math.min(limit, Math.max(textarea.scrollHeight, previewHeight > limit ? 0 : previewHeight))}px`;
+    };
+    resize(); const observer = new ResizeObserver(resize); observer.observe(textarea.parentElement!); if (ghost.current) observer.observe(ghost.current);
+    return () => observer.disconnect();
+  }, [draft, prediction.candidate, preferences.fontSize, preferences.promptFont]);
+  const updateDraft = (value: string) => { prediction.dismiss(); draftLatest.current = value; setDraft(value); void journalWrite(`draft:${draftTarget.current}`, value).catch(() => setError('Draft could not be stored locally. Keep this tab open.')); };
+  const acceptPrediction = () => {
+    // Recheck synchronously if zoom, font loading or resize beats the observer.
+    if (ghost.current && input.current && (ghost.current.hidden || ghost.current.scrollHeight > input.current.clientHeight)) { prediction.dismiss(); return false; }
+    const value = prediction.take(); if (value === null) return false; updateDraft(value); requestAnimationFrame(() => { input.current?.focus(); input.current?.setSelectionRange(value.length, value.length); }); return true;
+  };
   const migrateDraft = async (id: string, fallback = draft, retireSource = false) => {
     const source = id !== key ? await journalReadRecord<string>(`draft:${key}`) : undefined;
     // New keystrokes follow the copied draft while snapshot/selection is pending.
@@ -209,30 +244,58 @@ function Composer({ thread, models, modelId, setModelId, snapshot, ensureThread,
       } catch (error) { setError(messageOf(error)); if (key === 'new') reportError(messageOf(error)); }
     });
   };
-  const addResource = () => runAction(async () => {
-    try { const id = await ensureThread(id => migrateDraft(id, draft, true)); openResource(id); }
-    catch (error) { reportError(messageOf(error)); }
-  });
+  const addResource = () => {
+    const opener = document.activeElement as HTMLElement | null;
+    return runAction(async () => {
+      try { const id = await ensureThread(id => migrateDraft(id, draft, true)); openResource(id, opener); }
+      catch (error) { reportError(messageOf(error)); }
+    });
+  };
   const preparePR=()=>{const intent='Create a pull request for the current changes.';const current=draftLatest.current;updateDraft(current.startsWith(intent)?current:intent+(current.trim()?'\n\n'+current:''));input.current?.focus();};
   return <div className="composer-dock">
     {error && <div className="composer-error" role="alert">{error}<button className="icon-button" aria-label="Dismiss composer error" onClick={() => setError('')}><X size={14} /></button></div>}
-    <form className={`composer ${dragging ? 'dragging' : ''}`} onSubmit={event => { event.preventDefault(); void send(); }} onDragOver={event => { event.preventDefault(); setDragging(true); }} onDragLeave={event => { if (!event.currentTarget.contains(event.relatedTarget as Node)) setDragging(false); }} onDrop={event => { event.preventDefault(); setDragging(false); if (event.dataTransfer.files.length) void upload(event.dataTransfer.files); }}>
+    <ComposerView className={dragging ? 'dragging' : ''} onSubmit={event => { event.preventDefault(); void send(); }} onDragOver={event => { event.preventDefault(); setDragging(true); }} onDragLeave={event => { if (!event.currentTarget.contains(event.relatedTarget as Node)) setDragging(false); }} onDrop={event => { event.preventDefault(); setDragging(false); if (event.dataTransfer.files.length) void upload(event.dataTransfer.files); }}>
       <div className="composer-header-utilities">{resources.some(resource=>resource.kind!=='project') && <div className="resource-strip">{resources.filter(resource=>resource.kind!=='project').map(resource => <span key={resource.id} className="resource-chip" title={`${resource.path} · ${resource.writable ? 'Approved writes allowed' : 'Read only'}`}>{resource.kind === 'project' ? <Folder size={12} /> : <File size={12} />}{resource.label}</span>)}</div>}<ComposerTaskActions changeSummary={changes} onChanges={inspectChanges} onCreatePR={preparePR} disabled={busy||!ready} working={working}/></div>
-      <textarea ref={input} aria-label="Message" placeholder={dragging ? 'Drop files to attach' : 'Ask anything, or bring something to work on…'} value={draft} disabled={!ready} onChange={event => updateDraft(event.target.value)} onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing && (preferences.sendShortcut === 'enter' || event.ctrlKey || event.metaKey)) { event.preventDefault(); void send(); } }} rows={1} />
-      <ComposerToolbar models={models} modelId={modelId} onModelChange={id=>{chooseThinking('');setModelId(id);}} thinkingLevel={thinkingLevel} onThinkingChange={chooseThinking} projectLabel={project?.label} changeSummary={changes} onProject={()=>project?browseProject(project.id):addResource()} onChanges={inspectChanges} onCreatePR={preparePR} onTranscript={text=>{const current=draftLatest.current;updateDraft(current+(current&&!/\s$/.test(current)?' ':'')+text);}} disabled={busy||!ready} working={working} separateActions
+      <div className="composer-input">
+        <textarea ref={input} aria-label="Message" placeholder={prediction.candidate ? '' : dragging ? 'Drop files to attach' : 'Ask anything, or bring something to work on…'} value={draft} disabled={!ready} onChange={event => updateDraft(event.target.value)} onPaste={prediction.dismiss} onCompositionStart={prediction.dismiss} onKeyDown={event => {
+          if (event.nativeEvent.isComposing || event.nativeEvent.keyCode === 229) return;
+          if (prediction.candidate && event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); prediction.dismiss(); return; }
+          if (event.key === 'Tab' && !event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey && acceptPrediction()) { event.preventDefault(); return; }
+          if (event.key === 'Enter' && !event.shiftKey && (preferences.sendShortcut === 'enter' || event.ctrlKey || event.metaKey)) { event.preventDefault(); void send(); }
+        }} rows={1} />
+        {prediction.candidate && <div ref={ghost} className="composer-prediction-text" aria-hidden="true">{prediction.candidate}</div>}
+      </div>
+      <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">{prediction.candidate ? `Suggested message: ${prediction.candidate} Tab to accept. Escape to dismiss.` : ''}</span>
+      <ComposerToolbar models={models} modelId={modelId} onModelChange={id=>{chooseThinking('');setModelId(id);}} thinkingLevel={thinkingLevel} onThinkingChange={chooseThinking} projectLabel={thread?.projectName??project?.label} changeSummary={changes} onProject={async()=>{if(!selectProject){await addResource();return;}const opener=document.activeElement as HTMLElement|null;const id=await ensureThread(id=>migrateDraft(id,draftLatest.current,true));selectProject(id,opener);}} onChanges={inspectChanges} onCreatePR={preparePR} onTranscript={text=>{const current=draftLatest.current;updateDraft(current+(current&&!/\s$/.test(current)?' ':'')+text);}} disabled={busy||!ready} working={working} separateActions
         leading={<><button type="button" className="icon-button attach-button" aria-label="Attach files" title="Attach files" disabled={busy} onClick={()=>file.current?.click()}><Plus size={18}/></button><input type="file" multiple ref={file} hidden onChange={event=>{if(event.target.files)void upload(event.target.files);event.target.value='';}}/></>}
-        runtime={<>{hasPinnedAccount(thread, snapshot) && <span className="composer-account" title="Pinned account for this task">{thread?.accountId == null ? 'Legacy connection' : snapshot.accounts?.find(account => account.id === thread?.accountId)?.label ?? 'Unavailable account'}</span>}<span className="pill runtime-pill" title="Local Pi runtime"><Laptop size={14}/>Local</span><label className="mode-picker"><span className="sr-only">Task mode</span><select aria-label="Task mode" disabled={working||busy} value={thread?.mode??'build'} onChange={event=>{const mode=event.target.value;void runAction(async()=>{try{const id=await ensureThread(id=>migrateDraft(id,draft,true));await command('thread.mode',{mode},id);await refresh();}catch(cause){setError(messageOf(cause));}});}}><option value="build">Build</option><option value="plan">Plan</option></select></label></>}
+        runtime={<>{thread?.accountId!=null&&<span className="composer-account" title="Account for this task">{snapshot.accounts?.find(account=>account.id===thread.accountId)?.label??'Account unavailable'}</span>}<span className="pill runtime-pill" title="Local workspace"><Laptop size={14}/>Local</span><button type="button" className="mode-toggle" aria-label="Task mode" aria-pressed={thread?.mode==='plan'} title={thread?.mode==='plan'?'Switch to Build':'Switch to Plan'} disabled={working||busy} onClick={()=>{const mode=thread?.mode==='plan'?'build':'plan';void runAction(async()=>{try{const id=await ensureThread(id=>migrateDraft(id,draft,true));await command('thread.mode',{mode},id);await refresh();}catch(cause){setError(messageOf(cause));}});}}>{thread?.mode==='plan'?<PenLine size={15}/>:<Bot size={15}/>}<span>{thread?.mode==='plan'?'Plan':'Build'}</span></button></>}
         context={preferences.showComposerContext&&<span ref={contextAnchor} className="context-anchor"><button type="button" className="icon-button context-button" aria-label="Inspect context usage" aria-expanded={contextOpen} onClick={()=>setContextOpen(value=>!value)}><SlidersHorizontal size={15}/></button>{contextOpen&&<ContextInspector usage={thread?snapshot.usage[thread.id]:undefined} thread={thread} close={()=>setContextOpen(false)} refresh={refresh}/>}</span>}
         trailing={working?<>{/^\/(?:btw|side)(?:\s|$)/i.test(draft.trim())&&<button type="button" className="send-button" aria-label="Send side question" disabled={busy||!ready} onClick={()=>void send()}><ArrowUp size={17}/></button>}<button type="button" className="send-button stop-button" aria-label="Stop agent" onClick={()=>{void command('run.stop',{},thread!.id).then(()=>refresh()).catch(error=>setError(messageOf(error)));}}><CircleStop size={20}/></button></>:<button className="send-button" aria-label="Send message" disabled={busy||unavailable||!draft.trim()||!ready} title={unavailable?'Connect an available model in Settings to send.':'Send message (Enter)'}>{busy?<LoaderCircle size={17} className="spinning"/>:<ArrowUp size={19}/>}</button>}
       />
-    </form>
-    <div className="composer-caption">{unavailable ? <button onClick={setup}>Connect a model to start<ChevronRight size={12} /></button> : <span>Enter to send · Shift + Enter for a new line</span>}<span>Local workspace</span></div>
+    </ComposerView>
+    <div className="composer-caption">{prediction.candidate ? <span className="composer-prediction-controls"><span className="composer-prediction-keyboard" aria-hidden="true">Tab to accept · Esc to dismiss</span><button type="button" className="composer-prediction-use" onPointerDown={event => event.preventDefault()} onClick={acceptPrediction}>Use suggestion</button></span> : unavailable ? <button onClick={setup}>Connect a model to start<ChevronRight size={12} /></button> : null}</div>
   </div>;
 }
 
+function SideThreadComposer({thread,modelId,refresh}:{thread:Thread;modelId:string;refresh:()=>Promise<void>}){
+ const key=`side-draft:${thread.sideParentId??threadParent(thread)}:${thread.id}`,[draft,setDraft]=useState(''),[ready,setReady]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState('');
+ useEffect(()=>{let active=true;void journalRead<string>(key).then(value=>{if(active){setDraft(value??'');setReady(true);}}).catch(()=>{if(active)setError('Draft recovery failed. Keep this panel open.');});return()=>{active=false;};},[key]);
+ useEffect(()=>journalSubscribe(key,value=>setDraft(typeof value==='string'?value:'')),[key]);
+ const working=Boolean(thread.runId)||thread.status==='working';
+ return <form className="canvas-side-composer" onSubmit={event=>{event.preventDefault();if(!ready||busy||working||!modelId||!draft.trim())return;const generation=journalGeneration(key),content=draft.trim();setBusy(true);setError('');void command('message.send',{content,modelId},thread.id).then(()=>journalCompareAndSwap(key,generation,'')).then(refresh).catch(cause=>setError(messageOf(cause))).finally(()=>setBusy(false));}}><label className="sr-only" htmlFor={`side-message-${thread.id}`}>Message to {thread.title}</label><textarea id={`side-message-${thread.id}`} aria-label={`Message to ${thread.title}`} placeholder="Ask a side question…" disabled={!ready} value={draft} onChange={event=>{const value=event.target.value;setDraft(value);void journalWrite(key,value).catch(()=>setError('Draft could not be stored. Keep this panel open.'));}}/><div><small>Side conversation · independent draft</small><button className="secondary" disabled={busy||!ready||working||!modelId||!draft.trim()}>Send</button></div>{error&&<p role="alert" className="error-text">{error}</p>}</form>;
+}
+function CanvasThread({thread,snapshot,visible,blocked,refresh,setup,openResource,browseProject,inspectChanges,reportError,selectProject}:{thread:Thread;snapshot:Snapshot;visible:boolean;blocked:boolean;refresh:()=>Promise<void>;setup:()=>void;openResource:(id:string,opener?:HTMLElement|null)=>void;browseProject:(id:string)=>void;inspectChanges:()=>void;selectProject?:(id:string,opener?:HTMLElement|null)=>void;reportError:(error:string)=>void}){
+ const [models,setModels]=useState<ModelInfo[]>([]),[modelId,setModelId]=useState(thread.modelId??''),[busy,setBusy]=useState(false),[error,setError]=useState(''),[history,setHistory]=useState(60),detached=useDetachedSurface({kind:'thread',threadId:thread.id}),pending=usePendingSurface({kind:'thread',threadId:thread.id});const readOnly=delegatedThread(thread),held=Boolean(detached||pending||blocked),request=useRef(0);
+ const owner=`${thread.id}:${thread.accountId??'legacy'}:${thread.modelId??''}`;
+ useEffect(()=>{if(readOnly||!visible)return;const generation=++request.current,controller=new AbortController();setModels([]);void getModels(false,thread.id,controller.signal).then(value=>{if(generation!==request.current)return;setModels(value.models);setModelId(current=>value.models.some(model=>model.id===current)?current:thread.modelId??value.models[0]?.id??'');setError(value.error??'');}).catch(cause=>{if(generation===request.current&&!controller.signal.aborted)setError(messageOf(cause));});return()=>{request.current++;controller.abort();};},[owner,readOnly,visible]);
+ const messages=snapshot.messages.filter(message=>message.threadId===thread.id),working=Boolean(thread.runId)||thread.status==='working';
+ const run=async(action:()=>Promise<void>)=>{setBusy(true);try{await action();}finally{setBusy(false);}};
+ return <div className={`canvas-thread${readOnly?' canvas-thread-delegate':''}`}><div className="canvas-thread-status">{readOnly?'Delegated agent':threadParent(thread)?'Side conversation':'Main conversation'} · {threadStatus(thread)}{detached&&<button className="quiet" onClick={()=>void window.harnessDesktop?.focus(detached.id)}>Focus native window</button>}</div>{visible&&<div className="canvas-thread-transcript" role="log" aria-label={`${thread.title} messages`}>{messages.length>history&&<button className="quiet" onClick={()=>setHistory(value=>value+60)}>Load earlier messages</button>}{messages.slice(-history).map(message=><div key={message.id} className={`message message-${message.role}`}><span className="sr-only">{message.role}</span><Markdown text={message.content}/></div>)}{!messages.length&&<p className="muted">No messages yet.</p>}{error&&<p role="alert" className="error-text">{error}</p>}{thread.error&&<p role="alert" className="error-text">{thread.error}</p>}{!readOnly&&working&&<button className="quiet" disabled={busy} onClick={()=>void run(async()=>{await command('run.stop',{},thread.id);await refresh();}).catch(cause=>setError(messageOf(cause)))}>Stop</button>}{!readOnly&&['stopped','interrupted','failed'].includes(thread.status)&&<button className="secondary" disabled={busy||!modelId} onClick={()=>void run(async()=>{await command('run.resume',{modelId},thread.id);await refresh();}).catch(cause=>setError(messageOf(cause)))}>Resume</button>}</div>}{readOnly?<div className="canvas-thread-readonly">Read-only delegated transcript · assignment and progress remain with the parent.</div>:<div inert={held} style={{display:'contents'}}>{threadParent(thread)?<SideThreadComposer thread={thread} modelId={modelId} refresh={refresh}/>:<Composer selectProject={selectProject} key={thread.id} thread={thread} snapshot={snapshot} models={models} modelId={modelId} setModelId={setModelId} ensureThread={async prepare=>{await prepare(thread.id);return thread.id;}} busy={busy} runAction={run} refresh={refresh} setup={setup} openResource={openResource} browseProject={browseProject} inspectChanges={inspectChanges} reportError={reportError} predictionBlocked={held||!visible} onSide={async content=>{if(!content.trim())return;const receipt=await command('thread.create',{sideParentId:thread.id,title:content.slice(0,65)}),side=receipt.result as Thread,key=`side-draft:${thread.id}:${side.id}`,generation=await journalWrite(key,content);await refresh();await command('message.send',{content,modelId},side.id);await journalCompareAndSwap(key,generation,'');await refresh();}}/>}</div>}</div>;
+}
 export function App() {
+  const pluginCatalog=usePluginCatalog(),plugins=pluginCatalog.plugins,[selectedPluginId,setSelectedPluginId]=useState<string|null>(null),[openedPlugins,setOpenedPlugins]=useState<string[]>([]);
+  const selectPlugin=(id:string)=>{setOpenedPlugins(value=>value.includes(id)?value:[...value,id]);setSelectedPluginId(id);};
   const desktop=useDesktop(),desktopSurface=desktop?.context.surface,pinnedThreadId=desktopSurface?.kind==='thread'?desktopSurface.threadId:undefined,navigationOnly=desktopSurface?.kind==='navigation';
-  const [detachingThread,setDetachingThread]=useState(false);
   useDesktopCloseGuard('composer-journal',()=>journalFlush());
   const [snapshot, setSnapshot] = useState<Snapshot>(emptySnapshot);
   const snapshotRef = useRef(snapshot); snapshotRef.current = snapshot;
@@ -261,6 +324,7 @@ export function App() {
   const [documentWindow,setDocumentWindow]=useState<import('./workspace-context').OpenDocumentWindow|null>(null);
   useEffect(()=>setDocumentWindow(null),[selectedId]);
   const [planOpen,setPlanOpen]=useState(false),[planFocusOnOpen,setPlanFocusOnOpen]=useState(false),[planExpandRequest,setPlanExpandRequest]=useState(0);
+  const [projectDetails,setProjectDetails]=useState<Record<string,{branch?:string}>>({});const rememberProjectContext=useCallback((context:ProjectContext|null)=>{if(context)setProjectDetails(previous=>({...previous,[context.project.id]:{...(context.branch?{branch:context.branch}:{})}}));},[]);
   const [planVisibility]=useState(()=>createPlanVisibility());
   const preferences = getPreferences(snapshot.settings);
   const [viewportWidth, setViewportWidth] = useState(() => window.innerWidth);
@@ -280,15 +344,30 @@ export function App() {
       if (!before.has(item.id) || before.get(item.id) === item.status || !['completed', 'awaiting_input', 'failed'].includes(item.status)) continue;
       const message = item.title + ': ' + threadStatus(item);
       if (preferences.inAppNotifications && item.id !== selectedId) setNotice(message);
-      if ((preferences.threadNotifications === 'notifications' || preferences.threadNotifications === 'both') && 'Notification' in window && Notification.permission === 'granted') new Notification('Generative Harness', { body: message });
+      if ((preferences.threadNotifications === 'notifications' || preferences.threadNotifications === 'both') && 'Notification' in window && Notification.permission === 'granted') new Notification('Gen V1', { body: message });
       if (preferences.threadNotifications === 'sound' || preferences.threadNotifications === 'both') { try { const audio = new AudioContext(); const oscillator = audio.createOscillator(); const gain = audio.createGain(); oscillator.connect(gain); gain.connect(audio.destination); gain.gain.setValueAtTime(.025, audio.currentTime); gain.gain.exponentialRampToValueAtTime(.001, audio.currentTime + .16); oscillator.frequency.value = 660; oscillator.start(); oscillator.stop(audio.currentTime + .16); oscillator.onended = () => { void audio.close(); }; } catch { /* Sound may be blocked until this browser receives a user gesture. */ } }
     }
   }, [snapshot.threads, preferences.inAppNotifications, preferences.threadNotifications, selectedId]);
   const [resourcePicker, setResourcePicker] = useState<string | null>(null);
+  const resourcePickerOpener = useRef<HTMLElement | null>(null);
+  const openResourcePicker = (id: string, opener: HTMLElement | null = document.activeElement as HTMLElement | null) => { resourcePickerOpener.current = opener; setResourcePicker(id); };
   const [composerBusy, setComposerBusy] = useState(false);
   const composerPending = useRef(false);
   const [threadCreating, setThreadCreating] = useState(false);
   const creationPending = useRef<Promise<string> | null>(null);
+  const pickProject=async(project:NonNullable<typeof workspaceEnvelope>['projects'][number])=>{
+    if(projectPicking||!projectPicker||project.authority.kind!=='local'||!project.rootPath)return;
+    const target=snapshotRef.current.threads.find(value=>value.id===projectPicker.threadId);if(!target){setProjectPickerError('This conversation is no longer available.');return;}
+    setProjectPicking(true);setProjectPickerError('');
+    try{
+      await prepareEditorHandoff();await journalFlush();
+      if(target.projectId===project.id){closeProjectSelection();return;}
+      const bind=async(id:string)=>{await workspaceState.send('workspace.project.connect',{name:project.name,path:project.rootPath,threadId:id});};
+      if(target.runId||target.sessionPath||target.workspaceId)await createThread(bind);
+      else{await bind(target.id);await refresh();}
+      closeProjectSelection();
+    }catch(cause){setProjectPickerError(messageOf(cause));}finally{setProjectPicking(false);}
+  };
   const runComposerAction = async (action: () => Promise<void>) => {
     if (composerPending.current || creationPending.current) return;
     composerPending.current = true; setComposerBusy(true);
@@ -302,7 +381,6 @@ export function App() {
     const retain = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ''; };
     window.addEventListener('beforeunload', retain); return () => window.removeEventListener('beforeunload', retain);
   }, [dirtyWidgets]);
-  const [threadMenu, setThreadMenu] = useState(false);
   const [rename, setRename] = useState(false);
   const [title, setTitle] = useState('');
   const [systemDark, setSystemDark] = useState(() => matchMedia('(prefers-color-scheme: dark)').matches);
@@ -332,10 +410,12 @@ export function App() {
   const modelContextRef = useRef(modelContext); modelContextRef.current = modelContext;
   const loadedModelOwner = useRef('');
   const modelRequest = useRef(0);
+  const modelRead = useRef<AbortController|null>(null);
   const loadModels = useCallback(async (refresh = false) => {
     const owner = modelThreadRef.current, ownerId = owner?.id, context = modelContextRef.current, request = ++modelRequest.current;
+    modelRead.current?.abort();const controller=new AbortController();modelRead.current=controller;
     try {
-      const result = await getModels(refresh, ownerId);
+      const result = await getModels(refresh, ownerId, controller.signal);
       if (request !== modelRequest.current || modelContextRef.current !== context) return;
       setModels(result.models); setModelError(result.error ?? '');
       setModelId(previous => {
@@ -346,7 +426,8 @@ export function App() {
         const preferred = owner?.modelId ?? snapshotRef.current.settings.modelId;
         return result.models.some(item => item.id === preferred) ? preferred! : result.models[0]?.id ?? preferred ?? '';
       });
-    } catch (error) { if (request === modelRequest.current && modelContextRef.current === context) { setModels([]); setModelError(messageOf(error)); } }
+    } catch (error) { if (!controller.signal.aborted && request === modelRequest.current && modelContextRef.current === context) { setModels([]); setModelError(messageOf(error)); } }
+    finally { if(modelRead.current===controller)modelRead.current=null; }
   }, []);
   const acceptedModel = useRef<string | null | undefined>(undefined);
   useEffect(() => {
@@ -362,19 +443,26 @@ export function App() {
     if (loadedModelOwner.current !== modelOwner) setModelId(modelThreadRef.current?.modelId ?? snapshotRef.current.settings.modelId ?? '');
     loadedModelOwner.current = modelOwner;
     void loadModels();
-    return () => { modelRequest.current++; };
+    return () => { modelRequest.current++;modelRead.current?.abort();modelRead.current=null; };
   }, [loaded, modelOwner, modelContext, loadModels]);
-  useEffect(() => { if (!loaded) return; return subscribe(snapshotRef.current.seq, () => { void refresh().catch(error => setError(messageOf(error))); }, setOnline, refresh); }, [loaded, refresh]);
+  useEffect(() => { if (!loaded) return; return subscribe(snapshotRef.current.seq, event => {if(event.type.startsWith('workspace.')||event.type.startsWith('project.'))window.dispatchEvent(new Event('harness:workspace-changed'));void refresh().catch(error => setError(messageOf(error))); }, setOnline, refresh); }, [loaded, refresh]);
   useEffect(() => { const query = matchMedia('(prefers-color-scheme: dark)'); const change = () => setSystemDark(query.matches); query.addEventListener('change', change); return () => query.removeEventListener('change', change); }, []);
   const theme = snapshot.settings.theme === 'system' ? systemDark ? 'dark' : 'light' : snapshot.settings.theme;
   useLayoutEffect(() => { document.documentElement.dataset.theme = theme; }, [theme]);
   useDesktopReady(loaded);
   const thread = snapshot.threads.find(item => item.id === selectedId) ?? (pinnedThreadId?undefined:snapshot.threads.find(item => item.id === snapshot.activeThreadId));
+  const workspaceState=useWorkspaceState(loaded&&!navigationOnly&&!pinnedThreadId),workspaceEnvelope=workspaceState.envelope,activeCanvas=workspaceEnvelope?.state.canvases.find(canvas=>canvas.id===workspaceEnvelope.state.activeCanvasId),canvasActive=Boolean(activeCanvas&&activeCanvas.preset!=='workspace'&&!pinnedThreadId&&!navigationOnly),canvasPanels=useMemo(()=>activeCanvas?(activeCanvas.preset==='all-agents'?liveThreadPanels(snapshot.threads,activeCanvas):activeCanvas.panels):[],[activeCanvas,snapshot.threads]);
+  const [projectConnectOpen,setProjectConnectOpen]=useState(false),[projectName,setProjectName]=useState(''),[projectPath,setProjectPath]=useState('');
+  const [projectPicker,setProjectPicker]=useState<{threadId:string;opener:HTMLElement|null}|null>(null),[projectPicking,setProjectPicking]=useState(false),[projectPickerError,setProjectPickerError]=useState('');
+  const openProjectSelection=(threadId:string,opener:HTMLElement|null=document.activeElement as HTMLElement|null)=>{setProjectPickerError('');setProjectPicker({threadId,opener});};
+  const closeProjectSelection=()=>{const opener=projectPicker?.opener;setProjectPicker(null);requestAnimationFrame(()=>{if(opener?.isConnected)opener.focus({preventScroll:true});});};
+  const projectConnectTarget=useRef<{threadId?:string;projectId?:string;opener:HTMLElement|null}|null>(null);
+  const openProjectConnect=(binding:Pick<PanelBinding,'threadId'|'projectId'>)=>{projectConnectTarget.current={...binding,opener:document.activeElement as HTMLElement|null};setProjectConnectOpen(true);};
+  const closeProjectConnect=()=>{setProjectConnectOpen(false);const opener=projectConnectTarget.current?.opener;requestAnimationFrame(()=>{if(opener?.isConnected)opener.focus({preventScroll:true});});};
   const selectedPlan=useMemo(()=>selectPlanRecord(snapshot,thread?.id),[snapshot.data,thread?.id]);
   const planOwner=useRef<{id?:string;run:string|null|undefined}>({id:undefined,run:undefined});
   useEffect(()=>{const before=planOwner.current;planOwner.current={id:thread?.id,run:thread?.runId};const appeared=planVisibility.observe(thread,selectedPlan);if(before.id!==thread?.id||thread?.runId&&before.run!==thread.runId)setPlanOpen(planVisibility.isOpen(thread?.id));if(appeared){setPlanFocusOnOpen(false);setPlanExpandRequest(value=>value+1);setPlanOpen(true);}},[thread?.id,thread?.runId,selectedPlan]);
   const dismissPlan=()=>{planVisibility.dismiss(thread);if(planFocusOnOpen)document.querySelector<HTMLButtonElement>('.thread-menu-wrap>button')?.focus({preventScroll:true});setPlanOpen(false);};
-  const showPlan=()=>{planVisibility.show(thread);setPlanFocusOnOpen(true);setPlanExpandRequest(value=>value+1);setPlanOpen(true);setThreadMenu(false);requestAnimationFrame(()=>document.querySelector<HTMLButtonElement>('[data-floating-id="plan"] .floating-window-move')?.focus({preventScroll:true}));};
   const conversation = useRef<HTMLDivElement>(null);
   const readingPositions = useRef(new Map<string, { top: number; tail: boolean }>());
   const previousConversation = useRef('');
@@ -384,7 +472,7 @@ export function App() {
   const [historyCounts, setHistoryCounts] = useState<Record<string, number>>({});
   const historyStarts = useRef(new Map<string, number>());
   const historyAnchor = useRef<{ height: number; top: number } | null>(null);
-  const select = (id: string | null) => { if(desktop&&id&&(navigationOnly||pinnedThreadId&&id!==pinnedThreadId)){void desktop.detachSurface({kind:'thread',threadId:id}).catch(cause=>setError(messageOf(cause)));return;}  setSelectedId(id); setSidebarOpen(false); setThreadMenu(false); try { if (id) localStorage.setItem('harness:selected-thread', id); else localStorage.removeItem('harness:selected-thread'); } catch { /* Selection still works when storage is unavailable. */ } };
+  const select = (id: string | null) => { setSelectedPluginId(null); if(pinnedThreadId&&id&&id!==pinnedThreadId){setNotice('Choose another conversation in the main workspace.');return;}  setSelectedId(id); setSidebarOpen(false);  try { if (id) localStorage.setItem('harness:selected-thread', id); else localStorage.removeItem('harness:selected-thread'); } catch { /* Selection still works when storage is unavailable. */ } };
   const createThread = (prepare?: PrepareThread): Promise<string> => {
     if (creationPending.current) return creationPending.current;
     setThreadCreating(true);
@@ -415,16 +503,16 @@ export function App() {
     else if (matchesShortcut(event, preferences.keybindings.toggleRightPanel)) { event.preventDefault(); setLayout(value => ({ ...value, rightPanelOpen: !value.rightPanelOpen })); }
     else if (matchesShortcut(event, preferences.keybindings.openSettings)) { event.preventDefault(); setSettingsSection('general'); setSettingsOpen(true); }
     else if (matchesShortcut(event, preferences.keybindings.stop) && (snapshotRef.current.threads.find(item => item.id === (selectedId ?? snapshotRef.current.activeThreadId))?.runId)) { event.preventDefault(); void command('run.stop', {}, (selectedId ?? snapshotRef.current.activeThreadId)!).then(() => refresh()).catch(error => setError(messageOf(error))); }
-    if (event.key === 'Escape') { setSidebarOpen(false); setThreadMenu(false); }
+    if (event.key === 'Escape') { setSidebarOpen(false);  }
   }; window.addEventListener('keydown', key); return () => window.removeEventListener('keydown', key); }, [preferences.keybindings.search, preferences.keybindings.newThread, preferences.keybindings.toggleSidebar, preferences.keybindings.toggleRightPanel, preferences.keybindings.openSettings, preferences.keybindings.stop, selectedId, mobile, refresh]);
-  const conversationMotion=useRef<ReturnType<typeof createConversationScroll>|null>(null);
+  const conversationMotion=useRef<ReturnType<typeof createConversationScroll>|null>(null),conversationElement=useRef<HTMLElement|null>(null);
   useEffect(()=>()=>conversationMotion.current?.dispose(),[]);
   const messages = snapshot.messages.filter(item => item.threadId === thread?.id);
   const requests = snapshot.requests.filter(item => item.threadId === thread?.id && item.status === 'pending');
   useLayoutEffect(() => {
     const element = conversation.current;
     if (!element || !loaded) return;
-    conversationMotion.current??=createConversationScroll(element);
+    if(conversationElement.current!==element||!conversationMotion.current){conversationMotion.current?.dispose();conversationMotion.current=createConversationScroll(element);conversationElement.current=element;}
     const id = thread?.id ?? 'new';
     const position = readingPositions.current.get(id) ?? { top: 0, tail: true };
     const changedThread = previousConversation.current !== id;
@@ -434,36 +522,84 @@ export function App() {
     if (!changedThread && previousUpdate.current !== update) { setAnnouncement('New conversation updates available.'); if (!position.tail) setLatestAvailable(true); }
     if (changedThread) { setLatestAvailable(!position.tail); setAnnouncement(''); }
     previousConversation.current = id; previousUpdate.current = update;
-  }, [thread?.id, snapshot, loaded, historyCounts]);
+  }, [thread?.id, snapshot, loaded, historyCounts,canvasActive]);
   const rememberPosition = () => {
     const position=conversationMotion.current?.remember();if(!position)return;
     readingPositions.current.set(thread?.id??'new',position);
     setLatestAvailable(!position.tail);
   };
   const archive = async (id: string, discard = false, confirmed = false) => {
-    if (!discard && Object.values(dirtyWidgets).includes(id)) { setArchiveThread(id); setThreadMenu(false); return; }
-    if (!discard && !confirmed && preferences.archiveConfirmation) { setConfirmArchive(id); setThreadMenu(false); return; }
+    if (!discard && Object.values(dirtyWidgets).includes(id)) { setArchiveThread(id);  return; }
+    if (!discard && !confirmed && preferences.archiveConfirmation) { setConfirmArchive(id);  return; }
     try { await command('thread.archive', {}, id); setDirtyWidgets(previous => Object.fromEntries(Object.entries(previous).filter(([, threadId]) => threadId !== id))); setArchiveThread(null); select(null); await refresh(); } catch (error) { setError(messageOf(error)); }
   };
   const matching = useMemo(() => matchingThreads(snapshot.threads, snapshot.messages, search, preferences.projectOrder), [snapshot.threads, snapshot.messages, search, preferences.projectOrder]);
   const updateModel = (id: string) => { setModelId(id); void command('settings.update', { modelId: id }).then(() => refresh()).catch(error => setError(messageOf(error))); };
   const detachedPlan=useDetachedSurface(thread?{kind:'plan',threadId:thread.id}:null),detachedThread=useDetachedSurface(thread?{kind:'thread',threadId:thread.id}:null),detachedNavigation=useDetachedSurface({kind:'navigation'});
   const pendingThread=usePendingSurface(thread?{kind:'thread',threadId:thread.id}:null);
-  const threadHeld=Boolean(detachedThread||detachingThread||pendingThread||desktop?.closing);
-  useEffect(()=>{const target=desktop?.state.focusSurface;if(!target)return;if('threadId'in target&&target.threadId&&!pinnedThreadId)setSelectedId(target.threadId);if(target.kind==='plan')setPlanOpen(true);if(target.kind==='workspace')setLayout(value=>({...value,rightPanelOpen:true,activeTab:target.tab==='launcher'?'artifact':target.tab??'artifact'}));},[desktop?.state.focusSurface]);
+  const threadHeld=Boolean(detachedThread||pendingThread||desktop?.closing);
+  const prepareWorkspace=async()=>{await journalFlush();await prepareEditorHandoff();};
+  const updateCanvasPanel=async(panel:PanelPlacement,patch:Partial<PanelPlacement>)=>{if(!activeCanvas)throw Error('Choose a canvas first.');if(patch.visible===false||patch.placement==='native')await prepareWorkspace();if(!activeCanvas.panels.some(value=>value.id===panel.id))await workspaceState.send('workspace.panel.add',{canvasId:activeCanvas.id,panel:{id:panel.id,kind:panel.kind,binding:panel.binding},bounds:panel.bounds});await workspaceState.send('workspace.panel.update',{panelId:panel.id,patch});};
+  const panelTitle=(panel:PanelPlacement)=>panel.kind==='thread'?snapshot.threads.find(item=>item.id===panel.binding.threadId)?.title??'Unavailable conversation':panel.kind==='artifact'?snapshot.artifacts.find(item=>item.id===panel.binding.artifactId)?.title??'Artifact':panelLabels[panel.kind];
+  const addCanvasPanel=async(kind:WorkspacePanelKind,explicitBinding?:PanelBinding)=>{
+    if(!activeCanvas)throw Error('Choose a canvas first.');
+    const binding:PanelBinding=explicitBinding?{...explicitBinding}:{authority:{kind:'local'},...(thread?{threadId:thread.id}:{}),...(thread&&threadProject(thread)!=='unassigned'?{projectId:threadProject(thread)}:{})};
+    const owner=snapshot.threads.find(item=>item.id===binding.threadId);
+    if(['thread','plan','agent','artifact','notes'].includes(kind)&&!owner)throw Error('Choose a conversation before adding this panel.');
+    if(kind==='thread'&&!canvasActive&&owner?.id===thread?.id){setNotice('This conversation is already open.');return;}
+    if(kind==='artifact'){const artifact=snapshot.artifacts.find(item=>item.threadId===owner?.id&&item.lifecycle==='active');if(!artifact)throw Error('This conversation has no active artifact.');binding.artifactId=artifact.id;}
+    if(kind==='agent'){const agent=selectPlanRecord(snapshot,owner?.id)?.plan?.agents[0];if(!agent)throw Error('This conversation has no delegated agent yet.');binding.agentId=agent.id;}
+    if(kind==='browser')binding.browserId='browser-'+crypto.randomUUID();
+    // A new pane must receive its own host-persisted PTY reference, including when opened from an exited pane.
+    if(kind==='terminal')delete binding.terminalId;
+    const area=document.querySelector<HTMLElement>(canvasActive?'.workspace-canvas':'.shell-workarea');
+    const size={width:area?.clientWidth??Math.max(320,viewportWidth-layout.sidebarWidth),height:Math.max(200,(area?.clientHeight??window.innerHeight)-(canvasActive?0:220))};
+    const bounds=findCanvasPanelBounds(canvasPanels,activeCanvas.viewport,size,{width:kind==='thread'?520:480,height:Math.min(600,size.height-48)});
+    await workspaceState.send('workspace.panel.add',{canvasId:activeCanvas.id,panel:{id:'panel-'+crypto.randomUUID(),kind,binding},bounds});
+  };
+  const resolvePanelBinding=(panel:PanelPlacement):PanelBinding=>{const binding=panel.binding;if(binding.authority.kind!=='local')return binding;if(binding.liveProject&&binding.projectId){const current=thread&&threadProject(thread)===binding.projectId?thread:snapshot.threads.filter(item=>threadProject(item)===binding.projectId&&!threadParent(item)).toSorted((a,b)=>b.updatedAt.localeCompare(a.updatedAt))[0];return {...binding,threadId:current?.id};}return binding.threadId?binding:{...binding,...(thread?{threadId:thread.id}:{}),...(thread&&threadProject(thread)!=='unassigned'&&!binding.projectId?{projectId:threadProject(thread)}:{})};};
+  const canvasBody=(panel:PanelPlacement,visible:boolean)=>{const binding=resolvePanelBinding(panel),owner=snapshot.threads.find(item=>item.id===binding.threadId),native=desktop&&panelNativeWindow({...panel,binding},desktop.windows.filter(value=>value.id!==desktop.context.windowId));if(native)return <div className="panel-note"><p>This view is open in another window.</p><button className="quiet" onClick={()=>void desktop?.bridge.focus(native.id).catch(cause=>setError(messageOf(cause)))}>Focus window</button></div>;if(binding.authority.kind==='plugin'){const authority=binding.authority,plugin=plugins.find(value=>value.id===authority.pluginId),surface=panelDesktopSurface({...panel,binding});return plugin&&surface.kind==='plugin'?<PluginFrame key={panel.id} plugin={plugin} theme={theme} surface={surface} active={visible}/>:<p className="panel-note" role="alert">The owning plug-in is unavailable. Saved panel data is retained.</p>;}if(panel.kind==='thread')return owner?<CanvasThread key={owner.id} thread={owner} snapshot={snapshot} visible={visible} blocked={Boolean(desktop?.closing)||settingsOpen||Boolean(resourcePicker)||rename} refresh={refresh} setup={()=>{setSettingsSection('providers');setSettingsOpen(true);}} openResource={(_id,opener)=>openResourcePicker(owner.id,opener)} browseProject={id=>{void addCanvasPanel('files',{...binding,resourceId:id,liveProject:false}).catch(cause=>setError(messageOf(cause)));}} inspectChanges={()=>{void addCanvasPanel('diff',{...binding,liveProject:false}).catch(cause=>setError(messageOf(cause)));}} reportError={setError} selectProject={openProjectSelection}/>:<p role="alert" className="panel-note">The owning conversation is unavailable.</p>;if(panel.kind==='agent')return binding.threadId&&binding.agentId?<DelegatedAgentTranscript key={binding.threadId+':'+binding.agentId} threadId={binding.threadId} agentId={binding.agentId} snapshot={snapshot}/>:<p role='alert'>The owning subagent is unavailable.</p>;if(panel.kind==='context'||panel.kind==='plan')return <ProjectContextSurface key={owner?.id??panel.id} thread={owner} snapshot={snapshot} defaultPlanOpen={panel.kind==='plan'} onSelectThread={select} onShowChanges={()=>{void addCanvasPanel('diff',{...binding,liveProject:false}).catch(cause=>setError(messageOf(cause)));}} onConnect={()=>openProjectConnect(binding)}/>;if(panel.kind==='browser'){const docked=desktop?.state.dockedBrowser;return docked&&docked.browserId===binding.browserId?<div style={{display:'flex',flexDirection:'column',height:'100%'}}><DesktopBrowserToolbar state={docked.state}/><DesktopBrowserSlot/></div>:<div className="panel-note"><p>No browser is currently docked in this workspace.</p></div>;}return <WorkspaceSurfaceBody panelId={panel.id} kind={panel.kind} binding={binding} snapshot={snapshot} refresh={refresh} active={visible} preferences={preferences} onSelectThread={async id=>{await prepareWorkspace();select(id);}} onOpenTool={kind=>addCanvasPanel(kind,{...binding,liveProject:false})}/>;};
+  const renderWorkspaceCanvas=(embedded=false)=>activeCanvas&&workspaceEnvelope?<WorkspaceCanvas embedded={embedded} threads={snapshot.threads} canvas={activeCanvas} panels={embedded?canvasPanels.filter(panel=>!(panel.kind==='thread'&&panel.binding.authority.kind==='local'&&resolvePanelBinding(panel).threadId===thread?.id)):canvasPanels} projects={workspaceEnvelope.projects} disabledKinds={workspaceEnvelope.state.disabledKinds} title={panelTitle} updatePanel={updateCanvasPanel} updateViewport={async viewport=>{await workspaceState.send('workspace.canvas.viewport',{canvasId:activeCanvas.id,...viewport});}} setFilter={async filter=>{await workspaceState.send('workspace.canvas.filter',{canvasId:activeCanvas.id,filter});}} renderBody={canvasBody}/>:null;
+  const openSidebarTool=(kind:'usage'|'linked-pull-requests')=>{setSelectedPluginId(null);if(navigationOnly){setNotice('Open this tool in the main workspace.');return;}if(canvasActive)void addCanvasPanel(kind).catch(cause=>setError(messageOf(cause)));else setLayout(value=>({...value,rightPanelOpen:true,activeTab:kind}));};
+  const handledDockTarget=useRef<unknown>(null);
+  useEffect(()=>{
+    const target=desktop?.state.focusSurface;if(!target){handledDockTarget.current=null;return;}
+    if(!workspaceEnvelope||handledDockTarget.current===target)return;handledDockTarget.current=target;
+    if(target.kind==='plugin'){setOpenedPlugins(value=>value.includes(target.pluginId)?value:[...value,target.pluginId]);setSelectedPluginId(target.pluginId);}
+    if('threadId'in target&&target.threadId&&!pinnedThreadId)setSelectedId(target.threadId);
+    if(target.kind==='plan')setPlanOpen(true);
+    if(target.kind==='workspace'&&!target.panelId&&(!target.tab||['launcher','artifact','files','diff','output','usage'].includes(target.tab)))setLayout(value=>({...value,rightPanelOpen:true,activeTab:target.tab&&target.tab!=='launcher'?target.tab as typeof value.activeTab:'artifact'}));
+    void(async()=>{
+      let latest=await workspaceState.refresh();
+      const panels=panelsForDesktopSurface(latest.state.canvases.flatMap(canvas=>canvas.panels).filter(panel=>panel.placement==='native'),target);
+      if(!panels.length)return;
+      for(let attempt=0;;attempt++)try{
+        for(const panel of panels){
+          const current=panelsForDesktopSurface(latest.state.canvases.flatMap(canvas=>canvas.panels),target).find(value=>value.id===panel.id);
+          if(!current||current.canvasId!==panel.canvasId||current.kind!==panel.kind||JSON.stringify(current.binding)!==JSON.stringify(panel.binding))throw Error('The owning panel changed during docking. Restore it from the current workspace.');
+          latest=await workspaceState.send('workspace.panel.update',{baseRevision:latest.state.revision,panelId:panel.id,patch:{placement:'canvas',visible:true}});
+        }
+        latest=await workspaceState.send('workspace.canvas.select',{baseRevision:latest.state.revision,canvasId:panels[0].canvasId});return;
+      }catch(cause){
+        // Native placement saves can advance the revision during this idempotent handoff.
+        if(!(cause instanceof ApiError)||cause.code!=='WORKSPACE_CHANGED'||attempt>=2)throw cause;
+        latest=await workspaceState.refresh();
+      }
+    })().catch(cause=>{if(handledDockTarget.current===target)handledDockTarget.current=null;setError(messageOf(cause));});
+  },[desktop?.state.focusSurface,workspaceEnvelope]);
   const interfaceFont = preferences.interfaceFont === 'system' ? '-apple-system, BlinkMacSystemFont, "Inter Variable", "Segoe UI", system-ui, sans-serif' : preferences.interfaceFont === 'Inter' ? '"Inter Variable", sans-serif' : preferences.interfaceFont;
   const promptFont = preferences.promptFont === 'system' ? 'inherit' : preferences.promptFont;
   const shellStyle = { '--sidebar-width': layout.sidebarWidth + 'px', '--right-panel-width': panelWidth + 'px', '--panel-motion': (preferences.panelAnimations ? preferences.motionDuration : 0) + 'ms', '--prompt-font': promptFont, '--code-font': preferences.codeFont, '--interface-font': interfaceFont, '--interface-font-size': preferences.fontSize + 'px' } as CSSProperties;
-  if(loaded&&pinnedThreadId&&!thread)return <main className="desktop-surface"><DesktopWindowActions/><p role="alert">The owning conversation is no longer available. Dock this window to choose another task.</p></main>;
+  if(loaded&&pinnedThreadId&&!thread)return <main className="desktop-surface"><p role="alert">The owning conversation is no longer available. Dock this window to choose another task.</p></main>;
   return <WorkspaceProvider value={workspaceContext}><div className={`app-shell ${navigationOnly?'desktop-navigation-only':''} ${pinnedThreadId?'desktop-thread-only':''} ${layout.rightPanelOpen ? 'has-right-panel' : ''} ${panelOverlay ? 'right-panel-overlay' : ''}`} inert={desktop?.closing} style={shellStyle} data-document-docked={documentWindow?.placement==='docked'} data-sidebar-collapsed={layout.sidebarCollapsed} data-chat-width={preferences.chatWidth} data-contrast={preferences.contrast} data-word-wrap={preferences.wordWrap} data-panel-animations={preferences.panelAnimations} data-live-usage={preferences.showUsageFooter}>
     {sidebarOpen && <button className="sidebar-scrim" aria-label="Close navigation" onClick={() => setSidebarOpen(false)} />}
-    {!pinnedThreadId&&!detachedNavigation&&<ShellSidebar elementRef={sidebar} searchRef={searchRef} mobile={mobile} open={sidebarOpen} layout={layout} preferences={preferences} matching={matching} selectedId={thread?.id} loaded={loaded} creating={composerBusy || threadCreating} search={search} setSearch={setSearch} close={() => setSidebarOpen(false)} toggleCollapsed={() => navigationOnly?void desktop?.bridge.reattach():setLayout(value => ({ ...value, sidebarCollapsed: !value.sidebarCollapsed }))} setFolded={(key, folded) => setLayout(value => ({ ...value, folded: { ...value.folded, [key]: folded } }))} select={select} create={() => void createThread().catch(error => setError(messageOf(error)))} settings={() => { setSettingsSection('general'); setSettingsOpen(true); }} rename={item => { select(item.id); setTitle(item.title); setRename(true); }} archive={id => void archive(id)} detachNavigation={desktop?()=>{void desktop.detachSurface({kind:'navigation'}).catch(cause=>setError(messageOf(cause)));}:undefined} detachThread={desktop?item=>{void desktop.detachSurface({kind:'thread',threadId:item.id}).catch(cause=>setError(messageOf(cause)));}:undefined} presentation={(item, patch) => { if (patch.pinned === false && preferences.unpinConfirmation && !window.confirm('Unpin this thread?')) return; void command('thread.presentation', patch, item.id).then(() => refresh()).catch(error => setError(messageOf(error))); }} />}
+    {!pinnedThreadId&&!detachedNavigation&&<ShellSidebar navigation={plugins.length>0&&<nav className="plugin-navigation" aria-label="Installed plug-ins">{plugins.map(plugin=><button key={plugin.id} aria-current={selectedPluginId===plugin.id?'page':undefined} onClick={()=>{selectPlugin(plugin.id);setSidebarOpen(false);}}>{plugin.name}</button>)}</nav>} elementRef={sidebar} searchRef={searchRef} mobile={mobile} open={sidebarOpen} layout={layout} preferences={preferences} matching={matching} details={Object.fromEntries(snapshot.threads.map(item=>[item.id,{...projectDetails[item.projectId??''],provider:snapshot.accounts?.find(account=>account.id===item.accountId)?.providerId??item.modelId??undefined}]))} selectedId={thread?.id} loaded={loaded} creating={composerBusy || threadCreating} search={search} setSearch={setSearch} close={() => setSidebarOpen(false)} toggleCollapsed={() => navigationOnly?void desktop?.bridge.reattach():setLayout(value => ({ ...value, sidebarCollapsed: !value.sidebarCollapsed }))} setFolded={(key, folded) => setLayout(value => ({ ...value, folded: { ...value.folded, [key]: folded } }))} select={select} create={() => void createThread().catch(error => setError(messageOf(error)))} settings={() => { setSettingsSection('general'); setSettingsOpen(true); }} onOpenPullRequests={()=>openSidebarTool('linked-pull-requests')} onOpenUsage={()=>openSidebarTool('usage')} rename={item => { select(item.id); setTitle(item.title); setRename(true); }} archive={id => void archive(id)} presentation={(item, patch) => { if (patch.pinned === false && preferences.unpinConfirmation && !window.confirm('Unpin this thread?')) return; void command('thread.presentation', patch, item.id).then(() => refresh()).catch(error => setError(messageOf(error))); }} />}
     {!navigationOnly&&!pinnedThreadId&&!detachedNavigation&&!mobile && !layout.sidebarCollapsed && <ResizeHandle label="Resize sidebar" value={layout.sidebarWidth} minimum={200} maximum={380} side="left" change={sidebarWidth => setLayout(value => ({ ...value, sidebarWidth }))} />}
-    {!navigationOnly&&<div className="shell-workarea">
-    <main className="workspace"><header className="workspace-header"><button className="icon-button desktop-sidebar-toggle" aria-label="Toggle sidebar" aria-expanded={!layout.sidebarCollapsed} onClick={() => setLayout(value => ({ ...value, sidebarCollapsed: !value.sidebarCollapsed }))}><PanelLeftClose size={17} /></button><button className="icon-button mobile-menu" aria-label="Open navigation" onClick={() => setSidebarOpen(true)}><Menu size={18} /></button><div className="breadcrumb">{thread?.projectName && <><Folder size={13} /><span>{thread.projectName}</span><span className="breadcrumb-slash">/</span></>}<strong>{thread?.title ?? 'New conversation'}</strong></div><div className="header-actions"><DesktopWindowActions/>{desktop&&thread&&<DetachButton surface={{kind:'thread',threadId:thread.id}} label="chat" before={async()=>{setDetachingThread(true);try{await desktop.prepareHandoff();}catch(cause){setDetachingThread(false);throw cause;}}} after={()=>setDetachingThread(false)} onError={cause=>{setDetachingThread(false);setError(cause.message);}}/>}{thread&&!thread.sideParentId&&<button className="icon-button" aria-label="Open side conversation" title="Side question (/btw)" aria-expanded={sideOpen} onClick={()=>setSideOpen(value=>!value)}><MessageSquare size={16}/></button>}{preferences.showThreadDetails && thread && <span className="header-thread-status">{threadStatus(thread)}</span>}<button className="icon-button" aria-label={layout.rightPanelOpen ? 'Hide workspace panel' : 'Open workspace panel'} onClick={() => setLayout(value => ({ ...value, rightPanelOpen: !value.rightPanelOpen }))}><SlidersHorizontal size={16} /></button>{!online && <span className="connection-state" title="Reconnecting to host events"><WifiOff size={13} />Reconnecting</span>}{thread && <div className="thread-menu-wrap"><button className="icon-button" aria-label="Thread options" aria-expanded={threadMenu} onClick={() => setThreadMenu(value => !value)}><MoreHorizontal size={18} /></button>{threadMenu && <div className="thread-menu"><button onClick={showPlan}><ChevronRight size={14} />Show plan</button><button onClick={() => { setTitle(thread.title); setRename(true); setThreadMenu(false); }}><PenLine size={14} />Rename thread</button><button onClick={() => { void archive(thread.id); setThreadMenu(false); }}><Archive size={14} />Archive thread</button></div>}</div>}</div></header>
-      {error && <div className="workspace-error" role="alert">{error}<button className="quiet" onClick={() => { setError(''); void bootstrap().then(() => refresh()).then(() => { setLoaded(true); return loadModels(); }).catch(error => setError(messageOf(error))); }}>Retry</button><button className="icon-button" aria-label="Dismiss error" onClick={() => setError('')}><X size={15} /></button></div>}
+    {!navigationOnly&&<div className="workspace-layout-workarea" style={selectedPluginId?{display:'none'}:undefined}>{!pinnedThreadId&&<WorkspaceControls activeBinding={thread?{authority:{kind:'local'},threadId:thread.id,...(thread.projectId?{projectId:thread.projectId}:{})}:undefined} envelope={workspaceEnvelope} error={workspaceState.error} send={workspaceState.send} prepare={prepareWorkspace} panels={canvasPanels} title={panelTitle} addPanel={addCanvasPanel} updatePanel={updateCanvasPanel}/>} {error && <div className="workspace-error" role="alert">{error}<button className="quiet" onClick={() => { setError(''); void bootstrap().then(() => refresh()).then(() => { setLoaded(true); return loadModels(); }).catch(error => setError(messageOf(error))); }}>Retry</button><button className="icon-button" aria-label="Dismiss error" onClick={() => setError('')}><X size={15} /></button></div>} {canvasActive?renderWorkspaceCanvas():<div className="shell-workarea">
+    <main className="workspace"><header className="workspace-header">{layout.sidebarCollapsed&&<button className="icon-button desktop-sidebar-toggle" aria-label="Open sidebar" aria-expanded={false} onClick={() => setLayout(value => ({ ...value, sidebarCollapsed: false }))}><PanelLeftOpen size={17} /></button>}<button className="icon-button mobile-menu" aria-label="Open navigation" onClick={() => setSidebarOpen(true)}><Menu size={18} /></button><div className="breadcrumb">{thread?.projectName && <><Folder size={13} /><span>{thread.projectName}</span><span className="breadcrumb-slash">/</span></>}<strong>{thread?.title ?? 'New conversation'}</strong></div><div className="header-actions">{!online&&<span className="connection-state" title="Reconnecting to host events"><WifiOff size={13}/>Reconnecting</span>}</div></header>
+      
       {Object.values(dirtyWidgets).some(id => id !== thread?.id) && <div className="workspace-error retained-widget-notice"><span>Widget edits are kept open in another thread.</span><button className="quiet" onClick={() => setDirtyWidgets(previous => Object.fromEntries(Object.entries(previous).filter(([, id]) => id === thread?.id)))}>Discard hidden widget edits</button></div>}
-      {detachedThread&&<div className="notice">This conversation is open in another window.<button className="quiet" onClick={()=>void desktop?.bridge.focus(detachedThread.id)}>Focus chat</button></div>}<div inert={threadHeld} ref={conversation} className="conversation-scroll" onScroll={rememberPosition} aria-label="Conversation" tabIndex={0}>{[thread, ...snapshot.threads.filter(item => item.id !== thread?.id && Object.values(dirtyWidgets).includes(item.id))].toSorted((a, b) => (a?.createdAt ?? '').localeCompare(b?.createdAt ?? '') || (a?.id ?? '').localeCompare(b?.id ?? '')).map(panelThread => {
+      {detachedThread&&<div className="notice">This conversation is open in another window.<button className="quiet" onClick={()=>void desktop?.bridge.focus(detachedThread.id)}>Focus chat</button></div>}<div className="conversation-frame"><ChatScrollIndicator scrollRef={conversation} controllerRef={conversationMotion} contentKey={thread?.id}/><div inert={threadHeld} ref={conversation} className="conversation-scroll" onScroll={rememberPosition} aria-label="Conversation" tabIndex={0}>{[thread, ...snapshot.threads.filter(item => item.id !== thread?.id && Object.values(dirtyWidgets).includes(item.id))].toSorted((a, b) => (a?.createdAt ?? '').localeCompare(b?.createdAt ?? '') || (a?.id ?? '').localeCompare(b?.id ?? '')).map(panelThread => {
         const thread = panelThread;
         const messages = snapshot.messages.filter(item => item.threadId === thread?.id);
         const artifacts = snapshot.artifacts.filter(item => item.threadId === thread?.id && item.lifecycle === 'active');
@@ -486,22 +622,27 @@ export function App() {
         {thread?.error && <p className="notice" role="alert">{thread.error}</p>}
         {thread && ['stopped', 'interrupted', 'failed'].includes(thread.status) && <div className="resume-row"><span>{thread.status === 'interrupted' ? 'This session was interrupted.' : thread.status === 'stopped' ? 'Agent stopped. Your work is saved.' : 'The agent could not finish this run.'}</span><button className="secondary" disabled={!modelId} title={!modelId ? 'Choose an available model before resuming.' : undefined} onClick={() => void journalRead<string>('thinking:'+thread.id).then(level=>command('run.resume', {modelId,thinkingLevel:level===undefined?(thread.thinkingLevel??null):(level||null)}, thread.id)).then(() => refresh()).catch(error => setError(messageOf(error)))}>Resume<ChevronRight size={13} /></button></div>}
         {thread && (thread.runId || thread.status === 'working') && <div className="working-status" role="status"><LoaderCircle size={13} className="spinning" /><span>{snapshot.usage[thread.id]?.activity === 'compacting' ? 'Compacting context…' : 'Working…'}</span><button className="quiet" onClick={() => void command('run.stop', {}, thread.id).then(() => refresh()).catch(error => setError(messageOf(error)))}>Stop</button></div>}
-      </div></div>; })}</div>
+      </div></div>; })}</div></div>
       <div className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</div>
       {latestAvailable && <button className="jump-latest secondary" onClick={() => { const position=conversationMotion.current?.jump();if(position)readingPositions.current.set(thread?.id??'new',position);setLatestAvailable(false); }}>Jump to latest<ArrowUp size={13} /></button>}
-      <div style={{display:'contents'}} inert={threadHeld}>{loaded ? <Composer key={thread?.id ?? 'new'} thread={thread} models={models} modelId={modelId} setModelId={updateModel} snapshot={snapshot} ensureThread={ensureThread} busy={composerBusy || threadCreating} runAction={runComposerAction} refresh={refresh} setup={() => { setSettingsSection('providers'); setSettingsOpen(true); }} openResource={setResourcePicker} browseProject={id=>{setFocusedResource(id);setLayout(value=>({...value,rightPanelOpen:true,activeTab:'files'}));}} inspectChanges={()=>setLayout(value=>({...value,rightPanelOpen:true,activeTab:'diff'}))} reportError={setError} onSide={async content=>{setSideOpen(true);if(!sideChat.current)throw new Error("The side conversation is still opening.");await sideChat.current.ask(content);}} /> : <div className="composer-dock" role="status"><span className="muted">Opening conversation…</span></div>}</div>
+      <div style={{display:'contents'}} inert={threadHeld}>{thread&&delegatedThread(thread)?<div className="canvas-thread-readonly">Read-only delegated transcript - continue in its parent conversation.</div>:loaded&&thread&&threadParent(thread)?<SideThreadComposer key={thread.id} thread={thread} modelId={modelId} refresh={refresh}/>:loaded ? <Composer selectProject={openProjectSelection} predictionBlocked={threadHeld || settingsOpen || Boolean(resourcePicker) || rename || (mobile && sidebarOpen)} key={thread?.id ?? 'new'} thread={thread} models={models} modelId={modelId} setModelId={updateModel} snapshot={snapshot} ensureThread={ensureThread} busy={composerBusy || threadCreating} runAction={runComposerAction} refresh={refresh} setup={() => { setSettingsSection('providers'); setSettingsOpen(true); }} openResource={openResourcePicker} browseProject={id=>{setFocusedResource(id);setLayout(value=>({...value,rightPanelOpen:true,activeTab:'files'}));}} inspectChanges={()=>setLayout(value=>({...value,rightPanelOpen:true,activeTab:'diff'}))} reportError={setError} onSide={async content=>{setSideOpen(true);if(!sideChat.current)throw new Error("The side conversation is still opening.");await sideChat.current.ask(content);}} /> : <div className="composer-dock" role="status"><span className="muted">Opening conversation…</span></div>}</div>
     </main>
+    {activeCanvas?.preset==='workspace'&&canvasPanels.some(panel=>panel.visible&&panel.placement==='canvas'&&!workspaceEnvelope?.state.disabledKinds.includes(panel.kind)&&!(panel.kind==='thread'&&panel.binding.authority.kind==='local'&&resolvePanelBinding(panel).threadId===thread?.id))&&renderWorkspaceCanvas(true)}
 
-    <FloatingRail plan={<FloatingWindow id="plan" title="Task plan" open={planOpen&&!detachedPlan} onDetach={desktop&&thread?()=>{void desktop.detachSurface({kind:'plan',threadId:thread.id}).catch(cause=>setError(messageOf(cause)));}:undefined} onClose={dismissPlan} anchor="top-right" defaultSize={{width:376,height:180}} minSize={{width:280,height:80}} sizing="content" focusOnOpen={planFocusOnOpen} expandRequest={planExpandRequest} resetPosition><PlanStatus key={thread?.id??'new'} snapshot={snapshot} threadId={thread?.id} /></FloatingWindow>} usage={<UsageFooter threadId={thread?.id} usage={thread?snapshot.usage[thread.id]:undefined} visible={preferences.showUsageFooter} />} />
-    {layout.rightPanelOpen && <WorkspacePanel snapshot={snapshot} preferredResourceId={focusedResource} threadId={thread?.id} preferences={preferences} layout={layout} close={closePanel} setWidth={rightPanelWidth => setLayout(value => ({ ...value, rightPanelWidth }))} toggleMaximized={() => setLayout(value => ({ ...value, rightPanelMaximized: !value.rightPanelMaximized }))} />}
+    <FloatingRail plan={<FloatingWindow id="plan" title="Project context" className="project-context-floating" open={!detachedPlan} minimizeOnly defaultCollapsed onClose={()=>{}} anchor="top-right" defaultSize={{width:280,height:248}} minSize={{width:240,height:64}} sizing="content" focusOnOpen={planFocusOnOpen} expandRequest={planExpandRequest||undefined} resetPosition><ProjectContextSurface key={thread?.id??'new'} thread={thread} snapshot={snapshot} planOpen={planOpen} onContext={rememberProjectContext} onTogglePlan={()=>{if(planOpen)dismissPlan();else{planVisibility.show(thread);setPlanFocusOnOpen(false);setPlanExpandRequest(value=>value+1);setPlanOpen(true);}}} onSelectThread={select} onShowChanges={()=>setLayout(value=>({...value,rightPanelOpen:true,activeTab:'diff'}))} onConnect={()=>openProjectConnect({threadId:thread?.id,projectId:thread?.projectId})}/></FloatingWindow>} usage={<UsageFooter threadId={thread?.id} usage={thread?snapshot.usage[thread.id]:undefined} visible={true} />} />
+    {layout.rightPanelOpen && <WorkspacePanel refresh={refresh} snapshot={snapshot} preferredResourceId={focusedResource} threadId={thread?.id} preferences={preferences} layout={layout} close={closePanel} setWidth={rightPanelWidth => setLayout(value => ({ ...value, rightPanelWidth }))} toggleMaximized={() => setLayout(value => ({ ...value, rightPanelMaximized: !value.rightPanelMaximized }))} />}
     {thread&&!thread.sideParentId&&<SideChat key={thread.id} ref={sideChat} parent={thread} snapshot={snapshot} modelId={modelId} open={sideOpen} onClose={()=>setSideOpen(false)} refresh={refresh}/>}
     <DesktopBrowserDock/>
-    </div>}
+    </div>}</div>}
+    {pluginCatalog.error&&<div className="shell-notice" role="alert">{pluginCatalog.error}</div>}
+    {openedPlugins.map(id=>{const plugin=plugins.find(value=>value.id===id);return plugin?<PluginFrame key={id} plugin={plugin} theme={theme} active={selectedPluginId===id}/>:null;})}
     {notice && <div className="shell-notice" role="status"><span>{notice}</span><button className="icon-button" aria-label="Dismiss notification" onClick={() => setNotice('')}><X size={14} /></button></div>}
     {confirmArchive && <Dialog title="Archive thread?" close={() => setConfirmArchive(null)}><p>The saved conversation will move to Archive in Settings. Restore it there whenever you need it.</p><footer className="dialog-actions"><button className="quiet" onClick={() => setConfirmArchive(null)}>Cancel</button><button className="primary" onClick={() => { const id = confirmArchive; setConfirmArchive(null); void archive(id, false, true); }}>Archive thread</button></footer></Dialog>}
     {archiveThread && <Dialog title="Uncheckpointed widget edits" close={() => setArchiveThread(null)}><p>Checkpoint your widget edits before archiving this thread, or explicitly discard them.</p><footer className="dialog-actions"><button className="secondary" onClick={() => { select(archiveThread); setArchiveThread(null); }}>Return to checkpoint</button><button className="quiet" onClick={() => void archive(archiveThread, true)}>Discard edits and archive</button></footer></Dialog>}
-    {resourcePicker && <ResourcePicker threadId={resourcePicker} close={() => setResourcePicker(null)} refresh={refresh} />}
-    {settingsOpen && <SettingsWindow initialSection={settingsSection} snapshot={snapshot} modelError={modelError} refresh={refresh} loadModels={loadModels} close={() => setSettingsOpen(false)} addResource={() => { setSettingsOpen(false); void ensureThread(async () => {}).then(setResourcePicker).catch(error => setError(messageOf(error))); }} />}
+    {resourcePicker && <ResourcePicker threadId={resourcePicker} opener={resourcePickerOpener.current} close={() => setResourcePicker(null)} refresh={refresh} />}
+    {projectPicker&&<Dialog title="Select project" close={closeProjectSelection}><div className="project-selection-list">{(()=>{const target=snapshot.threads.find(value=>value.id===projectPicker.threadId),started=Boolean(target&&(target.runId||target.sessionPath||target.workspaceId)),projects=workspaceEnvelope?.projects.filter(project=>project.authority.kind==='local'&&Boolean(project.rootPath))??[];return <>{started&&<p className="muted">Choose a project for a new chat. This chat keeps its current project.</p>}{projects.map(project=><button type="button" key={project.id} disabled={projectPicking} aria-label={target?.projectId===project.id?'Current project '+project.name:(started?'New chat in ':'Select ')+project.name} onClick={()=>void pickProject(project)}><Folder size={16}/><span><strong>{project.name}</strong><small>{project.rootPath}</small></span>{target?.projectId===project.id?<Check size={15}/>:<ChevronRight size={14}/>}</button>)}{!projects.length&&<p className="muted">Connect a local project to get started.</p>}</>;})()}{projectPickerError&&<p role="alert" className="error-text">{projectPickerError}</p>}</div><footer className="dialog-actions"><button type="button" className="quiet" disabled={projectPicking} onClick={()=>{const id=projectPicker.threadId,target=snapshot.threads.find(value=>value.id===id),started=Boolean(target&&(target.runId||target.sessionPath||target.workspaceId));closeProjectSelection();if(started)void createThread(async id=>{openProjectConnect({threadId:id});}).catch(cause=>setError(messageOf(cause)));else openProjectConnect({threadId:id,projectId:target?.projectId});}}>Connect another project</button><button type="button" className="secondary" disabled={projectPicking} onClick={closeProjectSelection}>Done</button></footer></Dialog>}
+    {projectConnectOpen&&<Dialog title="Connect project" close={closeProjectConnect}><form onSubmit={event=>{event.preventDefault();const target=projectConnectTarget.current;void prepareWorkspace().then(()=>{if(target?.projectId&&snapshotRef.current.threads.find(item=>item.id===target.threadId)?.projectId!==target.projectId)throw Error('The owning project changed. Close this dialog and reopen it from that conversation.');return workspaceState.send('workspace.project.connect',{name:projectName,path:projectPath,...(target?.threadId?{threadId:target.threadId}:{})});}).then(async()=>{await refresh();closeProjectConnect();}).catch(cause=>setError(messageOf(cause)));}}><label className="field">Project name<input required maxLength={100} value={projectName} onChange={event=>setProjectName(event.target.value)}/></label><label className="field">Local folder<input required value={projectPath} onChange={event=>setProjectPath(event.target.value)} placeholder="C:\Projects\My project"/></label><footer className="dialog-actions"><button type="button" className="quiet" onClick={closeProjectConnect}>Cancel</button><button className="primary" disabled={!projectName.trim()||!projectPath.trim()}>Connect project</button></footer></form></Dialog>}
+    {settingsOpen && <SettingsWindow initialSection={settingsSection} snapshot={snapshot} modelError={modelError} refresh={refresh} loadModels={loadModels} close={() => setSettingsOpen(false)} addResource={() => { setSettingsOpen(false); void ensureThread(async () => {}).then(id=>openResourcePicker(id)).catch(error => setError(messageOf(error))); }} />}
     {rename && thread && <Dialog title="Rename thread" close={() => setRename(false)}><form onSubmit={event => { event.preventDefault(); void command('thread.rename', { title: title.trim() }, thread.id).then(async () => { await refresh(); setRename(false); }).catch(error => setError(messageOf(error))); }}><label className="field">Thread name<input autoFocus required value={title} maxLength={180} onChange={event => setTitle(event.target.value)} /></label><footer className="dialog-actions"><button type="button" className="quiet" onClick={() => setRename(false)}>Cancel</button><button className="primary" disabled={!title.trim()}>Save name</button></footer></form></Dialog>}
   </div></WorkspaceProvider>;
 }

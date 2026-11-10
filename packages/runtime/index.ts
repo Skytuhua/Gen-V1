@@ -5,18 +5,19 @@ import {createOfficialRuntime} from '../runtime-official/index.ts';
 import {isConnectionProviderId,isOfficialRuntimeProviderId,SUBSCRIPTION_PROVIDER_IDS,OFFICIAL_RUNTIME_PROVIDER_IDS,type ConnectionProviderId,type OfficialRuntimeProviderId} from '../contracts/connections.ts';
 import type {AccountUseLease,ConnectionAccount,RuntimeAccountResolver} from '../contracts/accounts.ts';
 import {accountProfileRoot,withAccountProfile} from './account-profile.ts';
-import {assertModelOnlyInput} from './model-only.ts';
+import {assertModelOnlyInput,PREDICTION_MAX_OUTPUT_BYTES,type ModelPurpose} from './model-only.ts';
 
 type Provider='pi'|OfficialRuntimeProviderId;
-type Factories={pi:(options:{dataDir:string;modelOnly?:boolean})=>RuntimeAdapter;official:(options:{dataDir:string;modelOnly?:boolean})=>RuntimeAdapter};
+type Factories={pi:(options:{dataDir:string;modelOnly?:boolean;purpose?:ModelPurpose})=>RuntimeAdapter;official:(options:{dataDir:string;modelOnly?:boolean;purpose?:ModelPurpose})=>RuntimeAdapter};
 type Pair={root:string;pi:RuntimeAdapter;official:RuntimeAdapter};
 type Selection={provider:Provider;adapter:RuntimeAdapter;modelId:string;accountId:string|null};
-type Owner=Selection&{ctx:RunContext;closed:boolean;closing?:Promise<void>;lease?:AccountUseLease};
+type Owner=Selection&{ctx:RunContext;closed:boolean;closing?:Promise<void>;lease?:AccountUseLease;outputBytes?:number};
 const key=(ctx:RunContext)=>JSON.stringify([ctx.threadId,ctx.runId,ctx.epoch]);
 const providerForModel=(modelId:string):Provider=>{const provider=modelId.split('/')[0];return isOfficialRuntimeProviderId(provider)?provider:'pi';};
 
 /** Routes execution; each adapter retains its own protocol, auth and session validation. */
-export function createRuntime(options:{dataDir:string;accounts?:RuntimeAccountResolver;modelOnly?:boolean},factories:Factories={pi:createPiRuntime,official:createOfficialRuntime}):RuntimeAdapter{
+export function createRuntime(options:{dataDir:string;accounts?:RuntimeAccountResolver;modelOnly?:boolean;purpose?:ModelPurpose},factories:Factories={pi:createPiRuntime,official:createOfficialRuntime}):RuntimeAdapter{
+ const modelOnly=options.modelOnly||options.purpose==='prediction';
  const root=resolve(options.dataDir),pairs=new Map<string|null,Pair>(),owners=new Map<string,Owner>(),adapters=new Set<RuntimeAdapter>(),probes=new Map<string,{adapter:RuntimeAdapter;lease:AccountUseLease}>();
  let callbacks:RuntimeCallbacks|undefined,disposed=false;
  const active=()=>{if(disposed)throw new HarnessError('RUNTIME_DISPOSED','The runtime has closed.');};
@@ -32,17 +33,22 @@ export function createRuntime(options:{dataDir:string;accounts?:RuntimeAccountRe
  function pair(account:ConnectionAccount|null):Pair {
   active();const id=account?.id??null,dataDir=account?accountProfileRoot(root,account):root,cached=pairs.get(id);
   if(cached){if(cached.root!==dataDir)throw new HarnessError('ACCOUNT_PROVIDER_MISMATCH','This saved account changed providers.');return cached;}
-  const adapterOptions=options.modelOnly?{dataDir,modelOnly:true}:{dataDir};
+  const adapterOptions=modelOnly?{dataDir,modelOnly:true,...(options.purpose?{purpose:options.purpose}:{})}:{dataDir};
   const pi=factories.pi(adapterOptions),official=factories.official(adapterOptions),created={root:dataDir,pi,official};
   for(const adapter of [pi,official])adapter.configure({
    onEvent(event){
     let current:Owner;try{current=owner(event,adapter);}catch{return;}
+    if(options.purpose==='prediction'&&(event.type==='assistant.delta'||event.type==='assistant.message')){
+     const bytes=Buffer.byteLength(String(event.type==='assistant.delta'?event.delta??'':event.content??''));
+     if(event.type==='assistant.delta')current.outputBytes=(current.outputBytes??0)+bytes;
+     if(bytes>PREDICTION_MAX_OUTPUT_BYTES||(current.outputBytes??0)>PREDICTION_MAX_OUTPUT_BYTES){void close(current).catch(()=>{});callbacks?.onEvent({...current.ctx,type:'error',code:'PREDICTION_OUTPUT_LIMIT',message:'The prediction exceeded its output limit.'});return;}
+    }
     if(event.type==='settled'){
      void close(current).then(()=>{if(!disposed)callbacks?.onEvent(event);},()=>{if(!disposed)callbacks?.onEvent({...current.ctx,type:'error',message:'The native runtime could not close. Account sign-in remains blocked.'});});return;
     }
     callbacks?.onEvent(event);
    },
-   async onTool(call,ctx){owner(ctx,adapter);if(options.modelOnly)throw new HarnessError('MODEL_ONLY_TOOL_DENIED','Native tools are unavailable to the Hermes model transport.');if(!callbacks)throw new HarnessError('RUNTIME_NOT_CONFIGURED','The runtime is not configured.');const result=await callbacks.onTool(call,ctx);owner(ctx,adapter);return result;},
+   async onTool(call,ctx){owner(ctx,adapter);if(modelOnly)throw new HarnessError('MODEL_ONLY_TOOL_DENIED','Native tools are unavailable to the model transport.');if(!callbacks)throw new HarnessError('RUNTIME_NOT_CONFIGURED','The runtime is not configured.');const result=await callbacks.onTool(call,ctx);owner(ctx,adapter);return result;},
   });adapters.add(pi);adapters.add(official);pairs.set(id,created);return created;
  }
  pair(null);
@@ -99,11 +105,11 @@ export function createRuntime(options:{dataDir:string;accounts?:RuntimeAccountRe
    });
    if(!models.length&&results.some(result=>result.status==='rejected'))throw new HarnessError('AI_AUTH_REQUIRED','No signed-in subscription runtime is available. Connect a provider in Settings and refresh models.');return models;
   },
-  async start(input:StartRun){if(options.modelOnly)assertModelOnlyInput(input);const captured={...input},selected=reserve(captured,choose(captured.modelId,captured.sessionPath,captured.accountId)),account=resolveAccount(selected.accountId);try{await withAccountProfile(root,account,async()=>{owner(captured,selected.adapter);available(captured.modelId.split('/')[0],selected.accountId);await selected.adapter.start(captured);},undefined,captured.threadId);}catch(error){await close(selected);throw error;}},
-  async followUp(input){active();if(options.modelOnly)assertModelOnlyInput(input);const captured={...input},current=owners.get(key(captured));if(!current)throw new HarnessError('STALE_RUN','Start or resume this task under fresh run authority.');if(current.accountId!==(captured.accountId??null))throw new HarnessError('RUNTIME_ACCOUNT_MISMATCH','This run belongs to another account.');if(current.modelId!==captured.modelId)throw new HarnessError('RUNTIME_MODEL_MISMATCH','Stop the active run before changing models.');choose(captured.modelId,captured.sessionPath,captured.accountId);const account=resolveAccount(current.accountId);await withAccountProfile(root,account,async()=>{owner(captured,current.adapter);available(captured.modelId.split('/')[0],current.accountId);await current.adapter.followUp(captured);},undefined,captured.threadId);},
+  async start(input:StartRun){if(modelOnly)assertModelOnlyInput(input,options.purpose);const captured={...input},selected=reserve(captured,choose(captured.modelId,captured.sessionPath,captured.accountId)),account=resolveAccount(selected.accountId);try{await withAccountProfile(root,account,async()=>{owner(captured,selected.adapter);available(captured.modelId.split('/')[0],selected.accountId);await selected.adapter.start(captured);},undefined,captured.threadId);}catch(error){await close(selected);throw error;}},
+  async followUp(input){active();if(options.purpose==='prediction')throw new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions cannot continue a conversation.');if(modelOnly)assertModelOnlyInput(input,options.purpose);const captured={...input},current=owners.get(key(captured));if(!current)throw new HarnessError('STALE_RUN','Start or resume this task under fresh run authority.');if(current.accountId!==(captured.accountId??null))throw new HarnessError('RUNTIME_ACCOUNT_MISMATCH','This run belongs to another account.');if(current.modelId!==captured.modelId)throw new HarnessError('RUNTIME_MODEL_MISMATCH','Stop the active run before changing models.');choose(captured.modelId,captured.sessionPath,captured.accountId);const account=resolveAccount(current.accountId);await withAccountProfile(root,account,async()=>{owner(captured,current.adapter);available(captured.modelId.split('/')[0],current.accountId);await current.adapter.followUp(captured);},undefined,captured.threadId);},
   async cancel(ctx){const current=owners.get(key(ctx));if(current)await close(current);},
-  async compact(ctx,sessionPath,modelId,accountId){const selected=reserve(ctx,choose(modelId,sessionPath,accountId)),account=resolveAccount(selected.accountId);try{await withAccountProfile(root,account,async()=>{owner(ctx,selected.adapter);available(modelId.split('/')[0],selected.accountId);await selected.adapter.compact(ctx,sessionPath,modelId);},undefined,ctx.threadId);await close(selected);}catch(error){await close(selected);throw error;}},
-  async history(sessionPath,accountId){active();const account=resolveAccount(accountId),selected=pair(account),provider=providerForSession(sessionPath,selected);if(account&&isOfficialRuntimeProviderId(account.providerId)&&provider!==account.providerId)throw new HarnessError('RUNTIME_SESSION_MISMATCH','This session belongs to another provider.');if(account&&!isOfficialRuntimeProviderId(account.providerId)&&provider!=='pi')throw new HarnessError('RUNTIME_SESSION_MISMATCH','This session belongs to another provider.');return withAccountProfile(root,account,async()=>{active();const adapter=provider==='pi'?selected.pi:selected.official;return probe(adapter,account?[account.providerId]:provider==='pi'?probeProviders(null,false):[provider],account?.id??null,()=>adapter.history(sessionPath));});},
+  async compact(ctx,sessionPath,modelId,accountId){if(options.purpose==='prediction')throw new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions cannot compact conversations.');const selected=reserve(ctx,choose(modelId,sessionPath,accountId)),account=resolveAccount(selected.accountId);try{await withAccountProfile(root,account,async()=>{owner(ctx,selected.adapter);available(modelId.split('/')[0],selected.accountId);await selected.adapter.compact(ctx,sessionPath,modelId);},undefined,ctx.threadId);await close(selected);}catch(error){await close(selected);throw error;}},
+  async history(sessionPath,accountId){active();if(options.purpose==='prediction')throw new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions cannot read conversations.');const account=resolveAccount(accountId),selected=pair(account),provider=providerForSession(sessionPath,selected);if(account&&isOfficialRuntimeProviderId(account.providerId)&&provider!==account.providerId)throw new HarnessError('RUNTIME_SESSION_MISMATCH','This session belongs to another provider.');if(account&&!isOfficialRuntimeProviderId(account.providerId)&&provider!=='pi')throw new HarnessError('RUNTIME_SESSION_MISMATCH','This session belongs to another provider.');return withAccountProfile(root,account,async()=>{active();const adapter=provider==='pi'?selected.pi:selected.official;return probe(adapter,account?[account.providerId]:provider==='pi'?probeProviders(null,false):[provider],account?.id??null,()=>adapter.history(sessionPath));});},
   async dispose(){
    if(disposed)return;disposed=true;for(const current of owners.values())current.closed=true;
    const values=[...adapters],results=await Promise.allSettled(values.map(adapter=>adapter.dispose()));

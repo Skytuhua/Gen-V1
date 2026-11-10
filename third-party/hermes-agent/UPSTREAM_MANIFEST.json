@@ -157,6 +157,12 @@
       "sha256": "162711ae15f31d1562a5a76a3f7f82840d8b92ccfcde834ee759404e407c2e83"
     },
     {
+      "path": "agent/auxiliary_call_outcome.py",
+      "gitBlob": "a36d547e5fd6dffacf5a2f56c76537ac8fbcf5e0",
+      "bytes": 2830,
+      "sha256": "9e35c216af17b9d9e035495fdfb8d7e2d0c5d0201147b2eb88f9d52e144448cc"
+    },
+    {
       "path": "agent/auxiliary_client.py",
       "gitBlob": "34401444a875280deec8fb4f8e49cb38e3a6cf65",
       "bytes": 438565,
@@ -175,6 +181,18 @@
       "sha256": "2aea19b93fce61812e75f07cddf7fd161640cb8279896d46be3ed5a79039a864"
     },
     {
+      "path": "agent/auxiliary_hooks.py",
+      "gitBlob": "f95f43e677896fe1c4a1a9fad8470dd4f97cc840",
+      "bytes": 11540,
+      "sha256": "87a1d8b7c73ad020d07ab052910a50cde69fb98eb5c7e51ed666f7912006bdf8"
+    },
+    {
+      "path": "agent/auxiliary_local_runtime.py",
+      "gitBlob": "8e879e914fed8ff5fba3ca598683c4b11ad57130",
+      "bytes": 1793,
+      "sha256": "57b9804d3438942583d9cd921b42faa31df597f7c5f3f4e6579550dede7c5988"
+    },
+    {
       "path": "agent/auxiliary_managed_local.py",
       "gitBlob": "cb7b6022f5d782e44ee2f183673ec0b3baa767ee",
       "bytes": 1485,
@@ -185,6 +203,12 @@
       "gitBlob": "748003e17989cbbde7fcb54a36fd401820bc92cc",
       "bytes": 6444,
       "sha256": "e3c734a79451a6a2082749a5e0a0661e571ff3a8c9826c024a9500663ba640b0"
+    },
+    {
+      "path": "agent/auxiliary_stream_watchdog.py",
+      "gitBlob": "6e62bb912962be350aa03751167165f7c6999b39",
+      "bytes": 8578,
+      "sha256": "eee5b4c2f4130a603d465ea01db6e91fa4d28fec8a10ba789f14ac59cf71f5e5"
     },
     {
       "path": "agent/auxiliary_structured_output.py",
@@ -203,6 +227,12 @@
       "gitBlob": "639ace1c861d95e645b242bacc70a54ead374340",
       "bytes": 12935,
       "sha256": "4a798cbb1731f75ed7946da6ff641a6bc35a505e07c1f2a3b7da7c70c8c51d76"
+    },
+    {
+      "path": "agent/auxiliary_wire.py",
+      "gitBlob": "7214a25b79f53d18f760857e99635ce1ad60d627",
+      "bytes": 1378,
+      "sha256": "c40fb38b5e02d8d1a997694b9bc529658698b337594a1c3c9d0de7d6c4e22051"
     },
     {
       "path": "agent/azure_identity_adapter.py",
@@ -419,6 +449,12 @@
       "gitBlob": "0eaa4f799d57e0f51796e44c7976e94ea3349a9e",
       "bytes": 4121,
       "sha256": "6d28da47d6a66988f0248e6165bc6a7da07f50c20ba931816f7ff079b7d72ab5"
+    },
+    {
+      "path": "agent/conversation_compression_reply_anchor.py",
+      "gitBlob": "7989b4519778cd601b686204cdf7a525711b78c2",
+      "bytes": 13452,
+      "sha256": "2d2102af21065a514cb06c46069e28f8df2b3db5e00691881d8636b4cd37e402"
     },
     {
       "path": "agent/conversation_compression_telemetry.py",
@@ -1037,6 +1073,12 @@
       "gitBlob": "62b1052534c74661c130af507cc669dd6350d92e",
       "bytes": 76972,
       "sha256": "5672696173a436e9d9efce761bc620fc07a4c8987409f2b4b5929bb0b7e5cea6"
+    },
+    {
+      "path": "agent/relay_compaction.py",
+      "gitBlob": "cd44c594db3891d20a3fe2dc8ec8bfcf66486957",
+      "bytes": 4313,
+      "sha256": "07157713d75c74b647b26a12f7cefe56ef0282752bb393f0462ae7366c3ccc05"
     },
     {
       "path": "agent/relay_cwd.py",

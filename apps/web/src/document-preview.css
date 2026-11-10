@@ -71,7 +71,9 @@
 .task-choice-custom-input { display:block; width:100%; min-width:0; height:43px; border:1px solid var(--accent,#4765d6); padding:10px 12px; border-radius:9px; background:var(--surface,#fff); color:var(--text,#202023); font:inherit; font-size:13px; }
 .task-step-content>[data-phase="leaving"] { pointer-events:none; }
 .task-step-content>[role="group"] { animation:none!important; }
-.surface-split:has(>.document-preview):has(>.task-steps)>.document-preview,.surface-split:has(>.document-preview)>.task-steps { min-height:580px; }
+.surface-split:has(>.document-preview):has(>.task-steps) { align-items:start; }
+.surface-split:has(>.document-preview):has(>.task-steps)>.document-preview { min-height:580px; }
+.surface-split:has(>.document-preview)>.task-steps { min-height:0; }
 @container artifact (max-width:619px) { .surface-split:has(>.document-preview):has(>.task-steps)>.document-preview { min-height:380px; } .surface-split:has(>.document-preview)>.task-steps { min-height:0; } }
 @media (prefers-reduced-motion:reduce) { .document-preview-page { transition:none; } }
 
