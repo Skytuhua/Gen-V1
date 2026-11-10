@@ -29,7 +29,7 @@ it('filters reduced motion with a 1ms instant threshold', () => {
 });
 describe('CLI', () => {
   it('defaults and supports pnpm separator, equals and separate values', () => {
-    expect(parseArgs([])).toMatchObject({ scope: 'diff', sinceDays: 30, maxStrips: 60 });
+    expect(parseArgs([])).toMatchObject({ scope: 'all', sinceDays: 30, maxStrips: 60 });
     expect(parseArgs(['--', '--scope=baseline', '--screens', 'files,plan', '--out=tmp', '--since-days=7', '--max-strips', '0'])).toEqual({ scope: 'baseline', screens: ['files', 'plan'], out: 'tmp', sinceDays: 7, maxStrips: 0 });
   });
   it.each([['--wat'], ['--scope=no'], ['--since-days=0'], ['--max-strips=-1'], ['--out'], ['--since-days=NaN']])('rejects invalid args %s', (...args) => expect(() => parseArgs(args)).toThrow());
@@ -43,15 +43,18 @@ describe('renderer classification', () => {
     ['apps/web/src/App.tsx', 'app-shell'],
     ['apps/web/src/registry.tsx', 'generated-selects'],
   ])('maps %s to a reachable screen', (path, id) => expect(mapFile(path).screens).toContain(id));
-  it.each(['apps/web/src/SideChat.tsx', 'apps/web/src/InteractionTools.tsx', 'apps/web/src/WorkObjects.tsx', 'apps/web/src/DesktopBrowser.tsx', 'apps/web/src/api.ts', 'packages/ui-catalog/everyday.ts', 'plugins/personal-visuals/src/frontend.tsx', 'apps/web/src/FutureRenderer.tsx'])('explains exclusion of %s', path => {
-    expect(mapFile(path)).toMatchObject({ category: 'excludedWebUi', screens: [], reason: expect.any(String) });
-    expect(mapFile(path).reason!.length).toBeGreaterThan(20);
+  it('retains only justified native exclusions and reports missing browser coverage', () => {
+    expect(mapFile('apps/web/src/DesktopBrowser.tsx')).toMatchObject({ category: 'excludedWebUi', attemptedRoute: expect.any(String) });
+    expect(mapFile('apps/web/src/api.ts').category).toBe('nonUi');
+    expect(mapFile('packages/ui-catalog/everyday.ts').category).toBe('nonUi');
+    expect(mapFile('plugins/personal-visuals/src/frontend.tsx').screens).toContain('plugin-frame');
+    expect(mapFile('apps/web/src/FutureRenderer.tsx').category).toBe('unmappedWebUi');
   });
   it.each(['tests/side-chat.test.ts', 'docs/ui.md', 'scripts/capture-ui/index.ts', 'apps/server/main.ts', 'packages/core/models.ts', 'python/worker.py', 'packages/ui-catalog/README.md'])('classifies %s as nonUi', path => expect(mapFile(path).category).toBe('nonUi'));
   it('preserves per-PR excluded reasons and deduplicates nonUi files', () => {
-    const pr = { number: 1, title: 'UI change', mergedAt: '2026-11-01', files: [{path: 'apps/web/src/SideChat.tsx'}, {path: 'docs/readme.md'}] };
+    const pr = { number: 1, title: 'UI change', mergedAt: '2026-11-01', files: [{path: 'apps/web/src/DesktopBrowser.tsx'}, {path: 'docs/readme.md'}] };
     const scope = aggregate([pr, {...pr, number: 2}]);
-    expect(scope.excludedWebUi).toHaveLength(1); expect(scope.pulls[0].excludedWebUi[0].reason).toContain('scoped/side'); expect(scope.nonUi).toEqual(['docs/readme.md']); expect(scope.unmapped).toEqual([]);
+    expect(scope.excludedWebUi).toHaveLength(1); expect(scope.pulls[0].excludedWebUi[0].reason).toContain('WebContents'); expect(scope.nonUi).toEqual(['docs/readme.md']); expect(scope.unmapped).toEqual([]);
   });
 });
 it('rejects empty/unchanged recipes as distinct states', () => {

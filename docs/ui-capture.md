@@ -3,41 +3,45 @@
 After `pnpm install` and `pnpm exec playwright install chromium`, run from the repository root:
 
 ```sh
-pnpm capture:ui -- --scope=diff
+pnpm capture:ui                         # default: all = diff ∪ full baseline
+pnpm capture:ui -- --scope=diff --out artifacts/ui-capture/review
 pnpm capture:ui -- --scope=baseline
-pnpm capture:ui -- --scope=all --since-days=14 --max-strips=30
-pnpm capture:ui -- --screens=app-shell,inbox,graph --out=artifacts/ui-capture/review
+pnpm capture:ui -- --screens=graph --max-strips=30
 ```
 
-Flags accept equals or separate values. Defaults: `--scope=diff`, `--since-days=30`, `--max-strips=60`. `--screens` overrides selection; `--out` names the exact output directory (use a fresh directory). Otherwise outputs go to the gitignored `artifacts/ui-capture/<UTC timestamp>/`. Baseline captures the entire registry without querying git/gh. All unions baseline with diff and includes PR provenance.
+Flags accept equals or separate values. Defaults: `--scope=all`, `--since-days=30`, `--max-strips=60`. `--screens` overrides selection. `--out` supplies an exact directory; otherwise output goes to gitignored `artifacts/ui-capture/<UTC timestamp>/`. Use a fresh output directory to avoid stale artifacts.
 
-Local capture owns two Vite servers on available loopback ports: the **unchanged `tests/e2e/vite.config.ts` serves the real app shell at `/`**, and the capture-specific Vite config serves existing standalone fixtures. Both shut down in `finally`. No app, CSS, existing test, or existing fixture is modified. `shell-api.ts` independently adapts the snapshot/host/EventSource mock pattern from `tests/e2e/frontend.spec.ts`; it never imports that spec. Browser API traffic is intercepted with synthetic, read-only data and all external origins are blocked.
+Local capture owns two Vite servers on available loopback ports: the unchanged `tests/e2e/vite.config.ts` serves the real app shell at `/`, and the capture config mounts existing fixtures and tooling-owned consumers of production components. Each invocation gives these servers separate temporary optimizer caches: their different roots otherwise resolve to the same `node_modules/.vite`, allowing one optimizer to replace the other server's chunks. The caches also stay separate across concurrent captures and are deleted after server cleanup. All contexts, Chromium and servers are closed with independent closers, so one rejection does not prevent the other cleanup attempts. No app, CSS, existing test or existing fixture is modified.
 
-`BASE_URL=https://preview.example pnpm capture:ui -- --scope=baseline` uses a pre-existing server. It must serve the real app at `/`, the registered fixture HTML paths and `/capture/<screen-id>` entries with their module imports and `#root`. A production app alone does not supply the standalone fixture routes. APIs remain mocked even in preview mode.
+`BASE_URL=https://preview.example pnpm capture:ui` uses a pre-existing origin instead. That origin must serve `/`, the registered fixture paths and capture entries with their imports. A production app alone does not supply fixture routes. API data remains synthetic. External HTTP(S) and WebSocket origins are blocked; same-origin Vite HMR is allowed. Service workers are blocked, including in the opaque plugin fixture (with a guarded registration blocker because Playwright's built-in blocker throws on opaque frames). No account/token is read, entered or authenticated.
 
-## Registry and state recipes
+## Registry and real renderer coverage
 
-The registry in `scripts/capture-ui/screen-map.ts` includes app-shell, workspace (artifact canvas), agents, research, code-review, plan, settings, projects, composer, files, controls, inbox, graph, sidebar-menu, generated-selects and saved-layouts. These are fixture captures, not live-provider or packaged-desktop acceptance.
+`screen-map.ts` is the executable registry, mapping table and native-exclusion source. It includes the real app shell; original workspace/agents/research/review/plan/settings/project/composer/files/control fixtures; inbox/graph/sidebar/generated-select/layout fixtures; SideChat and scoped conversation with the real composer/reader; usage/context/skills/memory/connections/credential/GitHub sign-in consumers; project context, draft transfer, terminal, delegated transcript and split layout; and nine task/document/media galleries using the real Artifact, trusted registry and synthetic source data.
 
-Each entry declares a readiness selector, existing fixture module or HTML path, and recipes for default, hover, focus, open, empty, error and loading. Captures use 375/768/1440px widths and 1000px height, with fresh contexts for each recipe and a separate reduced-motion pass.
+The task galleries render InteractionTools, WorkObjects, EverydayData, ExplorationTools, SoftwareDevelopment, TaskTable/TaskDisclosure, ImageCompare/MapView, a real PDF with SignaturePad, and an editable DocumentWindow. Synthetic PDF/PNG/SVG bytes are generated locally using installed libraries. Personal Visuals renders inside the actual PluginFrame sandbox through the real public runtime, production frontend and PluginFloatingWindow. A script response remains pending until RPC proves the parent accepted the frame's port, matching the installed package's runtime-before-UI ordering without racing iframe load. These are browser fixture captures, not provider or packaged desktop acceptance.
 
-Recipes can use query parameters, hover/focus/click/keyboard steps, optional mobile navigation steps, a final visible selector, and an API mode. App-shell covers all seven states: sidebar hover/focus opens mobile navigation first, Settings opens from the shell, empty has no threads/projects, error returns 503, and loading holds bootstrap unresolved. API-backed agents, research, code-review, settings and files also hold their corresponding data response for loading. Sidebar-menu holds the project-facts requests after focusing a thread. The pending request is released only after sampling; loading entries include `heldRequests` as evidence. Saved layouts uses its existing loading query parameter.
+Every declared recipe runs at 375/768/1440px width and 1000px height, then repeats motion collection under reduced motion. App-shell has all seven key states. API loading recipes hold their data response unresolved through screenshot and motion capture; `heldRequests` in manifest is evidence. Synchronous fixtures use existing query/props recipes or declare a loading skip. Empty non-default recipes are rejected. Agents/research already default to empty, and the Settings fixture already starts open, so those duplicate recipes are declared skips.
 
-An empty non-default recipe is skipped (`E`), never counted as a distinct state. Agents/research already default to empty and Settings already defaults to open, so those duplicate recipes are explicitly skipped. Controls error submits the existing required form to expose real validation feedback. After each non-default PNG is written, its SHA-256 is compared to default at the same width. Equal bytes yield `identical-to-default` (`I`), retain their diagnostic image, and do **not** count as captured. This also reports visually inert hover/focus states honestly.
+PNG SHA-256 is compared against default at the same width. Equal bytes receive `identical-to-default`, retain the diagnostic PNG, and do not count as captured. Hover/focus actions that do not change visible pixels therefore cannot inflate coverage.
 
-To add a screen, reuse an existing fixture, add a readiness selector and only real state recipes. For async loading, set `api: 'loading'`, a `hold` pathname regex, and a readiness selector for its loading UI (never wait for networkidle on held requests). Use a query recipe for synchronous fixture-provided loading. Missing states are skipped with reasons; synchronous fixtures explicitly report no asynchronous loading boundary. State action failures continue with reasons; navigation, HTTP, mount and readiness failures make the final exit status nonzero.
+Navigation waits for `load` (or DOM content for held loading responses), then the declared ready selector. A navigation timeout retries once using DOM content. The PDF screen alone has a 30-second rendered-canvas readiness budget and one reload after a readiness timeout; a second timeout or any non-timeout error still fails. Other readiness/action failures do not retry. The actual `data-preview-state="ready"` canvas condition is unchanged. Recovery attempts are listed in `manifest.readinessRetries` and counted in index. Fixture navigation never relies on `networkidle`.
 
-## Scope and file classification
+Before capture, the fixture server pre-bundles `pdf-lib` and the PDF.js display module, scans registered middleware entries plus the draft worker, and transforms DocumentPreview, the draft worker, and the PDF.js worker. This avoids discovering worker dependencies late and reloading a PDF page midway through rendering. Warmup failures are fatal.
 
-Diff queries `gh pr list --state merged --base main --search "merged:>=<UTC date>" --json number,title,mergedAt,files` (limit 1000, saturation warning). Without gh it uses first-parent merges on the existing `origin/main`, then first-parent commits for squash repositories. Unknown PR numbers are null and commit metadata substitutes for PR merge metadata in the fallback. No fetch is performed. If neither source is available, an empty scope records warnings.
+To add a screen, reuse a fixture or add a consumer under `scripts/capture-ui/`, provide an actual component readiness selector and a default recipe. Register real query/API/action recipes for additional states. `entry` selects a tooling-owned TSX consumer. Set `optional: true` only for a deliberately optional whole state; it is distinct from an optional mobile-navigation action. Add renderer mapping rules and test classification. A missing browser recipe is an unmapped renderer failure, not a justification for exclusion.
 
-Every changed file is classified once: `screen`, `excludedWebUi` with a reason, `desktopOnly`, or `nonUi`. All `apps/web/src/**`, `packages/ui-*/**`, widget protocol modules, and plugin renderer assets are screened for classification. Documentation/tests/scripts/server/core/Python are non-UI. UI exclusions take priority over mappings: importing an optional renderer in App does not establish visual coverage. Spec-only SideChat, InteractionTools and WorkObjects datasets, native browser/window surfaces, optional media/document tools and isolated plugins are explicitly excluded until they have registered capture recipes. Unregistered future renderers also get an explicit exclusion reason, not an unexplained unmapped entry.
+## Scope discovery and classification
 
-`scope.json` retains per-PR file classifications and aggregate paths. `scope.md` contains **PRs → screens**, **web UI files excluded with reasons**, **non-UI files count**, and desktop-only sections. The mapping and exclusion rules have one executable source, `screen-map.ts`; the following tables are generated documentation snapshots. Every registered fixture module also maps to its own screen.
+All and diff query `gh pr list --state merged --base main --search "merged:>=<UTC date>" --json number,title,mergedAt,files` (limit 1000 with a saturation warning). Baseline skips history discovery. Without gh, **all first-parent commits** on existing `origin/main` since UTC midnight are walked together, including merge and squash commits. Subjects `Merge pull request #123` and `... (#123)` supply PR numbers; ordinary commits have null numbers. Each commit is diffed explicitly against its first parent. No fetch is performed.
 
-| File path regex | Screen ids |
+All and diff also always append **`current branch <name>`**, number null, with the observation timestamp. Its files union `git diff --name-only origin/main...HEAD`, unstaged, staged and untracked files. Individual unavailable git sources generate warnings without discarding readable sources. The injectable command runner and pure parsers have browser-free unit tests.
+
+Changed files become `screen`, `nonUi`, `desktopOnly`, `excludedWebUi` (justified native surfaces only), or `unmappedWebUi` (fatal missing coverage). Protocol/state/API/catalog helpers, tests, docs, scripts, server, core and Python are non-UI. `scope.json` retains per-PR classifications and unique aggregate paths. `scope.md` has PRs → screens, **Justified exclusions** (file, reason, attempted route), non-UI count and desktop-only files. DesktopBrowser requires Electron WebContents; the updater renders its real browser fallback in the connections consumer; native caption/display pixels have no browser owner. Browser-reachable dialogs and task renderers are captured rather than excluded.
+
+| File path regex | Screens |
 | --- | --- |
-| `^apps/web/src/(App\|DesktopEntry\|main\|WorkspaceHost\|ShellSidebar\|Composer\|ModelPicker\|LoadingState\|ChatScrollIndicator\|SentenceReveal\|workspace-context\|workspace-host\|shell-\|shell\.\|styles\.\|frontend-fidelity\|appearance\.\|loading-state\|composer-\|model-picker\|sentence-reveal\|chat-scroll)` | app-shell |
+| `^apps/web/src/(App\|DesktopEntry\|desktop\.css\|main\|WorkspaceHost\|ShellSidebar\|Composer\|ModelPicker\|LoadingState\|ChatScrollIndicator\|SentenceReveal\|workspace-context\|workspace-host\|shell-\|shell\.\|styles\.\|frontend-fidelity\|appearance\.\|loading-state\|composer-\|model-picker\|sentence-reveal\|chat-scroll)` | app-shell |
 | `^apps/web/src/(WorkspaceCanvas\|WorkspacePanel\|WorkspaceControls\|workspace-canvas\|workspace-tools)` | workspace, app-shell |
 | `(agents-workspace\|agent-inventory)` | agents |
 | `(ResearchHost\|research-host\|research-workspace)` | research |
@@ -51,23 +55,39 @@ Every changed file is classified once: `screen`, `excludedWebUi` with a reason, 
 | `(RelationshipGraph\|relationship-graph)` | graph |
 | `(SavedLayoutChooser\|saved-layout-chooser)` | saved-layouts |
 | `(thread-hover\|sidebar-shared-menu\|sidebar-context)` | sidebar-menu |
-| `^packages/ui-shell/` | app-shell, workspace, agents, research, code-review, plan, settings, projects, composer, files, controls, inbox, graph, sidebar-menu, generated-selects, saved-layouts |
+| `^packages/ui-shell/` | All registered screens |
 | `(ui-shell-controls)` | controls |
 | `^apps/web/src/registry\.tsx$` | generated-selects |
+| `^apps/web/src/(SideChat\|FloatingWindow\|side-chat\|floating-window)` | side-chat |
+| `(ScopedConversationComposer\|conversation-workspace)` | scoped-conversation |
+| `(InteractionTools\|interaction-tools)` | task-interactions |
+| `(WorkObjects\|work-objects)` | task-work-objects |
+| `(EverydayData\|everyday-data)` | task-everyday |
+| `(ExplorationTools\|exploration-tools)` | task-exploration |
+| `(SoftwareDevelopment\|software-development)` | task-software |
+| `(ImageCompare\|MapView\|image-compare\|map-view)` | task-media |
+| `(Artifact\|artifact-presentation\|artifact-frame)` | task-document, task-table-disclosure |
+| `(DocumentPreview\|SignaturePad\|signature-assets\|document-preview\|signature-pad)` | task-document |
+| `(DocumentWindow\|document-window)` | task-document-window |
+| `(TaskTable\|TaskDisclosure\|task-table\|task-disclosure)` | task-table-disclosure |
+| `(PluginFrame\|PluginFloatingWindow\|plugin-runtime\|plugins\.css)\|^plugins/.*\.(tsx\|css)$` | plugin-frame |
+| `(Connections\|CredentialEntry\|GitHubSignIn\|UpdateControl\|connections\.\|credential-entry\|github-sign-in)` | connections |
+| `(ContextInspector\|ContextMeter\|context-inspector\|context-meter)` | context-inspector |
+| `(UsageDialog\|UsageFooter\|usage-dialog)` | usage-dialog |
+| `(SkillLibrary\|skill-library)` | skill-library |
+| `(TaskMemory\|task-memory)` | task-memory |
+| `(DraftTransfer\|draft-transfer)` | draft-transfer |
+| `(DelegatedAgentTranscript)` | delegated-transcript |
+| `(ProjectContext\|project-context)` | project-context |
+| `(TerminalBody\|terminal-read)` | terminal |
+| `(WorkspaceSplitLayout\|workspace-split\|workspace-integration)` | workspace-split |
 
-| Exclusion regex | Reason |
-| --- | --- |
-| `^apps/web/src/(DesktopBrowser\|FloatingWindow\|PluginFloatingWindow\|UpdateControl\|native-chrome\|floating-window\|desktop\.css)` | desktop-only: native WebContents/window/update surface requires Electron |
-| `^apps/web/src/(SideChat\|side-chat\|ScopedConversationComposer\|conversation-workspace/)` | No standalone registered fixture: scoped/side conversations require a separate conversation protocol dataset |
-| `^apps/web/src/(InteractionTools\|WorkObjects\|interaction-tools)` | No standalone registered fixture: spec-built task components require typed task datasets and actions |
-| `^apps/web/src/(Artifact\|Document\|document-preview\|Signature\|signature-assets\|TaskDisclosure\|TaskTable\|task-table\|ImageCompare\|MapView\|map-view\|EverydayData\|ExplorationTools\|exploration-tools\|SoftwareDevelopment)` | No registered document/media/task fixture: requires supplied artifact data, assets or export bindings |
-| `^apps/web/src/(PluginFrame\|plugin-runtime\|plugins\.css)\|^plugins/.*\.(tsx\|jsx\|css\|html)$` | No registered isolated plugin fixture; installed plugin renderer is not mounted by shell baseline |
-| `^apps/web/src/(CredentialEntry\|GitHubSignIn\|Connections\|github-sign-in\|connections\.)` | No authenticated account/native credential fixture; shell capture uses synthetic model metadata only |
-| `^apps/web/src/(ContextInspector\|ContextMeter\|TaskMemory\|task-memory\|context-inspector\|UsageDialog\|UsageFooter\|usage-dialog\|ProjectContext\|project-context\|TerminalBody\|terminal-read\|DraftTransfer\|draft-transfer\|SkillLibrary\|DelegatedAgentTranscript\|WorkspaceSplitLayout\|workspace-split\|workspace-integration)` | Optional tool/dialog renderer is not mounted by a registered capture recipe |
-| `^apps/web/src/.*\.ts$\|^apps/web/src/(desktop-context\|focus\|task-motion\|useAppearance)\.tsx$` | Non-visual API/state/layout/motion helper; no standalone visual surface |
-| `^packages/ui-catalog/\|^packages/widgets/` | Non-visual catalog/protocol module; requires a separate rendered artifact fixture |
+| Native exclusion regex | Reason | Attempted route |
+| --- | --- | --- |
+| `^apps/web/src/DesktopBrowser\.tsx$` | Electron WebContents supplies native page pixels; a browser has no harnessDesktop native-view owner | tests/e2e/native-browser-bounds fixture: browser bridge geometry can be mocked, WebContents pixels cannot |
+| `^apps/web/src/(native-chrome)\.css$` | Native caption/display CSS belongs to the Electron owner, which is absent from the browser harness | Real app / and native-browser-bounds fixture; no native titlebar/caption owner exists |
 
-## Output layout and coverage
+## Outputs and exit status
 
 ```text
 scope.json / scope.md
@@ -78,10 +98,14 @@ reduced-motion.json / reduced-motion.md
 manifest.json / index.md
 ```
 
-Index includes a screen × seven-state coverage matrix: captured widths, or width-qualified codes `U` unsupported/excluded, `E` empty recipe, `I` identical, `F` state action failure, `L` load failure. Full skip reasons and diagnostic PNG paths are listed below it. Totals include screens, captured screenshots, identical images, motion rows, unique animations, strips, reduced-motion offender unique count and total count, plus elapsed seconds. Manifest contains the same matrix, totals, hashes, outcomes and strip failures.
+Index contains the screen × seven-state matrix, detailed outcomes/reasons and an explicit failures section. Cells show captured widths or `U` declared unsupported/skip, `E` empty recipe, `I` identical, `F` post-load failure, `L` load failure. Totals include screens, captured/identical screenshots, motion rows/unique signatures, strips, reduced-motion offenders unique/total and elapsed seconds.
 
-Motion uses `document.getAnimations()` for CSS animations, transitions and WAAPI. A requestAnimationFrame sampler retains short entrances during load. Rows include target CSS path, type, name/property, animated properties, duration, delay, easing, iterations and fill. `:load` identifies pre-trigger sampling; normal state names identify post-trigger sampling. Reduced-motion offenders use >1ms per iteration and positive iterations. Unique animation/offender counts use screen, target, timing and keyframes, deduplicating across state and viewport.
+**Exit nonzero:** any load/readiness error, post-load action or screenshot error, reduced-motion pass failure/timeout, strip capture error, missing strip-to-motion correspondence, unmapped renderer, or context/browser/server cleanup rejection. Errors remain in `manifest.failures`, with `failed: true`, and index. Declared skips, explicitly optional state failures, identical images and the max-strips cap do not fail the run. A final strip self-check verifies that every captured strip's `motionKey` exists in motion.json with matching screen/state/width/selector.
 
-Frame strips remain paused 0/50/100% samples of active duration (one iteration for infinite animations), with 8px viewport-clipped padding. Other animations are frozen. Playwright tiles PNG frames into a labeled HTML strip without image dependencies. Offscreen/zero-size targets and the global max-strips cap are recorded as skips. No-motion screens produce no fabricated strips. Runtime depends on scope and strip count; the fixture registry is intended to finish within about eight minutes per mode.
+## Motion and frames
 
-Validation: `pnpm exec vitest run tests/capture-ui`, `pnpm typecheck`, `pnpm lint:ui`. Tests are browser-free and cover mapping/classification, PR aggregation, motion normalization, reduced-motion filtering, CLI parsing, distinct recipe validation, image identity and coverage matrices.
+A requestAnimationFrame sampler retains document animations from before actions through after them. Load, triggered and pre-strip observations are normalized and merged by state/width/signature, so short completed action animations are retained in the table as well as strips. Detached/cancelled effects no longer represent document motion and are omitted. Rows include target path, type/name/property, animated properties, duration, delay, easing, iterations, fill and keyframes. Reduced-motion offenders have duration >1ms and positive iterations; findings are reported rather than treated as capture errors.
+
+Strips dedupe signatures across state/viewport. Targets are scrolled into view, all captured animations (including finished no-fill effects) are paused, then sought to 0/50/100% of active duration (one iteration for infinite animation). A padded clip is captured and the three labeled frames are tiled by Playwright. No image dependency is added. A cap skip is explicit; any other strip error is fatal.
+
+Verify with `pnpm exec vitest run tests/capture-ui`, `pnpm typecheck`, `pnpm lint:ui`, and a diff capture. Helper tests cover mixed git history/current branch, exit rules, motion merge/correspondence, resilient cleanup, timeout-only retries, isolated optimizer caches, PDF warmup/readiness recovery, WebSocket origins, UI mapping, state identity and synthetic datasets.

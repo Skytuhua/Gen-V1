@@ -1,6 +1,6 @@
 import { mapFile, keyStates, type Recipe } from './screen-map';
 export function parseArgs(args: string[]) {
-  const result = { scope: 'diff', sinceDays: 30, maxStrips: 60, screens: [] as string[], out: '' };
+  const result = { scope: 'all', sinceDays: 30, maxStrips: 60, screens: [] as string[], out: '' };
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--') continue;
     const separator = args[i].indexOf('=');
@@ -24,20 +24,20 @@ export function aggregate(prs: PullRequest[]) {
   const pulls = prs.map(pr => {
     const classifications = pr.files.map(f => mapFile(f.path));
     return { ...pr, classifications, screens: [...new Set(classifications.flatMap(f => f.screens))],
-      unmapped: [] as string[], desktopOnly: classifications.filter(f => f.desktopOnly).map(f => f.path),
-      excludedWebUi: classifications.filter(f => f.category === 'excludedWebUi').map(f => ({ path: f.path, reason: f.reason! })),
+      unmapped: classifications.filter(f => f.category === 'unmappedWebUi').map(f => f.path), desktopOnly: classifications.filter(f => f.desktopOnly).map(f => f.path),
+      excludedWebUi: classifications.filter(f => f.category === 'excludedWebUi').map(f => ({ path: f.path, reason: f.reason!, attemptedRoute: f.attemptedRoute ?? '' })),
       nonUi: classifications.filter(f => f.category === 'nonUi').map(f => f.path) };
   });
   const unique = [...new Map(pulls.flatMap(pr => pr.classifications).map(f => [f.path, f])).values()];
-  return { pulls, screens: [...new Set(pulls.flatMap(pr => pr.screens))], unmapped: [] as string[],
+  return { pulls, screens: [...new Set(pulls.flatMap(pr => pr.screens))], unmapped: unique.filter(f => f.category === 'unmappedWebUi').map(f => f.path),
     desktopOnly: unique.filter(f => f.desktopOnly).map(f => f.path),
-    excludedWebUi: unique.filter(f => f.category === 'excludedWebUi').map(f => ({ path: f.path, reason: f.reason! })),
+    excludedWebUi: unique.filter(f => f.category === 'excludedWebUi').map(f => ({ path: f.path, reason: f.reason!, attemptedRoute: f.attemptedRoute ?? '' })),
     nonUi: unique.filter(f => f.category === 'nonUi').map(f => f.path) };
 }
 export function hasDistinctRecipe(recipe: Recipe, defaultRecipe?: Recipe) {
   return Boolean(recipe.api || recipe.action || recipe.steps?.length || recipe.query && recipe.query !== defaultRecipe?.query);
 }
-export type CaptureEntry = { screen: string; state: string; width: number; status: string; reason?: string; code?: string; path?: string; hash?: string; heldRequests?: number; reduced?: boolean; loadFailure?: boolean };
+export type CaptureEntry = { screen: string; state: string; width: number; status: string; reason?: string; code?: string; path?: string; hash?: string; heldRequests?: number; reduced?: boolean; loadFailure?: boolean; optional?: boolean; declaredSkip?: boolean };
 export function imageStatus(defaultHash: string | undefined, hash: string) {
   return defaultHash === hash ? 'identical-to-default' : 'captured';
 }

@@ -12,7 +12,7 @@ export async function collect(page: Page, screen: string, state: string, width: 
       }
       return parts.join(' > ');
     }
-    const animations = tracked ? [...((window as unknown as { captureTracked?: Set<Animation> }).captureTracked ?? [])] : document.getAnimations();
+    const animations = (tracked ? [...((window as unknown as { captureTracked?: Set<Animation> }).captureTracked ?? [])] : document.getAnimations()).filter(a => a.effect instanceof KeyframeEffect && a.effect.target?.isConnected && a.playState !== 'idle');
     (window as unknown as { captureAnimations: Animation[] }).captureAnimations = animations;
     return animations.map(a => {
       const effect = a.effect as KeyframeEffect | null, timing = effect?.getTiming(), frames = effect?.getKeyframes() ?? [];
@@ -22,8 +22,14 @@ export async function collect(page: Page, screen: string, state: string, width: 
 }
 export async function frameStrip(page: Page, tile: Page, index: number, output: string) {
   const frames: string[] = [];
+  // Scroll an existing target into view before clipping. Detached/cancelled effects
+  // are not document animations; collect() filters those rather than inventing pixels.
+  await page.evaluate(index => { const a = (window as unknown as { captureAnimations: Animation[] }).captureAnimations[index]; (a.effect as KeyframeEffect).target?.scrollIntoView({ block: 'center', inline: 'center' }); }, index);
   // Freeze every animation so unrelated motion cannot drift between frames.
-  await page.evaluate(() => document.getAnimations().forEach(a => a.pause()));
+  await page.evaluate(() => {
+    const tracked = (window as unknown as { captureAnimations?: Animation[] }).captureAnimations ?? [];
+    new Set([...document.getAnimations(), ...tracked]).forEach(a => a.pause());
+  });
   for (const fraction of [0, 0.5, 1]) {
     const box = await page.evaluate(({ index, fraction }) => {
       const animation = (window as unknown as { captureAnimations: Animation[] }).captureAnimations[index];
