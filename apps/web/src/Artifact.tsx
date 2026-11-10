@@ -62,7 +62,8 @@ export function Artifact({ artifact: incoming, snapshot, theme, refresh, onDirty
   const widget = useRef<WidgetHandle>(null);
   const section = useRef<HTMLElement>(null);
   const entranceBody = useRef<HTMLDivElement>(null);
-  useArtifactEntrance(section, animateEntry && (artifact.kind === 'widget' || state.loaded), entranceBody);
+  const ready = artifact.kind === 'widget' || state.loaded;
+  useArtifactEntrance(section, animateEntry && ready, entranceBody);
   const expandButton = useRef<HTMLElement | null>(null);
   const pendingApproval = useRef<string | null>(null);
   const [widgetRecord, setWidgetRecord] = useState<UserStateRecord | undefined>(record);
@@ -74,7 +75,7 @@ export function Artifact({ artifact: incoming, snapshot, theme, refresh, onDirty
     if (type === 'artifact.archive' && widgetDirty) { setArchiveGuard(true); return; }
     try { setError(''); await command(type, { artifactId: artifact.id, ...payload }, artifact.threadId); await refresh(); } catch (error) { setError(error instanceof Error ? error.message : 'Action failed'); }
   };
-  useModalRegion(section, expanded, () => { void act('artifact.expand', { expanded: false }); }, '[aria-label="Collapse artifact"]');
+  useModalRegion(section, expanded && ready, () => { void act('artifact.expand', { expanded: false }); }, '[aria-label="Collapse artifact"]');
   useLayoutEffect(() => {
     if (expanded) return;
     const operationId = pendingApproval.current;
@@ -118,6 +119,8 @@ export function Artifact({ artifact: incoming, snapshot, theme, refresh, onDirty
     await journalFlush();
   };
   useDesktopCloseGuard(`artifact:${artifact.id}`,async()=>{if(detached)return;try{await prepareDetach();}catch(cause){setError(cause instanceof Error?cause.message:'Save the artifact before closing.');throw cause;}});
+  // Mount once restored values can determine the first painted geometry.
+  if (!ready) return null;
   const saveState = state.status === 'Saved' ? 'saved' : state.status.startsWith('Saving') ? 'saving' : state.status === 'Unsaved changes' || state.status.startsWith('Recovered draft') ? 'pending' : 'attention';
   return <ArtifactInline value={inline}><section ref={section} className={`artifact artifact-width-${artifact.presentation?.width ?? 'standard'} artifact-frame-${artifact.presentation?.frame ?? 'card'} ${expanded ? 'artifact-expanded' : ''} ${inWorkspace ? 'artifact-in-workspace' : ''} ${incoming.lifecycle === 'archived' ? 'artifact-archived' : ''}`} aria-label={artifact.title} role={expanded ? 'dialog' : undefined} aria-modal={expanded || undefined} data-artifact-id={artifact.id} data-artifact-inline={inline} data-document-handoff={documentHandoff}>
     <header className="artifact-header"><span className="artifact-title"><strong>{artifact.title}</strong></span><div className="artifact-tools">
@@ -130,7 +133,7 @@ export function Artifact({ artifact: incoming, snapshot, theme, refresh, onDirty
     {error && <div role="alert" className="notice">{error}<button className="icon-button" aria-label="Dismiss artifact error" onClick={() => setError('')}><X size={14} /></button></div>}
     {archiveGuard && <div className="notice" role="alert"><div>Checkpoint your widget edits before archiving, or explicitly discard them.<div className="decision-actions"><button className="secondary" onClick={() => { setArchiveGuard(false); section.current?.querySelector<HTMLElement>('.widget-container button, .widget-container iframe')?.focus(); }}>Return to checkpoint</button><button className="quiet" disabled={archiving} onClick={() => void discardAndArchive()}>Discard edits and archive</button></div></div></div>}
     {blockedRevision !== null && noticeRevision === blockedRevision && <p className="notice">An updated interface is ready. Save your edits to load it; this version remains open.</p>}
-    {detached&&<p className="notice">Editing in a detached window.</p>}<div ref={entranceBody} className="artifact-body" inert={editorHeld}><div className="artifact-content"><ArtifactTitle value={artifact.title}><ArtifactBoundary resetKey={`${artifact.id}:${artifact.revision}`}><ArtifactActions value={submit}>{artifact.kind === 'widget' ? <Widget ref={widget} onEscape={() => { if (expanded) void act('artifact.expand', { expanded: false }); }} artifact={artifact} inputs={inputs} values={effectiveRecord?.values ?? {}} stateRevision={effectiveRecord?.revision ?? 0} theme={theme} onAction={submit} onDirty={dirtyChanged} onAccepted={(values, revision) => { setWidgetRecord({ id: artifact.stateId, threadId: artifact.threadId, revision, schemaVersion: artifact.widget?.stateSchemaVersion ?? 1, values }); void refresh(); }} /> : state.loaded ? <StateProvider store={state.store}><DocumentAssetProvider threadId={artifact.threadId} stateId={artifact.stateId}><DocumentEvidenceProvider value={documentEvidence}><SecureArtifactProvider value={{artifactId:artifact.id,threadId:artifact.threadId,revision:artifact.revision,active,editable:!editorHeld,saveStatus:state.status}}><ArtifactPresentation spec={artifact.spec}/></SecureArtifactProvider></DocumentEvidenceProvider></DocumentAssetProvider></StateProvider> : <p className="muted">Restoring artifact state…</p>}</ArtifactActions></ArtifactBoundary></ArtifactTitle></div></div>
+    {detached&&<p className="notice">Editing in a detached window.</p>}<div ref={entranceBody} className="artifact-body" inert={editorHeld}><div className="artifact-content"><ArtifactTitle value={artifact.title}><ArtifactBoundary resetKey={`${artifact.id}:${artifact.revision}`}><ArtifactActions value={submit}>{artifact.kind === 'widget' ? <Widget ref={widget} onEscape={() => { if (expanded) void act('artifact.expand', { expanded: false }); }} artifact={artifact} inputs={inputs} values={effectiveRecord?.values ?? {}} stateRevision={effectiveRecord?.revision ?? 0} theme={theme} onAction={submit} onDirty={dirtyChanged} onAccepted={(values, revision) => { setWidgetRecord({ id: artifact.stateId, threadId: artifact.threadId, revision, schemaVersion: artifact.widget?.stateSchemaVersion ?? 1, values }); void refresh(); }} /> : <StateProvider store={state.store}><DocumentAssetProvider threadId={artifact.threadId} stateId={artifact.stateId}><DocumentEvidenceProvider value={documentEvidence}><SecureArtifactProvider value={{artifactId:artifact.id,threadId:artifact.threadId,revision:artifact.revision,active,editable:!editorHeld,saveStatus:state.status}}><ArtifactPresentation spec={artifact.spec}/></SecureArtifactProvider></DocumentEvidenceProvider></DocumentAssetProvider></StateProvider>}</ArtifactActions></ArtifactBoundary></ArtifactTitle></div></div>
     {sourceOpen && <div className="artifact-source"><div>Immutable source · revision {artifact.revision}<button className="icon-button" aria-label="Close source" onClick={() => setSourceOpen(false)}><X size={14} /></button></div>{artifact.purpose && <p>{artifact.purpose}</p>}<pre>{artifact.widget?.html ?? JSON.stringify(artifact.spec, null, 2)}</pre></div>}
   </section></ArtifactInline>;
 }

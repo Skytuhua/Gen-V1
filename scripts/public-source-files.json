@@ -688,6 +688,7 @@
     "tests/e2e/agents-workspace.vite.config.ts",
     "tests/e2e/artifact-acknowledgment.spec.ts",
     "tests/e2e/artifact-settle-fixture.tsx",
+    "tests/e2e/artifact-settle-host.ts",
     "tests/e2e/artifact-settle.playwright.config.ts",
     "tests/e2e/artifact-settle.spec.ts",
     "tests/e2e/artifact-settle.vite.config.ts",

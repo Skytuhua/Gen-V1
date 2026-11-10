@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
-import { resolve } from 'node:path';
 import { serveTaskFixture, taskFixture } from './task-interface-fixture';
+import { expectArtifactGeometry, holdArtifactJournal, releaseArtifactJournal, serveArtifactSettleFixture as fixture } from './artifact-settle-host';
 
 const enter = 'cubic-bezier(0.16, 1, 0.3, 1)';
 type EntranceRecord = { target: string; duration: number; easing: string; durationToken: string; easingToken: string; frames: ComputedKeyframe[]; height: number; afterTop?: number };
@@ -26,16 +26,12 @@ async function recordEntrances(page: Page) {
   });
 }
 const records = (page: Page) => page.evaluate(() => (window as unknown as EntranceWindow).artifactEntrances);
-async function fixture(page: Page, query = '') {
-  const path = encodeURI('/@fs/' + resolve('tests/e2e/artifact-settle-fixture.tsx').replaceAll('\\', '/'));
-  await page.route('**/api/**', route => route.fulfill({ status: 404 }));
-  await page.route(url => url.pathname === '/artifact-settle-fixture', route => route.fulfill({ contentType: 'text/html', body: `<html data-theme="dark"><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${path}');</script></body></html>` }));
-  await page.goto('/artifact-settle-fixture' + query);
-  await expect(page.getByRole('button', { name: 'Publish artifact', exact: true })).toBeVisible();
-}
-async function publish(page: Page) {
+async function publish(page: Page, journalHeld = false) {
   await page.getByRole('button', { name: 'Publish artifact', exact: true }).click();
+  if (journalHeld) await releaseArtifactJournal(page);
   await expect(page.getByRole('textbox', { name: 'Artifact note', exact: true })).toHaveValue('Keep this saved note');
+  const { paints } = await expectArtifactGeometry(page);
+  if (journalHeld) expect(paints.filter(paint => paint.pending).length).toBeGreaterThanOrEqual(4);
 }
 async function finish(page: Page) {
   await page.evaluate(() => (window as unknown as EntranceWindow).artifactAnimations.at(-1)!.finish());
@@ -44,16 +40,17 @@ async function finish(page: Page) {
 async function settled(page: Page) {
   const state = await page.locator('.artifact').evaluate(node => {
     const body = node.querySelector('.artifact-body')!, style = getComputedStyle(body);
-    return { animations: body.getAnimations().length, opacity: style.opacity, transform: style.transform, height: (node as HTMLElement).style.height, overflow: (node as HTMLElement).style.overflow };
+    // Chromium can still list a finished fill:none effect until its finish event.
+    return { activeAnimations: body.getAnimations().filter(animation => ['running', 'paused'].includes(animation.playState)).length, opacity: style.opacity, transform: style.transform, height: (node as HTMLElement).style.height, overflow: (node as HTMLElement).style.overflow };
   });
-  expect(state).toEqual({ animations: 0, opacity: '1', transform: 'none', height: '', overflow: '' });
+  expect(state).toEqual({ activeAnimations: 0, opacity: '1', transform: 'none', height: '', overflow: '' });
 }
 
 for (const width of [1024, 1440, 768]) {
   test(`the inner layer reveals with panel tokens and stable outer geometry at ${width}`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width, height: 1000 });
     await page.emulateMedia({ reducedMotion: 'no-preference' });
-    await recordEntrances(page); await fixture(page); await publish(page);
+    await holdArtifactJournal(page); await recordEntrances(page); await fixture(page); await publish(page, true);
     const entries = await records(page); expect(entries).toHaveLength(1);
     const entry = entries[0];
     expect(entry.target).toBe('artifact-body');
@@ -109,9 +106,9 @@ for (const width of [1024, 1440]) for (const policy of ['os-reduced', 'reduced',
   test(`${policy} publishes immediately without a transform at ${width}`, async ({ page }) => {
     await page.setViewportSize({ width, height: 1000 });
     await page.emulateMedia({ reducedMotion: policy === 'os-reduced' ? 'reduce' : 'no-preference' });
-    await recordEntrances(page); await fixture(page);
+    await holdArtifactJournal(page); await recordEntrances(page); await fixture(page);
     if (policy !== 'os-reduced') await page.evaluate(policy => { document.documentElement.dataset.motion = policy; }, policy);
-    await publish(page);
+    await publish(page, true);
     expect(await records(page)).toHaveLength(0);
     await expect(page.locator('.artifact')).toHaveAttribute('data-entry-phase', 'settled'); await settled(page);
     const height = (await page.locator('.artifact').boundingBox())!.height; expect(height).toBeGreaterThan(250);
@@ -158,6 +155,31 @@ for (const policy of ['os-reduced', 'reduced', 'off'] as const) {
     expect(await records(page)).toHaveLength(1); await settled(page);
   });
 }
+
+for (const expanded of [false, true]) test(`delayed journal restoration preserves first-paint geometry and ${expanded ? 'modal' : 'inline'} focus`, async ({ page }) => {
+  await holdArtifactJournal(page); await recordEntrances(page);
+  await fixture(page, '?restored' + (expanded ? '&expanded' : ''));
+  const publishButton = page.getByRole('button', { name: 'Publish artifact', exact: true });
+  await publishButton.focus();
+  await releaseArtifactJournal(page);
+  const note = page.getByRole('textbox', { name: 'Artifact note', exact: true });
+  await expect(note).toHaveValue('Keep this saved note');
+  const { paints } = await expectArtifactGeometry(page);
+  expect(paints.filter(paint => paint.pending).length).toBeGreaterThanOrEqual(4);
+  expect(await records(page)).toHaveLength(0); await settled(page);
+  if (expanded) {
+    await expect(page.getByRole('button', { name: 'Collapse artifact', exact: true })).toBeFocused();
+    await page.locator('.artifact .task-table-scroll').focus(); await page.keyboard.press('Tab');
+    await expect(page.locator('.artifact-header button').first()).toBeFocused();
+  } else await expect(publishButton).toBeFocused();
+});
+
+test('journal failure displays the full artifact without a smaller loading shell', async ({ page }) => {
+  await page.addInitScript(() => { indexedDB.open = () => { throw new Error('Synthetic unavailable journal'); }; });
+  await recordEntrances(page); await fixture(page); await publish(page);
+  await expect(page.locator('.save-state')).toContainText('Local journal unavailable');
+  await finish(page); await settled(page);
+});
 
 test('unmount cancels the active reveal and a restored host never replays', async ({ page }) => {
   await recordEntrances(page); await fixture(page); await publish(page);

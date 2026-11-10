@@ -1,5 +1,6 @@
 import {test,expect,type Page} from '@playwright/test';
 import {serveTaskFixture,taskFixture,growingQaSpec} from './task-interface-fixture';
+import {expectArtifactGeometry,holdArtifactJournal,releaseArtifactJournal,serveArtifactSettleFixture} from './artifact-settle-host';
 
 async function mount(page:Page,kind:'markdown'|'artifact',props:Record<string,unknown>){
  await serveTaskFixture(page,taskFixture({root:'retained',elements:{retained:{type:'Text',props:{text:'Retained history.'}}}}));await page.goto('/');
@@ -42,14 +43,16 @@ test('a theme change clears the old-color reveal without replaying the text',asy
  await expect(page.locator('.micro-motion-fixture .markdown')).toHaveText('The retained result. A new detail is arriving.');
 });
 
-test('live artifact growth uses natural layout without replaying the entrance or tweening height',async({page})=>{
- await mount(page,'artifact',{enter:true,bodyHeight:45,text:'Preparing the task.'});
- const artifact=page.locator('.micro-motion-artifact');expect((await artifact.boundingBox())!.height).toBeCloseTo(118,0);
- await update(page,{bodyHeight:340,text:'The complete task now includes the supplied material and useful controls.'});
- await expect.poll(async()=>(await artifact.boundingBox())!.height).toBeCloseTo(378,0);
- const heights=await artifact.evaluate(async node=>{const samples:number[]=[];for(let frame=0;frame<8;frame++){samples.push(node.getBoundingClientRect().height);await new Promise(requestAnimationFrame);}return samples;});
- expect(heights.every(height=>height===378)).toBe(true);expect(await artifact.evaluate(node=>(node as HTMLElement).style.height)).toBe('');
- await expect(page.getByRole('textbox',{name:'Live task draft',exact:true})).toHaveValue('Keep my draft');
+test('a new artifact has its final geometry from first paint after a delayed journal read',async({page})=>{
+ await holdArtifactJournal(page);await serveArtifactSettleFixture(page);
+ await page.getByRole('button',{name:'Publish artifact',exact:true}).click();
+ await releaseArtifactJournal(page);
+ const note=page.getByRole('textbox',{name:'Artifact note',exact:true});await expect(note).toHaveValue('Keep this saved note');
+ const identity=await note.elementHandle(),initial=await expectArtifactGeometry(page);
+ expect(initial.paints.filter(paint=>paint.pending).length).toBeGreaterThanOrEqual(4);
+ await page.getByRole('button',{name:'Publish snapshot',exact:true}).click();
+ const updated=await expectArtifactGeometry(page);expect(updated.final).toEqual(initial.final);
+ expect(await note.evaluate((node,previous)=>node===previous,identity)).toBe(true);await expect(note).toHaveValue('Keep this saved note');
 });
 
 test('newly published structured prose reveals once while restored prose remains quiet',async({page})=>{

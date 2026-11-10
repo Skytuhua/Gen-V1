@@ -12,7 +12,11 @@ const source = taskFixture({ root: 'body', elements: {
 
 function Fixture() {
   const restored = new URLSearchParams(location.search).has('restored');
-  const [snapshot, setSnapshot] = useState(() => structuredClone(source));
+  const [snapshot, setSnapshot] = useState(() => {
+    const initial = structuredClone(source);
+    if (new URLSearchParams(location.search).has('expanded')) initial.artifacts[0].placement = 'expanded';
+    return initial;
+  });
   const [visible, setVisible] = useState(restored), [fresh, setFresh] = useState(false), [generation, setGeneration] = useState(0);
   return <main style={{ maxWidth: 1040, margin: '0 auto', padding: 24 }}>
     <nav aria-label="Fixture controls">
