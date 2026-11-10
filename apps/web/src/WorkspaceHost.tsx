@@ -89,7 +89,7 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
       const ownerFields=threadId?{threadId,...(expected?{expected}:{})}:{};
       const payload=canvas?{canvasId:canvas.id,...(next==='code-review'?ownerFields:{})}:{name:next,preset:next,...ownerFields};
       await workspace.send(canvas ? 'workspace.canvas.select' : 'workspace.canvas.create',payload,isCurrent);
-      check(); if (alive.current) setError('');
+      check(); if (alive.current) {setReviewDestination(undefined);setError('');}
     } finally {pending.current = false;}
   };
   const choosePreset = (next: WorkspacePreset, binding?: PanelBinding) => changeWorkspace(next, undefined, binding);
