@@ -16,28 +16,38 @@ const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:
 snapshot.artifacts=[];
 snapshot.data=[{id:'recorded',threadId:'task-thread',revision:1,createdAt:'2026-11-10T18:42:00Z',provenance:'Synthetic recorded executor comparison',value:{title:'src/workspace-layout.ts',before:'const panelWidth = 360;',after:'const panelWidth = 420;'}}];
 const query=new URLSearchParams(location.search),state=query.get('state');
-const checkpoints:FileCheckpoint[]=[{id:'layout',label:'Before updating workspace layout',createdAt:'2026-11-10T18:42:00Z',provenance:'Before a guarded file edit',revision:'checkpoint-1',paths:['src/workspace-layout.ts','src/workspace-layout.test.ts'],fileCount:2},{id:'guide',label:'Before editing the project guide',createdAt:'2026-11-09T23:18:00Z',provenance:'Before a guarded file edit',revision:'checkpoint-2',paths:['docs/project-guide.md'],fileCount:1}];
-if(state==='stress')for(const checkpoint of checkpoints){checkpoint.label+=' extraordinarily-long-project-and-file-name-with-unbroken-content-abcdefghijklmnopqrstuvwxyz0123456789';checkpoint.paths=checkpoint.paths.map(path=>'very/long/nested/folder/abcdefghijklmnopqrstuvwxyz0123456789/'+path);}
+const hash='a'.repeat(64),otherHash='b'.repeat(64);
+const checkpoints:FileCheckpoint[]=[{id:'layout',label:'Before updating workspace layout',createdAt:'2026-11-10T18:42:00Z',provenance:{kind:'guarded_write',operationId:'layout-edit'},revision:hash,fileCount:state==='full-100'?100:2,expiresAt:null},{id:'guide',label:'Before editing the project guide',createdAt:'2026-11-09T23:18:00Z',provenance:{kind:'guarded_write',operationId:'guide-edit'},revision:otherHash,fileCount:1,expiresAt:null}];
+const pathsById:Record<string,string[]>={layout:state==='full-100'?Array.from({length:100},(_,i)=>`src/file-${i}.ts`):state==='leading-space'?[' src/a','src/a']:['src/workspace-layout.ts','src/workspace-layout.test.ts'],guide:['docs/project-guide.md']};
+if(state==='stress')for(const checkpoint of checkpoints){checkpoint.label+=' extraordinarily-long-project-and-file-name-with-unbroken-content-abcdefghijklmnopqrstuvwxyz0123456789';pathsById[checkpoint.id]=pathsById[checkpoint.id].map(path=>'very/long/nested/folder/abcdefghijklmnopqrstuvwxyz0123456789/'+path);}
 let attempts=0;
 const wait=()=>new Promise<void>(resolve=>{window.addEventListener('checkpoint-release',()=>resolve(),{once:true});});
+const call=(kind:string,owner:CheckpointOwner,checkpoint?:FileCheckpoint,paths?:string[])=>window.dispatchEvent(new CustomEvent('checkpoint-call',{detail:{kind,owner,checkpointId:checkpoint?.id,paths}}));
 const adapter:FileCheckpointAdapter={available:true,restore:disabledCheckpointAdapter.restore,
  list:async(owner)=>{
-  attempts++;if(state==='loading'||state==='race'&&owner.threadId==='task-thread')await wait();
+  call('list',owner);attempts++;if(state==='loading'||state==='race'&&owner.threadId==='task-thread')await wait();
   if(state==='error'&&attempts===1)throw Error('Checkpoint history could not be read. Try again.');
   if(state==='denied')throw Error('Access to checkpoint history was denied.');
-  return {owner,items:state==='empty'||state==='race'&&owner.threadId!=='task-thread'?[]:checkpoints,nextCursor:null,retention:{}};
+  return {owner,items:state==='empty'||state==='race'&&owner.threadId!=='task-thread'?[]:checkpoints,nextCursor:null};
+ },
+ detail:async(owner,checkpoint)=>{
+  call('detail',owner,checkpoint);
+  if(state==='detail-loading')await wait();
+  const files=pathsById[checkpoint.id].map(path=>({path,targetHash:hash,bytes:24,restorable:!['binary','rename'].includes(state??''),reason:state==='binary'?'binary':state==='rename'?'unsupported':null}));
+  return {owner,checkpoint,files:state==='partial-detail'?files.slice(0,1):files};
  },
  review:async(owner,checkpoint,options)=>{
-  window.dispatchEvent(new CustomEvent('checkpoint-request',{detail:{owner,checkpointId:checkpoint.id,paths:options.paths}}));
+  call('review',owner,checkpoint,options.paths);
   if(state==='review-loading')await wait();
   if(state==='conflict')throw Error('The working copy changed. Return to History and review again.');
-  return {owner:state==='foreign'?{...owner,workingCopyId:'foreign'}:owner,checkpointId:checkpoint.id,reviewId:'review-'+checkpoint.id,checkpointRevision:checkpoint.revision,workingCopyRevision:'work-2',expiresAt:state==='expired'?'2000-01-01T00:00:00Z':'2099-11-10T23:00:00Z',files:checkpoint.paths.map((path,index)=>({path,oldPath:state==='rename'?'src/old-name.ts':undefined,currentHash:'current',targetHash:'target',diff:state==='binary'||state==='missing'?null:{before:index?'expect(panelWidth).toBe(360);':'const panelWidth = 360;',after:index?'expect(panelWidth).toBe(420);':'const panelWidth = 420;'},status:state==='binary'?'binary':state==='missing'?'missing':'available',restoreSupported:true}))};
+  const files=options.paths.map(path=>({path,currentHash:otherHash,targetHash:hash,diff:['binary','missing','rename'].includes(state??'')?null:'--- a/'+path+'\n+++ b/'+path+'\n@@ -1 +1 @@\n-const panelWidth = 360;\n+const panelWidth = 420;',diffTruncated:state==='truncated',status:state==='binary'?'binary':state==='missing'?'missing':state==='rename'?'unsupported':'ready'}));
+  return {owner:state==='foreign'?{...owner,binding:otherHash}:owner,reviewId:'review-'+checkpoint.id,checkpointRevision:checkpoint.revision,expiresAt:state==='expired'?'2000-01-01T00:00:00Z':'2099-11-10T23:00:00Z',files:state==='partial-review'?files.slice(0,1):state==='empty-review'?[]:files};
  },
 };
 
 function Fixture(){
  const [threadId,setThreadId]=useState('task-thread');
- const [owner]=useState<CheckpointOwner>({projectId:'project-one',threadId:'task-thread',workingCopyId:'work-one'});
+ const [owner]=useState<CheckpointOwner>({projectId:'project-one',threadId:'task-thread',workingCopyId:state==='root'?null:'work-one',binding:hash});
  const currentOwner=threadId===owner.threadId?owner:{...owner,threadId};
  return <main className="wo5-checkpoints-fixture">
   <header><strong>Gen V1</strong><span>Workspace</span>{state==='race'&&<button onClick={()=>setThreadId('other-thread')}>Switch owner</button>}</header>

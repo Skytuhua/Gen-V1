@@ -1,10 +1,8 @@
 import {useEffect,useId,useRef,useState,type ReactNode} from 'react';
 import {Clock3} from 'lucide-react';
-import type {Snapshot} from '../../../packages/contracts';
 import type {UiPreferences} from '../../../packages/contracts/preferences';
 import {isComposing} from '../../../packages/ui-shell/list-navigation';
-import {RecordedDiffPanel} from './WorkspacePanelBodies';
-import {checkpointOwnerKey,disabledCheckpointAdapter,readCheckpointList,readCheckpointReview,type CheckpointList,type CheckpointOwner,type CheckpointReview,type FileCheckpoint,type FileCheckpointAdapter} from './file-checkpoint-api';
+import {checkpointOwnerKey,checkpointReviewPaths,disabledCheckpointAdapter,readCheckpointDetail,readCheckpointList,readCheckpointReview,type CheckpointList,type CheckpointOwner,type CheckpointReview,type FileCheckpoint,type FileCheckpointAdapter} from './file-checkpoint-api';
 import './file-checkpoints.css';
 
 const sources=['Current','Recorded','History'] as const;
@@ -30,6 +28,7 @@ export function FileCheckpoints({owner,preferences,current,recorded,adapter=disa
   </div>;
 }
 const errorMessage=(cause:unknown)=>cause instanceof Error?cause.message:'Checkpoints could not load. Try again.';
+const provenance=(checkpoint:FileCheckpoint)=>`${checkpoint.provenance.kind==='restore_backup'?'Before restoring files':'Before a guarded file edit'} · ${checkpoint.provenance.operationId}`;
 function CheckpointHistory({owner,adapter,preferences}:Pick<FileCheckpointsProps,'owner'|'preferences'>&{adapter:FileCheckpointAdapter}){
   const [list,setList]=useState<CheckpointList>(),[error,setError]=useState(''),[loading,setLoading]=useState(true),[attempt,setAttempt]=useState(0),[cursor,setCursor]=useState<string>(),[checkpoint,setCheckpoint]=useState<FileCheckpoint>();
   const opener=useRef<HTMLButtonElement|null>(null);
@@ -50,12 +49,10 @@ function CheckpointHistory({owner,adapter,preferences}:Pick<FileCheckpointsProps
       <ul className="file-checkpoints-list">{list?.items.map(item=><li key={item.id}>
         <Clock3 size={15} aria-hidden="true"/><div><strong>{item.label}</strong>
           <p><time dateTime={item.createdAt}>{new Date(item.createdAt).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short',hour12:preferences.timeFormat==='system'?undefined:preferences.timeFormat==='12h'})}</time> · {item.fileCount} {item.fileCount===1?'file':'files'}</p>
-          <p>{item.paths.map(path=><span className="file-checkpoints-path" key={path}>{path}</span>)}{item.fileCount>item.paths.length&&<span>{item.fileCount-item.paths.length} more files</span>}</p>
-          <p>{item.provenance}</p>
+          <p>{provenance(item)}</p>
         </div><button type="button" aria-label={`Review ${item.label}`} onClick={event=>{opener.current=event.currentTarget;setCheckpoint(item);}}>Review</button>
       </li>)}</ul>
       {list?.nextCursor&&<button type="button" disabled={loading} onClick={()=>setCursor(list.nextCursor!)}>Next checkpoints</button>}
-      {list?.retention.expiresAt&&<p className="file-checkpoints-note">History retained until <time dateTime={list.retention.expiresAt}>{new Date(list.retention.expiresAt).toLocaleString()}</time>.</p>}
       <p className="file-checkpoints-caption">Review the diff and conflicts before restoring selected files.</p>
     </div>
     {checkpoint&&<CheckpointFiles key={checkpoint.id+':'+checkpoint.revision} owner={owner} adapter={adapter} checkpoint={checkpoint} preferences={preferences} onBack={()=>{setCheckpoint(undefined);queueMicrotask(()=>opener.current?.focus());}}/>}
@@ -67,19 +64,25 @@ function CheckpointFiles({owner,adapter,checkpoint,preferences,onBack}:Pick<File
   useEffect(()=>{back.current?.focus();},[]);
   useEffect(()=>{
     const controller=new AbortController();setReview(undefined);setError('');
-    void adapter.review(owner,checkpoint,{paths:checkpoint.paths,signal:controller.signal}).then(value=>{
-      if(!controller.signal.aborted)setReview(readCheckpointReview(value,owner,checkpoint));
-    }).catch(cause=>{if(!controller.signal.aborted)setError(errorMessage(cause));});
+    void (async()=>{
+      const value=await adapter.detail(owner,checkpoint,{signal:controller.signal});
+      if(controller.signal.aborted)return;
+      const paths=checkpointReviewPaths(readCheckpointDetail(value,owner,checkpoint));
+      const result=await adapter.review(owner,checkpoint,{paths,signal:controller.signal});
+      if(!controller.signal.aborted)setReview(readCheckpointReview(result,owner,checkpoint,paths));
+    })().catch(cause=>{if(!controller.signal.aborted)setError(errorMessage(cause));});
     return()=>controller.abort();
   },[owner,adapter,checkpoint,attempt]);
-  // Reuse the existing diff viewer until run D extracts its presentation helper.
-  const snapshot:Snapshot={seq:0,activeThreadId:owner.threadId??null,threads:[],messages:[],artifacts:[],userStates:[],requests:[],operations:[],resources:[],usage:{},settings:{theme:'system',modelId:null},data:review?.files.filter(file=>file.diff!==null).map(file=>({id:file.path,threadId:owner.threadId??'',revision:0,createdAt:checkpoint.createdAt,provenance:`Checkpoint ${checkpoint.id} · ${checkpoint.provenance}${file.oldPath?' · Renamed from '+file.oldPath:''}`,value:{title:file.path,...file.diff}}))??[]};
   return <section aria-label="Checkpoint review">
     <button ref={back} type="button" onClick={onBack}>Back to History</button><h3>{checkpoint.label}</h3>
     {error?<div role="alert"><p>{error}</p><button type="button" onClick={()=>setAttempt(value=>value+1)}>Retry review</button></div>:!review?<p role="status">Loading checkpoint review…</p>:<>
-      <p className="file-checkpoints-note">{checkpoint.provenance} · Revision {review.checkpointRevision}</p>
-      {review.files.filter(file=>file.diff===null).map(file=><p className="file-checkpoints-note" key={file.path}>{file.oldPath?file.oldPath+' → ':''}{file.path} · {file.status==='available'?'No text comparison available':file.status}</p>)}
-      {review.files.length===0?<p>No files available for review.</p>:snapshot.data.length>0&&<RecordedDiffPanel snapshot={snapshot} threadId={owner.threadId??''} preferences={preferences}/>}
+      <p className="file-checkpoints-note">{provenance(checkpoint)} · Revision {review.checkpointRevision}</p>
+      {/* Same unified presentation as RecordedDiffPanel; run D owns shared extraction. */}
+      <div className={`workspace-diffs diff-colors-${preferences.diffColors}`}>{review.files.map(file=><details className="workspace-diff" key={file.path} open={preferences.diffDefaultExpanded}>
+        <summary>{file.path}</summary>
+        {file.diffTruncated&&<p className="file-checkpoints-note">Diff truncated. Only part of this comparison is shown.</p>}
+        {file.diff===null?<p className="file-checkpoints-note">{file.status==='ready'?'No text comparison available':file.status}</p>:<pre className="unified-diff">{file.diff||'No changes reported.'}</pre>}
+      </details>)}</div>
       <button type="button" disabled aria-describedby={reason}>Restore selected files</button><p id={reason} className="file-checkpoints-note">{adapter.restore.reason}</p>
     </>}
   </section>;
