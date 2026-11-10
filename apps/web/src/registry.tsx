@@ -1,6 +1,6 @@
 import {SentenceReveal} from './SentenceReveal';
 import {WindowDocument} from './DocumentWindow';
-import { Children, lazy, Suspense, useContext, useRef } from 'react';
+import { Children, createContext, lazy, Suspense, useContext, useRef, type ReactNode } from 'react';
 import { useStateStore, type ComponentRegistry, type ComponentRenderProps } from '@json-render/react';
 import { ExternalLink, FileText, Check, AlertTriangle, CornerDownLeft } from 'lucide-react';
 import { Markdown } from './Markdown';
@@ -52,12 +52,48 @@ function useData(props: Record<string, unknown>) {
   const name = props.rowsBinding ?? props.dataBinding;
   return typeof name === 'string' ? store.get(`/inputs/${name.replace(/~/g, '~0').replace(/\//g, '~1')}`) : undefined;
 }
-function Layout({ element: { props }, children }: ComponentRenderProps) {
+export const ArtifactElements = createContext<Record<string, { type: string }>>({});
+function DocumentPair({ children, gap = 20, columns, split = false }: { children: ReactNode; gap?: number; columns?: string; split?: boolean }) {
+  return <div className="document-pair-container" style={{ gap }}><div className="surface-split document-pair" data-arrangement={split ? 'split' : 'stack'} style={{ gridTemplateColumns: columns }}>{children}</div></div>;
+}
+function childTypes(element: ComponentRenderProps['element'], elements: Record<string, { type: string }>, children: ReactNode) {
+  const types = (element.children ?? []).filter(key => elements[key]).map(key => elements[key].type);
+  return types.length === Children.count(children) ? types : [];
+}
+function Layout({ element, children }: ComponentRenderProps) {
+  const { props } = element, elements = useContext(ArtifactElements);
   const gaps: Record<string, number> = { none: 0, xs: 4, sm: 8, md: 16, lg: 24 };
-  const layout = <div className={`surface-layout layout-${string(props.direction, 'column')}`} style={{ gap: gaps[string(props.gap)] ?? 14, gridTemplateColumns: props.columns ? `repeat(${Math.min(6, Math.max(1, Number(props.columns) || 1))}, minmax(0, 1fr))` : undefined, alignItems: string(props.align) === 'start' ? 'flex-start' : string(props.align) === 'end' ? 'flex-end' : string(props.align) === 'center' ? 'center' : undefined }}>{children}</div>;
+  const gap = gaps[string(props.gap)] ?? 14;
+  let content = children;
+  if (!props.columns && string(props.direction, 'column') === 'column') {
+    const types = childTypes(element, elements, children), nodes = Children.toArray(children), grouped: ReactNode[] = [];
+    for (let index = 0; index < nodes.length; index++) {
+      const pair = [types[index], types[index + 1]];
+      // Only adjacent PDF/signature siblings form a pair; other authored content
+      // keeps its place in the Stack, and explicit grids keep their columns.
+      if (pair.includes('DocumentPreview') && pair.includes('SignaturePad')) {
+        grouped.push(<DocumentPair key={element.children?.[index]} gap={gap}>{nodes[index]}{nodes[index + 1]}</DocumentPair>); index++;
+      } else grouped.push(nodes[index]);
+    }
+    if (grouped.length < nodes.length) content = grouped;
+  }
+  const layout = <div className={`surface-layout layout-${string(props.direction, 'column')}`} style={{ gap, gridTemplateColumns: props.columns ? `repeat(${Math.min(6, Math.max(1, Number(props.columns) || 1))}, minmax(0, 1fr))` : undefined, alignItems: string(props.align) === 'start' ? 'flex-start' : string(props.align) === 'end' ? 'flex-end' : string(props.align) === 'center' ? 'center' : undefined }}>{content}</div>;
   return props.scroll === 'bounded' ? <TaskHistory label={string(props.label, 'Question history')}>{layout}</TaskHistory> : layout;
 }
-function Split({ element: { props }, children }: ComponentRenderProps) { const ratio = Math.max(.1, Math.min(.9, Number(props.ratio) || .5)); return <div className="surface-split" style={{ gridTemplateColumns: `${ratio}fr ${1 - ratio}fr` }}>{children}</div>; }
+function Split({ element, children }: ComponentRenderProps) {
+  const elements = useContext(ArtifactElements), types = childTypes(element, elements, children);
+  const ratio = Math.max(.1, Math.min(.9, Number(element.props.ratio) || .5)), columns = `${ratio}fr ${1 - ratio}fr`;
+  return types.length === 2 && types.filter(type => type === 'DocumentPreview').length === 1
+    ? <DocumentPair columns={columns} split>{children}</DocumentPair>
+    : <div className="surface-split" style={{ gridTemplateColumns: columns }}>{children}</div>;
+}
+function SignatureLoading({ label = 'Your signature' }: SignaturePadProps) {
+  // Reuse the control's shell geometry while its independently lazy logic loads.
+  return <section className="signature-pad" aria-busy="true"><div className="signature-heading"><span>{label}</span><span className="sr-only" role="status">Loading signature control…</span></div><div className="signature-loading-geometry" aria-hidden="true" inert>
+    <div className="signature-modes">{['Generate', 'Draw', 'Upload'].map(mode => <button key={mode} disabled>{mode}</button>)}</div>
+    <div className="signature-well"/><div className="signature-controls"/><details className="signature-help"><summary>Signature help</summary></details>
+  </div></section>;
+}
 function Text({ element: { props } }: ComponentRenderProps) { return <SentenceReveal text={string(props.text,string(props.content))} animate as="p" className={`surface-text tone-${string(props.tone)} size-${string(props.size)}`}>{string(props.text,string(props.content))}</SentenceReveal>; }
 function Heading({ element: { props } }: ComponentRenderProps) { return <h3>{string(props.text, string(props.title))}</h3>; }
 function Panel({ element: { props }, children }: ComponentRenderProps) { const artifactTitle = useContext(ArtifactTitle); return <section className={`surface-section${props.align === 'center' ? ' surface-section-centered' : ''}`}>{props.title && props.title !== artifactTitle ? <h3>{string(props.title)}</h3> : null}{props.description ? <p className="muted">{string(props.description)}</p> : null}{children}</section>; }
@@ -167,8 +203,8 @@ export const registry: ComponentRegistry = {
   ...EXPLORATION_REGISTRY,
   ...WORK_OBJECT_REGISTRY,
   ChoiceList, Steps, RelationshipGraph, Status, MapView,
-  DocumentPreview: ({ element: { props } }) => <Suspense fallback={<p className="muted">Loading document preview…</p>}><DocumentPreview {...props as DocumentPreviewProps} /></Suspense>,
-  SignaturePad: ({ element: { props } }) => <Suspense fallback={<p className="muted">Loading signature control…</p>}><SignaturePad {...props as SignaturePadProps} /></Suspense>,
+  DocumentPreview: ({ element: { props } }) => <Suspense fallback={<div className="document-preview muted" data-preview-state="loading" role="status">Loading document preview…</div>}><DocumentPreview {...props as DocumentPreviewProps} /></Suspense>,
+  SignaturePad: ({ element: { props } }) => <Suspense fallback={<SignatureLoading {...props as SignaturePadProps}/>}><SignaturePad {...props as SignaturePadProps} /></Suspense>,
   Stack: Layout, Row: props => <Layout {...props} element={{ ...props.element, props: { ...props.element.props, direction: 'row' } }} />, Grid: Layout, Split, Columns: Layout, Section: Panel, Card: Panel, Panel,
   Text, Heading, Markdown: BoundMarkdown, Metric, EvidenceList, Image,
   Input, Textarea: props => <Input {...props} element={{ ...props.element, props: { ...props.element.props, multiline: true } }} />, TextArea: props => <Input {...props} element={{ ...props.element, props: { ...props.element.props, multiline: true } }} />,

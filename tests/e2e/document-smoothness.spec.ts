@@ -72,7 +72,7 @@ for (const layout of ['Stack', 'Split'] as const) for (const width of [768, 1024
   await expect(draw).toBeFocused(); await expect(draw).toHaveCSS('outline-style', 'solid'); await expect(draw).toHaveCSS('outline-width', '2px');
   // Resize the actual named container around the same mounted PDF and controls.
   for (const available of [619.5, 620, 619, 640]) {
-    await page.locator('.artifact-content').evaluate((node, available) => { (node as HTMLElement).style.width = `${available}px`; }, available);
+    await page.locator('.document-pair-container').evaluate((node, available) => { (node as HTMLElement).style.width = `${available}px`; }, available);
     await expect.poll(async () => (await geometry()).paired).toBe(available >= 620);
     expect((await geometry()).stacked).toBe(available < 620);
     await expect(draw).toBeFocused();

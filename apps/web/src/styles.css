@@ -173,10 +173,6 @@ button:has(>svg.lucide-x):hover:not(:disabled),button:has(>svg.lucide-circle-x):
 .artifact-state.is-dirty { color:var(--pending); }
 .artifact-body { padding:16px; min-height:80px; }
 .artifact-content { width:100%; max-width:1040px; margin:0 auto; container:artifact / inline-size; }
-@container artifact (width < 620px) {
-  .surface-split:has(>.document-preview) { display:flex; flex-direction:column; }
-  .surface-split:has(>.document-preview)>:not(.document-preview) { order:-1; }
-}
 .artifact :is(h2,h3) { font-size:14px; font-weight:550; letter-spacing:0; }
 .artifact .markdown { font-size:13px; line-height:1.65; }
 .artifact .markdown :is(h1,h2,h3,h4) { font-size:14px; }
@@ -204,6 +200,13 @@ button:has(>svg.lucide-x):hover:not(:disabled),button:has(>svg.lucide-circle-x):
 .surface-layout>* { min-width:0; }
 .surface-split { display:grid; gap:20px; min-width:0; align-items:stretch; }
 .surface-split>* { min-width:0; }
+.document-pair-container { container:document-pair / inline-size; min-width:0; width:100%; }
+.document-pair { grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:inherit; align-items:start; }
+.document-pair>* { width:100%; }
+@container document-pair (width < 620px) {
+  .document-pair { display:flex; flex-direction:column; }
+  .document-pair[data-arrangement=split]>:not(.document-preview) { order:-1; }
+}
 .surface-image { display:block; max-width:100%; height:auto; border-radius:8px; }
 .chart :is(rect,circle) { fill:var(--text); }
 .chart polyline { stroke:var(--text); }
