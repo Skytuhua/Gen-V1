@@ -3,7 +3,7 @@ import {Clock3} from 'lucide-react';
 import type {UiPreferences} from '../../../packages/contracts/preferences';
 import {isComposing} from '../../../packages/ui-shell/list-navigation';
 import {RecordedDiffs} from './WorkspacePanelBodies';
-import {checkpointOwnerKey,disabledCheckpointAdapter,readCheckpointList,readCheckpointReview,type CheckpointList,type CheckpointOwner,type CheckpointReview,type FileCheckpoint,type FileCheckpointAdapter} from './file-checkpoint-api';
+import {checkpointOwnerKey,checkpointReviewPaths,disabledCheckpointAdapter,readCheckpointDetail,readCheckpointList,readCheckpointReview,type CheckpointList,type CheckpointOwner,type CheckpointReview,type FileCheckpoint,type FileCheckpointAdapter} from './file-checkpoint-api';
 import './file-checkpoints.css';
 
 const sources=['Current','Recorded','History'] as const;
@@ -29,7 +29,8 @@ export function FileCheckpoints({owner,preferences,current,recorded,adapter=disa
   </div>;
 }
 const errorMessage=(cause:unknown)=>cause instanceof Error?cause.message:'Checkpoints could not load. Try again.';
-function CheckpointHistory({owner,adapter,preferences}:{owner:CheckpointOwner;preferences:UiPreferences;adapter:FileCheckpointAdapter}){
+const provenance=(checkpoint:FileCheckpoint)=>`${checkpoint.provenance.kind==='restore_backup'?'Before restoring files':'Before a guarded file edit'} · ${checkpoint.provenance.operationId}`;
+function CheckpointHistory({owner,adapter,preferences}:{owner:CheckpointOwner;preferences:UiPreferences}&{adapter:FileCheckpointAdapter}){
   const [list,setList]=useState<CheckpointList>(),[error,setError]=useState(''),[loading,setLoading]=useState(true),[attempt,setAttempt]=useState(0),[cursor,setCursor]=useState<string>(),[checkpoint,setCheckpoint]=useState<FileCheckpoint>();
   const opener=useRef<HTMLButtonElement|null>(null);
   useEffect(()=>{
@@ -43,41 +44,54 @@ function CheckpointHistory({owner,adapter,preferences}:{owner:CheckpointOwner;pr
     <div hidden={Boolean(checkpoint)}>
       <div className="file-checkpoints-heading"><h3>File checkpoints</h3>{adapter.available&&<button type="button" disabled={loading} onClick={()=>{setCursor(undefined);setAttempt(value=>value+1);}}>Refresh</button>}</div>
       <p className="file-checkpoints-note">Review a version before restoring</p>
+      <p className="file-checkpoints-caption">Review the diff and conflicts before restoring selected files.</p>
       {loading&&<p role="status">Loading checkpoints…</p>}
       {error&&<div role="alert"><p>{error}</p>{adapter.available&&<button type="button" onClick={()=>setAttempt(value=>value+1)}>Retry</button>}</div>}
       {!loading&&!error&&list?.items.length===0&&<p className="file-checkpoints-note">No file checkpoints available.</p>}
       <ul className="file-checkpoints-list">{list?.items.map(item=><li key={item.id}>
         <Clock3 size={15} aria-hidden="true"/><div><strong>{item.label}</strong>
           <p><time dateTime={item.createdAt}>{new Date(item.createdAt).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short',hour12:preferences.timeFormat==='system'?undefined:preferences.timeFormat==='12h'})}</time> · {item.fileCount} {item.fileCount===1?'file':'files'}</p>
-          <p>{item.paths.map(path=><span className="file-checkpoints-path" key={path}>{path}</span>)}{item.fileCount>item.paths.length&&<span>{item.fileCount-item.paths.length} more files</span>}</p>
-          <p>{item.provenance}</p>
+          <p>{provenance(item)}</p>
         </div><button type="button" aria-label={`Review ${item.label}`} onClick={event=>{opener.current=event.currentTarget;setCheckpoint(item);}}>Review</button>
       </li>)}</ul>
       {list?.nextCursor&&<button type="button" disabled={loading} onClick={()=>setCursor(list.nextCursor!)}>Next checkpoints</button>}
-      {list?.retention.expiresAt&&<p className="file-checkpoints-note">History retained until <time dateTime={list.retention.expiresAt}>{new Date(list.retention.expiresAt).toLocaleString()}</time>.</p>}
-      <p className="file-checkpoints-caption">Review the diff and conflicts before restoring selected files.</p>
     </div>
     {checkpoint&&<CheckpointFiles key={checkpoint.id+':'+checkpoint.revision} owner={owner} adapter={adapter} checkpoint={checkpoint} preferences={preferences} onBack={()=>{setCheckpoint(undefined);queueMicrotask(()=>opener.current?.focus());}}/>}
   </div>;
 }
-function CheckpointFiles({owner,adapter,checkpoint,preferences,onBack}:{owner:CheckpointOwner;preferences:UiPreferences;adapter:FileCheckpointAdapter;checkpoint:FileCheckpoint;onBack:()=>void}){
-  const [review,setReview]=useState<CheckpointReview>(),[error,setError]=useState(''),[attempt,setAttempt]=useState(0);
+function CheckpointFiles({owner,adapter,checkpoint,preferences,onBack}:{owner:CheckpointOwner;preferences:UiPreferences}&{adapter:FileCheckpointAdapter;checkpoint:FileCheckpoint;onBack:()=>void}){
+  const [reviews,setReviews]=useState<CheckpointReview[]>(),[error,setError]=useState(''),[attempt,setAttempt]=useState(0);
   const back=useRef<HTMLButtonElement>(null),reason=useId();
   useEffect(()=>{back.current?.focus();},[]);
   useEffect(()=>{
-    const controller=new AbortController();setReview(undefined);setError('');
-    void adapter.review(owner,checkpoint,{paths:checkpoint.paths,signal:controller.signal}).then(value=>{
-      if(!controller.signal.aborted)setReview(readCheckpointReview(value,owner,checkpoint));
-    }).catch(cause=>{if(!controller.signal.aborted)setError(errorMessage(cause));});
+    const controller=new AbortController();setReviews(undefined);setError('');
+    void (async()=>{
+      const value=await adapter.detail(owner,checkpoint,{signal:controller.signal});
+      if(controller.signal.aborted)return;
+      const batches=checkpointReviewPaths(readCheckpointDetail(value,owner,checkpoint)),results:CheckpointReview[]=[];
+      for(const [index,paths] of batches.entries()){
+        try{
+          const result=await adapter.review(owner,checkpoint,{paths,signal:controller.signal});
+          if(controller.signal.aborted)return;
+          const review=readCheckpointReview(result,owner,checkpoint,paths);
+          if(results.some(value=>value.reviewId===review.reviewId))throw Error('Duplicate review identity for different file subsets.');
+          results.push(review);
+        }catch(cause){throw Error(`Review part ${index+1} of ${batches.length} is incomplete. ${errorMessage(cause)}`);}
+      }
+      if(!controller.signal.aborted)setReviews(results);
+    })().catch(cause=>{if(!controller.signal.aborted)setError(errorMessage(cause));});
     return()=>controller.abort();
   },[owner,adapter,checkpoint,attempt]);
-  const diffs=review?.files.flatMap(file=>file.diff?[{id:file.path,title:file.path,...file.diff,provenance:`Checkpoint ${checkpoint.id} · ${checkpoint.provenance}${file.oldPath?' · Renamed from '+file.oldPath:''}`}]:[])??[];
   return <section aria-label="Checkpoint review">
     <button ref={back} type="button" onClick={onBack}>Back to History</button><h3>{checkpoint.label}</h3>
-    {error?<div role="alert"><p>{error}</p><button type="button" onClick={()=>setAttempt(value=>value+1)}>Retry review</button></div>:!review?<p role="status">Loading checkpoint review…</p>:<>
-      <p className="file-checkpoints-note">{checkpoint.provenance} · Revision {review.checkpointRevision}</p>
-      {review.files.filter(file=>file.diff===null).map(file=><p className="file-checkpoints-note" key={file.path}>{file.oldPath?file.oldPath+' → ':''}{file.path} · {file.status==='available'?'No text comparison available':file.status}</p>)}
-      {review.files.length===0?<p>No files available for review.</p>:diffs.length>0&&<RecordedDiffs diffs={diffs} preferences={preferences}/>}
+    {error?<div role="alert"><p>{error}</p><button type="button" onClick={()=>setAttempt(value=>value+1)}>Retry review</button></div>:!reviews?<p role="status">Loading checkpoint review…</p>:<>
+      <p className="file-checkpoints-note">{provenance(checkpoint)} · Revision {checkpoint.revision}</p>
+      {reviews.map((review,index)=><section key={review.reviewId} aria-label={`Review part ${index+1} of ${reviews.length}`}>
+      <p className="file-checkpoints-note">Part {index+1} of {reviews.length} · Review {review.reviewId} · {review.files.length} files</p>
+      {review.files.filter(file=>file.diff===null).map(file=><p className="file-checkpoints-note" key={file.path}>{file.path} · {file.status==='ready'?'No text comparison available':file.status}</p>)}
+      {review.files.filter(file=>file.diffTruncated).map(file=><p className="file-checkpoints-note" key={file.path}>{file.path} · Diff truncated. Only part of this comparison is shown.</p>)}
+      <RecordedDiffs diffs={review.files.flatMap(file=>file.diff===null?[]:[{id:file.path,title:file.path,unified:file.diff||'No changes reported.',provenance:`Checkpoint ${checkpoint.id} · Review ${review.reviewId}`}])} preferences={preferences}/>
+      </section>)}
       <button type="button" disabled aria-describedby={reason}>Restore selected files</button><p id={reason} className="file-checkpoints-note">{adapter.restore.reason}</p>
     </>}
   </section>;
