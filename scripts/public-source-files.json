@@ -848,6 +848,7 @@
     "tests/e2e/interaction-tools.spec.ts",
     "tests/e2e/journal-reload.spec.ts",
     "tests/e2e/latency.spec.ts",
+    "tests/e2e/map-theme.spec.ts",
     "tests/e2e/markdown.playwright.config.ts",
     "tests/e2e/markdown.spec.ts",
     "tests/e2e/memory-recovery-app.spec.ts",
