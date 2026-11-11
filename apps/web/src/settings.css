@@ -70,5 +70,4 @@
 }
 @media(prefers-reduced-motion:reduce) { .settings-switch>span { transition:none; } }
 
-.settings-card-row>div:has(>output) { display:flex; align-items:baseline; flex-wrap:wrap; gap:8px; color:var(--muted); }
-.settings-card-row output { color:var(--text); font-weight:600; white-space:nowrap; font-variant-numeric:tabular-nums; }
+.settings-card-row output { color:var(--text); font-weight:400; white-space:nowrap; font-variant-numeric:tabular-nums; }

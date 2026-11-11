@@ -8,6 +8,7 @@ import {useTableOverflow} from './use-table-overflow';
 
 const object = (value: unknown): Record<string, unknown> => value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};
 const array = (value: unknown): unknown[] => Array.isArray(value) ? value : [];
+const cellText = (value: unknown, column: Record<string, unknown>) => column.type === 'number' && typeof value === 'number' ? value.toLocaleString() : text(value);
 const text = (value: unknown) => value == null ? value === null ? 'NULL' : '—' : typeof value === 'object' ? JSON.stringify(value) : String(value);
 
 function visibleBounds(container: HTMLElement, inline: boolean) {
@@ -38,8 +39,8 @@ export function Table({ element: { props }, bindings }: ComponentRenderProps) {
       const before = cell && Object.hasOwn(cell, 'before') ? JSON.stringify(cell.before) : undefined;
       const showBefore = status === 'updated' && cell && Object.hasOwn(cell, 'before') && text(cell.before) !== text(item[key]);
       return <td key={key} className={column.type === 'number' ? 'number' : undefined} data-column-key={key} data-change={status} data-before={before} title={cell ? [before !== undefined ? `Previously: ${before}` : '', cell.detail].filter(Boolean).join(' · ') : undefined}>
-        {showBefore && <><span className="task-table-before">{text(cell.before)}</span><span className="task-table-change-arrow" aria-label="changed to">→</span></>}
-        <span className="task-table-value">{text(item[key])}</span>{status && <span className="sr-only"> ({status})</span>}
+        {showBefore && <><span className="task-table-before">{cellText(cell.before, column)}</span><span className="task-table-change-arrow" aria-label="changed to">→</span></>}
+        <span className="task-table-value">{cellText(item[key], column)}</span>{status && <span className="sr-only"> ({status})</span>}
       </td>;
     });
     return { id, change, cells };
