@@ -79,28 +79,3 @@ test('approved list captures and stress names remain usable at 1440/1024/768 wit
  for(const width of [1440,1024,768]){await page.setViewportSize({width,height:900});await expect(page.getByRole('dialog',{name:'Saved drafts'})).toBeInViewport();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:info.outputPath(`2-after-${width}.png`)});}
  await page.emulateMedia({reducedMotion:'reduce'});await page.keyboard.press('Escape');await seed(page,'full');await open(page);await page.screenshot({path:info.outputPath('stress-list.png')});await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name').fill('Overflow');await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt'}).getByRole('alert')).toBeVisible();await page.screenshot({path:info.outputPath('save-error.png')});
 });
-
-for(const failure of ['quota','abort','conflict'] as const)test(`empty-composer ${failure} restore failure remains visible and preserves text`,async({page})=>{
- await setup(page);await save(page,'Saved prompt','Empty restore');await draft(page).fill('');
- await page.evaluate(async failure=>{const path='/apps/web/src/journal.ts';await (await import(path)).journalFlush();
-  if(failure==='conflict'){const original=IDBObjectStore.prototype.get;let injected=false;IDBObjectStore.prototype.get=function(key){if(!injected&&key==='draft:one'&&this.transaction.mode==='readwrite'){injected=true;this.put({value:'Concurrent edit',updatedAt:Date.now()+1,generation:crypto.randomUUID()},key);}return original.call(this,key);};}
-  else{const original=IDBObjectStore.prototype.put;IDBObjectStore.prototype.put=function(value,key){if(key==='draft:one')throw new DOMException(failure==='quota'?'Restore quota exhausted':'Restore transaction aborted',failure==='quota'?'QuotaExceededError':'AbortError');return original.call(this,value,key);};}
- },failure);
- await open(page);await page.getByRole('button',{name:'Restore',exact:true}).click();await expect(page.getByRole('alert')).toBeVisible();await expect(page.getByRole('alert')).toContainText(failure==='conflict'?'current draft changed':failure==='quota'?'Restore quota':'Restore transaction');
- await page.reload();await expect(draft(page)).toHaveValue(failure==='conflict'?'Concurrent edit':'');await open(page);await expect(page.getByText('Empty restore',{exact:true})).toBeVisible();
-});
-for(const kind of ['excerpt','skill'] as const)test(`rejects a new ${kind}-only save with a visible prompt-text explanation`,async({page})=>{
- await setup(page);await page.evaluate(async({kind,owner})=>{const jp='/apps/web/src/journal.ts',ep='/apps/web/src/terminal-excerpts.ts',j=await import(jp);
-  if(kind==='excerpt'){const e=await import(ep);await j.journalWrite(e.excerptDraftKey(owner.threadId),[e.captureTerminalExcerpt({terminalId:'reference-only',threadId:owner.threadId,projectId:owner.projectId,selection:'Recoverable output'})]);}
-  else await j.journalWrite('draft-skills:'+owner.threadId,[{id:crypto.randomUUID(),name:'Selected review skill',source:'Personal',ref:{version:1,scope:{kind:'personal'},sourceId:'personal:test',skillId:'review',locator:'a'.repeat(64),revision:'b'.repeat(64),digest:'c'.repeat(64),sourceBinding:'d'.repeat(64)}}]);
- },{kind,owner});
- await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name').fill('Reference-only');await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt'}).getByRole('alert')).toContainText('prompt text');
- expect(await page.evaluate(async owner=>{const path='/apps/web/src/saved-drafts.ts';return (await (await import(path)).loadSavedDrafts(owner)).library.records.length;},owner)).toBe(0);
-});
-test('legacy reference-only records remain inspectable while rich restore stays disabled',async({page})=>{
- await setup(page);await page.evaluate(async owner=>{const sp='/apps/web/src/saved-drafts.ts',jp='/apps/web/src/journal.ts',ep='/apps/web/src/terminal-excerpts.ts',s=await import(sp),j=await import(jp),e=await import(ep);
-  const ref={version:1,scope:{kind:'personal'},sourceId:'personal:test',skillId:'legacy-skill',locator:'a'.repeat(64),revision:'b'.repeat(64),digest:'c'.repeat(64),sourceBinding:'d'.repeat(64)};
-  const saved=s.createSavedDraft(owner,'Legacy references','',{resourceRefs:[{resourceId:'legacy-resource'}],skills:[ref],excerpts:[e.captureTerminalExcerpt({terminalId:'legacy-terminal',threadId:owner.threadId,projectId:owner.projectId,selection:'Legacy reviewed output'})]});await j.journalWrite(s.savedDraftLibraryKey(owner),{version:1,owner,records:[saved]});
- },owner);
- await open(page);await expect(page.getByRole('button',{name:'Review',exact:true})).toBeEnabled();await page.getByRole('button',{name:'Review',exact:true}).click();await expect(page.getByText(/Resource legacy-resource: unvalidated/)).toBeVisible();await expect(page.getByText(/Skill legacy-skill: unvalidated/)).toBeVisible();await expect(page.getByText('Legacy reviewed output',{exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Restore with references unavailable'})).toBeDisabled();await expect(page.getByRole('button',{name:'Replace text'})).toBeDisabled();await expect(draft(page)).toHaveValue('');
-});

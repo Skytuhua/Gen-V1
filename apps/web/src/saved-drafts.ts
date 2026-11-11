@@ -57,7 +57,7 @@ export async function saveNamedDraft(owner:SavedDraftOwner,name:string,resourceR
  const [library,active,skills,excerpts]=await Promise.all([loadSavedDrafts(owner),journalReadRecord<string>('draft:'+owner.threadId),journalReadRecord(skillDraftKey(owner.threadId)),journalReadRecord(excerptDraftKey(owner.threadId))]);
  if(active&&typeof active.value!=='string')throw Error('Active draft could not be read. Keep this window open.');
  const text=active?.value??'';
- if(!text.trim())throw Error('Write prompt text before saving. Reference-only saves are unavailable while rich restore is disabled; current references are kept.');
+ if(!text.trim()&&!resourceRefs.length&&!readSkillBindings(skills?.value).length&&!(excerpts?.value as unknown[]|undefined)?.length)throw Error('Write a prompt before saving.');
  const draft=createSavedDraft(owner,name,text,{resourceRefs,skills:readSkillBindings(skills?.value).map(binding=>binding.ref),excerpts:excerpts?.value as TerminalExcerpt[]|undefined});
  const next=append(library.library,draft);
  if(!await journalCompareAndSwapMany([{key:savedDraftLibraryKey(owner),generation:library.generation,value:next}],[{key:'draft:'+owner.threadId,generation:active?.generation},{key:skillDraftKey(owner.threadId),generation:skills?.generation},{key:excerptDraftKey(owner.threadId),generation:excerpts?.generation}]))throw Error('Draft changed in another window. Retry saving.');
