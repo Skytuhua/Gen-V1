@@ -79,3 +79,46 @@ test('approved list captures and stress names remain usable at 1440/1024/768 wit
  for(const width of [1440,1024,768]){await page.setViewportSize({width,height:900});await expect(page.getByRole('dialog',{name:'Saved drafts'})).toBeInViewport();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:info.outputPath(`2-after-${width}.png`)});}
  await page.emulateMedia({reducedMotion:'reduce'});await page.keyboard.press('Escape');await seed(page,'full');await open(page);await page.screenshot({path:info.outputPath('stress-list.png')});await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name').fill('Overflow');await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt'}).getByRole('alert')).toBeVisible();await page.screenshot({path:info.outputPath('save-error.png')});
 });
+
+for(const failure of ['quota','abort','conflict'] as const)test(`empty-composer ${failure} restore failure shows a keyboard-reachable alert and preserves drafts`,async({page},info)=>{
+ const writes=await setup(page);await save(page,'Saved prompt','Empty restore');await draft(page).fill('');
+ await page.evaluate(async failure=>{const path='/apps/web/src/journal.ts';await (await import(path)).journalFlush();
+  if(failure==='conflict'){const original=IDBObjectStore.prototype.get;let injected=false;IDBObjectStore.prototype.get=function(key){if(!injected&&key==='draft:one'&&this.transaction.mode==='readwrite'){injected=true;this.put({value:'Concurrent edit',updatedAt:Date.now()+1,generation:crypto.randomUUID()},key);}return original.call(this,key);};}
+  else{const original=IDBObjectStore.prototype.put;let injected=false;IDBObjectStore.prototype.put=function(value,key){if(!injected&&key==='draft:one'){injected=true;throw new DOMException(failure==='quota'?'Restore quota exhausted':'Restore transaction aborted',failure==='quota'?'QuotaExceededError':'AbortError');}return original.call(this,value,key);};}
+ },failure);
+ await open(page);await page.getByRole('button',{name:'Restore',exact:true}).focus();await page.keyboard.press('Enter');
+ const popup=page.getByRole('dialog',{name:'Saved drafts',exact:true});
+ await expect(popup.getByRole('alert')).toBeVisible();await expect(popup.getByRole('alert')).toContainText(failure==='conflict'?'current draft changed':failure==='quota'?'Restore quota':'Restore transaction');
+ await expect(popup.getByRole('button',{name:'Retry',exact:true})).toBeFocused();await expect(draft(page)).toHaveValue('');
+ for(const width of failure==='quota'?[1440,1024,768]:[1440]){await page.setViewportSize({width,height:900});await expect(popup.getByRole('alert')).toBeInViewport();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:info.outputPath(`restore-${failure}-${width}.png`)});}
+ if(failure!=='conflict'){await page.keyboard.press('Enter');await expect(popup.getByRole('alert')).toBeHidden();await expect(popup.getByRole('button',{name:'Save current prompt'})).toBeFocused();await page.keyboard.press('Tab');await expect(popup.getByRole('button',{name:'Restore',exact:true})).toBeFocused();await page.keyboard.press('Enter');await expect(draft(page)).toHaveValue('Saved prompt');await expect(draft(page)).toBeFocused();}
+ await page.reload();await expect(draft(page)).toHaveValue(failure==='conflict'?'Concurrent edit':'Saved prompt');await open(page);await expect(page.getByText('Empty restore',{exact:true})).toBeVisible();expect(writes).toEqual([]);
+});
+
+for(const kind of ['excerpt','skill'] as const)test(`new ${kind}-only saves remain reviewable after the original selection is gone`,async({page})=>{
+ const writes=await setup(page);await page.evaluate(async({kind,owner})=>{const jp='/apps/web/src/journal.ts',ep='/apps/web/src/terminal-excerpts.ts',j=await import(jp);
+  if(kind==='excerpt'){const e=await import(ep);await j.journalWrite(e.excerptDraftKey(owner.threadId),[e.captureTerminalExcerpt({terminalId:'reference-only',threadId:owner.threadId,projectId:owner.projectId,selection:'Reviewed saved output'})]);}
+  else await j.journalWrite('draft-skills:'+owner.threadId,[{id:crypto.randomUUID(),name:'Selected review skill',source:'Personal',ref:{version:1,scope:{kind:'personal'},sourceId:'personal:test',skillId:'saved-skill',locator:'a'.repeat(64),revision:'b'.repeat(64),digest:'c'.repeat(64),sourceBinding:'d'.repeat(64)}}]);
+ },{kind,owner});
+ await save(page,'','References only');await page.evaluate(async owner=>{const p='/apps/web/src/journal.ts',j=await import(p);await j.journalWrite('draft-excerpts:'+owner.threadId,[]);await j.journalWrite('draft-skills:'+owner.threadId,[]);},owner);
+ await page.reload();await expect(draft(page)).toBeEnabled();await open(page);const review=page.getByRole('button',{name:'Review',exact:true});await expect(review).toBeEnabled();await review.focus();await page.keyboard.press('Enter');
+ const modal=page.getByRole('dialog',{name:'Review saved references',exact:true});await expect(modal).toBeVisible();await expect(modal.getByText(/No prompt text was saved/)).toBeVisible();
+ if(kind==='excerpt')await expect(modal.getByRole('textbox',{name:'Saved excerpt text · reference-only',exact:true})).toHaveValue('Reviewed saved output');else await expect(modal.getByText(/Skill saved-skill: unvalidated revision/)).toBeVisible();
+ await expect(modal.getByRole('button',{name:'Restore with references unavailable'})).toBeDisabled();await expect(modal.getByRole('button',{name:'Insert text'})).toBeDisabled();await expect(modal.getByRole('button',{name:'Replace text'})).toBeDisabled();await expect(draft(page)).toHaveValue('');
+ await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:'Drafts',exact:true})).toBeFocused();await expect(page.getByRole('button',{name:'Terminal selection · reference-only',exact:true})).toBeHidden();expect(writes).toEqual([]);
+});
+
+test('legacy reference-only records expose IDs and keyboard-copyable excerpt text without restoring authority',async({page},info)=>{
+ const writes=await setup(page);await page.evaluate(async owner=>{const sp='/apps/web/src/saved-drafts.ts',jp='/apps/web/src/journal.ts',ep='/apps/web/src/terminal-excerpts.ts',s=await import(sp),j=await import(jp),e=await import(ep);
+  const ref={version:1,scope:{kind:'personal'},sourceId:'personal:test',skillId:'legacy-skill',locator:'a'.repeat(64),revision:'b'.repeat(64),digest:'c'.repeat(64),sourceBinding:'d'.repeat(64)};
+  const saved=s.createSavedDraft(owner,'Legacy references','',{resourceRefs:[{resourceId:'legacy-resource'}],skills:[ref],excerpts:[e.captureTerminalExcerpt({terminalId:'legacy-terminal',threadId:owner.threadId,projectId:owner.projectId,selection:'Legacy reviewed output <literal> & café'})]});await j.journalWrite(s.savedDraftLibraryKey(owner),{version:1,owner,records:[saved]});
+ },owner);
+ const library=()=>page.evaluate(async owner=>{const p='/apps/web/src/saved-drafts.ts';return (await (await import(p)).loadSavedDrafts(owner)).library;},owner),before=await library();
+ await open(page);const review=page.getByRole('button',{name:'Review',exact:true});await expect(review).toBeEnabled();await review.focus();await page.keyboard.press('Enter');
+ const modal=page.getByRole('dialog',{name:'Review saved references',exact:true}),excerpt=modal.getByRole('textbox',{name:'Saved excerpt text · legacy-terminal',exact:true});
+ await expect(modal.getByText(/Resource legacy-resource: unvalidated/)).toBeVisible();await expect(modal.getByText(/Skill legacy-skill: unvalidated/)).toBeVisible();await expect(excerpt).toHaveValue('Legacy reviewed output <literal> & café');await expect(excerpt).toHaveAttribute('readonly','');
+ await modal.getByRole('button',{name:'Close dialog',exact:true}).focus();await page.keyboard.press('Tab');await expect(excerpt).toBeFocused();await page.keyboard.press('ControlOrMeta+a');expect(await excerpt.evaluate((el:HTMLTextAreaElement)=>el.value.slice(el.selectionStart,el.selectionEnd))).toBe('Legacy reviewed output <literal> & café');
+ await expect(modal.getByRole('button',{name:'Restore with references unavailable'})).toBeDisabled();await expect(modal.getByRole('button',{name:'Replace text'})).toBeDisabled();
+ for(const width of [1440,1024,768]){await page.setViewportSize({width,height:900});await expect(modal).toBeInViewport();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:info.outputPath(`reference-review-${width}.png`)});}
+ await page.keyboard.press('Escape');await expect(draft(page)).toHaveValue('');expect(await library()).toEqual(before);await page.reload();await expect(draft(page)).toBeEnabled();expect(await library()).toEqual(before);expect(writes).toEqual([]);
+});

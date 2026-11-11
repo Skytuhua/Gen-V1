@@ -18,3 +18,5 @@
 .saved-drafts-preview {white-space:pre-wrap;overflow-wrap:anywhere;max-height:200px;overflow:auto;font:inherit;}
 .saved-drafts-references ul {padding-inline-start:var(--ui-space-4);font-size:12px;}
 .saved-drafts-actions {display:flex;justify-content:flex-end;gap:var(--ui-space-2);flex-wrap:wrap;margin-block-start:var(--ui-space-4);}
+
+.saved-drafts-references textarea {display:block;width:100%;margin-block:var(--ui-space-2);}
