@@ -1,5 +1,4 @@
 import { expect, test, type Page } from "@playwright/test";
-import { mkdir } from "node:fs/promises";
 
 const fixtureRoot = encodeURI("/@fs/" + process.cwd().replaceAll("\\", "/"));
 const search = (page: Page) =>
@@ -370,7 +369,7 @@ test("paged results complete without duplication; refresh restarts from the firs
 
 test("the client cap reports incomplete final results without a continuation cursor", async ({
 	page,
-}) => {
+}, testInfo) => {
 	await fixture(page, "?state=loading");
 	await projectScope(page);
 	for (let index = 0; index < 11; index++) {
@@ -429,11 +428,10 @@ test("the client cap reports incomplete final results without a continuation cur
 	await page
 		.getByText("Showing 1,000 results.", { exact: false })
 		.scrollIntoViewIfNeeded();
-	if (process.env.WO5_CAPTURE_DIR)
-		await page.screenshot({
-			path: `${process.env.WO5_CAPTURE_DIR}/1-after-cap-1440.png`,
-			fullPage: true,
-		});
+	await page.screenshot({
+		path: testInfo.outputPath("1-after-cap-1440.png"),
+		fullPage: true,
+	});
 });
 
 for (const state of ["expired", "binding", "wrong-owner"])
@@ -530,10 +528,8 @@ test("GrantedFiles retains its filter, grant owner and preview without Project s
 for (const width of [1440, 1024, 768])
 	test(`states and long paths fit at ${width}px; capture production TSX fixture`, async ({
 		page,
-	}) => {
+	}, testInfo) => {
 		await page.setViewportSize({ width, height: 1000 });
-		const directory = process.env.WO5_CAPTURE_DIR;
-		if (directory) await mkdir(directory, { recursive: true });
 		for (const state of [
 			"results",
 			"empty",
@@ -561,32 +557,30 @@ for (const width of [1440, 1024, 768])
 			).toBe(true);
 			await search(page).blur();
 			await page.mouse.move(width - 8, 990);
-			if (directory)
-				await page.screenshot({
-					path: `${directory}/1-after${state === "results" ? "" : `-${state}`}-${width}.png`,
-					fullPage: true,
-				});
+			await page.screenshot({
+				path: testInfo.outputPath(
+					`1-after${state === "results" ? "" : `-${state}`}-${width}.png`,
+				),
+				fullPage: true,
+			});
 			if (state === "results") {
 				await hits(page).first().hover();
-				if (directory)
-					await page.screenshot({
-						path: `${directory}/1-after-hover-${width}.png`,
-						fullPage: true,
-					});
+				await page.screenshot({
+					path: testInfo.outputPath(`1-after-hover-${width}.png`),
+					fullPage: true,
+				});
 				await search(page).focus();
 				await page.keyboard.press("ArrowDown");
-				if (directory)
-					await page.screenshot({
-						path: `${directory}/1-after-focus-${width}.png`,
-						fullPage: true,
-					});
+				await page.screenshot({
+					path: testInfo.outputPath(`1-after-focus-${width}.png`),
+					fullPage: true,
+				});
 				await hits(page).first().click();
 				await expect(page.locator(".files-matching-line")).toBeVisible();
-				if (directory)
-					await page.screenshot({
-						path: `${directory}/1-after-open-${width}.png`,
-						fullPage: true,
-					});
+				await page.screenshot({
+					path: testInfo.outputPath(`1-after-open-${width}.png`),
+					fullPage: true,
+				});
 			}
 		}
 	});
@@ -697,7 +691,7 @@ for (const theme of ["dark", "light"])
 
 test("QA r1 displays frozen binding, issues and complete paged results", async ({
 	page,
-}) => {
+}, testInfo) => {
 	await fixture(page, "?state=loading");
 	await projectScope(page);
 	await page.evaluate(() => {
@@ -750,11 +744,10 @@ test("QA r1 displays frozen binding, issues and complete paged results", async (
 		"More issues were omitted",
 	])
 		await expect(page.locator(".project-search-details")).toContainText(text);
-	if (process.env.WO5_CAPTURE_DIR)
-		await page.screenshot({
-			path: `${process.env.WO5_CAPTURE_DIR}/qa-r1-contract-details-1440.png`,
-			fullPage: true,
-		});
+	await page.screenshot({
+		path: testInfo.outputPath("qa-r1-contract-details-1440.png"),
+		fullPage: true,
+	});
 });
 
 test("QA r1 uses the trimmed 200-code-point input boundary", async ({
@@ -772,3 +765,151 @@ test("QA r1 uses the trimmed 200-code-point input boundary", async ({
 		await page.evaluate(() => window.projectSearchFixture.requests.at(-1)?.q),
 	).toBe("😀".repeat(200));
 });
+
+test("QA r2 valid control paths stay visible and retain the exact read target", async ({
+	page,
+}, testInfo) => {
+	await fixture(page, "?state=loading");
+	await projectScope(page);
+	await page.evaluate(() => {
+		const pending = window.projectSearchFixture.pending[0];
+		pending.resolve({
+			owner: {
+				...pending.request.owner,
+				workingCopyId: null,
+				binding: "b".repeat(64),
+			},
+			matches: [
+				{
+					path: "src/notes\t2026.txt",
+					kind: "text",
+					line: 1,
+					column: 1,
+					preview: "needle",
+					sha256: "a".repeat(64),
+				},
+				{
+					path: "src/path\n2026.txt",
+					kind: "path",
+					line: null,
+					column: null,
+					preview: "src/path\n2026.txt",
+					sha256: "a".repeat(64),
+				},
+			],
+			nextCursor: null,
+			complete: false,
+			issues: [{ path: "src/unreadable\n2026.txt", reason: "unreadable" }],
+			issuesTruncated: false,
+			exclusions: [],
+			limits: {
+				files: 10000,
+				bytes: 33554432,
+				matches: 1000,
+				timeoutMs: 2000,
+				fileBytes: 1048576,
+			},
+		});
+	});
+	await expect(hits(page)).toHaveCount(2);
+	await expect(hits(page).nth(1).locator("span").last()).toHaveText(
+		"src/path\\n2026.txt",
+	);
+	await expect(hits(page).first()).toContainText("notes\\t2026.txt");
+	await page.locator(".project-search-details summary").click();
+	await expect(page.locator(".project-search-details")).toContainText(
+		"src/unreadable\\n2026.txt: unreadable",
+	);
+	await page.screenshot({
+		path: testInfo.outputPath("qa-r2-control-paths-1440.png"),
+		fullPage: true,
+	});
+	let readTarget: string | null = null;
+	await page.route("**/api/projects/*/file?*", (route) => {
+		readTarget = new URL(route.request().url()).searchParams.get("path");
+		return route.fulfill({
+			json: { text: "needle", binary: false, sha256: "a".repeat(64) },
+		});
+	});
+	await hits(page).first().click();
+	await expect(page.locator(".files-matching-line")).toHaveText("needle");
+	await expect(preview(page).locator("header strong")).toHaveText(
+		"notes\\t2026.txt",
+	);
+	expect(readTarget).toBe("src/notes\t2026.txt");
+	await page.screenshot({
+		path: testInfo.outputPath("qa-r2-control-preview-1440.png"),
+		fullPage: true,
+	});
+});
+
+for (const { name, text, line } of [
+	{ name: "CR-only", text: "first\rneedle", line: 2 },
+	{ name: "mixed", text: "first\r\nsecond\rneedle\nfourth", line: 3 },
+])
+	test(`QA r2 ${name} line breaks reveal the host matching line without changing copied text`, async ({
+		page,
+	}, testInfo) => {
+		await fixture(page, "?state=loading");
+		await projectScope(page, "needle");
+		await page.evaluate(
+			({ line }) => {
+				const pending = window.projectSearchFixture.pending[0];
+				pending.resolve({
+					owner: {
+						...pending.request.owner,
+						workingCopyId: null,
+						binding: "b".repeat(64),
+					},
+					matches: [
+						{
+							path: "notes.txt",
+							kind: "text",
+							line,
+							column: 1,
+							preview: "needle",
+							sha256: "a".repeat(64),
+						},
+					],
+					nextCursor: null,
+					complete: true,
+					issues: [],
+					issuesTruncated: false,
+					exclusions: [],
+					limits: {
+						files: 10000,
+						bytes: 33554432,
+						matches: 1000,
+						timeoutMs: 2000,
+						fileBytes: 1048576,
+					},
+				});
+			},
+			{ line },
+		);
+		await page.route("**/api/projects/*/file?*", (route) =>
+			route.fulfill({ json: { text, binary: false, sha256: "a".repeat(64) } }),
+		);
+		await hits(page).first().click();
+		await expect(page.locator(".files-matching-line")).toHaveText("needle");
+		await expect(preview(page)).toContainText(`Matching line ${line}`);
+		expect(await preview(page).locator("pre").textContent()).toBe(text);
+		const position = await preview(page)
+			.locator("pre")
+			.evaluate((element) => {
+				const first = document.createRange();
+				first.setStart(element.firstChild!, 0);
+				first.setEnd(element.firstChild!, 1);
+				return {
+					offset:
+						element.querySelector("mark")!.getBoundingClientRect().top -
+						first.getBoundingClientRect().top,
+					height: Number.parseFloat(getComputedStyle(element).lineHeight),
+				};
+			});
+		expect(position.offset).toBeCloseTo((line - 1) * position.height, 0);
+		await page.screenshot({
+			path: testInfo.outputPath(`qa-r2-${name.toLowerCase()}-preview-1440.png`),
+			fullPage: true,
+		});
+	});

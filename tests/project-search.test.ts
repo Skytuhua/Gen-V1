@@ -1,3 +1,5 @@
+import { readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 import {
 	appendProjectSearch,
@@ -302,4 +304,55 @@ it("bounds repeated page metadata and preserves omitted issue disclosure", () =>
 	expect(combined.issuesTruncated).toBe(true);
 	expect(combined.exclusions).toEqual(["node_modules"]);
 	expect(appendProjectSearch(combined, page()).issuesTruncated).toBe(true);
+});
+
+describe("QA r2 host-compatible paths", () => {
+	it.each(["\t", "\n", "\r", "\u001b", "\u007f"])(
+		"accepts a valid control character in match and issue paths: %j",
+		async (control) => {
+			const value = page();
+			value.matches.push({
+				...value.matches[0],
+				path: `src/notes${control}2026.txt`,
+			});
+			value.complete = false;
+			value.issues = [
+				{ path: `src/unreadable${control}2026.txt`, reason: "unreadable" },
+			];
+			await expect(read(value)).resolves.toEqual(value);
+		},
+	);
+	it.each(["src/COM¹.txt", "src/harness.sqlite", "src/.host-lease.sqlite-wal"])(
+		"rejects a host-protected path: %s",
+		async (path) => {
+			const value = page();
+			value.matches[0].path = path;
+			await expect(read(value)).rejects.toThrow("invalid results");
+		},
+	);
+});
+
+it("keeps every spec and capture script free of external evidence destinations", () => {
+	const forbidden = ["gen-company", "ledger"].join("/");
+	const referencesDestination = (source: string) => source.includes(forbidden);
+	expect(referencesDestination(`await save("${forbidden}/example.png")`)).toBe(
+		true,
+	);
+	const files = ["tests", "scripts"]
+		.flatMap((root) =>
+			readdirSync(root, { recursive: true })
+				.map(String)
+				.map((name) => join(root, name).replaceAll("\\", "/")),
+		)
+		.filter(
+			(path) =>
+				/\.[cm]?[jt]sx?$/.test(path) &&
+				(path.startsWith("tests/") || /capture/.test(path)),
+		);
+	expect(
+		files.filter((path) => referencesDestination(readFileSync(path, "utf8"))),
+	).toEqual([]);
+	const itemSpec = readFileSync("tests/e2e/project-search.spec.ts", "utf8");
+	expect(itemSpec.includes(["WO5", "CAPTURE", "DIR"].join("_"))).toBe(false);
+	expect(itemSpec).toContain("testInfo.outputPath(");
 });

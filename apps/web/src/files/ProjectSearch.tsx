@@ -4,6 +4,7 @@ import {
 	isComposing,
 	useListNavigation,
 } from "../../../../packages/ui-shell/list-navigation";
+import { displayFilePath } from "./FilesView";
 import { useFilesRead } from "./useFilesRead";
 import {
 	appendProjectSearch,
@@ -199,7 +200,7 @@ function SearchResults({
 					<li key={projectSearchMatchKey(match)}>
 						<button
 							className="project-search-hit"
-							title={match.path}
+							title={displayFilePath(match.path)}
 							type="button"
 							ref={(node) => {
 								navigation.rows.current[index] = node;
@@ -215,10 +216,13 @@ function SearchResults({
 						>
 							<File size={15} aria-hidden="true" />
 							<span>
-								<strong>{match.path.split("/").at(-1)}</strong>
+								<strong>
+									{displayFilePath(match.path.split("/").at(-1)!)}
+								</strong>
 								<small>
-									{match.path.split("/").slice(0, -1).join("/") ||
-										"Project root"}
+									{displayFilePath(
+										match.path.split("/").slice(0, -1).join("/"),
+									) || "Project root"}
 									{match.kind === "text"
 										? ` · line ${match.line}`
 										: " · File name"}
@@ -228,7 +232,9 @@ function SearchResults({
 										match.kind === "text" ? "project-search-snippet" : undefined
 									}
 								>
-									{match.preview}
+									{match.kind === "path"
+										? displayFilePath(match.preview)
+										: match.preview}
 								</span>
 							</span>
 						</button>
@@ -295,7 +301,7 @@ function SearchResults({
 						))}
 						{page.value.issues.map((item, index) => (
 							<p key={index}>
-								{item.path ? `${item.path}: ` : ""}
+								{item.path ? `${displayFilePath(item.path)}: ` : ""}
 								{item.reason.replaceAll("_", " ")}
 							</p>
 						))}

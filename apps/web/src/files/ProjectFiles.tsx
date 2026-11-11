@@ -1,4 +1,5 @@
 import {
+	Fragment,
 	useCallback,
 	useEffect,
 	useRef,
@@ -98,7 +99,21 @@ function ProjectFilesReader({
 	if (folder.errorCode === "PROJECT_NOT_CONNECTED") return fallback;
 	const line =
 		selectedMatch?.kind === "text" && !stale ? selectedMatch.line : undefined;
-	const lines = line && file?.text ? file.text.split("\n") : undefined;
+	const lines =
+		line && file?.text ? file.text.split(/(\r\n|\r|\n)/) : undefined;
+	const lineIndex = line ? (line - 1) * 2 : -1;
+	// DOM carriage returns need an explicit visual break; retain the source text.
+	const renderParts = (parts: string[]) =>
+		parts.map((part, index) =>
+			part === "\r" ? (
+				<Fragment key={index}>
+					{part}
+					<br aria-hidden="true" />
+				</Fragment>
+			) : (
+				part
+			),
+		);
 	return (
 		<FilesView
 			source="project"
@@ -139,12 +154,12 @@ function ProjectFilesReader({
 								refresh search results before using the matching line.
 							</p>
 						)}
-						{line && lines && line > lines.length && (
+						{line && lines && lineIndex >= lines.length && (
 							<p className="files-message" role="status">
 								The matching line is no longer available. Refresh the search.
 							</p>
 						)}
-						{line && lines && line <= lines.length && (
+						{line && lines && lineIndex < lines.length && (
 							<p className="files-message files-limit">Matching line {line}</p>
 						)}
 						{file.binary ? (
@@ -155,15 +170,13 @@ function ProjectFilesReader({
 							<p className="files-message">Empty text file</p>
 						) : (
 							<pre>
-								{lines && line && line <= lines.length ? (
+								{lines && line && lineIndex < lines.length ? (
 									<>
-										{lines.slice(0, line - 1).join("\n")}
-										{line > 1 ? "\n" : ""}
+										{renderParts(lines.slice(0, lineIndex))}
 										<mark className="files-matching-line" ref={matchLine}>
-											{lines[line - 1]}
+											{lines[lineIndex]}
 										</mark>
-										{line < lines.length ? "\n" : ""}
-										{lines.slice(line).join("\n")}
+										{renderParts(lines.slice(lineIndex + 1))}
 									</>
 								) : (
 									file.text

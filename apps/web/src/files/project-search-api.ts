@@ -2,13 +2,21 @@ import { z } from "zod";
 
 const id = z.string().regex(/^[a-zA-Z0-9:_.-]{1,200}$/);
 const sha256 = z.string().regex(/^[a-f\d]{64}$/);
+const hostFiles = new Set([
+	"harness.sqlite",
+	"harness.sqlite-wal",
+	"harness.sqlite-shm",
+	".host-lease.sqlite",
+	".host-lease.sqlite-wal",
+	".host-lease.sqlite-shm",
+]);
 const relativePath = z
 	.string()
 	.min(1)
 	.refine(
 		(path) =>
 			new TextEncoder().encode(path).length <= 1024 &&
-			!/[\\\x00-\x1f\x7f:]/.test(path) &&
+			!/[\\\x00:]/.test(path) &&
 			!/[\uD800-\uDFFF]/u.test(path) &&
 			!path
 				.split("/")
@@ -19,7 +27,10 @@ const relativePath = z
 						part === ".." ||
 						/[. ]$/.test(part) ||
 						/^(?:\.git|\.harness-directory-guard)$/i.test(part) ||
-						/^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(part),
+						/^(?:con|prn|aux|nul|com[1-9¹²³]|lpt[1-9¹²³])(?:\.|$)/i.test(
+							part,
+						) ||
+						hostFiles.has(part.toLowerCase()),
 				),
 		"Search paths must be relative to the project.",
 	);
