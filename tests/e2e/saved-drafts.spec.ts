@@ -172,3 +172,22 @@ test('another window adding an inactive library reschedules the empty active lib
  const key=await other.evaluate(async owner=>{const sp='/apps/web/src/saved-drafts.ts',jp='/apps/web/src/journal.ts',lp='/apps/web/src/draft-limits.ts',s=await import(sp),j=await import(jp),limits=await import(lp),scope={...owner,threadId:'inactive-thread'},expired=s.createSavedDraft(scope,'Expires offscreen','Old text'),recent=s.createSavedDraft(scope,'Keep recent','Recent text');expired.updatedAt=new Date(Date.now()-limits.SAVED_DRAFT_IDLE_MS+60000).toISOString();const key=s.savedDraftLibraryKey(scope);await j.journalWrite(key,{version:1,owner:scope,records:[expired,recent]});return key;},owner);
  await page.clock.fastForward(120000);await expect.poll(()=>durableNames(page,[key])).toEqual([['Keep recent']]);await expect(page.getByText('No saved drafts yet.',{exact:false})).toBeVisible();expect(writes).toEqual([]);
 });
+
+
+async function seedMalformedInactive(page:Page){
+ return page.evaluate(async owner=>{const sp='/apps/web/src/saved-drafts.ts',s=await import(sp),scope={...owner,threadId:'damaged-thread',workingCopyId:'damaged-copy'},key=s.savedDraftLibraryKey(scope),row={value:{version:999,owner:scope,records:[],private:'do-not-log-private-text'},updatedAt:Date.now(),generation:crypto.randomUUID()};
+  const request=indexedDB.open('generative-harness-journal',1),db=await new Promise<IDBDatabase>((resolve,reject)=>{request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);});await new Promise<void>((resolve,reject)=>{const tx=db.transaction('entries','readwrite');tx.objectStore('entries').put(row,key);tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error);});db.close();return {key,row};
+ },owner);
+}
+async function durableRow(page:Page,key:string){
+ return page.evaluate(async key=>{const request=indexedDB.open('generative-harness-journal',1),db=await new Promise<IDBDatabase>((resolve,reject)=>{request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);});try{return await new Promise<unknown>((resolve,reject)=>{const get=db.transaction('entries').objectStore('entries').get(key);get.onsuccess=()=>resolve(get.result);get.onerror=()=>reject(get.error);});}finally{db.close();}},key);
+}
+for(const access of ['load','save','list','switch'] as const)test(`malformed inactive library does not block valid ${access} or inactive expiry`,async({page})=>{
+ const warnings:string[]=[];page.on('console',message=>{if(message.type()==='warning')warnings.push(message.text());});const writes=await setup(page);await draft(page).fill('Keep active text');const keys=await seedInactiveExpiry(page,-1),bad=await seedMalformedInactive(page);
+ if(access==='load')await page.reload();else if(access==='switch')await page.goto('/fixture?copy=valid-empty-copy');else{await open(page);await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true}).getByRole('alert')).toBeHidden();if(access==='save'){await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name',{exact:true}).fill('Healthy new draft');await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt',exact:true})).toBeHidden();}}
+ await expect.poll(()=>durableNames(page,keys)).toEqual([['Keep recent'],['Keep recent']]);await expect(draft(page)).toHaveValue('Keep active text');expect(await durableRow(page,bad.key)).toEqual(bad.row);expect(warnings.join(' ')).not.toContain('do-not-log-private-text');expect(writes).toEqual([]);
+});
+test('malformed inactive library does not stop the global expiry deadline',async({page})=>{
+ await page.clock.install();const writes=await setup(page);await draft(page).fill('Keep active text');const keys=await seedInactiveExpiry(page,60000),bad=await seedMalformedInactive(page);await page.reload();await expect(draft(page)).toHaveValue('Keep active text');await open(page);
+ expect(await durableNames(page,keys)).toEqual([['Expires offscreen','Keep recent'],['Expires offscreen','Keep recent']]);await page.clock.fastForward(120000);await expect.poll(()=>durableNames(page,keys)).toEqual([['Keep recent'],['Keep recent']]);expect(await durableRow(page,bad.key)).toEqual(bad.row);await expect(draft(page)).toHaveValue('Keep active text');expect(writes).toEqual([]);
+});

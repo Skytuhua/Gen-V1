@@ -58,14 +58,20 @@ const threadQuotaKey=(owner:SavedDraftOwner)=>'saved-draft-thread:'+JSON.stringi
 export async function loadSavedDrafts(owner:SavedDraftOwner):Promise<{library:SavedDraftLibrary;generation:string|undefined;threadGeneration:string|undefined;count:number;nextExpiry:number|null}>{
  for(let attempt=0;attempt<8;attempt++){
   const key=savedDraftLibraryKey(owner),record=await journalReadRecord(key),fallback=readSavedDraftLibrary(record?.value,owner),quotaKey=threadQuotaKey(owner),quota=await journalReadRecord(quotaKey),entries=await journalEntries();
-  const libraries:{key:string;library:SavedDraftLibrary;generation:string}[]=[];
+  const libraries:{key:string;library:SavedDraftLibrary;generation:string}[]=[],threadPrefix='saved-drafts:'+JSON.stringify([owner.profileId,owner.accountId,owner.threadId]).slice(0,-1)+',';
   for(const entry of entries){
    if(!entry.key.startsWith('saved-drafts:'))continue;
-   const scope=savedDraftOwnerSchema.safeParse((entry.record.value as {owner?:unknown}|null)?.owner);
-   if(!scope.success){if(entry.key===key)readSavedDraftLibrary(entry.record.value,owner);continue;}
-   if(entry.key!==savedDraftLibraryKey(scope.data))throw Error('Saved draft owner does not match its local storage key.');
    const record=await journalReadRecord(entry.key);
-   if(record)libraries.push({key:entry.key,library:readSavedDraftLibrary(record.value,scope.data),generation:record.generation});
+   if(!record)continue;
+   try{
+    const scope=savedDraftOwnerSchema.parse((record.value as {owner?:unknown}|null)?.owner);
+    if(entry.key!==savedDraftLibraryKey(scope))throw Error('Saved draft owner does not match its local storage key.');
+    libraries.push({key:entry.key,library:readSavedDraftLibrary(record.value,scope),generation:record.generation});
+   }catch(cause){
+    // An unreadable library in this thread makes its quota unknowable; unrelated corruption is isolated.
+    if(entry.key.startsWith(threadPrefix))throw cause;
+    console.warn('Skipped an invalid saved-draft library outside the current thread. Stored data was preserved.');
+   }
   }
   const cutoff=Date.now()-SAVED_DRAFT_IDLE_MS,expired=libraries.flatMap(row=>{
    const records=row.library.records.filter(draft=>Date.parse(draft.updatedAt)>cutoff);

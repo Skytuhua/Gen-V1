@@ -131,3 +131,21 @@ it('retries a global sweep without deleting an inactive draft edited concurrentl
  try{await loadSavedDrafts(owner);expect((local.rows.get(savedDraftLibraryKey(copy))!.value as {records:{name:string}[]}).records.map(r=>r.name)).toEqual(['Edited concurrently']);expect((local.rows.get(savedDraftLibraryKey(thread))!.value as {records:unknown[]}).records).toEqual([]);}finally{spy.mockRestore();}
  expect(journal.journalCompareAndSwapMany).toBe(original);
 });
+
+
+for(const damage of ['version','records','owner-key'] as const)it.each(['load','save','restore','delete'] as const)(`isolates malformed inactive ${damage} libraries during %s and continues valid expiry`,async action=>{
+ const active=seedLibrary(owner),generation=local.rows.get(savedDraftLibraryKey(owner))!.generation;put('draft:'+owner.threadId,'Current text');const plan=await planDraftRestore(owner,active[0].id);
+ const scopes=[{...owner,workingCopyId:'valid-inactive-copy'},{...owner,threadId:'valid-inactive-thread'},{...owner,threadId:'damaged-thread',workingCopyId:'healthy-copy'}];for(const scope of scopes){const records=seedLibrary(scope,2);records[0].updatedAt=new Date(Date.now()-90*day-1).toISOString();records[1].name='Recent';}
+ const badOwner={...owner,threadId:'damaged-thread',workingCopyId:'damaged-copy'},badKey=savedDraftLibraryKey(badOwner),bad={version:damage==='version'?999:1,owner:damage==='owner-key'?{...badOwner,threadId:'wrong-thread'}:badOwner,records:damage==='records'?[{text:'do-not-log-private-text'}]:[]};put(badKey,bad);
+ const warn=vi.spyOn(console,'warn').mockImplementation(()=>{});
+ try{
+  if(action==='load')await loadSavedDrafts(owner);else if(action==='save')await saveNamedDraft(owner,'Still usable');else if(action==='restore')await restoreSavedDraftText(owner,plan,'insert',0);else await deleteSavedDraft(owner,active[0].id,generation);
+  for(const scope of scopes)expect((local.rows.get(savedDraftLibraryKey(scope))!.value as {records:{name:string}[]}).records.map(r=>r.name)).toEqual(['Recent']);
+  const current=(local.rows.get(savedDraftLibraryKey(owner))!.value as {records:{name:string}[]}).records;expect(current).toHaveLength(action==='save'?2:action==='delete'?0:1);if(action==='save')expect(current.some(r=>r.name==='Still usable')).toBe(true);expect(local.rows.get('draft:'+owner.threadId)?.value).toBe(action==='restore'?'Saved textCurrent text':'Current text');
+  expect(local.rows.get(badKey)?.value).toEqual(bad);expect(warn).toHaveBeenCalled();expect(warn.mock.calls.flat().join(' ')).not.toContain('do-not-log-private-text');expect(fetch).not.toHaveBeenCalled();
+ }finally{warn.mockRestore();}
+});
+it.each(['version','ownerless'] as const)('keeps affected-thread quota and owner checks strict for a malformed %s working-copy library',async damage=>{
+ const copy={...owner,workingCopyId:'damaged-copy'},value=damage==='version'?{version:999,owner:copy,records:[]}:{version:1,records:[]};put(savedDraftLibraryKey(copy),value);put('draft:'+owner.threadId,'Keep current');
+ await expect(loadSavedDrafts(owner)).rejects.toThrow();await expect(saveNamedDraft(owner,'Do not bypass quota')).rejects.toThrow();expect(local.rows.get(savedDraftLibraryKey(copy))?.value).toEqual(value);expect(local.rows.get('draft:'+owner.threadId)?.value).toBe('Keep current');
+});
