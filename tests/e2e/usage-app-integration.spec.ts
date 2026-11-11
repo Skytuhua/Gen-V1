@@ -19,8 +19,26 @@ test('actual App sidebar Usage opens canonical modal and retains the conversatio
  await expect(modal(page)).not.toContainText('Thread memory');await page.keyboard.press('Escape');await expect(draft).toHaveValue('Preserve this draft');
  expect(h.commands.filter(x=>x.type==='thread.create'||x.type==='message.send')).toHaveLength(0);
 });
+for(const width of [375,768,1440])test(`actual App live usage launcher starts closed and toggles the summary at ${width}px`,async({page})=>{
+ await page.setViewportSize({width,height:900});await host(page);
+ const show=page.getByRole('button',{name:'Show live usage',exact:true}),hide=page.getByRole('button',{name:'Hide live usage',exact:true});
+ const summary=page.getByRole('region',{name:'Live usage',exact:true});
+ await expect(show).toBeVisible();await expect(show).toHaveAttribute('aria-pressed','false');await expect(summary).toBeHidden();await expect(modal(page)).toHaveCount(0);
+ await show.click();await expect(hide).toHaveAttribute('aria-pressed','true');await expect(summary).toBeVisible();
+ await summary.getByRole('button',{name:'Inspect live usage',exact:true}).click();await expect(summary.getByRole('region',{name:'Runtime usage details'})).toBeVisible();
+ await hide.click();await expect(summary).toBeHidden();await expect(show).toHaveAttribute('aria-pressed','false');
+ await show.click();await expect(summary.getByRole('region',{name:'Runtime usage details'})).toBeVisible();
+ await page.reload();await expect(show).toBeVisible();await expect(show).toHaveAttribute('aria-pressed','false');await expect(summary).toBeHidden();
+});
+test('actual App Live usage preference controls the composer launcher without opening the summary',async({page})=>{
+ const h=await host(page),launcher=page.locator('.composer-usage-launcher'),summary=page.getByRole('region',{name:'Live usage',exact:true});
+ h.snapshot.settings.preferences={...h.snapshot.settings.preferences,showUsageFooter:false};await h.publish();await expect(launcher).toHaveCount(0);await expect(summary).toBeHidden();
+ h.snapshot.settings.preferences={...h.snapshot.settings.preferences,showUsageFooter:true};await h.publish();await expect(launcher).toBeVisible();await expect(launcher).toHaveAttribute('aria-pressed','false');await expect(summary).toBeHidden();
+ await launcher.click();await expect(summary).toBeVisible();
+ h.snapshot.settings.preferences={...h.snapshot.settings.preferences,showUsageFooter:false};await h.publish();await expect(launcher).toHaveCount(0);await expect(summary).toBeHidden();
+});
 test('actual App dock header remains a disclosure and its body opens the same Usage modal',async({page})=>{
- await host(page);const summary=page.getByRole('region',{name:'Live usage',exact:true});
+ await host(page);await page.getByRole('button',{name:'Show live usage',exact:true}).click();const summary=page.getByRole('region',{name:'Live usage',exact:true});
  await summary.getByRole('button',{name:'Inspect live usage',exact:true}).click();await summary.getByRole('button',{name:'Open Usage',exact:true}).click();
  await expect(modal(page)).toBeVisible();await page.keyboard.press('Escape');await expect(summary.getByRole('button',{name:'Open Usage',exact:true})).toBeFocused();
 });
