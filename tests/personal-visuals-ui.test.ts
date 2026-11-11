@@ -8,7 +8,7 @@ import {
 } from "../plugins/personal-visuals/src/contracts";
 import { resolve } from "node:path";
 
-async function visualFixture(record?: VisualDocumentRecord) {
+async function visualFixture(record?: VisualDocumentRecord, presentation?: { introDismissed: boolean }) {
 	const root = process.cwd(),
 		plugin = resolve(root, "plugins/personal-visuals");
 	const shared = await build({
@@ -54,7 +54,7 @@ async function visualFixture(record?: VisualDocumentRecord) {
 			file.path.endsWith(".js"),
 		)!.text,
 		css = frontend.outputFiles.find((file) => file.path.endsWith(".css"))!.text;
-	const bridge = `window.__PV_STATE={revision:0,document:null,draft:null,...${JSON.stringify(record ?? {})},calls:[],attempts:[],receipts:{}};window.GenPluginUI={...window.__PV_SHARED,registerPlugin:(manifest,registration)=>{window.__PV_REGISTRATION={manifest,registration};},registerEditorHandoff:(_id,guard)=>{window.__PV_FLUSH=guard;return()=>{};},pluginReady:()=>window.__PV_READY=true,pluginRequest:async(operation,input)=>{const state=window.__PV_STATE;if(operation==='visual.document.read')return{documentId:'main',revision:state.revision,document:state.document,draft:state.draft,receipt:state.receipts[input.requestId]??null};if(operation!=='visual.document.write')throw Error('Unknown operation');state.attempts.push(input);await new Promise(resolve=>setTimeout(resolve,30));if(state.receipts[input.requestId])return state.receipts[input.requestId];if(input.baseRevision!==state.revision)throw Error('Revision conflict');state.calls.push(input);state.revision++;if(input.action==='draft')state.draft=input.draft;else{state.document=input.document;state.draft=null;}const receipt={documentId:'main',revision:state.revision,requestId:input.requestId};state.receipts[input.requestId]=receipt;if(input.action==='commit'&&window.__PV_FAIL_COMMIT){window.__PV_FAIL_COMMIT=false;throw Error('Synthetic lost commit response');}return receipt;}};`;
+	const bridge = `window.__PV_STATE={revision:0,document:null,draft:null,...${JSON.stringify(record ?? {})},calls:[],attempts:[],receipts:{}};window.__PV_PRESENTATION=${JSON.stringify(presentation ?? null)};window.GenPluginUI={...window.__PV_SHARED,registerPlugin:(manifest,registration)=>{window.__PV_REGISTRATION={manifest,registration};},registerEditorHandoff:(_id,guard)=>{window.__PV_FLUSH=guard;return()=>{};},pluginReady:()=>window.__PV_READY=true,pluginPresentation:()=>window.__PV_PRESENTATION??{introDismissed:false},onPluginPresentation:listener=>{(window.__PV_PRESENTATION_LISTENERS??=[]).push(listener);return()=>{};},pluginRequest:async(operation,input)=>{const state=window.__PV_STATE;if(operation==='presentation.set'){window.__PV_PRESENTATION={introDismissed:input.introDismissed===true};for(const listener of window.__PV_PRESENTATION_LISTENERS??[])listener(window.__PV_PRESENTATION);return null;}if(operation==='visual.document.read')return{documentId:'main',revision:state.revision,document:state.document,draft:state.draft,receipt:state.receipts[input.requestId]??null};if(operation!=='visual.document.write')throw Error('Unknown operation');state.attempts.push(input);await new Promise(resolve=>setTimeout(resolve,30));if(state.receipts[input.requestId])return state.receipts[input.requestId];if(input.baseRevision!==state.revision)throw Error('Revision conflict');state.calls.push(input);state.revision++;if(input.action==='draft')state.draft=input.draft;else{state.document=input.document;state.draft=null;}const receipt={documentId:'main',revision:state.revision,requestId:input.requestId};state.receipts[input.requestId]=receipt;if(input.action==='commit'&&window.__PV_FAIL_COMMIT){window.__PV_FAIL_COMMIT=false;throw Error('Synthetic lost commit response');}return receipt;}};`;
 	const script = (value: string) => value.replace(/<\/script/gi, "<\\/script"),
 		child = `<!doctype html><html><head><meta charset="utf-8"><meta name="gen-plugin-id" content="personal-visuals"><style>${css}</style></head><body><div id="root"></div><script>${script(shared.outputFiles[0].text)}</script><script>${script(bridge)}</script><script>${script(javascript)}</script></body></html>`;
 	const attribute = (value: string) =>
@@ -509,6 +509,35 @@ it("explains the workspace purpose until dismissed and restores it from About Vi
 		expect(unexpected).toEqual([]);
 	} finally {
 		await close();
+	}
+}, 15000);
+
+it("persists intro dismissal through the host presentation bridge", async () => {
+	const dismissed = await visualFixture();
+	try {
+		await dismissed.frame.locator(".pv-intro").waitFor();
+		await dismissed.frame
+			.getByRole("button", { name: "Dismiss", exact: true })
+			.click();
+		expect(
+			await dismissed.frame.evaluate(() => (window as any).__PV_PRESENTATION),
+		).toEqual({ introDismissed: true });
+		expect(dismissed.errors).toEqual([]);
+		expect(dismissed.unexpected).toEqual([]);
+	} finally {
+		await dismissed.close();
+	}
+	const reopened = await visualFixture(undefined, { introDismissed: true });
+	try {
+		expect(await reopened.frame.locator(".pv-intro").count()).toBe(0);
+		await reopened.frame
+			.getByRole("button", { name: "About Visuals", exact: true })
+			.click();
+		await reopened.frame.locator(".pv-intro").waitFor();
+		expect(reopened.errors).toEqual([]);
+		expect(reopened.unexpected).toEqual([]);
+	} finally {
+		await reopened.close();
 	}
 }, 15000);
 

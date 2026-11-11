@@ -24,6 +24,9 @@ html[data-native-titlebar="true"] .usage-dialog.ui-modal { height:min(560px,calc
 .usage-limit+.usage-limit { margin-top:12px; }
 .usage-dialog-error { color:var(--danger); font-size:13px; line-height:1.5; overflow-wrap:anywhere; margin:0; }
 .usage-dialog-status,.usage-dialog-empty { color:var(--muted); font-size:13px; line-height:1.5; margin:0; }
+.usage-dialog-empty-state { display:grid; justify-items:center; gap:8px; padding:32px 16px; text-align:center; color:var(--muted); }
+.usage-dialog-empty-state strong { color:var(--text); font-size:14px; font-weight:600; }
+.usage-dialog-empty-state p { margin:0; max-width:40ch; font-size:13px; line-height:1.5; }
 .usage-dialog-skeleton { display:grid; gap:12px; padding:8px 0; }
 .usage-dialog-skeleton>span { display:block; height:20px; background:var(--hover); border-radius:var(--radius,6px); }
 .summary-usage .usage-open-details { min-height:32px; padding:6px 8px; margin-top:12px; }
