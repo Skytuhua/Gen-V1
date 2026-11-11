@@ -114,6 +114,42 @@ test('Environments and every section stay free of stray scalars through blank, m
   await expect(composer).toHaveValue('Retain this conversation draft');
 });
 
+test('dropdown popovers anchor to their trigger inside the settings dialog with default motion', async ({ page }) => {
+  const { dialog, commands } = await openSettings(page);
+  // Let the entrance animation finish; a forwards-filled transform used to keep the dialog
+  // as the containing block for the fixed popover, shifting it and clipping it at the dialog edge.
+  await page.waitForTimeout(300);
+  const trigger = dialog.getByRole('combobox', { name: 'Time format', exact: true });
+  await trigger.click();
+  const list = dialog.getByRole('listbox', { name: 'Time format', exact: true });
+  await expect(list).toBeVisible();
+  const anchor = await trigger.boundingBox(), popup = await list.boundingBox();
+  expect(Math.abs(popup!.x + popup!.width - (anchor!.x + anchor!.width))).toBeLessThanOrEqual(2);
+  expect(Math.abs(popup!.y - (anchor!.y + anchor!.height + 8))).toBeLessThanOrEqual(2);
+  const viewport = page.viewportSize()!;
+  expect(popup!.x).toBeGreaterThanOrEqual(0);
+  expect(popup!.x + popup!.width).toBeLessThanOrEqual(viewport.width);
+  expect(popup!.y + popup!.height).toBeLessThanOrEqual(viewport.height);
+  expect(await list.evaluate(node => (node as HTMLElement).offsetParent)).toBeNull();
+  await list.getByRole('option', { name: '24 hour', exact: true }).click();
+  await expect(trigger).toContainText('24 hour');
+  await expect.poll(() => commands.filter(command => command.type === 'settings.update').at(-1)?.payload.preferences).toMatchObject({ timeFormat: '24h' });
+});
+
+test('a dropdown opened during the dialog entrance re-anchors when the entrance ends', async ({ page }) => {
+  const { dialog } = await openSettings(page);
+  const trigger = dialog.getByRole('combobox', { name: 'Time format', exact: true });
+  await trigger.click();
+  const list = dialog.getByRole('listbox', { name: 'Time format', exact: true });
+  await expect(list).toBeVisible();
+  await expect.poll(async () => {
+    const anchor = await trigger.boundingBox(), popup = await list.boundingBox();
+    return Math.abs(popup!.x + popup!.width - (anchor!.x + anchor!.width)) <= 2 && Math.abs(popup!.y - (anchor!.y + anchor!.height + 8)) <= 2;
+  }, { timeout: 3000 }).toBe(true);
+  await list.getByRole('option', { name: '12 hour', exact: true }).click();
+  await expect(trigger).toContainText('12 hour');
+});
+
 test('preferences and supported environment actions remain usable after search reset', async ({ page }) => {
   const { dialog, nav, search, snapshot, commands } = await openSettings(page);
   await search.fill('chat width');
