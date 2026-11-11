@@ -2,6 +2,10 @@
 
 skills: ponytail, review-animations
 
+For the corrected owner map, prepared baseline collection and fresh finite
+production captures, see the [round-3 evidence](../wo-3.4-r3/README.md).
+The results below are retained as historical round-2 measurements.
+
 Measured source: `82d795829be621538fe6bbac72411a2a6d3b6e8a`.
 The desktop gate fix is `71101ef2b224014a672a402f492bc4c7fe757182`.
 Subsequent publication changes only documentation and the source allowlist;
