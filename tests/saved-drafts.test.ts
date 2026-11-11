@@ -112,3 +112,22 @@ it('rejects a foreign owner at the current library key without hiding or overwri
  const foreign={...owner,accountId:'foreign-account'},records=[createSavedDraft(foreign,'Foreign prompt','Keep private')],value={version:1,owner:foreign,records};put(savedDraftLibraryKey(owner),value);put('draft:'+owner.threadId,'Current text');
  await expect(loadSavedDrafts(owner)).rejects.toThrow(/another owner/);await expect(saveNamedDraft(owner,'Do not overwrite')).rejects.toThrow(/another owner/);expect(local.rows.get(savedDraftLibraryKey(owner))?.value).toEqual(value);
 });
+
+
+it.each(['load','save'] as const)('globally evicts inactive expired libraries on %s without loading their owner',async action=>{
+ const scopes=[{...owner,workingCopyId:'inactive-copy'},{...owner,threadId:'inactive-thread'},{...owner,profileId:'inactive-profile',accountId:'inactive-account'}];
+ for(const scope of scopes){const records=seedLibrary(scope,2);records[0].updatedAt=new Date(Date.now()-90*day-1).toISOString();records[1].name='Recent';}
+ put('draft:'+owner.threadId,'Keep active text');if(action==='save')await saveNamedDraft(owner,'Saved locally');else await loadSavedDrafts(owner);
+ for(const scope of scopes)expect((local.rows.get(savedDraftLibraryKey(scope))!.value as {records:{name:string}[]}).records.map(r=>r.name)).toEqual(['Recent']);
+ expect(local.rows.get('draft:'+owner.threadId)?.value).toBe('Keep active text');expect(fetch).not.toHaveBeenCalled();
+});
+
+
+it('retries a global sweep without deleting an inactive draft edited concurrently',async()=>{
+ const copy={...owner,workingCopyId:'inactive-copy'},thread={...owner,threadId:'inactive-thread'};
+ for(const scope of [copy,thread])seedLibrary(scope)[0].updatedAt=new Date(Date.now()-90*day-1).toISOString();
+ const journal=await import('../apps/web/src/journal'),original=journal.journalCompareAndSwapMany;
+ const spy=vi.spyOn(journal,'journalCompareAndSwapMany').mockImplementationOnce(async()=>{put(savedDraftLibraryKey(copy),{version:1,owner:copy,records:[createSavedDraft(copy,'Edited concurrently','Keep newer text')]});return false;});
+ try{await loadSavedDrafts(owner);expect((local.rows.get(savedDraftLibraryKey(copy))!.value as {records:{name:string}[]}).records.map(r=>r.name)).toEqual(['Edited concurrently']);expect((local.rows.get(savedDraftLibraryKey(thread))!.value as {records:unknown[]}).records).toEqual([]);}finally{spy.mockRestore();}
+ expect(journal.journalCompareAndSwapMany).toBe(original);
+});

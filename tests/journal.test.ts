@@ -80,14 +80,14 @@ function atomicDatabase(fail=false){
  }};request.result=database;vi.stubGlobal('indexedDB',{open:()=>{queueMicrotask(()=>request.onsuccess?.());return request;}});return rows;
 }
 it('commits multiple CAS records atomically and publishes only committed values',async()=>{
- const rows=atomicDatabase();const journal=await import('../apps/web/src/journal');const seen:unknown[]=[];journal.journalSubscribe('active',value=>seen.push(value));
+ const rows=atomicDatabase();const journal=await import('../apps/web/src/journal');const seen:unknown[]=[],keys:string[]=[];journal.journalSubscribe('active',value=>seen.push(value));const stop=journal.journalSubscribeEntries(key=>keys.push(key));
  expect(await journal.journalCompareAndSwapMany([{key:'active',generation:undefined,value:'restored'},{key:'library',generation:undefined,value:'backup'}])).toBe(true);
- expect(rows.get('active')?.value).toBe('restored');expect(rows.get('library')?.value).toBe('backup');expect(seen).toEqual(['restored']);
+ expect(rows.get('active')?.value).toBe('restored');expect(rows.get('library')?.value).toBe('backup');expect(seen).toEqual(['restored']);expect(keys).toEqual(['active','library']);stop();await journal.journalCompareAndSwapMany([{key:'later',generation:undefined,value:'later'}]);expect(keys).toEqual(['active','library']);
 });
 it('aborts every replacement without notifications or memory changes when a multi-key write fails',async()=>{
- const rows=atomicDatabase(true),journal=await import('../apps/web/src/journal'),seen:unknown[]=[];journal.journalSubscribe('active',value=>seen.push(value));
+ const rows=atomicDatabase(true),journal=await import('../apps/web/src/journal'),seen:unknown[]=[],keys:string[]=[];journal.journalSubscribe('active',value=>seen.push(value));journal.journalSubscribeEntries(key=>keys.push(key));
  await expect(journal.journalCompareAndSwapMany([{key:'active',generation:undefined,value:'restored'},{key:'library',generation:undefined,value:'backup'}])).rejects.toThrow();
- expect(rows.size).toBe(0);expect(journal.journalGeneration('active')).toBeUndefined();expect(seen).toEqual([]);
+ expect(rows.size).toBe(0);expect(journal.journalGeneration('active')).toBeUndefined();expect(seen).toEqual([]);expect(keys).toEqual([]);
 });
 it('refuses all writes when a durable generation changed in another window',async()=>{
  const rows=atomicDatabase(),journal=await import('../apps/web/src/journal');rows.set('active',{value:'before',generation:'one',updatedAt:1});await journal.journalReadRecord('active');rows.set('active',{value:'concurrent',generation:'two',updatedAt:2});

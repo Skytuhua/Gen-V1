@@ -1,7 +1,7 @@
 import {z} from 'zod';
 import {skillReferenceSchema,type SkillReference} from '../../../packages/contracts/skill-catalog';
 import {terminalExcerptSchema,type TerminalExcerpt,excerptDraftKey} from './terminal-excerpts';
-import {journalCompareAndSwapMany,journalReadRecord,journalEntries,journalSubscribe,type JournalRecord} from './journal';
+import {journalCompareAndSwapMany,journalReadRecord,journalEntries,journalSubscribeEntries,type JournalRecord} from './journal';
 import {skillDraftKey,readSkillBindings} from './composer-skill-drafts';
 import {SAVED_DRAFT_MAX_COUNT,SAVED_DRAFT_MAX_BYTES,SAVED_DRAFT_IDLE_MS,TERMINAL_EXCERPT_MAX_BYTES,TERMINAL_EXCERPT_MAX_COUNT} from './draft-limits';
 export {SAVED_DRAFT_MAX_COUNT,SAVED_DRAFT_MAX_BYTES} from './draft-limits';
@@ -55,31 +55,40 @@ export const disabledReferenceValidation={enabled:false,
  validate:async(input:ValidateReferencesRequest)=>{const request=validateReferencesRequestSchema.parse(input);return {available:false as const,issues:[...request.resources.map(ref=>`Resource ${ref.resourceId}: validation unavailable`),...request.skills.map(ref=>`Skill ${ref.skillId}: validation unavailable`)]};},
 } satisfies DraftReferenceValidationAdapter;
 const threadQuotaKey=(owner:SavedDraftOwner)=>'saved-draft-thread:'+JSON.stringify([owner.profileId,owner.accountId,owner.threadId]);
-export async function loadSavedDrafts(owner:SavedDraftOwner):Promise<{library:SavedDraftLibrary;generation:string|undefined;threadGeneration:string|undefined;count:number}>{
- const key=savedDraftLibraryKey(owner),record=await journalReadRecord(key),fallback=readSavedDraftLibrary(record?.value,owner),quotaKey=threadQuotaKey(owner),quota=await journalReadRecord(quotaKey),entries=await journalEntries();
- const libraries:{key:string;library:SavedDraftLibrary;generation:string}[]=[];
- for(const entry of entries){
-  if(!entry.key.startsWith('saved-drafts:'))continue;
-  const scope=savedDraftOwnerSchema.safeParse((entry.record.value as {owner?:unknown}|null)?.owner);
-  if(!scope.success){if(entry.key===key)readSavedDraftLibrary(entry.record.value,owner);continue;}
-  if(scope.data.profileId!==owner.profileId||scope.data.accountId!==owner.accountId||scope.data.threadId!==owner.threadId)continue;
-  if(entry.key!==savedDraftLibraryKey(scope.data))throw Error('Saved draft owner does not match its local storage key.');
-  const record=await journalReadRecord(entry.key);
-  if(record)libraries.push({key:entry.key,library:readSavedDraftLibrary(record.value,scope.data),generation:record.generation});
+export async function loadSavedDrafts(owner:SavedDraftOwner):Promise<{library:SavedDraftLibrary;generation:string|undefined;threadGeneration:string|undefined;count:number;nextExpiry:number|null}>{
+ for(let attempt=0;attempt<8;attempt++){
+  const key=savedDraftLibraryKey(owner),record=await journalReadRecord(key),fallback=readSavedDraftLibrary(record?.value,owner),quotaKey=threadQuotaKey(owner),quota=await journalReadRecord(quotaKey),entries=await journalEntries();
+  const libraries:{key:string;library:SavedDraftLibrary;generation:string}[]=[];
+  for(const entry of entries){
+   if(!entry.key.startsWith('saved-drafts:'))continue;
+   const scope=savedDraftOwnerSchema.safeParse((entry.record.value as {owner?:unknown}|null)?.owner);
+   if(!scope.success){if(entry.key===key)readSavedDraftLibrary(entry.record.value,owner);continue;}
+   if(entry.key!==savedDraftLibraryKey(scope.data))throw Error('Saved draft owner does not match its local storage key.');
+   const record=await journalReadRecord(entry.key);
+   if(record)libraries.push({key:entry.key,library:readSavedDraftLibrary(record.value,scope.data),generation:record.generation});
+  }
+  const cutoff=Date.now()-SAVED_DRAFT_IDLE_MS,expired=libraries.flatMap(row=>{
+   const records=row.library.records.filter(draft=>Date.parse(draft.updatedAt)>cutoff);
+   return records.length===row.library.records.length?[]:[{key:row.key,generation:row.generation,value:{...row.library,records}}];
+  });
+  if(expired.length){
+   const quotas=await Promise.all([...new Set(expired.map(row=>threadQuotaKey(row.value.owner)))].map(async key=>({key,generation:(await journalReadRecord(key))?.generation,value:0})));
+   // Guard each expired library and its own thread quota; a concurrent edit causes a fresh scan.
+   await journalCompareAndSwapMany([...expired,...quotas]);
+   continue;
+  }
+  const current=libraries.find(row=>row.key===key),related=libraries.filter(row=>row.library.owner.profileId===owner.profileId&&row.library.owner.accountId===owner.accountId&&row.library.owner.threadId===owner.threadId);
+  const expiry=libraries.reduce((next,row)=>row.library.records.reduce((next,draft)=>Math.min(next,Date.parse(draft.updatedAt)+SAVED_DRAFT_IDLE_MS),next),Infinity);
+  return {library:current?.library??fallback,generation:current?.generation??record?.generation,threadGeneration:quota?.generation,count:related.reduce((count,row)=>count+row.library.records.length,0),nextExpiry:Number.isFinite(expiry)?expiry:null};
  }
- const cutoff=Date.now()-SAVED_DRAFT_IDLE_MS,expired=libraries.flatMap(row=>{
-  const records=row.library.records.filter(draft=>Date.parse(draft.updatedAt)>cutoff);
-  return records.length===row.library.records.length?[]:[{key:row.key,generation:row.generation,value:{...row.library,records}}];
- });
- if(expired.length){
-  // The thread generation serializes quota changes across project and working-copy libraries.
-  if(!await journalCompareAndSwapMany([...expired,{key:quotaKey,generation:quota?.generation,value:0}]))throw Error('Saved drafts changed in another window. Retry loading.');
-  return loadSavedDrafts(owner);
- }
- const current=libraries.find(row=>row.key===key);
- return {library:current?.library??fallback,generation:current?.generation??record?.generation,threadGeneration:quota?.generation,count:libraries.reduce((count,row)=>count+row.library.records.length,0)};
+ throw Error('Saved drafts changed in another window. Retry loading.');
 }
-export const subscribeSavedDrafts=(owner:SavedDraftOwner,listener:()=>void)=>journalSubscribe(savedDraftLibraryKey(owner),listener);
+export function subscribeSavedDrafts(_owner:SavedDraftOwner,listener:()=>void){
+ // Inactive libraries can introduce an earlier deadline, including from another window.
+ let queued=false,active=true;
+ const stop=journalSubscribeEntries(key=>{if(!key.startsWith('saved-drafts:')||queued||!active)return;queued=true;queueMicrotask(()=>{queued=false;if(active)listener();});});
+ return()=>{active=false;stop();};
+}
 function append(library:SavedDraftLibrary,record:SavedDraft,count:number){if(count>=SAVED_DRAFT_MAX_COUNT)throw Error(`Saved drafts is full (${SAVED_DRAFT_MAX_COUNT} per thread). Delete a draft before saving or replacing. Existing drafts are kept.`);return readSavedDraftLibrary({...library,records:[record,...library.records]},library.owner);}
 export async function saveNamedDraft(owner:SavedDraftOwner,name:string,resourceRefs:SavedResourceRef[]=[]){
  const [library,active,skills,excerpts]=await Promise.all([loadSavedDrafts(owner),journalReadRecord<string>('draft:'+owner.threadId),journalReadRecord(skillDraftKey(owner.threadId)),journalReadRecord(excerptDraftKey(owner.threadId))]);

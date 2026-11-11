@@ -72,7 +72,7 @@ test('quota failure and corrupt records keep the active draft and offer retry',a
  await setup(page);await draft(page).fill('Keep through quota');await page.evaluate(()=>{const original=IDBObjectStore.prototype.put;IDBObjectStore.prototype.put=function(value,key){if(String(key).startsWith('saved-drafts:'))throw new DOMException('Quota exhausted','QuotaExceededError');return original.call(this,value,key);};});await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name').fill('Quota prompt');await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt'}).getByRole('alert')).toContainText('Quota');await page.getByRole('button',{name:'Cancel',exact:true}).click();await expect(draft(page)).toHaveValue('Keep through quota');await page.reload();await expect(draft(page)).toHaveValue('Keep through quota');await seed(page,'corrupt');await open(page);await expect(page.getByRole('dialog',{name:'Saved drafts'}).getByRole('alert')).toContainText('could not load');await page.getByRole('button',{name:'Retry',exact:true}).click();await expect(draft(page)).toHaveValue('Keep through quota');
 });
 test('keyboard/IME does not save or send a composing name; focus returns to the trigger',async({page})=>{
- const writes=await setup(page);await draft(page).fill('IME draft');await draft(page).dispatchEvent('compositionstart');await expect(page.getByRole('button',{name:'Drafts',exact:true})).toBeDisabled();await draft(page).dispatchEvent('compositionend');await page.getByRole('button',{name:'Drafts',exact:true}).focus();await page.keyboard.press('Enter');await page.keyboard.press('Enter');await expect(page.getByLabel('Draft name')).toBeFocused();await page.getByLabel('Draft name').fill('Name');await page.getByLabel('Draft name').dispatchEvent('keydown',{key:'Enter',isComposing:true});await expect(page.getByRole('dialog',{name:'Save prompt'})).toBeVisible();await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:'Drafts',exact:true})).toBeFocused();expect(writes).toEqual([]);
+ const writes=await setup(page);await draft(page).fill('IME draft');await draft(page).dispatchEvent('compositionstart');await expect(page.getByRole('button',{name:'Drafts',exact:true})).toBeDisabled();await draft(page).dispatchEvent('compositionend');await page.getByRole('button',{name:'Drafts',exact:true}).focus();await page.keyboard.press('Enter');await expect(page.getByRole('button',{name:'Save current prompt'})).toBeFocused();await page.keyboard.press('Enter');await expect(page.getByLabel('Draft name')).toBeFocused();await page.getByLabel('Draft name').fill('Name');await page.getByLabel('Draft name').dispatchEvent('keydown',{key:'Enter',isComposing:true});await expect(page.getByRole('dialog',{name:'Save prompt'})).toBeVisible();await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:'Drafts',exact:true})).toBeFocused();expect(writes).toEqual([]);
 });
 test('approved list captures and stress names remain usable at 1440/1024/768 with reduced motion',async({page},info)=>{
  await setup(page);await save(page);await save(page,'Group the notes by theme and cite each source.','Summarize interview notes');await draft(page).fill('');await open(page);
@@ -139,4 +139,36 @@ test('idle expiry refreshes an open list and deletes only the expired saved reco
  },owner);
  await open(page);await expect(page.getByText('Expires soon',{exact:true})).toBeVisible();await page.clock.fastForward(120000);await expect(page.getByText('Expires soon',{exact:true})).toBeHidden();await expect(page.getByText('Still recent',{exact:true})).toBeVisible();
  await page.keyboard.press('Escape');await expect(draft(page)).toHaveValue('Keep the active composer');await page.reload();await expect(draft(page)).toHaveValue('Keep the active composer');await open(page);await expect(page.getByText('Expires soon',{exact:true})).toBeHidden();await expect(page.getByText('Still recent',{exact:true})).toBeVisible();expect(writes).toEqual([]);
+});
+
+
+async function seedInactiveExpiry(page:Page,untilExpiry:number){
+ return page.evaluate(async({owner,untilExpiry})=>{const sp='/apps/web/src/saved-drafts.ts',lp='/apps/web/src/draft-limits.ts',s=await import(sp),limits=await import(lp);
+  const scopes=[{...owner,workingCopyId:'inactive-copy'},{...owner,threadId:'inactive-thread'}],keys=scopes.map(scope=>s.savedDraftLibraryKey(scope));
+  const request=indexedDB.open('generative-harness-journal',1),db=await new Promise<IDBDatabase>((resolve,reject)=>{request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);});
+  await new Promise<void>((resolve,reject)=>{const tx=db.transaction('entries','readwrite');for(const [i,scope] of scopes.entries()){const expired=s.createSavedDraft(scope,'Expires offscreen','Private old text'),recent=s.createSavedDraft(scope,'Keep recent','Recent text');expired.updatedAt=new Date(Date.now()-limits.SAVED_DRAFT_IDLE_MS+untilExpiry).toISOString();tx.objectStore('entries').put({value:{version:1,owner:scope,records:[expired,recent]},updatedAt:Date.now(),generation:crypto.randomUUID()},keys[i]);}tx.oncomplete=()=>resolve();tx.onerror=()=>reject(tx.error);});db.close();return keys;
+ },{owner,untilExpiry});
+}
+async function durableNames(page:Page,keys:string[]){
+ return page.evaluate(async keys=>{const request=indexedDB.open('generative-harness-journal',1),db=await new Promise<IDBDatabase>((resolve,reject)=>{request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);});
+  try{return await Promise.all(keys.map(key=>new Promise<string[]>((resolve,reject)=>{const get=db.transaction('entries').objectStore('entries').get(key);get.onsuccess=()=>resolve(get.result.value.records.map((r:{name:string})=>r.name));get.onerror=()=>reject(get.error);})));}finally{db.close();}
+ },keys);
+}
+for(const access of ['load','list','switch'] as const)test(`global retention evicts inactive threads and copies on ${access}`,async({page})=>{
+ const writes=await setup(page);await draft(page).fill('Keep active text');const keys=await seedInactiveExpiry(page,-1);
+ if(access==='load')await page.reload();else if(access==='switch')await page.goto('/fixture?copy=empty-copy');else await open(page);
+ await expect(draft(page)).toHaveValue('Keep active text');await expect.poll(()=>durableNames(page,keys)).toEqual([['Keep recent'],['Keep recent']]);expect(writes).toEqual([]);
+});
+test('empty active library schedules expiry for inactive threads and copies without reading their owner',async({page})=>{
+ await page.clock.install();const writes=await setup(page);await draft(page).fill('Keep active text');const keys=await seedInactiveExpiry(page,60000);await page.reload();await expect(draft(page)).toHaveValue('Keep active text');await open(page);await expect(page.getByText('No saved drafts yet.',{exact:false})).toBeVisible();
+ expect(await durableNames(page,keys)).toEqual([['Expires offscreen','Keep recent'],['Expires offscreen','Keep recent']]);await page.clock.fastForward(120000);
+ await expect.poll(()=>durableNames(page,keys)).toEqual([['Keep recent'],['Keep recent']]);await expect(draft(page)).toHaveValue('Keep active text');expect(writes).toEqual([]);
+});
+
+
+test('another window adding an inactive library reschedules the empty active library deadline',async({page,context})=>{
+ await page.clock.install();const writes=await setup(page);await open(page);await expect(page.getByText('No saved drafts yet.',{exact:false})).toBeVisible();
+ const other=await context.newPage();await setup(other,'?thread=inactive-thread');
+ const key=await other.evaluate(async owner=>{const sp='/apps/web/src/saved-drafts.ts',jp='/apps/web/src/journal.ts',lp='/apps/web/src/draft-limits.ts',s=await import(sp),j=await import(jp),limits=await import(lp),scope={...owner,threadId:'inactive-thread'},expired=s.createSavedDraft(scope,'Expires offscreen','Old text'),recent=s.createSavedDraft(scope,'Keep recent','Recent text');expired.updatedAt=new Date(Date.now()-limits.SAVED_DRAFT_IDLE_MS+60000).toISOString();const key=s.savedDraftLibraryKey(scope);await j.journalWrite(key,{version:1,owner:scope,records:[expired,recent]});return key;},owner);
+ await page.clock.fastForward(120000);await expect.poll(()=>durableNames(page,[key])).toEqual([['Keep recent']]);await expect(page.getByText('No saved drafts yet.',{exact:false})).toBeVisible();expect(writes).toEqual([]);
 });
