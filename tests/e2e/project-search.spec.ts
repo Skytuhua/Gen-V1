@@ -796,6 +796,14 @@ test("QA r2 valid control paths stay visible and retain the exact read target", 
 					preview: "src/path\n2026.txt",
 					sha256: "a".repeat(64),
 				},
+				{
+					path: "README.md",
+					kind: "path",
+					line: null,
+					column: null,
+					preview: "README.md",
+					sha256: "a".repeat(64),
+				},
 			],
 			nextCursor: null,
 			complete: false,
@@ -811,7 +819,8 @@ test("QA r2 valid control paths stay visible and retain the exact read target", 
 			},
 		});
 	});
-	await expect(hits(page)).toHaveCount(2);
+	await expect(hits(page)).toHaveCount(3);
+	await expect(hits(page).nth(2)).toContainText("README.md");
 	await expect(hits(page).nth(1).locator("span").last()).toHaveText(
 		"src/path\\n2026.txt",
 	);
