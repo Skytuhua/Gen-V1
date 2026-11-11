@@ -7,6 +7,7 @@ export {installPluginPackage,removePlugin} from './installation.ts';
 interface LoadedPlugin {record:ActivePlugin;verified:VerifiedPackage;instance?:PluginHostInstance;pending:Set<AbortController>}
 export interface PluginRegistry {
  list():PluginManifest[];
+ failures():{id:string;message:string}[];
  dispatch(id:string,operation:string,input:unknown,signal:AbortSignal):Promise<unknown>;
  readAsset(id:string,relativePath:string):Promise<{bytes:Uint8Array;contentType:string}>;
  validateSurface(surface:PluginSurface):Promise<boolean>;
@@ -15,6 +16,12 @@ export interface PluginRegistry {
  close():Promise<void>;
 }
 const unavailable=()=>Error('The installed plug-in is unavailable.');
+/** A plug-in that cannot activate is reported, not fatal: healthy plug-ins still
+ * load. Lease contention means another Gen window owns this plug-in's data. */
+function pluginFailureMessage(name:string,error:unknown):string{
+ if((error as {code?:string}|null)?.code==='PROFILE_IN_USE')return `${name} is already open in another Gen window. Close that window, then restart Gen to load it here.`;
+ return `${name} could not start. Its saved data is retained.`;
+}
 function jsonCopy(value:unknown,maxBytes:number):unknown{
  let nodes=0;const visited=new Set<object>();
  function inspect(item:unknown,depth:number):void{
@@ -39,19 +46,28 @@ const contentTypes:Record<string,string>={html:'text/html; charset=utf-8',js:'te
  * provided. These are trusted Node extensions; this API is not a code sandbox. */
 export async function loadInstalledPlugins(root:string,genVersion:string):Promise<PluginRegistry>{
  if(!validGenVersion(genVersion))throw Error('Gen needs a valid semantic version to load plug-ins.');
- const loaded=new Map<string,LoadedPlugin>();let closed=false,shutdownConfirmed=false,admissions=0,closing:Promise<void>|undefined;
- try{for(const record of await readPluginIndex(root)){
-  const verified=await verifyPluginPackage(join(root,record.id,record.version),record.digest);if(verified.manifest.id!==record.id||verified.manifest.version!==record.version)throw unavailable();
-  const entry:LoadedPlugin={record,verified,pending:new Set()};loaded.set(record.id,entry);
-  if(versionCompatible(verified.manifest,genVersion)){
-   const dataDir=await safeDirectory(join(root,'data',record.id),true);
-   try{
-    const module=await import(/* @vite-ignore */pathToFileURL(join(verified.directory,verified.manifest.hostEntry)).href+'?integrity='+record.digest) as {default?:PluginHostModule};if(typeof module.default?.activate!=='function')throw unavailable();
-    const activated=await module.default.activate(Object.freeze({dataDir,genVersion}));
-    try{entry.instance=hostInstance(activated);}catch(error){if(activated&&typeof activated.close==='function')await activated.close().catch(()=>{});throw error;}
-   }catch{throw Error('The installed plug-in host could not start.');}
-  }
- }}catch(error){await Promise.allSettled([...loaded.values()].map(entry=>entry.instance?.close()));throw error;}
+ const loaded=new Map<string,LoadedPlugin>(),failures:{id:string;message:string}[]=[];let closed=false,shutdownConfirmed=false,admissions=0,closing:Promise<void>|undefined;
+ // Activate each plug-in in isolation. A tampered package or a host that cannot
+ // start is excluded and recorded as a failure; healthy plug-ins still load and
+ // every plug-in's saved data is retained. Only an unreadable index is fatal.
+ for(const record of await readPluginIndex(root)){
+  let name=record.id;
+  try{
+   const verified=await verifyPluginPackage(join(root,record.id,record.version),record.digest);if(verified.manifest.id!==record.id||verified.manifest.version!==record.version)throw unavailable();
+   name=verified.manifest.name;
+   const entry:LoadedPlugin={record,verified,pending:new Set()};
+   if(versionCompatible(verified.manifest,genVersion)){
+    const dataDir=await safeDirectory(join(root,'data',record.id),true);
+    let activated:PluginHostInstance|undefined;
+    try{
+     const module=await import(/* @vite-ignore */pathToFileURL(join(verified.directory,verified.manifest.hostEntry)).href+'?integrity='+record.digest) as {default?:PluginHostModule};if(typeof module.default?.activate!=='function')throw unavailable();
+     activated=await module.default.activate(Object.freeze({dataDir,genVersion}));
+     entry.instance=hostInstance(activated);
+    }catch(error){if(activated&&typeof activated.close==='function')await activated.close().catch(()=>{});throw error;}
+   }
+   loaded.set(record.id,entry);
+  }catch(error){failures.push({id:record.id,message:pluginFailureMessage(name,error)});}
+ }
  const current=async(id:string,requireHost=false)=>{
   if(closed||!pluginIdSchema.safeParse(id).success)throw unavailable();const entry=loaded.get(id),active=(await readPluginIndex(root)).find(row=>row.id===id);
   if(!entry||!active||active.version!==entry.record.version||active.digest!==entry.record.digest||requireHost&&!entry.instance){if(entry)for(const request of entry.pending)request.abort();throw unavailable();}
@@ -60,6 +76,7 @@ export async function loadInstalledPlugins(root:string,genVersion:string):Promis
  };
  return {
   list:()=>[...loaded.values()].map(entry=>structuredClone(entry.verified.manifest)),
+  failures:()=>failures.map(failure=>({...failure})),
   async dispatch(id,operation,input,signal){
    if(signal.aborted)throw Error('The plug-in request was aborted.');admissions++;try{const cloned=jsonCopy(input,256*1024),entry=await current(id,true);if(!Object.hasOwn(entry.instance!.operations,operation))throw Error('This plug-in operation is unavailable.');
    const request=new AbortController(),abort=()=>request.abort();signal.addEventListener('abort',abort,{once:true});if(signal.aborted)request.abort();entry.pending.add(request);

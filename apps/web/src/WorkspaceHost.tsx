@@ -22,21 +22,24 @@ import {useShellNavigation} from './shell-navigation';
 import {useAppearance} from './useAppearance';
 import {useWorkspaceState} from './workspace-api';
 import {WorkspaceControls} from './WorkspaceControls';
+import {usePluginCatalog} from './PluginFrame';
+import {ShellNotice} from './ShellNotice';
 import {ResearchHost} from './ResearchHost';
 import {CodeReviewHost} from './CodeReviewHost';
 import type {ThreadHoverDestination,ThreadHoverPRTarget} from './thread-hover/host';
 import type {ThreadHoverScope} from './thread-hover/facts';
 import './workspace-host.css';
 
-export type ConversationIntent = 'model' | 'settings' | 'usage' | 'new-thread' | 'connect-project' | 'resources' | 'linked-pull-requests';
+export type ConversationIntent = 'model' | 'settings' | 'usage' | 'new-thread' | 'connect-project' | 'resources' | 'linked-pull-requests' | 'plugin-workspace';
 export interface ConversationHost {
   workspace: ReturnType<typeof useWorkspaceState>;
   choosePreset(preset: WorkspacePreset, binding?: PanelBinding): Promise<void>;
   selectThread(id: string | undefined): void;
   initialThreadId?: string;
-  intent?: {id: number; kind: ConversationIntent};
+  intent?: {id: number; kind: ConversationIntent; pluginId?: string; workspaceId?: string};
   consumeIntent(id: number): void;
   composers: SharedAgentComposers;
+  pluginCatalog: ReturnType<typeof usePluginCatalog>;
   openReview?(target:ThreadHoverPRTarget,scope:ThreadHoverScope):Promise<void>;
 }
 const message = (cause: unknown) => cause instanceof Error ? cause.message : 'The workspace could not open. Retry.';
@@ -70,6 +73,10 @@ function CompactSettingsContent(props: ComponentProps<CompactSettingsComponent>)
 export function WorkspaceHost({conversation}: {conversation: (host: ConversationHost) => ReactNode}) {
   const desktop = useDesktop(), desktopOwner = useRef(desktop); desktopOwner.current = desktop;
   const workspace = useWorkspaceState(true, {listenNative: false});
+  // The catalog lives above the preset switch so plug-in tabs stay reachable from
+  // every canvas (All Agents included), not only the Workspace conversation owner.
+  const pluginCatalog = usePluginCatalog(true);
+  const [dismissedPluginError, setDismissedPluginError] = useState('');
   const [settings, setSettings] = useState<Awaited<ReturnType<typeof getShellSettings>>>(), [error, setError] = useState('');
   const [reviewDestination,setReviewDestination]=useState<ThreadHoverDestination&{canvasId:string}>();
   const [intent, setIntent] = useState<ConversationHost['intent']>(), intentSequence = useRef(0), selected = useRef<string | undefined>(undefined), pending = useRef(false), alive = useRef(true);
@@ -135,38 +142,43 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
     if(isCurrent())setReviewDestination({id:++intentSequence.current,canvasId,scope,target});
     }catch(cause){if(alive.current)setError(message(cause));throw cause;}
   };
-  const openConversation = async (id?: string, kind?: ConversationIntent) => {
+  const openConversation = async (id?: string, kind?: ConversationIntent, pluginTarget?: {pluginId: string; workspaceId: string}) => {
     const previous = selected.current; let changed = false;
     try {
       await changeWorkspace('workspace', async () => {
         if (id) await getShellNavigationItem(id); // Validate the exact Personal destination under this transition's guard.
         selected.current = id; changed = true;
-        if (kind) setIntent({id: ++intentSequence.current, kind}); else setIntent(undefined);
+        if (kind) setIntent({id: ++intentSequence.current, kind, ...pluginTarget}); else setIntent(undefined);
       });
       if (id) try {localStorage.setItem('harness:selected-thread', id);} catch { /* The explicit owner still reaches the mounted conversation. */ }
     } catch (cause) {if (changed) {selected.current = previous; setIntent(undefined);} throw cause;}
   };
   const fail = (action: () => Promise<unknown>) => {void action().catch(cause => {if (alive.current) setError(message(cause));});};
   const retry = () => fail(async () => {await Promise.all([workspace.refresh(), loadSettings()]); setError('');});
+  const pluginErrorMessage = pluginCatalog.error || (pluginCatalog.failed ? 'Plug-ins could not be loaded. Check the host connection, then retry.' : '');
+  const pluginNotice = pluginErrorMessage && pluginErrorMessage !== dismissedPluginError ? <ShellNotice message={pluginErrorMessage} onDismiss={() => setDismissedPluginError(pluginErrorMessage)}/> : null;
   if (!workspace.envelope || !settings || !preset) return <main className="workspace-host-bootstrap" style={{'--sidebar-width': readShellLayout().sidebarWidth + 'px'} as CSSProperties}>
     {!failure && <LoadingState pending hasContent={false} label="Opening workspace…" skeleton={<WorkspaceSkeleton/>} className="view-loading-state"/>}
     {failure && <div role="alert">{failure}<button onClick={retry}>Retry workspace</button></div>}
   </main>;
-  if (preset !== 'all-agents' && preset !== 'research' && preset !== 'code-review') return conversation({workspace, choosePreset, initialThreadId: selected.current, selectThread: id => {selected.current = id;}, intent, consumeIntent: id => setIntent(current => current?.id === id ? undefined : current), composers, openReview});
-  return <MonitorShell workspace={workspace} settings={settings} controller={controller} composers={composers} choosePreset={choosePreset}
-    refreshSettings={loadSettings} openConversation={openConversation} openReview={openReview} error={error} dismissError={() => setError('')} fail={fail} content={preset==='code-review'?<CodeReviewHost destination={reviewDestination?.canvasId===activeCanvasId?reviewDestination:undefined} consumeDestination={id=>setReviewDestination(current=>current?.id===id?undefined:current)} canvas={workspace.envelope.state.canvases.find(value=>value.id===workspace.envelope!.state.activeCanvasId)!} workspace={workspace} composers={composers} openConversation={openConversation}/>:preset==='research'?<ResearchHost canvas={workspace.envelope.state.canvases.find(value=>value.id===workspace.envelope!.state.activeCanvasId)!} workspace={workspace} composers={composers} openConversation={id=>openConversation(id)}/>:undefined}/>;
+  if (preset !== 'all-agents' && preset !== 'research' && preset !== 'code-review') return <>{conversation({workspace, choosePreset, initialThreadId: selected.current, selectThread: id => {selected.current = id;}, intent, consumeIntent: id => setIntent(current => current?.id === id ? undefined : current), composers, pluginCatalog, openReview})}{pluginNotice}</>;
+  return <><MonitorShell workspace={workspace} settings={settings} controller={controller} composers={composers} choosePreset={choosePreset}
+    refreshSettings={loadSettings} openConversation={openConversation} openReview={openReview} error={error} dismissError={() => setError('')} fail={fail} pluginCatalog={pluginCatalog} content={preset==='code-review'?<CodeReviewHost destination={reviewDestination?.canvasId===activeCanvasId?reviewDestination:undefined} consumeDestination={id=>setReviewDestination(current=>current?.id===id?undefined:current)} canvas={workspace.envelope.state.canvases.find(value=>value.id===workspace.envelope!.state.activeCanvasId)!} workspace={workspace} composers={composers} openConversation={openConversation}/>:preset==='research'?<ResearchHost canvas={workspace.envelope.state.canvases.find(value=>value.id===workspace.envelope!.state.activeCanvasId)!} workspace={workspace} composers={composers} openConversation={id=>openConversation(id)}/>:undefined}/>{pluginNotice}</>;
 }
 
-function MonitorShell({workspace, settings, controller, composers, choosePreset, refreshSettings, openConversation, openReview, error, dismissError, fail, content}: {
+function MonitorShell({workspace, settings, controller, composers, choosePreset, refreshSettings, openConversation, openReview, error, dismissError, fail, pluginCatalog, content}: {
   workspace: ConversationHost['workspace']; settings: Awaited<ReturnType<typeof getShellSettings>>;
   controller: AgentsWorkspaceController; composers: SharedAgentComposers; choosePreset: ConversationHost['choosePreset'];
   refreshSettings: () => Promise<void>;
-  openConversation: (id?: string, intent?: ConversationIntent) => Promise<void>;
+  openConversation: (id?: string, intent?: ConversationIntent, pluginTarget?: {pluginId: string; workspaceId: string}) => Promise<void>;
   openReview: (target:ThreadHoverPRTarget,scope:ThreadHoverScope)=>Promise<void>; error: string; dismissError: () => void;
   fail: (action: () => Promise<unknown>) => void;
+  pluginCatalog: ConversationHost['pluginCatalog'];
   content?: ReactNode;
 }) {
   const desktop = useDesktop(), [layout, setLayout] = useShellLayout(), preferences = getPreferences(settings);
+  const pluginWorkspaces = pluginCatalog.plugins.flatMap(plugin => (plugin.workspaces ?? []).map(contribution => ({pluginId: plugin.id, contribution})));
+  const pluginCatalogError = pluginCatalog.error || (pluginCatalog.failed ? 'Plug-ins could not be loaded.' : '');
   const [search, setSearch] = useState(''), navigation = useShellNavigation(search), [open, setOpen] = useState(false);
   const [mobile, setMobile] = useState(() => matchMedia('(max-width: 700px)').matches);
   const [rename, setRename] = useState<ThreadNavigationRow>(), [title, setTitle] = useState('');
@@ -237,7 +249,7 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
     <div className="workspace-layout-workarea workspace-host-main">
       {(layout.sidebarCollapsed || mobile) && <button className="icon-button sidebar-recovery" aria-label={mobile ? 'Open navigation' : 'Open sidebar'} onClick={event => {prepareSidebarToggle(event); setLayout(value => ({...value, sidebarCollapsed: false})); if (mobile) setOpen(true); requestAnimationFrame(() => searchRef.current?.focus());}}>{mobile ? <Menu size={18}/> : <PanelLeftOpen size={17}/>}</button>}
       <WorkspaceControls envelope={workspace.envelope} send={workspace.send} prepare={prepare} panels={[]} title={panel => panel.kind}
-        onChoosePreset={choosePreset} toolsVisible={false} addPanel={async () => {throw Error('Choose Workspace or Custom to open tools.');}} updatePanel={async () => {throw Error('Choose Workspace or Custom to arrange tools.');}}/>
+        onChoosePreset={choosePreset} toolsVisible={false} pluginWorkspaces={pluginWorkspaces} onSelectPluginWorkspace={(pluginId,workspaceId)=>fail(()=>openConversation(undefined,'plugin-workspace',{pluginId,workspaceId}))} pluginCatalogError={pluginCatalogError} onRetryPluginCatalog={pluginCatalog.retry} addPanel={async () => {throw Error('Choose Workspace or Custom to open tools.');}} updatePanel={async () => {throw Error('Choose Workspace or Custom to arrange tools.');}}/>
       {error && <div className="workspace-error" role="alert">{error}<button className="icon-button" aria-label="Dismiss error" onClick={dismissError}><X size={15}/></button></div>}
       <div className="workspace-host-content" inert={settingsOpen}>{content ?? <AgentsWorkspace controller={controller} composers={composers} projects={workspace.envelope?.projects.filter(project => project.authority.kind === 'local')}
         preferences={{density: preferences.density === 'compact' ? 'compact' : 'comfortable', projectColors: preferences.projectColors}}

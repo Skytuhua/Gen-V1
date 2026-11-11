@@ -185,9 +185,9 @@
       "column": 1,
       "rule": "ad-hoc-overlay",
       "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "10b7e2eb1b8d5f3daa94be283c569acad470deaea26a8b5eb3363b9ba5d11dca",
-      "reason": "COPY/SHELL2: retain exact notice positioning; toast enter/exit motion tokens added with reduced-motion fallback until the shared status/error owner replaces it.",
-      "evidence": ".shell-notice { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:14px; max-width:calc(100vw - 28px); border:1px solid var(--border); background:var(--surface); box-",
+      "fingerprint": "5246ea783898ebe449965592f9ec3e6c4539f7c3b0441eb01284d486077cde30",
+      "reason": "COPY/SHELL2: notice raised to bottom:64px so the toast clears the collapsed summary strips (QA overlap fix); enter/exit motion tokens with reduced-motion fallback until the shared status/error owner replaces it.",
+      "evidence": ".shell-notice { position:fixed; bottom:64px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:14px; max-width:calc(100vw - 28px); border:1px solid var(--border); background:var(--surface); box-",
       "disposition": "staged-migration"
     },
     {
