@@ -122,3 +122,21 @@ test('legacy reference-only records expose IDs and keyboard-copyable excerpt tex
  for(const width of [1440,1024,768]){await page.setViewportSize({width,height:900});await expect(modal).toBeInViewport();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:info.outputPath(`reference-review-${width}.png`)});}
  await page.keyboard.press('Escape');await expect(draft(page)).toHaveValue('');expect(await library()).toEqual(before);await page.reload();await expect(draft(page)).toBeEnabled();expect(await library()).toEqual(before);expect(writes).toEqual([]);
 });
+
+test('approved thread capacity blocks a new draft with an alert and keeps records in every working copy',async({page})=>{
+ const writes=await setup(page);await page.evaluate(async owner=>{const sp='/apps/web/src/saved-drafts.ts',jp='/apps/web/src/journal.ts',s=await import(sp),j=await import(jp),other={...owner,workingCopyId:'other-copy'};
+  for(const [scope,count] of [[owner,19],[other,1]] as const)await j.journalWrite(s.savedDraftLibraryKey(scope),{version:1,owner:scope,records:Array.from({length:count},(_,i)=>s.createSavedDraft(scope,`Existing ${i}`,'Existing text'))});
+ },owner);
+ await draft(page).fill('Keep this current text');await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name',{exact:true}).fill('Over capacity');await page.getByRole('button',{name:'Save draft',exact:true}).click();
+ await expect(page.getByRole('dialog',{name:'Save prompt',exact:true}).getByRole('alert')).toContainText('20 per thread');await page.keyboard.press('Escape');await expect(draft(page)).toHaveValue('Keep this current text');
+ expect(await page.evaluate(async owner=>{const sp='/apps/web/src/saved-drafts.ts',s=await import(sp);return [(await s.loadSavedDrafts(owner)).library.records.length,(await s.loadSavedDrafts({...owner,workingCopyId:'other-copy'})).library.records.length];},owner)).toEqual([19,1]);expect(writes).toEqual([]);
+});
+
+test('idle expiry refreshes an open list and deletes only the expired saved record',async({page})=>{
+ await page.clock.install();const writes=await setup(page);await draft(page).fill('Keep the active composer');
+ await page.evaluate(async owner=>{const sp='/apps/web/src/saved-drafts.ts',jp='/apps/web/src/journal.ts',lp='/apps/web/src/draft-limits.ts',s=await import(sp),j=await import(jp),limits=await import(lp),expiring=s.createSavedDraft(owner,'Expires soon','Old saved text'),fresh=s.createSavedDraft(owner,'Still recent','Recent saved text');
+  expiring.updatedAt=new Date(Date.now()-limits.SAVED_DRAFT_IDLE_MS+60000).toISOString();await j.journalWrite(s.savedDraftLibraryKey(owner),{version:1,owner,records:[expiring,fresh]});
+ },owner);
+ await open(page);await expect(page.getByText('Expires soon',{exact:true})).toBeVisible();await page.clock.fastForward(120000);await expect(page.getByText('Expires soon',{exact:true})).toBeHidden();await expect(page.getByText('Still recent',{exact:true})).toBeVisible();
+ await page.keyboard.press('Escape');await expect(draft(page)).toHaveValue('Keep the active composer');await page.reload();await expect(draft(page)).toHaveValue('Keep the active composer');await open(page);await expect(page.getByText('Expires soon',{exact:true})).toBeHidden();await expect(page.getByText('Still recent',{exact:true})).toBeVisible();expect(writes).toEqual([]);
+});

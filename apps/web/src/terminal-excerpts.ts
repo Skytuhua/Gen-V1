@@ -1,7 +1,8 @@
 import {z} from 'zod';
 import {journalCompareAndSwap,journalReadRecord} from './journal';
 /** Frozen v1 contract shared with saved drafts. Caps include UTF-8 text, never host cursors. */
-export const TERMINAL_EXCERPT_MAX_BYTES=8192,TERMINAL_EXCERPT_MAX_COUNT=4;
+import {TERMINAL_EXCERPT_MAX_BYTES,TERMINAL_EXCERPT_MAX_COUNT} from './draft-limits';
+export {TERMINAL_EXCERPT_MAX_BYTES,TERMINAL_EXCERPT_MAX_COUNT} from './draft-limits';
 const encoder=new TextEncoder(),bounded=(value:string)=>encoder.encode(value).length<=TERMINAL_EXCERPT_MAX_BYTES;
 export const terminalExcerptSchema=z.object({version:z.literal(1),id:z.string().uuid(),terminalId:z.string().min(1).max(1024),projectId:z.string().min(1).max(1024),threadId:z.string().min(1).max(1024),capturedAt:z.string().datetime(),originalText:z.string().min(1).refine(bounded),text:z.string().min(1).refine(bounded),truncated:z.boolean(),originalBytes:z.number().int().nonnegative()}).strict().refine(value=>value.originalBytes>=encoder.encode(value.originalText).length&&value.truncated===(value.originalBytes>encoder.encode(value.originalText).length));
 export type TerminalExcerpt=z.infer<typeof terminalExcerptSchema>;
