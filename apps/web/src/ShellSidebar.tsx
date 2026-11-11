@@ -1,4 +1,4 @@
-import { useEffect, useState, type RefObject, type ReactNode } from 'react';
+import { useEffect, useState, type RefObject, type ReactNode, type MouseEvent } from 'react';
 import {
   Archive,
   ArrowDown,
@@ -119,7 +119,7 @@ export function ShellSidebar({
   onOpenThreadPR?: (target:ThreadHoverPRTarget,scope:ThreadHoverScope)=>void;
   setSearch: (value: string) => void;
   close: () => void;
-  toggleCollapsed: () => void;
+  toggleCollapsed: (event: MouseEvent<HTMLButtonElement>) => void;
   setFolded: (key: string, folded: boolean) => void;
   select: (id: string) => void;
   create: () => void;

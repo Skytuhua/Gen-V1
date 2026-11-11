@@ -29,6 +29,7 @@ export const browserSuites:BrowserSuite[] = [
   suite('saved-layout-chooser'),
   suite('scoped-conversation'),
   suite('settings-leaf-selects', ['settings-controls.spec.ts', 'settings-leaf-selects.spec.ts', 'settings-loading.spec.ts']),
+  suite('sidebar-collapse', ['sidebar-collapse.spec.ts']),
   suite('sidebar-shared-menu', ['sidebar-compact.spec.ts', 'sidebar-shared-menu.spec.ts'], {project:'sidebar-menu'}),
   suite('terminal-read'),
   suite('thread-hover'),
