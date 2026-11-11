@@ -217,7 +217,7 @@ button:has(>svg.lucide-x):hover:not(:disabled),button:has(>svg.lucide-circle-x):
 .evidence-list li>svg { margin-top:3px; color:var(--success); }
 .evidence-list small { display:block; }
 .surface-metric { display:flex; align-items:baseline; flex-wrap:wrap; justify-content:flex-start; gap:8px; font-size:13px; font-variant-numeric:tabular-nums; }
-.surface-metric strong { font-size:16px; font-weight:500; }
+.surface-metric strong { min-width:0; max-width:100%; white-space:normal; overflow-wrap:anywhere; font-size:16px; font-weight:600; color:var(--text); }
 .surface-text.size-sm { font-size:12px; }
 .surface-text.size-lg { font-size:16px; }
 @media(max-width:700px) { .surface-split:not(:has(>.document-preview)) { grid-template-columns:1fr!important; } }
@@ -343,7 +343,7 @@ progress::-moz-progress-bar { background:var(--text); border-radius:4px; }
 .message-role { display:table; width:fit-content; margin-bottom:6px; padding:2px 6px; border-radius:5px; font-size:11px; line-height:1.4; font-weight:550; color:var(--category-fg); background:var(--category-bg); }
 .message-user>.message-role { color:var(--accent-fg); background:var(--accent-bg); }
 .message-assistant>.message-role { color:var(--success-fg); background:var(--success-bg); }
-.surface-metric strong,.surface-progress>div>span,.task-step-label>span { white-space:nowrap; color:var(--text); font-weight:600; }
+.surface-progress>div>span,.task-step-label>span { white-space:nowrap; color:var(--text); font-weight:600; }
 .surface-progress>div { color:var(--muted); }
 
 .working-status>span { color:var(--accent-fg); background:var(--accent-bg); border-radius:5px; padding:2px 6px; }

@@ -100,3 +100,33 @@ for(const theme of ['dark','light'] as const)test(`inline numeric table preserve
   const scroll=page.locator('.task-table-scroll');await expect.poll(()=>scroll.evaluate(element=>element.scrollWidth>element.clientWidth)).toBe(true);await expect(scroll).toHaveAttribute('tabindex','0');await scroll.focus();await expect(scroll).toBeFocused();
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
+
+for(const theme of ['dark','light'] as const)for(const width of [1440,1024,768])test(`long metric values stay visible ${theme} ${width}`,async({page},info)=>{
+  await page.setViewportSize({width,height:1000});
+  const sentence='The reported source value remains readable beside its owning label. '.repeat(12).trim();
+  const identifier='sourceBoundMetricValue'.repeat(24);
+  const snapshot=taskFixture({root:'metrics',elements:{
+    metrics:{type:'Stack',props:{gap:'lg'},children:['count','sentence','identifier']},
+    count:{type:'Metric',props:{label:'Files reviewed',value:124800,unit:'files'}},
+    sentence:{type:'Metric',props:{label:'Reported description',value:sentence}},
+    identifier:{type:'Metric',props:{label:'Reported identifier',value:identifier}},
+  }});
+  snapshot.settings.theme=theme;snapshot.artifacts[0].title='Reported metrics';
+  await serveTaskFixture(page,snapshot);await page.goto('/');
+  const metrics=page.locator('.surface-metric');await expect(metrics).toHaveCount(3);await page.evaluate(()=>document.fonts.ready);
+  if(width===1440)await page.screenshot({path:info.outputPath(`metric-long-value-${stage}-${theme}-${width}.png`),animations:'disabled'});
+  const numeric=metrics.nth(0);await expect(numeric.locator('strong')).toHaveText('124800 files');
+  const pair=await numeric.evaluate(element=>{const label=element.querySelector('span')!.getBoundingClientRect(),value=element.querySelector('strong')!.getBoundingClientRect();return {gap:value.left-label.right,overlap:Math.min(label.bottom,value.bottom)-Math.max(label.top,value.top)};});
+  expect(pair.gap).toBeCloseTo(8);expect(pair.overlap).toBeGreaterThan(0);
+  for(const [index,value] of [[1,sentence],[2,identifier]] as const){
+    const metric=metrics.nth(index);await expect(metric.locator('strong')).toHaveText(value);
+    const bounds=await metric.locator('strong').evaluate(element=>{
+      const box=element.getBoundingClientRect(),owner=element.closest('.artifact')!.getBoundingClientRect();
+      return {width:box.width,available:owner.width,right:box.right,ownerRight:owner.right,scroll:element.scrollWidth,client:element.clientWidth||box.width};
+    });
+    expect(bounds.width,`${theme}/${width}: complete metric fits its artifact`).toBeLessThanOrEqual(bounds.available);
+    expect(bounds.right).toBeLessThanOrEqual(bounds.ownerRight);
+    expect(bounds.scroll).toBeLessThanOrEqual(bounds.client+1);
+    await expect(metric).toHaveCSS('column-gap','8px');
+  }
+});

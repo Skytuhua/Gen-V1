@@ -10,3 +10,12 @@ The checked-in set contains thread diff, Usage, context inspector, and label/val
 | usage-dialog | [Before](usage-dialog-before-dark-1440.png) | [After](usage-dialog-after-dark-1440.png) | [Before](usage-dialog-before-light-1440.png) | [After](usage-dialog-after-light-1440.png) |
 | context-inspector | [Before](context-inspector-before-dark-1440.png) | [After](context-inspector-after-dark-1440.png) | [Before](context-inspector-before-light-1440.png) | [After](context-inspector-after-light-1440.png) |
 | pairing | [Before](pairing-before-dark-1440.png) | [After](pairing-after-dark-1440.png) | [Before](pairing-before-light-1440.png) | [After](pairing-after-light-1440.png) |
+
+## QA r1: long metric strings
+
+The affected view is the actual inline `Metric` artifact, with a long sentence, an unbroken identifier, and a short numeric value/unit pair. Before uses reviewed head `08616a3`; after includes the metric wrapping fix and merges main `bef6239`. Screenshots are 1440px in dark/light, using synthetic data. Six responsive cases cover 1440/1024/768px in both themes.
+
+| Theme | Before | After |
+| --- | --- | --- |
+| Dark | [Before](metric-long-value-before-dark-1440.png) | [After](metric-long-value-after-dark-1440.png) |
+| Light | [Before](metric-long-value-before-light-1440.png) | [After](metric-long-value-after-light-1440.png) |

@@ -28,3 +28,15 @@ No QA report existed at resume; this is an implementation first-pass review, not
 The sandbox protects the worktree's Git index. The published commit is created through a temporary index and the permitted common Git directory, and pushed normally using gh authentication. Protected local checkout metadata remains at WIP `ee16021`; its working files match the published change and need metadata synchronization outside this sandbox.
 
 skills: impeccable, emil-design-eng, ponytail, ponytail-review, engineering-team-process; Astryx consulted under the existing-style constraint. The process skill resolved at `/home/box/sand-data/workflows/engineering-team-process/SKILL.md`.
+
+## QA round 1
+
+The major finding in QA r1 is fixed. `Metric` accepts arbitrary text, so its value now has normal whitespace, `overflow-wrap:anywhere`, `min-width:0` and `max-width:100%`. The approved 8px label/value gap, weight, color and short numeric/unit pairing remain. No backend or contract changes were needed.
+
+Repro first: six actual inline-artifact checks failed on reviewed head `08616a3`, measuring long values outside their owner. The same six pass after the fix at 1440/1024/768px, dark and light. The full WO-8 browser suite passes 20 tests. Updated [1440px screenshots](../screenshots/wo8/README.md#qa-r1-long-metric-strings) show the complete strings. Test/capture output remained in `/tmp`/Playwright outputDir; a separate explicit copy updated the ledger after scoped checks passed.
+
+Merged `origin/main` at `bef62398d95e26e254b8647d73c46bb451c634e4`, preserving its ChatView and project-search changes together with existing WO-8 copy/colors. Relevant unit tests: 159 passed. Merge regression suites: Files 44, chat modes 21, project search 38 passed. Two new-main project-search assertions were aligned with existing WO-8 copy. One chat-animation wait timed out initially; unchanged code passed the full rerun, and the isolated test passed on main. Initial and final logs are retained. Full Vitest: 58 failing files / 216 failed tests; 2300 passed, 35 skipped and four errors. Failure headings match the prior verified baseline; all names and logs are recorded under `ledger/WO-8/qa/r1-fix/`.
+
+QA minors remain follow-ups: activity messages are labeled Tool, and folder/file retry buttons share the accessible name Retry. Process/Windows acceptance gaps in the QA report are unchanged except that main now supplies docs/feature-map.md. This implementation check does not replace independent QA re-review.
+
+skills: engineering-team-process, ponytail, ponytail-review; test-driven-development, receiving-code-review and verification-before-completion applied.
