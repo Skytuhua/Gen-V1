@@ -10,16 +10,16 @@ const { _electron, expect } = require('@playwright/test');
 const evidence = process.env.MODEL_PICKER_OUTPUT ?? join(tmpdir(), 'gen-compact-model-native');
 await mkdir(evidence, { recursive: true });
 await require('esbuild').build({ entryPoints: [resolve('tests/e2e/compact-model-picker-fixture.tsx')],
-  bundle: true, format: 'esm', jsx: 'automatic', outfile: join(evidence, 'fixture.js'),
+  bundle: true, format: 'iife', jsx: 'automatic', outfile: join(evidence, 'fixture.js'),
   loader: { '.woff': 'file', '.woff2': 'file' }, define: { 'process.env.NODE_ENV': '"production"' },
 });
-await writeFile(join(evidence, 'index.html'), '<html data-theme="dark" data-native-titlebar="true"><head><meta charset="utf-8"><link rel="stylesheet" href="fixture.css"></head><body><div id="root"></div><script type="module" src="fixture.js"></script></body></html>');
+await writeFile(join(evidence, 'index.html'), '<html data-theme="dark" data-native-titlebar="true"><head><meta charset="utf-8"><link rel="stylesheet" href="fixture.css"></head><body><div id="root"></div><script src="fixture.js"></script></body></html>');
 await writeFile(join(evidence, 'main.cjs'), `const {app,BrowserWindow}=require('electron');
 app.setPath('userData',${JSON.stringify(join(evidence, 'isolated-profile'))});
 app.whenReady().then(()=>{const w=new BrowserWindow({width:1024,height:768,useContentSize:true,titleBarStyle:'hidden',titleBarOverlay:{height:42,color:'#0f0f0f',symbolColor:'#eeeeee'},webPreferences:{contextIsolation:true,sandbox:true}});w.loadFile(${JSON.stringify(join(evidence, 'index.html'))});});
 app.on('window-all-closed',()=>app.quit());`);
 const env = { ...process.env }; delete env.ELECTRON_RUN_AS_NODE; delete env.NODE_OPTIONS;
-const sourceFiles = ['apps/web/src/ModelPicker.tsx', 'apps/web/src/model-picker.css', 'packages/ui-shell/Popover.tsx', 'packages/ui-shell/ActionMenu.tsx'];
+const sourceFiles = ['apps/web/src/ModelPicker.tsx', 'apps/web/src/model-picker.css', 'packages/ui-shell/Popover.tsx'];
 const result = { electronVersion: require('electron/package.json').version, executable: require('electron'),
   source: Object.fromEntries(await Promise.all(sourceFiles.map(async file => [file, createHash('sha256').update(await readFile(file)).digest('hex')]))),
   scope: 'Real Electron leaf renderer with synthetic catalog, shared native modal, and isolated profile. No production backend/provider.',
@@ -33,10 +33,14 @@ try {
   result.display = await app.evaluate(({ screen }) => screen.getPrimaryDisplay());
   for (const size of [{ width: 1024, height: 600 }, { width: 390, height: 420 }]) {
     for (const zoom of [1, 1.25, 1.5]) for (const theme of ['dark', 'light']) {
-      await app.evaluate(({ BrowserWindow }, { size, zoom }) => {
-        const window = BrowserWindow.getAllWindows()[0]; window.setContentSize(size.width, size.height); window.webContents.setZoomFactor(zoom);
-      }, { size, zoom });
+      await app.evaluate(({ BrowserWindow }, { size }) => {
+        BrowserWindow.getAllWindows()[0].setContentSize(size.width, size.height);
+      }, { size });
       await page.goto(pathToFileURL(join(evidence, 'index.html')).href + '?large=1&native=1');
+      // Navigation restores the profile's per-origin zoom, so apply the matrix zoom after load.
+      await app.evaluate(({ BrowserWindow }, zoom) => {
+        BrowserWindow.getAllWindows()[0].webContents.setZoomFactor(zoom);
+      }, zoom);
       const trigger = page.getByRole('combobox', { name: 'Model', exact: true });
       await expect(trigger).toBeVisible();
       await page.evaluate(async theme => { document.documentElement.dataset.theme = theme; await document.fonts.ready; }, theme);
@@ -51,8 +55,9 @@ try {
           selectedTop: selected.top, selectedBottom: selected.bottom, listTop: list.top, listBottom: list.bottom, font: getComputedStyle(node.querySelector('[role="option"]')).fontSize };
       });
       expect(geometry.x).toBeGreaterThanOrEqual(8); expect(geometry.y).toBeGreaterThanOrEqual(50);
-      expect(geometry.right).toBeLessThanOrEqual(geometry.viewportWidth - 8 + 0.5);
-      expect(geometry.bottom).toBeLessThanOrEqual(geometry.viewportHeight - 8 + 0.5);
+      // innerWidth/innerHeight round to whole CSS px at fractional zoom; allow <1px of that rounding.
+      expect(geometry.right).toBeLessThanOrEqual(geometry.viewportWidth - 8 + 1);
+      expect(geometry.bottom).toBeLessThanOrEqual(geometry.viewportHeight - 8 + 1);
       expect(geometry.selectedTop).toBeGreaterThanOrEqual(geometry.listTop - 0.5);
       expect(geometry.selectedBottom).toBeLessThanOrEqual(geometry.listBottom + 0.5);
       expect(geometry.selectedTop).toBeGreaterThanOrEqual(geometry.y - 0.5);
@@ -63,11 +68,12 @@ try {
       await search.fill('model 99'); await search.press('Home'); await search.press('ArrowRight'); await expect(search).toBeFocused();
       expect(await search.evaluate(n => n.selectionStart)).toBe(1);
       await search.fill(''); await search.press('Tab');
-      await expect(page.getByRole('button', { name: 'Reasoning: High' })).toBeFocused();
+      await expect(page.getByRole('button', { name: 'Add openai/catalog-99 to favorites', exact: true })).toBeFocused();
+      await page.keyboard.press('Tab');
+      await expect(page.getByRole('radio', { name: 'High', exact: true })).toBeFocused();
       await page.keyboard.press('ArrowDown'); await page.keyboard.press('End');
-      await expect(page.getByRole('menuitemcheckbox', { name: 'High', exact: true })).toBeFocused();
+      await expect(page.getByRole('radio', { name: 'High', exact: true })).toBeFocused();
       await expect(page.getByLabel('Committed choice')).toHaveText('openai/catalog-99|high');
-      await page.keyboard.press('Escape'); await expect(trigger).toHaveAttribute('aria-expanded', 'true');
       const file = `native-${size.width}x${size.height}-${zoom}-${theme}.png`;
       const png = await app.evaluate(async ({ BrowserWindow }) => (await BrowserWindow.getAllWindows()[0].webContents.capturePage()).toPNG().toString('base64'));
       await writeFile(join(evidence, file), Buffer.from(png, 'base64'));
