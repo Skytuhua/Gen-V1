@@ -107,3 +107,31 @@ export async function journalCompareAndSwap(key: string, generation: string | un
     transaction.onabort = () => reject(transaction.error);
   });
 }
+
+export interface JournalChange {key:string;generation:string|undefined;value:unknown}
+/** Recovery copy and active text commit together; nothing is published before IDB commits. */
+export async function journalCompareAndSwapMany(changes:readonly JournalChange[],checks:readonly Omit<JournalChange,'value'>[]=[]):Promise<boolean>{
+ if(!changes.length||new Set(changes.map(c=>c.key)).size!==changes.length)throw Error('Invalid atomic journal changes.');
+ const expected=new Map<string,string|undefined>();for(const check of [...checks,...changes]){if(expected.has(check.key)&&expected.get(check.key)!==check.generation)throw Error('Conflicting journal generations.');expected.set(check.key,check.generation);}
+ await journalFlush();
+ if([...expected].some(([key,generation])=>memory.get(key)?.generation!==generation))return false;
+ const db=await open();
+ return new Promise<boolean>((resolve,reject)=>{
+  const transaction=db.transaction('entries','readwrite'),entries=transaction.objectStore('entries'),durable=new Map<string,JournalRecord|undefined>(),replacements=new Map<string,JournalRecord>();let pending=expected.size,failed:unknown;
+  for(const [key]of expected){const request=entries.get(key);request.onsuccess=()=>{
+   durable.set(key,request.result as JournalRecord|undefined);if(--pending)return;
+   if([...expected].some(([name,generation])=>memory.get(name)?.generation!==generation||durable.get(name)?.generation!==generation))return;
+   try{for(const change of changes){const record={value:change.value,updatedAt:Math.max(Date.now(),(memory.get(change.key)?.updatedAt??0)+1,(durable.get(change.key)?.updatedAt??0)+1),generation:crypto.randomUUID()};entries.put(record,change.key);replacements.set(change.key,record);}}
+   catch(cause){failed=cause;transaction.abort();}
+  };}
+  transaction.oncomplete=()=>{
+   const published:string[]=[];
+   for(const [key,record]of replacements)if(memory.get(key)?.generation===expected.get(key)){clearStaged(key,expected.get(key)!);memory.set(key,record);published.push(key);}
+   for(const key of published)listeners.get(key)?.forEach(listener=>listener(replacements.get(key)!.value));
+   for(const [key,record]of replacements)notifyOtherWindows(key,record.generation);
+   resolve(replacements.size===changes.length);
+  };
+  transaction.onerror=()=>reject(failed??transaction.error??new Error('Draft transaction failed.'));
+  transaction.onabort=()=>reject(failed??transaction.error??new Error('Draft transaction aborted.'));
+ });
+}
