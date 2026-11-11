@@ -64,6 +64,11 @@ function ContextSession({ usage, thread, close, refresh, onError, anchor, compac
     if (panel.current?.ownerDocument.activeElement === panel.current?.ownerDocument.body) action.current?.focus();
     restoreActionFocus.current = false;
   }, [compacting, thread?.runId]);
+  // Disabling the focused action (a run starting) drops focus to body; keep it inside so Escape still dismisses.
+  useLayoutEffect(() => {
+    const document = panel.current?.ownerDocument;
+    if (document && action.current?.disabled && document.activeElement === document.body) panel.current?.focus();
+  }, [compacting, thread?.runId]);
   const compact = async () => {
     if (!thread?.sessionPath || thread.runId || locked.current || compacting || unavailable) return;
     restoreActionFocus.current = action.current?.ownerDocument.activeElement === action.current;
