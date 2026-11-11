@@ -1,6 +1,7 @@
 .task-motion-region { height:0; overflow:clip; transition-property:none; }
 .task-motion-inner { display:flow-root; min-width:0; transition-property:none; }
-/* The single content tree reserves its natural layout before restoration. */
+/* Journal values determine layout before the reservation becomes visible. */
+.artifact[data-artifact-measuring=true] { visibility:hidden; }
 .artifact>.artifact-body { display:grid; }
 .artifact>.artifact-body>:is(.artifact-content,.artifact-restoring) { grid-area:1 / 1; min-width:0; }
 .artifact-restoring { align-self:start; }

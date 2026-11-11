@@ -16,11 +16,11 @@
     },
     {
       "file": "apps/web/src/Artifact.tsx",
-      "line": 125,
+      "line": 133,
       "column": 41,
       "rule": "ad-hoc-overlay",
       "message": "overlay role dialog: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "66b2228ae46c9737601c5ab06624a741eab0c25fc17530ae578bbb01439c4f5e",
+      "fingerprint": "4aba586360bd624c42079414cbd6f5accfbdb282756d0af3846ecce50dd06200",
       "reason": "TOOLS: migrate expanded artifact to shared Modal, retaining artifact identity.",
       "evidence": "<section ref={section} className={`artifact artifact-width-${artifact.presentation?.width ?? 'standard'} artifact-frame-${artifact.presentation?.frame ?? 'card'} ${expanded ? 'artifact-expanded' : ''} ${inWorkspace ? 'ar",
       "disposition": "staged-migration"

@@ -24,11 +24,11 @@ export async function holdWidgetMount(page: Page, failFirst = false) {
   return { release, requests: () => requests };
 }
 
-type Paint = { height: number | null; afterTop: number; pending: boolean };
+type Paint = { height: number | null; afterTop: number; pending: boolean; restoring: boolean; statusVisible: boolean };
 type JournalWindow = Window & { artifactPaints: Paint[]; artifactJournalPending: boolean; releaseArtifactJournal: (failed?: boolean) => void };
 
-export async function holdArtifactJournal(page: Page) {
-  await page.addInitScript(() => {
+export async function holdArtifactJournal(page: Page, recoveredValues?: Record<string, unknown>) {
+  await page.addInitScript(recoveredValues => {
     const target = window as unknown as JournalWindow;
     const gate = new Promise<boolean>(resolve => { target.releaseArtifactJournal = (failed = false) => { target.artifactJournalPending = false; resolve(failed); }; });
     const open = indexedDB.open.bind(indexedDB), success = Object.getOwnPropertyDescriptor(IDBRequest.prototype, 'onsuccess')!;
@@ -36,6 +36,10 @@ export async function holdArtifactJournal(page: Page) {
       const request = open(...args);
       Object.defineProperty(request, 'onsuccess', { set(handler) {
         success.set!.call(request, (event: Event) => {
+          if (recoveredValues) {
+            const transaction = request.result.transaction('entries', 'readwrite');
+            transaction.objectStore('entries').put({ value: { baseRevision: 0, values: recoveredValues }, updatedAt: Date.now(), generation: 'recovered-disclosure' }, 'state:task-state');
+          }
           target.artifactJournalPending = true;
           void gate.then(failed => {
             if (failed) {
@@ -47,7 +51,7 @@ export async function holdArtifactJournal(page: Page) {
       } });
       return request;
     };
-  });
+  }, recoveredValues);
 }
 
 export async function releaseArtifactJournal(page: Page, failed = false) {
@@ -64,8 +68,8 @@ export async function serveArtifactSettleFixture(page: Page, query = '') {
     const target = window as unknown as JournalWindow;
     target.artifactPaints = [];
     const sample = () => {
-      const reservation = document.querySelector('.artifact') ?? document.querySelector('.loading-state-status[role="status"]'), following = document.querySelector('[data-after-artifact]');
-      if (following) target.artifactPaints.push({ height: reservation?.getClientRects().length ? reservation.getBoundingClientRect().height : null, afterTop: following.getBoundingClientRect().top, pending: target.artifactJournalPending === true });
+      const reservation = document.querySelector('.artifact') ?? document.querySelector('.loading-state-status[role="status"]'), following = document.querySelector('[data-after-artifact]'), status = document.querySelector('.artifact-restoring [role="status"]');
+      if (following) target.artifactPaints.push({ height: reservation?.getClientRects().length && getComputedStyle(reservation).visibility !== 'hidden' ? reservation.getBoundingClientRect().height : null, afterTop: following.getBoundingClientRect().top, pending: target.artifactJournalPending === true, restoring: reservation?.getAttribute('data-artifact-pending') === 'true', statusVisible: Boolean(status?.getClientRects().length && getComputedStyle(status).visibility !== 'hidden') });
       requestAnimationFrame(sample);
     };
     requestAnimationFrame(sample);

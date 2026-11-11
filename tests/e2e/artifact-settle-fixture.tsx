@@ -16,6 +16,11 @@ function Fixture() {
     const initial = structuredClone(source);
     const rows = new URLSearchParams(location.search).get('rows');
     if (rows !== null) initial.data[0].value = Array.from({ length: Math.max(0, Math.min(20, Number(rows) || 0)) }, (_, index) => ({ name: `Record ${index + 1}`, detail: 'Synthetic source material for the new working object.' }));
+    if (new URLSearchParams(location.search).has('disclosure')) {
+      initial.userStates[0].values.open = false;
+      initial.artifacts[0].spec!.elements.body.children = ['note', 'details'];
+      initial.artifacts[0].spec!.elements.details = { type: 'Disclosure', props: { title: 'Recovered details', stateKey: 'open' }, children: ['records'] };
+    }
     if (new URLSearchParams(location.search).has('request')) {
       initial.artifacts[0].spec!.elements.body.children!.push('followup');
       initial.artifacts[0].spec!.elements.followup = { type: 'Disclosure', props: { title: 'Prepared question', defaultOpen: true, onOpenActionId: 'ask', payloadFromState: { note: 'note' } } };
