@@ -15,6 +15,8 @@ export interface LegacyOverlay extends UiViolation { reason: string }
 
 // File approvals cover implementation internals, not new files in this directory.
 export const primitiveImplementations: Readonly<Record<string, string>> = {
+  'packages/ui-shell/ChatView.tsx': 'Persistent non-modal conversation surface; shared menu, pointer capture, viewport clamps and keyboard geometry.',
+  'packages/ui-shell/chat-view.css': 'Scoped geometry for the persistent conversation surface and its pointer-transparent dock target.',
   'packages/ui-shell/ToolDock.tsx': 'Shared normal-flow tool owner; portals retain renderers from separate plug-in roots.',
   'packages/ui-shell/Popover.tsx': 'Shared anchored portal, dismissal and viewport placement primitive.',
   'packages/ui-shell/ActionMenu.tsx': 'Shared menu control; delegates placement and dismissal to Popover.',
