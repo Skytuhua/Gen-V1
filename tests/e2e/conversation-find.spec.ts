@@ -79,3 +79,14 @@ test('retains active match and reading position on rendered background additions
  await page.locator('.conversation').evaluate(el=>{const message=document.createElement('div');message.className='message';message.innerHTML='<div class="message-content">New workspace update</div>';el.append(message);});
  await expect(page.getByRole('status').filter({hasText:'2 of 101'})).toBeVisible();expect(await page.locator('.conversation-scroll').evaluate(el=>el.scrollTop)).toBe(top);
 });
+
+test('Enter activates the focused previous, close and history buttons',async({page})=>{
+ await setup(page,125);await open(page);await phrase(page).fill('workspace');
+ await page.getByRole('button',{name:'Previous match',exact:true}).focus();await page.keyboard.press('Enter');await expect(page.getByRole('status').filter({hasText:'100 of 100'})).toBeVisible();
+ await page.getByRole('button',{name:'Load older messages',exact:true}).focus();await page.keyboard.press('Enter');await expect(page.locator('.message')).toHaveCount(125);
+ await page.getByRole('button',{name:'Close find',exact:true}).focus();await page.keyboard.press('Enter');await expect(phrase(page)).toBeHidden();
+});
+test('Escape and Close restore the rendered Find trigger',async({page})=>{
+ await setup(page);const trigger=page.getByRole('button',{name:'Find in conversation',exact:true});await trigger.focus();await page.keyboard.press('Enter');await expect(phrase(page)).toBeFocused();await page.keyboard.press('Escape');await expect(trigger).toBeFocused();
+ await page.keyboard.press('Enter');await page.getByRole('button',{name:'Close find',exact:true}).click();await expect(trigger).toBeFocused();
+});
