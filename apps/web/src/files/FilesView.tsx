@@ -18,6 +18,19 @@ import { Select } from "../../../../packages/ui-shell/Select";
 import type { FilesRead } from "./useFilesRead";
 import "./files.css";
 
+// Keep file identity raw for reads; render invisible filename characters explicitly.
+export function displayFilePath(path: string): string {
+	return path.replace(/[\x01-\x1f\x7f]/g, (character) =>
+		character === "\t"
+			? "\\t"
+			: character === "\n"
+				? "\\n"
+				: character === "\r"
+					? "\\r"
+					: `\\u${character.charCodeAt(0).toString(16).padStart(4, "0")}`,
+	);
+}
+
 export interface FilesEntry {
 	name: string;
 	path: string;
@@ -141,7 +154,7 @@ export function FilesView({
 								}
 								onClick={() => directory(parts.slice(0, index + 1).join("/"))}
 							>
-								{part}
+								{displayFilePath(part)}
 							</button>
 						</span>
 					))}
@@ -232,8 +245,8 @@ export function FilesView({
 										<li key={entry.path}>
 											<button
 												type="button"
-												title={entry.path}
-												aria-label={entry.name}
+												title={displayFilePath(entry.path)}
+												aria-label={displayFilePath(entry.name)}
 												aria-current={
 													selected?.path === entry.path ? "true" : undefined
 												}
@@ -250,7 +263,7 @@ export function FilesView({
 												) : (
 													<File size={15} />
 												)}
-												<span>{entry.name}</span>
+												<span>{displayFilePath(entry.name)}</span>
 												{entry.kind === "directory" ? (
 													<ChevronRight size={12} />
 												) : entry.bytes !== undefined ? (
@@ -289,7 +302,9 @@ export function FilesView({
 					{selected ? (
 						<>
 							<header>
-								<strong title={selected.path}>{selected.name}</strong>
+								<strong title={displayFilePath(selected.path)}>
+									{displayFilePath(selected.name)}
+								</strong>
 								{download && (
 									<a href={download} download={selected.name}>
 										Download

@@ -4,6 +4,7 @@ import {
 	isComposing,
 	useListNavigation,
 } from "../../../../packages/ui-shell/list-navigation";
+import { displayFilePath } from "./FilesView";
 import { useFilesRead } from "./useFilesRead";
 import {
 	appendProjectSearch,
@@ -54,7 +55,7 @@ export function ProjectSearch(props: ProjectSearchProps) {
 						}}
 						onCompositionEnd={(event) => {
 							composing.current = false;
-							setQuery(event.currentTarget.value);
+							setQuery(event.currentTarget.value.trim());
 						}}
 						onChange={(event) => {
 							setDraft(event.target.value);
@@ -150,8 +151,7 @@ function SearchResults({
 		(index) => onSelect(matches[index]),
 		() => {},
 	);
-	const incomplete =
-		page.value && (!page.value.complete || page.value.errors.length > 0);
+	const incomplete = page.value && !page.value.complete;
 	return (
 		<>
 			<p className="project-search-summary" role="status" aria-live="polite">
@@ -162,7 +162,7 @@ function SearchResults({
 							? "Refreshing results…"
 							: "Searching project…"
 						: page.value
-							? `${matches.length} ${matches.length === 1 ? "result" : "results"} · ${incomplete ? "Incomplete results" : "Project files and text"}`
+							? `${matches.length} ${matches.length === 1 ? "result" : "results"} · ${incomplete ? "Incomplete results" : page.value.nextCursor ? "More results available" : "Project files and text"}`
 							: ""}
 			</p>
 			{page.error && (
@@ -200,7 +200,7 @@ function SearchResults({
 					<li key={projectSearchMatchKey(match)}>
 						<button
 							className="project-search-hit"
-							title={match.path}
+							title={displayFilePath(match.path)}
 							type="button"
 							ref={(node) => {
 								navigation.rows.current[index] = node;
@@ -216,10 +216,13 @@ function SearchResults({
 						>
 							<File size={15} aria-hidden="true" />
 							<span>
-								<strong>{match.path.split("/").at(-1)}</strong>
+								<strong>
+									{displayFilePath(match.path.split("/").at(-1)!)}
+								</strong>
 								<small>
-									{match.path.split("/").slice(0, -1).join("/") ||
-										"Project root"}
+									{displayFilePath(
+										match.path.split("/").slice(0, -1).join("/"),
+									) || "Project root"}
 									{match.kind === "text"
 										? ` · line ${match.line}`
 										: " · File name"}
@@ -229,7 +232,9 @@ function SearchResults({
 										match.kind === "text" ? "project-search-snippet" : undefined
 									}
 								>
-									{match.preview}
+									{match.kind === "path"
+										? displayFilePath(match.preview)
+										: match.preview}
 								</span>
 							</span>
 						</button>
@@ -283,25 +288,29 @@ function SearchResults({
 								? ` · ${page.value.exclusions.length} exclusions`
 								: ""}
 						</summary>
-						<p>Revision {page.value.owner.revision}</p>
+						<p>Binding {page.value.owner.binding}</p>
 						<p>
 							Limits: {page.value.limits.files.toLocaleString()} files ·{" "}
 							{page.value.limits.bytes.toLocaleString()} bytes ·{" "}
 							{page.value.limits.matches} matches ·{" "}
-							{page.value.limits.timeoutMs.toLocaleString()} ms
+							{page.value.limits.timeoutMs.toLocaleString()} ms ·{" "}
+							{page.value.limits.fileBytes.toLocaleString()} bytes per file
 						</p>
 						{page.value.exclusions.map((item, index) => (
+							<p key={index}>{item}</p>
+						))}
+						{page.value.issues.map((item, index) => (
 							<p key={index}>
-								{item.path ? `${item.path}: ` : ""}
-								{item.reason}
+								{item.path ? `${displayFilePath(item.path)}: ` : ""}
+								{item.reason.replaceAll("_", " ")}
 							</p>
 						))}
-						{page.value.errors.map((item, index) => (
-							<p key={index}>
-								{item.path ? `${item.path}: ` : ""}
-								{item.code}: {item.message}
+						{page.value.issuesTruncated && (
+							<p>
+								More issues were omitted. Refine the query or refresh to inspect
+								fewer files.
 							</p>
-						))}
+						)}
 					</details>
 				</>
 			)}
