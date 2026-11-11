@@ -24,7 +24,7 @@ export async function holdWidgetMount(page: Page, failFirst = false) {
   return { release, requests: () => requests };
 }
 
-type Paint = { height: number | null; afterTop: number; pending: boolean; restoring: boolean; statusVisible: boolean };
+type Paint = { height: number | null; afterTop: number; pending: boolean; restoring: boolean; statusVisible: boolean; artifactVisible: boolean; disclosureOpen: string | null; headerHeight: number | null; saveStatus: string | null };
 type JournalWindow = Window & { artifactPaints: Paint[]; artifactJournalPending: boolean; releaseArtifactJournal: (failed?: boolean) => void };
 
 export async function holdArtifactJournal(page: Page, recoveredValues?: Record<string, unknown>) {
@@ -69,7 +69,7 @@ export async function serveArtifactSettleFixture(page: Page, query = '') {
     target.artifactPaints = [];
     const sample = () => {
       const reservation = document.querySelector('.artifact') ?? document.querySelector('.loading-state-status[role="status"]'), following = document.querySelector('[data-after-artifact]'), status = document.querySelector('.artifact-restoring [role="status"]');
-      if (following) target.artifactPaints.push({ height: reservation?.getClientRects().length && getComputedStyle(reservation).visibility !== 'hidden' ? reservation.getBoundingClientRect().height : null, afterTop: following.getBoundingClientRect().top, pending: target.artifactJournalPending === true, restoring: reservation?.getAttribute('data-artifact-pending') === 'true', statusVisible: Boolean(status?.getClientRects().length && getComputedStyle(status).visibility !== 'hidden') });
+      if (following) target.artifactPaints.push({ height: reservation?.getClientRects().length ? reservation.getBoundingClientRect().height : null, afterTop: following.getBoundingClientRect().top, pending: target.artifactJournalPending === true, restoring: reservation?.getAttribute('data-artifact-pending') === 'true', statusVisible: Boolean(status?.getClientRects().length && getComputedStyle(status).visibility !== 'hidden'), artifactVisible: Boolean(reservation && getComputedStyle(reservation).visibility !== 'hidden'), disclosureOpen: document.querySelector('.disclosure-trigger')?.getAttribute('aria-expanded') ?? null, headerHeight: document.querySelector('.artifact-header')?.getBoundingClientRect().height ?? null, saveStatus: document.querySelector('.save-state')?.textContent ?? null });
       requestAnimationFrame(sample);
     };
     requestAnimationFrame(sample);

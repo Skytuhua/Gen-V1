@@ -5,6 +5,8 @@
 .artifact>.artifact-body { display:grid; }
 .artifact>.artifact-body>:is(.artifact-content,.artifact-restoring) { grid-area:1 / 1; min-width:0; }
 .artifact-restoring { align-self:start; }
+/* Save feedback must not change the header's reserved height. */
+.artifact[data-artifact-inline=true] .save-state { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .artifact[data-artifact-pending=true]>.artifact-body>.artifact-content,
 .artifact[data-artifact-pending=true]>.artifact-body>.artifact-content *,
 .artifact[data-artifact-pending=true] .artifact-tools>:not([aria-label="Collapse artifact"]) { visibility:hidden!important; }

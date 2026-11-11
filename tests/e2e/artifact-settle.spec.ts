@@ -27,30 +27,41 @@ async function recordEntrances(page: Page) {
 }
 const records = (page: Page) => page.evaluate(() => (window as unknown as EntranceWindow).artifactEntrances);
 
-for (const width of [768, 1024, 1440]) {
-  test(`recovered disclosure keeps following content within 1px at ${width}`, async ({ page }, testInfo) => {
+for (const width of [768, 1024, 1440]) for (const recoveredOpen of [false, true]) for (const failed of [false, true]) {
+  test(`conversation stays fixed across disclosure states at ${width}, recovered ${recoveredOpen}, journal ${failed ? 'failure' : 'success'}`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width, height: 1100 });
-    await holdArtifactJournal(page, { note: 'Recovered note', open: true });
-    await fixture(page, '?disclosure');
+    await holdArtifactJournal(page, { note: 'Recovered note', open: recoveredOpen });
+    await fixture(page, `?disclosure&hostOpen=${!recoveredOpen}`);
     await page.getByRole('button', { name: 'Publish artifact', exact: true }).click();
-    await expect(page.getByRole('status', { includeHidden: true })).toHaveText('Restoring Task surface…');
-    await releaseArtifactJournal(page);
-    await expect(page.getByRole('button', { name: 'Recovered details', exact: true })).toHaveAttribute('aria-expanded', 'true');
-    await expect(page.getByRole('textbox', { name: 'Artifact note', exact: true })).toHaveValue('Recovered note');
-    await expect.poll(() => page.locator('.disclosure-branch-region').evaluate(node => Math.abs(node.getBoundingClientRect().height - node.firstElementChild!.getBoundingClientRect().height))).toBeLessThanOrEqual(.1);
-    await expect(page.locator('.artifact')).toHaveAttribute('data-entry-phase', 'settled');
-    const geometry = await page.evaluate(() => (window as unknown as Window & { artifactPaints: { height: number | null; afterTop: number; restoring: boolean; statusVisible: boolean }[] }).artifactPaints.filter(paint => paint.height !== null));
-    const positions = geometry.map(paint => paint.afterTop);
-    const shift = Math.max(...positions) - Math.min(...positions);
-    await testInfo.attach(`recovered-disclosure-${width}.json`, { body: JSON.stringify({ width, shift, geometry }, null, 2), contentType: 'application/json' });
-    await testInfo.attach(`recovered-disclosure-${width}.png`, { body: await page.screenshot(), contentType: 'image/png' });
-    expect(positions.length).toBeGreaterThan(0);
-    expect(geometry[0].restoring, 'first visible frame reserves restored geometry before the content reveal').toBe(true);
-    expect(geometry.some(paint => paint.statusVisible), 'restoration status actually paints in the reserved layout').toBe(true);
-    expect(shift, 'following content shift from the first visible restoration frame').toBeLessThanOrEqual(1);
+    await expect(page.locator('.artifact')).toBeAttached();
+    // The following paragraph is visible even when the artifact itself is hidden.
+    const heldTop = await page.locator('[data-after-artifact]').evaluate(node => node.getBoundingClientRect().top);
+    await expect(page.locator('.artifact-restoring').getByRole('status', { includeHidden: true })).toHaveText('Restoring Task surface…');
+    await testInfo.attach(`held-${width}.png`, { body: await page.screenshot(), contentType: 'image/png' });
+    await releaseArtifactJournal(page, failed);
     const details = page.getByRole('button', { name: 'Recovered details', exact: true });
-    await details.click();
-    await expect.poll(() => page.locator('[data-after-artifact]').evaluate(node => node.getBoundingClientRect().top)).toBeLessThan(Math.min(...positions) - 100);
+    await expect(details).toHaveAttribute('aria-expanded', String(failed ? !recoveredOpen : recoveredOpen));
+    await expect(page.getByRole('textbox', { name: 'Artifact note', exact: true })).toHaveValue(failed ? 'Keep this saved note' : 'Recovered note');
+    await expect(page.locator('.artifact')).toHaveAttribute('data-entry-phase', 'settled');
+    const checkpoints = [{ state: 'held', afterTop: heldTop }, { state: 'restored', afterTop: await page.locator('[data-after-artifact]').evaluate(node => node.getBoundingClientRect().top) }];
+    for (const open of [false, true, false, true]) {
+      if (await details.getAttribute('aria-expanded') !== String(open)) await details.click();
+      await expect(details).toHaveAttribute('aria-expanded', String(open));
+      await expect.poll(() => page.locator('.disclosure-branch-region').evaluate((node, open) => Math.abs(node.getBoundingClientRect().height - (open ? node.firstElementChild!.getBoundingClientRect().height : 0)), open)).toBeLessThanOrEqual(.1);
+      checkpoints.push({ state: open ? 'expanded' : 'collapsed', afterTop: await page.locator('[data-after-artifact]').evaluate(node => node.getBoundingClientRect().top) });
+    }
+    await testInfo.attach(`restored-${width}.png`, { body: await page.screenshot(), contentType: 'image/png' });
+    const geometry = await page.evaluate(() => (window as unknown as Window & { artifactPaints: { height: number | null; afterTop: number; pending: boolean; restoring: boolean; artifactVisible: boolean; disclosureOpen: string | null }[] }).artifactPaints.filter(paint => paint.height !== null));
+    const positions = [...geometry.map(paint => paint.afterTop), ...checkpoints.map(point => point.afterTop)];
+    const shift = Math.max(...positions) - Math.min(...positions);
+    await testInfo.attach(`conversation-${width}.json`, { body: JSON.stringify({ width, recoveredOpen, failed, shift, checkpoints, geometry }, null, 2), contentType: 'application/json' });
+    expect(geometry.filter(paint => paint.pending).length).toBeGreaterThanOrEqual(4);
+    expect(geometry.some(paint => paint.pending && !paint.artifactVisible), 'held read with hidden artifact is sampled').toBe(true);
+    expect(geometry.some(paint => paint.restoring && paint.artifactVisible), 'shown restoration reservation is sampled').toBe(true);
+    expect(geometry.some(paint => !paint.restoring && paint.artifactVisible)).toBe(true);
+    expect(geometry.some(paint => paint.disclosureOpen === 'true')).toBe(true);
+    expect(geometry.some(paint => paint.disclosureOpen === 'false')).toBe(true);
+    expect(shift, 'following conversation movement including hidden restoration and disclosure transitions').toBeLessThanOrEqual(1);
   });
 }
 
@@ -64,7 +75,7 @@ test('automatic disclosure actions wait for restored state', async ({ page }) =>
     return route.fulfill({ json: { commandId: command.id, result: {}, seq: 1 } });
   });
   await page.getByRole('button', { name: 'Publish artifact', exact: true }).click();
-  await expect(page.getByRole('status', { includeHidden: true })).toHaveText('Restoring Task surface…');
+  await expect(page.locator('.artifact-restoring').getByRole('status', { includeHidden: true })).toHaveText('Restoring Task surface…');
   expect(actions).toHaveLength(0);
   await releaseArtifactJournal(page);
   await expect.poll(() => actions).toEqual([{ note: 'Keep this saved note' }]);
@@ -85,8 +96,8 @@ for (const recovered of [false, true]) test(`${recovered ? 'recovered' : 'genera
     return route.fulfill({ json: { commandId: command.id, result: command.type === 'resource.upload' ? { id: 'signature-asset', threadId: 'task-thread', kind: 'attachment' } : {}, seq: 1 } });
   });
   await page.getByRole('button', { name: 'Publish artifact', exact: true }).click();
-  await expect(page.getByRole('status', { includeHidden: true })).toHaveText('Restoring Task surface…');
-  await expect(page.locator('.signature-well-tools button')).toHaveCount(0);
+  await expect(page.locator('.artifact-restoring').getByRole('status', { includeHidden: true })).toHaveText('Restoring Task surface…');
+  await expect(page.locator('.signature-well-tools button').first()).toBeEnabled();
   expect(uploads).toBe(0);
   if (!recovered) expect(await page.evaluate(() => localStorage.getItem('harness:signature-assets:v1:task-thread:task-state'))).toBeNull();
   await releaseArtifactJournal(page);
@@ -99,7 +110,7 @@ for (const width of [1024, 1440, 768]) for (const rows of [0, 12]) for (const fa
     await page.setViewportSize({ width, height: 1000 });
     await holdArtifactJournal(page); await recordEntrances(page); await fixture(page, `?rows=${rows}`);
     await page.getByRole('button', { name: 'Publish artifact', exact: true }).click();
-    await expect(page.getByRole('status', { includeHidden: true })).toHaveText('Restoring Task surface…');
+    await expect(page.locator('.artifact-restoring').getByRole('status', { includeHidden: true })).toHaveText('Restoring Task surface…');
     await expect(page.locator('.artifact')).toHaveCSS('visibility', 'hidden');
     await releaseArtifactJournal(page, failed);
     await expect(page.getByRole('textbox', { name: 'Artifact note', exact: true })).toHaveValue('Keep this saved note');
@@ -246,15 +257,16 @@ for (const expanded of [false, true]) test(`delayed journal restoration preserve
   await fixture(page, '?restored' + (expanded ? '&expanded' : ''));
   const publishButton = page.getByRole('button', { name: 'Publish artifact', exact: true });
   await publishButton.focus();
-  await expect(page.getByRole('status', { includeHidden: true })).toHaveText('Restoring Task surface…');
+  await expect(page.locator('.artifact-restoring').getByRole('status', { includeHidden: true })).toHaveText('Restoring Task surface…');
   await expect(page.locator('.artifact')).toHaveCSS('visibility', 'hidden');
   await expect(page.locator('.artifact-body')).toHaveAttribute('aria-busy', 'true');
   await expect(page.locator('.artifact-content')).toHaveAttribute('inert', '');
-  await expect(page.locator('.artifact-content input')).toHaveCount(0);
+  await expect(page.locator('.artifact-content input')).toHaveCount(1);
+  const original = await page.locator('.artifact-content input').elementHandle();
   await releaseArtifactJournal(page);
   const note = page.getByRole('textbox', { name: 'Artifact note', exact: true });
   await expect(note).toHaveValue('Keep this saved note');
-  const original = await note.elementHandle();
+  expect(await note.evaluate((node, original) => node === original, original)).toBe(true);
   await page.getByRole('button', { name: 'Publish snapshot', exact: true, includeHidden: true }).dispatchEvent('click');
   expect(await note.evaluate((node, original) => node === original, original)).toBe(true);
   const { paints } = await expectArtifactGeometry(page);
