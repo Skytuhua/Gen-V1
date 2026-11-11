@@ -52,7 +52,9 @@ describe('proven duplicate removals',()=>{
   const app=readFileSync(new URL('../apps/web/src/App.tsx',import.meta.url),'utf8');
   const summaries=app.split('<ProjectContextSurface').slice(1).filter(value=>value.includes("key={thread?.id??'new'}"));
   expect(summaries).toHaveLength(2);
-  for(const summary of summaries)expect(summary.split('/>')[0]).toContain('composerChangesAvailable={Boolean(thread&&!threadParent(thread)&&!delegatedThread(thread)&&!pinnedThreadId&&!embeddedThreadId)}');
+  for(const summary of summaries)expect(summary.split('/>')[0]).toContain('composerChangesAvailable={composerChangesAvailable}');
+  expect(app).toContain('ready&&!busy');
+  expect(app).toContain('available&&embeddedActive&&!threadHeld');
  });
  it('respects the footer visibility preference',()=>{expect(renderToStaticMarkup(createElement(UsageFooter,{usage,visible:false}))).toBe('');});
 });

@@ -1,4 +1,5 @@
-import {expect,test} from '@playwright/test';
+import {expect,test,type Page} from '@playwright/test';
+import {applySplitWorkspaceCommand,createSplitWorkspaceLayout} from '../../packages/core/split-workspace-layout';
 import {shellInit,shellRoute,shellSnapshot} from '../../scripts/capture-ui/shell-api';
 import {projectContext} from '../../scripts/capture-ui/browser-data';
 
@@ -6,6 +7,80 @@ test.beforeEach(async({page})=>{
  await page.addInitScript(()=>localStorage.setItem('harness:summary:usage:v1',JSON.stringify({collapsed:false})));
  await page.addInitScript(()=>{const requests:unknown[]=[];Object.defineProperty(window,'wo5Requests',{value:requests});window.addEventListener('redundant-request',event=>requests.push((event as CustomEvent).detail));});
  await page.route('**/api/**',route=>route.abort('blockedbyclient'));
+});
+async function ownerApp(page:Page,mode:'chat'|'split'|'desktop'|'loading'='chat'){
+ const snapshot=shellSnapshot();snapshot.threads[0].projectId='capture-project';
+ let layout=applySplitWorkspaceCommand(createSplitWorkspaceLayout(),'view.open',{paneId:'pane-main',view:{id:'owner-thread',kind:'thread',binding:{authority:{kind:'local'},threadId:'one',projectId:'capture-project'}}});
+ let releaseSend:()=>void=()=>{};
+ const sendGate=new Promise<void>(resolve=>{releaseSend=resolve;});
+ await page.addInitScript(shellInit);
+ if(mode==='split')await page.addInitScript(()=>localStorage.setItem('harness:workspace-mode:v3','split'));
+ if(mode==='loading')await page.addInitScript(()=>{
+  const get=IDBObjectStore.prototype.get,held:(()=>void)[]=[];
+  Object.assign(window,{wo5ReleaseComposerDraft:()=>held.splice(0).forEach(release=>release())});
+  IDBObjectStore.prototype.get=function(key){const request=get.call(this,key);if(key==='draft:one')request.addEventListener('success',event=>{event.stopImmediatePropagation();held.push(()=>request.dispatchEvent(new Event('success')));},{once:true});return request;};
+ });
+ if(mode==='desktop')await page.addInitScript(()=>{
+  let detached=false;const state=()=>({windows:[{id:'main',surface:{kind:'main'},ready:true,minimized:false},...(detached?[{id:'child',surface:{kind:'thread',threadId:'one'},ready:true,minimized:false}]:[])]});
+  Object.assign(window,{harnessDesktop:{getContext:async()=>({windowId:'main',surface:{kind:'main'},...state()}),ready:async()=>{},onCloseRequested:()=>()=>{},focus:async()=>{},onState:(listener:(value:ReturnType<typeof state>)=>void)=>{Object.assign(window,{wo5SetDetached:(value:boolean)=>{detached=value;listener(state());}});return()=>{};}}});
+ });
+ await page.route('**/api/**',async route=>{
+  const url=new URL(route.request().url()),path=url.pathname;
+  if(path==='/api/projects/capture-project/context')return route.fulfill({json:{...projectContext,threadId:'one'}});
+  if(path==='/api/projects/capture-project/git'){
+   expect(url.searchParams.get('threadId')).toBe('one');
+   return route.fulfill({json:{head:'a'.repeat(40),revision:'b'.repeat(64),branch:'audit',files:[],diff:'Owner fallback diff',stagedDiff:'',truncated:false,gitWrite:false}});
+  }
+  if(path==='/api/split-workspace')return route.fulfill({json:layout});
+  if(path==='/api/split-workspace/profiles')return route.fulfill({json:[]});
+  if(path==='/api/split-workspace/commands'){
+   const command=route.request().postDataJSON();layout=applySplitWorkspaceCommand(layout,command.type,command.payload);
+   return route.fulfill({json:{commandId:command.id,eventSeq:snapshot.seq,result:layout}});
+  }
+  if(path==='/api/commands'&&route.request().postDataJSON().type==='message.send')await sendGate;
+  return shellRoute(route,snapshot,false);
+ });
+ await page.goto('/actual-app');
+ if(mode==='loading')await expect(page.getByRole('button',{name:'Inspect changes',exact:true})).toBeDisabled();else await expect(page.getByRole('button',{name:'Inspect changes',exact:true})).toBeEnabled();
+ const overview=page.locator('.summary-overview:visible').first();
+ await overview.getByRole('button',{name:'Expand Project overview',exact:true}).click();
+ await expect(overview.locator('.project-context-card')).toContainText('Audit project');
+ return {overview,fallback:overview.getByRole('button',{name:/^Changes/}),releaseSend};
+}
+test('actual detached composer restores overview Changes until its owner docks again',async({page})=>{
+ const {fallback}=await ownerApp(page,'desktop');await expect(fallback).toHaveCount(0);
+ await page.evaluate(()=>(window as unknown as {wo5SetDetached:(value:boolean)=>void}).wo5SetDetached(true));
+ await expect(page.getByRole('button',{name:'Focus chat',exact:true})).toBeVisible();await expect(fallback).toBeVisible();
+ if(process.env.WO5_SCREENSHOTS)await page.screenshot({path:`${process.env.WO5_SCREENSHOTS}/r2-detached.png`,fullPage:true});
+ await fallback.focus();await page.keyboard.press('Enter');await expect(page.locator('.live-diff')).toContainText('Owner fallback diff');
+ await page.evaluate(()=>(window as unknown as {wo5SetDetached:(value:boolean)=>void}).wo5SetDetached(false));
+ await expect(page.getByRole('button',{name:'Inspect changes',exact:true})).toBeEnabled();await expect(fallback).toHaveCount(0);
+});
+for(const state of ['parked','minimized'] as const)test(`actual ${state} split composer retains its same-owner overview Changes route`,async({page})=>{
+ const {fallback}=await ownerApp(page,'split');await expect(fallback).toHaveCount(0);
+ if(state==='parked'){
+  await page.getByRole('button',{name:'Area actions',exact:true}).click();await page.getByRole('menuitem',{name:'Park current view',exact:true}).click();
+ }else await page.getByRole('button',{name:'Minimize area',exact:true}).click();
+ await expect(page.getByRole('button',{name:'Inspect changes',exact:true})).toHaveCount(0);await expect(fallback).toBeVisible();
+ if(process.env.WO5_SCREENSHOTS)await page.screenshot({path:`${process.env.WO5_SCREENSHOTS}/r2-${state}.png`,fullPage:true});
+ if(state==='minimized'){
+  await page.getByRole('button',{name:'Restore area',exact:true}).click();await expect(page.getByRole('button',{name:'Inspect changes',exact:true})).toBeEnabled();await expect(fallback).toHaveCount(0);
+  await page.getByRole('button',{name:'Minimize area',exact:true}).click();await expect(fallback).toBeVisible();
+ }
+ await fallback.focus();await page.keyboard.press('Enter');await expect(page.locator('.live-diff')).toContainText('Owner fallback diff');
+});
+test('actual loading composer keeps overview Changes until its draft is ready',async({page})=>{
+ const {fallback}=await ownerApp(page,'loading');await expect(fallback).toBeVisible();
+ await page.evaluate(()=>(window as unknown as {wo5ReleaseComposerDraft:()=>void}).wo5ReleaseComposerDraft());
+ await expect(page.getByRole('button',{name:'Inspect changes',exact:true})).toBeEnabled();await expect(fallback).toHaveCount(0);
+});
+test('actual busy composer restores overview Changes until its action is enabled again',async({page})=>{
+ const {fallback,releaseSend}=await ownerApp(page);await expect(fallback).toHaveCount(0);
+ await page.getByRole('textbox',{name:'Message',exact:true}).fill('Hold this ordinary send');
+ try{
+  await page.getByRole('button',{name:'Send message',exact:true}).click();await expect(page.getByRole('button',{name:'Inspect changes',exact:true})).toBeDisabled();await expect(fallback).toBeVisible();
+ }finally{releaseSend();}
+ await expect(page.getByRole('button',{name:'Inspect changes',exact:true})).toBeEnabled();await expect(fallback).toHaveCount(0);
 });
 test('production App hides the equivalent overview route and opens same-owner Changes from its composer',async({page})=>{
  const snapshot=shellSnapshot();snapshot.threads[0].projectId='capture-project';

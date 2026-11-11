@@ -9,5 +9,5 @@ export default defineConfig({...base,root:resolve('.'),cacheDir:'/tmp/wo5-run-d/
    const path=new URL(req.url??'/','http://localhost').pathname;if(!['/redundant-ui','/actual-app'].includes(path))return next();
    void server.transformIndexHtml(req.url!,`<!doctype html><html data-theme="dark"><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body><div id="root"></div><script type="module" src="${path==='/actual-app'?'/apps/web/src/main.tsx':'/tests/e2e/redundant-ui-fixture.tsx'}"></script></body></html>`).then(html=>{res.setHeader('Content-Type','text/html');res.end(html);}).catch(next);
   });
- }}],server:{host:'127.0.0.1',port:5526,strictPort:true,fs:{allow:[resolve('.'),realpathSync('node_modules')]}},
+ }}],server:{host:'127.0.0.1',port:5526,strictPort:true,watch:{ignored:['**/.harness*/**']},fs:{allow:[resolve('.'),realpathSync('node_modules')]}},
 });
