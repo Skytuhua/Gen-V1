@@ -23,7 +23,7 @@ export interface ChildFollowUpController {
  subscribe(listener: (agentId: string, ticket: ChildInputTicket) => void): () => void;
  dispose?(): void;
 }
-export interface ComposerState {draft: string; ready: boolean; busy: boolean; stopping: boolean; error: string; retry: boolean; thinkingLevel?: string | null; skills?: readonly SkillBinding[]; ticket?: ChildInputTicket}
+export interface ComposerState {draft: string; ready: boolean; busy: boolean; stopping: boolean; error: string; retry: boolean; resumeRequired?: boolean; thinkingLevel?: string | null; skills?: readonly SkillBinding[]; ticket?: ChildInputTicket}
 export interface ComposerSubmission {content: string; generation: string | undefined; skills: readonly SkillBinding[]}
 /** Share this exact instance with every conversation view, including the host composer. */
 export interface SharedAgentComposers {
@@ -34,6 +34,7 @@ export interface SharedAgentComposers {
  addSkill(agent: ComposerTarget, binding: SkillBinding): Promise<void>;
  removeSkill(agent: ComposerTarget, id: string): Promise<void>;
  submit(agent: ComposerTarget, options?: {thinkingLevel?: string | null; submission?: ComposerSubmission}): Promise<void>;
+ clearError(agent: ComposerTarget): void;
  stop(agent: ComposerTarget): Promise<void>;
  canSend(agent: ComposerTarget): boolean;
  supports(agent: ComposerTarget): boolean;
@@ -54,7 +55,12 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
   if (inventoryAgent(agent)) entries.get(id)!.inventory = agent;
   return entries.get(id)!;
  };
- const emit = (value: Entry, patch: Partial<ComposerState>) => {value.state = {...value.state, ...patch}; value.listeners.forEach(listener => listener());};
+ const emit = (value: Entry, patch: Partial<ComposerState>) => {
+  const next = {...value.state, ...patch};
+  // A replacement error is not a resume request unless the transport explicitly says so.
+  if (patch.error !== undefined && patch.error !== value.state.error && patch.resumeRequired === undefined) next.resumeRequired = false;
+  value.state = next; value.listeners.forEach(listener => listener());
+ };
  const supports = (agent: ComposerTarget) => !inventoryAgent(agent) || Boolean(agent.threadId) && !agent.archived && (agent.parentId
   ? agent.status === 'working' && Boolean(agent.jobId) && Boolean(actions.followUp)
   : !agent.readOnly);
@@ -152,10 +158,11 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
      try {await journalWrite(pendingKey(agent), null); value.pending = undefined;}
      catch {emit(value, {error: 'The rejected message could not be saved locally. Keep this workspace open.', retry: true}); return;}
     }
-    emit(value, {error: cause instanceof Error ? cause.message : 'Delivery is uncertain. Retry this message.', retry: !rejected});
+    emit(value, {error: cause instanceof Error ? cause.message : 'Delivery is uncertain. Retry this message.', retry: !rejected, resumeRequired: cause instanceof ApiError && cause.code === 'RESUME_REQUIRED'});
    }
    finally {emit(value, {busy: false});}
   },
+  clearError(agent) {emit(entry(agent), {error: '', resumeRequired: false});},
   async stop(agent) {
    const value = entry(agent), working = inventoryAgent(agent) ? !agent.parentId && Boolean(agent.threadId) && !agent.readOnly && agent.status === 'working' : agent.working;
    if (!working || value.state.stopping || ownership(agent) === undefined) return;
