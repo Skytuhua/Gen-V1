@@ -1,16 +1,26 @@
 import {test,expect,type Page} from '@playwright/test';
 import {taskFixture,serveTaskFixture} from './task-interface-fixture';
+import {createSplitWorkspaceLayout,applySplitWorkspaceCommand} from '../../packages/core/split-workspace-layout';
 const modal=(page:Page)=>page.getByRole('dialog',{name:'Usage',exact:true});
-async function host(page:Page){
+async function host(page:Page,{split=false}={}){
  const s=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Synthetic Usage App integration'}}}});
  s.artifacts=[];s.data=[];s.messages=[];s.userStates=[];
  s.threads[0].sessionPath='/fixture/pi/tasks/task-thread/sessions/session.jsonl';
  s.usage={'task-thread':{contextTokens:8000,contextWindow:10000,inputTokens:7,outputTokens:null,cost:null,activity:'idle',sessionPercent:null,weeklyPercent:null}};
  s.settings.preferences={showUsageFooter:true,showComposerContext:true};
+ if(split){s.threads.push({...s.threads[0],id:'other',title:'Other synthetic owner'});s.usage.other={...s.usage['task-thread'],inputTokens:999};}
  s.memory=[{id:'note',threadId:'task-thread',key:'preserved',content:'Keep the existing source decision.',revision:3,author:'user',updatedAt:'2026-11-05T00:00:00.000Z'}];
  const h=await serveTaskFixture(page,s);
  await page.route('**/api/workspace',r=>r.fulfill({json:{state:{version:1,revision:1,activeCanvasId:'main',canvases:[{id:'main',version:1,name:'Workspace',preset:'workspace',viewport:{x:0,y:0,zoom:1},panels:[],filter:'all',projectIds:[]}],disabledKinds:[],integrations:{},profiles:[]},projects:[]}}));
- await page.goto('/');await expect(page.locator('textarea[aria-label="Message"]')).toBeVisible({timeout:15000});return h;
+ if(split){
+  await page.addInitScript(()=>localStorage.setItem('harness:workspace-mode:v3','split'));
+  let layout=applySplitWorkspaceCommand(createSplitWorkspaceLayout(),'view.open',{paneId:'pane-main',view:{id:'thread:task-thread',kind:'thread',binding:{authority:{kind:'local'},threadId:'task-thread'}}});
+  layout=applySplitWorkspaceCommand(layout,'pane.split',{paneId:'pane-main',newPaneId:'pane-other',splitId:'usage-split',axis:'horizontal',view:{id:'thread:other',kind:'thread',binding:{authority:{kind:'local'},threadId:'other'}}});
+  await page.route('**/api/split-workspace?*',r=>r.fulfill({json:layout}));
+  await page.route('**/api/split-workspace/profiles?*',r=>r.fulfill({json:[]}));
+  await page.route('**/api/split-workspace/commands',r=>{const c=r.request().postDataJSON();layout=applySplitWorkspaceCommand(layout,c.type,c.payload);return r.fulfill({json:{commandId:c.id,seq:1,result:layout}});});
+ }
+ await page.goto('/');await expect(page.locator('textarea[aria-label="Message"]').first()).toBeVisible({timeout:15000});return h;
 }
 test('actual App sidebar Usage opens canonical modal and retains the conversation draft',async({page})=>{
  const h=await host(page),draft=page.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Preserve this draft');
@@ -36,6 +46,29 @@ test('actual App Live usage preference controls the composer launcher without op
  h.snapshot.settings.preferences={...h.snapshot.settings.preferences,showUsageFooter:true};await h.publish();await expect(launcher).toBeVisible();await expect(launcher).toHaveAttribute('aria-pressed','false');await expect(summary).toBeHidden();
  await launcher.click();await expect(summary).toBeVisible();
  h.snapshot.settings.preferences={...h.snapshot.settings.preferences,showUsageFooter:false};await h.publish();await expect(launcher).toHaveCount(0);await expect(summary).toBeHidden();
+});
+test('split conversation launchers control the shared summary for the active pane and start closed after reload',async({page})=>{
+ await host(page,{split:true});
+ const first=page.locator('[data-split-view="thread:task-thread"]'),second=page.locator('[data-split-view="thread:other"]');
+ const summary=page.getByRole('region',{name:'Live usage',exact:true}),launchers=page.locator('.composer-usage-launcher');
+ await expect(launchers).toHaveCount(2);await expect(summary).toBeHidden();
+ for(const pane of [first,second])await expect(pane.getByRole('button',{name:'Show live usage',exact:true})).toHaveAttribute('aria-pressed','false');
+ await first.getByRole('textbox',{name:'Message',exact:true}).fill('Keep the first pane draft');
+ await first.getByRole('button',{name:'Show live usage',exact:true}).click();
+ await expect(first.getByRole('button',{name:'Hide live usage',exact:true})).toHaveAttribute('aria-pressed','true');
+ await expect(summary).toBeVisible();await expect(summary).toContainText('7 input tokens');
+ await summary.getByRole('button',{name:'Inspect live usage',exact:true}).click();
+ await second.getByRole('textbox',{name:'Message',exact:true}).fill('Keep the second pane draft');
+ await expect(summary.getByRole('region',{name:'Runtime usage details'}).locator('dd').first()).toHaveText('999');
+ await expect(second.getByRole('button',{name:'Hide live usage',exact:true})).toHaveAttribute('aria-pressed','true');
+ await second.getByRole('button',{name:'Hide live usage',exact:true}).click();await expect(summary).toBeHidden();
+ await second.getByRole('button',{name:'Show live usage',exact:true}).click();await expect(summary).toBeVisible();
+ await summary.getByRole('button',{name:'Open Usage',exact:true}).click();await expect(modal(page)).toBeVisible();
+ await modal(page).getByRole('tab',{name:'Tokens',exact:true}).click();await expect(modal(page)).toContainText('Other synthetic owner');await expect(modal(page)).toContainText('999');
+ await page.keyboard.press('Escape');await page.reload();await expect(launchers).toHaveCount(2);await expect(summary).toBeHidden();
+ for(const pane of [first,second])await expect(pane.getByRole('button',{name:'Show live usage',exact:true})).toHaveAttribute('aria-pressed','false');
+ await expect(first.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('Keep the first pane draft');
+ await expect(second.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('Keep the second pane draft');
 });
 test('actual App dock header remains a disclosure and its body opens the same Usage modal',async({page})=>{
  await host(page);await page.getByRole('button',{name:'Show live usage',exact:true}).click();const summary=page.getByRole('region',{name:'Live usage',exact:true});
