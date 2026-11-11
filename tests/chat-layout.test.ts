@@ -15,6 +15,21 @@ describe('chat layout geometry',()=>{
   expect(chatPanelRect({mode:'drawer',detached:false},viewport)).toEqual({x:940,y:20,width:480,height:860});
   expect(chatPanelRect({mode:'popup',detached:true},viewport)).toEqual({x:1070,y:380,width:350,height:500});
  });
+ it('keeps a resized docked drawer at the current right edge when the viewport grows',()=>{
+  const layout:ChatLayout={mode:'drawer',detached:false,drawer:{x:580,y:60,width:424,height:720}};
+  expect(chatPanelRect(layout,{width:1024,height:900})).toEqual({x:580,y:60,width:424,height:720});
+  expect(chatPanelRect(layout,viewport)).toEqual({x:996,y:60,width:424,height:720});
+ });
+ it('anchors a docked preference from a smaller viewport when restored at a wider one',()=>{
+  const saved=JSON.stringify({mode:'drawer',detached:false,drawer:{x:644,y:20,width:360,height:860}});
+  expect(chatPanelRect(readChatLayout({getItem:()=>saved}),viewport)).toEqual({x:1060,y:20,width:360,height:860});
+ });
+ it('retains absolute positions for detached drawers and pop-ups when the viewport grows',()=>{
+  for(const mode of ['drawer','popup'] as const){
+   const layout:ChatLayout={mode,detached:true,[mode]:{x:400,y:60,width:424,height:720}};
+   expect(chatPanelRect(layout,viewport)).toEqual({x:400,y:60,width:424,height:720});
+  }
+ });
  for(const edge of CHAT_EDGES)it(`resizes ${edge} without moving the opposite edges, clamped at min and viewport`,()=>{
   for(const delta of [-10000,-40,40,10000]){
    const rect=resizeChatRect(start,edge,delta,delta,viewport);

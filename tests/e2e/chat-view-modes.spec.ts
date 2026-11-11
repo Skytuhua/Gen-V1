@@ -96,6 +96,24 @@ for(const width of [1440,1024,768])test(`every mode fits ${width}px and stays us
  await mode(page,'popup');await page.setViewportSize({width:768,height:420});await expect.poll(async()=>Math.round((await bounds(page)).y+(await bounds(page)).height)).toBeLessThanOrEqual(400);
 });
 
+test('a resized docked drawer keeps its right margin as the viewport grows and reloads',async({page})=>{
+ await page.setViewportSize({width:1024,height:900});await open(page);await mode(page,'drawer');
+ await drag(page,'Resize chat left',-64,0);expect((await bounds(page)).width).toBe(424);
+ await input(page).fill('Keep this draft while the window grows');
+ await page.setViewportSize({width:1440,height:900});
+ await expect.poll(async()=>Math.round((await bounds(page)).x)).toBe(996);
+ expect((await bounds(page)).width).toBe(424);await expect(panel(page)).toHaveAttribute('data-detached','false');
+ await page.reload();await expect(input(page)).toBeEnabled();
+ expect((await bounds(page)).x).toBe(996);expect((await bounds(page)).width).toBe(424);
+ await expect(input(page)).toHaveValue('Keep this draft while the window grows');
+});
+
+test('a saved docked drawer from a narrow window restores at the wider right edge',async({page})=>{
+ await page.addInitScript(key=>localStorage.setItem(key,JSON.stringify({mode:'drawer',detached:false,drawer:{x:644,y:20,width:360,height:860}})),CHAT_LAYOUT_KEY);
+ await open(page);await expect(panel(page)).toHaveAttribute('data-chat-mode','drawer');await expect(panel(page)).toHaveAttribute('data-detached','false');
+ expect((await bounds(page)).x).toBe(1060);expect((await bounds(page)).width).toBe(360);
+});
+
 test('a pointer transition retargets exactly from its visible bounds and animates only transform',async({page})=>{
  await page.addInitScript(()=>{
   const animate=Element.prototype.animate;

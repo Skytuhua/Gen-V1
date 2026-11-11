@@ -42,3 +42,14 @@ Reproduce: start Vite on 5490, then run `pnpm exec tsx scripts/record-chat-view-
 Ctrl/⌘+Shift+L cycles full page → drawer → pop-up while chat has focus. The menu also supports arrows, Enter/Space and Escape. Move/resize buttons support arrow keys, with Shift for 32px steps (8px otherwise). Keyboard changes and reduced motion settle instantly. Sizes/positions are viewport-clamped; drag/resize Escape or pointer cancellation restores the prior state.
 
 The resize preview transforms the live surface while the pointer is held, then commits one content reflow on release. Native Windows/Electron and physical touch-device feel checks were not available on this Linux Chromium runner.
+
+## QA r1: drawer anchoring
+
+A docked drawer now derives its x position from the current viewport's right edge after its size is clamped. A resized 424px drawer retains a 20px right margin throughout 1024→1440 and after reload. Detached drawers and pop-ups retain their absolute positions. All original transition, resize and docking GIFs/strips were refreshed after the fix.
+
+| Growth and reload | GIF | Frame strip | Measured bounds |
+| --- | --- | --- | --- |
+| Reviewed head before r1 fix | [before](drawer-grow-before-r1.gif) | [strip](drawer-grow-before-r1-strip.png) | [samples](drawer-grow-before-r1.json) |
+| After r1 fix | [after](drawer-grow-after-r1.gif) | [strip](drawer-grow-after-r1-strip.png) | [samples](drawer-grow-after-r1.json) |
+
+Growth GIFs are 10fps on a fixed 1440px canvas; the unused portion is padded while the actual viewport changes. The final frame shows a reload at 1440px. [QA r1 validation](r1-validation.md) and [r1 review](r1-review.md) record red/green tests and full-suite limits.
