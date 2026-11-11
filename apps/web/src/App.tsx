@@ -13,6 +13,7 @@ import { matchingThreads } from './thread-search';
 import { hasPendingDocumentAssets } from './signature-assets';
 import { getPreferences, mergePreferences } from '../../../packages/contracts/preferences';
 import { ShellSidebar, threadStatus } from './ShellSidebar';
+import {ShellNotice} from './ShellNotice';
 import { ProjectPicker } from './ProjectPicker';
 import { projectColorKey } from './project-colors';
 import { useShellLayout, matchesShortcut } from './shell-layout';
@@ -858,7 +859,7 @@ function ConversationWorkspace({embeddedThreadId,embeddedActive=true,onRequestTh
     {thread&&!thread.sideParentId&&<SideChat key={thread.id} ref={sideChat} parent={thread} snapshot={snapshot} modelId={modelId} open={sideOpen} onClose={()=>setSideOpen(false)} refresh={refresh}/>}
     </div>}</div>{openedPlugins.map(id=>{const plugin=plugins.find(value=>value.id===id);return plugin?<PluginFrame key={id} plugin={plugin} projectColors={preferences.projectColors} theme={theme} active={selectedPluginId===id&&!selectedPluginWorkspace}/>:null;})}{openedPluginWorkspaces.map(item=>{const plugin=plugins.find(value=>value.id===item.pluginId),contribution=plugin?.workspaces?.find(value=>value.id===item.workspaceId);return plugin&&contribution?<PluginFrame key={item.pluginId+':'+item.workspaceId} plugin={plugin} projectColors={preferences.projectColors} workspace={contribution} theme={theme} active={selectedPluginWorkspace===item.pluginId+':'+item.workspaceId}/>:null;})}</div>}
     {pluginCatalog.error&&<div className="shell-notice" role="alert">{pluginCatalog.error}</div>}
-    {notice && <div className="shell-notice" role="status"><span>{notice}</span><button className="icon-button" aria-label="Dismiss notification" onClick={() => setNotice('')}><X size={14} /></button></div>}
+    {notice && <ShellNotice message={notice} onDismiss={() => setNotice('')} />}
     {confirmArchive && <Dialog title="Archive thread?" close={() => setConfirmArchive(null)}><p>The saved conversation will move to Archive in Settings. Restore it there whenever you need it.</p><footer className="dialog-actions"><button className="quiet" onClick={() => setConfirmArchive(null)}>Cancel</button><button className="primary" onClick={() => { const id = confirmArchive; setConfirmArchive(null); void archive(id, false, true); }}>Archive thread</button></footer></Dialog>}
     {archiveThread && <Dialog title="Uncheckpointed widget edits" close={() => setArchiveThread(null)}><p>Checkpoint your widget edits before archiving this thread, or explicitly discard them.</p><footer className="dialog-actions"><button className="secondary" onClick={() => { select(archiveThread); setArchiveThread(null); }}>Return to checkpoint</button><button className="quiet" onClick={() => void archive(archiveThread, true)}>Discard edits and archive</button></footer></Dialog>}
     {resourcePicker && <ResourcePicker threadId={resourcePicker} opener={resourcePickerOpener.current} close={() => setResourcePicker(null)} refresh={refresh} />}

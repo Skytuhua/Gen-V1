@@ -181,12 +181,12 @@
     },
     {
       "file": "apps/web/src/shell.css",
-      "line": 207,
+      "line": 196,
       "column": 1,
       "rule": "ad-hoc-overlay",
       "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "aeade7b06135405a1e9b2ac58f2bd45e694986b7e8cbd666c1117a6811519941",
-      "reason": "COPY/SHELL2: retain exact notice positioning until the shared status/error owner replaces it.",
+      "fingerprint": "10b7e2eb1b8d5f3daa94be283c569acad470deaea26a8b5eb3363b9ba5d11dca",
+      "reason": "COPY/SHELL2: retain exact notice positioning; toast enter/exit motion tokens added with reduced-motion fallback until the shared status/error owner replaces it.",
       "evidence": ".shell-notice { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:14px; max-width:calc(100vw - 28px); border:1px solid var(--border); background:var(--surface); box-",
       "disposition": "staged-migration"
     },
