@@ -248,7 +248,7 @@ button:has(>svg.lucide-x):hover:not(:disabled),button:has(>svg.lucide-circle-x):
 .disclosure { border:1px solid var(--border); border-radius:12px; background:var(--surface); position:relative; }
 .disclosure-trigger { display:flex; width:100%; align-items:center; justify-content:space-between; gap:12px; text-align:left; padding:10px 13px; font-size:13px; line-height:1.4; border-radius:11px; }
 .disclosure-trigger:hover { background:var(--subtle); }
-.disclosure-trigger svg { transition:transform 180ms ease-out; color:var(--muted); }
+.disclosure-trigger svg { transition:transform var(--ui-motion-insert,180ms) ease-out; color:var(--muted); }
 .rotated { transform:rotate(180deg); }
 .disclosure-body { padding:0 13px 11px; color:var(--muted); font-size:13px; }
 .disclosure-children { display:flex; flex-direction:column; gap:6px; margin:7px 0 0 18px; padding-left:14px; border-left:1px solid var(--border); }
