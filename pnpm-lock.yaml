@@ -9,7 +9,13 @@ overrides:
   '@modelcontextprotocol/node@2.1.1>@hono/node-server': 2.1.3
   glob@13.0.6: 14.0.2
   undici@8.10.2: 8.12.2
+  minimatch@9.0.9: 11.0.1
   minimatch@10.2.6: 11.0.1
+
+patchedDependencies:
+  node-pty@1.1.0:
+    hash: cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013
+    path: patches/node-pty-1.1.0.patch
 
 importers:
 
@@ -80,7 +86,7 @@ importers:
         version: 0.468.0(react@19.2.3)
       node-pty:
         specifier: 1.1.0
-        version: 1.1.0
+        version: 1.1.0(patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013)
       pdf-lib:
         specifier: 1.17.1
         version: 1.17.1
@@ -3915,10 +3921,6 @@ packages:
     resolution: {integrity: sha512-7o1wEA2RyMP7Iu7GNba9vc0RWWGACJOCZBJX2GJWip0ikV+wcOsgVuY9uE8CPiyQhkGFSlhuSkZPavN7u1c2Fw==}
     engines: {node: '>=10'}
 
-  minimatch@9.0.9:
-    resolution: {integrity: sha512-OBwBN9AL4dqmETlpS2zasx+vTeWclWzkblfZk7KTA5j3jeOONz/tRCnZomUyvNg83wL5Zv9Ss6HMJXAgL8R2Yg==}
-    engines: {node: '>=16 || 14 >=14.17'}
-
   minimist@1.2.8:
     resolution: {integrity: sha512-2yyAR8qBkN3YuheJanUpWC5U3bb5osDywNB8RzDVlDwDHbocAJveqqj1u8+SVD7jkWT4yvsHCpWqqWqAxb0zCA==}
 
@@ -6402,7 +6404,7 @@ snapshots:
       debug: 4.4.3
       dir-compare: 4.2.0
       fs-extra: 11.4.1
-      minimatch: 9.0.9
+      minimatch: 11.0.1
       plist: 3.1.0
     transitivePeerDependencies:
       - supports-color
@@ -9439,10 +9441,6 @@ snapshots:
     dependencies:
       brace-expansion: 2.1.7
 
-  minimatch@9.0.9:
-    dependencies:
-      brace-expansion: 2.1.7
-
   minimist@1.2.8: {}
 
   minipass@7.1.3: {}
@@ -9590,7 +9588,7 @@ snapshots:
       nan: 2.30.0
     optional: true
 
-  node-pty@1.1.0:
+  node-pty@1.1.0(patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013):
     dependencies:
       node-addon-api: 7.1.1
 

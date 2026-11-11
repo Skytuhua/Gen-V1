@@ -1,6 +1,6 @@
 /** Data-only bridge for a sandboxed frame. It never carries personal commands,
  * cookies, CSRF tokens, account identities or arbitrary destination URLs. */
-import {pluginIdSchema} from './contracts.ts';
+import {pluginIdSchema,pluginWorkspaceContributionSchema,type PluginWorkspaceContribution} from './contracts.ts';
 export interface PluginFrameRequest {
   type:'gen.plugin.request'; session:string; id:string; pluginId:string;
   operation:string; input:unknown;
@@ -14,10 +14,12 @@ export function parsePluginFrameRequest(value:unknown,pluginId:string,session:st
   try{if(JSON.stringify(item).length>1024*1024)return null;}catch{return null;}
   return item as unknown as PluginFrameRequest;
 }
-export function pluginFrameSource(pluginId:string,session:string,theme:'light'|'dark',surface?:{scopeId:string;surfaceId:string;resourceId?:string}):string {
+export function pluginFrameSource(pluginId:string,session:string,theme:'light'|'dark',surface?:{scopeId:string;surfaceId:string;resourceId?:string},workspace?:PluginWorkspaceContribution):string {
   if(!pluginIdSchema.safeParse(pluginId).success||!identity.test(session))throw Error('Invalid plug-in frame identity.');
+  if(surface&&workspace)throw Error('Choose one owning plug-in view.');
+  const contribution=workspace?pluginWorkspaceContributionSchema.parse(workspace):undefined;
   const query=surface?Object.entries({scopeId:surface.scopeId,surfaceId:surface.surfaceId,resourceId:surface.resourceId}).filter(([,value])=>value!==undefined).map(([key,value])=>`&${key}=${encodeURIComponent(value!)}`).join(''):'';
-  return `/plugins/${pluginId}/frame?session=${encodeURIComponent(session)}&theme=${theme}${query}`;
+  return `/plugins/${pluginId}/frame?session=${encodeURIComponent(session)}&theme=${theme}${query}${contribution?`&workspace=${encodeURIComponent(contribution.id)}&view=${encodeURIComponent(contribution.entryView)}`:''}`;
 }
 export function pluginFrameReply(id:string,value:unknown,error?:unknown) {
   if(error)return {type:'gen.plugin.reply' as const,id,ok:false as const,error:'This plug-in request could not complete. Your saved work is retained.'};

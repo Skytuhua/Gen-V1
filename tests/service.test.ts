@@ -20,6 +20,12 @@ async function setup() {
 }
 const spec={root:"main",elements:{main:{type:"Text",props:{text:"Evidence"}}}};
 describe("thread and UI integrity",()=>{
+ it('never silently discards selected skill references before send admission is connected',async()=>{
+  const x=await setup(),before=x.store.all('message',x.threadId);
+  const skill={version:1,scope:{kind:'personal'},sourceId:'personal:test',skillId:'skill',locator:'a'.repeat(64),revision:'b'.repeat(64),digest:'c'.repeat(64),sourceBinding:'d'.repeat(64)};
+  await expect(x.send('message.send',{content:'Use the selected procedure',modelId:'test/model',skills:[skill]},x.threadId)).rejects.toMatchObject({code:'SKILL_ADMISSION_UNAVAILABLE'});
+  expect(x.store.all('message',x.threadId)).toEqual(before);expect(x.run()).toBeUndefined();
+ });
  it('rejects an async decision schema before publishing a pending request',async()=>{
   const x=await setup();await x.send('message.send',{content:'Ask',modelId:'test/model'},x.threadId);
   await expect(x.service.tool({name:'ui_request_input',args:{title:'Choose',prompt:'Choose a value',responseSchema:{$async:true,type:'string',const:'allow'}}},x.ctx())).rejects.toMatchObject({code:'INVALID_SCHEMA'});

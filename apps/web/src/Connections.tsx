@@ -1,3 +1,4 @@
+import {settingsOperation} from './settings-operations';
 /*
  * Account picker selection and row composition adapted from T3 Code
  * apps/web/src/components/settings/ChatGptAccountPicker.tsx.
@@ -100,7 +101,7 @@ function AccountPicker({ connection, accounts, selectedAccountId, busy, run, log
   </div>;
 }
 
-export function Connections({ snapshot, refresh, loadModels, query = '' }: { models: ModelInfo[]; snapshot: Snapshot; refresh: () => Promise<void>; loadModels: (refresh?: boolean) => Promise<void>; query?: string }) {
+export function Connections({ snapshot, refresh, loadModels, query = '' }: { models: ModelInfo[]; snapshot: Pick<Snapshot, 'settings' | 'accounts'>; refresh: () => Promise<void>; loadModels: (refresh?: boolean) => Promise<void>; query?: string }) {
   const desktop = useDesktop();
   const [busy, setBusy] = useState(''), [notice, setNotice] = useState(''), [error, setError] = useState('');
   const pending = useRef(false);
@@ -118,7 +119,7 @@ export function Connections({ snapshot, refresh, loadModels, query = '' }: { mod
   const run: AccountAction = async (type, payload) => {
     if (pending.current) return false;
     pending.current = true; setBusy(type); setError(''); setNotice('');
-    try { await command(type, payload); await refresh(); if (type === 'account.select') await loadModels(true); return true; }
+    try { await settingsOperation(async () => {await command(type, payload); await refresh(); if (type === 'account.select') await loadModels(true);}); return true; }
     catch (cause) { setError(cause instanceof Error ? cause.message : 'The account could not be updated. Try again.'); return false; }
     finally { pending.current = false; setBusy(''); }
   };

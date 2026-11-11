@@ -53,7 +53,9 @@ async function descendantDirectories(root:string):Promise<string[]> {
 async function withNativeDirectories<T>(root:string,profile:string,account:ConnectionAccount,threadId:string|undefined,signal:AbortSignal,action:()=>Promise<T>):Promise<T> {
   const paths=nativeDirectories(profile,account,threadId);
   async function prepare(index:number):Promise<T> {
-    if(index<paths.length){const path=paths[index];await ordinaryDirectory(path,true);return withPathGuard([{path,leaf:false,allowChildWrites:true,childWriteRoot:root}],signal,()=>prepare(index+1));}
+    if(index<paths.length){const path=paths[index];await ordinaryDirectory(path,true);
+      if(process.platform==='linux'&&path===join(profile,'pi')){const {prepareLinuxCredentialParent}=await import('../core/linux-path-guard.ts');await prepareLinuxCredentialParent(join(path,'auth.json'));}
+      return withPathGuard([{path,leaf:false,allowChildWrites:true,childWriteRoot:root}],signal,()=>prepare(index+1));}
     const directories=await descendantDirectories(profile);
     return withPathGuard(directories.map(path=>({path,leaf:false,allowChildWrites:true,childWriteRoot:root})),signal,async()=>{
       // Check again after native handle acquisition. Auth files remain replaceable.

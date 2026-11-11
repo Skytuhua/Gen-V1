@@ -4,6 +4,7 @@ import {z} from 'zod';
 import {HarnessError} from '../contracts/index.ts';
 import type {ProjectTools} from './tools.ts';
 import {processEnvironment} from '../capabilities/process.ts';
+import {environmentSettingsFor} from '../core/environment-settings.ts';
 
 interface Session{id:string;projectId:string;threadId?:string;path:string;pty:IPty;output:string;offset:number;exited:boolean;exitCode:number|null;done:Promise<void>}
 const identifier=z.string().regex(/^[a-zA-Z0-9:_.-]{1,200}$/),dimension=z.number().int().min(2).max(500);
@@ -21,7 +22,17 @@ export class TerminalHost{
   if(this.projects.store.get('terminalSession',terminalId))throw new HarnessError('TERMINAL_ENDED','This terminal ended. Open a new terminal.');
   if([...this.sessions.values()].filter(item=>!item.exited).length>=12)throw new HarnessError('TERMINAL_CAPACITY','Twelve terminals are already running. Stop one before opening another.');
   const shell=process.platform==='win32'?(process.env.COMSPEC??'C:/Windows/System32/cmd.exe'):(process.env.SHELL??'/bin/sh'),args=process.platform==='win32'?['/D','/Q']:[];
-  const pty=spawn(input.program??shell,input.args??args,{name:'xterm-256color',cwd:binding.path,cols:dimension.parse(input.cols??100),rows:dimension.parse(input.rows??30),env:(input.environment??processEnvironment()) as Record<string,string>,useConpty:true});
+  const configured=!input.program&&!input.environment?await environmentSettingsFor(this.projects.store.dataDir).resolve(projectId):{};
+  const currentBinding=await this.projects.binding(projectId,threadId);
+  if(currentBinding.path!==binding.path)throw new HarnessError('CAPABILITY_DENIED','The project binding changed before the terminal could start.');
+  // Secret resolution yields. Recheck ownership/capacity synchronously after
+  // the final await so concurrent opens cannot orphan an extra process.
+  const opened=this.sessions.get(terminalId);
+  if(opened){if(opened.projectId!==projectId||opened.threadId!==threadId||opened.path!==binding.path)throw new HarnessError('CAPABILITY_DENIED','Terminal belongs to another working copy.');return this.result(opened,0);}
+  if(this.projects.store.get('terminalSession',terminalId))throw new HarnessError('TERMINAL_ENDED','This terminal ended. Open a new terminal.');
+  if([...this.sessions.values()].filter(item=>!item.exited).length>=12)throw new HarnessError('TERMINAL_CAPACITY','Twelve terminals are already running. Stop one before opening another.');
+  // Trusted integration programs retain their explicitly pinned environments.
+  const pty=spawn(input.program??shell,input.args??args,{name:'xterm-256color',cwd:binding.path,cols:dimension.parse(input.cols??100),rows:dimension.parse(input.rows??30),env:(input.environment??{...processEnvironment(),...configured}) as Record<string,string>,useConpty:true});
   let finish!:()=>void;const session:Session={id:terminalId,projectId,...(threadId?{threadId}:{}),path:binding.path,pty,output:'',offset:0,exited:false,exitCode:null,done:new Promise<void>(resolve=>{finish=resolve;})};
   this.sessions.set(terminalId,session);this.persist(session);
   pty.onData(data=>{session.output+=data;if(session.output.length>512*1024){const remove=session.output.length-512*1024;session.output=session.output.slice(remove);session.offset+=remove;}});

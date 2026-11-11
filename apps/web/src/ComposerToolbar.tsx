@@ -1,8 +1,9 @@
-import {useLayoutEffect,useRef,useState,type ReactNode} from 'react';
+import {useLayoutEffect,useRef,useState,type ReactNode,type Ref} from 'react';
 import type {ModelInfo} from '../../../packages/contracts';
-import {ModelPicker} from './ModelPicker';
+import {ModelPicker,type ModelPickerHandle} from './ModelPicker';
 import './composer-toolbar.css';
 export interface ComposerToolbarProps {
+ modelPickerRef?:Ref<ModelPickerHandle>;
  models:ModelInfo[];modelId:string;onModelChange:(id:string)=>void;
  thinkingLevel:string;onThinkingChange:(level:string)=>void;
  projectLabel?:string;changeSummary?:{added:number;removed:number};
@@ -41,7 +42,7 @@ export function ComposerTaskActions({changeSummary,onChanges,onCreatePR,disabled
  </div>;
 }
 
-export function ComposerToolbar({models,modelId,onModelChange,thinkingLevel,onThinkingChange,projectLabel,changeSummary,onProject,onChanges,onCreatePR,onTranscript,disabled=false,working=false,separateActions=false,leading,runtime,context,trailing}:ComposerToolbarProps){
+export function ComposerToolbar({modelPickerRef,models,modelId,onModelChange,thinkingLevel,onThinkingChange,projectLabel,changeSummary,onProject,onChanges,onCreatePR,onTranscript,disabled=false,working=false,separateActions=false,leading,runtime,context,trailing}:ComposerToolbarProps){
  const [listening,setListening]=useState(false),[error,setError]=useState('');
  const session=useRef<{recognition:VoiceRecognition;epoch:number;seen:Set<number>}|null>(null),epoch=useRef(0),transcript=useRef(onTranscript);
  transcript.current=onTranscript;
@@ -75,7 +76,7 @@ export function ComposerToolbar({models,modelId,onModelChange,thinkingLevel,onTh
     {leading}<button type="button" className="composer-tool composer-project" aria-label="Select project" title={projectLabel?'Select project · '+projectLabel:'Select project'} disabled={disabled} onClick={()=>void invoke(onProject)}>{folder}<span>{projectLabel??'Select project'}</span></button>{runtime}
    </div>
    <div className="composer-runtime-controls" role="group" aria-label="Model and voice">
-    <ModelPicker models={models} modelId={modelId} thinkingLevel={thinkingLevel} onThinkingChange={onThinkingChange} disabled={locked} onChange={onModelChange}/>
+    <ModelPicker ref={modelPickerRef} models={models} modelId={modelId} thinkingLevel={thinkingLevel} onThinkingChange={onThinkingChange} disabled={locked} onChange={onModelChange}/>
     {context}<button type="button" className={`composer-tool composer-voice ${listening?'is-listening':''}`} aria-label={!Voice?'Voice input unavailable':listening?'Stop voice input':'Start voice input'} aria-pressed={listening} title={!Voice?'Voice input is unavailable in this browser':listening?'Stop listening':'Dictate into your draft'} disabled={locked||!Voice} onClick={startVoice}>{microphone}<span className="sr-only">{listening?'Listening':''}</span></button>{trailing}
    </div>
   </div>

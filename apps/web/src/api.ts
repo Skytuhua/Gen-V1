@@ -34,16 +34,20 @@ export async function authenticated(send: () => Promise<Response>) {
   return response;
 }
 
-export async function command(type: string, payload: Record<string, unknown> = {}, threadId?: string, commandId: string = crypto.randomUUID()): Promise<CommandReceipt> {
+export async function command(type: string, payload: Record<string, unknown> = {}, threadId?: string, commandId: string = crypto.randomUUID(), isCurrent?: () => boolean): Promise<CommandReceipt> {
   await bootstrap();
   const command: HostCommand = { id: commandId, type, payload, ...(threadId ? { threadId } : {}) };
   const body = JSON.stringify(command);
-  const send = () => fetch('/api/commands', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json', 'x-harness-csrf': csrfToken }, body });
+  const send = () => {
+    if (isCurrent && !isCurrent()) throw Error('The command owner changed. Retry from the current view.');
+    return fetch('/api/commands', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json', 'x-harness-csrf': csrfToken }, body });
+  };
   const response = await authenticated(async () => { try { return await send(); } catch { return send(); } });
   return read<CommandReceipt>(response);
 }
 
 export const getSnapshot = () => authenticated(() => fetch('/api/snapshot', { credentials: 'same-origin', cache: 'no-store' })).then(read<Snapshot>);
+export const getShellSettings = () => authenticated(() => fetch('/api/shell-settings', { credentials: 'same-origin', cache: 'no-store' })).then(read<Pick<Snapshot['settings'],'theme'|'preferences'>>);
 export interface ComposerPrediction { suggestion: string | null; replyId: string; modelId: string }
 export function getComposerPrediction(input: { threadId: string; replyId: string; modelId: string }, signal: AbortSignal) {
   return authenticated(() => fetch('/api/composer-prediction', { method: 'POST', credentials: 'same-origin', signal, headers: { 'Content-Type': 'application/json', 'x-harness-csrf': csrfToken }, body: JSON.stringify(input) })).then(read<ComposerPrediction>);

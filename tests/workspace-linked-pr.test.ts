@@ -1,4 +1,5 @@
 import Fastify from 'fastify';
+import {buildServer} from '../apps/server/server.ts';
 import {afterEach,expect,it,vi} from 'vitest';
 import {mkdtemp,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
@@ -24,13 +25,16 @@ async function fixture(){
  const details=vi.fn(async(projectId:string,_threadId:string|undefined,number:number)=>({repo:repos[projectId],item:item(number,undefined,repos[projectId]),head:'a'.repeat(40),revision:'c'.repeat(64),canReview:true}));
  const list=vi.fn(async(projectId:string)=>({repo:repos[projectId],items:[item(99,'Repository-wide fixture',repos[projectId])]}));
  const repo=vi.fn(async(projectId:string)=>({path:root,repo:repos[projectId]}));
- const projects={store,binding,workspace:{migrateProjects:vi.fn()},dispose:async()=>{}} as unknown as ProjectTools,terminals={dispose:async()=>{}} as TerminalHost;
- registerWorkspaceHost(service,{projects,terminals,github:{details,list,repo} as unknown as GitHubTools});
+ const comparisonReader=()=>vi.fn(async(projectId:string,threadId:string|undefined,input:unknown)=>{await binding(projectId,threadId);return{fixture:input};});
+ const comparisons={local:comparisonReader(),localFile:comparisonReader(),remote:comparisonReader(),remoteFile:comparisonReader()};
+ const projects={store,binding,gitComparison:comparisons.local,gitComparisonFile:comparisons.localFile,workspace:{migrateProjects:vi.fn()},dispose:async()=>{}} as unknown as ProjectTools,terminals={dispose:async()=>{}} as TerminalHost;
+ const auth={start:vi.fn(async()=>({id:'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',userCode:'ABCD-EFGH'})),poll:vi.fn(async()=>({status:'pending'})),cancel:vi.fn(async()=>({status:'cancelled'}))};
+ registerWorkspaceHost(service,{projects,terminals,github:{details,list,repo,auth,comparison:comparisons.remote,comparisonFile:comparisons.remoteFile} as unknown as GitHubTools});
  app.setErrorHandler((error,_request,reply)=>reply.code(error instanceof ZodError?400:error instanceof HarnessError?403:500).send({error:{code:error instanceof HarnessError?error.code:'INVALID_INPUT'}}));
  registerWorkspaceRoutes(app,service);
  const link=(id:string,threadId:string|undefined,number=12,projectId='project')=>app.inject({method:'POST',url:'/api/projects/'+projectId+'/actions',payload:{id,type:'link-pr',payload:{number},...(threadId?{threadId}:{})}});
  const linked=(threadId?:string,projectId='project')=>app.inject('/api/projects/'+projectId+'/pull-requests?linked=1'+(threadId?'&threadId='+threadId:''));
- return{app,store,repos,binding,details,list,repo,item,link,linked};
+ return{app,store,repos,binding,details,list,repo,item,link,linked,auth,service,comparisons};
 }
 it('keeps the default repository list separate from saved linked associations',async()=>{
  const{app,link,linked,list}=await fixture();await link('link-alpha','alpha');
@@ -65,4 +69,42 @@ it('checks authoritative binding before reading cached links or repository metad
 });
 it.each(['0','true','2'])('rejects unsupported linked query value %s without falling back to repository-wide data',async(value)=>{
  const{app,list,repo}=await fixture();const response=await app.inject('/api/projects/project/pull-requests?threadId=alpha&linked='+value);expect(response.statusCode).toBe(400);expect(list).not.toHaveBeenCalled();expect(repo).not.toHaveBeenCalled();
+});
+
+it('starts, polls and cancels profile sign-in without resolving a project or thread',async()=>{
+ const{app,auth,binding}=await fixture();const start=await app.inject({method:'POST',url:'/api/github/auth/start',payload:{}});expect(start.statusCode).toBe(200);expect(start.headers['cache-control']).toBe('no-store');
+ const flowId=start.json().id;for(const action of ['poll','cancel']){const response=await app.inject({method:'POST',url:'/api/github/auth/'+action,payload:{flowId}});expect(response.statusCode).toBe(200);expect(response.headers['cache-control']).toBe('no-store');}
+ expect(auth.start).toHaveBeenCalledTimes(1);expect(auth.poll).toHaveBeenCalledWith(flowId);expect(auth.cancel).toHaveBeenCalledWith(flowId);expect(binding).not.toHaveBeenCalled();
+});
+it('rejects project and thread fields on profile auth while keeping project actions gated',async()=>{
+ const{app,auth,binding}=await fixture();for(const payload of [{projectId:'missing'},{threadId:'gamma'}])expect((await app.inject({method:'POST',url:'/api/github/auth/start',payload})).statusCode).toBe(400);
+ expect((await app.inject({method:'POST',url:'/api/github/auth/poll',payload:{flowId:'bad'}})).statusCode).toBe(400);expect(auth.start).not.toHaveBeenCalled();
+ for(const type of ['github-login','github-login-status','create-pr','link-pr'])expect((await app.inject({method:'POST',url:'/api/projects/missing/actions',payload:{id:'denied-'+type,type,payload:{}}})).statusCode).toBe(403);
+ expect((await app.inject({method:'POST',url:'/api/projects/missing/actions',payload:{id:'invalid-review',type:'review-pr',payload:{}}})).statusCode).toBe(400);
+ const review=await app.inject({method:'POST',url:'/api/projects/missing/actions',payload:{id:'denied-review',type:'review-pr',payload:{number:12,event:'COMMENT',body:'',head:'a'.repeat(40),revision:'c'.repeat(64)}}});expect(review.statusCode).toBe(403);expect(review.json()).toMatchObject({state:'revoked',error:{code:'CAPABILITY_DENIED'}});
+ expect(binding).toHaveBeenCalled();expect(auth.start).not.toHaveBeenCalled();
+});
+
+it('keeps profile auth beneath real host, origin, session cookie and CSRF hooks',async()=>{
+ const{service,auth}=await fixture(),app=await buildServer(service,{port:4317,dev:false});cleanup.push(()=>app.close());const url='/api/github/auth/start',send=(headers:Record<string,string>,payload={})=>app.inject({method:'POST',url,headers,payload});
+ expect((await send({host:'evil.example'})).json().error.code).toBe('INVALID_HOST');expect((await send({host:'127.0.0.1:4317',origin:'https://evil.example'})).json().error.code).toBe('INVALID_ORIGIN');expect((await send({host:'127.0.0.1:4317'})).json().error.code).toBe('AUTH_REQUIRED');
+ const bootstrap=await app.inject({url:'/api/bootstrap',headers:{host:'127.0.0.1:4317'}}),cookie=String(bootstrap.headers['set-cookie']).split(';')[0],headers={host:'127.0.0.1:4317',origin:'http://127.0.0.1:4317',cookie};
+ expect((await send(headers)).json().error.code).toBe('CSRF_REQUIRED');expect(auth.start).not.toHaveBeenCalled();expect((await send({...headers,'x-harness-csrf':bootstrap.json().csrfToken})).statusCode).toBe(200);expect(auth.start).toHaveBeenCalledTimes(1);
+});
+
+it('routes exact local and remote comparison reads without substituting action revisions or paths',async()=>{
+ const {app,comparisons}=await fixture(),id='a'.repeat(64),path=':(top)literal [x].ts',query=new URLSearchParams({threadId:'alpha',comparisonId:id,path});
+ const reads=[['/api/projects/project/git/comparison?threadId=alpha&scope=staged',comparisons.local,{scope:'staged'}],['/api/projects/project/git/comparison/file?'+query,comparisons.localFile,{comparisonId:id,path}],['/api/projects/project/pull-requests/12/comparison?threadId=alpha',comparisons.remote,12],['/api/projects/project/pull-request-comparison/file?'+query,comparisons.remoteFile,{comparisonId:id,path}]] as const;
+ for(const [url,reader,input] of reads){const response=await app.inject(url);expect(response.statusCode).toBe(200);expect(response.headers['cache-control']).toBe('no-store');expect(reader).toHaveBeenLastCalledWith('project','alpha',input);}
+ for(const url of ['/api/projects/project/git/comparison?scope=unstaged','/api/projects/project/git/comparison?scope=staged&authority=company','/api/projects/project/git/comparison/file?comparisonId=bad&path=file','/api/projects/project/pull-requests/0/comparison'])expect((await app.inject(url)).statusCode).toBe(400);
+ expect((await app.inject('/api/projects/project/git/comparison?scope=worktree&threadId=gamma')).statusCode).toBe(403);
+});
+
+it('protects comparison routes with the actual host, origin and Personal session hooks',async()=>{
+ const {service,comparisons}=await fixture(),app=await buildServer(service,{port:4317,dev:false});cleanup.push(()=>app.close());
+ const urls=['/api/projects/project/git/comparison?scope=staged&threadId=alpha','/api/projects/project/git/comparison/file?comparisonId='+'a'.repeat(64)+'&path=file&threadId=alpha','/api/projects/project/pull-requests/12/comparison?threadId=alpha','/api/projects/project/pull-request-comparison/file?comparisonId='+'a'.repeat(64)+'&path=file&threadId=alpha'];
+ for(const url of urls){expect((await app.inject({url,headers:{host:'evil.example'}})).json().error.code).toBe('INVALID_HOST');expect((await app.inject({url,headers:{host:'127.0.0.1:4317',origin:'https://foreign.invalid'}})).json().error.code).toBe('INVALID_ORIGIN');expect((await app.inject({url,headers:{host:'127.0.0.1:4317'}})).json().error.code).toBe('AUTH_REQUIRED');}
+ for(const reader of Object.values(comparisons))expect(reader).not.toHaveBeenCalled();
+ const boot=await app.inject({url:'/api/bootstrap',headers:{host:'127.0.0.1:4317'}}),cookie=String(boot.headers['set-cookie']).split(';')[0];
+ for(const url of urls)expect((await app.inject({url,headers:{host:'127.0.0.1:4317',cookie}})).statusCode).toBe(200);
 });

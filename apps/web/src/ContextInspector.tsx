@@ -1,100 +1,97 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import type { RuntimeUsage, Thread } from '../../../packages/contracts';
+import { useEffect, useLayoutEffect, useRef, useState, type RefObject } from 'react';
+import type { Thread } from '../../../packages/contracts';
+import { Popover } from '../../../packages/ui-shell/Popover';
 import { command } from './api';
-import { ContextMeter, contextNumber, contextSegments } from './ContextMeter';
-import { reducedMotion } from './task-motion';
+import { ContextMeter, contextNumber, contextSegments, contextTokenCount, type ContextUsage } from './ContextMeter';
 import { unavailableCompaction } from './runtime-presentation';
 import './context-inspector.css';
 
-type Receipt = { before: number; after: number; window: number };
-type SessionView = { requested?: { tokens: number; window: number }; receipt?: Receipt };
-// Presentation feedback only. Host usage and operation records remain authoritative.
-const sessions = new Map<string, SessionView>();
-function sessionView(key: string) {
-  let view = sessions.get(key);
-  if (!view) { view = {}; sessions.set(key, view); if (sessions.size > 32) sessions.delete(sessions.keys().next().value!); }
-  return view;
+/** Only a host-accepted compaction event for this exact run/session may produce this receipt. */
+export interface AcceptedCompactionReceipt {
+  id: string; threadId: string; sessionPath: string; runId: string; epoch: number;
+  beforeTokens?: number; afterTokens?: number; contextWindow?: number;
 }
-
-function useAcceptedMeasurement(usage: RuntimeUsage | undefined, identity: string) {
-  const [displayed, setDisplayed] = useState(usage);
-  const current = useRef(usage), previousIdentity = useRef(identity);
-  const measurement = JSON.stringify([usage?.contextTokens, usage?.contextWindow, usage?.contextBreakdown]);
+export interface ContextCompactionReport {
+  threadId: string; sessionPath: string; runId: string; epoch: number;
+  status: 'pending' | 'accepted' | 'failed' | 'cancelled';
+  receipt?: AcceptedCompactionReceipt; error?: string;
+}
+export function ownedCompaction(thread: Thread | undefined, report: ContextCompactionReport | undefined) {
+  return thread?.sessionPath && report && report.threadId === thread.id && report.sessionPath === thread.sessionPath &&
+    Boolean(report.runId) && report.epoch === thread.epoch && (!thread.runId || thread.runId === report.runId) &&
+    (!(report.status === 'pending' || report.status === 'accepted') || !['stopped', 'interrupted', 'failed'].includes(thread.status)) ? report : undefined;
+}
+export function acceptedCompaction(thread: Thread | undefined, report: ContextCompactionReport | undefined, usage?: ContextUsage) {
+  const owned = ownedCompaction(thread, report), receipt = owned?.status === 'accepted' ? owned.receipt : undefined;
+  if (!receipt?.id || receipt.threadId !== owned!.threadId || receipt.sessionPath !== owned!.sessionPath || receipt.runId !== owned!.runId || receipt.epoch !== owned!.epoch) return;
+  const measured = contextSegments(usage);
+  const freed = measured && contextTokenCount(receipt.beforeTokens) && contextTokenCount(receipt.afterTokens) &&
+    contextTokenCount(receipt.contextWindow) && receipt.beforeTokens <= receipt.contextWindow && receipt.afterTokens <= receipt.beforeTokens &&
+    receipt.contextWindow === measured.total && receipt.afterTokens === measured.used ? receipt.beforeTokens - receipt.afterTokens : undefined;
+  return { receipt, freed };
+}
+export interface ContextInspectorProps {
+  usage: ContextUsage | undefined; thread: Thread | undefined;
+  close: () => void; refresh: () => Promise<void>; onError?: (message: string) => void;
+  anchor?: RefObject<HTMLElement | null>; compaction?: ContextCompactionReport;
+}
+export function ContextInspector(props: ContextInspectorProps) {
+  const fallback = useRef<HTMLElement | null>(null);
+  const identity = JSON.stringify([props.thread?.id, props.thread?.sessionPath, props.thread?.epoch]);
+  return <><span hidden ref={node => { fallback.current = node?.parentElement?.querySelector('button') ?? null; }} />
+    <ContextSession key={identity} {...props} anchor={props.anchor ?? fallback} />
+  </>;
+}
+function ContextSession({ usage, thread, close, refresh, onError, anchor, compaction }: ContextInspectorProps & { anchor: RefObject<HTMLElement | null> }) {
+  const [error, setError] = useState(''), [submitting, setSubmitting] = useState(false), [requested, setRequested] = useState(false);
+  const [animateReceipt, setAnimateReceipt] = useState(false);
+  const panel = useRef<HTMLDivElement>(null), action = useRef<HTMLButtonElement>(null), restoreActionFocus = useRef(false);
+  const active = useRef(true), locked = useRef(false);
+  useLayoutEffect(() => { active.current = true; return () => { active.current = false; }; }, []);
+  const measured = contextSegments(usage), unavailable = unavailableCompaction(thread);
+  const reported = ownedCompaction(thread, compaction), accepted = acceptedCompaction(thread, compaction, usage);
+  const lastReceipt = useRef(accepted?.receipt.id);
+  const playingReceipt = Boolean(accepted && (animateReceipt || lastReceipt.current !== accepted.receipt.id));
   useEffect(() => {
-    const before = current.current, target = usage;
-    if (previousIdentity.current !== identity || !before || !target || reducedMotion() || before.contextWindow !== target.contextWindow || before.contextTokens == null || target.contextTokens == null || before.contextTokens === target.contextTokens) {
-      previousIdentity.current = identity; current.current = target; setDisplayed(target); return;
-    }
-    const started = performance.now();
-    let frame = 0;
-    const advance = (now: number) => {
-      const progress = Math.min(1, (now - started) / 1800), eased = progress < .5 ? 4 * progress ** 3 : 1 - Math.pow(-2 * progress + 2, 3) / 2;
-      let contextTokens = before.contextTokens! + (target.contextTokens! - before.contextTokens!) * eased;
-      const matching = before.contextBreakdown?.length === target.contextBreakdown?.length && target.contextBreakdown?.every((item, index) => item.label === before.contextBreakdown?.[index]?.label);
-      const contextBreakdown = matching ? target.contextBreakdown?.map((item, index) => ({ ...item, tokens: before.contextBreakdown![index]!.tokens + (item.tokens - before.contextBreakdown![index]!.tokens) * eased })) : undefined;
-      // Floating-point interpolation must not briefly invalidate a complete
-      // source breakdown because its independently summed parts differ by epsilon.
-      if (contextBreakdown) contextTokens = Math.max(contextTokens, contextBreakdown.reduce((sum, item) => sum + item.tokens, 0));
-      const next = progress === 1 ? target : { ...target, contextTokens, contextBreakdown };
-      current.current = next; setDisplayed(next);
-      if (progress < 1) frame = requestAnimationFrame(advance);
-    };
-    frame = requestAnimationFrame(advance);
-    return () => cancelAnimationFrame(frame);
-  }, [measurement, identity]);
-  return displayed;
-}
-
-function Quota({ label, value }: { label: string; value: number | null | undefined }) {
-  const valid = value != null && Number.isFinite(value) && value >= 0 && value <= 100;
-  return <div className="context-quota"><div><span>{label}</span><strong>{valid ? `${Math.round(value)}%` : 'Unavailable'}</strong></div>{valid && <div className="context-quota-track" role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={value}><i style={{ width: `${value}%` }} /></div>}</div>;
-}
-
-export function ContextInspector({ usage, thread, close, refresh, onError }: { usage: RuntimeUsage | undefined; thread: Thread | undefined; close: () => void; refresh: () => Promise<void>; onError?: (message: string) => void }) {
-  const panel = useRef<HTMLDivElement>(null);
-  const opener = useRef<HTMLElement|null>(document.activeElement instanceof HTMLElement ? document.activeElement : null);
-  const identity = `${thread?.id ?? 'none'}:${thread?.sessionPath ?? 'none'}`;
-  const displayed = useAcceptedMeasurement(usage, identity), measured = contextSegments(displayed);
-  const [error, setError] = useState(''), [submitting, setSubmitting] = useState(false);
-  const [receipt, setReceipt] = useState(() => sessionView(identity).receipt);
-  const unavailable = unavailableCompaction(thread);
+    if (!accepted) { setAnimateReceipt(false); return; }
+    if (lastReceipt.current === accepted.receipt.id) return;
+    lastReceipt.current = accepted.receipt.id; setAnimateReceipt(true);
+    const timer = setTimeout(() => setAnimateReceipt(false), 600); return () => clearTimeout(timer);
+  }, [accepted?.receipt.id]);
+  const compacting = submitting || reported?.status === 'pending' || usage?.activity === 'compacting';
   useLayoutEffect(() => {
-    const element = panel.current!;
-    const align = () => {
-      element.style.setProperty('--context-edge-shift', '0px');
-      const bounds = element.getBoundingClientRect();
-      const shift = bounds.left < 12 ? 12 - bounds.left : bounds.right > innerWidth - 12 ? innerWidth - 12 - bounds.right : 0;
-      element.style.setProperty('--context-edge-shift', `${shift}px`);
-    };
-    align(); window.addEventListener('resize', align);
-    const observer = new ResizeObserver(align); observer.observe(element);
-    return () => { observer.disconnect(); window.removeEventListener('resize', align); };
-  }, []);
-  useEffect(() => {
-    const view = sessionView(identity), accepted = contextSegments(usage);
-    if (view.requested && accepted && usage?.activity !== 'compacting' && accepted.total === view.requested.window && accepted.used < view.requested.tokens) {
-      view.receipt = { before: view.requested.tokens, after: accepted.used, window: accepted.total }; delete view.requested;
-    }
-    setReceipt(view.receipt);
-  }, [usage, identity]);
+    if (!restoreActionFocus.current || compacting || action.current?.disabled) return;
+    if (panel.current?.ownerDocument.activeElement === panel.current?.ownerDocument.body) action.current?.focus();
+    restoreActionFocus.current = false;
+  }, [compacting, thread?.runId]);
   const compact = async () => {
-    if (!thread || submitting || unavailable) return;
-    setSubmitting(true); setError('');
-    const accepted = contextSegments(usage), view = sessionView(identity);
-    if (accepted) view.requested = { tokens: accepted.used, window: accepted.total };
-    try { await command('run.compact', {}, thread.id); await refresh(); }
-    catch (cause) { delete view.requested; const message = cause instanceof Error ? cause.message : 'Context could not be compacted. Try again.'; setError(message); onError?.(message); }
-    finally { setSubmitting(false); }
+    if (!thread?.sessionPath || thread.runId || locked.current || compacting || unavailable) return;
+    restoreActionFocus.current = action.current?.ownerDocument.activeElement === action.current;
+    locked.current = true; setSubmitting(true); setError(''); setRequested(false);
+    try {
+      await command('run.compact', {}, thread.id);
+      if (!active.current) return;
+      setRequested(true); await refresh();
+    } catch (cause) {
+      if (!active.current) return;
+      const message = cause instanceof Error ? cause.message : 'Context could not be compacted. Try again.';
+      setError(message); onError?.(message);
+    } finally { if (active.current) { locked.current = false; setSubmitting(false); } }
   };
-  const compacting = usage?.activity === 'compacting';
-  const countersSettled = displayed?.contextTokens === usage?.contextTokens && displayed?.contextWindow === usage?.contextWindow;
-  const activity = compacting ? 'Summarizing messages' : !unavailable && receipt ? countersSettled ? `Freed ${contextNumber(receipt.before - receipt.after)} tokens` : '' : usage?.activity === 'running' ? 'Agent working' : usage?.activity === 'retrying' ? 'Retrying' : unavailable?.status ?? 'Context ready';
-  return <div ref={panel} className="context-popover context-inspector" role="dialog" aria-label="Context inspector" onKeyDown={event=>{if(event.key==='Escape'){event.preventDefault();event.stopPropagation();close();if(opener.current?.isConnected)opener.current.focus({preventScroll:true});}}}>
-    <header><strong>Context <span>{measured ? `${Math.round(measured.ratio)}%` : 'Unavailable'}</span></strong>{measured&&<span className="context-inspector-total">{contextNumber(measured.used)} of {contextNumber(measured.total)}</span>}</header>
-    <div className="context-inspector-breakdown">{measured?<div className="context-inspector-track" role="progressbar" aria-label="Context used" aria-valuemin={0} aria-valuemax={100} aria-valuenow={measured.ratio} aria-valuetext={`${contextNumber(measured.used)} of ${contextNumber(measured.total)} tokens`}><i style={{width:`${measured.ratio}%`}}/>{compacting&&<span className="context-compaction-shimmer" aria-hidden="true"/>}</div>:<div className="context-meter-unknown" aria-label="Context measurement unavailable"/>}</div>
-    <div className="context-inspector-quotas"><Quota label="Session limit" value={usage?.sessionPercent} /><Quota label="Weekly limit" value={usage?.weeklyPercent} /></div>
-    <details className="context-inspector-details"><summary>Usage details</summary><ContextMeter usage={displayed} busy={compacting}/><dl><dt>Input tokens</dt><dd>{usage?.inputTokens == null ? 'Unavailable' : contextNumber(usage.inputTokens)}</dd><dt>Output tokens</dt><dd>{usage?.outputTokens == null ? 'Unavailable' : contextNumber(usage.outputTokens)}</dd><dt>Cost</dt><dd>{usage?.cost == null ? 'Unavailable' : new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 4 }).format(usage.cost)}</dd></dl></details>
-    <footer><span role="status" aria-live="polite">{activity}</span><button className="accent-button" disabled={!thread?.sessionPath || Boolean(thread.runId) || compacting || submitting || Boolean(unavailable)} title={unavailable?.reason ?? (!thread?.sessionPath ? 'Start a session before compacting context.' : undefined)} aria-description={unavailable?.reason} onClick={() => void compact()}>{compacting ? 'Compacting…' : 'Compact now'}</button></footer>
-    {error && <p className="error-text" role="alert">{error}</p>}
-  </div>;
+  const activity = compacting ? 'Compacting context…' : reported?.status === 'failed' ? 'Compaction failed' : reported?.status === 'cancelled' ? 'Compaction stopped' :
+    accepted ? accepted.freed === undefined ? 'Context compacted' : `Freed ${contextNumber(accepted.freed)} tokens` :
+    requested ? 'Result not reported' : usage?.activity === 'running' ? 'Agent working' : usage?.activity === 'retrying' ? 'Retrying' : 'Context';
+  const failure = error || (reported?.status === 'failed' ? reported.error || 'Context could not be compacted. Try again.' : '');
+  return <Popover anchor={anchor} contentRef={panel} initialFocus={panel} open width={328} height={measured?.categories.length ? 282 + (failure ? 48 : 0) : 200 + (failure ? 48 : 0)}
+    role="dialog" aria-label="Context inspector" tabIndex={-1} className="context-inspector" onDismiss={close}>
+    <header><strong>Context <span>{measured ? `${Math.round(measured.ratio)}%` : 'Not reported'}</span></strong>
+      {measured && <span className="context-inspector-total">{contextNumber(measured.used)} of {contextNumber(measured.total)}</span>}</header>
+    <div className="context-inspector-body"><ContextMeter usage={usage} busy={compacting} accepted={playingReceipt} />
+      {failure && <p className="context-inspector-error" role="alert">{failure}</p>}
+    </div>
+    <footer><span role="status" aria-live="polite" className={playingReceipt ? 'context-receipt-pulse' : undefined}>{activity}</span>
+      <button ref={action} type="button" disabled={!thread?.sessionPath || Boolean(thread.runId) || compacting || Boolean(unavailable)}
+        title={unavailable?.reason ?? (!thread?.sessionPath ? 'Start a session before compacting context.' : undefined)} aria-description={unavailable?.reason}
+        onClick={() => void compact()}>{compacting ? 'Compacting…' : failure ? 'Retry compaction' : 'Compact now'}</button></footer>
+  </Popover>;
 }

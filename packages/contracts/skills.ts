@@ -6,7 +6,7 @@ export interface SkillSummary {
  createdAt:string;updatedAt:string;lastUsedAt:string|null;useCount:number;patchCount:number;
  migrationError?:string;
 }
-export interface SkillVersionSummary {revision:number;at:string;actor:SkillActor;action:string}
+export interface SkillVersionSummary {revision:number;at:string;actor:SkillActor;action:string;sourceAvailability?:'retained'|'unavailable'}
 export interface SkillDetail {skill:SkillSummary;content:string;document?:string;files:string[];versions:SkillVersionSummary[];nextVersionOffset:number|null}
 export interface SkillOperation {
  action:'create'|'patch'|'write_file'|'remove_file'|'delete'|'restore'|'rollback';name:string;baseRevision:number;

@@ -71,6 +71,28 @@ it('keeps accepted input saved and reports workspace preparation failure without
  expect(f.store.all('outbox',thread.id)).toEqual([expect.objectContaining({status:'persisted',content:'Assigned work'})]);expect(f.runtime.start).not.toHaveBeenCalled();
 });
 
+it.each(['models','history'] as const)('rechecks resume admission after asynchronous %s preparation',async phase=>{
+ const f=fixture(),target=await f.create();await f.message(target.id);await f.send('run.stop',{},target.id);
+ let release!:()=>void,enter!:()=>void;
+ const gate=new Promise<void>(done=>{release=done;}),entered=new Promise<void>(done=>{enter=done;});
+ if(phase==='models')vi.spyOn(f.runtime,'models').mockImplementationOnce(async()=>{enter();await gate;return[{id:'test/model',provider:'test',name:'Test'}];});
+ else{
+  f.store.internal('fixture.session',target.id,()=>f.store.put('thread',target.id,target.id,{...f.store.get<Thread>('thread',target.id)!,sessionPath:join(f.store.dataDir,'session.jsonl')}));
+  vi.spyOn(f.runtime,'history').mockImplementationOnce(async()=>{enter();await gate;return[];});
+ }
+ const resuming=f.send('run.resume',{},target.id).then(value=>({value}),error=>({error}));
+ try{
+  await entered;const active:Thread[]=[];
+  for(let i=0;i<3;i++){const thread=await f.create();active.push(thread);await f.message(thread.id);}
+  expect(f.store.all<Thread>('thread').filter(thread=>thread.runId)).toHaveLength(3);
+  release();expect(await resuming).toMatchObject({error:{code:'RUN_BUSY'}});
+  expect(f.store.get<Thread>('thread',target.id)?.status).toBe('stopped');
+  expect(f.starts).toHaveLength(4);
+  await f.send('run.stop',{},active[0].id);await f.send('run.resume',{},target.id);
+  expect(f.starts).toHaveLength(5);expect(f.starts.at(-1)?.threadId).toBe(target.id);
+ }finally{release();await resuming;}
+});
+
 it('does not start a workspace-prepared run after Stop revokes its epoch',async()=>{
  let release!:()=>void;const gate=new Promise<void>(done=>{release=done;}),f=fixture(()=>({prepareWorkspace:()=>gate})),thread=await f.create();
  try{await f.message(thread.id);await f.send('run.stop',{},thread.id);release();await f.service.deliverOutbox(thread.id);expect(f.runtime.start).not.toHaveBeenCalled();expect(f.store.get<Thread>('thread',thread.id)?.status).toBe('stopped');}finally{release();}

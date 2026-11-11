@@ -10,6 +10,7 @@ import {pathToFileURL} from 'node:url';
 import {launchHost,readHostOptions,type HostFactories} from '../apps/server/host.ts';
 import Fastify from 'fastify';
 import {Store} from '../packages/storage/store.ts';
+import {SkillCatalogRepository} from '../packages/skill-catalog/repository.ts';
 
 const cleanup:(()=>Promise<void>)[]=[];
 afterEach(async()=>{for(const close of cleanup.splice(0).reverse())await close();});
@@ -44,6 +45,15 @@ it('constructs one runtime and reports readiness only after both listeners are l
  await vi.waitFor(()=>expect(m.widgets.listen).toHaveBeenCalledOnce());expect(ready).toBe(false);expect(m.service.recover).not.toHaveBeenCalled();
  release();const host=await pending;cleanup.push(()=>host.close());expect(host.origin).toBe('http://127.0.0.1:4317');expect(host.widgetOrigin).toBe('http://localhost:4318');expect(host.pid).toBe(process.pid);expect(m.factories.createRuntime).toHaveBeenCalledOnce();
  expect(m.app.listen).toHaveBeenCalledWith({host:'127.0.0.1',port:4317});expect(m.widgets.listen).toHaveBeenCalledWith({host:'127.0.0.1',port:4318});expect(m.service.recover).toHaveBeenCalledOnce();
+});
+
+it('composes skill discovery with the same owner-selected installation registry as plug-in loading',async()=>{
+ const m=mocks(),catalog=new SkillCatalogRepository([]),createSkillCatalog=vi.fn(()=>catalog),loadPlugins=vi.fn(async()=>{throw Error('Synthetic unavailable plug-in host');});
+ const selectedRoot=resolve(options.dataDir,'explicit-installed-registry');
+ const host=await launchHost({...options,pluginDir:selectedRoot},{...m.factories,loadPlugins,createSkillCatalog} as Partial<HostFactories>);cleanup.push(()=>host.close());
+ expect(loadPlugins).toHaveBeenCalledWith(selectedRoot,expect.any(String));
+ expect(createSkillCatalog).toHaveBeenCalledWith(m.store,{pluginRoot:selectedRoot});
+ expect(m.factories.buildServer).toHaveBeenCalledWith(m.service,expect.objectContaining({skillCatalog:catalog}));
 });
 
 it('closes every acquired resource when the widget port cannot bind',async()=>{

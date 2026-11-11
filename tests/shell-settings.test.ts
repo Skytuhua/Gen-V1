@@ -12,7 +12,7 @@ describe('recoverable browser shell layout', () => {
   it('bounds untrusted persisted dimensions and rejects unknown tabs and group states', () => {
     vi.stubGlobal('localStorage', { getItem: () => JSON.stringify({ sidebarWidth: 90000, rightPanelWidth: -8, activeTab: 'pretend-terminal', folded: { valid: true, invalid: 'yes' } }) });
     const value = readShellLayout();
-    expect(value.sidebarWidth).toBe(380); expect(value.rightPanelWidth).toBe(360); expect(value.activeTab).toBe('artifact'); expect(value.folded).toEqual({ valid: true });
+    expect(value.sidebarWidth).toBe(380); expect(value.rightPanelWidth).toBe(280); expect(value.activeTab).toBe('artifact'); expect(value.folded).toEqual({ valid: true });
   });
   it('uses a usable layout when browser storage is corrupt or unavailable', () => {
     vi.stubGlobal('localStorage', { getItem: () => '{broken' }); expect(readShellLayout().sidebarWidth).toBe(248);
@@ -33,21 +33,20 @@ describe('pinned T3 settings inventory', () => {
     // Frozen before the representation change: covers every ID, title, section and search term.
     expect(createHash('sha256').update(JSON.stringify(T3_SETTINGS_ROWS)).digest('hex')).toBe('2893f2e3a1de79b9c628ac73fe7670c686088f86c9f18acce61df3936c1d727e');
   });
-  it('retains every static indexed row, original navigation, supplemental pages and skill controls', () => {
+  it('retains the historical inventory as evidence and exposes supported consolidated navigation', () => {
     expect(T3_SETTINGS_ROWS).toHaveLength(136);
-    expect(SETTINGS_SECTIONS).toHaveLength(25);
-    expect(SETTINGS_SECTIONS).toContainEqual(['integrations','Bundled integrations']);
-    expect(SETTINGS_ROWS.find(row=>row.id==='harness-integrations')).toMatchObject({section:'integrations',title:'Bundled integrations'});
-    expect(SETTINGS_SECTIONS).toContainEqual(['skills', 'Skills & learning']);
+    expect(SETTINGS_SECTIONS).toHaveLength(12);
+    expect(SETTINGS_ROWS.find(row=>row.id==='harness-integrations')).toMatchObject({section:'skills',title:'Bundled integrations'});
+    expect(SETTINGS_SECTIONS).toContainEqual(['skills', 'Skills & Integrations']);
     expect(SETTINGS_ROWS.find(row => row.id === 'harness-skills')).toMatchObject({section:'skills',title:'Skills & learning'});
     expect(new Set(SETTINGS_ROWS.map(row => row.id)).size).toBe(SETTINGS_ROWS.length);
     for (const [section] of SETTINGS_SECTIONS) expect(SETTINGS_ROWS.some(row => row.section === section), section).toBe(true);
-    for (const row of T3_SETTINGS_ROWS) expect(SETTINGS_ROWS.find(item => item.id === row.id)).toEqual(row);
+    expect(SETTINGS_ROWS.every(row => settingAvailability(row) === 'Working')).toBe(true);
   });
-  it('classifies all unsupported desktop and service capabilities as unavailable', () => {
-    for (const row of SETTINGS_ROWS.filter(row => ['browser', 'devices', 'snap-shot', 'scheduled-tasks', 'secrets', 'worktrees', 'source-control', 'access'].includes(row.section))) expect(settingAvailability(row), row.id).toBe('Unavailable');
+  it('removes unsupported desktop and service placeholders from the visible index', () => {
+    expect(SETTINGS_ROWS.filter(row => ['devices', 'snap-shot', 'scheduled-tasks', 'secrets', 'worktrees', 'source-control', 'access'].includes(row.section))).toEqual([]);
     expect(settingAvailability(SETTINGS_ROWS.find(row => row.id === 'chat-width')!)).toBe('Working');
-    expect(settingAvailability(SETTINGS_ROWS.find(row => row.id === 'delete-confirmation')!)).toBe('Unavailable');
+    expect(SETTINGS_ROWS.some(row => row.id === 'delete-confirmation')).toBe(false);
   });
 });
 
@@ -56,13 +55,14 @@ describe('reported context measurements', () => {
     expect(contextSegments(EMPTY_USAGE)).toBeNull();
     expect(contextSegments({ ...EMPTY_USAGE, contextTokens: 30 })).toBeNull();
   });
-  it('uses only reported categories and a computed remainder of accepted context', () => {
+  it('uses reported categories without fabricating an unreported remainder', () => {
     const value = contextSegments({ ...EMPTY_USAGE, contextTokens: 42000, contextWindow: 100000, contextBreakdown: [{ label: 'System', tokens: 14000 }, { label: 'Conversation', tokens: 20000 }] })!;
-    expect(value.ratio).toBe(42); expect(value.free).toBe(58000); expect(value.categorized).toBe(true);
-    expect(value.categories.map(item => [item.label, item.tokens, item.width])).toEqual([['System', 14000, 14], ['Conversation', 20000, 20], ['Other used context', 8000, 8]]);
+    expect(value.ratio).toBe(42); expect(value.free).toBeUndefined(); expect(value.categorized).toBe(true);
+    expect(value.categories.map(item => [item.label, item.tokens])).toEqual([['System', 14000], ['Messages', 20000]]);
+    expect(value.categories[0].width).toBeCloseTo(14);
   });
   it('rejects inconsistent partitions without fabricating categories', () => {
     const value = contextSegments({ ...EMPTY_USAGE, contextTokens: 20, contextWindow: 100, contextBreakdown: [{ label: 'Impossible', tokens: 90 }] })!;
-    expect(value.categorized).toBe(false); expect(value.categories).toEqual([{ label: 'Used', tokens: 20, width: 20 }]);
+    expect(value.categorized).toBe(false); expect(value.categories).toEqual([]);
   });
 });

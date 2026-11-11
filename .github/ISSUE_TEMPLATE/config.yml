@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
+  - name: Contribution guide
+    url: https://github.com/Skytuhua/Gen-V1/blob/main/CONTRIBUTING.md
+    about: Find ways to help, source contribution guidance and local checks.
   - name: Setup and connection guide
     url: https://github.com/Skytuhua/Gen-V1/blob/main/docs/getting-started.md
     about: Read setup, provider sign-in and common startup guidance.

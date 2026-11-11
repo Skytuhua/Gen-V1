@@ -244,7 +244,9 @@ describe("disposable fixtures and held-out evaluations", () => {
     expect((files.value as any).entries.some((entry: any) => entry.path.startsWith(".git"))).toBe(false);
     await expect(createFixtures(destination)).rejects.toThrow(/exist/i);
     await expect(createFixtures(s.root)).rejects.toThrow(/exist/i);
-  });
+    // This integration case starts several real Git processes. Allow Windows CI
+    // cold starts without changing fixture, conflict, or exclusive-path assertions.
+  }, 30_000);
   it("freezes 12 cases and keeps category and novel gates pending without real model results", () => {
     expect(CASES).toHaveLength(12);
     const counts = Object.fromEntries(["coding", "research-data", "documents", "planning", "novel-apps"].map(c => [c, CASES.filter(x => x.category === c).length]));

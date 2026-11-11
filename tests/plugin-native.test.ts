@@ -1,6 +1,14 @@
 import {expect,it} from 'vitest';
 import {desktopSurfaceKey,parseDesktopSurface} from '../packages/desktop-contract';
-import {pluginDesktopChannelAllowed,needsEditorHandoff,nativeTitlebarOptions,nativeTitlebarTheme,requireExistingDetachedSurface} from '../apps/desktop/window-policy.ts';
+import {pluginDesktopChannelAllowed,needsEditorHandoff,nativeTitlebarOptions,nativeTitlebarTheme,requireExistingDetachedSurface,trustedDesktopSubframe} from '../apps/desktop/window-policy.ts';
+import {pluginFrameSource} from '../packages/plugins/frame-protocol.ts';
+it('permits only canonical plug-in documents and the explicit generated-widget destination in native subframes',()=>{
+ const origin='http://127.0.0.1:4317',widget='http://localhost:4318',frame=new URL(pluginFrameSource('sample-plugin','session','dark'),origin).href;
+ expect(trustedDesktopSubframe(frame,origin,widget)).toBe(true);
+ expect(trustedDesktopSubframe(new URL(pluginFrameSource('sample-plugin','fresh-session','light',{scopeId:'project',surfaceId:'plan',resourceId:'order'}),origin).href,origin,widget)).toBe(true);
+ expect(trustedDesktopSubframe(widget+'/widget/artifact-id/1?ticket=one#token=two&mountId=three',origin,widget)).toBe(true);
+ for(const raw of ['https://outside.invalid/',origin+'/unreviewed.html',origin+'/',origin+'/plugins/sample-plugin/frontend/index.html',frame+'&session=duplicate',frame+'&url=https://outside.invalid/',frame+'#replacement',frame.replace('theme=dark','theme=invalid'),'data:text/html,untrusted','about:blank',widget+'/',widget+'/widget/artifact-id/0','http://127.0.0.1:4318/widget/artifact-id/1','http://user@localhost:4318/widget/artifact-id/1'])expect(trustedDesktopSubframe(raw,origin,widget),raw).toBe(false);
+});
 it('retains plugin, scope, surface and resource in native custody',()=>{
  const surface={kind:'plugin',pluginId:'example-plugin',scopeId:'project-a',surfaceId:'plan',resourceId:'order-a'} as const;
  expect(parseDesktopSurface(surface)).toEqual(surface);expect(desktopSurfaceKey(surface)).toBe('plugin|example-plugin|project-a|plan|order-a');

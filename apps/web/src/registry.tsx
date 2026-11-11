@@ -1,6 +1,6 @@
 import {SentenceReveal} from './SentenceReveal';
 import {WindowDocument} from './DocumentWindow';
-import { Children, lazy, Suspense, useContext, useRef } from 'react';
+import { Children, createContext, lazy, Suspense, useContext, useRef, type ReactNode } from 'react';
 import { useStateStore, type ComponentRegistry, type ComponentRenderProps } from '@json-render/react';
 import { ExternalLink, FileText, Check, AlertTriangle, CornerDownLeft } from 'lucide-react';
 import { Markdown } from './Markdown';
@@ -34,6 +34,7 @@ import { MapView } from './MapView';
 import { TaskHistory } from './TaskHistory';
 import { tabStateData } from '../../../packages/ui-catalog/workflow';
 import { StatusIcon } from './task-status';
+import { Select as ShellSelect } from '../../../packages/ui-shell/Select';
 const string = (value: unknown, fallback = '') => typeof value === 'string' ? value : fallback;
 const list = (value: unknown): unknown[] => Array.isArray(value) ? value : [];
 const obj = (value: unknown): Record<string, unknown> => value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};
@@ -51,12 +52,48 @@ function useData(props: Record<string, unknown>) {
   const name = props.rowsBinding ?? props.dataBinding;
   return typeof name === 'string' ? store.get(`/inputs/${name.replace(/~/g, '~0').replace(/\//g, '~1')}`) : undefined;
 }
-function Layout({ element: { props }, children }: ComponentRenderProps) {
+export const ArtifactElements = createContext<Record<string, { type: string }>>({});
+function DocumentPair({ children, gap = 20, columns, split = false }: { children: ReactNode; gap?: number; columns?: string; split?: boolean }) {
+  return <div className="document-pair-container" style={{ gap }}><div className="surface-split document-pair" data-arrangement={split ? 'split' : 'stack'} style={{ gridTemplateColumns: columns }}>{children}</div></div>;
+}
+function childTypes(element: ComponentRenderProps['element'], elements: Record<string, { type: string }>, children: ReactNode) {
+  const types = (element.children ?? []).filter(key => elements[key]).map(key => elements[key].type);
+  return types.length === Children.count(children) ? types : [];
+}
+function Layout({ element, children }: ComponentRenderProps) {
+  const { props } = element, elements = useContext(ArtifactElements);
   const gaps: Record<string, number> = { none: 0, xs: 4, sm: 8, md: 16, lg: 24 };
-  const layout = <div className={`surface-layout layout-${string(props.direction, 'column')}`} style={{ gap: gaps[string(props.gap)] ?? 14, gridTemplateColumns: props.columns ? `repeat(${Math.min(6, Math.max(1, Number(props.columns) || 1))}, minmax(0, 1fr))` : undefined, alignItems: string(props.align) === 'start' ? 'flex-start' : string(props.align) === 'end' ? 'flex-end' : string(props.align) === 'center' ? 'center' : undefined }}>{children}</div>;
+  const gap = gaps[string(props.gap)] ?? 14;
+  let content = children;
+  if (!props.columns && string(props.direction, 'column') === 'column') {
+    const types = childTypes(element, elements, children), nodes = Children.toArray(children), grouped: ReactNode[] = [];
+    for (let index = 0; index < nodes.length; index++) {
+      const pair = [types[index], types[index + 1]];
+      // Only adjacent PDF/signature siblings form a pair; other authored content
+      // keeps its place in the Stack, and explicit grids keep their columns.
+      if (pair.includes('DocumentPreview') && pair.includes('SignaturePad')) {
+        grouped.push(<DocumentPair key={element.children?.[index]} gap={gap}>{nodes[index]}{nodes[index + 1]}</DocumentPair>); index++;
+      } else grouped.push(nodes[index]);
+    }
+    if (grouped.length < nodes.length) content = grouped;
+  }
+  const layout = <div className={`surface-layout layout-${string(props.direction, 'column')}`} style={{ gap, gridTemplateColumns: props.columns ? `repeat(${Math.min(6, Math.max(1, Number(props.columns) || 1))}, minmax(0, 1fr))` : undefined, alignItems: string(props.align) === 'start' ? 'flex-start' : string(props.align) === 'end' ? 'flex-end' : string(props.align) === 'center' ? 'center' : undefined }}>{content}</div>;
   return props.scroll === 'bounded' ? <TaskHistory label={string(props.label, 'Question history')}>{layout}</TaskHistory> : layout;
 }
-function Split({ element: { props }, children }: ComponentRenderProps) { const ratio = Math.max(.1, Math.min(.9, Number(props.ratio) || .5)); return <div className="surface-split" style={{ gridTemplateColumns: `${ratio}fr ${1 - ratio}fr` }}>{children}</div>; }
+function Split({ element, children }: ComponentRenderProps) {
+  const elements = useContext(ArtifactElements), types = childTypes(element, elements, children);
+  const ratio = Math.max(.1, Math.min(.9, Number(element.props.ratio) || .5)), columns = `${ratio}fr ${1 - ratio}fr`;
+  return types.length === 2 && types.filter(type => type === 'DocumentPreview').length === 1
+    ? <DocumentPair columns={columns} split>{children}</DocumentPair>
+    : <div className="surface-split" style={{ gridTemplateColumns: columns }}>{children}</div>;
+}
+function SignatureLoading({ label = 'Your signature' }: SignaturePadProps) {
+  // Reuse the control's shell geometry while its independently lazy logic loads.
+  return <section className="signature-pad" aria-busy="true"><div className="signature-heading"><span>{label}</span><span className="sr-only" role="status">Loading signature control…</span></div><div className="signature-loading-geometry" aria-hidden="true" inert>
+    <div className="signature-modes">{['Generate', 'Draw', 'Upload'].map(mode => <button key={mode} disabled>{mode}</button>)}</div>
+    <div className="signature-well"/><div className="signature-controls"/><details className="signature-help"><summary>Signature help</summary></details>
+  </div></section>;
+}
 function Text({ element: { props } }: ComponentRenderProps) { return <SentenceReveal text={string(props.text,string(props.content))} animate as="p" className={`surface-text tone-${string(props.tone)} size-${string(props.size)}`}>{string(props.text,string(props.content))}</SentenceReveal>; }
 function Heading({ element: { props } }: ComponentRenderProps) { return <h3>{string(props.text, string(props.title))}</h3>; }
 function Panel({ element: { props }, children }: ComponentRenderProps) { const artifactTitle = useContext(ArtifactTitle); return <section className={`surface-section${props.align === 'center' ? ' surface-section-centered' : ''}`}>{props.title && props.title !== artifactTitle ? <h3>{string(props.title)}</h3> : null}{props.description ? <p className="muted">{string(props.description)}</p> : null}{children}</section>; }
@@ -70,7 +107,9 @@ function Input({ element: { props }, bindings }: ComponentRenderProps) {
 function Checkbox({ element: { props }, bindings }: ComponentRenderProps) { const [value, setValue] = useField(props, bindings); return <label className="check-field"><input type="checkbox" checked={value === true} disabled={props.disabled === true} onChange={event => setValue(event.target.checked)} />{string(props.label)}</label>; }
 function Select({ element: { props }, bindings }: ComponentRenderProps) {
   const [value, setValue] = useField(props, bindings);
-  return <label className="field">{string(props.label)}<select value={value == null ? '' : String(value)} onChange={event => setValue(event.target.value)}><option value="">{string(props.placeholder, 'Choose an option')}</option>{list(props.options).map((option, i) => { const item = obj(option); return <option key={i} value={typeof option === 'string' ? option : display(item.value)}>{typeof option === 'string' ? option : string(item.label, display(item.value))}</option>; })}</select></label>;
+  const options = [{value: '', label: string(props.placeholder, 'Choose an option')}, ...list(props.options).map(option => { const item = obj(option); return {value: typeof option === 'string' ? option : display(item.value), label: typeof option === 'string' ? option : string(item.label, display(item.value))}; })];
+  const selected = value == null ? '' : String(value);
+  return <label className="field">{string(props.label)}<ShellSelect aria-label={string(props.label, 'Choose an option')} value={selected} onValueChange={setValue} options={options}/></label>;
 }
 function Button({ element: { props } }: ComponentRenderProps) {
   const action = useTaskAction(), store = useStateStore();
@@ -79,10 +118,34 @@ function Button({ element: { props } }: ComponentRenderProps) {
 function Chart({ element: { props } }: ComponentRenderProps) {
   const data = list(useData(props) ?? props.data);
   const xKey = string(props.xKey, 'label'), yKey = string(props.yKey, 'value');
-  const values = data.map(row => Number(obj(row)[yKey]) || 0);
-  const max = Math.max(1, ...values.map(Math.abs));
+  const values = data.map(row => {
+    try {
+      const value = Number(obj(row)[yKey]);
+      return Number.isFinite(value) ? value : 0;
+    } catch { return 0; }
+  });
+  const max = values.reduce((maximum, value) => Math.max(maximum, Math.abs(value)), 1);
   const line = props.kind === 'line' || props.kind === 'scatter';
-  return <figure className="chart"><figcaption>{string(props.title)}</figcaption>{!data.length ? <p className="muted">No chart data available.</p> : <><svg role="img" aria-label={string(props.title, 'Data chart')} viewBox={`0 0 600 ${line ? 250 : Math.max(80, data.length * 36)}`}><title>{string(props.title, 'Data chart')}</title>{line ? <><line x1="25" y1="215" x2="580" y2="215" stroke="var(--border)" />{props.kind === 'line' && <polyline fill="none" stroke="var(--accent)" strokeWidth="2" points={values.map((value, i) => `${30 + i / Math.max(1, values.length - 1) * 540},${210 - value / max * 180}`).join(' ')} />}{values.map((value, i) => <g key={i}><circle cx={30 + i / Math.max(1, values.length - 1) * 540} cy={210 - value / max * 180} r="4" fill="var(--accent)"><title>{display(obj(data[i])[xKey])}: {value}</title></circle><text x={30 + i / Math.max(1, values.length - 1) * 540} y="237" textAnchor="middle" fill="currentColor" fontSize="10">{display(obj(data[i])[xKey]).slice(0, 12)}</text></g>)}</> : data.map((row, i) => <g key={i} transform={`translate(0,${i * 36})`}><text x="0" y="23" fill="currentColor" fontSize="12">{display(obj(row)[xKey]).slice(0, 18)}</text><rect x="135" y="7" width={Math.abs(values[i]!) / max * 390} height="21" rx="3" fill="var(--accent)" /><text x="535" y="23" fill="currentColor" fontSize="12">{values[i]}</text></g>)}</svg><details><summary>View chart data</summary><pre>{JSON.stringify(data, null, 2)}</pre></details></>}</figure>;
+  // Normalize an overflowing signed range before subtraction. Ordinary ranges
+  // keep their precision, including very small or closely spaced endpoints.
+  const fraction = (value: number, minimum: number, maximum: number) => {
+    if (minimum === maximum) return .5;
+    const range = maximum - minimum;
+    if (Number.isFinite(range)) return (value - minimum) / range;
+    const scale = Math.max(Math.abs(minimum), Math.abs(maximum));
+    return (value / scale - minimum / scale) / (maximum / scale - minimum / scale);
+  };
+  const yMin = values.reduce((minimum, value) => Math.min(minimum, value), 0);
+  const yMax = values.reduce((maximum, value) => Math.max(maximum, value), 0);
+  const numericXs = data.map(row => obj(row)[xKey]).filter((value): value is number => typeof value === 'number' && Number.isFinite(value));
+  const numericX = props.kind === 'scatter' && numericXs.length === data.length;
+  const xMin = numericXs.reduce((minimum, value) => Math.min(minimum, value), Infinity);
+  const xMax = numericXs.reduce((maximum, value) => Math.max(maximum, value), -Infinity);
+  const points = values.map((value, i) => ({
+    x: 30 + (numericX ? fraction(numericXs[i]!, xMin, xMax) : i / Math.max(1, values.length - 1)) * 540,
+    y: yMin === yMax ? 210 : 210 - fraction(value, yMin, yMax) * 180,
+  }));
+  return <figure className="chart"><figcaption>{string(props.title)}</figcaption>{!data.length ? <p className="muted">No chart data available.</p> : <><svg role="img" aria-label={string(props.title, 'Data chart')} viewBox={`0 0 600 ${line ? 250 : Math.max(80, data.length * 36)}`}><title>{string(props.title, 'Data chart')}</title>{line ? <><line x1="25" y1="215" x2="580" y2="215" stroke="var(--border)" />{props.kind === 'line' && <polyline fill="none" stroke="var(--accent)" strokeWidth="2" points={points.map(point => `${point.x},${point.y}`).join(' ')} />}{values.map((value, i) => <g key={i}><circle cx={points[i]!.x} cy={points[i]!.y} r="4" fill="var(--accent)"><title>{display(obj(data[i])[xKey])}: {value}</title></circle><text x={points[i]!.x} y="237" textAnchor="middle" fill="currentColor" fontSize="10">{display(obj(data[i])[xKey]).slice(0, 12)}</text></g>)}</> : data.map((row, i) => <g key={i} transform={`translate(0,${i * 36})`}><text x="0" y="23" fill="currentColor" fontSize="12">{display(obj(row)[xKey]).slice(0, 18)}</text><rect x="135" y="7" width={Math.abs(values[i]!) / max * 390} height="21" rx="3" fill="var(--accent)" /><text x="535" y="23" fill="currentColor" fontSize="12">{values[i]}</text></g>)}</svg><details><summary>View chart data</summary><pre>{JSON.stringify(data, null, 2)}</pre></details></>}</figure>;
 }
 function TreeNode({ value, depth = 0 }: { value: unknown; depth?: number }) {
   if (depth > 12) return <span className="muted">Nested content exceeds display depth.</span>;
@@ -103,6 +166,7 @@ function Tabs({ element: { props }, children, bindings }: ComponentRenderProps) 
   const parsed = tabStateData.safeParse(typeof props.statusBinding === 'string' ? store.get(`/inputs/${props.statusBinding}`) : undefined);
   const source = parsed.success ? parsed.data : undefined;
   const selected = source?.items.find(item => item.label === active);
+  if (new Set(labels).size !== labels.length) return <p role="alert">This saved tab view is invalid because its labels are not unique.</p>;
   return <div className={source ? 'task-tabs-operation' : undefined}>
     {source && (source.title || source.detail || source.status) && <header className="task-tabs-operation-header"><div>{source.title && source.title !== artifactTitle && <strong>{source.title}</strong>}{source.detail && <span>{source.detail}</span>}</div>{source.status && <StatusIcon status={source.status} />}</header>}
     <div className="surface-tabs" role="tablist" aria-label={string(props.label, 'Views')}>{labels.map((label, i) => {
@@ -139,8 +203,8 @@ export const registry: ComponentRegistry = {
   ...EXPLORATION_REGISTRY,
   ...WORK_OBJECT_REGISTRY,
   ChoiceList, Steps, RelationshipGraph, Status, MapView,
-  DocumentPreview: ({ element: { props } }) => <Suspense fallback={<p className="muted">Loading document preview…</p>}><DocumentPreview {...props as DocumentPreviewProps} /></Suspense>,
-  SignaturePad: ({ element: { props } }) => <Suspense fallback={<p className="muted">Loading signature control…</p>}><SignaturePad {...props as SignaturePadProps} /></Suspense>,
+  DocumentPreview: ({ element: { props } }) => <Suspense fallback={<div className="document-preview muted" data-preview-state="loading" role="status">Loading document preview…</div>}><DocumentPreview {...props as DocumentPreviewProps} /></Suspense>,
+  SignaturePad: ({ element: { props } }) => <Suspense fallback={<SignatureLoading {...props as SignaturePadProps}/>}><SignaturePad {...props as SignaturePadProps} /></Suspense>,
   Stack: Layout, Row: props => <Layout {...props} element={{ ...props.element, props: { ...props.element.props, direction: 'row' } }} />, Grid: Layout, Split, Columns: Layout, Section: Panel, Card: Panel, Panel,
   Text, Heading, Markdown: BoundMarkdown, Metric, EvidenceList, Image,
   Input, Textarea: props => <Input {...props} element={{ ...props.element, props: { ...props.element.props, multiline: true } }} />, TextArea: props => <Input {...props} element={{ ...props.element, props: { ...props.element.props, multiline: true } }} />,
@@ -166,19 +230,26 @@ export function SchemaFields({ schema, value, onChange }: { schema: Record<strin
   return <div className="schema-fields">{Object.entries(properties).map(([name, definition]) => <SchemaValue key={name} schema={obj(definition)} label={string(obj(definition).title, name)} value={value[name]} required={required.includes(name)} onChange={item => { const next = { ...value, [name]: item }; if (item === undefined) delete next[name]; onChange(next); }} />)}</div>;
 }
 
+function sameJsonValue(left: unknown, right: unknown): boolean {
+  if (left === right) return true;
+  if (!left || !right || typeof left !== 'object' || typeof right !== 'object') return false;
+  if (Array.isArray(left) || Array.isArray(right)) return Array.isArray(left) && Array.isArray(right) && left.length === right.length && left.every((value, index) => sameJsonValue(value, right[index]));
+  const a = left as Record<string, unknown>, b = right as Record<string, unknown>, keys = Object.keys(a);
+  return keys.length === Object.keys(b).length && keys.every(key => Object.hasOwn(b, key) && sameJsonValue(a[key], b[key]));
+}
 function SchemaValue({ schema, label, value, required, onChange }: { schema: Record<string, unknown>; label: string; value: unknown; required: boolean; onChange: (value: unknown) => void }) {
   const omittedDraft = useRef<unknown>(undefined);
   if (value !== undefined) omittedDraft.current = value;
+  if (Array.isArray(schema.enum)) {
+    const options = schema.enum, selected = value === undefined ? -1 : options.findIndex(item => sameJsonValue(item, value));
+    return <label className="field">{label}<ShellSelect aria-label={label} required={required} value={value === undefined ? '' : String(selected)} onValueChange={index => onChange(index === '' ? undefined : options[Number(index)])} options={[{value: '', label: 'Choose…'}, ...options.map((option, index) => ({value: String(index), label: display(option)}))]}/></label>;
+  }
   if (schema.type === 'object' || schema.properties || schema.type === 'array') {
     const present = required || value !== undefined;
     const values = list(value ?? omittedDraft.current), itemSchema = obj(schema.items);
     return <fieldset className="schema-fields"><legend>{label}</legend>{!required && <label className="check-field"><input type="checkbox" checked={present} onChange={event => onChange(event.target.checked ? omittedDraft.current ?? schemaDefaults(schema) : undefined)} />Include {label}</label>}<fieldset className={present ? "schema-fields" : undefined} hidden={!present} disabled={!present}>{schema.type === 'array' ? <>{values.map((item, index) => <div key={index}><SchemaValue schema={itemSchema} label={`${label} ${index + 1}`} value={item} required onChange={next => onChange(values.map((value, position) => position === index ? next : value))} /><button type="button" className="quiet" onClick={() => onChange(values.filter((_, position) => position !== index))}>Remove {label} {index + 1}</button></div>)}<button type="button" className="secondary" disabled={typeof schema.maxItems === 'number' && values.length >= schema.maxItems} onClick={() => onChange([...values, schemaDefaults(itemSchema) ?? ''])}>Add {label}</button></> : <SchemaFields schema={schema} value={obj(value ?? omittedDraft.current)} onChange={onChange} />}</fieldset></fieldset>;
   }
   if (schema.type === 'boolean') return <label className="check-field"><input type="checkbox" checked={value === true} onChange={event => onChange(event.target.checked)} />{label}</label>;
-  if (Array.isArray(schema.enum)) {
-    const options = schema.enum;
-    return <label className="field">{label}<select required={required} value={value === undefined ? '' : String(options.findIndex(item => JSON.stringify(item) === JSON.stringify(value)))} onChange={event => onChange(event.target.value === '' ? undefined : options[Number(event.target.value)])}><option value="">Choose…</option>{options.map((option, index) => <option key={index} value={index}>{display(option)}</option>)}</select></label>;
-  }
   const numeric = schema.type === 'number' || schema.type === 'integer';
   return <label className="field">{label}<input type={numeric ? 'number' : schema.format === 'email' ? 'email' : 'text'} step={schema.type === 'integer' ? 1 : 'any'} min={typeof schema.minimum === 'number' ? schema.minimum : undefined} max={typeof schema.maximum === 'number' ? schema.maximum : undefined} required={required} value={value == null ? '' : String(value)} onChange={event => onChange(numeric && event.target.value !== '' ? Number(event.target.value) : event.target.value)} />{schema.description ? <small>{string(schema.description)}</small> : null}</label>;
 }

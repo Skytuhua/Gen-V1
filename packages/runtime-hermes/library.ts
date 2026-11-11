@@ -4,7 +4,8 @@ import {digest,type Store} from '../storage/store.ts';
 
 export interface HermesLibrarySource {request<T=unknown>(method:string,params?:Record<string,unknown>):Promise<T>}
 interface LedgerEntry {id:string;ts:string;actor:string;action:string;skill:string}
-interface Inspection {name:string;description:string;category?:string|null;document:string;content:string;files:string[];fileContent?:string;fileHashes?:Record<string,string>;usage:Record<string,unknown>;versions:LedgerEntry[]}
+interface Inspection {name:string;description:string;category?:string|null;document:string;content:string;files:string[];fileContent?:string;fileHashes?:Record<string,string>;usage:Record<string,unknown>;versions:LedgerEntry[];versionsVerified?:boolean}
+interface CapturedPackage {inspection:Inspection; files:Record<string,string>; sourceId?:string}
 interface Catalog {skills:{name:string}[];archived:string[];usage:Record<string,Record<string,unknown>>}
 interface SourceSnapshot {catalog:Catalog;inspections:Record<string,Inspection>;proposals:NativePending[]}
 interface NativePending {id:string;created_at:number;origin:string;summary:string;payload:Record<string,unknown>}
@@ -78,29 +79,43 @@ export class HermesSourceLibrary {
   }
   return files;
  }
+ private async capture(name:string,expected:Expected):Promise<CapturedPackage>{
+  let result:CapturedPackage;
+  try{result=await this.source.request<CapturedPackage>('skills.capture',{name,expected:{[name]:expected}});}
+  catch{return failure('A canonical package could not be captured. Refresh its source state before continuing.','HERMES_RECONCILIATION_REQUIRED');}
+  const object=(value:unknown):value is Record<string,unknown>=>!!value&&typeof value==='object'&&!Array.isArray(value);
+  const value=result?.inspection;
+  if(!object(result)||!object(value)||typeof value.name!=='string'||typeof value.description!=='string'||(value.category!==undefined&&value.category!==null&&typeof value.category!=='string')||typeof value.document!=='string'||typeof value.content!=='string'||!Array.isArray(value.files)||value.files.some(path=>typeof path!=='string')||!object(value.fileHashes)||Object.values(value.fileHashes).some(hash=>typeof hash!=='string')||!object(value.usage)||!Array.isArray(value.versions)||value.versions.some(entry=>!object(entry)||['id','ts','actor','action','skill'].some(key=>typeof entry[key]!=='string'))||!object(result.files)||Object.values(result.files).some(text=>typeof text!=='string')||(result.sourceId!==undefined&&typeof result.sourceId!=='string'))return failure('Original Hermes returned an invalid package capture.','HERMES_PROTOCOL');
+  const paths=value.files,expectedPaths=Object.keys(expected.fileHashes),support=paths.filter(path=>path!=='SKILL.md');
+  const descriptor:Expected={documentHash:value.fileHashes['SKILL.md']??null,fileHashes:value.fileHashes,state:String(value.usage.state??'active'),enabled:typeof value.usage.harness_enabled==='boolean'?value.usage.harness_enabled:true,protected:typeof value.usage.harness_protected==='boolean'?value.usage.harness_protected:false,tip:value.versions[0]?.id??null};
+  if(value.name!==name||new Set(paths).size!==paths.length||!paths.includes('SKILL.md')||digest([...paths].sort())!==digest(expectedPaths.sort())||digest(Object.keys(result.files).sort())!==digest(support.sort())||digest(descriptor)!==digest(expected)||result.sourceId!==(expected.tip??undefined))return failure('The canonical package capture does not match its source snapshot.','HERMES_RECONCILIATION_REQUIRED');
+  return result;
+ }
  private async refreshSource():Promise<void>{
   const snapshot=await this.source.request<SourceSnapshot>('skills.snapshot',{}),{catalog,proposals:pending}=snapshot;
   const archived=new Set(catalog.archived),names=[...new Set([...catalog.skills.map(row=>row.name),...catalog.archived])];
   const updates:{summary:SkillSummary;projection:Projection;versions:Version[]}[]=[];
   for(const name of names){
    if(this.store.get('hermesMigration',name))continue;
-   const value=snapshot.inspections[name],old=this.store.get<SkillSummary>('skill',name),previous=this.store.get<Projection>('hermesSkill',name);
+   let value=snapshot.inspections[name];const old=this.store.get<SkillSummary>('skill',name),previous=this.store.get<Projection>('hermesSkill',name);
    if(!value)failure('A source snapshot row is missing.','HERMES_PROTOCOL');
-   const usage=value.usage??catalog.usage[name]??{},latest=value.versions[0],stamp=latest?.ts??String(usage.created_at??old?.createdAt??new Date().toISOString());
-   const state=archived.has(name)?'archived':usage.state==='stale'?'stale':'active';
-   const enabled=typeof usage.harness_enabled==='boolean'?usage.harness_enabled:old?.enabled??true,protectedFlag=typeof usage.harness_protected==='boolean'?usage.harness_protected:old?.protected??false;
-   const expected:Expected={documentHash:value.fileHashes?.['SKILL.md']??null,fileHashes:value.fileHashes??{},state,enabled,protected:protectedFlag,tip:latest?.id??null};
+   const snapshotUsage=value.usage??catalog.usage[name]??{},snapshotLatest=value.versions[0];
+   const state=archived.has(name)?'archived':snapshotUsage.state==='stale'?'stale':'active';
+   const enabled=typeof snapshotUsage.harness_enabled==='boolean'?snapshotUsage.harness_enabled:old?.enabled??true,protectedFlag=typeof snapshotUsage.harness_protected==='boolean'?snapshotUsage.harness_protected:old?.protected??false;
+   const expected:Expected={documentHash:value.fileHashes?.['SKILL.md']??null,fileHashes:value.fileHashes??{},state,enabled,protected:protectedFlag,tip:snapshotLatest?.id??null};
    const fingerprint=digest(expected);
    const changed=previous?.fingerprint!==fingerprint;
+   const captured=changed&&(!old||previous)?await this.capture(name,expected):undefined;
+   if(captured)value=captured.inspection;
+   const usage=value.usage??{},latest=value.versions[0],stamp=latest?.ts??String(usage.created_at??old?.createdAt??new Date().toISOString());
    let revision=old?.revision??0;
    const versions:Version[]=[];
    const managed=usage.created_by==='agent'||usage.agent_created===true;
    const base={name,description:value.description,category:value.category&&value.category!=='.archive'?value.category:old?.category??'general',state,enabled,protected:protectedFlag,origin:old?.origin??(managed?'agent':'user'),managed,author:actor(latest).kind,createdAt:old?.createdAt??String(usage.created_at??stamp),updatedAt:changed?stamp:old?.updatedAt??stamp,lastUsedAt:typeof usage.last_used_at==='string'?usage.last_used_at:null,useCount:Number(usage.use_count??0),patchCount:Number(usage.patch_count??0)} satisfies Omit<SkillSummary,'revision'>;
    // Existing legacy revisions are immutable; link their matching migration state.
-   if(changed&&(!old||previous)){
-    const body=await this.source.request<Inspection>('skills.inspect',{name}),files=await this.files(body);
+   if(captured){
     revision++;
-    versions.push({revision,at:stamp,actor:actor(latest),action:latest?.action??'source',skill:{...base,revision,content:body.content,files},document:body.document,...(latest?{sourceId:latest.id}:{})});
+    versions.push({revision,at:stamp,actor:actor(latest),action:latest?.action??'source',skill:{...base,revision,content:captured.inspection.content,files:captured.files},document:captured.inspection.document,...(captured.sourceId?{sourceId:captured.sourceId}:{})});
    }
    if(!revision)revision=1;
    updates.push({summary:{...base,revision},projection:{name,fingerprint,expected,...(latest?{sourceId:latest.id}:{})},versions});
@@ -199,7 +214,8 @@ export class HermesSourceLibrary {
    }else if(ops?.length===1&&first.action==='rollback'){
     if(first.baseRevision!==this.store.get<SkillSummary>('skill',first.name)?.revision)failure('This skill revision changed.','STALE_SKILL');
     const target=await this.viewSource(first.name,{revision:first.revision,includeInactive:true}),current=await this.source.request<Inspection>('skills.inspect',{name:first.name});
-    const old=this.store.get<Version>('skillVersion',`${first.name}@${first.revision}`),desired=old?.skill.files??{};
+    const old=this.store.get<Version>('skillVersion',`${first.name}@${first.revision}`),desired:Record<string,string>=old?.sourceId?{}:old?.skill.files??{};
+    if(old?.sourceId)for(const path of target.files)desired[path]=(await this.viewSource(first.name,{revision:first.revision,path,includeInactive:true})).content;
     const operations=[{action:'patch',name:first.name,content:target.document},...current.files.filter(path=>path!=='SKILL.md'&&!Object.hasOwn(desired,path)).map(file_path=>({action:'remove_file',name:first.name,file_path})),...Object.entries(desired).map(([file_path,file_content])=>({action:'write_file',name:first.name,file_path,file_content}))];
     if(operations.length>20)failure('This restore exceeds the original 20-operation atomic limit.');method='skills.manage';params={action:'',name:'',operations,session_id:command.id};
    }else{method='skills.manage';params={action:'',name:'',operations:await this.operations(ops),session_id:command.id};}
@@ -236,11 +252,11 @@ export class HermesSourceLibrary {
   const summary=this.store.get<SkillSummary>('skill',name);if(!summary)failure('Skill not found.','NOT_FOUND');if(!options.includeInactive&&(!summary!.enabled||summary!.state==='archived'))failure('This skill is disabled or unavailable.','SKILL_DISABLED');
   const legacyPending=this.store.get('hermesMigration',name);
   const version=options.revision===undefined?(legacyPending?this.store.get<Version>('skillVersion',`${name}@${summary!.revision}`):null):this.store.get<Version>('skillVersion',`${name}@${options.revision}`);if(options.revision!==undefined&&!version)failure('Skill revision not found.','NOT_FOUND');
-  const path=options.path??'SKILL.md';let content:string,document:string|undefined,files:string[],selected=summary!;
+  const path=options.path??'SKILL.md';let content:string,document:string|undefined,files:string[],selected=summary!,retained:Set<string>|undefined;
   if(version&&!version.sourceId){const {content:body,files:storedFiles,...metadata}=version.skill;selected={...metadata,...(legacyPending?{migrationError:(summary as SkillSummary&{migrationError?:string}).migrationError}:{})};content=path==='SKILL.md'?body:storedFiles[path];document=path==='SKILL.md'?version.document??`---\nname: ${JSON.stringify(name)}\ndescription: ${JSON.stringify(selected.description)}\n---\n\n${content}`:undefined;files=Object.keys(storedFiles);}
-  else{const value=await this.source.request<Inspection>('skills.inspect',{name,...(version?.sourceId?{revisionId:version.sourceId}:{}),...(path==='SKILL.md'?{}:{file_path:path})});content=path==='SKILL.md'?value.content:value.fileContent!;document=path==='SKILL.md'?value.document:undefined;files=value.files.filter(path=>path!=='SKILL.md');if(version){const {content:_body,files:_files,...metadata}=version.skill;selected=metadata;}}
+  else{const value=await this.source.request<Inspection>('skills.inspect',{name,...(version?.sourceId?{revisionId:version.sourceId}:{}),...(path==='SKILL.md'?{}:{file_path:path})});if(value.versionsVerified!==false)retained=new Set(value.versions.filter(entry=>entry.skill===name).map(entry=>entry.id));content=path==='SKILL.md'?value.content:value.fileContent!;document=path==='SKILL.md'?value.document:undefined;files=value.files.filter(path=>path!=='SKILL.md');if(version){const {content:_body,files:_files,...metadata}=version.skill;selected=metadata;}}
   if(typeof content!=='string')failure('Supporting file is unavailable.','NOT_FOUND');
-  const all=this.store.all<Version>('skillVersion').filter(row=>row.skill.name===name).sort((a,b)=>b.revision-a.revision),offset=options.versionOffset??0,versions:SkillVersionSummary[]=all.slice(offset,offset+20).map(({revision,at,actor,action})=>({revision,at,actor,action}));
+  const all=this.store.all<Version>('skillVersion').filter(row=>row.skill.name===name).sort((a,b)=>b.revision-a.revision),offset=options.versionOffset??0,versions:SkillVersionSummary[]=all.slice(offset,offset+20).map(({revision,at,actor,action,sourceId})=>({revision,at,actor,action,...(sourceId&&retained?{sourceAvailability:retained.has(sourceId)?'retained' as const:'unavailable' as const}:{})}));
   return{skill:selected,content,document,files,versions,nextVersionOffset:offset+20<all.length?offset+20:null};
  }
  proposal(id:string):Promise<SkillProposal>{return this.serial(async()=>{const value=this.store.get<SkillProposal>('skillProposal',id);if(!value)failure('Skill proposal not found.','NOT_FOUND');return value!;});}

@@ -2,6 +2,11 @@ import {join} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import type {ChildProcess} from 'node:child_process';
 export function nodeSidecarArguments(hostRoot:string):string[]{return ['--import',pathToFileURL(join(hostRoot,'node_modules/tsx/dist/loader.mjs')).href,join(hostRoot,'apps/server/main.ts')];}
+export function requestBackendShutdown(child:Pick<ChildProcess,'connected'|'send'>,token:string,failed:()=>void):void{
+ if(!child.connected){failed();return;}
+ // IPC errors arrive asynchronously; a try/catch alone lets EPIPE escape cleanup.
+ try{child.send({type:'harness.shutdown',token},error=>{if(error)failed();});}catch{failed();}
+}
 export function waitForBackendReady(child:ChildProcess,token:string,port:number,stderr:()=>string):Promise<Record<string,unknown>>{
  return new Promise((resolveReady,reject)=>{
   // Cold original Hermes/Python initialization can exceed the former 25-second bound.

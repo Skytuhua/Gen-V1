@@ -3,10 +3,11 @@ import {resolve,join,relative,dirname} from 'node:path';
 import {spawn} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {build,type Configuration} from 'electron-builder';
-import {runtimeSourceAllowed,validateNodeArchive,desktopBuilderConfig,packageManagerInvocation,runtimeInstallArguments,readDesktopOutputRoot,reserveDesktopRelease,REQUIRED_RUNTIME_FILES,NODE_VERSION,NODE_ARCHIVE_SHA256} from './desktop-assets.ts';
+import {runtimeSourceAllowed,validateNodeArchive,desktopBuilderConfig,packageManagerInvocation,runtimeInstallArguments,stageRuntimeInstall,readDesktopOutputRoot,reserveDesktopRelease,REQUIRED_RUNTIME_FILES,NODE_VERSION,NODE_ARCHIVE_SHA256} from './desktop-assets.ts';
 import {collectHermesPayload,discoverHermesPython,stageHermesPayload,verifyHermesPayload,verifyRelocatedHermesPython} from './hermes-assets.ts';
 import {collectIntegrationPayload,stageIntegrationPayload,verifyIntegrationPayload,verifyRelocatedIntegrations} from './integration-assets.ts';
 import {collectGitTools,stageGitTools} from './git-assets.ts';
+import {buildWindowsCredentialLease} from './build-windows-credential-lease.ts';
 
 if(process.platform!=='win32'||process.arch!=='x64')throw Error('This package target requires Windows x64');
 const root=resolve('.'),dist=readDesktopOutputRoot(process.argv.slice(2)),pkg=JSON.parse(await readFile('package.json','utf8')),release=await reserveDesktopRelease(dist,pkg.version),stage=resolve(dist,'desktop-stage-'+Date.now()),host=resolve(stage,'desktop-host'),cache=resolve('.harness-desktop-cache');
@@ -16,6 +17,7 @@ await mkdir(host,{recursive:true});await mkdir(cache,{recursive:true});
 const run=(file:string,args:string[],cwd:string,extraEnv:Record<string,string>={})=>new Promise<void>((accept,reject)=>{const child=spawn(file,args,{cwd,windowsHide:true,stdio:'inherit',env:{...process.env,...extraEnv}});child.on('error',reject);child.on('exit',code=>code===0?accept():reject(Error(file+' exited '+code)));});
 async function copySources(directory:string){for(const entry of await readdir(directory,{withFileTypes:true})){const path=join(directory,entry.name),part=relative(root,path).replaceAll('\\','/');if(entry.isSymbolicLink())throw Error('Runtime source link is not allowed: '+part);if(entry.isDirectory()){if(!entry.name.startsWith('.')&&!['node_modules','tests','fixtures'].includes(entry.name))await copySources(path);}else if(runtimeSourceAllowed(part)){const info=await lstat(path);if(!info.isFile()||info.size>2*1024*1024)throw Error('Invalid runtime source: '+part);const output=resolve(host,part);await mkdir(dirname(output),{recursive:true});await copyFile(path,output);}}}
 await copySources(resolve('packages'));await copySources(resolve('apps/server'));
+await buildWindowsCredentialLease(resolve(host,'packages/core'));
 async function copyTree(source:string,target:string){await mkdir(target,{recursive:true});for(const entry of await readdir(source,{withFileTypes:true})){if(entry.isSymbolicLink())throw Error('Asset links are unsupported');const input=join(source,entry.name),output=join(target,entry.name);if(entry.isDirectory())await copyTree(input,output);else await copyFile(input,output);}}
 await copyTree(resolve('dist/plugin-runtime'),resolve(host,'dist/plugin-runtime'));
 await copyTree(resolve('dist/web'),resolve(host,'dist/web'));await copyTree(resolve('dist/widget-runtime'),resolve(host,'dist/widget-runtime'));
@@ -23,7 +25,7 @@ await copyTree(resolve('dist/desktop-app'),resolve(stage,'desktop-app'));
 await copyTree(resolve('third-party/t3code'),resolve(host,'third-party/t3code'));
 await stageHermesPayload(host,hermes);
 await stageGitTools(root,host);
-await writeFile(resolve(host,'package.json'),JSON.stringify({...pkg,scripts:{}},null,2));await copyFile('pnpm-lock.yaml',resolve(host,'pnpm-lock.yaml'));await writeFile(resolve(host,'.npmrc'),'node-linker=hoisted\npackage-import-method=copy\n');
+await stageRuntimeInstall(root,host);
 const pnpm=process.env.npm_execpath;if(!pnpm)throw Error('Use pnpm desktop:package so the locked package manager is available');
 const install=packageManagerInvocation(pnpm,process.execPath,runtimeInstallArguments(host));await run(install.file,install.args,host);
 await stageIntegrationPayload(host,integrations);

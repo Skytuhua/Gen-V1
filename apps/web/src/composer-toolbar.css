@@ -1,4 +1,4 @@
-.composer-toolbar{container:composer-footer/inline-size;display:block;min-width:0;color:var(--muted);font-size:12px;line-height:1.2;margin-top:7px}
+.composer-toolbar{container:composer-footer/inline-size;display:block;min-width:0;color:var(--muted);font-size:12px;line-height:1.2;margin-top:9px}
 .composer-footer-main{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;min-height:29px}
 .composer-project-controls,.composer-runtime-controls{display:flex;align-items:center;min-width:0;gap:4px}
 .composer-runtime-controls{margin-left:auto}
@@ -23,7 +23,7 @@
 .composer-toolbar .composer-voice.is-listening{background:var(--accent-soft);color:var(--accent)}
 .composer-toolbar .send-button{width:30px;height:30px;margin-left:2px}
 .composer-toolbar .send-button>svg{width:18px;height:18px}
-.composer-secondary-actions{display:flex;justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:6px;min-width:0;margin:0 2px 7px;color:var(--muted)}
+.composer-secondary-actions{display:flex;justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:6px;min-width:0;margin:0;color:var(--muted)}
 .composer-context-chip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--border);border-radius:15px;min-height:25px;padding:3px 8px;background:var(--surface);color:var(--muted);font-size:10px;line-height:1.2;white-space:nowrap;transition:background 140ms,color 140ms,transform 220ms cubic-bezier(.2,.8,.2,1)}
 .composer-context-chip:hover:not(:disabled){background:var(--hover);color:var(--text)}
 .composer-context-chip:active:not(:disabled){transform:scale(.97)}

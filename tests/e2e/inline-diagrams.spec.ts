@@ -33,7 +33,7 @@ test('inline workflow lanes wrap without an inner scroll area',async({page})=>{
  await page.setViewportSize({width:390,height:844});
  await open(page,'WorkflowBoard',{revision:'b1',lanes:Array.from({length:6},(_,i)=>({id:`lane-${i}`,label:`Lane ${i+1}`})),cards:Array.from({length:12},(_,i)=>({id:`card-${i}`,laneId:`lane-${i%6}`,title:`Task ${i+1}`}))});
  await expect(page.getByRole('button',{name:'Task 12',exact:true})).toBeAttached();await fits(page,'.workflow-lanes-scroll','.workflow-lane');
- await page.getByRole('button',{name:'Task 12',exact:true}).click();await page.getByRole('combobox',{name:'Move selected card'}).selectOption('lane-0');await expect(page.getByRole('region',{name:'Lane 1',exact:true})).toContainText('Task 12');
+ await page.getByRole('button',{name:'Task 12',exact:true}).click();await page.getByRole('combobox',{name:'Move selected card'}).click();await page.getByRole('option',{name:'Lane 1',exact:true}).click();await expect(page.getByRole('region',{name:'Lane 1',exact:true})).toContainText('Task 12');
 });
 
 test('inline trace fits labels and all tracks instead of trapping scroll or exposing overflow zoom',async({page})=>{
@@ -41,6 +41,6 @@ test('inline trace fits labels and all tracks instead of trapping scroll or expo
  const {snapshot,host}=await open(page,'TraceWaterfall',{revision:'t1',spans:Array.from({length:24},(_,i)=>({id:`span-${i}`,name:`Span ${i+1}`,status:'ok',startMs:i*3,durationMs:30}))});
  await expect(page.getByRole('treeitem',{name:'Span 24',exact:true})).toBeAttached();await fits(page,'.trace-scroll','.trace-span');await expect(page.getByRole('combobox',{name:'Timeline zoom'})).toHaveCount(0);
  await page.getByRole('treeitem',{name:'Span 24',exact:true}).click();await page.reload();await expect(page.getByRole('treeitem',{name:'Span 24',exact:true})).toHaveAttribute('aria-selected','true');
- snapshot.artifacts[0].placement='expanded';await host.publish();await page.getByRole('combobox',{name:'Timeline zoom'}).selectOption('4');await expect.poll(()=>snapshot.userStates[0].values.selection).toMatchObject({zoom:4,selectedId:'span-23'});
+ snapshot.artifacts[0].placement='expanded';await host.publish();await page.getByRole('combobox',{name:'Timeline zoom'}).click();await page.getByRole('option',{name:'4x zoom',exact:true}).click();await expect.poll(()=>snapshot.userStates[0].values.selection).toMatchObject({zoom:4,selectedId:'span-23'});
  snapshot.artifacts[0].placement='inline';await host.publish();await fits(page,'.trace-scroll','.trace-span');await expect(page.getByRole('combobox',{name:'Timeline zoom'})).toHaveCount(0);expect(snapshot.userStates[0].values.selection).toMatchObject({zoom:4});
 });

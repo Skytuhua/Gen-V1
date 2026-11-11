@@ -1,0 +1,10 @@
+.github-sign-in{display:grid;gap:12px;min-width:0;padding:16px;line-height:1.5;font-size:13px;overflow-wrap:anywhere}
+.github-sign-in p{margin:0;max-width:65ch}
+.github-sign-in-actions,.github-device-code{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.github-sign-in button{min-height:32px;padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text)}
+.github-sign-in button:hover:enabled{background:var(--hover)}
+.github-sign-in button:active:enabled{background:var(--selection-bg)}
+.github-device-code code{font:600 20px/1.5 var(--font-mono,monospace);letter-spacing:.06em;user-select:all;overflow-wrap:anywhere}
+.github-sign-in a{color:var(--text);text-decoration:underline;text-underline-offset:3px;width:fit-content;max-width:100%}
+.github-sign-in-expiry{color:var(--muted);font-variant-numeric:tabular-nums}
+.live-pull-requests>.github-sign-in{padding:16px 0}

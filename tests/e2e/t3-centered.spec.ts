@@ -102,12 +102,13 @@ test('narrow default layout has no empty tool strip and sidebar collapse centers
   await expect.poll(async()=>(await page.locator('.workspace').boundingBox())!.x).toBe(0);await centered(page);expect((await page.locator('.workspace').boundingBox())!.width).toBeCloseTo(1440,0);
 });
 
-test('a usage tool opened from an empty overlay anchors to the bottom and reopens there',async({page})=>{
+test('a usage tool opened from an empty overlay anchors to the bottom and restores its chosen position',async({page})=>{
   await page.setViewportSize({width:1440,height:1000});await serveTaskFixture(page,fixture(false));await page.goto('/');
   await page.getByRole('button',{name:'Show live usage',exact:true}).click();const usage=page.getByRole('region',{name:'Live usage',exact:true});
   await expect.poll(async()=>{const box=await usage.boundingBox();return box?Math.round(box.y+box.height):0;}).toBe(988);
-  await expect(usage.getByRole('button',{name:'Move Live usage',exact:true})).toHaveCount(0);
-  await page.reload();await expect(usage).toBeHidden();await page.getByRole('button',{name:'Show live usage',exact:true}).click();await expect(usage).toBeVisible();await expect.poll(async()=>{const box=await usage.boundingBox();return box?Math.round(box.y+box.height):0;}).toBe(988);
+  await usage.getByRole('button',{name:'Move Live usage',exact:true}).press('ArrowUp');
+  await expect.poll(async()=>{const box=await usage.boundingBox();return box?Math.round(box.y+box.height):0;}).toBe(976);
+  await page.reload();await expect(usage).toBeVisible();await expect.poll(async()=>{const box=await usage.boundingBox();return box?Math.round(box.y+box.height):0;}).toBe(976);
 });
 
 const captures=process.env.T3_CENTERED_CAPTURE_DIR;

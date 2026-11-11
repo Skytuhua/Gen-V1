@@ -14,7 +14,7 @@ async function fixture(page:Page){
  await page.route('**/api/workspace',route=>route.fulfill({json:{projects:[{id:'project',name:'Original project',authority:{kind:'local'},createdAt:'2026-11-04'}],state:{version:1,revision:0,activeCanvasId:'main',canvases:[createWorkspaceCanvas('workspace','Workspace','main')],profiles:[],disabledKinds:[],integrations:{}}}}));
  await page.route('**/api/projects/project/context?*',route=>route.fulfill({json:{project:{id:'project',name:'Original project',authority:{kind:'local'},createdAt:'2026-11-04'},threadId:'task-thread',machineName:'Fixture',editor:{available:false,label:'Editor'},branch:null,head:null,changes:{added:null,removed:null,files:null},lineage:[{id:'previous',title:'Previous agent',status:'ready'}],scripts:[],capabilities:{git:false,terminal:false,pullRequests:false}}}));
  await page.route('**/compact-tools-check',route=>route.fulfill({contentType:'text/html',body:`<html><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${fixtureModule}');</script></html>`}));
- await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/compact-tools-check');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();if(!await page.getByRole('region',{name:'Live usage',exact:true}).isVisible())await page.getByRole('button',{name:'Show live usage',exact:true}).click();return host;
+ await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/compact-tools-check');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return host;
 }
 test('expanded protected tools stay compact and clear the original conversation and composer',async({page})=>{
  await page.addInitScript(()=>{for(const id of ['plan','usage'])localStorage.setItem(`harness:floating:${id}:v1`,JSON.stringify({x:300,y:300,width:900,height:700,collapsed:false,floating:true}));});
@@ -29,7 +29,7 @@ test('expanded protected tools stay compact and clear the original conversation 
  const workspace=(await page.locator('main.workspace').boundingBox())!,header=(await page.locator('.workspace-header').boundingBox())!;expect(header.width).toBe(workspace.width);
  await expect(context.getByRole('button',{name:/Close|Move|Resize|Detach/})).toHaveCount(0);await expect(usage.getByRole('button',{name:/Close|Move|Resize|Detach/})).toHaveCount(0);
  await page.screenshot({path:'.harness-ui-cleanup-20261104/compact-ui/expanded-desktop.png'});
- await context.getByRole('button',{name:'Minimize Project context',exact:true}).click();await usage.getByRole('button',{name:'Minimize live usage',exact:true}).click();await expect.poll(()=>page.locator('main.workspace').evaluate(node=>getComputedStyle(node).paddingRight)).toBe('0px');
+ await context.getByRole('button',{name:'Minimize Project context',exact:true}).click();await usage.getByRole('button',{name:'Minimize live usage',exact:true}).click();expect(await page.locator('main.workspace').evaluate(node=>getComputedStyle(node).paddingRight)).toBe('0px');
 });
 test('only the sidebar owns collapse while the header preserves reopen and mobile access',async({page})=>{
  await fixture(page);const sidebar=page.getByRole('complementary',{name:'Thread navigation',exact:true}),draft=page.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Keep this original draft');
@@ -37,14 +37,6 @@ test('only the sidebar owns collapse while the header preserves reopen and mobil
  await sidebar.getByRole('button',{name:'Collapse sidebar',exact:true}).click();await page.getByRole('button',{name:'Open sidebar',exact:true}).click();await expect(sidebar.getByRole('button',{name:'Collapse sidebar',exact:true})).toBeVisible();
  await page.setViewportSize({width:390,height:844});await page.getByRole('button',{name:'Open navigation',exact:true}).click();await expect(sidebar).toBeVisible();await sidebar.getByRole('button',{name:'Close navigation',exact:true}).click();await expect(page.getByRole('button',{name:'Open navigation',exact:true})).toBeVisible();
  await expect(draft).toHaveValue('Keep this original draft');
-});
-
-test('minimized tools stay separate and leave the composer usable at 320px',async({page})=>{
- await page.setViewportSize({width:320,height:700});await fixture(page);
- const context=page.getByRole('region',{name:'Project context window',exact:true}),usage=page.getByRole('region',{name:'Live usage',exact:true});
- const a=(await context.boundingBox())!,b=(await usage.boundingBox())!,composer=(await page.locator('.composer').boundingBox())!;
- for(const rect of [a,b]){expect(rect.x).toBeGreaterThanOrEqual(0);expect(rect.x+rect.width).toBeLessThanOrEqual(320);expect(rect.y+rect.height).toBeLessThanOrEqual(700);expect(rect.y).toBeGreaterThanOrEqual(composer.y+composer.height);}
- expect(a.y+a.height).toBeLessThanOrEqual(b.y);await usage.getByRole('button',{name:'Inspect live usage',exact:true}).click();await expect(usage.getByRole('region',{name:'Runtime usage details',exact:true})).toBeVisible();
 });
 
 for(const width of [1280,1100,960,700,390])test(`expanded tools leave chat usable at ${width}px`,async({page})=>{

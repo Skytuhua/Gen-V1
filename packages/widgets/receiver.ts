@@ -80,7 +80,7 @@ function receiverBootstrap() {
     if (message.type === 'runtime.stopped') { stopWorker(); const status = document.createElement('p'); status.setAttribute('role', 'alert'); status.textContent = 'Generated app stopped: execution limit or invalid update. Draft controls remain visible.'; document.body.append(status); }
   });
   document.addEventListener('keydown', event => {
-    if (event.isTrusted && event.key === 'Escape') {
+    if (event.isTrusted && event.key === 'Escape' && !event.isComposing && event.keyCode !== 229) {
       event.preventDefault(); event.stopPropagation();
       send('shell.escape', { key: 'Escape' });
     }

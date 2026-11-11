@@ -14,6 +14,8 @@ async function fixture() {
   const root = await mkdtemp(join(tmpdir(), 'harness-event-stream-')), store = new Store(root);
   const runtime: RuntimeAdapter = { configure: () => {}, models: async () => [], start: async () => {}, followUp: async () => {}, cancel: async () => {}, compact: async () => {}, history: async () => [], dispose: async () => {} };
   const service = new Service(store, runtime), app = await buildServer(service, { port: 4317, dev: false });
+  // Host-owned projections may commit startup metadata before fixture events.
+  const baseline = store.sequence;
   let response: ServerResponse | undefined, request: ClientRequest | undefined, incoming: IncomingMessage | undefined;
   let blocked = false, releaseRequested = false, writes = 0, subscriptions = 0, peakQueued = 0, text = '';
   const subscribe = store.subscribe.bind(store);
@@ -36,18 +38,19 @@ async function fixture() {
   const url = await app.listen({ host: '127.0.0.1', port: 0 });
   const boot = await app.inject({ url: '/api/bootstrap', headers: { host: '127.0.0.1:4317' } }), cookie = String(boot.headers['set-cookie']).split(';')[0];
   const open = async (after = 0) => {
-    incoming = await new Promise<IncomingMessage>((done, fail) => { request = get(`${url}/api/events?after=${after}`, { headers: { host: '127.0.0.1:4317', cookie } }, done); request.once('error', fail); });
+    incoming = await new Promise<IncomingMessage>((done, fail) => { request = get(`${url}/api/events?after=${baseline+after}`, { headers: { host: '127.0.0.1:4317', cookie } }, done); request.once('error', fail); });
     incoming.setEncoding('utf8'); incoming.on('data', chunk => { text += chunk; }); incoming.on('error', () => {});
     await new Promise<void>(done => setImmediate(done));
   };
-  const release = () => { releaseRequested = true; if (response?.writableLength === 0) { blocked = false; response.emit('drain'); } };
+  // A forced false also needs a synthetic drain when Node accepted the chunk below its high water mark.
+  const release = () => { releaseRequested = true; if (response && !response.writableNeedDrain) { blocked = false; response.emit('drain'); } };
   const publish = (count: number) => { for (let n = 0; n < count; n++) store.internal('fixture.progress', null, () => 'x'.repeat(48 * 1024)); };
   cleanups.push(async () => {
     release(); incoming?.destroy(); request?.destroy(); await app.close(); await service.dispose(); store.close();
     if (await realpath(root) !== resolve(root) || !resolve(root).startsWith(await realpath(tmpdir()) + sep) || (await lstat(root)).isSymbolicLink()) throw new Error('Unsafe fixture cleanup');
     await rm(root, { recursive: true, force: true });
   });
-  return { store, app, open, publish, release, close: () => { incoming?.destroy(); request?.destroy(); }, writes: () => writes, peakQueued: () => peakQueued, subscriptions: () => subscriptions, response: () => response!, ids: () => [...text.matchAll(/^id: (\d+)$/gm)].map(match => Number(match[1])) };
+  return { store, baseline, app, open, publish, release, close: () => { incoming?.destroy(); request?.destroy(); }, writes: () => writes, peakQueued: () => peakQueued, subscriptions: () => subscriptions, response: () => response!, ids: () => [...text.matchAll(/^id: (\d+)$/gm)].map(match => Number(match[1])) };
 }
 
 it('pauses historical replay at backpressure, then delivers replay and live arrivals in order', async () => {
@@ -56,13 +59,13 @@ it('pauses historical replay at backpressure, then delivers replay and live arri
   await expect.poll(() => x.ids().length).toBe(25);
   expect(pausedWrites).toBe(1); expect(afterLiveBurst).toBe(1);
   expect(x.peakQueued()).toBeLessThan(x.response().writableHighWaterMark + 64 * 1024);
-  expect(x.ids()).toEqual(x.store.eventsAfter(5).map(event => event.seq));
+  expect(x.ids()).toEqual(x.store.eventsAfter(x.baseline+5).map(event => event.seq));
 });
 
 it('pauses a live burst without building an in-memory event backlog', async () => {
   const x = await fixture(); await x.open(); x.publish(100); const pausedWrites = x.writes(); x.release();
   await expect.poll(() => x.ids().length).toBe(100);
-  expect(pausedWrites).toBe(1); expect(x.ids()).toEqual(x.store.eventsAfter(0).map(event => event.seq));
+  expect(pausedWrites).toBe(1); expect(x.ids()).toEqual(x.store.eventsAfter(x.baseline).map(event => event.seq));
   expect(x.peakQueued()).toBeLessThan(x.response().writableHighWaterMark + 64 * 1024);
 });
 
@@ -81,7 +84,7 @@ it('closes a waiting stream on host shutdown without retaining its drain listene
 
 it('keeps complete ledger reads compatible and validates bounded page sizes', async () => {
   const x = await fixture(); x.publish(5);
-  expect(x.store.eventsAfter(0)).toHaveLength(5);
-  expect(x.store.eventsAfter(1, 2).map(event => event.seq)).toEqual([2, 3]);
+  expect(x.store.eventsAfter(x.baseline)).toHaveLength(5);
+  expect(x.store.eventsAfter(x.baseline+1, 2).map(event => event.seq)).toEqual([x.baseline+2, x.baseline+3]);
   for (const limit of [0, -1, 1.5, 1001]) expect(() => x.store.eventsAfter(0, limit)).toThrow(expect.objectContaining({ code: 'INVALID_INPUT' }));
 });

@@ -1,9 +1,8 @@
-import {useEffect,useState} from 'react';
-import {ArrowLeft,ChevronRight,File,Folder,RefreshCw,Terminal,GitCompare,GitPullRequest,Link,Smartphone,ScrollText,ChartNoAxesCombined} from 'lucide-react';
+import {useState} from 'react';
+import {Folder,Terminal,GitCompare,GitPullRequest,Link,Smartphone,ScrollText,ChartNoAxesCombined} from 'lucide-react';
 import type {DataRecord,RuntimeUsage,Snapshot} from '../../../packages/contracts';
 import type {UiPreferences} from '../../../packages/contracts/preferences';
 import type {WorkspacePanelKind} from '../../../packages/contracts/workspace';
-import {getResourceContent,getResourceTree,type ResourceTree} from './api';
 import {useWorkspace,type WorkspaceTab} from './workspace-context';
 import {ContextMeter} from './ContextMeter';
 
@@ -30,47 +29,7 @@ export function WorkspaceLauncher({onOpenTool}:{onOpenTool?:(kind:WorkspacePanel
   </section>;
 }
 
-export function GrantedFiles({ snapshot, threadId, preferredResourceId }: { snapshot: Snapshot; threadId?: string; preferredResourceId?:string }) {
-  const grants = snapshot.resources.filter(item => item.threadId === threadId);
-  const [resourceId, setResourceId] = useState('');
-  useEffect(()=>{if(preferredResourceId)setResourceId(preferredResourceId);},[preferredResourceId,threadId]);
-  const [path, setPath] = useState('');
-  const [tree, setTree] = useState<ResourceTree | null>(null);
-  const [selected, setSelected] = useState<ResourceTree['entries'][number] | null>(null);
-  const [content, setContent] = useState('');
-  const [previewUrl, setPreviewUrl] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [retry, setRetry] = useState(0);
-  const active = grants.some(item => item.id === resourceId) ? resourceId : grants[0]?.id ?? '';
-  useEffect(() => { setPath(''); setSelected(null); setContent(''); setPreviewUrl(''); }, [threadId, active]);
-  useEffect(() => {
-    let current = true; setError(''); setTree(null); if (!active) return;
-    setLoading(true); void getResourceTree(active, path).then(value => { if (current) setTree(value); }).catch(cause => { if (current) setError(cause instanceof Error ? cause.message : 'The granted directory could not be read.'); }).finally(() => { if (current) setLoading(false); });
-    return () => { current = false; };
-  }, [active, path, retry]);
-  useEffect(() => {
-    setContent(''); setPreviewUrl(''); setLoading(false); if (!selected) return;
-    const controller = new AbortController(); let objectUrl = ''; setError('');
-    if (/\.(pdf|zip|db|sqlite|sqlite3|exe|dll|bin|woff2?|ttf)$/i.test(selected.name)) return;
-    setLoading(true);
-    void (async () => {
-      const response = await getResourceContent(active, selected.path, controller.signal);
-      if (!response.ok) throw new Error(`File preview could not be read (${response.status}).`);
-      const image = /^image\/(png|jpeg|gif|webp)$/.test(response.headers.get('content-type') ?? '');
-      const limit = image ? 10 * 1024 * 1024 : 1024 * 1024;
-      if (Number(response.headers.get('content-length')) > limit) { await response.body?.cancel(); throw new Error(image ? 'Image preview is limited to 10 MiB.' : 'Text preview is limited to 1 MiB. Download the granted file to inspect it.'); }
-      if (!response.body) throw new Error('The file response was empty.');
-      const reader = response.body.getReader(); let length = 0; const chunks: Uint8Array[] = [];
-      try { while (true) { const chunk = await reader.read(); if (chunk.done) break; length += chunk.value.byteLength; if (length > limit) { await reader.cancel(); throw new Error('This file exceeds the preview size limit.'); } chunks.push(chunk.value); } } finally { reader.releaseLock(); }
-      controller.signal.throwIfAborted(); const bytes = new Uint8Array(length); let offset = 0; for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.length; }
-      if (image) { objectUrl = URL.createObjectURL(new Blob([bytes], { type: response.headers.get('content-type')! })); setPreviewUrl(objectUrl); }
-      else { if (bytes.subarray(0, 4096).includes(0)) throw new Error('This binary file has no text preview.'); setContent(new TextDecoder('utf-8', { fatal: true }).decode(bytes)); }
-    })().catch(cause => { if (!controller.signal.aborted) setError(cause instanceof Error ? cause.message : 'File preview is unavailable.'); }).finally(() => { if (!controller.signal.aborted) setLoading(false); });
-    return () => { controller.abort(); if (objectUrl) URL.revokeObjectURL(objectUrl); };
-  }, [active, selected]);
-  return <div className="granted-files"><div className="panel-toolbar"><label><span className="sr-only">Granted resource</span><select aria-label="Granted resource" value={active} onChange={event => { setResourceId(event.target.value); setPath(''); setSelected(null); }} disabled={!grants.length}>{!grants.length && <option value="">No granted resources</option>}{grants.map(grant => <option key={grant.id} value={grant.id}>{grant.label}</option>)}</select></label><button className="icon-button" aria-label="Refresh granted files" disabled={!active} onClick={() => setRetry(value => value + 1)}><RefreshCw size={14} /></button></div>{active ? <><div className="file-breadcrumb"><button className="icon-button" aria-label="Parent directory" disabled={!path} onClick={() => { setPath(path.split('/').slice(0, -1).join('/')); setSelected(null); }}><ArrowLeft size={13} /></button><span>{path || 'Granted root'}</span></div><ul className="file-tree">{tree?.entries.map(entry => <li key={entry.path}><button className={selected?.path === entry.path ? 'selected' : ''} onClick={() => { if (entry.kind === 'directory') { setPath(entry.path); setSelected(null); } else setSelected(entry); }}>{entry.kind === 'directory' ? <Folder size={14} /> : <File size={14} />}<span>{entry.name}</span>{entry.kind === 'directory' ? <ChevronRight size={12} /> : <small>{new Intl.NumberFormat().format(entry.bytes)} B</small>}</button></li>)}</ul>{tree?.truncated && <p className="panel-note">This directory is limited to 300 entries. Open a subdirectory to continue.</p>}{loading && <p className="panel-note" role="status">Reading granted resource…</p>}{error && <p role="alert" className="panel-note error-text">{error}</p>}{selected && <section className="file-preview"><header><strong>{selected.name}</strong><a href={`/api/resources/${encodeURIComponent(active)}/content${selected.path ? '?path=' + encodeURIComponent(selected.path) : ''}`} download={selected.name}>Download</a></header>{previewUrl ? <img src={previewUrl} alt={selected.name} /> : content ? <pre>{content}</pre> : !loading && !error ? <p className="panel-note">This file has no inline preview. Download the granted file to inspect it.</p> : null}</section>}</> : <div className="panel-empty"><Folder size={22} /><strong>No granted resources</strong><p>Use Add resource or attach a file in the composer. Only files explicitly granted to this thread appear here.</p></div>}</div>;
-}
+export {GrantedFiles} from './files/GrantedFiles';
 function record(value: unknown): Record<string, unknown> { return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {}; }
 export function snapshotDiffs(snapshot: Snapshot, threadId?: string) {
   const diffs: { id: string; title: string; before?: string; after?: string; unified?: string; provenance: string }[] = [];

@@ -1,6 +1,8 @@
 import {isIP} from 'node:net';
 import {lookup} from 'node:dns/promises';
 import {DESKTOP_CHANNELS,desktopSurfaceKey,parseDesktopSurface,type DesktopSurface,type DesktopBrowserCommand} from '../../packages/desktop-contract/index.ts';
+import {pluginFrameSource} from '../../packages/plugins/frame-protocol.ts';
+import {pluginSurfaceSchema} from '../../packages/plugins/contracts.ts';
 export interface DesktopBounds {x:number;y:number;width:number;height:number}
 export function clampDesktopBounds(value:Partial<DesktopBounds>|undefined,areas:DesktopBounds[],size={width:1000,height:740}):DesktopBounds {
  const displays=areas.filter(area=>[area.x,area.y,area.width,area.height].every(Number.isFinite)&&area.width>0&&area.height>0);
@@ -11,6 +13,21 @@ export function clampDesktopBounds(value:Partial<DesktopBounds>|undefined,areas:
  return {x:Math.round(x),y:Math.round(y),width:Math.round(width),height:Math.round(height)};
 }
 export function trustedDesktopUrl(origin:string,id:string):string {return new URL('/?desktopWindow='+encodeURIComponent(id),origin).href;}
+/** Only canonical plug-in frame URLs and the existing separate widget shell
+ * can enter native subframes. The host route checks installed declarations;
+ * main-frame/sender checks remain independent. */
+export function trustedDesktopSubframe(raw:string,origin:string,widgetOrigin:string):boolean {
+ try{
+  const url=new URL(raw);if(url.username||url.password)return false;
+  if(url.origin===widgetOrigin)return /^\/widget\/[^/]+\/[1-9]\d*$/.test(url.pathname);
+  if(url.origin!==new URL(origin).origin)return false;
+  const match=/^\/plugins\/([^/]+)\/frame$/.exec(url.pathname),session=url.searchParams.get('session'),theme=url.searchParams.get('theme');
+  if(!match||!session||(theme!=='light'&&theme!=='dark'))return false;
+  const surface=url.searchParams.has('scopeId')||url.searchParams.has('surfaceId')||url.searchParams.has('resourceId')?pluginSurfaceSchema.parse({kind:'plugin',pluginId:match[1],scopeId:url.searchParams.get('scopeId'),surfaceId:url.searchParams.get('surfaceId'),...(url.searchParams.has('resourceId')?{resourceId:url.searchParams.get('resourceId')}:{})}):undefined;
+  const workspace=url.searchParams.has('workspace')||url.searchParams.has('view')?{id:url.searchParams.get('workspace')??'',title:'Workspace',entryView:url.searchParams.get('view')??''}:undefined;
+  return raw===new URL(pluginFrameSource(match[1],session,theme,surface,workspace),origin).href;
+ }catch{return false;}
+}
 const pluginChannels=new Set<string>([DESKTOP_CHANNELS.theme,DESKTOP_CHANNELS.context,DESKTOP_CHANNELS.ready,DESKTOP_CHANNELS.list,DESKTOP_CHANNELS.control,DESKTOP_CHANNELS.minimize,DESKTOP_CHANNELS.reset,DESKTOP_CHANNELS.focus,DESKTOP_CHANNELS.closeAnswer,DESKTOP_CHANNELS.detach,DESKTOP_CHANNELS.reattach]);
 export function pluginDesktopChannelAllowed(channel:string){return pluginChannels.has(channel);}
 export function pluginDesktopRequiresGrant(channel:string){return channel!==DESKTOP_CHANNELS.closeAnswer;}
@@ -27,6 +44,7 @@ export function isTrustedDesktopSender(expected:{id:number;url:string},sender:{i
 export function parseBrowserCommand(raw:unknown):DesktopBrowserCommand {
  if(!raw||typeof raw!=='object'||Array.isArray(raw)||Object.getPrototypeOf(raw)!==Object.prototype)throw Error('Invalid browser command');
  const value=raw as Record<string,unknown>;
+ if(value.type==='open'&&Object.keys(value).length===1)return {type:'open'};
  if(value.type==='navigate'&&Object.keys(value).length===2&&typeof value.url==='string'&&value.url.length<=4096)return {type:'navigate',url:value.url};
  if(value.type==='bounds'&&Object.keys(value).length===2&&value.bounds&&typeof value.bounds==='object'&&!Array.isArray(value.bounds)){const bounds=value.bounds as Record<string,unknown>;if(Object.keys(bounds).length===4&&['x','y','width','height'].every(key=>typeof bounds[key]==='number'&&Number.isFinite(bounds[key])&&Math.abs(bounds[key] as number)<=20000))return {type:'bounds',bounds:bounds as unknown as DesktopBounds};}
  if(['back','forward','reload','stop'].includes(String(value.type))&&Object.keys(value).length===1)return {type:value.type as 'back'|'forward'|'reload'|'stop'};

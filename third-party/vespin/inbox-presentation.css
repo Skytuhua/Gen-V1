@@ -1,0 +1,96 @@
+/* Adapted from Vespin, Copyright 2026 Stage Inc., Apache-2.0.
+ * Exact selected list-row.css ranges are in provenance.json.
+ * Modifications: scope selectors to .agent-inbox; retain state/layout rules. */
+
+.agent-inbox .ui-list-row {
+    --ui-list-row-inset-block: var(--ui-row-inset);
+    --ui-list-row-inset-inline: var(--ui-list-inset);
+    --ui-list-row-acts-inset: var(--ui-list-row-inset-inline);
+
+    border-radius: var(--ui-control-radius);
+  }
+
+.agent-inbox .ui-list-row[data-current="true"][data-current-look="tint"] {
+    background: var(--ui-color-fill-current);
+  }
+
+.agent-inbox .ui-list-row-main {
+    padding: var(--ui-list-row-inset-block) var(--ui-list-row-inset-inline);
+    border-radius: inherit;
+  }
+
+.agent-inbox .ui-list-row-title,
+.agent-inbox .ui-list-row-description {
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+.agent-inbox .ui-list-row-title {
+    font-size: var(--ui-type-label-size);
+    line-height: var(--ui-type-label-leading);
+    font-weight: var(--ui-type-label-weight);
+  }
+
+.agent-inbox .ui-list-row-lead[data-at="above"] {
+    font-size: var(--ui-type-toolbar-title-size);
+    line-height: var(--ui-type-toolbar-title-leading);
+    font-weight: var(--ui-type-emphasis-weight);
+  }
+
+.agent-inbox .ui-list-row[data-lead="above"]:not([data-unread="true"]) .ui-list-row-title {
+    font-weight: var(--ui-type-body-weight);
+  }
+
+.agent-inbox .ui-list-row[data-unread="true"] .ui-list-row-title {
+    font-weight: var(--ui-type-emphasis-weight);
+  }
+
+.agent-inbox .ui-list-row[data-unread="true"] .ui-list-row-description {
+    color: var(--ui-color-text);
+  }
+
+.agent-inbox .ui-list-row[data-muted="true"] :is(.ui-list-row-title, .ui-list-row-lead[data-at="above"]) {
+    color: var(--ui-color-text-muted);
+  }
+
+.agent-inbox .ui-list-row-description,
+.agent-inbox .ui-list-row-meta {
+    color: var(--ui-color-text-muted);
+    font-size: var(--ui-type-caption-size);
+    line-height: var(--ui-type-caption-leading);
+  }
+
+.agent-inbox .ui-list-row-meta {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    font-variant-numeric: tabular-nums;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+.agent-inbox .ui-list-row[data-meta="title"] :is(.ui-list-row-text, .ui-list-row-head) {
+    display: contents;
+  }
+
+.agent-inbox .ui-list-row[data-meta="title"] .ui-list-row-leading {
+    height: var(--ui-list-row-head-leading);
+    align-items: center;
+    align-self: start;
+  }
+
+.agent-inbox .ui-list-row[data-meta="title"] :is(.ui-list-row-title, .ui-list-row-lead[data-at="above"]) {
+    grid-column: text;
+  }
+
+.agent-inbox .ui-list-row[data-meta="title"] .ui-list-row-description {
+    grid-column: text-start / end-end;
+  }
+
+.agent-inbox .ui-list-row[data-meta="title"][data-lead="above"] .ui-list-row-title {
+    grid-column: text-start / end-end;
+  }
+
+.agent-inbox .ui-list-row[data-meta="title"] .ui-list-row-description {
+    margin-block-start: var(--ui-space-2);
+  }

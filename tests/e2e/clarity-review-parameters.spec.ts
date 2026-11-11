@@ -1,4 +1,5 @@
 import {test,expect,type Page} from '@playwright/test';
+async function chooseField(page:Page,name:string,label:string){await page.getByRole('combobox',{name,exact:true}).click();await page.getByRole('option',{name:label,exact:true}).click();}
 import {taskFixture,serveTaskFixture} from './task-interface-fixture';
 
 const review={title:'Review the release notes',items:[
@@ -44,7 +45,7 @@ test('an adjustment labels the current and proposed values without changing the 
  await expect(proposal.getByText('Proposed',{exact:true})).toBeVisible();
  await expect(proposal).toContainText('1600');await expect(proposal).toContainText('1920');
  await page.getByRole('button',{name:'Reset Width',exact:true}).click();await expect(proposal).toHaveCount(0);
- await page.getByRole('combobox',{name:'Format',exact:true}).selectOption('webp');
+ await chooseField(page,'Format','WebP');
  await expect(proposal).toContainText('PNG');await expect(proposal).toContainText('WebP');
  await expect.poll(()=>host.snapshot.userStates[0].values.draft).toMatchObject({values:{format:'webp'}});
  await page.reload();await expect(proposal).toContainText('WebP');expect(host.snapshot.data[0].value).toEqual(parameters);
@@ -59,7 +60,7 @@ test('record edits show the source value and clear the changed state when restor
  await page.reload();await expect(page.locator('.editable-original')).toHaveText('Was 4');
  await quantity.fill('4');await expect(page.locator('td.is-edited')).toHaveCount(0);await expect(page.locator('.editable-original')).toHaveCount(0);
  await expect(page.getByRole('button',{name:'Review changes',exact:true})).toBeDisabled();
- await page.getByRole('combobox',{name:'Prints · Owner',exact:true}).selectOption('lee');await expect(page.locator('.editable-original')).toHaveText('Was Ada');
+ await chooseField(page,'Prints · Owner','Lee');await expect(page.locator('.editable-original')).toHaveText('Was Ada');
  expect(host.commands.some(command=>command.type==='action.submit')).toBe(false);
 });
 

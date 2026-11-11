@@ -3,18 +3,21 @@ description: Describe a user problem and a focused improvement.
 title: "[Feature] "
 labels: []
 body:
+  - type: markdown
+    attributes:
+      value: "Thanks for sharing an idea. Search existing requests first and keep examples free of private data. Discuss scope with the maintainer before starting source changes."
   - type: textarea
     id: problem
     attributes:
       label: What problem are you trying to solve?
-      description: "Describe the task and what makes it difficult today."
+      description: "Describe the task, who it helps and what makes it difficult today. Accessibility and usability feedback are welcome."
     validations:
       required: true
   - type: textarea
     id: proposal
     attributes:
       label: Proposed behavior
-      description: "Describe the smallest useful improvement."
+      description: "Describe the smallest useful improvement and how you would tell it solves the problem."
     validations:
       required: true
   - type: textarea

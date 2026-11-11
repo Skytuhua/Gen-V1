@@ -1,4 +1,5 @@
 node_modules/
+packages/core/windows-credential-lease.node
 dist/
 .harness*/
 .harness*.json
@@ -17,3 +18,5 @@ playwright-report/
 *.tsbuildinfo
 coverage/
 evals/results/
+
+/artifacts/ui-capture/

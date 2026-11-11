@@ -16,6 +16,8 @@ export class Store {
   readonly dataDir: string;
   private listeners = new Set<(event: WorkspaceEvent) => void>();
   private transactionOpen = false;
+  private committedEvents: WorkspaceEvent[] = [];
+  private drainingEvents = false;
   constructor(dataDir: string) {
     mkdirSync(dataDir, { recursive: true });
     this.dataDir = realpathSync(dataDir);
@@ -72,8 +74,20 @@ export class Store {
       this.db.exec("COMMIT");
     } catch (error) { this.db.exec("ROLLBACK"); throw error; }
     finally { this.transactionOpen = false; }
-    for (const listener of this.listeners) { try { listener(event!); } catch { /* A subscriber cannot roll back a committed command. */ } }
+    this.committedEvents.push(event!);
+    this.drainCommittedEvents();
     return {event:event!,result};
+  }
+  private drainCommittedEvents(): void {
+    if (this.drainingEvents) return;
+    this.drainingEvents = true;
+    try {
+      // Reentrant commits wait until every listener has seen the current event.
+      while (this.committedEvents.length) {
+        const event = this.committedEvents.shift()!;
+        for (const listener of this.listeners) { try { listener(event); } catch { /* A subscriber cannot roll back a committed command. */ } }
+      }
+    } finally { this.drainingEvents = false; }
   }
   internal(type: string, threadId: string | null, apply: () => unknown): unknown {
     return this.commit(type,threadId,apply).result;
@@ -106,5 +120,5 @@ export class Store {
     };
   }
   subscribe(listener: (event: WorkspaceEvent) => void): () => void { this.listeners.add(listener); return () => this.listeners.delete(listener); }
-  close(): void { this.listeners.clear(); this.db.close(); }
+  close(): void { this.listeners.clear(); this.committedEvents.length = 0; this.db.close(); }
 }

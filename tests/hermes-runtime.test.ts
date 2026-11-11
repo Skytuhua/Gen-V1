@@ -223,3 +223,8 @@ it('waits for an already dispatched shared write before confirming cancellation'
   await new Promise<void>(done=>setImmediate(done));const acknowledgedBeforeWriteCompleted=cancelled;release();await cancelling;expect(acknowledgedBeforeWriteCompleted).toBe(false);expect(completed).toBe(true);expect(await writing).toMatchObject({code:'HERMES_STALE_TOOL'});
  }finally{release?.();await f.runtime.dispose();}
 });
+
+
+it('admits fenced capture during active source work while refusing mutation',async()=>{
+ const f=await fixture();try{await f.runtime.start(run());await expect(f.runtime.sourceRequest('skills.capture',{name:'procedure',expected:{procedure:{}}})).resolves.toBeDefined();await expect(f.runtime.sourceRequest('skills.manage',{name:'procedure',action:'delete'})).rejects.toMatchObject({code:'HERMES_SOURCE_BUSY'});await f.settle();}finally{await f.runtime.dispose();}
+});

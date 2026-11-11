@@ -19,7 +19,7 @@ const providerForModel=(modelId:string):Provider=>{const provider=modelId.split(
 export function createRuntime(options:{dataDir:string;accounts?:RuntimeAccountResolver;modelOnly?:boolean;purpose?:ModelPurpose},factories:Factories={pi:createPiRuntime,official:createOfficialRuntime}):RuntimeAdapter{
  const modelOnly=options.modelOnly||options.purpose==='prediction';
  const root=resolve(options.dataDir),pairs=new Map<string|null,Pair>(),owners=new Map<string,Owner>(),adapters=new Set<RuntimeAdapter>(),probes=new Map<string,{adapter:RuntimeAdapter;lease:AccountUseLease}>();
- let callbacks:RuntimeCallbacks|undefined,disposed=false;
+ let callbacks:RuntimeCallbacks|undefined,disposed=false,disposing:Promise<void>|undefined;
  const active=()=>{if(disposed)throw new HarnessError('RUNTIME_DISPOSED','The runtime has closed.');};
  const owner=(ctx:RunContext,adapter:RuntimeAdapter)=>{const current=owners.get(key(ctx));if(disposed||current?.adapter!==adapter||current.closed)throw new HarnessError('STALE_RUN','This runtime run no longer has authority.');return current;};
  function releaseOwner(current:Owner):void {
@@ -110,11 +110,13 @@ export function createRuntime(options:{dataDir:string;accounts?:RuntimeAccountRe
   async cancel(ctx){const current=owners.get(key(ctx));if(current)await close(current);},
   async compact(ctx,sessionPath,modelId,accountId){if(options.purpose==='prediction')throw new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions cannot compact conversations.');const selected=reserve(ctx,choose(modelId,sessionPath,accountId)),account=resolveAccount(selected.accountId);try{await withAccountProfile(root,account,async()=>{owner(ctx,selected.adapter);available(modelId.split('/')[0],selected.accountId);await selected.adapter.compact(ctx,sessionPath,modelId);},undefined,ctx.threadId);await close(selected);}catch(error){await close(selected);throw error;}},
   async history(sessionPath,accountId){active();if(options.purpose==='prediction')throw new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions cannot read conversations.');const account=resolveAccount(accountId),selected=pair(account),provider=providerForSession(sessionPath,selected);if(account&&isOfficialRuntimeProviderId(account.providerId)&&provider!==account.providerId)throw new HarnessError('RUNTIME_SESSION_MISMATCH','This session belongs to another provider.');if(account&&!isOfficialRuntimeProviderId(account.providerId)&&provider!=='pi')throw new HarnessError('RUNTIME_SESSION_MISMATCH','This session belongs to another provider.');return withAccountProfile(root,account,async()=>{active();const adapter=provider==='pi'?selected.pi:selected.official;return probe(adapter,account?[account.providerId]:provider==='pi'?probeProviders(null,false):[provider],account?.id??null,()=>adapter.history(sessionPath));});},
-  async dispose(){
-   if(disposed)return;disposed=true;for(const current of owners.values())current.closed=true;
-   const values=[...adapters],results=await Promise.allSettled(values.map(adapter=>adapter.dispose()));
-   results.forEach((result,index)=>{if(result.status==='fulfilled'){for(const current of owners.values())if(current.adapter===values[index])releaseOwner(current);for(const [id,probe]of probes)if(probe.adapter===values[index]){options.accounts?.releaseUse?.(probe.lease);probes.delete(id);}}});
-   const failures=results.flatMap(result=>result.status==='rejected'?[result.reason]:[]);if(failures.length)throw new AggregateError(failures,'Could not close every runtime.');
+  dispose(){
+   if(disposing)return disposing;disposed=true;for(const current of owners.values())current.closed=true;
+   return disposing=Promise.resolve().then(async()=>{
+    const values=[...adapters],results=await Promise.allSettled(values.map(adapter=>adapter.dispose()));
+    results.forEach((result,index)=>{if(result.status==='fulfilled'){for(const current of owners.values())if(current.adapter===values[index])releaseOwner(current);for(const [id,probe]of probes)if(probe.adapter===values[index]){options.accounts?.releaseUse?.(probe.lease);probes.delete(id);}}});
+    const failures=results.flatMap(result=>result.status==='rejected'?[result.reason]:[]);if(failures.length)throw new AggregateError(failures,'Could not close every runtime.');
+   });
   },
  };
 }

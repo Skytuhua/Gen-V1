@@ -72,7 +72,7 @@ export function FloatingWindow({id,title,children,open=true,onClose,anchor='top-
     update(current.current);
     if(wasOpen)return;
     if(wasOpen===false)opener.current=document.activeElement instanceof HTMLElement?document.activeElement:null;
-    const animation=shell.current?.closest('.app-shell')?.getAttribute('data-panel-animations')==='false'?undefined:animateTask(shell.current,[{opacity:.4,transform:'translateY(9px) scale(.985)'},{opacity:1,transform:'translateY(-1px) scale(1.002)',offset:.78},{opacity:1,transform:'translateY(0) scale(1)'}],280);
+    const animation=shell.current?.closest('.app-shell')?.getAttribute('data-panel-animations')==='false'?undefined:animateTask(shell.current,[{opacity:.4,transform:'translateY(9px) scale(.985)'},{opacity:1,transform:'translateY(0) scale(1)'}],220,{duration:'--ui-motion-panel-enter',easing:'--ui-ease-enter'});
     entrance.current=animation;
     if(wasOpen===false&&focusOnOpen)(minimizeOnly?(current.current.collapsed?summaryButton:minimizeButton):moveButton).current?.focus({preventScroll:true});
     return()=>animation?.cancel();
@@ -162,7 +162,7 @@ export function FloatingWindow({id,title,children,open=true,onClose,anchor='top-
   };
   const style:CSSProperties={left:layout.x,top:layout.y,width:layout.width,height:layout.collapsed?FLOATING_COLLAPSED_HEIGHT:layout.height,zIndex:layer};
   return <section ref={shell} hidden={!open&&!rendered} inert={!open} aria-hidden={!open} className={`floating-window ${className}`} data-floating-id={id} data-floating={layout.floating===true||!rail} data-axis={minimizeOnly?'none':'both'} data-minimize-only={minimizeOnly} data-collapsed={layout.collapsed} data-interacting={interacting} data-adjusting={adjusting} style={style} aria-label={ariaLabel??`${title} window`} onFocusCapture={()=>bringForward(id)} onPointerDownCapture={()=>{entrance.current?.cancel();bringForward(id);}} onKeyDownCapture={()=>entrance.current?.cancel()} onKeyDown={event=>{
-    if(event.defaultPrevented||event.nativeEvent.isComposing||event.key!=='Escape')return;
+    if(event.defaultPrevented||event.nativeEvent.isComposing||event.nativeEvent.keyCode===229||event.key!=='Escape')return;
     event.preventDefault();event.stopPropagation();if(minimizeOnly){if(!current.current.collapsed)collapse(true);}else if(escapeBehavior==='collapse'&&!current.current.collapsed)collapse(true);else close();
   }}>
     {!minimizeOnly&&<p className="sr-only" id={description}>Use the arrow keys to move this window. {sizing==='manual'&&'Hold Shift to resize it. '}Home restores its edge position.</p>}

@@ -6,17 +6,27 @@ test.beforeEach(async({page})=>{
  await page.goto('/sidebar-compact-check');
  await expect(page.getByRole('complementary',{name:'Thread navigation'})).toBeVisible();
 });
-test('compact rows lead with title, keep readable metadata and preserve detail access',async({page})=>{
+test('compact rows show project monogram chip, readable title and metadata, and preserve detail access',async({page})=>{
+ const searchBox=await page.getByRole('textbox',{name:'Search threads',exact:true}).boundingBox();
+ const filterBox=await page.getByRole('button',{name:'Filter threads',exact:true}).boundingBox();
+ const newThreadBox=await page.getByRole('button',{name:'New thread',exact:true}).boundingBox();
+ expect(Math.abs(searchBox!.y-filterBox!.y)).toBeLessThanOrEqual(4);
+ expect(Math.abs(searchBox!.y-newThreadBox!.y)).toBeLessThanOrEqual(4);
+
  const row=page.locator('.sidebar-thread-row').first(),item=row.locator('.thread-item');
- await expect(item.locator(':scope > :first-child')).toHaveClass('thread-item-title');
- expect((await row.boundingBox())!.height).toBeLessThanOrEqual(56);
- expect(await item.locator('.thread-item-title').evaluate(node=>getComputedStyle(node).fontSize)).toBe('14px');
- expect(await item.locator('.thread-item-meta').evaluate(node=>parseFloat(getComputedStyle(node).fontSize))).toBeGreaterThanOrEqual(12);
- await expect(page.locator('.thread-project-name,.thread-item-context')).toHaveCount(0);
- await expect(item).toHaveAttribute('title',/feature\/compact-sidebar.*openai\/gpt-6.1-sol/);
+ await expect(item.locator(':scope > :first-child')).toHaveClass('thread-item-header');
+ await expect(item.locator('.thread-project-monogram')).toHaveText('EP');
+ await expect(item.locator('.thread-project-label')).toHaveText('Example project');
+ await expect(item.locator('.thread-branch-meta')).toContainText('feature/compact-sidebar');
+ expect((await row.boundingBox())!.height).toBeLessThanOrEqual(74);
+ expect((await page.locator('.sidebar-thread-row').nth(3).boundingBox())!.height).toBeLessThanOrEqual(58);
+ expect(await item.evaluate(node=>getComputedStyle(node).borderLeftWidth)).toBe('0px');
+ expect(await item.locator('.thread-item-title').evaluate(node=>parseFloat(getComputedStyle(node).fontSize))).toBeGreaterThanOrEqual(13);
+ expect(await item.locator('.thread-item-meta').evaluate(node=>parseFloat(getComputedStyle(node).fontSize))).toBeGreaterThanOrEqual(11.5);
+ await expect(item).not.toHaveAttribute('title',/./);await item.hover();await expect(page.locator('.thread-hover-card')).toContainText('A long useful thread title that remains available in full');await expect(page.locator('.thread-hover-card')).toContainText('openai/gpt-6.1-sol');await page.keyboard.press('Escape');
  await row.getByRole('button',{name:/Options for/}).focus();
  await page.keyboard.press('Enter');
- await page.getByRole('button',{name:'Pin thread',exact:true}).click();
+ await page.getByRole('menuitem',{name:'Pin thread',exact:true}).click();
  expect(await page.evaluate(()=>(window as unknown as {sidebarCompactCalls:string[]}).sidebarCompactCalls)).toContain('presentation:{"pinned":true}');
 });
 test('footer invokes supplied actions and the single updater while plug-in navigation survives',async({page})=>{
@@ -49,7 +59,7 @@ test('ready rows show age only while working and input states remain visible',as
  const ready=page.locator('.sidebar-thread-row').first();
  await expect(ready.locator('.thread-item-status')).toHaveCount(0);
  await expect(ready.locator('.thread-item-meta')).toHaveText(/^(now|\d+[mhd])$/);
- await expect(ready.locator('.thread-item')).toHaveAttribute('title',/Ready/);
+ await expect(ready.locator('.thread-item')).toHaveAttribute('aria-label',/Ready/);
  await expect(page.locator('.sidebar-thread-row').nth(1).locator('.thread-item-status')).toHaveText('Working');
  await expect(page.locator('.sidebar-thread-row').nth(2).locator('.thread-item-status')).toHaveText('Your input');
 });
@@ -61,9 +71,9 @@ test('detach callbacks expose no entrypoints and ordinary thread menus still wor
  const options=page.locator('.sidebar-thread-row').first().getByRole('button',{name:/Options for/});
  await options.click();
  await expect(page.getByRole('button',{name:/detach/i})).toHaveCount(0);
- await page.getByRole('button',{name:'Rename thread',exact:true}).click();
+ await page.getByRole('menuitem',{name:'Rename thread',exact:true}).click();
  await options.click();
- await page.getByRole('button',{name:'Archive thread',exact:true}).click();
+ await page.getByRole('menuitem',{name:'Archive thread',exact:true}).click();
  expect(await page.evaluate(()=>(window as unknown as {sidebarCompactCalls:string[]}).sidebarCompactCalls)).toEqual(['rename','archive']);
  await expect(page.getByRole('navigation',{name:'Installed plug-ins'})).toBeVisible();
 });

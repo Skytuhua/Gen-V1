@@ -104,3 +104,26 @@ it('keeps incremental legacy objects out of the authoritative managed family',as
  expect(execFileSync('git',['--git-dir='+common,'cat-file','blob',oid],{windowsHide:true,encoding:'utf8'})).toBe(wanted);
  execFileSync('git',['--git-dir='+common,'fsck','--full','--no-reflogs'],{windowsHide:true,stdio:'pipe'});
 },60000);
+
+it.each(['side','legacy-side']as const)('rejects %s conversations at the canonical project-tool binding',async(mode)=>{
+ const f=await fixture();const now=new Date().toISOString(),thread:Thread={id:'read-only-side',title:'Side',projectId:f.projectId,projectName:'Fixture',createdAt:now,updatedAt:now,status:'ready',epoch:0,runId:null,modelId:null,sessionPath:null,...(mode==='side'?{kind:'side'}:{kind:'main',sideParentId:'parent'})};
+ f.store.internal('fixture',null,()=>f.store.put('thread',thread.id,thread.id,thread));
+ await expect(f.tools.binding(f.projectId,thread.id)).rejects.toMatchObject({code:'CAPABILITY_DENIED'});
+});
+
+it('reports each admitted managed copy rather than the original repository root in hover context',async()=>{
+ const f=await fixture(),one=await f.add('hover-one'),two=await f.add('hover-two');
+ const a=await f.tools.context(f.projectId,'hover-one'),b=await f.tools.context(f.projectId,'hover-two');
+ expect(a).toMatchObject({workingCopy:{id:one.workspace!.id,path:one.path},threadRevision:expect.any(String)});
+ expect(b).toMatchObject({workingCopy:{id:two.workspace!.id,path:two.path},threadRevision:expect.any(String)});
+ expect(a.project.rootPath).toBe(f.path);expect(a).not.toHaveProperty('workingCopy.path',f.path);
+});
+it('rejects a context read when the admitted model changes during its Git read',async()=>{
+ const f=await fixture();await f.add('hover-race');const read=f.tools.gitStatus.bind(f.tools);
+ f.tools.gitStatus=async(...args)=>{const result=await read(...args);f.store.internal('fixture',null,()=>{const thread=f.store.get<Thread>('thread','hover-race')!;f.store.put('thread',thread.id,thread.id,{...thread,modelId:'changed/model'});});return result;};
+ await expect(f.tools.context(f.projectId,'hover-race')).rejects.toMatchObject({code:'REVISION_CHANGED'});
+});
+it('does not turn a rejected side context into project facts after catching Git denial',async()=>{
+ const f=await fixture(),now=new Date().toISOString();f.store.internal('fixture',null,()=>{f.store.put('thread','hover-side','hover-side',{id:'hover-side',title:'Side',projectId:f.projectId,createdAt:now,updatedAt:now,status:'ready',epoch:0,runId:null,modelId:null,sessionPath:null,kind:'side'});});
+ await expect(f.tools.context(f.projectId,'hover-side')).rejects.toMatchObject({code:'CAPABILITY_DENIED'});
+});

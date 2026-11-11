@@ -1,0 +1,21 @@
+.composer-command-popover{background:var(--surface,#0f0f0f);color:var(--text,#e6e6e6);border:1px solid var(--border,#282828);border-radius:12px;box-shadow:var(--elevation,0 12px 34px -12px #0009);padding:5px;display:flex;flex-direction:column;gap:3px;overflow:hidden;font-size:13px}
+.composer-command-list{min-height:0;overflow:auto;overscroll-behavior:contain;scrollbar-gutter:stable;flex:1}
+.composer-command-option{display:flex;align-items:center;gap:9px;min-height:38px;padding:7px 9px;border-radius:7px;cursor:pointer;line-height:1.35}
+.composer-command-option[aria-selected=true]{background:var(--hover,rgba(127,127,127,.14))}
+.composer-command-option[aria-disabled=true]{opacity:.55;cursor:default}
+.composer-command-name{font-weight:550;white-space:nowrap;max-width:52%;overflow:hidden;text-overflow:ellipsis}
+.composer-command-description{color:var(--muted,#969696);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1}
+.composer-command-source{color:var(--muted,#969696);font-size:11px;border:1px solid var(--border,#333);border-radius:4px;padding:1px 5px;max-width:90px;white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+.composer-command-status,.composer-command-error{display:flex;align-items:center;gap:7px;padding:8px;font-size:12px;overflow-wrap:anywhere}
+.composer-command-unavailable{max-height:76px;overflow:auto;flex-shrink:0;color:var(--muted,#969696);font-size:11px;padding:3px 8px}
+.composer-command-unavailable>div{display:flex;justify-content:space-between;gap:12px;padding:3px 0;overflow-wrap:anywhere}
+.composer-command-status button,.composer-command-more{flex-shrink:0;border:0;background:none;color:var(--accent,#8b83ff);padding:5px;cursor:pointer}
+.composer-command-more{text-align:center;font-size:12px}
+.composer-command-hint{display:flex;justify-content:space-between;padding:5px 8px 2px;border-top:1px solid var(--border,#333);color:var(--muted,#969696);font-size:11px}
+.composer-command-error button,.composer-skill-chip button{display:inline-flex;align-items:center;justify-content:center;background:none;border:0;color:inherit;cursor:pointer;border-radius:4px;padding:3px}
+.composer-skill-bindings{display:flex;gap:5px;flex-wrap:wrap;padding:5px 8px 0;max-height:88px;overflow:auto}
+.composer-skill-chip{display:inline-flex;align-items:center;gap:5px;padding:2px 4px 2px 7px;min-width:0;max-width:240px;font-size:12px;border:1px solid var(--border,#333);border-radius:7px;background:var(--surface,#161616)}
+.composer-skill-chip>span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.composer-command-option:focus-visible,.composer-skill-chip button:focus-visible{outline:2px solid var(--accent,#8b83ff);outline-offset:1px}
+@media(max-width:480px){.composer-command-option{gap:6px;padding:7px}.composer-command-description{font-size:12px}.composer-command-name{max-width:57%}.composer-command-hint{font-size:10px}}
+@media(forced-colors:active){.composer-command-option[aria-selected=true]{outline:1px solid Highlight;background:Highlight;color:HighlightText}.composer-command-source,.composer-skill-chip{border-color:ButtonText}}

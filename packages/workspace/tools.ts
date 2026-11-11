@@ -6,11 +6,14 @@ import {z} from 'zod';
 import {Store} from '../storage/store.ts';
 import {HarnessError,type HostCommand,type ResourceGrant,type Thread} from '../contracts/index.ts';
 import type {ProjectContext,ProjectSummary} from '../contracts/workspace.ts';
+import {threadNavigationRevision} from '../contracts/shell-read-models.ts';
 import {WorkspaceRepository} from '../core/workspace-layout.ts';
 import {assertNotStorage,canonical,inside} from '../core/security.ts';
 import {gitExecutable} from '../capabilities/process.ts';
 import {readBoundFile,withPathGuard} from '../core/file-access.ts';
 import {directoryIdentity,importGitFamily,nativeGit,privateFamilyForBinding,sameIdentity,withLegacyGitView,withPrivateGitFamily} from './git-storage.ts';
+import {ComparisonFileRequestSchema,ComparisonScopeSchema,type ComparisonRead} from '../contracts/code-review.ts';
+import {ComparisonSnapshots,comparisonError,comparisonResult,readLocalComparison,readLocalComparisonFile} from './code-review.ts';
 
 interface Identity{dev:string;ino:string}
 export interface WorkspaceBinding {id:string;threadId:string;projectId:string;familyId?:string;path:string;branch:string;gitDirectory:string;commonDirectory:string;identity:Identity;gitDirectoryIdentity:Identity;commonDirectoryIdentity:Identity}
@@ -34,6 +37,7 @@ async function untrackedDigest(path:string,signal:AbortSignal){
 /** Explicit project enrollment and per-main-agent worktrees. Company references never fall back locally. */
 export class ProjectTools{
  readonly workspace:WorkspaceRepository;private readonly queues=new Map<string,Promise<unknown>>();
+ private readonly reviewComparisons=new ComparisonSnapshots();
  constructor(readonly store:Store,readonly options:ProjectToolOptions={}){this.workspace=new WorkspaceRepository(store);}
  private exclusive<T>(key:string,action:()=>Promise<T>):Promise<T>{const next=(this.queues.get(key)??Promise.resolve()).catch(()=>{}).then(action);this.queues.set(key,next);void next.finally(()=>{if(this.queues.get(key)===next)this.queues.delete(key);}).catch(()=>{});return next;}
  private gitExecutable(){return this.options.git??gitExecutable();}
@@ -47,7 +51,7 @@ export class ProjectTools{
  private project(projectId:string){const project=this.store.get<ProjectSummary>('workspaceProject',id.parse(projectId));if(!project)throw new HarnessError('NOT_FOUND','Project is unavailable.');if(project.authority.kind!=='local')throw new HarnessError('CAPABILITY_DENIED','Company authority cannot use personal project tools.');return project;}
  async binding(projectId:string,threadId?:string):Promise<{project:ProjectSummary;path:string;workspace?:WorkspaceBinding}>{
   const project=this.project(projectId);let workspace:WorkspaceBinding|undefined;
-  if(threadId){const thread=this.store.get<Thread>('thread',id.parse(threadId));if(!thread||thread.projectId!==project.id||thread.kind==='delegate')throw new HarnessError('CAPABILITY_DENIED','Select a main thread belonging to this project.');workspace=thread.workspaceId?this.store.get<WorkspaceBinding>('workspaceBinding',thread.workspaceId)??undefined:undefined;if(thread.workspaceId&&(!workspace||workspace.id!==thread.workspaceId||workspace.threadId!==thread.id||workspace.projectId!==project.id))throw new HarnessError('CAPABILITY_DENIED','The working copy binding is unavailable.');}
+  if(threadId){const thread=this.store.get<Thread>('thread',id.parse(threadId));if(!thread||thread.projectId!==project.id||thread.kind==='delegate'||thread.kind==='side'||Boolean(thread.sideParentId))throw new HarnessError('CAPABILITY_DENIED','Select a main thread belonging to this project.');workspace=thread.workspaceId?this.store.get<WorkspaceBinding>('workspaceBinding',thread.workspaceId)??undefined:undefined;if(thread.workspaceId&&(!workspace||workspace.id!==thread.workspaceId||workspace.threadId!==thread.id||workspace.projectId!==project.id))throw new HarnessError('CAPABILITY_DENIED','The working copy binding is unavailable.');}
   const root=this.store.get<{path:string;identity:Identity}>('workspaceProjectRoot',project.id),path=workspace?.path??root?.path;
   if(!path||!root)throw new HarnessError('PROJECT_NOT_CONNECTED','Connect this project to a local folder.');
   if(resolve(await realpath(path))!==resolve(path)||!equal(await identity(path),workspace?.identity??root.identity))throw new HarnessError('CAPABILITY_DENIED','The project folder changed. Reconnect it explicitly.');
@@ -120,6 +124,31 @@ export class ProjectTools{
   return{head,branch,revision:hash(JSON.stringify([head,branch,raw,diff,stagedDiff,untracked])),files,diff,stagedDiff,truncated:false,mode:managed?'managed':'legacy',gitWrite:managed,untrackedIncluded:managed};
  }
  async gitStatus(projectId:string,threadId?:string):Promise<GitStatus>{return this.exclusive(projectId,()=>this.withGitOperation(projectId,threadId,false,(metadata,path,signal,managed)=>this.status(metadata,path,signal,managed)));}
+ /** Read-only origin through the same attested managed/legacy Git boundary. */
+ async gitReviewOrigin(projectId:string,threadId?:string){return this.exclusive(projectId,async()=>{
+  const binding=await this.binding(projectId,threadId),signal=new AbortController().signal;
+  if(binding.workspace&&privateFamilyForBinding(this.store,binding.workspace))return this.git(binding.path,['remote','get-url','origin'],signal);
+  // Once enrolled, the Store-attested origin needs no source checkout or tracked-file projection.
+  const family=await importGitFamily(this.store,projectId,binding.path,binding.workspace,this.gitExecutable(),signal);
+  return withPathGuard([{path:family.commonDirectory,leaf:false}],signal,async()=>{
+   if(!sameIdentity(await directoryIdentity(family.commonDirectory),family.commonDirectoryIdentity))throw new HarnessError('CAPABILITY_DENIED','Private Git family changed.');
+   if(!family.origin)throw new HarnessError('GITHUB_REMOTE_REQUIRED','Use an enrolled origin hosted on github.com.');return family.origin;
+  });
+ });}
+ async gitComparison(projectId:string,threadId:string|undefined,input:unknown):Promise<ComparisonRead>{
+  const{scope}=ComparisonScopeSchema.parse(input),binding=await this.binding(projectId,threadId);
+  return this.exclusive(projectId,()=>this.withGitOperation(projectId,threadId,false,async(metadata,path,signal,managed)=>{
+   const owner=JSON.stringify([projectId,threadId??null,binding.path]);
+   try{const value=await readLocalComparison({git:args=>nativeGit(this.gitExecutable(),metadata,path,args,signal),path,signal,managed,owner},scope);this.reviewComparisons.save(owner,value);return comparisonResult(value);}catch(error){return comparisonError(error);}
+  }));
+ }
+ async gitComparisonFile(projectId:string,threadId:string|undefined,input:unknown){
+  const request=ComparisonFileRequestSchema.parse(input),binding=await this.binding(projectId,threadId);
+  return this.exclusive(projectId,()=>this.withGitOperation(projectId,threadId,false,async(metadata,path,signal,managed)=>{
+   const owner=JSON.stringify([projectId,threadId??null,binding.path]),entry=this.reviewComparisons.get(owner,request.comparisonId);
+   return readLocalComparisonFile({git:args=>nativeGit(this.gitExecutable(),metadata,path,args,signal),path,signal,managed,owner},entry.value,request.path);
+  }));
+ }
  async gitAction(projectId:string,threadId:string|undefined,input:{type:string;revision:string;paths?:string[];message?:string;name?:string}){
   return this.exclusive(projectId,()=>this.withGitOperation(projectId,threadId,true,async(metadata,path,signal,managed)=>{
    const current=await this.status(metadata,path,signal,managed);if(input.revision!==current.revision)throw new HarnessError('REVISION_CHANGED','The worktree changed. Refresh the review before applying this action.');const paths=z.array(pathName).min(1).max(1000).optional().parse(input.paths),git=(args:string[])=>nativeGit(this.gitExecutable(),metadata,path,args,signal);
@@ -131,9 +160,12 @@ export class ProjectTools{
   }));
  }
  async context(projectId:string,threadId?:string):Promise<ProjectContext>{
-  const project=this.project(projectId),lineage=this.store.all<Thread>('thread').filter(item=>item.projectId===project.id).map(item=>({id:item.id,title:item.title,status:item.status,parentThreadId:item.parentThreadId,kind:item.kind})),scripts=this.store.all<{id:string;name:string;command:string;projectId:string}>('projectScript').filter(item=>item.projectId===project.id);
+  const admitted=await this.binding(projectId,threadId),project=admitted.project,captured=threadId?this.store.get<Thread>('thread',threadId):undefined,threadRevision=captured?threadNavigationRevision(captured):undefined;
+  const lineage=this.store.all<Thread>('thread').filter(item=>item.projectId===project.id).map(item=>({id:item.id,title:item.title,status:item.status,parentThreadId:item.parentThreadId,kind:item.kind})),scripts=this.store.all<{id:string;name:string;command:string;projectId:string}>('projectScript').filter(item=>item.projectId===project.id);
   let status:GitStatus|undefined,error:string|undefined;try{status=await this.gitStatus(projectId,threadId);}catch(reason){error=reason instanceof Error?reason.message:'Project status is unavailable.';}
-  return{project,...(threadId?{threadId}:{}),machineName:hostname(),editor:{available:true,label:'Default editor'},branch:status?.branch??null,head:status?.head??null,...(status?{revision:status.revision}:{}),changes:{added:status?status.files.reduce((sum,file)=>sum+(file.added??0),0):null,removed:status?status.files.reduce((sum,file)=>sum+(file.removed??0),0):null,files:status?.files.length??null},lineage,scripts,capabilities:{git:!!status,gitWrite:status?.gitWrite??false,untrackedIncluded:status?.untrackedIncluded??false,terminal:!!project.rootPath,pullRequests:!!status?.gitWrite},...(error?{error}:{})};
+  const current=await this.binding(projectId,threadId),latest=threadId?this.store.get<Thread>('thread',threadId):undefined;
+  if(current.path!==admitted.path||current.workspace?.id!==admitted.workspace?.id||threadId&&(!captured||!latest||threadNavigationRevision(latest)!==threadRevision))throw new HarnessError('REVISION_CHANGED','Conversation metadata changed. Retry the current thread.');
+  return{project,...(threadId?{threadId,threadRevision}:{}),...(admitted.workspace?{workingCopy:{id:admitted.workspace.id,path:admitted.path}}:{}),machineName:hostname(),editor:{available:true,label:'Default editor'},branch:status?.branch??null,head:status?.head??null,...(status?{revision:status.revision}:{}),changes:{added:status?status.files.reduce((sum,file)=>sum+(file.added??0),0):null,removed:status?status.files.reduce((sum,file)=>sum+(file.removed??0),0):null,files:status?.files.length??null},lineage,scripts,capabilities:{git:!!status,gitWrite:status?.gitWrite??false,untrackedIncluded:status?.untrackedIncluded??false,terminal:!!project.rootPath,pullRequests:!!status?.gitWrite},...(error?{error}:{})};
  }
  async files(projectId:string,threadId:string|undefined,relativePath=''){
   const{path}=await this.binding(projectId,threadId),target=relativePath?join(path,pathName.parse(relativePath)):path;if(!inside(path,await realpath(target)))throw new HarnessError('CAPABILITY_DENIED','Files stay inside the selected worktree.');
