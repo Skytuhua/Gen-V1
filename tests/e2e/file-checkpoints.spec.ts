@@ -127,7 +127,7 @@ for(const width of [1440,1024,768])test(`QA r2: held list does not move the pain
  expect((await caption.boundingBox())!.y).toBeCloseTo(before.y,2);
  expect(await page.evaluate(()=>(window as unknown as {checkpointShifts:number[]}).checkpointShifts.reduce((sum,value)=>sum+value,0))).toBe(0);
 });
-test('QA r2: long checkpoint requests remain bounded and every part keeps its identity',async({page})=>{
+test('QA r2: long checkpoint requests remain bounded and every part keeps its identity',async({page},testInfo)=>{
  await page.goto('/file-checkpoints?state=long-100');await page.getByRole('button',{name:'Review Before updating workspace layout',exact:true}).click();
  await expect(page.getByRole('region',{name:'Checkpoint review'}).locator('.workspace-diff')).toHaveCount(100);
  const calls=await page.evaluate(()=>(window as unknown as {checkpointCalls:{kind:string;owner:{threadId:string};paths?:string[]}[]}).checkpointCalls.filter(call=>call.kind==='review'));
@@ -136,6 +136,8 @@ test('QA r2: long checkpoint requests remain bounded and every part keeps its id
  const parts=page.getByRole('region',{name:/Review part/});await expect(parts).toHaveCount(calls.length);
  for(let i=0;i<calls.length;i++)await expect(parts.nth(i)).toContainText(`review-layout-${i+1}`);
  await expect(page.getByRole('button',{name:'Restore selected files'})).toBeDisabled();
+ await testInfo.attach('bounded-review-requests',{body:JSON.stringify(calls.map(call=>({paths:call.paths,utf8Bytes:new TextEncoder().encode(JSON.stringify({threadId:call.owner.threadId,paths:call.paths})).byteLength})),null,2),contentType:'application/json'});
+ await page.screenshot({path:testInfo.outputPath('5-review-batched-1440.png'),fullPage:false});
 });
 test('later review failures or duplicate identities never present a complete checkpoint',async({page})=>{
  for(const state of ['long-fail','long-partial','long-duplicate']){
