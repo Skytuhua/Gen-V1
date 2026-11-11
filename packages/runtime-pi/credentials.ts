@@ -6,6 +6,7 @@ import { pathToFileURL } from 'node:url';
 import type { CreateModelRuntimeOptions } from '@earendil-works/pi-coding-agent';
 import { HarnessError } from '../contracts/index.ts';
 import { acquireLinuxCredentialReadBarrier } from '../core/linux-path-guard.ts';
+import { acquireWindowsCredentialReadBarrier } from '../core/windows-credential-lease.ts';
 import { SUBSCRIPTION_OAUTH_PROVIDER_IDS, isSubscriptionProviderId } from '../contracts/connections.ts';
 import { isPlanCredential, isPlanProvider } from './plan-keys.ts';
 
@@ -86,20 +87,21 @@ function nativeStorage() {
   return storageModule;
 }
 
-/** Host-only snapshot under the guardian's existing-mount write barrier.
+/** Host-only snapshot under the native mount/share-deny write barrier.
  * The caller retains profile/use custody through a bounded operation (at most five minutes)
  * and release. Expiry revokes authority but never restores writes by itself. */
 export async function acquireLiteralCredentialLease(authPath: string, options: {signal: AbortSignal; maxHoldMs: number}): Promise<LiteralCredentialLease> {
   const unavailable = () => new HarnessError('PI_CREDENTIAL_LEASE_UNAVAILABLE', 'Protected credential evidence is unavailable.');
   const uncertain = () => new HarnessError('PI_CREDENTIAL_LEASE_RELEASE_UNCERTAIN', 'Credential evidence custody did not settle. Retain caller custody.');
-  if (process.platform !== 'linux' || !options || !(options.signal instanceof AbortSignal)
+  if (!['linux', 'win32'].includes(process.platform) || !options || !(options.signal instanceof AbortSignal)
     || !Number.isSafeInteger(options.maxHoldMs) || options.maxHoldMs < 1 || options.maxHoldMs > 300000
     || typeof authPath !== 'string' || !isAbsolute(authPath) || resolve(authPath) !== authPath) throw unavailable();
   options.signal.throwIfAborted();
   // Native SDK locks alone cannot fence delayed refresh writers after lock loss.
-  // The root guardian protects the existing mount used by every prepared native access.
-  const barrier = await acquireLinuxCredentialReadBarrier(authPath, options);
-  const revoked = new AbortController(), uid = BigInt(process.getuid!());
+  // Linux protects the existing mount; Windows denies write/delete sharing in this process.
+  const windowsBarrier = process.platform === 'win32' ? acquireWindowsCredentialReadBarrier(authPath, options) : undefined;
+  const barrier = windowsBarrier ?? await acquireLinuxCredentialReadBarrier(authPath, options);
+  const revoked = new AbortController(), uid = process.platform === 'linux' ? BigInt(process.getuid!()) : 0n;
   let authFd: number | undefined, invalid = false, original = '';
   let snapshot: Record<string, unknown> = Object.create(null);
   let releasePromise: Promise<void> | undefined;
@@ -114,6 +116,7 @@ export async function acquireLiteralCredentialLease(authPath: string, options: {
     }
   };
   const content = () => {
+    if (windowsBarrier) return windowsBarrier.read();
     if (authFd === undefined) throw unavailable();
     const held = fstatSync(authFd, {bigint: true}), current = lstatSync(authPath, {bigint: true});
     if (!held.isFile() || held.nlink !== 1n || held.uid !== uid || (held.mode & 0o077n) !== 0n
@@ -155,7 +158,7 @@ export async function acquireLiteralCredentialLease(authPath: string, options: {
   try {
     barrier.assertCurrent();
     // Nonblocking open refuses FIFO/device traps before the ordinary-file check.
-    authFd = openSync(authPath, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
+    if (process.platform === 'linux') authFd = openSync(authPath, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
     const bytes = content(); snapshot = parseData(bytes.toString('utf8')); original = digest(bytes);
     barrier.signal.addEventListener('abort', invalidate, {once: true});
     assertCurrent();
