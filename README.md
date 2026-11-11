@@ -73,7 +73,7 @@ py -3.14 -m pip install --no-cache-dir --no-compile --target .harness-hermes-pyt
 pnpm desktop:dev
 ```
 
-Protected credential evidence on Windows also requires Visual Studio C++ Build Tools (or MinGW-w64) to build the Node-API helper. Desktop packaging builds it automatically. Credential files must belong to the current user and grant access only to that user, SYSTEM and Administrators; the helper refuses broader access.
+Protected credential evidence on Windows also requires Visual Studio C++ Build Tools to build the Node-API helper. Desktop packaging builds it automatically. Credential files must belong to the current user and grant access only to that user, SYSTEM and Administrators; the helper refuses broader access.
 
 For the browser interface, use `pnpm dev` and open `http://127.0.0.1:5173`. Open **Settings → Providers**, add an account and choose **Connect**, then refresh models and select an available model.
 
