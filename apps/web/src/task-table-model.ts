@@ -18,20 +18,40 @@ export function cycleSort(sort: TableSort, key: string): TableSort {
   return sort?.key !== key ? { key, direction: 'ascending' } : sort.direction === 'ascending' ? { key, direction: 'descending' } : null;
 }
 export function tableIdentity(rows: unknown[], rowKey = 'id') {
-  const ids = rows.map(row => tableObject(row)[rowKey]);
-  const stable = ids.every(id => id != null) && new Set(ids.map(String)).size === ids.length;
-  return { stable, ids: stable ? ids.map(String) : rows.map((_, index) => String(index)), rowOrderKey: JSON.stringify(stable ? ids.map(String) : rows) };
+  const sourceIds = rows.map(row => {
+    const value = tableObject(row)[rowKey];
+    return typeof value === 'string' && value.trim() || typeof value === 'number' && Number.isFinite(value) ? String(value) : null;
+  });
+  const counts = new Map<string, number>();
+  for (const id of sourceIds) if (id !== null) counts.set(id, (counts.get(id) ?? 0) + 1);
+  // Reserve even duplicate source ids so fallback keys cannot steal ambiguous metadata.
+  const reserved = new Set(counts.keys());
+  const stable = sourceIds.every(id => id !== null && counts.get(id) === 1);
+  const ids = sourceIds.map((id, index) => {
+    if (id !== null && counts.get(id) === 1) return id;
+    let fallback = String(index);
+    while (reserved.has(fallback)) fallback = `index:${fallback}`;
+    reserved.add(fallback); return fallback;
+  });
+  return { stable, ids, rowOrderKey: JSON.stringify(stable ? sourceIds : rows) };
 }
+const emptyValue = (value: unknown) => value == null || typeof value === 'string' && !value.trim()
+  || typeof value === 'number' && Number.isNaN(value) || value instanceof Date && Number.isNaN(value.getTime());
+// One type order keeps mixed comparisons transitive: number, string, date, boolean, object, other.
+const valueType = (value: unknown) => typeof value === 'number' ? 0 : typeof value === 'string' ? 1 : value instanceof Date ? 2 : typeof value === 'boolean' ? 3 : typeof value === 'object' ? 4 : 5;
 export function tableView(rows: unknown[], columns: TableColumn[], query: string, sort: TableSort) {
   const needle = query.trim().toLocaleLowerCase();
   const result = rows.map((row, index) => ({ item: tableObject(row), index })).filter(({ item }) => !needle || columns.some(column => tableText(item[column.key]).toLocaleLowerCase().includes(needle)));
   if (!sort) return result;
   return result.sort((a, b) => {
     const left = a.item[sort.key], right = b.item[sort.key];
-    if (left == null || right == null) return left == null && right == null ? a.index - b.index : left == null ? 1 : -1;
-    const compared = typeof left === 'number' && typeof right === 'number' ? left - right
-      : typeof left === 'boolean' && typeof right === 'boolean' ? Number(left) - Number(right)
-      : tableText(left).localeCompare(tableText(right));
+    const leftEmpty = emptyValue(left), rightEmpty = emptyValue(right);
+    if (leftEmpty || rightEmpty) return leftEmpty && rightEmpty ? a.index - b.index : leftEmpty ? 1 : -1;
+    const compared = valueType(left) - valueType(right)
+      || (typeof left === 'number' && typeof right === 'number' ? left - right
+        : left instanceof Date && right instanceof Date ? left.getTime() - right.getTime()
+        : typeof left === 'boolean' && typeof right === 'boolean' ? Number(left) - Number(right)
+        : tableText(left).localeCompare(tableText(right), undefined, { numeric: true }));
     return (sort.direction === 'ascending' ? compared : -compared) || a.index - b.index;
   });
 }

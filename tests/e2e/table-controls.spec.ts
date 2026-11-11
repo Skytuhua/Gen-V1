@@ -191,3 +191,33 @@ test('pointer resize tracks CSS widths at 200% zoom', async ({ page }) => {
   await drag(page, { x: box.x + box.width / 2, y: box.y + box.height / 2 }, { x: box.x + box.width / 2 + 40, y: box.y + box.height / 2 });
   await page.mouse.up(); await expect(resize).toHaveAttribute('aria-valuenow', '110');
 });
+
+for (const variant of ['missing', 'duplicate', 'invalid', 'custom rowKey'] as const) test(`QA r1: ${variant} ids retain per-row live changes and clear selection on source reorder`, async ({ page }) => {
+  const key = variant === 'custom rowKey' ? 'code' : 'id';
+  const data = [{ ...rows[0], [key]: 'a' }, { ...rows[1], [key]: variant === 'duplicate' ? 'dup' : variant === 'invalid' ? { invalid: true } : undefined }, { ...rows[2], [key]: variant === 'duplicate' ? 'dup' : 'c' }];
+  const fixtureSpec = spec(); fixtureSpec.elements.table.props.rowKey = key; fixtureSpec.elements.table.props.changesBinding = 'changes';
+  const changes = { activeRowId: 'a', rows: [{ id: 'a', cells: [{ key: 'hours', status: 'updated', before: 1 }] }, { id: '1', status: 'added' }, { id: 'dup', status: 'removed' }] };
+  const host = await serveTaskFixture(page, taskFixture(fixtureSpec, { rows: data, changes }, { selected: [] })); await page.goto('/');
+  const changed = page.locator('.task-table tbody tr').first();
+  await expect(changed.locator('td[data-column-key=hours]')).toHaveAttribute('data-change', 'updated');
+  await expect(changed).toHaveAttribute('data-row-id', 'a'); await expect(changed).toHaveAttribute('data-active', 'true');
+  await expect(changed.locator('.task-table-before')).toHaveText('1');
+  await expect(page.locator('.task-table-summary')).toContainText('1 updated'); await expect(page.locator('.task-table-summary')).toContainText('1 added');
+  await expect(page.locator('.task-table-summary')).not.toContainText('removed');
+  await expect(page.locator('.task-table tbody tr').nth(1)).toHaveAttribute('data-row-id', '1');
+  await expect(page.locator('.task-table tbody tr').nth(1)).toHaveAttribute('data-change', 'added');
+  await page.getByRole('checkbox', { name: 'Select row 1', exact: true }).check();
+  await page.getByRole('button', { name: 'Sort Hours', exact: true }).click(); await expect(page.locator('[data-row-id=a] input')).toBeChecked();
+  host.setInput('rows', [...data].reverse()); await host.publish(); await expect(page.locator('.task-table input:checked')).toHaveCount(0);
+  await expect(page.locator('[data-row-id=a]')).toHaveAttribute('data-active', 'true'); await expect(page.locator('[data-row-id=a] .task-table-before')).toHaveText('1');
+});
+
+test('QA r1: an invalid neighbor does not disable following an unambiguous active row', async ({ page }) => {
+  const data = Array.from({ length: 60 }, (_, index) => ({ ...rows[0], id: index === 0 ? undefined : `row-${index}`, task: `Task ${index}` }));
+  const fixtureSpec = spec(); fixtureSpec.elements.table.props.changesBinding = 'changes';
+  const snapshot = taskFixture(fixtureSpec, { rows: data, changes: { rows: [] } }); snapshot.artifacts[0].placement = 'expanded';
+  const host = await serveTaskFixture(page, snapshot); await page.goto('/'); const region = page.locator('.task-table-scroll'); await expect(region).toBeVisible();
+  host.setInput('changes', { activeRowId: 'row-55', rows: [{ id: 'row-55', status: 'updated' }] }); await host.publish();
+  await expect(page.locator('[data-row-id="row-55"]')).toHaveAttribute('data-active', 'true');
+  await expect.poll(() => region.evaluate(node => node.scrollTop)).toBeGreaterThan(200);
+});

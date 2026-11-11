@@ -27,10 +27,10 @@ describe('local table controls', () => {
     expect(tableView([{ value: true }, { value: false }], columns, '', { key: 'value', direction: 'ascending' }).map(row => row.index)).toEqual([1, 0]);
     expect(rows[0]?.value).toBe(10);
   });
-  it('compares strings as strings and mixed or complex values using the displayed text', () => {
+  it('keeps mixed types in a stable order and compares complex values by displayed text', () => {
     const values = ['2', '10', { nested: 1 }, false, 3];
     const sorted = tableView(values.map(value => ({ value })), columns, '', { key: 'value', direction: 'ascending' });
-    expect(sorted.map(row => tableText(row.item.value))).toEqual(values.map(tableText).sort((a, b) => a.localeCompare(b)));
+    expect(sorted.map(row => row.item.value)).toEqual([3, '2', '10', false, { nested: 1 }]);
     expect(tableText(null)).toBe('NULL'); expect(tableText(undefined)).toBe('—');
   });
   it('filters literal displayed values across supplied cells before sorting, ignoring outer whitespace and case', () => {
@@ -42,8 +42,32 @@ describe('local table controls', () => {
   it('uses the existing custom rowKey and safely falls back for any missing or duplicate id', () => {
     expect(tableIdentity([{ code: 0 }, { code: 2 }], 'code')).toMatchObject({ stable: true, ids: ['0', '2'] });
     for (const rows of [[{ id: 'x' }, {}], [{ id: 1 }, { id: '1' }]]) {
-      expect(tableIdentity(rows)).toMatchObject({ stable: false, ids: ['0', '1'] });
+      expect(tableIdentity(rows)).toMatchObject({ stable: false, ids: rows[0]?.id === 'x' ? ['x', '1'] : ['0', 'index:1'] });
       expect(tableIdentity(rows).rowOrderKey).not.toBe(tableIdentity([...rows].reverse()).rowOrderKey);
     }
   });
+});
+
+it('QA r1: mixed types have a consistent order for every source permutation in both directions', () => {
+  const permutations = [[2, 10, '11'], [2, '11', 10], [10, 2, '11'], [10, '11', 2], ['11', 2, 10], ['11', 10, 2]];
+  for (const values of permutations) {
+    const rows = values.map(value => ({ value }));
+    expect(tableView(rows, columns, '', { key: 'value', direction: 'ascending' }).map(row => row.item.value)).toEqual([2, 10, '11']);
+    expect(tableView(rows, columns, '', { key: 'value', direction: 'descending' }).map(row => row.item.value)).toEqual(['11', 10, 2]);
+  }
+});
+it('QA r1: strings sort naturally, dates sort by time, and null/empty stay last in either direction', () => {
+  const early = new Date('2026-01-01T00:00:00Z'), late = new Date('+010000-01-01T00:00:00Z');
+  for (const direction of ['ascending', 'descending'] as const) {
+    const sorted = (values: unknown[]) => tableView(values.map(value => ({ value })), columns, '', { key: 'value', direction }).map(row => row.item.value);
+    expect(sorted(['10', '', '2', null, '3', undefined, '  '])).toEqual([...(direction === 'ascending' ? ['2', '3', '10'] : ['10', '3', '2']), '', null, undefined, '  ']);
+    expect(sorted([late, early, new Date(NaN)])).toEqual([...(direction === 'ascending' ? [early, late] : [late, early]), new Date(NaN)]);
+    expect(sorted([false, 0, '', null])).toEqual([...(direction === 'ascending' ? [0, false] : [false, 0]), '', null]);
+  }
+});
+it('QA r1: valid row ids survive bad neighbors and fallback ids cannot collide with supplied ids', () => {
+  expect(tableIdentity([{ id: 'a' }, {}, { id: 'dup' }, { id: 'dup' }, { id: {} }, { id: false }, { id: '' }, { id: NaN }, { id: Infinity }])).toMatchObject({ stable: false, ids: ['a', '1', '2', '3', '4', '5', '6', '7', '8'] });
+  const collision = tableIdentity([{}, { id: '0' }, { id: 'index:0' }]);
+  expect(new Set(collision.ids).size).toBe(3); expect(collision.ids.slice(1)).toEqual(['0', 'index:0']);
+  expect(tableIdentity([{ id: '0' }, { id: '0' }]).ids).not.toContain('0');
 });

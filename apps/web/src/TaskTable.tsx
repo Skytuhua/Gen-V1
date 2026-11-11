@@ -33,7 +33,7 @@ export function Table({ element: { props }, bindings }: ComponentRenderProps) {
   // Selection and scroll-following state do not change source cell content.
   // Reuse those nodes while retaining live checkbox and active-row controls.
   const renderedRows = useMemo(() => controls.view.map(({ item, index }) => {
-    const id = identity.ids[index]!, change = identity.stable ? rowChanges.get(id) : undefined;
+    const id = identity.ids[index]!, change = rowChanges.get(id);
     const cells = columns.map(column => {
       const key = String(column.key), cell = change?.cells?.find(cell => cell.key === key), status = cell?.status ?? change?.status;
       const before = cell && Object.hasOwn(cell, 'before') ? JSON.stringify(cell.before) : undefined;
@@ -64,7 +64,7 @@ export function Table({ element: { props }, bindings }: ComponentRenderProps) {
   const changeCounts = useMemo(() => {
     const counts = { added: 0, updated: 0, removed: 0 };
     for (const [id, change] of rowChanges) {
-      if (!identity.stable || !identity.ids.includes(id)) continue;
+      if (!identity.ids.includes(id)) continue;
       // A field being added/removed updates its existing row. Only an explicit
       // row status declares that the record itself was added or removed.
       const status = change?.status ?? (change?.cells?.some(cell => cell.status) ? 'updated' : undefined);
@@ -133,7 +133,7 @@ export function Table({ element: { props }, bindings }: ComponentRenderProps) {
     }
     animatedChanges.current = accepted; previousValues.current = values;
   }, [changes, rows, sourceIdentity, inline]);
-  const previousSweep = useRef<number | null>(null), activeRow = identity.stable ? changes?.activeRowId : undefined;
+  const previousSweep = useRef<number | null>(null), activeRow = identity.ids.includes(changes?.activeRowId ?? '') ? changes?.activeRowId : undefined;
   // biome-ignore lint/correctness/useExhaustiveDependencies: view identities reposition the active-row DOM marker.
   useLayoutEffect(() => {
     const container = scroll.current, marker = sweep.current; if (!container || !marker || !activeRow) { previousSweep.current = null; return; }
