@@ -214,8 +214,8 @@ test("overlong queries are bounded and blank queries cancel without a request", 
 	page,
 }) => {
 	await fixture(page);
-	await projectScope(page, "x".repeat(513));
-	await expect(page.getByRole("alert")).toContainText("512");
+	await projectScope(page, "x".repeat(201));
+	await expect(page.getByRole("alert")).toContainText("200");
 	expect(
 		await page.evaluate(() => window.projectSearchFixture.requests.length),
 	).toBe(0);
@@ -337,12 +337,13 @@ test("partial pages retain exclusions, scan errors and limits", async ({
 	await expect(page.getByRole("status")).toContainText("Incomplete");
 	await page.getByText("Search details", { exact: false }).click();
 	for (const text of [
-		"Access denied",
-		"Outside authorized root",
-		"Binary content excluded",
-		"SCAN_LIMIT",
-		"5,000 files",
-		"100 matches",
+		"private: unreadable",
+		"protected host storage",
+		"assets/logo.png: binary",
+		"file limit",
+		"10,000 files",
+		"1000 matches",
+		"More issues were omitted",
 	])
 		await expect(page.locator(".project-search-details")).toContainText(text);
 	await page.getByRole("button", { name: "Load more results" }).click();
@@ -384,22 +385,31 @@ test("the client cap reports incomplete final results without a continuation cur
 				owner: {
 					...pending.request.owner,
 					workingCopyId: "copy",
-					revision: "r1",
+					binding: "b".repeat(64),
 				},
 				matches: Array.from(
 					{ length: pageIndex === 9 ? 50 : 100 },
 					(_, matchIndex) => ({
 						path: `file-${pageIndex}-${matchIndex}.txt`,
 						kind: "path",
+						line: null,
+						column: null,
 						preview: "workspace",
 						sha256: "a".repeat(64),
 					}),
 				),
 				nextCursor: pageIndex === 10 ? null : `page-${pageIndex + 1}`,
-				complete: pageIndex === 10,
+				complete: true,
 				exclusions: [],
-				errors: [],
-				limits: { files: 5000, bytes: 100000, matches: 100, timeoutMs: 2000 },
+				issues: [],
+				issuesTruncated: false,
+				limits: {
+					files: 10000,
+					bytes: 33554432,
+					matches: 1000,
+					timeoutMs: 2000,
+					fileBytes: 1048576,
+				},
 			});
 		}, index);
 		if (index < 10)
@@ -426,7 +436,7 @@ test("the client cap reports incomplete final results without a continuation cur
 		});
 });
 
-for (const state of ["expired", "revision", "wrong-owner"])
+for (const state of ["expired", "binding", "wrong-owner"])
 	test(`${state} results fail visibly and cannot replace accepted matches`, async ({
 		page,
 	}) => {
@@ -437,7 +447,7 @@ for (const state of ["expired", "revision", "wrong-owner"])
 		await expect(page.getByRole("alert")).toContainText(
 			state === "expired"
 				? "expired"
-				: state === "revision"
+				: state === "binding"
 					? "working copy changed"
 					: "another project or thread",
 		);
@@ -684,3 +694,81 @@ for (const theme of ["dark", "light"])
 		});
 		for (const ratio of ratios) expect(ratio).toBeGreaterThanOrEqual(4.5);
 	});
+
+test("QA r1 displays frozen binding, issues and complete paged results", async ({
+	page,
+}) => {
+	await fixture(page, "?state=loading");
+	await projectScope(page);
+	await page.evaluate(() => {
+		const pending = window.projectSearchFixture.pending[0];
+		pending.resolve({
+			owner: {
+				...pending.request.owner,
+				workingCopyId: null,
+				binding: "b".repeat(64),
+			},
+			matches: [
+				{
+					path: "workspace.ts",
+					kind: "path",
+					line: null,
+					column: null,
+					preview: "workspace.ts",
+					sha256: "a".repeat(64),
+				},
+			],
+			nextCursor: "next-page",
+			complete: true,
+			issues: [{ path: "logo.png", reason: "binary" }],
+			issuesTruncated: true,
+			exclusions: [".git", "node_modules"],
+			limits: {
+				files: 10000,
+				bytes: 33554432,
+				matches: 1000,
+				timeoutMs: 2000,
+				fileBytes: 1048576,
+			},
+		});
+	});
+	await expect(hits(page)).toHaveCount(1);
+	await expect(page.getByRole("status")).toContainText(
+		"More results available",
+	);
+	await expect(page.getByRole("status")).not.toContainText("Incomplete");
+	await expect(
+		page.getByRole("button", { name: "Load more results" }),
+	).toBeVisible();
+	await page.locator(".project-search-details summary").click();
+	for (const text of [
+		"Binding",
+		"b".repeat(64),
+		"logo.png: binary",
+		"node_modules",
+		"1,048,576 bytes per file",
+		"More issues were omitted",
+	])
+		await expect(page.locator(".project-search-details")).toContainText(text);
+	if (process.env.WO5_CAPTURE_DIR)
+		await page.screenshot({
+			path: `${process.env.WO5_CAPTURE_DIR}/qa-r1-contract-details-1440.png`,
+			fullPage: true,
+		});
+});
+
+test("QA r1 uses the trimmed 200-code-point input boundary", async ({
+	page,
+}) => {
+	await fixture(page);
+	await projectScope(page, "x".repeat(201));
+	await expect(page.getByRole("alert")).toContainText("200");
+	expect(
+		await page.evaluate(() => window.projectSearchFixture.requests.length),
+	).toBe(0);
+	await search(page).fill(" ".repeat(600) + "😀".repeat(200) + " ".repeat(600));
+	await expect(hits(page)).toHaveCount(3);
+	expect(
+		await page.evaluate(() => window.projectSearchFixture.requests.at(-1)?.q),
+	).toBe("😀".repeat(200));
+});

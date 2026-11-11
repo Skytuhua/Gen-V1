@@ -13,7 +13,13 @@ import "../../apps/web/src/styles.css";
 
 const params = new URLSearchParams(location.search);
 const sha = "a".repeat(64);
-const limits = { files: 5000, bytes: 104857600, matches: 100, timeoutMs: 2000 };
+const limits = {
+	files: 10000,
+	bytes: 33554432,
+	matches: 1000,
+	timeoutMs: 2000,
+	fileBytes: 1048576,
+};
 const matches: ProjectSearchPage["matches"] = [
 	{
 		path: "src/workspace/workspace-layout.ts",
@@ -34,7 +40,9 @@ const matches: ProjectSearchPage["matches"] = [
 	{
 		path: "tests/workspace.test.ts",
 		kind: "path",
-		preview: "expect(workspace.active).toBe(true)",
+		line: null,
+		column: null,
+		preview: "tests/workspace.test.ts",
 		sha256: sha,
 	},
 ];
@@ -61,7 +69,7 @@ function response(request: ProjectSearchRequest): ProjectSearchPage {
 		owner: {
 			...request.owner,
 			workingCopyId: `copy-${request.owner.projectId}`,
-			revision: "fixture-r1",
+			binding: "b".repeat(64),
 		},
 		matches:
 			mode === "empty"
@@ -78,28 +86,33 @@ function response(request: ProjectSearchRequest): ProjectSearchPage {
 		complete: true,
 		exclusions: [],
 		limits,
-		errors: [],
+		issues: [],
+		issuesTruncated: false,
 	};
-	if (["paged", "partial", "expired", "revision"].includes(mode)) {
+	if (["paged", "partial", "expired", "binding"].includes(mode)) {
 		page.matches = request.cursor ? [matches[2]] : matches.slice(0, 2);
 		page.nextCursor = request.cursor ? null : "fixture-page-2";
-		page.complete = !!request.cursor;
+		page.complete = true;
 	}
 	if (["partial", "stress", "exclusions"].includes(mode)) {
 		page.exclusions = [
-			{ path: "private", reason: "Access denied" },
-			{ reason: "Outside authorized root" },
-			{ path: "assets/logo.png", reason: "Binary content excluded" },
+			".git",
+			"node_modules",
+			"links/reparse points",
+			"protected host storage",
 		];
+		page.issues = [
+			{ path: "private", reason: "unreadable" },
+			{ path: "assets/logo.png", reason: "binary" },
+		];
+		page.complete = false;
 		if (mode !== "exclusions") {
-			page.complete = false;
-			page.errors = [
-				{ code: "SCAN_LIMIT", message: "The scan reached its file limit." },
-			];
+			page.issues.push({ path: null, reason: "file_limit" });
+			page.issuesTruncated = true;
 		}
 	}
 	if (mode === "wrong-owner") page.owner.projectId = "another-project";
-	if (mode === "revision" && request.cursor) page.owner.revision = "fixture-r2";
+	if (mode === "binding" && request.cursor) page.owner.binding = "c".repeat(64);
 	return page;
 }
 const controls = (window.projectSearchFixture = {

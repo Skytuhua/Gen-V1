@@ -1,60 +1,83 @@
 import { z } from "zod";
 
+const id = z.string().regex(/^[a-zA-Z0-9:_.-]{1,200}$/);
+const sha256 = z.string().regex(/^[a-f\d]{64}$/);
 const relativePath = z
 	.string()
 	.min(1)
-	.max(4096)
 	.refine(
 		(path) =>
+			new TextEncoder().encode(path).length <= 1024 &&
 			!/[\\\x00-\x1f\x7f:]/.test(path) &&
-			!path.startsWith("/") &&
-			!path.split("/").some((part) => !part || part === "." || part === ".."),
+			!/[\uD800-\uDFFF]/u.test(path) &&
+			!path
+				.split("/")
+				.some(
+					(part) =>
+						!part ||
+						part === "." ||
+						part === ".." ||
+						/[. ]$/.test(part) ||
+						/^(?:\.git|\.harness-directory-guard)$/i.test(part) ||
+						/^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(part),
+				),
 		"Search paths must be relative to the project.",
 	);
-const ownerSchema = z.object({
-	projectId: z.string().min(1),
-	threadId: z.string().min(1).optional(),
-	workingCopyId: z.string().min(1),
-	revision: z.string().min(1),
+const ownerSchema = z.strictObject({
+	projectId: id,
+	threadId: id.nullable(),
+	workingCopyId: id.nullable(),
+	binding: sha256,
 });
 const matchSchema = z
-	.object({
+	.strictObject({
 		path: relativePath,
 		kind: z.enum(["path", "text"]),
-		line: z.number().int().positive().optional(),
-		column: z.number().int().positive().optional(),
-		preview: z.string().max(4096),
-		sha256: z.string().regex(/^[a-f\d]{64}$/i),
+		line: z.number().int().positive().nullable(),
+		column: z.number().int().positive().nullable(),
+		preview: z
+			.string()
+			.refine(
+				(value) =>
+					Array.from(value).length <= 512 && !/[\uD800-\uDFFF]/u.test(value),
+			),
+		sha256,
 	})
-	.refine((match) => match.kind !== "text" || match.line !== undefined);
-const pageSchema = z.object({
+	.refine((match) =>
+		match.kind === "path"
+			? match.line === null && match.column === null
+			: match.line !== null && match.column !== null,
+	);
+const issueSchema = z.strictObject({
+	path: relativePath.nullable(),
+	reason: z.enum([
+		"excluded",
+		"binary",
+		"too_large",
+		"unreadable",
+		"changed",
+		"file_limit",
+		"byte_limit",
+		"match_limit",
+		"timeout",
+		"response_limit",
+	]),
+});
+const pageSchema = z.strictObject({
 	owner: ownerSchema,
 	matches: z.array(matchSchema).max(100),
 	nextCursor: z.string().min(1).max(4096).nullable(),
 	complete: z.boolean(),
-	exclusions: z
-		.array(
-			z.object({
-				path: relativePath.optional(),
-				reason: z.string().min(1).max(1024),
-			}),
-		)
-		.max(500),
-	limits: z.object({
+	issues: z.array(issueSchema).max(100),
+	issuesTruncated: z.boolean(),
+	exclusions: z.array(z.string()),
+	limits: z.strictObject({
 		files: z.number().int().nonnegative(),
 		bytes: z.number().int().nonnegative(),
 		matches: z.number().int().nonnegative(),
 		timeoutMs: z.number().int().nonnegative(),
+		fileBytes: z.number().int().nonnegative(),
 	}),
-	errors: z
-		.array(
-			z.object({
-				path: relativePath.optional(),
-				code: z.string().min(1),
-				message: z.string().min(1).max(1024),
-			}),
-		)
-		.max(100),
 });
 
 export type ProjectSearchOwner = Pick<
@@ -88,8 +111,8 @@ export const unavailableProjectSearch: ProjectSearchAdapter = {
 };
 
 export function projectSearchQueryError(q: string): string {
-	return q.length > 512
-		? "Use 512 characters or fewer to search the project."
+	return Array.from(q.trim()).length > 200
+		? "Use 200 characters or fewer to search the project."
 		: "";
 }
 
@@ -100,15 +123,19 @@ export async function readProjectSearch(
 	previous?: ProjectSearchPage,
 ): Promise<ProjectSearchPage> {
 	if (!adapter.available) throw new Error("Project search is unavailable.");
+	const q = request.q.trim();
 	if (
-		!request.owner.projectId ||
-		!request.q.trim() ||
-		projectSearchQueryError(request.q) ||
+		!id.safeParse(request.owner.projectId).success ||
+		(request.owner.threadId !== null &&
+			!id.safeParse(request.owner.threadId).success) ||
+		!q ||
+		projectSearchQueryError(q) ||
+		/[\uD800-\uDFFF]/u.test(q) ||
 		request.limit !== 100
 	)
 		throw new Error("The project search request is invalid.");
 	signal.throwIfAborted();
-	const response: unknown = await adapter.search(request, signal);
+	const response: unknown = await adapter.search({ ...request, q }, signal);
 	signal.throwIfAborted();
 	const parsed = pageSchema.safeParse(response);
 	if (!parsed.success)
@@ -123,7 +150,12 @@ export async function readProjectSearch(
 		throw new Error(
 			"Search results belong to another project or thread. Refresh to try again.",
 		);
-	if (page.complete && (page.nextCursor || page.errors.length))
+	if (
+		page.complete &&
+		page.issues.some(
+			(issue) => !["excluded", "binary", "too_large"].includes(issue.reason),
+		)
+	)
 		throw new Error(
 			"Project search returned inconsistent completeness information.",
 		);
@@ -132,10 +164,10 @@ export async function readProjectSearch(
 	if (
 		previous &&
 		(page.owner.workingCopyId !== previous.owner.workingCopyId ||
-			page.owner.revision !== previous.owner.revision)
+			page.owner.binding !== previous.owner.binding)
 	)
 		throw new Error(
-			"The working copy changed during search. Refresh to search its current revision.",
+			"The working copy changed during search. Refresh to search its current binding.",
 		);
 	return page;
 }
@@ -152,11 +184,19 @@ export function appendProjectSearch(
 	);
 	for (const match of page.matches)
 		matches.set(projectSearchMatchKey(match), match);
+	const issues = new Map(
+		[...previous.issues, ...page.issues].map((issue) => [
+			JSON.stringify(issue),
+			issue,
+		]),
+	);
 	return {
 		...page,
-		complete: page.complete && matches.size <= 1000,
+		complete: previous.complete && page.complete && matches.size <= 1000,
 		matches: [...matches.values()].slice(0, 1000),
-		exclusions: [...previous.exclusions, ...page.exclusions],
-		errors: [...previous.errors, ...page.errors],
+		exclusions: [...new Set([...previous.exclusions, ...page.exclusions])],
+		issues: [...issues.values()].slice(0, 100),
+		issuesTruncated:
+			previous.issuesTruncated || page.issuesTruncated || issues.size > 100,
 	};
 }

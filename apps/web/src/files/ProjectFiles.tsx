@@ -46,7 +46,7 @@ function ProjectFilesReader({
 	const matchLine = useRef<HTMLElement>(null);
 	const owner = {
 		projectId: decodeURIComponent(base.split("/").at(-1) ?? ""),
-		threadId: new URLSearchParams(query).get("threadId") ?? undefined,
+		threadId: new URLSearchParams(query).get("threadId") ?? null,
 	};
 	const readFolder = useCallback(
 		(signal: AbortSignal) => {

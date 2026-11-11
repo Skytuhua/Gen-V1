@@ -54,7 +54,7 @@ export function ProjectSearch(props: ProjectSearchProps) {
 						}}
 						onCompositionEnd={(event) => {
 							composing.current = false;
-							setQuery(event.currentTarget.value);
+							setQuery(event.currentTarget.value.trim());
 						}}
 						onChange={(event) => {
 							setDraft(event.target.value);
@@ -150,8 +150,7 @@ function SearchResults({
 		(index) => onSelect(matches[index]),
 		() => {},
 	);
-	const incomplete =
-		page.value && (!page.value.complete || page.value.errors.length > 0);
+	const incomplete = page.value && !page.value.complete;
 	return (
 		<>
 			<p className="project-search-summary" role="status" aria-live="polite">
@@ -162,7 +161,7 @@ function SearchResults({
 							? "Refreshing results…"
 							: "Searching project…"
 						: page.value
-							? `${matches.length} ${matches.length === 1 ? "result" : "results"} · ${incomplete ? "Incomplete results" : "Project files and text"}`
+							? `${matches.length} ${matches.length === 1 ? "result" : "results"} · ${incomplete ? "Incomplete results" : page.value.nextCursor ? "More results available" : "Project files and text"}`
 							: ""}
 			</p>
 			{page.error && (
@@ -283,25 +282,29 @@ function SearchResults({
 								? ` · ${page.value.exclusions.length} exclusions`
 								: ""}
 						</summary>
-						<p>Revision {page.value.owner.revision}</p>
+						<p>Binding {page.value.owner.binding}</p>
 						<p>
 							Limits: {page.value.limits.files.toLocaleString()} files ·{" "}
 							{page.value.limits.bytes.toLocaleString()} bytes ·{" "}
 							{page.value.limits.matches} matches ·{" "}
-							{page.value.limits.timeoutMs.toLocaleString()} ms
+							{page.value.limits.timeoutMs.toLocaleString()} ms ·{" "}
+							{page.value.limits.fileBytes.toLocaleString()} bytes per file
 						</p>
 						{page.value.exclusions.map((item, index) => (
+							<p key={index}>{item}</p>
+						))}
+						{page.value.issues.map((item, index) => (
 							<p key={index}>
 								{item.path ? `${item.path}: ` : ""}
-								{item.reason}
+								{item.reason.replaceAll("_", " ")}
 							</p>
 						))}
-						{page.value.errors.map((item, index) => (
-							<p key={index}>
-								{item.path ? `${item.path}: ` : ""}
-								{item.code}: {item.message}
+						{page.value.issuesTruncated && (
+							<p>
+								More issues were omitted. Refine the query or refresh to inspect
+								fewer files.
 							</p>
-						))}
+						)}
 					</details>
 				</>
 			)}
