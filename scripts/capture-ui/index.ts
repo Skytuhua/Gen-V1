@@ -62,7 +62,7 @@ async function main() {
     // States stay ordered per viewport, so identity checks have their default.
     // A bounded pool avoids idle workers behind a screen with many slow states.
     const jobs = selected.flatMap(screen => captureWidths.map(width => ({screen, width})));
-    const viewports = await settlePool(jobs, 6, async ({screen, width}) => {
+    const viewports = await settlePool(jobs, 2, async ({screen, width}) => {
       const tile = await captureBrowser.newPage({ viewport: { width: 1200, height: 500 } });
       try { for (const state of keyStates) {
       const recipe = screen.states[state];
@@ -118,7 +118,8 @@ async function main() {
               try { await route.abort(); } catch { /* Context may already be closing. */ }
               return;
             }
-            if (screen.id === 'app-shell') return shellRoute(route, snapshot, recipe.api === 'error');
+            if (screen.id === 'terminal-excerpts' && url.pathname.startsWith('/api/terminals')) return route.fulfill({json: browserApiResponse(url,route.request().method()==='POST'?route.request().postDataJSON():undefined,recipe.api==='empty')});
+            if (['app-shell','conversation-find','terminal-excerpts'].includes(screen.id)) return shellRoute(route, snapshot, recipe.api === 'error');
             if (recipe.api === 'error' && url.pathname !== '/api/bootstrap') return route.fulfill({ status: 503, json: { error: { code: 'CAPTURE_503', message: 'Synthetic data unavailable. Retry.' } } });
             if (url.pathname.startsWith('/api/resources/') && url.pathname.endsWith('/content')) {
               const asset = await taskAssetResponse(decodeURIComponent(url.pathname.split('/')[3]));
@@ -168,7 +169,7 @@ async function main() {
             motion = mergeMotionRecords(motion, initial, records);
             await mkdir(resolve(out, 'screenshots', screen.id), { recursive: true });
             const path = `screenshots/${screen.id}/${state}-${width}.png`;
-            const bytes = await page.screenshot({ path: resolve(out, path), fullPage: true });
+            const bytes = await page.screenshot({ path: resolve(out, path), fullPage: true, timeout:20000 });
             const hash = createHash('sha256').update(bytes).digest('hex');
             const baselineKey = `${screen.id}/${width}`;
             const status = state === 'default' ? 'captured' : imageStatus(defaults.get(baselineKey), hash);

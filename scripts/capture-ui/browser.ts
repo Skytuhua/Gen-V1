@@ -20,7 +20,7 @@ export async function collect(page: Page, screen: string, state: string, width: 
       }
       return parts.join(' > ');
     }
-    const animations = (tracked ? [...((window as unknown as { captureTracked?: Set<Animation> }).captureTracked ?? [])] : document.getAnimations()).filter(a => a.effect instanceof KeyframeEffect && a.effect.target?.isConnected && a.playState !== 'idle');
+    const animations = (tracked ? [...((window as unknown as { captureTracked?: Set<Animation> }).captureTracked ?? [])] : document.getAnimations()).filter(a => a.effect instanceof KeyframeEffect && a.effect.target?.isConnected && a.effect.target.getClientRects().length>0 && getComputedStyle(a.effect.target).visibility!=='hidden' && a.playState !== 'idle');
     (window as unknown as { captureAnimations: Animation[] }).captureAnimations = animations;
     return animations.map(a => {
       const effect = a.effect as KeyframeEffect | null, timing = effect?.getTiming(), frames = effect?.getKeyframes() ?? [];
@@ -37,7 +37,7 @@ export async function frameStrip(page: Page, tile: Page, index: number, output: 
   if (!target) throw Error('Animation strip has no frame-local target');
   const { frame, index: localIndex } = target;
   const frames: string[] = [];
-  // Scroll an existing target into view before clipping. Detached/cancelled effects
+  // Scroll an existing target into view before clipping. Hidden/detached/cancelled effects
   // are not document animations; collect() filters those rather than inventing pixels.
   const handle = await frame.evaluateHandle(index => (window as unknown as {captureAnimations: Animation[]}).captureAnimations[index].effect instanceof KeyframeEffect ? ((window as unknown as {captureAnimations: Animation[]}).captureAnimations[index].effect as KeyframeEffect).target : null, localIndex);
   const element = handle.asElement();

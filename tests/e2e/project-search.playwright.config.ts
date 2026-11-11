@@ -17,7 +17,7 @@ export default defineConfig({
 		trace: "retain-on-failure",
 		screenshot: "only-on-failure",
 	},
-	webServer: {
+	webServer: process.env.GEN_WO5_SERVER_EXTERNAL === '1' ? undefined : {
 		command:
 			"pnpm exec vite --configLoader runner --config tests/e2e/project-search.vite.config.ts",
 		cwd: resolve(import.meta.dirname, "../.."),

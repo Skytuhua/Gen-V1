@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {captureWidths, keyStates, requiredOutputScreenIds} from '../../scripts/capture-ui/screen-map';
+import {captureWidths, keyStates, requiredOutputScreenIds,screens} from '../../scripts/capture-ui/screen-map';
 import {isReducedOffender, motionKey, type CaptureEntry, type Motion} from '../../scripts/capture-ui/helpers';
 import {captureExitCode, canCaptureStrip, verifyCaptureOutputs, type CaptureOutputManifest, type ReducedMotionOutput, type StripMotionReference} from '../../scripts/capture-ui/runtime-helpers';
 import {reducedMotionMarkdown} from '../../scripts/capture-ui/reports';
@@ -20,6 +20,10 @@ const check = (f: ReturnType<typeof fixture>) => verifyCaptureOutputs(f.manifest
 describe('capture output verification', () => {
   it('includes the primary WO-5 desktop width without dropping existing widths', () => {
     expect(captureWidths).toEqual([375, 768, 1024, 1440]);
+  });
+  it('does not click ready-only controls while capturing an unresolved App or terminal',()=>{
+    for(const id of ['terminal-excerpts','conversation-find'])expect(screens.find(screen=>screen.id===id)!.states.loading.steps).toEqual([]);
+    expect(screens.find(screen=>screen.id==='conversation-find')!.states.error.steps).toEqual([]);
   });
   it('accepts complete output with captured, identical, and justified skipped cells', () => {
     const f = fixture(['plugin-frame', 'side-chat']);

@@ -17,6 +17,7 @@
     "lint:ui": "tsx scripts/lint-ui.ts",
     "test:ui-guard": "vitest run tests/ui-guard.test.ts tests/ui-numeric-children.test.ts --maxWorkers=1",
     "test": "pnpm build:widgets && vitest run",
+    "test:browser": "tsx scripts/test-browser.ts",
     "test:e2e": "pnpm build && tsx scripts/test-browser.ts",
     "agent:login": "tsx packages/runtime-login/index.ts",
     "fixtures:create": "tsx scripts/create-fixtures.ts",

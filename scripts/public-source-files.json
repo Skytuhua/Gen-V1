@@ -986,6 +986,8 @@
     "tests/e2e/usage-context.playwright.config.ts",
     "tests/e2e/usage-context.spec.ts",
     "tests/e2e/vite.config.ts",
+    "tests/e2e/wo5-app-integration.playwright.config.ts",
+    "tests/e2e/wo5-app-integration.spec.ts",
     "tests/e2e/work-objects.playwright.config.ts",
     "tests/e2e/work-objects.spec.ts",
     "tests/e2e/workspace-app-fixture.tsx",

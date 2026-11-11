@@ -66,7 +66,7 @@ export function ConversationFind({ownerKey,transcript,scope,active=true,onNaviga
      <button type="button" className="quiet" aria-label="Next match" disabled={!count} onClick={()=>jump(nextFindIndex(index,1,count))}><ArrowDown size={14}/></button>
      <button type="button" className="quiet" aria-label="Close find" onClick={close}><X size={14}/></button>
     </div>
-    <div className="conversation-find-scope"><span>Loaded messages</span>{onLoadEarlier&&<button className="quiet" type="button" disabled={historyPending||historyLimited} onClick={onLoadEarlier}>{historyLimited?'History limit reached':historyPending?'Loading older messages…':'Load older messages'}</button>}</div>
+    <div className="conversation-find-scope"><span>Loaded messages</span>{onLoadEarlier&&<button className="quiet" type="button" disabled={historyPending||historyLimited} onClick={()=>{onLoadEarlier();input.current?.focus({preventScroll:true});}}>{historyLimited?'History limit reached':historyPending?'Loading older messages…':'Load older messages'}</button>}</div>
     {historyError&&<p role="alert">{historyError}</p>}
    </div>}
  </div>;
