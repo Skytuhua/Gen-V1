@@ -25,19 +25,24 @@ export async function holdWidgetMount(page: Page, failFirst = false) {
 }
 
 type Paint = { height: number | null; afterTop: number; pending: boolean };
-type JournalWindow = Window & { artifactPaints: Paint[]; artifactJournalPending: boolean; releaseArtifactJournal: () => void };
+type JournalWindow = Window & { artifactPaints: Paint[]; artifactJournalPending: boolean; releaseArtifactJournal: (failed?: boolean) => void };
 
 export async function holdArtifactJournal(page: Page) {
   await page.addInitScript(() => {
     const target = window as unknown as JournalWindow;
-    const gate = new Promise<void>(resolve => { target.releaseArtifactJournal = () => { target.artifactJournalPending = false; resolve(); }; });
+    const gate = new Promise<boolean>(resolve => { target.releaseArtifactJournal = (failed = false) => { target.artifactJournalPending = false; resolve(failed); }; });
     const open = indexedDB.open.bind(indexedDB), success = Object.getOwnPropertyDescriptor(IDBRequest.prototype, 'onsuccess')!;
     indexedDB.open = (...args) => {
       const request = open(...args);
       Object.defineProperty(request, 'onsuccess', { set(handler) {
         success.set!.call(request, (event: Event) => {
           target.artifactJournalPending = true;
-          void gate.then(() => handler.call(request, event));
+          void gate.then(failed => {
+            if (failed) {
+              Object.defineProperty(request, 'error', { value: new DOMException('Synthetic journal read failure', 'UnknownError') });
+              request.onerror?.call(request, new Event('error'));
+            } else handler.call(request, event);
+          });
         });
       } });
       return request;
@@ -45,13 +50,13 @@ export async function holdArtifactJournal(page: Page) {
   });
 }
 
-export async function releaseArtifactJournal(page: Page) {
+export async function releaseArtifactJournal(page: Page, failed = false) {
   await expect.poll(() => page.evaluate(() => (window as unknown as JournalWindow).artifactJournalPending)).toBe(true);
-  await page.evaluate(async () => {
+  await page.evaluate(async failed => {
     // Let the pending state reach actual paint frames before completing the read.
     for (let frame = 0; frame < 4; frame++) await new Promise(requestAnimationFrame);
-    (window as unknown as JournalWindow).releaseArtifactJournal();
-  });
+    (window as unknown as JournalWindow).releaseArtifactJournal(failed);
+  }, failed);
 }
 
 export async function serveArtifactSettleFixture(page: Page, query = '') {
@@ -59,8 +64,8 @@ export async function serveArtifactSettleFixture(page: Page, query = '') {
     const target = window as unknown as JournalWindow;
     target.artifactPaints = [];
     const sample = () => {
-      const shell = document.querySelector('.artifact'), following = document.querySelector('[data-after-artifact]');
-      if (following) target.artifactPaints.push({ height: shell?.getClientRects().length ? shell.getBoundingClientRect().height : null, afterTop: following.getBoundingClientRect().top, pending: target.artifactJournalPending === true });
+      const reservation = document.querySelector('.artifact') ?? document.querySelector('.loading-state-status[role="status"]'), following = document.querySelector('[data-after-artifact]');
+      if (following) target.artifactPaints.push({ height: reservation?.getClientRects().length ? reservation.getBoundingClientRect().height : null, afterTop: following.getBoundingClientRect().top, pending: target.artifactJournalPending === true });
       requestAnimationFrame(sample);
     };
     requestAnimationFrame(sample);
@@ -79,8 +84,8 @@ export async function expectArtifactGeometry(page: Page) {
   const painted = paints.filter(paint => paint.height !== null);
   expect(painted.length).toBeGreaterThan(0);
   for (const paint of painted) {
-    expect(paint.height, 'artifact height from its first painted frame').toBe(final.height);
-    expect(paint.afterTop, 'following conversation position from the first artifact paint').toBe(final.afterTop);
+    expect(paint.afterTop, 'following conversation position from the first pending or artifact paint').toBe(final.afterTop);
+    expect(paint.height, 'reserved height from the first pending or artifact paint').toBe(final.height);
   }
   return { final, paints };
 }

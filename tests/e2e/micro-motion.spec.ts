@@ -46,6 +46,7 @@ test('a theme change clears the old-color reveal without replaying the text',asy
 test('a new artifact has its final geometry from first paint after a delayed journal read',async({page})=>{
  await holdArtifactJournal(page);await serveArtifactSettleFixture(page);
  await page.getByRole('button',{name:'Publish artifact',exact:true}).click();
+ await expect(page.getByRole('status')).toBeVisible();
  await releaseArtifactJournal(page);
  const note=page.getByRole('textbox',{name:'Artifact note',exact:true});await expect(note).toHaveValue('Keep this saved note');
  const identity=await note.elementHandle(),initial=await expectArtifactGeometry(page);

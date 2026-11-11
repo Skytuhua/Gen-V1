@@ -4,6 +4,7 @@ import { ChevronDown, RotateCcw } from 'lucide-react';
 import { disclosureData } from '../../../packages/ui-catalog/workflow';
 import { inputPath, mapActionPayload, statePath, useTaskAction } from './task-context';
 import { animateTask, IncomingAnswer, MotionRegion, reducedMotion, TASK_MOTION } from './task-motion';
+import {useSecureArtifact} from './secure-artifact-context';
 
 function FollowupBranch({ pending, children }: { pending: boolean; children: ReactNode }) {
   const branch = useRef<HTMLDivElement>(null), placeholder = useRef<HTMLDivElement>(null);
@@ -38,7 +39,7 @@ function FollowupBranch({ pending, children }: { pending: boolean; children: Rea
 }
 
 export function Disclosure({ element: { props }, children, bindings }: ComponentRenderProps) {
-  const store = useStateStore(), action = useTaskAction();
+  const store = useStateStore(), action = useTaskAction(), active = useSecureArtifact()?.active !== false;
   const [local, setLocal] = useState(props.defaultOpen === true);
   const field = bindings?.value ?? statePath(props.stateKey);
   const value = store.get(field);
@@ -53,7 +54,7 @@ export function Disclosure({ element: { props }, children, bindings }: Component
   const ready = data?.status === 'ready' || (!bound && Boolean(text));
   const pending = action.busy || data?.status === 'pending' || (requested.current && !ready && !error);
   const request = () => {
-    if (!props.onOpenActionId || pending || ready) return;
+    if (!active || !props.onOpenActionId || pending || ready) return;
     requested.current = true;
     void action.run(String(props.onOpenActionId), mapActionPayload(props, store.getSnapshot().values));
   };
@@ -61,7 +62,7 @@ export function Disclosure({ element: { props }, children, bindings }: Component
     if (props.stateKey) store.set(field, !open); else setLocal(!open);
     if (!open && !requested.current && !error) request();
   };
-  useEffect(() => { if (open && !requested.current && !error) request(); }, [open, ready, pending, props.onOpenActionId]);
+  useEffect(() => { if (open && !requested.current && !error) request(); }, [open, ready, pending, props.onOpenActionId, active]);
   return <div className="disclosure-node" data-answer-state={error ? 'error' : pending ? 'pending' : ready ? 'ready' : 'idle'}>
     <div className="disclosure">
       <button type="button" className="disclosure-trigger" aria-expanded={open} aria-controls={`${id}-answer ${id}-branches`} onClick={toggle}><span className="disclosure-question-mark" aria-hidden="true"><svg viewBox="0 0 12 12" width="12" height="12">{Array.from({ length: 9 }, (_, index) => <rect key={index} x={index % 3 * 4} y={Math.floor(index / 3) * 4} width="3" height="3" rx=".45" opacity={.35 + index % 3 * .3} />)}</svg></span><span className="disclosure-question-title">{String(props.title ?? props.label ?? '')}</span><ChevronDown size={14} className={open ? 'rotated' : ''} /></button>

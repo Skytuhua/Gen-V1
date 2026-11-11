@@ -1,5 +1,12 @@
 .task-motion-region { height:0; overflow:clip; transition-property:none; }
 .task-motion-inner { display:flow-root; min-width:0; transition-property:none; }
+/* The single content tree reserves its natural layout before restoration. */
+.artifact>.artifact-body { display:grid; }
+.artifact>.artifact-body>:is(.artifact-content,.artifact-restoring) { grid-area:1 / 1; min-width:0; }
+.artifact-restoring { align-self:start; }
+.artifact[data-artifact-pending=true]>.artifact-body>.artifact-content,
+.artifact[data-artifact-pending=true]>.artifact-body>.artifact-content *,
+.artifact[data-artifact-pending=true] .artifact-tools>:not([aria-label="Collapse artifact"]) { visibility:hidden!important; }
 /* Reserve the existing iframe extent through mount, failure and retry. */
 .widget-container { display:grid; grid-template-rows:auto 450px; }
 .artifact:is(.artifact-expanded,.artifact-in-workspace) .widget-container { grid-template-rows:auto max(450px,60vh); }

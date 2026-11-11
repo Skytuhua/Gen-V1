@@ -14,6 +14,17 @@ function Fixture() {
   const restored = new URLSearchParams(location.search).has('restored');
   const [snapshot, setSnapshot] = useState(() => {
     const initial = structuredClone(source);
+    const rows = new URLSearchParams(location.search).get('rows');
+    if (rows !== null) initial.data[0].value = Array.from({ length: Math.max(0, Math.min(20, Number(rows) || 0)) }, (_, index) => ({ name: `Record ${index + 1}`, detail: 'Synthetic source material for the new working object.' }));
+    if (new URLSearchParams(location.search).has('request')) {
+      initial.artifacts[0].spec!.elements.body.children!.push('followup');
+      initial.artifacts[0].spec!.elements.followup = { type: 'Disclosure', props: { title: 'Prepared question', defaultOpen: true, onOpenActionId: 'ask', payloadFromState: { note: 'note' } } };
+    }
+    if (new URLSearchParams(location.search).has('signature')) {
+      initial.artifacts[0].spec!.elements.body.children!.push('signature');
+      initial.artifacts[0].spec!.elements.signature = { type: 'SignaturePad', props: { stateKey: 'signature', nameStateKey: 'name', label: 'Restored signature' } };
+      initial.userStates[0].values.name = 'Test Signer';
+    }
     if (new URLSearchParams(location.search).has('expanded')) initial.artifacts[0].placement = 'expanded';
     if (new URLSearchParams(location.search).has('widget')) Object.assign(initial.artifacts[0], {
       kind: 'widget', spec: null, bindings: {}, actions: {},

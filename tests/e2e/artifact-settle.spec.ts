@@ -26,6 +26,65 @@ async function recordEntrances(page: Page) {
   });
 }
 const records = (page: Page) => page.evaluate(() => (window as unknown as EntranceWindow).artifactEntrances);
+
+test('automatic disclosure actions wait for restored state', async ({ page }) => {
+  await holdArtifactJournal(page); await fixture(page, '?request');
+  const actions: unknown[] = [];
+  await page.route('**/api/bootstrap', route => route.fulfill({ json: { csrfToken: 'restoring-fixture' } }));
+  await page.route('**/api/commands', route => {
+    const command = route.request().postDataJSON();
+    if (command.type === 'action.submit') actions.push(command.payload.payload);
+    return route.fulfill({ json: { commandId: command.id, result: {}, seq: 1 } });
+  });
+  await page.getByRole('button', { name: 'Publish artifact', exact: true }).click();
+  await expect(page.getByRole('status')).toHaveText('Restoring Task surface…');
+  expect(actions).toHaveLength(0);
+  await releaseArtifactJournal(page);
+  await expect.poll(() => actions).toEqual([{ note: 'Keep this saved note' }]);
+});
+
+for (const recovered of [false, true]) test(`${recovered ? 'recovered' : 'generated'} signatures wait for journal restoration`, async ({ page }) => {
+  if (recovered) await page.addInitScript(() => {
+    const canvas = document.createElement('canvas'); canvas.width = 960; canvas.height = 320;
+    canvas.getContext('2d')!.fillRect(20, 20, 400, 100);
+    localStorage.setItem('harness:signature-assets:v1:task-thread:task-state', JSON.stringify([{ id: 'recovered-signature', stateKey: 'signature', base64: canvas.toDataURL('image/png').split(',')[1] }]));
+  });
+  await holdArtifactJournal(page); await fixture(page, '?signature');
+  let uploads = 0;
+  await page.route('**/api/bootstrap', route => route.fulfill({ json: { csrfToken: 'restoring-fixture' } }));
+  await page.route('**/api/commands', route => {
+    const command = route.request().postDataJSON();
+    if (command.type === 'resource.upload') uploads++;
+    return route.fulfill({ json: { commandId: command.id, result: command.type === 'resource.upload' ? { id: 'signature-asset', threadId: 'task-thread', kind: 'attachment' } : {}, seq: 1 } });
+  });
+  await page.getByRole('button', { name: 'Publish artifact', exact: true }).click();
+  await expect(page.getByRole('status')).toHaveText('Restoring Task surface…');
+  await expect(page.locator('.signature-well-tools button').first()).toBeEnabled();
+  expect(uploads).toBe(0);
+  if (!recovered) expect(await page.evaluate(() => localStorage.getItem('harness:signature-assets:v1:task-thread:task-state'))).toBeNull();
+  await releaseArtifactJournal(page);
+  await expect.poll(() => uploads).toBe(1);
+  await expect(page.getByRole('img', { name: 'Selected visual signature', exact: true })).toBeVisible();
+});
+
+for (const width of [1024, 1440, 768]) for (const rows of [0, 12]) for (const failed of [false, true]) {
+  test(`restoration ${failed ? 'failure' : 'success'} reserves layout from first pending paint at ${width}, ${rows} rows`, async ({ page }, testInfo) => {
+    await page.setViewportSize({ width, height: 1000 });
+    await holdArtifactJournal(page); await recordEntrances(page); await fixture(page, `?rows=${rows}`);
+    await page.getByRole('button', { name: 'Publish artifact', exact: true }).click();
+    await expect(page.getByRole('status')).toHaveText('Restoring Task surface…');
+    await expect(page.getByRole('status')).toBeVisible();
+    const pendingTop = await page.locator('[data-after-artifact]').evaluate(node => node.getBoundingClientRect().top);
+    await releaseArtifactJournal(page, failed);
+    await expect(page.getByRole('textbox', { name: 'Artifact note', exact: true })).toHaveValue('Keep this saved note');
+    await finish(page);
+    const geometry = await expectArtifactGeometry(page);
+    expect(geometry.final.afterTop).toBe(pendingTop);
+    if (failed) await expect(page.locator('.save-state')).toContainText('Local journal unavailable');
+    await testInfo.attach('complete-restoration-geometry.json', { body: JSON.stringify(geometry, null, 2), contentType: 'application/json' });
+  });
+}
+
 async function publish(page: Page, journalHeld = false) {
   await page.getByRole('button', { name: 'Publish artifact', exact: true }).click();
   if (journalHeld) await releaseArtifactJournal(page);
@@ -40,10 +99,10 @@ async function finish(page: Page) {
 async function settled(page: Page) {
   const state = await page.locator('.artifact').evaluate(node => {
     const body = node.querySelector('.artifact-body')!, style = getComputedStyle(body);
-    // Chromium can still list a finished fill:none effect until its finish event.
-    return { activeAnimations: body.getAnimations().filter(animation => ['running', 'paused'].includes(animation.playState)).length, opacity: style.opacity, transform: style.transform, height: (node as HTMLElement).style.height, overflow: (node as HTMLElement).style.overflow };
+    // OS policy changes also start scrollbar color transitions; track the entrance itself.
+    return { activeEntrances: (window as unknown as EntranceWindow).artifactAnimations.filter(animation => ['running', 'paused'].includes(animation.playState)).length, opacity: style.opacity, transform: style.transform, height: (node as HTMLElement).style.height, overflow: (node as HTMLElement).style.overflow };
   });
-  expect(state).toEqual({ activeAnimations: 0, opacity: '1', transform: 'none', height: '', overflow: '' });
+  expect(state).toEqual({ activeEntrances: 0, opacity: '1', transform: 'none', height: '', overflow: '' });
 }
 
 for (const width of [1024, 1440, 768]) {
@@ -163,10 +222,14 @@ for (const expanded of [false, true]) test(`delayed journal restoration preserve
   await publishButton.focus();
   await expect(page.getByRole('status')).toHaveText('Restoring Task surface…');
   await expect(page.getByRole('status')).toBeVisible();
-  await expect(page.locator('.artifact')).toHaveCount(0);
+  await expect(page.locator('.artifact-body')).toHaveAttribute('aria-busy', 'true');
+  await expect(page.locator('.artifact-content')).toHaveAttribute('inert', '');
+  await expect(page.locator('.artifact-content input')).toHaveCount(1);
+  const original = await page.locator('.artifact-content input').elementHandle();
   await releaseArtifactJournal(page);
   const note = page.getByRole('textbox', { name: 'Artifact note', exact: true });
   await expect(note).toHaveValue('Keep this saved note');
+  expect(await note.evaluate((node, original) => node === original, original)).toBe(true);
   const { paints } = await expectArtifactGeometry(page);
   expect(paints.filter(paint => paint.pending).length).toBeGreaterThanOrEqual(4);
   expect(await records(page)).toHaveLength(0); await settled(page);

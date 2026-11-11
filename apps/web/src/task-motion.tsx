@@ -47,7 +47,7 @@ export function useArtifactEntrance(ref: RefObject<HTMLElement | null>, animateE
     const element = ref.current, content = contentRef.current;
     if (!animateEntry || played.current || !element || !content) return;
     played.current = true;
-    if (readMotionPolicy() !== 'full') { element.dataset.entryPhase = 'settled'; return; }
+    if (readMotionPolicy() !== 'full' || element.contains(document.activeElement)) { element.dataset.entryPhase = 'settled'; return; }
     // Keep the body in normal flow: the shell occupies its final geometry from
     // the first frame. Only this inner layer moves; no height handoff is needed.
     element.dataset.entryPhase = 'entering';
