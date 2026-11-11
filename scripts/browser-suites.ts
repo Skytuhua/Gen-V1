@@ -80,6 +80,7 @@ export const browserSuites:BrowserSuite[] = [
   suite('summary-dock'),
   suite('t3-centered'),
   suite('tabs-identity'),
+  suite('table-controls'),
   suite('task-design'),
   suite('task-interface'),
   suite('ui-shell-controls'),

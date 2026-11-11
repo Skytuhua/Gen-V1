@@ -398,6 +398,50 @@
       "reason": "Public optional visuals: migrate details menu and dialog backdrop with shared controls.",
       "evidence": ".pv-dialog-backdrop {",
       "disposition": "staged-migration"
+    },
+    {
+      "file": "apps/web/src/task-table.css",
+      "line": 38,
+      "column": 1,
+      "rule": "ad-hoc-overlay",
+      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
+      "fingerprint": "ff3923b78a8af8dd0b3c7400b3b7ac51d00c9ef4a7bf01976f7d260a90fe2e68",
+      "reason": "WO-7 reviewed geometry: table-local column hit target or pointer-transparent gesture feedback; no popup, dismissal or modal behavior.",
+      "evidence": ".task-table-resizer { margin:0; border:0; position:absolute; z-index:3; right:-12px; top:0; width:24px; height:34px; cursor:col-resize; touch-action:none; }",
+      "disposition": "retained-geometry"
+    },
+    {
+      "file": "apps/web/src/task-table.css",
+      "line": 52,
+      "column": 1,
+      "rule": "ad-hoc-overlay",
+      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
+      "fingerprint": "ab21fb836720ea11b5d8fd2c575a43cc57a7583681b521dfc17dca3825f42755",
+      "reason": "WO-7 reviewed geometry: table-local column hit target or pointer-transparent gesture feedback; no popup, dismissal or modal behavior.",
+      "evidence": ".task-table-resize-guide { position:absolute; z-index:4; top:0; bottom:0; width:1px; pointer-events:none; background:var(--accent-fg,var(--accent)); }",
+      "disposition": "retained-geometry"
+    },
+    {
+      "file": "apps/web/src/task-table.css",
+      "line": 53,
+      "column": 1,
+      "rule": "ad-hoc-overlay",
+      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
+      "fingerprint": "b7298b9e902da8b843f024dce4c8d4be67844f3b8006e26f96893a1a8f63acbf",
+      "reason": "WO-7 reviewed geometry: table-local column hit target or pointer-transparent gesture feedback; no popup, dismissal or modal behavior.",
+      "evidence": ".task-table-drop-line { position:absolute; z-index:4; top:3px; height:28px; width:2px; pointer-events:none; background:var(--accent-fg,var(--accent)); }",
+      "disposition": "retained-geometry"
+    },
+    {
+      "file": "apps/web/src/task-table.css",
+      "line": 57,
+      "column": 1,
+      "rule": "ad-hoc-overlay",
+      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
+      "fingerprint": "b051a9c71c4f1b7ff64ae4f32c71a2ba635281ea243ffecc7e599cc00ea548cf",
+      "reason": "WO-7 reviewed geometry: table-local column hit target or pointer-transparent gesture feedback; no popup, dismissal or modal behavior.",
+      "evidence": ".task-table-drag-preview { position:absolute; z-index:5; pointer-events:none; display:flex; align-items:center; gap:4px; height:34px; max-width:220px; overflow:hidden; white-space:nowrap; padding:8px 12px; border:1px solid var(--border); border-radius:6px; background:var(--surface); color:var(--text); font:500 10px var(--font-mono,monospace); }",
+      "disposition": "retained-geometry"
     }
   ]
 }
