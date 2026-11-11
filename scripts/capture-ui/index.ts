@@ -1,10 +1,10 @@
 import { chromium } from '@playwright/test';
 import { createServer } from 'vite';
-import { mkdir, mkdtemp, readdir, rm } from 'node:fs/promises';
+import { mkdtemp, rm } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { writeCaptureFile, captureOutputPath, parseArgs, normalizeMotion, isReducedOffender, motionKey, table, hasDistinctRecipe, imageStatus, coverageMatrix, type Motion, type CaptureEntry } from './helpers';
+import { writeCaptureFile, prepareCaptureOutput, parseArgs, normalizeMotion, isReducedOffender, motionKey, table, hasDistinctRecipe, imageStatus, coverageMatrix, type Motion, type CaptureEntry } from './helpers';
 import { screens, keyStates, captureWidths, type Action } from './screen-map';
 import { resolveScope } from './scope';
 import { collect, frameStrip } from './browser';
@@ -28,9 +28,7 @@ async function main() {
   for (const id of ids) if (!screens.some(s => s.id === id)) throw Error(`Unknown screen ${id}`);
   const selected = screens.filter(s => ids.includes(s.id));
   const requirePluginEvidence = selected.some(screen => screen.id === 'plugin-frame');
-  const out = captureOutputPath(args.out || `test-results/ui-capture/${new Date().toISOString().replaceAll(':', '-')}`);
-  await mkdir(out, { recursive: true });
-  if ((await readdir(out)).length) throw Error('Capture output must be a fresh, empty directory; existing children may be symlinks.');
+  const out = await prepareCaptureOutput(args.out || `test-results/ui-capture/${new Date().toISOString().replaceAll(':', '-')}`);
   const json = (name: string, data: unknown) => writeCaptureFile(out, `${name}.json`, JSON.stringify(data, null, 2));
   const md = (name: string, body: string) => writeCaptureFile(out, `${name}.md`, body);
   await json('scope', scope);

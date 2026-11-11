@@ -2,12 +2,15 @@ import {beforeEach,describe,expect,it,vi} from 'vitest';
 import {mkdtempSync,mkdirSync,symlinkSync,rmSync,renameSync,readdirSync,readFileSync,writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {dirname,join} from 'node:path';
-import { aggregate, writeCaptureFile, captureOutputPath, parseArgs, normalizeMotion, isReducedOffender, motionKey, frameTag, paddedClip, type Motion, hasDistinctRecipe, imageStatus, coverageMatrix } from '../../scripts/capture-ui/helpers';
+import { aggregate, prepareCaptureOutput, writeCaptureFile, captureOutputPath, parseArgs, normalizeMotion, isReducedOffender, motionKey, frameTag, paddedClip, type Motion, hasDistinctRecipe, imageStatus, coverageMatrix } from '../../scripts/capture-ui/helpers';
 import { mapFile, screens, keyStates } from '../../scripts/capture-ui/screen-map';
-const writeSwap=vi.hoisted(()=>({beforeOpen:undefined as (()=>void)|undefined,beforeWrite:undefined as (()=>void)|undefined}));
+const writeSwap=vi.hoisted(()=>({beforeMkdir:undefined as (()=>void)|undefined,beforeOpen:undefined as (()=>void)|undefined,beforeWrite:undefined as (()=>void)|undefined}));
 vi.mock('node:fs/promises',async importOriginal=>{
  const actual=await importOriginal<typeof import('node:fs/promises')>(),{constants}=await import('node:fs');
- return {...actual,open:async(...args:Parameters<typeof actual.open>)=>{
+ return {...actual,mkdir:async(...args:Parameters<typeof actual.mkdir>)=>{
+  if(writeSwap.beforeMkdir){const swap=writeSwap.beforeMkdir;writeSwap.beforeMkdir=undefined;swap();}
+  return actual.mkdir(...args);
+ },open:async(...args:Parameters<typeof actual.open>)=>{
   const creating=typeof args[1]==='number'&&Boolean(args[1]&constants.O_CREAT);
   if(creating&&writeSwap.beforeOpen){const swap=writeSwap.beforeOpen;writeSwap.beforeOpen=undefined;swap();}
   const handle=await actual.open(...args);
@@ -15,7 +18,7 @@ vi.mock('node:fs/promises',async importOriginal=>{
   return handle;
  }};
 });
-beforeEach(()=>{writeSwap.beforeOpen=undefined;writeSwap.beforeWrite=undefined;});
+beforeEach(()=>{writeSwap.beforeMkdir=undefined;writeSwap.beforeOpen=undefined;writeSwap.beforeWrite=undefined;});
 const motion: Motion = { screen: 'workspace', state: 'default', width: 375, frame: 'main', selector: 'button', type: 'CSSAnimation', animationName: 'enter', transitionProperty: '', properties: ['opacity', 'transform', 'opacity'], duration: 100, delay: 0, easing: 'ease', iterations: 1, fill: 'both', keyframes: [] };
 it('tags nested frames without volatile server ports or query parameters', () => {
   expect(frameTag([], 'http://localhost:123/')).toBe('main');
@@ -131,7 +134,7 @@ it('QA r2 refuses a substituted output file without changing its target',async()
  }finally{rmSync(temporary,{recursive:true,force:true});}
 });
 
-it('writes reports and binary images once through the opened file',async()=>{
+it.skipIf(process.platform!=='linux')('writes reports and binary images once through the opened file',async()=>{
  const root=mkdtempSync(join(tmpdir(),'wo5-capture-write-'));
  try{
   await writeCaptureFile(root,'report.json','{"ok":true}');await writeCaptureFile(root,'screenshots/nested/frame.png',new Uint8Array([0,1,2,255]));
@@ -154,7 +157,7 @@ it.skipIf(process.platform!=='linux')('pins the Linux parent when it is swapped 
   await expect(writeCaptureFile(captureOutputPath(root),'screenshots/proof.png','outside')).rejects.toThrow();expect(readdirSync(outside)).toEqual([]);
  }finally{rmSync(temporary,{recursive:true,force:true});}
 });
-it('a last-moment leaf swap cannot redirect the descriptor write',async()=>{
+it.skipIf(process.platform!=='linux')('a last-moment leaf swap cannot redirect the descriptor write',async()=>{
  const temporary=mkdtempSync(join(tmpdir(),'wo5-capture-write-race-')),root=join(temporary,'capture'),outside=join(temporary,'outside.txt');mkdirSync(root);writeFileSync(outside,'unchanged');
  try{
   writeSwap.beforeWrite=()=>{renameSync(join(root,'report.json'),join(root,'opened.json'));symlinkSync(outside,join(root,'report.json'));};
@@ -162,15 +165,58 @@ it('a last-moment leaf swap cannot redirect the descriptor write',async()=>{
   expect(readFileSync(outside,'utf8')).toBe('unchanged');expect(readFileSync(join(root,'opened.json'),'utf8')).toBe('safe descriptor bytes');
  }finally{rmSync(temporary,{recursive:true,force:true});}
 });
-it('keeps the Windows no-O_NOFOLLOW fallback working with component and fd checks',async()=>{
- const descriptor=Object.getOwnPropertyDescriptor(process,'platform')!,root=mkdtempSync(join(tmpdir(),'wo5-capture-windows-'));
+it.each(['win32','darwin'])('fails closed on %s before output setup or file creation',async platform=>{
+ const descriptor=Object.getOwnPropertyDescriptor(process,'platform')!,root=mkdtempSync(join(tmpdir(),'wo5-capture-unsupported-'));
+ try{
+  Object.defineProperty(process,'platform',{value:platform});
+  writeSwap.beforeMkdir=vi.fn();writeSwap.beforeOpen=vi.fn();
+  await expect(prepareCaptureOutput(join(root,'new','capture'))).rejects.toThrow('requires Linux directory descriptors');
+  await expect(writeCaptureFile(root,'nested/report.json','unsupported')).rejects.toThrow('requires Linux directory descriptors');
+  expect(writeSwap.beforeMkdir).not.toHaveBeenCalled();expect(writeSwap.beforeOpen).not.toHaveBeenCalled();
+  expect(readdirSync(root)).toEqual([]);
+ }finally{Object.defineProperty(process,'platform',descriptor);rmSync(root,{recursive:true,force:true});}
+});
+
+it.skipIf(process.platform!=='linux')('QA r3 root creation cannot follow an ancestor swapped immediately before mkdir',async()=>{
+ const temporary=mkdtempSync(join(tmpdir(),'wo5-capture-root-mkdir-race-')),parent=join(temporary,'parent'),outside=join(temporary,'outside');
+ mkdirSync(parent);mkdirSync(outside);
+ try{
+  const out=captureOutputPath(join(parent,'nested','capture'));
+  writeSwap.beforeMkdir=()=>{renameSync(parent,join(temporary,'original'));symlinkSync(outside,parent,'dir');};
+  let rejected=false;try{await prepareCaptureOutput(out);}catch{rejected=true;}
+  expect(readdirSync(outside)).toEqual([]);
+  expect(rejected).toBe(true);
+ }finally{rmSync(temporary,{recursive:true,force:true});}
+});
+it('QA r3 unsupported-platform parent swaps cannot create even an empty outside file',async()=>{
+ const descriptor=Object.getOwnPropertyDescriptor(process,'platform')!,temporary=mkdtempSync(join(tmpdir(),'wo5-capture-fallback-open-race-'));
+ const root=join(temporary,'capture'),parent=join(root,'screenshots'),outside=join(temporary,'outside');
+ mkdirSync(root);mkdirSync(parent);mkdirSync(outside);
  try{
   Object.defineProperty(process,'platform',{value:'win32'});
-  await writeCaptureFile(root,'nested/report.json','windows fallback');expect(readFileSync(join(root,'nested/report.json'),'utf8')).toBe('windows fallback');
-  await expect(writeCaptureFile(root,'nested/report.json','overwrite')).rejects.toThrow();
-  const target=join(root,'unchanged.txt');writeFileSync(target,'unchanged');
-  writeSwap.beforeWrite=()=>{renameSync(join(root,'nested/race.json'),join(root,'nested/opened.json'));symlinkSync(target,join(root,'nested/race.json'));};
-  await expect(writeCaptureFile(root,'nested/race.json','descriptor bytes')).rejects.toThrow();
-  expect(readFileSync(target,'utf8')).toBe('unchanged');expect(readFileSync(join(root,'nested/opened.json'),'utf8')).toBe('descriptor bytes');
- }finally{Object.defineProperty(process,'platform',descriptor);rmSync(root,{recursive:true,force:true});}
+  writeSwap.beforeOpen=()=>{renameSync(parent,join(root,'original'));symlinkSync(outside,parent,'dir');};
+  await expect(writeCaptureFile(root,'screenshots/proof.png','outside')).rejects.toThrow();
+  expect(readdirSync(outside)).toEqual([]);
+ }finally{Object.defineProperty(process,'platform',descriptor);rmSync(temporary,{recursive:true,force:true});}
+});
+
+it.skipIf(process.platform!=='linux')('creates a missing output root component by component and refuses nonempty reuse',async()=>{
+ const temporary=mkdtempSync(join(tmpdir(),'wo5-capture-prepare-')),out=join(temporary,'nested','capture');
+ try{
+  expect(await prepareCaptureOutput(out)).toBe(out);expect(readdirSync(out)).toEqual([]);
+  await writeCaptureFile(out,'report.json','prepared');
+  await expect(prepareCaptureOutput(out)).rejects.toThrow('fresh, empty');
+  expect(readFileSync(join(out,'report.json'),'utf8')).toBe('prepared');
+ }finally{rmSync(temporary,{recursive:true,force:true});}
+});
+it.skipIf(process.platform!=='linux')('pins nested directory creation when a parent is swapped immediately before mkdir',async()=>{
+ const temporary=mkdtempSync(join(tmpdir(),'wo5-capture-child-mkdir-race-')),root=join(temporary,'capture'),parent=join(root,'screenshots'),outside=join(temporary,'outside');
+ mkdirSync(root);mkdirSync(parent);mkdirSync(outside);
+ try{
+  writeSwap.beforeMkdir=()=>{
+   renameSync(root,join(temporary,'original'));symlinkSync(outside,root,'dir');
+  };
+  await expect(writeCaptureFile(root,'screenshots/nested/proof.png','outside')).rejects.toThrow();
+  expect(readdirSync(outside)).toEqual([]);
+ }finally{rmSync(temporary,{recursive:true,force:true});}
 });
