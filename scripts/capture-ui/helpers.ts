@@ -1,4 +1,5 @@
-import {resolve,sep} from 'node:path';
+import {basename,dirname,resolve,sep} from 'node:path';
+import {lstatSync,realpathSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import { mapFile, keyStates, type Recipe } from './screen-map';
 export function parseArgs(args: string[]) {
@@ -19,11 +20,24 @@ export function parseArgs(args: string[]) {
   }
   if (!['diff', 'baseline', 'all'].includes(result.scope)) throw Error('Invalid scope');
   if (!Number.isInteger(result.sinceDays) || result.sinceDays < 1 || !Number.isInteger(result.maxStrips) || result.maxStrips < 0) throw Error('Invalid numeric flag');
-  if (result.out) {
-    const out = resolve(result.out);
-    if (![tmpdir(), resolve('tmp'), resolve('test-results')].some(root => out === root || out.startsWith(root + sep))) throw Error('Capture output must be inside tmp or test-results; copy evidence separately.');
-  }
+  if (result.out) captureOutputPath(result.out);
   return result;
+}
+// Resolve the nearest existing ancestor before creating any output directories.
+export function captureOutputPath(path:string):string {
+  const out=resolve(path),inside=(value:string,root:string)=>value===root||value.startsWith(root+sep);
+  if (![tmpdir(),resolve('tmp'),resolve('test-results')].some(root=>inside(out,root))) throw Error('Capture output must be inside tmp or test-results; copy evidence separately.');
+  let parent=out;const missing:string[]=[];
+  for (;;) {
+    try { lstatSync(parent);break; }
+    catch(cause) { if((cause as NodeJS.ErrnoException).code!=='ENOENT')throw cause;missing.unshift(basename(parent));const next=dirname(parent);if(next===parent)throw cause;parent=next; }
+  }
+  let actual:string;
+  try { actual=resolve(realpathSync(parent),...missing); }
+  catch { throw Error('Capture output has an unresolved symlink or ancestor.'); }
+  const cwd=realpathSync('.'),roots=[realpathSync(tmpdir()),resolve(cwd,'tmp'),resolve(cwd,'test-results')];
+  if(!roots.some(root=>inside(actual,root)))throw Error('Capture output symlink escapes tmp or test-results; copy evidence separately.');
+  return actual;
 }
 export type PullRequest = { number: number | null; title: string; mergedAt: string; files: { path: string }[] };
 export function aggregate(prs: PullRequest[]) {

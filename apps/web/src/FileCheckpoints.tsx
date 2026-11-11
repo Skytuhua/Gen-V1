@@ -2,6 +2,7 @@ import {useEffect,useId,useRef,useState,type ReactNode} from 'react';
 import {Clock3} from 'lucide-react';
 import type {UiPreferences} from '../../../packages/contracts/preferences';
 import {isComposing} from '../../../packages/ui-shell/list-navigation';
+import {displayFilePath} from './files/FilesView';
 import {RecordedDiffs} from './WorkspacePanelBodies';
 import {checkpointOwnerKey,checkpointReviewPaths,disabledCheckpointAdapter,readCheckpointDetail,readCheckpointList,readCheckpointReview,type CheckpointList,type CheckpointOwner,type CheckpointReview,type FileCheckpoint,type FileCheckpointAdapter} from './file-checkpoint-api';
 import './file-checkpoints.css';
@@ -88,9 +89,9 @@ function CheckpointFiles({owner,adapter,checkpoint,preferences,onBack}:{owner:Ch
       <p className="file-checkpoints-note">{provenance(checkpoint)} · Revision {checkpoint.revision}</p>
       {reviews.map((review,index)=><section key={review.reviewId} aria-label={`Review part ${index+1} of ${reviews.length}`}>
       <p className="file-checkpoints-note">Part {index+1} of {reviews.length} · Review {review.reviewId} · {review.files.length} files</p>
-      {review.files.filter(file=>file.diff===null).map(file=><p className="file-checkpoints-note" key={file.path}>{file.path} · {file.status==='ready'?'No text comparison available':file.status}</p>)}
-      {review.files.filter(file=>file.diffTruncated).map(file=><p className="file-checkpoints-note" key={file.path}>{file.path} · Diff truncated. Only part of this comparison is shown.</p>)}
-      {review.files.some(file=>file.diff!==null)&&<RecordedDiffs diffs={review.files.flatMap(file=>file.diff===null?[]:[{id:file.path,title:file.path,unified:file.diff||'No changes reported.',provenance:`Checkpoint ${checkpoint.id} · Review ${review.reviewId}`}])} preferences={preferences}/>}
+      {review.files.filter(file=>file.diff===null).map(file=><p className="file-checkpoints-note" key={file.path}>{displayFilePath(file.path)} · {file.status==='ready'?'No text comparison available':file.status}</p>)}
+      {review.files.filter(file=>file.diffTruncated).map(file=><p className="file-checkpoints-note" key={file.path}>{displayFilePath(file.path)} · Diff truncated. Only part of this comparison is shown.</p>)}
+      {review.files.some(file=>file.diff!==null)&&<RecordedDiffs diffs={review.files.flatMap(file=>file.diff===null?[]:[{id:file.path,title:displayFilePath(file.path),unified:file.diff||'No changes reported.',provenance:`Checkpoint ${checkpoint.id} · Review ${review.reviewId}`}])} preferences={preferences}/>}
       </section>)}
       <button type="button" disabled aria-describedby={reason}>Restore selected files</button><p id={reason} className="file-checkpoints-note">{adapter.restore.reason}</p>
     </>}

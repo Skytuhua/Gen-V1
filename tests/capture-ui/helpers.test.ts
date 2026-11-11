@@ -1,4 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import {mkdtempSync,mkdirSync,symlinkSync,rmSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {dirname,join} from 'node:path';
 import { aggregate, parseArgs, normalizeMotion, isReducedOffender, motionKey, frameTag, paddedClip, type Motion, hasDistinctRecipe, imageStatus, coverageMatrix } from '../../scripts/capture-ui/helpers';
 import { mapFile, screens, keyStates } from '../../scripts/capture-ui/screen-map';
 const motion: Motion = { screen: 'workspace', state: 'default', width: 375, frame: 'main', selector: 'button', type: 'CSSAnimation', animationName: 'enter', transitionProperty: '', properties: ['opacity', 'transform', 'opacity'], duration: 100, delay: 0, easing: 'ease', iterations: 1, fill: 'both', keyframes: [] };
@@ -44,7 +47,7 @@ describe('CLI', () => {
   });
   it('keeps capture output inside test-results or temporary directories', () => {
     for (const out of ['/tmp/wo5-final', 'tmp/wo5-final', 'test-results/wo5-final']) expect(parseArgs(['--out', out]).out).toBe(out);
-    for (const out of [['/home/box', 'gen-company', 'ledger', 'WO-5/capture'].join('/'), 'test-results/../../ledger', '/home/box/screenshots']) expect(() => parseArgs(['--out', out])).toThrow('Capture output');
+    for (const out of [['/home/box', 'gen-company', 'ledger', 'WO-5/capture'].join('/'), join(dirname(tmpdir()),'outside-capture-output'), '/home/box/screenshots']) expect(() => parseArgs(['--out', out])).toThrow('Capture output');
   });
   it.each([['--wat'], ['--scope=no'], ['--since-days=0'], ['--max-strips=-1'], ['--out'], ['--since-days=NaN']])('rejects invalid args %s', (...args) => expect(() => parseArgs(args)).toThrow());
 });
@@ -85,4 +88,14 @@ it('marks equal images and does not count identical widths as captured in the ma
     {screen: 'controls', state: 'loading', width: 375, status: 'skipped', code: 'U'},
   ]);
   expect(matrix[0].hover).toBe('768; I:375'); expect(matrix[0].loading).toBe('U:375');
+});
+
+it('QA #130 rejects existing and missing output paths beneath an escaping symlink',()=>{
+ const root=mkdtempSync(join(tmpdir(),'wo5-output-'));
+ try{
+  symlinkSync(dirname(tmpdir()),join(root,'escape'),'dir');
+  for(const suffix of ['', 'not-created/captures'])expect(()=>parseArgs(['--out',join(root,'escape',suffix)])).toThrow('Capture output');
+  mkdirSync(join(root,'inside'));symlinkSync(join(root,'inside'),join(root,'safe'),'dir');
+  expect(parseArgs(['--out',join(root,'safe','new')]).out).toBe(join(root,'safe','new'));
+ }finally{rmSync(root,{recursive:true,force:true});}
 });

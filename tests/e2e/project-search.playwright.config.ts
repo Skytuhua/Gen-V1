@@ -19,7 +19,7 @@ export default defineConfig({
 	},
 	webServer: process.env.GEN_WO5_SERVER_EXTERNAL === '1' ? undefined : {
 		command:
-			"pnpm exec vite --configLoader runner --config tests/e2e/project-search.vite.config.ts",
+			"exec timeout --kill-after=5s 300s pnpm exec vite --configLoader runner --config tests/e2e/project-search.vite.config.ts",
 		cwd: resolve(import.meta.dirname, "../.."),
 		url: "http://127.0.0.1:5521",
 		reuseExistingServer: false,

@@ -1,17 +1,15 @@
 # WO-5.D evidence
 
-Synthetic read-only data rendered by the actual App and production components. Matched App-shell captures preserve data, dark theme, zoom and layout. They are frontend evidence, not live host/provider or packaged Windows acceptance.
+Synthetic data in the actual App and production components. [QA r1 frontend fixes and verification](qa-r1-fixes.md) describe the current results, red-to-green evidence and limits. Backend owns major 2 via PR #129; host services, rich references and checkpoint writes remain disabled.
 
-| Width | Baseline App | Integrated App | Same-owner Notes flow |
-| --- | --- | --- | --- |
-| 1440 | [Before](before-1440.png) | [After](after-1440.png) | [Notes](notes-1440.png) |
-| 1024 | [Before](before-1024.png) | [After](after-1024.png) | [Notes](notes-1024.png) |
-| 768 secondary | [Before](before-768.png) | [After](after-768.png) | [Notes](notes-768.png) |
+| Width | Original baseline | Current App | Actual-App saved restore | Named library | Retained Notes |
+| --- | --- | --- | --- | --- | --- |
+| 1440 | [Before](before-1440.png) | [After](after-1440.png) | [Restore](saved-drafts-app-1440.png) | [Drafts](saved-drafts-1440.png) | [Notes](notes-1440.png) |
+| 1024 | [Before](before-1024.png) | [After](after-1024.png) | [Restore](saved-drafts-app-1024.png) | [Drafts](saved-drafts-1024.png) | [Notes](notes-1024.png) |
+| 768 secondary | [Before](before-768.png) | [After](after-768.png) | [Restore](saved-drafts-app-768.png) | [Drafts](saved-drafts-768.png) | [Notes](notes-768.png) |
 
-1024 samples: [search preview](project-search-1024.png), [excerpt review](terminal-excerpts-1024.png), [checkpoint history fixture](file-checkpoints-1024.png), [retained Usage](redundant-ui-1024.png). Production Project search and checkpoints stay unavailable; fixture successes do not enable host services.
+1024 component samples: [search preview](project-search-1024.png), [excerpt review](terminal-excerpts-1024.png), [checkpoint History](file-checkpoints-1024.png), [retained Usage](redundant-ui-1024.png), [saved restore](saved-drafts-restore-1024.png). [Checkpoint escaped paths](checkpoint-control-paths.png) preserve the exact review request bytes.
 
-Full manifests/screenshots, normal/reduced motion and supplemental App flows: ledger `WO-5/fe/before-after/D-integration/`. Both capture manifests pass all width/state output checks with zero failures and zero reduced-motion offenders. After retains the full 336-row motion inventory and samples 12 strips; other strips have explicit max-strips skips. Saved drafts has seven explicit pending recipes until run A supplies its journal and fixture.
+Full current manifests, all seven Saved Drafts states, normal/reduced motion and logs are linked from the QA report. Original baselines and historical attempt reports are preserved in ledger WO-5/fe/before-after/D-integration; historical pending-draft and capture-failure reports are not current results. Current App includes main's Chat View controls and the Drafts action; no new design was introduced.
 
-skills: ponytail, ponytail-review, impeccable, emil-design-eng; Astryx discovery, existing UI primitives retained.
-
-Resumed validation: [report](resume-validation.md). Updated after/Notes PNGs and 1024 examples reflect the current item QA heads. The latest focused capture has 160 images, four identical states, 254 motion rows and twelve sampled strips, with zero failures and zero reduced-motion offenders. Original broader manifests and matched baselines are retained.
+skills: engineering-team-process, ponytail, ponytail-review.

@@ -1,10 +1,10 @@
 import { chromium } from '@playwright/test';
 import { createServer } from 'vite';
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readdir, rm, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { resolve, join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { parseArgs, normalizeMotion, isReducedOffender, motionKey, table, hasDistinctRecipe, imageStatus, coverageMatrix, type Motion, type CaptureEntry } from './helpers';
+import { captureOutputPath, parseArgs, normalizeMotion, isReducedOffender, motionKey, table, hasDistinctRecipe, imageStatus, coverageMatrix, type Motion, type CaptureEntry } from './helpers';
 import { screens, keyStates, captureWidths, type Action } from './screen-map';
 import { resolveScope } from './scope';
 import { collect, frameStrip } from './browser';
@@ -28,7 +28,9 @@ async function main() {
   for (const id of ids) if (!screens.some(s => s.id === id)) throw Error(`Unknown screen ${id}`);
   const selected = screens.filter(s => ids.includes(s.id));
   const requirePluginEvidence = selected.some(screen => screen.id === 'plugin-frame');
-  const out = resolve(args.out || `test-results/ui-capture/${new Date().toISOString().replaceAll(':', '-')}`);
+  const out = captureOutputPath(args.out || `test-results/ui-capture/${new Date().toISOString().replaceAll(':', '-')}`);
+  await mkdir(out, { recursive: true });
+  if ((await readdir(out)).length) throw Error('Capture output must be a fresh, empty directory; existing children may be symlinks.');
   await Promise.all(['strips', 'screenshots'].map(dir => mkdir(resolve(out, dir), { recursive: true })));
   const json = (name: string, data: unknown) => writeFile(resolve(out, `${name}.json`), JSON.stringify(data, null, 2));
   const md = (name: string, body: string) => writeFile(resolve(out, `${name}.md`), body);
@@ -119,7 +121,7 @@ async function main() {
               return;
             }
             if (screen.id === 'terminal-excerpts' && url.pathname.startsWith('/api/terminals')) return route.fulfill({json: browserApiResponse(url,route.request().method()==='POST'?route.request().postDataJSON():undefined,recipe.api==='empty')});
-            if (['app-shell','conversation-find','terminal-excerpts'].includes(screen.id)) return shellRoute(route, snapshot, recipe.api === 'error');
+            if (['app-shell','conversation-find','terminal-excerpts','saved-drafts'].includes(screen.id)) return shellRoute(route, snapshot, recipe.api === 'error');
             if (recipe.api === 'error' && url.pathname !== '/api/bootstrap') return route.fulfill({ status: 503, json: { error: { code: 'CAPTURE_503', message: 'Synthetic data unavailable. Retry.' } } });
             if (url.pathname.startsWith('/api/resources/') && url.pathname.endsWith('/content')) {
               const asset = await taskAssetResponse(decodeURIComponent(url.pathname.split('/')[3]));

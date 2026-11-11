@@ -2,7 +2,7 @@ import {defineConfig} from 'vite';
 import {resolve} from 'node:path';
 import {realpathSync} from 'node:fs';
 import base from './vite.config';
-export default defineConfig({...base,root:resolve('.'),cacheDir:'/tmp/wo5-run-d/node_modules/.vite/redundant-ui',
+export default defineConfig({...base,root:resolve('.'),cacheDir:resolve(process.env.GEN_BROWSER_OUTPUT_DIR??'/tmp/wo5-run-d-redundant-ui-playwright','node_modules/.vite'),
  optimizeDeps:{entries:['tests/e2e/redundant-ui-fixture.tsx','apps/web/src/main.tsx']},
  plugins:[...base.plugins??[],{name:'redundant-ui-fixture',configureServer(server){
   server.middlewares.use((req,res,next)=>{

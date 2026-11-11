@@ -164,7 +164,11 @@ export const screens: Screen[] = [
     error:{query:'state=error',waitFor:'.project-search-results [role="alert"]'},
     loading:{query:'state=loading',waitFor:'.project-search-results [role="status"]'},
   })},
-  {id:'saved-drafts',fixture:'',ready:'#root',states:Object.fromEntries(keyStates.map(state=>[state,skip('WO-5.2 journal is still owned by run A. Attach its saved-drafts TSX fixture and restore recipes when that branch is ready; no draft library is implemented here.')])) as Screen['states']},
+  {id:'saved-drafts',fixture:'saved-drafts-fixture.tsx',ready:'[data-saved-composer] textarea:enabled',states:surfaceStates({query:'capture=1',steps:[{selector:'.saved-drafts-trigger:visible',action:'click'}],waitFor:'.saved-drafts-popover li'},'.saved-drafts-row-actions button',{selector:'.saved-drafts-row-actions button',action:'click',waitFor:'.saved-drafts-dialog'}, {
+    empty:{query:'capture-empty=1',waitFor:'text=No saved drafts yet.'},
+    error:{query:'capture-boundary=error',waitFor:'.saved-drafts-popover [role="alert"]'},
+    loading:{query:'capture-boundary=loading',waitFor:'.saved-drafts-popover [role="status"]'},
+  })},
   {id:'terminal-excerpts',readyTimeout:30000,retryReadyTimeout:true,fixture:'terminal-excerpts-fixture.tsx',ready:'.xterm-screen',states:surfaceStates({steps:[{selector:'.xterm-helper-textarea',action:'focus'},{selector:'.xterm-helper-textarea',action:'press',key:'Control+Shift+a'},{selector:'button:has-text("Add selection to prompt")',action:'click'}],waitFor:'.terminal-excerpt-chip:visible'},'.terminal-excerpt-chip:visible button',{selector:'.terminal-excerpt-chip:visible button',action:'click',waitFor:'[aria-label="Excerpt text"]'}, {
     empty:{api:'empty',steps:[],waitFor:'.xterm-screen'},
     error:skip('Excerpt capture is synchronous; rejected and uncertain normal Sends are exercised by terminal-excerpts.spec.ts, with no separate capture error prop.'),

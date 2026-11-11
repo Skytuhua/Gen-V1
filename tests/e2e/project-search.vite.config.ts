@@ -6,7 +6,7 @@ import isolated from "./vite.config";
 const root = resolve(import.meta.dirname, "../..");
 export default defineConfig({
 	...isolated,
-	cacheDir: "/tmp/wo5-run-d/node_modules/.vite/project-search",
+	cacheDir:resolve(process.env.GEN_BROWSER_OUTPUT_DIR??'/tmp/gen-wo5-project-search-results','node_modules/.vite'),
 	server: {
 		...isolated.server,
 		proxy: undefined,

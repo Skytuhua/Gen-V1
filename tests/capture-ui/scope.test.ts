@@ -11,9 +11,11 @@ it.each([
 ])('routes WO-5 renderer %s to its capture destination', (path,id) => {
   expect(mapFile('apps/web/src/'+path).screens).toContain(id);
 });
-it('keeps all saved-draft capture states explicitly pending run A', () => {
+it('captures the integrated saved-draft library and its real local read boundaries', () => {
   const draft=screens.find(screen=>screen.id==='saved-drafts')!;
-  for(const state of keyStates)expect(draft.states[state].skip).toContain('run A');
+  expect(draft.fixture).toBe('saved-drafts-fixture.tsx');
+  for(const state of keyStates)expect(draft.states[state].skip).toBeUndefined();
+  expect(draft.states.error.query).toContain('capture-boundary=error');expect(draft.states.loading.query).toContain('capture-boundary=loading');
 });
 
 const now = new Date('2026-11-09T16:30:00.000Z');
