@@ -1,0 +1,2127 @@
+{
+  "measuredHead": "82d795829be621538fe6bbac72411a2a6d3b6e8a",
+  "productFixHead": "71101ef2b224014a672a402f492bc4c7fe757182",
+  "runtimeSha256": {
+    "apps/web/src/ShellSidebar.tsx": "7b657ea0d0fa29e7a488d3a32b392acbc586d978c924bb1e54615066ae88091e",
+    "apps/web/src/sidebar-thread-move.ts": "e64774f01d9e7c8b05b1e46c3022c6bb9dfa5d29bbd05030fb791800747402b5",
+    "apps/web/src/sidebar-thread-move.css": "816ab0d147a14fac50e0a03ea9a439f36cc8ae7fa6de8ae0d0a2e92ade1b7cec",
+    "apps/web/src/task-motion.tsx": "449b5f02bb043ccfa500f13634d89cffd45e708527f757c4c5cf1a51505db0df",
+    "apps/web/src/motion-policy.ts": "b7aeec53d5a1c86889f8ba6499eb7944e7f01accc4626d23aac76d4cd0aac407",
+    "apps/web/src/App.tsx": "0bcfcd81945f9ef52555154b8cfeb805a67607820e21c2bca6a699d76735b996",
+    "apps/web/src/WorkspaceHost.tsx": "45d375e4fe2f83cba56e5a67e5e516ad1996fc922439ae3e14b1b74e60dfffc6",
+    "packages/ui-shell/tokens.css": "bcd5eb370961619219038e7b19b2d769ffcf7ff2f980fb3e4f70e6f7c853d579",
+    "tests/e2e/thread-move-fixture.tsx": "e6b17d50cd9664bccb03516ac7a2627b9d164fa85b3352bd875079d0e2005992",
+    "tests/e2e/thread-move.spec.ts": "1a911e2cc4957e4718464c84c0c67fb4071a874502b7678d12317cc5fbecdbb7"
+  },
+  "commands": {
+    "typecheck": {
+      "exitCode": 0
+    },
+    "lint:ui": {
+      "exitCode": 0,
+      "violations": 0
+    },
+    "focused-vitest": {
+      "exitCode": 0,
+      "passed": 21,
+      "failed": 0
+    },
+    "UI verify script": {
+      "command": "pnpm exec tsx scripts/test-browser.ts --suite thread-move",
+      "exitCode": 0,
+      "passed": 24,
+      "failed": 0
+    },
+    "old-code regression": {
+      "exitCode": 1,
+      "passed": 0,
+      "failed": 2,
+      "source": "7a7addc9b1122dacda8255c9f971528a8528c73a",
+      "reason": "order changes, zero of four expected row animations"
+    },
+    "capture:ui": {
+      "exitCode": 0,
+      "screens": 2,
+      "screenshots": 42,
+      "identicalToDefault": 0,
+      "motionRows": 140,
+      "uniqueAnimations": 12,
+      "strips": 12,
+      "reducedMotionOffendersUnique": 0,
+      "reducedMotionOffendersTotal": 0
+    },
+    "web-quality": {
+      "exitCode": 1
+    }
+  },
+  "baseline": {
+    "head": {
+      "sha": "82d795829be621538fe6bbac72411a2a6d3b6e8a",
+      "exitCode": 1,
+      "totalTests": 372,
+      "failedTests": 216,
+      "passedTests": 156,
+      "failedIdentities": [
+        "tests/account-auth-http.test.ts :: [file error]",
+        "tests/account-login.test.ts :: does not admit a successor sign-in when an expired lease still has a live owner",
+        "tests/account-login.test.ts :: reserves the exact named profile for sign-in and releases it after a failed native login",
+        "tests/account-login.test.ts :: retains a durable account hold when native login shutdown is unconfirmed",
+        "tests/account-parity.test.ts :: delegates through Service using the parent account after future defaults change before asynchronous child creation",
+        "tests/account-parity.test.ts :: inherits the parent account for a new side conversation while defaults change before and during startup",
+        "tests/account-parity.test.ts :: keeps claude-code task routing through compaction and history-aware recovery after its default changes",
+        "tests/account-parity.test.ts :: keeps cursor-sdk task routing through compaction and history-aware recovery after its default changes",
+        "tests/account-parity.test.ts :: keeps gemini-cli task routing through compaction and history-aware recovery after its default changes",
+        "tests/account-parity.test.ts :: keeps github-copilot task routing through compaction and history-aware recovery after its default changes",
+        "tests/account-parity.test.ts :: keeps kimi-coding task routing through compaction and history-aware recovery after its default changes",
+        "tests/account-parity.test.ts :: keeps openai task routing through compaction and history-aware recovery after its default changes",
+        "tests/account-parity.test.ts :: keeps openai-codex task routing through compaction and history-aware recovery after its default changes",
+        "tests/account-parity.test.ts :: keeps opencode-go task routing through compaction and history-aware recovery after its default changes",
+        "tests/account-parity.test.ts :: keeps xai task routing through compaction and history-aware recovery after its default changes",
+        "tests/account-profile.test.ts :: keeps each writable account directory nonempty with a pinned ordinary marker",
+        "tests/account-profile.test.ts :: keeps official home namespaces pinned while native credential files remain atomically replaceable",
+        "tests/account-profile.test.ts :: pins native directories while allowing legitimate atomic credential replacement",
+        "tests/account-profile.test.ts :: rejects an accounts junction and holds the acquired namespace against replacement",
+        "tests/agent-follow-up.test.ts :: [file error]",
+        "tests/agent-inventory-routes.test.ts :: [file error]",
+        "tests/capabilities.test.ts :: PDF local export inspects fields, fills supported types and places typed/drawn marks in a new local export",
+        "tests/capabilities.test.ts :: disposable fixtures and held-out evaluations creates fixtures only at an exclusive new destination including real git conflict",
+        "tests/capabilities.test.ts :: domain permission wrapper and file operations cancels the actual process tree and records cancellation instead of success",
+        "tests/capabilities.test.ts :: domain permission wrapper and file operations executes approved replacement, publishes actual results and re-resolves write permissions",
+        "tests/capabilities.test.ts :: domain permission wrapper and file operations prepares without writing and rejects absent approval and changed source bytes",
+        "tests/capabilities.test.ts :: domain permission wrapper and file operations publishes resource sourced text with an exact content hash",
+        "tests/capabilities.test.ts :: domain permission wrapper and file operations rechecks readonly grants and rejects cross-thread or non-running operation dispatch",
+        "tests/capabilities.test.ts :: domain permission wrapper and file operations reconciles before/after replacement hashes read-only and leaves changed bytes unknown",
+        "tests/capabilities.test.ts :: domain permission wrapper and file operations runs the exact node-test recipe and reports actual success and failure exits",
+        "tests/capabilities.test.ts :: real selected SQLite inspects real rows and applies exact prepared counts with integrity/version checks",
+        "tests/capabilities.test.ts :: real selected SQLite reports actual migration DML counts independently from schema statements",
+        "tests/capabilities.test.ts :: real selected SQLite rolls back wrong counts, denies attachment and rejects stale database versions",
+        "tests/code-review-comparisons.test.ts :: denies delegates, Company, cross-project and replaced-directory reads before remote transport",
+        "tests/code-review-comparisons.test.ts :: distinguishes omitted, binary and incomplete remote patches without fetching metadata URLs",
+        "tests/code-review-comparisons.test.ts :: keeps legacy reads tracked-only and can compare a remote PR without a managed checkout or matching HEAD",
+        "tests/code-review-comparisons.test.ts :: keeps snapshots isolated from returned mutable data and never accepts another owner",
+        "tests/code-review-comparisons.test.ts :: never reads a hardlinked changed file into a patch",
+        "tests/code-review-comparisons.test.ts :: pins remote PR patches to exact three-dot identity without substituting local unstaged changes",
+        "tests/code-review-comparisons.test.ts :: reads an already-attested remote origin without a source Git checkout or source file projection",
+        "tests/code-review-comparisons.test.ts :: reads index and worktree overlap separately and binds selected patches to the complete revision",
+        "tests/code-review-comparisons.test.ts :: reads staged deletions and renames by exact selected paths",
+        "tests/code-review-comparisons.test.ts :: rejects mismatched remote identities and reports empty and capped file inventories honestly",
+        "tests/code-review-comparisons.test.ts :: reports clean, untracked text, binary and bounded large patches honestly",
+        "tests/code-review-comparisons.test.ts :: returns explicit transport errors and never calls a local diff as fallback",
+        "tests/code-review-reader.test.ts :: bounds complete local hashing before reading an oversized sparse file",
+        "tests/composer-prediction-service.test.ts :: [file error]",
+        "tests/conversation-read-http.test.ts :: [file error]",
+        "tests/credential-slots.test.ts :: [file error]",
+        "tests/current-pi-verification.test.ts :: [file error]",
+        "tests/cursor-offline-executor.test.ts :: loads the actual lazy local executor and native parser, then fails closed before account/inference transport",
+        "tests/cursor-offline-executor.test.ts :: self-tests the offline boundary in a separate child before importing any SDK",
+        "tests/cursor-sdk-mcp-metadata.test.ts :: observes actual SDK send metadata through production gate and HostMcp with no tool execution or auth transport",
+        "tests/cursor-sdk-mcp-metadata.test.ts :: self-tests child transport denial and parent broker rejection without importing the SDK",
+        "tests/desktop-host.test.ts :: [file error]",
+        "tests/event-stream.test.ts :: [file error]",
+        "tests/expanded-review-fixtures.test.ts :: [file error]",
+        "tests/git-metadata-guard.test.ts :: pins a read-only Git config while allowing index creation in the same pinned metadata directory",
+        "tests/github-workspace.test.ts :: cleans private create input while preserving a remote failure",
+        "tests/github-workspace.test.ts :: cleans private review input while preserving a remote failure",
+        "tests/github-workspace.test.ts :: fences cancel during private credential writing before rename and preserves the prior token",
+        "tests/github-workspace.test.ts :: fences expire during private credential writing before rename and preserves the prior token",
+        "tests/github-workspace.test.ts :: fences replace during private credential writing before rename and preserves the prior token",
+        "tests/github-workspace.test.ts :: keeps device authorization tokens private and requires a Gen V1 credential before CLI use",
+        "tests/github-workspace.test.ts :: rechecks writable authority after remote validation before draft creation",
+        "tests/github-workspace.test.ts :: refuses to create a PR when the GitHub branch differs from the reviewed local commit",
+        "tests/github-workspace.test.ts :: rejects changed capability while preparing a private review input",
+        "tests/github-workspace.test.ts :: rejects changed head while preparing a private review input",
+        "tests/github-workspace.test.ts :: rejects changed revision while preparing a private review input",
+        "tests/github-workspace.test.ts :: reports a completed sign-in when credential commit wins the cancellation race",
+        "tests/github-workspace.test.ts :: retains publication state after success even when exact directory cleanup is refused",
+        "tests/github-workspace.test.ts :: retains publication state after verification failure even when exact directory cleanup is refused",
+        "tests/github-workspace.test.ts :: retains the already-created PR URL after failed read without creating it again",
+        "tests/github-workspace.test.ts :: retains the already-created PR URL after malformed JSON without creating it again",
+        "tests/github-workspace.test.ts :: retains the already-created PR URL after missing head without creating it again",
+        "tests/github-workspace.test.ts :: retains the created PR URL when its actual head differs from the reviewed commit",
+        "tests/github-workspace.test.ts :: returns a created PR only after its actual head matches the reviewed commit",
+        "tests/github-workspace.test.ts :: serializes polling per flow and treats cancellation of an older flow as harmless",
+        "tests/github-workspace.test.ts :: submits a writable exact-head review against its reviewed commit",
+        "tests/github-workspace.test.ts :: uses file-backed review JSON without changing newlines, Unicode or literal backslashes",
+        "tests/github-workspace.test.ts :: writes long Unicode PR text exactly to a private file before push and removes it after success",
+        "tests/hermes-client.test.ts :: awaits owned host callbacks and returns their results over the private channel",
+        "tests/hermes-client.test.ts :: closes its worker and revokes unanswered requests when disposed",
+        "tests/hermes-client.test.ts :: drains owned host callbacks even when process cancellation fails",
+        "tests/hermes-client.test.ts :: fails pending requests safely on malformed worker output",
+        "tests/hermes-client.test.ts :: forwards source events without inventing entry or settlement events",
+        "tests/hermes-client.test.ts :: preserves Unicode through chunked replies and resolves concurrent request IDs independently",
+        "tests/hermes-client.test.ts :: treats a denied host callback as an ordinary tool result during teardown",
+        "tests/hermes-client.test.ts :: uses an isolated home and does not pass provider credentials to Python",
+        "tests/hermes-host.test.ts :: [file error]",
+        "tests/hermes-multi-original.test.ts :: runs two real original engines against one canonical library with isolated sessions and bounded scripted native calls",
+        "tests/hermes-original-integration.test.ts :: runs original Python and ACP through the native broker, persists a skill and finishes through the real Service",
+        "tests/hermes-service.test.ts :: bounds hook admission while preserving every successful write and ordinary receipt",
+        "tests/hermes-service.test.ts :: carries an actual approved replacement privately to the next idle source turn, never prepare or steering",
+        "tests/hermes-service.test.ts :: does not infer missing legacy write authority from current selection",
+        "tests/hermes-service.test.ts :: does not infer missing no_project write authority from current selection",
+        "tests/hermes-service.test.ts :: does not reauthorize an approved write hook after rebind",
+        "tests/hermes-service.test.ts :: does not reauthorize an approved write hook after recovery",
+        "tests/hermes-service.test.ts :: does not reauthorize an approved write hook after revision",
+        "tests/hermes-service.test.ts :: does not reauthorize an approved write hook after stop",
+        "tests/hermes-service.test.ts :: never supplies completed-write custody for unapproved or failed effects",
+        "tests/hermes-service.test.ts :: retains an unknown callback claim across stop/resume without replaying its write",
+        "tests/integration-host.test.ts :: keeps Biome write proposals and Spec Kit initialization unavailable in plan mode",
+        "tests/integration-mcp.test.ts :: builds a real Graphify code graph, queries its stdio server and exports GraphML without a model",
+        "tests/integration-mcp.test.ts :: executes the pinned native Biome and Impeccable engines",
+        "tests/integration-mcp.test.ts :: initializes only project-local genuine Spec Kit assets and dispatches its original workflow through the host",
+        "tests/integration-mcp.test.ts :: refuses linked Graphify graph input and linked export directories inside the owned fixture",
+        "tests/integration-mcp.test.ts :: routes Biome proposals through the registered granted-file approval flow",
+        "tests/integrations.test.ts :: admits exactly the ten bundled integrations without starting their MCP services",
+        "tests/managed-git-family.test.ts :: passes only the host-resolved family for the granted domain repository root",
+        "tests/managed-git-family.test.ts :: requires host attestation for linked worktrees and retains ordinary repositories",
+        "tests/managed-git-family.test.ts :: snapshots the attested worktree HEAD, index and source, without other worktrees or hooks",
+        "tests/model-discovery.test.ts :: [file error]",
+        "tests/official-runtime-storage.test.ts :: official runtime storage and subprocess isolation uses published commands and isolated homes without inheriting provider or Node injection variables",
+        "tests/packaged-providers.test.ts :: packaged provider custody imports the actual installed SDK with an explicit empty store and runs only the stock rg version helper",
+        "tests/path-access.test.ts :: [file error]",
+        "tests/plugin-frame-custody.test.ts :: [file error]",
+        "tests/private-git-family.test.ts :: does not consume original metadata after private import and ignores dependency bulk for managed status",
+        "tests/private-git-family.test.ts :: imports once into protected private bare storage and creates three independent native worktrees",
+        "tests/private-git-family.test.ts :: imports safe author and GitHub origin scalars and drops arbitrary source configuration",
+        "tests/private-git-family.test.ts :: keeps incremental legacy objects out of the authoritative managed family",
+        "tests/private-git-family.test.ts :: keeps original bindings in place, reports tracked-only coverage and rejects legacy mutations",
+        "tests/private-git-family.test.ts :: refuses a legacy scratch view inside a broad source grant",
+        "tests/private-git-family.test.ts :: refuses stored commonDirectoryIdentity substitution before managed Git starts",
+        "tests/private-git-family.test.ts :: refuses stored gitDirectoryIdentity substitution before managed Git starts",
+        "tests/private-git-family.test.ts :: refuses stored identity substitution before managed Git starts",
+        "tests/private-git-family.test.ts :: rejects a context read when the admitted model changes during its Git read",
+        "tests/private-git-family.test.ts :: reports each admitted managed copy rather than the original repository root in hover context",
+        "tests/private-git-family.test.ts :: streams metadata beyond the unchanged ordinary snapshot budget with a bounded buffer",
+        "tests/project-tools.test.ts :: enrolls a local project and assigns new agents separate real branches and working copies",
+        "tests/project-tools.test.ts :: keeps Git status inside the enrolled root even when repository config names another worktree",
+        "tests/project-tools.test.ts :: reports live managed untracked/staged changes and refuses an action against an old revision",
+        "tests/research-capture.test.ts :: binds a selected file reference to the exact grant generation even when bytes and identity match",
+        "tests/research-capture.test.ts :: captures a granted file with native custody and exact expected bytes and identity",
+        "tests/research-capture.test.ts :: denies secret paths, traversal and over-limit files through existing grants",
+        "tests/research-capture.test.ts :: fails closed after grant revocation, rebind, identity replacement, or hardlink introduction",
+        "tests/research-capture.test.ts :: rechecks thread authority inside a browser lease and keeps revoked historical file material inaccessible",
+        "tests/research-capture.test.ts :: rejects a missing selected file or binary material without retaining a partial capture",
+        "tests/research-capture.test.ts :: rejects same-size edits after selection without publishing a source or receipt",
+        "tests/research-routes.test.ts :: [file error]",
+        "tests/research-service-integration.test.ts :: [file error]",
+        "tests/research-workspace.test.ts :: [file error]",
+        "tests/resource-tree.test.ts :: [file error]",
+        "tests/review-host.test.ts :: [file error]",
+        "tests/runtime-router.test.ts :: lazily isolates account adapters, pins routing and denies cross-account sessions",
+        "tests/runtime-router.test.ts :: rejects a resolver that changes the provider of an already acquired account profile",
+        "tests/runtime-router.test.ts :: scopes named-account model discovery to its provider and blocks a profile being signed in",
+        "tests/server.test.ts :: [file error]",
+        "tests/service.test.ts :: thread and UI integrity a generated operation button leads to native approval and cannot approve by its label",
+        "tests/service.test.ts :: thread and UI integrity records a completed effect arriving after Stop without reviving its run",
+        "tests/shell-read-models.test.ts :: [file error]",
+        "tests/shell-settings-bootstrap.test.ts :: [file error]",
+        "tests/skill-catalog-apps.test.ts :: discovers only declared installed metadata with verified package custody and never activates the host",
+        "tests/skill-catalog-apps.test.ts :: invalidates installed references after content tampering, registry revocation, or untracked additions",
+        "tests/skill-catalog-http.test.ts :: [file error]",
+        "tests/skill-catalog.test.ts :: accepts bound references for the full declared source-identity length",
+        "tests/skill-catalog.test.ts :: binds authenticated cursors to inventory, search, page size and connection context",
+        "tests/skill-catalog.test.ts :: bounds file counts and bytes without truncating a package into an available reference",
+        "tests/skill-catalog.test.ts :: counts bytes consumed by rejected packages against the root budget",
+        "tests/skill-catalog.test.ts :: denies file/directory symlinks and hardlinks while retaining other safe packages",
+        "tests/skill-catalog.test.ts :: detects replacement during capture and never returns mixed metadata/custody",
+        "tests/skill-catalog.test.ts :: discovers only the selected worktree and invalidates its references after rebinding or revocation",
+        "tests/skill-catalog.test.ts :: enumerates every page, keeps colliding names distinct, and exposes metadata without source bytes",
+        "tests/skill-catalog.test.ts :: includes nested installed skill entries beneath another skill package",
+        "tests/skill-catalog.test.ts :: keeps a root skill distinct from a child named after the root directory",
+        "tests/skill-catalog.test.ts :: marks an exhausted root inventory unavailable instead of silently presenting a partial catalog",
+        "tests/skill-catalog.test.ts :: pins exact bytes and supporting-file custody, rejecting edits even when size and display name stay equal",
+        "tests/skill-catalog.test.ts :: preserves exact references and pagination after unrelated project metadata updates",
+        "tests/skill-catalog.test.ts :: preserves exact references and pagination after unrelated status updates",
+        "tests/skill-catalog.test.ts :: preserves exact references and pagination after unrelated title updates",
+        "tests/skill-catalog.test.ts :: preserves exact references and pagination after unrelated working-copy branch updates",
+        "tests/skill-catalog.test.ts :: rejects namespace escalation and source substitution without resolving a display name",
+        "tests/skill-catalog.test.ts :: reuses the real bundled integration inventory and covers all declared skills across pages",
+        "tests/skill-catalog.test.ts :: uses canonical connected project/worktree bindings and separates unavailable project authority",
+        "tests/skill-invocation.test.ts :: aborts after capture while the final source recheck is in flight",
+        "tests/skill-invocation.test.ts :: accepts the parent raw skills array while taking expected authority only from host options",
+        "tests/skill-invocation.test.ts :: admits all selected references in order, never silently dropping a stale second selection",
+        "tests/skill-invocation.test.ts :: bounds Harness entry bytes before materializing an oversized saved document",
+        "tests/skill-invocation.test.ts :: captures only a verified installed App package, without activating its host, and rechecks registry revocation",
+        "tests/skill-invocation.test.ts :: denies a changed runtime thinking level even when the model is unchanged",
+        "tests/skill-invocation.test.ts :: denies a package exceeding fileBytes instead of silently truncating it",
+        "tests/skill-invocation.test.ts :: denies a package exceeding files instead of silently truncating it",
+        "tests/skill-invocation.test.ts :: denies a package exceeding packageBytes instead of silently truncating it",
+        "tests/skill-invocation.test.ts :: denies directory-swap between fresh catalog custody and materialization",
+        "tests/skill-invocation.test.ts :: denies entry-bytes between fresh catalog custody and materialization",
+        "tests/skill-invocation.test.ts :: denies extra-file between fresh catalog custody and materialization",
+        "tests/skill-invocation.test.ts :: denies file-swap between fresh catalog custody and materialization",
+        "tests/skill-invocation.test.ts :: denies forged admissions, mismatched runtime owners and arbitrary support paths",
+        "tests/skill-invocation.test.ts :: denies hardlink between fresh catalog custody and materialization",
+        "tests/skill-invocation.test.ts :: denies junction between fresh catalog custody and materialization",
+        "tests/skill-invocation.test.ts :: denies replay tampering and key loss instead of falling back to rediscovery",
+        "tests/skill-invocation.test.ts :: denies stale support, forged identity, cross-source and private-provider references",
+        "tests/skill-invocation.test.ts :: denies support-bytes between fresh catalog custody and materialization",
+        "tests/skill-invocation.test.ts :: fences authority changes during catalog awaits and again before commit/runtime/support reads",
+        "tests/skill-invocation.test.ts :: honors pre-abort and an abort that wins a catalog await without producing an admission",
+        "tests/skill-invocation.test.ts :: materializes exact entry bytes and captured support without changing prompt or resources",
+        "tests/skill-invocation.test.ts :: precommit authority revalidation leaves message/outbox/capture storage empty on a race",
+        "tests/skill-invocation.test.ts :: preserves UTF-8 BOM and original line endings in admitted guidance",
+        "tests/skill-invocation.test.ts :: reads the exact Harness version/document with no latest-name or ambient projection fallback",
+        "tests/skill-invocation.test.ts :: rejects command-ID reuse with changed content, model, thinking, reference or authority",
+        "tests/skill-invocation.test.ts :: rejects every changed authority dimension before admission",
+        "tests/skill-invocation.test.ts :: rejects malformed payloads rather than accepting browser supplied text, paths or authority grants",
+        "tests/skill-invocation.test.ts :: replays the same command after an actual Store reopen without another message or current-source read",
+        "tests/skill-invocation.test.ts :: resolves only the connected canonical project/worktree and denies its root identity changing",
+        "tests/skill-invocation.test.ts :: restores authenticated exact bytes across host restart without rediscovering changed skills",
+        "tests/skill-invocation.test.ts :: returns cancellation while an obsolete catalog read is still pending",
+        "tests/skill-invocation.test.ts :: revalidates the canonical source after capture rather than accepting its earlier index",
+        "tests/skill-invocation.test.ts :: sanitizes authority-provider failures at precommit without leaking host paths",
+        "tests/skill-invocation.test.ts :: selection preserves every reference field without a body read or admission capability, and bundles for browsers",
+        "tests/skill-invocation.test.ts :: uses the bundled manifest pin and denies an index replacement between custody and capture",
+        "tests/skills-http.test.ts :: [file error]",
+        "tests/skills-integration.test.ts :: keeps claude-code automatic skill review account-pinned through changed defaults, settlement and restart",
+        "tests/skills-integration.test.ts :: keeps cursor-sdk automatic skill review account-pinned through changed defaults, settlement and restart",
+        "tests/skills-integration.test.ts :: keeps gemini-cli automatic skill review account-pinned through changed defaults, settlement and restart",
+        "tests/skills-integration.test.ts :: keeps github-copilot automatic skill review account-pinned through changed defaults, settlement and restart",
+        "tests/skills-integration.test.ts :: keeps kimi-coding automatic skill review account-pinned through changed defaults, settlement and restart",
+        "tests/skills-integration.test.ts :: keeps openai automatic skill review account-pinned through changed defaults, settlement and restart",
+        "tests/skills-integration.test.ts :: keeps openai-codex automatic skill review account-pinned through changed defaults, settlement and restart",
+        "tests/skills-integration.test.ts :: keeps opencode-go automatic skill review account-pinned through changed defaults, settlement and restart",
+        "tests/skills-integration.test.ts :: keeps xai automatic skill review account-pinned through changed defaults, settlement and restart",
+        "tests/task-memory-recovery.test.ts :: keeps artifacts, saved edits, accepted inputs and a completed effect authoritative after note recovery",
+        "tests/terminal-host.test.ts :: [file error]",
+        "tests/workspace-action-outcome-routes.test.ts :: [file error]",
+        "tests/workspace-action-outcomes.test.ts :: commits intent before local write and private result before event, then replays after Store restart",
+        "tests/workspace-action-outcomes.test.ts :: denies reuse of an ID with a changed payload",
+        "tests/workspace-action-outcomes.test.ts :: denies reuse of an ID with a changed projectId",
+        "tests/workspace-action-outcomes.test.ts :: denies reuse of an ID with a changed threadId",
+        "tests/workspace-action-outcomes.test.ts :: denies reuse of an ID with a changed type",
+        "tests/workspace-action-outcomes.test.ts :: inspects original payload/revision without current diff, review reads, or any write",
+        "tests/workspace-action-outcomes.test.ts :: keeps an active prepared reservation uncertain until its owner durably proves no execution began",
+        "tests/workspace-action-outcomes.test.ts :: keeps completed external write uncertain if durable result commit fails",
+        "tests/workspace-action-outcomes.test.ts :: keeps failures after started uncertain even when there is no receipt",
+        "tests/workspace-action-outcomes.test.ts :: keeps missing and legacy records uncertain without adopting unbound receipts",
+        "tests/workspace-action-outcomes.test.ts :: keeps private intent, result, credentials and errors out of events, receipts and snapshots",
+        "tests/workspace-action-outcomes.test.ts :: pins profile access while GitHubTools is awaiting remote validation",
+        "tests/workspace-action-outcomes.test.ts :: records not-applied only after host rejection before starting and never restarts that ID",
+        "tests/workspace-action-outcomes.test.ts :: recovers a confirmed review when the remote branch name differs from the managed local branch",
+        "tests/workspace-action-outcomes.test.ts :: rejects a profile replaced between inspection identity capture and credential read",
+        "tests/workspace-action-outcomes.test.ts :: retains interrupted remote write as uncertain across restart without submitting it again",
+        "tests/workspace-action-outcomes.test.ts :: returns revoked after working copy or account access changes, including confirmed receipts",
+        "tests/workspace-action-outcomes.test.ts :: serializes same-ID attempts across separate Store connections without a double write",
+        "tests/workspace-action-outcomes.test.ts :: supports local unstage and commit through the original revision and replays a commit without a second write",
+        "tests/workspace-linked-pr.test.ts :: [file error]"
+      ],
+      "vitestSuiteCount": 66,
+      "testFiles": 58
+    },
+    "main": {
+      "sha": "d72030013715ec94d023195d852562d7d34bc4f4",
+      "exitCode": 1,
+      "totalTests": 372,
+      "failedTests": 216,
+      "passedTests": 156,
+      "failedIdentities": [
+        "tests/account-auth-http.test.ts :: [file error]",
+        "tests/account-login.test.ts :: does not admit a successor sign-in when an expired lease still has a live owner",
+        "tests/account-login.test.ts :: reserves the exact named profile for sign-in and releases it after a failed native login",
+        "tests/account-login.test.ts :: retains a durable account hold when native login shutdown is unconfirmed",
+        "tests/account-parity.test.ts :: delegates through Service using the parent account after future defaults change before asynchronous child creation",
+        "tests/account-parity.test.ts :: inherits the parent account for a new side conversation while defaults change before and during startup",
+        "tests/account-parity.test.ts :: keeps claude-code task routing through compaction and history-aware recovery after its default changes",
+        "tests/account-parity.test.ts :: keeps cursor-sdk task routing through compaction and history-aware recovery after its default changes",
+        "tests/account-parity.test.ts :: keeps gemini-cli task routing through compaction and history-aware recovery after its default changes",
+        "tests/account-parity.test.ts :: keeps github-copilot task routing through compaction and history-aware recovery after its default changes",
+        "tests/account-parity.test.ts :: keeps kimi-coding task routing through compaction and history-aware recovery after its default changes",
+        "tests/account-parity.test.ts :: keeps openai task routing through compaction and history-aware recovery after its default changes",
+        "tests/account-parity.test.ts :: keeps openai-codex task routing through compaction and history-aware recovery after its default changes",
+        "tests/account-parity.test.ts :: keeps opencode-go task routing through compaction and history-aware recovery after its default changes",
+        "tests/account-parity.test.ts :: keeps xai task routing through compaction and history-aware recovery after its default changes",
+        "tests/account-profile.test.ts :: keeps each writable account directory nonempty with a pinned ordinary marker",
+        "tests/account-profile.test.ts :: keeps official home namespaces pinned while native credential files remain atomically replaceable",
+        "tests/account-profile.test.ts :: pins native directories while allowing legitimate atomic credential replacement",
+        "tests/account-profile.test.ts :: rejects an accounts junction and holds the acquired namespace against replacement",
+        "tests/agent-follow-up.test.ts :: [file error]",
+        "tests/agent-inventory-routes.test.ts :: [file error]",
+        "tests/capabilities.test.ts :: PDF local export inspects fields, fills supported types and places typed/drawn marks in a new local export",
+        "tests/capabilities.test.ts :: disposable fixtures and held-out evaluations creates fixtures only at an exclusive new destination including real git conflict",
+        "tests/capabilities.test.ts :: domain permission wrapper and file operations cancels the actual process tree and records cancellation instead of success",
+        "tests/capabilities.test.ts :: domain permission wrapper and file operations executes approved replacement, publishes actual results and re-resolves write permissions",
+        "tests/capabilities.test.ts :: domain permission wrapper and file operations prepares without writing and rejects absent approval and changed source bytes",
+        "tests/capabilities.test.ts :: domain permission wrapper and file operations publishes resource sourced text with an exact content hash",
+        "tests/capabilities.test.ts :: domain permission wrapper and file operations rechecks readonly grants and rejects cross-thread or non-running operation dispatch",
+        "tests/capabilities.test.ts :: domain permission wrapper and file operations reconciles before/after replacement hashes read-only and leaves changed bytes unknown",
+        "tests/capabilities.test.ts :: domain permission wrapper and file operations runs the exact node-test recipe and reports actual success and failure exits",
+        "tests/capabilities.test.ts :: real selected SQLite inspects real rows and applies exact prepared counts with integrity/version checks",
+        "tests/capabilities.test.ts :: real selected SQLite reports actual migration DML counts independently from schema statements",
+        "tests/capabilities.test.ts :: real selected SQLite rolls back wrong counts, denies attachment and rejects stale database versions",
+        "tests/code-review-comparisons.test.ts :: denies delegates, Company, cross-project and replaced-directory reads before remote transport",
+        "tests/code-review-comparisons.test.ts :: distinguishes omitted, binary and incomplete remote patches without fetching metadata URLs",
+        "tests/code-review-comparisons.test.ts :: keeps legacy reads tracked-only and can compare a remote PR without a managed checkout or matching HEAD",
+        "tests/code-review-comparisons.test.ts :: keeps snapshots isolated from returned mutable data and never accepts another owner",
+        "tests/code-review-comparisons.test.ts :: never reads a hardlinked changed file into a patch",
+        "tests/code-review-comparisons.test.ts :: pins remote PR patches to exact three-dot identity without substituting local unstaged changes",
+        "tests/code-review-comparisons.test.ts :: reads an already-attested remote origin without a source Git checkout or source file projection",
+        "tests/code-review-comparisons.test.ts :: reads index and worktree overlap separately and binds selected patches to the complete revision",
+        "tests/code-review-comparisons.test.ts :: reads staged deletions and renames by exact selected paths",
+        "tests/code-review-comparisons.test.ts :: rejects mismatched remote identities and reports empty and capped file inventories honestly",
+        "tests/code-review-comparisons.test.ts :: reports clean, untracked text, binary and bounded large patches honestly",
+        "tests/code-review-comparisons.test.ts :: returns explicit transport errors and never calls a local diff as fallback",
+        "tests/code-review-reader.test.ts :: bounds complete local hashing before reading an oversized sparse file",
+        "tests/composer-prediction-service.test.ts :: [file error]",
+        "tests/conversation-read-http.test.ts :: [file error]",
+        "tests/credential-slots.test.ts :: [file error]",
+        "tests/current-pi-verification.test.ts :: [file error]",
+        "tests/cursor-offline-executor.test.ts :: loads the actual lazy local executor and native parser, then fails closed before account/inference transport",
+        "tests/cursor-offline-executor.test.ts :: self-tests the offline boundary in a separate child before importing any SDK",
+        "tests/cursor-sdk-mcp-metadata.test.ts :: observes actual SDK send metadata through production gate and HostMcp with no tool execution or auth transport",
+        "tests/cursor-sdk-mcp-metadata.test.ts :: self-tests child transport denial and parent broker rejection without importing the SDK",
+        "tests/desktop-host.test.ts :: [file error]",
+        "tests/event-stream.test.ts :: [file error]",
+        "tests/expanded-review-fixtures.test.ts :: [file error]",
+        "tests/git-metadata-guard.test.ts :: pins a read-only Git config while allowing index creation in the same pinned metadata directory",
+        "tests/github-workspace.test.ts :: cleans private create input while preserving a remote failure",
+        "tests/github-workspace.test.ts :: cleans private review input while preserving a remote failure",
+        "tests/github-workspace.test.ts :: fences cancel during private credential writing before rename and preserves the prior token",
+        "tests/github-workspace.test.ts :: fences expire during private credential writing before rename and preserves the prior token",
+        "tests/github-workspace.test.ts :: fences replace during private credential writing before rename and preserves the prior token",
+        "tests/github-workspace.test.ts :: keeps device authorization tokens private and requires a Gen V1 credential before CLI use",
+        "tests/github-workspace.test.ts :: rechecks writable authority after remote validation before draft creation",
+        "tests/github-workspace.test.ts :: refuses to create a PR when the GitHub branch differs from the reviewed local commit",
+        "tests/github-workspace.test.ts :: rejects changed capability while preparing a private review input",
+        "tests/github-workspace.test.ts :: rejects changed head while preparing a private review input",
+        "tests/github-workspace.test.ts :: rejects changed revision while preparing a private review input",
+        "tests/github-workspace.test.ts :: reports a completed sign-in when credential commit wins the cancellation race",
+        "tests/github-workspace.test.ts :: retains publication state after success even when exact directory cleanup is refused",
+        "tests/github-workspace.test.ts :: retains publication state after verification failure even when exact directory cleanup is refused",
+        "tests/github-workspace.test.ts :: retains the already-created PR URL after failed read without creating it again",
+        "tests/github-workspace.test.ts :: retains the already-created PR URL after malformed JSON without creating it again",
+        "tests/github-workspace.test.ts :: retains the already-created PR URL after missing head without creating it again",
+        "tests/github-workspace.test.ts :: retains the created PR URL when its actual head differs from the reviewed commit",
+        "tests/github-workspace.test.ts :: returns a created PR only after its actual head matches the reviewed commit",
+        "tests/github-workspace.test.ts :: serializes polling per flow and treats cancellation of an older flow as harmless",
+        "tests/github-workspace.test.ts :: submits a writable exact-head review against its reviewed commit",
+        "tests/github-workspace.test.ts :: uses file-backed review JSON without changing newlines, Unicode or literal backslashes",
+        "tests/github-workspace.test.ts :: writes long Unicode PR text exactly to a private file before push and removes it after success",
+        "tests/hermes-client.test.ts :: awaits owned host callbacks and returns their results over the private channel",
+        "tests/hermes-client.test.ts :: closes its worker and revokes unanswered requests when disposed",
+        "tests/hermes-client.test.ts :: drains owned host callbacks even when process cancellation fails",
+        "tests/hermes-client.test.ts :: fails pending requests safely on malformed worker output",
+        "tests/hermes-client.test.ts :: forwards source events without inventing entry or settlement events",
+        "tests/hermes-client.test.ts :: preserves Unicode through chunked replies and resolves concurrent request IDs independently",
+        "tests/hermes-client.test.ts :: treats a denied host callback as an ordinary tool result during teardown",
+        "tests/hermes-client.test.ts :: uses an isolated home and does not pass provider credentials to Python",
+        "tests/hermes-host.test.ts :: [file error]",
+        "tests/hermes-multi-original.test.ts :: runs two real original engines against one canonical library with isolated sessions and bounded scripted native calls",
+        "tests/hermes-original-integration.test.ts :: runs original Python and ACP through the native broker, persists a skill and finishes through the real Service",
+        "tests/hermes-service.test.ts :: bounds hook admission while preserving every successful write and ordinary receipt",
+        "tests/hermes-service.test.ts :: carries an actual approved replacement privately to the next idle source turn, never prepare or steering",
+        "tests/hermes-service.test.ts :: does not infer missing legacy write authority from current selection",
+        "tests/hermes-service.test.ts :: does not infer missing no_project write authority from current selection",
+        "tests/hermes-service.test.ts :: does not reauthorize an approved write hook after rebind",
+        "tests/hermes-service.test.ts :: does not reauthorize an approved write hook after recovery",
+        "tests/hermes-service.test.ts :: does not reauthorize an approved write hook after revision",
+        "tests/hermes-service.test.ts :: does not reauthorize an approved write hook after stop",
+        "tests/hermes-service.test.ts :: never supplies completed-write custody for unapproved or failed effects",
+        "tests/hermes-service.test.ts :: retains an unknown callback claim across stop/resume without replaying its write",
+        "tests/integration-host.test.ts :: keeps Biome write proposals and Spec Kit initialization unavailable in plan mode",
+        "tests/integration-mcp.test.ts :: builds a real Graphify code graph, queries its stdio server and exports GraphML without a model",
+        "tests/integration-mcp.test.ts :: executes the pinned native Biome and Impeccable engines",
+        "tests/integration-mcp.test.ts :: initializes only project-local genuine Spec Kit assets and dispatches its original workflow through the host",
+        "tests/integration-mcp.test.ts :: refuses linked Graphify graph input and linked export directories inside the owned fixture",
+        "tests/integration-mcp.test.ts :: routes Biome proposals through the registered granted-file approval flow",
+        "tests/integrations.test.ts :: admits exactly the ten bundled integrations without starting their MCP services",
+        "tests/managed-git-family.test.ts :: passes only the host-resolved family for the granted domain repository root",
+        "tests/managed-git-family.test.ts :: requires host attestation for linked worktrees and retains ordinary repositories",
+        "tests/managed-git-family.test.ts :: snapshots the attested worktree HEAD, index and source, without other worktrees or hooks",
+        "tests/model-discovery.test.ts :: [file error]",
+        "tests/official-runtime-storage.test.ts :: official runtime storage and subprocess isolation uses published commands and isolated homes without inheriting provider or Node injection variables",
+        "tests/packaged-providers.test.ts :: packaged provider custody imports the actual installed SDK with an explicit empty store and runs only the stock rg version helper",
+        "tests/path-access.test.ts :: [file error]",
+        "tests/plugin-frame-custody.test.ts :: [file error]",
+        "tests/private-git-family.test.ts :: does not consume original metadata after private import and ignores dependency bulk for managed status",
+        "tests/private-git-family.test.ts :: imports once into protected private bare storage and creates three independent native worktrees",
+        "tests/private-git-family.test.ts :: imports safe author and GitHub origin scalars and drops arbitrary source configuration",
+        "tests/private-git-family.test.ts :: keeps incremental legacy objects out of the authoritative managed family",
+        "tests/private-git-family.test.ts :: keeps original bindings in place, reports tracked-only coverage and rejects legacy mutations",
+        "tests/private-git-family.test.ts :: refuses a legacy scratch view inside a broad source grant",
+        "tests/private-git-family.test.ts :: refuses stored commonDirectoryIdentity substitution before managed Git starts",
+        "tests/private-git-family.test.ts :: refuses stored gitDirectoryIdentity substitution before managed Git starts",
+        "tests/private-git-family.test.ts :: refuses stored identity substitution before managed Git starts",
+        "tests/private-git-family.test.ts :: rejects a context read when the admitted model changes during its Git read",
+        "tests/private-git-family.test.ts :: reports each admitted managed copy rather than the original repository root in hover context",
+        "tests/private-git-family.test.ts :: streams metadata beyond the unchanged ordinary snapshot budget with a bounded buffer",
+        "tests/project-tools.test.ts :: enrolls a local project and assigns new agents separate real branches and working copies",
+        "tests/project-tools.test.ts :: keeps Git status inside the enrolled root even when repository config names another worktree",
+        "tests/project-tools.test.ts :: reports live managed untracked/staged changes and refuses an action against an old revision",
+        "tests/research-capture.test.ts :: binds a selected file reference to the exact grant generation even when bytes and identity match",
+        "tests/research-capture.test.ts :: captures a granted file with native custody and exact expected bytes and identity",
+        "tests/research-capture.test.ts :: denies secret paths, traversal and over-limit files through existing grants",
+        "tests/research-capture.test.ts :: fails closed after grant revocation, rebind, identity replacement, or hardlink introduction",
+        "tests/research-capture.test.ts :: rechecks thread authority inside a browser lease and keeps revoked historical file material inaccessible",
+        "tests/research-capture.test.ts :: rejects a missing selected file or binary material without retaining a partial capture",
+        "tests/research-capture.test.ts :: rejects same-size edits after selection without publishing a source or receipt",
+        "tests/research-routes.test.ts :: [file error]",
+        "tests/research-service-integration.test.ts :: [file error]",
+        "tests/research-workspace.test.ts :: [file error]",
+        "tests/resource-tree.test.ts :: [file error]",
+        "tests/review-host.test.ts :: [file error]",
+        "tests/runtime-router.test.ts :: lazily isolates account adapters, pins routing and denies cross-account sessions",
+        "tests/runtime-router.test.ts :: rejects a resolver that changes the provider of an already acquired account profile",
+        "tests/runtime-router.test.ts :: scopes named-account model discovery to its provider and blocks a profile being signed in",
+        "tests/server.test.ts :: [file error]",
+        "tests/service.test.ts :: thread and UI integrity a generated operation button leads to native approval and cannot approve by its label",
+        "tests/service.test.ts :: thread and UI integrity records a completed effect arriving after Stop without reviving its run",
+        "tests/shell-read-models.test.ts :: [file error]",
+        "tests/shell-settings-bootstrap.test.ts :: [file error]",
+        "tests/skill-catalog-apps.test.ts :: discovers only declared installed metadata with verified package custody and never activates the host",
+        "tests/skill-catalog-apps.test.ts :: invalidates installed references after content tampering, registry revocation, or untracked additions",
+        "tests/skill-catalog-http.test.ts :: [file error]",
+        "tests/skill-catalog.test.ts :: accepts bound references for the full declared source-identity length",
+        "tests/skill-catalog.test.ts :: binds authenticated cursors to inventory, search, page size and connection context",
+        "tests/skill-catalog.test.ts :: bounds file counts and bytes without truncating a package into an available reference",
+        "tests/skill-catalog.test.ts :: counts bytes consumed by rejected packages against the root budget",
+        "tests/skill-catalog.test.ts :: denies file/directory symlinks and hardlinks while retaining other safe packages",
+        "tests/skill-catalog.test.ts :: detects replacement during capture and never returns mixed metadata/custody",
+        "tests/skill-catalog.test.ts :: discovers only the selected worktree and invalidates its references after rebinding or revocation",
+        "tests/skill-catalog.test.ts :: enumerates every page, keeps colliding names distinct, and exposes metadata without source bytes",
+        "tests/skill-catalog.test.ts :: includes nested installed skill entries beneath another skill package",
+        "tests/skill-catalog.test.ts :: keeps a root skill distinct from a child named after the root directory",
+        "tests/skill-catalog.test.ts :: marks an exhausted root inventory unavailable instead of silently presenting a partial catalog",
+        "tests/skill-catalog.test.ts :: pins exact bytes and supporting-file custody, rejecting edits even when size and display name stay equal",
+        "tests/skill-catalog.test.ts :: preserves exact references and pagination after unrelated project metadata updates",
+        "tests/skill-catalog.test.ts :: preserves exact references and pagination after unrelated status updates",
+        "tests/skill-catalog.test.ts :: preserves exact references and pagination after unrelated title updates",
+        "tests/skill-catalog.test.ts :: preserves exact references and pagination after unrelated working-copy branch updates",
+        "tests/skill-catalog.test.ts :: rejects namespace escalation and source substitution without resolving a display name",
+        "tests/skill-catalog.test.ts :: reuses the real bundled integration inventory and covers all declared skills across pages",
+        "tests/skill-catalog.test.ts :: uses canonical connected project/worktree bindings and separates unavailable project authority",
+        "tests/skill-invocation.test.ts :: aborts after capture while the final source recheck is in flight",
+        "tests/skill-invocation.test.ts :: accepts the parent raw skills array while taking expected authority only from host options",
+        "tests/skill-invocation.test.ts :: admits all selected references in order, never silently dropping a stale second selection",
+        "tests/skill-invocation.test.ts :: bounds Harness entry bytes before materializing an oversized saved document",
+        "tests/skill-invocation.test.ts :: captures only a verified installed App package, without activating its host, and rechecks registry revocation",
+        "tests/skill-invocation.test.ts :: denies a changed runtime thinking level even when the model is unchanged",
+        "tests/skill-invocation.test.ts :: denies a package exceeding fileBytes instead of silently truncating it",
+        "tests/skill-invocation.test.ts :: denies a package exceeding files instead of silently truncating it",
+        "tests/skill-invocation.test.ts :: denies a package exceeding packageBytes instead of silently truncating it",
+        "tests/skill-invocation.test.ts :: denies directory-swap between fresh catalog custody and materialization",
+        "tests/skill-invocation.test.ts :: denies entry-bytes between fresh catalog custody and materialization",
+        "tests/skill-invocation.test.ts :: denies extra-file between fresh catalog custody and materialization",
+        "tests/skill-invocation.test.ts :: denies file-swap between fresh catalog custody and materialization",
+        "tests/skill-invocation.test.ts :: denies forged admissions, mismatched runtime owners and arbitrary support paths",
+        "tests/skill-invocation.test.ts :: denies hardlink between fresh catalog custody and materialization",
+        "tests/skill-invocation.test.ts :: denies junction between fresh catalog custody and materialization",
+        "tests/skill-invocation.test.ts :: denies replay tampering and key loss instead of falling back to rediscovery",
+        "tests/skill-invocation.test.ts :: denies stale support, forged identity, cross-source and private-provider references",
+        "tests/skill-invocation.test.ts :: denies support-bytes between fresh catalog custody and materialization",
+        "tests/skill-invocation.test.ts :: fences authority changes during catalog awaits and again before commit/runtime/support reads",
+        "tests/skill-invocation.test.ts :: honors pre-abort and an abort that wins a catalog await without producing an admission",
+        "tests/skill-invocation.test.ts :: materializes exact entry bytes and captured support without changing prompt or resources",
+        "tests/skill-invocation.test.ts :: precommit authority revalidation leaves message/outbox/capture storage empty on a race",
+        "tests/skill-invocation.test.ts :: preserves UTF-8 BOM and original line endings in admitted guidance",
+        "tests/skill-invocation.test.ts :: reads the exact Harness version/document with no latest-name or ambient projection fallback",
+        "tests/skill-invocation.test.ts :: rejects command-ID reuse with changed content, model, thinking, reference or authority",
+        "tests/skill-invocation.test.ts :: rejects every changed authority dimension before admission",
+        "tests/skill-invocation.test.ts :: rejects malformed payloads rather than accepting browser supplied text, paths or authority grants",
+        "tests/skill-invocation.test.ts :: replays the same command after an actual Store reopen without another message or current-source read",
+        "tests/skill-invocation.test.ts :: resolves only the connected canonical project/worktree and denies its root identity changing",
+        "tests/skill-invocation.test.ts :: restores authenticated exact bytes across host restart without rediscovering changed skills",
+        "tests/skill-invocation.test.ts :: returns cancellation while an obsolete catalog read is still pending",
+        "tests/skill-invocation.test.ts :: revalidates the canonical source after capture rather than accepting its earlier index",
+        "tests/skill-invocation.test.ts :: sanitizes authority-provider failures at precommit without leaking host paths",
+        "tests/skill-invocation.test.ts :: selection preserves every reference field without a body read or admission capability, and bundles for browsers",
+        "tests/skill-invocation.test.ts :: uses the bundled manifest pin and denies an index replacement between custody and capture",
+        "tests/skills-http.test.ts :: [file error]",
+        "tests/skills-integration.test.ts :: keeps claude-code automatic skill review account-pinned through changed defaults, settlement and restart",
+        "tests/skills-integration.test.ts :: keeps cursor-sdk automatic skill review account-pinned through changed defaults, settlement and restart",
+        "tests/skills-integration.test.ts :: keeps gemini-cli automatic skill review account-pinned through changed defaults, settlement and restart",
+        "tests/skills-integration.test.ts :: keeps github-copilot automatic skill review account-pinned through changed defaults, settlement and restart",
+        "tests/skills-integration.test.ts :: keeps kimi-coding automatic skill review account-pinned through changed defaults, settlement and restart",
+        "tests/skills-integration.test.ts :: keeps openai automatic skill review account-pinned through changed defaults, settlement and restart",
+        "tests/skills-integration.test.ts :: keeps openai-codex automatic skill review account-pinned through changed defaults, settlement and restart",
+        "tests/skills-integration.test.ts :: keeps opencode-go automatic skill review account-pinned through changed defaults, settlement and restart",
+        "tests/skills-integration.test.ts :: keeps xai automatic skill review account-pinned through changed defaults, settlement and restart",
+        "tests/task-memory-recovery.test.ts :: keeps artifacts, saved edits, accepted inputs and a completed effect authoritative after note recovery",
+        "tests/terminal-host.test.ts :: [file error]",
+        "tests/workspace-action-outcome-routes.test.ts :: [file error]",
+        "tests/workspace-action-outcomes.test.ts :: commits intent before local write and private result before event, then replays after Store restart",
+        "tests/workspace-action-outcomes.test.ts :: denies reuse of an ID with a changed payload",
+        "tests/workspace-action-outcomes.test.ts :: denies reuse of an ID with a changed projectId",
+        "tests/workspace-action-outcomes.test.ts :: denies reuse of an ID with a changed threadId",
+        "tests/workspace-action-outcomes.test.ts :: denies reuse of an ID with a changed type",
+        "tests/workspace-action-outcomes.test.ts :: inspects original payload/revision without current diff, review reads, or any write",
+        "tests/workspace-action-outcomes.test.ts :: keeps an active prepared reservation uncertain until its owner durably proves no execution began",
+        "tests/workspace-action-outcomes.test.ts :: keeps completed external write uncertain if durable result commit fails",
+        "tests/workspace-action-outcomes.test.ts :: keeps failures after started uncertain even when there is no receipt",
+        "tests/workspace-action-outcomes.test.ts :: keeps missing and legacy records uncertain without adopting unbound receipts",
+        "tests/workspace-action-outcomes.test.ts :: keeps private intent, result, credentials and errors out of events, receipts and snapshots",
+        "tests/workspace-action-outcomes.test.ts :: pins profile access while GitHubTools is awaiting remote validation",
+        "tests/workspace-action-outcomes.test.ts :: records not-applied only after host rejection before starting and never restarts that ID",
+        "tests/workspace-action-outcomes.test.ts :: recovers a confirmed review when the remote branch name differs from the managed local branch",
+        "tests/workspace-action-outcomes.test.ts :: rejects a profile replaced between inspection identity capture and credential read",
+        "tests/workspace-action-outcomes.test.ts :: retains interrupted remote write as uncertain across restart without submitting it again",
+        "tests/workspace-action-outcomes.test.ts :: returns revoked after working copy or account access changes, including confirmed receipts",
+        "tests/workspace-action-outcomes.test.ts :: serializes same-ID attempts across separate Store connections without a double write",
+        "tests/workspace-action-outcomes.test.ts :: supports local unstage and commit through the original revision and replays a commit without a second write",
+        "tests/workspace-linked-pr.test.ts :: [file error]"
+      ],
+      "vitestSuiteCount": 66,
+      "testFiles": 58
+    },
+    "comparison": {
+      "newFailedIdentities": [],
+      "newFailureCount": 0,
+      "knownBaselineFileCount": 58
+    }
+  },
+  "quality": {
+    "head": "82d795829be621538fe6bbac72411a2a6d3b6e8a",
+    "axe": [
+      {
+        "width": 375,
+        "state": "default",
+        "violations": [
+          {
+            "id": "label-content-name-mismatch",
+            "impact": "serious",
+            "nodes": 2,
+            "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name"
+          }
+        ],
+        "incomplete": 2,
+        "overflow": {
+          "viewport": 375,
+          "scrollWidth": 375
+        }
+      },
+      {
+        "width": 375,
+        "state": "menu",
+        "status": "failed",
+        "violations": [],
+        "overflow": null,
+        "error": "Actual-app phone menu probe timed out after clicking thread options; see web-quality-mobile-menu-timeout.log. State capture uses the separately named sidebar-menu fixture."
+      },
+      {
+        "width": 768,
+        "state": "default",
+        "violations": [
+          {
+            "id": "label-content-name-mismatch",
+            "impact": "serious",
+            "nodes": 4,
+            "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name"
+          }
+        ],
+        "incomplete": 2,
+        "overflow": {
+          "viewport": 768,
+          "scrollWidth": 768
+        }
+      },
+      {
+        "width": 768,
+        "state": "menu",
+        "violations": [
+          {
+            "id": "label-content-name-mismatch",
+            "impact": "serious",
+            "nodes": 4,
+            "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name"
+          },
+          {
+            "id": "target-size",
+            "impact": "serious",
+            "nodes": 1,
+            "description": "Ensure touch targets have sufficient size and space"
+          }
+        ],
+        "incomplete": 3,
+        "overflow": {
+          "viewport": 768,
+          "scrollWidth": 768
+        }
+      },
+      {
+        "width": 1440,
+        "state": "default",
+        "violations": [
+          {
+            "id": "label-content-name-mismatch",
+            "impact": "serious",
+            "nodes": 4,
+            "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name"
+          }
+        ],
+        "incomplete": 2,
+        "overflow": {
+          "viewport": 1440,
+          "scrollWidth": 1440
+        }
+      },
+      {
+        "width": 1440,
+        "state": "menu",
+        "violations": [
+          {
+            "id": "label-content-name-mismatch",
+            "impact": "serious",
+            "nodes": 4,
+            "description": "Ensure that elements labelled through their content must have their visible text as part of their accessible name"
+          },
+          {
+            "id": "target-size",
+            "impact": "serious",
+            "nodes": 1,
+            "description": "Ensure touch targets have sufficient size and space"
+          }
+        ],
+        "incomplete": 3,
+        "overflow": {
+          "viewport": 1440,
+          "scrollWidth": 1440
+        }
+      }
+    ],
+    "layout": [
+      {
+        "kind": "production-bundled-navigation",
+        "width": 375,
+        "cls": 0.003847374833333333,
+        "entries": [
+          {
+            "value": 0.0002901068333333333,
+            "startTime": 221.29999999701977,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "target": "",
+                "previousRect": {
+                  "x": 119,
+                  "y": 4,
+                  "width": 63,
+                  "height": 24,
+                  "top": 4,
+                  "right": 182,
+                  "bottom": 28,
+                  "left": 119
+                },
+                "currentRect": {
+                  "x": 123,
+                  "y": 4,
+                  "width": 66,
+                  "height": 25,
+                  "top": 4,
+                  "right": 189,
+                  "bottom": 29,
+                  "left": 123
+                }
+              },
+              {
+                "target": "",
+                "previousRect": {
+                  "x": 183,
+                  "y": 4,
+                  "width": 82,
+                  "height": 24,
+                  "top": 4,
+                  "right": 265,
+                  "bottom": 28,
+                  "left": 183
+                },
+                "currentRect": {
+                  "x": 190,
+                  "y": 4,
+                  "width": 85,
+                  "height": 25,
+                  "top": 4,
+                  "right": 275,
+                  "bottom": 29,
+                  "left": 190
+                }
+              },
+              {
+                "target": "",
+                "previousRect": {
+                  "x": 266,
+                  "y": 4,
+                  "width": 61,
+                  "height": 24,
+                  "top": 4,
+                  "right": 327,
+                  "bottom": 28,
+                  "left": 266
+                },
+                "currentRect": {
+                  "x": 276,
+                  "y": 4,
+                  "width": 64,
+                  "height": 25,
+                  "top": 4,
+                  "right": 340,
+                  "bottom": 29,
+                  "left": 276
+                }
+              },
+              {
+                "target": "workspace-control-wrap",
+                "previousRect": {
+                  "x": 188,
+                  "y": 29,
+                  "width": 93,
+                  "height": 36,
+                  "top": 29,
+                  "right": 281,
+                  "bottom": 65,
+                  "left": 188
+                },
+                "currentRect": {
+                  "x": 184,
+                  "y": 30,
+                  "width": 96,
+                  "height": 36,
+                  "top": 30,
+                  "right": 280,
+                  "bottom": 66,
+                  "left": 184
+                }
+              },
+              {
+                "target": "docked-summary-caption",
+                "previousRect": {
+                  "x": 245,
+                  "y": 962,
+                  "width": 83,
+                  "height": 14,
+                  "top": 962,
+                  "right": 328,
+                  "bottom": 976,
+                  "left": 245
+                },
+                "currentRect": {
+                  "x": 240,
+                  "y": 962,
+                  "width": 88,
+                  "height": 15,
+                  "top": 962,
+                  "right": 328,
+                  "bottom": 977,
+                  "left": 240
+                }
+              }
+            ]
+          },
+          {
+            "value": 0.0035572679999999997,
+            "startTime": 308.29999999701977,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "target": "composer-dock",
+                "previousRect": {
+                  "x": 12,
+                  "y": 712,
+                  "width": 351,
+                  "height": 176,
+                  "top": 712,
+                  "right": 363,
+                  "bottom": 888,
+                  "left": 12
+                },
+                "currentRect": {
+                  "x": 12,
+                  "y": 734,
+                  "width": 351,
+                  "height": 154,
+                  "top": 734,
+                  "right": 363,
+                  "bottom": 888,
+                  "left": 12
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "production-bundled-navigation",
+        "width": 768,
+        "cls": 0.002580597839355469,
+        "entries": [
+          {
+            "value": 0.00015130096435546874,
+            "startTime": 132.89999999850988,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "target": "",
+                "previousRect": {
+                  "x": 336,
+                  "y": 11,
+                  "width": 69,
+                  "height": 24,
+                  "top": 11,
+                  "right": 405,
+                  "bottom": 35,
+                  "left": 336
+                },
+                "currentRect": {
+                  "x": 340,
+                  "y": 11,
+                  "width": 72,
+                  "height": 25,
+                  "top": 11,
+                  "right": 412,
+                  "bottom": 36,
+                  "left": 340
+                }
+              },
+              {
+                "target": "",
+                "previousRect": {
+                  "x": 407,
+                  "y": 11,
+                  "width": 88,
+                  "height": 24,
+                  "top": 11,
+                  "right": 495,
+                  "bottom": 35,
+                  "left": 407
+                },
+                "currentRect": {
+                  "x": 414,
+                  "y": 11,
+                  "width": 91,
+                  "height": 25,
+                  "top": 11,
+                  "right": 505,
+                  "bottom": 36,
+                  "left": 414
+                }
+              },
+              {
+                "target": "",
+                "previousRect": {
+                  "x": 497,
+                  "y": 11,
+                  "width": 67,
+                  "height": 24,
+                  "top": 11,
+                  "right": 564,
+                  "bottom": 35,
+                  "left": 497
+                },
+                "currentRect": {
+                  "x": 507,
+                  "y": 11,
+                  "width": 70,
+                  "height": 25,
+                  "top": 11,
+                  "right": 577,
+                  "bottom": 36,
+                  "left": 507
+                }
+              },
+              {
+                "target": "",
+                "previousRect": {
+                  "x": 566,
+                  "y": 11,
+                  "width": 57,
+                  "height": 24,
+                  "top": 11,
+                  "right": 623,
+                  "bottom": 35,
+                  "left": 566
+                },
+                "currentRect": {
+                  "x": 579,
+                  "y": 11,
+                  "width": 60,
+                  "height": 25,
+                  "top": 11,
+                  "right": 639,
+                  "bottom": 36,
+                  "left": 579
+                }
+              },
+              {
+                "target": "docked-summary-caption",
+                "previousRect": {
+                  "x": 638,
+                  "y": 962,
+                  "width": 83,
+                  "height": 14,
+                  "top": 962,
+                  "right": 721,
+                  "bottom": 976,
+                  "left": 638
+                },
+                "currentRect": {
+                  "x": 633,
+                  "y": 962,
+                  "width": 88,
+                  "height": 15,
+                  "top": 962,
+                  "right": 721,
+                  "bottom": 977,
+                  "left": 633
+                }
+              }
+            ]
+          },
+          {
+            "value": 0.002429296875,
+            "startTime": 175.29999999701977,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "target": "composer-dock",
+                "previousRect": {
+                  "x": 268,
+                  "y": 708,
+                  "width": 480,
+                  "height": 180,
+                  "top": 708,
+                  "right": 748,
+                  "bottom": 888,
+                  "left": 268
+                },
+                "currentRect": {
+                  "x": 268,
+                  "y": 730,
+                  "width": 480,
+                  "height": 158,
+                  "top": 730,
+                  "right": 748,
+                  "bottom": 888,
+                  "left": 268
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "production-bundled-navigation",
+        "width": 1440,
+        "cls": 0.0012349225154923804,
+        "entries": [
+          {
+            "value": 7.942362467447918e-05,
+            "startTime": 141.60000000149012,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "target": "",
+                "previousRect": {
+                  "x": 336,
+                  "y": 11,
+                  "width": 69,
+                  "height": 24,
+                  "top": 11,
+                  "right": 405,
+                  "bottom": 35,
+                  "left": 336
+                },
+                "currentRect": {
+                  "x": 340,
+                  "y": 11,
+                  "width": 72,
+                  "height": 25,
+                  "top": 11,
+                  "right": 412,
+                  "bottom": 36,
+                  "left": 340
+                }
+              },
+              {
+                "target": "",
+                "previousRect": {
+                  "x": 407,
+                  "y": 11,
+                  "width": 88,
+                  "height": 24,
+                  "top": 11,
+                  "right": 495,
+                  "bottom": 35,
+                  "left": 407
+                },
+                "currentRect": {
+                  "x": 414,
+                  "y": 11,
+                  "width": 91,
+                  "height": 25,
+                  "top": 11,
+                  "right": 505,
+                  "bottom": 36,
+                  "left": 414
+                }
+              },
+              {
+                "target": "",
+                "previousRect": {
+                  "x": 497,
+                  "y": 11,
+                  "width": 67,
+                  "height": 24,
+                  "top": 11,
+                  "right": 564,
+                  "bottom": 35,
+                  "left": 497
+                },
+                "currentRect": {
+                  "x": 507,
+                  "y": 11,
+                  "width": 70,
+                  "height": 25,
+                  "top": 11,
+                  "right": 577,
+                  "bottom": 36,
+                  "left": 507
+                }
+              },
+              {
+                "target": "",
+                "previousRect": {
+                  "x": 566,
+                  "y": 11,
+                  "width": 57,
+                  "height": 24,
+                  "top": 11,
+                  "right": 623,
+                  "bottom": 35,
+                  "left": 566
+                },
+                "currentRect": {
+                  "x": 579,
+                  "y": 11,
+                  "width": 60,
+                  "height": 25,
+                  "top": 11,
+                  "right": 639,
+                  "bottom": 36,
+                  "left": 579
+                }
+              },
+              {
+                "target": "workspace-control-wrap",
+                "previousRect": {
+                  "x": 1234,
+                  "y": 5,
+                  "width": 99,
+                  "height": 36,
+                  "top": 5,
+                  "right": 1333,
+                  "bottom": 41,
+                  "left": 1234
+                },
+                "currentRect": {
+                  "x": 1230,
+                  "y": 5,
+                  "width": 102,
+                  "height": 36,
+                  "top": 5,
+                  "right": 1332,
+                  "bottom": 41,
+                  "left": 1230
+                }
+              }
+            ]
+          },
+          {
+            "value": 0.0011554988908179012,
+            "startTime": 185.60000000149012,
+            "hadRecentInput": false,
+            "sources": [
+              {
+                "target": "composer-dock",
+                "previousRect": {
+                  "x": 464,
+                  "y": 792,
+                  "width": 760,
+                  "height": 146,
+                  "top": 792,
+                  "right": 1224,
+                  "bottom": 938,
+                  "left": 464
+                },
+                "currentRect": {
+                  "x": 464,
+                  "y": 814,
+                  "width": 760,
+                  "height": 124,
+                  "top": 814,
+                  "right": 1224,
+                  "bottom": 938,
+                  "left": 464
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "pointer-thread-move",
+        "width": 768,
+        "cls": 0,
+        "rawShiftValue": 0,
+        "initial": {
+          "x": 329,
+          "y": 0,
+          "width": 430.53125,
+          "height": 1000
+        },
+        "final": {
+          "x": 329,
+          "y": 0,
+          "width": 430.53125,
+          "height": 1000
+        },
+        "entries": []
+      },
+      {
+        "kind": "pointer-thread-move",
+        "width": 1024,
+        "cls": 0,
+        "rawShiftValue": 0,
+        "initial": {
+          "x": 329,
+          "y": 0,
+          "width": 430.53125,
+          "height": 1000
+        },
+        "final": {
+          "x": 329,
+          "y": 0,
+          "width": 430.53125,
+          "height": 1000
+        },
+        "entries": []
+      },
+      {
+        "kind": "pointer-thread-move",
+        "width": 1440,
+        "cls": 0,
+        "rawShiftValue": 0,
+        "initial": {
+          "x": 329,
+          "y": 0,
+          "width": 430.53125,
+          "height": 1000
+        },
+        "final": {
+          "x": 329,
+          "y": 0,
+          "width": 430.53125,
+          "height": 1000
+        },
+        "entries": []
+      }
+    ],
+    "motion": [
+      {
+        "edge": "top",
+        "width": 1440,
+        "records": [
+          {
+            "id": "thread-4",
+            "timing": {
+              "delay": 0,
+              "direction": "normal",
+              "duration": 180,
+              "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+              "endDelay": 0,
+              "fill": "auto",
+              "iterationStart": 0,
+              "iterations": 1
+            },
+            "frames": [
+              {
+                "offset": null,
+                "easing": "linear",
+                "composite": "auto",
+                "transform": "translate(0px, 171px)",
+                "computedOffset": 0
+              },
+              {
+                "offset": null,
+                "easing": "linear",
+                "composite": "auto",
+                "transform": "translate(0px, 0px)",
+                "computedOffset": 1
+              }
+            ],
+            "live": true
+          },
+          {
+            "id": "thread-1",
+            "timing": {
+              "delay": 0,
+              "direction": "normal",
+              "duration": 180,
+              "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+              "endDelay": 0,
+              "fill": "auto",
+              "iterationStart": 0,
+              "iterations": 1
+            },
+            "frames": [
+              {
+                "offset": null,
+                "easing": "linear",
+                "composite": "auto",
+                "transform": "translate(0px, -57px)",
+                "computedOffset": 0
+              },
+              {
+                "offset": null,
+                "easing": "linear",
+                "composite": "auto",
+                "transform": "translate(0px, 0px)",
+                "computedOffset": 1
+              }
+            ],
+            "live": true
+          },
+          {
+            "id": "thread-2",
+            "timing": {
+              "delay": 0,
+              "direction": "normal",
+              "duration": 180,
+              "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+              "endDelay": 0,
+              "fill": "auto",
+              "iterationStart": 0,
+              "iterations": 1
+            },
+            "frames": [
+              {
+                "offset": null,
+                "easing": "linear",
+                "composite": "auto",
+                "transform": "translate(0px, -57px)",
+                "computedOffset": 0
+              },
+              {
+                "offset": null,
+                "easing": "linear",
+                "composite": "auto",
+                "transform": "translate(0px, 0px)",
+                "computedOffset": 1
+              }
+            ],
+            "live": true
+          },
+          {
+            "id": "thread-3",
+            "timing": {
+              "delay": 0,
+              "direction": "normal",
+              "duration": 180,
+              "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+              "endDelay": 0,
+              "fill": "auto",
+              "iterationStart": 0,
+              "iterations": 1
+            },
+            "frames": [
+              {
+                "offset": null,
+                "easing": "linear",
+                "composite": "auto",
+                "transform": "translate(0px, -57px)",
+                "computedOffset": 0
+              },
+              {
+                "offset": null,
+                "easing": "linear",
+                "composite": "auto",
+                "transform": "translate(0px, 0px)",
+                "computedOffset": 1
+              }
+            ],
+            "live": true
+          }
+        ],
+        "frames": [
+          {
+            "ms": 0,
+            "file": "/home/box/gen-company/ledger/WO-3/qa-r2-3.4/captures/motion/top-000ms.png",
+            "geometry": [
+              {
+                "id": "thread-4",
+                "y": 352
+              },
+              {
+                "id": "thread-1",
+                "y": 181
+              },
+              {
+                "id": "thread-2",
+                "y": 238
+              },
+              {
+                "id": "thread-3",
+                "y": 295
+              },
+              {
+                "id": "thread-5",
+                "y": 409
+              },
+              {
+                "id": "thread-6",
+                "y": 466
+              }
+            ]
+          },
+          {
+            "ms": 20,
+            "file": "/home/box/gen-company/ledger/WO-3/qa-r2-3.4/captures/motion/top-020ms.png",
+            "geometry": [
+              {
+                "id": "thread-4",
+                "y": 346.3910827636719
+              },
+              {
+                "id": "thread-1",
+                "y": 182.86964416503906
+              },
+              {
+                "id": "thread-2",
+                "y": 239.86964416503906
+              },
+              {
+                "id": "thread-3",
+                "y": 296.86962890625
+              },
+              {
+                "id": "thread-5",
+                "y": 409
+              },
+              {
+                "id": "thread-6",
+                "y": 466
+              }
+            ]
+          },
+          {
+            "ms": 45,
+            "file": "/home/box/gen-company/ledger/WO-3/qa-r2-3.4/captures/motion/top-045ms.png",
+            "geometry": [
+              {
+                "id": "thread-4",
+                "y": 311.5435791015625
+              },
+              {
+                "id": "thread-1",
+                "y": 194.4854736328125
+              },
+              {
+                "id": "thread-2",
+                "y": 251.4854736328125
+              },
+              {
+                "id": "thread-3",
+                "y": 308.4854736328125
+              },
+              {
+                "id": "thread-5",
+                "y": 409
+              },
+              {
+                "id": "thread-6",
+                "y": 466
+              }
+            ]
+          },
+          {
+            "ms": 70,
+            "file": "/home/box/gen-company/ledger/WO-3/qa-r2-3.4/captures/motion/top-070ms.png",
+            "geometry": [
+              {
+                "id": "thread-4",
+                "y": 251.0434112548828
+              },
+              {
+                "id": "thread-1",
+                "y": 214.65219116210938
+              },
+              {
+                "id": "thread-2",
+                "y": 271.6521911621094
+              },
+              {
+                "id": "thread-3",
+                "y": 328.6521911621094
+              },
+              {
+                "id": "thread-5",
+                "y": 409
+              },
+              {
+                "id": "thread-6",
+                "y": 466
+              }
+            ]
+          },
+          {
+            "ms": 90,
+            "file": "/home/box/gen-company/ledger/WO-3/qa-r2-3.4/captures/motion/top-090ms.png",
+            "geometry": [
+              {
+                "id": "thread-4",
+                "y": 219.37901306152344
+              },
+              {
+                "id": "thread-1",
+                "y": 225.20700073242188
+              },
+              {
+                "id": "thread-2",
+                "y": 282.2070007324219
+              },
+              {
+                "id": "thread-3",
+                "y": 339.2070007324219
+              },
+              {
+                "id": "thread-5",
+                "y": 409
+              },
+              {
+                "id": "thread-6",
+                "y": 466
+              }
+            ]
+          },
+          {
+            "ms": 120,
+            "file": "/home/box/gen-company/ledger/WO-3/qa-r2-3.4/captures/motion/top-120ms.png",
+            "geometry": [
+              {
+                "id": "thread-4",
+                "y": 194.54734802246094
+              },
+              {
+                "id": "thread-1",
+                "y": 233.48422241210938
+              },
+              {
+                "id": "thread-2",
+                "y": 290.4842224121094
+              },
+              {
+                "id": "thread-3",
+                "y": 347.4842224121094
+              },
+              {
+                "id": "thread-5",
+                "y": 409
+              },
+              {
+                "id": "thread-6",
+                "y": 466
+              }
+            ]
+          },
+          {
+            "ms": 150,
+            "file": "/home/box/gen-company/ledger/WO-3/qa-r2-3.4/captures/motion/top-150ms.png",
+            "geometry": [
+              {
+                "id": "thread-4",
+                "y": 183.84567260742188
+              },
+              {
+                "id": "thread-1",
+                "y": 237.0514373779297
+              },
+              {
+                "id": "thread-2",
+                "y": 294.05145263671875
+              },
+              {
+                "id": "thread-3",
+                "y": 351.05145263671875
+              },
+              {
+                "id": "thread-5",
+                "y": 409
+              },
+              {
+                "id": "thread-6",
+                "y": 466
+              }
+            ]
+          },
+          {
+            "ms": 180,
+            "file": "/home/box/gen-company/ledger/WO-3/qa-r2-3.4/captures/motion/top-180ms.png",
+            "geometry": [
+              {
+                "id": "thread-4",
+                "y": 181
+              },
+              {
+                "id": "thread-1",
+                "y": 238
+              },
+              {
+                "id": "thread-2",
+                "y": 295
+              },
+              {
+                "id": "thread-3",
+                "y": 352
+              },
+              {
+                "id": "thread-5",
+                "y": 409
+              },
+              {
+                "id": "thread-6",
+                "y": 466
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "edge": "bottom",
+        "width": 1440,
+        "records": [
+          {
+            "id": "thread-1",
+            "timing": {
+              "delay": 0,
+              "direction": "normal",
+              "duration": 180,
+              "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+              "endDelay": 0,
+              "fill": "auto",
+              "iterationStart": 0,
+              "iterations": 1
+            },
+            "frames": [
+              {
+                "offset": null,
+                "easing": "linear",
+                "composite": "auto",
+                "transform": "translate(0px, 57px)",
+                "computedOffset": 0
+              },
+              {
+                "offset": null,
+                "easing": "linear",
+                "composite": "auto",
+                "transform": "translate(0px, 0px)",
+                "computedOffset": 1
+              }
+            ],
+            "live": true
+          },
+          {
+            "id": "thread-2",
+            "timing": {
+              "delay": 0,
+              "direction": "normal",
+              "duration": 180,
+              "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+              "endDelay": 0,
+              "fill": "auto",
+              "iterationStart": 0,
+              "iterations": 1
+            },
+            "frames": [
+              {
+                "offset": null,
+                "easing": "linear",
+                "composite": "auto",
+                "transform": "translate(0px, 57px)",
+                "computedOffset": 0
+              },
+              {
+                "offset": null,
+                "easing": "linear",
+                "composite": "auto",
+                "transform": "translate(0px, 0px)",
+                "computedOffset": 1
+              }
+            ],
+            "live": true
+          },
+          {
+            "id": "thread-3",
+            "timing": {
+              "delay": 0,
+              "direction": "normal",
+              "duration": 180,
+              "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+              "endDelay": 0,
+              "fill": "auto",
+              "iterationStart": 0,
+              "iterations": 1
+            },
+            "frames": [
+              {
+                "offset": null,
+                "easing": "linear",
+                "composite": "auto",
+                "transform": "translate(0px, 57px)",
+                "computedOffset": 0
+              },
+              {
+                "offset": null,
+                "easing": "linear",
+                "composite": "auto",
+                "transform": "translate(0px, 0px)",
+                "computedOffset": 1
+              }
+            ],
+            "live": true
+          },
+          {
+            "id": "thread-5",
+            "timing": {
+              "delay": 0,
+              "direction": "normal",
+              "duration": 180,
+              "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+              "endDelay": 0,
+              "fill": "auto",
+              "iterationStart": 0,
+              "iterations": 1
+            },
+            "frames": [
+              {
+                "offset": null,
+                "easing": "linear",
+                "composite": "auto",
+                "transform": "translate(0px, 57px)",
+                "computedOffset": 0
+              },
+              {
+                "offset": null,
+                "easing": "linear",
+                "composite": "auto",
+                "transform": "translate(0px, 0px)",
+                "computedOffset": 1
+              }
+            ],
+            "live": true
+          },
+          {
+            "id": "thread-6",
+            "timing": {
+              "delay": 0,
+              "direction": "normal",
+              "duration": 180,
+              "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+              "endDelay": 0,
+              "fill": "auto",
+              "iterationStart": 0,
+              "iterations": 1
+            },
+            "frames": [
+              {
+                "offset": null,
+                "easing": "linear",
+                "composite": "auto",
+                "transform": "translate(0px, 57px)",
+                "computedOffset": 0
+              },
+              {
+                "offset": null,
+                "easing": "linear",
+                "composite": "auto",
+                "transform": "translate(0px, 0px)",
+                "computedOffset": 1
+              }
+            ],
+            "live": true
+          },
+          {
+            "id": "thread-4",
+            "timing": {
+              "delay": 0,
+              "direction": "normal",
+              "duration": 180,
+              "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+              "endDelay": 0,
+              "fill": "auto",
+              "iterationStart": 0,
+              "iterations": 1
+            },
+            "frames": [
+              {
+                "offset": null,
+                "easing": "linear",
+                "composite": "auto",
+                "transform": "translate(0px, -285px)",
+                "computedOffset": 0
+              },
+              {
+                "offset": null,
+                "easing": "linear",
+                "composite": "auto",
+                "transform": "translate(0px, 0px)",
+                "computedOffset": 1
+              }
+            ],
+            "live": true
+          }
+        ],
+        "frames": [
+          {
+            "ms": 0,
+            "file": "/home/box/gen-company/ledger/WO-3/qa-r2-3.4/captures/motion/bottom-000ms.png",
+            "geometry": [
+              {
+                "id": "thread-1",
+                "y": 238
+              },
+              {
+                "id": "thread-2",
+                "y": 295
+              },
+              {
+                "id": "thread-3",
+                "y": 352
+              },
+              {
+                "id": "thread-5",
+                "y": 409
+              },
+              {
+                "id": "thread-6",
+                "y": 466
+              },
+              {
+                "id": "thread-4",
+                "y": 181
+              }
+            ]
+          },
+          {
+            "ms": 90,
+            "file": "/home/box/gen-company/ledger/WO-3/qa-r2-3.4/captures/motion/bottom-090ms.png",
+            "geometry": [
+              {
+                "id": "thread-1",
+                "y": 193.79299926757812
+              },
+              {
+                "id": "thread-2",
+                "y": 250.79299926757812
+              },
+              {
+                "id": "thread-3",
+                "y": 307.7929992675781
+              },
+              {
+                "id": "thread-5",
+                "y": 364.7929992675781
+              },
+              {
+                "id": "thread-6",
+                "y": 421.7929992675781
+              },
+              {
+                "id": "thread-4",
+                "y": 402.03497314453125
+              }
+            ]
+          },
+          {
+            "ms": 180,
+            "file": "/home/box/gen-company/ledger/WO-3/qa-r2-3.4/captures/motion/bottom-180ms.png",
+            "geometry": [
+              {
+                "id": "thread-1",
+                "y": 181
+              },
+              {
+                "id": "thread-2",
+                "y": 238
+              },
+              {
+                "id": "thread-3",
+                "y": 295
+              },
+              {
+                "id": "thread-5",
+                "y": 352
+              },
+              {
+                "id": "thread-6",
+                "y": 409
+              },
+              {
+                "id": "thread-4",
+                "y": 466
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "policy": "reduce",
+        "width": 1440,
+        "rowAnimations": 0
+      },
+      {
+        "policy": "keyboard",
+        "width": 1440,
+        "rowAnimations": 0
+      }
+    ],
+    "lighthouse": [
+      {
+        "width": 375,
+        "categories": {
+          "performance": 100,
+          "accessibility": 100,
+          "best-practices": 96,
+          "seo": 82
+        },
+        "failedAudits": [
+          {
+            "id": "max-potential-fid",
+            "title": "Max Potential First Input Delay",
+            "score": 0.96,
+            "displayValue": "100\u00a0ms"
+          },
+          {
+            "id": "errors-in-console",
+            "title": "Browser errors were logged to the console",
+            "score": 0
+          },
+          {
+            "id": "valid-source-maps",
+            "title": "Missing source maps for large first-party JavaScript",
+            "score": 0
+          },
+          {
+            "id": "label-content-name-mismatch",
+            "title": "Elements with visible text labels do not have matching accessible names.",
+            "score": 0
+          },
+          {
+            "id": "unused-css-rules",
+            "title": "Reduce unused CSS",
+            "score": 0.5,
+            "displayValue": "Est savings of 230\u00a0KiB"
+          },
+          {
+            "id": "unused-javascript",
+            "title": "Reduce unused JavaScript",
+            "score": 0.5,
+            "displayValue": "Est savings of 777\u00a0KiB"
+          },
+          {
+            "id": "meta-description",
+            "title": "Document does not have a meta description",
+            "score": 0
+          },
+          {
+            "id": "robots-txt",
+            "title": "robots.txt is not valid",
+            "score": 0,
+            "displayValue": "10 errors found"
+          },
+          {
+            "id": "cache-insight",
+            "title": "Use efficient cache lifetimes",
+            "score": 0.5,
+            "displayValue": "Est savings of 1,448\u00a0KiB"
+          },
+          {
+            "id": "forced-reflow-insight",
+            "title": "Forced reflow",
+            "score": 0
+          },
+          {
+            "id": "network-dependency-tree-insight",
+            "title": "Network dependency tree",
+            "score": 0
+          },
+          {
+            "id": "render-blocking-insight",
+            "title": "Render-blocking requests",
+            "score": 0.5
+          }
+        ]
+      },
+      {
+        "width": 1440,
+        "categories": {
+          "performance": 100,
+          "accessibility": 96,
+          "best-practices": 96,
+          "seo": 82
+        },
+        "failedAudits": [
+          {
+            "id": "errors-in-console",
+            "title": "Browser errors were logged to the console",
+            "score": 0
+          },
+          {
+            "id": "valid-source-maps",
+            "title": "Missing source maps for large first-party JavaScript",
+            "score": 0
+          },
+          {
+            "id": "label-content-name-mismatch",
+            "title": "Elements with visible text labels do not have matching accessible names.",
+            "score": 0
+          },
+          {
+            "id": "target-size",
+            "title": "Touch targets do not have sufficient size or spacing.",
+            "score": 0
+          },
+          {
+            "id": "unused-css-rules",
+            "title": "Reduce unused CSS",
+            "score": 0.5,
+            "displayValue": "Est savings of 232\u00a0KiB"
+          },
+          {
+            "id": "unused-javascript",
+            "title": "Reduce unused JavaScript",
+            "score": 0.5,
+            "displayValue": "Est savings of 769\u00a0KiB"
+          },
+          {
+            "id": "meta-description",
+            "title": "Document does not have a meta description",
+            "score": 0
+          },
+          {
+            "id": "robots-txt",
+            "title": "robots.txt is not valid",
+            "score": 0,
+            "displayValue": "10 errors found"
+          },
+          {
+            "id": "cache-insight",
+            "title": "Use efficient cache lifetimes",
+            "score": 0.5,
+            "displayValue": "Est savings of 1,448\u00a0KiB"
+          },
+          {
+            "id": "forced-reflow-insight",
+            "title": "Forced reflow",
+            "score": 0
+          },
+          {
+            "id": "network-dependency-tree-insight",
+            "title": "Network dependency tree",
+            "score": 0
+          },
+          {
+            "id": "render-blocking-insight",
+            "title": "Render-blocking requests",
+            "score": 0.5
+          }
+        ]
+      }
+    ],
+    "errors": [],
+    "auditExitCode": 1
+  },
+  "stripVerification": {
+    "top": {
+      "times": [
+        0,
+        20,
+        45,
+        70,
+        90,
+        120,
+        150,
+        180
+      ],
+      "pixelHashes": [
+        "cc03bac2e4e1cf843c0e8b2b50d6e91f4e5070be5168d6c8da679b0120e7b18e",
+        "30fd7b550dbf07018aba4f94b184696dfa16996d63964e19290ab0571127c87b",
+        "3bb9ce2ac0dfe68161d4b734cec25745deaa6d4f456349ad87b12cc8faf3532d",
+        "783536205576791d84f529d9fb3198d9d9278c471e419d48c0c61922df37e244",
+        "816e3b5561ec0d6c87ce57ea96c3155ced124d5bed257893083f995f29a67a4e",
+        "ca4c75062d638dc9833acf6cc1a700bbf56c29caf8950f0be783b43e2fcd1f88",
+        "d74c7e882422e028acb0e1b4b524d1f5bdcb6d85699671cecd34e8652be4e5a4",
+        "4d52156eb4100d721ae55ba4ebe180c672975dc2d82383590dac9de3ab6aa29f"
+      ],
+      "adjacentMaxChannelDelta": [
+        222,
+        222,
+        222,
+        222,
+        222,
+        222,
+        222
+      ]
+    },
+    "bottom": {
+      "times": [
+        0,
+        90,
+        180
+      ],
+      "pixelHashes": [
+        "c4d8db5ee1ce30319a2f0aa0495edbedf29908a393721e0c310f0789c5878c7a",
+        "55307e872f7fbf4321c29c917a704c29f6774c29bd2718ca98a1ff15da7f6181",
+        "c7bfd0ca3298e49cf77cc635aec9cb6d798dc518b2452929482cf149882aef47"
+      ],
+      "adjacentMaxChannelDelta": [
+        222,
+        222
+      ]
+    }
+  },
+  "afterClipSeconds": 2.8,
+  "pr118Checks": {
+    "headRefOid": "82d795829be621538fe6bbac72411a2a6d3b6e8a",
+    "statusCheckRollup": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-10T19:41:07Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/Skytuhua/Gen-V1/actions/runs/42887711391/job/130080335558",
+        "name": "Windows checks",
+        "startedAt": "2026-11-10T19:41:05Z",
+        "status": "COMPLETED",
+        "workflowName": "CI"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-10T19:41:08Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://coderabbit.ai?utm_source=cr_app&utm_medium=github",
+        "name": "CodeRabbit",
+        "startedAt": "2026-11-10T19:41:08Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      }
+    ]
+  },
+  "ciAnnotations": [
+    {
+      "path": ".github",
+      "blob_href": "https://github.com/Skytuhua/Gen-V1/blob/82d795829be621538fe6bbac72411a2a6d3b6e8a/.github",
+      "start_line": 1,
+      "start_column": null,
+      "end_line": 1,
+      "end_column": null,
+      "annotation_level": "failure",
+      "title": "",
+      "message": "The job was not started because recent account payments have failed or your spending limit needs to be increased. Please check the 'Billing & plans' section in your settings",
+      "raw_details": ""
+    }
+  ],
+  "limits": [
+    "Synthetic data and bundled Chromium; no physical-device or live-provider acceptance.",
+    "Full pnpm test not run; only the named 58 baseline files compared.",
+    "Axe automated checks and incomplete items do not establish full manual WCAG conformance.",
+    "Actual-app phone menu audit failed; do not replace it with the separate fixture captures.",
+    "Lighthouse 90+ SEO target and Windows CI remain failed."
+  ]
+}

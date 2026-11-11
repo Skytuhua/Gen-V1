@@ -1,0 +1,11 @@
+.wo5-checkpoints-fixture { min-height:100dvh; background:var(--canvas); }
+.wo5-checkpoints-fixture>header { height:47px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:24px; padding:0 16px; }
+.wo5-checkpoints-workarea { display:grid; grid-template-columns:minmax(0,1fr) 420px; gap:16px; padding:16px; min-height:calc(100dvh - 47px); }
+.wo5-checkpoints-conversation { display:flex; flex-direction:column; min-width:0; padding:8px 24px; }
+.wo5-checkpoints-conversation>p { max-width:760px; }
+.wo5-checkpoints-conversation>.panel-note { margin-top:40px; }
+.wo5-checkpoints-composer { display:flex; align-items:start; flex-wrap:wrap; gap:8px; margin-top:auto; padding:12px; background:var(--surface); border:1px solid var(--border); border-radius:16px; }
+.wo5-checkpoints-composer>textarea { flex:1; min-width:120px; resize:vertical; border:0; background:none; color:var(--text); }
+.wo5-checkpoints-tool { min-width:0; background:var(--surface); border:1px solid var(--border); border-radius:8px; }
+.wo5-checkpoints-tool>.panel-toolbar { min-height:42px; padding:8px 12px; border-bottom:1px solid var(--border); }
+@media(max-width:900px) { .wo5-checkpoints-workarea { grid-template-columns:minmax(0,1fr); grid-template-rows:minmax(240px,40dvh) minmax(300px,auto); } .wo5-checkpoints-conversation { padding:8px; } }
