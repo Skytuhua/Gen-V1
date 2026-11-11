@@ -1,5 +1,4 @@
 import {test,expect,type Page} from '@playwright/test';
-import {mkdir} from 'node:fs/promises';
 import type { Route } from '@playwright/test';
 import type { Snapshot, Thread } from '../../packages/contracts';
 
@@ -64,7 +63,7 @@ test('owner switch and read-only/unavailable composer do not transfer excerpts',
  await setup(page);await add(page);await page.goto('/fixture?owner=other');await expect(page.getByRole('button',{name:'Terminal selection · capture-terminal',exact:true})).toBeHidden();await page.goto('/fixture?readonly=1');await expect(page.getByRole('button',{name:'Add selection to prompt'})).toBeHidden();await page.goto('/fixture?unavailable=1');await expect(page.getByRole('button',{name:'Add selection to prompt'})).toBeHidden();
 });
 test('renders approved leaf UI at 1440/1024/768 and immediate reduced-motion attachment geometry',async({page},info)=>{
- await setup(page);await add(page);const out='/home/box/gen-company/ledger/WO-5/fe/before-after';await mkdir(out,{recursive:true});for(const width of [1440,1024,768]){await page.setViewportSize({width,height:900});await expect(page.getByRole('button',{name:'Terminal selection · capture-terminal',exact:true})).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:`${out}/3-after-${width}.png`});}
+ await setup(page);await add(page);for(const width of [1440,1024,768]){await page.setViewportSize({width,height:900});await expect(page.getByRole('button',{name:'Terminal selection · capture-terminal',exact:true})).toBeVisible();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:info.outputPath(`3-after-${width}.png`)});}
  await page.getByRole('button',{name:'Terminal selection · capture-terminal',exact:true}).click();await page.screenshot({path:info.outputPath('review.png')});await page.emulateMedia({reducedMotion:'reduce'});await page.getByRole('button',{name:'Cancel',exact:true}).click();await page.getByRole('button',{name:'Remove terminal excerpt capture-terminal'}).click();await expect(page.getByRole('group',{name:'Attachments',exact:true})).toBeHidden();
 });
 
@@ -74,4 +73,21 @@ test('authenticated precommit rejection retains excerpts for review and a fresh 
 
 test('expired host output is captured from the current xterm selection, without rereading old output',async({page})=>{
  const f=await setup(page,'?expired=1');await add(page);await page.getByRole('button',{name:'Terminal selection · capture-terminal',exact:true}).click();await expect(page.getByLabel('Excerpt text')).toHaveValue(/Earlier output expired/);expect(f.sends).toEqual([]);
+});
+
+async function editExcerpt(page:Page,text:string){
+ await page.getByRole('button',{name:'Terminal selection · capture-terminal',exact:true}).click();await page.getByLabel('Excerpt text').fill(text);await page.getByRole('button',{name:'Save excerpt',exact:true}).click();await expect(page.getByRole('dialog')).toBeHidden();
+}
+async function excerptRecord(page:Page){return page.evaluate(async()=>{const path='/apps/web/src/journal.ts';const journal=await import(path);return journal.journalReadRecord('draft-excerpts:one');});}
+test('uncertain retry retains a newer A to B to A generation from another window after reload',async({page,context})=>{
+ const f=await setup(page);await add(page);const sent=await excerptRecord(page);const original=sent.value[0].text;
+ f.uncertain();await page.getByRole('button',{name:'Send',exact:true}).click();await expect(page.getByRole('button',{name:'Retry send',exact:true})).toBeVisible();
+ const other=await context.newPage();await setup(other);await editExcerpt(other,'B');await editExcerpt(other,original);const newer=await excerptRecord(other);expect(newer.generation).not.toBe(sent.generation);expect(newer.value).toEqual(sent.value);
+ await page.reload();await expect(page.getByRole('button',{name:'Retry send',exact:true})).toBeEnabled();const previous=f.sends.length;f.accept();await page.getByRole('button',{name:'Retry send',exact:true}).click();await expect.poll(()=>f.sends.length).toBe(previous+1);await expect(page.getByRole('button',{name:'Retry send',exact:true})).toBeHidden();
+ expect(f.sends.at(-1)).toEqual(f.sends[0]);await expect(page.getByRole('button',{name:'Terminal selection · capture-terminal',exact:true})).toBeVisible();expect((await excerptRecord(page)).generation).toBe(newer.generation);
+});
+test('real scoped retry permits review, edit and removal without changing the frozen send',async({page})=>{
+ const f=await setup(page,'?scoped=1');await add(page);f.uncertain();await page.getByRole('button',{name:'Send message',exact:true}).click();await expect(page.getByRole('button',{name:'Retry send',exact:true})).toBeVisible();
+ await expect(page.getByRole('button',{name:'Terminal selection · capture-terminal',exact:true})).toBeEnabled();await expect(page.getByRole('button',{name:'Remove terminal excerpt capture-terminal',exact:true})).toBeEnabled();await editExcerpt(page,'Reviewed while retrying');await page.getByRole('button',{name:'Remove terminal excerpt capture-terminal',exact:true}).click();await expect(page.getByRole('group',{name:'Attachments',exact:true})).toBeHidden();
+ const previous=f.sends.length;f.accept();f.hold();await page.getByRole('button',{name:'Retry send',exact:true}).click();await expect.poll(()=>f.sends.length).toBe(previous+1);try{await add(page);await expect(page.getByRole('button',{name:'Terminal selection · capture-terminal',exact:true})).toBeEnabled();await editExcerpt(page,'Edited during held retry');await page.getByRole('button',{name:'Remove terminal excerpt capture-terminal',exact:true}).click();await expect(page.getByRole('group',{name:'Attachments',exact:true})).toBeHidden();}finally{f.release();}await expect.poll(()=>page.evaluate(async()=>{const path='/apps/web/src/journal.ts';return (await (await import(path)).journalReadRecord('agents-pending:one'))?.value;})).toBeNull();expect(f.sends.at(-1)).toEqual(f.sends[0]);expect((await excerptRecord(page)).value).toEqual([]);
 });

@@ -29,7 +29,8 @@ export async function changeTerminalExcerpts(threadId:string,update:(current:Ter
  for(let attempt=0;attempt<8;attempt++){const record=await journalReadRecord(key),next=readTerminalExcerpts(update(readTerminalExcerpts(record?.value)));if(await journalCompareAndSwap(key,record?.generation,next))return;}
  throw Error('Excerpts changed in another window. Retry.');
 }
-export async function clearAcceptedExcerpts(threadId:string,accepted:readonly TerminalExcerpt[]){
- if(!accepted.length)return;
- await changeTerminalExcerpts(threadId,current=>current.filter(e=>!accepted.some(sent=>sent.id===e.id&&JSON.stringify(sent)===JSON.stringify(e))));
+export async function clearAcceptedExcerpts(threadId:string,generation:string|undefined){
+ // Equal text can belong to a newer edit; only the frozen journal generation is accepted.
+ if(typeof generation!=='string')return;
+ await journalCompareAndSwap(excerptDraftKey(threadId),generation,[]);
 }
