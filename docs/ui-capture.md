@@ -4,12 +4,12 @@ After `pnpm install` and `pnpm exec playwright install chromium`, run from the r
 
 ```sh
 pnpm capture:ui                         # default: all = diff ∪ full baseline
-pnpm capture:ui -- --scope=diff --out artifacts/ui-capture/review
+pnpm capture:ui -- --scope=diff --out test-results/ui-capture/review
 pnpm capture:ui -- --scope=baseline
 pnpm capture:ui -- --screens=graph --max-strips=30
 ```
 
-Flags accept equals or separate values. Defaults: `--scope=all`, `--since-days=30`, `--max-strips=60`. `--screens` overrides selection. `--out` supplies an exact directory; otherwise output goes to gitignored `artifacts/ui-capture/<UTC timestamp>/`. Use a fresh output directory to avoid stale artifacts.
+Flags accept equals or separate values. Defaults: `--scope=all`, `--since-days=30`, `--max-strips=60`. `--screens` overrides selection. `--out` supplies an exact directory within `test-results/`, `tmp/`, or the system temporary directory; copy evidence to the ledger in a separate step; otherwise output goes to gitignored `test-results/ui-capture/<UTC timestamp>/`. Use a fresh output directory to avoid stale artifacts.
 
 Local capture owns two Vite servers on available loopback ports: the unchanged `tests/e2e/vite.config.ts` serves the real app shell at `/`, and the capture config mounts existing fixtures and tooling-owned consumers of production components. Each invocation gives these servers separate temporary optimizer caches: their different roots otherwise resolve to the same `node_modules/.vite`, allowing one optimizer to replace the other server's chunks. The caches also stay separate across concurrent captures and are deleted after server cleanup. All contexts, Chromium and servers are closed with independent closers and a 10-second deadline per closer, so rejection or a stalled closer cannot prevent other cleanup attempts. Cleanup failures are fatal. No app, CSS, existing test or existing fixture is modified.
 

@@ -3,6 +3,7 @@ import {randomUUID} from 'node:crypto';
 import {existsSync,mkdirSync,readdirSync} from 'node:fs';
 import {createRequire} from 'node:module';
 import {resolve} from 'node:path';
+import {tmpdir} from 'node:os';
 import {fileURLToPath} from 'node:url';
 import {browserSuites,validateBrowserSuites,type BrowserSuite} from './browser-suites.ts';
 
@@ -12,7 +13,7 @@ const escapePattern=(value:string)=>value.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 
 export function runBrowserSuites(suites:BrowserSuite[], list=false):number {
   const cli=require.resolve('@playwright/test/cli');
-  const directory=resolve(root,'.harness-browser-results',`run-${Date.now()}-${randomUUID()}`);
+  const directory=resolve(tmpdir(),'gen-browser-results',`run-${Date.now()}-${randomUUID()}`);
   console.log(`Browser results: ${directory}`);
   for(const suite of suites){
     const output=resolve(directory,suite.name);

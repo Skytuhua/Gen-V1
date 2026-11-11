@@ -47,22 +47,22 @@ async function ownerApp(page:Page,mode:'chat'|'split'|'desktop'|'loading'='chat'
  await expect(overview.locator('.project-context-card')).toContainText('Audit project');
  return {overview,fallback:overview.getByRole('button',{name:/^Changes/}),releaseSend};
 }
-test('actual detached composer restores overview Changes until its owner docks again',async({page})=>{
+test('actual detached composer restores overview Changes until its owner docks again',async({page},info)=>{
  const {fallback}=await ownerApp(page,'desktop');await expect(fallback).toHaveCount(0);
  await page.evaluate(()=>(window as unknown as {wo5SetDetached:(value:boolean)=>void}).wo5SetDetached(true));
  await expect(page.getByRole('button',{name:'Focus chat',exact:true})).toBeVisible();await expect(fallback).toBeVisible();
- if(process.env.WO5_SCREENSHOTS)await page.screenshot({path:`${process.env.WO5_SCREENSHOTS}/r2-detached.png`,fullPage:true});
+ await page.screenshot({path:info.outputPath('r2-detached.png'),fullPage:true});
  await fallback.focus();await page.keyboard.press('Enter');await expect(page.locator('.live-diff')).toContainText('Owner fallback diff');
  await page.evaluate(()=>(window as unknown as {wo5SetDetached:(value:boolean)=>void}).wo5SetDetached(false));
  await expect(page.getByRole('button',{name:'Inspect changes',exact:true})).toBeEnabled();await expect(fallback).toHaveCount(0);
 });
-for(const state of ['parked','minimized'] as const)test(`actual ${state} split composer retains its same-owner overview Changes route`,async({page})=>{
+for(const state of ['parked','minimized'] as const)test(`actual ${state} split composer retains its same-owner overview Changes route`,async({page},info)=>{
  const {fallback}=await ownerApp(page,'split');await expect(fallback).toHaveCount(0);
  if(state==='parked'){
   await page.getByRole('button',{name:'Area actions',exact:true}).click();await page.getByRole('menuitem',{name:'Park current view',exact:true}).click();
  }else await page.getByRole('button',{name:'Minimize area',exact:true}).click();
  await expect(page.getByRole('button',{name:'Inspect changes',exact:true})).toHaveCount(0);await expect(fallback).toBeVisible();
- if(process.env.WO5_SCREENSHOTS)await page.screenshot({path:`${process.env.WO5_SCREENSHOTS}/r2-${state}.png`,fullPage:true});
+ await page.screenshot({path:info.outputPath(`r2-${state}.png`),fullPage:true});
  if(state==='minimized'){
   await page.getByRole('button',{name:'Restore area',exact:true}).click();await expect(page.getByRole('button',{name:'Inspect changes',exact:true})).toBeEnabled();await expect(fallback).toHaveCount(0);
   await page.getByRole('button',{name:'Minimize area',exact:true}).click();await expect(fallback).toBeVisible();
@@ -101,7 +101,7 @@ test('production App hides the equivalent overview route and opens same-owner Ch
  await page.getByRole('button',{name:'Inspect changes',exact:true}).click();
  await expect(page.locator('.live-diff')).toContainText('Same-owner production diff');
 });
-for(const width of [1440,1024,768])test(`reduced UI keeps its destinations at ${width}`,async({page})=>{
+for(const width of [1440,1024,768])test(`reduced UI keeps its destinations at ${width}`,async({page},info)=>{
  await page.setViewportSize({width,height:1000});await page.goto('/redundant-ui');
  await expect(page.getByRole('button',{name:'work/layout',exact:true})).toBeVisible();
  await expect(page.locator('.project-context-card').getByRole('button',{name:/^Changes/})).toHaveCount(0);
@@ -113,7 +113,7 @@ for(const width of [1440,1024,768])test(`reduced UI keeps its destinations at ${
  const open=page.getByRole('button',{name:'Open Usage',exact:true});await open.focus();await page.keyboard.press('Enter');
  const dialog=page.getByRole('dialog',{name:'Usage',exact:true});await expect(dialog).toContainText('Audit the workspace');await expect(dialog).not.toContainText('Another owner');
  await expect(dialog).toContainText('0.012345');
- if(process.env.WO5_SCREENSHOTS)await page.screenshot({path:`${process.env.WO5_SCREENSHOTS}/6-usage-${width}.png`,fullPage:true});
+ await page.screenshot({path:info.outputPath(`6-usage-${width}.png`),fullPage:true});
  await dialog.getByRole('tab',{name:'Tokens',exact:true}).click();await expect(dialog).toContainText('18,321');await expect(dialog).toContainText('791');
  await dialog.getByRole('tab',{name:'Limits',exact:true}).click();await expect(dialog).toContainText('23.456%');await expect(dialog).toContainText('67.89%');
  await page.keyboard.press('Escape');await expect(open).toBeFocused();

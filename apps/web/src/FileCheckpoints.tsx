@@ -90,7 +90,7 @@ function CheckpointFiles({owner,adapter,checkpoint,preferences,onBack}:{owner:Ch
       <p className="file-checkpoints-note">Part {index+1} of {reviews.length} · Review {review.reviewId} · {review.files.length} files</p>
       {review.files.filter(file=>file.diff===null).map(file=><p className="file-checkpoints-note" key={file.path}>{file.path} · {file.status==='ready'?'No text comparison available':file.status}</p>)}
       {review.files.filter(file=>file.diffTruncated).map(file=><p className="file-checkpoints-note" key={file.path}>{file.path} · Diff truncated. Only part of this comparison is shown.</p>)}
-      <RecordedDiffs diffs={review.files.flatMap(file=>file.diff===null?[]:[{id:file.path,title:file.path,unified:file.diff||'No changes reported.',provenance:`Checkpoint ${checkpoint.id} · Review ${review.reviewId}`}])} preferences={preferences}/>
+      {review.files.some(file=>file.diff!==null)&&<RecordedDiffs diffs={review.files.flatMap(file=>file.diff===null?[]:[{id:file.path,title:file.path,unified:file.diff||'No changes reported.',provenance:`Checkpoint ${checkpoint.id} · Review ${review.reviewId}`}])} preferences={preferences}/>}
       </section>)}
       <button type="button" disabled aria-describedby={reason}>Restore selected files</button><p id={reason} className="file-checkpoints-note">{adapter.restore.reason}</p>
     </>}

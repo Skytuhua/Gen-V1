@@ -13,3 +13,5 @@ Synthetic read-only data rendered by the actual App and production components. M
 Full manifests/screenshots, normal/reduced motion and supplemental App flows: ledger `WO-5/fe/before-after/D-integration/`. Both capture manifests pass all width/state output checks with zero failures and zero reduced-motion offenders. After retains the full 336-row motion inventory and samples 12 strips; other strips have explicit max-strips skips. Saved drafts has seven explicit pending recipes until run A supplies its journal and fixture.
 
 skills: ponytail, ponytail-review, impeccable, emil-design-eng; Astryx discovery, existing UI primitives retained.
+
+Resumed validation: [report](resume-validation.md). Updated after/Notes PNGs and 1024 examples reflect the current item QA heads. The latest focused capture has 160 images, four identical states, 254 motion rows and twelve sampled strips, with zero failures and zero reduced-motion offenders. Original broader manifests and matched baselines are retained.

@@ -40,7 +40,7 @@ async function panel(page:Page,name:string){
  const open=page.getByRole('button',{name:'Open workspace panel',exact:true});if(await open.count())await open.click();
  await page.getByRole('tab',{name,exact:true}).click();
 }
-for(const width of [1440,1024,768])test(`actual App keeps Files, find, Changes and Notes owners at ${width}`,async({page})=>{
+for(const width of [1440,1024,768])test(`actual App keeps Files, find, Changes and Notes owners at ${width}`,async({page},info)=>{
  await page.setViewportSize({width,height:1000});const h=await host(page);
  const draft=page.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Keep my unsent integration draft');await draft.focus();await page.keyboard.press('Control+f');
  await page.getByRole('textbox',{name:'Find phrase'}).fill('workspace');await expect(page.getByRole('search')).toContainText('1 of 100');
@@ -55,7 +55,7 @@ for(const width of [1440,1024,768])test(`actual App keeps Files, find, Changes a
  await panel(page,'Output');await expect(page.getByRole('region',{name:'Thread memory'})).toHaveCount(0);
  await panel(page,'Notes');await expect(note).toHaveValue('Retain this unsaved owner note.');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);expect(h.unexpected).toEqual([]);expect(h.commands.filter(c=>c.type==='message.send')).toEqual([]);
- const out='/home/box/gen-company/ledger/WO-5/fe/before-after/D-integration/after-app';await mkdir(out,{recursive:true});await page.screenshot({path:`${out}/notes-${width}.png`,fullPage:true});
+ const out=info.outputPath('screenshots');await mkdir(out,{recursive:true});await page.screenshot({path:`${out}/notes-${width}.png`,fullPage:true});
 });
 test('actual terminal selection reaches the same unsent composer and is serialized once by normal Send',async({page})=>{
  const h=await host(page);await panel(page,'Terminal');await expect(page.locator('.xterm-screen')).toBeVisible();

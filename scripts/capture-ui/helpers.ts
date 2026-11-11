@@ -1,3 +1,5 @@
+import {resolve,sep} from 'node:path';
+import {tmpdir} from 'node:os';
 import { mapFile, keyStates, type Recipe } from './screen-map';
 export function parseArgs(args: string[]) {
   const result = { scope: 'all', sinceDays: 30, maxStrips: 60, screens: [] as string[], out: '' };
@@ -17,6 +19,10 @@ export function parseArgs(args: string[]) {
   }
   if (!['diff', 'baseline', 'all'].includes(result.scope)) throw Error('Invalid scope');
   if (!Number.isInteger(result.sinceDays) || result.sinceDays < 1 || !Number.isInteger(result.maxStrips) || result.maxStrips < 0) throw Error('Invalid numeric flag');
+  if (result.out) {
+    const out = resolve(result.out);
+    if (![tmpdir(), resolve('tmp'), resolve('test-results')].some(root => out === root || out.startsWith(root + sep))) throw Error('Capture output must be inside tmp or test-results; copy evidence separately.');
+  }
   return result;
 }
 export type PullRequest = { number: number | null; title: string; mergedAt: string; files: { path: string }[] };

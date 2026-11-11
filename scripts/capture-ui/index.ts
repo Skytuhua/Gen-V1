@@ -28,7 +28,7 @@ async function main() {
   for (const id of ids) if (!screens.some(s => s.id === id)) throw Error(`Unknown screen ${id}`);
   const selected = screens.filter(s => ids.includes(s.id));
   const requirePluginEvidence = selected.some(screen => screen.id === 'plugin-frame');
-  const out = resolve(args.out || `artifacts/ui-capture/${new Date().toISOString().replaceAll(':', '-')}`);
+  const out = resolve(args.out || `test-results/ui-capture/${new Date().toISOString().replaceAll(':', '-')}`);
   await Promise.all(['strips', 'screenshots'].map(dir => mkdir(resolve(out, dir), { recursive: true })));
   const json = (name: string, data: unknown) => writeFile(resolve(out, `${name}.json`), JSON.stringify(data, null, 2));
   const md = (name: string, body: string) => writeFile(resolve(out, `${name}.md`), body);

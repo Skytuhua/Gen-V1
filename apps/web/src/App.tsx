@@ -276,19 +276,19 @@ function Composer({ modelPickerRequest, onModelPickerOpened, sharedComposers, on
     await runAction(async () => {
       setError('');
       const submittedDraft = draft, submittedSkills = skills.slice();
-      const submittedGeneration = journalGeneration(`draft:${key}`);
+      const submittedGeneration = journalGeneration(`draft:${key}`), submittedExcerptGeneration = journalGeneration(excerptDraftKey(key));
       try {
         const submittedExcerpts=readTerminalExcerpts(excerpts,thread?.projectId?{projectId:thread.projectId,threadId:thread.id}:undefined);
         let migrated: Awaited<ReturnType<typeof migrateDraft>> | undefined;
         const id = await ensureThread(async id => { migrated = await migrateDraft(id, submittedDraft, true); });
         if (sharedComposers) {
           const target: ConversationComposerTarget = {kind: 'conversation', projectId:thread?.projectId, threadId: id, modelId, working: false};
-          await sharedComposers.prepare(target); await sharedComposers.submit(target, {thinkingLevel: thinkingLatest.current || null,submission:{content:submittedDraft,generation:id===key?submittedGeneration:migrated&&migrated.source?.generation===submittedGeneration?migrated.generation:undefined,skills:submittedSkills,excerpts:submittedExcerpts}});
+          await sharedComposers.prepare(target); await sharedComposers.submit(target, {thinkingLevel: thinkingLatest.current || null,submission:{content:submittedDraft,generation:id===key?submittedGeneration:migrated&&migrated.source?.generation===submittedGeneration?migrated.generation:undefined,skills:submittedSkills,excerpts:submittedExcerpts,excerptGeneration:submittedExcerptGeneration}});
           await refresh(); return;
         }
         await command('message.send', { content: serializeTerminalExcerpts(submittedDraft,submittedExcerpts), modelId, thinkingLevel:thinkingLevel||null, ...(submittedSkills.length?{skills:submittedSkills.map(binding=>binding.ref)}:{}) }, id);
         await clearAcceptedSkills(skillDraftKey(id),submittedSkills);
-        await clearAcceptedExcerpts(id,submittedExcerpts);
+        await clearAcceptedExcerpts(id,submittedExcerptGeneration);
         await journalCompareAndSwap(`draft:${key}`, submittedGeneration, '');
         if (id !== key && migrated && migrated.source?.generation === submittedGeneration) await journalCompareAndSwap(`draft:${id}`, migrated.generation, '');
         await refresh();
