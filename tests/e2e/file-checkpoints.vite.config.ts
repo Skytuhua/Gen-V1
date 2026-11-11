@@ -2,7 +2,7 @@ import {defineConfig} from 'vite';
 import {resolve} from 'node:path';
 import base from './vite.config';
 
-export default defineConfig({...base, root:resolve('.'), cacheDir:'/tmp/gen-wo5-file-checkpoints-vite',
+export default defineConfig({...base, root:resolve('.'), cacheDir:resolve('test-results/file-checkpoints/vite-cache'),
   optimizeDeps:{entries:['tests/e2e/file-checkpoints-fixture.tsx']},
   plugins:[...base.plugins??[], {name:'file-checkpoints-fixture', configureServer(server) {
     server.middlewares.use((req,res,next)=>{

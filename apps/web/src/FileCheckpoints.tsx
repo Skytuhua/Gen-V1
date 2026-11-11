@@ -43,6 +43,7 @@ function CheckpointHistory({owner,adapter,preferences}:Pick<FileCheckpointsProps
     <div hidden={Boolean(checkpoint)}>
       <div className="file-checkpoints-heading"><h3>File checkpoints</h3>{adapter.available&&<button type="button" disabled={loading} onClick={()=>{setCursor(undefined);setAttempt(value=>value+1);}}>Refresh</button>}</div>
       <p className="file-checkpoints-note">Review a version before restoring</p>
+      <p className="file-checkpoints-caption">Review the diff and conflicts before restoring selected files.</p>
       {loading&&<p role="status">Loading checkpoints…</p>}
       {error&&<div role="alert"><p>{error}</p>{adapter.available&&<button type="button" onClick={()=>setAttempt(value=>value+1)}>Retry</button>}</div>}
       {!loading&&!error&&list?.items.length===0&&<p className="file-checkpoints-note">No file checkpoints available.</p>}
@@ -53,36 +54,46 @@ function CheckpointHistory({owner,adapter,preferences}:Pick<FileCheckpointsProps
         </div><button type="button" aria-label={`Review ${item.label}`} onClick={event=>{opener.current=event.currentTarget;setCheckpoint(item);}}>Review</button>
       </li>)}</ul>
       {list?.nextCursor&&<button type="button" disabled={loading} onClick={()=>setCursor(list.nextCursor!)}>Next checkpoints</button>}
-      <p className="file-checkpoints-caption">Review the diff and conflicts before restoring selected files.</p>
     </div>
     {checkpoint&&<CheckpointFiles key={checkpoint.id+':'+checkpoint.revision} owner={owner} adapter={adapter} checkpoint={checkpoint} preferences={preferences} onBack={()=>{setCheckpoint(undefined);queueMicrotask(()=>opener.current?.focus());}}/>}
   </div>;
 }
 function CheckpointFiles({owner,adapter,checkpoint,preferences,onBack}:Pick<FileCheckpointsProps,'owner'|'preferences'>&{adapter:FileCheckpointAdapter;checkpoint:FileCheckpoint;onBack:()=>void}){
-  const [review,setReview]=useState<CheckpointReview>(),[error,setError]=useState(''),[attempt,setAttempt]=useState(0);
+  const [reviews,setReviews]=useState<CheckpointReview[]>(),[error,setError]=useState(''),[attempt,setAttempt]=useState(0);
   const back=useRef<HTMLButtonElement>(null),reason=useId();
   useEffect(()=>{back.current?.focus();},[]);
   useEffect(()=>{
-    const controller=new AbortController();setReview(undefined);setError('');
+    const controller=new AbortController();setReviews(undefined);setError('');
     void (async()=>{
       const value=await adapter.detail(owner,checkpoint,{signal:controller.signal});
       if(controller.signal.aborted)return;
-      const paths=checkpointReviewPaths(readCheckpointDetail(value,owner,checkpoint));
-      const result=await adapter.review(owner,checkpoint,{paths,signal:controller.signal});
-      if(!controller.signal.aborted)setReview(readCheckpointReview(result,owner,checkpoint,paths));
+      const batches=checkpointReviewPaths(readCheckpointDetail(value,owner,checkpoint)),results:CheckpointReview[]=[];
+      for(const [index,paths] of batches.entries()){
+        try{
+          const result=await adapter.review(owner,checkpoint,{paths,signal:controller.signal});
+          if(controller.signal.aborted)return;
+          const review=readCheckpointReview(result,owner,checkpoint,paths);
+          if(results.some(value=>value.reviewId===review.reviewId))throw Error('Duplicate review identity for different file subsets.');
+          results.push(review);
+        }catch(cause){throw Error(`Review part ${index+1} of ${batches.length} is incomplete. ${errorMessage(cause)}`);}
+      }
+      if(!controller.signal.aborted)setReviews(results);
     })().catch(cause=>{if(!controller.signal.aborted)setError(errorMessage(cause));});
     return()=>controller.abort();
   },[owner,adapter,checkpoint,attempt]);
   return <section aria-label="Checkpoint review">
     <button ref={back} type="button" onClick={onBack}>Back to History</button><h3>{checkpoint.label}</h3>
-    {error?<div role="alert"><p>{error}</p><button type="button" onClick={()=>setAttempt(value=>value+1)}>Retry review</button></div>:!review?<p role="status">Loading checkpoint review…</p>:<>
-      <p className="file-checkpoints-note">{provenance(checkpoint)} · Revision {review.checkpointRevision}</p>
+    {error?<div role="alert"><p>{error}</p><button type="button" onClick={()=>setAttempt(value=>value+1)}>Retry review</button></div>:!reviews?<p role="status">Loading checkpoint review…</p>:<>
+      <p className="file-checkpoints-note">{provenance(checkpoint)} · Revision {checkpoint.revision}</p>
+      {reviews.map((review,index)=><section key={review.reviewId} aria-label={`Review part ${index+1} of ${reviews.length}`}>
+      <p className="file-checkpoints-note">Part {index+1} of {reviews.length} · Review {review.reviewId} · {review.files.length} files</p>
       {/* Same unified presentation as RecordedDiffPanel; run D owns shared extraction. */}
       <div className={`workspace-diffs diff-colors-${preferences.diffColors}`}>{review.files.map(file=><details className="workspace-diff" key={file.path} open={preferences.diffDefaultExpanded}>
         <summary>{file.path}</summary>
         {file.diffTruncated&&<p className="file-checkpoints-note">Diff truncated. Only part of this comparison is shown.</p>}
         {file.diff===null?<p className="file-checkpoints-note">{file.status==='ready'?'No text comparison available':file.status}</p>:<pre className="unified-diff">{file.diff||'No changes reported.'}</pre>}
       </details>)}</div>
+      </section>)}
       <button type="button" disabled aria-describedby={reason}>Restore selected files</button><p id={reason} className="file-checkpoints-note">{adapter.restore.reason}</p>
     </>}
   </section>;

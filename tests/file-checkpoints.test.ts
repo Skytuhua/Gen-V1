@@ -1,4 +1,9 @@
 import {describe,expect,it} from 'vitest';
+import {ZodError} from 'zod';
+import {globSync,readFileSync} from 'node:fs';
+import {isAbsolute,relative,resolve} from 'node:path';
+import browserConfig from './e2e/file-checkpoints.playwright.config';
+import viteConfig from './e2e/file-checkpoints.vite.config';
 import {checkpointOwnerKey,checkpointReviewPaths,disabledCheckpointAdapter,readCheckpointDetail,readCheckpointList,readCheckpointReview,type CheckpointOwner,type FileCheckpoint} from '../apps/web/src/file-checkpoint-api';
 
 const hash='a'.repeat(64),otherHash='b'.repeat(64);
@@ -10,16 +15,27 @@ const detail=()=>({owner,checkpoint,files:[file()]});
 const reviewFile=(path='src/file.ts')=>({path,currentHash:otherHash,targetHash:hash,diff:'@@ -1 +1 @@\n-before\n+after',diffTruncated:true,status:'ready'});
 const review=()=>({owner,reviewId:'review',checkpointRevision:hash,expiresAt:'2099-01-01T00:00:00Z',files:[reviewFile()]});
 const readReview=(value:unknown,paths=['src/file.ts'])=>readCheckpointReview(value,owner,checkpoint,paths);
+function expectValidation(action:()=>unknown,path:(string|number)[],code?:string){
+ let error:unknown;try{action();}catch(cause){error=cause;}
+ expect(error).toBeInstanceOf(ZodError);
+ expect((error as ZodError).issues).toEqual(expect.arrayContaining([expect.objectContaining({path,...(code?{code}:{})})]));
+}
 
 describe('QA r1 regressions',()=>{
  it('#1 accepts a frozen root-owner list without invented paths or retention',()=>{expect(readCheckpointList(list(),owner)).toEqual(list());});
  it('#1 accepts a bounded, explicitly truncated frozen unified review',()=>{expect(readReview(review())).toEqual(review());});
- it('#1 rejects checkpoints above the frozen 100-file cap',()=>{expect(()=>readCheckpointList({...list(),items:[{...checkpoint,fileCount:101}]},owner)).toThrow();});
+ it('#1 rejects checkpoints above the frozen 100-file cap',()=>{
+  expect(readCheckpointList(list(),owner)).toEqual(list());
+  expectValidation(()=>readCheckpointList({...list(),items:[{...checkpoint,fileCount:101}]},owner),['items',0,'fileCount'],'too_big');
+ });
  it('#2 preserves a legal leading space in a file path through detail and review',()=>{
-  const value=readCheckpointDetail({...detail(),files:[file(' src/a')]},owner,checkpoint),paths=checkpointReviewPaths(value);
+  const value=readCheckpointDetail({...detail(),files:[file(' src/a')]},owner,checkpoint),paths=checkpointReviewPaths(value)[0];
   expect(paths).toEqual([' src/a']);expect(readReview({...review(),files:[reviewFile(' src/a')]},paths).files[0].path).toBe(' src/a');
  });
- it('#2 rejects rather than trims invalid trailing spaces',()=>{expect(()=>readCheckpointDetail({...detail(),files:[file('src/a ')]},owner,checkpoint)).toThrow();});
+ it('#2 rejects rather than trims invalid trailing spaces',()=>{
+  expect(readCheckpointDetail({...detail(),files:[file('src/a')]},owner,checkpoint).files[0].path).toBe('src/a');
+  expectValidation(()=>readCheckpointDetail({...detail(),files:[file('src/a ')]},owner,checkpoint),['files',0,'path'],'custom');
+ });
  it('#3 rejects an empty review for a known nonempty checkpoint',()=>{expect(()=>readReview({...review(),files:[]})).toThrow('incomplete');});
 });
 describe('frozen checkpoint read seam',()=>{
@@ -35,8 +51,10 @@ describe('frozen checkpoint read seam',()=>{
   expect(()=>readReview({...review(),owner:foreign})).toThrow('revision changed');
  });
  it.each(['/etc/passwd','../secret','src/../secret','C:/secret','src\\file.ts','a//b','a/./b','a\0b','src/a ','src. /a','src/a.','NUL.txt','a/COM1','a/LPT³.md','con .txt','a/CONIN$','a/.GIT/config','accounts/token','nested/hermes/state','checkpoints/file','harness.sqlite','x'.repeat(1025),'é'.repeat(513),'a\ud800'])('rejects unsafe or oversized path %j',path=>{
-  expect(()=>readCheckpointDetail({...detail(),files:[file(path)]},owner,checkpoint)).toThrow();
-  expect(()=>readReview({...review(),files:[reviewFile(path)]},[path])).toThrow();
+  expect(readCheckpointDetail(detail(),owner,checkpoint)).toEqual(detail());expect(readReview(review())).toEqual(review());
+  const code=path.length>1024?'too_big':'custom';
+  expectValidation(()=>readCheckpointDetail({...detail(),files:[file(path)]},owner,checkpoint),['files',0,'path'],code);
+  expectValidation(()=>readReview({...review(),files:[reviewFile(path)]},[path]),['files',0,'path'],code);
  });
  it('rejects duplicate IDs and case-insensitive duplicate paths',()=>{
   expect(()=>readCheckpointList({...list(),items:[checkpoint,checkpoint]},owner)).toThrow('Duplicate');
@@ -53,7 +71,7 @@ describe('frozen checkpoint read seam',()=>{
  });
  it('accepts the full 100-file detail and review without summary paths',()=>{
   const summary={...checkpoint,fileCount:100},files=Array.from({length:100},(_,i)=>file(`src/${i}.ts`));
-  const value=readCheckpointDetail({...detail(),checkpoint:summary,files},owner,summary),paths=checkpointReviewPaths(value);
+  const value=readCheckpointDetail({...detail(),checkpoint:summary,files},owner,summary),paths=checkpointReviewPaths(value)[0];
   expect(paths).toHaveLength(100);expect(readReview({...review(),files:paths.map(reviewFile)},paths).files).toHaveLength(100);
  });
  it('rejects list/detail/review count overflow and non-v1 fields',()=>{
@@ -70,10 +88,18 @@ describe('frozen checkpoint read seam',()=>{
   const files=Array.from({length:4},(_,i)=>({...reviewFile('f'+i),diff:'x'.repeat(128*1024)}));
   expect(()=>readReview({...review(),files},files.map(file=>file.path))).toThrow('512 KiB');
  });
- it('bounds review request bytes before calling the host',()=>{
-  const files=Array.from({length:100},(_,i)=>file(`src/${i}/${'é'.repeat(300)}`)),summary={...checkpoint,fileCount:100};
+ it('QA r2: reviews all 100 valid long paths in bounded exact subsets',()=>{
+  const files=Array.from({length:100},(_,i)=>file(`src/${i}/${'a'.repeat(200)}/${'b'.repeat(200)}/file.ts`)),summary={...checkpoint,fileCount:100};
   const value=readCheckpointDetail({...detail(),checkpoint:summary,files},owner,summary);
-  expect(()=>checkpointReviewPaths(value)).toThrow('32 KiB');
+  const batches=checkpointReviewPaths(value);
+  expect(batches.length).toBeGreaterThan(1);expect(batches.flat()).toEqual(files.map(file=>file.path));
+  for(const paths of batches){
+   expect(Array.isArray(paths)).toBe(true);expect(paths.length).toBeGreaterThan(0);expect(paths.length).toBeLessThanOrEqual(100);
+   expect(new TextEncoder().encode(JSON.stringify({threadId:owner.threadId,paths})).byteLength).toBeLessThanOrEqual(32*1024);
+   expect(readCheckpointReview({...review(),files:paths.map(reviewFile)},owner,summary,paths).files).toHaveLength(paths.length);
+  }
+ });
+ it('requires files and a thread for any review request',()=>{
   expect(()=>checkpointReviewPaths({...detail(),files:[]})).toThrow('No files');
   expect(()=>checkpointReviewPaths({...detail(),owner:{...owner,threadId:null}})).toThrow('owning conversation');
  });
@@ -97,5 +123,28 @@ describe('frozen checkpoint read seam',()=>{
   await expect(disabledCheckpointAdapter.list(owner,options)).rejects.toThrow('No checkpoint service');
   await expect(disabledCheckpointAdapter.detail(owner,checkpoint,options)).rejects.toThrow('No checkpoint service');
   await expect(disabledCheckpointAdapter.review(owner,checkpoint,{...options,paths:['src/file.ts']})).rejects.toThrow('No checkpoint service');
+ });
+});
+
+const forbiddenOutput=['','home','box','gen-company','ledger'].join('/');
+const forbiddenReferences=(sources:[string,string][])=>sources.filter(([,source])=>source.replaceAll('\\','/').includes(forbiddenOutput)).map(([path])=>path);
+describe('test and capture output boundary',()=>{
+ it('detects prohibited references in specs and capture scripts',()=>{
+  expect(forbiddenReferences([['probe.spec.ts',`screenshot({path:'${forbiddenOutput}/evidence.png'})`],['scripts/capture/probe.ts',forbiddenOutput],['safe.spec.ts','testInfo.outputPath("image.png")']])).toEqual(['probe.spec.ts','scripts/capture/probe.ts']);
+ });
+ it('specs, e2e fixtures and capture scripts never reference the protected output path',()=>{
+  const files=[...new Set(globSync(['**/*.spec.{ts,tsx,js,jsx,mjs,cjs,mts,cts}','tests/e2e/**/*.{ts,tsx,js,jsx,mjs,cjs,mts,cts}','scripts/**/*capture*.{ts,tsx,js,mjs,cjs,py,sh,ps1}','scripts/**/capture*/**/*.{ts,tsx,js,mjs,cjs,py,sh,ps1}'],{cwd:resolve('.'),exclude:['node_modules/**','third-party/**','.git/**','test-results/**','dist/**']}))];
+  expect(files.length).toBeGreaterThan(100);
+  expect(forbiddenReferences(files.map(path=>[path,readFileSync(path,'utf8')]))).toEqual([]);
+ });
+ it('QA r2: keeps the Vite cache beneath the configured Playwright output directory',()=>{
+  const output=resolve(browserConfig.outputDir!),cache=resolve(viteConfig.cacheDir!);
+  const location=relative(output,cache);expect(location).not.toBe('');expect(location.startsWith('..')).toBe(false);expect(isAbsolute(location)).toBe(false);
+ });
+ it('captures use Playwright output paths rather than an arbitrary environment destination',()=>{
+  const source=readFileSync('tests/e2e/file-checkpoints.spec.ts','utf8');
+  expect(source).not.toContain('WO5_SCREENSHOTS');
+  const paths=[...source.matchAll(/page\.screenshot\(\{\s*path:([^,]+)/g)].map(match=>match[1]);
+  expect(paths.length).toBeGreaterThan(0);expect(paths.every(path=>path.startsWith('testInfo.outputPath('))).toBe(true);
  });
 });

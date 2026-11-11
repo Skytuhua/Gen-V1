@@ -36,12 +36,17 @@ export function readCheckpointDetail(value:unknown,owner:CheckpointOwner,checkpo
   if(!uniquePaths(result.files.map(file=>file.path)))throw Error('Duplicate checkpoint file paths. Refresh History.');
   return result;
 }
-export function checkpointReviewPaths(detail:CheckpointDetail):string[] {
+export function checkpointReviewPaths(detail:CheckpointDetail):string[][] {
   const paths=detail.files.map(file=>file.path);
   if(!paths.length)throw Error('No files available for review.');
   if(!detail.owner.threadId)throw Error('Choose the owning conversation before reviewing files.');
-  if(bytes({threadId:detail.owner.threadId,paths})>32*1024)throw Error('This checkpoint exceeds the 32 KiB review request limit.');
-  return paths;
+  const batches:string[][]=[[]];
+  for(const path of paths){
+    const current=batches[batches.length-1];
+    if(current.length&&bytes({threadId:detail.owner.threadId,paths:[...current,path]})>32*1024)batches.push([path]);
+    else current.push(path);
+  }
+  return batches;
 }
 export function readCheckpointReview(value:unknown,owner:CheckpointOwner,checkpoint:FileCheckpoint,paths:readonly string[]):CheckpointReview {
   const result=reviewSchema.parse(value);
