@@ -4,10 +4,10 @@ import { DockedSummary } from '../../../packages/ui-shell/SummaryDock';
 import { usageCost, usageCount, usagePercent } from './usage-presentation';
 import './usage-dialog.css';
 
-export function UsageFooter({ usage, visible, onOpenUsage }: { usage?: RuntimeUsage; visible: boolean; threadId?: string; onOpenUsage?: () => void }) {
+export function UsageFooter({ usage, visible, open=true, onOpenUsage }: { usage?: RuntimeUsage; visible: boolean; open?: boolean; threadId?: string; onOpenUsage?: () => void }) {
   if (!visible) return null;
   const summary = <><Activity size={12} aria-hidden="true" /><span>{usage?.inputTokens == null ? 'Not reported' : `${usageCount(usage.inputTokens)} input tokens`}</span></>;
-  return <DockedSummary id="usage" title="Live usage" ariaLabel="Live usage" defaultCollapsed summary={summary}
+  return <DockedSummary id="usage" open={open} title="Live usage" ariaLabel="Live usage" defaultCollapsed summary={summary}
     collapsedLabel="Inspect live usage" minimizeLabel="Minimize live usage" className="summary-usage">
     <section className="floating-usage-details" aria-label="Runtime usage details">
       <dl><dt>Input tokens</dt><dd>{usageCount(usage?.inputTokens)}</dd><dt>Output tokens</dt><dd>{usageCount(usage?.outputTokens)}</dd>

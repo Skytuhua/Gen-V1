@@ -2,7 +2,7 @@
 .composer-footer-main{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;min-height:29px}
 .composer-project-controls,.composer-runtime-controls{display:flex;align-items:center;min-width:0;gap:4px}
 .composer-runtime-controls{margin-left:auto}
-.composer-toolbar .composer-tool,.composer-toolbar .composer-select{min-height:29px;border:1px solid transparent;border-radius:7px;background:transparent;color:var(--muted);padding:4px 5px;display:inline-flex;align-items:center;gap:5px;min-width:0;font:inherit;white-space:nowrap;transition:background 140ms,color 140ms,transform 240ms cubic-bezier(.2,.85,.25,1.2)}
+.composer-toolbar .composer-tool,.composer-toolbar .composer-select{min-height:29px;border:1px solid transparent;border-radius:7px;background:transparent;color:var(--muted);padding:4px 5px;display:inline-flex;align-items:center;gap:5px;min-width:0;font:inherit;white-space:nowrap;transition:background 140ms,color 140ms,transform 240ms cubic-bezier(.2,.8,.2,1)}
 .composer-toolbar .composer-tool{cursor:pointer}
 .composer-toolbar .composer-tool:hover:not(:disabled),.composer-toolbar .composer-select:hover:not(:has(select:disabled)){background:var(--hover);color:var(--text)}
 .composer-toolbar .composer-tool:active:not(:disabled){transform:scale(.96)}
@@ -24,7 +24,7 @@
 .composer-toolbar .send-button{width:30px;height:30px;margin-left:2px}
 .composer-toolbar .send-button>svg{width:18px;height:18px}
 .composer-secondary-actions{display:flex;justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:6px;min-width:0;margin:0;color:var(--muted)}
-.composer-context-chip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--border);border-radius:15px;min-height:25px;padding:3px 8px;background:var(--surface);color:var(--muted);font-size:10px;line-height:1.2;white-space:nowrap;transition:background 140ms,color 140ms,transform 220ms cubic-bezier(.2,.85,.25,1.2)}
+.composer-context-chip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--border);border-radius:15px;min-height:25px;padding:3px 8px;background:var(--surface);color:var(--muted);font-size:10px;line-height:1.2;white-space:nowrap;transition:background 140ms,color 140ms,transform 220ms cubic-bezier(.2,.8,.2,1)}
 .composer-context-chip:hover:not(:disabled){background:var(--hover);color:var(--text)}
 .composer-context-chip:active:not(:disabled){transform:scale(.97)}
 .composer-context-chip>svg{width:12px;height:12px;flex:none}
