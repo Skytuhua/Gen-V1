@@ -156,7 +156,7 @@ button:has(>svg.lucide-x):hover:not(:disabled),button:has(>svg.lucide-circle-x):
 .composer-error { margin-bottom:8px; }
 .composer-error>span:first-child { flex:1; min-width:0; }
 .composer-error-actions { display:flex; align-items:center; gap:6px; flex:none; }
-.resume-strip { display:flex; align-items:center; justify-content:space-between; gap:10px; margin:0 0 8px; padding:9px 12px; border:1px solid var(--border); border-left:3px solid var(--pending); border-radius:9px; background:var(--subtle); color:var(--muted); font-size:12px; line-height:1.5; animation:resume-strip-in var(--ui-motion-insert,180ms) var(--ui-ease-enter,cubic-bezier(.16,1,.3,1)) both; }
+.resume-strip { display:flex; align-items:center; justify-content:space-between; gap:10px; margin:0 0 8px; padding:9px 12px; border:1px solid var(--border); border-radius:9px; background:var(--subtle); color:var(--muted); font-size:12px; line-height:1.5; animation:resume-strip-in var(--ui-motion-insert,180ms) var(--ui-ease-enter,cubic-bezier(.16,1,.3,1)) both; }
 .resume-strip .secondary { flex:none; }
 @keyframes resume-strip-in { from { opacity:0; transform:translateY(4px); } }
 @media(prefers-reduced-motion:reduce) { .resume-strip { animation:none; } }
