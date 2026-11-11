@@ -251,7 +251,7 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
       <WorkspaceControls envelope={workspace.envelope} send={workspace.send} prepare={prepare} panels={[]} title={panel => panel.kind}
         onChoosePreset={choosePreset} toolsVisible={false} pluginWorkspaces={pluginWorkspaces} onSelectPluginWorkspace={(pluginId,workspaceId)=>fail(()=>openConversation(undefined,'plugin-workspace',{pluginId,workspaceId}))} pluginCatalogError={pluginCatalogError} onRetryPluginCatalog={pluginCatalog.retry} addPanel={async () => {throw Error('Choose Workspace or Custom to open tools.');}} updatePanel={async () => {throw Error('Choose Workspace or Custom to arrange tools.');}}/>
       {error && <div className="workspace-error" role="alert">{error}<button className="icon-button" aria-label="Dismiss error" onClick={dismissError}><X size={15}/></button></div>}
-      <div className="workspace-host-content" inert={settingsOpen}>{content ?? <AgentsWorkspace controller={controller} composers={composers} projects={workspace.envelope?.projects.filter(project => project.authority.kind === 'local')}
+      <div className="workspace-host-content" inert={settingsOpen}>{content ?? <AgentsWorkspace controller={controller} composers={composers} hasConversations={Boolean(navigation.page?.items.length)} projects={workspace.envelope?.projects.filter(project => project.authority.kind === 'local')}
         preferences={{density: preferences.density === 'compact' ? 'compact' : 'comfortable', projectColors: preferences.projectColors}}
         onOpenConversation={(id,kind) => fail(() => openConversation(id,kind))}/>}</div>
     </div>

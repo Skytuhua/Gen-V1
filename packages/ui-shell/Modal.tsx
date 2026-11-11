@@ -1,6 +1,7 @@
 import { useId, useLayoutEffect, useRef, type ReactNode } from 'react';
 import { X } from 'lucide-react';
 import { isComposing } from './list-navigation';
+import { retainFocus } from './focus-retention';
 import './controls.css';
 
 export interface ModalProps { open: boolean; title: string; onClose: () => void; children: ReactNode; className?: string }
@@ -15,7 +16,12 @@ export function Modal({ open, title, onClose, children, className = '' }: ModalP
     element.showModal();
     const closed = () => close.current();
     element.addEventListener('close', closed);
+    // A focused control that disables drops focus to <body>, escaping the native
+    // trap. Pull it back inside; defer a frame so an open nested popover's own
+    // retention claims focus first and is not yanked out to the modal's first control.
+    const release = retainFocus(element.ownerDocument, () => element, callback => requestAnimationFrame(callback));
     return () => {
+      release();
       element.removeEventListener('close', closed); element.close();
       if (previous?.isConnected) previous.focus();
     };
