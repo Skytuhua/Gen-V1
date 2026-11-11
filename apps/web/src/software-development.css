@@ -37,7 +37,8 @@
 .software-state-running { color:var(--accent); }
 .software-state-not-run,.software-state-skipped { color:var(--muted); }
 .software-file-location { display:flex; align-items:center; flex-wrap:wrap; gap:7px; margin:0 0 12px; color:var(--muted); font-size:11px; }
-.software-file-location span { margin-left:auto; font-variant-numeric:tabular-nums; }
+.software-file-location span { display:inline-flex; gap:8px; white-space:nowrap; font-variant-numeric:tabular-nums; }
+.software-file-location strong { color:var(--text); font-weight:600; }
 .software-file-location code { overflow-wrap:anywhere; font:inherit; }
 .software-assertion { display:grid; grid-template-columns:minmax(0,1fr) 18px minmax(0,1fr); align-items:center; gap:12px; padding:12px 0; margin:0 0 6px; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
 .software-assertion>div { min-width:0; }

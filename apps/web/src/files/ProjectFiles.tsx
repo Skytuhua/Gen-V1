@@ -70,7 +70,7 @@ export function ProjectFiles({
 					<>
 						{file.binary ? (
 							<p className="files-message">
-								Binary file. Text preview is unavailable.
+								Binary file; no text preview.
 							</p>
 						) : file.text === "" ? (
 							<p className="files-message">Empty text file</p>
@@ -83,7 +83,7 @@ export function ProjectFiles({
 			}}
 			limitNote={
 				(folder.value?.entries.length ?? 0) >= 500
-					? "Project folders return at most 500 entries; more files may exist."
+					? "Showing up to 500 entries; more files may exist."
 					: undefined
 			}
 			onDirectory={(next) => {

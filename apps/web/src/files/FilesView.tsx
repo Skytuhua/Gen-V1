@@ -147,14 +147,14 @@ export function FilesView({
 					<div className="files-list" tabIndex={0} aria-label="Folder entries">
 						{folder.pending && (
 							<p className="files-message" role="status">
-								{folder.value ? "Refreshing folder…" : "Reading folder…"}
+								{folder.value ? "Refreshing…" : "Loading…"}
 							</p>
 						)}
 						{folder.error && (
 							<div className="files-message files-error" role="alert">
 								<p>{folder.error}</p>
 								<button type="button" onClick={onRetryFolder}>
-									Retry folder
+									Retry
 								</button>
 							</div>
 						)}
@@ -207,8 +207,8 @@ export function FilesView({
 							visible.length === 0 && (
 								<p className="files-message">
 									{filter
-										? "No matching entries in this folder."
-										: "This folder is empty."}
+										? "No matches."
+										: "Folder is empty."}
 								</p>
 							)}
 						{limitNote && (
@@ -240,14 +240,14 @@ export function FilesView({
 							>
 								{preview.pending && (
 									<p className="files-message" role="status">
-										{preview.value ? "Refreshing file…" : "Reading file…"}
+										{preview.value ? "Refreshing…" : "Loading…"}
 									</p>
 								)}
 								{preview.error && (
 									<div className="files-message files-error" role="alert">
 										<p>{preview.error}</p>
 										<button type="button" onClick={onRetryFile}>
-											Retry file
+											Retry
 										</button>
 									</div>
 								)}
@@ -267,7 +267,7 @@ export function FilesView({
 							<strong>Choose a file</strong>
 							<p>
 								{source === "project"
-									? "Read its current worktree content."
+									? "Shows current working copy content."
 									: "Preview or download a file from this granted resource."}
 							</p>
 						</div>
