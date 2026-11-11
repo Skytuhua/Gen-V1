@@ -79,6 +79,7 @@ export const browserSuites:BrowserSuite[] = [
   suite('task-interface'),
   suite('ui-shell-controls'),
   suite('usage-context'),
+  suite('wo8'),
 ];
 
 export function validateBrowserSuites(specs:string[], suites=browserSuites):void {

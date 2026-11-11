@@ -3,7 +3,7 @@
 .project-context-card .project-context-section{padding:10px 12px;display:flex;flex-direction:column;gap:2px}
 .project-context-card .project-context-machine{min-height:30px;gap:8px;padding:2px 6px}
 .project-context-card .project-context-machine strong{font-size:13px;color:var(--text)}
-.project-context-card .project-context-row{min-height:33px;gap:9px;font-size:13px;font-weight:450;padding:5px 8px;border-radius:7px}
+.project-context-card .project-context-row{min-height:33px;justify-content:flex-start;gap:8px;font-size:13px;font-weight:450;padding:5px 8px;border-radius:7px}
 .project-context-card .project-context-tools{padding:0 12px 6px;border-top:1px solid var(--border)}
 .project-context-tools>summary{display:flex;justify-content:space-between;align-items:center;list-style:none;min-height:34px;font-size:12px;color:var(--muted)}
 .project-context-tools>summary::-webkit-details-marker{display:none}
@@ -15,7 +15,7 @@
 .project-context-group>summary::-webkit-details-marker {display:none;}
 .project-context-group>summary>span {min-width:0;overflow-wrap:anywhere;}
 .project-context-group>summary>svg:last-child,.project-context-row>svg:last-child {margin-left:auto;}
-.project-context-group>summary>small {font-size:11px;font-variant-numeric:tabular-nums;}
+.project-context-group>summary>small {font-size:11px;color:var(--text);font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums;}
 .project-context-group[open]>summary>svg:last-child {transform:rotate(180deg);}
 .project-context-group .project-context-lineage {padding:0 2px 8px;}
 .project-context-group .project-context-note {font-size:11px;padding:0 2px 8px;}

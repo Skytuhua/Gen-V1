@@ -4,7 +4,7 @@ html[data-native-titlebar="true"] .usage-dialog.ui-modal { height:min(560px,calc
 .usage-dialog-controls { flex:none; display:grid; gap:12px; min-width:0; }
 .usage-dialog [role="tablist"] { display:flex; gap:4px; border-bottom:1px solid var(--border); padding-bottom:8px; }
 .usage-dialog [role="tab"] { min-height:32px; padding:6px 12px; border:0; border-radius:var(--radius,6px); background:none; color:var(--muted); font:inherit; }
-.usage-dialog [role="tab"][aria-selected="true"] { background:var(--hover); color:var(--text); }
+.usage-dialog [role="tab"][aria-selected="true"] { background:var(--accent-bg); color:var(--accent-fg); box-shadow:inset 0 -2px var(--accent-fg); }
 .usage-dialog [role="tab"]:hover { background:var(--subtle); color:var(--text); }
 .usage-dialog :is(button,[tabindex="0"]):focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
 .usage-dialog-filters { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto; gap:8px; min-width:0; }
@@ -31,3 +31,5 @@ html[data-native-titlebar="true"] .usage-dialog.ui-modal { height:min(560px,calc
 [data-density="touch"] .usage-dialog :is([role="tab"],.usage-refresh),[data-density="touch"] .summary-usage .usage-open-details { min-height:44px; }
 @media(max-height:360px) { .usage-dialog.ui-modal { padding:12px 24px; gap:8px; } .usage-dialog-controls { gap:8px; } }
 @media(forced-colors:active) { .usage-dialog [role="tab"][aria-selected="true"] { outline:1px solid Highlight; } }
+
+.usage-dialog [role="tab"][aria-selected="true"]:hover { background:var(--accent-bg); color:var(--accent-fg); }

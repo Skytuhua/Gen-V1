@@ -34,6 +34,7 @@ describe('browser suite entrypoint',()=>{
     expect(pattern.test('/repo/tests/e2e/terminal-read.spec.ts')).toBe(true);
     expect(pattern.test('/repo/tests/e2e/older-terminal-read.spec.ts')).toBe(false);
     expect(calls[0][1]).toContain('--list');
+    expect(calls[0][2]?.env?.PLAYWRIGHT_JSON_OUTPUT_FILE).toContain(resolve('test-results','browser'));
     expect(calls[1][1]).toContain('--project');
     expect(calls[1][1]).toContain('files-reading');
     expect(calls[1][1]).not.toContain('shared-panels\\.spec\\.ts$');

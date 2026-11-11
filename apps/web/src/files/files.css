@@ -301,3 +301,10 @@
 		--files-inset: 12px;
 	}
 }
+
+.files-list li>button[aria-current="true"] { color:var(--text); background:var(--accent-bg); box-shadow:inset 3px 0 var(--accent-fg); }
+.files-list li>button[aria-current="true"] small { color:var(--text); }
+.files-list li>button[aria-current="true"]:hover { background:var(--accent-bg); }
+.files-list li>button .file-type { flex:none; padding:2px 6px; border-radius:5px; font-size:11px; color:var(--accent-fg); background:var(--accent-bg); }
+.files-list li>button .file-type-md { color:var(--category-fg); background:var(--category-bg); }
+@media(forced-colors:active) { .files-list li>button[aria-current="true"] { outline:2px solid Highlight; outline-offset:-2px; } }

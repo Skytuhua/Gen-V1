@@ -12,7 +12,7 @@ const escapePattern=(value:string)=>value.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 
 export function runBrowserSuites(suites:BrowserSuite[], list=false):number {
   const cli=require.resolve('@playwright/test/cli');
-  const directory=resolve(root,'.harness-browser-results',`run-${Date.now()}-${randomUUID()}`);
+  const directory=resolve(root,'test-results','browser',`run-${Date.now()}-${randomUUID()}`);
   console.log(`Browser results: ${directory}`);
   for(const suite of suites){
     const output=resolve(directory,suite.name);

@@ -36,7 +36,7 @@
 .software-state-blocked,.software-state-unknown { color:var(--pending); }
 .software-state-running { color:var(--accent); }
 .software-state-not-run,.software-state-skipped { color:var(--muted); }
-.software-file-location { display:flex; align-items:center; flex-wrap:wrap; gap:7px; margin:0 0 12px; color:var(--muted); font-size:11px; }
+.software-file-location { display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin:0 0 12px; color:var(--muted); font-size:11px; }
 .software-file-location span { display:inline-flex; gap:8px; white-space:nowrap; font-variant-numeric:tabular-nums; }
 .software-file-location strong { color:var(--text); font-weight:600; }
 .software-file-location code { overflow-wrap:anywhere; font:inherit; }

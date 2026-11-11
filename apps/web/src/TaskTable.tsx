@@ -4,6 +4,7 @@ import { tableChangesData } from '../../../packages/ui-catalog/workflow';
 import { ArtifactInline, inputPath, statePath } from './task-context';
 import { animateTask, reducedMotion } from './task-motion';
 import './task-table.css';
+import {useTableOverflow} from './use-table-overflow';
 
 const object = (value: unknown): Record<string, unknown> => value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};
 const array = (value: unknown): unknown[] => Array.isArray(value) ? value : [];
@@ -18,6 +19,7 @@ export function Table({ element: { props }, bindings }: ComponentRenderProps) {
   const inline = useContext(ArtifactInline);
   const store = useStateStore(), scroll = useRef<HTMLDivElement>(null), sweep = useRef<HTMLElement>(null);
   const [following, setFollowing] = useState(true);
+  const overflowing = useTableOverflow(scroll);
   const followMotion = useRef({ frame: 0, target: null as number | null, velocity: 0, position: 0, time: 0, started: 0 });
   const stopScroll = () => { const motion = followMotion.current; cancelAnimationFrame(motion.frame); motion.frame = 0; motion.target = null; motion.velocity = 0; motion.position = scroll.current?.scrollTop ?? 0; };
   const takeOver = () => { if (inline) return; stopScroll(); setFollowing(false); };
@@ -26,7 +28,7 @@ export function Table({ element: { props }, bindings }: ComponentRenderProps) {
   const parsed = useMemo(() => tableChangesData.safeParse(rawChanges), [rawChanges]);
   const changes = parsed.success ? parsed.data : undefined;
   const rowChanges = useMemo(() => new Map(changes?.rows.map(row => [row.id, row]) ?? []), [changes]);
-  const columns = useMemo(() => array(props.columns).length ? array(props.columns).map(column => typeof column === 'string' ? { key: column, label: column } : object(column)) : Object.keys(object(rows[0])).map(key => ({ key, label: key })), [props.columns, rows]);
+  const columns = useMemo<Record<string, unknown>[]>(() => array(props.columns).length ? array(props.columns).map(column => typeof column === 'string' ? { key: column, label: column } : object(column)) : Object.keys(object(rows[0])).map(key => ({ key, label: key })), [props.columns, rows]);
   // Selection and scroll-following state do not change source cell content.
   // Reuse those nodes while retaining live checkbox and active-row controls.
   const renderedRows = useMemo(() => rows.map((row, index) => {
@@ -35,7 +37,7 @@ export function Table({ element: { props }, bindings }: ComponentRenderProps) {
       const key = String(column.key), cell = change?.cells?.find(cell => cell.key === key), status = cell?.status ?? change?.status;
       const before = cell && Object.hasOwn(cell, 'before') ? JSON.stringify(cell.before) : undefined;
       const showBefore = status === 'updated' && cell && Object.hasOwn(cell, 'before') && text(cell.before) !== text(item[key]);
-      return <td key={key} data-column-key={key} data-change={status} data-before={before} title={cell ? [before !== undefined ? `Previously: ${before}` : '', cell.detail].filter(Boolean).join(' · ') : undefined}>
+      return <td key={key} className={column.type === 'number' ? 'number' : undefined} data-column-key={key} data-change={status} data-before={before} title={cell ? [before !== undefined ? `Previously: ${before}` : '', cell.detail].filter(Boolean).join(' · ') : undefined}>
         {showBefore && <><span className="task-table-before">{text(cell.before)}</span><span className="task-table-change-arrow" aria-label="changed to">→</span></>}
         <span className="task-table-value">{text(item[key])}</span>{status && <span className="sr-only"> ({status})</span>}
       </td>;
@@ -175,8 +177,8 @@ export function Table({ element: { props }, bindings }: ComponentRenderProps) {
   return <div className="task-table">
     <div className="task-table-summary"><span>{rows.length} {rows.length === 1 ? 'row' : 'rows'}</span>{(Object.keys(changeCounts) as (keyof typeof changeCounts)[]).filter(status => changeCounts[status]).map(status => <span key={status} data-change={status}>{changeCounts[status]} {status}</span>)}</div>
     {Boolean(props.changesBinding) && !inline && !following && <button type="button" className="quiet task-table-follow" onClick={() => setFollowing(true)}>Resume following changes</button>}
-    <div ref={scroll} className="table-scroll task-table-scroll" tabIndex={inline ? undefined : 0} aria-label={String(props.caption ?? props.title ?? 'Table records')} data-following={!inline && following} onWheel={takeOver} onTouchStart={takeOver} onPointerDown={takeOver} onScroll={event => { if (following && Math.abs(event.currentTarget.scrollTop - followMotion.current.position) > 1) takeOver(); }} onKeyDown={event => { if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End'].includes(event.key)) takeOver(); }}>
-      <table><caption>{String(props.title ?? props.caption ?? '')}</caption><thead><tr>{Boolean(props.stateKey) && <th scope="col"><span className="sr-only">Selected</span></th>}{columns.map(column => <th scope="col" key={String(column.key)} data-column-key={String(column.key)}>{String(column.label ?? column.key)}</th>)}</tr></thead>
+    <div ref={scroll} className="table-scroll task-table-scroll" tabIndex={overflowing ? 0 : undefined} role={overflowing ? 'region' : undefined} aria-label={String(props.caption ?? props.title ?? 'Table records')} data-following={!inline && following} onWheel={takeOver} onTouchStart={takeOver} onPointerDown={takeOver} onScroll={event => { if (following && Math.abs(event.currentTarget.scrollTop - followMotion.current.position) > 1) takeOver(); }} onKeyDown={event => { if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End'].includes(event.key)) takeOver(); }}>
+      <table data-numeric={columns.some(column => column.type === 'number') || undefined}><caption>{String(props.title ?? props.caption ?? '')}</caption><thead><tr>{Boolean(props.stateKey) && <th scope="col"><span className="sr-only">Selected</span></th>}{columns.map(column => <th scope="col" className={column.type === 'number' ? 'number' : undefined} key={String(column.key)} data-column-key={String(column.key)}>{String(column.label ?? column.key)}</th>)}</tr></thead>
         <tbody>{renderedRows.map(({ id, change, cells }, index) => {
           return <tr key={id} data-row-id={id} data-change={change?.status} data-active={changes?.activeRowId === id}>
             {Boolean(props.stateKey) && <td><input aria-label={`Select row ${index + 1}`} type="checkbox" checked={selected.includes(id)} onChange={event => store.set(selectionPath, event.target.checked ? [...selected, id] : selected.filter(key => key !== id))} /></td>}

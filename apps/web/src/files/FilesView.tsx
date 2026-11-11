@@ -189,7 +189,7 @@ export function FilesView({
 										) : (
 											<File size={15} />
 										)}
-										<span>{entry.name}</span>
+										<span>{entry.name}</span>{entry.kind === "file" && /\.(ts|tsx|md|mdx)$/i.test(entry.name) && <span aria-hidden="true" className={`file-type file-type-${/\.mdx?$/i.test(entry.name) ? "md" : "ts"}`}>{/\.mdx?$/i.test(entry.name) ? "MD" : "TS"}</span>}
 										{entry.kind === "directory" ? (
 											<ChevronRight size={12} />
 										) : entry.bytes !== undefined ? (
@@ -265,11 +265,7 @@ export function FilesView({
 						<div className="files-message files-unselected">
 							<File size={22} />
 							<strong>Choose a file</strong>
-							<p>
-								{source === "project"
-									? "Shows current working copy content."
-									: "Preview or download a file from this granted resource."}
-							</p>
+							{source === "project" && <p>Shows current working copy content.</p>}
 						</div>
 					)}
 				</section>

@@ -7,12 +7,14 @@ import {DEFAULT_PREFERENCES} from '../../packages/contracts/preferences';
 import {EMPTY_USAGE} from '../../packages/contracts';
 import '../../apps/web/src/styles.css';
 import '../../apps/web/src/shell.css';
+import '../../apps/web/src/settings.css';
 
 const spec = {root:'layout',elements:{
   layout:{type:'Stack',props:{gap:'lg'},children:['metric','progress','steps','table','comparison']},
   metric:{type:'Metric',props:{label:'Files reviewed',value:124800,unit:'files'}},
   progress:{type:'Progress',props:{label:'Review progress',value:2,max:4}},
-  steps:{type:'Steps',props:{items:[{label:'Review a long supplied task label that can wrap',status:'complete'},{label:'Verify',status:'active'}]}},
+  steps:{type:'Steps',props:{stateKey:'step',steps:[{key:'review',label:'Review a long supplied task label that can wrap'},{key:'verify',label:'Verify'}]},children:['stepOne','stepTwo']},
+  stepOne:{type:'Text',props:{text:'Review source records.'}},stepTwo:{type:'Text',props:{text:'Verify the result.'}},
   table:{type:'Table',props:{rowsBinding:'records',caption:'Reported records',columns:[{key:'label',label:'Record'},{key:'count',label:'Count',type:'number'},{key:'code',label:'Code'}]}},
   comparison:{type:'Comparison',props:{dataBinding:'options',stateKey:'option'}},
 }};
