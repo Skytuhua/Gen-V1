@@ -1,4 +1,10 @@
-import { useId, useRef, useState, type ReactNode } from "react";
+import {
+	useId,
+	useLayoutEffect,
+	useRef,
+	useState,
+	type ReactNode,
+} from "react";
 import {
 	ArrowLeft,
 	ChevronRight,
@@ -8,8 +14,22 @@ import {
 	RefreshCw,
 	Search,
 } from "lucide-react";
+import { Select } from "../../../../packages/ui-shell/Select";
 import type { FilesRead } from "./useFilesRead";
 import "./files.css";
+
+// Keep file identity raw for reads; render invisible filename characters explicitly.
+export function displayFilePath(path: string): string {
+	return path.replace(/[\x01-\x1f\x7f]/g, (character) =>
+		character === "\t"
+			? "\\t"
+			: character === "\n"
+				? "\\n"
+				: character === "\r"
+					? "\\r"
+					: `\\u${character.charCodeAt(0).toString(16).padStart(4, "0")}`,
+	);
+}
 
 export interface FilesEntry {
 	name: string;
@@ -27,6 +47,7 @@ export function FilesView({
 	selector,
 	download,
 	limitNote,
+	projectSearch,
 	onDirectory,
 	onSelect,
 	onRefresh,
@@ -42,15 +63,27 @@ export function FilesView({
 	selector?: ReactNode;
 	download?: string;
 	limitNote?: string;
+	projectSearch?: {
+		available: boolean;
+		body: (openPreview: () => void) => ReactNode;
+	};
 	onDirectory: (path: string) => void;
 	onSelect: (entry: FilesEntry) => void;
 	onRefresh: () => void;
 	onRetryFolder: () => void;
 	onRetryFile: () => void;
 }) {
-	const previewElement = useRef<HTMLElement>(null);
+	const previewElement = useRef<HTMLElement>(null),
+		previewFocusRequested = useRef(false);
+	useLayoutEffect(() => {
+		if (previewFocusRequested.current) {
+			previewElement.current?.focus({ preventScroll: true });
+			previewFocusRequested.current = false;
+		}
+	});
 	const [filter, setFilter] = useState(""),
 		[treeOpen, setTreeOpen] = useState(true),
+		[scope, setScope] = useState("folder"),
 		listId = useId(),
 		filterId = useId();
 	const entries = folder.value?.entries ?? [],
@@ -60,6 +93,10 @@ export function FilesView({
 	const directory = (next: string) => {
 		setFilter("");
 		onDirectory(next);
+	};
+	const openPreview = () => {
+		previewFocusRequested.current = true;
+		setTreeOpen(false);
 	};
 	const parts = path.split("/").filter(Boolean);
 	return (
@@ -117,104 +154,143 @@ export function FilesView({
 								}
 								onClick={() => directory(parts.slice(0, index + 1).join("/"))}
 							>
-								{part}
+								{displayFilePath(part)}
 							</button>
 						</span>
 					))}
 				</nav>
 			</div>
-			<div className="files-content" data-tree-open={treeOpen}>
+			<div
+				className="files-content"
+				data-tree-open={treeOpen}
+				data-project-search={scope === "project"}
+				data-selected={!!selected}
+			>
 				<nav
 					className="files-directory"
 					id={listId}
 					aria-label={source === "project" ? "Project files" : "Granted files"}
 					aria-busy={folder.pending}
 				>
-					<label className="files-filter" htmlFor={filterId}>
-						<span>Filter this folder</span>
-						<div>
-							<Search size={14} />
-							<input
-								id={filterId}
-								type="search"
-								value={filter}
-								onChange={(event) => setFilter(event.target.value)}
-								placeholder="File or folder name"
-								title="Filters only entries returned for this folder"
+					{projectSearch && (
+						<div className="files-search-scope">
+							<Select
+								aria-label="Search scope"
+								value={scope}
+								onValueChange={setScope}
+								options={[
+									{ value: "folder", label: "This folder" },
+									{
+										value: "project",
+										label: projectSearch.available
+											? "Project"
+											: "Project (unavailable)",
+										disabled: !projectSearch.available,
+									},
+								]}
 							/>
-						</div>
-					</label>
-					<div className="files-list" tabIndex={0} aria-label="Folder entries">
-						{folder.pending && (
-							<p className="files-message" role="status">
-								{folder.value ? "Refreshing folder…" : "Reading folder…"}
-							</p>
-						)}
-						{folder.error && (
-							<div className="files-message files-error" role="alert">
-								<p>{folder.error}</p>
-								<button type="button" onClick={onRetryFolder}>
-									Retry folder
-								</button>
-							</div>
-						)}
-						{!folder.value && folder.pending && (
-							<div className="files-skeleton" aria-hidden="true">
-								<i />
-								<i />
-								<i />
-							</div>
-						)}
-						<ul>
-							{visible.map((entry) => (
-								<li key={entry.path}>
-									<button
-										type="button"
-										title={entry.path}
-										aria-label={entry.name}
-										aria-current={
-											selected?.path === entry.path ? "true" : undefined
-										}
-										onClick={() => {
-											if (entry.kind === "directory") directory(entry.path);
-											else {
-												onSelect(entry);
-												setTreeOpen(false);
-												previewElement.current?.focus({ preventScroll: true });
-											}
-										}}
-									>
-										{entry.kind === "directory" ? (
-											<Folder size={15} />
-										) : (
-											<File size={15} />
-										)}
-										<span>{entry.name}</span>
-										{entry.kind === "directory" ? (
-											<ChevronRight size={12} />
-										) : entry.bytes !== undefined ? (
-											<small>
-												{new Intl.NumberFormat().format(entry.bytes)} B
-											</small>
-										) : null}
-									</button>
-								</li>
-							))}
-						</ul>
-						{folder.value &&
-							!folder.pending &&
-							!folder.error &&
-							visible.length === 0 && (
-								<p className="files-message">
-									{filter
-										? "No matching entries in this folder."
-										: "This folder is empty."}
-								</p>
+							{!projectSearch.available && (
+								<small>
+									Project search is unavailable until the search service is
+									connected.
+								</small>
 							)}
-						{limitNote && (
-							<p className="files-message files-limit">{limitNote}</p>
-						)}
-					</div>
+						</div>
+					)}
+					{projectSearch && scope === "project" ? (
+						projectSearch.body(openPreview)
+					) : (
+						<>
+							<label className="files-filter" htmlFor={filterId}>
+								<span>Filter this folder</span>
+								<div>
+									<Search size={14} />
+									<input
+										id={filterId}
+										type="search"
+										value={filter}
+										onChange={(event) => setFilter(event.target.value)}
+										placeholder="File or folder name"
+										title="Filters only entries returned for this folder"
+									/>
+								</div>
+							</label>
+							<div
+								className="files-list"
+								tabIndex={0}
+								aria-label="Folder entries"
+							>
+								{folder.pending && (
+									<p className="files-message" role="status">
+										{folder.value ? "Refreshing folder…" : "Reading folder…"}
+									</p>
+								)}
+								{folder.error && (
+									<div className="files-message files-error" role="alert">
+										<p>{folder.error}</p>
+										<button type="button" onClick={onRetryFolder}>
+											Retry folder
+										</button>
+									</div>
+								)}
+								{!folder.value && folder.pending && (
+									<div className="files-skeleton" aria-hidden="true">
+										<i />
+										<i />
+										<i />
+									</div>
+								)}
+								<ul>
+									{visible.map((entry) => (
+										<li key={entry.path}>
+											<button
+												type="button"
+												title={displayFilePath(entry.path)}
+												aria-label={displayFilePath(entry.name)}
+												aria-current={
+													selected?.path === entry.path ? "true" : undefined
+												}
+												onClick={() => {
+													if (entry.kind === "directory") directory(entry.path);
+													else {
+														onSelect(entry);
+														openPreview();
+													}
+												}}
+											>
+												{entry.kind === "directory" ? (
+													<Folder size={15} />
+												) : (
+													<File size={15} />
+												)}
+												<span>{displayFilePath(entry.name)}</span>
+												{entry.kind === "directory" ? (
+													<ChevronRight size={12} />
+												) : entry.bytes !== undefined ? (
+													<small>
+														{new Intl.NumberFormat().format(entry.bytes)} B
+													</small>
+												) : null}
+											</button>
+										</li>
+									))}
+								</ul>
+								{folder.value &&
+									!folder.pending &&
+									!folder.error &&
+									visible.length === 0 && (
+										<p className="files-message">
+											{filter
+												? "No matching entries in this folder."
+												: "This folder is empty."}
+										</p>
+									)}
+								{limitNote && (
+									<p className="files-message files-limit">{limitNote}</p>
+								)}
+							</div>
+						</>
+					)}
 				</nav>
 				<section
 					className="files-preview"
@@ -226,7 +302,9 @@ export function FilesView({
 					{selected ? (
 						<>
 							<header>
-								<strong title={selected.path}>{selected.name}</strong>
+								<strong title={displayFilePath(selected.path)}>
+									{displayFilePath(selected.name)}
+								</strong>
 								{download && (
 									<a href={download} download={selected.name}>
 										Download

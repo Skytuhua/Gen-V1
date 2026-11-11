@@ -1,0 +1,253 @@
+tests/account-auth-http.test.ts [ tests/account-auth-http.test.ts ]
+tests/agent-follow-up.test.ts [ tests/agent-follow-up.test.ts ]
+tests/agent-inventory-routes.test.ts [ tests/agent-inventory-routes.test.ts ]
+tests/composer-prediction-service.test.ts [ tests/composer-prediction-service.test.ts ]
+tests/conversation-read-http.test.ts [ tests/conversation-read-http.test.ts ]
+tests/credential-slots.test.ts [ tests/credential-slots.test.ts ]
+tests/current-pi-verification.test.ts [ tests/current-pi-verification.test.ts ]
+tests/desktop-host.test.ts [ tests/desktop-host.test.ts ]
+tests/event-stream.test.ts [ tests/event-stream.test.ts ]
+tests/expanded-review-fixtures.test.ts [ tests/expanded-review-fixtures.test.ts ]
+tests/hermes-host.test.ts [ tests/hermes-host.test.ts ]
+tests/model-discovery.test.ts [ tests/model-discovery.test.ts ]
+tests/path-access.test.ts [ tests/path-access.test.ts ]
+tests/plugin-frame-custody.test.ts [ tests/plugin-frame-custody.test.ts ]
+tests/research-routes.test.ts [ tests/research-routes.test.ts ]
+tests/research-service-integration.test.ts [ tests/research-service-integration.test.ts ]
+tests/research-workspace.test.ts [ tests/research-workspace.test.ts ]
+tests/resource-tree.test.ts [ tests/resource-tree.test.ts ]
+tests/review-host.test.ts [ tests/review-host.test.ts ]
+tests/server.test.ts [ tests/server.test.ts ]
+tests/shell-read-models.test.ts [ tests/shell-read-models.test.ts ]
+tests/shell-settings-bootstrap.test.ts [ tests/shell-settings-bootstrap.test.ts ]
+tests/skill-catalog-http.test.ts [ tests/skill-catalog-http.test.ts ]
+tests/skills-http.test.ts [ tests/skills-http.test.ts ]
+tests/terminal-host.test.ts [ tests/terminal-host.test.ts ]
+tests/workspace-action-outcome-routes.test.ts [ tests/workspace-action-outcome-routes.test.ts ]
+tests/workspace-linked-pr.test.ts [ tests/workspace-linked-pr.test.ts ]
+tests/account-login.test.ts > does not admit a successor sign-in when an expired lease still has a live owner
+tests/account-login.test.ts > reserves the exact named profile for sign-in and releases it after a failed native login
+tests/account-login.test.ts > retains a durable account hold when native login shutdown is unconfirmed
+tests/account-parity.test.ts > keeps openai task routing through compaction and history-aware recovery after its default changes
+tests/account-parity.test.ts > keeps openai-codex task routing through compaction and history-aware recovery after its default changes
+tests/account-parity.test.ts > keeps github-copilot task routing through compaction and history-aware recovery after its default changes
+tests/account-parity.test.ts > keeps xai task routing through compaction and history-aware recovery after its default changes
+tests/account-parity.test.ts > keeps claude-code task routing through compaction and history-aware recovery after its default changes
+tests/account-parity.test.ts > keeps gemini-cli task routing through compaction and history-aware recovery after its default changes
+tests/account-parity.test.ts > keeps cursor-sdk task routing through compaction and history-aware recovery after its default changes
+tests/account-parity.test.ts > keeps kimi-coding task routing through compaction and history-aware recovery after its default changes
+tests/account-parity.test.ts > keeps opencode-go task routing through compaction and history-aware recovery after its default changes
+tests/account-parity.test.ts > inherits the parent account for a new side conversation while defaults change before and during startup
+tests/account-parity.test.ts > delegates through Service using the parent account after future defaults change before asynchronous child creation
+tests/account-profile.test.ts > rejects an accounts junction and holds the acquired namespace against replacement
+tests/account-profile.test.ts > pins native directories while allowing legitimate atomic credential replacement
+tests/account-profile.test.ts > keeps each writable account directory nonempty with a pinned ordinary marker
+tests/account-profile.test.ts > keeps official home namespaces pinned while native credential files remain atomically replaceable
+tests/capabilities.test.ts > domain permission wrapper and file operations > publishes resource sourced text with an exact content hash
+tests/capabilities.test.ts > domain permission wrapper and file operations > prepares without writing and rejects absent approval and changed source bytes
+tests/capabilities.test.ts > domain permission wrapper and file operations > executes approved replacement, publishes actual results and re-resolves write permissions
+tests/capabilities.test.ts > domain permission wrapper and file operations > rechecks readonly grants and rejects cross-thread or non-running operation dispatch
+tests/capabilities.test.ts > domain permission wrapper and file operations > reconciles before/after replacement hashes read-only and leaves changed bytes unknown
+tests/capabilities.test.ts > domain permission wrapper and file operations > runs the exact node-test recipe and reports actual success and failure exits
+tests/capabilities.test.ts > domain permission wrapper and file operations > cancels the actual process tree and records cancellation instead of success
+tests/capabilities.test.ts > real selected SQLite > inspects real rows and applies exact prepared counts with integrity/version checks
+tests/capabilities.test.ts > real selected SQLite > rolls back wrong counts, denies attachment and rejects stale database versions
+tests/capabilities.test.ts > real selected SQLite > reports actual migration DML counts independently from schema statements
+tests/capabilities.test.ts > PDF local export > inspects fields, fills supported types and places typed/drawn marks in a new local export
+tests/capabilities.test.ts > disposable fixtures and held-out evaluations > creates fixtures only at an exclusive new destination including real git conflict
+tests/code-review-comparisons.test.ts > reads index and worktree overlap separately and binds selected patches to the complete revision
+tests/code-review-comparisons.test.ts > reports clean, untracked text, binary and bounded large patches honestly
+tests/code-review-comparisons.test.ts > pins remote PR patches to exact three-dot identity without substituting local unstaged changes
+tests/code-review-comparisons.test.ts > returns explicit transport errors and never calls a local diff as fallback
+tests/code-review-comparisons.test.ts > reads staged deletions and renames by exact selected paths
+tests/code-review-comparisons.test.ts > keeps legacy reads tracked-only and can compare a remote PR without a managed checkout or matching HEAD
+tests/code-review-comparisons.test.ts > denies delegates, Company, cross-project and replaced-directory reads before remote transport
+tests/code-review-comparisons.test.ts > keeps snapshots isolated from returned mutable data and never accepts another owner
+tests/code-review-comparisons.test.ts > distinguishes omitted, binary and incomplete remote patches without fetching metadata URLs
+tests/code-review-comparisons.test.ts > never reads a hardlinked changed file into a patch
+tests/code-review-comparisons.test.ts > reads an already-attested remote origin without a source Git checkout or source file projection
+tests/code-review-comparisons.test.ts > rejects mismatched remote identities and reports empty and capped file inventories honestly
+tests/private-git-family.test.ts > imports once into protected private bare storage and creates three independent native worktrees
+tests/private-git-family.test.ts > does not consume original metadata after private import and ignores dependency bulk for managed status
+tests/private-git-family.test.ts > keeps original bindings in place, reports tracked-only coverage and rejects legacy mutations
+tests/private-git-family.test.ts > refuses stored identity substitution before managed Git starts
+tests/private-git-family.test.ts > refuses stored gitDirectoryIdentity substitution before managed Git starts
+tests/private-git-family.test.ts > refuses stored commonDirectoryIdentity substitution before managed Git starts
+tests/private-git-family.test.ts > imports safe author and GitHub origin scalars and drops arbitrary source configuration
+tests/private-git-family.test.ts > refuses a legacy scratch view inside a broad source grant
+tests/private-git-family.test.ts > keeps incremental legacy objects out of the authoritative managed family
+tests/private-git-family.test.ts > reports each admitted managed copy rather than the original repository root in hover context
+tests/private-git-family.test.ts > rejects a context read when the admitted model changes during its Git read
+tests/project-tools.test.ts > enrolls a local project and assigns new agents separate real branches and working copies
+tests/project-tools.test.ts > reports live managed untracked/staged changes and refuses an action against an old revision
+tests/project-tools.test.ts > keeps Git status inside the enrolled root even when repository config names another worktree
+tests/workspace-action-outcomes.test.ts > commits intent before local write and private result before event, then replays after Store restart
+tests/workspace-action-outcomes.test.ts > retains interrupted remote write as uncertain across restart without submitting it again
+tests/workspace-action-outcomes.test.ts > serializes same-ID attempts across separate Store connections without a double write
+tests/workspace-action-outcomes.test.ts > denies reuse of an ID with a changed payload
+tests/workspace-action-outcomes.test.ts > denies reuse of an ID with a changed type
+tests/workspace-action-outcomes.test.ts > denies reuse of an ID with a changed threadId
+tests/workspace-action-outcomes.test.ts > denies reuse of an ID with a changed projectId
+tests/workspace-action-outcomes.test.ts > inspects original payload/revision without current diff, review reads, or any write
+tests/workspace-action-outcomes.test.ts > returns revoked after working copy or account access changes, including confirmed receipts
+tests/workspace-action-outcomes.test.ts > keeps private intent, result, credentials and errors out of events, receipts and snapshots
+tests/workspace-action-outcomes.test.ts > keeps missing and legacy records uncertain without adopting unbound receipts
+tests/workspace-action-outcomes.test.ts > records not-applied only after host rejection before starting and never restarts that ID
+tests/workspace-action-outcomes.test.ts > keeps failures after started uncertain even when there is no receipt
+tests/workspace-action-outcomes.test.ts > keeps completed external write uncertain if durable result commit fails
+tests/workspace-action-outcomes.test.ts > recovers a confirmed review when the remote branch name differs from the managed local branch
+tests/workspace-action-outcomes.test.ts > keeps an active prepared reservation uncertain until its owner durably proves no execution began
+tests/workspace-action-outcomes.test.ts > pins profile access while GitHubTools is awaiting remote validation
+tests/workspace-action-outcomes.test.ts > rejects a profile replaced between inspection identity capture and credential read
+tests/workspace-action-outcomes.test.ts > supports local unstage and commit through the original revision and replays a commit without a second write
+tests/code-review-reader.test.ts > bounds complete local hashing before reading an oversized sparse file
+tests/cursor-offline-executor.test.ts > self-tests the offline boundary in a separate child before importing any SDK
+tests/cursor-offline-executor.test.ts > loads the actual lazy local executor and native parser, then fails closed before account/inference transport
+tests/cursor-sdk-mcp-metadata.test.ts > self-tests child transport denial and parent broker rejection without importing the SDK
+tests/cursor-sdk-mcp-metadata.test.ts > observes actual SDK send metadata through production gate and HostMcp with no tool execution or auth transport
+tests/git-metadata-guard.test.ts > pins a read-only Git config while allowing index creation in the same pinned metadata directory
+tests/github-workspace.test.ts > keeps device authorization tokens private and requires a Gen V1 credential before CLI use
+tests/github-workspace.test.ts > submits a writable exact-head review against its reviewed commit
+tests/github-workspace.test.ts > uses file-backed review JSON without changing newlines, Unicode or literal backslashes
+tests/github-workspace.test.ts > serializes polling per flow and treats cancellation of an older flow as harmless
+tests/github-workspace.test.ts > reports a completed sign-in when credential commit wins the cancellation race
+tests/github-workspace.test.ts > refuses to create a PR when the GitHub branch differs from the reviewed local commit
+tests/github-workspace.test.ts > returns a created PR only after its actual head matches the reviewed commit
+tests/github-workspace.test.ts > retains the created PR URL when its actual head differs from the reviewed commit
+tests/github-workspace.test.ts > retains the already-created PR URL after failed read without creating it again
+tests/github-workspace.test.ts > retains the already-created PR URL after malformed JSON without creating it again
+tests/github-workspace.test.ts > retains the already-created PR URL after missing head without creating it again
+tests/github-workspace.test.ts > rechecks writable authority after remote validation before draft creation
+tests/github-workspace.test.ts > writes long Unicode PR text exactly to a private file before push and removes it after success
+tests/github-workspace.test.ts > rejects changed capability while preparing a private review input
+tests/github-workspace.test.ts > rejects changed head while preparing a private review input
+tests/github-workspace.test.ts > rejects changed revision while preparing a private review input
+tests/github-workspace.test.ts > cleans private create input while preserving a remote failure
+tests/github-workspace.test.ts > cleans private review input while preserving a remote failure
+tests/github-workspace.test.ts > retains publication state after success even when exact directory cleanup is refused
+tests/github-workspace.test.ts > retains publication state after verification failure even when exact directory cleanup is refused
+tests/github-workspace.test.ts > fences cancel during private credential writing before rename and preserves the prior token
+tests/github-workspace.test.ts > fences replace during private credential writing before rename and preserves the prior token
+tests/github-workspace.test.ts > fences expire during private credential writing before rename and preserves the prior token
+tests/hermes-client.test.ts > preserves Unicode through chunked replies and resolves concurrent request IDs independently
+tests/hermes-client.test.ts > preserves Unicode through chunked replies and resolves concurrent request IDs independently
+tests/hermes-client.test.ts > uses an isolated home and does not pass provider credentials to Python
+tests/hermes-client.test.ts > uses an isolated home and does not pass provider credentials to Python
+tests/hermes-client.test.ts > awaits owned host callbacks and returns their results over the private channel
+tests/hermes-client.test.ts > awaits owned host callbacks and returns their results over the private channel
+tests/hermes-client.test.ts > forwards source events without inventing entry or settlement events
+tests/hermes-client.test.ts > forwards source events without inventing entry or settlement events
+tests/hermes-client.test.ts > fails pending requests safely on malformed worker output
+tests/hermes-client.test.ts > closes its worker and revokes unanswered requests when disposed
+tests/hermes-client.test.ts > closes its worker and revokes unanswered requests when disposed
+tests/hermes-client.test.ts > drains owned host callbacks even when process cancellation fails
+tests/hermes-client.test.ts > drains owned host callbacks even when process cancellation fails
+tests/hermes-client.test.ts > treats a denied host callback as an ordinary tool result during teardown
+tests/hermes-client.test.ts > treats a denied host callback as an ordinary tool result during teardown
+tests/hermes-client.test.ts > fails pending requests safely on malformed worker output
+tests/hermes-multi-original.test.ts > runs two real original engines against one canonical library with isolated sessions and bounded scripted native calls
+tests/hermes-multi-original.test.ts > runs two real original engines against one canonical library with isolated sessions and bounded scripted native calls
+tests/hermes-original-integration.test.ts > runs original Python and ACP through the native broker, persists a skill and finishes through the real Service
+tests/hermes-service.test.ts > carries an actual approved replacement privately to the next idle source turn, never prepare or steering
+tests/hermes-service.test.ts > bounds hook admission while preserving every successful write and ordinary receipt
+tests/hermes-service.test.ts > does not reauthorize an approved write hook after stop
+tests/hermes-service.test.ts > does not reauthorize an approved write hook after rebind
+tests/hermes-service.test.ts > does not reauthorize an approved write hook after revision
+tests/hermes-service.test.ts > does not reauthorize an approved write hook after recovery
+tests/hermes-service.test.ts > never supplies completed-write custody for unapproved or failed effects
+tests/hermes-service.test.ts > retains an unknown callback claim across stop/resume without replaying its write
+tests/hermes-service.test.ts > does not infer missing legacy write authority from current selection
+tests/hermes-service.test.ts > does not infer missing no_project write authority from current selection
+tests/integration-host.test.ts > keeps Biome write proposals and Spec Kit initialization unavailable in plan mode
+tests/integration-mcp.test.ts > builds a real Graphify code graph, queries its stdio server and exports GraphML without a model
+tests/integration-mcp.test.ts > initializes only project-local genuine Spec Kit assets and dispatches its original workflow through the host
+tests/integration-mcp.test.ts > executes the pinned native Biome and Impeccable engines
+tests/integration-mcp.test.ts > refuses linked Graphify graph input and linked export directories inside the owned fixture
+tests/integration-mcp.test.ts > routes Biome proposals through the registered granted-file approval flow
+tests/integrations.test.ts > admits exactly the ten bundled integrations without starting their MCP services
+tests/managed-git-family.test.ts > requires host attestation for linked worktrees and retains ordinary repositories
+tests/managed-git-family.test.ts > snapshots the attested worktree HEAD, index and source, without other worktrees or hooks
+tests/managed-git-family.test.ts > passes only the host-resolved family for the granted domain repository root
+tests/official-runtime-storage.test.ts > official runtime storage and subprocess isolation > uses published commands and isolated homes without inheriting provider or Node injection variables
+tests/packaged-providers.test.ts > packaged provider custody > imports the actual installed SDK with an explicit empty store and runs only the stock rg version helper
+tests/private-git-family.test.ts > streams metadata beyond the unchanged ordinary snapshot budget with a bounded buffer
+tests/research-capture.test.ts > captures a granted file with native custody and exact expected bytes and identity
+tests/research-capture.test.ts > rejects same-size edits after selection without publishing a source or receipt
+tests/research-capture.test.ts > binds a selected file reference to the exact grant generation even when bytes and identity match
+tests/research-capture.test.ts > fails closed after grant revocation, rebind, identity replacement, or hardlink introduction
+tests/research-capture.test.ts > rejects a missing selected file or binary material without retaining a partial capture
+tests/research-capture.test.ts > rechecks thread authority inside a browser lease and keeps revoked historical file material inaccessible
+tests/research-capture.test.ts > denies secret paths, traversal and over-limit files through existing grants
+tests/runtime-router.test.ts > lazily isolates account adapters, pins routing and denies cross-account sessions
+tests/runtime-router.test.ts > scopes named-account model discovery to its provider and blocks a profile being signed in
+tests/runtime-router.test.ts > rejects a resolver that changes the provider of an already acquired account profile
+tests/service.test.ts > thread and UI integrity > records a completed effect arriving after Stop without reviving its run
+tests/service.test.ts > thread and UI integrity > a generated operation button leads to native approval and cannot approve by its label
+tests/skill-catalog-apps.test.ts > discovers only declared installed metadata with verified package custody and never activates the host
+tests/skill-catalog-apps.test.ts > invalidates installed references after content tampering, registry revocation, or untracked additions
+tests/skill-catalog.test.ts > enumerates every page, keeps colliding names distinct, and exposes metadata without source bytes
+tests/skill-catalog.test.ts > pins exact bytes and supporting-file custody, rejecting edits even when size and display name stay equal
+tests/skill-catalog.test.ts > binds authenticated cursors to inventory, search, page size and connection context
+tests/skill-catalog.test.ts > denies file/directory symlinks and hardlinks while retaining other safe packages
+tests/skill-catalog.test.ts > bounds file counts and bytes without truncating a package into an available reference
+tests/skill-catalog.test.ts > marks an exhausted root inventory unavailable instead of silently presenting a partial catalog
+tests/skill-catalog.test.ts > counts bytes consumed by rejected packages against the root budget
+tests/skill-catalog.test.ts > rejects namespace escalation and source substitution without resolving a display name
+tests/skill-catalog.test.ts > accepts bound references for the full declared source-identity length
+tests/skill-catalog.test.ts > includes nested installed skill entries beneath another skill package
+tests/skill-catalog.test.ts > keeps a root skill distinct from a child named after the root directory
+tests/skill-catalog.test.ts > detects replacement during capture and never returns mixed metadata/custody
+tests/skill-catalog.test.ts > uses canonical connected project/worktree bindings and separates unavailable project authority
+tests/skill-catalog.test.ts > discovers only the selected worktree and invalidates its references after rebinding or revocation
+tests/skill-catalog.test.ts > preserves exact references and pagination after unrelated title updates
+tests/skill-catalog.test.ts > preserves exact references and pagination after unrelated status updates
+tests/skill-catalog.test.ts > preserves exact references and pagination after unrelated project metadata updates
+tests/skill-catalog.test.ts > preserves exact references and pagination after unrelated working-copy branch updates
+tests/skill-catalog.test.ts > reuses the real bundled integration inventory and covers all declared skills across pages
+tests/skill-invocation.test.ts > materializes exact entry bytes and captured support without changing prompt or resources
+tests/skill-invocation.test.ts > denies stale support, forged identity, cross-source and private-provider references
+tests/skill-invocation.test.ts > rejects every changed authority dimension before admission
+tests/skill-invocation.test.ts > fences authority changes during catalog awaits and again before commit/runtime/support reads
+tests/skill-invocation.test.ts > honors pre-abort and an abort that wins a catalog await without producing an admission
+tests/skill-invocation.test.ts > denies support-bytes between fresh catalog custody and materialization
+tests/skill-invocation.test.ts > denies entry-bytes between fresh catalog custody and materialization
+tests/skill-invocation.test.ts > denies file-swap between fresh catalog custody and materialization
+tests/skill-invocation.test.ts > denies directory-swap between fresh catalog custody and materialization
+tests/skill-invocation.test.ts > denies hardlink between fresh catalog custody and materialization
+tests/skill-invocation.test.ts > denies junction between fresh catalog custody and materialization
+tests/skill-invocation.test.ts > denies extra-file between fresh catalog custody and materialization
+tests/skill-invocation.test.ts > revalidates the canonical source after capture rather than accepting its earlier index
+tests/skill-invocation.test.ts > restores authenticated exact bytes across host restart without rediscovering changed skills
+tests/skill-invocation.test.ts > rejects command-ID reuse with changed content, model, thinking, reference or authority
+tests/skill-invocation.test.ts > denies replay tampering and key loss instead of falling back to rediscovery
+tests/skill-invocation.test.ts > denies forged admissions, mismatched runtime owners and arbitrary support paths
+tests/skill-invocation.test.ts > reads the exact Harness version/document with no latest-name or ambient projection fallback
+tests/skill-invocation.test.ts > denies a package exceeding files instead of silently truncating it
+tests/skill-invocation.test.ts > denies a package exceeding fileBytes instead of silently truncating it
+tests/skill-invocation.test.ts > denies a package exceeding packageBytes instead of silently truncating it
+tests/skill-invocation.test.ts > rejects malformed payloads rather than accepting browser supplied text, paths or authority grants
+tests/skill-invocation.test.ts > selection preserves every reference field without a body read or admission capability, and bundles for browsers
+tests/skill-invocation.test.ts > denies a changed runtime thinking level even when the model is unchanged
+tests/skill-invocation.test.ts > preserves UTF-8 BOM and original line endings in admitted guidance
+tests/skill-invocation.test.ts > admits all selected references in order, never silently dropping a stale second selection
+tests/skill-invocation.test.ts > bounds Harness entry bytes before materializing an oversized saved document
+tests/skill-invocation.test.ts > captures only a verified installed App package, without activating its host, and rechecks registry revocation
+tests/skill-invocation.test.ts > uses the bundled manifest pin and denies an index replacement between custody and capture
+tests/skill-invocation.test.ts > resolves only the connected canonical project/worktree and denies its root identity changing
+tests/skill-invocation.test.ts > aborts after capture while the final source recheck is in flight
+tests/skill-invocation.test.ts > returns cancellation while an obsolete catalog read is still pending
+tests/skill-invocation.test.ts > replays the same command after an actual Store reopen without another message or current-source read
+tests/skill-invocation.test.ts > precommit authority revalidation leaves message/outbox/capture storage empty on a race
+tests/skill-invocation.test.ts > sanitizes authority-provider failures at precommit without leaking host paths
+tests/skill-invocation.test.ts > accepts the parent raw skills array while taking expected authority only from host options
+tests/skills-integration.test.ts > keeps openai automatic skill review account-pinned through changed defaults, settlement and restart
+tests/skills-integration.test.ts > keeps openai-codex automatic skill review account-pinned through changed defaults, settlement and restart
+tests/skills-integration.test.ts > keeps github-copilot automatic skill review account-pinned through changed defaults, settlement and restart
+tests/skills-integration.test.ts > keeps xai automatic skill review account-pinned through changed defaults, settlement and restart
+tests/skills-integration.test.ts > keeps claude-code automatic skill review account-pinned through changed defaults, settlement and restart
+tests/skills-integration.test.ts > keeps gemini-cli automatic skill review account-pinned through changed defaults, settlement and restart
+tests/skills-integration.test.ts > keeps cursor-sdk automatic skill review account-pinned through changed defaults, settlement and restart
+tests/skills-integration.test.ts > keeps kimi-coding automatic skill review account-pinned through changed defaults, settlement and restart
+tests/skills-integration.test.ts > keeps opencode-go automatic skill review account-pinned through changed defaults, settlement and restart
+tests/task-memory-recovery.test.ts > keeps artifacts, saved edits, accepted inputs and a completed effect authoritative after note recovery
+tests/widget-isolation.test.ts > real browser worker isolation > releases a widget lease only after host acceptance, preserves drafts on failure, and resumes under the same action identity

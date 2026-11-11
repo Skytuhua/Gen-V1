@@ -50,6 +50,6 @@ it.skipIf(process.platform!=='win32')('releases native helpers after a terminal 
  const closed=new Promise<{code:number|null;signal:NodeJS.Signals|null}>((resolve,reject)=>{child.once('error',reject);child.once('close',(code,signal)=>resolve({code,signal}));});
  try{
   const result=await Promise.race([closed,new Promise<never>((_resolve,reject)=>{timer=setTimeout(()=>reject(Error('Native terminal helpers kept the disposed host alive.')),15000);})]);
-  expect(result).toEqual({code:0,signal:null});expect(stdout).toContain('GEN_TERMINAL_NATURAL_EXIT_OK');expect(stderr).not.toContain('AttachConsole failed');
+  expect(result,`child stdout:\n${stdout}\nchild stderr:\n${stderr}`).toEqual({code:0,signal:null});expect(stdout).toContain('GEN_TERMINAL_NATURAL_EXIT_OK');expect(stderr).not.toContain('AttachConsole failed');
  }finally{clearTimeout(timer);await terminateProcessTree(child);await rm(directory,{recursive:true,force:true,maxRetries:5});}
 },25000);
