@@ -25,7 +25,7 @@ export interface ChildFollowUpController {
  dispose?(): void;
 }
 export interface ComposerState {draft: string; ready: boolean; busy: boolean; stopping: boolean; error: string; retry: boolean; thinkingLevel?: string | null; skills?: readonly SkillBinding[]; excerpts?:readonly TerminalExcerpt[]; ticket?: ChildInputTicket}
-export interface ComposerSubmission {content: string; generation: string | undefined; skills: readonly SkillBinding[]; excerpts?:readonly TerminalExcerpt[]}
+export interface ComposerSubmission {content: string; generation: string | undefined; skills: readonly SkillBinding[]; excerpts?:readonly TerminalExcerpt[]; excerptGeneration?:string}
 /** Share this exact instance with every conversation view, including the host composer. */
 export interface SharedAgentComposers {
  getSnapshot(agent: ComposerTarget): ComposerState;
@@ -43,7 +43,7 @@ export interface SharedAgentComposers {
  supports(agent: ComposerTarget): boolean;
  dispose(): void;
 }
-interface PendingSend {commandId: string; content: string; generation: string | undefined; modelId?: string | null; thinkingLevel?: string | null; skills?: SkillBinding[]; excerpts?:TerminalExcerpt[]}
+interface PendingSend {commandId: string; content: string; generation: string | undefined; modelId?: string | null; thinkingLevel?: string | null; skills?: SkillBinding[]; excerpts?:TerminalExcerpt[]; excerptGeneration?:string}
 interface Entry {agent: ComposerTarget; inventory?: AgentSummary; stopEpoch: number; state: ComposerState; pending?: PendingSend; prepared?: Promise<void>; listeners: Set<() => void>; unsubscribe?: () => void}
 export function createSharedAgentComposers(actions: {sendParent(input: ParentSend): Promise<void>; stopParent(agent: ComposerTarget): Promise<void>; followUp?: ChildFollowUpController; ownership?: (agent: ComposerTarget) => unknown}): SharedAgentComposers {
  const entries = new Map<string, Entry>();
@@ -143,7 +143,7 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
    catch(cause){emit(value,{error:cause instanceof Error?cause.message:'Terminal excerpts could not load.'});return;}
    let content:string;
    try{content=value.pending?.content??serializeTerminalExcerpts(submission?.content??value.state.draft,excerpts);}catch(cause){emit(value,{error:cause instanceof Error?cause.message:'Prompt exceeds the limit.'});return;}
-   const pending = value.pending ?? {commandId: crypto.randomUUID(), content, ...(excerpts.length?{excerpts}:{}), generation: submission ? submission.generation : journalGeneration(key(agent)), modelId: agent.modelId, ...(thinkingLevel !== undefined ? {thinkingLevel} : {}), ...((skills?.length ?? 0) > 0 ? {skills: skillBindingsSchema.parse(skills)} : {})};
+   const pending = value.pending ?? {commandId: crypto.randomUUID(), content, ...(excerpts.length?{excerpts,excerptGeneration:submission?.excerpts===undefined?journalGeneration(excerptDraftKey(identity(agent))):submission.excerptGeneration}:{}), generation: submission ? submission.generation : journalGeneration(key(agent)), modelId: agent.modelId, ...(thinkingLevel !== undefined ? {thinkingLevel} : {}), ...((skills?.length ?? 0) > 0 ? {skills: skillBindingsSchema.parse(skills)} : {})};
    value.pending = pending; emit(value, {busy: true, error: '', retry: false});
    try {
     // Persist before transport; retries after disconnect/reload keep the same command identity.
@@ -158,7 +158,7 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
     } else await actions.sendParent({threadId: identity(agent), modelId: pending.modelId === undefined ? agent.modelId : pending.modelId, ...(pending.thinkingLevel !== undefined ? {thinkingLevel: pending.thinkingLevel} : {}), content: pending.content, commandId: pending.commandId, ...(pending.skills?.length ? {skills: pending.skills.map(binding => binding.ref)} : {})});
     await journalCompareAndSwap(key(agent), pending.generation, '');
     await clearAcceptedSkills(skillDraftKey(identity(agent)), pending.skills ?? []);
-    await clearAcceptedExcerpts(identity(agent),pending.excerpts??[]);
+    await clearAcceptedExcerpts(identity(agent),pending.excerptGeneration);
     await journalWrite(pendingKey(agent), null); value.pending = undefined;
     // journal notifications own the draft; never clear text authored during transport.
     const [draft, skills, excerpts] = await Promise.all([journalReadRecord<string>(key(agent)), journalReadRecord(skillDraftKey(identity(agent))),journalReadRecord(excerptDraftKey(identity(agent)))]); emit(value, {draft: draft?.value ?? value.state.draft, skills: readSkillBindings(skills?.value),excerpts:readTerminalExcerpts(excerpts?.value)});
