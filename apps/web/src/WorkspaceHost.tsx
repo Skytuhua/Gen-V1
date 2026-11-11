@@ -17,6 +17,7 @@ import {SettingsSkeleton, WorkspaceSkeleton} from './ViewSkeletons';
 import {ShellSidebar} from './ShellSidebar';
 import {getShellNavigationItem} from './shell-read-api';
 import {matchesShortcut, useShellLayout} from './shell-layout';
+import {useSidebarCollapse} from './sidebar-collapse';
 import {useShellNavigation} from './shell-navigation';
 import {useAppearance} from './useAppearance';
 import {useWorkspaceState} from './workspace-api';
@@ -174,6 +175,7 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
   const mutationPending = useRef(false), [mutationBusy, setMutationBusy] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const sidebar = useRef<HTMLElement>(null), scrim = useRef<HTMLButtonElement>(null), searchRef = useRef<HTMLInputElement>(null);
+  const prepareSidebarToggle = useSidebarCollapse(sidebar, layout.sidebarCollapsed, preferences.panelAnimations && preferences.motionDuration > 0, mobile);
   const latestAttention = useRef(openConversation); latestAttention.current = openConversation;
   const latestFailure = useRef(fail); latestFailure.current = fail;
   useEffect(() => desktop?.bridge.onAttentionOpen?.(id => latestFailure.current(() => latestAttention.current(id))), [desktop?.bridge]);
@@ -216,11 +218,11 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
     mutate(async () => {await command('thread.presentation', patch, row.id); await navigation.refresh();});
   };
   const archiveRow = (row: ThreadNavigationRow) => mutate(async () => {await command('thread.archive', {}, row.id); await navigation.refresh(); setArchive(undefined);});
-  return <div className="app-shell workspace-host" data-sidebar-collapsed={layout.sidebarCollapsed} style={{'--sidebar-width': layout.sidebarWidth + 'px'} as CSSProperties} inert={desktop?.closing}>
+  return <div className="app-shell workspace-host" data-sidebar-collapsed={layout.sidebarCollapsed} data-panel-animations={preferences.panelAnimations} style={{'--sidebar-width': layout.sidebarWidth + 'px'} as CSSProperties} inert={desktop?.closing}>
     {open && <button ref={scrim} className="sidebar-scrim" aria-label="Close navigation" onClick={() => setOpen(false)}/>}
     <ShellSidebar hoverBlocked={settingsOpen||Boolean(rename||archive||unpin)} onOpenThreadPR={(target,scope)=>fail(()=>openReview(target,scope))} elementRef={sidebar} searchRef={searchRef} mobile={mobile} open={open} layout={layout} preferences={preferences}
       matching={navigation.page?.items ?? []} loaded={Boolean(navigation.page)} creating={false} search={search} setSearch={setSearch}
-      close={() => setOpen(false)} toggleCollapsed={() => setLayout(value => ({...value, sidebarCollapsed: !value.sidebarCollapsed}))}
+      close={() => setOpen(false)} toggleCollapsed={event => {prepareSidebarToggle(event); setLayout(value => ({...value, sidebarCollapsed: !value.sidebarCollapsed}));}}
       setFolded={(key, folded) => setLayout(value => ({...value, folded: {...value.folded, [key]: folded}}))}
       select={id => fail(() => openConversation(id))} create={() => action('new-thread')} settings={openSettings}
       onConnectProject={() => action('connect-project')} onOpenPullRequests={() => action('linked-pull-requests')} onOpenUsage={() => action('usage')}
@@ -233,7 +235,7 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
       </div>}/>
     {!mobile && !layout.sidebarCollapsed && <ResizeHandle label="Resize sidebar" value={layout.sidebarWidth} minimum={200} maximum={380} side="left" change={sidebarWidth => setLayout(value => ({...value, sidebarWidth}))}/>}
     <div className="workspace-layout-workarea workspace-host-main">
-      {(layout.sidebarCollapsed || mobile) && <button className="icon-button sidebar-recovery" aria-label={mobile ? 'Open navigation' : 'Open sidebar'} onClick={() => {setLayout(value => ({...value, sidebarCollapsed: false})); if (mobile) setOpen(true); requestAnimationFrame(() => searchRef.current?.focus());}}>{mobile ? <Menu size={18}/> : <PanelLeftOpen size={17}/>}</button>}
+      {(layout.sidebarCollapsed || mobile) && <button className="icon-button sidebar-recovery" aria-label={mobile ? 'Open navigation' : 'Open sidebar'} onClick={event => {prepareSidebarToggle(event); setLayout(value => ({...value, sidebarCollapsed: false})); if (mobile) setOpen(true); requestAnimationFrame(() => searchRef.current?.focus());}}>{mobile ? <Menu size={18}/> : <PanelLeftOpen size={17}/>}</button>}
       <WorkspaceControls envelope={workspace.envelope} send={workspace.send} prepare={prepare} panels={[]} title={panel => panel.kind}
         onChoosePreset={choosePreset} toolsVisible={false} addPanel={async () => {throw Error('Choose Workspace or Custom to open tools.');}} updatePanel={async () => {throw Error('Choose Workspace or Custom to arrange tools.');}}/>
       {error && <div className="workspace-error" role="alert">{error}<button className="icon-button" aria-label="Dismiss error" onClick={dismissError}><X size={15}/></button></div>}

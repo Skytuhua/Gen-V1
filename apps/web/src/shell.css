@@ -78,8 +78,21 @@
 .app-shell[data-chat-width=full] { --narrative-width:100%; }
 .app-shell[data-contrast=high] { --muted:#494950; --border:#a2a2aa; }
 :root[data-theme=dark] .app-shell[data-contrast=high] { --muted:#c8c8ce; --border:#696973; }
-.app-shell .sidebar { width:var(--sidebar-width); flex-basis:var(--sidebar-width); transition:width var(--panel-motion,220ms) cubic-bezier(.2,.85,.25,1),flex-basis var(--panel-motion,220ms) cubic-bezier(.2,.85,.25,1),transform var(--panel-motion,220ms) ease-out,padding var(--panel-motion,220ms) ease-out,visibility 0s linear; }
-.app-shell[data-sidebar-collapsed=true] .sidebar { width:0; flex-basis:0; padding:0; border:0; visibility:hidden; overflow:hidden; transition-delay:0s,0s,0s,0s,var(--panel-motion,220ms); }
+/* Desktop geometry changes once; the clipped copy owns pointer feedback. */
+.app-shell .sidebar { width:var(--sidebar-width); flex-basis:var(--sidebar-width); }
+.sidebar-collapse-overlay { display:none; }
+@media(min-width:701px) {
+ .app-shell .sidebar { transition:none; }
+ .app-shell[data-sidebar-collapsed=true] .sidebar { width:0; flex-basis:0; padding:0; border:0; visibility:hidden; overflow:hidden; }
+ .app-shell>.sidebar[data-collapse-visual=true] { opacity:0; }
+ .sidebar-collapse-overlay { display:block; position:fixed; z-index:60; overflow:hidden; pointer-events:none; contain:paint; }
+ .app-shell .sidebar-collapse-overlay>.sidebar { visibility:visible; overflow:hidden; flex:none; padding:0 12px; border:0; border-right:1px solid var(--border); opacity:1; transform:none; transition:none; }
+ .sidebar-collapse-overlay * { animation:none!important; transition:none!important; }
+}
+@media(max-width:700px) {
+ .app-shell .sidebar { width:var(--sidebar-width); flex-basis:var(--sidebar-width); transition:width var(--panel-motion,220ms) cubic-bezier(.2,.85,.25,1),flex-basis var(--panel-motion,220ms) cubic-bezier(.2,.85,.25,1),transform var(--panel-motion,220ms) ease-out,padding var(--panel-motion,220ms) ease-out,visibility 0s linear; }
+ .app-shell[data-sidebar-collapsed=true] .sidebar { width:0; flex-basis:0; padding:0; border:0; visibility:hidden; overflow:hidden; transition-delay:0s,0s,0s,0s,var(--panel-motion,220ms); }
+}
 .app-shell .sidebar-close { display:flex; }
 .sidebar-thread-row { position:relative; border:1px solid transparent; border-radius:8px; margin-bottom:3px; }
 .sidebar-thread-row.active { background:var(--selection-bg); border-color:var(--border); }
@@ -209,7 +222,6 @@
 @keyframes shell-backdrop-in {from{opacity:0}to{opacity:1}}
 @keyframes shell-sidebar-in {from{opacity:.45;transform:translateX(-5px)}to{opacity:1;transform:none}}
 @keyframes shell-fade-in {from{opacity:.4}to{opacity:1}}
-@media(min-width:701px){.app-shell[data-sidebar-collapsed=false] .sidebar>.thread-list {animation:shell-sidebar-in var(--panel-motion,220ms) cubic-bezier(.16,1,.3,1) both;}}
 @media(max-width:700px){.sidebar.sidebar-open>.thread-list {animation:shell-sidebar-in 200ms cubic-bezier(.16,1,.3,1) both;}.app-shell .composer-caption {font-size:9px;}}
 .app-shell[data-panel-animations=false] .sidebar {transition-delay:0s;}
 @media(prefers-reduced-motion:reduce){.app-shell[data-sidebar-collapsed=true] .sidebar {transition-delay:0s;}.dialog[open],.settings-dialog[open] {animation-name:shell-fade-in;}.sidebar>.thread-list {animation:none!important;}}

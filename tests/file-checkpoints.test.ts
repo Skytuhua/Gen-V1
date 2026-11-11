@@ -103,6 +103,12 @@ describe('frozen checkpoint read seam',()=>{
   expect(()=>checkpointReviewPaths({...detail(),files:[]})).toThrow('No files');
   expect(()=>checkpointReviewPaths({...detail(),owner:{...owner,threadId:null}})).toThrow('owning conversation');
  });
+ it('keeps every long Unicode path while bounding each request by UTF-8 JSON bytes',()=>{
+  const files=Array.from({length:100},(_,i)=>file(`src/${i}/${'é'.repeat(200)}/${'漢'.repeat(100)}/file.ts`)),summary={...checkpoint,fileCount:100};
+  const value=readCheckpointDetail({...detail(),checkpoint:summary,files},owner,summary),batches=checkpointReviewPaths(value);
+  expect(batches.length).toBeGreaterThan(1);expect(batches.flat()).toEqual(files.map(file=>file.path));
+  for(const paths of batches)expect(new TextEncoder().encode(JSON.stringify({threadId:owner.threadId,paths})).byteLength).toBeLessThanOrEqual(32*1024);
+ });
  it('rejects malformed identifiers, hashes, Unicode, expired or changed reviews',()=>{
   expect(()=>readCheckpointList({...list(),owner:{...owner,projectId:' project'}},owner)).toThrow();
   expect(()=>readCheckpointList({...list(),owner:{...owner,binding:hash.toUpperCase()}},owner)).toThrow();

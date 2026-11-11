@@ -170,6 +170,17 @@
     },
     {
       "file": "apps/web/src/shell.css",
+      "line": 88,
+      "column": 2,
+      "rule": "ad-hoc-overlay",
+      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
+      "fingerprint": "8a16db688a1230101b750a7ac7d2331aab54cb8a17f509c50f87082cffc3502b",
+      "reason": "Retained geometry: inert, aria-hidden, pointer-transparent sidebar snapshot clipped to committed bounds; no popup, focus scope or modality. Covered by sidebar-collapse.spec.ts.",
+      "evidence": ".sidebar-collapse-overlay { display:block; position:fixed; z-index:60; overflow:hidden; pointer-events:none; contain:paint; }",
+      "disposition": "retained-geometry"
+    },
+    {
+      "file": "apps/web/src/shell.css",
       "line": 207,
       "column": 1,
       "rule": "ad-hoc-overlay",
