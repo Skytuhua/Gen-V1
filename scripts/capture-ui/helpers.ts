@@ -1,6 +1,7 @@
-import {basename,dirname,resolve,sep} from 'node:path';
-import {lstatSync,realpathSync} from 'node:fs';
+import {basename,dirname,isAbsolute,join,parse,relative,resolve,sep} from 'node:path';
+import {constants,lstatSync,realpathSync} from 'node:fs';
 import {tmpdir} from 'node:os';
+import {lstat,mkdir,open,realpath,type FileHandle} from 'node:fs/promises';
 import { mapFile, keyStates, type Recipe } from './screen-map';
 export function parseArgs(args: string[]) {
   const result = { scope: 'all', sinceDays: 30, maxStrips: 60, screens: [] as string[], out: '' };
@@ -25,8 +26,9 @@ export function parseArgs(args: string[]) {
 }
 // Resolve the nearest existing ancestor before creating any output directories.
 export function captureOutputPath(path:string):string {
-  const out=resolve(path),inside=(value:string,root:string)=>value===root||value.startsWith(root+sep);
-  if (![tmpdir(),resolve('tmp'),resolve('test-results')].some(root=>inside(out,root))) throw Error('Capture output must be inside tmp or test-results; copy evidence separately.');
+  const out=resolve(path),inside=(value:string,root:string)=>{const part=relative(root,value);return !part||!isAbsolute(part)&&part!=='..'&&!part.startsWith('..'+sep);};
+  const cwd=realpathSync('.'),roots=[realpathSync(tmpdir()),resolve(cwd,'tmp'),resolve(cwd,'test-results')];
+  if (![tmpdir(),resolve('tmp'),resolve('test-results'),...roots].some(root=>inside(out,root))) throw Error('Capture output must be inside tmp or test-results; copy evidence separately.');
   let parent=out;const missing:string[]=[];
   for (;;) {
     try { lstatSync(parent);break; }
@@ -35,9 +37,60 @@ export function captureOutputPath(path:string):string {
   let actual:string;
   try { actual=resolve(realpathSync(parent),...missing); }
   catch { throw Error('Capture output has an unresolved symlink or ancestor.'); }
-  const cwd=realpathSync('.'),roots=[realpathSync(tmpdir()),resolve(cwd,'tmp'),resolve(cwd,'test-results')];
   if(!roots.some(root=>inside(actual,root)))throw Error('Capture output symlink escapes tmp or test-results; copy evidence separately.');
   return actual;
+}
+const sameCapturePath=(left:string,right:string)=>process.platform==='win32'?left.toLowerCase()===right.toLowerCase():left===right;
+async function checkedCaptureDirectory(path:string) {
+  let current=parse(path).root,info=await lstat(current,{bigint:true});
+  for(const part of relative(current,path).split(sep).filter(Boolean)){
+    current=join(current,part);info=await lstat(current,{bigint:true});
+    if(info.isSymbolicLink()||!info.isDirectory())throw Error('Capture output contains a symlink or non-directory component.');
+  }
+  if(!sameCapturePath(await realpath(path),path))throw Error('Capture output directory changed.');
+  return info;
+}
+// Playwright returns bytes; only this helper opens output files, never a renderer.
+export async function writeCaptureFile(root:string,path:string,data:string|Uint8Array):Promise<void> {
+  root=resolve(root);const destination=resolve(root,path),within=relative(root,destination);
+  if(!within||isAbsolute(path)||isAbsolute(within)||within==='..'||within.startsWith('..'+sep))throw Error('Capture output file escapes its root.');
+  if(!sameCapturePath(captureOutputPath(root),root))throw Error('Capture output root changed.');
+  const rootInfo=await checkedCaptureDirectory(root),handles:FileHandle[]=[];
+  const nofollow=process.platform==='win32'?0:constants.O_NOFOLLOW??0;
+  let directory:FileHandle|undefined,parent=root;
+  const checkDirectory=async()=>{
+    const info=await checkedCaptureDirectory(parent);
+    if(directory){
+      const opened=await directory.stat({bigint:true});
+      if(opened.dev!==info.dev||opened.ino!==info.ino||!sameCapturePath(await realpath(`/proc/self/fd/${directory.fd}`),parent))throw Error('Capture output directory changed after open.');
+    }
+  };
+  try {
+    if(process.platform==='linux'){
+      directory=await open(root,constants.O_RDONLY|constants.O_DIRECTORY|nofollow);handles.push(directory);
+      const opened=await directory.stat({bigint:true});
+      if(opened.dev!==rootInfo.dev||opened.ino!==rootInfo.ino)throw Error('Capture output root changed after open.');
+    }
+    await checkDirectory();
+    for(const part of relative(root,dirname(destination)).split(sep).filter(Boolean)){
+      // Linux resolves each next component through the verified parent descriptor.
+      const next=directory?`/proc/self/fd/${directory.fd}/${part}`:join(parent,part);
+      try {await mkdir(next);}catch(cause){if((cause as NodeJS.ErrnoException).code!=='EEXIST')throw cause;}
+      if(directory){directory=await open(next,constants.O_RDONLY|constants.O_DIRECTORY|nofollow);handles.push(directory);}
+      parent=join(parent,part);await checkDirectory();
+    }
+    await checkDirectory();
+    const file=await open(directory?`/proc/self/fd/${directory.fd}/${basename(destination)}`:destination,constants.O_WRONLY|constants.O_CREAT|constants.O_EXCL|nofollow,0o600);handles.push(file);
+    // Windows lacks O_NOFOLLOW: check every component again and match the opened fd.
+    await checkDirectory();
+    const actual=await realpath(destination),named=await lstat(destination,{bigint:true}),opened=await file.stat({bigint:true});
+    if(!sameCapturePath(actual,destination)||named.isSymbolicLink()||!opened.isFile()||opened.nlink!==1n||opened.dev!==named.dev||opened.ino!==named.ino)throw Error('Capture output file changed after open.');
+    if(process.platform==='linux'&&!sameCapturePath(await realpath(`/proc/self/fd/${file.fd}`),destination))throw Error('Capture output descriptor escaped its root.');
+    await file.writeFile(data);
+    await checkDirectory();
+    const final=await lstat(destination,{bigint:true});
+    if(final.isSymbolicLink()||final.dev!==opened.dev||final.ino!==opened.ino)throw Error('Capture output changed during the descriptor write.');
+  } finally {await Promise.all(handles.reverse().map(handle=>handle.close()));}
 }
 export type PullRequest = { number: number | null; title: string; mergedAt: string; files: { path: string }[] };
 export function aggregate(prs: PullRequest[]) {

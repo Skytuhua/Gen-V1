@@ -32,7 +32,7 @@ export async function collect(page: Page, screen: string, state: string, width: 
   stripTargets.set(page, batches.flatMap(({frame, records}) => records.map((_, index) => ({frame, index}))));
   return batches.flatMap(batch => batch.records);
 }
-export async function frameStrip(page: Page, tile: Page, index: number, output: string) {
+export async function frameStrip(page: Page, tile: Page, index: number) {
   const target = stripTargets.get(page)?.[index];
   if (!target) throw Error('Animation strip has no frame-local target');
   const { frame, index: localIndex } = target;
@@ -66,6 +66,6 @@ export async function frameStrip(page: Page, tile: Page, index: number, output: 
   }
   await tile.setContent(`<html><body style="margin:0;background:#222;color:white;display:flex;align-items:flex-start">${frames.map((f, i) => `<div style="flex:1;min-width:0"><p>${i * 50}%</p><img style="max-width:100%" src="data:image/png;base64,${f}"></div>`).join('')}</body></html>`);
   await tile.locator('img').evaluateAll(images => Promise.all(images.map(img => (img as HTMLImageElement).decode())));
-  await tile.screenshot({ path: output, fullPage: true });
+  return await tile.screenshot({ fullPage: true });
   } finally { await handle.dispose(); }
 }

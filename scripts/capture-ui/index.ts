@@ -1,10 +1,10 @@
 import { chromium } from '@playwright/test';
 import { createServer } from 'vite';
-import { mkdir, mkdtemp, readdir, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readdir, rm } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
-import { resolve, join } from 'node:path';
+import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { captureOutputPath, parseArgs, normalizeMotion, isReducedOffender, motionKey, table, hasDistinctRecipe, imageStatus, coverageMatrix, type Motion, type CaptureEntry } from './helpers';
+import { writeCaptureFile, captureOutputPath, parseArgs, normalizeMotion, isReducedOffender, motionKey, table, hasDistinctRecipe, imageStatus, coverageMatrix, type Motion, type CaptureEntry } from './helpers';
 import { screens, keyStates, captureWidths, type Action } from './screen-map';
 import { resolveScope } from './scope';
 import { collect, frameStrip } from './browser';
@@ -31,9 +31,8 @@ async function main() {
   const out = captureOutputPath(args.out || `test-results/ui-capture/${new Date().toISOString().replaceAll(':', '-')}`);
   await mkdir(out, { recursive: true });
   if ((await readdir(out)).length) throw Error('Capture output must be a fresh, empty directory; existing children may be symlinks.');
-  await Promise.all(['strips', 'screenshots'].map(dir => mkdir(resolve(out, dir), { recursive: true })));
-  const json = (name: string, data: unknown) => writeFile(resolve(out, `${name}.json`), JSON.stringify(data, null, 2));
-  const md = (name: string, body: string) => writeFile(resolve(out, `${name}.md`), body);
+  const json = (name: string, data: unknown) => writeCaptureFile(out, `${name}.json`, JSON.stringify(data, null, 2));
+  const md = (name: string, body: string) => writeCaptureFile(out, `${name}.md`, body);
   await json('scope', scope);
   await md('scope', scopeMarkdown(scope));
   const entries: CaptureEntry[] = [], stripEntries: StripEntry[] = [];
@@ -169,9 +168,9 @@ async function main() {
           if (reduce) reduced = mergeMotionRecords(reduced, initial, records);
           else {
             motion = mergeMotionRecords(motion, initial, records);
-            await mkdir(resolve(out, 'screenshots', screen.id), { recursive: true });
             const path = `screenshots/${screen.id}/${state}-${width}.png`;
-            const bytes = await page.screenshot({ path: resolve(out, path), fullPage: true, timeout:20000 });
+            const bytes = await page.screenshot({ fullPage: true, timeout:20000 });
+            await writeCaptureFile(out, path, bytes);
             const hash = createHash('sha256').update(bytes).digest('hex');
             const baselineKey = `${screen.id}/${width}`;
             const status = state === 'default' ? 'captured' : imageStatus(defaults.get(baselineKey), hash);
@@ -189,7 +188,7 @@ async function main() {
               stripReservations++;
               if (pluginCandidate) pluginIframeStripReserved = true;
               const path = `strips/${String(seen.size).padStart(3, '0')}-${screen.id}.png`;
-              try { await frameStrip(page, tile, i, resolve(out, path)); stripEntries.push({ screen: screen.id, state, width, frame: record.frame, selector: record.selector, motionKey: key, path, status: 'captured' }); }
+              try { await writeCaptureFile(out, path, await frameStrip(page, tile, i)); stripEntries.push({ screen: screen.id, state, width, frame: record.frame, selector: record.selector, motionKey: key, path, status: 'captured' }); }
               catch (error) { stripEntries.push({ screen: screen.id, state, width, frame: record.frame, selector: record.selector, motionKey: key, status: 'failed', code: 'F', reason: String(error), optional: recipe.optional }); }
             }
           }
