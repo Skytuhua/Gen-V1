@@ -147,3 +147,65 @@ for(const theme of ['dark','light'] as const)for(const width of [1440,1024,768])
     await expect(metric).toHaveCSS('column-gap','8px');
   }
 });
+
+for(const theme of ["dark","light"] as const){
+  test(`numeric precision survives metric and table rendering ${theme}`,async({page})=>{
+    const cases=[
+      {value:0.0004,expected:"0.0004"},
+      {value:123.456789,expected:"123.456789"},
+      {value:1e-25,expected:"0.0000000000000000000000001"},
+      {value:-123456.78901234567,expected:"-123,456.78901234567"},
+      {value:0.12345678901234568,expected:"0.12345678901234568"},
+      {value:0,expected:"0"},
+      {value:"0012",expected:"0012"},
+      {value:"12345678901234567890.0000000000000000000004",expected:"12345678901234567890.0000000000000000000004"},
+    ];
+    const keys=cases.map((_,index)=>`metric${index}`);
+    const snapshot=taskFixture({root:"layout",elements:{
+      layout:{type:"Stack",props:{gap:"md"},children:[...keys,"records"]},
+      ...Object.fromEntries(cases.map(({value},index)=>[keys[index],{type:"Metric",props:{label:`Amount ${index+1}`,value}}])),
+      records:{type:"Table",props:{rowsBinding:"records",changesBinding:"changes",rowKey:"id",columns:[{key:"value",label:"Amount",type:"number"}]}},
+    }},{records:cases.map(({value},index)=>({id:String(index),value})),changes:{rows:[{id:"0",cells:[{key:"value",status:"updated",before:123.456789}]}]}});
+    snapshot.settings.theme=theme;
+    const fixture=await serveTaskFixture(page,snapshot);await page.goto("/");
+    await expect.soft(page.locator(".surface-metric strong")).toHaveText(cases.map(item=>item.expected));
+    await expect.soft(page.locator(".task-table-value")).toHaveText(cases.map(item=>item.expected));
+    await expect.soft(page.locator(".task-table-before")).toHaveText("123.456789");
+    fixture.setInput("records",cases.map(({value},index)=>({id:String(index),value:index===0?123.0000004:value})));
+    fixture.setInput("changes",{rows:[{id:"0",cells:[{key:"value",status:"updated",before:0.0004}]}]});await fixture.publish();
+    await expect.soft(page.locator(".task-table-value").first()).toHaveText("123.0000004");
+    await expect.soft(page.locator(".task-table-before")).toHaveText("0.0004");
+  });
+
+  test(`numeric metric grid contains every value and unit ${theme}`,async({page},info)=>{
+    const keys=Array.from({length:12},(_,index)=>`count${index}`);
+    const snapshot=taskFixture({root:"grid",elements:{
+      grid:{type:"Grid",props:{columns:6,gap:"md"},children:keys},
+      ...Object.fromEntries(keys.map((key,index)=>[key,{type:"Metric",props:{label:`Reported source count ${index+1}`,value:123456789012345,unit:"files"}}])),
+    }});
+    snapshot.settings.theme=theme;await serveTaskFixture(page,snapshot);await page.goto("/");
+    const metrics=page.locator(".surface-metric");await expect(metrics).toHaveCount(keys.length);
+    await page.evaluate(()=>document.fonts.ready);
+    for(const width of [1440,1024,768,375]){
+      await page.setViewportSize({width,height:1000});
+      await expect(metrics.locator("strong")).toHaveText(keys.map(()=>"123,456,789,012,345 files"));
+      if(width===1440)await page.screenshot({path:info.outputPath(`numeric-grid-${theme}-1440.png`),animations:"disabled"});
+      const measurements=await metrics.evaluateAll(elements=>elements.map(element=>{
+        const value=element.querySelector("strong")!,label=element.querySelector("span")!,owner=element.getBoundingClientRect(),box=value.getBoundingClientRect(),name=label.getBoundingClientRect();
+        const range=document.createRange();range.selectNodeContents(value);
+        return {left:owner.left,right:owner.right,top:owner.top,bottom:owner.bottom,scroll:value.scrollWidth,client:value.clientWidth,
+          overlapX:Math.min(box.right,name.right)-Math.max(box.left,name.left),overlapY:Math.min(box.bottom,name.bottom)-Math.max(box.top,name.top),
+          lines:[...range.getClientRects()].map(rect=>({left:rect.left,right:rect.right,top:rect.top,bottom:rect.bottom}))};
+      }));
+      for(const [index,metric] of measurements.entries()){
+        expect(metric.scroll,`${theme}/${width}/metric ${index}: no clipped content`).toBeLessThanOrEqual(metric.client+1);
+        expect(metric.overlapX<=1||metric.overlapY<=1,`${theme}/${width}/metric ${index}: label and value do not overlap`).toBe(true);
+        for(const line of metric.lines){
+          expect(line.left).toBeGreaterThanOrEqual(metric.left-1);expect(line.right).toBeLessThanOrEqual(metric.right+1);
+          expect(line.top).toBeGreaterThanOrEqual(metric.top-1);expect(line.bottom).toBeLessThanOrEqual(metric.bottom+1);
+        }
+      }
+      expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+    }
+  });
+}

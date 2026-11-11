@@ -218,7 +218,6 @@ button:has(>svg.lucide-x):hover:not(:disabled),button:has(>svg.lucide-circle-x):
 .evidence-list small { display:block; }
 .surface-metric { display:flex; align-items:baseline; flex-wrap:wrap; justify-content:space-between; gap:8px; font-size:13px; font-variant-numeric:tabular-nums; }
 .surface-metric strong { min-width:0; max-width:100%; white-space:normal; overflow-wrap:anywhere; font-size:16px; font-weight:550; color:var(--text); }
-.surface-metric strong[data-numeric] { white-space:nowrap; }
 .surface-metric>span { min-width:0; overflow-wrap:anywhere; }
 .surface-text.size-sm { font-size:12px; }
 .surface-text.size-lg { font-size:16px; }

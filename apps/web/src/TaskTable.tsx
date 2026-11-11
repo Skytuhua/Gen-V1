@@ -8,7 +8,7 @@ import {useTableOverflow} from './use-table-overflow';
 
 const object = (value: unknown): Record<string, unknown> => value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};
 const array = (value: unknown): unknown[] => Array.isArray(value) ? value : [];
-const cellText = (value: unknown, column: Record<string, unknown>) => column.type === 'number' && typeof value === 'number' ? value.toLocaleString() : text(value);
+const cellText = (value: unknown, column: Record<string, unknown>) => column.type === 'number' && typeof value === 'number' ? value.toLocaleString(undefined, { maximumSignificantDigits: 21 }) : text(value);
 const text = (value: unknown) => value == null ? value === null ? 'NULL' : '—' : typeof value === 'object' ? JSON.stringify(value) : String(value);
 
 function visibleBounds(container: HTMLElement, inline: boolean) {
