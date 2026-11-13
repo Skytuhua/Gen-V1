@@ -42,7 +42,7 @@ export const REQUIRED_RUNTIME_FILES=[
  'host/node_modules/@cursor/sdk-win32-x64/package.json','host/node_modules/@cursor/sdk-win32-x64/bin/rg.exe','host/node_modules/@cursor/sdk-win32-x64/bin/cursorsandbox.exe',
  ...['tree-sitter/binding.node','tree-sitter/index.js','tree-sitter/package.json','tree-sitter-bash/binding.node','tree-sitter-bash/index.js','tree-sitter-bash/node-types.json','tree-sitter-bash/package.json'].map(path=>'host/node_modules/@cursor/sdk-win32-x64/vendor/'+path),
  'host/node_modules/@google/gemini-cli/bundle/gemini.js','host/node_modules/@modelcontextprotocol/sdk/package.json',
- 'host/packages/core/windows-path-guard.ps1','host/packages/capabilities/sqlite-worker.mjs','host/dist/web/index.html'
+ 'host/packages/core/windows-path-guard.ps1','host/packages/core/windows-credential-lease.node','host/packages/capabilities/sqlite-worker.mjs','host/dist/web/index.html'
 ] as const;
 export function packageManagerInvocation(manager:string,node:string,args:string[]){return /\.exe$/i.test(manager)?{file:manager,args}:{file:node,args:[manager,...args]};}
 export function runtimeInstallArguments(host:string){return ['install','--ignore-workspace','--dir',host,'--lockfile-dir',host,'--prod','--frozen-lockfile','--offline','--ignore-scripts'];}

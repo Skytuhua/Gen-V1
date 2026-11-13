@@ -1,6 +1,6 @@
 .chat-view-slot{position:relative;min-width:0;min-height:0;isolation:isolate}
 .chat-view-surface{margin:0;min-width:0;min-height:0;transform-origin:top left;background:var(--canvas);overflow:hidden}
-.chat-view-surface[data-chat-mode=full]{--narrative-width:800px}
+.chat-view-surface[data-chat-mode=full]{--narrative-width:760px}
 .chat-view-surface:not([data-chat-mode=full]){z-index:40;border:1px solid var(--border);border-radius:14px;box-shadow:var(--elevation);background:var(--canvas)}
 .chat-view-header{min-width:0;touch-action:none;user-select:none}
 .chat-view-surface:not([data-chat-mode=full])>.chat-view-header{height:44px;flex-basis:44px;padding:0 12px;border-bottom:1px solid var(--border);cursor:grab}

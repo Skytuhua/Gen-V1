@@ -34,6 +34,7 @@ describe('browser suite entrypoint',()=>{
     expect(pattern.test('/repo/tests/e2e/terminal-read.spec.ts')).toBe(true);
     expect(pattern.test('/repo/tests/e2e/older-terminal-read.spec.ts')).toBe(false);
     expect(calls[0][1]).toContain('--list');
+    expect(calls[0][2]?.env?.PLAYWRIGHT_JSON_OUTPUT_FILE).toContain(resolve('test-results','browser'));
     expect(calls[1][1]).toContain('--project');
     expect(calls[1][1]).toContain('files-reading');
     expect(calls[1][1]).not.toContain('shared-panels\\.spec\\.ts$');
@@ -93,4 +94,21 @@ describe('browser suite entrypoint',()=>{
     expect(args).toContain('tests/e2e/browser-action.playwright.config.ts');
     expect(options).toMatchObject({cwd:resolve(import.meta.dirname,'..'),stdio:'inherit',windowsHide:true});
   });
+});
+
+it('QA #130 passes the actual overridden Playwright output to its fixture server',()=>{
+ runBrowserSuites([only('file-checkpoints')]);
+ const [,args,options]=vi.mocked(spawnSync).mock.calls[0];
+ expect(options?.env?.GEN_BROWSER_OUTPUT_DIR).toBe(args![args!.indexOf('--output')+1]);
+});
+
+it('QA #130 every WO-5 fixture derives its cache from the runner output override',async()=>{
+ const output=resolve('/tmp','wo5-runner-override','artifacts');vi.stubEnv('GEN_BROWSER_OUTPUT_DIR',output);vi.resetModules();
+ try{
+  for(const name of ['vite','saved-drafts','file-checkpoints','terminal-excerpts','conversation-find','project-search','redundant-ui']){
+   const path=name==='vite'?'../tests/e2e/vite.config.ts':`../tests/e2e/${name}.vite.config.ts`;
+   const config=(await import(path)).default;
+   expect(String(config.cacheDir).startsWith(output+'/'),name).toBe(true);
+  }
+ }finally{vi.unstubAllEnvs();vi.resetModules();}
 });

@@ -3,6 +3,7 @@ import { Check, RotateCcw } from 'lucide-react';
 import { DEFAULT_PREFERENCES, PROJECT_PALETTE, projectColorSchema, type ProjectAccent, type UiPreferences } from '../../../packages/contracts/preferences';
 import { Select } from '../../../packages/ui-shell/Select';
 import type { Thread } from '../../../packages/contracts';
+import { usagePercent } from './usage-presentation';
 import { applyAppearance } from './useAppearance';
 import { projectColor, projectColorKey } from './project-colors';
 import './appearance-settings.css';
@@ -19,8 +20,8 @@ export function accentContrast(color: string, background: string): number {
   const a = luminance(color), b = luminance(background);
   return (Math.max(a, b) + .05) / (Math.min(a, b) + .05);
 }
-function AppearanceRow({ label, children, description }: { label: string; children: ReactNode; description?: string }) {
-  return <div className="settings-card-row"><div><strong>{label}</strong>{description && <p>{description}</p>}</div><div className="settings-inline-controls">{children}</div></div>;
+function AppearanceRow({ label, children, description, value }: { label: string; children: ReactNode; description?: string; value?: ReactNode }) {
+  return <div className="settings-card-row"><div><strong>{label}</strong>{description && <p>{description}</p>}</div><div className="settings-inline-controls">{value}{children}</div></div>;
 }
 export function AppearanceSettings({ preferences, theme, threads = [], projects: projectMetadata, busy, save, query = '' }: { preferences: UiPreferences; theme: Theme; threads?: Pick<Thread, 'projectId' | 'projectName'>[]; projects?: {id: string; name: string}[]; busy: boolean; save: (patch: Partial<UiPreferences>, theme?: Theme) => Promise<boolean>; query?: string }) {
   const [draft, setDraft] = useState(preferences), [draftTheme, setDraftTheme] = useState(theme), [preview, setPreview] = useState(false), [error, setError] = useState('');
@@ -75,7 +76,7 @@ export function NotificationSettings({ preferences, busy, update }: { preference
   const hours = preferences.notificationQuietHours;
   const previewSound = async () => { const Audio = window.AudioContext; if (!Audio) return; const context = new Audio(); try { const tone = context.createOscillator(), gain = context.createGain(); tone.type = 'sine'; tone.frequency.value = 660; gain.gain.setValueAtTime(0, context.currentTime); gain.gain.linearRampToValueAtTime(preferences.notificationVolume * .12, context.currentTime + .025); gain.gain.exponentialRampToValueAtTime(.0001, context.currentTime + .25); tone.connect(gain).connect(context.destination); tone.start(); tone.stop(context.currentTime + .28); tone.onended = () => { void context.close(); }; } catch { await context.close(); } };
   return <section className="settings-card" aria-labelledby="notification-options-heading"><h2 id="notification-options-heading">Notification preferences</h2>
-    <AppearanceRow label="Sound volume"><label className="settings-range"><output>{Math.round(preferences.notificationVolume * 100)}%</output><input type="range" aria-label="Notification volume" min="0" max="1" step=".05" disabled={busy} value={preferences.notificationVolume} onChange={event => void update({ notificationVolume: Number(event.target.value) })}/></label><button type="button" className="quiet" disabled={busy} onClick={() => void previewSound()}>Preview sound</button></AppearanceRow>
+    <AppearanceRow label="Sound volume" value={<output htmlFor="notification-volume">{usagePercent(preferences.notificationVolume * 100)}</output>}><label className="settings-range"><input id="notification-volume" type="range" aria-label="Notification volume" min="0" max="1" step=".05" disabled={busy} value={preferences.notificationVolume} onChange={event => void update({ notificationVolume: Number(event.target.value) })}/></label><button type="button" className="quiet" disabled={busy} onClick={() => void previewSound()}>Preview sound</button></AppearanceRow>
     <AppearanceRow label="Preview privacy"><Select aria-label="Notification preview privacy" disabled={busy} value={preferences.notificationPreview} options={[{ value: 'full', label: 'Message preview' }, { value: 'title', label: 'Title only' }, { value: 'private', label: 'Private · no content' }]} onValueChange={value => void update({ notificationPreview: value as UiPreferences['notificationPreview'] })}/></AppearanceRow>
     <AppearanceRow label="Quiet hours" description="Keep items in Inbox without popups or sound."><button type="button" role="switch" className="settings-switch" aria-label="Quiet hours" aria-checked={hours.enabled} disabled={busy} onClick={() => void update({ notificationQuietHours: { ...hours, enabled: !hours.enabled } })}><span/></button></AppearanceRow>
     {hours.enabled && <div className="settings-card-row quiet-hours-times"><label>From<input type="time" aria-label="Quiet hours start" disabled={busy} value={hours.start} onChange={event => { if (event.target.value) void update({ notificationQuietHours: { ...hours, start: event.target.value } }); }}/></label><label>Until<input type="time" aria-label="Quiet hours end" disabled={busy} value={hours.end} onChange={event => { if (event.target.value) void update({ notificationQuietHours: { ...hours, end: event.target.value } }); }}/></label><small>Device time</small></div>}

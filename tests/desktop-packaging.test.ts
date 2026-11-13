@@ -12,6 +12,7 @@ describe('desktop distribution custody',()=>{
    'host/packages/runtime-login/index.ts','host/packages/runtime/index.ts','host/apps/server/main.ts',
    'host/third-party/t3code/LICENSE',
    'host/packages/runtime-official/index.ts','host/packages/runtime-pi/worker.ts',
+   'host/packages/core/windows-credential-lease.node',
    'host/node_modules/@anthropic-ai/claude-agent-sdk/sdk.mjs',
    'host/node_modules/@anthropic-ai/claude-agent-sdk-win32-x64/claude.exe',
    'host/node_modules/@google/gemini-cli/bundle/gemini.js',

@@ -1,3 +1,4 @@
+import {realpathSync} from 'node:fs';
 import { resolve } from 'node:path';
 import type { InlineConfig, ViteDevServer } from 'vite';
 import { withDeadline } from './runtime-helpers';
@@ -6,7 +7,7 @@ import { withDeadline } from './runtime-helpers';
 // resolves to the same node_modules/.vite for both. Never let either optimizer
 // replace the other server's chunks (or another capture invocation's chunks).
 export function captureServerOptions(configFile: string, cacheRoot: string, role: 'fixtures' | 'app-shell'): InlineConfig {
-  return { configFile: resolve(configFile), cacheDir: resolve(cacheRoot, 'node_modules', '.vite', role), server: { port: 0, strictPort: false } };
+  return { configFile: resolve(configFile), configLoader: 'runner', cacheDir: resolve(cacheRoot, 'node_modules', '.vite', role), server: { port: 0, strictPort: false, watch:{ignored:['**/.harness*/**']}, fs: {allow: [resolve('.'), realpathSync('node_modules')]} } };
 }
 export const pdfPrebundleIncludes = ['pdf-lib', 'pdfjs-dist/legacy/build/pdf.mjs'];
 export const pdfWarmupFiles = [

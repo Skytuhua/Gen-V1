@@ -1,4 +1,5 @@
 node_modules/
+packages/core/windows-credential-lease.node
 dist/
 .harness*/
 .harness*.json

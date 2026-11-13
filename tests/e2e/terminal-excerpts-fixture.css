@@ -1,0 +1,5 @@
+[data-excerpt-tools] {border:1px solid var(--border);border-radius:var(--control-radius);overflow:hidden;margin:var(--ui-space-2);}
+[data-excerpt-tools] .terminal-read {display:flex;flex:1;flex-direction:column;min-height:0;}
+[data-excerpt-tools] .xterm-host {flex:1;min-height:100px;overflow:hidden;padding:var(--ui-panel-inset);}
+.composer-dock[hidden] {display:none;}
+@media(max-width:1100px) {.shell-workarea[data-tool-layout]:has([data-excerpt-tools]) {flex-direction:column;overflow:auto;}[data-excerpt-tools].workspace-tools {width:100%;max-width:none;flex:0 0 300px;min-height:300px;margin:0;}.shell-workarea:has([data-excerpt-tools])>.summary-layout-owner {flex:1 0 400px;}}
