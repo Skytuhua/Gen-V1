@@ -21,3 +21,12 @@ it('caps count and the final transport payload without silently dropping reviewe
  const e=captureTerminalExcerpt({...owner,selection:'bounded'});expect(()=>readTerminalExcerpts(Array.from({length:5},()=>({...e,id:crypto.randomUUID()})))).toThrow();
  expect(()=>serializeTerminalExcerpts('a'.repeat(65536),[e])).toThrow(/message limit/);
 });
+
+
+it('accepts exactly 16 KB and truncates the next UTF-8 scalar without splitting it',()=>{
+ expect(captureTerminalExcerpt({...owner,selection:'a'.repeat(15999)}).truncated).toBe(false);
+ const exact=captureTerminalExcerpt({...owner,selection:'a'.repeat(16000)});expect(exact.text).toHaveLength(16000);expect(exact.truncated).toBe(false);
+ const over=captureTerminalExcerpt({...owner,selection:'a'.repeat(16000)+'b'});expect(over.text).toHaveLength(16000);expect(over.truncated).toBe(true);
+ const unicode=captureTerminalExcerpt({...owner,selection:'😀'.repeat(4000)+'a'});expect(new TextEncoder().encode(unicode.text).length).toBe(16000);expect(unicode.text).not.toContain('\uFFFD');
+ expect(()=>editTerminalExcerpt(exact,'a'.repeat(16001))).toThrow();
+});
