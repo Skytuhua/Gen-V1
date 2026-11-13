@@ -1,0 +1,13 @@
+.wo5-redundant-fixture { min-height:100dvh; background:var(--canvas); }
+.wo5-redundant-fixture>header { display:flex; align-items:center; gap:24px; height:47px; padding:0 16px; border-bottom:1px solid var(--border); }
+.wo5-redundant-workarea { display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:16px; padding:16px; min-height:calc(100dvh - 47px); }
+.wo5-redundant-conversation { display:flex; flex-direction:column; min-width:0; gap:16px; padding:8px 24px; }
+.wo5-redundant-conversation>p { margin:0; }
+.wo5-redundant-conversation>nav { display:flex; flex-wrap:wrap; gap:8px; }
+.wo5-redundant-conversation>nav>button { min-height:32px; padding:6px 10px; border:1px solid var(--border); border-radius:var(--radius,6px); background:var(--surface); }
+.wo5-redundant-tool { min-width:0; }
+.wo5-redundant-summaries { display:flex; flex-direction:column; align-self:start; gap:12px; min-width:0; }
+.wo5-redundant-composer { display:flex; flex-wrap:wrap; gap:8px; padding:12px; margin-top:auto; border:1px solid var(--border); background:var(--surface); border-radius:16px; }
+.wo5-redundant-composer>textarea { flex:1; min-width:120px; background:none; border:0; color:var(--text); }
+.wo5-redundant-fixture button:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+@media(max-width:900px) { .wo5-redundant-workarea { grid-template-columns:minmax(0,1fr); } .wo5-redundant-conversation { padding:8px; min-height:500px; } }

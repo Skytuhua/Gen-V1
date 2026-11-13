@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { EMPTY_USAGE, type Thread } from '../packages/contracts';
 import { contextSegments } from '../apps/web/src/ContextMeter';
 import { acceptedCompaction, ownedCompaction, type ContextCompactionReport } from '../apps/web/src/ContextInspector';
-import { runtimeUsageReport, usageCost, usageCount, usagePercent } from '../apps/web/src/usage-presentation';
+import { runtimeUsageReport, usageCost, usageCount, usagePercent, usageReset } from '../apps/web/src/usage-presentation';
 
 describe('reported context measurements', () => {
   it('keeps unknown category data unknown instead of fabricating Used or Other segments', () => {
@@ -60,10 +60,16 @@ describe('reported usage presentation', () => {
   it('retains reported zero and precision while rejecting invalid metrics', () => {
     expect(usageCount(0)).toBe('0'); expect(usageCount(null)).toBe('Not reported');
     expect(usageCount(-1)).toBe('Not reported'); expect(usageCount(NaN)).toBe('Not reported');
-    expect(usagePercent(23.456)).toBe('23.456%'); expect(usagePercent(101)).toBe('Not reported');
+    expect(usagePercent(23.456)).toBe('23.5%'); expect(usagePercent(0)).toBe('0.0%'); expect(usagePercent(80)).toBe('80.0%'); expect(usagePercent(101)).toBe('Not reported');
     expect(usageCost({ amount: 0.00123456, currency: 'USD' })).toContain('0.00123456');
     expect(usageCost({ amount: 1e-25, currency: 'USD' })).toBe('0.0000000000000000000000001 USD');
     expect(usageCost({ amount: 0 })).toBe('0 (currency not reported)');
+  });
+  it('formats reset instants with a four-digit year and preserves unparseable reports', () => {
+    expect(usageReset('2030-01-01T12:34:56Z')).toContain('2030');
+    expect(usageReset('2030-01-01T12:34:56Z')).not.toContain('T12:34:56Z');
+    expect(usageReset(null)).toBe('Not reported'); expect(usageReset('  ')).toBe('Not reported');
+    expect(usageReset('After next request')).toBe('After next request');
   });
   it('adapts only the selected thread snapshot with no invented currency, reset, quota or totals', () => {
     const report = runtimeUsageReport({ id: 'owner', title: 'Owner', modelId: 'runtime/model' }, { ...EMPTY_USAGE, inputTokens: 7, cost: 0.5 });
