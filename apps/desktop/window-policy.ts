@@ -34,11 +34,11 @@ export function pluginDesktopRequiresGrant(channel:string){return channel!==DESK
 export function nativeTitlebarTheme(value:unknown){if(value!=='light'&&value!=='dark')throw Error('Invalid window theme.');return {color:value==='light'?'#ffffff':'#0f0f0f',symbolColor:value==='light'?'#1f1f1f':'#eeeeee',height:42};}
 export function nativeTitlebarOptions(platform:string){return platform==='win32'?{titleBarStyle:'hidden' as const,titleBarOverlay:nativeTitlebarTheme('dark')}:{ };}
 export function desktopSurfaceAllowed(surface:DesktopSurface):boolean {parseDesktopSurface(surface);return true;}
-/** Existing child custody and saved references remain valid; new detach requests
- * cannot create another native editor while this feature is retired. */
-export function requireExistingDetachedSurface(surface:DesktopSurface,existing:DesktopSurface[]):void {
+/** Detached native views are available again: a request may create a new window
+ * or focus the existing child with the same key. The surface identity is still
+ * validated before the window factory admits it. */
+export function requireExistingDetachedSurface(surface:DesktopSurface,_existing:DesktopSurface[]):void {
  parseDesktopSurface(surface);
- if(!existing.some(value=>desktopSurfaceKey(value)===desktopSurfaceKey(surface)))throw Error('Opening detached views is currently unavailable.');
 }
 export function isTrustedDesktopSender(expected:{id:number;url:string},sender:{id:number;url:string;mainFrame:boolean}):boolean{return sender.mainFrame&&sender.id===expected.id&&sender.url===expected.url;}
 export function parseBrowserCommand(raw:unknown):DesktopBrowserCommand {
