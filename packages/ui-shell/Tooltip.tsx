@@ -5,11 +5,14 @@ import './feedback.css';
 
 interface Shown { text: string; target: Element; leaving: boolean }
 const FOCUS_DWELL_MS = 100, GAP = 6, GUTTER = 8;
+/** Elements whose `title` removal came from `adopt` itself, not a rerender. */
+const selfRemoval = new WeakSet<Element>();
 
 /** Reads the tooltip text and silences the native bubble so only one tooltip shows. */
 function adopt(target: Element) {
   const title = target.getAttribute('title');
   if (title !== null) {
+    selfRemoval.add(target);
     target.removeAttribute('title');
     target.setAttribute('data-tooltip', title);
     target.setAttribute('data-tooltip-adopted', '');
@@ -17,17 +20,12 @@ function adopt(target: Element) {
     if (title && !target.hasAttribute('aria-labelledby') && (!target.hasAttribute('aria-label') || target.hasAttribute('data-tooltip-named')) && !target.textContent?.trim()) {
       target.setAttribute('aria-label', title);
       target.setAttribute('data-tooltip-named', '');
-    } else if (title && !target.hasAttribute('aria-describedby') && !target.hasAttribute('aria-description')) {
-      // Named controls still get the title's help text via aria-description.
+      if (target.hasAttribute('data-tooltip-described')) { target.removeAttribute('aria-description'); target.removeAttribute('data-tooltip-described'); }
+    } else if (title && !target.hasAttribute('aria-describedby') && (target.hasAttribute('data-tooltip-described') || !target.hasAttribute('aria-description'))) {
+      // Named controls still get the title's help text via aria-description; keep it in sync when the title changes.
       target.setAttribute('aria-description', title);
       target.setAttribute('data-tooltip-described', '');
     }
-  } else if (target.hasAttribute('data-tooltip-adopted')) {
-    // The source title was removed (e.g. a rerendered button): drop the stale copy we kept.
-    target.removeAttribute('data-tooltip');
-    target.removeAttribute('data-tooltip-adopted');
-    if (target.hasAttribute('data-tooltip-named')) { target.removeAttribute('aria-label'); target.removeAttribute('data-tooltip-named'); }
-    if (target.hasAttribute('data-tooltip-described')) { target.removeAttribute('aria-description'); target.removeAttribute('data-tooltip-described'); }
   }
   const text = target.getAttribute('data-tooltip')?.trim() ?? '';
   return text && text !== target.textContent?.trim() ? text : '';
@@ -57,7 +55,22 @@ export function TooltipLayer() {
     document.addEventListener('pointerover', over); document.addEventListener('pointerout', leave); document.addEventListener('pointerdown', hide, true);
     document.addEventListener('focusin', focus); document.addEventListener('focusout', hide); document.addEventListener('keydown', key, true);
     document.addEventListener('scroll', hide, true); window.addEventListener('blur', hide);
+    const observer = new MutationObserver(records => {
+      for (const record of records) {
+        if (record.type !== 'attributes' || record.attributeName !== 'title' || !(record.target instanceof Element)) continue;
+        const element = record.target;
+        if (selfRemoval.has(element)) { selfRemoval.delete(element); continue; }
+        if (element.hasAttribute('title') || !element.hasAttribute('data-tooltip-adopted')) continue;
+        // A rerender removed the source title: drop the mirrored tooltip and generated names.
+        element.removeAttribute('data-tooltip'); element.removeAttribute('data-tooltip-adopted');
+        if (element.hasAttribute('data-tooltip-named')) { element.removeAttribute('aria-label'); element.removeAttribute('data-tooltip-named'); }
+        if (element.hasAttribute('data-tooltip-described')) { element.removeAttribute('aria-description'); element.removeAttribute('data-tooltip-described'); }
+        if (current.current === element) hide();
+      }
+    });
+    observer.observe(document.documentElement, { subtree: true, attributes: true, attributeFilter: ['title'] });
     return () => {
+      observer.disconnect();
       clearTimeout(timer.current);
       document.removeEventListener('pointerover', over); document.removeEventListener('pointerout', leave); document.removeEventListener('pointerdown', hide, true);
       document.removeEventListener('focusin', focus); document.removeEventListener('focusout', hide); document.removeEventListener('keydown', key, true);
