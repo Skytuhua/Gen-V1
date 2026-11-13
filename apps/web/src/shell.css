@@ -217,15 +217,10 @@
 .sidebar-thread-menu-button {top:9px;}
 .app-shell .composer-caption {font-size:10px;line-height:1.3;}
 .resizing-panel .app-shell .sidebar {transition:none;}
-.dialog[open],.settings-dialog[open] {animation:shell-dialog-in var(--ui-motion-popup-enter,180ms) var(--ui-ease-enter,ease-out) both;}
-.dialog[open]::backdrop,.settings-dialog[open]::backdrop {animation:shell-backdrop-in 170ms ease-out both;}
-@keyframes shell-dialog-in {from{opacity:.4;transform:scale(.95)}to{opacity:1;transform:none}}
-@keyframes shell-backdrop-in {from{opacity:0}to{opacity:1}}
 @keyframes shell-sidebar-in {from{opacity:.45;transform:translateX(-5px)}to{opacity:1;transform:none}}
-@keyframes shell-fade-in {from{opacity:.4}to{opacity:1}}
 @media(max-width:700px){.sidebar.sidebar-open>.thread-list {animation:shell-sidebar-in 200ms cubic-bezier(.16,1,.3,1) both;}.app-shell .composer-caption {font-size:9px;}}
 .app-shell[data-panel-animations=false] .sidebar {transition-delay:0s;}
-@media(prefers-reduced-motion:reduce){.app-shell[data-sidebar-collapsed=true] .sidebar {transition-delay:0s;}.dialog[open],.settings-dialog[open] {animation-name:shell-fade-in;}.sidebar>.thread-list {animation:none!important;}}
+@media(prefers-reduced-motion:reduce){.app-shell[data-sidebar-collapsed=true] .sidebar {transition-delay:0s;}.sidebar>.thread-list {animation:none!important;}}
 
 /* Finished effects stay inspectable without competing with the working artifact. */
 .decision.operation-outcome {padding:0;}

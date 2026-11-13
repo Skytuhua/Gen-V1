@@ -98,7 +98,7 @@ export const screens: Screen[] = [
     empty: {query: 'variant=empty', ready: '.plan-agent-summary'}, error: {query: 'variant=error', ready: '[role="alert"]'},
     loading: skip('DelegatedAgentTranscript reads supplied plan/messages synchronously; it has no pending prop or fetch boundary.'),
   }) },
-  { id: 'plugin-frame', fixture: '', entry: '/scripts/capture-ui/browser-surfaces.tsx', ready: 'html[data-plugin-ready="true"]', states: surfaceStates({query: 'surface=plugin'}, '[aria-label="Move Plugin tools"]', {selector: '.pv-status summary', action: 'press', key: 'Enter', frame: 'iframe', waitFor: '.pv-status details[open]'}, {
+  { id: 'plugin-frame', fixture: '', entry: '/scripts/capture-ui/browser-surfaces.tsx', ready: 'html[data-plugin-ready="true"]', states: surfaceStates({query: 'surface=plugin'}, '[aria-label="Minimize Plugin tools"]', {selector: '.pv-status summary', action: 'press', key: 'Enter', frame: 'iframe', waitFor: '.pv-status details[open]'}, {
     empty: skip('Personal Visuals seeds an example when no document is stored; its diagram schema requires at least one node.'),
     error: {api: 'error', ready: '.plugin-workspace iframe', frame: 'iframe', waitFor: '.pv-error'},
     loading: {api: 'loading', hold: '^/api/plugins/personal-visuals/rpc$', ready: '.plugin-workspace iframe', frame: 'iframe', waitFor: '.pv-status'},
