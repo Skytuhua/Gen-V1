@@ -3,7 +3,7 @@ export interface BrowserSuite { name:string; config:string; specs:string[]; proj
 export const rootBrowserSpecs = [
   'artifact-acknowledgment.spec.ts', 'clarity-data-work.spec.ts', 'dark-default.spec.ts',
   'document-window.spec.ts', 'host-loop.spec.ts', 'journal-reload.spec.ts', 'latency.spec.ts',
-  'migration-redesign.spec.ts', 'operational-motion.spec.ts', 'overnight-shell.spec.ts',
+  'map-theme.spec.ts', 'migration-redesign.spec.ts', 'operational-motion.spec.ts', 'overnight-shell.spec.ts',
   'plan-timeline.spec.ts', 'review-capture-theme.spec.ts', 'shell-micro-motion.spec.ts',
   'signing-motion.spec.ts', 'skills.spec.ts',
 ];
@@ -85,6 +85,7 @@ export const browserSuites:BrowserSuite[] = [
   suite('summary-dock'),
   suite('t3-centered'),
   suite('tabs-identity'),
+  suite('table-controls'),
   suite('task-design'),
   suite('task-interface'),
   suite('ui-shell-controls'),
