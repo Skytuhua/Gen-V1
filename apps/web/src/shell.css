@@ -114,7 +114,7 @@
 .app-shell .conversation { max-width:var(--narrative-width); }
 .conversation .artifact:not(.artifact-expanded):not(.artifact-in-workspace) { max-width:100%; }
 @media(max-width:700px) { .app-shell .conversation-scroll { padding-left:12px; padding-right:12px; } }
-.message>.message-content,.conversation>.decision,.conversation>.resume-row,.conversation>.working-status { max-width:var(--narrative-width); margin-left:auto; margin-right:auto; }
+.message>.message-content,.conversation>.decision,.conversation>.working-status { max-width:var(--narrative-width); margin-left:auto; margin-right:auto; }
 .message-user>.message-content { max-width:min(86%,var(--narrative-width)); }
 .message-user { display:block; }
 .message-user>.message-content { margin-left:auto; margin-right:0; }
