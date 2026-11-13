@@ -62,7 +62,7 @@ describe('project leaf loading states', () => {
       expect(await page.locator('.loading-state-skeleton').isVisible()).toBe(false);
       await page.clock.runFor(1);
       expect(await page.locator('.loading-state-skeleton').isVisible()).toBe(true);
-      expect(await page.getByRole('status').innerText()).toBe('Reading project…');
+      expect(await page.getByRole('status').innerText()).toBe('Loading project…');
     }finally{await page.close();}
   });
 

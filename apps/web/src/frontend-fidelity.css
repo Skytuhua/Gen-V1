@@ -59,3 +59,7 @@
 @media(hover:none) { .artifact-frame-canvas:not(.artifact-expanded):not(.artifact-in-workspace)>.artifact-header { opacity:1; position:static; justify-content:flex-end; } }
 @media(prefers-reduced-motion:reduce) { .artifact-frame-canvas>.artifact-header { transition:none!important; } }
 @media(prefers-reduced-motion:reduce) { .artifact[data-document-handoff="ready"] .task-status-receipt-view { transition-duration:80ms; } }
+/* WO-7: inline rows grow with chat; controlled columns retain horizontal widths. */
+.artifact[data-artifact-inline=true] .task-table[data-column-controls=true] .task-table-scroll { max-height:none; overflow-x:auto; overflow-y:hidden; overscroll-behavior-x:contain; }
+.artifact[data-artifact-inline=true] .artifact-content .task-table[data-column-controls=true] table { table-layout:fixed; min-width:0; }
+.artifact[data-artifact-inline=true] .artifact-content .task-table[data-column-controls=true] :is(td,th) { white-space:nowrap; overflow-wrap:normal; }

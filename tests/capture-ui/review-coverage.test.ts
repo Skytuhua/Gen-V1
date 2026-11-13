@@ -3,9 +3,9 @@ import { mapFile, screens, keyStates, requiredOutputScreenIds } from '../../scri
 import { parseArgs } from '../../scripts/capture-ui/helpers';
 
 it('defaults to the union so baseline screens remain selected', () => expect(parseArgs([]).scope).toBe('all'));
-it('keeps all 22 added renderer screens in the output-verification policy', () => {
-  expect(requiredOutputScreenIds).toHaveLength(22);
-  expect(new Set(requiredOutputScreenIds).size).toBe(22);
+it('keeps all 28 added renderer screens in the output-verification policy', () => {
+  expect(requiredOutputScreenIds).toHaveLength(28);
+  expect(new Set(requiredOutputScreenIds).size).toBe(28);
   expect(screens.slice(screens.findIndex(screen => screen.id === 'side-chat')).map(screen => screen.id)).toEqual(requiredOutputScreenIds);
 });
 it('declares every key state, with specific reasons for unsupported states', () => {
