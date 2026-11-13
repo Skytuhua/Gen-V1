@@ -111,6 +111,7 @@
     "apps/web/src/ScopedConversationComposer.tsx",
     "apps/web/src/SentenceReveal.tsx",
     "apps/web/src/Settings.tsx",
+    "apps/web/src/ShellNotice.tsx",
     "apps/web/src/ShellSidebar.tsx",
     "apps/web/src/SideChat.tsx",
     "apps/web/src/SignaturePad.tsx",
