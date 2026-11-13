@@ -12,11 +12,22 @@ function adopt(target: Element) {
   if (title !== null) {
     target.removeAttribute('title');
     target.setAttribute('data-tooltip', title);
+    target.setAttribute('data-tooltip-adopted', '');
     // A title was the control's only name; keep it reachable for assistive technology.
     if (title && !target.hasAttribute('aria-labelledby') && (!target.hasAttribute('aria-label') || target.hasAttribute('data-tooltip-named')) && !target.textContent?.trim()) {
       target.setAttribute('aria-label', title);
       target.setAttribute('data-tooltip-named', '');
+    } else if (title && !target.hasAttribute('aria-describedby') && !target.hasAttribute('aria-description')) {
+      // Named controls still get the title's help text via aria-description.
+      target.setAttribute('aria-description', title);
+      target.setAttribute('data-tooltip-described', '');
     }
+  } else if (target.hasAttribute('data-tooltip-adopted')) {
+    // The source title was removed (e.g. a rerendered button): drop the stale copy we kept.
+    target.removeAttribute('data-tooltip');
+    target.removeAttribute('data-tooltip-adopted');
+    if (target.hasAttribute('data-tooltip-named')) { target.removeAttribute('aria-label'); target.removeAttribute('data-tooltip-named'); }
+    if (target.hasAttribute('data-tooltip-described')) { target.removeAttribute('aria-description'); target.removeAttribute('data-tooltip-described'); }
   }
   const text = target.getAttribute('data-tooltip')?.trim() ?? '';
   return text && text !== target.textContent?.trim() ? text : '';
@@ -41,7 +52,7 @@ export function TooltipLayer() {
     const dwell = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ui-tooltip-dwell')) || 350;
     const over = (event: PointerEvent) => { if (event.pointerType === 'touch') return; const target = owner(event.target); if (target) schedule(target, dwell()); else if (current.current) hide(); };
     const focus = (event: FocusEvent) => { const target = owner(event.target); if (target && event.target instanceof Element && event.target.matches(':focus-visible')) schedule(target, FOCUS_DWELL_MS); };
-    const key = (event: KeyboardEvent) => { if (event.key === 'Escape' && current.current) hide(); };
+    const key = (event: KeyboardEvent) => { if (event.key === 'Escape' && current.current) { event.preventDefault(); event.stopPropagation(); hide(); } };
     const leave = (event: PointerEvent) => { if (!event.relatedTarget) hide(); };
     document.addEventListener('pointerover', over); document.addEventListener('pointerout', leave); document.addEventListener('pointerdown', hide, true);
     document.addEventListener('focusin', focus); document.addEventListener('focusout', hide); document.addEventListener('keydown', key, true);

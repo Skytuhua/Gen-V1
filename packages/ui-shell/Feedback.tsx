@@ -4,7 +4,7 @@ import './tokens.css';
 import './feedback.css';
 
 /** A retry button already says what to do, so the sentence should not repeat it. */
-export const withoutRetryHint = (message: string) => message.replace(/\s*(Retry|Try again|Please try again)\.?\s*$/i, '').trim() || message;
+export const withoutRetryHint = (message: string) => message.replace(/([.!?])\s*(?:Retry|Try again|Please try again)\.?\s*$/i, '$1').trim() || message;
 
 export function Spinner({ size = 14 }: { size?: number }) { return <LoaderCircle className="ui-spinner" size={size} aria-hidden="true" />; }
 
