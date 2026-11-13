@@ -10,11 +10,13 @@ export interface ProjectContextCardProps {
  context?:ProjectContext|null;loading?:boolean;error?:string;threadTitle?:string;plan?:ReactNode;planOpen?:boolean;onTogglePlan?:()=>void;
  onAction?:(type:string,payload?:Record<string,unknown>)=>Promise<void>;
  onSelectThread?:(threadId:string)=>void;onShowChanges?:()=>void;onConnect?:()=>void;
+ /** True only when this owner has a reachable equivalent composer Changes action. */
+ composerChangesAvailable?:boolean;
  snapshot?:Snapshot;threadId?:string;onOpenDetailedPlan?:()=>void;
  automationItems?:{id:string;title:string;status:string;nextRunAt?:string}[];automationsAvailable?:boolean;
 }
 /** Data and callbacks only: this card is safe to consume from either authority's shell. */
-export function ProjectContextCard({context,loading,error,threadTitle,plan,planOpen=false,onTogglePlan,onAction,onSelectThread,onShowChanges,onConnect,snapshot,threadId,onOpenDetailedPlan,automationItems=[],automationsAvailable=false}:ProjectContextCardProps){
+export function ProjectContextCard({context,loading,error,threadTitle,plan,planOpen=false,onTogglePlan,onAction,onSelectThread,onShowChanges,onConnect,snapshot,threadId,onOpenDetailedPlan,automationItems=[],automationsAvailable=false,composerChangesAvailable=false}:ProjectContextCardProps){
  const planId=useId(),[expanded,setExpanded]=useState<'scripts'|'branch'|'commit'|'lineage'|null>(null),[busy,setBusy]=useState(false),[actionError,setActionError]=useState(''),[scriptName,setScriptName]=useState(''),[scriptCommand,setScriptCommand]=useState(''),[branch,setBranch]=useState(''),[commit,setCommit]=useState('');
  const run=(type:string,payload:Record<string,unknown>={})=>{if(!onAction||busy)return;setBusy(true);setActionError('');void onAction(type,payload).then(()=>{setExpanded(null);setCommit('');}).catch(cause=>setActionError(cause instanceof Error?cause.message:'The project action could not finish.')).finally(()=>setBusy(false));};
  const toggle=(name:NonNullable<typeof expanded>)=>setExpanded(value=>value===name?null:name);
@@ -30,9 +32,9 @@ export function ProjectContextCard({context,loading,error,threadTitle,plan,planO
     {!connected?<>{onConnect?<button className="project-context-row" onClick={onConnect}><Plus size={15}/><span>Connect project</span></button>:<p className="project-context-note">No project connected.</p>}</>:context&&<>
      {context.branch&&<><button className="project-context-row" aria-busy={busy} disabled={busy||!context.capabilities.git||!onAction} aria-expanded={expanded==='branch'} onClick={()=>toggle('branch')}><GitBranch size={16}/><span title={context.branch}>{context.branch}</span><ChevronDown size={13}/></button>
       {expanded==='branch'&&<form className="project-context-detail" onSubmit={event=>{event.preventDefault();run('branch',{name:branch,expectedHead:context.head,revision:context.revision});}}><label>New branch<input value={branch} onChange={event=>setBranch(event.target.value)} required maxLength={200}/></label><button className="secondary" aria-busy={busy} disabled={busy||!branch.trim()}>Create branch</button></form>}</>}
-     <button className="project-context-row" disabled={!onShowChanges} onClick={onShowChanges} title={context.changes.files===null?'Changes unavailable':context.changes.files+' changed files'}><FileDiff size={16}/><span>Changes</span>
+     {!composerChangesAvailable&&<button className="project-context-row" disabled={!onShowChanges} onClick={onShowChanges} title={context.changes.files===null?'Changes unavailable':context.changes.files+' changed files'}><FileDiff size={16}/><span>Changes</span>
       {context.changes.added===null&&context.changes.removed===null?<small>Unavailable</small>:<>{context.changes.added!==null&&<small className="project-added">+{total(context.changes.added)}</small>}{context.changes.removed!==null&&<small className="project-removed">−{total(context.changes.removed)}</small>}</>}
-     </button>
+     </button>}
     </>}
    </section>
    {context&&connected&&<details className="project-context-tools"><summary>Project tools<ChevronDown size={13}/></summary><div className="project-context-detail">
