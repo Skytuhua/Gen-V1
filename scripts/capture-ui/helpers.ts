@@ -1,3 +1,7 @@
+import {basename,dirname,isAbsolute,join,parse,relative,resolve,sep} from 'node:path';
+import {constants,lstatSync,realpathSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {lstat,mkdir,open,readdir,realpath,type FileHandle} from 'node:fs/promises';
 import { mapFile, keyStates, type Recipe } from './screen-map';
 export function parseArgs(args: string[]) {
   const result = { scope: 'all', sinceDays: 30, maxStrips: 60, screens: [] as string[], out: '' };
@@ -17,7 +21,98 @@ export function parseArgs(args: string[]) {
   }
   if (!['diff', 'baseline', 'all'].includes(result.scope)) throw Error('Invalid scope');
   if (!Number.isInteger(result.sinceDays) || result.sinceDays < 1 || !Number.isInteger(result.maxStrips) || result.maxStrips < 0) throw Error('Invalid numeric flag');
+  if (result.out) captureOutputPath(result.out);
   return result;
+}
+// Resolve the nearest existing ancestor before creating any output directories.
+export function captureOutputPath(path:string):string {
+  const out=resolve(path),inside=(value:string,root:string)=>{const part=relative(root,value);return !part||!isAbsolute(part)&&part!=='..'&&!part.startsWith('..'+sep);};
+  const cwd=realpathSync('.'),roots=[realpathSync(tmpdir()),resolve(cwd,'tmp'),resolve(cwd,'test-results')];
+  if (![tmpdir(),resolve('tmp'),resolve('test-results'),...roots].some(root=>inside(out,root))) throw Error('Capture output must be inside tmp or test-results; copy evidence separately.');
+  let parent=out;const missing:string[]=[];
+  for (;;) {
+    try { lstatSync(parent);break; }
+    catch(cause) { if((cause as NodeJS.ErrnoException).code!=='ENOENT')throw cause;missing.unshift(basename(parent));const next=dirname(parent);if(next===parent)throw cause;parent=next; }
+  }
+  let actual:string;
+  try { actual=resolve(realpathSync(parent),...missing); }
+  catch { throw Error('Capture output has an unresolved symlink or ancestor.'); }
+  if(!roots.some(root=>inside(actual,root)))throw Error('Capture output symlink escapes tmp or test-results; copy evidence separately.');
+  return actual;
+}
+const sameCapturePath=(left:string,right:string)=>left===right;
+function requireCaptureDescriptors() {
+  // Node has no handle-relative, no-follow creation primitive on the other platforms.
+  if(process.platform!=='linux'||!constants.O_NOFOLLOW||!constants.O_DIRECTORY)throw Error('Safe capture output requires Linux directory descriptors and /proc/self/fd; no files or directories were created.');
+}
+async function checkedCaptureDirectory(path:string) {
+  let current=parse(path).root,info=await lstat(current,{bigint:true});
+  for(const part of relative(current,path).split(sep).filter(Boolean)){
+    current=join(current,part);info=await lstat(current,{bigint:true});
+    if(info.isSymbolicLink()||!info.isDirectory())throw Error('Capture output contains a symlink or non-directory component.');
+  }
+  if(!sameCapturePath(await realpath(path),path))throw Error('Capture output directory changed.');
+  return info;
+}
+async function withCaptureDirectory<T>(root:string,path:string,use:(directory:FileHandle,check:()=>Promise<void>)=>Promise<T>):Promise<T> {
+  requireCaptureDescriptors();
+  const rootInfo=await checkedCaptureDirectory(root),handles:FileHandle[]=[];
+  const flags=constants.O_RDONLY|constants.O_DIRECTORY|constants.O_NOFOLLOW;
+  let directory=await open(root,flags),parent=root;handles.push(directory);
+  const check=async()=>{
+    const info=await checkedCaptureDirectory(parent),opened=await directory.stat({bigint:true});
+    if(opened.dev!==info.dev||opened.ino!==info.ino||!sameCapturePath(await realpath(`/proc/self/fd/${directory.fd}`),parent))throw Error('Capture output directory changed after open.');
+  };
+  try {
+    const opened=await directory.stat({bigint:true});
+    if(opened.dev!==rootInfo.dev||opened.ino!==rootInfo.ino)throw Error('Capture output root changed after open.');
+    await check();
+    for(const part of relative(root,path).split(sep).filter(Boolean)){
+      await check();
+      const child=join(parent,part);
+      if(!sameCapturePath(captureOutputPath(child),child))throw Error('Capture output directory changed.');
+      // A path swap cannot redirect mkdir or open away from this pinned parent.
+      const next=`/proc/self/fd/${directory.fd}/${part}`;
+      try {await mkdir(next,{mode:0o700});}catch(cause){if((cause as NodeJS.ErrnoException).code!=='EEXIST')throw cause;}
+      directory=await open(next,flags);handles.push(directory);
+      parent=child;await check();
+    }
+    return await use(directory,check);
+  } finally {await Promise.all(handles.reverse().map(handle=>handle.close()));}
+}
+export async function prepareCaptureOutput(path:string):Promise<string> {
+  requireCaptureDescriptors();
+  const out=captureOutputPath(path);
+  let ancestor=out;
+  for(;;){
+    try {await lstat(ancestor);break;}
+    catch(cause){if((cause as NodeJS.ErrnoException).code!=='ENOENT')throw cause;ancestor=dirname(ancestor);}
+  }
+  return withCaptureDirectory(ancestor,out,async(directory,check)=>{
+    await check();
+    if((await readdir(`/proc/self/fd/${directory.fd}`)).length)throw Error('Capture output must be a fresh, empty directory; existing children may be symlinks.');
+    await check();return out;
+  });
+}
+// Playwright returns bytes; only this helper opens output files, never a renderer.
+export async function writeCaptureFile(root:string,path:string,data:string|Uint8Array):Promise<void> {
+  root=resolve(root);const destination=resolve(root,path),within=relative(root,destination);
+  if(!within||isAbsolute(path)||isAbsolute(within)||within==='..'||within.startsWith('..'+sep))throw Error('Capture output file escapes its root.');
+  if(!sameCapturePath(captureOutputPath(root),root))throw Error('Capture output root changed.');
+  await withCaptureDirectory(root,dirname(destination),async(directory,check)=>{
+    await check();
+    const file=await open(`/proc/self/fd/${directory.fd}/${basename(destination)}`,constants.O_WRONLY|constants.O_CREAT|constants.O_EXCL|constants.O_NOFOLLOW,0o600);
+    try {
+      await check();
+      const actual=await realpath(destination),named=await lstat(destination,{bigint:true}),opened=await file.stat({bigint:true});
+      if(!sameCapturePath(actual,destination)||named.isSymbolicLink()||!opened.isFile()||opened.nlink!==1n||opened.dev!==named.dev||opened.ino!==named.ino)throw Error('Capture output file changed after open.');
+      if(!sameCapturePath(await realpath(`/proc/self/fd/${file.fd}`),destination))throw Error('Capture output descriptor escaped its root.');
+      await file.writeFile(data);
+      await check();
+      const final=await lstat(destination,{bigint:true});
+      if(final.isSymbolicLink()||final.dev!==opened.dev||final.ino!==opened.ino)throw Error('Capture output changed during the descriptor write.');
+    } finally {await file.close();}
+  });
 }
 export type PullRequest = { number: number | null; title: string; mergedAt: string; files: { path: string }[] };
 export function aggregate(prs: PullRequest[]) {
