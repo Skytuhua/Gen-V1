@@ -1,7 +1,7 @@
 import {beforeEach,describe,expect,it,vi} from 'vitest';
 import {spawnSync} from 'node:child_process';
 import {existsSync,readdirSync} from 'node:fs';
-import {resolve} from 'node:path';
+import {resolve,sep} from 'node:path';
 import {browserSuites,validateBrowserSuites,type BrowserSuite} from '../scripts/browser-suites.ts';
 import {browserTestMain,runBrowserSuites} from '../scripts/test-browser.ts';
 
@@ -108,8 +108,7 @@ it('QA #130 every WO-5 fixture derives its cache from the runner output override
   for(const name of ['vite','saved-drafts','file-checkpoints','terminal-excerpts','conversation-find','project-search','redundant-ui']){
    const path=name==='vite'?'../tests/e2e/vite.config.ts':`../tests/e2e/${name}.vite.config.ts`;
    const config=(await import(path)).default;
-   const normalize=(value:string)=>value.replaceAll('\\','/');
-   expect(normalize(String(config.cacheDir)).startsWith(normalize(output)+'/'),name).toBe(true);
+   expect(String(config.cacheDir).startsWith(output+sep),name).toBe(true);
   }
  }finally{vi.unstubAllEnvs();vi.resetModules();}
 });

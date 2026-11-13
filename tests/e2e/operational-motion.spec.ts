@@ -79,15 +79,21 @@ test('new column geometry arrives continuously while the existing header stays m
   expect(Math.max(...positions) - Math.min(...positions)).toBeGreaterThan(10);
 });
 
-test('context bands stage independently and compacting shimmers without predicting token totals', async ({ page }) => {
+test('context shell keeps header, body and footer bands and compacting shimmers without predicting token totals', async ({ page }) => {
   const initial = taskFixture(branchGraphSpec('vertical'), { graph: branchGraphData });
   initial.usage['task-thread'] = { contextTokens: 600000, contextWindow: 1000000, inputTokens: 1000, outputTokens: 500, cost: null, sessionPercent: 68, weeklyPercent: 24, activity: 'idle', contextBreakdown: [{ label: 'System', tokens: 20000 }, { label: 'Messages', tokens: 580000 }] };
   const fixture = await serveTaskFixture(page, initial); await page.goto('/'); await page.getByRole('button', { name: 'Inspect context usage' }).click();
   const dialog = page.getByRole('dialog', { name: 'Context inspector' });
-  const staged = await dialog.evaluate(async node => { await new Promise(resolve => setTimeout(resolve, 75)); return Array.from(node.querySelectorAll(':scope > header,:scope > .context-inspector-breakdown,:scope > .context-inspector-quotas,:scope > footer')).map(band => ({ opacity: Number(getComputedStyle(band).opacity), start: band.getAnimations()[0]?.startTime })); });
-  expect(staged[0].opacity).toBeGreaterThan(staged[3].opacity);
-  const firstAnimations = await dialog.evaluate(node => Array.from(node.children).map(child => child.getAnimations()[0]?.startTime)); await fixture.publish();
-  expect(await dialog.evaluate(node => Array.from(node.children).map(child => child.getAnimations()[0]?.startTime))).toEqual(firstAnimations);
+  const identity = await dialog.elementHandle();
+  const bands = await dialog.evaluate(node => Array.from(node.querySelectorAll(':scope > header,:scope > .context-inspector-body,:scope > footer')).map(band => band.tagName.toLowerCase()));
+  expect(bands).toEqual(['header', 'div', 'footer']);
+  expect(await dialog.evaluate(node => [getComputedStyle(node).animationName, getComputedStyle(node).animationDuration])).toEqual(['context-shell-enter', '0.18s']);
+  const firstStart = await dialog.evaluate(node => { const animation = node.getAnimations().find(item => (item as CSSAnimation).animationName === 'context-shell-enter'); return animation ? animation.startTime : null; });
+  await fixture.publish();
+  const nextStart = await dialog.evaluate(node => { const animation = node.getAnimations().find(item => (item as CSSAnimation).animationName === 'context-shell-enter'); return animation ? animation.startTime : null; });
+  // A finished entrance may drop out of getAnimations(), but a snapshot must never restart it.
+  expect(nextStart === null || nextStart === firstStart).toBe(true);
+  expect(await dialog.evaluate((node, old) => node === old, identity)).toBe(true);
   fixture.snapshot.usage['task-thread'].activity = 'compacting'; await fixture.publish();
   await expect(dialog.locator('.context-compaction-shimmer')).toBeVisible(); await expect(dialog.locator('header')).toContainText('60%');
   await page.waitForTimeout(200); await expect(dialog.locator('header')).toContainText('60%');
@@ -106,7 +112,7 @@ test('reduced motion skips graph travel and context shimmer while preserving sou
   await expect(page.locator('.context-compaction-shimmer')).toBeHidden();
   await expect(page.getByRole('dialog', { name: 'Context inspector' }).locator('header')).toContainText('60%');
 });
-test('the accepted compaction receipt follows counter settling without delaying controls', async ({ page }) => {
+test('a token decrease without a host receipt never claims freed tokens and keeps controls responsive', async ({ page }) => {
   const initial=taskFixture(branchGraphSpec('vertical'),{graph:branchGraphData});
   initial.usage['task-thread']={contextTokens:600000,contextWindow:1000000,inputTokens:1000,outputTokens:500,cost:null,sessionPercent:null,weeklyPercent:null,activity:'idle'};
   const fixture=await serveTaskFixture(page,initial);await page.goto('/');await page.getByRole('button',{name:'Inspect context usage'}).click();
@@ -114,5 +120,6 @@ test('the accepted compaction receipt follows counter settling without delaying 
   initial.usage['task-thread']={...initial.usage['task-thread'],contextTokens:80000};await fixture.publish();
   await page.waitForTimeout(200);await expect(dialog.getByRole('status')).not.toContainText('Freed');
   await expect(dialog.getByRole('button',{name:'Compact now',exact:true})).toBeEnabled();
-  await expect(dialog.getByRole('status')).toContainText('Freed 520K tokens',{timeout:2500});
+  await expect(dialog.getByRole('status')).toContainText('Result not reported',{timeout:2500});
+  await expect(dialog.getByRole('status')).not.toContainText('Freed');
 });
