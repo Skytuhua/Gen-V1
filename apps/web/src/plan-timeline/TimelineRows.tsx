@@ -5,6 +5,7 @@ import { agentProgress, type AgentJob } from "../../../../packages/contracts/pla
 import type { PlanAgentLane, PlanTimelineStep } from "../../../../packages/core/plan-timeline";
 import { MotionRegion } from "../task-motion";
 import { Markdown } from "../Markdown";
+import { useThreadMessages } from "../thread-messages";
 
 const states: Record<PlanTimelineStep["status"], string> = {
   proposed: "Proposed",
@@ -47,9 +48,10 @@ export function AgentLane({ lane, ...props }: RowProps & { lane: PlanAgentLane }
     id = useId();
   const [transcript, setTranscript] = useState(false);
   const progress = agentProgress(job);
-  const messages = job.childThreadId
-    ? props.snapshot.messages.filter((message) => message.threadId === job.childThreadId)
-    : [];
+  // Snapshot only carries the per-thread window; paging fills in older
+  // messages once the transcript is actually opened.
+  const threadMessages = useThreadMessages(props.snapshot, job.childThreadId ?? undefined, transcript);
+  const messages = threadMessages.messages;
   return (
     <li className={`plan-agent agent-${job.status}`} data-agent-id={job.id}>
       <div className="plan-agent-top">

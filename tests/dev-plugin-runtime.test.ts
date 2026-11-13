@@ -15,7 +15,7 @@ function signal(child:ChildProcess,value:'SIGINT'|'SIGTERM'){
 }
 afterEach(async()=>{
   for(const child of children.splice(0))if(child.exitCode===null&&child.signalCode===null){const exited=once(child,'exit');signal(child,'SIGTERM');await exited;}
-  await Promise.all(directories.splice(0).map(directory=>rm(directory,{recursive:true,force:true})));
+  await Promise.all(directories.splice(0).map(directory=>rm(directory,{recursive:true,force:true,maxRetries:10,retryDelay:200})));
 });
 
 async function scratch(brokenRuntime=false){
