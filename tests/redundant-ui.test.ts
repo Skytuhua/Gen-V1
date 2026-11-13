@@ -29,13 +29,13 @@ describe('proven duplicate removals',()=>{
  });
  it.each([{threadId:'a'}, {onOpenUsage:()=>{}}, {}])('retains full details without a proven owner destination: %j',props=>{
   const html=renderToStaticMarkup(createElement(UsageFooter,{usage,visible:true,...props}));
-  for(const text of ['Input tokens','18,321','Output tokens','791','Reported cost','0.012345','23.456%','67.89%'])expect(html).toContain(text);
+  for(const text of ['Input tokens','18,321','Output tokens','791','Reported cost','0.012345','23.5%','67.9%'])expect(html).toContain(text);
  });
  it('keeps all footer values in the same-owner full report',()=>{
   expect(runtimeUsageReport({id:'a',title:'Owner A',modelId:'provider/model'},usage)).toMatchObject({scopeId:'a',scopeLabel:'Owner A',inputTokens:18321,outputTokens:791,cost:{amount:0.012345},limits:[{id:'session',usedPercent:23.456},{id:'weekly',usedPercent:67.89}]});
  });
  it('keeps context capacity separate and retains unknown values',()=>{
-  const html=renderToStaticMarkup(createElement(UsageSummary,{usage}));expect(html).toContain('Context window');expect(html).toContain('18%');expect(html).toContain('18K of 100K');
+  const html=renderToStaticMarkup(createElement(UsageSummary,{usage}));expect(html).toContain('Context window');expect(html).toContain('18.0%');expect(html).toContain('18K of 100K');
   expect(renderToStaticMarkup(createElement(UsageFooter,{visible:true}))).toContain('Not reported');
  });
  it('retains the real Notes route and its explicit owner rather than the active thread',()=>{

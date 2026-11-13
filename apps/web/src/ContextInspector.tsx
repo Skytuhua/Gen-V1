@@ -85,7 +85,7 @@ function ContextSession({ usage, thread, close, refresh, onError, anchor, compac
   return <Popover anchor={anchor} contentRef={panel} initialFocus={panel} open width={328} height={measured?.categories.length ? 282 + (failure ? 48 : 0) : 200 + (failure ? 48 : 0)}
     role="dialog" aria-label="Context inspector" tabIndex={-1} className="context-inspector" onDismiss={close}>
     <header><strong>Context <span>{measured ? `${Math.round(measured.ratio)}%` : 'Not reported'}</span></strong>
-      {measured && <span className="context-inspector-total">{contextNumber(measured.used)} of {contextNumber(measured.total)}</span>}</header>
+      {measured && <span className="context-inspector-total">{contextNumber(measured.used)} of {contextNumber(measured.total)} tokens</span>}</header>
     <div className="context-inspector-body"><ContextMeter usage={usage} busy={compacting} accepted={playingReceipt} />
       {failure && <p className="context-inspector-error" role="alert">{failure}</p>}
     </div>

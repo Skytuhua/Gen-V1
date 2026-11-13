@@ -147,7 +147,7 @@ pnpm test:e2e
 
 The browser command builds the application and runs each spec with its assigned
 fixture server. The Memory fixture, actual-app and journal modes run separately.
-Results are retained in a new `.harness-browser-results/run-*` directory for each
+Results are retained in a new `test-results/browser/run-*` directory for each
 invocation. A failed suite stops the command with a nonzero exit status.
 
 To inspect the selected tests without starting a browser, or to rerun one suite:

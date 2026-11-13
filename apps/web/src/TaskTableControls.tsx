@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type RefObject } from 'react';
 import { GripVertical, Search } from 'lucide-react';
 import { Popover } from '../../../packages/ui-shell/Popover';
-import { columnWidth, cycleSort, keyboardWidth, moveColumn, reconcileOrder, tableObject, tableText, tableView, type TableColumn, type TableSort } from './task-table-model';
+import { columnWidth, cycleSort, keyboardWidth, moveColumn, reconcileOrder, tableCellText, tableObject, tableView, type TableColumn, type TableSort } from './task-table-model';
 
 type Gesture = { kind: 'resize' | 'move'; key: string; scale: number; startX: number; x: number; y: number; startWidth: number; width: number; position: number | null; line: number | null; moved: boolean };
 
@@ -46,16 +46,16 @@ export function useTableControls(sourceColumns: TableColumn[], rows: unknown[], 
     container.append(sample);
     const next = Object.fromEntries(keys.map(key => [key, rows.reduce<number>((minimum, row) => {
       const value = tableObject(row)[key]; if (typeof value !== 'number') return minimum;
-      sample.textContent = tableText(value);
+      sample.textContent = tableCellText(value, sourceColumns.find(column => column.key === key)!);
       return Math.max(minimum, sample.scrollWidth + 26);
     }, 90)]));
     sample.remove(); setMinima(next);
-  }, [rows, keys, fonts, scroll]);
+  }, [rows, keys, fonts, scroll, sourceColumns]);
   const minimum = useCallback((key: string) => minima[key] ?? 90, [minima]);
   const fitColumn = useCallback((key: string) => {
     const font = fonts();
-    return columnWidth(Math.max(measure(label(key), font.header) + 65, ...rows.map(row => measure(tableText(tableObject(row)[key]), font.cell) + 25)), minimum(key));
-  }, [fonts, measure, label, rows, minimum]);
+    return columnWidth(Math.max(measure(label(key), font.header) + 65, ...rows.map(row => measure(tableCellText(tableObject(row)[key], sourceColumns.find(column => column.key === key)!), font.cell) + 25)), minimum(key));
+  }, [fonts, measure, label, rows, minimum, sourceColumns]);
   const width = (key: string) => columnWidth(widths[key] ?? 140, minimum(key));
   const announce = useCallback((message: string) => setAnnouncement(previous => previous === message ? `${message}\u00a0` : message), []);
   const commitWidth = (key: string, next: number) => { takeOver(); setWidths(values => ({ ...values, [key]: next })); announce(`${label(key)} column width ${next} pixels.`); };
@@ -156,7 +156,7 @@ export function useTableControls(sourceColumns: TableColumn[], rows: unknown[], 
   const clear = () => { takeOver(); setQuery(''); setSettledQuery(''); input.current?.focus(); announce(`${rows.length} of ${rows.length} ${rows.length === 1 ? 'row' : 'rows'} shown.`); };
   const headers = columns.map(column => {
     const key = column.key, value = width(key), direction = currentSort?.key === key ? currentSort.direction : undefined;
-    return <th scope="col" key={key} data-column-key={key} aria-sort={direction} data-moving={gesture?.kind === 'move' && gesture.key === key}>
+    return <th scope="col" key={key} data-column-key={key} aria-sort={direction} data-moving={gesture?.kind === 'move' && gesture.key === key} className={column.type === 'number' ? 'number' : undefined}>
       <div className="task-table-heading">
         <button type="button" className="task-table-grip" aria-label={`Move ${column.label} column`} aria-describedby={helpId} title="Drag or use Alt+Left/Right to move" onPointerDown={event => begin(event, key, 'move')} onKeyDown={event => {
           if (!event.altKey || !['ArrowLeft', 'ArrowRight'].includes(event.key) || active.current) return;

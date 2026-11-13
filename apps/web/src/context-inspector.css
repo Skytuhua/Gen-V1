@@ -1,25 +1,26 @@
 .context-inspector,.context-meter { --context-system:#ab8ce3; --context-tools:#35b996; --context-skills:#df9c69; --context-messages:#85abe1; --context-reserved:var(--muted); --context-free:var(--hover); }
 .context-inspector.ui-popover { display:flex; flex-direction:column; box-sizing:border-box; padding:12px; gap:12px; border:1px solid var(--border); border-radius:12px; background:var(--surface); color:var(--text); box-shadow:var(--elevation); overflow:hidden; font-size:13px; z-index:var(--ui-overlay-z,1000); animation:context-shell-enter 180ms cubic-bezier(.16,1,.3,1); }
-.context-inspector>header { display:flex; align-items:baseline; flex-wrap:wrap; gap:6px 10px; flex:none; }
+.context-inspector>header { display:flex; align-items:baseline; flex-wrap:wrap; gap:8px; flex:none; }
 .context-inspector>header>strong { font-weight:400; color:var(--muted); }
-.context-inspector>header>strong>span { color:var(--text); margin-left:5px; font-variant-numeric:tabular-nums; }
-.context-inspector-total { margin-left:auto; color:var(--muted); font-size:12px; font-variant-numeric:tabular-nums; }
+.context-inspector>header>strong>span { color:var(--text); margin-left:8px; font-variant-numeric:tabular-nums; }
+.context-inspector-total { color:var(--text); font-size:12px; font-variant-numeric:tabular-nums; }
 .context-inspector-body { min-height:0; flex:1; overflow:auto; scrollbar-width:thin; scrollbar-color:var(--border) transparent; overscroll-behavior:contain; }
 .context-meter .context-segment-bar { display:flex; position:relative; height:10px; overflow:hidden; border-radius:3px; background:var(--subtle); }
 .context-meter .context-segment { flex:none; min-width:0; height:10px; background:var(--context-color); border-radius:2px; box-shadow:inset -2px 0 0 var(--surface); }
 .context-measurement-accepted .context-segment { transition:width 600ms cubic-bezier(.4,0,.2,1); }
 .context-category-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); column-gap:8px; margin-top:8px; }
-.context-category-row { display:flex; align-items:center; gap:6px; width:100%; min-height:34px; padding:4px 8px; text-align:left; background:none; border:0; border-radius:var(--radius,6px); color:var(--muted); font:inherit; font-size:12px; }
+.context-category-row { display:flex; align-items:center; gap:8px; width:100%; min-height:34px; padding:4px 8px; text-align:left; background:none; border:0; border-radius:var(--radius,6px); color:var(--muted); font:inherit; font-size:12px; }
 .context-category-row>i { width:8px; height:8px; border-radius:2px; background:var(--context-color); flex:none; }
 .context-category-row>span { min-width:0; overflow-wrap:anywhere; }
-.context-category-row>strong { margin-left:auto; flex:none; font-weight:400; color:var(--text); font-variant-numeric:tabular-nums; }
+.context-category-row>strong { flex:none; font-weight:600; white-space:nowrap; color:var(--text); font-variant-numeric:tabular-nums; }
 .context-category-row:hover { background:var(--subtle); color:var(--text); }
 .context-inspector :is(button):focus-visible { outline:2px solid var(--accent); outline-offset:-2px; }
 .context-category-detail.ui-popover { display:grid; align-content:start; gap:6px; box-sizing:border-box; padding:12px; background:var(--surface); border:1px solid var(--border); border-radius:10px; color:var(--muted); box-shadow:var(--elevation); font-size:12px; line-height:1.5; z-index:var(--ui-overlay-z,1000); overflow:auto; scrollbar-width:thin; pointer-events:none; animation:context-detail-in 140ms ease-out; }
 .context-category-detail strong { color:var(--text); font-weight:500; }
 .context-category-detail :is(span,strong) { overflow-wrap:anywhere; }
-.context-subitem { display:flex; justify-content:space-between; gap:12px; }
-.context-subitem>span:last-child { flex:none; font-variant-numeric:tabular-nums; }
+.context-subitems { display:grid; grid-template-columns:minmax(0,max-content) max-content; gap:6px 8px; }
+.context-subitem { display:contents; }
+.context-subitem>span:last-child { color:var(--text); font-weight:600; white-space:nowrap; font-variant-numeric:tabular-nums; }
 .context-categories-note { color:var(--muted); font-size:12px; line-height:1.5; margin:8px 0 0; }
 .context-meter-unknown { height:10px; border:1px dashed var(--border); border-radius:3px; }
 .context-compaction-shimmer { position:absolute; inset:0; pointer-events:none; background:linear-gradient(100deg,transparent 20%,#ffffff80 46%,#ffffff1a 58%,transparent 78%); background-size:180% 100%; animation:context-busy-sweep 1000ms linear infinite; }
