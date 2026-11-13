@@ -16,6 +16,7 @@ button { transition:background-color var(--ui-motion-hover) var(--ui-ease-move),
 a,summary { transition:color var(--ui-motion-hover) var(--ui-ease-move),background-color var(--ui-motion-hover) var(--ui-ease-move); }
 input,textarea,select { transition:border-color var(--ui-motion-hover) var(--ui-ease-move),background-color var(--ui-motion-hover) var(--ui-ease-move); }
 @media(prefers-reduced-motion:reduce) { :where(button:active) { transform:none; } }
+:root:is([data-motion="reduced"],[data-motion="off"]) :where(button:active) { transform:none; }
 input,textarea,select { color:var(--text); background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:9px 11px; min-width:0; accent-color:var(--accent); caret-color:var(--accent); }
 input::placeholder,textarea::placeholder { color:var(--placeholder); opacity:1; }
 input[type="checkbox"] { padding:0; width:15px; height:15px; flex-shrink:0; }
