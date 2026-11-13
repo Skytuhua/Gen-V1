@@ -185,17 +185,22 @@ function lintMarkup(text: string, file: string): UiViolation[] {
   return violations;
 }
 
-const tokenDurations = new Set(['30ms', '80ms', '120ms', '140ms', '160ms', '180ms', '200ms', '220ms', '240ms', '350ms', '600ms']);
+// Canonical token values: durations in milliseconds, easing curves as numeric tuples.
+const tokenDurations = new Set([30, 80, 120, 140, 160, 180, 200, 220, 240, 350, 600]);
+const tokenCurves = new Set(['0.16,1,0.3,1', '0.4,0,0.2,1', '0.2,0.9,0.2,1.1']);
 
 function lintStyles(text: string, file: string): UiViolation[] {
   if (primitiveImplementations[file]) return [];
   const violations: UiViolation[] = [], scanner = ts.createScanner(ts.ScriptTarget.Latest, true, ts.LanguageVariant.Standard, text);
   // Use lexical blocks/declarations, keeping strings, comments and function values opaque.
-  const stack: { start: number; header: string; declarations: [string, string][]; name?: string; tokens: string[] }[] = [];
+  const stack: { start: number; header: string; declarations: [string, string][]; rawDeclarations: [string, string][]; name?: string; valueStart?: number; tokens: string[] }[] = [];
   let boundary = 0, parentheses = 0, token: ts.SyntaxKind;
-  const declaration = () => {
+  const declaration = (end: number) => {
     const frame = stack.at(-1);
-    if (frame?.name) frame.declarations.push([frame.name, frame.tokens.join('')]);
+    if (frame?.name) {
+      frame.declarations.push([frame.name, frame.tokens.join('')]);
+      frame.rawDeclarations.push([frame.name, text.slice(frame.valueStart ?? end, end).trim()]);
+    }
     if (frame) { frame.name = undefined; frame.tokens = []; }
   };
   while ((token = scanner.scan()) !== ts.SyntaxKind.EndOfFileToken) {
@@ -204,12 +209,12 @@ function lintStyles(text: string, file: string): UiViolation[] {
     if (token === ts.SyntaxKind.CloseParenToken) parentheses--;
     if (parentheses) { frame?.tokens.push(scanner.getTokenText()); continue; }
     if (token === ts.SyntaxKind.OpenBraceToken) {
-      stack.push({ start: boundary, header: text.slice(boundary, start).trim(), declarations: [], tokens: [] }); boundary = end;
+      stack.push({ start: boundary, header: text.slice(boundary, start).trim(), declarations: [], rawDeclarations: [], tokens: [] }); boundary = end;
     } else if (token === ts.SyntaxKind.ColonToken && frame && !frame.name) {
-      frame.name = frame.tokens.join(''); frame.tokens = [];
-    } else if (token === ts.SyntaxKind.SemicolonToken) { declaration(); boundary = end; }
+      frame.name = frame.tokens.join(''); frame.tokens = []; frame.valueStart = end;
+    } else if (token === ts.SyntaxKind.SemicolonToken) { declaration(start); boundary = end; }
     else if (token === ts.SyntaxKind.CloseBraceToken) {
-      declaration();
+      declaration(start);
       const block = stack.pop();
       if (block) {
         const leading = text.slice(block.start).search(/\S/), position = block.start + Math.max(0, leading);
@@ -220,11 +225,13 @@ function lintStyles(text: string, file: string): UiViolation[] {
             message: 'Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.',
             fingerprint: createHash('sha256').update(block.header + JSON.stringify(block.declarations)).digest('hex') });
         }
-        for (const [name, value] of block.declarations) {
+        for (const [name, value] of block.rawDeclarations) {
           if (!['transition', 'transition-duration', 'animation', 'animation-duration'].includes(name.trim())) continue;
-          const normalized = value.replace(/[^a-z0-9,.-]/gi, ''), duration = normalized.match(/\d+(?:\.\d+)?ms/)?.[0];
-          const offTokenCurve = ['cubic-bezier.16,1,.3,1', 'cubic-bezier.4,0,.2,1', 'cubic-bezier.2,.9,.2,1.1'].some(curve => normalized.includes(curve));
-          if ((duration && tokenDurations.has(duration)) || offTokenCurve) {
+          const durations = [...value.matchAll(/(\d*\.?\d+)(ms|s)\b/gi)]
+            .map(match => match[2].toLowerCase() === 's' ? parseFloat(match[1]) * 1000 : parseFloat(match[1]));
+          const curves = [...value.matchAll(/cubic-bezier\(\s*([^)]*)\)/gi)]
+            .map(match => match[1].split(',').map(part => parseFloat(part.trim())).join(','));
+          if (durations.some(duration => tokenDurations.has(duration)) || curves.some(curve => tokenCurves.has(curve))) {
             violations.push({ file, line: lines.length, column: lines.at(-1)!.length + 1, rule: 'off-token-motion',
               message: 'Motion literal duplicates a design token: use var(--ui-motion-*) / var(--ui-ease-*) instead.',
               fingerprint: createHash('sha256').update(block.header + name + value).digest('hex') });
