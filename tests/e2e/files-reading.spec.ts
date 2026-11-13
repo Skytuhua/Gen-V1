@@ -103,7 +103,7 @@ test("RED source: held project directory and file requests expose separate pendi
 	await go();
 	await expect.poll(() => !!tree).toBe(true);
 	await expect(page.getByRole("status")).toContainText(
-		/Reading.*(folder|directory)/i,
+		/Loading…/,
 	);
 	await tree!.fulfill({ json: { entries: [entry("held.txt")] } });
 	await page.route("**/api/projects/*/file?*", (route) => {
@@ -113,7 +113,7 @@ test("RED source: held project directory and file requests expose separate pendi
 	await expect.poll(() => !!file).toBe(true);
 	await expect(
 		page.getByRole("region", { name: "File content" }).getByRole("status"),
-	).toContainText(/Reading.*file/i);
+	).toContainText(/Loading…/);
 	await file!.fulfill({ json: text() });
 	await expect(
 		page.getByRole("region", { name: "File content" }),
@@ -131,7 +131,7 @@ test("RED source: unrelated preview cleanup cannot clear a held granted director
 	await go();
 	await expect.poll(() => !!held).toBe(true);
 	await expect(page.getByRole("status")).toContainText(
-		/Reading.*(folder|directory|resource)/i,
+		/Loading…/,
 	);
 	await held!.fulfill({ json: { path: "", entries: [], truncated: false } });
 });
@@ -163,7 +163,7 @@ test("RED source: a held project file identifies the pending selection", async (
 	).toContainText("ok.txt");
 	await expect(
 		page.getByRole("region", { name: "File content" }).getByRole("status"),
-	).toContainText(/Reading.*file/i);
+	).toContainText(/Loading…/);
 	await held!.fulfill({ json: text() });
 });
 
@@ -189,11 +189,11 @@ test("folder filter is local, breadcrumb navigates, and empty folders are explic
 		.getByRole("searchbox", { name: "Filter this folder" })
 		.fill("no match");
 	await expect(
-		page.getByText("No matching entries in this folder."),
+		page.getByText("No matches."),
 	).toBeVisible();
 	await page.getByRole("searchbox", { name: "Filter this folder" }).fill("");
 	await page.getByRole("button", { name: "next", exact: true }).click();
-	await expect(page.getByText("This folder is empty.")).toBeVisible();
+	await expect(page.getByText("Folder is empty.")).toBeVisible();
 	await page
 		.getByRole("navigation", { name: "Folder breadcrumb" })
 		.getByRole("button", { name: "Project files", exact: true })
@@ -233,7 +233,7 @@ test("refresh retains the selected project content and retry recovers directory 
 	await page.route("**/api/projects/*/files?*", (route) =>
 		route.fulfill({ json: { entries: [entry("ok.txt")] } }),
 	);
-	await page.getByRole("button", { name: "Retry folder" }).click();
+	await page.getByRole("button", { name: "Retry" }).click();
 	await expect(page.getByRole("alert")).toHaveCount(0);
 });
 
@@ -548,7 +548,7 @@ for (const mode of [
 				await page.route("**/api/resources/*/content*", (route) =>
 					route.fulfill({ contentType: "text/plain", body: "Retry succeeded" }),
 				);
-				await page.getByRole("button", { name: "Retry file" }).click();
+				await page.getByRole("button", { name: "Retry" }).click();
 				await expect(preview).toContainText("Retry succeeded");
 				await expect(preview.getByRole("alert")).toHaveCount(0);
 			}
@@ -789,7 +789,7 @@ test("project empty text, binary and too-large errors remain distinct", async ({
 	await page.getByRole("button", { name: "large.txt", exact: true }).click();
 	await expect(preview.getByRole("alert")).toContainText("1 MiB");
 	await expect(
-		preview.getByRole("button", { name: "Retry file" }),
+		preview.getByRole("button", { name: "Retry" }),
 	).toBeVisible();
 	await expect(
 		page.getByRole("combobox", { name: "Granted resource" }),
@@ -830,7 +830,7 @@ test("granted refresh retains folder and preview with independent pending feedba
 	).toContainText("Refreshed text");
 	await expect(
 		page.getByRole("navigation", { name: "Granted files" }).getByRole("status"),
-	).toContainText("Refreshing folder");
+	).toContainText("Refreshing…");
 	await tree!.fulfill({
 		json: { entries: [entry("ok.txt")], truncated: false },
 	});
@@ -912,7 +912,7 @@ for (const source of ["project", "granted"])
 			await expect(
 				page.getByText(
 					source === "project"
-						? /at most 500 entries/
+						? /up to 500 entries/
 						: /limited to 300 entries/,
 				),
 			).toBeVisible();
@@ -920,7 +920,7 @@ for (const source of ["project", "granted"])
 				.getByRole("searchbox", { name: "Filter this folder" })
 				.fill("not-returned");
 			await expect(
-				page.getByText("No matching entries in this folder."),
+				page.getByText("No matches."),
 			).toBeVisible();
 		},
 	);

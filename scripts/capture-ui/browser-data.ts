@@ -12,6 +12,7 @@ export function browserSnapshot(empty = false): Snapshot {
 export const projectContext: ProjectContext = { project: { id: 'capture-project', name: 'Audit project', rootPath: '/synthetic/project', authority: { kind: 'local' }, createdAt: '2026-11-06' }, machineName: 'Fixture machine', editor: { available: false, label: 'Synthetic editor' }, branch: 'wo-1/ui-capture', head: 'a'.repeat(40), changes: { added: 3, removed: 1, files: 2 }, lineage: [], scripts: [], capabilities: { git: true, terminal: true, pullRequests: false } };
 export function browserApiResponse(url: URL, payload?: Record<string, unknown>, empty = false): unknown | undefined {
   const path = url.pathname;
+  if (path === '/api/projects/capture-project/git') return {head:'a'.repeat(40),revision:'b'.repeat(64),branch:'capture',files:[],diff:'Synthetic current working-copy diff',stagedDiff:'',truncated:false,gitWrite:false};
   if (path.startsWith('/api/conversations/')) {
     if (path.endsWith('/transcript')) return { ...scopedEnvelope, messages: empty ? [] : [scopedMessage('capture-message', 'A source-bound conversation rendered through the real scoped reader.')], nextCursor: null };
     if (path.endsWith('/updates')) return { ...scopedEnvelope, fromSequence: scopedContext.sequence, owner: null, transcriptChanged: false, checkpoint: scopedContext.checkpoint };
