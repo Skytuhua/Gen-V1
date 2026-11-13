@@ -24,6 +24,10 @@ export const primitiveImplementations: Readonly<Record<string, string>> = {
   'packages/ui-shell/Modal.tsx': 'Shared native dialog modality and focus-return primitive.',
   'packages/ui-shell/controls.css': 'Scoped shared menu, select and modal styling.',
   'packages/ui-shell/tokens.css': 'Shared primitive tokens, popover and option styling.',
+  'packages/ui-shell/Toast.tsx': 'Shared toast store and non-modal feedback layer.',
+  'packages/ui-shell/Tooltip.tsx': 'Shared tooltip layer adopting title attributes with dwell and focus behavior.',
+  'packages/ui-shell/Feedback.tsx': 'Shared spinner, empty and error state primitives.',
+  'packages/ui-shell/feedback.css': 'Scoped shared toast, tooltip and state styling.',
 };
 const overlayRoles = new Set(['dialog', 'alertdialog', 'menu', 'menubar', 'listbox', 'combobox', 'tooltip']);
 const overlayTags = new Set(['select', 'dialog']);

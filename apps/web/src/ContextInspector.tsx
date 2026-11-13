@@ -5,6 +5,7 @@ import { command } from './api';
 import { ContextMeter, contextNumber, contextSegments, contextTokenCount, type ContextUsage } from './ContextMeter';
 import { unavailableCompaction } from './runtime-presentation';
 import './context-inspector.css';
+import {ErrorState} from '../../../packages/ui-shell/Feedback';
 
 /** Only a host-accepted compaction event for this exact run/session may produce this receipt. */
 export interface AcceptedCompactionReceipt {
@@ -87,7 +88,7 @@ function ContextSession({ usage, thread, close, refresh, onError, anchor, compac
     <header><strong>Context <span>{measured ? `${Math.round(measured.ratio)}%` : 'Not reported'}</span></strong>
       {measured && <span className="context-inspector-total">{contextNumber(measured.used)} of {contextNumber(measured.total)}</span>}</header>
     <div className="context-inspector-body"><ContextMeter usage={usage} busy={compacting} accepted={playingReceipt} />
-      {failure && <p className="context-inspector-error" role="alert">{failure}</p>}
+      {failure && <ErrorState className="context-inspector-error" message={failure}/>}
     </div>
     <footer><span role="status" aria-live="polite" className={playingReceipt ? 'context-receipt-pulse' : undefined}>{activity}</span>
       <button ref={action} type="button" disabled={!thread?.sessionPath || Boolean(thread.runId) || compacting || Boolean(unavailable)}

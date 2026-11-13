@@ -27,6 +27,7 @@ import {CodeReviewHost} from './CodeReviewHost';
 import type {ThreadHoverDestination,ThreadHoverPRTarget} from './thread-hover/host';
 import type {ThreadHoverScope} from './thread-hover/facts';
 import './workspace-host.css';
+import {ErrorState} from '../../../packages/ui-shell/Feedback';
 
 export type ConversationIntent = 'model' | 'settings' | 'usage' | 'new-thread' | 'connect-project' | 'resources' | 'linked-pull-requests';
 export interface ConversationHost {
@@ -63,7 +64,7 @@ function CompactSettingsContent(props: ComponentProps<CompactSettingsComponent>)
     } catch (cause) {if (alive.current) setError(`Drafts could not be saved. ${message(cause)} Keep this window open and retry.`);}
     finally {if (alive.current) setReloading(false);}
   };
-  return Settings ? <Settings {...props}/> : error ? <><p role="alert">{error}</p><button className="primary" disabled={reloading} onClick={() => void reload()}>Reload to retry</button></> : <LoadingState pending hasContent={false} label="Opening settings…" skeleton={<SettingsSkeleton/>} className="view-loading-state"/>;
+  return Settings ? <Settings {...props}/> : error ? <ErrorState message={error} retryLabel="Reload to retry" busy={reloading} onRetry={() => void reload()}/> : <LoadingState pending hasContent={false} label="Opening settings…" skeleton={<SettingsSkeleton/>} className="view-loading-state"/>;
 }
 
 /** Resolve the main window's canonical workspace before mounting a conversation owner. */
@@ -150,7 +151,7 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
   const retry = () => fail(async () => {await Promise.all([workspace.refresh(), loadSettings()]); setError('');});
   if (!workspace.envelope || !settings || !preset) return <main className="workspace-host-bootstrap">
     {!failure && <LoadingState pending hasContent={false} label="Opening workspace…" skeleton={<WorkspaceSkeleton/>} className="view-loading-state"/>}
-    {failure && <div role="alert">{failure}<button onClick={retry}>Retry workspace</button></div>}
+    {failure && <ErrorState message={failure} retryLabel="Retry workspace" onRetry={retry}/>}
   </main>;
   if (preset !== 'all-agents' && preset !== 'research' && preset !== 'code-review') return conversation({workspace, choosePreset, initialThreadId: selected.current, selectThread: id => {selected.current = id;}, intent, consumeIntent: id => setIntent(current => current?.id === id ? undefined : current), composers, openReview});
   return <MonitorShell workspace={workspace} settings={settings} controller={controller} composers={composers} choosePreset={choosePreset}
@@ -229,7 +230,7 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
       rename={row => {setRename(row); setTitle(row.title);}} archive={id => {const row = navigation.page?.items.find(value => value.id === id); if (row) {if (preferences.archiveConfirmation) setArchive(row); else archiveRow(row);}}} presentation={present}
       orderBounds={navigation.page?.stats}
       pageControls={<div className="workspace-host-navigation-page">
-        {navigation.error && <p role="alert">{navigation.error}<button onClick={() => fail(navigation.refresh)}>Retry threads</button></p>}
+        {navigation.error && <ErrorState message={navigation.error} retryLabel="Retry threads" onRetry={() => fail(navigation.refresh)}/>}
         <PendingStatus pending={navigation.pending} label="Loading threads…"/>
         {navigation.page?.nextCursor && <button disabled={navigation.pending} onClick={() => fail(navigation.more)}>Load more threads ({navigation.page.items.length} of {navigation.page.total})</button>}
       </div>}/>

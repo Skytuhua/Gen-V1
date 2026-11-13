@@ -8,6 +8,7 @@ import type {SettingsData} from './settings-data';
 import {useAppearance} from './useAppearance';
 import {LoadingState} from './LoadingState';
 import {SettingsSkeleton} from './ViewSkeletons';
+import {ErrorState} from '../../../packages/ui-shell/Feedback';
 
 export type CompactSettingsProps = Pick<SettingsActions, 'close' | 'addResource' | 'initialSection' | 'openBrowser' | 'environmentSettings'> & {
   /** Host identity. Changing it disposes this Settings view and its metadata scope. */
@@ -48,7 +49,7 @@ function ScopedSettings(actions: Omit<CompactSettingsProps, 'scopeKey'>) {
     signal.throwIfAborted(); return result;
   }, []);
   return <>
-    {error && <p className="notice error-text" role="alert">{error} <button className="secondary" disabled={loading} onClick={() => void refresh().catch(() => {})}>Retry settings</button></p>}
+    {error && <ErrorState className="notice error-text" message={error} retryLabel="Retry settings" busy={loading} onRetry={() => void refresh().catch(() => {})}/>}
     <LoadingState pending={loading} hasContent={Boolean(data)} label="Opening settings…" skeleton={<SettingsSkeleton/>} className="view-loading-state">
     {data && <AcceptedSettings {...actions} data={data} draftReferences={draftReferences} modelError="" refresh={refresh} loadModels={async () => {}} environmentSettings={actions.environmentSettings ?? <EnvironmentSettings/>}/>}
     </LoadingState>
