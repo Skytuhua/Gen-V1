@@ -125,7 +125,12 @@ napi_value acquire(napi_env env, napi_callback_info info) {
     HANDLE held = open(*lease, lease->path, true); privateFile(held);
     std::vector<wchar_t> canonical(32768);
     DWORD length = GetFinalPathNameByHandleW(held, canonical.data(), static_cast<DWORD>(canonical.size()), FILE_NAME_NORMALIZED | VOLUME_NAME_DOS);
-    require(length > 4 && length < canonical.size() && std::wstring(canonical.data(), 4) == L"\\\\?\\" && _wcsicmp(canonical.data() + 4, lease->path.c_str()) == 0);
+    std::vector<wchar_t> spelled(32768);
+    // The caller may spell ancestors as 8.3 short names (e.g. %TEMP% on hosted
+    // runners); the canonical handle name always expands them.
+    const DWORD spelledLength = GetLongPathNameW(lease->path.c_str(), spelled.data(), static_cast<DWORD>(spelled.size()));
+    require(length > 4 && length < canonical.size() && spelledLength > 0 && spelledLength < spelled.size()
+      && std::wstring(canonical.data(), 4) == L"\\\\?\\" && _wcsicmp(canonical.data() + 4, spelled.data()) == 0);
     require(GetFileInformationByHandle(held, &lease->identity)); current(*lease);
     napi_value result, method; check(napi_create_object(env, &result)); check(napi_type_tag_object(env, result, &TAG));
     check(napi_create_function(env, "read", NAPI_AUTO_LENGTH, read, nullptr, &method)); check(napi_set_named_property(env, result, "read", method));
