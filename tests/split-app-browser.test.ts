@@ -178,7 +178,9 @@ describe.runIf(enabled)('actual App split workspace',()=>{
  it('reopens the same parked and minimized detailed plan on fresh validated revisions without taking composer focus',async()=>{
   const host=await fixture({plan:true}),{page}=host;try{
    const draft=page.locator('[data-split-view="thread:thread-a"]').getByRole('textbox',{name:'Message',exact:true}),detail=page.locator('[data-split-view="plan:thread-a"]').getByRole('region',{name:/^Task plan(?::|$)/});await detail.waitFor({state:'visible'});
-   const originalAreaCount=Object.keys(host.layout.panes).length;await host.issue('view.park',{viewId:'plan:thread-a'});await detail.waitFor({state:'hidden'});await draft.fill('Retain focus during plan refresh');
+   const originalAreaCount=Object.keys(host.layout.panes).length;await host.issue('view.park',{viewId:'plan:thread-a'});await detail.waitFor({state:'hidden'});
+   const expandOverview=page.getByRole('button',{name:'Expand Project overview',exact:true});if(await expandOverview.isVisible())await expandOverview.click();
+   await draft.fill('Retain focus during plan refresh');
    const record=host.snapshot.data.find(item=>item.id===planDataId('thread-a'))!;record.revision=8;record.value={...(record.value as object),title:'Updated verification plan'};await host.publish();
    await page.locator('[aria-label="Plan summary"][data-plan-revision="8"]').waitFor({state:'visible'});await detail.waitFor({state:'visible'});expect(await detail.getAttribute('aria-label')).toBe('Task plan: Updated verification plan');expect(await draft.evaluate(node=>node===document.activeElement)).toBe(true);
    expect(Object.values(host.layout.views).filter(view=>view.kind==='plan')).toHaveLength(1);const pane=Object.values(host.layout.panes).find(item=>item.viewIds.includes('plan:thread-a'))!;
@@ -275,7 +277,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
   try{
    await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();
    await page.evaluate(()=>{const slot=document.createElement('section');slot.className='desktop-browser-dock';slot.setAttribute('aria-label','Synthetic browser geometry');slot.textContent='Browser slot geometry';(document.querySelector('.workspace-tools')??document.querySelector('.shell-workarea'))!.appendChild(slot);});
-   const boxes=await page.evaluate(()=>{const box=(selector:string)=>{const a=document.querySelector(selector)!.getBoundingClientRect();return{x:a.x,y:a.y,right:a.right,bottom:a.bottom,width:a.width};};return{chat:box('.summary-layout>.workspace'),panel:box('.workspace-right'),browser:box('.desktop-browser-dock'),owner:box('.shell-workarea')};});
+   const boxes=await page.evaluate(()=>{const box=(selector:string)=>{const a=document.querySelector(selector)!.getBoundingClientRect();return{x:a.x,y:a.y,right:a.right,bottom:a.bottom,width:a.width};};return{chat:box('.chat-view-slot'),panel:box('.workspace-right'),browser:box('.desktop-browser-dock'),owner:box('.shell-workarea')};});
    expect(boxes.chat.width).toBeGreaterThanOrEqual(420);expect(boxes.chat.right).toBeLessThanOrEqual(boxes.panel.x);
    expect(boxes.browser.right).toBeLessThanOrEqual(boxes.owner.right+1);expect(boxes.browser.y).toBeGreaterThanOrEqual(boxes.panel.bottom);
   }finally{await page.close();}
@@ -300,7 +302,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    for(const end of [1,size.width-1]){
     const handle=(await separator.boundingBox())!;await page.mouse.move(handle.x+handle.width/2,handle.y+30);await page.mouse.down();await page.mouse.move(end,handle.y+30,{steps:5});await page.mouse.up();
     await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
-    const boxes=await page.evaluate(()=>{const box=(selector:string)=>{const a=document.querySelector(selector)!.getBoundingClientRect();return{x:a.x,y:a.y,right:a.right,bottom:a.bottom,width:a.width,height:a.height};};return{chat:box('.summary-layout>.workspace'),panel:box('.workspace-right'),owner:box('.shell-workarea'),title:box('.workspace-switcher'),overflow:document.documentElement.scrollWidth-innerWidth};});
+    const boxes=await page.evaluate(()=>{const box=(selector:string)=>{const a=document.querySelector(selector)!.getBoundingClientRect();return{x:a.x,y:a.y,right:a.right,bottom:a.bottom,width:a.width,height:a.height};};return{chat:box('.chat-view-slot'),panel:box('.workspace-right'),owner:box('.shell-workarea'),title:box('.workspace-switcher'),overflow:document.documentElement.scrollWidth-innerWidth};});
     expect(boxes.chat.width).toBeGreaterThanOrEqual(420);expect(boxes.panel.width).toBeLessThanOrEqual(Math.min(720,boxes.owner.width-426)+1);
     expect(boxes.chat.right).toBeLessThanOrEqual(boxes.panel.x);expect(boxes.panel.y).toBeGreaterThanOrEqual(boxes.title.bottom);
     expect(boxes.panel.right).toBeLessThanOrEqual(boxes.owner.right+1);expect(boxes.overflow).toBeLessThanOrEqual(1);
@@ -312,7 +314,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
   const{page}=await fixture({width:900,height:700,mode:'chat'});
   try{
    await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();
-   const boxes=await page.evaluate(()=>{const box=(selector:string)=>{const a=document.querySelector(selector)!.getBoundingClientRect();return{x:a.x,y:a.y,right:a.right,bottom:a.bottom,width:a.width,height:a.height};};return{chat:box('.summary-layout>.workspace'),panel:box('.workspace-right'),owner:box('.shell-workarea'),title:box('.workspace-switcher')};});
+   const boxes=await page.evaluate(()=>{const box=(selector:string)=>{const a=document.querySelector(selector)!.getBoundingClientRect();return{x:a.x,y:a.y,right:a.right,bottom:a.bottom,width:a.width,height:a.height};};return{chat:box('.chat-view-slot'),panel:box('.workspace-right'),owner:box('.shell-workarea'),title:box('.workspace-switcher')};});
    expect(boxes.panel.y).toBeGreaterThanOrEqual(boxes.chat.bottom);expect(boxes.panel.bottom).toBeLessThanOrEqual(boxes.owner.bottom+1);
    expect(boxes.panel.height).toBeLessThanOrEqual(boxes.owner.height*.45+1);expect(boxes.chat.height).toBeGreaterThanOrEqual(240);
    expect(boxes.panel.y).toBeGreaterThanOrEqual(boxes.title.bottom);
