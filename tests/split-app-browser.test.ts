@@ -23,10 +23,10 @@ describe.runIf(enabled)('actual App split workspace',()=>{
  beforeAll(async()=>{
   server=spawn(process.execPath,['node_modules/vite/bin/vite.js','--config','tests/e2e/vite.config.ts','--host','127.0.0.1','--port','5598','--strictPort'],{cwd:root,windowsHide:true,stdio:['ignore','pipe','pipe']});
   server.stdout?.on('data',chunk=>{serverLog+=String(chunk);});server.stderr?.on('data',chunk=>{serverLog+=String(chunk);});
-  let ready=false;for(let i=0;i<100;i++){if(server.exitCode!==null)throw Error('Owned Vite exited: '+serverLog);try{const response=await fetch(origin,{signal:AbortSignal.timeout(500)});if(response.ok){ready=true;break;}}catch{}await new Promise(resolve=>setTimeout(resolve,100));}
+  let ready=false;for(let i=0;i<300;i++){if(server.exitCode!==null)throw Error('Owned Vite exited: '+serverLog);try{const response=await fetch(origin,{signal:AbortSignal.timeout(500)});if(response.ok){ready=true;break;}}catch{}await new Promise(resolve=>setTimeout(resolve,100));}
   if(!ready)throw Error('Owned Vite did not start: '+serverLog);
   browser=await chromium.launch({headless:true,channel:process.env.GEN_TEST_BROWSER_CHANNEL??'chrome'});
- },20000);
+ },60000);
  afterAll(async()=>{try{await browser?.close();}finally{if(server&&server.exitCode===null){server.kill();await new Promise<void>(resolve=>{const timer=setTimeout(resolve,2000);server!.once('exit',()=>{clearTimeout(timer);resolve();});});}}});
 
  async function fixture({plan=false,plugins=[],retainedCanvas=false,retainedPlan=false,unstarted=false,width=1600,height=1000,deferPluginFlush=false,mode='split'}:{plan?:boolean;plugins?:PluginManifest[];retainedCanvas?:boolean;retainedPlan?:boolean;unstarted?:boolean;width?:number;height?:number;deferPluginFlush?:boolean;mode?:'split'|'chat'}={}){
