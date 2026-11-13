@@ -8,6 +8,9 @@ and verified host bridge.
 It reads and saves only its own diagram records. It has no personal conversation,
 model, account, runtime, project-file or general network capability. Opening an
 example does not inspect your projects. Every example is labelled **Example**.
+The workspace opens with a dismissible note stating this purpose; **About
+Visuals** in the status row brings the note back. Dismissal lasts until the
+plug-in frame is reopened, because the sandboxed frame has no storage.
 
 ## Build and install
 
