@@ -66,6 +66,10 @@ export class Service {
   // rather than assuming distinct resource IDs imply independent resources.
   private operationQueue: Promise<void> = Promise.resolve();
   private closed = false;
+  // Assistant deltas arrive per streamed chunk. Buffer them briefly and commit
+  // one coalesced runtime.assistant.delta per flush instead of one transaction
+  // (and one SSE fan-out plus client refetch) per chunk.
+  private deltaBuffers = new Map<string, { threadId: string; runId: string; epoch: number; messageId: string; parts: string[]; timer: ReturnType<typeof setTimeout> }>();
   private updateClosing = false;
   private progressTimes = new Map<string, number>();
   private sideRuntime:SideRuntime;
@@ -814,12 +818,55 @@ export class Service {
     this.aborts.get(thread.id)?.abort();
     this.background(this.cancelRun(ctx,!!thread.sideParentId).then(()=>this.deliverOutbox(thread.id)));
   }
+  private bufferDelta(event: RuntimeEvent, thread: Thread): void {
+    if (typeof event.messageId !== "string") {
+      // Without a stable message id chunks cannot be coalesced safely.
+      this.commitRuntimeProjection(thread, event);
+      return;
+    }
+    const key = `${thread.id}:${event.runId}:${event.messageId}`;
+    const existing = this.deltaBuffers.get(key);
+    if (existing && existing.epoch === event.epoch) { existing.parts.push(String(event.delta ?? "")); return; }
+    if (existing) this.flushDelta(key);
+    const timer = setTimeout(() => this.flushDelta(key), 40);
+    timer.unref();
+    this.deltaBuffers.set(key, { threadId: thread.id, runId: event.runId, epoch: event.epoch, messageId: event.messageId, parts: [String(event.delta ?? "")], timer });
+  }
+  private flushDelta(key: string): void {
+    const buffer = this.deltaBuffers.get(key);
+    if (!buffer) return;
+    this.deltaBuffers.delete(key);
+    clearTimeout(buffer.timer);
+    if (this.closed) return;
+    const thread = this.store.get<Thread>("thread", buffer.threadId);
+    if (!thread || thread.epoch !== buffer.epoch || thread.runId !== buffer.runId) return;
+    const delta = buffer.parts.join("");
+    if (!delta) return;
+    this.commitRuntimeProjection(thread, { type: "assistant.delta", threadId: thread.id, runId: buffer.runId, epoch: buffer.epoch, messageId: buffer.messageId, delta });
+  }
+  private flushDeltas(threadId: string): void {
+    for (const [key, buffer] of this.deltaBuffers) if (buffer.threadId === threadId) this.flushDelta(key);
+  }
   private onRuntimeEvent(event: RuntimeEvent): void {
     if (this.closed) return;
     const thread = this.store.get<Thread>("thread", event.threadId);
     if (!thread || event.epoch !== thread.epoch || event.runId !== thread.runId) return;
-    if (event.type === "error") { this.runtimeFailure(event, new Error(String(event.message))); return; }
+    if (event.type === "error") { this.flushDeltas(thread.id); this.runtimeFailure(event, new Error(String(event.message))); return; }
+    if (event.type === "assistant.delta") { this.bufferDelta(event, thread); return; }
+    // Preserve event order: buffered deltas precede every other commit here.
+    this.flushDeltas(thread.id);
     const control=this.aborts.get(thread.id);
+    this.commitRuntimeProjection(thread, event);
+    if (event.type === "settled") this.retireController(thread.id,control);
+    if (event.type === "settled" && !event.aborted) {
+      // Hermes may still be closing its background review here. Only this
+      // accepted transition mints the slot; request admission waits for cleanup.
+      const basis=this.predictionBasis(thread.id,true),reply=basis?this.store.get<Message>('message',basis.replyId):null;
+      if(basis&&reply?.runId===event.runId&&!this.store.get('runtimeIntent',event.runId))this.predictions.settled(basis);
+      this.background(this.deliverOutbox(thread.id).then(()=>this.reviewAfter(event)));
+    }
+  }
+  private commitRuntimeProjection(thread: Thread, event: RuntimeEvent): void {
     this.store.internal("runtime." + event.type, thread.id, () => {
       if(event.type==='write.hook'&&event.diagnostic&&typeof event.diagnostic==='object'){
         const diagnostic=event.diagnostic as WriteHookDiagnostic,input=this.store.get<Outbox>('outbox',diagnostic.inputId),receipt=input?.completedWrite;
@@ -843,11 +890,15 @@ export class Service {
           const ids = Array.isArray(event.inputIds) ? event.inputIds.filter((id): id is string => typeof id === "string" && this.store.get<Outbox>("outbox", id)?.enteredRuntime === true) : [];
           this.store.put("responseCheckpoint", event.runId, thread.id, { inputIds: [...new Set([...previous, ...ids])], messageId: id });
         }
+        // Carrying the upserted entity lets SSE clients patch their cached
+        // snapshot instead of re-fetching it for every streamed chunk.
+        return { runId: event.runId, message };
       }
       if (event.type === "usage" || event.type === "compaction.start" || event.type === "compaction.end") {
         const old = this.store.get<{ value: RuntimeUsage }>("usage", thread.id)?.value ?? EMPTY_USAGE;
         const next = { ...old, ...(typeof event.usage === "object" ? event.usage : {}), ...(event.type === "compaction.start" ? { activity: "compacting" } : event.type === "compaction.end" ? { activity: "idle" } : {}) };
         this.store.put("usage", thread.id, thread.id, { id: thread.id, value: next });
+        return { runId: event.runId, usage: next };
       }
       if (event.type === "settled") {
         this.failUnansweredDetails(event,event.aborted?'The explanation was stopped. Resume the task to retry.':'The agent finished without updating this option. Try again.');
@@ -862,14 +913,6 @@ export class Service {
       }
       return { runId: event.runId };
     });
-    if (event.type === "settled") this.retireController(thread.id,control);
-    if (event.type === "settled" && !event.aborted) {
-      // Hermes may still be closing its background review here. Only this
-      // accepted transition mints the slot; request admission waits for cleanup.
-      const basis=this.predictionBasis(thread.id,true),reply=basis?this.store.get<Message>('message',basis.replyId):null;
-      if(basis&&reply?.runId===event.runId&&!this.store.get('runtimeIntent',event.runId))this.predictions.settled(basis);
-      this.background(this.deliverOutbox(thread.id).then(()=>this.reviewAfter(event)));
-    }
   }
   async tool(call: ToolCall, ctx: RunContext): Promise<unknown> {
     const owningThread=this.assertRun(ctx);
@@ -1071,6 +1114,7 @@ export class Service {
     });
   }
   async dispose(): Promise<void> {
+    for(const key of [...this.deltaBuffers.keys()])this.flushDelta(key);
     this.closed=true;clearInterval(this.curatorTimer);for(const controller of this.aborts.values())controller.abort();
     for(const controller of this.researchAborts)controller.abort();
     const settled=await Promise.allSettled([this.predictions.dispose(),this.learning.dispose(),this.planning.dispose(),this.sideRuntime.dispose(),this.runtime.dispose()]);

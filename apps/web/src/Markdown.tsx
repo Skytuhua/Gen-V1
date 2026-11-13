@@ -1,4 +1,4 @@
-import { Fragment, type ReactNode } from 'react';
+import { Fragment, memo, useMemo, type ReactNode } from 'react';
 import {SentenceReveal} from './SentenceReveal';
 import './markdown.css';
 
@@ -109,6 +109,7 @@ function blocks(text:string):ReactNode[]{
   }
   return nodes;
 }
-export function Markdown({ text,animate=false,initialReveal=false }: { text: string;animate?:boolean;initialReveal?:boolean }) {
-  return <SentenceReveal className="markdown" text={text} animate={animate} initialReveal={initialReveal}>{blocks(text)}</SentenceReveal>;
-}
+export const Markdown = memo(function Markdown({ text,animate=false,initialReveal=false }: { text: string;animate?:boolean;initialReveal?:boolean }) {
+  const rendered = useMemo(() => blocks(text), [text]);
+  return <SentenceReveal className="markdown" text={text} animate={animate} initialReveal={initialReveal}>{rendered}</SentenceReveal>;
+});

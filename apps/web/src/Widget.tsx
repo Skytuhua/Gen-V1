@@ -137,7 +137,7 @@ export function Widget({ ref: widgetRef, artifact, inputs, values, stateRevision
       runtime.current = createWidgetRuntime({ iframe: iframe.current, identity: { token: mount.token, mountId: mount.mountId, artifactId: artifact.id }, html: artifact.widget.html, stateSchemaVersion: artifact.widget.stateSchemaVersion, onBridge: handle, onFailure: message => { if (active) setError(message); } });
     } catch { setError('The isolated generated-app worker is unavailable.'); return; }
     window.addEventListener('message', receive);
-    const heartbeat = setInterval(() => { if (leaseDirty.current && !leaseSuspended.current) void lease().catch(error => setError(error instanceof Error ? error.message : 'The edit lease expired.')); }, 20000);
+    const heartbeat = setInterval(() => { if (leaseDirty.current && !leaseSuspended.current) void lease().catch(error => setError(error instanceof Error ? error.message : 'The edit lease expired.')); }, (globalThis as { __genWidgetLeaseHeartbeatMs?: number }).__genWidgetLeaseHeartbeatMs ?? 20000);
     const leaseClientId = clientId.current;
     return () => { active = false; runtime.current?.dispose(); runtime.current = null; clearInterval(heartbeat); window.removeEventListener('message', receive); if (leaseDirty.current && !leaseSuspended.current) void Promise.resolve(leasePending.current).catch(() => {}).then(() => command('edit.end', { stateId: artifact.stateId, clientId: leaseClientId }, artifact.threadId)).catch(() => {}); };
   }, [mount, artifact.id, artifact.revision, artifact.stateId, artifact.threadId, validators]);

@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, useMemo, useSyncExternalStore, type ComponentProps, type CSSProperties, type ReactNode } from 'react';
+import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState, useMemo, useSyncExternalStore, type ComponentProps, type CSSProperties, type ReactNode } from 'react';
 import { Activity, ArrowUp, Bot, Check, ChevronDown, ChevronRight, CircleHelp, CircleStop, Folder, Laptop, LoaderCircle, Menu, MessageSquare, PanelLeftOpen, PanelRight, PenLine, Plus, SlidersHorizontal, WifiOff, X } from 'lucide-react';
 import type { InputRequest, ModelInfo, Operation, Snapshot, Thread,Message } from '../../../packages/contracts';
-import { ApiError, bootstrap, command, getModels, getSnapshot, subscribe } from './api';
+import { ApiError, bootstrap, command, getModels, getSnapshot, getThreadMessages, subscribe } from './api';
+import { applyRuntimeEvent } from './snapshot-events';
 import { journalCompareAndSwap, journalGeneration, journalRead, journalReadRecord, journalSubscribe, journalWrite } from './journal';
 import { Artifact } from './Artifact';
 import { Markdown } from './Markdown';
@@ -109,10 +110,10 @@ function SettingsWindow(props: ComponentProps<SettingsComponent>) {
   return <Modal open title="Settings" onClose={props.close} className="settings-dialog">{Settings ? <Settings {...props} /> : <>{error ? <><p role="alert">{error}</p><button className="primary" disabled={reloading} onClick={() => void reload()}>Reload to retry</button></> : <LoadingState pending hasContent={false} label="Opening settings…" skeleton={<SettingsSkeleton/>} className="view-loading-state"/>}</>}</Modal>;
 }
 
-function AssistantProse({message,arrivals,active}:{message:Message;arrivals:Set<string>;active:boolean}){
+const AssistantProse = memo(function AssistantProse({message,arrivals,active}:{message:Message;arrivals:Set<string>;active:boolean}){
   const initial=useRef(arrivals.has(message.id));useEffect(()=>{arrivals.delete(message.id);},[message.id,arrivals]);
   return <Markdown text={message.content} animate={active||initial.current} initialReveal={initial.current}/>;
-}
+}, (previous, next) => previous.message === next.message && previous.arrivals === next.arrivals && previous.active === next.active);
 function InputDecision({ request, refresh, snapshot }: { request: InputRequest; refresh: () => Promise<void>; snapshot:Snapshot }) {
   const defaults = schemaDefaults(request.responseSchema);
   const [values, setValues] = useState<Record<string, unknown>>(() => defaults && typeof defaults === 'object' ? defaults as Record<string, unknown> : {});
@@ -539,7 +540,7 @@ function ConversationWorkspace({embeddedThreadId,embeddedActive=true,onRequestTh
     void loadModels();
     return () => { modelRequest.current++;modelRead.current?.abort();modelRead.current=null; };
   }, [loaded, modelOwner, modelContext, loadModels]);
-  useEffect(() => { if (!loaded) return; return subscribe(snapshotRef.current.seq, event => {if(event.type.startsWith('workspace.')||event.type.startsWith('project.')||event.type.startsWith('split-workspace.'))window.dispatchEvent(new Event('harness:workspace-changed'));void refresh().catch(error => setError(messageOf(error))); }, setOnline, refresh); }, [loaded, refresh]);
+  useEffect(() => { if (!loaded) return; return subscribe(snapshotRef.current.seq, event => {if(event.type.startsWith('workspace.')||event.type.startsWith('project.')||event.type.startsWith('split-workspace.'))window.dispatchEvent(new Event('harness:workspace-changed'));const patched=applyRuntimeEvent(snapshotRef.current,event);if(patched)apply(patched);else void refresh().catch(error => setError(messageOf(error))); }, setOnline, refresh); }, [loaded, refresh, apply]);
   useEffect(() => { const query = matchMedia('(prefers-color-scheme: dark)'); const change = () => setSystemDark(query.matches); query.addEventListener('change', change); return () => query.removeEventListener('change', change); }, []);
   const theme = snapshot.settings.theme === 'system' ? systemDark ? 'dark' : 'light' : snapshot.settings.theme;
   useLayoutEffect(() => { document.documentElement.dataset.theme = theme; }, [theme]);
@@ -573,6 +574,10 @@ function ConversationWorkspace({embeddedThreadId,embeddedActive=true,onRequestTh
   const [historyCounts, setHistoryCounts] = useState<Record<string, number>>({});
   const historyStarts = useRef(new Map<string, number>());
   const historyAnchor = useRef<{ height: number; top: number } | null>(null);
+  // Pages of older messages fetched on demand once the snapshot's per-thread
+  // window is exhausted, keyed by thread id.
+  const olderMessages = useRef(new Map<string, Message[]>());
+  const [, setOlderPageTick] = useState(0);
   const select = (id: string | null) => { setSelectedPluginId(null);setSelectedPluginWorkspace(null); if(pinnedThreadId&&id&&id!==pinnedThreadId){if(embeddedThreadId&&onRequestThread)onRequestThread(id);else setNotice('Choose another conversation in the main workspace.');return;}if(id&&splitEnabled&&!customDock&&splitState.layout){const current=splitState.layout,target=Object.values(current.panes).find(pane=>pane.viewIds.some(viewId=>current.views[viewId]?.kind==='thread'&&current.views[viewId]?.binding.threadId===id));void placeSplitThread(id,target?.id??current.focusedPaneId).catch(cause=>setError(messageOf(cause)));setSidebarOpen(false);return;}  setSelectedId(id); setSidebarOpen(false);  try { if (id) localStorage.setItem('harness:selected-thread', id); else localStorage.removeItem('harness:selected-thread'); } catch { /* Selection still works when storage is unavailable. */ } };
   const createThread = (prepare?: PrepareThread, projectId?: string): Promise<string> => {
     if (creationPending.current) return creationPending.current;
@@ -811,16 +816,20 @@ function ConversationWorkspace({embeddedThreadId,embeddedActive=true,onRequestTh
         const requests = snapshot.requests.filter(item => item.threadId === thread?.id && item.status === 'pending');
         const operations = snapshot.operations.filter(item => item.threadId === thread?.id);
         const historyId = thread?.id ?? 'new';
-        const historyStart = historyStarts.current.get(historyId) ?? Math.max(0, messages.length - 100);
+        const present = new Set(messages.map(message => message.id));
+        const older = (olderMessages.current.get(historyId) ?? []).filter(message => !present.has(message.id));
+        const allMessages = [...older, ...messages];
+        const historyStart = historyStarts.current.get(historyId) ?? Math.max(0, allMessages.length - 100);
         historyStarts.current.set(historyId, historyStart);
         const artifactMessageIds = new Set(artifacts.map(artifact => artifact.messageId));
-        const visibleMessageIds = new Set(messages.slice(historyStart).map(message => message.id));
+        const visibleMessageIds = new Set(allMessages.slice(historyStart).map(message => message.id));
+        const olderRemaining = Math.max(0, (snapshot.messagesTruncated?.[historyId] ?? 0) - older.length);
         // Group before paging to keep each run's full history and stable first-message key.
-        const messageRows = groupWorkActivity(messages, artifactMessageIds).filter(({ message, updates }) => artifactMessageIds.has(message.id) || (updates ?? [message]).some(update => visibleMessageIds.has(update.id)));
-        return <div key={thread?.id ?? 'new'} hidden={thread?.id !== (snapshot.threads.find(item => item.id === selectedId) ?? snapshot.threads.find(item => item.id === snapshot.activeThreadId))?.id}><div className={`conversation ${!messages.length && !artifacts.length ? 'conversation-empty' : ''}`}>
+        const messageRows = groupWorkActivity(allMessages, artifactMessageIds).filter(({ message, updates }) => artifactMessageIds.has(message.id) || (updates ?? [message]).some(update => visibleMessageIds.has(update.id)));
+        return <div key={thread?.id ?? 'new'} hidden={thread?.id !== (snapshot.threads.find(item => item.id === selectedId) ?? snapshot.threads.find(item => item.id === snapshot.activeThreadId))?.id}><div className={`conversation ${!allMessages.length && !artifacts.length ? 'conversation-empty' : ''}`}>
         {!loaded && !error && <LoadingState pending hasContent={false} label="Opening your workspace…" skeleton={<ConversationSkeleton/>}/>}
-        {loaded && !messages.length && !artifacts.length && <div className="empty-state"><div className="empty-symbol"><MessageSquare size={25} strokeWidth={1.25} /></div><h1>What are we working on?</h1><p>Start with a question, a file, or a project.<br />Your conversation becomes the workspace.</p>{!models.length && <button className="setup-inline" onClick={() => { setSettingsSection('providers'); setSettingsOpen(true); }}><CircleHelp size={15} /><span>Connect a model to get started</span><ChevronRight size={14} /></button>}</div>}
-        {historyStart > 0 && <button className="load-history quiet" onClick={() => { if (conversation.current) historyAnchor.current = { height: conversation.current.scrollHeight, top: conversation.current.scrollTop }; historyStarts.current.set(historyId, Math.max(0, historyStart - 100)); setHistoryCounts(previous => ({ ...previous, [historyId]: (previous[historyId] ?? 0) + 1 })); }}>Load earlier messages</button>}
+        {loaded && !allMessages.length && !artifacts.length && <div className="empty-state"><div className="empty-symbol"><MessageSquare size={25} strokeWidth={1.25} /></div><h1>What are we working on?</h1><p>Start with a question, a file, or a project.<br />Your conversation becomes the workspace.</p>{!models.length && <button className="setup-inline" onClick={() => { setSettingsSection('providers'); setSettingsOpen(true); }}><CircleHelp size={15} /><span>Connect a model to get started</span><ChevronRight size={14} /></button>}</div>}
+        {(historyStart > 0 || olderRemaining > 0) && <button className="load-history quiet" onClick={() => { if (conversation.current) historyAnchor.current = { height: conversation.current.scrollHeight, top: conversation.current.scrollTop }; if (historyStart > 0) { historyStarts.current.set(historyId, Math.max(0, historyStart - 100)); setHistoryCounts(previous => ({ ...previous, [historyId]: (previous[historyId] ?? 0) + 1 })); } else if (thread?.id) { void getThreadMessages(thread.id, allMessages[0]?.id).then(page => { const stored = olderMessages.current.get(historyId) ?? [], known = new Set(stored.map(item => item.id)), fresh = page.messages.filter(item => !known.has(item.id)); olderMessages.current.set(historyId, [...fresh, ...stored]); historyStarts.current.set(historyId, Math.max(0, fresh.length - 100)); setOlderPageTick(value => value + 1); }).catch(cause => setError(messageOf(cause))); } }}>Load earlier messages</button>}
         {messageRows.map(({ message, updates }) => <div key={message.id} className={`message message-${message.role}`}><div className="message-content">{updates ? <WorkActivity updates={updates} /> : message.role==='assistant'?<AssistantProse message={message} arrivals={liveMessages.current} active={Boolean(thread?.runId&&thread.runId===message.runId)} />:<Markdown text={message.content} />}</div>{artifacts.filter(artifact => artifact.messageId === message.id).map(artifact => <Artifact key={artifact.id} artifact={artifact} snapshot={snapshot} theme={theme} refresh={refresh} onDirtyWidget={onDirtyWidget} suspended={threadHeld} active={thread?.id===(snapshot.threads.find(item=>item.id===selectedId)??snapshot.threads.find(item=>item.id===snapshot.activeThreadId))?.id} animateEntry={liveEntries.current.has(artifact.id)} />)}</div>)}
         {artifacts.filter(artifact => !messages.some(message => message.id === artifact.messageId)).map(artifact => <Artifact key={artifact.id} artifact={artifact} snapshot={snapshot} theme={theme} refresh={refresh} onDirtyWidget={onDirtyWidget} suspended={threadHeld} active={thread?.id===(snapshot.threads.find(item=>item.id===selectedId)??snapshot.threads.find(item=>item.id===snapshot.activeThreadId))?.id} animateEntry={liveEntries.current.has(artifact.id)} />)}
         {requests.map(request => <InputDecision key={request.presentation?`${request.id}:${JSON.stringify(request.responseSchema)}`:`${request.id}:${request.revision}`} request={request} snapshot={snapshot} refresh={refresh} />)}{operations.map(operation => <OperationDecision key={`${operation.id}:${operation.revision}`} operation={operation} refresh={refresh} />)}

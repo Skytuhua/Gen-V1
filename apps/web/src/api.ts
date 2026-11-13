@@ -1,4 +1,4 @@
-import type { CommandReceipt, HostCommand, ModelInfo, Snapshot, WorkspaceEvent } from '../../../packages/contracts';
+import type { CommandReceipt, HostCommand, Message, ModelInfo, Snapshot, WorkspaceEvent } from '../../../packages/contracts';
 
 export class ApiError extends Error {
   constructor(public code: string, message: string, public details?: unknown) { super(message); }
@@ -60,6 +60,10 @@ export const getModels = (refresh = false, threadId?: string, signal?: AbortSign
 };
 export interface ResourceTree { path: string; entries: { name: string; path: string; kind: 'file' | 'directory'; bytes: number }[]; truncated: boolean }
 export const getResourceTree = (id: string, path = '') => authenticated(() => fetch(`/api/resources/${encodeURIComponent(id)}/tree${path ? '?path=' + encodeURIComponent(path) : ''}`, { credentials: 'same-origin', cache: 'no-store' })).then(read<ResourceTree>);
+export const getThreadMessages = (id: string, beforeId?: string, limit = 300) => {
+  const query = new URLSearchParams({ ...(beforeId ? { beforeId } : {}), limit: String(limit) }).toString();
+  return authenticated(() => fetch(`/api/threads/${encodeURIComponent(id)}/messages?${query}`, { credentials: 'same-origin', cache: 'no-store' })).then(read<{ messages: Message[]; truncated: number }>);
+};
 export const getResourceContent = (id: string, path = '', signal?: AbortSignal) => authenticated(() => fetch(`/api/resources/${encodeURIComponent(id)}/content${path ? '?path=' + encodeURIComponent(path) : ''}`, { credentials: 'same-origin', cache: 'no-store', signal, redirect: 'error' }));
 export const getWidgetMount = (id: string) => authenticated(() => fetch(`/api/artifacts/${encodeURIComponent(id)}/mount`, { credentials: 'same-origin', cache: 'no-store' })).then(read<{ url: string; token: string; mountId: string; revision: number }>);
 type CredentialScope={artifactId:string;threadId:string;revision:number};
