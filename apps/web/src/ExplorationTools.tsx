@@ -31,7 +31,7 @@ function AnnotationCanvas({p,value,read,change}:{p:AnnotatorProps;value:Annotati
    {count>0&&<ol className="annotation-list">{value.annotations.map((pin,index)=><li key={pin.id}><button type="button" aria-label={`Select pin ${index+1}`} aria-current={pin.id===value.selectedId?'true':undefined} onClick={()=>change({...value,selectedId:pin.id})}><span>{index+1}</span><span>{pin.text||'Add feedback'}</span><ChevronRight size={12}/></button></li>)}</ol>}
   </div></div>
   {value.previous?.annotations.length? <details className="exploration-source"><summary>Previous image feedback</summary><ol>{value.previous.annotations.map(pin=><li key={pin.id}>{pin.text||'Pin without a note'}</li>)}</ol></details>:null}
-  {(error||action.error)&&<p className="error-text" role="alert">{error||action.error}{!ready&&<button type="button" className="quiet" onClick={()=>{setError('');setReady(false);setRetry(value=>value+1);}}>Retry image</button>}</p>}
+  {(error||action.error)&&<p className="error-text" role="status">{error||action.error}{!ready&&<button type="button" className="quiet" onClick={()=>{setError('');setReady(false);setRetry(value=>value+1);}}>Retry image</button>}</p>}
   {p.actionId&&<footer className="exploration-footer"><button type="button" className="primary" disabled={action.busy||!ready||!count} onClick={submit}>{action.busy?'Sending…':p.actionLabel??'Send feedback'}</button></footer>}
  </>;
 }
@@ -41,9 +41,9 @@ export function ImageAnnotator({element:{props}}:ComponentRenderProps){
  const identity=grant?JSON.stringify([grant.id,grant.path,grant.identity?.dev??null,grant.identity?.ino??null]):null;
  const [source,setSource]=useState<{key:string;hash?:string;error?:boolean}|null>(null);
  useEffect(()=>{let active=true;if(!identity){setSource(null);return;}void crypto.subtle.digest('SHA-256',new TextEncoder().encode(identity)).then(bytes=>{if(active)setSource({key:identity,hash:Array.from(new Uint8Array(bytes),byte=>byte.toString(16).padStart(2,'0')).join('')});}).catch(()=>{if(active)setSource({key:identity,error:true});});return()=>{active=false;};},[identity]);
- if(!grant)return <p role="alert" className="error-text">This image is not available to this thread. Attach it again to add feedback.</p>;
+ if(!grant)return <p role="status" className="error-text">This image is not available to this thread. Attach it again to add feedback.</p>;
  if(!source||source.key!==identity)return <p role="status">Opening image feedback…</p>;
- if(!source.hash)return <p role="alert" className="error-text">The image source could not be verified. Reload to try again.</p>;
+ if(!source.hash)return <p role="status" className="error-text">The image source could not be verified. Reload to try again.</p>;
  const value=readAnnotationState(store.get(statePath(p.stateKey)),p.resourceId,source.hash);
  return <section className="exploration-tools image-annotator" aria-label={p.title??'Image feedback'}><Heading title={p.title}/><AnnotationCanvas key={source.hash} p={p} value={value} read={()=>readAnnotationState(store.get(statePath(p.stateKey)),p.resourceId,source.hash)} change={value=>store.set(statePath(p.stateKey),value)}/></section>;
 }
@@ -92,7 +92,7 @@ export function SchedulePicker({element:{props}}:ComponentRenderProps){
   })}</div>}
   {Boolean(saved.selectedId)&&!selected&&<p role="status" className="schedule-change-notice">The selected window is no longer supplied. Choose another.</p>}
   {selected?.availability==='unavailable'&&<p role="status" className="schedule-change-notice">This window is no longer available. Choose another.</p>}
-  {p.actionId&&<footer className="exploration-footer schedule-proposal"><span className="schedule-proposal-selection">{action.busy?'':selected&&selected.availability!=='unavailable'?`${dateFormat.format(new Date(selected.start))} · ${slotTime(selected,timeFormat,rangeDateFormat)}`:'Select a time above'}</span><button type="button" className="primary" disabled={action.busy||!selected||selected.availability==='unavailable'} onClick={submit}>{action.busy?'Sending…':p.actionLabel??'Propose this time'}</button></footer>}{(selectionError||action.error)&&<p role="alert" className="error-text">{selectionError||action.error}</p>}<Source text={data.source}/>
+  {p.actionId&&<footer className="exploration-footer schedule-proposal"><span className="schedule-proposal-selection">{action.busy?'':selected&&selected.availability!=='unavailable'?`${dateFormat.format(new Date(selected.start))} · ${slotTime(selected,timeFormat,rangeDateFormat)}`:'Select a time above'}</span><button type="button" className="primary" disabled={action.busy||!selected||selected.availability==='unavailable'} onClick={submit}>{action.busy?'Sending…':p.actionLabel??'Propose this time'}</button></footer>}{(selectionError||action.error)&&<p role="status" className="error-text">{selectionError||action.error}</p>}<Source text={data.source}/>
  </section>;
 }
 
@@ -122,7 +122,7 @@ export function LogExplorer({element:{props}}:ComponentRenderProps){
     {chosen&&<div className="log-selection" ref={detail}><div className="log-selected-heading">{event.stream&&<strong>{event.stream}</strong>}{relatedCount>1&&<span>{relatedCount} related events</span>}</div><dl><div><dt>Time</dt><dd>{event.timestamp?`${new Date(event.timestamp).toISOString()} (UTC)`:'Unavailable'}</dd></div>{event.correlationId&&<div><dt>Correlation</dt><dd>{event.correlationId}</dd></div>}</dl>{event.detail&&<details className="log-event-details"><summary>Event details</summary><pre>{event.detail}</pre></details>}</div>}
    </div>;
   })}</div></div>
-  {p.actionId&&<footer className="exploration-footer"><button type="button" className="primary" disabled={action.busy||!selected} onClick={submit}>{action.busy?'Sending…':p.actionLabel??'Investigate event'}</button></footer>}{(selectionError||action.error)&&<p role="alert" className="error-text">{selectionError||action.error}</p>}<Source text={data.source}/>
+  {p.actionId&&<footer className="exploration-footer"><button type="button" className="primary" disabled={action.busy||!selected} onClick={submit}>{action.busy?'Sending…':p.actionLabel??'Investigate event'}</button></footer>}{(selectionError||action.error)&&<p role="status" className="error-text">{selectionError||action.error}</p>}<Source text={data.source}/>
  </section>;
 }
 export const EXPLORATION_REGISTRY:ComponentRegistry={ImageAnnotator,SchedulePicker,LogExplorer};

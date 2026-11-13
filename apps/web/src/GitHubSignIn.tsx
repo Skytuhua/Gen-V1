@@ -79,7 +79,7 @@ export function GitHubSignIn({active=true,onAuthenticated}:{active?:boolean;onAu
  return <section className="github-sign-in" aria-label="GitHub sign-in">
   <div className="github-sign-in-actions"><button disabled={!active||starting||cancelling||!!cancelId} onClick={()=>void start()}>{flow?'Start new sign-in':'Sign in to GitHub'}</button>{(flow||starting)&&<button onClick={()=>stop()}>Cancel sign-in</button>}{cancelId&&<button disabled={cancelling} onClick={()=>void cancel(cancelId,'Sign-in cancelled',epoch.current)}>Retry cancellation</button>}</div>
   {status&&<p role="status">{copied?'Copied code. ':''}{cancelling?'Cancelling sign-in…':status}</p>}
-  {error&&<p className="error-text" role="alert">{error}</p>}
+  {error&&<p className="error-text" role="status">{error}</p>}
   {flow&&<><p>Enter this code on GitHub to sign in to this Gen V1 profile.</p><div className="github-device-code"><code>{flow.userCode}</code><button onClick={()=>void copy()}>Copy code</button></div>
    {/* The native policy requires this exact initiating app URL; its fixed opener sends no referrer. */}
    <a href={deviceUrl} target="_blank" rel="noopener" referrerPolicy="unsafe-url">{deviceUrl}</a><p className="github-sign-in-expiry">Expires at {new Date(flow.expiresAt).toLocaleTimeString()}.</p></>}

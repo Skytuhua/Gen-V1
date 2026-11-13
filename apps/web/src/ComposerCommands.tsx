@@ -115,7 +115,7 @@ export function ComposerCommands({ref, input, draft, threadId, projectId, disabl
       {!loading && page?.nextCursor && <button type="button" className="composer-command-more" onPointerDown={event => event.preventDefault()} onClick={() => void loadMore()}>Load more skills</button>}
       <div className="composer-command-hint" aria-hidden="true">↑ ↓ Navigate <span>Enter Select · Esc Close</span></div>
     </Popover>
-    {!open && error && <div role="alert" className="composer-command-error">{error}<button type="button" aria-label="Dismiss command error" onClick={() => setError('')}><X size={13}/></button></div>}
+    {!open && error && <div role="status" className="composer-command-error">{error}<button type="button" aria-label="Dismiss command error" onClick={() => setError('')}><X size={13}/></button></div>}
   </>;
 }
 export function ComposerSkillBindings({bindings, onRemove, disabled = false, retry = false}: {bindings: readonly SkillBinding[]; onRemove(id: string): void; disabled?: boolean; retry?: boolean}) {

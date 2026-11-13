@@ -72,6 +72,7 @@
     "apps/web/src/ComposerToolbar.tsx",
     "apps/web/src/ComposerView.tsx",
     "apps/web/src/Connections.tsx",
+    "apps/web/src/CopyButton.tsx",
     "apps/web/src/ContextInspector.tsx",
     "apps/web/src/ContextMeter.tsx",
     "apps/web/src/CredentialEntry.tsx",

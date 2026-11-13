@@ -9,3 +9,8 @@
 .markdown .markdown-list .markdown-list { margin:5px 0; }
 .markdown .markdown-list>li+li { margin-top:5px; }
 .markdown .markdown-list+p,.markdown p+.markdown-list { margin-top:13px; }
+.markdown-code { position:relative; }
+.markdown-code>.copy-button { position:absolute; top:6px; right:6px; opacity:0; transition:opacity var(--ui-motion-hover) var(--ui-ease-move); }
+.markdown-code:hover>.copy-button,.markdown-code:focus-within>.copy-button { opacity:1; }
+@media (hover:none) { .markdown-code>.copy-button { opacity:1; } }
+@media (prefers-reduced-motion:reduce) { .markdown-code>.copy-button { transition:none; } }

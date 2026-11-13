@@ -47,7 +47,7 @@ summary { cursor:pointer; line-height:1.6; }
 .secondary { background:var(--subtle); }
 .secondary:hover:not(:disabled),.quiet:hover:not(:disabled) { background:var(--hover); }
 .accent-button { color:var(--accent); background:var(--accent-soft); border-radius:20px; }
-.icon-button { padding:5px; width:28px; height:28px; color:var(--muted); border-radius:7px; flex-shrink:0; }
+.icon-button { padding:5px; width:var(--ui-row-compact); height:var(--ui-row-compact); color:var(--muted); border-radius:7px; flex-shrink:0; }
 .icon-button:hover:not(:disabled),.icon-button.selected { background:var(--hover); color:var(--text); }
 .icon-button.selected { color:var(--accent); }
 /* Close marks carry one clear destructive accent; collapse/navigation stay neutral. */
@@ -361,3 +361,8 @@ progress::-moz-progress-bar { background:var(--text); border-radius:4px; }
   :where(details)::details-content { transition:none; content-visibility:visible; block-size:auto; }
   :where(details:not([open]))::details-content { display:none; }
 }
+
+.message .copy-button,.side-message .copy-button { float:right; margin:2px 0 4px 8px; opacity:0; transition:opacity var(--ui-motion-hover) var(--ui-ease-move); }
+.message:hover .copy-button,.message:focus-within .copy-button,.side-message:hover .copy-button,.side-message:focus-within .copy-button { opacity:1; }
+@media (hover:none) { .message .copy-button,.side-message .copy-button { opacity:1; } }
+@media (prefers-reduced-motion:reduce) { .message .copy-button,.side-message .copy-button { transition:none; } }

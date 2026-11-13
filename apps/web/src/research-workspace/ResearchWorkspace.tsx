@@ -20,7 +20,7 @@ export interface ResearchWorkspaceProps {
   chat?: ReactNode; chatOpen?: boolean; onChatOpenChange?: (open: boolean) => void; drafts?: ResearchDrafts;
 }
 export function ResearchWorkspace(props: ResearchWorkspaceProps) {
-  if (props.selection.authority.kind !== 'personal') return <p role="alert">Research is available in personal conversations.</p>;
+  if (props.selection.authority.kind !== 'personal') return <p role="status">Research is available in personal conversations.</p>;
   return <ResearchBody key={researchScope(props.selection)} {...props} />;
 }
 function ResearchBody({selection, importDraft, disabled=false, topic, ownerControl, onNavigate, grantedFiles = [], browserCapture, filePage, onImportOpen, chat, chatOpen = false, onChatOpenChange, drafts = researchDrafts}: ResearchWorkspaceProps) {

@@ -226,7 +226,7 @@ export function FilesView({
 									</p>
 								)}
 								{folder.error && (
-									<div className="files-message files-error" role="alert">
+									<div className="files-message files-error" role="status">
 										<p>{folder.error}</p>
 										<button type="button" onClick={onRetryFolder}>
 											Retry folder
@@ -322,7 +322,7 @@ export function FilesView({
 									</p>
 								)}
 								{preview.error && (
-									<div className="files-message files-error" role="alert">
+									<div className="files-message files-error" role="status">
 										<p>{preview.error}</p>
 										<button type="button" onClick={onRetryFile}>
 											Retry file

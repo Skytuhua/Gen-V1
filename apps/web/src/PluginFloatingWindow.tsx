@@ -42,7 +42,7 @@ export function PluginFloatingWindow(props:FloatingWindowProps){
  const write=useCallback((layout:Partial<FloatingLayout>)=>{saved.current={...saved.current,...layout};setRecovery({id:props.id,layout:saved.current});const value=saved.current,write=pending.current.catch(()=>{}).then(()=>journalWrite(key,value));pending.current=write;void write.catch(()=>setError('Window placement could not be saved. Keep this view open.'));},[key,props.id]);
  const hasRecovered=recovery?.id===props.id,preferredWidth=(hasRecovered?recovery.layout?.width:undefined)??props.defaultSize?.width??400;
  const width=Number.isFinite(preferredWidth)?Math.max(280,Math.min(720,preferredWidth)):400;
- const notice=error&&<p role="alert">{error} {hasRecovered?<button type="button" onClick={()=>{void retryJournalWrites().then(()=>setError(''),()=>setError('Window placement could not be saved. Keep this view open.'));}}>Retry saving</button>:<button type="button" onClick={()=>setRetryRecovery(value=>value+1)}>Retry recovery</button>}</p>;
+ const notice=error&&<p role="status">{error} {hasRecovered?<button type="button" onClick={()=>{void retryJournalWrites().then(()=>setError(''),()=>setError('Window placement could not be saved. Keep this view open.'));}}>Retry saving</button>:<button type="button" onClick={()=>setRetryRecovery(value=>value+1)}>Retry recovery</button>}</p>;
  // A loading dock would expose a fallback split that recovery can replace.
  // Mount only once the read settles; failures retain the default-width retry UI.
  if(!hasRecovered&&!error)return null;

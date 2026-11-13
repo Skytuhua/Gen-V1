@@ -50,5 +50,5 @@ export function DesktopProvider({bridge,context,children}:{bridge:DesktopBridge;
 export function DetachButton(_props:{surface:DesktopSurface;label:string;before?:()=>Promise<void>;after?:()=>void;onError?:(error:Error)=>void}){return null;}
 /** Recovery is offered only for a child that already owns saved work. */
 export function DesktopWindowActions(){const desktop=useDesktop(),[error,setError]=useState('');if(!desktop||desktop.context.surface.kind==='main')return null;
- return <><button type="button" className="quiet" onClick={()=>{void desktop.bridge.reattach().catch(cause=>{desktop.resumeEditing();setError(cause instanceof Error?cause.message:'The view could not return. Keep it open and retry.');});}}>Return to workspace</button>{error&&<p role="alert">{error}</p>}</>;
+ return <><button type="button" className="quiet" onClick={()=>{void desktop.bridge.reattach().catch(cause=>{desktop.resumeEditing();setError(cause instanceof Error?cause.message:'The view could not return. Keep it open and retry.');});}}>Return to workspace</button>{error&&<p role="status">{error}</p>}</>;
 }
