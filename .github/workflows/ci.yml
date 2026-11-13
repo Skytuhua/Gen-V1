@@ -100,7 +100,7 @@ jobs:
         run: pnpm build
 
       - name: Run application regression tests
-        run: pnpm test
+        run: pnpm test --maxWorkers=2
 
       - name: Exercise split workspace in the browser
         env:
