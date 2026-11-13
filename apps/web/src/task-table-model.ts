@@ -1,7 +1,9 @@
-export type TableColumn = { key: string; label: string };
+export type TableColumn = { key: string; label: string; type?: 'text' | 'number' };
 export type TableSort = { key: string; direction: 'ascending' | 'descending' } | null;
 export const tableObject = (value: unknown): Record<string, unknown> => value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};
 export const tableText = (value: unknown): string => value == null ? value === null ? 'NULL' : '—' : typeof value === 'object' ? JSON.stringify(value) : String(value);
+// Declared numeric columns keep all significant digits; String() would switch to exponent notation.
+export const tableCellText = (value: unknown, column: Pick<TableColumn, 'type'>): string => column.type === 'number' && typeof value === 'number' ? value.toLocaleString(undefined, { maximumSignificantDigits: 21 }) : tableText(value);
 export const columnWidth = (width: number, minimum = 90) => Math.round(Math.max(minimum, Math.min(420, width)));
 export function keyboardWidth(width: number, key: string, minimum = 90) {
   return key === 'Home' ? minimum : key === 'End' ? Math.max(minimum, 420) : columnWidth(width + (key === 'ArrowRight' ? 20 : -20), minimum);

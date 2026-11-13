@@ -18,6 +18,7 @@
     "test:ui-guard": "vitest run tests/ui-guard.test.ts tests/ui-numeric-children.test.ts --maxWorkers=1",
     "test": "pnpm build:credential-lease && pnpm build:widgets && vitest run",
     "build:credential-lease": "tsx scripts/build-windows-credential-lease.ts",
+    "test:browser": "tsx scripts/test-browser.ts",
     "test:e2e": "pnpm build && tsx scripts/test-browser.ts",
     "agent:login": "tsx packages/runtime-login/index.ts",
     "fixtures:create": "tsx scripts/create-fixtures.ts",

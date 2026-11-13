@@ -491,6 +491,27 @@ it("rejected import preserves pending autosave and unconfirmed save identity", a
 	}
 });
 
+it("explains the workspace purpose until dismissed and restores it from About Visuals", async () => {
+	const { frame, errors, unexpected, close } = await visualFixture();
+	try {
+		const intro = frame.locator(".pv-intro");
+		await intro.waitFor();
+		expect(await intro.textContent()).toContain("runs no models");
+		expect(await intro.textContent()).toContain("no live agent activity");
+		await frame.getByRole("button", { name: "Dismiss", exact: true }).click();
+		expect(await intro.count()).toBe(0);
+		await frame
+			.getByRole("button", { name: "About Visuals", exact: true })
+			.click();
+		await intro.waitFor();
+		expect(await frame.getByRole("button", { name: "Dismiss", exact: true }).count()).toBe(1);
+		expect(errors).toEqual([]);
+		expect(unexpected).toEqual([]);
+	} finally {
+		await close();
+	}
+}, 15000);
+
 it("keeps a preexisting compact near-limit durable record and raw draft recoverable", async () => {
 	const document = nearLimitDocument(),
 		raw = JSON.stringify(document);

@@ -2,7 +2,7 @@
 export function apiResponse(url: URL, error = false, empty = false): unknown | undefined {
   if (error) return undefined;
   if (/^\/api\/projects\/[^/]+\/files$/.test(url.pathname) || /^\/api\/resources\/[^/]+\/tree$/.test(url.pathname)) return { path: '', entries: empty ? [] : [{ name: 'capture.txt', path: 'capture.txt', kind: 'file', bytes: 24 }], truncated: false };
-  if (/^\/api\/projects\/[^/]+\/file$/.test(url.pathname)) return { text: 'Synthetic capture file.', binary: false, sha256: 'a'.repeat(64) };
+  if (/^\/api\/projects\/[^/]+\/file$/.test(url.pathname)) return { text: url.searchParams.get('path')?.startsWith('src/') ? Array.from({length:60},(_,i)=>i===47?'const workspace = restoreLayout();':'// Synthetic project line '+(i+1)).join('\n') : 'Synthetic capture file.', binary: false, sha256: 'a'.repeat(64) };
   if (url.pathname === '/api/shell/settings') return { sequence: 1, settings: { theme: 'dark', modelId: '', selectedAccounts: {} }, accounts: [], skills: [], skillProposals: [], learning: { supported: true, status: 'idle', lastReview: null }, projects: [], resources: [], resourcePage: { total: 0, nextCursor: null }, counts: { threads: 0, archivedThreads: 0, artifacts: 0, resources: 0, uncertainOperations: 0 } };
   if (url.pathname === '/api/shell/archive') return { sequence: 1, items: [], total: 0, nextCursor: null };
   if (url.pathname === '/api/environment') return { revision: 0, entries: [], secretStorageAvailable: false };
