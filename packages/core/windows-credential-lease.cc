@@ -132,7 +132,7 @@ napi_value acquire(napi_env env, napi_callback_info info) {
     // runners); the canonical handle name always expands them.
     const DWORD spelledLength = GetLongPathNameW(lease->path.c_str(), spelled.data(), static_cast<DWORD>(spelled.size()));
     require(length > 4 && length < canonical.size() && spelledLength > 0 && spelledLength < spelled.size()
-      && std::wstring(canonical.data(), 4) == L"\\\\?\\" && _wcsicmp(canonical.data() + 4, spelled.data()) == 0), "Credential path does not resolve to itself.");
+      && std::wstring(canonical.data(), 4) == L"\\\\?\\" && _wcsicmp(canonical.data() + 4, spelled.data()) == 0, "Credential path does not resolve to itself.");
     require(GetFileInformationByHandle(held, &lease->identity)); current(*lease);
     napi_value result, method; check(napi_create_object(env, &result)); check(napi_type_tag_object(env, result, &TAG));
     check(napi_create_function(env, "read", NAPI_AUTO_LENGTH, read, nullptr, &method)); check(napi_set_named_property(env, result, "read", method));
