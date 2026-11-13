@@ -362,7 +362,7 @@ progress::-moz-progress-bar { background:var(--text); border-radius:4px; }
   :where(details:not([open]))::details-content { display:none; }
 }
 
-.message .copy-button,.side-message .copy-button { float:right; margin:2px 0 4px 8px; opacity:0; transition:opacity var(--ui-motion-hover) var(--ui-ease-move); }
-.message:hover .copy-button,.message:focus-within .copy-button,.side-message:hover .copy-button,.side-message:focus-within .copy-button { opacity:1; }
-@media (hover:none) { .message .copy-button,.side-message .copy-button { opacity:1; } }
-@media (prefers-reduced-motion:reduce) { .message .copy-button,.side-message .copy-button { transition:none; } }
+.message-content>.copy-button,.message>.copy-button,.side-message>.copy-button,.activity li>.copy-button { float:right; margin:2px 0 4px 8px; opacity:0; transition:opacity var(--ui-motion-hover) var(--ui-ease-move); }
+.message:hover>.copy-button,.message:focus-within>.copy-button,.message:hover .message-content>.copy-button,.message:focus-within .message-content>.copy-button,.side-message:hover>.copy-button,.side-message:focus-within>.copy-button,.activity li:hover>.copy-button,.activity li:focus-within>.copy-button { opacity:1; }
+@media (hover:none) { .message-content>.copy-button,.message>.copy-button,.side-message>.copy-button,.activity li>.copy-button { opacity:1; } }
+@media (prefers-reduced-motion:reduce) { .message-content>.copy-button,.message>.copy-button,.side-message>.copy-button,.activity li>.copy-button { transition:none; } }
