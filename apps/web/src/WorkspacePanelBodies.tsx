@@ -44,7 +44,9 @@ export function snapshotDiffs(snapshot: Snapshot, threadId?: string) {
   return diffs;
 }
 export function RecordedDiffPanel({ snapshot, threadId, preferences }: { snapshot: Snapshot; threadId?: string; preferences: UiPreferences }) {
-  const diffs = snapshotDiffs(snapshot, threadId);
+  return <RecordedDiffs diffs={snapshotDiffs(snapshot,threadId)} preferences={preferences}/>;
+}
+export function RecordedDiffs({diffs,preferences}:{diffs:ReturnType<typeof snapshotDiffs>;preferences:UiPreferences}) {
   const pair = (before: string, after: string) => {
     if (!preferences.hideWhitespace) return { before, after };
     const left = before.split('\n'), right = after.split('\n'); const changed = Math.max(left.length, right.length);

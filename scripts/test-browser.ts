@@ -3,6 +3,7 @@ import {randomUUID} from 'node:crypto';
 import {existsSync,mkdirSync,readdirSync} from 'node:fs';
 import {createRequire} from 'node:module';
 import {resolve} from 'node:path';
+import {tmpdir} from 'node:os';
 import {fileURLToPath} from 'node:url';
 import {browserSuites,validateBrowserSuites,type BrowserSuite} from './browser-suites.ts';
 
@@ -12,7 +13,7 @@ const escapePattern=(value:string)=>value.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 
 export function runBrowserSuites(suites:BrowserSuite[], list=false):number {
   const cli=require.resolve('@playwright/test/cli');
-  const directory=resolve(root,'.harness-browser-results',`run-${Date.now()}-${randomUUID()}`);
+  const directory=resolve(tmpdir(),'gen-browser-results',`run-${Date.now()}-${randomUUID()}`);
   console.log(`Browser results: ${directory}`);
   for(const suite of suites){
     const output=resolve(directory,suite.name);
@@ -21,7 +22,7 @@ export function runBrowserSuites(suites:BrowserSuite[], list=false):number {
       ...(suite.project?['--project',suite.project]:[]),'--output',resolve(output,'artifacts'),'--reporter=list,json',...(list?['--list']:[])];
     console.log(`\nBrowser suite: ${suite.name} (${suite.specs.length} spec files)`);
     const result=spawnSync(process.execPath,args,{cwd:root,stdio:'inherit',windowsHide:true,
-      env:{...process.env,GEN_E2E:'1',GEN_MEMORY_MODE:'',...suite.env,PLAYWRIGHT_JSON_OUTPUT_FILE:resolve(output,list?'discovery.json':'results.json')}});
+      env:{...process.env,GEN_E2E:'1',GEN_MEMORY_MODE:'',GEN_BROWSER_OUTPUT_DIR:resolve(output,'artifacts'),...suite.env,PLAYWRIGHT_JSON_OUTPUT_FILE:resolve(output,list?'discovery.json':'results.json')}});
     if(result.error)throw result.error;
     if(result.status!==0)return result.status??1;
   }

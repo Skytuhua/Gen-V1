@@ -154,3 +154,13 @@ describe('test and capture output boundary',()=>{
   expect(paths.length).toBeGreaterThan(0);expect(paths.every(path=>path.startsWith('testInfo.outputPath('))).toBe(true);
  });
 });
+
+it.each(['src/notes\t2026.txt','src/notes\n2026.txt','src/notes\r2026.txt'])('QA #130 accepts and preserves the frozen control path %j',path=>{
+ const value=readCheckpointDetail({...detail(),files:[file(path)]},owner,checkpoint),paths=checkpointReviewPaths(value)[0];
+ expect(paths).toEqual([path]);expect(readReview({...review(),files:[reviewFile(path)]},paths).files[0].path).toBe(path);
+});
+
+it.each(['src/a?b*<c>.txt','src/a"b|c.txt'])('QA #130 preserves other ordinary frozen path characters %j',path=>{
+ const value=readCheckpointDetail({...detail(),files:[file(path)]},owner,checkpoint),paths=checkpointReviewPaths(value)[0];
+ expect(paths).toEqual([path]);expect(readReview({...review(),files:[reviewFile(path)]},paths).files[0].path).toBe(path);
+});

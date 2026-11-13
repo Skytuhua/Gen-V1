@@ -1,7 +1,22 @@
 import { describe, expect, it, vi } from 'vitest';
 import { discover, resolveScope, parseFilePaths, parseGitLog, type Run } from '../../scripts/capture-ui/scope';
+import {mapFile,screens,keyStates} from '../../scripts/capture-ui/screen-map';
 
 vi.mock('node:child_process', () => ({ execFileSync: () => { throw Error('Unexpected real command'); } }));
+
+it.each([
+  ['files/ProjectSearch.tsx','project-search'],['files/project-search-api.ts','project-search'],
+  ['terminal-excerpts.css','terminal-excerpts'],['ConversationFind.tsx','conversation-find'],
+  ['file-checkpoint-api.ts','file-checkpoints'],['UsageFooter.tsx','redundant-ui'],
+])('routes WO-5 renderer %s to its capture destination', (path,id) => {
+  expect(mapFile('apps/web/src/'+path).screens).toContain(id);
+});
+it('captures the integrated saved-draft library and its real local read boundaries', () => {
+  const draft=screens.find(screen=>screen.id==='saved-drafts')!;
+  expect(draft.fixture).toBe('saved-drafts-fixture.tsx');
+  for(const state of keyStates)expect(draft.states[state].skip).toBeUndefined();
+  expect(draft.states.error.query).toContain('capture-boundary=error');expect(draft.states.loading.query).toContain('capture-boundary=loading');
+});
 
 const now = new Date('2026-11-09T16:30:00.000Z');
 const merged = { number: 77, title: 'Update controls', mergedAt: '2026-11-08T12:00:00Z', files: [{ path: 'apps/web/src/App.tsx' }] };
