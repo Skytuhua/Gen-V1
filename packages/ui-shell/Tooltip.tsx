@@ -5,17 +5,16 @@ import './feedback.css';
 
 interface Shown { text: string; target: Element; leaving: boolean }
 const FOCUS_DWELL_MS = 100, GAP = 6, GUTTER = 8;
-/** Elements whose `title` removal came from `adopt` itself, not a rerender. */
-const selfRemoval = new WeakSet<Element>();
 
 /** Reads the tooltip text and silences the native bubble so only one tooltip shows. */
 function adopt(target: Element) {
   const title = target.getAttribute('title');
-  if (title !== null) {
-    selfRemoval.add(target);
-    target.removeAttribute('title');
+  if (title) {
+    // Keep `title` present but empty: native tooltips treat it as absent, while a framework
+    // removing it later still produces a mutation record the observer can act on.
     target.setAttribute('data-tooltip', title);
     target.setAttribute('data-tooltip-adopted', '');
+    target.setAttribute('title', '');
     // A title was the control's only name; keep it reachable for assistive technology.
     if (title && !target.hasAttribute('aria-labelledby') && (!target.hasAttribute('aria-label') || target.hasAttribute('data-tooltip-named')) && !target.textContent?.trim()) {
       target.setAttribute('aria-label', title);
@@ -58,9 +57,9 @@ export function TooltipLayer() {
     const observer = new MutationObserver(records => {
       for (const record of records) {
         if (record.type !== 'attributes' || record.attributeName !== 'title' || !(record.target instanceof Element)) continue;
-        const element = record.target;
-        if (selfRemoval.has(element)) { selfRemoval.delete(element); continue; }
-        if (element.hasAttribute('title') || !element.hasAttribute('data-tooltip-adopted')) continue;
+        const element = record.target, title = element.getAttribute('title');
+        if (title === '' && element.hasAttribute('data-tooltip-adopted')) continue; // our own suppression
+        if (title !== null || !element.hasAttribute('data-tooltip-adopted')) continue;
         // A rerender removed the source title: drop the mirrored tooltip and generated names.
         element.removeAttribute('data-tooltip'); element.removeAttribute('data-tooltip-adopted');
         if (element.hasAttribute('data-tooltip-named')) { element.removeAttribute('aria-label'); element.removeAttribute('data-tooltip-named'); }

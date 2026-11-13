@@ -72,7 +72,7 @@ describe('feedback primitives', () => {
     const tip = page.locator('.ui-tooltip');
     await tip.waitFor();
     expect(await tip.innerText()).toBe('Save the current draft');
-    expect(await target.getAttribute('title')).toBeNull();
+    expect(await target.getAttribute('title')).toBe('');
     await page.mouse.move(0, 0);
     await tip.waitFor({state: 'detached', timeout: 3000});
     await page.close();
