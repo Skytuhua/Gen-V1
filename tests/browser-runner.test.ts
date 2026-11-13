@@ -107,7 +107,8 @@ it('QA #130 every WO-5 fixture derives its cache from the runner output override
   for(const name of ['vite','saved-drafts','file-checkpoints','terminal-excerpts','conversation-find','project-search','redundant-ui']){
    const path=name==='vite'?'../tests/e2e/vite.config.ts':`../tests/e2e/${name}.vite.config.ts`;
    const config=(await import(path)).default;
-   expect(String(config.cacheDir).startsWith(output+'/'),name).toBe(true);
+   const normalize=(value:string)=>value.replaceAll('\\','/');
+   expect(normalize(String(config.cacheDir)).startsWith(normalize(output)+'/'),name).toBe(true);
   }
  }finally{vi.unstubAllEnvs();vi.resetModules();}
 });
