@@ -55,6 +55,8 @@ describe('structure-matched first-load feedback', () => {
     await page.evaluate(view => {(window as unknown as FixtureWindow).view = view;}, view);
     await page.addScriptTag({content: script});
     await page.locator('.loading-state-skeleton').waitFor({state: 'attached'});
+    // Flush mount-dependent :has() styles before CDP measures the hidden layout.
+    await page.locator('#root').evaluate(node => node.getBoundingClientRect());
     return page;
   }
 

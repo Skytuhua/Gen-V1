@@ -64,37 +64,44 @@ test('unchanged cell change metadata does not replay while newly changed cells a
   await expect.poll(() => page.evaluate(() => (window as unknown as { changedCellAnimations: string[] }).changedCellAnimations)).toEqual(['two:workspace_id']);
 });
 
-test('context uses numeric category and quota bands with accepted compaction interpolation and a retained receipt', async ({ page }) => {
+test('context uses numeric category bands with an honest compaction status and a settled total retained across reveal', async ({ page }) => {
   const initial = taskFixture({ root: 'text', elements: { text: { type: 'Text', props: { text: 'Illustrative telemetry fixture; no provider calls.' } } } }); initial.usage['task-thread'] = usage();
   const fixture = await serveTaskFixture(page, initial); await page.goto('/');
   await page.getByRole('button', { name: /Inspect context usage/ }).click();
   const inspector = page.getByRole('dialog', { name: 'Context inspector' });
-  await expect(inspector.locator('.context-category-row', { hasText: 'System' })).toContainText('32.9K');
-  await expect(inspector.getByRole('progressbar', { name: 'Session limit' })).toHaveAttribute('aria-valuenow', '68');
-  await expect(inspector.getByRole('progressbar', { name: 'Weekly limit' })).toHaveAttribute('aria-valuenow', '24');
+  await expect(inspector.locator('header')).toContainText('Context 60%');
+  await expect(inspector.locator('.context-inspector-total')).toContainText('604.1K of 1M');
+  await expect(inspector.getByRole('button', { name: 'System 32.9K', exact: true })).toBeVisible();
+  await expect(inspector.getByRole('button', { name: 'Tools & MCP 21.3K', exact: true })).toBeVisible();
+  await expect(inspector.getByRole('button', { name: 'Close context inspector' })).toHaveCount(0);
+  await expect(inspector.getByRole('progressbar', { name: 'Session limit' })).toHaveCount(0);
+  await expect(inspector.getByRole('progressbar', { name: 'Weekly limit' })).toHaveCount(0);
   await inspector.evaluate(async node => { await Promise.all(node.getAnimations({ subtree: true }).map(animation => animation.finished.catch(() => {}))); });
   await page.screenshot({ path: test.info().outputPath('context-desktop.png') });
   await inspector.getByRole('button', { name: 'Compact now' }).click();
   initial.usage['task-thread'] = usage({ activity: 'compacting' }); await fixture.publish();
-  await expect(inspector.getByText('Summarizing messages', { exact: true })).toBeVisible();
+  await expect(inspector.getByRole('status')).toContainText('Compacting context…');
   initial.usage['task-thread'] = usage({ contextTokens: 76_700, contextBreakdown: [{ label: 'System', tokens: 32_900 }, { label: 'MCP', tokens: 21_300 }, { label: 'Skills', tokens: 8_300 }, { label: 'Messages', tokens: 14_200 }] }); await fixture.publish();
-  await expect(inspector.locator('.context-inspector-total')).not.toContainText('76.7K');
-  await expect(inspector.locator('.context-inspector-total')).toContainText('76.7K', { timeout: 3000 });
-  await expect(inspector.getByRole('status')).toContainText('Freed 527.4K tokens');
-  await inspector.getByRole('button', { name: 'Close context inspector' }).click();
+  // The compact inspector reports measured totals immediately (no invented count-down); only a real receipt animates segments.
+  await expect(inspector.locator('.context-inspector-total')).toContainText('76.7K of 1M');
+  // The app has no host-accepted compaction report here, so a token decrease alone must not claim a receipt.
+  await expect(inspector.getByRole('status')).toContainText('Result not reported');
+  await inspector.getByRole('button', { name: 'Compact now', exact: true }).focus();
+  await page.keyboard.press('Escape');
+  await expect(inspector).toHaveCount(0);
   await page.getByRole('button', { name: /Inspect context usage/ }).click();
-  await expect(page.getByRole('dialog', { name: 'Context inspector' }).getByRole('status')).toContainText('Freed 527.4K tokens');
+  await expect(page.getByRole('dialog', { name: 'Context inspector' }).locator('.context-inspector-total')).toContainText('76.7K of 1M');
 });
 
-test('unavailable quotas stay unavailable and reduced motion settles accepted measurements immediately', async ({ page }) => {
+test('the compact popover stays quota-free when categories are unreported and reduced motion settles measurements immediately', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   const initial = taskFixture({ root: 'text', elements: { text: { type: 'Text', props: { text: 'Unknown telemetry fixture.' } } } }); initial.usage['task-thread'] = usage({ sessionPercent: null, weeklyPercent: null, contextBreakdown: undefined });
   const fixture = await serveTaskFixture(page, initial); await page.goto('/'); await page.getByRole('button', { name: /Inspect context usage/ }).click();
   const inspector = page.getByRole('dialog', { name: 'Context inspector' });
-  await expect(inspector.locator('.context-quota')).toHaveCount(2);
-  await expect(inspector.locator('.context-quota').first()).toContainText('Unavailable');
+  await expect(inspector.locator('.context-quota')).toHaveCount(0);
   await expect(inspector.getByRole('progressbar', { name: 'Session limit' })).toHaveCount(0);
-  await expect(inspector.getByText('Category breakdown unavailable')).toBeVisible();
+  await expect(inspector.getByRole('progressbar', { name: 'Weekly limit' })).toHaveCount(0);
+  await expect(inspector.getByText('Category breakdown not reported')).toBeVisible();
   initial.usage['task-thread'] = usage({ contextTokens: 76_700, contextBreakdown: undefined, sessionPercent: null, weeklyPercent: null }); await fixture.publish();
   await expect(inspector.locator('.context-inspector-total')).toContainText('76.7K');
 });
@@ -117,7 +124,8 @@ test('the context bands remain inside a narrow viewport and category detail is k
   const inspector = page.getByRole('dialog', { name: 'Context inspector' });
   const bounds = await inspector.boundingBox(); expect(bounds!.x).toBeGreaterThanOrEqual(8); expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(382);
   await inspector.locator('.context-category-row', { hasText: 'System' }).focus();
-  await expect(inspector.getByRole('tooltip')).toContainText('32.9K of 1M context tokens');
+  await expect(page.getByRole('tooltip')).toContainText('32,900 tokens');
+  await expect(page.getByRole('tooltip')).toContainText('3.3%');
   await inspector.evaluate(async node => { await Promise.all(node.getAnimations({ subtree: true }).map(animation => animation.finished.catch(() => {}))); });
   await page.screenshot({ path: test.info().outputPath('context-narrow.png') });
 });

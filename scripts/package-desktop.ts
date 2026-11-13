@@ -7,6 +7,7 @@ import {runtimeSourceAllowed,validateNodeArchive,desktopBuilderConfig,packageMan
 import {collectHermesPayload,discoverHermesPython,stageHermesPayload,verifyHermesPayload,verifyRelocatedHermesPython} from './hermes-assets.ts';
 import {collectIntegrationPayload,stageIntegrationPayload,verifyIntegrationPayload,verifyRelocatedIntegrations} from './integration-assets.ts';
 import {collectGitTools,stageGitTools} from './git-assets.ts';
+import {buildWindowsCredentialLease} from './build-windows-credential-lease.ts';
 
 if(process.platform!=='win32'||process.arch!=='x64')throw Error('This package target requires Windows x64');
 const root=resolve('.'),dist=readDesktopOutputRoot(process.argv.slice(2)),pkg=JSON.parse(await readFile('package.json','utf8')),release=await reserveDesktopRelease(dist,pkg.version),stage=resolve(dist,'desktop-stage-'+Date.now()),host=resolve(stage,'desktop-host'),cache=resolve('.harness-desktop-cache');
@@ -16,6 +17,7 @@ await mkdir(host,{recursive:true});await mkdir(cache,{recursive:true});
 const run=(file:string,args:string[],cwd:string,extraEnv:Record<string,string>={})=>new Promise<void>((accept,reject)=>{const child=spawn(file,args,{cwd,windowsHide:true,stdio:'inherit',env:{...process.env,...extraEnv}});child.on('error',reject);child.on('exit',code=>code===0?accept():reject(Error(file+' exited '+code)));});
 async function copySources(directory:string){for(const entry of await readdir(directory,{withFileTypes:true})){const path=join(directory,entry.name),part=relative(root,path).replaceAll('\\','/');if(entry.isSymbolicLink())throw Error('Runtime source link is not allowed: '+part);if(entry.isDirectory()){if(!entry.name.startsWith('.')&&!['node_modules','tests','fixtures'].includes(entry.name))await copySources(path);}else if(runtimeSourceAllowed(part)){const info=await lstat(path);if(!info.isFile()||info.size>2*1024*1024)throw Error('Invalid runtime source: '+part);const output=resolve(host,part);await mkdir(dirname(output),{recursive:true});await copyFile(path,output);}}}
 await copySources(resolve('packages'));await copySources(resolve('apps/server'));
+await buildWindowsCredentialLease(resolve(host,'packages/core'));
 async function copyTree(source:string,target:string){await mkdir(target,{recursive:true});for(const entry of await readdir(source,{withFileTypes:true})){if(entry.isSymbolicLink())throw Error('Asset links are unsupported');const input=join(source,entry.name),output=join(target,entry.name);if(entry.isDirectory())await copyTree(input,output);else await copyFile(input,output);}}
 await copyTree(resolve('dist/plugin-runtime'),resolve(host,'dist/plugin-runtime'));
 await copyTree(resolve('dist/web'),resolve(host,'dist/web'));await copyTree(resolve('dist/widget-runtime'),resolve(host,'dist/widget-runtime'));

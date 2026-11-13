@@ -21,7 +21,7 @@ beforeEach(() => {
 
 describe('protected credential evidence capability', () => {
   const acquire = (...args: Parameters<typeof credentialHooks.acquireLiteralCredentialLease>) => credentialHooks.acquireLiteralCredentialLease(...args);
-  it('refuses the new evidence capability outside Linux before opening storage', async () => {
+  it('refuses an invalid native evidence path before opening storage', async () => {
     expect(typeof credentialHooks.acquireLiteralCredentialLease).toBe('function');
     if (process.platform !== 'linux') await expect(acquire('/never-opened/auth.json', {signal: new AbortController().signal, maxHoldMs: 1000})).rejects.toMatchObject({code: 'PI_CREDENTIAL_LEASE_UNAVAILABLE'});
   });

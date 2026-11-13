@@ -55,7 +55,7 @@ test('Usage has separate Cost, Tokens and Limits with exact reported data and pe
   await usage(page).getByRole('tab', { name: 'Tokens', exact: true }).click();
   await expect(usage(page)).toContainText('Input tokens'); await expect(usage(page)).toContainText('Not reported');
   await usage(page).getByRole('tab', { name: 'Limits', exact: true }).click();
-  await expect(usage(page)).toContainText('23.456%'); await expect(usage(page)).toContainText('2030-01-01T12:34:56Z');
+  await expect(usage(page)).toContainText('23.5%'); await expect(usage(page)).toContainText('2030'); await expect(usage(page)).not.toContainText('2030-01-01T12:34:56Z');
   await expect(usage(page)).not.toContainText('Compact'); await expect(usage(page)).not.toContainText('Thread memory');
 });
 test('accepted receipt needs exact ownership; measured freed count is optional and reset on restart', async ({ page }) => {

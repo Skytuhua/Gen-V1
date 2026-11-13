@@ -3,7 +3,7 @@ import { BarChart3, RefreshCw } from 'lucide-react';
 import { Modal } from '../../../packages/ui-shell/Modal';
 import { Select } from '../../../packages/ui-shell/Select';
 import { isComposing } from '../../../packages/ui-shell/list-navigation';
-import { usageCost, usageCount, usagePercent, type UsageProviderReport } from './usage-presentation';
+import { usageCost, usageCount, usagePercent, usageReset, type UsageProviderReport } from './usage-presentation';
 import './usage-dialog.css';
 
 export interface UsageDialogProps {
@@ -63,7 +63,7 @@ export function UsageDialog({ open, onClose, reports = [], loading = false, erro
         {report.error && <p className="usage-dialog-error" role="alert">{report.error}</p>}
         {tab === 'Cost' && <dl><dt>Reported cost</dt><dd>{usageCost(report.cost)}</dd></dl>}
         {tab === 'Tokens' && <dl><dt>Input tokens</dt><dd>{usageCount(report.inputTokens)}</dd><dt>Output tokens</dt><dd>{usageCount(report.outputTokens)}</dd></dl>}
-        {tab === 'Limits' && (report.limits?.length ? report.limits : [{ id: 'unknown', label: 'Provider limit' }]).map(limit => <div key={limit.id} className="usage-limit"><dl><dt>{limit.label}</dt><dd>{usagePercent(limit.usedPercent)}</dd><dt>Reset</dt><dd>{limit.reset?.trim() || 'Not reported'}</dd></dl></div>)}
+        {tab === 'Limits' && (report.limits?.length ? report.limits : [{ id: 'unknown', label: 'Provider limit' }]).map(limit => <div key={limit.id} className="usage-limit"><dl><dt>{limit.label}</dt><dd>{usagePercent(limit.usedPercent)}</dd><dt>Reset</dt><dd>{usageReset(limit.reset)}</dd></dl></div>)}
       </section>)}
     </div>
   </Modal>;

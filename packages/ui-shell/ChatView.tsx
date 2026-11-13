@@ -53,7 +53,7 @@ export function ChatView({header,actions,children,enabled=true}:{header:ReactNod
  useLayoutEffect(()=>{
   const element=panel.current,owner=slot.current;if(!element||!owner)return;
   const before=pending.current;pending.current=null;animation.current?.cancel();
-  const area=rectOf(owner),rect=layout.mode==='full'?{x:0,y:0,width:area.width,height:area.height}:chatPanelRect(layout,viewport());
+  const rect=layout.mode==='full'?{x:0,y:0,width:owner.clientWidth,height:owner.clientHeight}:chatPanelRect(layout,viewport());
   apply(rect,layout.mode!=='full');
   if(!before||instant.current||!motionAllowed()){instant.current=false;return;}
   const after=rectOf(element),base=layout.mode==='full'?'':`translate3d(${rect.x}px,${rect.y}px,0) `;
@@ -69,8 +69,8 @@ export function ChatView({header,actions,children,enabled=true}:{header:ReactNod
   const resize=()=>{
    stop.current?.(true);animation.current?.cancel();
    if(!panel.current||!slot.current)return;
-   const saved=current.current,area=rectOf(slot.current);
-   apply(saved.mode==='full'?{x:0,y:0,width:area.width,height:area.height}:chatPanelRect(saved,viewport()),saved.mode!=='full');
+   const saved=current.current;
+   apply(saved.mode==='full'?{x:0,y:0,width:slot.current.clientWidth,height:slot.current.clientHeight}:chatPanelRect(saved,viewport()),saved.mode!=='full');
   };
   const observer=new ResizeObserver(resize);if(slot.current)observer.observe(slot.current);
   window.addEventListener('resize',resize);
