@@ -22,11 +22,54 @@
 .task-table-source-error { display:block; margin-top:7px; font-size:11px; color:var(--muted); }
 @keyframes task-column-in { from { opacity:.2; } to { opacity:1; } }
 @media(prefers-reduced-motion:reduce) { .task-table th { animation:none; } }
+/* Column controls share the existing compact grid and theme. */
+.task-table[data-column-controls=true] table { table-layout:fixed; min-width:0; }
+.task-table[data-column-controls=true] th[data-column-key] { padding:0 12px; }
+.task-table[data-column-controls=true] :is(td,th) { box-sizing:border-box; }
+.task-table caption.sr-only { padding:0; background:transparent; }
+.task-table-heading { display:flex; align-items:center; gap:2px; height:34px; min-width:0; }
+.task-table-heading button { display:inline-flex; align-items:center; justify-content:flex-start; border:0; border-radius:3px; background:transparent; padding:0; color:inherit; font:inherit; min-width:0; height:24px; }
+.task-table-heading button:hover { background:var(--hover); }
+.task-table-heading .task-table-grip { flex:0 0 16px; justify-content:center; opacity:0; cursor:grab; touch-action:none; }
+.task-table th:is(:hover,:focus-within,[data-moving=true]) .task-table-grip { opacity:1; }
+.task-table-heading .task-table-sort { flex:1; gap:4px; overflow:hidden; }
+.task-table-sort>span:first-child { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.task-table-sort-arrow { flex:none; font-size:13px; color:var(--accent-fg,var(--accent)); }
+.task-table-resizer { margin:0; border:0; position:absolute; z-index:3; right:-12px; top:0; width:24px; height:34px; cursor:col-resize; touch-action:none; }
+.task-table-resizer::after { content:''; position:absolute; top:0; bottom:0; left:11px; width:1px; }
+.task-table-resizer:is(:hover,:focus-visible)::after { background:var(--accent-fg,var(--accent)); }
+.task-table :is(button,input,[tabindex]):focus-visible { outline:2px solid var(--accent-fg,var(--accent)); outline-offset:2px; }
+.task-table th[data-moving=true] .task-table-heading { opacity:.42; }
+.task-table[data-column-controls=true] .task-table-number { text-align:right; font-variant-numeric:tabular-nums; }
+.task-table .task-table-select { width:40px; min-width:40px; max-width:40px; padding:8px 11px; }
+.task-table input[type=checkbox] { margin:0; vertical-align:middle; }
+.task-table-filter { margin-left:auto; display:flex; align-items:center; gap:6px; min-width:0; }
+.task-table-filter-field { display:flex; align-items:center; gap:6px; height:28px; padding:0 8px; border:1px solid var(--border); border-radius:6px; background:var(--surface); }
+.task-table-filter-field[data-active=true] { border-color:var(--accent-fg,var(--accent)); color:var(--accent-fg,var(--accent)); background:var(--accent-bg,color-mix(in srgb,var(--accent) 14%,var(--surface))); }
+.task-table .task-table-filter input { width:96px; min-width:0; padding:0; height:auto; border:0; border-radius:0; background:transparent; color:var(--text); font:inherit; }
+.task-table .task-table-clear { flex:none; border:0; padding:5px 4px; background:transparent; color:var(--text); font:inherit; text-decoration:underline; text-underline-offset:3px; cursor:pointer; }
+.task-table .task-table-follow { position:static; margin-top:8px; }
+.task-table-resize-guide { position:absolute; z-index:4; top:0; bottom:0; width:1px; pointer-events:none; background:var(--accent-fg,var(--accent)); }
+.task-table-drop-line { position:absolute; z-index:4; top:3px; height:28px; width:2px; pointer-events:none; background:var(--accent-fg,var(--accent)); }
+.task-table-drop-line::before,.task-table-drop-line::after { content:''; position:absolute; left:-2px; width:6px; height:6px; border-radius:50%; background:inherit; }
+.task-table-drop-line::before { top:-2px; }
+.task-table-drop-line::after { bottom:-2px; }
+.task-table-drag-preview { position:absolute; z-index:5; pointer-events:none; display:flex; align-items:center; gap:4px; height:34px; max-width:220px; overflow:hidden; white-space:nowrap; padding:8px 12px; border:1px solid var(--border); border-radius:6px; background:var(--surface); color:var(--text); font:500 10px var(--font-mono,monospace); }
+@media(hover:none) { .task-table-heading .task-table-grip { opacity:1; } }
+@media(forced-colors:active) {
+  .task-table-resize-guide,.task-table-drop-line,.task-table-resizer:is(:hover,:focus-visible)::after { background:Highlight; }
+  .task-table :is(button,input,[tabindex]):focus-visible { outline-color:Highlight; }
+  .task-table-filter-field[data-active=true] { border-color:Highlight; }
+}
 
+.task-table[data-column-controls=true] .task-table-scroll { padding-right:12px; }
+.task-table-label-help { padding:8px 10px; border:1px solid var(--border); border-radius:6px; background:var(--surface); color:var(--text); font-size:11px; overflow:auto; overflow-wrap:anywhere; }
+
+/* Declared numeric columns keep full precision and own horizontal scrolling. */
 .task-table table[data-numeric] { width:100%; min-width:650px; }
 .task-table :is(th,td).number { text-align:right; min-width:0; max-width:none; overflow:visible; text-overflow:clip; white-space:nowrap; }
+.task-table th.number .task-table-sort { justify-content:flex-end; }
 .task-table td.number .task-table-before { max-width:none; overflow:visible; }
-
 
 /* Inline artifacts grow vertically; numeric columns keep a horizontal scroll owner. */
 .artifact[data-artifact-inline=true] .artifact-content .task-table:has(table[data-numeric]) .task-table-scroll { max-height:none; overflow:auto; }
