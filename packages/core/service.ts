@@ -463,6 +463,9 @@ export class Service {
       this.store.remove('archivedThread', archived.id); return archived;
     });
     const thread = this.thread(command.threadId);
+    // A command can end or supersede the run; flush its buffered deltas before
+    // any handler mutates epoch/runId, or the trailing text would be dropped.
+    this.flushDeltas(thread.id);
     if(thread.sideParentId&&!['message.send','run.stop','run.resume','thread.rename','thread.presentation','thread.archive'].includes(command.type))throw new HarnessError('SIDE_CHAT_READ_ONLY','Side conversations answer questions without changing the main task or accessing files.');
     if (command.type === 'memory.save' || command.type === 'memory.delete') return this.store.command(command, () => changeTaskMemory(this.store, thread.id, command.type === 'memory.save' ? 'save' : 'delete', p, 'user'));
     if (command.type === "message.send") return this.sendMessage(command, thread);
@@ -803,6 +806,7 @@ export class Service {
     if (this.closed) return;
     const thread = this.store.get<Thread>("thread", ctx.threadId);
     if (!thread || thread.epoch !== ctx.epoch || thread.runId !== ctx.runId) return;
+    this.flushDeltas(thread.id);
     this.store.internal("run.failed", thread.id, () => {
       this.failUnansweredDetails(ctx,'The explanation could not finish. Resume the task to retry.');
       const intent = this.store.get<{kind:string;previousStatus:Thread["status"]}>("runtimeIntent", ctx.runId);
