@@ -32,6 +32,10 @@ it.skipIf(process.platform!=='win32')('releases native helpers after a terminal 
   import {Store} from ${JSON.stringify(new URL('../packages/storage/store.ts',import.meta.url).href)};
   import {ProjectTools} from ${JSON.stringify(new URL('../packages/workspace/tools.ts',import.meta.url).href)};
   import {TerminalHost} from ${JSON.stringify(new URL('../packages/workspace/terminal.ts',import.meta.url).href)};
+  // node-pty's conpty pipe can throw writeAfterFIN asynchronously when the
+  // child exits naturally; it is internal socket noise outside the host's
+  // contract, so only that code is tolerated here.
+  process.on('uncaughtException',error=>{if((error&&error.code)!=='EPIPE')throw error;});
   const directory=process.argv[2],store=new Store(join(directory,'data')),tools=new ProjectTools(store),host=new TerminalHost(tools);
   try{
    const receipt=await tools.connect({id:'connect',type:'workspace.project.connect',payload:{name:'Natural exit fixture',path:join(directory,'project')}});
