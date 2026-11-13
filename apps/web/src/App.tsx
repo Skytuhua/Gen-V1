@@ -1,7 +1,7 @@
 import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState, useMemo, useSyncExternalStore, type ComponentProps, type CSSProperties, type ReactNode } from 'react';
 import { Activity, ArrowUp, Bot, Check, ChevronDown, ChevronRight, CircleHelp, CircleStop, Folder, Laptop, LoaderCircle, Menu, MessageSquare, PanelLeftOpen, PanelRight, PenLine, Plus, SlidersHorizontal, WifiOff, X } from 'lucide-react';
 import type { InputRequest, ModelInfo, Operation, Snapshot, Thread,Message } from '../../../packages/contracts';
-import { ApiError, bootstrap, command, getModels, getSnapshot, getThreadMessages, subscribe } from './api';
+import { ApiError, bootstrap, command, getModels, getSnapshot, getThreadMessages, searchThreadMessages, subscribe } from './api';
 import { applyRuntimeEvent } from './snapshot-events';
 import { journalCompareAndSwap, journalGeneration, journalRead, journalReadRecord, journalSubscribe, journalWrite } from './journal';
 import { Artifact } from './Artifact';
@@ -639,7 +639,21 @@ function ConversationWorkspace({embeddedThreadId,embeddedActive=true,onRequestTh
     if (!discard && !confirmed && preferences.archiveConfirmation) { setConfirmArchive(id);  return; }
     try { await command('thread.archive', {}, id); setDirtyWidgets(previous => Object.fromEntries(Object.entries(previous).filter(([, threadId]) => threadId !== id))); setArchiveThread(null); select(null); await refresh(); } catch (error) { setError(messageOf(error)); }
   };
-  const matching = useMemo(() => matchingThreads(snapshot.threads, snapshot.messages, search, preferences.projectOrder), [snapshot.threads, snapshot.messages, search, preferences.projectOrder]);
+  // Windowed threads' older messages are not in the snapshot; ask the server
+  // which of them still match the query.
+  const [deepMatches, setDeepMatches] = useState<ReadonlySet<string>>(new Set());
+  useEffect(() => {
+    const query = search.trim(), ids = Object.keys(snapshot.messagesTruncated ?? {});
+    if (!query || !ids.length) { setDeepMatches(new Set()); return; }
+    let active = true;
+    const timer = setTimeout(() => { void searchThreadMessages(query, ids).then(page => { if (active) setDeepMatches(new Set(page.threadIds)); }).catch(() => {}); }, 250);
+    return () => { active = false; clearTimeout(timer); };
+  }, [search, snapshot.messagesTruncated]);
+  const matching = useMemo(() => {
+    const base = matchingThreads(snapshot.threads, snapshot.messages, search, preferences.projectOrder);
+    const extra = snapshot.threads.filter(item => deepMatches.has(item.id) && !base.includes(item));
+    return extra.length ? [...base, ...extra] : base;
+  }, [snapshot.threads, snapshot.messages, search, preferences.projectOrder, deepMatches]);
   const updateModel = (id: string) => { setModelId(id); void command('settings.update', { modelId: id }).then(() => refresh()).catch(error => setError(messageOf(error))); };
   const detachedPlan=useDetachedSurface(thread?{kind:'plan',threadId:thread.id}:null),detachedThread=useDetachedSurface(thread?{kind:'thread',threadId:thread.id}:null),detachedNavigation=useDetachedSurface({kind:'navigation'});
   const pendingThread=usePendingSurface(thread?{kind:'thread',threadId:thread.id}:null);
@@ -829,7 +843,7 @@ function ConversationWorkspace({embeddedThreadId,embeddedActive=true,onRequestTh
         return <div key={thread?.id ?? 'new'} hidden={thread?.id !== (snapshot.threads.find(item => item.id === selectedId) ?? snapshot.threads.find(item => item.id === snapshot.activeThreadId))?.id}><div className={`conversation ${!allMessages.length && !artifacts.length ? 'conversation-empty' : ''}`}>
         {!loaded && !error && <LoadingState pending hasContent={false} label="Opening your workspace…" skeleton={<ConversationSkeleton/>}/>}
         {loaded && !allMessages.length && !artifacts.length && <div className="empty-state"><div className="empty-symbol"><MessageSquare size={25} strokeWidth={1.25} /></div><h1>What are we working on?</h1><p>Start with a question, a file, or a project.<br />Your conversation becomes the workspace.</p>{!models.length && <button className="setup-inline" onClick={() => { setSettingsSection('providers'); setSettingsOpen(true); }}><CircleHelp size={15} /><span>Connect a model to get started</span><ChevronRight size={14} /></button>}</div>}
-        {(historyStart > 0 || olderRemaining > 0) && <button className="load-history quiet" onClick={() => { if (conversation.current) historyAnchor.current = { height: conversation.current.scrollHeight, top: conversation.current.scrollTop }; if (historyStart > 0) { historyStarts.current.set(historyId, Math.max(0, historyStart - 100)); setHistoryCounts(previous => ({ ...previous, [historyId]: (previous[historyId] ?? 0) + 1 })); } else if (thread?.id) { void getThreadMessages(thread.id, allMessages[0]?.id).then(page => { const stored = olderMessages.current.get(historyId) ?? [], known = new Set(stored.map(item => item.id)), fresh = page.messages.filter(item => !known.has(item.id)); olderMessages.current.set(historyId, [...fresh, ...stored]); historyStarts.current.set(historyId, Math.max(0, fresh.length - 100)); setOlderPageTick(value => value + 1); }).catch(cause => setError(messageOf(cause))); } }}>Load earlier messages</button>}
+        {(historyStart > 0 || olderRemaining > 0) && <button className="load-history quiet" onClick={() => { if (conversation.current) historyAnchor.current = { height: conversation.current.scrollHeight, top: conversation.current.scrollTop }; if (historyStart > 0) { historyStarts.current.set(historyId, Math.max(0, historyStart - 100)); setHistoryCounts(previous => ({ ...previous, [historyId]: (previous[historyId] ?? 0) + 1 })); } else if (thread?.id) { const topId = allMessages[historyStart]?.id; void getThreadMessages(thread.id, messages[0]?.id).then(page => { const stored = olderMessages.current.get(historyId) ?? [], known = new Set(stored.map(item => item.id)), fresh = page.messages.filter(item => !known.has(item.id)); const merged = [...stored, ...fresh].sort((a, b) => a.createdAt.localeCompare(b.createdAt)); olderMessages.current.set(historyId, merged); const topIndex = merged.findIndex(item => item.id === topId); historyStarts.current.set(historyId, Math.max(0, (topIndex === -1 ? merged.length : topIndex) - 100)); setOlderPageTick(value => value + 1); }).catch(cause => setError(messageOf(cause))); } }}>Load earlier messages</button>}
         {messageRows.map(({ message, updates }) => <div key={message.id} className={`message message-${message.role}`}><div className="message-content">{updates ? <WorkActivity updates={updates} /> : message.role==='assistant'?<AssistantProse message={message} arrivals={liveMessages.current} active={Boolean(thread?.runId&&thread.runId===message.runId)} />:<Markdown text={message.content} />}</div>{artifacts.filter(artifact => artifact.messageId === message.id).map(artifact => <Artifact key={artifact.id} artifact={artifact} snapshot={snapshot} theme={theme} refresh={refresh} onDirtyWidget={onDirtyWidget} suspended={threadHeld} active={thread?.id===(snapshot.threads.find(item=>item.id===selectedId)??snapshot.threads.find(item=>item.id===snapshot.activeThreadId))?.id} animateEntry={liveEntries.current.has(artifact.id)} />)}</div>)}
         {artifacts.filter(artifact => !messages.some(message => message.id === artifact.messageId)).map(artifact => <Artifact key={artifact.id} artifact={artifact} snapshot={snapshot} theme={theme} refresh={refresh} onDirtyWidget={onDirtyWidget} suspended={threadHeld} active={thread?.id===(snapshot.threads.find(item=>item.id===selectedId)??snapshot.threads.find(item=>item.id===snapshot.activeThreadId))?.id} animateEntry={liveEntries.current.has(artifact.id)} />)}
         {requests.map(request => <InputDecision key={request.presentation?`${request.id}:${JSON.stringify(request.responseSchema)}`:`${request.id}:${request.revision}`} request={request} snapshot={snapshot} refresh={refresh} />)}{operations.map(operation => <OperationDecision key={`${operation.id}:${operation.revision}`} operation={operation} refresh={refresh} />)}

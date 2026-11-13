@@ -128,6 +128,16 @@ export async function buildServer(service: Service, options: ServerOptions) {
       activeThreadId: null,
     };
   });
+  // Deep message search for threads whose history the snapshot windowed: the
+  // client passes the truncated thread ids it knows about.
+  app.get<{ Querystring: { q?: string; threads?: string } }>('/api/threads/search', async (request) => {
+    const query = (request.query.q ?? '').slice(0, 500).toLocaleLowerCase();
+    if (!query) return { threadIds: [] };
+    const ids = (request.query.threads ?? '').slice(0, 4000).split(',').filter(id => /^[\w:.-]{1,200}$/.test(id)).slice(0, 200);
+    const threadIds = ids.filter(id => service.store.get('thread', id)
+      && service.store.all<{ content: string }>('message', id).some(message => message.content.toLocaleLowerCase().includes(query)));
+    return { threadIds };
+  });
   app.get("/api/models", async (request, reply) => {
     reply.header("Cache-Control", "no-store");
     const { refresh,threadId } = request.query as { refresh?: unknown;threadId?:unknown };

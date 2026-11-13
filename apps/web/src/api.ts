@@ -64,6 +64,12 @@ export const getThreadMessages = (id: string, beforeId?: string, limit = 300) =>
   const query = new URLSearchParams({ ...(beforeId ? { beforeId } : {}), limit: String(limit) }).toString();
   return authenticated(() => fetch(`/api/threads/${encodeURIComponent(id)}/messages?${query}`, { credentials: 'same-origin', cache: 'no-store' })).then(read<{ messages: Message[]; truncated: number }>);
 };
+// Deep message search over threads the snapshot windowed; in-window threads are
+// already covered by the local matchingThreads scan.
+export const searchThreadMessages = (q: string, threadIds: string[]) => {
+  const query = new URLSearchParams({ q, threads: threadIds.join(',') }).toString();
+  return authenticated(() => fetch(`/api/threads/search?${query}`, { credentials: 'same-origin', cache: 'no-store' })).then(read<{ threadIds: string[] }>);
+};
 export const getResourceContent = (id: string, path = '', signal?: AbortSignal) => authenticated(() => fetch(`/api/resources/${encodeURIComponent(id)}/content${path ? '?path=' + encodeURIComponent(path) : ''}`, { credentials: 'same-origin', cache: 'no-store', signal, redirect: 'error' }));
 export const getWidgetMount = (id: string) => authenticated(() => fetch(`/api/artifacts/${encodeURIComponent(id)}/mount`, { credentials: 'same-origin', cache: 'no-store' })).then(read<{ url: string; token: string; mountId: string; revision: number }>);
 type CredentialScope={artifactId:string;threadId:string;revision:number};
