@@ -11,6 +11,7 @@ workspace presets and settings are application state, not separate URL routes.
 | Manual thread moves | `ShellSidebar.tsx`, `sidebar-thread-move.ts` | `thread-move` suite |
 | Thread previews | `thread-hover/ThreadHoverCard.tsx` | `thread-hover` suite |
 | Settings | `Settings.tsx` | `settings-leaf-selects` suite |
+| Local table controls | `TaskTable.tsx`, `TaskTableControls.tsx`, `task-table-model.ts` | `table-controls` suite |
 | Files and review | `files/FilesView.tsx`, `CodeReviewHost.tsx` | `files-reading`, `code-review-host` suites |
 
 UI owning files above are under `apps/web/src/` unless a package path is given.

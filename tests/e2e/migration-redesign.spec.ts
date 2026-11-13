@@ -50,7 +50,7 @@ test('completed inspection retains table identity, keyboard navigation and chat-
   await page.getByRole('tab', { name: 'users', exact: true }).press('ArrowRight');
   await expect(page.getByRole('tab', { name: 'projects', exact: true })).toHaveAttribute('aria-selected', 'true');
   await fixture.publish();
-  for (const scroll of await page.locator('.task-table-scroll').all()) expect(await scroll.evaluate(node => getComputedStyle(node).overflowY)).toBe('visible');
+  for (const scroll of await page.locator('.task-table-scroll').all()) expect(await scroll.evaluate(node => node.scrollHeight <= node.clientHeight)).toBe(true);
   await page.setViewportSize({ width: 700, height: 900 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
