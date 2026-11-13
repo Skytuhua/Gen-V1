@@ -38,6 +38,7 @@ import {ComposerAttachments} from './ComposerAttachments';
 import {Modal} from '../../../packages/ui-shell/Modal';
 import {toast,Toaster} from '../../../packages/ui-shell/Toast';
 import {TooltipLayer} from '../../../packages/ui-shell/Tooltip';
+import {reducedMotion} from './task-motion';
 import {Select} from '../../../packages/ui-shell/Select';
 import {PluginFrame,usePluginCatalog} from './PluginFrame';
 import {recordedChangeSummary} from './composer-evidence';
@@ -431,9 +432,11 @@ function ConversationWorkspace({embeddedThreadId,embeddedActive=true,onRequestTh
   // Keep the panel mounted through its exit animation after rightPanelOpen flips false.
   const [panelLeaving, setPanelLeaving] = useState(false), panelWasOpen = useRef(layout.rightPanelOpen);
   useEffect(() => {
-    if (panelWasOpen.current && !layout.rightPanelOpen) setPanelLeaving(true);
+    // Exit animations cannot finish when the motion policy or panel animations disable them.
+    if (panelWasOpen.current && !layout.rightPanelOpen && preferences.panelAnimations && !reducedMotion()) setPanelLeaving(true);
+    else if (panelLeaving && (!preferences.panelAnimations || reducedMotion())) setPanelLeaving(false);
     panelWasOpen.current = layout.rightPanelOpen;
-  }, [layout.rightPanelOpen]);
+  }, [layout.rightPanelOpen, preferences.panelAnimations, panelLeaving]);
   const workspaceContext = { activeArtifactId: layout.activeArtifactId, requestOpenArtifact: (id: string) => {setDocumentWindow(null);revealWorkspaceTool('artifact',undefined,id);}, closeArtifact: () => setLayout(value => ({ ...value, activeArtifactId: null })), rightPanelOpen: layout.rightPanelOpen, activeTab: layout.activeTab, setActiveTab: (activeTab: typeof layout.activeTab) => setLayout(value => ({ ...value, activeTab })), documentWindow, requestOpenDocument:(id:string)=>{closePanel();setDocumentWindow({id,placement:'docked'});},closeDocument:(id:string)=>setDocumentWindow(value=>value?.id===id?null:value),placeDocument:(id:string,placement:'docked'|'floating')=>setDocumentWindow(value=>value?.id===id?{id,placement}:value) };
   const [confirmArchive, setConfirmArchive] = useState<string | null>(null);
   const [resourcePicker, setResourcePicker] = useState<string | null>(null);

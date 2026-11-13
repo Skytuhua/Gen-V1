@@ -345,10 +345,10 @@ progress::-moz-progress-bar { background:var(--text); border-radius:4px; }
 
 /* List and disclosure motion: new rows, chips and native details get the documented insert/remove timings. */
 @keyframes ui-item-in { from { opacity:0; transform:translateY(4px); } }
-:where(.thread-item) { animation: ui-item-in var(--ui-motion-insert) var(--ui-ease-enter) both; }
+:where(.thread-item) { animation: ui-item-in var(--ui-motion-insert) var(--ui-ease-enter); }
 :where([role="tabpanel"], [role="tabpanel"] > *) { animation: ui-item-in var(--ui-motion-tab,140ms) var(--ui-ease-enter); }
 @keyframes ui-item-out { to { opacity:0; transform:translateY(3px); } }
-:where(.message[data-arrival="true"], .resource-chip:not([data-leaving])) { animation: ui-item-in var(--ui-motion-insert) var(--ui-ease-enter) both; }
+:where(.message[data-arrival="true"], .resource-chip:not([data-leaving])) { animation: ui-item-in var(--ui-motion-insert) var(--ui-ease-enter); }
 :where(.resource-chip[data-leaving]) { pointer-events:none; animation: ui-item-out var(--ui-motion-remove) var(--ui-ease-move) both; }
 
 /* Chromium details-content: height transition needs the opt-in. */
