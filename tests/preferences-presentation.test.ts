@@ -32,7 +32,7 @@ describe('compact settings and unified context presentation', () => {
     expect(html).toContain('data-plan-revision="2"');
     expect(html).toContain('Open full plan');
     expect(html).toContain('0 of 1 tasks complete');
-    expect(html).toContain('No automation service is connected.');
+    expect(html).toContain('No automation service connected.');
     expect(html).toContain('Side conversations');
     expect(html).not.toContain('plan-steps');
   });
