@@ -1,0 +1,22 @@
+.saved-drafts-trigger {font-size:12px;min-height:var(--ui-row-compact);}
+.saved-drafts-popover {padding:var(--ui-panel-inset);color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:var(--control-radius,8px);overflow:auto;scrollbar-width:thin;}
+.saved-drafts-popover header {display:flex;flex-direction:column;align-items:flex-start;gap:var(--ui-space-2);}
+.saved-drafts-popover h2 {margin:0;font-size:14px;font-weight:600;}
+.saved-drafts-popover ul {list-style:none;padding:0;margin:var(--ui-space-2) 0;}
+.saved-drafts-popover li {display:flex;align-items:flex-start;gap:var(--ui-space-2);padding-block:var(--ui-space-3);border-bottom:1px solid var(--border);}
+.saved-drafts-popover li>svg {flex:0 0 auto;margin-block-start:var(--ui-space-1);}
+.saved-drafts-copy {min-width:0;flex:1;overflow-wrap:anywhere;}
+.saved-drafts-copy strong {font-size:13px;font-weight:500;}
+.saved-drafts-copy p {color:var(--muted);font-size:12px;line-height:1.5;margin:var(--ui-space-1) 0;white-space:pre-wrap;max-height:72px;overflow:auto;}
+.saved-drafts-copy small {overflow-wrap:anywhere;}
+.saved-drafts-row-actions {display:flex;flex-direction:column;align-items:flex-end;flex:0 0 auto;gap:var(--ui-space-1);}
+.saved-drafts-row-actions button {white-space:normal;max-width:100px;font-size:12px;}
+.saved-drafts-popover footer {color:var(--muted);font-size:12px;line-height:1.5;}
+.saved-drafts-dialog {width:min(560px,calc(100vw - var(--ui-space-4)*2));}
+.saved-drafts-dialog input {display:block;width:100%;margin-block:var(--ui-space-2);font:inherit;}
+.saved-drafts-dialog p,.saved-drafts-dialog li {overflow-wrap:anywhere;}
+.saved-drafts-preview {white-space:pre-wrap;overflow-wrap:anywhere;max-height:200px;overflow:auto;font:inherit;}
+.saved-drafts-references ul {padding-inline-start:var(--ui-space-4);font-size:12px;}
+.saved-drafts-actions {display:flex;justify-content:flex-end;gap:var(--ui-space-2);flex-wrap:wrap;margin-block-start:var(--ui-space-4);}
+
+.saved-drafts-references textarea {display:block;width:100%;margin-block:var(--ui-space-2);}
