@@ -14,6 +14,9 @@ function fixture(content = JSON.stringify({openai: oauth})) {
   const parent = join(root, 'profile'); mkdirSync(parent);
   const authPath = join(parent, 'auth.json'); writeFileSync(authPath, content);
   execFileSync(join(process.env.SystemRoot ?? 'C:\\Windows', 'System32/icacls.exe'), [authPath, '/inheritance:r', '/grant:r', `${userInfo().username}:(F)`, '*S-1-5-18:(F)', '*S-1-5-32-544:(F)'], {windowsHide: true, stdio: 'pipe'});
+  // Server SKUs own admin-created objects by the Administrators group; the lease
+  // requires the file to be owned by the calling user.
+  execFileSync(join(process.env.SystemRoot ?? 'C:\\Windows', 'System32/icacls.exe'), [authPath, '/setowner', userInfo().username], {windowsHide: true, stdio: 'pipe'});
   return {root, parent, authPath};
 }
 const acquire = (path: string, signal = new AbortController().signal, maxHoldMs = 5000) => acquireLiteralCredentialLease(path, {signal, maxHoldMs});

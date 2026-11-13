@@ -490,7 +490,11 @@ export function applyOverlayPolicy(violations: UiViolation[], inventory: LegacyO
   return { violations: fresh, legacy, retired: remaining };
 }
 
-export function scanUi(root: string) {
+// Files without JSX can only produce findings through these imperative DOM
+// escape paths; anything else is skipped by the overlay/numeric rules anyway.
+const IMPERATIVE_ESCAPE = /createElement|createPortal|setAttribute|insertAdjacentHTML|innerHTML|outerHTML|srcdoc|srcDoc|cssText|className|dangerouslySetInnerHTML|\.send\s*\(|\.type\s*\(|\.header\s*\(/;
+
+export function scanUi(root: string, scanOptions?: { check?: boolean }) {
   root = resolve(root);
   const configPath = join(root, 'tsconfig.json'), config = ts.readConfigFile(configPath, ts.sys.readFile);
   if (config.error) throw Error(ts.flattenDiagnosticMessageText(config.error.messageText, '\n'));
@@ -541,7 +545,11 @@ export function scanUi(root: string) {
   if (syntaxErrors.length) throw Error(ts.formatDiagnosticsWithColorAndContext(syntaxErrors, {
     getCanonicalFileName: path => path, getCurrentDirectory: () => root, getNewLine: () => '\n',
   }));
-  const violations = lintUiProgram(program, inputs, root).map(item => {
+  // The program still includes every input so cross-file strings()/initializer()
+  // resolution keeps working; only the per-file analysis is restricted to files
+  // that can actually produce a finding.
+  const linted = inputs.filter(file => /\.[jt]sx$/i.test(file) || IMPERATIVE_ESCAPE.test(inline.get(portable(file))?.text ?? readFileSync(file, 'utf8')));
+  const violations = lintUiProgram(program, linted, root).map(item => {
     const origin = inline.get(portable(resolve(root, item.file)));
     return origin ? { ...item, file: origin.file, line: item.line + origin.line, column: item.column + (item.line === 1 ? origin.column : 0) } : item;
   });
@@ -550,7 +558,15 @@ export function scanUi(root: string) {
     if (file.endsWith('.html')) violations.push(...lintMarkup(readFileSync(file, 'utf8'), path));
     if (file.endsWith('.css')) violations.push(...lintStyles(readFileSync(file, 'utf8'), path));
   }
-  return { files: files.map(file => portable(relative(root, file))), violations: violations.sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line || a.column - b.column) };
+  // Extra lint roots (plugins, inlined files) are not part of `tsc --noEmit`'s
+  // file set; diagnostics outside it would be false positives for `pnpm lint`.
+  const declared = new Set(parsed.fileNames.map(file => resolve(file)));
+  return {
+    files: files.map(file => portable(relative(root, file))),
+    violations: violations.sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line || a.column - b.column),
+    // Mirror `tsc --noEmit` diagnostics when the caller asks for a full check.
+    diagnostics: scanOptions?.check ? [...program.getOptionsDiagnostics(), ...program.getGlobalDiagnostics(), ...program.getSemanticDiagnostics()].filter(diagnostic => !diagnostic.file || diagnostic.file.fileName.includes('node_modules') || declared.has(resolve(diagnostic.file.fileName))) : [],
+  };
 }
 
 export function readOverlayInventory(path: string): LegacyOverlay[] {

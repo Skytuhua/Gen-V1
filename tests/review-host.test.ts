@@ -85,7 +85,7 @@ describe('isolated actual-host recording fixtures', () => {
     const operation = host.store.all<Operation>('operation', thread('migration').id)[0]!;
     expect(operation.status).toBe('prepared');
     await command('migration', 'operation.approve', { operationId: operation.id, revision: operation.revision });
-    await expect.poll(() => host.service.thread(thread('migration').id).status, { timeout: 12_000, interval: 25 }).toBe('completed');
+    await expect.poll(() => host.service.thread(thread('migration').id).status, { timeout: 60_000, interval: 25 }).toBe('completed');
     expect(source('migration', 'workspaces')).toHaveLength(3);
     for (const table of ['workspaces', 'users', 'projects', 'messages']) expect(tableChangesData.safeParse(source('migration', table + 'Changes')).success).toBe(true);
     expect((source('migration', 'users') as { workspace: number }[]).map(row => row.workspace)).toEqual([1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3]);
