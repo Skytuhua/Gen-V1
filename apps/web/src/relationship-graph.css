@@ -21,7 +21,7 @@
 .task-graph .graph-edge[data-prospective=true][data-reveal=true] { animation:task-future-in var(--ui-motion-insert) var(--ui-ease-enter) both; }
 .task-graph ol { list-style:none; margin:0; padding:0; }
 .task-graph-vertical ol>li { position:absolute; top:0; left:0; right:0; }
-.task-graph .task-node { position:relative; display:flex; align-items:center; gap:8px; width:100%; height:34px; padding:3px 3px 3px var(--graph-rail-width); text-align:left; border-radius:6px; font-size:14px; line-height:1.4; transition:background-color var(--ui-motion-hover) var(--ui-ease-move),color var(--ui-motion-hover) var(--ui-ease-move),opacity 160ms; }
+.task-graph .task-node { position:relative; display:flex; align-items:center; gap:8px; width:100%; height:34px; padding:3px 3px 3px var(--graph-rail-width); text-align:left; border-radius:6px; font-size:14px; line-height:1.4; transition:background-color var(--ui-motion-hover) var(--ui-ease-move),color var(--ui-motion-hover) var(--ui-ease-move),opacity var(--ui-motion-status) var(--ui-ease-move); }
 .task-graph .task-node:hover,.task-graph .task-node:focus-visible { background:var(--subtle); opacity:1; }
 .task-graph .task-node[aria-pressed=true] { background:var(--accent-soft); }
 .task-graph .task-node-dimmed { opacity:.5; }
@@ -78,12 +78,12 @@
 .task-graph-branch-label { position:absolute; color:var(--muted); font-family:var(--font-mono,monospace); font-size:10px; line-height:1.3; white-space:nowrap; max-width:220px; overflow:hidden; text-overflow:ellipsis; transition:color 320ms; pointer-events:none; }
 .task-graph-footer { overflow:visible; }
 .task-graph-checks { display:flex; align-items:center; flex-wrap:wrap; gap:6px; padding:10px 0 7px; }
-.task-graph-checks.is-leaving { animation:task-checks-out 220ms ease-out both; pointer-events:none; }
-.task-node.task-node-merge-pulse { animation:task-merge-pulse 700ms cubic-bezier(.22,1,.36,1) both; }
+.task-graph-checks.is-leaving { animation:task-checks-out var(--ui-motion-panel-exit) var(--ui-ease-move) both; pointer-events:none; }
+.task-node.task-node-merge-pulse { animation:task-merge-pulse 700ms var(--ui-ease-enter) both; }
 .task-graph-check { position:relative; display:flex; align-items:center; gap:5px; padding:3px 8px; border:1px solid var(--border); border-radius:14px; font-size:12px; line-height:1.4; animation:task-check-in var(--ui-motion-insert) var(--ui-ease-enter) both; cursor:default; }
 .task-graph-check>span:first-of-type { color:var(--text); }
 .task-graph-footer-row { display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:42px; }
-.task-graph-summary { display:flex; align-items:center; gap:8px; min-width:0; padding:6px 0; font-size:14px; line-height:1.5; transition:color 160ms; }
+.task-graph-summary { display:flex; align-items:center; gap:8px; min-width:0; padding:6px 0; font-size:14px; line-height:1.5; transition:color var(--ui-motion-status) var(--ui-ease-move); }
 .task-graph-summary>svg { flex-shrink:0; }
 .task-graph-summary small { display:block; margin-top:2px; color:var(--muted); font-size:10px; }
 .task-graph-conflict-summary { position:relative; padding:0; color:inherit; text-align:left; text-underline-offset:4px; text-decoration:underline dotted color-mix(in srgb,currentColor 35%,transparent); }
@@ -112,8 +112,8 @@
 
 .task-node-popover[data-side="below"] { --graph-tip-offset:-3px; transform-origin:top left; }
 .task-node-popover[data-side="above"] { --graph-tip-offset:3px; transform-origin:bottom left; }
-.task-node-popover[data-state="open"] { animation:graph-tip-in var(--ui-motion-tooltip-enter,160ms) var(--ui-ease-enter,ease-out) both; }
-.task-node-popover[data-state="closed"] { animation:graph-tip-out var(--ui-motion-tooltip-exit,120ms) ease-in both; }
+.task-node-popover[data-state="open"] { animation:graph-tip-in var(--ui-motion-tooltip-enter) var(--ui-ease-enter) both; }
+.task-node-popover[data-state="closed"] { animation:graph-tip-out var(--ui-motion-tooltip-exit) var(--ui-ease-move) both; }
 @keyframes graph-tip-in { from { transform:translateY(var(--graph-tip-offset)) scale(.95); } to { transform:none; } }
 @keyframes graph-tip-out { from { opacity:1; transform:none; } to { opacity:0; transform:translateY(var(--graph-tip-offset)) scale(.95); } }
 @media(prefers-reduced-motion:reduce) { .task-node-popover[data-state] { animation:none; } }

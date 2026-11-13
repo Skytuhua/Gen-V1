@@ -7,7 +7,7 @@ export interface UiViolation {
   file: string;
   line: number;
   column: number;
-  rule: 'numeric-jsx-child' | 'ad-hoc-overlay';
+  rule: 'numeric-jsx-child' | 'ad-hoc-overlay' | 'off-token-motion';
   message: string;
   fingerprint: string;
 }
@@ -185,6 +185,8 @@ function lintMarkup(text: string, file: string): UiViolation[] {
   return violations;
 }
 
+const tokenDurations = new Set(['30ms', '80ms', '120ms', '140ms', '160ms', '180ms', '200ms', '220ms', '240ms', '350ms', '600ms']);
+
 function lintStyles(text: string, file: string): UiViolation[] {
   if (primitiveImplementations[file]) return [];
   const violations: UiViolation[] = [], scanner = ts.createScanner(ts.ScriptTarget.Latest, true, ts.LanguageVariant.Standard, text);
@@ -209,13 +211,25 @@ function lintStyles(text: string, file: string): UiViolation[] {
     else if (token === ts.SyntaxKind.CloseBraceToken) {
       declaration();
       const block = stack.pop();
-      if (block && (fixedOverlay(block.declarations) || block.header.includes('::backdrop')
-        || ['fixed', 'absolute'].includes(new Map(block.declarations).get('position') ?? '') && overlayClass(block.header.replace(/[.#:[\]>+~(),]/g, ' ')))) {
+      if (block) {
         const leading = text.slice(block.start).search(/\S/), position = block.start + Math.max(0, leading);
         const lines = text.slice(0, position).split('\n');
-        violations.push({ file, line: lines.length, column: lines.at(-1)!.length + 1, rule: 'ad-hoc-overlay',
-          message: 'Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.',
-          fingerprint: createHash('sha256').update(block.header + JSON.stringify(block.declarations)).digest('hex') });
+        if (fixedOverlay(block.declarations) || block.header.includes('::backdrop')
+          || ['fixed', 'absolute'].includes(new Map(block.declarations).get('position') ?? '') && overlayClass(block.header.replace(/[.#:[\]>+~(),]/g, ' '))) {
+          violations.push({ file, line: lines.length, column: lines.at(-1)!.length + 1, rule: 'ad-hoc-overlay',
+            message: 'Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.',
+            fingerprint: createHash('sha256').update(block.header + JSON.stringify(block.declarations)).digest('hex') });
+        }
+        for (const [name, value] of block.declarations) {
+          if (!['transition', 'transition-duration', 'animation', 'animation-duration'].includes(name.trim())) continue;
+          const normalized = value.replace(/[^a-z0-9,.-]/gi, ''), duration = normalized.match(/\d+(?:\.\d+)?ms/)?.[0];
+          const offTokenCurve = ['cubic-bezier.16,1,.3,1', 'cubic-bezier.4,0,.2,1', 'cubic-bezier.2,.9,.2,1.1'].some(curve => normalized.includes(curve));
+          if ((duration && tokenDurations.has(duration)) || offTokenCurve) {
+            violations.push({ file, line: lines.length, column: lines.at(-1)!.length + 1, rule: 'off-token-motion',
+              message: 'Motion literal duplicates a design token: use var(--ui-motion-*) / var(--ui-ease-*) instead.',
+              fingerprint: createHash('sha256').update(block.header + name + value).digest('hex') });
+          }
+        }
       }
       boundary = end;
       const parent = stack.at(-1); if (parent) { parent.name = undefined; parent.tokens = []; }

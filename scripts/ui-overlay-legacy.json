@@ -141,7 +141,7 @@
       "column": 1,
       "rule": "ad-hoc-overlay",
       "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "a2d8b56c26e464e3780abab2858b50092518250ad2439fe3bc446e1500c1be4a",
+      "fingerprint": "9d4985ae5b70ca1eb3f18b9d589acb87f532867fbecbdba61317c807fb6cee1c",
       "reason": "Retained geometry: map point markers anchored to their map, not a popup.",
       "evidence": ".task-map-point { position:absolute; display:flex; align-items:center; justify-content:center; width:32px; height:32px; padding:6px; border-radius:50%; transform:translate(-50%,-50%); color:var(--text); background:var(--",
       "disposition": "retained-geometry"
@@ -240,7 +240,7 @@
       "column": 60,
       "rule": "ad-hoc-overlay",
       "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "c6105b54ce489beed1d87462969b7297fe7ea9b3fabcf0fdad3abd2fa8cc735b",
+      "fingerprint": "0a3b58c7f4a29ecfd67a4d14124a9af177c6d24b1e66372ee801d512f9cd2fa8",
       "reason": "SHELL1: retain exact narrow-screen sidebar/scrim geometry until parent integration.",
       "evidence": ".sidebar { position:fixed; z-index:60; inset:0 auto 0 0; width:240px; transform:translateX(-100%); transition:transform 180ms ease-out; } .sidebar.sidebar-open { transform:translateX(0); } .sidebar-scrim { display:block;",
       "disposition": "staged-migration"
@@ -251,7 +251,7 @@
       "column": 249,
       "rule": "ad-hoc-overlay",
       "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "f3bcfa5c4890577573019ffcb7ec89410ade2fa4067e4b05318256ad993a6d62",
+      "fingerprint": "5779fe2605b61e559c942b3e613cc6a30adbaba20530bb64f3873edd06958f37",
       "reason": "SHELL1: retain exact narrow-screen sidebar/scrim geometry until parent integration.",
       "evidence": ".sidebar-scrim { display:block; position:fixed; inset:0; z-index:59; background:#0006; } .sidebar-close,.mobile-menu { display:flex; } .workspace-header { padding:0 15px; height:54px; flex-basis:54px; justify-content:fle",
       "disposition": "staged-migration"

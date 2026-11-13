@@ -19,10 +19,10 @@
 .floating-window-control {display:flex;align-items:center;justify-content:center;flex:0 0 25px;width:25px;min-height:25px;padding:4px;color:var(--muted);border-radius:6px;}
 .floating-window :is(.floating-window-move,.floating-window-control,.floating-window-summary):hover {background:var(--hover);}
 .floating-window :is(.floating-window-move,.floating-window-control,.floating-window-summary):focus-visible {outline:2px solid var(--accent);outline-offset:-2px;}
-.floating-window-body {flex:1;min-height:0;min-width:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:none;opacity:1;visibility:visible;transition:opacity 120ms ease-out;}
+.floating-window-body {flex:1;min-height:0;min-width:0;overflow:auto;overscroll-behavior:contain;scrollbar-width:none;opacity:1;visibility:visible;transition:opacity var(--ui-motion-hover) var(--ui-ease-enter);}
 .floating-window-body::-webkit-scrollbar,.floating-window-body *::-webkit-scrollbar {display:none;width:0;height:0;}
 .floating-window-body * {scrollbar-width:none;}
-.floating-window-body[data-collapsed=true] {opacity:0;visibility:hidden;transition:opacity 100ms ease-out,visibility 0s 100ms;}
+.floating-window-body[data-collapsed=true] {opacity:0;visibility:hidden;transition:opacity var(--ui-motion-hover) var(--ui-ease-enter),visibility 0s var(--ui-motion-hover);}
 .floating-window .plan-status {padding:16px 16px 20px;}
 .floating-window-content {display:flow-root;min-width:0;}
 .floating-window-interaction,.floating-window-interaction * {user-select:none!important;}

@@ -28,7 +28,7 @@
 .settings-result-section,.settings-value { font-size:12px;color:var(--muted); }
 .settings-result-section { display:block;margin-top:4px; }
 .settings-switch { display:inline-flex;align-items:center;justify-content:flex-start;width:36px;min-height:24px;padding:3px;background:var(--hover);border:1px solid var(--border);border-radius:20px; }
-.settings-switch>span { width:16px;height:16px;flex:none;border-radius:50%;background:var(--muted);transition:transform 120ms ease-out; }
+.settings-switch>span { width:16px;height:16px;flex:none;border-radius:50%;background:var(--muted);transition:transform var(--ui-motion-hover) var(--ui-ease-enter); }
 .settings-switch[aria-checked=true] { background:var(--accent-solid,var(--accent));border-color:var(--accent-solid,var(--accent)); }
 .settings-switch[aria-checked=true]>span { background:var(--accent-ink,#fff);transform:translateX(12px); }
 .settings-empty,.settings-version { font-size:13px;line-height:1.5;color:var(--muted);padding:16px 0; }

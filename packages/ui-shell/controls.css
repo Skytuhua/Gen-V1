@@ -92,7 +92,7 @@
   .ui-modal[open] { transform: scale(.97); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .ui-modal, .ui-modal[open] { transform: none; transition-duration: 80ms; }
+  .ui-modal, .ui-modal[open] { transform: none; transition-duration: var(--ui-motion-press); }
 }
 @media (prefers-reduced-motion: reduce) { @starting-style { .ui-modal[open] { transform: none; } } }
 html[data-native-titlebar="true"] .ui-modal { top: 42px; max-height: calc(100dvh - 58px); }
@@ -101,7 +101,7 @@ html[data-native-titlebar="true"] .ui-modal { top: 42px; max-height: calc(100dvh
 .ui-modal-close { flex-shrink: 0; min-width: 32px; min-height: 32px; color: var(--danger, #ff6b7e); }
 [data-density="touch"] :is(.ui-control-option, .ui-select-trigger, .ui-action-trigger, .ui-modal-close) { min-height: var(--ui-row-touch); }
 @media (prefers-reduced-motion: reduce) {
-  .ui-modal, .ui-modal[open] { transform: none; transition-duration: 80ms; }
+  .ui-modal, .ui-modal[open] { transform: none; transition-duration: var(--ui-motion-press); }
   @starting-style { .ui-modal[open] { transform: none; } }
 }
 @media (forced-colors: active) {
