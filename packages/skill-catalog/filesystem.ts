@@ -12,8 +12,19 @@ const invalid=()=>new HarnessError('INVALID_SKILL_CATALOG','Skill metadata is un
 const limit=()=>new HarnessError('RESOURCE_LIMIT','Skill discovery exceeds its bounded inventory.');
 function scalar(value:string):string{
  const text=value.trim();if(!text||/^[!&*\[\]{}>|]/.test(text))throw invalid();
- if(text.startsWith('"')){try{const parsed:unknown=JSON.parse(text);if(typeof parsed!=='string')throw invalid();return parsed;}catch{throw invalid();}}
- if(text.startsWith("'")){if(!text.endsWith("'"))throw invalid();return text.slice(1,-1).replaceAll("''","'");}
+ const quote=text[0];
+ if(quote==='"'||quote==="'"){
+  for(let i=1;i<text.length;i++){
+   if(quote==='"'&&text[i]==='\\'){i++;continue;}
+   if(text[i]!==quote)continue;
+   if(quote==="'"&&text[i+1]===quote){i++;continue;}
+   const tail=text.slice(i+1);
+   if(tail&&!/^[ \t]+#/.test(tail))throw invalid();
+   if(quote==="'")return text.slice(1,i).replaceAll("''","'");
+   try{return JSON.parse(text.slice(0,i+1)) as string;}catch{throw invalid();}
+  }
+  throw invalid();
+ }
  return text.replace(/\s+#.*$/,'');
 }
 /** Deliberately parse only display fields, never YAML tags, templates, hooks or instructions. */
