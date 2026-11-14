@@ -6,7 +6,9 @@
 .agents-toolbar .ui-select { flex: 0 0 auto; }
 .agents-toolbar .ui-select-trigger { min-height: 32px; height: 32px; max-width: 220px; padding: 4px 8px; }
 .agents-toolbar input { min-width: 120px; max-width: 220px; height: 32px; flex: 1 0 120px; padding: 4px 8px; }
-.agents-connectivity { color: var(--muted); font-size: 12px; margin-left: auto; white-space: nowrap; padding: 0 8px; }
+.agents-connectivity { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 12px; margin-left: auto; white-space: nowrap; padding: 0 8px; }
+.agents-connectivity-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); flex: 0 0 auto; }
+.agents-connectivity[data-connected="true"] .agents-connectivity-dot { background: var(--success); }
 .agents-projects { padding: 16px; overflow: auto; min-height: 0; flex: 1; overflow-anchor: none; scrollbar-gutter: stable; }
 .agents-project { margin-bottom: 24px; min-width: 0; }
 .agents-project-header { height: 36px; display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }

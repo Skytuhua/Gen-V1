@@ -6,7 +6,7 @@ import {createSplitWorkspaceLayout,applySplitWorkspaceCommand} from '../../packa
 import type {SplitWorkspaceLayout} from '../../packages/contracts/split-workspace';
 import {serveTaskFixture, taskFixture} from './task-interface-fixture';
 
-async function fixture(page: Page, {native = false, delayed = false, unavailable = false, invalidOwner = false, working = true, pinned = false, archiveConfirmation = true, plugins = {} as {fail?: boolean; manifests?: unknown[]}} = {}) {
+async function fixture(page: Page, {native = false, delayed = false, unavailable = false, invalidOwner = false, working = true, pinned = false, archiveConfirmation = true, emptyAgents = false, plugins = {} as {fail?: boolean; manifests?: unknown[]}} = {}) {
   const snapshot = taskFixture({root: 'text', elements: {text: {type: 'Text', props: {text: 'Synthetic host fixture'}}}});
   snapshot.threads[0] = {...snapshot.threads[0], id: 'parent-a', title: 'Project investigation', projectId: 'project-a', projectName: 'Alpha', status: working ? 'working' : 'ready', runId: working ? 'run-a' : null};
   snapshot.activeThreadId = 'parent-a'; snapshot.artifacts = []; snapshot.userStates = []; snapshot.data = []; snapshot.messages = [];
@@ -67,9 +67,9 @@ async function fixture(page: Page, {native = false, delayed = false, unavailable
   const agent: AgentSummary = {agentId: 'thread:parent-a', parentId: null, rootId: 'thread:parent-a', jobId: null, threadId: 'parent-a', projectId: 'project-a', projectName: 'Alpha', title: 'Project investigation', status: working ? 'working' : 'ready', modelId: 'test/model', currentAction: 'Reviewing sources', reportedPercent: null, createdAt: '2026-11-06', updatedAt: '2026-11-06', orderKey: 'a', revision: 1, archived: false, readOnly: false, metadata: 'thread'};
   await page.route(url => url.pathname.startsWith('/api/agents'), route => {
     const url = new URL(route.request().url());
-    if (url.pathname === '/api/agents') return route.fulfill({json: {authority: 'personal', scopeKey: 'scope', sequence: 10, items: [agent], ancestors: [], nextCursor: null}});
+    if (url.pathname === '/api/agents') return route.fulfill({json: {authority: 'personal', scopeKey: 'scope', sequence: 10, items: emptyAgents ? [] : [agent], ancestors: [], nextCursor: null}});
     if (url.pathname.endsWith('/updates')) return route.fulfill({json: {authority: 'personal', scopeKey: 'scope', fromSequence: Number(url.searchParams.get('after')), sequence: 10, resync: false, upserts: [], removed: [], ancestors: [], transcripts: []}});
-    if (url.pathname.endsWith('/events')) return route.fulfill({contentType: 'text/event-stream', body: ': connected\n\n'});
+    if (url.pathname.endsWith('/events')) return; // hold the SSE connection open so the controller settles on Live
     if (url.pathname.endsWith('/history')) return route.fulfill({json: {authority: 'personal', agentId: agent.agentId, threadId: agent.threadId, sequence: 10, nextCursor: null, messages: [{id: 'reply-a', threadId: agent.threadId, role: 'assistant', createdAt: '2026-11-06', runId: 'run-a', content: 'Bound live transcript', contentOffset: 0, contentLength: 21, nextContentCursor: null}]}});
     return route.fulfill({status: 404});
   });
@@ -864,4 +864,16 @@ test('a failed plug-in catalog keeps a dismissible toast and a persistent inline
  await inline.getByRole('button',{name:'Retry',exact:true}).click();
  await expect(page.getByRole('button',{name:'Overview',exact:true})).toBeVisible();
  await expect(inline).toHaveCount(0);
+});
+
+test('All Agents empty copy reconciles with existing conversations and shows a live status dot',async({page})=>{
+ await fixture(page,{working:false,emptyAgents:true});
+ const empty=page.locator('.agents-empty');
+ await expect(empty).toContainText('No active agents.');
+ await expect(empty).not.toContainText('Open a conversation to begin.');
+ const connectivity=page.locator('.agents-connectivity');
+ await expect(connectivity).toHaveAttribute('role','status');
+ await expect(connectivity).toContainText('Live');
+ await expect(connectivity.locator('.agents-connectivity-dot')).toHaveCount(1);
+ await expect(connectivity).toHaveAttribute('data-connected','true');
 });
