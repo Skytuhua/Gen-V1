@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type HTMLAttributes, type
 import { createPortal } from 'react-dom';
 import { placePopover, type PopoverPlacement } from './overlay-position';
 import { retainFocus } from './focus-retention';
+import './tokens.css';
 
 export interface PopoverProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
   anchor: RefObject<HTMLElement | null>;
@@ -19,13 +20,26 @@ export interface PopoverProps extends Omit<HTMLAttributes<HTMLDivElement>, 'chil
   children: ReactNode;
 }
 
-export function Popover({ anchor, contentRef, initialFocus, open, present = open, width, height, preferredSide, align, layoutRevision,
+export function Popover({ anchor, contentRef, initialFocus, open, present, width, height, preferredSide, align, layoutRevision,
   onDismiss, onReady, children, className = '', style, onKeyDown, ...attributes }: PopoverProps) {
   const ownRef = useRef<HTMLDivElement>(null), content = contentRef ?? ownRef;
   const dismiss = useRef(onDismiss); dismiss.current = onDismiss;
   const ready = useRef(onReady); ready.current = onReady;
   const [placement, setPlacement] = useState<PopoverPlacement | null>(null);
   const [root, setRoot] = useState<HTMLElement | null>(null);
+  // Without an owner-managed `present`, stay mounted until the CSS exit finishes.
+  const [exit, setExit] = useState({ open, leaving: false });
+  if (exit.open !== open) setExit({ open, leaving: !open && present === undefined });
+  const leaving = exit.leaving && !open;
+  useLayoutEffect(() => {
+    if (!leaving) return;
+    const running = content.current?.getAnimations?.() ?? [];
+    const done = () => setExit(current => current.leaving ? { ...current, leaving: false } : current);
+    if (!running.length) { done(); return; }
+    let cancelled = false;
+    void Promise.allSettled(running.map(animation => animation.finished)).then(() => { if (!cancelled) done(); });
+    return () => { cancelled = true; };
+  }, [leaving, content]);
 
   useLayoutEffect(() => {
     if (!open || !anchor.current) return;
@@ -95,7 +109,7 @@ export function Popover({ anchor, contentRef, initialFocus, open, present = open
     return () => { document.removeEventListener('pointerdown', outside); document.removeEventListener('focusin', outside); release(); };
   }, [open, anchor, content]);
 
-  if (!present || !root || !placement) return null;
+  if (!(present ?? (open || leaving)) || !root || !placement) return null;
   const { side, ...geometry } = placement;
   return createPortal(<div {...attributes} ref={content} className={`ui-popover ${className}`} data-side={side} data-escape-scope
     data-state={open ? 'open' : 'closed'} aria-hidden={!open} inert={!open}

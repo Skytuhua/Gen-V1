@@ -97,6 +97,47 @@ export async function buildServer(service: Service, options: ServerOptions) {
     }
     return reply.header("Cache-Control", "no-store").type('application/json').send(json);
   });
+  app.get<{ Params: { id: string }; Querystring: { beforeId?: string; limit?: string } }>('/api/threads/:id/messages', async (request, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    const { id } = request.params, { beforeId, limit } = request.query;
+    if (!service.store.get('thread', id) || service.store.get('archivedThread', id)) throw new HarnessError('NOT_FOUND', 'Thread unavailable');
+    const parsed = limit === undefined ? 200 : Number.parseInt(limit, 10);
+    if (!Number.isSafeInteger(parsed)) throw new HarnessError('INVALID_INPUT', 'Choose a valid message page size');
+    return service.store.messagesFor(id, beforeId, parsed);
+  });
+  // Thread-scoped read for evals and other single-thread pollers: no full
+  // workspace snapshot serialization per poll.
+  app.get<{ Params: { id: string } }>('/api/threads/:id/snapshot', async (request, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    const { id } = request.params, thread = service.store.get<Snapshot['threads'][number]>('thread', id);
+    if (!thread || service.store.get('archivedThread', id)) throw new HarnessError('NOT_FOUND', 'Thread unavailable');
+    const usage = service.store.get<{ value: unknown }>('usage', id)?.value;
+    return {
+      seq: service.store.sequence,
+      threads: [thread],
+      messages: service.store.all('message', id),
+      artifacts: service.store.all('artifact', id),
+      userStates: service.store.all('userState', id),
+      data: service.store.all('data', id),
+      requests: service.store.all('request', id),
+      operations: service.store.all('operation', id),
+      resources: service.store.all('resource', id),
+      memory: service.store.all('taskMemory', id),
+      usage: usage === undefined ? {} : { [id]: usage },
+      settings: { theme: 'dark', modelId: null },
+      activeThreadId: null,
+    };
+  });
+  // Deep message search for threads whose history the snapshot windowed: the
+  // client passes the truncated thread ids it knows about.
+  app.get<{ Querystring: { q?: string; threads?: string } }>('/api/threads/search', async (request) => {
+    const query = (request.query.q ?? '').slice(0, 500).toLocaleLowerCase();
+    if (!query) return { threadIds: [] };
+    const ids = (request.query.threads ?? '').slice(0, 4000).split(',').filter(id => /^[\w:.-]{1,200}$/.test(id)).slice(0, 200);
+    const threadIds = ids.filter(id => service.store.get('thread', id)
+      && service.store.all<{ content: string }>('message', id).some(message => message.content.toLocaleLowerCase().includes(query)));
+    return { threadIds };
+  });
   app.get("/api/models", async (request, reply) => {
     reply.header("Cache-Control", "no-store");
     const { refresh,threadId } = request.query as { refresh?: unknown;threadId?:unknown };
@@ -198,9 +239,11 @@ export async function buildServer(service: Service, options: ServerOptions) {
       const entries: { name: string; path: string; kind: 'file' | 'directory'; bytes: number }[] = [];
       // The parent directory remains under the native path guard. Never follow a
       // child link, and list a single level instead of traversing a live namespace.
-      for (const item of names.slice(0, 600)) {
-        if (item.isSymbolicLink() || (!item.isFile() && !item.isDirectory())) continue;
-        const child = await lstat(join(stable, item.name)).catch(() => null);
+      const listed = names.slice(0, 600);
+      // lstat entries in bounded parallel batches instead of one syscall at a time.
+      const stats = await Promise.all(listed.map(item => (item.isSymbolicLink() || (!item.isFile() && !item.isDirectory())) ? null : lstat(join(stable, item.name)).catch(() => null)));
+      for (let index = 0; index < listed.length; index++) {
+        const item = listed[index], child = stats[index];
         if (!child || child.isSymbolicLink() || (child.isFile() && child.nlink > 1)) continue;
         entries.push({ name: item.name, path: [relative?.replaceAll('\\', '/'), item.name].filter(Boolean).join('/'), kind: child.isDirectory() ? 'directory' : 'file', bytes: child.isFile() ? child.size : 0 });
       }

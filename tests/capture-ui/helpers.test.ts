@@ -61,7 +61,7 @@ describe('CLI', () => {
     expect(parseArgs(['--', '--scope=baseline', '--screens', 'files,plan', '--out=tmp', '--since-days=7', '--max-strips', '0'])).toEqual({ scope: 'baseline', screens: ['files', 'plan'], out: 'tmp', sinceDays: 7, maxStrips: 0 });
   });
   it('keeps capture output inside test-results or temporary directories', () => {
-    for (const out of ['/tmp/wo5-final', 'tmp/wo5-final', 'test-results/wo5-final']) expect(parseArgs(['--out', out]).out).toBe(out);
+    for (const out of [join(tmpdir(),'wo5-final'), 'tmp/wo5-final', 'test-results/wo5-final']) expect(parseArgs(['--out', out]).out).toBe(out);
     for (const out of [['/home/box', 'gen-company', 'ledger', 'WO-5/capture'].join('/'), join(dirname(tmpdir()),'outside-capture-output'), '/home/box/screenshots']) expect(() => parseArgs(['--out', out])).toThrow('Capture output');
   });
   it.each([['--wat'], ['--scope=no'], ['--since-days=0'], ['--max-strips=-1'], ['--out'], ['--since-days=NaN']])('rejects invalid args %s', (...args) => expect(() => parseArgs(args)).toThrow());
