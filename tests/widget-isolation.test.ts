@@ -60,14 +60,14 @@ describe('real browser worker isolation', () => {
     const startup = await promisify(execFile)(process.execPath, ['--import', 'tsx', '--input-type=module', '-e', "import {widgetShellDocument,WIDGET_SHELL_CSP} from './packages/widgets/document.ts';process.stdout.write(JSON.stringify({html:widgetShellDocument('a'),csp:WIDGET_SHELL_CSP}))"]);
     ({ html: productionShell, csp: productionCSP } = JSON.parse(startup.stdout));
     const [worker, controller, component] = await Promise.all([
-      build({ entryPoints: ['packages/widgets/worker.ts'], bundle: true, format: 'iife', write: false, platform: 'browser' }),
-      build({ entryPoints: ['packages/widgets/controller.ts'], bundle: true, format: 'iife', globalName: 'WidgetRuntime', write: false, platform: 'browser' }),
+      build({ entryPoints: ['packages/widgets/worker.ts'], bundle: true, format: 'iife', write: false, platform: 'browser', loader: {'.css':'empty'} }),
+      build({ entryPoints: ['packages/widgets/controller.ts'], bundle: true, format: 'iife', globalName: 'WidgetRuntime', write: false, platform: 'browser', loader: {'.css':'empty'} }),
       build({ stdin: { resolveDir: process.cwd(), loader: 'tsx', contents: `
         import {createElement} from 'react';import{createRoot}from'react-dom/client';import{Widget}from'./apps/web/src/Widget.tsx';
         const api=window;api.widgetHandle={current:null};api.escaped=0;api.widgetActions=[];api.widgetDirty=false;
         const artifact={id:'a',threadId:'thread',stateId:'state',revision:1,title:'Lease test app',actions:{continue:{}},widget:{html:api.widgetHtmlOverride??'<label>Draft<textarea aria-label="Draft"></textarea></label><button id="continue">Continue</button><script>const note=document.querySelector("textarea");window.harness.onUpdate(h=>note.value=h.state.note);note.oninput=()=>window.harness.setDirty(true);document.querySelector("#continue").onclick=()=>window.harness.emit("continue",{note:note.value});</script>',inputSchema:{type:'object'},stateSchema:{type:'object',properties:{note:{type:'string'}}},eventSchema:{type:'object'},stateSchemaVersion:1}};
         createRoot(document.getElementById('widget-test')).render(createElement(Widget,{ref:api.widgetHandle,artifact,inputs:{},values:{note:'Saved'},stateRevision:0,theme:'light',onDirty:dirty=>api.widgetDirty=dirty,onAccepted:()=>{},onAction:async(...args)=>{api.widgetActions.push(args)},onEscape:()=>api.escaped++}));
-      ` }, bundle: true, format: 'iife', write: false, platform: 'browser', define: { 'process.env.NODE_ENV': '"production"' } }),
+      ` }, bundle: true, format: 'iife', write: false, platform: 'browser', loader: {'.css':'empty'}, define: { 'process.env.NODE_ENV': '"production"' } }),
     ]);
     server = createServer((request, response) => {
       if (request.url === '/widget-runtime/worker.js') { response.writeHead(200, { 'Content-Type': 'text/javascript', 'Content-Security-Policy': WIDGET_WORKER_CSP }); response.end(worker.outputFiles[0]!.text); }

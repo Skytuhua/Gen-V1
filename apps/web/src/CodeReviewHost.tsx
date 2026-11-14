@@ -22,6 +22,7 @@ import {prepareEditorHandoff} from './editor-handoff';
 import type {ConversationHost,ConversationIntent} from './WorkspaceHost';
 import './code-review-host.css';
 import type {ThreadHoverDestination} from './thread-hover/host';
+import {ErrorState} from '../../../packages/ui-shell/Feedback';
 
 function reviewBinding(canvas:WorkspaceCanvas):{binding?:PanelBinding;error?:string}{
  const explicit=canvas.panels.find(panel=>panel.id==='review-owner-'+canvas.id&&panel.kind==='thread'),panels=explicit?[explicit]:canvas.panels.filter(panel=>panel.kind==='thread');
@@ -157,11 +158,11 @@ export function CodeReviewHost({canvas,workspace,composers,openConversation,dest
  const openingReview=!failure&&(pending||conversation.state.pending||eligible&&!metadataReady),hasReview=Boolean(selection&&context&&ownerMetadata);
  return <div className="code-review-host">
   {detached&&<p className="code-review-notice">This conversation is open in another window.<button onClick={()=>{void desktop?.bridge.focus(detached.id);}}>Focus existing window</button></p>}
-  {failure&&<p className="code-review-notice" role="alert">{failure}<button onClick={()=>{setRetry(value=>value+1);void conversation.reader.retry();}}>Retry conversation</button></p>}
-  {destinationError&&<p className="code-review-notice" role="alert">{destinationError}</p>}
+  {failure&&<ErrorState className="code-review-notice" message={failure} retryLabel="Retry conversation" onRetry={()=>{setRetry(value=>value+1);void conversation.reader.retry();}}/>}
+  {destinationError&&<ErrorState className="code-review-notice" message={destinationError}/>}
   {!context&&picker}
-  {ownerMetadata?.error&&<p className="code-review-notice" role="alert">{ownerMetadata.error}<button onClick={()=>setRefresh(value=>value+1)}>Retry access</button></p>}
-  {ownerMetadata?.pullRequestError&&<p className="code-review-notice" role="alert">{ownerMetadata.pullRequestError}<button onClick={()=>setRefresh(value=>value+1)}>Retry pull requests</button></p>}
+  {ownerMetadata?.error&&<ErrorState className="code-review-notice" message={ownerMetadata.error} retryLabel="Retry access" onRetry={()=>setRefresh(value=>value+1)}/>}
+  {ownerMetadata?.pullRequestError&&<ErrorState className="code-review-notice" message={ownerMetadata.pullRequestError} retryLabel="Retry pull requests" onRetry={()=>setRefresh(value=>value+1)}/>}
   {(openingReview||hasReview)&&<LoadingState pending={openingReview} hasContent={hasReview} label="Opening review..." skeleton={<ReviewWorkspaceSkeleton/>} className="view-loading-state">
   {selection&&context&&ownerMetadata&&<div className="code-review-bound" inert={reviewHeld}><CodeReviewWorkspace key={presentationKey} selection={selection} ownerControls={moreOwners} owners={owners} pullRequests={ownerMetadata.pullRequests} writes={writes} onRefresh={()=>setRefresh(value=>value+1)} onNavigate={next=>{if(!reviewCurrent())return;if(!sameOwner(next.owner,selection.owner))void choose(next.owner.threadId!);else{discardDestination();fence.current.version++;setTarget(next.target);}}}
    terminal={active=><TerminalBody projectId={selection.owner.projectId} threadId={selection.owner.threadId} active={active&&!reviewHeld} isCurrent={reviewCurrent}/>} chat={<ConversationPane conversation={conversation} renderComposer={()=><ScopedConversationComposer key={presentationKey} context={reviewHeld?{...context,readOnly:true}:context} composers={composers} openConversation={openConversation} refreshOwner={conversation.reader.poll} placeholder="Ask about these changes..."/>}/>}/></div>}
