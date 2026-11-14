@@ -87,6 +87,7 @@ describe('structure-matched first-load feedback', () => {
       if (view === 'workspace') {
         const narrative = await skeleton.locator('.loading-conversation').boundingBox(), composer = await skeleton.locator('.loading-composer').boundingBox();
         expect(narrative!.x).toBe(composer!.x); expect(narrative!.width).toBe(composer!.width);
+        expect((await skeleton.locator('.sidebar').boundingBox())!.width).toBe(248);
       }
       if (view === 'review') {
         const files = await skeleton.locator('.cr-files').boundingBox(), diff = await skeleton.locator('.cr-diff').boundingBox(), context = await skeleton.locator('.cr-context').boundingBox();

@@ -9,9 +9,10 @@ describe('explicit in-app browser opening',()=>{
   expect(parseBrowserCommand({type:'open'})).toEqual({type:'open'});
   for(const value of [{type:'open',browserId:'other'},{type:'open',url:'https://example.com'},{type:'open',surface:{kind:'main'}},{type:'open',native:true}])expect(()=>parseBrowserCommand(value)).toThrow();
  });
- it('keeps plug-in browser IPC and new detached native windows denied',()=>{
+ it('keeps plug-in browser IPC denied while admitting new detached native windows',()=>{
   expect(pluginDesktopChannelAllowed(DESKTOP_CHANNELS.browser)).toBe(false);
-  expect(()=>requireExistingDetachedSurface({kind:'browser',browserId:'new'},[{kind:'main'}])).toThrow('unavailable');
+  expect(()=>requireExistingDetachedSurface({kind:'browser',browserId:'new'},[{kind:'main'}])).not.toThrow();
+  expect(()=>requireExistingDetachedSurface({kind:'browser',browserId:'../host'},[{kind:'main'}])).toThrow();
  });
  it('creates one blank view inside the main owner and reuses it without another allocation',()=>{
   type Browser={id:string;owner?:unknown};const owner:{surface:{kind:string};dockedBrowser?:Browser}={surface:{kind:'main'}};let allocations=0,attachments=0;

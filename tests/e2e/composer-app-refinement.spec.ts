@@ -105,17 +105,18 @@ test('Research opens conversation sources and notes for the selected thread and 
  await page.getByRole('button',{name:'Workspace',exact:true}).click();await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('Research draft');await expect.poll(()=>page.getByLabel('Conversation',{exact:true}).evaluate(node=>node.scrollTop)).toBeLessThan(2);
 });
 
-test('chat header omits retired controls while sidebar rename and archive remain available',async({page})=>{
+test('chat header omits retired controls while sidebar rename and archive remain available and detach stays desktop-only',async({page})=>{
  await fixture(page);
  const header=page.locator('.workspace-header');
  await expect(header.locator('.desktop-window-actions,.header-thread-status,.thread-menu-wrap')).toHaveCount(0);
- await expect(header.getByRole('button',{name:/detach|side conversation|project context|thread options/i})).toHaveCount(0);
+ await expect(header.getByRole('button',{name:/detach (thread|artifact|workspace|plan|navigation|browser)|side conversation|project context|thread options/i})).toHaveCount(0);
  await expect(header.getByRole('button',{name:'Open workspace panel',exact:true})).toBeVisible();
  await expect(header.getByText('Ready',{exact:true})).toHaveCount(0);
- await expect(page.getByRole('button',{name:/detach/i})).toHaveCount(0);
+ await expect(page.getByRole('button',{name:/detach (thread|artifact|workspace|plan|navigation|browser)/i})).toHaveCount(0);
  await page.getByRole('button',{name:'Options for Original chat',exact:true}).click();
  await expect(page.getByRole('menuitem',{name:'Rename thread',exact:true})).toBeVisible();
  await expect(page.getByRole('menuitem',{name:'Archive thread',exact:true})).toBeVisible();
+ await expect(page.getByRole('menuitem',{name:'Detach thread',exact:true})).toHaveCount(0);
 });
 
 test('a ready plan opens automatically and right-side tools can only be minimized',async({page})=>{

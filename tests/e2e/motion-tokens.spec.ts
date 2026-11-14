@@ -175,3 +175,36 @@ test('imperative panel motion resolves inherited tokens and the selected speed',
   const panels = (await records(page)).filter(item => item.name === 'panel');
   expect(panels).toHaveLength(1); expect(panels[0].duration).toBe(240); expect(panels[0].easing).toBe('linear');
 });
+
+test('tab crossfade and shared control press feedback resolve motion tokens and policies', async ({ page }) => {
+  await serveTaskFixture(page, taskFixture({ root: 'text', elements: { text: { type: 'Text', props: { text: 'Motion contract' } } } })); await page.goto('/');
+  await expect(page.getByRole('textbox', { name: 'Message', exact: true })).toBeEnabled({ timeout: 15000 });
+  const probe = () => page.evaluate(() => {
+    document.querySelectorAll('.motion-contract-probe').forEach(node => node.remove());
+    const header = document.createElement('div'); header.className = 'workspace-right-header motion-contract-probe'; header.style.cssText = 'position:fixed;top:0;left:0;z-index:10000;';
+    const tab = document.createElement('button'); tab.setAttribute('role', 'tab'); header.append(tab);
+    const trigger = document.createElement('button'); trigger.className = 'ui-action-trigger motion-contract-probe'; trigger.textContent = 'Press'; trigger.style.cssText = 'position:fixed;top:60px;left:10px;z-index:10000;';
+    document.body.append(header, trigger);
+    const box = trigger.getBoundingClientRect();
+    return { tabProperty: getComputedStyle(tab).transitionProperty, tabDuration: getComputedStyle(tab).transitionDuration, triggerTransition: getComputedStyle(trigger).transition, x: box.x, y: box.y, width: box.width, height: box.height };
+  });
+  const press = async (point: { x: number; y: number; width: number; height: number }) => {
+    await page.mouse.move(point.x + point.width / 2, point.y + point.height / 2); await page.mouse.down(); await page.waitForTimeout(120);
+    const transform = await page.evaluate(() => getComputedStyle(document.querySelector('.ui-action-trigger.motion-contract-probe')!).transform);
+    await page.mouse.up(); return transform;
+  };
+  const initial = await probe();
+  expect(initial.tabProperty.split(', ')).toEqual(['color', 'border-bottom-color']);
+  expect(initial.tabDuration).toBe('0.14s, 0.14s');
+  expect(initial.triggerTransition).toContain('transform 0.08s');
+  expect(await press(initial)).toMatch(/^matrix\(0\.97, 0, 0, 0\.97/);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  const reduced = await probe();
+  expect(reduced.tabDuration.split(', ').every(value => parseFloat(value) <= 0.01)).toBe(true);
+  expect(await press(reduced)).toBe('none');
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
+  await page.evaluate(() => { document.documentElement.dataset.motion = 'off'; });
+  const off = await probe();
+  expect(off.tabDuration).toBe('0s');
+  expect(off.triggerTransition).not.toContain('0.08s');
+});
