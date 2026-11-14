@@ -34,7 +34,7 @@ const integrationTools=[
 /** Personal-host authority and native completion composition; no global integrations. */
 export function createIntegrationHost(options:IntegrationHostOptions){
  const {store}=options,workspace=options.workspace??new WorkspaceRepository(store),captured=new Map<string,{preferences:IntegrationPreferences;scope:BoundScope;root?:string}>(),retained=new Set<Retained>(),operations=new Set<Promise<NativeCompletion>>(),stops=new Set<()=>void>(),releases=new Set<Promise<void>>();
- let closed=false,context7Key:string|undefined;
+ let closed=false,closing:Promise<void>|undefined,context7Key:string|undefined;
  function binding(input:IntegrationScope,ctx?:RunContext):Binding{
   if(closed)throw denied('The integration host has closed.');
   if(input.authority.kind!=='local')throw denied('Company authority cannot use personal integrations.');
@@ -131,6 +131,11 @@ export function createIntegrationHost(options:IntegrationHostOptions){
  }
  return {manager,settingsFor,additionalTool,complete,
   async configurePrivate(value:{context7ApiKey?:string}){if(closed)throw denied('The integration host has closed.');if(Object.keys(value).some(key=>key!=='context7ApiKey')||value.context7ApiKey!==undefined&&(typeof value.context7ApiKey!=='string'||value.context7ApiKey.length>4096))throw denied('Invalid private integration configuration.');const next=value.context7ApiKey||undefined;if(next!==context7Key)await manager.restart('context7',()=>{context7Key=next;});},
-  async close(){if(closed&&!retained.size&&!operations.size&&!releases.size)return;closed=true;unsubscribeOwners();captured.clear();context7Key=undefined;for(const stop of stops)stop();await manager.dispose();await Promise.allSettled([...operations,...releases]);releases.clear();for(const owner of retained){await owner.runtime.dispose();owner.release();retained.delete(owner);}},
+  async close(){
+   if(closing)return closing;closed=true;
+   // One settlement: concurrent or repeated close calls must not dispose twice.
+   closing=(async()=>{unsubscribeOwners();captured.clear();context7Key=undefined;for(const stop of stops)stop();await manager.dispose();await Promise.allSettled([...operations,...releases]);releases.clear();for(const owner of retained){await owner.runtime.dispose();owner.release();retained.delete(owner);}})();
+   return closing;
+  },
  };
 }

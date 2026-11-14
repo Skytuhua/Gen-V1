@@ -1,12 +1,13 @@
 import Fastify from "fastify";
 import { randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import { readFile, stat, readdir, lstat } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
 import { readBoundFile, withResourceGrant } from "../../packages/core/file-access.ts";
 import { resolve, extname, basename, join } from "node:path";
 import { z } from "zod";
 import { Service } from "../../packages/core/service.ts";
 import { HarnessError, type ArtifactRecord, type ResourceGrant, type Snapshot } from "../../packages/contracts/index.ts";
-import {getPreferences,preferencesSchema} from '../../packages/contracts/preferences.ts';
+import {getPreferences,preferencesSchema,type UiPreferences} from '../../packages/contracts/preferences.ts';
 import { inside } from "../../packages/core/security.ts";
 import { GENERATED_APPS_ENABLED } from "../../packages/core/widgets.ts";
 import { WIDGET_SHELL_CSP, widgetShellDocument } from "../../packages/widgets/document.ts";
@@ -36,6 +37,8 @@ export type MountRegistry = Map<string, Mount>;
 export interface ServerOptions { port: number; dev: boolean; widgetPort?: number; mounts?: MountRegistry; plugins?:PluginRegistry; pluginError?:string; admitPluginRequest?:()=>boolean; skillCatalog?:SkillCatalogRepository; agentInventory?:PersonalAgentInventory }
 const commandSchema = z.object({ id: z.string().min(1).max(200).regex(/^[a-zA-Z0-9:_-]+$/), type: z.string().min(1).max(100), threadId: z.string().max(200).optional(), payload: z.record(z.string(), z.unknown()) }).strict();
 const mime = (path: string) => ({ ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".woff2": "font/woff2", ".woff": "font/woff", ".pdf": "application/pdf", ".json": "application/json", ".txt": "text/plain", ".md": "text/plain", ".csv": "text/csv" })[extname(path).toLowerCase()] ?? "application/octet-stream";
+// Build output resolves beside this module; the launch directory is not trusted input.
+const assets = fileURLToPath(new URL("../..", import.meta.url));
 
 export async function buildServer(service: Service, options: ServerOptions) {
   const app = Fastify({ logger: false, bodyLimit: 29 * 1024 * 1024 });
@@ -49,10 +52,12 @@ export async function buildServer(service: Service, options: ServerOptions) {
   const hosts = new Set(["127.0.0.1:" + options.port, "localhost:" + options.port]);
   const streams = new Set<import("node:http").ServerResponse>();
   app.setErrorHandler((error, _request, reply) => {
-    const known = error instanceof HarnessError;
-    const code = known ? error.code : error instanceof z.ZodError ? "INVALID_INPUT" : "HOST_ERROR";
-    const status = code === "NOT_FOUND" ? 404 : ["CAPABILITY_DENIED", "AUTH_REQUIRED"].includes(code) ? 403 : known || error instanceof z.ZodError ? 400 : 500;
-    reply.code(status).send({ error: { code, message: known ? error.message : error instanceof z.ZodError ? "Command envelope is invalid" : "The host could not complete this request", ...(known && error.details ? { details: error.details } : {}) } });
+    const known = error instanceof HarnessError, malformed = error instanceof z.ZodError || error instanceof URIError;
+    const native = typeof (error as { statusCode?: unknown }).statusCode === "number" ? (error as { statusCode: number }).statusCode : undefined;
+    const code = known ? error.code : malformed ? "INVALID_INPUT" : native === 413 ? "RESOURCE_LIMIT" : "HOST_ERROR";
+    const status = code === "NOT_FOUND" ? 404 : ["CAPABILITY_DENIED", "AUTH_REQUIRED"].includes(code) ? 403 : known || malformed ? 400 : native !== undefined && native >= 400 && native < 500 ? native : 500;
+    const message = known ? error.message : error instanceof z.ZodError ? "Command envelope is invalid" : error instanceof URIError ? "The request path is invalid" : code === "RESOURCE_LIMIT" ? "The request exceeds its byte limit" : "The host could not complete this request";
+    reply.code(status).send({ error: { code, message, ...(known && error.details ? { details: error.details } : {}) } });
   });
   app.addHook("onRequest", async (request, reply) => {
     reply.header("X-Content-Type-Options", "nosniff").header("Referrer-Policy", "no-referrer");
@@ -84,7 +89,8 @@ export async function buildServer(service: Service, options: ServerOptions) {
   app.get('/api/shell-settings',async(_request,reply)=>{
     reply.header('Cache-Control','no-store');
     const settings=service.store.get<Snapshot['settings']>('settings','global')??{theme:'dark',modelId:null};
-    return{theme:settings.theme==='light'||settings.theme==='system'?settings.theme:'dark',preferences:shellPreferencesSchema.parse(getPreferences(settings))};
+    let preferences:UiPreferences;try{preferences=shellPreferencesSchema.parse(getPreferences(settings));}catch{preferences=shellPreferencesSchema.parse(getPreferences({}));}
+    return{theme:settings.theme==='light'||settings.theme==='system'?settings.theme:'dark',preferences};
   });
   app.get("/api/snapshot", async (_request, reply) => {
     const seq = service.store.sequence;
@@ -196,6 +202,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
     const query = request.query as { after?: string };
     const after = Number(query.after ?? 0);
     if (!Number.isSafeInteger(after) || after < 0) throw new HarnessError("INVALID_INPUT", "Event cursor is invalid");
+    if (streams.size >= 32) return reply.code(429).send({ error: { code: "STREAM_LIMIT", message: "Too many event readers" } });
     reply.hijack(); reply.raw.writeHead(200, { "Content-Type": "text/event-stream", "Cache-Control": "no-cache, no-transform", Connection: "keep-alive", "X-Accel-Buffering": "no" });
     streams.add(reply.raw);
     streamEvents(reply.raw, service.store, after, () => streams.delete(reply.raw));
@@ -256,12 +263,12 @@ export async function buildServer(service: Service, options: ServerOptions) {
   app.get("/health", async () => ({ ok: true }));
   app.get(WIDGET_WORKER_PATH, async (_request, reply) => {
     reply.header("Content-Security-Policy", WIDGET_WORKER_CSP).header("Cache-Control", "no-cache");
-    try { return reply.type("text/javascript; charset=utf-8").send(await readFile(resolve("dist/widget-runtime/worker.js"))); }
+    try { return reply.type("text/javascript; charset=utf-8").send(await readFile(resolve(assets, "dist/widget-runtime/worker.js"))); }
     catch { return reply.code(503).type("text/plain").send("Build the trusted widget runtime with pnpm build:widgets."); }
   });
   if (!options.dev) app.get("/*", async (request, reply) => {
     if (request.url.startsWith("/api/")) throw new HarnessError("NOT_FOUND", "Route not found");
-    const root = resolve("dist/web"); let path = resolve(root, "." + decodeURIComponent(request.url.split("?")[0]));
+    const root = resolve(assets, "dist/web"); let path = resolve(root, "." + decodeURIComponent(request.url.split("?")[0]));
     if (!inside(root, path)) throw new HarnessError("CAPABILITY_DENIED", "Path is unavailable");
     try { if (!(await stat(path)).isFile()) path = join(root, "index.html"); } catch { path = join(root, "index.html"); }
     try {
