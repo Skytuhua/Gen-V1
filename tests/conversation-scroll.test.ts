@@ -1,5 +1,5 @@
 import {afterEach,expect,it,vi} from 'vitest';
-import {createConversationScroll} from '../apps/web/src/conversation-scroll';
+import {createConversationScroll,createHistoryAnchor} from '../apps/web/src/conversation-scroll';
 
 function fixture(){
  let now=0,nextFrame=0;
@@ -127,4 +127,26 @@ it('does not let streaming growth pull the transcript down after Shift+Space',()
  f.element.scrollHeight=1600;f.resize();f.tick(60);
  expect(f.element.scrollTop).toBe(600);
  f.scroll.dispose();
+});
+
+it('captures earlier-message geometry at insertion and consumes it only for the owning transcript',()=>{
+ const anchor=createHistoryAnchor();
+ const owner={scrollHeight:1000,scrollTop:125};
+ // The request began earlier; the reader has moved and the document has grown.
+ owner.scrollHeight=1270;owner.scrollTop=200;
+ anchor.capture('one','one',owner);
+ expect(anchor.consume('one',owner)).toEqual({height:1270,top:200});
+ expect(anchor.consume('one',owner)).toBeUndefined();
+
+ // A late response for a background thread cannot target the new owner.
+ anchor.capture('two','one',owner);
+ expect(anchor.consume('two',owner)).toBeUndefined();
+
+ anchor.capture('one','one',owner);
+ expect(anchor.consume('one',{...owner})).toBeUndefined();
+ expect(anchor.consume('one',owner)).toBeUndefined();
+
+ anchor.capture('one','one',owner);
+ expect(anchor.consume('two',owner)).toBeUndefined();
+ expect(anchor.consume('one',owner)).toBeUndefined();
 });
