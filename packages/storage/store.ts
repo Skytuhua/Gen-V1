@@ -8,7 +8,7 @@ import { HarnessError, type CommandReceipt, type HostCommand, type Message, type
 
 function normalized(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(normalized);
-  if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).sort(([a], [b]) => a.localeCompare(b)).map(([k, v]) => [k, normalized(v)]));
+  if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).sort(([a], [b]) => a < b ? -1 : a > b ? 1 : 0).map(([k, v]) => [k, normalized(v)]));
   return value;
 }
 export function digest(value: unknown): string { return createHash("sha256").update(JSON.stringify(normalized(value))).digest("hex"); }

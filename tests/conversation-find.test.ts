@@ -1,5 +1,5 @@
 import {describe,it,expect} from 'vitest';
-import {findTextOffsets, nextFindIndex, retainFindIndex} from '../apps/web/src/conversation-find';
+import {canLoadConversationHistory, findTextOffsets, nextFindIndex, retainFindIndex} from '../apps/web/src/conversation-find';
 describe('conversation find',()=>{
  it('finds literal phrases without interpreting regex or losing Unicode offsets',()=>{
   expect(findTextOffsets('😀 WorkSPACE workspace [a]. [a].','workspace')).toEqual([{start:3,end:12},{start:13,end:22}]);
@@ -14,4 +14,11 @@ describe('conversation find',()=>{
   expect(retainFindIndex(['older:0','m:4','later:0'],'m:4')).toBe(1);
   expect(retainFindIndex(['new:0'],'removed:0')).toBe(0);expect(retainFindIndex([],null)).toBe(-1);
  });
+});
+
+it('offers older history at the end of the local window when the server still has rows',()=>{
+ expect(canLoadConversationHistory(25,0,0)).toBe(true);
+ expect(canLoadConversationHistory(0,120,100)).toBe(true);
+ expect(canLoadConversationHistory(0,120,120)).toBe(false);
+ expect(canLoadConversationHistory(0,0,0)).toBe(false);
 });

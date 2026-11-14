@@ -18,8 +18,8 @@ async function setup(page: Page, {installed = true, secretStorageAvailable = tru
     if (url.pathname === '/api/workspace') return route.fulfill({json: {projects: [
       {id: 'synthetic-alpha', name: 'Synthetic project Alpha', authority: {kind: 'local'}, rootPath: 'C:/synthetic/alpha', createdAt: '2026-11-07T00:00:00.000Z'},
       {id: 'synthetic-rootless', name: 'Synthetic rootless project', authority: {kind: 'local'}, createdAt: '2026-11-07T00:00:00.000Z'},
-      {id: 'synthetic-plugin', name: 'Synthetic plugin project', authority: {kind: 'plugin', pluginId: 'synthetic-plugin'}, rootPath: 'C:/synthetic/plugin', createdAt: '2026-11-07T00:00:00.000Z'},
-    ]}});
+      {id: 'synthetic-plugin', name: 'Synthetic plugin project', authority: {kind: 'plugin', pluginId: 'synthetic-plugin', scopeId: 'synthetic-scope'}, rootPath: 'C:/synthetic/plugin', createdAt: '2026-11-07T00:00:00.000Z'},
+    ], state: {version: 1, revision: 0, activeCanvasId: 'workspace', canvases: [{id: 'workspace', name: 'Workspace', preset: 'workspace', version: 1, panels: [], filter: 'active', projectIds: [], viewport: {x: 0, y: 0, zoom: 1}}], profiles: [], disabledKinds: [], integrations: {}}}});
     if (url.pathname === '/api/environment' && request.method() === 'GET') return route.fulfill({json: metadata});
     if (url.pathname === '/api/environment' && request.method() === 'PUT') return route.fulfill({json: {...metadata, revision: 8}});
     if (url.pathname === '/api/integrations') return route.fulfill({json: {integrations: [ponytail]}});

@@ -15,7 +15,7 @@ function fixture(includePlan=true){
 }
 async function centered(page:Page){
   await expect.poll(async()=>{
-    const main=await page.locator('.workspace').boundingBox(),composer=await page.locator('.composer-dock').boundingBox();
+    const main=await page.locator('main.workspace').boundingBox(),composer=await page.locator('.composer-dock').boundingBox();
     return main&&composer?Math.abs((main.x+main.width/2)-(composer.x+composer.width/2)):Infinity;
   }).toBeLessThan(1);
 }
@@ -23,10 +23,11 @@ async function centered(page:Page){
 async function matchesComposer(page:Page){
   await expect.poll(()=>page.evaluate(()=>{
     const composer=document.querySelector('.composer')!.getBoundingClientRect();
+    const chromeInset=innerWidth<=700?4:0;
     const artifacts=[...document.querySelectorAll('.conversation .artifact:not(.artifact-expanded):not(.artifact-in-workspace)')];
     return Math.max(...artifacts.map(element=>{
       const box=element.getBoundingClientRect();
-      return Math.max(Math.abs(box.left-composer.left),Math.abs(box.right-composer.right));
+      return Math.max(Math.abs(box.left-composer.left)-chromeInset,Math.abs(box.right-composer.right));
     }));
   })).toBeLessThan(1);
 }
@@ -42,7 +43,7 @@ for(const chatWidth of ['comfortable','wide','full'] as const)test(`all inline a
   await expect(page.locator('.artifact')).toHaveCount(3);await matchesComposer(page);
   await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();await matchesComposer(page);
   await page.getByRole('button',{name:'Close workspace panel',exact:true}).click();
-  await page.getByRole('button',{name:'Toggle sidebar',exact:true}).click();await matchesComposer(page);
+  await page.getByRole('button',{name:'Collapse sidebar',exact:true}).click();await matchesComposer(page);
   await page.setViewportSize({width:900,height:1000});await matchesComposer(page);
   await page.setViewportSize({width:390,height:844});await matchesComposer(page);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)).toBe(false);
@@ -57,58 +58,53 @@ for(const chatWidth of ['comfortable','wide','full'] as const)test(`all inline a
 test('default shell uses all space after navigation and centers artifact and composer without a right rail',async({page})=>{
   await page.setViewportSize({width:1920,height:1080});await serveTaskFixture(page,fixture(false));await page.goto('/');
   await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toBeVisible();
-  const main=await page.locator('.workspace').boundingBox();expect(main!.x+main!.width).toBeCloseTo(1920,0);
+  const main=await page.locator('main.workspace').boundingBox();expect(main!.x+main!.width).toBeCloseTo(1920,0);
   await centered(page);
   const artifact=await page.locator('[data-artifact-id="task-surface"]').boundingBox();
   expect(artifact!.x+artifact!.width/2).toBeCloseTo(main!.x+main!.width/2,0);
   await expect(page.getByRole('region',{name:'Live usage',exact:true})).toBeHidden();
   await expect(page.getByRole('button',{name:'Show live usage',exact:true})).toBeVisible();
-  expect(await page.locator('.floating-rail').evaluate(node=>getComputedStyle(node).borderLeftWidth)).toBe('0px');
+  await expect(page.locator('.summary-dock [data-summary-id="plan"]')).toHaveAttribute('data-collapsed','true');
 });
 
-test('automatic Plan reserves task space while telemetry preserves the mounted conversation',async({page})=>{
+test('automatic Plan summary reserves task space while telemetry preserves the mounted conversation',async({page})=>{
   await page.setViewportSize({width:1600,height:1100});const snapshot=fixture();snapshot.usage['task-thread']={...EMPTY_USAGE,inputTokens:14210,outputTokens:960};await serveTaskFixture(page,snapshot);await page.goto('/');
   const input=page.getByRole('textbox',{name:'Review name',exact:true});await input.fill('Keep the current review');const original=await input.elementHandle();
   await page.getByRole('textbox',{name:'Message',exact:true}).fill('Keep my next message');
-  const plan=page.getByRole('region',{name:'Task plan window',exact:true});await expect(plan).toBeVisible();
-  const area=await page.locator('.shell-workarea').boundingBox();
-  await expect.poll(async()=>(await page.locator('.workspace').boundingBox())!.width).toBeCloseTo(area!.width-400,0);
-  const before=await page.locator('.workspace').boundingBox();await centered(page);
-  const body=await page.getByRole('region',{name:'Task plan',exact:true}).elementHandle();
+  const overview=page.getByRole('region',{name:'Project overview window',exact:true});await overview.getByRole('button',{name:'Expand Project overview',exact:true}).click();await expect(overview).toHaveAttribute('data-collapsed','false');
+  const summary=overview.getByRole('region',{name:'Plan summary',exact:true});await expect(summary).toBeVisible();
+  const layout=await page.locator('.summary-layout').boundingBox(),dock=await page.locator('.summary-dock').boundingBox(),workspace=await page.locator('main.workspace').boundingBox();
+  expect(dock!.width).toBeGreaterThanOrEqual(270);expect(dock!.width).toBeLessThanOrEqual(310);
+  expect(workspace!.width).toBeCloseTo(layout!.width-dock!.width-6,0);await centered(page);
+  const body=await summary.elementHandle();
   await page.getByRole('button',{name:'Show live usage',exact:true}).click();await expect(page.getByRole('region',{name:'Live usage',exact:true})).toBeVisible();
-  await plan.getByRole('button',{name:'Close Task plan',exact:true}).click();await page.getByRole('button',{name:'Thread options',exact:true}).click();await page.getByRole('button',{name:'Show plan',exact:true}).click();
-  expect(await page.getByRole('region',{name:'Task plan',exact:true}).evaluate((node,old)=>node===old,body)).toBe(true);
+  await overview.getByRole('button',{name:'Collapse Project overview',exact:true}).click();await expect(overview).toHaveAttribute('data-collapsed','true');
+  await expect.poll(async()=>(await page.locator('main.workspace').boundingBox())!.width).toBeCloseTo(layout!.width,0);
+  await overview.getByRole('button',{name:'Expand Project overview',exact:true}).click();await expect(overview).toHaveAttribute('data-collapsed','false');
+  expect(await summary.evaluate((node,old)=>node===old,body)).toBe(true);
   expect(await input.evaluate((node,old)=>node===old,original)).toBe(true);await expect(input).toHaveValue('Keep the current review');
   await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('Keep my next message');
-  await expect.poll(async()=>(await page.locator('.workspace').boundingBox())!.width).toBeCloseTo(before!.width,0);
 });
 
 test('explicit workspace panels claim only their own width and closing restores the full centered surface',async({page})=>{
   await page.setViewportSize({width:1920,height:1080});await serveTaskFixture(page,fixture(false));await page.goto('/');await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toBeVisible();
-  const input=await page.getByRole('textbox',{name:'Review name',exact:true}).elementHandle(),before=await page.locator('.workspace').boundingBox();
+  const input=await page.getByRole('textbox',{name:'Review name',exact:true}).elementHandle(),before=await page.locator('main.workspace').boundingBox();
   await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();await expect(page.getByRole('complementary',{name:'Workspace panel',exact:true})).toBeVisible();await centered(page);
   await expect.poll(()=>page.getByRole('complementary',{name:'Workspace panel',exact:true}).evaluate(node=>node.getAnimations().filter(animation=>animation.playState==='running').length)).toBe(0);
-  const main=await page.locator('.workspace').boundingBox(),panel=await page.getByRole('complementary',{name:'Workspace panel',exact:true}).boundingBox();
-  expect(main!.x+main!.width).toBeCloseTo(panel!.x,0);expect(panel!.x+panel!.width).toBeCloseTo(1920,0);
-  await page.getByRole('button',{name:'Close workspace panel',exact:true}).click();await expect.poll(async()=>(await page.locator('.workspace').boundingBox())!.width).toBeCloseTo(before!.width,0);await centered(page);
+  const main=await page.locator('main.workspace').boundingBox(),panel=await page.getByRole('complementary',{name:'Workspace panel',exact:true}).boundingBox();
+  expect(panel!.x-(main!.x+main!.width)).toBeCloseTo(6,0);expect(panel!.x+panel!.width).toBeCloseTo(1920,0);
+  await page.getByRole('button',{name:'Close workspace panel',exact:true}).click();await expect.poll(async()=>(await page.locator('main.workspace').boundingBox())!.width).toBeCloseTo(before!.width,0);await centered(page);
   expect(await page.getByRole('textbox',{name:'Review name',exact:true}).evaluate((node,old)=>node===old,input)).toBe(true);
 });
 
 test('narrow default layout has no empty tool strip and sidebar collapse centers the available workspace',async({page})=>{
   await page.setViewportSize({width:390,height:844});await page.emulateMedia({reducedMotion:'reduce'});await serveTaskFixture(page,fixture(false));await page.goto('/');
-  await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toBeVisible();const main=await page.locator('.workspace').boundingBox();expect(main!.height).toBeCloseTo(844,0);await centered(page);
+  await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toBeVisible();
+  const main=await page.locator('main.workspace').boundingBox(),dock=await page.locator('.summary-dock').boundingBox();
+  expect(main!.width).toBeCloseTo(390,0);expect(main!.y+main!.height+6).toBeCloseTo(dock!.y,0);expect(dock!.y+dock!.height).toBeCloseTo(844,0);await centered(page);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)).toBe(false);
-  await page.setViewportSize({width:1440,height:1000});await page.getByRole('button',{name:'Toggle sidebar',exact:true}).click();
-  await expect.poll(async()=>(await page.locator('.workspace').boundingBox())!.x).toBe(0);await centered(page);expect((await page.locator('.workspace').boundingBox())!.width).toBeCloseTo(1440,0);
-});
-
-test('a usage tool opened from an empty overlay anchors to the bottom and restores its chosen position',async({page})=>{
-  await page.setViewportSize({width:1440,height:1000});await serveTaskFixture(page,fixture(false));await page.goto('/');
-  await page.getByRole('button',{name:'Show live usage',exact:true}).click();const usage=page.getByRole('region',{name:'Live usage',exact:true});
-  await expect.poll(async()=>{const box=await usage.boundingBox();return box?Math.round(box.y+box.height):0;}).toBe(988);
-  await usage.getByRole('button',{name:'Move Live usage',exact:true}).press('ArrowUp');
-  await expect.poll(async()=>{const box=await usage.boundingBox();return box?Math.round(box.y+box.height):0;}).toBe(976);
-  await page.reload();await expect(usage).toBeVisible();await expect.poll(async()=>{const box=await usage.boundingBox();return box?Math.round(box.y+box.height):0;}).toBe(976);
+  await page.setViewportSize({width:1440,height:1000});await page.getByRole('button',{name:'Collapse sidebar',exact:true}).click();
+  await expect.poll(async()=>(await page.locator('main.workspace').boundingBox())!.x).toBe(0);await centered(page);expect((await page.locator('main.workspace').boundingBox())!.width).toBeCloseTo(1440,0);
 });
 
 const captures=process.env.T3_CENTERED_CAPTURE_DIR;

@@ -56,7 +56,12 @@ export function TooltipLayer() {
       hide();
       if (!text) return;
       current.current = target;
-      timer.current = setTimeout(() => { if (current.current === target && target.isConnected) { opened.current = true; setPosition(null); setShown({ text, target, leaving: false }); } }, delay);
+      timer.current = setTimeout(() => {
+        if (current.current !== target || !target.isConnected) return;
+        const latest = adopt(target);
+        if (!latest) { hide(); return; }
+        opened.current = true; setPosition(null); setShown({ text: latest, target, leaving: false });
+      }, delay);
     };
     const dwell = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ui-tooltip-dwell')) || 350;
     const over = (event: PointerEvent) => { if (event.pointerType === 'touch') return; const target = owner(event.target); if (target) schedule(target, dwell()); else if (current.current) hide(); };
@@ -71,11 +76,17 @@ export function TooltipLayer() {
     document.addEventListener('focusin', focus); document.addEventListener('focusout', hide); document.addEventListener('keydown', key, true);
     document.addEventListener('scroll', hide, true); window.addEventListener('blur', hide);
     const observer = new MutationObserver(records => {
-      for (const record of records) {
-        if (record.type !== 'attributes' || record.attributeName !== 'title' || !(record.target instanceof Element)) continue;
-        const element = record.target, title = element.getAttribute('title');
-        if (!element.hasAttribute('data-tooltip-adopted')) continue;
-        if (title !== null && title !== '') continue; // a real title (re)appeared: adopt() re-syncs it
+      const targets = new Set(records.map(record => record.target));
+      for (const element of targets) {
+        if (!(element instanceof Element) || !element.hasAttribute('data-tooltip-adopted')) continue;
+        const title = element.getAttribute('title');
+        if (title) {
+          if (current.current !== element) continue;
+          const text = adopt(element);
+          if (!text) hide();
+          else if (opened.current) setShown({ text, target: element, leaving: false });
+          continue;
+        }
         if (title === '' && suppressing.has(element)) { suppressing.delete(element); continue; } // our own suppression
         // A rerender removed or emptied the source title: drop the mirrored tooltip and generated names.
         element.removeAttribute('data-tooltip'); element.removeAttribute('data-tooltip-adopted');

@@ -4,6 +4,23 @@ import {readMotionPolicy,observeMotionPolicy} from './motion-policy';
 export type ConversationPosition={top:number;tail:boolean};
 export type ConversationAnchor={height:number;top:number};
 
+type ScrollGeometry = Pick<HTMLElement, 'scrollHeight' | 'scrollTop'>;
+
+/** Stage one anchor for the next commit, not for the lifetime of a page request. */
+export function createHistoryAnchor() {
+ let pending: { owner: string; element: ScrollGeometry; geometry: ConversationAnchor } | undefined;
+ return {
+  capture(owner: string, activeOwner: string, element: ScrollGeometry | null) {
+   if (owner === activeOwner && element) pending = { owner, element, geometry: { height: element.scrollHeight, top: element.scrollTop } };
+  },
+  consume(owner: string, element: ScrollGeometry) {
+   const anchor = pending;
+   pending = undefined;
+   if (anchor?.owner === owner && anchor.element === element) return anchor.geometry;
+  },
+ };
+}
+
 /** Own only tail-following scrolls. Reading history and user intent always win. */
 export function createConversationScroll(element:HTMLElement){
  let thread='',following=false,disposed=false,ownedTop:number|undefined,dragging=false;

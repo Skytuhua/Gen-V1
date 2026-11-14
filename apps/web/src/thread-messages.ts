@@ -9,14 +9,14 @@ export function useThreadMessages(snapshot: Pick<Snapshot, 'messages' | 'message
   const [older, setOlder] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [exhausted, setExhausted] = useState(false);
+  const [exhaustedHead, setExhaustedHead] = useState<string>();
   const request = useRef(0);
   const owner = useRef(threadId);
   const lastHead = useRef<string | undefined>(undefined);
   useLayoutEffect(() => {
     owner.current = threadId;
     lastHead.current = undefined;
-    setOlder([]); setLoading(false); setError(''); setExhausted(false);
+    setOlder([]); setLoading(false); setError(''); setExhaustedHead(undefined);
     return () => { request.current++; };
   }, [threadId]);
   const window = threadId ? snapshot.messages.filter(message => message.threadId === threadId) : [];
@@ -27,6 +27,7 @@ export function useThreadMessages(snapshot: Pick<Snapshot, 'messages' | 'message
   const truncated = threadId ? snapshot.messagesTruncated?.[threadId] ?? 0 : 0;
   const remaining = Math.max(0, truncated - currentOlder.length);
   const windowHead = window[0]?.id;
+  const exhausted = windowHead !== undefined && exhaustedHead === windowHead;
   const loadMore = useCallback(() => {
     if (!threadId || owner.current !== threadId || !windowHead || exhausted) return Promise.resolve();
     const id = ++request.current;
@@ -37,14 +38,14 @@ export function useThreadMessages(snapshot: Pick<Snapshot, 'messages' | 'message
     // keep reaching deeper history. Dedupe + createdAt ordering keep the
     // merged list contiguous.
     const anchor = older.length && lastHead.current === windowHead ? older[0].id : windowHead;
-    lastHead.current = windowHead;
     return getThreadMessages(threadId, anchor)
       .then(page => {
         if (request.current !== id) return;
+        lastHead.current = windowHead;
         setOlder(previous => {
           const known = new Set(previous.map(message => message.id));
           const fresh = page.messages.filter(message => !known.has(message.id));
-          if (!fresh.length) setExhausted(true);
+          if (!fresh.length) setExhaustedHead(windowHead);
           return [...previous, ...fresh].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
         });
       })

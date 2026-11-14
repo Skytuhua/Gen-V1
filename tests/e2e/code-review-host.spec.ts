@@ -24,28 +24,28 @@ async function fixture(page:Page,{unbound=false,wrongProject=false,native=false,
   if(native){const context={windowId:'main',surface:{kind:'main'},windows:[],nativeTitleBar:true};Object.assign(window,{harnessDesktop:{getContext:async()=>context,ready:async()=>context,setTheme:async()=>{},onState:(notify:(state:unknown)=>void)=>{Object.assign(window,{publishReviewOwner:(away:boolean)=>notify({windows:away?[{id:'other',surface:{kind:'thread',threadId:'review-a'},title:'Review owner'}]:[]})});return()=>{};},onCloseRequested:()=>()=>{},list:async()=>[],onWorkspaceChanged:()=>()=>{}}});}
  },{native,projectless});
  const requests:string[]=[];page.on('request',request=>{const url=new URL(request.url());if(url.pathname.startsWith('/api/'))requests.push(url.pathname+url.search);});
- const row=snapshot.threads[0],projects=[{id:'project-a',name:'Alpha',authority:{kind:'local'},rootPath:'C:/synthetic/alpha'}];
+ const row=snapshot.threads[0],projects=[{id:'project-a',name:'Alpha',authority:{kind:'local'},rootPath:'C:/synthetic/alpha',createdAt:'2026-11-06T00:00:00.000Z'}];
  const binding={authority:{kind:'local'},threadId:'review-a',projectId:wrongProject?'foreign-project':'project-a'};
  const panel={id:'review-owner',canvasId:'code-review',kind:'thread',binding,placement:'canvas',visible:true,collapsed:false,bounds:{x:0,y:0,width:600,height:500},order:0,alwaysOnTop:false};
- const canvases=['workspace','all-agents','code-review','research','custom'].filter(preset=>!missingReview||preset!=='code-review').map(preset=>({id:preset,name:preset,preset,panels:preset==='code-review'&&!unbound?[panel]:[],viewport:{x:0,y:0,zoom:1}}));
- if(savedCanvases)for(const preset of ['research','code-review'])canvases.push({id:preset+'-saved',name:'Saved '+preset,preset,panels:preset==='code-review'?[{...panel,id:'review-owner-'+preset+'-saved',canvasId:preset+'-saved'}]:[],viewport:{x:0,y:0,zoom:1}});
+ const canvases=['workspace','all-agents','code-review','research','custom'].filter(preset=>!missingReview||preset!=='code-review').map(preset=>({id:preset,name:preset,preset,version:1,panels:preset==='code-review'&&!unbound?[panel]:[],filter:'all',projectIds:[],viewport:{x:0,y:0,zoom:1}}));
+ if(savedCanvases)for(const preset of ['research','code-review'])canvases.push({id:preset+'-saved',name:'Saved '+preset,preset,version:1,panels:preset==='code-review'?[{...panel,id:'review-owner-'+preset+'-saved',canvasId:preset+'-saved'}]:[],filter:'all',projectIds:[],viewport:{x:0,y:0,zoom:1}});
  const envelope={projects,state:{version:1,revision:1,activeCanvasId:startWorkspace?'workspace':'code-review',canvases,profiles:[],disabledKinds:[],integrations:{}}};
  await page.route('**/api/workspace',route=>route.fulfill({json:envelope}));
  const workspaceCommands:Record<string,any>[]=[];
  await page.route('**/api/workspace/commands',route=>{
   const input=route.request().postDataJSON();workspaceCommands.push(input);
   if(input.type==='workspace.canvas.select'||input.type==='workspace.canvas.create'){
-   const creating=input.type==='workspace.canvas.create',target=creating?{id:input.payload.preset,name:input.payload.name,preset:input.payload.preset,panels:[] as typeof panel[],viewport:{x:0,y:0,zoom:1}}:canvases.find(canvas=>canvas.id===input.payload.canvasId)!;
+   const creating=input.type==='workspace.canvas.create',target=creating?{id:input.payload.preset,name:input.payload.name,preset:input.payload.preset,version:1,panels:[] as typeof panel[],filter:'all',projectIds:[],viewport:{x:0,y:0,zoom:1}}:canvases.find(canvas=>canvas.id===input.payload.canvasId)!;
    if(input.payload.threadId){
     const selected=snapshot.threads.find(item=>item.id===input.payload.threadId)??{...row,id:input.payload.threadId};
     // Match the canonical atomic bindReview precondition before mutating the fixture layout.
     if(target.preset==='code-review'&&(!selected?.projectId||selected.kind==='side'||selected.kind==='delegate'||selected.sideParentId))return route.fulfill({status:409,json:{error:{code:'THREAD_REQUIRED',message:'Choose a main project conversation for Code Review.'}}});
     if(input.payload.expected&&(selected.projectId!==input.payload.expected.projectId||selected.workspaceId!==input.payload.expected.workingCopyId||threadNavigationRevision(selected)!==input.payload.expected.revision))return route.fulfill({status:409,json:{error:{code:'REVISION_CHANGED',message:'The working copy changed. Reopen the current thread details.'}}});
-    const binding={authority:{kind:'local'},threadId:selected!.id,projectId:selected!.projectId!};const existing=target.panels.find(item=>item.kind==='thread');if(existing)existing.binding=binding;else target.panels.push({...panel,id:'review-owner-'+target.id,binding});
+    const binding={authority:{kind:'local'},threadId:selected!.id,projectId:selected!.projectId!};const existing=target.panels.find(item=>item.kind==='thread');if(existing)existing.binding=binding;else target.panels.push({...panel,id:'review-owner-'+target.id,canvasId:target.id,binding});
    }
    if(creating)canvases.push(target);envelope.state.activeCanvasId=target.id;
   }
-  if(input.type==='workspace.panel.update')Object.assign(panel,input.payload.patch);if(input.type==='workspace.panel.add')canvases.find(canvas=>canvas.id===input.payload.canvasId)?.panels.push({...panel,...input.payload.panel});envelope.state.revision++;return route.fulfill({json:{commandId:input.id,seq:1,result:envelope}});
+  if(input.type==='workspace.panel.update')Object.assign(panel,input.payload.patch);if(input.type==='workspace.panel.add')canvases.find(canvas=>canvas.id===input.payload.canvasId)?.panels.push({...panel,...input.payload.panel,canvasId:input.payload.canvasId});envelope.state.revision++;return route.fulfill({json:{commandId:input.id,seq:1,result:envelope}});
  });
  await page.route('**/api/shell-settings',route=>route.fulfill({json:snapshot.settings}));
  await page.route('**/api/shell/navigation?*',route=>{const second=new URL(route.request().url()).searchParams.has('cursor');return route.fulfill({json:{sequence:1,total:paged?2:1,items:paged&&second?[{...row,id:'older-copy',title:'Older working copy'}]:(hover||projectless)?snapshot.threads:[row],nextCursor:paged&&!second?'page-2':null,order:'created-desc',stats:{pinned:0,working:0,waiting:0,settled:paged?2:1,minOrder:0,maxOrder:0}}});});

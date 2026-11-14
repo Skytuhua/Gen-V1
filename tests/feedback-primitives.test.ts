@@ -78,6 +78,20 @@ describe('feedback primitives', () => {
     await page.close();
   });
 
+  it('refreshes a visible tooltip when its hovered button gets a new title', async () => {
+    const page = await open();
+    try {
+      const target = page.locator('#tip');
+      await target.hover();
+      const tooltip = page.getByRole('tooltip');
+      await tooltip.waitFor();
+      await target.evaluate(node => node.setAttribute('title', 'A newer draft is available'));
+      await expect.poll(() => tooltip.innerText()).toBe('A newer draft is available');
+      expect(await target.getAttribute('aria-description')).toBe('A newer draft is available');
+      expect(await target.getAttribute('title')).toBe('');
+    } finally { await page.close(); }
+  });
+
   it('strips a trailing retry instruction when a retry button is present', async () => {
     const page = await open();
     const error = page.locator('.ui-error');

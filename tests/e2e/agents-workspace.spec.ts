@@ -14,7 +14,7 @@ async function setup(page: Page, candidate = false, burstHistory = false, delaye
   const url = new URL(route.request().url()); requests.push(url.pathname + url.search);
   if (url.pathname === '/api/bootstrap') return route.fulfill({json: {csrfToken: 'synthetic'}});
   if (url.pathname === '/api/shell-settings') return route.fulfill({json: {theme: 'dark', preferences: {}}});
-  if (url.pathname === '/api/workspace') return route.fulfill({json: {state: {version: 1, revision: 1, activeCanvasId: 'agents', canvases: [{id: 'agents', preset: 'all-agents'}]}, projects: []}});
+  if (url.pathname === '/api/workspace') return route.fulfill({json: {state: {version: 1, revision: 1, activeCanvasId: 'agents', canvases: [{id: 'agents', name: 'All Agents', preset: 'all-agents', version: 1, panels: [], filter: 'all', projectIds: [], viewport: {x: 0, y: 0, zoom: 1}}], profiles: [], disabledKinds: [], integrations: {}}, projects: []}});
   if (url.pathname === '/api/agents/follow-up-target') return route.fulfill({json: target});
   if (url.pathname.startsWith('/api/agents/inputs/')) return route.fulfill({json: {...target, id: url.pathname.split('/').at(-1), messageId: 'child-input', status: ticketStatus, createdAt: '2026-11-06', updatedAt: '2026-11-06'}});
   if (url.pathname === '/api/commands') {

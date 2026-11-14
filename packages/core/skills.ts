@@ -33,10 +33,10 @@ function mutable(record:SkillRecord,actor:SkillActor){if(actor.kind==='user')ret
 
 export function listSkills(store:Store,options:{query?:string;includeInactive?:boolean;offset?:number;limit?:number}={}):SkillPage {
  const {offset=0,limit=20}=options;if(!Number.isSafeInteger(offset)||offset<0||!Number.isSafeInteger(limit)||limit<1||limit>SKILL_LIMITS.page)fail('Use a valid skill page.');
- const query=options.query===undefined?'':text(options.query,'skill searches',1000,true),tokens=query.toLocaleLowerCase().trim().split(/\s+/).filter(Boolean);
+ const query=options.query===undefined?'':text(options.query,'skill searches',1000,true),tokens=query.toLowerCase().trim().split(/\s+/).filter(Boolean);
  const all=store.all<SkillSummary>('skill').sort((a,b)=>a.name.localeCompare(b.name));
  const catalogId=digest(all.map(({name,revision,state,enabled,protected:pin})=>({name,revision,state,enabled,protected:pin})));
- const records=all.filter(skill=>(options.includeInactive||skill.enabled&&skill.state!=='archived'&&!skill.migrationError)&&tokens.every(token=>`${skill.name} ${skill.description} ${skill.category}`.toLocaleLowerCase().includes(token)));
+ const records=all.filter(skill=>(options.includeInactive||skill.enabled&&skill.state!=='archived'&&!skill.migrationError)&&tokens.every(token=>`${skill.name} ${skill.description} ${skill.category}`.toLowerCase().includes(token)));
  const usages=new Map(store.db.prepare('SELECT id,body FROM entities WHERE kind=?').all('skillUsage').map(row=>{const item=row as {id:string;body:string};return[item.id,JSON.parse(item.body) as SkillUsage] as const;}));
  const page:SkillPage={skills:[],nextOffset:null,catalogId};
  for(let i=offset;i<records.length&&page.skills.length<limit;i++){const saved=records[i],value=usages.get(saved.name),summary=value?{...saved,useCount:value.count,lastUsedAt:value.lastUsedAt}:saved;const next={...page,skills:[...page.skills,summary],nextOffset:i+1<records.length?i+1:null};if(Buffer.byteLength(JSON.stringify(next))>SKILL_LIMITS.responseBytes){page.nextOffset=i;break;}page.skills.push(summary);page.nextOffset=i+1<records.length?i+1:null;}
