@@ -260,7 +260,7 @@ try {
           await expect(graph.locator('.task-graph-summary')).toContainText('3 conflicts');
           const change=graph.getByRole('button',{name:/Handle inactive sessions/}).first();
           await point(page,change); await change.click();
-          const excerpt=graph.getByText('return await refreshSession(token, signal);',{exact:true}).first();
+          const excerpt=page.getByRole('tooltip').getByText('return await refreshSession(token, signal);',{exact:true}).first();
           await expect(excerpt).toBeVisible(); await hold(page,1000);
           const resolve=page.getByRole('button',{name:'Resolve conflicts',exact:true});
           await point(page,resolve); await resolve.click();
