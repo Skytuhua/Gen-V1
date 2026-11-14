@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { serveTaskFixture, taskFixture, type TaskSpec } from './task-interface-fixture';
+import { quiescent } from './settle';
 import { validateSurface } from '../../packages/ui-catalog';
 
 const tabsSpec = (labels: string[]): TaskSpec => ({ root: 'tabs', elements: {
@@ -22,7 +23,7 @@ for (const savedSelection of ['Details', 'Stale selection']) {
     await expect(page.getByRole('tabpanel', { includeHidden: true })).toHaveCount(0);
     await expect(page.locator('.artifact-content input')).toHaveCount(0);
     // Allow the real state save debounce to elapse before asserting no writes.
-    await page.waitForTimeout(800);
+    expect(await quiescent(page, 800, () => [host.commands.filter(command => ['state.save', 'action.submit'].includes(command.type)).length, JSON.stringify(host.snapshot.userStates[0].values)])).toHaveLength(1);
     expect(host.commands.filter(command => ['state.save', 'action.submit'].includes(command.type))).toEqual([]);
     expect(host.snapshot.userStates[0].values).toEqual({ selectedTab: savedSelection });
   });
@@ -78,7 +79,7 @@ test('an unknown saved label falls back without rewriting state on render', asyn
   await expect(page.getByRole('tab', { selected: true })).toHaveCount(1);
   await expect(page.getByRole('tabpanel')).toHaveCount(1);
   await expect(page.getByRole('textbox', { name: 'First draft' })).toBeVisible();
-  await page.waitForTimeout(800);
+  expect(await quiescent(page, 800, () => [host.commands.filter(command => ['state.save', 'action.submit'].includes(command.type)).length, JSON.stringify(host.snapshot.userStates[0].values)])).toHaveLength(1);
   expect(host.commands.filter(command => ['state.save', 'action.submit'].includes(command.type))).toEqual([]);
   expect(host.snapshot.userStates[0].values).toEqual({ selectedTab: 'Unknown label' });
 });

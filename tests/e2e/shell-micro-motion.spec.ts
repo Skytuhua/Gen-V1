@@ -2,6 +2,7 @@ import {test,expect} from '@playwright/test';
 import {resolve} from 'node:path';
 import {PLANNING_PROVENANCE,planDataId} from '../../packages/contracts/planning';
 import {serveTaskFixture,taskFixture} from './task-interface-fixture';
+import {quiescent} from './settle';
 
 const fixture=()=>{const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Review the current changes.'}}}});snapshot.settings.theme='dark';return snapshot;};
 
@@ -64,7 +65,7 @@ test('shell notice enters, pauses on hover, auto-expires and exits before unmoun
  const notice=page.locator('[aria-label="Shell notice fixture"]').getByRole('status');
  await expect(notice).toBeVisible({timeout:15000});await expect(notice).toContainText('Settings saved.');
  expect(await notice.evaluate(node=>getComputedStyle(node).animationName)).toBe('shell-notice-in');
- await notice.hover();await page.waitForTimeout(6500);await expect(notice).toBeVisible();
+ await notice.hover();expect(await quiescent(page,6500,()=>notice.count())).toHaveLength(1);await expect(notice).toBeVisible();
  await page.mouse.move(0,0);await expect(notice).toHaveCount(0,{timeout:8000});
  await page.evaluate(()=>(window as unknown as {noticeFixture:{render(message:string):void}}).noticeFixture.render('Saved again.'));
  await expect(notice).toBeVisible();await notice.getByRole('button',{name:'Dismiss notification',exact:true}).click();

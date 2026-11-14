@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import type { HostCommand, UserStateRecord } from '../../packages/contracts';
 import { serveTaskFixture, taskFixture } from './task-interface-fixture';
+import { quiescent } from './settle';
 
 test('an older snapshot cannot replace a newer acknowledged selection', async ({ page }) => {
   const snapshot = taskFixture({ root: 'records', elements: {
@@ -50,7 +51,7 @@ test('an older snapshot cannot replace a newer acknowledged selection', async ({
     snapshot.userStates[0] = visibleState; await host.publish();
     await expect(selected).not.toBeChecked();
     // Observe beyond the 500 ms autosave debounce: host updates must stay clean.
-    await page.waitForTimeout(650);
+    expect(await quiescent(page, 650, async () => [saves.length, await page.locator('.save-state').textContent()])).toHaveLength(1);
     await expect(page.locator('.save-state')).toHaveText('Saved'); expect(saves).toHaveLength(2);
   } finally { releaseFirst(); releaseEnd(); }
 });
