@@ -223,7 +223,11 @@ export class ToolEffectLedger {
   }
 
   approvalFor(operationId: string): ApprovalV1 | undefined {
-    return this.store.all<ApprovalV1>("approval").find(approval => approval.operationId === operationId);
+    // A stopped operation can be approved again: honor the latest grant, not the first.
+    let latest: ApprovalV1 | undefined;
+    for (const approval of this.store.all<ApprovalV1>("approval"))
+      if (approval.operationId === operationId && (!latest || approval.issuedAt >= latest.issuedAt)) latest = approval;
+    return latest;
   }
 
   /** Consume a recorded approval for dispatch; verifies the commitment still
