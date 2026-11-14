@@ -29,10 +29,11 @@ export function SignaturePad({ stateKey, label = 'Your signature', initialMode =
   const canvas = useRef<HTMLCanvasElement>(null), drawing = useRef<{ pointerId: number | null; strokes: SignaturePoint[][] } | null>(null);
   const cursor = useRef<SignaturePoint>({ x: .2, y: .5 }), keyboard = useRef(false), uploadGeneration = useRef(0), id = useId();
   const paint = useRef<(() => void) | null>(null), ink = useRef(signature); ink.current = signature;
+  const lastSave = useRef(0), nameTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const generatedInitial = useRef(false);
   const reveal = useRef<HTMLDivElement>(null), revealAnimation = useRef<Animation | null>(null), revealRequest = useRef(0), revealed = useRef(0);
   const inkBounds = useRef({ left: 0, right: 1 });
-  useEffect(() => () => { uploadGeneration.current++; revealAnimation.current?.cancel(); }, []);
+  useEffect(() => () => { uploadGeneration.current++; clearTimeout(nameTimer.current); revealAnimation.current?.cancel(); }, []);
   const section = useRef<HTMLElement>(null), [visible, setVisible] = useState(false);
   const serialized = JSON.stringify(signature), pendingUrl = assets?.preview(stateKey);
   useEffect(() => { const target = section.current; if (!target) return; const observer = new IntersectionObserver(entries => setVisible(entries[0].isIntersecting)); observer.observe(target); return () => observer.disconnect(); }, []);
@@ -43,6 +44,7 @@ export function SignaturePad({ stateKey, label = 'Your signature', initialMode =
   const markStrokes = () => drawing.current?.strokes ?? (signature?.kind === 'drawn' ? signatureStrokes(signature) : []);
   const saveStrokes = () => { const strokes = markStrokes().map(stroke => [...stroke]); write(strokes.length === 1 ? { kind: 'drawn', points: strokes[0] } : strokes.length ? { kind: 'drawn', strokes } : null); };
   const clear = () => { generatedInitial.current = true; uploadGeneration.current++; drawing.current = null; keyboard.current = false; setError(''); write(null); paint.current?.(); };
+  const queueGenerate = (text: string) => { generatedInitial.current = true; setName(text); clearTimeout(nameTimer.current); nameTimer.current = setTimeout(() => generate(text), 250); };
   const generate = (text: string, choice = style) => {
     generatedInitial.current = true; setError(''); setName(text); setStyle(choice); uploadGeneration.current++; revealRequest.current++;
     if (!text.trim()) { write(null); return; }
@@ -96,7 +98,7 @@ export function SignaturePad({ stateKey, label = 'Your signature', initialMode =
     const strokes = markStrokes().map(stroke => [...stroke]); if (strokes.flat().length > MAX_SIGNATURE_POINTS - 2) { setError('The signature reached 2000 points. Undo a stroke or clear it.'); return; }
     const point = pointAt(event); drawing.current = { pointerId: event.pointerId, strokes: [...strokes, [point, point]] }; saveStrokes();
   };
-  const move = (event: PointerEvent<HTMLCanvasElement>) => { if (!drawing.current || drawing.current.pointerId !== event.pointerId) return; if (drawing.current.strokes.reduce((count, stroke) => count + stroke.length, 0) < MAX_SIGNATURE_POINTS) { drawing.current.strokes.at(-1)!.push(pointAt(event)); saveStrokes(); } };
+  const move = (event: PointerEvent<HTMLCanvasElement>) => { if (!drawing.current || drawing.current.pointerId !== event.pointerId) return; if (drawing.current.strokes.reduce((count, stroke) => count + stroke.length, 0) < MAX_SIGNATURE_POINTS) { drawing.current.strokes.at(-1)!.push(pointAt(event)); const now = performance.now(); if (now - lastSave.current >= 100) { lastSave.current = now; saveStrokes(); } } };
   const finish = (event: PointerEvent<HTMLCanvasElement>) => { if (!drawing.current || drawing.current.pointerId !== event.pointerId) return; saveStrokes(); drawing.current = null; if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId); };
   const undo = () => { const strokes = markStrokes().slice(0, -1); drawing.current = null; write(strokes.length === 1 ? { kind: 'drawn', points: strokes[0] } : strokes.length ? { kind: 'drawn', strokes } : null); paint.current?.(); };
   const keyDown = (event: KeyboardEvent<HTMLCanvasElement>) => {
@@ -129,7 +131,7 @@ export function SignaturePad({ stateKey, label = 'Your signature', initialMode =
       <div className="signature-well-tools">{mode === 'generate' ? <button type="button" disabled={!ready || !name.trim()} onClick={() => generate(name, (style + 1) % styles.length)}>Another style</button> : <>{mode === 'draw' && <button type="button" aria-label="Undo last signature stroke" disabled={signature?.kind !== 'drawn'} onClick={undo}><Undo2 size={12} />Undo</button>}<button type="button" onClick={clear}><Eraser size={12} />Clear</button></>}</div>
     </div>
     <div className="signature-controls">{pendingUrl && <span role="status">Saving signature…</span>}{mode === 'generate' && <button type="button" aria-expanded={editingName} aria-controls={`${id}-name-editor`} onClick={() => setEditingName(value => !value)}>Edit name</button>}</div>
-    {mode === 'generate' && editingName && <div id={`${id}-name-editor`} className="signature-name-editor"><label htmlFor={`${id}-name`}>Type your name</label><input id={`${id}-name`} className="signature-name-input" maxLength={200} value={name} placeholder="Your full name" autoComplete="name" disabled={!ready} onChange={event => generate(event.target.value)} /></div>}
+    {mode === 'generate' && editingName && <div id={`${id}-name-editor`} className="signature-name-editor"><label htmlFor={`${id}-name`}>Type your name</label><input id={`${id}-name`} className="signature-name-input" maxLength={200} value={name} placeholder="Your full name" autoComplete="name" disabled={!ready} onChange={event => queueGenerate(event.target.value)} /></div>}
     {(stateError || error || assets?.error(stateKey)) && <p className="document-error" role="status">{stateError || error || assets?.error(stateKey)}{assets?.error(stateKey) && <button type="button" onClick={() => assets.retry()}>Retry signature upload</button>}</p>}
     <details className="signature-help"><summary>Signature help</summary><p id={`${id}-help`}>Draw with your pointer, or use arrow keys to move, Enter to start or end a stroke, Backspace to undo and Delete to clear. A visual mark only; no certificate or digital signature.</p></details>
   </section>;
