@@ -116,8 +116,8 @@ export type BundleStatus = 'PASS' | 'FAIL' | 'PARTIAL' | 'BLOCKED';
 
 export function bundleStatus(phases: PhaseEvidence[]): BundleStatus {
   if (!phases.length) return 'BLOCKED';
-  if (phases.every(phase => phase.status === 'PASS')) return 'PASS';
   if (phases.some(phase => phase.status === 'FAIL' || phase.requiredCases.some(item => item.status === 'FAIL'))) return 'FAIL';
+  if (phases.every(phase => phase.status === 'PASS')) return 'PASS';
   if (phases.some(phase => phase.status === 'PASS')) return 'PARTIAL';
   return 'BLOCKED';
 }
