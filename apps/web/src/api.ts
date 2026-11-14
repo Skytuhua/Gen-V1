@@ -110,7 +110,7 @@ export function subscribe(after: number, accept: (event: WorkspaceEvent) => void
     void resync();
     return()=>{closed=true;clearTimeout(timer);remove();};
   }
-  let source: EventSource;
+  let source: EventSource | undefined;
   let closed = false;
   let timer: ReturnType<typeof setTimeout> | undefined;
   let sequence = after;
@@ -124,20 +124,26 @@ export function subscribe(after: number, accept: (event: WorkspaceEvent) => void
   };
   const connect = () => {
     if (closed) return;
-    source = new EventSource(`/api/events?after=${sequence}`);
-    source.onopen = () => connectivity(true);
-    source.onerror = () => {
-      source.close(); connectivity(false);
+    const stream = new EventSource(`/api/events?after=${sequence}`);
+    source = stream;
+    const isCurrent = () => !closed && source === stream;
+    stream.onopen = () => { if (isCurrent()) connectivity(true); };
+    stream.onerror = () => {
+      if (!isCurrent()) return;
+      source = undefined;
+      stream.close(); connectivity(false);
       const session = bootstrapPromise;
       const recover = async () => {
-        try { await renewSession(session); await reconnect(); if (!closed) connect(); }
+        if (closed) return;
+        try { await renewSession(session); if (closed) return; await reconnect(); if (!closed) connect(); }
         catch { if (!closed) timer = setTimeout(() => { void recover(); }, 2000); }
       };
       if (!closed) timer = setTimeout(() => { void recover(); }, 500);
     };
-    source.onmessage = receive;
-    source.addEventListener('workspace', receive as EventListener);
+    const receiveCurrent = (event: MessageEvent<string>) => { if (isCurrent()) receive(event); };
+    stream.onmessage = receiveCurrent;
+    stream.addEventListener('workspace', receiveCurrent as EventListener);
   };
   connect();
-  return () => { closed = true; clearTimeout(timer); source.close(); };
+  return () => { closed = true; clearTimeout(timer); source?.close(); };
 }
