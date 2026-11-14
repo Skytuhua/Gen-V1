@@ -33,7 +33,7 @@
 .disclosure-skeleton-line { width:min(65%,240px); height:8px; border-radius:3px; background:var(--hover); animation:task-question-loading 900ms ease-in-out infinite alternate; }
 @keyframes task-question-loading { from { opacity:.35; } to { opacity:.9; } }
 .task-motion-region[data-motion-phase="closed"]>.task-motion-inner { visibility:hidden; }
-.task-tab-panel:not([hidden]) { animation:task-pane-in 160ms ease-out both; }
+.task-tab-panel:not([hidden]) { animation:task-pane-in var(--ui-motion-tab) var(--ui-ease-enter) both; }
 .task-status-stack { position:relative; }
 .task-status-outgoing { position:absolute; inset:0; pointer-events:none; }
 .disclosure-children>.disclosure-node { animation:task-branch-in var(--ui-motion-insert) var(--ui-ease-enter) both; }
