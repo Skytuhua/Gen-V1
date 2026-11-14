@@ -82,6 +82,7 @@ export async function openGemini(context: DriverContext, spawnProcess: typeof sp
   let contextUsage: { contextTokens: number | null; contextWindow: number | null } = { contextTokens: null, contextWindow: null };
   let activeWire: WireInput | undefined;
   const historyWrites: Promise<unknown>[] = [];
+  const trackWrite = (write: Promise<unknown>) => { write.catch(() => {}); historyWrites.push(write); };
   const rpc = new AcpConnection(child, (method, params) => {
     if (method !== 'session/update' || !context.current() || closed || !params || params.sessionId !== sessionId) return;
     const update = params.update;
@@ -94,8 +95,8 @@ export async function openGemini(context: DriverContext, spawnProcess: typeof sp
     if (update.sessionUpdate === 'user_message_chunk' && update.content?.type === 'text' && typeof update.content.text === 'string') {
       if (replaying || historyOnly) {
         for (const receipt of leadingReceipts(context.manifest, update.content.text)) context.manifest.value.inputs[receipt.uuid].observed = true;
-        historyWrites.push(saveManifest(context.manifest));
-      } else if (activeWire && update.content.text === activeWire.text) historyWrites.push(context.observed(activeWire.uuid));
+        trackWrite(saveManifest(context.manifest));
+      } else if (activeWire && update.content.text === activeWire.text) trackWrite(context.observed(activeWire.uuid));
     }
     if (replaying || historyOnly || initializing) return;
     if (update.sessionUpdate === 'agent_message_chunk' && update.content?.type === 'text' && typeof update.content.text === 'string'){

@@ -80,7 +80,7 @@ function GrantedReader({
 	const [path, setPath] = useState(""),
 		[selected, setSelected] = useState<FilesEntry | null>(null);
 	const readFolder = useCallback(
-		() => getResourceTree(active, path),
+		(signal: AbortSignal) => getResourceTree(active, path, signal),
 		[active, path],
 	);
 	const readFile = useCallback(
