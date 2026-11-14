@@ -39,9 +39,9 @@ const message = (threadId: string, id: string): Message => ({
   id, threadId, role: 'user', content: id, createdAt: '2026-01-01T00:00:00Z', runId: null,
 });
 const snapshot: Pick<Snapshot, 'messages' | 'messagesTruncated'> = { messages: [message('a', 'a-current'), message('b', 'b-current')], messagesTruncated: { a: 2, b: 1 } };
-function render(owner: string) {
+function render(owner: string, data = snapshot) {
   hooks.position = 0;
-  const result = useThreadMessages(snapshot, owner);
+  const result = useThreadMessages(data, owner);
   for (const queue of [hooks.layouts, hooks.effects]) for (const run of queue.splice(0)) run();
   return result;
 }
@@ -64,4 +64,34 @@ it('does not display older results from the prior conversation on the first rend
   await render('a').loadMore();
   expect(render('a').messages.map(value => value.id)).toEqual(['a-old', 'a-current']);
   expect(render('b').messages.map(value => value.id)).toEqual(['b-current']);
+});
+
+
+it('fills a new history gap even when the previous window was already exhausted', async () => {
+  hooks.getPage.mockResolvedValueOnce({ messages: [message('a', 'a-old')], truncated: 0 });
+  await render('a').loadMore();
+  hooks.getPage.mockResolvedValueOnce({ messages: [], truncated: 0 });
+  await render('a').loadMore();
+  expect(hooks.getPage).toHaveBeenLastCalledWith('a', 'a-old');
+
+  const shifted = { messages: [message('a', 'a-new')], messagesTruncated: { a: 2 } };
+  hooks.getPage.mockResolvedValueOnce({ messages: [message('a', 'a-old'), message('a', 'a-current')], truncated: 0 });
+  await render('a', shifted).loadMore();
+  expect(hooks.getPage).toHaveBeenLastCalledWith('a', 'a-new');
+  expect(render('a', shifted).messages.map(value => value.id)).toEqual(['a-old', 'a-current', 'a-new']);
+  expect(render('a', shifted).remaining).toBe(0);
+});
+
+it('retries a failed gap read from the shifted window instead of skipping it', async () => {
+  hooks.getPage.mockResolvedValueOnce({ messages: [message('a', 'a-old')], truncated: 0 });
+  await render('a').loadMore();
+  const shifted = { messages: [message('a', 'a-new')], messagesTruncated: { a: 2 } };
+  hooks.getPage.mockRejectedValueOnce(new Error('temporary failure'));
+  await render('a', shifted).loadMore();
+  expect(render('a', shifted).error).toBe('temporary failure');
+
+  hooks.getPage.mockResolvedValueOnce({ messages: [message('a', 'a-current')], truncated: 1 });
+  await render('a', shifted).loadMore();
+  expect(hooks.getPage.mock.calls.map(([, anchor]) => anchor)).toEqual(['a-current', 'a-new', 'a-new']);
+  expect(render('a', shifted).messages.map(value => value.id)).toEqual(['a-old', 'a-current', 'a-new']);
 });
