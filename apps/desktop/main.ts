@@ -104,6 +104,8 @@ function secureBrowserSession(value:Session){
  });
  const ready=(async()=>{const proxy=await (proxyPromise??=createBrowserProxy());await value.setProxy({mode:'fixed_servers',proxyRules:'http=127.0.0.1:'+proxy.port+';https=127.0.0.1:'+proxy.port,proxyBypassRules:'<-loopback>'});await value.closeAllConnections();})();configuredBrowserSessions.set(value,ready);return ready;
 }
+const downloadGuardedSessions=new WeakSet<Session>();
+function secureSessionDownloads(value:Session){if(downloadGuardedSessions.has(value))return;downloadGuardedSessions.add(value);value.on('will-download',event=>event.preventDefault());}
 function browserRecord(id:string):BrowserRecord {
  const existing=browsers.get(id);if(existing)return existing;
  if(browsers.size>=12)throw Error('Close a browser before opening another');
@@ -144,7 +146,7 @@ async function openSurface(raw:unknown,sourceBounds?:DesktopBounds):Promise<Desk
  native.webContents.setWindowOpenHandler(details=>githubDevicePopup(details,{surface,expectedUrl:url,currentUrl:native.webContents.mainFrame.url},()=>shell.openExternal(GITHUB_DEVICE_URL,{activate:true})));native.webContents.on('will-attach-webview',event=>event.preventDefault());
  native.webContents.on('will-navigate',(event,next)=>{if(next!==url)event.preventDefault();});native.webContents.on('will-redirect',(event,next)=>{if(next!==url)event.preventDefault();});
  native.webContents.on('will-frame-navigate',event=>{if(!event.isMainFrame&&!trustedDesktopSubframe(event.url,backendOrigin,`http://localhost:${widgetPort}`))event.preventDefault();});
- native.webContents.session.setPermissionRequestHandler((_contents,_permission,callback)=>callback(false));native.webContents.session.setPermissionCheckHandler(()=>false);
+ native.webContents.session.setPermissionRequestHandler((_contents,_permission,callback)=>callback(false));native.webContents.session.setPermissionCheckHandler(()=>false);secureSessionDownloads(native.webContents.session);
  native.on('close',event=>{if(!quitting){event.preventDefault();void requestClose(record).then(allow=>{if(allow)destroyWindow(record);else cancelClose(record);}).catch(()=>cancelClose(record));}});
  native.on('closed',()=>{clearTimeout(record.readyTimer);if(!record.settled){record.settled=true;record.rejectReady(Error('The detached window closed before it was ready'));}windows.delete(id);if(record.closeRequest){clearTimeout(record.closeRequest.timer);record.closeRequest.resolve(false);}broadcast();});
  const resized=()=>{remember(record);if(record.browser){const [width,height]=native.getContentSize();record.browser.view.setBounds({x:0,y:96,width,height:Math.max(0,height-96)});}};

@@ -20,7 +20,7 @@ import {SideRuntime} from './side-runtime.ts';
 import {ComposerPredictions,predictionContext,type PredictionBasis,type PredictionRequest} from './composer-prediction.ts';
 import {PlanningQuestionSchema} from '../contracts/planning-question.ts';
 import { getPreferences, mergePreferences } from "../contracts/preferences.ts";
-import {accountResolver,assertAccountAvailable,changeAccount,modelProvider} from './accounts.ts';
+import {accountResolver,assertAccountAvailable,changeAccount,modelProvider,sweepStaleAccountLeases} from './accounts.ts';
 import {isConnectionProviderId} from '../contracts/connections.ts';
 import {applySkillOperations,curateSkills,decideSkillProposal,listSkills,setSkillFlags,skillIndex,viewSkill,viewSkillProposal} from './skills.ts';
 import {LearningCoordinator,type LearningJob,type LearningOutcome,type LearningToolResult} from './learning.ts';
@@ -1109,6 +1109,7 @@ export class Service {
   async recover(): Promise<void> {
     if(this.source)await this.source.library.initialize();
     this.planning.recover();
+    sweepStaleAccountLeases(this.store);
     this.store.internal("workspace.recovered", null, () => {
       const learning=this.store.get<Snapshot['learning']>('learningStatus','global'),last=learning?.lastReview;
       this.store.put('learningStatus','global',null,{...learning,supported:this.learningSupported,status:'idle',lastCuratedAt:learning?.lastCuratedAt??now(),lastReview:last?.status==='reviewing'?{...last,status:'cancelled',finishedAt:now(),error:'The interrupted review was not restarted.'}:last??null});
@@ -1117,6 +1118,10 @@ export class Service {
         this.store.put("operation", op.id, op.threadId, next); this.operationData(next);
       }
       for (const thread of this.store.all<Thread>("thread").filter(t => t.runId)) { this.failUnansweredDetails({threadId:thread.id,runId:thread.runId!,epoch:thread.epoch},"The explanation was interrupted. Resume the task to retry."); this.store.put("thread", thread.id, thread.id, { ...thread, epoch: thread.epoch + 1, runId: null, status: "interrupted", updatedAt: now() }); }
+      // Inputs claimed as processing by a dead run would otherwise stay
+      // unhandled forever and block isUpdateIdle/freezeForUpdate; mirror the
+      // resume path (deliverOutbox) which re-persists anything not handled.
+      for (const input of this.store.all<Outbox>("outbox").filter(i => i.status !== "handled")) this.store.put("outbox", input.id, input.threadId, { ...input, status: "persisted" });
       return { inferenceCalls: 0 };
     });
   }
