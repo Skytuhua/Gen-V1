@@ -14,7 +14,7 @@ export function acquireWindowsCredentialReadBarrier(authPath: string, options: {
   const started = performance.now(), expiresAt = Date.now() + options.maxHoldMs;
   let native: NativeLease;
   try {native = (createRequire(import.meta.url)('./windows-credential-lease.node') as NativeModule).acquire(authPath);}
-  catch {throw denied();}
+  catch (cause) {throw new HarnessError('PI_CREDENTIAL_LEASE_UNAVAILABLE', cause instanceof Error && cause.message ? cause.message : 'Protected credential evidence is unavailable.');}
   const revoked = new AbortController();
   let releasePromise: Promise<void> | undefined;
   let resolveSettled!: () => void, rejectSettled!: (error: unknown) => void;

@@ -121,7 +121,7 @@ test("folder/project scopes keep path and text hits distinct and open a matching
 }) => {
 	await fixture(page);
 	await page.getByRole("button", { name: "src", exact: true }).click();
-	await expect(page.getByText("This folder is empty.")).toBeVisible();
+	await expect(page.getByText("Folder is empty.")).toBeVisible();
 	await projectScope(page);
 	await expect(hits(page)).toHaveCount(3);
 	await expect(hits(page).nth(2)).toContainText("File name");
@@ -496,7 +496,7 @@ test("a denied preview retries and a late file read cannot replace another resul
 	await hits(page).first().click();
 	await expect(page.getByRole("alert")).toContainText("Access denied");
 	denied = false;
-	await page.getByRole("button", { name: "Retry file" }).click();
+	await preview(page).getByRole("button", { name: "Retry", exact: true }).click();
 	await expect.poll(() => !!held).toBe(true);
 	await hits(page).nth(1).click();
 	await expect(preview(page)).toContainText("Accepted README");

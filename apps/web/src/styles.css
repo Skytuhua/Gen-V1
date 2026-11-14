@@ -363,3 +363,7 @@ progress::-moz-progress-bar { background:var(--text); border-radius:4px; }
   :where(details)::details-content { transition:none; content-visibility:visible; block-size:auto; }
   :where(details:not([open]))::details-content { display:none; }
 }
+
+.surface-progress>div>span,.task-step-label>span { white-space:nowrap; }
+
+.working-status>span { color:var(--accent-fg); background:var(--accent-bg); border-radius:5px; padding:2px 6px; }
