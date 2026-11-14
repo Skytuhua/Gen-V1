@@ -16,7 +16,7 @@ import {LoadingState, PendingStatus} from './LoadingState';
 import {SettingsSkeleton, WorkspaceSkeleton} from './ViewSkeletons';
 import {ShellSidebar} from './ShellSidebar';
 import {getShellNavigationItem} from './shell-read-api';
-import {matchesShortcut, useShellLayout} from './shell-layout';
+import {matchesShortcut, readShellLayout, useShellLayout} from './shell-layout';
 import {useSidebarCollapse} from './sidebar-collapse';
 import {useShellNavigation} from './shell-navigation';
 import {useAppearance} from './useAppearance';
@@ -148,7 +148,7 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
   };
   const fail = (action: () => Promise<unknown>) => {void action().catch(cause => {if (alive.current) setError(message(cause));});};
   const retry = () => fail(async () => {await Promise.all([workspace.refresh(), loadSettings()]); setError('');});
-  if (!workspace.envelope || !settings || !preset) return <main className="workspace-host-bootstrap">
+  if (!workspace.envelope || !settings || !preset) return <main className="workspace-host-bootstrap" style={{'--sidebar-width': readShellLayout().sidebarWidth + 'px'} as CSSProperties}>
     {!failure && <LoadingState pending hasContent={false} label="Opening workspace…" skeleton={<WorkspaceSkeleton/>} className="view-loading-state"/>}
     {failure && <div role="alert">{failure}<button onClick={retry}>Retry workspace</button></div>}
   </main>;

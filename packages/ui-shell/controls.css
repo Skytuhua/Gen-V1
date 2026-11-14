@@ -64,6 +64,14 @@
 .ui-select-trigger > span { min-width: 0; overflow-wrap: anywhere; }
 .ui-select-trigger > svg { flex-shrink: 0; margin-inline-start: auto; }
 .ui-select .ui-select-native { position: absolute; width: 1px; height: 1px; padding: 0; border: 0; clip-path: inset(50%); overflow: hidden; white-space: nowrap; }
+.ui-control-popup .ui-control-option, .ui-select .ui-select-trigger, .ui-action-trigger {
+  transition: background-color var(--ui-motion-hover,120ms) var(--ui-ease-move,cubic-bezier(.4,0,.2,1)), color var(--ui-motion-hover,120ms) var(--ui-ease-move,cubic-bezier(.4,0,.2,1)), transform var(--ui-motion-press,80ms) var(--ui-ease-enter,cubic-bezier(.16,1,.3,1));
+}
+.ui-control-popup .ui-control-option:active:not(:disabled), .ui-select .ui-select-trigger:active:not(:disabled), .ui-action-trigger:active:not(:disabled) { transform: scale(.97); }
+@media (prefers-reduced-motion: reduce) {
+  .ui-control-popup .ui-control-option, .ui-select .ui-select-trigger, .ui-action-trigger { transition: none; }
+  .ui-control-popup .ui-control-option:active:not(:disabled), .ui-select .ui-select-trigger:active:not(:disabled), .ui-action-trigger:active:not(:disabled) { transform: none; }
+}
 .ui-modal {
   position: fixed;
   inset: 0;

@@ -164,7 +164,7 @@ button:has(>svg.lucide-x):hover:not(:disabled),button:has(>svg.lucide-circle-x):
 .composer-error { margin-bottom:8px; }
 .composer-error>span:first-child { flex:1; min-width:0; }
 .composer-error-actions { display:flex; align-items:center; gap:6px; flex:none; }
-.resume-strip { display:flex; align-items:center; justify-content:space-between; gap:10px; margin:0 0 8px; padding:9px 12px; border:1px solid var(--border); border-left:3px solid var(--pending); border-radius:9px; background:var(--subtle); color:var(--muted); font-size:12px; line-height:1.5; animation:resume-strip-in var(--ui-motion-insert,180ms) var(--ui-ease-enter,cubic-bezier(.16,1,.3,1)) both; }
+.resume-strip { display:flex; align-items:center; justify-content:space-between; gap:10px; margin:0 0 8px; padding:9px 12px; border:1px solid var(--border); border-radius:9px; background:var(--subtle); color:var(--muted); font-size:12px; line-height:1.5; animation:resume-strip-in var(--ui-motion-insert,180ms) var(--ui-ease-enter,cubic-bezier(.16,1,.3,1)) both; }
 .resume-strip .secondary { flex:none; }
 @keyframes resume-strip-in { from { opacity:0; transform:translateY(4px); } }
 @media(prefers-reduced-motion:reduce) { .resume-strip { animation:none; } }
@@ -257,7 +257,7 @@ button:has(>svg.lucide-x):hover:not(:disabled),button:has(>svg.lucide-circle-x):
 .disclosure { border:1px solid var(--border); border-radius:12px; background:var(--surface); position:relative; }
 .disclosure-trigger { display:flex; width:100%; align-items:center; justify-content:space-between; gap:12px; text-align:left; padding:10px 13px; font-size:13px; line-height:1.4; border-radius:11px; }
 .disclosure-trigger:hover { background:var(--subtle); }
-.disclosure-trigger svg { transition:transform 180ms ease-out; color:var(--muted); }
+.disclosure-trigger svg { transition:transform var(--ui-motion-insert,180ms) ease-out; color:var(--muted); }
 .rotated { transform:rotate(180deg); }
 .disclosure-body { padding:0 13px 11px; color:var(--muted); font-size:13px; }
 .disclosure-children { display:flex; flex-direction:column; gap:6px; margin:7px 0 0 18px; padding-left:14px; border-left:1px solid var(--border); }
