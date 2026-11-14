@@ -51,7 +51,16 @@ export function Modal({ open, title, onClose, children, className = '' }: ModalP
     onCancel={event => { event.preventDefault(); onClose(); }}
     onPointerDown={event => { pressedBackdrop.current = onBackdrop(event); }}
     onClick={event => { if (pressedBackdrop.current && onBackdrop(event)) onClose(); pressedBackdrop.current = false; }}
-    onKeyDown={event => { if (event.key === 'Escape' && isComposing(event)) event.preventDefault(); }}>
+    onKeyDown={event => {
+      if (event.key === 'Escape' && isComposing(event)) event.preventDefault();
+      if (event.key === 'Tab' && dialog.current) {
+        const scope = dialog.current;
+        const focusable = Array.from(scope.querySelectorAll<HTMLElement>('button, [href], input, select, textarea, [tabindex]')).filter(element => element.tabIndex >= 0 && !element.hasAttribute('disabled') && element.getClientRects().length > 0);
+        if (!focusable.length) return;
+        const first = focusable[0]!, last = focusable[focusable.length - 1]!, active = scope.ownerDocument.activeElement as HTMLElement | null;
+        if (event.shiftKey ? (active === first || !scope.contains(active)) : (active === last || !scope.contains(active))) { event.preventDefault(); (event.shiftKey ? last : first).focus(); }
+      }
+    }}>
     <header className="ui-modal-header"><h2 id={titleId}>{shown.current.title}</h2><button type="button" className="ui-modal-close" aria-label="Close dialog" onClick={onClose}><X size={17} /></button></header>
     {shown.current.children}
   </dialog>;
