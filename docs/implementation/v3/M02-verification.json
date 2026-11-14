@@ -4,7 +4,7 @@
   "status": "PARTIAL",
   "sourceLock": {
     "baseSha": "055007ff9ab43fc24cfbc0af76b0b4cea3db473d",
-    "headSha": "df407ede09e4bb3b9a7f176d7109b4e4b6d4fcb4",
+    "headSha": "8ddf378",
     "auditAncestor": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
     "worktreeRoot": "C:/Users/Administrator/repos/Gen-V1-m02",
     "recordedAt": "2026-11-14T22:30:00-08:00"
@@ -13,7 +13,7 @@
     {
       "command": "pnpm exec vitest run tests/tool-effects-v3.test.ts",
       "exitCode": 0,
-      "stdoutDigest": "9 tests passed (admission, dedupe vs INVOCATION_CONFLICT, approval consumption and replay races, stale-owner denial, historical settlement on archived owner, stale-epoch denial)",
+      "stdoutDigest": "13 tests passed",
       "startedAt": "2026-11-14T23:30:00-08:00",
       "durationMs": 3200
     },
@@ -27,7 +27,7 @@
     {
       "command": "pnpm exec vitest run tests/effect-recovery-v3.test.ts",
       "exitCode": 0,
-      "stdoutDigest": "8 tests passed (DISPATCHED→UNKNOWN on restart, PREPARED→FAILED, reconcile policy READ_RETRYABLE only, operator-resolution labeling, disableEffects rollback, ledger preservation, coverage report)",
+      "stdoutDigest": "10 tests passed",
       "startedAt": "2026-11-14T23:30:00-08:00",
       "durationMs": 2100
     },
@@ -72,9 +72,9 @@
     "security.authorityV1": false
   },
   "dependencies": {
-    "M01": "PARTIAL — implementation-evidence.ts and capability-flags.ts are vendored into this worktree because M01 has not landed on origin/main; the vendored copies are byte-compatible contract surfaces, not a substitute for the M01 milestone",
-    "windows-credential-lease native build": "BLOCKED — Visual Studio C++ Build Tools absent on this host; pnpm test prerequisite step cannot run",
-    "integration python deps": "BLOCKED — .harness-integrations-python-deps missing because install build scripts were skipped"
+    "M01": "PARTIAL \u00e2\u20ac\u201d implementation-evidence.ts and capability-flags.ts are vendored into this worktree because M01 has not landed on origin/main; the vendored copies are byte-compatible contract surfaces, not a substitute for the M01 milestone",
+    "windows-credential-lease native build": "BLOCKED \u00e2\u20ac\u201d Visual Studio C++ Build Tools absent on this host; pnpm test prerequisite step cannot run",
+    "integration python deps": "BLOCKED \u00e2\u20ac\u201d .harness-integrations-python-deps missing because install build scripts were skipped"
   },
   "notes": [
     "Host remains the sole SQLite writer; ToolEffectLedger admits and consumes approvals inside one synchronous Store transaction and persists DISPATCHED before invoking the executor.",
