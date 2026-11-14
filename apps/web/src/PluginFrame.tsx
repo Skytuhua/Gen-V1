@@ -54,7 +54,10 @@ function PluginFrameBody({plugin,theme,active=true,surface,workspace,projectColo
       if(value?.type==='gen.plugin.saves-retried'&&value.session===session){setError(value.ok===true?'':'Draft saving is still unavailable. Keep this view open.');return;}
       if(value?.type==='gen.plugin.flushed'&&value.session===session){const item=flushes.current.get(value.id);if(item){flushes.current.delete(value.id);clearTimeout(item.timer);if(value.ok===true)item.resolve();else item.reject();}return;}
       if(value?.type==='gen.plugin.abort'&&value.session===session&&value.pluginId===plugin.id){pending.current.get(value.id)?.abort();return;}
-      const request=parsePluginFrameRequest(value,plugin.id,session);if(!request||pending.current.has(request.id)||pending.current.size>=64)return;
+      const request=parsePluginFrameRequest(value,plugin.id,session);if(!request)return;
+      // Every accepted-looking request expects a reply; a dropped request must
+      // still settle the plug-in's awaiting promise rather than hang forever.
+      if(pending.current.has(request.id)||pending.current.size>=64){port.postMessage(pluginFrameReply(request.id,null,Error('This plug-in request could not be accepted.')));return;}
       const controller=new AbortController();pending.current.set(request.id,controller);
       if(!pluginWindowOperation(request.operation))pendingData.current.add(request.id);
       const execute=async()=>{
