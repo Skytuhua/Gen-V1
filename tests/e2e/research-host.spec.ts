@@ -37,10 +37,10 @@ async function fixture(page: Page, {native = false, delayed = false, unavailable
   const rows: ThreadNavigationRow[] = snapshot.threads.map(({id, title, projectId, projectName, createdAt, updatedAt, status, runId, presentation}) => ({id, title, projectId, projectName, createdAt, updatedAt, status, runId, presentation}));
   let failed = unavailable, release!: () => void;
   const gate = delayed ? new Promise<void>(resolve => {release = resolve;}) : Promise.resolve();
-  const projects = [{id: 'project-a', name: 'Alpha', authority: {kind: 'local'}, rootPath: 'C:/synthetic/alpha'}];
+  const projects = [{id: 'project-a', name: 'Alpha', authority: {kind: 'local'}, rootPath: 'C:/synthetic/alpha', createdAt: '2026-11-06T00:00:00.000Z'}];
   const binding = {authority: {kind: 'local' as const}, threadId: 'parent-a', projectId: wrongProject ? 'another-project' : 'project-a'};
   const panel: PanelPlacement = {id:'research-owner',canvasId:'research',kind:'thread',binding,placement:'canvas',visible:true,collapsed:false,bounds:{x:0,y:0,width:600,height:500},order:0,alwaysOnTop:false};
-  const canvases = ['workspace', 'all-agents', 'code-review', 'research', 'custom'].map(preset => ({id: preset, name: preset, preset, panels: preset === 'research' && !unbound ? [panel,...(legacyTools?[{...panel,id:'old-files',kind:'files' as const},{...panel,id:'old-notes',kind:'notes' as const}]:[])] : [], viewport: {x: 0, y: 0, zoom: 1}}));
+  const canvases = ['workspace', 'all-agents', 'code-review', 'research', 'custom'].map(preset => ({id: preset, name: preset, preset, version: 1, panels: preset === 'research' && !unbound ? [panel,...(legacyTools?[{...panel,id:'old-files',kind:'files' as const},{...panel,id:'old-notes',kind:'notes' as const}]:[])] : [], filter: 'all', projectIds: [], viewport: {x: 0, y: 0, zoom: 1}}));
   const envelope = {projects, state: {version: 1, revision: 1, activeCanvasId: invalidOwner ? 'missing' : 'research', canvases, profiles: [], disabledKinds: [], integrations: {}}};
   await page.route('**/api/workspace', async route => {await gate; return failed ? route.fulfill({status: 503, json: {error: {code: 'UNAVAILABLE', message: 'Workspace unavailable'}}}) : route.fulfill({json: envelope});});
   await page.route('**/api/workspace/commands', route => {

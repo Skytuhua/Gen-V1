@@ -8,7 +8,7 @@ export function apiResponse(url: URL, error = false, empty = false): unknown | u
   if (url.pathname === '/api/environment') return { revision: 0, entries: [], secretStorageAvailable: false };
   if (url.pathname === '/api/models') return { models: [] };
   if (url.pathname === '/api/integrations') return { integrations: [] };
-  if (url.pathname === '/api/workspace') return { projects: [] };
+  if (url.pathname === '/api/workspace') return { projects: [], state: { version: 1, revision: 0, activeCanvasId: 'workspace', canvases: [{ version: 1, id: 'workspace', name: 'Workspace', preset: 'workspace', viewport: { x: 0, y: 0, zoom: 1 }, panels: [], filter: 'active', projectIds: [] }], profiles: [], disabledKinds: [], integrations: {} } };
   if (url.pathname === '/api/research' || /^\/api\/research\/(sources|documents)$/.test(url.pathname)) return { items: [], nextCursor: null };
   if (url.pathname.startsWith('/api/projects/') && url.pathname.includes('comparison')) {
     const identity = { kind: 'local', id: 'a'.repeat(64), scope: 'worktree', headOid: '1'.repeat(40), branch: 'capture', revision: 'b'.repeat(64), base: { kind: 'index', revision: 'c'.repeat(64) }, head: { kind: 'worktree', revision: 'b'.repeat(64) } };

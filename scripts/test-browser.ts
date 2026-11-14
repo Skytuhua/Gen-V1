@@ -38,7 +38,10 @@ export function browserTestMain(args:string[]):number {
   for(let index=0;index<args.length;index++){
     if(args[index]==='--')continue;
     if(args[index]==='--list')list=true;
-    else if(args[index]==='--suite'&&args[index+1])selected=args[++index];
+    else if(args[index]==='--suite'&&args[index+1]){
+      if(selected!==undefined)throw Error('--suite may be specified only once per browser test run.');
+      selected=args[++index];
+    }
     else throw Error('Usage: tsx scripts/test-browser.ts [--suite name] [--list]');
   }
   const specs=readdirSync(resolve(root,'tests/e2e'),{recursive:true}).map(String).map(path=>path.replaceAll('\\','/')).filter(path=>/\.spec\.[cm]?[jt]sx?$/.test(path));

@@ -43,8 +43,8 @@ function ProjectPickerDialog({ authority, projects, selectedProjectId, recentPro
     const rank = (project: ProjectSummary) => { const index = recentProjectIds.indexOf(project.id); return index < 0 ? Infinity : index; };
     const ordered = [...scoped].sort((a, b) => rank(a) - rank(b));
     const all: (ProjectSummary | null)[] = authority.kind === 'local' ? [null, ...ordered] : ordered;
-    const terms = query.trim().toLocaleLowerCase().split(/\s+/);
-    return all.filter(project => terms.every(term => `${project?.name ?? 'No project'} ${project?.rootPath ?? ''} ${project?.repository ?? ''}`.toLocaleLowerCase().includes(term)));
+    const terms = query.trim().toLowerCase().split(/\s+/);
+    return all.filter(project => terms.every(term => `${project?.name ?? 'No project'} ${project?.rootPath ?? ''} ${project?.repository ?? ''}`.toLowerCase().includes(term)));
   }, [projects, authority, recentProjectIds, query]);
   const keyOf = (project: ProjectSummary | null) => project ? projectColorKey(project.authority, project.id) : '';
   const activeIndex = Math.max(0, choices.findIndex(project => keyOf(project) === activeKey));

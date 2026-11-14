@@ -1,3 +1,4 @@
+import {isTaskHistoryScrollKey} from '../apps/web/src/TaskHistory';
 import { describe, expect, it } from 'vitest';
 import { CAPABILITIES, SURFACE_LIMITS, validateSurface } from '../packages/ui-catalog';
 import { disclosureData, mapData, relationshipData, tableChangesData } from '../packages/ui-catalog/workflow';
@@ -63,4 +64,14 @@ describe('reusable source-bound task surfaces', () => {
     expect(SURFACE_LIMITS).toEqual({ nodes: 200, depth: 12, bytes: 131072 });
     for (const name of ['Disclosure', 'RelationshipGraph', 'Table', 'MapView']) expect(CAPABILITIES.find(capability => capability.name === name)?.description.length).toBeGreaterThan(200);
   });
+});
+
+it('does not interrupt bounded-history follow for arrow and caret keys inside controls',()=>{
+ const event={key:'Home',defaultPrevented:false,ctrlKey:false,metaKey:false,altKey:false,nativeEvent:{isComposing:false},target:{closest:()=>null}};
+ expect(isTaskHistoryScrollKey(event)).toBe(true);
+ expect(isTaskHistoryScrollKey({...event,key:'ArrowDown',target:{closest:()=>({})}})).toBe(false);
+ expect(isTaskHistoryScrollKey({...event,ctrlKey:true})).toBe(false);
+ expect(isTaskHistoryScrollKey({...event,defaultPrevented:true})).toBe(false);
+ expect(isTaskHistoryScrollKey({...event,nativeEvent:{isComposing:true}})).toBe(false);
+ expect(isTaskHistoryScrollKey({...event,key:'Enter'})).toBe(false);
 });

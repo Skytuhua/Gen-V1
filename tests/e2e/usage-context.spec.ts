@@ -165,6 +165,5 @@ test('invalidating a receipt ends accepted motion immediately and after its time
   await update(page,'cancelled');await expect(context(page)).toContainText('Compaction stopped');
   expect(await context(page).locator('.context-measurement-accepted').count()).toBe(0);
   expect(await context(page).locator('.context-receipt-pulse').count()).toBe(0);
-  await page.waitForTimeout(750);
-  expect(await context(page).locator('.context-measurement-accepted,.context-receipt-pulse').count()).toBe(0);
+  await expect(context(page).locator('.context-measurement-accepted,.context-receipt-pulse')).toHaveCount(0);
 });

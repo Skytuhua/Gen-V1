@@ -16,7 +16,7 @@ The account namespace and picker mechanics are copied/adapted from pinned T3 Cod
 
 This feature is a source-build change. Previously published installers and account-specific live sign-in/inference acceptance retain their separate verification status.
 
-Current v0.5.1 source implements nine connection IDs through Pi OAuth, dedicated plan keys and official runtimes, including the reviewed Cursor preview connection. The [verified v0.5.1 installer](evidence/runtime-clarity-20261031/report.md) includes all nine and repairs unsupported-compaction presentation and Cursor bootstrap Git context. The preserved [v0.5.0 package](evidence/cursor-subscription-20261031/report.md) also contains nine; v0.4.1 contains the earlier eight. Provider-specific live sign-in/inference acceptance remains separate. Availability in Settings means an integration exists; it does not establish local authentication, account entitlement or successful inference. See the [Cursor contract and verification limits](plans/cursor-subscription-adapter-20261031.md).
+The v0.5.1 checkpoint implemented nine connection IDs through Pi OAuth, dedicated plan keys and official runtimes, including the reviewed Cursor preview connection. The v0.5.1 installer was reported to include all nine and repairs unsupported-compaction presentation and Cursor bootstrap Git context. The v0.5.0 package was reported to contain nine; v0.4.1 contains the earlier eight. Provider-specific live sign-in/inference acceptance remains separate. Availability in Settings means an integration exists; it does not establish local authentication, account entitlement or successful inference. See the [Cursor contract and verification limits](plans/cursor-subscription-adapter-20261031.md).
 
 | Connection | Current source status | Authentication |
 | --- | --- | --- |
@@ -81,7 +81,7 @@ Model discovery is cached, concurrent requests share the lookup, and explicit re
 
 ## Sources and verification scope
 
-The retained [full unit receipt](../.harness-providers-unit.json) records **532/532 passed**, `success:true`. The [published-distribution receipt](../.harness-official-distributions/run-1793445647702/verification.json) records two actual `--version` passes in isolated empty homes: Claude Code 2.1.316 and Gemini CLI 0.66.0. Those invocations performed no authentication or inference. Focused adapter tests use synthetic protocols and credentials. The [milestone](provider-expansion-milestone.md) separates these checks from pending live account and fresh-package acceptance.
+The historical milestone recorded **532/532 unit checks passed** and two published-distribution `--version` passes in isolated empty homes: Claude Code 2.1.316 and Gemini CLI 0.66.0. The original local receipts are not tracked here. Those invocations performed no authentication or inference. Focused adapter tests use synthetic protocols and credentials. The [milestone](provider-expansion-milestone.md) separates these checks from pending live account and fresh-package acceptance.
 
 - [Pinned Pi OpenAI provider](https://github.com/earendil-works/pi/blob/v1.4.0/packages/ai/src/providers/openai.ts)
 - [Pinned legacy Codex provider](https://github.com/earendil-works/pi/blob/v1.4.0/packages/ai/src/providers/openai-codex.ts)

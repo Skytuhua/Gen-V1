@@ -33,11 +33,13 @@ test('native tail frames move continuously and never record a false manual-readi
 test('real wheel input interrupts following and later content leaves the reader in place',async({page})=>{
  await mount(page);await page.evaluate(()=>{window.conversationFixture.content.style.height='1700px';});
  await expect.poll(()=>page.evaluate(()=>window.conversationFixture.element.scrollTop)).toBeGreaterThan(500);
- await page.mouse.move(300,200);await page.mouse.wheel(0,-320);await page.waitForTimeout(350);
- const reading=await page.evaluate(()=>window.conversationFixture.element.scrollTop);
- expect(await page.evaluate(()=>window.conversationFixture.positions.at(-1)?.tail)).toBe(false);
+ await page.mouse.move(300,200);await page.mouse.wheel(0,-320);
+ await expect.poll(()=>page.evaluate(()=>window.conversationFixture.positions.at(-1)?.tail)).toBe(false);
+ let previous=-1,reading=0;
+ await expect.poll(async()=>{const top=await page.evaluate(()=>window.conversationFixture.element.scrollTop);const stable=top===previous;previous=top;if(stable)reading=top;return stable;},{timeout:3000,intervals:[50,100,150,300]}).toBe(true);
  await page.evaluate(()=>{const f=window.conversationFixture;f.content.style.height='2200px';f.controller.update('one',{top:440,tail:true});});
- await page.waitForTimeout(850);expect(await page.evaluate(()=>window.conversationFixture.element.scrollTop)).toBeCloseTo(reading,0);
+ await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
+ expect(await page.evaluate(()=>window.conversationFixture.element.scrollTop)).toBeCloseTo(reading,0);
 });
 
 test('restoration and prepended history keep their anchor without a cross-thread journey',async({page})=>{
@@ -48,7 +50,8 @@ test('restoration and prepended history keep their anchor without a cross-thread
   f.controller.update('one',{top:440,tail:true});const switched=f.element.scrollTop;return {restored,anchored,switched};
  });
  expect(positions).toEqual({restored:130,anchored:530,switched:840});
- await page.waitForTimeout(800);expect(await page.evaluate(()=>window.conversationFixture.element.scrollTop)).toBe(840);
+ await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
+ expect(await page.evaluate(()=>window.conversationFixture.element.scrollTop)).toBe(840);
 });
 
 test('reduced motion and disposal do not leave delayed scroll work',async({page})=>{
@@ -59,7 +62,8 @@ test('reduced motion and disposal do not leave delayed scroll work',async({page}
  await page.evaluate(()=>{const f=window.conversationFixture;f.content.style.height='2000px';f.controller.update('one',{top:1040,tail:true});});
  await expect.poll(()=>page.evaluate(()=>window.conversationFixture.element.scrollTop)).toBeGreaterThan(1040);
  const held=await page.evaluate(()=>{const f=window.conversationFixture;f.controller.dispose();return f.element.scrollTop;});
- await page.evaluate(()=>{window.conversationFixture.content.style.height='2400px';});await page.waitForTimeout(800);
+ await page.evaluate(()=>{window.conversationFixture.content.style.height='2400px';});
+ await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
  expect(await page.evaluate(()=>window.conversationFixture.element.scrollTop)).toBeCloseTo(held,0);
 });
 
@@ -67,5 +71,7 @@ for(const policy of ['off','reduced'] as const)test(`app ${policy} settles follo
  await page.emulateMedia({reducedMotion:'no-preference'});await mount(page);
  const position=await page.evaluate(async policy=>{const f=window.conversationFixture;f.content.style.height='1900px';f.controller.update('one',{top:440,tail:true});const before=f.element.scrollTop;document.documentElement.dataset.motion=policy;await Promise.resolve();const after=f.element.scrollTop;f.controller.beginManualScroll();f.controller.scrollTo(120);document.documentElement.dataset.motion='system';await Promise.resolve();document.documentElement.dataset.motion=policy;await Promise.resolve();return {before,after,detached:f.element.scrollTop};},policy);
  expect(position).toEqual({before:440,after:1540,detached:120});
- await page.evaluate(()=>{window.conversationFixture.controller.dispose();document.documentElement.dataset.motion='system';window.conversationFixture.content.style.height='2500px';});await page.waitForTimeout(50);expect(await page.evaluate(()=>window.conversationFixture.element.scrollTop)).toBe(120);
+ await page.evaluate(()=>{window.conversationFixture.controller.dispose();document.documentElement.dataset.motion='system';window.conversationFixture.content.style.height='2500px';});
+ await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
+ expect(await page.evaluate(()=>window.conversationFixture.element.scrollTop)).toBe(120);
 });

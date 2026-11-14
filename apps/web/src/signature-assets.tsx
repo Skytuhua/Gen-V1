@@ -23,15 +23,20 @@ function read(key: string): Pending[] {
   if (!Array.isArray(records) || records.length > 100 || records.some(record => !record || typeof record.id !== 'string' || typeof record.stateKey !== 'string' || typeof record.base64 !== 'string' || record.base64.length > 700_000)) throw new Error('The pending signature journal is invalid. Clear the mark to continue.');
   return records;
 }
+const corruptPrefix = 'harness:signature-assets-corrupt:v1:';
+function readSafe(key: string): Pending[] | null { try { return read(key); } catch { return null; } }
+/** Move an unreadable journal aside (raw payload preserved for diagnosis) so recovery paths can never wedge. */
+function quarantine(key: string) { const raw = localStorage.getItem(key); if (raw !== null) { try { localStorage.setItem(corruptPrefix + key, raw); } catch { /* Quota failures still unwedge the journal. */ } localStorage.removeItem(key); } emit(); }
+function recover(key: string): Pending[] { const records = readSafe(key); if (records !== null) return records; quarantine(key); return []; }
 function write(key: string, records: Pending[]) {
   if (records.length) localStorage.setItem(key, JSON.stringify(records)); else localStorage.removeItem(key);
   emit();
 }
 export function hasPendingDocumentAssets(threadId?: string, stateId?: string) {
-  if (threadId !== undefined && stateId !== undefined) {const key=keyFor(threadId,stateId);return (preparationCounts.get(key)??0)>0||read(key).length>0;}
+  if (threadId !== undefined && stateId !== undefined) {const key=keyFor(threadId,stateId),records=readSafe(key);return (preparationCounts.get(key)??0)>0||(records===null||records.length>0);}
   const start = threadId === undefined ? prefix : `${prefix}${encodeURIComponent(threadId)}:`;
   if([...preparationCounts].some(([key,count])=>key.startsWith(start)&&count>0))return true;
-  for (let index = 0; index < localStorage.length; index++) { const key = localStorage.key(index); if (key?.startsWith(start) && read(key).length) return true; }
+  for (let index = 0; index < localStorage.length; index++) { const key = localStorage.key(index); if (key?.startsWith(start)) { const records = readSafe(key); if (records === null || records.length) return true; } }
   return false;
 }
 const subscribe = (listener: () => void) => { listeners.add(listener); return () => { listeners.delete(listener); }; };
@@ -69,7 +74,7 @@ export function DocumentAssetProvider({ threadId, stateId = '', active = true, c
   useEffect(() => {
     if (!active) return;
     let alive = true;
-    for (const record of read(key)) {
+    for (const record of recover(key)) {
       if (record.resourceId) { store.set(pathFor(record.stateKey), { kind: 'image', resourceId: record.resourceId }); write(key, read(key).filter(item => item.id !== record.id)); continue; }
       if (record.error || inFlight.has(record.id)) continue;
       inFlight.add(record.id);
@@ -87,11 +92,11 @@ export function DocumentAssetProvider({ threadId, stateId = '', active = true, c
   }, [key, threadId, revision, store, active]);
   const value = useMemo<Assets>(() => ({
     beginPreparation:()=>{preparationCounts.set(key,(preparationCounts.get(key)??0)+1);emit();let completed=false;return()=>{if(completed)return;completed=true;const remaining=(preparationCounts.get(key)??1)-1;if(remaining>0)preparationCounts.set(key,remaining);else preparationCounts.delete(key);emit();};},
-    preview: stateKey => { const record = read(key).find(item => item.stateKey === stateKey); return record ? `data:image/png;base64,${record.base64}` : undefined; },
-    error: stateKey => read(key).find(item => item.stateKey === stateKey)?.error,
-    save: (stateKey, bytes) => { validateSignaturePng(bytes); const record = { id: crypto.randomUUID(), stateKey, base64: pngDataUrl(bytes).split(',')[1] }; write(key, [...read(key).filter(item => item.stateKey !== stateKey), record]); },
-    clear: stateKey => write(key, read(key).filter(item => item.stateKey !== stateKey)),
-    retry: () => write(key, read(key).map(({ error: _error, ...record }) => record)),
+    preview: stateKey => { const record = readSafe(key)?.find(item => item.stateKey === stateKey); return record ? `data:image/png;base64,${record.base64}` : undefined; },
+    error: stateKey => readSafe(key)?.find(item => item.stateKey === stateKey)?.error,
+    save: (stateKey, bytes) => { validateSignaturePng(bytes); const record = { id: crypto.randomUUID(), stateKey, base64: pngDataUrl(bytes).split(',')[1] }; write(key, [...recover(key).filter(item => item.stateKey !== stateKey), record]); },
+    clear: stateKey => write(key, recover(key).filter(item => item.stateKey !== stateKey)),
+    retry: () => write(key, recover(key).map(({ error: _error, ...record }) => record)),
     get: async (resourceId, signal) => { const identity = `${threadId}:${resourceId}`; const saved = cache.get(identity); if (saved) return saved.slice(); const bytes = await fetchSignaturePng(resourceId, signal); if (cache.size >= 64) cache.delete(cache.keys().next().value!); cache.set(identity, bytes); return bytes.slice(); },
   }), [key, threadId, revision]);
   return <Context.Provider value={value}>{children}</Context.Provider>;
