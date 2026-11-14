@@ -106,8 +106,11 @@ export function LogExplorer({element:{props}}:ComponentRenderProps){
  const inline=useContext(ArtifactInline);
  const p=EXPLORATION_SCHEMAS.LogExplorer.parse(props),store=useStateStore(),action=useTaskAction(),raw=store.get(inputPath(p.dataBinding)),scroll=useRef<HTMLDivElement>(null),[selectionError,setSelectionError]=useState('');
  const parsed=useMemo(()=>boundedExplorationData('LogExplorer',raw)?EXPLORATION_DATA_SCHEMAS.LogExplorer.safeParse(raw):null,[raw]),data=parsed?.success?parsed.data:null,saved=object(store.get(statePath(p.stateKey)));
- const query=typeof saved.query==='string'?saved.query.slice(0,200):'',needle=query.toLowerCase(),activeLevels=Array.isArray(saved.levels)?levels.filter(level=>saved.levels instanceof Array&&saved.levels.includes(level)):[...levels],follow=!inline&&saved.followTail===true;
- const events=data?.events??[],filtered=events.filter(event=>activeLevels.includes(event.level)&&(!query||[event.message,event.detail,event.stream,event.correlationId].some(value=>value?.toLowerCase().includes(needle))));
+
+ const query=typeof saved.query==='string'?saved.query.slice(0,200):'',follow=!inline&&saved.followTail===true;
+ const activeLevels=useMemo(()=>Array.isArray(saved.levels)?levels.filter(level=>saved.levels instanceof Array&&saved.levels.includes(level)):[...levels],[saved.levels]);
+ const events=useMemo(()=>data?.events??[],[data]);
+ const filtered=useMemo(()=>{const needle=query.toLowerCase();return events.filter(event=>activeLevels.includes(event.level)&&(!needle||[event.message,event.detail,event.stream,event.correlationId].some(value=>value?.toLowerCase().includes(needle))));},[events,activeLevels,query]);
  const correlations=useMemo(()=>{const counts=new Map<string,number>();for(const event of events)if(event.correlationId)counts.set(event.correlationId,(counts.get(event.correlationId)??0)+1);return counts;},[events]);
  const selected=saved.selectedId?filtered.find(event=>event.id===saved.selectedId):filtered[0],detail=useSelectionMotion(selected?.id);
  const save=(patch:Record<string,unknown>)=>{setSelectionError('');store.set(statePath(p.stateKey),{...object(store.get(statePath(p.stateKey))),...patch});};
