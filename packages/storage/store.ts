@@ -29,6 +29,7 @@ export class Store {
     messageBefore: ReturnType<DatabaseSync['prepare']>;
     messageCount: ReturnType<DatabaseSync['prepare']>;
     messageCountBefore: ReturnType<DatabaseSync['prepare']>;
+    snapshotMessages: ReturnType<DatabaseSync['prepare']>;
     put: ReturnType<DatabaseSync['prepare']>;
     remove: ReturnType<DatabaseSync['prepare']>;
     receipt: ReturnType<DatabaseSync['prepare']>;
@@ -62,6 +63,25 @@ export class Store {
       messageBefore: this.db.prepare("SELECT body FROM entities WHERE kind='message' AND thread_id=? AND rowid<? ORDER BY rowid DESC LIMIT ?"),
       messageCount: this.db.prepare("SELECT count(*) AS count FROM entities WHERE kind='message' AND thread_id=?"),
       messageCountBefore: this.db.prepare("SELECT count(*) AS count FROM entities WHERE kind='message' AND thread_id=? AND rowid<?"),
+      snapshotMessages: this.db.prepare(`
+        WITH groups AS (
+          SELECT thread_id, COUNT(*) AS total, MIN(rowid) AS first_row
+          FROM entities
+          WHERE kind='message' AND (thread_id IS NULL OR thread_id NOT IN (SELECT value FROM json_each(:archivedIds)))
+          GROUP BY thread_id
+        ), tails AS MATERIALIZED (
+          SELECT thread_id, total, CASE WHEN total <= :windowSize THEN first_row ELSE (
+            SELECT rowid FROM entities
+            WHERE kind='message' AND thread_id IS groups.thread_id
+            ORDER BY rowid DESC LIMIT 1 OFFSET (:windowSize - 1)
+          ) END AS first_retained
+          FROM groups
+        )
+        SELECT entity.body, tails.total
+        FROM tails CROSS JOIN entities AS entity
+        WHERE entity.kind='message' AND entity.thread_id IS tails.thread_id AND entity.rowid >= tails.first_retained
+        ORDER BY entity.rowid
+      `),
       put: this.db.prepare("INSERT INTO entities(kind,id,thread_id,body) VALUES(?,?,?,?) ON CONFLICT(kind,id) DO UPDATE SET thread_id=excluded.thread_id,body=excluded.body"),
       remove: this.db.prepare("DELETE FROM entities WHERE kind=? AND id=?"),
       receipt: this.db.prepare("SELECT hash,body FROM receipts WHERE id=?"),
@@ -150,18 +170,15 @@ export class Store {
     const refs = [...artifacts.flatMap(a => Object.values(a.bindings).flatMap(b => b.mode === "snapshot" ? [b.ref] : [])), ...requests.flatMap(r => r.basis)];
     for (const ref of refs) { const key = ref.id + "@" + ref.revision; if (!seen.has(key)) { const item = this.get<Snapshot["data"][number]>("dataVersion", key); if (item) { data.push(item); seen.add(key); } } }
     const skillUsage=new Map((this.db.prepare('SELECT id,body FROM entities WHERE kind=?').all('skillUsage') as {id:string;body:string}[]).map(row=>[row.id,JSON.parse(row.body) as {count:number;lastUsedAt:string}]));
-    // Cap the message list per thread: the client renders the tail and pages
-    // older messages through /api/threads/:id/messages on demand.
-    const allMessages = visible<Snapshot["messages"][number]>("message");
-    const grouped = new Map<string, Snapshot["messages"]>();
-    for (const message of allMessages) { const list = grouped.get(message.threadId); if (list) list.push(message); else grouped.set(message.threadId, [message]); }
-    const keep = new Set<string>(), messagesTruncated: Record<string, number> = {};
-    for (const [threadId, list] of grouped) {
-      const cut = Math.max(0, list.length - MESSAGE_WINDOW);
-      if (cut) messagesTruncated[threadId] = cut;
-      for (const message of list.slice(cut)) keep.add(message.id);
-    }
-    const messages = allMessages.filter(message => keep.has(message.id));
+    // Locate each visible thread's cutoff using the index, then read retained bodies.
+    // Keep global insertion order for consumers that combine messages across threads.
+    const rows = this.statements.snapshotMessages.all({archivedIds, windowSize: MESSAGE_WINDOW}) as {body:string; total:number}[];
+    const messagesTruncated: Record<string, number> = {};
+    const messages = rows.map(row => {
+      const message = JSON.parse(row.body) as Message;
+      if (row.total > MESSAGE_WINDOW) messagesTruncated[message.threadId] = row.total - MESSAGE_WINDOW;
+      return message;
+    });
     return {
       seq: this.sequence, threads, archivedThreads: allThreads.filter(thread => archived.has(thread.id)), messages, messagesTruncated, artifacts, userStates: visible("userState"),
       data, requests, accounts: this.all('account'), skills:this.all<import('../contracts/skills.ts').SkillSummary>('skill').map(skill=>{const usage=skillUsage.get(skill.name);return usage?{...skill,useCount:usage.count,lastUsedAt:usage.lastUsedAt}:skill;}),skillProposals:(this.db.prepare("SELECT json_remove(body,'$.operations') AS body FROM entities WHERE kind=? AND json_extract(body,'$.status')='pending'").all('skillProposal') as {body:string}[]).map(row=>JSON.parse(row.body)),learning:this.get('learningStatus','global')??{supported:false,status:'idle',lastReview:null},operations: visible("operation"), resources: visible("resource"), memory: visible('taskMemory'),
