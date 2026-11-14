@@ -48,8 +48,10 @@ export class Store {
     `);
     this.statements = {
       get: this.db.prepare("SELECT body FROM entities WHERE kind=? AND id=?"),
-      allKind: this.db.prepare("SELECT body FROM entities WHERE kind=?"),
-      allKindThread: this.db.prepare("SELECT body FROM entities WHERE kind=? AND thread_id=?"),
+      // rowid order is insertion order: callers rely on chronological message
+      // order for windowing, cursor paging, and tail slices.
+      allKind: this.db.prepare("SELECT body FROM entities WHERE kind=? ORDER BY rowid"),
+      allKindThread: this.db.prepare("SELECT body FROM entities WHERE kind=? AND thread_id=? ORDER BY rowid"),
       put: this.db.prepare("INSERT INTO entities(kind,id,thread_id,body) VALUES(?,?,?,?) ON CONFLICT(kind,id) DO UPDATE SET thread_id=excluded.thread_id,body=excluded.body"),
       remove: this.db.prepare("DELETE FROM entities WHERE kind=? AND id=?"),
       receipt: this.db.prepare("SELECT hash,body FROM receipts WHERE id=?"),
@@ -130,7 +132,7 @@ export class Store {
     const allThreads = this.all<Snapshot["threads"][number]>("thread");
     const archivedRows = this.db.prepare("SELECT id,body FROM entities WHERE kind=?").all("archivedThread") as { id: string; body: string }[];
     const archived = new Set(archivedRows.filter(row => JSON.parse(row.body)).map(row => row.id));
-    const visibleRows=this.db.prepare("SELECT body FROM entities WHERE kind=? AND (thread_id IS NULL OR thread_id NOT IN (SELECT value FROM json_each(?)))"),archivedIds=JSON.stringify([...archived]);
+    const visibleRows=this.db.prepare("SELECT body FROM entities WHERE kind=? AND (thread_id IS NULL OR thread_id NOT IN (SELECT value FROM json_each(?))) ORDER BY rowid"),archivedIds=JSON.stringify([...archived]);
     const visible=<T>(kind:string):T[] => (visibleRows.all(kind,archivedIds) as {body:string}[]).map(row=>JSON.parse(row.body) as T);
     const threads = allThreads.filter(thread => !archived.has(thread.id));
     const artifacts = visible<Snapshot["artifacts"][number]>("artifact"), requests = visible<Snapshot["requests"][number]>("request");
