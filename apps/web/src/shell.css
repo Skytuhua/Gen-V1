@@ -140,7 +140,7 @@
 .workspace-right.workspace-right-maximized { position:fixed; right:12px; top:12px; bottom:12px; border:1px solid var(--border); border-radius:12px; box-shadow:var(--elevation); overflow:hidden; }
 .workspace-right-header { height:53px; flex:0 0 53px; display:flex; align-items:center; padding:0 9px; gap:2px; border-bottom:1px solid var(--border); }
 .workspace-right-header [role=tablist] { display:flex; flex:1; min-width:0; gap:1px; overflow:auto; }
-.workspace-right-header [role=tab] { flex-shrink:0; white-space:nowrap; color:var(--muted); font-size:12px; padding:17px 8px 15px; border-bottom:2px solid transparent; }
+.workspace-right-header [role=tab] { flex-shrink:0; white-space:nowrap; color:var(--muted); font-size:12px; padding:17px 8px 15px; border-bottom:2px solid transparent; transition:color var(--ui-motion-tab) var(--ui-ease-move),border-bottom-color var(--ui-motion-tab) var(--ui-ease-move); }
 .workspace-right-header [role=tab][aria-selected=true] { color:var(--text); border-bottom-color:var(--text); }
 .workspace-panel-content { flex:1; min-height:0; overflow:auto; }
 .panel-toolbar { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 13px; border-bottom:1px solid var(--border); }
