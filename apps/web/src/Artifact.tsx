@@ -26,7 +26,7 @@ class ArtifactBoundary extends Component<{ children: ReactNode; resetKey: string
   componentDidUpdate(previous: { resetKey: string }) { if (previous.resetKey !== this.props.resetKey && this.state.error) this.setState({ error: '' }); }
   render() { return this.state.error ? <div className="notice" role="alert">This artifact could not be displayed. Your conversation and saved state are retained.<details><summary>Error details</summary>{this.state.error}</details><button className="secondary" onClick={() => this.setState({ error: '' })}><RotateCcw size={14} />Retry rendering</button></div> : this.props.children; }
 }
-export function Artifact({ artifact: incoming, snapshot, theme, refresh, onDirtyWidget, animateEntry = false,active=true,suspended=false,embedded=false }: { artifact: ArtifactRecord; snapshot: Snapshot; theme: 'light' | 'dark'; refresh: (snapshot?: Snapshot) => Promise<void>; onDirtyWidget?: (id: string, threadId: string, dirty: boolean) => void; animateEntry?: boolean;active?:boolean;suspended?:boolean;embedded?:boolean }) {
+export function Artifact({ artifact: incoming, snapshot, theme, refresh, onDirtyWidget, animateEntry = false,active=true,suspended=false,embedded=false }: { artifact: ArtifactRecord; snapshot: Snapshot; theme: 'light' | 'dark'; refresh: (snapshot?: Snapshot) => Promise<void>; onDirtyWidget?: (id: string, threadId: string, dirty: boolean, discard?: () => Promise<void>) => void; animateEntry?: boolean;active?:boolean;suspended?:boolean;embedded?:boolean }) {
   const workspace = useWorkspace();
   const desktop=useDesktop(),surface={kind:'artifact' as const,threadId:incoming.threadId,artifactId:incoming.id};
   const detached=useDetachedSurface(surface),pendingDesktop=usePendingSurface(surface),editorHeld=Boolean(detached||pendingDesktop||suspended||desktop?.closing);
@@ -99,7 +99,8 @@ export function Artifact({ artifact: incoming, snapshot, theme, refresh, onDirty
     if (result?.approvalRequired && expanded) await command('artifact.expand', { artifactId: artifact.id, expanded: false }, artifact.threadId);
     await refresh();
   };
-  const dirtyChanged = (value: boolean) => { setWidgetDirty(value); onDirtyWidget?.(artifact.id, artifact.threadId, value); };
+  const discardWidget = artifact.kind === 'widget' ? async () => { await widget.current?.releaseLease(); dirtyChanged(false); } : undefined;
+  const dirtyChanged = (value: boolean) => { setWidgetDirty(value); onDirtyWidget?.(artifact.id, artifact.threadId, value, discardWidget); };
   const discardAndArchive = async () => {
     if (archiving) return;
     setArchiving(true); setError('');
