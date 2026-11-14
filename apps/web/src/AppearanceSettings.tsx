@@ -61,8 +61,8 @@ export function AppearanceSettings({ preferences, theme, threads = [], projects:
   return <div className="appearance-settings">
     {visibleRows.length > 0 && <fieldset className="settings-card" disabled={busy}><legend>Appearance</legend>
       {visibleRows.map(row => <AppearanceRow key={row.label} label={row.label} description={row.description}>{row.control}</AppearanceRow>)}
-      {accentError && <p id="appearance-accent-error" role="alert" className="error-text appearance-error">{accentError}</p>}
-      {error && <p role="alert" className="error-text appearance-error">{error}</p>}
+      {accentError && <p id="appearance-accent-error" role="status" className="error-text appearance-error">{accentError}</p>}
+      {error && <p role="status" className="error-text appearance-error">{error}</p>}
       <div className="appearance-actions"><button type="button" className="quiet" onClick={() => { setDraft({ ...preferences, ...appearancePatch(DEFAULT_PREFERENCES) }); setDraftTheme('dark'); setPreview(false); applyAppearance(preferences); applyTheme(theme); }}><RotateCcw size={13}/>Reset appearance</button><span/>{preview && <span role="status">Preview</span>}<button type="button" className="secondary" disabled={!dirty || Boolean(accentError)} onClick={() => { applyAppearance(draft); applyTheme(draftTheme); setPreview(true); }}>Preview</button><button type="button" className="quiet" disabled={!dirty && !preview} onClick={restore}>Cancel</button><button type="button" className="primary" disabled={!dirty || Boolean(accentError)} onClick={() => { void save(appearancePatch(draft), draftTheme).then(ok => { if (ok) setPreview(false); else setError('Appearance could not be saved. Your changes are ready to retry.'); }); }}>Apply</button></div>
     </fieldset>}
     {showProjectColors && <section className="settings-card" aria-labelledby="project-colors-heading"><h2 id="project-colors-heading">Project colors</h2>{projects.length > 0 ? projects.map(project => {

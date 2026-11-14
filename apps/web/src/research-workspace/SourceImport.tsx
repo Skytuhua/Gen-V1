@@ -62,9 +62,9 @@ export function SourceImport({selection, draft, disabled=false, open, onClose, f
         {file?.relativePath === undefined && <label>Path inside grant (optional)<input aria-label="Path inside grant" value={path} onChange={event => {setPath(event.target.value); setReference(undefined);}} /></label>}
         <button type="button" onClick={() => void verify()}>Verify granted file</button>
         {reference && <p className="research-meta">Verified · {reference.bytes} bytes <code>{reference.sha256}</code></p>}
-      </> : <p>No file grants. Grant a file from this conversation, then retry.</p>}{filePage&&(filePage.hasMore||filePage.error)&&<button type="button" disabled={filePage.pending} onClick={filePage.more}>{filePage.error?'Retry granted files':'More granted files'}</button>}{filePage?.error&&<p role="alert">{filePage.error}</p>}<PendingStatus pending={Boolean(filePage?.pending)} label="Loading granted files..."/></>}
+      </> : <p>No file grants. Grant a file from this conversation, then retry.</p>}{filePage&&(filePage.hasMore||filePage.error)&&<button type="button" disabled={filePage.pending} onClick={filePage.more}>{filePage.error?'Retry granted files':'More granted files'}</button>}{filePage?.error&&<p role="status">{filePage.error}</p>}<PendingStatus pending={Boolean(filePage?.pending)} label="Loading granted files..."/></>}
       {mode === 'browser' && <p>{browser?.available && browser.authorized ? `Authorized capture: ${browser.label}` : 'Browser capture is unavailable on this host. Paste text or save a bookmark.'}</p>}
       <button type="submit" disabled={!title.trim() || mode === 'file' && !reference || mode === 'browser' && !(browser?.available && browser.authorized)}> {mode === 'bookmark' ? 'Save bookmark' : 'Capture source'}</button>
-    </fieldset><PendingStatus pending={pending} label="Capturing source…" />{error && <p role="alert">{error}</p>}</form>
+    </fieldset><PendingStatus pending={pending} label="Capturing source…" />{error && <p role="status">{error}</p>}</form>
   </Modal>;
 }

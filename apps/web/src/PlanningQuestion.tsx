@@ -19,7 +19,7 @@ export function PlanningQuestion({id,revision,title,prompt,options,allowCustom,v
   const activePending=pending??localPending;
   useEffect(()=>{if(activePending?.optionId&&activePending.kind!=='more-options')setExpanded(current=>({...current,[activePending.optionId!]:activePending.kind as PlanningDetailKind}));},[activePending?.optionId,activePending?.kind]);
   const parsed=options.length<=12?PlanningQuestionSchema.safeParse({options,allowCustom}):null;
-  if(!parsed?.success)return <section className="planning-question" aria-label={title}><p role="alert" className="error-text">This question could not be displayed. Ask the agent to refresh its options.</p></section>;
+  if(!parsed?.success)return <section className="planning-question" aria-label={title}><p role="status" className="error-text">This question could not be displayed. Ask the agent to refresh its options.</p></section>;
   const customSelected=Boolean(allowCustom&&(custom||value&&!options.some(option=>option.id===value)));
   const select=(selected:string)=>{setCustom(false);onChange(selected);};
   const request=async(kind:PlanningPending['kind'],optionId?:string)=>{
@@ -53,7 +53,7 @@ export function PlanningQuestion({id,revision,title,prompt,options,allowCustom,v
         })}
         {allowCustom&&(customSelected?<div className="planning-custom-option"><label htmlFor={`${group}-custom`}>Your option</label><div><input ref={customInput} id={`${group}-custom`} type="text" value={value} maxLength={4000} required onChange={event=>onChange(event.target.value)} onCompositionStart={()=>{composing.current=true;}} onCompositionEnd={()=>{composing.current=false;}}/><button type="button" className="icon-button" aria-label="Cancel custom option" onClick={()=>{setCustom(false);onChange('');}}><X size={14}/></button></div></div>:<button type="button" className="planning-add-custom" onClick={()=>{setCustom(true);onChange('');requestAnimationFrame(()=>customInput.current?.focus());}}><Plus size={13}/>Add my own option</button>)}
       </fieldset>
-      {(error||localError)&&<p role="alert" className="error-text planning-question-error">{error||localError}</p>}
+      {(error||localError)&&<p role="status" className="error-text planning-question-error">{error||localError}</p>}
       <footer className="planning-question-actions">{onMoreOptions&&<button className="quiet" type="button" disabled={busy||Boolean(activePending)} onClick={()=>void request('more-options')}>{activePending?.kind==='more-options'?<LoaderCircle size={13} className="planning-pending-icon"/>:<Plus size={13}/>}<span>{activePending?.kind==='more-options'?'Finding more options…':'More options'}</span></button>}<button className="primary" disabled={busy||!value.trim()} type="submit">{busy?'Submitting…':'Continue'}<ArrowUp size={14}/></button></footer>
     </form>
   </section>;

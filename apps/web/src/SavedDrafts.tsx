@@ -42,7 +42,7 @@ function SavedDraftsOwner({owner,input,disabled=false,resourceRefs=[]}:SavedDraf
     <p className="muted">Replace keeps the current text as a saved draft. Insert adds text at the saved caret. Current attachments, excerpts and skills stay selected.</p>
     <div className="saved-drafts-actions"><button type="button" className="secondary" disabled={busy} onClick={()=>close()}>Cancel</button>{(['insert','replace'] as const).map(mode=><button key={mode} type="button" className={mode==='replace'?'primary':'secondary'} disabled={busy||!dialog.plan.draft.text} onClick={()=>void run(async()=>{const position=await restoreSavedDraftText(owner,dialog.plan,mode,caret.current);if(current())close(position);})}>{mode==='insert'?'Insert text':'Replace text'}</button>)}</div>
    </>}
-   {busy&&<p role="status">Saving…</p>}{error&&<p role="alert">{error}</p>}
+   {busy&&<p role="status">Saving…</p>}{error&&<p role="status">{error}</p>}
   </Modal>
  </>;
 }

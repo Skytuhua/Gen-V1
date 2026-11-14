@@ -15,7 +15,7 @@ function Heading({title,caption}:{title?:string;caption:string}){
  return <header className="work-object-heading">{title&&title!==outer?<h3>{title}</h3>:<span/>}<span>{caption}</span></header>;
 }
 function Source({text}:{text?:string}){return text?<details className="work-object-source"><summary>Source</summary><p>{text}</p></details>:null;}
-function ActionError({error}:{error:string}){return error?<p className="error-text" role="alert">{error}</p>:null;}
+function ActionError({error}:{error:string}){return error?<p className="error-text" role="status">{error}</p>:null;}
 
 /** Only a deliberate local move animates; restored artifacts start settled. */
 function useBoardMotion(ref:RefObject<HTMLDivElement|null>,layout:string){

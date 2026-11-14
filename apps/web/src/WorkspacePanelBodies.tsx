@@ -18,7 +18,7 @@ export function WorkspaceLauncher({onOpenTool}:{onOpenTool?:(kind:WorkspacePanel
   const [error,setError]=useState('');
   const openTool=(kind:WorkspacePanelKind)=>{setError('');try{const result=onOpenTool?onOpenTool(kind):workspace.setActiveTab(kind as WorkspaceTab);if(result)void result.catch(cause=>setError(cause instanceof Error?cause.message:'The surface could not open.'));}catch(cause){setError(cause instanceof Error?cause.message:'The surface could not open.');}};
   const unavailable = 'Unavailable in this local harness';
-  return <section className="workspace-launcher" aria-label="Workspace launcher"><h3>Open a surface</h3>{error&&<p role="alert" className="error-text">{error}</p>}
+  return <section className="workspace-launcher" aria-label="Workspace launcher"><h3>Open a surface</h3>{error&&<p role="status" className="error-text">{error}</p>}
     <button type="button" aria-label="Terminal" onClick={()=>openTool('terminal')} title="Open an interactive host terminal"><Terminal size={18} /><span>Terminal</span><small>Interactive host session</small></button>
     <button type="button" aria-label="Files" onClick={() => openTool('files')}><Folder size={18} /><span>Files</span><small>Granted resources</small></button>
     <button type="button" aria-label="Diff" onClick={() => openTool('diff')}><GitCompare size={18} /><span>Diff</span><small>Prepared changes</small></button>

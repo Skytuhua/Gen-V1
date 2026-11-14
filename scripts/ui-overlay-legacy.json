@@ -97,7 +97,7 @@
       "column": 385,
       "rule": "ad-hoc-overlay",
       "message": "React portal: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "7933b79e35a474d3f164f8c09e104f98289c57172ba09aa8e003982efea1688f",
+      "fingerprint": "5f5d58037c9139a5ca167ad0e12996f196640e635abd71577d911c32410ffb22",
       "reason": "TOOLS: migrate document portal ownership with shared primitives after document recovery acceptance; portal content migrated to shared ErrorState.",
       "evidence": "createPortal(<section ref={windowRef} role=\"region\" aria-label={`${title} document window`} className=\"document-text-window\" data-escape-scope data-placement={placement} data-native-owner={nativeOwner} style={style} onSc",
       "disposition": "staged-migration"

@@ -113,7 +113,7 @@ function Select({ element: { props }, bindings }: ComponentRenderProps) {
 }
 function Button({ element: { props } }: ComponentRenderProps) {
   const action = useTaskAction(), store = useStateStore();
-  return <span className="surface-action"><button type="button" className={props.tone === 'primary' || props.variant === 'primary' ? 'primary' : props.tone === 'danger' ? 'secondary tone-danger' : 'secondary'} disabled={action.busy || props.disabled === true || !props.actionId} title={!props.actionId ? 'This control has no registered action.' : undefined} onClick={() => { if (props.actionId) void action.run(string(props.actionId), mapActionPayload(props, store.getSnapshot().values)); }}>{action.busy && props.disabled !== true ? 'Submitting…' : string(props.label, 'Continue')}</button>{action.error && <span role="alert" className="error-text">{action.error}</span>}</span>;
+  return <span className="surface-action"><button type="button" className={props.tone === 'primary' || props.variant === 'primary' ? 'primary' : props.tone === 'danger' ? 'secondary tone-danger' : 'secondary'} disabled={action.busy || props.disabled === true || !props.actionId} title={!props.actionId ? 'This control has no registered action.' : undefined} onClick={() => { if (props.actionId) void action.run(string(props.actionId), mapActionPayload(props, store.getSnapshot().values)); }}>{action.busy && props.disabled !== true ? 'Submitting…' : string(props.label, 'Continue')}</button>{action.error && <span role="status" className="error-text">{action.error}</span>}</span>;
 }
 function Chart({ element: { props } }: ComponentRenderProps) {
   const data = list(useData(props) ?? props.data);
@@ -166,7 +166,7 @@ function Tabs({ element: { props }, children, bindings }: ComponentRenderProps) 
   const parsed = tabStateData.safeParse(typeof props.statusBinding === 'string' ? store.get(`/inputs/${props.statusBinding}`) : undefined);
   const source = parsed.success ? parsed.data : undefined;
   const selected = source?.items.find(item => item.label === active);
-  if (new Set(labels).size !== labels.length) return <p role="alert">This saved tab view is invalid because its labels are not unique.</p>;
+  if (new Set(labels).size !== labels.length) return <p role="status">This saved tab view is invalid because its labels are not unique.</p>;
   return <div className={source ? 'task-tabs-operation' : undefined}>
     {source && (source.title || source.detail || source.status) && <header className="task-tabs-operation-header"><div>{source.title && source.title !== artifactTitle && <strong>{source.title}</strong>}{source.detail && <span>{source.detail}</span>}</div>{source.status && <StatusIcon status={source.status} />}</header>}
     <div className="surface-tabs" role="tablist" aria-label={string(props.label, 'Views')}>{labels.map((label, i) => {
@@ -187,7 +187,7 @@ function Form({ element: { props }, children }: ComponentRenderProps) {
     void action.run(string(props.actionId), mapActionPayload(props, submitted)).then(accepted => {
       if (accepted) for (const key of list(props.clearOnSuccess)) if (typeof key === 'string' && store.get(statePath(key)) === submitted[key]) store.set(statePath(key), '');
     });
-  }}>{props.title && props.title !== artifactTitle ? <h3>{string(props.title)}</h3> : null}{children}{action.error && <p className="error-text" role="alert">{action.error}</p>}<button type="submit" className="primary" title={string(props.submitLabel, 'Submit')} disabled={action.busy || !props.actionId}><span className="form-submit-label">{action.busy ? 'Submitting…' : string(props.submitLabel, 'Submit')}</span><CornerDownLeft className="form-submit-icon" size={15} aria-hidden="true" /></button></form>;
+  }}>{props.title && props.title !== artifactTitle ? <h3>{string(props.title)}</h3> : null}{children}{action.error && <p className="error-text" role="status">{action.error}</p>}<button type="submit" className="primary" title={string(props.submitLabel, 'Submit')} disabled={action.busy || !props.actionId}><span className="form-submit-label">{action.busy ? 'Submitting…' : string(props.submitLabel, 'Submit')}</span><CornerDownLeft className="form-submit-icon" size={15} aria-hidden="true" /></button></form>;
 }
 function BoundMarkdown({ element: { props } }: ComponentRenderProps) { const data = useData(props); return <Markdown text={string(props.text, string(data))} animate />; }
 function Metric({ element: { props } }: ComponentRenderProps) { const data = useData(props), value = data ?? props.value; return <div className="surface-metric"><span className="muted">{string(props.label)}</span><strong>{typeof value === 'number' ? value.toLocaleString(undefined, { maximumSignificantDigits: 21 }) : display(value)}{props.unit ? ` ${string(props.unit)}` : ''}</strong></div>; }
