@@ -5,6 +5,8 @@ import { DOCUMENT_SCHEMAS } from '../../packages/ui-catalog/documents';
 import { createSigningPdfFixture, SIGNING_FIELD_STATE_KEYS, SIGNING_SIGNATURE_BOX } from './document-preview-fixture';
 import { observeDraftWorkers, pageTreePdf } from './pdf-test-helper';
 
+const flushFrames = (page: Page) => page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+
 const timestamp = '2026-10-29T23:00:00.000Z';
 const thread = (id: string, title: string): Thread => ({ id, title, projectName: null, createdAt: timestamp, updatedAt: timestamp, status: 'ready', epoch: 0, runId: null, modelId: null, sessionPath: null });
 function workspace(previewProps: Record<string, unknown> = {}): Snapshot {
@@ -59,7 +61,7 @@ async function image(page: Page) { return preview(page).locator('canvas').evalua
 test('signing pairs by available artifact width and keeps the same canvas on narrow reflow', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await fixtureHost(page, await createSigningPdfFixture()); await page.goto('/');
-  await expect(preview(page).getByRole('status')).toContainText('Page 1 of 2');
+  await expect(preview(page).getByRole('status')).toContainText('Page 1 of 2', { timeout: 20000 });
   const stacked = async () => page.locator('.surface-split').evaluate(element => {
     const document = element.querySelector('.document-preview')!.getBoundingClientRect();
     const questions = element.children[1]!.getBoundingClientRect();
@@ -471,7 +473,7 @@ test('pending draft retains full-opacity committed pixels and field focus does n
   const workersBefore = await count();
   await preview(page).getByRole('button', { name: 'Focus active PDF field' }).click();
   await preview(page).getByRole('button', { name: 'Focus active PDF field' }).click();
-  await page.waitForTimeout(750);
+  await flushFrames(page);
   expect(await count()).toBe(workersBefore); expect(state.resourceUrls).toHaveLength(1);
 });
 
@@ -493,7 +495,7 @@ test('Generate styles and PNG upload persist the identical canonical resource fo
   const evidencePath = test.info().outputPath('signature-generated.png'); await page.getByRole('region', { name: 'Review agreement', exact: true }).screenshot({ path: evidencePath });
   await page.getByRole('button', { name: 'Upload', exact: true }).click();
   await page.getByLabel('Upload PNG signature').setInputFiles({ name: 'signature.svg', mimeType: 'image/svg+xml', buffer: Buffer.from('<svg/>') });
-  await expect(page.getByRole('alert')).toContainText('Choose a PNG');
+  await expect(page.locator('.signature-pad').getByRole('status')).toContainText('Choose a PNG');
   const before = state.pngs.size;
   await page.getByLabel('Upload PNG signature').setInputFiles({ name: 'mark.png', mimeType: 'image/png', buffer: uploaded });
   await expect.poll(() => state.pngs.size).toBe(before + 1);

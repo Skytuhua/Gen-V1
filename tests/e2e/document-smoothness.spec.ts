@@ -4,6 +4,13 @@ import { resolve } from 'node:path';
 import { createSigningPdfFixture } from './document-preview-fixture';
 import { serveTaskFixture, taskFixture, type TaskSpec } from './task-interface-fixture';
 
+const flushFrames = (page: Page) => page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+const scrollSettled = (locator: ReturnType<Page['locator']>) => locator.evaluate(node => new Promise<void>(resolve => {
+  let last = node.scrollTop, still = 0, frames = 0;
+  const tick = () => { const delta = Math.abs(node.scrollTop - last); last = node.scrollTop; still = delta < .5 ? still + 1 : 0; if (++frames > 240 || still >= 10) resolve(); else requestAnimationFrame(tick); };
+  requestAnimationFrame(tick);
+}));
+
 const spec: TaskSpec = { root: 'pair', elements: {
   pair: { type: 'Split', props: { ratio: .5 }, children: ['pdf', 'steps'] },
   pdf: { type: 'DocumentPreview', props: { resourceId: 'pdf', title: 'Agreement.pdf', activeFieldStateKey: 'field', fieldStateKeys: { Name: 'name', Title: 'title', Email: 'email' }, signatureStateKey: 'signature', signatureBox: { page: 1, x: 76, y: 214, width: 300, height: 60 } } },
@@ -37,7 +44,7 @@ async function fixture(page: Page) {
   });
   await page.goto('/');
   await expect(page.locator('.document-preview')).toHaveAttribute('data-preview-state', 'ready', { timeout: 15_000 });
-  await page.waitForTimeout(800);
+  await scrollSettled(page.locator('.document-preview-scroll'));
   const canvas = await page.locator('.document-preview canvas').elementHandle();
   return { ...host, canvas, fetches: () => fetches, emailTopFraction: (792 - email.y - email.height) / 792 };
 }
@@ -110,26 +117,26 @@ test('inline field and signature navigation pans while edits retain the same fra
  snapshot.resources=[{id:'pdf',threadId:'task-thread',kind:'file',path:'C:/fixture/agreement.pdf',label:'Agreement.pdf',writable:false,createdAt:'2026-10-30'}];
  const host=await serveTaskFixture(page,snapshot);let fetches=0;
  await page.route('**/api/resources/pdf/content',route=>{fetches++;return route.fulfill({contentType:'application/pdf',body:Buffer.from(source)});});
- await page.goto('/');await expect(page.locator('.document-preview')).toHaveAttribute('data-preview-state','ready',{timeout:15000});await page.waitForTimeout(750);
+ await page.goto('/');await expect(page.locator('.document-preview')).toHaveAttribute('data-preview-state','ready',{timeout:15000});await scrollSettled(page.locator('.document-preview-scroll'));
  const canvas=await page.locator('.document-preview canvas').elementHandle(),view=page.locator('.document-preview-scroll');
  const first=await view.evaluate(node=>node.scrollTop);
  await page.getByRole('button',{name:'Go to Email',exact:true}).click();
- await expect.poll(()=>view.evaluate(node=>node.scrollTop)).toBeGreaterThan(first+10);await page.waitForTimeout(700);
+ await expect.poll(()=>view.evaluate(node=>node.scrollTop)).toBeGreaterThan(first+10);await scrollSettled(view);
  const top=await view.evaluate(node=>node.scrollTop);
  await page.getByRole('textbox',{name:'Email',exact:true}).fill('new@example.test');
- await expect(page.locator('.document-preview')).toHaveAttribute('data-preview-state','ready',{timeout:15000});await page.waitForTimeout(500);
+ await expect(page.locator('.document-preview')).toHaveAttribute('data-preview-state','ready',{timeout:15000});await flushFrames(page);
  expect(Math.abs(await view.evaluate(node=>node.scrollTop)-top)).toBeLessThan(1);
- await host.publish();await page.waitForTimeout(300);expect(Math.abs(await view.evaluate(node=>node.scrollTop)-top)).toBeLessThan(1);
- await page.getByRole('button',{name:'Go to Signature',exact:true}).click();await page.waitForTimeout(750);
+ await host.publish();await flushFrames(page);expect(Math.abs(await view.evaluate(node=>node.scrollTop)-top)).toBeLessThan(1);
+ await page.getByRole('button',{name:'Go to Signature',exact:true}).click();await scrollSettled(view);
  const mark=await page.locator('.document-active-field').boundingBox(),viewport=await view.boundingBox();
  expect(mark!.y).toBeGreaterThanOrEqual(viewport!.y);expect(mark!.y+mark!.height).toBeLessThanOrEqual(viewport!.y+viewport!.height);
- await page.getByRole('button',{name:'Fit PDF page',exact:true}).click();await page.waitForTimeout(800);
+ await page.getByRole('button',{name:'Fit PDF page',exact:true}).click();await scrollSettled(view);await flushFrames(page);
  await expect(page.locator('.document-active-field')).toHaveCount(0);
  const whole=await page.locator('.document-preview-page').boundingBox();expect(whole!.height).toBeLessThanOrEqual(viewport!.height-28);
- await page.getByRole('button',{name:'Go to Review',exact:true}).click();await page.waitForTimeout(500);
+ await page.getByRole('button',{name:'Go to Review',exact:true}).click();await scrollSettled(view);
  await expect(page.locator('.document-preview')).toHaveAttribute('data-fit','page');
  expect(await page.locator('.document-preview canvas').evaluate((node,old)=>node===old,canvas)).toBe(true);expect(fetches).toBe(1);
- await page.setViewportSize({width:1440,height:720});await page.waitForTimeout(500);await view.scrollIntoViewIfNeeded();
+ await page.setViewportSize({width:1440,height:720});await scrollSettled(view);await view.scrollIntoViewIfNeeded();
  const chat=page.locator('.conversation-scroll');await chat.evaluate(node=>node.scrollTop=node.scrollHeight);await view.hover();
  const chatTop=await chat.evaluate(node=>node.scrollTop),pdfTop=await view.evaluate(node=>node.scrollTop);
  await page.mouse.wheel(0,-90);await expect.poll(()=>chat.evaluate(node=>node.scrollTop)).toBeLessThan(chatTop);
@@ -139,16 +146,17 @@ test('inline field and signature navigation pans while edits retain the same fra
 test('a nearby PDF field settles promptly and stops requesting scroll work at rest', async ({ page }) => {
   await fixture(page); await resetWrites(page);
   await page.getByRole('button', { name: 'Go to Title', exact: true }).click();
-  await page.waitForTimeout(500); const settled = await writes(page); expect(settled.length).toBeGreaterThan(1);
-  await page.waitForTimeout(170); expect((await writes(page)).length).toBe(settled.length);
+  await scrollSettled(page.locator('.document-preview-scroll')); const settled = await writes(page); expect(settled.length).toBeGreaterThan(1);
+  await flushFrames(page); expect((await writes(page)).length).toBe(settled.length);
 });
 
 test('manual PDF scrolling owns the viewport through background rerender and resize until the next field choice', async ({ page }) => {
-  const host = await fixture(page);
-  await page.getByRole('button', { name: 'Go to Email', exact: true }).click(); await page.waitForTimeout(70);
-  const view = page.locator('.document-preview-scroll'); await view.hover(); await page.mouse.wheel(0, 70);
+  const host = await fixture(page); const view = page.locator('.document-preview-scroll');
+  const topBefore = await view.evaluate(node => node.scrollTop);
+  await page.getByRole('button', { name: 'Go to Email', exact: true }).click(); await expect.poll(() => view.evaluate(node => node.scrollTop)).not.toBe(topBefore);
+  await view.hover(); await page.mouse.wheel(0, 70);
   await resetWrites(page); await page.setViewportSize({ width: 1300, height: 1000 });
-  await expect(page.locator('.document-preview')).toHaveAttribute('data-preview-state', 'ready', { timeout: 15_000 }); await page.waitForTimeout(850);
+  await expect(page.locator('.document-preview')).toHaveAttribute('data-preview-state', 'ready', { timeout: 15_000 }); await flushFrames(page); await flushFrames(page);
   expect(await writes(page)).toHaveLength(0);
   expect(await page.locator('.document-preview canvas').evaluate((node, old) => node === old, host.canvas)).toBe(true);
   expect(host.fetches()).toBe(1);
@@ -162,7 +170,7 @@ test('manual scrolling after a zoom choice wins over its still-preparing candida
     node.dispatchEvent(new WheelEvent('wheel', { deltaY: 50, bubbles: true })); node.scrollTop += 50;
     (window as unknown as { pdfPanWrites: PanWrite[] }).pdfPanWrites = [];
   });
-  await expect(page.locator('.document-preview')).toHaveAttribute('data-preview-state', 'ready', { timeout: 15_000 }); await page.waitForTimeout(850);
+  await expect(page.locator('.document-preview')).toHaveAttribute('data-preview-state', 'ready', { timeout: 15_000 }); await flushFrames(page); await flushFrames(page);
   expect(await writes(page)).toHaveLength(0);
 });
 
@@ -173,7 +181,8 @@ test('rapid same-page choices retain one preview and move toward the latest fiel
     while (performance.now() - start < 900) { positions.push({ time: performance.now() - start, top: node.scrollTop }); await new Promise<void>(resolve => requestAnimationFrame(() => resolve())); }
     return positions;
   });
-  await page.getByRole('button', { name: 'Go to Title', exact: true }).click(); await page.waitForTimeout(65);
+  const topBefore = await page.locator('.document-preview-scroll').evaluate(node => node.scrollTop);
+  await page.getByRole('button', { name: 'Go to Title', exact: true }).click(); await expect.poll(() => page.locator('.document-preview-scroll').evaluate(node => node.scrollTop)).not.toBe(topBefore);
   await page.getByRole('button', { name: 'Go to Email', exact: true }).click();
   const samples = await observations;
   const jumps = samples.slice(1).map((sample, index) => Math.abs(sample.top - samples[index].top));
@@ -186,15 +195,15 @@ test('rapid same-page choices retain one preview and move toward the latest fiel
 
 test('reduced motion applies PDF focus without a travelling scroll or continuing frame loop', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' }); await fixture(page); await resetWrites(page);
-  await page.getByRole('button', { name: 'Go to Email', exact: true }).click(); await page.waitForTimeout(150);
+  await page.getByRole('button', { name: 'Go to Email', exact: true }).click(); await flushFrames(page);
   const accepted = await writes(page); expect(accepted.length).toBeLessThanOrEqual(1);
-  await page.waitForTimeout(170); expect((await writes(page)).length).toBe(accepted.length);
+  await flushFrames(page); expect((await writes(page)).length).toBe(accepted.length);
   await expect(page.getByRole('textbox', { name: 'Email', exact: true })).toBeVisible();
 });
 
 test('the focus highlight identifies the new field instead of floating through unrelated document text', async ({ page }) => {
   const host = await fixture(page);
-  await page.getByRole('button', { name: 'Go to Email', exact: true }).click(); await page.waitForTimeout(80);
+  await page.getByRole('button', { name: 'Go to Email', exact: true }).click(); await expect(page.locator('.document-active-field')).toBeVisible();
   const fraction = await page.locator('.document-active-field').evaluate(node => {
     const field = node.getBoundingClientRect(), page = node.parentElement!.getBoundingClientRect(); return (field.top - page.top) / page.height;
   });

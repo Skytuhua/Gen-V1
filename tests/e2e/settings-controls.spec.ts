@@ -71,7 +71,7 @@ test('browser launch leaves the draft and owning modal intact when its save guar
   await installManualBrowserFixture(page);const {dialog,nav}=await openSettings(page);
   await page.evaluate(async()=>{const path='/src/editor-handoff.ts';const module=await import(path);module.registerEditorHandoff('synthetic-browser-block',async()=>{throw Error('Keep this draft safe');});});
   await nav.getByRole('button',{name:'Browser',exact:true}).click();await dialog.getByRole('button',{name:'Open browser',exact:true}).click();
-  await expect(dialog.getByRole('alert')).toContainText('Keep this draft safe');await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole('status').filter({hasText:'Keep this draft safe'})).toBeVisible();await expect(dialog).toBeVisible();
   expect(await page.evaluate(()=>(window as unknown as {manualBrowserCalls:unknown[]}).manualBrowserCalls)).toEqual([]);
   await expect(page.locator('textarea[aria-label="Message"]')).toHaveValue('Retain this conversation draft');
 });
@@ -131,7 +131,7 @@ test('dropdown popovers anchor to their trigger inside the settings dialog with 
   const { dialog, commands } = await openSettings(page);
   // Let the entrance animation finish; a forwards-filled transform used to keep the dialog
   // as the containing block for the fixed popover, shifting it and clipping it at the dialog edge.
-  await page.waitForTimeout(300);
+  await page.evaluate(() => Promise.all(document.getAnimations().filter(animation => animation.playState === 'running' ).map(animation => animation.finished.catch(() => {}))));
   const trigger = dialog.getByRole('combobox', { name: 'Time format', exact: true });
   await trigger.click();
   const list = dialog.getByRole('listbox', { name: 'Time format', exact: true });

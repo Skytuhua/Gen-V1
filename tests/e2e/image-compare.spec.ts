@@ -37,7 +37,8 @@ test('mode changes keep the same loaded images and do not distort different sour
   await page.setViewportSize({ width: 1440, height: 1100 });
   const host = await fixture(page, true); await page.goto('/'); await ready(page); const before = await page.getByRole('img', { name: 'Before', exact: true }).elementHandle(); const after = await page.getByRole('img', { name: 'After', exact: true }).elementHandle(), requests = host.requests();
   await page.locator('.image-compare').screenshot({ path: testInfo.outputPath('image-compare-light-overlay.png') });
-  await page.getByRole('button', { name: 'Side by side', exact: true }).click(); await page.waitForTimeout(400);
+  await page.getByRole('button', { name: 'Side by side', exact: true }).click();
+  await page.evaluate(() => Promise.all(document.getAnimations().filter(animation => animation.playState === 'running' ).map(animation => animation.finished.catch(() => {}))));
   expect(await page.getByRole('img', { name: 'Before', exact: true }).evaluate((node, prior) => node === prior, before)).toBe(true); expect(await page.getByRole('img', { name: 'After', exact: true }).evaluate((node, prior) => node === prior, after)).toBe(true); expect(host.requests()).toBe(requests);
   for (const image of await page.locator('.image-compare img').all()) expect(await image.evaluate(node => getComputedStyle(node).objectFit)).toBe('contain');
   await expect(page.getByText('Different image sizes', { exact: true })).toBeVisible();
@@ -48,7 +49,7 @@ test('mode changes keep the same loaded images and do not distort different sour
 test('changing either source clears prior pixels while loading and a denied replacement stays cleared until retry', async ({ page }) => {
   const host = await fixture(page); await page.goto('/'); await ready(page); host.hold(); host.deny(); host.snapshot.artifacts[0].spec!.elements.compare.props.afterResourceId = 'replacement'; host.snapshot.artifacts[0].revision++; await host.publish();
   await expect(page.locator('.image-compare').getByRole('status')).toContainText('Loading images'); await expect(page.locator('.image-compare-stage')).toHaveAttribute('data-ready', 'false'); await expect(page.getByRole('slider', { name: 'Comparison position', exact: true })).toBeDisabled();
-  host.release(); await expect(page.getByRole('alert')).toContainText('After image could not be loaded'); await expect(page.locator('.image-compare img')).toHaveCount(0);
+  host.release(); await expect(page.locator('.image-compare').getByRole('status')).toContainText('After image could not be loaded'); await expect(page.locator('.image-compare img')).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Retry images', exact: true })).toBeVisible();
   host.allow(); await page.getByRole('button', { name: 'Retry images', exact: true }).click(); await ready(page); await expect(page.getByRole('img', { name: 'After', exact: true })).toHaveAttribute('src', '/api/resources/replacement/content');
 });
@@ -63,9 +64,9 @@ test('narrow and reduced-motion comparison remains keyboard operable without tra
 test('revoking either grant or moving it to another thread clears both images without another content request', async ({ page }) => {
   const host = await fixture(page); await page.goto('/'); await ready(page); const requests = host.requests();
   host.snapshot.resources.find(resource => resource.id === 'after')!.threadId = 'other-thread'; await host.publish();
-  await expect(page.getByRole('alert')).toContainText('no longer available to this thread'); await expect(page.locator('.image-compare img')).toHaveCount(0); expect(host.requests()).toBe(requests);
+  await expect(page.getByRole('status').filter({ hasText: 'no longer available to this thread' })).toBeVisible(); await expect(page.locator('.image-compare img')).toHaveCount(0); expect(host.requests()).toBe(requests);
   host.snapshot.resources.find(resource => resource.id === 'after')!.threadId = 'task-thread'; await host.publish(); await ready(page);
-  host.snapshot.resources = host.snapshot.resources.filter(resource => resource.id !== 'before'); await host.publish(); await expect(page.getByRole('alert')).toContainText('no longer available to this thread'); await expect(page.locator('.image-compare img')).toHaveCount(0);
+  host.snapshot.resources = host.snapshot.resources.filter(resource => resource.id !== 'before'); await host.publish(); await expect(page.getByRole('status').filter({ hasText: 'no longer available to this thread' })).toBeVisible(); await expect(page.locator('.image-compare img')).toHaveCount(0);
 });
 
 for(const policy of ['off','reduced'] as const){

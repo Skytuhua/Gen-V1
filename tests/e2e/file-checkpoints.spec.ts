@@ -1,4 +1,6 @@
-import {expect,test} from '@playwright/test';
+import {expect,test,type Page} from '@playwright/test';
+
+const flushFrames=(page:Page)=>page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
 
 test.beforeEach(async({page})=>{await page.addInitScript(()=>{const calls:unknown[]=[];Object.defineProperty(window,'checkpointCalls',{value:calls});window.addEventListener('checkpoint-call',event=>calls.push((event as CustomEvent).detail));});await page.route('**/api/**',route=>route.abort('blockedbyclient'));});
 for(const width of [1440,1024,768])test(`History and existing diff review fit ${width}`,async({page},testInfo)=>{
@@ -121,7 +123,7 @@ for(const width of [1440,1024,768])test(`QA r2: held list does not move the pain
  await page.setViewportSize({width,height:1000});await page.goto('/file-checkpoints?state=loading');await expect(page.getByRole('status')).toBeVisible();
  const caption=page.locator('.file-checkpoints-caption'),before=(await caption.boundingBox())!;
  await page.evaluate(()=>{const shifts:number[]=[];Object.defineProperty(window,'checkpointShifts',{value:shifts});new PerformanceObserver(list=>{for(const entry of list.getEntries())if(!(entry as PerformanceEntry&{hadRecentInput:boolean}).hadRecentInput)shifts.push((entry as PerformanceEntry&{value:number}).value);}).observe({type:'layout-shift'});});
- await page.waitForTimeout(700);await page.evaluate(()=>window.dispatchEvent(new Event('checkpoint-release')));
+ await flushFrames(page);await page.evaluate(()=>window.dispatchEvent(new Event('checkpoint-release')));
  await expect(page.getByRole('button',{name:'Review Before updating workspace layout',exact:true})).toBeVisible();
  await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
  expect((await caption.boundingBox())!.y).toBeCloseTo(before.y,2);
