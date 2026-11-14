@@ -1,6 +1,7 @@
 import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 import { HarnessError, type Thread, type WorkspaceEvent } from '../contracts/index.ts';
-import { PLANNING_PROVENANCE, planDataId, type AgentJob } from '../contracts/planning.ts';
+import { z } from 'zod';
+import { PLANNING_PROVENANCE, planDataId, AgentJobSchema, type AgentJob } from '../contracts/planning.ts';
 import {
   agentScopeSchema, inventoryQuerySchema, historyQuerySchema, contentQuerySchema, updatesQuerySchema,
   type AgentScope, type AgentSummary, type InventoryQuery, type InventoryPage, type HistoryQuery, type HistoryPage,
@@ -15,6 +16,7 @@ interface MessageRow { row: number; id: string; threadId: string; role: MessageS
 const cmp = (a: string, b: string) => a < b ? -1 : a > b ? 1 : 0;
 const rootId = (id: string) => 'thread:' + id;
 const jobId = (parent: string, job: string) => `job:${encodeURIComponent(parent)}:${encodeURIComponent(job)}`;
+const agentJobsSchema = z.array(AgentJobSchema).max(24);
 const text = (value: string | undefined | null, size = 512) => value?.slice(0, size) ?? null;
 const invalidCursor = () => new HarnessError('INVALID_CURSOR', 'The cursor is invalid for this read scope');
 const resync = () => new HarnessError('RESYNC_REQUIRED', 'The read scope changed; resync from its first page');
@@ -94,7 +96,11 @@ export class AgentProjection implements PersonalAgentInventory {
   private jobs(parent: Thread): AgentJob[] {
     const row = this.store.db.prepare("SELECT json_extract(body,'$.value.agents') AS agents FROM entities WHERE kind='data' AND id=? AND thread_id=? AND json_extract(body,'$.threadId')=? AND json_extract(body,'$.provenance')=?")
       .get(planDataId(parent.id), parent.id, parent.id, PLANNING_PROVENANCE) as { agents: string | null } | undefined;
-    return row?.agents ? JSON.parse(row.agents) as AgentJob[] : [];
+    if (!row?.agents) return [];
+    try {
+      const parsed = agentJobsSchema.safeParse(JSON.parse(row.agents));
+      return parsed.success ? parsed.data : [];
+    } catch { return []; }
   }
   private action(threadId: string) {
     if (!this.actions.has(threadId)) {
