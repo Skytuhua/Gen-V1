@@ -8,18 +8,22 @@ export interface UsageProviderReport {
   limits?: readonly UsageLimitReport[]; error?: string;
 }
 const reported = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value) && value >= 0;
-const number = (value: number) => new Intl.NumberFormat(undefined, { maximumSignificantDigits: 21 }).format(value);
+const integerFormat = new Intl.NumberFormat(undefined, { maximumSignificantDigits: 21 });
+const costFormat = new Intl.NumberFormat(undefined, { maximumSignificantDigits: 12 });
+const percentFormat = new Intl.NumberFormat(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const resetFormat = new Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+const number = (value: number) => integerFormat.format(value);
 export const usageCount = (value: unknown) => reported(value) && Number.isSafeInteger(value) ? number(value) : 'Not reported';
-export const usagePercent = (value: unknown) => reported(value) && value <= 100 ? `${new Intl.NumberFormat(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(value)}%` : 'Not reported';
+export const usagePercent = (value: unknown) => reported(value) && value <= 100 ? `${percentFormat.format(value)}%` : 'Not reported';
 export function usageReset(value: string | null | undefined) {
   const text = value?.trim();
   if (!text) return 'Not reported';
   const date = new Date(text);
-  return Number.isNaN(date.getTime()) ? text : new Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' }).format(date);
+  return Number.isNaN(date.getTime()) ? text : resetFormat.format(date);
 }
 export function usageCost(value: UsageProviderReport['cost']) {
   if (!value || !reported(value.amount)) return 'Not reported';
-  return `${number(value.amount)} ${value.currency?.trim() || '(currency not reported)'}`;
+  return `${costFormat.format(value.amount)} ${value.currency?.trim() || '(currency not reported)'}`;
 }
 
 /** The snapshot is thread-scoped; it supplies neither currency nor reset timestamps. */

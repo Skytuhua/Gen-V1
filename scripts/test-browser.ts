@@ -14,6 +14,7 @@ export function runBrowserSuites(suites:BrowserSuite[], list=false):number {
   const cli=require.resolve('@playwright/test/cli');
   const directory=resolve(root,'test-results','browser',`run-${Date.now()}-${randomUUID()}`);
   console.log(`Browser results: ${directory}`);
+  const failed:{name:string,status:number}[]=[];
   for(const suite of suites){
     const output=resolve(directory,suite.name);
     mkdirSync(output,{recursive:true});
@@ -23,7 +24,11 @@ export function runBrowserSuites(suites:BrowserSuite[], list=false):number {
     const result=spawnSync(process.execPath,args,{cwd:root,stdio:'inherit',windowsHide:true,
       env:{...process.env,GEN_E2E:'1',GEN_MEMORY_MODE:'',GEN_BROWSER_OUTPUT_DIR:resolve(output,'artifacts'),...suite.env,PLAYWRIGHT_JSON_OUTPUT_FILE:resolve(output,list?'discovery.json':'results.json')}});
     if(result.error)throw result.error;
-    if(result.status!==0)return result.status??1;
+    if(result.status!==0)failed.push({name:suite.name,status:result.status??1});
+  }
+  if(failed.length){
+    console.error(`\nFailed browser suites: ${failed.map(suite=>`${suite.name} (exit ${suite.status})`).join(', ')}`);
+    return failed[0]!.status;
   }
   return 0;
 }

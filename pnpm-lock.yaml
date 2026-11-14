@@ -75,6 +75,9 @@ importers:
       ajv:
         specifier: 8.18.0
         version: 8.18.0
+      ajv-formats:
+        specifier: 3.0.1
+        version: 3.0.1(ajv@8.18.0)
       electron-updater:
         specifier: 6.8.11
         version: 6.8.11

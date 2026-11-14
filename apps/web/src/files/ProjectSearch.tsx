@@ -1,4 +1,4 @@
-import { useCallback, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { File, Search } from "lucide-react";
 import {
 	isComposing,
@@ -31,7 +31,13 @@ export function ProjectSearch(props: ProjectSearchProps) {
 		[query, setQuery] = useState("");
 	const input = useRef<HTMLInputElement>(null),
 		results = useRef<HTMLDivElement>(null),
-		composing = useRef(false);
+		composing = useRef(false),
+		commitTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+	useEffect(() => () => clearTimeout(commitTimer.current), []);
+	const commitQuery = useCallback((value: string) => {
+		clearTimeout(commitTimer.current);
+		commitTimer.current = setTimeout(() => setQuery(value), 300);
+	}, []);
 	const id = useId(),
 		error = projectSearchQueryError(query);
 	return (
@@ -55,11 +61,12 @@ export function ProjectSearch(props: ProjectSearchProps) {
 						}}
 						onCompositionEnd={(event) => {
 							composing.current = false;
+							clearTimeout(commitTimer.current);
 							setQuery(event.currentTarget.value.trim());
 						}}
 						onChange={(event) => {
 							setDraft(event.target.value);
-							if (!composing.current) setQuery(event.target.value);
+							if (!composing.current) commitQuery(event.target.value);
 						}}
 						onKeyDown={(event) => {
 							if (isComposing(event)) return;
@@ -71,6 +78,7 @@ export function ProjectSearch(props: ProjectSearchProps) {
 							}
 							if (event.key === "Escape") {
 								event.preventDefault();
+								clearTimeout(commitTimer.current);
 								setDraft("");
 								setQuery("");
 							}

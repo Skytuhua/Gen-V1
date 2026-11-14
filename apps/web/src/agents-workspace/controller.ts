@@ -55,6 +55,8 @@ export class AgentsWorkspaceController {
  private offset = 0;
  private rotation?: ReturnType<typeof setInterval>;
  private retry?: ReturnType<typeof setTimeout>;
+ private ancestorReload?: ReturnType<typeof setTimeout>;
+ private lastAncestorReload = 0;
  private disposed = false;
  private paused = false;
  private streamEpoch = 0;
@@ -155,8 +157,18 @@ export class AgentsWorkspaceController {
   mergeInventory(agents, this.matching, update);
   this.emit({agents: [...agents.values()], sequence: update.sequence});
   const changed = new Set(update.transcripts.map(item => item.agentId));
-  // Filtered parents are containers, so the API may omit their transcript invalidation.
-  for (const id of this.leased) if (agents.has(id) && (changed.has(id) || !this.matching.has(id))) void this.loadHistory(id, false, true);
+  for (const id of this.leased) if (agents.has(id) && changed.has(id)) void this.loadHistory(id, false, true);
+  // Filtered parents are containers whose transcript invalidation the API omits;
+  // coalesce their reloads instead of refetching on every inventory event.
+  if (this.leased.some(id => agents.has(id) && !this.matching.has(id))) {
+   const fire = () => {
+    this.lastAncestorReload = Date.now();
+    const current = new Set(this.state.agents.map(agent => agent.agentId));
+    for (const id of this.leased) if (current.has(id) && !this.matching.has(id)) void this.loadHistory(id, false, true);
+   };
+   if (Date.now() - this.lastAncestorReload >= 10_000) fire();
+   else { clearTimeout(this.ancestorReload); this.ancestorReload = setTimeout(fire, 1500); }
+  }
  }
  loadEarlier(id: string, beforeId?: string) {return this.loadHistory(id, true, false, beforeId);}
  retryHistory(id: string) {return this.loadHistory(id, false, true);}
@@ -210,5 +222,5 @@ export class AgentsWorkspaceController {
   } catch (cause) {if (!abort.signal.aborted && !this.disposed) state.error = cause instanceof Error ? cause.message : 'History could not load. Retry history.';}
   finally {if (this.histories.get(id) === abort) {state.pending = false; this.histories.delete(id); if (!this.disposed) {this.emit(); if (this.dirty.delete(id)) void this.loadHistory(id, false, true);}}}
  }
- dispose() {this.disposed = true; this.scopeAbort.abort(); this.stopStream(); this.histories.forEach(value => value.abort()); this.histories.clear(); if (this.rotation) clearInterval(this.rotation); this.listeners.clear();}
+ dispose() {this.disposed = true; this.scopeAbort.abort(); this.stopStream(); clearTimeout(this.ancestorReload); this.histories.forEach(value => value.abort()); this.histories.clear(); if (this.rotation) clearInterval(this.rotation); this.listeners.clear();}
 }

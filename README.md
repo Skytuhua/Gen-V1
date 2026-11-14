@@ -1,54 +1,65 @@
 <div align="center">
 
-<img src="docs/public/media/gen-banner.svg" width="100%" alt="Gen V1 — a conversation with room to work. A local AI workspace for Windows.">
+<p><strong>GEN V1 · WINDOWS PREVIEW</strong></p>
 
-# Your conversation. Your tools. One workspace.
+# AI answers you can work with
 
-Talk through a task. Work with an interactive view. Pick up where you left off.
+Ask for a study plan, a trip itinerary, or a comparison. Gen V1 puts a checklist, a set of options, or an interactive plan right in the conversation so you can start using it.
 
-**[Get started](docs/public/getting-started.md)** · **[Download the preview](https://github.com/Skytuhua/Gen-V1/releases/tag/v0.6.1)** · **[Watch a demo](#see-it-in-action)** · **[Contribute](#contribute-to-gen)**
+**[Watch the developer demo](docs/public/media/gen-v1-launch.mp4)** · **[Download the Windows preview](https://github.com/Skytuhua/Gen-V1/releases/tag/v0.6.1)** · **[Run from source](#run-from-source)**
 
-[Features](docs/public/features.md) · [Documentation](#find-your-way) · [Windows CI](https://github.com/Skytuhua/Gen-V1/actions/workflows/ci.yml) · [Changelog](CHANGELOG.md)
+<a href="docs/public/media/gen-v1-launch.mp4"><img src="docs/public/media/launch-workspace.webp" width="100%" alt="Watch the launch video. Shown: Gen V1 with a branch graph and the result of a sample pull request merge."></a>
 
 </div>
 
-<br>
+## See Gen in action
 
-![A looping capture of Gen’s document workspace with an authored sample brief open for review](docs/public/media/document-workflow.gif)
+### Turn a deadline into a study plan
 
-<p align="center"><sub>Actual Gen interface · Authored sample data · <a href="docs/public/media/readme-refresh.md">Screenshots, GIFs and provenance</a></sub></p>
+Ask for a checklist that fits 30 minutes a night. Check off the first sessions without copying the plan to another app.
 
-## A conversation can be a workspace
+![The user sends a study request, Gen displays a four-day checklist, and the user checks two sessions](docs/public/media/launch-study-plan.gif)
 
-A trace needs a timeline. A decision needs a comparison. A document needs an editor.
+[Watch the study plan video](docs/public/media/launch-study-plan.mp4)
 
-Gen is a local AI workspace for Windows that brings these working interfaces into the conversation. Your discussion, drafts and decisions stay together while you inspect the work and choose what comes next.
+### Choose a laptop without comparing three tabs
 
-| Work with the task | Keep the thread |
-| :--- | :--- |
-| **Interactive task interfaces**<br>A trusted catalog of 48 components supports traces, comparisons, documents, workflows and diagrams. | **State that stays with you**<br>Conversations, task interfaces and saved state persist. Newer draft edits are retained for review. |
-| **Your model, your account**<br>Search models and choose supported reasoning levels. Existing tasks retain their selected account. | **Skills you can inspect**<br>The original Hermes engine supplies skill tools, `/learn`, background review and visible revision history. |
-| **A familiar place to work**<br>Projects, threads, a compact composer, dark and light themes, and tools that minimize when you need room. | **Room to extend**<br>Separately versioned packages use the public plug-in API. Gen also runs without an installed plug-in. |
+Ask Gen to put sample laptops side by side. Sort by price, then by weight, and select the one you want to shortlist.
 
-**Connected inference, local working state.** The application host runs on your machine; model requests go to the provider you connect. OpenAI has recorded live task verification. Other provider routes require their own account and entitlement checks. [Connection reference →](docs/subscription-connections.md)
+![In Gen V1, the user sends a comparison request, sorts three laptops by price and weight, and selects a row](docs/public/media/launch-laptop-comparison.gif)
 
-## See it in action
+[Watch the laptop comparison video](docs/public/media/launch-laptop-comparison.mp4)
 
-### Work on a document
+### Make a weekend plan, then change it
 
-The animation above shows a brief and its review beside the conversation. Work on the content while keeping the discussion close.
+Ask for a Saturday itinerary with a backup for rain. Open the backup to see the details, then ask Gen to move it to the morning in the same thread.
 
-[Still image](docs/public/media/document-workspace.png) · [What this demonstrates](docs/public/media/readme-refresh.md#document-workspace)
+[Watch the weekend itinerary video](docs/public/media/launch-weekend-trip.mp4) · [See the GIF](docs/public/media/launch-weekend-trip.gif)
 
-### Keep the next steps in view
+### Review and merge a pull request
 
-![A looping capture of Gen’s task plan surface with authored sample steps](docs/public/media/plan-workflow.gif)
+Start by asking what changed. Open a commit to inspect conflicting lines, follow the checks, and choose when to merge.
 
-Follow a structured plan without leaving the thread.
+[Watch the PR workflow](docs/public/media/launch-pr-review-workflow.mp4) · [See the GIF](docs/public/media/launch-pr-review-workflow.gif)
 
-[Still image](docs/public/media/plan-workspace.png) · [What this demonstrates](docs/public/media/readme-refresh.md#plan-workspace)
+### Pinpoint a failed CI check
 
-These GIFs show the actual browser UI with authored sample data. They demonstrate interface behavior, without live model inference or external operations. Still images and [text descriptions](docs/public/media/readme-refresh.md) are available if you prefer to skip the animation.
+Search the build log, select the failed step, and open the compiler error right inside the conversation.
+
+[Watch the CI workflow](docs/public/media/launch-ci-log-workflow.mp4) · [See the GIF](docs/public/media/launch-ci-log-workflow.gif)
+
+These are recordings of the actual Gen browser interface using scripted responses and sample data. They are not live model runs. The PR workflow simulates check results and merging; nothing is sent to GitHub. [Transcripts, stills, and how to reproduce the recordings](docs/public/media/launch-demos.md).
+
+## What makes Gen different
+
+Gen combines **generative UI in the same thread, a local host that saves your progress, and a runtime that keeps each thread tied to the account you chose.** [See how that compares with other tools](docs/public/media/launch-demos.md#how-this-compares).
+
+- **Useful controls, not just a visual answer.** Gen renders typed tables, timelines, and review tools with the trusted component catalog. A selection or other supported edit belongs to the task, so it isn't lost in a screenshot or pasted transcript.
+- **A record of what actually happened.** The local host records accepted commands and keeps execution separate. Retried commands can return the same receipt, and interrupted work stays visible rather than being automatically repeated.
+- **One agent engine, multiple provider paths.** Gen runs the pinned Hermes engine locally and routes model calls to the thread's selected account. Gen does not silently rotate accounts or fall back to API-key billing. Model requests still go to the connected provider.
+- **The host owns consequential actions.** Model output can propose an action, but does not grant its own access. Resource grants, validation, and required approval remain host-controlled.
+
+[Architecture and recovery](docs/architecture.md) · [Provider support and limits](docs/subscription-connections.md) · [Plug-in API](docs/plugin-api.md)
 
 ## Get started
 
@@ -56,7 +67,7 @@ These GIFs show the actual browser UI with authored sample data. They demonstrat
 
 **[Download v0.6.1 for Windows x64 →](https://github.com/Skytuhua/Gen-V1/releases/tag/v0.6.1)**
 
-The published download is an **unsigned prerelease**. Read its notes and compare the installer with `SHA256SUMS.txt` before running it. The **0.6.4 source** includes newer workspace and plug-in changes shown in the gallery; it is not a published stable download.
+The published download is an **unsigned prerelease**. Read its notes and compare the installer with `SHA256SUMS.txt` before running it. The source tree includes newer workspace and plug-in changes than the installer. The [demo notes](docs/public/media/launch-demos.md) identify which source was recorded.
 
 [Installation and provider sign-in](docs/public/getting-started.md) · [Release status and known limits](docs/public/release-notes.md)
 
@@ -79,20 +90,12 @@ For the browser interface, use `pnpm dev` and open `http://127.0.0.1:5173`. Open
 
 Use the [development setup guide](docs/public/getting-started.md#develop-from-a-fresh-checkout) to create a separate data directory before sign-in and startup. See the [full setup reference](docs/getting-started.md) for runtime and packaging details. Repository access and use remain subject to [LICENSE](LICENSE).
 
-## Built around your working state
-
-The React interface and Windows Electron shell share a local Fastify host. SQLite stores application projections and operation receipts; the pinned original Hermes engine owns conversation state and source skill packages.
-
-- **Explicit connections.** Conversations, credentials and receipts live in local application directories. Connected providers receive model requests; inference is not offline.
-- **Account continuity.** Tasks retain their selected account. Gen does not automatically rotate accounts or fall back to API-key billing.
-- **Host-owned permissions.** Grants, validation and approvals bound supported file and operation access. Learned text and model output do not grant permissions.
-- **Reviewable extension boundaries.** Plug-in API v1 supports independent packages with declared capabilities and durable state. [Explore the API →](docs/plugin-api.md)
-
 <details>
 <summary><strong>Current preview boundaries</strong></summary>
 
+- OpenAI has recorded live task verification. Other provider routes need their own entitlement and inference checks.
 - Installed upgrade/update acceptance, the broader generation-quality pilot and physical mixed-DPI/multi-monitor acceptance remain open.
-- New native detachment is unavailable. Context and usage tools minimize within the workspace.
+- On desktop, conversations can detach into pinned windows. Canvas panel detachment is unavailable; context and usage tools minimize within the workspace.
 - The composer can browse installed skills. Binding a selected skill to a new message is unavailable.
 - Gemini/Cursor native compaction, the separate OpenCode agent runtime and Meta/Muse access are unavailable.
 - Generated-code interfaces use opaque workers, validated messages and a termination watchdog. This is not a hard operating-system memory quota. Approved native runtimes and project tests execute with local-user privileges.
