@@ -1186,6 +1186,7 @@
     "tests/shell-settings.test.ts",
     "tests/side-chat.test.ts",
     "tests/side-runtime-cleanup.test.ts",
+    "tests/sidebar-project-order.test.ts",
     "tests/signature-approval.test.ts",
     "tests/signature-pdf.test.ts",
     "tests/skills-http.test.ts",
