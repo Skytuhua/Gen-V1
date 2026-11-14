@@ -4,9 +4,33 @@ export class ApiError extends Error {
   constructor(public code: string, message: string, public details?: unknown) { super(message); }
 }
 
+// A same-origin endpoint bug or hostile response must not grow renderer memory
+// without bound; legitimate snapshot/message pages stay far below this cap.
+const MAX_JSON_BYTES = 64 * 1024 * 1024;
+async function readJson(response: Response): Promise<any> {
+  const body = response.body;
+  if (!body) return await response.json();
+  const reader = body.getReader();
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  try {
+    for (;;) {
+      const {done, value} = await reader.read();
+      if (done) break;
+      size += value.byteLength;
+      if (size > MAX_JSON_BYTES) { await reader.cancel(); throw new ApiError('RESPONSE_TOO_LARGE', `Response exceeded ${MAX_JSON_BYTES} bytes.`); }
+      chunks.push(value);
+    }
+  } finally { reader.releaseLock(); }
+  const bytes = new Uint8Array(size);
+  let offset = 0;
+  for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+
 export async function read<T>(response: Response): Promise<T> {
-  if (response.ok) return await response.json() as T;
-  const body = await response.json().catch((cause: unknown) => {
+  if (response.ok) return await readJson(response) as T;
+  const body = await readJson(response).catch((cause: unknown) => {
     if (cause instanceof SyntaxError) return null;
     throw cause;
   });
@@ -29,7 +53,7 @@ export async function authenticated(send: () => Promise<Response>) {
   await bootstrap();
   const session = bootstrapPromise;
   let response = await send();
-  const error = !response.ok ? await response.clone().json().catch(() => null) : null;
+  const error = !response.ok ? await readJson(response.clone()).catch(() => null) : null;
   if (response.status === 401 || error?.error?.code === 'AUTH_REQUIRED' || error?.error?.code === 'CSRF_REQUIRED') {
     await renewSession(session);
     response = await send();
