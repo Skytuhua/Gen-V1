@@ -51,10 +51,14 @@ describe('browser suite entrypoint',()=>{
     }finally{vi.unstubAllEnvs();}
   });
 
-  it('stops before another suite after a child failure and preserves its exit code',()=>{
-    vi.mocked(spawnSync).mockReturnValueOnce(result(7));
-    expect(runBrowserSuites([only('root'),only('terminal-read')])).toBe(7);
-    expect(spawnSync).toHaveBeenCalledTimes(1);
+  it('runs every suite after a child failure and preserves its exit code',()=>{
+    const error=vi.spyOn(console,'error').mockImplementation(()=>{});
+    try{
+      vi.mocked(spawnSync).mockReturnValueOnce(result(7));
+      expect(runBrowserSuites([only('root'),only('terminal-read')])).toBe(7);
+      expect(spawnSync).toHaveBeenCalledTimes(2);
+      expect(error).toHaveBeenCalledWith(expect.stringContaining('root'));
+    }finally{error.mockRestore();}
   });
 
   it('retains prior reports when the same suite is invoked again',()=>{
