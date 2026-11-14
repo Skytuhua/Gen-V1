@@ -1,28 +1,36 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { Message, Snapshot } from '../../../packages/contracts';
 import { getThreadMessages } from './api';
 
 // Snapshot messages are windowed per thread (see store.snapshot). Views that
 // render full history merge the window with older pages fetched on demand.
 // `eager` keeps paging until nothing older remains (transcript-style views).
-export function useThreadMessages(snapshot: Snapshot, threadId: string | undefined, eager = false) {
+export function useThreadMessages(snapshot: Pick<Snapshot, 'messages' | 'messagesTruncated'>, threadId: string | undefined, eager = false) {
   const [older, setOlder] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [exhausted, setExhausted] = useState(false);
   const request = useRef(0);
-  useEffect(() => { request.current++; setOlder([]); setError(''); setExhausted(false); }, [threadId]);
+  const owner = useRef(threadId);
+  const lastHead = useRef<string | undefined>(undefined);
+  useLayoutEffect(() => {
+    owner.current = threadId;
+    lastHead.current = undefined;
+    setOlder([]); setLoading(false); setError(''); setExhausted(false);
+    return () => { request.current++; };
+  }, [threadId]);
   const window = threadId ? snapshot.messages.filter(message => message.threadId === threadId) : [];
   const windowIds = new Set(window.map(message => message.id));
-  const messages = [...older.filter(message => !windowIds.has(message.id)), ...window];
+  const owned = owner.current === threadId;
+  const currentOlder = owned ? older : [];
+  const messages = [...currentOlder.filter(message => !windowIds.has(message.id)), ...window];
   const truncated = threadId ? snapshot.messagesTruncated?.[threadId] ?? 0 : 0;
-  const remaining = Math.max(0, truncated - older.length);
+  const remaining = Math.max(0, truncated - currentOlder.length);
   const windowHead = window[0]?.id;
-  const lastHead = useRef<string | undefined>(undefined);
   const loadMore = useCallback(() => {
-    if (!threadId || !windowHead || exhausted) return Promise.resolve();
+    if (!threadId || owner.current !== threadId || !windowHead || exhausted) return Promise.resolve();
     const id = ++request.current;
-    setLoading(true);
+    setLoading(true); setError('');
     // Anchor on the server window's first message only until it stops moving:
     // the page heals the gap a refetch may have opened. Once the head is
     // stable, page strictly before the earliest fetched message so clicks
@@ -44,5 +52,5 @@ export function useThreadMessages(snapshot: Snapshot, threadId: string | undefin
       .finally(() => { if (request.current === id) setLoading(false); });
   }, [threadId, windowHead, exhausted, older]);
   useEffect(() => { if (eager && remaining > 0 && !loading && !error && !exhausted) void loadMore(); }, [eager, remaining, loading, error, exhausted, loadMore]);
-  return { messages, remaining, loadMore, loading, error };
+  return { messages, remaining, loadMore, loading: owned && loading, error: owned ? error : '' };
 }
