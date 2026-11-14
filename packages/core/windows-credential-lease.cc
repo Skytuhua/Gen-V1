@@ -19,22 +19,23 @@ struct Lease {
   bool released = false;
   ~Lease() {for (auto handle : handles) if (handle != INVALID_HANDLE_VALUE) CloseHandle(handle);}
 };
-void require(bool condition) {if (!condition) throw std::runtime_error("unavailable");}
+void require(bool condition, const char* stage = "Protected credential evidence is unavailable.") {if (!condition) throw std::runtime_error(stage);}
 void check(napi_status status) {require(status == napi_ok);}
-napi_value denied(napi_env env, const char* code = "PI_CREDENTIAL_LEASE_UNAVAILABLE") {
-  napi_throw_error(env, code, "Protected credential evidence is unavailable."); return nullptr;
+napi_value denied(napi_env env, const char* code = "PI_CREDENTIAL_LEASE_UNAVAILABLE", const char* message = "Protected credential evidence is unavailable.") {
+  napi_throw_error(env, code, message); return nullptr;
 }
 void finalize(napi_env, void* data, void*) {delete static_cast<Lease*>(data);}
 HANDLE open(Lease& lease, const std::wstring& path, bool leaf) {
   HANDLE handle = CreateFileW(path.c_str(), leaf ? GENERIC_READ | READ_CONTROL : FILE_READ_ATTRIBUTES,
     leaf ? FILE_SHARE_READ : FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_EXISTING,
     FILE_FLAG_OPEN_REPARSE_POINT | (leaf ? 0 : FILE_FLAG_BACKUP_SEMANTICS), nullptr);
-  require(handle != INVALID_HANDLE_VALUE); lease.handles.push_back(handle);
+  require(handle != INVALID_HANDLE_VALUE, leaf ? "Credential file could not be opened." : "Credential ancestor could not be opened.");
+  lease.handles.push_back(handle);
   BY_HANDLE_FILE_INFORMATION info{};
-  require(GetFileType(handle) == FILE_TYPE_DISK && GetFileInformationByHandle(handle, &info));
-  require(!(info.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT));
-  require(bool(info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != leaf);
-  if (leaf) require(info.nNumberOfLinks == 1 && info.nFileSizeHigh == 0 && info.nFileSizeLow <= LIMIT);
+  require(GetFileType(handle) == FILE_TYPE_DISK && GetFileInformationByHandle(handle, &info), "Credential metadata is unreadable.");
+  require(!(info.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT), "Credential path crosses a reparse point.");
+  require(bool(info.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != leaf, "Credential path type mismatch.");
+  if (leaf) require(info.nNumberOfLinks == 1 && info.nFileSizeHigh == 0 && info.nFileSizeLow <= LIMIT, "Credential file fails link and size bounds.");
   return handle;
 }
 void privateFile(HANDLE handle) {
@@ -48,11 +49,12 @@ void privateFile(HANDLE handle) {
   const bool obtained = GetTokenInformation(token, TokenUser, bytes.data(), size, &size);
   CloseHandle(token); require(obtained);
   PSID user = reinterpret_cast<TOKEN_USER*>(bytes.data())->User.Sid;
-  require(owner && EqualSid(owner, user) && acl);
   BYTE system[SECURITY_MAX_SID_SIZE], admins[SECURITY_MAX_SID_SIZE];
   DWORD systemSize = sizeof(system), adminSize = sizeof(admins);
   require(CreateWellKnownSid(WinLocalSystemSid, nullptr, system, &systemSize));
   require(CreateWellKnownSid(WinBuiltinAdministratorsSid, nullptr, admins, &adminSize));
+  // Server policy can own admin-created files by the Administrators group, not the user.
+  require(owner && (EqualSid(owner, user) || EqualSid(owner, admins)) && acl, "Credential file is not owned by this user or its Administrators.");
   for (DWORD i = 0; i < acl->AceCount; ++i) {
     void* raw = nullptr; require(GetAce(acl, i, &raw)); auto* header = static_cast<ACE_HEADER*>(raw);
     if (header->AceFlags & INHERIT_ONLY_ACE) continue;
@@ -101,7 +103,7 @@ napi_value read(napi_env env, napi_callback_info info) {
     require(ReadFile(lease.handles.back(), bytes.data(), static_cast<DWORD>(bytes.size()), &count, nullptr));
     require(count == lease.identity.nFileSizeLow); current(lease);
     napi_value result; check(napi_create_buffer_copy(env, count, bytes.data(), nullptr, &result)); return result;
-  } catch (...) {return denied(env);}
+  } catch (const std::runtime_error& e) {return denied(env, "PI_CREDENTIAL_LEASE_UNAVAILABLE", e.what());} catch (...) {return denied(env);}
 }
 napi_value release(napi_env env, napi_callback_info info) {
   try {
@@ -113,7 +115,7 @@ napi_value release(napi_env env, napi_callback_info info) {
     lease.released = true;
     if (lease.keepalive) {check(napi_delete_reference(env, lease.keepalive)); lease.keepalive = nullptr;}
     napi_value result; check(napi_get_undefined(env, &result)); return result;
-  } catch (...) {return denied(env);}
+  } catch (const std::runtime_error& e) {return denied(env, "PI_CREDENTIAL_LEASE_UNAVAILABLE", e.what());} catch (...) {return denied(env);}
 }
 napi_value acquire(napi_env env, napi_callback_info info) {
   try {
@@ -125,7 +127,12 @@ napi_value acquire(napi_env env, napi_callback_info info) {
     HANDLE held = open(*lease, lease->path, true); privateFile(held);
     std::vector<wchar_t> canonical(32768);
     DWORD length = GetFinalPathNameByHandleW(held, canonical.data(), static_cast<DWORD>(canonical.size()), FILE_NAME_NORMALIZED | VOLUME_NAME_DOS);
-    require(length > 4 && length < canonical.size() && std::wstring(canonical.data(), 4) == L"\\\\?\\" && _wcsicmp(canonical.data() + 4, lease->path.c_str()) == 0);
+    std::vector<wchar_t> spelled(32768);
+    // The caller may spell ancestors as 8.3 short names (e.g. %TEMP% on hosted
+    // runners); the canonical handle name always expands them.
+    const DWORD spelledLength = GetLongPathNameW(lease->path.c_str(), spelled.data(), static_cast<DWORD>(spelled.size()));
+    require(length > 4 && length < canonical.size() && spelledLength > 0 && spelledLength < spelled.size()
+      && std::wstring(canonical.data(), 4) == L"\\\\?\\" && _wcsicmp(canonical.data() + 4, spelled.data()) == 0, "Credential path does not resolve to itself.");
     require(GetFileInformationByHandle(held, &lease->identity)); current(*lease);
     napi_value result, method; check(napi_create_object(env, &result)); check(napi_type_tag_object(env, result, &TAG));
     check(napi_create_function(env, "read", NAPI_AUTO_LENGTH, read, nullptr, &method)); check(napi_set_named_property(env, result, "read", method));
@@ -134,7 +141,7 @@ napi_value acquire(napi_env env, napi_callback_info info) {
     Lease* owned = lease.release();
     // A dropped JS wrapper must not silently restore writes before explicit settlement.
     check(napi_create_reference(env, result, 1, &owned->keepalive)); return result;
-  } catch (...) {return denied(env);}
+  } catch (const std::runtime_error& e) {return denied(env, "PI_CREDENTIAL_LEASE_UNAVAILABLE", e.what());} catch (...) {return denied(env);}
 }
 napi_value initialize(napi_env env, napi_value exports) {
   napi_value method; if (napi_create_function(env, "acquire", NAPI_AUTO_LENGTH, acquire, nullptr, &method) != napi_ok) return denied(env);

@@ -97,11 +97,11 @@ describe('overlay entry motion', () => {
         }, policy);
         for (const measurement of measurements) {
           expect(measurement.blur).toBe('blur(6px)');
-          if (policy === 'full' && measurement.className !== 'ui-modal') {
-            // Proves that the real pseudo-element animation is observed by getAnimations().
-            expect(measurement.animations).toEqual([{duration: 170, opacity: ['0', '1']}]);
+          expect(measurement.name, JSON.stringify(measurement)).toBe('none');
+          if (policy === 'full' && measurement.className.includes('ui-modal')) {
+            // Every shared modal fades its real backdrop pseudo-element in.
+            expect(measurement.animations).toEqual([{duration: 180, opacity: ['0', '1']}]);
           } else {
-            expect(measurement.name, JSON.stringify(measurement)).toBe('none');
             expect(measurement.animations, JSON.stringify(measurement)).toEqual([]);
           }
         }
