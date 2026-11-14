@@ -20,11 +20,20 @@ export function recoverEffects(store: Store): { uncertain: string[]; interrupted
   for (const effect of store.all<ToolEffectRecord>("toolEffect")) {
     if (effect.state === "DISPATCHED") {
       // An operation dispatch that committed its own record before the crash is
-      // a recorded result, not an uncertainty: settle the effect from it.
+      // a recorded result, not an uncertainty: settle the effect from it. The
+      // binding is validated — a caller can choose any invocationId, so the
+      // effect must genuinely be that operation's dispatch (same tool, thread
+      // and revision) before the operation's outcome is inherited.
       const opMatch = /^operation:(.+)@(\d+)$/.exec(effect.invocationId);
       const operation = opMatch ? store.get<Operation>("operation", opMatch[1]) : null;
-      const recorded = operation && ["succeeded", "failed", "cancelled"].includes(operation.status)
-        ? ({ succeeded: "SUCCEEDED", failed: "FAILED", cancelled: "CANCELLED" } as const)[operation.status as "succeeded" | "failed" | "cancelled"]
+      const bound = Boolean(
+        operation &&
+        effect.toolId === "operation:" + operation!.kind &&
+        effect.threadId === operation!.threadId &&
+        effect.owner.threadId === operation!.threadId &&
+        Number(opMatch![2]) === operation!.revision);
+      const recorded = bound && ["succeeded", "failed", "cancelled"].includes(operation!.status)
+        ? ({ succeeded: "SUCCEEDED", failed: "FAILED", cancelled: "CANCELLED" } as const)[operation!.status as "succeeded" | "failed" | "cancelled"]
         : null;
       store.internal("toolEffect.recovered", effect.threadId, () => {
         const current = store.get<ToolEffectRecord>("toolEffect", effect.invocationId);
