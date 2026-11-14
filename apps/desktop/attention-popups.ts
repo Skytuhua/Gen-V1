@@ -24,9 +24,13 @@ export function createAttentionPopups(options:Options){
    // Current privacy applies to cards already on screen and waiting in the queue.
    // Purging also clears their timers; restoring a policy cannot resurrect them.
    if((displayPolicy!==undefined&&displayPolicy!==policy||quiet||!show)&&(active.length||queue.length))purge();displayPolicy=policy;
-   const fresh=delivery.items.filter(item=>!seen.has(item.notificationKey));for(const item of fresh){seen.add(item.notificationKey);while(seen.size>2000)seen.delete(seen.values().next().value!);}if(!fresh.length||quiet)return;if(!show&&!sound)return;
+   const fresh=delivery.items.filter(item=>!seen.has(item.notificationKey));if(!fresh.length)return;
+   // Do not consume an eligible item or start its expiry until the window exists.
+   if(!quiet&&(show||sound)){await window();if(closed)return;}
+   for(const item of fresh){seen.add(item.notificationKey);while(seen.size>2000)seen.delete(seen.values().next().value!);}
+   if(quiet||!show&&!sound)return;
    if(show){const grouped=new Map<string,{item:AttentionItem;count:number}>();for(const item of fresh){const old=grouped.get(item.threadId);grouped.set(item.threadId,{item,count:(old?.count??0)+1});}for(const{item,count}of grouped.values()){if(queue.length>=30)break;queue.push({eventId:item.id,title:prefs.preview==='private'?'Gen V1 needs your attention':item.title,body:prefs.preview==='full'?item.summary:prefs.preview==='private'?'Open Inbox to review.':item.state==='completed'?'Task finished':item.state==='failed'?'Task needs attention':item.actionable?'Your response is needed':'Updated',state:item.state,count});}fill();}
-   await window();render(sound?Math.max(0,Math.min(1,prefs.volume)):0);
+   render(sound?Math.max(0,Math.min(1,prefs.volume)):0);
   }catch{/* Inbox remains durable; a disconnected host never creates a substitute notification. */}finally{polling=undefined;}})();
  const loop=async()=>{await poll();if(running&&!closed)pollTimer=setTimeout(()=>void loop(),2000);};
  return{poll,start(){if(running)return;closed=false;running=true;void loop();},stop(){closed=true;running=false;clearTimeout(pollTimer);for(const value of active)clearTimeout(value.timer);active.length=0;queue.length=0;native?.destroy();native=undefined;creating=undefined;displayPolicy=undefined;},displayChanged(){layout();}};

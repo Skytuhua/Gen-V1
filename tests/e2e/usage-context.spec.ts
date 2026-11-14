@@ -1,6 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
 import { resolve } from 'node:path';
-import { quiescent } from './settle';
 const fixture = '/@fs/' + resolve('tests/e2e/usage-context-fixture.tsx').replaceAll('\\', '/');
 const update = async (page: Page, action: string) => {
   await expect(page.locator('html')).toHaveAttribute('data-usage-fixture-ready', 'true');
@@ -166,6 +165,5 @@ test('invalidating a receipt ends accepted motion immediately and after its time
   await update(page,'cancelled');await expect(context(page)).toContainText('Compaction stopped');
   expect(await context(page).locator('.context-measurement-accepted').count()).toBe(0);
   expect(await context(page).locator('.context-receipt-pulse').count()).toBe(0);
-  expect(await quiescent(page, 750, () => context(page).locator('.context-measurement-accepted,.context-receipt-pulse').count())).toHaveLength(1);
-  expect(await context(page).locator('.context-measurement-accepted,.context-receipt-pulse').count()).toBe(0);
+  await expect(context(page).locator('.context-measurement-accepted,.context-receipt-pulse')).toHaveCount(0);
 });

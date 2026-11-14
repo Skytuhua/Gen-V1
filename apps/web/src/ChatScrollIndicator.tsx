@@ -1,5 +1,5 @@
 import {useEffect,useId,useRef,useState,type KeyboardEvent,type PointerEvent,type RefObject} from 'react';
-import type {createConversationScroll} from './conversation-scroll';
+import {observeConversationExtent,type createConversationScroll} from './conversation-scroll';
 import './chat-scroll-indicator.css';
 
 export interface ChatScrollIndicatorProps {
@@ -19,10 +19,9 @@ export function ChatScrollIndicator({scrollRef,controllerRef,contentKey}:ChatScr
   let frame=0;
   const measure=()=>{frame=0;const next={top:element.scrollTop,maximum:Math.max(0,element.scrollHeight-element.clientHeight),ratio:element.scrollHeight?Math.min(1,element.clientHeight/element.scrollHeight):1,height:track.current?.clientHeight??element.clientHeight};setMetrics(previous=>Object.keys(next).every(key=>previous[key as keyof typeof next]===next[key as keyof typeof next])?previous:next);};
   const schedule=()=>{if(!frame)frame=requestAnimationFrame(measure);};
-  const resize=new ResizeObserver(schedule),mutation=new MutationObserver(()=>{observe();schedule();});
-  const observe=()=>{resize.disconnect();resize.observe(element);for(const child of element.children)resize.observe(child);};
-  observe();mutation.observe(element,{childList:true,subtree:true,characterData:true});element.addEventListener('scroll',schedule,{passive:true});window.addEventListener('blur',finish);schedule();
-  return()=>{cancelAnimationFrame(frame);resize.disconnect();mutation.disconnect();element.removeEventListener('scroll',schedule);window.removeEventListener('blur',finish);finish();};
+  const stopObservingExtent=observeConversationExtent(element,schedule);
+  element.addEventListener('scroll',schedule,{passive:true});window.addEventListener('blur',finish);schedule();
+  return()=>{cancelAnimationFrame(frame);stopObservingExtent();element.removeEventListener('scroll',schedule);window.removeEventListener('blur',finish);finish();};
  },[scrollRef,controllerRef,contentKey,id]);
  const height=Math.min(metrics.height,Math.max(24,metrics.height*metrics.ratio)),travel=Math.max(0,metrics.height-height);
  const top=metrics.maximum?Math.max(0,Math.min(travel,metrics.top/metrics.maximum*travel)):0;

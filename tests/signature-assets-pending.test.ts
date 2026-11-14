@@ -17,9 +17,11 @@ it('detects retained signature journals outside the currently mounted conversati
  records.clear();expect(hasPendingDocumentAssets()).toBe(false);
 });
 
-it('refuses an invalid retained signature journal when checking renderer-wide reload safety',()=>{
+it('treats an invalid retained signature journal as pending without throwing',()=>{
  records.set(key('unmounted-owner','state'),'{}');
- expect(()=>hasPendingDocumentAssets()).toThrow('pending signature journal is invalid');
+ expect(hasPendingDocumentAssets()).toBe(true);
+ expect(hasPendingDocumentAssets('unmounted-owner','state')).toBe(true);
+ expect(hasPendingDocumentAssets('other-owner')).toBe(false);
 });
 
 it('preserves exact thread and state scope for existing callers',()=>{

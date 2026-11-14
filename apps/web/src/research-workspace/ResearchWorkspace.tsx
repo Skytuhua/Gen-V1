@@ -27,9 +27,9 @@ function ResearchBody({selection, importDraft, disabled=false, topic, ownerContr
   const [resource, setResource] = useState<ResearchResource | null>(selection.resource), [sources, setSources] = useState<ResearchSource[]>([]), [documents, setDocuments] = useState<ResearchDocumentHead[]>([]);
   const [cursors, setCursors] = useState<{sources: string | null; documents: string | null}>({sources: null, documents: null});
   const [pending, setPending] = useState(true), [error, setError] = useState(''), [refresh, setRefresh] = useState(0);
-  const [importOpen, setImportOpen] = useState(false), [menuOpen, setMenuOpen] = useState(false), [draftVersion, setDraftVersion] = useState(0), [target, setTarget] = useState<string>();
+  const [importOpen, setImportOpen] = useState(false), [menuOpen, setMenuOpen] = useState(false), [draftVersion, setDraftVersion] = useState(0);
   const [passage, setPassage] = useState<ResearchPassage>(), [passageVisit, setPassageVisit] = useState(0), [width, setWidth] = useState(244), [chatSize, setChatSize] = useState(45);
-  const owner = useRef<HTMLDivElement>(null), current = useRef(true), pageRequest = useRef(false);
+  const owner = useRef<HTMLDivElement>(null), current = useRef(true), pageRequest = useRef(false), target = useRef<string | undefined>(undefined);
   useEffect(() => {current.current = true; return () => {current.current = false;};}, []);
   const bump = () => setDraftVersion(v => v + 1);
   const resourceKey = JSON.stringify(selection.resource);
@@ -42,7 +42,7 @@ function ResearchBody({selection, importDraft, disabled=false, topic, ownerContr
       .finally(() => {if (!controller.signal.aborted) setPending(false);});
     return () => controller.abort();
   }, [refresh]);
-  function navigate(next: ResearchResource) {setResource(next); setPassage(undefined); if (next.kind === 'document') setTarget(next.id); onNavigate({...selection, resource: next});}
+  function navigate(next: ResearchResource) {setResource(next); setPassage(undefined); if (next.kind === 'document') target.current = next.id; onNavigate({...selection, resource: next});}
   function create(kind: ResearchDocument['kind']) {const draft = drafts.create(selection, kind); bump(); navigate({kind: 'document', id: draft.id});}
   async function more(kind: 'sources' | 'documents') {
     if (pageRequest.current || !cursors[kind]) return;
@@ -57,7 +57,7 @@ function ResearchBody({selection, importDraft, disabled=false, topic, ownerContr
     finally {pageRequest.current = false; if (current.current) setPending(false);}
   }
   function cite(ref: ResearchPassage) {
-    let draft = target ? drafts.get(selection, target) : undefined;
+    let draft = target.current ? drafts.get(selection, target.current) : undefined;
     if (!draft) draft = drafts.create(selection, 'findings');
     if (!draft.citations.some(item => JSON.stringify(item) === JSON.stringify(ref))) drafts.edit(selection, draft.id, {citations: [...draft.citations, ref]});
     bump(); navigate({kind: 'document', id: draft.id});

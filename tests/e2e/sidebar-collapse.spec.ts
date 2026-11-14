@@ -35,7 +35,7 @@ async function fixture(page: Page, preferences: Record<string, unknown> = {}, mo
   if (monitor) {
     await page.route('**/api/workspace', route => route.fulfill({json: {projects: [], state: {
       version: 1, revision: 1, activeCanvasId: 'all-agents',
-      canvases: [{id: 'all-agents', name: 'All Agents', preset: 'all-agents', panels: [], viewport: {x: 0, y: 0, zoom: 1}}],
+      canvases: [{id: 'all-agents', name: 'All Agents', preset: 'all-agents', version: 1, panels: [], filter: 'all', projectIds: [], viewport: {x: 0, y: 0, zoom: 1}}],
       profiles: [], disabledKinds: [], integrations: {},
     }}}));
     await page.route('**/api/agents**', route => route.fulfill({json: {

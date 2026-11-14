@@ -91,3 +91,15 @@ it('does not accept unsolicited download events or publish invalid progress',asy
 });
 
 it('honors the updater rollout and OS eligibility decision before downloading',async()=>{const f=fixture();f.updater.info!.isUpdateAvailable=false;await f.controller.check();expect(f.updater.downloads).toBe(0);expect(f.controller.status().state).toBe('current');f.controller.dispose();});
+
+it('reports a defer rather than an installation if close evidence changes at dispatch', async()=>{
+ const updater=new FakeUpdater();
+ const safe={activeWorkAtClose:false,osSessionEnding:false,savedStateFlushed:true,backendStoppedCleanly:true};
+ let interrupted=false;
+ const controller=createDesktopUpdater({updater,installed:true,currentVersion:'0.6.3',isStableNewerVersion,compatibility:async()=>({allowed:true}),notify:status=>{if(status.state==='installing')interrupted=true;}});
+ await controller.check();
+ expect(await controller.installAfterClose(()=>({...safe,osSessionEnding:interrupted}),true)).toBe(false);
+ expect(updater.installs).toEqual([]);
+ expect(controller.status()).toMatchObject({state:'deferred',version:'0.7.0'});
+ controller.dispose();
+});

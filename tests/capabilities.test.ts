@@ -183,6 +183,16 @@ describe("real selected SQLite", () => {
     expect(result.changes).toBe(1); expect(result.integrity).toBe("ok");
     const db = new DatabaseSync(join(s.root, "data.sqlite"), { readOnly: true }); expect(db.prepare("SELECT done FROM tasks WHERE id=1").get()?.done).toBe(1); db.close();
   });
+  it("bounds inspect rows by serialized bytes and reports truncation", async () => {
+    const s = await sandbox();
+    const db = new DatabaseSync(join(s.root, "data.sqlite"));
+    db.exec("CREATE TABLE blobs(id INTEGER PRIMARY KEY, data TEXT)");
+    db.exec("INSERT INTO blobs VALUES(1, hex(zeroblob(5000000))),(2, 'small')");
+    db.close();
+    const inspection = await handleDomainTool("database_inspect", { resourceId: "database", table: "blobs" }, s.ctx) as DataRecord;
+    expect(inspection.value).toMatchObject({ totalRows: 2, rowsTruncated: true });
+    expect((inspection.value as { rows: unknown[] }).rows.length).toBeLessThan(2);
+  });
   it("rolls back wrong counts, denies attachment and rejects stale database versions", async () => {
     const s = await sandbox(); await database(s);
     const wrong = await handleDomainTool("database_prepare", { resourceId: "database", mode: "transaction", statements: [{ sql: "UPDATE tasks SET done=1", expectedChanges: 1 }] }, s.ctx) as Operation;

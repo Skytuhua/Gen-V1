@@ -40,13 +40,18 @@ export class SkillCatalogRepository {
    try{const value=JSON.parse(Buffer.from(parts[0],'base64url').toString('utf8'));if(value.context!==context||!Number.isSafeInteger(value.offset)||value.offset<1||typeof value.revision!=='string')throw Error();offset=value.offset;expected=value.revision;}catch{fail('INVALID_CURSOR','Choose a current catalog page.');}
   }
   const inventory=await this.inventory(query);if(expected&&expected!==inventory.revision)fail('SKILL_CATALOG_CHANGED','The catalog changed. Start again from its first page.');
-  const terms=(query.query??'').toLowerCase().trim().split(/\s+/).filter(Boolean),sources=new Map(inventory.sources.map(s=>[s.id,s]));
-  const entries=inventory.items.map(i=>i.entry).filter(entry=>terms.every(term=>`${entry.name} ${entry.description} ${sources.get(entry.sourceId)?.label??''}`.toLowerCase().includes(term)));
-  if(offset>entries.length)fail('INVALID_CURSOR','Choose a current catalog page.');
+  const terms=(query.query??'').toLowerCase().trim().split(/\s+/).filter(Boolean);
+  const entries=inventory.items.map(i=>i.entry);
+  const sourceLabels=new Map(inventory.sources.map(s=>[s.id,s.label]));
+  const matching=terms.length?entries.filter(entry=>{
+   const searchText=`${entry.name} ${entry.description} ${sourceLabels.get(entry.sourceId)??''}`.toLowerCase();
+   return terms.every(term=>searchText.includes(term));
+  }):entries;
+  if(offset>matching.length)fail('INVALID_CURSOR','Choose a current catalog page.');
   const skills:SkillCatalogEntry[]=[];let bytes=0;
-  for(const entry of entries.slice(offset,offset+limit)){const size=Buffer.byteLength(JSON.stringify(entry));if(bytes+size>192*1024)break;skills.push(entry);bytes+=size;}
+  for(const entry of matching.slice(offset,offset+limit)){const size=Buffer.byteLength(JSON.stringify(entry));if(bytes+size>192*1024)break;skills.push(entry);bytes+=size;}
   const next=offset+skills.length;let nextCursor:string|null=null;
-  if(next<entries.length){if(!skills.length)fail('RESOURCE_LIMIT','A catalog entry exceeds the response limit.');const payload=Buffer.from(JSON.stringify({context,offset:next,revision:inventory.revision})).toString('base64url');nextCursor=payload+'.'+createHmac('sha256',this.secret).update(payload).digest('base64url');}
+  if(next<matching.length){if(!skills.length)fail('RESOURCE_LIMIT','A catalog entry exceeds the response limit.');const payload=Buffer.from(JSON.stringify({context,offset:next,revision:inventory.revision})).toString('base64url');nextCursor=payload+'.'+createHmac('sha256',this.secret).update(payload).digest('base64url');}
   return{scope:this.scope,sources:inventory.sources,skills,inventoryRevision:inventory.revision,nextCursor};
  }
  /** Freshness/custody inspection only. SKSEND must independently admit and materialize on Send. */

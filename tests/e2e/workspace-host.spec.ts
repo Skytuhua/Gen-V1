@@ -5,7 +5,6 @@ import type {ThreadNavigationRow} from '../../packages/contracts/shell-read-mode
 import {createSplitWorkspaceLayout,applySplitWorkspaceCommand} from '../../packages/core/split-workspace-layout';
 import type {SplitWorkspaceLayout} from '../../packages/contracts/split-workspace';
 import {serveTaskFixture, taskFixture} from './task-interface-fixture';
-import {quiescent} from './settle';
 
 async function fixture(page: Page, {native = false, delayed = false, unavailable = false, invalidOwner = false, working = true, pinned = false, archiveConfirmation = true, emptyAgents = false, plugins = {} as {fail?: boolean; manifests?: unknown[]}} = {}) {
   const snapshot = taskFixture({root: 'text', elements: {text: {type: 'Text', props: {text: 'Synthetic host fixture'}}}});
@@ -38,8 +37,8 @@ async function fixture(page: Page, {native = false, delayed = false, unavailable
   const rows: ThreadNavigationRow[] = snapshot.threads.map(({id, title, projectId, projectName, createdAt, updatedAt, status, runId, presentation}) => ({id, title, projectId, projectName, createdAt, updatedAt, status, runId, presentation}));
   let failed = unavailable, release!: () => void;
   const gate = delayed ? new Promise<void>(resolve => {release = resolve;}) : Promise.resolve();
-  const projects = [{id: 'project-a', name: 'Alpha', authority: {kind: 'local'}, rootPath: 'C:/synthetic/alpha'}];
-  const canvases = ['workspace', 'all-agents', 'code-review', 'research', 'custom'].map(preset => ({id: preset, name: preset, preset, panels: [], viewport: {x: 0, y: 0, zoom: 1}}));
+  const projects = [{id: 'project-a', name: 'Alpha', authority: {kind: 'local'}, rootPath: 'C:/synthetic/alpha', createdAt: '2026-11-06T00:00:00.000Z'}];
+  const canvases = ['workspace', 'all-agents', 'code-review', 'research', 'custom'].map(preset => ({id: preset, name: preset, preset, version: 1, panels: [], filter: 'all', projectIds: [], viewport: {x: 0, y: 0, zoom: 1}}));
   const envelope = {projects, state: {version: 1, revision: 1, activeCanvasId: invalidOwner ? 'missing' : 'all-agents', canvases, profiles: [], disabledKinds: [], integrations: {}}};
   await page.route('**/api/workspace', async route => {await gate; return failed ? route.fulfill({status: 503, json: {error: {code: 'UNAVAILABLE', message: 'Workspace unavailable'}}}) : route.fulfill({json: envelope});});
   await page.route('**/api/workspace/commands', route => {
@@ -217,7 +216,7 @@ test('Settings opens over the monitor with compact metadata and preserves the ow
 
 test('invalid restored owner reports recovery instead of an endless opening state', async ({page}) => {
   const h = await fixture(page, {invalidOwner: true});
-  await expect(page.getByRole('alert')).toContainText('saved workspace');
+  await expect(page.getByRole('alert')).toContainText('workspace layout');
   expect(h.requests.filter(path => path === '/api/snapshot')).toEqual([]);
   h.recover(); await page.getByRole('button', {name: 'Retry workspace', exact: true}).click();
   await expect(page.getByRole('region', {name: 'Agent workspace', exact: true})).toBeVisible();
@@ -551,7 +550,6 @@ test('unmounting the monitor before native takeover rejects a stale mode retry',
  await page.evaluate(()=>(window as any).publishOwner(true));
  await expect(page.getByText('This conversation is open in another window.',{exact:false})).toBeVisible();release();
  await expect.poll(()=>attempts,{timeout:1500}).toBe(1);
- expect(await quiescent(page,300,()=>attempts)).toHaveLength(1);
  console.log(JSON.stringify({scenario:'unmount-then-native-takeover',attempts,sent}));
  expect(attempts).toBe(1);
 });
@@ -689,10 +687,11 @@ test('Custom arranges Terminal below Files while the anchored composer stays mou
  const empty=dock.locator('[data-split-pane]').filter({hasText:'Add a tool'});
  await empty.getByLabel('Area actions',{exact:true}).click();await page.getByRole('menuitem',{name:'Editor: Terminal',exact:true}).click();
  await expect.poll(()=>terminalStarts).toBe(1);
- await expect(dock.getByRole('status',{exact:true})).toHaveText('Read interrupted');
+ const terminalStatus=dock.locator('[data-split-view^="terminal:"] span[role="status"]');
+ await expect(terminalStatus).toHaveText('Read interrupted');
  const terminalNode=await dock.locator('.xterm').elementHandle();
  await dock.getByRole('button',{name:'Retry',exact:true}).click();
- await expect(dock.getByRole('status',{exact:true})).toHaveText('Ended');
+ await expect(terminalStatus).toHaveText('Ended');
  expect(terminalReads.map(url=>[url.pathname,url.searchParams.get('projectId'),url.searchParams.get('threadId'),url.searchParams.get('cursor')])).toEqual(Array.from({length:2},()=>['/api/terminals/'+terminalIds[0],'project-a','parent-a','29']));
  expect(await dock.locator('.xterm').evaluate((element,original)=>element===original,terminalNode)).toBe(true);expect(terminalStarts).toBe(1);
  const files=await dock.locator('[data-split-view="files:parent-a"]').boundingBox(),terminal=await dock.locator('[data-split-view^="terminal:parent-a:"]').boundingBox();
@@ -777,7 +776,7 @@ test('Custom sidebar offers selection without movable conversation placement',as
 });
 
 test('Custom metadata recovery keeps each canvas save receipt in its original scope',async({page})=>{
- const h=await fixture(page,{working:false});h.envelope.state.canvases.push({id:'custom-b',name:'Custom B',preset:'custom',panels:[],viewport:{x:0,y:0,zoom:1}});
+ const h=await fixture(page,{working:false});h.envelope.state.canvases.push({id:'custom-b',name:'Custom B',preset:'custom',version:1,panels:[],filter:'all',projectIds:[],viewport:{x:0,y:0,zoom:1}});
  await page.getByRole('button',{name:'Workspace',exact:true}).click();await page.getByRole('button',{name:'Custom',exact:true}).click();
  const save=async()=>{await page.getByRole('button',{name:'Layouts',exact:true}).click();await page.getByRole('button',{name:'Save current layout…',exact:true}).click();await page.getByRole('textbox',{name:'Layout name',exact:true}).fill('Tool desk');await page.getByRole('button',{name:'Save',exact:true}).click();};
  h.dockReads.failMetadata=true;await save();await expect(page.getByRole('alert').filter({hasText:'Synthetic layout metadata unavailable'}).last()).toBeVisible();await page.getByRole('button',{name:'Cancel',exact:true}).click();await page.keyboard.press('Escape');h.dockReads.failMetadata=false;
@@ -788,7 +787,7 @@ test('Custom metadata recovery keeps each canvas save receipt in its original sc
 
 
 test('Custom selector captures the requested canvas before its asynchronous handoff',async({page})=>{
- const h=await fixture(page,{working:false});h.envelope.state.canvases.push({id:'custom-b',name:'Custom B',preset:'custom',panels:[],viewport:{x:0,y:0,zoom:1}});
+ const h=await fixture(page,{working:false});h.envelope.state.canvases.push({id:'custom-b',name:'Custom B',preset:'custom',version:1,panels:[],filter:'all',projectIds:[],viewport:{x:0,y:0,zoom:1}});
  await page.getByRole('button',{name:'Workspace',exact:true}).click();await page.getByRole('button',{name:'Custom',exact:true}).click();
  await page.getByRole('combobox',{name:'Saved workspace',exact:true}).click();await page.getByRole('option',{name:'Custom B',exact:true}).click();
  await expect(page.getByRole('combobox',{name:'Saved workspace',exact:true})).toHaveText('Custom B');

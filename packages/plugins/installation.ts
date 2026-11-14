@@ -74,10 +74,27 @@ export async function checkInstalledCompatibility(root:string,version:string):Pr
  if(JSON.stringify(before)!==JSON.stringify(await readPluginIndex(root)))throw Error('The installed plug-in inventory changed. Retry the compatibility check.');
  return {compatible:blockers.length===0,blockers};
 }
+const LOCK_STALE_MS=10*60*1000,LOCK_UNVERIFIED_MS=60*1000;
+const pidAlive=(pid:number)=>{try{process.kill(pid,0);return true;}catch(error){return (error as NodeJS.ErrnoException).code==='EPERM';}};
+/** A crashed installer leaves .registry-lock behind forever; reclaim it when the claim is unverifiable and old, its owner is gone, or it is ancient. */
+async function reclaimableLock(path:string):Promise<boolean>{
+ try{
+  const info=await lstat(path),age=Date.now()-info.mtimeMs;if(age>LOCK_STALE_MS)return true;
+  let claim:{pid?:unknown}|undefined;try{claim=JSON.parse(await readFile(path,'utf8')) as {pid?:unknown};}catch{claim=undefined;}
+  if(typeof claim?.pid!=='number'||!Number.isInteger(claim.pid)||claim.pid<=0)return age>LOCK_UNVERIFIED_MS;
+  return !pidAlive(claim.pid);
+ }catch(error){return missing(error);}
+}
 async function withIndexLock<T>(root:string,action:()=>Promise<T>):Promise<T>{
  await safeDirectory(root,true);const path=join(root,'.registry-lock');let lock;
- try{lock=await open(path,'wx',0o600);}catch{throw Error('The plug-in registry is busy. Retry after the current installation finishes.');}
- try{return await action();}finally{await lock.close();await unlink(path);}
+ for(let attempt=0;attempt<2;attempt++){
+  try{lock=await open(path,'wx',0o600);break;}
+  catch{
+   if(attempt===0&&await reclaimableLock(path)){await unlink(path).catch(()=>{});continue;}
+   throw Error('The plug-in registry is busy. Retry after the current installation finishes.');
+  }
+ }
+ try{await lock!.writeFile(JSON.stringify({pid:process.pid,at:Date.now()}));return await action();}finally{await lock!.close().catch(()=>{});await unlink(path).catch(()=>{});}
 }
 async function saveIndex(root:string,plugins:ActivePlugin[]){const temporary=join(root,'.active-'+randomUUID()+'.json');await writeFile(temporary,JSON.stringify({version:1,plugins}),{flag:'wx',mode:0o600});await rename(temporary,join(root,'active.json'));}
 
