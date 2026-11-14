@@ -1,4 +1,5 @@
 import {test,expect} from '@playwright/test';
+import {resolve} from 'node:path';
 import {serveTaskFixture,taskFixture} from './task-interface-fixture';
 
 const fixture=()=>{const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Review the current changes.'}}}});snapshot.settings.theme='dark';return snapshot;};
@@ -53,4 +54,31 @@ test('failed and cancelled receipts do not claim success and prepared approval r
  await expect(failed.locator('summary').first()).toContainText('Failed');await expect(cancelled.locator('summary').first()).toContainText('Cancelled');await failed.locator('summary').first().click();await expect(failed.getByText('The file changed. Review the current version.',{exact:true})).toBeVisible();
  await expect(approval.getByText('Replace the reviewed file.',{exact:true})).toBeVisible();await expect(approval.getByRole('button',{name:'Decline operation',exact:true})).toBeVisible();await approval.getByText('Changes and preconditions',{exact:true}).click();await expect(approval.locator('pre')).toContainText('expected-version');await approval.getByRole('button',{name:'Approve operation',exact:true}).click();
  await expect.poll(()=>host.commands.find(command=>command.type==='operation.approve')?.payload).toEqual({operationId:'prepared',revision:7});expect(host.commands.find(command=>command.type==='operation.approve')?.threadId).toBe('task-thread');
+});
+
+test('shell notice enters, pauses on hover, auto-expires and exits before unmount',async({page})=>{
+ test.setTimeout(60000);
+ await serveTaskFixture(page,fixture());await page.goto('/');
+ await page.evaluate(async({reactPath,domPath})=>{
+  const r=await import(reactPath),d=await import(domPath),React=r.default??r,DOM=d.default??d;
+  await import('/src/styles.css');await import('/src/shell.css');
+  const entry='/src/ShellNotice.tsx';const {ShellNotice}=await import(entry);
+  const root=document.createElement('div');root.setAttribute('aria-label','Shell notice fixture');document.body.append(root);
+  const node=DOM.createRoot(root);
+  const render=(message:string)=>node.render(React.createElement(ShellNotice,{message,onDismiss:()=>render('')}));
+  render('Settings saved.');
+  Object.assign(window,{noticeFixture:{render}});
+ },{reactPath:'/@fs/'+resolve('node_modules/.vite/deps/react.js').replaceAll('\\','/'),domPath:'/@fs/'+resolve('node_modules/.vite/deps/react-dom_client.js').replaceAll('\\','/')});
+ const notice=page.locator('[aria-label="Shell notice fixture"]').getByRole('status');
+ await expect(notice).toBeVisible({timeout:15000});await expect(notice).toContainText('Settings saved.');
+ expect(await notice.evaluate(node=>getComputedStyle(node).animationName)).toBe('shell-notice-in');
+ await notice.hover();await page.waitForTimeout(6500);await expect(notice).toBeVisible();
+ await page.mouse.move(0,0);await expect(notice).toHaveCount(0,{timeout:8000});
+ await page.evaluate(()=>(window as unknown as {noticeFixture:{render(message:string):void}}).noticeFixture.render('Saved again.'));
+ await expect(notice).toBeVisible();await notice.getByRole('button',{name:'Dismiss notification',exact:true}).click();
+ await expect(notice).toHaveAttribute('data-leaving','true');await expect(notice).toHaveCount(0,{timeout:2000});
+ await page.emulateMedia({reducedMotion:'reduce'});
+ await page.evaluate(()=>(window as unknown as {noticeFixture:{render(message:string):void}}).noticeFixture.render('Quiet mode.'));
+ await expect(notice).toBeVisible();expect(await notice.evaluate(node=>getComputedStyle(node).animationName)).toBe('none');
+ await notice.getByRole('button',{name:'Dismiss notification',exact:true}).click();await expect(notice).toHaveCount(0,{timeout:2000});
 });

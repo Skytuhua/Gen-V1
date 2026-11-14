@@ -24,10 +24,11 @@ it('uses real Windows titlebar overlays and accepts only a bounded theme',()=>{
  expect(nativeTitlebarOptions('win32')).toMatchObject({titleBarStyle:'hidden',titleBarOverlay:{height:42}});expect(nativeTitlebarOptions('linux')).toEqual({});
  expect(nativeTitlebarTheme('light')).toEqual({color:'#ffffff',symbolColor:'#1f1f1f',height:42});expect(()=>nativeTitlebarTheme('url(secret)')).toThrow();
 });
-it('denies new detached editors while preserving exact existing child recovery',()=>{
+it('admits new detached editors while still validating surface identity',()=>{
  const existing={kind:'plugin',pluginId:'example-plugin',scopeId:'project',surfaceId:'plan',resourceId:'order'} as const;
  expect(()=>requireExistingDetachedSurface(existing,[existing])).not.toThrow();
- expect(()=>requireExistingDetachedSurface({...existing,resourceId:'other'},[existing])).toThrow(/unavailable/);
- expect(()=>requireExistingDetachedSurface({kind:'thread',threadId:'new'},[existing])).toThrow(/unavailable/);
+ expect(()=>requireExistingDetachedSurface({...existing,resourceId:'other'},[existing])).not.toThrow();
+ expect(()=>requireExistingDetachedSurface({kind:'thread',threadId:'new'},[existing])).not.toThrow();
+ expect(()=>requireExistingDetachedSurface({kind:'thread',threadId:'constructor'},[existing])).toThrow();
  expect(existing.resourceId).toBe('order');
 });
