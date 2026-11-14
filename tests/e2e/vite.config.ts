@@ -1,7 +1,7 @@
 import {realpathSync} from 'node:fs';
 import {resolve} from 'node:path';
 import { defineConfig } from 'vite';
-import application from '../../vite.config';
+import { application } from '../../vite.config';
 
 // Contract tests own their hosts or intercept APIs. A missed intercept must
 // never fall through to the user's running host on 4317.

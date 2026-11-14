@@ -32,7 +32,6 @@ export function registerPluginRoutes(app:FastifyInstance,registry:PluginRegistry
       const surface=parsed?.success?parsed.data:undefined;
       if(surface&&!await registry.validateSurface(surface))return reply.code(403).send(unavailable);
       const asset=await registry.readAsset(manifest.id,manifest.frontendEntry);
-      if(surface&&!await registry.validateSurface(surface))return reply.code(403).send(unavailable);
       const runtime=`<meta name="gen-plugin-id" content="${manifest.id}"><link rel="stylesheet" href="/plugin-runtime/runtime.css"><script src="/plugin-runtime/runtime.js"></script>`;
       const html=Buffer.from(asset.bytes).toString('utf8');
       return reply.header('Content-Security-Policy',`sandbox allow-scripts; default-src 'none'; script-src ${origin}; style-src ${origin} 'unsafe-inline'; font-src ${origin} data:; img-src ${origin} data:; connect-src 'none'; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'self'`).header('Cache-Control','no-store').type('text/html; charset=utf-8').send(html.includes('<head>')?html.replace('<head>','<head>'+runtime):runtime+html);

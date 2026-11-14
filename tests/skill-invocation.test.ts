@@ -36,6 +36,7 @@ async function fixture() {
   return {root, folder, catalog, request, signal, host, options, records, runtime, setAuthority: (next: typeof current) => {current = next;}};
 }
 
+// Windows fixture/admission launch three PowerShell guards that each compile the native helper.
 it('materializes exact entry bytes and captured support without changing prompt or resources', async () => {
   const f = await fixture(), admitted = await f.host.prepare(f.request, f.signal);
   const input = f.host.runtimeInput(f.runtime, [admitted], f.signal);
@@ -45,7 +46,7 @@ it('materializes exact entry bytes and captured support without changing prompt 
   await writeFile(join(f.folder, 'support.txt'), 'other');
   expect(f.host.readSupportingFile(admitted, admitted.guidance[0].supportingFiles[0].handle, f.signal).toString()).toBe('first');
   expect(JSON.stringify(admitted.record)).not.toContain(f.root);
-});
+}, process.platform === 'win32' ? 30_000 : 15_000);
 
 it('denies stale support, forged identity, cross-source and private-provider references', async () => {
   const f = await fixture();

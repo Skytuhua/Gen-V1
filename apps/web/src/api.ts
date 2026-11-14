@@ -5,9 +5,12 @@ export class ApiError extends Error {
 }
 
 export async function read<T>(response: Response): Promise<T> {
-  const body = await response.json();
-  if (!response.ok) throw new ApiError(body.error?.code ?? 'HTTP_ERROR', body.error?.message ?? `Request failed (${response.status})`, body.error?.details);
-  return body as T;
+  if (response.ok) return await response.json() as T;
+  const body = await response.json().catch((cause: unknown) => {
+    if (cause instanceof SyntaxError) return null;
+    throw cause;
+  });
+  throw new ApiError(body?.error?.code ?? 'HTTP_ERROR', body?.error?.message ?? `Request failed (${response.status})`, body?.error?.details);
 }
 
 export let csrfToken = '';
@@ -75,7 +78,7 @@ export const getThreadMessages = (id: string, beforeId?: string, limit = 300) =>
 };
 // Deep message search over threads the snapshot windowed; in-window threads are
 // already covered by the local matchingThreads scan.
-export const searchThreadMessages = (q: string, threadIds: string[]) => {
+export const searchThreadMessages = (q: string, threadIds: string[], signal?: AbortSignal) => {
   // The endpoint bounds `threads` to 4,000 characters; batch so every id is
   // covered, then union the hits.
   const batches: string[] = [];
@@ -86,7 +89,7 @@ export const searchThreadMessages = (q: string, threadIds: string[]) => {
   }
   return Promise.all(batches.map(batch => {
     const query = new URLSearchParams({ q, threads: batch }).toString();
-    return authenticated(() => fetch(`/api/threads/search?${query}`, { credentials: 'same-origin', cache: 'no-store' })).then(read<{ threadIds: string[] }>);
+    return authenticated(() => fetch(`/api/threads/search?${query}`, { credentials: 'same-origin', cache: 'no-store', signal })).then(read<{ threadIds: string[] }>);
   })).then(pages => ({ threadIds: pages.flatMap(page => page.threadIds) }));
 };
 export const getResourceContent = (id: string, path = '', signal?: AbortSignal) => authenticated(() => fetch(`/api/resources/${encodeURIComponent(id)}/content${path ? '?path=' + encodeURIComponent(path) : ''}`, { credentials: 'same-origin', cache: 'no-store', signal, redirect: 'error' }));
@@ -116,7 +119,7 @@ export function subscribe(after: number, accept: (event: WorkspaceEvent) => void
     void resync();
     return()=>{closed=true;clearTimeout(timer);remove();};
   }
-  let source: EventSource;
+  let source: EventSource | undefined;
   let closed = false;
   let timer: ReturnType<typeof setTimeout> | undefined;
   let sequence = after;
@@ -130,20 +133,26 @@ export function subscribe(after: number, accept: (event: WorkspaceEvent) => void
   };
   const connect = () => {
     if (closed) return;
-    source = new EventSource(`/api/events?after=${sequence}`);
-    source.onopen = () => connectivity(true);
-    source.onerror = () => {
-      source.close(); connectivity(false);
+    const stream = new EventSource(`/api/events?after=${sequence}`);
+    source = stream;
+    const isCurrent = () => !closed && source === stream;
+    stream.onopen = () => { if (isCurrent()) connectivity(true); };
+    stream.onerror = () => {
+      if (!isCurrent()) return;
+      source = undefined;
+      stream.close(); connectivity(false);
       const session = bootstrapPromise;
       const recover = async () => {
-        try { await renewSession(session); await reconnect(); if (!closed) connect(); }
+        if (closed) return;
+        try { await renewSession(session); if (closed) return; await reconnect(); if (!closed) connect(); }
         catch { if (!closed) timer = setTimeout(() => { void recover(); }, 2000); }
       };
       if (!closed) timer = setTimeout(() => { void recover(); }, 500);
     };
-    source.onmessage = receive;
-    source.addEventListener('workspace', receive as EventListener);
+    const receiveCurrent = (event: MessageEvent<string>) => { if (isCurrent()) receive(event); };
+    stream.onmessage = receiveCurrent;
+    stream.addEventListener('workspace', receiveCurrent as EventListener);
   };
   connect();
-  return () => { closed = true; clearTimeout(timer); source.close(); };
+  return () => { closed = true; clearTimeout(timer); source?.close(); };
 }

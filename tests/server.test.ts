@@ -104,3 +104,8 @@ it("never embeds generated source in the trusted frame document",async()=>{
  expect(document).not.toContain("exfil.invalid");expect(document).not.toContain("PRIVATE");
  expect(document).toContain("Content-Security-Policy");
 });
+it('rejects repeated message-paging and search query parameters instead of failing the host',async()=>{
+ const {app}=await setup(),boot=await app.inject({url:'/api/bootstrap',headers:{host:'127.0.0.1:4317'}}),headers={host:'127.0.0.1:4317',cookie:String(boot.headers['set-cookie']).split(';')[0]};
+ for(const url of ['/api/threads/any/messages?beforeId=a&beforeId=b','/api/threads/any/messages?limit=5&limit=6','/api/threads/search?q=x&q=y','/api/threads/search?threads=a&threads=b'])expect((await app.inject({url,headers})).statusCode).toBe(400);
+ expect((await app.inject({url:'/api/threads/search?q=needle',headers})).statusCode).toBe(200);
+});

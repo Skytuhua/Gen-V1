@@ -388,6 +388,9 @@ export class Service {
         const key = operationId ?? threadId, count = counts as { completed?: number; total?: number } | undefined;
         if (Date.now() - (this.progressTimes.get(key) ?? 0) < 100 && !(count?.total !== undefined && count.completed === count.total)) return;
         this.progressTimes.set(key, Date.now());
+        // The throttle only needs state within its window; bound the map so a
+        // long-lived host does not accumulate one entry per past run or operation.
+        if (this.progressTimes.size > 512) this.progressTimes.delete(this.progressTimes.keys().next().value!);
         this.store.internal("operation.progress", threadId, () => { const messageRecord: Message = { id: randomUUID(), threadId, role: "activity", content: message, createdAt: now(), runId: this.thread(threadId).runId }; this.store.put("message", messageRecord.id, threadId, messageRecord); if (operationId) { const op = this.store.get<Operation>("operation", operationId); if (op) this.operationData(op, { message, counts }); } return { message, counts }; });
       }
     };

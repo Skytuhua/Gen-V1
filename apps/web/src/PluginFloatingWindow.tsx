@@ -11,7 +11,9 @@ function DockedWindow({layout,onLayout,notice,...props}:FloatingWindowProps&{lay
  const {id,title,children,open=true,onClose,defaultCollapsed=false,summary,collapsedLabel,minimizeLabel,ariaLabel,className='',escapeBehavior='close',focusOnOpen=true,expandRequest}=props;
  const [collapsed,setCollapsed]=useState(typeof layout?.collapsed==='boolean'?layout.collapsed:defaultCollapsed),disclosure=useRef<HTMLButtonElement>(null),shell=useRef<HTMLElement>(null),previousOpen=useRef(open),opener=useRef<HTMLElement|null>(null),bodyId=useId();
  const collapse=(value:boolean)=>{setCollapsed(value);onLayout({...layout,collapsed:value});disclosure.current?.focus({preventScroll:true});};
- useLayoutEffect(()=>{if(expandRequest!==undefined&&open&&collapsed){setCollapsed(false);onLayout({...layout,collapsed:false});}},[expandRequest,open]);
+ // This effect's deps omit `layout`, so spreading it here could merge stale
+ // fields over newer saved values; onLayout already merges into saved state.
+ useLayoutEffect(()=>{if(expandRequest!==undefined&&open&&collapsed){setCollapsed(false);onLayout({collapsed:false});}},[expandRequest,open]);
  useLayoutEffect(()=>{
   if(open&&!previousOpen.current){opener.current=document.activeElement instanceof HTMLElement?document.activeElement:null;if(focusOnOpen)disclosure.current?.focus({preventScroll:true});}
   if(!open&&previousOpen.current&&shell.current?.contains(document.activeElement)&&opener.current?.isConnected)opener.current.focus({preventScroll:true});
@@ -42,7 +44,7 @@ export function PluginFloatingWindow(props:FloatingWindowProps){
  const write=useCallback((layout:Partial<FloatingLayout>)=>{saved.current={...saved.current,...layout};setRecovery({id:props.id,layout:saved.current});const value=saved.current,write=pending.current.catch(()=>{}).then(()=>journalWrite(key,value));pending.current=write;void write.catch(()=>setError('Window placement could not be saved. Keep this view open.'));},[key,props.id]);
  const hasRecovered=recovery?.id===props.id,preferredWidth=(hasRecovered?recovery.layout?.width:undefined)??props.defaultSize?.width??400;
  const width=Number.isFinite(preferredWidth)?Math.max(280,Math.min(720,preferredWidth)):400;
- const notice=error&&<p role="alert">{error} {hasRecovered?<button type="button" onClick={()=>{void retryJournalWrites().then(()=>setError(''),()=>setError('Window placement could not be saved. Keep this view open.'));}}>Retry saving</button>:<button type="button" onClick={()=>setRetryRecovery(value=>value+1)}>Retry recovery</button>}</p>;
+ const notice=error&&<p role="status">{error} {hasRecovered?<button type="button" onClick={()=>{void retryJournalWrites().then(()=>setError(''),()=>setError('Window placement could not be saved. Keep this view open.'));}}>Retry saving</button>:<button type="button" onClick={()=>setRetryRecovery(value=>value+1)}>Retry recovery</button>}</p>;
  // A loading dock would expose a fallback split that recovery can replace.
  // Mount only once the read settles; failures retain the default-width retry UI.
  if(!hasRecovered&&!error)return null;

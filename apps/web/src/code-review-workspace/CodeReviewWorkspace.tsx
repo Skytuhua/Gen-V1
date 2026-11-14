@@ -12,6 +12,7 @@ import {acknowledgeOperation, canUseDraft, comparisonKey, newDraft, ownerKey, re
 import {codeReviewClient, reviewError} from './client';
 import './code-review-workspace.css';
 import {ErrorState} from '../../../../packages/ui-shell/Feedback';
+import {Search} from 'lucide-react';
 
 export type ReviewActionContext = Omit<ReviewOperation, 'payload'>;
 export type ReviewActionResult = {state: 'confirmed' | 'stale' | 'uncertain' | 'revoked'};
@@ -168,7 +169,7 @@ function ComparisonBody({selection, writes, onRefresh}: CodeReviewWorkspaceProps
     <nav className="cr-files" aria-label="Changed files">
       <div className="cr-section-heading"><h2>Changed files{comparison ? ` (${comparison.files.length}${comparison.filesTruncated ? '+' : ''})` : ''}</h2><button ref={refreshControl} type="button" aria-label="Refresh comparison" disabled={reading || busy} onClick={load}>Refresh</button></div>
       <div className="cr-file-select"><Select aria-label="Changed file" value={path} disabled={!comparison || comparison.files.length === 0} options={comparison?.files.map(file => ({value: file.path, label: file.path})) ?? []} onValueChange={setPath} /></div>
-      <label className="cr-filter">Filter files<input value={filter} onChange={event => setFilter(event.target.value)} type="search" /></label>
+      <label className="cr-filter"><span>Filter files</span><div><Search size={14} aria-hidden="true"/><input value={filter} onChange={event => setFilter(event.target.value)} type="search" placeholder="File path" title="Filters only files in this comparison"/></div></label>
       {error && <ErrorState message={error}/>}
       {comparison?.access.mode === 'legacy' && <p className="cr-meta">Original working copy · tracked changes only</p>}
       {comparison?.filesTruncated && <p role="status">File list is incomplete. More files exist beyond the read limit.</p>}
@@ -185,7 +186,7 @@ function ComparisonBody({selection, writes, onRefresh}: CodeReviewWorkspaceProps
     </nav>
     <section className="cr-diff" aria-label="Selected file diff">
       <div className="cr-section-heading"><h2>{selected?.path ?? 'Select a changed file'}</h2>
-        {local && selected && (identity.scope === 'staged' ? writes?.onUnstage : writes?.onStage) && <button type="button" disabled={!canWrite || held} onClick={stage}>{identity.scope === 'staged' ? 'Unstage file' : 'Stage file'}</button>}
+        {local && selected && (identity.scope === 'staged' ? writes?.onUnstage : writes?.onStage) && <button type="button" disabled={!canWrite || held} title={!canWrite ? 'Git writes require a writable managed working copy' : held ? 'An action is already being verified' : undefined} onClick={stage}>{identity.scope === 'staged' ? 'Unstage file' : 'Stage file'}</button>}
       </div>
       {identity && <Identity identity={identity} />}
       {comparison && selected ? <Patch key={comparisonKey(comparison.identity) + path} selection={selection} comparison={comparison} path={path}
@@ -216,7 +217,7 @@ function ComparisonBody({selection, writes, onRefresh}: CodeReviewWorkspaceProps
       </section>
       {local && writes?.onCommit && <form className="cr-commit" onSubmit={event => {event.preventDefault(); const text = draft.value?.commitMessage ?? ''; if (writes.onCommit && text.trim() && action) {const payload={message:text,revision:action.revision,expectedHead:action.head};void perform('commit',payload,context=>writes.onCommit!(context,structuredClone(payload)));}}}>
         <label>Commit message<textarea rows={2} maxLength={4000} disabled={!draft.ready || !draft.value} value={draft.value?.commitMessage ?? ''} onChange={event => {if (draft.value) void draft.edit({commitMessage: event.target.value}).catch(() => {});}} /></label>
-        <button type="submit" disabled={!canWrite || held || !draft.value?.commitMessage.trim() || !writes.git.files.some(file => file.staged)}>Commit staged changes</button>
+        <button type="submit" disabled={!canWrite || held || !draft.value?.commitMessage.trim() || !writes.git.files.some(file => file.staged)} title={!canWrite ? 'Git writes require a writable managed working copy' : held ? 'An action is already being verified' : !draft.value?.commitMessage.trim() ? 'Enter a commit message' : !writes.git.files.some(file => file.staged) ? 'Stage a file first' : undefined}>Commit staged changes</button>
       </form>}
       {writes && (writes.onCreatePullRequest || writes.onLinkPullRequest) && <ActionMenu label="Pull request" open={menuOpen} onOpenChange={setMenuOpen} items={[
         ...(writes.onCreatePullRequest ? [{id: 'create', label: 'Create draft PR', disabled: !canWrite || held || writes.git.files.length !== 0, onSelect: () => {if (identity && action && canWrite && writes.git.files.length === 0) writes.onCreatePullRequest?.({selection, comparison: identity, action});}}] : []),

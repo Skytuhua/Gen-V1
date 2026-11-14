@@ -1,4 +1,4 @@
-import {createElement,useLayoutEffect,useRef,type ReactNode} from 'react';
+import {createElement,useLayoutEffect,useRef,useState,type ReactNode} from 'react';
 import './sentence-reveal.css';
 import {readMotionPolicy,observeMotionPolicy} from './motion-policy';
 export interface SentenceRevealProps {text:string;children:ReactNode;animate?:boolean;initialReveal?:boolean;className?:string;as?:'div'|'p';revealClassName?:string}
@@ -36,10 +36,19 @@ export function SentenceReveal({text,children,animate=false,initialReveal=false,
  const root=useRef<HTMLElement|null>(null),layer=useRef<HTMLSpanElement|null>(null),previous=useRef<string|null>(null),reveals=useRef<Reveal[]>([]);
  const selected=useRef<{start:number;end:number;content:string;fullText:string}|null>(null);
  const paint=useRef<(()=>void)|null>(null),frame=useRef(0);
+ const [publication,setPublication]=useState(0);
  function retire(reveal:Reveal){if(reveal.timer!==null)clearTimeout(reveal.timer);for(const cover of reveal.covers){cover.getAnimations().forEach(animation=>animation.cancel());cover.remove();}reveal.edge?.remove();reveals.current=reveals.current.filter(item=>item!==reveal);}
  function clear(){cancelAnimationFrame(frame.current);frame.current=0;for(const reveal of [...reveals.current])retire(reveal);}
  useLayoutEffect(()=>{
   const element=root.current;if(!element)return;
+  // Reserved prose is inaccessible until restoration; only new publications reveal it.
+  const pending=element.closest<HTMLElement>('[data-artifact-pending="true"]');
+  const arrival=new MutationObserver(()=>{
+   if(!pending||pending.dataset.artifactPending==='true')return;
+   arrival.disconnect();
+   if(pending.dataset.entryPhase==='entering'){previous.current=null;setPublication(value=>value+1);}
+  });
+  if(pending)arrival.observe(pending,{attributes:true,attributeFilter:['data-artifact-pending']});
   function remember(){
    const selection=getSelection();if(!selection?.rangeCount||selection.isCollapsed){selected.current=null;return;}
    const range=selection.getRangeAt(0);if(!element!.contains(range.startContainer)||!element!.contains(range.endContainer)){selected.current=null;return;}
@@ -51,7 +60,7 @@ export function SentenceReveal({text,children,animate=false,initialReveal=false,
   const observer=new ResizeObserver(()=>paint.current?.());observer.observe(element);
   const settle=()=>clear(),stopObservingMotion=observeMotionPolicy(policy=>{if(policy!=='full')clear();});
   const theme=new MutationObserver(settle);theme.observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
-  return()=>{element.removeEventListener('pointerdown',interact);element.removeEventListener('focusin',interact);element.removeEventListener('keydown',interact);document.removeEventListener('selectionchange',remember);observer.disconnect();theme.disconnect();stopObservingMotion();clear();};
+  return()=>{element.removeEventListener('pointerdown',interact);element.removeEventListener('focusin',interact);element.removeEventListener('keydown',interact);document.removeEventListener('selectionchange',remember);observer.disconnect();theme.disconnect();arrival.disconnect();stopObservingMotion();clear();};
  },[]);
  useLayoutEffect(()=>{
   const element=root.current,container=layer.current;if(!element||!container)return;
@@ -125,6 +134,6 @@ export function SentenceReveal({text,children,animate=false,initialReveal=false,
   }
   position();
   if(!frame.current){const advance=()=>{frame.current=0;paint.current?.();if(reveals.current.length)frame.current=requestAnimationFrame(advance);};frame.current=requestAnimationFrame(advance);}
- },[text,animate,initialReveal,revealClassName]);
+ },[text,animate,initialReveal,revealClassName,publication]);
  return createElement(as,{ref:root,className:`sentence-reveal ${className}`},children,createElement('span',{ref:layer,className:'sentence-reveal-layer','aria-hidden':true}));
 }

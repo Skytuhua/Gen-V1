@@ -61,10 +61,11 @@ const Context = createContext<Assets | null>(null);
 export const useDocumentAssets = () => useContext(Context);
 
 /** Write-ahead PNG journal survives refresh; replay uses the same host command ID. */
-export function DocumentAssetProvider({ threadId, stateId = '', children }: { threadId: string; stateId?: string; children: ReactNode }) {
+export function DocumentAssetProvider({ threadId, stateId = '', active = true, children }: { threadId: string; stateId?: string; active?: boolean; children: ReactNode }) {
   const store = useStateStore(), key = keyFor(threadId, stateId);
   const revision = useSyncExternalStore(subscribe, () => version);
   useEffect(() => {
+    if (!active) return;
     let alive = true;
     for (const record of read(key)) {
       if (record.resourceId) { store.set(pathFor(record.stateKey), { kind: 'image', resourceId: record.resourceId }); write(key, read(key).filter(item => item.id !== record.id)); continue; }
@@ -81,7 +82,7 @@ export function DocumentAssetProvider({ threadId, stateId = '', children }: { th
       }).catch(error => { write(key, read(key).map(item => item.id === record.id ? { ...item, error: error instanceof Error ? error.message : 'Signature upload failed. Retry to continue.' } : item)); }).finally(() => { inFlight.delete(record.id); emit(); });
     }
     return () => { alive = false; };
-  }, [key, threadId, revision, store]);
+  }, [key, threadId, revision, store, active]);
   const value = useMemo<Assets>(() => ({
     beginPreparation:()=>{preparationCounts.set(key,(preparationCounts.get(key)??0)+1);emit();let completed=false;return()=>{if(completed)return;completed=true;const remaining=(preparationCounts.get(key)??1)-1;if(remaining>0)preparationCounts.set(key,remaining);else preparationCounts.delete(key);emit();};},
     preview: stateKey => { const record = read(key).find(item => item.stateKey === stateKey); return record ? `data:image/png;base64,${record.base64}` : undefined; },
@@ -89,7 +90,7 @@ export function DocumentAssetProvider({ threadId, stateId = '', children }: { th
     save: (stateKey, bytes) => { validateSignaturePng(bytes); const record = { id: crypto.randomUUID(), stateKey, base64: pngDataUrl(bytes).split(',')[1] }; write(key, [...read(key).filter(item => item.stateKey !== stateKey), record]); },
     clear: stateKey => write(key, read(key).filter(item => item.stateKey !== stateKey)),
     retry: () => write(key, read(key).map(({ error: _error, ...record }) => record)),
-    get: async (resourceId, signal) => { const identity = `${threadId}:${resourceId}`; const saved = cache.get(identity); if (saved) return saved.slice(); const bytes = await fetchSignaturePng(resourceId, signal); cache.set(identity, bytes); return bytes.slice(); },
+    get: async (resourceId, signal) => { const identity = `${threadId}:${resourceId}`; const saved = cache.get(identity); if (saved) return saved.slice(); const bytes = await fetchSignaturePng(resourceId, signal); if (cache.size >= 64) cache.delete(cache.keys().next().value!); cache.set(identity, bytes); return bytes.slice(); },
   }), [key, threadId, revision]);
   return <Context.Provider value={value}>{children}</Context.Provider>;
 }

@@ -64,7 +64,7 @@ function Category({ item, total, id }: { item: ContextCategoryReport & { width: 
 
 export function ContextMeter({ usage, busy = false, accepted = false }: { usage?: ContextUsage; busy?: boolean; accepted?: boolean }) {
   const value = contextSegments(usage), id = useId();
-  if (!value) return <div className="context-meter"><div className="context-meter-unknown" aria-label="Context measurement not reported" /><p className="context-categories-note">Context not reported</p></div>;
+  if (!value) return <div className="context-meter"><div className="context-meter-unknown" aria-label="Context measurement not reported" /><p className="context-categories-note">The breakdown appears here once the runtime measures this session.</p></div>;
   return <div className={`context-meter${accepted ? ' context-measurement-accepted' : ''}`} role="group" aria-label="Reported context breakdown" aria-busy={busy}>
     <progress className="sr-only" aria-label="Context used" value={value.ratio} max={100} />
     <div className="context-segment-bar" aria-hidden="true">{value.categories.map(item => <i key={item.label} style={{ width: `${item.width}%`, '--context-color': categoryColor(item.label) } as CSSProperties} className="context-segment" />)}{busy && <span className="context-compaction-shimmer" />}</div>

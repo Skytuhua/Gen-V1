@@ -24,8 +24,11 @@ From PowerShell:
 git clone https://github.com/Skytuhua/Gen-V1.git
 cd Gen-V1
 pnpm install --frozen-lockfile
+pnpm build:credential-lease
 py -3.14 -m pip install --no-cache-dir --no-compile --target .harness-hermes-python-deps -r third-party/hermes-agent/runtime-requirements.txt
 ```
+
+The Windows credential lease helper requires Visual Studio C++ Build Tools (x64). Build it before starting the desktop or browser from source when using protected credentials. The packaged desktop build includes the helper.
 
 Python dependencies are installed into the repository's ignored, isolated target. The worker starts with `-I -S -B` and adds the admitted source/dependency paths explicitly. See [the Hermes runtime notes](../third-party/hermes-agent/README.md) for the dependency lock and packaging requirements.
 
@@ -108,7 +111,7 @@ pnpm desktop:dev
 
 The directory contains credentials, conversations, attachments, skill files, state and receipts. Keep it out of Git and take backups with the application fully closed. Do not delete profile guards or copy credentials between account folders to clear a blocked connection.
 
-Optional host settings are `HARNESS_PORT` and `HARNESS_WIDGET_PORT`. Desktop development uses `HARNESS_DESKTOP_PORT` and `HARNESS_DESKTOP_WIDGET_PORT`. Keep the two ports distinct. Vite's proxy expects the default backend port unless you deliberately update its configuration.
+Optional host settings are `HARNESS_PORT` and `HARNESS_WIDGET_PORT`. Desktop development uses `HARNESS_DESKTOP_PORT` and `HARNESS_DESKTOP_WIDGET_PORT`. Keep the two ports distinct. Vite's development proxy uses the same `HARNESS_PORT` as the backend. Set it before starting `pnpm dev`.
 
 ## Build a Windows installer
 

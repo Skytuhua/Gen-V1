@@ -4,6 +4,7 @@ import { Eraser, PenLine, Type, Upload, Undo2 } from 'lucide-react';
 import type { SignaturePadProps } from '../../../packages/ui-catalog/documents';
 import { MAX_SIGNATURE_POINTS, readVisualSignature, signatureStrokes, validateSignaturePng, type SignaturePoint, type VisualSignature } from '../../../packages/ui-catalog/signature-data';
 import { pngDataUrl, useDocumentAssets } from './signature-assets';
+import {useSecureArtifact} from './secure-artifact-context';
 import '@fontsource/caveat/400.css';
 import '@fontsource/dancing-script/400.css';
 import './document-preview.css';
@@ -16,6 +17,7 @@ const styles = [{ label: 'Handwritten', font: 'Caveat' }, { label: 'Flowing', fo
 function canonicalCanvas() { const canvas = document.createElement('canvas'); canvas.width = 960; canvas.height = 320; return canvas; }
 
 export function SignaturePad({ stateKey, label = 'Your signature', initialMode = 'generate', nameStateKey }: SignaturePadProps) {
+  const editable = useSecureArtifact()?.editable !== false;
   const store = useStateStore(), assets = useDocumentAssets(), path = documentStatePath(stateKey), raw = store.get(path);
   let signature: VisualSignature | null = null, stateError = '';
   try { signature = readVisualSignature(raw); } catch (error) { stateError = (error as Error).message; }
@@ -58,8 +60,8 @@ export function SignaturePad({ stateKey, label = 'Your signature', initialMode =
     } catch (cause) { setError((cause as Error).message); }
   };
   useEffect(() => {
-    if (visible && mode === 'generate' && ready && !signature && !pendingUrl && name.trim() && !generatedInitial.current) generate(nameStateKey && !editingName ? sourceName : name);
-  }, [visible, mode, ready, serialized, pendingUrl, name, sourceName, nameStateKey, editingName]);
+    if (editable && visible && mode === 'generate' && ready && !signature && !pendingUrl && name.trim() && !generatedInitial.current) generate(nameStateKey && !editingName ? sourceName : name);
+  }, [visible, mode, ready, serialized, pendingUrl, name, sourceName, nameStateKey, editingName, editable]);
   const upload = async (file: File | undefined) => {
     if (!file) return; const generation = ++uploadGeneration.current; setError('');
     const finishPreparation=assets?.beginPreparation();
@@ -128,7 +130,7 @@ export function SignaturePad({ stateKey, label = 'Your signature', initialMode =
     </div>
     <div className="signature-controls">{pendingUrl && <span role="status">Saving signature…</span>}{mode === 'generate' && <button type="button" aria-expanded={editingName} aria-controls={`${id}-name-editor`} onClick={() => setEditingName(value => !value)}>Edit name</button>}</div>
     {mode === 'generate' && editingName && <div id={`${id}-name-editor`} className="signature-name-editor"><label htmlFor={`${id}-name`}>Type your name</label><input id={`${id}-name`} className="signature-name-input" maxLength={200} value={name} placeholder="Your full name" autoComplete="name" disabled={!ready} onChange={event => generate(event.target.value)} /></div>}
-    {(stateError || error || assets?.error(stateKey)) && <p className="document-error" role="alert">{stateError || error || assets?.error(stateKey)}{assets?.error(stateKey) && <button type="button" onClick={() => assets.retry()}>Retry signature upload</button>}</p>}
+    {(stateError || error || assets?.error(stateKey)) && <p className="document-error" role="status">{stateError || error || assets?.error(stateKey)}{assets?.error(stateKey) && <button type="button" onClick={() => assets.retry()}>Retry signature upload</button>}</p>}
     <details className="signature-help"><summary>Signature help</summary><p id={`${id}-help`}>Draw with your pointer, or use arrow keys to move, Enter to start or end a stroke, Backspace to undo and Delete to clear. A visual mark only; no certificate or digital signature.</p></details>
   </section>;
 }

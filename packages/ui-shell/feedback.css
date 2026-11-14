@@ -81,6 +81,10 @@
 .ui-empty[data-compact] { align-items: flex-start; padding: var(--ui-panel-inset); text-align: left; }
 .ui-empty > strong { color: var(--text, #f4f4f4); font-size: 14px; font-weight: 500; }
 .ui-empty > p { max-width: 340px; margin: 0; }
+@keyframes ui-state-in { from { opacity:0; transform:translateY(3px); } }
+:where(.ui-empty, .ui-error) { animation: ui-state-in var(--ui-motion-status) var(--ui-ease-enter) both; }
+@media (prefers-reduced-motion: reduce) { :where(.ui-empty, .ui-error) { animation-duration:var(--ui-motion-press); } }
+
 .ui-error {
   display: flex;
   align-items: center;
@@ -112,7 +116,7 @@
 @keyframes ui-feedback-fade { from { opacity: 0; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .ui-toast, .ui-tooltip { animation-name: ui-feedback-fade; animation-duration: 80ms; }
+  .ui-toast, .ui-tooltip { animation-name: ui-feedback-fade; animation-duration: var(--ui-motion-press); }
   .ui-toast[data-state="closed"], .ui-tooltip[data-state="closed"] { animation-direction: reverse; }
   .ui-spinner { animation-duration: 1600ms; }
 }

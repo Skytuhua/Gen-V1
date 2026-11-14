@@ -24,6 +24,11 @@ export class Store {
     get: ReturnType<DatabaseSync['prepare']>;
     allKind: ReturnType<DatabaseSync['prepare']>;
     allKindThread: ReturnType<DatabaseSync['prepare']>;
+    messageCursor: ReturnType<DatabaseSync['prepare']>;
+    messageTail: ReturnType<DatabaseSync['prepare']>;
+    messageBefore: ReturnType<DatabaseSync['prepare']>;
+    messageCount: ReturnType<DatabaseSync['prepare']>;
+    messageCountBefore: ReturnType<DatabaseSync['prepare']>;
     put: ReturnType<DatabaseSync['prepare']>;
     remove: ReturnType<DatabaseSync['prepare']>;
     receipt: ReturnType<DatabaseSync['prepare']>;
@@ -48,8 +53,15 @@ export class Store {
     `);
     this.statements = {
       get: this.db.prepare("SELECT body FROM entities WHERE kind=? AND id=?"),
-      allKind: this.db.prepare("SELECT body FROM entities WHERE kind=?"),
-      allKindThread: this.db.prepare("SELECT body FROM entities WHERE kind=? AND thread_id=?"),
+      // rowid order is insertion order: callers rely on chronological message
+      // order for windowing, cursor paging, and tail slices.
+      allKind: this.db.prepare("SELECT body FROM entities WHERE kind=? ORDER BY rowid"),
+      allKindThread: this.db.prepare("SELECT body FROM entities WHERE kind=? AND thread_id=? ORDER BY rowid"),
+      messageCursor: this.db.prepare("SELECT rowid FROM entities WHERE kind='message' AND id=? AND thread_id=?"),
+      messageTail: this.db.prepare("SELECT body FROM entities WHERE kind='message' AND thread_id=? ORDER BY rowid DESC LIMIT ?"),
+      messageBefore: this.db.prepare("SELECT body FROM entities WHERE kind='message' AND thread_id=? AND rowid<? ORDER BY rowid DESC LIMIT ?"),
+      messageCount: this.db.prepare("SELECT count(*) AS count FROM entities WHERE kind='message' AND thread_id=?"),
+      messageCountBefore: this.db.prepare("SELECT count(*) AS count FROM entities WHERE kind='message' AND thread_id=? AND rowid<?"),
       put: this.db.prepare("INSERT INTO entities(kind,id,thread_id,body) VALUES(?,?,?,?) ON CONFLICT(kind,id) DO UPDATE SET thread_id=excluded.thread_id,body=excluded.body"),
       remove: this.db.prepare("DELETE FROM entities WHERE kind=? AND id=?"),
       receipt: this.db.prepare("SELECT hash,body FROM receipts WHERE id=?"),
@@ -94,7 +106,7 @@ export class Store {
     let result: unknown;
     try {
       result = apply() ?? null;
-      if (result && typeof (result as Promise<unknown>).then === "function") throw new Error("Async work cannot run in a SQLite transaction");
+      if (result && typeof (result as Promise<unknown>).then === "function") { void Promise.resolve(result).catch(() => {}); throw new Error("Async work cannot run in a SQLite transaction"); }
       const id = randomUUID(), occurredAt = new Date().toISOString();
       const inserted = this.statements.insertEvent.run(id, type, threadId, JSON.stringify({ result }), occurredAt);
       event = { seq: Number(inserted.lastInsertRowid), id, type, threadId, payload: { result }, occurredAt };
@@ -130,7 +142,7 @@ export class Store {
     const allThreads = this.all<Snapshot["threads"][number]>("thread");
     const archivedRows = this.db.prepare("SELECT id,body FROM entities WHERE kind=?").all("archivedThread") as { id: string; body: string }[];
     const archived = new Set(archivedRows.filter(row => JSON.parse(row.body)).map(row => row.id));
-    const visibleRows=this.db.prepare("SELECT body FROM entities WHERE kind=? AND (thread_id IS NULL OR thread_id NOT IN (SELECT value FROM json_each(?)))"),archivedIds=JSON.stringify([...archived]);
+    const visibleRows=this.db.prepare("SELECT body FROM entities WHERE kind=? AND (thread_id IS NULL OR thread_id NOT IN (SELECT value FROM json_each(?))) ORDER BY rowid"),archivedIds=JSON.stringify([...archived]);
     const visible=<T>(kind:string):T[] => (visibleRows.all(kind,archivedIds) as {body:string}[]).map(row=>JSON.parse(row.body) as T);
     const threads = allThreads.filter(thread => !archived.has(thread.id));
     const artifacts = visible<Snapshot["artifacts"][number]>("artifact"), requests = visible<Snapshot["requests"][number]>("request");
@@ -159,15 +171,18 @@ export class Store {
     };
   }
   messagesFor(threadId: string, beforeId?: string, limit = 200): { messages: Message[]; truncated: number } {
-    const messages = this.all<Message>('message', threadId);
-    let end = messages.length;
-    if (beforeId !== undefined) {
-      const index = messages.findIndex(message => message.id === beforeId);
-      if (index === -1) throw new HarnessError('INVALID_INPUT', 'Unknown message cursor');
-      end = index;
+    const cap = Math.min(500, Math.max(1, Math.ceil(limit)));
+    let rows: { body: string }[], count: { count: number };
+    if (beforeId === undefined) {
+      rows = this.statements.messageTail.all(threadId, cap) as { body: string }[];
+      count = this.statements.messageCount.get(threadId) as { count: number };
+    } else {
+      const cursor = this.statements.messageCursor.get(beforeId, threadId) as { rowid: number } | undefined;
+      if (!cursor) throw new HarnessError('INVALID_INPUT', 'Unknown message cursor');
+      rows = this.statements.messageBefore.all(threadId, cursor.rowid, cap) as { body: string }[];
+      count = this.statements.messageCountBefore.get(threadId, cursor.rowid) as { count: number };
     }
-    const cap = Math.min(500, Math.max(1, limit));
-    return { messages: messages.slice(Math.max(0, end - cap), end), truncated: Math.max(0, end - cap) };
+    return { messages: rows.reverse().map(row => JSON.parse(row.body) as Message), truncated: count.count - rows.length };
   }
   subscribe(listener: (event: WorkspaceEvent) => void): () => void { this.listeners.add(listener); return () => this.listeners.delete(listener); }
   close(): void { this.listeners.clear(); this.committedEvents.length = 0; this.db.close(); }

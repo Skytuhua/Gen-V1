@@ -20,7 +20,7 @@
 .desktop-browser-toolbar>form {height:52px;display:flex;align-items:center;gap:4px;padding:7px 9px;border-bottom:1px solid var(--border);}
 .desktop-browser-toolbar input {min-width:0;flex:1;font-size:12px;padding:7px 9px;background:var(--canvas);border:1px solid var(--border);border-radius:6px;}
 .desktop-browser-toolbar p {margin:0;padding:0 12px;font-size:11px;}
-.desktop-browser-toolbar .browser-close {flex-shrink:0;transition:color var(--ui-motion-hover,120ms) ease;}
+.desktop-browser-toolbar .browser-close {flex-shrink:0;transition:color var(--ui-motion-hover) var(--ui-ease-enter);}
 .desktop-browser-toolbar .browser-close:hover,.desktop-browser-toolbar .browser-close:focus-visible {color:var(--danger);}
 .desktop-browser-native {flex:1;min-height:0;}
 .desktop-browser-dock {order:2;display:flex;flex-direction:column;flex:0 0 min(520px,45vw);min-width:280px;border-left:1px solid var(--border);background:var(--surface);}
@@ -31,6 +31,6 @@
 .draft-transfer>h2 {font-size:14px;margin-bottom:8px;}
 .draft-transfer>p {font-size:12px;line-height:1.6;color:var(--muted);margin-bottom:12px;}
 
-.desktop-surface-body {animation:desktop-content-in 240ms cubic-bezier(.16,1,.3,1) both;}
+.desktop-surface-body {animation:desktop-content-in var(--ui-motion-panel-enter) var(--ui-ease-enter) both;}
 @keyframes desktop-content-in {from{opacity:.45;transform:translateY(7px)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){.desktop-surface-body {animation:none;}}

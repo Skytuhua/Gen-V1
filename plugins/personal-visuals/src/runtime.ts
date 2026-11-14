@@ -10,6 +10,10 @@ interface Runtime {
 	registerPlugin(manifest: unknown, registration: unknown): unknown;
 	registerEditorHandoff(id: string, guard: () => Promise<void>): () => void;
 	pluginReady(): void;
+	pluginPresentation(): { introDismissed: boolean };
+	onPluginPresentation(
+		listener: (presentation: { introDismissed: boolean }) => void,
+	): () => void;
 }
 export const runtime = (
 	globalThis as typeof globalThis & { GenPluginUI?: Runtime }

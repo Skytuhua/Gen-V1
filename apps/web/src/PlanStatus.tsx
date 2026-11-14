@@ -165,7 +165,7 @@ export function PlanStatus({ snapshot, threadId, loading, error, focusAgentId, o
     const lanes = [...timeline.steps.flatMap(step => step.agents), ...timeline.unassignedAgents];
     for (const lane of lanes) lanes.push(...lane.children);
     const lane = lanes.find(item => item.job.id === focusAgentId);
-    return lane ? <section className="plan-status" aria-label={`Agent plan: ${lane.job.name}`}><ul className="plan-agent-lanes"><AgentLane lane={lane} {...agentProps}/></ul></section> : <p role="alert">This subagent record is no longer available.</p>;
+    return lane ? <section className="plan-status" aria-label={`Agent plan: ${lane.job.name}`}><ul className="plan-agent-lanes"><AgentLane lane={lane} {...agentProps}/></ul></section> : <p role="status">This subagent record is no longer available.</p>;
   }
   const jump = () => {
     if (!current) return;
@@ -235,7 +235,7 @@ export function PlanStatus({ snapshot, threadId, loading, error, focusAgentId, o
           </div>
         </header>
         {(error || invalid) && (
-          <p className="plan-update-error" role="alert">
+          <p className="plan-update-error" role="status">
             {error ||
               "The latest plan is invalid. Showing the last valid revision; ask the agent to refresh it."}
           </p>

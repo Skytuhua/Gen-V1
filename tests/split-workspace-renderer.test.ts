@@ -14,9 +14,9 @@ import {createSplitWorkspaceLayout,applySplitWorkspaceCommand} from './packages/
 let initial=createSplitWorkspaceLayout('test-layout');
 initial=applySplitWorkspaceCommand(initial,'view.open',{view:{id:'one',kind:'thread',binding:{authority:{kind:'local'},threadId:'one'}}});
 initial=applySplitWorkspaceCommand(initial,'pane.split',{paneId:'pane-main',newPaneId:'right',splitId:'columns',axis:'horizontal',view:{id:'two',kind:'thread',binding:{authority:{kind:'local'},threadId:'two'}}});
-window.mounts={};window.commands=[];window.editorChoices=[];window.flushRejected=false;
+window.mounts={};window.commands=[];window.editorChoices=[];window.flushRejected=false;window.deferEditorChoice=false;
 function Editor({id,active}){const[value,setValue]=useState('');useEffect(()=>{window.mounts[id]=(window.mounts[id]||0)+1;},[]);return <div><label>{id}<input aria-label={'Draft '+id} value={value} onChange={e=>setValue(e.target.value)}/></label><iframe title={'Frame '+id} srcDoc='<input value="same renderer"/>'/><span>{active?'visible':'hidden'}</span></div>}
-function Fixture(){const[layout,setLayout]=useState(initial);window.currentLayout=layout;window.issue=(type,payload)=>setLayout(current=>applySplitWorkspaceCommand(current,type,payload));return <WorkspaceSplitLayout layout={layout} showHistory={false} editorOptions={[{id:'thread',title:'Conversation'},{id:'diff',title:'Diff'}]} onSelectEditor={async(kind,paneId)=>{window.editorChoices.push({kind,paneId});}} onDropThread={async()=>{window.threadDrops=(window.threadDrops||0)+1;}} title={view=>view.id} prepare={async()=>{if(window.flushRejected)throw Error('Draft flush failed. Keep this view open.');}} onCommand={async(type,payload)=>{window.commands.push({type,payload});setLayout(current=>applySplitWorkspaceCommand(current,type,payload));}} renderView={(view,active)=><Editor id={view.id} active={active}/>}/>}
+function Fixture(){const[layout,setLayout]=useState(initial);window.currentLayout=layout;window.issue=(type,payload)=>setLayout(current=>applySplitWorkspaceCommand(current,type,payload));return <WorkspaceSplitLayout layout={layout} showHistory={false} editorOptions={[{id:'thread',title:'Conversation'},{id:'diff',title:'Diff'}]} onSelectEditor={async(kind,paneId)=>{window.editorChoices.push({kind,paneId});if(window.deferEditorChoice)await new Promise(resolve=>{window.finishEditorChoice=resolve;});}} onDropThread={async()=>{window.threadDrops=(window.threadDrops||0)+1;}} title={view=>view.id} prepare={async()=>{if(window.flushRejected)throw Error('Draft flush failed. Keep this view open.');}} onCommand={async(type,payload)=>{window.commands.push({type,payload});setLayout(current=>applySplitWorkspaceCommand(current,type,payload));}} renderView={(view,active)=><Editor id={view.id} active={active}/>}/>}
 createRoot(document.getElementById('root')).render(<Fixture/>);
 `;
 beforeAll(async()=>{
@@ -31,18 +31,33 @@ async function issue(page:Page,type:string,payload:Record<string,unknown>){await
 
 it('uses the shared area menu for keyboard editor selection, Escape and outside dismissal',async()=>{
  const tab=await page();try{
+  await tab.evaluate(()=>(window as any).deferEditorChoice=true);
   const trigger=tab.locator('[data-split-pane="right"]').getByLabel('Area actions',{exact:true});await trigger.click();
   expect(await tab.getByRole('menu',{name:'Area actions',exact:true}).count()).toBe(1);
   expect((await trigger.boundingBox())!.width).toBeLessThanOrEqual(34);
   const choice=tab.getByRole('menuitem',{name:'Editor: Diff',exact:true});await choice.focus();await choice.press('Enter');
   await tab.waitForFunction(()=>(window as any).editorChoices.length===1);
   expect(await tab.evaluate(()=>(window as any).editorChoices)).toEqual([{kind:'diff',paneId:'right'}]);
-  await tab.waitForFunction(()=>!document.querySelector('[role="menu"][data-state="open"]')&&(document.activeElement as HTMLElement)?.getAttribute('aria-label')==='Area actions');
+  expect(await tab.getByRole('menu').count()).toBe(0);expect(await trigger.isDisabled()).toBe(true);
+  await tab.evaluate(()=>(window as any).finishEditorChoice());
+  await expect.poll(()=>trigger.evaluate(node=>node===document.activeElement)).toBe(true);
   expect(await tab.getByRole('menu').count()).toBe(0);expect(await trigger.evaluate(node=>node===document.activeElement)).toBe(true);
   await trigger.press('ArrowDown');await tab.getByRole('menu').waitFor();await tab.keyboard.press('Escape');
   await tab.waitForFunction(()=>!document.querySelector('[role="menu"][data-state="open"]')&&(document.activeElement as HTMLElement)?.getAttribute('aria-label')==='Area actions');
   expect(await tab.getByRole('menu').count()).toBe(0);expect(await trigger.evaluate(node=>node===document.activeElement)).toBe(true);
   await trigger.click();await tab.getByRole('menu').waitFor();await tab.getByRole('textbox',{name:'Draft two'}).click();await tab.waitForFunction(()=>!document.querySelector('[role="menu"][data-state="open"]'));expect(await tab.getByRole('menu').count()).toBe(0);
+ }finally{await tab.close();}
+});
+
+it('keeps editor focus when a pending area action completes',async()=>{
+ const tab=await page();try{
+  await tab.evaluate(()=>(window as any).deferEditorChoice=true);
+  const trigger=tab.locator('[data-split-pane="right"]').getByLabel('Area actions',{exact:true});await trigger.click();
+  await tab.getByRole('menuitem',{name:'Editor: Diff',exact:true}).click();
+  await tab.waitForFunction(()=>typeof (window as any).finishEditorChoice==='function');expect(await trigger.isDisabled()).toBe(true);
+  const draft=tab.getByRole('textbox',{name:'Draft two'});await draft.fill('Keep typing during the pending action');
+  await tab.evaluate(()=>(window as any).finishEditorChoice());await expect.poll(()=>trigger.isDisabled()).toBe(false);
+  expect(await draft.evaluate(node=>node===document.activeElement)).toBe(true);expect(await draft.inputValue()).toBe('Keep typing during the pending action');
  }finally{await tab.close();}
 });
 
