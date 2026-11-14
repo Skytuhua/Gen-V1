@@ -748,7 +748,7 @@ function App() {
 				</details>
 			</div>
 			{error && (
-				<div className="pv-error" role="status">
+				<div className="pv-error" role="alert">
 					{error}
 					{writeFailed && (
 						<>
