@@ -34,7 +34,7 @@ async function initialize(command: Command) {
   const prediction=command.purpose==='prediction';let outputBytes=0,outputExceeded=false;
   context = { threadId: input.threadId, runId: input.runId, epoch: input.epoch };
   normalizer = new EventNormalizer(context, event => {
-    if(outputExceeded)return;
+    if(outputExceeded&&event.type!=='settled')return;
     if(prediction&&(event.type==='assistant.delta'||event.type==='assistant.message')){
       const bytes=Buffer.byteLength(String(event.type==='assistant.delta'?event.delta??'':event.content??''));
       if(event.type==='assistant.delta')outputBytes+=bytes;
