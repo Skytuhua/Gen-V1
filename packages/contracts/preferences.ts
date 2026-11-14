@@ -81,11 +81,11 @@ function readPreferences(stored: PreferencePatch): UiPreferences {
     motion: stored.panelAnimations === false ? 'off' : 'system',
   };
   // Validate each stored field independently; corrupt values fall back to that field's default.
-  const parsed = { ...base };
+  const parsed = structuredClone(base);
   for (const key of Object.keys(preferencesSchema.shape) as (keyof UiPreferences)[]) {
     if (key === 'keybindings' || !Object.hasOwn(stored, key)) continue;
     const result = preferencesSchema.shape[key].safeParse(stored[key]);
-    (parsed as Record<string, unknown>)[key] = result.success ? result.data : base[key];
+    if (result.success) (parsed as Record<string, unknown>)[key] = result.data;
   }
   const storedBindings = (typeof stored.keybindings === 'object' && stored.keybindings !== null ? stored.keybindings : {}) as Record<string, unknown>;
   const bindings = { ...DEFAULT_PREFERENCES.keybindings };
@@ -95,5 +95,5 @@ function readPreferences(stored: PreferencePatch): UiPreferences {
     if (result.success) bindings[key] = result.data;
   }
   parsed.keybindings = bindings;
-  return { ...stored, ...parsed, keybindings: { ...stored.keybindings, ...parsed.keybindings } };
+  return { ...stored, ...parsed, keybindings: { ...storedBindings, ...parsed.keybindings } };
 }
