@@ -120,3 +120,11 @@ it('live System OS reduction settles its active follow',()=>{
  const f=fixture();f.scroll.update('one',{top:0,tail:true});f.element.scrollHeight=1900;f.resize();f.tick(2);
  f.preference.matches=true;f.preference.dispatchEvent(new Event('change'));expect(f.element.scrollTop).toBe(1500);expect(f.frames.size).toBe(0);f.scroll.dispose();
 });
+
+it('does not let streaming growth pull the transcript down after Shift+Space',()=>{
+ const f=fixture();f.scroll.update('one',{top:0,tail:true});
+ f.intent('keydown',{key:' ',shiftKey:true});
+ f.element.scrollHeight=1600;f.resize();f.tick(60);
+ expect(f.element.scrollTop).toBe(600);
+ f.scroll.dispose();
+});
