@@ -2,10 +2,9 @@
 .composer-footer-main{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;min-height:29px}
 .composer-project-controls,.composer-runtime-controls{display:flex;align-items:center;min-width:0;gap:4px}
 .composer-runtime-controls{margin-left:auto}
-.composer-toolbar .composer-tool,.composer-toolbar .composer-select{min-height:29px;border:1px solid transparent;border-radius:7px;background:transparent;color:var(--muted);padding:4px 5px;display:inline-flex;align-items:center;gap:5px;min-width:0;font:inherit;white-space:nowrap;transition:background var(--ui-motion-hover) var(--ui-ease-move),color var(--ui-motion-hover) var(--ui-ease-move),transform var(--ui-motion-spring) var(--ui-ease-enter)}
+.composer-toolbar .composer-tool,.composer-toolbar .composer-select{min-height:29px;border:1px solid transparent;border-radius:7px;background:transparent;color:var(--muted);padding:4px 5px;display:inline-flex;align-items:center;gap:5px;min-width:0;font:inherit;white-space:nowrap;transition:transform 0s var(--ui-ease-move)}
 .composer-toolbar .composer-tool{cursor:pointer}
-.composer-toolbar .composer-tool:hover:not(:disabled),.composer-toolbar .composer-select:hover:not(:has(select:disabled)){background:var(--hover);color:var(--text)}
-.composer-toolbar .composer-tool:active:not(:disabled){transform:scale(.96)}
+.composer-toolbar .composer-tool[data-pointer-pressed]:active:not(:disabled),.composer-context-chip[data-pointer-pressed]:active:not(:disabled){transform:scale(.97);transition-duration:var(--ui-motion-press)}
 .composer-toolbar .composer-tool:disabled,.composer-toolbar .composer-select:has(select:disabled){opacity:.45;cursor:default}
 .composer-toolbar svg{width:15px;height:15px;flex:none}
 .composer-toolbar .composer-project{max-width:168px;background:var(--subtle);border-radius:15px;padding:5px 8px}
@@ -24,9 +23,7 @@
 .composer-toolbar .send-button{width:30px;height:30px;margin-left:2px}
 .composer-toolbar .send-button>svg{width:18px;height:18px}
 .composer-secondary-actions{display:flex;justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:6px;min-width:0;margin:0;color:var(--muted)}
-.composer-context-chip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--border);border-radius:15px;min-height:25px;padding:3px 8px;background:var(--surface);color:var(--muted);font-size:10px;line-height:1.2;white-space:nowrap;transition:background var(--ui-motion-hover) var(--ui-ease-move),color var(--ui-motion-hover) var(--ui-ease-move),transform var(--ui-motion-panel-enter) var(--ui-ease-enter)}
-.composer-context-chip:hover:not(:disabled){background:var(--hover);color:var(--text)}
-.composer-context-chip:active:not(:disabled){transform:scale(.97)}
+.composer-context-chip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--border);border-radius:15px;min-height:25px;padding:3px 8px;background:var(--surface);color:var(--muted);font-size:10px;line-height:1.2;white-space:nowrap;transition:transform 0s var(--ui-ease-move)}
 .composer-context-chip>svg{width:12px;height:12px;flex:none}
 .composer-context-chip.composer-pr>svg{color:var(--accent)}
 .composer-change-counts{display:flex;gap:4px;font-variant-numeric:tabular-nums;font-size:10px}
@@ -38,4 +35,10 @@
 .composer-dismiss>svg{width:14px;height:14px}
 @container composer-footer (max-width:610px){.composer-footer-main{flex-wrap:wrap;row-gap:4px}.composer-project-controls{flex:1 1 100%;gap:4px}.composer-runtime-controls{justify-content:flex-end;max-width:100%;flex:1 1 100%}.composer-select select{max-width:156px}.composer-thinking select{max-width:78px}.composer-toolbar .composer-project{max-width:150px}.composer-toolbar .mode-toggle>span{display:none}.composer-toolbar .runtime-pill{padding:4px 6px;font-size:10px}.composer-toolbar .composer-account{max-width:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
 @container composer-footer (max-width:355px){.composer-runtime-controls{gap:2px}.composer-select select{max-width:120px}.composer-thinking select{max-width:72px}.composer-toolbar .composer-project{max-width:140px}.composer-runtime-controls>.context-anchor{flex:none}.composer-toolbar .context-button{width:24px}}
-@media(prefers-reduced-motion:reduce){.composer-toolbar .composer-tool,.composer-toolbar .composer-select,.composer-context-chip{transition:opacity var(--ui-motion-press)}.composer-toolbar .composer-tool:active:not(:disabled),.composer-context-chip:active:not(:disabled){transform:none}}
+@media(hover:hover) and (pointer:fine){
+ .composer-toolbar .composer-tool,.composer-toolbar .composer-select,.composer-context-chip{transition:background-color var(--ui-motion-hover) var(--ui-ease-move),color var(--ui-motion-hover) var(--ui-ease-move),transform 0s var(--ui-ease-move)}
+ .composer-toolbar .composer-tool:hover:not(:disabled),.composer-toolbar .composer-select:hover:not(:has(select:disabled)),.composer-context-chip:hover:not(:disabled){background:var(--hover);color:var(--text)}
+ .composer-toolbar .composer-tool[data-pointer-pressed]:active:not(:disabled),.composer-context-chip[data-pointer-pressed]:active:not(:disabled){transition-duration:var(--ui-motion-hover),var(--ui-motion-hover),var(--ui-motion-press)}
+}
+:root:is([data-motion=reduced],[data-motion=off]) :is(.composer-toolbar .composer-tool,.composer-toolbar .composer-select,.composer-context-chip),.app-shell[data-panel-animations=false] :is(.composer-toolbar .composer-tool,.composer-toolbar .composer-select,.composer-context-chip){transform:none!important;transition:none!important}
+@media(prefers-reduced-motion:reduce){.composer-toolbar .composer-tool,.composer-toolbar .composer-select,.composer-context-chip{transform:none!important;transition:none!important}}
