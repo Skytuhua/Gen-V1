@@ -69,16 +69,29 @@ export function getPreferences(settings: { preferences?: PreferencePatch }): UiP
 
 // Read unknown stored fields losslessly; new command patches still use the strict schema.
 function readPreferences(stored: PreferencePatch): UiPreferences {
-  const known = Object.fromEntries(Object.keys(preferencesSchema.shape).filter(key => Object.hasOwn(stored, key)).map(key => [key, stored[key as keyof PreferencePatch]]));
-  const bindings = Object.fromEntries(Object.keys(keybindings.shape).filter(key => Object.hasOwn(stored.keybindings ?? {}, key)).map(key => [key, stored.keybindings?.[key as keyof UiPreferences['keybindings']]]));
-  const legacySize = stored.fontSize ?? DEFAULT_PREFERENCES.fontSize;
-  const parsed = preferencesSchema.parse({ ...DEFAULT_PREFERENCES, ...known,
-    interfaceFont: stored.interfaceFont ?? (Object.keys(stored).length ? 'system' : DEFAULT_PREFERENCES.interfaceFont),
-    uiFontSize: stored.uiFontSize ?? Math.max(13, Math.min(16, legacySize)),
-    chatFontSize: stored.chatFontSize ?? Math.max(14, Math.min(20, legacySize)),
-    codeFontSize: stored.codeFontSize ?? Math.max(12, Math.min(18, legacySize)),
-    motion: stored.motion ?? (stored.panelAnimations === false ? 'off' : 'system'),
-    keybindings: { ...DEFAULT_PREFERENCES.keybindings, ...bindings },
-  });
+  // A finite legacy fontSize seeds the migrated sizes; a corrupt one cannot poison them.
+  const legacySize = typeof stored.fontSize === 'number' && Number.isFinite(stored.fontSize) ? stored.fontSize : DEFAULT_PREFERENCES.fontSize;
+  const base: UiPreferences = { ...DEFAULT_PREFERENCES,
+    interfaceFont: Object.keys(stored).length ? 'system' : DEFAULT_PREFERENCES.interfaceFont,
+    uiFontSize: Math.max(13, Math.min(16, legacySize)),
+    chatFontSize: Math.max(14, Math.min(20, legacySize)),
+    codeFontSize: Math.max(12, Math.min(18, legacySize)),
+    motion: stored.panelAnimations === false ? 'off' : 'system',
+  };
+  // Validate each stored field independently; corrupt values fall back to that field's default.
+  const parsed = { ...base };
+  for (const key of Object.keys(preferencesSchema.shape) as (keyof UiPreferences)[]) {
+    if (key === 'keybindings' || !Object.hasOwn(stored, key)) continue;
+    const result = preferencesSchema.shape[key].safeParse(stored[key]);
+    (parsed as Record<string, unknown>)[key] = result.success ? result.data : base[key];
+  }
+  const storedBindings = (typeof stored.keybindings === 'object' && stored.keybindings !== null ? stored.keybindings : {}) as Record<string, unknown>;
+  const bindings = { ...DEFAULT_PREFERENCES.keybindings };
+  for (const key of Object.keys(keybindings.shape) as (keyof UiPreferences['keybindings'])[]) {
+    if (!Object.hasOwn(storedBindings, key)) continue;
+    const result = keybindings.shape[key].safeParse(storedBindings[key]);
+    if (result.success) bindings[key] = result.data;
+  }
+  parsed.keybindings = bindings;
   return { ...stored, ...parsed, keybindings: { ...stored.keybindings, ...parsed.keybindings } };
 }
