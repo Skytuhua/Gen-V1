@@ -29,7 +29,7 @@ Latest root verification: **217/217 unit tests**, run serially; **117 distinct b
 
 One independent review found three issues. Root fixes passed RED-to-GREEN checks for duplicate-IHDR/APNG PNG rejection (six tests), model selection propagation from Settings (one browser check), and signing layout based on available width (one browser check). Actual-app capture also exposed a `.mjs` MIME issue; the fix has an HTTP regression check. These checks do not establish final visual or generation acceptance.
 
-The [review index](evidence/frontend-review/delivery-20261030/index.html) now contains nine deterministic workflow videos and a tenth genuine subscription-Pi recording. Full H.264 decode, standalone Chrome playback, chapter seeking and narrow review-page layout passed. GPT-6.1 Sol created and updated the same artifact 1 to 2 with zero repair prompts; reload preserved notes and opened branches. Exact exported PDF and migrated SQLite bytes match their native-approved receipts. See [the delivery report](frontend-rebuild-delivery.md).
+The historical review index contained nine deterministic workflow videos and a tenth genuine subscription-Pi recording. Full H.264 decode, standalone Chrome playback, chapter seeking and narrow review-page layout passed. GPT-6.1 Sol created and updated the same artifact 1 to 2 with zero repair prompts; reload preserved notes and opened branches. Exact exported PDF and migrated SQLite bytes match their native-approved receipts. The original bundle is not tracked; see [the delivery report](frontend-rebuild-delivery.md#recordings) for the historical inventory.
 
 ## Historical signing milestone
 
