@@ -69,8 +69,10 @@ export async function launchHost(options:HostOptions,overrides:Partial<HostFacto
   const pluginRoot=resolve(options.pluginDir??process.env.HARNESS_PLUGIN_DIR??join(process.env.LOCALAPPDATA??homedir(),'GenV1','plugins'));
   const version=JSON.parse(await readFile(resolve('package.json'),'utf8')).version as string;
   try{plugins=await make.loadPlugins(pluginRoot,version);}catch{pluginLoadFailed=true;}
+  const pluginFailures=plugins?.failures?.()??[];if(pluginFailures.length)pluginLoadFailed=true;
+  const pluginError=pluginLoadFailed?(pluginFailures.length?pluginFailures.map(failure=>failure.message).join(' '):'An installed plug-in could not load. Its saved data is retained.'):undefined;
   const mounts:MountRegistry=new Map();
-  app=await make.buildServer(service,{port:hostPort,widgetPort,dev:options.dev,mounts,plugins,skillCatalog:make.createSkillCatalog(store,{pluginRoot}),admitPluginRequest:()=>accepting,...(pluginLoadFailed?{pluginError:'An installed plug-in could not load. Its saved data is retained.'}:{})});
+  app=await make.buildServer(service,{port:hostPort,widgetPort,dev:options.dev,mounts,plugins,skillCatalog:make.createSkillCatalog(store,{pluginRoot}),admitPluginRequest:()=>accepting,...(pluginError?{pluginError}:{})});
   widgets=await make.buildWidgetServer(service,mounts,widgetPort);
   // Own both ports before recovering durable runs. A collision must not alter
   // another live host's task authority, and early clients must wait for recovery.

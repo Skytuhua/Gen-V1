@@ -181,7 +181,6 @@
     },
     {
       "file": "apps/web/src/shell.css",
-
       "line": 208,
       "column": 1,
       "rule": "ad-hoc-overlay",
@@ -189,6 +188,17 @@
       "fingerprint": "d186395fde1467d94f13be38aa02ffaf851f921f7ee0448de14df78020f190a1",
       "reason": "SHELL1/LAYOUT: retain exact artifact containment until parent shell integration.",
       "evidence": ".artifact.artifact-in-workspace { position:fixed; z-index:31; right:14px; top:110px; bottom:14px; width:calc(var(--right-panel-width) - 28px); max-width:none; margin:0; display:flex; flex-direction:column; border:1px sol",
+      "disposition": "staged-migration"
+    },
+    {
+      "file": "apps/web/src/shell.css",
+      "line": 271,
+      "column": 1,
+      "rule": "ad-hoc-overlay",
+      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
+      "fingerprint": "5246ea783898ebe449965592f9ec3e6c4539f7c3b0441eb01284d486077cde30",
+      "reason": "COPY/SHELL2: notice raised to bottom:64px so the toast clears the collapsed summary strips (QA overlap fix); enter/exit motion tokens with reduced-motion fallback until the shared status/error owner replaces it.",
+      "evidence": ".shell-notice { position:fixed; bottom:64px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:14px; max-width:calc(100vw - 28px); border:1px solid var(--border); background:var(--surface); box-",
       "disposition": "staged-migration"
     },
     {
