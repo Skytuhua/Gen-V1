@@ -6,6 +6,7 @@ interface TextRun {node:Text;start:number;end:number}
 interface TextMap {text:string;runs:TextRun[]}
 interface Reveal {start:number;end:number;created:number;duration:number;boundaries:number[];progress:number;covers:HTMLElement[];edge:HTMLElement|null;timer:ReturnType<typeof setTimeout>|null}
 const MAX_TEXT=100_000,MAX_NODES=1024,MAX_COVERS=64;
+const graphemeSegmenter=new Intl.Segmenter(undefined,{granularity:'grapheme'});
 function textMap(root:HTMLElement,proseOnly:boolean):TextMap|null {
  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT),runs:TextRun[]=[];let text='';
  for(let node=walker.nextNode();node;node=walker.nextNode()){
@@ -114,7 +115,7 @@ export function SentenceReveal({text,children,animate=false,initialReveal=false,
   if(old!==null&&!map.text.startsWith(old))clear();
   if(diff.start<diff.end){
    // Intl.Segmenter keeps combining marks, ZWJ families and skin tones indivisible.
-   const segments=[...new Intl.Segmenter(undefined,{granularity:'grapheme'}).segment(map.text)];
+   const segments=[...graphemeSegmenter.segment(map.text)];
    const boundaries=segments.filter(segment=>segment.index+segment.segment.length>diff.start&&segment.index<diff.end).map(segment=>segment.index);
    if(boundaries.length){
     const start=boundaries[0]!,end=segments.find(segment=>segment.index>=diff.end)?.index??map.text.length;

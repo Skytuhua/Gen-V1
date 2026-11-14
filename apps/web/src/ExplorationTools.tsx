@@ -48,20 +48,25 @@ export function ImageAnnotator({element:{props}}:ComponentRenderProps){
  return <section className="exploration-tools image-annotator" aria-label={p.title??'Image feedback'}><Heading title={p.title}/><AnnotationCanvas key={source.hash} p={p} value={value} read={()=>readAnnotationState(store.get(statePath(p.stateKey)),p.resourceId,source.hash)} change={value=>store.set(statePath(p.stateKey),value)}/></section>;
 }
 
+type ScheduleFormats={day:Intl.DateTimeFormat;date:Intl.DateTimeFormat;time:Intl.DateTimeFormat;range:Intl.DateTimeFormat};
+const scheduleFormats=new Map<string,ScheduleFormats>();
+function formatsFor(timeZone:string){let formats=scheduleFormats.get(timeZone);if(!formats){formats={day:new Intl.DateTimeFormat('en',{timeZone,year:'numeric',month:'2-digit',day:'2-digit'}),date:new Intl.DateTimeFormat(undefined,{timeZone,weekday:'short',month:'short',day:'numeric'}),time:new Intl.DateTimeFormat(undefined,{timeZone,hour:'numeric',minute:'2-digit'}),range:new Intl.DateTimeFormat(undefined,{timeZone,year:'numeric',month:'short',day:'numeric'})};scheduleFormats.set(timeZone,formats);}return formats;}
 function scheduleLayout(data:ScheduleData|null){
  const slots=data?[...data.slots].sort((a,b)=>Date.parse(a.start)-Date.parse(b.start)):[],groups=new Map<string,ScheduleData['slots']>(),datesById=new Map<string,string>();
- if(data){const format=new Intl.DateTimeFormat('en',{timeZone:data.timeZone,year:'numeric',month:'2-digit',day:'2-digit'});for(const slot of slots){const parts=format.formatToParts(new Date(slot.start)),part=(name:string)=>parts.find(item=>item.type===name)?.value,date=`${part('year')}-${part('month')}-${part('day')}`;datesById.set(slot.id,date);const group=groups.get(date)??[];group.push(slot);groups.set(date,group);}}
+ if(data){const format=formatsFor(data.timeZone).day;for(const slot of slots){const parts=format.formatToParts(new Date(slot.start)),part=(name:string)=>parts.find(item=>item.type===name)?.value,date=`${part('year')}-${part('month')}-${part('day')}`;datesById.set(slot.id,date);const group=groups.get(date)??[];group.push(slot);groups.set(date,group);}}
  return {slots,groups,datesById,dates:[...groups.keys()]};
 }
 function slotTime(slot:ScheduleData['slots'][number],format:Intl.DateTimeFormat,date:Intl.DateTimeFormat){
  const start=new Date(slot.start),end=new Date(slot.end);
  return `${format.format(start)} – ${date.format(start)!==date.format(end)?`${date.format(end)}, `:''}${format.format(end)}`;
 }
+const durationFormat=new Intl.NumberFormat(undefined,{maximumFractionDigits:1});
+const logTimeFormat=new Intl.DateTimeFormat(undefined,{hour:'2-digit',minute:'2-digit',second:'2-digit',timeZone:'UTC'});
 function slotDuration(slot:ScheduleData['slots'][number]){
  const minutes=(Date.parse(slot.end)-Date.parse(slot.start))/60000;
- if(minutes<60)return `${new Intl.NumberFormat(undefined,{maximumFractionDigits:1}).format(minutes)} min`;
+ if(minutes<60)return `${durationFormat.format(minutes)} min`;
  const hours=Math.floor(minutes/60),remaining=minutes-hours*60;
- return `${hours} hr${remaining?` ${new Intl.NumberFormat(undefined,{maximumFractionDigits:1}).format(remaining)} min`:''}`;
+ return `${hours} hr${remaining?` ${durationFormat.format(remaining)} min`:''}`;
 }
 export function SchedulePicker({element:{props}}:ComponentRenderProps){
  const p=EXPLORATION_SCHEMAS.SchedulePicker.parse(props),store=useStateStore(),action=useTaskAction(),id=useId(),raw=store.get(inputPath(p.dataBinding)),[selectionError,setSelectionError]=useState('');
@@ -72,7 +77,7 @@ export function SchedulePicker({element:{props}}:ComponentRenderProps){
  const save=(patch:Record<string,unknown>)=>{setSelectionError('');store.set(statePath(p.stateKey),{...object(store.get(statePath(p.stateKey))),...patch});};
  const choose=(slot:ScheduleData['slots'][number])=>{if(slot.availability!=='unavailable')save({selectedId:slot.id,visibleDate:datesById.get(slot.id)});};
  const slotKeyboard=(event:KeyboardEvent<HTMLButtonElement>,index:number)=>{if(!['ArrowDown','ArrowUp','ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();const available=slots.filter(slot=>slot.availability!=='unavailable');if(!available.length)return;const current=available.findIndex(slot=>slot.id===slots[index].id),next=event.key==='Home'?0:event.key==='End'?available.length-1:(current+(['ArrowDown','ArrowRight'].includes(event.key)?1:-1)+available.length)%available.length;choose(available[next]);event.currentTarget.closest('.schedule-slots')?.querySelector<HTMLButtonElement>(`[data-slot-index="${slots.indexOf(available[next])}"]`)?.focus();};
- const dateFormat=new Intl.DateTimeFormat(undefined,{timeZone:data.timeZone,weekday:'short',month:'short',day:'numeric'}),timeFormat=new Intl.DateTimeFormat(undefined,{timeZone:data.timeZone,hour:'numeric',minute:'2-digit'}),rangeDateFormat=new Intl.DateTimeFormat(undefined,{timeZone:data.timeZone,year:'numeric',month:'short',day:'numeric'});
+ const {date:dateFormat,time:timeFormat,range:rangeDateFormat}=formatsFor(data.timeZone);
  const submit=()=>{const raw=store.get(inputPath(p.dataBinding)),latest=boundedExplorationData('SchedulePicker',raw)?EXPLORATION_DATA_SCHEMAS.SchedulePicker.safeParse(raw):null,current=latest?.success?latest.data.slots.find(slot=>slot.id===object(store.get(statePath(p.stateKey))).selectedId):null;if(!latest?.success||!current||current.availability==='unavailable'){setSelectionError('This window changed. Choose an available time before submitting.');return;}if(p.actionId)void action.run(p.actionId,{slotId:current.id,start:current.start,end:current.end,timeZone:latest.data.timeZone});};
  return <section className="exploration-tools schedule-picker" aria-label={data.title??'Choose a time'}><Heading title={data.title} detail={data.timeZone}/>
   {!slots.length?<p className="exploration-empty">No time windows were supplied.</p>:<div className="schedule-slots" role="listbox" aria-label="Time windows">{dates.map((date,dayIndex)=>{
@@ -101,14 +106,13 @@ export function LogExplorer({element:{props}}:ComponentRenderProps){
  const inline=useContext(ArtifactInline);
  const p=EXPLORATION_SCHEMAS.LogExplorer.parse(props),store=useStateStore(),action=useTaskAction(),raw=store.get(inputPath(p.dataBinding)),scroll=useRef<HTMLDivElement>(null),[selectionError,setSelectionError]=useState('');
  const parsed=useMemo(()=>boundedExplorationData('LogExplorer',raw)?EXPLORATION_DATA_SCHEMAS.LogExplorer.safeParse(raw):null,[raw]),data=parsed?.success?parsed.data:null,saved=object(store.get(statePath(p.stateKey)));
- const query=typeof saved.query==='string'?saved.query.slice(0,200):'',activeLevels=Array.isArray(saved.levels)?levels.filter(level=>saved.levels instanceof Array&&saved.levels.includes(level)):[...levels],follow=!inline&&saved.followTail===true;
- const events=data?.events??[],filtered=events.filter(event=>activeLevels.includes(event.level)&&(!query||[event.message,event.detail,event.stream,event.correlationId].some(value=>value?.toLocaleLowerCase().includes(query.toLocaleLowerCase()))));
+ const query=typeof saved.query==='string'?saved.query.slice(0,200):'',needle=query.toLowerCase(),activeLevels=Array.isArray(saved.levels)?levels.filter(level=>saved.levels instanceof Array&&saved.levels.includes(level)):[...levels],follow=!inline&&saved.followTail===true;
+ const events=data?.events??[],filtered=events.filter(event=>activeLevels.includes(event.level)&&(!query||[event.message,event.detail,event.stream,event.correlationId].some(value=>value?.toLowerCase().includes(needle))));
  const correlations=useMemo(()=>{const counts=new Map<string,number>();for(const event of events)if(event.correlationId)counts.set(event.correlationId,(counts.get(event.correlationId)??0)+1);return counts;},[events]);
  const selected=saved.selectedId?filtered.find(event=>event.id===saved.selectedId):filtered[0],detail=useSelectionMotion(selected?.id);
  const save=(patch:Record<string,unknown>)=>{setSelectionError('');store.set(statePath(p.stateKey),{...object(store.get(statePath(p.stateKey))),...patch});};
  useLayoutEffect(()=>{if(follow&&scroll.current)scroll.current.scrollTop=scroll.current.scrollHeight;},[follow,filtered.length,filtered.at(-1)?.id]);
  if(!data)return <p className="exploration-empty" role="status">Logs are unavailable from the connected source.</p>;
- const timeFormat=new Intl.DateTimeFormat(undefined,{hour:'2-digit',minute:'2-digit',second:'2-digit',timeZone:'UTC'});
  const select=(index:number,focus=false)=>{const item=filtered[index];if(!item)return;save({selectedId:item.id,...(focus?{followTail:false}:{})});if(focus){const button=scroll.current?.querySelector<HTMLButtonElement>(`[data-event-index="${index}"]`);button?.focus({preventScroll:true});button?.scrollIntoView({block:'nearest'});}};
  const submit=()=>{const raw=store.get(inputPath(p.dataBinding)),latest=boundedExplorationData('LogExplorer',raw)?EXPLORATION_DATA_SCHEMAS.LogExplorer.safeParse(raw):null,target=object(store.get(statePath(p.stateKey))).selectedId??selected?.id,current=latest?.success?latest.data.events.find(event=>event.id===target):null;if(!current){setSelectionError('This event is no longer supplied. Select another event.');return;}if(p.actionId)void action.run(p.actionId,{eventId:current.id,...(current.correlationId?{correlationId:current.correlationId}:{})});};
  const keyboard=(event:KeyboardEvent<HTMLButtonElement>,index:number)=>{if(!['ArrowUp','ArrowDown','Home','End'].includes(event.key))return;event.preventDefault();select(event.key==='Home'?0:event.key==='End'?filtered.length-1:Math.max(0,Math.min(filtered.length-1,index+(event.key==='ArrowDown'?1:-1))),true);};
@@ -118,7 +122,7 @@ export function LogExplorer({element:{props}}:ComponentRenderProps){
   <div className="log-content"><div ref={scroll} className="log-events" role="listbox" aria-label="Log events" onScroll={event=>{const node=event.currentTarget;if(follow&&node.scrollHeight-node.scrollTop-node.clientHeight>12)save({followTail:false});}} onWheel={()=>{if(follow)save({followTail:false});}} onTouchStart={()=>{if(follow)save({followTail:false});}}>{!filtered.length?<p className="exploration-empty">{events.length?'No events match these filters.':'No log events were supplied.'}</p>:filtered.map((event,index)=>{
    const chosen=selected?.id===event.id,related=Boolean(selected?.correlationId&&event.correlationId===selected.correlationId),relatedCount=event.correlationId?correlations.get(event.correlationId)??0:0;
    return <div className={`log-entry${related?' is-related':''}`} key={event.id} role="presentation">
-    <button type="button" role="option" aria-label={`${event.level}: ${event.message}`} aria-selected={chosen} className={`log-event is-${event.level}`} data-event-index={index} tabIndex={chosen||!selected&&index===0?0:-1} onClick={()=>select(index)} onKeyDown={key=>keyboard(key,index)}><span className="log-event-level">{event.level}</span><span className="log-event-message">{event.message}</span><time dateTime={event.timestamp} title={event.timestamp?`${event.timestamp} (UTC display)`:'Time unavailable'}>{event.timestamp?timeFormat.format(new Date(event.timestamp)):'—'}</time><ChevronRight className="log-event-indicator" data-expanded={chosen} size={13} aria-hidden="true"/></button>
+    <button type="button" role="option" aria-label={`${event.level}: ${event.message}`} aria-selected={chosen} className={`log-event is-${event.level}`} data-event-index={index} tabIndex={chosen||!selected&&index===0?0:-1} onClick={()=>select(index)} onKeyDown={key=>keyboard(key,index)}><span className="log-event-level">{event.level}</span><span className="log-event-message">{event.message}</span><time dateTime={event.timestamp} title={event.timestamp?`${event.timestamp} (UTC display)`:'Time unavailable'}>{event.timestamp?logTimeFormat.format(new Date(event.timestamp)):'—'}</time><ChevronRight className="log-event-indicator" data-expanded={chosen} size={13} aria-hidden="true"/></button>
     {chosen&&<div className="log-selection" ref={detail}><div className="log-selected-heading">{event.stream&&<strong>{event.stream}</strong>}{relatedCount>1&&<span>{relatedCount} related events</span>}</div><dl><div><dt>Time</dt><dd>{event.timestamp?`${new Date(event.timestamp).toISOString()} (UTC)`:'Unavailable'}</dd></div>{event.correlationId&&<div><dt>Correlation</dt><dd>{event.correlationId}</dd></div>}</dl>{event.detail&&<details className="log-event-details"><summary>Event details</summary><pre>{event.detail}</pre></details>}</div>}
    </div>;
   })}</div></div>
