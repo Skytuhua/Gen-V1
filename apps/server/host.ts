@@ -1,4 +1,5 @@
 import {resolve,join} from 'node:path';
+import {fileURLToPath} from 'node:url';
 import {homedir} from 'node:os';
 import {Store} from '../../packages/storage/store.ts';
 import {Service} from '../../packages/core/service.ts';
@@ -67,7 +68,7 @@ export async function launchHost(options:HostOptions,overrides:Partial<HostFacto
   profile=make.acquireProfile(resolve(options.dataDir));
   store=make.createStore(profile.dataDir);runtime=make.createRuntime({dataDir:store.dataDir,accounts:accountResolver(store)});service=make.createService(store,runtime);
   const pluginRoot=resolve(options.pluginDir??process.env.HARNESS_PLUGIN_DIR??join(process.env.LOCALAPPDATA??homedir(),'GenV1','plugins'));
-  const version=JSON.parse(await readFile(resolve('package.json'),'utf8')).version as string;
+  const version=JSON.parse(await readFile(fileURLToPath(new URL('../../package.json',import.meta.url)),'utf8')).version as string;
   try{plugins=await make.loadPlugins(pluginRoot,version);}catch{pluginLoadFailed=true;}
   const mounts:MountRegistry=new Map();
   app=await make.buildServer(service,{port:hostPort,widgetPort,dev:options.dev,mounts,plugins,skillCatalog:make.createSkillCatalog(store,{pluginRoot}),admitPluginRequest:()=>accepting,...(pluginLoadFailed?{pluginError:'An installed plug-in could not load. Its saved data is retained.'}:{})});
