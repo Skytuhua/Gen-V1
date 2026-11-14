@@ -1,6 +1,6 @@
 .task-choices { display:flex; flex-direction:column; gap:6px; }
 .task-choices legend { font-size:14px; font-weight:550; color:var(--text); padding:0 0 10px; }
-.task-choice { position:relative; display:grid; grid-template-columns:minmax(0,1fr); align-items:start; gap:4px; min-height:43px; padding:10px 12px; border:1px solid transparent; background:var(--subtle); border-radius:10px; cursor:pointer; font-size:13px; line-height:1.4; transition:background-color 180ms ease-out,border-color 180ms ease-out; }
+.task-choice { position:relative; display:grid; grid-template-columns:minmax(0,1fr); align-items:start; gap:4px; min-height:43px; padding:10px 12px; border:1px solid transparent; background:var(--subtle); border-radius:10px; cursor:pointer; font-size:13px; line-height:1.4; transition:background-color var(--ui-motion-hover) var(--ui-ease-enter),border-color var(--ui-motion-hover) var(--ui-ease-enter); }
 .task-choice:hover { background:var(--hover); }
 .task-choice.is-selected { background:var(--selection-bg); border-color:var(--selection-border); }
 .task-choice:focus-within { outline:2px solid var(--accent); outline-offset:2px; }

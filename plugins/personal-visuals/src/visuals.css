@@ -1,3 +1,7 @@
+:root {
+	--pv-motion-intro: 180ms;
+	--pv-ease-intro: cubic-bezier(0.23, 1, 0.32, 1);
+}
 html,
 body,
 #root {
@@ -85,7 +89,7 @@ body,
 	padding: 10px 16px;
 	border-bottom: 1px solid var(--border, #292929);
 	background: var(--surface, #101010);
-	animation: pv-intro-in 180ms cubic-bezier(0.23, 1, 0.32, 1);
+	animation: pv-intro-in var(--pv-motion-intro) var(--pv-ease-intro);
 }
 .pv-intro > div {
 	min-width: 0;
