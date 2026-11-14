@@ -162,3 +162,19 @@ it('projects exact hover metadata and changes its revision when a copy is assign
  const second=await f.app.inject({url:'/api/shell/navigation/empty',headers:f.headers});expect(second.json().updatedAt).toBe(first.json().updatedAt);expect(second.json().threadRevision).not.toBe(first.json().threadRevision);
  expect(second.body).not.toMatch(/DO_NOT_PUBLISH_SESSION|NEVER_PUBLISH/);expect(f.snapshot).not.toHaveBeenCalled();
 });
+
+it('filters granted resources by owner thread and binds cursors to that scope', async () => {
+  const f = await fixture();
+  f.store.internal('fixture', null, () => {f.store.put('resource', 'grant-second', 'second', {id: 'grant-second', threadId: 'second', kind: 'file', path: 'C:/granted/other.txt', label: 'Other grant', writable: false, createdAt: ''});});
+  const all = await f.app.inject({url: '/api/shell/resources', headers: f.headers});
+  expect(all.json()).toMatchObject({total: 2});
+  const owned = await f.app.inject({url: '/api/shell/resources?threadId=empty', headers: f.headers});
+  expect(owned.statusCode).toBe(200);
+  expect(owned.json()).toMatchObject({total: 1, items: [{id: 'grant', threadId: 'empty'}], nextCursor: null});
+  const other = await f.app.inject({url: '/api/shell/resources?threadId=second', headers: f.headers});
+  expect(other.json()).toMatchObject({total: 1, items: [{id: 'grant-second', threadId: 'second'}]});
+  const missing = await f.app.inject({url: '/api/shell/resources?threadId=archived', headers: f.headers});
+  expect(missing.json()).toMatchObject({total: 0, items: []});
+  expect((await f.app.inject({url: '/api/shell/resources?threadId=empty&authority=company', headers: f.headers})).statusCode).toBe(400);
+  expect(f.snapshot).not.toHaveBeenCalled();
+});

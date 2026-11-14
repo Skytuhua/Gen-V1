@@ -11,6 +11,7 @@ import {digest, type Store} from '../storage/store.ts';
 
 const preferences = z.object({...preferencesSchema.shape, keybindings: z.object(preferencesSchema.shape.keybindings.shape)});
 const pageInput = z.strictObject({limit: z.number().int().min(1).max(100).default(50), cursor: z.string().max(2048).optional()});
+const resourceInput = pageInput.extend({threadId: z.string().min(1).max(200).optional()});
 const navInput = pageInput.extend({archived: z.boolean().default(false), text: z.string().trim().max(200).default('')});
 type Owner = ThreadNavigationRow & Pick<Thread, 'sideParentId' | 'epoch'>;
 const invalidCursor = () => new HarnessError('INVALID_CURSOR', 'Reload this metadata list.');
@@ -86,9 +87,9 @@ export class ShellReadModels {
   private visibleIds() {const {all, archived} = this.owners(); return all.filter(thread => !archived.has(thread.id)).map(thread => thread.id);}
   private visibleWhere() {return "AND (thread_id IS NULL OR thread_id IN (SELECT value FROM json_each(?)))";}
   resources(input: unknown = {}): ShellPage<ShellResourceRow> {
-    const query = pageInput.parse(input), ids = this.visibleIds();
-    const rows = this.records<ShellResourceRow>('resource', ['id', 'threadId', 'kind', 'label', 'writable', 'path'], this.visibleWhere() + " AND thread_id=json_extract(body,'$.threadId') AND id=json_extract(body,'$.id')", [JSON.stringify(ids)]).map(row => ({...row, writable: Boolean(row.writable)})).sort((a, b) => a.id.localeCompare(b.id));
-    return this.page(rows, query, {kind: 'resources'});
+    const query = resourceInput.parse(input), ids = this.visibleIds();
+    const rows = this.records<ShellResourceRow>('resource', ['id', 'threadId', 'kind', 'label', 'writable', 'path'], this.visibleWhere() + " AND thread_id=json_extract(body,'$.threadId') AND id=json_extract(body,'$.id')", [JSON.stringify(ids)]).map(row => ({...row, writable: Boolean(row.writable)})).filter(row => !query.threadId || row.threadId === query.threadId).sort((a, b) => a.id.localeCompare(b.id));
+    return this.page(rows, query, {kind: 'resources', threadId: query.threadId ?? null});
   }
   settings(): ShellSettingsReadModel {
     const {all, archived} = this.owners(), visible = all.filter(thread => !archived.has(thread.id)), ids = visible.map(thread => thread.id), where = this.visibleWhere();
