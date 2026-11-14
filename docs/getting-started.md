@@ -24,8 +24,11 @@ From PowerShell:
 git clone https://github.com/Skytuhua/Gen-V1.git
 cd Gen-V1
 pnpm install --frozen-lockfile
+pnpm build:credential-lease
 py -3.14 -m pip install --no-cache-dir --no-compile --target .harness-hermes-python-deps -r third-party/hermes-agent/runtime-requirements.txt
 ```
+
+The Windows credential lease helper requires Visual Studio C++ Build Tools (x64). Build it before starting the desktop or browser from source when using protected credentials. The packaged desktop build includes the helper.
 
 Python dependencies are installed into the repository's ignored, isolated target. The worker starts with `-I -S -B` and adds the admitted source/dependency paths explicitly. See [the Hermes runtime notes](../third-party/hermes-agent/README.md) for the dependency lock and packaging requirements.
 
