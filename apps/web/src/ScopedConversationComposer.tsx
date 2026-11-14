@@ -53,7 +53,7 @@ export function ScopedConversationComposer({context,composers,openConversation,r
     <ModelPicker ref={picker} models={models} modelId={modelId} thinkingLevel={state.thinkingLevel??''} onChange={id=>{setModelId(id);if(state.thinkingLevel&&!models.find(model=>model.id===id)?.thinkingLevels?.includes(state.thinkingLevel))void journalWrite('thinking:'+context.owner.threadId,'').catch(()=>setError('The reasoning choice could not be saved.'));}} onThinkingChange={level=>{void journalWrite('thinking:'+context.owner.threadId,level).catch(()=>setError('The reasoning choice could not be saved.'));}} disabled={held||state.busy||state.stopping||working}/>
     {working?<button type="button" className="send-button stop-button" aria-label="Stop agent" disabled={held||state.stopping} onClick={()=>{if(!held)void composers.stop(target);}}><CircleStop size={18}/></button>:<button className="send-button" aria-label={state.retry?'Retry send':'Send message'} disabled={held||skillsBlocked||!models.some(model=>model.id===modelId)||!composers.canSend(target)||!state.retry&&!state.draft.trim()&&!state.excerpts?.length}><ArrowUp size={18}/></button>}
    </div>
-   {(error||state.error)&&<p role="status" className="error-text">{error||state.error}</p>}
+   {(error||state.error)&&<p role="alert" className="error-text">{error||state.error}</p>}
   </ComposerView></div>
   {detached&&<button className="quiet" onClick={()=>{void desktop?.bridge.focus(detached.id).catch(()=>setError('The owning window could not be focused.'));}}>Focus existing window</button>}
  </div>;
