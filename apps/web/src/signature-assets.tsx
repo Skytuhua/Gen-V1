@@ -17,7 +17,9 @@ const pathFor = (key: string) => `/values/${key.replace(/~/g, '~0').replace(/\//
 function read(key: string): Pending[] {
   const raw = localStorage.getItem(key);
   if (!raw) return [];
-  const records: unknown = JSON.parse(raw);
+  let records: unknown;
+  try { records = JSON.parse(raw); }
+  catch { throw new Error('The pending signature journal is invalid. Clear the mark to continue.'); }
   if (!Array.isArray(records) || records.length > 100 || records.some(record => !record || typeof record.id !== 'string' || typeof record.stateKey !== 'string' || typeof record.base64 !== 'string' || record.base64.length > 700_000)) throw new Error('The pending signature journal is invalid. Clear the mark to continue.');
   return records;
 }
