@@ -81,7 +81,7 @@ export function GitHubSignIn({active=true,onAuthenticated}:{active?:boolean;onAu
   {status&&<p role="status">{copied?'Copied code. ':''}{cancelling?'Cancelling sign-in…':status}</p>}
   {error&&<p className="error-text" role="status">{error}</p>}
   {flow&&<><p>Enter this code on GitHub to sign in to this Gen V1 profile.</p><div className="github-device-code"><code>{flow.userCode}</code><button onClick={()=>void copy()}>Copy code</button></div>
-   {/* The native policy requires this exact initiating app URL; its fixed opener sends no referrer. */}
-   <a href={deviceUrl} target="_blank" rel="noopener" referrerPolicy="unsafe-url">{deviceUrl}</a><p className="github-sign-in-expiry">Expires at {new Date(flow.expiresAt).toLocaleTimeString()}.</p></>}
+   {/* The native policy requires this exact initiating app URL; the opener must not leak our URL back to github.com. */}
+   <a href={deviceUrl} target="_blank" rel="noopener noreferrer" referrerPolicy="no-referrer">{deviceUrl}</a><p className="github-sign-in-expiry">Expires at {new Date(flow.expiresAt).toLocaleTimeString()}.</p></>}
  </section>;
 }
