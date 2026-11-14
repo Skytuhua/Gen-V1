@@ -5,6 +5,7 @@ import type {ThreadNavigationRow} from '../../packages/contracts/shell-read-mode
 import {createSplitWorkspaceLayout,applySplitWorkspaceCommand} from '../../packages/core/split-workspace-layout';
 import type {SplitWorkspaceLayout} from '../../packages/contracts/split-workspace';
 import {serveTaskFixture, taskFixture} from './task-interface-fixture';
+import {quiescent} from './settle';
 
 async function fixture(page: Page, {native = false, delayed = false, unavailable = false, invalidOwner = false, working = true, pinned = false, archiveConfirmation = true, emptyAgents = false, plugins = {} as {fail?: boolean; manifests?: unknown[]}} = {}) {
   const snapshot = taskFixture({root: 'text', elements: {text: {type: 'Text', props: {text: 'Synthetic host fixture'}}}});
@@ -550,7 +551,7 @@ test('unmounting the monitor before native takeover rejects a stale mode retry',
  await page.evaluate(()=>(window as any).publishOwner(true));
  await expect(page.getByText('This conversation is open in another window.',{exact:false})).toBeVisible();release();
  await expect.poll(()=>attempts,{timeout:1500}).toBe(1);
- await page.waitForTimeout(300);
+ expect(await quiescent(page,300,()=>attempts)).toHaveLength(1);
  console.log(JSON.stringify({scenario:'unmount-then-native-takeover',attempts,sent}));
  expect(attempts).toBe(1);
 });

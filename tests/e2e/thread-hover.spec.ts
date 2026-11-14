@@ -1,4 +1,5 @@
 import {expect, test, type Page} from '@playwright/test';
+import {quiescent} from './settle';
 import {expectOpaqueEntry, expectVisibleKeyboardFocus, pauseNextEntry} from './overlay-motion-assertions';
 
 const trigger = (page: Page) => page.getByRole('button', {name: 'Thread trigger', exact: true});
@@ -36,7 +37,7 @@ test('keyboard access reaches PRs and Escape restores the trigger without reopen
   await trigger(page).press('Tab'); const action = card(page).getByRole('button', {name: /Open PR/}); await expect(action).toBeFocused();
   await action.press('Enter'); await expect(card(page)).toBeVisible();
   await action.press('Escape'); await expect(card(page)).toHaveCount(0); await expect(trigger(page)).toBeFocused();
-  await page.waitForTimeout(400); await expect(card(page)).toHaveCount(0);
+  expect(await quiescent(page, 400, () => card(page).count())).toHaveLength(1); await expect(card(page)).toHaveCount(0);
   await trigger(page).press('Tab'); await expect(page.getByRole('button', {name: 'Next control'})).toBeFocused();
 });
 

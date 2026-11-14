@@ -8,6 +8,12 @@ const result=(id='terminal-a',output='before\r\n',extra:Partial<Read>={}):Read=>
 const json=(route:Route,body:unknown,status=200)=>route.fulfill({status,contentType:'application/json',body:JSON.stringify(body)});
 const failure=(route:Route,code='HTTP_ERROR')=>json(route,{error:{code,message:'Synthetic transient read failure'}},503);
 function deferred(){let resolve!:()=>void;const promise=new Promise<void>(done=>{resolve=done;});return {promise,resolve};}
+const quiescent = async (page: Page, ms: number, probe: () => unknown | Promise<unknown>) => {
+  const seen = new Set<string>(); const end = Date.now() + ms;
+  do { seen.add(JSON.stringify(await probe())); await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => resolve()))); } while (Date.now() < end);
+  return [...seen];
+};
+const traffic = (api: {reads:()=>unknown[];stops:()=>unknown[]}) => async () => [api.reads().length, api.stops().length];
 const audits=new WeakMap<Page,{blocked:string[];errors:string[]}>();
 test.afterEach(async({page})=>{const audit=audits.get(page);if(audit){expect(audit.blocked).toEqual([]);expect(audit.errors).toEqual([]);}});
 async function mount(page:Page,options:{unbound?:boolean;bootstrap?:(route:Route,index:number)=>Promise<void>;create?:(route:Route,body:Record<string,unknown>)=>Promise<void>;read?:(route:Route,index:number)=>Promise<void>;command?:(route:Route,body:Record<string,unknown>)=>Promise<void>}={}){
@@ -38,7 +44,7 @@ test('read Retry resumes the same cursor and real xterm without duplicate or los
  await expect(page.getByRole('alert')).toContainText('Synthetic transient');
  const retry=page.getByRole('button',{name:'Retry',exact:true});await expect(retry).toBeVisible();
  await page.evaluate(()=>{Object.assign(window,{originalTerminal:window.terminalFixture.instances[0],originalDom:document.querySelector('.xterm')});});
- await retry.focus();await retry.press('Enter');await expect(retry).toBeDisabled();await page.waitForTimeout(600);expect(api.reads()).toHaveLength(2);gate.resolve();
+ await retry.focus();await retry.press('Enter');await expect(retry).toBeDisabled();await expect.poll(()=>api.reads().length).toBe(2);expect(await quiescent(page,550,()=>api.reads().length)).toHaveLength(1);gate.resolve();
  await expect.poll(()=>text(page)).toContain('after');await expect(page.getByRole('status')).toHaveText('Running');await expect(page.getByRole('alert')).toHaveCount(0);
  const output=await text(page);expect(output.match(/before/g)).toHaveLength(1);expect(output.match(/after/g)).toHaveLength(1);
  expect(api.creates()).toHaveLength(1);expect(api.reads().slice(0,2).map(item=>item.path)).toEqual(['/api/terminals/terminal-a?projectId=project-a&cursor=8&threadId=thread-a','/api/terminals/terminal-a?projectId=project-a&cursor=8&threadId=thread-a']);
@@ -56,14 +62,14 @@ test('Stop stays disabled until the matching creation acknowledgment',async({pag
 for(const mismatch of [{id:'terminal-other'},{projectId:'project-other'},{threadId:'thread-other'}])test(`creation acknowledgment rejects the wrong ${Object.keys(mismatch)[0]}`,async({page})=>{
  const api=await mount(page,{create:route=>json(route,result('terminal-a','foreign output',mismatch))});
  await expect(page.getByRole('alert')).toContainText('does not match');await expect(page.getByRole('button',{name:'Stop',exact:true})).toBeDisabled();
- await page.waitForTimeout(650);expect(api.reads()).toEqual([]);expect(api.stops()).toEqual([]);expect(await text(page)).not.toContain('foreign');
+ expect(await quiescent(page,650,traffic(api))).toHaveLength(1);expect(api.reads()).toEqual([]);expect(api.stops()).toEqual([]);expect(await text(page)).not.toContain('foreign');
  expect(await page.evaluate(()=>localStorage.getItem('gen-terminal:project-a:thread-a:terminal-a'))).toBeNull();
 });
 
 test('hide pauses reads, fences late failure and reattaches the acknowledged session without stopping it',async({page})=>{
  const gate=deferred();const api=await mount(page,{read:async(route,index)=>{if(index===1){await gate.promise;await failure(route);return;}await json(route,result('terminal-a','',{start:8,cursor:8}));}});
  await expect.poll(()=>api.reads().length).toBe(1);await page.evaluate(()=>window.terminalFixture.update({active:false}));await expect(page.locator('.xterm')).toHaveCount(0);
- gate.resolve();await page.waitForTimeout(650);await expect(page.getByRole('alert')).toHaveCount(0);expect(api.reads()).toHaveLength(1);expect(api.stops()).toEqual([]);
+ gate.resolve();expect(await quiescent(page,650,traffic(api))).toHaveLength(1);await expect(page.getByRole('alert')).toHaveCount(0);expect(api.reads()).toHaveLength(1);expect(api.stops()).toEqual([]);
  await page.evaluate(()=>window.terminalFixture.update({active:true}));await expect(page.getByRole('status')).toHaveText('Running');await expect.poll(()=>api.creates().length).toBe(2);
  expect(api.creates().map(item=>item.body?.terminalId)).toEqual(['terminal-a','terminal-a']);expect(await text(page)).toContain('before');expect(api.stops()).toEqual([]);
 });
@@ -76,13 +82,13 @@ for(const change of [{projectId:'project-b'},{threadId:'thread-b'},{terminalId:'
 
 test('revoked ownership fences a pending create, keyboard input, reads and Stop',async({page})=>{
  const gate=deferred();const api=await mount(page,{create:async route=>{await gate.promise;await json(route,result());}});
- await expect.poll(()=>api.creates().length).toBe(1);await page.evaluate(()=>window.terminalFixture.revoke());gate.resolve();await page.waitForTimeout(650);
+ await expect.poll(()=>api.creates().length).toBe(1);await page.evaluate(()=>window.terminalFixture.revoke());gate.resolve();expect(await quiescent(page,650,traffic(api))).toHaveLength(1);
  await page.getByRole('button',{name:'Stop',exact:true}).dispatchEvent('click');expect(api.reads()).toEqual([]);expect(api.stops()).toEqual([]);expect(await text(page)).not.toContain('before');
 });
 
 test('disposed creation acknowledgment cannot write output, storage or commands',async({page})=>{
  const gate=deferred();const api=await mount(page,{create:async route=>{await gate.promise;await json(route,result());}});
- await expect.poll(()=>api.creates().length).toBe(1);await page.evaluate(()=>window.terminalFixture.show(false));await expect(page.locator('.xterm')).toHaveCount(0);gate.resolve();await page.waitForTimeout(650);
+ await expect.poll(()=>api.creates().length).toBe(1);await page.evaluate(()=>window.terminalFixture.show(false));await expect(page.locator('.xterm')).toHaveCount(0);gate.resolve();expect(await quiescent(page,650,traffic(api))).toHaveLength(1);
  expect(api.reads()).toEqual([]);expect(api.stops()).toEqual([]);expect(await page.evaluate(()=>localStorage.getItem('gen-terminal:project-a:thread-a:terminal-a'))).toBeNull();expect(api.errors).toEqual([]);
 });
 
@@ -102,17 +108,17 @@ test('bound New uses openAnother and never recreates the owned terminal in place
 
 test('an unconfirmed create offers no blind Retry or fresh ID',async({page})=>{
  const api=await mount(page,{create:route=>failure(route)});await expect(page.getByRole('status')).toHaveText('Start unconfirmed');await expect(page.getByRole('button',{name:'Stop',exact:true})).toBeDisabled();await expect(page.getByRole('button',{name:/Retry|New terminal/})).toHaveCount(0);
- await page.waitForTimeout(650);expect(api.creates()).toHaveLength(1);expect(api.reads()).toEqual([]);
+ expect(await quiescent(page,650,traffic(api))).toHaveLength(1);expect(api.creates()).toHaveLength(1);expect(api.reads()).toEqual([]);
 });
 
 test('bounded host output warns before appending and a reported end stops polling',async({page})=>{
  const api=await mount(page,{read:route=>json(route,result('terminal-a','tail\r\n',{start:100,cursor:106,exited:true,exitCode:0}))});
- await expect(page.getByRole('status')).toHaveText('Ended');await expect.poll(()=>text(page)).toContain('[Earlier output expired from the bounded host buffer]');expect(await text(page)).toContain('tail');await page.waitForTimeout(650);expect(api.reads()).toHaveLength(1);await expect(page.getByRole('button',{name:'Stop',exact:true})).toBeDisabled();
+ await expect(page.getByRole('status')).toHaveText('Ended');await expect.poll(()=>text(page)).toContain('[Earlier output expired from the bounded host buffer]');expect(await text(page)).toContain('tail');expect(await quiescent(page,650,traffic(api))).toHaveLength(1);expect(api.reads()).toHaveLength(1);await expect(page.getByRole('button',{name:'Stop',exact:true})).toBeDisabled();
 });
 
 test('Stop is single flight and a late read cannot undo its confirmed end',async({page})=>{
  const readGate=deferred(),stopGate=deferred();const api=await mount(page,{read:async route=>{await readGate.promise;await json(route,result('terminal-a','late',{start:8,cursor:12}));},command:async(route,body)=>{if(body.type==='stop'){await stopGate.promise;await json(route,result('terminal-a','before\r\nfinal\r\n',{cursor:15,exited:true}));}else await json(route,result());}});
- await expect.poll(()=>api.reads().length).toBe(1);const stop=page.getByRole('button',{name:'Stop',exact:true});await stop.click();await expect(stop).toBeDisabled();await stop.dispatchEvent('click');expect(api.stops()).toHaveLength(1);stopGate.resolve();await expect(page.getByRole('status')).toHaveText('Ended');readGate.resolve();await page.waitForTimeout(650);await expect(page.getByRole('status')).toHaveText('Ended');expect(await text(page)).not.toContain('late');await expect.poll(()=>text(page)).toContain('final');
+ await expect.poll(()=>api.reads().length).toBe(1);const stop=page.getByRole('button',{name:'Stop',exact:true});await stop.click();await expect(stop).toBeDisabled();await stop.dispatchEvent('click');expect(api.stops()).toHaveLength(1);stopGate.resolve();await expect(page.getByRole('status')).toHaveText('Ended');readGate.resolve();expect(await quiescent(page,650,traffic(api))).toHaveLength(1);await expect(page.getByRole('status')).toHaveText('Ended');expect(await text(page)).not.toContain('late');await expect.poll(()=>text(page)).toContain('final');
 });
 
 test('a late failed Stop cannot replace a different terminal owner state',async({page})=>{
@@ -126,7 +132,7 @@ test('real scrollback, viewport and input/fit bindings survive read Retry',async
  await expect(page.getByRole('button',{name:'Retry',exact:true})).toBeVisible();await expect.poll(()=>text(page)).toContain('line-2049');await page.evaluate(()=>window.terminalFixture.instances[0].scrollToTop());const before=await page.evaluate(()=>{const terminal=window.terminalFixture.instances[0];return {length:terminal.buffer.active.length,viewport:terminal.buffer.active.viewportY,first:terminal.buffer.active.getLine(0)?.translateToString(),scrollback:terminal.options.scrollback};});
  expect(before.scrollback).toBe(2000);expect(before.length).toBeLessThanOrEqual(2000+100);await page.getByRole('button',{name:'Retry',exact:true}).click();await expect.poll(()=>text(page)).toContain('tail');expect(await page.evaluate(()=>window.terminalFixture.instances.length)).toBe(1);expect(await page.evaluate(()=>window.terminalFixture.instances[0].buffer.active.viewportY)).toBe(before.viewport);
  await page.locator('.xterm-helper-textarea').press('x');await expect.poll(()=>api.requests.some(item=>item.body?.type==='input'&&item.body.data==='x')).toBe(true);await page.setViewportSize({width:700,height:620});await expect.poll(()=>api.requests.filter(item=>item.body?.type==='resize').length).toBeGreaterThan(1);
- await page.evaluate(()=>window.terminalFixture.revoke());const count=api.requests.length;await page.locator('.xterm-helper-textarea').press('y');await page.setViewportSize({width:680,height:600});await page.waitForTimeout(650);expect(api.requests).toHaveLength(count);
+ await page.evaluate(()=>window.terminalFixture.revoke());const count=api.requests.length;await page.locator('.xterm-helper-textarea').press('y');await page.setViewportSize({width:680,height:600});expect(await quiescent(page,650,async()=>[api.requests.length])).toHaveLength(1);expect(api.requests).toHaveLength(count);
 });
 
 for(const theme of ['dark','light'])test(`${theme} narrow keyboard recovery respects reduced motion`,async({page},info)=>{
@@ -155,7 +161,7 @@ test('a read Retry keeps its cursor through authenticated session renewal',async
 
 test('ownership revocation during authentication renewal cannot resend a creation POST',async({page})=>{
  const gate=deferred();const api=await mount(page,{bootstrap:async(route,index)=>{if(index>1)await gate.promise;await json(route,{csrfToken:'synthetic-csrf'});},create:route=>json(route,{error:{code:'CSRF_REQUIRED',message:'Synthetic expired session'}},403)});
- await expect.poll(()=>api.requests.filter(item=>item.path==='/api/bootstrap').length).toBe(2);await page.evaluate(()=>window.terminalFixture.revoke());gate.resolve();await page.waitForTimeout(650);expect(api.creates()).toHaveLength(1);expect(api.stops()).toEqual([]);expect(api.reads()).toEqual([]);
+ await expect.poll(()=>api.requests.filter(item=>item.path==='/api/bootstrap').length).toBe(2);await page.evaluate(()=>window.terminalFixture.revoke());gate.resolve();expect(await quiescent(page,650,traffic(api))).toHaveLength(1);expect(api.creates()).toHaveLength(1);expect(api.stops()).toEqual([]);expect(api.reads()).toEqual([]);
 });
 
 test('an old creation cannot borrow a replacement guard during an uncommitted owner handoff',async({page})=>{
@@ -163,7 +169,7 @@ test('an old creation cannot borrow a replacement guard during an uncommitted ow
  await expect.poll(()=>api.requests.filter(item=>item.path==='/api/bootstrap').length).toBe(2);
  await page.evaluate(()=>window.terminalFixture.replaceGuard());
  await expect.poll(()=>page.evaluate(()=>window.terminalFixture.handoffRenders())).toBeGreaterThan(0);
- gate.resolve();await page.waitForTimeout(650);
+ gate.resolve();expect(await quiescent(page,650,traffic(api))).toHaveLength(1);
  expect(api.creates()).toHaveLength(1);expect(api.stops()).toEqual([]);expect(api.reads()).toEqual([]);
 });
 

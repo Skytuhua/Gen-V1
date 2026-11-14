@@ -5,6 +5,18 @@ type ScrollFixture={
  element:HTMLElement;content:HTMLElement;positions:{top:number;tail:boolean}[];
 };
 declare global{interface Window{conversationFixture:ScrollFixture;}}
+const flushFrames = (page: Page) => page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(() => resolve())))));
+const scrollTop = (page: Page) => page.evaluate(() => window.conversationFixture.element.scrollTop);
+const scrollSettled = (page: Page) => page.evaluate(() => new Promise<void>(resolve => {
+  const el = window.conversationFixture.element; let last = el.scrollTop, still = 0, frames = 0;
+  const tick = () => { const delta = Math.abs(el.scrollTop - last); last = el.scrollTop; still = delta < .5 ? still + 1 : 0; if (++frames > 240 || still >= 10) resolve(); else requestAnimationFrame(tick); };
+  requestAnimationFrame(tick);
+}));
+const scrollStable = (page: Page, ms: number) => page.evaluate(async ms => {
+  const el = window.conversationFixture.element, values: number[] = []; const end = performance.now() + ms;
+  await new Promise<void>(resolve => { const tick = () => { values.push(el.scrollTop); if (performance.now() < end) requestAnimationFrame(tick); else resolve(); }; requestAnimationFrame(tick); });
+  return values;
+}, ms);
 async function mount(page:Page){
  await page.route('**/scroll-fixture',route=>route.fulfill({contentType:'text/html',body:'<!doctype html><html><style>body{margin:20px;background:#000;color:#eee}#chat{height:360px;width:640px;overflow:auto;overflow-anchor:none}#content{height:800px;background:linear-gradient(#191919,#303030)}input{display:block}p{margin:0;padding:12px}</style><div id="chat" tabindex="0"><div id="content"><input aria-label="Inline note"><p>Earlier conversation</p></div></div></html>'}));
  await page.goto('/scroll-fixture');
@@ -33,11 +45,11 @@ test('native tail frames move continuously and never record a false manual-readi
 test('real wheel input interrupts following and later content leaves the reader in place',async({page})=>{
  await mount(page);await page.evaluate(()=>{window.conversationFixture.content.style.height='1700px';});
  await expect.poll(()=>page.evaluate(()=>window.conversationFixture.element.scrollTop)).toBeGreaterThan(500);
- await page.mouse.move(300,200);await page.mouse.wheel(0,-320);await page.waitForTimeout(350);
+ await page.mouse.move(300,200);await page.mouse.wheel(0,-320);await scrollSettled(page);
  const reading=await page.evaluate(()=>window.conversationFixture.element.scrollTop);
  expect(await page.evaluate(()=>window.conversationFixture.positions.at(-1)?.tail)).toBe(false);
  await page.evaluate(()=>{const f=window.conversationFixture;f.content.style.height='2200px';f.controller.update('one',{top:440,tail:true});});
- await page.waitForTimeout(850);expect(await page.evaluate(()=>window.conversationFixture.element.scrollTop)).toBeCloseTo(reading,0);
+ const held=await scrollStable(page,850);expect(Math.max(...held.map(value=>Math.abs(value-reading)))).toBeLessThan(1);
 });
 
 test('restoration and prepended history keep their anchor without a cross-thread journey',async({page})=>{
@@ -48,7 +60,7 @@ test('restoration and prepended history keep their anchor without a cross-thread
   f.controller.update('one',{top:440,tail:true});const switched=f.element.scrollTop;return {restored,anchored,switched};
  });
  expect(positions).toEqual({restored:130,anchored:530,switched:840});
- await page.waitForTimeout(800);expect(await page.evaluate(()=>window.conversationFixture.element.scrollTop)).toBe(840);
+ await scrollSettled(page);expect(await scrollTop(page)).toBe(840);
 });
 
 test('reduced motion and disposal do not leave delayed scroll work',async({page})=>{
@@ -59,13 +71,13 @@ test('reduced motion and disposal do not leave delayed scroll work',async({page}
  await page.evaluate(()=>{const f=window.conversationFixture;f.content.style.height='2000px';f.controller.update('one',{top:1040,tail:true});});
  await expect.poll(()=>page.evaluate(()=>window.conversationFixture.element.scrollTop)).toBeGreaterThan(1040);
  const held=await page.evaluate(()=>{const f=window.conversationFixture;f.controller.dispose();return f.element.scrollTop;});
- await page.evaluate(()=>{window.conversationFixture.content.style.height='2400px';});await page.waitForTimeout(800);
- expect(await page.evaluate(()=>window.conversationFixture.element.scrollTop)).toBeCloseTo(held,0);
+ await page.evaluate(()=>{window.conversationFixture.content.style.height='2400px';});const heldAfterDispose=await scrollStable(page,800);
+ expect(Math.max(...heldAfterDispose.map(value=>Math.abs(value-held)))).toBeLessThan(1);
 });
 
 for(const policy of ['off','reduced'] as const)test(`app ${policy} settles following and preserves a detached reader`,async({page})=>{
  await page.emulateMedia({reducedMotion:'no-preference'});await mount(page);
  const position=await page.evaluate(async policy=>{const f=window.conversationFixture;f.content.style.height='1900px';f.controller.update('one',{top:440,tail:true});const before=f.element.scrollTop;document.documentElement.dataset.motion=policy;await Promise.resolve();const after=f.element.scrollTop;f.controller.beginManualScroll();f.controller.scrollTo(120);document.documentElement.dataset.motion='system';await Promise.resolve();document.documentElement.dataset.motion=policy;await Promise.resolve();return {before,after,detached:f.element.scrollTop};},policy);
  expect(position).toEqual({before:440,after:1540,detached:120});
- await page.evaluate(()=>{window.conversationFixture.controller.dispose();document.documentElement.dataset.motion='system';window.conversationFixture.content.style.height='2500px';});await page.waitForTimeout(50);expect(await page.evaluate(()=>window.conversationFixture.element.scrollTop)).toBe(120);
+ await page.evaluate(()=>{window.conversationFixture.controller.dispose();document.documentElement.dataset.motion='system';window.conversationFixture.content.style.height='2500px';});await flushFrames(page);expect(await scrollTop(page)).toBe(120);
 });
