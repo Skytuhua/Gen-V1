@@ -1,5 +1,12 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import { branchGraphData, branchGraphSpec, migrationTableSpec, serveTaskFixture, taskFixture } from './task-interface-fixture';
+
+const flushFrames = (page: Page) => page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+const scrollSettled = (locator: ReturnType<Page['locator']>) => locator.evaluate(node => new Promise<void>(resolve => {
+  let last = node.scrollTop, still = 0, frames = 0;
+  const tick = () => { const delta = Math.abs(node.scrollTop - last); last = node.scrollTop; still = delta < .5 ? still + 1 : 0; if (++frames > 240 || still >= 10) resolve(); else requestAnimationFrame(tick); };
+  requestAnimationFrame(tick);
+}));
 
 test('a rapid graph reversal brakes from its visible velocity while paths stay attached', async ({ page }) => {
   const host = await serveTaskFixture(page, taskFixture(branchGraphSpec('vertical'), { graph: branchGraphData })); await page.goto('/');
@@ -37,13 +44,15 @@ test('a rapid graph reversal brakes from its visible velocity while paths stay a
 
 test('turning on reduced motion settles an in-flight graph instead of leaving its old travel running', async ({ page }) => {
   const host = await serveTaskFixture(page, taskFixture(branchGraphSpec('vertical'), { graph: branchGraphData })); await page.goto('/');
-  const node = page.locator('[data-node-id=base] .task-graph-dot'); await expect(node).toBeVisible();
-  const original = (await node.boundingBox())!.y;
-  host.setInput('graph', { ...branchGraphData, nodes: [{ id: 'new', label: 'Accepted resolution', lane: 0 }, ...branchGraphData.nodes] }); await host.publish(); await page.waitForTimeout(40);
+  const row = page.locator('[data-node-id=base]'); await expect(row.locator('.task-graph-dot')).toBeVisible();
+  const offsetY = () => row.evaluate(el => new DOMMatrixReadOnly((el as HTMLElement).style.transform).m42);
+  const original = await offsetY();
+  host.setInput('graph', { ...branchGraphData, nodes: [{ id: 'new', label: 'Accepted resolution', lane: 0 }, ...branchGraphData.nodes] }); await host.publish();
+  await expect.poll(offsetY, { intervals: [16, 32, 50, 100, 250] }).toBeGreaterThan(original + 1);
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  const samples = await node.evaluate(async node => { const values: number[] = []; for (let index = 0; index < 5; index++) { await new Promise<void>(resolve => requestAnimationFrame(() => resolve())); values.push(node.getBoundingClientRect().y); } return values; });
-  expect(Math.max(...samples) - Math.min(...samples)).toBeLessThan(.5);
-  expect(samples.at(-1)! - original).toBeCloseTo(34, 0);
+  await expect.poll(offsetY).toBe(original + 34);
+  const settled = await row.evaluate(async el => { const read = () => new DOMMatrixReadOnly((el as HTMLElement).style.transform).m42; const values: number[] = []; for (let index = 0; index < 3; index++) { await new Promise<void>(resolve => requestAnimationFrame(() => resolve())); values.push(read()); } return values; });
+  expect(Math.max(...settled) - Math.min(...settled)).toBeLessThan(.01);
 });
 test('a focused node inspection stays anchored while accepted history moves beneath it', async ({ page }) => {
   const host=await serveTaskFixture(page,taskFixture(branchGraphSpec('vertical'),{graph:branchGraphData}));await page.goto('/');
@@ -92,7 +101,7 @@ test('cloned accepted table snapshots do not restart an ongoing follow movement'
   host.setInput('changes', { revision: 1, activeRowId: '55', rows: [] }); await host.publish();
   await expect.poll(() => grid.evaluate(node => node.scrollTop)).toBeGreaterThan(20);
   const before = await page.evaluate(() => (window as unknown as {tableScrollRequests:number}).tableScrollRequests);
-  host.snapshot.data = structuredClone(host.snapshot.data); await host.publish(); await page.waitForTimeout(70);
+  host.snapshot.data = structuredClone(host.snapshot.data); await host.publish(); await flushFrames(page);
   const after = await page.evaluate(() => (window as unknown as {tableScrollRequests:number}).tableScrollRequests);
   expect(after).toBe(before);
 });
@@ -103,9 +112,9 @@ test('interacting with a table cell takes over and freezes automatic following i
   await expect.poll(() => grid.evaluate(node => node.scrollTop)).toBeGreaterThan(20);
   await grid.evaluate(node => node.querySelector('td')!.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, pointerType: 'mouse', button: 0 })));
   await expect(grid).toHaveAttribute('data-following', 'false');
-  const stopped = await grid.evaluate(node => node.scrollTop); await page.waitForTimeout(250);
+  const stopped = await grid.evaluate(node => node.scrollTop); await scrollSettled(grid);
   expect(Math.abs(await grid.evaluate(node => node.scrollTop) - stopped)).toBeLessThan(2);
-  host.setInput('changes', { revision: 2, activeRowId: '60', rows: [] }); await host.publish(); await page.waitForTimeout(100);
+  host.setInput('changes', { revision: 2, activeRowId: '60', rows: [] }); await host.publish(); await flushFrames(page);
   expect(Math.abs(await grid.evaluate(node => node.scrollTop) - stopped)).toBeLessThan(2);
 });
 

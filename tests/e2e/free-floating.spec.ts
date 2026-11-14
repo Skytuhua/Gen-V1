@@ -1,4 +1,6 @@
-import {test,expect} from '@playwright/test';
+import {test,expect,type Page} from '@playwright/test';
+
+const flushFrames=(page:Page)=>page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
 import {resolve} from 'node:path';
 
 const fixture='/@fs/'+resolve('tests/e2e/free-floating-fixture.tsx').replaceAll('\\','/');
@@ -40,7 +42,7 @@ test('keyboard movement releases the rail in both axes and manual sizing preserv
  await expect.poll(async()=>Math.round((await panel.boundingBox())!.width-before.width)).toBe(0);
  await expect.poll(async()=>Math.round((await panel.boundingBox())!.height-before.height)).toBe(12);
  await expect(panel.getByRole('textbox',{name:'Tool draft'})).toHaveValue('Keep my draft');
- await page.waitForTimeout(150);await page.reload();
+ await flushFrames(page);await page.reload();
  await expect(panel).toHaveAttribute('data-floating','true');
  await expect.poll(async()=>Math.round((await panel.boundingBox())!.x-before.x)).toBe(-12);
 });

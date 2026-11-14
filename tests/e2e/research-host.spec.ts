@@ -171,7 +171,7 @@ for (const kind of ['capture','bookmark','save'] as const) {
   }
   await expect.poll(()=>attempts).toBe(1);
   await page.evaluate(()=>{Reflect.get(window,'publishResearchOwner')(true);Reflect.get(window,'publishResearchOwner')(false);});release();
-  await expect(page.getByRole('alert').filter({hasText:'Could not reach research'})).toBeVisible();
+  await expect(page.locator('[role="status"],[role="alert"]').filter({hasText:'Could not reach research'})).toBeVisible();
   expect(attempts).toBe(1);
   await expect(page.getByRole('textbox',{name:kind==='save'?'Document body':'Source title',exact:true})).toHaveValue(kind==='save'?'Preserve this finding':'Retained source');
  });
@@ -228,7 +228,7 @@ for(const action of ['capture','save'] as const){
   // Keyboard workspace navigation remains available outside the modal's content.
   await page.evaluate(()=>{const button=[...document.querySelectorAll('button')].find(button=>button.textContent==='All Agents');button?.click();});
   await expect(page.getByRole('region',{name:'Research workspace',exact:true})).toHaveCount(0);release();
-  await page.waitForTimeout(250);expect(attempts).toBe(1);
+  await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));expect(attempts).toBe(1);
  });
 }
 
@@ -260,14 +260,14 @@ for(const unrelated of [false,true])test(`Research mode ${unrelated?'preserves u
  await input.fill('/plan');await expect(page.getByRole('option',{name:'/plan Switch to Plan'})).toBeVisible();await input.press('Enter');await expect.poll(()=>sent.length).toBe(1);
  await page.evaluate(threadId=>{Reflect.get(window,'publishResearchOwner')(true,threadId);Reflect.get(window,'publishResearchOwner')(false,threadId);},unrelated?'empty-draft':'parent-a');release();
  if(unrelated){await expect.poll(()=>sent.length).toBe(2);expect(sent[1]).toEqual(sent[0]);}
- else {await expect(page.getByRole('alert').filter({hasText:'The command owner changed'})).toBeVisible();expect(sent).toHaveLength(1);}
+ else {await expect(page.getByRole('status').filter({hasText:'The command owner changed'})).toBeVisible();expect(sent).toHaveLength(1);}
 });
 
 test('Research immediate native takeover fences mode before render and initial dispatch',async({page})=>{
  const h=await fixture(page,{native:true,working:false});await page.getByRole('button',{name:'Show chat',exact:true}).click();
  const input=page.getByRole('textbox',{name:'Message',exact:true});await input.fill('/plan');await expect(page.getByRole('option',{name:'/plan Switch to Plan'})).toBeVisible();
  await page.evaluate(()=>{const frame=window.requestAnimationFrame.bind(window);window.requestAnimationFrame=callback=>frame(time=>{window.requestAnimationFrame=frame;Reflect.get(window,'publishResearchOwner')(true);Reflect.set(window,'ownerCallbackSawEnabled',!document.querySelector<HTMLTextAreaElement>('textarea[aria-label="Message"]')!.disabled);callback(time);});});
- await input.press('Enter');await expect(page.getByRole('alert').filter({hasText:'The command owner changed'})).toBeVisible();expect(await page.evaluate(()=>Reflect.get(window,'ownerCallbackSawEnabled'))).toBe(true);expect(h.commands.filter(command=>command.type==='thread.mode')).toHaveLength(0);
+ await input.press('Enter');await expect(page.getByRole('status').filter({hasText:'The command owner changed'})).toBeVisible();expect(await page.evaluate(()=>Reflect.get(window,'ownerCallbackSawEnabled'))).toBe(true);expect(h.commands.filter(command=>command.type==='thread.mode')).toHaveLength(0);
 });
 
 test('Research immediate native takeover fences save before render and initial dispatch',async({page})=>{

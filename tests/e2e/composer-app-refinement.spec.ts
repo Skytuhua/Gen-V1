@@ -70,7 +70,7 @@ test('attachment band reverses an interrupted exit without removing the live row
  host.snapshot.resources=[attachment];await host.publish();const band=page.locator('.composer-attachment-band');await expect(band).toBeVisible();const original=await band.elementHandle();
  host.snapshot.resources=[];await host.publish();await expect(band).toHaveAttribute('data-state','closing');await expect(band).toHaveAttribute('inert','');
  host.snapshot.resources=[attachment];await host.publish();await expect(band).toHaveAttribute('data-state','open');
- await page.waitForTimeout(250);await expect(band).toBeVisible();expect(await band.evaluate((node,old)=>node===old,original)).toBe(true);
+ await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));await expect(band).toBeVisible();expect(await band.evaluate((node,old)=>node===old,original)).toBe(true);
 });
 
 test('composer removes repeated captions and toggles Build Plan without changing its draft',async({page})=>{

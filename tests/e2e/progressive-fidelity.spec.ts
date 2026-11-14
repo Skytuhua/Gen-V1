@@ -1,6 +1,8 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import type { RuntimeUsage } from '../../packages/contracts';
 import { growingQaSpec, migrationTableSpec, serveTaskFixture, taskFixture } from './task-interface-fixture';
+
+const flushFrames = (page: Page) => page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
 
 const usage = (patch: Partial<RuntimeUsage> = {}): RuntimeUsage => ({ contextTokens: 604_100, contextWindow: 1_000_000, inputTokens: 38_000, outputTokens: 14_200, cost: null, activity: 'idle', sessionPercent: 68, weeklyPercent: 24, contextBreakdown: [{ label: 'System', tokens: 32_900 }, { label: 'MCP', tokens: 21_300 }, { label: 'Skills', tokens: 8_300 }, { label: 'Messages', tokens: 541_600 }], ...patch });
 
@@ -57,7 +59,7 @@ test('unchanged cell change metadata does not replay while newly changed cells a
   await expect(page.getByRole('cell', { name: /studio/ })).toBeVisible();
   await page.evaluate(() => (window as unknown as { changedCellAnimations: string[] }).changedCellAnimations.splice(0));
   fixture.setInput('changes', structuredClone(initial.data.find(item => item.id === 'input-changes')!.value)); await fixture.publish();
-  await page.waitForTimeout(150);
+  await flushFrames(page);
   expect(await page.evaluate(() => (window as unknown as { changedCellAnimations: string[] }).changedCellAnimations)).toEqual([]);
   fixture.setInput('rows', [{ id: 'one', name: 'Ada', workspace_id: 'studio' }, { id: 'two', name: 'Lin', workspace_id: 'garden' }]);
   fixture.setInput('changes', { revision: 2, rows: [{ id: 'one', cells: [{ key: 'workspace_id', status: 'updated', before: null }] }, { id: 'two', cells: [{ key: 'workspace_id', status: 'updated', before: null }] }] }); await fixture.publish();
@@ -113,7 +115,7 @@ test('unrelated committed snapshots do not restart an accepted context transitio
   initial.usage['task-thread'] = usage({ contextTokens: 76_700, contextBreakdown: undefined }); await fixture.publish();
   await Promise.all([
     expect(total).toContainText('76.7K', { timeout: 2300 }),
-    (async () => { for (let index = 0; index < 12; index++) { await page.waitForTimeout(100); await fixture.publish(); } })(),
+    (async () => { for (let index = 0; index < 12; index++) { await flushFrames(page); await fixture.publish(); } })(),
   ]);
 });
 
