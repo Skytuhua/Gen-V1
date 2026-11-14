@@ -37,8 +37,8 @@ async function fixture(page: Page, {native = false, delayed = false, unavailable
   const rows: ThreadNavigationRow[] = snapshot.threads.map(({id, title, projectId, projectName, createdAt, updatedAt, status, runId, presentation}) => ({id, title, projectId, projectName, createdAt, updatedAt, status, runId, presentation}));
   let failed = unavailable, release!: () => void;
   const gate = delayed ? new Promise<void>(resolve => {release = resolve;}) : Promise.resolve();
-  const projects = [{id: 'project-a', name: 'Alpha', authority: {kind: 'local'}, rootPath: 'C:/synthetic/alpha'}];
-  const canvases = ['workspace', 'all-agents', 'code-review', 'research', 'custom'].map(preset => ({id: preset, name: preset, preset, panels: [], viewport: {x: 0, y: 0, zoom: 1}}));
+  const projects = [{id: 'project-a', name: 'Alpha', authority: {kind: 'local'}, rootPath: 'C:/synthetic/alpha', createdAt: '2026-11-06T00:00:00.000Z'}];
+  const canvases = ['workspace', 'all-agents', 'code-review', 'research', 'custom'].map(preset => ({id: preset, name: preset, preset, version: 1, panels: [], filter: 'all', projectIds: [], viewport: {x: 0, y: 0, zoom: 1}}));
   const envelope = {projects, state: {version: 1, revision: 1, activeCanvasId: invalidOwner ? 'missing' : 'all-agents', canvases, profiles: [], disabledKinds: [], integrations: {}}};
   await page.route('**/api/workspace', async route => {await gate; return failed ? route.fulfill({status: 503, json: {error: {code: 'UNAVAILABLE', message: 'Workspace unavailable'}}}) : route.fulfill({json: envelope});});
   await page.route('**/api/workspace/commands', route => {
@@ -216,7 +216,7 @@ test('Settings opens over the monitor with compact metadata and preserves the ow
 
 test('invalid restored owner reports recovery instead of an endless opening state', async ({page}) => {
   const h = await fixture(page, {invalidOwner: true});
-  await expect(page.getByRole('alert')).toContainText('saved workspace');
+  await expect(page.getByRole('alert')).toContainText('workspace layout');
   expect(h.requests.filter(path => path === '/api/snapshot')).toEqual([]);
   h.recover(); await page.getByRole('button', {name: 'Retry workspace', exact: true}).click();
   await expect(page.getByRole('region', {name: 'Agent workspace', exact: true})).toBeVisible();

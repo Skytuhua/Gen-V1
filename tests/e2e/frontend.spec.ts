@@ -59,7 +59,7 @@ async function host(page: Page, initial = snapshot(), hasModels = true) {
     if (url.pathname === '/api/models') return route.fulfill({ json: { models: hasModels ? [{ id: 'test/model', provider: 'test', name: 'Test model' }] : [], ...(!hasModels ? { error: 'No authenticated model is available.' } : {}) } });
     if (url.pathname === '/api/snapshot') { state.snapshotReads++; return route.fulfill({ json: state.snapshot }); }
     if (url.pathname === '/api/shell-settings') return route.fulfill({json: state.snapshot.settings});
-    if (url.pathname === '/api/workspace') return route.fulfill({json: {projects: [], state: {version: 1, revision: 0, activeCanvasId: 'workspace', canvases: [{id: 'workspace', name: 'Workspace', preset: 'workspace', panels: [], viewport: {x: 0, y: 0, zoom: 1}}], profiles: [], disabledKinds: [], integrations: {}}}});
+    if (url.pathname === '/api/workspace') return route.fulfill({json: {projects: [], state: {version: 1, revision: 0, activeCanvasId: 'workspace', canvases: [{id: 'workspace', name: 'Workspace', preset: 'workspace', version: 1, panels: [], filter: 'active', projectIds: [], viewport: {x: 0, y: 0, zoom: 1}}], profiles: [], disabledKinds: [], integrations: {}}}});
     if (url.pathname.endsWith('/mount')) {
       state.mounts++;
       const artifact = state.snapshot.artifacts.find(item => item.id === url.pathname.split('/')[3])!;
