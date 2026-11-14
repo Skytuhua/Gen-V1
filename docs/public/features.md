@@ -26,7 +26,7 @@ Projects and threads live in the left navigation. The compact composer holds pro
 
 ![A sample task plan and compact project context beside the conversation](media/plan-context.png)
 
-New native detachment is unavailable in the current source. Historical documentation may describe older detachable-surface experiments; it is not a promise of current controls. `/btw` and `/side` remain available for side conversations.
+In the Windows desktop app, open a conversation’s sidebar menu and choose **Detach thread** to move it into a pinned window. Use **Return to workspace** to bring it back. Canvas panels do not detach; context and usage minimize in the workspace. `/btw` and `/side` remain available for side conversations. See [the preview notes](release-notes.md) for current limits.
 
 ## Model choice with account continuity
 
