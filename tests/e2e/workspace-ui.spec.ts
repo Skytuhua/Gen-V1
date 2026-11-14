@@ -87,19 +87,6 @@ test('retained navigation directs tools to the main workspace without creating d
  expect(await page.evaluate(()=>(window as any).__workspaceNativeCalls.filter((value:any)=>value[0]==='detach'))).toEqual([]);
 });
 
-test('opened native child survives a placement failure and metadata retry retains one owner and the chat draft',async({page})=>{
- test.skip(true,'Historical detached-view creation evidence; new detachment is retired.');
- await nativeBridge(page);let failPlacement=true;
- const host=await fixture(page,[panel('chat-origin','task-thread',24),panel('files-origin','task-thread',528,'files')],type=>{if(failPlacement&&type==='workspace.panel.update'){failPlacement=false;return {code:'FIXTURE_PLACEMENT_FAILED',message:'Synthetic placement write failed'};}});
- const draft=page.locator('[data-panel-id="chat-origin"]').getByRole('textbox',{name:'Message',exact:true}),identity=await draft.elementHandle();await draft.fill('Retain this draft');
- const files=page.locator('[data-panel-id="files-origin"]');await files.getByRole('button',{name:'Detach Files',exact:true}).click();
- await expect(files).toContainText('This view is open in another window.');await expect(files.getByRole('button',{name:'Focus window',exact:true})).toBeVisible();await expect(files.getByRole('button',{name:'Save window placement',exact:true})).toBeVisible();
- await expect(page.getByRole('alert')).toContainText('The window opened, but its panel placement could not be saved');
- expect(host.envelope.state.canvases[0].panels.find(value=>value.id==='files-origin')!.placement).toBe('canvas');await expect(draft).toHaveValue('Retain this draft');expect(await draft.evaluate((node,old)=>node===old,identity)).toBe(true);
- const first=await page.evaluate(async()=>await (window as any).harnessDesktop.list());expect(first.filter((value:any)=>value.id==='native')).toHaveLength(1);
- await files.getByRole('button',{name:'Save window placement',exact:true}).click();await expect.poll(()=>host.envelope.state.canvases[0].panels.find(value=>value.id==='files-origin')!.placement).toBe('native');
- const after=await page.evaluate(async()=>await (window as any).harnessDesktop.list());expect(after.filter((value:any)=>value.id==='native').map((value:any)=>value.id)).toEqual(first.filter((value:any)=>value.id==='native').map((value:any)=>value.id));await expect(draft).toHaveValue('Retain this draft');expect(await draft.evaluate((node,old)=>node===old,identity)).toBe(true);
-});
 
 test('delegated agent panels page the actual child transcript without a composer',async({page})=>{
  await fixture(page,[panel('agent-panel','task-thread',24,'agent')]);
@@ -202,35 +189,7 @@ for(const liveProject of [false,true])test(`saved native ${liveProject?'live pro
  expect(value.binding).toEqual(binding);
 });
 
-test('side draft follows the native App composer and returns with rejected and newer pending edits intact',async({page})=>{
- test.skip(true,'Historical detached-view creation evidence; new detachment is retired.');
- await nativeBridge(page);await fixture(page,[panel('side-panel','side',24)]);
- const side=page.getByRole('textbox',{name:'Message to Side investigation',exact:true});await side.fill('Draft before detach');
- await page.getByRole('button',{name:'Detach Side investigation',exact:true}).click();
- await page.evaluate(()=>sessionStorage.setItem('workspace-test-surface',JSON.stringify({kind:'thread',threadId:'side'})));await page.reload();
- await expect(side).toHaveValue('Draft before detach');await side.fill('Rejected native draft');
- await page.route('**/api/commands',async route=>{const command=route.request().postDataJSON();if(command.type==='message.send')return route.fulfill({status:409,json:{error:{code:'RUN_BUSY',message:'Synthetic native side refused'}}});await route.fallback();});
- await page.getByRole('button',{name:'Send',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Synthetic native side refused');await expect(side).toHaveValue('Rejected native draft');
- let release:()=>void=()=>{},received:()=>void=()=>{};const pending=new Promise<void>(resolve=>release=resolve),sent=new Promise<void>(resolve=>received=resolve);
- await page.route('**/api/commands',async route=>{const command=route.request().postDataJSON();if(command.type==='message.send'){received();await pending;return route.fulfill({json:{commandId:command.id,seq:2,result:{}}});}await route.fallback();});
- await page.getByRole('button',{name:'Send',exact:true}).click();await sent;await side.fill('Newer edit while native send is pending');release();await expect(side).toHaveValue('Newer edit while native send is pending');
- await page.evaluate(()=>{sessionStorage.setItem('workspace-test-surface','{"kind":"main"}');sessionStorage.setItem('workspace-test-focus','{"kind":"thread","threadId":"side"}');});await page.reload();
- await expect(side).toHaveValue('Newer edit while native send is pending');await expect(side).toBeEnabled();
-});
 
-test('native instance visibility uses the owned native window and retains the host record on refusal',async({page})=>{
- test.skip(true,'Historical detached-view creation evidence; new detachment is retired.');
- await nativeBridge(page);const value=panel('thread-origin','task-thread',24),host=await fixture(page,[value]);
- await page.getByRole('button',{name:'Detach Main investigation',exact:true}).click();await expect.poll(()=>value.placement).toBe('native');
- await page.getByRole('button',{name:'Panels',exact:false}).click();
- await page.getByRole('button',{name:'Hide Main investigation',exact:true}).click();
- await expect.poll(()=>page.evaluate(()=>(window as any).__workspaceNativeCalls)).toContainEqual(['control',{type:'visibility',windowId:'native',visible:false}]);expect(value.visible).toBe(false);
- await page.getByRole('button',{name:'Show Main investigation',exact:true}).click();await expect.poll(()=>value.visible).toBe(true);
- await page.getByRole('button',{name:'Hide thread window',exact:true}).click();await expect(page.getByRole('button',{name:'Show Main investigation',exact:true})).toBeVisible();
- await page.getByRole('button',{name:'Show Main investigation',exact:true}).click();await expect.poll(()=>page.evaluate(()=>(window as any).__workspaceNativeCalls.at(-1))).toEqual(['control',{type:'visibility',windowId:'native',visible:true}]);
- await page.evaluate(()=>(window as any).__failNativeControl=true);await page.getByRole('button',{name:'Hide Main investigation',exact:true}).click();
- await expect(page.getByRole('alert')).toContainText('Synthetic native visibility refused');expect(value.visible).toBe(true);expect(host.commands.some(command=>command.type==='run.stop')).toBe(false);
-});
 
 test('keyboard and refreshed browser panel geometry updates native bounds while menus still occlude it',async({page},testInfo)=>{
  await nativeBridge(page);const browser=panel('browser-panel','task-thread',24,'browser');browser.binding.browserId='browser';await fixture(page,[browser]);
