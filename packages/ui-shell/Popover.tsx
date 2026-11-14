@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type HTMLAttributes, type ReactNode, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { placePopover, type PopoverPlacement } from './overlay-position';
+import { retainFocus } from './focus-retention';
 import './tokens.css';
 
 export interface PopoverProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
@@ -101,7 +102,11 @@ export function Popover({ anchor, contentRef, initialFocus, open, present, width
     };
     document.addEventListener('pointerdown', outside);
     document.addEventListener('focusin', outside);
-    return () => { document.removeEventListener('pointerdown', outside); document.removeEventListener('focusin', outside); };
+    // A focused control that disables drops focus to <body>; pull it back inside.
+    // Microtask scheduling lets this nested retention win over an owning modal's
+    // frame-deferred retention, so focus is not yanked out of the popover.
+    const release = retainFocus(document, () => content.current);
+    return () => { document.removeEventListener('pointerdown', outside); document.removeEventListener('focusin', outside); release(); };
   }, [open, anchor, content]);
 
   if (!(present ?? (open || leaving)) || !root || !placement) return null;

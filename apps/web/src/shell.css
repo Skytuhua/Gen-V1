@@ -271,3 +271,8 @@
 
 .shell-workarea[data-tool-layout=stacked]>.workspace-tools:has(>.custom-tools-dock) { --stacked-tool-min:calc(64px + var(--ui-tool-body-min)); }
 .workspace-tools[hidden] { display:none!important; }
+.shell-notice { position:fixed; bottom:64px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:14px; max-width:calc(100vw - 28px); border:1px solid var(--border); background:var(--surface); box-shadow:var(--elevation); border-radius:10px; padding:10px 12px 10px 16px; font-size:12px; z-index:55; animation:shell-notice-in var(--ui-motion-toast-enter) var(--ui-ease-enter) both; }
+.shell-notice[data-leaving] { animation:shell-notice-out var(--ui-motion-toast-exit) var(--ui-ease-move) both; }
+@keyframes shell-notice-in { from { opacity:0; transform:translate(-50%,8px); } }
+@keyframes shell-notice-out { to { opacity:0; transform:translate(-50%,8px); } }
+@media(prefers-reduced-motion:reduce) { .shell-notice { animation:none; } }

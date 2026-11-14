@@ -6,7 +6,7 @@ import {createSplitWorkspaceLayout,applySplitWorkspaceCommand} from '../../packa
 import type {SplitWorkspaceLayout} from '../../packages/contracts/split-workspace';
 import {serveTaskFixture, taskFixture} from './task-interface-fixture';
 
-async function fixture(page: Page, {native = false, delayed = false, unavailable = false, invalidOwner = false, working = true, pinned = false, archiveConfirmation = true} = {}) {
+async function fixture(page: Page, {native = false, delayed = false, unavailable = false, invalidOwner = false, working = true, pinned = false, archiveConfirmation = true, emptyAgents = false, plugins = {} as {fail?: boolean; manifests?: unknown[]}} = {}) {
   const snapshot = taskFixture({root: 'text', elements: {text: {type: 'Text', props: {text: 'Synthetic host fixture'}}}});
   snapshot.threads[0] = {...snapshot.threads[0], id: 'parent-a', title: 'Project investigation', projectId: 'project-a', projectName: 'Alpha', status: working ? 'working' : 'ready', runId: working ? 'run-a' : null};
   snapshot.activeThreadId = 'parent-a'; snapshot.artifacts = []; snapshot.userStates = []; snapshot.data = []; snapshot.messages = [];
@@ -63,13 +63,13 @@ async function fixture(page: Page, {native = false, delayed = false, unavailable
   await page.route('**/api/shell/archive?*', route => route.fulfill({json: {sequence: 1, total: 0, items: [], nextCursor: null}}));
   await page.route('**/api/shell/navigation?*', route => {const archived = new URL(route.request().url()).searchParams.get('archived') === 'true'; return route.fulfill({json: {sequence: 1, total: archived ? 0 : rows.length, items: archived ? [] : rows, nextCursor: null, order: 'created-desc', stats: {pinned: 0, working: 1, waiting: 0, settled: 0, minOrder: 0, maxOrder: 0}}});});
   await page.route('**/api/shell/navigation/*', route => route.fulfill({json: rows.find(row => row.id === new URL(route.request().url()).pathname.split('/').at(-1))}));
-  await page.route('**/api/plugins', route => route.fulfill({json: {plugins: []}}));
+  await page.route('**/api/plugins', route => plugins.fail ? route.fulfill({status: 503, json: {error: {code: 'UNAVAILABLE', message: 'Plugin catalog unavailable'}}}) : route.fulfill({json: {plugins: plugins.manifests ?? []}}));
   const agent: AgentSummary = {agentId: 'thread:parent-a', parentId: null, rootId: 'thread:parent-a', jobId: null, threadId: 'parent-a', projectId: 'project-a', projectName: 'Alpha', title: 'Project investigation', status: working ? 'working' : 'ready', modelId: 'test/model', currentAction: 'Reviewing sources', reportedPercent: null, createdAt: '2026-11-06', updatedAt: '2026-11-06', orderKey: 'a', revision: 1, archived: false, readOnly: false, metadata: 'thread'};
   await page.route(url => url.pathname.startsWith('/api/agents'), route => {
     const url = new URL(route.request().url());
-    if (url.pathname === '/api/agents') return route.fulfill({json: {authority: 'personal', scopeKey: 'scope', sequence: 10, items: [agent], ancestors: [], nextCursor: null}});
+    if (url.pathname === '/api/agents') return route.fulfill({json: {authority: 'personal', scopeKey: 'scope', sequence: 10, items: emptyAgents ? [] : [agent], ancestors: [], nextCursor: null}});
     if (url.pathname.endsWith('/updates')) return route.fulfill({json: {authority: 'personal', scopeKey: 'scope', fromSequence: Number(url.searchParams.get('after')), sequence: 10, resync: false, upserts: [], removed: [], ancestors: [], transcripts: []}});
-    if (url.pathname.endsWith('/events')) return route.fulfill({contentType: 'text/event-stream', body: ': connected\n\n'});
+    if (url.pathname.endsWith('/events')) return; // hold the SSE connection open so the controller settles on Live
     if (url.pathname.endsWith('/history')) return route.fulfill({json: {authority: 'personal', agentId: agent.agentId, threadId: agent.threadId, sequence: 10, nextCursor: null, messages: [{id: 'reply-a', threadId: agent.threadId, role: 'assistant', createdAt: '2026-11-06', runId: 'run-a', content: 'Bound live transcript', contentOffset: 0, contentLength: 21, nextContentCursor: null}]}});
     return route.fulfill({status: 404});
   });
@@ -836,4 +836,44 @@ for(const blocker of ['assets','journal','handoff'] as const)test(`monitor Setti
  if(blocker==='journal')expect(await page.evaluate(async()=>{const path='/src/journal.ts';return (await import(path)).journalRead('settings-reload-test');})).toEqual({draft:'Retain memory draft'});
  await page.evaluate(()=>{localStorage.removeItem('harness:signature-assets:v1:unmounted-owner:state');(window as any).failSettingsWrites=false;(window as any).releaseSettingsGuard?.();});
  await dialog.getByRole('button',{name:'Close dialog',exact:true}).click();await expect(dialog).toHaveCount(0);
+});
+
+const pluginWorkspaceManifest={id:'sample-plugin',name:'Sample',version:'1.0.0',apiVersion:1,compatibleGenVersions:'^0.6.5',frontendEntry:'frontend/index.html',hostEntry:'host/main.mjs',workspaces:[{id:'overview',title:'Overview',entryView:'overview-map'}]};
+
+test('plugin workspace tabs stay reachable from All Agents and open through the conversation owner',async({page})=>{
+ const h=await fixture(page,{working:false,plugins:{manifests:[pluginWorkspaceManifest]}});
+ const tab=page.getByRole('button',{name:'Overview',exact:true});
+ await expect(tab).toBeVisible();
+ await expect(page.getByRole('button',{name:'All Agents',exact:true})).toHaveAttribute('aria-pressed','true');
+ await tab.click();
+ await expect(page.locator('section.plugin-workspace[aria-label="Overview"]')).toBeVisible();
+ await expect(tab).toHaveAttribute('aria-pressed','true');
+ expect(h.envelope.state.activeCanvasId).toBe('workspace');
+ expect(h.commands.filter(command=>command.type==='thread.create')).toEqual([]);
+});
+
+test('a failed plug-in catalog keeps a dismissible toast and a persistent inline retry in All Agents',async({page})=>{
+ const plugins:{fail?:boolean;manifests?:unknown[]}={fail:true};
+ await fixture(page,{working:false,plugins});
+ const inline=page.locator('.workspace-plugin-notice'),toast=page.locator('.shell-notice');
+ await expect(inline).toContainText('Plug-ins could not be loaded.');
+ await expect(toast).toContainText('Plug-ins could not be loaded.');
+ await toast.hover();await toast.getByRole('button',{name:'Dismiss notification',exact:true}).click();
+ await expect(toast).toHaveCount(0);await expect(inline).toBeVisible();
+ plugins.fail=false;plugins.manifests=[pluginWorkspaceManifest];
+ await inline.getByRole('button',{name:'Retry',exact:true}).click();
+ await expect(page.getByRole('button',{name:'Overview',exact:true})).toBeVisible();
+ await expect(inline).toHaveCount(0);
+});
+
+test('All Agents empty copy reconciles with existing conversations and shows a live status dot',async({page})=>{
+ await fixture(page,{working:false,emptyAgents:true});
+ const empty=page.locator('.agents-empty');
+ await expect(empty).toContainText('No active agents.');
+ await expect(empty).not.toContainText('Open a conversation to begin.');
+ const connectivity=page.locator('.agents-connectivity');
+ await expect(connectivity).toHaveAttribute('role','status');
+ await expect(connectivity).toContainText('Live');
+ await expect(connectivity.locator('.agents-connectivity-dot')).toHaveCount(1);
+ await expect(connectivity).toHaveAttribute('data-connected','true');
 });

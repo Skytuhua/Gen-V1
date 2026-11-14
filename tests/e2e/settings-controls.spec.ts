@@ -114,6 +114,19 @@ test('Environments and every section stay free of stray scalars through blank, m
   await expect(composer).toHaveValue('Retain this conversation draft');
 });
 
+test('search filters the appearance panel to matching rows and syncs the nav highlight', async ({ page }) => {
+  const { dialog, nav, search } = await openSettings(page);
+  await search.fill('theme');
+  await expect(dialog.getByRole('heading', { name: 'Search results (1)', exact: true })).toBeVisible();
+  await expect(dialog.getByRole('combobox', { name: 'Color scheme', exact: true })).toBeVisible();
+  await expect(dialog.getByRole('combobox', { name: 'Density', exact: true })).toHaveCount(0);
+  await expect(dialog.getByRole('heading', { name: 'Project colors', exact: true })).toHaveCount(0);
+  await expect(nav.getByRole('button', { name: 'Appearance', exact: true })).toHaveClass(/selected/);
+  await expect(nav.locator('[aria-current]')).toHaveCount(0);
+  await search.fill('   ');
+  await expect(nav.locator('[aria-current="page"]')).toHaveCount(1);
+});
+
 test('dropdown popovers anchor to their trigger inside the settings dialog with default motion', async ({ page }) => {
   const { dialog, commands } = await openSettings(page);
   // Let the entrance animation finish; a forwards-filled transform used to keep the dialog
