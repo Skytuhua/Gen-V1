@@ -2,7 +2,7 @@ import { HarnessError } from '../contracts/index.ts';
 import { isConnectionProviderId, isOfficialRuntimeProviderId } from '../contracts/connections.ts';
 import { isAccountId } from '../contracts/accounts.ts';
 import { unavailableIdentity, type AccountAuthStatus, type AccountAuthTarget } from '../contracts/authentication.ts';
-import { accountResolver, beginAccountLogin, endAccountLogin, holdAccountLogin, holdAccountUse } from '../core/accounts.ts';
+import { accountResolver, beginAccountLogin, endAccountLogin, holdAccountLogin, holdAccountUse, liveAccountLease } from '../core/accounts.ts';
 import type { Store } from '../storage/store.ts';
 import { withAccountProfile } from './account-profile.ts';
 import { createLiteralCredentialStore } from '../runtime-pi/credentials.ts';
@@ -46,8 +46,9 @@ export async function readAccountAuth(store: Store, target: AccountAuthTarget, i
   const account = resolveTarget(store, target), identity = unavailableIdentity();
   const base = { ...target, localSignout: localSignout(target.providerId), lastCheckedAt: new Date().toISOString() };
   if (store.all<{providerId:string;accountId:string|null;shutdownUnconfirmed?:boolean}>('accountUse').some(use => use.providerId === target.providerId && use.accountId === target.accountId && use.shutdownUnconfirmed)) return { ...base, state: 'blocked', identity, message: 'Native account cleanup is unconfirmed. This account remains blocked.' };
-  const login = store.get<{shutdownUnconfirmed?: boolean}>('accountLogin', JSON.stringify([target.providerId, target.accountId]));
-  if (login) return { ...base, state: login.shutdownUnconfirmed ? 'blocked' : 'signing-in', identity, message: login.shutdownUnconfirmed ? 'Native shutdown is unconfirmed. This account remains blocked.' : 'A sign-in console owns this account. An expired or closed console does not establish native cleanup.' };
+  const login = store.get<{expiresAt:number;ownerPid:number;shutdownUnconfirmed?:boolean}>('accountLogin', JSON.stringify([target.providerId, target.accountId]));
+  if (login?.shutdownUnconfirmed) return { ...base, state: 'blocked', identity, message: 'Native shutdown is unconfirmed. This account remains blocked.' };
+  if (liveAccountLease(login)) return { ...base, state: 'signing-in', identity, message: 'A sign-in console owns this account. An expired or closed console does not establish native cleanup.' };
   const resolver = accountResolver(store), lease = resolver.claimUse!(target.providerId, target.accountId); let release = true;
   try { return { ...base, ...await withAccountProfile(store.dataDir, account, root => inspect(root, target)), lastCheckedAt: new Date().toISOString() }; }
   catch (error) {
