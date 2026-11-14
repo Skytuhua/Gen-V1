@@ -12,7 +12,7 @@ export function clampDesktopBounds(value:Partial<DesktopBounds>|undefined,areas:
  const x=preferred?Math.max(area.x,Math.min(value!.x!,area.x+area.width-width)):area.x+Math.round((area.width-width)/2),y=preferred?Math.max(area.y,Math.min(value!.y!,area.y+area.height-height)):area.y+Math.round((area.height-height)/2);
  return {x:Math.round(x),y:Math.round(y),width:Math.round(width),height:Math.round(height)};
 }
-export function trustedDesktopUrl(origin:string,id:string):string {return new URL('/?desktopWindow='+encodeURIComponent(id),origin).href;}
+export function trustedDesktopUrl(origin:string,id:string,launchToken?:string):string {const url=new URL('/?desktopWindow='+encodeURIComponent(id),origin);if(launchToken)url.hash='launch='+encodeURIComponent(launchToken);return url.href;}
 /** Only canonical plug-in frame URLs and the existing separate widget shell
  * can enter native subframes. The host route checks installed declarations;
  * main-frame/sender checks remain independent. */

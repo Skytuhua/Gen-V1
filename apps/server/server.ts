@@ -33,7 +33,7 @@ import type {PersonalAgentInventory} from '../../packages/contracts/agent-invent
 type Mount = { artifactId: string; revision: number; expiresAt: number };
 const shellPreferencesSchema=z.object({...preferencesSchema.shape,keybindings:z.object(preferencesSchema.shape.keybindings.shape)});
 export type MountRegistry = Map<string, Mount>;
-export interface ServerOptions { port: number; dev: boolean; widgetPort?: number; mounts?: MountRegistry; plugins?:PluginRegistry; pluginError?:string; admitPluginRequest?:()=>boolean; skillCatalog?:SkillCatalogRepository; agentInventory?:PersonalAgentInventory }
+export interface ServerOptions { port: number; dev: boolean; widgetPort?: number; mounts?: MountRegistry; plugins?:PluginRegistry; pluginError?:string; admitPluginRequest?:()=>boolean; skillCatalog?:SkillCatalogRepository; agentInventory?:PersonalAgentInventory; launchToken?:string }
 const commandSchema = z.object({ id: z.string().min(1).max(200).regex(/^[a-zA-Z0-9:_-]+$/), type: z.string().min(1).max(100), threadId: z.string().max(200).optional(), payload: z.record(z.string(), z.unknown()) }).strict();
 const mime = (path: string) => ({ ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".woff2": "font/woff2", ".woff": "font/woff", ".pdf": "application/pdf", ".json": "application/json", ".txt": "text/plain", ".md": "text/plain", ".csv": "text/csv" })[extname(path).toLowerCase()] ?? "application/octet-stream";
 
@@ -70,6 +70,14 @@ export async function buildServer(service: Service, options: ServerOptions) {
     }
   });
   app.get("/api/bootstrap", async (request, reply) => {
+    // Desktop launches share a per-boot secret; without it any local process
+    // could mint a session and drive commands and terminals.
+    if (options.launchToken) {
+      const presented = request.headers["x-harness-launch"];
+      const expected = Buffer.from(options.launchToken);
+      const supplied = typeof presented === "string" ? Buffer.from(presented) : Buffer.alloc(0);
+      if (supplied.length !== expected.length || !timingSafeEqual(supplied, expected)) return reply.code(403).send({ error: { code: "LAUNCH_TOKEN_REQUIRED", message: "Open Gen V1 from its desktop app to connect to this host." } });
+    }
     const existing = /(?:^|;\s*)harness_session=([a-f0-9]+)/.exec(request.headers.cookie ?? "")?.[1];
     let token = existing, session = token ? sessions.get(token) : undefined;
     if (!session || session.expiresAt < Date.now()) { token = randomBytes(32).toString("hex"); session = { csrf: randomBytes(32).toString("hex"), expiresAt: Date.now() + 24 * 60 * 60 * 1000 }; sessions.set(token, session); }
