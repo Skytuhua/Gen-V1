@@ -72,6 +72,8 @@ function readPreferences(stored: PreferencePatch): UiPreferences {
   // A finite legacy fontSize seeds the migrated sizes; a corrupt one cannot poison them.
   const legacySize = typeof stored.fontSize === 'number' && Number.isFinite(stored.fontSize) ? stored.fontSize : DEFAULT_PREFERENCES.fontSize;
   const base: UiPreferences = { ...DEFAULT_PREFERENCES,
+    notificationQuietHours: { ...DEFAULT_PREFERENCES.notificationQuietHours },
+    projectColors: { ...DEFAULT_PREFERENCES.projectColors },
     interfaceFont: Object.keys(stored).length ? 'system' : DEFAULT_PREFERENCES.interfaceFont,
     uiFontSize: Math.max(13, Math.min(16, legacySize)),
     chatFontSize: Math.max(14, Math.min(20, legacySize)),
