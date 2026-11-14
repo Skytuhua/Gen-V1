@@ -550,7 +550,6 @@ test('unmounting the monitor before native takeover rejects a stale mode retry',
  await page.evaluate(()=>(window as any).publishOwner(true));
  await expect(page.getByText('This conversation is open in another window.',{exact:false})).toBeVisible();release();
  await expect.poll(()=>attempts,{timeout:1500}).toBe(1);
- await page.waitForTimeout(300);
  console.log(JSON.stringify({scenario:'unmount-then-native-takeover',attempts,sent}));
  expect(attempts).toBe(1);
 });
@@ -688,10 +687,11 @@ test('Custom arranges Terminal below Files while the anchored composer stays mou
  const empty=dock.locator('[data-split-pane]').filter({hasText:'Add a tool'});
  await empty.getByLabel('Area actions',{exact:true}).click();await page.getByRole('menuitem',{name:'Editor: Terminal',exact:true}).click();
  await expect.poll(()=>terminalStarts).toBe(1);
- await expect(dock.getByRole('status',{exact:true})).toHaveText('Read interrupted');
+ const terminalStatus=dock.locator('[data-split-view^="terminal:"] span[role="status"]');
+ await expect(terminalStatus).toHaveText('Read interrupted');
  const terminalNode=await dock.locator('.xterm').elementHandle();
  await dock.getByRole('button',{name:'Retry',exact:true}).click();
- await expect(dock.getByRole('status',{exact:true})).toHaveText('Ended');
+ await expect(terminalStatus).toHaveText('Ended');
  expect(terminalReads.map(url=>[url.pathname,url.searchParams.get('projectId'),url.searchParams.get('threadId'),url.searchParams.get('cursor')])).toEqual(Array.from({length:2},()=>['/api/terminals/'+terminalIds[0],'project-a','parent-a','29']));
  expect(await dock.locator('.xterm').evaluate((element,original)=>element===original,terminalNode)).toBe(true);expect(terminalStarts).toBe(1);
  const files=await dock.locator('[data-split-view="files:parent-a"]').boundingBox(),terminal=await dock.locator('[data-split-view^="terminal:parent-a:"]').boundingBox();
