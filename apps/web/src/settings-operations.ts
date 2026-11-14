@@ -9,5 +9,7 @@ export function settingsOperation<T>(operation: () => Promise<T>): Promise<T> {
 }
 
 export async function settleSettingsOperations(): Promise<void> {
- while (pending.size) await Promise.all([...pending]);
+ // Individual write failures surface through their own callers; the handoff
+ // guard only needs every pending write to reach a settled state.
+ while (pending.size) await Promise.allSettled([...pending]);
 }
