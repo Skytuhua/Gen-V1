@@ -114,7 +114,7 @@ it('launches an actual isolated sidecar, authenticates HTTP and shuts down only 
  const port=await freePort();let widgetPort=await freePort();while(widgetPort===port)widgetPort=await freePort();
  const fixture=await launched({HARNESS_PORT:String(port),HARNESS_WIDGET_PORT:String(widgetPort)}),ready=await nextMessage(fixture.child,'harness.ready');
  expect(ready).toEqual({type:'harness.ready',token:fixture.token,origin:`http://127.0.0.1:${port}`,pid:fixture.child.pid});
- const origin=String(ready.origin),boot=await fetch(origin+'/api/bootstrap'),session=await boot.json() as {csrfToken:string};expect(boot.status).toBe(200);expect(session.csrfToken).toBeTypeOf('string');
+ const origin=String(ready.origin),boot=await fetch(origin+'/api/bootstrap',{headers:{'x-harness-launch':fixture.token}}),session=await boot.json() as {csrfToken:string};expect(boot.status).toBe(200);expect(session.csrfToken).toBeTypeOf('string');
  const denied=await fetch(origin+'/api/commands',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:'denied',type:'thread.create',payload:{}})});expect(denied.status).toBe(401);
  fixture.child.send({type:'harness.shutdown',token:'wrong-token'});fixture.child.send({type:'harness.shutdown',token:'é'.repeat(fixture.token.length)});await new Promise(resolve=>setTimeout(resolve,100));expect(fixture.child.exitCode).toBeNull();expect((await fetch(origin+'/health')).status).toBe(200);
  const stopped=nextMessage(fixture.child,'harness.stopped');fixture.child.send({type:'harness.shutdown',token:fixture.token});expect(await stopped).toEqual({type:'harness.stopped',token:fixture.token});expect((await fixture.exited).code).toBe(0);
