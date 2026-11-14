@@ -7,7 +7,8 @@ import {useWorkspace,type WorkspaceTab} from './workspace-context';
 import {usageCost,usagePercent} from './usage-presentation';
 import {ContextMeter} from './ContextMeter';
 
-const count = (value: number | null | undefined) => value == null ? 'Unavailable' : new Intl.NumberFormat(undefined, { notation: 'compact', maximumFractionDigits: 1 }).format(value);
+const countFormat = new Intl.NumberFormat(undefined, { notation: 'compact', maximumFractionDigits: 1 });
+const count = (value: number | null | undefined) => value == null ? 'Unavailable' : countFormat.format(value);
 export function UsageSummary({ usage }: { usage?: RuntimeUsage }) {
   const ratio = usage?.contextTokens != null && usage.contextWindow != null && usage.contextWindow > 0 ? Math.min(100, Math.max(0, usage.contextTokens / usage.contextWindow * 100)) : null;
   return <div className="usage-summary"><div className="usage-context"><span>Context window</span><strong>{ratio == null ? 'Unavailable' : usagePercent(ratio)}</strong></div><ContextMeter usage={usage} /><p>{count(usage?.contextTokens)} of {count(usage?.contextWindow)} tokens</p><dl><dt>Input tokens</dt><dd>{count(usage?.inputTokens)}</dd><dt>Output tokens</dt><dd>{count(usage?.outputTokens)}</dd><dt>Reported cost</dt><dd>{usage?.cost == null ? 'Unavailable' : usageCost({amount:usage.cost})}</dd><dt>Session limit</dt><dd>{usage?.sessionPercent == null ? 'Unavailable' : usagePercent(usage.sessionPercent)}</dd><dt>Weekly limit</dt><dd>{usage?.weeklyPercent == null ? 'Unavailable' : usagePercent(usage.weeklyPercent)}</dd></dl><p className="muted">Only runtime-reported values are shown. API billing, account quotas, and historical charts are unavailable unless reported by the runtime.</p></div>;

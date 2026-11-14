@@ -36,7 +36,7 @@ async function fixtureHost(page: Page, bytes: Uint8Array, options: { snapshot?: 
     if (url.pathname === '/api/models') return route.fulfill({ json: { models: [] } });
     if (url.pathname === '/api/snapshot') return route.fulfill({ json: state.snapshot });
     if (url.pathname === '/api/shell-settings') return route.fulfill({ json: state.snapshot.settings });
-    if (url.pathname === '/api/workspace') return route.fulfill({ json: { projects: [], state: { version: 1, revision: 0, activeCanvasId: 'workspace', canvases: [{ id: 'workspace', name: 'Workspace', preset: 'workspace', panels: [], viewport: { x: 0, y: 0, zoom: 1 } }], profiles: [], disabledKinds: [], integrations: {} } } });
+    if (url.pathname === '/api/workspace') return route.fulfill({ json: { projects: [], state: { version: 1, revision: 0, activeCanvasId: 'workspace', canvases: [{ id: 'workspace', name: 'Workspace', preset: 'workspace', version: 1, panels: [], filter: 'active', projectIds: [], viewport: { x: 0, y: 0, zoom: 1 } }], profiles: [], disabledKinds: [], integrations: {} } } });
     if (url.pathname === '/api/resources/granted-pdf/content') {
       state.resourceUrls.push(url.href);
       return route.fulfill({ status: options.status ?? 200, contentType: 'application/pdf', ...(options.oversized ? { headers: { 'Content-Length': String(20 * 1024 * 1024 + 1) } } : {}), body: Buffer.from(bytes) });

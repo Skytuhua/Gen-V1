@@ -28,18 +28,32 @@ try {
   if (mode === "execute" && reservedJournal) db.exec("PRAGMA journal_mode=TRUNCATE");
   integrity();
   if (mode === "inspect" || mode === "prepare") {
-    const definitions = schema(); let rows = [], totalRows = null;
+    const definitions = schema(); let rows = [], totalRows = null, rowsTruncated = false;
     if (table) {
       if (!definitions.some(d => d.name === table && d.type === "table")) throw new Error("Unknown table");
       const quoted = `"${table.replaceAll('"', '""')}"`;
       totalRows = db.prepare(`SELECT COUNT(*) AS n FROM ${quoted}`).get().n;
-      rows = db.prepare(`SELECT * FROM ${quoted} LIMIT ?`).all(limit);
+      // Rows may carry large TEXT/BLOB values; fetch in chunks and stop at a serialized-byte budget
+      // so the result crossing the worker boundary stays bounded regardless of row size.
+      const budget = 8 * 1024 * 1024; let bytes = 0, offset = 0, done = false;
+      while (!done && rows.length < limit) {
+        const take = Math.min(50, limit - rows.length);
+        const chunk = db.prepare(`SELECT * FROM ${quoted} LIMIT ? OFFSET ?`).all(take, offset);
+        if (!chunk.length) break;
+        offset += chunk.length;
+        for (const row of chunk) {
+          const size = Buffer.byteLength(JSON.stringify(row));
+          if (bytes + size > budget) { rowsTruncated = true; done = true; break; }
+          bytes += size; rows.push(row);
+        }
+        if (chunk.length < take) break;
+      }
     }
     db.setAuthorizer(authorizer);
     for (const statement of statements) db.prepare(statement.sql); // Authorize, but never execute during preparation.
     db.setAuthorizer(null);
     const after = hash(); if (after !== before) throw new Error("Database changed while being inspected");
-    parentPort.postMessage({ result: { resourceVersion: before, integrity: "ok", schema: definitions, rows, totalRows, journalMode } });
+    parentPort.postMessage({ result: { resourceVersion: before, integrity: "ok", schema: definitions, rows, totalRows, rowsTruncated, journalMode } });
   } else if (mode === "execute") {
     db.exec("BEGIN IMMEDIATE"); transaction = true;
     if (hash() !== expectedVersion) throw new Error("Database resource version changed before transaction");

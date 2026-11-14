@@ -120,8 +120,8 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
     }
     await persist({ preferences: value });
   };
-  const tokens = query.toLocaleLowerCase().trim().split(/\s+/).filter(Boolean), searching = tokens.length > 0;
-  const rows = SETTINGS_ROWS.filter(item => searching ? tokens.every(token => `${item.title} ${item.terms} ${SETTINGS_SECTIONS.find(([id]) => id === item.section)?.[1] ?? ''}`.toLocaleLowerCase().includes(token)) : item.section === section);
+  const tokens = query.toLowerCase().trim().split(/\s+/).filter(Boolean), searching = tokens.length > 0;
+  const rows = SETTINGS_ROWS.filter(item => searching ? tokens.every(token => `${item.title} ${item.terms} ${SETTINGS_SECTIONS.find(([id]) => id === item.section)?.[1] ?? ''}`.toLowerCase().includes(token)) : item.section === section);
   const matches = (id: string) => rows.some(item => item.id === id);
   const subscriptions = searching ? matchingSubscriptionConnections(query).length : 0;
   const heading = searching ? `Search results (${rows.length + subscriptions})` : SETTINGS_SECTIONS.find(([id]) => id === section)?.[1];

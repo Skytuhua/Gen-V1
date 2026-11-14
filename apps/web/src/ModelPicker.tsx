@@ -31,9 +31,9 @@ export function ModelPicker({ref,models,modelId,onChange,disabled=false,thinking
  const favoriteCount=models.filter(model=>favorites.includes(model.id)).length;
  const groups=useMemo(()=>{
   const scoped=filter.kind==='provider'?models.filter(model=>model.provider===filter.provider):filter.kind==='favorites'?models.filter(model=>favorites.includes(model.id)):models;
-  const tokens=query.toLocaleLowerCase().trim().split(/\s+/).filter(Boolean),result=new Map<string,ModelInfo[]>();
+  const tokens=query.toLowerCase().trim().split(/\s+/).filter(Boolean),result=new Map<string,ModelInfo[]>();
   for(const model of scoped){
-   const source=(model.name+' '+model.id+' '+providerLabel(model.provider)).toLocaleLowerCase();
+   const source=(model.name+' '+model.id+' '+providerLabel(model.provider)).toLowerCase();
    if(!tokens.every(token=>source.includes(token)))continue;
    const group=result.get(model.provider)??[];group.push(model);result.set(model.provider,group);
   }

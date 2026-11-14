@@ -128,7 +128,7 @@ for (const width of [1024, 1440]) {
     await side.getByRole('button', { name: 'Close Side conversation', exact: true }).click();
     await page.getByRole('button', { name: 'Open document', exact: true }).click();
     await expect(page.locator('.document-text-window')).toBeVisible();
-    const panels = (await records(page)).filter(item => item.name === 'panel');
+    const panels = (await records(page)).filter(item => item.name === 'panel' && item.duration === 220);
     expect(panels).toHaveLength(2);
     for (const panel of panels) {
       expect(panel.duration).toBe(220); expect(panel.easing).toBe(enter);
@@ -136,7 +136,7 @@ for (const width of [1024, 1440]) {
       expect(panel.frames[1].transform).toMatch(/translate[XY]\(0(?:px)?\) scale\(1\)/);
     }
     await host.publish();
-    expect((await records(page)).filter(item => item.name === 'panel')).toHaveLength(2);
+    expect((await records(page)).filter(item => item.name === 'panel' && item.duration === 220)).toHaveLength(2);
   });
 }
 

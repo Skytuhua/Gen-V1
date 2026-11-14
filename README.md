@@ -1,47 +1,65 @@
 <div align="center">
 
-<img src="docs/public/media/gen-launch-hero.webp" width="100%" alt="Gen V1, a local AI workspace for Windows. A conversation branches into a chart, checklist, and timeline.">
+<p><strong>GEN V1 · WINDOWS PREVIEW</strong></p>
 
-# Turn a conversation into a workspace
+# AI answers you can work with
 
-Gen V1 gives AI work a place to live. Inspect a pull request, sort a release checklist, or review a document without losing the conversation behind it.
+Ask for a study plan, a trip itinerary, or a comparison. Gen V1 puts a checklist, a set of options, or an interactive plan right in the conversation so you can start using it.
 
-**[Download the Windows preview](https://github.com/Skytuhua/Gen-V1/releases/tag/v0.6.1)** · **[Watch the demos](#see-gen-in-action)** · **[Run from source](#run-from-source)**
+**[Watch the developer demo](docs/public/media/gen-v1-launch.mp4)** · **[Download the Windows preview](https://github.com/Skytuhua/Gen-V1/releases/tag/v0.6.1)** · **[Run from source](#run-from-source)**
 
-[Getting started](docs/public/getting-started.md) · [Feature tour](docs/public/features.md) · [Changelog](CHANGELOG.md)
+<a href="docs/public/media/gen-v1-launch.mp4"><img src="docs/public/media/launch-workspace.webp" width="100%" alt="Watch the launch video. Shown: Gen V1 with a branch graph and the result of a sample pull request merge."></a>
 
 </div>
 
 ## See Gen in action
 
-### Review a pull request from conflict to merge
+### Turn a deadline into a study plan
 
-![Gen's branch graph shows a conflict, checks completing, and the sample pull request reaching Merged](docs/public/media/launch-pull-request.gif)
+Ask for a checklist that fits 30 minutes a night. Check off the first sessions without copying the plan to another app.
 
-Inspect the competing changes, resolve the conflicts, and see the checks before you choose Merge. **The merge and checks in this demo are simulated. No GitHub repository was changed.**
+![The user sends a study request, Gen displays a four-day checklist, and the user checks two sessions](docs/public/media/launch-study-plan.gif)
 
-### Work through a release checklist
+[Watch the study plan video](docs/public/media/launch-study-plan.mp4)
 
-![Gen's interactive artifact table sorts the sample launch checklist and selects two rows](docs/public/media/launch-interactive-table.gif)
+### Choose a laptop without comparing three tabs
 
-Sort and select rows in the table right inside the conversation. The checklist stays in the thread, so you can keep discussing the work as you review it.
+Ask Gen to put sample laptops side by side. Sort by price, then by weight, and select the one you want to shortlist.
 
-### Keep the plan beside the conversation
+![In Gen V1, the user sends a comparison request, sorts three laptops by price and weight, and selects a row](docs/public/media/launch-laptop-comparison.gif)
 
-![Gen's planning workspace shows sample steps and progress beside the conversation](docs/public/media/plan-workflow.gif)
+[Watch the laptop comparison video](docs/public/media/launch-laptop-comparison.mp4)
 
-Follow a structured plan as the discussion continues, or [see how a document review looks](docs/public/media/document-workspace.png).
+### Make a weekend plan, then change it
 
-These are recordings of the Gen browser interface with authored sample data, not live model runs. [Still images, video links, and recording notes](docs/public/media/launch-demos.md).
+Ask for a Saturday itinerary with a backup for rain. Open the backup to see the details, then ask Gen to move it to the morning in the same thread.
+
+[Watch the weekend itinerary video](docs/public/media/launch-weekend-trip.mp4) · [See the GIF](docs/public/media/launch-weekend-trip.gif)
+
+### Review and merge a pull request
+
+Start by asking what changed. Open a commit to inspect conflicting lines, follow the checks, and choose when to merge.
+
+[Watch the PR workflow](docs/public/media/launch-pr-review-workflow.mp4) · [See the GIF](docs/public/media/launch-pr-review-workflow.gif)
+
+### Pinpoint a failed CI check
+
+Search the build log, select the failed step, and open the compiler error right inside the conversation.
+
+[Watch the CI workflow](docs/public/media/launch-ci-log-workflow.mp4) · [See the GIF](docs/public/media/launch-ci-log-workflow.gif)
+
+These are recordings of the actual Gen browser interface using scripted responses and sample data. They are not live model runs. The PR workflow simulates check results and merging; nothing is sent to GitHub. [Transcripts, stills, and how to reproduce the recordings](docs/public/media/launch-demos.md).
 
 ## What makes Gen different
 
-- **Work in the conversation.** A trusted component catalog turns reading into doing: inspect a timeline, compare alternatives, or make decisions in a document and its accompanying discussion.
-- **Return to the same work.** Gen keeps conversations, task interfaces, drafts, and recorded actions in local application storage.
-- **Connect the model you want to use.** Inference goes to your supported provider. Existing tasks retain their selected account; Gen does not silently switch accounts or fall back to API-key billing.
-- **Extend the workspace.** Reviewable skills and the versioned [plug-in API](docs/plugin-api.md) give you more surfaces without changing the core app.
+Gen combines **generative UI in the same thread, a local host that saves your progress, and a runtime that keeps each thread tied to the account you chose.** [See how that compares with other tools](docs/public/media/launch-demos.md#how-this-compares).
 
-OpenAI has recorded live task verification. Other provider routes need their own entitlement and inference checks. [See the connection reference](docs/subscription-connections.md).
+- **Useful controls, not just a visual answer.** Gen renders typed tables, timelines, and review tools with the trusted component catalog. A selection or other supported edit belongs to the task, so it isn't lost in a screenshot or pasted transcript.
+- **A record of what actually happened.** The local host records accepted commands and keeps execution separate. Retried commands can return the same receipt, and interrupted work stays visible rather than being automatically repeated.
+- **One agent engine, multiple provider paths.** Gen runs the pinned Hermes engine locally and routes model calls to the thread's selected account. Gen does not silently rotate accounts or fall back to API-key billing. Model requests still go to the connected provider.
+- **The host owns consequential actions.** Model output can propose an action, but does not grant its own access. Resource grants, validation, and required approval remain host-controlled.
+
+[Architecture and recovery](docs/architecture.md) · [Provider support and limits](docs/subscription-connections.md) · [Plug-in API](docs/plugin-api.md)
 
 ## Get started
 
@@ -72,18 +90,10 @@ For the browser interface, use `pnpm dev` and open `http://127.0.0.1:5173`. Open
 
 Use the [development setup guide](docs/public/getting-started.md#develop-from-a-fresh-checkout) to create a separate data directory before sign-in and startup. See the [full setup reference](docs/getting-started.md) for runtime and packaging details. Repository access and use remain subject to [LICENSE](LICENSE).
 
-## Built around your working state
-
-The React interface and Windows Electron shell share a local Fastify host. SQLite stores application projections and operation receipts; the pinned original Hermes engine owns conversation state and source skill packages.
-
-- **Explicit connections.** Conversations, credentials and receipts live in local application directories. Connected providers receive model requests; inference is not offline.
-- **Account continuity.** Tasks retain their selected account. Gen does not automatically rotate accounts or fall back to API-key billing.
-- **Host-owned permissions.** Grants, validation and approvals bound supported file and operation access. Learned text and model output do not grant permissions.
-- **Reviewable extension boundaries.** Plug-in API v1 supports independent packages with declared capabilities and durable state. [Explore the API →](docs/plugin-api.md)
-
 <details>
 <summary><strong>Current preview boundaries</strong></summary>
 
+- OpenAI has recorded live task verification. Other provider routes need their own entitlement and inference checks.
 - Installed upgrade/update acceptance, the broader generation-quality pilot and physical mixed-DPI/multi-monitor acceptance remain open.
 - On desktop, conversations can detach into pinned windows. Canvas panel detachment is unavailable; context and usage tools minimize within the workspace.
 - The composer can browse installed skills. Binding a selected skill to a new message is unavailable.

@@ -7,6 +7,12 @@ import { MotionRegion } from "../task-motion";
 import { Markdown } from "../Markdown";
 import { useThreadMessages } from "../thread-messages";
 
+const costFormat = new Intl.NumberFormat(undefined, {
+  style: "currency",
+  currency: "USD",
+  maximumFractionDigits: 4,
+});
+
 const states: Record<PlanTimelineStep["status"], string> = {
   proposed: "Proposed",
   running: "Running",
@@ -141,13 +147,7 @@ export function AgentLane({ lane, ...props }: RowProps & { lane: PlanAgentLane }
             {job.usage.cost != null && (
               <>
                 <dt>Reported cost</dt>
-                <dd>
-                  {new Intl.NumberFormat(undefined, {
-                    style: "currency",
-                    currency: "USD",
-                    maximumFractionDigits: 4,
-                  }).format(job.usage.cost)}
-                </dd>
+                <dd>{costFormat.format(job.usage.cost)}</dd>
               </>
             )}
           </dl>

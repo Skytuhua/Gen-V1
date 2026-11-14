@@ -4,9 +4,33 @@ export class ApiError extends Error {
   constructor(public code: string, message: string, public details?: unknown) { super(message); }
 }
 
+// A same-origin endpoint bug or hostile response must not grow renderer memory
+// without bound; legitimate snapshot/message pages stay far below this cap.
+const MAX_JSON_BYTES = 64 * 1024 * 1024;
+async function readJson(response: Response): Promise<any> {
+  const body = response.body;
+  if (!body) return await response.json();
+  const reader = body.getReader();
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  try {
+    for (;;) {
+      const {done, value} = await reader.read();
+      if (done) break;
+      size += value.byteLength;
+      if (size > MAX_JSON_BYTES) { await reader.cancel(); throw new ApiError('RESPONSE_TOO_LARGE', `Response exceeded ${MAX_JSON_BYTES} bytes.`); }
+      chunks.push(value);
+    }
+  } finally { reader.releaseLock(); }
+  const bytes = new Uint8Array(size);
+  let offset = 0;
+  for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.byteLength; }
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+
 export async function read<T>(response: Response): Promise<T> {
-  if (response.ok) return await response.json() as T;
-  const body = await response.json().catch((cause: unknown) => {
+  if (response.ok) return await readJson(response) as T;
+  const body = await readJson(response).catch((cause: unknown) => {
     if (cause instanceof SyntaxError) return null;
     throw cause;
   });
@@ -16,8 +40,17 @@ export async function read<T>(response: Response): Promise<T> {
 export let csrfToken = '';
 export let widgetOrigin = 'http://localhost:4318';
 let bootstrapPromise: Promise<void> | undefined;
+// Desktop windows carry a per-boot launch secret in the URL fragment; it is
+// exchanged once for the session cookie and never sent in requests itself.
+function launchToken(): string | undefined {
+  try {
+    const token = new URLSearchParams(location.hash.slice(1)).get('launch');
+    return token && /^[a-f0-9]{32,128}$/i.test(token) ? token : undefined;
+  } catch { return undefined; }
+}
 export function bootstrap() {
-  return bootstrapPromise ??= fetch('/api/bootstrap', { credentials: 'same-origin' }).then(read<{ csrfToken: string; widgetOrigin?: string }>).then(value => { csrfToken = value.csrfToken; if (value.widgetOrigin) widgetOrigin = value.widgetOrigin; }).catch(error => { bootstrapPromise = undefined; throw error; });
+  const token = launchToken(), headers = token ? { 'x-harness-launch': token } : undefined;
+  return bootstrapPromise ??= fetch('/api/bootstrap', { credentials: 'same-origin', ...(headers ? { headers } : {}) }).then(read<{ csrfToken: string; widgetOrigin?: string }>).then(value => { csrfToken = value.csrfToken; if (value.widgetOrigin) widgetOrigin = value.widgetOrigin; }).catch(error => { bootstrapPromise = undefined; throw error; });
 }
 
 async function renewSession(previous: Promise<void> | undefined) {
@@ -29,7 +62,7 @@ export async function authenticated(send: () => Promise<Response>) {
   await bootstrap();
   const session = bootstrapPromise;
   let response = await send();
-  const error = !response.ok ? await response.clone().json().catch(() => null) : null;
+  const error = !response.ok ? await readJson(response.clone()).catch(() => null) : null;
   if (response.status === 401 || error?.error?.code === 'AUTH_REQUIRED' || error?.error?.code === 'CSRF_REQUIRED') {
     await renewSession(session);
     response = await send();
