@@ -122,6 +122,15 @@ describe('real browser worker isolation', () => {
       expect(await page.evaluate(async () => new Promise((resolve,reject)=>{ const open=indexedDB.open('generative-harness-journal');open.onerror=()=>reject(open.error);open.onsuccess=()=>{const db=open.result,read=db.transaction('drafts').objectStore('drafts').get('secret');read.onsuccess=()=>{db.close();resolve(read.result)};read.onerror=()=>reject(read.error)} }))).toBe('host-private-draft');
     } finally { await page.close(); }
   });
+  it('keeps markup hidden inside comments, templates and raw-text elements inert in the worker', async () => {
+    const page = await browser.newPage();
+    try {
+      await mount(page, `<p>ok</p><!-- <script>window.harness.emit('leaked-comment',{})</` + `script> --><template><script>window.harness.emit('leaked-template',{})</` + `script></template><textarea><script>window.harness.emit('leaked-raw',{})</` + `script></textarea><script>window.harness.emit('visible',{})</` + `script>`);
+      await browserExpect.poll(() => page.evaluate(() => (window as any).bridge.map((entry: any) => entry.payload?.actionId)), { timeout: 5000 }).toContain('visible');
+      const actions = await page.evaluate(() => (window as any).bridge.map((entry: any) => entry.payload?.actionId));
+      for (const leaked of ['leaked-comment', 'leaked-template', 'leaked-raw']) expect(actions).not.toContain(leaked);
+    } finally { await page.close(); }
+  });
   afterAll(async () => { await browser?.close(); if (server) await new Promise<void>(resolve => server.close(() => resolve())); });
   async function mount(page: Page, html: string, path = '/widget') {
     await page.goto(origin);

@@ -100,10 +100,15 @@ function start(html: string) {
   if (started) return; started = true;
   if (typeof html !== 'string' || html.length > 131072) throw new Error('Source budget exceeded');
   const scripts: string[] = [];
-  let markup = html.replace(/<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi, (_all, attrs: string, source: string) => {
-    if (!/\bsrc\s*=/i.test(attrs) && !/\btype\s*=/i.test(attrs)) scripts.push(source);
-    return '';
-  }).replace(/<style\b[^>]*>([\s\S]*?)<\/style\s*>/gi, (_all, source: string) => { css += source + '\n'; return ''; });
+  // One left-to-right pass keeps real HTML precedence: comments and raw-text or
+  // template containers are consumed whole, so executable markup hidden inside
+  // them is never collected; only top-level script/style elements extract.
+  let markup = html.replace(/<!--[\s\S]*?-->|<(textarea|title|xmp|iframe|object|applet|noembed|noframes|noscript|plaintext|listing|template)\b[^>]*>[\s\S]*?<\/\1\s*>|<script\b([^>]*)>([\s\S]*?)<\/script\s*>|<style\b[^>]*>([\s\S]*?)<\/style\s*>/gi,
+    (whole: string, _inert: string, attrs: string, script: string, style: string) => {
+      if (script !== undefined) { if (!/\bsrc\s*=/i.test(attrs) && !/\btype\s*=/i.test(attrs)) scripts.push(script); return ''; }
+      if (style !== undefined) { css += style + '\n'; return ''; }
+      return whole;
+    });
   markup = markup.replace(/<!doctype[^>]*>/gi, '');
   // The library parses into an inert worker-only DOM. No HTML string is ever
   // parsed or assigned to innerHTML in a real browser document.
