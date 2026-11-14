@@ -35,7 +35,9 @@ export function createConversationScroll(element:HTMLElement){
   if(event.defaultPrevented||event.ctrlKey||event.metaKey||event.altKey||!['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' '].includes(event.key))return;
   const target=event.target as HTMLElement|null;
   if(target?.closest?.('input,textarea,select,button,a,summary,[contenteditable="true"],[role="slider"]'))return;
-  interrupt();if(['ArrowDown','PageDown','End',' '].includes(event.key)&&nearTail())following=true;
+  interrupt();
+  const towardTail=['ArrowDown','PageDown','End'].includes(event.key)||(event.key===' '&&!event.shiftKey);
+  if(towardTail&&nearTail())following=true;
  };
  const settleHidden=()=>{if(document.visibilityState==='hidden'&&following)spring.to(maximum(),true);};
  const stopObservingMotion=observeMotionPolicy(policy=>{if(policy!=='full'&&following&&!dragging)spring.to(maximum(),true);});
