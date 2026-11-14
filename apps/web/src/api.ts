@@ -5,9 +5,12 @@ export class ApiError extends Error {
 }
 
 export async function read<T>(response: Response): Promise<T> {
-  const body = await response.json();
-  if (!response.ok) throw new ApiError(body.error?.code ?? 'HTTP_ERROR', body.error?.message ?? `Request failed (${response.status})`, body.error?.details);
-  return body as T;
+  if (response.ok) return await response.json() as T;
+  const body = await response.json().catch((cause: unknown) => {
+    if (cause instanceof SyntaxError) return null;
+    throw cause;
+  });
+  throw new ApiError(body?.error?.code ?? 'HTTP_ERROR', body?.error?.message ?? `Request failed (${response.status})`, body?.error?.details);
 }
 
 export let csrfToken = '';
