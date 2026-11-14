@@ -231,6 +231,13 @@ test('question glyphs use the reference blue accent independently of disclosure 
 const emit = (page: Page, sequence: number) => page.evaluate(seq => (window as unknown as { __emitWorkspace: (seq: number) => void }).__emitWorkspace(seq), sequence);
 function gate() { let release!: () => void; const promise = new Promise<void>(resolve => { release = resolve; }); return { promise, release }; }
 const readJournal = (page: Page, key: string) => page.evaluate(async key => { const path = '/src/journal.ts'; return (await import(path)).journalRead(key); }, key);
+const grantResourceDialog = async (page: Page) => {
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  const settings = page.getByRole('dialog', { name: 'Settings', exact: true });
+  await settings.getByRole('button', { name: 'Projects & Working Copies', exact: true }).click();
+  await settings.getByRole('button', { name: 'Add resource', exact: true }).click();
+  return page.getByRole('dialog', { name: 'Add a resource', exact: true });
+};
 
 test('settings inventory is searchable across all sections and unavailable capabilities cannot be enabled', async ({ page }) => {
   await host(page, populated()); await page.goto('/');
@@ -574,23 +581,22 @@ test('P2: concurrent first-thread composer actions share creation and retain the
   await expect.poll(() => state.commands.filter(cmd => cmd.type === 'thread.create').length).toBe(1);
   // The creation response is still held while genuinely conflicting handlers run.
   await input.fill('Next draft typed behind the creation barrier');
-  await page.getByRole('button', { name: 'Add resource', exact: true }).evaluate(button => (button as HTMLButtonElement).click());
   await page.locator('input[type=file]').setInputFiles({ name: 'conflicting.txt', mimeType: 'text/plain', buffer: Buffer.from('Intercepted fixture') });
   await input.press('Enter'); await page.keyboard.press('Control+Shift+O');
   creation.release();
   await expect.poll(() => state.commands.filter(cmd => cmd.type === 'message.send').length).toBe(1);
   try {
     expect(state.snapshot.threads).toHaveLength(1);
-    await expect(page.getByRole('button', { name: 'Add resource', exact: true })).toBeDisabled();
+    await expect(page.getByRole('button', { name: 'Attach files', exact: true })).toBeDisabled();
     await expect(page.getByRole('button', { name: 'Send message', exact: true })).toBeDisabled();
     await expect(page.locator('button.new-thread')).toBeDisabled();
     await expect(input).toHaveValue('Next draft typed behind the creation barrier');
     await input.fill('Next draft typed after composer migration');
   } finally { sending.release(); }
-  await expect(page.getByRole('button', { name: 'Add resource', exact: true })).toBeEnabled();
-  await page.getByRole('button', { name: 'Add resource', exact: true }).click();
-  await page.getByRole('textbox', { name: 'Absolute local path' }).fill('C:\\fixture\\project');
-  await page.getByRole('dialog', { name: 'Add a resource' }).getByRole('button', { name: 'Add resource', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Attach files', exact: true })).toBeEnabled();
+  const grant = await grantResourceDialog(page);
+  await grant.getByRole('textbox', { name: 'Absolute local path' }).fill('C:\\fixture\\project');
+  await grant.getByRole('button', { name: 'Add resource', exact: true }).click();
   await expect.poll(() => state.commands.filter(cmd => cmd.type === 'resource.grant').length).toBe(1);
   const sent = state.commands.find(cmd => cmd.type === 'message.send')!;
   expect(sent.payload.content).toBe('First submitted message');
@@ -609,12 +615,11 @@ test('P2: typing between initial draft migration and composer activation stays o
   await page.route('**/api/snapshot', async route => { if (holdSnapshot) { refreshStarted.release(); await refreshing.promise; } await route.fallback(); });
   await page.goto('/'); const input = page.getByRole('textbox', { name: 'Message', exact: true });
   await input.fill('Draft before migration');
-  await page.getByRole('button', { name: 'Add resource', exact: true }).click();
+  await page.locator('input[type=file]').setInputFiles({ name: 'draft.txt', mimeType: 'text/plain', buffer: Buffer.from('Fixture bytes') });
   await expect.poll(() => state.commands.filter(cmd => cmd.type === 'thread.create').length).toBe(1);
   holdSnapshot = true; creation.release(); await refreshStarted.promise;
   await input.fill('Typed after migration before activation');
   holdSnapshot = false; refreshing.release();
-  await page.getByRole('dialog', { name: 'Add a resource' }).getByRole('button', { name: 'Cancel', exact: true }).click();
   await expect(input).toHaveValue('Typed after migration before activation');
   expect(await readJournal(page, 'draft:new')).toBe('');
   await page.reload(); await expect(input).toHaveValue('Typed after migration before activation');
@@ -702,10 +707,10 @@ for (const resource of ['upload', 'picker'] as const) test(`regression: delayed 
   await page.goto('/'); const input = page.getByRole('textbox', { name: 'Message', exact: true });
   await input.fill('Old resource draft');
   if (resource === 'upload') await page.locator('input[type=file]').setInputFiles({ name: 'draft.txt', mimeType: 'text/plain', buffer: Buffer.from('Fixture bytes') });
-  else await page.getByRole('button', { name: 'Add resource', exact: true }).click();
+  else await grantResourceDialog(page);
   await expect.poll(() => state.commands.filter(cmd => cmd.type === 'thread.create').length).toBe(1);
   await input.fill('New text typed during resource creation'); held.release();
-  if (resource === 'picker') { await expect(page.getByRole('dialog', { name: 'Add a resource' })).toBeVisible(); await page.getByRole('button', { name: 'Cancel', exact: true }).click(); }
+  if (resource === 'picker') { await expect(page.getByRole('dialog', { name: 'Add a resource' })).toBeVisible(); await page.getByRole('dialog', { name: 'Add a resource' }).getByRole('button', { name: 'Cancel', exact: true }).click(); }
   else await expect.poll(() => state.commands.filter(cmd => cmd.type === 'resource.upload').length).toBe(1);
   await expect(input).toHaveValue('New text typed during resource creation');
   const id = state.snapshot.threads[0]!.id;
@@ -1048,10 +1053,10 @@ test('first message creates a real thread, retries the identical command and cle
 test('resource picker survives thread creation and uploads contain the selected bytes', async ({ page }) => {
   const state = await host(page, snapshot()); await page.goto('/');
   await page.getByRole('textbox', { name: 'Message', exact: true }).fill('A draft before granting access');
-  await page.getByRole('button', { name: 'Add resource', exact: true }).click();
-  await expect(page.getByRole('dialog', { name: 'Add a resource' })).toBeVisible();
-  await page.getByRole('textbox', { name: 'Absolute local path' }).fill('C:\\test-project');
-  await page.getByRole('button', { name: 'Add resource', exact: true }).last().click();
+  const grant = await grantResourceDialog(page);
+  await expect(grant).toBeVisible();
+  await grant.getByRole('textbox', { name: 'Absolute local path' }).fill('C:\\test-project');
+  await grant.getByRole('button', { name: 'Add resource', exact: true }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(page.getByRole('textbox', { name: 'Message', exact: true })).toHaveValue('A draft before granting access');
   await page.locator('input[type=file]').setInputFiles({ name: 'evidence.txt', mimeType: 'text/plain', buffer: Buffer.from('Actual attachment bytes') });
