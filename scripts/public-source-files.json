@@ -1209,6 +1209,7 @@
     "tests/task-interface.test.ts",
     "tests/task-memory-recovery.test.ts",
     "tests/task-memory.test.ts",
+    "tests/task-status.test.ts",
     "tests/task-table-controls.test.ts",
     "tests/terminal-excerpts.test.ts",
     "tests/terminal-host.test.ts",
