@@ -1,4 +1,4 @@
-import {useEffect,useRef,useState} from 'react';
+import {useEffect,useLayoutEffect,useRef,useState} from 'react';
 import {ApiError,authenticated,csrfToken,read} from './api.ts';
 import './terminal-read.css';
 import {captureTerminalExcerpt,type TerminalExcerpt} from './terminal-excerpts';
@@ -19,7 +19,9 @@ export function TerminalBody({projectId,threadId,terminalId,active,openAnother,i
  const [phase,setPhase]=useState<Phase>('starting'),[error,setError]=useState(''),[acknowledged,setAcknowledged]=useState(false),[retrying,setRetrying]=useState(false),[stopping,setStopping]=useState(false),[generation,setGeneration]=useState(0);
  const key=`gen-terminal:${projectId}:${threadId??'project'}:${terminalId??'default'}`;
  const latest=useRef({projectId,threadId,terminalId,active,generation,isCurrent,excerptComposer});
- latest.current={projectId,threadId,terminalId,active,generation,isCurrent,excerptComposer};
+ // Only a committed render may move ownership: a suspended concurrent render
+ // must never lend its isCurrent guard to in-flight terminal work.
+ useLayoutEffect(()=>{latest.current={projectId,threadId,terminalId,active,generation,isCurrent,excerptComposer};});
  const pendingId=useRef<{key:string;id:string}|null>(null);
  const actions=useRef<{current:()=>boolean;retry:()=>void;stop:()=>Promise<void>}|null>(null);
 
