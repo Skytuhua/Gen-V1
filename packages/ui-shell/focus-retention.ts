@@ -4,7 +4,7 @@
 const focusable = 'button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), a[href], summary, iframe, [tabindex="0"]';
 
 export function usableFocusable(root: HTMLElement): HTMLElement | undefined {
-  return Array.from(root.querySelectorAll<HTMLElement>(focusable)).find(element => element.getClientRects().length && !element.closest('[inert], [hidden]'));
+  return Array.from(root.querySelectorAll<HTMLElement>(focusable)).find(element => element.tabIndex >= 0 && element.getClientRects().length && !element.closest('[inert], [hidden], [aria-hidden="true"]'));
 }
 
 /** Refocus only when focus has dropped to <body> (a disabled or removed control),
@@ -25,11 +25,12 @@ export function refocusWithin(root: HTMLElement): void {
  * a frame so a nested popover's own (microtask) retention claims focus first and
  * is not yanked back out to the modal's first control. Returns a cleanup. */
 export function retainFocus(document: Document, getRoot: () => HTMLElement | null, schedule: (callback: () => void) => void = callback => queueMicrotask(callback)): () => void {
+  let active = true;
   const focusout = (event: FocusEvent) => {
     const root = getRoot();
     if (!root || event.relatedTarget || !root.contains(event.target as Node)) return;
-    schedule(() => { const current = getRoot(); if (current && current.isConnected) refocusWithin(current); });
+    schedule(() => { if (active && getRoot() === root && root.isConnected) refocusWithin(root); });
   };
   document.addEventListener('focusout', focusout);
-  return () => document.removeEventListener('focusout', focusout);
+  return () => { active = false; document.removeEventListener('focusout', focusout); };
 }
