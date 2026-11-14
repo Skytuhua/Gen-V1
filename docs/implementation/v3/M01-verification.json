@@ -8,7 +8,7 @@
   "packageManagerVersion": "10.30.3",
   "phases": [
     {
-      "id": "source-custody",
+      "id": "core.source-custody",
       "status": "PASS",
       "requiredCases": [
         {
@@ -35,6 +35,16 @@
           "id": "source-lock-clean",
           "status": "PASS",
           "evidence": "verifySourceLock reports no issues against the execution base."
+        },
+        {
+          "id": "original-checkout-preserved",
+          "status": "PASS",
+          "evidence": "src-06-original-status.log (untracked node_modules only) + src-07-original-head.log (still at 055007f)."
+        },
+        {
+          "id": "no-push-merge-deploy",
+          "status": "PASS",
+          "evidence": "Local commits only on agent/m01-v3; no refs force-updated, no user work stashed or cleaned."
         }
       ],
       "commands": [
@@ -122,6 +132,42 @@
           "status": "FAIL",
           "boundedLogRef": "docs\\implementation\\v3\\logs\\src-05-base-not-ancestor-of-audit.log",
           "logDigest": "e1f9d67dc61e9cd5578e0b1b8c40f1a3032d29bbd41c7e871af1ab4505de8912"
+        },
+        {
+          "argv": [
+            "C:\\Program Files\\Git\\cmd\\git.exe",
+            "-C",
+            "C:\\Users\\Administrator\\repos\\Gen-V1",
+            "status",
+            "--porcelain=v1"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m01",
+          "executableIdentity": "C:\\Program Files\\Git\\cmd\\git.exe",
+          "startedAt": "2026-11-14T23:21:46.586Z",
+          "endedAt": "2026-11-14T23:21:46.647Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs\\implementation\\v3\\logs\\src-06-original-status.log",
+          "logDigest": "438a82085705369c7c716db91f2e65f0a6d40d028ee6818ec194697ed807b4bd"
+        },
+        {
+          "argv": [
+            "C:\\Program Files\\Git\\cmd\\git.exe",
+            "-C",
+            "C:\\Users\\Administrator\\repos\\Gen-V1",
+            "rev-parse",
+            "HEAD"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m01",
+          "executableIdentity": "C:\\Program Files\\Git\\cmd\\git.exe",
+          "startedAt": "2026-11-14T23:21:46.648Z",
+          "endedAt": "2026-11-14T23:21:46.680Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs\\implementation\\v3\\logs\\src-07-original-head.log",
+          "logDigest": "08e6ad1e42782623727e087bf6204b83085d806f2d7f801e8300063b75cd08c6"
         }
       ],
       "artifactRefs": [
@@ -129,7 +175,7 @@
       ]
     },
     {
-      "id": "compatibility",
+      "id": "core.compatibility",
       "status": "PASS",
       "requiredCases": [
         {
@@ -201,7 +247,7 @@
       "artifactRefs": []
     },
     {
-      "id": "core-contracts",
+      "id": "core.contracts",
       "status": "PASS",
       "requiredCases": [
         {
@@ -228,6 +274,11 @@
           "id": "selection-tests",
           "status": "PASS",
           "evidence": "core-05-selection-tests.log (10/10)"
+        },
+        {
+          "id": "dependency-contract-test-results",
+          "status": "PASS",
+          "evidence": "dep-01-contract-tests.log — 55/55 contract tests pass across capabilities/store/browser-runner/build-runner/compact-settings."
         }
       ],
       "commands": [
@@ -316,12 +367,35 @@
           "status": "PASS",
           "boundedLogRef": "docs\\implementation\\v3\\logs\\core-05-selection-tests.log",
           "logDigest": "038b390d9efa5048d97d87aacccd11d75bc6b63162eeb8a1285baebdae878b70"
+        },
+        {
+          "argv": [
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js",
+            "exec",
+            "vitest",
+            "run",
+            "tests/capabilities.test.ts",
+            "tests/store.test.ts",
+            "tests/browser-runner.test.ts",
+            "tests/build-runner.test.ts",
+            "tests/compact-settings.test.ts"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m01",
+          "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+          "startedAt": "2026-11-14T23:19:42.605Z",
+          "endedAt": "2026-11-14T23:21:46.583Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs\\implementation\\v3\\logs\\dep-01-contract-tests.log",
+          "logDigest": "8e117f0f5334dacf3cdbcc191a380b6032685a41ed2ebdcd5c6a3ffc54c3ddc9"
         }
       ],
       "artifactRefs": []
     },
     {
-      "id": "unit-baseline",
+      "id": "integration.unit-baseline",
       "status": "PASS",
       "requiredCases": [
         {
@@ -332,7 +406,7 @@
         {
           "id": "unit-outcome-classified",
           "status": "PASS",
-          "evidence": "Recorded run: 53 of 3135 tests failed (60s timeouts concentrated in Store/remote-operation fixtures, 19 files); reproduced standalone in tests/workspace-action-outcomes.test.ts; pre-existing on origin/main. unit-02-classification asserts the summary line in the bounded log. An earlier concurrent run recorded 89/3100 — same failure class."
+          "evidence": "Recorded run: 53/3135 failed (60s timeouts in Store/remote-operation fixtures). unit-03-baseline-repro.log reruns the worst file at origin/main in the untouched checkout — same timeout class proves baseline failure, not branch-caused."
         }
       ],
       "commands": [
@@ -367,12 +441,31 @@
           "status": "PASS",
           "boundedLogRef": "docs\\implementation\\v3\\logs\\unit-02-classification.log",
           "logDigest": "bbfd75e54ac2010d46805e1b783aba27d1f6ac1ef6576d9bd9aaccdec5ab46b1"
+        },
+        {
+          "argv": [
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js",
+            "exec",
+            "vitest",
+            "run",
+            "tests/workspace-action-outcomes.test.ts"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1",
+          "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+          "startedAt": "2026-11-14T23:21:46.742Z",
+          "endedAt": "2026-11-14T23:32:22.047Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs\\implementation\\v3\\logs\\unit-03-baseline-repro.log",
+          "logDigest": "33862ab67c1ac70fdc5e647d3cff7e8c502943f6c51037f4f03e759cbc79c82b"
         }
       ],
       "artifactRefs": []
     },
     {
-      "id": "browser-baseline",
+      "id": "integration.browser-baseline",
       "status": "PASS",
       "requiredCases": [
         {
@@ -459,25 +552,26 @@
           "argv": [
             "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
             "-e",
-            "const fs=require('fs'),p='test-results/browser';const d=fs.readdirSync(p).filter(x=>fs.existsSync(p+'/'+x+'/root/results.json')).sort().at(-1);const s=JSON.parse(fs.readFileSync(p+'/'+d+'/root/results.json','utf8')).stats;process.exit(s.expected===83&&s.unexpected===29&&s.skipped===1?0:1)"
+            "const s=JSON.parse(require('fs').readFileSync('docs/implementation/v3/browser-root/results.json','utf8')).stats;process.exit(s.expected===83&&s.unexpected===29&&s.skipped===1?0:1)"
           ],
           "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m01",
           "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
-          "startedAt": "2026-11-14T23:05:24.102Z",
-          "endedAt": "2026-11-14T23:05:24.170Z",
+          "startedAt": "2026-11-14T23:21:46.688Z",
+          "endedAt": "2026-11-14T23:21:46.739Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs\\implementation\\v3\\logs\\brw-03-classification.log",
-          "logDigest": "97414a6c77e58f5eaacdf1e8be86502ac9093f0f8a4e7204f37498fb78ba5d21"
+          "logDigest": "f72b8cc6cb49c6ecc55e1eae084425d98019383aca1b1350b0f4293974522d84"
         }
       ],
       "artifactRefs": [
-        "test-results/browser"
+        "docs/implementation/v3/browser-root/results.json",
+        "docs/implementation/v3/browser-root/discovery.json"
       ]
     },
     {
-      "id": "eval-manifest",
+      "id": "integration.eval-manifest",
       "status": "PASS",
       "requiredCases": [
         {
@@ -533,7 +627,7 @@
       ]
     },
     {
-      "id": "platform-credential-lease",
+      "id": "platform.credential-lease",
       "status": "BLOCKED",
       "requiredCases": [
         {
@@ -652,9 +746,11 @@
   "flags": [],
   "remainingGates": [
     "PLATFORM BLOCKED: Visual Studio C++ Build Tools absent; windows-credential-lease native build cannot compile and pnpm test is blocked at its lease step. Install MSVC Build Tools to unblock.",
-    "UNIT BASELINE FINDING: 53/3135 tests failed in the recorded run (60s timeouts concentrated in Store/remote-operation fixtures); an earlier run under concurrent browser load showed 89/3100 — same failure class, pre-existing on origin/main.",
-    "BROWSER BASELINE FINDING: 29/113 root-suite specs fail on Windows (83 pass, 1 skip) — real assertion/30s-timeout mix, pre-existing on origin/main.",
+    "UNIT BASELINE FINDING: 53/3135 tests failed in the recorded run (60s timeouts concentrated in Store/remote-operation fixtures); reproduced at origin/main — baseline failure class, not caused by this branch.",
+    "BROWSER BASELINE FINDING: 29/113 root-suite specs fail on Windows (83 pass, 1 skip) — pre-existing on origin/main; triage in a later bundle.",
+    "MISSING PREREQUISITE: isolated Hermes Python runtime absent (hermes-python/python.exe); 5 hermes-suite tests fail — recorded, not fabricated.",
     "Eval evidence is MANIFEST_ONLY: no authorized --host/--model; all model outcomes NOT_RUN.",
+    "Rollback/data-migration status: no data migration performed or required; rollback removes only the new scripts and registry wiring; baseline artifacts under docs/implementation/v3 are retained and production data is untouched.",
     "reviewerApproval remains false; release permission is a separate gate."
   ],
   "reviewerApproval": false
