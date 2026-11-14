@@ -10,9 +10,14 @@ function devProxy() {
   return { "/api": { target, changeOrigin: true }, "/widget-runtime": { target, changeOrigin: true } };
 }
 
-export default defineConfig(({ command }) => ({
+// Fixtures share the app root and plugins, not its live development proxy.
+export const application = defineConfig({
   root: "apps/web",
   plugins: [react()],
-  server: { host: "127.0.0.1", port: 5173, strictPort: true, proxy: command === "serve" && process.env.GEN_E2E !== "1" ? devProxy() : undefined },
   build: { outDir: "../../dist/web", emptyOutDir: true }
+});
+
+export default defineConfig(({ command }) => ({
+  ...application,
+  server: { host: "127.0.0.1", port: 5173, strictPort: true, proxy: command === "serve" && process.env.GEN_E2E !== "1" ? devProxy() : undefined }
 }));
