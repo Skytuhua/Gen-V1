@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import { RefreshCw } from 'lucide-react';
+import { BarChart3, RefreshCw } from 'lucide-react';
 import { Modal } from '../../../packages/ui-shell/Modal';
 import { Select } from '../../../packages/ui-shell/Select';
 import { isComposing } from '../../../packages/ui-shell/list-navigation';
@@ -50,7 +50,14 @@ export function UsageDialog({ open, onClose, reports = [], loading = false, erro
       {(loading || refreshing) && <p className="usage-dialog-status" role="status">{reports.length ? 'Refreshing usage…' : 'Loading usage…'}</p>}
     </div>
     <div className="usage-provider-list" role="tabpanel" id={`${id}-rows`} aria-labelledby={`${id}-${tab}`} aria-busy={loading || refreshing} tabIndex={0}>
-      {!visible.length && !loading && <p className="usage-dialog-empty">{reports.length ? 'No reported usage matches these filters.' : 'No usage reported.'}</p>}
+      {!visible.length && !loading && (reports.length
+        ? <p className="usage-dialog-empty">No reported usage matches these filters.</p>
+        : <div className="usage-dialog-empty-state">
+          <BarChart3 size={20} aria-hidden="true" />
+          <strong>No usage reported yet</strong>
+          <p>Cost, tokens and limits appear here once a connected account reports usage. Run a conversation, then refresh.</p>
+          {onRefresh && <button type="button" className="usage-refresh" disabled={refreshing} onClick={() => void refresh()}><RefreshCw size={15} aria-hidden="true" /><span>{refreshing ? 'Refreshing…' : 'Refresh'}</span></button>}
+        </div>)}
       {!visible.length && loading && <div className="usage-dialog-skeleton" aria-hidden="true"><span /><span /><span /></div>}
       {visible.map(report => <section className="usage-provider-row" key={report.id} aria-label={`${report.providerLabel} · ${report.scopeLabel}`}>
         <header><strong>{report.providerLabel}</strong><span>{report.scopeLabel}</span></header>

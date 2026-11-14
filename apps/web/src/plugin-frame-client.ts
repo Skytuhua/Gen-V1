@@ -10,6 +10,12 @@ const journalIntents=new Map<string,{value:unknown}>(),journalWrites=new Map<str
 const surfaceListeners=new Set<(surface:PluginSurface)=>void>();
 const stateListeners=new Set<()=>void>();
 const visibilityListeners=new Set<(active:boolean)=>void>(),appearanceListeners=new Set<()=>void>();
+/** Host-owned presentation preferences; the sandboxed frame has no storage of its own. */
+export interface PluginPresentation{introDismissed:boolean}
+const presentationListeners=new Set<(presentation:PluginPresentation)=>void>();
+let presentationState:PluginPresentation={introDismissed:false};
+export const pluginPresentation=()=>presentationState;
+export function onPluginPresentation(listener:(presentation:PluginPresentation)=>void){presentationListeners.add(listener);return()=>{presentationListeners.delete(listener);};}
 let pluginActive=false,projectColors:Record<string,string>={};
 export const isPluginActive=()=>pluginActive;
 export function onPluginVisibility(listener:(active:boolean)=>void){visibilityListeners.add(listener);return()=>{visibilityListeners.delete(listener);};}
@@ -85,6 +91,8 @@ function receive(event:MessageEvent){
     const entries=Object.entries(value.projectColors);if(entries.length>200)return;
     const next:Record<string,string>={};for(const[key,color]of entries){if(key.length>512||typeof color!=='string'||!/^#[0-9A-Fa-f]{6}$/.test(color))continue;try{const identity:unknown=JSON.parse(key);if(Array.isArray(identity)&&identity.length===4&&identity[0]==='plugin'&&identity[1]===pluginId&&identity.every(value=>typeof value==='string'))next[key]=color;}catch{/* Invalid preference keys do not become plug-in data. */}}
     projectColors=next;for(const listener of appearanceListeners)listener();
+  }else if(value.type==='gen.plugin.presentation'&&value.session===session&&value.presentation&&typeof value.presentation==='object'&&typeof value.presentation.introDismissed==='boolean'){
+    presentationState={introDismissed:value.presentation.introDismissed};for(const listener of presentationListeners)listener(presentationState);
   }else if(value.type==='gen.plugin.retry-saves'&&value.session===session){
     void retryJournalWrites().then(()=>send({type:'gen.plugin.saves-retried',session,ok:true}),()=>send({type:'gen.plugin.saves-retried',session,ok:false}));
   }else if(value.type==='gen.plugin.state-changed'&&value.session===session){

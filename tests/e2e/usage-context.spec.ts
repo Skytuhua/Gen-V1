@@ -90,7 +90,7 @@ test('reported categories reveal token/share/subitems on focus after dwell; IME 
 test('unknown and invalid category measurements never retain stale values', async ({ page }) => {
   await page.goto('/usage-context'); await update(page, 'categories'); await page.getByRole('button', { name: 'Inspect context', exact: true }).click();
   await expect(context(page)).toContainText('System'); await update(page, 'unknown');
-  await expect(context(page)).toContainText('Context not reported'); await expect(context(page)).not.toContainText('System'); await expect(context(page)).not.toContainText('6K');
+  await expect(context(page)).toContainText('once the runtime measures this session'); await expect(context(page)).not.toContainText('System'); await expect(context(page)).not.toContainText('6K');
 });
 test('scope/provider filters remain in the owning modal and refresh preserves tab and selection', async ({ page }) => {
   await page.goto('/usage-context'); await page.getByRole('button', { name: 'Open Usage', exact: true }).click();

@@ -313,8 +313,10 @@ function App() {
 		[selected, setSelected] = useState("node:" + initial.nodes[0].id),
 		[ready, setReady] = useState(false),
 		[editing, setEditing] = useState(false),
-		// The sandboxed frame has no storage; dismissal lasts for this frame load.
-		[introOpen, setIntroOpen] = useState(true),
+		// The sandboxed frame has no storage; the host persists dismissal.
+		[introOpen, setIntroOpen] = useState(
+			() => !host.pluginPresentation().introDismissed,
+		),
 		[status, setStatus] = useState("Recovering visual document…"),
 		[error, setError] = useState(""),
 		[writeFailed, setWriteFailed] = useState(false),
@@ -336,6 +338,14 @@ function App() {
 	useEffect(() => {
 		if (exportText !== undefined) exportInput.current?.focus();
 	}, [exportText]);
+	// Host presentation is hide-only: a persisted dismissal never reopens the intro.
+	useEffect(
+		() =>
+			host.onPluginPresentation((presentation) => {
+				if (presentation.introDismissed) setIntroOpen(false);
+			}),
+		[],
+	);
 	const send = useCallback(async (intent: DocumentWrite) => {
 		unconfirmed.current = intent;
 		try {
@@ -718,7 +728,16 @@ function App() {
 							example, Import JSON, or Edit the JSON inline.
 						</p>
 					</div>
-					<button onClick={() => setIntroOpen(false)}>Dismiss</button>
+					<button
+						onClick={() => {
+							setIntroOpen(false);
+							void host
+								.pluginRequest("presentation.set", { introDismissed: true })
+								.catch(() => {});
+						}}
+					>
+						Dismiss
+					</button>
 				</section>
 			)}
 			<div className="pv-status">
