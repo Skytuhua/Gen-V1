@@ -1,5 +1,6 @@
 import {afterEach,expect,it,vi} from 'vitest';
-import {fork,type ChildProcess} from 'node:child_process';
+import {fork} from 'node:child_process';
+import {nextMessage} from './desktop-host-ipc.ts';
 import {mkdtemp,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join,resolve,relative,basename} from 'node:path';
@@ -108,8 +109,6 @@ async function launched(env:NodeJS.ProcessEnv,prepare?:(directory:string)=>void)
  cleanup.push(async()=>{if(child.exitCode===null&&child.signalCode===null){child.kill();await exited;}if(relative(resolve(tmpdir()),resolve(dir))!==basename(dir)||!basename(dir).startsWith('harness-desktop-host-'))throw new Error('Refusing cleanup outside the owned test directory.');await rm(dir,{recursive:true,force:true,maxRetries:5,retryDelay:100});});
  return {child,token,dir,exited,output:()=>output};
 }
-function nextMessage(child:ChildProcess,type:string){return new Promise<Record<string,unknown>>((resolve,reject)=>{const timer=setTimeout(()=>{clear();reject(new Error('Desktop host IPC timed out: '+type));},type==='harness.ready'?25000:8000);const message=(value:unknown)=>{if(value&&typeof value==='object'&&(value as {type?:string}).type===type){clear();resolve(value as Record<string,unknown>);}};const exit=(code:number|null)=>{clear();reject(new Error('Host exited before '+type+': '+code));};const clear=()=>{clearTimeout(timer);child.off('message',message);child.off('exit',exit);};child.on('message',message);child.once('exit',exit);});}
-
 it('launches an actual isolated sidecar, authenticates HTTP and shuts down only for its launch token',async()=>{
  const port=await freePort();let widgetPort=await freePort();while(widgetPort===port)widgetPort=await freePort();
  const fixture=await launched({HARNESS_PORT:String(port),HARNESS_WIDGET_PORT:String(widgetPort)}),ready=await nextMessage(fixture.child,'harness.ready');
