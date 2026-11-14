@@ -69,7 +69,7 @@ export const getThreadMessages = (id: string, beforeId?: string, limit = 300) =>
 };
 // Deep message search over threads the snapshot windowed; in-window threads are
 // already covered by the local matchingThreads scan.
-export const searchThreadMessages = (q: string, threadIds: string[]) => {
+export const searchThreadMessages = (q: string, threadIds: string[], signal?: AbortSignal) => {
   // The endpoint bounds `threads` to 4,000 characters; batch so every id is
   // covered, then union the hits.
   const batches: string[] = [];
@@ -80,7 +80,7 @@ export const searchThreadMessages = (q: string, threadIds: string[]) => {
   }
   return Promise.all(batches.map(batch => {
     const query = new URLSearchParams({ q, threads: batch }).toString();
-    return authenticated(() => fetch(`/api/threads/search?${query}`, { credentials: 'same-origin', cache: 'no-store' })).then(read<{ threadIds: string[] }>);
+    return authenticated(() => fetch(`/api/threads/search?${query}`, { credentials: 'same-origin', cache: 'no-store', signal })).then(read<{ threadIds: string[] }>);
   })).then(pages => ({ threadIds: pages.flatMap(page => page.threadIds) }));
 };
 export const getResourceContent = (id: string, path = '', signal?: AbortSignal) => authenticated(() => fetch(`/api/resources/${encodeURIComponent(id)}/content${path ? '?path=' + encodeURIComponent(path) : ''}`, { credentials: 'same-origin', cache: 'no-store', signal, redirect: 'error' }));

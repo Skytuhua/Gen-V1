@@ -24,3 +24,11 @@ it('preserves literal whitespace search and manual ordering with updated-time ti
   expect(matchingThreads(threads, [], ' ', 'manual').map(item => item.id)).toEqual(['top', 'new', 'old']);
   expect(matchingThreads(threads, [], '', 'created').map(item => item.id)).toEqual(['new', 'old', 'top']);
 });
+
+it('only shows historical hits for the current non-empty sidebar query', () => {
+  const threads = [thread('historic'), thread('current', 'Second query'), {...thread('side'), sideParentId: 'historic'}];
+  const historical = {query: 'first', ids: new Set(['historic', 'side'])};
+  expect(matchingThreads(threads, [], 'first', 'recent', historical).map(item => item.id)).toEqual(['historic']);
+  expect(matchingThreads(threads, [], 'second', 'recent', historical).map(item => item.id)).toEqual(['current']);
+  expect(matchingThreads(threads, [], 'nothing', 'recent', historical)).toEqual([]);
+});
