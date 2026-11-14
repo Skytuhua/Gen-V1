@@ -17,16 +17,21 @@ function source(file: string, text: string) {
 source('types.ts', 'export type Count = number;');
 source('jsx.d.ts', 'declare namespace JSX { interface Element { readonly jsx: unique symbol } interface IntrinsicElements { [tag: string]: any } }');
 source('packages/ui-shell/Popover.tsx', 'export declare function Popover(props: any): JSX.Element;');
+// Every lint call reuses the previous program, so the shared lib/jsx.d.ts
+// sources are parsed once instead of once per fixture.
+let cachedProgram: ts.Program | undefined;
+function lintProgram(file: string) {
+  cachedProgram = ts.createProgram({ rootNames: [file, join(root, 'jsx.d.ts')], options: { strict: true, jsx: ts.JsxEmit.Preserve, types: [], skipLibCheck: true }, oldProgram: cachedProgram });
+  return cachedProgram;
+}
 function lintFixture(name: string) {
   const file = source(`${name}.tsx`, readFileSync(new URL(`./fixtures/ui-guard/${name}.tsx.txt`, import.meta.url), 'utf8'));
-  const program = ts.createProgram([file, join(root, 'jsx.d.ts')], { strict: true, jsx: ts.JsxEmit.Preserve, types: [], skipLibCheck: true });
-  return lintUiProgram(program, [file], root);
+  return lintUiProgram(lintProgram(file), [file], root);
 }
 const numeric = (violations: UiViolation[]) => violations.filter(item => item.rule === 'numeric-jsx-child');
 function lintText(name: string, text: string) {
   const file = source(name, text);
-  const program = ts.createProgram([file, join(root, 'jsx.d.ts')], { strict: true, jsx: ts.JsxEmit.Preserve, types: [], skipLibCheck: true });
-  return lintUiProgram(program, [file], root);
+  return lintUiProgram(lintProgram(file), [file], root);
 }
 
 describe('type-aware rendered numeric guards', () => {

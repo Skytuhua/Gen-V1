@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { existsSync } from 'node:fs';
+import { existsSync, statSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -17,6 +17,10 @@ function run(file: string, args: string[], cwd: string, env: NodeJS.ProcessEnv =
 }
 export async function buildWindowsCredentialLease(outputDirectory = join(root, 'packages/core')) {
   if (process.platform !== 'win32' || process.arch !== 'x64') throw Error('Credential lease build requires Windows x64.');
+  const artifact = join(resolve(outputDirectory), 'windows-credential-lease.node'), sourcePath = join(root, 'packages/core/windows-credential-lease.cc');
+  // Rebuilding needs pinned Node headers plus Visual Studio; skip it when the
+  // native module on disk already covers the current source.
+  if (existsSync(artifact) && statSync(artifact).mtimeMs >= statSync(sourcePath).mtimeMs) return artifact;
   const cache = join(root, '.harness-windows-credential-build'); await mkdir(cache, {recursive: true});
   for (const [name, sha256] of inputs) {
     const target = join(cache, name.split('/').at(-1)!); let bytes: Buffer | undefined;
@@ -30,7 +34,7 @@ export async function buildWindowsCredentialLease(outputDirectory = join(root, '
     }
   }
   run(join(process.env.SystemRoot ?? 'C:\\Windows', 'System32/tar.exe'), ['-xzf', join(cache, inputs[0][0])], cache);
-  const source = join(root, 'packages/core/windows-credential-lease.cc'), output = join(resolve(outputDirectory), 'windows-credential-lease.node');
+  const source = sourcePath, output = artifact;
   await mkdir(dirname(output), {recursive: true});
   const include = join(cache, `node-v${version}/include/node`), library = join(cache, 'node.lib');
   const vswhere = join(process.env['ProgramFiles(x86)'] ?? 'C:\\Program Files (x86)', 'Microsoft Visual Studio/Installer/vswhere.exe');
