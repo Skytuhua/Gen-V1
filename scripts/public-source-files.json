@@ -971,6 +971,7 @@
     "tests/e2e/settings-leaf-selects.vite.config.ts",
     "tests/e2e/settings-loading.spec.ts",
     "tests/e2e/settings-manual-browser-fixture.tsx",
+    "tests/e2e/settle.ts",
     "tests/e2e/shared-motion.spec.ts",
     "tests/e2e/shared-panels-fixture.tsx",
     "tests/e2e/shared-panels.playwright.config.ts",
