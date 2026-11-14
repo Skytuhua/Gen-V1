@@ -85,12 +85,20 @@ describe('official Claude SDK runtime', () => {
     finally{await runtime.dispose();}
   });
   it('shares pending model discovery, returns copies and refreshes only explicitly',async()=>{
-    const barrier=deferred<void>(),instances:ReturnType<typeof scripted>[]=[];
-    const query=vi.fn((args:any)=>{const fake=scripted();fake.hold(barrier.promise);instances.push(fake);return fake.query(args);});
+    const barrier=deferred<void>(),entered=deferred<void>();
+    const query=vi.fn((args:any)=>{const fake=scripted();fake.hold(barrier.promise);entered.resolve();return fake.query(args);});
     const runtime=createOfficialRuntime({dataDir:await mkdtemp(join(tmpdir(),'official-discovery-'))},{claudeSdk:{query} as any});
     runtime.configure({onEvent(){},onTool:async()=>null});
-    try{const first=runtime.models(),second=runtime.models();await vi.waitFor(()=>expect(query).toHaveBeenCalledOnce());barrier.resolve();const [a,b]=await Promise.all([first,second]);expect(a).toEqual(b);a[0].name='local mutation';expect((await runtime.models())[0].name).toBe('Official model');expect(query).toHaveBeenCalledOnce();await runtime.models({refresh:true});expect(query).toHaveBeenCalledTimes(2);}
-    finally{barrier.resolve();await runtime.dispose();}
+    const first=runtime.models(),second=runtime.models();
+    const both=Promise.all([first,second]);
+    try{
+      // Wait for the SDK boundary instead of racing filesystem setup against vi.waitFor's 1s default.
+      const started=await Promise.race([entered.promise.then(()=>true),both.then(()=>false)]);
+      expect(started).toBe(true);expect(query).toHaveBeenCalledOnce();
+      barrier.resolve();const [a,b]=await both;expect(a).toEqual(b);
+      a[0].name='local mutation';expect((await runtime.models())[0].name).toBe('Official model');
+      expect(query).toHaveBeenCalledOnce();await runtime.models({refresh:true});expect(query).toHaveBeenCalledTimes(2);
+    }finally{barrier.resolve();await both.catch(()=>{});await runtime.dispose();}
   });
   it('keeps streaming input empty until account and advertised model validation finish', async () => {
     const fake = scripted(); const barrier = deferred<void>(); fake.hold(barrier.promise);
