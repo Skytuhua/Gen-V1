@@ -14,7 +14,7 @@ export function settingsDataFromSnapshot(snapshot: Snapshot): SettingsData {
     sequence: snapshot.seq,
     settings: {theme: snapshot.settings.theme, modelId: snapshot.settings.modelId, selectedAccounts: snapshot.settings.selectedAccounts, preferences: snapshot.settings.preferences},
     accounts: snapshot.accounts ?? [], skills: snapshot.skills ?? [], skillProposals: snapshot.skillProposals ?? [], learning: snapshot.learning,
-    projects: [...new Map(snapshot.threads.filter(thread => thread.projectId).map(thread => [thread.projectId!, {id: thread.projectId!, name: thread.projectName ?? 'Project'}])).values()],
+    projects: [...new Map([...snapshot.threads, ...(snapshot.archivedThreads ?? [])].filter(thread => thread.projectId).map(thread => [thread.projectId!, {id: thread.projectId!, name: thread.projectName ?? 'Project'}])).values()],
     resources: snapshot.resources.map(({id, threadId, kind, label, writable, path}) => ({id, threadId, kind, label, writable, path})),
     archivedThreads: (snapshot.archivedThreads ?? []).map(navigationRow),
     counts: {threads: snapshot.threads.length, archivedThreads: snapshot.archivedThreads?.length ?? 0, artifacts: snapshot.artifacts.length, resources: snapshot.resources.length, uncertainOperations: snapshot.operations.filter(item => item.status === 'unknown').length},
