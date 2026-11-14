@@ -132,6 +132,19 @@ describe("durable command storage", () => {
     expect(seenA).toEqual([1, 2, 3]); expect(seenB).toEqual([1, 2, 3]); expect(seenC).toEqual([1, 2, 3]);
     expect(store.eventsAfter(0).map(event => event.type)).toEqual(['outer', 'inner', 'later']);
   });
+  it("observes the rejected promise when apply returns one and commit throws", async () => {
+    const store = setup(), unhandled: unknown[] = [];
+    const onUnhandled = (reason: unknown) => { unhandled.push(reason); };
+    process.on("unhandledRejection", onUnhandled);
+    try {
+      let rejectApply!: (error: Error) => void;
+      const pending = new Promise<never>((_, reject) => { rejectApply = reject; });
+      expect(() => store.internal("runtime.async", null, () => pending)).toThrow("Async work cannot run in a SQLite transaction");
+      rejectApply(new Error("late rejection"));
+      await new Promise(resolve => setTimeout(resolve, 0));
+      expect(unhandled).toEqual([]); expect(store.eventsAfter(0)).toEqual([]);
+    } finally { process.off("unhandledRejection", onUnhandled); }
+  });
   it("rolls back projection and event together on failure", () => {
     const store = setup();
     expect(() => store.command({ id: "bad", type: "test", payload: {} }, () => { store.put("sample", "one", null, { value: 1 }); throw new Error("rollback"); })).toThrow("rollback");
