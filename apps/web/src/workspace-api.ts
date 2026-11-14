@@ -1,9 +1,10 @@
 import {useCallback,useEffect,useRef,useState} from 'react';
 import type {CommandReceipt} from '../../../packages/contracts/index.ts';
-import type {WorkspaceEnvelope} from '../../../packages/contracts/workspace.ts';
+import {workspaceEnvelopeSchema,type WorkspaceEnvelope} from '../../../packages/contracts/workspace.ts';
 import {ApiError,authenticated,csrfToken,read} from './api';
 
-export const getWorkspace=()=>authenticated(()=>fetch('/api/workspace',{credentials:'same-origin',cache:'no-store'})).then(read<WorkspaceEnvelope>);
+const parseEnvelope=(value:unknown):WorkspaceEnvelope=>{const parsed=workspaceEnvelopeSchema.safeParse(value);if(!parsed.success)throw Error('The host did not return a workspace layout. Refresh and retry.');return parsed.data;};
+export const getWorkspace=()=>authenticated(()=>fetch('/api/workspace',{credentials:'same-origin',cache:'no-store'})).then(read<unknown>).then(parseEnvelope);
 const layoutContent=(value:WorkspaceEnvelope)=>JSON.stringify([value.projects,{...value.state,revision:0,nativeLayout:undefined}]);
 export function useWorkspaceState(enabled=true,{listenNative=true}:{listenNative?:boolean}={}){
  const [envelope,setEnvelope]=useState<WorkspaceEnvelope|null>(null),[error,setError]=useState('');const current=useRef(envelope),queue=useRef<Promise<unknown>>(Promise.resolve()),alive=useRef(true);current.current=envelope;
@@ -18,8 +19,7 @@ export function useWorkspaceState(enabled=true,{listenNative=true}:{listenNative
     const body=JSON.stringify({id:crypto.randomUUID(),type,payload:{...payload,...(payload.baseRevision===undefined&&basis?{baseRevision:basis.state.revision}:{})}});
     try{
      const response=await authenticated(()=>{check();return fetch('/api/workspace/commands',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','x-harness-csrf':csrfToken},body});});
-     const receipt=await read<CommandReceipt>(response),value=receipt.result as WorkspaceEnvelope;
-     if(!value?.state||!Array.isArray(value.projects))throw Error('The host did not return a workspace layout. Refresh and retry.');
+     const receipt=await read<CommandReceipt>(response),value=parseEnvelope(receipt.result);
      accept(value);return value;
     }catch(cause){
      if(!(cause instanceof ApiError)||cause.code!=='WORKSPACE_CHANGED'||(!type.startsWith('workspace.panel.')&&!type.startsWith('workspace.canvas.'))||payload.baseRevision!==undefined||!basis||attempt>=2)throw cause;
