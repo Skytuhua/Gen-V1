@@ -51,7 +51,8 @@ export function useListNavigation(items: readonly ListEntry[], choose: (index: n
         }
       } else if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
-        if (active.current >= 0 && !items[active.current]?.disabled) choose(active.current);
+        const current = items[active.current];
+        if (current && !current.disabled) choose(active.current);
       } else if (event.key.length === 1) { event.preventDefault(); type(event.key); }
     },
   };
