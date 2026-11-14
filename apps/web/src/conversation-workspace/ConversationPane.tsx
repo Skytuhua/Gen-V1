@@ -3,6 +3,7 @@ import type {ConversationReadState} from './reader';
 import type {ScopedConversation} from './useScopedConversation';
 import './conversation-pane.css';
 import {ConversationFind} from '../ConversationFind';
+import {ErrorState} from '../../../../packages/ui-shell/Feedback';
 
 export interface ConversationPaneProps {
   conversation: ScopedConversation;
@@ -85,7 +86,7 @@ export function ConversationPane({conversation: {state, reader}, hidden = false,
         </article>)}
         {state.pending && <p role="status">{state.phase === 'resync' ? 'Refreshing conversation…' : 'Loading conversation…'}</p>}
         {!state.pending && state.phase === 'ready' && !state.messages.length && <p>No messages yet.</p>}
-        {state.error && <div role="alert"><p>{state.error}</p>{state.phase === 'error' && <button type="button" className="ui-action-trigger" onClick={() => {void reader.retry();}}>Retry</button>}</div>}
+        {state.error && <ErrorState message={state.error} onRetry={state.phase === 'error' ? () => {void reader.retry();} : undefined} />}
       </div>
     </div>
     {!atBottom && state.messages.length > 0 && <div className="scoped-conversation-jump"><button type="button" className="ui-action-trigger" onClick={() => {reading.current.follow = true; if (viewport.current) viewport.current.scrollTop = viewport.current.scrollHeight; remember();}}>{newMessages ? 'New messages · Jump to latest' : 'Jump to latest'}</button></div>}

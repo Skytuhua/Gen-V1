@@ -6,6 +6,7 @@ import {displayFilePath} from './files/FilesView';
 import {RecordedDiffs} from './WorkspacePanelBodies';
 import {checkpointOwnerKey,checkpointReviewPaths,disabledCheckpointAdapter,readCheckpointDetail,readCheckpointList,readCheckpointReview,type CheckpointList,type CheckpointOwner,type CheckpointReview,type FileCheckpoint,type FileCheckpointAdapter} from './file-checkpoint-api';
 import './file-checkpoints.css';
+import {ErrorState} from '../../../packages/ui-shell/Feedback';
 
 const sources=['Current','Recorded','History'] as const;
 type Source=typeof sources[number];
@@ -47,7 +48,7 @@ function CheckpointHistory({owner,adapter,preferences}:{owner:CheckpointOwner;pr
       <p className="file-checkpoints-note">Review a version before restoring</p>
       <p className="file-checkpoints-caption">Review the diff and conflicts before restoring selected files.</p>
       {loading&&<p role="status">Loading checkpoints…</p>}
-      {error&&<div role="alert"><p>{error}</p>{adapter.available&&<button type="button" onClick={()=>setAttempt(value=>value+1)}>Retry</button>}</div>}
+      {error&&<ErrorState message={error} onRetry={adapter.available?()=>setAttempt(value=>value+1):undefined}/>}
       {!loading&&!error&&list?.items.length===0&&<p className="file-checkpoints-note">No file checkpoints available.</p>}
       <ul className="file-checkpoints-list">{list?.items.map(item=><li key={item.id}>
         <Clock3 size={15} aria-hidden="true"/><div><strong>{item.label}</strong>
@@ -85,7 +86,7 @@ function CheckpointFiles({owner,adapter,checkpoint,preferences,onBack}:{owner:Ch
   },[owner,adapter,checkpoint,attempt]);
   return <section aria-label="Checkpoint review">
     <button ref={back} type="button" onClick={onBack}>Back to History</button><h3>{checkpoint.label}</h3>
-    {error?<div role="alert"><p>{error}</p><button type="button" onClick={()=>setAttempt(value=>value+1)}>Retry review</button></div>:!reviews?<p role="status">Loading checkpoint review…</p>:<>
+    {error?<ErrorState message={error} retryLabel="Retry review" onRetry={()=>setAttempt(value=>value+1)}/>:!reviews?<p role="status">Loading checkpoint review…</p>:<>
       <p className="file-checkpoints-note">{provenance(checkpoint)} · Revision {checkpoint.revision}</p>
       {reviews.map((review,index)=><section key={review.reviewId} aria-label={`Review part ${index+1} of ${reviews.length}`}>
       <p className="file-checkpoints-note">Part {index+1} of {reviews.length} · Review {review.reviewId} · {review.files.length} files</p>

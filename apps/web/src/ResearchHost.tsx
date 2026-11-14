@@ -16,6 +16,7 @@ import type {ConversationHost} from './WorkspaceHost';
 import {journalFlush} from './journal';
 import {prepareEditorHandoff} from './editor-handoff';
 import './research-host.css';
+import {ErrorState} from '../../../packages/ui-shell/Feedback';
 
 function researchBinding(canvas: WorkspaceCanvas): {binding?: PanelBinding; error?: string} {
  const explicit=canvas.panels.find(panel=>panel.id==='research-owner-'+canvas.id&&panel.kind==='thread');
@@ -43,6 +44,7 @@ export function ResearchHost({canvas,workspace,composers,openConversation}:{canv
  const admitted=admission?.key===key?admission:undefined;
  const conversation=useScopedConversation(admitted?.selection??null), context=conversation.state.context;
  const desktop=useDesktop(), surface=binding?.threadId?{kind:'thread' as const,threadId:binding.threadId}:null, detached=useDetachedSurface(surface), nativePending=usePendingSurface(surface);
+
  const held=Boolean(detached||nativePending||desktop?.closing), fence=useRef({signature:'',version:0,active:true});
  const signature=JSON.stringify([key,context?.scopeKey,held]);if(fence.current.signature!==signature)fence.current={...fence.current,signature,version:fence.current.version+1};
  useEffect(()=>{fence.current.active=true;return()=>{fence.current.active=false;fence.current.version++;};},[]);
@@ -93,7 +95,7 @@ export function ResearchHost({canvas,workspace,composers,openConversation}:{canv
  return <div className="research-host">
   {detached&&<p className="research-host-notice">This conversation is open in another window.<button onClick={()=>{void desktop?.bridge.focus(detached.id);}}>Focus existing window</button></p>}
   {!eligible&&picker}
-  {failure&&<div role="alert" className="research-host-notice">{failure}<button onClick={()=>{setRetry(value=>value+1);void conversation.reader.retry();}}>Retry conversation</button></div>}
+  {failure&&<ErrorState className="research-host-notice" message={failure} retryLabel="Retry conversation" onRetry={()=>{setRetry(value=>value+1);void conversation.reader.retry();}}/>}
   <PendingStatus pending={pending||conversation.state.pending} label="Opening research..."/>
   {eligible&&context?<ResearchWorkspace key={context.scopeKey} selection={{authority:{kind:'personal'},threadId:context.owner.threadId,projectId:context.owner.projectId,epoch:context.owner.epoch,isCurrent:ownerGuard,resource:resource?.scopeKey===context.scopeKey?resource.resource:null}} importDraft={importMemory.current?.draft} disabled={held} topic={context.owner.title} ownerControl={picker} browserCapture={{available:false}} onImportOpen={()=>{void loadFiles(true);}} grantedFiles={ownerFiles?.items.map(row=>({resourceId:row.id,label:row.label}))} filePage={{pending:ownerFiles?.pending??false,hasMore:Boolean(ownerFiles?.cursor),error:ownerFiles?.error,more:()=>{void loadFiles();}}} chatOpen={chatOpen} onChatOpenChange={setChatOpen} chat={<ConversationPane conversation={conversation} hidden={!chatOpen} renderComposer={read=>read.context&&read.phase==='ready'?<ScopedConversationComposer key={read.context.scopeKey} context={read.context} composers={composers} openConversation={openConversation} refreshOwner={conversation.reader.poll}/>:null}/>} onNavigate={selection=>setResource({scopeKey:context.scopeKey,resource:selection.resource})}/>:!pending&&!failure&&!binding?.threadId&&<p className="research-host-notice">Choose a conversation to open its sources and findings.</p>}
  </div>;

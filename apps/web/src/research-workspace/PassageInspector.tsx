@@ -4,6 +4,7 @@ import {LoadingState} from '../LoadingState';
 import {ApiError} from '../api';
 import {researchClient, researchError, researchScope, type ResearchSelection} from './client';
 import {SourceIdentity} from './SourceReader';
+import {ErrorState} from '../../../../packages/ui-shell/Feedback';
 
 export function PassageInspector({selection, passage, onClose}: {selection: ResearchSelection; passage: ResearchPassage; onClose: () => void}) {
   const [result, setResult] = useState<{source: ResearchSource; passage: ReturnType<ResearchProvider['passage']>}>();
@@ -24,6 +25,6 @@ export function PassageInspector({selection, passage, onClose}: {selection: Rese
     <LoadingState pending={pending} hasContent={Boolean(result)} label="Checking passage access…">
       {result && <><SourceIdentity source={result.source} /><p className="research-meta">{result.passage.status === 'stale' ? 'Stale capture' : 'Current capture'} · live source unverified · bytes {passage.start}–{passage.end}</p><blockquote>{result.passage.text}</blockquote></>}
     </LoadingState>
-    {error && <div role="alert"><strong>{status}</strong><p>{error}</p><button onClick={() => setRetry(value => value + 1)}>Retry passage</button></div>}
+    {error && <ErrorState message={error} retryLabel="Retry passage" onRetry={() => setRetry(value => value + 1)}><strong>{status}</strong></ErrorState>}
   </section>;
 }

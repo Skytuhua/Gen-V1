@@ -5,6 +5,7 @@ import {ActionMenu} from '../../../packages/ui-shell/ActionMenu';
 import {Modal} from '../../../packages/ui-shell/Modal';
 import {isComposing,useListNavigation} from '../../../packages/ui-shell/list-navigation';
 import './saved-layout-chooser.css';
+import {ErrorState} from '../../../packages/ui-shell/Feedback';
 
 export interface SavedLayoutRow {id:string;name:string;source:'split'|'recovery'|'canvas';updatedAt?:string;canRename?:boolean;canUpdate?:boolean;canDelete?:boolean}
 export interface SavedLayoutSelection {key:string;arrangement:string;version?:string}
@@ -55,7 +56,7 @@ export function SavedLayoutChooser({rows,arrangement,loading=false,error='',disa
   <Popover anchor={anchor} contentRef={content} open={open&&!disabled} width={320} height={Math.min(420,108+rows.length*40+(recovery.length?32:0))} preferredSide="below" id={id} role="dialog" aria-label="Saved layouts" tabIndex={-1} className="saved-layout-popup" onDismiss={()=>{if(!entry&&!overflow)setOpen(false);}} onReady={()=>{content.current?.focus();navigation.focus(rows.findIndex(row=>selection?.key===keyOf(row))>=0?rows.findIndex(row=>selection?.key===keyOf(row)):navigation.edge());}} onKeyDown={event=>{if(isComposing(event)){if(event.key==='Enter'||event.key==='Escape')event.preventDefault();return;}if(entry||overflow||event.key==='Tab')return;if(event.target instanceof HTMLElement&&event.target.closest('.ui-action-trigger'))return;navigation.onKeyDown(event);}}>
    <h2>Saved layouts</h2>
    {loading&&<p role="status" aria-label="Layout status">Loading layouts…</p>}
-   {(error||failure)&&!entry&&<div className="saved-layout-error"><p role="alert">{failure||error}</p>{error&&onRetry&&<button type="button" disabled={busy} onClick={()=>void run(onRetry)}>Retry</button>}</div>}
+   {(error||failure)&&!entry&&<ErrorState className="saved-layout-error" message={failure||error||''} busy={busy} onRetry={error&&onRetry?()=>void run(onRetry):undefined}/>}
    <div className="saved-layout-list" aria-busy={busy||loading}>
     {!loading&&!rows.length&&!error&&<p>No saved layouts yet.</p>}
     {modern.map(item=>row(item,rows.indexOf(item)))}
@@ -67,7 +68,7 @@ export function SavedLayoutChooser({rows,arrangement,loading=false,error='',disa
   <Modal open={entry!==null} title={entry?.type==='save'?'Save current layout':entry?.type==='rename'?'Rename layout':'Delete layout'} className="saved-layout-dialog" onClose={()=>{if(!pending.current){setEntry(null);setFailure('');}}}>
    {entry&&<form onSubmit={event=>{event.preventDefault();if(pending.current)return;void run(async()=>{if(entry.type==='save'){const accepted=await onSave?.(name.trim());if(accepted&&alive.current)setSelection(accepted);}else if(entry.type==='rename')await onRename?.(entry.row,name.trim());else{await onDelete(entry.row);if(selection?.key===keyOf(entry.row)&&alive.current)setSelection(null);}},()=>{setEntry(null);});}} onKeyDown={event=>{if(isComposing(event)&&(event.key==='Enter'||event.key==='Escape'))event.preventDefault();}}>
     {entry.type==='delete'?<p>Delete “{entry.row.name}”? Your current arrangement stays open.</p>:<label>Layout name<input ref={input} aria-label="Layout name" name="layoutName" value={name} required maxLength={100} pattern={'[^\\x00-\\x1f\\x7f]+'} disabled={busy} onChange={event=>setName(event.target.value)}/></label>}
-    {failure&&<p className="saved-layout-error" role="alert">{failure}</p>}
+    {failure&&<ErrorState className="saved-layout-error" message={failure}/>}
     <div className="saved-layout-dialog-actions"><button type="button" disabled={busy} onClick={()=>{setEntry(null);setFailure('');}}>Cancel</button><button type="submit" disabled={busy||entry.type!=='delete'&&(!name.trim()||/[\u0000-\u001f\u007f]/.test(name))}>{busy?'Saving…':entry.type==='save'?'Save':entry.type==='rename'?'Rename':'Delete'}</button></div>
    </form>}
   </Modal>

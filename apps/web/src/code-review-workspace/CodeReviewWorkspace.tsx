@@ -11,6 +11,7 @@ import {journalCompareAndSwap, journalFlush, journalRead, journalReadRecord, jou
 import {acknowledgeOperation, canUseDraft, comparisonKey, newDraft, ownerKey, rebindDraft, sameOwner, selectionKey, type ActionIdentity, type ReviewDraft, type ReviewOwner, type ReviewSelection, type ReviewOperation} from './model';
 import {codeReviewClient, reviewError} from './client';
 import './code-review-workspace.css';
+import {ErrorState} from '../../../../packages/ui-shell/Feedback';
 
 export type ReviewActionContext = Omit<ReviewOperation, 'payload'>;
 export type ReviewActionResult = {state: 'confirmed' | 'stale' | 'uncertain' | 'revoked'};
@@ -168,7 +169,7 @@ function ComparisonBody({selection, writes, onRefresh}: CodeReviewWorkspaceProps
       <div className="cr-section-heading"><h2>Changed files{comparison ? ` (${comparison.files.length}${comparison.filesTruncated ? '+' : ''})` : ''}</h2><button ref={refreshControl} type="button" aria-label="Refresh comparison" disabled={reading || busy} onClick={load}>Refresh</button></div>
       <div className="cr-file-select"><Select aria-label="Changed file" value={path} disabled={!comparison || comparison.files.length === 0} options={comparison?.files.map(file => ({value: file.path, label: file.path})) ?? []} onValueChange={setPath} /></div>
       <label className="cr-filter">Filter files<input value={filter} onChange={event => setFilter(event.target.value)} type="search" /></label>
-      {error && <p role="alert">{error}</p>}
+      {error && <ErrorState message={error}/>}
       {comparison?.access.mode === 'legacy' && <p className="cr-meta">Original working copy · tracked changes only</p>}
       {comparison?.filesTruncated && <p role="status">File list is incomplete. More files exist beyond the read limit.</p>}
       {comparison && comparison.files.length === 0 && <p>No changes in this comparison.</p>}
@@ -197,7 +198,7 @@ function ComparisonBody({selection, writes, onRefresh}: CodeReviewWorkspaceProps
         <textarea id={`cr-draft-${selection.owner.projectId}`} value={draft.value?.body ?? ''} disabled={!draft.ready || !draft.value} maxLength={64000} rows={7}
           onChange={event => {if (draft.value) void draft.edit({body: event.target.value}).catch(() => {});}} />
         <PendingStatus pending={!draft.ready} label="Recovering review draft…"/>
-        {draft.error && <p role="alert">{draft.error} <button type="button" onClick={draft.retry}>Retry draft recovery</button></p>}
+        {draft.error && <ErrorState message={draft.error} retryLabel="Retry draft recovery" onRetry={draft.retry}/>}
         {draft.value && identity && !compatible && !['pending', 'uncertain', 'revoked', 'confirmed'].includes(draft.value.outcome) && <div className="cr-draft-state"><p>Draft belongs to an earlier comparison or working-copy revision.</p><button type="button" disabled={busy || refreshing || !draft.ready || !!draft.error} onClick={() => void draft.rebind(identity, action).catch(() => {})}>Use current comparison</button></div>}
         {draft.value?.outcome === 'uncertain' && <p role="alert">Outcome uncertain. Inspect the canonical action before trying again.</p>}
         {draft.value && ['pending', 'uncertain', 'revoked'].includes(draft.value.outcome) && !draft.value.operation && <p role="alert">Saved action lacks an exact attempt record. Writes remain held; verify the action with its canonical owner.</p>}
@@ -245,7 +246,7 @@ function Patch({selection, comparison, path, onInvalid}: {selection: ReviewSelec
     }).catch(cause => {if (!controller.signal.aborted) {setValue(undefined); setError(reviewError(cause));}});
     return () => controller.abort();
   }, [retry]);
-  if (error) return <p role="alert">{error} <button type="button" onClick={() => setRetry(current => current + 1)}>Retry file</button></p>;
+  if (error) return <ErrorState message={error} retryLabel="Retry file" onRetry={() => setRetry(current => current + 1)}/>;
   if (!value) return <LoadingState pending hasContent={false} label="Loading file diff…" skeleton={<DiffSkeleton/>} className="view-loading-state"/>;
   if (value.state === 'text' && value.text !== null) return <pre className="cr-patch" tabIndex={0} aria-label="Unified diff">{value.text.split('\n').map((line, index) => <span className="cr-line" data-kind={line.startsWith('@@') ? 'hunk' : line.startsWith('+') && !line.startsWith('+++') ? 'add' : line.startsWith('-') && !line.startsWith('---') ? 'delete' : 'context'} key={index}>{line}{'\n'}</span>)}</pre>;
   return <div className="cr-patch-state"><p>{({binary: 'Binary file · no text diff.', truncated: 'Patch exceeds the display limit. No partial patch is shown.', unavailable: 'Patch unavailable.', untracked: 'Untracked file · no indexed diff.', empty: 'No textual changes in this comparison.', text: 'Patch unavailable.'})[value.state]}</p>{value.reason && <p className="cr-meta">{({ 'patch-omitted': 'The provider omitted this patch.', 'unsupported-path': 'This path is unsupported.', conflict: 'Resolve the file conflict before reviewing a text diff.', 'resource-limit': 'The read exceeded its resource limit.', 'unsupported-file': 'This file type is unsupported.'})[value.reason]}</p>}</div>;

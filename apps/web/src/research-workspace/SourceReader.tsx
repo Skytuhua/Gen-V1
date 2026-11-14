@@ -3,6 +3,7 @@ import type {ResearchPassage, ResearchSource} from '../../../../packages/contrac
 import {ApiError} from '../api';
 import {PendingStatus} from '../LoadingState';
 import {researchClient, researchError, researchScope, type ResearchSelection} from './client';
+import {ErrorState} from '../../../../packages/ui-shell/Feedback';
 
 export function SourceIdentity({source}: {source: ResearchSource}) {
   const identity = source.identity;
@@ -51,7 +52,7 @@ export function SourceReader({selection, source, onCite}: {selection: ResearchSe
           {history.length > 0 && <button disabled={pending} onClick={() => {const previous = history.at(-1)!; setHistory(history.slice(0, -1)); void load(previous);}}>Previous passage</button>}
           {page.ref.end < source.bytes && <button disabled={pending} onClick={() => {setHistory([...history, page.ref.start]); void load(page.ref.end);}}>Next passage</button>}
         </div></>}
-      {error && <p role="alert">{error} <button onClick={() => void load(0)}>Retry passage</button></p>}
+      {error && <ErrorState message={error} retryLabel="Retry passage" onRetry={() => void load(0)}/>}
     </>}
   </article>;
 }
