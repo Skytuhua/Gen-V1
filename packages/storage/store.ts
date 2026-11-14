@@ -94,7 +94,7 @@ export class Store {
     let result: unknown;
     try {
       result = apply() ?? null;
-      if (result && typeof (result as Promise<unknown>).then === "function") throw new Error("Async work cannot run in a SQLite transaction");
+      if (result && typeof (result as Promise<unknown>).then === "function") { void Promise.resolve(result).catch(() => {}); throw new Error("Async work cannot run in a SQLite transaction"); }
       const id = randomUUID(), occurredAt = new Date().toISOString();
       const inserted = this.statements.insertEvent.run(id, type, threadId, JSON.stringify({ result }), occurredAt);
       event = { seq: Number(inserted.lastInsertRowid), id, type, threadId, payload: { result }, occurredAt };
