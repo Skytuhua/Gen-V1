@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { Check, ChevronDown } from 'lucide-react';
 import { Popover } from './Popover';
 import { isComposing, useListNavigation } from './list-navigation';
@@ -30,6 +30,14 @@ export function ActionMenu({ label, icon, iconOnly, open, onOpenChange, disabled
   const id = useId(), start = useRef(false);
   const [fieldsetDisabled, setFieldsetDisabled] = useState(false);
   const effectivelyDisabled = Boolean(disabled || fieldsetDisabled);
+  const restoreAfterAction = useRef(false);
+  useLayoutEffect(() => {
+    if (open || effectivelyDisabled || !restoreAfterAction.current) return;
+    restoreAfterAction.current = false;
+    // An async action can disable the trigger and drop its focus to the body.
+    const button = anchor.current;
+    if (button && button.ownerDocument.activeElement === button.ownerDocument.body) button.focus();
+  }, [open, effectivelyDisabled]);
   const changeOpen = useRef(onOpenChange); changeOpen.current = onOpenChange;
   useEffect(() => {
     const update = () => {
@@ -47,6 +55,7 @@ export function ActionMenu({ label, icon, iconOnly, open, onOpenChange, disabled
   const choose = (index: number) => {
     if (disabled || anchor.current?.matches(':disabled')) { onOpenChange(false); return; }
     if (items[index]?.disabled) return;
+    restoreAfterAction.current = true;
     close(); items[index]?.onSelect();
   };
   const navigation = useListNavigation(items, choose, close);
