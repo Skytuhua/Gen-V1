@@ -27,17 +27,19 @@ export function workspaceEvents(origin:string,notify:(change:DesktopWorkspaceCha
     try{
      for(;;){
       const chunk=await reader.read();if(chunk.done)break;bounded();
-      const text=decoder.decode(chunk.value,{stream:true});let start=0;
+      const text=decoder.decode(chunk.value,{stream:true}),before=sequence;let start=0;
       for(let index=0;index<=text.length;index++){
        if(index<text.length&&text[index]!=='\n')continue;
        if(!discard){line+=text.slice(start,index);if(line.length>256){line='';discard=true;}}
        if(index<text.length){
         const id=!discard?/^id: ?([0-9]+)\r?$/.exec(line):null;
-        if(id){const next=Number(id[1]);if(Number.isSafeInteger(next)&&next>sequence){sequence=next;publish(true);}}
+        if(id){const next=Number(id[1]);if(Number.isSafeInteger(next)&&next>sequence)sequence=next;}
         line='';discard=false;
        }
        start=index+1;
       }
+      // Renderers refresh the current snapshot; they do not consume each event.
+      if(sequence!==before)publish(true);
      }
     }finally{await reader.cancel().catch(()=>{});stream=undefined;}
    }catch{/* The next connection obtains a fresh session after a host restart. */}
