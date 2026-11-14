@@ -1114,6 +1114,10 @@ export class Service {
         this.store.put("operation", op.id, op.threadId, next); this.operationData(next);
       }
       for (const thread of this.store.all<Thread>("thread").filter(t => t.runId)) { this.failUnansweredDetails({threadId:thread.id,runId:thread.runId!,epoch:thread.epoch},"The explanation was interrupted. Resume the task to retry."); this.store.put("thread", thread.id, thread.id, { ...thread, epoch: thread.epoch + 1, runId: null, status: "interrupted", updatedAt: now() }); }
+      // Inputs claimed as processing by a dead run would otherwise stay
+      // unhandled forever and block isUpdateIdle/freezeForUpdate; mirror the
+      // resume path (deliverOutbox) which re-persists anything not handled.
+      for (const input of this.store.all<Outbox>("outbox").filter(i => i.status !== "handled")) this.store.put("outbox", input.id, input.threadId, { ...input, status: "persisted" });
       return { inferenceCalls: 0 };
     });
   }
