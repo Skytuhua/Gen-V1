@@ -81,6 +81,11 @@ describe('browser suite entrypoint',()=>{
     expect(spawnSync).not.toHaveBeenCalled();
   });
 
+  it('rejects repeated suite selection instead of silently running only the last suite',()=>{
+    expect(()=>browserTestMain(['--suite','root','--suite','browser-action','--list'])).toThrow(/--suite may be specified only once/);
+    expect(spawnSync).not.toHaveBeenCalled();
+  });
+
   it('disables the development-host proxy only for the explicit browser runner',async()=>{
     try{
       vi.stubEnv('HARNESS_PORT',undefined);vi.stubEnv('GEN_E2E','1');vi.resetModules();
