@@ -75,6 +75,19 @@ describe('merged motion inventory', () => {
     expect(stripMotionErrors([{ status: 'captured', motionKey: key, selector: 'dialog' }], [motion])).toHaveLength(1);
     expect(stripMotionErrors([{ status: 'skipped' }], [])).toEqual([]);
   });
+
+  it('builds each recorded motion key at most once during strip verification', () => {
+    let reads = 0;
+    const records = Array.from({length:120},(_,index)=>({
+      ...motion, get animationName(){reads++;return 'recorded-'+index;},
+    }));
+    const strips = Array.from({length:24},(_,index)=>({
+      status:'captured', motionKey:motionKey({...motion,animationName:'recorded-'+(119-index)}), width:375,
+    }));
+    expect(stripMotionErrors(strips,records)).toEqual([]);
+    expect(reads).toBeLessThanOrEqual(records.length);
+  });
+
 });
 
 describe('resource cleanup', () => {
