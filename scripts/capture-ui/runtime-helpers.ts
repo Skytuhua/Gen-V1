@@ -26,10 +26,17 @@ export function mergeMotionRecords(...batches: readonly (readonly Motion[])[]): 
 export type StripMotionReference = { status: string; motionKey?: string; screen?: string; state?: string; width?: number; selector?: string; frame?: string };
 
 export function stripMotionErrors(strips: readonly StripMotionReference[], records: readonly Motion[]): string[] {
+  const wanted = new Set(strips.flatMap(strip => strip.status === 'captured' && strip.motionKey ? [strip.motionKey] : []));
+  const byKey = new Map<string, Motion[]>();
+  if (wanted.size) for (const record of records) {
+    const key = motionKey(record);
+    if (!wanted.has(key)) continue;
+    const bucket = byKey.get(key);
+    if (bucket) bucket.push(record); else byKey.set(key, [record]);
+  }
   return strips.flatMap((strip, index) => {
     if (strip.status !== 'captured') return [];
-    const matches = strip.motionKey && records.some(record =>
-      motionKey(record) === strip.motionKey &&
+    const matches = strip.motionKey && byKey.get(strip.motionKey)?.some(record =>
       (['screen', 'state', 'width', 'selector', 'frame'] as const).every(field => strip[field] === undefined || strip[field] === record[field]));
     return matches ? [] : [`Captured strip ${index + 1} (${strip.screen ?? '?'} / ${strip.selector ?? '?'}) has no corresponding motion record`];
   });
