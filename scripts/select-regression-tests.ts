@@ -20,6 +20,7 @@ export interface SelectionResult {
 // Test file names must stay plain repository-relative data. Anything else is
 // rejected outright so a hostile name can never reach a command line.
 const TEST_NAME = /^[A-Za-z0-9_./-]+\.test\.[cm]?[jt]sx?$/;
+const TEST_FILE = /\.test\.[cm]?[jt]sx?$/;
 const DOC_ONLY = /^(?:docs\/|.*\.md$|.*\.mdx$|CHANGELOG\.md$|LICENSE$|SECURITY\.md$|THIRD_PARTY_NOTICES\.md$)/i;
 
 export const DEFAULT_SOURCE_TEST_MAP: Record<string, string[]> = {
@@ -78,8 +79,13 @@ export function selectRegressionTests(changes: readonly SourceChange[], existing
   // the destination is classified as.
   const expanded: SourceChange[] = [];
   for (const change of changes) {
-    if (change.status === 'R' && change.previousPath !== undefined)
-      expanded.push({ path: change.previousPath, status: 'D' }, { path: change.path, status: 'A' });
+    if (change.status === 'R' && change.previousPath !== undefined) {
+      // A test renamed to another test is not a removal; other destinations
+      // leave the old name deleted and are reported as such.
+      if (!(TEST_FILE.test(change.previousPath) && TEST_FILE.test(change.path)))
+        expanded.push({ path: change.previousPath, status: 'D' });
+      expanded.push({ path: change.path, status: 'A' });
+    }
     else if (change.status === 'C' && change.previousPath !== undefined)
       expanded.push({ path: change.path, status: 'A' });
     else expanded.push(change);
@@ -91,7 +97,7 @@ export function selectRegressionTests(changes: readonly SourceChange[], existing
       issues.push({ path: String(change.path), code: 'UNSAFE_NAME', message: 'Changed path is not a safe repository-relative name' });
       continue;
     }
-    const isTestFile = /\.test\.[cm]?[jt]sx?$/.test(path);
+    const isTestFile = TEST_FILE.test(path);
     if (isTestFile) {
       if (change.status === 'D') issues.push({ path, code: 'REMOVED_TEST', message: `Test file was deleted: ${path}` });
       else if (existing.has(path)) selected.add(path);

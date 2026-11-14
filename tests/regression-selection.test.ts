@@ -47,6 +47,17 @@ describe('regression test selection', () => {
     expect(toTest.tests).toContain('tests/store.test.ts');
   });
 
+  it('treats a test-to-test rename as a rename, not a removal', () => {
+    const result = selectRegressionTests([{ path: 'tests/renamed.test.ts', previousPath: 'tests/old-name.test.ts', status: 'R' }], [...existing, 'tests/renamed.test.ts'], map);
+    expect(result.tests).toEqual(['tests/renamed.test.ts']);
+    expect(result.issues.filter(i => i.code === 'REMOVED_TEST')).toEqual([]);
+  });
+
+  it('still flags a test renamed away to a non-test path', () => {
+    const result = select([{ path: 'docs/renamed.md', previousPath: 'tests/old-name.test.ts', status: 'R' }]);
+    expect(result.issues.map(i => i.code)).toContain('REMOVED_TEST');
+  });
+
   it('still selects mapped tests for a deleted source file', () => {
     const result = select([{ path: 'packages/storage/store.ts', status: 'D' }]);
     expect(result.tests).toEqual(['tests/store.test.ts']);
