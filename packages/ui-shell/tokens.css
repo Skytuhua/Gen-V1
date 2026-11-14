@@ -53,6 +53,18 @@ dialog:modal::backdrop {
   dialog:modal::backdrop { animation: none !important; transition: none !important; }
 }
 .ui-popover { z-index: var(--ui-popup-layer); }
+/* Zero specificity: a consumer's own popover motion always wins. */
+:where(.ui-popover[data-state="open"]) { animation: ui-popover-in var(--ui-motion-popup-enter) var(--ui-ease-enter) both; }
+:where(.ui-popover[data-state="closed"]) { pointer-events: none; animation: ui-popover-out var(--ui-motion-popup-exit) var(--ui-ease-move) both; }
+:where(.ui-popover[data-side="above"]) { --ui-popover-shift: 4px; }
+:where(.ui-popover[data-side="below"]) { --ui-popover-shift: -4px; }
+@keyframes ui-popover-in { from { opacity: 0; transform: translateY(var(--ui-popover-shift, 0)) scale(.98); } }
+@keyframes ui-popover-out { to { opacity: 0; transform: translateY(var(--ui-popover-shift, 0)) scale(.98); } }
+@keyframes ui-popover-fade { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  :where(.ui-popover[data-state]) { animation-name: ui-popover-fade; animation-duration: 80ms; }
+  :where(.ui-popover[data-state="closed"]) { animation-direction: reverse; }
+}
 
 @media (prefers-reduced-transparency: reduce) {
   dialog:modal::backdrop { backdrop-filter: none; background: rgb(0 0 0 / .8); }

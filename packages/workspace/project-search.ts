@@ -231,7 +231,7 @@ export class ProjectSearch {
             if (excludedNames.has(key) || !projectSearchPathSchema.safeParse(child).success || names.has(key)) { issue(child, 'excluded'); continue; }
             names.add(key);
             try {
-              await verify(directories); check();
+              check();
               // Never inspect or descend into private host storage, even for an injected binding.
               if (inside(join(this.projects.store.dataDir, 'checkpoints'), path)) { issue(child, 'excluded'); continue; }
               const info = await lstat(path, { bigint: true }); check();
