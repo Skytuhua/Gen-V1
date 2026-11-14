@@ -91,7 +91,7 @@ export function useArtifactState(artifact: ArtifactRecord, record: UserStateReco
     void journalRead<PendingState | null>(key).then(saved => {
       if (!alive) return;
       if (saved) {
-        revision.current = Math.max(lane.acknowledgedRevision, saved.baseRevision);
+        revision.current = Math.max(revision.current, lane.acknowledgedRevision, saved.baseRevision);
         store.set('/values', saved.values);
         dirty.current = true;
         setStatus('Recovered draft · save to sync');
@@ -151,6 +151,6 @@ export function useArtifactState(artifact: ArtifactRecord, record: UserStateReco
     setStatus('Saved');
   }, [inputs, record, loaded, store]);
 
-  const release=useCallback(async()=>{await flush();await command('edit.end',{stateId:artifact.stateId,clientId},artifact.threadId);},[flush,artifact.stateId,artifact.threadId]);
+  const release=useCallback(async()=>{try{await flush();}finally{await command('edit.end',{stateId:artifact.stateId,clientId},artifact.threadId);}},[flush,artifact.stateId,artifact.threadId]);
   return { store, status, loaded, flush, submit, release,dirty, clientId, getRevision: () => revision.current };
 }

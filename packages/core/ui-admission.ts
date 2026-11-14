@@ -22,8 +22,15 @@ export function admitArtifactContents(store: Store, threadId: string, args: Reco
   const bindings = args.bindings === undefined ? existing?.bindings ?? {} : object(args.bindings) as Record<string, DataBinding>;
   for (const [alias, binding] of Object.entries(bindings)) {
     let data: DataRecord;
-    if (binding.mode === 'snapshot') data = threadData(store, threadId, binding.ref.id, binding.ref.revision);
-    else if (binding.mode === 'live') data = threadData(store, threadId, binding.id);
+    if (!binding || typeof binding !== 'object') throw new HarnessError('INVALID_DATA_REF', `Binding ${alias.slice(0, 100)} is not a valid data binding`);
+    if (binding.mode === 'snapshot') {
+      if (!binding.ref || typeof binding.ref !== 'object' || typeof binding.ref.id !== 'string' || typeof binding.ref.revision !== 'number') throw new HarnessError('INVALID_DATA_REF', `Binding ${alias.slice(0, 100)} is missing a valid snapshot reference`);
+      data = threadData(store, threadId, binding.ref.id, binding.ref.revision);
+    }
+    else if (binding.mode === 'live') {
+      if (typeof binding.id !== 'string') throw new HarnessError('INVALID_DATA_REF', `Binding ${alias.slice(0, 100)} is missing a valid live reference`);
+      data = threadData(store, threadId, binding.id);
+    }
     else throw new HarnessError('INVALID_DATA_REF', 'Binding mode must be snapshot or live');
     const pointer = binding.mode === 'snapshot' ? binding.ref.pointer : binding.pointer;
     if (pointer !== undefined && pointer !== '') {

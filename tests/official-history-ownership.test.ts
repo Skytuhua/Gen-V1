@@ -23,7 +23,7 @@ async function fixture() {
 }
 function child() {
   const value = Object.assign(new EventEmitter(), { stdin: new PassThrough(), stdout: new PassThrough(), stderr: new PassThrough(), exitCode: null as number | null, signalCode: null, pid: undefined });
-  return Object.assign(value, { finish() { if (value.exitCode !== null) return; value.exitCode = 0; value.stdout.end('[]'); value.emit('exit', 0, null); } });
+  return Object.assign(value, { finish() { if (value.exitCode !== null) return; value.exitCode = 0; value.stdout.end('[]'); value.emit('exit', 0, null); setImmediate(() => value.emit('close', 0, null)); } });
 }
 
 it('waits for a deferred Claude history read on disposal and refuses its late manifest mutation', async () => {
