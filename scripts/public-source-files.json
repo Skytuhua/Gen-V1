@@ -1015,6 +1015,7 @@
     "tests/e2e/software-clarity.spec.ts",
     "tests/e2e/software-development.spec.ts",
     "tests/e2e/split-app-fixture.tsx",
+    "tests/e2e/split-stop-owner-fixture.tsx",
     "tests/e2e/subscription-accounts.spec.ts",
     "tests/e2e/summary-dock-fixture.tsx",
     "tests/e2e/summary-dock.playwright.config.ts",
