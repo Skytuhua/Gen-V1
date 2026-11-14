@@ -152,20 +152,38 @@ it('does not repeat an effect across an invocation page boundary', async () => {
   expect(new Set(seen).size).toBe(3);
 });
 
+const operationDefinition = { id: 'operation:file.replace', version: 1, schemaDigest: 'd', risk: 'HOST_EXECUTE' as const, replayClass: 'NONREPLAYABLE' as const, allowedRoles: ['run' as const], executorBinding: 'domain' as const, approval: 'operation' as const };
+const crashedOperation = { id: 'op-crash', threadId: 'thread-1', revision: 1, kind: 'file.replace', description: '', args: {}, resourceIds: [], preconditions: {}, status: 'succeeded' as const, approved: true, createdAt: '', result: { done: true } };
+
 it('settles a crashed operation dispatch from the committed operation record', async () => {
-  const { store, authority, ledger } = await fixture();
-  const definition = authority.require('repository_read');
+  const { store, ledger } = await fixture();
   const admitted = ledger.admit({
     call: { name: 'operation:file.replace', args: { invocationId: 'operation:op-crash@1', operationId: 'op-crash' } },
     owner: { threadId: 'thread-1', runId: 'run-1', epoch: 1, projectId: 'p1', workspaceId: 'w1', accountBinding: 'acct-1' },
-    definition,
+    definition: operationDefinition,
   });
   expect(admitted.state).toBe('DISPATCHED');
-  store.internal('fixture.operation', 'thread-1', () =>
-    store.put('operation', 'op-crash', 'thread-1', { id: 'op-crash', threadId: 'thread-1', revision: 1, kind: 'file.replace', description: '', args: {}, resourceIds: [], preconditions: {}, status: 'succeeded', approved: true, createdAt: '', result: { done: true } }));
+  store.internal('fixture.operation', 'thread-1', () => store.put('operation', 'op-crash', 'thread-1', crashedOperation));
   const outcome = recoverEffects(store);
   expect(outcome.uncertain).toEqual([]);
   const effect = ledger.get('operation:op-crash@1');
   expect(effect?.state).toBe('SUCCEEDED');
   expect(effect?.transitions.at(-1)?.note).toBe('host_restart: recorded in operation ledger');
+});
+
+it('does not inherit an operation outcome onto a forged invocation identity', async () => {
+  const { store, authority, ledger } = await fixture();
+  // A caller-chosen invocationId that merely LOOKS like op-crash's dispatch:
+  // the recorded tool and owner do not match the operation, so the effect
+  // stays uncertain rather than inheriting the recorded success.
+  const admitted = ledger.admit({
+    call: { name: 'repository_read', args: { commandId: 'operation:op-crash@1', resourceId: 'r' } },
+    owner: { threadId: 'thread-1', runId: 'run-1', epoch: 1, projectId: 'p1', workspaceId: 'w1', accountBinding: 'acct-1' },
+    definition: authority.require('repository_read'),
+  });
+  expect(admitted.state).toBe('DISPATCHED');
+  store.internal('fixture.operation', 'thread-1', () => store.put('operation', 'op-crash', 'thread-1', crashedOperation));
+  const outcome = recoverEffects(store);
+  expect(outcome.uncertain).toEqual(['operation:op-crash@1']);
+  expect(ledger.get('operation:op-crash@1')?.state).toBe('UNKNOWN_EXTERNAL_OUTCOME');
 });
