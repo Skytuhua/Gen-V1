@@ -61,7 +61,7 @@ test('newly published structured prose reveals once while restored prose remains
  await page.addInitScript(()=>{const animate=Element.prototype.animate;Object.assign(window,{structuredReveals:0});Element.prototype.animate=function(...args){if(this.closest('.artifact')&&(this as HTMLElement).dataset.revealStart!==undefined)(window as unknown as{structuredReveals:number}).structuredReveals++;return animate.apply(this,args);};});
  const host=await serveTaskFixture(page,snapshot);await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeVisible();snapshot.artifacts=[artifact];await host.publish();
  await expect.poll(()=>page.evaluate(()=>(window as unknown as{structuredReveals:number}).structuredReveals)).toBeGreaterThan(0);
- await page.waitForTimeout(800);const count=await page.evaluate(()=>(window as unknown as{structuredReveals:number}).structuredReveals);await host.publish();expect(await page.evaluate(()=>(window as unknown as{structuredReveals:number}).structuredReveals)).toBe(count);
+ await page.evaluate(()=>Promise.all(document.getAnimations().filter(a=>a.playState==='running').map(a=>a.finished.catch(()=>{}))));const count=await page.evaluate(()=>(window as unknown as{structuredReveals:number}).structuredReveals);await host.publish();expect(await page.evaluate(()=>(window as unknown as{structuredReveals:number}).structuredReveals)).toBe(count);
  await page.reload();await expect(page.locator('.artifact .surface-text')).toBeVisible();expect(await page.evaluate(()=>(window as unknown as{structuredReveals:number}).structuredReveals)).toBe(0);
 });
 
@@ -103,7 +103,7 @@ test('new prose advances in whole Unicode graphemes with a bounded discrete edge
  await expect(layer.locator('[data-reveal-progress]').first()).toBeAttached();
  const states=await page.evaluate(async()=>{const samples:{progress:number,edge:number,whole:boolean}[]=[];const prose=document.querySelector('.micro-motion-fixture .markdown')!.textContent!;const boundaries=new Set([...new Intl.Segmenter(undefined,{granularity:'grapheme'}).segment(prose)].map(segment=>segment.index));for(let i=0;i<8;i++){const cover=document.querySelector<HTMLElement>('.micro-motion-fixture [data-reveal-progress]');if(cover)samples.push({progress:Number(cover.dataset.revealProgress),whole:boundaries.has(Number(cover.dataset.revealProgress)),edge:document.querySelectorAll('.micro-motion-fixture .sentence-reveal-edge').length});await new Promise(resolve=>setTimeout(resolve,25));}return samples;});
  expect(states.every(state=>state.whole)).toBe(true);expect(new Set(states.map(state=>state.progress)).size).toBeGreaterThan(2);expect(states.some(state=>state.edge>0)).toBe(true);
- await page.waitForTimeout(470);expect(await layer.locator('*').count()).toBe(0);
+ await expect(layer.locator('*')).toHaveCount(0);
 });
 
 test('interaction and reduced motion immediately settle arriving prose',async({page})=>{

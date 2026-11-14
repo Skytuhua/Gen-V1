@@ -5,6 +5,7 @@ import { isComposing } from '../../../packages/ui-shell/list-navigation';
 import './context-inspector.css';
 
 const contextFormatter = new Intl.NumberFormat(undefined, { notation: 'compact', maximumFractionDigits: 1 });
+const detailFormatter = new Intl.NumberFormat();
 export const contextNumber = (tokens: number) => contextFormatter.format(tokens);
 export const contextTokenCount = (value: unknown): value is number => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
 export interface ContextCategoryReport { label: string; tokens: number; subitems?: { label: string; tokens: number }[] }
@@ -55,8 +56,8 @@ function Category({ item, total, id }: { item: ContextCategoryReport & { width: 
     </button>
     <Popover anchor={anchor} contentRef={detail} open={open} width={220} height={Math.min(360, 90 + (item.subitems?.length ?? (item.label === 'Reserved' ? 1 : 0)) * 28)}
       role="tooltip" id={id} className="context-category-detail" onDismiss={() => setOpen(false)}>
-      <strong>{item.label}</strong><span>{new Intl.NumberFormat().format(item.tokens)} tokens · {(item.tokens / total * 100).toFixed(1)}%</span>
-      <div className="context-subitems">{item.subitems?.map((child, index) => <div className="context-subitem" key={index}><span>{child.label}</span><span>{new Intl.NumberFormat().format(child.tokens)}</span></div>)}</div>
+      <strong>{item.label}</strong><span>{detailFormatter.format(item.tokens)} tokens · {(item.tokens / total * 100).toFixed(1)}%</span>
+      <div className="context-subitems">{item.subitems?.map((child, index) => <div className="context-subitem" key={index}><span>{child.label}</span><span>{detailFormatter.format(child.tokens)}</span></div>)}</div>
       {item.label === 'Reserved' && !item.subitems?.length && <span>Capacity reserved by the runtime.</span>}
     </Popover>
   </div>;

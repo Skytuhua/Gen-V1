@@ -4,6 +4,23 @@ import {readMotionPolicy,observeMotionPolicy} from './motion-policy';
 export type ConversationPosition={top:number;tail:boolean};
 export type ConversationAnchor={height:number;top:number};
 
+type ScrollGeometry = Pick<HTMLElement, 'scrollHeight' | 'scrollTop'>;
+
+/** Stage one anchor for the next commit, not for the lifetime of a page request. */
+export function createHistoryAnchor() {
+ let pending: { owner: string; element: ScrollGeometry; geometry: ConversationAnchor } | undefined;
+ return {
+  capture(owner: string, activeOwner: string, element: ScrollGeometry | null) {
+   if (owner === activeOwner && element) pending = { owner, element, geometry: { height: element.scrollHeight, top: element.scrollTop } };
+  },
+  consume(owner: string, element: ScrollGeometry) {
+   const anchor = pending;
+   pending = undefined;
+   if (anchor?.owner === owner && anchor.element === element) return anchor.geometry;
+  },
+ };
+}
+
 /** Own only tail-following scrolls. Reading history and user intent always win. */
 export function createConversationScroll(element:HTMLElement){
  let thread='',following=false,disposed=false,ownedTop:number|undefined,dragging=false;
@@ -77,4 +94,19 @@ export function createConversationScroll(element:HTMLElement){
    document.removeEventListener('pointerup',pointerEnd);document.removeEventListener('pointercancel',pointerEnd);document.removeEventListener('visibilitychange',settleHidden);stopObservingMotion();
   },
  };
+}
+
+/** Observe the viewport and its immediate content containers. Deeper mutations
+ * still schedule a measurement, but cannot change which children we observe. */
+export function observeConversationExtent(element:HTMLElement,schedule:()=>void):()=>void{
+ const resize=new ResizeObserver(schedule);
+ const observe=()=>{resize.disconnect();resize.observe(element);for(const child of element.children)resize.observe(child);};
+ const mutation=new MutationObserver(records=>{
+  if(records.some(record=>record.type==='childList'&&record.target===element))observe();
+  schedule();
+ });
+ resize.observe(element);
+ for(const child of element.children)resize.observe(child);
+ mutation.observe(element,{childList:true,subtree:true,characterData:true});
+ return ()=>{resize.disconnect();mutation.disconnect();};
 }

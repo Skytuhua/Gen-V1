@@ -40,11 +40,13 @@ it('renews its private session and resumes after the last accepted sequence when
 });
 
 it('bounds payload buffering and ignores malformed or regressing event identities',async()=>{
- const changes:DesktopWorkspaceChange[]=[];const origin=await host((request,response)=>{
+ const changes:DesktopWorkspaceChange[]=[];let finishLine!:()=>void;const origin=await host((request,response)=>{
   if(request.url==='/api/bootstrap'){response.setHeader('Set-Cookie','harness_session=abc; Path=/');response.end('{}');return;}
-  response.writeHead(200,{'Content-Type':'text/event-stream'});response.write('data: '+('x'.repeat(10000))+'\nid: NaN\nid: 9007199254740992\nid: 11\nid: 10\nid: ');response.write('12\r\n\n');
+  response.writeHead(200,{'Content-Type':'text/event-stream'});response.write('data: '+('x'.repeat(10000))+'\nid: NaN\nid: 9007199254740992\nid: 11\nid: 10\nid: ');finishLine=()=>{response.write('12\r\n\n');};
  });
- const value=relay(origin,changes);await vi.waitFor(()=>expect(value.state().sequence).toBe(12));
+ const value=relay(origin,changes);await vi.waitFor(()=>expect(value.state().sequence).toBe(11));
+ // Wait for the first sequence rather than assuming two writes yield two decoded chunks.
+ finishLine();await vi.waitFor(()=>expect(value.state().sequence).toBe(12));
  expect(changes).toEqual([{connected:true,sequence:0},{connected:true,sequence:11},{connected:true,sequence:12}]);
 });
 

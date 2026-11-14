@@ -1,5 +1,5 @@
 import {afterEach,expect,it,vi} from 'vitest';
-import {createConversationScroll} from '../apps/web/src/conversation-scroll';
+import {createConversationScroll,createHistoryAnchor,observeConversationExtent} from '../apps/web/src/conversation-scroll';
 
 function fixture(){
  let now=0,nextFrame=0;
@@ -127,4 +127,50 @@ it('does not let streaming growth pull the transcript down after Shift+Space',()
  f.element.scrollHeight=1600;f.resize();f.tick(60);
  expect(f.element.scrollTop).toBe(600);
  f.scroll.dispose();
+});
+
+
+it('does not rebind resize observations on streaming body mutations',()=>{
+ const root={children:[{}]} as unknown as HTMLElement;
+ const body={} as Node;
+ const observe=vi.fn(),disconnect=vi.fn(),schedule=vi.fn();
+ let mutations:MutationCallback=()=>{};
+ vi.stubGlobal('ResizeObserver',class{observe=observe;disconnect=disconnect;});
+ vi.stubGlobal('MutationObserver',class{constructor(callback:MutationCallback){mutations=callback;}observe(){}disconnect(){}});
+ const stop=observeConversationExtent(root,schedule);
+ const emit=(target:Node,type:MutationRecordType)=>mutations([{target,type} as MutationRecord],{} as MutationObserver);
+ expect(observe).toHaveBeenCalledTimes(2);
+ for(let i=0;i<500;i++)emit(body,i%2?'characterData':'childList');
+ expect(observe).toHaveBeenCalledTimes(2);
+ expect(disconnect).not.toHaveBeenCalled();
+ expect(schedule).toHaveBeenCalledTimes(500);
+ const replacement={} as Element;
+ Object.assign(root,{children:[replacement]});
+ emit(root,'childList');
+ expect(disconnect).toHaveBeenCalledTimes(1);
+ expect(observe.mock.calls.slice(-2)).toEqual([[root],[replacement]]);
+ stop();
+ expect(disconnect).toHaveBeenCalledTimes(2);
+});
+
+it('captures earlier-message geometry at insertion and consumes it only for the owning transcript',()=>{
+ const anchor=createHistoryAnchor();
+ const owner={scrollHeight:1000,scrollTop:125};
+ // The request began earlier; the reader has moved and the document has grown.
+ owner.scrollHeight=1270;owner.scrollTop=200;
+ anchor.capture('one','one',owner);
+ expect(anchor.consume('one',owner)).toEqual({height:1270,top:200});
+ expect(anchor.consume('one',owner)).toBeUndefined();
+
+ // A late response for a background thread cannot target the new owner.
+ anchor.capture('two','one',owner);
+ expect(anchor.consume('two',owner)).toBeUndefined();
+
+ anchor.capture('one','one',owner);
+ expect(anchor.consume('one',{...owner})).toBeUndefined();
+ expect(anchor.consume('one',owner)).toBeUndefined();
+
+ anchor.capture('one','one',owner);
+ expect(anchor.consume('two',owner)).toBeUndefined();
+ expect(anchor.consume('one',owner)).toBeUndefined();
 });

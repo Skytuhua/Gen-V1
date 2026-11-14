@@ -36,11 +36,10 @@ test('minimize-only context restores collapse state while retiring old free-wind
 });
 test('live usage starts compact and visible despite an old dismissed preference',async({page})=>{
  await page.addInitScript(()=>localStorage.setItem('harness:usage-floating-open','false'));await page.goto('/right-tools-check?mode=usage');const panel=page.getByRole('region',{name:'Live usage',exact:true});
- await expect(panel).toBeVisible();await expect(panel).toHaveAttribute('data-collapsed','true');await expect(panel).toContainText('18%');expect((await panel.boundingBox())!.width).toBeLessThanOrEqual(320);
+ await expect(panel).toBeVisible();await expect(panel).toHaveAttribute('data-collapsed','true');await expect(panel).toContainText('input tokens');expect((await panel.boundingBox())!.width).toBeLessThanOrEqual(320);
  await expect(page.getByRole('button',{name:'Show live usage',exact:true})).toHaveCount(0);await expect(panel.getByRole('button')).toHaveCount(1);
- await panel.getByRole('button',{name:'Inspect live usage',exact:true}).click();await expect(panel).toContainText('18% used');
- const details=panel.locator('details');await expect(details).not.toHaveAttribute('open','');await expect(panel.getByText('Reported cost',{exact:true})).toBeHidden();
- await details.locator('summary').click();await expect(panel.getByText('12.6K',{exact:true})).toBeVisible();await expect(panel.getByText('820',{exact:true})).toBeVisible();await expect(panel.getByText('$0.0123',{exact:true})).toBeVisible();await expect(panel.getByText('25%',{exact:true})).toBeVisible();await expect(panel.getByText('55%',{exact:true})).toBeVisible();
+ await panel.getByRole('button',{name:'Inspect live usage',exact:true}).click();await expect(panel).toHaveAttribute('data-collapsed','false');
+ await expect(panel.getByText('Input tokens',{exact:true})).toBeVisible();await expect(panel.getByText('12,640',{exact:true})).toBeVisible();await expect(panel.getByText('820',{exact:true})).toBeVisible();await expect(panel.getByText('Reported cost',{exact:true})).toBeVisible();await expect(panel.getByText('25.0%',{exact:true})).toBeVisible();await expect(panel.getByText('55.0%',{exact:true})).toBeVisible();
  await panel.getByRole('button',{name:'Minimize live usage',exact:true}).click();await expect(panel).toHaveAttribute('data-collapsed','true');await expect(panel).toBeVisible();
 });
 test('unavailable secondary usage stays in Details and the visibility preference still works',async({page})=>{

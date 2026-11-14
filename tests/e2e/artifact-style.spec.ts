@@ -60,9 +60,12 @@ async function host(page: Page, snapshot: Snapshot) {
     if (path === '/api/bootstrap') return route.fulfill({ json: { csrfToken: 'fixture-csrf', widgetOrigin: 'http://localhost:4318' } });
     if (path === '/api/models') return route.fulfill({ json: { models: [{ id: 'test/model', provider: 'test', name: 'Fixture' }] } });
     if (path === '/api/snapshot') return route.fulfill({ json: snapshot });
+    if (path === '/api/workspace') return route.fulfill({ json: { state: {version: 1, revision: 1, activeCanvasId: 'workspace', canvases: [{id: 'workspace', name: 'Workspace', preset: 'workspace', version: 1, panels: [], filter: 'active', projectIds: [], viewport: {x: 0, y: 0, zoom: 1}}], profiles: [], disabledKinds: [], integrations: {}}, projects: [] } });
     if (path === '/api/resources/synthetic-pdf/content' && pdf) return route.fulfill({ contentType: 'application/pdf', body: Buffer.from(pdf) });
     const signatureId = path.match(/^\/api\/resources\/([^/]+)\/content$/)?.[1];
     if (signatureId && signatureAssets.has(signatureId)) return route.fulfill({ contentType: 'image/png', body: signatureAssets.get(signatureId)! });
+    if (path === '/api/shell-settings') return route.fulfill({ json: snapshot.settings });
+    if (path === '/api/plugins') return route.fulfill({ json: { plugins: [] } });
     if (path !== '/api/commands') return route.fulfill({ status: 404 });
     const cmd = route.request().postDataJSON() as HostCommand; commands.push(cmd);
     let result: unknown = {};

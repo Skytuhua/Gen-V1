@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { projectMonogram } from '../apps/web/src/ShellSidebar';
 import { projectColor, projectColorKey, PROJECT_PALETTE, threadDragPayload } from '../apps/web/src/project-colors.ts';
 
 describe('project identity colors and thread placement', () => {
@@ -33,4 +34,10 @@ describe('project identity colors and thread placement', () => {
     expect(projectColor({ kind: 'local' }, 'project-a', overrides)).toBe('#abcdef');
     expect(projectColor({ kind: 'plugin', pluginId: 'example-plugin', scopeId: 'company-a' }, 'project-a', overrides)).toBe('#E84876');
   });
+});
+
+it('keeps the sidebar usable for project names made only of separators', () => {
+  expect(projectMonogram('...')).toBe('CV');
+  expect(projectMonogram(' _ / -- . ')).toBe('CV');
+  expect(projectMonogram('App.Core')).toBe('AC');
 });
