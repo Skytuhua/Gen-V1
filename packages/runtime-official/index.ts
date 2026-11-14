@@ -1,6 +1,6 @@
 import { spawn, type ChildProcess } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
-import { stat } from 'node:fs/promises';
+import { rm, stat } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { HarnessError, type ModelInfo, type RuntimeAdapter, type RuntimeCallbacks, type RunContext, type StartRun } from '../contracts/index.ts';
 import { OFFICIAL_RUNTIME_PROVIDER_IDS, isConnectionProviderId, isOfficialRuntimeProviderId } from '../contracts/connections.ts';
@@ -10,7 +10,7 @@ import { terminateProcessTree } from '../runtime-pi/process-tree.ts';
 import { createHostTools, loadDomainTools } from '../runtime-pi/tool-definitions.ts';
 import { openClaude, type ClaudeSdk } from './claude.ts';
 import { officialRuntimeHome, type OfficialProvider } from './environment.ts';
-import { openManifest, readManifest, saveManifest, secureDirectory, type ManifestState } from './manifest.ts';
+import { openManifest, readManifest, saveManifest, secureDirectory, threadDirectory, type ManifestState } from './manifest.ts';
 import { createHostMcp, type HostMcp } from './mcp.ts';
 import { bounded, type DriverContext, type HistoryReceipt, type OfficialDriver } from './internal.ts';
 import {assertModelOnlyInput,PREDICTION_MAX_OUTPUT_BYTES,type ModelPurpose} from '../runtime/model-only.ts';
@@ -24,7 +24,7 @@ export interface OfficialRuntimeDependencies {
 }
 interface Authority {
   ctx: RunContext; provider: OfficialProvider; revoked: boolean; settled: boolean;
-  modelId?: string;outputBytes?:number;
+  modelId?: string;outputBytes?:number;messageBytes?:number;
   mcp?: HostMcp; driver?: OfficialDriver; manifest?: ManifestState; children: Set<ChildProcess>; closing?: Promise<void>;
 }
 function providerModel(modelId: string): { provider: OfficialProvider; modelId: string } {
@@ -54,13 +54,18 @@ export function createOfficialRuntime({ dataDir,modelOnly:requestedModelOnly,pur
   function stop(authority: Authority): Promise<void> {
     authority.revoked = true;
     authority.closing ??= (async () => {
-      await authority.mcp?.close();
-      await authority.driver?.close();
+      let failed = false;
+      const close = async (step: () => Promise<unknown> | undefined) => { try { await bounded(Promise.resolve().then(step), 10_000, 'Official runtime close timed out.'); } catch { failed = true; } };
+      await close(() => authority.mcp?.close());
+      await close(() => authority.driver?.close());
       if (authority.children.size) {
         await new Promise(resolve => setTimeout(resolve, 250));
-        await Promise.all([...authority.children].map(child => terminateProcessTree(child)));
+        await Promise.all([...authority.children].map(child => terminateProcessTree(child).catch(() => { failed = true; })));
       }
-      await authority.manifest?.write;
+      try { await authority.manifest?.write; } catch { failed = true; }
+      // A failed teardown keeps its authority as a durable hold; only a fully
+      // clean close releases it.
+      if (failed) throw new HarnessError('RUNTIME_TEARDOWN_FAILED', 'The official runtime did not close completely. Account sign-in remains blocked.');
       authorities.delete(authority);
     })().catch(()=>{throw new HarnessError('RUNTIME_TEARDOWN_FAILED','The official runtime did not close completely. Account sign-in remains blocked.');});
     return authority.closing;
@@ -83,7 +88,14 @@ export function createOfficialRuntime({ dataDir,modelOnly:requestedModelOnly,pur
     const authority: Authority = { ctx: { threadId: `official-probe-${randomUUID()}`, runId: randomUUID(), epoch: 0 }, provider, revoked: false, settled: false, children: new Set() };
     authorities.add(authority); runs.set(authority.ctx.threadId, authority);
     try { return await action(authority); }
-    finally { await stop(authority); runs.delete(authority.ctx.threadId); }
+    finally {
+      try { await stop(authority); }
+      finally {
+        runs.delete(authority.ctx.threadId);
+        // Probe authorities own a unique task directory that nothing else references.
+        await rm(threadDirectory(storage, authority.provider, authority.ctx.threadId), { recursive: true, force: true }).catch(() => {});
+      }
+    }
   }
   async function prepareHome(provider: OfficialProvider): Promise<void> {
     const home = await secureDirectory(storage, officialRuntimeHome(storage, provider));
@@ -102,8 +114,10 @@ export function createOfficialRuntime({ dataDir,modelOnly:requestedModelOnly,pur
       event(type, value = {}) {
         if (!current(authority)) return;
         if(purpose==='prediction'&&(type==='assistant.delta'||type==='assistant.message')){
-          const bytes=Buffer.byteLength(String(type==='assistant.delta'?value.delta??'':value.content??''));if(type==='assistant.delta')authority.outputBytes=(authority.outputBytes??0)+bytes;
-          if(bytes>PREDICTION_MAX_OUTPUT_BYTES||(authority.outputBytes??0)>PREDICTION_MAX_OUTPUT_BYTES){void stop(authority).catch(()=>{});callbacks?.onEvent({...authority.ctx,type:'error',code:'PREDICTION_OUTPUT_LIMIT',message:'The prediction exceeded its output limit.'});return;}
+          const bytes=Buffer.byteLength(String(type==='assistant.delta'?value.delta??'':value.content??''));
+          // Deltas and assembled messages describe the same text; bound each stream separately.
+          if(type==='assistant.delta')authority.outputBytes=(authority.outputBytes??0)+bytes;else authority.messageBytes=(authority.messageBytes??0)+bytes;
+          if(bytes>PREDICTION_MAX_OUTPUT_BYTES||Math.max(authority.outputBytes??0,authority.messageBytes??0)>PREDICTION_MAX_OUTPUT_BYTES){void stop(authority).catch(()=>{});callbacks?.onEvent({...authority.ctx,type:'error',code:'PREDICTION_OUTPUT_LIMIT',message:'The prediction exceeded its output limit.'});return;}
         }
         if (type === 'session.identity') { void saveManifest(manifest).catch(() => stop(authority)); return; }
         if (type === 'settled') {
