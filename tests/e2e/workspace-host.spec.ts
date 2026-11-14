@@ -776,7 +776,7 @@ test('Custom sidebar offers selection without movable conversation placement',as
 });
 
 test('Custom metadata recovery keeps each canvas save receipt in its original scope',async({page})=>{
- const h=await fixture(page,{working:false});h.envelope.state.canvases.push({id:'custom-b',name:'Custom B',preset:'custom',panels:[],viewport:{x:0,y:0,zoom:1}});
+ const h=await fixture(page,{working:false});h.envelope.state.canvases.push({id:'custom-b',name:'Custom B',preset:'custom',version:1,panels:[],filter:'all',projectIds:[],viewport:{x:0,y:0,zoom:1}});
  await page.getByRole('button',{name:'Workspace',exact:true}).click();await page.getByRole('button',{name:'Custom',exact:true}).click();
  const save=async()=>{await page.getByRole('button',{name:'Layouts',exact:true}).click();await page.getByRole('button',{name:'Save current layout…',exact:true}).click();await page.getByRole('textbox',{name:'Layout name',exact:true}).fill('Tool desk');await page.getByRole('button',{name:'Save',exact:true}).click();};
  h.dockReads.failMetadata=true;await save();await expect(page.getByRole('alert').filter({hasText:'Synthetic layout metadata unavailable'}).last()).toBeVisible();await page.getByRole('button',{name:'Cancel',exact:true}).click();await page.keyboard.press('Escape');h.dockReads.failMetadata=false;
@@ -787,7 +787,7 @@ test('Custom metadata recovery keeps each canvas save receipt in its original sc
 
 
 test('Custom selector captures the requested canvas before its asynchronous handoff',async({page})=>{
- const h=await fixture(page,{working:false});h.envelope.state.canvases.push({id:'custom-b',name:'Custom B',preset:'custom',panels:[],viewport:{x:0,y:0,zoom:1}});
+ const h=await fixture(page,{working:false});h.envelope.state.canvases.push({id:'custom-b',name:'Custom B',preset:'custom',version:1,panels:[],filter:'all',projectIds:[],viewport:{x:0,y:0,zoom:1}});
  await page.getByRole('button',{name:'Workspace',exact:true}).click();await page.getByRole('button',{name:'Custom',exact:true}).click();
  await page.getByRole('combobox',{name:'Saved workspace',exact:true}).click();await page.getByRole('option',{name:'Custom B',exact:true}).click();
  await expect(page.getByRole('combobox',{name:'Saved workspace',exact:true})).toHaveText('Custom B');
