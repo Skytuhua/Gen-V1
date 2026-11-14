@@ -24,7 +24,7 @@
 .agent-inbox .inbox-tasks-body{padding:8px 16px 16px;min-height:100%}
 .agent-inbox .inbox-tasks-body[data-empty=true]{display:flex;flex-direction:column}
 .agent-inbox .sidebar-tasks{display:flex;flex-direction:column;gap:4px;margin:0;padding:0;list-style:none}
-.agent-inbox .ui-list-row{display:grid;min-width:0;grid-template-columns:[leading-start] 12px [leading-end text-start] minmax(0,1fr) [text-end end-start] max-content [end-end];align-items:center;transition:background-color 120ms ease-out}
+.agent-inbox .ui-list-row{display:grid;min-width:0;grid-template-columns:[leading-start] 12px [leading-end text-start] minmax(0,1fr) [text-end end-start] max-content [end-end];align-items:center;transition:background-color var(--ui-motion-hover) var(--ui-ease-enter)}
 .agent-inbox .ui-list-row-main{grid-column:leading-start/end-end;grid-row:1;display:grid;min-width:0;width:100%;grid-template-columns:subgrid;align-items:center;gap:0;border:0;margin:0;background:transparent;text-align:start;color:inherit;font:inherit;cursor:default}
 .agent-inbox .ui-list-row-leading{grid-column:leading-start/leading-end;grid-row:1;display:inline-flex;align-items:center;justify-content:flex-start;margin-inline-end:6px}
 .agent-inbox .ui-unread-dot{height:5px;width:5px;flex-shrink:0;border-radius:50%;background:var(--accent);visibility:hidden}

@@ -1,13 +1,20 @@
-import { useId, useLayoutEffect, useRef, type ReactNode } from 'react';
+import { useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { X } from 'lucide-react';
 import { isComposing } from './list-navigation';
+import { retainFocus } from './focus-retention';
 import './controls.css';
 
 export interface ModalProps { open: boolean; title: string; onClose: () => void; children: ReactNode; className?: string }
 
 export function Modal({ open, title, onClose, children, className = '' }: ModalProps) {
-  const dialog = useRef<HTMLDialogElement>(null), close = useRef(onClose);
+  const dialog = useRef<HTMLDialogElement>(null), close = useRef(onClose), pressedBackdrop = useRef(false);
   const titleId = useId(); close.current = onClose;
+  // The closed dialog stays mounted, showing its last open content, until the CSS exit finishes.
+  const shown = useRef({ title, children });
+  if (open) shown.current = { title, children };
+  const [exit, setExit] = useState({ open, leaving: false });
+  if (exit.open !== open) setExit({ open, leaving: !open });
+  const leaving = exit.leaving && !open;
   useLayoutEffect(() => {
     const element = dialog.current;
     if (!open || !element) return;
@@ -15,16 +22,37 @@ export function Modal({ open, title, onClose, children, className = '' }: ModalP
     element.showModal();
     const closed = () => close.current();
     element.addEventListener('close', closed);
+    // A focused control that disables drops focus to <body>, escaping the native
+    // trap. Pull it back inside; defer a frame so an open nested popover's own
+    // retention claims focus first and is not yanked out to the modal's first control.
+    const release = retainFocus(element.ownerDocument, () => element, callback => requestAnimationFrame(callback));
     return () => {
+      release();
       element.removeEventListener('close', closed); element.close();
       if (previous?.isConnected) previous.focus();
     };
   }, [open]);
-  if (!open) return null;
-  return <dialog ref={dialog} aria-labelledby={titleId} className={`ui-modal ${className}`} data-escape-scope
+  useLayoutEffect(() => {
+    if (!leaving) return;
+    const running = dialog.current?.getAnimations?.() ?? [];
+    const done = () => setExit(current => current.leaving ? { ...current, leaving: false } : current);
+    if (!running.length) { done(); return; }
+    let cancelled = false;
+    void Promise.allSettled(running.map(animation => animation.finished)).then(() => { if (!cancelled) done(); });
+    return () => { cancelled = true; };
+  }, [leaving]);
+  if (!open && !leaving) return null;
+  const onBackdrop = (event: { target: EventTarget; currentTarget: HTMLDialogElement; clientX: number; clientY: number }) => {
+    if (event.target !== event.currentTarget) return false;
+    const box = event.currentTarget.getBoundingClientRect();
+    return event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom;
+  };
+  return <dialog ref={dialog} aria-labelledby={titleId} className={`ui-modal ${className}`} data-escape-scope inert={!open}
     onCancel={event => { event.preventDefault(); onClose(); }}
+    onPointerDown={event => { pressedBackdrop.current = onBackdrop(event); }}
+    onClick={event => { if (pressedBackdrop.current && onBackdrop(event)) onClose(); pressedBackdrop.current = false; }}
     onKeyDown={event => { if (event.key === 'Escape' && isComposing(event)) event.preventDefault(); }}>
-    <header className="ui-modal-header"><h2 id={titleId}>{title}</h2><button type="button" className="ui-modal-close" aria-label="Close dialog" onClick={onClose}><X size={17} /></button></header>
-    {children}
+    <header className="ui-modal-header"><h2 id={titleId}>{shown.current.title}</h2><button type="button" className="ui-modal-close" aria-label="Close dialog" onClick={onClose}><X size={17} /></button></header>
+    {shown.current.children}
   </dialog>;
 }

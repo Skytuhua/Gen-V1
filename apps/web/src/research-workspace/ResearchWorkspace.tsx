@@ -10,6 +10,7 @@ import {SourceImport, type ResearchGrantedFile, type ResearchBrowserCapability, 
 import {SourceReader} from './SourceReader';
 import {PassageInspector} from './PassageInspector';
 import './research-workspace.css';
+import {ErrorState} from '../../../../packages/ui-shell/Feedback';
 
 export type {ResearchSelection, ResearchResource} from './client';
 export type {ResearchGrantedFile, ResearchBrowserCapability} from './SourceImport';
@@ -19,7 +20,7 @@ export interface ResearchWorkspaceProps {
   chat?: ReactNode; chatOpen?: boolean; onChatOpenChange?: (open: boolean) => void; drafts?: ResearchDrafts;
 }
 export function ResearchWorkspace(props: ResearchWorkspaceProps) {
-  if (props.selection.authority.kind !== 'personal') return <p role="alert">Research is available in personal conversations.</p>;
+  if (props.selection.authority.kind !== 'personal') return <p role="status">Research is available in personal conversations.</p>;
   return <ResearchBody key={researchScope(props.selection)} {...props} />;
 }
 function ResearchBody({selection, importDraft, disabled=false, topic, ownerControl, onNavigate, grantedFiles = [], browserCapture, filePage, onImportOpen, chat, chatOpen = false, onChatOpenChange, drafts = researchDrafts}: ResearchWorkspaceProps) {
@@ -80,7 +81,7 @@ function ResearchBody({selection, importDraft, disabled=false, topic, ownerContr
             <span>{drafts.get(selection, document.id)?.title ?? document.title}</span><small>{document.kind === 'findings' ? 'Findings' : 'Working notes'} · {drafts.get(selection, document.id)?.dirty ? 'Unsaved draft' : `r${document.revision}`}</small>
           </button>)}</div>
           {cursors.documents && <button disabled={pending} onClick={() => void more('documents')}>More documents</button>}
-        </LoadingState>{error && <p role="alert">{error} <button onClick={() => setRefresh(v => v + 1)}>Retry research</button></p>}
+        </LoadingState>{error && <ErrorState message={error} retryLabel="Retry research" onRetry={() => setRefresh(v => v + 1)}/>}
       </nav>
       <div className="research-divider" role="separator" aria-label="Resize source navigator" aria-orientation="vertical" aria-valuemin={200} aria-valuemax={380} aria-valuenow={width} tabIndex={0}
         onKeyDown={event => {if (isComposing(event)) return; if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {event.preventDefault(); setWidth(value => event.key === 'Home' ? 200 : event.key === 'End' ? 380 : Math.max(200, Math.min(380, value + (event.key === 'ArrowLeft' ? -16 : 16))));}}}
@@ -106,7 +107,7 @@ function SourcePanel({selection, resource, onCite}: {selection: ResearchSelectio
     void researchClient.source(selection, resource.id, resource.revision, controller.signal).then(value => {if (!controller.signal.aborted) setSource(value);}).catch(cause => {if (!controller.signal.aborted) setError(researchError(cause));});
     return () => controller.abort();
   }, [resource.id, resource.revision, retry]);
-  return <LoadingState pending={!source && !error} hasContent={Boolean(source)} label="Loading source…">{source && <SourceReader selection={selection} source={source} onCite={onCite} />}{error && <p role="alert">{error} <button onClick={() => setRetry(v => v + 1)}>Retry source</button></p>}</LoadingState>;
+  return <LoadingState pending={!source && !error} hasContent={Boolean(source)} label="Loading source…">{source && <SourceReader selection={selection} source={source} onCite={onCite} />}{error && <ErrorState message={error} retryLabel="Retry source" onRetry={() => setRetry(v => v + 1)}/>}</LoadingState>;
 }
 
 function DocumentEditor({selection, resource, drafts, onChange, onInspect, onSaved}: {selection: ResearchSelection; resource: ResearchResource; drafts: ResearchDrafts; version: number; onChange: () => void; onInspect: (ref: ResearchPassage) => void; onSaved: (id: string) => void}) {
@@ -161,6 +162,6 @@ function DocumentEditor({selection, resource, drafts, onChange, onInspect, onSav
       {draft.conflict && <section className="research-conflict" aria-label="Saved version"><h3>Saved version · revision {draft.conflict.revision}</h3><p>Your draft is preserved above.</p><pre>{draft.conflict.body}</pre><button disabled={pending} onClick={() => void save(true)}>Save draft as separate document</button></section>}
       {draft.citations.length > 0 && <section aria-label="Document citations"><h3>Citations</h3><ol>{draft.citations.map((ref, index) => <li key={`${index}:${ref.sourceId}`}><button aria-label={`Inspect citation ${index + 1}, revision ${ref.revision}, bytes ${ref.start} to ${ref.end}`} onClick={() => onInspect(ref)}>Source {index + 1} · r{ref.revision} · bytes {ref.start}–{ref.end}</button><span className="research-meta">{loaded?.citations.find(item => JSON.stringify([item.sourceId, item.revision, item.sha256, item.start, item.end]) === JSON.stringify([ref.sourceId, ref.revision, ref.sha256, ref.start, ref.end]))?.status ?? 'unverified'} · live source unverified</span><button aria-label={`Remove citation ${index + 1}`} onClick={() => edit({citations: draft.citations.filter((_, i) => i !== index)})}>Remove</button></li>)}</ol></section>}
     </article>}
-    {error && <p role="alert">{error} <button onClick={() => setRetry(v => v + 1)}>Reload saved version</button></p>}
+    {error && <ErrorState message={error} retryLabel="Reload saved version" onRetry={() => setRetry(v => v + 1)}/>}
   </LoadingState>;
 }

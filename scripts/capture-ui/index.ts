@@ -1,10 +1,10 @@
 import { chromium } from '@playwright/test';
 import { createServer } from 'vite';
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, rm } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
-import { resolve, join } from 'node:path';
+import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { parseArgs, normalizeMotion, isReducedOffender, motionKey, table, hasDistinctRecipe, imageStatus, coverageMatrix, type Motion, type CaptureEntry } from './helpers';
+import { writeCaptureFile, prepareCaptureOutput, parseArgs, normalizeMotion, isReducedOffender, motionKey, table, hasDistinctRecipe, imageStatus, coverageMatrix, type Motion, type CaptureEntry } from './helpers';
 import { screens, keyStates, captureWidths, type Action } from './screen-map';
 import { resolveScope } from './scope';
 import { collect, frameStrip } from './browser';
@@ -28,10 +28,9 @@ async function main() {
   for (const id of ids) if (!screens.some(s => s.id === id)) throw Error(`Unknown screen ${id}`);
   const selected = screens.filter(s => ids.includes(s.id));
   const requirePluginEvidence = selected.some(screen => screen.id === 'plugin-frame');
-  const out = resolve(args.out || `artifacts/ui-capture/${new Date().toISOString().replaceAll(':', '-')}`);
-  await Promise.all(['strips', 'screenshots'].map(dir => mkdir(resolve(out, dir), { recursive: true })));
-  const json = (name: string, data: unknown) => writeFile(resolve(out, `${name}.json`), JSON.stringify(data, null, 2));
-  const md = (name: string, body: string) => writeFile(resolve(out, `${name}.md`), body);
+  const out = await prepareCaptureOutput(args.out || `test-results/ui-capture/${new Date().toISOString().replaceAll(':', '-')}`);
+  const json = (name: string, data: unknown) => writeCaptureFile(out, `${name}.json`, JSON.stringify(data, null, 2));
+  const md = (name: string, body: string) => writeCaptureFile(out, `${name}.md`, body);
   await json('scope', scope);
   await md('scope', scopeMarkdown(scope));
   const entries: CaptureEntry[] = [], stripEntries: StripEntry[] = [];
@@ -62,7 +61,7 @@ async function main() {
     // States stay ordered per viewport, so identity checks have their default.
     // A bounded pool avoids idle workers behind a screen with many slow states.
     const jobs = selected.flatMap(screen => captureWidths.map(width => ({screen, width})));
-    const viewports = await settlePool(jobs, 6, async ({screen, width}) => {
+    const viewports = await settlePool(jobs, 2, async ({screen, width}) => {
       const tile = await captureBrowser.newPage({ viewport: { width: 1200, height: 500 } });
       try { for (const state of keyStates) {
       const recipe = screen.states[state];
@@ -118,7 +117,8 @@ async function main() {
               try { await route.abort(); } catch { /* Context may already be closing. */ }
               return;
             }
-            if (screen.id === 'app-shell') return shellRoute(route, snapshot, recipe.api === 'error');
+            if (screen.id === 'terminal-excerpts' && url.pathname.startsWith('/api/terminals')) return route.fulfill({json: browserApiResponse(url,route.request().method()==='POST'?route.request().postDataJSON():undefined,recipe.api==='empty')});
+            if (['app-shell','conversation-find','terminal-excerpts','saved-drafts'].includes(screen.id)) return shellRoute(route, snapshot, recipe.api === 'error');
             if (recipe.api === 'error' && url.pathname !== '/api/bootstrap') return route.fulfill({ status: 503, json: { error: { code: 'CAPTURE_503', message: 'Synthetic data unavailable. Retry.' } } });
             if (url.pathname.startsWith('/api/resources/') && url.pathname.endsWith('/content')) {
               const asset = await taskAssetResponse(decodeURIComponent(url.pathname.split('/')[3]));
@@ -166,9 +166,9 @@ async function main() {
           if (reduce) reduced = mergeMotionRecords(reduced, initial, records);
           else {
             motion = mergeMotionRecords(motion, initial, records);
-            await mkdir(resolve(out, 'screenshots', screen.id), { recursive: true });
             const path = `screenshots/${screen.id}/${state}-${width}.png`;
-            const bytes = await page.screenshot({ path: resolve(out, path), fullPage: true });
+            const bytes = await page.screenshot({ fullPage: true, timeout:20000 });
+            await writeCaptureFile(out, path, bytes);
             const hash = createHash('sha256').update(bytes).digest('hex');
             const baselineKey = `${screen.id}/${width}`;
             const status = state === 'default' ? 'captured' : imageStatus(defaults.get(baselineKey), hash);
@@ -186,7 +186,7 @@ async function main() {
               stripReservations++;
               if (pluginCandidate) pluginIframeStripReserved = true;
               const path = `strips/${String(seen.size).padStart(3, '0')}-${screen.id}.png`;
-              try { await frameStrip(page, tile, i, resolve(out, path)); stripEntries.push({ screen: screen.id, state, width, frame: record.frame, selector: record.selector, motionKey: key, path, status: 'captured' }); }
+              try { await writeCaptureFile(out, path, await frameStrip(page, tile, i)); stripEntries.push({ screen: screen.id, state, width, frame: record.frame, selector: record.selector, motionKey: key, path, status: 'captured' }); }
               catch (error) { stripEntries.push({ screen: screen.id, state, width, frame: record.frame, selector: record.selector, motionKey: key, status: 'failed', code: 'F', reason: String(error), optional: recipe.optional }); }
             }
           }

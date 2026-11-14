@@ -111,10 +111,11 @@ interface PluginRegistration {
 
 `registerPlugin` returns a disposer. Registration must match the installed plug-in identity. Window declarations request behavior; the trusted host still authorizes every native operation.
 
-New detached views are currently unavailable. `window.capabilities` reports this
-explicitly. Typed window references, existing-child recovery and saved layouts
-remain intact; declarations do not enable new windows. Existing child returns
-still require current host authorization and successful draft flushing.
+Native window detachment is available in the desktop app; `window.capabilities`
+reports `{available: true}` there and an explicit reason in browser sessions.
+Typed window references, existing-child recovery and saved layouts remain
+intact; declarations do not bypass host authorization. New windows and child
+returns still require current host authorization and successful draft flushing.
 
 The adapter is explicit:
 

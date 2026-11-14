@@ -2,7 +2,28 @@ import { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { ModelPicker } from '../../apps/web/src/ModelPicker';
 import { useModalRegion } from '../../apps/web/src/focus';
+import { Modal } from '../../packages/ui-shell/Modal';
+import { Popover } from '../../packages/ui-shell/Popover';
 import '../../apps/web/src/styles.css';
+
+function RetentionFixture({ mode }: { mode: string }) {
+  const [disabled, setDisabled] = useState(false);
+  const [popOpen, setPopOpen] = useState(mode === 'popover');
+  const [popDisabled, setPopDisabled] = useState(false);
+  const anchor = useRef<HTMLButtonElement>(null);
+  if (mode === 'popover') return <>
+    <button type="button" ref={anchor} onClick={() => setPopOpen(true)}>Open popover</button>
+    <button type="button">Background control</button>
+    <Popover anchor={anchor} open={popOpen} width={240} height={120} onDismiss={() => setPopOpen(false)}>
+      <button type="button" disabled={popDisabled} onClick={() => setPopDisabled(true)}>Disable popup action</button>
+      <button type="button">Popup safe</button>
+    </Popover>
+  </>;
+  return <Modal open title="Retention dialog" onClose={() => {}}>
+    <button type="button" disabled={disabled} onClick={() => setDisabled(true)}>Disable me</button>
+    <button type="button">Safe control</button>
+  </Modal>;
+}
 
 function Fixture() {
   const dialog = useRef<HTMLElement>(null);
@@ -30,4 +51,5 @@ function Fixture() {
   </>;
 }
 
-createRoot(document.getElementById('root')!).render(<Fixture />);
+const retention = new URLSearchParams(location.search).get('retention');
+createRoot(document.getElementById('root')!).render(retention ? <RetentionFixture mode={retention}/> : <Fixture />);

@@ -32,7 +32,7 @@
 @container document-pair (width < 620px) { .surface-split:has(>.surface-section-centered)>.document-preview { min-height:clamp(380px,55dvh,580px); } }
 .task-status-receipt-view { text-align:center; width:100%; }
 .artifact[data-document-handoff="pending"] .task-status-receipt-view { opacity:0; }
-.artifact[data-document-handoff="ready"] .task-status-receipt-view { transition:opacity 220ms ease-out; }
+.artifact[data-document-handoff="ready"] .task-status-receipt-view { transition:opacity var(--ui-motion-panel-enter) var(--ui-ease-enter); }
 .task-map-place-details { font-size:12px; color:var(--muted); margin-top:8px; }
 .task-map-place-details summary { width:fit-content; cursor:pointer; }
 .task-map-place-details small { display:block; margin-top:8px; }
@@ -58,4 +58,8 @@
 .task-tabs-operation-footer small { display:block; font-size:11px; color:var(--muted); padding-top:4px; }
 @media(hover:none) { .artifact-frame-canvas:not(.artifact-expanded):not(.artifact-in-workspace)>.artifact-header { opacity:1; position:static; justify-content:flex-end; } }
 @media(prefers-reduced-motion:reduce) { .artifact-frame-canvas>.artifact-header { transition:none!important; } }
-@media(prefers-reduced-motion:reduce) { .artifact[data-document-handoff="ready"] .task-status-receipt-view { transition-duration:80ms; } }
+@media(prefers-reduced-motion:reduce) { .artifact[data-document-handoff="ready"] .task-status-receipt-view { transition-duration:var(--ui-motion-press); } }
+/* WO-7: inline rows grow with chat; controlled columns retain horizontal widths. */
+.artifact[data-artifact-inline=true] .task-table[data-column-controls=true] .task-table-scroll { max-height:none; overflow-x:auto; overflow-y:hidden; overscroll-behavior-x:contain; }
+.artifact[data-artifact-inline=true] .artifact-content .task-table[data-column-controls=true] table { table-layout:fixed; min-width:0; }
+.artifact[data-artifact-inline=true] .artifact-content .task-table[data-column-controls=true] :is(td,th) { white-space:nowrap; overflow-wrap:normal; }

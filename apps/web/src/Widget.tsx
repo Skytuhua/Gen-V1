@@ -4,6 +4,7 @@ import type { ArtifactRecord } from '../../../packages/contracts';
 import { command, getWidgetMount, widgetOrigin } from './api';
 import type { UserStateRecord } from '../../../packages/contracts';
 import { createWidgetRuntime } from '../../../packages/widgets/controller';
+import {ErrorState} from '../../../packages/ui-shell/Feedback';
 
 const ajv = new Ajv({ strict: false, allErrors: true });
 function themeTokens(mode: 'light' | 'dark') {
@@ -137,9 +138,12 @@ export function Widget({ ref: widgetRef, artifact, inputs, values, stateRevision
       runtime.current = createWidgetRuntime({ iframe: iframe.current, identity: { token: mount.token, mountId: mount.mountId, artifactId: artifact.id }, html: artifact.widget.html, stateSchemaVersion: artifact.widget.stateSchemaVersion, onBridge: handle, onFailure: message => { if (active) setError(message); } });
     } catch { setError('The isolated generated-app worker is unavailable.'); return; }
     window.addEventListener('message', receive);
-    const heartbeat = setInterval(() => { if (leaseDirty.current && !leaseSuspended.current) void lease().catch(error => setError(error instanceof Error ? error.message : 'The edit lease expired.')); }, 20000);
+    const heartbeatMs = () => (globalThis as { __genWidgetLeaseHeartbeatMs?: number }).__genWidgetLeaseHeartbeatMs ?? 20000;
+    let timer: ReturnType<typeof setTimeout>;
+    const beat = () => { if (leaseDirty.current && !leaseSuspended.current) void lease().catch(error => setError(error instanceof Error ? error.message : 'The edit lease expired.')); if (active) timer = setTimeout(beat, heartbeatMs()); };
+    timer = setTimeout(beat, heartbeatMs());
     const leaseClientId = clientId.current;
-    return () => { active = false; runtime.current?.dispose(); runtime.current = null; clearInterval(heartbeat); window.removeEventListener('message', receive); if (leaseDirty.current && !leaseSuspended.current) void Promise.resolve(leasePending.current).catch(() => {}).then(() => command('edit.end', { stateId: artifact.stateId, clientId: leaseClientId }, artifact.threadId)).catch(() => {}); };
+    return () => { active = false; runtime.current?.dispose(); runtime.current = null; clearTimeout(timer); window.removeEventListener('message', receive); if (leaseDirty.current && !leaseSuspended.current) void Promise.resolve(leasePending.current).catch(() => {}).then(() => command('edit.end', { stateId: artifact.stateId, clientId: leaseClientId }, artifact.threadId)).catch(() => {}); };
   }, [mount, artifact.id, artifact.revision, artifact.stateId, artifact.threadId, validators]);
 
   useEffect(() => {
@@ -147,5 +151,5 @@ export function Widget({ ref: widgetRef, artifact, inputs, values, stateRevision
     if (!validators.input(inputs)) { setError('Updated inputs do not match this widget’s schema.'); return; }
     runtime.current?.post({ channel: 'harness-widget', token: mount.token, mountId: mount.mountId, artifactId: artifact.id, type: 'init', inputs, state: values, stateRevision, theme: themeTokens(theme) });
   }, [mount, ready, artifact.id, updateKey, validators]);
-  return <div className="widget-container">{error && <div className="notice" role="alert">{error}<button className="secondary" onClick={() => setAttempt(value => value + 1)}>Retry widget</button></div>}{actionError && <div className="notice" role="alert">{actionError}<button type="button" className="quiet" aria-label="Dismiss widget action error" onClick={() => setActionError('')}>Dismiss</button></div>}{!ready && !error && <p className="muted widget-loading" role="status">Opening secure widget…</p>}{mount && <iframe ref={iframe} title={artifact.title} src={mount.url} sandbox="allow-scripts" referrerPolicy="no-referrer" className="widget-frame" />}</div>;
+  return <div className="widget-container">{error && <ErrorState className="notice" message={error} retryLabel="Retry widget" onRetry={() => setAttempt(value => value + 1)}/>}{actionError && <div className="notice" role="status">{actionError}<button type="button" className="quiet" aria-label="Dismiss widget action error" onClick={() => setActionError('')}>Dismiss</button></div>}{!ready && !error && <p className="muted widget-loading" role="status">Opening secure widget…</p>}{mount && <iframe ref={iframe} title={artifact.title} src={mount.url} sandbox="allow-scripts" referrerPolicy="no-referrer" className="widget-frame" />}</div>;
 }

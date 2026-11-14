@@ -15,7 +15,7 @@ import { useModalRegion } from './focus';
 import { useWorkspace } from './workspace-context';
 import { DocumentAssetProvider, hasPendingDocumentAssets } from './signature-assets';
 import { DocumentEvidenceProvider, type DocumentHandoffState } from './document-evidence';
-import { useArtifactEntrance } from './task-motion';
+import { animateTask, useArtifactEntrance } from './task-motion';
 import {useDesktop,useDesktopCloseGuard,useDetachedSurface,usePendingSurface} from './desktop-context';
 import {journalFlush} from './journal';
 
@@ -62,12 +62,22 @@ export function Artifact({ artifact: incoming, snapshot, theme, refresh, onDirty
   const widget = useRef<WidgetHandle>(null);
   const section = useRef<HTMLElement>(null);
   useArtifactEntrance(section, animateEntry);
+  const placed = useRef({ expanded: false, inWorkspace: false });
   const expandButton = useRef<HTMLElement | null>(null);
   const pendingApproval = useRef<string | null>(null);
   const [widgetRecord, setWidgetRecord] = useState<UserStateRecord | undefined>(record);
   const standaloneEditor=embedded||desktop?.context.surface.kind==='artifact'||desktop?.context.surface.kind==='workspace'&&desktop.context.surface.tab==='artifact';
   const expanded = incoming.placement === 'expanded'&&!editorHeld&&!standaloneEditor;
   const inline = !expanded && !inWorkspace && !standaloneEditor;
+  useLayoutEffect(() => {
+    const element = section.current, before = placed.current;
+    placed.current = { expanded, inWorkspace };
+    if (!element || (before.expanded === expanded && before.inWorkspace === inWorkspace)) return;
+    // Entering the docked panel slides in from the rail; returning inline settles like a new row.
+    animateTask(element, inWorkspace || expanded
+      ? [{ opacity: 0, transform: 'translateX(12px)' }, { opacity: 1, transform: 'translateX(0)' }]
+      : [{ opacity: .5, transform: 'translateY(4px)' }, { opacity: 1, transform: 'translateY(0)' }], inWorkspace || expanded ? 220 : 180);
+  }, [expanded, inWorkspace]);
   const act = async (type: string, payload: Record<string, unknown>) => {
     if (type === 'artifact.expand' && payload.expanded) expandButton.current = section.current?.querySelector<HTMLElement>('[aria-label="Expand artifact"]') ?? null;
     if (type === 'artifact.archive' && widgetDirty) { setArchiveGuard(true); return; }
@@ -126,7 +136,7 @@ export function Artifact({ artifact: incoming, snapshot, theme, refresh, onDirty
       {!embedded&&<><button disabled={editorHeld} className="icon-button" aria-label={expanded ? 'Collapse artifact' : 'Expand artifact'} title={expanded ? 'Collapse artifact' : 'Expand artifact'} onClick={() => void act('artifact.expand', { expanded: !expanded })}>{expanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}</button>
       <button disabled={editorHeld} className="icon-button" aria-label={inWorkspace ? 'Return artifact to conversation' : 'Open artifact in workspace'} title={inWorkspace ? 'Return to conversation' : 'Open in workspace'} onClick={() => inWorkspace ? workspace.closeArtifact() : workspace.requestOpenArtifact(artifact.id)}>{inWorkspace ? <X size={14} /> : <PanelRightOpen size={14} />}</button></>}
     </div></header>
-    {error && <div role="alert" className="notice">{error}<button className="icon-button" aria-label="Dismiss artifact error" onClick={() => setError('')}><X size={14} /></button></div>}
+    {error && <div role="status" className="notice">{error}<button className="icon-button" aria-label="Dismiss artifact error" onClick={() => setError('')}><X size={14} /></button></div>}
     {archiveGuard && <div className="notice" role="alert"><div>Checkpoint your widget edits before archiving, or explicitly discard them.<div className="decision-actions"><button className="secondary" onClick={() => { setArchiveGuard(false); section.current?.querySelector<HTMLElement>('.widget-container button, .widget-container iframe')?.focus(); }}>Return to checkpoint</button><button className="quiet" disabled={archiving} onClick={() => void discardAndArchive()}>Discard edits and archive</button></div></div></div>}
     {blockedRevision !== null && noticeRevision === blockedRevision && <p className="notice">An updated interface is ready. Save your edits to load it; this version remains open.</p>}
     {detached&&<p className="notice">Editing in a detached window.</p>}<div className="artifact-body" inert={editorHeld}><div className="artifact-content"><ArtifactTitle value={artifact.title}><ArtifactBoundary resetKey={`${artifact.id}:${artifact.revision}`}><ArtifactActions value={submit}>{artifact.kind === 'widget' ? <Widget ref={widget} onEscape={() => { if (expanded) void act('artifact.expand', { expanded: false }); }} artifact={artifact} inputs={inputs} values={effectiveRecord?.values ?? {}} stateRevision={effectiveRecord?.revision ?? 0} theme={theme} onAction={submit} onDirty={dirtyChanged} onAccepted={(values, revision) => { setWidgetRecord({ id: artifact.stateId, threadId: artifact.threadId, revision, schemaVersion: artifact.widget?.stateSchemaVersion ?? 1, values }); void refresh(); }} /> : state.loaded ? <StateProvider store={state.store}><DocumentAssetProvider threadId={artifact.threadId} stateId={artifact.stateId}><DocumentEvidenceProvider value={documentEvidence}><SecureArtifactProvider value={{artifactId:artifact.id,threadId:artifact.threadId,revision:artifact.revision,active,editable:!editorHeld,saveStatus:state.status}}><ArtifactPresentation spec={artifact.spec}/></SecureArtifactProvider></DocumentEvidenceProvider></DocumentAssetProvider></StateProvider> : <p className="muted">Restoring artifact state…</p>}</ArtifactActions></ArtifactBoundary></ArtifactTitle></div></div>

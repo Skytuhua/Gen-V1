@@ -56,7 +56,7 @@ function Category({ item, total, id }: { item: ContextCategoryReport & { width: 
     <Popover anchor={anchor} contentRef={detail} open={open} width={220} height={Math.min(360, 90 + (item.subitems?.length ?? (item.label === 'Reserved' ? 1 : 0)) * 28)}
       role="tooltip" id={id} className="context-category-detail" onDismiss={() => setOpen(false)}>
       <strong>{item.label}</strong><span>{new Intl.NumberFormat().format(item.tokens)} tokens · {(item.tokens / total * 100).toFixed(1)}%</span>
-      {item.subitems?.map((child, index) => <div className="context-subitem" key={index}><span>{child.label}</span><span>{new Intl.NumberFormat().format(child.tokens)}</span></div>)}
+      <div className="context-subitems">{item.subitems?.map((child, index) => <div className="context-subitem" key={index}><span>{child.label}</span><span>{new Intl.NumberFormat().format(child.tokens)}</span></div>)}</div>
       {item.label === 'Reserved' && !item.subitems?.length && <span>Capacity reserved by the runtime.</span>}
     </Popover>
   </div>;
@@ -64,7 +64,7 @@ function Category({ item, total, id }: { item: ContextCategoryReport & { width: 
 
 export function ContextMeter({ usage, busy = false, accepted = false }: { usage?: ContextUsage; busy?: boolean; accepted?: boolean }) {
   const value = contextSegments(usage), id = useId();
-  if (!value) return <div className="context-meter"><div className="context-meter-unknown" aria-label="Context measurement not reported" /><p className="context-categories-note">Context not reported</p></div>;
+  if (!value) return <div className="context-meter"><div className="context-meter-unknown" aria-label="Context measurement not reported" /><p className="context-categories-note">The breakdown appears here once the runtime measures this session.</p></div>;
   return <div className={`context-meter${accepted ? ' context-measurement-accepted' : ''}`} role="group" aria-label="Reported context breakdown" aria-busy={busy}>
     <progress className="sr-only" aria-label="Context used" value={value.ratio} max={100} />
     <div className="context-segment-bar" aria-hidden="true">{value.categories.map(item => <i key={item.label} style={{ width: `${item.width}%`, '--context-color': categoryColor(item.label) } as CSSProperties} className="context-segment" />)}{busy && <span className="context-compaction-shimmer" />}</div>

@@ -3,7 +3,7 @@ export interface BrowserSuite { name:string; config:string; specs:string[]; proj
 export const rootBrowserSpecs = [
   'artifact-acknowledgment.spec.ts', 'clarity-data-work.spec.ts', 'dark-default.spec.ts',
   'document-window.spec.ts', 'host-loop.spec.ts', 'journal-reload.spec.ts', 'latency.spec.ts',
-  'migration-redesign.spec.ts', 'operational-motion.spec.ts', 'overnight-shell.spec.ts',
+  'map-theme.spec.ts', 'migration-redesign.spec.ts', 'operational-motion.spec.ts', 'overnight-shell.spec.ts',
   'plan-timeline.spec.ts', 'review-capture-theme.spec.ts', 'shell-micro-motion.spec.ts',
   'signing-motion.spec.ts', 'skills.spec.ts',
 ];
@@ -26,12 +26,15 @@ export const browserSuites:BrowserSuite[] = [
   suite('graph-popovers'),
   suite('inbox-controls'),
   suite('memory-recovery', undefined, {env:{GEN_MEMORY_MODE:''}}),
+  suite('redundant-ui'),
   suite('research-host'),
+  suite('saved-drafts'),
   suite('saved-layout-chooser'),
   suite('scoped-conversation'),
   suite('settings-leaf-selects', ['settings-controls.spec.ts', 'settings-leaf-selects.spec.ts', 'settings-loading.spec.ts']),
   suite('sidebar-collapse', ['sidebar-collapse.spec.ts']),
   suite('sidebar-shared-menu', ['sidebar-compact.spec.ts', 'sidebar-shared-menu.spec.ts'], {project:'sidebar-menu'}),
+  suite('terminal-excerpts'),
   suite('terminal-read'),
   suite('thread-hover'),
   suite('thread-move', ['thread-move.spec.ts']),
@@ -40,6 +43,7 @@ export const browserSuites:BrowserSuite[] = [
   suite('memory-recovery-app', undefined, {config:'tests/e2e/memory-recovery.playwright.config.ts', env:{GEN_MEMORY_MODE:'app'}}),
   suite('memory-recovery-journal', undefined, {config:'tests/e2e/memory-recovery.playwright.config.ts', env:{GEN_MEMORY_MODE:'journal'}}),
   suite('frontend-refinement', ['artifact-style.spec.ts', 'canvas-clarity.spec.ts', 'composer-app-refinement.spec.ts', 'context-compact.spec.ts', 'document-smoothness.spec.ts', 'drag-detach.spec.ts', 'floating-windows.spec.ts', 'free-floating.spec.ts', 'frontend-refinement.spec.ts', 'no-detach-canvas.spec.ts', 'reserved-rail.spec.ts', 'right-tools.spec.ts']),
+  suite('conversation-find'),
   suite('conversation-scroll'),
   suite('micro-motion', ['composer-integration.spec.ts', 'composer-motion.spec.ts', 'markdown.spec.ts', 'micro-motion.spec.ts', 'proactive-copy.spec.ts', 'progressive-fidelity.spec.ts', 'shared-motion.spec.ts', 'shared-smoothness.spec.ts']),
   suite('motion-tokens', ['document-pair-layout.spec.ts', 'motion-tokens.spec.ts']),
@@ -68,6 +72,7 @@ export const browserSuites:BrowserSuite[] = [
   suite('project-app-integration', ['project-app-integration.spec.mjs']),
   suite('project-picker'),
   suite('project-search'),
+  suite('wo5-app-integration'),
   suite('runtime-presentation'),
   suite('shared-panels'),
   suite('shell', ['frontend.spec.ts']),
@@ -80,10 +85,12 @@ export const browserSuites:BrowserSuite[] = [
   suite('summary-dock'),
   suite('t3-centered'),
   suite('tabs-identity'),
+  suite('table-controls'),
   suite('task-design'),
   suite('task-interface'),
   suite('ui-shell-controls'),
   suite('usage-context'),
+  suite('wo8'),
 ];
 
 export function validateBrowserSuites(specs:string[], suites=browserSuites):void {

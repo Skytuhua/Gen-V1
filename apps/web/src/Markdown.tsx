@@ -1,13 +1,14 @@
-import { Fragment, type ReactNode } from 'react';
+import { Fragment, memo, useMemo, type ReactNode } from 'react';
 import {SentenceReveal} from './SentenceReveal';
+import {CopyButton} from './CopyButton';
 import './markdown.css';
 
 function inline(text: string): ReactNode {
-  return text.split(/(\*\*[^*]+\*\*|`[^`]+`|\[[^\]]+\]\(https?:\/\/[^\s)]+\))/g).map((part, index) => {
+  return text.split(/(\*\*[^*]+\*\*|`[^`]+`|\[[^\]]+\]\((?:https?:\/\/[^\s)]+|#[^\s)]+)\))/g).map((part, index) => {
     if (part.startsWith('**') && part.endsWith('**')) return <strong key={index}>{part.slice(2, -2)}</strong>;
     if (part.startsWith('`') && part.endsWith('`')) return <code key={index}>{part.slice(1, -1)}</code>;
-    const link = part.match(/^\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)$/);
-    if (link) return <a key={index} href={link[2]} target="_blank" rel="noreferrer">{link[1]}</a>;
+    const link = part.match(/^\[([^\]]+)\]\((https?:\/\/[^\s)]+|#[^\s)]+)\)$/);
+    if (link) return <a key={index} href={link[2]} target={link[2].startsWith('#') ? undefined : '_blank'} rel="noreferrer">{link[1]}</a>;
     return <Fragment key={index}>{part}</Fragment>;
   });
 }
@@ -82,7 +83,7 @@ function blocks(text:string):ReactNode[]{
       const start=++index,character=opening[1]![0]!,minimum=opening[1]!.length;
       while(index<lines.length&&!new RegExp(`^ {0,3}${character}{${minimum},}[ \\t]*$`).test(lines[index]!))index++;
       const code=lines.slice(start,index).join('\n')+(index<lines.length&&index>start?'\n':'');
-      nodes.push(<pre key={key}><code>{code}</code></pre>);if(index<lines.length)index++;continue;
+      nodes.push(<div key={key} className="markdown-code"><CopyButton text={code} label="Copy code"/><pre><code>{code}</code></pre></div>);if(index<lines.length)index++;continue;
     }
     const title=heading(lines[index]!);
     if(title){const Heading=`h${title[1]!.length}` as 'h1'|'h2'|'h3'|'h4'|'h5'|'h6';nodes.push(<Heading key={key}>{inline(title[2]!)}</Heading>);index++;continue;}
@@ -109,6 +110,7 @@ function blocks(text:string):ReactNode[]{
   }
   return nodes;
 }
-export function Markdown({ text,animate=false,initialReveal=false }: { text: string;animate?:boolean;initialReveal?:boolean }) {
-  return <SentenceReveal className="markdown" text={text} animate={animate} initialReveal={initialReveal}>{blocks(text)}</SentenceReveal>;
-}
+export const Markdown = memo(function Markdown({ text,animate=false,initialReveal=false }: { text: string;animate?:boolean;initialReveal?:boolean }) {
+  const rendered = useMemo(() => blocks(text), [text]);
+  return <SentenceReveal className="markdown" text={text} animate={animate} initialReveal={initialReveal}>{rendered}</SentenceReveal>;
+});

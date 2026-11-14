@@ -47,7 +47,7 @@ function SelectList({items,selected,select,label,panelId,className=''}:{items:Li
 }
 function Action({props,payload,fallback,unavailable}:{props:SoftwareProps;payload:Record<string,unknown>;fallback:string;unavailable?:string}){
   const action=useTaskAction();
-  return <footer className="software-actions">{props.actionId?<button type="button" className="secondary" disabled={action.busy} onClick={()=>void action.run(props.actionId!,payload)}>{action.busy?'Requesting…':props.actionLabel??fallback}<ArrowUpRight size={13}/></button>:unavailable?<><button type="button" className="secondary" disabled title={unavailable}>{fallback}</button><span className="software-unavailable">{unavailable}</span></>:null}{action.error&&<span role="alert" className="error-text">{action.error}</span>}</footer>;
+  return <footer className="software-actions">{props.actionId?<button type="button" className="secondary" disabled={action.busy} onClick={()=>void action.run(props.actionId!,payload)}>{action.busy?'Requesting…':props.actionLabel??fallback}<ArrowUpRight size={13}/></button>:unavailable?<><button type="button" className="secondary" disabled title={unavailable}>{fallback}</button><span className="software-unavailable">{unavailable}</span></>:null}{action.error&&<span role="status" className="error-text">{action.error}</span>}</footer>;
 }
 function CodeBlock({text,label}:{text:string;label?:string}){return <figure className="software-code">{label&&<figcaption>{label}</figcaption>}<pre tabIndex={0} aria-label={label??'Code'}><code>{text}</code></pre></figure>;}
 const responseLabels:Record<number,string>={200:'OK',201:'Created',202:'Accepted',204:'No content',400:'Bad request',401:'Unauthorized',403:'Forbidden',404:'Not found',409:'Conflict',422:'Unprocessable content',429:'Too many requests',500:'Server error',502:'Bad gateway',503:'Unavailable'};
@@ -67,7 +67,7 @@ export function Diagnostics({element:{props}}:ComponentRenderProps){
     {selected?<div className="software-inspector software-investigation">
       <div ref={detail} className="software-detail" role="tabpanel" id={panelId} aria-label={selected.title}>
         <div className="software-detail-heading"><h4>{selected.title}</h4><CheckState status={selected.status}/></div>
-        {selected.file&&<p className="software-file-location"><FileCode2 size={13}/><code>{selected.file}{selected.line?`:${selected.line}${selected.column?`:${selected.column}`:''}`:''}</code>{selected.durationMs!==undefined&&<span>{duration(selected.durationMs)}</span>}</p>}
+        {selected.file&&<p className="software-file-location"><FileCode2 size={13}/><code>{selected.file}{selected.line?`:${selected.line}${selected.column?`:${selected.column}`:''}`:''}</code>{selected.durationMs!==undefined&&<span>Duration<strong>{duration(selected.durationMs)}</strong></span>}</p>}
         {comparison&&<section className="software-assertion" data-status={selected.status} aria-label="Assertion comparison"><div><span>Expected</span><pre><code>{selected.expected??'Not supplied'}</code></pre></div><ArrowRight size={16} aria-hidden="true"/><div><span>Received</span><pre><code>{selected.actual??'Not supplied'}</code></pre></div></section>}
         {selected.message&&(comparison?<details className="software-diagnostic-details"><summary>Failure details</summary><p className="software-diagnostic-message">{selected.message}</p></details>:<p className="software-diagnostic-message">{selected.message}</p>)}
         {selected.code&&<CodeBlock text={selected.code} label="Source context"/>}

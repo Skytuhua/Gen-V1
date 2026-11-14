@@ -6,12 +6,12 @@ import isolated from "./vite.config";
 const root = resolve(import.meta.dirname, "../..");
 export default defineConfig({
 	...isolated,
-	cacheDir: "/tmp/gen-wo5-project-search-vite",
+	cacheDir:resolve(process.env.GEN_BROWSER_OUTPUT_DIR??'/tmp/gen-wo5-project-search-results','node_modules/.vite'),
 	server: {
 		...isolated.server,
 		proxy: undefined,
 		port: 5521,
-		strictPort: true,
+		strictPort: true,watch:{ignored:['**/.harness*/**']},
 		fs: { allow: [root, realpathSync(resolve(root, "node_modules"))] },
 	},
 });

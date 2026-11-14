@@ -1,8 +1,10 @@
 import { DatabaseSync } from "node:sqlite";
 import { createHash, randomUUID } from "node:crypto";
+const MESSAGE_WINDOW = 300;
+
 import { mkdirSync, realpathSync } from "node:fs";
 import { join } from "node:path";
-import { HarnessError, type CommandReceipt, type HostCommand, type Snapshot, type WorkspaceEvent } from "../contracts/index.ts";
+import { HarnessError, type CommandReceipt, type HostCommand, type Message, type Snapshot, type WorkspaceEvent } from "../contracts/index.ts";
 
 function normalized(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(normalized);
@@ -18,6 +20,19 @@ export class Store {
   private transactionOpen = false;
   private committedEvents: WorkspaceEvent[] = [];
   private drainingEvents = false;
+  private readonly statements: {
+    get: ReturnType<DatabaseSync['prepare']>;
+    allKind: ReturnType<DatabaseSync['prepare']>;
+    allKindThread: ReturnType<DatabaseSync['prepare']>;
+    put: ReturnType<DatabaseSync['prepare']>;
+    remove: ReturnType<DatabaseSync['prepare']>;
+    receipt: ReturnType<DatabaseSync['prepare']>;
+    insertEvent: ReturnType<DatabaseSync['prepare']>;
+    insertReceipt: ReturnType<DatabaseSync['prepare']>;
+    eventsAfter: ReturnType<DatabaseSync['prepare']>;
+    eventsAfterLimit: ReturnType<DatabaseSync['prepare']>;
+    sequence: ReturnType<DatabaseSync['prepare']>;
+  };
   constructor(dataDir: string) {
     mkdirSync(dataDir, { recursive: true });
     this.dataDir = realpathSync(dataDir);
@@ -31,25 +46,38 @@ export class Store {
       CREATE TABLE IF NOT EXISTS receipts (id TEXT PRIMARY KEY, hash TEXT NOT NULL, body TEXT NOT NULL);
       INSERT OR IGNORE INTO migrations(version) VALUES (1);
     `);
+    this.statements = {
+      get: this.db.prepare("SELECT body FROM entities WHERE kind=? AND id=?"),
+      allKind: this.db.prepare("SELECT body FROM entities WHERE kind=?"),
+      allKindThread: this.db.prepare("SELECT body FROM entities WHERE kind=? AND thread_id=?"),
+      put: this.db.prepare("INSERT INTO entities(kind,id,thread_id,body) VALUES(?,?,?,?) ON CONFLICT(kind,id) DO UPDATE SET thread_id=excluded.thread_id,body=excluded.body"),
+      remove: this.db.prepare("DELETE FROM entities WHERE kind=? AND id=?"),
+      receipt: this.db.prepare("SELECT hash,body FROM receipts WHERE id=?"),
+      insertEvent: this.db.prepare("INSERT INTO events(id,type,thread_id,payload,occurred_at) VALUES(?,?,?,?,?)"),
+      insertReceipt: this.db.prepare("INSERT INTO receipts(id,hash,body) VALUES(?,?,?)"),
+      eventsAfter: this.db.prepare("SELECT * FROM events WHERE seq>? ORDER BY seq"),
+      eventsAfterLimit: this.db.prepare("SELECT * FROM events WHERE seq>? ORDER BY seq LIMIT ?"),
+      sequence: this.db.prepare("SELECT COALESCE(MAX(seq),0) AS seq FROM events"),
+    };
   }
   get<T = unknown>(kind: string, id: string): T | null {
-    const row = this.db.prepare("SELECT body FROM entities WHERE kind=? AND id=?").get(kind, id) as { body: string } | undefined;
+    const row = this.statements.get.get(kind, id) as { body: string } | undefined;
     return row ? JSON.parse(row.body) as T : null;
   }
   all<T = unknown>(kind: string, threadId?: string): T[] {
-    const rows = (threadId === undefined ? this.db.prepare("SELECT body FROM entities WHERE kind=?").all(kind) : this.db.prepare("SELECT body FROM entities WHERE kind=? AND thread_id=?").all(kind, threadId)) as { body: string }[];
+    const rows = (threadId === undefined ? this.statements.allKind.all(kind) : this.statements.allKindThread.all(kind, threadId)) as { body: string }[];
     return rows.map(row => JSON.parse(row.body) as T);
   }
   put(kind: string, id: string, threadId: string | null, value: unknown): void {
     if (!this.transactionOpen) throw new Error("Projection writes require a command transaction");
-    this.db.prepare("INSERT INTO entities(kind,id,thread_id,body) VALUES(?,?,?,?) ON CONFLICT(kind,id) DO UPDATE SET thread_id=excluded.thread_id,body=excluded.body").run(kind, id, threadId, JSON.stringify(value));
+    this.statements.put.run(kind, id, threadId, JSON.stringify(value));
   }
   remove(kind: string, id: string): void {
     if (!this.transactionOpen) throw new Error("Projection writes require a command transaction");
-    this.db.prepare("DELETE FROM entities WHERE kind=? AND id=?").run(kind, id);
+    this.statements.remove.run(kind, id);
   }
   receipt(command: HostCommand): CommandReceipt | null {
-    const row = this.db.prepare("SELECT hash,body FROM receipts WHERE id=?").get(command.id) as { hash: string; body: string } | undefined;
+    const row = this.statements.receipt.get(command.id) as { hash: string; body: string } | undefined;
     if (!row) return null;
     if (row.hash !== digest(command)) throw new HarnessError("DUPLICATE_COMMAND", "Command ID reused with different content");
     return JSON.parse(row.body) as CommandReceipt;
@@ -68,9 +96,9 @@ export class Store {
       result = apply() ?? null;
       if (result && typeof (result as Promise<unknown>).then === "function") throw new Error("Async work cannot run in a SQLite transaction");
       const id = randomUUID(), occurredAt = new Date().toISOString();
-      const inserted = this.db.prepare("INSERT INTO events(id,type,thread_id,payload,occurred_at) VALUES(?,?,?,?,?)").run(id, type, threadId, JSON.stringify({ result }), occurredAt);
+      const inserted = this.statements.insertEvent.run(id, type, threadId, JSON.stringify({ result }), occurredAt);
       event = { seq: Number(inserted.lastInsertRowid), id, type, threadId, payload: { result }, occurredAt };
-      if(command){const receipt:CommandReceipt={commandId:command.id,eventSeq:event.seq,result};this.db.prepare("INSERT INTO receipts(id,hash,body) VALUES(?,?,?)").run(command.id,digest(command),JSON.stringify(receipt));}
+      if(command){const receipt:CommandReceipt={commandId:command.id,eventSeq:event.seq,result};this.statements.insertReceipt.run(command.id,digest(command),JSON.stringify(receipt));}
       this.db.exec("COMMIT");
     } catch (error) { this.db.exec("ROLLBACK"); throw error; }
     finally { this.transactionOpen = false; }
@@ -94,11 +122,10 @@ export class Store {
   }
   eventsAfter(seq: number, limit?: number): WorkspaceEvent[] {
     if (limit !== undefined && (!Number.isSafeInteger(limit) || limit < 1 || limit > 1000)) throw new HarnessError('INVALID_INPUT', 'Event page size must be between 1 and 1000');
-    const statement = this.db.prepare("SELECT * FROM events WHERE seq>? ORDER BY seq" + (limit === undefined ? '' : ' LIMIT ?'));
-    const rows = (limit === undefined ? statement.all(seq) : statement.all(seq, limit)) as unknown as { seq: number; id: string; type: string; thread_id: string | null; payload: string; occurred_at: string }[];
+    const rows = (limit === undefined ? this.statements.eventsAfter.all(seq) : this.statements.eventsAfterLimit.all(seq, limit)) as unknown as { seq: number; id: string; type: string; thread_id: string | null; payload: string; occurred_at: string }[];
     return rows.map(row => ({ seq: row.seq, id: row.id, type: row.type, threadId: row.thread_id, payload: JSON.parse(row.payload), occurredAt: row.occurred_at }));
   }
-  get sequence(): number { return Number((this.db.prepare("SELECT COALESCE(MAX(seq),0) AS seq FROM events").get() as { seq: number }).seq); }
+  get sequence(): number { return Number((this.statements.sequence.get() as { seq: number }).seq); }
   snapshot(): Snapshot {
     const allThreads = this.all<Snapshot["threads"][number]>("thread");
     const archivedRows = this.db.prepare("SELECT id,body FROM entities WHERE kind=?").all("archivedThread") as { id: string; body: string }[];
@@ -111,13 +138,36 @@ export class Store {
     const refs = [...artifacts.flatMap(a => Object.values(a.bindings).flatMap(b => b.mode === "snapshot" ? [b.ref] : [])), ...requests.flatMap(r => r.basis)];
     for (const ref of refs) { const key = ref.id + "@" + ref.revision; if (!seen.has(key)) { const item = this.get<Snapshot["data"][number]>("dataVersion", key); if (item) { data.push(item); seen.add(key); } } }
     const skillUsage=new Map((this.db.prepare('SELECT id,body FROM entities WHERE kind=?').all('skillUsage') as {id:string;body:string}[]).map(row=>[row.id,JSON.parse(row.body) as {count:number;lastUsedAt:string}]));
+    // Cap the message list per thread: the client renders the tail and pages
+    // older messages through /api/threads/:id/messages on demand.
+    const allMessages = visible<Snapshot["messages"][number]>("message");
+    const grouped = new Map<string, Snapshot["messages"]>();
+    for (const message of allMessages) { const list = grouped.get(message.threadId); if (list) list.push(message); else grouped.set(message.threadId, [message]); }
+    const keep = new Set<string>(), messagesTruncated: Record<string, number> = {};
+    for (const [threadId, list] of grouped) {
+      const cut = Math.max(0, list.length - MESSAGE_WINDOW);
+      if (cut) messagesTruncated[threadId] = cut;
+      for (const message of list.slice(cut)) keep.add(message.id);
+    }
+    const messages = allMessages.filter(message => keep.has(message.id));
     return {
-      seq: this.sequence, threads, archivedThreads: allThreads.filter(thread => archived.has(thread.id)), messages: visible("message"), artifacts, userStates: visible("userState"),
+      seq: this.sequence, threads, archivedThreads: allThreads.filter(thread => archived.has(thread.id)), messages, messagesTruncated, artifacts, userStates: visible("userState"),
       data, requests, accounts: this.all('account'), skills:this.all<import('../contracts/skills.ts').SkillSummary>('skill').map(skill=>{const usage=skillUsage.get(skill.name);return usage?{...skill,useCount:usage.count,lastUsedAt:usage.lastUsedAt}:skill;}),skillProposals:(this.db.prepare("SELECT json_remove(body,'$.operations') AS body FROM entities WHERE kind=? AND json_extract(body,'$.status')='pending'").all('skillProposal') as {body:string}[]).map(row=>JSON.parse(row.body)),learning:this.get('learningStatus','global')??{supported:false,status:'idle',lastReview:null},operations: visible("operation"), resources: visible("resource"), memory: visible('taskMemory'),
       usage: Object.fromEntries(visible<{ id: string; value: unknown }>("usage").map(x => [x.id, x.value])) as Snapshot["usage"],
       settings: this.get("settings", "global") ?? { theme: "dark", modelId: null },
       activeThreadId: threads.find(t => !t.sideParentId && t.runId !== null && (t.status === "working" || t.status === "awaiting_input"))?.id ?? null
     };
+  }
+  messagesFor(threadId: string, beforeId?: string, limit = 200): { messages: Message[]; truncated: number } {
+    const messages = this.all<Message>('message', threadId);
+    let end = messages.length;
+    if (beforeId !== undefined) {
+      const index = messages.findIndex(message => message.id === beforeId);
+      if (index === -1) throw new HarnessError('INVALID_INPUT', 'Unknown message cursor');
+      end = index;
+    }
+    const cap = Math.min(500, Math.max(1, limit));
+    return { messages: messages.slice(Math.max(0, end - cap), end), truncated: Math.max(0, end - cap) };
   }
   subscribe(listener: (event: WorkspaceEvent) => void): () => void { this.listeners.add(listener); return () => this.listeners.delete(listener); }
   close(): void { this.listeners.clear(); this.committedEvents.length = 0; this.db.close(); }

@@ -11,6 +11,8 @@ import {journalCompareAndSwap, journalFlush, journalRead, journalReadRecord, jou
 import {acknowledgeOperation, canUseDraft, comparisonKey, newDraft, ownerKey, rebindDraft, sameOwner, selectionKey, type ActionIdentity, type ReviewDraft, type ReviewOwner, type ReviewSelection, type ReviewOperation} from './model';
 import {codeReviewClient, reviewError} from './client';
 import './code-review-workspace.css';
+import {ErrorState} from '../../../../packages/ui-shell/Feedback';
+import {Search} from 'lucide-react';
 
 export type ReviewActionContext = Omit<ReviewOperation, 'payload'>;
 export type ReviewActionResult = {state: 'confirmed' | 'stale' | 'uncertain' | 'revoked'};
@@ -167,8 +169,8 @@ function ComparisonBody({selection, writes, onRefresh}: CodeReviewWorkspaceProps
     <nav className="cr-files" aria-label="Changed files">
       <div className="cr-section-heading"><h2>Changed files{comparison ? ` (${comparison.files.length}${comparison.filesTruncated ? '+' : ''})` : ''}</h2><button ref={refreshControl} type="button" aria-label="Refresh comparison" disabled={reading || busy} onClick={load}>Refresh</button></div>
       <div className="cr-file-select"><Select aria-label="Changed file" value={path} disabled={!comparison || comparison.files.length === 0} options={comparison?.files.map(file => ({value: file.path, label: file.path})) ?? []} onValueChange={setPath} /></div>
-      <label className="cr-filter">Filter files<input value={filter} onChange={event => setFilter(event.target.value)} type="search" /></label>
-      {error && <p role="alert">{error}</p>}
+      <label className="cr-filter"><span>Filter files</span><div><Search size={14} aria-hidden="true"/><input value={filter} onChange={event => setFilter(event.target.value)} type="search" placeholder="File path" title="Filters only files in this comparison"/></div></label>
+      {error && <ErrorState message={error}/>}
       {comparison?.access.mode === 'legacy' && <p className="cr-meta">Original working copy · tracked changes only</p>}
       {comparison?.filesTruncated && <p role="status">File list is incomplete. More files exist beyond the read limit.</p>}
       {comparison && comparison.files.length === 0 && <p>No changes in this comparison.</p>}
@@ -184,7 +186,7 @@ function ComparisonBody({selection, writes, onRefresh}: CodeReviewWorkspaceProps
     </nav>
     <section className="cr-diff" aria-label="Selected file diff">
       <div className="cr-section-heading"><h2>{selected?.path ?? 'Select a changed file'}</h2>
-        {local && selected && (identity.scope === 'staged' ? writes?.onUnstage : writes?.onStage) && <button type="button" disabled={!canWrite || held} onClick={stage}>{identity.scope === 'staged' ? 'Unstage file' : 'Stage file'}</button>}
+        {local && selected && (identity.scope === 'staged' ? writes?.onUnstage : writes?.onStage) && <button type="button" disabled={!canWrite || held} title={!canWrite ? 'Git writes require a writable managed working copy' : held ? 'An action is already being verified' : undefined} onClick={stage}>{identity.scope === 'staged' ? 'Unstage file' : 'Stage file'}</button>}
       </div>
       {identity && <Identity identity={identity} />}
       {comparison && selected ? <Patch key={comparisonKey(comparison.identity) + path} selection={selection} comparison={comparison} path={path}
@@ -197,7 +199,7 @@ function ComparisonBody({selection, writes, onRefresh}: CodeReviewWorkspaceProps
         <textarea id={`cr-draft-${selection.owner.projectId}`} value={draft.value?.body ?? ''} disabled={!draft.ready || !draft.value} maxLength={64000} rows={7}
           onChange={event => {if (draft.value) void draft.edit({body: event.target.value}).catch(() => {});}} />
         <PendingStatus pending={!draft.ready} label="Recovering review draft…"/>
-        {draft.error && <p role="alert">{draft.error} <button type="button" onClick={draft.retry}>Retry draft recovery</button></p>}
+        {draft.error && <ErrorState message={draft.error} retryLabel="Retry draft recovery" onRetry={draft.retry}/>}
         {draft.value && identity && !compatible && !['pending', 'uncertain', 'revoked', 'confirmed'].includes(draft.value.outcome) && <div className="cr-draft-state"><p>Draft belongs to an earlier comparison or working-copy revision.</p><button type="button" disabled={busy || refreshing || !draft.ready || !!draft.error} onClick={() => void draft.rebind(identity, action).catch(() => {})}>Use current comparison</button></div>}
         {draft.value?.outcome === 'uncertain' && <p role="alert">Outcome uncertain. Inspect the canonical action before trying again.</p>}
         {draft.value && ['pending', 'uncertain', 'revoked'].includes(draft.value.outcome) && !draft.value.operation && <p role="alert">Saved action lacks an exact attempt record. Writes remain held; verify the action with its canonical owner.</p>}
@@ -215,7 +217,7 @@ function ComparisonBody({selection, writes, onRefresh}: CodeReviewWorkspaceProps
       </section>
       {local && writes?.onCommit && <form className="cr-commit" onSubmit={event => {event.preventDefault(); const text = draft.value?.commitMessage ?? ''; if (writes.onCommit && text.trim() && action) {const payload={message:text,revision:action.revision,expectedHead:action.head};void perform('commit',payload,context=>writes.onCommit!(context,structuredClone(payload)));}}}>
         <label>Commit message<textarea rows={2} maxLength={4000} disabled={!draft.ready || !draft.value} value={draft.value?.commitMessage ?? ''} onChange={event => {if (draft.value) void draft.edit({commitMessage: event.target.value}).catch(() => {});}} /></label>
-        <button type="submit" disabled={!canWrite || held || !draft.value?.commitMessage.trim() || !writes.git.files.some(file => file.staged)}>Commit staged changes</button>
+        <button type="submit" disabled={!canWrite || held || !draft.value?.commitMessage.trim() || !writes.git.files.some(file => file.staged)} title={!canWrite ? 'Git writes require a writable managed working copy' : held ? 'An action is already being verified' : !draft.value?.commitMessage.trim() ? 'Enter a commit message' : !writes.git.files.some(file => file.staged) ? 'Stage a file first' : undefined}>Commit staged changes</button>
       </form>}
       {writes && (writes.onCreatePullRequest || writes.onLinkPullRequest) && <ActionMenu label="Pull request" open={menuOpen} onOpenChange={setMenuOpen} items={[
         ...(writes.onCreatePullRequest ? [{id: 'create', label: 'Create draft PR', disabled: !canWrite || held || writes.git.files.length !== 0, onSelect: () => {if (identity && action && canWrite && writes.git.files.length === 0) writes.onCreatePullRequest?.({selection, comparison: identity, action});}}] : []),
@@ -245,7 +247,7 @@ function Patch({selection, comparison, path, onInvalid}: {selection: ReviewSelec
     }).catch(cause => {if (!controller.signal.aborted) {setValue(undefined); setError(reviewError(cause));}});
     return () => controller.abort();
   }, [retry]);
-  if (error) return <p role="alert">{error} <button type="button" onClick={() => setRetry(current => current + 1)}>Retry file</button></p>;
+  if (error) return <ErrorState message={error} retryLabel="Retry file" onRetry={() => setRetry(current => current + 1)}/>;
   if (!value) return <LoadingState pending hasContent={false} label="Loading file diff…" skeleton={<DiffSkeleton/>} className="view-loading-state"/>;
   if (value.state === 'text' && value.text !== null) return <pre className="cr-patch" tabIndex={0} aria-label="Unified diff">{value.text.split('\n').map((line, index) => <span className="cr-line" data-kind={line.startsWith('@@') ? 'hunk' : line.startsWith('+') && !line.startsWith('+++') ? 'add' : line.startsWith('-') && !line.startsWith('---') ? 'delete' : 'context'} key={index}>{line}{'\n'}</span>)}</pre>;
   return <div className="cr-patch-state"><p>{({binary: 'Binary file · no text diff.', truncated: 'Patch exceeds the display limit. No partial patch is shown.', unavailable: 'Patch unavailable.', untracked: 'Untracked file · no indexed diff.', empty: 'No textual changes in this comparison.', text: 'Patch unavailable.'})[value.state]}</p>{value.reason && <p className="cr-meta">{({ 'patch-omitted': 'The provider omitted this patch.', 'unsupported-path': 'This path is unsupported.', conflict: 'Resolve the file conflict before reviewing a text diff.', 'resource-limit': 'The read exceeded its resource limit.', 'unsupported-file': 'This file type is unsupported.'})[value.reason]}</p>}</div>;

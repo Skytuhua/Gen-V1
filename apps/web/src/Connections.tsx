@@ -45,7 +45,7 @@ function AccountReadiness({ target, flow, bridge, onFlow, login }: { target: Acc
     {auth?.identity.availability === 'unavailable' && <small>Authenticated identity unavailable.</small>}
     {auth?.lastCheckedAt && <small>Last checked {new Date(auth.lastCheckedAt).toLocaleTimeString()}</small>}
     {flow && <p aria-live="polite">{flow.message}</p>}
-    {error && <p className="error-text" role="alert">{error}</p>}
+    {error && <p className="error-text" role="status">{error}</p>}
     <div className="connection-account-actions"><button className="quiet" disabled={checking || !!active} onClick={() => void check()}>Check connection</button>
     {active && bridge?.cancelSignIn && <button className="quiet" disabled={flow.state === 'cancelling'} onClick={() => { void bridge.cancelSignIn!(flow.id).then(onFlow).catch(() => setError('Native shutdown could not be confirmed. Check connection status.')); }}>Cancel sign-in</button>}
     {flow && ['failed', 'cancelled'].includes(flow.state) && bridge && <button className="quiet" disabled={checking || auth?.state === 'blocked' || auth?.state === 'signing-in'} onClick={login}>Retry sign-in</button>}
@@ -131,7 +131,7 @@ export function Connections({ snapshot, refresh, loadModels, query = '' }: { mod
     finally { pending.current = false; setBusy(''); }
   };
   const readiness = (providerId: string, accountId: string | null) => isConnectionProviderId(providerId) ? <AccountReadiness target={{ providerId, accountId }} flow={flows[targetKey(providerId, accountId)]} bridge={desktop?.bridge} onFlow={onFlow} login={() => void login(providerId, accountId ?? undefined)} /> : null;
-  return <section className="connection-list" aria-label="AI subscription connections"><header><h2>AI subscriptions</h2><p>Choose a local account for new tasks, connect it, then refresh models. Existing tasks keep their account. No automatic rotation or pay-as-you-go fallback. Provider Extra Usage settings still apply.</p></header>{notice && <p role="status">{notice}</p>}{error && <p role="alert" className="error-text">{error}</p>}{rows.map(connection => {
+  return <section className="connection-list" aria-label="AI subscription connections"><header><h2>AI subscriptions</h2><p>Choose a local account for new tasks, connect it, then refresh models. Existing tasks keep their account. No automatic rotation or pay-as-you-go fallback. Provider Extra Usage settings still apply.</p></header>{notice && <p role="status">{notice}</p>}{error && <p role="status" className="error-text">{error}</p>}{rows.map(connection => {
     const ready = connection.status === 'available';
     return <article key={connection.id} className="connection-row" data-provider={connection.id}><header><strong>{connection.label}</strong><span className={ready ? 'connection-ready' : 'connection-pending'}>{ready ? 'Ready to connect' : 'Integration pending'}</span></header><p>{connection.description}</p>
       {ready && <AccountPicker connection={connection} accounts={snapshot.accounts ?? []} selectedAccountId={isConnectionProviderId(connection.id) ? snapshot.settings.selectedAccounts?.[connection.id] : null} busy={busy} run={run} login={login} desktop={!!desktop} readiness={accountId => readiness(connection.id, accountId)} />}

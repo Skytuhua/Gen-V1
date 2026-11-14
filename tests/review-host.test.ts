@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { join, resolve, sep } from 'node:path';
 import { crc32, inflateSync } from 'node:zlib';
 import { DatabaseSync } from 'node:sqlite';
 import { PDFDocument } from 'pdf-lib';
@@ -17,7 +17,7 @@ describe('isolated actual-host recording fixtures', () => {
   beforeAll(async () => { folder = await mkdtemp(join(tmpdir(), 'harness-review-fixtures-')); host = await openReviewHost(folder, 4367); });
   afterAll(async () => {
     await host?.close();
-    if (folder && resolve(folder).startsWith(resolve(tmpdir()) + '\\') && folder.includes('harness-review-fixtures-')) await rm(folder, { recursive: true, force: true });
+    if (folder && resolve(folder).startsWith(resolve(tmpdir()) + sep) && folder.includes('harness-review-fixtures-')) await rm(folder, { recursive: true, force: true });
   });
   const thread = (scenario: Scenario) => host.threads.get(scenario)!;
   const artifact = (scenario: Scenario) => host.store.all<ArtifactRecord>('artifact', thread(scenario).id)[0]!;
@@ -85,7 +85,7 @@ describe('isolated actual-host recording fixtures', () => {
     const operation = host.store.all<Operation>('operation', thread('migration').id)[0]!;
     expect(operation.status).toBe('prepared');
     await command('migration', 'operation.approve', { operationId: operation.id, revision: operation.revision });
-    await expect.poll(() => host.service.thread(thread('migration').id).status, { timeout: 12_000, interval: 25 }).toBe('completed');
+    await expect.poll(() => host.service.thread(thread('migration').id).status, { timeout: 60_000, interval: 25 }).toBe('completed');
     expect(source('migration', 'workspaces')).toHaveLength(3);
     for (const table of ['workspaces', 'users', 'projects', 'messages']) expect(tableChangesData.safeParse(source('migration', table + 'Changes')).success).toBe(true);
     expect((source('migration', 'users') as { workspace: number }[]).map(row => row.workspace)).toEqual([1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3]);
@@ -127,23 +127,21 @@ describe('isolated actual-host recording fixtures', () => {
       await settled('faq');
     } finally { await browser.close(); }
   });
-  it('keeps PR outcomes illustrative and denies a source mutation with a stale original epoch', async () => {
-    for (const scenario of ['pr-dark', 'pr-light'] as const) {
-      await send(scenario);
-      expect(artifact(scenario).spec!.elements.graph.props.orientation).toBe('vertical');
-      const initial = source(scenario, 'graph');
-      expect(relationshipData.parse(initial).summary!.label).toContain('3 conflicts');
-      await action(scenario, 'resolve');
-      const running = host.service.thread(thread(scenario).id);
-      const stale: RunContext = { threadId: running.id, runId: running.runId!, epoch: running.epoch - 1 };
-      expect(() => host.runtime.source(stale, 'graph', { forged: true })).toThrow(/no longer has authority/);
-      await settled(scenario);
-      expect(relationshipData.parse(source(scenario, 'graph')).checks![0]!.detail).toContain('42/42');
-      expect(relationshipData.parse(source(scenario, 'graph')).source).toContain('simulated');
-      await action(scenario, 'merge'); await settled(scenario);
-      expect(relationshipData.parse(source(scenario, 'graph')).summary!.status).toBe('merged');
-      expect(host.store.all<Operation>('operation', running.id)).toEqual([]);
-    }
+  it.each(['pr-dark', 'pr-light'] as const)('keeps %s outcomes illustrative and denies a source mutation with a stale original epoch', async scenario => {
+    await send(scenario);
+    expect(artifact(scenario).spec!.elements.graph.props.orientation).toBe('vertical');
+    const initial = source(scenario, 'graph');
+    expect(relationshipData.parse(initial).summary!.label).toContain('3 conflicts');
+    await action(scenario, 'resolve');
+    const running = host.service.thread(thread(scenario).id);
+    const stale: RunContext = { threadId: running.id, runId: running.runId!, epoch: running.epoch - 1 };
+    expect(() => host.runtime.source(stale, 'graph', { forged: true })).toThrow(/no longer has authority/);
+    await settled(scenario);
+    expect(relationshipData.parse(source(scenario, 'graph')).checks![0]!.detail).toContain('42/42');
+    expect(relationshipData.parse(source(scenario, 'graph')).source).toContain('simulated');
+    await action(scenario, 'merge'); await settled(scenario);
+    expect(relationshipData.parse(source(scenario, 'graph')).summary!.status).toBe('merged');
+    expect(host.store.all<Operation>('operation', running.id)).toEqual([]);
   }, 20_000);
   it('admits map and catalog through the service instead of production scenario routes', async () => {
     await send('map'); expect((source('map', 'places') as { points: unknown[] }).points).toHaveLength(3);

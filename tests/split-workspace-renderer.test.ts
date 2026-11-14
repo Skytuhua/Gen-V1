@@ -41,9 +41,11 @@ it('uses the shared area menu for keyboard editor selection, Escape and outside 
   expect(await tab.getByRole('menu').count()).toBe(0);expect(await trigger.isDisabled()).toBe(true);
   await tab.evaluate(()=>(window as any).finishEditorChoice());
   await expect.poll(()=>trigger.evaluate(node=>node===document.activeElement)).toBe(true);
-  await trigger.press('ArrowDown');await tab.getByRole('menu').waitFor();await tab.keyboard.press('Escape');
   expect(await tab.getByRole('menu').count()).toBe(0);expect(await trigger.evaluate(node=>node===document.activeElement)).toBe(true);
-  await trigger.click();await tab.getByRole('textbox',{name:'Draft two'}).click();expect(await tab.getByRole('menu').count()).toBe(0);
+  await trigger.press('ArrowDown');await tab.getByRole('menu').waitFor();await tab.keyboard.press('Escape');
+  await tab.waitForFunction(()=>!document.querySelector('[role="menu"][data-state="open"]')&&(document.activeElement as HTMLElement)?.getAttribute('aria-label')==='Area actions');
+  expect(await tab.getByRole('menu').count()).toBe(0);expect(await trigger.evaluate(node=>node===document.activeElement)).toBe(true);
+  await trigger.click();await tab.getByRole('menu').waitFor();await tab.getByRole('textbox',{name:'Draft two'}).click();await tab.waitForFunction(()=>!document.querySelector('[role="menu"][data-state="open"]'));expect(await tab.getByRole('menu').count()).toBe(0);
  }finally{await tab.close();}
 });
 

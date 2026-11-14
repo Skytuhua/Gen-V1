@@ -1,28 +1,43 @@
 .composer-toolbar .model-picker-trigger{max-width:240px;gap:6px;padding:5px 8px;font-size:13px;font-weight:550;border-radius:8px;color:var(--text)}
-.model-picker-trigger-name{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.model-picker-trigger-name{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .model-picker-trigger-effort{flex:none;color:var(--muted);font-weight:450}
 .composer-toolbar .model-picker-trigger>svg{width:13px;height:13px;flex:none}
 .composer-toolbar .model-picker-trigger>.model-picker-trigger-icon{width:16px;height:16px;color:var(--muted)}
-.model-picker-trigger>svg[data-open]{transition:transform 160ms ease-out}
+.model-picker-trigger>svg[data-open]{transition:transform var(--ui-motion-status) var(--ui-ease-enter)}
 .model-picker-trigger>svg[data-open=true]{transform:rotate(180deg)}
 .composer-toolbar .model-picker-trigger[aria-expanded=true]{background:var(--selection-bg)}
-.model-picker-popover{display:flex;flex-direction:column;box-sizing:border-box;overflow:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--muted) transparent;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:10px;font-family:inherit;font-size:14px;line-height:1.4;transform-origin:bottom right;--model-picker-travel:4px;animation:model-picker-in var(--ui-motion-popup-enter) var(--ui-ease-enter) both}
+.model-picker-popover{container-type:inline-size;box-sizing:border-box;overflow:hidden;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:10px;font-family:inherit;font-size:14px;line-height:1.4;transform-origin:bottom right;--model-picker-travel:4px;animation:model-picker-in var(--ui-motion-popup-enter) var(--ui-ease-enter) both}
+/* The grid is a child of the size container: an element cannot match its own @container rules. */
+.model-picker-grid{display:grid;width:100%;height:100%;grid-template-columns:176px minmax(0,1fr) 190px;grid-template-rows:minmax(0,1fr);grid-template-areas:"rail main reasoning"}
+.model-picker-grid[data-combined=false]{grid-template-columns:176px minmax(0,1fr);grid-template-areas:"rail main"}
 .model-picker-popover[data-side=below]{transform-origin:top right;--model-picker-travel:-4px}
-.model-picker-popover[data-state=closed]{pointer-events:none;animation:model-picker-out 100ms ease-in both}
-.model-picker-main{display:flex;flex-direction:column;flex:1;min-width:0;min-height:150px}
+.model-picker-popover[data-state=closed]{pointer-events:none;animation:model-picker-out var(--ui-motion-popup-exit) var(--ui-ease-move) both}
+.model-picker-popover :focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.model-picker-rail{grid-area:rail;display:flex;flex-direction:column;gap:2px;min-height:0;padding:8px;overflow:auto;overscroll-behavior:contain;border-right:1px solid var(--border);scrollbar-width:thin;scrollbar-color:var(--muted) transparent}
+.model-picker-rail-item{flex:none;width:100%;min-height:32px;padding:6px 8px;border:0;border-radius:6px;background:transparent;color:var(--text);font:inherit;font-size:13px;text-align:left;cursor:pointer}
+.model-picker-rail-item:hover{background:var(--hover)}
+.model-picker-rail-item[aria-pressed=true]{background:var(--selection-bg);font-weight:550}
+.model-picker-rail-item>svg{flex:none;color:var(--muted)}
+.model-picker-rail-item[aria-pressed=true]>svg{color:var(--accent)}
+.model-picker-rail-label{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.model-picker-rail-item small{flex:none;font-size:11px;color:var(--muted)}
+.model-picker-rail-mark{flex:none;display:grid;place-items:center;width:20px;height:20px;border-radius:5px;background:var(--hover);color:var(--muted);font-size:11px;font-weight:600}
+.model-picker-rail-sep{flex:none;height:1px;margin:6px 4px;background:var(--border)}
+.model-picker-main{grid-area:main;display:flex;flex-direction:column;min-width:0;min-height:0;overflow:hidden}
 .model-picker-search{display:flex;align-items:center;gap:8px;min-height:44px;height:44px;margin:0 12px;padding:0 1px;box-sizing:border-box;border-bottom:1px solid var(--border);color:var(--muted);flex:none}
 .model-picker-search input{width:100%;min-width:0;border:0;outline:0;border-radius:4px;background:transparent;padding:5px 0;color:var(--text);font:inherit;caret-color:var(--accent)}
 .model-picker-search input:focus-visible{outline:0}
 .model-picker-search:focus-within{border-bottom-color:var(--accent)}
 .model-picker-search input::placeholder{color:var(--placeholder);opacity:1}
 .model-picker-search kbd{font-size:11px;flex:none;color:var(--muted)}
-.model-picker-list{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:12px;scroll-padding-block:12px;scrollbar-width:thin;scrollbar-color:var(--muted) transparent;scrollbar-gutter:stable}
+.model-picker-list{flex:1;min-height:0;box-sizing:border-box;overflow:auto;overscroll-behavior:contain;padding:12px;scroll-padding-block:12px;scrollbar-width:thin;scrollbar-color:var(--muted) transparent;scrollbar-gutter:stable}
 .model-picker-list::-webkit-scrollbar{display:block;width:6px}
 .model-picker-list::-webkit-scrollbar-thumb{background:var(--muted);border-radius:4px}
 .model-picker-group{display:flex;flex-direction:column;gap:var(--ui-nav-gap)}
 .model-picker-group+.model-picker-group{margin-top:12px}
 .model-picker-provider{padding:0 8px;font-size:12px;font-weight:450;color:var(--muted)}
-.model-picker-option{display:flex;align-items:center;flex:none;gap:8px;min-height:54px;box-sizing:border-box;padding:8px;border-radius:6px;cursor:pointer}
+.model-picker-row{position:relative;flex:none}
+.model-picker-option{display:flex;align-items:center;gap:8px;min-height:54px;box-sizing:border-box;padding:8px 40px 8px 8px;border-radius:6px;cursor:pointer}
 .model-picker-option>svg{flex:none;color:var(--muted)}
 .model-picker-option>span{flex:1;min-width:0;overflow-wrap:anywhere}
 .model-picker-option>span>span,.model-picker-option small{display:block}
@@ -30,24 +45,63 @@
 .model-picker-option:hover{background:var(--hover)}
 .model-picker-option[data-active=true]{outline:2px solid var(--accent);outline-offset:-2px}
 .model-picker-option[aria-selected=true]{background:var(--selection-bg);font-weight:550}
-.model-picker-check{flex:none;animation:model-picker-check-in 140ms ease-out}
-.model-picker-reasoning{display:flex;align-items:center;flex:none;min-width:0;min-height:50px;padding:8px 12px;box-sizing:border-box;border-top:1px solid var(--border)}
-.model-picker-reasoning .ui-action-trigger{width:100%;justify-content:space-between;border:0;background:transparent;font-size:13px}
-.model-picker-reasoning .ui-action-trigger:hover{background:var(--hover)}
-.model-picker-reasoning .ui-action-trigger:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.model-picker-option kbd{flex:none;padding:1px 5px;border:1px solid var(--border);border-radius:4px;font-size:10px;color:var(--muted)}
+.model-picker-check{flex:none;animation:model-picker-check-in var(--ui-motion-popup-exit) var(--ui-ease-enter)}
+.model-picker-favorite{position:absolute;top:50%;right:6px;transform:translateY(-50%);width:26px;height:26px;padding:0;border:0;border-radius:6px;background:transparent;color:var(--muted);cursor:pointer}
+.model-picker-favorite:hover{background:var(--hover);color:var(--text)}
+.model-picker-favorite[aria-pressed=true]{color:var(--accent)}
+.model-picker-favorite:focus-visible{outline-offset:-2px}
+.model-picker-reasoning{grid-area:reasoning;display:flex;flex-direction:column;gap:10px;min-height:0;padding:12px 10px;overflow:auto;overscroll-behavior:contain;border-left:1px solid var(--border);scrollbar-width:thin;scrollbar-color:var(--muted) transparent}
+.model-picker-reasoning-head>span{font-size:12px;font-weight:600}
+.model-picker-reasoning-head small{display:block;margin-top:2px;font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.model-picker-efforts{display:flex;flex-direction:column;gap:2px}
+.model-picker-effort{width:100%;min-height:30px;padding:5px 8px;border:0;border-radius:6px;background:transparent;color:var(--text);font:inherit;font-size:13px;text-align:left;cursor:pointer}
+.model-picker-effort:hover{background:var(--hover)}
+.model-picker-effort[aria-checked=true]{background:var(--selection-bg);font-weight:550}
+.model-picker-effort-dot{flex:none;width:14px;height:14px;border-radius:50%;border:1.5px solid var(--muted);box-sizing:border-box;transition:background-color var(--ui-motion-hover) var(--ui-ease-enter),border-color var(--ui-motion-hover) var(--ui-ease-enter),box-shadow var(--ui-motion-hover) var(--ui-ease-enter)}
+.model-picker-effort[aria-checked=true] .model-picker-effort-dot{border-color:var(--accent);background:var(--accent);box-shadow:inset 0 0 0 2.5px var(--surface)}
 .model-picker-no-effort{margin:0;padding:0 8px;color:var(--muted);font-size:13px}
-.model-picker-empty{margin:0;padding:12px 20px;font-size:14px;overflow:auto;min-height:0}
+.model-picker-empty{flex:1;margin:0;padding:12px 20px;font-size:14px;overflow:auto;min-height:0;box-sizing:border-box}
 .model-picker-empty>span{display:block;margin-top:4px;font-size:12px;color:var(--muted)}
 @keyframes model-picker-in{from{opacity:0;transform:translateY(var(--model-picker-travel)) scale(.985)}to{opacity:1;transform:none}}
 @keyframes model-picker-out{to{opacity:0;transform:scale(.985)}}
 @keyframes model-picker-check-in{from{opacity:.2;transform:scale(.8)}to{opacity:1;transform:none}}
 @container composer-footer (max-width:355px){.composer-toolbar .model-picker-trigger{max-width:205px;font-size:12px;padding-inline:5px;gap:4px}}
+@container (max-width:620px){
+ /* Flex column: a percentage max-height on the reasoning footer resolves against the
+    definite popup height here, and main keeps a floor so the search row never collapses. */
+ .model-picker-grid{display:flex;flex-direction:column}
+ .model-picker-rail{flex:none;flex-direction:row;align-items:center;overflow-x:auto;overflow-y:hidden;padding:4px 8px;border-right:0;border-bottom:1px solid var(--border)}
+ .model-picker-rail-item{width:auto;min-height:28px;padding:4px 8px}
+ .model-picker-rail-label{max-width:130px}
+ .model-picker-rail-sep{width:1px;height:18px;margin:0 4px}
+ /* Floor main at search + one full row so the reasoning footer shrinks, never the list. */
+ .model-picker-main{flex:1 1 0;min-height:96px}
+ .model-picker-search{height:38px;min-height:38px}
+ .model-picker-reasoning{flex:0 1 auto;max-height:40%;min-height:0;border-left:0;border-top:1px solid var(--border);padding:8px 10px}
+ /* Short windows (desktop minHeight is 160): drop the filter rail (search still reaches
+    every model) and compact chrome so the list keeps a full row. */
+ @media (max-height:340px){
+  .model-picker-rail{display:none}
+  .model-picker-main{min-height:84px}
+  .model-picker-search{height:30px;min-height:30px}
+  .model-picker-reasoning{flex-direction:row;align-items:center;gap:6px;max-height:none;padding:2px 8px;overflow-x:auto;overflow-y:hidden}
+  .model-picker-reasoning-head{display:none}
+  .model-picker-efforts{flex-direction:row;gap:4px}
+  .model-picker-effort{flex:none;width:auto;min-height:24px;padding:2px 8px}
+ }
+}
+@container (max-width:480px){
+ .model-picker-option kbd{display:none}
+ .model-picker-rail-item small{display:none}
+}
 @media(prefers-reduced-motion:reduce){
  .model-picker-trigger>svg[data-open]{transition:none}
- .model-picker-popover{animation:model-picker-fade-in 80ms ease-out both}
+ .model-picker-popover{animation:model-picker-fade-in var(--ui-motion-press) var(--ui-ease-enter) both}
  .model-picker-popover[data-state=closed]{animation:model-picker-fade-out 60ms ease-in both}
- .model-picker-check{animation:model-picker-fade-in 80ms ease-out}
+ .model-picker-check{animation:model-picker-fade-in var(--ui-motion-press) var(--ui-ease-enter)}
+ .model-picker-effort-dot{transition:none}
  @keyframes model-picker-fade-in{from{opacity:0}to{opacity:1}}
  @keyframes model-picker-fade-out{to{opacity:0}}
 }
-@media(forced-colors:active){.model-picker-option[aria-selected=true]{border:1px solid Highlight}}
+@media(forced-colors:active){.model-picker-option[aria-selected=true]{border:1px solid Highlight}.model-picker-effort[aria-checked=true]{border:1px solid Highlight}}

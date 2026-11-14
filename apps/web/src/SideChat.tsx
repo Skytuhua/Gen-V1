@@ -4,7 +4,9 @@ import type {Snapshot,Thread} from '../../../packages/contracts';
 import {command} from './api';
 import {FloatingWindow} from './FloatingWindow';
 import {Markdown} from './Markdown';
+import {CopyButton} from './CopyButton';
 import {journalCompareAndSwap,journalGeneration,journalRead,journalReadRecord,journalSubscribe,journalWrite} from './journal';
+import {useThreadMessages} from './thread-messages';
 import {Select} from '../../../packages/ui-shell/Select';
 import './side-chat.css';
 
@@ -20,7 +22,7 @@ export function SideChat({parent,snapshot,modelId,open,onClose,refresh,ref}:{par
  const [draft,setDraft]=useState(''),[ready,setReady]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState('');
  const sending=useRef(false),input=useRef<HTMLTextAreaElement>(null),scroll=useRef<HTMLDivElement>(null),tail=useRef(true);
  const working=Boolean(side?.runId)||side?.status==='working';
- const messages=snapshot.messages.filter(message=>message.threadId===side?.id&&message.role!=='activity');
+ const threadMessages=useThreadMessages(snapshot,side?.id,true),messages=threadMessages.messages.filter(message=>message.role!=='activity');
  useLayoutEffect(()=>{draftTarget.current=draftKey;},[draftKey]);
  useEffect(()=>{try{if(selectedId)localStorage.setItem(storageKey,selectedId);else localStorage.removeItem(storageKey);}catch{/* Drafts remain in the journal. */}},[storageKey,selectedId]);
  useEffect(()=>{let active=true;setReady(false);void journalRead<string>(draftKey).then(value=>{if(active){setDraft(value??'');setReady(true);}}).catch(()=>{if(active){setReady(true);setError('Draft recovery is unavailable. Keep this window open.');}});return()=>{active=false;};},[draftKey]);
@@ -62,11 +64,11 @@ export function SideChat({parent,snapshot,modelId,open,onClose,refresh,ref}:{par
    {histories.length>0&&<label className="side-chat-history"><span className="sr-only">Side conversation history</span><Select aria-label="Side conversation history" disabled={busy} value={side?.id??''} onValueChange={value=>select(value||null)} options={[{value:'',label:'New question'},...histories.map(thread=>({value:thread.id,label:thread.title+(thread.runId?' · Working':'')}))]}/></label>}
    <div ref={scroll} className="side-chat-messages" role="log" aria-label="Side conversation messages" onScroll={()=>{const element=scroll.current;if(element)tail.current=element.scrollHeight-element.scrollTop-element.clientHeight<48;}}>
     {!messages.length&&<p className="side-chat-empty">Ask about this conversation without interrupting the main task.</p>}
-    {messages.map(message=><div key={message.id} className={'side-message side-message-'+message.role}><span className="sr-only">{message.role==='user'?'You':'Agent'}</span><Markdown text={message.content} animate={message.role==='assistant'&&working}/></div>)}
+    {messages.map(message=><div key={message.id} className={'side-message side-message-'+message.role}><span className="sr-only">{message.role==='user'?'You':'Agent'}</span><CopyButton text={message.content} label="Copy message"/><Markdown text={message.content} animate={message.role==='assistant'&&working}/></div>)}
     {working&&<div className="side-chat-working" role="status"><LoaderCircle size={13} className="spinning"/>Thinking…</div>}
-    {side?.error&&<p className="error-text" role="alert">{side.error}</p>}
+    {side?.error&&<p className="error-text" role="status">{side.error}</p>}
    </div>
-   {error&&<p className="side-chat-error error-text" role="alert">{error}</p>}
+   {error&&<p className="side-chat-error error-text" role="status">{error}</p>}
    {side&&['stopped','interrupted','failed'].includes(side.status)?<div className="side-chat-resume"><span>{side.status==='stopped'?'Side response stopped.':'Side response interrupted.'}</span><button className="secondary" disabled={busy||!modelId} onClick={()=>void execute('run.resume')}>Resume side response</button></div>:<form className="side-chat-composer" onSubmit={event=>{event.preventDefault();void send().catch(()=>{});}}>
     <textarea ref={input} aria-label="Side question" placeholder="Ask a side question…" rows={2} value={draft} disabled={!ready} onChange={event=>updateDraft(event.target.value)} onKeyDown={event=>{if(event.nativeEvent.isComposing||event.nativeEvent.keyCode===229)return;if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();void send().catch(()=>{});}}}/>
     {working?<button type="button" className="icon-button" aria-label="Stop side response" disabled={busy} onClick={()=>void execute('run.stop')}><CircleStop size={19}/></button>:<button className="send-button" aria-label="Send side question" disabled={busy||!ready||!draft.trim()||!modelId}>{busy?<LoaderCircle size={16} className="spinning"/>:<ArrowUp size={17}/>}</button>}

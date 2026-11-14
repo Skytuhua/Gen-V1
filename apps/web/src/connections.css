@@ -10,9 +10,9 @@
 .connection-accounts { margin: 12px 0 16px; }
 .connection-list .connection-account-default { margin: 0 0 8px; color: var(--text); font-size: 12px; }
 .connection-account-options { padding: 0; border: 0; margin: 0; min-width: 0; }
-.connection-account-row { padding: 8px; margin: 0 0 3px; border-radius: 7px; transition: background 150ms ease-out; }
+.connection-account-row { padding: 8px; margin: 0 0 3px; border-radius: 7px; transition: background var(--ui-motion-hover) var(--ui-ease-enter); }
 .connection-account-row[data-chosen="true"] { background: var(--selection-bg); }
-.connection-account-badge { display: inline-flex; align-items: center; gap: 3px; flex: none; animation: connection-default-in 160ms ease-out; }
+.connection-account-badge { display: inline-flex; align-items: center; gap: 3px; flex: none; animation: connection-default-in var(--ui-motion-status) var(--ui-ease-enter); }
 .connection-account-badge svg { flex: none; }
 .connection-account-inactive { color: var(--muted); }
 .connection-list .connection-account-selection { font-size: 11px; margin: 8px 0 0; color: var(--text); }
@@ -29,11 +29,11 @@
 .connection-account-connect button { font-size: 11px; min-height: 28px; }
 .connection-account-toolbar { margin-top: 8px; flex-wrap: wrap; }
 .connection-account-form { margin: 12px 0; flex-wrap: wrap; }
-.connection-account-form { animation: connection-default-in 160ms ease-out; }
+.connection-account-form { animation: connection-default-in var(--ui-motion-status) var(--ui-ease-enter); }
 .connection-account-form label { display: grid; gap: 5px; font-size: 12px; flex: 1 1 200px; }
 .connection-account-form input { width: 100%; min-width: 0; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--text); padding: 7px 9px; }
 .connection-list .connection-account-help { font-size: 11px; margin: 9px 0 0; }
 .composer-account { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; color: var(--muted); }
 @media(max-width:600px) { .connection-account-line { align-items: flex-start; flex-wrap: wrap; gap: 5px; }.connection-account-actions { margin-left: 0; flex-wrap: wrap; min-width: 0; }.connection-account-connect { margin-left: 0; } }
 @keyframes connection-default-in { from { opacity: .25; } to { opacity: 1; } }
-@media(prefers-reduced-motion:reduce) { .connection-account-row { transition: background 80ms; }.connection-account-badge,.connection-account-form { animation-duration: 80ms; } }
+@media(prefers-reduced-motion:reduce) { .connection-account-row { transition: background var(--ui-motion-press); }.connection-account-badge,.connection-account-form { animation-duration: var(--ui-motion-press); } }
