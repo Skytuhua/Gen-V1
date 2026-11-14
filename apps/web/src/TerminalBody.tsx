@@ -28,7 +28,7 @@ export function TerminalBody({projectId,threadId,terminalId,active,openAnother,i
   let disposed=false,confirmedId:string|undefined,cursor=0,ended=false,interrupted=false,reading=false,stopPending=false,readSequence=0;
   let timer:ReturnType<typeof setTimeout>|undefined,observer:ResizeObserver|undefined,instance:import('@xterm/xterm').Terminal|undefined;
   const controller=new AbortController();
-  const ownerCurrent=()=>!disposed&&latest.current.active&&latest.current.projectId===projectId&&latest.current.threadId===threadId&&latest.current.terminalId===terminalId&&latest.current.generation===generation&&latest.current.isCurrent===isCurrent&&(!isCurrent||isCurrent());
+  const ownerCurrent=()=>!disposed&&latest.current.active&&latest.current.projectId===projectId&&latest.current.threadId===threadId&&latest.current.terminalId===terminalId&&latest.current.generation===generation&&(!latest.current.isCurrent||latest.current.isCurrent());
   const matches=(value:TerminalRead,id:string)=>{
    if(value.id!==id||value.projectId!==projectId||value.threadId!==threadId)throw new Error('The terminal response does not match the owning session.');
   };
@@ -110,7 +110,7 @@ export function TerminalBody({projectId,threadId,terminalId,active,openAnother,i
    if(!ended)timer=setTimeout(()=>void poll(),250);
   })().catch(error=>{if(ownerCurrent()){setPhase(error instanceof ApiError&&error.code==='TERMINAL_ENDED'?'ended':'unconfirmed');setError(message(error));}});
   return()=>{disposed=true;readSequence++;clearTimeout(timer);controller.abort();observer?.disconnect();instance?.dispose();if(actions.current===ownedActions)actions.current=null;};
- },[projectId,threadId,terminalId,active,generation,key,isCurrent]);
+ },[projectId,threadId,terminalId,active,generation,key]);
 
  const restart=async()=>{
   const owner=actions.current;if(!owner?.current())return;
