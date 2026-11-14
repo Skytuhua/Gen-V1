@@ -1,5 +1,5 @@
 import {describe,it,expect,vi} from 'vitest';
-import {conversationRanges,findTextOffsets, nextFindIndex, retainFindIndex} from '../apps/web/src/conversation-find';
+import {canLoadConversationHistory, conversationRanges, findTextOffsets, nextFindIndex, retainFindIndex} from '../apps/web/src/conversation-find';
 describe('conversation find',()=>{
  it('finds literal phrases without interpreting regex or losing Unicode offsets',()=>{
   expect(findTextOffsets('😀 WorkSPACE workspace [a]. [a].','workspace')).toEqual([{start:3,end:12},{start:13,end:22}]);
@@ -15,7 +15,6 @@ describe('conversation find',()=>{
   expect(retainFindIndex(['new:0'],'removed:0')).toBe(0);expect(retainFindIndex([],null)).toBe(-1);
  });
 });
-
 
 it('maps non-overlapping matches across inline nodes without rescanning each prefix',()=>{
  const chunks=Array.from({length:100},()=>['x ','pr',' review ']).flat();
@@ -38,4 +37,10 @@ it('maps non-overlapping matches across inline nodes without rescanning each pre
   expect(ranges.at(-1)?.setEnd).toHaveBeenCalledExactlyOnceWith(originals[299],7);
   expect(lengthReads).toBeLessThanOrEqual(chunks.length*2);
  }finally{vi.unstubAllGlobals();}
+});
+it('offers older history at the end of the local window when the server still has rows',()=>{
+ expect(canLoadConversationHistory(25,0,0)).toBe(true);
+ expect(canLoadConversationHistory(0,120,100)).toBe(true);
+ expect(canLoadConversationHistory(0,120,120)).toBe(false);
+ expect(canLoadConversationHistory(0,0,0)).toBe(false);
 });

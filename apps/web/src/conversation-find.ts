@@ -49,3 +49,7 @@ export function highlightConversation(document:Document,id:string,matches:Conver
  view.CSS.highlights.set('conversation-find-all',new view.Highlight(...values.flatMap(v=>v.all)));
  view.CSS.highlights.set('conversation-find-current',new view.Highlight(...values.flatMap(v=>v.current)));
 }
+
+export function canLoadConversationHistory(start:number,truncated:number,cachedOlder:number):boolean {
+ return start>0||truncated>cachedOlder;
+}

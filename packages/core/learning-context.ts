@@ -15,8 +15,10 @@ export function searchSessions(store:Store,args:Record<string,unknown>){
 }
 
 export function learningReviewPrompt(store:Store,thread:Thread,source:RunContext,index:string):string{
- const messages=store.all<Message>('message',thread.id).filter(message=>message.role!=='activity').slice(-20).map(({id,role,content,runId})=>({id,role,content:redact(content).slice(0,4000),runId}));
- const operations=store.all<{id:string;kind:string;status:string;description:string}>('operation',thread.id).slice(-12).map(({id,kind,status,description})=>({id,kind,status,description:description.slice(0,500)}));
+ const messageRows=store.db.prepare("SELECT body FROM entities WHERE kind='message' AND thread_id=? AND json_extract(body,'$.role') IS NOT 'activity' ORDER BY rowid DESC LIMIT 20").all(thread.id) as {body:string}[];
+ const messages=messageRows.reverse().map(row=>{const {id,role,content,runId}=JSON.parse(row.body) as Message;return{id,role,content:redact(content).slice(0,4000),runId};});
+ const operationRows=store.db.prepare("SELECT body FROM entities WHERE kind='operation' AND thread_id=? ORDER BY rowid DESC LIMIT 12").all(thread.id) as {body:string}[];
+ const operations=operationRows.reverse().map(row=>{const {id,kind,status,description}=JSON.parse(row.body) as {id:string;kind:string;status:string;description:string};return{id,kind,status,description:description.slice(0,500)};});
  const packet=()=>JSON.stringify({source,task:thread.title,messages,operations});
  while(Buffer.byteLength(packet())>44*1024&&messages.length>1)messages.shift();
  return SKILL_LEARNING_POLICY+'\nReview this completed reply for reusable successful techniques. Fresh-read an existing skill or support file within this review before updating it, using the returned base revision. Preserve user ownership and disabled/protected skills. No change is a valid outcome. Do not invoke UI, filesystem, approval, delegation or additional learning. Skill changes use this source task as provenance.\nCurrent skill metadata:\n'+index+'\nQuoted conversation and operation-status evidence:\n'+packet();

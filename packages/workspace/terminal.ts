@@ -36,11 +36,13 @@ export class TerminalHost{
   let finish!:()=>void;const session:Session={id:terminalId,projectId,...(threadId?{threadId}:{}),path:binding.path,pty,output:'',offset:0,exited:false,exitCode:null,done:new Promise<void>(resolve=>{finish=resolve;})};
   this.sessions.set(terminalId,session);this.persist(session);
   pty.onData(data=>{session.output+=data;if(session.output.length>512*1024){const remove=session.output.length-512*1024;session.output=session.output.slice(remove);session.offset+=remove;}});
-  pty.onExit(event=>{session.exited=true;session.exitCode=event.exitCode;this.persist(session);finish();});
+  pty.onExit(event=>{session.exited=true;session.exitCode=event.exitCode;this.persist(session);this.evictExited();finish();});
   if(input.command)pty.write(z.string().min(1).max(8000).parse(input.command)+'\r');
   return this.result(session,0);
  }
  private persist(session:Session){this.projects.store.internal('terminal.changed',session.threadId??null,()=>this.projects.store.put('terminalSession',session.id,session.threadId??null,{id:session.id,projectId:session.projectId,threadId:session.threadId,exited:session.exited,exitCode:session.exitCode}));}
+ /** Exited sessions keep up to 512 KiB of scrollback each; retain only the newest few so the map stays bounded. Reads of evicted ids still resolve TERMINAL_ENDED through the durable record. */
+ private evictExited(){const dead=[...this.sessions.entries()].filter(([,session])=>session.exited);for(const [id]of dead.slice(0,Math.max(0,dead.length-48)))this.sessions.delete(id);}
  private result(session:Session,cursor:number){const start=Math.max(session.offset,cursor);return{id:session.id,projectId:session.projectId,threadId:session.threadId,output:session.output.slice(Math.max(0,start-session.offset)),start,cursor:session.offset+session.output.length,exited:session.exited,exitCode:session.exitCode};}
  private async owned(id:string,projectId:string,threadId?:string,stopping=false){const session=this.sessions.get(identifier.parse(id));if(!session){const old=this.projects.store.get<{projectId:string;threadId?:string}>('terminalSession',id);if(old&&old.projectId===projectId&&old.threadId===threadId)throw new HarnessError('TERMINAL_ENDED','The host restarted or this terminal ended. Open a new terminal.');throw new HarnessError('NOT_FOUND','Terminal is unavailable.');}if(session.projectId!==projectId||session.threadId!==threadId)throw new HarnessError('CAPABILITY_DENIED','Terminal belongs to another working copy.');if(!stopping){const binding=await this.projects.binding(projectId,threadId);if(session.path!==binding.path)throw new HarnessError('CAPABILITY_DENIED','Terminal belongs to another working copy.');}return session;}
  async read(id:string,projectId:string,threadId?:string,cursor=0){return this.result(await this.owned(id,projectId,threadId),z.number().int().min(0).max(Number.MAX_SAFE_INTEGER).parse(cursor));}
