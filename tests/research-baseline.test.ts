@@ -82,6 +82,15 @@ describe('recorded command runner', () => {
     expect(pidAlive(obs.pid)).toBe(false);
   });
 
+  it('cancels a command whose signal is already aborted before launch', async () => {
+    const controller = new AbortController();
+    controller.abort();
+    const obs = await runRecordedCommand('node', ['-e', 'process.exit(0)'], { cwd, signal: controller.signal });
+    expect(obs.termination).toBe('CANCELLED');
+    expect(obs.exitCode).toBeNull();
+    expect(obs.stdout).toBe('');
+  });
+
   it('bounds child output and marks truncation', async () => {
     const obs = await runRecordedCommand('node', ['-e', 'process.stdout.write("x".repeat(400000))'], { cwd, outputLimit: 4096 });
     expect(obs.truncated).toBe(true);
@@ -187,6 +196,7 @@ describe('evidence manifest validation', () => {
 
   it('computes bundle status FAIL/PARTIAL/BLOCKED from phase outcomes', () => {
     expect(bundleStatus([phase({ status: 'PASS' }), phase({ id: 'x', status: 'FAIL' })])).toBe('FAIL');
+    expect(bundleStatus([phase({ requiredCases: [{ id: 'suite', status: 'FAIL' }] })])).toBe('FAIL');
     expect(bundleStatus([phase({ status: 'PASS' }), phase({ id: 'x', status: 'BLOCKED' })])).toBe('PARTIAL');
     expect(bundleStatus([phase({ status: 'BLOCKED' }), phase({ id: 'x', status: 'NOT_RUN' })])).toBe('BLOCKED');
     expect(bundleStatus([])).toBe('BLOCKED');

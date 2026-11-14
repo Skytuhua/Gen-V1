@@ -82,6 +82,7 @@ export async function runRecordedCommand(file: string, args: string[], options: 
   const controller = new AbortController();
   const onAbort = () => controller.abort();
   options.signal?.addEventListener('abort', onAbort, { once: true });
+  if (options.signal?.aborted) controller.abort();
   try {
     const result = await runProcess(resolved.file, args, cwdIdentity, controller.signal, () => {}, options.timeoutMs ?? DEFAULT_TIMEOUT_MS, options.environment ?? {}, options.outputLimit ?? OUTPUT_LIMIT);
     return finish({ cwdIdentity, executableIdentity: resolved.identity, exitCode: result.exitCode, termination: result.cancelled ? 'CANCELLED' : result.timedOut ? 'TIMEOUT' : 'NONE', stdout: result.stdout, stderr: result.stderr, truncated: result.truncated, pid: result.pid });
