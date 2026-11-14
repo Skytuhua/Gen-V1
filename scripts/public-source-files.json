@@ -742,6 +742,8 @@
     "tests/desktop-auth-launcher.test.ts",
     "tests/desktop-display-layout.test.ts",
     "tests/desktop-host-controls.test.ts",
+    "tests/desktop-host-ipc.test.ts",
+    "tests/desktop-host-ipc.ts",
     "tests/desktop-host.test.ts",
     "tests/desktop-native.test.ts",
     "tests/desktop-output.test.ts",
