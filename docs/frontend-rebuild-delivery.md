@@ -1,6 +1,6 @@
 # Frontend rebuild: recorded handoff
 
-[Open the complete video review](evidence/frontend-review/delivery-20261030/index.html). It is a standalone local page; the harness does not need to run. Keep its folder intact. It contains nine workflow MP4s, a genuine Pi recording, chapters, six supplied-reference/result comparisons, source/effect evidence and component coverage.
+The original standalone review was generated locally at `evidence/frontend-review/delivery-20261030/index.html`. The bundle is not in a clean checkout. The recordings and verification below describe that historical handoff. The [published media gallery](public/media/README.md) offers separate, fixture-backed demos; it does not contain the original recordings or reproduce their live verification.
 
 ## What changed visibly
 
@@ -13,18 +13,18 @@
 
 ## Recordings
 
-| Workflow | MP4 |
+| Workflow | Filename in the original bundle |
 | --- | --- |
-| Signing: real local export | [01-signing.mp4](evidence/frontend-review/delivery-20261030/01-signing.mp4) |
-| Dark PR: vertical graph | [02-pr-dark.mp4](evidence/frontend-review/delivery-20261030/02-pr-dark.mp4) |
-| Light PR: horizontal graph | [03-pr-light.mp4](evidence/frontend-review/delivery-20261030/03-pr-light.mp4) |
-| Migration: real local SQLite | [04-migration.mp4](evidence/frontend-review/delivery-20261030/04-migration.mp4) |
-| Context: labelled illustrative telemetry | [05-context.mp4](evidence/frontend-review/delivery-20261030/05-context.mp4) |
-| Progressive Q&A | [06-faq.mp4](evidence/frontend-review/delivery-20261030/06-faq.mp4) |
-| Map/comparison | [07-map.mp4](evidence/frontend-review/delivery-20261030/07-map.mp4) |
-| All 31 catalog components | [08-catalog.mp4](evidence/frontend-review/delivery-20261030/08-catalog.mp4) |
-| Shell/settings | [09-shell.mp4](evidence/frontend-review/delivery-20261030/09-shell.mp4) |
-| Genuine GPT-6.1 Sol | [10-genuine-pi-composition.mp4](evidence/frontend-review/delivery-20261030/genuine-pi/10-genuine-pi-composition.mp4) |
+| Signing: real local export | `01-signing.mp4` |
+| Dark PR: vertical graph | `02-pr-dark.mp4` |
+| Light PR: horizontal graph | `03-pr-light.mp4` |
+| Migration: real local SQLite | `04-migration.mp4` |
+| Context: labelled illustrative telemetry | `05-context.mp4` |
+| Progressive Q&A | `06-faq.mp4` |
+| Map/comparison | `07-map.mp4` |
+| All 31 catalog components | `08-catalog.mp4` |
+| Shell/settings | `09-shell.mp4` |
+| Genuine GPT-6.1 Sol | `genuine-pi/10-genuine-pi-composition.mp4` |
 
 All exports are H.264, 1920×1080, 30 fps, with a visible cursor and opening/closing holds. The compositor is sampled against wall time; unchanged/delayed frames are held, without generated intermediate frames or camera zoom. Full FFmpeg decoding and installed-Chrome playback passed for all ten files. Chapter seeking and the narrow standalone review layout passed.
 
@@ -34,11 +34,11 @@ The first nine use an explicit deterministic runtime through the actual applicat
 
 The tenth recording uses actual subscription Pi and `openai/gpt-6.1-sol` on a fresh fictional source packet. The agent discovered capabilities, imported sources, authored its composition, received a real `action.submit`, then updated the same artifact from revision 1 to 2. Reload retained both opened branches and the exact notes. Generation took 102.19 seconds; continuation took 46.72 seconds; zero model repair prompts were used. The full waits are recorded. A script URL error before any model run is preserved separately.
 
-[Proof](evidence/frontend-review/delivery-20261030/genuine-pi/proof.json), before/after/reload snapshots and events are included. This is a single genuine proof, not fresh-run reliability or the deferred pilot. The model-authored visit review is more verbose than the concise reference fixtures; presentation consistency across arbitrary prompts remains an evaluation concern.
+The local handoff included `genuine-pi/proof.json`, before/after/reload snapshots and events. This is a single genuine proof, not fresh-run reliability or the deferred pilot. The model-authored visit review is more verbose than the concise reference fixtures; presentation consistency across arbitrary prompts remains an evaluation concern.
 
 ## Verification and review
 
-- Full unit suite: **215/215 passed**, serial, with [machine-readable results](evidence/frontend-review/delivery-20261030/unit-tests.json).
+- Full unit suite: **215/215 passed**, serial, with machine-readable results in the local bundle’s `unit-tests.json`.
 - Browser suites: **94 passed**, four opt-in capture skips: frontend 63, PDF 19, task interfaces 12.
 - Typecheck and production build passed. Main-bundle size remains an approximately **645 kB** advisory; PDF code is lazy-loaded.
 - One coherent independent review identified duplicate PNG-header admission, Settings/model propagation and signing-width issues. All three were repaired with failing-to-passing regressions. Capture verification additionally found and fixed emitted `.mjs` MIME serving.
