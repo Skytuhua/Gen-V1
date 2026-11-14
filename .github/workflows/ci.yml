@@ -99,6 +99,9 @@ jobs:
       - name: Build web application
         run: pnpm build
 
+      - name: Build the Windows credential lease addon
+        run: pnpm build:credential-lease
+
       - name: Run application regression tests
         run: pnpm test --maxWorkers=2
 
