@@ -20,7 +20,7 @@ export const MOTION_PROBE_SOURCE = `(function () {
       regions:Array.from(document.querySelectorAll('.task-motion-region')).slice(0,12).map(function(n){return {h:rect(n)[3],phase:n.dataset.motionPhase,open:n.dataset.open};}),
       paths:Array.from(document.querySelectorAll('.task-graph path')).slice(0,15).map(function(n){return n.getAttribute('d');}),
       cells:Array.from(document.querySelectorAll('.task-table td')).slice(0,18).map(function(n){return {rect:rect(n),background:getComputedStyle(n).backgroundColor,text:n.textContent.slice(0,30)};}),
-      bands:Array.from(document.querySelectorAll('.context-inspector-breakdown,.context-inspector-quotas,.context-inspector header,.context-inspector footer')).slice(0,8).map(function(n){return {rect:rect(n),opacity:getComputedStyle(n).opacity};}),
+      bands:Array.from(document.querySelectorAll('.context-inspector-body,.context-inspector header,.context-inspector footer')).slice(0,8).map(function(n){return {rect:rect(n),opacity:getComputedStyle(n).opacity};}),
       context:rect(context),animations:document.getAnimations().filter(function(a){return a.playState==='running';}).length});
   }
   requestAnimationFrame(sample);

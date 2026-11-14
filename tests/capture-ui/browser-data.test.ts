@@ -2,6 +2,9 @@ import { expect, it } from 'vitest';
 import { browserApiResponse, browserSnapshot, scopedContext } from '../../scripts/capture-ui/browser-data';
 import { pluginDocument } from '../../scripts/capture-ui/plugin-assets';
 import { conversationContextSchema, conversationHistoryPageSchema } from '../../packages/contracts/conversation-read-models';
+it('keeps synthetic current changes distinct and disables host writes',()=>{
+  expect(browserApiResponse(new URL('http://local/api/projects/capture-project/git'))).toMatchObject({diff:'Synthetic current working-copy diff',gitWrite:false});
+});
 it('provides a valid scoped conversation and bounded transcript dataset', () => {
   expect(conversationContextSchema.parse(scopedContext).owner.threadId).toBe('exact-owner');
   const page = conversationHistoryPageSchema.parse(browserApiResponse(new URL('http://local/api/conversations/exact-owner/transcript')));

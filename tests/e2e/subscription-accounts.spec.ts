@@ -38,7 +38,7 @@ async function host(page: Page, snapshot = fixture()) {
   await page.route('**/api/composer-prediction/cancel', route=>route.fulfill({json:{cancelled:true}}));
   return { ...base, commands, discoveries, failNext(message: string) { fail = message; }, holdNext() { return new Promise<void>(resolve => { pending = resolve; }); }, release() { pending?.(); } };
 }
-async function openAccounts(page: Page) { await page.getByRole('button', { name: 'Settings', exact: true }).click(); await page.getByRole('button', { name: 'Providers', exact: true }).click(); return page.locator('.connection-row[data-provider="openai"]'); }
+async function openAccounts(page: Page) { await page.getByRole('button', { name: 'Settings', exact: true }).click(); await page.getByRole('button', { name: 'Models & Accounts', exact: true }).click(); return page.locator('.connection-row[data-provider="openai"]'); }
 async function expectCatalog(page: Page, modelName: string) {
   await page.getByRole('combobox', { name: 'Model', exact: true }).click();
   await expect(page.getByRole('listbox', { name: 'Available models', exact: true }).getByRole('option', { name: modelName, exact: true })).toBeVisible();
@@ -85,10 +85,12 @@ for (const emptyThread of [false, true]) test(`removing the default refreshes ${
   await page.goto('/'); await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toHaveText('Personal only');
   const provider = await openAccounts(page); await provider.getByRole('button', { name: 'Remove Personal', exact: true }).click();
   await expect(provider).toContainText('Default for new tasks: Legacy connection');
-  await page.getByRole('button', { name: 'Threads', exact: true }).click();
-  await expect(page.getByRole('combobox', { name: 'Default model', exact: true })).toContainText('Legacy only');
-  await expect(page.getByRole('combobox', { name: 'Default model', exact: true })).not.toContainText('Personal only');
-  await page.getByRole('button', { name: 'Close settings', exact: true }).click();
+  const defaultModel = page.getByRole('combobox', { name: 'Default model', exact: true });
+  await expect(defaultModel).not.toContainText('Personal only');
+  await defaultModel.click();
+  await expect(page.getByRole('option', { name: 'Legacy only', exact: true })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await page.getByRole('button', { name: 'Close dialog', exact: true }).click();
   await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toHaveText('Legacy only');
   await expect(page.getByRole('combobox', { name: 'Model', exact: true })).not.toContainText('Personal only');
 });
@@ -101,15 +103,24 @@ for (const pinned of [false, true]) test(`external default changes refresh Setti
   await page.goto('/'); await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toContainText('Personal model');
   await page.getByRole('combobox', { name: 'Model', exact: true }).click();
   await page.getByRole('option', { name: 'Alternative model', exact: true }).click();
-  await openAccounts(page); await page.getByRole('button', { name: 'Threads', exact: true }).click();
-  await expect(page.getByRole('combobox', { name: 'Default model', exact: true })).toContainText('Personal model');
+  await page.getByRole('searchbox', { name: 'Search models', exact: true }).press('Escape');
+  await openAccounts(page);
+  // The explicit composer choice persists as the new-task default, so assert the
+  // refreshed catalog through its options rather than the trigger label.
+  const defaultModel = page.getByRole('combobox', { name: 'Default model', exact: true });
+  await defaultModel.click();
+  await expect(page.getByRole('listbox', { name: 'Default model', exact: true }).getByRole('option', { name: 'Personal model', exact: true })).toBeVisible();
+  await page.keyboard.press('Escape');
   const pinnedReads = requests.filter(query => query.includes('threadId=task-thread')).length;
   snapshot.settings.selectedAccounts = { openai: work }; await h.publish();
-  await expect(page.getByRole('combobox', { name: 'Default model', exact: true })).toContainText('Work model');
-  await expect(page.getByRole('combobox', { name: 'Default model', exact: true })).not.toContainText('Personal model');
+  await defaultModel.click();
+  const catalogOptions = page.getByRole('listbox', { name: 'Default model', exact: true });
+  await expect(catalogOptions.getByRole('option', { name: 'Work model', exact: true })).toBeVisible();
+  await expect(catalogOptions.getByRole('option', { name: 'Personal model', exact: true })).toHaveCount(0);
+  await page.keyboard.press('Escape');
   const catalogReads = requests.length; snapshot.settings.selectedAccounts = { openai: work }; snapshot.settings.theme = 'light'; await h.publish();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light'); expect(requests).toHaveLength(catalogReads);
-  await page.getByRole('button', { name: 'Close settings', exact: true }).click();
+  await page.getByRole('button', { name: 'Close dialog', exact: true }).click();
   await expectCatalog(page, pinned ? 'Personal model' : 'Work model');
   await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toHaveText('Alternative model');
   expect(requests.filter(query => query.includes('threadId=task-thread'))).toHaveLength(pinnedReads);
@@ -123,7 +134,7 @@ test('pending account actions block duplicate submissions and expose recoverable
   await expect(provider.getByRole('button', { name: 'Add account', exact: true })).toBeEnabled();
   h.failNext('A task is using this account. Try again after it stops.');
   await provider.getByRole('button', { name: 'Remove Work', exact: true }).click();
-  await expect(page.getByRole('alert')).toContainText('A task is using this account');
+  await expect(page.getByRole('alert').filter({ hasText: 'A task is using this account' })).toBeVisible();
   await expect(provider.getByRole('radio', { name: 'Work', exact: true })).toBeEnabled();
 });
 
@@ -163,7 +174,7 @@ test('bound thread catalogs follow their pinned account and ignore late discover
   await expect.poll(() => lateDone).toBe(true);
   await expect(page.getByRole('combobox', { name: 'Model', exact: true })).not.toContainText('Work model');
   const provider = await openAccounts(page); await provider.getByRole('radio', { name: 'Work', exact: true }).check(); await provider.getByRole('button', { name: 'Use account', exact: true }).click();
-  await page.getByRole('button', { name: 'Close settings', exact: true }).click(); await expect(page.locator('.composer-account')).toHaveText('Personal');
+  await page.getByRole('button', { name: 'Close dialog', exact: true }).click(); await expect(page.locator('.composer-account')).toHaveText('Personal');
   await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toContainText('Personal model');
 });
 
@@ -178,7 +189,7 @@ test('pre-account tasks stay pinned to the legacy connection when a named defaul
   const snapshot = fixture(); delete snapshot.threads[0].accountId;
   await host(page, snapshot); const discoveries: string[] = [];
   await page.route('**/api/models*', route => { const url = new URL(route.request().url()); discoveries.push(url.search); return route.fulfill({ json: { models: [] } }); });
-  await page.goto('/'); await expect(page.locator('.composer-account')).toHaveText('Legacy connection');
+  await page.goto('/'); await expect(page.locator('.composer-account')).toHaveCount(0);
   await expect.poll(() => discoveries).toContain('?threadId=task-thread');
   await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toHaveText('openai/shared');
 });

@@ -264,6 +264,14 @@ function registerIpc(){
    });
    browser.view.webContents.focus();remember(record);broadcast();
   });
+  if(command.type==='close')return handoff(async()=>{
+   if(quitting||quitPending||record.window.isDestroyed()||windows.get(record.id)!==record)throw Error('The workspace is closing.');
+   const browser=record.dockedBrowser;if(!browser)throw Error('Only the docked browser can be closed from the workspace.');
+   detachOwnedBrowser(record,browser,value=>{try{record.window.contentView.removeChildView(value.view);}catch{}});
+   browser.generation++;if(browsers.get(browser.id)===browser)browsers.delete(browser.id);
+   if(!browser.view.webContents.isDestroyed())browser.view.webContents.close({waitForBeforeUnload:false});
+   remember(record);broadcast();
+  });
   const browser=record.browser??record.dockedBrowser;if(!browser)throw Error('No browser is attached to this window');const contents=browser.view.webContents;
   if(command.type==='bounds'){if(!record.dockedBrowser)throw Error('Only the docked browser can set content bounds');browser.view.setBounds(nativeBrowserBounds(command.bounds,record.window.getContentSize(),record.window.webContents.getZoomFactor()));return;}
   await browser.networkReady;const generation=++browser.generation;

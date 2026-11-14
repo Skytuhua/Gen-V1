@@ -4,8 +4,9 @@ import { tableChangesData } from '../../../packages/ui-catalog/workflow';
 import { ArtifactInline, ArtifactTitle, inputPath, statePath } from './task-context';
 import { animateTask, reducedMotion } from './task-motion';
 import { useTableControls } from './TaskTableControls';
-import { tableIdentity, tableObject as object, tableText as text } from './task-table-model';
+import { tableCellText as cellText, tableIdentity, tableObject as object, tableText as text } from './task-table-model';
 import './task-table.css';
+import {useTableOverflow} from './use-table-overflow';
 
 const array = (value: unknown): unknown[] => Array.isArray(value) ? value : [];
 
@@ -18,6 +19,7 @@ export function Table({ element: { props }, bindings }: ComponentRenderProps) {
   const inline = useContext(ArtifactInline), artifactTitle = useContext(ArtifactTitle);
   const store = useStateStore(), scroll = useRef<HTMLDivElement>(null), sweep = useRef<HTMLElement>(null);
   const [following, setFollowing] = useState(true);
+  const overflowing = useTableOverflow(scroll);
   const followMotion = useRef({ frame: 0, target: null as number | null, velocity: 0, position: 0, time: 0, started: 0 });
   const stopScroll = () => { const motion = followMotion.current; cancelAnimationFrame(motion.frame); motion.frame = 0; motion.target = null; motion.velocity = 0; motion.position = scroll.current?.scrollTop ?? 0; };
   const takeOver = () => { if (inline) return; stopScroll(); setFollowing(false); };
@@ -26,7 +28,7 @@ export function Table({ element: { props }, bindings }: ComponentRenderProps) {
   const parsed = useMemo(() => tableChangesData.safeParse(rawChanges), [rawChanges]);
   const changes = parsed.success ? parsed.data : undefined;
   const rowChanges = useMemo(() => new Map(changes?.rows.map(row => [row.id, row]) ?? []), [changes]);
-  const sourceColumns = useMemo(() => array(props.columns).length ? array(props.columns).map(column => { const value = typeof column === 'string' ? { key: column, label: column } : object(column); return { key: String(value.key), label: String(value.label ?? value.key) }; }) : Object.keys(object(rows[0])).map(key => ({ key, label: key })), [props.columns, rows]);
+  const sourceColumns = useMemo(() => array(props.columns).length ? array(props.columns).map(column => { const value = typeof column === 'string' ? { key: column, label: column } : object(column); return { key: String(value.key), label: String(value.label ?? value.key), type: value.type === 'number' ? 'number' as const : undefined }; }) : Object.keys(object(rows[0])).map(key => ({ key, label: key })), [props.columns, rows]);
   const controls = useTableControls(sourceColumns, rows, scroll, takeOver, Boolean(props.stateKey));
   const columns = controls.columns;
   const identity = useMemo(() => tableIdentity(rows, String(props.rowKey ?? 'id')), [rows, props.rowKey]);
@@ -38,9 +40,10 @@ export function Table({ element: { props }, bindings }: ComponentRenderProps) {
       const key = String(column.key), cell = change?.cells?.find(cell => cell.key === key), status = cell?.status ?? change?.status;
       const before = cell && Object.hasOwn(cell, 'before') ? JSON.stringify(cell.before) : undefined;
       const showBefore = status === 'updated' && cell && Object.hasOwn(cell, 'before') && text(cell.before) !== text(item[key]);
-      return <td key={key} data-column-key={key} data-change={status} data-before={before} className={typeof item[key] === 'number' ? 'task-table-number' : undefined} title={cell ? [before !== undefined ? `Previously: ${before}` : '', cell.detail].filter(Boolean).join(' · ') : text(item[key])}>
-        {showBefore && <><span className="task-table-before">{text(cell.before)}</span><span className="task-table-change-arrow" role="img" aria-label="changed to">→</span></>}
-        <span className="task-table-value">{text(item[key])}</span>{status && <span className="sr-only"> ({status})</span>}
+      const numeric = column.type === 'number' || typeof item[key] === 'number';
+      return <td key={key} data-column-key={key} data-change={status} data-before={before} className={numeric ? 'number task-table-number' : undefined} title={cell ? [before !== undefined ? `Previously: ${before}` : '', cell.detail].filter(Boolean).join(' · ') : text(item[key])}>
+        {showBefore && <><span className="task-table-before">{cellText(cell.before, column)}</span><span className="task-table-change-arrow" role="img" aria-label="changed to">→</span></>}
+        <span className="task-table-value">{cellText(item[key], column)}</span>{status && <span className="sr-only"> ({status})</span>}
       </td>;
     });
     return { id, change, cells, index };
@@ -190,8 +193,8 @@ export function Table({ element: { props }, bindings }: ComponentRenderProps) {
   return <div className="task-table" data-column-controls={columns.length > 0}>
     <div className="task-table-summary"><span>{controls.view.length} of {rows.length} {rows.length === 1 ? 'row' : 'rows'}</span>{(Object.keys(changeCounts) as (keyof typeof changeCounts)[]).filter(status => changeCounts[status]).map(status => <span key={status} data-change={status}>{changeCounts[status]} {status}</span>)}{columns.length > 0 && controls.filter}</div>
     {/* biome-ignore lint/a11y/noNoninteractiveTabindex: the overflow region must be keyboard-scrollable. */}
-    <section ref={scroll} className="table-scroll task-table-scroll" tabIndex={0} aria-label={String(props.caption ?? props.title ?? 'Table records')} data-following={!inline && following} onWheel={takeOver} onTouchStart={takeOver} onPointerDown={takeOver} onScroll={event => { if (following && Math.abs(event.currentTarget.scrollTop - followMotion.current.position) > 1) takeOver(); }} onKeyDown={event => { if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End'].includes(event.key)) takeOver(); }}>
-      <table style={columns.length ? { width: controls.widths.reduce((total, value) => total + value, Boolean(props.stateKey) ? 40 : 0) } : undefined}><caption className={artifactTitle === String(props.title ?? props.caption ?? '') ? 'sr-only' : undefined}>{String(props.title ?? props.caption ?? '')}</caption>
+    <section ref={scroll} className="table-scroll task-table-scroll" tabIndex={overflowing ? 0 : undefined} aria-label={String(props.caption ?? props.title ?? 'Table records')} data-following={!inline && following} onWheel={takeOver} onTouchStart={takeOver} onPointerDown={takeOver} onScroll={event => { if (following && Math.abs(event.currentTarget.scrollTop - followMotion.current.position) > 1) takeOver(); }} onKeyDown={event => { if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End'].includes(event.key)) takeOver(); }}>
+      <table data-numeric={columns.some(column => column.type === 'number') || undefined} style={columns.length ? { width: controls.widths.reduce((total, value) => total + value, Boolean(props.stateKey) ? 40 : 0) } : undefined}><caption className={artifactTitle === String(props.title ?? props.caption ?? '') ? 'sr-only' : undefined}>{String(props.title ?? props.caption ?? '')}</caption>
         {columns.length > 0 && <colgroup>{Boolean(props.stateKey) && <col style={{ width: 40 }} />}{columns.map((column, index) => <col key={column.key} style={{ width: controls.widths[index] }} />)}</colgroup>}
         <thead><tr>{Boolean(props.stateKey) && <th scope="col" className="task-table-select"><span className="sr-only">Selected</span></th>}{controls.headers}</tr></thead>
         <tbody>{renderedRows.map(({ id, change, cells, index }) => {
