@@ -5,6 +5,7 @@ import { Select } from '../../../packages/ui-shell/Select';
 import { isComposing } from '../../../packages/ui-shell/list-navigation';
 import { usageCost, usageCount, usagePercent, usageReset, type UsageProviderReport } from './usage-presentation';
 import './usage-dialog.css';
+import {ErrorState} from '../../../packages/ui-shell/Feedback';
 
 export interface UsageDialogProps {
   open: boolean; onClose: () => void; reports?: readonly UsageProviderReport[];
@@ -45,7 +46,7 @@ export function UsageDialog({ open, onClose, reports = [], loading = false, erro
         <Select aria-label="Usage provider" value={selectedProvider} onValueChange={setProvider} options={[{ value: '', label: 'All providers' }, ...providers.map(([value, label]) => ({ value, label }))]} />
         {onRefresh && <button type="button" className="usage-refresh" disabled={loading || refreshing} onClick={() => void refresh()} aria-label="Refresh usage"><RefreshCw size={15} aria-hidden="true" /><span>{refreshing ? 'Refreshing…' : 'Refresh'}</span></button>}
       </div>
-      {(error || refreshError) && <p className="usage-dialog-error" role="alert">{error || refreshError}</p>}
+      {(error || refreshError) && <ErrorState className="usage-dialog-error" message={error || refreshError}/>}
       {(loading || refreshing) && <p className="usage-dialog-status" role="status">{reports.length ? 'Refreshing usage…' : 'Loading usage…'}</p>}
     </div>
     <div className="usage-provider-list" role="tabpanel" id={`${id}-rows`} aria-labelledby={`${id}-${tab}`} aria-busy={loading || refreshing} tabIndex={0}>
@@ -53,7 +54,7 @@ export function UsageDialog({ open, onClose, reports = [], loading = false, erro
       {!visible.length && loading && <div className="usage-dialog-skeleton" aria-hidden="true"><span /><span /><span /></div>}
       {visible.map(report => <section className="usage-provider-row" key={report.id} aria-label={`${report.providerLabel} · ${report.scopeLabel}`}>
         <header><strong>{report.providerLabel}</strong><span>{report.scopeLabel}</span></header>
-        {report.error && <p className="usage-dialog-error" role="alert">{report.error}</p>}
+        {report.error && <ErrorState className="usage-dialog-error" message={report.error}/>}
         {tab === 'Cost' && <dl><dt>Reported cost</dt><dd>{usageCost(report.cost)}</dd></dl>}
         {tab === 'Tokens' && <dl><dt>Input tokens</dt><dd>{usageCount(report.inputTokens)}</dd><dt>Output tokens</dt><dd>{usageCount(report.outputTokens)}</dd></dl>}
         {tab === 'Limits' && (report.limits?.length ? report.limits : [{ id: 'unknown', label: 'Provider limit' }]).map(limit => <div key={limit.id} className="usage-limit"><dl><dt>{limit.label}</dt><dd>{usagePercent(limit.usedPercent)}</dd><dt>Reset</dt><dd>{usageReset(limit.reset)}</dd></dl></div>)}

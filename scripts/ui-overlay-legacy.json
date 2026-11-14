@@ -93,12 +93,12 @@
     },
     {
       "file": "apps/web/src/DocumentWindow.tsx",
-      "line": 75,
+      "line": 76,
       "column": 385,
       "rule": "ad-hoc-overlay",
       "message": "React portal: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "aeb6bf5588361e5a51c8ea4c0a5824f42eac481633629e46591e6e8c6dcd6868",
-      "reason": "TOOLS: migrate document portal ownership with shared primitives after document recovery acceptance.",
+      "fingerprint": "7933b79e35a474d3f164f8c09e104f98289c57172ba09aa8e003982efea1688f",
+      "reason": "TOOLS: migrate document portal ownership with shared primitives after document recovery acceptance; portal content migrated to shared ErrorState.",
       "evidence": "createPortal(<section ref={windowRef} role=\"region\" aria-label={`${title} document window`} className=\"document-text-window\" data-escape-scope data-placement={placement} data-native-owner={nativeOwner} style={style} onSc",
       "disposition": "staged-migration"
     },
@@ -181,17 +181,7 @@
     },
     {
       "file": "apps/web/src/shell.css",
-      "line": 196,
-      "column": 1,
-      "rule": "ad-hoc-overlay",
-      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "10b7e2eb1b8d5f3daa94be283c569acad470deaea26a8b5eb3363b9ba5d11dca",
-      "reason": "COPY/SHELL2: retain exact notice positioning; toast enter/exit motion tokens added with reduced-motion fallback until the shared status/error owner replaces it.",
-      "evidence": ".shell-notice { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:14px; max-width:calc(100vw - 28px); border:1px solid var(--border); background:var(--surface); box-",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/shell.css",
+
       "line": 208,
       "column": 1,
       "rule": "ad-hoc-overlay",
@@ -199,17 +189,6 @@
       "fingerprint": "d186395fde1467d94f13be38aa02ffaf851f921f7ee0448de14df78020f190a1",
       "reason": "SHELL1/LAYOUT: retain exact artifact containment until parent shell integration.",
       "evidence": ".artifact.artifact-in-workspace { position:fixed; z-index:31; right:14px; top:110px; bottom:14px; width:calc(var(--right-panel-width) - 28px); max-width:none; margin:0; display:flex; flex-direction:column; border:1px sol",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/shell.css",
-      "line": 233,
-      "column": 1,
-      "rule": "ad-hoc-overlay",
-      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "41bf1fd150f3b75bad9f1c593eadbea80d612bb03280175f2b8659096a581c89",
-      "reason": "SHELL2/MOTION: move dialog backdrop animation to shared Modal.",
-      "evidence": ".dialog[open]::backdrop,.settings-dialog[open]::backdrop {animation:shell-backdrop-in 170ms ease-out both;}",
       "disposition": "staged-migration"
     },
     {
