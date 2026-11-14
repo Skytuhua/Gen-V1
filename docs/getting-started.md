@@ -108,7 +108,7 @@ pnpm desktop:dev
 
 The directory contains credentials, conversations, attachments, skill files, state and receipts. Keep it out of Git and take backups with the application fully closed. Do not delete profile guards or copy credentials between account folders to clear a blocked connection.
 
-Optional host settings are `HARNESS_PORT` and `HARNESS_WIDGET_PORT`. Desktop development uses `HARNESS_DESKTOP_PORT` and `HARNESS_DESKTOP_WIDGET_PORT`. Keep the two ports distinct. Vite's proxy expects the default backend port unless you deliberately update its configuration.
+Optional host settings are `HARNESS_PORT` and `HARNESS_WIDGET_PORT`. Desktop development uses `HARNESS_DESKTOP_PORT` and `HARNESS_DESKTOP_WIDGET_PORT`. Keep the two ports distinct. Vite's development proxy uses the same `HARNESS_PORT` as the backend. Set it before starting `pnpm dev`.
 
 ## Build a Windows installer
 
