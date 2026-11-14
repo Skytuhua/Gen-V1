@@ -22,9 +22,16 @@ export function conversationRanges(root:HTMLElement,query:string):ConversationMa
    return NodeFilter.FILTER_ACCEPT;
   }});
   while(walker.nextNode()){nodes.push(walker.currentNode as Text);text+=walker.currentNode.textContent;}
+  // RegExp matches are ordered and never overlap. Keep the last end node
+  // so each match does not walk the same prefix of the text again.
+  let nodeIndex=0,nodeStart=0,nodeEnd=nodes[0]?.length??0;
+  const advance=()=>{nodeStart=nodeEnd;nodeEnd+=nodes[++nodeIndex]?.length??0;};
   for(const offset of findTextOffsets(text,query)){
-   const range=root.ownerDocument.createRange();let cursor=0;
-   for(const node of nodes){const end=cursor+node.length;if(offset.start>=cursor&&offset.start<end)range.setStart(node,offset.start-cursor);if(offset.end>cursor&&offset.end<=end){range.setEnd(node,offset.end-cursor);break;}cursor=end;}
+   while(nodeEnd<=offset.start)advance();
+   const range=root.ownerDocument.createRange();
+   range.setStart(nodes[nodeIndex]!,offset.start-nodeStart);
+   while(nodeEnd<offset.end)advance();
+   range.setEnd(nodes[nodeIndex]!,offset.end-nodeStart);
    if(!blockKeys.has(block))blockKeys.set(block,String(++blockSequence));
    const id=block.closest<HTMLElement>('[data-message-id]')?.dataset.messageId??blockKeys.get(block)!;
    result.push({key:`${id}:${offset.start}`,range});
