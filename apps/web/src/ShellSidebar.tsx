@@ -8,6 +8,7 @@ import {
   ChevronDown,
   ChevronRight,
   Circle,
+  ExternalLink,
   FolderPlus,
   GitBranch,
   GitPullRequest,
@@ -92,6 +93,7 @@ export function ShellSidebar({
   onOpenPullRequests,
   onOpenUsage,
   onPlaceThread,
+  detachThread,
   onConnectProject,
   pageControls,
   orderBounds,
@@ -181,6 +183,7 @@ export function ShellSidebar({
         open={menuId === item.id} onOpenChange={open => setMenuId(open ? item.id : null)}
         items={[
           ...(onPlaceThread ? [{id: 'place', label: 'Place in workspace', shortcut: 'Alt Enter', onSelect: () => onPlaceThread(item)}] : []),
+          ...(detachThread ? [{id: 'detach', label: 'Detach thread', icon: <ExternalLink size={13} />, onSelect: () => detachThread(item)}] : []),
           {id: 'rename', label: 'Rename thread', onSelect: () => rename(item)},
           {id: 'pin', label: item.presentation?.pinned ? 'Unpin thread' : 'Pin thread', icon: <Pin size={13} />,
             onSelect: () => presentation(item, {pinned: !item.presentation?.pinned})},

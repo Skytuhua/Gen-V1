@@ -54,7 +54,7 @@ function PluginFrameBody({plugin,theme,active=true,surface,workspace,projectColo
       if(!pluginWindowOperation(request.operation))pendingData.current.add(request.id);
       const execute=async()=>{
         const desktop=desktopCurrent.current;
-        if(request.operation==='window.capabilities')return {available:false,reason:'Opening detached views is currently unavailable.'};
+        if(request.operation==='window.capabilities')return desktop?{available:true}:{available:false,reason:'Native windows are only available in the desktop app.'};
         if(request.operation==='window.list')return desktop?.state.windows.filter(item=>item.surface.kind==='plugin'&&item.surface.pluginId===plugin.id)??[];
         if(request.operation==='window.detach'){
           const target=pluginSurfaceSchema.parse(request.input);if(target.pluginId!==plugin.id||!desktop)throw Error('This plug-in window is unavailable.');
