@@ -547,6 +547,9 @@ body,
 	}
 }
 @media (prefers-reduced-motion: reduce) {
+	.pv-intro {
+		animation: none;
+	}
 	.pv-app * {
 		transition: none !important;
 		animation: none !important;

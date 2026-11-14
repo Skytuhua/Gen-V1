@@ -34,9 +34,10 @@ export function pluginDesktopRequiresGrant(channel:string){return channel!==DESK
 export function nativeTitlebarTheme(value:unknown){if(value!=='light'&&value!=='dark')throw Error('Invalid window theme.');return {color:value==='light'?'#ffffff':'#0f0f0f',symbolColor:value==='light'?'#1f1f1f':'#eeeeee',height:42};}
 export function nativeTitlebarOptions(platform:string){return platform==='win32'?{titleBarStyle:'hidden' as const,titleBarOverlay:nativeTitlebarTheme('dark')}:{ };}
 export function desktopSurfaceAllowed(surface:DesktopSurface):boolean {parseDesktopSurface(surface);return true;}
-/** Detached native views are available again: a request may create a new window
- * or focus the existing child with the same key. The surface identity is still
- * validated before the window factory admits it. */
+/** Validates a detached-view request's surface identity before the window factory
+ * admits it. The existing-window list is deliberately unused: the factory decides
+ * create-vs-focus by surface key, so this policy only rejects malformed identities.
+ * The parameter stays for the stable policy signature exercised by the tests. */
 export function requireExistingDetachedSurface(surface:DesktopSurface,_existing:DesktopSurface[]):void {
  parseDesktopSurface(surface);
 }

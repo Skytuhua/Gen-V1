@@ -7,11 +7,16 @@ import './plugins.css';
 import {desktopSurfaceKey} from '../../../packages/desktop-contract';
 
 type PluginFrameProps={plugin:PluginManifest;theme:'light'|'dark';active?:boolean;surface?:PluginSurface;workspace?:PluginWorkspaceContribution;projectColors?:Record<string,string>;onReady?:()=>void};
+/** Presentation preferences live host-side: the sandboxed frame has an opaque origin and no storage. */
+function readPluginPresentation(pluginId:string):{introDismissed:boolean} {
+  try{const value:unknown=JSON.parse(localStorage.getItem(`harness:plugin-ui:${pluginId}`)??'null');return {introDismissed:Boolean(value&&typeof value==='object'&&(value as Record<string,unknown>).introDismissed===true)};}catch{return {introDismissed:false};}
+}
 export function PluginFrame(props:PluginFrameProps){const [generation,reload]=useState(0);return <PluginFrameBody key={`${props.surface?desktopSurfaceKey(props.surface):props.plugin.id}:${props.workspace?.id??'conversation'}:${generation}`} {...props} reload={()=>reload(value=>value+1)}/>;}
 function PluginFrameBody({plugin,theme,active=true,surface,workspace,projectColors={},onReady,reload}:PluginFrameProps&{reload:()=>void}) {
   const desktop=useDesktop();
   const desktopCurrent=useRef(desktop),readyCurrent=useRef(onReady);desktopCurrent.current=desktop;readyCurrent.current=onReady;
   const presentationCurrent=useRef({active,projectColors});presentationCurrent.current={active,projectColors};
+  const uiPresentation=useRef(readPluginPresentation(plugin.id));
   const frame=useRef<HTMLIFrameElement>(null),[session]=useState(()=>crypto.randomUUID()),[initialTheme]=useState(theme),[error,setError]=useState('');
   const pending=useRef(new Map<string,AbortController>()),flushes=useRef(new Map<string,{resolve:()=>void;reject:()=>void;timer:ReturnType<typeof setTimeout>}>());
   const pendingData=useRef(new Set<string>());
@@ -19,7 +24,7 @@ function PluginFrameBody({plugin,theme,active=true,surface,workspace,projectColo
   // owned by one document, so no reply or saved-state acknowledgement can move
   // to its replacement, even before the replacement's load event.
   const bridge=useRef<MessagePort|null>(null),loaded=useRef(false),bootstrapped=useRef(false),revoked=useRef(false);
-  const sendPresentation=()=>{const presentation=presentationCurrent.current,colors:Record<string,string>={};for(const[key,value]of Object.entries(presentation.projectColors)){try{const identity:unknown=JSON.parse(key);if(Array.isArray(identity)&&identity.length===4&&identity[0]==='plugin'&&identity[1]===plugin.id)colors[key]=value;}catch{/* A plug-in receives only its own opaque color preferences. */}}bridge.current?.postMessage({type:'gen.plugin.visibility',session,active:presentation.active&&document.visibilityState!=='hidden'});bridge.current?.postMessage({type:'gen.plugin.appearance',session,projectColors:colors});};
+  const sendPresentation=()=>{const presentation=presentationCurrent.current,colors:Record<string,string>={};for(const[key,value]of Object.entries(presentation.projectColors)){try{const identity:unknown=JSON.parse(key);if(Array.isArray(identity)&&identity.length===4&&identity[0]==='plugin'&&identity[1]===plugin.id)colors[key]=value;}catch{/* A plug-in receives only its own opaque color preferences. */}}bridge.current?.postMessage({type:'gen.plugin.visibility',session,active:presentation.active&&document.visibilityState!=='hidden'});bridge.current?.postMessage({type:'gen.plugin.appearance',session,projectColors:colors});bridge.current?.postMessage({type:'gen.plugin.presentation',session,presentation:uiPresentation.current});};
   const revoke=()=>{revoked.current=true;bridge.current?.close();bridge.current=null;for(const controller of pending.current.values())controller.abort();pending.current.clear();pendingData.current.clear();for(const item of flushes.current.values()){clearTimeout(item.timer);item.reject();}flushes.current.clear();};
   const unavailable=()=>{revoke();setError('This plug-in view changed unexpectedly. Reload the plug-in to reconnect. Saved work is retained.');};
   const focused=useRef<{target:PluginSurface;id:string}|null>(null),focusSurface=desktop?.state.focusSurface;
@@ -54,6 +59,13 @@ function PluginFrameBody({plugin,theme,active=true,surface,workspace,projectColo
       if(!pluginWindowOperation(request.operation))pendingData.current.add(request.id);
       const execute=async()=>{
         const desktop=desktopCurrent.current;
+        if(request.operation==='presentation.set'){
+          const input=request.input;
+          if(!input||typeof input!=='object'||Array.isArray(input)||typeof (input as Record<string,unknown>).introDismissed!=='boolean')throw Error('Invalid plug-in presentation preference.');
+          uiPresentation.current={introDismissed:(input as Record<string,unknown>).introDismissed===true};
+          try{localStorage.setItem(`harness:plugin-ui:${plugin.id}`,JSON.stringify(uiPresentation.current));}catch{/* Storage may be unavailable; the preference still applies to this session. */}
+          return null;
+        }
         if(request.operation==='window.capabilities')return desktop?{available:true}:{available:false,reason:'Native windows are only available in the desktop app.'};
         if(request.operation==='window.list')return desktop?.state.windows.filter(item=>item.surface.kind==='plugin'&&item.surface.pluginId===plugin.id)??[];
         if(request.operation==='window.detach'){
