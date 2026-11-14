@@ -1,0 +1,7 @@
+argv: ["C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe","-e","const fs=require('fs'),p='test-results/browser';const d=fs.readdirSync(p).filter(x=>fs.existsSync(p+'/'+x+'/root/results.json')).sort().at(-1);const s=JSON.parse(fs.readFileSync(p+'/'+d+'/root/results.json','utf8')).stats;process.exit(s.expected===83&&s.unexpected===29&&s.skipped===1?0:1)"]
+cwd: C:\Users\Administrator\repos\Gen-V1-m01
+termination: NONE
+exitCode: 0
+--- stdout ---
+
+--- stderr ---

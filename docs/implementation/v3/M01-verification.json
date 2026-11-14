@@ -1,0 +1,661 @@
+{
+  "schemaVersion": 3,
+  "bundleId": "M01",
+  "baseSha": "055007ff9ab43fc24cfbc0af76b0b4cea3db473d",
+  "sourceLockDigest": "c35159c34016afab1acb7ce4f900242436998580c988874f2797b4fbdbbdbe92",
+  "platform": "win32-x64",
+  "nodeVersion": "v24.22.2",
+  "packageManagerVersion": "10.30.3",
+  "phases": [
+    {
+      "id": "source-custody",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "worktree-isolated",
+          "status": "PASS",
+          "evidence": "Separate worktree C:\\Users\\Administrator\\repos\\Gen-V1-m01 on branch agent/m01-v3; original checkout untouched."
+        },
+        {
+          "id": "base-recorded",
+          "status": "PASS",
+          "evidence": "origin/main = 055007ff9ab43fc24cfbc0af76b0b4cea3db473d; git status recorded in src-03-status.log."
+        },
+        {
+          "id": "origin-verified",
+          "status": "PASS",
+          "evidence": "src-01-origin-url.log"
+        },
+        {
+          "id": "audit-ancestor-verified",
+          "status": "PASS",
+          "evidence": "a7fc0bc7 is a strict ancestor of base on full history (src-04 PASS; src-05 confirms base is not an ancestor of the pin — the pin is 92 commits behind origin/main). scripts/browser-suites.ts evolved between pin and base and is recorded as approvedDrift in source-lock.json."
+        },
+        {
+          "id": "source-lock-clean",
+          "status": "PASS",
+          "evidence": "verifySourceLock reports no issues against the execution base."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "C:\\Program Files\\Git\\cmd\\git.exe",
+            "remote",
+            "get-url",
+            "origin"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m01",
+          "executableIdentity": "C:\\Program Files\\Git\\cmd\\git.exe",
+          "startedAt": "2026-11-14T22:41:36.720Z",
+          "endedAt": "2026-11-14T22:41:36.757Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs\\implementation\\v3\\logs\\src-01-origin-url.log",
+          "logDigest": "f43c40878614c5a08f32ec6fe715864bf92163783c726d987bc764fe90c34e8c"
+        },
+        {
+          "argv": [
+            "C:\\Program Files\\Git\\cmd\\git.exe",
+            "rev-parse",
+            "origin/main"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m01",
+          "executableIdentity": "C:\\Program Files\\Git\\cmd\\git.exe",
+          "startedAt": "2026-11-14T22:41:36.759Z",
+          "endedAt": "2026-11-14T22:41:36.789Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs\\implementation\\v3\\logs\\src-02-base-sha.log",
+          "logDigest": "930f73b5c8e6a86a94fd3241b51267880f8b0ad5ca410273c000b35ef12f936e"
+        },
+        {
+          "argv": [
+            "C:\\Program Files\\Git\\cmd\\git.exe",
+            "status",
+            "--porcelain=v1"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m01",
+          "executableIdentity": "C:\\Program Files\\Git\\cmd\\git.exe",
+          "startedAt": "2026-11-14T22:41:36.790Z",
+          "endedAt": "2026-11-14T22:41:36.851Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs\\implementation\\v3\\logs\\src-03-status.log",
+          "logDigest": "abd3f64c477b1238c3fec7ada91942ec53adf076dc22e4458b197280a538482a"
+        },
+        {
+          "argv": [
+            "C:\\Program Files\\Git\\cmd\\git.exe",
+            "merge-base",
+            "--is-ancestor",
+            "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
+            "055007ff9ab43fc24cfbc0af76b0b4cea3db473d"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m01",
+          "executableIdentity": "C:\\Program Files\\Git\\cmd\\git.exe",
+          "startedAt": "2026-11-14T23:05:23.953Z",
+          "endedAt": "2026-11-14T23:05:23.999Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs\\implementation\\v3\\logs\\src-04-audit-ancestor-of-base.log",
+          "logDigest": "1ebcc8013ed9fb8782d7542a1ac39766ad953a20cf16d2f462da8f92571c3813"
+        },
+        {
+          "argv": [
+            "C:\\Program Files\\Git\\cmd\\git.exe",
+            "merge-base",
+            "--is-ancestor",
+            "055007ff9ab43fc24cfbc0af76b0b4cea3db473d",
+            "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m01",
+          "executableIdentity": "C:\\Program Files\\Git\\cmd\\git.exe",
+          "startedAt": "2026-11-14T23:05:24.003Z",
+          "endedAt": "2026-11-14T23:05:24.043Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs\\implementation\\v3\\logs\\src-05-base-not-ancestor-of-audit.log",
+          "logDigest": "e1f9d67dc61e9cd5578e0b1b8c40f1a3032d29bbd41c7e871af1ab4505de8912"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v3/source-lock.json"
+      ]
+    },
+    {
+      "id": "compatibility",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "node-version",
+          "status": "PASS",
+          "evidence": "v24.22.2 (>= 24.10)"
+        },
+        {
+          "id": "package-manager-version",
+          "status": "PASS",
+          "evidence": "pnpm 10.30.3 via corepack shim (declared 10.30.3)"
+        },
+        {
+          "id": "frozen-lockfile-install",
+          "status": "PASS",
+          "evidence": "cmp-03-frozen-install.log"
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+            "--version"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m01",
+          "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+          "startedAt": "2026-11-14T22:41:36.962Z",
+          "endedAt": "2026-11-14T22:41:36.995Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs\\implementation\\v3\\logs\\cmp-01-node-version.log",
+          "logDigest": "84b7e867e05ece28e7863e78b2341a87888fc20765c934fdeba0a8f26abd2c0d"
+        },
+        {
+          "argv": [
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js",
+            "--version"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m01",
+          "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+          "startedAt": "2026-11-14T22:41:36.998Z",
+          "endedAt": "2026-11-14T22:41:37.317Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs\\implementation\\v3\\logs\\cmp-02-pnpm-version.log",
+          "logDigest": "970b032ce778b94452a272486f89c570f82e0f1d9bd897e97e05fd425c1b75cc"
+        },
+        {
+          "argv": [
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js",
+            "install",
+            "--frozen-lockfile"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m01",
+          "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+          "startedAt": "2026-11-14T22:41:37.319Z",
+          "endedAt": "2026-11-14T22:41:38.204Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs\\implementation\\v3\\logs\\cmp-03-frozen-install.log",
+          "logDigest": "ba06bb7dd2cd8ba17965d51f3d66088600567152ae24f09133c2a3f99ee8198d"
+        }
+      ],
+      "artifactRefs": []
+    },
+    {
+      "id": "core-contracts",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "typecheck",
+          "status": "PASS",
+          "evidence": "core-01-typecheck.log"
+        },
+        {
+          "id": "lint",
+          "status": "PASS",
+          "evidence": "core-02-lint.log (485 sources, 0 violations)"
+        },
+        {
+          "id": "production-build",
+          "status": "PASS",
+          "evidence": "core-03-build.log"
+        },
+        {
+          "id": "baseline-tests",
+          "status": "PASS",
+          "evidence": "core-04-baseline-tests.log (25/25)"
+        },
+        {
+          "id": "selection-tests",
+          "status": "PASS",
+          "evidence": "core-05-selection-tests.log (10/10)"
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js",
+            "typecheck"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m01",
+          "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+          "startedAt": "2026-11-14T22:41:38.206Z",
+          "endedAt": "2026-11-14T22:42:01.222Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs\\implementation\\v3\\logs\\core-01-typecheck.log",
+          "logDigest": "19dbab4d54b1b61f1af5426ab81f5cbac2467a299fb429afa915336a2c212fec"
+        },
+        {
+          "argv": [
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js",
+            "lint"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m01",
+          "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+          "startedAt": "2026-11-14T22:42:01.226Z",
+          "endedAt": "2026-11-14T22:42:20.095Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs\\implementation\\v3\\logs\\core-02-lint.log",
+          "logDigest": "e69b5a973e4ca9fe9293002e65851499fe53e5c8d99577ce9be5774ee16c8f90"
+        },
+        {
+          "argv": [
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js",
+            "build"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m01",
+          "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+          "startedAt": "2026-11-14T22:42:20.097Z",
+          "endedAt": "2026-11-14T22:42:27.992Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs\\implementation\\v3\\logs\\core-03-build.log",
+          "logDigest": "844afc13382534d620ee2db5ae9f6345ac7163e0604bb652143b6429b787142b"
+        },
+        {
+          "argv": [
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js",
+            "exec",
+            "vitest",
+            "run",
+            "tests/research-baseline.test.ts"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m01",
+          "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+          "startedAt": "2026-11-14T22:42:27.995Z",
+          "endedAt": "2026-11-14T22:42:31.971Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs\\implementation\\v3\\logs\\core-04-baseline-tests.log",
+          "logDigest": "d7103603876bc4dcb663fd8747fd6855b9ba2b044f1e0745346545e3c95ab3b6"
+        },
+        {
+          "argv": [
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js",
+            "exec",
+            "vitest",
+            "run",
+            "tests/regression-selection.test.ts"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m01",
+          "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+          "startedAt": "2026-11-14T22:42:31.972Z",
+          "endedAt": "2026-11-14T22:42:33.070Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs\\implementation\\v3\\logs\\core-05-selection-tests.log",
+          "logDigest": "038b390d9efa5048d97d87aacccd11d75bc6b63162eeb8a1285baebdae878b70"
+        }
+      ],
+      "artifactRefs": []
+    },
+    {
+      "id": "unit-baseline",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "unit-suite-executed-and-recorded",
+          "status": "PASS",
+          "evidence": "unit-01-full-suite.log"
+        },
+        {
+          "id": "unit-outcome-classified",
+          "status": "PASS",
+          "evidence": "Recorded run: 53 of 3135 tests failed (60s timeouts concentrated in Store/remote-operation fixtures, 19 files); reproduced standalone in tests/workspace-action-outcomes.test.ts; pre-existing on origin/main. unit-02-classification asserts the summary line in the bounded log. An earlier concurrent run recorded 89/3100 — same failure class."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js",
+            "test:no-lease"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m01",
+          "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+          "startedAt": "2026-11-14T22:42:33.073Z",
+          "endedAt": "2026-11-14T22:57:30.286Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs\\implementation\\v3\\logs\\unit-01-full-suite.log",
+          "logDigest": "387a66956b9732924be5e5a1cf4f454ebde30d5ab58bacc5bbb56cfff1a35474"
+        },
+        {
+          "argv": [
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+            "-e",
+            "const t=require('fs').readFileSync('docs/implementation/v3/logs/unit-01-full-suite.log','utf8');process.exit(/53 failed/.test(t)&&/Test Files/.test(t)?0:1)"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m01",
+          "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+          "startedAt": "2026-11-14T23:05:24.046Z",
+          "endedAt": "2026-11-14T23:05:24.099Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs\\implementation\\v3\\logs\\unit-02-classification.log",
+          "logDigest": "bbfd75e54ac2010d46805e1b783aba27d1f6ac1ef6576d9bd9aaccdec5ab46b1"
+        }
+      ],
+      "artifactRefs": []
+    },
+    {
+      "id": "browser-baseline",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "browser-runtime-installed",
+          "status": "PASS",
+          "evidence": "brw-00-browser-install.log (Chromium 141.0.7390.37 / playwright v1194)"
+        },
+        {
+          "id": "suite-discovery",
+          "status": "PASS",
+          "evidence": "brw-01-discovery.log (113 specs across 16 files)"
+        },
+        {
+          "id": "root-suite-executed-and-recorded",
+          "status": "PASS",
+          "evidence": "brw-02-root-suite.log + test-results/browser/*/root/results.json"
+        },
+        {
+          "id": "browser-outcome-classified",
+          "status": "PASS",
+          "evidence": "83 passed, 29 failed, 1 skipped of 113 — real assertion/30s-timeout mix on Windows; baseline finding, not M01-caused."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js",
+            "exec",
+            "playwright",
+            "install",
+            "chromium"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m01",
+          "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+          "startedAt": "2026-11-14T22:57:30.289Z",
+          "endedAt": "2026-11-14T22:57:31.284Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs\\implementation\\v3\\logs\\brw-00-browser-install.log",
+          "logDigest": "af29727737c6ebc08435a8cfe0c83920c1bde21498349307e461c4364a584c54"
+        },
+        {
+          "argv": [
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js",
+            "test:browser",
+            "--",
+            "--suite",
+            "root",
+            "--list"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m01",
+          "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+          "startedAt": "2026-11-14T22:57:31.285Z",
+          "endedAt": "2026-11-14T22:57:33.965Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs\\implementation\\v3\\logs\\brw-01-discovery.log",
+          "logDigest": "810841a90433f35612222694e62bc9a5eb9ed55e0d5bb5e54debc57b6198f903"
+        },
+        {
+          "argv": [
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js",
+            "test:browser",
+            "--",
+            "--suite",
+            "root"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m01",
+          "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+          "startedAt": "2026-11-14T22:57:33.966Z",
+          "endedAt": "2026-11-14T23:04:12.784Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs\\implementation\\v3\\logs\\brw-02-root-suite.log",
+          "logDigest": "11a583754014b6d6e8c766f4f97ee4867cbbc8d5438a94de10efd775b0d5f516"
+        },
+        {
+          "argv": [
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+            "-e",
+            "const fs=require('fs'),p='test-results/browser';const d=fs.readdirSync(p).filter(x=>fs.existsSync(p+'/'+x+'/root/results.json')).sort().at(-1);const s=JSON.parse(fs.readFileSync(p+'/'+d+'/root/results.json','utf8')).stats;process.exit(s.expected===83&&s.unexpected===29&&s.skipped===1?0:1)"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m01",
+          "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+          "startedAt": "2026-11-14T23:05:24.102Z",
+          "endedAt": "2026-11-14T23:05:24.170Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs\\implementation\\v3\\logs\\brw-03-classification.log",
+          "logDigest": "97414a6c77e58f5eaacdf1e8be86502ac9093f0f8a4e7204f37498fb78ba5d21"
+        }
+      ],
+      "artifactRefs": [
+        "test-results/browser"
+      ]
+    },
+    {
+      "id": "eval-manifest",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "manifest-only-without-host-model",
+          "status": "PASS",
+          "evidence": "results.json: host=null, modelId=null, score.status=pending — labelled MANIFEST_ONLY; all model outcomes NOT_RUN."
+        },
+        {
+          "id": "nonzero-exit-recorded-honestly",
+          "status": "PASS",
+          "evidence": "eval-01-runner.log records the designed exit 2 as FAIL status; the assertion command eval-02 verifies the pending manifest."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js",
+            "eval",
+            "--out",
+            "docs/implementation/v3/eval-m01"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m01",
+          "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+          "startedAt": "2026-11-14T23:04:16.831Z",
+          "endedAt": "2026-11-14T23:04:17.798Z",
+          "exitCode": 2,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs\\implementation\\v3\\logs\\eval-01-runner.log",
+          "logDigest": "942975a44ce6e478ba4997977594f54e14a5440cfb219c306c807a44a736137a"
+        },
+        {
+          "argv": [
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+            "-e",
+            "const r=JSON.parse(require('fs').readFileSync('docs/implementation/v3/eval-m01/results.json','utf8'));process.exit(r.host===null&&r.modelId===null&&r.results.length===0&&r.score&&r.score.status==='pending'?0:1)"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m01",
+          "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+          "startedAt": "2026-11-14T23:04:17.799Z",
+          "endedAt": "2026-11-14T23:04:17.849Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs\\implementation\\v3\\logs\\eval-02-manifest-only.log",
+          "logDigest": "0f38695d2e655b05a85191723cef0f44b82b253adc7ce89c838a30cf417b1859"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v3/eval-m01/frozen-cases.json",
+        "docs/implementation/v3/eval-m01/results.json"
+      ]
+    },
+    {
+      "id": "platform-credential-lease",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "msvc-build-tools",
+          "status": "NOT_RUN",
+          "evidence": "No Visual Studio / vswhere on this host; windows-credential-lease.cc cannot compile."
+        },
+        {
+          "id": "native-lease-build",
+          "status": "NOT_RUN",
+          "evidence": "plt-01-lease-build.log"
+        },
+        {
+          "id": "full-pnpm-test",
+          "status": "NOT_RUN",
+          "evidence": "pnpm test stops at its credential-lease step: plt-02-pnpm-test.log"
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js",
+            "build:credential-lease"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m01",
+          "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+          "startedAt": "2026-11-14T23:04:12.786Z",
+          "endedAt": "2026-11-14T23:04:14.431Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs\\implementation\\v3\\logs\\plt-01-lease-build.log",
+          "logDigest": "b70448bca20bdf16148ec60a908327f8762dc71048934fe91dc2968448fa8652"
+        },
+        {
+          "argv": [
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+            "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js",
+            "test"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m01",
+          "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+          "startedAt": "2026-11-14T23:04:14.916Z",
+          "endedAt": "2026-11-14T23:04:16.830Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs\\implementation\\v3\\logs\\plt-02-pnpm-test.log",
+          "logDigest": "6abcd0d0285b309ceca9272396c2c7f066e1cdece21ec5045fe98300cb820db5"
+        }
+      ],
+      "artifactRefs": []
+    }
+  ],
+  "changedFiles": [
+    "packages/capabilities/process.ts",
+    "packages/contracts/implementation-evidence.ts",
+    "packages/core/capability-flags.ts",
+    "scripts/research-baseline.ts",
+    "scripts/select-regression-tests.ts",
+    "tests/research-baseline.test.ts",
+    "tests/regression-selection.test.ts",
+    "docs/implementation/v3/source-lock.json",
+    "docs/implementation/v3/eval-m01/frozen-cases.json",
+    "docs/implementation/v3/eval-m01/results.json",
+    "docs/implementation/v3/M01-verification.json",
+    "docs/implementation/v3/logs/"
+  ],
+  "dependencyContracts": [
+    {
+      "name": "runtime-adapter",
+      "version": "15e6c254349ac6ad6ce1d1b16898d40bd1ea31d8",
+      "testIds": [
+        "tests/capabilities.test.ts",
+        "tests/store.test.ts"
+      ]
+    },
+    {
+      "name": "store-command",
+      "version": "ebab3cba8d56e074d0377623bffd2054790f622b",
+      "testIds": [
+        "tests/store.test.ts"
+      ]
+    },
+    {
+      "name": "process-launcher",
+      "version": "2943b34b36a18b5abc43aee410bfe9950498aeea",
+      "testIds": [
+        "tests/capabilities.test.ts"
+      ]
+    },
+    {
+      "name": "eval-runner",
+      "version": "074f6c1f321df213ac39f2f3e58b627d3319163f",
+      "testIds": [
+        "tests/capabilities.test.ts"
+      ]
+    },
+    {
+      "name": "browser-suite-registry",
+      "version": "15205d180fec22bcd21307d79eea8947405da473",
+      "testIds": [
+        "tests/browser-runner.test.ts"
+      ]
+    },
+    {
+      "name": "preference-schema",
+      "version": "5cd7a562f3e331c06ffc82454f06075013080131",
+      "testIds": [
+        "tests/store.test.ts",
+        "tests/compact-settings.test.ts"
+      ]
+    }
+  ],
+  "flags": [],
+  "remainingGates": [
+    "PLATFORM BLOCKED: Visual Studio C++ Build Tools absent; windows-credential-lease native build cannot compile and pnpm test is blocked at its lease step. Install MSVC Build Tools to unblock.",
+    "UNIT BASELINE FINDING: 53/3135 tests failed in the recorded run (60s timeouts concentrated in Store/remote-operation fixtures); an earlier run under concurrent browser load showed 89/3100 — same failure class, pre-existing on origin/main.",
+    "BROWSER BASELINE FINDING: 29/113 root-suite specs fail on Windows (83 pass, 1 skip) — real assertion/30s-timeout mix, pre-existing on origin/main.",
+    "Eval evidence is MANIFEST_ONLY: no authorized --host/--model; all model outcomes NOT_RUN.",
+    "reviewerApproval remains false; release permission is a separate gate."
+  ],
+  "reviewerApproval": false
+}
