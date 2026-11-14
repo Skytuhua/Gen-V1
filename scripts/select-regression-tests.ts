@@ -73,10 +73,20 @@ export function selectRegressionTests(changes: readonly SourceChange[], existing
     }
     for (const test of live) selected.add(test);
   };
+  // Renames consider both old and new paths: expand them into a deletion plus
+  // an addition so the old source's mapped tests are selected no matter what
+  // the destination is classified as.
+  const expanded: SourceChange[] = [];
   for (const change of changes) {
+    if (change.status === 'R' && change.previousPath !== undefined)
+      expanded.push({ path: change.previousPath, status: 'D' }, { path: change.path, status: 'A' });
+    else if (change.status === 'C' && change.previousPath !== undefined)
+      expanded.push({ path: change.path, status: 'A' });
+    else expanded.push(change);
+  }
+  for (const change of expanded) {
     const path = normalizedRepoPath(change.path);
-    const previous = change.previousPath ? normalizedRepoPath(change.previousPath) : null;
-    if (path === null || (change.previousPath !== undefined && previous === null)) {
+    if (path === null) {
       forcedFull = true;
       issues.push({ path: String(change.path), code: 'UNSAFE_NAME', message: 'Changed path is not a safe repository-relative name' });
       continue;
@@ -91,9 +101,7 @@ export function selectRegressionTests(changes: readonly SourceChange[], existing
     }
     if (DOC_ONLY.test(path)) continue;
     sawCodeChange = true;
-    // Renames consider both old and new paths: a stale name must not drop coverage.
     selectFor(path);
-    if (previous && previous !== path) selectFor(previous);
   }
   if (forcedFull) {
     return { tests: [...existing].sort(), coverage: 'FULL', needsReview: true, issues };

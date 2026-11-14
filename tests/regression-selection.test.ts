@@ -39,6 +39,14 @@ describe('regression test selection', () => {
     expect(result.coverage).toBe('PARTIAL');
   });
 
+  it('keeps the old path coverage when a source is renamed into docs or a test path', () => {
+    const toDocs = select([{ path: 'docs/old-module.md', previousPath: 'packages/core/old-module.ts', status: 'R' }]);
+    expect(toDocs.tests).toEqual(['tests/store.test.ts']);
+    expect(toDocs.coverage).toBe('PARTIAL');
+    const toTest = select([{ path: 'tests/new-module.test.ts', previousPath: 'packages/core/old-module.ts', status: 'R' }]);
+    expect(toTest.tests).toContain('tests/store.test.ts');
+  });
+
   it('still selects mapped tests for a deleted source file', () => {
     const result = select([{ path: 'packages/storage/store.ts', status: 'D' }]);
     expect(result.tests).toEqual(['tests/store.test.ts']);
