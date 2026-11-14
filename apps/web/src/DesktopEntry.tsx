@@ -23,13 +23,13 @@ import {PluginFrame,usePluginCatalog} from './PluginFrame';
 import {Toaster} from '../../../packages/ui-shell/Toast';
 import {TooltipLayer} from '../../../packages/ui-shell/Tooltip';
 
-function PluginDesktopView(){
+export function PluginDesktopView(){
  const desktop=useDesktop()!,surface=desktop.context.surface,catalog=usePluginCatalog(),[error,setError]=useState('');
  const plugin=surface.kind==='plugin'?catalog.plugins.find(item=>item.id===surface.pluginId):undefined;
  const ready=useCallback(()=>{void desktop.bridge.ready().catch(()=>setError('The plug-in window authority could not be confirmed. Return to the main workspace.'));},[desktop.bridge]);
  const theme=catalog.theme==='light'||catalog.theme==='dark'?catalog.theme:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
  useLayoutEffect(()=>{document.documentElement.dataset.theme=theme;},[theme]);
- return <main className="desktop-surface" inert={desktop.closing}><header className="desktop-surface-header"><strong>{plugin?.name??'Plug-in view'}</strong><DesktopWindowActions/></header>{error&&<p role="status">{error}</p>}{plugin&&surface.kind==='plugin'?<PluginFrame plugin={plugin} theme={theme} surface={surface} onReady={ready}/>:<p role="status">Opening the owning plug-in…</p>}</main>;
+ return <main className="desktop-surface" inert={desktop.closing}><header className="desktop-surface-header"><strong>{plugin?.name??'Plug-in view'}</strong><DesktopWindowActions/></header>{error&&<p role="status">{error}</p>}{plugin&&surface.kind==='plugin'?<PluginFrame plugin={plugin} theme={theme} surface={surface} onReady={ready}/>:catalog.failed||catalog.loaded?<div><p role="alert">{catalog.failed?'Plug-ins could not be loaded.':catalog.error||'The owning plug-in is unavailable.'}</p><button type="button" className="quiet" onClick={catalog.retry}>Retry loading plug-ins</button></div>:<p role="status">Opening the owning plug-in…</p>}</main>;
 }
 
 function Surface(){const desktop=useDesktop()!,surface=desktop.context.surface;const [snapshot,setSnapshot]=useState<Snapshot|null>(null),[error,setError]=useState(''),[systemDark,setSystemDark]=useState(()=>matchMedia('(prefers-color-scheme: dark)').matches),[layout,setLayout]=useState(()=>({...readShellLayout(),rightPanelOpen:true,rightPanelMaximized:false,activeTab:surface.kind==='workspace'&&surface.tab&&['files','diff','output','usage','artifact','terminal','pull-request','linked-pull-requests'].includes(surface.tab)?surface.tab as WorkspaceTab:'artifact' as WorkspaceTab,activeArtifactId:surface.kind==='workspace'?surface.artifactId??null:null}));const current=useRef(snapshot);current.current=snapshot;const workspace=useWorkspaceState(Boolean(snapshot)&&surface.kind==='workspace'&&Boolean(surface.panelId));
