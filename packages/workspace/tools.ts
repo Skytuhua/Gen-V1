@@ -1,7 +1,7 @@
 import {randomUUID,createHash} from 'node:crypto';
 import {hostname} from 'node:os';
 import {lstat,mkdir,readFile,realpath,open} from 'node:fs/promises';
-import {dirname,join,resolve} from 'node:path';
+import {dirname,join,relative,resolve} from 'node:path';
 import {z} from 'zod';
 import {Store} from '../storage/store.ts';
 import {HarnessError,type HostCommand,type ResourceGrant,type Thread} from '../contracts/index.ts';
@@ -24,6 +24,8 @@ const id=z.string().regex(/^[a-zA-Z0-9:_.-]{1,200}$/),label=z.string().trim().mi
 const identity=async(path:string):Promise<Identity>=>{const info=await lstat(path,{bigint:true});if(info.isSymbolicLink()||!info.isDirectory())throw new HarnessError('CAPABILITY_DENIED','Project directories must be ordinary directories.');return{dev:String(info.dev),ino:String(info.ino)};};
 const equal=(a:Identity,b:Identity)=>a.dev===b.dev&&a.ino===b.ino;
 const pathName=z.string().min(1).max(1024).refine(path=>!path.includes('\0')&&!path.includes(':')&&!/^[\\/]|(?:^|[\\/])\.\.(?:[\\/]|$)/.test(path),'Choose a file inside the project.');
+// Git metadata is never project content, whatever its case or nesting depth.
+const gitSegment=(value:string)=>value.split(/[\\/]/).some(part=>part.toLowerCase()==='.git');
 async function untrackedDigest(path:string,signal:AbortSignal){
  return withPathGuard([{path,leaf:true,readOnly:true}],signal,async()=>{
   const file=await open(path,'r');try{const info=await file.stat({bigint:true});if(!info.isFile()||info.nlink!==1n)throw new HarnessError('CAPABILITY_DENIED','Changed paths must be ordinary files.');
@@ -168,9 +170,9 @@ export class ProjectTools{
   return{project,...(threadId?{threadId,threadRevision}:{}),...(admitted.workspace?{workingCopy:{id:admitted.workspace.id,path:admitted.path}}:{}),machineName:hostname(),editor:{available:true,label:'Default editor'},branch:status?.branch??null,head:status?.head??null,...(status?{revision:status.revision}:{}),changes:{added:status?status.files.reduce((sum,file)=>sum+(file.added??0),0):null,removed:status?status.files.reduce((sum,file)=>sum+(file.removed??0),0):null,files:status?.files.length??null},lineage,scripts,capabilities:{git:!!status,gitWrite:status?.gitWrite??false,untrackedIncluded:status?.untrackedIncluded??false,terminal:!!project.rootPath,pullRequests:!!status?.gitWrite},...(error?{error}:{})};
  }
  async files(projectId:string,threadId:string|undefined,relativePath=''){
-  const{path}=await this.binding(projectId,threadId),target=relativePath?join(path,pathName.parse(relativePath)):path;if(!inside(path,await realpath(target)))throw new HarnessError('CAPABILITY_DENIED','Files stay inside the selected worktree.');
-  return withPathGuard([{path:target,leaf:false}],new AbortController().signal,async()=>{const{readdir}=await import('node:fs/promises'),entries=[];for(const item of(await readdir(target,{withFileTypes:true})).slice(0,500)){if(item.name==='.git'||item.name==='.harness-directory-guard'||item.isSymbolicLink())continue;entries.push({name:item.name,path:relativePath?relativePath+'/'+item.name:item.name,kind:item.isDirectory()?'directory':'file'});}return{path:relativePath,entries};});
+  const{path}=await this.binding(projectId,threadId),target=relativePath?join(path,pathName.parse(relativePath)):path,resolved=await realpath(target);if(!inside(path,resolved)||gitSegment(relative(path,resolved))||gitSegment(relativePath))throw new HarnessError('CAPABILITY_DENIED','Files stay inside the selected worktree.');
+  return withPathGuard([{path:target,leaf:false}],new AbortController().signal,async()=>{const{readdir}=await import('node:fs/promises'),entries=[];for(const item of(await readdir(target,{withFileTypes:true})).slice(0,500)){if(item.name.toLowerCase()==='.git'||item.name==='.harness-directory-guard'||item.isSymbolicLink())continue;entries.push({name:item.name,path:relativePath?relativePath+'/'+item.name:item.name,kind:item.isDirectory()?'directory':'file'});}return{path:relativePath,entries};});
  }
- async file(projectId:string,threadId:string|undefined,relativePath:string){const{path}=await this.binding(projectId,threadId),target=join(path,pathName.parse(relativePath));if(!inside(path,await realpath(target))||relativePath.replaceAll('\\','/').split('/').includes('.git'))throw new HarnessError('CAPABILITY_DENIED','Choose a source file inside this worktree.');return withPathGuard([{path:target,leaf:true,readOnly:true}],new AbortController().signal,async()=>{const data=await readBoundFile(target,1024*1024);return{text:data.includes(0)?null:data.toString('utf8'),binary:data.includes(0),sha256:hash(data)};});}
+ async file(projectId:string,threadId:string|undefined,relativePath:string){const{path}=await this.binding(projectId,threadId),target=join(path,pathName.parse(relativePath)),resolved=await realpath(target);if(!inside(path,resolved)||gitSegment(relative(path,resolved))||gitSegment(relativePath))throw new HarnessError('CAPABILITY_DENIED','Choose a source file inside this worktree.');return withPathGuard([{path:target,leaf:true,readOnly:true}],new AbortController().signal,async()=>{const data=await readBoundFile(target,1024*1024);return{text:data.includes(0)?null:data.toString('utf8'),binary:data.includes(0),sha256:hash(data)};});}
  async dispose(){await Promise.allSettled([...this.queues.values()]);}
 }

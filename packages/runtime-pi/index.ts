@@ -55,6 +55,12 @@ export function createPiRuntime({ dataDir,modelOnly:requestedModelOnly,purpose }
       if (authority.revoked) throw new HarnessError("PI_RUN_ABORTED", "Pi run authority was revoked by cancellation.");
     }
   }
+  const WORKER_ENV = ["PATH", "Path", "SystemRoot", "SYSTEMROOT", "SystemDrive", "WINDIR", "COMSPEC", "PATHEXT", "HOME", "HOMEDRIVE", "HOMEPATH", "USERPROFILE", "APPDATA", "LOCALAPPDATA", "USERNAME", "USER", "LOGNAME", "SHELL", "TMP", "TEMP", "TMPDIR", "LANG", "LC_ALL", "LC_CTYPE", "TERM", "TZ", "NODE_EXTRA_CA_CERTS", "HTTP_PROXY", "HTTPS_PROXY", "NO_PROXY", "ALL_PROXY", "http_proxy", "https_proxy", "no_proxy", "all_proxy"];
+  function workerEnvironment(): NodeJS.ProcessEnv {
+    const env: NodeJS.ProcessEnv = { ELECTRON_RUN_AS_NODE: "1", PI_OFFLINE: "1" };
+    for (const name of WORKER_ENV) if (process.env[name] !== undefined) env[name] = process.env[name];
+    return env;
+  }
   async function spawnWorker(authority?: RunAuthority): Promise<Worker> {
     const ctx = authority?.ctx;
     assertAuthority(authority);
@@ -63,7 +69,7 @@ export function createPiRuntime({ dataDir,modelOnly:requestedModelOnly,purpose }
     const child = spawn(process.execPath, ["--import", pathToFileURL(createRequire(import.meta.url).resolve("tsx")).href, fileURLToPath(new URL("./worker.ts", import.meta.url))], {
       cwd: taskPaths(storage, "worker").agentDir,
       stdio: ["ignore", "ignore", "ignore", "ipc"], detached: process.platform !== "win32", windowsHide: true,
-      env: { ...process.env, PI_OFFLINE: "1" }, serialization: "advanced",
+      env: workerEnvironment(), serialization: "advanced",
     });
     let didExit!: () => void;
     const worker: Worker = { process: child, ctx, authority, allowed: new Set(), active: !!ctx, stopping: false, pending: new Map(), exited: new Promise(resolve => { didExit = resolve; }) };
@@ -95,7 +101,13 @@ export function createPiRuntime({ dataDir,modelOnly:requestedModelOnly,purpose }
     const ended = () => {
       for (const pending of worker.pending.values()) { clearTimeout(pending.timer); pending.reject(new HarnessError("PI_WORKER_EXITED", "Pi worker exited before completing the request. Run pnpm install if the SDK cannot load; retry or sign in with pnpm agent:login.")); }
       worker.pending.clear();
-      if (worker.active && !worker.stopping) emit(worker, "error", "Pi worker exited unexpectedly. Persisted history will determine which inputs were delivered.");
+      if (worker.active && !worker.stopping) {
+        emit(worker, "error", "Pi worker exited unexpectedly. Persisted history will determine which inputs were delivered.");
+        if (worker.ctx && current(worker)) callbacks?.onEvent({ ...worker.ctx, type: "settled", aborted: true });
+      }
+      worker.active = false;
+      if (worker.authority) { worker.authority.settled = true; worker.authority.revoked = true; }
+      if (worker.ctx && runs.get(worker.ctx.threadId) === worker) runs.delete(worker.ctx.threadId);
       workers.delete(worker);
       if (authority) authorities.delete(authority);
       didExit();
