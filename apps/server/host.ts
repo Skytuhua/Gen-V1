@@ -18,7 +18,7 @@ import {loadInstalledPlugins,type PluginRegistry} from '../../packages/plugins/h
 import {checkInstalledCompatibility} from '../../packages/plugins/installation.ts';
 import {createPersonalSkillCatalog} from '../../packages/skill-catalog/adapters.ts';
 
-export interface HostOptions {dataDir:string;port:number;widgetPort:number;dev:boolean;pluginDir?:string}
+export interface HostOptions {dataDir:string;port:number;widgetPort:number;dev:boolean;pluginDir?:string;launchToken?:string}
 export interface RunningHost {attentionRead?():Promise<AttentionDelivery>;attentionAction?(type:'open'|'dismiss',eventId:string):Promise<{threadId?:string;dismissed?:boolean}>;origin:string;widgetOrigin:string;pid:number;close():Promise<void>;nativeLayout?:DesktopLayout;stopAll():Promise<{stopped:number;errors?:string[]}>;saveNativeLayout(layout:unknown):Promise<void>;validatePluginSurface?(surface:unknown):Promise<boolean>;pluginCompatibility?(version:string):Promise<{allowed:boolean}>;updateReadiness?():Promise<{idle:boolean}>;prepareUpdateClose?():Promise<{idle:boolean}>}
 export interface HostFactories {
  acquireProfile:typeof acquireProfileLease;
@@ -39,7 +39,7 @@ function port(value:unknown,name:string):number {
 }
 export function readHostOptions(env:NodeJS.ProcessEnv=process.env):HostOptions {
  if(env.HARNESS_DATA_DIR!==undefined&&!env.HARNESS_DATA_DIR.trim())throw new Error('HARNESS_DATA_DIR must be a nonempty directory.');
- return {dataDir:resolve(env.HARNESS_DATA_DIR??join(env.LOCALAPPDATA??homedir(),'GenerativeHarness')),port:port(env.HARNESS_PORT??4317,'HARNESS_PORT'),widgetPort:port(env.HARNESS_WIDGET_PORT??4318,'HARNESS_WIDGET_PORT'),dev:env.HARNESS_DEV==='1'};
+ return {dataDir:resolve(env.HARNESS_DATA_DIR??join(env.LOCALAPPDATA??homedir(),'GenerativeHarness')),port:port(env.HARNESS_PORT??4317,'HARNESS_PORT'),widgetPort:port(env.HARNESS_WIDGET_PORT??4318,'HARNESS_WIDGET_PORT'),dev:env.HARNESS_DEV==='1',launchToken:env.HARNESS_DESKTOP_LAUNCH_TOKEN};
 }
 
 /** One owned host, reused by the CLI and the desktop's real-Node sidecar. */
@@ -73,7 +73,7 @@ export async function launchHost(options:HostOptions,overrides:Partial<HostFacto
   const pluginFailures=plugins?.failures?.()??[];if(pluginFailures.length)pluginLoadFailed=true;
   const pluginError=pluginLoadFailed?(pluginFailures.length?pluginFailures.map(failure=>failure.message).join(' '):'An installed plug-in could not load. Its saved data is retained.'):undefined;
   const mounts:MountRegistry=new Map();
-  app=await make.buildServer(service,{port:hostPort,widgetPort,dev:options.dev,mounts,plugins,skillCatalog:make.createSkillCatalog(store,{pluginRoot}),admitPluginRequest:()=>accepting,...(pluginError?{pluginError}:{})});
+  app=await make.buildServer(service,{port:hostPort,widgetPort,dev:options.dev,mounts,plugins,skillCatalog:make.createSkillCatalog(store,{pluginRoot}),admitPluginRequest:()=>accepting,launchToken:options.launchToken,...(pluginError?{pluginError}:{})});
   widgets=await make.buildWidgetServer(service,mounts,widgetPort);
   // Own both ports before recovering durable runs. A collision must not alter
   // another live host's task authority, and early clients must wait for recovery.

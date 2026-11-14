@@ -170,7 +170,7 @@ async function openSurface(raw:unknown,sourceBounds?:DesktopBounds):Promise<Desk
  await native.loadURL(url).catch(error=>{if(!record.settled){record.settled=true;record.rejectReady(error);}if(!native.isDestroyed())native.destroy();});
  return readyPromise;
 }
-function trustedUrl(id:string){return trustedDesktopUrl(backendOrigin,id);}
+function trustedUrl(id:string){return trustedDesktopUrl(backendOrigin,id,launchToken||undefined);}
 function requestClose(record:WindowRecord):Promise<boolean>{
  if(record.window.isDestroyed())return Promise.resolve(true);if(record.closePromise)return record.closePromise;
  const requestId=randomUUID();record.closePromise=new Promise<boolean>(resolve=>{const finish=(allow:boolean)=>{record.closeRequest=undefined;record.closePromise=undefined;resolve(allow);};record.closeRequest={id:requestId,resolve:finish,timer:setTimeout(()=>finish(false),15000)};record.window.webContents.send(channels.closeRequest,requestId);});return record.closePromise;
