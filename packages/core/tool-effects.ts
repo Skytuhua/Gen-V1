@@ -45,12 +45,16 @@ export function privateArgumentCommitment(call: ToolCall): string {
 
 /** UI-safe summary: redacts secret-looking argument values by digest+length
  * only; secret material never enters this string (SecretRef-style identity). */
+const redactValue = (key: string, value: unknown): unknown => {
+  if (SECRET_KEY.test(key)) return "<redacted>";
+  if (Array.isArray(value)) return value.map(item => redactValue("", item));
+  if (value && typeof value === "object")
+    return Object.fromEntries(Object.entries(value as Record<string, unknown>).map(([childKey, child]) => [childKey, redactValue(childKey, child)]));
+  const text = JSON.stringify(value);
+  return typeof text === "string" && text.length > 200 ? "<digest:" + digest(value).slice(0, 12) + ">" : value;
+};
 export function publicRedactedSummary(call: ToolCall): string {
-  const args = Object.fromEntries(Object.entries(stripControl(call.args)).map(([key, value]) => {
-    if (SECRET_KEY.test(key)) return [key, "<redacted>"];
-    const text = JSON.stringify(value);
-    return [key, typeof text === "string" && text.length > 200 ? "<digest:" + digest(value).slice(0, 12) + ">" : value];
-  }));
+  const args = Object.fromEntries(Object.entries(stripControl(call.args)).map(([key, value]) => [key, redactValue(key, value)]));
   const summary = call.name + " " + JSON.stringify(args);
   return summary.length > 600 ? summary.slice(0, 600) + "…" : summary;
 }
