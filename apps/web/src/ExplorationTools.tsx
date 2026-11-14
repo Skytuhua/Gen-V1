@@ -57,11 +57,12 @@ function slotTime(slot:ScheduleData['slots'][number],format:Intl.DateTimeFormat,
  const start=new Date(slot.start),end=new Date(slot.end);
  return `${format.format(start)} – ${date.format(start)!==date.format(end)?`${date.format(end)}, `:''}${format.format(end)}`;
 }
+const durationFormat=new Intl.NumberFormat(undefined,{maximumFractionDigits:1});
 function slotDuration(slot:ScheduleData['slots'][number]){
  const minutes=(Date.parse(slot.end)-Date.parse(slot.start))/60000;
- if(minutes<60)return `${new Intl.NumberFormat(undefined,{maximumFractionDigits:1}).format(minutes)} min`;
+ if(minutes<60)return `${durationFormat.format(minutes)} min`;
  const hours=Math.floor(minutes/60),remaining=minutes-hours*60;
- return `${hours} hr${remaining?` ${new Intl.NumberFormat(undefined,{maximumFractionDigits:1}).format(remaining)} min`:''}`;
+ return `${hours} hr${remaining?` ${durationFormat.format(remaining)} min`:''}`;
 }
 export function SchedulePicker({element:{props}}:ComponentRenderProps){
  const p=EXPLORATION_SCHEMAS.SchedulePicker.parse(props),store=useStateStore(),action=useTaskAction(),id=useId(),raw=store.get(inputPath(p.dataBinding)),[selectionError,setSelectionError]=useState('');

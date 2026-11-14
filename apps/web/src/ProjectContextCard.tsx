@@ -6,6 +6,8 @@ import {contextCompanions} from './project-context-summary';
 import {LoadingState,PendingStatus} from './LoadingState';
 import './project-context.css';
 
+const compactCount=new Intl.NumberFormat(undefined,{notation:'compact',maximumFractionDigits:1});
+
 export interface ProjectContextCardProps {
  context?:ProjectContext|null;loading?:boolean;error?:string;threadTitle?:string;plan?:ReactNode;planOpen?:boolean;onTogglePlan?:()=>void;
  onAction?:(type:string,payload?:Record<string,unknown>)=>Promise<void>;
@@ -21,7 +23,7 @@ export function ProjectContextCard({context,loading,error,threadTitle,plan,planO
  const run=(type:string,payload:Record<string,unknown>={})=>{if(!onAction||busy)return;setBusy(true);setActionError('');void onAction(type,payload).then(()=>{setExpanded(null);setCommit('');}).catch(cause=>setActionError(cause instanceof Error?cause.message:'The project action could not finish.')).finally(()=>setBusy(false));};
  const toggle=(name:NonNullable<typeof expanded>)=>setExpanded(value=>value===name?null:name);
  const connected=Boolean(context&&(context.project.rootPath||context.capabilities.git||context.capabilities.terminal||context.editor.available));
- const total=(value:number)=>new Intl.NumberFormat(undefined,{notation:'compact',maximumFractionDigits:1}).format(value);
+ const total=(value:number)=>compactCount.format(value);
  const lineage=context?.lineage.toSorted((a,b)=>Number(b.status==='working')-Number(a.status==='working'))??[];
  const companions=snapshot?contextCompanions(snapshot,threadId):null,agents=companions?.agents??[],sideConversations=companions?.sideConversations??[],summary=companions?.plan;
  const history=lineage.filter(item=>!agents.some(agent=>agent.id===item.id)&&!sideConversations.some(side=>side.id===item.id));

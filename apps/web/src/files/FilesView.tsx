@@ -18,6 +18,8 @@ import { Select } from "../../../../packages/ui-shell/Select";
 import type { FilesRead } from "./useFilesRead";
 import "./files.css";
 
+const byteCount = new Intl.NumberFormat();
+
 // Keep file identity raw for reads; render invisible filename characters explicitly.
 export function displayFilePath(path: string): string {
 	return path.replace(/[\x01-\x1f\x7f]/g, (character) =>
@@ -268,7 +270,7 @@ export function FilesView({
 													<ChevronRight size={12} />
 												) : entry.bytes !== undefined ? (
 													<small>
-														{new Intl.NumberFormat().format(entry.bytes)} B
+														{byteCount.format(entry.bytes)} B
 													</small>
 												) : null}
 											</button>

@@ -165,7 +165,8 @@ function traceLayout(spans:Span[],query:string,status:string,collapsed:Set<strin
  const timed=spans.filter((span):span is Span&{startMs:number;durationMs:number}=>span.startMs!==undefined&&span.durationMs!==undefined),start=timed.length?Math.min(...timed.map(span=>span.startMs)):0,end=timed.length?Math.max(...timed.map(span=>span.startMs+span.durationMs)):0;
  return {rows,start,end,timed:timed.length>0,filtering};
 }
-const milliseconds=(value:number)=>`${new Intl.NumberFormat(undefined,{maximumFractionDigits:2}).format(value)} ms`;
+const durationFormat=new Intl.NumberFormat(undefined,{maximumFractionDigits:2});
+const milliseconds=(value:number)=>`${durationFormat.format(value)} ms`;
 export function TraceWaterfall({element:{props}}:ComponentRenderProps){
  const selectionHalo=useSelectionHalo();
  const inline=useContext(ArtifactInline);
