@@ -228,3 +228,25 @@ export function subscribe(after: number, accept: (event: WorkspaceEvent) => void
   connect();
   return () => { closed = true; clearTimeout(timer); source?.close(); };
 }
+
+export interface ToolEffectRecord {
+  effectId: string;
+  invocationId: string;
+  toolId: string;
+  state: string;
+  publicRedactedSummary: string;
+  targetPreconditions: string[];
+  approvalId: string | null;
+  providerReceiptRef: string | null;
+  createdAt: string;
+  updatedAt: string;
+  owner: { threadId: string; runId: string | null; epoch: number; projectId: string | null; workspaceId: string | null; accountBinding: string | null };
+  transitions: { from: string | null; to: string; at: string; note?: string }[];
+  outcome?: { value?: unknown; error?: string };
+}
+export interface ToolEffectObservation { effect: ToolEffectRecord; freshness: 'CURRENT' | 'STALE' | 'INDETERMINATE'; coverage: string[] }
+export const getToolEffectObservation = async (threadId: string, invocationId: string): Promise<ToolEffectObservation> => {
+  const context = await authenticated(() => fetch(`/api/tool-effects/${encodeURIComponent(threadId)}`, { credentials: 'same-origin', cache: 'no-store' })).then(read<{ scopeKey: string; coverage: string[] }>);
+  const observation = await authenticated(() => fetch(`/api/tool-effects/${encodeURIComponent(threadId)}/observations?` + new URLSearchParams({ scopeKey: context.scopeKey, invocationId }), { credentials: 'same-origin', cache: 'no-store' })).then(read<{ effect: ToolEffectRecord; freshness: ToolEffectObservation['freshness'] }>);
+  return { ...observation, coverage: context.coverage };
+};

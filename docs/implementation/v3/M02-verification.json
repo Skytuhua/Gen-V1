@@ -1,0 +1,76 @@
+{
+  "milestone": "M02",
+  "branch": "agent/m02-v3",
+  "status": "PARTIAL",
+  "sourceLock": {
+    "baseSha": "055007ff9ab43fc24cfbc0af76b0b4cea3db473d",
+    "headSha": "bb5d4e0",
+    "auditAncestor": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
+    "worktreeRoot": "C:/Users/Administrator/repos/Gen-V1-m02",
+    "recordedAt": "2026-11-14T22:30:00-08:00"
+  },
+  "commands": [
+    {
+      "command": "pnpm exec vitest run tests/tool-effects-v3.test.ts tests/tool-authority-v3.test.ts tests/effect-recovery-v3.test.ts",
+      "exitCode": 0,
+      "stdoutDigest": "22 tests passed across 3 files",
+      "startedAt": "2026-11-14T22:09:45-08:00",
+      "durationMs": 1490
+    },
+    {
+      "command": "pnpm typecheck",
+      "exitCode": 0,
+      "stdoutDigest": "tsc --noEmit clean",
+      "startedAt": "2026-11-14T22:10:00-08:00",
+      "durationMs": 45000
+    },
+    {
+      "command": "pnpm test",
+      "exitCode": 1,
+      "stdoutDigest": "2967 passed, 63 failed, 92 skipped of 3122; build:credential-lease cannot run (no Visual Studio C++ Build Tools); playwright browsers absent at run time; remaining failures are environment-bound (missing .harness-integrations-python-deps, node-pty AttachConsole, filesystem guards, 60s timeouts on real git/fs work)",
+      "startedAt": "2026-11-14T22:10:03-08:00",
+      "durationMs": 821690
+    },
+    {
+      "command": "pnpm exec vitest run tests/public-source.test.ts tests/operation-queue.test.ts tests/operation-evidence.test.ts",
+      "exitCode": 0,
+      "stdoutDigest": "22 tests passed; unflagged operation approve/dispatch path unchanged",
+      "startedAt": "2026-11-14T22:24:50-08:00",
+      "durationMs": 4600
+    },
+    {
+      "command": "pnpm build",
+      "exitCode": 0,
+      "stdoutDigest": "build-widgets + build-plugin-runtime + vite build all produced dist output; the aggregate script's nested 'pnpm exec vite build' fails on this box because pnpm is not on PATH for shell:true children, so the vite step was run directly and succeeded",
+      "startedAt": "2026-11-14T22:20:00-08:00",
+      "durationMs": 12000
+    },
+    {
+      "command": "pnpm exec playwright test --config playwright.config.ts host-loop.spec.ts",
+      "exitCode": 1,
+      "stdoutDigest": "3 passed, 4 failed, 1 skipped; baseline worktree at 055007f fails 7 of 8 on the same spec, so all failures reproduce without M02 changes",
+      "startedAt": "2026-11-14T22:26:00-08:00",
+      "durationMs": 90000
+    }
+  ],
+  "flags": {
+    "audit.effectsV1": false,
+    "security.authorityV1": false
+  },
+  "dependencies": {
+    "M01": "PARTIAL — implementation-evidence.ts and capability-flags.ts are vendored into this worktree because M01 has not landed on origin/main; the vendored copies are byte-compatible contract surfaces, not a substitute for the M01 milestone",
+    "windows-credential-lease native build": "BLOCKED — Visual Studio C++ Build Tools absent on this host; pnpm test prerequisite step cannot run",
+    "integration python deps": "BLOCKED — .harness-integrations-python-deps missing because install build scripts were skipped"
+  },
+  "notes": [
+    "Host remains the sole SQLite writer; ToolEffectLedger admits and consumes approvals inside one synchronous Store transaction and persists DISPATCHED before invoking the executor.",
+    "Dedupe coalesces only same owner plus exact argument commitment; any other reuse of an invocationId raises INVOCATION_CONFLICT.",
+    "Recovery marks DISPATCHED effects UNKNOWN_EXTERNAL_OUTCOME and never retries non-read effects; PREPARED effects are marked FAILED as interrupted.",
+    "Rollback path (disableEffects) marks outstanding effects uncertain and preserves consumed approvals; nothing replays pending writes.",
+    "audit.effectsV1 and security.authorityV1 are host-owned, default false, and absent from strict UI preferences.",
+    "Hermes worker.py native skill_tool/shared_skill_tool execution is labeled COVERAGE_GAP; it is not host-observed and no all-tools-audited badge is shown.",
+    "UI presents UNKNOWN_EXTERNAL_OUTCOME as 'Inspect outcome'/'View evidence' with no generic Retry.",
+    "public-source-files.json admits the new runtime, contract, server, test and manifest files; tests/public-source.test.ts passes.",
+    "No push, merge, deploy, force-update, reset, clean or stash was performed; the original checkout at C:/Users/Administrator/repos/Gen-V1 is untouched."
+  ]
+}
