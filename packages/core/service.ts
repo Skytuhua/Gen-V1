@@ -1073,7 +1073,7 @@ export class Service {
     this.assertMutation(op.threadId);
     if (!op.approved) throw new HarnessError("APPROVAL_REQUIRED", "Approve this prepared operation first");
     const markStarted = () => { const started: Operation = { ...op, status: "running" }; this.store.put("operation", id, op.threadId, started); this.operationData(started); return { operationId: id }; };
-    if (capabilityEnabled("audit.effectsV1")) {
+    if (capabilityEnabled("audit.effectsV1") || capabilityEnabled("security.authorityV1")) {
       this.effects.verifyOperationApproval(op, this.thread(op.threadId));
       this.effects.admitOperationDispatch(op, this.thread(op.threadId), markStarted);
     } else this.store.internal("operation.started", op.threadId, markStarted);
@@ -1086,12 +1086,12 @@ export class Service {
       }
       const renewedGrant = await this.replacementGrant(op, result);
       if (!this.closed) this.store.internal("operation.succeeded", op.threadId, () => { const ended: Operation = { ...op, status: "succeeded", result }; if (renewedGrant) this.store.put("resource", renewedGrant.id, op.threadId, renewedGrant); this.store.put("operation", id, op.threadId, ended); this.operationData(ended); this.enqueueOperationResult(ended,writeEvidence); return { operationId: id }; });
-      if (capabilityEnabled("audit.effectsV1")) this.effects.settle("operation:" + id + "@" + op.revision, { value: result }, "SUCCEEDED");
+      if (capabilityEnabled("audit.effectsV1") || capabilityEnabled("security.authorityV1")) this.effects.settle("operation:" + id + "@" + op.revision, { value: result }, "SUCCEEDED");
       this.background(this.deliverOutbox(op.threadId));
       return result;
     } catch (error) {
       if (!this.closed) this.store.internal("operation.failed", op.threadId, () => { const ended: Operation = { ...op, status: control.signal.aborted || error instanceof HarnessError && error.code === "OPERATION_OUTCOME_UNKNOWN" ? "unknown" : "failed", error: error instanceof Error ? error.message : String(error), ...(error instanceof HarnessError && error.details ? { result: error.details } : {}) }; this.store.put("operation", id, op.threadId, ended); this.operationData(ended); this.enqueueOperationResult(ended); return { operationId: id }; });
-      if (capabilityEnabled("audit.effectsV1") && this.effects.get("operation:" + id + "@" + op.revision)) this.effects.settle("operation:" + id + "@" + op.revision, { error: error instanceof Error ? error.message : String(error) }, control.signal.aborted || error instanceof HarnessError && error.code === "OPERATION_OUTCOME_UNKNOWN" ? "UNKNOWN_EXTERNAL_OUTCOME" : "FAILED");
+      if ((capabilityEnabled("audit.effectsV1") || capabilityEnabled("security.authorityV1")) && this.effects.get("operation:" + id + "@" + op.revision)) this.effects.settle("operation:" + id + "@" + op.revision, { error: error instanceof Error ? error.message : String(error) }, control.signal.aborted || error instanceof HarnessError && error.code === "OPERATION_OUTCOME_UNKNOWN" ? "UNKNOWN_EXTERNAL_OUTCOME" : "FAILED");
       this.background(this.deliverOutbox(op.threadId));
       throw error;
     }
@@ -1144,7 +1144,7 @@ export class Service {
       for (const input of this.store.all<Outbox>("outbox").filter(i => i.status !== "handled")) this.store.put("outbox", input.id, input.threadId, { ...input, status: "persisted" });
       return { inferenceCalls: 0 };
     });
-    if (capabilityEnabled("audit.effectsV1")) recoverEffects(this.store);
+    if (capabilityEnabled("audit.effectsV1") || capabilityEnabled("security.authorityV1")) recoverEffects(this.store);
   }
   async dispose(): Promise<void> {
     for(const key of [...this.deltaBuffers.keys()])this.flushDelta(key);
