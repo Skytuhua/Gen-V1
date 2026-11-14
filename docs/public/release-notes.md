@@ -36,7 +36,7 @@ The following remain open:
 
 A bounded review of 28 captured alerts from the older default branch found none applicable to this source head. It did not cover newly disclosed advisories outside that set or every opaque bundled binary, and is not a vulnerability-free claim.
 
-New native detachment is currently unavailable. Gemini/Cursor native compaction, the separate OpenCode agent runtime and Meta/Muse access are also unavailable. Historical design and desktop documents retain older proposals and evidence; the current UI and these limits take precedence.
+Threads can again detach into their own pinned native windows; the main workspace returns to an empty container and its sidebar keeps opening other chats. Canvas panel detachment remains retired. Gemini/Cursor native compaction, the separate OpenCode agent runtime and Meta/Muse access are also unavailable. Historical design and desktop documents retain older proposals and evidence; the current UI and these limits take precedence.
 
 ## Data, licensing and attribution
 
