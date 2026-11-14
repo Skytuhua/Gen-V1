@@ -21,15 +21,15 @@ export function useListNavigation(items: readonly ListEntry[], choose: (index: n
   const type = (key: string, from = active.current) => {
     const now = Date.now();
     search.current = { text: now - search.current.time > 700 ? key : search.current.text + key, time: now };
-    const text = search.current.text.toLocaleLowerCase();
+    const text = search.current.text.toLowerCase();
     const repeated = [...text].every(letter => letter === text[0]);
     const prefix = repeated ? text[0] : text;
     const current = items[from];
-    if (!repeated && current && !current.disabled && current.label.toLocaleLowerCase().startsWith(prefix)) return;
+    if (!repeated && current && !current.disabled && current.label.toLowerCase().startsWith(prefix)) return;
     if (!current) from = -1;
     for (let step = 1; step <= items.length; step++) {
       const index = (from + step + items.length) % items.length;
-      if (!items[index].disabled && items[index].label.toLocaleLowerCase().startsWith(prefix)) { focus(index); break; }
+      if (!items[index].disabled && items[index].label.toLowerCase().startsWith(prefix)) { focus(index); break; }
     }
   };
   return { rows, focus, edge, type, reset: () => { search.current = { text: '', time: 0 }; },
