@@ -78,6 +78,7 @@ export function createDesktopUpdater(options:DesktopUpdaterOptions):DesktopUpdat
  const current=(entry:Candidate)=>!disposed&&candidate===entry&&generation===entry.generation;
  const failure=()=>{generation++;candidate=undefined;if(!disposed)publish({state:'failed',message:'The update could not be verified. Gen will keep the current version.'});};
  const defer=(version:string,message='An installed plug-in needs attention before Gen can update.')=>publish({state:'deferred',version,message});
+ const deferForClose=(version:string)=>defer(version,'The update is waiting for work, saved state and normal shutdown to finish.');
  const onError=()=>failure();
  const onProgress=(progress:{percent:number})=>{
   if(candidate?.phase==='downloading'&&current(candidate)&&typeof progress?.percent==='number'&&Number.isFinite(progress.percent)&&progress.percent>=0&&progress.percent<=100)publish({state:'downloading',version:candidate.version,percent:progress.percent,message:'Downloading the next stable version of Gen.'});
@@ -142,16 +143,17 @@ export function createDesktopUpdater(options:DesktopUpdaterOptions):DesktopUpdat
   async installAfterClose(proof,restart){
    const entry=candidate;
    if(disposed||!options.installed||installationRequested||installPending||checkPending||!entry||entry.phase!=='ready'||!entry.downloadVerified||!current(entry))return false;
-   if(!safeClose(proof)){defer(entry.version,'The update is waiting for work, saved state and normal shutdown to finish.');return false;}
+   if(!safeClose(proof)){deferForClose(entry.version);return false;}
    installPending=true;
    try{
     const compatible=await options.compatibility(entry.version);
     if(!current(entry))return false;
     if(compatible?.allowed!==true){defer(entry.version);return false;}
-    if(!safeClose(proof)){defer(entry.version,'The update is waiting for work, saved state and normal shutdown to finish.');return false;}
+    if(!safeClose(proof)){deferForClose(entry.version);return false;}
     if(!options.isStableNewerVersion(entry.version,options.currentVersion)){failure();return false;}
     publish({state:'installing',version:entry.version,message:'Installing the verified Gen update.'});
-    if(!current(entry)||!safeClose(proof))return false;
+    if(!current(entry))return false;
+    if(!safeClose(proof)){deferForClose(entry.version);return false;}
     installationRequested=true;
     updater.quitAndInstall(true,restart);
     return current(entry);
