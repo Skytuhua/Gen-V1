@@ -52,7 +52,7 @@ import {journalFlush} from './journal';
 import {prepareEditorHandoff} from './editor-handoff';
 import {SideChat,type SideChatHandle} from './SideChat';
 import {ChatView} from '../../../packages/ui-shell/ChatView';
-import {createConversationScroll} from './conversation-scroll';
+import {createConversationScroll,createHistoryAnchor} from './conversation-scroll';
 import {ChatScrollIndicator} from './ChatScrollIndicator';
 import {useComposerPrediction} from './useComposerPrediction';
 import {WorkspaceCanvas} from './WorkspaceCanvas';
@@ -636,12 +636,12 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   const [announcement, setAnnouncement] = useState('');
   const [historyCounts, setHistoryCounts] = useState<Record<string, number>>({});
   const historyStarts = useRef(new Map<string, number>());
-  const historyAnchor = useRef<{ height: number; top: number } | null>(null);
+  const [historyAnchor] = useState(createHistoryAnchor);
   // Pages of older messages fetched on demand once the snapshot's per-thread
   // window is exhausted, keyed by thread id.
   const olderMessages = useRef(new Map<string, Message[]>());
   const lastWindowHeads = useRef(new Map<string, string | undefined>());
-  const [, setOlderPageTick] = useState(0);
+  const [olderPageTick, setOlderPageTick] = useState(0);
   const select = (id: string | null) => { setSelectedPluginId(null);setSelectedPluginWorkspace(null); if(pinnedThreadId&&id&&id!==pinnedThreadId){if(embeddedThreadId&&onRequestThread)onRequestThread(id);else toast('Choose another conversation in the main workspace.');return;}if(id&&!pinnedThreadId&&desktop){const owner=desktop.windows.find(info=>info.id!==desktop.context.windowId&&info.surface.kind==='thread'&&info.surface.threadId===id);if(owner){void desktop.bridge.focus(owner.id).catch(cause=>setError(messageOf(cause)));setSidebarOpen(false);return;}}if(id&&splitEnabled&&!customDock&&splitState.layout){const current=splitState.layout,target=Object.values(current.panes).find(pane=>pane.viewIds.some(viewId=>current.views[viewId]?.kind==='thread'&&current.views[viewId]?.binding.threadId===id));void placeSplitThread(id,target?.id??current.focusedPaneId).catch(cause=>setError(messageOf(cause)));setSidebarOpen(false);return;}  setSelectedId(id); setSidebarOpen(false);  try { if (id) localStorage.setItem('harness:selected-thread', id); else localStorage.removeItem('harness:selected-thread'); } catch { /* Selection still works when storage is unavailable. */ } };
   const createThread = (prepare?: PrepareThread, projectId?: string): Promise<string> => {
     if (creationPending.current) return creationPending.current;
@@ -696,12 +696,17 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
     const position = readingPositions.current.get(id) ?? { top: 0, tail: true };
     const changedThread = previousConversation.current !== id;
     const update = JSON.stringify([messages.length, messages.at(-1)?.id, messages.at(-1)?.content, requests.map(item => [item.id, item.revision]), thread?.status]);
-    conversationMotion.current.update(id,position,historyAnchor.current??undefined);
-    historyAnchor.current=null;
+    const anchor = historyAnchor.consume(id, element);
+    conversationMotion.current.update(id,position,anchor);
+    if (anchor && !changedThread) readingPositions.current.set(id, { ...position, top: element.scrollTop });
     if (!changedThread && previousUpdate.current !== update) { setAnnouncement('New conversation updates available.'); if (!position.tail) setLatestAvailable(true); }
     if (changedThread) { setLatestAvailable(!position.tail); setAnnouncement(''); }
     previousConversation.current = id; previousUpdate.current = update;
-  }, [thread?.id, snapshot, loaded, historyCounts,canvasActive]);
+  }, [thread?.id, snapshot, loaded, historyCounts, olderPageTick, canvasActive, historyAnchor]);
+  const captureHistoryAnchor = (owner: string) => {
+    const element = conversation.current;
+    if (element?.getClientRects().length) historyAnchor.capture(owner, previousConversation.current, element);
+  };
   const rememberPosition = () => {
     const position=conversationMotion.current?.remember();if(!position)return;
     readingPositions.current.set(thread?.id??'new',position);
@@ -933,7 +938,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
         return <div key={thread?.id ?? 'new'} hidden={thread?.id !== (mainDetached?undefined:(snapshot.threads.find(item => item.id === selectedId) ?? snapshot.threads.find(item => item.id === snapshot.activeThreadId))?.id)}><div className={`conversation ${!allMessages.length && !artifacts.length ? 'conversation-empty' : ''}`}>
         {!loaded && !error && <LoadingState pending hasContent={false} label="Opening workspace…" skeleton={<ConversationSkeleton/>}/>}
         {loaded && !allMessages.length && !artifacts.length && <div className="empty-state"><div className="empty-symbol"><MessageSquare size={25} strokeWidth={1.25} /></div><h1>What are we working on?</h1><p>Start with a question, file, or project.</p>{!models.length && <button className="setup-inline" onClick={() => { setSettingsSection('providers'); setSettingsOpen(true); }}><CircleHelp size={15} /><span>Connect a model to get started</span><ChevronRight size={14} /></button>}</div>}
-        {canLoadHistory && <button ref={historyId===activeHistoryId?activeHistoryControl:undefined} className="load-history quiet" onClick={() => { if (conversation.current) historyAnchor.current = { height: conversation.current.scrollHeight, top: conversation.current.scrollTop }; if (historyStart > 0) { historyStarts.current.set(historyId, Math.max(0, historyStart - 100)); setHistoryCounts(previous => ({ ...previous, [historyId]: (previous[historyId] ?? 0) + 1 })); } else if (thread?.id) { const topId = allMessages[historyStart]?.id; const stored = olderMessages.current.get(historyId) ?? [], head = messages[0]?.id; const anchor = stored.length && lastWindowHeads.current.get(historyId) === head ? stored[0].id : head; lastWindowHeads.current.set(historyId, head); void getThreadMessages(thread.id, anchor).then(page => { const known = new Set(stored.map(item => item.id)), fresh = page.messages.filter(item => !known.has(item.id)); const merged = [...stored, ...fresh].sort((a, b) => a.createdAt.localeCompare(b.createdAt)); olderMessages.current.set(historyId, merged); while (olderMessages.current.size > 8) { const stale = [...olderMessages.current.keys()].find(key => key !== historyId); if (stale === undefined) break; olderMessages.current.delete(stale); lastWindowHeads.current.delete(stale); historyStarts.current.delete(stale); readingPositions.current.delete(stale); } const topIndex = merged.findIndex(item => item.id === topId); historyStarts.current.set(historyId, Math.max(0, (topIndex === -1 ? merged.length : topIndex) - 100)); setOlderPageTick(value => value + 1); }).catch(cause => setError(messageOf(cause))); } }}>Load earlier messages</button>}
+        {canLoadHistory && <button ref={historyId===activeHistoryId?activeHistoryControl:undefined} className="load-history quiet" onClick={() => { if (historyStart > 0) { captureHistoryAnchor(historyId); historyStarts.current.set(historyId, Math.max(0, historyStart - 100)); setHistoryCounts(previous => ({ ...previous, [historyId]: (previous[historyId] ?? 0) + 1 })); } else if (thread?.id) { const topId = allMessages[historyStart]?.id; const stored = olderMessages.current.get(historyId) ?? [], head = messages[0]?.id; const anchor = stored.length && lastWindowHeads.current.get(historyId) === head ? stored[0].id : head; lastWindowHeads.current.set(historyId, head); void getThreadMessages(thread.id, anchor).then(page => { const known = new Set(stored.map(item => item.id)), fresh = page.messages.filter(item => !known.has(item.id)); const merged = [...stored, ...fresh].sort((a, b) => a.createdAt.localeCompare(b.createdAt)); olderMessages.current.set(historyId, merged); while (olderMessages.current.size > 8) { const stale = [...olderMessages.current.keys()].find(key => key !== historyId); if (stale === undefined) break; olderMessages.current.delete(stale); lastWindowHeads.current.delete(stale); historyStarts.current.delete(stale); readingPositions.current.delete(stale); } const topIndex = merged.findIndex(item => item.id === topId); historyStarts.current.set(historyId, Math.max(0, (topIndex === -1 ? merged.length : topIndex) - 100)); captureHistoryAnchor(historyId); setOlderPageTick(value => value + 1); }).catch(cause => setError(messageOf(cause))); } }}>Load earlier messages</button>}
         {messageRows.map(({ message, updates }) => <div key={message.id} data-message-id={message.id} data-arrival={liveMessages.current.has(message.id)?'true':undefined} className={`message message-${message.role}`}><span className="sr-only">{message.role === 'user' ? 'You' : message.role === 'assistant' ? 'Assistant' : 'Tool'}</span><div className="message-content">{!updates&&<CopyButton text={message.content} label="Copy message"/>}{updates ? <WorkActivity updates={updates} /> : message.role==='assistant'?<AssistantProse message={message} arrivals={liveMessages.current} active={Boolean(thread?.runId&&thread.runId===message.runId)} />:<Markdown text={message.content} />}</div>{artifacts.filter(artifact => artifact.messageId === message.id).map(artifact => <Artifact key={artifact.id} artifact={artifact} snapshot={snapshot} theme={theme} refresh={refresh} onDirtyWidget={onDirtyWidget} suspended={threadHeld} active={thread?.id===(snapshot.threads.find(item=>item.id===selectedId)??snapshot.threads.find(item=>item.id===snapshot.activeThreadId))?.id} animateEntry={liveEntries.current.has(artifact.id)} />)}</div>)}
         {artifacts.filter(artifact => !messages.some(message => message.id === artifact.messageId)).map(artifact => <Artifact key={artifact.id} artifact={artifact} snapshot={snapshot} theme={theme} refresh={refresh} onDirtyWidget={onDirtyWidget} suspended={threadHeld} active={thread?.id===(snapshot.threads.find(item=>item.id===selectedId)??snapshot.threads.find(item=>item.id===snapshot.activeThreadId))?.id} animateEntry={liveEntries.current.has(artifact.id)} />)}
         {requests.map(request => <InputDecision key={request.presentation?`${request.id}:${JSON.stringify(request.responseSchema)}`:`${request.id}:${request.revision}`} request={request} snapshot={snapshot} refresh={refresh} />)}{operations.map(operation => <OperationDecision key={`${operation.id}:${operation.revision}`} operation={operation} refresh={refresh} />)}
