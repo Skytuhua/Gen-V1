@@ -97,3 +97,15 @@ it('rejects history options that try to override the captured owner before any r
   await expect(api.getConversationHistory(context, {threadId: 'other'} as never)).rejects.toThrow();
   expect(fetch).not.toHaveBeenCalled();
 });
+
+it.each([
+  ['empty', null],
+  ['plain text', 'Bad Gateway'],
+  ['JSON null', 'null'],
+] as const)('reports HTTP status for a %s gateway error body', async (_name, body) => {
+  vi.stubGlobal('fetch', vi.fn(async (url: string) =>
+    url === '/api/bootstrap' ? Response.json({csrfToken: 'token'}) : new Response(body, {status: 502})
+  ));
+  const api = await import('../apps/web/src/conversation-read-api.ts');
+  await expect(api.getConversationHistory(context)).rejects.toMatchObject({code: 'HTTP_ERROR', message: 'Request failed (502)'});
+});
