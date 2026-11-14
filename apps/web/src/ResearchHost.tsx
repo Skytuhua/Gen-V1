@@ -59,7 +59,7 @@ export function ResearchHost({canvas,workspace,composers,openConversation}:{canv
   const key=context.scopeKey, before=!reset&&files?.key===key?files:undefined, controller=new AbortController();filesRead.current=controller;
   setFiles({key,items:before?.items??[],cursor:before?.cursor??null,pending:true,loaded:before?.loaded??false});
   try{
-   const page=await getShellResources({limit:100,...(before?.cursor?{cursor:before.cursor}:{})},controller.signal);
+   const page=await getShellResources({limit:100,threadId:context.owner.threadId,...(before?.cursor?{cursor:before.cursor}:{})},controller.signal);
    if(controller.signal.aborted||currentScope.current!==key)return;
    const permitted=page.items.filter(row=>row.threadId===context.owner.threadId&&['project','file','attachment'].includes(row.kind));
    setFiles({key,items:[...(before?.items??[]),...permitted].filter((row,index,all)=>all.findIndex(other=>other.id===row.id)===index),cursor:page.nextCursor,pending:false,loaded:true});
