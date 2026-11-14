@@ -119,8 +119,23 @@ export function useArtifactState(artifact: ArtifactRecord, record: UserStateReco
     return () => { alive = false; unsubscribe(); };
   }, [loaded, editable, key, store, lane, owner]);
 
+  const recordRef = useRef(record); recordRef.current = record;
   useEffect(() => {
     if (!loaded || !editable) return;
+    // Store writes made before this subscription attached (for example a Steps
+    // defaultStep initialized on mount) bypassed the journal/autosave path;
+    // adopt them as a pending local edit instead of dropping them silently.
+    if (!dirty.current) {
+      const current = store.getSnapshot().values, host = recordRef.current?.values;
+      if (host && typeof host === 'object' && !Array.isArray(host) && JSON.stringify(current) !== JSON.stringify(host)) {
+        dirty.current = true; lane.owner = owner; generation.current += 1;
+        setStatus('Unsaved changes');
+        void acquireLease().catch(error => setStatus(`Draft retained · ${error instanceof Error ? error.message : 'Lease failed'}`));
+        void journalWrite(key, { baseRevision: revision.current, values: current }).catch(() => setStatus('Local journal failed · keep this tab open'));
+        clearTimeout(timer.current);
+        timer.current = setTimeout(() => { void flush().catch(() => {}); }, 500);
+      }
+    }
     let values = store.getSnapshot().values;
     return store.subscribe(() => {
       const next = store.getSnapshot().values;
