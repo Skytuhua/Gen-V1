@@ -161,6 +161,32 @@ describe("durable command storage", () => {
 });
 
 describe('bounded transcript paging', () => {
+  it('decodes only retained snapshot message bodies and keeps their global insertion order', () => {
+    const store = setup(), expected: string[] = [];
+    store.internal('fixture.snapshot-messages', null, () => {
+      store.put('archivedThread', 'archived', null, true);
+      for (let i = 0; i < 700; i++) {
+        for (const threadId of ['a', 'b', 'archived']) {
+          const id = threadId + '-' + i;
+          if (threadId === 'b' && i % 10) continue;
+          store.put('message', id, threadId, { id, threadId, content: 'sample snapshot text' });
+          if ((threadId === 'a' && i >= 400) || threadId === 'b') expected.push(id);
+        }
+      }
+    });
+    const decode = vi.spyOn(JSON, 'parse');
+    let snapshot!: ReturnType<Store['snapshot']>;
+    let decodedMessages = 0;
+    try {
+      snapshot = store.snapshot();
+      decodedMessages = decode.mock.calls.filter(([text]) => String(text).includes('sample snapshot text')).length;
+    } finally { decode.mockRestore(); }
+    expect(snapshot.messages.map(message => message.id)).toEqual(expected);
+    expect(snapshot.messagesTruncated).toEqual({ a: 400 });
+    expect(decodedMessages).toBe(expected.length);
+    expect(store.messagesFor('a', expected.find(id => id.startsWith('a-')), 1).messages[0]?.id).toBe('a-399');
+  });
+
   it('decodes only the requested page while preserving insertion order and older counts', () => {
     const store = setup();
     store.internal('fixture.messages', null, () => {
