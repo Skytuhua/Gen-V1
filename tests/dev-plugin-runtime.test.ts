@@ -1,7 +1,7 @@
 import {afterEach,expect,it} from 'vitest';
 import {spawn,type ChildProcess} from 'node:child_process';
 import {once} from 'node:events';
-import {cp,mkdir,mkdtemp,readFile,rm,stat,symlink,writeFile} from 'node:fs/promises';
+import {cp,mkdir,mkdtemp,readFile,rename,rm,stat,symlink,writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join,resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
@@ -76,11 +76,17 @@ async function originOf(startup:ReturnType<typeof run>){
 
 it('returns 503 for fixed runtime routes in a source-only checkout',async()=>{
   const directory=await scratch();
-  const host=run(directory,false),origin=await originOf(host);
-  for(const asset of ['runtime.js','runtime.css']){
-    await expect(stat(join(directory,'dist/plugin-runtime',asset))).rejects.toMatchObject({code:'ENOENT'});
-    expect((await fetch(`${origin}/plugin-runtime/${asset}`)).status).toBe(503);
-  }
+  // Runtime assets resolve beside the server module, so simulate a source-only
+  // checkout by hiding the built runtime for the duration of the assertions.
+  const runtimeDir=join(repository,'dist/plugin-runtime'),hidden=join(repository,'dist/plugin-runtime.hidden-by-test');
+  const built=await stat(runtimeDir).then(()=>true).catch(()=>false);
+  if(built)await rename(runtimeDir,hidden);
+  try {
+    const host=run(directory,false),origin=await originOf(host);
+    for(const asset of ['runtime.js','runtime.css']){
+      expect((await fetch(`${origin}/plugin-runtime/${asset}`)).status).toBe(503);
+    }
+  } finally {if(built)await rename(hidden,runtimeDir);}
 });
 
 it('prepares widgets and shared runtime before dev children, serves the trusted frame, and closes owned children',async()=>{
