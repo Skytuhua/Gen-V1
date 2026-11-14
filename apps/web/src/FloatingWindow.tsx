@@ -1,17 +1,11 @@
 import {useContext,useEffect,useId,useLayoutEffect,useRef,useState,type CSSProperties,type KeyboardEvent,type PointerEvent,type ReactNode} from 'react';
 import {ChevronDown,ChevronUp,GripVertical,RotateCcw,X} from 'lucide-react';
 import {clampFloatingLayout,FLOATING_COLLAPSED_HEIGHT,readFloatingLayout,writeFloatingLayout,type FloatingAnchor,type FloatingLayout,type FloatingSize,type FloatingViewport} from './floating-layout';
+import {bringForward,layerFor,removeLayer,subscribeLayer} from './floating-order';
 import {animateTask,reducedMotion} from './task-motion';
 import {FloatingRailSlotContext} from './FloatingRail';
 import './floating-window.css';
 export interface FloatingWindowProps {id:string;title:string;children:ReactNode;open?:boolean;onClose?:()=>void;anchor?:FloatingAnchor;defaultSize?:FloatingSize;minSize?:FloatingSize;defaultCollapsed?:boolean;summary?:ReactNode;collapsedLabel?:string;minimizeLabel?:string;ariaLabel?:string;className?:string;escapeBehavior?:'close'|'collapse';resetPosition?:boolean;onDetach?:()=>void|Promise<void>;minimizeOnly?:boolean;sizing?:'manual'|'content';focusOnOpen?:boolean;expandRequest?:number;storage?:{read:typeof readFloatingLayout;write:typeof writeFloatingLayout}}
-
-// Focus changes a bounded shell-only stacking list, never generated task state.
-const order:string[]=[];
-const listeners=new Set<()=>void>();
-const layerFor=(id:string)=>34+Math.min(4,Math.max(0,order.indexOf(id)));
-function removeLayer(id:string){const index=order.indexOf(id);if(index>=0){order.splice(index,1);listeners.forEach(listener=>listener());}}
-function bringForward(id:string){if(order.at(-1)===id)return;removeLayer(id);order.push(id);listeners.forEach(listener=>listener());}
 
 function viewport(collapsed:boolean,slot?:HTMLDivElement|null,inRail=false,floating=false,owner?:HTMLElement|null,anchor:FloatingAnchor='top-right'):FloatingViewport {
   if(inRail&&!floating){const area=slot?.getBoundingClientRect(),height=area?.height||Math.max(180,innerHeight-84);const composer=anchor==='bottom-right'?document.querySelector<HTMLElement>('.composer-dock')?.getBoundingClientRect():undefined;const aboveComposer=composer&&area&&area.height>0?composer.top-area.top-10:0;return {width:area?.width||352,height,top:0,bottom:aboveComposer>80?aboveComposer:height,gutter:0,pinned:'left'};}
@@ -56,8 +50,8 @@ export function FloatingWindow({id,title,children,open=true,onClose,anchor='top-
   useLayoutEffect(()=>()=>rail?.report(null),[rail]);
   useEffect(()=>{const timer=setTimeout(()=>writeLayout(id,layout),120);return()=>clearTimeout(timer);},[id,layout,writeLayout]);
   useLayoutEffect(()=>{
-    const refresh=()=>setLayer(layerFor(id));listeners.add(refresh);if(open)bringForward(id);
-    return()=>{listeners.delete(refresh);removeLayer(id);};
+    const refresh=()=>setLayer(layerFor(id)),unsubscribe=subscribeLayer(refresh);if(open)bringForward(id);
+    return()=>{unsubscribe();removeLayer(id);};
   },[id,open]);
   useLayoutEffect(()=>{
     const wasOpen=previousOpen.current;previousOpen.current=open;
