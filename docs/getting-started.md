@@ -140,10 +140,16 @@ Check [the Gen V1 beta release](https://github.com/Skytuhua/Gen-V1/releases/tag/
 ## Run the checks
 
 ```powershell
+pnpm exec playwright install chromium
 pnpm typecheck
 pnpm test --maxWorkers=1
 pnpm test:e2e
 ```
+
+Playwright's Chromium install covers the suites that use its bundled browser.
+The full browser suite also needs Google Chrome and Microsoft Edge installed
+for the configurations that explicitly select those channels. The Chromium
+download does not install those branded browsers.
 
 The browser command builds the application and runs each spec with its assigned
 fixture server. The Memory fixture, actual-app and journal modes run separately.
