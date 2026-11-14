@@ -88,7 +88,7 @@ export function FilesView({
 		filterId = useId();
 	const entries = folder.value?.entries ?? [],
 		visible = entries.filter((entry) =>
-			entry.name.toLocaleLowerCase().includes(filter.toLocaleLowerCase()),
+			entry.name.toLowerCase().includes(filter.toLowerCase()),
 		);
 	const directory = (next: string) => {
 		setFilter("");

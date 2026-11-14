@@ -67,8 +67,8 @@ export class ShellReadModels {
     return {sequence: this.store.sequence, total: rows.length, items, nextCursor};
   }
   navigation(input: unknown): NavigationPage {
-    const query = navInput.parse(input), {all, archived} = this.owners(), text = query.text.toLocaleLowerCase();
-    const rows = all.filter(thread => !thread.sideParentId && thread.kind !== 'side' && archived.has(thread.id) === query.archived && (!text || (thread.title + ' ' + (thread.projectName ?? '')).toLocaleLowerCase().includes(text))).sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id)).map(thread => this.row(thread));
+    const query = navInput.parse(input), {all, archived} = this.owners(), text = query.text.toLowerCase();
+    const rows = all.filter(thread => !thread.sideParentId && thread.kind !== 'side' && archived.has(thread.id) === query.archived && (!text || (thread.title + ' ' + (thread.projectName ?? '')).toLowerCase().includes(text))).sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id)).map(thread => this.row(thread));
     const order = rows.map(row => row.presentation?.order ?? 0);
     return {...this.page(rows, query, {kind: 'navigation', archived: query.archived, text}), order: 'created-desc', stats: {pinned: rows.filter(row => row.presentation?.pinned).length, working: rows.filter(row => row.runId || row.status === 'working').length, waiting: rows.filter(row => row.status === 'awaiting_input').length, settled: rows.filter(row => row.presentation?.settled).length, minOrder: Math.min(0, ...order), maxOrder: Math.max(0, ...order)}};
   }

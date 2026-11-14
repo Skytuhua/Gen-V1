@@ -119,7 +119,7 @@ function ComparisonBody({selection, writes, onRefresh}: CodeReviewWorkspaceProps
   const compatible = !!identity && !!draft.value && canUseDraft(draft.value, identity, action);
   const canReview = !!comparison && reviewable(selection, comparison, writes);
   const ownerBound = !!writes && sameOwner(selection.owner, writes.owner) && selection.owner.authority.kind === 'local';
-  const rows = comparison?.files.filter(file => `${file.path} ${file.oldPath ?? ''}`.toLocaleLowerCase().includes(filter.toLocaleLowerCase())) ?? [];
+  const rows = comparison?.files.filter(file => `${file.path} ${file.oldPath ?? ''}`.toLowerCase().includes(filter.toLowerCase())) ?? [];
   const load = () => {onRefresh?.(); setRefresh(value => value + 1);};
   async function perform(operation: ReviewOperation['operation'], payload: ReviewOperation['payload'], callback: (context: ReviewActionContext) => Promise<ReviewActionResult>, reviewWrite = false) {
     if (!comparison || !action || !canWrite || held || inFlight.current || !draft.value || (reviewWrite && (!compatible || !canReview))) return;
