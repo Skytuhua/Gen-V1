@@ -322,9 +322,9 @@ function Composer({ modelPickerRequest, onModelPickerOpened, sharedComposers, on
     await runAction(async () => {
       setError('');
       try {
+        for (const item of selectedFiles) if (item.size > 20 * 1024 * 1024) throw new Error(`${item.name} is larger than the 20 MB attachment limit.`);
         const id = await ensureThread(id => migrateDraft(id, draft, true));
         for (const item of selectedFiles) {
-          if (item.size > 20 * 1024 * 1024) throw new Error(`${item.name} is larger than the 20 MB attachment limit.`);
           const base64 = await new Promise<string>((resolve, reject) => { const reader = new FileReader(); reader.onload = () => resolve(String(reader.result).split(',')[1] ?? ''); reader.onerror = () => reject(reader.error); reader.readAsDataURL(item); });
           await command('resource.upload', { name: item.name, mimeType: item.type || 'application/octet-stream', base64 }, id);
         }
@@ -513,8 +513,21 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
     try { await action(); } finally { composerPending.current = false; setComposerBusy(false); }
   };
   const [dirtyWidgets, setDirtyWidgets] = useState<Record<string, string>>({});
+  const widgetDiscards = useRef(new Map<string, () => Promise<void>>());
   const [archiveThread, setArchiveThread] = useState<string | null>(null);
-  const onDirtyWidget = useCallback((id: string, threadId: string, dirty: boolean) => setDirtyWidgets(previous => { if (dirty && previous[id] === threadId || !dirty && !Object.hasOwn(previous, id)) return previous; const next = { ...previous }; if (dirty) next[id] = threadId; else delete next[id]; return next; }), []);
+  const onDirtyWidget = useCallback((id: string, threadId: string, dirty: boolean, discard?: () => Promise<void>) => {
+    if (dirty && discard) widgetDiscards.current.set(id, discard); else widgetDiscards.current.delete(id);
+    setDirtyWidgets(previous => { if (dirty && previous[id] === threadId || !dirty && !Object.hasOwn(previous, id)) return previous; const next = { ...previous }; if (dirty) next[id] = threadId; else delete next[id]; return next; });
+  }, []);
+  const discardHiddenWidgets = async () => {
+    let failed = 0;
+    for (const artifactId of Object.keys(dirtyWidgets).filter(artifactId => dirtyWidgets[artifactId] !== thread?.id)) {
+      const discard = widgetDiscards.current.get(artifactId);
+      if (!discard) { failed++; continue; }
+      try { await discard(); } catch { failed++; }
+    }
+    if (failed) setError(`The edits for ${failed} widget${failed > 1 ? 's' : ''} could not be discarded. Reopen the conversation and try again.`);
+  };
   useEffect(() => {
     if (!Object.keys(dirtyWidgets).length) return;
     const retain = (event: BeforeUnloadEvent) => { event.preventDefault(); event.returnValue = ''; };
@@ -687,7 +700,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   const archive = async (id: string, discard = false, confirmed = false) => {
     if (!discard && Object.values(dirtyWidgets).includes(id)) { setArchiveThread(id);  return; }
     if (!discard && !confirmed && preferences.archiveConfirmation) { setConfirmArchive(id);  return; }
-    try { await command('thread.archive', {}, id); setDirtyWidgets(previous => Object.fromEntries(Object.entries(previous).filter(([, threadId]) => threadId !== id))); setArchiveThread(null); select(null); await refresh(); } catch (error) { setError(messageOf(error)); }
+    try { await command('thread.archive', {}, id); setDirtyWidgets(previous => Object.fromEntries(Object.entries(previous).filter(([, threadId]) => threadId !== id))); setArchiveThread(null); if (id === thread?.id) select(null); await refresh(); } catch (error) { setError(messageOf(error)); }
   };
   // Windowed threads' older messages are not in the snapshot; ask the server
   // which of them still match the query.
@@ -889,7 +902,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
       defaultCollapsed focusOnOpen={planFocusOnOpen} expandRequest={planExpandRequest||undefined}><ProjectContextSurface composerChangesAvailable={composerChangesAvailable} key={thread?.id??'new'} thread={thread} snapshot={snapshot} planOpen={planOpen} onOpenDetailedPlan={()=>revealWorkspaceTool('plan')} onTogglePlan={()=>{if(planOpen)dismissPlan();else{planVisibility.show(thread);setPlanFocusOnOpen(false);setPlanExpandRequest(value=>value+1);setPlanOpen(true);}}} onSelectThread={select} onShowChanges={()=>revealWorkspaceTool('diff')} onConnect={()=>openProjectConnect({threadId:thread?.id,projectId:thread?.projectId})}/></DockedSummary><UsageFooter open={liveUsageOpen} threadId={thread?.id} usage={thread?snapshot.usage[thread.id]:undefined} visible={preferences.showUsageFooter&&!rightWindowOpen} onOpenUsage={openUsage}/></SummaryDock>}>
     <div ref={findScope} style={{display:'contents'}}><ChatView enabled={!embeddedThreadId} header={<div className="breadcrumb">{thread?.projectName && <><Folder size={13} /><span>{thread.projectName}</span><span className="breadcrumb-slash">/</span></>}<strong>{thread?.title ?? 'New conversation'}</strong></div>} actions={<><ConversationFind ownerKey={thread?.id??'new'} transcript={conversation} scope={findScope} active={loaded&&embeddedActive&&!threadHeld} onNavigate={()=>setLatestAvailable(false)} onLoadEarlier={thread&&(historyStarts.current.get(thread.id)??Math.max(0,snapshot.messages.filter(message=>message.threadId===thread.id).length-100))>0?()=>conversation.current?.querySelector<HTMLButtonElement>('.load-history')?.click():undefined}/>{!online&&<span className="connection-state" title="Reconnecting"><WifiOff size={13}/>Reconnecting</span>}{!embeddedThreadId&&<button type="button" className={`icon-button workspace-panel-toggle ${layout.rightPanelOpen ? 'selected' : ''}`} aria-label={layout.rightPanelOpen ? 'Hide workspace panel' : 'Open workspace panel'} aria-pressed={layout.rightPanelOpen} title={layout.rightPanelOpen ? 'Close right panel' : 'Open right panel'} onClick={() => setLayout(value => value.rightPanelOpen ? { ...value, rightPanelOpen: false, rightPanelMaximized: false } : { ...value, rightPanelOpen: true })}><PanelRight size={17} /></button>}</>}>
       
-      {Object.values(dirtyWidgets).some(id => id !== thread?.id) && <div className="workspace-error retained-widget-notice"><span>Widget edits remain open in another conversation.</span><button className="quiet" onClick={() => setDirtyWidgets(previous => Object.fromEntries(Object.entries(previous).filter(([, id]) => id === thread?.id)))}>Discard hidden widget edits</button></div>}
+      {Object.values(dirtyWidgets).some(id => id !== thread?.id) && <div className="workspace-error retained-widget-notice"><span>Widget edits remain open in another conversation.</span><button className="quiet" onClick={() => void discardHiddenWidgets()}>Discard hidden widget edits</button></div>}
       {detachedThread&&<div className="notice">Conversation open in another window.<button className="quiet" onClick={()=>void desktop?.bridge.focus(detachedThread.id)}>Focus chat</button></div>}<div className="conversation-frame"><ChatScrollIndicator scrollRef={conversation} controllerRef={conversationMotion} contentKey={thread?.id}/><div inert={threadHeld} ref={conversation} className="conversation-scroll" onScroll={rememberPosition} aria-label="Conversation" tabIndex={0}>{[thread, ...snapshot.threads.filter(item => item.id !== thread?.id && Object.values(dirtyWidgets).includes(item.id))].toSorted((a, b) => (a?.createdAt ?? '').localeCompare(b?.createdAt ?? '') || (a?.id ?? '').localeCompare(b?.id ?? '')).map(panelThread => {
         const thread = panelThread;
         const messages = snapshot.messages.filter(item => item.threadId === thread?.id);

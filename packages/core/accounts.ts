@@ -7,6 +7,18 @@ import type {Store} from '../storage/store.ts';
 const leaseId=(providerId:ConnectionProviderId,accountId:string|null)=>JSON.stringify([providerId,accountId]);
 type LoginLease={id:string;nonce:string;expiresAt:number;ownerPid:number;shutdownUnconfirmed?:boolean};
 type AccountUse=AccountUseLease&{providerId:ConnectionProviderId;accountId:string|null;ownerPid:number;shutdownUnconfirmed?:boolean};
+const ownerAlive=(pid:number)=>{try{process.kill(pid,0);return true;}catch{return false;}};
+/** A lease still reads as held while its owner lives or its expiry window is
+    open; a dead owner past expiry is stale. Admission stays strict — callers
+    decide whether a stale lease may be swept. */
+export const liveAccountLease=(record:{expiresAt:number;ownerPid:number}|null|undefined)=>!!record&&(ownerAlive(record.ownerPid)||record.expiresAt>Date.now());
+/** Boot-time sweep: leases whose owner process is gone can never be released by
+    their owner. shutdownUnconfirmed rows stay blocked until explicitly resolved. */
+export function sweepStaleAccountLeases(store:Store):void {
+ const now=Date.now();
+ for(const login of store.all<LoginLease>('accountLogin'))if(!login.shutdownUnconfirmed&&!ownerAlive(login.ownerPid)&&login.expiresAt<=now)store.remove('accountLogin',login.id);
+ for(const use of store.all<AccountUse>('accountUse'))if(!use.shutdownUnconfirmed&&!ownerAlive(use.ownerPid))store.remove('accountUse',use.id);
+}
 export const modelProvider=(modelId:string)=>modelId.split('/')[0];
 export function accountResolver(store:Store):RuntimeAccountResolver {
  return {

@@ -1,6 +1,10 @@
 import { useLayoutEffect, useRef, type RefObject } from 'react';
 
-const focusable = 'button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), a[href], summary, iframe, [tabindex="0"]';
+const focusable = 'button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), a[href], area[href], summary, iframe, audio[controls], video[controls], [contenteditable]:not([contenteditable="false"]), [tabindex]';
+
+// Positive tab indices visit before the rest, in ascending order; everything
+// else follows in DOM order (Array.prototype.sort is stable).
+const tabOrder = (element: HTMLElement) => { const index = Number.parseInt(element.getAttribute('tabindex') ?? '', 10); return index > 0 ? index : Number.MAX_SAFE_INTEGER; };
 
 // Apply modal behavior to the existing DOM branch, preserving artifact identity.
 export function useModalRegion(ref: RefObject<HTMLElement | null>, active: boolean, close: () => void, initial: string, companion?: RefObject<HTMLElement | null>) {
@@ -21,7 +25,7 @@ export function useModalRegion(ref: RefObject<HTMLElement | null>, active: boole
     };
     obscure();
     const observer = new MutationObserver(obscure); observer.observe(document.body, { childList: true, subtree: true });
-    const controls = () => Array.from(region.querySelectorAll<HTMLElement>(focusable)).filter(element => element.getClientRects().length && !element.closest('[inert], [hidden]'));
+    const controls = () => Array.from(region.querySelectorAll<HTMLElement>(focusable)).filter(element => element.getClientRects().length && !element.matches(':disabled') && !element.getAttribute('tabindex')?.startsWith('-') && !element.closest('[inert], [hidden]')).sort((a, b) => tabOrder(a) - tabOrder(b));
     const nativeModal = () => document.querySelector('dialog:modal') !== null;
     const focus = () => { if (!nativeModal()) (region.querySelector<HTMLElement>(initial) ?? controls()[0] ?? region).focus(); };
     focus();

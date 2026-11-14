@@ -110,7 +110,10 @@ export async function openClaude(context: DriverContext, sdk: ClaudeSdk, modelId
         if (frame.session_id && typeof frame.session_id === 'string') {
           const expected = context.manifest.value.sessionId;
           if (expected && frame.session_id !== expected) throw new HarnessError('OFFICIAL_SESSION_MISMATCH', 'Claude Code returned a different official session.');
-          if (!expected) { context.manifest.value.sessionId = frame.session_id; context.event('session.identity'); }
+          if (!expected) {
+            if (!/^[A-Za-z0-9_-]{1,200}$/.test(frame.session_id)) throw new HarnessError('OFFICIAL_SESSION_MISMATCH', 'Claude Code returned an invalid official session identity.');
+            context.manifest.value.sessionId = frame.session_id; context.event('session.identity');
+          }
         }
         // Error-result single UUIDs also label failed delivery and are not receipts.
         const uuids: string[] = frame.startup_failure_reason ? [] : Array.isArray(frame.user_message_uuids) ? frame.user_message_uuids.filter((id: unknown) => typeof id === 'string') : typeof frame.user_message_uuid === 'string' && (frame.type !== 'result' || (frame.subtype === 'success' && !frame.is_error)) ? [frame.user_message_uuid] : [];
