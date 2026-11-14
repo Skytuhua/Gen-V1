@@ -156,7 +156,7 @@ describe('real browser worker isolation', () => {
       if (url.pathname === '/api/commands') {
         const command = route.request().postDataJSON(); commands.push(command);
         if (command.type === 'edit.end' && failEnd()) return route.fulfill({ status: 409, json: { error: { message: 'Release blocked', code: 'USER_EDIT_CONFLICT' } } });
-        return route.fulfill({ json: { result: { released: true } } });
+        return route.fulfill({ json: { commandId: command.id, eventSeq: commands.length, result: { released: true } } });
       }
       return route.fulfill({ status: 404, json: {} });
     });

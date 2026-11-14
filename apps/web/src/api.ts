@@ -1,3 +1,4 @@
+import { z } from 'zod';
 import type { CommandReceipt, HostCommand, Message, ModelInfo, Snapshot, WorkspaceEvent } from '../../../packages/contracts';
 
 export class ApiError extends Error {
@@ -37,6 +38,45 @@ export async function read<T>(response: Response): Promise<T> {
   throw new ApiError(body?.error?.code ?? 'HTTP_ERROR', body?.error?.message ?? `Request failed (${response.status})`, body?.error?.details);
 }
 
+const invalidResponse = () => new ApiError('INVALID_RESPONSE', 'The host returned an unexpected response.');
+function parseResponse<T>(schema: z.ZodType<T>, value: unknown): T {
+  const parsed = schema.safeParse(value);
+  if (!parsed.success) throw invalidResponse();
+  return parsed.data;
+}
+const readSchema = <T>(schema: z.ZodType<T>) => async (response: Response): Promise<T> => parseResponse(schema, await read<unknown>(response));
+
+const nonEmpty = z.string().min(1);
+const bootstrapSchema = z.object({ csrfToken: nonEmpty, widgetOrigin: nonEmpty.optional() });
+const commandReceiptSchema = z.object({
+  commandId: nonEmpty, result: z.unknown(),
+  // The host emits eventSeq; some older harnesses and fixtures alias it as seq.
+  eventSeq: z.number().int().optional(), seq: z.number().int().optional(),
+}).refine(value => 'result' in value && (value.eventSeq !== undefined || value.seq !== undefined));
+const widgetMountSchema = z.object({
+  url: z.string().refine(value => { try { return ['http:', 'https:'].includes(new URL(value).protocol); } catch { return false; } }),
+  token: nonEmpty, mountId: nonEmpty, revision: z.number().int().nonnegative(),
+});
+const credentialMetadataSchema = z.object({ present: z.boolean(), version: z.number().int().nonnegative(), expiresAt: z.number().nullable() });
+const composerPredictionSchema = z.object({ suggestion: z.string().nullable(), replyId: nonEmpty, modelId: nonEmpty });
+const modelInfoSchema = z.object({ id: nonEmpty, provider: nonEmpty, name: nonEmpty, thinkingLevels: z.array(z.string()).optional() });
+const modelsResponseSchema = z.object({ models: z.array(modelInfoSchema), error: z.string().optional() });
+const resourceTreeSchema = z.object({
+  path: z.string(),
+  entries: z.array(z.object({ name: z.string(), path: z.string(), kind: z.enum(['file', 'directory']), bytes: z.number() })),
+  truncated: z.boolean(),
+});
+const messageSchema = z.object({ id: nonEmpty, threadId: nonEmpty, role: z.enum(['user', 'assistant', 'activity']), content: z.string(), createdAt: z.string(), runId: z.string().nullable() });
+const threadMessagesSchema = z.object({ messages: z.array(messageSchema), truncated: z.number() });
+const threadSearchSchema = z.object({ threadIds: z.array(nonEmpty) });
+const shellSettingsSchema = z.object({ theme: z.enum(['light', 'dark', 'system']), preferences: z.record(z.string(), z.unknown()).optional() });
+const snapshotSchema = z.looseObject({
+  seq: z.number(), threads: z.array(z.unknown()), messages: z.array(z.unknown()), artifacts: z.array(z.unknown()),
+  userStates: z.array(z.unknown()), data: z.array(z.unknown()), requests: z.array(z.unknown()),
+  operations: z.array(z.unknown()), resources: z.array(z.unknown()), usage: z.record(z.string(), z.unknown()),
+  settings: z.looseObject({}), activeThreadId: z.string().nullable(),
+});
+
 export let csrfToken = '';
 export let widgetOrigin = 'http://localhost:4318';
 let bootstrapPromise: Promise<void> | undefined;
@@ -50,7 +90,7 @@ function launchToken(): string | undefined {
 }
 export function bootstrap() {
   const token = launchToken(), headers = token ? { 'x-harness-launch': token } : undefined;
-  return bootstrapPromise ??= fetch('/api/bootstrap', { credentials: 'same-origin', ...(headers ? { headers } : {}) }).then(read<{ csrfToken: string; widgetOrigin?: string }>).then(value => { csrfToken = value.csrfToken; if (value.widgetOrigin) widgetOrigin = value.widgetOrigin; }).catch(error => { bootstrapPromise = undefined; throw error; });
+  return bootstrapPromise ??= fetch('/api/bootstrap', { credentials: 'same-origin', ...(headers ? { headers } : {}) }).then(readSchema(bootstrapSchema)).then(value => { csrfToken = value.csrfToken; if (value.widgetOrigin) widgetOrigin = value.widgetOrigin; }).catch(error => { bootstrapPromise = undefined; throw error; });
 }
 
 async function renewSession(previous: Promise<void> | undefined) {
@@ -79,26 +119,26 @@ export async function command(type: string, payload: Record<string, unknown> = {
     return fetch('/api/commands', { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json', 'x-harness-csrf': csrfToken }, body });
   };
   const response = await authenticated(async () => { try { return await send(); } catch { return send(); } });
-  return read<CommandReceipt>(response);
+  return readSchema(commandReceiptSchema)(response) as Promise<CommandReceipt>;
 }
 
-export const getSnapshot = () => authenticated(() => fetch('/api/snapshot', { credentials: 'same-origin', cache: 'no-store' })).then(read<Snapshot>);
-export const getShellSettings = () => authenticated(() => fetch('/api/shell-settings', { credentials: 'same-origin', cache: 'no-store' })).then(read<Pick<Snapshot['settings'],'theme'|'preferences'>>);
+export const getSnapshot = () => authenticated(() => fetch('/api/snapshot', { credentials: 'same-origin', cache: 'no-store' })).then(async response => parseResponse(snapshotSchema, await read<unknown>(response)) as unknown as Snapshot);
+export const getShellSettings = () => authenticated(() => fetch('/api/shell-settings', { credentials: 'same-origin', cache: 'no-store' })).then(readSchema(shellSettingsSchema)) as Promise<Pick<Snapshot['settings'],'theme'|'preferences'>>;
 export interface ComposerPrediction { suggestion: string | null; replyId: string; modelId: string }
 export function getComposerPrediction(input: { threadId: string; replyId: string; modelId: string }, signal: AbortSignal) {
-  return authenticated(() => fetch('/api/composer-prediction', { method: 'POST', credentials: 'same-origin', signal, headers: { 'Content-Type': 'application/json', 'x-harness-csrf': csrfToken }, body: JSON.stringify(input) })).then(read<ComposerPrediction>);
+  return authenticated(() => fetch('/api/composer-prediction', { method: 'POST', credentials: 'same-origin', signal, headers: { 'Content-Type': 'application/json', 'x-harness-csrf': csrfToken }, body: JSON.stringify(input) })).then(readSchema(composerPredictionSchema));
 }
 export const getSkill=(name:string,options:{path?:string;revision?:number;versionOffset?:number;includeInactive?:boolean}={})=>{const query=new URLSearchParams(Object.entries(options).filter(([,value])=>value!==undefined).map(([key,value])=>[key,String(value)])).toString();return authenticated(()=>fetch(`/api/skills/${encodeURIComponent(name)}${query?'?'+query:''}`,{credentials:'same-origin',cache:'no-store'})).then(read<import('../../../packages/contracts/skills.ts').SkillDetail>);};
 export const getSkillProposal=(id:string)=>authenticated(()=>fetch(`/api/skill-proposals/${encodeURIComponent(id)}`,{credentials:'same-origin',cache:'no-store'})).then(read<import('../../../packages/contracts/skills.ts').SkillProposal>);
 export const getModels = (refresh = false, threadId?: string, signal?: AbortSignal) => {
   const query = new URLSearchParams({ ...(refresh ? { refresh: '1' } : {}), ...(threadId ? { threadId } : {}) }).toString();
-  return authenticated(() => fetch(`/api/models${query ? `?${query}` : ''}`, { credentials: 'same-origin', cache: 'no-store', signal })).then(read<{ models: ModelInfo[]; error?: string }>);
+  return authenticated(() => fetch(`/api/models${query ? `?${query}` : ''}`, { credentials: 'same-origin', cache: 'no-store', signal })).then(readSchema(modelsResponseSchema)) as Promise<{ models: ModelInfo[]; error?: string }>;
 };
 export interface ResourceTree { path: string; entries: { name: string; path: string; kind: 'file' | 'directory'; bytes: number }[]; truncated: boolean }
-export const getResourceTree = (id: string, path = '', signal?: AbortSignal) => authenticated(() => fetch(`/api/resources/${encodeURIComponent(id)}/tree${path ? '?path=' + encodeURIComponent(path) : ''}`, { credentials: 'same-origin', cache: 'no-store', signal })).then(read<ResourceTree>);
+export const getResourceTree = (id: string, path = '', signal?: AbortSignal) => authenticated(() => fetch(`/api/resources/${encodeURIComponent(id)}/tree${path ? '?path=' + encodeURIComponent(path) : ''}`, { credentials: 'same-origin', cache: 'no-store', signal })).then(readSchema(resourceTreeSchema));
 export const getThreadMessages = (id: string, beforeId?: string, limit = 300) => {
   const query = new URLSearchParams({ ...(beforeId ? { beforeId } : {}), limit: String(limit) }).toString();
-  return authenticated(() => fetch(`/api/threads/${encodeURIComponent(id)}/messages?${query}`, { credentials: 'same-origin', cache: 'no-store' })).then(read<{ messages: Message[]; truncated: number }>);
+  return authenticated(() => fetch(`/api/threads/${encodeURIComponent(id)}/messages?${query}`, { credentials: 'same-origin', cache: 'no-store' })).then(readSchema(threadMessagesSchema)) as Promise<{ messages: Message[]; truncated: number }>;
 };
 // Deep message search over threads the snapshot windowed; in-window threads are
 // already covered by the local matchingThreads scan.
@@ -113,17 +153,25 @@ export const searchThreadMessages = (q: string, threadIds: string[], signal?: Ab
   }
   return Promise.all(batches.map(batch => {
     const query = new URLSearchParams({ q, threads: batch }).toString();
-    return authenticated(() => fetch(`/api/threads/search?${query}`, { credentials: 'same-origin', cache: 'no-store', signal })).then(read<{ threadIds: string[] }>);
+    return authenticated(() => fetch(`/api/threads/search?${query}`, { credentials: 'same-origin', cache: 'no-store', signal })).then(readSchema(threadSearchSchema));
   })).then(pages => ({ threadIds: pages.flatMap(page => page.threadIds) }));
 };
 export const getResourceContent = (id: string, path = '', signal?: AbortSignal) => authenticated(() => fetch(`/api/resources/${encodeURIComponent(id)}/content${path ? '?path=' + encodeURIComponent(path) : ''}`, { credentials: 'same-origin', cache: 'no-store', signal, redirect: 'error' }));
-export const getWidgetMount = (id: string) => authenticated(() => fetch(`/api/artifacts/${encodeURIComponent(id)}/mount`, { credentials: 'same-origin', cache: 'no-store' })).then(read<{ url: string; token: string; mountId: string; revision: number }>);
+export const getWidgetMount = async (id: string) => {
+  const mount = await authenticated(() => fetch(`/api/artifacts/${encodeURIComponent(id)}/mount`, { credentials: 'same-origin', cache: 'no-store' })).then(readSchema(widgetMountSchema));
+  // The mount URL carries the edit token in its fragment; it must stay on the
+  // widget origin bootstrap advertised or the credential would leak elsewhere.
+  let expected: string, actual: string;
+  try { expected = new URL(widgetOrigin).origin; actual = new URL(mount.url).origin; } catch { throw invalidResponse(); }
+  if (actual !== expected) throw invalidResponse();
+  return mount;
+};
 type CredentialScope={artifactId:string;threadId:string;revision:number};
 export type CredentialMetadata={present:boolean;version:number;expiresAt:number|null};
 const credentialPath=(scope:CredentialScope,key:string)=>`/api/artifacts/${encodeURIComponent(scope.artifactId)}/credentials/${encodeURIComponent(key)}`;
-export const getCredentialSlot=(scope:CredentialScope,key:string)=>authenticated(()=>fetch(credentialPath(scope,key)+'?'+new URLSearchParams({threadId:scope.threadId,artifactRevision:String(scope.revision)}),{credentials:'same-origin',cache:'no-store',redirect:'error'})).then(read<CredentialMetadata>);
-export const saveCredentialSlot=(scope:CredentialScope,key:string,token:string,version:number)=>authenticated(()=>fetch(credentialPath(scope,key),{method:'PUT',credentials:'same-origin',cache:'no-store',redirect:'error',headers:{'Content-Type':'application/json','x-harness-csrf':csrfToken},body:JSON.stringify({threadId:scope.threadId,artifactRevision:scope.revision,token,version})})).then(read<CredentialMetadata>);
-export const removeCredentialSlot=(scope:CredentialScope,key:string,version:number)=>authenticated(()=>fetch(credentialPath(scope,key),{method:'DELETE',credentials:'same-origin',cache:'no-store',redirect:'error',headers:{'Content-Type':'application/json','x-harness-csrf':csrfToken},body:JSON.stringify({threadId:scope.threadId,artifactRevision:scope.revision,version})})).then(read<CredentialMetadata>);
+export const getCredentialSlot=(scope:CredentialScope,key:string)=>authenticated(()=>fetch(credentialPath(scope,key)+'?'+new URLSearchParams({threadId:scope.threadId,artifactRevision:String(scope.revision)}),{credentials:'same-origin',cache:'no-store',redirect:'error'})).then(readSchema(credentialMetadataSchema));
+export const saveCredentialSlot=(scope:CredentialScope,key:string,token:string,version:number)=>authenticated(()=>fetch(credentialPath(scope,key),{method:'PUT',credentials:'same-origin',cache:'no-store',redirect:'error',headers:{'Content-Type':'application/json','x-harness-csrf':csrfToken},body:JSON.stringify({threadId:scope.threadId,artifactRevision:scope.revision,token,version})})).then(readSchema(credentialMetadataSchema));
+export const removeCredentialSlot=(scope:CredentialScope,key:string,version:number)=>authenticated(()=>fetch(credentialPath(scope,key),{method:'DELETE',credentials:'same-origin',cache:'no-store',redirect:'error',headers:{'Content-Type':'application/json','x-harness-csrf':csrfToken},body:JSON.stringify({threadId:scope.threadId,artifactRevision:scope.revision,version})})).then(readSchema(credentialMetadataSchema));
 
 export function subscribe(after: number, accept: (event: WorkspaceEvent) => void, connectivity: (online: boolean) => void, reconnect: () => Promise<void> = async () => {}) {
   const desktop=window.harnessDesktop;
