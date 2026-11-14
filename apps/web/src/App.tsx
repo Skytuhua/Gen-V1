@@ -13,7 +13,7 @@ import { groupWorkActivity, WorkActivity } from './WorkActivity';
 import { display, schemaDefaults, SchemaFields } from './registry';
 import { useModalRegion } from './focus';
 import { validateSchema } from './schema-validator';
-import { matchingThreads } from './thread-search';
+import { matchingThreads, type HistoricalThreadMatches } from './thread-search';
 import { hasPendingDocumentAssets } from './signature-assets';
 import { getPreferences, mergePreferences } from '../../../packages/contracts/preferences';
 import { ShellSidebar, threadStatus } from './ShellSidebar';
@@ -691,19 +691,21 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   };
   // Windowed threads' older messages are not in the snapshot; ask the server
   // which of them still match the query.
-  const [deepMatches, setDeepMatches] = useState<ReadonlySet<string>>(new Set());
+  const [deepMatches, setDeepMatches] = useState<HistoricalThreadMatches>();
   useEffect(() => {
     const query = search.trim(), ids = Object.keys(snapshot.messagesTruncated ?? {});
-    if (!query || !ids.length) { setDeepMatches(new Set()); return; }
-    let active = true;
-    const timer = setTimeout(() => { void searchThreadMessages(query, ids).then(page => { if (active) setDeepMatches(new Set(page.threadIds)); }).catch(() => {}); }, 250);
-    return () => { active = false; clearTimeout(timer); };
+    if (!query || !ids.length) { setDeepMatches(undefined); return; }
+    const controller = new AbortController();
+    const timer = setTimeout(() => {
+      void searchThreadMessages(query, ids, controller.signal).then(page => {
+        if (!controller.signal.aborted) setDeepMatches({query, ids: new Set(page.threadIds)});
+      }).catch(() => {});
+    }, 250);
+    return () => { controller.abort(); clearTimeout(timer); };
   }, [search, snapshot.messagesTruncated]);
-  const matching = useMemo(() => {
-    const base = matchingThreads(snapshot.threads, snapshot.messages, search, preferences.projectOrder);
-    const extra = snapshot.threads.filter(item => !item.sideParentId && deepMatches.has(item.id) && !base.includes(item));
-    return extra.length ? [...base, ...extra] : base;
-  }, [snapshot.threads, snapshot.messages, search, preferences.projectOrder, deepMatches]);
+  const matching = useMemo(() =>
+    matchingThreads(snapshot.threads, snapshot.messages, search, preferences.projectOrder, deepMatches),
+  [snapshot.threads, snapshot.messages, search, preferences.projectOrder, deepMatches]);
   const updateModel = (id: string) => { setModelId(id); void command('settings.update', { modelId: id }).then(() => refresh()).catch(error => setError(messageOf(error))); };
   const detachedPlan=useDetachedSurface(thread?{kind:'plan',threadId:thread.id}:null),detachedNavigation=useDetachedSurface({kind:'navigation'});
   const pendingThread=usePendingSurface(candidateThread?{kind:'thread',threadId:candidateThread.id}:null);
