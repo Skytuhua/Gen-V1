@@ -6,10 +6,17 @@ const steps = [
   ['node', ['scripts/build-plugin-runtime.mjs']],
   ['pnpm', ['exec', 'vite', 'build']],
 ];
-const children = steps.map(([file, args]) => spawn(file, args, { stdio: 'inherit', shell: process.platform === 'win32' }));
-const results = await Promise.all(children.map(child => new Promise(resolve => child.once('close', resolve))));
-const failures = results.map((status, index) => ({ status, name: steps[index][1].at(-1) })).filter(result => result.status !== 0);
+const results = await Promise.all(steps.map(([file, args]) => new Promise(resolve => {
+  const name = [file, ...args].join(' ');
+  const child = spawn(file, args, { stdio: 'inherit', shell: process.platform === 'win32' });
+  let launchError;
+  child.once('error', error => { launchError = error; });
+  child.once('close', (status, signal) => resolve({ name, status, signal, launchError }));
+})));
+const failures = results.filter(result => result.launchError || result.status !== 0);
 if (failures.length) {
-  for (const failure of failures) console.error(`build step failed (${failure.status}): ${failure.name}`);
+  for (const { name, status, signal, launchError } of failures) {
+    console.error(`build step failed (${launchError?.message ?? signal ?? status}): ${name}`);
+  }
   process.exit(1);
 }
