@@ -155,6 +155,7 @@ export class AgentsWorkspaceController {
   if (disposition === 'resync') {await this.setScope(this.state.scope); return;}
   const agents = new Map(this.state.agents.map(agent => [agent.agentId, agent]));
   mergeInventory(agents, this.matching, update);
+  for (const id of update.removed) if (!this.leased.includes(id)) {this.transcripts.delete(id); this.views.delete(id);}
   this.emit({agents: [...agents.values()], sequence: update.sequence});
   const changed = new Set(update.transcripts.map(item => item.agentId));
   for (const id of this.leased) if (agents.has(id) && changed.has(id)) void this.loadHistory(id, false, true);
