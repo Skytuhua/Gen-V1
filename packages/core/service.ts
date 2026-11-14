@@ -20,7 +20,7 @@ import {SideRuntime} from './side-runtime.ts';
 import {ComposerPredictions,predictionContext,type PredictionBasis,type PredictionRequest} from './composer-prediction.ts';
 import {PlanningQuestionSchema} from '../contracts/planning-question.ts';
 import { getPreferences, mergePreferences } from "../contracts/preferences.ts";
-import {accountResolver,assertAccountAvailable,changeAccount,modelProvider} from './accounts.ts';
+import {accountResolver,assertAccountAvailable,changeAccount,modelProvider,sweepStaleAccountLeases} from './accounts.ts';
 import {isConnectionProviderId} from '../contracts/connections.ts';
 import {applySkillOperations,curateSkills,decideSkillProposal,listSkills,setSkillFlags,skillIndex,viewSkill,viewSkillProposal} from './skills.ts';
 import {LearningCoordinator,type LearningJob,type LearningOutcome,type LearningToolResult} from './learning.ts';
@@ -1109,6 +1109,7 @@ export class Service {
   async recover(): Promise<void> {
     if(this.source)await this.source.library.initialize();
     this.planning.recover();
+    sweepStaleAccountLeases(this.store);
     this.store.internal("workspace.recovered", null, () => {
       const learning=this.store.get<Snapshot['learning']>('learningStatus','global'),last=learning?.lastReview;
       this.store.put('learningStatus','global',null,{...learning,supported:this.learningSupported,status:'idle',lastCuratedAt:learning?.lastCuratedAt??now(),lastReview:last?.status==='reviewing'?{...last,status:'cancelled',finishedAt:now(),error:'The interrupted review was not restarted.'}:last??null});
