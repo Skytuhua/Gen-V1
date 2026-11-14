@@ -1,6 +1,6 @@
 # Multi-monitor detached windows
 
-> Historical milestone: new native detachment is currently unavailable. Existing child-window recovery and saved placements are retained. Physical mixed-DPI and multi-monitor acceptance remains a separate gate. See the [current preview notes](public/release-notes.md).
+> Thread detachment into native windows is available again; the main workspace returns to an empty container and stays usable while a thread is detached. Existing child-window recovery and saved placements are retained. Physical mixed-DPI and multi-monitor acceptance remains a separate gate. See the [current preview notes](public/release-notes.md).
 
 Last updated: 2026-10-31.
 

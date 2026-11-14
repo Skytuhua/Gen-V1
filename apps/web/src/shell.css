@@ -5,8 +5,8 @@
 .shell-workarea>.workspace-right {order:2;}
 .floating-rail {position:absolute;inset:60px 12px 12px auto;z-index:34;order:3;display:flex;flex-direction:column;gap:8px;width:min(280px,calc(100% - 24px));min-width:0;min-height:0;padding:0;border:0;background:transparent;pointer-events:none;}
 .floating-rail[data-active=false] {width:0;visibility:hidden;}
-.floating-rail {transition:right var(--panel-motion,220ms) cubic-bezier(.2,.8,.2,1);}
-.thread-group h2 button>svg:first-child {transition:transform 180ms cubic-bezier(.16,1,.3,1);}
+.floating-rail {transition:right var(--panel-motion,220ms) cubic-bezier(.2,.85,.2,1.035);}
+.thread-group h2 button>svg:first-child {transition:transform var(--ui-motion-insert,180ms) var(--ui-ease-enter,cubic-bezier(.16,1,.3,1));}
 .thread-group h2 button[aria-expanded=true]>svg:first-child {transform:rotate(90deg);}
 .resizing-panel .shell-workarea,.resizing-panel .floating-rail,.floating-window-interaction .shell-workarea {transition:none;}
 @media(prefers-reduced-motion:reduce){.shell-workarea,.floating-rail,.thread-group h2 button>svg:first-child{transition:none;}}
@@ -115,7 +115,7 @@
 .app-shell .conversation { max-width:var(--narrative-width); }
 .conversation .artifact:not(.artifact-expanded):not(.artifact-in-workspace) { max-width:100%; }
 @media(max-width:700px) { .app-shell .conversation-scroll { padding-left:12px; padding-right:12px; } }
-.message>.message-content,.conversation>.decision,.conversation>.resume-row,.conversation>.working-status { max-width:var(--narrative-width); margin-left:auto; margin-right:auto; }
+.message>.message-content,.conversation>.decision,.conversation>.working-status { max-width:var(--narrative-width); margin-left:auto; margin-right:auto; }
 .message-user>.message-content { max-width:min(86%,var(--narrative-width)); }
 .message-user { display:block; }
 .message-user>.message-content { margin-left:auto; margin-right:0; }
@@ -140,7 +140,7 @@
 .workspace-right.workspace-right-maximized { position:fixed; right:12px; top:12px; bottom:12px; border:1px solid var(--border); border-radius:12px; box-shadow:var(--elevation); overflow:hidden; }
 .workspace-right-header { height:53px; flex:0 0 53px; display:flex; align-items:center; padding:0 9px; gap:2px; border-bottom:1px solid var(--border); }
 .workspace-right-header [role=tablist] { display:flex; flex:1; min-width:0; gap:1px; overflow:auto; }
-.workspace-right-header [role=tab] { flex-shrink:0; white-space:nowrap; color:var(--muted); font-size:12px; padding:17px 8px 15px; border-bottom:2px solid transparent; }
+.workspace-right-header [role=tab] { flex-shrink:0; white-space:nowrap; color:var(--muted); font-size:12px; padding:17px 8px 15px; border-bottom:2px solid transparent; transition:color var(--ui-motion-tab,140ms) var(--ui-ease-move,cubic-bezier(.4,0,.2,1)),border-bottom-color var(--ui-motion-tab,140ms) var(--ui-ease-move,cubic-bezier(.4,0,.2,1)); }
 .workspace-right-header [role=tab][aria-selected=true] { color:var(--text); border-bottom-color:var(--text); }
 .workspace-panel-content { flex:1; min-height:0; overflow:auto; }
 .panel-toolbar { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:10px 13px; border-bottom:1px solid var(--border); }
@@ -191,7 +191,7 @@
 .context-anchor { display:inline-flex; position:relative; }
 .context-meter { margin:15px 0 4px; }
 .context-segment-bar { height:13px; border-radius:4px; display:flex; background:var(--subtle); position:relative; }
-.context-segment { height:13px; min-width:0; padding:0; border-radius:2px; border-right:2px solid var(--surface); position:relative; display:block; transition:width 160ms ease-out; flex:0 0 auto; }
+.context-segment { height:13px; min-width:0; padding:0; border-radius:2px; border-right:2px solid var(--surface); position:relative; display:block; transition:width var(--ui-motion-status,160ms) ease-out; flex:0 0 auto; }
 .context-categories-note { margin-top:9px; font-size:12px; line-height:1.5; color:var(--muted); }
 .context-meter-unknown { height:13px; border:1px dashed var(--border); border-radius:4px; background:var(--subtle); }
 .mode-picker select { border:0;background:transparent;color:var(--muted);font:inherit;font-size:11px;min-height:28px;max-width:66px;padding:3px; }
@@ -225,7 +225,7 @@
 @keyframes shell-sidebar-in {from{opacity:.45;transform:translateX(-5px)}to{opacity:1;transform:none}}
 @media(max-width:700px){.sidebar.sidebar-open>.thread-list {animation:shell-sidebar-in 200ms cubic-bezier(.16,1,.3,1) both;}.app-shell .composer-caption {font-size:9px;}}
 .app-shell[data-panel-animations=false] .sidebar {transition-delay:0s;}
-@media(prefers-reduced-motion:reduce){.app-shell[data-sidebar-collapsed=true] .sidebar {transition-delay:0s;}.sidebar>.thread-list {animation:none!important;}}
+@media(prefers-reduced-motion:reduce){.app-shell[data-sidebar-collapsed=true] .sidebar {transition-delay:0s;}.sidebar>.thread-list {animation:none!important;}.workspace-right-header [role=tab] {transition:none;}}
 
 /* Finished effects stay inspectable without competing with the working artifact. */
 .decision.operation-outcome {padding:0;}
@@ -238,7 +238,7 @@
 .operation-outcome[data-operation-status=failed] .operation-outcome-status,.operation-outcome[data-operation-status=failed] .operation-receipt>summary>svg:first-child {color:var(--danger);}
 .operation-outcome[data-operation-status=cancelled] .operation-outcome-status,.operation-outcome[data-operation-status=cancelled] .operation-receipt>summary>svg:first-child {color:var(--muted);}
 .operation-outcome-caption {font-size:12px;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
-.operation-outcome-chevron {margin-left:auto;flex-shrink:0;color:var(--muted);transition:transform 160ms ease;}
+.operation-outcome-chevron {margin-left:auto;flex-shrink:0;color:var(--muted);transition:transform var(--ui-motion-status,160ms) ease;}
 .operation-receipt[open]>summary .operation-outcome-chevron {transform:rotate(180deg);}
 .operation-receipt-evidence {padding:0 14px 12px;border-top:1px solid var(--border);}
 .operation-receipt-evidence>p {font-size:12px;}
