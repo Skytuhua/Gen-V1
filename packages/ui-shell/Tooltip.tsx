@@ -37,13 +37,13 @@ const owner = (node: EventTarget | null) => node instanceof Element ? node.close
 /** Mount once per window: every `title` or `data-tooltip` in the document gets the shared tooltip. */
 export function TooltipLayer() {
   const [shown, setShown] = useState<Shown | null>(null), [position, setPosition] = useState<{ left: number; top: number; side: 'above' | 'below' } | null>(null);
-  const bubble = useRef<HTMLDivElement>(null), timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined), current = useRef<Element | null>(null);
+  const bubble = useRef<HTMLDivElement>(null), timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined), current = useRef<Element | null>(null), opened = useRef(false);
 
   useEffect(() => {
     const hide = () => {
       clearTimeout(timer.current);
       const target = current.current;
-      current.current = null;
+      current.current = null; opened.current = false;
       // Restore the real title once the tooltip is dismissed so a later rerender that removes
       // or replaces it is observable — a suppressed (empty) title would mutate invisibly.
       if (target?.hasAttribute('data-tooltip-adopted') && target.getAttribute('title') === '')
@@ -56,12 +56,16 @@ export function TooltipLayer() {
       hide();
       if (!text) return;
       current.current = target;
-      timer.current = setTimeout(() => { if (current.current === target && target.isConnected) { setPosition(null); setShown({ text, target, leaving: false }); } }, delay);
+      timer.current = setTimeout(() => { if (current.current === target && target.isConnected) { opened.current = true; setPosition(null); setShown({ text, target, leaving: false }); } }, delay);
     };
     const dwell = () => parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ui-tooltip-dwell')) || 350;
     const over = (event: PointerEvent) => { if (event.pointerType === 'touch') return; const target = owner(event.target); if (target) schedule(target, dwell()); else if (current.current) hide(); };
     const focus = (event: FocusEvent) => { const target = owner(event.target); if (target && event.target instanceof Element && event.target.matches(':focus-visible')) schedule(target, FOCUS_DWELL_MS); };
-    const key = (event: KeyboardEvent) => { if (event.key === 'Escape' && current.current) { event.preventDefault(); event.stopPropagation(); hide(); } };
+    const key = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape' || event.isComposing || event.keyCode === 229 || !current.current) return;
+      if (opened.current && current.current.isConnected) { event.preventDefault(); event.stopPropagation(); }
+      hide();
+    };
     const leave = (event: PointerEvent) => { if (!event.relatedTarget) hide(); };
     document.addEventListener('pointerover', over); document.addEventListener('pointerout', leave); document.addEventListener('pointerdown', hide, true);
     document.addEventListener('focusin', focus); document.addEventListener('focusout', hide); document.addEventListener('keydown', key, true);
