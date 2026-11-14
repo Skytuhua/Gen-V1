@@ -100,15 +100,36 @@ function start(html: string) {
   if (started) return; started = true;
   if (typeof html !== 'string' || html.length > 131072) throw new Error('Source budget exceeded');
   const scripts: string[] = [];
-  // One left-to-right pass keeps real HTML precedence: comments and raw-text or
-  // template containers are consumed whole, so executable markup hidden inside
-  // them is never collected; only top-level script/style elements extract.
-  let markup = html.replace(/<!--[\s\S]*?-->|<(textarea|title|xmp|iframe|object|applet|noembed|noframes|noscript|plaintext|listing|template)\b[^>]*>[\s\S]*?<\/\1\s*>|<script\b([^>]*)>([\s\S]*?)<\/script\s*>|<style\b[^>]*>([\s\S]*?)<\/style\s*>/gi,
-    (whole: string, _inert: string, attrs: string, script: string, style: string) => {
-      if (script !== undefined) { if (!/\bsrc\s*=/i.test(attrs) && !/\btype\s*=/i.test(attrs)) scripts.push(script); return ''; }
-      if (style !== undefined) { css += style + '\n'; return ''; }
-      return whole;
-    });
+  // Quote-aware left-to-right scan keeps real HTML precedence: comments and
+  // raw-text or template containers are consumed whole, so executable markup
+  // hidden inside them is never collected — while '<!--' inside a quoted
+  // attribute cannot open a bogus comment that swallows genuine scripts.
+  const INERT_TAGS = new Set(['textarea', 'title', 'xmp', 'iframe', 'object', 'applet', 'noembed', 'noframes', 'noscript', 'plaintext', 'listing', 'template']);
+  let markup = '', i = 0;
+  const tagEnd = (from: number) => { let quote = ''; for (let j = from; j < html.length; j++) { const c = html[j]!; if (quote) { if (c === quote) quote = ''; } else if (c === '"' || c === "'") quote = c; else if (c === '>') return j + 1; } return html.length; };
+  while (i < html.length) {
+    const lt = html.indexOf('<', i);
+    if (lt < 0) { markup += html.slice(i); break; }
+    markup += html.slice(i, lt);
+    if (html.startsWith('<!--', lt)) { const end = html.indexOf('-->', lt + 4), stop = end < 0 ? html.length : end + 3; markup += html.slice(lt, stop); i = stop; continue; }
+    const name = /^([a-zA-Z][\w-]*)/.exec(html.slice(lt + 1, lt + 24))?.[1]?.toLowerCase();
+    if (!name) { markup += '<'; i = lt + 1; continue; }
+    const end = tagEnd(lt + 1), open = html.slice(lt, end);
+    if (name === 'script' || name === 'style') {
+      const close = new RegExp(`</${name}\\s*>`, 'i').exec(html.slice(end));
+      if (!close) { markup += html.slice(lt); break; }
+      const body = html.slice(end, end + close.index);
+      if (name === 'script') { if (!/\bsrc\s*=/i.test(open) && !/\btype\s*=/i.test(open)) scripts.push(body); }
+      else css += body + '\n';
+      i = end + close.index + close[0].length; continue;
+    }
+    if (INERT_TAGS.has(name)) {
+      const close = new RegExp(`</${name}\\s*>`, 'i').exec(html.slice(end));
+      const stop = close ? end + close.index + close[0].length : html.length;
+      markup += html.slice(lt, stop); i = stop; continue;
+    }
+    markup += open; i = end;
+  }
   markup = markup.replace(/<!doctype[^>]*>/gi, '');
   // The library parses into an inert worker-only DOM. No HTML string is ever
   // parsed or assigned to innerHTML in a real browser document.
