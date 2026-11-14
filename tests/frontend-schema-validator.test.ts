@@ -38,6 +38,16 @@ it('bounds retained compiled schemas, evicts old entries and keeps format modes 
   expect(compile.mock.calls.filter(([schema]) => typeof schema === 'object' && schema?.title === same.title)).toHaveLength(2);
 });
 
+it('validates declared string formats only when format checking is enabled', async () => {
+  const { validateSchema } = await import('../apps/web/src/schema-validator');
+  const schema = { title: 'Formatted action payload', type: 'object', properties: { at: { type: 'string', format: 'date-time' }, email: { type: 'string', format: 'email' } }, required: ['at'], additionalProperties: false };
+  const valid = { at: '2026-11-14T00:00:00Z', email: 'dev@example.com' };
+  expect(validateSchema(structuredClone(schema), valid)).toBe(true);
+  expect(validateSchema(structuredClone(schema), { at: 'not-a-date' })).toBe(false);
+  expect(validateSchema(structuredClone(schema), { at: 'not-a-date', email: 'not-an-email' })).toBe(false);
+  expect(validateSchema(structuredClone(schema), { at: 'not-a-date' }, false)).toBe(true);
+});
+
 it('rejects historical async schemas before compilation and never returns their rejected promise', async () => {
   const compile = vi.spyOn(Ajv.prototype, 'compile'), { validateSchema } = await import('../apps/web/src/schema-validator');
   const schema = { $async: true, type: 'string', minLength: 4 };
