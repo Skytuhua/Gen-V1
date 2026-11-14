@@ -191,3 +191,46 @@ it('retains a historical result when the owner is archived mid-dispatch but publ
     .rejects.toMatchObject({ code: 'AUTHORITY_DENIED' });
   expect(ledger.get('arch-2')?.state).toBe('DENIED');
 });
+
+it('redacts nested secret-looking argument values in the public summary', async () => {
+  const { publicRedactedSummary } = await import('../packages/core/tool-effects.ts');
+  const summary = publicRedactedSummary({ name: 'repository_read', args: { commandId: 'x', headers: { token: 'abc123', safe: 'v' }, list: [{ password: 'pw' }] } });
+  expect(summary).not.toContain('abc123');
+  expect(summary).not.toContain('pw');
+  expect(summary).toContain('<redacted>');
+  expect(summary).toContain('safe');
+});
+
+it('honors the latest approval when an operation is approved again', async () => {
+  const { store, ledger } = await ledgerFixture();
+  const operation: Operation = { id: 'op-reapprove', threadId: 'thread-1', revision: 1, kind: 'file.replace', description: '', args: {}, resourceIds: [], preconditions: {}, status: 'prepared', approved: true, createdAt: '' };
+  const first = ledger.issueApproval(operation, thread());
+  store.internal('fixture.approval', 'thread-1', () => store.put('approval', first.approvalId, 'thread-1', { ...first, remainingUses: 0 }));
+  const second = ledger.issueApproval(operation, thread());
+  store.internal('fixture.approval2', 'thread-1', () => store.put('approval', second.approvalId, 'thread-1', second));
+  expect(ledger.approvalFor('op-reapprove')?.approvalId).toBe(second.approvalId);
+  expect(() => ledger.verifyOperationApproval(operation, thread())).not.toThrow();
+});
+
+it('binds learning invocations to the thread\'s current owner after the run settles', async () => {
+  const { ledger } = await ledgerFixture();
+  const settled = thread({ runId: null });
+  const value = await ledger.invoke(
+    { call: { name: 'skills_list', args: { commandId: 'learn-1' } }, ctx: { threadId: 'thread-1' }, thread: settled, role: 'learning' },
+    async () => ({ skills: [] }));
+  expect(value).toEqual({ skills: [] });
+  const effect = ledger.get('learn-1');
+  expect(effect?.state).toBe('SUCCEEDED');
+  expect(effect?.owner.runId).toBeNull();
+});
+
+it('still requires the bound approval under authorityV1 when effectsV1 is off', async () => {
+  const x = await serviceFixture();
+  __setCapabilityFlagForTests('audit.effectsV1', false);
+  const op = x.operation('op-authority-only');
+  const dispatch = vi.spyOn(domain, 'executeDomainOperation').mockImplementation(async () => ({ verified: true }));
+  const approved: Operation = { ...op, approved: true };
+  x.store.internal('fixture.approved', x.first.id, () => x.store.put('operation', op.id, x.first.id, approved));
+  await expect(x.service.dispatchOperation(op.id)).rejects.toMatchObject({ code: 'APPROVAL_REQUIRED' });
+  expect(dispatch).not.toHaveBeenCalled();
+});

@@ -133,3 +133,39 @@ it('reports observation freshness independent of outcome', async () => {
   expect(observationFreshness(store, fence)).toBe('STALE');
   expect(observationFreshness(store, null)).toBe('INDETERMINATE');
 });
+
+it('does not repeat an effect across an invocation page boundary', async () => {
+  const { store, ledger } = await fixture();
+  for (const id of ['b1', 'b2', 'b3'])
+    await ledger.invoke({ call: call(id), ctx, thread: thread(), role: 'run' }, async () => 1);
+  store.internal('fixture.thread', 'thread-1', () => store.put('thread', 'thread-1', 'thread-1', thread()));
+  const reads = new ToolEffectReadModels(store);
+  const context = reads.context({ threadId: 'thread-1' });
+  const seen: string[] = [];
+  let cursor: string | undefined;
+  do {
+    const page = reads.invocations({ threadId: 'thread-1', scopeKey: context.scopeKey, limit: 2, cursor });
+    seen.push(...page.effects.map(e => e.invocationId));
+    cursor = page.nextCursor ?? undefined;
+  } while (cursor);
+  expect(seen).toHaveLength(3);
+  expect(new Set(seen).size).toBe(3);
+});
+
+it('settles a crashed operation dispatch from the committed operation record', async () => {
+  const { store, authority, ledger } = await fixture();
+  const definition = authority.require('repository_read');
+  const admitted = ledger.admit({
+    call: { name: 'operation:file.replace', args: { invocationId: 'operation:op-crash@1', operationId: 'op-crash' } },
+    owner: { threadId: 'thread-1', runId: 'run-1', epoch: 1, projectId: 'p1', workspaceId: 'w1', accountBinding: 'acct-1' },
+    definition,
+  });
+  expect(admitted.state).toBe('DISPATCHED');
+  store.internal('fixture.operation', 'thread-1', () =>
+    store.put('operation', 'op-crash', 'thread-1', { id: 'op-crash', threadId: 'thread-1', revision: 1, kind: 'file.replace', description: '', args: {}, resourceIds: [], preconditions: {}, status: 'succeeded', approved: true, createdAt: '', result: { done: true } }));
+  const outcome = recoverEffects(store);
+  expect(outcome.uncertain).toEqual([]);
+  const effect = ledger.get('operation:op-crash@1');
+  expect(effect?.state).toBe('SUCCEEDED');
+  expect(effect?.transitions.at(-1)?.note).toBe('host_restart: recorded in operation ledger');
+});
