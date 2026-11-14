@@ -61,7 +61,7 @@ test('newly published structured prose reveals once while restored prose remains
  await page.addInitScript(()=>{const animate=Element.prototype.animate;Object.assign(window,{structuredReveals:0});Element.prototype.animate=function(...args){if(this.closest('.artifact')&&(this as HTMLElement).dataset.revealStart!==undefined)(window as unknown as{structuredReveals:number}).structuredReveals++;return animate.apply(this,args);};});
  const host=await serveTaskFixture(page,snapshot);await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeVisible();snapshot.artifacts=[artifact];await host.publish();
  await expect.poll(()=>page.evaluate(()=>(window as unknown as{structuredReveals:number}).structuredReveals)).toBeGreaterThan(0);
- await page.evaluate(()=>Promise.all(document.getAnimations().filter(a=>a.playState==='running'||a.playState==='pending').map(a=>a.finished.catch(()=>{}))));const count=await page.evaluate(()=>(window as unknown as{structuredReveals:number}).structuredReveals);await host.publish();expect(await page.evaluate(()=>(window as unknown as{structuredReveals:number}).structuredReveals)).toBe(count);
+ await page.evaluate(()=>Promise.all(document.getAnimations().filter(a=>a.playState==='running').map(a=>a.finished.catch(()=>{}))));const count=await page.evaluate(()=>(window as unknown as{structuredReveals:number}).structuredReveals);await host.publish();expect(await page.evaluate(()=>(window as unknown as{structuredReveals:number}).structuredReveals)).toBe(count);
  await page.reload();await expect(page.locator('.artifact .surface-text')).toBeVisible();expect(await page.evaluate(()=>(window as unknown as{structuredReveals:number}).structuredReveals)).toBe(0);
 });
 

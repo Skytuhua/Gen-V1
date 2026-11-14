@@ -89,7 +89,7 @@ test('log context expands beside its event with related evidence and no repeated
 
 test('same-source snapshots do not replay interval entrances or replace the selected control',async({page})=>{
   const host=await open(page,'SchedulePicker',windows);const option=page.getByRole('option',{name:'Opening review',exact:true});await option.click();const initial=await option.elementHandle();
-  await page.evaluate(()=>Promise.all(document.getAnimations().filter(a=>a.playState==='running'||a.playState==='pending').map(a=>a.finished.catch(()=>{}))));await page.evaluate(()=>{(window as any).__taskAnimationCalls=0;const animate=Element.prototype.animate;Element.prototype.animate=function(...args){(window as any).__taskAnimationCalls++;return animate.apply(this,args);};});
+  await page.evaluate(()=>Promise.all(document.getAnimations().filter(a=>a.playState==='running').map(a=>a.finished.catch(()=>{}))));await page.evaluate(()=>{(window as any).__taskAnimationCalls=0;const animate=Element.prototype.animate;Element.prototype.animate=function(...args){(window as any).__taskAnimationCalls++;return animate.apply(this,args);};});
   for(let index=0;index<3;index++){host.setInput('source',structuredClone(windows));await host.publish();}
   expect(await option.evaluate((node,old)=>node===old,initial)).toBe(true);
   expect(await page.evaluate(()=>(window as any).__taskAnimationCalls)).toBe(0);
