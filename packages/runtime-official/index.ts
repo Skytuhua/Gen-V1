@@ -55,16 +55,18 @@ export function createOfficialRuntime({ dataDir,modelOnly:requestedModelOnly,pur
     authority.revoked = true;
     authority.closing ??= (async () => {
       let failed = false;
-      const close = async (pending: Promise<unknown> | undefined) => { try { await bounded(pending ?? Promise.resolve(), 10_000, 'Official runtime close timed out.'); } catch { failed = true; } };
-      await close(authority.mcp?.close());
-      await close(authority.driver?.close());
+      const close = async (step: () => Promise<unknown> | undefined) => { try { await bounded(Promise.resolve().then(step), 10_000, 'Official runtime close timed out.'); } catch { failed = true; } };
+      await close(() => authority.mcp?.close());
+      await close(() => authority.driver?.close());
       if (authority.children.size) {
         await new Promise(resolve => setTimeout(resolve, 250));
         await Promise.all([...authority.children].map(child => terminateProcessTree(child).catch(() => { failed = true; })));
       }
-      await authority.manifest?.write;
-      authorities.delete(authority);
+      try { await authority.manifest?.write; } catch { failed = true; }
+      // A failed teardown keeps its authority as a durable hold; only a fully
+      // clean close releases it.
       if (failed) throw new HarnessError('RUNTIME_TEARDOWN_FAILED', 'The official runtime did not close completely. Account sign-in remains blocked.');
+      authorities.delete(authority);
     })().catch(()=>{throw new HarnessError('RUNTIME_TEARDOWN_FAILED','The official runtime did not close completely. Account sign-in remains blocked.');});
     return authority.closing;
   }
