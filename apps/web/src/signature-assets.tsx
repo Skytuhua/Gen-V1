@@ -17,7 +17,9 @@ const pathFor = (key: string) => `/values/${key.replace(/~/g, '~0').replace(/\//
 function read(key: string): Pending[] {
   const raw = localStorage.getItem(key);
   if (!raw) return [];
-  const records: unknown = JSON.parse(raw);
+  let records: unknown;
+  try { records = JSON.parse(raw); }
+  catch { throw new Error('The pending signature journal is invalid. Clear the mark to continue.'); }
   if (!Array.isArray(records) || records.length > 100 || records.some(record => !record || typeof record.id !== 'string' || typeof record.stateKey !== 'string' || typeof record.base64 !== 'string' || record.base64.length > 700_000)) throw new Error('The pending signature journal is invalid. Clear the mark to continue.');
   return records;
 }
@@ -32,6 +34,7 @@ export function hasPendingDocumentAssets(threadId?: string, stateId?: string) {
   for (let index = 0; index < localStorage.length; index++) { const key = localStorage.key(index); if (key?.startsWith(start) && read(key).length) return true; }
   return false;
 }
+const cachePut = (identity: string, bytes: Uint8Array) => { if (cache.size >= 64) cache.delete(cache.keys().next().value!); cache.set(identity, bytes); };
 const subscribe = (listener: () => void) => { listeners.add(listener); return () => { listeners.delete(listener); }; };
 function base64Bytes(value: string) { return Uint8Array.from(atob(value), character => character.charCodeAt(0)); }
 export function pngDataUrl(bytes: Uint8Array) {
@@ -75,8 +78,7 @@ export function DocumentAssetProvider({ threadId, stateId = '', active = true, c
         const grant = receipt.result as ResourceGrant;
         if (!grant || grant.threadId !== threadId || grant.kind !== 'attachment' || typeof grant.id !== 'string') throw new Error('The host did not return a signature resource for this thread.');
         const current = read(key); if (!current.some(item => item.id === record.id)) return;
-        if (cache.size >= 64) cache.delete(cache.keys().next().value!);
-        cache.set(`${threadId}:${grant.id}`, base64Bytes(record.base64));
+        cachePut(`${threadId}:${grant.id}`, base64Bytes(record.base64));
         if (alive) { store.set(pathFor(record.stateKey), { kind: 'image', resourceId: grant.id }); write(key, current.filter(item => item.id !== record.id)); }
         else write(key, current.map(item => item.id === record.id ? { ...item, resourceId: grant.id } : item));
       }).catch(error => { write(key, read(key).map(item => item.id === record.id ? { ...item, error: error instanceof Error ? error.message : 'Signature upload failed. Retry to continue.' } : item)); }).finally(() => { inFlight.delete(record.id); emit(); });
@@ -90,7 +92,7 @@ export function DocumentAssetProvider({ threadId, stateId = '', active = true, c
     save: (stateKey, bytes) => { validateSignaturePng(bytes); const record = { id: crypto.randomUUID(), stateKey, base64: pngDataUrl(bytes).split(',')[1] }; write(key, [...read(key).filter(item => item.stateKey !== stateKey), record]); },
     clear: stateKey => write(key, read(key).filter(item => item.stateKey !== stateKey)),
     retry: () => write(key, read(key).map(({ error: _error, ...record }) => record)),
-    get: async (resourceId, signal) => { const identity = `${threadId}:${resourceId}`; const saved = cache.get(identity); if (saved) return saved.slice(); const bytes = await fetchSignaturePng(resourceId, signal); cache.set(identity, bytes); return bytes.slice(); },
+    get: async (resourceId, signal) => { const identity = `${threadId}:${resourceId}`; const saved = cache.get(identity); if (saved) return saved.slice(); const bytes = await fetchSignaturePng(resourceId, signal); cachePut(identity, bytes); return bytes.slice(); },
   }), [key, threadId, revision]);
   return <Context.Provider value={value}>{children}</Context.Provider>;
 }
