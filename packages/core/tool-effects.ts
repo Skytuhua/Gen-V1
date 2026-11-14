@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { HarnessError, type Operation, type RunContext, type Thread, type ToolCall } from "../contracts/index.ts";
+import { HarnessError, type Operation, type Thread, type ToolCall } from "../contracts/index.ts";
 import {
   toolEffectSchema,
   type ActorRole,
@@ -25,7 +25,7 @@ let faultHook: ((at: string) => void) | null = null;
 export function __setEffectFaultHookForTests(hook: ((at: string) => void) | null): void { faultHook = hook; }
 const fault = (at: string) => { faultHook?.(at); };
 
-export function ownerFor(thread: Thread, ctx?: RunContext | null): ToolOwner {
+export function ownerFor(thread: Thread, ctx?: { threadId: string; runId?: string | null; epoch?: number | null } | null): ToolOwner {
   return {
     threadId: thread.id,
     runId: ctx?.runId ?? thread.runId ?? null,
@@ -237,8 +237,10 @@ export class ToolEffectLedger {
       throw new HarnessError("APPROVAL_REQUIRED", "The approved owner changed; approve the current intent again");
   }
 
-  /** Gate + admit + dispatch + settle one host tool call. */
-  async invoke(input: { call: ToolCall; ctx: RunContext; thread: Thread; role: ActorRole }, executor: () => Promise<unknown>): Promise<unknown> {
+  /** Gate + admit + dispatch + settle one host tool call. ctx may omit runId/
+   * epoch to bind the invocation to the thread's current owner (e.g. learning
+   * jobs that outlive the run they review). */
+  async invoke(input: { call: ToolCall; ctx: { threadId: string; runId?: string | null; epoch?: number | null }; thread: Thread; role: ActorRole }, executor: () => Promise<unknown>): Promise<unknown> {
     const { call, ctx, thread, role } = input;
     const definition = this.authority.require(call.name);
     const owner = ownerFor(thread, ctx);
