@@ -1,3 +1,6 @@
+import {mkdtempSync,mkdirSync,rmSync,writeFileSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
 import { describe, expect, it, vi } from 'vitest';
 import { discover, resolveScope, parseFilePaths, parseGitLog, type Run } from '../../scripts/capture-ui/scope';
 import {mapFile,screens,keyStates} from '../../scripts/capture-ui/screen-map';
@@ -130,4 +133,27 @@ describe('scope discovery', () => {
     });
     expect(() => discover(30, run, now)).toThrow(/files unavailable.*missing parent/);
   });
+});
+
+it('includes files introduced by the repository root when gh is unavailable', async () => {
+  const {execFileSync} = await vi.importActual<typeof import('node:child_process')>('node:child_process');
+  const cwd = mkdtempSync(join(tmpdir(),'ui-scope-root-'));
+  const git = (...args:string[]) => execFileSync('git',['-c','core.hooksPath='+join(cwd,'empty-hooks'),'-c','commit.gpgsign=false','-c','user.name=Fixture','-c','user.email=fixture@example.invalid',...args],{cwd,encoding:'utf8',stdio:['ignore','pipe','pipe']});
+  try {
+    git('init','-b','main'); mkdirSync(join(cwd,'docs')); writeFileSync(join(cwd,'docs','first.md'),'first');
+    git('add','docs/first.md'); git('commit','-m','Initial import'); git('update-ref','refs/remotes/origin/main','HEAD');
+    const scope = discover(30,(cmd,args)=>{if(cmd!=='git')throw Error('gh unavailable');return git(...args);},new Date());
+    expect(scope.pulls[0]).toMatchObject({title:'Initial import',files:[{path:'docs/first.md'}]});
+  } finally { rmSync(cwd,{recursive:true,force:true}); }
+});
+
+it('does not mistake a truncated clone boundary for the repository root', () => {
+  const { run, calls } = fakeRun({
+    [ghCommand]: Error('gh unavailable'), ...branchResponses,
+    'git log origin/main --first-parent --since-as-filter=2026-10-10T00:00:00Z --format=%H%x09%cI%x09%s': 'aaa\t2026-11-08\tTruncated',
+    'git diff-tree --no-commit-id --name-only -z -r aaa^1 aaa': Error('missing parent'),
+    'git cat-file commit aaa': 'tree abc\nparent def\n\nTruncated\n',
+  });
+  expect(() => discover(30,run,now)).toThrow(/files unavailable.*missing parent/);
+  expect(calls.some(call=>call.args.includes('--root'))).toBe(false);
 });
