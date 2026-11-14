@@ -42,7 +42,7 @@ export const personalAgentTransport: AgentTransport = {
      const lines = frame.split(/\r?\n/), event = lines.find(line => line.startsWith('event:'))?.slice(6).trim();
      if (event !== 'agents') continue;
      const data = lines.filter(line => line.startsWith('data:')).map(line => line.slice(5).trimStart()).join('\n');
-     if (data && !signal.aborted) accept(JSON.parse(data) as InventoryUpdates);
+     if (data && !signal.aborted) {let update: InventoryUpdates; try {update = JSON.parse(data) as InventoryUpdates;} catch {continue;} accept(update);}
     }
    }
   } finally {await reader.cancel().catch(() => {}); reader.releaseLock();}
