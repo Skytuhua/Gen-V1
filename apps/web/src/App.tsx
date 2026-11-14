@@ -164,11 +164,11 @@ function InputDecision({ request, refresh, snapshot }: { request: InputRequest; 
  * surface as Inspect outcome / View evidence — never a generic Retry — and the
  * coverage note stays visible while native calls are not host-observed. */
 function ActionDetails({ threadId, invocationId }: { threadId: string; invocationId: string }) {
-  const [data, setData] = useState<{ effect?: ToolEffectObservation['effect']; freshness?: string; coverage?: string[] } | null>(null);
+  const [data, setData] = useState<{ effect?: ToolEffectObservation['effect']; approval?: ToolEffectObservation['approval']; freshness?: string; coverage?: string[] } | null>(null);
   useEffect(() => {
     let live = true;
     getToolEffectObservation(threadId, invocationId)
-      .then(value => { if (live) setData({ effect: value.effect, freshness: value.freshness, coverage: value.coverage }); })
+      .then(value => { if (live) setData({ effect: value.effect, approval: value.approval, freshness: value.freshness, coverage: value.coverage }); })
       .catch(() => { if (live) setData({}); });
     return () => { live = false; };
   }, [threadId, invocationId]);
@@ -176,7 +176,7 @@ function ActionDetails({ threadId, invocationId }: { threadId: string; invocatio
   const effect = data.effect;
   return <details className="action-details"><summary>Action details</summary>
     {effect
-      ? <pre>{JSON.stringify({ action: effect.publicRedactedSummary, tool: effect.toolId, owner: effect.owner, approval: effect.approvalId, state: effect.state, receipt: effect.providerReceiptRef, freshness: data.freshness, transitions: effect.transitions, outcome: effect.outcome }, null, 2)}</pre>
+      ? <pre>{JSON.stringify({ action: effect.publicRedactedSummary, tool: effect.toolId, owner: effect.owner, approval: data.approval ? { id: data.approval.approvalId, issuer: data.approval.issuer, expiresAt: data.approval.expiresAt, remainingUses: data.approval.remainingUses } : effect.approvalId, state: effect.state, receipt: effect.providerReceiptRef, freshness: data.freshness, transitions: effect.transitions, outcome: effect.outcome }, null, 2)}</pre>
       : <p className="muted">No execution-ledger record for this action yet.</p>}
     {effect?.state === 'UNKNOWN_EXTERNAL_OUTCOME' && <p className="muted">Inspect outcome: view evidence before deciding; this effect has no generic retry.</p>}
     {(data.coverage ?? []).map(note => <p key={note} className="muted coverage-note">{note}</p>)}

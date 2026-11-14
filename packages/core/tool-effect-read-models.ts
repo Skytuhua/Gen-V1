@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { z } from "zod";
 import { HarnessError } from "../contracts/index.ts";
-import type { ToolEffectRecord } from "../contracts/tool-effects.ts";
+import type { ApprovalV1, ToolEffectRecord } from "../contracts/tool-effects.ts";
 import { observationFreshness } from "./effect-recovery.ts";
 import { TOOL_COVERAGE_NOTES } from "./tool-authority.ts";
 import type { Store } from "../storage/store.ts";
@@ -87,13 +87,15 @@ export class ToolEffectReadModels {
     return { effects, nextCursor, freshness: observationFreshness(this.store, fence), sequence: fence };
   }
 
-  /** Returns one effect with its retained transitions — no cross-owner reads. */
-  observations(input: unknown): { effect: ToolEffectRecord; freshness: "CURRENT" | "STALE" | "INDETERMINATE" } {
+  /** Returns one effect with its retained transitions and the approval that
+   * consumed it — no cross-owner reads. */
+  observations(input: unknown): { effect: ToolEffectRecord; approval: ApprovalV1 | null; freshness: "CURRENT" | "STALE" | "INDETERMINATE" } {
     const parsed = observationQuerySchema.parse(input);
     const found = this.scoped(parsed.scopeKey);
     const effect = this.store.get<ToolEffectRecord>("toolEffect", parsed.invocationId);
     if (!effect || effect.threadId !== found.threadId) throw new HarnessError("NOT_FOUND", "Tool effect unavailable");
-    return { effect, freshness: observationFreshness(this.store, this.store.sequence) };
+    const approval = effect.approvalId ? this.store.get<ApprovalV1>("approval", effect.approvalId) : null;
+    return { effect, approval, freshness: observationFreshness(this.store, this.store.sequence) };
   }
 
   dispose(): void { this.scopes.clear(); }

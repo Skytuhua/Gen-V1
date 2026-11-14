@@ -63,6 +63,7 @@ export function actionCommitment(operation: Operation, thread: Thread): string {
     revision: operation.revision,
     kind: operation.kind,
     args: operation.args,
+    schemaDigest: digest({ kind: operation.kind, args: operation.args }),
     resourceIds: operation.resourceIds,
     preconditions: operation.preconditions,
     accountId: thread.accountId ?? null,

@@ -8,7 +8,7 @@ import { buildToolRegistry, ToolAuthority } from '../packages/core/tool-authorit
 import { ToolEffectLedger } from '../packages/core/tool-effects.ts';
 import { __setCapabilityFlagForTests } from '../packages/core/capability-flags.ts';
 import type { ApprovalV1, ToolEffectRecord } from '../packages/contracts/tool-effects.ts';
-import type { Operation, RuntimeAdapter, RuntimeCallbacks, StartRun, Thread, ToolCall } from '../packages/contracts/index.ts';
+import type { Operation, RunContext, RuntimeAdapter, RuntimeCallbacks, StartRun, Thread, ToolCall } from '../packages/contracts/index.ts';
 import * as domain from '../packages/capabilities/index.ts';
 
 const cleanups: (() => Promise<void>)[] = [];
@@ -163,4 +163,31 @@ it('denies dispatch when the approved owner drifts (epoch bump)', async () => {
   x.store.internal('fixture.drift', x.first.id, () => x.store.put('thread', current.id, x.first.id, { ...current, epoch: current.epoch + 1 }));
   await expect(x.service.dispatchOperation(op.id)).rejects.toMatchObject({ code: 'APPROVAL_REQUIRED' });
   expect(x.store.get<ToolEffectRecord>('toolEffect', 'operation:' + op.id + '@1')).toBeNull();
+});
+
+it('retains a historical result when the owner is archived mid-dispatch but publishes nothing current', async () => {
+  const { store, authority, ledger } = await ledgerFixture();
+  const planted = thread();
+  store.internal('fixture.thread', 'thread-1', () => store.put('thread', planted.id, planted.id, planted));
+  const effect = ledger.admit({
+    call: { name: 'repository_read', args: { invocationId: 'arch-1', path: 'README.md' } },
+    owner: { threadId: 'thread-1', runId: 'run-1', epoch: 1, projectId: null, workspaceId: null, accountBinding: 'acct-1' },
+    definition: authority.require('repository_read'),
+  });
+  expect(effect.state).toBe('DISPATCHED');
+  // Parent archived while the child effect is in flight: epoch bump + runId cleared.
+  const before = store.get<Thread>('thread', 'thread-1')!;
+  store.internal('fixture.archive', 'thread-1', () => store.put('thread', 'thread-1', 'thread-1', { ...before, epoch: before.epoch + 1, runId: null, status: 'stopped' }));
+  // Late settlement is retained historically under the original owner.
+  ledger.settle('arch-1', { value: { content: 'late' } }, 'SUCCEEDED');
+  const retained = ledger.get('arch-1');
+  expect(retained?.state).toBe('SUCCEEDED');
+  expect(retained?.owner.runId).toBe('run-1');
+  expect(retained?.owner.epoch).toBe(1);
+  // A new call under the revoked owner is denied before dispatch — nothing is revived.
+  const stale: RunContext = { threadId: 'thread-1', runId: 'run-1', epoch: 1 };
+  const archived = store.get<Thread>('thread', 'thread-1')!;
+  await expect(ledger.invoke({ call: { name: 'repository_read', args: { invocationId: 'arch-2' } }, ctx: stale, thread: archived, role: 'run' }, async () => ({})))
+    .rejects.toMatchObject({ code: 'AUTHORITY_DENIED' });
+  expect(ledger.get('arch-2')?.state).toBe('DENIED');
 });

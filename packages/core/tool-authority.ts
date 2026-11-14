@@ -50,8 +50,8 @@ const CLASSIFICATION: Row[] = [
   ["operation_execute", "HOST_EXECUTE", "NONREPLAYABLE", RUN, "domain", "operation"],
   ["skills_list", "READ", "READ_RETRYABLE", ["run", "learning"], "read", "none"],
   ["skill_view", "READ", "READ_RETRYABLE", ["run", "learning"], "read", "none"],
-  ["skill_manage", "WORKSPACE_WRITE", "NONREPLAYABLE", RUN, "store", "none"],
-  ["session_search", "READ", "READ_RETRYABLE", RUN, "read", "none"],
+  ["skill_manage", "WORKSPACE_WRITE", "NONREPLAYABLE", ["run", "learning"], "store", "none"],
+  ["session_search", "READ", "READ_RETRYABLE", ["run", "learning"], "read", "none"],
   ["harness_session_search", "READ", "READ_RETRYABLE", RUN, "read", "none"],
   ["integration_list", "READ", "READ_RETRYABLE", RUN, "network", "none"],
   ["integration_call", "NETWORK_WRITE", "PROVIDER_IDEMPOTENT", RUN, "network", "explicit"],
@@ -135,10 +135,20 @@ export class ToolAuthority {
   list(): RegistryEntry[] { return [...this.entries.values()]; }
 }
 
-/** Tools that execute inside the runtime process rather than through
- * Service.tool and are therefore not host-observed (coverage note for the UI
- * and the verification manifest; no green all-tools-audited badge). */
+/** M02 step-1 coverage table — every tool entry point by runtime and actor.
+ * Calls that execute inside a runtime process rather than through Service.tool
+ * are not host-observed; the UI shows these notes and no all-tools-audited badge.
+ *   entry point                         actor            observation
+ *   Service.tool (Pi routeToolCall)     run/side         ledgered via effects.invoke
+ *   Official MCP loopback (createHostMcp→onTool→Service.tool)  run/side  ledgered
+ *   Side runtime (SideRuntime onTool)   side             ledgered (task_finish only by side policy)
+ *   PlanningCoordinator.toolBody        planning_child   ledgered via observeTool hook
+ *   LearningCoordinator (learningTool)  learning         ledgered via hooks.tool wrap
+ *   operation dispatch (executeOperation) run            ledgered via admitOperationDispatch
+ *   Hermes native skill_tool/shared_skill_tool (worker.py) — COVERAGE_GAP:
+ *     executes inside the Python runtime and is never host-observed. */
 export const TOOL_COVERAGE_NOTES = [
   "Hermes native skill calls (worker.py skill_tool/shared_skill_tool) execute inside the runtime and are not host-observed (COVERAGE_GAP).",
+  "Plugin-supplied calls through options.additionalTool are admitted and settled by the ledger, but their internal sub-effects are not host-observed (COVERAGE_GAP).",
   "Network and delegated calls classified REQUIRE_APPROVAL have no approval vehicle yet; they are denied until a per-call approval path lands.",
 ];

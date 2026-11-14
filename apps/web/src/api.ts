@@ -244,9 +244,10 @@ export interface ToolEffectRecord {
   transitions: { from: string | null; to: string; at: string; note?: string }[];
   outcome?: { value?: unknown; error?: string };
 }
-export interface ToolEffectObservation { effect: ToolEffectRecord; freshness: 'CURRENT' | 'STALE' | 'INDETERMINATE'; coverage: string[] }
+export interface ToolEffectApproval { approvalId: string; operationId: string; expiresAt: string; issuedAt: string; remainingUses: number; issuer: string }
+export interface ToolEffectObservation { effect: ToolEffectRecord; approval: ToolEffectApproval | null; freshness: 'CURRENT' | 'STALE' | 'INDETERMINATE'; coverage: string[] }
 export const getToolEffectObservation = async (threadId: string, invocationId: string): Promise<ToolEffectObservation> => {
   const context = await authenticated(() => fetch(`/api/tool-effects/${encodeURIComponent(threadId)}`, { credentials: 'same-origin', cache: 'no-store' })).then(read<{ scopeKey: string; coverage: string[] }>);
-  const observation = await authenticated(() => fetch(`/api/tool-effects/${encodeURIComponent(threadId)}/observations?` + new URLSearchParams({ scopeKey: context.scopeKey, invocationId }), { credentials: 'same-origin', cache: 'no-store' })).then(read<{ effect: ToolEffectRecord; freshness: ToolEffectObservation['freshness'] }>);
+  const observation = await authenticated(() => fetch(`/api/tool-effects/${encodeURIComponent(threadId)}/observations?` + new URLSearchParams({ scopeKey: context.scopeKey, invocationId }), { credentials: 'same-origin', cache: 'no-store' })).then(read<{ effect: ToolEffectRecord; approval: ToolEffectApproval | null; freshness: ToolEffectObservation['freshness'] }>);
   return { ...observation, coverage: context.coverage };
 };
