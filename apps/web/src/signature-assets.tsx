@@ -90,7 +90,7 @@ export function DocumentAssetProvider({ threadId, stateId = '', active = true, c
     save: (stateKey, bytes) => { validateSignaturePng(bytes); const record = { id: crypto.randomUUID(), stateKey, base64: pngDataUrl(bytes).split(',')[1] }; write(key, [...read(key).filter(item => item.stateKey !== stateKey), record]); },
     clear: stateKey => write(key, read(key).filter(item => item.stateKey !== stateKey)),
     retry: () => write(key, read(key).map(({ error: _error, ...record }) => record)),
-    get: async (resourceId, signal) => { const identity = `${threadId}:${resourceId}`; const saved = cache.get(identity); if (saved) return saved.slice(); const bytes = await fetchSignaturePng(resourceId, signal); cache.set(identity, bytes); return bytes.slice(); },
+    get: async (resourceId, signal) => { const identity = `${threadId}:${resourceId}`; const saved = cache.get(identity); if (saved) return saved.slice(); const bytes = await fetchSignaturePng(resourceId, signal); if (cache.size >= 64) cache.delete(cache.keys().next().value!); cache.set(identity, bytes); return bytes.slice(); },
   }), [key, threadId, revision]);
   return <Context.Provider value={value}>{children}</Context.Provider>;
 }
