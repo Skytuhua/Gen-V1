@@ -2,6 +2,7 @@ import { test, expect, type Page } from '@playwright/test';
 import { taskFixture, serveTaskFixture } from './task-interface-fixture';
 
 const text = 'Could you show me the smallest useful change?';
+const flushEffects = (page: Page) => page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
 async function fixture(page: Page, pending = false, suggestion = text) {
   const snapshot = taskFixture({ root: 'text', elements: { text: { type: 'Text', props: { text: 'Prediction integration fixture' } } } });
   snapshot.settings.preferences = { composerPredictions: true };
@@ -28,7 +29,7 @@ async function fixture(page: Page, pending = false, suggestion = text) {
 
 test('only a witnessed settlement produces ghost text; Tab creates a durable draft and never sends', async ({ page }) => {
   const host = await fixture(page);
-  await page.waitForTimeout(400); expect(host.calls).toHaveLength(0);
+  await flushEffects(page); expect(host.calls).toHaveLength(0);
   await host.settle(); const ghost = page.locator('.composer-prediction-text'); await expect(ghost).toHaveText(text);
   await expect(host.draft).toHaveValue(''); await host.draft.press('Enter'); expect(host.commands.some(c => c.type === 'message.send')).toBe(false);
   const stored = await page.evaluate(async () => { const path = '/src/journal.ts'; return (await import(path)).journalEntries() as Promise<{ record: { value: unknown } }[]>; });
@@ -43,7 +44,7 @@ test('only a witnessed settlement produces ghost text; Tab creates a durable dra
 test('typing owns the draft while a response is pending and an emptied draft does not retry', async ({ page }) => {
   const host = await fixture(page, true); await host.settle(); await expect.poll(() => host.calls.length).toBe(1);
   await host.draft.fill('My newer words'); await host.release(); await expect(host.draft).toHaveValue('My newer words'); await expect(page.locator('.composer-prediction-text')).toHaveCount(0);
-  await host.draft.fill(''); await page.waitForTimeout(400); expect(host.calls).toHaveLength(1);
+  await host.draft.fill(''); await flushEffects(page); expect(host.calls).toHaveLength(1);
 });
 
 test('a maximum-length suggestion that exceeds the narrow large-font composer is wholly suppressed', async ({ page }) => {
@@ -53,7 +54,7 @@ test('a maximum-length suggestion that exceeds the narrow large-font composer is
   host.snapshot.settings.preferences = { composerPredictions: true, fontSize: 20 }; await host.publish();
   await expect(host.draft).toHaveCSS('font-size', '20px');
   const response = page.waitForResponse('**/api/composer-prediction'); await host.settle(); await (await response).finished();
-  await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+  await flushEffects(page);
   await expect(page.locator('.composer-prediction-text')).toHaveCount(0);
   await host.draft.press('Tab'); await expect(host.draft).toHaveValue(''); expect(host.commands.some(c => c.type === 'message.send')).toBe(false);
   await page.route('**/api/composer-prediction', route => { const body = route.request().postDataJSON(); return route.fulfill({ json: { suggestion: text, replyId: body.replyId, modelId: body.modelId } }); });
@@ -72,7 +73,7 @@ test('Escape dismisses once, and modifiers, navigation and post-composition keyC
   await host.draft.dispatchEvent('keydown', { key: 'Tab', keyCode: 229, isComposing: false });
   await expect(host.draft).toHaveValue(''); expect(host.commands.some(c => c.type === 'message.send')).toBe(false);
   await host.draft.press('Escape'); await expect(page.locator('.composer-prediction-text')).toHaveCount(0);
-  expect(host.commands.some(c => c.type === 'run.stop')).toBe(false); await host.publish(); await page.waitForTimeout(400); expect(host.calls).toHaveLength(1);
+  expect(host.commands.some(c => c.type === 'run.stop')).toBe(false); await host.publish(); await flushEffects(page); expect(host.calls).toHaveLength(1);
 });
 
 test('context changes, disabling, blur and a new real run invalidate pending results', async ({ page }) => {
@@ -81,7 +82,7 @@ test('context changes, disabling, blur and a new real run invalidate pending res
   await expect(page.locator('.composer-prediction-text')).toHaveCount(0);
   await host.settle('two'); await expect.poll(() => host.calls.length).toBe(2);
   host.snapshot.settings.preferences = { composerPredictions: false }; await host.publish(); await host.release(); await expect(page.locator('.composer-prediction-text')).toHaveCount(0);
-  host.snapshot.settings.preferences = { composerPredictions: true }; await host.publish(); await page.waitForTimeout(400); expect(host.calls).toHaveLength(2);
+  host.snapshot.settings.preferences = { composerPredictions: true }; await host.publish(); await flushEffects(page); expect(host.calls).toHaveLength(2);
   await host.draft.focus(); await host.settle('three'); await expect.poll(() => host.calls.length).toBe(3);
   await host.draft.blur(); await host.release(); await expect(page.locator('.composer-prediction-text')).toHaveCount(0);
   await host.draft.focus(); await host.settle('four'); await expect.poll(() => host.calls.length).toBe(4);
@@ -120,7 +121,7 @@ test('model, account and thread changes reject late results and do not restore h
   await host.settle('two'); await expect.poll(() => host.calls.length).toBe(2);
   host.snapshot.threads[0].modelId = 'test/replaced'; await host.publish(); await host.release(); await expect(page.locator('.composer-prediction-text')).toHaveCount(0);
   const current = host.snapshot.threads[0]; host.snapshot.threads = [{ ...current, id: 'different-thread', modelId: 'test/model' }]; host.snapshot.activeThreadId = 'different-thread'; await host.publish();
-  await host.draft.focus(); await page.waitForTimeout(400); expect(host.calls).toHaveLength(2); await expect(page.locator('.composer-prediction-text')).toHaveCount(0);
+  await host.draft.focus(); await flushEffects(page); expect(host.calls).toHaveLength(2); await expect(page.locator('.composer-prediction-text')).toHaveCount(0);
 });
 
 test('desktop workspace snapshot notifications witness the run without SSE event types', async ({ page }) => {
@@ -136,7 +137,7 @@ test('desktop workspace snapshot notifications witness the run without SSE event
   });
   const host = await fixture(page); await host.settle(); await expect(page.locator('.composer-prediction-text')).toHaveText(text);
   await host.publish(); await expect(page.locator('.composer [role="status"]')).toHaveText(`Suggested message: ${text} Tab to accept. Escape to dismiss.`); expect(host.calls).toHaveLength(1);
-  await page.reload(); await host.draft.focus(); await page.waitForTimeout(400); await expect(page.locator('.composer-prediction-text')).toHaveCount(0); expect(host.calls).toHaveLength(1);
+  await page.reload(); await host.draft.focus(); await flushEffects(page); await expect(page.locator('.composer-prediction-text')).toHaveCount(0); expect(host.calls).toHaveLength(1);
 });
 
 test('desktop/narrow light/dark and reduced motion retain ghost metrics and accept in place', async ({ page }, info) => {

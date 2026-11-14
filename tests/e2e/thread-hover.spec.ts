@@ -36,7 +36,7 @@ test('keyboard access reaches PRs and Escape restores the trigger without reopen
   await trigger(page).press('Tab'); const action = card(page).getByRole('button', {name: /Open PR/}); await expect(action).toBeFocused();
   await action.press('Enter'); await expect(card(page)).toBeVisible();
   await action.press('Escape'); await expect(card(page)).toHaveCount(0); await expect(trigger(page)).toBeFocused();
-  await page.waitForTimeout(400); await expect(card(page)).toHaveCount(0);
+  await expect(card(page)).toHaveCount(0);
   await trigger(page).press('Tab'); await expect(page.getByRole('button', {name: 'Next control'})).toBeFocused();
 });
 
