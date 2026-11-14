@@ -1,5 +1,5 @@
 export const keyStates = ['default', 'hover', 'focus', 'open', 'empty', 'error', 'loading'] as const;
-export const captureWidths = [375, 768, 1440] as const;
+export const captureWidths = [375, 768, 1024, 1440] as const;
 // WO-1.1b renderer additions: these require output-level state coverage, not
 // merely a registry mapping. Keep this explicit so reordering cannot hide one.
 export const requiredOutputScreenIds = [
@@ -8,6 +8,7 @@ export const requiredOutputScreenIds = [
   'plugin-frame', 'usage-dialog', 'context-inspector', 'task-interactions', 'task-work-objects',
   'task-everyday', 'task-exploration', 'task-software', 'task-media', 'task-document',
   'task-document-window', 'task-table-disclosure',
+  'project-search', 'saved-drafts', 'terminal-excerpts', 'conversation-find', 'file-checkpoints', 'redundant-ui',
 ] as const;
 export type State = typeof keyStates[number];
 export type Action = { selector: string; action: 'hover' | 'focus' | 'click' | 'press' | 'fill'; key?: string; value?: string; frame?: string; optional?: boolean };
@@ -20,13 +21,13 @@ const skip = (reason: string): Recipe => ({skip: reason});
 function surfaceStates(base: Recipe, target: string, open: Recipe, data: Record<'empty' | 'error' | 'loading', Recipe>, frame?: string): Screen['states'] {
   const extend = (extra: Recipe): Recipe => ({...base, ...extra,
     query: [base.query, extra.query].filter(Boolean).join('&') || undefined,
-    steps: [...(base.steps ?? []), ...(extra.steps ?? (extra.selector && extra.action ? [{selector: extra.selector, action: extra.action, key: extra.key, frame: extra.frame}] : []))],
+    steps: extra.steps?.length===0?[]:[...(base.steps ?? []), ...(extra.steps ?? (extra.selector && extra.action ? [{selector: extra.selector, action: extra.action, key: extra.key, frame: extra.frame}] : []))],
   });
   const action = (kind: Action['action']): Recipe => extend({steps: [{selector: target, action: kind, frame}]});
   return {default: base, hover: action('hover'), focus: action('focus'), open: extend(open), empty: extend(data.empty), error: extend(data.error), loading: extend(data.loading)};
 }
 export const screens: Screen[] = [
-  { id: 'app-shell', fixture: '', page: '/', ready: '.composer', states: {
+  { id: 'app-shell', readyTimeout:30000,retryReadyTimeout:true, fixture: '', page: '/', ready: '.composer', states: {
     default: {},
     hover: { steps: [{ selector: '[aria-label="Open navigation"]', action: 'click', optional: true }, { selector: '.thread-item', action: 'hover' }], waitMs: 450 },
     focus: { steps: [{ selector: '[aria-label="Open navigation"]', action: 'click', optional: true }, { selector: '.thread-item', action: 'focus' }] },
@@ -98,7 +99,7 @@ export const screens: Screen[] = [
     empty: {query: 'variant=empty', ready: '.plan-agent-summary'}, error: {query: 'variant=error', ready: '[role="alert"]'},
     loading: skip('DelegatedAgentTranscript reads supplied plan/messages synchronously; it has no pending prop or fetch boundary.'),
   }) },
-  { id: 'plugin-frame', fixture: '', entry: '/scripts/capture-ui/browser-surfaces.tsx', ready: 'html[data-plugin-ready="true"]', states: surfaceStates({query: 'surface=plugin'}, '[aria-label="Move Plugin tools"]', {selector: '.pv-status summary', action: 'press', key: 'Enter', frame: 'iframe', waitFor: '.pv-status details[open]'}, {
+  { id: 'plugin-frame', fixture: '', entry: '/scripts/capture-ui/browser-surfaces.tsx', ready: 'html[data-plugin-ready="true"]', states: surfaceStates({query: 'surface=plugin'}, '[aria-label="Minimize Plugin tools"]', {selector: '.pv-status summary', action: 'press', key: 'Enter', frame: 'iframe', waitFor: '.pv-status details[open]'}, {
     empty: skip('Personal Visuals seeds an example when no document is stored; its diagram schema requires at least one node.'),
     error: {api: 'error', ready: '.plugin-workspace iframe', frame: 'iframe', waitFor: '.pv-error'},
     loading: {api: 'loading', hold: '^/api/plugins/personal-visuals/rpc$', ready: '.plugin-workspace iframe', frame: 'iframe', waitFor: '.pv-status'},
@@ -158,9 +159,45 @@ export const screens: Screen[] = [
     error: skip('Table and Disclosure consume synchronous bindings here; neither has an actionId or asynchronous error boundary.'),
     loading: skip('Table and Disclosure render supplied rows/text synchronously; this gallery has no fetch or pending prop.'),
   }) },
+  {id:'project-search',fixture:'project-search-fixture.tsx',ready:'[aria-label="Search scope"]',states:surfaceStates({steps:[{selector:'[aria-label="Search scope"]',action:'click'},{selector:'[role="option"]:has-text("Project")',action:'click'},{selector:'input[placeholder="File names and text"]',action:'fill',value:'workspace'}],waitFor:'.project-search-hit'},'.project-search-hit',{selector:'.project-search-hit',action:'click',waitFor:'.files-preview-content'}, {
+    empty:{query:'state=empty',waitFor:'.project-search-results',steps:[{selector:'[aria-label="Search scope"]',action:'click'},{selector:'[role="option"]:has-text("Project")',action:'click'},{selector:'input[placeholder="File names and text"]',action:'fill',value:'workspace'}]},
+    error:{query:'state=error',waitFor:'.project-search-results [role="alert"]'},
+    loading:{query:'state=loading',waitFor:'.project-search-results [role="status"]'},
+  })},
+  {id:'saved-drafts',fixture:'saved-drafts-fixture.tsx',ready:'[data-saved-composer] textarea:enabled',states:surfaceStates({query:'capture=1',steps:[{selector:'.saved-drafts-trigger:visible',action:'click'}],waitFor:'.saved-drafts-popover li'},'.saved-drafts-row-actions button',{selector:'.saved-drafts-row-actions button',action:'click',waitFor:'.saved-drafts-dialog'}, {
+    empty:{query:'capture-empty=1',waitFor:'text=No saved drafts yet.'},
+    error:{query:'capture-boundary=error',waitFor:'.saved-drafts-popover [role="alert"]'},
+    loading:{query:'capture-boundary=loading',waitFor:'.saved-drafts-popover [role="status"]'},
+  })},
+  {id:'terminal-excerpts',readyTimeout:30000,retryReadyTimeout:true,fixture:'terminal-excerpts-fixture.tsx',ready:'.xterm-screen',states:surfaceStates({steps:[{selector:'.xterm-helper-textarea',action:'focus'},{selector:'.xterm-helper-textarea',action:'press',key:'Control+Shift+a'},{selector:'button:has-text("Add selection to prompt")',action:'click'}],waitFor:'.terminal-excerpt-chip:visible'},'.terminal-excerpt-chip:visible button',{selector:'.terminal-excerpt-chip:visible button',action:'click',waitFor:'[aria-label="Excerpt text"]'}, {
+    empty:{api:'empty',steps:[],waitFor:'.xterm-screen'},
+    error:skip('Excerpt capture is synchronous; rejected and uncertain normal Sends are exercised by terminal-excerpts.spec.ts, with no separate capture error prop.'),
+    loading:{api:'loading',hold:'^/api/terminals$',steps:[],ready:'.terminal-read',waitFor:'.terminal-read [role="status"]'},
+  })},
+  {id:'conversation-find',readyTimeout:30000,retryReadyTimeout:true,fixture:'conversation-find-fixture.tsx',ready:'.composer textarea',states:surfaceStates({steps:[{selector:'[aria-label="Find in conversation"]',action:'click'},{selector:'[aria-label="Find phrase"]',action:'fill',value:'workspace'}],waitFor:'.conversation-find-count'},'[aria-label="Next match"]',{selector:'[aria-label="Find phrase"]',action:'focus'}, {
+    empty:{steps:[{selector:'[aria-label="Find in conversation"]',action:'click'},{selector:'[aria-label="Find phrase"]',action:'fill',value:'no-match-in-this-conversation'}],waitFor:'.conversation-find-count'},
+    error:{api:'error',steps:[],ready:'[role="alert"]',waitFor:'[role="alert"]'},
+    loading:{api:'loading',hold:'^/api/bootstrap$',steps:[],ready:'.workspace-host-bootstrap [role="status"]',waitFor:'.workspace-host-bootstrap [role="status"]'},
+  })},
+  {id:'file-checkpoints',fixture:'file-checkpoints-fixture.tsx',ready:'.file-checkpoints',states:surfaceStates({waitFor:'.file-checkpoints-list button'},'.file-checkpoints-list button',{selector:'.file-checkpoints-list button',action:'click',waitFor:'[aria-label="Checkpoint review"]'}, {
+    empty:{query:'state=empty',ready:'.file-checkpoints',waitFor:'text=No file checkpoints available.'},
+    error:{query:'state=error',ready:'.file-checkpoints',waitFor:'.file-checkpoints [role="alert"]'},
+    loading:{query:'state=loading',ready:'.file-checkpoints',waitFor:'.file-checkpoints [role="status"]'},
+  })},
+  {id:'redundant-ui',fixture:'redundant-ui-fixture.tsx',ready:'.wo5-redundant-fixture',states:surfaceStates({steps:[{selector:'[aria-label="Inspect live usage"]',action:'click'}],waitFor:'.project-context-card'},'button:has-text("Open Usage")',{selector:'button:has-text("Open Usage")',action:'click',waitFor:'dialog[open]'}, {
+    empty:{query:'state=empty',waitFor:'.project-context-card'},
+    error:{query:'state=error',waitFor:'.project-context-card [role="alert"]'},
+    loading:{query:'state=loading',waitFor:'.project-context-card [role="status"]'},
+  })},
 ];
 // Single source for scope rules and the documentation mapping table. All matches accumulate.
 export const mapping = [
+  {pattern:'(ProjectSearch|project-search|^apps/web/src/files/)',screens:['project-search']},
+  {pattern:'(SavedDrafts|saved-drafts)',screens:['saved-drafts']},
+  {pattern:'(TerminalExcerpt|terminal-excerpts|TerminalBody|ComposerAttachments|composer-entry)',screens:['terminal-excerpts']},
+  {pattern:'(ConversationFind|conversation-find|conversation-workspace/ConversationPane)',screens:['conversation-find']},
+  {pattern:'(FileCheckpoints|file-checkpoint|WorkspacePanelBodies|WorkspaceSurfaceBody)',screens:['file-checkpoints']},
+  {pattern:'(ProjectContextCard|ProjectContextSurface|UsageFooter|TaskMemory|WorkspaceSurfaceBody)',screens:['redundant-ui']},
   { pattern: '^apps/web/src/(App|DesktopEntry|desktop\\.css|main|WorkspaceHost|ShellSidebar|Composer|ModelPicker|LoadingState|ChatScrollIndicator|SentenceReveal|workspace-context|workspace-host|shell-|shell\\.|styles\\.|frontend-fidelity|appearance\\.|loading-state|composer-|model-picker|sentence-reveal|chat-scroll)', screens: ['app-shell'] },
   { pattern: '^apps/web/src/(WorkspaceCanvas|WorkspacePanel|WorkspaceControls|workspace-canvas|workspace-tools)', screens: ['workspace', 'app-shell'] },
   { pattern: '(agents-workspace|agent-inventory)', screens: ['agents'] },

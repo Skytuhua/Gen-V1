@@ -34,11 +34,12 @@ export function pluginDesktopRequiresGrant(channel:string){return channel!==DESK
 export function nativeTitlebarTheme(value:unknown){if(value!=='light'&&value!=='dark')throw Error('Invalid window theme.');return {color:value==='light'?'#ffffff':'#0f0f0f',symbolColor:value==='light'?'#1f1f1f':'#eeeeee',height:42};}
 export function nativeTitlebarOptions(platform:string){return platform==='win32'?{titleBarStyle:'hidden' as const,titleBarOverlay:nativeTitlebarTheme('dark')}:{ };}
 export function desktopSurfaceAllowed(surface:DesktopSurface):boolean {parseDesktopSurface(surface);return true;}
-/** Existing child custody and saved references remain valid; new detach requests
- * cannot create another native editor while this feature is retired. */
-export function requireExistingDetachedSurface(surface:DesktopSurface,existing:DesktopSurface[]):void {
+/** Validates a detached-view request's surface identity before the window factory
+ * admits it. The existing-window list is deliberately unused: the factory decides
+ * create-vs-focus by surface key, so this policy only rejects malformed identities.
+ * The parameter stays for the stable policy signature exercised by the tests. */
+export function requireExistingDetachedSurface(surface:DesktopSurface,_existing:DesktopSurface[]):void {
  parseDesktopSurface(surface);
- if(!existing.some(value=>desktopSurfaceKey(value)===desktopSurfaceKey(surface)))throw Error('Opening detached views is currently unavailable.');
 }
 export function isTrustedDesktopSender(expected:{id:number;url:string},sender:{id:number;url:string;mainFrame:boolean}):boolean{return sender.mainFrame&&sender.id===expected.id&&sender.url===expected.url;}
 export function parseBrowserCommand(raw:unknown):DesktopBrowserCommand {
@@ -47,7 +48,7 @@ export function parseBrowserCommand(raw:unknown):DesktopBrowserCommand {
  if(value.type==='open'&&Object.keys(value).length===1)return {type:'open'};
  if(value.type==='navigate'&&Object.keys(value).length===2&&typeof value.url==='string'&&value.url.length<=4096)return {type:'navigate',url:value.url};
  if(value.type==='bounds'&&Object.keys(value).length===2&&value.bounds&&typeof value.bounds==='object'&&!Array.isArray(value.bounds)){const bounds=value.bounds as Record<string,unknown>;if(Object.keys(bounds).length===4&&['x','y','width','height'].every(key=>typeof bounds[key]==='number'&&Number.isFinite(bounds[key])&&Math.abs(bounds[key] as number)<=20000))return {type:'bounds',bounds:bounds as unknown as DesktopBounds};}
- if(['back','forward','reload','stop'].includes(String(value.type))&&Object.keys(value).length===1)return {type:value.type as 'back'|'forward'|'reload'|'stop'};
+ if(['back','forward','reload','stop','close'].includes(String(value.type))&&Object.keys(value).length===1)return {type:value.type as 'back'|'forward'|'reload'|'stop'|'close'};
  throw Error('Invalid browser command');
 }
 export function publicAddress(address:string):boolean {

@@ -126,6 +126,9 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
   const subscriptions = searching ? matchingSubscriptionConnections(query).length : 0;
   const heading = searching ? `Search results (${rows.length + subscriptions})` : SETTINGS_SECTIONS.find(([id]) => id === section)?.[1];
   const showAppearance = rows.some(item => item.section === 'appearance');
+  // While searching, highlight the first result's section instead of leaving a
+  // stale selection; aria-current stays clear so search is not a page change.
+  const activeSection = searching ? rows[0]?.section : section;
   const customRows = new Set(['harness-personalization', 'chat-width', 'word-wrap', 'harness-project-colors', 'harness-notification-controls', 'harness-accounts', 'harness-skills', 'harness-integrations', 'browser-start-page', 'app-version']);
   const chooseSection = (id: string) => { setQuery(''); setSection(id); };
   const details = (item: SettingsInventoryRow): { description: string; control: ReactNode } => {
@@ -149,19 +152,19 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
   return <div className="settings-layout">
     <aside className="settings-navigation"><label className="settings-search"><Search size={14}/><input type="search" aria-label="Search all settings" placeholder="Search settings" value={query} onChange={event => setQuery(event.target.value)}/></label>
       <nav ref={navigation} aria-label="Settings sections" onKeyDown={event => { if (event.nativeEvent.isComposing || event.ctrlKey || event.metaKey || event.altKey || !['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return; const buttons = [...event.currentTarget.querySelectorAll('button')], index = buttons.indexOf(document.activeElement as HTMLButtonElement); event.preventDefault(); buttons[event.key === 'Home' ? 0 : event.key === 'End' ? buttons.length - 1 : (index + (event.key === 'ArrowDown' ? 1 : -1) + buttons.length) % buttons.length]?.focus(); }}>
-        {SETTINGS_SECTIONS.map(([id, label]) => <button type="button" key={id} className={!searching && section === id ? 'selected' : ''} onClick={() => chooseSection(id)} aria-current={!searching && section === id ? 'page' : undefined}>{label}</button>)}
+        {SETTINGS_SECTIONS.map(([id, label]) => <button type="button" key={id} className={activeSection === id ? 'selected' : ''} onClick={() => chooseSection(id)} aria-current={!searching && section === id ? 'page' : undefined}>{label}</button>)}
       </nav>
     </aside>
     <main ref={content} className="settings-content" aria-label="Settings content"><div className="settings-page-heading"><h1>{heading}</h1><span className="settings-save-state" role="status">{busy ? 'Saving…' : saved ? <><Check size={12}/>Saved</> : null}</span></div>
-      {error && <p role="alert" className="notice error-text">{error}</p>}
-      {showAppearance && <AppearanceSettings preferences={preferences} theme={data.settings.theme} projects={data.projects} busy={busy} save={(patch, theme) => persist({ preferences: patch, ...(theme ? { theme } : {}) })}/>}
+      {error && <p role="status" className="notice error-text">{error}</p>}
+      {showAppearance && <AppearanceSettings preferences={preferences} theme={data.settings.theme} projects={data.projects} busy={busy} query={searching ? query : ''} save={(patch, theme) => persist({ preferences: patch, ...(theme ? { theme } : {}) })}/>}
       {rows.filter(item => !customRows.has(item.id)).map(item => { const { description, control } = details(item); return <section key={item.id} className="settings-row" data-setting-id={item.id} data-availability="working"><div className="settings-row-copy"><h2>{item.title}</h2>{searching && <span className="settings-result-section">{SETTINGS_SECTIONS.find(([id]) => id === item.section)?.[1]}</span>}<p>{description}</p></div><div className="settings-row-control">{control}</div></section>; })}
       {matches('harness-notification-controls') && <NotificationSettings preferences={preferences} busy={busy} update={update}/>}
       {matches('harness-runtime') && environmentSettings}
       {matches('harness-skills') && <SkillLibrary snapshot={data} preferences={preferences} update={update} refresh={refresh} busy={busy}/>}
       {matches('harness-integrations') && <IntegrationSettings/>}
       {(matches('harness-accounts') || subscriptions > 0) && <Connections models={newTaskModels} snapshot={data} refresh={refresh} loadModels={refreshModels} query={searching ? query : ''}/>}
-      {newTaskModelError && rows.some(item => item.section === 'providers') && <p role="alert" className="error-text">{newTaskModelError}</p>}
+      {newTaskModelError && rows.some(item => item.section === 'providers') && <p role="status" className="error-text">{newTaskModelError}</p>}
       {matches('project-overview') && <div className="settings-records">{data.resources.map(resource => <div key={resource.id}><strong>{resource.label}</strong><span>{resource.kind} · {resource.writable ? 'Approved changes allowed' : 'Read only'}</span><code>{resource.path}</code></div>)}</div>}
       {matches('archive') && <div className="settings-records">{data.counts.archivedThreads !== data.archivedThreads.length && <p className="settings-empty">Showing {data.archivedThreads.length} archived conversations available in navigation. The total also includes conversations outside this list.</p>}{data.archivedThreads?.length ? data.archivedThreads.map(thread => <section className="settings-row" key={thread.id}><div className="settings-row-copy"><h2>{thread.title}</h2><p>{thread.projectName ?? 'Conversation'} · {thread.status}</p></div><button type="button" className="secondary" disabled={busy} onClick={() => { setBusy(true); void settingsOperation(() => command('thread.restore', {}, thread.id).then(refresh)).catch(cause => setError(String(cause))).finally(() => setBusy(false)); }}>Restore thread</button></section>) : <p className="settings-empty">{data.counts.archivedThreads ? 'No archived conversations are available in navigation.' : 'No archived threads.'}</p>}</div>}
       {matches('app-version') && <><p className="settings-version">Gen V1 {version} · {desktop ? 'Windows desktop' : 'Browser build'}</p><UpdateControl/></>}

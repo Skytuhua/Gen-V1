@@ -62,7 +62,7 @@
 .editable-table thead th small{font-size:9px;display:block;font-weight:400;margin-top:2px}
 .editable-table tbody th{font-size:11px;font-weight:500;white-space:nowrap;color:var(--muted);padding-top:16px}
 .editable-table tbody tr:last-child :is(th,td){border-bottom:0}
-.editable-table td{min-width:130px;transition:background-color 160ms ease-out;height:64px}
+.editable-table td{min-width:130px;transition:background-color var(--ui-motion-hover) var(--ui-ease-enter);height:64px}
 .editable-table :is(th,td)[data-field-type=text]{min-width:184px}
 .editable-table :is(th,td)[data-field-type=number],.editable-table :is(th,td)[data-field-type=range]{min-width:86px;width:100px}
 .editable-table :is(th,td)[data-field-type=boolean]{min-width:90px;width:100px}

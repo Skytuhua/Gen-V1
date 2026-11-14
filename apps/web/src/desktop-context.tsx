@@ -1,4 +1,5 @@
 import {createContext,useCallback,useContext,useEffect,useLayoutEffect,useMemo,useRef,useState,type ReactNode} from 'react';
+import {ExternalLink} from 'lucide-react';
 import type {DesktopBridge,DesktopContext,DesktopState,DesktopSurface,DesktopWindowInfo} from '../../../packages/desktop-contract/index';
 import {desktopSurfaceKey} from '../../../packages/desktop-contract/index';
 import {prepareEditorHandoff,registerEditorHandoff} from './editor-handoff';
@@ -23,7 +24,8 @@ function surfaceOwners(windows:DesktopWindowInfo[],windowId:string){
 }
 export function DesktopProvider({bridge,context,children}:{bridge:DesktopBridge;context:DesktopContext;children:ReactNode}){
  useLayoutEffect(()=>{if(!context.nativeTitleBar)return;document.documentElement.dataset.nativeTitlebar='true';const sync=()=>{const theme=document.documentElement.dataset.theme;if(theme==='light'||theme==='dark')void bridge.setTheme?.(theme).catch(()=>{});};const observer=new MutationObserver(sync);observer.observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});sync();return()=>{observer.disconnect();delete document.documentElement.dataset.nativeTitlebar;};},[bridge,context.nativeTitleBar]);
- const [state,setState]=useState<DesktopState>(context),[pending]=useState<DesktopSurface[]>([]),[closing,setClosing]=useState(false);
+ const [state,setState]=useState<DesktopState>(context),[pending,setPending]=useState<DesktopSurface[]>([]),[closing,setClosing]=useState(false);
+ const pendingKeys=useRef(new Set<string>());
  const owner=useRef({owners:surfaceOwners(context.windows,context.windowId),epochs:new Map<string,number>(),sequence:0,closing:false,closeEpoch:0});
  const updateClosing=useCallback((value:boolean)=>{
   const current=owner.current;if(current.closing!==value){current.closing=value;current.closeEpoch=++current.sequence;}setClosing(value);
@@ -42,13 +44,16 @@ export function DesktopProvider({bridge,context,children}:{bridge:DesktopBridge;
  }),[bridge,context.windowId,updateClosing]);
  const prepareHandoff=prepareEditorHandoff;
  useEffect(()=>bridge.onCloseRequested(async()=>{updateClosing(true);try{await prepareHandoff();return true;}catch{updateClosing(false);return false;}}),[bridge,prepareHandoff,updateClosing]);
- const detachSurface=useCallback(async(surface:DesktopSurface)=>{const existing=state.windows.find(info=>surfaceKey(info.surface)===surfaceKey(surface));if(!existing)throw Error('Opening detached views is currently unavailable.');await bridge.focus(existing.id);return existing;},[bridge,state.windows]);
+ const detachSurface=useCallback(async(surface:DesktopSurface,before?:()=>Promise<void>)=>{const key=surfaceKey(surface);if(pendingKeys.current.has(key))throw Error('This view is already moving to another window.');pendingKeys.current.add(key);setPending(value=>[...value,surface]);try{await prepareEditorHandoff();await before?.();return await bridge.detach(surface);}finally{pendingKeys.current.delete(key);setPending(value=>value.filter(item=>surfaceKey(item)!==key));}},[bridge]);
  const value=useMemo(()=>({bridge,context,...state,state,registerClose,prepareHandoff,pending,ownership,detachSurface,closing,resumeEditing:()=>updateClosing(false)}),[bridge,context,state,registerClose,prepareHandoff,pending,ownership,detachSurface,closing,updateClosing]);
  return <Context value={value}>{children}</Context>;
 }
-/** Retained for source compatibility; detachment has no presentation entry. */
-export function DetachButton(_props:{surface:DesktopSurface;label:string;before?:()=>Promise<void>;after?:()=>void;onError?:(error:Error)=>void}){return null;}
+/** Moves a view into its own native window, or focuses the window that owns it. */
+export function DetachButton({surface,label,before,after,onError}:{surface:DesktopSurface;label:string;before?:()=>Promise<void>;after?:()=>void;onError?:(error:Error)=>void}){
+ const desktop=useDesktop(),detached=useDetachedSurface(surface),[busy,setBusy]=useState(false);
+ return <button type="button" className="icon-button" aria-label={detached?`Focus detached ${label}`:`Detach ${label}`} title={detached?`Focus detached ${label}`:`Detach ${label}`} disabled={!desktop||busy} onClick={()=>{if(!desktop)return;setBusy(true);void(async()=>{if(detached){await desktop.bridge.focus(detached.id);return;}await desktop.detachSurface(surface,before);after?.();})().catch(cause=>onError?.(cause instanceof Error?cause:Error('The desktop window could not open.'))).finally(()=>setBusy(false));}}><ExternalLink size={14}/></button>;
+}
 /** Recovery is offered only for a child that already owns saved work. */
 export function DesktopWindowActions(){const desktop=useDesktop(),[error,setError]=useState('');if(!desktop||desktop.context.surface.kind==='main')return null;
- return <><button type="button" className="quiet" onClick={()=>{void desktop.bridge.reattach().catch(cause=>{desktop.resumeEditing();setError(cause instanceof Error?cause.message:'The view could not return. Keep it open and retry.');});}}>Return to workspace</button>{error&&<p role="alert">{error}</p>}</>;
+ return <><button type="button" className="quiet" onClick={()=>{void desktop.bridge.reattach().catch(cause=>{desktop.resumeEditing();setError(cause instanceof Error?cause.message:'The view could not return. Keep it open and retry.');});}}>Return to workspace</button>{error&&<p role="status">{error}</p>}</>;
 }

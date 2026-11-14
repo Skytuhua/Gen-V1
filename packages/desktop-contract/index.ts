@@ -20,7 +20,7 @@ export interface DesktopUpdateStatus {state:'unavailable'|'idle'|'checking'|'cur
 export interface DesktopState {windows:DesktopWindowInfo[];browser?:DesktopBrowserState;dockedBrowser?:{browserId:string;state:DesktopBrowserState};focusSurface?:DesktopSurface;backendError?:string;layoutError?:string;closeCancelled?:boolean;update?:DesktopUpdateStatus;nativeTitleBar?:boolean}
 export interface DesktopContext extends DesktopState {windowId:string;surface:DesktopSurface}
 export interface DesktopWorkspaceChange {connected:boolean;sequence:number}
-export type DesktopBrowserCommand = {type:'open'}|{type:'navigate';url:string}|{type:'back'|'forward'|'reload'|'stop'}|{type:'bounds';bounds:{x:number;y:number;width:number;height:number}};
+export type DesktopBrowserCommand = {type:'open'}|{type:'close'}|{type:'navigate';url:string}|{type:'back'|'forward'|'reload'|'stop'}|{type:'bounds';bounds:{x:number;y:number;width:number;height:number}};
 export interface DesktopBridge {
   onAttentionOpen?(listener:(threadId:string)=>void):()=>void;
   openAttention?(eventId:string):Promise<void>;

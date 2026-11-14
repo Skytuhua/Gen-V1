@@ -7,7 +7,7 @@ export interface UiViolation {
   file: string;
   line: number;
   column: number;
-  rule: 'numeric-jsx-child' | 'ad-hoc-overlay';
+  rule: 'numeric-jsx-child' | 'ad-hoc-overlay' | 'off-token-motion';
   message: string;
   fingerprint: string;
 }
@@ -24,6 +24,10 @@ export const primitiveImplementations: Readonly<Record<string, string>> = {
   'packages/ui-shell/Modal.tsx': 'Shared native dialog modality and focus-return primitive.',
   'packages/ui-shell/controls.css': 'Scoped shared menu, select and modal styling.',
   'packages/ui-shell/tokens.css': 'Shared primitive tokens, popover and option styling.',
+  'packages/ui-shell/Toast.tsx': 'Shared toast store and non-modal feedback layer.',
+  'packages/ui-shell/Tooltip.tsx': 'Shared tooltip layer adopting title attributes with dwell and focus behavior.',
+  'packages/ui-shell/Feedback.tsx': 'Shared spinner, empty and error state primitives.',
+  'packages/ui-shell/feedback.css': 'Scoped shared toast, tooltip and state styling.',
 };
 const overlayRoles = new Set(['dialog', 'alertdialog', 'menu', 'menubar', 'listbox', 'combobox', 'tooltip']);
 const overlayTags = new Set(['select', 'dialog']);
@@ -181,15 +185,22 @@ function lintMarkup(text: string, file: string): UiViolation[] {
   return violations;
 }
 
+// Canonical token values: durations in milliseconds, easing curves as numeric tuples.
+const tokenDurations = new Set([30, 80, 120, 140, 160, 180, 200, 220, 240, 350, 600]);
+const tokenCurves = new Set(['0.16,1,0.3,1', '0.4,0,0.2,1', '0.2,0.9,0.2,1.1']);
+
 function lintStyles(text: string, file: string): UiViolation[] {
   if (primitiveImplementations[file]) return [];
   const violations: UiViolation[] = [], scanner = ts.createScanner(ts.ScriptTarget.Latest, true, ts.LanguageVariant.Standard, text);
   // Use lexical blocks/declarations, keeping strings, comments and function values opaque.
-  const stack: { start: number; header: string; declarations: [string, string][]; name?: string; tokens: string[] }[] = [];
+  const stack: { start: number; header: string; declarations: [string, string][]; rawDeclarations: [string, string][]; name?: string; valueStart?: number; tokens: string[] }[] = [];
   let boundary = 0, parentheses = 0, token: ts.SyntaxKind;
-  const declaration = () => {
+  const declaration = (end: number) => {
     const frame = stack.at(-1);
-    if (frame?.name) frame.declarations.push([frame.name, frame.tokens.join('')]);
+    if (frame?.name) {
+      frame.declarations.push([frame.name, frame.tokens.join('')]);
+      frame.rawDeclarations.push([frame.name, text.slice(frame.valueStart ?? end, end).trim()]);
+    }
     if (frame) { frame.name = undefined; frame.tokens = []; }
   };
   while ((token = scanner.scan()) !== ts.SyntaxKind.EndOfFileToken) {
@@ -198,20 +209,34 @@ function lintStyles(text: string, file: string): UiViolation[] {
     if (token === ts.SyntaxKind.CloseParenToken) parentheses--;
     if (parentheses) { frame?.tokens.push(scanner.getTokenText()); continue; }
     if (token === ts.SyntaxKind.OpenBraceToken) {
-      stack.push({ start: boundary, header: text.slice(boundary, start).trim(), declarations: [], tokens: [] }); boundary = end;
+      stack.push({ start: boundary, header: text.slice(boundary, start).trim(), declarations: [], rawDeclarations: [], tokens: [] }); boundary = end;
     } else if (token === ts.SyntaxKind.ColonToken && frame && !frame.name) {
-      frame.name = frame.tokens.join(''); frame.tokens = [];
-    } else if (token === ts.SyntaxKind.SemicolonToken) { declaration(); boundary = end; }
+      frame.name = frame.tokens.join(''); frame.tokens = []; frame.valueStart = end;
+    } else if (token === ts.SyntaxKind.SemicolonToken) { declaration(start); boundary = end; }
     else if (token === ts.SyntaxKind.CloseBraceToken) {
-      declaration();
+      declaration(start);
       const block = stack.pop();
-      if (block && (fixedOverlay(block.declarations) || block.header.includes('::backdrop')
-        || ['fixed', 'absolute'].includes(new Map(block.declarations).get('position') ?? '') && overlayClass(block.header.replace(/[.#:[\]>+~(),]/g, ' ')))) {
+      if (block) {
         const leading = text.slice(block.start).search(/\S/), position = block.start + Math.max(0, leading);
         const lines = text.slice(0, position).split('\n');
-        violations.push({ file, line: lines.length, column: lines.at(-1)!.length + 1, rule: 'ad-hoc-overlay',
-          message: 'Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.',
-          fingerprint: createHash('sha256').update(block.header + JSON.stringify(block.declarations)).digest('hex') });
+        if (fixedOverlay(block.declarations) || block.header.includes('::backdrop')
+          || ['fixed', 'absolute'].includes(new Map(block.declarations).get('position') ?? '') && overlayClass(block.header.replace(/[.#:[\]>+~(),]/g, ' '))) {
+          violations.push({ file, line: lines.length, column: lines.at(-1)!.length + 1, rule: 'ad-hoc-overlay',
+            message: 'Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.',
+            fingerprint: createHash('sha256').update(block.header + JSON.stringify(block.declarations)).digest('hex') });
+        }
+        for (const [name, value] of block.rawDeclarations) {
+          if (!['transition', 'transition-duration', 'animation', 'animation-duration'].includes(name.trim())) continue;
+          const durations = [...value.matchAll(/(\d*\.?\d+)(ms|s)\b/gi)]
+            .map(match => match[2].toLowerCase() === 's' ? parseFloat(match[1]) * 1000 : parseFloat(match[1]));
+          const curves = [...value.matchAll(/cubic-bezier\(\s*([^)]*)\)/gi)]
+            .map(match => match[1].split(',').map(part => parseFloat(part.trim())).join(','));
+          if (durations.some(duration => tokenDurations.has(duration)) || curves.some(curve => tokenCurves.has(curve))) {
+            violations.push({ file, line: lines.length, column: lines.at(-1)!.length + 1, rule: 'off-token-motion',
+              message: 'Motion literal duplicates a design token: use var(--ui-motion-*) / var(--ui-ease-*) instead.',
+              fingerprint: createHash('sha256').update(block.header + name + value).digest('hex') });
+          }
+        }
       }
       boundary = end;
       const parent = stack.at(-1); if (parent) { parent.name = undefined; parent.tokens = []; }
@@ -490,7 +515,11 @@ export function applyOverlayPolicy(violations: UiViolation[], inventory: LegacyO
   return { violations: fresh, legacy, retired: remaining };
 }
 
-export function scanUi(root: string) {
+// Files without JSX can only produce findings through these imperative DOM
+// escape paths; anything else is skipped by the overlay/numeric rules anyway.
+const IMPERATIVE_ESCAPE = /createElement|createPortal|setAttribute|insertAdjacentHTML|innerHTML|outerHTML|srcdoc|srcDoc|cssText|className|dangerouslySetInnerHTML|\.send\s*\(|\.type\s*\(|\.header\s*\(/;
+
+export function scanUi(root: string, scanOptions?: { check?: boolean }) {
   root = resolve(root);
   const configPath = join(root, 'tsconfig.json'), config = ts.readConfigFile(configPath, ts.sys.readFile);
   if (config.error) throw Error(ts.flattenDiagnosticMessageText(config.error.messageText, '\n'));
@@ -541,7 +570,11 @@ export function scanUi(root: string) {
   if (syntaxErrors.length) throw Error(ts.formatDiagnosticsWithColorAndContext(syntaxErrors, {
     getCanonicalFileName: path => path, getCurrentDirectory: () => root, getNewLine: () => '\n',
   }));
-  const violations = lintUiProgram(program, inputs, root).map(item => {
+  // The program still includes every input so cross-file strings()/initializer()
+  // resolution keeps working; only the per-file analysis is restricted to files
+  // that can actually produce a finding.
+  const linted = inputs.filter(file => /\.[jt]sx$/i.test(file) || IMPERATIVE_ESCAPE.test(inline.get(portable(file))?.text ?? readFileSync(file, 'utf8')));
+  const violations = lintUiProgram(program, linted, root).map(item => {
     const origin = inline.get(portable(resolve(root, item.file)));
     return origin ? { ...item, file: origin.file, line: item.line + origin.line, column: item.column + (item.line === 1 ? origin.column : 0) } : item;
   });
@@ -550,7 +583,15 @@ export function scanUi(root: string) {
     if (file.endsWith('.html')) violations.push(...lintMarkup(readFileSync(file, 'utf8'), path));
     if (file.endsWith('.css')) violations.push(...lintStyles(readFileSync(file, 'utf8'), path));
   }
-  return { files: files.map(file => portable(relative(root, file))), violations: violations.sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line || a.column - b.column) };
+  // Extra lint roots (plugins, inlined files) are not part of `tsc --noEmit`'s
+  // file set; diagnostics outside it would be false positives for `pnpm lint`.
+  const declared = new Set(parsed.fileNames.map(file => resolve(file)));
+  return {
+    files: files.map(file => portable(relative(root, file))),
+    violations: violations.sort((a, b) => a.file.localeCompare(b.file) || a.line - b.line || a.column - b.column),
+    // Mirror `tsc --noEmit` diagnostics when the caller asks for a full check.
+    diagnostics: scanOptions?.check ? [...program.getOptionsDiagnostics(), ...program.getGlobalDiagnostics(), ...program.getSemanticDiagnostics()].filter(diagnostic => !diagnostic.file || diagnostic.file.fileName.includes('node_modules') || declared.has(resolve(diagnostic.file.fileName))) : [],
+  };
 }
 
 export function readOverlayInventory(path: string): LegacyOverlay[] {

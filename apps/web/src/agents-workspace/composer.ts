@@ -4,12 +4,13 @@ import {ApiError, command} from '../api';
 import {journalCompareAndSwap, journalGeneration, journalReadRecord, journalSubscribe, journalWrite} from '../journal';
 import type {SkillReference} from '../../../../packages/contracts/skill-catalog';
 import {skillBindingSchema, skillBindingsSchema, type SkillBinding} from '../composer-commands';
+import {changeTerminalExcerpts,clearAcceptedExcerpts,editTerminalExcerpt,excerptDraftKey,readTerminalExcerpts,serializeTerminalExcerpts,type TerminalExcerpt} from '../terminal-excerpts';
 import {clearAcceptedSkills, readSkillBindings, skillDraftKey} from '../composer-skill-drafts';
 
 export type ChildInputTicket = AgentInputTicket;
 export interface AgentSend {agent: AgentSummary; content: string; commandId: string; isCurrent?(): boolean}
 /** A real conversation owner can share drafts without joining the agent inventory. */
-export interface ConversationComposerTarget {kind: 'conversation'; threadId: string; modelId: string | null; working: boolean}
+export interface ConversationComposerTarget {kind: 'conversation'; projectId?:string; threadId: string; modelId: string | null; working: boolean}
 export type ComposerTarget = AgentSummary | ConversationComposerTarget;
 export interface ParentSend {threadId: string; modelId: string | null; thinkingLevel?: string | null; content: string; commandId: string; skills?: SkillReference[]}
 const inventoryAgent = (target: ComposerTarget): target is AgentSummary => !('kind' in target);
@@ -23,8 +24,8 @@ export interface ChildFollowUpController {
  subscribe(listener: (agentId: string, ticket: ChildInputTicket) => void): () => void;
  dispose?(): void;
 }
-export interface ComposerState {draft: string; ready: boolean; busy: boolean; stopping: boolean; error: string; retry: boolean; thinkingLevel?: string | null; skills?: readonly SkillBinding[]; ticket?: ChildInputTicket}
-export interface ComposerSubmission {content: string; generation: string | undefined; skills: readonly SkillBinding[]}
+export interface ComposerState {draft: string; ready: boolean; busy: boolean; stopping: boolean; error: string; retry: boolean; resumeRequired?: boolean; thinkingLevel?: string | null; skills?: readonly SkillBinding[]; excerpts?:readonly TerminalExcerpt[]; ticket?: ChildInputTicket}
+export interface ComposerSubmission {content: string; generation: string | undefined; skills: readonly SkillBinding[]; excerpts?:readonly TerminalExcerpt[]; excerptGeneration?:string}
 /** Share this exact instance with every conversation view, including the host composer. */
 export interface SharedAgentComposers {
  getSnapshot(agent: ComposerTarget): ComposerState;
@@ -33,13 +34,17 @@ export interface SharedAgentComposers {
  edit(agent: ComposerTarget, value: string): Promise<void>;
  addSkill(agent: ComposerTarget, binding: SkillBinding): Promise<void>;
  removeSkill(agent: ComposerTarget, id: string): Promise<void>;
+ addExcerpt(agent:ComposerTarget,excerpt:TerminalExcerpt):Promise<void>;
+ editExcerpt(agent:ComposerTarget,id:string,text:string):Promise<void>;
+ removeExcerpt(agent:ComposerTarget,id:string):Promise<void>;
  submit(agent: ComposerTarget, options?: {thinkingLevel?: string | null; submission?: ComposerSubmission}): Promise<void>;
+ clearError(agent: ComposerTarget): void;
  stop(agent: ComposerTarget): Promise<void>;
  canSend(agent: ComposerTarget): boolean;
  supports(agent: ComposerTarget): boolean;
  dispose(): void;
 }
-interface PendingSend {commandId: string; content: string; generation: string | undefined; modelId?: string | null; thinkingLevel?: string | null; skills?: SkillBinding[]}
+interface PendingSend {commandId: string; content: string; generation: string | undefined; modelId?: string | null; thinkingLevel?: string | null; skills?: SkillBinding[]; excerpts?:TerminalExcerpt[]; excerptGeneration?:string}
 interface Entry {agent: ComposerTarget; inventory?: AgentSummary; stopEpoch: number; state: ComposerState; pending?: PendingSend; prepared?: Promise<void>; listeners: Set<() => void>; unsubscribe?: () => void}
 export function createSharedAgentComposers(actions: {sendParent(input: ParentSend): Promise<void>; stopParent(agent: ComposerTarget): Promise<void>; followUp?: ChildFollowUpController; ownership?: (agent: ComposerTarget) => unknown}): SharedAgentComposers {
  const entries = new Map<string, Entry>();
@@ -54,7 +59,12 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
   if (inventoryAgent(agent)) entries.get(id)!.inventory = agent;
   return entries.get(id)!;
  };
- const emit = (value: Entry, patch: Partial<ComposerState>) => {value.state = {...value.state, ...patch}; value.listeners.forEach(listener => listener());};
+ const emit = (value: Entry, patch: Partial<ComposerState>) => {
+  const next = {...value.state, ...patch};
+  // A replacement error is not a resume request unless the transport explicitly says so.
+  if (patch.error !== undefined && patch.error !== value.state.error && patch.resumeRequired === undefined) next.resumeRequired = false;
+  value.state = next; value.listeners.forEach(listener => listener());
+ };
  const supports = (agent: ComposerTarget) => !inventoryAgent(agent) || Boolean(agent.threadId) && !agent.archived && (agent.parentId
   ? agent.status === 'working' && Boolean(agent.jobId) && Boolean(actions.followUp)
   : !agent.readOnly);
@@ -74,12 +84,14 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
    const draftSubscription = journalSubscribe(key(agent), draft => emit(value, {draft: typeof draft === 'string' ? draft : ''}));
    const thinkingSubscription = journalSubscribe('thinking:' + identity(agent), level => emit(value, {thinkingLevel: typeof level === 'string' ? level || null : undefined}));
    const skillSubscription = journalSubscribe(skillDraftKey(identity(agent)), skills => {try {emit(value, {skills: readSkillBindings(skills)});} catch {emit(value, {ready: false, error: 'Selected skills could not be recovered. Keep this workspace open.'});}});
-   value.unsubscribe = () => {draftSubscription(); thinkingSubscription(); skillSubscription();};
+   const excerptSubscription=journalSubscribe(excerptDraftKey(identity(agent)),excerpts=>{try{emit(value,{excerpts:readTerminalExcerpts(excerpts)});}catch{emit(value,{ready:false,error:'Terminal excerpts could not be recovered. Keep this workspace open.'});}});
+   value.unsubscribe = () => {draftSubscription(); thinkingSubscription(); skillSubscription();excerptSubscription();};
    try {
-    const [draft, pending, ticket, thinking, skills] = await Promise.all([journalReadRecord<string>(key(agent)), journalReadRecord<PendingSend | null>(pendingKey(agent)), journalReadRecord<ChildInputTicket>(ticketKey(agent)), journalReadRecord<string>('thinking:' + identity(agent)), journalReadRecord(skillDraftKey(identity(agent)))]);
+    const [draft, pending, ticket, thinking, skills, excerpts] = await Promise.all([journalReadRecord<string>(key(agent)), journalReadRecord<PendingSend | null>(pendingKey(agent)), journalReadRecord<ChildInputTicket>(ticketKey(agent)), journalReadRecord<string>('thinking:' + identity(agent)), journalReadRecord(skillDraftKey(identity(agent))),journalReadRecord(excerptDraftKey(identity(agent)))]);
     value.pending = pending?.value ?? undefined;
+    if(value.pending?.excerpts)value.pending.excerpts=readTerminalExcerpts(value.pending.excerpts);
     if (value.pending?.skills) value.pending.skills = skillBindingsSchema.parse(value.pending.skills);
-    emit(value, {draft: draft?.value ?? '', skills: readSkillBindings(skills?.value), ready: true, retry: Boolean(value.pending), ticket: ticket?.value, thinkingLevel: typeof thinking?.value === 'string' ? thinking.value || null : undefined, error: value.state.error === recoveryError ? '' : value.state.error});
+    emit(value, {draft: draft?.value ?? '', skills: readSkillBindings(skills?.value), excerpts:readTerminalExcerpts(excerpts?.value), ready: true, retry: Boolean(value.pending), ticket: ticket?.value, thinkingLevel: typeof thinking?.value === 'string' ? thinking.value || null : undefined, error: value.state.error === recoveryError ? '' : value.state.error});
     if (ticket?.value && inventoryAgent(agent)) actions.followUp?.track?.(agent, ticket.value);
    } catch {
     value.unsubscribe?.(); value.unsubscribe = undefined; value.prepared = undefined;
@@ -108,9 +120,16 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
    const value = entry(agent), skills = (value.state.skills ?? []).filter(binding => binding.id !== id); emit(value, {skills, ...(!value.pending ? {error: ''} : {})});
    try {await journalWrite(skillDraftKey(identity(agent)), skills);} catch {emit(value, {error: 'Selected skills could not be saved. Keep this workspace open.'}); throw Error('Selected skills could not be saved.');}
   },
+  async addExcerpt(agent,excerpt){
+   if(!supports(agent)||ownership(agent)===undefined||inventoryAgent(agent)&&agent.parentId||excerpt.threadId!==identity(agent)||excerpt.projectId!==agent.projectId)throw Error('The owning composer is unavailable.');
+   await changeTerminalExcerpts(identity(agent),current=>[...current,excerpt]);
+   emit(entry(agent),{excerpts:readTerminalExcerpts((await journalReadRecord(excerptDraftKey(identity(agent))))?.value)});
+  },
+  async editExcerpt(agent,id,text){await changeTerminalExcerpts(identity(agent),current=>current.map(e=>e.id===id?editTerminalExcerpt(e,text):e));emit(entry(agent),{excerpts:readTerminalExcerpts((await journalReadRecord(excerptDraftKey(identity(agent))))?.value)});},
+  async removeExcerpt(agent,id){await changeTerminalExcerpts(identity(agent),current=>current.filter(e=>e.id!==id));emit(entry(agent),{excerpts:readTerminalExcerpts((await journalReadRecord(excerptDraftKey(identity(agent))))?.value)});},
   async submit(agent, options) {
    const value = entry(agent), submission = options?.submission;
-   if (!canSend(agent) || !value.pending && !(submission?.content ?? value.state.draft).trim()) return;
+   if (!canSend(agent) || !value.pending && !(submission?.content ?? value.state.draft).trim() && !(submission?.excerpts??value.state.excerpts)?.length) return;
    const stopEpoch = value.stopEpoch, owner = ownership(agent);
    if (inventoryAgent(agent) && agent.parentId) {
     const valid = AgentFollowUpSchema.shape.content.safeParse(value.pending?.content ?? (submission?.content ?? value.state.draft).trim());
@@ -125,7 +144,12 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
    }
    const thinkingLevel = options?.thinkingLevel === undefined ? value.state.thinkingLevel : options.thinkingLevel;
    const skills = submission?.skills ?? value.state.skills;
-   const pending = value.pending ?? {commandId: crypto.randomUUID(), content: (submission?.content ?? value.state.draft).trim(), generation: submission ? submission.generation : journalGeneration(key(agent)), modelId: agent.modelId, ...(thinkingLevel !== undefined ? {thinkingLevel} : {}), ...((skills?.length ?? 0) > 0 ? {skills: skillBindingsSchema.parse(skills)} : {})};
+   let excerpts:TerminalExcerpt[];
+   try{excerpts=readTerminalExcerpts(submission?.excerpts??value.state.excerpts);if(!value.pending&&excerpts.some(e=>e.threadId!==identity(agent)||e.projectId!==agent.projectId))throw Error('Terminal excerpts belong to another composer.');}
+   catch(cause){emit(value,{error:cause instanceof Error?cause.message:'Terminal excerpts could not load.'});return;}
+   let content:string;
+   try{content=value.pending?.content??serializeTerminalExcerpts(submission?.content??value.state.draft,excerpts);}catch(cause){emit(value,{error:cause instanceof Error?cause.message:'Prompt exceeds the limit.'});return;}
+   const pending = value.pending ?? {commandId: crypto.randomUUID(), content, ...(excerpts.length?{excerpts,excerptGeneration:submission?.excerpts===undefined?journalGeneration(excerptDraftKey(identity(agent))):submission.excerptGeneration}:{}), generation: submission ? submission.generation : journalGeneration(key(agent)), modelId: agent.modelId, ...(thinkingLevel !== undefined ? {thinkingLevel} : {}), ...((skills?.length ?? 0) > 0 ? {skills: skillBindingsSchema.parse(skills)} : {})};
    value.pending = pending; emit(value, {busy: true, error: '', retry: false});
    try {
     // Persist before transport; retries after disconnect/reload keep the same command identity.
@@ -140,9 +164,10 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
     } else await actions.sendParent({threadId: identity(agent), modelId: pending.modelId === undefined ? agent.modelId : pending.modelId, ...(pending.thinkingLevel !== undefined ? {thinkingLevel: pending.thinkingLevel} : {}), content: pending.content, commandId: pending.commandId, ...(pending.skills?.length ? {skills: pending.skills.map(binding => binding.ref)} : {})});
     await journalCompareAndSwap(key(agent), pending.generation, '');
     await clearAcceptedSkills(skillDraftKey(identity(agent)), pending.skills ?? []);
+    await clearAcceptedExcerpts(identity(agent),pending.excerptGeneration);
     await journalWrite(pendingKey(agent), null); value.pending = undefined;
     // journal notifications own the draft; never clear text authored during transport.
-    const [draft, skills] = await Promise.all([journalReadRecord<string>(key(agent)), journalReadRecord(skillDraftKey(identity(agent)))]); emit(value, {draft: draft?.value ?? value.state.draft, skills: readSkillBindings(skills?.value)});
+    const [draft, skills, excerpts] = await Promise.all([journalReadRecord<string>(key(agent)), journalReadRecord(skillDraftKey(identity(agent))),journalReadRecord(excerptDraftKey(identity(agent)))]); emit(value, {draft: draft?.value ?? value.state.draft, skills: readSkillBindings(skills?.value),excerpts:readTerminalExcerpts(excerpts?.value)});
    } catch (cause) {
     // Only an authenticated, explicit precommit rejection can retire this input.
     // Network failures and ambiguous/accepted outcomes retain the exact retry.
@@ -152,10 +177,11 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
      try {await journalWrite(pendingKey(agent), null); value.pending = undefined;}
      catch {emit(value, {error: 'The rejected message could not be saved locally. Keep this workspace open.', retry: true}); return;}
     }
-    emit(value, {error: cause instanceof Error ? cause.message : 'Delivery is uncertain. Retry this message.', retry: !rejected});
+    emit(value, {error: cause instanceof Error ? cause.message : 'Delivery is uncertain. Retry this message.', retry: !rejected, resumeRequired: cause instanceof ApiError && cause.code === 'RESUME_REQUIRED'});
    }
    finally {emit(value, {busy: false});}
   },
+  clearError(agent) {emit(entry(agent), {error: '', resumeRequired: false});},
   async stop(agent) {
    const value = entry(agent), working = inventoryAgent(agent) ? !agent.parentId && Boolean(agent.threadId) && !agent.readOnly && agent.status === 'working' : agent.working;
    if (!working || value.state.stopping || ownership(agent) === undefined) return;

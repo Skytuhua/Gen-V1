@@ -4,7 +4,7 @@
 .planning-question-header .markdown {font-size:12px;color:var(--muted);line-height:1.65;}
 .planning-question form,.decision .planning-question form {display:block;margin:0;}
 .planning-options {display:flex;flex-direction:column;gap:10px;border:0;margin:0;padding:0;min-width:0;}
-.planning-option {border:1px solid var(--border);border-radius:12px;background:var(--surface);transition:border-color 180ms ease-out,background-color 180ms ease-out;min-width:0;}
+.planning-option {border:1px solid var(--border);border-radius:12px;background:var(--surface);transition:border-color var(--ui-motion-hover) var(--ui-ease-enter),background-color var(--ui-motion-hover) var(--ui-ease-enter);min-width:0;}
 .planning-option.is-selected {border-color:var(--selection-border);background:var(--selection-bg);}
 .planning-option-choice {display:flex;gap:10px;align-items:flex-start;padding:14px 14px 9px;cursor:pointer;}
 .planning-option-choice input[type=radio] {appearance:none;width:14px;height:14px;border-radius:50%;padding:0;margin:2px 0 0;border:1px solid var(--muted);background:transparent;flex-shrink:0;}
@@ -12,12 +12,12 @@
 .planning-option-choice>span {flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;}
 .planning-option-choice strong {font-size:13px;line-height:1.5;font-weight:550;}
 .planning-option-choice small {font-size:11px;line-height:1.6;color:var(--muted);}
-.planning-choice-check {margin-top:2px;color:var(--accent);opacity:0;transform:scale(.8);transition:opacity 120ms ease-out,transform 260ms cubic-bezier(.2,.9,.2,1.18);}
+.planning-choice-check {margin-top:2px;color:var(--accent);opacity:0;transform:scale(.8);transition:opacity var(--ui-motion-hover) var(--ui-ease-enter),transform var(--ui-motion-spring) var(--ui-ease-spring);}
 .is-selected .planning-choice-check {opacity:1;transform:scale(1);}
 .planning-option-tools {display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:0 14px 11px 38px;}
 .planning-option-tools button {font-size:10px;line-height:1.5;padding:3px 0;gap:5px;color:var(--muted);}
 .planning-option-tools button:hover:not(:disabled),.planning-option-tools button[aria-expanded=true] {color:var(--accent);}
-.planning-option-tools button>svg:last-child {transition:transform 200ms cubic-bezier(.2,.9,.2,1.1);}
+.planning-option-tools button>svg:last-child {transition:transform var(--ui-motion-spring) var(--ui-ease-spring);}
 .planning-option-tools button[aria-expanded=true]>svg:last-child {transform:rotate(180deg);}
 .planning-option-detail>.task-motion-inner {padding:0 14px 13px 38px;}
 .planning-option-detail .markdown {font-size:12px;line-height:1.7;color:var(--text);max-width:72ch;}

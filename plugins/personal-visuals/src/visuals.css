@@ -1,3 +1,7 @@
+:root {
+	--pv-motion-intro: 180ms;
+	--pv-ease-intro: cubic-bezier(0.23, 1, 0.32, 1);
+}
 html,
 body,
 #root {
@@ -77,6 +81,54 @@ body,
 .pv-provenance.example {
 	border-color: #77510e;
 	color: #fbbf24;
+}
+.pv-intro {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	padding: 10px 16px;
+	border-bottom: 1px solid var(--border, #292929);
+	background: var(--surface, #101010);
+	animation: pv-intro-in var(--pv-motion-intro) var(--pv-ease-intro);
+}
+.pv-intro > div {
+	min-width: 0;
+}
+.pv-intro strong {
+	font-size: 12px;
+	font-weight: 600;
+}
+.pv-intro p {
+	margin: 3px 0 0;
+	max-width: 72ch;
+	font-size: 11px;
+	color: var(--muted, #aaa);
+}
+.pv-intro > button {
+	flex: none;
+	margin-left: auto;
+	min-height: 26px;
+	padding: 3px 9px;
+	font-size: 11px;
+}
+@keyframes pv-intro-in {
+	from {
+		opacity: 0;
+		transform: translateY(-4px);
+	}
+}
+.pv-app .pv-about {
+	border: none;
+	background: none;
+	padding: 0;
+	min-height: 0;
+	color: var(--muted, #aaa);
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+.pv-app .pv-about:hover {
+	background: none;
+	color: var(--text, #eee);
 }
 .pv-status {
 	display: flex;
@@ -495,6 +547,9 @@ body,
 	}
 }
 @media (prefers-reduced-motion: reduce) {
+	.pv-intro {
+		animation: none;
+	}
 	.pv-app * {
 		transition: none !important;
 		animation: none !important;

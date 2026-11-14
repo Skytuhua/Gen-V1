@@ -222,14 +222,14 @@ export function FilesView({
 							>
 								{folder.pending && (
 									<p className="files-message" role="status">
-										{folder.value ? "Refreshing folder…" : "Reading folder…"}
+										{folder.value ? "Refreshing…" : "Loading…"}
 									</p>
 								)}
 								{folder.error && (
-									<div className="files-message files-error" role="alert">
+									<div className="files-message files-error" role="status">
 										<p>{folder.error}</p>
 										<button type="button" onClick={onRetryFolder}>
-											Retry folder
+											Retry
 										</button>
 									</div>
 								)}
@@ -263,7 +263,7 @@ export function FilesView({
 												) : (
 													<File size={15} />
 												)}
-												<span>{displayFilePath(entry.name)}</span>
+												<span>{displayFilePath(entry.name)}</span>{entry.kind === "file" && /\.(ts|tsx|md|mdx)$/i.test(entry.name) && <span aria-hidden="true" className={`file-type file-type-${/\.mdx?$/i.test(entry.name) ? "md" : "ts"}`}>{/\.mdx?$/i.test(entry.name) ? "MD" : "TS"}</span>}
 												{entry.kind === "directory" ? (
 													<ChevronRight size={12} />
 												) : entry.bytes !== undefined ? (
@@ -281,8 +281,8 @@ export function FilesView({
 									visible.length === 0 && (
 										<p className="files-message">
 											{filter
-												? "No matching entries in this folder."
-												: "This folder is empty."}
+												? "No matches."
+												: "Folder is empty."}
 										</p>
 									)}
 								{limitNote && (
@@ -318,14 +318,14 @@ export function FilesView({
 							>
 								{preview.pending && (
 									<p className="files-message" role="status">
-										{preview.value ? "Refreshing file…" : "Reading file…"}
+										{preview.value ? "Refreshing…" : "Loading…"}
 									</p>
 								)}
 								{preview.error && (
-									<div className="files-message files-error" role="alert">
+									<div className="files-message files-error" role="status">
 										<p>{preview.error}</p>
 										<button type="button" onClick={onRetryFile}>
-											Retry file
+											Retry
 										</button>
 									</div>
 								)}
@@ -343,11 +343,7 @@ export function FilesView({
 						<div className="files-message files-unselected">
 							<File size={22} />
 							<strong>Choose a file</strong>
-							<p>
-								{source === "project"
-									? "Read its current worktree content."
-									: "Preview or download a file from this granted resource."}
-							</p>
+							{source === "project" && <p>Shows current working copy content.</p>}
 						</div>
 					)}
 				</section>

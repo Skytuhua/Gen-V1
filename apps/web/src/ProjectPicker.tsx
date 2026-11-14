@@ -7,6 +7,7 @@ import { Popover } from '../../../packages/ui-shell/Popover';
 import { isComposing } from '../../../packages/ui-shell/list-navigation';
 import { PROJECT_PALETTE, projectColor, projectColorKey } from './project-colors';
 import './project-picker.css';
+import {ErrorState} from '../../../packages/ui-shell/Feedback';
 
 export interface ProjectPickerProps {
   open: boolean;
@@ -103,7 +104,7 @@ function ProjectPickerDialog({ authority, projects, selectedProjectId, recentPro
       })}
     </div>
     {!choices.length && <p className="project-picker-empty">{query ? 'No matching projects.' : 'No connected projects.'}</p>}
-    {(failure || error) && <p role="alert" className="project-picker-error">{failure || error}</p>}
+    {(failure || error) && <ErrorState className="project-picker-error" message={failure || error || ''}/>}
     <footer className="project-picker-footer">
       <button type="button" disabled={locked} onClick={() => void run(onAddProject)}><FolderPlus size={15} />Add project</button>
       {active && <button type="button" ref={colorAnchor} disabled={locked} aria-label={`Color for ${active.name}`} aria-expanded={Boolean(editing)} onClick={() => {
@@ -123,7 +124,7 @@ function ProjectPickerDialog({ authority, projects, selectedProjectId, recentPro
       <form onSubmit={event => { event.preventDefault(); saveColor(custom); }}><label>Custom color<input ref={colorInput} aria-label="Custom color" value={custom} maxLength={80} disabled={locked}
         onChange={event => { setCustom(event.target.value); setColorError(''); }} onKeyDown={event => { if (isComposing(event) && event.key === 'Enter') event.preventDefault(); }} placeholder="#4F6EFF" spellCheck={false} /></label>
         <button type="submit" disabled={locked}>Save color</button></form>
-      {colorError && <p role="alert" className="project-picker-error">{colorError}</p>}
+      {colorError && <ErrorState className="project-picker-error" message={colorError}/>}
       <button type="button" disabled={locked} onClick={() => saveColor(null)}>Use automatic color</button>
     </Popover>
   </Modal>;

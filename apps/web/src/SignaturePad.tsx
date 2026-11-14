@@ -128,7 +128,7 @@ export function SignaturePad({ stateKey, label = 'Your signature', initialMode =
     </div>
     <div className="signature-controls">{pendingUrl && <span role="status">Saving signature…</span>}{mode === 'generate' && <button type="button" aria-expanded={editingName} aria-controls={`${id}-name-editor`} onClick={() => setEditingName(value => !value)}>Edit name</button>}</div>
     {mode === 'generate' && editingName && <div id={`${id}-name-editor`} className="signature-name-editor"><label htmlFor={`${id}-name`}>Type your name</label><input id={`${id}-name`} className="signature-name-input" maxLength={200} value={name} placeholder="Your full name" autoComplete="name" disabled={!ready} onChange={event => generate(event.target.value)} /></div>}
-    {(stateError || error || assets?.error(stateKey)) && <p className="document-error" role="alert">{stateError || error || assets?.error(stateKey)}{assets?.error(stateKey) && <button type="button" onClick={() => assets.retry()}>Retry signature upload</button>}</p>}
+    {(stateError || error || assets?.error(stateKey)) && <p className="document-error" role="status">{stateError || error || assets?.error(stateKey)}{assets?.error(stateKey) && <button type="button" onClick={() => assets.retry()}>Retry signature upload</button>}</p>}
     <details className="signature-help"><summary>Signature help</summary><p id={`${id}-help`}>Draw with your pointer, or use arrow keys to move, Enter to start or end a stroke, Backspace to undo and Delete to clear. A visual mark only; no certificate or digital signature.</p></details>
   </section>;
 }

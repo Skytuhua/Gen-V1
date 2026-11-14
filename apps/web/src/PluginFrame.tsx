@@ -1,4 +1,4 @@
-import {useEffect,useLayoutEffect,useRef,useState} from 'react';
+import {useCallback,useEffect,useLayoutEffect,useRef,useState} from 'react';
 import {pluginSurfaceSchema,type PluginManifest,type PluginSurface,type PluginWorkspaceContribution} from '../../../packages/plugins/contracts';
 import {parsePluginFrameRequest,pluginFrameReply,pluginFrameSource,pluginWindowOperation} from '../../../packages/plugins/frame-protocol';
 import {authenticated,csrfToken,read} from './api';
@@ -7,11 +7,16 @@ import './plugins.css';
 import {desktopSurfaceKey} from '../../../packages/desktop-contract';
 
 type PluginFrameProps={plugin:PluginManifest;theme:'light'|'dark';active?:boolean;surface?:PluginSurface;workspace?:PluginWorkspaceContribution;projectColors?:Record<string,string>;onReady?:()=>void};
+/** Presentation preferences live host-side: the sandboxed frame has an opaque origin and no storage. */
+function readPluginPresentation(pluginId:string):{introDismissed:boolean} {
+  try{const value:unknown=JSON.parse(localStorage.getItem(`harness:plugin-ui:${pluginId}`)??'null');return {introDismissed:Boolean(value&&typeof value==='object'&&(value as Record<string,unknown>).introDismissed===true)};}catch{return {introDismissed:false};}
+}
 export function PluginFrame(props:PluginFrameProps){const [generation,reload]=useState(0);return <PluginFrameBody key={`${props.surface?desktopSurfaceKey(props.surface):props.plugin.id}:${props.workspace?.id??'conversation'}:${generation}`} {...props} reload={()=>reload(value=>value+1)}/>;}
 function PluginFrameBody({plugin,theme,active=true,surface,workspace,projectColors={},onReady,reload}:PluginFrameProps&{reload:()=>void}) {
   const desktop=useDesktop();
   const desktopCurrent=useRef(desktop),readyCurrent=useRef(onReady);desktopCurrent.current=desktop;readyCurrent.current=onReady;
   const presentationCurrent=useRef({active,projectColors});presentationCurrent.current={active,projectColors};
+  const uiPresentation=useRef(readPluginPresentation(plugin.id));
   const frame=useRef<HTMLIFrameElement>(null),[session]=useState(()=>crypto.randomUUID()),[initialTheme]=useState(theme),[error,setError]=useState('');
   const pending=useRef(new Map<string,AbortController>()),flushes=useRef(new Map<string,{resolve:()=>void;reject:()=>void;timer:ReturnType<typeof setTimeout>}>());
   const pendingData=useRef(new Set<string>());
@@ -19,7 +24,7 @@ function PluginFrameBody({plugin,theme,active=true,surface,workspace,projectColo
   // owned by one document, so no reply or saved-state acknowledgement can move
   // to its replacement, even before the replacement's load event.
   const bridge=useRef<MessagePort|null>(null),loaded=useRef(false),bootstrapped=useRef(false),revoked=useRef(false);
-  const sendPresentation=()=>{const presentation=presentationCurrent.current,colors:Record<string,string>={};for(const[key,value]of Object.entries(presentation.projectColors)){try{const identity:unknown=JSON.parse(key);if(Array.isArray(identity)&&identity.length===4&&identity[0]==='plugin'&&identity[1]===plugin.id)colors[key]=value;}catch{/* A plug-in receives only its own opaque color preferences. */}}bridge.current?.postMessage({type:'gen.plugin.visibility',session,active:presentation.active&&document.visibilityState!=='hidden'});bridge.current?.postMessage({type:'gen.plugin.appearance',session,projectColors:colors});};
+  const sendPresentation=()=>{const presentation=presentationCurrent.current,colors:Record<string,string>={};for(const[key,value]of Object.entries(presentation.projectColors)){try{const identity:unknown=JSON.parse(key);if(Array.isArray(identity)&&identity.length===4&&identity[0]==='plugin'&&identity[1]===plugin.id)colors[key]=value;}catch{/* A plug-in receives only its own opaque color preferences. */}}bridge.current?.postMessage({type:'gen.plugin.visibility',session,active:presentation.active&&document.visibilityState!=='hidden'});bridge.current?.postMessage({type:'gen.plugin.appearance',session,projectColors:colors});bridge.current?.postMessage({type:'gen.plugin.presentation',session,presentation:uiPresentation.current});};
   const revoke=()=>{revoked.current=true;bridge.current?.close();bridge.current=null;for(const controller of pending.current.values())controller.abort();pending.current.clear();pendingData.current.clear();for(const item of flushes.current.values()){clearTimeout(item.timer);item.reject();}flushes.current.clear();};
   const unavailable=()=>{revoke();setError('This plug-in view changed unexpectedly. Reload the plug-in to reconnect. Saved work is retained.');};
   const focused=useRef<{target:PluginSurface;id:string}|null>(null),focusSurface=desktop?.state.focusSurface;
@@ -49,12 +54,22 @@ function PluginFrameBody({plugin,theme,active=true,surface,workspace,projectColo
       if(value?.type==='gen.plugin.saves-retried'&&value.session===session){setError(value.ok===true?'':'Draft saving is still unavailable. Keep this view open.');return;}
       if(value?.type==='gen.plugin.flushed'&&value.session===session){const item=flushes.current.get(value.id);if(item){flushes.current.delete(value.id);clearTimeout(item.timer);if(value.ok===true)item.resolve();else item.reject();}return;}
       if(value?.type==='gen.plugin.abort'&&value.session===session&&value.pluginId===plugin.id){pending.current.get(value.id)?.abort();return;}
-      const request=parsePluginFrameRequest(value,plugin.id,session);if(!request||pending.current.has(request.id)||pending.current.size>=64)return;
+      const request=parsePluginFrameRequest(value,plugin.id,session);if(!request)return;
+      // Every accepted-looking request expects a reply; a dropped request must
+      // still settle the plug-in's awaiting promise rather than hang forever.
+      if(pending.current.has(request.id)||pending.current.size>=64){port.postMessage(pluginFrameReply(request.id,null,Error('This plug-in request could not be accepted.')));return;}
       const controller=new AbortController();pending.current.set(request.id,controller);
       if(!pluginWindowOperation(request.operation))pendingData.current.add(request.id);
       const execute=async()=>{
         const desktop=desktopCurrent.current;
-        if(request.operation==='window.capabilities')return {available:false,reason:'Opening detached views is currently unavailable.'};
+        if(request.operation==='presentation.set'){
+          const input=request.input;
+          if(!input||typeof input!=='object'||Array.isArray(input)||typeof (input as Record<string,unknown>).introDismissed!=='boolean')throw Error('Invalid plug-in presentation preference.');
+          uiPresentation.current={introDismissed:(input as Record<string,unknown>).introDismissed===true};
+          try{localStorage.setItem(`harness:plugin-ui:${plugin.id}`,JSON.stringify(uiPresentation.current));}catch{/* Storage may be unavailable; the preference still applies to this session. */}
+          return null;
+        }
+        if(request.operation==='window.capabilities')return desktop?{available:true}:{available:false,reason:'Native windows are only available in the desktop app.'};
         if(request.operation==='window.list')return desktop?.state.windows.filter(item=>item.surface.kind==='plugin'&&item.surface.pluginId===plugin.id)??[];
         if(request.operation==='window.detach'){
           const target=pluginSurfaceSchema.parse(request.input);if(target.pluginId!==plugin.id||!desktop)throw Error('This plug-in window is unavailable.');
@@ -86,5 +101,5 @@ function PluginFrameBody({plugin,theme,active=true,surface,workspace,projectColo
   },[plugin.id,session]);
   return <section className="plugin-workspace" aria-label={workspace?.title??plugin.name} hidden={!active}>{!surface&&!workspace&&<header className="workspace-header plugin-native-header"><strong>{plugin.name}</strong><DesktopWindowActions/></header>}{error&&<p className="notice" role="alert">{error}{revoked.current?<button className="quiet" onClick={reload}>Reload plug-in</button>:<><button className="quiet" onClick={()=>bridge.current?.postMessage({type:'gen.plugin.retry-saves',session})}>Retry saving drafts</button><button className="quiet" onClick={()=>setError('')}>Dismiss</button></>}</p>}<iframe ref={frame} title={workspace?.title??plugin.name} src={pluginFrameSource(plugin.id,session,initialTheme,surface,workspace)} sandbox="allow-scripts" referrerPolicy="no-referrer" onLoad={()=>{if(loaded.current||!bridge.current||revoked.current){unavailable();return;}loaded.current=true;bridge.current.postMessage({type:'gen.plugin.theme',session,theme});}}/></section>;
 }
-export function usePluginCatalog(enabled=true){const [catalog,setCatalog]=useState<{plugins:PluginManifest[];theme?:string;error?:string}>({plugins:[]});useEffect(()=>{if(!enabled)return;let active=true;void authenticated(()=>fetch('/api/plugins',{credentials:'same-origin',cache:'no-store'})).then(read<{plugins:PluginManifest[];theme?:string;error?:string}>).then(value=>{if(active&&Array.isArray(value.plugins))setCatalog(value);}).catch(()=>{});return()=>{active=false;};},[enabled]);return catalog;}
+export function usePluginCatalog(enabled=true){const [catalog,setCatalog]=useState<{plugins:PluginManifest[];theme?:string;error?:string}>({plugins:[]});const [failed,setFailed]=useState(false),[attempt,setAttempt]=useState(0);useEffect(()=>{if(!enabled)return;let active=true;void authenticated(()=>fetch('/api/plugins',{credentials:'same-origin',cache:'no-store'})).then(read<{plugins:PluginManifest[];theme?:string;error?:string}>).then(value=>{if(active&&Array.isArray(value.plugins)){setCatalog(value);setFailed(false);}}).catch(()=>{if(active)setFailed(true);});return()=>{active=false;};},[enabled,attempt]);const retry=useCallback(()=>{setFailed(false);setAttempt(value=>value+1);},[]);return {...catalog,failed,retry};}
 export function useInstalledPlugins(){return usePluginCatalog().plugins;}

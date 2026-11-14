@@ -14,6 +14,7 @@ import {projectColor} from '../project-colors';
 import {groupAgents, type AgentNode, type AgentsWorkspaceController, type ProjectRow} from './controller';
 import type {SharedAgentComposers} from './composer';
 import './agents-workspace.css';
+import {ErrorState} from '../../../../packages/ui-shell/Feedback';
 
 export interface AgentsWorkspaceProps {
  controller: AgentsWorkspaceController;
@@ -21,12 +22,13 @@ export interface AgentsWorkspaceProps {
  onOpenConversation(threadId: string, intent?: 'model'): void;
  preferences?: {density?: 'compact' | 'comfortable'; projectColors?: Record<string, string>};
  projects?: readonly {id: string; name: string}[];
+ hasConversations?: boolean;
 }
 const Visibility = createContext<(id: string, visible: boolean) => void>(() => {});
 const statusLabel = (value: AgentStatus) => value.replaceAll('_', ' ');
 
 /** Personal-only leaf: the outer host selects compact bootstrap before mounting any legacy App. */
-export function AgentsWorkspace({controller, composers, onOpenConversation, preferences, projects = []}: AgentsWorkspaceProps) {
+export function AgentsWorkspace({controller, composers, onOpenConversation, preferences, projects = [], hasConversations = false}: AgentsWorkspaceProps) {
  const state = useSyncExternalStore(controller.subscribe, controller.getSnapshot), [searchOpen, setSearchOpen] = useState(Boolean(state.scope.text)), [text, setText] = useState(state.scope.text ?? '');
  const rows = useMemo(() => groupAgents(state.agents), [state.agents]);
  const catalog = useRef(new Map<string, string>());
@@ -50,12 +52,12 @@ export function AgentsWorkspace({controller, composers, onOpenConversation, pref
    <Select aria-label="Status filter" value={state.scope.statuses?.[0] ?? '$all'} options={[{value: '$all', label: 'All statuses'}, ...agentStatuses.map(value => ({value, label: statusLabel(value)}))]} onValueChange={value => {void controller.setScope({...state.scope, statuses: value === '$all' ? undefined : [value as AgentStatus]});}}/>
    <button type="button" className="agents-icon" aria-label={searchOpen ? 'Close agent search' : 'Search agents'} aria-expanded={searchOpen} onClick={() => {setSearchOpen(!searchOpen); if (searchOpen) setText(''); else requestAnimationFrame(() => search.current?.focus());}}>{searchOpen ? <X size={16}/> : <Search size={16}/>}</button>
    {searchOpen && <input ref={search} type="search" aria-label="Filter agents" placeholder="Find agent…" maxLength={200} value={text} onChange={event => setText(event.target.value)}/>}
-   <span className="agents-connectivity" role="status">{state.pending ? '' : state.connected ? 'Live' : 'Reconnecting…'}</span>
+   <span className="agents-connectivity" role="status" data-connected={state.connected} title={state.pending ? 'Connecting to the agent service' : state.connected ? 'Connected to the agent service' : 'Reconnecting to the agent service'}><span className="agents-connectivity-dot" aria-hidden="true"/>{state.pending ? '' : state.connected ? 'Live' : 'Reconnecting…'}</span>
   </div>
-  {state.error && <div className="agents-error" role="alert">{state.error}<button type="button" onClick={() => {void controller.start();}}>Retry connection</button></div>}
+  {state.error && <ErrorState className="agents-error" message={state.error} retryLabel="Retry connection" onRetry={() => {void controller.start();}} />}
   <div className="agents-projects" ref={viewport} onScroll={event => controller.setView('$workspace', {top: event.currentTarget.scrollTop})}>
    <LoadingState pending={state.pending} hasContent={Boolean(state.scopeKey) || rows.length > 0} label="Loading agents…" skeleton={<AgentsSkeleton/>}>
-   {Boolean(state.scopeKey) && !rows.length && <p className="agents-empty">{state.scope.text || state.scope.statuses || state.scope.projectId !== undefined ? 'No agents match these filters.' : 'No agents yet. Open a conversation to begin.'}</p>}
+   {Boolean(state.scopeKey) && !rows.length && <p className="agents-empty">{state.scope.text || state.scope.statuses || state.scope.projectId !== undefined ? 'No agents match these filters.' : hasConversations ? 'No active agents. Agents appear here once a conversation starts working.' : 'No agents yet. Open a conversation to begin.'}</p>}
    {rows.map(row => <Project key={row.id ?? '$none'} row={row} controller={controller} composers={composers} onOpenConversation={onOpenConversation} preferences={preferences}/>)}
    </LoadingState>
   </div>
@@ -137,7 +139,7 @@ function Transcript({agent, controller}: {agent: AgentSummary; controller: Agent
   {state.loaded && !state.messages.length && <p className="agents-transcript-empty">No messages yet.</p>}
   {state.messages.map(message => <Fragment key={message.id}>{state.gaps.some(gap => gap.beforeId === message.id) && <button type="button" className="agents-earlier" disabled={state.pending} onClick={() => {void controller.loadEarlier(agent.agentId, message.id);}}>Load missing messages</button>}<article className={`agents-message agents-message-${message.role}`} data-message-id={message.id}><span className="agents-message-role">{message.role}</span><Markdown text={message.content}/></article></Fragment>)}
   </LoadingState>
-  {state.error && <div className="agents-error" role="alert">{state.error}<button type="button" onClick={() => {void controller.retryHistory(agent.agentId);}}>Retry history</button></div>}
+  {state.error && <ErrorState className="agents-error" message={state.error} retryLabel="Retry history" onRetry={() => {void controller.retryHistory(agent.agentId);}} />}
  </div>{view.unread && <button type="button" className="agents-new-output" onClick={() => {controller.setView(agent.agentId, {atEnd: true, unread: false}, true); log.current?.scrollTo({top: log.current.scrollHeight});}}>New output</button>}</div>;
 }
 function InlineComposer({agent, composers, controller,onOpenConversation}: {agent: AgentSummary; composers: SharedAgentComposers; controller: AgentsWorkspaceController;onOpenConversation:AgentsWorkspaceProps['onOpenConversation']}) {
@@ -159,6 +161,6 @@ function InlineComposer({agent, composers, controller,onOpenConversation}: {agen
    <button type="submit" aria-label={`${state.retry ? 'Retry send to' : 'Send to'} ${agent.title}`} disabled={held || skillsBlocked || !composers.canSend(agent) || !state.retry && !state.draft.trim()}><Send size={14}/>{state.retry ? 'Retry send' : 'Send'}</button>
   </div>
   {!agent.parentId && !agent.modelId && <p className="agents-readonly">Choose a model in this conversation to send.</p>}
-  {state.error && <p className="agents-error" role="alert">{state.error}</p>}
+  {state.error && <ErrorState className="agents-error" message={state.error} />}
  </ComposerView></div>{detached ? <button type="button" onClick={() => {void desktop?.bridge.focus(detached.id).catch(() => {});}}>Focus existing window</button> : pending && <p role="status">Opening conversation window…</p>}</>;
 }

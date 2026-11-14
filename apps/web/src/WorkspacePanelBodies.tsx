@@ -4,12 +4,13 @@ import type {DataRecord,RuntimeUsage,Snapshot} from '../../../packages/contracts
 import type {UiPreferences} from '../../../packages/contracts/preferences';
 import type {WorkspacePanelKind} from '../../../packages/contracts/workspace';
 import {useWorkspace,type WorkspaceTab} from './workspace-context';
+import {usagePercent} from './usage-presentation';
 import {ContextMeter} from './ContextMeter';
 
 const count = (value: number | null | undefined) => value == null ? 'Unavailable' : new Intl.NumberFormat(undefined, { notation: 'compact', maximumFractionDigits: 1 }).format(value);
 export function UsageSummary({ usage }: { usage?: RuntimeUsage }) {
   const ratio = usage?.contextTokens != null && usage.contextWindow != null && usage.contextWindow > 0 ? Math.min(100, Math.max(0, usage.contextTokens / usage.contextWindow * 100)) : null;
-  return <div className="usage-summary"><div className="usage-context"><span>Context window</span><strong>{ratio == null ? 'Unavailable' : `${Math.round(ratio)}%`}</strong></div><ContextMeter usage={usage} /><p>{count(usage?.contextTokens)} of {count(usage?.contextWindow)} tokens</p><dl><dt>Input tokens</dt><dd>{count(usage?.inputTokens)}</dd><dt>Output tokens</dt><dd>{count(usage?.outputTokens)}</dd><dt>Reported cost</dt><dd>{usage?.cost == null ? 'Unavailable' : new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 4 }).format(usage.cost)}</dd><dt>Session limit</dt><dd>{usage?.sessionPercent == null ? 'Unavailable' : `${usage.sessionPercent}%`}</dd><dt>Weekly limit</dt><dd>{usage?.weeklyPercent == null ? 'Unavailable' : `${usage.weeklyPercent}%`}</dd></dl><p className="muted">Only runtime-reported values are shown. API billing, account quotas, and historical charts are unavailable unless reported by the runtime.</p></div>;
+  return <div className="usage-summary"><div className="usage-context"><span>Context window</span><strong>{ratio == null ? 'Unavailable' : usagePercent(ratio)}</strong></div><ContextMeter usage={usage} /><p>{count(usage?.contextTokens)} of {count(usage?.contextWindow)} tokens</p><dl><dt>Input tokens</dt><dd>{count(usage?.inputTokens)}</dd><dt>Output tokens</dt><dd>{count(usage?.outputTokens)}</dd><dt>Reported cost</dt><dd>{usage?.cost == null ? 'Unavailable' : new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD', maximumFractionDigits: 4 }).format(usage.cost)}</dd><dt>Session limit</dt><dd>{usage?.sessionPercent == null ? 'Unavailable' : usagePercent(usage.sessionPercent)}</dd><dt>Weekly limit</dt><dd>{usage?.weeklyPercent == null ? 'Unavailable' : usagePercent(usage.weeklyPercent)}</dd></dl><p className="muted">Only runtime-reported values are shown. API billing, account quotas, and historical charts are unavailable unless reported by the runtime.</p></div>;
 }
 
 export function WorkspaceLauncher({onOpenTool}:{onOpenTool?:(kind:WorkspacePanelKind)=>void|Promise<void>}={}) {
@@ -17,7 +18,7 @@ export function WorkspaceLauncher({onOpenTool}:{onOpenTool?:(kind:WorkspacePanel
   const [error,setError]=useState('');
   const openTool=(kind:WorkspacePanelKind)=>{setError('');try{const result=onOpenTool?onOpenTool(kind):workspace.setActiveTab(kind as WorkspaceTab);if(result)void result.catch(cause=>setError(cause instanceof Error?cause.message:'The surface could not open.'));}catch(cause){setError(cause instanceof Error?cause.message:'The surface could not open.');}};
   const unavailable = 'Unavailable in this local harness';
-  return <section className="workspace-launcher" aria-label="Workspace launcher"><h3>Open a surface</h3>{error&&<p role="alert" className="error-text">{error}</p>}
+  return <section className="workspace-launcher" aria-label="Workspace launcher"><h3>Open a surface</h3>{error&&<p role="status" className="error-text">{error}</p>}
     <button type="button" aria-label="Terminal" onClick={()=>openTool('terminal')} title="Open an interactive host terminal"><Terminal size={18} /><span>Terminal</span><small>Interactive host session</small></button>
     <button type="button" aria-label="Files" onClick={() => openTool('files')}><Folder size={18} /><span>Files</span><small>Granted resources</small></button>
     <button type="button" aria-label="Diff" onClick={() => openTool('diff')}><GitCompare size={18} /><span>Diff</span><small>Prepared changes</small></button>
@@ -44,7 +45,9 @@ export function snapshotDiffs(snapshot: Snapshot, threadId?: string) {
   return diffs;
 }
 export function RecordedDiffPanel({ snapshot, threadId, preferences }: { snapshot: Snapshot; threadId?: string; preferences: UiPreferences }) {
-  const diffs = snapshotDiffs(snapshot, threadId);
+  return <RecordedDiffs diffs={snapshotDiffs(snapshot,threadId)} preferences={preferences}/>;
+}
+export function RecordedDiffs({diffs,preferences}:{diffs:ReturnType<typeof snapshotDiffs>;preferences:UiPreferences}) {
   const pair = (before: string, after: string) => {
     if (!preferences.hideWhitespace) return { before, after };
     const left = before.split('\n'), right = after.split('\n'); const changed = Math.max(left.length, right.length);

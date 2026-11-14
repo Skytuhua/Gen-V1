@@ -93,7 +93,7 @@ export function ProjectSearch(props: ProjectSearchProps) {
 					<p
 						id={`${id}-error`}
 						className="files-message files-error"
-						role="alert"
+						role="status"
 					>
 						{error}
 					</p>
@@ -166,7 +166,7 @@ function SearchResults({
 							: ""}
 			</p>
 			{page.error && (
-				<div className="files-message files-error" role="alert">
+				<div className="files-message files-error" role="status">
 					<p>{page.error}</p>
 					<button type="button" onClick={page.refresh}>
 						Retry search

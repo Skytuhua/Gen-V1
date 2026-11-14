@@ -2,15 +2,17 @@ import {describe,expect,it} from 'vitest';
 import {DESKTOP_CHANNELS} from '../packages/desktop-contract/index.ts';
 import {parseBrowserCommand,pluginDesktopChannelAllowed,requireExistingDetachedSurface} from '../apps/desktop/window-policy.ts';
 import {ensureMainDockedBrowser} from '../apps/desktop/docked-browser.ts';
+import {detachOwnedBrowser} from '../apps/desktop/browser-lifecycle.ts';
 
 describe('explicit in-app browser opening',()=>{
  it('admits only the fixed no-argument command',()=>{
   expect(parseBrowserCommand({type:'open'})).toEqual({type:'open'});
   for(const value of [{type:'open',browserId:'other'},{type:'open',url:'https://example.com'},{type:'open',surface:{kind:'main'}},{type:'open',native:true}])expect(()=>parseBrowserCommand(value)).toThrow();
  });
- it('keeps plug-in browser IPC and new detached native windows denied',()=>{
+ it('keeps plug-in browser IPC denied while admitting new detached native windows',()=>{
   expect(pluginDesktopChannelAllowed(DESKTOP_CHANNELS.browser)).toBe(false);
-  expect(()=>requireExistingDetachedSurface({kind:'browser',browserId:'new'},[{kind:'main'}])).toThrow('unavailable');
+  expect(()=>requireExistingDetachedSurface({kind:'browser',browserId:'new'},[{kind:'main'}])).not.toThrow();
+  expect(()=>requireExistingDetachedSurface({kind:'browser',browserId:'../host'},[{kind:'main'}])).toThrow();
  });
  it('creates one blank view inside the main owner and reuses it without another allocation',()=>{
   type Browser={id:string;owner?:unknown};const owner:{surface:{kind:string};dockedBrowser?:Browser}={surface:{kind:'main'}};let allocations=0,attachments=0;
@@ -35,6 +37,23 @@ describe('explicit in-app browser opening',()=>{
   const create=()=>{allocated=true;return existing;},dispose=()=>{disposed=true;};
   expect(()=>ensureMainDockedBrowser(main,create,()=>{},dispose)).toThrow('conflicting');expect(allocated).toBe(false);
   expect(()=>ensureMainDockedBrowser({surface:{kind:'main'}},create,()=>{},dispose)).toThrow('already belongs');expect(disposed).toBe(false);expect(existing.owner).toBe(child);
+ });
+ it('admits the fixed close command and rejects extra properties',()=>{
+  expect(parseBrowserCommand({type:'close'})).toEqual({type:'close'});
+  for(const value of [{type:'close',browserId:'other'},{type:'close',force:true}])expect(()=>parseBrowserCommand(value)).toThrow();
+ });
+ it('close releases docked custody, disposes the view and allows a fresh open',()=>{
+  type Browser={id:string;owner?:unknown;alive:boolean};
+  const owner:{surface:{kind:string};dockedBrowser?:Browser}={surface:{kind:'main'}};
+  const registry=new Map<string,Browser>();
+  const attach=(view:Browser)=>{view.owner=owner;owner.dockedBrowser=view;};
+  const opened=ensureMainDockedBrowser(owner,()=>{const view:Browser={id:'docked',alive:true};registry.set(view.id,view);return view;},attach,()=>{throw Error('open must not dispose');});
+  // Mirrors the main-process close handler: park, unregister, dispose.
+  detachOwnedBrowser(owner,opened,view=>{view.alive=false;});
+  registry.delete(opened.id);
+  expect(owner.dockedBrowser).toBeUndefined();expect(opened.owner).toBeUndefined();expect(opened.alive).toBe(false);expect(registry.size).toBe(0);
+  const reopened=ensureMainDockedBrowser(owner,()=>{const view:Browser={id:'docked-2',alive:true};registry.set(view.id,view);return view;},attach,()=>{throw Error('open must not dispose');});
+  expect(reopened.id).toBe('docked-2');expect(owner.dockedBrowser).toBe(reopened);
  });
  it('cleans up only a newly allocated view if attaching fails',()=>{
   type Browser={id:string;owner?:unknown};const owner:{surface:{kind:string};dockedBrowser?:Browser}={surface:{kind:'main'}},created:Browser={id:'new'};const disposed:Browser[]=[];

@@ -86,7 +86,7 @@ export function verifyCaptureOutputs(manifest: CaptureOutputManifest, motion: re
     if (!offenderKeys.has(sampleKey(row))) errors.push(`${row.screen}/${row.state}/${row.width} (${row.frame}) is missing from reduced-motion.json offenders`);
   }
   const required = requiredOutputScreenIds.filter(screen => manifest.screens.includes(screen));
-  if (required.length && captureWidths.some(width => !manifest.widths.includes(width))) errors.push('manifest.widths must include 375, 768 and 1440 for output coverage');
+  if (required.length && captureWidths.some(width => !manifest.widths.includes(width))) errors.push('manifest.widths must include 375, 768, 1024 and 1440 for output coverage');
   for (const screen of required) for (const state of keyStates) for (const width of captureWidths) {
     const rows = manifest.entries.filter(row => row.screen === screen && row.state === state && row.width === width && !row.reduced);
     const complete = rows.some(row => row.status === 'captured' || row.status === 'identical-to-default' || row.status === 'skipped' && Boolean(row.reason?.trim()));

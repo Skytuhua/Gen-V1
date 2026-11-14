@@ -55,7 +55,7 @@ test('Usage has separate Cost, Tokens and Limits with exact reported data and pe
   await usage(page).getByRole('tab', { name: 'Tokens', exact: true }).click();
   await expect(usage(page)).toContainText('Input tokens'); await expect(usage(page)).toContainText('Not reported');
   await usage(page).getByRole('tab', { name: 'Limits', exact: true }).click();
-  await expect(usage(page)).toContainText('23.456%'); await expect(usage(page)).toContainText('2030-01-01T12:34:56Z');
+  await expect(usage(page)).toContainText('23.5%'); await expect(usage(page)).toContainText('2030'); await expect(usage(page)).not.toContainText('2030-01-01T12:34:56Z');
   await expect(usage(page)).not.toContainText('Compact'); await expect(usage(page)).not.toContainText('Thread memory');
 });
 test('accepted receipt needs exact ownership; measured freed count is optional and reset on restart', async ({ page }) => {
@@ -90,7 +90,7 @@ test('reported categories reveal token/share/subitems on focus after dwell; IME 
 test('unknown and invalid category measurements never retain stale values', async ({ page }) => {
   await page.goto('/usage-context'); await update(page, 'categories'); await page.getByRole('button', { name: 'Inspect context', exact: true }).click();
   await expect(context(page)).toContainText('System'); await update(page, 'unknown');
-  await expect(context(page)).toContainText('Context not reported'); await expect(context(page)).not.toContainText('System'); await expect(context(page)).not.toContainText('6K');
+  await expect(context(page)).toContainText('once the runtime measures this session'); await expect(context(page)).not.toContainText('System'); await expect(context(page)).not.toContainText('6K');
 });
 test('scope/provider filters remain in the owning modal and refresh preserves tab and selection', async ({ page }) => {
   await page.goto('/usage-context'); await page.getByRole('button', { name: 'Open Usage', exact: true }).click();
