@@ -79,10 +79,10 @@ describe('browser suite entrypoint',()=>{
 
   it('disables the development-host proxy only for the explicit browser runner',async()=>{
     try{
-      vi.stubEnv('GEN_E2E','1');vi.resetModules();
-      expect((await import('../vite.config.ts')).default.server?.proxy).toBeUndefined();
+      vi.stubEnv('HARNESS_PORT',undefined);vi.stubEnv('GEN_E2E','1');vi.resetModules();
+      expect((await import('../vite.config.ts')).default({command:'serve',mode:'development'}).server?.proxy).toBeUndefined();
       vi.stubEnv('GEN_E2E','0');vi.resetModules();
-      expect((await import('../vite.config.ts')).default.server?.proxy?.['/api']).toMatchObject({target:'http://127.0.0.1:4317'});
+      expect((await import('../vite.config.ts')).default({command:'serve',mode:'development'}).server?.proxy?.['/api']).toMatchObject({target:'http://127.0.0.1:4317'});
     }finally{vi.unstubAllEnvs();}
   });
 
