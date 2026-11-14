@@ -1,57 +1,16 @@
-import type { ServerResponse } from 'node:http';
-import type { HostCommand, Snapshot } from '../packages/contracts/index.ts';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { createServer } from 'vite';
 import { chromium, expect, type Locator, type Page } from '@playwright/test';
 import { graphData, graphSpec, type PRPhase } from './review-pr.ts';
 import { recordWindow } from './review-capture.ts';
-import { taskFixture, type TaskSpec } from '../tests/e2e/task-interface-fixture.ts';
+import { serveTaskFixture, taskFixture, type TaskSpec } from '../tests/e2e/task-interface-fixture.ts';
 
 const output = resolve(process.argv[2] ?? '.harness-readme-launch');
 await mkdir(output, { recursive: true });
 process.env.GEN_E2E = '1';
 const server = await createServer({ server: { host: '127.0.0.1', port: 5579, strictPort: true }, configLoader: 'runner' });
-const streams = new Set<ServerResponse>();
-server.middlewares.use('/api/events', (_request, reply) => {
-  reply.writeHead(200, { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' });
-  reply.write(': demo connection active\n\n');
-  streams.add(reply);
-  reply.on('close', () => streams.delete(reply));
-});
 await server.listen();
-
-async function fixture(page: Page, snapshot: Snapshot, action?: (command: HostCommand) => Promise<unknown>) {
-  async function publish() {
-    snapshot.seq++;
-    for (const reply of streams) reply.write('data: ' + JSON.stringify({ seq: snapshot.seq, type: 'fixture.changed' }) + '\n\n');
-  }
-  await page.route('**/api/**', async route => {
-    const path = new URL(route.request().url()).pathname;
-    const send = (json: unknown) => route.fulfill({ json });
-    if (path === '/api/events') return route.continue();
-    if (path === '/api/bootstrap') return send({ csrfToken: 'demo-csrf' });
-    if (path === '/api/snapshot') return send(snapshot);
-    if (path === '/api/shell-settings') return send(snapshot.settings);
-    if (path === '/api/plugins') return send({ plugins: [], theme: 'dark' });
-    if (path === '/api/models') return send({ models: [{ id: 'test/model', provider: 'fixture', name: 'Demo fixture' }] });
-    if (path === '/api/workspace') return send({ projects: [], state: { version: 1, revision: 0, activeCanvasId: 'workspace', canvases: [{ id: 'workspace', name: 'Workspace', preset: 'workspace', panels: [], viewport: { x: 0, y: 0, zoom: 1 } }], profiles: [], disabledKinds: [], integrations: {} } });
-    if (path === '/api/split-workspace/profiles') return send({ profiles: [] });
-    if (path === '/api/commands') {
-      const command = route.request().postDataJSON() as HostCommand;
-      let result: unknown = {};
-      if (command.type === 'state.save') {
-        const saved = snapshot.userStates[0];
-        saved.values = command.payload.values as Record<string, unknown>; saved.revision++;
-        result = saved;
-      }
-      if (command.type === 'action.submit') result = await action?.(command) ?? {};
-      return send({ commandId: command.id, eventSeq: snapshot.seq, result });
-    }
-    return send({ items: [], nextCursor: null });
-  });
-  return { publish };
-}
 try {
   const chromiumServer = await chromium.launchServer({ headless: true, args: ['--force-device-scale-factor=1', '--disable-background-timer-throttling'] });
   try {
@@ -65,9 +24,6 @@ try {
       try {
         const play = await setup(page);
         await page.evaluate(() => document.fonts.ready);
-        await expect.poll(() => streams.size).toBe(1);
-        await expect(page.getByText('Reconnecting', { exact: true })).toHaveCount(0);
-        await expect(page.getByText(/Plug-ins could not be loaded/)).toHaveCount(0);
         const stop = await recordWindow(chromiumServer, page, join(output, name + '.mp4'));
         try { await play(); }
         finally { manifest.push({ name, capture: await stop() }); }
@@ -95,7 +51,7 @@ try {
         snapshot.data[0].value = graphData(value); snapshot.data[0].revision++;
         return publish();
       };
-      const handle = await fixture(page, snapshot, async command => {
+      const handle = await serveTaskFixture(page, snapshot, async command => {
         if (command.payload.actionId === 'resolve') {
           await phase('resolving'); setTimeout(() => void phase('ready'), 1150);
         }
@@ -135,7 +91,7 @@ try {
       snapshot.threads[0].projectName = 'Release review';
       snapshot.messages[0].content = 'Here’s the launch checklist. Sort the work or select the items you want to review.';
       snapshot.artifacts[0].title = 'Launch checklist';
-      await fixture(page, snapshot);
+      await serveTaskFixture(page, snapshot);
       await page.goto(url);
       const sort = page.getByRole('button', { name: 'Sort Task', exact: true });
       await expect(sort).toBeVisible({ timeout: 30000 });
@@ -154,4 +110,4 @@ try {
     await writeFile(join(output, 'capture.json'), JSON.stringify(manifest, null, 2));
     await browser.close();
   } finally { await chromiumServer.close(); }
-} finally { for (const reply of streams) reply.end(); await server.close(); }
+} finally { await server.close(); }
