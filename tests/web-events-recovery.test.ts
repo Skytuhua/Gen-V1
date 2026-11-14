@@ -1,4 +1,6 @@
 import { afterEach, expect, it, vi } from 'vitest';
+import type { Message, Snapshot, WorkspaceEvent } from '../packages/contracts';
+import { applyRuntimeEvent } from '../apps/web/src/snapshot-events';
 
 class Stream {
   static instances: Stream[] = [];
@@ -55,4 +57,22 @@ it('ignores queued callbacks from a disconnected stream', async () => {
     expect(refresh).toHaveBeenCalledOnce();
     expect(Stream.instances).toHaveLength(2);
   } finally { unsubscribe(); }
+});
+
+
+it('does not count a streaming append as older history when the cached window retains it', () => {
+  const older = { id: 'retained', threadId: 'a', content: 'visible', role: 'assistant', runId: null, createdAt: '' } satisfies Message;
+  const latest = { ...older, id: 'latest' };
+  const snapshot = {
+    seq: 10, threads: [], messages: [older], messagesTruncated: { a: 12, other: 4 },
+    artifacts: [], userStates: [], data: [], requests: [], operations: [], resources: [],
+    usage: {}, settings: { theme: 'dark', modelId: null }, activeThreadId: 'a',
+  } satisfies Snapshot;
+  const event = { id: 'event', seq: 11, threadId: 'a', type: 'runtime.assistant.delta', occurredAt: '' } satisfies Omit<WorkspaceEvent, 'payload'>;
+  const append = applyRuntimeEvent(snapshot, { ...event, payload: { result: { message: latest } } })!;
+  expect(append.messages).toEqual([older, latest]);
+  expect(append.messagesTruncated).toBe(snapshot.messagesTruncated);
+  const update = applyRuntimeEvent(append, { ...event, seq: 12, payload: { result: { message: { ...latest, content: 'updated' } } } });
+  expect(update?.messages.map(item => item.content)).toEqual(['visible', 'updated']);
+  expect(update?.messagesTruncated).toBe(snapshot.messagesTruncated);
 });

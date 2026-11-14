@@ -13,11 +13,9 @@ export function applyRuntimeEvent(snapshot: Snapshot, event: WorkspaceEvent): Sn
     if (!message || typeof message.id !== 'string' || message.threadId !== event.threadId) return null;
     const known = snapshot.messages.some(item => item.id === message.id);
     const messages = known ? snapshot.messages.map(item => item.id === message.id ? message : item) : [...snapshot.messages, message];
-    // A new append slides the per-thread snapshot window: one more older
-    // message is only reachable through /api/threads/:id/messages.
-    const truncated = snapshot.messagesTruncated?.[message.threadId];
-    const messagesTruncated = !known && truncated ? { ...snapshot.messagesTruncated, [message.threadId]: truncated + 1 } : snapshot.messagesTruncated;
-    return { ...snapshot, seq: event.seq, messages, messagesTruncated };
+    // A stream append retains the current rows. Only a fresh host snapshot
+    // replaces the window and can change how many older rows are hidden.
+    return { ...snapshot, seq: event.seq, messages };
   }
   if (event.type === 'runtime.usage' || event.type === 'runtime.compaction.start' || event.type === 'runtime.compaction.end') {
     const usage = (result as { usage?: RuntimeUsage }).usage;
