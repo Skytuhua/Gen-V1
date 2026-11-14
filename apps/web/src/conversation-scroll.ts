@@ -78,3 +78,18 @@ export function createConversationScroll(element:HTMLElement){
   },
  };
 }
+
+/** Observe the viewport and its immediate content containers. Deeper mutations
+ * still schedule a measurement, but cannot change which children we observe. */
+export function observeConversationExtent(element:HTMLElement,schedule:()=>void):()=>void{
+ const resize=new ResizeObserver(schedule);
+ const observe=()=>{resize.disconnect();resize.observe(element);for(const child of element.children)resize.observe(child);};
+ const mutation=new MutationObserver(records=>{
+  if(records.some(record=>record.type==='childList'&&record.target===element))observe();
+  schedule();
+ });
+ resize.observe(element);
+ for(const child of element.children)resize.observe(child);
+ mutation.observe(element,{childList:true,subtree:true,characterData:true});
+ return ()=>{resize.disconnect();mutation.disconnect();};
+}
