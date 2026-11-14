@@ -74,8 +74,12 @@ export class ToolEffectReadModels {
         position = event.seq;
         if (!event.type.startsWith("toolEffect.")) continue;
         const raw = typeof event.payload === "string" ? JSON.parse(event.payload) : event.payload;
-        const id = (raw as { result?: { invocationId?: string } } | null)?.result?.invocationId;
-        if (!id) continue;
+        const result = (raw as { result?: { invocationId?: string; state?: string; reused?: boolean } } | null)?.result;
+        const id = result?.invocationId;
+        // Emit each effect exactly once, at its creation event — later
+        // transitions (settle/deny/recover) and re-admission receipts would
+        // repeat the record across a page boundary.
+        if (!id || result?.reused || (result?.state !== "DISPATCHED" && result?.state !== "PREPARED" && result?.state !== "DENIED")) continue;
         const effect = this.store.get<ToolEffectRecord>("toolEffect", id);
         if (!effect || effect.threadId !== found.threadId) continue;
         if (parsed.invocationId && id !== parsed.invocationId) continue;
