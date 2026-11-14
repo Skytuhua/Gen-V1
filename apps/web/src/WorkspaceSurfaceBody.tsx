@@ -12,6 +12,8 @@ import {z} from 'zod';
 import {journalRead,journalWrite,journalSubscribe,journalFlush,journalGeneration,journalCompareAndSwap} from './journal.ts';
 import {useDesktopCloseGuard} from './desktop-context.tsx';
 import {GitHubSignIn} from './GitHubSignIn.tsx';
+import {FileCheckpoints} from './FileCheckpoints';
+import type {TerminalExcerptComposer} from './TerminalBody';
 import {TerminalBody} from './TerminalBody.tsx';
 export {TerminalBody} from './TerminalBody.tsx';
 import './workspace-tools.css';
@@ -37,13 +39,17 @@ function DiffBody({base,query,active,fallback}:{base:string;query:URLSearchParam
  const legacy=(value as (GitStatus&{mode?:string})|null)?.mode==='legacy';
  return <div className="live-review"><div className="panel-toolbar"><strong>Changes</strong><span>{value?.branch}</span><button onClick={()=>void load()}>Refresh</button><label><input type="checkbox" checked={staged} onChange={event=>setStaged(event.target.checked)}/>Staged</label></div>{error&&<p role="status" className="error-text">{error}</p>}{legacy&&<p className="panel-note">Original working copy · tracked changes only. Git actions are available in an agent’s isolated working copy.</p>}{value&&<><small className="review-revision" title={value.revision}>Reviewing {value.head.slice(0,10)} · {value.files.length} changed files</small><ul className="live-change-list">{value.files.map(file=><li key={file.path}><span>{file.oldPath?file.oldPath+' → ':''}{file.path}</span><small>{file.binary?'Binary':file.untracked?'Untracked':`${file.index}${file.worktree} +${file.added??'?'} −${file.removed??'?'}`}</small><button disabled={pending||value.gitWrite!==true} onClick={()=>void apply(file.staged?'unstage':'stage',file.path)}>{file.staged?'Unstage':'Stage'}</button></li>)}</ul><pre className="live-diff" aria-label={staged?'Staged diff':'Unstaged diff'}>{(staged?value.stagedDiff:value.diff)||'No tracked changes in this view.'}</pre></>}</div>;
 }
-export function WorkspaceSurfaceBody({kind,binding,snapshot,refresh,active=true,preferences,onSelectThread,onOpenTool,panelId}:{kind:WorkspacePanelKind;binding:PanelBinding;snapshot:Snapshot;refresh:()=>Promise<void>;active?:boolean;preferences?:UiPreferences;panelId?:string;onSelectThread?:(id:string)=>void|Promise<void>;onOpenTool?:(kind:WorkspacePanelKind)=>void|Promise<void>}){
+function ChangesBody({base,query,active,recorded,preferences}:{base:string;query:URLSearchParams;active:boolean;recorded:ReactNode;preferences:UiPreferences}){
+ // Enable History only with a host adapter and the context's exact workingCopy.id.
+ return <FileCheckpoints preferences={preferences} current={<DiffBody base={base} query={query} active={active} fallback={recorded}/>} recorded={recorded}/>;
+}
+export function WorkspaceSurfaceBody({kind,binding,snapshot,refresh,active=true,preferences,onSelectThread,onOpenTool,panelId,excerptComposer}:{excerptComposer?:TerminalExcerptComposer;kind:WorkspacePanelKind;binding:PanelBinding;snapshot:Snapshot;refresh:()=>Promise<void>;active?:boolean;preferences?:UiPreferences;panelId?:string;onSelectThread?:(id:string)=>void|Promise<void>;onOpenTool?:(kind:WorkspacePanelKind)=>void|Promise<void>}){
  const threadId=binding.threadId??snapshot.activeThreadId??undefined,thread=snapshot.threads.find(item=>item.id===threadId),projectId=binding.projectId??thread?.projectId;
  if(binding.authority.kind!=='local')return <p className="panel-note">This panel requires its owning plug-in adapter.</p>;
  const prefs=preferences??getPreferences(snapshot.settings);
  if(kind==='plan')return <PlanStatus snapshot={snapshot} threadId={threadId}/>;
  if(kind==='notes')return binding.threadId&&snapshot.threads.some(item=>item.id===binding.threadId)?<TaskMemory key={binding.threadId} snapshot={snapshot} threadId={binding.threadId}/>:<p className="panel-note">Choose the owning conversation to use these notes.</p>;
- if(kind==='usage')return <><UsageSummary usage={threadId?snapshot.usage[threadId]:undefined}/><TaskMemory snapshot={snapshot} threadId={threadId}/></>;
+ if(kind==='usage')return <UsageSummary usage={threadId?snapshot.usage[threadId]:undefined}/>;
  if(kind==='artifact')return <ArtifactSurface binding={binding} snapshot={snapshot} refresh={refresh} active={active}/>;
  if(kind==='output')return <OutputPanel snapshot={snapshot} threadId={threadId} preferences={prefs}/>;
  if(kind==='workspace')return <WorkspaceLauncher onOpenTool={onOpenTool}/>;
@@ -55,8 +61,8 @@ export function WorkspaceSurfaceBody({kind,binding,snapshot,refresh,active=true,
  if(!projectId)return <p className="panel-note">Connect and select a project to use {kind}.</p>;
  const base='/api/projects/'+encodeURIComponent(projectId),query=new URLSearchParams(threadId?{threadId}:{});
  if(kind==='files')return <FilesBody base={base} query={query} active={active} fallback={files}/>;
- if(kind==='diff')return <DiffBody base={base} query={query} active={active} fallback={recordedDiff}/>;
- if(kind==='terminal')return <TerminalBody key={projectId+':'+threadId+':'+binding.terminalId} projectId={projectId} threadId={threadId} terminalId={binding.terminalId} active={active} openAnother={onOpenTool?()=>onOpenTool('terminal'):undefined}/>;
+ if(kind==='diff')return <ChangesBody key={base+'?'+query} base={base} query={query} active={active} recorded={recordedDiff} preferences={prefs}/>;
+ if(kind==='terminal')return <TerminalBody key={projectId+':'+threadId+':'+binding.terminalId} projectId={projectId} threadId={threadId} terminalId={binding.terminalId} active={active} excerptComposer={excerptComposer} openAnother={onOpenTool?()=>onOpenTool('terminal'):undefined}/>;
  if(kind==='pull-request'||kind==='linked-pull-requests'){const journalKey='pr-panel:'+JSON.stringify(['local',projectId,threadId??null,kind,panelId??'sidebar']);return <PullRequestsBody key={journalKey} journalKey={journalKey} base={base} query={query} active={active} threadId={threadId} linked={kind==='linked-pull-requests'}/>;}
  return <p className="panel-note">Select this surface from the workspace.</p>;
 }

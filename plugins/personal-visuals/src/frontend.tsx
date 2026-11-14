@@ -313,6 +313,8 @@ function App() {
 		[selected, setSelected] = useState("node:" + initial.nodes[0].id),
 		[ready, setReady] = useState(false),
 		[editing, setEditing] = useState(false),
+		// The sandboxed frame has no storage; dismissal lasts for this frame load.
+		[introOpen, setIntroOpen] = useState(true),
 		[status, setStatus] = useState("Recovering visual document…"),
 		[error, setError] = useState(""),
 		[writeFailed, setWriteFailed] = useState(false),
@@ -705,8 +707,27 @@ function App() {
 					Save
 				</button>
 			</header>
+			{introOpen && (
+				<section className="pv-intro" role="note" aria-label="About this workspace">
+					<div>
+						<strong>Diagrams from your own JSON</strong>
+						<p>
+							Visuals draws architecture, dependency, flow and timeline
+							diagrams from structured JSON. It runs no models and shows no
+							live agent activity. Documents stay on this device. Try an
+							example, Import JSON, or Edit the JSON inline.
+						</p>
+					</div>
+					<button onClick={() => setIntroOpen(false)}>Dismiss</button>
+				</section>
+			)}
 			<div className="pv-status">
 				<span role="status">{status}</span>
+				{!introOpen && (
+					<button className="pv-about" onClick={() => setIntroOpen(true)}>
+						About Visuals
+					</button>
+				)}
 				<details>
 					<summary>Examples</summary>
 					<div>

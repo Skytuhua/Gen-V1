@@ -42,9 +42,13 @@ export function WorkspaceSplitLayout({layout,onCommand,renderView,title=defaultT
  },[]);
  useLayoutEffect(()=>{measure();const observer=new ResizeObserver(measure);if(root.current)observer.observe(root.current);for(const slot of slots.current.values())observer.observe(slot);return()=>observer.disconnect();},[layout.root,layout.panes,narrow,previewRatio,measure]);
  const run=useCallback(async(action:()=>Promise<unknown>,flush=true)=>{
-  if(pending.current)return;pending.current=true;setBusy(true);setError('');
+  if(pending.current)return;pending.current=true;
+  // Busy controls go :disabled, which drops their focus to <body>; restore it
+  // to the element that was focused when the action began once busy clears.
+  const focusHost=document.activeElement instanceof HTMLElement?document.activeElement:null;
+  setBusy(true);setError('');
   try{if(flush)await prepare?.();await action();}catch(cause){setError(cause instanceof Error?cause.message:'The layout could not be saved. Your views are retained.');}
-  finally{pending.current=false;setBusy(false);setDrop(null);}
+  finally{pending.current=false;setBusy(false);setDrop(null);if(focusHost)requestAnimationFrame(()=>{if(document.activeElement===document.body&&focusHost.isConnected)focusHost.focus({preventScroll:true});});}
  },[prepare]);
  const send=(type:string,payload:Record<string,unknown>,flush=true)=>run(()=>onCommand(type,{...payload,baseRevision:layout.revision}),flush);
  const cancel=useCallback(()=>{resize.current=null;corner.current=null;setPreviewRatio(null);setDrop(null);},[]);

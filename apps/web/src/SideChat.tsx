@@ -6,6 +6,7 @@ import {FloatingWindow} from './FloatingWindow';
 import {Markdown} from './Markdown';
 import {CopyButton} from './CopyButton';
 import {journalCompareAndSwap,journalGeneration,journalRead,journalReadRecord,journalSubscribe,journalWrite} from './journal';
+import {useThreadMessages} from './thread-messages';
 import {Select} from '../../../packages/ui-shell/Select';
 import './side-chat.css';
 
@@ -21,7 +22,7 @@ export function SideChat({parent,snapshot,modelId,open,onClose,refresh,ref}:{par
  const [draft,setDraft]=useState(''),[ready,setReady]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState('');
  const sending=useRef(false),input=useRef<HTMLTextAreaElement>(null),scroll=useRef<HTMLDivElement>(null),tail=useRef(true);
  const working=Boolean(side?.runId)||side?.status==='working';
- const messages=snapshot.messages.filter(message=>message.threadId===side?.id&&message.role!=='activity');
+ const threadMessages=useThreadMessages(snapshot,side?.id,true),messages=threadMessages.messages.filter(message=>message.role!=='activity');
  useLayoutEffect(()=>{draftTarget.current=draftKey;},[draftKey]);
  useEffect(()=>{try{if(selectedId)localStorage.setItem(storageKey,selectedId);else localStorage.removeItem(storageKey);}catch{/* Drafts remain in the journal. */}},[storageKey,selectedId]);
  useEffect(()=>{let active=true;setReady(false);void journalRead<string>(draftKey).then(value=>{if(active){setDraft(value??'');setReady(true);}}).catch(()=>{if(active){setReady(true);setError('Draft recovery is unavailable. Keep this window open.');}});return()=>{active=false;};},[draftKey]);

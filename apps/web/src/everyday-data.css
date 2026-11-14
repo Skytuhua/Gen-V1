@@ -71,3 +71,14 @@
 .everyday-comparison-footer p>strong {font-weight:550;}
 .everyday-comparison-footer .primary {font-size:11px;}
 @media(max-width:700px) {.everyday-heading{align-items:flex-start;gap:10px;}.everyday-heading>span{font-size:10px;}.everyday-metric-nav button{flex-basis:120px;padding:10px 12px;}.everyday-stat-value{font-size:28px;}.everyday-comparison-table{min-width:570px;}.everyday-comparison-table :is(thead th,tbody th,td){padding:12px 10px;}.everyday-comparison-footer .primary{margin-left:auto;}}
+
+.everyday-source-values table { width:max-content; }
+.everyday-source-values :is(th,td) { padding:6px 12px 6px 0; }
+.everyday-source-values .number,.everyday-comparison-table td.number { text-align:right; white-space:nowrap; overflow:visible; text-overflow:clip; }
+.everyday-source-values tbody tr:hover,.everyday-comparison-table tbody tr:hover { background:var(--hover); }
+@media(max-width:600px) { .everyday-comparison-table { min-width:650px; } }
+
+.artifact[data-artifact-inline=true] .artifact-content .everyday-comparison-scroll { overflow:auto; }
+.artifact[data-artifact-inline=true] .artifact-content .everyday-source-values table { width:max-content; table-layout:auto; }
+.artifact[data-artifact-inline=true] .artifact-content .everyday-comparison table { width:100%; table-layout:fixed; }
+.artifact[data-artifact-inline=true] .artifact-content :is(.everyday-source-values,.everyday-comparison) table .number { white-space:nowrap; overflow-wrap:normal; }

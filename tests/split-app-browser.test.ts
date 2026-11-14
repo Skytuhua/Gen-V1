@@ -23,10 +23,10 @@ describe.runIf(enabled)('actual App split workspace',()=>{
  beforeAll(async()=>{
   server=spawn(process.execPath,['node_modules/vite/bin/vite.js','--config','tests/e2e/vite.config.ts','--host','127.0.0.1','--port','5598','--strictPort'],{cwd:root,windowsHide:true,stdio:['ignore','pipe','pipe']});
   server.stdout?.on('data',chunk=>{serverLog+=String(chunk);});server.stderr?.on('data',chunk=>{serverLog+=String(chunk);});
-  let ready=false;for(let i=0;i<100;i++){if(server.exitCode!==null)throw Error('Owned Vite exited: '+serverLog);try{const response=await fetch(origin,{signal:AbortSignal.timeout(500)});if(response.ok){ready=true;break;}}catch{}await new Promise(resolve=>setTimeout(resolve,100));}
+  let ready=false;for(let i=0;i<300;i++){if(server.exitCode!==null)throw Error('Owned Vite exited: '+serverLog);try{const response=await fetch(origin,{signal:AbortSignal.timeout(500)});if(response.ok){ready=true;break;}}catch{}await new Promise(resolve=>setTimeout(resolve,100));}
   if(!ready)throw Error('Owned Vite did not start: '+serverLog);
   browser=await chromium.launch({headless:true,channel:process.env.GEN_TEST_BROWSER_CHANNEL??'chrome'});
- },20000);
+ },60000);
  afterAll(async()=>{try{await browser?.close();}finally{if(server&&server.exitCode===null){server.kill();await new Promise<void>(resolve=>{const timer=setTimeout(resolve,2000);server!.once('exit',()=>{clearTimeout(timer);resolve();});});}}});
 
  async function fixture({plan=false,plugins=[],retainedCanvas=false,retainedPlan=false,unstarted=false,width=1600,height=1000,deferPluginFlush=false,mode='split'}:{plan?:boolean;plugins?:PluginManifest[];retainedCanvas?:boolean;retainedPlan?:boolean;unstarted?:boolean;width?:number;height?:number;deferPluginFlush?:boolean;mode?:'split'|'chat'}={}){
@@ -129,7 +129,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    const overview=page.getByRole('region',{name:'Project overview window',exact:true});await overview.waitFor({state:'visible'});
    if(await overview.getByRole('button',{name:'Expand Project overview',exact:true}).isVisible())await overview.getByRole('button',{name:'Expand Project overview',exact:true}).click();
    const summary=overview.getByRole('region',{name:'Plan summary',exact:true});await summary.waitFor({state:'visible'});expect(await summary.getAttribute('data-plan-revision')).toBe('7');expect(await summary.textContent()).toContain('Inspect then verify');expect(await summary.textContent()).toContain('1 of 2 tasks complete');
-   await overview.locator('summary').filter({hasText:'Agents and history'}).click();expect(await overview.textContent()).toContain('Inspect source');await overview.locator('summary').filter({hasText:'Side conversations'}).click();expect(await overview.textContent()).toContain('Related discussion');await overview.locator('summary').filter({hasText:'Automations'}).click();expect(await overview.textContent()).toContain('No automation service is connected.');
+   await overview.locator('summary').filter({hasText:'Agents and history'}).click();expect(await overview.textContent()).toContain('Inspect source');await overview.locator('summary').filter({hasText:'Side conversations'}).click();expect(await overview.textContent()).toContain('Related discussion');await overview.locator('summary').filter({hasText:'Automations'}).click();expect(await overview.textContent()).toContain('No automation service connected.');
    await summary.getByRole('button',{name:'Open full plan',exact:false}).click();const detailed=page.locator('[data-split-view="plan:thread-a"]').getByRole('region',{name:/^Task plan(?::|$)/});await detailed.waitFor({state:'visible'});expect(await detailed.getAttribute('aria-label')).toBe('Task plan: Inspect then verify');expect(await detailed.textContent()).toContain('Verify the result');const planPane=Object.values(host.layout.panes).find(pane=>pane.viewIds.includes('plan:thread-a'))!,planBounds=await page.locator('[data-split-pane="'+planPane.id+'"]').boundingBox();expect(planBounds!.width).toBeGreaterThanOrEqual(240);expect(planBounds!.height).toBeGreaterThanOrEqual(180);expect(Object.values(host.layout.views).filter(view=>view.kind==='plan')).toHaveLength(1);expect(host.errors).toEqual([]);
   }finally{await page.close();}
  },30000);
@@ -178,7 +178,9 @@ describe.runIf(enabled)('actual App split workspace',()=>{
  it('reopens the same parked and minimized detailed plan on fresh validated revisions without taking composer focus',async()=>{
   const host=await fixture({plan:true}),{page}=host;try{
    const draft=page.locator('[data-split-view="thread:thread-a"]').getByRole('textbox',{name:'Message',exact:true}),detail=page.locator('[data-split-view="plan:thread-a"]').getByRole('region',{name:/^Task plan(?::|$)/});await detail.waitFor({state:'visible'});
-   const originalAreaCount=Object.keys(host.layout.panes).length;await host.issue('view.park',{viewId:'plan:thread-a'});await detail.waitFor({state:'hidden'});await draft.fill('Retain focus during plan refresh');
+   const originalAreaCount=Object.keys(host.layout.panes).length;await host.issue('view.park',{viewId:'plan:thread-a'});await detail.waitFor({state:'hidden'});
+   const expandOverview=page.getByRole('button',{name:'Expand Project overview',exact:true});if(await expandOverview.isVisible())await expandOverview.click();
+   await draft.fill('Retain focus during plan refresh');
    const record=host.snapshot.data.find(item=>item.id===planDataId('thread-a'))!;record.revision=8;record.value={...(record.value as object),title:'Updated verification plan'};await host.publish();
    await page.locator('[aria-label="Plan summary"][data-plan-revision="8"]').waitFor({state:'visible'});await detail.waitFor({state:'visible'});expect(await detail.getAttribute('aria-label')).toBe('Task plan: Updated verification plan');expect(await draft.evaluate(node=>node===document.activeElement)).toBe(true);
    expect(Object.values(host.layout.views).filter(view=>view.kind==='plan')).toHaveLength(1);const pane=Object.values(host.layout.panes).find(item=>item.viewIds.includes('plan:thread-a'))!;
@@ -275,7 +277,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
   try{
    await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();
    await page.evaluate(()=>{const slot=document.createElement('section');slot.className='desktop-browser-dock';slot.setAttribute('aria-label','Synthetic browser geometry');slot.textContent='Browser slot geometry';(document.querySelector('.workspace-tools')??document.querySelector('.shell-workarea'))!.appendChild(slot);});
-   const boxes=await page.evaluate(()=>{const box=(selector:string)=>{const a=document.querySelector(selector)!.getBoundingClientRect();return{x:a.x,y:a.y,right:a.right,bottom:a.bottom,width:a.width};};return{chat:box('.summary-layout>.workspace'),panel:box('.workspace-right'),browser:box('.desktop-browser-dock'),owner:box('.shell-workarea')};});
+   const boxes=await page.evaluate(()=>{const box=(selector:string)=>{const a=document.querySelector(selector)!.getBoundingClientRect();return{x:a.x,y:a.y,right:a.right,bottom:a.bottom,width:a.width};};return{chat:box('.chat-view-slot'),panel:box('.workspace-right'),browser:box('.desktop-browser-dock'),owner:box('.shell-workarea')};});
    expect(boxes.chat.width).toBeGreaterThanOrEqual(420);expect(boxes.chat.right).toBeLessThanOrEqual(boxes.panel.x);
    expect(boxes.browser.right).toBeLessThanOrEqual(boxes.owner.right+1);expect(boxes.browser.y).toBeGreaterThanOrEqual(boxes.panel.bottom);
   }finally{await page.close();}
@@ -300,7 +302,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    for(const end of [1,size.width-1]){
     const handle=(await separator.boundingBox())!;await page.mouse.move(handle.x+handle.width/2,handle.y+30);await page.mouse.down();await page.mouse.move(end,handle.y+30,{steps:5});await page.mouse.up();
     await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
-    const boxes=await page.evaluate(()=>{const box=(selector:string)=>{const a=document.querySelector(selector)!.getBoundingClientRect();return{x:a.x,y:a.y,right:a.right,bottom:a.bottom,width:a.width,height:a.height};};return{chat:box('.summary-layout>.workspace'),panel:box('.workspace-right'),owner:box('.shell-workarea'),title:box('.workspace-switcher'),overflow:document.documentElement.scrollWidth-innerWidth};});
+    const boxes=await page.evaluate(()=>{const box=(selector:string)=>{const a=document.querySelector(selector)!.getBoundingClientRect();return{x:a.x,y:a.y,right:a.right,bottom:a.bottom,width:a.width,height:a.height};};return{chat:box('.chat-view-slot'),panel:box('.workspace-right'),owner:box('.shell-workarea'),title:box('.workspace-switcher'),overflow:document.documentElement.scrollWidth-innerWidth};});
     expect(boxes.chat.width).toBeGreaterThanOrEqual(420);expect(boxes.panel.width).toBeLessThanOrEqual(Math.min(720,boxes.owner.width-426)+1);
     expect(boxes.chat.right).toBeLessThanOrEqual(boxes.panel.x);expect(boxes.panel.y).toBeGreaterThanOrEqual(boxes.title.bottom);
     expect(boxes.panel.right).toBeLessThanOrEqual(boxes.owner.right+1);expect(boxes.overflow).toBeLessThanOrEqual(1);
@@ -312,7 +314,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
   const{page}=await fixture({width:900,height:700,mode:'chat'});
   try{
    await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();
-   const boxes=await page.evaluate(()=>{const box=(selector:string)=>{const a=document.querySelector(selector)!.getBoundingClientRect();return{x:a.x,y:a.y,right:a.right,bottom:a.bottom,width:a.width,height:a.height};};return{chat:box('.summary-layout>.workspace'),panel:box('.workspace-right'),owner:box('.shell-workarea'),title:box('.workspace-switcher')};});
+   const boxes=await page.evaluate(()=>{const box=(selector:string)=>{const a=document.querySelector(selector)!.getBoundingClientRect();return{x:a.x,y:a.y,right:a.right,bottom:a.bottom,width:a.width,height:a.height};};return{chat:box('.chat-view-slot'),panel:box('.workspace-right'),owner:box('.shell-workarea'),title:box('.workspace-switcher')};});
    expect(boxes.panel.y).toBeGreaterThanOrEqual(boxes.chat.bottom);expect(boxes.panel.bottom).toBeLessThanOrEqual(boxes.owner.bottom+1);
    expect(boxes.panel.height).toBeLessThanOrEqual(boxes.owner.height*.45+1);expect(boxes.chat.height).toBeGreaterThanOrEqual(240);
    expect(boxes.panel.y).toBeGreaterThanOrEqual(boxes.title.bottom);

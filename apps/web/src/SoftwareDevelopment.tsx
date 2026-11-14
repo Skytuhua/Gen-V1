@@ -67,7 +67,7 @@ export function Diagnostics({element:{props}}:ComponentRenderProps){
     {selected?<div className="software-inspector software-investigation">
       <div ref={detail} className="software-detail" role="tabpanel" id={panelId} aria-label={selected.title}>
         <div className="software-detail-heading"><h4>{selected.title}</h4><CheckState status={selected.status}/></div>
-        {selected.file&&<p className="software-file-location"><FileCode2 size={13}/><code>{selected.file}{selected.line?`:${selected.line}${selected.column?`:${selected.column}`:''}`:''}</code>{selected.durationMs!==undefined&&<span>{duration(selected.durationMs)}</span>}</p>}
+        {selected.file&&<p className="software-file-location"><FileCode2 size={13}/><code>{selected.file}{selected.line?`:${selected.line}${selected.column?`:${selected.column}`:''}`:''}</code>{selected.durationMs!==undefined&&<span>Duration<strong>{duration(selected.durationMs)}</strong></span>}</p>}
         {comparison&&<section className="software-assertion" data-status={selected.status} aria-label="Assertion comparison"><div><span>Expected</span><pre><code>{selected.expected??'Not supplied'}</code></pre></div><ArrowRight size={16} aria-hidden="true"/><div><span>Received</span><pre><code>{selected.actual??'Not supplied'}</code></pre></div></section>}
         {selected.message&&(comparison?<details className="software-diagnostic-details"><summary>Failure details</summary><p className="software-diagnostic-message">{selected.message}</p></details>:<p className="software-diagnostic-message">{selected.message}</p>)}
         {selected.code&&<CodeBlock text={selected.code} label="Source context"/>}

@@ -6,6 +6,8 @@ import './feedback.css';
 interface Shown { text: string; target: Element; leaving: boolean }
 const FOCUS_DWELL_MS = 100, GAP = 6, GUTTER = 8;
 
+/** Elements whose `title=""` mutation came from `adopt` itself, not a rerender. */
+const suppressing = new WeakSet<Element>();
 /** Reads the tooltip text and silences the native bubble so only one tooltip shows. */
 function adopt(target: Element) {
   const title = target.getAttribute('title');
@@ -14,6 +16,7 @@ function adopt(target: Element) {
     // removing it later still produces a mutation record the observer can act on.
     target.setAttribute('data-tooltip', title);
     target.setAttribute('data-tooltip-adopted', '');
+    suppressing.add(target);
     target.setAttribute('title', '');
     // A title was the control's only name; keep it reachable for assistive technology.
     if (title && !target.hasAttribute('aria-labelledby') && (!target.hasAttribute('aria-label') || target.hasAttribute('data-tooltip-named')) && !target.textContent?.trim()) {
@@ -37,7 +40,16 @@ export function TooltipLayer() {
   const bubble = useRef<HTMLDivElement>(null), timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined), current = useRef<Element | null>(null);
 
   useEffect(() => {
-    const hide = () => { clearTimeout(timer.current); current.current = null; setShown(value => value && !value.leaving ? { ...value, leaving: true } : value); };
+    const hide = () => {
+      clearTimeout(timer.current);
+      const target = current.current;
+      current.current = null;
+      // Restore the real title once the tooltip is dismissed so a later rerender that removes
+      // or replaces it is observable — a suppressed (empty) title would mutate invisibly.
+      if (target?.hasAttribute('data-tooltip-adopted') && target.getAttribute('title') === '')
+        target.setAttribute('title', target.getAttribute('data-tooltip') ?? '');
+      setShown(value => value && !value.leaving ? { ...value, leaving: true } : value);
+    };
     const schedule = (target: Element, delay: number) => {
       if (current.current === target) return;
       const text = adopt(target);
@@ -58,9 +70,10 @@ export function TooltipLayer() {
       for (const record of records) {
         if (record.type !== 'attributes' || record.attributeName !== 'title' || !(record.target instanceof Element)) continue;
         const element = record.target, title = element.getAttribute('title');
-        if (title === '' && element.hasAttribute('data-tooltip-adopted')) continue; // our own suppression
-        if (title !== null || !element.hasAttribute('data-tooltip-adopted')) continue;
-        // A rerender removed the source title: drop the mirrored tooltip and generated names.
+        if (!element.hasAttribute('data-tooltip-adopted')) continue;
+        if (title !== null && title !== '') continue; // a real title (re)appeared: adopt() re-syncs it
+        if (title === '' && suppressing.has(element)) { suppressing.delete(element); continue; } // our own suppression
+        // A rerender removed or emptied the source title: drop the mirrored tooltip and generated names.
         element.removeAttribute('data-tooltip'); element.removeAttribute('data-tooltip-adopted');
         if (element.hasAttribute('data-tooltip-named')) { element.removeAttribute('aria-label'); element.removeAttribute('data-tooltip-named'); }
         if (element.hasAttribute('data-tooltip-described')) { element.removeAttribute('aria-description'); element.removeAttribute('data-tooltip-described'); }

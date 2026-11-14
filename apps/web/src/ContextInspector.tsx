@@ -65,6 +65,11 @@ function ContextSession({ usage, thread, close, refresh, onError, anchor, compac
     if (panel.current?.ownerDocument.activeElement === panel.current?.ownerDocument.body) action.current?.focus();
     restoreActionFocus.current = false;
   }, [compacting, thread?.runId]);
+  // Disabling the focused action (a run starting) drops focus to body; keep it inside so Escape still dismisses.
+  useLayoutEffect(() => {
+    const document = panel.current?.ownerDocument;
+    if (document && action.current?.disabled && document.activeElement === document.body) panel.current?.focus();
+  }, [compacting, thread?.runId]);
   const compact = async () => {
     if (!thread?.sessionPath || thread.runId || locked.current || compacting || unavailable) return;
     restoreActionFocus.current = action.current?.ownerDocument.activeElement === action.current;
@@ -86,7 +91,7 @@ function ContextSession({ usage, thread, close, refresh, onError, anchor, compac
   return <Popover anchor={anchor} contentRef={panel} initialFocus={panel} open width={328} height={measured?.categories.length ? 282 + (failure ? 48 : 0) : 200 + (failure ? 48 : 0)}
     role="dialog" aria-label="Context inspector" tabIndex={-1} className="context-inspector" onDismiss={close}>
     <header><strong>Context <span>{measured ? `${Math.round(measured.ratio)}%` : 'Not reported'}</span></strong>
-      {measured && <span className="context-inspector-total">{contextNumber(measured.used)} of {contextNumber(measured.total)}</span>}</header>
+      {measured && <span className="context-inspector-total">{contextNumber(measured.used)} of {contextNumber(measured.total)} tokens</span>}</header>
     <div className="context-inspector-body"><ContextMeter usage={usage} busy={compacting} accepted={playingReceipt} />
       {failure && <ErrorState className="context-inspector-error" message={failure}/>}
     </div>

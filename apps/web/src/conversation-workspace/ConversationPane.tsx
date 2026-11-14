@@ -2,6 +2,7 @@ import {useLayoutEffect, useRef, useState, type ReactNode} from 'react';
 import type {ConversationReadState} from './reader';
 import type {ScopedConversation} from './useScopedConversation';
 import './conversation-pane.css';
+import {ConversationFind} from '../ConversationFind';
 import {ErrorState} from '../../../../packages/ui-shell/Feedback';
 
 export interface ConversationPaneProps {
@@ -13,6 +14,7 @@ export interface ConversationPaneProps {
 /** Presentation only. The ordinary composer and all command admission belong to the parent. */
 export function ConversationPane({conversation: {state, reader}, hidden = false, renderComposer, renderContext}: ConversationPaneProps) {
   const viewport = useRef<HTMLDivElement>(null);
+  const scope = useRef<HTMLElement>(null);
   const reading = useRef<{key: string | null; follow: boolean; top: number; anchor: {id: string; offset: number} | null; latest: string | null}>({key: null, follow: true, top: 0, anchor: null, latest: null});
   const focusAfterRead = useRef<string | null>(null);
   const focusedMessage = useRef<string | null>(null);
@@ -71,8 +73,9 @@ export function ConversationPane({conversation: {state, reader}, hidden = false,
     return () => observer.disconnect();
   }, [state.selectionKey, state.messages, state.historyPending, state.phase, hidden, latest]);
   const pending = state.pending || state.historyPending;
-  return <section className="scoped-conversation" hidden={hidden} aria-label="Optional conversation">
+  return <section ref={scope} className="scoped-conversation" hidden={hidden} aria-label="Optional conversation">
     {renderContext && <div className="scoped-conversation-context">{renderContext(state)}</div>}
+    <ConversationFind ownerKey={state.selectionKey ?? 'closed'} transcript={viewport} scope={scope} active={!hidden} onNavigate={() => {reading.current.follow = false; remember();}} onLoadEarlier={state.nextCursor ? () => {void reader.loadOlder();} : undefined} historyPending={pending} historyLimited={state.historyLimited} historyError={state.error}/>
     <div ref={viewport} className="scoped-conversation-transcript" role="region" aria-label="Conversation transcript" aria-busy={pending} tabIndex={0} onScroll={remember}>
       <div className="scoped-conversation-messages">
         {state.nextCursor && <button type="button" className="ui-action-trigger" disabled={pending || state.historyLimited} onClick={() => {focusAfterRead.current = reading.current.anchor?.id ?? state.messages[0]?.head.id ?? null; void reader.loadOlder();}}>{state.historyLimited ? 'History limit reached' : state.historyPending ? 'Loading older messages…' : 'Load older messages'}</button>}

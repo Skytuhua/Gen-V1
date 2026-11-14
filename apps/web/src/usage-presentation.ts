@@ -10,7 +10,13 @@ export interface UsageProviderReport {
 const reported = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value) && value >= 0;
 const number = (value: number) => new Intl.NumberFormat(undefined, { maximumSignificantDigits: 21 }).format(value);
 export const usageCount = (value: unknown) => reported(value) && Number.isSafeInteger(value) ? number(value) : 'Not reported';
-export const usagePercent = (value: unknown) => reported(value) && value <= 100 ? `${value}%` : 'Not reported';
+export const usagePercent = (value: unknown) => reported(value) && value <= 100 ? `${new Intl.NumberFormat(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(value)}%` : 'Not reported';
+export function usageReset(value: string | null | undefined) {
+  const text = value?.trim();
+  if (!text) return 'Not reported';
+  const date = new Date(text);
+  return Number.isNaN(date.getTime()) ? text : new Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: '2-digit' }).format(date);
+}
 export function usageCost(value: UsageProviderReport['cost']) {
   if (!value || !reported(value.amount)) return 'Not reported';
   return `${number(value.amount)} ${value.currency?.trim() || '(currency not reported)'}`;

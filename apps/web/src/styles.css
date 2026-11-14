@@ -366,3 +366,7 @@ progress::-moz-progress-bar { background:var(--text); border-radius:4px; }
 .message:hover>.copy-button,.message:focus-within>.copy-button,.message:hover .message-content>.copy-button,.message:focus-within .message-content>.copy-button,.side-message:hover>.copy-button,.side-message:focus-within>.copy-button,.activity li:hover>.copy-button,.activity li:focus-within>.copy-button { opacity:1; }
 @media (hover:none) { .message-content>.copy-button,.message>.copy-button,.side-message>.copy-button,.activity li>.copy-button { opacity:1; } }
 @media (prefers-reduced-motion:reduce) { .message-content>.copy-button,.message>.copy-button,.side-message>.copy-button,.activity li>.copy-button { transition:none; } }
+
+.surface-progress>div>span,.task-step-label>span { white-space:nowrap; }
+
+.working-status>span { color:var(--accent-fg); background:var(--accent-bg); border-radius:5px; padding:2px 6px; }
