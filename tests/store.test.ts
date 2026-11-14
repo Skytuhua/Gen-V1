@@ -159,3 +159,29 @@ describe("durable command storage", () => {
     expect(seen).toEqual([3]);
   });
 });
+
+describe('bounded transcript paging', () => {
+  it('decodes only the requested page while preserving insertion order and older counts', () => {
+    const store = setup();
+    store.internal('fixture.messages', null, () => {
+      for (let i = 0; i < 600; i++) {
+        store.put('message', 'a-' + (600 - i), 'a', { id: 'a-' + (600 - i), threadId: 'a', content: 'sample ' + i });
+        if (i % 100 === 0) store.put('message', 'b-' + i, 'b', { id: 'b-' + i, threadId: 'b', content: 'other' });
+      }
+    });
+    const decode = vi.spyOn(JSON, 'parse');
+    try {
+      const tail = store.messagesFor('a', undefined, 2);
+      const older = store.messagesFor('a', 'a-3', 2);
+      const first = store.messagesFor('a', 'a-600', 2);
+      expect(decode).toHaveBeenCalledTimes(4);
+      expect(tail.messages.map(m => m.id)).toEqual(['a-2', 'a-1']);
+      expect(tail.truncated).toBe(598);
+      expect(older.messages.map(m => m.id)).toEqual(['a-5', 'a-4']);
+      expect(older.truncated).toBe(595);
+      expect(first).toEqual({ messages: [], truncated: 0 });
+      expect(() => store.messagesFor('a', 'b-0')).toThrow('Unknown message cursor');
+      expect(store.messagesFor('missing')).toEqual({ messages: [], truncated: 0 });
+    } finally { decode.mockRestore(); }
+  });
+});
