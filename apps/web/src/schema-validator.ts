@@ -1,6 +1,10 @@
 import Ajv, { type ValidateFunction } from 'ajv';
+import addFormats from 'ajv-formats';
 
-const engines = [new Ajv({ strict: false, validateFormats: false }), new Ajv({ strict: false })];
+const withoutFormats = new Ajv({ strict: false, validateFormats: false });
+const withFormats = new Ajv({ strict: false });
+addFormats(withFormats);
+const engines = [withoutFormats, withFormats];
 const validators = new Map<string, ValidateFunction>();
 const capacity = 64;
 

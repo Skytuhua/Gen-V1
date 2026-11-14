@@ -48,20 +48,25 @@ export function ImageAnnotator({element:{props}}:ComponentRenderProps){
  return <section className="exploration-tools image-annotator" aria-label={p.title??'Image feedback'}><Heading title={p.title}/><AnnotationCanvas key={source.hash} p={p} value={value} read={()=>readAnnotationState(store.get(statePath(p.stateKey)),p.resourceId,source.hash)} change={value=>store.set(statePath(p.stateKey),value)}/></section>;
 }
 
+type ScheduleFormats={day:Intl.DateTimeFormat;date:Intl.DateTimeFormat;time:Intl.DateTimeFormat;range:Intl.DateTimeFormat};
+const scheduleFormats=new Map<string,ScheduleFormats>();
+function formatsFor(timeZone:string){let formats=scheduleFormats.get(timeZone);if(!formats){formats={day:new Intl.DateTimeFormat('en',{timeZone,year:'numeric',month:'2-digit',day:'2-digit'}),date:new Intl.DateTimeFormat(undefined,{timeZone,weekday:'short',month:'short',day:'numeric'}),time:new Intl.DateTimeFormat(undefined,{timeZone,hour:'numeric',minute:'2-digit'}),range:new Intl.DateTimeFormat(undefined,{timeZone,year:'numeric',month:'short',day:'numeric'})};scheduleFormats.set(timeZone,formats);}return formats;}
 function scheduleLayout(data:ScheduleData|null){
  const slots=data?[...data.slots].sort((a,b)=>Date.parse(a.start)-Date.parse(b.start)):[],groups=new Map<string,ScheduleData['slots']>(),datesById=new Map<string,string>();
- if(data){const format=new Intl.DateTimeFormat('en',{timeZone:data.timeZone,year:'numeric',month:'2-digit',day:'2-digit'});for(const slot of slots){const parts=format.formatToParts(new Date(slot.start)),part=(name:string)=>parts.find(item=>item.type===name)?.value,date=`${part('year')}-${part('month')}-${part('day')}`;datesById.set(slot.id,date);const group=groups.get(date)??[];group.push(slot);groups.set(date,group);}}
+ if(data){const format=formatsFor(data.timeZone).day;for(const slot of slots){const parts=format.formatToParts(new Date(slot.start)),part=(name:string)=>parts.find(item=>item.type===name)?.value,date=`${part('year')}-${part('month')}-${part('day')}`;datesById.set(slot.id,date);const group=groups.get(date)??[];group.push(slot);groups.set(date,group);}}
  return {slots,groups,datesById,dates:[...groups.keys()]};
 }
 function slotTime(slot:ScheduleData['slots'][number],format:Intl.DateTimeFormat,date:Intl.DateTimeFormat){
  const start=new Date(slot.start),end=new Date(slot.end);
  return `${format.format(start)} – ${date.format(start)!==date.format(end)?`${date.format(end)}, `:''}${format.format(end)}`;
 }
+const durationFormat=new Intl.NumberFormat(undefined,{maximumFractionDigits:1});
+const logTimeFormat=new Intl.DateTimeFormat(undefined,{hour:'2-digit',minute:'2-digit',second:'2-digit',timeZone:'UTC'});
 function slotDuration(slot:ScheduleData['slots'][number]){
  const minutes=(Date.parse(slot.end)-Date.parse(slot.start))/60000;
- if(minutes<60)return `${new Intl.NumberFormat(undefined,{maximumFractionDigits:1}).format(minutes)} min`;
+ if(minutes<60)return `${durationFormat.format(minutes)} min`;
  const hours=Math.floor(minutes/60),remaining=minutes-hours*60;
- return `${hours} hr${remaining?` ${new Intl.NumberFormat(undefined,{maximumFractionDigits:1}).format(remaining)} min`:''}`;
+ return `${hours} hr${remaining?` ${durationFormat.format(remaining)} min`:''}`;
 }
 export function SchedulePicker({element:{props}}:ComponentRenderProps){
  const p=EXPLORATION_SCHEMAS.SchedulePicker.parse(props),store=useStateStore(),action=useTaskAction(),id=useId(),raw=store.get(inputPath(p.dataBinding)),[selectionError,setSelectionError]=useState('');
@@ -72,7 +77,7 @@ export function SchedulePicker({element:{props}}:ComponentRenderProps){
  const save=(patch:Record<string,unknown>)=>{setSelectionError('');store.set(statePath(p.stateKey),{...object(store.get(statePath(p.stateKey))),...patch});};
  const choose=(slot:ScheduleData['slots'][number])=>{if(slot.availability!=='unavailable')save({selectedId:slot.id,visibleDate:datesById.get(slot.id)});};
  const slotKeyboard=(event:KeyboardEvent<HTMLButtonElement>,index:number)=>{if(!['ArrowDown','ArrowUp','ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();const available=slots.filter(slot=>slot.availability!=='unavailable');if(!available.length)return;const current=available.findIndex(slot=>slot.id===slots[index].id),next=event.key==='Home'?0:event.key==='End'?available.length-1:(current+(['ArrowDown','ArrowRight'].includes(event.key)?1:-1)+available.length)%available.length;choose(available[next]);event.currentTarget.closest('.schedule-slots')?.querySelector<HTMLButtonElement>(`[data-slot-index="${slots.indexOf(available[next])}"]`)?.focus();};
- const dateFormat=new Intl.DateTimeFormat(undefined,{timeZone:data.timeZone,weekday:'short',month:'short',day:'numeric'}),timeFormat=new Intl.DateTimeFormat(undefined,{timeZone:data.timeZone,hour:'numeric',minute:'2-digit'}),rangeDateFormat=new Intl.DateTimeFormat(undefined,{timeZone:data.timeZone,year:'numeric',month:'short',day:'numeric'});
+ const {date:dateFormat,time:timeFormat,range:rangeDateFormat}=formatsFor(data.timeZone);
  const submit=()=>{const raw=store.get(inputPath(p.dataBinding)),latest=boundedExplorationData('SchedulePicker',raw)?EXPLORATION_DATA_SCHEMAS.SchedulePicker.safeParse(raw):null,current=latest?.success?latest.data.slots.find(slot=>slot.id===object(store.get(statePath(p.stateKey))).selectedId):null;if(!latest?.success||!current||current.availability==='unavailable'){setSelectionError('This window changed. Choose an available time before submitting.');return;}if(p.actionId)void action.run(p.actionId,{slotId:current.id,start:current.start,end:current.end,timeZone:latest.data.timeZone});};
  return <section className="exploration-tools schedule-picker" aria-label={data.title??'Choose a time'}><Heading title={data.title} detail={data.timeZone}/>
   {!slots.length?<p className="exploration-empty">No time windows were supplied.</p>:<div className="schedule-slots" role="listbox" aria-label="Time windows">{dates.map((date,dayIndex)=>{
@@ -97,11 +102,11 @@ export function SchedulePicker({element:{props}}:ComponentRenderProps){
 }
 
 const levels=['error','warning','info','debug','unknown'] as const;
-const logTimeFormat=new Intl.DateTimeFormat(undefined,{hour:'2-digit',minute:'2-digit',second:'2-digit',timeZone:'UTC'});
 export function LogExplorer({element:{props}}:ComponentRenderProps){
  const inline=useContext(ArtifactInline);
  const p=EXPLORATION_SCHEMAS.LogExplorer.parse(props),store=useStateStore(),action=useTaskAction(),raw=store.get(inputPath(p.dataBinding)),scroll=useRef<HTMLDivElement>(null),[selectionError,setSelectionError]=useState('');
  const parsed=useMemo(()=>boundedExplorationData('LogExplorer',raw)?EXPLORATION_DATA_SCHEMAS.LogExplorer.safeParse(raw):null,[raw]),data=parsed?.success?parsed.data:null,saved=object(store.get(statePath(p.stateKey)));
+
  const query=typeof saved.query==='string'?saved.query.slice(0,200):'',follow=!inline&&saved.followTail===true;
  const activeLevels=useMemo(()=>Array.isArray(saved.levels)?levels.filter(level=>saved.levels instanceof Array&&saved.levels.includes(level)):[...levels],[saved.levels]);
  const events=useMemo(()=>data?.events??[],[data]);

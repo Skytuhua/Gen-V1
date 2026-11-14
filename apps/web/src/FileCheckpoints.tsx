@@ -4,7 +4,7 @@ import type {UiPreferences} from '../../../packages/contracts/preferences';
 import {isComposing} from '../../../packages/ui-shell/list-navigation';
 import {displayFilePath} from './files/FilesView';
 import {RecordedDiffs} from './WorkspacePanelBodies';
-import {checkpointOwnerKey,checkpointReviewPaths,disabledCheckpointAdapter,readCheckpointDetail,readCheckpointList,readCheckpointReview,type CheckpointList,type CheckpointOwner,type CheckpointReview,type FileCheckpoint,type FileCheckpointAdapter} from './file-checkpoint-api';
+import {checkpointOwnerKey,checkpointReviewPaths,disabledCheckpointAdapter,readCheckpointDetail,readCheckpointList,readCheckpointReview,type CheckpointOwner,type CheckpointReview,type FileCheckpoint,type FileCheckpointAdapter} from './file-checkpoint-api';
 import './file-checkpoints.css';
 import {ErrorState} from '../../../packages/ui-shell/Feedback';
 
@@ -33,12 +33,14 @@ export function FileCheckpoints({owner,preferences,current,recorded,adapter=disa
 const errorMessage=(cause:unknown)=>cause instanceof Error?cause.message:'Checkpoints could not load. Try again.';
 const provenance=(checkpoint:FileCheckpoint)=>`${checkpoint.provenance.kind==='restore_backup'?'Before restoring files':'Before a guarded file edit'} · ${checkpoint.provenance.operationId}`;
 function CheckpointHistory({owner,adapter,preferences}:{owner:CheckpointOwner;preferences:UiPreferences}&{adapter:FileCheckpointAdapter}){
-  const [list,setList]=useState<CheckpointList>(),[error,setError]=useState(''),[loading,setLoading]=useState(true),[attempt,setAttempt]=useState(0),[cursor,setCursor]=useState<string>(),[checkpoint,setCheckpoint]=useState<FileCheckpoint>();
+  const [items,setItems]=useState<FileCheckpoint[]>([]),[nextCursor,setNextCursor]=useState<string>(),[error,setError]=useState(''),[loading,setLoading]=useState(true),[attempt,setAttempt]=useState(0),[cursor,setCursor]=useState<string>(),[checkpoint,setCheckpoint]=useState<FileCheckpoint>();
   const opener=useRef<HTMLButtonElement|null>(null);
   useEffect(()=>{
-    const controller=new AbortController();setLoading(true);setError('');setList(undefined);
+    const controller=new AbortController();setLoading(true);setError('');if(!cursor)setItems([]);
     void adapter.list(owner,{cursor,signal:controller.signal}).then(value=>{
-      if(!controller.signal.aborted)setList(readCheckpointList(value,owner));
+      if(controller.signal.aborted)return;
+      const page=readCheckpointList(value,owner);
+      setItems(previous=>cursor?[...previous,...page.items]:page.items);setNextCursor(page.nextCursor??undefined);
     }).catch(cause=>{if(!controller.signal.aborted)setError(errorMessage(cause));}).finally(()=>{if(!controller.signal.aborted)setLoading(false);});
     return()=>controller.abort();
   },[owner,adapter,attempt,cursor]);
@@ -47,16 +49,17 @@ function CheckpointHistory({owner,adapter,preferences}:{owner:CheckpointOwner;pr
       <div className="file-checkpoints-heading"><h3>File checkpoints</h3>{adapter.available&&<button type="button" disabled={loading} onClick={()=>{setCursor(undefined);setAttempt(value=>value+1);}}>Refresh</button>}</div>
       <p className="file-checkpoints-note">Review a version before restoring</p>
       <p className="file-checkpoints-caption">Review the diff and conflicts before restoring selected files.</p>
-      {loading&&<p role="status">Loading checkpoints…</p>}
+      {loading&&items.length===0&&<p role="status">Loading checkpoints…</p>}
+      {loading&&items.length>0&&<p role="status">Loading more checkpoints…</p>}
       {error&&<ErrorState message={error} onRetry={adapter.available?()=>setAttempt(value=>value+1):undefined}/>}
-      {!loading&&!error&&list?.items.length===0&&<p className="file-checkpoints-note">No file checkpoints available.</p>}
-      <ul className="file-checkpoints-list">{list?.items.map(item=><li key={item.id}>
+      {!loading&&!error&&items.length===0&&!nextCursor&&<p className="file-checkpoints-note">No file checkpoints available.</p>}
+      <ul className="file-checkpoints-list">{items.map(item=><li key={item.id}>
         <Clock3 size={15} aria-hidden="true"/><div><strong>{item.label}</strong>
           <p><time dateTime={item.createdAt}>{new Date(item.createdAt).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short',hour12:preferences.timeFormat==='system'?undefined:preferences.timeFormat==='12h'})}</time> · {item.fileCount} {item.fileCount===1?'file':'files'}</p>
           <p>{provenance(item)}</p>
         </div><button type="button" aria-label={`Review ${item.label}`} onClick={event=>{opener.current=event.currentTarget;setCheckpoint(item);}}>Review</button>
       </li>)}</ul>
-      {list?.nextCursor&&<button type="button" disabled={loading} onClick={()=>setCursor(list.nextCursor!)}>Next checkpoints</button>}
+      {nextCursor&&<button type="button" disabled={loading} onClick={()=>setCursor(nextCursor)}>Next checkpoints</button>}
     </div>
     {checkpoint&&<CheckpointFiles key={checkpoint.id+':'+checkpoint.revision} owner={owner} adapter={adapter} checkpoint={checkpoint} preferences={preferences} onBack={()=>{setCheckpoint(undefined);queueMicrotask(()=>opener.current?.focus());}}/>}
   </div>;

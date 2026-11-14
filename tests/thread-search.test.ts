@@ -32,3 +32,12 @@ it('only shows historical hits for the current non-empty sidebar query', () => {
   expect(matchingThreads(threads, [], 'second', 'recent', historical).map(item => item.id)).toEqual(['current']);
   expect(matchingThreads(threads, [], 'nothing', 'recent', historical)).toEqual([]);
 });
+
+it('keeps historical hits in the same saved order as loaded hits', () => {
+  const threads = [
+    { ...thread('loaded', 'Needle in title'), presentation: { order: 2 } },
+    { ...thread('older', 'Old transcript'), presentation: { order: -1 } },
+  ];
+  const historical = {query: 'needle', ids: new Set(['older', 'loaded'])};
+  expect(matchingThreads(threads, [], 'needle', 'manual', historical).map(item => item.id)).toEqual(['older', 'loaded']);
+});

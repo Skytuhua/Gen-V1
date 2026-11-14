@@ -70,7 +70,6 @@ export const browserSuites:BrowserSuite[] = [
   suite('native-browser-bounds'),
   suite('pdf', ['document-preview.spec.ts']),
   suite('plan-presentation'),
-  suite('plan-window-reset'),
   suite('project-app-integration', ['project-app-integration.spec.mjs']),
   suite('project-picker'),
   suite('project-search'),

@@ -11,6 +11,7 @@ import {digest, type Store} from '../storage/store.ts';
 
 const preferences = z.object({...preferencesSchema.shape, keybindings: z.object(preferencesSchema.shape.keybindings.shape)});
 const pageInput = z.strictObject({limit: z.number().int().min(1).max(100).default(50), cursor: z.string().max(2048).optional()});
+const resourceInput = pageInput.extend({threadId: z.string().min(1).max(200).optional()});
 const navInput = pageInput.extend({archived: z.boolean().default(false), text: z.string().trim().max(200).default('')});
 type Owner = ThreadNavigationRow & Pick<Thread, 'sideParentId' | 'epoch'>;
 const invalidCursor = () => new HarnessError('INVALID_CURSOR', 'Reload this metadata list.');
@@ -67,8 +68,8 @@ export class ShellReadModels {
     return {sequence: this.store.sequence, total: rows.length, items, nextCursor};
   }
   navigation(input: unknown): NavigationPage {
-    const query = navInput.parse(input), {all, archived} = this.owners(), text = query.text.toLocaleLowerCase();
-    const rows = all.filter(thread => !thread.sideParentId && thread.kind !== 'side' && archived.has(thread.id) === query.archived && (!text || (thread.title + ' ' + (thread.projectName ?? '')).toLocaleLowerCase().includes(text))).sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id)).map(thread => this.row(thread));
+    const query = navInput.parse(input), {all, archived} = this.owners(), text = query.text.toLowerCase();
+    const rows = all.filter(thread => !thread.sideParentId && thread.kind !== 'side' && archived.has(thread.id) === query.archived && (!text || (thread.title + ' ' + (thread.projectName ?? '')).toLowerCase().includes(text))).sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id)).map(thread => this.row(thread));
     const order = rows.map(row => row.presentation?.order ?? 0);
     return {...this.page(rows, query, {kind: 'navigation', archived: query.archived, text}), order: 'created-desc', stats: {pinned: rows.filter(row => row.presentation?.pinned).length, working: rows.filter(row => row.runId || row.status === 'working').length, waiting: rows.filter(row => row.status === 'awaiting_input').length, settled: rows.filter(row => row.presentation?.settled).length, minOrder: Math.min(0, ...order), maxOrder: Math.max(0, ...order)}};
   }
@@ -86,9 +87,9 @@ export class ShellReadModels {
   private visibleIds() {const {all, archived} = this.owners(); return all.filter(thread => !archived.has(thread.id)).map(thread => thread.id);}
   private visibleWhere() {return "AND (thread_id IS NULL OR thread_id IN (SELECT value FROM json_each(?)))";}
   resources(input: unknown = {}): ShellPage<ShellResourceRow> {
-    const query = pageInput.parse(input), ids = this.visibleIds();
-    const rows = this.records<ShellResourceRow>('resource', ['id', 'threadId', 'kind', 'label', 'writable', 'path'], this.visibleWhere() + " AND thread_id=json_extract(body,'$.threadId') AND id=json_extract(body,'$.id')", [JSON.stringify(ids)]).map(row => ({...row, writable: Boolean(row.writable)})).sort((a, b) => a.id.localeCompare(b.id));
-    return this.page(rows, query, {kind: 'resources'});
+    const query = resourceInput.parse(input), ids = this.visibleIds();
+    const rows = this.records<ShellResourceRow>('resource', ['id', 'threadId', 'kind', 'label', 'writable', 'path'], this.visibleWhere() + " AND thread_id=json_extract(body,'$.threadId') AND id=json_extract(body,'$.id')", [JSON.stringify(ids)]).map(row => ({...row, writable: Boolean(row.writable)})).filter(row => !query.threadId || row.threadId === query.threadId).sort((a, b) => a.id.localeCompare(b.id));
+    return this.page(rows, query, {kind: 'resources', threadId: query.threadId ?? null});
   }
   settings(): ShellSettingsReadModel {
     const {all, archived} = this.owners(), visible = all.filter(thread => !archived.has(thread.id)), ids = visible.map(thread => thread.id), where = this.visibleWhere();

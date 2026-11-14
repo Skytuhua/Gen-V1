@@ -12,10 +12,11 @@ function TableScroll({label, children}: {label:string; children:import('react').
   const ref=useRef<HTMLDivElement>(null), overflowing=useTableOverflow(ref);
   return <div ref={ref} className="everyday-comparison-scroll" role={overflowing?'region':undefined} tabIndex={overflowing?0:undefined} aria-label={overflowing?label:undefined}>{children}</div>;
 }
-const number=(value:number)=>new Intl.NumberFormat(undefined,{maximumFractionDigits:2}).format(value);
+const numberFormat=new Intl.NumberFormat(undefined,{maximumFractionDigits:2}),currencyFormats=new Map<string,Intl.NumberFormat>();
+const number=(value:number)=>numberFormat.format(value);
 function metricValue(metric:StatsData['metrics'][number],value=metric.value){
   if(value===null)return 'Unavailable';
-  if(metric.format==='currency')return new Intl.NumberFormat(undefined,{style:'currency',currency:metric.currency!,maximumFractionDigits:2}).format(value);
+  if(metric.format==='currency'){const code=metric.currency!;let format=currencyFormats.get(code);if(!format){format=new Intl.NumberFormat(undefined,{style:'currency',currency:code,maximumFractionDigits:2});currencyFormats.set(code,format);}return format.format(value);}
   return number(value)+(metric.format==='percent'?'%':'');
 }
 function Source({text}:{text?:string}){return text?<details className="everyday-source"><summary>Source</summary><p>{text}</p></details>:null;}

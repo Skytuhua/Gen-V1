@@ -4,6 +4,23 @@ import {readMotionPolicy,observeMotionPolicy} from './motion-policy';
 export type ConversationPosition={top:number;tail:boolean};
 export type ConversationAnchor={height:number;top:number};
 
+type ScrollGeometry = Pick<HTMLElement, 'scrollHeight' | 'scrollTop'>;
+
+/** Stage one anchor for the next commit, not for the lifetime of a page request. */
+export function createHistoryAnchor() {
+ let pending: { owner: string; element: ScrollGeometry; geometry: ConversationAnchor } | undefined;
+ return {
+  capture(owner: string, activeOwner: string, element: ScrollGeometry | null) {
+   if (owner === activeOwner && element) pending = { owner, element, geometry: { height: element.scrollHeight, top: element.scrollTop } };
+  },
+  consume(owner: string, element: ScrollGeometry) {
+   const anchor = pending;
+   pending = undefined;
+   if (anchor?.owner === owner && anchor.element === element) return anchor.geometry;
+  },
+ };
+}
+
 /** Own only tail-following scrolls. Reading history and user intent always win. */
 export function createConversationScroll(element:HTMLElement){
  let thread='',following=false,disposed=false,ownedTop:number|undefined,dragging=false;
@@ -35,7 +52,9 @@ export function createConversationScroll(element:HTMLElement){
   if(event.defaultPrevented||event.ctrlKey||event.metaKey||event.altKey||!['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' '].includes(event.key))return;
   const target=event.target as HTMLElement|null;
   if(target?.closest?.('input,textarea,select,button,a,summary,[contenteditable="true"],[role="slider"]'))return;
-  interrupt();if(['ArrowDown','PageDown','End',' '].includes(event.key)&&nearTail())following=true;
+  interrupt();
+  const towardTail=['ArrowDown','PageDown','End'].includes(event.key)||(event.key===' '&&!event.shiftKey);
+  if(towardTail&&nearTail())following=true;
  };
  const settleHidden=()=>{if(document.visibilityState==='hidden'&&following)spring.to(maximum(),true);};
  const stopObservingMotion=observeMotionPolicy(policy=>{if(policy!=='full'&&following&&!dragging)spring.to(maximum(),true);});
