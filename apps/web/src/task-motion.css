@@ -49,12 +49,12 @@
 .disclosure-skeleton-line { width:min(65%,240px); height:8px; border-radius:3px; background:var(--hover); animation:task-question-loading 900ms ease-in-out infinite alternate; }
 @keyframes task-question-loading { from { opacity:.35; } to { opacity:.9; } }
 .task-motion-region[data-motion-phase="closed"]>.task-motion-inner { visibility:hidden; }
-.task-tab-panel:not([hidden]) { animation:task-pane-in 160ms ease-out both; }
+.task-tab-panel:not([hidden]) { animation:task-pane-in var(--ui-motion-tab) var(--ui-ease-enter) both; }
 .task-status-stack { position:relative; }
 .task-status-outgoing { position:absolute; inset:0; pointer-events:none; }
 .disclosure-children>.disclosure-node { animation:task-branch-in var(--ui-motion-insert) var(--ui-ease-enter) both; }
-.disclosure-children>.disclosure-node:nth-child(2) { animation-delay:60ms; }
-.disclosure-children>.disclosure-node:nth-child(3) { animation-delay:120ms; }
+.disclosure-children>.disclosure-node:nth-child(2) { animation-delay:calc(var(--ui-motion-stagger) * 2); }
+.disclosure-children>.disclosure-node:nth-child(3) { animation-delay:calc(var(--ui-motion-stagger) * 4); }
 @keyframes task-pane-in { from { opacity:.25; } to { opacity:1; } }
 @keyframes task-status-in { from { opacity:0; transform:translateY(3px); } to { opacity:1; transform:translateY(0); } }
 @keyframes task-branch-in { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:translateY(0); } }

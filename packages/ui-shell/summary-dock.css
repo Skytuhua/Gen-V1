@@ -12,7 +12,7 @@
 .docked-summary-toggle { display:flex; width:100%; min-height:36px; gap:8px; padding:8px 12px; text-align:left; }
 .docked-summary-toggle:focus-visible { outline-offset:-2px; }
 .docked-summary-toggle strong { flex:1; min-width:0; font-size:14px; font-weight:550; overflow-wrap:anywhere; }
-.docked-summary-toggle>svg { flex:none; color:var(--muted); transition:transform var(--ui-motion-panel-exit,180ms) var(--ui-ease-enter,ease-out); }
+.docked-summary-toggle>svg { flex:none; color:var(--muted); transition:transform var(--ui-motion-panel-exit) var(--ui-ease-enter); }
 .docked-summary-toggle[aria-expanded=true]>svg { transform:rotate(180deg); }
 .docked-summary:not([data-collapsed=true])>.docked-summary-header { border-bottom:1px solid var(--border); }
 .docked-summary-caption { display:flex; gap:4px; align-items:center; font-size:12px; color:var(--muted); }

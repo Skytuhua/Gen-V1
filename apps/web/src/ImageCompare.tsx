@@ -74,7 +74,7 @@ function ImagePair({ props, view, change }: { props: ImageCompareProps; view: Vi
       </div>}
       {ready && <><span className="image-compare-label image-compare-label-before">{beforeLabel}</span><span className="image-compare-label image-compare-label-after">{afterLabel}</span><div className="image-compare-divider" aria-hidden="true"><span><MoveHorizontal size={18} /></span></div></>}
       {!ready && !error && <p className="image-compare-message" role="status">Loading images…</p>}
-      {error && <div className="image-compare-message"><p role="alert">{error}</p><button type="button" onClick={() => { setSizes([null, null]); setError(''); setRetry(value => value + 1); }}>Retry images</button></div>}
+      {error && <div className="image-compare-message"><p role="status">{error}</p><button type="button" onClick={() => { setSizes([null, null]); setError(''); setRetry(value => value + 1); }}>Retry images</button></div>}
     </div>
     <div className="image-compare-position"><input ref={slider} type="range" min="0" max="100" step="1" value={view.percent} aria-label="Comparison position" aria-valuetext={`${Math.round(view.percent)}% ${beforeLabel}`} disabled={!ready || view.mode !== 'overlay'} onChange={event => change({ percent: Number(event.target.value) })} /><output aria-hidden="true">{Math.round(view.percent)}%</output></div>
     {different && <p className="image-compare-size-note">Different image sizes</p>}
@@ -84,9 +84,9 @@ function ImagePair({ props, view, change }: { props: ImageCompareProps; view: Vi
 export function ImageCompare(props: ImageCompareProps) {
   const store = useStateStore(), title = useContext(ArtifactTitle), evidence = useDocumentEvidence();
   const parsed = IMAGE_COMPARE_SCHEMAS.ImageCompare.safeParse(props);
-  if (!parsed.success) return <p className="error-text" role="alert">Choose two granted images to compare.</p>;
+  if (!parsed.success) return <p className="error-text" role="status">Choose two granted images to compare.</p>;
   const grants = [props.beforeResourceId, props.afterResourceId].map(id => evidence?.resources.find(resource => resource.id === id && resource.threadId === evidence.threadId && resource.kind !== 'project' && resource.kind !== 'database'));
-  if (grants.some(grant => !grant)) return <p className="error-text" role="alert">One of these images is no longer available to this thread. Attach it again to compare.</p>;
+  if (grants.some(grant => !grant)) return <p className="error-text" role="status">One of these images is no longer available to this thread. Attach it again to compare.</p>;
   const key = JSON.stringify(grants.map(grant => [grant!.id, grant!.threadId, grant!.path, grant!.identity ?? null]));
   const view = readView(store.get(statePath(props.stateKey)));
   const change = (patch: Partial<View>) => store.set(statePath(props.stateKey), { ...readView(store.get(statePath(props.stateKey))), ...patch });

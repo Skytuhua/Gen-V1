@@ -1,10 +1,11 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import { RefreshCw } from 'lucide-react';
+import { BarChart3, RefreshCw } from 'lucide-react';
 import { Modal } from '../../../packages/ui-shell/Modal';
 import { Select } from '../../../packages/ui-shell/Select';
 import { isComposing } from '../../../packages/ui-shell/list-navigation';
-import { usageCost, usageCount, usagePercent, type UsageProviderReport } from './usage-presentation';
+import { usageCost, usageCount, usagePercent, usageReset, type UsageProviderReport } from './usage-presentation';
 import './usage-dialog.css';
+import {ErrorState} from '../../../packages/ui-shell/Feedback';
 
 export interface UsageDialogProps {
   open: boolean; onClose: () => void; reports?: readonly UsageProviderReport[];
@@ -45,18 +46,25 @@ export function UsageDialog({ open, onClose, reports = [], loading = false, erro
         <Select aria-label="Usage provider" value={selectedProvider} onValueChange={setProvider} options={[{ value: '', label: 'All providers' }, ...providers.map(([value, label]) => ({ value, label }))]} />
         {onRefresh && <button type="button" className="usage-refresh" disabled={loading || refreshing} onClick={() => void refresh()} aria-label="Refresh usage"><RefreshCw size={15} aria-hidden="true" /><span>{refreshing ? 'Refreshing…' : 'Refresh'}</span></button>}
       </div>
-      {(error || refreshError) && <p className="usage-dialog-error" role="alert">{error || refreshError}</p>}
+      {(error || refreshError) && <ErrorState className="usage-dialog-error" message={error || refreshError}/>}
       {(loading || refreshing) && <p className="usage-dialog-status" role="status">{reports.length ? 'Refreshing usage…' : 'Loading usage…'}</p>}
     </div>
     <div className="usage-provider-list" role="tabpanel" id={`${id}-rows`} aria-labelledby={`${id}-${tab}`} aria-busy={loading || refreshing} tabIndex={0}>
-      {!visible.length && !loading && <p className="usage-dialog-empty">{reports.length ? 'No reported usage matches these filters.' : 'No usage reported.'}</p>}
+      {!visible.length && !loading && (reports.length
+        ? <p className="usage-dialog-empty">No reported usage matches these filters.</p>
+        : <div className="usage-dialog-empty-state">
+          <BarChart3 size={20} aria-hidden="true" />
+          <strong>No usage reported yet</strong>
+          <p>Cost, tokens and limits appear here once a connected account reports usage. Run a conversation, then refresh.</p>
+          {onRefresh && <button type="button" className="usage-refresh" disabled={refreshing} onClick={() => void refresh()}><RefreshCw size={15} aria-hidden="true" /><span>{refreshing ? 'Refreshing…' : 'Refresh'}</span></button>}
+        </div>)}
       {!visible.length && loading && <div className="usage-dialog-skeleton" aria-hidden="true"><span /><span /><span /></div>}
       {visible.map(report => <section className="usage-provider-row" key={report.id} aria-label={`${report.providerLabel} · ${report.scopeLabel}`}>
         <header><strong>{report.providerLabel}</strong><span>{report.scopeLabel}</span></header>
-        {report.error && <p className="usage-dialog-error" role="alert">{report.error}</p>}
+        {report.error && <ErrorState className="usage-dialog-error" message={report.error}/>}
         {tab === 'Cost' && <dl><dt>Reported cost</dt><dd>{usageCost(report.cost)}</dd></dl>}
         {tab === 'Tokens' && <dl><dt>Input tokens</dt><dd>{usageCount(report.inputTokens)}</dd><dt>Output tokens</dt><dd>{usageCount(report.outputTokens)}</dd></dl>}
-        {tab === 'Limits' && (report.limits?.length ? report.limits : [{ id: 'unknown', label: 'Provider limit' }]).map(limit => <div key={limit.id} className="usage-limit"><dl><dt>{limit.label}</dt><dd>{usagePercent(limit.usedPercent)}</dd><dt>Reset</dt><dd>{limit.reset?.trim() || 'Not reported'}</dd></dl></div>)}
+        {tab === 'Limits' && (report.limits?.length ? report.limits : [{ id: 'unknown', label: 'Provider limit' }]).map(limit => <div key={limit.id} className="usage-limit"><dl><dt>{limit.label}</dt><dd>{usagePercent(limit.usedPercent)}</dd><dt>Reset</dt><dd>{usageReset(limit.reset)}</dd></dl></div>)}
       </section>)}
     </div>
   </Modal>;

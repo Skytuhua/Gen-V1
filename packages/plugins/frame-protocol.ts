@@ -6,7 +6,7 @@ export interface PluginFrameRequest {
   operation:string; input:unknown;
 }
 const identity=/^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,199}$/;
-export const pluginWindowOperation=(operation:string)=>['window.capabilities','window.list','window.detach','window.reattach'].includes(operation);
+export const pluginWindowOperation=(operation:string)=>['window.capabilities','window.list','window.detach','window.reattach','presentation.set'].includes(operation);
 export function parsePluginFrameRequest(value:unknown,pluginId:string,session:string):PluginFrameRequest|null {
   if(!value||typeof value!=='object'||Array.isArray(value))return null;
   const item=value as Record<string,unknown>;

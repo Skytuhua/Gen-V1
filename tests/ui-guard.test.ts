@@ -17,16 +17,21 @@ function source(file: string, text: string) {
 source('types.ts', 'export type Count = number;');
 source('jsx.d.ts', 'declare namespace JSX { interface Element { readonly jsx: unique symbol } interface IntrinsicElements { [tag: string]: any } }');
 source('packages/ui-shell/Popover.tsx', 'export declare function Popover(props: any): JSX.Element;');
+// Every lint call reuses the previous program, so the shared lib/jsx.d.ts
+// sources are parsed once instead of once per fixture.
+let cachedProgram: ts.Program | undefined;
+function lintProgram(file: string) {
+  cachedProgram = ts.createProgram({ rootNames: [file, join(root, 'jsx.d.ts')], options: { strict: true, jsx: ts.JsxEmit.Preserve, types: [], skipLibCheck: true }, oldProgram: cachedProgram });
+  return cachedProgram;
+}
 function lintFixture(name: string) {
   const file = source(`${name}.tsx`, readFileSync(new URL(`./fixtures/ui-guard/${name}.tsx.txt`, import.meta.url), 'utf8'));
-  const program = ts.createProgram([file, join(root, 'jsx.d.ts')], { strict: true, jsx: ts.JsxEmit.Preserve, types: [], skipLibCheck: true });
-  return lintUiProgram(program, [file], root);
+  return lintUiProgram(lintProgram(file), [file], root);
 }
 const numeric = (violations: UiViolation[]) => violations.filter(item => item.rule === 'numeric-jsx-child');
 function lintText(name: string, text: string) {
   const file = source(name, text);
-  const program = ts.createProgram([file, join(root, 'jsx.d.ts')], { strict: true, jsx: ts.JsxEmit.Preserve, types: [], skipLibCheck: true });
-  return lintUiProgram(program, [file], root);
+  return lintUiProgram(lintProgram(file), [file], root);
 }
 
 describe('type-aware rendered numeric guards', () => {
@@ -232,4 +237,21 @@ it('parses inline HTML receiver scripts as code and reports their original HTML 
   source('html-receiver/apps/web/entry.ts', 'export {};');
   source('html-receiver/apps/web/index.html', '<!doctype html>\n<script>\ndocument.createElement("dialog");\n</script>');
   expect(scanUi(project).violations.map(item => [item.file, item.line])).toEqual([['apps/web/index.html', 3]]);
+});
+
+it('flags motion literals equal to token values, including seconds, leading zeros and later durations', () => {
+  const project = join(root, 'motion-tokens');
+  source('motion-tokens/tsconfig.json', JSON.stringify({ compilerOptions: { types: [] } }));
+  source('motion-tokens/apps/web/entry.ts', 'export {};');
+  source('motion-tokens/apps/web/src/motion.css', `.seconds { transition: opacity .12s ease-out; }
+.later { transition: opacity 420ms ease, color 120ms ease; }
+.ms { animation: pulse 600ms linear; }
+.curve { transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1); }
+.other-duration { transition: opacity 500ms ease; }
+.other-curve { transition: transform 300ms cubic-bezier(.25, .1, .25, 1); }
+.token { transition: opacity var(--ui-motion-hover) var(--ui-ease-enter); }
+.stagger { transition-delay: calc(var(--ui-motion-stagger) * 3); }
+.decorative { animation: spin 800ms linear infinite; }`);
+  const violations = scanUi(project).violations.filter(item => item.rule === 'off-token-motion');
+  expect(violations.map(item => item.line)).toEqual([1, 2, 3, 4]);
 });

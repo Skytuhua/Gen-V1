@@ -6,6 +6,7 @@ import type {SkillCatalogEntry, SkillCatalogPage} from '../../../packages/contra
 import {commandToken, replaceCommandToken, type SkillBinding} from './composer-commands';
 import {getSkillCatalog, mergeSkillCatalogPages} from './skill-catalog-api';
 import './composer-commands.css';
+import {ErrorState} from '../../../packages/ui-shell/Feedback';
 
 export interface ComposerCommandsHandle {keyDown(event: KeyboardEvent<HTMLTextAreaElement>): boolean}
 interface Props {
@@ -109,12 +110,12 @@ export function ComposerCommands({ref, input, draft, threadId, projectId, disabl
       </div>
       {Boolean(page?.skills.length) && <div role="status" aria-label="Skill selection unavailable" className="composer-command-status">Skill selection is unavailable for this runtime. You can still browse installed skills.</div>}
       {loading && <div role="status" className="composer-command-status"><LoaderCircle size={13} className="spinning"/>Loading skills…</div>}
-      {error ? <div role="alert" className="composer-command-status">{error}<button type="button" onClick={() => {setReload(value => value + 1);}}>Reload</button></div> : !loading && !options.length && !unavailableSources.length && <div role="status" className="composer-command-status"><Search size={14}/>No commands or skills found</div>}
+      {error ? <ErrorState className="composer-command-status" message={error} retryLabel="Reload" onRetry={() => {setReload(value => value + 1);}}/> : !loading && !options.length && !unavailableSources.length && <div role="status" className="composer-command-status"><Search size={14}/>No commands or skills found</div>}
       {Boolean(unavailableSources.length) && <div role="status" aria-label="Unavailable skill sources" className="composer-command-unavailable">{unavailableSources.map(source => <div key={source.id}><span>{source.label}</span><span>{source.availability.status === 'unavailable' ? availabilityLabel[source.availability.reason] : ''}</span></div>)}</div>}
       {!loading && page?.nextCursor && <button type="button" className="composer-command-more" onPointerDown={event => event.preventDefault()} onClick={() => void loadMore()}>Load more skills</button>}
       <div className="composer-command-hint" aria-hidden="true">↑ ↓ Navigate <span>Enter Select · Esc Close</span></div>
     </Popover>
-    {!open && error && <div role="alert" className="composer-command-error">{error}<button type="button" aria-label="Dismiss command error" onClick={() => setError('')}><X size={13}/></button></div>}
+    {!open && error && <div role="status" className="composer-command-error">{error}<button type="button" aria-label="Dismiss command error" onClick={() => setError('')}><X size={13}/></button></div>}
   </>;
 }
 export function ComposerSkillBindings({bindings, onRemove, disabled = false, retry = false}: {bindings: readonly SkillBinding[]; onRemove(id: string): void; disabled?: boolean; retry?: boolean}) {

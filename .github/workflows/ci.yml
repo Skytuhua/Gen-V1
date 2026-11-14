@@ -67,9 +67,6 @@ jobs:
       - name: Exercise UI guard negative and positive fixtures
         run: pnpm test:ui-guard
 
-      - name: Enforce type-aware JSX and overlay architecture policy
-        run: pnpm lint:ui
-
       - name: Install isolated Hermes dependencies
         run: python -m pip install --disable-pip-version-check --no-warn-script-location --target .harness-hermes-python-deps -r third-party/hermes-agent/runtime-requirements.txt
 
@@ -91,8 +88,8 @@ jobs:
       - name: Install test browser
         run: pnpm exec playwright install chromium
 
-      - name: Check TypeScript
-        run: pnpm typecheck
+      - name: Check TypeScript and enforce UI architecture policy
+        run: pnpm lint
 
       - name: Check and build the optional visuals plug-in
         run: |
@@ -102,8 +99,11 @@ jobs:
       - name: Build web application
         run: pnpm build
 
+      - name: Build the Windows credential lease addon
+        run: pnpm build:credential-lease
+
       - name: Run application regression tests
-        run: pnpm test --maxWorkers=1
+        run: pnpm test --maxWorkers=2
 
       - name: Exercise split workspace in the browser
         env:

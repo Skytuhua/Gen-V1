@@ -14,9 +14,17 @@ export function MapView({ element: { props } }: ComponentRenderProps) {
   const saved = store.get(statePath(props.stateKey));
   const index = Math.max(0, points.findIndex(point => point.id === saved));
   const selected = points[index];
-  const [localTheme, setLocalTheme] = useState('paper');
+  const [localTheme, setLocalTheme] = useState<string>();
+  const [shellTheme, setShellTheme] = useState(() => document.documentElement.dataset.theme);
+  useEffect(() => {
+    const sync = () => setShellTheme(document.documentElement.dataset.theme);
+    const observer = new MutationObserver(sync);
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    sync();
+    return () => observer.disconnect();
+  }, []);
   const storedTheme = typeof props.themeStateKey === 'string' ? store.get(statePath(props.themeStateKey)) : localTheme;
-  const theme = ['paper', 'terrain', 'night'].includes(String(storedTheme)) ? String(storedTheme) : 'paper';
+  const theme = ['paper', 'terrain', 'night'].includes(String(storedTheme)) ? String(storedTheme) : shellTheme === 'dark' ? 'night' : 'paper';
   const [feedback, setFeedback] = useState('');
   const carousel = useRef<HTMLDivElement>(null), userScrolling = useRef(false);
   const selectionIntent=useRef<string|undefined>(undefined),aligned=useRef(false);
@@ -54,7 +62,7 @@ export function MapView({ element: { props } }: ComponentRenderProps) {
       {points.map((point, pointIndex) => <div key={point.id} className="task-map-place" role={pointIndex === index ? 'region' : undefined} aria-label={pointIndex === index ? 'Selected place' : undefined} aria-hidden={pointIndex !== index} inert={pointIndex !== index}><span className="task-map-category">{point.category ?? 'Place'}<span>{pointIndex + 1} / {points.length}</span></span><h4>{point.label}</h4>{(point.address || point.detail) && <details className="task-map-place-details"><summary>Place details</summary>{point.address && <small>{point.address}</small>}{point.detail && <p>{point.detail}</p>}</details>}</div>)}
     </div>
     <footer className="task-map-footer"><div className="task-map-navigation"><button type="button" className="icon-button" aria-label="Previous place" onClick={() => choose(index - 1)}><ArrowLeft size={15} /></button><div className="task-map-dots" aria-hidden="true">{points.map(point => <span key={point.id} className={point.id === selected.id ? 'is-selected' : ''} />)}</div><button type="button" className="icon-button" aria-label="Next place" onClick={() => choose(index + 1)}><ArrowRight size={15} /></button></div>{Boolean(props.feedbackActionId) && <button type="button" className="quiet" disabled={action.busy} onClick={() => { const point = selected; void action.run(String(props.feedbackActionId), { ...mapActionPayload(props, store.getSnapshot().values), pointId: point.id }).then(accepted => { if (accepted) setFeedback(`Feedback requested for ${point.label}.`); }); }}><MessageSquare size={13} />{action.busy ? 'Sending request…' : 'Send feedback request'}</button>}</footer>
-    {action.error && <p className="error-text" role="alert">{action.error}</p>}{feedback && <p className="task-map-feedback" role="status">{feedback}</p>}
+    {action.error && <p className="error-text" role="status">{action.error}</p>}{feedback && <p className="task-map-feedback" role="status">{feedback}</p>}
     {parsed.data.source && <details className="task-map-source"><summary>Source</summary><p>{parsed.data.source}</p></details>}
   </section>;
 }

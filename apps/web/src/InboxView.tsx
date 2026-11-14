@@ -36,6 +36,6 @@ export function InboxView({attention,onOpenThread,emptyTitle,emptyMessage,projec
   <InboxPane title={selected?.title} hidden={columns==='list'} toolbar={toolbar} paneRef={reader} footer={footer} empty={<div className="agent-inbox-empty"><Inbox size={29}/><h3>Select an item</h3><p>Read it here, then open its conversation when needed.</p></div>}>
    {selected&&<div className="inbox-canonical-message"><div className="inbox-message-meta"><span data-state={selected.state}>{labels[selected.state]}</span><time dateTime={selected.updatedAt}>{new Date(selected.updatedAt).toLocaleString()}</time></div><p>{selected.summary}</p></div>}
   </InboxPane>
-  {(attention.error||actionError)&&<p className="agent-inbox-error" role="alert">{actionError||attention.error}</p>}
+  {(attention.error||actionError)&&<p className="agent-inbox-error" role="status">{actionError||attention.error}</p>}
  </section>;
 }

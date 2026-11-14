@@ -83,6 +83,37 @@ test('Escape closes a popup before its surrounding ARIA modal region', async ({ 
   await expect(trigger).toBeFocused();
 });
 
+test('a disabled control drops focus to body but the modal pulls it back inside', async ({ page }) => {
+  await page.goto('/ui-shell-overlays?retention=modal');
+  const dialog = page.getByRole('dialog', { name: 'Retention dialog' });
+  const disable = dialog.getByRole('button', { name: 'Disable me', exact: true });
+  await disable.focus();
+  await disable.click();
+  await expect(disable).toBeDisabled();
+  await expect.poll(() => page.evaluate(() => document.activeElement?.tagName)).not.toBe('BODY');
+  expect(await page.evaluate(() => document.querySelector('dialog[open]')?.contains(document.activeElement))).toBe(true);
+});
+
+test('a popover keeps focus inside when its focused action disables', async ({ page }) => {
+  await page.goto('/ui-shell-overlays?retention=popover');
+  const popup = page.locator('.ui-popover');
+  await expect(popup).toBeVisible();
+  const disable = popup.getByRole('button', { name: 'Disable popup action', exact: true });
+  await disable.focus();
+  await disable.click();
+  await expect(disable).toBeDisabled();
+  await expect(popup).toBeVisible();
+  await expect.poll(() => page.evaluate(() => document.activeElement?.tagName)).not.toBe('BODY');
+  expect(await popup.evaluate(node => node.contains(document.activeElement))).toBe(true);
+});
+
+test('a popover still dismisses when focus moves to a control outside it', async ({ page }) => {
+  await page.goto('/ui-shell-overlays?retention=popover');
+  await expect(page.locator('.ui-popover')).toBeVisible();
+  await page.getByRole('button', { name: 'Background control', exact: true }).focus();
+  await expect(page.locator('.ui-popover')).toHaveCount(0);
+});
+
 for (const scenario of [
   { name: 'narrow light', viewport: { width: 390, height: 420 }, theme: 'light' },
   { name: 'short dark', viewport: { width: 280, height: 240 }, theme: 'dark' },

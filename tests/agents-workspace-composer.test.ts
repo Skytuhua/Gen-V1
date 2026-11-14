@@ -49,6 +49,17 @@ it('retries failed recovery once for concurrent views and retains the exact pend
  } finally {release(); owner.dispose();}
  expect(recovery.subscriptions.size).toBe(0);
 });
+it('marks a RESUME_REQUIRED rejection for the banner action and clears it with the error', async () => {
+ const target = {kind: 'conversation' as const, threadId: 'owner', modelId: 'model', working: false};
+ const send = vi.fn(async (_input: import('../apps/web/src/agents-workspace/composer').ParentSend): Promise<void> => {throw new ApiError('RESUME_REQUIRED', 'Resume this thread before sending more work');});
+ const owner = createSharedAgentComposers({sendParent: send, stopParent: async () => {}});
+ await owner.prepare(target); await owner.edit(target, 'Continue the repair'); await owner.submit(target);
+ expect(owner.getSnapshot(target)).toMatchObject({error: 'Resume this thread before sending more work', retry: true, resumeRequired: true});
+ owner.clearError(target);
+ expect(owner.getSnapshot(target)).toMatchObject({error: '', resumeRequired: false, retry: true});
+ send.mockImplementation(async () => {throw Error('Connection lost');}); await owner.submit(target);
+ expect(owner.getSnapshot(target)).toMatchObject({error: 'Connection lost', resumeRequired: false}); owner.dispose();
+});
 it('keeps an unrelated Stop failure reported while recovery is retried', async () => {
  const target = {kind: 'conversation' as const, threadId: 'owner', modelId: 'model', working: true};
  records.set('draft:owner', {value: 'Retained draft', generation: 'draft'});
@@ -288,4 +299,26 @@ it('validates the captured child submission before creating pending identity, wi
   expect(followUp.send).toHaveBeenCalledWith(expect.objectContaining({content: 'Valid captured text'}));
   expect(owner.getSnapshot(child).draft).toHaveLength(32769);
  } finally {owner.dispose();}
+});
+
+it('retains a newer excerpt generation after A to B to A during an uncertain send and retry',async()=>{
+ const target={kind:'conversation' as const,threadId:'owner',projectId:'p',modelId:'model',working:false};
+ const {captureTerminalExcerpt,excerptDraftKey}=await import('../apps/web/src/terminal-excerpts');
+ const excerpt=captureTerminalExcerpt({threadId:'owner',projectId:'p',terminalId:'terminal',selection:'A'});
+ const send=vi.fn(async(_input:import('../apps/web/src/agents-workspace/composer').ParentSend):Promise<void>=>{throw Error('Uncertain');});
+ const owner=createSharedAgentComposers({sendParent:send,stopParent:async()=>{}});
+ try{
+  await owner.prepare(target);await owner.addExcerpt(target,excerpt);const sentGeneration=records.get(excerptDraftKey('owner'))?.generation;
+  await owner.submit(target);expect(owner.getSnapshot(target).retry).toBe(true);
+  await owner.editExcerpt(target,excerpt.id,'B');await owner.editExcerpt(target,excerpt.id,'A');const newerGeneration=records.get(excerptDraftKey('owner'))?.generation;
+  expect(newerGeneration).not.toBe(sentGeneration);send.mockImplementation(async()=>{});await owner.submit(target);
+  expect(send.mock.calls[1][0]).toEqual(send.mock.calls[0][0]);expect(owner.getSnapshot(target).excerpts).toEqual([excerpt]);expect(records.get(excerptDraftKey('owner'))?.generation).toBe(newerGeneration);
+ }finally{owner.dispose();}
+});
+it('retains legacy pending excerpts when their accepted generation is unknown',async()=>{
+ const target={kind:'conversation' as const,threadId:'owner',projectId:'p',modelId:'model',working:false};
+ const {captureTerminalExcerpt,excerptDraftKey}=await import('../apps/web/src/terminal-excerpts'),excerpt=captureTerminalExcerpt({threadId:'owner',projectId:'p',terminalId:'terminal',selection:'A'});
+ records.set(excerptDraftKey('owner'),{value:[excerpt],generation:'newer'});records.set('agents-pending:owner',{value:{commandId:'legacy-send',content:'Frozen A',excerpts:[excerpt]},generation:'pending'});
+ const owner=createSharedAgentComposers({sendParent:async()=>{},stopParent:async()=>{}});
+ try{await owner.prepare(target);await owner.submit(target);expect(owner.getSnapshot(target).excerpts).toEqual([excerpt]);expect(records.get(excerptDraftKey('owner'))?.generation).toBe('newer');}finally{owner.dispose();}
 });

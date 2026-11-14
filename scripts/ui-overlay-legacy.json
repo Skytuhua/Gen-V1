@@ -15,25 +15,14 @@
       "disposition": "retained-geometry"
     },
     {
-      "file": "apps/web/src/Artifact.tsx",
-      "line": 133,
-      "column": 41,
-      "rule": "ad-hoc-overlay",
-      "message": "overlay role dialog: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "4aba586360bd624c42079414cbd6f5accfbdb282756d0af3846ecce50dd06200",
-      "reason": "TOOLS: migrate expanded artifact to shared Modal, retaining artifact identity.",
-      "evidence": "<section ref={section} className={`artifact artifact-width-${artifact.presentation?.width ?? 'standard'} artifact-frame-${artifact.presentation?.frame ?? 'card'} ${expanded ? 'artifact-expanded' : ''} ${inWorkspace ? 'ar",
-      "disposition": "staged-migration"
-    },
-    {
       "file": "apps/web/src/chat-scroll-indicator.css",
       "line": 4,
       "column": 1,
       "rule": "ad-hoc-overlay",
       "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "767b7529c05a3366a622fc290b47fbad5771a2bba30cf68aa12b109f956ab523",
+      "fingerprint": "3cc1ccf530aaa143d9182d9a5bc64b46e0876f247cbe7a4bfba3be7027455555",
       "reason": "Retained geometry: bounded conversation scrollbar, not a popup.",
-      "evidence": ".chat-scroll-indicator{position:absolute;inset:8px auto 8px 2px;width:24px;z-index:2;touch-action:none;cursor:pointer;outline-offset:-2px}",
+      "evidence": ".chat-scroll-indicator{position:absolute;inset:8px auto 8px 0;width:20px;z-index:2;touch-action:none;cursor:pointer;outline-offset:-2px}",
       "disposition": "retained-geometry"
     },
     {
@@ -93,12 +82,12 @@
     },
     {
       "file": "apps/web/src/DocumentWindow.tsx",
-      "line": 75,
+      "line": 76,
       "column": 385,
       "rule": "ad-hoc-overlay",
       "message": "React portal: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "aeb6bf5588361e5a51c8ea4c0a5824f42eac481633629e46591e6e8c6dcd6868",
-      "reason": "TOOLS: migrate document portal ownership with shared primitives after document recovery acceptance.",
+      "fingerprint": "5f5d58037c9139a5ca167ad0e12996f196640e635abd71577d911c32410ffb22",
+      "reason": "TOOLS: migrate document portal ownership with shared primitives after document recovery acceptance; portal content migrated to shared ErrorState.",
       "evidence": "createPortal(<section ref={windowRef} role=\"region\" aria-label={`${title} document window`} className=\"document-text-window\" data-escape-scope data-placement={placement} data-native-owner={nativeOwner} style={style} onSc",
       "disposition": "staged-migration"
     },
@@ -141,7 +130,7 @@
       "column": 1,
       "rule": "ad-hoc-overlay",
       "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "a2d8b56c26e464e3780abab2858b50092518250ad2439fe3bc446e1500c1be4a",
+      "fingerprint": "9d4985ae5b70ca1eb3f18b9d589acb87f532867fbecbdba61317c807fb6cee1c",
       "reason": "Retained geometry: map point markers anchored to their map, not a popup.",
       "evidence": ".task-map-point { position:absolute; display:flex; align-items:center; justify-content:center; width:32px; height:32px; padding:6px; border-radius:50%; transform:translate(-50%,-50%); color:var(--text); background:var(--",
       "disposition": "retained-geometry"
@@ -181,17 +170,6 @@
     },
     {
       "file": "apps/web/src/shell.css",
-      "line": 207,
-      "column": 1,
-      "rule": "ad-hoc-overlay",
-      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "aeade7b06135405a1e9b2ac58f2bd45e694986b7e8cbd666c1117a6811519941",
-      "reason": "COPY/SHELL2: retain exact notice positioning until the shared status/error owner replaces it.",
-      "evidence": ".shell-notice { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:14px; max-width:calc(100vw - 28px); border:1px solid var(--border); background:var(--surface); box-",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/shell.css",
       "line": 208,
       "column": 1,
       "rule": "ad-hoc-overlay",
@@ -199,17 +177,6 @@
       "fingerprint": "d186395fde1467d94f13be38aa02ffaf851f921f7ee0448de14df78020f190a1",
       "reason": "SHELL1/LAYOUT: retain exact artifact containment until parent shell integration.",
       "evidence": ".artifact.artifact-in-workspace { position:fixed; z-index:31; right:14px; top:110px; bottom:14px; width:calc(var(--right-panel-width) - 28px); max-width:none; margin:0; display:flex; flex-direction:column; border:1px sol",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/shell.css",
-      "line": 233,
-      "column": 1,
-      "rule": "ad-hoc-overlay",
-      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "41bf1fd150f3b75bad9f1c593eadbea80d612bb03280175f2b8659096a581c89",
-      "reason": "SHELL2/MOTION: move dialog backdrop animation to shared Modal.",
-      "evidence": ".dialog[open]::backdrop,.settings-dialog[open]::backdrop {animation:shell-backdrop-in 170ms ease-out both;}",
       "disposition": "staged-migration"
     },
     {
@@ -262,7 +229,7 @@
       "column": 60,
       "rule": "ad-hoc-overlay",
       "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "c6105b54ce489beed1d87462969b7297fe7ea9b3fabcf0fdad3abd2fa8cc735b",
+      "fingerprint": "0a3b58c7f4a29ecfd67a4d14124a9af177c6d24b1e66372ee801d512f9cd2fa8",
       "reason": "SHELL1: retain exact narrow-screen sidebar/scrim geometry until parent integration.",
       "evidence": ".sidebar { position:fixed; z-index:60; inset:0 auto 0 0; width:240px; transform:translateX(-100%); transition:transform 180ms ease-out; } .sidebar.sidebar-open { transform:translateX(0); } .sidebar-scrim { display:block;",
       "disposition": "staged-migration"
@@ -273,7 +240,7 @@
       "column": 249,
       "rule": "ad-hoc-overlay",
       "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "f3bcfa5c4890577573019ffcb7ec89410ade2fa4067e4b05318256ad993a6d62",
+      "fingerprint": "5779fe2605b61e559c942b3e613cc6a30adbaba20530bb64f3873edd06958f37",
       "reason": "SHELL1: retain exact narrow-screen sidebar/scrim geometry until parent integration.",
       "evidence": ".sidebar-scrim { display:block; position:fixed; inset:0; z-index:59; background:#0006; } .sidebar-close,.mobile-menu { display:flex; } .workspace-header { padding:0 15px; height:54px; flex-basis:54px; justify-content:fle",
       "disposition": "staged-migration"
@@ -397,6 +364,61 @@
       "fingerprint": "83a096c438460ddee5eb3a46e9b17b25ca13307b38f934f76c7555c341d2d0cd",
       "reason": "Public optional visuals: migrate details menu and dialog backdrop with shared controls.",
       "evidence": ".pv-dialog-backdrop {",
+      "disposition": "staged-migration"
+    },
+    {
+      "file": "apps/web/src/task-table.css",
+      "line": 38,
+      "column": 1,
+      "rule": "ad-hoc-overlay",
+      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
+      "fingerprint": "ff3923b78a8af8dd0b3c7400b3b7ac51d00c9ef4a7bf01976f7d260a90fe2e68",
+      "reason": "WO-7 reviewed geometry: table-local column hit target or pointer-transparent gesture feedback; no popup, dismissal or modal behavior.",
+      "evidence": ".task-table-resizer { margin:0; border:0; position:absolute; z-index:3; right:-12px; top:0; width:24px; height:34px; cursor:col-resize; touch-action:none; }",
+      "disposition": "retained-geometry"
+    },
+    {
+      "file": "apps/web/src/task-table.css",
+      "line": 52,
+      "column": 1,
+      "rule": "ad-hoc-overlay",
+      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
+      "fingerprint": "ab21fb836720ea11b5d8fd2c575a43cc57a7583681b521dfc17dca3825f42755",
+      "reason": "WO-7 reviewed geometry: table-local column hit target or pointer-transparent gesture feedback; no popup, dismissal or modal behavior.",
+      "evidence": ".task-table-resize-guide { position:absolute; z-index:4; top:0; bottom:0; width:1px; pointer-events:none; background:var(--accent-fg,var(--accent)); }",
+      "disposition": "retained-geometry"
+    },
+    {
+      "file": "apps/web/src/task-table.css",
+      "line": 53,
+      "column": 1,
+      "rule": "ad-hoc-overlay",
+      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
+      "fingerprint": "b7298b9e902da8b843f024dce4c8d4be67844f3b8006e26f96893a1a8f63acbf",
+      "reason": "WO-7 reviewed geometry: table-local column hit target or pointer-transparent gesture feedback; no popup, dismissal or modal behavior.",
+      "evidence": ".task-table-drop-line { position:absolute; z-index:4; top:3px; height:28px; width:2px; pointer-events:none; background:var(--accent-fg,var(--accent)); }",
+      "disposition": "retained-geometry"
+    },
+    {
+      "file": "apps/web/src/task-table.css",
+      "line": 57,
+      "column": 1,
+      "rule": "ad-hoc-overlay",
+      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
+      "fingerprint": "b051a9c71c4f1b7ff64ae4f32c71a2ba635281ea243ffecc7e599cc00ea548cf",
+      "reason": "WO-7 reviewed geometry: table-local column hit target or pointer-transparent gesture feedback; no popup, dismissal or modal behavior.",
+      "evidence": ".task-table-drag-preview { position:absolute; z-index:5; pointer-events:none; display:flex; align-items:center; gap:4px; height:34px; max-width:220px; overflow:hidden; white-space:nowrap; padding:8px 12px; border:1px solid var(--border); border-radius:6px; background:var(--surface); color:var(--text); font:500 10px var(--font-mono,monospace); }",
+      "disposition": "retained-geometry"
+    },
+    {
+      "file": "apps/web/src/Artifact.tsx",
+      "line": 144,
+      "column": 41,
+      "rule": "ad-hoc-overlay",
+      "message": "overlay role dialog: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
+      "fingerprint": "4aba586360bd624c42079414cbd6f5accfbdb282756d0af3846ecce50dd06200",
+      "reason": "TOOLS: migrate expanded artifact to shared Modal, retaining artifact identity.",
+      "evidence": "<section ref={section} className={`artifact artifact-width-${artifact.presentation?.width ?? 'standard'} artifact-frame-${artifact.presentation?.frame ?? 'card'} ${expanded ? 'artifact-expanded' : ''} ${inWorkspace ? 'ar",
       "disposition": "staged-migration"
     }
   ]

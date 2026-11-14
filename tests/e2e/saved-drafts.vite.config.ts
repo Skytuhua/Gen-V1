@@ -1,0 +1,5 @@
+import {defineConfig} from 'vite';
+import react from '@vitejs/plugin-react';
+import {realpathSync} from 'node:fs';
+import {resolve} from 'node:path';
+export default defineConfig({root:'.',cacheDir:resolve(process.env.GEN_BROWSER_OUTPUT_DIR??'.harness-ui-shell/saved-drafts','node_modules/.vite'),plugins:[react(),{name:'saved-drafts-fixture',configureServer(server){server.middlewares.use((req,res,next)=>{if(!req.url?.startsWith('/fixture'))return next();void server.transformIndexHtml(req.url,'<!doctype html><html lang="en" data-theme="dark"><meta name="viewport" content="width=device-width,initial-scale=1"><title>saved-drafts fixture</title><body><div id="root" style="height:100dvh"></div><script type="module" src="/tests/e2e/saved-drafts-fixture.tsx"></script></body></html>').then(html=>{res.setHeader('Content-Type','text/html');res.end(html);}).catch(next);});}}],optimizeDeps:{entries:['tests/e2e/saved-drafts-fixture.tsx']},server:{host:'127.0.0.1',port:5522,strictPort:true,watch:{ignored:['**/.harness*/**','**/test-results/**']},fs:{allow:[resolve('.'),realpathSync('node_modules')]}}});

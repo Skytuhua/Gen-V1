@@ -34,6 +34,8 @@ export function Select({ value, onValueChange, options, 'aria-label': label, 'ar
     close(); if (options[index].value !== value) onValueChange(options[index].value);
   };
   const navigation = useListNavigation(options, choose, close);
+  // Fit the trigger or the longest label, so a narrow select does not cover its neighbours.
+  const popupWidth = Math.max(anchor.current?.offsetWidth ?? 0, Math.min(280, 64 + 7 * Math.max(0, ...options.map(option => option.label.length))));
   useEffect(() => { if (disabled) setOpen(false); }, [disabled]);
   useEffect(() => {
     const update = () => { const blocked = Boolean(native.current?.matches(':disabled')); setFieldsetDisabled(blocked); if (blocked) setOpen(false); };
@@ -70,7 +72,7 @@ export function Select({ value, onValueChange, options, 'aria-label': label, 'ar
       {options.map(option => <option key={option.value} value={option.value} disabled={option.disabled}>{option.label}</option>)}
     </select>
     {showInvalid && <span id={errorId}>Choose an option.</span>}
-    <Popover anchor={anchor} contentRef={content} open={open && !effectivelyDisabled} width={280} height={Math.min(420, options.length * 36 + 26)} preferredSide="below"
+    <Popover anchor={anchor} contentRef={content} open={open && !effectivelyDisabled} width={popupWidth} height={Math.min(420, options.length * 36 + 26)} preferredSide="below" align="start"
       id={listId} role="listbox" aria-label={label} tabIndex={-1} className="ui-control-popup"
       onDismiss={() => setOpen(false)} onKeyDown={navigation.onKeyDown} onReady={() => {
         content.current?.focus();

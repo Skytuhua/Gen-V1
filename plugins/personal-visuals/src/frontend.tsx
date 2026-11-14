@@ -313,6 +313,10 @@ function App() {
 		[selected, setSelected] = useState("node:" + initial.nodes[0].id),
 		[ready, setReady] = useState(false),
 		[editing, setEditing] = useState(false),
+		// The sandboxed frame has no storage; the host persists dismissal.
+		[introOpen, setIntroOpen] = useState(
+			() => !host.pluginPresentation().introDismissed,
+		),
 		[status, setStatus] = useState("Recovering visual document…"),
 		[error, setError] = useState(""),
 		[writeFailed, setWriteFailed] = useState(false),
@@ -334,6 +338,14 @@ function App() {
 	useEffect(() => {
 		if (exportText !== undefined) exportInput.current?.focus();
 	}, [exportText]);
+	// Host presentation is hide-only: a persisted dismissal never reopens the intro.
+	useEffect(
+		() =>
+			host.onPluginPresentation((presentation) => {
+				if (presentation.introDismissed) setIntroOpen(false);
+			}),
+		[],
+	);
 	const send = useCallback(async (intent: DocumentWrite) => {
 		unconfirmed.current = intent;
 		try {
@@ -705,8 +717,36 @@ function App() {
 					Save
 				</button>
 			</header>
+			{introOpen && (
+				<section className="pv-intro" role="note" aria-label="About this workspace">
+					<div>
+						<strong>Diagrams from your own JSON</strong>
+						<p>
+							Visuals draws architecture, dependency, flow and timeline
+							diagrams from structured JSON. It runs no models and shows no
+							live agent activity. Documents stay on this device. Try an
+							example, Import JSON, or Edit the JSON inline.
+						</p>
+					</div>
+					<button
+						onClick={() => {
+							setIntroOpen(false);
+							void host
+								.pluginRequest("presentation.set", { introDismissed: true })
+								.catch(() => {});
+						}}
+					>
+						Dismiss
+					</button>
+				</section>
+			)}
 			<div className="pv-status">
 				<span role="status">{status}</span>
+				{!introOpen && (
+					<button className="pv-about" onClick={() => setIntroOpen(true)}>
+						About Visuals
+					</button>
+				)}
 				<details>
 					<summary>Examples</summary>
 					<div>

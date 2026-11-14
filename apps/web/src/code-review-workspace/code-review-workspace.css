@@ -26,6 +26,8 @@
 .cr-workspace textarea:not(.cr-slot *) { resize: vertical; }
 .cr-workspace ::selection { color: var(--text); background: var(--selection-bg); }
 .cr-meta, .cr-identity { font-size: 12px; font-weight: 400; color: var(--muted); }
+.cr-filter { font-size: 12px; color: var(--muted); }
+.cr-filter > div { display: flex; align-items: center; gap: 8px; }
 .cr-file-list { display: flex; flex-direction: column; gap: 4px; }
 .cr-file-select { display: none; min-width: 0; }
 .cr-file-select .ui-select, .cr-file-select .ui-select-trigger { width: 100%; min-width: 0; }

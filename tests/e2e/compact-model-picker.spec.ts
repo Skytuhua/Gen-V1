@@ -12,16 +12,18 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/compact-model-picker');
 });
 
-test('compact list keeps readable rows and one reasoning footer below the catalog', async ({ page }) => {
+test('wide picker keeps readable rows, a filter rail and a reasoning side panel', async ({ page }) => {
   await trigger(page).click();
   const popup = page.locator('.model-picker-popover');
   await popup.evaluate(node => Promise.all(node.getAnimations().map(a => a.finished)));
   const box = (await popup.boundingBox())!;
-  expect(box.width).toBeGreaterThanOrEqual(380); expect(box.width).toBeLessThanOrEqual(420);
+  expect(box.width).toBeGreaterThanOrEqual(680); expect(box.width).toBeLessThanOrEqual(760);
   const list = (await page.getByRole('listbox', { name: 'Available models' }).boundingBox())!;
-  const footer = (await page.getByRole('group', { name: 'Reasoning', exact: true }).boundingBox())!;
-  expect(footer.y).toBeGreaterThanOrEqual(list.y + list.height);
-  await expect(popup.getByText('Alpha', { exact: true })).toHaveCount(1);
+  const panel = (await page.getByRole('group', { name: 'Reasoning', exact: true }).boundingBox())!;
+  expect(panel.x).toBeGreaterThanOrEqual(list.x + list.width);
+  const rail = (await page.getByRole('group', { name: 'Model filters' }).boundingBox())!;
+  expect(rail.x + rail.width).toBeLessThanOrEqual(list.x);
+  await expect(page.getByRole('listbox', { name: 'Available models' }).getByText('Alpha', { exact: true })).toHaveCount(1);
   const rows = await page.getByRole('option').evaluateAll(nodes => nodes.map(n => ({
     height: n.getBoundingClientRect().height, font: getComputedStyle(n).fontSize,
   })));
@@ -59,38 +61,40 @@ test('hover and keyboard focus differ from the committed checkmark until Enter',
   await expect(beta).toContainText('openai/beta');
 });
 
-for (const count of [1, 2]) test(`${count} model catalog opens reasoning through the shared portal`, async ({ page }) => {
+for (const count of [1, 2]) test(`${count} model catalog exposes exact reasoning radios in the side panel`, async ({ page }) => {
   await expect(trigger(page)).toBeVisible();
   await page.evaluate(count => (window as any).updateModelCatalog([
     { id: 'openai/alpha', name: 'Alpha', provider: 'openai', thinkingLevels: ['high', 'budget_16384'] },
     ...(count === 2 ? [{ id: 'openai/other', name: 'Other', provider: 'openai' }] : []),
   ]), count);
-  await trigger(page).click(); await page.getByRole('button', { name: 'Reasoning: High' }).click();
-  const menu = page.getByRole('menu');
-  expect(await menu.evaluate(n => !n.closest('.model-picker-popover'))).toBe(true);
-  await page.getByRole('menuitemcheckbox', { name: 'Budget 16384' }).click();
+  await trigger(page).click();
+  const panel = page.getByRole('group', { name: 'Reasoning', exact: true });
+  await expect(panel.getByRole('radio')).toHaveText(['Default', 'High', 'Budget 16384']);
+  expect(await panel.evaluate(n => Boolean(n.closest('.model-picker-popover')))).toBe(true);
+  await panel.getByRole('radio', { name: 'Budget 16384' }).click();
   await expect(page.getByLabel('Committed choice')).toHaveText('openai/alpha|budget_16384');
+  await expect(trigger(page)).toHaveAttribute('aria-expanded', 'true');
 });
 
-test('reasoning menu exposes only exact supported levels and navigation never commits', async ({ page }) => {
+test('reasoning radios expose only exact supported levels and keyboard selection stays in the panel', async ({ page }) => {
   await trigger(page).click();
-  await page.getByRole('button', { name: 'Reasoning: High', exact: true }).click();
-  const menu = page.getByRole('menu', { name: 'Reasoning: High', exact: true });
-  await expect(menu.getByRole('menuitemcheckbox')).toHaveText(['Default', 'Low', 'High', 'Extra high', 'Ultra']);
-  await page.keyboard.press('End'); await expect(page.getByLabel('Committed choice')).toHaveText('openai/alpha|high');
-  await page.keyboard.press('Enter');
+  const panel = page.getByRole('group', { name: 'Reasoning', exact: true });
+  await expect(panel.getByRole('radio')).toHaveText(['Default', 'Low', 'High', 'Extra high', 'Ultra']);
+  await panel.getByRole('radio', { name: 'High', exact: true }).focus();
+  await page.keyboard.press('End');
   await expect(page.getByLabel('Committed choice')).toHaveText('openai/alpha|ultra');
+  await expect(panel.getByRole('radio', { name: 'Ultra', exact: true })).toBeFocused();
+  await page.keyboard.press('Home');
+  await expect(page.getByLabel('Committed choice')).toHaveText('openai/alpha|');
+  await page.keyboard.press('Escape');
   await expect(trigger(page)).toBeFocused(); await expect(trigger(page)).toHaveAttribute('aria-expanded', 'false');
 });
 
-for (const owner of ['native', 'aria']) test(`nested reasoning closes before its ${owner} modal and retains the draft`, async ({ page }) => {
+for (const owner of ['native', 'aria']) test(`picker closes before its ${owner} modal and retains the draft`, async ({ page }) => {
   await page.goto(`/compact-model-picker?${owner}=1`); await trigger(page).click();
-  await page.getByRole('button', { name: 'Reasoning: High' }).click();
-  const menu = page.getByRole('menu');
-  expect(await menu.evaluate(n => !!n.closest('dialog[open], [role="dialog"][aria-modal="true"]'))).toBe(true);
-  await page.keyboard.press('Escape'); await expect(menu).not.toBeVisible();
-  await expect(trigger(page)).toHaveAttribute('aria-expanded', 'true');
-  await page.keyboard.press('Escape'); await expect(trigger(page)).toHaveAttribute('aria-expanded', 'false');
+  await expect(page.getByRole('group', { name: 'Reasoning', exact: true })).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(trigger(page)).toHaveAttribute('aria-expanded', 'false');
   await expect(page.getByRole('dialog', { name: 'Picker owner', exact: true })).toBeVisible();
   await expect(page.getByLabel('Preserved draft')).toHaveValue('Keep this draft');
 });
@@ -117,17 +121,15 @@ test('long duplicate names retain IDs, exact unsupported levels, and unavailable
   await expect(page.getByLabel('Committed choice')).toHaveText('claude-code/beta|');
 });
 
-test('first open scrolls to selected model 99 and running lock closes both menus', async ({ page }) => {
+test('first open scrolls to selected model 99 and running lock closes the picker', async ({ page }) => {
   await page.goto('/compact-model-picker?large=1'); await trigger(page).click();
   const row = await page.getByRole('option', { name: 'Catalog model 99', exact: true }).evaluate(n => {
     const r = n.getBoundingClientRect(), l = n.closest('[role="listbox"]')!.getBoundingClientRect();
     return { top: r.top, bottom: r.bottom, listTop: l.top, listBottom: l.bottom };
   });
   expect(row.top).toBeGreaterThanOrEqual(row.listTop); expect(row.bottom).toBeLessThanOrEqual(row.listBottom);
-  await page.getByRole('button', { name: 'Reasoning: High' }).click();
   await page.getByRole('button', { name: 'Toggle working' }).click();
   await expect(trigger(page)).toBeDisabled(); await expect(trigger(page)).toHaveAttribute('aria-expanded', 'false');
-  await expect(page.getByRole('menu')).not.toBeVisible();
   await page.getByRole('button', { name: 'Toggle working' }).click();
   await expect(trigger(page)).toHaveAttribute('aria-expanded', 'false');
 });
@@ -147,9 +149,10 @@ for (const theme of ['dark', 'light']) test(`${theme} long catalog stays readabl
     expect(b.x).toBeGreaterThanOrEqual(8); expect(b.y).toBeGreaterThanOrEqual(50);
     expect(b.x + b.width).toBeLessThanOrEqual(viewport.width - 8); expect(b.y + b.height).toBeLessThanOrEqual(viewport.height - 8);
     expect(await popup.evaluate(n => n.scrollWidth <= n.clientWidth)).toBe(true);
-    await page.getByRole('button', { name: 'Reasoning: High' }).click(); await expect(page.getByRole('menuitemcheckbox', { name: 'High', exact: true })).toBeVisible();
+    const high = page.getByRole('radio', { name: 'High', exact: true });
+    await high.scrollIntoViewIfNeeded(); await expect(high).toBeVisible();
     await page.screenshot({ path: info.outputPath(`${theme}-${viewport.width}x${viewport.height}.png`) });
-    await page.keyboard.press('Escape'); await search(page).focus(); await search(page).fill('no-such-catalog-entry');
+    await page.keyboard.press('Escape'); await trigger(page).click(); await search(page).fill('no-such-catalog-entry');
     await expect(popup.getByRole('status')).toContainText('No models found');
   }
 });
@@ -169,7 +172,49 @@ test('empty search keeps its recovery text visible and does not collapse the pop
   expect(bounds.height).toBeGreaterThanOrEqual(bounds.content);
 });
 
+test('provider rail filters the catalog and All models restores it', async ({ page }) => {
+  await trigger(page).click();
+  await expect(page.getByRole('option')).toHaveCount(3);
+  await page.getByRole('group', { name: 'Model filters' }).getByRole('button', { name: /^Claude/ }).click();
+  await expect(page.getByRole('option')).toHaveCount(1);
+  await expect(page.getByRole('option', { name: 'Same name', exact: true })).toContainText('claude-code/beta');
+  await page.getByRole('group', { name: 'Model filters' }).getByRole('button', { name: /^All models/ }).click();
+  await expect(page.getByRole('option')).toHaveCount(3);
+});
+
+test('favorite stars persist locally, filter through the rail and never commit the model', async ({ page }) => {
+  await trigger(page).click();
+  const popup = page.locator('.model-picker-popover');
+  const star = page.getByRole('button', { name: 'Add openai/beta to favorites', exact: true });
+  await star.click();
+  await expect(page.getByLabel('Committed choice')).toHaveText('openai/alpha|high');
+  await expect(page.getByRole('button', { name: 'Remove openai/beta from favorites', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  expect(await page.evaluate(() => localStorage.getItem('harness:model-favorites:v1'))).toBe(JSON.stringify(['openai/beta']));
+  await page.getByRole('group', { name: 'Model filters' }).getByRole('button', { name: /^Favorites/ }).click();
+  await expect(page.getByRole('option')).toHaveCount(1);
+  await expect(page.getByRole('option', { name: 'Same name', exact: true })).toContainText('openai/beta');
+  await page.getByRole('button', { name: 'Remove openai/beta from favorites', exact: true }).click();
+  await expect(popup.getByRole('status')).toContainText('No favorites yet');
+  expect(await page.evaluate(() => localStorage.getItem('harness:model-favorites:v1'))).toBe(JSON.stringify([]));
+  await page.reload(); await trigger(page).click();
+  await expect(page.getByRole('group', { name: 'Model filters' }).getByRole('button', { name: /^Favorites/ })).toContainText('0');
+});
+
+test('Ctrl+number quick-select commits the matching visible row', async ({ page }) => {
+  await trigger(page).click();
+  await expect(page.getByRole('option', { name: 'Alpha', exact: true }).locator('kbd')).toHaveText('Ctrl 1');
+  await search(page).press('Control+2');
+  await expect(page.getByLabel('Committed choice')).toHaveText('openai/beta|');
+  await expect(trigger(page)).toHaveAttribute('aria-expanded', 'true');
+  await search(page).press('Control+3');
+  await expect(page.getByLabel('Committed choice')).toHaveText('claude-code/beta|');
+  await search(page).press('Control+9');
+  await expect(page.getByLabel('Committed choice')).toHaveText('claude-code/beta|');
+});
+
 test('actual composer sends the explicit model and effort on its pinned account', async ({ page }) => {
+  // First full-app load in this suite pays the cold Vite transform cost.
+  test.slow();
   const snapshot = taskFixture({ root: 'text', elements: { text: { type: 'Text', props: { text: 'Synthetic' } } } });
   snapshot.artifacts = []; snapshot.messages = []; snapshot.settings = { theme: 'dark', modelId: 'openai/alpha' };
   snapshot.threads[0].modelId = 'openai/alpha'; snapshot.threads[0].accountId = 'pinned-account';
@@ -179,10 +224,10 @@ test('actual composer sends the explicit model and effort on its pinned account'
     { id: 'openai/alpha', name: 'Alpha', provider: 'openai', thinkingLevels: ['low'] },
     { id: 'openai/beta', name: 'Beta', provider: 'openai', thinkingLevels: ['max'] },
   ] } }));
-  await page.goto('/'); await expect(page.locator('.composer-account')).toHaveText('Pinned');
+  await page.goto('/'); await expect(page.locator('.composer-account')).toHaveText('Pinned', { timeout: 20000 });
   await trigger(page).click(); await page.getByRole('option', { name: 'Beta', exact: true }).click();
-  await page.getByRole('button', { name: 'Reasoning: Default' }).click();
-  await page.getByRole('menuitemcheckbox', { name: 'Max', exact: true }).click();
+  await page.getByRole('radio', { name: 'Max', exact: true }).click();
+  await page.keyboard.press('Escape');
   await page.getByRole('textbox', { name: 'Message', exact: true }).fill('Use exact settings');
   await page.getByRole('button', { name: 'Send message', exact: true }).click();
   await expect.poll(() => host.commands.find(c => c.type === 'message.send')).toMatchObject({

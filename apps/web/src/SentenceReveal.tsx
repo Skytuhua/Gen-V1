@@ -64,7 +64,8 @@ export function SentenceReveal({text,children,animate=false,initialReveal=false,
  },[]);
  useLayoutEffect(()=>{
   const element=root.current,container=layer.current;if(!element||!container)return;
-  const map=textMap(element,true),full=textMap(element,false),selection=selected.current;
+  // The all-text map only exists to restore a live selection; skip the walk otherwise.
+  const map=textMap(element,true),selection=selected.current,full=selection?textMap(element,false):null;
   if(full&&selection){
    // React can replace an arriving text node. Restore an unchanged selection by logical offset.
    const diff=changedRange(selection.fullText,full.text),shift=full.text.length-selection.fullText.length;

@@ -18,6 +18,7 @@
   --ui-modal-scrim: rgb(0 0 0 / .4);
   --ui-ease-enter: cubic-bezier(.16, 1, .3, 1);
   --ui-ease-move: cubic-bezier(.4, 0, .2, 1);
+  --ui-ease-spring: cubic-bezier(.2, .9, .2, 1.1);
   --ui-motion-hover: 120ms;
   --ui-motion-press: 80ms;
   --ui-motion-panel-enter: 220ms;
@@ -34,7 +35,11 @@
   --ui-motion-toast-exit: 160ms;
   --ui-motion-tooltip-enter: 160ms;
   --ui-motion-tooltip-exit: 120ms;
+  --ui-motion-spring: 200ms;
+  --ui-motion-receipt: 600ms;
   --ui-tooltip-dwell: 350ms;
+  --ui-layer-scrim: 59;
+  --ui-layer-drawer: 60;
   --ui-popup-layer: 80;
 }
 
@@ -53,6 +58,18 @@ dialog:modal::backdrop {
   dialog:modal::backdrop { animation: none !important; transition: none !important; }
 }
 .ui-popover { z-index: var(--ui-popup-layer); }
+/* Zero specificity: a consumer's own popover motion always wins. */
+:where(.ui-popover[data-state="open"]) { animation: ui-popover-in var(--ui-motion-popup-enter) var(--ui-ease-enter) both; }
+:where(.ui-popover[data-state="closed"]) { pointer-events: none; animation: ui-popover-out var(--ui-motion-popup-exit) var(--ui-ease-move) both; }
+:where(.ui-popover[data-side="above"]) { --ui-popover-shift: 4px; }
+:where(.ui-popover[data-side="below"]) { --ui-popover-shift: -4px; }
+@keyframes ui-popover-in { from { opacity: 0; transform: translateY(var(--ui-popover-shift, 0)) scale(.98); } }
+@keyframes ui-popover-out { to { opacity: 0; transform: translateY(var(--ui-popover-shift, 0)) scale(.98); } }
+@keyframes ui-popover-fade { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  :where(.ui-popover[data-state]) { animation-name: ui-popover-fade; animation-duration: var(--ui-motion-press); }
+  :where(.ui-popover[data-state="closed"]) { animation-direction: reverse; }
+}
 
 @media (prefers-reduced-transparency: reduce) {
   dialog:modal::backdrop { backdrop-filter: none; background: rgb(0 0 0 / .8); }

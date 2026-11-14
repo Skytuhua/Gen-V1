@@ -38,7 +38,7 @@ export function ComposerTaskActions({changeSummary,onChanges,onCreatePR,disabled
  return <div className="composer-secondary-actions" role="group" aria-label="Task actions">
   <button type="button" className="composer-context-chip composer-changes" aria-label="Inspect changes" title="Inspect recorded changes" disabled={disabled} onClick={()=>void invoke(onChanges)}>{changes}{counts?<span className="composer-change-counts"><span>+{counts.added}</span><span>−{counts.removed}</span></span>:<span>Changes</span>}</button>
   <button type="button" className="composer-context-chip composer-pr" aria-label="Create PR" title={working?'Wait for the active run to finish':'Ask the agent to prepare a pull request'} disabled={disabled||working} onClick={()=>void invoke(onCreatePR)}>{branch}<span>Create PR</span></button>
-  {error&&<div className="composer-toolbar-error" role="alert">{error}<button type="button" className="composer-dismiss" aria-label="Dismiss task action error" onClick={()=>setError('')}>{close}</button></div>}
+  {error&&<div className="composer-toolbar-error" role="status">{error}<button type="button" className="composer-dismiss" aria-label="Dismiss task action error" onClick={()=>setError('')}>{close}</button></div>}
  </div>;
 }
 
@@ -80,6 +80,6 @@ export function ComposerToolbar({modelPickerRef,models,modelId,onModelChange,thi
     {context}<button type="button" className={`composer-tool composer-voice ${listening?'is-listening':''}`} aria-label={!Voice?'Voice input unavailable':listening?'Stop voice input':'Start voice input'} aria-pressed={listening} title={!Voice?'Voice input is unavailable in this browser':listening?'Stop listening':'Dictate into your draft'} disabled={locked||!Voice} onClick={startVoice}>{microphone}<span className="sr-only">{listening?'Listening':''}</span></button>{trailing}
    </div>
   </div>
-  {error&&<div className="composer-toolbar-error" role="alert">{error}<button type="button" className="composer-dismiss" aria-label="Dismiss composer error" onClick={()=>setError('')}>{close}</button></div>}
+  {error&&<div className="composer-toolbar-error" role="status">{error}<button type="button" className="composer-dismiss" aria-label="Dismiss composer error" onClick={()=>setError('')}>{close}</button></div>}
  </div>;
 }

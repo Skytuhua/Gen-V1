@@ -37,10 +37,12 @@ it('uses the shared area menu for keyboard editor selection, Escape and outside 
   const choice=tab.getByRole('menuitem',{name:'Editor: Diff',exact:true});await choice.focus();await choice.press('Enter');
   await tab.waitForFunction(()=>(window as any).editorChoices.length===1);
   expect(await tab.evaluate(()=>(window as any).editorChoices)).toEqual([{kind:'diff',paneId:'right'}]);
+  await tab.waitForFunction(()=>!document.querySelector('[role="menu"][data-state="open"]')&&(document.activeElement as HTMLElement)?.getAttribute('aria-label')==='Area actions');
   expect(await tab.getByRole('menu').count()).toBe(0);expect(await trigger.evaluate(node=>node===document.activeElement)).toBe(true);
   await trigger.press('ArrowDown');await tab.getByRole('menu').waitFor();await tab.keyboard.press('Escape');
+  await tab.waitForFunction(()=>!document.querySelector('[role="menu"][data-state="open"]')&&(document.activeElement as HTMLElement)?.getAttribute('aria-label')==='Area actions');
   expect(await tab.getByRole('menu').count()).toBe(0);expect(await trigger.evaluate(node=>node===document.activeElement)).toBe(true);
-  await trigger.click();await tab.getByRole('textbox',{name:'Draft two'}).click();expect(await tab.getByRole('menu').count()).toBe(0);
+  await trigger.click();await tab.getByRole('menu').waitFor();await tab.getByRole('textbox',{name:'Draft two'}).click();await tab.waitForFunction(()=>!document.querySelector('[role="menu"][data-state="open"]'));expect(await tab.getByRole('menu').count()).toBe(0);
  }finally{await tab.close();}
 });
 

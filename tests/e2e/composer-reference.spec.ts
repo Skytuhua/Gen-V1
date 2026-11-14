@@ -28,7 +28,7 @@ test('reference composer has context chips above one compact footer and keeps ev
  const fixture=await mount(page);const card=fixture.locator('.composer'),actions=fixture.locator('.composer-secondary-actions');await expect(actions).toBeVisible();await expect(actions.getByRole('button',{name:'Create PR',exact:true})).toBeVisible();
  expect((await actions.boundingBox())!.y+(await actions.boundingBox())!.height).toBeLessThanOrEqual((await card.boundingBox())!.y);
  const footer=card.locator('.composer-toolbar');for(const name of ['Attach reference files','Open project folder','Inspect reference context','Send reference message'])await expect(footer.getByRole('button',{name,exact:true})).toBeVisible();
- await expect(footer.getByRole('combobox',{name:'Model',exact:true})).toBeVisible();await expect(footer.getByRole('combobox',{name:'Thinking effort',exact:true})).toBeVisible();await expect(footer.getByRole('button',{name:'Create PR',exact:true})).toHaveCount(0);
+ await expect(footer.getByRole('combobox',{name:'Model',exact:true})).toBeVisible();await expect(footer.locator('.model-picker-trigger-effort')).toHaveText('Medium');await expect(footer.getByRole('button',{name:'Create PR',exact:true})).toHaveCount(0);
  const controls=await footer.locator('.composer-footer-main').boundingBox();expect(controls!.height).toBeLessThanOrEqual(38);expect((await card.boundingBox())!.height).toBeLessThanOrEqual(122);
  await actions.getByRole('button',{name:'Inspect changes',exact:true}).click();await actions.getByRole('button',{name:'Create PR',exact:true}).click();await footer.getByRole('button',{name:'Open project folder',exact:true}).click();expect(await page.evaluate(()=>(window as unknown as {composerReferenceEvents:string[]}).composerReferenceEvents)).toEqual(['changes','pr','project']);
 });
@@ -47,7 +47,7 @@ test('close X is red while non-destructive chrome stays neutral, with saturated 
 
 test('reference composer reflows by its own width, preserves keyboard access and avoids horizontal overflow',async({page})=>{
  const fixture=await mount(page,390);await page.emulateMedia({reducedMotion:'reduce'});const dock=fixture.locator('.composer-dock');expect(await dock.evaluate(node=>node.scrollWidth<=node.clientWidth)).toBe(true);
- const footer=fixture.locator('.composer-toolbar');await footer.getByRole('combobox',{name:'Thinking effort',exact:true}).focus();await page.keyboard.press('Tab');await expect(footer.getByRole('combobox',{name:'Model',exact:true})).toBeFocused();
+ const footer=fixture.locator('.composer-toolbar');const trigger=footer.getByRole('combobox',{name:'Model',exact:true});await trigger.focus();await page.keyboard.press('Enter');const picker=page.getByRole('dialog',{name:'Model and reasoning',exact:true});await expect(picker.getByRole('searchbox',{name:'Search models',exact:true})).toBeFocused();await page.keyboard.press('Escape');await expect(picker).toHaveCount(0);await expect(trigger).toBeFocused();
  await footer.getByRole('button',{name:'Send reference message',exact:true}).focus();await expect(footer.getByRole('button',{name:'Send reference message',exact:true})).toBeFocused();
  await expect(footer.getByText('Local',{exact:true})).toBeVisible();for(const name of ['Open project folder','Inspect reference context','Send reference message']){const box=await footer.getByRole('button',{name,exact:true}).boundingBox();expect(box!.x).toBeGreaterThanOrEqual(0);expect(box!.x+box!.width).toBeLessThanOrEqual(390);}
 });

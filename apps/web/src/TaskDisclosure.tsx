@@ -85,7 +85,7 @@ export function Disclosure({ element: { props }, children, bindings }: Component
         <div className="disclosure-body">
           <IncomingAnswer text={text} pending={pending} />
           {pending && <span className={`disclosure-pending${text ? ' has-answer' : ''}`} role="status">{!text && <span className="disclosure-loading-mark" aria-hidden="true" />}<span className="sr-only">{text ? 'Updating answer…' : 'Preparing an answer…'}</span></span>}
-          {error && <div className="disclosure-error" role="alert"><span>{error}</span>{Boolean(props.onOpenActionId) && <button type="button" className="quiet" disabled={pending} onClick={request}><RotateCcw size={12} />Try again</button>}</div>}
+          {error && <div className="disclosure-error" role="status"><span>{error}</span>{Boolean(props.onOpenActionId) && <button type="button" className="quiet" disabled={pending} onClick={request}><RotateCcw size={12} />Try again</button>}</div>}
         </div>
       </DisclosureRegion>
     </div>

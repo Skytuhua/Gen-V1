@@ -146,3 +146,11 @@ test('later review failures or duplicate identities never present a complete che
   await expect(page.getByRole('region',{name:'Checkpoint review'}).locator('.workspace-diff')).toHaveCount(0);
  }
 });
+
+test('QA #130 displays escaped control paths and reviews their exact original bytes',async({page},testInfo)=>{
+ await page.goto('/file-checkpoints?state=controls');await page.getByRole('button',{name:'Review Before updating workspace layout',exact:true}).click();
+ const summaries=page.getByRole('region',{name:'Checkpoint review'}).locator('.workspace-diff summary');await expect(summaries).toHaveCount(2);
+ await expect(summaries.nth(0)).toHaveText('src/notes\\t2026.txt');await expect(summaries.nth(1)).toHaveText('src/notes\\n2026.txt');
+ const paths=await page.evaluate(()=>(window as unknown as {checkpointCalls:{kind:string;paths?:string[]}[]}).checkpointCalls.find(call=>call.kind==='review')?.paths);
+ expect(paths).toEqual(['src/notes\t2026.txt','src/notes\n2026.txt']);await expect(page.getByRole('button',{name:'Restore selected files'})).toBeDisabled();await page.screenshot({path:testInfo.outputPath('control-paths.png'),fullPage:true});
+});
