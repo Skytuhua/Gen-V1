@@ -8,15 +8,23 @@ const leaseId=(providerId:ConnectionProviderId,accountId:string|null)=>JSON.stri
 type LoginLease={id:string;nonce:string;expiresAt:number;ownerPid:number;shutdownUnconfirmed?:boolean};
 type AccountUse=AccountUseLease&{providerId:ConnectionProviderId;accountId:string|null;ownerPid:number;shutdownUnconfirmed?:boolean};
 const ownerAlive=(pid:number)=>{try{process.kill(pid,0);return true;}catch{return false;}};
-/** A lease counts only while its declaring process is alive inside its expiry
-    window; a dead console leaves shutdownUnconfirmed rows blocked on purpose. */
-export const liveAccountLease=(record:{expiresAt:number;ownerPid:number}|null|undefined)=>!!record&&record.expiresAt>Date.now()&&ownerAlive(record.ownerPid);
+/** A lease still reads as held while its owner lives or its expiry window is
+    open; a dead owner past expiry is stale. Admission stays strict — callers
+    decide whether a stale lease may be swept. */
+export const liveAccountLease=(record:{expiresAt:number;ownerPid:number}|null|undefined)=>!!record&&(ownerAlive(record.ownerPid)||record.expiresAt>Date.now());
+/** Boot-time sweep: leases whose owner process is gone can never be released by
+    their owner. shutdownUnconfirmed rows stay blocked until explicitly resolved. */
+export function sweepStaleAccountLeases(store:Store):void {
+ const now=Date.now();
+ for(const login of store.all<LoginLease>('accountLogin'))if(!login.shutdownUnconfirmed&&!ownerAlive(login.ownerPid)&&login.expiresAt<=now)store.remove('accountLogin',login.id);
+ for(const use of store.all<AccountUse>('accountUse'))if(!use.shutdownUnconfirmed&&!ownerAlive(use.ownerPid))store.remove('accountUse',use.id);
+}
 export const modelProvider=(modelId:string)=>modelId.split('/')[0];
 export function accountResolver(store:Store):RuntimeAccountResolver {
  return {
   get:id=>isAccountId(id)?store.get<ConnectionAccount>('account',id):null,
   // A dead/expired console is not proof that all of its native children stopped.
-  isSigningIn:(providerId,accountId)=>liveAccountLease(store.get<LoginLease>('accountLogin',leaseId(providerId,accountId))),
+  isSigningIn:(providerId,accountId)=>!!store.get<LoginLease>('accountLogin',leaseId(providerId,accountId)),
   claimUse:(providerId,accountId)=>store.internal('account.use.started',null,()=>{
    assertAccountAvailable(store,providerId,accountId);
    const use:AccountUse={id:randomUUID(),nonce:randomUUID(),providerId,accountId,ownerPid:process.pid};store.put('accountUse',use.id,null,use);return {id:use.id,nonce:use.nonce};
@@ -45,9 +53,6 @@ export function resolveLoginAccount(store:Store,providerId:ConnectionProviderId,
 export function beginAccountLogin(store:Store,providerId:ConnectionProviderId,accountId?:string|null):{id:string;nonce:string} {
  return store.internal('account.login.started',null,()=>{
   const saved=resolveLoginAccount(store,providerId,accountId),selected=saved?.id??null;
-  // Claims whose owner process is gone can never be released; prune them while
-  // keeping live claims and shutdownUnconfirmed blocks in force.
-  for(const use of store.all<AccountUse>('accountUse').filter(use=>use.providerId===providerId&&use.accountId===selected&&!use.shutdownUnconfirmed&&!ownerAlive(use.ownerPid)))store.remove('accountUse',use.id);
   // Check durable run authority before reserving credential mutation, including side sessions.
   if(store.all<AccountUse>('accountUse').some(use=>use.providerId===providerId&&use.accountId===selected)||store.all<Thread>('thread').some(thread=>thread.runId&&thread.modelId&&modelProvider(thread.modelId)===providerId&&(thread.accountId??null)===selected))throw new HarnessError('ACCOUNT_BUSY','This account is still in use. Wait for its native runtime to close before signing in.');
   assertAccountAvailable(store,providerId,selected);
