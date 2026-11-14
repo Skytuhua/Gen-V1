@@ -74,3 +74,19 @@ test('shell notice enters, pauses on hover, auto-expires and exits before unmoun
  await expect(notice).toBeVisible();expect(await notice.evaluate(node=>getComputedStyle(node).animationName)).toBe('none');
  await notice.getByRole('button',{name:'Dismiss notification',exact:true}).click();await expect(notice).toHaveCount(0,{timeout:2000});
 });
+
+test('shell notice stays visible when the pointer leaves but keyboard focus remains',async({page})=>{
+ await serveTaskFixture(page,fixture());await page.goto('/');
+ await page.clock.install();
+ const fixturePath='/@fs/'+resolve('tests/e2e/shell-notice-fixture.tsx').replaceAll('\\','/');
+ await page.evaluate(async path=>{
+  const {mountNotice}=await import(path),root=document.createElement('div');
+  root.setAttribute('aria-label','Paused notice fixture');document.body.append(root);mountNotice(root);
+ },fixturePath);
+ const notice=page.locator('[aria-label="Paused notice fixture"]').getByRole('status');
+ const dismiss=notice.getByRole('button',{name:'Dismiss notification',exact:true});
+ await expect(notice).toBeVisible();await notice.hover();await dismiss.focus();await page.mouse.move(0,0);
+ await page.clock.runFor(7000);await expect(notice).toBeVisible();await expect(dismiss).toBeFocused();
+ await dismiss.blur();await page.clock.fastForward(6100);await page.clock.fastForward(200);
+ await expect(notice).toHaveCount(0);
+});

@@ -10,3 +10,8 @@ if(host){
  const render=(message:string)=>node.render(createElement(ShellNotice,{message,onDismiss:()=>render('')}));
  Object.assign(window,{noticeFixture:{render}});
 }
+
+export function mountNotice(container:HTMLElement) {
+ const root=createRoot(container);
+ root.render(<ShellNotice message="Keep this visible." onDismiss={()=>root.unmount()}/>);
+}
