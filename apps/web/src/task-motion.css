@@ -1,5 +1,21 @@
 .task-motion-region { height:0; overflow:clip; transition-property:none; }
 .task-motion-inner { display:flow-root; min-width:0; transition-property:none; }
+/* Journal values determine layout before the reservation becomes visible. */
+.artifact[data-artifact-measuring=true] { visibility:hidden; }
+.artifact>.artifact-body { display:grid; }
+.artifact>.artifact-body>:is(.artifact-content,.artifact-restoring) { grid-area:1 / 1; min-width:0; }
+.artifact-restoring { align-self:start; }
+/* Save feedback must not change the header's reserved height. */
+.artifact[data-artifact-inline=true] .save-state { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.artifact[data-artifact-pending=true]>.artifact-body>.artifact-content,
+.artifact[data-artifact-pending=true]>.artifact-body>.artifact-content *,
+.artifact[data-artifact-pending=true] .artifact-tools>:not([aria-label="Collapse artifact"]) { visibility:hidden!important; }
+/* Reserve the existing iframe extent through mount, failure and retry. */
+.widget-container { display:grid; grid-template-rows:auto 450px; }
+.artifact:is(.artifact-expanded,.artifact-in-workspace) .widget-container { grid-template-rows:auto max(450px,60vh); }
+.widget-container>:is(.widget-frame,.widget-loading,.widget-mount-error) { grid-area:2 / 1; min-width:0; }
+.widget-container>:is(.widget-loading,.widget-mount-error) { align-self:start; z-index:1; }
+.widget-container>.widget-action-error { grid-area:1 / 1; }
 .task-incoming-answer { position:relative; }
 .task-answer-reveal { position:absolute; display:block; background:var(--surface); pointer-events:none; user-select:none; will-change:opacity,backdrop-filter,clip-path; }
 @media(prefers-reduced-motion:reduce) { .task-answer-reveal { will-change:opacity; } }

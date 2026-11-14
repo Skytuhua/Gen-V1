@@ -4,6 +4,7 @@ import { Eraser, PenLine, Type, Upload, Undo2 } from 'lucide-react';
 import type { SignaturePadProps } from '../../../packages/ui-catalog/documents';
 import { MAX_SIGNATURE_POINTS, readVisualSignature, signatureStrokes, validateSignaturePng, type SignaturePoint, type VisualSignature } from '../../../packages/ui-catalog/signature-data';
 import { pngDataUrl, useDocumentAssets } from './signature-assets';
+import {useSecureArtifact} from './secure-artifact-context';
 import '@fontsource/caveat/400.css';
 import '@fontsource/dancing-script/400.css';
 import './document-preview.css';
@@ -16,6 +17,7 @@ const styles = [{ label: 'Handwritten', font: 'Caveat' }, { label: 'Flowing', fo
 function canonicalCanvas() { const canvas = document.createElement('canvas'); canvas.width = 960; canvas.height = 320; return canvas; }
 
 export function SignaturePad({ stateKey, label = 'Your signature', initialMode = 'generate', nameStateKey }: SignaturePadProps) {
+  const editable = useSecureArtifact()?.editable !== false;
   const store = useStateStore(), assets = useDocumentAssets(), path = documentStatePath(stateKey), raw = store.get(path);
   let signature: VisualSignature | null = null, stateError = '';
   try { signature = readVisualSignature(raw); } catch (error) { stateError = (error as Error).message; }
@@ -58,8 +60,8 @@ export function SignaturePad({ stateKey, label = 'Your signature', initialMode =
     } catch (cause) { setError((cause as Error).message); }
   };
   useEffect(() => {
-    if (visible && mode === 'generate' && ready && !signature && !pendingUrl && name.trim() && !generatedInitial.current) generate(nameStateKey && !editingName ? sourceName : name);
-  }, [visible, mode, ready, serialized, pendingUrl, name, sourceName, nameStateKey, editingName]);
+    if (editable && visible && mode === 'generate' && ready && !signature && !pendingUrl && name.trim() && !generatedInitial.current) generate(nameStateKey && !editingName ? sourceName : name);
+  }, [visible, mode, ready, serialized, pendingUrl, name, sourceName, nameStateKey, editingName, editable]);
   const upload = async (file: File | undefined) => {
     if (!file) return; const generation = ++uploadGeneration.current; setError('');
     const finishPreparation=assets?.beginPreparation();

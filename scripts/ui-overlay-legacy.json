@@ -15,17 +15,6 @@
       "disposition": "retained-geometry"
     },
     {
-      "file": "apps/web/src/Artifact.tsx",
-      "line": 121,
-      "column": 41,
-      "rule": "ad-hoc-overlay",
-      "message": "overlay role dialog: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-      "fingerprint": "fe0915b06173e4ccd6f3990e3bcf0b2123e227babe66657398f9abc5c71b2678",
-      "reason": "TOOLS: migrate expanded artifact to shared Modal, retaining artifact identity.",
-      "evidence": "<section ref={section} className={`artifact artifact-width-${artifact.presentation?.width ?? 'standard'} artifact-frame-${artifact.presentation?.frame ?? 'card'} ${expanded ? 'artifact-expanded' : ''} ${inWorkspace ? 'ar",
-      "disposition": "staged-migration"
-    },
-    {
       "file": "apps/web/src/chat-scroll-indicator.css",
       "line": 4,
       "column": 1,
@@ -188,17 +177,6 @@
       "fingerprint": "d186395fde1467d94f13be38aa02ffaf851f921f7ee0448de14df78020f190a1",
       "reason": "SHELL1/LAYOUT: retain exact artifact containment until parent shell integration.",
       "evidence": ".artifact.artifact-in-workspace { position:fixed; z-index:31; right:14px; top:110px; bottom:14px; width:calc(var(--right-panel-width) - 28px); max-width:none; margin:0; display:flex; flex-direction:column; border:1px sol",
-      "disposition": "staged-migration"
-    },
-    {
-      "file": "apps/web/src/shell.css",
-      "line": 271,
-      "column": 1,
-      "rule": "ad-hoc-overlay",
-      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "dee2450e1b1a0ea3f8e969342788755803615791f88167ed116f719431d58d7c",
-      "reason": "COPY/SHELL2: notice raised to bottom:64px so the toast clears the collapsed summary strips (QA overlap fix); enter/exit motion tokens with reduced-motion fallback until the shared status/error owner replaces it.",
-      "evidence": ".shell-notice { position:fixed; bottom:64px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:14px; max-width:calc(100vw - 28px); border:1px solid var(--border); background:var(--surface); box-",
       "disposition": "staged-migration"
     },
     {
@@ -431,6 +409,17 @@
       "reason": "WO-7 reviewed geometry: table-local column hit target or pointer-transparent gesture feedback; no popup, dismissal or modal behavior.",
       "evidence": ".task-table-drag-preview { position:absolute; z-index:5; pointer-events:none; display:flex; align-items:center; gap:4px; height:34px; max-width:220px; overflow:hidden; white-space:nowrap; padding:8px 12px; border:1px solid var(--border); border-radius:6px; background:var(--surface); color:var(--text); font:500 10px var(--font-mono,monospace); }",
       "disposition": "retained-geometry"
+    },
+    {
+      "file": "apps/web/src/Artifact.tsx",
+      "line": 144,
+      "column": 41,
+      "rule": "ad-hoc-overlay",
+      "message": "overlay role dialog: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
+      "fingerprint": "4aba586360bd624c42079414cbd6f5accfbdb282756d0af3846ecce50dd06200",
+      "reason": "TOOLS: migrate expanded artifact to shared Modal, retaining artifact identity.",
+      "evidence": "<section ref={section} className={`artifact artifact-width-${artifact.presentation?.width ?? 'standard'} artifact-frame-${artifact.presentation?.frame ?? 'card'} ${expanded ? 'artifact-expanded' : ''} ${inWorkspace ? 'ar",
+      "disposition": "staged-migration"
     }
   ]
 }
