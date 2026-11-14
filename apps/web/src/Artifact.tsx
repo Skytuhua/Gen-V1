@@ -15,7 +15,7 @@ import { useModalRegion } from './focus';
 import { useWorkspace } from './workspace-context';
 import { DocumentAssetProvider, hasPendingDocumentAssets } from './signature-assets';
 import { DocumentEvidenceProvider, type DocumentHandoffState } from './document-evidence';
-import { useArtifactEntrance } from './task-motion';
+import { animateTask, useArtifactEntrance } from './task-motion';
 import {useDesktop,useDesktopCloseGuard,useDetachedSurface,usePendingSurface} from './desktop-context';
 import {journalFlush} from './journal';
 
@@ -62,12 +62,22 @@ export function Artifact({ artifact: incoming, snapshot, theme, refresh, onDirty
   const widget = useRef<WidgetHandle>(null);
   const section = useRef<HTMLElement>(null);
   useArtifactEntrance(section, animateEntry);
+  const placed = useRef({ expanded: false, inWorkspace: false });
   const expandButton = useRef<HTMLElement | null>(null);
   const pendingApproval = useRef<string | null>(null);
   const [widgetRecord, setWidgetRecord] = useState<UserStateRecord | undefined>(record);
   const standaloneEditor=embedded||desktop?.context.surface.kind==='artifact'||desktop?.context.surface.kind==='workspace'&&desktop.context.surface.tab==='artifact';
   const expanded = incoming.placement === 'expanded'&&!editorHeld&&!standaloneEditor;
   const inline = !expanded && !inWorkspace && !standaloneEditor;
+  useLayoutEffect(() => {
+    const element = section.current, before = placed.current;
+    placed.current = { expanded, inWorkspace };
+    if (!element || (before.expanded === expanded && before.inWorkspace === inWorkspace)) return;
+    // Entering the docked panel slides in from the rail; returning inline settles like a new row.
+    animateTask(element, inWorkspace || expanded
+      ? [{ opacity: 0, transform: 'translateX(12px)' }, { opacity: 1, transform: 'translateX(0)' }]
+      : [{ opacity: .5, transform: 'translateY(4px)' }, { opacity: 1, transform: 'translateY(0)' }], inWorkspace || expanded ? 220 : 180);
+  }, [expanded, inWorkspace]);
   const act = async (type: string, payload: Record<string, unknown>) => {
     if (type === 'artifact.expand' && payload.expanded) expandButton.current = section.current?.querySelector<HTMLElement>('[aria-label="Expand artifact"]') ?? null;
     if (type === 'artifact.archive' && widgetDirty) { setArchiveGuard(true); return; }
