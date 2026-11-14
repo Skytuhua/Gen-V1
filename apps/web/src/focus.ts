@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, type RefObject } from 'react';
 
-const focusable = 'button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), a[href], summary, iframe, [tabindex="0"]';
+const focusable = 'button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), a[href], area[href], summary, iframe, audio[controls], video[controls], [contenteditable]:not([contenteditable="false"]), [tabindex]:not([tabindex^="-"])';
 
 // Apply modal behavior to the existing DOM branch, preserving artifact identity.
 export function useModalRegion(ref: RefObject<HTMLElement | null>, active: boolean, close: () => void, initial: string, companion?: RefObject<HTMLElement | null>) {
