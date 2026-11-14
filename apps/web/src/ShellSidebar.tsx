@@ -59,7 +59,7 @@ export function projectMonogram(name?: string | null): string {
   if (!cleaned) return 'CV';
   const parts = cleaned.split(/[\s._/-]+/).filter(Boolean);
   if (parts.length >= 2) return (parts[0]![0]! + parts[1]![0]!).toUpperCase();
-  const word = parts[0]!.replace(/[^A-Za-z0-9]/g, '');
+  const word = (parts[0] ?? '').replace(/[^A-Za-z0-9]/g, '');
   if (!word) return 'CV';
   return word.slice(0, 2).toUpperCase();
 }
