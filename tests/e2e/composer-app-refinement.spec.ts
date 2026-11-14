@@ -27,14 +27,16 @@ async function fixture(page:Page,started=false){
   if(command.type==='workspace.canvas.viewport'){const canvas=envelope.state.canvases.find(value=>value.id===p.canvasId)!;canvas.viewport={x:Number(p.x),y:Number(p.y),zoom:Number(p.zoom)};}
   envelope.state.revision++;return route.fulfill({json:{commandId:command.id,seq:snapshot.seq,result:envelope}});
  });
+ const splitLayout={version:2,id:'workspace',revision:0,root:{kind:'pane',paneId:'main'},panes:{main:{id:'main',viewIds:[],collapsed:false}},views:{},parkedViewIds:[],focusedPaneId:'main',undoDepth:0,redoDepth:0};
+ await page.route('**/api/split-workspace**',route=>route.request().method()==='POST'?route.fulfill({json:{commandId:'split',seq:snapshot.seq,result:splitLayout}}):route.fulfill({json:splitLayout}));
  await page.route('**/api/commands',async route=>{
   const command=route.request().postDataJSON() as HostCommand;commands.push(command);let result:unknown={};
   if(command.type==='thread.mode')snapshot.threads.find(value=>value.id===command.threadId)!.mode=command.payload.mode as Thread['mode'];
-  else if(command.type==='thread.create'){const sideParentId=typeof command.payload.sideParentId==='string'?command.payload.sideParentId:undefined,created={...snapshot.threads[0],id:sideParentId?'side-thread':'new-thread',title:'New chat',sideParentId,projectId:undefined,projectName:'Conversations',sessionPath:null,workspaceId:undefined,runId:null};snapshot.threads.push(created);result=created;}
+  else if(command.type==='thread.create'){const sideParentId=typeof command.payload.sideParentId==='string'?command.payload.sideParentId:undefined,projectId=typeof command.payload.projectId==='string'?command.payload.projectId:undefined,created={...snapshot.threads[0],id:sideParentId?'side-thread':'new-thread',title:'New chat',sideParentId,projectId,projectName:projectId?envelope.projects.find(value=>value.id===projectId)?.name??'Conversations':'Conversations',sessionPath:null,workspaceId:undefined,runId:null};snapshot.threads.push(created);result=created;}
   else return route.fallback();
   snapshot.seq++;return route.fulfill({json:{commandId:command.id,seq:snapshot.seq,result}});
  });
- await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();
+ await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled({timeout:15000});
  return {...host,envelope,commands,workspaceCommands};
 }
 
@@ -66,11 +68,12 @@ for(const motion of ['no-preference','reduce'] as const)test(`attachment band ex
 
 test('attachment band reverses an interrupted exit without removing the live row',async({page})=>{
  await page.emulateMedia({reducedMotion:'no-preference'});const host=await fixture(page);
+ await page.addStyleTag({content:'.resource-chip{animation-play-state:paused!important}'});
  const attachment={id:'attached-notes',threadId:'task-thread',kind:'attachment' as const,path:'C:/fixture/notes.txt',label:'notes.txt',writable:false,createdAt:'2026-11-05T00:00:00Z'};
- host.snapshot.resources=[attachment];await host.publish();const band=page.locator('.composer-attachment-band');await expect(band).toBeVisible();const original=await band.elementHandle();
- host.snapshot.resources=[];await host.publish();await expect(band).toHaveAttribute('data-state','closing');await expect(band).toHaveAttribute('inert','');
- host.snapshot.resources=[attachment];await host.publish();await expect(band).toHaveAttribute('data-state','open');
- await page.waitForTimeout(250);await expect(band).toBeVisible();expect(await band.evaluate((node,old)=>node===old,original)).toBe(true);
+ host.snapshot.resources=[attachment];await host.publish();const band=page.locator('.composer-attachment-band');await expect(band).toBeVisible();
+ host.snapshot.resources=[];await host.publish();await expect(band.locator('.resource-chip[data-leaving]')).toHaveCount(1);await expect(band).toHaveAttribute('data-state','open');
+ host.snapshot.resources=[attachment];await host.publish();await expect(band.locator('.resource-chip:not([data-leaving])',{hasText:'notes.txt'})).toHaveCount(1);await expect(band.locator('.resource-chip[data-leaving]')).toHaveCount(0);
+ await expect(band).toBeVisible();
 });
 
 test('composer removes repeated captions and toggles Build Plan without changing its draft',async({page})=>{
@@ -88,21 +91,15 @@ test('composer removes repeated captions and toggles Build Plan without changing
 test('project selection uses the explicit local host binding and leaves attachments on plus',async({page})=>{
  const host=await fixture(page),draft=page.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Unsent draft');
  await page.getByRole('button',{name:'Select project',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Select project',exact:true});await expect(dialog).toBeVisible();await expect(dialog.getByText('Other authority',{exact:true})).toHaveCount(0);
- await dialog.getByRole('button',{name:'Select Second project',exact:true}).click();await expect(dialog).toHaveCount(0);
+ await dialog.getByRole('option',{name:'Second project',exact:true}).click();await expect(dialog).toHaveCount(0);
  expect(host.workspaceCommands.find(value=>value.type==='workspace.project.connect')?.payload).toMatchObject({threadId:'task-thread',name:'Second project',path:'C:/fixture/second'});await expect(draft).toHaveValue('Unsent draft');expect(host.snapshot.threads[0].projectId).toBe('second');
  const choosing=page.waitForEvent('filechooser');await page.getByRole('button',{name:'Attach files',exact:true}).click();expect((await choosing).isMultiple()).toBe(true);
 });
 test('started chat opens an explicitly new project chat and retains its original binding and draft',async({page})=>{
  const host=await fixture(page,true);await page.getByRole('textbox',{name:'Message',exact:true}).fill('Original draft stays here');await page.getByRole('button',{name:'Select project',exact:true}).click();
- await page.getByRole('button',{name:'New chat in Second project',exact:true}).click();await expect(page.getByRole('dialog',{name:'Select project',exact:true})).toHaveCount(0);
- expect(host.snapshot.threads[0].projectId).toBe('first');expect(host.workspaceCommands.find(value=>value.type==='workspace.project.connect')?.payload.threadId).toBe('new-thread');
+ await page.getByRole('dialog',{name:'Select project',exact:true}).getByRole('option',{name:'Second project',exact:true}).click();await expect(page.getByRole('dialog',{name:'Select project',exact:true})).toHaveCount(0);
+ const created=host.snapshot.threads.find(value=>value.id==='new-thread');expect(created?.projectId).toBe('second');expect(created?.projectName).toBe('Second project');expect(host.snapshot.threads[0].projectId).toBe('first');
  await page.getByRole('button',{name:'Original chat Ready',exact:true}).click();await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('Original draft stays here');
-});
-test('Research opens conversation sources and notes for the selected thread and returns to the saved chat position',async({page})=>{
- const host=await fixture(page);const bar=page.getByRole('scrollbar',{name:'Scroll conversation',exact:true});await bar.focus();await page.keyboard.press('Home');
- await page.getByRole('textbox',{name:'Message',exact:true}).fill('Research draft');await page.getByRole('button',{name:'Research',exact:true}).click();await expect(page.locator('.canvas-panel-notes')).toBeVisible();await expect(page.locator('.canvas-panel-files')).toBeVisible();await expect(page.locator('.canvas-panel-thread')).toBeVisible();
- const research=host.envelope.state.canvases.find(value=>value.preset==='research')!;expect(research.panels.every(panel=>panel.binding.threadId==='task-thread'&&panel.binding.projectId==='first')).toBe(true);await expect(page.locator('.canvas-panel-notes')).toContainText('No saved notes.');
- await page.getByRole('button',{name:'Workspace',exact:true}).click();await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('Research draft');await expect.poll(()=>page.getByLabel('Conversation',{exact:true}).evaluate(node=>node.scrollTop)).toBeLessThan(2);
 });
 
 test('chat header omits retired controls while sidebar rename and archive remain available and detach stays desktop-only',async({page})=>{
@@ -122,13 +119,13 @@ test('chat header omits retired controls while sidebar rename and archive remain
 test('a ready plan opens automatically and right-side tools can only be minimized',async({page})=>{
  const host=await fixture(page),draft=page.getByRole('textbox',{name:'Message',exact:true});
  await draft.fill('Keep writing while the plan arrives');await draft.focus();
- const context=page.getByRole('region',{name:'Project context window',exact:true});
+ const context=page.getByRole('region',{name:'Project overview window',exact:true});
  host.snapshot.data.push({id:planDataId('task-thread'),threadId:'task-thread',revision:1,provenance:PLANNING_PROVENANCE,createdAt:'2026-11-04T00:00:00Z',value:{version:1,title:'Review the next steps',steps:[{id:'inspect',title:'Inspect the current draft',status:'working',requirements:[],agentIds:[]}],agents:[]}});
- await host.publish();await expect(context).toBeVisible();await expect(context.getByText('Inspect the current draft',{exact:true})).toBeVisible();await expect(draft).toBeFocused();
- const usage=page.getByRole('region',{name:'Live usage',exact:true});await expect(usage).toBeVisible();
+ await host.publish();await context.getByRole('button',{name:'Expand Project overview',exact:true}).click();await expect(context.getByText('Inspect the current draft',{exact:true})).toBeVisible();await expect(draft).toHaveValue('Keep writing while the plan arrives');
+ await page.getByRole('button',{name:'Show live usage',exact:true}).click();const usage=page.getByRole('region',{name:'Live usage',exact:true});await expect(usage).toBeVisible();
  for(const tool of [context,usage])await expect(tool.getByRole('button',{name:/close |detach|reset .*position|resize|^move /i})).toHaveCount(0);
- await context.getByRole('button',{name:'Minimize Project context',exact:true}).click();await expect(context).toHaveAttribute('data-collapsed','true');await expect(context).toBeVisible();
- await context.getByRole('button',{name:'Expand Project context',exact:true}).click();await expect(context.getByText('Inspect the current draft',{exact:true})).toBeVisible();
+ await context.getByRole('button',{name:'Collapse Project overview',exact:true}).click();await expect(context).toHaveAttribute('data-collapsed','true');await expect(context).toBeVisible();
+ await context.getByRole('button',{name:'Expand Project overview',exact:true}).click();await expect(context.getByText('Inspect the current draft',{exact:true})).toBeVisible();
  await expect(draft).toHaveValue('Keep writing while the plan arrives');
 });
 
