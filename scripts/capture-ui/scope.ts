@@ -46,9 +46,23 @@ export function discover(days: number, run: Run = defaultRun, now: Date = new Da
     try {
       // Filter the full walk so an older-dated commit cannot hide later commits.
       const lines = readGit(['log', 'origin/main', '--first-parent', `--since-as-filter=${since}T00:00:00Z`, '--format=%H%x09%cI%x09%s'], 'git history unavailable');
+      const filesAt = (sha: string) => {
+        const args = ['diff-tree', '--no-commit-id', '--name-only', '-z', '-r'];
+        const context = `git files unavailable for ${sha}`;
+        try { return readGit([...args, `${sha}^1`, sha], context); }
+        catch (error) {
+          // Shallow boundaries also lack a traversable first parent. Only an
+          // actual parentless commit should be compared with the empty tree.
+          let header: string;
+          try { header = run('git', ['cat-file', 'commit', sha]).split(/\r?\n\r?\n/, 1)[0]; }
+          catch { throw error; }
+          if (!header.startsWith('tree ') || /^parent /m.test(header)) throw error;
+          return readGit([...args, '--root', sha], context);
+        }
+      };
       prs = parseGitLog(lines).map(({ sha, ...pr }) => ({
         ...pr,
-        files: parseFilePaths(readGit(['diff-tree', '--no-commit-id', '--name-only', '-z', '-r', `${sha}^1`, sha], `git files unavailable for ${sha}`)).map(path => ({ path })),
+        files: parseFilePaths(filesAt(sha)).map(path => ({ path })),
       }));
       source = 'git';
     } catch (error) { throw Error(`gh discovery failed (${warnings[0]}); ${message(error)}`); }
