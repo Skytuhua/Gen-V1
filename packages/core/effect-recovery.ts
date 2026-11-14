@@ -1,4 +1,4 @@
-import { HarnessError } from "../contracts/index.ts";
+import { HarnessError, type Operation } from "../contracts/index.ts";
 import type { EffectState, ObservationFreshness, ToolEffectRecord } from "../contracts/tool-effects.ts";
 import type { RegistryEntry } from "./tool-authority.ts";
 import type { Store } from "../storage/store.ts";
@@ -19,12 +19,23 @@ export function recoverEffects(store: Store): { uncertain: string[]; interrupted
   const uncertain: string[] = [], interrupted: string[] = [];
   for (const effect of store.all<ToolEffectRecord>("toolEffect")) {
     if (effect.state === "DISPATCHED") {
+      // An operation dispatch that committed its own record before the crash is
+      // a recorded result, not an uncertainty: settle the effect from it.
+      const opMatch = /^operation:(.+)@(\d+)$/.exec(effect.invocationId);
+      const operation = opMatch ? store.get<Operation>("operation", opMatch[1]) : null;
+      const recorded = operation && ["succeeded", "failed", "cancelled"].includes(operation.status)
+        ? ({ succeeded: "SUCCEEDED", failed: "FAILED", cancelled: "CANCELLED" } as const)[operation.status as "succeeded" | "failed" | "cancelled"]
+        : null;
       store.internal("toolEffect.recovered", effect.threadId, () => {
         const current = store.get<ToolEffectRecord>("toolEffect", effect.invocationId);
-        if (current?.state === "DISPATCHED") store.put("toolEffect", current.invocationId, current.threadId, appendTransition(current, "UNKNOWN_EXTERNAL_OUTCOME", "host_restart"));
+        if (current?.state !== "DISPATCHED") return { effectId: effect.effectId };
+        if (recorded)
+          store.put("toolEffect", current.invocationId, current.threadId, { ...appendTransition(current, recorded, "host_restart: recorded in operation ledger"), outcome: { value: operation?.result ?? null, error: operation?.error ?? undefined } });
+        else
+          store.put("toolEffect", current.invocationId, current.threadId, appendTransition(current, "UNKNOWN_EXTERNAL_OUTCOME", "host_restart"));
         return { effectId: effect.effectId };
       });
-      uncertain.push(effect.invocationId);
+      if (!recorded) uncertain.push(effect.invocationId);
     } else if (effect.state === "PREPARED") {
       store.internal("toolEffect.recovered", effect.threadId, () => {
         const current = store.get<ToolEffectRecord>("toolEffect", effect.invocationId);
