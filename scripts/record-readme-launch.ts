@@ -37,7 +37,8 @@ try {
       if (!box) throw Error('The demo control was not visible.');
       await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2, { steps: 9 });
     }
-    if(process.env.GEN_README_FLOWS !== 'everyday') await capture('pull-request', async page => {
+    const mode = process.env.GEN_README_FLOWS;
+    if(!mode || mode === 'original') await capture('pull-request', async page => {
       const snapshot = taskFixture(graphSpec('vertical', 'conflicts'), { graph: graphData('conflicts') });
       snapshot.settings.theme = 'dark';
       snapshot.threads[0].title = 'Review a pull request';
@@ -77,7 +78,7 @@ try {
         await hold(page, 1400);
       };
     });
-    if(process.env.GEN_README_FLOWS !== 'everyday') await capture('interactive-table', async page => {
+    if(!mode || mode === 'original') await capture('interactive-table', async page => {
       const spec: TaskSpec = { root: 'table', elements: { table: { type: 'Table', props: { rowsBinding: 'rows', rowKey: 'id', stateKey: 'selected', caption: 'Launch checklist', columns: [{ key: 'task', label: 'Task' }, { key: 'owner', label: 'Owner' }, { key: 'status', label: 'Status' }] } } } };
       const rows = [
         { id: 'a', task: 'Record product demo', owner: 'Mira', status: 'In review' },
@@ -110,10 +111,10 @@ try {
     type Demo = {
       name: string; title: string; prompt: string; reply: string;
       artifactTitle: string; spec: TaskSpec; data?: Record<string, unknown>; values?: Record<string, unknown>;
-      followup?: {prompt: string; reply: string};
+      followup?: {prompt: string; reply: string}; branchReview?: boolean;
       interact(page: Page): Promise<void>;
     };
-    const everyday = async (demo: Demo) => capture(demo.name, async page => {
+    const workflow = async (demo: Demo) => capture(demo.name, async page => {
       const snapshot = taskFixture(demo.spec, demo.data, demo.values);
       snapshot.settings.theme = 'dark';
       const thread = snapshot.threads[0]; thread.title = demo.title; thread.projectName = '';
@@ -121,7 +122,26 @@ try {
       const assistant = snapshot.messages.pop()!;
       const artifact = snapshot.artifacts.pop()!;
       assistant.content = demo.reply; artifact.title = demo.artifactTitle;
-      const host = await serveTaskFixture(page, snapshot);
+      if(demo.branchReview) artifact.actions = {resolve:{kind:'agent'},merge:{kind:'agent'}};
+      let publish: () => Promise<void>;
+      const phase = (value: PRPhase, completed?: number) => {
+        artifact.spec = graphSpec('vertical', value); artifact.revision++;
+        snapshot.data[0].value = graphData(value, completed); snapshot.data[0].revision++;
+        return publish();
+      };
+      const host = await serveTaskFixture(page, snapshot, async command => {
+        if(demo.branchReview && command.payload.actionId === 'resolve') {
+          await phase('resolving');
+          setTimeout(() => void phase('resolving', 28), 550);
+          setTimeout(() => void phase('ready'), 1600);
+        }
+        if(demo.branchReview && command.payload.actionId === 'merge') {
+          await phase('merging');
+          setTimeout(() => void phase('merged'), 800);
+        }
+        return {};
+      });
+      publish = host.publish;
       await page.route('**/api/plugins', route => route.fulfill({json: {plugins: [], theme: 'dark'}}));
       await page.route('**/api/attention', route => route.fulfill({json: {items: [], unread: 0, sequence: 0}}));
       let sends = 0;
@@ -164,8 +184,8 @@ try {
         await hold(page, 1500);
       };
     });
-    if(process.env.GEN_README_FLOWS !== 'original') {
-      await everyday({
+    if(!mode || mode === 'everyday') {
+      await workflow({
         name: 'study-plan', title: 'Plan a study week', artifactTitle: 'Your study plan',
         prompt: 'I have 30 minutes each night before my quiz. Make me a study checklist.',
         reply: 'Start with the hardest topics. Each session fits in 30 minutes.',
@@ -187,7 +207,7 @@ try {
           }
         },
       });
-      await everyday({
+      await workflow({
         name:'laptop-comparison', title:'Compare three laptops', artifactTitle:'Laptop shortlist',
         prompt:'Compare these three sample laptops by price, weight and battery life.',
         reply:'All three are under $1,000. Sort by what matters most to you.',
@@ -210,7 +230,7 @@ try {
           await point(page,pick);await pick.check();await expect(pick).toBeChecked();
         },
       });
-      await everyday({
+      await workflow({
         name:'weekend-trip',title:'Plan a car-free weekend',artifactTitle:'Saturday itinerary',
         prompt:'Plan a relaxed Saturday trip without a car. Give me a backup if it rains.',
         reply:'Here are two easy versions of the day. Open either to see the details.',
@@ -226,6 +246,55 @@ try {
           await point(page,rain);await rain.click();await expect(rain).toHaveAttribute('aria-expanded','true');
           await expect(page.getByText('Swap the waterfront walk for a small museum near the station.',{exact:true})).toBeVisible();
           await hold(page,1000);
+        },
+      });
+    }
+    if(!mode || mode === 'developer') {
+      await workflow({
+        name:'pr-review-workflow',title:'Review PR #128',artifactTitle:'Session refresh · PR #128',
+        prompt:'Review PR #128. Show me what changed and what needs to pass before I merge.',
+        reply:'Three conflicts block this merge. Open a commit to compare the changes.',
+        spec:graphSpec('vertical','conflicts'),data:{graph:graphData('conflicts')},branchReview:true,
+        async interact(page) {
+          const graph=page.locator('.task-graph').first();
+          await expect(graph.locator('.task-graph-summary')).toContainText('3 conflicts');
+          const change=graph.getByRole('button',{name:/Handle inactive sessions/}).first();
+          await point(page,change); await change.click();
+          const excerpt=page.getByRole('tooltip').getByText('return await refreshSession(token, signal);',{exact:true}).first();
+          await expect(excerpt).toBeVisible(); await hold(page,1000);
+          const resolve=page.getByRole('button',{name:'Resolve conflicts',exact:true});
+          await point(page,resolve); await resolve.click();
+          await expect(graph.locator('.task-graph-summary')).toContainText('Running checks');
+          const merge=page.getByRole('button',{name:'Merge',exact:true});
+          await expect(merge).toBeVisible();
+          await expect(graph.locator('.task-graph-summary')).toContainText('Ready to merge');
+          await point(page,merge); await hold(page,1100); await merge.click();
+          await expect(graph.locator('.task-graph-summary')).toContainText('Merged');
+          await graph.locator('.task-graph-summary').scrollIntoViewIfNeeded();
+        },
+      });
+      await workflow({
+        name:'ci-log-workflow',title:'Investigate a failed CI run',artifactTitle:'Windows CI · run 294',
+        prompt:'Show where CI failed. Let me filter the build log to find the first error.',
+        reply:'The Windows job stopped at typecheck. Filter the log and open the error for details.',
+        spec:{root:'logs',elements:{logs:{type:'LogExplorer',props:{dataBinding:'logs',stateKey:'logView'}}}},
+        data:{logs:{title:'Build events',events:[
+          {id:'setup',level:'info',message:'Dependencies installed',stream:'setup',timestamp:'2026-11-14T09:00:15Z'},
+          {id:'bundled',level:'info',message:'Renderer assets built',stream:'renderer',timestamp:'2026-11-14T09:00:32Z'},
+          {id:'failure',level:'error',message:'Typecheck failed',stream:'compiler',timestamp:'2026-11-14T09:00:36Z',detail:'TS2322: Type string is not assignable to type ReviewStatus.'},
+          {id:'exit',level:'warning',message:'Browser checks were skipped',stream:'runner',timestamp:'2026-11-14T09:00:37Z'},
+        ]}},
+        async interact(page) {
+          const filter=page.getByRole('searchbox',{name:'Search logs'});
+          await point(page,filter); await filter.click(); await filter.fill('typecheck');
+          const log=page.getByRole('listbox',{name:'Log events'});
+          await expect(log.getByRole('option')).toHaveCount(1); await hold(page,700);
+          const failure=log.getByRole('option',{name:'error: Typecheck failed'});
+          await point(page,failure); await failure.click();
+          await expect(failure).toHaveAttribute('aria-selected','true');
+          const details=page.getByText('Event details',{exact:true});
+          await point(page,details); await details.click();
+          await expect(page.getByText('TS2322: Type string is not assignable to type ReviewStatus.',{exact:true})).toBeVisible();
         },
       });
     }

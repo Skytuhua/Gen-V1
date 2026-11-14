@@ -6,9 +6,9 @@
 
 Ask for a study plan, a trip itinerary, or a comparison. Gen V1 puts a checklist, a set of options, or an interactive plan right in the conversation so you can start using it.
 
-**[Watch the launch video](docs/public/media/gen-v1-launch.mp4)** · **[Download the Windows preview](https://github.com/Skytuhua/Gen-V1/releases/tag/v0.6.1)** · **[Run from source](#run-from-source)**
+**[Watch the developer demo](docs/public/media/gen-v1-launch.mp4)** · **[Download the Windows preview](https://github.com/Skytuhua/Gen-V1/releases/tag/v0.6.1)** · **[Run from source](#run-from-source)**
 
-<a href="docs/public/media/gen-v1-launch.mp4"><img src="docs/public/media/launch-workspace.webp" width="100%" alt="Watch the launch video. Shown: Gen V1 comparing sample laptops by price, weight, and battery life."></a>
+<a href="docs/public/media/gen-v1-launch.mp4"><img src="docs/public/media/launch-workspace.webp" width="100%" alt="Watch the launch video. Shown: Gen V1 with a branch graph and the result of a sample pull request merge."></a>
 
 </div>
 
@@ -36,19 +36,23 @@ Ask for a Saturday itinerary with a backup for rain. Open the backup to see the 
 
 [Watch the weekend itinerary video](docs/public/media/launch-weekend-trip.mp4) · [See the GIF](docs/public/media/launch-weekend-trip.gif)
 
-<details>
-<summary><strong>Developer examples</strong></summary>
+### Review and merge a pull request
 
-- [Review a pull request from conflict to merge](docs/public/media/launch-pull-request.mp4). The fixture simulates the checks and merge; nothing is sent to GitHub.
-- [Sort a release checklist](docs/public/media/launch-interactive-table.mp4) or [follow progress alongside a conversation](docs/public/media/plan-workflow.gif).
+Start by asking what changed. Open a commit to inspect conflicting lines, follow the checks, and choose when to merge.
 
-</details>
+[Watch the PR workflow](docs/public/media/launch-pr-review-workflow.mp4) · [See the GIF](docs/public/media/launch-pr-review-workflow.gif)
 
-These are recordings of the actual Gen browser interface using scripted responses and sample data. They are not live model runs. [Transcripts, stills, and how to reproduce the recordings](docs/public/media/launch-demos.md).
+### Pinpoint a failed CI check
+
+Search the build log, select the failed step, and open the compiler error right inside the conversation.
+
+[Watch the CI workflow](docs/public/media/launch-ci-log-workflow.mp4) · [See the GIF](docs/public/media/launch-ci-log-workflow.gif)
+
+These are recordings of the actual Gen browser interface using scripted responses and sample data. They are not live model runs. The PR workflow simulates check results and merging; nothing is sent to GitHub. [Transcripts, stills, and how to reproduce the recordings](docs/public/media/launch-demos.md).
 
 ## What makes Gen different
 
-Gen combines **task interfaces embedded in the working thread, a local host that keeps their state, and a runtime that keeps the conversation tied to its selected account.** [See how that compares with other tools](docs/public/media/launch-demos.md#how-this-compares).
+Gen combines **generative UI in the same thread, a local host that saves your progress, and a runtime that keeps each thread tied to the account you chose.** [See how that compares with other tools](docs/public/media/launch-demos.md#how-this-compares).
 
 - **Useful controls, not just a visual answer.** Gen renders typed tables, timelines, and review tools with the trusted component catalog. A selection or other supported edit belongs to the task, so it isn't lost in a screenshot or pasted transcript.
 - **A record of what actually happened.** The local host records accepted commands and keeps execution separate. Retried commands can return the same receipt, and interrupted work stays visible rather than being automatically repeated.
