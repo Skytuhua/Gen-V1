@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { columnWidth, cycleSort, keyboardWidth, moveColumn, reconcileOrder, tableIdentity, tableText, tableView } from '../apps/web/src/task-table-model';
+import { columnWidth, cycleSort, keyboardWidth, moveColumn, reconcileOrder, tableIdentity, tableCellText, tableText, tableView } from '../apps/web/src/task-table-model';
 const columns = [{ key: 'value', label: 'Value' }, { key: 'other', label: 'Value' }];
 describe('local table controls', () => {
   it('clamps resize and applies the panel keyboard step and endpoints', () => {
@@ -70,4 +70,14 @@ it('QA r1: valid row ids survive bad neighbors and fallback ids cannot collide w
   const collision = tableIdentity([{}, { id: '0' }, { id: 'index:0' }]);
   expect(new Set(collision.ids).size).toBe(3); expect(collision.ids.slice(1)).toEqual(['0', 'index:0']);
   expect(tableIdentity([{ id: '0' }, { id: '0' }]).ids).not.toContain('0');
+});
+
+it('formats small numeric cells and orders natural text consistently on large tables', () => {
+  const rows = Array.from({ length: 500 }, (_, index) => ({ value: 'row-' + (499 - index) }));
+  expect(tableView(rows, columns, '', { key: 'value', direction: 'ascending' }).map(row => row.item.value))
+    .toEqual(Array.from({ length: 500 }, (_, index) => 'row-' + index));
+  const format = new Intl.NumberFormat(undefined, { maximumSignificantDigits: 21 });
+  for (const value of [0, -1e-12, 1.23456789012, 1e22]) {
+    expect(tableCellText(value, { type: 'number' })).toBe(format.format(value));
+  }
 });

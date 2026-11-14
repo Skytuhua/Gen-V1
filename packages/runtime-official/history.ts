@@ -18,7 +18,7 @@ export async function claudeHistory(dataDir: string, manifest: ManifestState, sp
     const failed = () => reject(new HarnessError('OFFICIAL_PROCESS_IO_FAILED', 'The native Claude history connection closed unexpectedly. Input delivery remains unresolved.'));
     child.on('error', failed); child.stdout?.on('error', failed);
     child.stdout?.on('data', chunk => { output += chunk.toString(); if (output.length > 4 * 1024 * 1024) void terminateProcessTree(child); });
-    child.once('exit', code => code === 0 ? resolve() : reject(new Error('Official Claude Code history could not be read. Inputs with uncertain delivery remain unresolved.')));
+    child.once('close', code => code === 0 ? resolve() : reject(new Error('Official Claude Code history could not be read. Inputs with uncertain delivery remain unresolved.')));
   });
   try {
     await bounded(finished, 15_000, 'Official history reader timed out.');
