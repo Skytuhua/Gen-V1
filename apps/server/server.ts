@@ -100,6 +100,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
   app.get<{ Params: { id: string }; Querystring: { beforeId?: string; limit?: string } }>('/api/threads/:id/messages', async (request, reply) => {
     reply.header('Cache-Control', 'no-store');
     const { id } = request.params, { beforeId, limit } = request.query;
+    if ((beforeId !== undefined && typeof beforeId !== 'string') || (limit !== undefined && typeof limit !== 'string')) throw new HarnessError('INVALID_INPUT', 'Message paging parameters must be single values');
     if (!service.store.get('thread', id) || service.store.get('archivedThread', id)) throw new HarnessError('NOT_FOUND', 'Thread unavailable');
     const parsed = limit === undefined ? 200 : Number.parseInt(limit, 10);
     if (!Number.isSafeInteger(parsed)) throw new HarnessError('INVALID_INPUT', 'Choose a valid message page size');
@@ -131,6 +132,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
   // Deep message search for threads whose history the snapshot windowed: the
   // client passes the truncated thread ids it knows about.
   app.get<{ Querystring: { q?: string; threads?: string } }>('/api/threads/search', async (request) => {
+    if ((request.query.q !== undefined && typeof request.query.q !== 'string') || (request.query.threads !== undefined && typeof request.query.threads !== 'string')) throw new HarnessError('INVALID_INPUT', 'Search parameters must be single values');
     const query = (request.query.q ?? '').slice(0, 500).toLocaleLowerCase();
     if (!query) return { threadIds: [] };
     const ids = (request.query.threads ?? '').slice(0, 4000).split(',').filter(id => /^[\w:.-]{1,200}$/.test(id)).slice(0, 200);
