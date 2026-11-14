@@ -74,6 +74,9 @@ export function Popover({ anchor, contentRef, initialFocus, open, present, width
     window.visualViewport?.addEventListener('resize', place);
     window.visualViewport?.addEventListener('scroll', place);
     document.fonts?.addEventListener('loadingdone', place);
+    // An ancestor entrance transform (dialog scale-in) temporarily hijacks fixed positioning; re-place when it ends.
+    portalRoot.addEventListener('animationend', place);
+    portalRoot.addEventListener('transitionend', place);
     return () => {
       observer.disconnect();
       window.removeEventListener('resize', place);
@@ -81,6 +84,8 @@ export function Popover({ anchor, contentRef, initialFocus, open, present, width
       window.visualViewport?.removeEventListener('resize', place);
       window.visualViewport?.removeEventListener('scroll', place);
       document.fonts?.removeEventListener('loadingdone', place);
+      portalRoot.removeEventListener('animationend', place);
+      portalRoot.removeEventListener('transitionend', place);
     };
   }, [open, anchor, content, width, height, preferredSide, align, layoutRevision]);
 

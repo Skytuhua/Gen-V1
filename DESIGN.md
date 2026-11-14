@@ -46,7 +46,7 @@ Side-by-side chat keeps at least 420px; tools stay between 280px and min(720px, 
 - Keep dark black/near-black and neutral light equivalents from the established palette. Use stable project-color dots or monograms with editable palette/custom color; no decorative colored rails. Communicate status with text/icon as well as color.
 - Thread hover cards are 304px wide with 12px inset and 8px section gaps; keep the full 16px title. Show exact thread/working-copy/project/environment/branch/model/activity and linked PR facts only when known.
 - Context popovers are 328px wide with 12px inset and 34px information rows. On-demand category details are 220px. Conversation token capacity stays separate from provider quotas/reset times in Usage.
-- Model pickers are 400px wide, with a 44px search area and typical two-line 54px rows that grow for long names. Use one Reasoning/value footer; no repeated selected-model name or permanent reasoning sidebar. Hover/focus never commits selection.
+- Model pickers are 720px wide (560px without reasoning), with a provider/Favorites rail, a 44px search area and typical two-line 54px rows that grow for long names. Rows carry Ctrl+1–9 quick-select hints and a favorite star; favorites persist locally. Reasoning is a radio side panel for the selected model, becoming a footer below the list when the popup is narrow. Hover/focus never commits selection.
 - Preserve reading font sizes when reducing chrome. Do not use CSS scaling or clipped labels to meet compact dimensions. Existing saved appearance choices remain; new defaults use dark, Inter, comfortable density, 6px controls and 760px chat width.
 
 ### Popup and modal rules

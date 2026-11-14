@@ -152,7 +152,7 @@ describe('real browser worker isolation', () => {
       return route.fulfill({ status: 404, json: {} });
     });
     await page.goto(origin);
-    await page.evaluate(html => { const root = document.createElement('div'); root.id = 'widget-test'; document.body.append(root); (window as any).widgetHtmlOverride = html; }, html);
+    await page.evaluate(html => { const root = document.createElement('div'); root.id = 'widget-test'; document.body.append(root); (window as any).widgetHtmlOverride = html; (window as any).__genWidgetLeaseHeartbeatMs = 60000; }, html);
     await page.addScriptTag({ url: `${origin}/widget-harness.js` });
     return page.frameLocator('iframe');
   }
@@ -170,9 +170,11 @@ describe('real browser worker isolation', () => {
       expect(await page.evaluate(() => (window as any).widgetDirty)).toBe(true);
       failEnd = false;
       await page.evaluate(() => (window as any).widgetHandle.current.releaseLease());
-      // Cross a real heartbeat interval: a failed archive can retry without an
-      // automatic edit.begin undoing the successful explicit lease release.
-      await page.waitForTimeout(20_300);
+      // Cross a real heartbeat tick (the harness reschedules with the injected
+      // interval): a failed archive can retry without an automatic edit.begin
+      // undoing the successful explicit lease release.
+      await page.evaluate(() => { (window as any).__genWidgetLeaseHeartbeatMs = 100; });
+      await page.waitForTimeout(500);
       expect(commands.filter(command => command.type === 'edit.begin')).toHaveLength(1);
       await frame.getByRole('button', { name: 'Continue', exact: true }).click();
       await browserExpect.poll(() => page.evaluate(() => (window as any).widgetActions)).toEqual([['continue', { note: 'Unsynced retained draft' }, 'widget:a:m']]);

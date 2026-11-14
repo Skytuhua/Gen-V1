@@ -45,7 +45,7 @@ export async function runEvals(options: EvalOptions) {
       await command("message.send", { modelId: options.modelId, content: `Held-out task ${testCase.id}. Granted resources refer to the disposable fixture described below. Use the actual granted IDs from tool context. Never touch any other project.\n${JSON.stringify({ repository: fixture.repository, database: fixture.database, pdf: fixture.pdf, sources: fixture.sources, exports: join(fixture.root, "exports") })}\n\n${testCase.prompt}` }, thread.id);
       const deadline = Date.now() + (options.timeoutMs ?? 120_000); let snapshot: Snapshot = current;
       while (Date.now() < deadline && !options.signal?.aborted) {
-        snapshot = await request("/api/snapshot") as Snapshot;
+        snapshot = await request(`/api/threads/${thread.id}/snapshot`) as Snapshot;
         const state = snapshot.threads.find(t => t.id === thread.id);
         if (state && ["completed", "failed", "awaiting_input", "interrupted", "stopped"].includes(state.status)) break;
         if (state?.status === "ready" && !state.runId && snapshot.messages.some(m => m.threadId === thread.id && m.role === "assistant")) break;

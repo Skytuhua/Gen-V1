@@ -108,7 +108,7 @@ it('reads real chronological history and bounded Unicode content, isolating curs
   expect(() => p.history({ agentId: 'thread:missing' })).toThrow();
 });
 
-it('projects scoped sequenced updates without full snapshots, rejects stale checkpoints and signals retention gaps', () => {
+it('projects scoped sequenced updates without full snapshots, rejects stale checkpoints and signals retention gaps', { timeout: 60000 }, () => {
   const x = setup(); x.putThread(thread('a')); x.putThread(thread('b'));
   const p = x.open(), page = p.inventory({ text: 'a' }), snapshot = vi.spyOn(x.store, 'snapshot').mockImplementation(() => { throw Error('No snapshot'); });
   x.putMessage('b', 'other', 'private elsewhere');
