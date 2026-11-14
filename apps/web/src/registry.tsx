@@ -1,6 +1,6 @@
 import {SentenceReveal} from './SentenceReveal';
 import {WindowDocument} from './DocumentWindow';
-import { Children, createContext, lazy, Suspense, useContext, useRef, type ReactNode } from 'react';
+import { Children, createContext, lazy, Suspense, useContext, useRef, useState, type ReactNode } from 'react';
 import { useStateStore, type ComponentRegistry, type ComponentRenderProps } from '@json-render/react';
 import { ExternalLink, FileText, Check, AlertTriangle, CornerDownLeft } from 'lucide-react';
 import { Markdown } from './Markdown';
@@ -163,6 +163,8 @@ function Notice({ element: { props }, children }: ComponentRenderProps) { return
 function Tabs({ element: { props }, children, bindings }: ComponentRenderProps) {
   const [value, setValue] = useField(props, bindings), store = useStateStore(), artifactTitle = useContext(ArtifactTitle);
   const labels = list(props.labels), active = labels.includes(value) ? value : labels[0];
+  const [visited, setVisited] = useState<ReadonlySet<unknown>>(() => new Set([active]));
+  if (!visited.has(active)) setVisited(new Set(visited).add(active));
   const parsed = tabStateData.safeParse(typeof props.statusBinding === 'string' ? store.get(`/inputs/${props.statusBinding}`) : undefined);
   const source = parsed.success ? parsed.data : undefined;
   const selected = source?.items.find(item => item.label === active);
@@ -173,7 +175,10 @@ function Tabs({ element: { props }, children, bindings }: ComponentRenderProps) 
       const status = source?.items.find(item => item.label === label)?.status;
       return <button type="button" key={i} role="tab" tabIndex={active === label ? 0 : -1} aria-selected={active === label} onKeyDown={event => { if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) { event.preventDefault(); const index = event.key === 'Home' ? 0 : event.key === 'End' ? labels.length - 1 : (i + (event.key === 'ArrowRight' ? 1 : -1) + labels.length) % labels.length; setValue(labels[index]); (event.currentTarget.parentElement?.children[index] as HTMLElement | undefined)?.focus(); } }} onClick={() => setValue(label)}>{source && <span className={`task-tab-status-slot status-${status??'neutral'}`} style={{display:'inline-flex',alignItems:'center',justifyContent:'center',width:14,height:14,flex:'0 0 14px'}} aria-hidden="true">{status && status !== 'neutral' && <StatusIcon status={status} />}</span>}<span className="task-tab-label">{display(label)}</span></button>;
     })}</div>
-    {Children.toArray(children).map((child, i) => <div role="tabpanel" className="task-tab-panel" key={i} hidden={active !== labels[i]}>{child}</div>)}
+    {Children.toArray(children).map((child, i) => {
+      const label = labels[i];
+      return active === label || visited.has(label) ? <div role="tabpanel" className="task-tab-panel" key={i} hidden={active !== label}>{child}</div> : null;
+    })}
     {source?.footer && <footer className="task-tabs-operation-footer"><span>{source.footer.label}</span><div>{(selected?.code ?? source.footer.code) && <code>{selected?.code ?? source.footer.code}</code>}{(selected?.detail ?? source.footer.detail) && <small>{selected?.detail ?? source.footer.detail}</small>}</div></footer>}
     {typeof props.statusBinding === 'string' && !parsed.success && <small className="muted">Operation details unavailable.</small>}
   </div>;
