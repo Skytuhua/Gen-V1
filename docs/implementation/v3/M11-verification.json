@@ -163,11 +163,11 @@
       "id": "m11.integration.ui-surface",
       "status": "PASS",
       "requiredCases": [
-        { "id": "usage-dialog-requests-tab", "status": "PASS", "evidence": "Requests tab lists per-request stage timings and measured cache counts; null renders 'Not reported'; tab placed after Limits so existing keyboard navigation is preserved (regression found and fixed)" },
+        { "id": "usage-dialog-requests-tab", "status": "PASS", "evidence": "Requests tab renders per-request cards (model, provider, outcome badge, phase), a stage-timing chip strip with '—' for unmeasured stages, metrics strip and recorded errors; Queued shows the admission clock time; tab placed after Limits so existing keyboard navigation is preserved (regression found and fixed)" },
         { "id": "tokens-tab-cache-rows", "status": "PASS", "evidence": "Tokens tab reports cache read/write rows" },
         { "id": "foreground-status-labels", "status": "PASS", "evidence": "working status distinguishes Queued for account / Starting runtime / Generating / Running tool / Cleaning up / Compacting context" },
         { "id": "new-task-profile-picker", "status": "PASS", "evidence": "model picker shows 'Applies to new tasks' scope hint and 'Start new task with profile' action; existing conversation keeps its binding" },
-        { "id": "browser-suites", "status": "PASS", "evidence": "usage-context 20/20 pass; usage-app-integration, model-picker, compact-model-picker and composer-press failures are byte-identical on the pristine main checkout (baseline/environmental)" }
+        { "id": "browser-suites", "status": "PASS", "evidence": "usage-context 21/21 pass including a Requests-tab spec; usage-app-integration, model-picker, compact-model-picker and composer-press failures are byte-identical on the pristine main checkout (baseline/environmental)" }
       ],
       "commands": [
         {
@@ -248,12 +248,25 @@
     },
     {
       "id": "m11.prereq.m04",
-      "status": "BLOCKED",
+      "status": "PASS",
       "requiredCases": [
-        { "id": "m04-on-accepted-base", "status": "NOT_RUN", "evidence": "M04 exists only as origin/handoff/m04-context-v3 (9851e2b, partial evidence with blocked phases); it is absent from the accepted base fcaa52f — phases depending on M04 context contracts are BLOCKED_SOURCE_DRIFT per spec rather than guessed against a replacement API" }
+        { "id": "m04-on-merged-head", "status": "PASS", "evidence": "M04 core request custody landed on main at b4281a4 / merge 9d4a514 during this session and was merged into the branch (b6dd091): request-context contracts, context-compiler and request-custody are present with reviewed evidence docs/implementation/v3/M04-core-verification.json; merged tree passes M04 contract tests (context-compiler-v3, request-preparation-service-v3) plus the M11 suites, 55/55" }
       ],
-      "commands": [],
-      "artifactRefs": []
+      "commands": [
+        {
+          "argv": ["pnpm", "exec", "vitest", "run", "tests/model-transport-v3.test.ts", "tests/model-scheduling-v3.test.ts", "tests/usage-accounting-v3.test.ts", "tests/context-compiler-v3.test.ts", "tests/request-preparation-service-v3.test.ts"],
+          "cwdIdentity": "isolated M11 worktree C:\\Users\\Administrator\\repos\\Gen-V1-m11",
+          "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies",
+          "startedAt": "2026-11-15T11:54:00Z",
+          "endedAt": "2026-11-15T11:54:05Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/logs/m11-m04-merge-vitest.log",
+          "logDigest": "d6e451825efe6011b59e8a5f153754fdd8a7708c88afa4f7c4369f87fee573eb"
+        }
+      ],
+      "artifactRefs": ["docs/implementation/v3/logs/m11-m04-merge-vitest.log"]
     }
   ],
   "changedFiles": [
@@ -264,6 +277,7 @@
     "apps/web/src/UsageDialog.tsx",
     "apps/web/src/model-picker.css",
     "apps/web/src/snapshot-events.ts",
+    "apps/web/src/usage-dialog.css",
     "apps/web/src/usage-presentation.ts",
     "packages/contracts/index.ts",
     "packages/contracts/model-request.ts",
@@ -279,6 +293,8 @@
     "packages/runtime-hermes/worker.py",
     "packages/storage/store.ts",
     "scripts/public-source-files.json",
+    "tests/e2e/usage-context-fixture.tsx",
+    "tests/e2e/usage-context.spec.ts",
     "tests/hermes_source_worker.py",
     "tests/model-scheduling-v3.test.ts",
     "tests/model-transport-v3.test.ts",
@@ -288,13 +304,15 @@
     "docs/implementation/v3/logs/m11-browser.log",
     "docs/implementation/v3/logs/m11-build.log",
     "docs/implementation/v3/logs/m11-full-suite.log",
+    "docs/implementation/v3/logs/m11-m04-merge-vitest.log",
     "docs/implementation/v3/logs/m11-red-fixtures.log",
     "docs/implementation/v3/logs/m11-typecheck.log",
     "docs/implementation/v3/logs/m11-vitest.log"
   ],
   "dependencyContracts": [
     { "name": "M01", "version": "465bbb9d5d11adf0f7a1f2cf6c07dc8668e6491d", "testIds": ["docs/implementation/v3/M01-verification.json"] },
-    { "name": "M02", "version": "41f7fc679f4e9bcbc48ac089e179cec34bb8fe8b", "testIds": ["docs/implementation/v3/M02-verification.json"] }
+    { "name": "M02", "version": "41f7fc679f4e9bcbc48ac089e179cec34bb8fe8b", "testIds": ["docs/implementation/v3/M02-verification.json"] },
+    { "name": "M04", "version": "9d4a5141173f54f0f47ff70dcc5167a5c781389e", "testIds": ["docs/implementation/v3/M04-core-verification.json"] }
   ],
   "flags": [
     { "key": "models.requestMetricsV1", "enabled": false },
@@ -303,7 +321,7 @@
     { "key": "models.newTaskProfilesV1", "enabled": false }
   ],
   "remainingGates": [
-    "M04 is absent from the accepted base (only origin/handoff/m04-context-v3, partial); every context-dependent integration is BLOCKED_SOURCE_DRIFT and no replacement API was guessed",
+    "M04 core request custody merged into the branch at b6dd091 (main b4281a4 / PR #351): prereq verified present with contract tests green; any deeper context-dependent integration beyond the M11 scope remains for the M05-dependent milestone",
     "models.publicStreamingV1 stays off: public streaming requires a real source parser integration; the buffered path records firstPublicDelta only when output is committed",
     "models.statelessPoolExperimentV1 stays off: live pooling requires an adapter proof (supportsStatelessReuse=false today); enabling needs cold-start justification, exact request semantics and the 60s idle expiry already implemented",
     "models.newTaskProfilesV1 stays off: task-role routing requires an operator-approved static mapping before dispatch",
