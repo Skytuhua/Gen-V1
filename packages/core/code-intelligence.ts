@@ -140,10 +140,11 @@ export function fromUtf16Offset(line: string, utf16: number, encoding: RangeEnco
   return units;
 }
 
-/** Segments keep their line terminator so untouched regions preserve CRLF/LF. */
+/** Segments keep their line terminator so untouched regions preserve CRLF/LF.
+ * The final segment may be empty — like the LSP line model, a document ending
+ * in a newline has a last, empty line that is a valid edit position. */
 function splitLines(text: string): string[] {
-  const segments = text.match(/[^\r\n]*(?:\r\n|\r|\n|$)/g) ?? [];
-  return segments[segments.length - 1] === "" ? segments.slice(0, -1) : segments;
+  return text.match(/[^\r\n]*(?:\r\n|\r|\n|$)/g) ?? [];
 }
 const stripEol = (segment: string) => segment.replace(/\r\n|\r|\n$/, "");
 

@@ -74,6 +74,15 @@ it('applying an edit never rewrites untouched line endings',()=>{
  expect(replaced).toBe('x\r\nq\r\n');
 });
 
+it('end-of-file positions and empty documents are valid edit targets',()=>{
+ expect(applyTextEdit('',{start:{line:0,character:0},end:{line:0,character:0}},'x','UTF16')).toBe('x');
+ // A document ending in a newline has a final, empty line (LSP line model).
+ expect(applyTextEdit('a\n',{start:{line:1,character:0},end:{line:1,character:0}},'b','UTF16')).toBe('a\nb');
+ expect(applyTextEdit('a\r\n',{start:{line:1,character:0},end:{line:1,character:0}},'b','UTF16')).toBe('a\r\nb');
+ // Still bounded: a line past the empty tail is invalid.
+ expect(()=>applyTextEdit('a\n',{start:{line:2,character:0},end:{line:2,character:0}},'b','UTF16')).toThrowError(/exceeds/i);
+});
+
 it('diagnostics bind to the exact document version and after-digest',async()=>{
  const root=fixture();
  const adapter=new FakeAdapter();
