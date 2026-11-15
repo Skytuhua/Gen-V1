@@ -1,5 +1,6 @@
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {Ban, Eye, Play, Square} from 'lucide-react';
+import {Select} from '../../../../packages/ui-shell/Select';
 import {
   getAgentWork, getAgentWorkInputs, getAgentWorkMessages, getAgentWorkOutput, getAgentWorkPlan,
   sendAgentInput, stopAgentWork, resumeAgentWork, cancelAgentInput, postAgentMessage,
@@ -81,10 +82,8 @@ export function AgentWorkPanel({threadId}: {threadId: string}) {
           <span className="agents-input-delivery">{message.receipt.status.toLowerCase()}</span>
         </div>)}
         {list.works.length > 0 && <div className="agents-board-post">
-          <select aria-label="Recipient" value={post.recipientThreadId} onChange={e => setPost(p => ({...p, recipientThreadId: e.target.value}))}>
-            <option value="">Choose recipient…</option>
-            {list.works.map(work => <option key={work.workId} value={work.owner.threadId}>{work.role} {work.owner.threadId.slice(0, 8)}</option>)}
-          </select>
+          <Select aria-label="Recipient" value={post.recipientThreadId} onValueChange={value => setPost(p => ({...p, recipientThreadId: value}))}
+            options={[{value: '', label: 'Choose recipient…', disabled: true}, ...list.works.map(work => ({value: work.owner.threadId, label: `${work.role} ${work.owner.threadId.slice(0, 8)}`}))]}/>
           <input aria-label="Topic" placeholder="Topic" value={post.topic} onChange={e => setPost(p => ({...p, topic: e.target.value}))}/>
           <input aria-label="Message" placeholder="Message…" value={post.text} onChange={e => setPost(p => ({...p, text: e.target.value}))}/>
           <button type="button" disabled={!post.recipientThreadId || !post.topic || !post.text} onClick={() => { void postAgentMessage(threadId, {recipientThreadId: post.recipientThreadId, topic: post.topic, text: post.text}).then(() => { setPost({recipientThreadId: '', topic: '', text: ''}); return refresh(); }).catch(e => setError(e instanceof Error ? e.message : 'Post failed')); }}>Post</button>
