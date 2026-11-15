@@ -7,6 +7,7 @@ import {ProjectMemory} from '../packages/core/project-memory.ts';
 import {registeredCapabilityFlags} from '../packages/core/capability-flags.ts';
 import {memoryExportSchema, projectMemoryViewSchema, type MemoryAction, type MemorySourceRefV1} from '../packages/contracts/project-memory.ts';
 import type {Message, Thread} from '../packages/contracts/index.ts';
+import {prepareInstalledNativeSave, readInstalledNativeSave, saveInstalledMemoryThroughNativeDialog, type InstalledNativeOwner, type InstalledNativeSaveObservation} from './installed-native-save.ts';
 
 export const INSTALLED_MEMORY_CASE = Object.freeze({
   projectId: 'installed-memory-project', threadId: 'installed-memory-thread',
@@ -112,10 +113,11 @@ async function screenshot(page: Page, directory: string, name: string) {
 }
 
 /** Runs only after the caller verifies the installed executable, unique nonce and owned CDP session. */
-export async function verifyInstalledMemoryUI(page: Page, seed: InstalledMemorySeed, iteration: number, observations: InstalledMemoryObservation[]) {
+export async function verifyInstalledMemoryUI(page: Page, seed: InstalledMemorySeed, iteration: number, observations: InstalledMemoryObservation[], nativeOwner: InstalledNativeOwner) {
   await assertInstalledMemoryProfile(seed);
   const directory = seed.evidenceRoot.path, fixture = INSTALLED_MEMORY_CASE;
   const commandTypes: string[] = [];
+  let nativeDialog: InstalledNativeSaveObservation | undefined, nativeDownloadBehaviorRestored = false;
   const observeCommand = (request: import('@playwright/test').Request) => {
     if (new URL(request.url()).pathname !== '/api/commands' || request.method() !== 'POST') return;
     const type = (request.postDataJSON() as {type?: unknown})?.type;
@@ -124,7 +126,14 @@ export async function verifyInstalledMemoryUI(page: Page, seed: InstalledMemoryS
   page.on('request', observeCommand);
   try {
     await page.getByRole('button', {name: fixture.threadTitle + ' Completed', exact: true}).click({timeout: 30000});
-    await page.getByRole('button', {name: 'Project memory', exact: true}).click({timeout: 30000});
+    const overview = page.getByRole('region', {name: 'Project overview window', exact: true});
+    await expect(overview).toBeVisible({timeout: 30000});
+    await expect(overview).toHaveAttribute('data-collapsed', /^(true|false)$/);
+    if (await overview.getAttribute('data-collapsed') === 'true') await overview.getByRole('button', {name: 'Expand Project overview', exact: true}).click();
+    await expect(overview).toHaveAttribute('data-collapsed', 'false');
+    const memoryButton = overview.getByRole('button', {name: 'Project memory', exact: true});
+    await expect(memoryButton).toBeEnabled({timeout: 30000});
+    await memoryButton.click({timeout: 30000});
     const panel = page.getByRole('dialog', {name: 'Project memory', exact: true});
     await expect(panel.getByRole('button', {name: 'Enable for this project', exact: true})).toBeDisabled();
     await expect(panel).toContainText('Project memory is disabled by this host. Existing records remain reviewable.');
@@ -160,19 +169,38 @@ export async function verifyInstalledMemoryUI(page: Page, seed: InstalledMemoryS
       observations.push({iteration, step: 'review-edit-accept-reject', editedRevision: 3, acceptedRevision: 2, rejectedState: 'EXPIRED', screenshot: await screenshot(page, directory, 'installed-memory-reviewed.png')});
       await row(seed.items.reject.id).scrollIntoViewIfNeeded();
       observations.push({iteration, step: 'rejected-record-retained', screenshot: await screenshot(page, directory, 'installed-memory-rejected.png')});
-      const downloadPending = page.waitForEvent('download', {timeout: 30000});
-      await panel.getByRole('button', {name: 'Export redacted JSON', exact: true}).click();
-      const download = await downloadPending, exportName = 'installed-memory-redacted-export.json';
-      expect(download.suggestedFilename()).toBe('project-memory-' + seed.projectId + '.json');
-      await download.saveAs(join(directory, exportName));
-      const exportBytes = await readFile(join(directory, exportName));
+      // connectOverCDP implicitly installs allowAndName. Restore Electron's real Save flow before proof.
+      const browser = page.context().browser(); if (!browser) throw Error('The owned installed browser is unavailable.');
+      const downloadControl = await browser.newBrowserCDPSession();
+      try {await downloadControl.send('Browser.setDownloadBehavior', {behavior: 'default', eventsEnabled: false}); nativeDownloadBehaviorRestored = true;}
+      finally {await downloadControl.detach();}
+      await assertInstalledMemoryProfile(seed);
+      const exportTarget = await prepareInstalledNativeSave(directory), exportName = 'installed-memory-redacted-export.json';
+      await expect(panel.locator('[data-memory-export-status="saved"]')).toHaveCount(0);
+      const saved = await saveInstalledMemoryThroughNativeDialog(nativeOwner, exportTarget,
+        () => panel.getByRole('button', {name: 'Export redacted JSON', exact: true}).click(), async () => {
+          const completion = panel.locator('[data-memory-export-status="saved"]');
+          await expect(completion).toHaveText('Redacted export downloaded.', {timeout: 30000});
+          await expect(completion).toHaveAttribute('data-memory-export-admitted', 'true');
+          await expect(completion).toHaveAttribute('data-memory-export-filename', 'project-memory-' + seed.projectId + '.json');
+          await assertInstalledMemoryProfile(seed);
+          const bytes = await readInstalledNativeSave(exportTarget), digest = createHash('sha256').update(bytes).digest('hex');
+          await expect(completion).toHaveAttribute('data-memory-export-bytes', String(bytes.length));
+          await expect(completion).toHaveAttribute('data-memory-export-sha256', digest);
+          return {bytes, digest};
+        }, value => {nativeDialog = value;});
+      nativeDialog = saved.dialog;
+      const exportBytes = saved.value.bytes, exportDigest = saved.value.digest;
       if (exportBytes.length > 1024 * 1024) throw Error('The installed memory export exceeded its fixture bound.');
       const output = memoryExportSchema.parse(JSON.parse(exportBytes.toString('utf8')));
       expect(output.scope).toEqual((await readView(page, seed)).scope);
       expect(output.items.find(item => item.id === seed.items.forget.id)?.text).toBe('[redacted]');
       expect(exportBytes.toString('utf8')).not.toContain(fixture.sensitiveText);
       expect(exportBytes.toString('utf8')).not.toContain(fixture.sourceText);
-      observations.push({iteration, step: 'explicit-redacted-export', file: exportName, bytes: exportBytes.length, sha256: createHash('sha256').update(exportBytes).digest('hex'), redacted: output.redacted, sensitiveItemRedacted: true, sourceBodiesAbsent: true});
+      observations.push({iteration, step: 'explicit-redacted-export', file: exportName, bytes: exportBytes.length, sha256: exportDigest, redacted: output.redacted, sensitiveItemRedacted: true, sourceBodiesAbsent: true,
+        nativeSave: {downloadBehavior: 'default', downloadBehaviorResetAcknowledged: nativeDownloadBehaviorRestored, owner: {pid: nativeOwner.pid, executable: nativeOwner.executable},
+          destination: {file: exportName, evidenceRoot: seed.evidenceRoot, absentBeforeDispatch: true, regularFileReadBack: true, identityLeaseHeldThroughReadback: true}, dialog: nativeDialog,
+          completion: {status: 'saved', admitted: true, filename: 'project-memory-' + seed.projectId + '.json', bytes: exportBytes.length, sha256: exportDigest}}});
       await row(seed.items.forget.id).getByRole('button', {name: 'Forget ' + seed.items.forget.id, exact: true}).click();
       const preview = panel.getByRole('region', {name: 'Forget preview', exact: true});
       await expect(preview).toContainText('immediately excludes the item from retrieval');
@@ -200,7 +228,8 @@ export async function verifyInstalledMemoryUI(page: Page, seed: InstalledMemoryS
     observations.push({iteration, step: iteration === 1 ? 'forget-tombstone' : 'restart-tombstone', tombstone: {itemId: after.tombstones[0].itemId, deletionRevision: after.tombstones[0].deletionRevision, purgeStatus: after.tombstones[0].purgeStatus}, screenshot: await screenshot(page, directory, iteration === 1 ? 'installed-memory-forgotten.png' : 'installed-memory-restart-tombstone.png')});
     await panel.getByRole('button', {name: 'Close dialog', exact: true}).click();
   } catch (error) {
-    observations.push({iteration, step: 'failed', error: error instanceof Error ? error.message.slice(0, 2000) : 'Installed memory review failed.', screenshot: await screenshot(page, directory, 'installed-memory-launch-' + iteration + '-failure.png').catch(() => null)});
+    observations.push({iteration, step: 'failed', error: error instanceof Error ? error.message.slice(0, 2000) : 'Installed memory review failed.', screenshot: await screenshot(page, directory, 'installed-memory-launch-' + iteration + '-failure.png').catch(() => null),
+      ...(nativeDownloadBehaviorRestored ? {nativeSave: {downloadBehavior: 'default', owner: {pid: nativeOwner.pid, executable: nativeOwner.executable}, dialog: nativeDialog ?? null}} : {})});
     throw error;
   } finally {
     page.off('request', observeCommand);

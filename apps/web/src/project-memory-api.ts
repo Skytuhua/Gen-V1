@@ -5,6 +5,7 @@ import {
   type MemoryAction, type MemoryItemV1, type MemoryScope, type MemorySourceRefV1,
 } from '../../../packages/contracts/project-memory';
 import {ApiError, authenticated, csrfToken, read} from './api';
+import type {DesktopMemoryExportResult} from '../../../packages/desktop-contract/index';
 
 export type MemoryOwner = Pick<MemoryScope, 'projectId' | 'threadId' | 'accountId'>;
 const ownerSchema = memoryScopeSchema.pick({projectId: true, threadId: true, accountId: true});
@@ -77,4 +78,28 @@ export async function exportProjectMemory(scope: MemoryScope, isCurrent: () => b
   });
   current(isCurrent); const result = parse(memoryExportSchema, await read<unknown>(response)); current(isCurrent); checkScope(scope, result.scope);
   return result;
+}
+
+const nativeExportResult = z.strictObject({status: z.enum(['saved', 'cancelled']), admitted: z.literal(true), filename: z.string().max(240), bytes: z.number().int().nonnegative().max(8 * 1024 * 1024), sha256: z.string().regex(/^[a-f0-9]{64}$/)});
+export async function downloadProjectMemory(scope: MemoryScope, isCurrent: () => boolean): Promise<DesktopMemoryExportResult | {status: 'started'; admitted: false}> {
+  const output = await exportProjectMemory(scope, isCurrent), content = JSON.stringify(output, null, 2) + '\n';
+  const bytes = new TextEncoder().encode(content), filename = 'project-memory-' + output.scope.projectId.replaceAll(':', '_') + '.json';
+  if (bytes.length > 8 * 1024 * 1024) throw new ApiError('EXPORT_UNAVAILABLE', 'The redacted export exceeds its byte bound.');
+  current(isCurrent);
+  const desktop = window.harnessDesktop;
+  if (desktop) {
+    if (!desktop.exportProjectMemory || !globalThis.crypto?.subtle) throw new ApiError('EXPORT_UNAVAILABLE', 'This desktop version cannot save a verified project memory export.');
+    const hash = await crypto.subtle.digest('SHA-256', bytes), sha256 = [...new Uint8Array(hash)].map(value => value.toString(16).padStart(2, '0')).join('');
+    current(isCurrent);
+    const receipt = parse(nativeExportResult, await desktop.exportProjectMemory(JSON.stringify(output)));
+    current(isCurrent);
+    if (receipt.filename !== filename || receipt.bytes !== bytes.length || receipt.sha256 !== sha256) throw invalid();
+    return receipt;
+  }
+  const url = URL.createObjectURL(new Blob([content], {type: 'application/json'}));
+  try {
+    const link = document.createElement('a'); link.href = url; link.download = filename;
+    current(isCurrent); link.click();
+  } finally {setTimeout(() => URL.revokeObjectURL(url), 0);}
+  return {status: 'started', admitted: false};
 }

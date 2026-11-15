@@ -3,7 +3,8 @@ import {Modal} from '../../../packages/ui-shell/Modal';
 import {isComposing} from '../../../packages/ui-shell/list-navigation';
 import {ErrorState} from '../../../packages/ui-shell/Feedback';
 import {PROJECT_MEMORY_LIMITS, type MemoryAction, type MemoryForgetPreview, type MemoryItemV1, type MemoryScope, type MemorySourceDetail, type MemorySourceRefV1, type ProjectMemoryView} from '../../../packages/contracts/project-memory';
-import {exportProjectMemory, getMemoryForgetPreview, getMemorySource, getProjectMemory, memoryOwnerKey, mutateProjectMemory, type MemoryOwner} from './project-memory-api';
+import {downloadProjectMemory, getMemoryForgetPreview, getMemorySource, getProjectMemory, memoryOwnerKey, mutateProjectMemory, type MemoryOwner} from './project-memory-api';
+import type {DesktopMemoryExportResult} from '../../../packages/desktop-contract/index';
 import './project-memory.css';
 
 const tabs = ['Accepted', 'Proposals', 'Conflicts', 'Deleted history'] as const;
@@ -25,6 +26,7 @@ export function ProjectMemoryReview({owner, close}: ProjectMemoryReviewProps) {
 function ReviewSession({owner, close}: ProjectMemoryReviewProps) {
   const [view, setView] = useState<ProjectMemoryView>(), [tab, setTab] = useState<Tab>('Accepted');
   const [loading, setLoading] = useState(true), [busy, setBusy] = useState(false), [error, setError] = useState(''), [notice, setNotice] = useState('');
+  const [exportResult, setExportResult] = useState<DesktopMemoryExportResult>();
   const [sourceThreads, setSourceThreads] = useState<string[]>([]), [source, setSource] = useState<MemorySourceDetail>();
   const [editor, setEditor] = useState<MemoryItemV1>(), [forget, setForget] = useState<{item: MemoryItemV1; preview: MemoryForgetPreview}>();
   const [detailPending, setDetailPending] = useState(false);
@@ -50,7 +52,7 @@ function ReviewSession({owner, close}: ProjectMemoryReviewProps) {
   function selectTab(next: Tab) {setTab(next); clearDetails();}
   async function act(operation: MemoryAction) {
     if (!view || locked.current || loading) return false;
-    locked.current = true; setBusy(true); setError(''); setNotice('');
+    locked.current = true; setBusy(true); setError(''); setNotice(''); setExportResult(undefined);
     const capturedScope = view.scope, isCurrent = () => active.current && scope.current === capturedScope;
     const signature = JSON.stringify([capturedScope, operation]);
     const commandId = retry.current?.signature === signature ? retry.current.commandId : crypto.randomUUID();
@@ -78,13 +80,12 @@ function ReviewSession({owner, close}: ProjectMemoryReviewProps) {
   }
   async function exportData() {
     if (!view || locked.current || loading) return;
-    locked.current = true; setBusy(true); setError('');
+    locked.current = true; setBusy(true); setError(''); setNotice(''); setExportResult(undefined);
     const captured = view.scope, isCurrent = () => active.current && scope.current === captured;
     try {
-      const output = await exportProjectMemory(captured, isCurrent); if (!isCurrent()) return;
-      const url = URL.createObjectURL(new Blob([JSON.stringify(output, null, 2)], {type: 'application/json'}));
-      const link = document.createElement('a'); link.href = url; link.download = `project-memory-${captured.projectId}.json`; link.click();
-      setTimeout(() => URL.revokeObjectURL(url), 0); setNotice('Redacted export downloaded.');
+      const result = await downloadProjectMemory(captured, isCurrent); if (!isCurrent()) return;
+      setExportResult(result.admitted ? result : undefined);
+      setNotice(result.status === 'saved' ? 'Redacted export downloaded.' : result.status === 'cancelled' ? 'Export cancelled.' : 'Redacted export download started.');
     } catch (cause) {if (active.current) setError(message(cause));}
     finally {if (active.current) {locked.current = false; setBusy(false);}}
   }
@@ -92,7 +93,7 @@ function ReviewSession({owner, close}: ProjectMemoryReviewProps) {
   return <Modal open title="Project memory" onClose={close} className="project-memory-review">
     <div className="project-memory-body">
       {error && <ErrorState message={error}/>}
-      {notice && <p role="status" className="project-memory-notice">{notice}</p>}
+      {notice && <p role="status" className="project-memory-notice" data-memory-export-status={exportResult?.status} data-memory-export-admitted={exportResult?.admitted ? 'true' : undefined} data-memory-export-filename={exportResult?.filename} data-memory-export-bytes={exportResult?.bytes} data-memory-export-sha256={exportResult?.sha256}>{notice}</p>}
       {loading && <p role="status">{view ? 'Refreshing project memory…' : 'Loading project memory…'}</p>}
       {!view && !loading && <button type="button" onClick={() => void load()}>Retry loading</button>}
       {view && <>

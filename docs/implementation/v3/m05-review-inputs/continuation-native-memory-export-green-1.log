@@ -1,0 +1,101 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ✓ tests/desktop-preload-accounts.test.ts > preserves explicit account IDs through the real preload bridge 2ms
+ ✓ tests/desktop-preload-accounts.test.ts > does not silently reinterpret invalid account "" as legacy authentication 1ms
+ ✓ tests/desktop-preload-accounts.test.ts > does not silently reinterpret invalid account null as legacy authentication 2ms
+ ✓ tests/desktop-preload-accounts.test.ts > forwards only serialized project memory through the explicit export channel 1ms
+ ✓ tests/memory-export-client-v3.test.ts > passes only a validated server export through the native bridge and binds its completed receipt 174ms
+ ✓ tests/memory-export-client-v3.test.ts > does not offer a foreign server scope to the native download policy 7ms
+ ✓ tests/memory-export-client-v3.test.ts > fails closed on an older desktop bridge instead of attempting the blocked browser download 3ms
+ ✓ tests/memory-export-client-v3.test.ts > does not fall back to an arbitrary browser download when native export is refused 5ms
+ ✓ tests/memory-export-client-v3.test.ts > rejects native completion metadata that does not attest the exact export 11ms
+ ✓ tests/memory-export-client-v3.test.ts > rejects native completion metadata that does not attest the exact export 10ms
+ × tests/desktop-memory-export.test.ts > keeps an ordinary download denied without an explicit memory export request 167ms
+   → The first argument must be of type string or an instance of Buffer, ArrayBuffer, or Array or an Array-like Object. Received undefined
+ ✓ tests/desktop-memory-export.test.ts > admits canonical main-owned JSON once and acknowledges only a completed native save 11ms
+ ✓ tests/desktop-memory-export.test.ts > allows the owning detached {"kind":"thread","threadId":"thread-a"} surface 6ms
+ ✓ tests/desktop-memory-export.test.ts > allows the owning detached {"kind":"plan","threadId":"thread-a"} surface 2ms
+ ✓ tests/desktop-memory-export.test.ts > allows the owning detached {"kind":"workspace","threadId":"thread-a","tab":"context"} surface 2ms
+ ✓ tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"plugin","pluginId":"plugin-a","scopeId":"scope-a","surfaceId":"view-a"} 1ms
+ ✓ tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"browser","browserId":"browser-a"} 1ms
+ ✓ tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"navigation"} 1ms
+ ✓ tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"usage","threadId":"thread-a"} 1ms
+ ✓ tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"thread","threadId":"foreign"} 1ms
+ ✓ tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"plan","threadId":"foreign"} 0ms
+ ✓ tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"workspace","threadId":"foreign","tab":"context"} 1ms
+ ✓ tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"workspace","tab":"context"} 1ms
+ ✓ tests/desktop-memory-export.test.ts > does not consume the permit for a foreign origin 2ms
+ ✓ tests/desktop-memory-export.test.ts > does not consume the permit for a foreign url 1ms
+ ✓ tests/desktop-memory-export.test.ts > does not consume the permit for a foreign filename 2ms
+ ✓ tests/desktop-memory-export.test.ts > does not consume the permit for a foreign chain 2ms
+ ✓ tests/desktop-memory-export.test.ts > does not consume the permit for a foreign frame 1ms
+ ✓ tests/desktop-memory-export.test.ts > does not consume the permit for a foreign contents 1ms
+ ✓ tests/desktop-memory-export.test.ts > refuses a changed live owner before a pending native download is admitted 1ms
+ ✓ tests/desktop-memory-export.test.ts > revokes a pending export on navigation 2ms
+ ✓ tests/desktop-memory-export.test.ts > revokes a pending export on destroyed 1ms
+ ✓ tests/desktop-memory-export.test.ts > revokes a pending export on replacement frame 1ms
+ ✓ tests/desktop-memory-export.test.ts > expires an unused grant and never authorizes a late matching download 2ms
+ ✓ tests/desktop-memory-export.test.ts > cancels a hung admitted save within its separate completion bound 2ms
+ ✓ tests/desktop-memory-export.test.ts > reports native cancellation without claiming the file was saved 2ms
+ ✓ tests/desktop-memory-export.test.ts > refuses to acknowledge a completed export after interrupted 2ms
+ ✓ tests/desktop-memory-export.test.ts > refuses to acknowledge a completed export after short bytes 2ms
+ × tests/desktop-memory-export.test.ts > revokes the grant when fixed-script execution fails 1ms
+   → The first argument must be of type string or an instance of Buffer, ArrayBuffer, or Array or an Array-like Object. Received undefined
+ ✓ tests/desktop-memory-export.test.ts > does not replace a live export with a second same-window request 2ms
+ ✓ tests/memory-export-client-v3.test.ts > rejects native completion metadata that does not attest the exact export 10ms
+ ✓ tests/memory-export-client-v3.test.ts > rejects native completion metadata that does not attest the exact export 10ms
+ ✓ tests/memory-export-client-v3.test.ts > rejects native completion metadata that does not attest the exact export 15ms
+ ✓ tests/memory-export-client-v3.test.ts > retains cancellation as cancellation rather than reporting a saved export 10ms
+ ✓ tests/memory-export-client-v3.test.ts > does not acknowledge a native save after the owning review has changed 14ms
+ ✓ tests/memory-export-client-v3.test.ts > keeps the ordinary browser export path without granting it native save status 11ms
+ ✓ tests/desktop-memory-export.test.ts > bounds active exports across windows and releases capacity after terminal cancellation 11ms
+ ✓ tests/desktop-memory-export.test.ts > cancels an admitted native download when its owning document is destroyed 4ms
+ ✓ tests/desktop-memory-export.test.ts > rejects invalid or unredacted input before creating a grant 1ms
+ ✓ tests/desktop-memory-export.test.ts > rejects invalid or unredacted input before creating a grant 1ms
+ ✓ tests/desktop-memory-export.test.ts > rejects invalid or unredacted input before creating a grant 1ms
+ ✓ tests/desktop-memory-export.test.ts > rejects invalid or unredacted input before creating a grant 1ms
+ ✓ tests/desktop-memory-export.test.ts > rejects invalid or unredacted input before creating a grant 0ms
+ ✓ tests/desktop-memory-export.test.ts > bounds UTF-8 input before JSON parsing or script execution 17ms
+ ✓ tests/desktop-memory-export.test.ts > supports the full schema with escaped control text without a one-megabyte truncation 264ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/desktop-memory-export.test.ts > keeps an ordinary download denied without an explicit memory export request
+TypeError: The first argument must be of type string or an instance of Buffer, ArrayBuffer, or Array or an Array-like Object. Received undefined
+ ❯ new NativeDownload tests/desktop-memory-export.test.ts:44:57
+     42|   cancelled = false;
+     43|   constructor(public url: string, public filename: string) {
+     44|     super(); this.chain = [url]; this.received = Buffer.from(url.split…
+       |                                                         ^
+     45|   }
+     46|   getURL() {return this.url;}
+ ❯ Object.download tests/desktop-memory-export.test.ts:62:32
+ ❯ tests/desktop-memory-export.test.ts:71:42
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'ERR_INVALID_ARG_TYPE' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/desktop-memory-export.test.ts > revokes the grant when fixed-script execution fails
+TypeError: The first argument must be of type string or an instance of Buffer, ArrayBuffer, or Array or an Array-like Object. Received undefined
+ ❯ new NativeDownload tests/desktop-memory-export.test.ts:44:57
+     42|   cancelled = false;
+     43|   constructor(public url: string, public filename: string) {
+     44|     super(); this.chain = [url]; this.received = Buffer.from(url.split…
+       |                                                         ^
+     45|   }
+     46|   getURL() {return this.url;}
+ ❯ Object.download tests/desktop-memory-export.test.ts:62:32
+ ❯ tests/desktop-memory-export.test.ts:143:93
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'ERR_INVALID_ARG_TYPE' }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  2 failed | 53 passed (55)
+   Start at  03:32:24
+   Duration  859ms (transform 416ms, setup 0ms, import 472ms, tests 828ms, environment 0ms)
+

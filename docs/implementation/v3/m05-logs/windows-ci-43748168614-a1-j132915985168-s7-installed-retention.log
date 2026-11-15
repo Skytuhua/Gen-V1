@@ -1,0 +1,41 @@
+2026-11-15T18:56:36.7848446Z ##[group]Run $ErrorActionPreference = 'Stop'
+2026-11-15T18:56:36.7848884Z $ErrorActionPreference = 'Stop'
+2026-11-15T18:56:36.7849291Z $version = (Get-Content -Raw -LiteralPath package.json | ConvertFrom-Json).version
+2026-11-15T18:56:36.7849709Z $release = Join-Path $PWD ('.harness-installed-package/desktop-release-' + $version)
+2026-11-15T18:56:36.7850156Z $setup = (Resolve-Path -LiteralPath (Join-Path $release ('Gen-V1-Setup-' + $version + '-win-x64.exe'))).Path
+2026-11-15T18:56:36.7850605Z $unpacked = (Resolve-Path -LiteralPath (Join-Path $release 'win-unpacked')).Path
+2026-11-15T18:56:36.7851082Z $verifyArgs = @('exec', 'tsx', 'scripts/verify-installed-desktop.ts', $setup, $unpacked, '--project-memory-retention')
+2026-11-15T18:56:36.7851600Z Write-Output ('HARNESS_INSTALLED_VERIFY_ARGV=' + (@{executable='pnpm'; args=$verifyArgs} | ConvertTo-Json -Compress))
+2026-11-15T18:56:36.7852169Z & pnpm @verifyArgs
+2026-11-15T18:56:36.7852425Z if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+2026-11-15T18:56:36.7910905Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T18:56:36.7911228Z env:
+2026-11-15T18:56:36.7911465Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T18:56:36.7911801Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T18:56:36.7912127Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T18:56:36.7912490Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T18:56:36.7912773Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T18:56:36.7913080Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T18:56:36.7913413Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T18:56:36.7913801Z   HARNESS_INTEGRATION_WHEELS: D:\a\_temp\gen-packaging-wheels-2a7f64a5ca1f4d80a5a9a287f72c105b
+2026-11-15T18:56:36.7914128Z ##[endgroup]
+2026-11-15T18:56:37.2148785Z HARNESS_INSTALLED_VERIFY_ARGV={"executable":"pnpm","args":["exec","tsx","scripts/verify-installed-desktop.ts","D:\\a\\Gen-V1\\Gen-V1\\.harness-installed-package\\desktop-release-0.6.5\\Gen-V1-Setup-0.6.5-win-x64.exe","D:\\a\\Gen-V1\\Gen-V1\\.harness-installed-package\\desktop-release-0.6.5\\win-unpacked","--project-memory-retention"]}
+2026-11-15T19:05:15.3955143Z {"directory":"D:\\a\\Gen-V1\\Gen-V1\\.harness-packaged-providers\\run-1794769510832-da5a7ead-c349-44c0-855a-c4cb80c2367d","passed":true}
+2026-11-15T19:06:17.1177920Z {"directory":"D:\\a\\Gen-V1\\Gen-V1\\.harness-desktop-installed\\run-1794768998639-ef0819e0-0cde-4de3-a92e-5009cdc3fbb5","passed":false}
+2026-11-15T19:06:17.1238447Z node:internal/modules/run_main:107
+2026-11-15T19:06:17.1238718Z     triggerUncaughtException(
+2026-11-15T19:06:17.1239000Z     ^
+2026-11-15T19:06:17.1239152Z 
+2026-11-15T19:06:17.1239380Z locator.click: Timeout 30000ms exceeded.
+2026-11-15T19:06:17.1239591Z Call log:
+2026-11-15T19:06:17.1240774Z   - waiting for getByRole('button', { name: 'Project memory', exact: true })
+2026-11-15T19:06:17.1241820Z 
+2026-11-15T19:06:17.1242134Z     at Module.verifyInstalledMemoryUI (D:\a\Gen-V1\Gen-V1\scripts\installed-memory-retention.ts:127:75)
+2026-11-15T19:06:17.1242790Z     at async launchInstalled (D:\a\Gen-V1\Gen-V1\scripts\verify-installed-desktop.ts:310:13)
+2026-11-15T19:06:17.1243428Z     at async verifyInstalledDesktop (D:\a\Gen-V1\Gen-V1\scripts\verify-installed-desktop.ts:362:84)
+2026-11-15T19:06:17.1244045Z     at async <anonymous> (D:\a\Gen-V1\Gen-V1\scripts\verify-installed-desktop.ts:384:2) {
+2026-11-15T19:06:17.1244522Z   name: 'TimeoutError'
+2026-11-15T19:06:17.1244843Z }
+2026-11-15T19:06:17.1244996Z 
+2026-11-15T19:06:17.1245091Z Node.js v24.22.2
+2026-11-15T19:06:17.2309383Z ##[error]Process completed with exit code 1.

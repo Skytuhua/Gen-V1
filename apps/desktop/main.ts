@@ -23,6 +23,7 @@ import {createAccountLoginFlows} from './account-login.ts';
 import {workspaceEvents} from './workspace-events.ts';
 import {applyNativeLayout} from './layout-transaction.ts';
 import {createPersistenceQueue,reconcileSavedWindows} from './persistence.ts';
+import {createMemoryExportDownloads} from './memory-export.ts';
 import {createAttentionPopups,attentionPopupHtml,type AttentionPopupAction,type AttentionPopupWindow} from './attention-popups.ts';
 import {attentionDeliverySchema} from '../../packages/contracts/attention.ts';
 const persistence=createPersistenceQueue();
@@ -104,8 +105,8 @@ function secureBrowserSession(value:Session){
  });
  const ready=(async()=>{const proxy=await (proxyPromise??=createBrowserProxy());await value.setProxy({mode:'fixed_servers',proxyRules:'http=127.0.0.1:'+proxy.port+';https=127.0.0.1:'+proxy.port,proxyBypassRules:'<-loopback>'});await value.closeAllConnections();})();configuredBrowserSessions.set(value,ready);return ready;
 }
-const downloadGuardedSessions=new WeakSet<Session>();
-function secureSessionDownloads(value:Session){if(downloadGuardedSessions.has(value))return;downloadGuardedSessions.add(value);value.on('will-download',event=>event.preventDefault());}
+const memoryExports=createMemoryExportDownloads();
+function secureSessionDownloads(value:Session){memoryExports.guard(value);}
 function browserRecord(id:string):BrowserRecord {
  const existing=browsers.get(id);if(existing)return existing;
  if(browsers.size>=12)throw Error('Close a browser before opening another');
@@ -223,6 +224,7 @@ function registerIpc(){
  ipcMain.handle(channels.attentionPopupAction,async(event,value:unknown)=>{const native=attentionNative;if(!native||native.isDestroyed()||event.sender.id!==native.webContents.id||event.senderFrame!==event.sender.mainFrame||event.senderFrame.url!==attentionUrl||event.sender.getURL()!==attentionUrl)throw Error('Notification action denied.');if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).length!==2)throw Error('Invalid notification action.');const action=value as Record<string,unknown>;if(!['open','dismiss','pause','resume'].includes(String(action.type))||typeof action.eventId!=='string'||!/^[A-Za-z0-9][A-Za-z0-9:_.-]{0,999}$/.test(action.eventId))throw Error('Invalid notification action.');await attentionAction?.(action as unknown as AttentionPopupAction);});
  handle(channels.attentionOpen,async(record,value)=>{if(record.surface.kind!=='main'||typeof value!=='string')throw Error('Notification action denied.');await openAttention(value);});
  handle(channels.context,record=>context(record));
+ handle(channels.memoryExport,(record,value)=>memoryExports.export({contents:record.window.webContents,surface:record.surface,documentUrl:record.url,isCurrent:()=>!quitting&&!quitPending&&windows.get(record.id)===record&&!record.window.isDestroyed()&&record.ready},value));
  handle(channels.theme,(record,value)=>{const theme=nativeTitlebarTheme(value);if(process.platform==='win32')record.window.setTitleBarOverlay(theme);});
  handle(channels.update,async(_record,value)=>{if(value!=='check'&&value!=='restart')throw Error('Invalid update action.');if(value==='check')return updater?await updater.check():updateStatus;if(updateStatus.state!=='ready'&&updateStatus.state!=='deferred')return updateStatus;if(osSessionEnding||signInFlows.isBusy()||(await backendRequest('harness.update.readiness')).idle!==true){updateStatus={state:'deferred',message:'Finish the current work before restarting to update.'};broadcast();return updateStatus;}restartForUpdate=true;app.quit();return updateStatus;});
  handle(channels.ready,record=>{if(!record.ready){try{if(record.surface.kind==='browser')moveBrowser(browserRecord(record.surface.browserId),record,false);record.ready=true;record.settled=true;clearTimeout(record.readyTimer);if(record.visible)record.window.show();record.resolveReady(info(record));remember(record);broadcast();}catch(error){record.settled=true;clearTimeout(record.readyTimer);record.rejectReady(error instanceof Error?error:Error(String(error)));loseBrowserOwner(record);record.window.destroy();throw error;}}return context(record);});

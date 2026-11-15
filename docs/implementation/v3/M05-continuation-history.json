@@ -1,22 +1,22 @@
 {
   "schemaVersion": 1,
-  "publishedCommit": "60f030a2a6a764b858da110586c666353705a5fd",
+  "publishedCommit": "bbc07f07fe8957de846433d51ecde51cd8b0fe00",
   "publishedArtifacts": {
     "M05-provenance.json": {
-      "sha256": "475dfbe0a97cba955fec0f06beb79db4c2010a703c120779ef6d01f3b0109b10",
-      "blobSha": "ca4890f18a9ef8f9517686f6eb5d913fa1b869e6"
+      "sha256": "2c5f88889381e116a46bbffecd98c192267a43aae2c1d316dc947858bbc4b2b3",
+      "blobSha": "fc65112e203f56243af3df10d421832f7f227dde"
     },
     "M05-source-lock.json": {
-      "sha256": "85d698c90b26018a30d4830a232bbcc61ec7be9439845699c32d6905ae5e4ac7",
-      "blobSha": "fd2fa7642e4522eca352f95d9d3b7da4da787883"
+      "sha256": "63ad4159651843a19241573ba0091224068bac28557e13eb4f444805e210881f",
+      "blobSha": "447ef3eea9cc73b02bb3718432ebb467e8b302b4"
     },
     "M05-verification.json": {
-      "sha256": "2202144a0c11bf835a16e2bf3542e79a891a1e3619bbf407db4dd5de43cc0b3d",
-      "blobSha": "587286cce1328f5de8b5a94c60253b2a127710f6"
+      "sha256": "2773d52b5d10b15cad7cbaee09364dcb8bd49247cf23eb78b96bb1cd0046f61e",
+      "blobSha": "f95a49678058a4a270e0f341b259158c287ea7de"
     },
     "M05-log-policy.json": {
-      "sha256": "f57f741343dd53290b4b980e741be7327a81fc4955861cc58da059cec4332cf6",
-      "blobSha": "1b25f1071e1d91e69d68ce662abd60e2fa1c130b"
+      "sha256": "3f8ede5e27b2b079c0b46e7c68b454ebf98ce0dff499c14b760f153d12e77d7d",
+      "blobSha": "d6c8782e21c5621dda3952a3203cdb2ee4b0ea0f"
     },
     "M05-upstream-check.json": {
       "sha256": "d1293c014538a3941a503b2813833927e7cc9cc2b3557532e01cb81312ef5f77",
@@ -25,7 +25,7 @@
   },
   "originalPublishedProvenance": {
     "schemaVersion": 2,
-    "recordedAt": "2026-11-15T18:00:27.544803+00:00",
+    "recordedAt": "2026-11-15T18:39:27.948388+00:00",
     "repositoryRoot": "/workspace/scratch/36f66011d961/m05-continuation",
     "branch": "agent/m05-v3-continuation",
     "origin": "https://github.com/Skytuhua/Gen-V1.git",
@@ -33,7 +33,7 @@
     "repositoryId": 1442565952,
     "canonicalIdentityEvidence": "docs/implementation/v3/M05-upstream-check.json",
     "acceptedBaseSha": "399cde39ff4ee82272c7a7700944325c44b36070",
-    "sourceParentHeadSha": "46adf165bfaa3f9248c6995028fb0e4369442ed9",
+    "sourceParentHeadSha": "3c094d069d63632cd856ac93dbec18e7c670e728",
     "acceptedDependencyCommits": [
       "5f0958f4cb5b40bc10c1eea0e1cd517b57aaa1b9",
       "f331cf16b268282da888a41da42fc776ea7befd5",
@@ -49,22 +49,20 @@
     "packageManagerEvidence": "Declared package manager plus preserved setup/build argv; no new package installation is performed by this builder.",
     "lockfileChangedAgainstAcceptedBase": false,
     "selectedCurrentCommandRefs": [
+      "docs/implementation/v3/m05-logs/continuation-installed-progress-budget-typecheck.log",
       "docs/implementation/v3/m05-logs/continuation-m11-final-contracts.log",
       "docs/implementation/v3/m05-logs/continuation-m11-final-memory-regression.log",
-      "docs/implementation/v3/m05-logs/continuation-nsis-7z-installer-final-typecheck.log",
       "docs/implementation/v3/m05-logs/continuation-study-manifest-final.log",
       "docs/implementation/v3/m05-logs/windows-ci-43733008039-a1-j132869421442-s5-application-regression.log",
-      "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515272-s7-native-facade.log",
-      "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515272-s7-native-worker.log",
-      "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515463-s4-build-web.log"
+      "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644622-s7-native-facade.log",
+      "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644622-s7-native-worker.log",
+      "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644780-s9-build-web.log"
     ],
     "commandCutLimitation": "Command ledger records actual times/argv/results, not a per-command Git tree. Selection is explicit; the current file inventory is generated separately. Exact-head Windows status is admitted only when its current code/test/workflow cut matches.",
-    "windowsCiRef": "docs/implementation/v3/M05-windows-ci-43739565577.json",
+    "windowsCiRef": "docs/implementation/v3/M05-windows-ci-43744480609.json",
     "windowsCiCurrentCodeCut": false,
     "windowsCiCutNotes": [
-      "CI code/test/workflow cut differs from the current worktree: scripts/desktop-assets.ts",
       "CI code/test/workflow cut differs from the current worktree: scripts/verify-installed-desktop.ts",
-      "CI code/test/workflow cut differs from the current worktree: tests/desktop-packaging.test.ts",
       "CI code/test/workflow cut differs from the current worktree: tests/installed-desktop-verification.test.ts"
     ],
     "studyRef": "docs/implementation/v3/m05-study-20261115/results.json",
@@ -600,6 +598,64 @@
         "testIds": [
           "tests/model-transport-v3.test.ts"
         ]
+      },
+      {
+        "name": "M04.RequestContextV1",
+        "version": "30185cc5e66a74ef438af8ec8e9ec1d91989c614",
+        "testIds": [
+          "tests/context-compiler-v3.test.ts",
+          "tests/request-preparation-service-v3.test.ts",
+          "tests/project-memory-service-v3.test.ts"
+        ]
+      },
+      {
+        "name": "M04.RequestCustody",
+        "version": "b7f0946c0ae48acc8d0673739c6960a5601b8841",
+        "testIds": [
+          "tests/request-preparation-service-v3.test.ts",
+          "tests/project-memory-service-v3.test.ts"
+        ]
+      },
+      {
+        "name": "M04.ContextCompiler",
+        "version": "7b6f9040160b8440845c256c57bd5aba52f1ca4b",
+        "testIds": [
+          "tests/context-compiler-v3.test.ts"
+        ]
+      },
+      {
+        "name": "M04.HostRequestPreparation",
+        "version": "cdef7f205a6d19357478d9676f9c43c26be512b1",
+        "testIds": [
+          "tests/request-preparation-service-v3.test.ts",
+          "tests/project-memory-request-http-v3.test.ts",
+          "tests/project-memory-service-v3.test.ts"
+        ]
+      },
+      {
+        "name": "M11.ModelRequestObservationV1",
+        "version": "17cbabb11a2b3653578456f563be70e49aeb0cdf",
+        "testIds": [
+          "tests/model-transport-v3.test.ts",
+          "tests/usage-accounting-v3.test.ts",
+          "tests/hermes-runtime.test.ts"
+        ]
+      },
+      {
+        "name": "M11.RequestScheduler",
+        "version": "95f3fa03c2ab80288a434c95c3e215cd4943a917",
+        "testIds": [
+          "tests/model-scheduling-v3.test.ts",
+          "tests/memory-extraction-runtime-v3.test.ts",
+          "tests/memory-extraction-scheduler-v3.test.ts"
+        ]
+      },
+      {
+        "name": "M11.RequestCapabilities",
+        "version": "45df1e61813b4bd9548841561b8a6c49dfc44ffa",
+        "testIds": [
+          "tests/model-transport-v3.test.ts"
+        ]
       }
     ],
     "acceptedDependencyCommits": [
@@ -723,12 +779,12 @@
         {
           "id": "Hermes-pinned-compression-facade",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515272-s7-native-facade.log; Actual pinned native facade/API version checks, offline."
+          "evidence": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644622-s7-native-facade.log; Actual pinned native facade/API version checks, offline."
         },
         {
           "id": "Hermes-actual-Worker-compaction",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515272-s7-native-worker.log; Actual pinned Worker and scripted ACP summary; persistence failure/cancellation preserve native history. No live provider spend."
+          "evidence": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644622-s7-native-worker.log; Actual pinned Worker and scripted ACP summary; persistence failure/cancellation preserve native history. No live provider spend."
         }
       ]
     },
@@ -739,12 +795,12 @@
         {
           "id": "TypeScript-current-selected-check",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/continuation-nsis-7z-installer-final-typecheck.log; Full typecheck only, not a scoped tsconfig substitution."
+          "evidence": "docs/implementation/v3/m05-logs/continuation-installed-progress-budget-typecheck.log; Full typecheck only, not a scoped tsconfig substitution."
         },
         {
           "id": "production-build-current-selected-check",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515463-s4-build-web.log; Actual recorded production build; installed-desktop execution is separate."
+          "evidence": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644780-s9-build-web.log; Actual recorded production build; installed-desktop execution is separate."
         }
       ]
     },
@@ -760,7 +816,7 @@
         {
           "id": "current-Windows-full-regression",
           "status": "NOT_RUN",
-          "evidence": "NOT_RUN for this source cut. All four application regression shards required. CI code/test/workflow cut differs from the current worktree: scripts/desktop-assets.ts; CI code/test/workflow cut differs from the current worktree: scripts/verify-installed-desktop.ts; CI code/test/workflow cut differs from the current worktree: tests/desktop-packaging.test.ts; CI code/test/workflow cut differs from the current worktree: tests/installed-desktop-verification.test.ts"
+          "evidence": "NOT_RUN for this source cut. All four application regression shards required. CI code/test/workflow cut differs from the current worktree: scripts/verify-installed-desktop.ts; CI code/test/workflow cut differs from the current worktree: tests/installed-desktop-verification.test.ts"
         }
       ]
     },
@@ -771,7 +827,7 @@
         {
           "id": "current-project-memory-context-and-baseline-browser",
           "status": "NOT_RUN",
-          "evidence": "NOT_RUN for this source cut. The matching current workflow must execute project-memory, usage-context, frontend-refinement and root browser suites. CI code/test/workflow cut differs from the current worktree: scripts/desktop-assets.ts; CI code/test/workflow cut differs from the current worktree: scripts/verify-installed-desktop.ts; CI code/test/workflow cut differs from the current worktree: tests/desktop-packaging.test.ts; CI code/test/workflow cut differs from the current worktree: tests/installed-desktop-verification.test.ts"
+          "evidence": "NOT_RUN for this source cut. The matching current workflow must execute project-memory, usage-context, frontend-refinement and root browser suites. CI code/test/workflow cut differs from the current worktree: scripts/verify-installed-desktop.ts; CI code/test/workflow cut differs from the current worktree: tests/installed-desktop-verification.test.ts"
         }
       ]
     },
@@ -1970,6 +2026,94 @@
       "termination": "NONE",
       "status": "FAIL",
       "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "a3cdb782a356453def66d67ad07caef50433e7ea7366df5862f82d559d439fba",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43748168614-a1-j132915985143-s5-application-regression.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "d727c1f233979c01dc13fcfcde792d671961bade38bf9e4ca87b39fa299247f7",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43748168614-a1-j132915985168-s7-installed-retention.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "99e017ac8ecbdfc2cd795585e54464a6ed639872865085720f319a02ca55831e",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43748168614-a1-j132915985300-s5-application-regression.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "5f34d8d997da62aca8ae0468ececcf53d1c3df707f0994f2c8bccf4a6a642aa6",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-native-memory-export-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "f61d62787c8115c2fcadf3a8f742327a80b0a7d4494312b7ee605024462051a6",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-native-memory-export-capacity-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "4532f16cd448efabbef003b85f7ff58d0d01657e355bec7a16874cb6696069ec",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-installed-native-save-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "e3f747ba417c713d5dbc74bb6c5c837acb08e5c8c9890061a36fda155a20b28b",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-native-memory-export-green-1.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "cae6d587c49e82985709a7f44618d8d460f7b3a80e4ec85929d059c3cf3b2be6",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-native-memory-export-sync-dispatch-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "5f04934cdb1323c044b23db971c876d3e13dbdd4cd919100357293e39efa356e",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-native-memory-export-native-events-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "d7636ac3f9411b7fd0b9315b685aa3546a7b1a02897b3674182c3e259298a8a2",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-native-memory-export-validation-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "be131256e8ce6ad2ccfe96f740d1d58cf9ef3129322aef05dfe6d0c8354dedda",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-native-save-combined-desktop-build.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
     }
   ],
   "refreshes": [
@@ -2337,6 +2481,27 @@
       "ledgerAfterDigest": "4d312a15e3f961690a48d0ac697ec0dbe999a3d6221db5ad41d68b213b6f328e",
       "windowsCiRef": "docs/implementation/v3/M05-windows-ci-43744480609.json",
       "windowsCiCurrentCodeCut": false
+    },
+    {
+      "recordedAt": "2026-11-15T19:57:27.455898+00:00",
+      "executionBaseSha": "399cde39ff4ee82272c7a7700944325c44b36070",
+      "sourceParentHeadSha": "d63f5cab7269c0517744cde067705e887fb2292a",
+      "selectedCurrentCommandRefs": [
+        "docs/implementation/v3/m05-logs/continuation-m11-final-contracts.log",
+        "docs/implementation/v3/m05-logs/continuation-m11-final-memory-regression.log",
+        "docs/implementation/v3/m05-logs/continuation-native-memory-export-final-green.log",
+        "docs/implementation/v3/m05-logs/continuation-native-save-combined-typecheck.log",
+        "docs/implementation/v3/m05-logs/continuation-native-save-combined-web-build.log",
+        "docs/implementation/v3/m05-logs/continuation-study-manifest-final.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43733008039-a1-j132869421442-s5-application-regression.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43748168614-a1-j132915985202-s7-native-facade.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43748168614-a1-j132915985202-s7-native-worker.log"
+      ],
+      "ledgerBeforeDigest": "4a82c3ca1a1d7cb095c09b079af3c102f77ccbbe3289ac66276e10ee28afa464",
+      "ledgerAfterDigest": "3dca9cddae81fed761909d77bc8d35c7d44fe0f686274aa07756b2d0db719889",
+      "windowsCiRef": "docs/implementation/v3/M05-windows-ci-43748168614.json",
+      "windowsCiCurrentCodeCut": false,
+      "installedRetentionAdmission": null
     }
   ]
 }
