@@ -5,6 +5,9 @@ import {existsSync} from 'node:fs';
 import {dirname,isAbsolute,join,parse,relative,resolve,sep} from 'node:path';
 import {z} from 'zod';
 import {pluginIdSchema,pluginManifestSchema,pluginPathSchema,pluginVersionSchema,type PluginManifest,type PluginCompatibility} from './contracts.ts';
+import {hostFlagEnabled} from '../core/host-flags.ts';
+import {screenPackage,screeningGate,type AdvisoryDatabase,type OperatorException,type ScreeningRecordCache} from '../core/package-screening.ts';
+import type {PackageScreeningV1} from '../contracts/execution-profile.ts';
 
 // The Electron shell has no private copy of runtime dependencies in ASAR.
 // Resolve the same locked production dependency staged in its public host.
@@ -98,12 +101,32 @@ async function withIndexLock<T>(root:string,action:()=>Promise<T>):Promise<T>{
 }
 async function saveIndex(root:string,plugins:ActivePlugin[]){const temporary=join(root,'.active-'+randomUUID()+'.json');await writeFile(temporary,JSON.stringify({version:1,plugins}),{flag:'wx',mode:0o600});await rename(temporary,join(root,'active.json'));}
 
+export interface PluginScreeningOptions {
+ advisory?:AdvisoryDatabase;
+ exception?:OperatorException;
+ cache?:ScreeningRecordCache;
+ maxCacheAgeMs?:number;
+}
 /** expectedDigest is SHA-256 of raw plugin-files.json, supplied by a trusted
  * local installer. Inventory: {version:1, files:[{path,bytes,sha256}]}; every
- * package file except plugin-files.json is declared, including plugin.json. */
-export async function installPluginPackage(source:string,root:string,expectedDigest:string,genVersion:string):Promise<{manifest:PluginManifest;digest:string;directory:string}>{
+ * package file except plugin-files.json is declared, including plugin.json.
+ * When security.executionProfilesV1 is enabled, activation additionally
+ * requires an advisory preflight: exact package/version/digest against the
+ * composed advisory database. UNAVAILABLE blocks unless the operator recorded
+ * a documented exception; KNOWN_BAD always denies; NO_KNOWN_MATCH never
+ * grants trust by itself. With the flag off and no advisory composed, the
+ * legacy path is unchanged. */
+export async function installPluginPackage(source:string,root:string,expectedDigest:string,genVersion:string,options?:{screening?:PluginScreeningOptions}):Promise<{manifest:PluginManifest;digest:string;directory:string;screening?:PackageScreeningV1}>{
  const sourcePath=resolve(source),rootPath=resolve(root);if(sourcePath===rootPath||inside(sourcePath,rootPath)||inside(rootPath,sourcePath))throw Error('The plug-in source and installed package directories must be separate.');
  const verified=await verifyPluginPackage(sourcePath,expectedDigest);if(!versionCompatible(verified.manifest,genVersion))throw Error('The plug-in is not compatible with this Gen version.');
+ let screening:PackageScreeningV1|undefined;
+ if(options?.screening?.advisory||hostFlagEnabled('security.executionProfilesV1')){
+  const advisory=options?.screening?.advisory;
+  if(!advisory)throw Error('Package screening is required but no advisory database is configured.');
+  const computation=await screenPackage({name:verified.manifest.id,version:verified.manifest.version,digest:expectedDigest},advisory,{cache:options?.screening?.cache,maxCacheAgeMs:options?.screening?.maxCacheAgeMs,exception:options?.screening?.exception});
+  screening=computation.record;
+  if(screeningGate(computation.record)==='BLOCK')throw Error(`Package screening denied activation: ${computation.record.reason}`);
+ }
  return withIndexLock(rootPath,async()=>{
   const index=await readPluginIndex(rootPath),parent=join(rootPath,verified.manifest.id),directory=join(parent,verified.manifest.version);await safeDirectory(parent,true);
   try{await lstat(directory);throw Error('This immutable plug-in version already exists.');}catch(error){if(!missing(error))throw error;}
@@ -111,7 +134,7 @@ export async function installPluginPackage(source:string,root:string,expectedDig
   for(const [path,bytes]of verified.files){const target=join(stage,path);await mkdir(dirname(target),{recursive:true});await writeFile(target,bytes,{flag:'wx',mode:0o600});}
   await verifyPluginPackage(stage,expectedDigest);await rename(stage,directory);
   await saveIndex(rootPath,[...index.filter(row=>row.id!==verified.manifest.id),{id:verified.manifest.id,version:verified.manifest.version,digest:expectedDigest}]);
-  return {manifest:verified.manifest,digest:expectedDigest,directory};
+  return {manifest:verified.manifest,digest:expectedDigest,directory,...(screening?{screening}:{})};
  });
 }
 

@@ -38,9 +38,12 @@ export function browserTestMain(args:string[]):number {
   for(let index=0;index<args.length;index++){
     if(args[index]==='--')continue;
     if(args[index]==='--list')list=true;
-    else if(args[index]==='--suite'&&args[index+1]){
+    else if(args[index]==='--suite'){
       if(selected!==undefined)throw Error('--suite may be specified only once per browser test run.');
-      selected=args[++index];
+      const name=args[index+1];
+      if(!name||name.startsWith('-'))throw Error('--suite requires a suite name.');
+      selected=name;
+      index++;
     }
     else throw Error('Usage: tsx scripts/test-browser.ts [--suite name] [--list]');
   }
