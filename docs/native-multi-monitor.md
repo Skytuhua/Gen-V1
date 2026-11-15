@@ -15,11 +15,13 @@ Detached chat, artifacts, Plan, Usage, navigation, workspace and browser windows
 
 The display menu is native and reachable using Alt on Windows; no arbitrary screen geometry or raw Electron APIs are exposed to application or remote-browser pages.
 
-Verification uses focused geometry tests for negative-coordinate displays, mixed scale factors, reconnect, source-display placement and deliberate rescue override, plus the existing native authority, browser isolation and backend checks. A separate [actual-display receipt](evidence/t3-centered-workspace-20261031/physical-displays/run-2026-10-31T11-34-48-103Z/verification.json) records 15 passed checks using the existing v0.3 package on one actual display at 150% scale. It covers native display-menu placement, independent minimization, cold restart, reattachment and owned-process cleanup; it does not verify current source provider changes.
+## What has been verified
 
-A fresh [v0.4.1 actual-display run](evidence/current-goal-audit-20261031/physical-displays/run-2026-10-31T14-49-49-754Z/verification.json) passed the same 15 checks on the one connected 150% display. The receipt records the actual v0.4.1 executable/archive hashes and two owned startup/shutdown cycles. It does not contain the newer Cursor adapter or verify provider authentication.
+The [geometry regression tests](../tests/desktop-display-layout.test.ts) exercise negative coordinates, mixed scale factors, reconnect, source-display placement and deliberate rescue override with simulated displays.
 
-A fresh [v0.5.1 actual-display run](evidence/runtime-clarity-20261031/physical-displays/run-2026-10-31T17-43-41-601Z/verification.json) also passes 15 checks on one actual display, with both owned processes and backend ports closed afterward. Its one hardware case remains explicitly unverified. This is separate from live-provider acceptance.
+Historical runs of v0.3, v0.4.1 and v0.5.1 reported 15 checks each on one physical display at 150% scaling. See the [acceptance summary](acceptance.md) for release context. Those runs covered native menu placement, independent minimization, cold restart, reattachment and cleanup. Their raw receipts are not included in this checkout. They are not evidence for the current package or for live-provider authentication.
+
+The [physical-display verification script](../scripts/verify-physical-displays.ts) records the package version and executable hash, attached displays, and the scope of each new run. It does not exercise hotplug.
 
 Multiple physical displays, negative-coordinate transitions, mixed-DPI transitions and hotplug remain unverified. Simulated geometry and one physical display do not establish those hardware behaviors. Native bounds can be further adjusted by Windows window-management policies.
 

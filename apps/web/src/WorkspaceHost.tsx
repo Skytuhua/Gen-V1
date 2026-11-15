@@ -4,6 +4,8 @@ import {threadNavigationRevision,type ThreadNavigationRow} from '../../../packag
 import type {PanelBinding, WorkspacePreset} from '../../../packages/contracts/workspace';
 import {getPreferences} from '../../../packages/contracts/preferences';
 import {Modal} from '../../../packages/ui-shell/Modal';
+import {Toaster} from '../../../packages/ui-shell/Toast';
+import {TooltipLayer} from '../../../packages/ui-shell/Tooltip';
 import {ResizeHandle} from './WorkspacePanel';
 import {bootstrap, command, getShellSettings} from './api';
 import {AgentsWorkspace, AgentsWorkspaceController, createPersonalAgentComposers, createPersonalChildFollowUp, type SharedAgentComposers} from './agents-workspace';
@@ -264,5 +266,6 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
     </form></Modal>
     <Modal open={Boolean(archive)} title="Archive thread" onClose={() => {if (!mutationPending.current) setArchive(undefined);}}><p>{archive?.title}</p><button disabled={mutationBusy} onClick={() => {if (archive) archiveRow(archive);}}>Archive</button></Modal>
     <Modal open={Boolean(unpin)} title="Unpin thread" onClose={() => {if (!mutationPending.current) setUnpin(undefined);}}><p>{unpin?.title}</p><button disabled={mutationBusy} onClick={() => setUnpin(undefined)}>Keep pinned</button><button disabled={mutationBusy} onClick={() => {if (unpin) mutate(async () => {await command('thread.presentation', {pinned: false}, unpin.id); await navigation.refresh(); setUnpin(undefined);});}}>Unpin</button></Modal>
+    <Toaster/><TooltipLayer/>
   </div>;
 }
