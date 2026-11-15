@@ -21,6 +21,8 @@ using System.Runtime.InteropServices;
 public static class OwnedWindowProbe {
   public delegate bool Callback(IntPtr h, IntPtr p);
   [DllImport("user32.dll")] static extern bool EnumWindows(Callback c, IntPtr p);
+  [DllImport("user32.dll")] static extern bool EnumChildWindows(IntPtr h, Callback c, IntPtr p);
+  [DllImport("user32.dll")] public static extern int GetDlgCtrlID(IntPtr h);
   [DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr h, out uint pid);
   [DllImport("user32.dll")] public static extern IntPtr GetWindow(IntPtr h, uint command);
   [DllImport("user32.dll")] public static extern IntPtr GetAncestor(IntPtr h, uint command);
@@ -30,8 +32,10 @@ public static class OwnedWindowProbe {
   [DllImport("user32.dll", CharSet=CharSet.Unicode)] static extern int GetClassName(IntPtr h, StringBuilder s, int n);
   public static uint Pid(IntPtr h) { uint p; GetWindowThreadProcessId(h, out p); return p; }
   public static long[] Windows(uint pid) { var items=new List<long>(); EnumWindows((h,p)=>{if(Pid(h)==pid && items.Count<32) items.Add(h.ToInt64());return true;},IntPtr.Zero);return items.ToArray(); }
+  public static long[] Children(IntPtr parent,uint pid) { var items=new List<long>();EnumChildWindows(parent,(h,p)=>{if(Pid(h)==pid)items.Add(h.ToInt64());return items.Count<=64;},IntPtr.Zero);return items.ToArray(); }
   public static string TitleKind(IntPtr h) { var s=new StringBuilder(512);GetWindowText(h,s,s.Capacity);var v=s.ToString();return v=="Export project memory"?"expected-export":v=="M05 native Save diagnostic"?"fixture":v.Length==0?"empty":"other"; }
   public static string ClassKind(IntPtr h) { var s=new StringBuilder(128);GetClassName(h,s,s.Capacity);var v=s.ToString();return v=="#32770"?"dialog":v.StartsWith("Chrome_WidgetWin_")?"chromium":v=="DirectUIHWND"?"direct-ui":"other"; }
+  public static string ChildClass(IntPtr h) { var s=new StringBuilder(128);GetClassName(h,s,s.Capacity);var v=s.ToString();return v=="Edit"||v=="Button"||v=="ComboBox"||v=="ComboBoxEx32"?v:"other"; }
 }
 '@
   function Check-Owner {
@@ -60,6 +64,32 @@ public static class OwnedWindowProbe {
     if ($automationId -notmatch '^(?:[A-Za-z0-9_-]{0,64})$') { $automationId = '<other>' }
     return [ordered]@{pid=$current.ProcessId;hwnd=[string]$current.NativeWindowHandle;nameKind=(Name-Kind $current.Name);type=$kind;automationId=$automationId;enabled=$current.IsEnabled;offscreen=$current.IsOffscreen}
   }
+  function Native-ControlMeta($element,[IntPtr]$nativeHandle) {
+    if ([OwnedWindowProbe]::Pid($nativeHandle) -ne $ownedPid) { throw 'Native child owner changed' }
+    $info=$element.Current
+    if ($info.ProcessId -ne 0 -and $info.ProcessId -ne $ownedPid) { return @{uiaOwner='other';nativeOwnerMatches=$true} }
+    $kind=$info.ControlType.ProgrammaticName
+    if ($kind -notmatch '^ControlType\.(Window|Pane|Edit|Button|ComboBox|Text|TitleBar|MenuBar|List|ListItem|Tree|TreeItem|ToolBar)$') {$kind='other'}
+    $id=$info.AutomationId;if($id -notmatch '^[A-Za-z0-9_-]{0,64}$'){$id='<other>'}
+    $value=$null;$invoke=$null;$valueAvailable=$false;$invokeAvailable=$false;$readOnly=$null;$patternError=$false
+    try {
+      $valueAvailable=$element.TryGetCurrentPattern([System.Windows.Automation.ValuePattern]::Pattern,[ref]$value)
+      if($valueAvailable){$readOnly=$value.Current.IsReadOnly}
+      $invokeAvailable=$element.TryGetCurrentPattern([System.Windows.Automation.InvokePattern]::Pattern,[ref]$invoke)
+    } catch {$patternError=$true}
+    return [ordered]@{nativeOwnerMatches=$true;uiaPid=$info.ProcessId;uiaHwnd=[string]$info.NativeWindowHandle;uiaHandleMatches=([long]$info.NativeWindowHandle -eq $nativeHandle.ToInt64());nameKind=(Name-Kind $info.Name);type=$kind;automationId=$id;enabled=$info.IsEnabled;offscreen=$info.IsOffscreen;valuePattern=$valueAvailable;valueReadOnly=$readOnly;invokePattern=$invokeAvailable;patternError=$patternError}
+  }
+  function Exact-SelectorCounts($element) {
+    $fileCondition=[System.Windows.Automation.AndCondition]::new([System.Windows.Automation.Condition[]]@(
+      [System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::ControlTypeProperty,[System.Windows.Automation.ControlType]::Edit),
+      [System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::AutomationIdProperty,'1001'),
+      [System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::NameProperty,'File name:')))
+    $saveCondition=[System.Windows.Automation.AndCondition]::new([System.Windows.Automation.Condition[]]@(
+      [System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::ControlTypeProperty,[System.Windows.Automation.ControlType]::Button),
+      [System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::AutomationIdProperty,'1'),
+      [System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::NameProperty,'Save')))
+    return @{file=$element.FindAll([System.Windows.Automation.TreeScope]::Descendants,$fileCondition).Count;save=$element.FindAll([System.Windows.Automation.TreeScope]::Descendants,$saveCondition).Count}
+  }
   Check-Owner
   foreach ($due in @(0,1000,5000,15000,28000,33000)) {
     while ($clock.ElapsedMilliseconds -lt $due) { Start-Sleep -Milliseconds 100; Check-Owner }
@@ -75,7 +105,7 @@ public static class OwnedWindowProbe {
       $handle = [IntPtr]::new($number)
       $owner = [OwnedWindowProbe]::GetWindow($handle,4)
       $rootOwner = [OwnedWindowProbe]::GetAncestor($handle,3)
-      $entry = [ordered]@{hwnd=[string]$number;titleKind=[OwnedWindowProbe]::TitleKind($handle);classKind=[OwnedWindowProbe]::ClassKind($handle);visible=[OwnedWindowProbe]::IsWindowVisible($handle);enabled=[OwnedWindowProbe]::IsWindowEnabled($handle);ownerHwnd=$null;foreignOwner=$false;rootOwnerHwnd=$null;foreignRootOwner=$false;uia=$null;parents=@();controls=@();uiaError=$false}
+      $entry = [ordered]@{hwnd=[string]$number;titleKind=[OwnedWindowProbe]::TitleKind($handle);classKind=[OwnedWindowProbe]::ClassKind($handle);visible=[OwnedWindowProbe]::IsWindowVisible($handle);enabled=[OwnedWindowProbe]::IsWindowEnabled($handle);ownerHwnd=$null;foreignOwner=$false;rootOwnerHwnd=$null;foreignRootOwner=$false;uia=$null;parents=@();controls=@();uiaError=$false;nativeChildren=@();ownedChildCount=$null;nativeCandidateCount=$null;exactSelectorCounts=$null}
       if ($owner -ne [IntPtr]::Zero) {if ([OwnedWindowProbe]::Pid($owner) -eq $ownedPid) {$entry.ownerHwnd=[string]$owner.ToInt64()} else {$entry.foreignOwner=$true}}
       if ($rootOwner -ne [IntPtr]::Zero) {if ([OwnedWindowProbe]::Pid($rootOwner) -eq $ownedPid) {$entry.rootOwnerHwnd=[string]$rootOwner.ToInt64()} else {$entry.foreignRootOwner=$true}}
       try {
@@ -90,6 +120,8 @@ public static class OwnedWindowProbe {
           if ($meta.foreignBoundary) { break }
         }
         if ($entry.titleKind -eq 'expected-export') {
+          if ($element.Current.ProcessId -ne $ownedPid -or [OwnedWindowProbe]::Pid($handle) -ne $ownedPid) {throw 'UIA dialog owner changed'}
+          $entry.exactSelectorCounts=Exact-SelectorCounts $element
           $queue = [Collections.Generic.Queue[object]]::new(); $queue.Enqueue(@{element=$element;depth=0}); $visited=0
           while ($queue.Count -gt 0 -and $visited -lt 64) {
             $next=$queue.Dequeue(); $visited++
@@ -103,6 +135,26 @@ public static class OwnedWindowProbe {
           }
         }
       } catch { $entry.uiaError=$true }
+      if ($entry.titleKind -eq 'expected-export') {
+        Check-Owner
+        if ([OwnedWindowProbe]::Pid($handle) -ne $ownedPid) {throw 'Dialog owner changed'}
+        $children=[OwnedWindowProbe]::Children($handle,[uint32]$ownedPid)
+        if ($children.Length -gt 64) {throw 'Owned child enumeration exceeded its bound'}
+        $entry.ownedChildCount=$children.Length;$candidateCount=0
+        foreach ($childNumber in $children) {
+          $childHandle=[IntPtr]::new($childNumber)
+          if ([OwnedWindowProbe]::Pid($childHandle) -ne $ownedPid) {throw 'Native child owner changed'}
+          $childClass=[OwnedWindowProbe]::ChildClass($childHandle);$childId=[OwnedWindowProbe]::GetDlgCtrlID($childHandle)
+          $child=[ordered]@{hwnd=[string]$childNumber;pid=$ownedPid;id=$childId;class=$childClass;visible=[OwnedWindowProbe]::IsWindowVisible($childHandle);enabled=[OwnedWindowProbe]::IsWindowEnabled($childHandle);uia=$null;uiaError=$false}
+          if ($childId -in @(1,2,1001) -or $childClass -in @('Edit','Button','ComboBox','ComboBoxEx32')) {
+            $candidateCount++;if ($candidateCount -gt 16) {throw 'Native control inspection exceeded its bound'}
+            try {$child.uia=Native-ControlMeta ([System.Windows.Automation.AutomationElement]::FromHandle($childHandle)) $childHandle} catch {$child.uiaError=$true}
+          }
+          $entry.nativeChildren += $child
+        }
+        $entry.nativeCandidateCount=$candidateCount
+        Check-Owner
+      }
       $windows += $entry
     }
     Check-Owner
