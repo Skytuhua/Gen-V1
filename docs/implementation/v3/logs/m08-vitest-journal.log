@@ -1,0 +1,5 @@
+argv: ["C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe", "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js", "exec", "vitest", "run", "tests/workspace-journal-v3.test.ts"]
+cwd: C:\Users\Administrator\gen-m08-v3-wt
+termination: NONE
+exitCode: 0
+outcome: 1 test file passed; 7 tests passed; 1.16s.

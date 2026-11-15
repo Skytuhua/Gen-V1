@@ -14,8 +14,10 @@ function scripted(account: Record<string, unknown> = { apiProvider: 'firstParty'
   let closeCount = 0;
   let hold: Promise<void> | undefined;
   const flagSettings:any[]=[];
+  const entered = deferred<void>();
   const query = vi.fn(({ prompt, options: opts }: any) => {
     options = opts;
+    entered.resolve();
     void (async () => { for await (const input of prompt) accepted.push(input); })();
     return Object.assign(events[Symbol.asyncIterator](), {
       accountInfo: vi.fn(async () => { await hold; return account; }),
@@ -28,7 +30,7 @@ function scripted(account: Record<string, unknown> = { apiProvider: 'firstParty'
     });
   });
   const dependencies: OfficialRuntimeDependencies = { claudeSdk: { query } as any, claudeHistory: async () => [] };
-  return { events, accepted, dependencies, query, flagSettings, get options() { return options; }, get closeCount() { return closeCount; }, hold(value: Promise<void>) { hold = value; } };
+  return { events, accepted, dependencies, query, flagSettings, entered, get options() { return options; }, get closeCount() { return closeCount; }, hold(value: Promise<void>) { hold = value; } };
 }
 const run = (extra: Partial<StartRun> = {}): StartRun => ({ threadId: 'thread', runId: 'run-1', epoch: 1, modelId: 'claude-code/advertised-model', inputId: 'input-1', prompt: 'hello', resources: [], sessionPath: null, ...extra });
 
@@ -105,17 +107,24 @@ describe('official Claude SDK runtime', () => {
     const runtime = createOfficialRuntime({ dataDir: await mkdtemp(join(tmpdir(), 'official-claude-')) }, fake.dependencies);
     runtime.configure({ onEvent: () => {}, onTool: async () => null });
     const starting = runtime.start(run({ prompt: 'User literal @C:/private/file.txt' }));
-    await vi.waitFor(() => expect(fake.query).toHaveBeenCalledOnce());
-    expect(fake.accepted).toHaveLength(0);
-    expect(fake.options).toMatchObject({ tools: [], settingSources: [], strictMcpConfig: true, skills: [], plugins: [], agents: {} });
-    expect(fake.options.allowedTools).toBeUndefined();
-    const denied = await fake.options.canUseTool('Bash', { command: 'unsafe' }, {});
-    expect(denied.behavior).toBe('deny');
-    barrier.resolve(); await starting;
-    await vi.waitFor(() => expect(fake.accepted).toHaveLength(1));
-    expect(fake.accepted[0].message.content).not.toContain('@');
-    expect(fake.accepted[0].message.content).toContain('\\u0040');
-    await runtime.dispose();
+    try {
+      const entered = await Promise.race([fake.entered.promise.then(() => true), starting.then(() => false)]);
+      expect(entered).toBe(true);
+      expect(fake.query).toHaveBeenCalledOnce();
+      expect(fake.accepted).toHaveLength(0);
+      expect(fake.options).toMatchObject({ tools: [], settingSources: [], strictMcpConfig: true, skills: [], plugins: [], agents: {} });
+      expect(fake.options.allowedTools).toBeUndefined();
+      const denied = await fake.options.canUseTool('Bash', { command: 'unsafe' }, {});
+      expect(denied.behavior).toBe('deny');
+      barrier.resolve(); await starting;
+      await vi.waitFor(() => expect(fake.accepted).toHaveLength(1));
+      expect(fake.accepted[0].message.content).not.toContain('@');
+      expect(fake.accepted[0].message.content).toContain('\\u0040');
+    } finally {
+      barrier.resolve();
+      await starting.catch(() => {});
+      await runtime.dispose();
+    }
   });
 
   it.each([
@@ -144,15 +153,22 @@ describe('official Claude SDK runtime', () => {
     const runtime = createOfficialRuntime({ dataDir: await mkdtemp(join(tmpdir(), 'official-claude-')) }, fake.dependencies);
     const events: RuntimeEvent[] = []; runtime.configure({ onEvent: event => events.push(event), onTool: async () => null });
     const starting = runtime.start(run()).catch(error => error);
-    await vi.waitFor(() => expect(fake.query).toHaveBeenCalledOnce());
-    const cancelling = runtime.cancel(run()); barrier.resolve(); await cancelling;
-    expect(await starting).toMatchObject({ code: 'OFFICIAL_RUN_ABORTED' });
-    fake.events.push({ type: 'assistant', session_id: 'late', message: { content: [{ type: 'text', text: 'stale' }] } });
-    await new Promise(resolve => setTimeout(resolve, 10));
-    expect(fake.accepted).toHaveLength(0);
-    expect(events.filter(event => event.type === 'settled')).toHaveLength(1);
-    expect(events.some(event => event.type === 'assistant.message')).toBe(false);
-    await runtime.dispose();
+    try {
+      const entered = await Promise.race([fake.entered.promise.then(() => true), starting.then(() => false)]);
+      expect(entered).toBe(true);
+      expect(fake.query).toHaveBeenCalledOnce();
+      const cancelling = runtime.cancel(run()); barrier.resolve(); await cancelling;
+      expect(await starting).toMatchObject({ code: 'OFFICIAL_RUN_ABORTED' });
+      fake.events.push({ type: 'assistant', session_id: 'late', message: { content: [{ type: 'text', text: 'stale' }] } });
+      await new Promise(resolve => setTimeout(resolve, 10));
+      expect(fake.accepted).toHaveLength(0);
+      expect(events.filter(event => event.type === 'settled')).toHaveLength(1);
+      expect(events.some(event => event.type === 'assistant.message')).toBe(false);
+    } finally {
+      barrier.resolve();
+      await starting;
+      await runtime.dispose();
+    }
   });
 
   it('acknowledges only observed input UUIDs and snapshots the actual response batch', async () => {

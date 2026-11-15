@@ -71,10 +71,8 @@ export function migrationSpec(): SurfaceSpec {
 export function faqSpec(questions: { id: string; title: string; parent?: string }[]): SurfaceSpec {
   const roots = questions.filter(q => !q.parent).map(q => q.id);
   return { root: 'root', elements: {
-    root: node('Stack', { gap: 'md' }, ['history', 'ask']), history: node('Stack', { gap: 'sm', scroll: 'bounded', label: 'Question history' }, roots),
-    ...Object.fromEntries(questions.map(q => [q.id, node('Disclosure', { title: q.title, stateKey: q.id + 'Open', dataBinding: q.id, ...(q.id.startsWith('custom') && !q.parent ? { defaultOpen: true } : {}), onOpenActionId: 'answer', payload: { questionId: q.id } }, questions.filter(child => child.parent === q.id).map(child => child.id))])),
-    ask: node('Form', { actionId: 'ask', submitLabel: 'Ask', payloadFromState: { question: 'question' }, clearOnSuccess: ['question'] }, ['question']),
-    question: node('Input', { stateKey: 'question', label: 'Your question', placeholder: 'Type in your question…', required: true }),
+    root: node('Stack', { gap: 'md' }, ['history']), history: node('Stack', { gap: 'sm', scroll: 'bounded', label: 'Question history' }, roots),
+    ...Object.fromEntries(questions.map(q => [q.id, node('Disclosure', { title: q.title, stateKey: q.id + 'Open', dataBinding: q.id, onOpenActionId: 'answer', payload: { questionId: q.id } }, questions.filter(child => child.parent === q.id).map(child => child.id))])),
   } };
 }
 export const MAP_DATA = {

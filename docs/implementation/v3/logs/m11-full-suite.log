@@ -1,0 +1,28 @@
+cmd: pnpm test:no-lease (full suite, exit 1)
+Failed-file list:
+ ❯ tests/project-search-host.test.ts (49 tests | 2 failed | 1 skipped) 67126ms
+ ❯ tests/capabilities.test.ts (24 tests | 1 failed) 149511ms
+ ❯ tests/runtime-router.test.ts (18 tests | 1 failed) 19193ms
+ ❯ tests/hermes-service.test.ts (15 tests | 2 failed) 143619ms
+ ❯ tests/desktop-host.test.ts (13 tests | 2 failed) 25983ms
+ ❯ tests/integration-mcp.test.ts (12 tests | 3 failed) 27492ms
+ ❯ tests/skills-integration.test.ts (11 tests | 9 failed) 83231ms
+ ❯ tests/dev-plugin-runtime.test.ts (3 tests | 1 failed) 13741ms
+ ❯ tests/review-host.test.ts (8 tests | 1 failed) 42899ms
+ ❯ tests/account-parity.test.ts (11 tests | 11 failed) 99516ms
+ ❯ tests/integration-host.test.ts (8 tests | 1 failed) 4340ms
+ ❯ tests/windows-credential-lease.test.ts (8 tests | 7 failed) 4338ms
+ ❯ tests/hermes-original-integration.test.ts (1 test | 1 failed) 4039ms
+ ❯ tests/account-profile.test.ts (10 tests | 1 failed) 35266ms
+ ❯ tests/hermes-host.test.ts (1 test | 1 failed) 4105ms
+ ❯ tests/integrations.test.ts (4 tests | 1 failed) 588ms
+ ❯ tests/hermes-multi-original.test.ts (1 test | 1 failed) 4081ms
+ ❯ tests/workspace-action-outcome-routes.test.ts (5 tests | 3 failed) 260724ms
+ ❯ tests/workspace-action-outcomes.test.ts (20 tests | 8 failed) 909715ms
+
+ Test Files  20 failed | 304 passed | 2 skipped (326)
+      Tests  57 failed | 3262 passed | 53 skipped (3372)
+
+Baseline classification (same files re-run on pristine origin/main checkout C:\Users\Administrator\repos\Gen-V1):
+ - account-parity (11), runtime-router (1), integration-host (1), hermes-original-integration (1): identical failures on main -> environmental (source worker cannot run on this box).
+ - usage-app-integration (2), compact-model-picker/subscription-accounts (1), model-picker (2), composer-press (4): identical failures on main -> baseline/environmental.

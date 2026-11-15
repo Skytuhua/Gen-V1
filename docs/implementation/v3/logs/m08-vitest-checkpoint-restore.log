@@ -1,0 +1,5 @@
+argv: ["C:\hostedtoolcache\node\24.22.2\x64\node.exe", "C:\hostedtoolcache\node\24.22.2\x64\node_modules\corepack\dist\pnpm.js", "exec", "vitest", "run", "tests/checkpoint-restore-v3.test.ts"]
+cwd: C:\Users\Administrator\gen-m08-v3-wt
+termination: NONE
+exitCode: 0
+outcome: 1 test file passed; 14 tests passed; 187.72s. Adds fault-injection cases: cancellation after first write and external edit during rollback both end PARTIAL_RECOVERY_REQUIRED with preserved bytes; a killed APPLYING plan refuses re-apply.

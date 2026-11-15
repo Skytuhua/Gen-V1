@@ -23,3 +23,18 @@ describe('durable scoped attention', () => {
   it('treats a later canonical operation failure as new attention without approving it',()=>{const{store,attention}=setup();attention.read();const operation:Operation={id:'operation-a',threadId:'thread-a',revision:1,kind:'write',description:'Save reviewed file',args:{},resourceIds:[],preconditions:{},status:'prepared',approved:false,createdAt:new Date().toISOString()};store.internal('operation.prepared',operation.threadId,()=>store.put('operation',operation.id,operation.threadId,operation));const first=attention.claimDelivery().items[0]!;attention.command({id:'read-before-failure',eventId:first.id,type:'read'});store.internal('operation.failed',operation.threadId,()=>store.put('operation',operation.id,operation.threadId,{...operation,status:'failed'}));const next=attention.claimDelivery().items[0];expect(next).toMatchObject({id:first.id,state:'failed',read:false});expect(next?.notificationKey).not.toBe(first.notificationKey);expect(store.get<Operation>('operation',operation.id)?.approved).toBe(false);});
 });
 function cleanupWatch(stop:()=>void){cleanups.unshift(stop);}
+
+it('retains established completion identities across a large inbox refresh', () => {
+  const { store, attention, thread } = setup();
+  const total = 700, ids = Array.from({ length: total }, (_, i) => 'bulk-' + i);
+  store.internal('fixture.completed', null, () => {
+    for (const id of ids) store.put('thread', id, id, { ...thread, id, status: 'completed', runId: null });
+  });
+  const before = attention.read().items.map(item => item.id).sort();
+  expect(before).toHaveLength(total);
+  store.internal('fixture.working', null, () => {
+    for (const id of ids.filter((_, index) => index % 2 === 0))
+      store.put('thread', id, id, { ...thread, id, epoch: 2, status: 'working' });
+  });
+  expect(attention.read().items.map(item => item.id).sort()).toEqual(before);
+});

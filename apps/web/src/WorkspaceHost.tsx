@@ -4,6 +4,8 @@ import {threadNavigationRevision,type ThreadNavigationRow} from '../../../packag
 import type {PanelBinding, WorkspacePreset} from '../../../packages/contracts/workspace';
 import {getPreferences} from '../../../packages/contracts/preferences';
 import {Modal} from '../../../packages/ui-shell/Modal';
+import {Toaster} from '../../../packages/ui-shell/Toast';
+import {TooltipLayer} from '../../../packages/ui-shell/Tooltip';
 import {ResizeHandle} from './WorkspacePanel';
 import {bootstrap, command, getShellSettings} from './api';
 import {AgentsWorkspace, AgentsWorkspaceController, createPersonalAgentComposers, createPersonalChildFollowUp, type SharedAgentComposers} from './agents-workspace';
@@ -201,7 +203,8 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
   }, [settings.theme]);
   const action = (kind: ConversationIntent) => fail(() => openConversation(undefined, kind));
   const openSettings = () => fail(async () => {await prepare(); setSettingsOpen(true);});
-  const shortcuts = useRef({action, openSettings}); shortcuts.current = {action, openSettings};
+  const stopFocused = () => {const card=(document.activeElement as HTMLElement|null)?.closest<HTMLElement>('[data-agent-id]');const agent=card?controller.getSnapshot().agents.find(item=>item.agentId===card.dataset.agentId):undefined;if(agent&&agent.status==='working')void composers.stop(agent);};
+  const shortcuts = useRef({action, openSettings, stopFocused}); shortcuts.current = {action, openSettings, stopFocused};
   const keybindings = JSON.stringify(preferences.keybindings);
   useEffect(() => {
     const key = (event: KeyboardEvent) => {
@@ -210,6 +213,7 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
       else if (matchesShortcut(event, preferences.keybindings.newThread)) {event.preventDefault(); shortcuts.current.action('new-thread');}
       else if (matchesShortcut(event, preferences.keybindings.search)) {event.preventDefault(); setOpen(true); setLayout(value => ({...value, sidebarCollapsed: false})); requestAnimationFrame(() => searchRef.current?.focus());}
       else if (matchesShortcut(event, preferences.keybindings.toggleSidebar)) {event.preventDefault(); if (mobile) setOpen(value => !value); else setLayout(value => ({...value, sidebarCollapsed: !value.sidebarCollapsed}));}
+      else if (matchesShortcut(event, preferences.keybindings.stop)) {event.preventDefault(); shortcuts.current.stopFocused();}
     };
     window.addEventListener('keydown', key); return () => window.removeEventListener('keydown', key);
   }, [keybindings, mobile]);
@@ -264,5 +268,6 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
     </form></Modal>
     <Modal open={Boolean(archive)} title="Archive thread" onClose={() => {if (!mutationPending.current) setArchive(undefined);}}><p>{archive?.title}</p><button disabled={mutationBusy} onClick={() => {if (archive) archiveRow(archive);}}>Archive</button></Modal>
     <Modal open={Boolean(unpin)} title="Unpin thread" onClose={() => {if (!mutationPending.current) setUnpin(undefined);}}><p>{unpin?.title}</p><button disabled={mutationBusy} onClick={() => setUnpin(undefined)}>Keep pinned</button><button disabled={mutationBusy} onClick={() => {if (unpin) mutate(async () => {await command('thread.presentation', {pinned: false}, unpin.id); await navigation.refresh(); setUnpin(undefined);});}}>Unpin</button></Modal>
+    <Toaster/><TooltipLayer/>
   </div>;
 }

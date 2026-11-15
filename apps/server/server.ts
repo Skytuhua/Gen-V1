@@ -25,9 +25,13 @@ import {createPersonalSkillCatalog} from '../../packages/skill-catalog/adapters.
 import type {SkillCatalogRepository} from '../../packages/skill-catalog/repository.ts';
 import {registerAgentInventoryRoutes} from './agent-inventory-routes.ts';
 import {registerAgentInputRoutes} from './agent-input-routes.ts';
+import {registerAgentWorkRoutes} from './agent-work-routes.ts';
 import {registerShellReadRoutes} from './shell-read-routes.ts';
 import {registerConversationReadRoutes} from './conversation-read-routes.ts';
+import {registerToolEffectReadRoutes} from './tool-effect-read-routes.ts';
 import {ConversationReadModels} from '../../packages/core/conversation-read-models.ts';
+import {ToolEffectReadModels} from '../../packages/core/tool-effect-read-models.ts';
+import {verificationPanelModel} from '../../packages/core/verification-read-models.ts';
 import {AgentProjection} from '../../packages/agent-projection/index.ts';
 import type {PersonalAgentInventory} from '../../packages/contracts/agent-inventory.ts';
 
@@ -139,9 +143,18 @@ export async function buildServer(service: Service, options: ServerOptions) {
       resources: service.store.all('resource', id),
       memory: service.store.all('taskMemory', id),
       usage: usage === undefined ? {} : { [id]: usage },
+      modelRequests: { [id]: service.store.all<{ value: unknown }>('modelRequest', id).map(item => item.value) },
       settings: { theme: 'dark', modelId: null },
       activeThreadId: null,
     };
+  });
+  // M06 additive verification read model: requirement | observed check |
+  // source revision | outcome | freshness | verifier | evidence.
+  app.get<{ Params: { id: string } }>('/api/threads/:id/verification', async (request, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    const { id } = request.params;
+    if (!service.store.get('thread', id) || service.store.get('archivedThread', id)) throw new HarnessError('NOT_FOUND', 'Thread unavailable');
+    return { seq: service.store.sequence, verification: verificationPanelModel(service.store, id) };
   });
   // Deep message search for threads whose history the snapshot windowed: the
   // client passes the truncated thread ids it knows about.
@@ -180,10 +193,13 @@ export async function buildServer(service: Service, options: ServerOptions) {
   const agentInventory=options.agentInventory??new AgentProjection(service.store);
   registerAgentInventoryRoutes(app,agentInventory);
   registerAgentInputRoutes(app,service.planning);
+  registerAgentWorkRoutes(app,service);
   registerShellReadRoutes(app,service.store);
   const conversationReads=new ConversationReadModels(service.store);
   registerConversationReadRoutes(app,conversationReads);
-  app.addHook('onClose',async()=>{conversationReads.dispose();});
+  const toolEffectReads=new ToolEffectReadModels(service.store);
+  registerToolEffectReadRoutes(app,toolEffectReads);
+  app.addHook('onClose',async()=>{conversationReads.dispose();toolEffectReads.dispose();});
   if(!options.agentInventory)app.addHook('onClose',async()=>{agentInventory.dispose();});
   registerSkillCatalogRoutes(app,options.skillCatalog??createPersonalSkillCatalog(service.store));
   registerResearchRoutes(app,{research:service.research,command:command=>service.command(command)});

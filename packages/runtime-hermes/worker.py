@@ -240,7 +240,8 @@ class Worker:
                 worker.event("model_request", {"inputIds": list(dict.fromkeys(input_ids)), "sequence": sequence})
                 response = super()._create_chat_completion(**kwargs)
                 usage = worker.host_call("$transport.usage", {"jobKey": worker.params.get("jobKey"), "sequence": sequence}) or {}
-                worker.native_usage.append({"sequence": sequence, "phase": worker.current_ctx()["phase"], "usage": usage or None})
+                observation = worker.host_call("$transport.observation", {"jobKey": worker.params.get("jobKey"), "sequence": sequence}) or {}
+                worker.native_usage.append({"sequence": sequence, "phase": worker.current_ctx()["phase"], "usage": usage or None, "observation": observation or None})
                 # Absent usage stays unknown at the host. Hermes requires a numeric
                 # namespace internally; never emit its compatibility zeros as paid proof.
                 if isinstance(usage, dict) and isinstance(usage.get("inputTokens"), int) and isinstance(usage.get("outputTokens"), int):
@@ -321,6 +322,12 @@ class Worker:
             source_restricted = any(record.get("harness_enabled") is False or write and record.get("harness_protected") is True for record in flags)
             if restricted.intersection(names) or resolved_restricted or source_restricted:
                 raise PermissionError("Skill is disabled or protected by the host")
+
+    # M02 coverage: skill_tool/shared_skill_tool execute inside this worker and
+    # are NOT observed by the host tool ledger (COVERAGE_GAP). Only calls routed
+    # through Service.tool are audited; keep this label until native calls flow
+    # through the host boundary.
+    NATIVE_TOOL_COVERAGE = {"skill_tool": "coverage_gap", "shared_skill_tool": "coverage_gap"}
 
     def skill_tool(self, name, args, kw):
         if self.shared_library:

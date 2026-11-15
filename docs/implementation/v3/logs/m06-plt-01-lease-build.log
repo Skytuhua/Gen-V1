@@ -1,0 +1,14 @@
+
+> gen-v1@0.6.5 build:credential-lease C:\Users\Administrator\repos\Gen-V1-m06
+> tsx scripts/build-windows-credential-lease.ts
+
+C:\Users\Administrator\repos\Gen-V1-m06\scripts\build-windows-credential-lease.ts:42
+  if (!installation) throw Error('Windows credential lease build requires Visual Studio C++ Build Tools.');
+                           ^
+
+Error: Windows credential lease build requires Visual Studio C++ Build Tools.
+    at buildWindowsCredentialLease (C:\Users\Administrator\repos\Gen-V1-m06\scripts\build-windows-credential-lease.ts:42:28)
+    at async <anonymous> (C:\Users\Administrator\repos\Gen-V1-m06\scripts\build-windows-credential-lease.ts:52:38)
+
+Node.js v24.22.2
+ ELIFECYCLE  Command failed with exit code 1.

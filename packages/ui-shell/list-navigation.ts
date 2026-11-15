@@ -11,6 +11,7 @@ export function useListNavigation(items: readonly ListEntry[], choose: (index: n
   const rows = useRef<(HTMLButtonElement | null)[]>([]);
   const search = useRef({ text: '', time: 0 });
   const active = useRef(-1);
+  const reset = () => { search.current = { text: '', time: 0 }; };
   const focus = (index: number) => {
     if (index < 0 || !items[index] || items[index].disabled) return;
     active.current = index;
@@ -32,7 +33,7 @@ export function useListNavigation(items: readonly ListEntry[], choose: (index: n
       if (!items[index].disabled && items[index].label.toLowerCase().startsWith(prefix)) { focus(index); break; }
     }
   };
-  return { rows, focus, edge, type, reset: () => { search.current = { text: '', time: 0 }; },
+  return { rows, focus, edge, type, reset,
     onFocus: (index: number) => { active.current = index; },
     onKeyDown: (event: KeyboardEvent) => {
       if (isComposing(event)) { if (event.key === 'Escape') event.preventDefault(); return; }
@@ -40,9 +41,10 @@ export function useListNavigation(items: readonly ListEntry[], choose: (index: n
       const index = rows.current.indexOf(event.target as HTMLButtonElement);
       if (index >= 0) active.current = index;
       if (event.key === 'Tab') { close(); return; }
-      if (event.key === 'Home' || event.key === 'End') { event.preventDefault(); focus(edge(event.key === 'End')); }
+      if (event.key === 'Home' || event.key === 'End') { event.preventDefault(); reset(); focus(edge(event.key === 'End')); }
       else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
         event.preventDefault();
+        reset();
         const direction = event.key === 'ArrowDown' ? 1 : -1;
         if (!items[active.current] || items[active.current].disabled) { focus(edge(direction < 0)); return; }
         for (let step = 1; step <= items.length; step++) {
@@ -51,8 +53,10 @@ export function useListNavigation(items: readonly ListEntry[], choose: (index: n
         }
       } else if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
-        const current = items[active.current];
-        if (current && !current.disabled) choose(active.current);
+        // Focus can fall back to the popup after a row is removed. In that
+        // case the remembered index may now belong to a different action.
+        const current = items[index];
+        if (current && !current.disabled) choose(index);
       } else if (event.key.length === 1) { event.preventDefault(); type(event.key); }
     },
   };

@@ -166,17 +166,20 @@ export class AgentProjection implements PersonalAgentInventory {
     else {
       const before: AgentSummary[] = [], after: AgentSummary[] = [], transcriptIds: string[] = [];
       const transcriptType = event.type === 'operation.progress' ? 'activity' : event.type === 'agent.transcript' ? (event.payload as { result?: { type?: string } } | null)?.result?.type : event.type.replace(/^runtime\./, '');
-      const global = event.type === 'thread.create' || event.type === 'workspace.recovered' || event.type.startsWith('workspace.project.');
+      // thread.create has no event address; its canonical receipt contains the created thread.
+      const created = event.type === 'thread.create' ? (event.payload as { result?: { id?: unknown } } | null)?.result?.id : undefined;
+      const threadId = typeof created === 'string' && created ? created : event.threadId;
+      const global = (event.type === 'thread.create' && !threadId) || event.type === 'workspace.recovered' || event.type.startsWith('workspace.project.');
       if (global) {
         // Project mutations may carry a thread address but still affect every member of that project.
         if (event.type === 'workspace.recovered') { this.generation++; this.actions.clear(); }
         before.push(...this.items.values()); this.rebuild(); after.push(...this.items.values());
-      } else if (event.threadId) {
-        if (transcriptType === 'activity' || transcriptType === 'error') this.actions.delete(event.threadId);
-        const current = this.store.get<Thread>('thread', event.threadId), owners = new Set([this.childOwners.get(event.threadId), current?.kind === 'delegate' ? current.parentThreadId : event.threadId]);
+      } else if (threadId) {
+        if (transcriptType === 'activity' || transcriptType === 'error') this.actions.delete(threadId);
+        const current = this.store.get<Thread>('thread', threadId), owners = new Set([this.childOwners.get(threadId), current?.kind === 'delegate' ? current.parentThreadId : threadId]);
         for (const id of owners) if (id) { const change = this.replaceGroup(id); before.push(...change.before); after.push(...change.after); }
         if (['assistant.delta', 'assistant.message', 'activity', 'error'].includes(transcriptType ?? '') || /^(message\.send|input\.)/.test(event.type) || event.type === 'agent.followUp') {
-          const inputThreadId=event.type==='agent.followUp'?(event.payload as {result?:{childThreadId?:string}})?.result?.childThreadId:event.threadId;
+          const inputThreadId=event.type==='agent.followUp'?(event.payload as {result?:{childThreadId?:string}})?.result?.childThreadId:threadId;
           for (const item of after) if (item.threadId === inputThreadId) transcriptIds.push(item.agentId);
         }
       }

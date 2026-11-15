@@ -14,6 +14,13 @@ export class AttentionRepository {
  private sync(settled?:WorkspaceEvent):AttentionItem[]{
   const snapshot=this.store.snapshot(),threads=new Map(snapshot.threads.map(thread=>[thread.id,thread])),existing=new Map(this.store.all<StoredAttention>('attentionItem').map(value=>[value.item.id,value])),seeded=this.store.get('attentionMeta','initialized')===true,stamp=this.now().toISOString();
   const projected:StoredAttention[]=[];
+  const completionKey=(threadId:string,kind:AttentionItem['kind'],epoch:number)=>JSON.stringify([threadId,kind,epoch]);
+  const existingCompletions=new Map<string,StoredAttention>();
+  for(const saved of existing.values()){
+   if((saved.item.kind!=='thread-completed'&&saved.item.kind!=='thread-failed')||saved.epoch===undefined)continue;
+   const key=completionKey(saved.item.threadId,saved.item.kind,saved.epoch);
+   if(!existingCompletions.has(key))existingCompletions.set(key,saved);
+  }
   const add=(thread:Thread,id:string,kind:AttentionItem['kind'],state:AttentionItem['state'],summary:string,destination:AttentionItem['destination'],occurredAt?:string,epoch=thread.epoch)=>{
    const previous=existing.get(id),notificationKey=id+':'+state,newFailure=Boolean(previous&&previous.item.state!==state&&state==='failed');
    if(previous&&(previous.item.threadId!==thread.id||previous.item.projectId!==thread.projectId))return;
@@ -37,12 +44,13 @@ export class AttentionRepository {
     add(thread,'thread:'+thread.id+':'+failure.runId+':failed','thread-failed','failed','The task could not finish. Open the conversation for details.',{threadId:thread.id,...(thread.projectId?{projectId:thread.projectId}:{})},failure.occurredAt,failure.epoch);
    }
    if(thread.status==='completed'||thread.status==='failed'&&!failedEpoch||thread.status==='ready'&&!thread.runId&&settled?.threadId===thread.id&&observedRun){
-    const kind=thread.status==='failed'?'thread-failed':'thread-completed',prior=[...existing.values()].find(value=>value.item.threadId===thread.id&&value.item.kind===kind&&value.epoch===thread.epoch),id=prior?.item.id??'thread:'+thread.id+':'+(settled?.threadId===thread.id&&observedRun?observedRun:thread.epoch)+':'+(kind==='thread-failed'?'failed':'completed');
+    const kind=thread.status==='failed'?'thread-failed':'thread-completed',prior=existingCompletions.get(completionKey(thread.id,kind,thread.epoch)),id=prior?.item.id??'thread:'+thread.id+':'+(settled?.threadId===thread.id&&observedRun?observedRun:thread.epoch)+':'+(kind==='thread-failed'?'failed':'completed');
     add(thread,id,kind,kind==='thread-failed'?'failed':'completed',kind==='thread-failed'?'The task could not finish. Open the conversation for details.':'The response finished. Open the conversation to review its result.',{threadId:thread.id,...(thread.projectId?{projectId:thread.projectId}:{})},settled?.threadId===thread.id?settled.occurredAt:thread.updatedAt);
    }
   }
   // Completed observations remain useful history while a later run is active.
-  for(const saved of existing.values())if((saved.item.kind==='thread-completed'||saved.item.kind==='thread-failed')&&!projected.some(value=>value.item.id===saved.item.id)){const owner=threads.get(saved.item.threadId);if(owner&&owner.projectId===saved.item.projectId)projected.push(saved);}
+  const projectedIds=new Set(projected.map(value=>value.item.id));
+  for(const saved of existing.values())if((saved.item.kind==='thread-completed'||saved.item.kind==='thread-failed')&&!projectedIds.has(saved.item.id)){const owner=threads.get(saved.item.threadId);if(owner&&owner.projectId===saved.item.projectId)projected.push(saved);}
   const changed=projected.filter(value=>JSON.stringify(existing.get(value.item.id))!==JSON.stringify(value));
   if(!seeded||changed.length)this.store.internal('attention.projected',null,()=>{for(const value of changed)this.store.put('attentionItem',value.item.id,value.item.threadId,value);if(!seeded)this.store.put('attentionMeta','initialized',null,true);});
   return projected.map(value=>value.item).toSorted((a,b)=>b.createdAt.localeCompare(a.createdAt)||a.id.localeCompare(b.id)).slice(0,1000);

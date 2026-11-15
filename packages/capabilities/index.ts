@@ -20,6 +20,7 @@ export interface DomainContext {
   prepareOperation(kind: string, args: Record<string, unknown>, resourceIds: string[], preconditions: Record<string, string>, description: string): Operation;
   progress(message: string, counts?: Record<string, number>): void;
   completedWrite?(evidence:{path:string;sha256:string;bytes:number}):void;
+  preWrite?(evidence:{path:string;bytes:Uint8Array;sha256:string}):Promise<void>;
 }
 export const DOMAIN_TOOLS = Object.entries(toolSchemas).map(([name, schema]) => ({ name, description: descriptions[name as ToolName], parameters: z.toJSONSchema(schema) as Record<string, unknown> }));
 const sha256 = (bytes: Uint8Array | string) => createHash("sha256").update(bytes).digest("hex");
@@ -113,6 +114,7 @@ export async function handleDomainTool(name: string, rawArgs: unknown, ctx: Doma
     case "file_replace_prepare": {
       const a = parse("file_replace_prepare", rawArgs), source = await readResource(ctx, a.resourceId, a.path); utf8(source.bytes);
       if (source.sha256 !== a.expectedSha256) throw new HarnessError("PRECONDITION_FAILED", "File hash changed before preparation");
+      await ctx.resolveResource(a.resourceId, a.path, true);
       return ctx.prepareOperation("file.replace", a, [a.resourceId], { sha256: source.sha256 }, `Replace ${a.path ?? a.resourceId} if SHA-256 ${source.sha256} still matches`);
     }
     case "repository_test_prepare": {
@@ -162,7 +164,9 @@ export async function executeDomainOperation(operation: Operation, ctx: DomainCo
       try {
         await file.writeFile(a.content, "utf8"); await file.sync(); await file.close();
         active(ctx); await ctx.resolveResource(a.resourceId, a.path, true);
-        if ((await readResource(ctx, a.resourceId, a.path)).sha256 !== operation.preconditions.sha256) throw new HarnessError("PRECONDITION_FAILED", "File changed immediately before replacement");
+        const preimage = await readResource(ctx, a.resourceId, a.path);
+        if (preimage.sha256 !== operation.preconditions.sha256) throw new HarnessError("PRECONDITION_FAILED", "File changed immediately before replacement");
+        await ctx.preWrite?.({path:source.filename,bytes:preimage.bytes,sha256:preimage.sha256});
         await replaceOwnedFile(temp, filename, identity, sha256(a.content), ctx.signal, operation.preconditions.sha256); moved = true;
       } finally { await file.close().catch(() => {}); if (!moved) await removeOwnedFile(temp, identity, new AbortController().signal).catch(() => {}); }
       const result = { resourceId: a.resourceId, path: a.path ?? null, sha256: sha256(a.content), bytes: Buffer.byteLength(a.content) };

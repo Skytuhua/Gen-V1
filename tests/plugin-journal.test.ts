@@ -51,3 +51,18 @@ it('ignores global replies even from the parent with the current request identit
  f.receive({source:f.owner,data:{type:'gen.plugin.reply',id:f.requests[0].id,ok:true,value:'untrusted global reply'}});await Promise.resolve();expect(resolved).toBe(false);
  f.reply(0,true);await expect(read).resolves.toBeNull();
 });
+
+it('attempts each editor save and waits for the others when one handoff fails synchronously', async () => {
+ const {sdk}=await setup(),error=Error('Save unavailable');
+ let resolveSecond!:()=>void;
+ const second=vi.fn(()=>new Promise<void>(resolve=>{resolveSecond=resolve;}));
+ sdk.registerEditorHandoff('first',()=>{throw error;});
+ sdk.registerEditorHandoff('second',second);
+ let settled=false;
+ const outcome=sdk.pluginFlush().catch(cause=>{settled=true;return cause;});
+ await Promise.resolve();
+ expect(second).toHaveBeenCalledOnce();
+ expect(settled).toBe(false);
+ resolveSecond();
+ await expect(outcome).resolves.toBe(error);
+});

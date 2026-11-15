@@ -54,7 +54,7 @@ for (const both of [false, true]) test(`cold short window keeps ${both ? 'both t
   expect(g.owner.top).toBeGreaterThanOrEqual(g.switcher.bottom - 1);
   expect(g.documentOverflow).toBeLessThanOrEqual(1);
   if (both) {
-    await page.getByRole('button', {name: 'Close workspace panel', exact: true}).click();
+    await page.getByRole('button', {name: 'Hide workspace panel', exact: true}).click();
     await expect(page.locator('.workspace-right')).toHaveCount(0);
     await expect.poll(async () => (await geometry(page)).scrollHeight).toBeLessThan(g.scrollHeight);
   }
@@ -94,7 +94,7 @@ test('removing Browser before the panel releases its normal-flow space without r
   await expect(page.locator('.desktop-browser-dock')).toHaveCount(0);
   await expect.poll(() => page.locator('.shell-workarea').evaluate(node => node.scrollHeight)).toBeLessThan(before.scrollHeight);
   await expect(page.locator('.workspace-panel-content')).toHaveCount(1);
-  await page.getByRole('button', {name: 'Close workspace panel', exact: true}).click();
+  await page.getByRole('button', {name: 'Hide workspace panel', exact: true}).click();
   await expect(page.locator('.workspace-tools')).toHaveCount(0);
   await message.scrollIntoViewIfNeeded(); await expect(message).toHaveValue('Still the same conversation');
 });

@@ -51,4 +51,16 @@ describe('recorded review fixture coverage', () => {
     expect(spec.elements.emails.props.custom).toEqual({ label: 'Something else', placeholder: 'An email address' });
     expect(spec.elements.email).toBeUndefined();
   });
+  it('keeps protected task forms for notes and signing without an automatic question footer', () => {
+    const spec = faqSpec([{ id: 'first', title: 'How does this work?' }]);
+    expect(spec.elements.root.children).toEqual(['history']);
+    expect(spec.elements.ask).toBeUndefined();
+    expect(spec.elements.question).toBeUndefined();
+    const catalog = catalogSpec('pdf-resource', 'png-resource');
+    expect(catalog.elements.form).toMatchObject({ type: 'Form', props: { actionId: 'inspect', submitLabel: 'Save choice', payloadFromState: { delivery: 'delivery', note: 'note' } } });
+    expect(catalog.elements.input).toMatchObject({ type: 'Input', props: { stateKey: 'note', label: 'Review note', placeholder: 'Add a note' } });
+    const signing = signingSpec('pdf-resource');
+    expect(signing.elements.review).toMatchObject({ type: 'Form', props: { actionId: 'sign', submitLabel: 'Sign & prepare export', payloadFromState: { name: 'name', email: 'email', signature: 'signature', accepted: 'accepted' } } });
+    expect(signing.elements.accept).toMatchObject({ type: 'Toggle', props: { stateKey: 'accepted' } });
+  });
 });

@@ -1,0 +1,10 @@
+
+ RUN  v4.1.12 C:/Users/Administrator/repos/Gen-V1-m11
+
+
+ Test Files  5 passed (5)
+      Tests  55 passed (55)
+   Start at  11:54:04
+   Duration  4.90s (transform 1.45s, setup 0ms, import 2.30s, tests 4.32s, environment 0ms)
+
+exit=0

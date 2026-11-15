@@ -12,6 +12,7 @@ import {ComposerAttachments} from './apps/web/src/ComposerAttachments';
 function Fixture(){
  const [resources,setResources]=useState([{id:'r1',path:'/src/a.ts',label:'a.ts',writable:true,kind:'file'}]);
  window.drop=()=>setResources([]);
+ window.restore=()=>setResources([{id:"r2",path:"/src/b.ts",label:"b.ts",writable:true,kind:"file"}]);
  return <>
   <ComposerAttachments resources={resources}/>
   <details><summary>Disclosure</summary><p>Body</p></details>
@@ -50,6 +51,25 @@ describe('content motion', () => {
     await leaving.waitFor({state: 'detached', timeout: 3000});
     await expect.poll(() => page.locator('.resource-chip').count()).toBe(0);
     await page.close();
+  });
+
+  it('does not resurrect an attachment removed while motion was reduced', async () => {
+    const page = await open();
+    try {
+      await page.locator('.resource-chip').waitFor();
+      await page.emulateMedia({reducedMotion:'reduce'});
+      await page.evaluate('window.drop()');
+      await page.locator('.resource-chip').waitFor({state:'detached'});
+      await page.emulateMedia({reducedMotion:'no-preference'});
+      await page.evaluate(`{
+        const style = document.createElement('style');
+        style.textContent = '.resource-chip {animation-play-state:paused!important}';
+        document.head.append(style);
+        window.restore();
+      }`);
+      await page.getByText('b.ts',{exact:true}).waitFor();
+      expect(await page.locator('.resource-chip').allTextContents()).toEqual(['b.ts']);
+    } finally { await page.close(); }
   });
 
   it('animates native details disclosure via ::details-content', async () => {

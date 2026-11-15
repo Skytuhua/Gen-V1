@@ -2,7 +2,7 @@
 
 This delivery keeps the T3-style local browser shell, Pi runtime and durable artifacts. Generated-code applications remain disabled. Desktop packaging and the 36-run pilot remain deferred.
 
-The [recorded review](evidence/frontend-review/agent-initiated-20261030/index.html) contains nine deterministic application demonstrations, three chaptered subscription-Pi cases, the 31-component coverage manifest, matched reference/result frames, a copy audit and measured motion evidence. Fixture provenance and external-effect limitations live in the captions and manifest. PDF export and SQLite migration in the deterministic demonstrations are actual native-approved local effects.
+The historical review (recordings not included in this checkout) documented nine deterministic application demonstrations, three chaptered subscription-Pi cases, the 31-component coverage manifest, matched reference/result frames, a copy audit and measured motion evidence. Fixture provenance and external-effect limitations live in the captions and manifest. PDF export and SQLite migration in the deterministic demonstrations are actual native-approved local effects. See the [acceptance history](acceptance.md) for the retained summary.
 
 ## Changes
 

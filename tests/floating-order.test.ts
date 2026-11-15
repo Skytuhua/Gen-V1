@@ -24,6 +24,16 @@ describe('floating window stacking order',()=>{
   expect(layerFor('third')).toBe(34+2);
   expect(layerFor('fourth')).toBe(34);
  });
+ it('publishes the settled order once when bringing forward an existing window',()=>{
+  ids.forEach(bringForward);
+  const observed:number[][]=[];
+  const unsubscribe=subscribeLayer(()=>observed.push(ids.map(layerFor)));
+  try{
+   bringForward('second');
+   expect(observed).toEqual([ids.map(layerFor)]);
+   expect(new Set(observed[0]).size).toBe(ids.length);
+  }finally{unsubscribe();}
+ });
  it('notifies subscribers when the order changes',()=>{
   const refresh=vi.fn(),unsubscribe=subscribeLayer(refresh);
   bringForward('first');removeLayer('first');unsubscribe();bringForward('second');

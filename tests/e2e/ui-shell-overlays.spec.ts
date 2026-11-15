@@ -135,3 +135,33 @@ for (const scenario of [
     });
   });
 }
+
+test('overlay focus recovery skips controls hidden by CSS visibility', async ({ page }) => {
+  const path = '/@fs/' + resolve('packages/ui-shell/focus-retention.ts').replaceAll('\\', '/');
+  const focused = await page.evaluate(async path => {
+    const { refocusWithin } = await import(path);
+    const root = document.createElement('div');
+    root.tabIndex = -1;
+    root.innerHTML = '<div style="visibility:hidden"><button>Hidden action</button></div><button>Visible action</button>';
+    const dialog = document.querySelector('dialog[open]');
+    if (dialog instanceof HTMLDialogElement) dialog.close();
+    document.body.append(root);
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+    refocusWithin(root);
+    return document.activeElement === root.lastElementChild;
+  }, path);
+  expect(focused).toBe(true);
+});
+
+test('a tall tooltip stays visible in a short viewport when neither side fits', async ({ page }) => {
+  await page.setViewportSize({ width: 250, height: 210 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/ui-shell-overlays?tooltip');
+  await page.getByRole('button', { name: 'Tooltip anchor', exact: true }).hover();
+  const tooltip = page.getByRole('tooltip');
+  await expect(tooltip).toBeVisible();
+  await expect.poll(async () => {
+    const box = await tooltip.boundingBox();
+    return Boolean(box && box.y >= 7 && box.y + box.height <= 203);
+  }).toBe(true);
+});

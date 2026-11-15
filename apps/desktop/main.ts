@@ -21,14 +21,14 @@ import {captureDesktopPlacement,createNormalBounds,parseDesktopPlacement,placeOn
 import type {ConnectionProviderId} from '../../packages/contracts/connections.ts';
 import {createAccountLoginFlows} from './account-login.ts';
 import {workspaceEvents} from './workspace-events.ts';
-import {applyNativeLayout} from './layout-transaction.ts';
+import {applyNativeLayout,requestNativeClose,type NativeCloseOwner} from './layout-transaction.ts';
 import {createPersistenceQueue,reconcileSavedWindows} from './persistence.ts';
 import {createAttentionPopups,attentionPopupHtml,type AttentionPopupAction,type AttentionPopupWindow} from './attention-popups.ts';
 import {attentionDeliverySchema} from '../../packages/contracts/attention.ts';
 const persistence=createPersistenceQueue();
 
 interface BrowserRecord {id:string;view:WebContentsView;state:DesktopBrowserState;owner?:WindowRecord;generation:number;networkReady:Promise<void>}
-interface WindowRecord {id:string;surface:DesktopSurface;window:BrowserWindow;url:string;ready:boolean;settled:boolean;visible:boolean;normalBounds:ReturnType<typeof createNormalBounds>;placement?:DesktopPlacement;appliedBounds?:DesktopBounds;monitorRescued?:boolean;recoveries?:number;resolveReady:(value:DesktopWindowInfo)=>void;rejectReady:(error:Error)=>void;readyPromise:Promise<DesktopWindowInfo>;readyTimer:ReturnType<typeof setTimeout>;browser?:BrowserRecord;dockedBrowser?:BrowserRecord;closePromise?:Promise<boolean>;closeRequest?:{id:string;resolve:(allow:boolean)=>void;timer:ReturnType<typeof setTimeout>}}
+interface WindowRecord extends NativeCloseOwner {id:string;surface:DesktopSurface;window:BrowserWindow;url:string;ready:boolean;settled:boolean;visible:boolean;normalBounds:ReturnType<typeof createNormalBounds>;placement?:DesktopPlacement;appliedBounds?:DesktopBounds;monitorRescued?:boolean;recoveries?:number;resolveReady:(value:DesktopWindowInfo)=>void;rejectReady:(error:Error)=>void;readyPromise:Promise<DesktopWindowInfo>;readyTimer:ReturnType<typeof setTimeout>;browser?:BrowserRecord;dockedBrowser?:BrowserRecord}
 interface SavedWindow {surface:DesktopSurface;bounds:DesktopBounds;placement?:DesktopPlacement;open:boolean;visible?:boolean;alwaysOnTop?:boolean;dockedBrowserId?:string}
 const windows=new Map<string,WindowRecord>(),browsers=new Map<string,BrowserRecord>();
 const testData=process.env.HARNESS_DESKTOP_TEST_DATA_DIR;
@@ -61,7 +61,14 @@ function displays():DesktopDisplay[]{const primary=screen.getPrimaryDisplay(),al
 function info(record:WindowRecord):DesktopWindowInfo{return {id:record.id,surface:record.surface,ready:record.ready,minimized:record.window.isMinimized(),visible:record.visible,alwaysOnTop:record.window.isAlwaysOnTop(),bounds:record.window.getNormalBounds(),displayId:record.placement?.displayId};}
 function captureLayout():DesktopLayout{return {version:1,windows:[...windows.values()].filter(record=>!record.window.isDestroyed()).map(record=>({surface:record.surface,bounds:record.normalBounds.read(),visible:record.visible,alwaysOnTop:record.window.isAlwaysOnTop(),...(record.dockedBrowser?{dockedBrowserId:record.dockedBrowser.id}:{}),...(record.placement?{displayId:record.placement.displayId,placement:record.placement}:{})}))};}
 function snapshot(record:WindowRecord):DesktopState{return {windows:[...windows.values()].map(info),...(record.browser?{browser:record.browser.state}:{}),...(record.dockedBrowser?{dockedBrowser:{browserId:record.dockedBrowser.id,state:record.dockedBrowser.state}}:{}),...(backendError?{backendError}:{}),...(layoutError?{layoutError}:{}),update:updateStatus,nativeTitleBar:process.platform==='win32'};}
-function broadcast(focusSurface?:DesktopSurface){for(const record of windows.values())if(!record.window.isDestroyed())record.window.webContents.send(channels.state,{...snapshot(record),...(record.surface.kind==='main'&&focusSurface?{focusSurface}:{})});}
+function broadcast(focusSurface?:DesktopSurface){
+ for(const record of windows.values()){
+  if(record.window.isDestroyed())continue;
+  const state={...snapshot(record),...(record.surface.kind==='main'&&focusSurface?{focusSurface}:{})};
+  try{record.window.webContents.send(channels.state,state);}
+  catch{/* Renderer disposal must not interrupt other live windows' updates. */}
+ }
+}
 function cancelClose(record:WindowRecord){if(!record.window.isDestroyed())record.window.webContents.send(channels.state,{...snapshot(record),closeCancelled:true});}
 function context(record:WindowRecord):DesktopContext{return {...snapshot(record),windowId:record.id,surface:record.surface};}
 function authorize(event:IpcMainInvokeEvent):WindowRecord {
@@ -127,7 +134,14 @@ function moveBrowser(browser:BrowserRecord,owner:WindowRecord,docked:boolean){
  browser.owner=owner;if(docked)owner.dockedBrowser=browser;else owner.browser=browser;
  owner.window.contentView.addChildView(browser.view);const [width,height]=owner.window.getContentSize();browser.view.setBounds(docked?{x:Math.max(0,width-520),y:100,width:Math.min(520,width),height:Math.max(0,height-100)}:{x:0,y:96,width,height:Math.max(0,height-96)});broadcast();
 }
-function loseBrowserOwner(record:WindowRecord){releaseOwnedBrowsers(record,browsers,browser=>{browser.generation++;if(!record.window.isDestroyed())record.window.contentView.removeChildView(browser.view);if(!browser.view.webContents.isDestroyed())browser.view.webContents.close({waitForBeforeUnload:false});});}
+function loseBrowserOwner(record:WindowRecord){
+ const failures=releaseOwnedBrowsers(record,browsers,browser=>{
+  browser.generation++;
+  try{if(!record.window.isDestroyed())record.window.contentView.removeChildView(browser.view);}
+  finally{if(!browser.view.webContents.isDestroyed())browser.view.webContents.close({waitForBeforeUnload:false});}
+ });
+ if(failures)console.warn('Native browser cleanup could not complete for',failures,'view(s).');
+}
 async function openSurface(raw:unknown,sourceBounds?:DesktopBounds):Promise<DesktopWindowInfo>{
  if(quitting||quitPending)throw Error('The application is closing.');
  const surface=parseDesktopSurface(raw);if(!desktopSurfaceAllowed(surface))throw Error('This surface belongs to a different workspace authority.');
@@ -172,8 +186,8 @@ async function openSurface(raw:unknown,sourceBounds?:DesktopBounds):Promise<Desk
 }
 function trustedUrl(id:string){return trustedDesktopUrl(backendOrigin,id,launchToken||undefined);}
 function requestClose(record:WindowRecord):Promise<boolean>{
- if(record.window.isDestroyed())return Promise.resolve(true);if(record.closePromise)return record.closePromise;
- const requestId=randomUUID();record.closePromise=new Promise<boolean>(resolve=>{const finish=(allow:boolean)=>{record.closeRequest=undefined;record.closePromise=undefined;resolve(allow);};record.closeRequest={id:requestId,resolve:finish,timer:setTimeout(()=>finish(false),15000)};record.window.webContents.send(channels.closeRequest,requestId);});return record.closePromise;
+ if(record.window.isDestroyed())return Promise.resolve(true);
+ return requestNativeClose(record,id=>record.window.webContents.send(channels.closeRequest,id));
 }
 function destroyWindow(record:WindowRecord){if(record.window.isDestroyed())return;remember(record,quitting);loseBrowserOwner(record);record.window.destroy();}
 async function mainWindow(){const existing=[...windows.values()].find(record=>record.surface.kind==='main');if(existing){existing.visible=true;if(existing.window.isMinimized())existing.window.restore();existing.window.show();existing.window.focus();remember(existing);broadcast();await existing.readyPromise;return existing;}const result=await openSurface({kind:'main'});return windows.get(result.id)!;}
@@ -293,7 +307,7 @@ async function startBackend():Promise<void>{
  await finishBackendStartup(child,oldRelay?.close(),()=>stderr,()=>{
   backendOrigin=value.origin as string;
   if(value.nativeLayout!==undefined)try{hostLayout=parseDesktopLayout(value.nativeLayout);}catch{layoutError='The saved host workspace layout is invalid. The local backup is retained.';}
-  workspaceRelay=workspaceEvents(backendOrigin,change=>{for(const record of windows.values())if(!record.window.isDestroyed())record.window.webContents.send(channels.workspaceChanged,change);});
+  workspaceRelay=workspaceEvents(backendOrigin,change=>{for(const record of windows.values())if(!record.window.isDestroyed())record.window.webContents.send(channels.workspaceChanged,change);},token);
   child.once('exit',()=>{if(closing||backend!==child)return;backendError='The local backend stopped. Reconnecting…';broadcast();if(restarting)return;restarting=true;setTimeout(()=>{void startBackend().catch(error=>{backendError='Backend restart failed: '+String(error instanceof Error?error.message:error).slice(0,500);broadcast();}).finally(()=>{restarting=false;});},700);});
   backendError=undefined;broadcast();
  });

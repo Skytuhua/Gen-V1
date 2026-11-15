@@ -3,7 +3,7 @@ import {retainFocus, usableFocusable} from '../packages/ui-shell/focus-retention
 
 it('selects a tab stop rather than a visible control removed from keyboard or assistive navigation', () => {
   const candidate = (tabIndex:number, hidden=false) => ({
-    tabIndex, getClientRects: () => [{}],
+    tabIndex, ownerDocument: {defaultView: {getComputedStyle: () => ({visibility: "visible"})}}, getClientRects: () => [{}],
     closest: (selector:string) => hidden && selector.includes('aria-hidden') ? {} : null,
   });
   const excluded=candidate(-1), hidden=candidate(0,true), usable=candidate(0);

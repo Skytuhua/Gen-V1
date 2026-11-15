@@ -20,3 +20,11 @@ it('records an editable prepared handoff and an explicit download proposal besid
  expect(elements.document).toMatchObject({type:'Document',props:{resourceId:'agreement'}});
  expect(elements.files.type).toBe('Tree');expect(elements.evidence.type).toBe('EvidenceList');
 });
+
+it('records topic continuation through the composer without an automatic question footer',()=>{
+ const questions=taskDesignScenes().find(scene=>scene.id==='questions')!;
+ expect(questions.spec.elements.questions.children).toEqual(['retry','limits']);
+ expect(questions.spec.elements.ask).toBeUndefined();
+ expect(questions.spec.elements.question).toBeUndefined();
+ expect(questions.spec.elements.retry).toMatchObject({type:'Disclosure',props:{onOpenActionId:'answer'}});
+});

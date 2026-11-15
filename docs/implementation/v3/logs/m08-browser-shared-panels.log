@@ -1,0 +1,12 @@
+argv: ["C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe", "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js", "test:browser", "--suite", "shared-panels"]
+cwd: C:\Users\Administrator\gen-m08-v3-wt
+termination: NONE
+exitCode: 1
+outcome: 6 failed | 24 passed (1.3m); fixture/sign-in assertions, all baseline on pristine base.
+failures:
+  - tests\e2e\shared-panels.spec.ts:679:1 > Diff actions reject false and missing write capability while writable worktrees still stage
+  - tests\e2e\shared-panels.spec.ts:721:1 > PR submission rechecks the worktree before creating or reviewing
+  - tests\e2e\shared-panels.spec.ts:765:1 > failed PR recovery never overwrites the saved draft and can retry safely
+  - tests\e2e\shared-panels.spec.ts:1018:1 > profile sign-in reports start and cancellation failures with a retry
+  - tests\e2e\shared-panels.spec.ts:1137:1 > a disconnected project can still sign in through the profile route
+  - tests\e2e\shared-panels.spec.ts:1166:1 > invalid profile sign-in responses show one actionable error and never expose an arbitrary opener

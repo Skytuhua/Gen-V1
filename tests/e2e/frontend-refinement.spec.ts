@@ -7,13 +7,17 @@ test.beforeEach(async({page})=>{
 test('left ticked scrollbar supports keys, track clicks, dragging, and history during updates',async({page})=>{
  const scroll=page.getByLabel('Fixture conversation'),bar=page.getByRole('scrollbar',{name:'Scroll conversation'});
  const bounds=await bar.boundingBox(),content=await scroll.boundingBox();expect(bounds!.x).toBeLessThan(content!.x+24);
+ expect(bounds!.width).toBe(20);
+ expect(await page.locator('.chat-scroll-track').evaluate(node=>getComputedStyle(node).width)).toBe('1px');
+ expect(await page.locator('.chat-scroll-thumb').evaluate(node=>getComputedStyle(node).width)).toBe('3px');
+ expect(await page.locator('.chat-scroll-track').evaluate(node=>getComputedStyle(node,'::before').backgroundImage)).toContain('repeating-linear-gradient');
  expect(await scroll.evaluate(node=>getComputedStyle(node).scrollbarWidth)).toBe('none');
  await bar.focus();await page.keyboard.press('Home');await expect.poll(()=>scroll.evaluate(node=>node.scrollTop)).toBe(0);
  await page.keyboard.press('PageDown');await expect.poll(()=>scroll.evaluate(node=>node.scrollTop)).toBeGreaterThan(50);
  const saved=await scroll.evaluate(node=>node.scrollTop);await page.getByRole('button',{name:'Grow transcript'}).click();
  await expect.poll(()=>scroll.evaluate(node=>node.scrollTop)).toBe(saved);
  await bar.click({position:{x:12,y:bounds!.height*.7}});await expect.poll(()=>scroll.evaluate(node=>node.scrollTop)).toBeGreaterThan(saved);
- const thumb=await page.locator('.chat-scroll-thumb').boundingBox();const beforeDrag=await scroll.evaluate(node=>node.scrollTop);await page.mouse.move(thumb!.x+3,thumb!.y+3);await page.mouse.down();expect(await scroll.evaluate(node=>node.scrollTop)).toBeCloseTo(beforeDrag,0);await page.mouse.move(thumb!.x+3,bounds!.y+20,{steps:8});await page.mouse.up();
+ const thumb=await page.locator('.chat-scroll-thumb').boundingBox();const beforeDrag=await scroll.evaluate(node=>node.scrollTop);await page.mouse.move(thumb!.x+1,thumb!.y+3);await page.mouse.down();expect(await scroll.evaluate(node=>node.scrollTop)).toBeCloseTo(beforeDrag,0);await page.mouse.move(thumb!.x+1,bounds!.y+20,{steps:8});await page.mouse.up();
  await expect.poll(()=>scroll.evaluate(node=>node.scrollTop)).toBeLessThan(100);
  await bar.focus();await page.keyboard.press('End');await expect.poll(()=>scroll.evaluate(node=>node.scrollHeight-node.clientHeight-node.scrollTop)).toBeLessThan(2);
  await page.getByRole('textbox',{name:'Outside draft'}).fill('Keep this draft');await page.getByRole('button',{name:'Grow transcript'}).click();await expect(page.getByRole('textbox',{name:'Outside draft'})).toHaveValue('Keep this draft');

@@ -42,3 +42,26 @@ it('does not select a stale index after a menu loses rows', () => {
   navigation.onKeyDown({key:'Enter', nativeEvent:{}, target:{}, preventDefault(){}} as KeyboardEvent);
   expect(selected).toEqual([]);
 });
+
+it.each(['Enter', ' '])('does not activate a different row with %j after focus falls back to the popup', key => {
+  const items = [{ label: 'Original' }, { label: 'Other' }];
+  const choose = vi.fn();
+  const navigation = useListNavigation(items, choose, () => {});
+  navigation.onFocus(0);
+  items.shift();
+  const replacement = {} as HTMLButtonElement;
+  navigation.rows.current = [replacement];
+  navigation.onKeyDown({ key, nativeEvent: {}, target: {}, preventDefault() {} } as KeyboardEvent);
+  expect(choose).not.toHaveBeenCalled();
+  navigation.onKeyDown({ key, nativeEvent: {}, target: replacement, preventDefault() {} } as unknown as KeyboardEvent);
+  expect(choose).toHaveBeenCalledExactlyOnceWith(0);
+});
+
+it('starts a fresh typeahead after explicit keyboard navigation', () => {
+  const { rows, press } = list();
+  press('a');
+  press('End');
+  press('b');
+  expect(rows[4].focus).toHaveBeenCalledOnce();
+  expect(rows[1].focus).toHaveBeenCalledOnce();
+});
