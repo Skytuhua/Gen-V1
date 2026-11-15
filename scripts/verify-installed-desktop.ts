@@ -284,6 +284,70 @@ async function waitForOwnedExit(child:ChildProcess,timeoutMs=15000){
  let timer:ReturnType<typeof setTimeout>|undefined;
  try{await Promise.race([new Promise<void>(done=>child.once('close',()=>done())),new Promise<never>((_done,reject)=>{timer=setTimeout(()=>reject(Error('Installed application did not exit after closing its last window.')),timeoutMs);})]);}finally{clearTimeout(timer);}
 }
+// Existing production startup permits 60s for the backend and 20s for its native surface.
+// Match that combined publication envelope; production and interactive assertion budgets stay unchanged.
+const INSTALLED_MAIN_PAGE_TIMEOUT_MS=80000;
+type InstalledPageFailure='deadline'|'launch-error'|'process-exit'|'owner-rejected'|'page-query';
+type InstalledPageCounts={total:number;ownedOrigin:number;file:number;blank:number;other:number;closed:number};
+export type InstalledPageReadinessObservation={phase:'waiting'|'candidate'|'ready'|'failed';elapsedMs:number;process:{alive:boolean;exitCode:number|null;signalCode:NodeJS.Signals|null};pages:InstalledPageCounts;failure?:InstalledPageFailure};
+type InstalledPageCandidate={url:()=>string;isClosed:()=>boolean};
+
+/** Wait only for a current page from the live, revalidated installed process. */
+export async function waitForInstalledMainPage<T extends InstalledPageCandidate>(options:{
+ child:Pick<ChildProcess,'exitCode'|'signalCode'>;origin:string;pages:()=>T[];verifyOwner:()=>Promise<void>;launchError:()=>Error|undefined;observe:(value:InstalledPageReadinessObservation)=>void;
+}):Promise<T>{
+ const expected=new URL(options.origin);
+ if(expected.origin!==options.origin||expected.protocol!=='http:'||expected.hostname!=='127.0.0.1')throw Error('Installed readiness requires the exact local host origin.');
+ const started=Date.now();let settled=false,failure:InstalledPageFailure|undefined,nextCheckpoint=0,candidateObserved=false;
+ let pollTimer:ReturnType<typeof setTimeout>|undefined,deadlineTimer:ReturnType<typeof setTimeout>|undefined,livenessTimer:ReturnType<typeof setInterval>|undefined;
+ let counts:InstalledPageCounts={total:0,ownedOrigin:0,file:0,blank:0,other:0,closed:0};
+ const messages:Record<InstalledPageFailure,string>={deadline:'The installed main page exceeded its readiness deadline.','launch-error':'The installed application failed during main-page readiness.','process-exit':'The installed application exited before its main page was ready.','owner-rejected':'Installed application ownership could not be revalidated.','page-query':'The installed application pages could not be inspected.'};
+ const refuse=(reason:InstalledPageFailure)=>{failure??=reason;return Error(messages[failure]);};
+ const alive=()=>options.child.exitCode===null&&options.child.signalCode===null;
+ const stopped=():InstalledPageFailure|undefined=>options.launchError()?'launch-error':alive()?undefined:'process-exit';
+ const emit=(phase:InstalledPageReadinessObservation['phase'])=>{
+  if(settled)return;
+  options.observe({phase,elapsedMs:Math.max(0,Date.now()-started),process:{alive:alive(),exitCode:options.child.exitCode,signalCode:options.child.signalCode},pages:{...counts},...(phase==='failed'?{failure}: {})});
+ };
+ const classify=(page:T):Exclude<keyof InstalledPageCounts,'total'>=>{
+  if(page.isClosed())return 'closed';
+  const raw=page.url();let url:URL;try{url=new URL(raw);}catch{return 'other';}
+  if(url.origin===options.origin&&!url.username&&!url.password)return 'ownedOrigin';
+  return url.protocol==='file:'?'file':raw==='about:blank'?'blank':'other';
+ };
+ const current=()=>{
+  try{
+   const pages=options.pages();counts={total:pages.length,ownedOrigin:0,file:0,blank:0,other:0,closed:0};
+   for(const page of pages)counts[classify(page)]++;
+   return pages;
+  }catch{throw refuse('page-query');}
+ };
+ const active=()=>{
+  if(settled)throw Error('Installed readiness has already settled.');
+  const reason=stopped();if(reason)throw refuse(reason);
+  if(Date.now()-started>=INSTALLED_MAIN_PAGE_TIMEOUT_MS)throw refuse('deadline');
+ };
+ const deadline=new Promise<never>((_resolve,reject)=>{deadlineTimer=setTimeout(()=>reject(refuse('deadline')),INSTALLED_MAIN_PAGE_TIMEOUT_MS);});
+ const liveness=new Promise<never>((_resolve,reject)=>{livenessTimer=setInterval(()=>{if(settled)return;const reason=stopped();if(reason)reject(refuse(reason));},250);});
+ const discover=async():Promise<T>=>{
+  while(!settled){
+   active();const pages=current(),elapsed=Date.now()-started;
+   if(elapsed>=nextCheckpoint){emit('waiting');nextCheckpoint=elapsed+15000;}
+   const candidate=pages.find(page=>classify(page)==='ownedOrigin');
+   if(candidate){
+    if(!candidateObserved){emit('candidate');candidateObserved=true;}
+    try{await options.verifyOwner();}catch{throw refuse('owner-rejected');}
+    active();const latest=current();
+    if(latest.includes(candidate)&&classify(candidate)==='ownedOrigin'){emit('ready');return candidate;}
+   }
+   await new Promise<void>(resolve=>{pollTimer=setTimeout(resolve,250);});
+  }
+  throw refuse('deadline');
+ };
+ try{return await Promise.race([discover(),deadline,liveness]);}
+ catch{failure??='page-query';emit('failed');throw refuse(failure);}
+ finally{settled=true;clearTimeout(pollTimer);clearTimeout(deadlineTimer);clearInterval(livenessTimer);}
+}
 async function launchInstalled(executable:string,directory:string,iteration:number,receipt:Record<string,unknown>,ports:readonly[number,number,number],memory?:MemoryRetention){
  if(memory)await (await import('./installed-memory-retention.ts')).assertInstalledMemoryProfile(memory.seed);
  const [hostPort,widgetPort,debugPort]=ports,nonce=randomUUID(),origin='http://127.0.0.1:'+hostPort,debugOrigin='http://127.0.0.1:'+debugPort;
@@ -291,10 +355,12 @@ async function launchInstalled(executable:string,directory:string,iteration:numb
  let browser:Browser|undefined,verifiedOwner=false,launchError:Error|undefined;const started=Date.now();child.once('error',error=>{launchError=error;});
  try{
   await expect.poll(async()=>{if(launchError)throw launchError;if(child.exitCode!==null||child.signalCode!==null)throw Error('Installed application exited before readiness.');try{return (await fetch(debugOrigin+'/json/version',{signal:AbortSignal.timeout(1000)})).ok;}catch{return false;}},{timeout:45000,intervals:[100,250,500]}).toBe(true);
-  browser=await chromium.connectOverCDP(debugOrigin);const session=await browser.newBrowserCDPSession();
-  try{const {arguments:args}=await session.send('Browser.getBrowserCommandLine');assertWrapperArguments(args,nonce);if(!sameWindowsPath(args[0]??'',executable))throw Error('Debug browser is not the exact installed executable.');verifiedOwner=true;}finally{await session.detach();}
-  await expect.poll(()=>browser!.contexts().flatMap(context=>context.pages()).some(page=>page.url().startsWith(origin+'/')),{timeout:30000}).toBe(true);
-  const page=browser.contexts().flatMap(context=>context.pages()).find(page=>page.url().startsWith(origin+'/'))!;
+  browser=await chromium.connectOverCDP(debugOrigin);
+  const verifyBrowserOwner=async()=>{verifiedOwner=false;const session=await browser!.newBrowserCDPSession();try{const {arguments:args}=await session.send('Browser.getBrowserCommandLine');assertWrapperArguments(args,nonce);if(!sameWindowsPath(args[0]??'',executable))throw Error('Debug browser is not the exact installed executable.');verifiedOwner=true;}finally{await session.detach();}};
+  await verifyBrowserOwner();
+  const readiness:{iteration:number;pid:number|null;timeoutMs:number;status:'waiting'|'ready'|'failed';observations:InstalledPageReadinessObservation[]}={iteration,pid:child.pid??null,timeoutMs:INSTALLED_MAIN_PAGE_TIMEOUT_MS,status:'waiting',observations:[]};
+  ((receipt.launchReadiness??=[]) as unknown[]).push(readiness);
+  const page=await waitForInstalledMainPage({child,origin,pages:()=>browser!.contexts().flatMap(context=>context.pages()),verifyOwner:verifyBrowserOwner,launchError:()=>launchError,observe:value=>{readiness.observations.push(value);if(value.phase==='ready'||value.phase==='failed')readiness.status=value.phase;}});
   const message=page.getByRole('textbox',{name:'Message',exact:true});await expect(message).toBeEnabled({timeout:30000});const readyMs=Date.now()-started;
   expect(await page.evaluate(async()=>({surface:(await window.harnessDesktop!.getContext()).surface.kind,node:typeof (window as unknown as {process?:unknown}).process}))).toEqual({surface:'main',node:'undefined'});
   if(iteration===1){

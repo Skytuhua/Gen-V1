@@ -1,4 +1,4 @@
-import {describe,it,expect} from 'vitest';
+import {describe,it,expect,vi} from 'vitest';
 import {mkdtemp,mkdir,writeFile,readFile,realpath,rename,symlink,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
@@ -223,4 +223,97 @@ describe('installed project memory retention fixture',()=>{
    await expect(assertInstalledMemoryProfile(seed)).rejects.toThrow(/identity changed/i);
   }finally{await rm(root,{recursive:true,force:true});}
  });
+});
+
+describe('installed main-page readiness',()=>{
+ const origin='http://127.0.0.1:4317';
+ const page=(currentUrl:string,closed=false)=>({currentUrl,closed,url(){return this.currentUrl;},isClosed(){return this.closed;}});
+ type Candidate=ReturnType<typeof page>;
+ async function withClock(run:()=>Promise<void>){vi.useFakeTimers();vi.setSystemTime(0);try{await run();}finally{vi.useRealTimers();}}
+ function fixture(pages:()=>Candidate[]){
+  const child={exitCode:null as number|null,signalCode:null as NodeJS.Signals|null};
+  const events:installedVerification.InstalledPageReadinessObservation[]=[];
+  const options={child,origin,pages,verifyOwner:async()=>{},launchError:():Error|undefined=>undefined,observe:(event:installedVerification.InstalledPageReadinessObservation)=>events.push(event)};
+  return {child,events,options};
+ }
+ function result<T>(pending:Promise<T>){
+  let done=false;const settled=pending.then(value=>{done=true;return {ok:true as const,value};},error=>{done=true;return {ok:false as const,error};});
+  return {settled,get done(){return done;}};
+ }
+ it('waits for a correctly owned main page beyond the old 30-second cutoff',()=>withClock(async()=>{
+  const expected=page(origin+'/?desktopWindow=owned#launch=PRIVATE_FRAGMENT'),state=fixture(()=>Date.now()>=35000?[expected]:[]);
+  const pending=result(installedVerification.waitForInstalledMainPage(state.options));
+  await vi.advanceTimersByTimeAsync(35000);
+  const actual=await pending.settled;
+  expect(actual.ok?undefined:actual.error).toBeUndefined();if(actual.ok)expect(actual.value).toBe(expected);
+  expect(state.events.at(-1)).toMatchObject({phase:'ready',elapsedMs:35000,pages:{ownedOrigin:1}});
+  expect(JSON.stringify(state.events)).not.toContain('PRIVATE_FRAGMENT');
+ }));
+ it('requires the exact owned origin and an open current page',()=>withClock(async()=>{
+  const closed=page(origin+'/',true),lookalike=page('http://127.0.0.1:43170/'),credentials=page('http://user:PRIVATE_PASSWORD@127.0.0.1:4317/'),expected=page(origin+'/?desktopWindow=current');
+  const state=fixture(()=>[closed,lookalike,credentials,expected]);
+  const pending=result(installedVerification.waitForInstalledMainPage(state.options));
+  await vi.advanceTimersByTimeAsync(0);
+  const actual=await pending.settled;
+  expect(actual.ok).toBe(true);if(actual.ok)expect(actual.value).toBe(expected);
+  expect(JSON.stringify(state.events)).not.toContain('PRIVATE_PASSWORD');
+ }));
+ it('bounds missing-page waiting and records only bounded metadata',()=>withClock(async()=>{
+  const state=fixture(()=>[page('file:///C:/PRIVATE_PATH/startup.html'),page('about:blank'),page('https://unowned.example/?PRIVATE_QUERY#PRIVATE_FRAGMENT')]);
+  const pending=result(installedVerification.waitForInstalledMainPage(state.options));
+  await vi.advanceTimersByTimeAsync(81000);
+  const actual=await pending.settled;
+  expect(actual.ok).toBe(false);if(!actual.ok)expect(actual.error.message).toMatch(/deadline/i);
+  expect(state.events.at(-1)).toMatchObject({phase:'failed',failure:'deadline',pages:{total:3,file:1,blank:1,other:1,ownedOrigin:0}});
+  expect(state.events.length).toBeLessThanOrEqual(8);
+  expect(JSON.stringify(state.events)).not.toMatch(/PRIVATE_|unowned\.example|file:\/|https:\/|launch=/);
+ }));
+ it('rejects child exit, termination or launch failure during a pending owner recheck',()=>withClock(async()=>{
+  for(const failure of ['exit','signal','launch-error'] as const){
+   vi.setSystemTime(0);const expected=page(origin+'/'),state=fixture(()=>[expected]);
+   let release!:()=>void,launchError:Error|undefined;
+   state.options.verifyOwner=()=>new Promise<void>(resolve=>{release=resolve;});
+   state.options.launchError=()=>launchError;
+   const pending=result(installedVerification.waitForInstalledMainPage(state.options));
+   setTimeout(()=>{if(failure==='exit')state.child.exitCode=7;else if(failure==='signal')state.child.signalCode='SIGTERM';else launchError=Error('PRIVATE_STARTUP_BODY');},1000);
+   await vi.advanceTimersByTimeAsync(1500);
+   expect(pending.done).toBe(true);
+   const actual=await pending.settled;
+   expect(actual.ok).toBe(false);
+   expect(state.events.at(-1)).toMatchObject({phase:'failed',failure:failure==='launch-error'?'launch-error':'process-exit'});
+   expect(state.events.at(-1)!.elapsedMs).toBeLessThanOrEqual(1500);
+   expect(JSON.stringify(state.events)).not.toContain('PRIVATE_STARTUP_BODY');
+   const before=JSON.stringify(state.events);release();await vi.advanceTimersByTimeAsync(0);expect(JSON.stringify(state.events)).toBe(before);
+  }
+ }));
+ it('fails immediately when exact executable or nonce ownership cannot be revalidated',()=>withClock(async()=>{
+  const state=fixture(()=>[page(origin+'/')]);
+  state.options.verifyOwner=async()=>{throw Error('PRIVATE_PROTOCOL_REPLY');};
+  const pending=result(installedVerification.waitForInstalledMainPage(state.options));
+  await vi.advanceTimersByTimeAsync(0);
+  const actual=await pending.settled;
+  expect(actual.ok).toBe(false);if(!actual.ok){expect(actual.error.message).toMatch(/ownership/i);expect(actual.error.message).not.toContain('PRIVATE_PROTOCOL_REPLY');}
+  expect(state.events.at(-1)).toMatchObject({phase:'failed',failure:'owner-rejected',elapsedMs:0});
+ }));
+ it('does not admit a candidate that navigates during its ownership recheck',()=>withClock(async()=>{
+  const first=page(origin+'/?desktopWindow=first'),replacement=page(origin+'/?desktopWindow=replacement');
+  const state=fixture(()=>Date.now()<2000?[first]:[replacement]);let checks=0;
+  state.options.verifyOwner=async()=>{if(++checks===1){await new Promise<void>(resolve=>setTimeout(resolve,1000));first.currentUrl='https://unowned.example/';}};
+  const pending=result(installedVerification.waitForInstalledMainPage(state.options));
+  await vi.advanceTimersByTimeAsync(1500);expect(pending.done).toBe(false);
+  await vi.advanceTimersByTimeAsync(500);
+  const actual=await pending.settled;
+  expect(actual.ok).toBe(true);if(actual.ok)expect(actual.value).toBe(replacement);
+  expect(state.events.at(-1)).toMatchObject({phase:'ready',pages:{ownedOrigin:1}});
+ }));
+ it('applies the same deadline to an unresolved owner recheck and ignores late completion',()=>withClock(async()=>{
+  const state=fixture(()=>[page(origin+'/')]);let release!:()=>void;
+  state.options.verifyOwner=()=>new Promise<void>(resolve=>{release=resolve;});
+  const pending=result(installedVerification.waitForInstalledMainPage(state.options));
+  await vi.advanceTimersByTimeAsync(81000);
+  const actual=await pending.settled;
+  expect(actual.ok).toBe(false);if(!actual.ok)expect(actual.error.message).toMatch(/deadline/i);
+  expect(state.events.at(-1)).toMatchObject({phase:'failed',failure:'deadline'});
+  const before=JSON.stringify(state.events);release();await vi.advanceTimersByTimeAsync(0);expect(JSON.stringify(state.events)).toBe(before);
+ }));
 });
