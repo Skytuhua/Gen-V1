@@ -45,9 +45,9 @@ export class ProjectTools{
  private gitExecutable(){return this.options.git??gitExecutable();}
  async git(path:string,args:string[],signal?:AbortSignal,environment:NodeJS.ProcessEnv={}){
   const workspace=this.store.all<WorkspaceBinding>('workspaceBinding').find(item=>item.path===path);
-  if(!workspace)throw new HarnessError('CAPABILITY_DENIED','Legacy project Git is read-only. Select a new managed working copy.');
+  if(!workspace)throw new HarnessError('CAPABILITY_DENIED','This project is a plain local folder — Git changes need a managed working copy. Choose "Prepare workspace" or reconnect the project as a managed copy.');
   const bound=await this.binding(workspace.projectId,workspace.threadId),family=privateFamilyForBinding(this.store,workspace);
-  if(bound.workspace?.id!==workspace.id||!family)throw new HarnessError('CAPABILITY_DENIED','Legacy project Git is read-only. Select a new managed working copy.');
+  if(bound.workspace?.id!==workspace.id||!family)throw new HarnessError('CAPABILITY_DENIED','This project is a plain local folder — Git changes need a managed working copy. Choose "Prepare workspace" or reconnect the project as a managed copy.');
   return withPrivateGitFamily(family,signal??new AbortController().signal,(metadata,worktree,active)=>nativeGit(this.gitExecutable(),metadata,worktree,args,active,environment));
  }
  private project(projectId:string){const project=this.store.get<ProjectSummary>('workspaceProject',id.parse(projectId));if(!project)throw new HarnessError('NOT_FOUND','Project is unavailable.');if(project.authority.kind!=='local')throw new HarnessError('CAPABILITY_DENIED','Company authority cannot use personal project tools.');return project;}
@@ -106,7 +106,7 @@ export class ProjectTools{
  private async withGitOperation<T>(projectId:string,threadId:string|undefined,write:boolean,action:(metadata:string,path:string,signal:AbortSignal,managed:boolean)=>Promise<T>):Promise<T>{
   const binding=await this.binding(projectId,threadId),family=binding.workspace?privateFamilyForBinding(this.store,binding.workspace):undefined,signal=new AbortController().signal;
   if(family)return withPrivateGitFamily(family,signal,(metadata,path,active)=>action(metadata,path,active,true));
-  if(write)throw new HarnessError('CAPABILITY_DENIED','Legacy project Git is read-only. Select a new managed working copy.');
+  if(write)throw new HarnessError('CAPABILITY_DENIED','This project is a plain local folder — Git changes need a managed working copy. Choose "Prepare workspace" or reconnect the project as a managed copy.');
   const imported=await importGitFamily(this.store,projectId,binding.path,binding.workspace,this.gitExecutable(),signal);
   const expected=binding.workspace?.identity??this.store.get<{identity:Identity}>('workspaceProjectRoot',projectId)?.identity;
   if(!expected)throw new HarnessError('CAPABILITY_DENIED','Project identity is unavailable.');
