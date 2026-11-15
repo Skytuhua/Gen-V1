@@ -170,15 +170,15 @@
     "docs/implementation/v3/m05-logs/continuation-split-initial-navigation-typecheck.log",
     "docs/implementation/v3/M05-windows-ci-43724428807.json",
     "docs/implementation/v3/M05-faq-readiness-review-43724428807.json",
-    "docs/implementation/v3/m05-logs/continuation-faq-expansion-readiness-typecheck.log"
+    "docs/implementation/v3/m05-logs/continuation-faq-expansion-readiness-typecheck.log",
+    "docs/implementation/v3/M05-windows-ci-43726164418.json"
   ],
   "activationApproval": false,
   "limitations": [
-    "Windows run 43721299625 passes all eight jobs on the exact combined M05/M09/M11 code/test/workflow cut. Its source and command evidence are distinct from installed-desktop and live activation proof.",
-    "Code and synthetic browser review do not establish installed-desktop or live-provider quality/cost.",
+    "Windows run 43726164418 passes all eight jobs on the exact combined M05/M09/M11 code/test/workflow cut, including both browser fixture repairs. Its source and command evidence are distinct from installed-desktop and live activation proof.",
+    "Code and synthetic browser review do not establish actual native FILE capture, installed-desktop execution or live-provider quality/cost.",
     "Both M05 host flags remain false.",
-    "Run 43723377122 remains a failed historical baseline. Its separate initial-navigation budget is exercised successfully in run 43724428807.",
-    "Run 43724428807 verifies the startup repair but retains one FAQ readiness failure. The new assertion observes actual modal focus before Escape; no new browser PASS is claimed before its exact-head Windows run."
+    "All prior failed Windows attempts remain failed historical evidence. The two later fixture repairs execute successfully in run 43726164418."
   ],
   "additionalReviewers": [
     "ui_audit",
@@ -193,17 +193,17 @@
     "remainingProofGates": [
       "Actual native FILE capture",
       "Installed desktop",
-      "Authorized live repeated-task quality and total auxiliary cost",
-      "Windows execution of the current FAQ expansion-readiness repair"
+      "Authorized live repeated-task quality and total auxiliary cost"
     ]
   },
   "acceptedMainSha": "399cde39ff4ee82272c7a7700944325c44b36070",
   "integratedWindowsCI": {
-    "runId": 43721299625,
-    "headSha": "a0755d344513feced0f79717cf90d39f64cfe619",
-    "checkoutSha": "887a831e29b6f13ee75cd645e641aeb71855cbfb",
-    "treeSha": "c391fa72e7fa1e263442195a119adfc1aa073cd0",
+    "runId": 43726164418,
+    "headSha": "d081973eedf23c684986076424cbbec9db7af951",
+    "checkoutSha": "9caea6e081805c19a961030fe61fa9fa856153e1",
+    "treeSha": "ffac9062087884b98f2ba73eb1c03e5219b43edb",
     "jobsPassed": 8,
+    "jobsFailed": 0,
     "application": {
       "passed": 3746,
       "skipped": 39,
@@ -212,30 +212,41 @@
     "browser": {
       "passed": 267,
       "skipped": 2,
-      "failed": 0
+      "failed": 0,
+      "flaky": 0
     },
     "hermesContractsPassed": 33,
     "policyPluginTestsPassed": 37,
-    "observedCommandsImported": 24
+    "observedCommandsImported": 24,
+    "startupBaseline": "All 29 cases pass; first case whole-test duration 6,836 ms, not navigation duration.",
+    "faqReadiness": "Exact focused Collapse assertion and all retained draft/branch/focus-return assertions pass; whole-test duration 2.2 s."
   },
   "latestWindowsAttempt": {
-    "runId": 43724428807,
-    "headSha": "2e210878eaef60c63e0d02ac2737f9fe6188a96d",
-    "treeSha": "236d62b5ead175670ddfe258848492fae366a835",
-    "jobsPassed": 7,
-    "jobsFailed": 1,
+    "runId": 43726164418,
+    "headSha": "d081973eedf23c684986076424cbbec9db7af951",
+    "checkoutSha": "9caea6e081805c19a961030fe61fa9fa856153e1",
+    "treeSha": "ffac9062087884b98f2ba73eb1c03e5219b43edb",
+    "jobsPassed": 8,
+    "jobsFailed": 0,
     "application": {
       "passed": 3746,
       "skipped": 39,
       "failed": 0
     },
     "browser": {
-      "passed": 266,
-      "failed": 1,
-      "skipped": 2
+      "passed": 267,
+      "skipped": 2,
+      "failed": 0,
+      "flaky": 0
     },
-    "priorStartupRepair": "All 29 split baseline cases pass; first case whole-test duration 6281ms, not navigation duration.",
-    "failure": "FAQ Escape was sent while the artifact was still inline; the expanded snapshot arrived afterward and no collapse command was sent.",
-    "currentRepairValidation": "One exact Collapse artifact focus assertion added; full typecheck passes; exact-head Windows browser execution remains pending."
-  }
+    "hermesContractsPassed": 33,
+    "policyPluginTestsPassed": 37,
+    "observedCommandsImported": 24,
+    "startupBaseline": "All 29 cases pass; first case whole-test duration 6,836 ms, not navigation duration.",
+    "faqReadiness": "Exact focused Collapse assertion and all retained draft/branch/focus-return assertions pass; whole-test duration 2.2 s."
+  },
+  "priorFailedWindowsAttemptRefs": [
+    "docs/implementation/v3/M05-windows-ci-43723377122.json",
+    "docs/implementation/v3/M05-windows-ci-43724428807.json"
+  ]
 }
