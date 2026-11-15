@@ -28,6 +28,8 @@
 .agents-agent-state { font-size: 12px; color: var(--muted); text-transform: capitalize; white-space: nowrap; }
 .agents-agent-state[data-state="failed"] { color: var(--danger); }
 .agents-agent-state[data-state="needs_review"], .agents-agent-state[data-state="awaiting_input"] { color: var(--pending); }
+.agents-agent-state[data-state="working"] { color: var(--accent-fg); }
+.agents-agent-state[data-state="completed"] { color: var(--success-fg); }
 .agents-activity { margin: 0 12px 8px; color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
 .agents-activity p { line-height: 1.5; }
 .agents-model { display: block; margin-bottom: 4px; }

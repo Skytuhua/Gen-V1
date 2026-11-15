@@ -98,6 +98,16 @@ describe('T14 agents work-state stopped and needs-input semantics',()=>{
   expect(match,'WAITING_HUMAN rule exists').not.toBeNull();
   expect(match![1],'needs-input must use the fixed amber').toContain('var(--warning-fg)');
  });
+ it('working agent status uses the fixed running blue',()=>{
+  const match=css().match(/\.agents-agent-state\[data-state="working"\]\s*\{([^}]+)\}/);
+  expect(match,'working agent-state rule exists').not.toBeNull();
+  expect(match![1],'working must use the fixed running blue').toContain('var(--accent-fg)');
+ });
+ it('completed agent status uses the fixed green',()=>{
+  const match=css().match(/\.agents-agent-state\[data-state="completed"\]\s*\{([^}]+)\}/);
+  expect(match,'completed agent-state rule exists').not.toBeNull();
+  expect(match![1],'completed must use the fixed green').toContain('var(--success-fg)');
+ });
 });
 it('accepts explicit numeric column metadata without treating text codes as numbers',()=>{
   const spec={root:'table',elements:{table:{type:'Table',props:{rowsBinding:'rows',columns:[{key:'count',label:'Count',type:'number'},{key:'code',label:'Code'}]}}}};
