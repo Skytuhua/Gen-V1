@@ -231,3 +231,90 @@ for (const [theme, width, height, zoom] of [['dark', 1440, 900, 1], ['light', 10
   await page.screenshot({path: info.outputPath(`agents-${theme}-${width}-${zoom}.png`)});
  });
 }
+
+test('a child input acknowledgement preserves a newer draft', async ({page}) => {
+ const fixtureHost = await setup(page, false, false, true);
+ let finish!: () => void;
+ const acknowledgement = new Promise<void>(resolve => {finish = resolve;});
+ const sent: unknown[] = [];
+ await page.route('**/api/agent-work?taskId=parent-00', route => route.fulfill({json: {
+  enabled: true, roles: {}, budget: {reservedTokens: 0}, works: [{
+   workId: 'demo-child', role: 'QA', state: 'RUNNING', steerSupported: true,
+   owner: {threadId: 'child-active'}, budget: {tokens: null}, evidence: {refs: 0},
+  }],
+ }}));
+ await page.route(/\/api\/agent-work\/(plan|messages|inputs)\?/, route => route.fulfill({json: {extension: false, messages: [], inputs: []}}));
+ await page.route('**/api/commands', async route => {
+  const command = route.request().postDataJSON();
+  sent.push(command.payload);
+  await acknowledgement;
+  await route.fulfill({json: {commandId: command.id, eventSeq: 11, result: null}});
+ });
+ try {
+  fixtureHost.release();
+  await page.getByRole('button', {name: 'Agent work · 1', exact: true}).click();
+  const work = page.getByRole('region', {name: 'Agent work', exact: true});
+  const input = work.getByRole('textbox', {name: 'Message work demo-child'});
+  const queue = work.getByRole('button', {name: 'Queue next'});
+  await input.fill('First instruction');
+  await queue.click();
+  await expect.poll(() => sent.length).toBe(1);
+  await expect(queue).toBeDisabled();
+  await expect(work.getByRole('button', {name: 'Steer now'})).toBeDisabled();
+  await input.fill('Draft for later');
+  const response = page.waitForResponse('**/api/commands');
+  const refreshed = page.waitForResponse('**/api/agent-work?taskId=parent-00');
+  finish();
+  expect((await response).ok()).toBe(true);
+  expect((await refreshed).ok()).toBe(true);
+  await expect(queue).toBeEnabled();
+  await expect(input).toHaveValue('Draft for later');
+  expect(sent[0]).toMatchObject({workId: 'demo-child', kind: 'FOLLOW_UP', text: 'First instruction'});
+ } finally {finish();}
+});
+
+test('a message board post acknowledgement preserves edits for the next post', async ({page}) => {
+ const fixtureHost = await setup(page, false, false, true);
+ let finish!: () => void;
+ const acknowledgement = new Promise<void>(resolve => {finish = resolve;});
+ const sent: unknown[] = [];
+ await page.route('**/api/agent-work?taskId=parent-00', route => route.fulfill({json: {
+  enabled: true, roles: {}, budget: {reservedTokens: 0}, works: [{
+   workId: 'demo-child', role: 'QA', state: 'VERIFIED', owner: {threadId: 'child-active'},
+   budget: {tokens: null}, evidence: {refs: 0},
+  }],
+ }}));
+ await page.route(/\/api\/agent-work\/(plan|messages)\?/, route => route.fulfill({json: {extension: false, messages: []}}));
+ await page.route('**/api/commands', async route => {
+  const command = route.request().postDataJSON();
+  sent.push(command.payload);
+  await acknowledgement;
+  await route.fulfill({json: {commandId: command.id, eventSeq: 11, result: null}});
+ });
+ try {
+  fixtureHost.release();
+  await page.getByRole('button', {name: 'Agent work · 1', exact: true}).click();
+  const work = page.getByRole('region', {name: 'Agent work', exact: true});
+  await work.getByText('Message board · 0', {exact: true}).click();
+  await work.getByRole('combobox', {name: 'Recipient', exact: true}).click();
+  await page.getByRole('option', {name: 'QA child-ac', exact: true}).click();
+  const topic = work.getByRole('textbox', {name: 'Topic', exact: true});
+  const message = work.getByRole('textbox', {name: 'Message', exact: true});
+  const post = work.getByRole('button', {name: 'Post', exact: true});
+  await topic.fill('First topic');
+  await message.fill('First note');
+  await post.click();
+  await expect.poll(() => sent.length).toBe(1);
+  await expect(post).toBeDisabled();
+  await message.fill('Next note');
+  const response = page.waitForResponse('**/api/commands');
+  const refreshed = page.waitForResponse('**/api/agent-work?taskId=parent-00');
+  finish();
+  expect((await response).ok()).toBe(true);
+  expect((await refreshed).ok()).toBe(true);
+  await expect(post).toBeEnabled();
+  await expect(message).toHaveValue('Next note');
+  await expect(topic).toHaveValue('First topic');
+  expect(sent[0]).toMatchObject({recipientThreadId: 'child-active', topic: 'First topic', text: 'First note'});
+ } finally {finish();}
+});
