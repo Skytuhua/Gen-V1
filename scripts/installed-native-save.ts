@@ -9,7 +9,8 @@ const DIALOG_TITLE = 'Export project memory';
 const PHASES = ['ready', 'dialog-found', 'file-name-set', 'save-invoked', 'dialog-closed', 'target-released'] as const;
 const REASONS = ['startup-failed', 'owner-changed', 'existing-dialog', 'dialog-timeout', 'ambiguous-dialog', 'dialog-ownership', 'unknown-controls', 'target-exists', 'target-changed', 'action-failed', 'dialog-close-timeout'] as const;
 const controlSchema = z.strictObject({controlType: z.enum(['edit', 'button']), automationId: z.string().regex(/^(?:[A-Za-z0-9_-]{0,64}|<other>)$/), name: z.enum(['File name:', 'Save', 'Cancel', '<other>']), className: z.string().regex(/^(?:[A-Za-z0-9_.#-]{0,64}|<other>)$/), pid: z.number().int().positive(), enabled: z.boolean()});
-const eventSchema = z.strictObject({phase: z.enum([...PHASES, 'failed']), pid: z.number().int().positive(), processStartTicks: z.string().regex(/^[0-9]{15,20}$/).nullable(), dialogHandle: z.string().regex(/^-?[1-9][0-9]{0,19}$/).nullable(), elapsedMs: z.number().int().min(0).max(75000), reason: z.enum(REASONS).optional(), controls: z.array(controlSchema).max(24).optional()});
+const focusSchema = z.strictObject({control: z.enum(['edit', 'save']), hasKeyboardFocus: z.boolean(), owner: z.boolean(), handle: z.string().regex(/^-?[1-9][0-9]{0,19}$/).nullable(), matches: z.boolean()});
+const eventSchema = z.strictObject({phase: z.enum([...PHASES, 'failed']), pid: z.number().int().positive(), processStartTicks: z.string().regex(/^[0-9]{15,20}$/).nullable(), dialogHandle: z.string().regex(/^-?[1-9][0-9]{0,19}$/).nullable(), elapsedMs: z.number().int().min(0).max(75000), reason: z.enum(REASONS).optional(), controls: z.array(controlSchema).max(24).optional(), focus: focusSchema.optional()});
 type NativeSaveEvent = z.infer<typeof eventSchema>;
 export type InstalledNativeSaveObservation = {status: 'running' | 'completed' | 'failed'; pid: number; processStartTicks: string | null; dialogHandle: string | null; dialogTitle: typeof DIALOG_TITLE; events: NativeSaveEvent[]; failure?: typeof REASONS[number]};
 export type InstalledNativeOwner = {pid: number; executable: string; isAlive: () => boolean};
@@ -61,6 +62,7 @@ export function parseInstalledNativeSaveTranscript(raw: string, pid: number): In
     let event: NativeSaveEvent;
     try {event = eventSchema.parse(JSON.parse(line));} catch {throw invalid();}
     if (value.status !== 'running' || event.pid !== pid || event.controls?.some(control => control.pid !== pid) || event.elapsedMs < elapsed || value.processStartTicks !== null && event.processStartTicks !== value.processStartTicks || value.dialogHandle !== null && event.dialogHandle !== value.dialogHandle) throw invalid();
+    if (event.focus && (!event.focus.owner && event.focus.handle !== null || event.phase !== 'failed' && (event.phase !== 'file-name-set' && event.phase !== 'save-invoked' || event.focus.control !== (event.phase === 'file-name-set' ? 'edit' : 'save') || !event.focus.owner || !event.focus.matches || !event.focus.hasKeyboardFocus || !event.focus.handle))) throw invalid();
     if (event.phase === 'failed') {
       if (!event.reason) throw invalid();
       value.status = 'failed'; value.failure = event.reason;
@@ -77,23 +79,25 @@ export function parseInstalledNativeSaveTranscript(raw: string, pid: number): In
 // Its root lease pins the existing owner receipt to keep the writable root nonempty.
 // Data/list handle access enforces sharing denial; attribute-only opens would not.
 // Keep the compiled caller frame while .NET Framework discovers its native control providers.
+// Focus only the admitted edit and Save controls, retaining exact owner/handle evidence.
 const NATIVE_SAVE_SCRIPT = String.raw`
 using namespace System.Windows.Automation
 $ErrorActionPreference='Stop'
-$clock=[Diagnostics.Stopwatch]::StartNew()
-$owner=0; $ticks0=$null; $dialogHandle=$null; $reason='startup-failed'; $controls=@(); $lease=$null
+$sw=[Diagnostics.Stopwatch]::StartNew()
+$o=0; $ticks0=$null; $dh=$null; $reason='startup-failed'; $cs=@(); $lease=$null; $fc=$null
 function Fail([string]$reason) { $script:reason=$reason; throw 'Native Save verification refused.' }
 function Emit([string]$phase) {
-  $entry=[ordered]@{phase=$phase;pid=$owner;processStartTicks=$ticks0;dialogHandle=$dialogHandle;elapsedMs=[int]$clock.ElapsedMilliseconds}
-  if($phase -eq 'failed'){$entry.reason=$reason;if($controls.Count){$entry.controls=@($controls)}}
+  $entry=[ordered]@{phase=$phase;pid=$o;processStartTicks=$ticks0;dialogHandle=$dh;elapsedMs=[int]$sw.ElapsedMilliseconds}
+  if($phase -eq 'failed'){$entry.reason=$reason;if($cs.Count){$entry.controls=@($cs)}}
+  if($fc -and $phase -in @('file-name-set','save-invoked','failed')){$entry.focus=$fc}
   [Console]::Out.WriteLine(($entry|ConvertTo-Json -Depth 5 -Compress));[Console]::Out.Flush()
 }
 try {
-  $inputText=[Console]::In.ReadLine();if($inputText.Length -gt 8192){Fail 'startup-failed'}
-  $request=$inputText|ConvertFrom-Json
-  if(@($request.psobject.Properties).Count -ne 6){Fail 'startup-failed'}
-  $owner=[int]$request.pid; $image0=[string]$request.executable; $rootPath=[string]$request.directory; $target=[string]$request.target
-  if($owner -le 0 -or -not [IO.Path]::IsPathRooted($image0) -or -not [IO.Path]::IsPathRooted($rootPath) -or $target -cne [IO.Path]::Combine($rootPath,'installed-memory-redacted-export.json')){Fail 'startup-failed'}
+  $it=[Console]::In.ReadLine();if($it.Length -gt 8192){Fail 'startup-failed'}
+  $r=$it|ConvertFrom-Json
+  if(@($r.psobject.Properties).Count -ne 6){Fail 'startup-failed'}
+  $o=[int]$r.pid; $image0=[string]$r.executable; $rp=[string]$r.directory; $t=[string]$r.target
+  if($o -le 0 -or -not [IO.Path]::IsPathRooted($image0) -or -not [IO.Path]::IsPathRooted($rp) -or $t -cne [IO.Path]::Combine($rp,'installed-memory-redacted-export.json')){Fail 'startup-failed'}
   Add-Type -AssemblyName UIAutomationClient,UIAutomationTypes
   $u=[AutomationElement].Assembly
   $p=[Reflection.AssemblyName]::new($u.FullName);$p.Name='UIAutomationClientsideProviders'
@@ -166,107 +170,120 @@ public sealed class RootLease : IDisposable {
 }
 '@ | Out-Null
   [SaveOwner]::Register($p)
-  try { $lease=[RootLease]::new($rootPath,[string]$request.dev,[string]$request.ino) } catch { Fail 'target-changed' }
-  function Check-Owner {
+  try { $lease=[RootLease]::new($rp,[string]$r.dev,[string]$r.ino) } catch { Fail 'target-changed' }
+  function Owner {
     try {
-      $process=[Diagnostics.Process]::GetProcessById($owner)
-      try { if($process.HasExited){Fail 'owner-changed'}; $image=$process.MainModule.FileName; $ticks=[string]$process.StartTime.ToUniversalTime().Ticks }
-      finally { $process.Dispose() }
-      if(-not [string]::Equals($image,$image0,[StringComparison]::OrdinalIgnoreCase)){Fail 'owner-changed'}
-      if($null -ne $script:ticks0 -and $script:ticks0 -cne $ticks){Fail 'owner-changed'}
-      $script:ticks0=$ticks
+      $pr=[Diagnostics.Process]::GetProcessById($o)
+      try { if($pr.HasExited){Fail 'owner-changed'}; $im=$pr.MainModule.FileName; $tk=[string]$pr.StartTime.ToUniversalTime().Ticks }
+      finally { $pr.Dispose() }
+      if(-not [string]::Equals($im,$image0,[StringComparison]::OrdinalIgnoreCase)){Fail 'owner-changed'}
+      if($null -ne $script:ticks0 -and $script:ticks0 -cne $tk){Fail 'owner-changed'}
+      $script:ticks0=$tk
     } catch { Fail 'owner-changed' }
   }
-  function Check-Target {
+  function Target {
     try { $lease.Check() } catch { Fail 'target-changed' }
-    $root=Get-Item -LiteralPath $rootPath -Force
-    if(-not $root.PSIsContainer -or ($root.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0 -or -not [string]::Equals($root.FullName,$rootPath,[StringComparison]::OrdinalIgnoreCase)){Fail 'target-changed'}
-    if(Test-Path -LiteralPath $target){Fail 'target-exists'}
+    $root=Get-Item -LiteralPath $rp -Force
+    if(-not $root.PSIsContainer -or ($root.Attributes -band [IO.FileAttributes]::ReparsePoint) -ne 0 -or -not [string]::Equals($root.FullName,$rp,[StringComparison]::OrdinalIgnoreCase)){Fail 'target-changed'}
+    if(Test-Path -LiteralPath $t){Fail 'target-exists'}
   }
-  function Find-Dialogs {
-    $found=[Collections.ArrayList]::new()
-    foreach($handle in [SaveOwner]::Windows([uint32]$owner)) {
-      try { $dialog=[AutomationElement]::FromHandle($handle);$info=$dialog.Current } catch { continue }
-      if($info.ProcessId -eq $owner -and $info.Name -ceq 'Export project memory' -and $info.ControlType -eq [ControlType]::Window){[void]$found.Add($dialog)}
+  function Dialogs {
+    $a=[Collections.ArrayList]::new()
+    foreach($handle in [SaveOwner]::Windows([uint32]$o)) {
+      try { $d=[AutomationElement]::FromHandle($handle);$info=$d.Current } catch { continue }
+      if($info.ProcessId -eq $o -and $info.Name -ceq 'Export project memory' -and $info.ControlType -eq [ControlType]::Window){[void]$a.Add($d)}
     }
-    return ,$found
+    return ,$a
   }
-  function Check-Dialog($dialog) {
-    Check-Owner
-    $current=$dialog.Current
-    if($current.ProcessId -ne $owner -or $current.Name -cne 'Export project memory' -or $current.NativeWindowHandle -eq 0 -or [SaveOwner]::Read($current.NativeWindowHandle) -ne $owner){Fail 'dialog-ownership'}
-    $handle=[string]$current.NativeWindowHandle
-    if($null -ne $script:dialogHandle -and $script:dialogHandle -cne $handle){Fail 'dialog-ownership'}
-    $script:dialogHandle=$handle
+  function Dialog($d) {
+    Owner
+    $cu=$d.Current
+    if($cu.ProcessId -ne $o -or $cu.Name -cne 'Export project memory' -or $cu.NativeWindowHandle -eq 0 -or [SaveOwner]::Read($cu.NativeWindowHandle) -ne $o){Fail 'dialog-ownership'}
+    $handle=[string]$cu.NativeWindowHandle
+    if($null -ne $script:dh -and $script:dh -cne $handle){Fail 'dialog-ownership'}
+    $script:dh=$handle
   }
-  function Capture-Controls($dialog) {
-    $condition=[OrCondition]::new([Condition[]]@(
+  function Capture($d) {
+    $cond=[OrCondition]::new([Condition[]]@(
       [PropertyCondition]::new([AutomationElement]::ControlTypeProperty,[ControlType]::Edit),
       [PropertyCondition]::new([AutomationElement]::ControlTypeProperty,[ControlType]::Button)))
-    $found=$dialog.FindAll([TreeScope]::Descendants,$condition); $items=@()
-    for($index=0;$index -lt [Math]::Min(24,$found.Count);$index++) {
-      $info=$found.Item($index).Current
-      if($info.ProcessId -ne $owner){continue}
+    $a=$d.FindAll([TreeScope]::Descendants,$cond); $items=@()
+    for($ix=0;$ix -lt [Math]::Min(24,$a.Count);$ix++) {
+      $info=$a.Item($ix).Current
+      if($info.ProcessId -ne $o){continue}
       $id=$info.AutomationId;if($id -notmatch '^[A-Za-z0-9_-]{0,64}$'){$id='<other>'}
       $class=$info.ClassName;if($class -notmatch '^[A-Za-z0-9_.#-]{0,64}$'){$class='<other>'}
       $name=$info.Name;if($name -cnotin @('File name:','Save','Cancel')){$name='<other>'}
       $kind='button';if($info.ControlType -eq [ControlType]::Edit){$kind='edit'}
       $items+=@{controlType=$kind;automationId=$id;name=$name;className=$class;pid=$info.ProcessId;enabled=$info.IsEnabled}
     }
-    $script:controls=$items
+    $script:cs=$items
   }
-  function Save-Controls($dialog) {
-    Check-Dialog $dialog
-    $fileTest=[AndCondition]::new([Condition[]]@(
+  function Controls($d) {
+    Dialog $d
+    $ft=[AndCondition]::new([Condition[]]@(
       [PropertyCondition]::new([AutomationElement]::ControlTypeProperty,[ControlType]::Edit),
       [PropertyCondition]::new([AutomationElement]::AutomationIdProperty,'1001'),
       [PropertyCondition]::new([AutomationElement]::NameProperty,'File name:')))
-    $saveTest=[AndCondition]::new([Condition[]]@(
+    $st=[AndCondition]::new([Condition[]]@(
       [PropertyCondition]::new([AutomationElement]::ControlTypeProperty,[ControlType]::Button),
       [PropertyCondition]::new([AutomationElement]::AutomationIdProperty,'1'),
       [PropertyCondition]::new([AutomationElement]::NameProperty,'Save')))
-    $file=$dialog.FindAll([TreeScope]::Descendants,$fileTest); $save=$dialog.FindAll([TreeScope]::Descendants,$saveTest)
-    if($file.Count -ne 1 -or $save.Count -ne 1){Capture-Controls $dialog;Fail 'unknown-controls'}
-    $edit=$file.Item(0); $button=$save.Item(0)
-    if($edit.Current.ProcessId -ne $owner -or $button.Current.ProcessId -ne $owner -or -not $edit.Current.IsEnabled -or -not $button.Current.IsEnabled){Capture-Controls $dialog;Fail 'unknown-controls'}
-    $value=$null; $invoke=$null
-    if(-not $edit.TryGetCurrentPattern([ValuePattern]::Pattern,[ref]$value) -or $value.Current.IsReadOnly -or -not $button.TryGetCurrentPattern([InvokePattern]::Pattern,[ref]$invoke)){Capture-Controls $dialog;Fail 'unknown-controls'}
-    $parent=[SaveOwner]::GetParent([IntPtr]::new($edit.Current.NativeWindowHandle))
-    if($parent -eq [IntPtr]::Zero -or [SaveOwner]::Read($parent.ToInt32()) -ne $owner){Fail 'unknown-controls'}
-    $combo=[AutomationElement]::FromHandle($parent);$c=$combo.Current
-    if($c.ProcessId -ne $owner -or $c.NativeWindowHandle -ne $parent.ToInt32() -or $c.ControlType -ne [ControlType]::ComboBox -or $c.AutomationId -cne 'FileNameControlHost' -or $c.Name -cne 'File name:' -or -not $c.IsEnabled){Fail 'unknown-controls'}
-    $comboValue=$null
-    if(-not $combo.TryGetCurrentPattern([ValuePattern]::Pattern,[ref]$comboValue) -or $comboValue.Current.IsReadOnly){Fail 'unknown-controls'}
-    return @{value=$value;combo=$comboValue;invoke=$invoke}
+    $fe=$d.FindAll([TreeScope]::Descendants,$ft); $sa=$d.FindAll([TreeScope]::Descendants,$st)
+    if($fe.Count -ne 1 -or $sa.Count -ne 1){Capture $d;Fail 'unknown-controls'}
+    $edit=$fe.Item(0); $b=$sa.Item(0)
+    if($edit.Current.ProcessId -ne $o -or $b.Current.ProcessId -ne $o -or -not $edit.Current.IsEnabled -or -not $b.Current.IsEnabled){Capture $d;Fail 'unknown-controls'}
+    $v=$null; $iv=$null
+    if(-not $edit.TryGetCurrentPattern([ValuePattern]::Pattern,[ref]$v) -or $v.Current.IsReadOnly -or -not $b.TryGetCurrentPattern([InvokePattern]::Pattern,[ref]$iv)){Capture $d;Fail 'unknown-controls'}
+    $ph=[SaveOwner]::GetParent([IntPtr]::new($edit.Current.NativeWindowHandle))
+    if($ph -eq [IntPtr]::Zero -or [SaveOwner]::Read($ph.ToInt32()) -ne $o){Fail 'unknown-controls'}
+    $cb=[AutomationElement]::FromHandle($ph);$c=$cb.Current
+    if($c.ProcessId -ne $o -or $c.NativeWindowHandle -ne $ph.ToInt32() -or $c.ControlType -ne [ControlType]::ComboBox -or $c.AutomationId -cne 'FileNameControlHost' -or $c.Name -cne 'File name:' -or -not $c.IsEnabled){Fail 'unknown-controls'}
+    $cv=$null
+    if(-not $cb.TryGetCurrentPattern([ValuePattern]::Pattern,[ref]$cv) -or $cv.Current.IsReadOnly){Fail 'unknown-controls'}
+    return @{value=$v;combo=$cv;invoke=$iv;edit=$edit;button=$b}
   }
-  Check-Owner;Check-Target
-  $existing=Find-Dialogs;if($existing.Count -ne 0){Fail 'existing-dialog'}
-  Emit 'ready'; $findUntil=$clock.ElapsedMilliseconds+30000; $dialog=$null
-  while($clock.ElapsedMilliseconds -lt $findUntil -and $clock.ElapsedMilliseconds -lt 60000) {
-    Check-Owner; $dialogs=Find-Dialogs
-    if($dialogs.Count -gt 1){Fail 'ambiguous-dialog'}
-    if($dialogs.Count -eq 1){$dialog=$dialogs.Item(0);break}
+  function Focus($e,$k) {
+    Dialog $d;$e.SetFocus();$uf=$sw.ElapsedMilliseconds+2000
+    do {
+      Owner;$a=([AutomationElement]::FocusedElement).Current;$c=$e.Current
+      $own=$a.ProcessId -eq $o -and [SaveOwner]::Read($a.NativeWindowHandle) -eq $o
+      $h=$null;if($own -and $a.NativeWindowHandle){$h=[string]$a.NativeWindowHandle}
+      $ok=$own -and $a.NativeWindowHandle -eq $c.NativeWindowHandle -and $a.AutomationId -ceq $c.AutomationId -and $a.ControlType -eq $c.ControlType
+      $script:fc=@{control=$k;hasKeyboardFocus=$c.HasKeyboardFocus;owner=$own;handle=$h;matches=$ok}
+      if($ok -and $c.HasKeyboardFocus){Dialog $d;Target;return}
+      Start-Sleep -Milliseconds 100
+    } while($sw.ElapsedMilliseconds -lt $uf -and $sw.ElapsedMilliseconds -lt 60000)
+    Fail 'action-failed'
+  }
+  Owner;Target
+  $ex=Dialogs;if($ex.Count -ne 0){Fail 'existing-dialog'}
+  Emit 'ready'; $until=$sw.ElapsedMilliseconds+30000; $d=$null
+  while($sw.ElapsedMilliseconds -lt $until -and $sw.ElapsedMilliseconds -lt 60000) {
+    Owner; $ds=Dialogs
+    if($ds.Count -gt 1){Fail 'ambiguous-dialog'}
+    if($ds.Count -eq 1){$d=$ds.Item(0);break}
     Start-Sleep -Milliseconds 100
   }
-  if($null -eq $dialog){Fail 'dialog-timeout'}
-  Check-Dialog $dialog;Emit 'dialog-found'
-  $pair=Save-Controls $dialog;Check-Target
-  $reason='action-failed';$pair.combo.SetValue($target)
-  if($pair.value.Current.Value -cne $target -or $pair.combo.Current.Value -cne $target){Fail 'action-failed'}
+  if($null -eq $d){Fail 'dialog-timeout'}
+  Dialog $d;Emit 'dialog-found'
+  $x=Controls $d;Target
+  $reason='action-failed';Focus $x.edit 'edit';$x.combo.SetValue($t)
+  if($x.value.Current.Value -cne $t -or $x.combo.Current.Value -cne $t){Fail 'action-failed'}
   Emit 'file-name-set'
-  $dialogs=Find-Dialogs;if($dialogs.Count -ne 1){Fail 'ambiguous-dialog'}
-  $pair=Save-Controls ($dialogs.Item(0));Check-Target
-  if($pair.value.Current.Value -cne $target -or $pair.combo.Current.Value -cne $target){Fail 'action-failed'}
-  Emit 'save-invoked';$pair.invoke.Invoke()
-  while($clock.ElapsedMilliseconds -lt 60000) {
-    Check-Owner;$dialogs=Find-Dialogs
-    if($dialogs.Count -eq 0){
+  $ds=Dialogs;if($ds.Count -ne 1){Fail 'ambiguous-dialog'}
+  $x=Controls ($ds.Item(0));Target;Focus $x.button 'save'
+  if($x.value.Current.Value -cne $t -or $x.combo.Current.Value -cne $t){Fail 'action-failed'}
+  Emit 'save-invoked';$x.invoke.Invoke()
+  while($sw.ElapsedMilliseconds -lt 60000) {
+    Owner;$ds=Dialogs
+    if($ds.Count -eq 0){
       Emit 'dialog-closed'
       if([Console]::In.ReadLine() -cne 'release'){Fail 'action-failed'}
-      Check-Owner;$lease.Check();$lease.Dispose();Emit 'target-released';exit 0
+      Owner;$lease.Check();$lease.Dispose();Emit 'target-released';exit 0
     }
-    if($dialogs.Count -ne 1){Fail 'ambiguous-dialog'}
-    Check-Dialog ($dialogs.Item(0));Start-Sleep -Milliseconds 100
+    if($ds.Count -ne 1){Fail 'ambiguous-dialog'}
+    Dialog ($ds.Item(0));Start-Sleep -Milliseconds 100
   }
   Fail 'dialog-close-timeout'
 } catch { Emit 'failed';exit 1 } finally { if($null -ne $lease){$lease.Dispose()} }
