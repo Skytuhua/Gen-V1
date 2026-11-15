@@ -2,6 +2,9 @@ import {describe,it,expect} from 'vitest';
 import {mkdtemp,mkdir,writeFile,readFile,realpath,rename,symlink,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
+import {EventEmitter} from 'node:events';
+import {PassThrough} from 'node:stream';
+import type {ChildProcess} from 'node:child_process';
 import {nsisApplicationGuid,assertClearInstallPreflight,assertOwnedInstallEntries,installedCommandArguments,packageContentManifest,assertMatchingContents,parseOwnedUninstaller,assertInstalledCleanExit,assertZipDestinationFits,type InstallPreflight} from '../scripts/verify-installed-desktop.ts';
 import * as installedVerification from '../scripts/verify-installed-desktop.ts';
 import {Store} from '../packages/storage/store.ts';
@@ -11,6 +14,66 @@ import {registeredCapabilityFlags} from '../packages/core/capability-flags.ts';
 const directory='C:\\verification\\exclusive\\installed';
 const clear=():InstallPreflight=>({entries:[],runningAppPids:[],shortcuts:[],updaterCache:{path:'C:\\fixture\\generative-harness-desktop-updater',present:false}});
 describe('installed desktop verification custody',()=>{
+ it('records installer exit separately from close and never copies child text into lifecycle evidence',()=>{
+  const observe=(installedVerification as unknown as {observeOwnedProcess:(child:ChildProcess,phase:'installer',timeoutMs:number,clock:()=>number)=>{status:string;pid:number|null;spawnElapsedMs:number|null;exit:{elapsedMs:number;code:number|null;signal:string|null}|null;close:{elapsedMs:number;code:number|null;signal:string|null}|null;stdoutBytes:number;stderrBytes:number}}).observeOwnedProcess;
+  expect(typeof observe).toBe('function');
+  const fake=Object.assign(new EventEmitter(),{pid:123,stdout:new PassThrough(),stderr:new PassThrough()});
+  let now=100;const value=observe(fake as unknown as ChildProcess,'installer',600000,()=>now);
+  now=105;fake.emit('spawn');
+  fake.stdout.write('PRIVATE_SOURCE_BODY');fake.stderr.write('provider-secret=never-record');
+  now=110;fake.emit('exit',0,null);
+  expect(value).toMatchObject({status:'running',pid:123,spawnElapsedMs:5,exit:{elapsedMs:10,code:0,signal:null},close:null,stdoutBytes:19,stderrBytes:28});
+  now=200;fake.emit('close',0,null);
+  expect(value).toMatchObject({status:'completed',close:{elapsedMs:100,code:0,signal:null}});
+  expect(JSON.stringify(value)).not.toMatch(/PRIVATE_SOURCE_BODY|provider-secret|never-record/);
+  for(const state of [{exit:false,code:0,signal:null},{exit:true,code:7,signal:null},{exit:true,code:null,signal:'SIGTERM'}]){
+   const child=Object.assign(new EventEmitter(),{pid:124,stdout:new PassThrough(),stderr:new PassThrough()});
+   const failed=observe(child as unknown as ChildProcess,'installer',600000,()=>now);
+   child.emit('spawn');if(state.exit)child.emit('exit',state.code,state.signal);child.emit('close',state.code,state.signal);
+   expect(failed.status).toBe('failed');
+  }
+ });
+ it('preserves the first installer failure through later termination error, exit and close events',()=>{
+  for(const reason of ['deadline','output-bound'] as const){
+   const child=Object.assign(new EventEmitter(),{pid:123,stdout:new PassThrough(),stderr:new PassThrough()});
+   let now=100;const value=installedVerification.observeOwnedProcess(child as unknown as ChildProcess,'installer',600000,()=>now);
+   child.emit('spawn');value.status='failed';value.failure=reason;value.terminationRequested=true;
+   now=110;child.emit('error',Error('PRIVATE_TERMINATION_ERROR'));
+   now=120;child.emit('exit',null,'SIGTERM');now=130;child.emit('close',null,'SIGTERM');
+   expect(value).toMatchObject({status:'failed',failure:reason,terminationRequested:true,exit:{elapsedMs:20,code:null,signal:'SIGTERM'},close:{elapsedMs:30,code:null,signal:'SIGTERM'}});
+   expect(JSON.stringify(value)).not.toContain('PRIVATE_TERMINATION_ERROR');
+  }
+ });
+ it('samples a fixed bounded set of expected files without retaining source paths or adopting a replaced destination',async()=>{
+  const create=(installedVerification as unknown as {createInstalledPathProgressSampler:(directory:string,files:{path:string;bytes:number}[])=>Promise<(elapsedMs:number)=>Promise<Record<string,unknown>>>}).createInstalledPathProgressSampler;
+  expect(typeof create).toBe('function');
+  const fixture=await realpath(await mkdtemp(join(tmpdir(),'installed-progress-'))),destination=join(fixture,'owned');
+  try{
+   const files=Array.from({length:40},(_,index)=>({path:'PRIVATE_SOURCE_PATH_'+String(index).padStart(2,'0')+'.bin',bytes:10}));
+   const sample=await create(destination,files);
+   expect(await sample(0)).toMatchObject({root:'absent',sampledFiles:16,absent:16,sizeMatched:0,sizeMismatched:0,refused:0,uninstaller:'absent'});
+   await mkdir(destination);await writeFile(join(destination,files[0]!.path),'0123456789');await writeFile(join(destination,files.at(-1)!.path),'bad');await writeFile(join(destination,'Uninstall Gen V1.exe'),'stub');
+   const progress=await sample(30000);
+   expect(progress).toMatchObject({root:'ordinary',sampledFiles:16,absent:14,sizeMatched:1,sizeMismatched:1,refused:0,uninstaller:'regular'});
+   expect(JSON.stringify(progress)).not.toMatch(/PRIVATE_SOURCE_PATH|installed-progress|stub/);
+   await rename(destination,join(fixture,'original'));await mkdir(destination);
+   expect(await sample(120000)).toMatchObject({root:'refused',sampledFiles:16,refused:16,uninstaller:'refused'});
+  }finally{await rm(fixture,{recursive:true,force:true});}
+ });
+ it('refuses unsafe sample paths and redirected parents without following them',async()=>{
+  const create=(installedVerification as unknown as {createInstalledPathProgressSampler:(directory:string,files:{path:string;bytes:number}[])=>Promise<(elapsedMs:number)=>Promise<Record<string,unknown>>>}).createInstalledPathProgressSampler;
+  expect(typeof create).toBe('function');
+  const fixture=await realpath(await mkdtemp(join(tmpdir(),'installed-progress-redirect-'))),destination=join(fixture,'owned');
+  try{
+   await mkdir(destination);await mkdir(join(fixture,'outside'));await writeFile(join(fixture,'outside','PRIVATE_BODY.txt'),'x');
+   for(const path of ['../outside','/absolute','C:\\outside','a//b','a/../b'])await expect(create(destination,[{path,bytes:1}])).rejects.toThrow(/path|manifest/i);
+   await symlink(join(fixture,'outside'),join(destination,'redirect'),'junction');
+   const sample=await create(destination,[{path:'redirect/PRIVATE_BODY.txt',bytes:1}]);
+   const progress=await sample(30000);
+   expect(progress).toMatchObject({root:'ordinary',sampledFiles:1,refused:1,sizeMatched:0,uninstaller:'absent'});
+   expect(JSON.stringify(progress)).not.toMatch(/PRIVATE_BODY|outside|redirect/);
+  }finally{await rm(fixture,{recursive:true,force:true});}
+ });
  it('retains only bounded fixed preflight milestones without copying child output or commands',()=>{
   const parse=(installedVerification as unknown as {parseInstallPreflightProgress:(stderr:string)=>{phase:string;scriptElapsedMs:number}[]}).parseInstallPreflightProgress;
   expect(typeof parse).toBe('function');

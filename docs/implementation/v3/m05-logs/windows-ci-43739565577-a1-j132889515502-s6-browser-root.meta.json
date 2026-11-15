@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "pnpm",
+      "test:browser",
+      "--suite",
+      "root"
+    ],
+    "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+    "executableIdentity": "pnpm",
+    "startedAt": "2026-11-15T17:12:14Z",
+    "endedAt": "2026-11-15T17:19:28Z",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515502-s6-browser-root.log",
+    "logDigest": "f0137d38d49ffab32a9d32a5ebdbe00a6da68e3242a9a99e2ecd37e794fbc451"
+  },
+  "runId": 43739565577,
+  "runAttempt": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "headSha": "b2c81411b4783c12a56eda3f0e7cd54d66fe67b4",
+  "testedCheckout": {
+    "commitSha": "21b97981b0eebc48be38d5d98bb705abaa35f7c3",
+    "treeSha": "3a157a5a3be86368e8a4b1404ab2e8886b630bdc",
+    "parents": [
+      "399cde39ff4ee82272c7a7700944325c44b36070",
+      "b2c81411b4783c12a56eda3f0e7cd54d66fe67b4"
+    ],
+    "matchesPublishedTree": true,
+    "rawResponseRef": "/workspace/scratch/36f66011d961/m05-ci-43739565577/checkout-commit.json",
+    "rawResponseSha256": "04672cb2fb001ddd96014168ee36c5bedd31e819d56d015b5d1ab82f8dab8d00"
+  },
+  "job": {
+    "id": 132889515502,
+    "name": "Browser tests",
+    "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43739565577/job/132889515502",
+    "status": "completed",
+    "conclusion": "success",
+    "runner": {
+      "id": 1000001245,
+      "name": "GitHub Actions 1000001245",
+      "groupId": 0,
+      "groupName": "GitHub Actions",
+      "labels": [
+        "windows-latest"
+      ]
+    }
+  },
+  "step": {
+    "name": "Exercise project memory and affected context browser flows",
+    "status": "completed",
+    "conclusion": "success",
+    "number": 6,
+    "started_at": "2026-11-15T17:12:14Z",
+    "completed_at": "2026-11-15T17:19:28Z"
+  },
+  "receiptRef": "/workspace/scratch/36f66011d961/m05-continuation/docs/implementation/v3/M05-windows-ci-43739565577.json",
+  "receiptSha256": "b649808b547f9e8f468044e10de57059c21caca6d8d473b1763c5a611482370e",
+  "rawJobLogRef": "/workspace/scratch/36f66011d961/m05-ci-43739565577/job-132889515502.log",
+  "rawJobLogDigest": "e6922202eb3015716c201b2d1f2a1f4ffec8aacb7ff7321d070dbb8e3733dc68",
+  "rawJobLogBytes": 110836,
+  "rawPolicy": "Exact connector-decoded string encoded as UTF-8; BOM and original line endings retained. Original HTTP archive bytes are not available from this connector.",
+  "excerptLineRanges1BasedInclusive": [
+    [
+      575,
+      593
+    ],
+    [
+      764,
+      883
+    ]
+  ],
+  "excerptInputSha256": "c85553ab3002ee7973ed5e74f99ee51f985f350e56f982a3caaf9e0468a4d0b6",
+  "excerptInputBytes": 20414,
+  "transformations": [
+    "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+    "UTF8_BOM_REMOVED_IF_PRESENT",
+    "ANSI_REMOVED_IF_PRESENT",
+    "LINE_ENDINGS_NORMALIZED_TO_LF"
+  ],
+  "boundedBytes": 20187,
+  "timingBasis": "OBSERVED_CI_STEP_ENVELOPE",
+  "timingLimit": "startedAt/endedAt are jobs-API step bounds at source precision. Individual command process start/end and duration are not claimed, including subcommands sharing a step.",
+  "exitBasis": "Known wrapper checks each LASTEXITCODE; successful step proves all suite commands exited 0.",
+  "observedShell": "C:\\Program Files\\PowerShell\\7\\pwsh.EXE -command \". '{0}'\"",
+  "executableBasis": "Exact invoked command name; a resolved pnpm/Python executable path is not claimed.",
+  "cwdBasis": "Checkout working-directory line observed in this job; selected script contains no directory change.",
+  "observedScript": "$failedSuites = @()\nforeach ($suite in @('project-memory', 'usage-context', 'frontend-refinement', 'root')) {\n  pnpm test:browser --suite $suite\n  if ($LASTEXITCODE -ne 0) { $failedSuites += $suite }\n}\nif ($failedSuites.Count -gt 0) {\n  throw \"Failed browser suites: $($failedSuites -join ', ')\"\n}"
+}

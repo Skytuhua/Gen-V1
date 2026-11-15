@@ -72,7 +72,7 @@ describe('desktop distribution custody',()=>{
   expect(config.asar).toBe(true);
   expect(config.compression).toBe('normal');
   expect(config.win.target).toEqual([{target:'nsis',arch:['x64']}]);
-  expect(config.nsis).toMatchObject({perMachine:false,oneClick:true,allowElevation:false,useZip:true,differentialPackage:false,runAfterFinish:false,deleteAppDataOnUninstall:false});
+  expect(config.nsis).toMatchObject({perMachine:false,oneClick:true,allowElevation:false,useZip:false,differentialPackage:false,runAfterFinish:false,deleteAppDataOnUninstall:false});
   expect(config.npmRebuild).toBe(false);expect(config.files).toContain('!node_modules/**/*');
   expect(config.extraResources.map(row=>row.to)).toEqual(['host','host/node_modules','host/.harness-hermes-python-deps','host/.harness-integrations-python-deps','host/.harness-tool-bundles','node']);
   expect(config.directories.app).toBe('C:/build/desktop-app');

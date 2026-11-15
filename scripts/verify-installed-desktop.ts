@@ -3,7 +3,7 @@ import {spawn,type ChildProcess} from 'node:child_process';
 import {createReadStream} from 'node:fs';
 import {mkdir,readFile,writeFile,readdir,lstat,realpath,copyFile,unlink,rmdir} from 'node:fs/promises';
 import {createHash,randomUUID} from 'node:crypto';
-import {resolve,join,relative,isAbsolute,win32} from 'node:path';
+import {resolve,join,relative,isAbsolute,dirname,win32} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {terminateProcessTree} from '../packages/runtime-pi/process-tree.ts';
 import {SUBSCRIPTION_CONNECTIONS} from '../packages/contracts/connections.ts';
@@ -24,6 +24,73 @@ const PREFLIGHT_PHASES=['script-start','registry-complete','shortcuts-complete',
 type PreflightProgress={phase:typeof PREFLIGHT_PHASES[number];scriptElapsedMs:number};
 type PreflightStage='before-install'|'pre-install-recheck'|'after-install'|'before-uninstall'|'after-uninstall-poll'|'after-uninstall';
 type PreflightObservation={stage:PreflightStage;startedAt:string;timeoutMs:number;elapsedMs:number;status:'running'|'completed'|'failed';subphases:(PreflightProgress&{observedElapsedMs:number})[]};
+type OwnedPhase='verification'|'installation-preflight'|'installer'|'uninstaller';
+type ProcessEnd={elapsedMs:number;code:number|null;signal:NodeJS.Signals|null};
+type InstalledPathProgress={elapsedMs:number;durationMs:number;status:'completed'|'bounded'|'cancelled'|'failed';root:'absent'|'ordinary'|'refused';sampledFiles:number;absent:number;sizeMatched:number;sizeMismatched:number;refused:number;uninstaller:'absent'|'regular'|'refused'};
+type OwnedProcessObservation={phase:OwnedPhase;startedAt:string;timeoutMs:number;elapsedMs:number;status:'running'|'completed'|'failed';pid:number|null;spawnElapsedMs:number|null;exit:ProcessEnd|null;close:ProcessEnd|null;stdoutBytes:number;stderrBytes:number;failure:null|'spawn-error'|'deadline'|'output-bound'|'nonzero-exit'|'incomplete-exit';terminationRequested:boolean;pathProgress:InstalledPathProgress[]};
+
+function newOwnedProcessObservation(phase:OwnedPhase,timeoutMs:number,started:number):OwnedProcessObservation{
+ return {phase,startedAt:new Date(started).toISOString(),timeoutMs,elapsedMs:0,status:'running',pid:null,spawnElapsedMs:null,exit:null,close:null,stdoutBytes:0,stderrBytes:0,failure:null,terminationRequested:false,pathProgress:[]};
+}
+/** Exit and pipe closure are separate evidence. Child text is deliberately absent. */
+export function observeOwnedProcess(child:ChildProcess,phase:OwnedPhase,timeoutMs:number,clock:()=>number=Date.now,observation=newOwnedProcessObservation(phase,timeoutMs,clock())){
+ const elapsed=()=>Math.max(0,clock()-Date.parse(observation.startedAt));
+ child.once('spawn',()=>{observation.pid=child.pid??null;observation.spawnElapsedMs=elapsed();});
+ child.once('error',()=>{if(observation.status!=='running')return;observation.status='failed';observation.failure='spawn-error';});
+ child.stdout?.on('data',(chunk:Buffer)=>{observation.stdoutBytes+=chunk.length;});
+ child.stderr?.on('data',(chunk:Buffer)=>{observation.stderrBytes+=chunk.length;});
+ child.once('exit',(code,signal)=>{observation.exit={elapsedMs:elapsed(),code,signal};});
+ child.once('close',(code,signal)=>{
+  observation.close={elapsedMs:elapsed(),code,signal};observation.elapsedMs=elapsed();
+  if(observation.status!=='running')return;
+  const clean=observation.exit?.code===0&&observation.exit.signal===null&&code===0&&signal===null;
+  observation.status=clean?'completed':'failed';if(!clean)observation.failure=observation.exit?'nonzero-exit':'incomplete-exit';
+ });
+ return observation;
+}
+
+/** Metadata-only samples of at most sixteen authenticated manifest paths and the fixed uninstaller. */
+export async function createInstalledPathProgressSampler(directory:string,files:readonly {path:string;bytes:number}[]){
+ if(!isAbsolute(directory)||files.length>150000||files.some(file=>!Number.isSafeInteger(file.bytes)||file.bytes<0||file.bytes>4*1024**3||file.path.split('/').length>64||file.path.split('/').some(part=>!part||part==='.'||part==='..')||/[\\:\x00-\x1f]/.test(file.path)))throw Error('Invalid installed progress manifest path.');
+ const parent=dirname(directory),parentStat=await lstat(parent,{bigint:true});
+ if(!parentStat.isDirectory()||parentStat.isSymbolicLink()||await realpath(parent)!==parent)throw Error('Installed progress parent is not an ordinary canonical directory.');
+ const sorted=[...files].sort((left,right)=>left.path<right.path?-1:left.path>right.path?1:0),count=Math.min(16,sorted.length);
+ const selected=Array.from({length:count},(_,index)=>sorted[count===1?0:Math.floor(index*(sorted.length-1)/(count-1))]!);
+ let rootIdentity:{dev:bigint;ino:bigint}|undefined;
+ return async(elapsedMs:number,active:()=>boolean=()=>true):Promise<InstalledPathProgress>=>{
+  const started=Date.now();let expired=false,checks=0;
+  const value:InstalledPathProgress={elapsedMs,durationMs:0,status:'completed',root:'absent',sampledFiles:count,absent:count,sizeMatched:0,sizeMismatched:0,refused:0,uninstaller:'absent'};
+  const guard=()=>{if(expired||!active()||++checks>1200)throw Error('Progress sample stopped.');};
+  const info=async(path:string)=>{guard();try{const stat=await lstat(path,{bigint:true});guard();return stat;}catch(error){guard();if((error as NodeJS.ErrnoException).code==='ENOENT')return null;throw error;}};
+  const refuse=()=>{value.root='refused';value.absent=0;value.sizeMatched=0;value.sizeMismatched=0;value.refused=count;value.uninstaller='refused';};
+  const root=async()=>{
+   const currentParent=await info(parent);
+   if(!currentParent?.isDirectory()||currentParent.isSymbolicLink()||currentParent.dev!==parentStat.dev||currentParent.ino!==parentStat.ino)return 'refused' as const;
+   const current=await info(directory);if(!current)return rootIdentity?'refused' as const:'absent' as const;
+   if(!current.isDirectory()||current.isSymbolicLink()||rootIdentity&&(current.dev!==rootIdentity.dev||current.ino!==rootIdentity.ino))return 'refused' as const;
+   rootIdentity??={dev:current.dev,ino:current.ino};return 'ordinary' as const;
+  };
+  const fileStatus=async(path:string)=>{
+   const parts=path.split('/');let current=directory;
+   for(const part of parts.slice(0,-1)){current=join(current,part);const stat=await info(current);if(!stat)return {kind:'absent' as const};if(!stat.isDirectory()||stat.isSymbolicLink())return {kind:'refused' as const};}
+   const stat=await info(join(current,parts.at(-1)!));
+   return !stat?{kind:'absent' as const}:stat.isSymbolicLink()||!stat.isFile()?{kind:'refused' as const}:{kind:'regular' as const,bytes:Number(stat.size)};
+  };
+  let timer:ReturnType<typeof setTimeout>|undefined;
+  const work=(async()=>{
+   try{
+    value.root=await root();if(value.root==='absent')return;if(value.root==='refused'){refuse();return;}
+    value.absent=0;
+    for(const file of selected){const status=await fileStatus(file.path);if(status.kind==='absent')value.absent++;else if(status.kind==='refused')value.refused++;else if(status.bytes===file.bytes)value.sizeMatched++;else value.sizeMismatched++;}
+    value.uninstaller=(await fileStatus(UNINSTALL_FILE)).kind;
+    if(await root()!=='ordinary')refuse();
+   }catch{value.status=expired?'bounded':!active()?'cancelled':'failed';}
+  })();
+  try{await Promise.race([work,new Promise<void>(accept=>{timer=setTimeout(()=>{expired=true;value.status='bounded';accept();},5000);})]);}
+  finally{if(timer)clearTimeout(timer);expired=true;}
+  return {...value,durationMs:Date.now()-started};
+ };
+}
 
 /** Diagnostic markers contain fixed names and bounded numbers, never probe output. */
 export function parseInstallPreflightProgress(stderr:string):PreflightProgress[]{
@@ -119,18 +186,26 @@ function baseEnvironment():NodeJS.ProcessEnv{
  for(const key of ['PATH','Path','SystemRoot','SYSTEMROOT','WINDIR','COMSPEC','PATHEXT','LANG','LC_ALL','TERM','TEMP','TMP','USERPROFILE','HOME','LOCALAPPDATA','APPDATA'])if(process.env[key]!==undefined)env[key]=process.env[key];
  return env;
 }
-async function runOwned(file:string,args:string[],options:{cwd:string;env:NodeJS.ProcessEnv;timeoutMs:number;rawTail?:boolean;phase?:'installation-preflight'|'installer'|'uninstaller';onStderr?:(stderr:string)=>void}){
- const started=Date.now(),child=spawn(file,args,{cwd:options.cwd,env:options.env,windowsHide:true,windowsVerbatimArguments:options.rawTail,stdio:['ignore','pipe','pipe']});
- const phase=options.phase??'verification';
- const output=await new Promise<{exitCode:number;stdout:string;stderr:string}>((accept,reject)=>{
+async function runOwned(file:string,args:string[],options:{cwd:string;env:NodeJS.ProcessEnv;timeoutMs:number;rawTail?:boolean;phase?:OwnedPhase;onStderr?:(stderr:string)=>void;onObservation?:(value:OwnedProcessObservation)=>void;sampleProgress?:(elapsedMs:number,active:()=>boolean)=>Promise<InstalledPathProgress>}){
+ const started=Date.now(),phase=options.phase??'verification',observation=newOwnedProcessObservation(phase,options.timeoutMs,started);options.onObservation?.(observation);
+ const child=spawn(file,args,{cwd:options.cwd,env:options.env,windowsHide:true,windowsVerbatimArguments:options.rawTail,stdio:['ignore','pipe','pipe']});
+ observeOwnedProcess(child,phase,options.timeoutMs,Date.now,observation);
+ const pending=new Set<Promise<void>>(),active=()=>observation.status==='running'&&observation.exit===null;
+ const progressTimers=options.sampleProgress?[30000,120000,300000,540000].filter(delay=>delay<options.timeoutMs).map(delay=>setTimeout(()=>{
+  if(!active()||pending.size)return;
+  const task=options.sampleProgress!(Date.now()-started,active).then(value=>{observation.pathProgress.push(value);},()=>{observation.pathProgress.push({elapsedMs:Date.now()-started,durationMs:0,status:'failed',root:'refused',sampledFiles:0,absent:0,sizeMatched:0,sizeMismatched:0,refused:0,uninstaller:'refused'});});
+  pending.add(task);void task.finally(()=>pending.delete(task));
+ },delay)):[];
+ try{const output=await new Promise<{exitCode:number;stdout:string;stderr:string}>((accept,reject)=>{
   let stdout='',stderr='',bytes=0,failed=false;
-  const fail=(error:Error)=>{if(failed)return;failed=true;clearTimeout(timer);void terminateProcessTree(child).then(()=>reject(error),reject);};
-  const timer=setTimeout(()=>fail(Error('Owned '+phase+' process exceeded its '+options.timeoutMs+' ms deadline.')),options.timeoutMs);
-  child.once('error',()=>fail(Error('Owned '+phase+' process could not start.')));
-  for(const stream of [child.stdout,child.stderr])stream.on('data',(chunk:Buffer)=>{bytes+=chunk.length;if(bytes>256*1024){fail(Error('Owned '+phase+' process exceeded its output bound.'));return;}if(stream===child.stdout)stdout+=String(chunk);else{stderr=(stderr+String(chunk)).slice(-16000);options.onStderr?.(stderr);}});
-  child.once('close',code=>{clearTimeout(timer);if(failed)return;failed=true;code===0?accept({exitCode:code,stdout,stderr}):reject(Error('Owned '+phase+' process exited '+code+'.'));});
+  const fail=(error:Error,reason:OwnedProcessObservation['failure'])=>{if(failed)return;failed=true;observation.status='failed';observation.failure=reason;observation.terminationRequested=true;clearTimeout(timer);void terminateProcessTree(child).then(()=>reject(error),reject);};
+  const timer=setTimeout(()=>fail(Error('Owned '+phase+' process exceeded its '+options.timeoutMs+' ms deadline.'),'deadline'),options.timeoutMs);
+  child.once('error',()=>fail(Error('Owned '+phase+' process could not start.'),'spawn-error'));
+  for(const stream of [child.stdout,child.stderr])stream.on('data',(chunk:Buffer)=>{bytes+=chunk.length;if(bytes>256*1024){fail(Error('Owned '+phase+' process exceeded its output bound.'),'output-bound');return;}if(stream===child.stdout)stdout+=String(chunk);else{stderr=(stderr+String(chunk)).slice(-16000);options.onStderr?.(stderr);}});
+  child.once('close',code=>{clearTimeout(timer);if(failed)return;failed=true;observation.status==='completed'&&code===0?accept({exitCode:code,stdout,stderr}):reject(Error('Owned '+phase+' process exited '+code+'.'));});
  });
  return {...output,elapsedMs:Date.now()-started};
+ }finally{for(const timer of progressTimers)clearTimeout(timer);await Promise.allSettled(pending);observation.elapsedMs=Date.now()-started;}
 }
 const REGISTRY_PROBE=String.raw`
 $ErrorActionPreference='Stop'
@@ -267,7 +342,8 @@ export async function verifyInstalledDesktop(setupPath:string,expectedUnpackedPa
   assertClearInstallPreflight(await preflight('pre-install-recheck'));
   if(!sameIdentity(await identity(setup),setupIdentity))throw Error('Installer changed since verification began.');
   await writeFile(join(ownedDirectory,'owner.json'),JSON.stringify({setup,setupSha256:setupIdentity.sha256,installDirectory,guid:nsisApplicationGuid(APP_ID)},null,2),{flag:'wx'});
-  installationInvoked=true;receipt.installCommand=await runOwned(setup,installedCommandArguments('install',installDirectory),{cwd:ownedDirectory,env:baseEnvironment(),timeoutMs:600000,rawTail:true,phase:'installer'});
+  const sampleProgress=await createInstalledPathProgressSampler(installDirectory,expected.files).catch(()=>undefined);receipt.installerProgressSetup=sampleProgress?'ready':'unavailable';
+  installationInvoked=true;receipt.installCommand=await runOwned(setup,installedCommandArguments('install',installDirectory),{cwd:ownedDirectory,env:baseEnvironment(),timeoutMs:600000,rawTail:true,phase:'installer',sampleProgress,onObservation:value=>{receipt.installerObservation=value;}});
   if(!sameWindowsPath(await realpath(installDirectory),installDirectory))throw Error('Installer did not create the exact ordinary owned directory.');
   const after=await preflight('after-install'),uninstaller=assertOwnedInstallEntries(after.entries,installDirectory,version);
   installedUninstaller={path:uninstaller,identity:await identity(uninstaller)};receipt.installedRegistry=after.entries;
