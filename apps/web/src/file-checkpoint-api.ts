@@ -96,7 +96,8 @@ const restorePlanPayloadSchema=z.strictObject({version:z.literal(1),id,checkpoin
 const restoreResultPayloadSchema=restorePlanPayloadSchema;
 export function readRestoreResult(value:unknown):{planId:string;state:string;conflicts:string[];restored:string[];preRestoreCheckpointId:string|null}{
   const result=restoreResultPayloadSchema.parse(value);
-  return{planId:result.id,state:result.state,conflicts:result.conflicts,restored:result.selectedPaths.filter(path=>!result.conflicts.includes(path)),preRestoreCheckpointId:result.preRestoreCheckpointId};
+  // On CONFLICT the service rolls every written path back — nothing was restored.
+  return{planId:result.id,state:result.state,conflicts:result.conflicts,restored:result.state==='CONFLICT'?[]:result.selectedPaths.filter(path=>!result.conflicts.includes(path)),preRestoreCheckpointId:result.preRestoreCheckpointId};
 }
 /** Live host adapter: speaks to the flag-gated /checkpoints/* routes. `base` is
  *  the project API root (e.g. /api/projects/<id>?threadId=... is folded in via query).
