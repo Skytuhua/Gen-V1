@@ -57,7 +57,7 @@ test('actual App started conversation keeps its owner and draft when another pro
 test('actual App Add project submits the existing connection command without a premature thread',async({page})=>{
  const h=await host(page,true);await page.getByRole('button',{name:'New thread',exact:true}).click();await page.getByRole('button',{name:'Add project',exact:true}).click();
  await page.getByLabel('Project name',{exact:true}).fill('Gamma');await page.getByLabel('Local folder',{exact:true}).fill('C:/Synthetic/Gamma');
- await page.getByRole('button',{name:'Connect project',exact:true}).click();
+ await page.getByRole('dialog',{name:'Connect project',exact:true}).getByRole('button',{name:'Connect project',exact:true}).click();
  await expect.poll(()=>h.commands.find(c=>c.type==='workspace.project.connect')?.payload).toEqual({name:'Gamma',path:'C:/Synthetic/Gamma',baseRevision:1});
  expect(h.commands.filter(c=>c.type==='thread.create')).toHaveLength(0);await expect(page.getByRole('dialog',{name:'Select project'})).toBeVisible();
 });
@@ -85,4 +85,27 @@ test('blocking project connection reserves the native caption at short height',a
  expect(samples.every(row=>row.top>=49.5&&row.bottom<=252.5&&row.left>=7.5&&row.right<=792.5)).toBe(true);
  expect(await dialog.evaluate(node=>node.contains(document.activeElement))).toBe(true);
  await page.keyboard.press('Escape');await expect(page.getByRole('dialog',{name:'Select project'})).toBeVisible();
+});
+
+test('shows project connection errors inside the active dialog and lets the user retry',async({page})=>{
+ const h=await host(page,true);
+ let attempts=0;
+ await page.route('**/api/workspace/commands',async route=>{
+  if(++attempts===1)return route.fulfill({status:400,json:{error:{code:'INVALID_INPUT',message:'Choose an existing project folder.'}}});
+  await route.fallback();
+ });
+ await page.getByRole('button',{name:'New thread',exact:true}).click();
+ await page.getByRole('button',{name:'Add project',exact:true}).click();
+ const dialog=page.getByRole('dialog',{name:'Connect project',exact:true});
+ await dialog.getByRole('textbox',{name:'Project name',exact:true}).fill('Gamma');
+ const folder=dialog.getByRole('textbox',{name:'Local folder',exact:true});
+ await folder.fill('C:/Synthetic/Missing');
+ await dialog.getByRole('button',{name:'Connect project',exact:true}).click();
+ await expect(dialog.getByRole('alert')).toHaveText('Choose an existing project folder.');
+ await expect(folder).toHaveValue('C:/Synthetic/Missing');
+ await folder.fill('C:/Synthetic/Gamma');
+ await dialog.getByRole('button',{name:'Connect project',exact:true}).click();
+ await expect(page.getByRole('dialog',{name:'Select project'})).toBeVisible();
+ expect(attempts).toBe(2);
+ expect(h.commands.filter(command=>command.type==='thread.create')).toHaveLength(0);
 });
