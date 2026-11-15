@@ -64,7 +64,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/logs/m08-vitest-journal.log",
-          "logDigest": "6ad22c47a83a87f830fb71e9c9960aa9628dfa962629abf77f318afe9b32eea9"
+          "logDigest": "47d121da0ffdab60e1150354d312910a71f6d22fdadbcef4932322a4e0d41382"
         }
       ],
       "artifactRefs": [
@@ -133,7 +133,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/logs/m08-vitest-selective-commit.log",
-          "logDigest": "45abb546700894d23bca313fc3c8bb2fd4b99c0426c5ceab0d7060e21ac4d113"
+          "logDigest": "843b5c4a13204b1b4f14796e23f5e4e018400e04c028c82d68279389f84d4931"
         }
       ],
       "artifactRefs": [
@@ -207,7 +207,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/logs/m08-vitest-checkpoint-restore.log",
-          "logDigest": "d029aa198acb9bdfd816f9438c3f2e3bfb496b10618a0a9b2c0b92277c9b5f32"
+          "logDigest": "9d477bff9da3f51654078db8b92eeda71e21f9e7122673a2d666964a0d27bdbe"
         }
       ],
       "artifactRefs": [
@@ -242,6 +242,11 @@
           "id": "workspace-surface-regression",
           "status": "PASS",
           "evidence": "shared-panels and workspace browser suites: every failure reproduces identically on the pristine base checkout (native-windowing and fixture issues, environmental)"
+        },
+        {
+          "id": "review-round-fixes",
+          "status": "PASS",
+          "evidence": "Review round: 8 reviewer findings triaged and fixed \u2014 restore never overwrites unrecoverable content and never clobbers a concurrently created file, apply failures roll back and end terminally, journal receipts append outside the success transaction, hunk attribution binds to the live postimage, non-UTF-8 untracked files are skipped, CONFLICT reports zero restored paths, and deleted files are restorable from History. Targeted vitest 28/28 PASS; typecheck/lint clean."
         }
       ],
       "commands": [
@@ -258,7 +263,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/logs/m08-typecheck.log",
-          "logDigest": "a3e3f4a26cfa80dac787bccdf9c0bbc91cf29de369ff4252731852172fe85ef9"
+          "logDigest": "49660db703281f560655092a33376fdaa8798062cca916114064b7ddf92e7692"
         },
         {
           "argv": [
@@ -273,7 +278,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/logs/m08-lint.log",
-          "logDigest": "a819b95a7440e8d2efa13d35f6cb50d9189ddb97d976fcbe2e7f1d25fb7d6d94"
+          "logDigest": "49d5f1ef4fc34e3d762c2f8e98a46e1962e428f98f82eee77917b722977afa3c"
         },
         {
           "argv": [
@@ -288,7 +293,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/logs/m08-build.log",
-          "logDigest": "79d4833a78cc90174e14c43704350fae6c0c3c2cd9d0aa7e8a770b966251aef6"
+          "logDigest": "6af6f8df567a276599a511cb26495085eb4b9925d55184ff79999bcb0a27582a"
         },
         {
           "argv": [
@@ -305,7 +310,7 @@
           "termination": "NONE",
           "status": "FAIL",
           "boundedLogRef": "docs/implementation/v3/logs/m08-browser-file-checkpoints.log",
-          "logDigest": "1b06e4d88373ee6b84a43486707e175df2cd53013ab23ce076efdcb488102fe9"
+          "logDigest": "3fa909e679ae8ffbf8cf2b4b8e8f373ca50bbc98ee4bddde318c4f9d39db8cad"
         },
         {
           "argv": [
@@ -322,7 +327,7 @@
           "termination": "NONE",
           "status": "FAIL",
           "boundedLogRef": "docs/implementation/v3/logs/m08-browser-shared-panels.log",
-          "logDigest": "be5ac36444dbad43c5472ce379ca7306ba2df9e291ddc5a55a94bc22fb66f1a9"
+          "logDigest": "a0ec78723f65362aeb0bef7019149923075653ac959f25eb5f878d5f2a08fb2f"
         },
         {
           "argv": [
@@ -339,7 +344,7 @@
           "termination": "NONE",
           "status": "FAIL",
           "boundedLogRef": "docs/implementation/v3/logs/m08-browser-workspace.log",
-          "logDigest": "84b202bb71128b0b3a73de26741d4645666f1c7b44eadc50d22e3d6d6d7dec6a"
+          "logDigest": "14582f6ffc8b3317a4029a44ac7b70ecec47039b1b4f09830bb1c21a41028f19"
         },
         {
           "argv": [
@@ -354,7 +359,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/logs/m08-typecheck-fix.log",
-          "logDigest": "a3e3f4a26cfa80dac787bccdf9c0bbc91cf29de369ff4252731852172fe85ef9"
+          "logDigest": "bb7b6fe87bb7dde68319c1a3bbdf7792709c410f7dd37a8a56b0832fb6de92a6"
         },
         {
           "argv": [
@@ -369,7 +374,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/logs/m08-lint-fix.log",
-          "logDigest": "a819b95a7440e8d2efa13d35f6cb50d9189ddb97d976fcbe2e7f1d25fb7d6d94"
+          "logDigest": "49d5f1ef4fc34e3d762c2f8e98a46e1962e428f98f82eee77917b722977afa3c"
         },
         {
           "argv": [
@@ -386,7 +391,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/logs/m08-browser-restore.log",
-          "logDigest": "e59a392e0743fd1845f0fb7e04fcec2b09136330c3b2afebcb2c603d62a919b4"
+          "logDigest": "508beca243a63eb72a72122624f22b3ebc3042af09a8c46429a6e4240df564b0"
         },
         {
           "argv": [
@@ -403,7 +408,7 @@
           "termination": "NONE",
           "status": "FAIL",
           "boundedLogRef": "docs/implementation/v3/logs/m08-browser-file-checkpoints-rerun.log",
-          "logDigest": "fa441214472e504e89fe6c15f3cdd5123ba391133a474956e47da6d43e9da288"
+          "logDigest": "fc2259cf9016b91a55f6bc16949be34faa91b2d595d8267207804cc562d84d46"
         },
         {
           "argv": [
@@ -418,7 +423,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/logs/m08-typecheck-review.log",
-          "logDigest": "a3e3f4a26cfa80dac787bccdf9c0bbc91cf29de369ff4252731852172fe85ef9"
+          "logDigest": "03d59dd07f13e6d0a00eaeca79573a2fdb24112c4c2c7f8f76b06b534ddddfa8"
         },
         {
           "argv": [
@@ -433,7 +438,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/logs/m08-lint-review.log",
-          "logDigest": "a819b95a7440e8d2efa13d35f6cb50d9189ddb97d976fcbe2e7f1d25fb7d6d94"
+          "logDigest": "49d5f1ef4fc34e3d762c2f8e98a46e1962e428f98f82eee77917b722977afa3c"
         },
         {
           "argv": [
@@ -453,7 +458,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/logs/m08-vitest-review-fixes.log",
-          "logDigest": "b323fca37d5201277ca581f55944859f87b3db0f5a147db9d9058866ef6e237a"
+          "logDigest": "81093ce2659191b35b222dc5199e8e7adde148e3d487c5578f1a05199a84811a"
         }
       ],
       "artifactRefs": [
@@ -470,8 +475,7 @@
         "docs/implementation/v3/logs/m08-typecheck-review.log",
         "docs/implementation/v3/logs/m08-lint-review.log",
         "docs/implementation/v3/logs/m08-vitest-review-fixes.log"
-      ],
-      "notes": "Review round: 8 reviewer findings triaged and fixed \u2014 restore never overwrites unrecoverable content and never clobbers a concurrently created file, apply failures roll back and end terminally, journal receipts append outside the success transaction, hunk attribution binds to the live postimage, non-UTF-8 untracked files are skipped, CONFLICT reports zero restored paths, and deleted files are restorable from History. Targeted vitest 28/28 PASS; typecheck/lint clean."
+      ]
     },
     {
       "id": "m08.regression-and-dependency-gates",
@@ -484,8 +488,8 @@
         },
         {
           "id": "m06-contract-presence",
-          "status": "NOT_RUN",
-          "evidence": "M06 was completed in sibling session 359b5fee27da48ec9af3d4411f44bab3 (commits d9eeef0+a30d176 on agent/m06-v3) but was never pushed and is not present on the accepted base; its VM is unreachable. Documented as a dependency gap, not authored here."
+          "status": "PASS",
+          "evidence": "M06 landed on main as 686bda8 (PR #327) with reviewed evidence; this branch is rebased onto it so the M06 contract is present on the accepted base. Post-rebase re-verification: pnpm typecheck clean; vitest 28/28 (checkpoint-restore 11, selective-commit 10, workspace-journal 7) in 101s."
         }
       ],
       "commands": [
@@ -502,13 +506,12 @@
           "termination": "NONE",
           "status": "FAIL",
           "boundedLogRef": "docs/implementation/v3/logs/m08-test-no-lease.log",
-          "logDigest": "09c8fc7bc351ffbf2522313df10ca48248cb1a180fdc78edf700dbd83a17f0b1"
+          "logDigest": "70e9dfe29087fa6331fb81c4efd2b775f6c69b0fcba8c290fb9a06f1342b80e7"
         }
       ],
       "artifactRefs": [
         "docs/implementation/v3/logs/m08-test-no-lease.log"
-      ],
-      "command": " | Rebased onto main 686bda8 (M06 merged): pnpm typecheck clean; vitest 28/28 (checkpoint-restore 11, selective-commit 10, workspace-journal 7, 101s)."
+      ]
     }
   ],
   "changedFiles": [
