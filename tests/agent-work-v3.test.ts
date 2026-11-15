@@ -6,6 +6,7 @@ import {randomUUID} from 'node:crypto';
 import {Store} from '../packages/storage/store.ts';
 import type {ResourceGrant, RunContext, Thread} from '../packages/contracts/index.ts';
 import {AgentWorkCoordinator, type AgentWorkChild} from '../packages/core/agent-work.ts';
+import {CodeWorktreeResultV1Schema} from '../packages/contracts/agent-work.ts';
 import {capabilityEnabled, __setCapabilityFlagForTests} from '../packages/core/capability-flags.ts';
 import type {AgentWorkV1} from '../packages/contracts/agent-work.ts';
 
@@ -46,6 +47,7 @@ function fixture(options: {
   globalBudget?: {tokens: number | null; ms: number | null};
   onSend?: (input: {inputId: string; kind: string; text: string}) => Promise<void> | void;
   grants?: Partial<ResourceGrant>[];
+  runtimeFactory?: () => Promise<AgentWorkChild> | AgentWorkChild;
 } = {}) {
   const base = realpathSync(tmpdir()), directory = mkdtempSync(join(base, 'agent-work-')), store = new Store(directory);
   const children: FakeChild[] = [];
@@ -58,7 +60,7 @@ function fixture(options: {
     roleHandlers: options.roleHandlers,
     resourceResolver: options.resourceResolver,
     globalBudget: options.globalBudget,
-    runtimeFactory: () => { const child = new FakeChild(options.steer ?? false, options.onSend); children.push(child); return child; },
+    runtimeFactory: options.runtimeFactory ?? (() => { const child = new FakeChild(options.steer ?? false, options.onSend); children.push(child); return child; }),
   });
   const parentThread: Thread = {id: 'parent-1', title: 'Parent', projectName: 'proj', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), status: 'working', epoch: 1, runId: 'run-1', modelId: 'test/model', sessionPath: null, accountId: 'acct-1', projectId: 'proj-1', workspaceId: 'ws-1'};
   const grants: ResourceGrant[] = (options.grants ?? [{}]).map((grant, i) => ({id: 'grant-' + i, threadId: parentThread.id, kind: 'project', path: 'C:/work/wt-' + i, label: 'g' + i, writable: true, createdAt: new Date().toISOString(), ...grant}));
@@ -132,6 +134,48 @@ describe('AgentWorkV1 admission and role gates', () => {
     const work = await f.coordinator.admit(f.ctx, f.admission(), new AbortController().signal);
     const childCtx: RunContext = {threadId: work.childOwner.threadId, runId: work.childOwner.runId!, epoch: work.childOwner.epoch};
     await expect(f.coordinator.admit(childCtx, f.admission(), new AbortController().signal)).rejects.toMatchObject({code: 'CAPABILITY_DENIED'});
+  });
+  it('replays the durable receipt on a retried admit', async () => {
+    const f = fixture();
+    const spec = f.admission();
+    const first = await f.coordinator.admit(f.ctx, spec, new AbortController().signal);
+    const again = await f.coordinator.admit(f.ctx, spec, new AbortController().signal);
+    expect(again.workId).toBe(first.workId);
+    expect(f.children).toHaveLength(1);
+  });
+  it('refuses to overwrite an existing thread as a child', async () => {
+    const f = fixture();
+    const work = await f.coordinator.admit(f.ctx, f.admission(), new AbortController().signal);
+    await expect(f.coordinator.admit(f.ctx, f.admission({childThreadId: work.childOwner.threadId}), new AbortController().signal))
+      .rejects.toMatchObject({code: 'INVALID_AGENT_WORK'});
+    expect(f.store.get<Thread>('thread', work.childOwner.threadId)).toMatchObject({kind: 'delegate'});
+  });
+  it('keeps the concurrent-slot cap per parent task, not store-wide', async () => {
+    const f = fixture();
+    for (let i = 0; i < 3; i++) await f.coordinator.admit(f.ctx, f.admission({}, i), new AbortController().signal);
+    await expect(f.coordinator.admit(f.ctx, f.admission({}, 9), new AbortController().signal)).rejects.toMatchObject({code: 'AGENT_LIMIT'});
+    // A different parent task still admits its own first child.
+    const thread2: Thread = {...f.parentThread, id: 'parent-2'};
+    f.store.internal('fixture.parent2', thread2.id, () => {
+      f.store.put('thread', thread2.id, thread2.id, thread2);
+      f.store.put('resource', 'g2', thread2.id, {...f.grants[0], id: 'g2', threadId: thread2.id});
+    });
+    const ctx2: RunContext = {threadId: thread2.id, runId: 'run-2', epoch: 1};
+    const admitted = await f.coordinator.admit(ctx2, f.admission({grantSubset: ['g2']}, 7), new AbortController().signal);
+    expect(admitted.state).toBe('RUNNING');
+  });
+  it('strips write rights on grants outside the proven worktree path', async () => {
+    __setCapabilityFlagForTests('agents.workV1', true);
+    __setCapabilityFlagForTests('workspace.writeDelegateV1', true);
+    const f = fixture({
+      flags: {},
+      grants: [{}, {path: 'C:/elsewhere/sibling'}],
+      roleProofs: {codeWorktree: () => ({worktreeId: 'wt-1', path: 'C:/work', profileDigest: 'a'.repeat(64)})},
+    });
+    const work = await f.coordinator.admit(f.ctx, f.admission({role: 'CODE_WORKTREE'}), new AbortController().signal);
+    const dispatched = f.coordinator.dispatchedGrants(work.workId)!;
+    expect(dispatched.find(grant => grant.id === f.grants[0].id)).toMatchObject({writable: true});
+    expect(dispatched.find(grant => grant.id === f.grants[1].id)).toMatchObject({writable: false});
   });
 });
 
@@ -279,5 +323,92 @@ describe('stop, revocation, resume and restart', () => {
     expect(f.coordinator.inspect(work.workId)!.state).toBe('WAITING_HUMAN');
     await f.coordinator.stop(f.ctx, work.workId);
     expect(() => f.coordinator.markWaitingHuman(f.ctx, work.workId)).toThrow();
+  });
+});
+
+describe('live-steer semantics, revocation revalidation and dispatch race', () => {
+  it('keeps steering queued-after-current when the adapter cannot live-steer', async () => {
+    const f = fixture({steer: false});
+    const work = await f.coordinator.admit(f.ctx, f.admission(), new AbortController().signal);
+    const record = await f.coordinator.sendInput(f.ctx, {inputId: 'in-steer', workId: work.workId, kind: 'STEER', text: 'go left', dedupeKey: 'k-steer'});
+    expect(record.delivery).toBe('ACCEPTED');
+    await new Promise(resolve => setTimeout(resolve, 25));
+    expect(f.children[0].sent.filter(input => input.kind === 'STEER')).toHaveLength(0);
+    expect(f.coordinator.inbox.inspect('in-steer')).toMatchObject({delivery: 'ACCEPTED'});
+  });
+  it('live-steer adapter delivers steering into the active run and marks it ENTERED_RUNTIME', async () => {
+    const f = fixture({steer: true});
+    const work = await f.coordinator.admit(f.ctx, f.admission(), new AbortController().signal);
+    await f.coordinator.sendInput(f.ctx, {inputId: 'in-steer2', workId: work.workId, kind: 'STEER', text: 'go left', dedupeKey: 'k-steer2'});
+    await new Promise(resolve => setTimeout(resolve, 25));
+    expect(f.children[0].sent.filter(input => input.kind === 'STEER')).toHaveLength(1);
+    expect(f.coordinator.inbox.inspect('in-steer2')).toMatchObject({delivery: 'ENTERED_RUNTIME'});
+  });
+  it('marks follow-up UNKNOWN instead of returning a stale ACCEPTED snapshot', async () => {
+    const f = fixture();
+    const work = await f.coordinator.admit(f.ctx, f.admission(), new AbortController().signal);
+    await f.coordinator.stop(f.ctx, work.workId);
+    const record = await f.coordinator.sendInput(f.ctx, {inputId: 'in-late', workId: work.workId, kind: 'FOLLOW_UP', text: 'still there?', dedupeKey: 'k-late'});
+    expect(record.delivery).toBe('UNKNOWN');
+    expect(f.coordinator.inbox.inspect('in-late')).toMatchObject({delivery: 'UNKNOWN'});
+  });
+  it('never dispatches work cancelled while the runtime was still starting', async () => {
+    let resolveFactory!: (child: AgentWorkChild) => void;
+    const f = fixture({runtimeFactory: () => new Promise<AgentWorkChild>(resolve => { resolveFactory = resolve; })});
+    const spec = f.admission();
+    const pending = f.coordinator.admit(f.ctx, spec, new AbortController().signal);
+    while (!f.coordinator.inspect(spec.workId)) await new Promise(resolve => setTimeout(resolve, 5));
+    await f.coordinator.revokeForParent(f.ctx.threadId);
+    const child = new FakeChild(false);
+    resolveFactory(child);
+    const work = await pending;
+    expect(work.state).toBe('CANCELLED');
+    expect(child.disposed).toBe(true);
+    expect(child.sent).toHaveLength(0);
+  });
+  it('denies child calls on grants the parent no longer holds', async () => {
+    const resolver = vi.fn(async () => ({bytes: 4}));
+    const f = fixture({resourceResolver: resolver});
+    const work = await f.coordinator.admit(f.ctx, f.admission(), new AbortController().signal);
+    const childRun = {threadId: work.childOwner.threadId, runId: work.childOwner.runId!, epoch: work.childOwner.epoch};
+    f.store.internal('fixture.revoke', f.parentThread.id, () => f.store.remove('resource', f.grants[0].id));
+    await expect(f.coordinator.invokeTool(work.workId, childRun, {name: 'repository_read', args: {grantId: f.grants[0].id, path: 'a.txt'}}))
+      .rejects.toMatchObject({code: 'PERMISSION_REVOKED'});
+    expect(resolver).not.toHaveBeenCalled();
+  });
+  it('re-derives write rights on resume instead of replaying the stale admission grants', async () => {
+    __setCapabilityFlagForTests('agents.workV1', true);
+    __setCapabilityFlagForTests('workspace.writeDelegateV1', true);
+    const f = fixture({
+      flags: {},
+      roleProofs: {codeWorktree: () => ({worktreeId: 'wt-1', path: 'C:/work', profileDigest: 'a'.repeat(64)})},
+    });
+    const work = await f.coordinator.admit(f.ctx, f.admission({role: 'CODE_WORKTREE'}), new AbortController().signal);
+    expect(f.coordinator.dispatchedGrants(work.workId)!.some(grant => grant.writable)).toBe(true);
+    await f.coordinator.stop(f.ctx, work.workId);
+    // The parent loses write rights on the grant between stop and resume.
+    f.store.internal('fixture.dewrite', f.parentThread.id, () => {
+      const grant = f.store.get<ResourceGrant>('resource', f.grants[0].id)!;
+      f.store.put('resource', grant.id, f.parentThread.id, {...grant, writable: false});
+    });
+    const resumed = await f.coordinator.resume(f.ctx, work.workId);
+    expect(resumed.state).toBe('RUNNING');
+    expect(f.coordinator.dispatchedGrants(resumed.workId)!.every(grant => grant.writable === false)).toBe(true);
+  });
+});
+
+describe('result contract and lifetime budget', () => {
+  it('accepts real 40-hex git commits in code-worktree results', () => {
+    expect(() => CodeWorktreeResultV1Schema.parse({...validOutput, worktreeId: 'wt-1', commits: ['a'.repeat(40)]})).not.toThrow();
+    expect(() => CodeWorktreeResultV1Schema.parse({...validOutput, worktreeId: 'wt-1', commits: ['a'.repeat(64)]})).toThrow();
+  });
+  it('counts completed work against the lifetime global budget', async () => {
+    const f = fixture({globalBudget: {tokens: 150, ms: null}});
+    const work = await f.coordinator.admit(f.ctx, f.admission({budget: {tokens: 100, ms: null}}), new AbortController().signal);
+    const childRun = {threadId: work.childOwner.threadId, runId: work.childOwner.runId!, epoch: work.childOwner.epoch};
+    await f.coordinator.submitResult(work.workId, childRun, validOutput);
+    expect(f.coordinator.budgetLedger()).toMatchObject({spentTokens: 100, reservedTokens: 0});
+    await expect(f.coordinator.admit(f.ctx, f.admission({budget: {tokens: 60, ms: null}}, 2), new AbortController().signal))
+      .rejects.toMatchObject({code: 'AGENT_BUDGET_EXHAUSTED'});
   });
 });
