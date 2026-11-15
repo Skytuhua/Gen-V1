@@ -40,6 +40,8 @@ export function AgentWorkPanel({threadId}: {threadId: string}) {
   useEffect(() => { void refresh(); const timer = setInterval(() => void refresh(), 4000); return () => clearInterval(timer); }, [refresh]);
   if (error && !list) return null;
   if (!list || list.works.length === 0) return null;
+  const progress = plan?.extension ? plan.progress : undefined;
+  const progressLabel = progress ? `${progress.total ? Math.round(progress.completed / progress.total * 100) : 0}% known complete · ${progress.total ? Math.round(progress.unknown / progress.total * 100) : 0}% unknown` : undefined;
 
   const openEvidence = (workId: string) => {
     const request = ++evidenceRequest.current;
@@ -60,8 +62,8 @@ export function AgentWorkPanel({threadId}: {threadId: string}) {
     <button type="button" className="agents-disclosure" aria-expanded={open} onClick={() => setOpen(!open)}>Agent work · {list.works.length}</button>
     {open && <div className="agents-work-body">
       <div className="agents-work-meta">roles: {Object.entries(list.roles).map(([role, r]) => `${role}${r.available ? '' : ' (unavailable)'}`).join(', ')} · budget reserved {list.budget.reservedTokens}tok</div>
-      {plan?.extension && plan.progress && <div className="agents-work-progress" aria-label="Task progress">
-        <progress max={plan.progress.total || 1} value={plan.progress.completed}/><span>{plan.progress.total ? Math.round(plan.progress.completed / plan.progress.total * 100) : 0}% known complete · {plan.progress.total ? Math.round(plan.progress.unknown / plan.progress.total * 100) : 0}% unknown</span>
+      {progress && <div className="agents-work-progress">
+        <progress aria-label="Task progress" aria-valuetext={progressLabel} max={progress.total || 1} value={progress.completed}/><span>{progressLabel}</span>
       </div>}
       {list.works.map(work => <article key={work.workId} className="agents-work-row" data-state={work.state}>
         <header>
