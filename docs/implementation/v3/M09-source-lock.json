@@ -9,11 +9,11 @@
   },
   {
    "path": "apps/web/src/agent-work-api.ts",
-   "blobSha": "bd27ff7ef4e0f6e0ffa514ed79fefe5a0674faf6"
+   "blobSha": "b9deea2b7fc170c68c7a1a508586f1e95675c332"
   },
   {
    "path": "apps/web/src/agents-workspace/AgentWorkPanel.tsx",
-   "blobSha": "5fb82d3be7b939711db13a161c21978d76576c91"
+   "blobSha": "d38080d036463253b3a61379fa0f15688eb0a31e"
   },
   {
    "path": "package.json",
@@ -49,7 +49,7 @@
   },
   {
    "path": "packages/core/agent-work.ts",
-   "blobSha": "71f5dc8837f8b72eba50015600cf5c2743a46132"
+   "blobSha": "2aeaee56468670f39c5fa1a81e6b9e544c60141d"
   },
   {
    "path": "packages/core/capability-flags.ts",
@@ -73,7 +73,7 @@
   },
   {
    "path": "packages/core/service.ts",
-   "blobSha": "62f8c7c85ef0e5f4d238ea3388d26c8cf502b0bb"
+   "blobSha": "8f115a29455929f3fc9dfe8187fd23dbda537255"
   },
   {
    "path": "packages/core/verification-gate.ts",
@@ -97,7 +97,7 @@
   },
   {
    "path": "scripts/public-source-files.json",
-   "blobSha": "b9259ce1ef0e49692d0a1bcab7c7a69ccf6f43af"
+   "blobSha": "c52b7dcb2e12db086280b001273972bf055d1d21"
   },
   {
    "path": "tests/agent-follow-up.test.ts",
@@ -109,7 +109,7 @@
   },
   {
    "path": "tests/agent-work-v3.test.ts",
-   "blobSha": "4303ce9e7f8f84c4d5f01a1cba168eb08d24f38c"
+   "blobSha": "514452853169bce959f3da9bf3a433ba33fc80bd"
   },
   {
    "path": "tests/plan-extension-v3.test.ts",

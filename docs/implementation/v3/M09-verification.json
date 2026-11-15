@@ -2,7 +2,7 @@
   "schemaVersion": 3,
   "bundleId": "M09",
   "baseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
-  "sourceLockDigest": "d52a2c70a157c83921d0a9073197401295dbc2bdbaf585e1df0a956f0ae56eb5",
+  "sourceLockDigest": "bbc272768d56e12760e159852f6055240e60ca84dce7afa6b41612d9a21c35d6",
   "platform": "windows-x86_64",
   "nodeVersion": "v24.22.2",
   "packageManagerVersion": "10.30.3",

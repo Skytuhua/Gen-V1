@@ -570,10 +570,11 @@ export class Service {
       const receipt = this.store.command(command, () => { this.planning.endRun(ctx,'cancelled'); this.failUnansweredDetails(ctx,"The explanation was stopped. Resume the task to retry."); this.store.put("thread", thread.id, thread.id, { ...thread, epoch: thread.epoch + 1, runId: null, status: "stopped", updatedAt: now() }); return { stopped: true,nativeOwner:ctx }; });
       this.aborts.get(thread.id)?.abort();
       // Register the native teardown first — a racing resume must still see
-      // RUN_BUSY — then revoke child work so no stopped parent leaves live
-      // dispatch behind.
-      await this.cancelRun(ctx,!!thread.sideParentId);
-      await this.agentWork.revokeForParent(thread.id).catch(() => {}); return receipt;
+      // RUN_BUSY — then revoke child work whether teardown succeeded or
+      // failed, so no stopped parent leaves live dispatch behind.
+      await this.cancelRun(ctx,!!thread.sideParentId)
+        .finally(() => this.agentWork.revokeForParent(thread.id).catch(() => {}));
+      return receipt;
     }
     if (command.type === "run.resume") return this.resume(command, thread);
     if (command.type === "operation.reconcile") {
