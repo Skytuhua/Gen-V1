@@ -59,6 +59,7 @@ it('keeps the popup within a narrow work area after a display change',async()=>{
   expect(bounds.x+bounds.width).toBeLessThanOrEqual(area.x+area.width);
   expect(bounds.y+bounds.height).toBeLessThanOrEqual(area.y+area.height);
  } finally {popups.stop();}
+});
 
 it('does not spend the remaining notification lifetime while duplicate pause notices arrive', async () => {
  vi.useFakeTimers();
