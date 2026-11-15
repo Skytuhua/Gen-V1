@@ -64,6 +64,18 @@ describe('agents workspace grid layout', () => {
     } finally {await page.close();}
   });
 
+  it('stretches every card to fill its grid slot width', async () => {
+    const page = await open(1440);
+    try {
+      const fills = await page.locator('.agents-grid-slot').evaluateAll(slots => slots.map(slot => {
+        const card = slot.querySelector('.agents-agent');
+        return card !== null && Math.abs(slot.getBoundingClientRect().width - card.getBoundingClientRect().width) <= 1;
+      }));
+      expect(fills.length).toBe(8);
+      expect(fills.every(Boolean)).toBe(true);
+    } finally {await page.close();}
+  });
+
   it('collapses to two columns at narrow content width and one below 768', async () => {
     const page = await open(900);
     try {

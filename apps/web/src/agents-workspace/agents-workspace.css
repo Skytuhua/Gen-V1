@@ -21,7 +21,7 @@
 @container agents-grid (min-width: 1080px) { .agents-agent-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .agents-grid-slot { min-width: 0; min-height: var(--agents-card-height); display: flex; }
 .agents-agent { min-width: 0; display: flex; flex-direction: column; }
-.agents-grid-slot > .agents-agent { height: var(--agents-card-height); border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
+.agents-grid-slot > .agents-agent { flex: 1 1 auto; height: var(--agents-card-height); border: 1px solid var(--border); border-radius: 8px; background: var(--surface); }
 .agents-agent > .agents-empty { flex: 1; }
 .agents-agent-header { display: flex; align-items: flex-start; gap: 8px; padding: 12px 12px 4px; }
 .agents-agent-title { display: flex; align-items: baseline; gap: 8px; flex: 1; flex-wrap: wrap; min-width: 0; }
