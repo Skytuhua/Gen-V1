@@ -140,9 +140,12 @@ export function fromUtf16Offset(line: string, utf16: number, encoding: RangeEnco
   return units;
 }
 
+/** Segments keep their line terminator so untouched regions preserve CRLF/LF. */
 function splitLines(text: string): string[] {
-  return text.split(/\r\n|\r|\n/);
+  const segments = text.match(/[^\r\n]*(?:\r\n|\r|\n|$)/g) ?? [];
+  return segments[segments.length - 1] === "" ? segments.slice(0, -1) : segments;
 }
+const stripEol = (segment: string) => segment.replace(/\r\n|\r|\n$/, "");
 
 /** Apply a text edit (positions in `encoding` units) to `content`. */
 export function applyTextEdit(content: string, range: CodeRange, newText: string, encoding: RangeEncoding): string {
@@ -150,10 +153,10 @@ export function applyTextEdit(content: string, range: CodeRange, newText: string
   if (range.start.line >= lines.length || range.end.line >= lines.length)
     throw new HarnessError("INVALID_INPUT", "The edit range exceeds the document.");
   const startLine = lines[range.start.line]!, endLine = lines[range.end.line]!;
-  const start = toUtf16Offset(startLine, range.start.character, encoding);
-  const end = toUtf16Offset(endLine, range.end.character, encoding);
-  const before = lines.slice(0, range.start.line).join("\n") + (range.start.line > 0 ? "\n" : "") + startLine.slice(0, start);
-  const after = endLine.slice(end) + (range.end.line < lines.length - 1 ? "\n" : "") + lines.slice(range.end.line + 1).join("\n");
+  const start = toUtf16Offset(stripEol(startLine), range.start.character, encoding);
+  const end = toUtf16Offset(stripEol(endLine), range.end.character, encoding);
+  const before = lines.slice(0, range.start.line).join("") + startLine.slice(0, start);
+  const after = endLine.slice(end) + lines.slice(range.end.line + 1).join("");
   return before + newText + after;
 }
 
@@ -618,7 +621,12 @@ export class CodeIntelligence {
       beforeDigest: null, afterDigest: input.afterDigest, text: input.text,
       editInvocationId: null, wait: "inline", signal: input.signal,
     });
-    const edit = await entry.adapter.rename(document, input.position, input.newName, input.signal);
+    // Positions inside the rename exchange use the negotiated adapter encoding;
+    // plan ranges are canonicalized to UTF16 for storage and apply.
+    const encoding = entry.adapter.encoding;
+    const lineAt = (text: string, line: number) => stripEol(splitLines(text)[line] ?? "");
+    const serverPosition = { line: input.position.line, character: fromUtf16Offset(lineAt(input.text, input.position.line), input.position.character, encoding) };
+    const edit = await entry.adapter.rename(document, serverPosition, input.newName, input.signal);
     // Resource operations (create/delete/move/rename-file) are not supported.
     if (Array.isArray(edit.documentChanges) && edit.documentChanges.some(change => {
       const kinds = (change as { kind?: string }).kind;
@@ -646,6 +654,14 @@ export class CodeIntelligence {
     const sourceVersions: RenamePlanV1["sourceVersions"] = [];
     for (const target of edits) {
       const bytes = await readBoundFile(target.path, 32 * 1024 * 1024).catch(() => { throw new HarnessError("CAPABILITY_DENIED", "The rename targets a missing or unreadable file."); });
+      const text = bytes.toString("utf8");
+      if (target.path === resolve(input.path) && sha(bytes) !== input.afterDigest)
+        throw new HarnessError("PRECONDITION_FAILED", "The document on disk differs from the synced text; sync the document before renaming.");
+      // Convert server ranges (adapter encoding) into canonical UTF16 ranges.
+      const convert = (position: CodePosition): CodePosition => ({
+        line: position.line, character: toUtf16Offset(lineAt(text, position.line), position.character, encoding),
+      });
+      target.edits = target.edits.map(item => ({ range: { start: convert(item.range.start), end: convert(item.range.end) }, newText: item.newText }));
       expectedBeforeDigests.push({ path: target.path, digest: sha(bytes) });
       const doc = entry.documents.get(pathToFileURL(target.path).href);
       sourceVersions.push({ path: target.path, documentVersion: doc?.version ?? 0, digest: sha(bytes) });
@@ -707,11 +723,14 @@ export class CodeIntelligence {
             continue;
           }
           const postimage = applyTextEdits(current.toString("utf8"), target.edits, "UTF16");
+          // The postimage is durable BEFORE the write: a crash after writeFile
+          // still leaves a complete recovery record for this path.
+          record.postimage = sha(Buffer.from(postimage, "utf8"));
+          await flush();
           const target_ = join(target.path);
           await withPathGuard([{ path: dirname(target_), leaf: false }], input.signal, async () => {
             await writeFile(target_, postimage);
           });
-          record.postimage = sha(Buffer.from(postimage, "utf8"));
           record.disposition = "Applied";
           entries.push({ path: target.path, disposition: "Applied" });
           await flush();
@@ -721,23 +740,30 @@ export class CodeIntelligence {
         return this.reconcile(plan, journal, "PARTIAL_RECOVERY_REQUIRED", entries);
       }
       journal.resolved = true; await flush();
-      return renameRecoveryResultSchema.parse({ planId: plan.planId, state: "APPLIED", entries });
+      // A rename that left any target conflicted is not a success.
+      const partial = journal.entries.some(record => record.disposition === "Conflict");
+      return renameRecoveryResultSchema.parse({ planId: plan.planId, state: partial ? "PARTIAL_RECOVERY_REQUIRED" : "APPLIED", entries });
     });
   }
 
   /** Post-crash reconcile: each path independently. Restores a path only when
    * its current bytes match the bundle's written postimage; an external edit
    * stops recovery with PARTIAL_RECOVERY_REQUIRED — never a silent overwrite. */
-  async recoverRename(input: { journalRoot: string; planId: string; signal: AbortSignal }): Promise<RenameRecoveryResult> {
+  async recoverRename(input: { journalRoot: string; planId: string; grantedRoots: readonly string[]; signal: AbortSignal }): Promise<RenameRecoveryResult> {
     const journalDir = join(input.journalRoot, "code-intelligence", "rename", input.planId);
     const journal = JSON.parse(await readFile(join(journalDir, "journal.json"), "utf8")) as {
       planId: string; resolved: boolean;
       entries: { path: string; preimage: string; postimage: string | null; backup: string; disposition: RenameRecoveryEntry["disposition"] }[];
     };
+    // Recovery never writes outside the current project's granted roots.
+    for (const record of journal.entries)
+      if (!input.grantedRoots.some(root => inside(root, record.path)))
+        throw new HarnessError("CAPABILITY_DENIED", "The recovery journal targets a file outside the granted roots.");
     // A resolved journal recorded a completed apply; reconciliation reports it.
     if (journal.resolved)
       return renameRecoveryResultSchema.parse({
-        planId: journal.planId, state: "APPLIED",
+        planId: journal.planId,
+        state: journal.entries.some(record => record.disposition === "Conflict") ? "PARTIAL_RECOVERY_REQUIRED" : "APPLIED",
         entries: journal.entries.map(record => ({ path: record.path, disposition: record.disposition })),
       });
     const entries: RenameRecoveryEntry[] = [];
@@ -745,7 +771,7 @@ export class CodeIntelligence {
     for (const record of journal.entries) {
       const current = await readBoundFile(record.path, 32 * 1024 * 1024).catch(() => null);
       const currentDigest = current ? sha(current) : null;
-      if (record.disposition === "Applied" && currentDigest === record.postimage) {
+      if (record.postimage !== null && currentDigest === record.postimage) {
         // Restore only when current bytes still match the written postimage.
         const backup = await readBoundFile(record.backup, 32 * 1024 * 1024).catch(() => null);
         if (!backup || sha(backup) !== record.preimage) {
@@ -759,8 +785,6 @@ export class CodeIntelligence {
         entries.push({ path: record.path, disposition: "Restored" });
       } else if (currentDigest === record.preimage) {
         entries.push({ path: record.path, disposition: "Unchanged" });
-      } else if (currentDigest === record.postimage && record.disposition === "Applied") {
-        entries.push({ path: record.path, disposition: "Applied" });
       } else if (currentDigest === null) {
         conflict = true;
         entries.push({ path: record.path, disposition: "Conflict", detail: "The file is missing." });

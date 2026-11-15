@@ -5,7 +5,7 @@ import {join} from 'node:path';
 import {createHash} from 'node:crypto';
 import {pathToFileURL} from 'node:url';
 import {
- CodeIntelligence,LanguageServerPool,encodedLength,toUtf16Offset,fromUtf16Offset,
+ CodeIntelligence,LanguageServerPool,encodedLength,toUtf16Offset,fromUtf16Offset,applyTextEdit,
  type LanguageServerAdapter,type LanguageServerDescriptor,type LspDiagnostic,type LspDocument,
 } from '../packages/core/code-intelligence.ts';
 import {diagnosticObservationV1Schema} from '../packages/contracts/code-intelligence.ts';
@@ -59,6 +59,19 @@ it('positions are converted between encodings, never treated as byte offsets',()
  // 'z' sits at UTF-32 index 3; a mid-surrogate UTF-16 offset clamps to the boundary.
  expect(fromUtf16Offset(line,4,'UTF32')).toBe(3);
  expect(fromUtf16Offset(line,3,'UTF32')).toBe(2);
+});
+
+it('applying an edit never rewrites untouched line endings',()=>{
+ const content='const a=1;\r\nconst b=2;\r\n';
+ // Replace 'a' on the first line: every other byte stays CRLF.
+ const edited=applyTextEdit(content,{start:{line:0,character:6},end:{line:0,character:7}},'z','UTF16');
+ expect(edited).toBe('const z=1;\r\nconst b=2;\r\n');
+ // An insertion inside the second line introduces no '\n'.
+ const inserted=applyTextEdit(content,{start:{line:1,character:0},end:{line:1,character:0}},'// ','UTF16');
+ expect(inserted).toBe('const a=1;\r\n// const b=2;\r\n');
+ // The final line keeps its terminator even without a trailing segment.
+ const replaced=applyTextEdit('x\r\ny\r\n',{start:{line:1,character:0},end:{line:1,character:1}},'q','UTF16');
+ expect(replaced).toBe('x\r\nq\r\n');
 });
 
 it('diagnostics bind to the exact document version and after-digest',async()=>{
