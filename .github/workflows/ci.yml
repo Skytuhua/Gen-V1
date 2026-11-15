@@ -74,6 +74,7 @@ jobs:
         uses: ./.github/actions/setup
         with:
           python: 'true'
+          playwright: 'true'
 
       - name: Build web application
         run: pnpm build
@@ -98,26 +99,10 @@ jobs:
         uses: ./.github/actions/setup
         with:
           python: 'true'
+          playwright: 'true'
 
       - name: Build web application
         run: pnpm build
-
-      - name: Read the pinned browser version
-        id: playwright-version
-        run: |
-          $version = node -p "require('playwright-core/package.json').version"
-          "version=$version" | Out-File -Append -FilePath $env:GITHUB_OUTPUT -Encoding utf8
-
-      - name: Cache the test browser
-        id: playwright-cache
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
-        with:
-          path: ~\AppData\Local\ms-playwright
-          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
-
-      - name: Install test browser
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: pnpm exec playwright install chromium
 
       - name: Exercise split workspace in the browser
         env:
