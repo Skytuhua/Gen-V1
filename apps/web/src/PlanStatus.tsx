@@ -68,10 +68,14 @@ export const togglePlanCollapse = (
   key: string,
   kind: string,
   status: string | undefined,
-): Record<string, boolean> =>
-  // The stored value is the negation of the new visibility, i.e. the resolved
-  // visibility before the toggle — never `!old[key]`, which ignores defaults.
-  ({ ...record, [key]: resolvePlanOpen(record, key, kind, status) });
+): Record<string, boolean> => {
+  const next = { ...record };
+  // Refresh insertion order so the bounded record retains this latest choice.
+  delete next[key];
+  // The stored collapsed value is the resolved visibility before the toggle.
+  next[key] = resolvePlanOpen(record, key, kind, status);
+  return next;
+};
 
 export function PlanStatus({ snapshot, threadId, loading, error, focusAgentId, onOpenAgentTranscript }: PlanStatusProps) {
   const prefix = useId();
