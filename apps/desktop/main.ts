@@ -127,7 +127,14 @@ function moveBrowser(browser:BrowserRecord,owner:WindowRecord,docked:boolean){
  browser.owner=owner;if(docked)owner.dockedBrowser=browser;else owner.browser=browser;
  owner.window.contentView.addChildView(browser.view);const [width,height]=owner.window.getContentSize();browser.view.setBounds(docked?{x:Math.max(0,width-520),y:100,width:Math.min(520,width),height:Math.max(0,height-100)}:{x:0,y:96,width,height:Math.max(0,height-96)});broadcast();
 }
-function loseBrowserOwner(record:WindowRecord){releaseOwnedBrowsers(record,browsers,browser=>{browser.generation++;if(!record.window.isDestroyed())record.window.contentView.removeChildView(browser.view);if(!browser.view.webContents.isDestroyed())browser.view.webContents.close({waitForBeforeUnload:false});});}
+function loseBrowserOwner(record:WindowRecord){
+ const failures=releaseOwnedBrowsers(record,browsers,browser=>{
+  browser.generation++;
+  try{if(!record.window.isDestroyed())record.window.contentView.removeChildView(browser.view);}
+  finally{if(!browser.view.webContents.isDestroyed())browser.view.webContents.close({waitForBeforeUnload:false});}
+ });
+ if(failures)console.warn('Native browser cleanup could not complete for',failures,'view(s).');
+}
 async function openSurface(raw:unknown,sourceBounds?:DesktopBounds):Promise<DesktopWindowInfo>{
  if(quitting||quitPending)throw Error('The application is closing.');
  const surface=parseDesktopSurface(raw);if(!desktopSurfaceAllowed(surface))throw Error('This surface belongs to a different workspace authority.');
