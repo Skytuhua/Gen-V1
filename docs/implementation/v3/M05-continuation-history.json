@@ -1489,6 +1489,30 @@
       "termination": "NONE",
       "status": "FAIL",
       "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "ec2311d47a62814ca2ec4187b9a741689dcef5f6e26a21bd6c70e29b3cc0dac6",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-plan-fixture-route-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "5332b0b6251daaa68714e1bf744183d3fecc6954b661d047bd1c96b9a06f8030",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-plan-fixture-route-green.log",
+      "exitCode": 13,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "d37b2abab1dd5aac1d97b0a924b29b6de71d731a91eba9222695252e77b650c5",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43716553796-a1-j132819252727-s6-browser-root.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
     }
   ],
   "refreshes": [
@@ -1562,6 +1586,24 @@
       "ledgerBeforeDigest": "c9be0eb138380ca0a00d2f7bf9a8c23012ed7fad68f127de83f34d6e8a6d2e58",
       "ledgerAfterDigest": "c9be0eb138380ca0a00d2f7bf9a8c23012ed7fad68f127de83f34d6e8a6d2e58",
       "windowsCiRef": "docs/implementation/v3/M05-windows-ci-43714076939.json",
+      "windowsCiCurrentCodeCut": false
+    },
+    {
+      "recordedAt": "2026-11-15T13:28:30.906303+00:00",
+      "executionBaseSha": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42",
+      "sourceParentHeadSha": "6e5534458ff97fd44246abc7c0083b48597cabcc",
+      "selectedCurrentCommandRefs": [
+        "docs/implementation/v3/m05-logs/continuation-ci-final-build.log",
+        "docs/implementation/v3/m05-logs/continuation-ci-final-memory-regression.log",
+        "docs/implementation/v3/m05-logs/continuation-plan-route-typecheck.log",
+        "docs/implementation/v3/m05-logs/continuation-postmerge-contracts-complete.log",
+        "docs/implementation/v3/m05-logs/continuation-study-manifest-final.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43716553796-a1-j132819252707-s7-native-facade.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43716553796-a1-j132819252707-s7-native-worker.log"
+      ],
+      "ledgerBeforeDigest": "dc67dc148635e6b2df3c8cda66503694b599166f7350454af4f274eb5b47727e",
+      "ledgerAfterDigest": "f57aca947bc6fa4dae885fa59266a78e1dd1df2f3302cad708bf31ad79ff51bc",
+      "windowsCiRef": "docs/implementation/v3/M05-windows-ci-43716553796.json",
       "windowsCiCurrentCodeCut": false
     }
   ]

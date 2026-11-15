@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "recordedAt": "2026-11-15T12:56:49.274413+00:00",
+  "recordedAt": "2026-11-15T13:28:30.906303+00:00",
   "repositoryRoot": "/workspace/scratch/36f66011d961/m05-continuation",
   "branch": "agent/m05-v3-continuation",
   "origin": "https://github.com/Skytuhua/Gen-V1.git",
@@ -8,7 +8,7 @@
   "repositoryId": 1442565952,
   "canonicalIdentityEvidence": "docs/implementation/v3/M05-upstream-check.json",
   "acceptedBaseSha": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42",
-  "sourceParentHeadSha": "5d941f0aea6b80b5ec211b6877ea713c8d7fc8fc",
+  "sourceParentHeadSha": "6e5534458ff97fd44246abc7c0083b48597cabcc",
   "acceptedDependencyCommits": [
     "5f0958f4cb5b40bc10c1eea0e1cd517b57aaa1b9",
     "f331cf16b268282da888a41da42fc776ea7befd5",
@@ -25,29 +25,18 @@
   "selectedCurrentCommandRefs": [
     "docs/implementation/v3/m05-logs/continuation-ci-final-build.log",
     "docs/implementation/v3/m05-logs/continuation-ci-final-memory-regression.log",
-    "docs/implementation/v3/m05-logs/continuation-ci-final-typecheck.log",
-    "docs/implementation/v3/m05-logs/continuation-final-native-facade.log",
+    "docs/implementation/v3/m05-logs/continuation-plan-route-typecheck.log",
     "docs/implementation/v3/m05-logs/continuation-postmerge-contracts-complete.log",
     "docs/implementation/v3/m05-logs/continuation-study-manifest-final.log",
-    "docs/implementation/v3/m05-logs/continuation-windows-history-encoding-fixed.log"
+    "docs/implementation/v3/m05-logs/windows-ci-43716553796-a1-j132819252707-s7-native-facade.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43716553796-a1-j132819252707-s7-native-worker.log"
   ],
   "commandCutLimitation": "Command ledger records actual times/argv/results, not a per-command Git tree. Selection is explicit; the current file inventory is generated separately. Exact-head Windows status is admitted only when its current code/test/workflow cut matches.",
-  "windowsCiRef": "docs/implementation/v3/M05-windows-ci-43714076939.json",
+  "windowsCiRef": "docs/implementation/v3/M05-windows-ci-43716553796.json",
   "windowsCiCurrentCodeCut": false,
   "windowsCiCutNotes": [
-    "CI code/test/workflow cut differs from the current worktree: apps/web/src/Settings.tsx",
-    "CI code/test/workflow cut differs from the current worktree: apps/web/src/skill-library.css",
-    "CI code/test/workflow cut differs from the current worktree: evals/fixtures/project-memory-v3.json",
-    "CI code/test/workflow cut differs from the current worktree: packages/core/memory-consolidation.ts",
-    "CI code/test/workflow cut differs from the current worktree: packages/runtime/index.ts",
     "CI code/test/workflow cut differs from the current worktree: tests/e2e/document-window.spec.ts",
-    "CI code/test/workflow cut differs from the current worktree: tests/e2e/host-loop.spec.ts",
-    "CI code/test/workflow cut differs from the current worktree: tests/e2e/plan-timeline.spec.ts",
-    "CI code/test/workflow cut differs from the current worktree: tests/e2e/signing-motion.spec.ts",
-    "CI code/test/workflow cut differs from the current worktree: tests/e2e/skills.spec.ts",
-    "CI code/test/workflow cut differs from the current worktree: tests/memory-consolidation-v3.test.ts",
-    "CI code/test/workflow cut differs from the current worktree: tests/memory-native-checkpoint-v3.test.ts",
-    "CI code/test/workflow cut differs from the current worktree: tests/memory_native_checkpoint_worker_v3.py"
+    "CI code/test/workflow cut differs from the current worktree: tests/e2e/vite.config.ts"
   ],
   "studyRef": "docs/implementation/v3/m05-study-20261115/results.json",
   "reviewerApproval": false

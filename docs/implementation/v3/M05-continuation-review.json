@@ -50,6 +50,14 @@
     {
       "path": "apps/web/src/skill-library.css",
       "sha256": "6bd179eb186a895c8a933b9ccb8f0f14104f6eb761dfc5e5a46d75f73eec24b7"
+    },
+    {
+      "path": "tests/e2e/vite.config.ts",
+      "sha256": "4322b33fd96a4b976a085dca613ef0f60ebae3c861937a68dcc699b0da86f73a"
+    },
+    {
+      "path": "tests/e2e/document-window.spec.ts",
+      "sha256": "7eba0062a278971bc4763e67526791623dafd29f0e937a625bc80426200a9d09"
     }
   ],
   "findingsResolved": [
@@ -62,7 +70,9 @@
     "Legacy native compaction argument compatibility without a checkpoint",
     "Optional consolidation stale source dispatch before provider entry",
     "Optional consolidation attempted usage durability before provider entry",
-    "Disconnected narrow Skills responsive layout"
+    "Disconnected narrow Skills responsive layout",
+    "Root plan fixture URL served the application fallback instead of its renderer",
+    "Desktop document fixture incorrectly expected automatic overview expansion"
   ],
   "remainingActionableFindings": [],
   "evidenceRefs": [
@@ -76,11 +86,14 @@
     "docs/implementation/v3/m05-logs/continuation-ci-final-memory-regression.log",
     "docs/implementation/v3/m05-logs/continuation-ci-final-typecheck.log",
     "docs/implementation/v3/m05-logs/continuation-ci-final-build.log",
-    "docs/implementation/v3/m05-logs/continuation-ci-final-ui-policy.log"
+    "docs/implementation/v3/m05-logs/continuation-ci-final-ui-policy.log",
+    "docs/implementation/v3/M05-windows-ci-43716553796.json",
+    "docs/implementation/v3/m05-logs/continuation-plan-fixture-route-lifecycle-verification.log",
+    "docs/implementation/v3/m05-logs/continuation-plan-route-typecheck.log"
   ],
   "activationApproval": false,
   "limitations": [
-    "The recorded Windows run failed and is retained unchanged; the repaired source needs a new full Windows run.",
+    "The second Windows run passed all application/native/build checks but retained 20 root-browser failures; the exact fixture route and desktop expectation repairs need a new full Windows run.",
     "Code and synthetic browser review do not establish installed-desktop or live-provider quality/cost.",
     "Both M05 host flags remain false."
   ],
@@ -95,7 +108,7 @@
     "userFacingRequirementsReviewed": 4,
     "additionalConcreteCorrectnessBlockers": [],
     "remainingProofGates": [
-      "Updated-source Windows rerun",
+      "Updated-source Windows browser rerun and required full CI",
       "Actual native FILE capture",
       "Installed desktop",
       "Authorized live repeated-task quality and total auxiliary cost"

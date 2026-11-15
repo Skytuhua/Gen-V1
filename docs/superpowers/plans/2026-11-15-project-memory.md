@@ -85,6 +85,8 @@ Files: offline fixture, `evals/project-memory-study.ts`, runner tests/README, ha
 - [x] Run the final focused regression (331 memory cases and 125 contract/packaging cases), full typecheck, production build and UI policy checks.
 - [x] Reproduce and fix optional consolidation dispatch after Forget/revocation/lease changes and missing pre-dispatch cost metadata; independent review passes all 73 consolidation cases.
 - [x] Restore legacy native compaction argument compatibility, explicitly decode Windows UTF-8 history, and repair baseline browser selectors/readiness and narrow Skills layout without weakening behavior assertions.
+- [x] Preserve second continuation Windows run 43716553796: all 3,709 application cases and 33 native contracts pass; root browser still has 20 failed cases. Import 24 observed command records, including its failing browser command.
+- [x] Diagnose the root plan fixture returning the app HTML fallback and restore desktop manual expansion in the document fixture. The exact fixture route passes HTTP/module checks and full typecheck; actual browser execution remains required.
 - [ ] Complete current Windows full-suite evidence and refresh strict CORE/INTEGRATION/PLATFORM receipts.
 - [ ] Obtain the continuation's exact-head Windows and browser CI result and disposition every required failure. M04's green CI is dependency evidence only.
 - [ ] Obtain installed-desktop execution proof. A desktop build alone does not satisfy it.
