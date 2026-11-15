@@ -109,8 +109,12 @@ export function TooltipLayer() {
     if (!shown || shown.leaving || !bubble.current) return;
     if (!shown.target.isConnected) { setShown(null); return; }
     const anchor = shown.target.getBoundingClientRect(), box = bubble.current.getBoundingClientRect();
-    const side = anchor.top - box.height - GAP >= GUTTER ? 'above' : 'below';
-    setPosition({ side, top: side === 'above' ? anchor.top - box.height - GAP : anchor.bottom + GAP,
+    const above = anchor.top - GAP - GUTTER;
+    const below = window.innerHeight - GUTTER - anchor.bottom - GAP;
+    const side = above >= box.height || (below < box.height && above >= below) ? 'above' : 'below';
+    const preferredTop = side === 'above' ? anchor.top - box.height - GAP : anchor.bottom + GAP;
+    setPosition({ side,
+      top: Math.max(GUTTER, Math.min(window.innerHeight - box.height - GUTTER, preferredTop)),
       left: Math.max(GUTTER, Math.min(window.innerWidth - box.width - GUTTER, anchor.left + anchor.width / 2 - box.width / 2)) });
   }, [shown]);
 

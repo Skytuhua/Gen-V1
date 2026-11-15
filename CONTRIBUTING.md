@@ -58,12 +58,14 @@ pnpm build:widgets
 pnpm exec vitest run tests/composer-prediction.test.ts --maxWorkers=1
 ```
 
-Browser tests use Playwright Chromium:
+Install the bundled Playwright Chromium, plus Google Chrome and Microsoft Edge for suites that explicitly select those channels. The Chromium download does not install either branded browser. Then run the full browser suite:
 
 ```powershell
 pnpm exec playwright install chromium
 pnpm test:e2e
 ```
+
+See [browser prerequisites and scoped commands](docs/getting-started.md#run-the-checks). The GitHub `Browser tests` job checks the split workspace, not every local Playwright suite.
 
 Use the matching scoped Playwright configuration for a particular surface. Keep output in an ignored directory and review traces before sharing them. Freeze edits before final browser verification so hot reload does not invalidate observations.
 

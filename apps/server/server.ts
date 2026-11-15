@@ -25,6 +25,7 @@ import {createPersonalSkillCatalog} from '../../packages/skill-catalog/adapters.
 import type {SkillCatalogRepository} from '../../packages/skill-catalog/repository.ts';
 import {registerAgentInventoryRoutes} from './agent-inventory-routes.ts';
 import {registerAgentInputRoutes} from './agent-input-routes.ts';
+import {registerAgentWorkRoutes} from './agent-work-routes.ts';
 import {registerShellReadRoutes} from './shell-read-routes.ts';
 import {registerConversationReadRoutes} from './conversation-read-routes.ts';
 import {registerToolEffectReadRoutes} from './tool-effect-read-routes.ts';
@@ -142,6 +143,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
       resources: service.store.all('resource', id),
       memory: service.store.all('taskMemory', id),
       usage: usage === undefined ? {} : { [id]: usage },
+      modelRequests: { [id]: service.store.all<{ value: unknown }>('modelRequest', id).map(item => item.value) },
       settings: { theme: 'dark', modelId: null },
       activeThreadId: null,
     };
@@ -191,6 +193,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
   const agentInventory=options.agentInventory??new AgentProjection(service.store);
   registerAgentInventoryRoutes(app,agentInventory);
   registerAgentInputRoutes(app,service.planning);
+  registerAgentWorkRoutes(app,service);
   registerShellReadRoutes(app,service.store);
   const conversationReads=new ConversationReadModels(service.store);
   registerConversationReadRoutes(app,conversationReads);

@@ -50,6 +50,18 @@ test('literal ranges cross formatting without modifying markup or copied code',a
  expect(await page.locator('.message-content').first().innerHTML()).toBe(before);expect(await page.evaluate(()=>CSS.highlights.get('conversation-find-all')?.size)).toBe(3);
  await phrase(page).fill('[a].');await expect(page.getByRole('status').filter({hasText:'0 results'})).toBeVisible();await expect(page.getByLabel('Next match')).toBeDisabled();
 });
+test('find skips screen-reader-only labels without removing them from the transcript',async({page})=>{
+ await setup(page);
+ await page.locator('.message-content').first().evaluate(el=>{
+  const role=document.createElement('span');role.className='sr-only';role.textContent='Assistant role label';el.prepend(role);
+ });
+ await open(page);
+ await phrase(page).fill('Assistant role label');
+ await expect(page.getByRole('status').filter({hasText:'0 results'})).toBeVisible();
+ await expect(page.locator('.message-content .sr-only').first()).toHaveText('Assistant role label');
+ await phrase(page).fill('workspace');
+ await expect(page.getByRole('status').filter({hasText:'1 of 3'})).toBeVisible();
+});
 test('wraps both directions; Escape restores opener and draft caret',async({page})=>{
  await setup(page);const draft=page.locator('.composer textarea');await draft.fill('Retained draft workspace');await draft.evaluate((el:HTMLTextAreaElement)=>el.setSelectionRange(3,3));await open(page);await phrase(page).fill('workspace');await page.keyboard.press('Enter');await expect(page.getByRole('status').filter({hasText:'2 of 3'})).toBeVisible();await page.keyboard.press('Shift+Enter');await page.keyboard.press('Shift+Enter');await expect(page.getByRole('status').filter({hasText:'3 of 3'})).toBeVisible();await page.keyboard.press('Escape');await expect(draft).toBeFocused();await expect(draft).toHaveValue('Retained draft workspace');expect(await draft.evaluate((el:HTMLTextAreaElement)=>el.selectionStart)).toBe(3);
 });

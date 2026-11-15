@@ -132,6 +132,34 @@ test('IME keys leave menu selection and modal ownership unchanged, then Escape u
   await expect(opener).toBeFocused();
 });
 
+test('modal Shift+Tab wraps past rendered but unavailable controls', async ({ page }) => {
+  await page.goto('/ui-shell-controls?primitives=1&modal=1');
+  await page.getByRole('button', { name: 'Open controls dialog' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Controls dialog' });
+  await dialog.evaluate(root => {
+    const confirm = document.createElement('button');
+    confirm.textContent = 'Last available action';
+    root.append(confirm);
+    const hidden = document.createElement('button');
+    hidden.textContent = 'Unavailable action';
+    hidden.style.visibility = 'hidden';
+    root.append(hidden);
+    const slot = document.createElement('div');
+    slot.inert = true;
+    const inactive = document.createElement('button');
+    inactive.textContent = 'Inactive action';
+    slot.append(inactive);
+    root.append(slot);
+  });
+  const close = dialog.getByRole('button', { name: 'Close dialog' });
+  const last = dialog.getByRole('button', { name: 'Last available action' });
+  await close.focus();
+  await page.keyboard.press('Shift+Tab');
+  await expect(last).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(close).toBeFocused();
+});
+
 test('Tab leaves a popup for the next field and outside focus does not get stolen', async ({ page }) => {
   await page.goto('/ui-shell-controls?primitives=1');
   const trigger = page.getByRole('combobox', { name: 'Choice' });

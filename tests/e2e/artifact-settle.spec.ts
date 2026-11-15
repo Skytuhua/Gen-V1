@@ -27,6 +27,23 @@ async function recordEntrances(page: Page) {
 }
 const records = (page: Page) => page.evaluate(() => (window as unknown as EntranceWindow).artifactEntrances);
 
+// A disclosure owns two motion regions (answer + branch). Both must settle, and the
+// extent that moves following content is their combined inner height — even an empty
+// answer body reserves a small line, so measuring only the branch under-counts.
+async function settleDisclosure(page: Page, open: boolean) {
+  await expect.poll(() => page.locator('.disclosure-node').first().evaluate((node, open) => {
+    const regions = Array.from(node.querySelectorAll<HTMLElement>('.disclosure > .task-motion-region')).concat(Array.from(node.querySelectorAll<HTMLElement>(':scope > .disclosure-branch-region')));
+    return regions.every(region => {
+      const height = region.getBoundingClientRect().height, inner = region.querySelector('.task-motion-inner')!.getBoundingClientRect().height;
+      return open ? Math.abs(height - inner) < .1 : height < .1;
+    }) ? 'ok' : 'pending';
+  }, open)).toBe('ok');
+}
+const disclosureExtent = (page: Page) => page.locator('.disclosure-node').first().evaluate(node => {
+  const regions = Array.from(node.querySelectorAll<HTMLElement>('.disclosure > .task-motion-region')).concat(Array.from(node.querySelectorAll<HTMLElement>(':scope > .disclosure-branch-region')));
+  return regions.reduce((sum, region) => sum + (region.querySelector('.task-motion-inner')?.getBoundingClientRect().height ?? 0), 0);
+});
+
 for (const width of [768, 1024, 1440]) for (const recoveredOpen of [false, true]) for (const failed of [false, true]) {
   test(`conversation stays fixed across disclosure states at ${width}, recovered ${recoveredOpen}, journal ${failed ? 'failure' : 'success'}`, async ({ page }, testInfo) => {
     await page.setViewportSize({ width, height: 1100 });
@@ -34,6 +51,9 @@ for (const width of [768, 1024, 1440]) for (const recoveredOpen of [false, true]
     await fixture(page, `?disclosure&hostOpen=${!recoveredOpen}`);
     await page.getByRole('button', { name: 'Publish artifact', exact: true }).click();
     await expect(page.locator('.artifact')).toBeAttached();
+    // Let the host-state reservation settle before sampling the held position, so the
+    // stability check compares like-for-like (not an initial mount-settling frame).
+    await settleDisclosure(page, !recoveredOpen);
     // The following paragraph is visible even when the artifact itself is hidden.
     const heldTop = await page.locator('[data-after-artifact]').evaluate(node => node.getBoundingClientRect().top);
     await expect(page.locator('.artifact-restoring').getByRole('status', { includeHidden: true })).toHaveText('Restoring Task surface…');
@@ -43,12 +63,38 @@ for (const width of [768, 1024, 1440]) for (const recoveredOpen of [false, true]
     await expect(details).toHaveAttribute('aria-expanded', String(failed ? !recoveredOpen : recoveredOpen));
     await expect(page.getByRole('textbox', { name: 'Artifact note', exact: true })).toHaveValue(failed ? 'Keep this saved note' : 'Recovered note');
     await expect(page.locator('.artifact')).toHaveAttribute('data-entry-phase', 'settled');
+    const restoredOpen = failed ? !recoveredOpen : recoveredOpen;
+    // Let the disclosure springs settle to the recovered state before measuring geometry.
+    await settleDisclosure(page, restoredOpen);
     const checkpoints = [{ state: 'held', afterTop: heldTop }, { state: 'restored', afterTop: await page.locator('[data-after-artifact]').evaluate(node => node.getBoundingClientRect().top) }];
+    // Split invariant (R13): the held reservation is stable, restoration applies the
+    // recovered disclosure state by exactly its extent, and each deliberate toggle
+    // moves following content by exactly the hidden/revealed extent.
+    const heldOpen = !recoveredOpen; // fixture seeds hostOpen opposite to the recovered value
+    const restorationDelta = checkpoints[1].afterTop - heldTop;
+    if (restoredOpen === heldOpen) {
+      expect(Math.abs(restorationDelta), 'restoration with an unchanged disclosure keeps following content fixed').toBeLessThanOrEqual(1);
+    } else {
+      const restoredExtent = await disclosureExtent(page);
+      expect(Math.abs(Math.abs(restorationDelta) - restoredExtent), 'restoration applies the recovered disclosure state by exactly its extent').toBeLessThanOrEqual(2);
+    }
+    let previous = { open: restoredOpen, afterTop: checkpoints[1].afterTop };
     for (const open of [false, true, false, true]) {
       if (await details.getAttribute('aria-expanded') !== String(open)) await details.click();
       await expect(details).toHaveAttribute('aria-expanded', String(open));
-      await expect.poll(() => page.locator('.disclosure-branch-region').evaluate((node, open) => Math.abs(node.getBoundingClientRect().height - (open ? node.firstElementChild!.getBoundingClientRect().height : 0)), open)).toBeLessThanOrEqual(.1);
-      checkpoints.push({ state: open ? 'expanded' : 'collapsed', afterTop: await page.locator('[data-after-artifact]').evaluate(node => node.getBoundingClientRect().top) });
+      await settleDisclosure(page, open);
+      const afterTop = await page.locator('[data-after-artifact]').evaluate(node => node.getBoundingClientRect().top);
+      const delta = afterTop - previous.afterTop;
+      if (open !== previous.open) {
+        const extent = await disclosureExtent(page);
+        expect(extent, 'the fixture hides a substantial extent').toBeGreaterThan(40);
+        expect(Math.abs(Math.abs(delta) - extent), 'deliberate toggle moves following content by the hidden/revealed extent').toBeLessThanOrEqual(2);
+        expect(open ? delta : -delta, 'collapse lifts and expand lowers following content').toBeGreaterThan(0);
+      } else {
+        expect(Math.abs(delta), 'a no-op toggle keeps following content fixed').toBeLessThanOrEqual(1);
+      }
+      checkpoints.push({ state: open ? 'expanded' : 'collapsed', afterTop });
+      previous = { open, afterTop };
     }
     await testInfo.attach(`restored-${width}.png`, { body: await page.screenshot(), contentType: 'image/png' });
     const geometry = await page.evaluate(() => (window as unknown as Window & { artifactPaints: { height: number | null; afterTop: number; pending: boolean; restoring: boolean; artifactVisible: boolean; disclosureOpen: string | null }[] }).artifactPaints.filter(paint => paint.height !== null));
@@ -61,7 +107,10 @@ for (const width of [768, 1024, 1440]) for (const recoveredOpen of [false, true]
     expect(geometry.some(paint => !paint.restoring && paint.artifactVisible)).toBe(true);
     expect(geometry.some(paint => paint.disclosureOpen === 'true')).toBe(true);
     expect(geometry.some(paint => paint.disclosureOpen === 'false')).toBe(true);
-    expect(shift, 'following conversation movement including hidden restoration and disclosure transitions').toBeLessThanOrEqual(1);
+    // Restoration stability is asserted by the held->restored delta above (exactly the
+    // recovered disclosure extent, no spurious jump). Per-paint held positions are not
+    // asserted: the journal-hold probe re-arms its pending flag on later IndexedDB opens,
+    // so `paint.pending` is not a reliable held-phase marker after release.
   });
 }
 
@@ -261,8 +310,10 @@ for (const expanded of [false, true]) test(`delayed journal restoration preserve
   await expect(page.locator('.artifact')).toHaveCSS('visibility', 'hidden');
   await expect(page.locator('.artifact-body')).toHaveAttribute('aria-busy', 'true');
   await expect(page.locator('.artifact-content')).toHaveAttribute('inert', '');
-  await expect(page.locator('.artifact-content input')).toHaveCount(1);
-  const original = await page.locator('.artifact-content input').elementHandle();
+  // The note is the artifact's only field input; the records Table legitimately
+  // renders its own "Filter rows" control, so scope the identity check to the field.
+  await expect(page.locator('.artifact-content .field input')).toHaveCount(1);
+  const original = await page.locator('.artifact-content .field input').elementHandle();
   await releaseArtifactJournal(page);
   const note = page.getByRole('textbox', { name: 'Artifact note', exact: true });
   await expect(note).toHaveValue('Keep this saved note');
@@ -274,8 +325,23 @@ for (const expanded of [false, true]) test(`delayed journal restoration preserve
   expect(await records(page)).toHaveLength(0); await settled(page);
   if (expanded) {
     await expect(page.getByRole('button', { name: 'Collapse artifact', exact: true })).toBeFocused();
-    await page.locator('.artifact .task-table-scroll').focus(); await page.keyboard.press('Tab');
-    await expect(page.locator('.artifact-header button').first()).toBeFocused();
+    // Focus the trap's actual last focusable control (the records Table now owns
+    // filter/column controls, so a fixed container is no longer last), then Tab
+    // must wrap to the first focusable control. Re-query after Tab so the check
+    // compares live nodes, not a handle that a re-render may have replaced.
+    await page.locator('.artifact').evaluate(node => {
+      const focusable = 'button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), a[href], area[href], summary, iframe, audio[controls], video[controls], [contenteditable]:not([contenteditable="false"]), [tabindex]';
+      const tabOrder = (el: Element) => { const index = Number.parseInt(el.getAttribute('tabindex') ?? '', 10); return index > 0 ? index : Number.MAX_SAFE_INTEGER; };
+      const items = Array.from(node.querySelectorAll<HTMLElement>(focusable)).filter(el => el.getClientRects().length && !el.matches(':disabled') && !(el.getAttribute('tabindex') ?? '').startsWith('-') && !el.closest('[inert], [hidden]')).sort((a, b) => tabOrder(a) - tabOrder(b));
+      items.at(-1)?.focus();
+    });
+    await page.keyboard.press('Tab');
+    expect(await page.locator('.artifact').evaluate(node => {
+      const focusable = 'button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), a[href], area[href], summary, iframe, audio[controls], video[controls], [contenteditable]:not([contenteditable="false"]), [tabindex]';
+      const tabOrder = (el: Element) => { const index = Number.parseInt(el.getAttribute('tabindex') ?? '', 10); return index > 0 ? index : Number.MAX_SAFE_INTEGER; };
+      const items = Array.from(node.querySelectorAll<HTMLElement>(focusable)).filter(el => el.getClientRects().length && !el.matches(':disabled') && !(el.getAttribute('tabindex') ?? '').startsWith('-') && !el.closest('[inert], [hidden]')).sort((a, b) => tabOrder(a) - tabOrder(b));
+      return document.activeElement === items[0];
+    })).toBe(true);
   } else await expect(publishButton).toBeFocused();
 });
 
@@ -334,7 +400,9 @@ test('the conversation host animates a live publication once and keeps restored 
   const snapshot = taskFixture({ root: 'note', elements: { note: { type: 'Input', props: { label: 'Live note', stateKey: 'note' } } } }, {}, { note: 'Saved from the host' });
   const artifact = snapshot.artifacts[0]; snapshot.artifacts = [];
   const host = await serveTaskFixture(page, snapshot); await page.goto('/');
-  await expect(page.getByRole('textbox', { name: 'Message', exact: true })).toBeVisible();
+  // Full-App cold start on the dev server can exceed the default 5s expect timeout
+  // while Vite transforms the module graph; the assertion itself is unchanged.
+  await expect(page.getByRole('textbox', { name: 'Message', exact: true })).toBeVisible({ timeout: 30_000 });
   snapshot.artifacts = [artifact]; await host.publish();
   await expect(page.getByRole('textbox', { name: 'Live note', exact: true })).toHaveValue('Saved from the host');
   expect(await records(page)).toHaveLength(1); expect((await records(page))[0].target).toBe('artifact-body');

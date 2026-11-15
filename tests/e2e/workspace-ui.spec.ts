@@ -73,7 +73,7 @@ test('primary Workspace keeps tools fixed and preserves its anchored draft throu
  const files=page.getByRole('complementary',{name:'Workspace panel',exact:true});await expect(files).toBeVisible();
  await expect(files.getByRole('tab',{name:'Files',exact:true})).toHaveAttribute('aria-selected','true');
  await expect(page.locator('.canvas-panel-files')).toHaveCount(0);
- await files.getByRole('button',{name:'Close workspace panel',exact:true}).click();await expect(files).toHaveCount(0);
+ await files.getByRole('button',{name:'Hide workspace panel',exact:true}).click();await expect(files).toHaveCount(0);
  await page.getByRole('button',{name:'Panels',exact:false}).click();await page.getByRole('menuitem',{name:'Add Files panel',exact:true}).click();
  await expect(files).toBeVisible();await expect(draft).toHaveValue('Keep the primary draft');
  await page.reload();await expect(files).toBeVisible();await expect(draft).toHaveValue('Keep the primary draft');

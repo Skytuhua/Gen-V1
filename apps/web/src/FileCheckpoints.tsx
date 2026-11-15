@@ -4,7 +4,7 @@ import type {UiPreferences} from '../../../packages/contracts/preferences';
 import {isComposing} from '../../../packages/ui-shell/list-navigation';
 import {displayFilePath} from './files/FilesView';
 import {RecordedDiffs} from './WorkspacePanelBodies';
-import {checkpointOwnerKey,checkpointReviewPaths,disabledCheckpointAdapter,readCheckpointDetail,readCheckpointList,readCheckpointReview,type CheckpointOwner,type CheckpointReview,type FileCheckpoint,type FileCheckpointAdapter} from './file-checkpoint-api';
+import {checkpointOwnerKey,checkpointReviewPaths,disabledCheckpointAdapter,readCheckpointDetail,readCheckpointList,readCheckpointReview,readRestorePlan,readRestoreResult,type CheckpointOwner,type CheckpointRestorePlan,type CheckpointReview,type FileCheckpoint,type FileCheckpointAdapter} from './file-checkpoint-api';
 import './file-checkpoints.css';
 import {ErrorState} from '../../../packages/ui-shell/Feedback';
 
@@ -66,7 +66,10 @@ function CheckpointHistory({owner,adapter,preferences}:{owner:CheckpointOwner;pr
 }
 function CheckpointFiles({owner,adapter,checkpoint,preferences,onBack}:{owner:CheckpointOwner;preferences:UiPreferences}&{adapter:FileCheckpointAdapter;checkpoint:FileCheckpoint;onBack:()=>void}){
   const [reviews,setReviews]=useState<CheckpointReview[]>(),[error,setError]=useState(''),[attempt,setAttempt]=useState(0);
+  const [selected,setSelected]=useState<Set<string>>(new Set()),[confirming,setConfirming]=useState(false),[plan,setPlan]=useState<CheckpointRestorePlan>(),[approvalId,setApprovalId]=useState(''),[applying,setApplying]=useState(false),[done,setDone]=useState<{state:string;restored:string[];conflicts:string[]}>(),[restoreError,setRestoreError]=useState('');
   const back=useRef<HTMLButtonElement>(null),reason=useId();
+  const restorable=adapter.restore.enabled&&adapter.restore.plan&&adapter.restore.apply;
+  const readyPaths=useRef<Set<string>>(new Set());
   useEffect(()=>{back.current?.focus();},[]);
   useEffect(()=>{
     const controller=new AbortController();setReviews(undefined);setError('');
@@ -83,10 +86,35 @@ function CheckpointFiles({owner,adapter,checkpoint,preferences,onBack}:{owner:Ch
           results.push(review);
         }catch(cause){throw Error(`Review part ${index+1} of ${batches.length} is incomplete. ${errorMessage(cause)}`);}
       }
+      readyPaths.current=new Set(results.flatMap(review=>review.files.filter(file=>file.status==='ready').map(file=>file.path)));
       if(!controller.signal.aborted)setReviews(results);
     })().catch(cause=>{if(!controller.signal.aborted)setError(errorMessage(cause));});
     return()=>controller.abort();
   },[owner,adapter,checkpoint,attempt]);
+  const stage=async()=>{
+    if(!restorable||!selected.size)return;
+    setRestoreError('');setApplying(true);
+    const approval=crypto.randomUUID();
+    try{
+      const payload=await adapter.restore.plan!(owner,checkpoint,[...selected],approval);
+      const staged=readRestorePlan(payload);
+      setApprovalId(approval);setPlan(staged);setConfirming(true);
+    }catch(cause){setRestoreError(errorMessage(cause));}finally{setApplying(false);}
+  };
+  const apply=async()=>{
+    if(!restorable||!plan||!approvalId)return;
+    setRestoreError('');setApplying(true);
+    try{
+      const payload=await adapter.restore.apply!(owner,checkpoint,plan.planId,approvalId),result=readRestoreResult(payload);
+      setDone({state:result.state,restored:result.restored,conflicts:result.conflicts});setConfirming(false);
+    }catch(cause){setRestoreError(errorMessage(cause));setConfirming(false);}finally{setApplying(false);}
+  };
+  if(done)return <section aria-label="Checkpoint restore result">
+    <button type="button" onClick={onBack}>Back to History</button><h3>Restore {done.state==='APPLIED'?'complete':'result'}</h3>
+    <p className="file-checkpoints-note">{done.state}</p>
+    {done.restored.length>0&&<ul className="file-checkpoints-list">{done.restored.map(path=><li key={path}><strong>{displayFilePath(path)}</strong><p>Restored.</p></li>)}</ul>}
+    {done.conflicts.length>0&&<ul className="file-checkpoints-list">{done.conflicts.map(path=><li key={path}><strong>{displayFilePath(path)}</strong><p>Not restored: the file changed since the plan was reviewed.</p></li>)}</ul>}
+  </section>;
   return <section aria-label="Checkpoint review">
     <button ref={back} type="button" onClick={onBack}>Back to History</button><h3>{checkpoint.label}</h3>
     {error?<ErrorState message={error} retryLabel="Retry review" onRetry={()=>setAttempt(value=>value+1)}/>:!reviews?<p role="status">Loading checkpoint review…</p>:<>
@@ -97,7 +125,20 @@ function CheckpointFiles({owner,adapter,checkpoint,preferences,onBack}:{owner:Ch
       {review.files.filter(file=>file.diffTruncated).map(file=><p className="file-checkpoints-note" key={file.path}>{displayFilePath(file.path)} · Diff truncated. Only part of this comparison is shown.</p>)}
       {review.files.some(file=>file.diff!==null)&&<RecordedDiffs diffs={review.files.flatMap(file=>file.diff===null?[]:[{id:file.path,title:displayFilePath(file.path),unified:file.diff||'No changes reported.',provenance:`Checkpoint ${checkpoint.id} · Review ${review.reviewId}`}])} preferences={preferences}/>}
       </section>)}
-      <button type="button" disabled aria-describedby={reason}>Restore selected files</button><p id={reason} className="file-checkpoints-note">{adapter.restore.reason}</p>
+      {restorable&&<fieldset disabled={applying}>
+        <legend className="file-checkpoints-note">Files to restore</legend>
+        {reviews.map(review=>review.files.filter(file=>file.status==='ready'||(file.status==='missing'&&file.targetHash!==null)).map(file=><label key={review.reviewId+file.path} className="file-checkpoints-select">
+          <input type="checkbox" checked={selected.has(file.path)} onChange={event=>setSelected(previous=>{const next=new Set(previous);if(event.target.checked)next.add(file.path);else next.delete(file.path);return next;})}/> {displayFilePath(file.path)}
+        </label>))}
+      </fieldset>}
+      {restoreError&&<ErrorState message={restoreError} onRetry={restorable?stage:undefined}/>}
+      {confirming&&plan?<section aria-label="Confirm file restore">
+        <p className="file-checkpoints-caption">Restore {plan.selectedPaths.length} {plan.selectedPaths.length===1?'file':'files'} from this checkpoint? The current file bytes are snapshotted first; files that changed since this review are skipped and reported.</p>
+        <ul className="file-checkpoints-list">{plan.selectedPaths.map(path=><li key={path}><strong>{displayFilePath(path)}</strong></li>)}</ul>
+        <button type="button" disabled={applying} onClick={apply}>Confirm restore</button>
+        <button type="button" disabled={applying} onClick={()=>{setConfirming(false);setPlan(undefined);setApprovalId('');}}>Cancel</button>
+      </section>:<button type="button" disabled={!restorable||!selected.size||applying} onClick={stage} aria-describedby={restorable?undefined:reason}>Restore selected files</button>}
+      {!restorable&&<p id={reason} className="file-checkpoints-note">{adapter.restore.reason}</p>}
     </>}
   </section>;
 }

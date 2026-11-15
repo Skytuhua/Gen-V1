@@ -17,7 +17,7 @@ export function ComposerAttachments({resources,excerpts=[],disabled=false,onEdit
   const animated=!reducedMotion()&&document.querySelector('.app-shell')?.getAttribute('data-panel-animations')!=='false';
   const fresh=animated?[...cache.current.keys()].filter(id=>!now.has(id)&&!leaving.has(id)):[];
   const back=[...leaving].filter(id=>now.has(id));
-  if(!animated)for(const id of leaving)cache.current.delete(id);
+  if(!animated)for(const id of cache.current.keys())if(!now.has(id))cache.current.delete(id);
   if(fresh.length||back.length||(!animated&&leaving.size))setLeaving(previous=>{const next=new Set(previous);for(const id of fresh)next.add(id);for(const id of back)next.delete(id);if(!animated)next.clear();return next;});
  },[attachments]);
  if(!attachments.length&&!excerpts.length&&!leaving.size)return null;

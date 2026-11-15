@@ -15,6 +15,9 @@ export function registerAccountAuthRoutes(app: FastifyInstance, service: Service
   app.post('/api/account-auth/signout', { bodyLimit: 2048 }, async (request, reply) => {
     reply.header('Cache-Control', 'no-store'); const target = parseAccountAuthTarget(request.body);
     await service.cancelComposerPredictions();
-    return signOutAccount(service.store, target);
+    const status = await signOutAccount(service.store, target);
+    // AUD-07: drop the signed-out account's cached catalog so it is never served again; other owners stay intact.
+    await service.runtime.invalidateModels?.({ accountId: target.accountId });
+    return status;
   });
 }

@@ -44,19 +44,63 @@ export function createCapabilityFlags<K extends string>(definitions: readonly Ca
 export const M02_FLAG_KEYS = ["audit.effectsV1", "security.authorityV1"] as const;
 export type M02FlagKey = (typeof M02_FLAG_KEYS)[number];
 
-const m02Flags = createCapabilityFlags<M02FlagKey>([
+// M08 flag set: managed-workspace lifecycle. All default false and only the
+// host that owns this registry can enable one — the provenance journal,
+// checkpoint provider/restore protocol, and the write-delegate child
+// worktrees each stay behind their own key.
+export const M08_FLAG_KEYS = [
+  "workspace.provenanceV1",
+  "workspace.checkpointsV1",
+  "workspace.restoreV1",
+  "workspace.writeDelegateV1",
+] as const;
+export type M08FlagKey = (typeof M08_FLAG_KEYS)[number];
+
+export const M04_CORE_FLAG_KEYS = ["context.compilerV1"] as const;
+export type M04CoreFlagKey = (typeof M04_CORE_FLAG_KEYS)[number];
+
+// M09 flag set: typed multi-agent work. The single key admits the
+// AgentWorkV1 coordinator surface; role availability stays separately gated
+// by each role's own registered host capability proof.
+export const M09_FLAG_KEYS = ["agents.workV1"] as const;
+export type M09FlagKey = (typeof M09_FLAG_KEYS)[number];
+
+// M11 flag set: model transport. Instrumentation ships on; the optimizer
+// surfaces each stay behind its own key until paired cold/repeated evidence,
+// account isolation and cancellation tests pass.
+export const M11_FLAG_KEYS = [
+  "models.requestMetricsV1",
+  "models.publicStreamingV1",
+  "models.statelessPoolExperimentV1",
+  "models.newTaskProfilesV1",
+] as const;
+export type M11FlagKey = (typeof M11_FLAG_KEYS)[number];
+
+export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M04CoreFlagKey | M09FlagKey | M11FlagKey;
+
+const hostFlags = createCapabilityFlags<CapabilityFlagKey>([
+  { key: "context.compilerV1", owner: "m04-core", description: "Host-issued immutable request preparation and measured context receipts." },
   { key: "audit.effectsV1", owner: "m02", description: "Append-only tool-effect ledger and owner-fenced read models." },
   { key: "security.authorityV1", owner: "m02", description: "Single-use approvals and the pre-dispatch authority gate." },
+  { key: "workspace.provenanceV1", owner: "m08", description: "Edit provenance journal: prepared markers and proven/process-window receipts." },
+  { key: "workspace.checkpointsV1", owner: "m08", description: "File checkpoint capture and the host checkpoint provider behind the read adapter." },
+  { key: "workspace.restoreV1", owner: "m08", description: "Reviewed restore protocol with pre-restore checkpoint and per-file preimage checks." },
+  { key: "workspace.writeDelegateV1", owner: "m08", description: "Write-capable child worktrees gated by the M03 child profile and an M02 approval." },
+  { key: "agents.workV1", owner: "m09", description: "Typed multi-agent work admission: role-gated child dispatch, ordered inputs, budget reservation and verified outputs." },
+  { key: "models.requestMetricsV1", owner: "m11", description: "Publish measured per-request observations into the thread Usage dialog." },
+  { key: "models.publicStreamingV1", owner: "m11", description: "Public streaming via a typed parser-approved delta channel; off until a real source parser integration exists." },
+  { key: "models.statelessPoolExperimentV1", owner: "m11", description: "Warm stateless transport reuse experiment; off until adapter proof and paired evidence." },
+  { key: "models.newTaskProfilesV1", owner: "m11", description: "Operator-approved static task-role routing applied only at new-task creation." },
 ]);
 
-export function capabilityEnabled(key: M02FlagKey): boolean {
-  return m02Flags.enabled(key);
+export function capabilityEnabled(key: CapabilityFlagKey): boolean {
+  return hostFlags.enabled(key);
 }
-export function registeredCapabilityFlags(): Record<M02FlagKey, boolean> {
-  return m02Flags.snapshot() as Record<M02FlagKey, boolean>;
+export function registeredCapabilityFlags(): Record<CapabilityFlagKey, boolean> {
+  return hostFlags.snapshot() as Record<CapabilityFlagKey, boolean>;
 }
 /** Test-only seam: flips a flag without touching user-visible preferences. All
  * defaults are false, so `undefined` restores the default. */
-export function __setCapabilityFlagForTests(key: M02FlagKey, value: boolean | undefined): void {
-  m02Flags.set(key, value === true);
+export function __setCapabilityFlagForTests(key: CapabilityFlagKey, value: boolean | undefined): void {
+  hostFlags.set(key, value === true);
 }
