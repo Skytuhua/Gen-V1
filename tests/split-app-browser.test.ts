@@ -230,6 +230,23 @@ describe.runIf(enabled)('actual App split workspace',()=>{
   }finally{await page.close();}
  },30000);
 
+ it('divider resize reflows real pane widths without scaling content (T03/R04 #4)',async()=>{
+  const host=await fixture({mode:'split'}),{page}=host;try{
+   const main=page.locator('[data-split-pane="pane-main"]'),divider=page.getByRole('separator',{name:'Resize columns'});
+   await divider.waitFor({state:'visible'});
+   const before=(await main.boundingBox())!;
+   const box=(await divider.boundingBox())!;
+   await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();
+   await page.mouse.move(box.x+box.width/2-120,box.y+box.height/2,{steps:6});await page.mouse.up();
+   await page.waitForFunction(width=>{const node=document.querySelector('[data-split-pane="pane-main"]');return !!node&&Math.abs(node.getBoundingClientRect().width-width)>40;},before.width);
+   const after=(await main.boundingBox())!;
+   expect(Math.abs(after.width-before.width)).toBeGreaterThan(40);
+   const scale=await page.locator('[data-split-view="thread:thread-a"]').evaluate(node=>{const m=new DOMMatrixReadOnly(getComputedStyle(node).transform);return m.a;});
+   expect(scale).toBe(1);
+   expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
  it('embedded transcript Stop routes through the shared composer owner, not raw run.stop (AUD-05)',async()=>{
   const page=await browser!.newPage({viewport:{width:1200,height:800}});page.setDefaultTimeout(7000);
   const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));
