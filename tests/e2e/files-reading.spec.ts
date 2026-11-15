@@ -146,6 +146,20 @@ test("RED source: zero-byte UTF8 is a successful text preview", async ({
 	await expect(page.getByText(/no inline preview/)).toHaveCount(0);
 });
 
+test("a non-UTF-8 grant explains its encoding limitation and keeps recovery available", async ({page}) => {
+ const go = await fixture(page, "?granted=1");
+ await granted(page, [entry("legacy.txt")]);
+ await page.route("**/api/resources/*/content*", route => route.fulfill({
+  contentType: "application/octet-stream", body: Buffer.from([0x63, 0x61, 0x66, 0xe9]),
+ }));
+ await go();
+ await page.getByRole("button", {name:"legacy.txt", exact:true}).click();
+ const preview = page.getByRole("region", {name:"File content"});
+ await expect(preview.getByRole("status")).toContainText("Text preview requires UTF-8.");
+ await expect(preview.getByRole("link", {name:"Download"})).toHaveAttribute("download", "legacy.txt");
+ await expect(preview.getByRole("button", {name:"Retry"})).toBeEnabled();
+});
+
 test("RED source: a held project file identifies the pending selection", async ({
 	page,
 }) => {
