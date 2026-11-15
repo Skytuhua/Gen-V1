@@ -84,6 +84,18 @@ it('reads live untracked path/content hits, sorts paths then kinds/lines, and ha
   expect((await f.search.search(f.projectId, { q: 'missing' })).matches).toEqual([]);
 });
 
+it('includes a late matching term in its bounded preview and keeps the full line column', async () => {
+  const f = await fixture(), term = 'W'.repeat(200);
+  await f.write('long-line.txt', '😀'.repeat(600) + term + ' after ' + 'z'.repeat(350));
+  const result = await f.search.search(f.projectId, { q: term.toLowerCase() });
+  expect(result.matches).toHaveLength(1);
+  const match = result.matches[0]!;
+  expect(match).toMatchObject({ line: 1, column: 601 });
+  expect(match.preview).toContain(term + ' after ');
+  expect([...match.preview]).toHaveLength(512);
+  expect(searchMatchSchema.safeParse(match).success).toBe(true);
+});
+
 it('treats query metacharacters and shell syntax as literal text and preserves code-point columns/previews', async () => {
   const f = await fixture(), literal = '.*[$(echo unsafe)]';
   await f.write('literal.txt', '😀İ ' + literal + '\n' + '😀'.repeat(600) + literal);
