@@ -85,6 +85,12 @@ export function createConversationScroll(element:HTMLElement){
    if(disposed||ownedTop!==undefined&&Math.abs(element.scrollTop-ownedTop)<1)return null;
    interrupt();following=nearTail();ownedTop=element.scrollTop;return {top:element.scrollTop,tail:following};
   },
+  position():ConversationPosition{
+   // A stale `following` (a scroll that no listener observed) must not
+   // report tail=true: only claim the tail while the spring is catching
+   // up or the view is actually near it.
+   return {top:element.scrollTop,tail:following&&(spring.active||nearTail())};
+  },
   jump():ConversationPosition{
    following=true;follow();return {top:maximum(),tail:true};
   },
