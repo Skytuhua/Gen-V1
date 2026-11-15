@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        mode: [direct, compiled, defaults]
+        mode: [direct, compiled, static, thread]
     steps:
       - name: Check out the isolated diagnostic source
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
@@ -25,7 +25,9 @@ jobs:
           git rev-parse 'HEAD^{tree}'
           $worker = Join-Path $env:SystemRoot 'System32/WindowsPowerShell/v1.0/powershell.exe'
           $script = Join-Path $PWD.Path 'diagnostics/native-save/proxy-registration.ps1'
-          & $worker -NoLogo -NoProfile -NonInteractive -MTA -File $script -Mode '${{ matrix.mode }}'
+          $probeArgs = @('-NoLogo','-NoProfile','-NonInteractive','-MTA','-File',$script,'-Mode','${{ matrix.mode }}')
+          Write-Output ('M05_PROXY_REGISTRATION_ARGV=' + (@{executable=$worker;args=$probeArgs}|ConvertTo-Json -Depth 4 -Compress))
+          & $worker @probeArgs
           exit $LASTEXITCODE
       - name: Preserve bounded registration observations
         if: always()

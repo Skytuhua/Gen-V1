@@ -1,8 +1,8 @@
 [CmdletBinding()]
-param([Parameter(Mandatory=$true)][ValidateSet('direct','compiled','defaults')][string]$Mode)
+param([Parameter(Mandatory=$true)][ValidateSet('direct','compiled','static','thread')][string]$Mode)
 $ErrorActionPreference='Stop'
 $clock=[Diagnostics.Stopwatch]::StartNew()
-$receipt=[ordered]@{version=1;mode=$Mode;createdAt=[DateTime]::UtcNow.ToString('o');passed=$false;scope='Read-only UI Automation assembly registration; no native dialog, account, provider request or control action.';stage='load-assemblies';sourceSha256=(Get-FileHash -LiteralPath $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();powershellVersion=$PSVersionTable.PSVersion.ToString();clrVersion=$PSVersionTable.CLRVersion.ToString();processBits=([IntPtr]::Size*8);client=$null;requested=$null;registered=$null;providerTableCount=$null;forcedDefaultProviders=$false;loadedProviders=@();exceptions=@()}
+$receipt=[ordered]@{version=1;mode=$Mode;createdAt=[DateTime]::UtcNow.ToString('o');passed=$false;scope='Read-only UI Automation assembly registration; no native dialog, account, provider request or control action.';stage='load-assemblies';sourceSha256=(Get-FileHash -LiteralPath $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant();powershellVersion=$PSVersionTable.PSVersion.ToString();clrVersion=$PSVersionTable.CLRVersion.ToString();processBits=([IntPtr]::Size*8);client=$null;requested=$null;registered=$null;providerTableCount=$null;forcedDefaultProviders=$false;ownedThreadJoinBoundMs=5000;loadedProviders=@();exceptions=@()}
 function Assembly-Identity($name) {
   $token=([BitConverter]::ToString($name.GetPublicKeyToken())).Replace('-','').ToLowerInvariant()
   if($name.Name -notin @('UIAutomationClient','UIAutomationClientsideProviders') -or $token -notmatch '^[0-9a-f]{16}$'){throw 'Unexpected UI Automation assembly identity.'}
@@ -20,22 +20,38 @@ try {
     $receipt.stage='compile-public-caller'
     Add-Type -ReferencedAssemblies @($client.Location,[System.Windows.Automation.ControlType].Assembly.Location) -TypeDefinition @'
 public static class M05ProxyRegistrationProbe {
+  [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining | System.Runtime.CompilerServices.MethodImplOptions.NoOptimization)]
   public static void Register(System.Reflection.AssemblyName name) {
     System.Windows.Automation.ClientSettings.RegisterClientSideProviderAssembly(name);
+    System.GC.KeepAlive(name);
   }
-  public static void ForceManagedProxy() {
+  [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining | System.Runtime.CompilerServices.MethodImplOptions.NoOptimization)]
+  public static void OnOwnedThread(System.Reflection.AssemblyName name) {
+    System.Exception failure=null;
+    var thread=new System.Threading.Thread(delegate(){try{Register(name);}catch(System.Exception error){failure=error;}});
+    thread.IsBackground=true;
+    thread.SetApartmentState(System.Threading.ApartmentState.MTA);
+    thread.Start();
+    if(!thread.Join(5000))throw new System.TimeoutException("Owned initialization thread deadline.");
+    if(failure!=null)System.Runtime.ExceptionServices.ExceptionDispatchInfo.Capture(failure).Throw();
+  }
+}
+public static class M05ProxyStaticBootstrap {
+  static M05ProxyStaticBootstrap() {
     System.Windows.Automation.ClientSettings.RegisterClientSideProviders(new System.Windows.Automation.ClientSideProviderDescription[0]);
   }
+  [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining | System.Runtime.CompilerServices.MethodImplOptions.NoOptimization)]
+  public static void Ensure() {}
 }
 '@ | Out-Null
   }
-  if($Mode -ceq 'defaults'){
+  if($Mode -ceq 'static'){
     $receipt.stage='force-default-providers'
-    [M05ProxyRegistrationProbe]::ForceManagedProxy()
+    [M05ProxyStaticBootstrap]::Ensure()
     $receipt.forcedDefaultProviders=$true
   }
   $receipt.stage='register-provider'
-  if($Mode -ceq 'direct'){[System.Windows.Automation.ClientSettings]::RegisterClientSideProviderAssembly($provider)}else{[M05ProxyRegistrationProbe]::Register($provider)}
+  if($Mode -ceq 'direct'){[System.Windows.Automation.ClientSettings]::RegisterClientSideProviderAssembly($provider)}elseif($Mode -ceq 'thread'){[M05ProxyRegistrationProbe]::OnOwnedThread($provider)}else{[M05ProxyRegistrationProbe]::Register($provider)}
   $receipt.stage='inspect-registered-provider'
   $loaded=@([AppDomain]::CurrentDomain.GetAssemblies()|Where-Object {$_.GetName().Name -eq 'UIAutomationClientsideProviders'})
   if($loaded.Count -ne 1){throw 'Expected exactly one registered provider assembly.'}
@@ -57,9 +73,9 @@ public static class M05ProxyRegistrationProbe {
       $method=$frame.GetMethod();if($null -eq $method){continue}
       $declaring=$method.DeclaringType;if($null -eq $declaring){continue}
       $owner=$declaring.FullName
-      if($owner -notmatch '^(MS[.]Internal[.]Automation[.]|System[.]Windows[.]Automation[.]|M05ProxyRegistrationProbe$)'){continue}
+      if($owner -notmatch '^(MS[.]Internal[.]Automation[.]|System[.]Windows[.]Automation[.]|M05Proxy(RegistrationProbe|StaticBootstrap)$)'){continue}
       if($owner -notmatch '^[A-Za-z0-9_.+]{1,160}$' -or $method.Name -notmatch '^[A-Za-z0-9_.]{1,80}$'){continue}
-      $frames+=@{type=$owner;method=$method.Name};if($frames.Count -ge 8){break}
+      $frames+=@{type=$owner;method=$method.Name;ilOffset=$frame.GetILOffset();nativeOffset=$frame.GetNativeOffset()};if($frames.Count -ge 8){break}
     }
     $receipt.exceptions+=@{type=$type;hresult=[int]$failure.HResult;frames=@($frames)}
     $failure=$failure.InnerException
