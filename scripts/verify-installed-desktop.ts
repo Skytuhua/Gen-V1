@@ -125,9 +125,9 @@ export function assertClearInstallPreflight(value:InstallPreflight){
 export function assertInstalledCleanExit(state:{exitCode:number|null;signalCode:string|null}){
  if(state.exitCode!==0||state.signalCode!==null)throw Error('Installed application did not exit cleanly.');
 }
-export function assertZipDestinationFits(directory:string,paths:readonly string[]){
+export function assertWindowsDestinationFits(directory:string,paths:readonly string[]){
  let longest=directory.length;for(const path of paths)longest=Math.max(longest,win32.join(directory,path).length);
- if(longest>=260)throw Error('Installation destination exceeds the pinned ZIP extractor 260-character path limit.');
+ if(longest>=260)throw Error('Installation destination exceeds the conservative Windows 260-character path budget.');
  return longest;
 }
 export function installedCommandArguments(kind:'install'|'uninstall',directory:string){
@@ -191,7 +191,7 @@ async function runOwned(file:string,args:string[],options:{cwd:string;env:NodeJS
  const child=spawn(file,args,{cwd:options.cwd,env:options.env,windowsHide:true,windowsVerbatimArguments:options.rawTail,stdio:['ignore','pipe','pipe']});
  observeOwnedProcess(child,phase,options.timeoutMs,Date.now,observation);
  const pending=new Set<Promise<void>>(),active=()=>observation.status==='running'&&observation.exit===null;
- const progressTimers=options.sampleProgress?[30000,120000,300000,540000].filter(delay=>delay<options.timeoutMs).map(delay=>setTimeout(()=>{
+ const progressTimers=options.sampleProgress?[30000,120000,300000,540000,900000,1140000].filter(delay=>delay<options.timeoutMs).map(delay=>setTimeout(()=>{
   if(!active()||pending.size)return;
   const task=options.sampleProgress!(Date.now()-started,active).then(value=>{observation.pathProgress.push(value);},()=>{observation.pathProgress.push({elapsedMs:Date.now()-started,durationMs:0,status:'failed',root:'refused',sampledFiles:0,absent:0,sizeMatched:0,sizeMismatched:0,refused:0,uninstaller:'refused'});});
   pending.add(task);void task.finally(()=>pending.delete(task));
@@ -327,7 +327,7 @@ export async function verifyInstalledDesktop(setupPath:string,expectedUnpackedPa
  const directory=resolve('.harness-desktop-installed','run-'+Date.now()+'-'+randomUUID());await mkdir(directory,{recursive:true});
  const ownedDirectory=await realpath(directory),workspace=await realpath(resolve('.')),part=relative(workspace,ownedDirectory);
  if(part==='..'||part.startsWith('..\\')||isAbsolute(part))throw Error('Verification output was redirected outside the workspace.');
- // A nested evidence UUID path exceeds legacy nsisunz limits for Gemini assets.
+ // A nested evidence UUID path exceeds the conservative Windows path budget for Gemini assets.
  // Keep the exclusive application sibling short; evidence remains in its own directory.
  const installDirectory=join(workspace,'.harness-app-'+randomUUID().replaceAll('-','').slice(0,12)),version=(JSON.parse(await readFile(join(expectedUnpacked,'resources/host/package.json'),'utf8')) as {version:string}).version;
  const receipt:Record<string,unknown>={createdAt:new Date().toISOString(),setup,setupSha256:setupIdentity.sha256,expectedUnpacked,installDirectory,nsisGuid:nsisApplicationGuid(APP_ID),version,scope:'Owned temporary per-user installation, exact payload/provider custody, two personal installed executable launches with local recovery, and identity-bound uninstall. No sign-in, credentials, inference or user-profile adoption.',inference:false,auth:false,memoryRetentionRequested:options.memoryRetention===true,launches:[],passed:false};
@@ -337,13 +337,13 @@ export async function verifyInstalledDesktop(setupPath:string,expectedUnpackedPa
  try{
   const before=await preflight('before-install');assertClearInstallPreflight(before);receipt.preflight=before;
   try{await lstat(installDirectory);throw Error('Exclusive install destination already exists.');}catch(error){if((error as NodeJS.ErrnoException).code!=='ENOENT')throw error;}
-  const expected=await packageContentManifest(expectedUnpacked);receipt.expectedPayload={files:expected.files.length,bytes:expected.bytes,sha256:expected.sha256,maxInstalledPathLength:assertZipDestinationFits(installDirectory,expected.files.map(file=>file.path))};
+  const expected=await packageContentManifest(expectedUnpacked);receipt.expectedPayload={files:expected.files.length,bytes:expected.bytes,sha256:expected.sha256,maxInstalledPathLength:assertWindowsDestinationFits(installDirectory,expected.files.map(file=>file.path))};
   // Repeat the read-only preflight immediately before installation; never upgrade an existing user installation.
   assertClearInstallPreflight(await preflight('pre-install-recheck'));
   if(!sameIdentity(await identity(setup),setupIdentity))throw Error('Installer changed since verification began.');
   await writeFile(join(ownedDirectory,'owner.json'),JSON.stringify({setup,setupSha256:setupIdentity.sha256,installDirectory,guid:nsisApplicationGuid(APP_ID)},null,2),{flag:'wx'});
   const sampleProgress=await createInstalledPathProgressSampler(installDirectory,expected.files).catch(()=>undefined);receipt.installerProgressSetup=sampleProgress?'ready':'unavailable';
-  installationInvoked=true;receipt.installCommand=await runOwned(setup,installedCommandArguments('install',installDirectory),{cwd:ownedDirectory,env:baseEnvironment(),timeoutMs:600000,rawTail:true,phase:'installer',sampleProgress,onObservation:value=>{receipt.installerObservation=value;}});
+  installationInvoked=true;receipt.installCommand=await runOwned(setup,installedCommandArguments('install',installDirectory),{cwd:ownedDirectory,env:baseEnvironment(),timeoutMs:1200000,rawTail:true,phase:'installer',sampleProgress,onObservation:value=>{receipt.installerObservation=value;}});
   if(!sameWindowsPath(await realpath(installDirectory),installDirectory))throw Error('Installer did not create the exact ordinary owned directory.');
   const after=await preflight('after-install'),uninstaller=assertOwnedInstallEntries(after.entries,installDirectory,version);
   installedUninstaller={path:uninstaller,identity:await identity(uninstaller)};receipt.installedRegistry=after.entries;

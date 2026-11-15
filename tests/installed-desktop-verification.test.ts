@@ -5,7 +5,7 @@ import {join} from 'node:path';
 import {EventEmitter} from 'node:events';
 import {PassThrough} from 'node:stream';
 import type {ChildProcess} from 'node:child_process';
-import {nsisApplicationGuid,assertClearInstallPreflight,assertOwnedInstallEntries,installedCommandArguments,packageContentManifest,assertMatchingContents,parseOwnedUninstaller,assertInstalledCleanExit,assertZipDestinationFits,type InstallPreflight} from '../scripts/verify-installed-desktop.ts';
+import {nsisApplicationGuid,assertClearInstallPreflight,assertOwnedInstallEntries,installedCommandArguments,packageContentManifest,assertMatchingContents,parseOwnedUninstaller,assertInstalledCleanExit,assertWindowsDestinationFits,type InstallPreflight} from '../scripts/verify-installed-desktop.ts';
 import * as installedVerification from '../scripts/verify-installed-desktop.ts';
 import {Store} from '../packages/storage/store.ts';
 import {ProjectMemory} from '../packages/core/project-memory.ts';
@@ -103,10 +103,10 @@ describe('installed desktop verification custody',()=>{
   for(const value of ['-1','NaN','Infinity','60001','1.5','1 trailing-output'])expect(parse('HARNESS_INSTALL_PREFLIGHT_PHASE=script-start:'+value)).toEqual([]);
   expect(parse('HARNESS_INSTALL_PREFLIGHT_PHASE=script-start:0\n'+'UNTRUSTED_OUTPUT\n'.repeat(2000))).toEqual([]);
  });
- it('rejects a destination that exceeds the pinned ZIP extractor Windows path limit',()=>{
+ it('rejects a destination that exceeds the conservative Windows path budget',()=>{
   const file='resources\\host\\node_modules\\'+'x'.repeat(139);
-  expect(()=>assertZipDestinationFits('C:\\Users\\user\\AppData\\Local\\Programs\\generative-harness-desktop',[file])).not.toThrow();
-  expect(()=>assertZipDestinationFits('C:\\'+ 'x'.repeat(130),[file])).toThrow(/path|260/i);
+  expect(()=>assertWindowsDestinationFits('C:\\Users\\user\\AppData\\Local\\Programs\\generative-harness-desktop',[file])).not.toThrow();
+  expect(()=>assertWindowsDestinationFits('C:\\'+ 'x'.repeat(130),[file])).toThrow(/path|260/i);
  });
  it('requires an observed clean process exit before accepting an installed launch',()=>{
   expect(()=>assertInstalledCleanExit({exitCode:0,signalCode:null})).not.toThrow();

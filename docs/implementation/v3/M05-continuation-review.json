@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "reviewScope": "Independent original-prompt review of all twelve M05 implementation steps/four UI requirements, accepted M04 custody, merged M09/M11 lifecycle, shared provider/account admission and native cancellation ownership, maintenance measurement identity, metadata privacy, optional consolidation and Windows failure repairs. The continuation also reviews authored unmocked Windows FILE tests and the owned default-off installed retained-memory verifier; the three native FILE cases actually pass on Windows and the installed verifier passes both read-only preflights but its owned installer invocation times out before installed custody or launch. Canonical Python packaging passes in two actual Windows runs with identical v2 inventory, 28 focused cases and final full typecheck. Current preflight and operation-fixture repairs have actual Windows proof. The subsequent pinned7z format repair and bounded installer diagnostics have independent source review,11passing packaging cases,19passing custody cases and final full typecheck; new Windows execution remains pending.",
+  "reviewScope": "Independent original-prompt review of all twelve M05 implementation steps and four UI requirements, accepted M04 custody, merged M09/M11 lifecycle and native cancellation, metadata privacy, canonical Python packaging, actual native FILE execution and Windows verification repairs. Latest run43744480609 passes eight jobs, production7z packaging, both read-only preflights and every browser case, but its progressing installer reaches600000ms before confirmed installation. A narrowly reviewed1200000ms installer allowance and two late diagnostic samples pass19local custody cases and full typecheck; their fresh Windows execution remains pending.",
   "reviewer": "dependency_audit",
   "reviewedFiles": [
     {
@@ -121,11 +121,11 @@
     },
     {
       "path": "scripts/verify-installed-desktop.ts",
-      "sha256": "1ee1f139802ecba042a2a8e5d317e43245504b3077d498748d935f1c7aa0e8b1"
+      "sha256": "d19e7c8cfaa656a15a0a7af2193e33e6a4d644de969d5f95770df0ba95c015cd"
     },
     {
       "path": "tests/installed-desktop-verification.test.ts",
-      "sha256": "b0346fca20ea6603deff30a0f3ab2e356264022a2c95747372505d3dc7bbe13d"
+      "sha256": "29513a770eda9e7747423459e2f62db95689940ea54455037ffd5945560215de"
     },
     {
       "path": ".github/workflows/ci.yml",
@@ -195,7 +195,7 @@
     "Owned-installer failure evidence previously omitted parent exit versus pipe closure and extraction progress. Bounded metadata-only lifecycle and path samples now retain those observations without changing custody or deadlines. Independent review reproduced and fixed first-failure reason overwrite after a later termination error;19focused custody cases and final full typecheck pass."
   ],
   "remainingActionableFindings": [
-    "The actual owned installer invocation in run 43739565577 exceeded its unchanged 600,000 ms deadline. Exact pinned-source analysis and a bounded Linux source-parser boundary probe prove the bundled ZIP extractor cannot read ZIP64. The reviewed supported7z configuration and bounded process/progress diagnostics require a fresh actual Windows package/install run. The old timeout's precise native cause, archive member count and dialog were not observed; later installed phases remain unexecuted."
+    "The latest Windows installer made observed destination-file progress before its600000ms deadline. The reviewed1200000ms installer-only allowance and two late diagnostic samples require actual Windows execution. Complete installed custody, memory review/restart and owned uninstall remain unproven."
   ],
   "evidenceRefs": [
     "docs/implementation/v3/m05-logs/continuation-postmerge-memory-regression.log",
@@ -299,7 +299,11 @@
     "docs/implementation/v3/m05-logs/continuation-installed-process-progress-green.log",
     "docs/implementation/v3/m05-logs/continuation-installed-first-failure-red.log",
     "docs/implementation/v3/m05-logs/continuation-installed-first-failure-green.log",
-    "docs/implementation/v3/m05-logs/continuation-nsis-7z-installer-final-typecheck.log"
+    "docs/implementation/v3/m05-logs/continuation-nsis-7z-installer-final-typecheck.log",
+    "docs/implementation/v3/M05-windows-ci-43744480609.json",
+    "docs/implementation/v3/M05-installed-phase-review-43744480609.json",
+    "docs/implementation/v3/M05-installer-progress-review-43744480609.json",
+    "docs/implementation/v3/M05-installer-budget-repair-review-20261115.json"
   ],
   "activationApproval": false,
   "limitations": [
@@ -353,14 +357,14 @@
     "faqReadiness": "Exact focused Collapse assertion and all retained draft/branch/focus-return assertions pass; whole-test duration 2.2 s."
   },
   "latestWindowsAttempt": {
-    "runId": 43739565577,
-    "headSha": "b2c81411b4783c12a56eda3f0e7cd54d66fe67b4",
-    "checkoutSha": "21b97981b0eebc48be38d5d98bb705abaa35f7c3",
-    "treeSha": "3a157a5a3be86368e8a4b1404ab2e8886b630bdc",
+    "runId": 43744480609,
+    "headSha": "60f030a2a6a764b858da110586c666353705a5fd",
+    "checkoutSha": "a7ab39080e2d8a27449774a40d55282cd132f828",
+    "treeSha": "b133507695a2130ba4c80cf738e70d4553378864",
     "jobsPassed": 8,
     "jobsFailed": 1,
     "application": {
-      "passed": 3784,
+      "passed": 3788,
       "skipped": 39,
       "failed": 0
     },
@@ -375,37 +379,48 @@
     "observedCommandsImported": 27,
     "canonicalPackaging": {
       "status": "PASS_PACKAGE_CUSTODY_ONLY",
-      "jobId": 132889515576,
-      "priorIndependentReviewRef": "docs/implementation/v3/M05-canonical-package-review-43736761161.json",
-      "currentManifestRef": "docs/implementation/v3/m05-platform-43739565577/build-manifest.json",
+      "jobId": 132904644508,
+      "reviewRef": "docs/implementation/v3/M05-installer-progress-review-43744480609.json",
+      "currentManifestRef": "docs/implementation/v3/m05-platform-43744480609/build-manifest.json",
       "canonicalReceiptSha256": "0eba7dbc92f9ceb13158e4084db3817f952f9704b1856f8ead4d708f91af30bc",
-      "identicalToPriorRun": true,
-      "reviewRef": "docs/implementation/v3/M05-canonical-package-review-43739565577.json"
+      "identicalToPriorRun": true
     },
     "installedPreflight": {
       "status": "PASS",
       "elapsedMs": [
-        29665,
-        22682
+        29997,
+        22749
       ],
       "registryShortcutsCacheProcesses": "clear"
     },
     "browserOperation": {
       "status": "PASS",
-      "wholeCaseMs": 7919,
-      "runtimeStagesSucceeded": 5,
+      "reportedWholeCaseSeconds": 19.2,
       "retainedAssertionScope": "Native approval, revision denial, file replacement, repeated-confirmation no-effect and receipt after restart"
     },
-    "failures": [
-      "The owned installer was invoked after both clear preflights and exceeded its 600,000 ms deadline. Installation is unconfirmed; no payload-custody/provider/memory observations or launches exist; cleanup is preserved-unconfirmed-installation. Underlying cause remains unconfirmed."
-    ],
     "nativeFile": {
       "passed": 3,
       "skipped": 0,
       "failed": 0,
-      "jobId": 132889515583,
+      "jobId": 132904644794,
       "earlierIndependentReviewRef": "docs/implementation/v3/M05-native-file-review-43733008039.json"
-    }
+    },
+    "installerProgress": {
+      "status": "FAILED_DEADLINE_WITH_OBSERVED_PROGRESS",
+      "observationStartedAt": "2026-11-15T18:22:46.286Z",
+      "spawnElapsedMs": 18,
+      "timeoutMs": 600000,
+      "exitAndCloseElapsedMs": 600211,
+      "sampledFiles": 16,
+      "sizeMatchedAt300033Ms": 0,
+      "sizeMatchedAt540022Ms": 12,
+      "absentAt540022Ms": 4,
+      "uninstallerPresent": false,
+      "completionPercentage": null
+    },
+    "failures": [
+      "Owned installer reached600000ms after observed destination-file progress. No earlier natural exit was recorded. No installed payload custody, providers, memory or launches executed; cleanup preserves unconfirmed installation."
+    ]
   },
   "priorFailedWindowsAttemptRefs": [
     "docs/implementation/v3/M05-windows-ci-43723377122.json",
@@ -413,11 +428,12 @@
     "docs/implementation/v3/M05-windows-ci-43727736261.json",
     "docs/implementation/v3/M05-windows-ci-43729864202.json",
     "docs/implementation/v3/M05-windows-ci-43733008039.json",
-    "docs/implementation/v3/M05-windows-ci-43736761161.json"
+    "docs/implementation/v3/M05-windows-ci-43736761161.json",
+    "docs/implementation/v3/M05-windows-ci-43739565577.json"
   ],
   "pendingValidation": [
-    "Execute a fresh complete nine-job Windows workflow after the pinned7z format repair and installer diagnostic review.",
-    "Complete actual NSIS installation, default-off retained-memory review, redacted export, Forget, same-profile restart and identity-bound uninstall. Packaging and earlier preflight/browser successes do not establish installed execution."
+    "Execute a complete fresh nine-job Windows workflow after the installer-only1200000ms allowance and two additional bounded metadata samples.",
+    "Complete actual installation, full payload comparison, default-off retained-memory review, redacted export, Forget, same-profile restart and owned uninstall. Progress does not establish installation."
   ],
   "platformProofPreparation": {
     "nativeFile": {
@@ -435,10 +451,10 @@
       "job": "Installed desktop memory retention",
       "localCustodyCasesPassed": 19,
       "localTypecheck": "PASS",
-      "execution": "Production NSIS packaging and both read-only preflights pass in run 43739565577. The installer is then invoked but exceeds its 600,000 ms deadline. No installed custody, launches or memory observations exist; cleanup preserves the unconfirmed installation.",
+      "execution": "Production7z packaging and both clear preflights passed in run43744480609. Installer samples changed from0/16 present at300033ms to12 expected-size matches at540022ms. No natural exit preceded600000ms deadline termination; installed custody and later phases remain unexecuted. The new installer-only1200000ms bound is locally verified and Windows-pending.",
       "scope": "Retained MESSAGE records with production memory flags off. No model or account is selected.",
       "providerNetworkCalls": null,
-      "windowsCustodyCasesPassed": 15
+      "windowsCustodyCasesPassed": 19
     },
     "publicSourceInventory": "The installed retention helper, native FILE test, canonical Python helper and canonical negative tests are present in the sorted source inventory. Runtime inventory is unchanged.",
     "independentReview": {
@@ -587,10 +603,76 @@
     ]
   },
   "installerFormatAndDiagnosticRepair": {
-    "status": "SOURCE_REVIEWED_WINDOWS_PENDING",
+    "status": "ACTUAL_WINDOWS_PACKAGE_PASS_INSTALLER_PROGRESS_DEADLINE",
     "reviewRef": "docs/implementation/v3/M05-installer-repair-review-20261115.json",
     "archiveFormat": "7z",
     "focusedPackagingCasesPassed": 11,
+    "focusedCustodyCasesPassed": 19,
+    "fullTypecheck": "PASS",
+    "unresolvedConcreteSourceFindings": [],
+    "windowsExecutionRef": "docs/implementation/v3/M05-installer-progress-review-43744480609.json"
+  },
+  "priorInstallerWindowsAttempt": {
+    "runId": 43739565577,
+    "headSha": "b2c81411b4783c12a56eda3f0e7cd54d66fe67b4",
+    "checkoutSha": "21b97981b0eebc48be38d5d98bb705abaa35f7c3",
+    "treeSha": "3a157a5a3be86368e8a4b1404ab2e8886b630bdc",
+    "jobsPassed": 8,
+    "jobsFailed": 1,
+    "application": {
+      "passed": 3784,
+      "skipped": 39,
+      "failed": 0
+    },
+    "browser": {
+      "passed": 267,
+      "skipped": 2,
+      "failed": 0,
+      "flaky": 0
+    },
+    "hermesContractsPassed": 33,
+    "policyPluginTestsPassed": 37,
+    "observedCommandsImported": 27,
+    "canonicalPackaging": {
+      "status": "PASS_PACKAGE_CUSTODY_ONLY",
+      "jobId": 132889515576,
+      "priorIndependentReviewRef": "docs/implementation/v3/M05-canonical-package-review-43736761161.json",
+      "currentManifestRef": "docs/implementation/v3/m05-platform-43739565577/build-manifest.json",
+      "canonicalReceiptSha256": "0eba7dbc92f9ceb13158e4084db3817f952f9704b1856f8ead4d708f91af30bc",
+      "identicalToPriorRun": true,
+      "reviewRef": "docs/implementation/v3/M05-canonical-package-review-43739565577.json"
+    },
+    "installedPreflight": {
+      "status": "PASS",
+      "elapsedMs": [
+        29665,
+        22682
+      ],
+      "registryShortcutsCacheProcesses": "clear"
+    },
+    "browserOperation": {
+      "status": "PASS",
+      "wholeCaseMs": 7919,
+      "runtimeStagesSucceeded": 5,
+      "retainedAssertionScope": "Native approval, revision denial, file replacement, repeated-confirmation no-effect and receipt after restart"
+    },
+    "failures": [
+      "The owned installer was invoked after both clear preflights and exceeded its 600,000 ms deadline. Installation is unconfirmed; no payload-custody/provider/memory observations or launches exist; cleanup is preserved-unconfirmed-installation. Underlying cause remains unconfirmed."
+    ],
+    "nativeFile": {
+      "passed": 3,
+      "skipped": 0,
+      "failed": 0,
+      "jobId": 132889515583,
+      "earlierIndependentReviewRef": "docs/implementation/v3/M05-native-file-review-43733008039.json"
+    }
+  },
+  "installerBudgetRepair": {
+    "status": "LOCAL_VERIFIED_WINDOWS_PENDING",
+    "reviewRef": "docs/implementation/v3/M05-installer-budget-repair-review-20261115.json",
+    "installerTimeoutMs": 1200000,
+    "uninstallerTimeoutMs": 180000,
+    "preflightTimeoutMs": 60000,
     "focusedCustodyCasesPassed": 19,
     "fullTypecheck": "PASS",
     "unresolvedConcreteSourceFindings": []

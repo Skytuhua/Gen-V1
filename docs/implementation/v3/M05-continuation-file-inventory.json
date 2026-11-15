@@ -147,7 +147,7 @@
       "path": "docs/implementation/v3/M05-browser-cases-43739565577.json",
       "sha256": "ae9caef98a78d9fdce1619082ddef1923116802de259e4d578c183d818bc311a",
       "bytes": 9469,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
@@ -175,7 +175,7 @@
       "path": "docs/implementation/v3/M05-canonical-package-review-43739565577.json",
       "sha256": "3e1bf83b54673bd5e64195473da9f3e7a71c7484bf12d006efb58da08dea0c9a",
       "bytes": 11059,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
@@ -200,15 +200,15 @@
     },
     {
       "path": "docs/implementation/v3/M05-continuation-history.json",
-      "sha256": "5608951a8ae0b5426a92b7bf0cfc48ec76853bebf39265fba339326e277b79d4",
-      "bytes": 99909,
+      "sha256": "d1fd2cf668c914268ce05368185dd3f28deaa3afe03e37500940a047ebca2692",
+      "bytes": 103208,
       "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/M05-continuation-review.json",
-      "sha256": "a30b94eb649d61a6b143668b78d614077e5dd6ee70a56439244a545de1468e4d",
-      "bytes": 35093,
+      "sha256": "82b9fa1310447dba4ac5f492febf4981605f5ca2bd77974c6657d9f7562f2a7d",
+      "bytes": 37767,
       "trackedAtCapture": true,
       "note": null
     },
@@ -235,8 +235,8 @@
     },
     {
       "path": "docs/implementation/v3/M05-handoff.md",
-      "sha256": "ad9fd472152ba94e42d0dc15274081d095238a4a92191f98eb6bf60850a84a94",
-      "bytes": 61079,
+      "sha256": "2263f545ed697fc1603a0f57b949cf95fca6862120eddcdc89bb21d7c7caa99d",
+      "bytes": 64261,
       "trackedAtCapture": true,
       "note": null
     },
@@ -265,6 +265,13 @@
       "path": "docs/implementation/v3/M05-installed-phase-review-43739565577.json",
       "sha256": "e0431b9b2f5e3b92ec4bef9d602160271881cb2c485da1b4fc07562bbef7c885",
       "bytes": 6786,
+      "trackedAtCapture": true,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/M05-installed-phase-review-43744480609.json",
+      "sha256": "1d783f52bb247b408ebd262ce2b76c4420bf3c3eb5ccb6b585183b92623935fc",
+      "bytes": 8507,
       "trackedAtCapture": false,
       "note": null
     },
@@ -276,16 +283,30 @@
       "note": null
     },
     {
-      "path": "docs/implementation/v3/M05-installer-repair-review-20261115.json",
-      "sha256": "68ce18330cd03c47cd2b6d6c274fe6e03eb9474fb42d87ca84f49448bef902fe",
-      "bytes": 13619,
+      "path": "docs/implementation/v3/M05-installer-budget-repair-review-20261115.json",
+      "sha256": "f03d7944f8e1da9f7d3abd10d0097ecff05d4640b3ffc9adb995a63ed7d4d456",
+      "bytes": 6036,
       "trackedAtCapture": false,
       "note": null
     },
     {
+      "path": "docs/implementation/v3/M05-installer-progress-review-43744480609.json",
+      "sha256": "a8410355e418d8284306a286d0dcdb9176100c873d630ccd5ab4cf24ec8b3b06",
+      "bytes": 18939,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/M05-installer-repair-review-20261115.json",
+      "sha256": "68ce18330cd03c47cd2b6d6c274fe6e03eb9474fb42d87ca84f49448bef902fe",
+      "bytes": 13619,
+      "trackedAtCapture": true,
+      "note": null
+    },
+    {
       "path": "docs/implementation/v3/M05-log-policy.json",
-      "sha256": "f57f741343dd53290b4b980e741be7327a81fc4955861cc58da059cec4332cf6",
-      "bytes": 408495,
+      "sha256": "3f8ede5e27b2b079c0b46e7c68b454ebf98ce0dff499c14b760f153d12e77d7d",
+      "bytes": 428390,
       "trackedAtCapture": true,
       "note": null
     },
@@ -300,21 +321,21 @@
       "path": "docs/implementation/v3/M05-nsis-7z-repair-review-20261115.json",
       "sha256": "63a371f713e922e7629f0dfdd7c3dc54cfe0bc5b578752a225a992079e8fcc8b",
       "bytes": 6902,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/M05-nsis-zip64-review-43739565577.json",
       "sha256": "7f9757695cf7638c131546f2a54475e2479e29f1a636d5fb203be4e2b267a553",
       "bytes": 13506,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/M05-operation-stage-review-43739565577.json",
       "sha256": "c4611ff9933ff14e8b2ae7d899ba583bb717c9d99dcca7dfd97f98cb46575e13",
       "bytes": 8371,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
@@ -326,15 +347,15 @@
     },
     {
       "path": "docs/implementation/v3/M05-provenance.json",
-      "sha256": "475dfbe0a97cba955fec0f06beb79db4c2010a703c120779ef6d01f3b0109b10",
-      "bytes": 2999,
+      "sha256": "2c5f88889381e116a46bbffecd98c192267a43aae2c1d316dc947858bbc4b2b3",
+      "bytes": 2807,
       "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/M05-source-lock.json",
-      "sha256": "85d698c90b26018a30d4830a232bbcc61ec7be9439845699c32d6905ae5e4ac7",
-      "bytes": 21153,
+      "sha256": "63ad4159651843a19241573ba0091224068bac28557e13eb4f444805e210881f",
+      "bytes": 22929,
       "trackedAtCapture": true,
       "note": null
     },
@@ -354,8 +375,8 @@
     },
     {
       "path": "docs/implementation/v3/M05-verification.json",
-      "sha256": "2202144a0c11bf835a16e2bf3542e79a891a1e3619bbf407db4dd5de43cc0b3d",
-      "bytes": 521627,
+      "sha256": "2773d52b5d10b15cad7cbaee09364dcb8bd49247cf23eb78b96bb1cd0046f61e",
+      "bytes": 549133,
       "trackedAtCapture": true,
       "note": null
     },
@@ -440,13 +461,20 @@
       "path": "docs/implementation/v3/M05-windows-ci-43739565577.json",
       "sha256": "b649808b547f9e8f468044e10de57059c21caca6d8d473b1763c5a611482370e",
       "bytes": 43688,
+      "trackedAtCapture": true,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/M05-windows-ci-43744480609.json",
+      "sha256": "06207654d12c3c5d1587e0aa39e594908eef528c3c701241ddc59ad0737c2ce6",
+      "bytes": 43687,
       "trackedAtCapture": false,
       "note": null
     },
     {
       "path": "docs/implementation/v3/M05-windows-ci-repair.md",
-      "sha256": "9c19b3d88d68dd7bdf6d88da191f799cb149f8bdfa449fc45ee79d3d6108bdec",
-      "bytes": 93074,
+      "sha256": "2818c36871a2279467f42ee4ce9924bb037477e507a1285eb785dd9833c65e69",
+      "bytes": 98114,
       "trackedAtCapture": true,
       "note": null
     },
@@ -543,8 +571,8 @@
     },
     {
       "path": "docs/implementation/v3/m05-logs/commands.jsonl",
-      "sha256": "9b0fa4ab1bf767ca69704f2e0f642462213034442f2f24d636a6b3ca313388c0",
-      "bytes": 290419,
+      "sha256": "4d312a15e3f961690a48d0ac697ec0dbe999a3d6221db5ad41d68b213b6f328e",
+      "bytes": 304149,
       "trackedAtCapture": true,
       "note": null
     },
@@ -923,14 +951,14 @@
       "path": "docs/implementation/v3/m05-logs/continuation-installed-first-failure-green.log",
       "sha256": "5efb2c194a08c86d2ba65b389d09ad0b7057bd588e1a64736386b222946d5498",
       "bytes": 233,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/continuation-installed-first-failure-red.log",
       "sha256": "8aa0fa9335e8359a38d288d4b2ccd77d925e81b8165c1086506989bc1d41e4c4",
       "bytes": 1591,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
@@ -993,13 +1021,27 @@
       "path": "docs/implementation/v3/m05-logs/continuation-installed-process-progress-green.log",
       "sha256": "c8a6afb2e50496463588b730a969aa9efb8c329f644204113d43facf823682cb",
       "bytes": 233,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/continuation-installed-process-progress-red.log",
       "sha256": "f221606a9bbd7760f3c0f4a202dc3a553bb3ba9ecb654e412ff527194c201e09",
       "bytes": 2054,
+      "trackedAtCapture": true,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/continuation-installed-progress-budget-regression.log",
+      "sha256": "99a50ffec5516ec6952367c926120365b30f98f2114ed9f356f4a7bf51ea55fe",
+      "bytes": 234,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/continuation-installed-progress-budget-typecheck.log",
+      "sha256": "725c701c2df5342fc103cc0f823bf0beb594484b8ca3f9fe7f0bb3902999a5ca",
+      "bytes": 90,
       "trackedAtCapture": false,
       "note": null
     },
@@ -1266,21 +1308,21 @@
       "path": "docs/implementation/v3/m05-logs/continuation-nsis-7z-contract-green.log",
       "sha256": "44da84720a9718a22436e23e1155588180ce91b5a4fdae7ecac428589f9b5e07",
       "bytes": 231,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/continuation-nsis-7z-contract-red.log",
       "sha256": "25e3159e602f86d9ec7ec078c70f7dbba92a94d7e8732160cfe571199689e9ef",
       "bytes": 1527,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/continuation-nsis-7z-installer-final-typecheck.log",
       "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
       "bytes": 1,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
@@ -6495,439 +6537,880 @@
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-132889515272.log",
       "sha256": "120369d249b3be0d62e2141942443ace5de2ddd8d04143c15b53fee92978f478",
       "bytes": 49643,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-132889515463.log",
       "sha256": "e8349edd0f74964c60f5ac7cf1fbae6824c48c5d2e78ba4355438e3832053aa3",
       "bytes": 45288,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-132889515502.log",
       "sha256": "7b5492001af028e385a94fcf5de3620652c0f7077f3ac32a5e867f622d497c8d",
       "bytes": 65528,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-132889515544.log",
       "sha256": "6474f5e3a9db0e039843cc5e1a2971047aee497393af8c013ea1719962d9e79d",
       "bytes": 65528,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-132889515550.log",
       "sha256": "e29920db2f9a63aa8d8240bf099a2fbb728f941947ea92aa1fb70cc25670cf2e",
       "bytes": 54218,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-132889515576.log",
       "sha256": "36ab47a9c40ade0d829e99236931b35f39f0d5c00d91574b26ea4723d57fca69",
       "bytes": 65528,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-132889515583.log",
       "sha256": "24f2be82a33fd816440bdf1475ad685ad2d5a7a0590ace7ccab8e4476b89c595",
       "bytes": 65528,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-132889515594.log",
       "sha256": "1ba704e22fbee1f388631126562fefaa9b8e60d271c27c42ed394572e31cdc38",
       "bytes": 65528,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-132889515595.log",
       "sha256": "01a9e5fe3bdedc27b85f137b6b8191e25d6bea7e1d987d25e2e1d04ff26c64d0",
       "bytes": 65528,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515272-s4-hermes-source.log",
       "sha256": "07a1b89cbe63a950ff0324fa401946eb9d9ea37e022e4ccb82f4a17eac5650e0",
       "bytes": 2154,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515272-s4-hermes-source.meta.json",
       "sha256": "15fbcab7a455f1ea58b1d6584e78f4042f9c91bc37da87a1723024a09e933f8c",
       "bytes": 3595,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515272-s5-hermes-controls.log",
       "sha256": "51c32508c77186e6f47508d4b7cd7273fcccc5a414e34e8926536bf288039b81",
       "bytes": 2018,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515272-s5-hermes-controls.meta.json",
       "sha256": "30719f3a69bd5b42f11cfac4462166ca7c4f9e21a96e18862aca1227991f5304",
       "bytes": 3598,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515272-s6-hermes-worker.log",
       "sha256": "2eb00101869e86550c77eb7808bdfad93794e0416f2197272c7d78672526d581",
       "bytes": 4280,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515272-s6-hermes-worker.meta.json",
       "sha256": "b6c14916b2776dae1db6478b6515147fc94b0441b81633093d172a8533654da2",
       "bytes": 3599,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515272-s7-native-facade.log",
       "sha256": "7bd86b305c520bd6749b863006301642434ead2469b639ab22dacf4f8f84f058",
       "bytes": 2389,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515272-s7-native-facade.meta.json",
       "sha256": "a919c93511eaacde02683a4f0c98fbc670696cf94d38c3d5727582fd5baf3874",
       "bytes": 3767,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515272-s7-native-worker.log",
       "sha256": "97530c0b583a193975b8fdd938e78defd160f3485bb4a09f9ca4eed8201702d3",
       "bytes": 2076,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515272-s7-native-worker.meta.json",
       "sha256": "e9640251cb65f934110684ce20b7700b860977de743d2da831aae4a1faad1af2",
       "bytes": 3804,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515463-s4-build-web.log",
       "sha256": "c34c34a9fd9443d60ccc37ced39a4fbc28cce14d1aadf655723a14d7fcfe9852",
       "bytes": 12006,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515463-s4-build-web.meta.json",
       "sha256": "e509334ac5c3ad1e073aa0c22833417f72a850bd5698d4f3486e43c08c7d5713",
       "bytes": 3463,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515463-s5-build-desktop.log",
       "sha256": "d58a88972faa16537a4bb66dc3391da8d0c087dfcdbd6032b16408b928af6370",
       "bytes": 654,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515463-s5-build-desktop.meta.json",
       "sha256": "5faec17a2bfed0513754461d37892b2acf56ca3c7ff38be84737873e571a6f21",
       "bytes": 3477,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515502-s4-build-web.log",
       "sha256": "92a5781cd1263533152e1aee6302f2e04fa9f5bb5e847d661d596d3e5cf08931",
       "bytes": 12600,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515502-s4-build-web.meta.json",
       "sha256": "2ddef0333e2555d4387aa6ac07379ea59121beff06487902161103271edeaf95",
       "bytes": 3464,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515502-s5-browser-split.log",
       "sha256": "1bc85e763092fcf1b18139b73f8c257d65526751cc2af5d2adc13bba56703810",
       "bytes": 5401,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515502-s5-browser-split.meta.json",
       "sha256": "f58bf5d6ad972c81cdb12a7a32c68335cf7c0afbc9ff516e64ed6fabba1f8932",
       "bytes": 3721,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515502-s6-browser-frontend-refinement.log",
       "sha256": "f33becb0f04ccf8a6c74adfac92df552174c57d624bef06b71c933ac504e6289",
       "bytes": 17484,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515502-s6-browser-frontend-refinement.meta.json",
       "sha256": "cd12fed4b56a3c52cbfae22f6aa1c7f2a11308e59d81be778fd640b3dc320085",
       "bytes": 3934,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515502-s6-browser-project-memory.log",
       "sha256": "e6a0ff06b94ed5129880c90bc9a0012e82505b0f4efae6c43592225f943b8936",
       "bytes": 4610,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515502-s6-browser-project-memory.meta.json",
       "sha256": "a66041276b0803f76642ef0b09e6df67f65ee6aeea942786779b09583a1635bf",
       "bytes": 3922,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515502-s6-browser-root.log",
       "sha256": "f0137d38d49ffab32a9d32a5ebdbe00a6da68e3242a9a99e2ecd37e794fbc451",
       "bytes": 20187,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515502-s6-browser-root.meta.json",
       "sha256": "833c4881ebbf399984df0137a94e42b3220afc620d4798c7cb1fa87a2b230c0e",
       "bytes": 3904,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515502-s6-browser-usage-context.log",
       "sha256": "7c5724033b66e8807f716f9dc3a248a19cbd5bfc6bef27697c3c1a90c418b918",
       "bytes": 5633,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515502-s6-browser-usage-context.meta.json",
       "sha256": "923188f8a078de3dabad8387efe4350fbc18eeccc479885751853336eeffe474",
       "bytes": 3920,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515544-s4-build-web.log",
       "sha256": "ba05106a736958f379096eb49609f772ac4f782809c5674419a339ac87872841",
       "bytes": 12600,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515544-s4-build-web.meta.json",
       "sha256": "5e20e4a41233ae8c4dd1b52d8727ed232cfb04a783c89d2635d7ed7b6b6ecf35",
       "bytes": 3468,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515544-s5-application-regression.log",
       "sha256": "71e992e6af53f00dcf69539d873094c34569dac57d7a7312a3ab0c7445212726",
       "bytes": 50820,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515544-s5-application-regression.meta.json",
       "sha256": "ab15fa812f610626325de4bf91c260485d3d79724790b1d7eaa556195e145b86",
       "bytes": 3562,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515550-s6-ui-guard.log",
       "sha256": "e3b64b1bcc98c09711a4b20d908693f4709337df9f9d5088939a3329d5cc2590",
       "bytes": 1629,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515550-s6-ui-guard.meta.json",
       "sha256": "50e12c776de8a4cfd89943c0c70925fd3d2771ff7adc6e0fd623b2045c6b55de",
       "bytes": 3504,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515550-s7-lint.log",
       "sha256": "4768817f9787cbaa2e16bff8d38c06ba71cf021c1228efa25a4a16ff5fce16d7",
       "bytes": 698,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515550-s7-lint.meta.json",
       "sha256": "23826919f911813b121dd553b3ffda20a46ab817979d637617d1d97d2dfdc6a4",
       "bytes": 3483,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515550-s9-build-web.log",
       "sha256": "a461c86c17f807e18d39a126ae9901a60420801db885a78629d06ea282485b0e",
       "bytes": 12004,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515550-s9-build-web.meta.json",
       "sha256": "64987424b8376a99651c08229f8fab7ad8618d57226f3509a0c1c77670c29835",
       "bytes": 3464,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515576-s5-installed-git-custody.log",
       "sha256": "ee5d4e07743a609683ee7b1c27e55d961ec668ab71b0feab62f0f8345b0cd500",
       "bytes": 4781,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515576-s5-installed-git-custody.meta.json",
       "sha256": "f4d9fccfefb20a0ae052ac3733f3aad7c9e0ba250f8dca24b794e61914454bb3",
       "bytes": 14286,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515576-s6-installed-package.log",
       "sha256": "1de0f2815818f59705f335a7f02d037b7d7f649dad8c9804330be3c031895626",
       "bytes": 65536,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515576-s6-installed-package.meta.json",
       "sha256": "0c53a8ae0fc058ddd04555872abf77c23c0e137c1aff90bd1a463cf74ba62767",
       "bytes": 11307,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515576-s7-installed-retention.log",
       "sha256": "b8837b8b632e61eb10f342683541f70344b2b4b83679a9bb477b677388163ab3",
       "bytes": 3421,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515576-s7-installed-retention.meta.json",
       "sha256": "986944cd19877df02997885dbf9761b1cc6d8f145c6ef27c044daaec26fe2de8",
       "bytes": 12284,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515583-s4-build-web.log",
       "sha256": "f420d92cf082d66523ef4ebd25d68f28cf0e3104d8ab1d7d5dacdd0432c5a22f",
       "bytes": 12601,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515583-s4-build-web.meta.json",
       "sha256": "96b65dcb1cebb7aacd4555d45f4b868a4bdd4c24d1d409edb791475531b43432",
       "bytes": 3468,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515583-s5-application-regression.log",
       "sha256": "28df0aee775a50a4ff3193eb30aca30816f7b8a2faf445b4d2e8ca47adfccbea",
       "bytes": 38628,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515583-s5-application-regression.meta.json",
       "sha256": "ca15627a5f16a4909375adc6aa68708b853049569ea78868f84d689101490678",
       "bytes": 3562,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515594-s4-build-web.log",
       "sha256": "199e43268792606a19127a17f2d471829698d3c01e80fcb1475b273853796428",
       "bytes": 12600,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515594-s4-build-web.meta.json",
       "sha256": "b0527707d6118f8d4b1736047856f281b0d8c1f75465d41b67caef44bd94a7ba",
       "bytes": 3467,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515594-s5-application-regression.log",
       "sha256": "eda1ecd0ea486a9e712e6f96699c467a1227792ab06df586770ce968a31d59fb",
       "bytes": 24833,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515594-s5-application-regression.meta.json",
       "sha256": "5343c511d4b8546bcce42c1ecbbc86d0e7db0c8d59e1b3d33bbf81815062a659",
       "bytes": 3561,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515595-s4-build-web.log",
       "sha256": "64da5351252c223212599673f30db8d28621c81ac9cbfb09bb2e2ce502fe113c",
       "bytes": 12600,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515595-s4-build-web.meta.json",
       "sha256": "e400e5bc7df34d5b8b87650c93f4e02796ee1b6bfdd8b756b3c46de1f76e15d3",
       "bytes": 3468,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515595-s5-application-regression.log",
       "sha256": "21df521ec6244a1a2da3cf2af4bbb71388f981b583a0018baa7e79bcda1bad62",
       "bytes": 44987,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-logs/windows-ci-43739565577-a1-j132889515595-s5-application-regression.meta.json",
       "sha256": "90d691fb4a241949607f835498021f21c5dad1ca545c54253b2c75072589d623",
+      "bytes": 3562,
+      "trackedAtCapture": true,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-132904644508.log",
+      "sha256": "faf9d65c3bb6a3bea54cf0c0cb93fb45d20ea61e58a6c259b30cfa2fdeb54487",
+      "bytes": 65528,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-132904644622.log",
+      "sha256": "e6cc9d121cb412f718c14622c601421abf1f9a5c8208f917c5c8aff59baf738a",
+      "bytes": 51081,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-132904644654.log",
+      "sha256": "5e9202fa5ead67b972142e604097656a730ce1bf932b2ccdc140101bbc89c5c5",
+      "bytes": 65528,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-132904644668.log",
+      "sha256": "c4e0213971e8631076221ee6ba93d1c97c51f5b15ac848fd36af07d14ec7319a",
+      "bytes": 65528,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-132904644707.log",
+      "sha256": "b497682ae5969304bcd55887e835fd35197e8657e70b60acbfb2f3d8abeaabaf",
+      "bytes": 42832,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-132904644722.log",
+      "sha256": "26883a648016c6353fd036a59c336e7dd76a217927929847f763a88e302ff291",
+      "bytes": 65528,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-132904644780.log",
+      "sha256": "da122f207deb0408e44280b711bb72d726321c5d964ac96b29f0ddfebf6df861",
+      "bytes": 54797,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-132904644794.log",
+      "sha256": "b89196a2127df525ba8e5b9a7eb27591d83b7751696153ab3d4b0113cd712bab",
+      "bytes": 65528,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-132904644807.log",
+      "sha256": "d5f91e4119e6ab666962573750fe4f5e566867e94c29ecc9a82c9588712179cf",
+      "bytes": 65528,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644508-s5-installed-git-custody.log",
+      "sha256": "132979f0671409d68f3ed2a554c98f9576c7a5d45304bc51e036512ecf89ceca",
+      "bytes": 4781,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644508-s5-installed-git-custody.meta.json",
+      "sha256": "40393f505935055368d99eea3296c239d5e61fcdbe0242dcb6f1b299ac1d0369",
+      "bytes": 14286,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644508-s6-installed-package.log",
+      "sha256": "7618770f0ab5b99a5e7ed0d8c70d8bfa3b76c438ae97213179ad3bb340fa136f",
+      "bytes": 65536,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644508-s6-installed-package.meta.json",
+      "sha256": "cecf1d5da3c7fb427002e166ac3baedc2e41ecc6f8769f40caf61314628ab83a",
+      "bytes": 11307,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644508-s7-installed-retention.log",
+      "sha256": "0445caa26b6b462767b3277b67b680adffe6dd5012cafae8bf97bc5e892f1d06",
+      "bytes": 3432,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644508-s7-installed-retention.meta.json",
+      "sha256": "96e3fd65d4b9a97daa818068de17424644a67d4cf7554d2144cdf0d730063aee",
+      "bytes": 12284,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644622-s4-hermes-source.log",
+      "sha256": "e73634f31d20cb1d485aaa7052b504ab231d15ca8146c5a4c44d588adc564123",
+      "bytes": 2154,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644622-s4-hermes-source.meta.json",
+      "sha256": "d4149b014ae0eefa61b47f060082f8b5a6e1927b8e72a81407a5715895afa866",
+      "bytes": 3595,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644622-s5-hermes-controls.log",
+      "sha256": "142af3983f16be89936ec9f3afe4f5cd192a6f4e9190d872720e92adb79a7b30",
+      "bytes": 2018,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644622-s5-hermes-controls.meta.json",
+      "sha256": "8880e0cc4ebfb5e7ba72e36e813e2eb7af1f0942d3639df5f066d0aed82956a7",
+      "bytes": 3598,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644622-s6-hermes-worker.log",
+      "sha256": "a737bbb8ca7a0c8eb3eb76eb88455cf04f82840178e9899aa8c0d76bb77b86d5",
+      "bytes": 4280,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644622-s6-hermes-worker.meta.json",
+      "sha256": "e9ef45015ba85a822885148de64279505ad2a256fb70f66baced7064f1e9b86f",
+      "bytes": 3599,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644622-s7-native-facade.log",
+      "sha256": "84500d1dd34b0ce3167f557def161a281018d7045427a170a614f7e41c1b6103",
+      "bytes": 2389,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644622-s7-native-facade.meta.json",
+      "sha256": "fce0c65a6f3eda742c18a21dbf885be1c6cac1f3a2546d365ac394a2b0ca4c95",
+      "bytes": 3767,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644622-s7-native-worker.log",
+      "sha256": "e0e55f3bfaf90422f5d7acc35632f64f270ae52f6e54fc98b4a1c2c2cae3469f",
+      "bytes": 2076,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644622-s7-native-worker.meta.json",
+      "sha256": "ad77872731e517b8c21183681e5b454b94d06de0f3d98202349595489f0c0963",
+      "bytes": 3804,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644654-s4-build-web.log",
+      "sha256": "38149c0c336b7a32768febce26cb2232343cf536e55232fac3262e2da1fdc656",
+      "bytes": 12601,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644654-s4-build-web.meta.json",
+      "sha256": "b40749ecef0cb318053647ec413655ff46ddf8d20f0f7fd35d968d7f595c13f5",
+      "bytes": 3467,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644654-s5-application-regression.log",
+      "sha256": "8a4f77014082251f5b51842c7f52ce64ce4891bfe91b811d974f0a39a1188d7e",
+      "bytes": 20412,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644654-s5-application-regression.meta.json",
+      "sha256": "06ccb30fb5b44398d239d96a49c0a793f0a8854d267c633d4379f14ad1143c7b",
+      "bytes": 3561,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644668-s4-build-web.log",
+      "sha256": "ff2742277d7bf4f42b06ed7c4469f581e4b7cb1ad9b5fb0618372a014603e110",
+      "bytes": 12602,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644668-s4-build-web.meta.json",
+      "sha256": "f597ae4f4f263fbcc070786dbe4a46da505d64851e979e2e3f16ae07bc6d2c80",
+      "bytes": 3464,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644668-s5-browser-split.log",
+      "sha256": "7879e9656e14089eae13caf8261decfde81eb921c204f1f8c7c3e3e6d9f6e2dc",
+      "bytes": 5648,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644668-s5-browser-split.meta.json",
+      "sha256": "5eb073117a9e9906a9e2da6792e2d62b116dd1e38007a6985e3ca110836bc56e",
+      "bytes": 3721,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644668-s6-browser-frontend-refinement.log",
+      "sha256": "aedd0a8dc9e56db86827a6b324109a0ee4604042b235de2e7e35a2671f0994ae",
+      "bytes": 17479,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644668-s6-browser-frontend-refinement.meta.json",
+      "sha256": "b977cf9b1e2761a132f1b1f24a77e43654f5b3916e3a3652b4f107a4e7dcf872",
+      "bytes": 3934,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644668-s6-browser-project-memory.log",
+      "sha256": "bbb4a6ee86415178eda4bf98c9c1df0c8bb155948908475e5359f58de9349663",
+      "bytes": 4606,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644668-s6-browser-project-memory.meta.json",
+      "sha256": "31da39170b8a633c117abc0917b5c586c5be10f616d1e71bc7c365761e1ff998",
+      "bytes": 3922,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644668-s6-browser-root.log",
+      "sha256": "f9fbd120b9624fb2a7d857cd0180c5e5d81f2dad2c35cb55675cd9053ce57eed",
+      "bytes": 20187,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644668-s6-browser-root.meta.json",
+      "sha256": "58226782f018403699fe637f3ea85764c8208e2e77c5fd72a673ee2837f0fc36",
+      "bytes": 3904,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644668-s6-browser-usage-context.log",
+      "sha256": "1619d48e6ffadc1b5cdd05a829149fd4840bd3dfeec372b31ce5cf1ebe3f8618",
+      "bytes": 5631,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644668-s6-browser-usage-context.meta.json",
+      "sha256": "acad183f0e71190e5a45423d0b7ac0bfa70501bd8c4b04fea3d22a970f524e62",
+      "bytes": 3920,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644707-s4-build-web.log",
+      "sha256": "48bf0e19d31470e18d9fd96bd9e14d0dc9c1eadf471c15e9e7d16c88da0fe1e4",
+      "bytes": 12004,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644707-s4-build-web.meta.json",
+      "sha256": "5ec61e90ef7a9e025b4bc5ace4d0ab160de72d4e27f7023cfbfac732fb7fc048",
+      "bytes": 3463,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644707-s5-build-desktop.log",
+      "sha256": "c86aece6733114eb09a438d3cac634b571066dc1cb95c69fc0dbe0c3fb41d8c3",
+      "bytes": 654,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644707-s5-build-desktop.meta.json",
+      "sha256": "6ac6caba65d0f4bc1c2ec7bfa661df19ddc5623cc40940360dea15197c1a5193",
+      "bytes": 3477,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644722-s4-build-web.log",
+      "sha256": "80bfc8eadca487ffc1e6f137fd0918a166f5e3a731f6b27d16fe83712cf53fa0",
+      "bytes": 12602,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644722-s4-build-web.meta.json",
+      "sha256": "d3e303db594ba3a3bc27aa654d24fc1909daa6194134794586e90eb747d03741",
+      "bytes": 3468,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644722-s5-application-regression.log",
+      "sha256": "c9371919d93844b91b621461dc04f97082523895679c1d67298c245bcf453f38",
+      "bytes": 41390,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644722-s5-application-regression.meta.json",
+      "sha256": "ff4b2c71792fd585f220a705eacd5c2ff78937da894dea3bc923a55d58f6d15f",
+      "bytes": 3562,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644780-s6-ui-guard.log",
+      "sha256": "752284da16e639de142e30e7a5a06ab9601928b823978a39b38fb15e7ac70dd8",
+      "bytes": 1901,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644780-s6-ui-guard.meta.json",
+      "sha256": "85d901cab8be050989f7c81ac0921e5dd9713caed878d2842879f77ac7910c4a",
+      "bytes": 3504,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644780-s7-lint.log",
+      "sha256": "9f051a3de048e056a12cf418615611c3b2b2301cf2ab73507fe9e718742a4554",
+      "bytes": 698,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644780-s7-lint.meta.json",
+      "sha256": "7b59342123e7f1aab14902f6623c98a4cb98693fdab001a78f7c89774e5f785b",
+      "bytes": 3483,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644780-s9-build-web.log",
+      "sha256": "4bc47be464e88b620da4fc973f6038f111c3afab0371bb65c40a4643110d7fbd",
+      "bytes": 12005,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644780-s9-build-web.meta.json",
+      "sha256": "1970fa353435bfb742b279fa4e5861cdf36380b3b86bca7232aa853330597f8d",
+      "bytes": 3464,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644794-s4-build-web.log",
+      "sha256": "e83c3fd8d01e168e59b4c4881c4a3a46b0836496ef4676e08282b5974935c7ce",
+      "bytes": 12600,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644794-s4-build-web.meta.json",
+      "sha256": "1cf78bb7bd22d23eafb77e7d0682ee2bdecb011efc88e27ea3e842f4f618c14e",
+      "bytes": 3467,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644794-s5-application-regression.log",
+      "sha256": "ad3fbb27ca50caa88bac9eac344c13ff72c5d92566c5120acba2bc3bf2e7cc51",
+      "bytes": 31937,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644794-s5-application-regression.meta.json",
+      "sha256": "1460f5622049d640d0b0162d4bb815da06fa5e336d1ec92d715864726d8a98a5",
+      "bytes": 3561,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644807-s4-build-web.log",
+      "sha256": "979fa48e44f6df12d0be0b8f8b5e09a680d11f96cb580a04f2723f5c1aa5e407",
+      "bytes": 12600,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644807-s4-build-web.meta.json",
+      "sha256": "9e3d562b2b7fe8c0f73f3574ba4879a8367c4504284e01c5230d464118148e14",
+      "bytes": 3468,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644807-s5-application-regression.log",
+      "sha256": "5ef298956f67379c66b8f9e5a80b374d9a577f82cdc8af59328f3c3086103693",
+      "bytes": 43429,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-logs/windows-ci-43744480609-a1-j132904644807-s5-application-regression.meta.json",
+      "sha256": "9ab45e60bd48cd792b44dc81e692504e463b6ca5fb2de6a63967cb5f08e5b8b1",
       "bytes": 3562,
       "trackedAtCapture": false,
       "note": null
@@ -6957,27 +7440,48 @@
       "path": "docs/implementation/v3/m05-platform-43739565577/build-manifest.json",
       "sha256": "9c342a08e317f1a653f85c93668f9c3f674670a54b4128ab0f6144d08c4b0b3f",
       "bytes": 15611,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-platform-43739565577/host-observations.json",
       "sha256": "6ac1e06912a75ca74a6f4c20fc85d220364ce2c36d39f8f146fffc42f3b15118",
       "bytes": 19530,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-platform-43739565577/owner.json",
       "sha256": "ecc9c033455c322c1be254b7cca4ddfb879ce22b2fde15b2dfb18dca2f8c29fb",
       "bytes": 330,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-platform-43739565577/verification.json",
       "sha256": "a140751889c929b3575732ea391fdaca75e0bcc68a283ca78e85c19a3ddc60c6",
       "bytes": 4446,
+      "trackedAtCapture": true,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-platform-43744480609/build-manifest.json",
+      "sha256": "45ad932ce30eea8e4cc341481eb11bc364acd6c27c27b8ff198552608009be61",
+      "bytes": 15611,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-platform-43744480609/owner.json",
+      "sha256": "b55761c8feb1257d6a9120d00849721d4a9c9f659d5565d13202006c55e45527",
+      "bytes": 330,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-platform-43744480609/verification.json",
+      "sha256": "58b54ce2ab2ee2f523624072613d508368592fc898ccd4c8bd2703e6f5361547",
+      "bytes": 6165,
       "trackedAtCapture": false,
       "note": null
     },
@@ -6985,27 +7489,41 @@
       "path": "docs/implementation/v3/m05-review-inputs/continuation-installed-first-failure-green.log",
       "sha256": "7c9625e40b87d8bb0118737865740417999ca5ff7dd46f742afbb4e8437582ed",
       "bytes": 234,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-review-inputs/continuation-installed-first-failure-red.log",
       "sha256": "08035efcf9160243fc97b06531d916e0f4b8dc219cd47a9ed5046e93c749f268",
       "bytes": 1592,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-review-inputs/continuation-installed-process-progress-green.log",
       "sha256": "837bf44b5ab49dbbd092cd0f0b820205ef57ab188f7a4ae5f4110efd949caa65",
       "bytes": 234,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-review-inputs/continuation-installed-process-progress-red.log",
       "sha256": "99f71dd7d659b60167e673643aa481532a4320cb604057801353c8d0c7c08d87",
       "bytes": 2055,
+      "trackedAtCapture": true,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-review-inputs/continuation-installed-progress-budget-regression.log",
+      "sha256": "0734e56e984bf2583f787a37725d808ec158f7402de8937b320056b5bfb0206c",
+      "bytes": 235,
+      "trackedAtCapture": false,
+      "note": null
+    },
+    {
+      "path": "docs/implementation/v3/m05-review-inputs/continuation-installed-progress-budget-typecheck.log",
+      "sha256": "f3cff193d9978242d1503c0371eec158299520a297549e43110e52d93f13fde6",
+      "bytes": 91,
       "trackedAtCapture": false,
       "note": null
     },
@@ -7013,21 +7531,21 @@
       "path": "docs/implementation/v3/m05-review-inputs/continuation-nsis-7z-contract-green.log",
       "sha256": "682150b380c13433a5318111415609999ede3857a2e8358e071ecb75d8677315",
       "bytes": 232,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-review-inputs/continuation-nsis-7z-contract-red.log",
       "sha256": "0d260a7316beca95647b7ede648dcc16d03f9c119c94a4c7964dc46ae86a512d",
       "bytes": 1528,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
       "path": "docs/implementation/v3/m05-review-inputs/continuation-nsis-7z-installer-final-typecheck.log",
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "bytes": 0,
-      "trackedAtCapture": false,
+      "trackedAtCapture": true,
       "note": null
     },
     {
@@ -7046,8 +7564,8 @@
     },
     {
       "path": "docs/superpowers/plans/2026-11-15-project-memory.md",
-      "sha256": "9f729d37849ad419392b1de3c70b95db68bf6c30c64cd416ac9fdbaaf4a4aa0e",
-      "bytes": 30373,
+      "sha256": "94542006915a779a48cc11360321d56ed452a5d59f5cfdb5d2f64ba9cae29f71",
+      "bytes": 32034,
       "trackedAtCapture": true,
       "note": null
     },
@@ -7326,8 +7844,8 @@
     },
     {
       "path": "scripts/verify-installed-desktop.ts",
-      "sha256": "1ee1f139802ecba042a2a8e5d317e43245504b3077d498748d935f1c7aa0e8b1",
-      "bytes": 38801,
+      "sha256": "d19e7c8cfaa656a15a0a7af2193e33e6a4d644de969d5f95770df0ba95c015cd",
+      "bytes": 38841,
       "trackedAtCapture": true,
       "note": null
     },
@@ -7473,8 +7991,8 @@
     },
     {
       "path": "tests/installed-desktop-verification.test.ts",
-      "sha256": "b0346fca20ea6603deff30a0f3ab2e356264022a2c95747372505d3dc7bbe13d",
-      "bytes": 18347,
+      "sha256": "29513a770eda9e7747423459e2f62db95689940ea54455037ffd5945560215de",
+      "bytes": 18352,
       "trackedAtCapture": true,
       "note": null
     },
