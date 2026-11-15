@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "reviewScope": "Independent original-prompt review of all twelve M05 implementation steps/four UI requirements, accepted M04 custody, merged M09/M11 lifecycle, shared provider/account admission and native cancellation ownership, maintenance measurement identity, metadata privacy, optional consolidation and Windows failure repairs.",
+  "reviewScope": "Independent original-prompt review of all twelve M05 implementation steps/four UI requirements, accepted M04 custody, merged M09/M11 lifecycle, shared provider/account admission and native cancellation ownership, maintenance measurement identity, metadata privacy, optional consolidation and Windows failure repairs. The continuation also reviews authored unmocked Windows FILE tests and the owned default-off installed retained-memory verifier; their platform execution is pending.",
   "reviewer": "dependency_audit",
   "reviewedFiles": [
     {
@@ -93,7 +93,7 @@
     },
     {
       "path": "scripts/public-source-files.json",
-      "sha256": "5e8d68fd54a0025a1c7f38c6dba321c335e6824ef3eb789c59d8650f963a9050"
+      "sha256": "e39651748d87280a91343b7df67a721632e16ed1bbce31a7973391822af02f3d"
     },
     {
       "path": "tests/split-app-browser.test.ts",
@@ -106,6 +106,30 @@
     {
       "path": "tests/host-fixture.ts",
       "sha256": "54b7c58b1f02d7ec5adada5b638f32a4c5405d5609939ebb3f01c5ff9368bc11"
+    },
+    {
+      "path": "tests/memory-native-file-capture-v3.test.ts",
+      "sha256": "cf08e06d1b3c09f3b59fd10d319244d06fbd27375f7434cd673bd38bc36ac6d5"
+    },
+    {
+      "path": "tests/e2e/artifact-acknowledgment.spec.ts",
+      "sha256": "659883ac6d3083454c29b441f1b7892c2b18a4e184d078a78959ed3c566ee1fe"
+    },
+    {
+      "path": "scripts/installed-memory-retention.ts",
+      "sha256": "be4eb6958fed2571ab3c92523b212c5017ba67ff5d749ddf3452163c140d42cc"
+    },
+    {
+      "path": "scripts/verify-installed-desktop.ts",
+      "sha256": "6a5f85e1b399472068d7c1915241227225ba22754957eab8dd04289d670ff3b1"
+    },
+    {
+      "path": "tests/installed-desktop-verification.test.ts",
+      "sha256": "6ddfbc5398100548f1f64cefb9ce45dc8d817e232e2b1dacd6804535395251cf"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "f6784cbf55a423682a12729499fdb9c3b9fa3a7518039dc5750a13a66315c462"
     }
   ],
   "findingsResolved": [
@@ -128,7 +152,9 @@
     "Pinned native worker observation-call expectation after accepted M11 integration",
     "Initial split-browser fixture navigation inherited the seven-second interaction budget; startup now has a separate bounded twenty-second budget with all behavior assertions retained",
     "FAQ test sent Escape while expansion was still unpublished; an exact Collapse artifact focus assertion now observes modal readiness before the existing Escape and focus-return assertions",
-    "The first artifact-bearing snapshot arrived near the end of the host-operation fixture's combined five-second wait; an explicit bounded fifteen-second attachment assertion now precedes the retained five-second visibility assertion. Individual native-operation durations are unmeasured. Windows validation is pending."
+    "The first artifact-bearing snapshot arrived near the end of the host-operation fixture's combined five-second wait. An explicit bounded fifteen-second attachment assertion now precedes the retained five-second visibility assertion. Individual native-operation durations are unmeasured. The complete operation, approval, replacement and restart case passes in run 43729864202.",
+    "Initial acknowledgment-fixture checked assertion included the asynchronous shell bootstrap after document load. A bounded initial visibility assertion now precedes every unchanged selection, save-barrier, revision and quiescence assertion; Windows validation remains pending.",
+    "The installed verifier used obsolete Providers and Close settings selectors. It now observes the accepted Models & Accounts section and the Settings dialog close control while retaining every connection-button assertion. Actual installed execution remains pending."
   ],
   "remainingActionableFindings": [],
   "evidenceRefs": [
@@ -180,14 +206,23 @@
     "docs/implementation/v3/M05-windows-ci-43727736261.json",
     "docs/implementation/v3/M05-host-publication-review-43727736261.json",
     "docs/implementation/v3/m05-logs/continuation-host-publication-readiness-typecheck.log",
-    "docs/implementation/v3/m05-logs/continuation-host-publication-readiness-typecheck-node.log"
+    "docs/implementation/v3/m05-logs/continuation-host-publication-readiness-typecheck-node.log",
+    "docs/implementation/v3/M05-windows-ci-43729864202.json",
+    "docs/implementation/v3/M05-acknowledgment-readiness-review-43729864202.json",
+    "docs/implementation/v3/m05-logs/continuation-native-file-proof-typecheck.log",
+    "docs/implementation/v3/m05-logs/continuation-installed-memory-retention-red.log",
+    "docs/implementation/v3/m05-logs/continuation-installed-memory-retention-green.log",
+    "docs/implementation/v3/m05-logs/continuation-installed-memory-retention-custody-green.log",
+    "docs/implementation/v3/m05-logs/continuation-installed-memory-retention-typecheck.log",
+    "docs/implementation/v3/m05-logs/continuation-installed-memory-final-typecheck.log",
+    "docs/implementation/v3/M05-installed-ci-input-review.json"
   ],
   "activationApproval": false,
   "limitations": [
-    "The earlier complete Windows run 43726164418 passed all eight jobs on its immutable code/test/workflow cut. The later documentation-only run 43727736261 failed the host-operation fixture setup; the new publication assertion requires fresh Windows verification.",
-    "Code and synthetic browser review do not establish actual native FILE capture, installed-desktop execution or live-provider quality/cost.",
-    "Both M05 host flags remain false.",
-    "All prior failed Windows attempts remain failed historical evidence. Split and FAQ repairs also pass in run 43727736261. The host-publication repair is test-only and has no Windows execution claim yet."
+    "The earlier complete Windows run 43726164418 passed all eight jobs on its immutable cut. Run 43727736261 failed host-operation fixture setup. That repaired case passes in run 43729864202, whose sole failure is initial acknowledgment-fixture readiness. The new acknowledgment assertion, unmocked native FILE tests and installed-retention verifier require a fresh nine-job Windows run.",
+    "Code review, typechecking and local seed/custody tests do not establish actual native FILE capture, installed-desktop execution or live-provider quality and cost.",
+    "Both M05 host flags remain false. The disposable installed fixture uses constructor-local enablement only while seeding, disables the project before launch and gives the installed host its normal default-off policy.",
+    "All prior failed Windows attempts remain failed historical evidence. The current platform-proof work does not provide an enabled installed recall, extraction or native checkpoint flow, or measure live quality and cost. Provider network calls remain unmeasured rather than asserted to be zero."
   ],
   "additionalReviewers": [
     "ui_audit",
@@ -231,10 +266,10 @@
     "faqReadiness": "Exact focused Collapse assertion and all retained draft/branch/focus-return assertions pass; whole-test duration 2.2 s."
   },
   "latestWindowsAttempt": {
-    "runId": 43727736261,
-    "headSha": "5e835ff71ad02298ce3a7c6c080d92f5f04deb47",
-    "checkoutSha": "a8629917231acf1950145684a38d2c0ff937e3eb",
-    "treeSha": "d3dc4a903defee022d79be00391f6a52e7487cc3",
+    "runId": 43729864202,
+    "headSha": "9321f979e8feebe7899be365ad6678ac82343f54",
+    "checkoutSha": "f54bd7b045ec83bd63cb69b46570adf580ba7fea",
+    "treeSha": "faccdd5ea6c029573060443a20d06a911c16b34c",
     "jobsPassed": 7,
     "jobsFailed": 1,
     "application": {
@@ -251,16 +286,77 @@
     "hermesContractsPassed": 33,
     "policyPluginTestsPassed": 37,
     "observedCommandsImported": 24,
-    "startupBaseline": "All 29 cases pass; first case whole-test duration 8,346 ms, not navigation duration.",
-    "faqReadiness": "FAQ case passes with exact focused Collapse assertion; whole-test duration 2.5 s.",
-    "failure": "Host operation fixture visibility assertion expired before approval/effect/restart assertions; native preparation preceded artifact publication near the deadline."
+    "hostPublicationReadiness": "The repaired real-host operation, approval, replacement and restart case passes, with a whole-test duration of 9.1 seconds. All 15 M05, 17 plan and four document-width cases pass.",
+    "failure": "The initial acknowledgment-fixture checkbox assertion expires while the shell bootstraps. No selection commands occur before failure; the final DOM contains the expected checked row 16.324 milliseconds after the assertion ends."
   },
   "priorFailedWindowsAttemptRefs": [
     "docs/implementation/v3/M05-windows-ci-43723377122.json",
     "docs/implementation/v3/M05-windows-ci-43724428807.json",
-    "docs/implementation/v3/M05-windows-ci-43727736261.json"
+    "docs/implementation/v3/M05-windows-ci-43727736261.json",
+    "docs/implementation/v3/M05-windows-ci-43729864202.json"
   ],
   "pendingValidation": [
-    "Complete Windows workflow including the new host-publication attachment assertion."
-  ]
+    "The complete nine-job Windows workflow, including initial acknowledgment-fixture readiness.",
+    "Three unmocked Windows native FILE capture/reuse, grant-revocation and same-bytes physical-replacement cases.",
+    "Actual installed default-off retained-memory review, redacted export, Forget and same-profile restart with disposable seeded records."
+  ],
+  "platformProofPreparation": {
+    "nativeFile": {
+      "file": "tests/memory-native-file-capture-v3.test.ts",
+      "cases": 3,
+      "execution": "Pending real Windows execution. Linux skip and typecheck are not native-capture proof.",
+      "mocks": false
+    },
+    "installedRetention": {
+      "helper": "scripts/installed-memory-retention.ts",
+      "verifier": "scripts/verify-installed-desktop.ts",
+      "job": "Installed desktop memory retention",
+      "localCustodyCasesPassed": 13,
+      "localTypecheck": "PASS",
+      "execution": "Pending actual production NSIS packaging, owned installation, two exact installed executable launches, UI review and identity-bound uninstall.",
+      "scope": "Retained MESSAGE records with production memory flags off. No model or account is selected.",
+      "providerNetworkCalls": null
+    },
+    "publicSourceInventory": "The helper and native FILE test are present in the sorted source inventory. Runtime inventory is unchanged.",
+    "independentReview": {
+      "reviewer": "memory_integration_audit",
+      "mode": "Read-only source review; no tests or installed launch performed by this reviewer.",
+      "result": "No concrete defect found.",
+      "files": [
+        {
+          "path": "scripts/installed-memory-retention.ts",
+          "sha256": "be4eb6958fed2571ab3c92523b212c5017ba67ff5d749ddf3452163c140d42cc"
+        },
+        {
+          "path": "scripts/verify-installed-desktop.ts",
+          "sha256": "6a5f85e1b399472068d7c1915241227225ba22754957eab8dd04289d670ff3b1"
+        },
+        {
+          "path": "tests/installed-desktop-verification.test.ts",
+          "sha256": "6ddfbc5398100548f1f64cefb9ce45dc8d817e232e2b1dacd6804535395251cf"
+        },
+        {
+          "path": ".github/workflows/ci.yml",
+          "sha256": "f6784cbf55a423682a12729499fdb9c3b9fa3a7518039dc5750a13a66315c462"
+        }
+      ],
+      "boundaries": [
+        "Disposable existing/redirected/replaced profile refusal and physical identity checks",
+        "Default-off installed policy with constructor-local enablement only for fixture creation",
+        "Exact captured source after message mutation, inert rendering and correct UI labels",
+        "Edit, accept, reject, redacted export, Forget and persistent tombstone assertions",
+        "Exact installed executable, nonce, CDP and identity-bound cleanup custody",
+        "Post-exit storage inspection only after owned native process and backend stop"
+      ],
+      "limitation": "Supports publication for Windows execution, not a native FILE or installed-runtime PASS. Live provider metrics remain unmeasured."
+    },
+    "ciInputReview": {
+      "ref": "docs/implementation/v3/M05-installed-ci-input-review.json",
+      "sha256": "d5cf81a5934a11e79b6f1f1f31adb65cf625613defb28c1492e4b4276b8924e2",
+      "reviewer": "dependency_audit",
+      "findings": [],
+      "expandedWorkflowJobCount": 9,
+      "scope": "Read-only pinned input, packaging, exact argv and artifact review. No Windows execution is claimed."
+    }
+  }
 }

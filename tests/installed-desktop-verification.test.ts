@@ -1,8 +1,12 @@
 import {describe,it,expect} from 'vitest';
-import {mkdtemp,mkdir,writeFile,rm} from 'node:fs/promises';
+import {mkdtemp,mkdir,writeFile,readFile,realpath,rename,symlink,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {nsisApplicationGuid,assertClearInstallPreflight,assertOwnedInstallEntries,installedCommandArguments,packageContentManifest,assertMatchingContents,parseOwnedUninstaller,assertInstalledCleanExit,assertZipDestinationFits,type InstallPreflight} from '../scripts/verify-installed-desktop.ts';
+import * as installedVerification from '../scripts/verify-installed-desktop.ts';
+import {Store} from '../packages/storage/store.ts';
+import {ProjectMemory} from '../packages/core/project-memory.ts';
+import {registeredCapabilityFlags} from '../packages/core/capability-flags.ts';
 
 const directory='C:\\verification\\exclusive\\installed';
 const clear=():InstallPreflight=>({entries:[],runningAppPids:[],shortcuts:[],updaterCache:{path:'C:\\fixture\\generative-harness-desktop-updater',present:false}});
@@ -63,5 +67,68 @@ describe('installed desktop verification custody',()=>{
    await writeFile(join(installed,'resources','chunk.js'),'lazy');await writeFile(join(installed,'unexpected.exe'),'extra');
    const extra=await packageContentManifest(installed,{installed:true});expect(()=>assertMatchingContents(expected,extra)).toThrow(/differ/i);
   }finally{await rm(fixture,{recursive:true,force:true});}
+ });
+});
+
+describe('installed project memory retention fixture',()=>{
+ it('requires an explicit retention option and rejects unknown or duplicated options',()=>{
+  expect(installedVerification.readInstalledVerificationArguments(['setup','unpacked'])).toEqual({setup:'setup',unpacked:'unpacked',memoryRetention:false});
+  expect(installedVerification.readInstalledVerificationArguments(['setup','unpacked','--project-memory-retention'])).toEqual({setup:'setup',unpacked:'unpacked',memoryRetention:true});
+  for(const args of [[],['setup'],['setup','unpacked','--enable-memory'],['setup','unpacked','--project-memory-retention','--project-memory-retention']])expect(()=>installedVerification.readInstalledVerificationArguments(args)).toThrow(/usage|pass|option/i);
+ });
+ it('seeds source-linked records in place and reopens them with the production default-off policy and no model owner',async()=>{
+  const root=await realpath(await mkdtemp(join(tmpdir(),'installed-memory-retention-'))),flags=registeredCapabilityFlags();
+  try{
+   const {seedInstalledMemoryProfile,INSTALLED_MEMORY_CASE}=await import('../scripts/installed-memory-retention.ts');
+   const seed=await seedInstalledMemoryProfile(root);
+   expect(seed.profile.path).toBe(await realpath(join(root,'host')));
+   const store=new Store(seed.profile.path);
+   try{
+    const memory=new ProjectMemory(store),access=await memory.access(seed.projectId,seed.threadId),view=memory.read(access);
+    expect(view).toMatchObject({available:false,enabled:false,sourceThreadIds:[seed.threadId]});
+    expect(access).toMatchObject({profileId:seed.profileId,projectIdentity:seed.projectIdentity,accountId:null});
+    expect(store.get('thread',seed.threadId)).toMatchObject({modelId:null,accountId:null,runId:null,status:'completed'});
+    expect(view.items).toHaveLength(4);
+    expect(view.items.find(row=>row.item.id===seed.items.edit.id)?.item).toMatchObject({state:'ACCEPTED',revision:2,text:INSTALLED_MEMORY_CASE.initialText});
+    expect(view.items.find(row=>row.item.id===seed.items.reject.id)?.item.state).toBe('PROPOSED');
+    expect(view.items.find(row=>row.item.id===seed.items.accept.id)?.item.state).toBe('PROPOSED');
+    expect(memory.source(access,seed.items.edit.id,2,seed.items.edit.source.digest,seed.items.edit.source).content).toBe(INSTALLED_MEMORY_CASE.sourceText);
+    expect(store.get<{content:string}>('message',seed.items.edit.source.sourceId)?.content).toBe(INSTALLED_MEMORY_CASE.changedSourceText);
+    expect(memory.accepted(access)).toEqual([]);
+    expect(memory.export(access).items.find(item=>item.id===seed.items.forget.id)?.text).toBe('[redacted]');
+    expect(store.snapshot().accounts??[]).toEqual([]);
+    expect(store.snapshot().usage).toEqual({});
+    for(const kind of ['outbox','modelRequest','projectMemoryAuxiliaryUsage','projectMemoryRequestUsage','projectMemoryExtraction'])expect(store.all(kind)).toEqual([]);
+   }finally{store.close();}
+   expect(registeredCapabilityFlags()).toEqual(flags);
+  }finally{await rm(root,{recursive:true,force:true});}
+ });
+ it('refuses an existing host profile without changing its contents',async()=>{
+  const root=await realpath(await mkdtemp(join(tmpdir(),'installed-memory-existing-')));
+  try{
+   const {seedInstalledMemoryProfile}=await import('../scripts/installed-memory-retention.ts');
+   await mkdir(join(root,'host'));await writeFile(join(root,'host','existing.txt'),'Keep this profile');
+   await expect(seedInstalledMemoryProfile(root)).rejects.toThrow(/exist|exclusive|profile/i);
+   expect(await readFile(join(root,'host','existing.txt'),'utf8')).toBe('Keep this profile');
+  }finally{await rm(root,{recursive:true,force:true});}
+ });
+ it('refuses a redirected evidence root before creating a backend profile',async()=>{
+  const root=await realpath(await mkdtemp(join(tmpdir(),'installed-memory-redirect-')));
+  try{
+   const {seedInstalledMemoryProfile}=await import('../scripts/installed-memory-retention.ts');
+   await mkdir(join(root,'target'));await symlink(join(root,'target'),join(root,'alias'),'junction');
+   await expect(seedInstalledMemoryProfile(join(root,'alias'))).rejects.toThrow(/redirect|canonical|ordinary/i);
+   await expect(readFile(join(root,'target','host','harness.sqlite'))).rejects.toMatchObject({code:'ENOENT'});
+  }finally{await rm(root,{recursive:true,force:true});}
+ });
+ it('rejects a replaced backend directory before an installed launch can adopt it',async()=>{
+  const root=await realpath(await mkdtemp(join(tmpdir(),'installed-memory-replaced-')));
+  try{
+   const {seedInstalledMemoryProfile,assertInstalledMemoryProfile}=await import('../scripts/installed-memory-retention.ts');
+   const seed=await seedInstalledMemoryProfile(root);
+   await assertInstalledMemoryProfile(seed);
+   await rename(seed.profile.path,join(root,'original-host'));await mkdir(seed.profile.path);
+   await expect(assertInstalledMemoryProfile(seed)).rejects.toThrow(/identity changed/i);
+  }finally{await rm(root,{recursive:true,force:true});}
  });
 });

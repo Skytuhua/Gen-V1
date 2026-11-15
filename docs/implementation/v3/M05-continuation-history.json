@@ -1617,6 +1617,22 @@
       "termination": "NONE",
       "status": "FAIL",
       "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "0b1f283f42844db94355b2fb01346905019ecc4662e691f1d0feea7f16561c70",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-installed-memory-retention-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "af3eb65e939982fc285569270886c6d912aac51e7dffaa57994854be2aa0f6d9",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859716955-s6-browser-root.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
     }
   ],
   "refreshes": [
@@ -1870,6 +1886,24 @@
       "ledgerBeforeDigest": "878d98a63670d1107ac2108272dfac7cd2c24208aa4412385d33ca358ceb80f4",
       "ledgerAfterDigest": "878d98a63670d1107ac2108272dfac7cd2c24208aa4412385d33ca358ceb80f4",
       "windowsCiRef": "docs/implementation/v3/M05-windows-ci-43727736261.json",
+      "windowsCiCurrentCodeCut": false
+    },
+    {
+      "recordedAt": "2026-11-15T15:58:49.754079+00:00",
+      "executionBaseSha": "399cde39ff4ee82272c7a7700944325c44b36070",
+      "sourceParentHeadSha": "fe59f09076591fac1fc5769747d6f4feeb4590e0",
+      "selectedCurrentCommandRefs": [
+        "docs/implementation/v3/m05-logs/continuation-installed-memory-final-typecheck.log",
+        "docs/implementation/v3/m05-logs/continuation-m11-final-build.log",
+        "docs/implementation/v3/m05-logs/continuation-m11-final-contracts.log",
+        "docs/implementation/v3/m05-logs/continuation-m11-final-memory-regression.log",
+        "docs/implementation/v3/m05-logs/continuation-study-manifest-final.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859717009-s7-native-facade.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859717009-s7-native-worker.log"
+      ],
+      "ledgerBeforeDigest": "6232652aba5ff4f1fef6d6ccf3483869c23228977d1da87d582d6205f254b966",
+      "ledgerAfterDigest": "c20c6294a6afeb9ca6ba0e28b6e47751cd5297cd853caf812137468575f667ff",
+      "windowsCiRef": "docs/implementation/v3/M05-windows-ci-43729864202.json",
       "windowsCiCurrentCodeCut": false
     }
   ]

@@ -4,9 +4,9 @@
   "purpose": "Evidence integrity only; not release approval or a passing implementation bundle.",
   "implementationBundleStatus": "PARTIAL",
   "executionBaseSha": "399cde39ff4ee82272c7a7700944325c44b36070",
-  "inspectedPaths": 49,
-  "verifiedCommandRecords": 432,
-  "changedFiles": 783,
+  "inspectedPaths": 53,
+  "verifiedCommandRecords": 462,
+  "changedFiles": 853,
   "reviewerApproval": false,
   "errors": []
 }

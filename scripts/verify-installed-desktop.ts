@@ -9,6 +9,7 @@ import {terminateProcessTree} from '../packages/runtime-pi/process-tree.ts';
 import {SUBSCRIPTION_CONNECTIONS} from '../packages/contracts/connections.ts';
 import {verificationPorts,assertWrapperArguments} from './portable-verification.ts';
 import {verifyPackagedProviders} from './verify-packaged-providers.ts';
+import type {InstalledMemorySeed,InstalledMemoryObservation} from './installed-memory-retention.ts';
 
 const APP_ID='local.generativeharness.desktop';
 const APP_FILE='Gen V1.exe',UNINSTALL_FILE='Uninstall Gen V1.exe';
@@ -17,6 +18,13 @@ export type InstallPreflight={entries:RegistryEntry[];runningAppPids:number[];sh
 type ContentManifest={files:{path:string;bytes:number;sha256:string}[];bytes:number;sha256:string};
 type FileIdentity={dev:string;ino:string;sha256:string};
 type OwnedCache={path:string;dev:string;ino:string;file:FileIdentity}|null;
+type MemoryRetention={seed:InstalledMemorySeed;observations:InstalledMemoryObservation[]};
+
+export function readInstalledVerificationArguments(args:string[]){
+ const [setup,unpacked,option,...extra]=args;
+ if(!setup||!unpacked||extra.length||option!==undefined&&option!=='--project-memory-retention')throw Error('Usage: verify-installed-desktop <absolute Setup.exe> <absolute win-unpacked> [--project-memory-retention]');
+ return {setup,unpacked,memoryRetention:option==='--project-memory-retention'};
+}
 
 export function nsisApplicationGuid(appId:string){
  const namespace=Buffer.from('50e065bc313411e69bab38c9862bdaf3','hex');
@@ -164,7 +172,8 @@ async function waitForOwnedExit(child:ChildProcess,timeoutMs=15000){
  let timer:ReturnType<typeof setTimeout>|undefined;
  try{await Promise.race([new Promise<void>(done=>child.once('close',()=>done())),new Promise<never>((_done,reject)=>{timer=setTimeout(()=>reject(Error('Installed application did not exit after closing its last window.')),timeoutMs);})]);}finally{clearTimeout(timer);}
 }
-async function launchInstalled(executable:string,directory:string,iteration:number,receipt:Record<string,unknown>,ports:readonly[number,number,number]){
+async function launchInstalled(executable:string,directory:string,iteration:number,receipt:Record<string,unknown>,ports:readonly[number,number,number],memory?:MemoryRetention){
+ if(memory)await (await import('./installed-memory-retention.ts')).assertInstalledMemoryProfile(memory.seed);
  const [hostPort,widgetPort,debugPort]=ports,nonce=randomUUID(),origin='http://127.0.0.1:'+hostPort,debugOrigin='http://127.0.0.1:'+debugPort;
  const child=spawn(executable,['--remote-debugging-port='+debugPort,'--remote-debugging-address=127.0.0.1','--enable-automation','--harness-verification='+nonce],{cwd:win32.dirname(executable),env:{...baseEnvironment(),HARNESS_DESKTOP_TEST_DATA_DIR:directory,HARNESS_DESKTOP_PORT:String(hostPort),HARNESS_DESKTOP_WIDGET_PORT:String(widgetPort)},windowsHide:false,stdio:'ignore'});
  let browser:Browser|undefined,verifiedOwner=false,launchError:Error|undefined;const started=Date.now();child.once('error',error=>{launchError=error;});
@@ -177,16 +186,20 @@ async function launchInstalled(executable:string,directory:string,iteration:numb
   const message=page.getByRole('textbox',{name:'Message',exact:true});await expect(message).toBeEnabled({timeout:30000});const readyMs=Date.now()-started;
   expect(await page.evaluate(async()=>({surface:(await window.harnessDesktop!.getContext()).surface.kind,node:typeof (window as unknown as {process?:unknown}).process}))).toEqual({surface:'main',node:'undefined'});
   if(iteration===1){
+   if(!memory){
    await message.fill('Keep this installed-app draft.');
    await expect.poll(()=>page.evaluate(()=>new Promise<unknown>((accept,reject)=>{const opened=indexedDB.open('generative-harness-journal',1);opened.onerror=()=>reject(opened.error);opened.onsuccess=()=>{const db=opened.result,read=db.transaction('entries').objectStore('entries').get('draft:new');read.onsuccess=()=>{accept(read.result?.value);db.close();};read.onerror=()=>{reject(read.error);db.close();};};}))).toBe('Keep this installed-app draft.');
-   await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByRole('button',{name:'Providers',exact:true}).click();
+   }
+   await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByRole('button',{name:'Models & Accounts',exact:true}).click();
    for(const connection of SUBSCRIPTION_CONNECTIONS.filter(item=>item.status==='available'))await expect(page.locator(`.connection-row[data-provider="${connection.id}"]`).getByRole('button',{name:`Connect ${connection.label}`,exact:true})).toBeEnabled();
    await page.screenshot({path:join(directory,'installed-settings.png')});await page.locator('.connection-row[data-provider="gemini-cli"]').scrollIntoViewIfNeeded();await page.screenshot({path:join(directory,'installed-official-connections.png')});
-   await page.getByRole('button',{name:'Close settings',exact:true}).click();await page.screenshot({path:join(directory,'installed-main.png')});
-  }else await expect(message).toHaveValue('Keep this installed-app draft.');
+   await page.getByRole('dialog',{name:'Settings',exact:true}).getByRole('button',{name:'Close dialog',exact:true}).click();await page.screenshot({path:join(directory,'installed-main.png')});
+  }else if(!memory)await expect(message).toHaveValue('Keep this installed-app draft.');
+  if(memory)await (await import('./installed-memory-retention.ts')).verifyInstalledMemoryUI(page,memory.seed,iteration,memory.observations);
   expect((await fetch(origin+'/health',{signal:AbortSignal.timeout(1000)})).ok).toBe(true);
   await page.evaluate(()=>window.close()).catch(error=>{if(!page.isClosed())throw error;});await waitForOwnedExit(child);assertInstalledCleanExit(child);
   await expect.poll(async()=>{try{return (await fetch(origin+'/health',{signal:AbortSignal.timeout(1000)})).ok;}catch{return false;}},{timeout:15000}).toBe(false);
+  if(memory)memory.observations.push(await (await import('./installed-memory-retention.ts')).observeInstalledMemoryStorage(memory.seed,iteration));
   const result={iteration,mode:'personal',readyMs,verifiedOwner,ports:{hostPort,widgetPort,debugPort},exitCode:child.exitCode,executable,passed:true};
   (receipt.launches as unknown[]).push(result);return result;
  }finally{
@@ -195,7 +208,7 @@ async function launchInstalled(executable:string,directory:string,iteration:numb
  }
 }
 
-export async function verifyInstalledDesktop(setupPath:string,expectedUnpackedPath:string){
+export async function verifyInstalledDesktop(setupPath:string,expectedUnpackedPath:string,options:{memoryRetention?:boolean}={}){
  if(process.platform!=='win32'||process.arch!=='x64')throw Error('This verification requires Windows x64.');
  if(!isAbsolute(setupPath)||!isAbsolute(expectedUnpackedPath))throw Error('Pass absolute installer and expected unpacked-directory paths.');
  const setup=await realpath(setupPath),expectedUnpacked=await realpath(expectedUnpackedPath),setupIdentity=await identity(setup);
@@ -205,7 +218,7 @@ export async function verifyInstalledDesktop(setupPath:string,expectedUnpackedPa
  // A nested evidence UUID path exceeds legacy nsisunz limits for Gemini assets.
  // Keep the exclusive application sibling short; evidence remains in its own directory.
  const installDirectory=join(workspace,'.harness-app-'+randomUUID().replaceAll('-','').slice(0,12)),version=(JSON.parse(await readFile(join(expectedUnpacked,'resources/host/package.json'),'utf8')) as {version:string}).version;
- const receipt:Record<string,unknown>={createdAt:new Date().toISOString(),setup,setupSha256:setupIdentity.sha256,expectedUnpacked,installDirectory,nsisGuid:nsisApplicationGuid(APP_ID),version,scope:'Owned temporary per-user installation, exact payload/provider custody, two personal installed executable launches with local recovery, and identity-bound uninstall. No sign-in, credentials, inference or user-profile adoption.',inference:false,auth:false,launches:[],passed:false};
+ const receipt:Record<string,unknown>={createdAt:new Date().toISOString(),setup,setupSha256:setupIdentity.sha256,expectedUnpacked,installDirectory,nsisGuid:nsisApplicationGuid(APP_ID),version,scope:'Owned temporary per-user installation, exact payload/provider custody, two personal installed executable launches with local recovery, and identity-bound uninstall. No sign-in, credentials, inference or user-profile adoption.',inference:false,auth:false,memoryRetentionRequested:options.memoryRetention===true,launches:[],passed:false};
  let installedUninstaller:{path:string;identity:FileIdentity}|undefined,ownedCache:OwnedCache|undefined,installationInvoked=false,mainError:unknown;
  try{
   const before=await installPreflight(ownedDirectory);assertClearInstallPreflight(before);receipt.preflight=before;
@@ -225,7 +238,13 @@ export async function verifyInstalledDesktop(setupPath:string,expectedUnpackedPa
   const providers=await verifyPackagedProviders(installDirectory);receipt.providerVerification={passed:providers.receipt.passed,receipt:join(providers.directory,'verification.json')};
   // Native journals are origin-scoped: restart must use the same application ports.
   // A new nonce still proves ownership of each launched process independently.
-  const executable=join(installDirectory,APP_FILE),ports=await verificationPorts();await launchInstalled(executable,ownedDirectory,1,receipt,ports);await launchInstalled(executable,ownedDirectory,2,receipt,ports);
+  let memory:MemoryRetention|undefined;
+  if(options.memoryRetention){
+   const seed=await (await import('./installed-memory-retention.ts')).seedInstalledMemoryProfile(ownedDirectory);
+   memory={seed,observations:[]};
+   receipt.memoryRetention={version:1,scope:'Seeded disposable retained records reviewed through the exact installed application with production memory flags off. No enabled recall, automatic extraction, native checkpoint or live-provider evaluation.',seed,hostDefaultOff:true,seedEnablement:'Constructor-local fixture creation only; project disabled before installed launch.',providerNetworkCalls:null,observations:memory.observations};
+  }
+  const executable=join(installDirectory,APP_FILE),ports=await verificationPorts();await launchInstalled(executable,ownedDirectory,1,receipt,ports,memory);await launchInstalled(executable,ownedDirectory,2,receipt,ports,memory);
  }catch(error){mainError=error;receipt.error=error instanceof Error?error.message:'Installed verification failed.';}
  finally{
   if(installedUninstaller){
@@ -246,6 +265,6 @@ export async function verifyInstalledDesktop(setupPath:string,expectedUnpackedPa
  if(mainError)throw mainError;return {directory:ownedDirectory,receipt};
 }
 if(process.argv[1]&&pathToFileURL(resolve(process.argv[1])).href===import.meta.url){
- const [setup,unpacked]=process.argv.slice(2);if(!setup||!unpacked)throw Error('Pass absolute Setup.exe and expected win-unpacked directory paths.');
- await verifyInstalledDesktop(setup,unpacked);
+ const {setup,unpacked,memoryRetention}=readInstalledVerificationArguments(process.argv.slice(2));
+ await verifyInstalledDesktop(setup,unpacked,{memoryRetention});
 }

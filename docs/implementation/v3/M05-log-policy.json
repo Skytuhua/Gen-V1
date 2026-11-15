@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "policy": "Preserve every command argv/cwd/time/exit/termination/status. Nonzero fail-first/setup/manifest commands remain FAIL. Record hashes before every redaction or formatting transformation. A bounded recorder log is never described as full raw output. Historical original published provenance is retained separately.",
-  "records": 427,
+  "records": 457,
   "allLogsWithin64KiB": true,
   "entries": [
     {
@@ -5731,6 +5731,384 @@
         {
           "inputDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
           "outputDigest": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "operations": [
+            "DISPLAY_WHITESPACE_NORMALIZED"
+          ]
+        }
+      ]
+    },
+    {
+      "commandKey": "f859f71cbd60b89048a25b37e77917b660f202854fd7fb283a1ec2efd71bddaa",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-native-file-proof-typecheck.log",
+      "outputDigest": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+      "outputBytes": 1,
+      "firstObservedInputDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "firstObservedInputBytes": 0,
+      "fullRawOutputDigest": null,
+      "rawOutputLimit": "Recorder may already have bounded or sanitized output. No unobserved full raw hash is invented.",
+      "transformations": [
+        {
+          "inputDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "outputDigest": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+          "operations": [
+            "DISPLAY_WHITESPACE_NORMALIZED"
+          ]
+        }
+      ]
+    },
+    {
+      "commandKey": "0b1f283f42844db94355b2fb01346905019ecc4662e691f1d0feea7f16561c70",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-installed-memory-retention-red.log",
+      "outputDigest": "74d434b5e5bdb1bfc4057c2a423cead3949fa9253e074255b3819a8623d026ef",
+      "outputBytes": 3810,
+      "firstObservedInputDigest": "0c12f840b0f81bdba6442eb92afd2cb11cae01e1255427e54f03b0866419c9d3",
+      "firstObservedInputBytes": 3811,
+      "fullRawOutputDigest": null,
+      "rawOutputLimit": "Recorder may already have bounded or sanitized output. No unobserved full raw hash is invented.",
+      "transformations": [
+        {
+          "inputDigest": "0c12f840b0f81bdba6442eb92afd2cb11cae01e1255427e54f03b0866419c9d3",
+          "outputDigest": "74d434b5e5bdb1bfc4057c2a423cead3949fa9253e074255b3819a8623d026ef",
+          "operations": [
+            "DISPLAY_WHITESPACE_NORMALIZED"
+          ]
+        }
+      ]
+    },
+    {
+      "commandKey": "dc96058fc290f0d730ecd3aef9f457dab33f135407e63267dcd143f79a783bc0",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859716714-s4-build-web.log",
+      "outputDigest": "95962ac3717abcf973db258d6cbdc428bcde6a0390f5d194106338bac65764a9",
+      "outputBytes": 12005,
+      "firstObservedInputDigest": "95962ac3717abcf973db258d6cbdc428bcde6a0390f5d194106338bac65764a9",
+      "firstObservedInputBytes": 12005,
+      "fullRawOutputDigest": null,
+      "rawOutputLimit": "Recorder may already have bounded or sanitized output. No unobserved full raw hash is invented.",
+      "transformations": []
+    },
+    {
+      "commandKey": "0747ebccbd58e41ba566e8a27265dd4dfecbcde394e0b306f33962629b426210",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859716714-s5-build-desktop.log",
+      "outputDigest": "f155ea230c1ae337c511a08c571e24ed9de87fa6799b979767d1ff755d229f14",
+      "outputBytes": 654,
+      "firstObservedInputDigest": "f155ea230c1ae337c511a08c571e24ed9de87fa6799b979767d1ff755d229f14",
+      "firstObservedInputBytes": 654,
+      "fullRawOutputDigest": null,
+      "rawOutputLimit": "Recorder may already have bounded or sanitized output. No unobserved full raw hash is invented.",
+      "transformations": []
+    },
+    {
+      "commandKey": "5a55f14beec04aec5f62b77f8f5a45bbfc66c21dec39913921c67cfb3b64c71d",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859716953-s6-ui-guard.log",
+      "outputDigest": "0cf2311ffd68340331bbbca55c30b24ca7bc38463921c137d7b8515d80c2eacd",
+      "outputBytes": 1629,
+      "firstObservedInputDigest": "0cf2311ffd68340331bbbca55c30b24ca7bc38463921c137d7b8515d80c2eacd",
+      "firstObservedInputBytes": 1629,
+      "fullRawOutputDigest": null,
+      "rawOutputLimit": "Recorder may already have bounded or sanitized output. No unobserved full raw hash is invented.",
+      "transformations": []
+    },
+    {
+      "commandKey": "b327712a9165d5b8fb2cdeda123a2e28500899e5eedee5fed84fa2a3d9988a7a",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859716953-s7-lint.log",
+      "outputDigest": "9c25db27247db269e6173de7781ae02603ce96fca60fb341656b6a363df1059e",
+      "outputBytes": 698,
+      "firstObservedInputDigest": "9c25db27247db269e6173de7781ae02603ce96fca60fb341656b6a363df1059e",
+      "firstObservedInputBytes": 698,
+      "fullRawOutputDigest": null,
+      "rawOutputLimit": "Recorder may already have bounded or sanitized output. No unobserved full raw hash is invented.",
+      "transformations": []
+    },
+    {
+      "commandKey": "7f556152edde8e1efd16a8a2ce44743dcf5d8077707671fd708d3e201071664d",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859716953-s9-build-web.log",
+      "outputDigest": "ec9990843f807ea7bfeec7d7af0dc2241c50eba94d37aeacb9fd3e7491bf2b9c",
+      "outputBytes": 12004,
+      "firstObservedInputDigest": "ec9990843f807ea7bfeec7d7af0dc2241c50eba94d37aeacb9fd3e7491bf2b9c",
+      "firstObservedInputBytes": 12004,
+      "fullRawOutputDigest": null,
+      "rawOutputLimit": "Recorder may already have bounded or sanitized output. No unobserved full raw hash is invented.",
+      "transformations": []
+    },
+    {
+      "commandKey": "2cf79c7bf73b5fdbaad2cc96e3ae88e9899a9a9ab7ebb4380bd8704d2408ff19",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859716955-s4-build-web.log",
+      "outputDigest": "b6fbae345d6bb50dcc4650336b679ad586ca92aae9d041948c9257d2e298039f",
+      "outputBytes": 12602,
+      "firstObservedInputDigest": "b6fbae345d6bb50dcc4650336b679ad586ca92aae9d041948c9257d2e298039f",
+      "firstObservedInputBytes": 12602,
+      "fullRawOutputDigest": null,
+      "rawOutputLimit": "Recorder may already have bounded or sanitized output. No unobserved full raw hash is invented.",
+      "transformations": []
+    },
+    {
+      "commandKey": "ed123c80d1ab952fd0d2d81bf5ca51596b1f36948991d370b2af426e816943c3",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859716955-s5-browser-split.log",
+      "outputDigest": "430d1e64c5aaa0492e3ab67d2c84537213e12dd22484e31c7c2b5462b590877a",
+      "outputBytes": 5648,
+      "firstObservedInputDigest": "430d1e64c5aaa0492e3ab67d2c84537213e12dd22484e31c7c2b5462b590877a",
+      "firstObservedInputBytes": 5648,
+      "fullRawOutputDigest": null,
+      "rawOutputLimit": "Recorder may already have bounded or sanitized output. No unobserved full raw hash is invented.",
+      "transformations": []
+    },
+    {
+      "commandKey": "fc9ea765e2838c339c7a6b46ceeafe9737ea5339d4f29a93ac8b6af0f84a68a2",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859716955-s6-browser-project-memory.log",
+      "outputDigest": "178075d6b14eff6b6b370bb90919c439ae1f1f39572a0afda58f909ebea12513",
+      "outputBytes": 4606,
+      "firstObservedInputDigest": "178075d6b14eff6b6b370bb90919c439ae1f1f39572a0afda58f909ebea12513",
+      "firstObservedInputBytes": 4606,
+      "fullRawOutputDigest": null,
+      "rawOutputLimit": "Recorder may already have bounded or sanitized output. No unobserved full raw hash is invented.",
+      "transformations": []
+    },
+    {
+      "commandKey": "f38c34a9a2f9f4c4384ef8bea0e27853b9378a075295e3c0721c9ba7392bb088",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859716955-s6-browser-usage-context.log",
+      "outputDigest": "2c11046b156d5f000bc10143ae0bdbc9e05b8c64352d2ac88218e8425b811fc5",
+      "outputBytes": 5632,
+      "firstObservedInputDigest": "2c11046b156d5f000bc10143ae0bdbc9e05b8c64352d2ac88218e8425b811fc5",
+      "firstObservedInputBytes": 5632,
+      "fullRawOutputDigest": null,
+      "rawOutputLimit": "Recorder may already have bounded or sanitized output. No unobserved full raw hash is invented.",
+      "transformations": []
+    },
+    {
+      "commandKey": "4006287a559c8755a0126e4fa834bfa63121c0dedded150a6126ee94568ab049",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859716955-s6-browser-frontend-refinement.log",
+      "outputDigest": "5da72df4e29ed80b0355cd5879f16d7d3c60b4a53dacc036cbdcec76dd5a7686",
+      "outputBytes": 17477,
+      "firstObservedInputDigest": "5da72df4e29ed80b0355cd5879f16d7d3c60b4a53dacc036cbdcec76dd5a7686",
+      "firstObservedInputBytes": 17477,
+      "fullRawOutputDigest": null,
+      "rawOutputLimit": "Recorder may already have bounded or sanitized output. No unobserved full raw hash is invented.",
+      "transformations": []
+    },
+    {
+      "commandKey": "af3eb65e939982fc285569270886c6d912aac51e7dffaa57994854be2aa0f6d9",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859716955-s6-browser-root.log",
+      "outputDigest": "3946d8be59663c81f2b03d01ef44199acce43f9c9bcd4568615f9c69206677b7",
+      "outputBytes": 24044,
+      "firstObservedInputDigest": "3946d8be59663c81f2b03d01ef44199acce43f9c9bcd4568615f9c69206677b7",
+      "firstObservedInputBytes": 24044,
+      "fullRawOutputDigest": null,
+      "rawOutputLimit": "Recorder may already have bounded or sanitized output. No unobserved full raw hash is invented.",
+      "transformations": []
+    },
+    {
+      "commandKey": "2dae4d321ad8d838495f50c6af8743123cf372d06f9f0f0c6cbbf9b4f602feab",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859716975-s4-build-web.log",
+      "outputDigest": "652a1112fc03c2e12a2773f746de21eca364118b6ef71f5f35c19717e95fa958",
+      "outputBytes": 12600,
+      "firstObservedInputDigest": "652a1112fc03c2e12a2773f746de21eca364118b6ef71f5f35c19717e95fa958",
+      "firstObservedInputBytes": 12600,
+      "fullRawOutputDigest": null,
+      "rawOutputLimit": "Recorder may already have bounded or sanitized output. No unobserved full raw hash is invented.",
+      "transformations": []
+    },
+    {
+      "commandKey": "68516c9d86c65e8a1e6aabffbd79b850982e66129d398b1e3cf9715d538db8e7",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859716975-s5-application-regression.log",
+      "outputDigest": "c9fe5e9bdce3227e481fceb25523b550483c1c77a7cfbc853a04d0a275f47f92",
+      "outputBytes": 37370,
+      "firstObservedInputDigest": "c9fe5e9bdce3227e481fceb25523b550483c1c77a7cfbc853a04d0a275f47f92",
+      "firstObservedInputBytes": 37370,
+      "fullRawOutputDigest": null,
+      "rawOutputLimit": "Recorder may already have bounded or sanitized output. No unobserved full raw hash is invented.",
+      "transformations": []
+    },
+    {
+      "commandKey": "b514a3c187f3e5e6ae5cd8f534e6a42150eed4fce93dd7984ac15f013a662518",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859716997-s4-build-web.log",
+      "outputDigest": "a646abe1e525f9d8cd9aa4d2cea510b6d269021b29f7c699a8ed027de7561d79",
+      "outputBytes": 12602,
+      "firstObservedInputDigest": "a646abe1e525f9d8cd9aa4d2cea510b6d269021b29f7c699a8ed027de7561d79",
+      "firstObservedInputBytes": 12602,
+      "fullRawOutputDigest": null,
+      "rawOutputLimit": "Recorder may already have bounded or sanitized output. No unobserved full raw hash is invented.",
+      "transformations": []
+    },
+    {
+      "commandKey": "0383833a8c0f9642ee65f340bf30418dec8b435c607fea50ea8c11536cbae7c3",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859716997-s5-application-regression.log",
+      "outputDigest": "d49cecf4c11172369d8015c06fff0497eb469a1ce42697ddd01393544a4fd340",
+      "outputBytes": 35788,
+      "firstObservedInputDigest": "d49cecf4c11172369d8015c06fff0497eb469a1ce42697ddd01393544a4fd340",
+      "firstObservedInputBytes": 35788,
+      "fullRawOutputDigest": null,
+      "rawOutputLimit": "Recorder may already have bounded or sanitized output. No unobserved full raw hash is invented.",
+      "transformations": []
+    },
+    {
+      "commandKey": "c32bbb2b6ef2e8c3d6f2ff7c1bc0f2431d4c683d3d5ff2aaf9b10e26b7c191cf",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859717009-s4-hermes-source.log",
+      "outputDigest": "da96ec2e79fb2ffc7887029f8eddd50ac0237c183627ff49204695b4a94e483a",
+      "outputBytes": 2154,
+      "firstObservedInputDigest": "da96ec2e79fb2ffc7887029f8eddd50ac0237c183627ff49204695b4a94e483a",
+      "firstObservedInputBytes": 2154,
+      "fullRawOutputDigest": null,
+      "rawOutputLimit": "Recorder may already have bounded or sanitized output. No unobserved full raw hash is invented.",
+      "transformations": []
+    },
+    {
+      "commandKey": "df330232b8026a3ffc8c5a7e65085cc4aefcef9a7943d3d23663d105d21d8821",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859717009-s5-hermes-controls.log",
+      "outputDigest": "6358a1cdb4af4070352fdb6918e965f66f66a8612c733552a145889bff985c3f",
+      "outputBytes": 2018,
+      "firstObservedInputDigest": "6358a1cdb4af4070352fdb6918e965f66f66a8612c733552a145889bff985c3f",
+      "firstObservedInputBytes": 2018,
+      "fullRawOutputDigest": null,
+      "rawOutputLimit": "Recorder may already have bounded or sanitized output. No unobserved full raw hash is invented.",
+      "transformations": []
+    },
+    {
+      "commandKey": "3cc24fa9d4eb2e63b0684c9209294f27018efae40b425d57dcb11700627f4a68",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859717009-s6-hermes-worker.log",
+      "outputDigest": "157404f795f672ed49bfdd2f7d4bac81bfbb7d3aa373b0fc392234f9c3031ce9",
+      "outputBytes": 4280,
+      "firstObservedInputDigest": "157404f795f672ed49bfdd2f7d4bac81bfbb7d3aa373b0fc392234f9c3031ce9",
+      "firstObservedInputBytes": 4280,
+      "fullRawOutputDigest": null,
+      "rawOutputLimit": "Recorder may already have bounded or sanitized output. No unobserved full raw hash is invented.",
+      "transformations": []
+    },
+    {
+      "commandKey": "dda358a2e56c33d4e3e4d83bc5a9ae5b8b0bdfebaeefc02f9239b540370f0ddf",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859717009-s7-native-facade.log",
+      "outputDigest": "31bde8e7a2204c6f2ccbbc1851c467774956c8a656ebae17cb6eec2a38a361c9",
+      "outputBytes": 2389,
+      "firstObservedInputDigest": "31bde8e7a2204c6f2ccbbc1851c467774956c8a656ebae17cb6eec2a38a361c9",
+      "firstObservedInputBytes": 2389,
+      "fullRawOutputDigest": null,
+      "rawOutputLimit": "Recorder may already have bounded or sanitized output. No unobserved full raw hash is invented.",
+      "transformations": []
+    },
+    {
+      "commandKey": "91f81cd9ece4e377fd3b84cbd1d04ceedec9827bc7bdf46b1682c949008bfca8",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859717009-s7-native-worker.log",
+      "outputDigest": "5ab3e57ac380f0af05c0383d988f0f1447558ea8ae0bc147bdd46325ee17b3bf",
+      "outputBytes": 2076,
+      "firstObservedInputDigest": "5ab3e57ac380f0af05c0383d988f0f1447558ea8ae0bc147bdd46325ee17b3bf",
+      "firstObservedInputBytes": 2076,
+      "fullRawOutputDigest": null,
+      "rawOutputLimit": "Recorder may already have bounded or sanitized output. No unobserved full raw hash is invented.",
+      "transformations": []
+    },
+    {
+      "commandKey": "83b997e0fe180da47cb25dcd1ab973bc4064eb206b880024cece1f3e9abbb1e2",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859717063-s4-build-web.log",
+      "outputDigest": "705d710d2234ec6e946dd5e39d8f66c0ccc36c4aae3dfa3ab301b24899ca91f9",
+      "outputBytes": 12602,
+      "firstObservedInputDigest": "705d710d2234ec6e946dd5e39d8f66c0ccc36c4aae3dfa3ab301b24899ca91f9",
+      "firstObservedInputBytes": 12602,
+      "fullRawOutputDigest": null,
+      "rawOutputLimit": "Recorder may already have bounded or sanitized output. No unobserved full raw hash is invented.",
+      "transformations": []
+    },
+    {
+      "commandKey": "2d668c8c5a80176413d20c47f9aa858f36c264ef4b07412fa3dc027c46416276",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859717063-s5-application-regression.log",
+      "outputDigest": "f3b779650a0be2bb4e50f09b1872b1e34b717df7e33ad74168689acd000915b1",
+      "outputBytes": 37565,
+      "firstObservedInputDigest": "f3b779650a0be2bb4e50f09b1872b1e34b717df7e33ad74168689acd000915b1",
+      "firstObservedInputBytes": 37565,
+      "fullRawOutputDigest": null,
+      "rawOutputLimit": "Recorder may already have bounded or sanitized output. No unobserved full raw hash is invented.",
+      "transformations": []
+    },
+    {
+      "commandKey": "0fb80e687022850e9da275021e5c621ebc888943298b7729ee203ab0a07cd2cd",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859717080-s4-build-web.log",
+      "outputDigest": "0b262376fa80d3412c2de02199d5a329c2fe784402b3db8294b6b912f7bb1e86",
+      "outputBytes": 12600,
+      "firstObservedInputDigest": "0b262376fa80d3412c2de02199d5a329c2fe784402b3db8294b6b912f7bb1e86",
+      "firstObservedInputBytes": 12600,
+      "fullRawOutputDigest": null,
+      "rawOutputLimit": "Recorder may already have bounded or sanitized output. No unobserved full raw hash is invented.",
+      "transformations": []
+    },
+    {
+      "commandKey": "7f556290231ee7ac4b543941d9ee4b71475c7df24f4554c839c85e20f7419ef9",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859717080-s5-application-regression.log",
+      "outputDigest": "072aea00ff6b13e20a60858d0b4dca86e53bda7afc90b8c2697bbed35927c673",
+      "outputBytes": 27835,
+      "firstObservedInputDigest": "072aea00ff6b13e20a60858d0b4dca86e53bda7afc90b8c2697bbed35927c673",
+      "firstObservedInputBytes": 27835,
+      "fullRawOutputDigest": null,
+      "rawOutputLimit": "Recorder may already have bounded or sanitized output. No unobserved full raw hash is invented.",
+      "transformations": []
+    },
+    {
+      "commandKey": "c10d0c89c9feca58bc7e87aa07c4709c7e492d2d7f4c2fdd05dd3da6504dc6e6",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-installed-memory-retention-green.log",
+      "outputDigest": "ada3f63a3a7fc709f139b0739c945df1f03799ca728e9ad03b2ed34a1f86be23",
+      "outputBytes": 233,
+      "firstObservedInputDigest": "ef4801fa8d41e34103af5861485ff994d92193a0bd6d86fdab4eb64852dfd77a",
+      "firstObservedInputBytes": 234,
+      "fullRawOutputDigest": null,
+      "rawOutputLimit": "Recorder may already have bounded or sanitized output. No unobserved full raw hash is invented.",
+      "transformations": [
+        {
+          "inputDigest": "ef4801fa8d41e34103af5861485ff994d92193a0bd6d86fdab4eb64852dfd77a",
+          "outputDigest": "ada3f63a3a7fc709f139b0739c945df1f03799ca728e9ad03b2ed34a1f86be23",
+          "operations": [
+            "DISPLAY_WHITESPACE_NORMALIZED"
+          ]
+        }
+      ]
+    },
+    {
+      "commandKey": "3eddfe0bbf0f83415809f1644c6bf77abff6667622c3837a719bf5195daac669",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-installed-memory-retention-typecheck.log",
+      "outputDigest": "725c701c2df5342fc103cc0f823bf0beb594484b8ca3f9fe7f0bb3902999a5ca",
+      "outputBytes": 90,
+      "firstObservedInputDigest": "f3cff193d9978242d1503c0371eec158299520a297549e43110e52d93f13fde6",
+      "firstObservedInputBytes": 91,
+      "fullRawOutputDigest": null,
+      "rawOutputLimit": "Recorder may already have bounded or sanitized output. No unobserved full raw hash is invented.",
+      "transformations": [
+        {
+          "inputDigest": "f3cff193d9978242d1503c0371eec158299520a297549e43110e52d93f13fde6",
+          "outputDigest": "725c701c2df5342fc103cc0f823bf0beb594484b8ca3f9fe7f0bb3902999a5ca",
+          "operations": [
+            "DISPLAY_WHITESPACE_NORMALIZED"
+          ]
+        }
+      ]
+    },
+    {
+      "commandKey": "57c465a2acf42c11aa6470cb5005bcb7af018572814017a667878634931ecedf",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-installed-memory-retention-custody-green.log",
+      "outputDigest": "c315ea1fa9cd407ffb2763f7ea57a9ad9ed9462a9ecc1f8ae2ab65174f3ade25",
+      "outputBytes": 233,
+      "firstObservedInputDigest": "37bc101a1524d73a93b577865adb134b88b04ae6eeb755bb355da3a268e33825",
+      "firstObservedInputBytes": 234,
+      "fullRawOutputDigest": null,
+      "rawOutputLimit": "Recorder may already have bounded or sanitized output. No unobserved full raw hash is invented.",
+      "transformations": [
+        {
+          "inputDigest": "37bc101a1524d73a93b577865adb134b88b04ae6eeb755bb355da3a268e33825",
+          "outputDigest": "c315ea1fa9cd407ffb2763f7ea57a9ad9ed9462a9ecc1f8ae2ab65174f3ade25",
+          "operations": [
+            "DISPLAY_WHITESPACE_NORMALIZED"
+          ]
+        }
+      ]
+    },
+    {
+      "commandKey": "f1f314efec0b9c71a40df068c85892f7a161f00b94e93518f8feef5778351197",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-installed-memory-final-typecheck.log",
+      "outputDigest": "725c701c2df5342fc103cc0f823bf0beb594484b8ca3f9fe7f0bb3902999a5ca",
+      "outputBytes": 90,
+      "firstObservedInputDigest": "f3cff193d9978242d1503c0371eec158299520a297549e43110e52d93f13fde6",
+      "firstObservedInputBytes": 91,
+      "fullRawOutputDigest": null,
+      "rawOutputLimit": "Recorder may already have bounded or sanitized output. No unobserved full raw hash is invented.",
+      "transformations": [
+        {
+          "inputDigest": "f3cff193d9978242d1503c0371eec158299520a297549e43110e52d93f13fde6",
+          "outputDigest": "725c701c2df5342fc103cc0f823bf0beb594484b8ca3f9fe7f0bb3902999a5ca",
           "operations": [
             "DISPLAY_WHITESPACE_NORMALIZED"
           ]

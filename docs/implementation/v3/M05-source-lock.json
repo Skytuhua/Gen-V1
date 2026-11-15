@@ -4,6 +4,10 @@
   "executionBaseSha": "399cde39ff4ee82272c7a7700944325c44b36070",
   "inspectedPaths": [
     {
+      "path": ".github/workflows/ci.yml",
+      "blobSha": "f5e248c2da4f661f37e518cf9894c31b590ac68b"
+    },
+    {
       "path": "apps/server/host.ts",
       "blobSha": "be98ae5bcdcd310dcaf34257c4b928c9d1045492"
     },
@@ -164,8 +168,16 @@
       "blobSha": "04d387152c17aad4eb3b6fbdd9f410178a51a5eb"
     },
     {
+      "path": "scripts/package-desktop.ts",
+      "blobSha": "ce720a73b51156943e6fc127192a42a2c2b558cf"
+    },
+    {
       "path": "scripts/public-source-files.json",
       "blobSha": "7ead37fd2a30d0ef030f18525df6cae556881a65"
+    },
+    {
+      "path": "scripts/verify-installed-desktop.ts",
+      "blobSha": "08ebb547cd2a95c2514783c131dd0fc4cb93dc25"
     },
     {
       "path": "tests/context-compiler-v3.test.ts",
@@ -174,6 +186,10 @@
     {
       "path": "tests/effect-recovery-v3.test.ts",
       "blobSha": "991b54d4c96820a382a28c4fc625719b3a6a79b8"
+    },
+    {
+      "path": "tests/installed-desktop-verification.test.ts",
+      "blobSha": "ea70ad3f662754095df20f6686457317266a5e23"
     },
     {
       "path": "tests/m01-m02-compatibility.test.ts",

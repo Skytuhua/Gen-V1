@@ -2,7 +2,7 @@
 
 ## Status and immutable source identity
 
-**Latest observed result: run 43727736261 passed seven jobs and failed one host-operation fixture setup case.** Its [immutable receipt](M05-windows-ci-43727736261.json) records 266 browser passes, one failure and two skips. The separate 15-second publication/attachment assertion preserves the five-second visibility assertion and awaits a new complete Windows run. The direct full TypeScript check passed; native FILE, installed-desktop and live-study proof remain open.
+**Latest observed result: run 43729864202 passed seven jobs and failed one initial acknowledgment-fixture readiness assertion.** Its [immutable receipt](M05-windows-ci-43729864202.json) records 266 browser passes, one failure and two skips. The repaired host-operation case passed in 9.1 seconds of whole-test time. The new acknowledgment repair separates a bounded initial visibility wait from the unchanged selection assertions; it has no Windows result yet. Three unmocked native FILE cases and a real installed default-off retention verifier/job are also authored. Local typecheck passes and the installed seed/custody suite passes 13 cases. Actual FILE and installed execution, the full enabled installed flow and the live study remain unproven.
 
 **Earlier complete passing cut:** [Run 43726164418](M05-windows-ci-43726164418.json) records **3,746 application passes/39 skips**, **33 Hermes contracts**, **37 policy/plugin cases**, successful typecheck, UI policy and builds, and **267 browser passes/two skips/zero failed or flaky**. All 29 split baseline cases and all four later suites executed successfully, including the FAQ case with the exact `Collapse artifact` focus assertion. Production source and every pre-existing assertion remain unchanged. This is a pass for the recorded source/test cut; activation remains disabled and native FILE, installed-desktop and live-study proof remain open.
 
@@ -208,7 +208,7 @@ The [pre-merge integrity report](M05-premerge-evidence-integrity-20261115.json) 
 | Application shards 1 / 2 / 3 / 4 | 1,073 / 927 / 842 / 904 passed; 0 / 7 / 2 / 30 skipped. Total **3,746 passed, 39 skipped, zero failed**. |
 | Hermes contracts | **33 passed**, including five pinned checkpoint facade cases and three actual Worker cases with scripted responses. |
 | Windows policy/plugin checks | **37 passed**, plus full typecheck, UI policy and production build. |
-| Desktop packaging | Build passed. No installation or launch claim. |
+| Desktop shell build | Web and shell builds passed. No packaging, installation or launch claim. |
 | Browser split / memory / context / frontend / root | 29 / 15 / 21 / 90 / 112 passed, with one frontend and one root skip. Total **267 passed, two skipped, zero failed or flaky**. All 17 plan cases and four document widths execute and pass. |
 
 All 24 observed command records from this run were imported with exact runner working directory, observed step time envelopes, exit basis, raw-log digests, bounded excerpt digests and immutable per-command metadata. No process duration is invented from a whole CI step. Receipt SHA256: `0a0d786b816c53b68147dfc99284114d028fb42a59ad5f4915ea3794fb6006a8`. Raw jobs API SHA256: `fc7557883dc65a730110f256dfca61283f935f854470b9f1e881f66517d458df`. That run's raw browser log is 110,540 bytes with SHA256 `cb63fd852f6ccbc12849bd28365141f008c19f084d4a2eebc35579c1095d3295`.
@@ -227,7 +227,7 @@ The [browser artifact review for run 43721299625](M05-browser-review-43721299625
 | --- | --- |
 | Application shards 1 / 2 / 3 / 4 | 1,073 / 927 / 842 / 904 passed; 0 / 7 / 2 / 30 skipped. Total **3,746 passed, 39 skipped, zero failed**. |
 | Hermes contracts | **33 passed**, including the pinned facade and actual Worker checkpoint cases. |
-| Windows policy/plugin checks and builds | **37 passed**; typecheck, UI policy, production build and desktop packaging passed. All seven non-browser jobs passed. |
+| Windows policy/plugin checks and builds | **37 passed**; typecheck, UI policy, production build and desktop shell build passed. All seven non-browser jobs passed. |
 | Split-browser baseline | **28 passed, one failed**: 18 split-app cases and ten split-renderer cases passed. The first split-app case failed during initial fixture navigation. |
 | Project-memory / usage-context / frontend-refinement / root suites | **NOT_RUN** in this attempt. Their shared workflow step was skipped after the failed baseline step. This is not four executed suites with skipped test cases. |
 
@@ -251,7 +251,7 @@ The [independent startup review](M05-browser-startup-review-43723377122.json) re
 | --- | --- |
 | Application shards | **3,746 passed, 39 skipped, zero failed**. |
 | Hermes contracts | **33 passed**. |
-| Windows policy/plugin checks and builds | **37 passed**; typecheck, UI policy, production build and desktop packaging passed. All seven non-browser jobs passed. |
+| Windows policy/plugin checks and builds | **37 passed**; typecheck, UI policy, production build and desktop shell build passed. All seven non-browser jobs passed. |
 | Split-browser baseline | **29 passed**, including the formerly failing first fixture with the 20-second initial navigation budget. Its 6,281 ms whole-test duration does not measure navigation duration. |
 | Project-memory / usage-context | **15 / 21 passed**. Both suites executed. |
 | Frontend-refinement | **89 passed, one failed, one skipped**. The sole failure is `connected FAQ branches and follow-up draft retain independent state`. |
@@ -275,7 +275,7 @@ Receipt SHA256 is `cd82f10fe3fa036f8d06cbc9ae085bc56db103f5be73d5f4744a6ea9a4388
 | --- | --- |
 | Application shards 1 / 2 / 3 / 4 | 1,073 / 927 / 842 / 904 passed; 0 / 7 / 2 / 30 skipped. Total **3,746 passed, 39 skipped, zero failed**. |
 | Hermes contracts | **33 passed**, including the five pinned facade and three actual Worker checkpoint cases with scripted responses. |
-| Windows policy/plugin checks and builds | **37 passed**; typecheck, UI policy, production build and desktop packaging passed. |
+| Windows policy/plugin checks and builds | **37 passed**; typecheck, UI policy, production build and desktop shell build passed. |
 | Split-browser baseline | **29 passed**, using the 20-second initial fixture navigation budget with unchanged action and outer-test bounds. |
 | Project-memory / usage-context | **15 / 21 passed**. |
 | Frontend-refinement | **90 passed, one skipped**, including `connected FAQ branches and follow-up draft retain independent state` with the added exact Collapse focus assertion. |
@@ -299,6 +299,40 @@ The [trace review](M05-host-publication-review-43727736261.json) preserves exact
 
 `ContractRuntime` sequentially awaits `file_replace_prepare`, `text_import` and `ui_present`. The first two use real guarded reads. The Windows guard starts the system PowerShell process and has its own bounded RPC and shutdown. The trace does not measure the individual guard subprocesses, so it does not establish their exact contribution or a platform latency benchmark.
 
-The minimal fixture repair adds `expect(artifact).toBeAttached({ timeout: 15_000 })` before the existing `expect(artifact).toBeVisible()`. Publication now has a separate bounded allowance; the five-second visible-render assertion, outer test limit, action waits, zero retries, native approval checks, exact file effects and restart assertions remain intact. Production behavior is unchanged. This new assertion awaits complete Windows execution.
+The minimal fixture repair adds `expect(artifact).toBeAttached({ timeout: 15_000 })` before the existing `expect(artifact).toBeVisible()`. Publication now has a separate bounded allowance; the five-second visible-render assertion, outer test limit, action waits, zero retries, native approval checks, exact file effects and restart assertions remain intact. Production behavior is unchanged. Run 43729864202 subsequently executed and passed the repaired host-operation case in 9.1 seconds of whole-test time, including its original approval/effect/restart checks. That workflow failed separately on the initial acknowledgment-fixture readiness assertion described below.
 
 The local package-manager wrapper [attempt](m05-logs/continuation-host-publication-readiness-typecheck.log) stopped before TypeScript with `ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY` while trying an implicit dependency refresh. That failure remains recorded. The follow-up invokes the installed TypeScript compiler directly with the same `--noEmit` project check, without dependency installation or changes. The direct compiler exited 0; its result is retained in [the direct-compiler log](m05-logs/continuation-host-publication-readiness-typecheck-node.log).
+
+
+## Host-publication repair execution and acknowledgment initial readiness
+
+[Run 43729864202](M05-windows-ci-43729864202.json) tested head `9321f979e8feebe7899be365ad6678ac82343f54`, actual PR checkout `f54bd7b045ec83bd63cb69b46570adf580ba7fea`, exact tree `faccdd5ea6c029573060443a20d06a911c16b34c`. All seven non-browser jobs passed. The earlier failed host-publication receipt from run 43727736261 remains unchanged.
+
+| Coverage in run 43729864202 | Observed result |
+| --- | --- |
+| Application shards | **3,746 passed, 39 skipped, zero failed**. |
+| Hermes contracts | **33 passed**. |
+| Windows policy/plugin checks and builds | **37 passed**; typecheck, UI policy, production web build and desktop shell build passed. The desktop job did not package or install an application. |
+| Split-browser / project-memory / usage-context | **29 / 15 / 21 passed**. |
+| Frontend-refinement | **90 passed, one skipped**. |
+| Root baseline | **111 passed, one failed, one skipped**. All 17 plan and four document-width cases passed. |
+| Repaired host-operation case | **Passed, 9.1 seconds whole-test time**. This is not a measured publication, file-guard or renderer latency. |
+| Entire browser job | **266 passed, one failed, two skipped**. The workflow remains failed. |
+
+The sole failure was `an older snapshot cannot replace a newer acknowledged selection` in [artifact-acknowledgment.spec.ts](../../../tests/e2e/artifact-acknowledgment.spec.ts). Its initial `Select row 1` checked assertion started at trace-relative 14,717.137 ms and failed at 19,721.239 ms. Bootstrap began at 19,042.784 ms, about 4.3 seconds into that five-second assertion. The initial snapshot completed at 19,223.898 ms. The final DOM at 19,737.563 ms, **16.324 ms after assertion failure**, contains the expected checked row, without pending or measuring attributes. No `/api/commands` request occurred before failure. The trace therefore does not establish a stale-acknowledgment ordering defect; that behavior had not yet been exercised.
+
+The [bounded diagnosis](M05-acknowledgment-readiness-review-43729864202.json) records the dynamic import in `main.tsx`: document `load` can precede shell module loading, bootstrap and initial rendering. Its network records establish this sequence, but do not separately measure Vite transformation, JavaScript evaluation or CPU scheduling. The first exact instant at which the row became visible is not measured.
+
+The root repair adds only `await expect(selected).toBeVisible({ timeout: 15_000 });` before the existing initial checked assertion. All initial and later checked/unchecked assertions retain their original five-second allowance. The held save-receipt and `edit.end` barriers, stale revision 2 handling, authoritative revision 3 receipt, later revision 4 update, exactly two saves, Saved state, 650 ms quiescence interval, 30-second outer test timeout and zero retries remain. Production behavior is unchanged. A fresh Windows run is required for this added readiness assertion.
+
+The raw browser log is 116,112 bytes, SHA256 `6de9449c3585bde649bcf0d1dfac4cda0f3035abb45d13c5f037733ead8f1473`. Artifact `browser-43729864202-1`, ID `14168760821`, is 2,874,047 bytes with verified ZIP SHA256 `44383af5fe0379e17f2198abc5362769dd6db0360941d590bb2a0f2e7eecb0c1`. The acknowledgment trace ZIP has SHA256 `90a37c90a7fc29c18b3813c9d11ace77beb7ab49aa15fb43fc8c94210e26428f`. The diagnosis preserves separate raw, bounded-log, trace and source identities. No new screenshot visual review or provider-spend measurement is claimed.
+
+## Authored platform proofs awaiting execution
+
+[Three native Windows FILE cases](../../../tests/memory-native-file-capture-v3.test.ts) now exercise the real guarded capture path, immutable UTF-8 source reuse without file changes, and rejection after either grant revocation or physical replacement with identical bytes. No file-access module, guard, native process or retained snapshot is mocked. The cases use a disposable instance with explicit local enablement while the capability registry remains false. [Local full typecheck](m05-logs/continuation-native-file-proof-typecheck.log) exited 0. Their actual Windows execution is pending; a non-Windows skip supplies no platform proof.
+
+The [installed verifier](../../../scripts/verify-installed-desktop.ts) now has explicit `--project-memory-retention` mode with a [dedicated helper](../../../scripts/installed-memory-retention.ts). The original verifier path remains available when the option is absent. Current accepted Settings labels are used for Models & Accounts and Close dialog. The additional `Installed desktop memory retention` [CI job](../../../.github/workflows/ci.yml) uses the existing pinned toolchain and declared archive/file manifests to package the production NSIS target, install it per user, compare payload hashes, establish exact executable/nonce CDP ownership, launch twice with the same disposable physical profile and ports, and perform identity-bound uninstall. Its exact expanded verifier argv is emitted before execution. Reports, screenshots and the explicit redacted export are preserved on ordinary failure.
+
+The seed uses production Store/ProjectMemory APIs only in a newly created canonical disposable profile. Constructor-local enablement creates four distinct source-backed rows; project opt-in is disabled before closing Store. The installed host retains both false flags, null account/model ownership and its real packaged sidecar. The authored UI flow requires pinned source bytes despite a changed message, accept/edit/reject, sensitive-text redaction in an actual download, Forget, and correction/tombstone persistence after restart. Post-exit observations require no active run, outbox, model-request, extraction or auxiliary-usage records. Provider network calls remain `null`, since those storage observations do not measure network traffic.
+
+The [fail-first run](m05-logs/continuation-installed-memory-retention-red.log) retained four new failures and eight existing custody passes. The [final local suite](m05-logs/continuation-installed-memory-retention-custody-green.log) passes 13 cases, and [full typecheck](m05-logs/continuation-installed-memory-final-typecheck.log) passes. These are fixture/option/custody results. No real package, installer, installed UI or second-launch result exists for the new mode yet. A future pass would establish the seeded default-off retained-memory subset only. Enabled injection/exclusion, automatic extraction, native checkpoints and live task-quality/cost in the installed application remain unproven. Both memory flags remain false and the bundle remains PARTIAL.

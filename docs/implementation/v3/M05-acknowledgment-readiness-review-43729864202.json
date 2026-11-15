@@ -1,0 +1,214 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-11-15T15:46:44.261398+00:00",
+  "status": "REPAIR_REVIEWED_NEW_EXACT_HEAD_CI_REQUIRED",
+  "scope": "Read-only diagnosis of the single initial fixture readiness failure; no implementation tests or browser reruns performed by reviewer.",
+  "run": {
+    "id": 43729864202,
+    "headSha": "9321f979e8feebe7899be365ad6678ac82343f54",
+    "headTreeSha": "faccdd5ea6c029573060443a20d06a911c16b34c",
+    "observedCheckoutSha": "f54bd7b045ec83bd63cb69b46570adf580ba7fea",
+    "acceptedMainSha": "399cde39ff4ee82272c7a7700944325c44b36070",
+    "failedJobId": 132859716955,
+    "failedTest": {
+      "file": "tests/e2e/artifact-acknowledgment.spec.ts",
+      "title": "an older snapshot cannot replace a newer acknowledged selection",
+      "originalAssertionLine": 32,
+      "failure": "Initial exact Select row 1 checkbox was not found by the 5000 ms toBeChecked assertion.",
+      "wholeTestDurationMs": 5545,
+      "outerTimeoutMs": 30000,
+      "retry": 0
+    },
+    "rootBrowserReportStats": {
+      "startTime": "2026-11-15T15:34:07.497Z",
+      "duration": 332070.11,
+      "expected": 111,
+      "skipped": 1,
+      "unexpected": 1,
+      "flaky": 0
+    }
+  },
+  "artifacts": {
+    "artifactId": 14168760821,
+    "artifactName": "browser-43729864202-1",
+    "downloadedOnce": true,
+    "archive": {
+      "ref": "/workspace/scratch/36f66011d961/m05-browser-triage-43729864202/browser-43729864202-1.zip",
+      "bytes": 2874047,
+      "sha256": "44383af5fe0379e17f2198abc5362769dd6db0360941d590bb2a0f2e7eecb0c1"
+    },
+    "metadata": {
+      "ref": "/workspace/scratch/36f66011d961/m05-browser-triage-43729864202/artifact-metadata.json",
+      "bytes": 730,
+      "sha256": "93b3799239861c0a8ea670829cc0d2d8d3271eb9df81ebbf1dadd0608d3d4cca"
+    },
+    "traceZip": {
+      "ref": "/workspace/scratch/36f66011d961/m05-browser-triage-43729864202/artifact/run-1794756846033-e50da10c-7c6b-4548-b32d-2960eae28f0d/root/artifacts/artifact-acknowledgment-an-4ab50-ewer-acknowledged-selection/trace.zip",
+      "bytes": 436728,
+      "sha256": "90a37c90a7fc29c18b3813c9d11ace77beb7ab49aa15fb43fc8c94210e26428f"
+    },
+    "libraryTrace": {
+      "ref": "/workspace/scratch/36f66011d961/m05-browser-triage-43729864202/trace/0-trace.trace",
+      "bytes": 436514,
+      "sha256": "7565d8593247fded15f47c62666c2c6caf2a53f71ea0bb524d04f39ca5ae8d99"
+    },
+    "networkTrace": {
+      "ref": "/workspace/scratch/36f66011d961/m05-browser-triage-43729864202/trace/0-trace.network",
+      "bytes": 543927,
+      "sha256": "2ab8064f30bc8c37b4d7adaf10dc25cacb0fc24b173dd042a88e5e6e5b9e4e0a"
+    },
+    "testRunnerTrace": {
+      "ref": "/workspace/scratch/36f66011d961/m05-browser-triage-43729864202/trace/test.trace",
+      "bytes": 15669,
+      "sha256": "f1963270b073bccd0a7248cb08fea0038fdf7afd50569d0704ecc5ecf6211a69"
+    },
+    "rootResults": {
+      "ref": "/workspace/scratch/36f66011d961/m05-browser-triage-43729864202/artifact/run-1794756846033-e50da10c-7c6b-4548-b32d-2960eae28f0d/root/results.json",
+      "bytes": 345695,
+      "sha256": "23def1d898cf24447addbc47aa47c6b37d0ff4123564ad7dbee4785862e8a42e"
+    },
+    "errorContext": {
+      "ref": "/workspace/scratch/36f66011d961/m05-browser-triage-43729864202/trace/resources/69cec6f45ae99645f482371541fe771d46eecb35",
+      "bytes": 9352,
+      "sha256": "700e293b7357ac256cf4b5d3b76effd3bfb5b38e48b5cc3b95006d43023ffb25"
+    },
+    "rawBrowserLog": {
+      "ref": "/workspace/scratch/36f66011d961/m05-ci-43729864202/job-132859716955.log",
+      "bytes": 116112,
+      "sha256": "6de9449c3585bde649bcf0d1dfac4cda0f3035abb45d13c5f037733ead8f1473"
+    }
+  },
+  "chronology": {
+    "clock": "Playwright library trace monotonic milliseconds. Network end is recorded start plus recorded duration. Test-runner timing is retained in its separate trace.",
+    "goto": {
+      "callId": "call@16",
+      "waitUntil": "load",
+      "startMs": 14479.108,
+      "endMs": 14703.278,
+      "afterSnapshotMs": 14708.717
+    },
+    "initialCheckedAssertion": {
+      "callId": "call@18",
+      "startMs": 14717.137,
+      "timeoutMs": 5000,
+      "endMs": 19721.239,
+      "beforeSnapshotMs": 14719.229,
+      "finalSnapshotMs": 19737.563
+    },
+    "bootstrap": {
+      "startMs": 19042.784,
+      "durationMs": 8.918,
+      "endMs": 19051.702,
+      "status": 200
+    },
+    "initialSnapshot": {
+      "startMs": 19216.472,
+      "durationMs": 7.426,
+      "endMs": 19223.898,
+      "status": 200
+    },
+    "selectedResourceResponses": [
+      {
+        "path": "/src/App.tsx",
+        "startMs": 14869.919,
+        "endMs": 15653.079,
+        "status": 200
+      },
+      {
+        "path": "/src/Artifact.tsx",
+        "startMs": 14870.882,
+        "endMs": 16500.895,
+        "status": 200
+      },
+      {
+        "path": "/src/api.ts",
+        "startMs": 14871.08,
+        "endMs": 16554.097,
+        "status": 200
+      },
+      {
+        "path": "/src/conversation-read-api.ts",
+        "startMs": 18891.497,
+        "endMs": 18899.716,
+        "status": 200
+      }
+    ],
+    "resourceRequestsStartedAfterLoadBeforeBootstrap": 277,
+    "recordedResources": 298,
+    "responseStatusCounts": {
+      "200": 297,
+      "404": 1
+    },
+    "sole404": "/api/plugins; explicitly fulfilled as 404 by the synthetic fixture",
+    "snapshotEndToAssertionEndMs": 497.341,
+    "finalDOMAfterAssertionEndMs": 16.324,
+    "apiCommandsRequests": 0
+  },
+  "finalDOM": {
+    "snapshotName": "after@call@18",
+    "timestampMs": 19737.563,
+    "artifactId": "task-surface",
+    "artifactAriaLabel": "Task surface",
+    "tableCaption": "Review records",
+    "input": {
+      "aria-label": "Select row 1",
+      "type": "checkbox",
+      "__playwright_checked_": "true",
+      "checked": ""
+    },
+    "artifactPendingAttributes": false,
+    "artifactMeasuringAttributes": false,
+    "errorContextAlsoListsCheckboxChecked": true,
+    "firstExactMomentOfRowAvailabilityMeasured": false
+  },
+  "finding": "The initial 5-second selection assertion covered asynchronous shell module loading, bootstrap, initial snapshot and rendering. The expected checkbox is correctly checked in the immediately following DOM snapshot. No selection command was dispatched before failure, so the failure does not demonstrate an acknowledged-selection ordering defect.",
+  "sourceExplanation": {
+    "entry": {
+      "ref": "/workspace/scratch/36f66011d961/m05-continuation/apps/web/src/main.tsx",
+      "bytes": 587,
+      "sha256": "3d98c829e45846b51f41a7c9ce9fc0b5596237ab208d6a4ac3f434e2d3a09c29"
+    },
+    "entryLine": 9,
+    "entryBehavior": "void import(DesktopEntry).then(root.render) runs after the document load boundary; page.goto(waitUntil=load) does not wait for that dynamic import and subsequent application bootstrap.",
+    "fixture": {
+      "ref": "/workspace/scratch/36f66011d961/m05-continuation/tests/e2e/task-interface-fixture.ts",
+      "bytes": 9009,
+      "sha256": "d94624da4e1136c3313aa84d6f9c9db5de8b54d581717202aff1445e63134817"
+    },
+    "fixtureBehavior": "Synthetic API routes return the source-bound table and initial revision 1 selection. The test registers custom snapshot/save routes before navigation.",
+    "productionChangeNeeded": false
+  },
+  "reviewedRepair": {
+    "source": {
+      "ref": "/workspace/scratch/36f66011d961/m05-continuation/tests/e2e/artifact-acknowledgment.spec.ts",
+      "bytes": 4088,
+      "sha256": "659883ac6d3083454c29b441f1b7892c2b18a4e184d078a78959ed3c566ee1fe"
+    },
+    "sourceGitBlob": "2b01a0af3e7bb6f2ee38b9d1c456f427e73603c7",
+    "failedSourceGitBlob": "dbf84b5145a4686f3fe0303630e1375544e4790d",
+    "failedSourceSha256": "ae683fb04b686c96492ac2c7a4788abadf16794107bacb12576f868366613051",
+    "change": "Add only a 15000 ms initial toBeVisible assertion and two explanatory comment lines immediately before the existing initial toBeChecked.",
+    "newLine": "await expect(selected).toBeVisible({ timeout: 15_000 });",
+    "allOtherSourceBytesIdenticalToFailedHead": true,
+    "retainedInvariants": [
+      "Existing initial and subsequent checked/unchecked assertions retain their default 5000 ms budget.",
+      "Both held save-receipt and edit.end barriers remain unchanged.",
+      "Revision 2 stale snapshot while newer local edit is dirty remains exercised.",
+      "Revision 3 save receipt remains authoritative before the next full snapshot.",
+      "Revision 4 later host edit remains applied.",
+      "Exactly two saves and Saved state assertions remain unchanged.",
+      "The 650 ms quiescence interval beyond the 500 ms autosave debounce remains unchanged.",
+      "The existing 30000 ms outer test timeout and zero retries remain unchanged.",
+      "No production, renderer, model, source-state or API implementation is changed."
+    ],
+    "currentResult": "No browser execution of the repair has yet been observed; a new exact-head Windows run is required."
+  },
+  "limitations": [
+    "The trace measures network request timing, not individual Vite transformation, JavaScript evaluation, CPU scheduling or dependency optimization duration.",
+    "The final DOM proves the row existed and was checked by 19737.563 ms; it does not identify the first exact instant it became visible.",
+    "This is authored synthetic browser fixture evidence, not installed-desktop or live-provider evidence.",
+    "Zero api/commands requests is directly observed. Provider calls and model spend were not separately measured; no provider-cost or live-model proof is claimed.",
+    "No new screenshot visual review is claimed."
+  ],
+  "modelSpend": null
+}

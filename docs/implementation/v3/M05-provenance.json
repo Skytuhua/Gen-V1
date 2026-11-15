@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "recordedAt": "2026-11-15T15:24:22.124120+00:00",
+  "recordedAt": "2026-11-15T15:58:49.754079+00:00",
   "repositoryRoot": "/workspace/scratch/36f66011d961/m05-continuation",
   "branch": "agent/m05-v3-continuation",
   "origin": "https://github.com/Skytuhua/Gen-V1.git",
@@ -8,7 +8,7 @@
   "repositoryId": 1442565952,
   "canonicalIdentityEvidence": "docs/implementation/v3/M05-upstream-check.json",
   "acceptedBaseSha": "399cde39ff4ee82272c7a7700944325c44b36070",
-  "sourceParentHeadSha": "9691435ca5c91888c30358e7118d40de6c3de170",
+  "sourceParentHeadSha": "fe59f09076591fac1fc5769747d6f4feeb4590e0",
   "acceptedDependencyCommits": [
     "5f0958f4cb5b40bc10c1eea0e1cd517b57aaa1b9",
     "f331cf16b268282da888a41da42fc776ea7befd5",
@@ -24,19 +24,25 @@
   "packageManagerEvidence": "Declared package manager plus preserved setup/build argv; no new package installation is performed by this builder.",
   "lockfileChangedAgainstAcceptedBase": false,
   "selectedCurrentCommandRefs": [
-    "docs/implementation/v3/m05-logs/continuation-host-publication-readiness-typecheck-node.log",
+    "docs/implementation/v3/m05-logs/continuation-installed-memory-final-typecheck.log",
     "docs/implementation/v3/m05-logs/continuation-m11-final-build.log",
     "docs/implementation/v3/m05-logs/continuation-m11-final-contracts.log",
     "docs/implementation/v3/m05-logs/continuation-m11-final-memory-regression.log",
     "docs/implementation/v3/m05-logs/continuation-study-manifest-final.log",
-    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853240058-s7-native-facade.log",
-    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853240058-s7-native-worker.log"
+    "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859717009-s7-native-facade.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859717009-s7-native-worker.log"
   ],
   "commandCutLimitation": "Command ledger records actual times/argv/results, not a per-command Git tree. Selection is explicit; the current file inventory is generated separately. Exact-head Windows status is admitted only when its current code/test/workflow cut matches.",
-  "windowsCiRef": "docs/implementation/v3/M05-windows-ci-43727736261.json",
+  "windowsCiRef": "docs/implementation/v3/M05-windows-ci-43729864202.json",
   "windowsCiCurrentCodeCut": false,
   "windowsCiCutNotes": [
-    "CI code/test/workflow cut differs from the current worktree: tests/host-fixture.ts"
+    "CI code/test/workflow cut differs from the current worktree: .github/workflows/ci.yml",
+    "CI code/test/workflow cut differs from the current worktree: scripts/public-source-files.json",
+    "CI code/test/workflow cut differs from the current worktree: scripts/verify-installed-desktop.ts",
+    "CI code/test/workflow cut differs from the current worktree: tests/e2e/artifact-acknowledgment.spec.ts",
+    "CI code/test/workflow cut differs from the current worktree: tests/installed-desktop-verification.test.ts",
+    "CI code/test/workflow cut differs from the current worktree: scripts/installed-memory-retention.ts",
+    "CI code/test/workflow cut differs from the current worktree: tests/memory-native-file-capture-v3.test.ts"
   ],
   "studyRef": "docs/implementation/v3/m05-study-20261115/results.json",
   "reviewerApproval": false
