@@ -1,0 +1,38 @@
+name: M05 native Save proxy registration
+on:
+  push:
+    branches: [agent/m05-native-save-proxy-registration-43769197860]
+permissions:
+  contents: read
+jobs:
+  registration:
+    name: UI Automation registration (${{ matrix.mode }})
+    runs-on: windows-latest
+    timeout-minutes: 3
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [copied, fresh]
+    steps:
+      - name: Check out the isolated diagnostic source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - name: Measure actual Windows PowerShell provider registration
+        shell: pwsh
+        run: |
+          git rev-parse HEAD
+          git rev-parse 'HEAD^{tree}'
+          $worker = Join-Path $env:SystemRoot 'System32/WindowsPowerShell/v1.0/powershell.exe'
+          $script = Join-Path $PWD.Path 'diagnostics/native-save/proxy-registration.ps1'
+          & $worker -NoLogo -NoProfile -NonInteractive -MTA -File $script -Mode '${{ matrix.mode }}'
+          exit $LASTEXITCODE
+      - name: Preserve bounded registration observations
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: native-save-proxy-${{ matrix.mode }}-${{ github.run_id }}-${{ github.run_attempt }}
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 14
+          path: .harness-native-save-proxy/${{ matrix.mode }}.json
