@@ -234,7 +234,7 @@ public sealed class RootLease : IDisposable {
     $parent=[SaveOwner]::GetParent([IntPtr]::new($edit.Current.NativeWindowHandle))
     if($parent -eq [IntPtr]::Zero -or [SaveOwner]::Read($parent.ToInt32()) -ne $owner){Fail 'unknown-controls'}
     $combo=[AutomationElement]::FromHandle($parent);$c=$combo.Current
-    if($c.ProcessId -ne $owner -or $c.NativeWindowHandle -ne $parent.ToInt32() -or $c.ControlType -ne [ControlType]::ComboBox -or $c.ClassName -cne 'ComboBox' -or $c.Name -cne 'File name:' -or -not $c.IsEnabled){Fail 'unknown-controls'}
+    if($c.ProcessId -ne $owner -or $c.NativeWindowHandle -ne $parent.ToInt32() -or $c.ControlType -ne [ControlType]::ComboBox -or $c.AutomationId -cne 'FileNameControlHost' -or $c.Name -cne 'File name:' -or -not $c.IsEnabled){Fail 'unknown-controls'}
     $comboValue=$null
     if(-not $combo.TryGetCurrentPattern([ValuePattern]::Pattern,[ref]$comboValue) -or $comboValue.Current.IsReadOnly){Fail 'unknown-controls'}
     return @{value=$value;combo=$comboValue;invoke=$invoke}
