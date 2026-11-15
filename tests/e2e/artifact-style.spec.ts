@@ -3,6 +3,7 @@ import type { ArtifactRecord, HostCommand, Snapshot } from '../../packages/contr
 import { validateSurface } from '../../packages/ui-catalog';
 import { createSigningPdfFixture, SIGNING_FIELD_STATE_KEYS, SIGNING_SIGNATURE_BOX } from './document-preview-fixture';
 import { mkdir, writeFile } from 'node:fs/promises';
+import { serveTaskSplitLayout } from './task-interface-fixture';
 
 // Hand-authored synthetic compositions. They exercise the renderer and source bindings;
 // they do not establish model generation, execution, signing, or a real external result.
@@ -81,6 +82,7 @@ async function host(page: Page, snapshot: Snapshot) {
     snapshot.seq++;
     return route.fulfill({ json: { commandId: cmd.id, result, seq: snapshot.seq } });
   });
+  await serveTaskSplitLayout(page, snapshot);
   return { snapshot, commands };
 }
 

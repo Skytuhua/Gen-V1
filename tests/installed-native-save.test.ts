@@ -15,6 +15,7 @@ describe('installed native Save proof custody', () => {
     const complete = '"' + command.file + '" ' + command.args.join(' ') + '\0';
     expect(command.commandLineCharacters).toBe(complete.length);
     expect(complete.length).toBeLessThan(32767);
+    expect(installedNativeSaveCommand('C:\\' + 'x'.repeat(257)).commandLineCharacters).toBeLessThan(32767);
     expect(command.args).not.toContain('-ExecutionPolicy');
     const script = Buffer.from(command.args.at(-1)!, 'base64').toString('utf16le');
     expect(script).toContain('[Console]::In.ReadLine()');

@@ -278,10 +278,12 @@ test('cross-site infinite-loop widget leaves Settings, Stop and host navigation 
     expect(host.runtime.cancellations).toHaveLength(1);
     await expect(region(page, 'Untrusted loop fixture').getByRole('alert')).toContainText('worker was terminated');
     start = performance.now();
+    const previousThreadIds = new Set(host.snapshot().threads.map(thread => thread.id));
     await page.getByRole('button', { name: 'New thread', exact: false }).click({ timeout: 3000 });
     await page.getByRole('dialog', { name: 'Select project', exact: true }).getByRole('option', { name: 'No project', exact: true }).click({ timeout: 3000 });
     await expect.poll(() => host.snapshot().threads.length, { timeout: 3000 }).toBe(2);
-    await expect(page.locator('.breadcrumb')).toContainText('New thread', { timeout: 3000 });
+    const createdThread = host.snapshot().threads.find(thread => !previousThreadIds.has(thread.id))!;
+    await expect(page.locator(`[data-split-view="thread:${createdThread.id}"]:visible .breadcrumb`)).toContainText('New thread', { timeout: 3000 });
     observations.navigationMs = performance.now() - start;
     observations.outcome = 'Host Settings, Stop and new-thread navigation responded after child loop entry.';
     await evidence(page, info, 'host-responsive-after-infinite-loop');

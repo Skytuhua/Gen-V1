@@ -26,7 +26,7 @@ flushSync(() => createRoot(document.getElementById('root')).render(<Fixture/>));
 type FixtureWindow = Window & {view: string; resolveLoad(): void; refresh(): void; finish(): void; retained?: Element};
 const views = {
   workspace: ['.sidebar', '.workspace-header', '.loading-conversation', '.composer-dock .loading-composer'],
-  agents: ['.agents-project-header', '.agents-parent-strip', '.agents-transcript', '.agents-children'],
+  agents: ['.agents-project-header', '.agents-agent-grid', '.agents-transcript', '.agents-children'],
   review: ['.cr-toolbar', '.cr-files', '.cr-diff .cr-patch', '.cr-context .cr-draft'],
   settings: ['.settings-navigation', '.settings-page-heading', '.settings-row-copy', '.settings-row'],
 };

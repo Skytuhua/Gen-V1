@@ -92,6 +92,13 @@ test("retains a valid plan when the latest canonical graph is malformed", async 
 test("host replan preserves assignment, collapse and reading anchor when earlier details grow", async ({
   page,
 }) => {
+  // Completed details start closed; open them before exercising real height growth.
+  await page.getByRole("button", { name: "Plan actions" }).click();
+  await page.getByRole("menuitem", { name: "Expand all" }).click();
+  await expect(page.locator('[data-step-id="scope"] > .plan-step-summary')).toHaveAttribute(
+    "aria-expanded",
+    "true",
+  );
   const target = page.locator('[data-step-id="verify"] > .plan-step-summary');
   await target.scrollIntoViewIfNeeded();
   await target.focus();
@@ -159,6 +166,9 @@ test("deep nested agents and long output labels fit a 280px panel without hiding
     });
   plan.steps[1].outputs![0].label = "ExtremelyLongOutputLabelWithNoNaturalBreaks".repeat(3);
   await page.evaluate((snapshot) => window.planFixture.update(snapshot), snapshot);
+  // Reveal completed ancestors through the same user action before testing nested geometry.
+  await page.getByRole("button", { name: "Plan actions" }).click();
+  await page.getByRole("menuitem", { name: "Expand all" }).click();
   await expect(page.locator('[data-agent-id="nested-5"]')).toBeVisible();
   expect(await page.locator("main").evaluate((el) => el.scrollWidth)).toBeLessThanOrEqual(280);
   await page.locator('[data-step-id="build"]').scrollIntoViewIfNeeded();

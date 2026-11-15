@@ -1,4 +1,7 @@
 import type { Page } from '@playwright/test';
+import {isDeepStrictEqual} from 'node:util';
+import {panelBindingSchema} from '../../packages/contracts/workspace';
+import {splitWorkspaceLayoutSchema,type SplitWorkspaceLayout} from '../../packages/contracts/split-workspace';
 import type { ArtifactRecord, HostCommand, Snapshot } from '../../packages/contracts';
 import {applySplitWorkspaceCommand, createSplitWorkspaceLayout} from '../../packages/core/split-workspace-layout';
 
@@ -15,16 +18,37 @@ export function taskFixture(spec: TaskSpec, inputs: Record<string, unknown> = {}
     requests: [], operations: [], resources: [], usage: {}, settings: { theme: 'system', modelId: 'test/model' },
   };
 }
-export async function serveTaskFixture(page: Page, snapshot: Snapshot, action?: (command: HostCommand) => Promise<unknown>) {
-  const commands: HostCommand[] = [];
+function taskSplitLayout(snapshot?: Snapshot) {
   // Ordinary Workspace now renders its conversation from the canonical split layout.
   // Use the production reducer so fixture navigation preserves the same owner and revision.
   let splitLayout = createSplitWorkspaceLayout();
-  const initialThread = snapshot.threads.find(thread => thread.id === snapshot.activeThreadId);
+  const initialThread = snapshot?.threads.find(thread => thread.id === snapshot.activeThreadId);
   if (initialThread) splitLayout = applySplitWorkspaceCommand(splitLayout, 'view.open', {view: {
     id: 'thread:' + initialThread.id, kind: 'thread', binding: {authority: {kind: 'local'}, threadId: initialThread.id,
       ...(initialThread.projectId ? {projectId: initialThread.projectId} : {})},
   }});
+  return splitLayout;
+}
+// thread.reconcile is host-owned, so the pure geometry reducer deliberately excludes it.
+// Match the existing split-app fixture's canonical owner and revision checks.
+function taskSplitCommand(layout: SplitWorkspaceLayout, command: HostCommand, snapshot?: Snapshot) {
+  if (command.type.replace(/^split-workspace\./, '') !== 'thread.reconcile') return applySplitWorkspaceCommand(layout, command.type, command.payload);
+  if (Object.keys(command.payload).sort().join(',') !== 'baseRevision,expectedBinding,projectId,viewId,workspaceId' || command.payload.workspaceId !== layout.id || command.payload.baseRevision !== layout.revision) throw Error('The captured workspace identity or revision changed.');
+  const expected = panelBindingSchema.parse(command.payload.expectedBinding), target = layout.views[String(command.payload.viewId)];
+  if (!target || target.kind !== 'thread' || target.binding.authority.kind !== 'local' || !target.binding.threadId) throw Error('Only an existing local conversation view can be reconciled.');
+  if (!isDeepStrictEqual(target.binding, expected)) throw Error('The captured conversation owner binding changed.');
+  const owner = snapshot?.threads.find(thread => thread.id === target.binding.threadId);
+  if (!owner || (owner.projectId ?? null) !== command.payload.projectId) throw Error('The canonical conversation project changed.');
+  const next = structuredClone(layout);
+  for (const view of Object.values(next.views)) {
+    if (view.kind !== 'thread' || view.binding.authority.kind !== 'local' || view.binding.threadId !== owner.id) continue;
+    if (owner.projectId == null) delete view.binding.projectId; else view.binding.projectId = owner.projectId;
+  }
+  return splitWorkspaceLayoutSchema.parse({...next, revision: layout.revision + 1});
+}
+export async function serveTaskFixture(page: Page, snapshot: Snapshot, action?: (command: HostCommand) => Promise<unknown>) {
+  const commands: HostCommand[] = [];
+  let splitLayout = taskSplitLayout(snapshot);
   await page.addInitScript(() => {
     class Source {
       onopen: (() => void) | null = null;
@@ -47,7 +71,7 @@ export async function serveTaskFixture(page: Page, snapshot: Snapshot, action?: 
     if (path === '/api/split-workspace/profiles') return route.fulfill({json: []});
     if (path === '/api/split-workspace/commands') {
       const command = route.request().postDataJSON() as HostCommand;
-      splitLayout = applySplitWorkspaceCommand(splitLayout, command.type, command.payload);
+      splitLayout = taskSplitCommand(splitLayout, command, snapshot);
       return route.fulfill({json: {commandId: command.id, eventSeq: snapshot.seq, result: splitLayout}});
     }
     if (path === '/api/workspace') return route.fulfill({json: {projects: [], state: {version: 1, revision: 0, activeCanvasId: 'workspace', canvases: [{id: 'workspace', name: 'Workspace', preset: 'workspace', version: 1, panels: [], filter: 'active', projectIds: [], viewport: {x: 0, y: 0, zoom: 1}}], profiles: [], disabledKinds: [], integrations: {}}}});
@@ -67,13 +91,13 @@ export async function serveTaskFixture(page: Page, snapshot: Snapshot, action?: 
   };
 }
 // Opt in for fixtures that navigate real App conversations in the canonical split workspace.
-export async function serveTaskSplitLayout(page: Page) {
-  let layout = createSplitWorkspaceLayout();
+export async function serveTaskSplitLayout(page: Page, snapshot?: Snapshot) {
+  let layout = taskSplitLayout(snapshot);
   await page.route('**/api/split-workspace?workspaceId=workspace', route => route.fulfill({json: layout}));
   await page.route('**/api/split-workspace/profiles?workspaceId=workspace', route => route.fulfill({json: []}));
   await page.route('**/api/split-workspace/commands', route => {
     const command = route.request().postDataJSON();
-    layout = applySplitWorkspaceCommand(layout, command.type, command.payload);
+    layout = taskSplitCommand(layout, command, snapshot);
     return route.fulfill({json: {commandId: command.id, seq: layout.revision, result: layout}});
   });
 }
