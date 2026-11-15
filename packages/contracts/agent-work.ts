@@ -9,6 +9,7 @@ import { z } from 'zod';
 
 const id = z.string().min(1).max(160).regex(/^[\w:.-]+$/);
 const sha256Hex = z.string().regex(/^[a-f0-9]{64}$/);
+const sha1Hex = z.string().regex(/^[a-f0-9]{40}$/);
 const iso = z.string().datetime();
 const seq = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER);
 const revision = z.number().int().positive().max(Number.MAX_SAFE_INTEGER);
@@ -194,7 +195,7 @@ export const ResearchReadResultV1Schema = z.strictObject({
 export const CodeWorktreeResultV1Schema = z.strictObject({
   ...resultBase,
   worktreeId: id,
-  commits: z.array(sha256Hex).max(8),
+  commits: z.array(sha1Hex).max(8),
 });
 export const QaObservationSchema = z.strictObject({
   checkId: id,
