@@ -68,7 +68,7 @@ test('PR forms and exact review drafts survive remount and reload independently 
 
 test('linked PR surface reads its saved-link query and labels cached status truthfully',async({page})=>{
  const{panel,lists}=await pullRequestFixture(page,{kind:'linked'});expect(lists.length).toBeGreaterThan(0);expect(lists.every(url=>new URL(url).searchParams.get('linked')==='1')).toBe(true);await expect(panel).toContainText('Saved link');
- await panel.getByRole('button',{name:'#12 PR 12',exact:true}).click();await expect(panel.locator('.pr-review')).toContainText('Head ');
+ await panel.getByRole('button',{name:'#12 PR 12',exact:true}).click();await expect(panel.locator('.pr-review-head small')).toHaveAttribute('title',/^Latest commit /);
 });
 
 for(const mode of ['false','missing'] as const)test('PR mutations require explicit writable capability: '+mode,async({page})=>{

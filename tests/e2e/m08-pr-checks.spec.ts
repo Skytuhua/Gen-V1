@@ -24,10 +24,10 @@ for(const [label,checks] of Object.entries(rollups))test(`pull-request panel ren
  await panel.getByRole('button',{name:'#12 PR 12',exact:true}).click();
  const prChecks=panel.locator('.pr-checks');
  await expect(prChecks).toBeVisible();
- await expect(prChecks.locator('.pr-checks-stale')).toContainText('These results are for commit bbbbbbb');
- await expect(prChecks.locator('.pr-checks-stale')).toContainText('Your working copy is on aaaaaaa');
- await expect(panel.locator('.pr-review')).toContainText('Update your working copy to this pull request’s latest commit to submit a review.');
- await expect(panel.getByRole('button',{name:'Use latest commit'})).toHaveCount(0);
+ await expect(prChecks.locator('.pr-checks-stale')).toContainText('These checks ran on the pull request’s latest version.');
+ await expect(prChecks.locator('.pr-checks-stale')).toHaveAttribute('title',/Pull request: b{10}[\s\S]*Your copy: a{10}/);
+ await expect(panel.locator('.pr-compose')).toContainText('To send a review, switch your local copy to this pull request’s latest version');
+ await expect(panel.getByRole('button',{name:'Move it to the latest version'})).toHaveCount(0);
  if(label==='empty'){await expect(prChecks).toContainText('No checks have reported for this commit yet.');await expect(prChecks.locator('.pr-check-list li')).toHaveCount(0);}
  else{
   const items=prChecks.locator('.pr-check-list li');
