@@ -1,0 +1,28 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m04-core-dependency
+
+ ❯ tests/request-preparation-service-v3.test.ts (24 tests | 2 failed | 22 skipped) 49ms
+   × preserves an accepted queued token across the prior native session lifecycle event 28ms
+   × preserves an accepted queued token across the prior native settled lifecycle event 20ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/request-preparation-service-v3.test.ts > preserves an accepted queued token across the prior native session lifecycle event
+ FAIL  tests/request-preparation-service-v3.test.ts > preserves an accepted queued token across the prior native settled lifecycle event
+AssertionError: expected undefined to be defined
+ ❯ tests/request-preparation-service-v3.test.ts:215:23
+    213|     release(); await f.service.deliverOutbox(f.thread.id);
+    214|     const delivered = [...f.starts, ...f.followUps].find(item => item.…
+    215|     expect(delivered).toBeDefined();
+       |                       ^
+    216|     expect(delivered?.sessionPath).toBe(join(f.store.dataDir, 'owned-s…
+    217|     expect(delivered?.prompt).toContain('Queued after the native turn'…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 22 skipped (24)
+   Start at  19:39:35
+   Duration  1.40s (transform 805ms, setup 0ms, import 1.16s, tests 49ms, environment 0ms)
+

@@ -89,9 +89,9 @@ export function registerAgentWorkRoutes(app: FastifyInstance, service: Service) 
     const extension = service.planExtensions.get(planId);
     if (!extension) return {extension: false, planId};
     const record = store.get<DataRecord>('data', planId);
-    const statuses = Object.fromEntries(((record?.value as {steps?: {id: string; status: string}[]; agents?: {id: string; status: string}[]}) ?? {})
-      && [...((record!.value as {steps?: {id: string; status: string}[]}).steps ?? []), ...((record!.value as {agents?: {id: string; status: string}[]}).agents ?? [])]
-        .map(node => [node.id, node.status === 'completed' ? 'completed' : node.status === 'unknown' ? 'unknown' : 'pending'] as const));
+    const body = (record?.value ?? {}) as {steps?: {id: string; status: string}[]; agents?: {id: string; status: string}[]};
+    const statuses = Object.fromEntries([...(body.steps ?? []), ...(body.agents ?? [])]
+      .map(node => [node.id, node.status === 'completed' ? 'completed' : node.status === 'unknown' ? 'unknown' : 'pending'] as const));
     return {extension: true, planId, weights: extension.weights, parentRelationships: extension.parentRelationships,
       progress: service.planExtensions.progress(planId, statuses)};
   });

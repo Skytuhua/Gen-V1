@@ -58,9 +58,9 @@ export function AgentWorkPanel({threadId}: {threadId: string}) {
           {work.worktree && <span className="agents-work-meta" title={work.worktree}>{work.worktree.split(/[\\/]/).pop()}</span>}
           <span className="agents-work-state" data-state={work.state}>{work.state.replaceAll('_', ' ')}{work.blockedReason ? ` — ${work.blockedReason}` : ''}</span>
           <span className="agents-work-meta">{work.budget.tokens !== null ? `${work.budget.tokens}tok ` : ''}{work.evidence.refs ? `${work.evidence.stale}/${work.evidence.refs} refs stale` : 'no evidence yet'}</span>
-          <button type="button" className="agents-icon" aria-label={`Open evidence for ${work.workId}`} onClick={() => { void getAgentWorkOutput(threadId, work.workId).then(setOutput); }}><Eye size={14}/></button>
-          {(work.state === 'RUNNING' || work.state === 'QUEUED') && <button type="button" className="agents-icon" aria-label={`Stop ${work.workId}`} onClick={() => { void stopAgentWork(threadId, work.workId).then(refresh); }}><Square size={13}/></button>}
-          {work.state === 'INTERRUPTED' && <button type="button" className="agents-icon" aria-label={`Resume ${work.workId}`} onClick={() => { void resumeAgentWork(threadId, work.workId).then(refresh); }}><Play size={13}/></button>}
+          <button type="button" className="agents-icon" aria-label={`Open evidence for ${work.workId}`} onClick={() => { void getAgentWorkOutput(threadId, work.workId).then(setOutput).catch(e => setError(e instanceof Error ? e.message : 'Evidence unavailable')); }}><Eye size={14}/></button>
+          {(work.state === 'RUNNING' || work.state === 'QUEUED') && <button type="button" className="agents-icon" aria-label={`Stop ${work.workId}`} onClick={() => { void stopAgentWork(threadId, work.workId).then(refresh).catch(e => setError(e instanceof Error ? e.message : 'Stop failed')); }}><Square size={13}/></button>
+          {work.state === 'INTERRUPTED' && <button type="button" className="agents-icon" aria-label={`Resume ${work.workId}`} onClick={() => { void resumeAgentWork(threadId, work.workId).then(refresh).catch(e => setError(e instanceof Error ? e.message : 'Resume failed')); }}><Play size={13}/></button>
         </header>
         <div className="agents-work-send">
           <input aria-label={`Message work ${work.workId}`} placeholder="Steer or queue a follow-up…" value={drafts[work.workId] ?? ''} onChange={e => setDrafts(d => ({...d, [work.workId]: e.target.value}))} disabled={work.state !== 'RUNNING' && work.state !== 'QUEUED'}/>
@@ -72,7 +72,7 @@ export function AgentWorkPanel({threadId}: {threadId: string}) {
         {inputs.filter(input => input.delivery === 'ACCEPTED' || input.delivery === 'ENTERED_RUNTIME').map(input => <div key={input.inputId} className="agents-work-input" data-delivery={input.delivery}>
           <span className="agents-work-meta">#{input.order}</span><span className="agents-input-kind">{input.kind}</span><span className="agents-input-text">{input.text}</span>
           <span className="agents-input-delivery">{input.delivery.replaceAll('_', ' ').toLowerCase()}</span>
-          {input.editable && <button type="button" className="agents-icon" aria-label="Cancel input" onClick={() => { void cancelAgentInput(threadId, input.targetOwner.threadId, input.inputId).then(refresh); }}><Ban size={13}/></button>}
+          {input.editable && <button type="button" className="agents-icon" aria-label="Cancel input" onClick={() => { void cancelAgentInput(threadId, input.targetOwner.threadId, input.inputId).then(refresh).catch(e => setError(e instanceof Error ? e.message : 'Cancel failed')); }}><Ban size={13}/></button>
         </div>)}
       </div>}
       {output && <pre className="agents-work-output" aria-label="Work output evidence"><button type="button" className="agents-disclosure" onClick={() => setOutput(null)}>Close evidence</button>{JSON.stringify(output.output, null, 2).slice(0, 4000)}</pre>}

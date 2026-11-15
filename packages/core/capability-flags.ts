@@ -56,15 +56,19 @@ export const M08_FLAG_KEYS = [
 ] as const;
 export type M08FlagKey = (typeof M08_FLAG_KEYS)[number];
 
+export const M04_CORE_FLAG_KEYS = ["context.compilerV1"] as const;
+export type M04CoreFlagKey = (typeof M04_CORE_FLAG_KEYS)[number];
+
 // M09 flag set: typed multi-agent work. The single key admits the
 // AgentWorkV1 coordinator surface; role availability stays separately gated
 // by each role's own registered host capability proof.
 export const M09_FLAG_KEYS = ["agents.workV1"] as const;
 export type M09FlagKey = (typeof M09_FLAG_KEYS)[number];
 
-export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M09FlagKey;
+export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M04CoreFlagKey | M09FlagKey;
 
 const hostFlags = createCapabilityFlags<CapabilityFlagKey>([
+  { key: "context.compilerV1", owner: "m04-core", description: "Host-issued immutable request preparation and measured context receipts." },
   { key: "audit.effectsV1", owner: "m02", description: "Append-only tool-effect ledger and owner-fenced read models." },
   { key: "security.authorityV1", owner: "m02", description: "Single-use approvals and the pre-dispatch authority gate." },
   { key: "workspace.provenanceV1", owner: "m08", description: "Edit provenance journal: prepared markers and proven/process-window receipts." },
