@@ -97,6 +97,18 @@ it('anchors and hashlines are locators, not authorization: ambiguous or missing 
  expect(()=>verifyEditPreimage(Buffer.from('changed'),sha(content))).toThrowError(/changed before/i);
 });
 
+it('an unvalidated preview cannot settle APPLIED',()=>{
+ const registry=new EditPreviewRegistry();
+ const raw=args('a.ts','const a=2;\n');
+ const preview=registry.begin(owner,schemaDigest);
+ registry.append(preview.previewId,owner,raw);
+ registry.seal(preview.previewId,owner,()=>null);
+ // The approval gate stands between seal and apply; skipping it is refused.
+ expect(()=>registry.settle(preview.previewId,owner,'APPLIED')).toThrowError(/validated|PRECONDITION/i);
+ // A conflict outcome stays reachable without validation.
+ expect(registry.settle(preview.previewId,owner,'CONFLICT').state).toBe('CONFLICT');
+});
+
 it('previews are owner-scoped',()=>{
  const registry=new EditPreviewRegistry();
  const preview=registry.begin(owner,schemaDigest);

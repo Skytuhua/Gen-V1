@@ -22,6 +22,8 @@ interface Preview {
   buffered: Buffer[];
   bufferedBytes: number;
   finalArgumentsDigest: string | null;
+  /** True once `validateFinal` confirmed the final arguments match the seal. */
+  validated: boolean;
   targetFiles: EditPreviewFile[];
   state: EditPreviewV1["state"];
 }
@@ -76,7 +78,7 @@ export class EditPreviewRegistry {
     const preview: Preview = {
       previewId: randomUUID(), owner, schemaDigest,
       buffered: [], bufferedBytes: 0,
-      finalArgumentsDigest: null, targetFiles: [], state: "STREAMING_UNAPPLIED",
+      finalArgumentsDigest: null, validated: false, targetFiles: [], state: "STREAMING_UNAPPLIED",
     };
     this.previews.set(preview.previewId, preview);
     return this.view(preview);
@@ -141,15 +143,20 @@ export class EditPreviewRegistry {
       preview.state = "INVALID";
       throw new HarnessError("PRECONDITION_FAILED", "The final tool arguments changed; rebuild the edit preview.");
     }
+    preview.validated = true;
     return this.view(preview);
   }
 
   /** Mark the preview applied after the host's guarded write completed. A
-   * changed preimage surfaces CONFLICT rather than a silent write. */
+   * changed preimage surfaces CONFLICT rather than a silent write. APPLIED is
+   * only reachable through the approval gate: `validateFinal` must have
+   * confirmed the final arguments before a settle can record success. */
   settle(previewId: string, owner: string, outcome: "APPLIED" | "CONFLICT"): EditPreviewV1 {
     const preview = this.require(previewId, owner);
     if (preview.state !== "READY_UNAPPLIED")
       throw new HarnessError("INVALID_INPUT", "The edit preview is not ready to apply.");
+    if (outcome === "APPLIED" && !preview.validated)
+      throw new HarnessError("PRECONDITION_FAILED", "An edit preview cannot be applied before its final arguments are validated.");
     preview.state = outcome;
     return this.view(preview);
   }
