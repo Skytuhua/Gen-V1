@@ -1,0 +1,555 @@
+GitHub Actions job 132843172407: Browser tests
+Run: 43724428807
+Head: 2e210878eaef60c63e0d02ac2737f9fe6188a96d
+Conclusion: failure
+Raw decoded UTF-8 SHA256: aa65ea6f1a35e8f0c597aa6e2d384fa03297401913f57342165dd9365cb3c7d1
+
+2026-11-15T14:27:15.3639394Z Current runner version: '2.338.2'
+2026-11-15T14:27:15.3657515Z ##[group]Runner Image Provisioner
+2026-11-15T14:27:15.3658066Z Hosted Compute Agent
+2026-11-15T14:27:15.3658398Z Version: 20261103.629
+2026-11-15T14:27:15.3658729Z Commit: 15dbd9ccb5dbf34fae002b6ed1a2670f52df37bc
+2026-11-15T14:27:15.3659127Z Build Date: 2026-11-03T17:26:59Z
+2026-11-15T14:27:15.3659488Z Worker ID: {acd9e91e-8631-4bba-8bc0-12b5e220bc79}
+2026-11-15T14:27:15.3659877Z Region: southcentralus
+2026-11-15T14:27:15.3660226Z Cloud: Azure
+2026-11-15T14:27:15.3660502Z ##[endgroup]
+2026-11-15T14:27:15.3661207Z ##[group]Operating System
+2026-11-15T14:27:15.3661537Z Microsoft Windows Server 2025
+2026-11-15T14:27:15.3661885Z 10.0.26100
+2026-11-15T14:27:15.3662158Z Datacenter
+2026-11-15T14:27:15.3662423Z ##[endgroup]
+2026-11-15T14:27:15.3662728Z ##[group]Runner Image
+2026-11-15T14:27:15.3663044Z Image: windows-2025-vs2026
+2026-11-15T14:27:15.3663355Z Version: 20261103.298.1
+2026-11-15T14:27:15.3664274Z Included Software: https://github.com/actions/runner-images/blob/win25-vs2026/20261103.298/images/windows/Windows2025-VS2026-Readme.md
+2026-11-15T14:27:15.3665134Z Image Release: https://github.com/actions/runner-images/releases/tag/win25-vs2026%2F20261103.298
+2026-11-15T14:27:15.3665721Z ##[endgroup]
+2026-11-15T14:27:15.3666394Z ##[group]GITHUB_TOKEN Permissions
+2026-11-15T14:27:15.3667511Z Contents: read
+2026-11-15T14:27:15.3667818Z Metadata: read
+2026-11-15T14:27:15.3668123Z ##[endgroup]
+2026-11-15T14:27:15.3669638Z Secret source: Actions
+2026-11-15T14:27:15.3670131Z Cache mode: write
+2026-11-15T14:27:15.3670554Z Prepare workflow directory
+2026-11-15T14:27:15.3937581Z Prepare all required actions
+2026-11-15T14:27:15.3970084Z Getting action download info
+2026-11-15T14:27:15.6463284Z Download action repository 'actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803' (SHA:d23441a48e516b6c34aea4fa41551a30e30af803)
+2026-11-15T14:27:15.7241489Z Download action repository 'actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-11-15T14:27:15.9254914Z Complete job name: Browser tests
+2026-11-15T14:27:16.0412096Z ##[group]Run actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+2026-11-15T14:27:16.0412871Z with:
+2026-11-15T14:27:16.0413092Z   persist-credentials: false
+2026-11-15T14:27:16.0413550Z   repository: skytuhua-org/Gen-V1
+2026-11-15T14:27:16.0415632Z   token: ***
+2026-11-15T14:27:16.0415842Z   ssh-strict: true
+2026-11-15T14:27:16.0416048Z   ssh-user: git
+2026-11-15T14:27:16.0416250Z   clean: true
+2026-11-15T14:27:16.0416461Z   sparse-checkout-cone-mode: true
+2026-11-15T14:27:16.0416713Z   fetch-depth: 1
+2026-11-15T14:27:16.0416921Z   fetch-tags: false
+2026-11-15T14:27:16.0417131Z   show-progress: true
+2026-11-15T14:27:16.0417347Z   lfs: false
+2026-11-15T14:27:16.0417540Z   submodules: false
+2026-11-15T14:27:16.0417754Z   set-safe-directory: true
+2026-11-15T14:27:16.0417999Z   allow-unsafe-pr-checkout: false
+2026-11-15T14:27:16.0418339Z ##[endgroup]
+2026-11-15T14:27:16.1405084Z Syncing repository: skytuhua-org/Gen-V1
+2026-11-15T14:27:16.1406236Z ##[group]Getting Git version info
+2026-11-15T14:27:16.1406531Z Working directory is 'D:\a\Gen-V1\Gen-V1'
+2026-11-15T14:27:16.1850780Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-11-15T14:27:16.5168571Z git version 2.56.0.windows.4
+2026-11-15T14:27:16.5210131Z ##[endgroup]
+2026-11-15T14:27:16.5224095Z Temporarily overriding HOME='D:\a\_temp\0083bc74-e084-4e75-ade8-2699de5e4024' before making global git config changes
+2026-11-15T14:27:16.5224852Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-15T14:27:16.5230654Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\Gen-V1\Gen-V1
+2026-11-15T14:27:16.5767630Z Deleting the contents of 'D:\a\Gen-V1\Gen-V1'
+2026-11-15T14:27:16.5771290Z ##[group]Determining repository object format
+2026-11-15T14:27:16.5773157Z ##[endgroup]
+2026-11-15T14:27:16.5773565Z ##[group]Initializing the repository
+2026-11-15T14:27:16.5779429Z [command]"C:\Program Files\Git\bin\git.exe" init D:\a\Gen-V1\Gen-V1
+2026-11-15T14:27:16.6441308Z Initialized empty Git repository in D:/a/Gen-V1/Gen-V1/.git/
+2026-11-15T14:27:16.6476779Z [command]"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/skytuhua-org/Gen-V1
+2026-11-15T14:27:16.7259982Z ##[endgroup]
+2026-11-15T14:27:16.7260459Z ##[group]Disabling automatic garbage collection
+2026-11-15T14:27:16.7266579Z [command]"C:\Program Files\Git\bin\git.exe" config --local gc.auto 0
+2026-11-15T14:27:16.7513435Z ##[endgroup]
+2026-11-15T14:27:16.7514106Z ##[group]Setting up auth
+2026-11-15T14:27:16.7514626Z Removing SSH command configuration
+2026-11-15T14:27:16.7522024Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-11-15T14:27:16.7761384Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-11-15T14:27:18.0720934Z Removing HTTP extra header
+2026-11-15T14:27:18.0727773Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-15T14:27:18.0970893Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-11-15T14:27:18.4773483Z Removing includeIf entries pointing to credentials config files
+2026-11-15T14:27:18.4783681Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-15T14:27:18.5069485Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-11-15T14:27:18.8824110Z [command]"C:\Program Files\Git\bin\git.exe" config --file D:\a\_temp\git-credentials-39a21018-75dc-4afd-86f6-b3998ab6c830.config http.https://github.com/.extraheader "AUTHORIZATION: basic ***"
+2026-11-15T14:27:18.9065004Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/Gen-V1/Gen-V1/.git.path D:\a\_temp\git-credentials-39a21018-75dc-4afd-86f6-b3998ab6c830.config
+2026-11-15T14:27:18.9292771Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path D:\a\_temp\git-credentials-39a21018-75dc-4afd-86f6-b3998ab6c830.config
+2026-11-15T14:27:18.9577114Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-39a21018-75dc-4afd-86f6-b3998ab6c830.config
+2026-11-15T14:27:18.9818796Z [command]"C:\Program Files\Git\bin\git.exe" config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-39a21018-75dc-4afd-86f6-b3998ab6c830.config
+2026-11-15T14:27:19.0064581Z ##[endgroup]
+2026-11-15T14:27:19.0064995Z ##[group]Fetching the repository
+2026-11-15T14:27:19.0073973Z [command]"C:\Program Files\Git\bin\git.exe" -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +af91fb4993bbb05f6429c681073a00c5bd335440:refs/remotes/pull/347/merge
+2026-11-15T14:27:22.3766304Z From https://github.com/skytuhua-org/Gen-V1
+2026-11-15T14:27:22.3767520Z  * [new ref]         af91fb4993bbb05f6429c681073a00c5bd335440 -> pull/347/merge
+2026-11-15T14:27:22.3798626Z ##[endgroup]
+2026-11-15T14:27:22.3799006Z ##[group]Determining the checkout info
+2026-11-15T14:27:22.3799378Z ##[endgroup]
+2026-11-15T14:27:22.3806739Z [command]"C:\Program Files\Git\bin\git.exe" sparse-checkout disable
+2026-11-15T14:27:22.4234883Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset-all extensions.worktreeConfig
+2026-11-15T14:27:22.4487315Z ##[group]Checking out the ref
+2026-11-15T14:27:22.4494061Z [command]"C:\Program Files\Git\bin\git.exe" checkout --progress --force refs/remotes/pull/347/merge
+2026-11-15T14:27:23.1595862Z Note: switching to 'refs/remotes/pull/347/merge'.
+2026-11-15T14:27:23.1596149Z 
+2026-11-15T14:27:23.1596321Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-15T14:27:23.1596712Z changes and commit them, and you can discard any commits you make in this
+2026-11-15T14:27:23.1597094Z state without impacting any branches by switching back to a branch.
+2026-11-15T14:27:23.1597312Z 
+2026-11-15T14:27:23.1597462Z If you want to create a new branch to retain commits you create, you may
+2026-11-15T14:27:23.1597826Z do so (now or later) by using -c with the switch command. Example:
+2026-11-15T14:27:23.1598051Z 
+2026-11-15T14:27:23.1598199Z   git switch -c <new-branch-name>
+2026-11-15T14:27:23.1598334Z 
+2026-11-15T14:27:23.1598403Z Or undo this operation with:
+2026-11-15T14:27:23.1598532Z 
+2026-11-15T14:27:23.1598601Z   git switch -
+2026-11-15T14:27:23.1598734Z 
+2026-11-15T14:27:23.1598888Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-15T14:27:23.1599141Z 
+2026-11-15T14:27:23.1599495Z HEAD is now at af91fb4 Merge 2e210878eaef60c63e0d02ac2737f9fe6188a96d into 399cde39ff4ee82272c7a7700944325c44b36070
+2026-11-15T14:27:23.1787525Z ##[endgroup]
+2026-11-15T14:27:23.2137478Z [command]"C:\Program Files\Git\bin\git.exe" log -1 --format=%H
+2026-11-15T14:27:23.2359251Z af91fb4993bbb05f6429c681073a00c5bd335440
+2026-11-15T14:27:23.2387842Z ##[group]Removing auth
+2026-11-15T14:27:23.2388037Z Removing SSH command configuration
+2026-11-15T14:27:23.2393718Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-11-15T14:27:23.2639856Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-11-15T14:27:23.6419184Z Removing HTTP extra header
+2026-11-15T14:27:23.6427908Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-15T14:27:23.6692861Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-11-15T14:27:24.1579124Z Removing includeIf entries pointing to credentials config files
+2026-11-15T14:27:24.1586399Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-15T14:27:24.1858790Z includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path
+2026-11-15T14:27:24.1859171Z includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path
+2026-11-15T14:27:24.1859450Z includeif.gitdir:/github/workspace/.git.path
+2026-11-15T14:27:24.1859723Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-15T14:27:24.1897728Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path
+2026-11-15T14:27:24.2132707Z D:\a\_temp\git-credentials-39a21018-75dc-4afd-86f6-b3998ab6c830.config
+2026-11-15T14:27:24.2166520Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path D:\a\_temp\git-credentials-39a21018-75dc-4afd-86f6-b3998ab6c830.config
+2026-11-15T14:27:24.2449761Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path
+2026-11-15T14:27:24.2690121Z D:\a\_temp\git-credentials-39a21018-75dc-4afd-86f6-b3998ab6c830.config
+2026-11-15T14:27:24.2723620Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path D:\a\_temp\git-credentials-39a21018-75dc-4afd-86f6-b3998ab6c830.config
+2026-11-15T14:27:24.2983413Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/.git.path
+2026-11-15T14:27:24.3209800Z /github/runner_temp/git-credentials-39a21018-75dc-4afd-86f6-b3998ab6c830.config
+2026-11-15T14:27:24.3239895Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-39a21018-75dc-4afd-86f6-b3998ab6c830.config
+2026-11-15T14:27:24.3497992Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+2026-11-15T14:27:24.3724760Z /github/runner_temp/git-credentials-39a21018-75dc-4afd-86f6-b3998ab6c830.config
+2026-11-15T14:27:24.3755917Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-39a21018-75dc-4afd-86f6-b3998ab6c830.config
+2026-11-15T14:27:24.4018191Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-11-15T14:27:24.8175722Z Removing credentials config 'D:\a\_temp\git-credentials-39a21018-75dc-4afd-86f6-b3998ab6c830.config'
+2026-11-15T14:27:24.8184407Z ##[endgroup]
+2026-11-15T14:27:24.8582050Z Prepare all required actions
+2026-11-15T14:27:24.8582465Z Getting action download info
+2026-11-15T14:27:25.0067671Z Download action repository 'pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1' (SHA:b906affcce14559ad1aafd4ab0e942779e9f58b1)
+2026-11-15T14:27:25.4760448Z Download action repository 'actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38' (SHA:249970729cb0ef3589644e2896645e5dc5ba9c38)
+2026-11-15T14:27:25.5635295Z Download action repository 'actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1' (SHA:ece7cb06caefa5fff74198d8649806c4678c61a1)
+2026-11-15T14:27:25.6473752Z Download action repository 'actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830' (SHA:0057852bfaa89a56745cba8c7296529d2fc39830)
+2026-11-15T14:27:25.7545488Z ##[group]Run ./.github/actions/setup
+2026-11-15T14:27:25.7545635Z with:
+2026-11-15T14:27:25.7545736Z   python: true
+2026-11-15T14:27:25.7545834Z   playwright: true
+2026-11-15T14:27:25.7545939Z ##[endgroup]
+2026-11-15T14:27:25.7585936Z ##[start-action display=Install pnpm;id=__self.__pnpm_action-setup]
+2026-11-15T14:27:25.7704202Z ##[group]Run pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1
+2026-11-15T14:27:25.7704406Z with:
+2026-11-15T14:27:25.7704507Z   version: 10.30.3
+2026-11-15T14:27:25.7704612Z   dest: ~/setup-pnpm
+2026-11-15T14:27:25.7704717Z   run_install: null
+2026-11-15T14:27:25.7704814Z   cache: false
+2026-11-15T14:27:25.7704921Z   cache_dependency_path: pnpm-lock.yaml
+2026-11-15T14:27:25.7705064Z   package_json_file: package.json
+2026-11-15T14:27:25.7705189Z   standalone: false
+2026-11-15T14:27:25.7705293Z ##[endgroup]
+2026-11-15T14:27:25.8822278Z ##[group]Running self-installer...
+2026-11-15T14:27:26.1546102Z (node:10188) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-15T14:27:26.1547313Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-15T14:27:26.3186620Z Progress: resolved 1, reused 0, downloaded 0, added 0
+2026-11-15T14:27:26.3244646Z Packages: +1
+2026-11-15T14:27:26.3244869Z +
+2026-11-15T14:27:27.5368007Z Progress: resolved 1, reused 0, downloaded 1, added 0
+2026-11-15T14:27:28.3334244Z Progress: resolved 1, reused 0, downloaded 1, added 1, done
+2026-11-15T14:27:28.3788509Z 
+2026-11-15T14:27:28.3788962Z dependencies:
+2026-11-15T14:27:28.3789135Z + pnpm 10.30.3 (12.21.0 is available)
+2026-11-15T14:27:28.3789253Z 
+2026-11-15T14:27:28.3880210Z Done in 2.3s
+2026-11-15T14:27:28.4054651Z ##[endgroup]
+2026-11-15T14:27:28.4054895Z Installation Completed!
+2026-11-15T14:27:28.4176322Z ##[end-action id=__self.__pnpm_action-setup;outcome=success;conclusion=success;duration_ms=2658]
+2026-11-15T14:27:28.4178508Z ##[start-action display=Install Node.js;id=__self.__actions_setup-node]
+2026-11-15T14:27:28.4322114Z ##[g
+
+[Middle omitted from bounded public extract; full decoded log retained in scratch. Original decoded UTF-8 bytes: 113499.]
+
+2:1 › scope/provider filters remain in the owning modal and refresh preserves tab and selection (894ms)
+2026-11-15T14:29:44.7242105Z   ok 14 tests\e2e\usage-context.spec.ts:370:1 › loading, empty, provider failure and refresh failure preserve honest per-metric state (738ms)
+2026-11-15T14:29:45.3282033Z   ok 15 tests\e2e\usage-context.spec.ts:393:40 › overflow keeps header fixed, rows scroll, short/narrow dark (596ms)
+2026-11-15T14:29:45.9452611Z   ok 16 tests\e2e\usage-context.spec.ts:393:40 › overflow keeps header fixed, rows scroll, short/narrow light (609ms)
+2026-11-15T14:29:47.3694499Z   ok 17 tests\e2e\usage-context.spec.ts:423:40 › context category overflow and details stay reachable in dark (1.4s)
+2026-11-15T14:29:48.8345436Z   ok 18 tests\e2e\usage-context.spec.ts:423:40 › context category overflow and details stay reachable in light (1.5s)
+2026-11-15T14:29:49.7414726Z   ok 19 tests\e2e\usage-context.spec.ts:458:1 › accepted transition uses reference timing; reduced motion suppresses travel and sweep (899ms)
+2026-11-15T14:29:50.3148036Z   ok 20 tests\e2e\usage-context.spec.ts:486:1 › optional summary keeps whole-header disclosure and opens the same Usage through its independent body action (565ms)
+2026-11-15T14:29:50.9534772Z   ok 21 tests\e2e\usage-context.spec.ts:510:1 › invalidating a receipt ends accepted motion immediately and after its timer deadline (631ms)
+2026-11-15T14:29:52.3069422Z 
+2026-11-15T14:29:52.3072189Z   21 passed (22.8s)
+2026-11-15T14:29:52.5777157Z 
+2026-11-15T14:29:52.5791021Z > gen-v1@0.6.5 test:browser D:\a\Gen-V1\Gen-V1
+2026-11-15T14:29:52.5791951Z > tsx scripts/test-browser.ts "--suite" "frontend-refinement"
+2026-11-15T14:29:52.5792315Z 
+2026-11-15T14:29:52.7830269Z Browser results: D:\a\Gen-V1\Gen-V1\test-results\browser\run-1794752992781-167053c3-c63c-44ae-a3dc-ac9c2725e89d
+2026-11-15T14:29:52.7834099Z 
+2026-11-15T14:29:52.7834513Z Browser suite: frontend-refinement (12 spec files)
+2026-11-15T14:29:56.6210687Z 
+2026-11-15T14:29:56.6211431Z Running 91 tests using 1 worker
+2026-11-15T14:29:56.6211599Z 
+2026-11-15T14:30:07.6784863Z   ok  1 tests\e2e\artifact-style.spec.ts:553:34 › long email choices retain readable width and compact navigation at 1440px (10.1s)
+2026-11-15T14:30:11.7660462Z   ok  2 tests\e2e\artifact-style.spec.ts:553:34 › long email choices retain readable width and compact navigation at 960px (4.1s)
+2026-11-15T14:30:11.8091609Z   ok  3 tests\e2e\artifact-style.spec.ts:594:1 › new composition schemas are strict, bounded and preserve stable step identities (36ms)
+2026-11-15T14:30:17.1930040Z   ok  4 tests\e2e\artifact-style.spec.ts:674:1 › current question and mapped form values survive expansion, thread switching and reload (5.4s)
+2026-11-15T14:30:21.3279201Z   ok  5 tests\e2e\artifact-style.spec.ts:753:1 › the initial question persists its default step and focuses its matching PDF field (4.1s)
+2026-11-15T14:30:23.8331946Z   ok  6 tests\e2e\artifact-style.spec.ts:770:1 › bound relationships expose source status and map the selected stable node to actions (2.5s)
+2026-11-15T14:30:29.1962023Z   ok  7 tests\e2e\artifact-style.spec.ts:813:1 › status reads actual host operation states and keeps receipt details available (5.4s)
+2026-11-15T14:30:35.9629331Z   x   8 tests\e2e\artifact-style.spec.ts:900:1 › connected FAQ branches and follow-up draft retain independent state (6.5s)
+2026-11-15T14:30:36.9747002Z   -   9 tests\e2e\artifact-style.spec.ts:929:1 › capture synthetic signing, operations and FAQ against supplied reference compositions
+2026-11-15T14:30:37.5767303Z   ok 10 tests\e2e\canvas-clarity.spec.ts:16:1 › agent families are contained by project and preserve edits through pin and collapse (585ms)
+2026-11-15T14:30:38.1595039Z   ok 11 tests\e2e\canvas-clarity.spec.ts:44:1 › wheel zoom uses canvas chrome while transcript wheel input scrolls its content (574ms)
+2026-11-15T14:30:39.2886597Z   ok 12 tests\e2e\canvas-clarity.spec.ts:73:1 › a delayed failed viewport write cannot roll back newer wheel input (1.1s)
+2026-11-15T14:30:39.7593057Z   ok 13 tests\e2e\canvas-clarity.spec.ts:98:1 › Fit and Arrange keep editors mounted and pointer cancellation clears drag state (461ms)
+2026-11-15T14:30:40.4487276Z   ok 14 tests\e2e\canvas-clarity.spec.ts:131:1 › switching canvases before debounce saves both owning viewports (680ms)
+2026-11-15T14:30:41.5168121Z   ok 15 tests\e2e\canvas-clarity.spec.ts:163:1 › an in-flight outgoing canvas save retains the second canvas viewport (1.0s)
+2026-11-15T14:30:43.0151439Z   ok 16 tests\e2e\composer-app-refinement.spec.ts:206:1 › text entry shares its first row with Changes and Create PR at wide and narrow widths (1.5s)
+2026-11-15T14:30:44.7934832Z   ok 17 tests\e2e\composer-app-refinement.spec.ts:238:51 › attachment band exists only for attached resources and preserves input under no-preference (1.8s)
+2026-11-15T14:30:46.1982362Z   ok 18 tests\e2e\composer-app-refinement.spec.ts:238:51 › attachment band exists only for attached resources and preserves input under reduce (1.4s)
+2026-11-15T14:30:47.5531579Z   ok 19 tests\e2e\composer-app-refinement.spec.ts:299:1 › attachment band reverses an interrupted exit without removing the live row (1.3s)
+2026-11-15T14:30:49.3647934Z   ok 20 tests\e2e\composer-app-refinement.spec.ts:334:1 › composer removes repeated captions and toggles Build Plan without changing its draft (1.8s)
+2026-11-15T14:30:51.1817466Z   ok 21 tests\e2e\composer-app-refinement.spec.ts:385:1 › project selection uses the explicit local host binding and leaves attachments on plus (1.8s)
+2026-11-15T14:30:53.0528756Z   ok 22 tests\e2e\composer-app-refinement.spec.ts:426:1 › started chat opens an explicitly new project chat and retains its original binding and draft (1.9s)
+2026-11-15T14:30:54.2708519Z   ok 23 tests\e2e\composer-app-refinement.spec.ts:462:1 › chat header omits retired controls while sidebar rename and archive remain available and detach stays desktop-only (1.2s)
+2026-11-15T14:30:55.8609688Z   ok 24 tests\e2e\composer-app-refinement.spec.ts:498:1 › a ready plan opens automatically and right-side tools can only be minimized (1.6s)
+2026-11-15T14:30:57.2394233Z   ok 25 tests\e2e\composer-app-refinement.spec.ts:567:38 › /btw still sends a side question without a header button (1.4s)
+2026-11-15T14:30:58.6376676Z   ok 26 tests\e2e\composer-app-refinement.spec.ts:567:38 › /side still sends a side question without a header button (1.4s)
+2026-11-15T14:30:59.1464642Z   ok 27 tests\e2e\context-compact.spec.ts:20:34 › context popup is compact and keeps actual values at 1440px (495ms)
+2026-11-15T14:30:59.6232243Z   ok 28 tests\e2e\context-compact.spec.ts:20:34 › context popup is compact and keeps actual values at 390px (469ms)
+2026-11-15T14:31:00.2113407Z   ok 29 tests\e2e\context-compact.spec.ts:51:1 › context popup closes through Escape, outside click and its toggle without an X (580ms)
+2026-11-15T14:31:00.7037328Z   ok 30 tests\e2e\context-compact.spec.ts:78:1 › unsupported compaction remains disabled and sends no command (485ms)
+2026-11-15T14:31:01.3020278Z   ok 31 tests\e2e\context-compact.spec.ts:105:1 › available compaction keeps its existing owning-thread command (590ms)
+2026-11-15T14:31:03.6166296Z   ok 32 tests\e2e\document-smoothness.spec.ts:178:81 › PDF and direct signature controls in Stack pair by available artifact width at 768px (2.3s)
+2026-11-15T14:31:05.8897553Z   ok 33 tests\e2e\document-smoothness.spec.ts:178:81 › PDF and direct signature controls in Stack pair by available artifact width at 1024px (2.3s)
+2026-11-15T14:31:08.1614805Z   ok 34 tests\e2e\document-smoothness.spec.ts:178:81 › PDF and direct signature controls in Stack pair by available artifact width at 1440px (2.3s)
+2026-11-15T14:31:10.4000525Z   ok 35 tests\e2e\document-smoothness.spec.ts:178:81 › PDF and direct signature controls in Split pair by available artifact width at 768px (2.2s)
+2026-11-15T14:31:12.6331098Z   ok 36 tests\e2e\document-smoothness.spec.ts:178:81 › PDF and direct signature controls in Split pair by available artifact width at 1024px (2.2s)
+2026-11-15T14:31:14.8713367Z   ok 37 tests\e2e\document-smoothness.spec.ts:178:81 › PDF and direct signature controls in Split pair by available artifact width at 1440px (2.2s)
+2026-11-15T14:31:17.1482907Z   ok 38 tests\e2e\document-smoothness.spec.ts:275:88 › paired inline PDF follows comfortable composer and stacks only when narrow at 1440px (2.3s)
+2026-11-15T14:31:19.4314395Z   ok 39 tests\e2e\document-smoothness.spec.ts:275:88 › paired inline PDF follows comfortable composer and stacks only when narrow at 700px (2.3s)
+2026-11-15T14:31:21.7359303Z   ok 40 tests\e2e\document-smoothness.spec.ts:275:88 › paired inline PDF follows comfortable composer and stacks only when narrow at 390px (2.3s)
+2026-11-15T14:31:24.0177943Z   ok 41 tests\e2e\document-smoothness.spec.ts:275:88 › paired inline PDF follows wide composer and stacks only when narrow at 1440px (2.3s)
+2026-11-15T14:31:26.3143806Z   ok 42 tests\e2e\document-smoothness.spec.ts:275:88 › paired inline PDF follows wide composer and stacks only when narrow at 700px (2.3s)
+2026-11-15T14:31:28.6014717Z   ok 43 tests\e2e\document-smoothness.spec.ts:275:88 › paired inline PDF follows wide composer and stacks only when narrow at 390px (2.3s)
+2026-11-15T14:31:34.1096730Z   ok 44 tests\e2e\document-smoothness.spec.ts:352:1 › inline field and signature navigation pans while edits retain the same frame and Fit page shows the whole page (5.5s)
+2026-11-15T14:31:37.0833292Z   ok 45 tests\e2e\document-smoothness.spec.ts:454:1 › a nearby PDF field settles promptly and stops requesting scroll work at rest (3.0s)
+2026-11-15T14:31:40.1421797Z   ok 46 tests\e2e\document-smoothness.spec.ts:469:1 › manual PDF scrolling owns the viewport through background rerender and resize until the next field choice (3.1s)
+2026-11-15T14:31:42.9960750Z   ok 47 tests\e2e\document-smoothness.spec.ts:501:1 › manual scrolling after a zoom choice wins over its still-preparing candidate (2.8s)
+2026-11-15T14:31:46.3354135Z   ok 48 tests\e2e\document-smoothness.spec.ts:524:1 › rapid same-page choices retain one preview and move toward the latest field without a viewport jump (3.3s)
+2026-11-15T14:31:48.8300992Z   ok 49 tests\e2e\document-smoothness.spec.ts:564:1 › reduced motion applies PDF focus without a travelling scroll or continuing frame loop (2.5s)
+2026-11-15T14:31:51.3659367Z   ok 50 tests\e2e\document-smoothness.spec.ts:586:1 › the focus highlight identifies the new field instead of floating through unrelated document text (2.5s)
+2026-11-15T14:31:51.9414984Z   ok 51 tests\e2e\drag-detach.spec.ts:41:3 › floating: supplied callbacks never expose detach controls (560ms)
+2026-11-15T14:31:53.0603372Z   ok 52 tests\e2e\drag-detach.spec.ts:52:3 › floating: release beyond every app edge stays in app and retains the editor (1.1s)
+2026-11-15T14:31:53.7844034Z   ok 53 tests\e2e\drag-detach.spec.ts:94:3 › floating: cancellation and blur outside never invoke callbacks or lose edits (716ms)
+2026-11-15T14:31:54.1199563Z   ok 54 tests\e2e\drag-detach.spec.ts:41:3 › canvas: supplied callbacks never expose detach controls (327ms)
+2026-11-15T14:31:55.5050628Z   ok 55 tests\e2e\drag-detach.spec.ts:52:3 › canvas: release beyond every app edge stays in app and retains the editor (1.4s)
+2026-11-15T14:31:56.2593514Z   ok 56 tests\e2e\drag-detach.spec.ts:94:3 › canvas: cancellation and blur outside never invoke callbacks or lose edits (747ms)
+2026-11-15T14:31:56.7206353Z   ok 57 tests\e2e\drag-detach.spec.ts:121:1 › crossing the canvas edge inside the app remains an ordinary saved move (453ms)
+2026-11-15T14:31:57.2123654Z   ok 58 tests\e2e\drag-detach.spec.ts:155:1 › a notes editor remains mounted through a cancelled outside canvas drag (484ms)
+2026-11-15T14:31:57.2303723Z   ok 59 tests\e2e\floating-windows.spec.ts:91:1 › floating geometry rejects nonfinite storage and confines windows to a narrow viewport (2ms)
+2026-11-15T14:31:59.5589782Z   ok 60 tests\e2e\floating-windows.spec.ts:126:1 › the protected context only minimizes and preserves its draft on reload (2.3s)
+2026-11-15T14:32:00.9379721Z   ok 61 tests\e2e\floating-windows.spec.ts:169:1 › minimizing and Escape retain the same task content without a delete control (1.4s)
+2026-11-15T14:32:03.2782495Z   ok 62 tests\e2e\floating-windows.spec.ts:212:1 › live usage stays available and remembers its minimized state without close or resize controls (2.3s)
+2026-11-15T14:32:04.6181508Z   ok 63 tests\e2e\floating-windows.spec.ts:242:1 › both summaries fit a narrow viewport, retain keyboard access and leave Stop available (1.3s)
+2026-11-15T14:32:05.3225068Z   ok 64 tests\e2e\free-floating.spec.ts:20:1 › closing a tool animates safely and an immediate reopen stays open (691ms)
+2026-11-15T14:32:05.8341867Z   ok 65 tests\e2e\free-floating.spec.ts:57:1 › reduced motion closes immediately and returns focus to the opener (504ms)
+2026-11-15T14:32:06.4141310Z   ok 66 tests\e2e\free-floating.spec.ts:89:1 › keyboard movement releases the rail in both axes and manual sizing preserves the draft (572ms)
+2026-11-15T14:32:06.8628514Z   ok 67 tests\e2e\free-floating.spec.ts:121:1 › free floating on a narrow workspace releases the reserved tool area (441ms)
+2026-11-15T14:32:07.8155442Z   ok 68 tests\e2e\free-floating.spec.ts:145:1 › pointer drag leaves the anchor without remounting, and hidden scrollbar still scrolls (945ms)
+2026-11-15T14:32:08.2590164Z   ok 69 tests\e2e\free-floating.spec.ts:201:1 › adapter recovery is read before any write and keeps its recovered free coordinates (435ms)
+2026-11-15T14:32:08.7422461Z   ok 70 tests\e2e\free-floating.spec.ts:216:1 › blur ends an active drag and viewport changes keep the tool reachable (476ms)
+2026-11-15T14:32:09.1868311Z   ok 71 tests\e2e\free-floating.spec.ts:247:1 › content-fit adapter recovery keeps free coordinates without taking input focus (437ms)
+2026-11-15T14:32:09.5841577Z   ok 72 tests\e2e\free-floating.spec.ts:266:1 › pointer cancellation ends a move without losing the window or draft (390ms)
+2026-11-15T14:32:10.5357417Z   ok 73 tests\e2e\frontend-refinement.spec.ts:15:1 › left ticked scrollbar supports keys, track clicks, dragging, and history during updates (941ms)
+2026-11-15T14:32:11.3673601Z   ok 74 tests\e2e\frontend-refinement.spec.ts:66:1 › disconnected context is compact and connected context leads with useful project facts (824ms)
+2026-11-15T14:32:11.6808377Z   ok 75 tests\e2e\no-detach-canvas.spec.ts:17:1 › canvas offers only in-app panel controls even when a detach callback is supplied (301ms)
+2026-11-15T14:32:12.1081592Z   ok 76 tests\e2e\no-detach-canvas.spec.ts:32:1 › dragging outside the app saves an in-app placement with no detach cue or callback (420ms)
+2026-11-15T14:32:12.5832924Z   ok 77 tests\e2e\no-detach-canvas.spec.ts:73:1 › in-app movement resizing pinning and hiding still save ordinary panel state (468ms)
+2026-11-15T14:32:13.2579817Z   ok 78 tests\e2e\no-detach-canvas.spec.ts:124:1 › embedded panels stay reachable after an outside drag without Fit or panning (667ms)
+2026-11-15T14:32:15.0585657Z   ok 79 tests\e2e\reserved-rail.spec.ts:117:1 › workspace artifact stays inside its panel while summaries yield space and keeps the same renderer (1.8s)
+2026-11-15T14:32:16.4006077Z   ok 80 tests\e2e\reserved-rail.spec.ts:156:1 › expanded usage stays compact and readable instead of reserving an oversized tool (1.3s)
+2026-11-15T14:32:17.6351031Z   ok 81 tests\e2e\reserved-rail.spec.ts:179:1 › both protected tools minimize to a compact flow region on narrow screens (1.2s)
+2026-11-15T14:32:19.0711093Z   ok 82 tests\e2e\reserved-rail.spec.ts:204:1 › minimized summaries retain their rail until an explicit artifact panel takes over (1.4s)
+2026-11-15T14:32:20.4464604Z   ok 83 tests\e2e\reserved-rail.spec.ts:236:1 › expanded context keeps the header and composer across the full available chat frame (1.4s)
+2026-11-15T14:32:21.8374134Z   ok 84 tests\e2e\reserved-rail.spec.ts:260:1 › protected context has only minimize controls while keeping the composer draft (1.4s)
+2026-11-15T14:32:23.2062232Z   ok 85 tests\e2e\reserved-rail.spec.ts:289:1 › minimizing context releases the chat frame and preserves the artifact renderer (1.4s)
+2026-11-15T14:32:24.4889597Z   ok 86 tests\e2e\reserved-rail.spec.ts:314:1 › narrow explicit tools occupy a bounded flow region without covering composer or Stop (1.3s)
+2026-11-15T14:32:25.0990721Z   ok 87 tests\e2e\right-tools.spec.ts:20:1 › minimize-only context exposes one action and keeps its editor mounted (597ms)
+2026-11-15T14:32:25.5101717Z   ok 88 tests\e2e\right-tools.spec.ts:85:1 › generic floating windows ignore a supplied detach callback even outside the app (403ms)
+2026-11-15T14:32:25.9843401Z   ok 89 tests\e2e\right-tools.spec.ts:119:1 › minimize-only context restores collapse state while retiring old free-window geometry (467ms)
+2026-11-15T14:32:26.6434817Z   ok 90 tests\e2e\right-tools.spec.ts:149:1 › live usage starts compact and visible despite an old dismissed preference (652ms)
+2026-11-15T14:32:27.0614320Z   ok 91 tests\e2e\right-tools.spec.ts:197:1 › unavailable secondary usage stays in Details and the visibility preference still works (410ms)
+2026-11-15T14:32:27.4878368Z 
+2026-11-15T14:32:27.4883014Z 
+2026-11-15T14:32:27.4889553Z   1) tests\e2e\artifact-style.spec.ts:900:1 › connected FAQ branches and follow-up draft retain independent state 
+2026-11-15T14:32:27.4890037Z 
+2026-11-15T14:32:27.4890638Z     Error: expect(locator).toBeFocused() failed
+2026-11-15T14:32:27.4891018Z 
+2026-11-15T14:32:27.4891257Z     Locator: getByRole('button', { name: 'Expand artifact' })
+2026-11-15T14:32:27.4891649Z     Expected: focused
+2026-11-15T14:32:27.4892094Z     Timeout: 5000ms
+2026-11-15T14:32:27.4892588Z     Error: element(s) not found
+2026-11-15T14:32:27.4892770Z 
+2026-11-15T14:32:27.4892997Z     Call log:
+2026-11-15T14:32:27.4893432Z       - Expect "toBeFocused" with timeout 5000ms
+2026-11-15T14:32:27.4893962Z       - waiting for getByRole('button', { name: 'Expand artifact' })
+2026-11-15T14:32:27.4894261Z 
+2026-11-15T14:32:27.4894266Z 
+2026-11-15T14:32:27.4894664Z       197 |   await expect(page.getByRole('textbox', { name: 'Ask a follow-up' })).toHaveValue('Can I schedule a transfer?');
+2026-11-15T14:32:27.4895512Z       198 |   await page.keyboard.press('Escape');
+2026-11-15T14:32:27.4896032Z     > 199 |   await expect(page.getByRole('button', { name: 'Expand artifact' })).toBeFocused();
+2026-11-15T14:32:27.4896569Z           |                                                                       ^
+2026-11-15T14:32:27.4897049Z       200 | });
+2026-11-15T14:32:27.4897240Z       201 |
+2026-11-15T14:32:27.4897747Z       202 | test('capture synthetic signing, operations and FAQ against supplied reference compositions', async ({ page }) => {
+2026-11-15T14:32:27.4898404Z         at D:\a\Gen-V1\Gen-V1\tests\e2e\artifact-style.spec.ts:199:71
+2026-11-15T14:32:27.4898674Z 
+2026-11-15T14:32:27.4899422Z     Error Context: test-results\browser\run-1794752992781-167053c3-c63c-44ae-a3dc-ac9c2725e89d\frontend-refinement\artifacts\artifact-style-connected-F-76c48-ft-retain-independent-state\error-context.md
+2026-11-15T14:32:27.4900173Z 
+2026-11-15T14:32:27.4900609Z     attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+2026-11-15T14:32:27.4901581Z     test-results\browser\run-1794752992781-167053c3-c63c-44ae-a3dc-ac9c2725e89d\frontend-refinement\artifacts\artifact-style-connected-F-76c48-ft-retain-independent-state\trace.zip
+2026-11-15T14:32:27.4902350Z     Usage:
+2026-11-15T14:32:27.4902471Z 
+2026-11-15T14:32:27.4903231Z         pnpm exec playwright show-trace test-results\browser\run-1794752992781-167053c3-c63c-44ae-a3dc-ac9c2725e89d\frontend-refinement\artifacts\artifact-style-connected-F-76c48-ft-retain-independent-state\trace.zip
+2026-11-15T14:32:27.4904008Z 
+2026-11-15T14:32:27.4904359Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+2026-11-15T14:32:27.4904635Z 
+2026-11-15T14:32:27.4904754Z   1 failed
+2026-11-15T14:32:27.4905302Z     tests\e2e\artifact-style.spec.ts:900:1 › connected FAQ branches and follow-up draft retain independent state 
+2026-11-15T14:32:27.4905787Z   1 skipped
+2026-11-15T14:32:27.4906026Z   89 passed (2.6m)
+2026-11-15T14:32:27.5128169Z 
+2026-11-15T14:32:27.5128609Z Failed browser suites: frontend-refinement (exit 1)
+2026-11-15T14:32:27.5555420Z  ELIFECYCLE  Command failed with exit code 1.
+2026-11-15T14:32:27.7722945Z 
+2026-11-15T14:32:27.7723856Z > gen-v1@0.6.5 test:browser D:\a\Gen-V1\Gen-V1
+2026-11-15T14:32:27.7724272Z > tsx scripts/test-browser.ts "--suite" "root"
+2026-11-15T14:32:27.7724428Z 
+2026-11-15T14:32:27.9612443Z Browser results: D:\a\Gen-V1\Gen-V1\test-results\browser\run-1794753147960-0c27a11b-eb19-428a-b779-2ed251b528e1
+2026-11-15T14:32:27.9617512Z 
+2026-11-15T14:32:27.9617767Z Browser suite: root (16 spec files)
+2026-11-15T14:32:33.0771130Z 
+2026-11-15T14:32:33.0771991Z Running 113 tests using 1 worker
+2026-11-15T14:32:33.0772184Z 
+2026-11-15T14:32:38.5391067Z   ok   1 tests\e2e\artifact-acknowledgment.spec.ts:4:1 › an older snapshot cannot replace a newer acknowledged selection (5.0s)
+2026-11-15T14:32:39.8020951Z   ok   2 tests\e2e\clarity-data-work.spec.ts:16:1 › trend gives its actual scale and units without hiding gaps or fabricating a zero baseline (1.2s)
+2026-11-15T14:32:40.9842445Z   ok   3 tests\e2e\clarity-data-work.spec.ts:63:1 › flat and unavailable trends describe only supplied values (1.2s)
+2026-11-15T14:32:42.0587100Z   ok   4 tests\e2e\clarity-data-work.spec.ts:122:5 › trend periods align with their plotted values at 1440px light (1.1s)
+2026-11-15T14:32:43.1131986Z   ok   5 tests\e2e\clarity-data-work.spec.ts:122:5 › trend periods align with their plotted values at 390px light (1.0s)
+2026-11-15T14:32:44.2667170Z   ok   6 tests\e2e\clarity-data-work.spec.ts:122:5 › trend periods align with their plotted values at 1440px dark (1.1s)
+2026-11-15T14:32:46.3447846Z   ok   7 tests\e2e\clarity-data-work.spec.ts:162:40 › light architecture is legible before selecting a node (2.1s)
+2026-11-15T14:32:48.4041748Z   ok   8 tests\e2e\clarity-data-work.spec.ts:162:40 › dark architecture is legible before selecting a node (2.1s)
+2026-11-15T14:32:50.4812153Z   ok   9 tests\e2e\clarity-data-work.spec.ts:190:1 › save feedback reserves its checkmark for acknowledged saves (2.1s)
+2026-11-15T14:32:50.6029956Z   ok  10 tests\e2e\dark-default.spec.ts:3:1 › the document paints dark before the application module starts (105ms)
+2026-11-15T14:32:51.6700810Z   ok  11 tests\e2e\dark-default.spec.ts:20:1 › the mounted shell stays dark while fresh settings are still loading on a light device (1.1s)
+2026-11-15T14:32:52.7029961Z   ok  12 tests\e2e\dark-default.spec.ts:61:42 › an existing light preference still controls the loaded application (1.0s)
+2026-11-15T14:32:53.7457940Z   ok  13 tests\e2e\dark-default.spec.ts:61:42 › an existing system preference still controls the loaded application (1.0s)
+2026-11-15T14:32:56.2080841Z   ok  14 tests\e2e\document-window.spec.ts:5:1 › an expanded artifact keeps its handoff editor interactive and owns Escape separately (2.4s)
+2026-11-15T14:32:59.7777350Z   ok  15 tests\e2e\document-window.spec.ts:64:1 › opens actual editable text, docks beside chat and retains the draft after floating and reload (3.6s)
+2026-11-15T14:33:01.8544481Z   ok  16 tests\e2e\document-window.spec.ts:117:1 › new source never overwrites edited text and the document can explicitly adopt the update (2.1s)
+2026-11-15T14:33:03.3696961Z   ok  17 tests\e2e\document-window.spec.ts:145:1 › granted text clears immediately on revocation and retry rereads the authorized source (1.5s)
+2026-11-15T14:33:04.6198513Z   ok  18 tests\e2e\document-window.spec.ts:213:1 › narrow document window has no page overflow and keyboard undocking retains its editor (1.2s)
+2026-11-15T14:33:11.0254328Z   ok  19 tests\e2e\document-window.spec.ts:251:1 › large edited source fits the real host state limit without duplicating the source text (6.4s)
+2026-11-15T14:33:13.7738645Z   ok  20 tests\e2e\document-window.spec.ts:271:1 › closing and reloading the handoff preserves its reading position (2.7s)
+2026-11-15T14:33:15.9129811Z   ok  21 tests\e2e\document-window.spec.ts:309:1 › oversized UTF-8 edits are rejected without replacing the last durable draft (2.1s)
+2026-11-15T14:33:18.0269432Z   ok  22 tests\e2e\document-window.spec.ts:333:1 › retargeting a document cannot overwrite a draft belonging to its previous source (2.1s)
+2026-11-15T14:33:19.5552554Z   ok  23 tests\e2e\document-window.spec.ts:374:46 › Plan summary and a docked handoff remain reachable together at 1920px (1.5s)
+2026-11-15T14:33:21.0600342Z   ok  24 tests\e2e\document-window.spec.ts:374:46 › Plan summary and a docked handoff remain reachable together at 1440px (1.5s)
+2026-11-15T14:33:22.5749650Z   ok  25 tests\e2e\document-window.spec.ts:374:46 › Plan summary and a docked handoff remain reachable together at 1280px (1.5s)
+2026-11-15T14:33:24.0323684Z   ok  26 tests\e2e\document-window.spec.ts:374:46 › Plan summary and a docked handoff remain reachable together at 390px (1.4s)
+2026-11-15T14:33:26.6949215Z   ok  27 tests\e2e\host-loop.spec.ts:46:1 › actual create/send, cookies/CSRF/SSE and structured host autosave survive reload (2.3s)
+2026-11-15T14:33:28.6934446Z   ok  28 tests\e2e\host-loop.spec.ts:140:1 › durable decision validation and acceptance continue the same owning runtime once (2.0s)
+2026-11-15T14:33:36.7766656Z   ok  29 tests\e2e\host-loop.spec.ts:252:1 › generated operation button requires native approval; restart restores without repeating effects (8.1s)
+2026-11-15T14:33:37.8909407Z   ok  30 tests\e2e\host-loop.spec.ts:343:1 › stale structured action shows rejection and retains its local review UI (1.1s)
+2026-11-15T14:33:41.2291023Z   ok  31 tests\e2e\host-loop.spec.ts:372:1 › generated app validates mount tickets, source/channel/current nonce/state; acknowledges checkpoint and preserves same iframe (3.3s)
+2026-11-15T14:33:45.4889436Z   ok  32 tests\e2e\host-loop.spec.ts:623:1 › cross-site infinite-loop widget leaves Settings, Stop and host navigation responsive (4.3s)
+2026-11-15T14:33:47.2649176Z   ok  33 tests\e2e\host-loop.spec.ts:731:1 › generated program startup failure preserves host controls and durable artifact state (1.8s)
+2026-11-15T14:33:47.3268922Z   -   34 tests\e2e\host-loop.spec.ts:786:1 › the real host rejects generated apps while preserving its trusted interface
+2026-11-15T14:33:47.7539111Z   ok  35 tests\e2e\journal-reload.spec.ts:2:1 › a last edit survives reload before IndexedDB opens its write transaction (417ms)
+2026-11-15T14:33:48.6297285Z   ok  36 tests\e2e\journal-reload.spec.ts:44:1 › successful CAS clear stays newer across clock rollback (869ms)
+2026-11-15T14:33:48.8911478Z   ok  37 tests\e2e\journal-reload.spec.ts:122:1 › repeated CAS replacements advance when the wall clock stays fixed (254ms)
+2026-11-15T14:33:49.6373404Z   ok  38 tests\e2e\journal-reload.spec.ts:147:1 › a later peer edit survives an acknowledgment of the captured generation (739ms)
+2026-11-15T14:33:54.5838249Z   ok  39 tests\e2e\latency.spec.ts:5:1 › records local, committed-event and specification latency independently of inference (4.9s)
+2026-11-15T14:33:55.8000149Z   ok  40 tests\e2e\map-theme.spec.ts:3:40 › map follows the shell until a style is chosen (local) (1.2s)
+2026-11-15T14:33:57.0886749Z   ok  41 tests\e2e\map-theme.spec.ts:3:40 › map follows the shell until a style is chosen (saved) (1.3s)
+2026-11-15T14:33:58.2394386Z   ok  42 tests\e2e\map-theme.spec.ts:53:1 › a carousel that mounts when map data arrives begins observing viewport size (1.1s)
+2026-11-15T14:33:59.8332765Z   ok  43 tests\e2e\migration-redesign.spec.ts:114:1 › migration leads with workspace relationships, visible value changes and inspectable SQL (1.6s)
+2026-11-15T14:34:01.3202361Z   ok  44 tests\e2e\migration-redesign.spec.ts:164:1 › completed inspection retains table identity, keyboard navigation and chat-only scrolling (1.5s)
+2026-11-15T14:34:02.5724489Z   ok  45 tests\e2e\migration-redesign.spec.ts:203:1 › generic tables keep unchanged values plain and reject untrusted change metadata (1.2s)
+2026-11-15T14:34:04.3255618Z   ok  46 tests\e2e\operational-motion.spec.ts:5:1 › PR phases retain busy actions and add resolution history before merged checks exit (1.7s)
+2026-11-15T14:34:06.2799846Z   ok  47 tests\e2e\operational-motion.spec.ts:51:1 › vertical row dots and existing SVG endpoints remain attached throughout history insertion (1.9s)
+2026-11-15T14:34:08.0379536Z   ok  48 tests\e2e\operational-motion.spec.ts:99:1 › accepted cell values reveal with the change highlight and sweep follows declared rows without replay (1.8s)
+2026-11-15T14:34:09.4154352Z   ok  49 tests\e2e\operational-motion.spec.ts:176:1 › column geometry arrives continuously while the existing header stays mounted (1.4s)
+2026-11-15T14:34:10.7878168Z   ok  50 tests\e2e\operational-motion.spec.ts:246:1 › context shell keeps header, body and footer bands and compacting shimmers without predicting token totals (1.4s)
+2026-11-15T14:34:12.0890355Z   ok  51 tests\e2e\operational-motion.spec.ts:302:1 › reduced motion skips graph travel and context shimmer while preserving source state (1.3s)
+2026-11-15T14:34:13.5923307Z   ok  52 tests\e2e\operational-motion.spec.ts:345:1 › a token decrease without a host receipt never claims freed tokens and keeps controls responsive (1.5s)
+2026-11-15T14:34:15.8746219Z   ok  53 tests\e2e\overnight-shell.spec.ts:19:1 › sidebar group folding retains its rows, becomes inert immediately and reverses without losing identity (2.3s)
+2026-11-15T14:34:16.9415718Z   ok  54 tests\e2e\overnight-shell.spec.ts:54:51 › sidebar groups settle immediately with reduced shell motion (1.1s)
+2026-11-15T14:34:17.9938887Z   ok  55 tests\e2e\overnight-shell.spec.ts:54:51 › sidebar groups settle immediately with disabled shell motion (1.0s)
+2026-11-15T14:34:18.3277389Z   ok  56 tests\e2e\plan-timeline.spec.ts:12:1 › does not keep a removed owner working after an authoritative snapshot drops its plan and thread (318ms)
+2026-11-15T14:34:18.7183704Z   ok  57 tests\e2e\plan-timeline.spec.ts:26:1 › all details are expanded and assigned branches nest and rejoin before the dependent step (382ms)
+2026-11-15T14:34:19.1402877Z   ok  58 tests\e2e\plan-timeline.spec.ts:46:1 › retains manual collapse, focus and reading position across ordered live updates and rejects stale revisions (414ms)
+2026-11-15T14:34:19.5231075Z   ok  59 tests\e2e\plan-timeline.spec.ts:66:1 › resets the snapshot fence on thread switch and retains the old plan during restart publication (377ms)
+2026-11-15T14:34:19.8519242Z   ok  60 tests\e2e\plan-timeline.spec.ts:94:1 › retains a valid plan when the latest canonical graph is malformed (321ms)
+2026-11-15T14:34:20.9032298Z   ok  61 tests\e2e\plan-timeline.spec.ts:112:1 › host replan preserves assignment, collapse and reading anchor when earlier details grow (1.0s)
+2026-11-15T14:34:21.3379173Z   ok  62 tests\e2e\plan-timeline.spec.ts:145:1 › collapsed step identity survives returning from another thread and stale epochs never regress it (428ms)
+2026-11-15T14:34:21.7541861Z   ok  63 tests\e2e\plan-timeline.spec.ts:169:1 › deep nested agents and long output labels fit a 280px panel without hiding details (409ms)
+2026-11-15T14:34:22.2669843Z   ok  64 tests\e2e\plan-timeline.spec.ts:192:1 › manual collapse survives reopening the plan with the same exact thread and step identity (506ms)
+2026-11-15T14:34:22.6196561Z   ok  65 tests\e2e\plan-timeline.spec.ts:201:3 › dark narrow/short 100% geometry and reduced motion (346ms)
+2026-11-15T14:34:23.0437647Z   ok  66 tests\e2e\plan-timeline.spec.ts:201:3 › dark narrow/short 125% geometry and reduced motion (417ms)
+2026-11-15T14:34:23.4615709Z   ok  67 tests\e2e\plan-timeline.spec.ts:201:3 › dark narrow/short 150% geometry and reduced motion (410ms)
+2026-11-15T14:34:23.8554540Z   ok  68 tests\e2e\plan-timeline.spec.ts:201:3 › light narrow/short 100% geometry and reduced motion (386ms)
+2026-11-15T14:34:24.2559678Z   ok  69 tests\e2e\plan-timeline.spec.ts:201:3 › light narrow/short 125% geometry and reduced motion (391ms)
+2026-11-15T14:34:24.6918874Z   ok  70 tests\e2e\plan-timeline.spec.ts:201:3 › light narrow/short 150% geometry and reduced motion (429ms)
+2026-11-15T14:34:25.1785115Z   ok  71 tests\e2e\plan-timeline.spec.ts:240:40 › dark desktop parallel branches and join (479ms)
+2026-11-15T14:34:25.6728389Z   ok  72 tests\e2e\plan-timeline.spec.ts:240:40 › light desktop parallel branches and join (487ms)
+2026-11-15T14:34:25.6899704Z   ok  73 tests\e2e\review-capture-theme.spec.ts:3:1 › capture theme defaults dark and rejects accidental unrecognized values (2ms)
+2026-11-15T14:34:25.7911249Z   ok  74 tests\e2e\review-capture-theme.spec.ts:8:1 › theme audit catches a transient opposite theme even after it returns (95ms)
+2026-11-15T14:34:27.8878460Z   ok  75 tests\e2e\shell-micro-motion.spec.ts:21:1 › the empty composer is compact, grows for multiline work and keeps its draft (2.1s)
+2026-11-15T14:34:29.1485346Z   ok  76 tests\e2e\shell-micro-motion.spec.ts:43:1 › desktop navigation becomes inert immediately on collapse and restores on reopen (1.3s)
+2026-11-15T14:34:30.3699049Z   ok  77 tests\e2e\shell-micro-motion.spec.ts:67:1 › a published plan flags the collapsed overview once without replaying on snapshot or theme updates (1.2s)
+2026-11-15T14:34:31.9094551Z   ok  78 tests\e2e\shell-micro-motion.spec.ts:129:1 › settings opens with bounded motion and reduced motion removes travel (1.5s)
+2026-11-15T14:34:32.9960031Z   ok  79 tests\e2e\shell-micro-motion.spec.ts:157:1 › navigation shows actual recency without repeating idle status but retains accessible task state (1.1s)
+2026-11-15T14:34:35.2233234Z   ok  80 tests\e2e\shell-micro-motion.spec.ts:173:1 › completed operation receipts are compact, truthful and retain full evidence on inspection (2.2s)
+2026-11-15T14:34:37.0767546Z   ok  81 tests\e2e\shell-micro-motion.spec.ts:231:1 › failed and cancelled receipts do not claim success and prepared approval retains exact authority (1.8s)
+2026-11-15T14:34:51.3989378Z   ok  82 tests\e2e\shell-micro-motion.spec.ts:305:1 › shell notice enters, pauses on hover, auto-expires and exits before unmount (14.3s)
+2026-11-15T14:34:52.2197617Z   ok  83 tests\e2e\shell-micro-motion.spec.ts:355:1 › shell notice stays visible when the pointer leaves but keyboard focus remains (815ms)
+2026-11-15T14:34:58.9645099Z   ok  84 tests\e2e\signing-motion.spec.ts:211:1 › ordinary draft edits do not restart field navigation (6.7s)
+2026-11-15T14:35:01.7085998Z   ok  85 tests\e2e\signing-motion.spec.ts:235:37 › generated signature reveal respects normal motion and never animates direct drawing (2.7s)
+2026-11-15T14:35:04.0845737Z   ok  86 tests\e2e\signing-motion.spec.ts:235:37 › generated signature reveal respects reduced motion and never animates direct drawing (2.4s)
+2026-11-15T14:35:07.0815412Z   ok  87 tests\e2e\signing-motion.spec.ts:301:1 › verified export keeps the same visible canvas while a candidate loads, then commits (3.0s)
+2026-11-15T14:35:10.2602743Z   ok  88 tests\e2e\signing-motion.spec.ts:319:1 › completion holds editing geometry until the verified candidate and receipt can enter together (3.2s)
+2026-11-15T14:35:12.3957010Z   ok  89 tests\e2e\signing-motion.spec.ts:365:119 › failed denied handoff clears retained source pixels (2.1s)
+2026-11-15T14:35:14.6032339Z   ok  90 tests\e2e\signing-motion.spec.ts:365:119 › failed hash handoff clears retained source pixels (2.2s)
+2026-11-15T14:35:16.7437949Z   ok  91 tests\e2e\signing-motion.spec.ts:365:119 › failed cross-thread handoff clears retained source pixels (2.1s)
+2026-11-15T14:35:18.8995105Z   ok  92 tests\e2e\signing-motion.spec.ts:365:119 › failed original-hash handoff clears retained source pixels (2.1s)
+2026-11-15T14:35:21.0173406Z   ok  93 tests\e2e\signing-motion.spec.ts:365:119 › failed original-grant handoff clears retained source pixels (2.1s)
+2026-11-15T14:35:23.1266402Z   ok  94 tests\e2e\signing-motion.spec.ts:365:119 › failed unapproved handoff clears retained source pixels (2.1s)
+2026-11-15T14:35:25.2843698Z   ok  95 tests\e2e\signing-motion.spec.ts:365:119 › failed unknown handoff clears retained source pixels (2.2s)
+2026-11-15T14:35:27.4268142Z   ok  96 tests\e2e\signing-motion.spec.ts:379:1 › revoked grant clears an already committed preview (2.1s)
+2026-11-15T14:35:30.4544864Z   ok  97 tests\e2e\signing-motion.spec.ts:393:1 › cloned export evidence does not refetch or replay a committed handoff (3.0s)
+2026-11-15T14:35:33.5087836Z   ok  98 tests\e2e\signing-motion.spec.ts:412:1 › cancelling the continuity reference clears the predecessor while the destination is loading (3.0s)
+2026-11-15T14:35:35.1984915Z   ok  99 tests\e2e\skills.spec.ts:325:1 › source history retains metadata and disables unavailable views while current instructions stay editable (1.7s)
+2026-11-15T14:35:36.9102066Z   ok 100 tests\e2e\skills.spec.ts:361:1 › a retained source revision can be viewed without replacing current instructions (1.7s)
+2026-11-15T14:35:39.7225844Z   ok 101 tests\e2e\skills.spec.ts:386:1 › retirement during a history read marks only that row and preserves a newer draft generation (2.8s)
+2026-11-15T14:35:41.5465352Z   ok 102 tests\e2e\skills.spec.ts:429:1 › retirement after historical detail rejects restore once and preserves the newer recovery draft (1.8s)
+2026-11-15T14:35:43.5069085Z   ok 103 tests\e2e\skills.spec.ts:476:1 › ordinary history transport failures stay retryable and do not retire source rows (2.0s)
+2026-11-15T14:35:45.0760970Z   ok 104 tests\e2e\skills.spec.ts:511:1 › empty libraries and automatic review controls work with old snapshots (1.6s)
+2026-11-15T14:35:46.7762163Z   ok 105 tests\e2e\skills.spec.ts:561:1 › pending legacy migration keeps saved instructions and supporting files readable (1.7s)
+2026-11-15T14:35:48.5844089Z   ok 106 tests\e2e\skills.spec.ts:588:1 › inspect, edit, supporting files, flags and recoverable archive use current revisions (1.8s)
+2026-11-15T14:35:51.9672083Z   ok 107 tests\e2e\skills.spec.ts:640:1 › a conflicting skill edit survives refresh and reload until the user chooses a saved version (3.4s)
+2026-11-15T14:35:53.5391923Z   ok 108 tests\e2e\skills.spec.ts:690:1 › pending changes show the proposed text and require an explicit approval or rejection (1.6s)
+2026-11-15T14:35:55.2838136Z   ok 109 tests\e2e\skills.spec.ts:719:1 › version history restores a prior version through a new current revision (1.7s)
+2026-11-15T14:35:56.8018720Z   ok 110 tests\e2e\skills.spec.ts:755:1 › a proposal can create a skill and its supporting file before the skill exists (1.5s)
+2026-11-15T14:35:58.2603180Z   ok 111 tests\e2e\skills.spec.ts:797:1 › rejecting a proposed change preserves the active skill (1.5s)
+2026-11-15T14:35:59.3609500Z   ok 112 tests\e2e\skills.spec.ts:820:1 › unconfirmed learning cleanup stays visibly blocked and allows an explicit stop retry (1.1s)
+2026-11-15T14:36:04.5175503Z   ok 113 tests\e2e\skills.spec.ts:854:1 › skill controls and editors fit desktop and narrow light and dark views (5.2s)
+2026-11-15T14:36:04.9377910Z 
+2026-11-15T14:36:04.9383614Z   1 skipped
+2026-11-15T14:36:04.9385808Z   112 passed (3.6m)
+2026-11-15T14:36:05.1285999Z Exception: D:\a\_temp\066c8c15-dd85-4b38-aece-8ea423e12879.ps1:8
+2026-11-15T14:36:05.1286458Z Line |
+2026-11-15T14:36:05.1286869Z    8 |    throw "Failed browser suites: $($failedSuites -join ', ')"
+2026-11-15T14:36:05.1287463Z      |    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2026-11-15T14:36:05.1287940Z      | Failed browser suites: frontend-refinement
+2026-11-15T14:36:05.1465030Z ##[error]Process completed with exit code 1.
+2026-11-15T14:36:05.1618969Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-11-15T14:36:05.1619288Z with:
+2026-11-15T14:36:05.1619530Z   name: browser-43724428807-1
+2026-11-15T14:36:05.1619800Z   retention-days: 7
+2026-11-15T14:36:05.1619969Z   if-no-files-found: ignore
+2026-11-15T14:36:05.1620344Z   path: test-results/browser/**/results.json
+test-results/browser/**/artifacts/**/*.png
+test-results/browser/**/artifacts/**/trace.zip
+
+2026-11-15T14:36:05.1620728Z   compression-level: 6
+2026-11-15T14:36:05.1620896Z   overwrite: false
+2026-11-15T14:36:05.1621091Z   include-hidden-files: false
+2026-11-15T14:36:05.1621283Z env:
+2026-11-15T14:36:05.1621480Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T14:36:05.1621775Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T14:36:05.1622096Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T14:36:05.1622484Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T14:36:05.1622749Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T14:36:05.1623034Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T14:36:05.1623465Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T14:36:05.1623735Z ##[endgroup]
+2026-11-15T14:36:05.2821395Z (node:6772) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-15T14:36:05.2822156Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-15T14:36:05.3315537Z With the provided path, there will be 44 files uploaded
+2026-11-15T14:36:05.3353027Z Artifact name is valid!
+2026-11-15T14:36:05.3353713Z Root directory input is valid!
+2026-11-15T14:36:05.6203684Z Beginning upload of artifact content to blob storage
+2026-11-15T14:36:05.7385802Z (node:6772) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.
+2026-11-15T14:36:06.2604179Z Uploaded bytes 3459123
+2026-11-15T14:36:06.3052484Z Finished uploading artifact content to blob storage!
+2026-11-15T14:36:06.3053522Z SHA256 digest of uploaded artifact zip is da778017323b00d134232be3e1db503f0df809ed2319cc9b14231b6c24a9f1cc
+2026-11-15T14:36:06.3054837Z Finalizing artifact upload
+2026-11-15T14:36:06.6801085Z Artifact browser-43724428807-1.zip successfully finalized. Artifact ID 14166187603
+2026-11-15T14:36:06.6801811Z Artifact browser-43724428807-1 has been successfully uploaded! Final size is 3459123 bytes. Artifact ID is 14166187603
+2026-11-15T14:36:06.6809242Z Artifact download URL: https://github.com/skytuhua-org/Gen-V1/actions/runs/43724428807/artifacts/14166187603
+2026-11-15T14:36:06.7097561Z Post job cleanup.
+2026-11-15T14:36:06.7101600Z ##[start-action display=Cache the test browser;id=__41b3db9a-22cc-4600-b996-6d1900196a15.playwright-cache]
+2026-11-15T14:36:06.7103239Z ##[end-action id=__41b3db9a-22cc-4600-b996-6d1900196a15.playwright-cache;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-15T14:36:06.7104321Z ##[start-action display=Cache pinned Python test dependencies;id=__41b3db9a-22cc-4600-b996-6d1900196a15.python-deps]
+2026-11-15T14:36:06.7105387Z ##[end-action id=__41b3db9a-22cc-4600-b996-6d1900196a15.python-deps;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-15T14:36:06.7106404Z ##[start-action display=Install Python;id=__41b3db9a-22cc-4600-b996-6d1900196a15.__actions_setup-python]
+2026-11-15T14:36:06.7107580Z ##[end-action id=__41b3db9a-22cc-4600-b996-6d1900196a15.__actions_setup-python;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-15T14:36:06.7108573Z ##[start-action display=Install Node.js;id=__41b3db9a-22cc-4600-b996-6d1900196a15.__actions_setup-node]
+2026-11-15T14:36:06.7109693Z ##[end-action id=__41b3db9a-22cc-4600-b996-6d1900196a15.__actions_setup-node;outcome=skipped;conclusion=skipped;duration_ms=0]
+2026-11-15T14:36:06.7110665Z ##[start-action display=Install pnpm;id=__41b3db9a-22cc-4600-b996-6d1900196a15.__pnpm_action-setup]
+2026-11-15T14:36:06.7193932Z Post job cleanup.
+2026-11-15T14:36:06.8262154Z Pruning is unnecessary.
+2026-11-15T14:36:06.8354511Z ##[end-action id=__41b3db9a-22cc-4600-b996-6d1900196a15.__pnpm_action-setup;outcome=success;conclusion=success;duration_ms=124]
+2026-11-15T14:36:06.8482034Z Post job cleanup.
+2026-11-15T14:36:06.9456507Z [command]"C:\Program Files\Git\bin\git.exe" version
+2026-11-15T14:36:06.9686688Z git version 2.56.0.windows.4
+2026-11-15T14:36:06.9728448Z Temporarily overriding HOME='D:\a\_temp\2c99e266-938d-487c-b6d4-0e5a0ca4eef9' before making global git config changes
+2026-11-15T14:36:06.9729159Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-15T14:36:06.9734384Z [command]"C:\Program Files\Git\bin\git.exe" config --global --add safe.directory D:\a\Gen-V1\Gen-V1
+2026-11-15T14:36:06.9966963Z Removing SSH command configuration
+2026-11-15T14:36:06.9973306Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp core\.sshCommand
+2026-11-15T14:36:07.0214426Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :\""
+2026-11-15T14:36:07.4151583Z Removing HTTP extra header
+2026-11-15T14:36:07.4159013Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-15T14:36:07.4396478Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "sh -c \"git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :\""
+2026-11-15T14:36:07.7862016Z Removing includeIf entries pointing to credentials config files
+2026-11-15T14:36:07.7871771Z [command]"C:\Program Files\Git\bin\git.exe" config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-15T14:36:07.8083129Z includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path
+2026-11-15T14:36:07.8083448Z includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path
+2026-11-15T14:36:07.8109511Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path
+2026-11-15T14:36:07.8311357Z D:\a\_temp\git-credentials-39a21018-75dc-4afd-86f6-b3998ab6c830.config
+2026-11-15T14:36:07.8336944Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git.path D:\a\_temp\git-credentials-39a21018-75dc-4afd-86f6-b3998ab6c830.config
+2026-11-15T14:36:07.8563062Z [command]"C:\Program Files\Git\bin\git.exe" config --local --get-all includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path
+2026-11-15T14:36:07.8766262Z D:\a\_temp\git-credentials-39a21018-75dc-4afd-86f6-b3998ab6c830.config
+2026-11-15T14:36:07.8791085Z [command]"C:\Program Files\Git\bin\git.exe" config --local --unset includeif.gitdir:D:/a/Gen-V1/Gen-V1/.git/worktrees/*.path D:\a\_temp\git-credentials-39a21018-75dc-4afd-86f6-b3998ab6c830.config
+2026-11-15T14:36:07.9016903Z [command]"C:\Program Files\Git\bin\git.exe" submodule foreach --recursive "git config --local --show-origin --name-only --get-regexp remote.origin.url"
+2026-11-15T14:36:08.2823263Z Removing credentials config 'D:\a\_temp\git-credentials-39a21018-75dc-4afd-86f6-b3998ab6c830.config'
+2026-11-15T14:36:08.2975526Z Cleaning up orphan processes
+2026-11-15T14:36:08.3228856Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830, actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02, pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

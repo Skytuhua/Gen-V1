@@ -1593,6 +1593,14 @@
       "termination": "NONE",
       "status": "FAIL",
       "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "edad5271ee0b8475a65335c9d8e50a0d2be0cd7db8a2f438ee1d63a853d63f94",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43724428807-a1-j132843172407-s6-browser-frontend-refinement.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
     }
   ],
   "refreshes": [
@@ -1774,6 +1782,24 @@
       "ledgerBeforeDigest": "546ae58b40a0029a8d03fd27c06ba65be11ae2abe0eaeda1a73914cc31b9720a",
       "ledgerAfterDigest": "b7a17ea3ddca082a8cc5a7fd0655bd885e33979111ae806b639dbba7a03724c2",
       "windowsCiRef": "docs/implementation/v3/M05-windows-ci-43723377122.json",
+      "windowsCiCurrentCodeCut": false
+    },
+    {
+      "recordedAt": "2026-11-15T14:45:24.589583+00:00",
+      "executionBaseSha": "399cde39ff4ee82272c7a7700944325c44b36070",
+      "sourceParentHeadSha": "4f2b5a6ac6c3d0662f01bc2345fd1d0575385f20",
+      "selectedCurrentCommandRefs": [
+        "docs/implementation/v3/m05-logs/continuation-faq-expansion-readiness-typecheck.log",
+        "docs/implementation/v3/m05-logs/continuation-m11-final-build.log",
+        "docs/implementation/v3/m05-logs/continuation-m11-final-contracts.log",
+        "docs/implementation/v3/m05-logs/continuation-m11-final-memory-regression.log",
+        "docs/implementation/v3/m05-logs/continuation-study-manifest-final.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43724428807-a1-j132843172181-s7-native-facade.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43724428807-a1-j132843172181-s7-native-worker.log"
+      ],
+      "ledgerBeforeDigest": "0d81fef1164269183ea00ad2ba25e60eae31643d8092cd66ac4ce0605e365d35",
+      "ledgerAfterDigest": "5fdac3297f63b8d0a9e69ffc027d2daf8abcf54f699b11f9e410c7da0d39d7f5",
+      "windowsCiRef": "docs/implementation/v3/M05-windows-ci-43724428807.json",
       "windowsCiCurrentCodeCut": false
     }
   ]

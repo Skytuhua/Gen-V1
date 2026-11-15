@@ -194,6 +194,7 @@ test('connected FAQ branches and follow-up draft retain independent state', asyn
   await page.getByRole('button', { name: 'How do transfers work?' }).click();
   await expect(page.getByText('The timing depends on the selected payment network.')).toBeVisible();
   await page.getByRole('button', { name: 'Expand artifact' }).click();
+  await expect(page.getByRole('button', { name: 'Collapse artifact', exact: true })).toBeFocused();
   await expect(page.getByRole('textbox', { name: 'Ask a follow-up' })).toHaveValue('Can I schedule a transfer?');
   await page.keyboard.press('Escape');
   await expect(page.getByRole('button', { name: 'Expand artifact' })).toBeFocused();

@@ -98,6 +98,10 @@
     {
       "path": "tests/split-app-browser.test.ts",
       "sha256": "af26e2b18b9787fa15e6aa2b50c10072d76f15a4b00a0e01edcacaf3e1d07d09"
+    },
+    {
+      "path": "tests/e2e/artifact-style.spec.ts",
+      "sha256": "5a55da8033e1092070c47eb4bf6b8fe8054d20185854159cbe62df5276c96dda"
     }
   ],
   "findingsResolved": [
@@ -118,7 +122,8 @@
     "M11 maintenance observations bound to the newly admitted run and epoch",
     "Arbitrary adapter error text retained outside memory deletion custody",
     "Pinned native worker observation-call expectation after accepted M11 integration",
-    "Initial split-browser fixture navigation inherited the seven-second interaction budget; startup now has a separate bounded twenty-second budget with all behavior assertions retained"
+    "Initial split-browser fixture navigation inherited the seven-second interaction budget; startup now has a separate bounded twenty-second budget with all behavior assertions retained",
+    "FAQ test sent Escape while expansion was still unpublished; an exact Collapse artifact focus assertion now observes modal readiness before the existing Escape and focus-return assertions"
   ],
   "remainingActionableFindings": [],
   "evidenceRefs": [
@@ -162,14 +167,18 @@
     "docs/implementation/v3/M05-browser-review-43721299625.json",
     "docs/implementation/v3/M05-windows-ci-43723377122.json",
     "docs/implementation/v3/M05-browser-startup-review-43723377122.json",
-    "docs/implementation/v3/m05-logs/continuation-split-initial-navigation-typecheck.log"
+    "docs/implementation/v3/m05-logs/continuation-split-initial-navigation-typecheck.log",
+    "docs/implementation/v3/M05-windows-ci-43724428807.json",
+    "docs/implementation/v3/M05-faq-readiness-review-43724428807.json",
+    "docs/implementation/v3/m05-logs/continuation-faq-expansion-readiness-typecheck.log"
   ],
   "activationApproval": false,
   "limitations": [
     "Windows run 43721299625 passes all eight jobs on the exact combined M05/M09/M11 code/test/workflow cut. Its source and command evidence are distinct from installed-desktop and live activation proof.",
     "Code and synthetic browser review do not establish installed-desktop or live-provider quality/cost.",
     "Both M05 host flags remain false.",
-    "Run 43723377122 retains its failed baseline result. The reviewed initial-navigation repair changes one fixture timeout only; no new browser pass is claimed before current Windows CI."
+    "Run 43723377122 remains a failed historical baseline. Its separate initial-navigation budget is exercised successfully in run 43724428807.",
+    "Run 43724428807 verifies the startup repair but retains one FAQ readiness failure. The new assertion observes actual modal focus before Escape; no new browser PASS is claimed before its exact-head Windows run."
   ],
   "additionalReviewers": [
     "ui_audit",
@@ -185,7 +194,7 @@
       "Actual native FILE capture",
       "Installed desktop",
       "Authorized live repeated-task quality and total auxiliary cost",
-      "Windows execution of the current split-browser startup-budget repair"
+      "Windows execution of the current FAQ expansion-readiness repair"
     ]
   },
   "acceptedMainSha": "399cde39ff4ee82272c7a7700944325c44b36070",
@@ -210,9 +219,9 @@
     "observedCommandsImported": 24
   },
   "latestWindowsAttempt": {
-    "runId": 43723377122,
-    "headSha": "c0399961dee169d9bcdb443e3807436bd4d3aa28",
-    "treeSha": "f4f987bb80b0cbb4abbd5f59e92b4dde18371cc3",
+    "runId": 43724428807,
+    "headSha": "2e210878eaef60c63e0d02ac2737f9fe6188a96d",
+    "treeSha": "236d62b5ead175670ddfe258848492fae366a835",
     "jobsPassed": 7,
     "jobsFailed": 1,
     "application": {
@@ -221,11 +230,12 @@
       "failed": 0
     },
     "browser": {
-      "passed": 28,
+      "passed": 266,
       "failed": 1,
-      "affectedSuites": "SKIPPED_AFTER_BASELINE_FAILURE"
+      "skipped": 2
     },
-    "failure": "Initial fixture page.goto exceeded its inherited 7000ms timeout before behavior assertions.",
-    "currentRepairValidation": "Full typecheck passes; exact-head Windows browser execution remains pending."
+    "priorStartupRepair": "All 29 split baseline cases pass; first case whole-test duration 6281ms, not navigation duration.",
+    "failure": "FAQ Escape was sent while the artifact was still inline; the expanded snapshot arrived afterward and no collapse command was sent.",
+    "currentRepairValidation": "One exact Collapse artifact focus assertion added; full typecheck passes; exact-head Windows browser execution remains pending."
   }
 }
