@@ -2,6 +2,7 @@ import {useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {CodeReviewWorkspace, type ReviewActionResult, type ReviewOutcomeResult, type ReviewWrites} from '../../apps/web/src/code-review-workspace/CodeReviewWorkspace';
 import type {ReviewOwner, ReviewSelection} from '../../apps/web/src/code-review-workspace/model';
+import {codeIntelligenceScenario} from './code-intelligence-scenarios';
 import '../../apps/web/src/styles.css';
 
 let callbackIndex = 0;
@@ -21,6 +22,7 @@ function Fixture() {
   };
   return <><header className="fixture-caption">Synthetic module fixture <span aria-label="Native caption controls">Window controls</span></header>
     <main style={{height: 'calc(100dvh - 42px)', minHeight: 0}}><CodeReviewWorkspace selection={selection} onNavigate={navigate} owners={[{owner, label: 'Project One / Copy One'}, {owner: other, label: 'Project Two / Copy Two'}]} pullRequests={[{repo: 'owner/repo', number: 48, title: 'Exact remote PR'}]} writes={writes}
+      codeIntelligence={codeIntelligenceScenario(new URLSearchParams(location.search).get('intel'), (path, range) => setResult(JSON.stringify(['open', path, range])), command => setResult(JSON.stringify(['debug', command])))}
       chat={<label>Agent message<textarea aria-label="Agent message" defaultValue="Retain optional chat" /></label>} terminal={<pre>Supplied terminal output</pre>} /></main>
     <div hidden><button onClick={() => setRevision('f'.repeat(64))}>Change action revision</button><button onClick={() => setWritable(false)}>Revoke writes</button><button onClick={() => setReviewable(false)}>Revoke review</button><output aria-label="Canonical callback">{result}</output><output aria-label="Canonical calls">{JSON.stringify(calls)}</output><output aria-label="Outcome inspection">{inspection}</output><output aria-label="Canonical inspection">{inspection}</output></div></>;
 }

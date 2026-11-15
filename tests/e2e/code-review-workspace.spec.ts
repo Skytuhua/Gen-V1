@@ -496,3 +496,50 @@ test('canonical inspector mutation cannot rewrite the persisted recovery operati
   await expect(page.getByRole('button', {name: 'Inspect action outcome', exact: true})).toBeEnabled();
   const saved = await savedDraft(page, 'local'); expect(saved.operation.comparison).toEqual(sent[0].comparison); expect(saved.operation.payload).toEqual(sent[1]);
 });
+test('code intelligence explains problems, proposed edits, rename and debugger in plain language', async ({page}) => {
+  await page.goto('/review-fixture?intel=full'); const context = page.getByRole('complementary', {name: 'Review context'});
+  const problems = context.getByRole('region', {name: 'Problems'});
+  await expect(problems.getByRole('heading', {level: 2})).toHaveText('Problems (4)');
+  await expect(problems.getByRole('heading', {level: 3})).toHaveText(['New in this change (2)', 'Already present (1)', 'Outdated (1)']);
+  await problems.getByRole('button', {name: /^Error: Property 'value'.*open src\/first\.ts:12:3$/}).click();
+  expect(JSON.parse(await page.getByLabel('Canonical callback').textContent() ?? 'null')).toEqual(['open', 'src/first.ts', {start: {line: 11, character: 2}, end: {line: 11, character: 6}}]);
+  const edits = context.getByRole('region', {name: 'Proposed edits'});
+  await expect(edits.getByRole('heading', {level: 2})).toHaveText('Proposed edits (5)');
+  await expect(edits.locator('.cr-pill')).toHaveText(['Receiving · not applied', 'Not applied', 'Applied', 'Out of date · not applied', 'File changed · not applied']);
+  const rename = context.getByRole('region', {name: 'Rename'});
+  await expect(rename).toContainText('1 file needs manual review before the rename is complete.');
+  await expect(rename.locator('.cr-pill')).toHaveText(['Renamed', 'Restored', 'Not changed', 'Needs attention']);
+  const debug = context.getByRole('region', {name: 'Debugger'});
+  await expect(debug.locator('.cr-pill')).toHaveText('Paused');
+  await expect(debug.getByRole('button')).toHaveText(['Inspect', 'Continue', 'Step over', 'Stop']);
+  for (const name of ['Continue', 'Step over', 'Stop']) await expect(debug.getByRole('button', {name, exact: true})).toBeDisabled();
+  await debug.getByRole('button', {name: 'Inspect', exact: true}).click();
+  await expect(page.getByLabel('Canonical callback')).toHaveText(JSON.stringify(['debug', 'inspect']));
+  const text = await context.innerText();
+  for (const raw of ['UNAPPLIED', 'INVALID', 'CONFLICT', 'PAUSED', 'CURRENT', 'STALE', 'recipe', 'Rename result', 'Edit previews', 'Run / Continue']) expect(text).not.toContain(raw);
+});
+
+test('code intelligence states never imply results that were not observed', async ({page}) => {
+  const context = page.getByRole('complementary', {name: 'Review context'}), problems = context.getByRole('region', {name: 'Problems'});
+  await page.goto('/review-fixture'); await expect(problems).toHaveCount(0);
+  await page.goto('/review-fixture?intel=empty'); await expect(problems).toHaveText('ProblemsNot checked yet.');
+  await page.goto('/review-fixture?intel=clean'); await expect(problems).toHaveText('ProblemsNo problems found.');
+  await expect(context.getByRole('region', {name: 'Proposed edits'})).toHaveCount(0); await expect(context.getByRole('region', {name: 'Debugger'})).toHaveCount(0);
+  await page.goto('/review-fixture?intel=unavailable'); await expect(problems).toHaveText('ProblemsCouldn’t check these files for problems.');
+  const debug = context.getByRole('region', {name: 'Debugger'});
+  await expect(debug).toContainText('No debug session is running.'); await expect(debug).toContainText('No approved debugger is installed on this computer.'); await expect(debug.getByRole('button')).toHaveCount(0);
+  await page.goto('/review-fixture?intel=no-baseline');
+  await expect(problems).toContainText('These results are from an earlier version of the files.');
+  await expect(problems).toContainText('Couldn’t compare with the previous version, so no problem is marked as new.');
+  await expect(problems.getByRole('heading', {level: 3})).toHaveText(['Found (1)']);
+});
+
+test('code intelligence fits the narrow review column without horizontal overflow', async ({page}) => {
+  for (const width of [1440, 900, 600]) {
+    await page.setViewportSize({width, height: 900}); await page.goto('/review-fixture?intel=full');
+    const panel = page.locator('.cr-intel'); await expect(panel).toBeVisible();
+    expect(await panel.evaluate(element => [...element.querySelectorAll(':not(.sr-only)')].filter(node => node.scrollWidth > node.clientWidth + 1 && getComputedStyle(node).overflowX !== 'visible').length + (element.scrollWidth > element.clientWidth + 1 ? 1 : 0))).toBe(0);
+    const pills = await panel.locator('.cr-status-list .cr-pill').evaluateAll(nodes => nodes.map(node => node.getBoundingClientRect().right));
+    expect(Math.max(...pills) - Math.min(...pills)).toBeLessThan(2);
+  }
+});

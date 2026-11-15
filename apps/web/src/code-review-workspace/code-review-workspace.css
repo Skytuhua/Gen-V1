@@ -77,15 +77,28 @@
 }
 @media (prefers-reduced-motion: reduce) { .cr-workspace button { transition: none; } }
 
-/* M07 code-intelligence surface */
-.cr-problems, .cr-previews, .cr-rename { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; }
-.cr-problem button { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 8px; width: 100%; text-align: left; background: none; border: 0; padding: 4px 6px; border-radius: 6px; cursor: pointer; color: inherit; font: inherit; }
-.cr-problem button:hover { background: var(--surface-hover, rgba(128,128,128,.12)); }
-.cr-problem .cr-meta { grid-column: 2; }
-.cr-problem-severity { text-transform: capitalize; font-weight: 600; }
-.cr-problem[data-severity="error"] .cr-problem-severity { color: var(--danger, #d64545); }
-.cr-problem[data-severity="warning"] .cr-problem-severity { color: var(--warning, #c08019); }
-.cr-badge-not-applied { display: inline-block; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--warning, #c08019); color: var(--warning, #c08019); font-size: 11px; font-weight: 600; }
-.cr-previews li, .cr-rename li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
-.cr-preview-files, .cr-rename .cr-file-path { overflow-wrap: anywhere; font-weight: 500; }
-.cr-debug-controls { display: flex; gap: 8px; margin-top: 8px; }
+/* M07 code-intelligence sections share the Checks rhythm: h2, one muted status line, flat rows. */
+.cr-intel { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+.cr-intel > section { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.cr-intel-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.cr-workspace .cr-intel h3 { margin: 8px 0 0; font-size: 12px; line-height: 1.5; font-weight: 600; color: var(--muted); }
+.cr-intel-group { display: flex; flex-direction: column; gap: 4px; }
+.cr-problems, .cr-status-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.cr-status-list { margin-top: 4px; gap: 8px; }
+.cr-workspace .cr-problem-row:not(.cr-slot *) { display: grid; grid-template-columns: 16px minmax(0, 1fr); align-items: start; gap: 0 8px; min-height: 0; width: 100%; padding: 4px 0; text-align: left; color: var(--text); background: transparent; border: 0; border-radius: 6px; font: inherit; line-height: 1.5; }
+.cr-workspace button.cr-problem-row:hover:not(.cr-slot *) { background: transparent; }
+.cr-workspace button.cr-problem-row:hover .cr-problem-message { text-decoration: underline; text-underline-offset: 2px; }
+.cr-problem-icon { display: flex; align-items: center; height: 21px; color: var(--muted); }
+.cr-problem[data-severity="error"] .cr-problem-icon { color: var(--danger-fg); }
+.cr-problem[data-severity="warning"] .cr-problem-icon { color: var(--warning-fg); }
+.cr-problem[data-severity="information"] .cr-problem-icon { color: var(--accent-fg); }
+.cr-problem-message { overflow-wrap: anywhere; }
+.cr-problem-location { grid-column: 2; overflow-wrap: anywhere; }
+.cr-status-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 2px 8px; min-width: 0; }
+.cr-status-list .cr-file-path { min-width: 0; overflow-wrap: anywhere; }
+.cr-status-detail { grid-column: 1 / -1; }
+.cr-pill { flex: 0 0 auto; display: inline-flex; align-items: center; padding: 0 8px; border-radius: 999px; font-size: 12px; line-height: 20px; font-weight: 500; white-space: nowrap; color: var(--muted); background: var(--subtle); }
+.cr-pill[data-tone="pending"] { color: var(--warning-fg); background: var(--warning-bg); }
+.cr-pill[data-tone="success"] { color: var(--success-fg); background: var(--success-bg); }
+.cr-pill[data-tone="danger"] { color: var(--danger-fg); background: var(--danger-bg); }
+.cr-debug-controls { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; margin-top: 4px; }
