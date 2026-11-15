@@ -3,6 +3,7 @@ $clock = [Diagnostics.Stopwatch]::StartNew()
 $ownedPid = 0
 $ticks = $null
 $probeStage = 'startup'
+$proxyDescriptorCount = $null
 function Emit($value) { [Console]::Out.WriteLine(($value | ConvertTo-Json -Depth 10 -Compress)); [Console]::Out.Flush() }
 try {
   $line = [Console]::In.ReadLine()
@@ -14,18 +15,27 @@ try {
   if ($ownedPid -le 0 -or -not [IO.Path]::IsPathRooted($image)) { throw 'Owner' }
   Add-Type -AssemblyName UIAutomationClient
   Add-Type -AssemblyName UIAutomationTypes
-  Add-Type -TypeDefinition @'
+  $clientAssembly=[System.Windows.Automation.AutomationElement].Assembly
+  $providerName=[Reflection.AssemblyName]::new($clientAssembly.FullName)
+  $providerName.Name='UIAutomationClientsideProviders'
+  Add-Type -ReferencedAssemblies @($clientAssembly.Location,[System.Windows.Automation.ControlType].Assembly.Location) -TypeDefinition @'
 using System;
 using System.Text;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 public static class OwnedWindowProbe {
+  [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining | System.Runtime.CompilerServices.MethodImplOptions.NoOptimization)]
+  public static void Register(System.Reflection.AssemblyName name) {
+    System.Windows.Automation.ClientSettings.RegisterClientSideProviderAssembly(name);
+    System.GC.KeepAlive(name);
+  }
   public delegate bool Callback(IntPtr h, IntPtr p);
   [DllImport("user32.dll")] static extern bool EnumWindows(Callback c, IntPtr p);
   [DllImport("user32.dll")] static extern bool EnumChildWindows(IntPtr h, Callback c, IntPtr p);
   [DllImport("user32.dll")] public static extern int GetDlgCtrlID(IntPtr h);
   [DllImport("user32.dll")] public static extern uint GetWindowThreadProcessId(IntPtr h, out uint pid);
   [DllImport("user32.dll")] public static extern IntPtr GetWindow(IntPtr h, uint command);
+  [DllImport("user32.dll")] public static extern IntPtr GetParent(IntPtr h);
   [DllImport("user32.dll")] public static extern IntPtr GetAncestor(IntPtr h, uint command);
   [DllImport("user32.dll")] public static extern bool IsWindowVisible(IntPtr h);
   [DllImport("user32.dll")] public static extern bool IsWindowEnabled(IntPtr h);
@@ -39,6 +49,10 @@ public static class OwnedWindowProbe {
   public static string ChildClass(IntPtr h) { var s=new StringBuilder(128);GetClassName(h,s,s.Capacity);var v=s.ToString();return v=="Edit"||v=="Button"||v=="ComboBox"||v=="ComboBoxEx32"?v:"other"; }
 }
 '@
+  $probeStage='register-matching-client-providers'
+  [OwnedWindowProbe]::Register($providerName)
+  $proxyDescriptorCount=[System.Windows.Automation.ClientSettings]::GetProxyFactoryMapping().Length
+  if($proxyDescriptorCount -lt 1 -or $proxyDescriptorCount -gt 256){throw 'Proxy descriptor bound'}
   function Check-Owner {
     $process = [Diagnostics.Process]::GetProcessById($ownedPid)
     try {
@@ -78,7 +92,8 @@ public static class OwnedWindowProbe {
       if($valueAvailable){$readOnly=$value.Current.IsReadOnly}
       $invokeAvailable=$element.TryGetCurrentPattern([System.Windows.Automation.InvokePattern]::Pattern,[ref]$invoke)
     } catch {$patternError=$true}
-    return [ordered]@{nativeOwnerMatches=$true;uiaPid=$info.ProcessId;uiaHwnd=[string]$info.NativeWindowHandle;uiaHandleMatches=([long]$info.NativeWindowHandle -eq $nativeHandle.ToInt64());nameKind=(Name-Kind $info.Name);type=$kind;automationId=$id;enabled=$info.IsEnabled;offscreen=$info.IsOffscreen;valuePattern=$valueAvailable;valueReadOnly=$readOnly;invokePattern=$invokeAvailable;patternError=$patternError}
+    $class=$info.ClassName;if($class -notin @('ComboBox','Edit','Button')){$class='other'}
+    return [ordered]@{nativeOwnerMatches=$true;uiaPid=$info.ProcessId;uiaHwnd=[string]$info.NativeWindowHandle;uiaHandleMatches=([long]$info.NativeWindowHandle -eq $nativeHandle.ToInt64());nameKind=(Name-Kind $info.Name);type=$kind;className=$class;automationId=$id;enabled=$info.IsEnabled;offscreen=$info.IsOffscreen;valuePattern=$valueAvailable;valueReadOnly=$readOnly;invokePattern=$invokeAvailable;patternError=$patternError}
   }
   function Exact-SelectorCounts($element) {
     $fileCondition=[System.Windows.Automation.AndCondition]::new([System.Windows.Automation.Condition[]]@(
@@ -156,6 +171,16 @@ public static class OwnedWindowProbe {
           if ($childId -in @(1,2,1001) -or $childClass -in @('Edit','Button','ComboBox','ComboBoxEx32')) {
             $candidateCount++;if ($candidateCount -gt 16) {throw 'Native control inspection exceeded its bound'}
             try {$child.uia=Native-ControlMeta ([System.Windows.Automation.AutomationElement]::FromHandle($childHandle)) $childHandle} catch {$child.uiaError=$true}
+            if($childId -eq 1001 -and $childClass -eq 'Edit') {
+              $probeStage='filename-native-parent'
+              $nativeParent=[OwnedWindowProbe]::GetParent($childHandle)
+              $parentOwned=$nativeParent -ne [IntPtr]::Zero -and [OwnedWindowProbe]::Pid($nativeParent) -eq $ownedPid
+              $child.parent=[ordered]@{nativeOwnerMatches=$parentOwned;hwnd=$null;class=$null;uia=$null;uiaError=$false}
+              if($parentOwned) {
+                $child.parent.hwnd=[string]$nativeParent.ToInt64();$child.parent.class=[OwnedWindowProbe]::ChildClass($nativeParent)
+                try {$child.parent.uia=Native-ControlMeta ([System.Windows.Automation.AutomationElement]::FromHandle($nativeParent)) $nativeParent} catch {$child.parent.uiaError=$true}
+              }
+            }
           }
           $entry.nativeChildren += $child
         }
@@ -167,11 +192,11 @@ public static class OwnedWindowProbe {
     }
     Check-Owner
     $probeStage = 'emit-snapshot'
-    Emit ([ordered]@{version=1;phase='snapshot';elapsedMs=[int]$clock.ElapsedMilliseconds;pid=$ownedPid;processStartTicks=$ticks;rootChildren=$rootItems;rootQueryFailed=$rootError;windows=$windows})
+    Emit ([ordered]@{version=1;phase='snapshot';elapsedMs=[int]$clock.ElapsedMilliseconds;pid=$ownedPid;processStartTicks=$ticks;proxyDescriptorCount=$proxyDescriptorCount;rootChildren=$rootItems;rootQueryFailed=$rootError;windows=$windows})
   }
   Emit @{version=1;phase='completed';pid=$ownedPid;processStartTicks=$ticks;elapsedMs=[int]$clock.ElapsedMilliseconds}
   exit 0
 } catch {
-  Emit @{version=1;phase='failed';pid=$ownedPid;processStartTicks=$ticks;elapsedMs=[int]$clock.ElapsedMilliseconds;reason='owned-window-observation-failed';stage=$probeStage}
+  Emit @{version=1;phase='failed';pid=$ownedPid;processStartTicks=$ticks;elapsedMs=[int]$clock.ElapsedMilliseconds;reason='owned-window-observation-failed';stage=$probeStage;proxyDescriptorCount=$proxyDescriptorCount}
   exit 1
 }
