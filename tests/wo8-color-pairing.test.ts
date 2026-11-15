@@ -64,6 +64,28 @@ describe('T14 running semantics stay fixed under a custom accent',()=>{
   expect(resolve('--accent-fg')).not.toBe('#ff0000');
  });
 });
+describe('T14 completed semantics use the fixed green, not an undefined token',()=>{
+ const read=(path:string)=>readFileSync(new URL(path,import.meta.url),'utf8');
+ it('agents completed/verified work state references the fixed --success-fg, never the undefined --ok',()=>{
+  const css=read('../apps/web/src/agents-workspace/agents-workspace.css');
+  const match=css.match(/\.agents-work-state\[data-state='COMPLETED_REPORTED'\][^{]*\{([^}]+)\}/);
+  expect(match,'agents completed-state rule exists').not.toBeNull();
+  const declaration=match![1];
+  expect(declaration,'completed must use the fixed semantic green').toContain('var(--success-fg)');
+  expect(declaration,'completed must not use the undefined --ok token').not.toMatch(/var\(--ok/);
+ });
+ for(const theme of ['light','dark'])it(`${theme} completed green text stays readable on the surface`,()=>{
+  const css=read('../apps/web/src/styles.css');
+  const tokens:Record<string,string>={};
+  for(const match of css.matchAll(/(:root(?:\[data-theme="dark"\])?)\s*\{([^}]+)\}/g)){
+   if(theme==='light'&&match[1]!==':root')continue;
+   for(const token of match[2].matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g))tokens[token[1]]=token[2].trim();
+  }
+  const resolve=(key:string):string=>tokens[key].startsWith('var(')?resolve(tokens[key].slice(4,-1)):tokens[key];
+  const six=(hex:string)=>hex.length===4?'#'+[...hex.slice(1)].map(char=>char+char).join(''):hex;
+  expect(contrast(six(resolve('--success-fg')),six(resolve('--surface'))),`${theme} completed text on surface`).toBeGreaterThanOrEqual(4.5);
+ });
+});
 it('accepts explicit numeric column metadata without treating text codes as numbers',()=>{
   const spec={root:'table',elements:{table:{type:'Table',props:{rowsBinding:'rows',columns:[{key:'count',label:'Count',type:'number'},{key:'code',label:'Code'}]}}}};
   expect(()=>validateSurface(spec)).not.toThrow();

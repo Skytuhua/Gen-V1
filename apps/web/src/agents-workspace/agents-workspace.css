@@ -76,7 +76,7 @@
 .agents-work-state { font-weight: 600; }
 .agents-work-state[data-state='RUNNING'] { color: var(--accent-fg); }
 .agents-work-state[data-state='FAILED'], .agents-work-state[data-state='INTERRUPTED'] { color: var(--danger, #d44); }
-.agents-work-state[data-state='COMPLETED_REPORTED'], .agents-work-state[data-state='VERIFIED'] { color: var(--ok, #2a4); }
+.agents-work-state[data-state='COMPLETED_REPORTED'], .agents-work-state[data-state='VERIFIED'] { color: var(--success-fg); }
 .agents-work-send { display: flex; gap: 4px; }
 .agents-work-send input { flex: 1; min-width: 0; border: 1px solid var(--border); border-radius: 4px; padding: 4px 8px; font-size: 12px; background: transparent; color: inherit; }
 .agents-work-send button { font-size: 12px; padding: 4px 8px; }
