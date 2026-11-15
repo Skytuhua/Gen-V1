@@ -138,6 +138,33 @@ describe.runIf(enabled)('actual App split workspace',()=>{
   }finally{await page.close();}
  },30000);
 
+ it('detaches a conversation to an independent float with an empty main, and returns it with placement recovery (T02/R02)',async()=>{
+  const host=await fixture({mode:'default',singleThread:true}),{page}=host;try{
+   const aView=page.locator('[data-split-view="thread:thread-a"]'),bView=page.locator('[data-split-view="thread:thread-b"]');
+   const a=aView.getByRole('textbox',{name:'Message',exact:true});
+   await a.waitFor({state:'visible'});await a.fill('Float draft A');
+   await page.evaluate(()=>{(window as any).floatTextarea=document.querySelector('[data-split-view="thread:thread-a"] textarea');});
+   await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();
+   await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();
+   await page.waitForFunction(()=>!!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
+   expect(await a.inputValue()).toBe('Float draft A');
+   expect(await page.evaluate(()=>(window as any).floatTextarea===document.querySelector('[data-split-view="thread:thread-a"] textarea'))).toBe(true);
+   expect(await page.locator('[data-split-pane="pane-main"] [role="tab"]').count()).toBe(0);
+   await page.getByRole('button',{name:/^Second investigation/}).click();
+   await bView.getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});
+   await page.waitForFunction(()=>!!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
+   expect(await page.locator('[data-split-pane="pane-main"]').getByRole('tab',{name:/Second investigation/}).count()).toBe(1);
+   await page.getByRole('button',{name:'Return First investigation to main',exact:true}).click();
+   await page.waitForFunction(()=>!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
+   await a.waitFor({state:'visible'});expect(await a.inputValue()).toBe('Float draft A');
+   expect(await page.evaluate(()=>(window as any).floatTextarea===document.querySelector('[data-split-view="thread:thread-a"] textarea'))).toBe(true);
+   await page.reload();
+   await page.locator('[data-split-view="thread:thread-a"]').getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});
+   expect(await page.locator('[data-split-view="thread:thread-a"][data-floating="true"]').count()).toBe(0);
+   expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
  it('embedded transcript Stop routes through the shared composer owner, not raw run.stop (AUD-05)',async()=>{
   const page=await browser!.newPage({viewport:{width:1200,height:800}});page.setDefaultTimeout(7000);
   const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));
