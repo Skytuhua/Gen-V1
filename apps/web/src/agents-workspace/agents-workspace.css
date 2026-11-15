@@ -26,7 +26,7 @@
 .agents-agent-title { display: flex; align-items: baseline; gap: 8px; flex: 1; flex-wrap: wrap; min-width: 0; }
 .agents-agent-title h3 { font-size: 14px; font-weight: 600; overflow-wrap: anywhere; }
 .agents-agent-state { font-size: 12px; color: var(--muted); text-transform: capitalize; white-space: nowrap; }
-.agents-agent-state[data-state="failed"], .agents-agent-state[data-state="interrupted"] { color: var(--danger); }
+.agents-agent-state[data-state="failed"] { color: var(--danger); }
 .agents-agent-state[data-state="needs_review"], .agents-agent-state[data-state="awaiting_input"] { color: var(--pending); }
 .agents-activity { margin: 0 12px 8px; color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
 .agents-activity p { line-height: 1.5; }
@@ -75,7 +75,8 @@
 .agents-work-meta { color: var(--muted); font-size: 11px; overflow-wrap: anywhere; }
 .agents-work-state { font-weight: 600; }
 .agents-work-state[data-state='RUNNING'] { color: var(--accent-fg); }
-.agents-work-state[data-state='FAILED'], .agents-work-state[data-state='INTERRUPTED'] { color: var(--danger, #d44); }
+.agents-work-state[data-state='FAILED'] { color: var(--danger-fg); }
+.agents-work-state[data-state='WAITING_HUMAN'] { color: var(--warning-fg); }
 .agents-work-state[data-state='COMPLETED_REPORTED'], .agents-work-state[data-state='VERIFIED'] { color: var(--success-fg); }
 .agents-work-send { display: flex; gap: 4px; }
 .agents-work-send input { flex: 1; min-width: 0; border: 1px solid var(--border); border-radius: 4px; padding: 4px 8px; font-size: 12px; background: transparent; color: inherit; }

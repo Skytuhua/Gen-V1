@@ -86,6 +86,19 @@ describe('T14 completed semantics use the fixed green, not an undefined token',(
   expect(contrast(six(resolve('--success-fg')),six(resolve('--surface'))),`${theme} completed text on surface`).toBeGreaterThanOrEqual(4.5);
  });
 });
+describe('T14 agents work-state stopped and needs-input semantics',()=>{
+ const read=(path:string)=>readFileSync(new URL(path,import.meta.url),'utf8');
+ const css=()=>read('../apps/web/src/agents-workspace/agents-workspace.css');
+ it('INTERRUPTED is a neutral stopped state, never a red failure',()=>{
+  // A resumable interruption must not share the FAILED red rule (agent status or work state).
+  expect(css()).not.toMatch(/data-state=['"]interrupted['"]\][^{]*\{[^}]*var\(--danger/i);
+ });
+ it('WAITING_HUMAN uses the fixed needs-input amber',()=>{
+  const match=css().match(/\.agents-work-state\[data-state='WAITING_HUMAN'\]\s*\{([^}]+)\}/);
+  expect(match,'WAITING_HUMAN rule exists').not.toBeNull();
+  expect(match![1],'needs-input must use the fixed amber').toContain('var(--warning-fg)');
+ });
+});
 it('accepts explicit numeric column metadata without treating text codes as numbers',()=>{
   const spec={root:'table',elements:{table:{type:'Table',props:{rowsBinding:'rows',columns:[{key:'count',label:'Count',type:'number'},{key:'code',label:'Code'}]}}}};
   expect(()=>validateSurface(spec)).not.toThrow();
