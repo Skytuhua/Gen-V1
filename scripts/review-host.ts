@@ -119,8 +119,7 @@ export class ReviewRuntime implements RuntimeAdapter {
         let questions = this.questions.get(input.threadId); if (!questions) { questions = [...questionRoots]; this.questions.set(input.threadId, questions); }
         if (!existing) for (const question of questions) this.source(input, question.id, { status: 'idle' });
         if (existing && accepted) {
-          const id = accepted.actionId === 'ask' ? `custom${questions.length}` : String(accepted.payload.questionId);
-          if (accepted.actionId === 'ask') { questions.push({ id, title: String(accepted.payload.question).slice(0, 200) }); this.source(input, id, { status: 'pending' }); await this.present(input, faqSpec(questions), 'Questions & answers', { answer: { kind: 'agent' }, ask: { kind: 'agent' } }); }
+          const id = String(accepted.payload.questionId);
           const entry = answers[id] ?? { answer: 'Yes, wire transfers are supported. Review the destination and fee before confirming.', followups: [{ id: id + 'plans', title: 'Can I change plans later?' }] };
           this.source(input, id, { status: 'pending' }); await delay(450);
           const words = entry.answer.split(' ');
@@ -130,7 +129,7 @@ export class ReviewRuntime implements RuntimeAdapter {
           for (const child of entry.followups ?? []) if (!questions.some(question => question.id === child.id)) { questions.push({ ...child, parent: id }); this.source(input, child.id, { status: 'idle' }); }
           this.source(input, id, { status: 'ready', answer: entry.answer });
         }
-        await this.present(input, faqSpec(questions), 'Questions & answers', { answer: { kind: 'agent', prompt: 'Answer this question and add a relevant follow-up' }, ask: { kind: 'agent', prompt: 'Add and answer the submitted question' } });
+        await this.present(input, faqSpec(questions), 'Questions & answers', { answer: { kind: 'agent', prompt: 'Answer this question and add a relevant follow-up' } });
       } else if (scenario === 'map') {
         if (!existing) { this.source(input, 'places', MAP_DATA); await this.present(input, mapSpec(), 'Around Linden Park', { send: { kind: 'agent', prompt: 'Record the selected-place delivery intent; no phone integration' } }); }
         else { await delay(650); this.event(input, 'assistant.message', { messageId: randomUUID(), content: 'Selection saved.', inputIds: ids }); }

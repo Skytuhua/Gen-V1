@@ -26,3 +26,11 @@ it('guides object-specific composition within the current inline constraints wit
  expect(PRESENTATION_POLICY).not.toContain('1040px');expect(PRESENTATION_POLICY).not.toContain('blue-filled');
  expect(Buffer.byteLength(PRESENTATION_POLICY)).toBeLessThan(12000);
 });
+it('lets ordinary topics continue in the main conversation composer instead of an automatic question form',()=>{
+ expect(PRESENTATION_POLICY).not.toContain('A question Form clears');
+ expect(PRESENTATION_POLICY).toContain('main conversation composer');
+ const guidance=JSON.stringify(CAPABILITIES.map(item=>item.description));
+ expect(guidance).not.toContain('sibling');
+ expect(guidance).not.toContain('durable new root question');
+ expect(guidance).toContain('main conversation composer');
+});
