@@ -15,6 +15,8 @@ import { changeTaskMemory, taskMemories, taskMemoryContext } from './task-memory
 import { discoverCapabilities } from './discovery.ts';
 import { inspectTask } from './task-inspection.ts';
 import {PlanningCoordinator} from './planning.ts';
+import {AgentWorkCoordinator} from './agent-work.ts';
+import {PlanExtensionStore} from './plan-extension.ts';
 import {PLAN_RUNTIME_GUIDANCE} from './planning-tools.ts';
 import type {CanonicalPlanJobProvider} from './plan-timeline.ts';
 import {SideRuntime} from './side-runtime.ts';
@@ -31,7 +33,7 @@ import type {HermesEvent} from '../runtime-hermes/client.ts';
 import type {HermesRuntime} from '../runtime-hermes/index.ts';
 import type {HermesSourceLibrary} from '../runtime-hermes/library.ts';
 import type {ApprovedWriteOrigin,CompletedWriteReceipt,WriteHookDiagnostic} from '../contracts/index.ts';
-import { HarnessError, EMPTY_USAGE, type ArtifactRecord, type DataRecord, type HostCommand, type InputRequest, type Message, type Operation, type ResourceGrant, type RunContext, type RuntimeAdapter, type RuntimeEvent, type RuntimeUsage, type Snapshot, type StartRun, type SurfaceSpec, type Thread, type ToolCall, type UserStateRecord } from "../contracts/index.ts";
+import { HarnessError, EMPTY_USAGE, type ArtifactRecord, type DataRecord, type HostCommand, type InputRequest, type Message, type Operation, type ResourceGrant, type RunContext, type CommandReceipt, type RuntimeAdapter, type RuntimeEvent, type RuntimeUsage, type Snapshot, type StartRun, type SurfaceSpec, type Thread, type ToolCall, type UserStateRecord } from "../contracts/index.ts";
 import { hostFlagEnabled } from "./host-flags.ts";
 import { computeAssessment } from "./verification-gate.ts";
 import { sourceDigestSync } from "./project-verification.ts";
@@ -67,6 +69,7 @@ export interface ServiceOptions {
   /** Host constructor only; absent in user preferences. */
   toolEffectFlags?: Partial<Record<ToolEffectFlag, boolean>>;
   source?:SourceIntegration;sideRuntimeFactory?:()=>RuntimeAdapter|Promise<RuntimeAdapter>;planningRuntimeFactory?:()=>RuntimeAdapter|Promise<RuntimeAdapter>;
+  agentWorkRuntimeFactory?:ConstructorParameters<typeof AgentWorkCoordinator>[0]['runtimeFactory'];
   predictionRuntimeFactory?:()=>RuntimeAdapter|Promise<RuntimeAdapter>;learningRuntimeFactory?:(job:LearningJob)=>RuntimeAdapter|Promise<RuntimeAdapter>;
   prepareWorkspace?:(thread:Thread)=>Promise<void>;
   /** Trusted host activation only. Never accepted from UI preferences or commands. */
@@ -77,6 +80,8 @@ export interface ServiceOptions {
 export class Service {
   readonly research:PersonalResearchRepository;
   readonly planning: PlanningCoordinator;
+  readonly agentWork: AgentWorkCoordinator;
+  readonly planExtensions: PlanExtensionStore;
   readonly learning:LearningCoordinator;
   private aborts = new Map<string, AbortController>();
   private controllerWork = new WeakMap<AbortController, number>();
@@ -118,6 +123,14 @@ export class Service {
     this.research=new PersonalResearchRepository(store,{browser:options.researchBrowserCapture,assertHostActive:()=>{if(this.closed||this.updateClosing)throw new HarnessError('HOST_CLOSING','Gen is closing. Saved work is retained.');}});
     this.predictions=new ComposerPredictions({factory:()=>{if(!options.predictionRuntimeFactory)throw new HarnessError('PREDICTION_UNAVAILABLE','Composer predictions are unavailable in this host.');return options.predictionRuntimeFactory();},current:id=>this.predictionBasis(id)});
     this.planning=new PlanningCoordinator({store,assertRun:ctx=>this.assertRun(ctx),domainContext:(ctx,signal)=>this.context(ctx.threadId,signal,undefined,ctx),runtimeFactory:options.planningRuntimeFactory,canonicalJobs:options.canonicalPlanJobs,observeTool:(call,parent,execute)=>this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1")?this.effects.invoke({call,ctx:parent,thread:this.thread(parent.threadId),role:"planning_child"},execute):execute()});
+    // M09: typed multi-agent work. No registered M08 managed-worktree profile
+    // or M06 typed-verification proof exists on this host, so CODE_WORKTREE
+    // and QA expose ROLE_UNAVAILABLE while PLAN_READ/RESEARCH_READ run
+    // read-only through the restricted resolver below.
+    this.planExtensions=new PlanExtensionStore({store});
+    this.agentWork=new AgentWorkCoordinator({store,assertRun:ctx=>this.assertRun(ctx),isEnabled:capabilityEnabled,
+      resourceResolver:async(_grant,_write,call)=>{const domain=await import('../capabilities/index.ts');return domain.handleDomainTool(call.name,call.args,this.agentReadDomain(_grant.threadId));},
+      runtimeFactory:options.agentWorkRuntimeFactory});
     runtime.configure({ onEvent: event => this.onRuntimeEvent(event), onTool: (call, ctx) => this.tool(call, ctx) });
     this.sideRuntime=new SideRuntime(options.sideRuntimeFactory??(()=>import('../runtime/index.ts').then(({createRuntime})=>createRuntime({dataDir:store.dataDir,accounts:accountResolver(store)}))),{onEvent:event=>this.onRuntimeEvent(event),onTool:(call,ctx)=>this.tool(call,ctx)});
     this.learningSupported=Boolean(options.source||options.learningRuntimeFactory);
@@ -432,6 +445,59 @@ export class Service {
   private m08Checkpoints?: CheckpointService;
   private m08PreimageDigests = new Map<string, string>();
   private m08PendingReceipts: { operation: Operation; evidence: { path: string; sha256: string; bytes: number } }[] = [];
+  /** M09 read-role domain context: resources resolve read-only, operation
+   * preparation is denied before effects, evidence publishing stays open. */
+  private agentReadDomain(threadId: string) {
+    const signal = new AbortController().signal, domain = this.context(threadId, signal);
+    return {
+      threadId, signal,
+      resolveResource: async (id: string, path?: string, write?: boolean) => {
+        if (write) throw new HarnessError('AGENT_TOOL_DENIED', 'Read-only resource access');
+        return domain.resolveResource(id, path, false);
+      },
+      ...(domain.withResource ? { withResource: <T>(id: string, path: string | undefined, write: boolean, action: (filename: string) => Promise<T>) => {
+        if (write) throw new HarnessError('AGENT_TOOL_DENIED', 'Read-only resource access');
+        return domain.withResource!(id, path, false, action);
+      } } : {}),
+      publishData: (value: unknown, provenance: string) => domain.publishData(value, provenance),
+      prepareOperation: (): never => { throw new HarnessError('AGENT_TOOL_DENIED', 'Agent children cannot prepare operations'); },
+      progress: (message: string, counts?: Record<string, number>) => domain.progress(message, counts),
+    };
+  }
+  private async agentWorkCommand(ctx: RunContext, command: HostCommand): Promise<CommandReceipt> {
+    const p = command.payload;
+    // Execute first, then record the receipt: a crash before the receipt
+    // leaves the command retryable; the durable ids (inputId/dedupeKey,
+    // workId, messageId) dedupe a retried op itself.
+    const run = async (): Promise<unknown> => {
+      switch (command.type) {
+        case 'agentWork.input':
+          return this.agentWork.sendInput(ctx, {
+            inputId: text(p, 'inputId', 160), workId: text(p, 'workId', 160),
+            kind: p.kind === 'STEER' ? 'STEER' : p.kind === 'MESSAGE' ? 'MESSAGE' : 'FOLLOW_UP',
+            text: text(p, 'text', 4096), dedupeKey: text(p, 'dedupeKey', 160),
+          });
+        case 'agentWork.stop': return this.agentWork.stop(ctx, text(p, 'workId', 160));
+        case 'agentWork.resume': return this.agentWork.resume(ctx, text(p, 'workId', 160));
+        case 'agentWork.input.cancel': {
+          const inputId = text(p, 'inputId', 160);
+          this.agentWork.inbox.cancel(text(p, 'targetThreadId', 200), inputId);
+          return { cancelled: inputId };
+        }
+        case 'agentWork.message': {
+          const recipientId = text(p, 'recipientThreadId', 200), recipient = this.thread(recipientId), parent = this.thread(ctx.threadId);
+          return this.agentWork.inbox.postMessage(
+            { threadId: ctx.threadId, runId: parent.runId, epoch: parent.epoch },
+            { messageId: text(p, 'messageId', 160), taskId: ctx.threadId,
+              recipientOwner: { threadId: recipientId, runId: recipient.runId, epoch: recipient.epoch },
+              topic: text(p, 'topic', 120), text: p.text === undefined ? undefined : text(p, 'text', 4096) });
+        }
+        default: throw new HarnessError('UNKNOWN_CAPABILITY', 'Unknown agent work command');
+      }
+    };
+    const result = await run();
+    return this.store.command(command, () => result);
+  }
   private context(threadId: string, signal?: AbortSignal, operationId?: string, authority?: RunContext, completedWrite?:(evidence:{path:string;sha256:string;bytes:number})=>void, preWrite?:(evidence:{path:string;bytes:Uint8Array;sha256:string})=>Promise<void>) {
     const assertAuthority = () => { if (authority) this.assertRun(authority); };
     return {
@@ -558,6 +624,10 @@ export class Service {
     // any handler mutates epoch/runId, or the trailing text would be dropped.
     this.flushDeltas(thread.id);
     if(thread.sideParentId&&!['message.send','run.stop','run.resume','thread.rename','thread.presentation','thread.archive'].includes(command.type))throw new HarnessError('SIDE_CHAT_READ_ONLY','Side conversations answer questions without changing the main task or accessing files.');
+    if (command.type.startsWith('agentWork.')) {
+      const ctx: RunContext = { threadId: thread.id, runId: thread.runId ?? '', epoch: thread.epoch };
+      return this.agentWorkCommand(ctx, command);
+    }
     if (command.type === 'memory.save' || command.type === 'memory.delete') return this.store.command(command, () => changeTaskMemory(this.store, thread.id, command.type === 'memory.save' ? 'save' : 'delete', p, 'user'));
     if (command.type === "message.send") return this.sendMessage(command, thread);
     if (command.type === "run.stop") {
@@ -565,7 +635,12 @@ export class Service {
       const ctx = !thread.runId&&pending?pending.ctx:{ threadId: thread.id, runId: thread.runId ?? "", epoch: thread.epoch };
       const receipt = this.store.command(command, () => { this.planning.endRun(ctx,'cancelled'); this.failUnansweredDetails(ctx,"The explanation was stopped. Resume the task to retry."); this.store.put("thread", thread.id, thread.id, { ...thread, epoch: thread.epoch + 1, runId: null, status: "stopped", updatedAt: now() }); return { stopped: true,nativeOwner:ctx }; });
       this.aborts.get(thread.id)?.abort();
-      await this.cancelRun(ctx,!!thread.sideParentId); return receipt;
+      // Register the native teardown first — a racing resume must still see
+      // RUN_BUSY — then revoke child work whether teardown succeeded or
+      // failed, so no stopped parent leaves live dispatch behind.
+      await this.cancelRun(ctx,!!thread.sideParentId)
+        .finally(() => this.agentWork.revokeForParent(thread.id).catch(() => {}));
+      return receipt;
     }
     if (command.type === "run.resume") return this.resume(command, thread);
     if (command.type === "operation.reconcile") {
@@ -1376,12 +1451,15 @@ export class Service {
       return { inferenceCalls: 0 };
     });
     if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1")) recoverEffects(this.store);
+    // M09 recovery runs after the listeners bind (service.recover is called
+    // post-listen in launchHost) so a failed launch never mutates saved work.
+    this.agentWork.recover();
   }
   async dispose(): Promise<void> {
     for(const key of [...this.deltaBuffers.keys()])this.flushDelta(key);
     this.closed=true;this.requestCustody.dispose();clearInterval(this.curatorTimer);for(const controller of this.aborts.values())controller.abort();
     for(const controller of this.researchAborts)controller.abort();
-    const settled=await Promise.allSettled([this.predictions.dispose(),this.learning.dispose(),this.planning.dispose(),this.sideRuntime.dispose(),this.runtime.dispose()]);
+    const settled=await Promise.allSettled([this.agentWork.dispose(),this.predictions.dispose(),this.learning.dispose(),this.planning.dispose(),this.sideRuntime.dispose(),this.runtime.dispose()]);
     await Promise.allSettled([...this.pending]);
     const failures=settled.flatMap(result=>result.status==='rejected'?[result.reason]:[]);if(failures.length)throw new AggregateError(failures,'Could not close every workspace runtime.');
   }
