@@ -65,6 +65,27 @@ describe('feedback primitives', () => {
     await page.close();
   });
 
+  it('resumes sibling timers after a keyboard-dismissed toast loses focus', async () => {
+    const page = await open();
+    try {
+      await page.clock.install();
+      await page.evaluate("window.toast('Focused notification')");
+      const first = page.locator('.ui-toast', {hasText:'Focused notification'});
+      const dismiss = first.getByRole('button', {name:'Dismiss notification'});
+      await dismiss.focus();
+      await page.evaluate("window.toast('Short notification', {durationMs:100})");
+      const short = page.locator('.ui-toast', {hasText:'Short notification'});
+      await short.waitFor();
+      // Give the second toast more than its duration while focus is held.
+      await page.clock.runFor(500);
+      expect(await short.count()).toBe(1);
+      await dismiss.press('Enter');
+      await first.waitFor({state:'detached'});
+      await page.clock.runFor(1500);
+      await short.waitFor({state:'detached', timeout:1000});
+    } finally { await page.close(); }
+  });
+
   it('adopts title attributes as tooltips on hover', async () => {
     const page = await open();
     const target = page.locator('#tip');
