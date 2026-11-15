@@ -59,7 +59,7 @@ export interface MemoryAuxiliaryRecord {
   projectIdentity: string;
   accountId: string | null;
   providerId: string | null;
-  status: MemoryConsolidationResult['status'] | 'FAILED';
+  status: MemoryConsolidationResult['status'] | 'PENDING' | 'FAILED';
   settled: boolean;
   startedAt: string;
   finishedAt: string | null;
@@ -91,7 +91,7 @@ export interface MemoryConsolidationResult {
   usage: MemoryAuxiliaryUsage;
 }
 interface Lease { id: string; token: string; expiresAt: number; inputDigest: string; watermark: number }
-interface Pending { token: string; cancelled: boolean; stopReason?: 'CANCELLED' | 'TIMEOUT'; controller: AbortController }
+interface Pending { token: string; cancelled: boolean; dispatched?: boolean; stopReason?: 'CANCELLED' | 'TIMEOUT'; controller: AbortController }
 const pendingByStore = new WeakMap<Store, Map<string, Pending>>();
 const emptyUsage = (): MemoryAuxiliaryUsage => ({ modelCalls: 0, inputBytes: 0, outputBytes: 0, inputTokens: null, outputTokens: null, cost: null });
 const scope = ({ profileId, projectId, projectIdentity, accountId }: Pick<MemoryAccess, 'profileId' | 'projectId' | 'projectIdentity' | 'accountId'>) => ({ profileId, projectId, projectIdentity, accountId });
@@ -178,11 +178,40 @@ export class MemoryConsolidator {
         if (this.store.get<Lease>('projectMemoryLease', leaseId)?.token === lease.token) this.store.remove('projectMemoryLease', leaseId);
       });
     };
+    const dispatchCurrent = () => {
+      if (owner.cancelled || options.signal?.aborted || !this.store.db.isOpen) return false;
+      let current: ReturnType<typeof checkedSnapshot>;
+      try { current = checkedSnapshot(this.hooks.snapshot(access), access, this.now()); }
+      catch (error) { if (error instanceof HarnessError) return false; throw error; }
+      // Snapshot admission can itself revoke the owner. Read the lease after it
+      // and repeat cancellation checks before entering any provider code.
+      const currentLease = this.store.get<Lease>('projectMemoryLease', leaseId);
+      return !owner.cancelled && !options.signal?.aborted && currentLease?.token === lease.token && currentLease.expiresAt > this.now()
+        && currentLease.inputDigest === captured.inputDigest && currentLease.watermark === captured.watermark
+        && current.watermark === captured.watermark && current.inputDigest === captured.inputDigest;
+    };
     const work = Promise.resolve().then(async (): Promise<MemoryConsolidationResult> => {
       if (owner.cancelled) return { status: 'CANCELLED', usage: { ...usage } };
       let raw: unknown;
       if (this.hooks.provider) {
+        if (!dispatchCurrent()) return { status: owner.stopReason ?? 'STALE', usage: { ...usage } };
         usage.inputBytes = within(input, sourceLimit, 'Consolidation input'); usage.modelCalls = 1;
+        try {
+          // The committed row survives a process failure after dispatch. It
+          // contains only scope, timing and unknown-cost attempt metadata.
+          this.store.internal('memory.consolidation.dispatch.pending', null, () => {
+            this.store.put('projectMemoryAuxiliaryUsage', lease.token, null, usageRecord('PENDING', false));
+            return { id: lease.token, phase: 'CONSOLIDATION', status: 'PENDING' };
+          });
+          // Store observers run synchronously after commit and may Forget,
+          // revoke consent, steal the lease or cancel. No source leaves before
+          // this final fence, and no async work runs in the Store callback.
+          if (!dispatchCurrent()) {
+            usage.inputBytes = 0; usage.modelCalls = 0;
+            return { status: owner.stopReason ?? 'STALE', usage: { ...usage } };
+          }
+        } catch (error) { usage.inputBytes = 0; usage.modelCalls = 0; throw error; }
+        owner.dispatched = true;
         raw = await this.hooks.provider.run(structuredClone(input), owner.controller.signal);
         const recorded = tokenUsageSchema.safeParse(raw && typeof raw === 'object' ? (raw as { usage?: unknown }).usage ?? {} : {});
         if (recorded.success) { usage.inputTokens = recorded.data.inputTokens ?? null; usage.outputTokens = recorded.data.outputTokens ?? null; usage.cost = recorded.data.cost ?? null; }
@@ -212,6 +241,7 @@ export class MemoryConsolidator {
       const stop = (status: 'CANCELLED' | 'TIMEOUT') => {
         if (owner.cancelled) return;
         owner.cancelled = true; owner.stopReason = status; owner.controller.abort(); detach();
+        if (!owner.dispatched) { usage.modelCalls = 0; usage.inputBytes = 0; }
         if (this.store.db.isOpen) this.store.internal('memory.consolidation.pending_cleanup', null, () => this.store.put('projectMemoryAuxiliaryUsage', lease.token, null, usageRecord(status, false)));
         resolve({ status, usage: { ...usage } });
       };

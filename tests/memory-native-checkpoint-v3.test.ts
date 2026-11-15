@@ -84,6 +84,11 @@ describe('bounded private Pi checkpoint IPC',()=>{
 
 function mockAdapter(){let callbacks!:RuntimeCallbacks;const runtime:RuntimeAdapter={configure:value=>{callbacks=value;},models:async()=>[],start:vi.fn(async()=>{}),followUp:vi.fn(async()=>{}),cancel:vi.fn(async()=>{}),compact:vi.fn(async()=>{}),history:async()=>[],dispose:async()=>{}};return{runtime,get callbacks(){return callbacks;}};}
 describe('native checkpoint owner routing',()=>{
+ it.each(['openai/model','gemini-cli/pro'])('preserves legacy compact arguments for an explicit default account without a checkpoint: %s',async modelId=>{
+  const root=await mkdtemp(join(tmpdir(),'memory-checkpoint-legacy-'));temporary.push(root);const pi=mockAdapter(),official=mockAdapter(),runtime=createRuntime({dataDir:root},{pi:()=>pi.runtime,official:()=>official.runtime});runtime.configure({onEvent:()=>{},onTool:async()=>{}});
+  const external=modelId.startsWith('gemini-cli/'),path=external?join(root,'official','gemini-cli','session.json'):join(root,'task','session.jsonl');
+  try{await runtime.compact(ctx,path,modelId,null);expect((external?official:pi).runtime.compact).toHaveBeenCalledExactlyOnceWith(ctx,path,modelId);}finally{await runtime.dispose();}
+ });
  it('rechecks the captured owner after persistence and rejects receipts arriving after cancellation',async()=>{
   const root=await mkdtemp(join(tmpdir(),'memory-checkpoint-router-'));temporary.push(root);const pi=mockAdapter(),official=mockAdapter(),hold=barrier(),callback=vi.fn(()=>hold.promise),runtime=createRuntime({dataDir:root},{pi:()=>pi.runtime,official:()=>official.runtime});
   runtime.configure({onEvent:()=>{},onTool:async()=>{},onMemoryCheckpoint:callback});const input={...ctx,modelId:binding.modelId,accountId:null,sessionPath:null,prompt:'request',inputId:'input',resources:[],memoryCheckpoint:requirement};

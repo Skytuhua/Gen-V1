@@ -4,6 +4,7 @@ import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Store } from '../packages/storage/store.ts';
+import { HarnessError } from '../packages/contracts/index.ts';
 import type { MemoryAccess, MemoryItemV1, MemorySourceSnapshot, MemoryTombstoneV1 } from '../packages/contracts/project-memory.ts';
 import { MemoryConsolidator, validateMemoryExtraction, checkpointBeforeCompaction, type MemoryCheckpointV1, type MemoryConsolidationSnapshot, type MemoryDerivedIndex, type MemoryExtractionCut } from '../packages/core/memory-consolidation.ts';
 
@@ -87,6 +88,77 @@ describe('M05 reference consolidation', () => {
     if (change === 'binding') x.set({ access: { ...access, bindingDigest: 'c'.repeat(64) } });
     gate.resolve({ refs: [{ itemId: 'utc', revision: 1 }] });
     expect(await pending).toMatchObject({ status: 'STALE' });
+    expect(x.store.all('projectMemoryDerived')).toEqual([]);
+  });
+
+  it.each(['correction', 'forget', 'source-revocation', 'binding', 'lease-token', 'lease-expiry'] as const)('does not dispatch captured prose after pre-dispatch %s', async change => {
+    const x = fixture(), run = vi.fn(async () => ({ refs: [{ itemId: 'utc', revision: 1 }] }));
+    let clock = Date.parse(stamp), revoked = false;
+    const snapshot = () => { if (revoked) throw new HarnessError('CAPABILITY_DENIED', 'Source consent was revoked.'); return x.snapshot(); };
+    const pending = new MemoryConsolidator(x.store, { snapshot, now: () => clock, leaseMs: 1000, provider: { id: 'fixture-provider', run } }).consolidate(access);
+    if (change === 'correction') x.set({ items: [item('utc', 2, 'Corrected before dispatch.')], watermark: 5 });
+    if (change === 'forget') x.set({ tombstones: [tombstone()], watermark: 5 });
+    if (change === 'source-revocation') revoked = true;
+    if (change === 'binding') x.set({ access: { ...access, bindingDigest: 'c'.repeat(64) } });
+    if (change === 'lease-token') {
+      const lease = x.store.all<{ id: string; token: string }>('projectMemoryLease')[0];
+      x.store.internal('fixture.lease-stolen-before-dispatch', null, () => x.store.put('projectMemoryLease', lease.id, null, { ...lease, token: 'another-owner' }));
+    }
+    if (change === 'lease-expiry') clock += 1001;
+    await expect(pending).resolves.toMatchObject({ status: 'STALE', usage: { modelCalls: 0, inputBytes: 0 } });
+    expect(run).not.toHaveBeenCalled();
+    expect(x.store.all('projectMemoryDerived')).toEqual([]);
+    expect(x.store.all('projectMemoryAuxiliaryUsage')).toMatchObject([{ settled: true, status: 'STALE', usage: { modelCalls: 0, inputBytes: 0 } }]);
+  });
+
+  it('durably records an unknown-cost attempt before the optional provider receives source text', async () => {
+    const x = fixture(); let observed: unknown;
+    const run = vi.fn(async (input: { acceptedRefs: { itemId: string; revision: number }[] }) => {
+      const reopened = new Store(x.store.dataDir);
+      try { observed = reopened.all('projectMemoryAuxiliaryUsage'); } finally { reopened.close(); }
+      return { refs: input.acceptedRefs };
+    });
+    await expect(new MemoryConsolidator(x.store, { snapshot: x.snapshot, now: () => Date.parse(stamp), provider: { id: 'fixture-provider', run } }).consolidate(access)).resolves.toMatchObject({ status: 'UPDATED' });
+    expect(observed).toMatchObject([{ phase: 'CONSOLIDATION', projectIdentity: access.projectIdentity, accountId: access.accountId, providerId: 'fixture-provider', status: 'PENDING', settled: false, finishedAt: null,
+      usage: { modelCalls: 1, inputBytes: expect.any(Number), inputTokens: null, outputTokens: null, cost: null } }]);
+    expect((observed as { usage: { inputBytes: number } }[])[0].usage.inputBytes).toBeGreaterThan(0);
+    expect(JSON.stringify(observed)).not.toContain('Use UTC');
+  });
+
+  it.each(['forget', 'lease-token', 'cancel'] as const)('rechecks %s caused by a pending-usage observer before provider dispatch', async change => {
+    const x = fixture(), control = new AbortController(), run = vi.fn(async () => ({ refs: [{ itemId: 'utc', revision: 1 }] }));
+    let changed = false;
+    const unsubscribe = x.store.subscribe(event => {
+      if (changed || event.type !== 'memory.consolidation.dispatch.pending') return;
+      changed = true;
+      if (change === 'forget') x.set({ tombstones: [tombstone()], watermark: 5 });
+      else if (change === 'cancel') control.abort();
+      else {
+        const lease = x.store.all<{ id: string; token: string }>('projectMemoryLease')[0];
+        x.store.internal('fixture.lease-stolen-by-observer', null, () => x.store.put('projectMemoryLease', lease.id, null, { ...lease, token: 'another-owner' }));
+      }
+    });
+    try {
+      const result = await new MemoryConsolidator(x.store, { snapshot: x.snapshot, now: () => Date.parse(stamp), provider: { id: 'fixture-provider', run } }).consolidate(access, { signal: control.signal });
+      await new Promise<void>(done => setImmediate(done));
+      expect(changed).toBe(true); expect(run).not.toHaveBeenCalled();
+      expect(result).toMatchObject({ status: change === 'cancel' ? 'CANCELLED' : 'STALE', usage: { modelCalls: 0, inputBytes: 0 } });
+      expect(x.store.all('projectMemoryAuxiliaryUsage')).toMatchObject([{ settled: true, usage: { modelCalls: 0, inputBytes: 0, cost: null } }]);
+      expect(x.store.all('projectMemoryDerived')).toEqual([]);
+    } finally { unsubscribe(); }
+  });
+
+  it('counts synchronous provider cancellation as dispatched and holds capacity until its actual promise settles', async () => {
+    const x = fixture(), control = new AbortController(), gate = deferred<{ refs: { itemId: string; revision: number }[] }>();
+    const run = vi.fn(() => { control.abort(); return gate.promise; });
+    const coordinator = new MemoryConsolidator(x.store, { snapshot: x.snapshot, now: () => Date.parse(stamp), provider: { id: 'fixture-provider', run } });
+    try {
+      await expect(coordinator.consolidate(access, { signal: control.signal })).resolves.toMatchObject({ status: 'CANCELLED', usage: { modelCalls: 1 } });
+      expect(x.store.all('projectMemoryAuxiliaryUsage')).toMatchObject([{ status: 'CANCELLED', settled: false, usage: { modelCalls: 1, cost: null } }]);
+      await expect(coordinator.consolidate(access)).resolves.toMatchObject({ status: 'BUSY' });
+      expect(run).toHaveBeenCalledOnce();
+    } finally { gate.resolve({ refs: [{ itemId: 'utc', revision: 1 }] }); }
+    await vi.waitFor(() => expect(x.store.all('projectMemoryAuxiliaryUsage')).toMatchObject([{ settled: true, status: 'CANCELLED', usage: { modelCalls: 1 } }]));
     expect(x.store.all('projectMemoryDerived')).toEqual([]);
   });
 

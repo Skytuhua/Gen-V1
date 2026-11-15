@@ -5,8 +5,8 @@
   "implementationBundleStatus": "PARTIAL",
   "executionBaseSha": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42",
   "inspectedPaths": 46,
-  "verifiedCommandRecords": 224,
-  "changedFiles": 327,
+  "verifiedCommandRecords": 261,
+  "changedFiles": 405,
   "reviewerApproval": false,
   "errors": []
 }

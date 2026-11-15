@@ -6,7 +6,7 @@
     "modelId": null,
     "hostOrigin": null,
     "providerCalls": 0,
-    "activation": "BLOCKED_M04_REQUEST_PREPARATION"
+    "activation": "BLOCKED_LIVE_AND_INSTALLED_TARGET_VERIFICATION"
   },
   "comparison": {
     "control": "thread-note-only",
@@ -14,7 +14,7 @@
     "repetitionsPerArm": 3,
     "holdConstant": ["source revisions", "task prompt", "provider and account", "tool grants", "model settings"],
     "review": "Judge task correctness against the pinned source cut and actual effect receipts. Judge recall usefulness separately. Similarity alone is not a quality score.",
-    "nativeRequirements": "Use the actual host, authorized model and native adapter after the M04 integration gate passes. Synthetic callbacks do not constitute a live study."
+    "nativeRequirements": "The accepted M04 request-preparation contract is available. Use an authorized actual host, model and native adapter for the live study, and verify installed-target behavior separately. Synthetic callbacks do not constitute a live study."
   },
   "unmeasuredResults": {
     "recallUsefulnessControl": null,

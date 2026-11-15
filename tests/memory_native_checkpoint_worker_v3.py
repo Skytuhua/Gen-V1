@@ -97,7 +97,7 @@ class NativeCheckpointWorker(unittest.TestCase):
         self.assertEqual(request['sessionPath'], params['sessionPath'])
         self.assertNotIn('Offline accepted constraint', json.dumps(request))
         self.assertLess(len(result['messages']), len(before))
-        self.assertEqual(json.loads(Path(params['sessionPath']).read_text())['messages'], result['messages'])
+        self.assertEqual(json.loads(Path(params['sessionPath']).read_text(encoding='utf-8'))['messages'], result['messages'])
 
     def test_persistence_failure_prevents_native_inference_and_preserves_exact_history(self):
         params = self.conversation()

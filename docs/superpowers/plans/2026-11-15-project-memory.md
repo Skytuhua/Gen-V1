@@ -53,7 +53,7 @@ Files: `packages/core/project-memory-host.ts`, `packages/core/service.ts`, `memo
 - [x] Connect review/settled consolidation to the per-project lease/watermark reference index; unchanged inputs skip work and stale/deleted inputs cannot publish.
 - [x] Connect native host checkpoint API v2 through pinned Pi and Hermes compaction boundaries; reject unsupported adapters and recheck owner/session after asynchronous persistence.
 - [x] Fix pending count deduplication, orphan accounting, checkpoint session races, executor/outbox cancellation and running-schedule drain; preserve unknown attempted costs on interrupted recovery.
-- [x] Close the M09 delegate-startup scheduling interaction and include it in the passing 318-case postmerge memory regression.
+- [x] Close the M09 delegate-startup scheduling interaction and include it in the passing 331-case focused memory regression.
 - [ ] Complete exact-head Windows/native and installed-desktop verification. Controlled native worker fixtures are not substitutes for target-platform execution.
 
 ## Task 3: Authenticated review and preparation UI
@@ -81,7 +81,10 @@ Files: offline fixture, `evals/project-memory-study.ts`, runner tests/README, ha
 - [x] Record fail-first and green tests for protocol ownership, captured binding/redaction, strict selection/query/numeric evidence and incomplete cost.
 - [x] Map all twelve implementation steps and four UI requirements to production callers and remaining gates in the handoff.
 - [x] Preserve the first published Windows purge failure, old Linux full-suite/browser restrictions and all intermediate regression failures.
-- [x] Run the postmerge focused regression (318 memory cases and 125 contract/packaging cases), typecheck and build.
+- [x] Preserve continuation Windows run 43714076939 and import its 24 observed command records: 21 passed, three failed. All 15 M05 browser scenarios passed; current compaction, UTF-8 and root-baseline repairs require a new full run.
+- [x] Run the final focused regression (331 memory cases and 125 contract/packaging cases), full typecheck, production build and UI policy checks.
+- [x] Reproduce and fix optional consolidation dispatch after Forget/revocation/lease changes and missing pre-dispatch cost metadata; independent review passes all 73 consolidation cases.
+- [x] Restore legacy native compaction argument compatibility, explicitly decode Windows UTF-8 history, and repair baseline browser selectors/readiness and narrow Skills layout without weakening behavior assertions.
 - [ ] Complete current Windows full-suite evidence and refresh strict CORE/INTEGRATION/PLATFORM receipts.
 - [ ] Obtain the continuation's exact-head Windows and browser CI result and disposition every required failure. M04's green CI is dependency evidence only.
 - [ ] Obtain installed-desktop execution proof. A desktop build alone does not satisfy it.
@@ -90,6 +93,6 @@ Files: offline fixture, `evals/project-memory-study.ts`, runner tests/README, ha
 
 ## Evidence boundaries
 
-The current handoff records named local runs, including 27 Service cases, 12 HTTP cases, 14 study protocol cases, 88 renderer/controller cases, 114 native checkpoint cases and three actual pinned Worker Python cases with scripted ACP. These are overlapping scoped runs, not one aggregate or live/platform acceptance result. The current postmerge aggregate passes 318 memory cases across 21 files and 125 dependency/compatibility cases across nine files; typecheck and build pass. Current Windows and live proof are reported separately.
+The current handoff records named local runs, including 27 Service cases, 12 HTTP cases, 14 study protocol cases, 88 renderer/controller cases, 114 native checkpoint cases and three actual pinned Worker Python cases with scripted ACP. These are overlapping scoped runs, not one aggregate or live/platform acceptance result. The current focused aggregate passes 331 memory cases across 21 files and 125 dependency/compatibility cases across nine files; typecheck and build pass. Current Windows and live proof are reported separately.
 
 Default flags stay off. No endpoint, account or credential is guessed or borrowed. Retained records/tombstones remain user-editable under rollback, source authorization and CAS. External provider deletion, arbitrary same-user process protection and whole-parent/system rollback resistance are not claimed.

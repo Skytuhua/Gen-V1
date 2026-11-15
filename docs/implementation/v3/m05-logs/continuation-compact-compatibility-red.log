@@ -1,0 +1,64 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/memory-native-checkpoint-v3.test.ts (28 tests | 2 failed | 26 skipped) 19ms
+     × preserves legacy compact arguments for an explicit default account without a checkpoint: openai/model 15ms
+     × preserves legacy compact arguments for an explicit default account without a checkpoint: gemini-cli/pro 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-native-checkpoint-v3.test.ts > native checkpoint owner routing > preserves legacy compact arguments for an explicit default account without a checkpoint: openai/model
+AssertionError: expected "vi.fn()" to be called once with arguments: [ { …(3) }, …(2) ]
+
+Received:
+
+  1st vi.fn() call:
+
+@@ -4,6 +4,8 @@
+      "runId": "checkpoint-run",
+      "threadId": "checkpoint-thread",
+    },
+    "/tmp/memory-checkpoint-legacy-vsZG5F/task/session.jsonl",
+    "openai/model",
++   null,
++   undefined,
+  ]
+
+
+Number of calls: 1
+
+ ❯ tests/memory-native-checkpoint-v3.test.ts:90:99
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/memory-native-checkpoint-v3.test.ts > native checkpoint owner routing > preserves legacy compact arguments for an explicit default account without a checkpoint: gemini-cli/pro
+AssertionError: expected "vi.fn()" to be called once with arguments: [ { …(3) }, …(2) ]
+
+Received:
+
+  1st vi.fn() call:
+
+@@ -4,6 +4,8 @@
+      "runId": "checkpoint-run",
+      "threadId": "checkpoint-thread",
+    },
+    "/tmp/memory-checkpoint-legacy-48OXdk/official/gemini-cli/session.json",
+    "gemini-cli/pro",
++   null,
++   undefined,
+  ]
+
+
+Number of calls: 1
+
+ ❯ tests/memory-native-checkpoint-v3.test.ts:90:99
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 26 skipped (28)
+   Start at  20:35:27
+   Duration  1.83s (transform 392ms, setup 0ms, import 1.60s, tests 19ms, environment 0ms)

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "reviewScope": "Independent agent review of M05 Service integration, accepted M04 custody and merged M09 lifecycle; original-prompt mapping reviewed separately.",
+  "reviewScope": "Independent review of M05 Service integration, accepted M04 custody, merged M09 lifecycle, optional consolidation dispatch/accounting and Windows failure repairs; original-prompt mapping is retained in M05-handoff.md.",
   "reviewer": "dependency_audit",
   "reviewedFiles": [
     {
@@ -22,6 +22,34 @@
     {
       "path": "tests/project-memory-service-v3.test.ts",
       "sha256": "bbbd0a0c3062a5da19b372eafb36a2d2540bc9b1779f74b98fa10787892b1ef0"
+    },
+    {
+      "path": "packages/core/memory-consolidation.ts",
+      "sha256": "c27c22384b3739e3499922416c5d41818ea708c8fccae94228b591f9b14cb073"
+    },
+    {
+      "path": "tests/memory-consolidation-v3.test.ts",
+      "sha256": "fa54168474c033567b3ac65ca490bdc4c8abfbfc975b0d15406d2fc1d5f00b14"
+    },
+    {
+      "path": "packages/runtime/index.ts",
+      "sha256": "0d30825a2ec4983951e332a59e13131130364823179e12d0d4bc4fac1f9b675b"
+    },
+    {
+      "path": "tests/memory-native-checkpoint-v3.test.ts",
+      "sha256": "f014d42f752a480fea6f103f17f41c697bdccacf0658ed1dd84c3f18f1d37b70"
+    },
+    {
+      "path": "tests/memory_native_checkpoint_worker_v3.py",
+      "sha256": "4335997070d9d8f2f7d29a3075e8d6b88e6a1cdfe51bbf420a2a472bf81c84fd"
+    },
+    {
+      "path": "apps/web/src/Settings.tsx",
+      "sha256": "4062f8d4e1e5b94b1de21b1d80a590830e8b64677a10f7e92bb5791f02822327"
+    },
+    {
+      "path": "apps/web/src/skill-library.css",
+      "sha256": "6bd179eb186a895c8a933b9ccb8f0f14104f6eb761dfc5e5a46d75f73eec24b7"
     }
   ],
   "findingsResolved": [
@@ -30,18 +58,47 @@
     "Interrupted auxiliary accounting recovery",
     "Executor-generated input cancellation",
     "Running scheduled source cleanup drain",
-    "Admitted M09 child startup precedence"
+    "Admitted M09 child startup precedence",
+    "Legacy native compaction argument compatibility without a checkpoint",
+    "Optional consolidation stale source dispatch before provider entry",
+    "Optional consolidation attempted usage durability before provider entry",
+    "Disconnected narrow Skills responsive layout"
   ],
   "remainingActionableFindings": [],
   "evidenceRefs": [
     "docs/implementation/v3/m05-logs/continuation-postmerge-memory-regression.log",
     "docs/implementation/v3/m05-logs/continuation-postmerge-contracts-complete.log",
     "docs/implementation/v3/m05-logs/continuation-postmerge-typecheck.log",
-    "docs/implementation/v3/m05-logs/continuation-postmerge-build.log"
+    "docs/implementation/v3/m05-logs/continuation-postmerge-build.log",
+    "docs/implementation/v3/M05-windows-ci-repair.md",
+    "docs/implementation/v3/M05-windows-ci-43714076939.json",
+    "docs/implementation/v3/m05-logs/continuation-consolidation-independent-review.log",
+    "docs/implementation/v3/m05-logs/continuation-ci-final-memory-regression.log",
+    "docs/implementation/v3/m05-logs/continuation-ci-final-typecheck.log",
+    "docs/implementation/v3/m05-logs/continuation-ci-final-build.log",
+    "docs/implementation/v3/m05-logs/continuation-ci-final-ui-policy.log"
   ],
   "activationApproval": false,
   "limitations": [
-    "This review is local code acceptance, not Windows/installed desktop/live-provider proof.",
+    "The recorded Windows run failed and is retained unchanged; the repaired source needs a new full Windows run.",
+    "Code and synthetic browser review do not establish installed-desktop or live-provider quality/cost.",
     "Both M05 host flags remain false."
-  ]
+  ],
+  "additionalReviewers": [
+    "ui_audit",
+    "memory_integration_audit",
+    "root"
+  ],
+  "originalPromptReview": {
+    "reviewer": "memory_integration_audit",
+    "implementationStepsReviewed": 12,
+    "userFacingRequirementsReviewed": 4,
+    "additionalConcreteCorrectnessBlockers": [],
+    "remainingProofGates": [
+      "Updated-source Windows rerun",
+      "Actual native FILE capture",
+      "Installed desktop",
+      "Authorized live repeated-task quality and total auxiliary cost"
+    ]
+  }
 }
