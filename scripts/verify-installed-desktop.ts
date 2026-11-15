@@ -284,8 +284,9 @@ async function waitForOwnedExit(child:ChildProcess,timeoutMs=15000){
  let timer:ReturnType<typeof setTimeout>|undefined;
  try{await Promise.race([new Promise<void>(done=>child.once('close',()=>done())),new Promise<never>((_done,reject)=>{timer=setTimeout(()=>reject(Error('Installed application did not exit after closing its last window.')),timeoutMs);})]);}finally{clearTimeout(timer);}
 }
-// Application-page publication has a separate bound from interactive UI assertions.
-const INSTALLED_MAIN_PAGE_TIMEOUT_MS=30000;
+// Existing production startup permits 60s for the backend and 20s for its native surface.
+// Match that combined publication envelope; production and interactive assertion budgets stay unchanged.
+const INSTALLED_MAIN_PAGE_TIMEOUT_MS=80000;
 type InstalledPageFailure='deadline'|'launch-error'|'process-exit'|'owner-rejected'|'page-query';
 type InstalledPageCounts={total:number;ownedOrigin:number;file:number;blank:number;other:number;closed:number};
 export type InstalledPageReadinessObservation={phase:'waiting'|'candidate'|'ready'|'failed';elapsedMs:number;process:{alive:boolean;exitCode:number|null;signalCode:NodeJS.Signals|null};pages:InstalledPageCounts;failure?:InstalledPageFailure};

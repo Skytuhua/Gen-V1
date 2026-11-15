@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   verify:
-    name: Installed startup boundary reproduction
+    name: Installed startup boundary validation
     if: github.repository == 'skytuhua-org/Gen-V1' && github.ref == 'refs/heads/agent/m05-startup-repair-43755565107'
     runs-on: windows-latest
     timeout-minutes: 15
@@ -31,5 +31,7 @@ jobs:
           persist-credentials: false
       - name: Install pinned toolchain
         uses: ./.github/actions/setup
-      - name: Reproduce premature installed page deadline
-        run: pnpm exec vitest run tests/installed-desktop-verification.test.ts -t 'waits for a correctly owned main page beyond the old 30-second cutoff' --reporter=verbose
+      - name: Verify installed custody and native Save helper boundaries
+        run: pnpm exec vitest run tests/installed-desktop-verification.test.ts tests/installed-native-save.test.ts --reporter=verbose --maxWorkers=1
+      - name: Check full TypeScript contracts
+        run: pnpm typecheck
