@@ -150,6 +150,30 @@ test('child follow-up uses the published parent/run target and current ticket th
  expect(Object.keys(h.commands[0].payload).sort()).toEqual(['childRun', 'content', 'jobId', 'parentRun']);
  h.ticket('handled'); await expect(child.getByRole('status')).toHaveText('handled'); expect(h.commands).toHaveLength(1);
 });
+test('agent task progress exposes its name and unknown share to assistive technology', async ({page}) => {
+ const fixtureHost = await setup(page, false, false, true);
+ await page.route('**/api/agent-work?taskId=parent-00', route => route.fulfill({json: {
+  enabled: true, roles: {}, budget: {reservedTokens: 0}, works: [{
+   workId: 'demo-progress', role: 'QA', state: 'VERIFIED', owner: {threadId: 'child-active'},
+   budget: {tokens: null}, evidence: {refs: 0},
+  }],
+ }}));
+ await page.route('**/api/agent-work/plan?*', route => route.fulfill({json: {
+  extension: true, planId: 'demo-plan', progress: {total: 10, completed: 3, pending: 5, unknown: 2},
+ }}));
+ await page.route('**/api/agent-work/messages?*', route => route.fulfill({json: {messages: []}}));
+ try {
+  fixtureHost.release();
+  await page.getByRole('button', {name: 'Agent work · 1', exact: true}).click();
+  const work = page.getByRole('region', {name: 'Agent work', exact: true});
+  await expect(work.getByText('30% known complete · 20% unknown', {exact: true})).toBeVisible();
+  const progress = work.getByRole('progressbar', {name: 'Task progress', exact: true});
+  await expect(progress).toHaveAttribute('aria-valuetext', '30% known complete · 20% unknown');
+  await expect(progress).toHaveAttribute('value', '3');
+  await expect(progress).toHaveAttribute('max', '10');
+ } finally {fixtureHost.release();}
+});
+
 test('output while reading earlier retains position and exposes an explicit new-output action', async ({page}) => {
  const h = await setup(page), parent = page.getByRole('group', {name: 'Agent parent-00', exact: true}), log = parent.getByRole('log', {name: 'parent-00 messages', exact: true});
  await expect(log).toContainText('Current transcript output'); await log.evaluate(node => {node.scrollTop = 100;});
