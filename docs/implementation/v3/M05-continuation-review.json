@@ -94,6 +94,10 @@
     {
       "path": "scripts/public-source-files.json",
       "sha256": "5e8d68fd54a0025a1c7f38c6dba321c335e6824ef3eb789c59d8650f963a9050"
+    },
+    {
+      "path": "tests/split-app-browser.test.ts",
+      "sha256": "af26e2b18b9787fa15e6aa2b50c10072d76f15a4b00a0e01edcacaf3e1d07d09"
     }
   ],
   "findingsResolved": [
@@ -113,7 +117,8 @@
     "Original native cancellation promise and cancellation arriving during successful cleanup",
     "M11 maintenance observations bound to the newly admitted run and epoch",
     "Arbitrary adapter error text retained outside memory deletion custody",
-    "Pinned native worker observation-call expectation after accepted M11 integration"
+    "Pinned native worker observation-call expectation after accepted M11 integration",
+    "Initial split-browser fixture navigation inherited the seven-second interaction budget; startup now has a separate bounded twenty-second budget with all behavior assertions retained"
   ],
   "remainingActionableFindings": [],
   "evidenceRefs": [
@@ -154,13 +159,17 @@
     "docs/implementation/v3/m05-logs/continuation-m11-telemetry-red.log",
     "docs/implementation/v3/m05-logs/continuation-m11-typecheck.log",
     "docs/implementation/v3/M05-windows-ci-43721299625.json",
-    "docs/implementation/v3/M05-browser-review-43721299625.json"
+    "docs/implementation/v3/M05-browser-review-43721299625.json",
+    "docs/implementation/v3/M05-windows-ci-43723377122.json",
+    "docs/implementation/v3/M05-browser-startup-review-43723377122.json",
+    "docs/implementation/v3/m05-logs/continuation-split-initial-navigation-typecheck.log"
   ],
   "activationApproval": false,
   "limitations": [
     "Windows run 43721299625 passes all eight jobs on the exact combined M05/M09/M11 code/test/workflow cut. Its source and command evidence are distinct from installed-desktop and live activation proof.",
     "Code and synthetic browser review do not establish installed-desktop or live-provider quality/cost.",
-    "Both M05 host flags remain false."
+    "Both M05 host flags remain false.",
+    "Run 43723377122 retains its failed baseline result. The reviewed initial-navigation repair changes one fixture timeout only; no new browser pass is claimed before current Windows CI."
   ],
   "additionalReviewers": [
     "ui_audit",
@@ -175,7 +184,8 @@
     "remainingProofGates": [
       "Actual native FILE capture",
       "Installed desktop",
-      "Authorized live repeated-task quality and total auxiliary cost"
+      "Authorized live repeated-task quality and total auxiliary cost",
+      "Windows execution of the current split-browser startup-budget repair"
     ]
   },
   "acceptedMainSha": "399cde39ff4ee82272c7a7700944325c44b36070",
@@ -198,5 +208,24 @@
     "hermesContractsPassed": 33,
     "policyPluginTestsPassed": 37,
     "observedCommandsImported": 24
+  },
+  "latestWindowsAttempt": {
+    "runId": 43723377122,
+    "headSha": "c0399961dee169d9bcdb443e3807436bd4d3aa28",
+    "treeSha": "f4f987bb80b0cbb4abbd5f59e92b4dde18371cc3",
+    "jobsPassed": 7,
+    "jobsFailed": 1,
+    "application": {
+      "passed": 3746,
+      "skipped": 39,
+      "failed": 0
+    },
+    "browser": {
+      "passed": 28,
+      "failed": 1,
+      "affectedSuites": "SKIPPED_AFTER_BASELINE_FAILURE"
+    },
+    "failure": "Initial fixture page.goto exceeded its inherited 7000ms timeout before behavior assertions.",
+    "currentRepairValidation": "Full typecheck passes; exact-head Windows browser execution remains pending."
   }
 }

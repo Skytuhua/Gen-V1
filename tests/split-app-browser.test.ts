@@ -90,7 +90,9 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    channel.port1.onmessage=e=>{if(e.data.type==='gen.plugin.connected'){window.fixtureConnected=true;channel.port1.postMessage({type:'gen.plugin.ready',pluginId:${JSON.stringify(pluginId)},session:${JSON.stringify(session)}});}if(e.data.type==='gen.plugin.flush'){if(hold)window.fixtureFlushPending.push(e.data);else acknowledge(e.data);}};channel.port1.start();parent.postMessage({type:'gen.plugin.connect',pluginId:${JSON.stringify(pluginId)},session:${JSON.stringify(session)}},'*',[channel.port2]);
   </script></body></html>`});});
   await page.route('**/split-app-check',route=>route.fulfill({contentType:'text/html',body:`<html><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${fixtureModule}');</script></body></html>`}));
-  await page.goto(origin+'/split-app-check');
+  // Cold Vite module loading has its own startup budget; interactions retain
+  // the seven-second timeout and each test's existing overall bound.
+  await page.goto(origin+'/split-app-check',{timeout:20000});
   if(mode==='split'){
    if(width<700){await page.getByRole('combobox',{name:'Active workspace area',exact:true}).click();await page.getByRole('option',{name:'First investigation',exact:true}).click();}
    await page.locator('[data-split-view="thread:thread-a"]').getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});

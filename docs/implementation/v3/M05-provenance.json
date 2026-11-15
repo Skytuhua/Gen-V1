@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "recordedAt": "2026-11-15T14:12:35.656469+00:00",
+  "recordedAt": "2026-11-15T14:26:07.804092+00:00",
   "repositoryRoot": "/workspace/scratch/36f66011d961/m05-continuation",
   "branch": "agent/m05-v3-continuation",
   "origin": "https://github.com/Skytuhua/Gen-V1.git",
@@ -8,7 +8,7 @@
   "repositoryId": 1442565952,
   "canonicalIdentityEvidence": "docs/implementation/v3/M05-upstream-check.json",
   "acceptedBaseSha": "399cde39ff4ee82272c7a7700944325c44b36070",
-  "sourceParentHeadSha": "17da0dc4bfb1a7469120527319fe0aa08890e9fc",
+  "sourceParentHeadSha": "761ac5abd19bed30ba811bd4bcc5c4bce58b2c88",
   "acceptedDependencyCommits": [
     "5f0958f4cb5b40bc10c1eea0e1cd517b57aaa1b9",
     "f331cf16b268282da888a41da42fc776ea7befd5",
@@ -27,15 +27,17 @@
     "docs/implementation/v3/m05-logs/continuation-m11-final-build.log",
     "docs/implementation/v3/m05-logs/continuation-m11-final-contracts.log",
     "docs/implementation/v3/m05-logs/continuation-m11-final-memory-regression.log",
-    "docs/implementation/v3/m05-logs/continuation-m11-final-typecheck.log",
+    "docs/implementation/v3/m05-logs/continuation-split-initial-navigation-typecheck.log",
     "docs/implementation/v3/m05-logs/continuation-study-manifest-final.log",
-    "docs/implementation/v3/m05-logs/windows-ci-43721299625-a1-j132833660861-s7-native-facade.log",
-    "docs/implementation/v3/m05-logs/windows-ci-43721299625-a1-j132833660861-s7-native-worker.log"
+    "docs/implementation/v3/m05-logs/windows-ci-43723377122-a1-j132839958191-s7-native-facade.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43723377122-a1-j132839958191-s7-native-worker.log"
   ],
   "commandCutLimitation": "Command ledger records actual times/argv/results, not a per-command Git tree. Selection is explicit; the current file inventory is generated separately. Exact-head Windows status is admitted only when its current code/test/workflow cut matches.",
-  "windowsCiRef": "docs/implementation/v3/M05-windows-ci-43721299625.json",
-  "windowsCiCurrentCodeCut": true,
-  "windowsCiCutNotes": [],
+  "windowsCiRef": "docs/implementation/v3/M05-windows-ci-43723377122.json",
+  "windowsCiCurrentCodeCut": false,
+  "windowsCiCutNotes": [
+    "CI code/test/workflow cut differs from the current worktree: tests/split-app-browser.test.ts"
+  ],
   "studyRef": "docs/implementation/v3/m05-study-20261115/results.json",
   "reviewerApproval": false
 }
