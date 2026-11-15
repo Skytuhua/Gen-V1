@@ -10,6 +10,19 @@ const processes = [
   spawn(process.execPath, ["node_modules/vite/bin/vite.js"], { stdio: "inherit" })
 ];
 let closing = false;
-function close(code=0) { if(closing)return; closing=true; for(const child of processes) child.kill(); setTimeout(()=>process.exit(code),300).unref(); }
-for(const child of processes) child.on("exit", code=>close(code??1));
+function close(code=0) {
+  if (closing) return;
+  closing = true;
+  process.exitCode = code;
+  for (const child of processes) child.kill();
+  setTimeout(() => process.exit(code), 300).unref();
+}
+for (const [index, child] of processes.entries()) {
+  const name = index === 0 ? "server" : "vite";
+  child.on("error", error => {
+    console.error(`Development ${name} process error: ${error.message}`);
+    close(1);
+  });
+  child.on("exit", code => close(code ?? 1));
+}
 process.on("SIGINT",()=>close());process.on("SIGTERM",()=>close());

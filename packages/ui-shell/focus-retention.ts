@@ -4,7 +4,12 @@
 const focusable = 'button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), a[href], summary, iframe, [tabindex="0"]';
 
 export function usableFocusable(root: HTMLElement): HTMLElement | undefined {
-  return Array.from(root.querySelectorAll<HTMLElement>(focusable)).find(element => element.tabIndex >= 0 && element.getClientRects().length && !element.closest('[inert], [hidden], [aria-hidden="true"]'));
+  return Array.from(root.querySelectorAll<HTMLElement>(focusable)).find(element => {
+    if (element.tabIndex < 0 || !element.getClientRects().length || element.closest('[inert], [hidden], [aria-hidden="true"]')) return false;
+    // visibility:hidden preserves layout rectangles, but the browser rejects focus.
+    const visibility = element.ownerDocument.defaultView?.getComputedStyle(element).visibility;
+    return visibility !== 'hidden' && visibility !== 'collapse';
+  });
 }
 
 /** Refocus only when focus has dropped to <body> (a disabled or removed control),

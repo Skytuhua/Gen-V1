@@ -135,3 +135,20 @@ for (const scenario of [
     });
   });
 }
+
+test('overlay focus recovery skips controls hidden by CSS visibility', async ({ page }) => {
+  const path = '/@fs/' + resolve('packages/ui-shell/focus-retention.ts').replaceAll('\\', '/');
+  const focused = await page.evaluate(async path => {
+    const { refocusWithin } = await import(path);
+    const root = document.createElement('div');
+    root.tabIndex = -1;
+    root.innerHTML = '<div style="visibility:hidden"><button>Hidden action</button></div><button>Visible action</button>';
+    const dialog = document.querySelector('dialog[open]');
+    if (dialog instanceof HTMLDialogElement) dialog.close();
+    document.body.append(root);
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+    refocusWithin(root);
+    return document.activeElement === root.lastElementChild;
+  }, path);
+  expect(focused).toBe(true);
+});
