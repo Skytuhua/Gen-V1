@@ -51,7 +51,15 @@ public static class OwnedWindowProbe {
 '@
   $probeStage='register-matching-client-providers'
   [OwnedWindowProbe]::Register($providerName)
-  $proxyDescriptorCount=[System.Windows.Automation.ClientSettings]::GetProxyFactoryMapping().Length
+  $probeStage='inspect-public-provider-description-table'
+  $loaded=@([AppDomain]::CurrentDomain.GetAssemblies()|Where-Object {$_.GetName().Name -eq 'UIAutomationClientsideProviders'})
+  if($loaded.Count -ne 1){throw 'Expected exactly one registered provider assembly'}
+  $registered=$loaded[0].GetName()
+  if($registered.Version -ne $providerName.Version -or $registered.CultureName -cne $providerName.CultureName -or [BitConverter]::ToString($registered.GetPublicKeyToken()) -cne [BitConverter]::ToString($providerName.GetPublicKeyToken())){throw 'Registered provider identity changed'}
+  $type=$loaded[0].GetType('UIAutomationClientsideProviders.UIAutomationClientSideProviders',$true)
+  $field=$type.GetField('ClientSideProviderDescriptionTable',[Reflection.BindingFlags]'Public,Static')
+  if($null -eq $field){throw 'Provider description table missing'}
+  $proxyDescriptorCount=$field.GetValue($null).Length
   if($proxyDescriptorCount -lt 1 -or $proxyDescriptorCount -gt 256){throw 'Proxy descriptor bound'}
   function Check-Owner {
     $process = [Diagnostics.Process]::GetProcessById($ownedPid)
