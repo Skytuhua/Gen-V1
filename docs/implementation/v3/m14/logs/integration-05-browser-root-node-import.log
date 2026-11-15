@@ -1,0 +1,24 @@
+Browser results: /workspace/scratch/c4abb425a583/m14-v3/test-results/browser/run-1794736715666-5a711c0d-1d36-4354-a2af-590c09e39c7b
+
+Browser suite: root (16 spec files)
+[WebServer] (node:53) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] (node:65) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+Error: Failed to load native module: pty.node, checked: build/Release, build/Debug, prebuilds/linux-x64: Error: Cannot find module './prebuilds/linux-x64//pty.node'
+Require stack:
+- /workspace/scratch/c4abb425a583/m14-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/lib/utils.js
+- /workspace/scratch/c4abb425a583/m14-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/lib/index.js
+    at Object.loadNativeModule (/workspace/scratch/c4abb425a583/m14-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/src/utils.ts:28:9)
+    at Object.<anonymous> (/workspace/scratch/c4abb425a583/m14-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/src/unixTerminal.ts:15:16)
+    at Object.<anonymous> (/workspace/scratch/c4abb425a583/m14-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/src/index.ts:15:18)
+Error: Failed to load native module: pty.node, checked: build/Release, build/Debug, prebuilds/linux-x64: Error: Cannot find module './prebuilds/linux-x64//pty.node'
+Require stack:
+- /workspace/scratch/c4abb425a583/m14-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/lib/utils.js
+- /workspace/scratch/c4abb425a583/m14-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/lib/index.js
+    at Object.loadNativeModule (/workspace/scratch/c4abb425a583/m14-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/src/utils.ts:28:9)
+    at Object.<anonymous> (/workspace/scratch/c4abb425a583/m14-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/src/unixTerminal.ts:15:16)
+    at Object.<anonymous> (/workspace/scratch/c4abb425a583/m14-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/src/index.ts:15:18)
+
+
+Failed browser suites: root (exit 1)
