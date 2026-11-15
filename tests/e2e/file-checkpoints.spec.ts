@@ -56,8 +56,9 @@ test('review holds, rejects foreign/expired revisions, and never invokes writes'
 });
 test('binary, missing and renamed files retain provenance',async({page})=>{
  for(const state of ['binary','missing','rename']){
+  const note={binary:'Binary file — no text diff',missing:'Missing from the current working copy',rename:'No comparison available'}[state]!;
   await page.goto('/file-checkpoints?state='+state);await page.getByRole('button',{name:'Review Before updating workspace layout',exact:true}).click();
-  await expect(page.getByRole('region',{name:'Checkpoint review'})).toContainText(state==='rename'?'unsupported':state);
+  await expect(page.getByRole('region',{name:'Checkpoint review'})).toContainText(note);
   await expect(page.getByRole('region',{name:'Checkpoint review'})).not.toContainText('No recorded diffs');
   await expect(page.getByRole('button',{name:'Restore selected files'})).toBeDisabled();
  }

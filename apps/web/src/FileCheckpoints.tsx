@@ -31,7 +31,9 @@ export function FileCheckpoints({owner,preferences,current,recorded,adapter=disa
   </div>;
 }
 const errorMessage=(cause:unknown)=>cause instanceof Error?cause.message:'Checkpoints could not load. Try again.';
-const provenance=(checkpoint:FileCheckpoint)=>`${checkpoint.provenance.kind==='restore_backup'?'Before restoring files':'Before a guarded file edit'} · ${checkpoint.provenance.operationId}`;
+const provenance=(checkpoint:FileCheckpoint)=>checkpoint.provenance.kind==='restore_backup'?'Saved before a restore':'Saved before a file edit';
+const restoreOutcome=(state:string)=>state==='APPLIED'?'All selected files were restored.':state==='CONFLICT'?'Some files were not restored.':state==='PARTIAL_RECOVERY_REQUIRED'?'Restore partially applied — some files may need manual recovery.':`Restore finished (${state}).`;
+const statusNote=(status:string)=>status==='ready'?'No text comparison available':status==='missing'?'Missing from the current working copy':status==='binary'?'Binary file — no text diff':status==='too_large'?'File too large to compare':status==='unreadable'?'Could not be read':'No comparison available';
 function CheckpointHistory({owner,adapter,preferences}:{owner:CheckpointOwner;preferences:UiPreferences}&{adapter:FileCheckpointAdapter}){
   const [items,setItems]=useState<FileCheckpoint[]>([]),[nextCursor,setNextCursor]=useState<string>(),[error,setError]=useState(''),[loading,setLoading]=useState(true),[attempt,setAttempt]=useState(0),[cursor,setCursor]=useState<string>(),[checkpoint,setCheckpoint]=useState<FileCheckpoint>();
   const opener=useRef<HTMLButtonElement|null>(null);
@@ -47,8 +49,7 @@ function CheckpointHistory({owner,adapter,preferences}:{owner:CheckpointOwner;pr
   return <div className="file-checkpoints-history">
     <div hidden={Boolean(checkpoint)}>
       <div className="file-checkpoints-heading"><h3>File checkpoints</h3>{adapter.available&&<button type="button" disabled={loading} onClick={()=>{setCursor(undefined);setAttempt(value=>value+1);}}>Refresh</button>}</div>
-      <p className="file-checkpoints-note">Review a version before restoring</p>
-      <p className="file-checkpoints-caption">Review the diff and conflicts before restoring selected files.</p>
+      <p className="file-checkpoints-caption">Saved copies of your files. Review the changes, then choose what to restore.</p>
       {loading&&items.length===0&&<p role="status">Loading checkpoints…</p>}
       {loading&&items.length>0&&<p role="status">Loading more checkpoints…</p>}
       {error&&<ErrorState message={error} onRetry={adapter.available?()=>setAttempt(value=>value+1):undefined}/>}
@@ -56,7 +57,7 @@ function CheckpointHistory({owner,adapter,preferences}:{owner:CheckpointOwner;pr
       <ul className="file-checkpoints-list">{items.map(item=><li key={item.id}>
         <Clock3 size={15} aria-hidden="true"/><div><strong>{item.label}</strong>
           <p><time dateTime={item.createdAt}>{new Date(item.createdAt).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short',hour12:preferences.timeFormat==='system'?undefined:preferences.timeFormat==='12h'})}</time> · {item.fileCount} {item.fileCount===1?'file':'files'}</p>
-          <p>{provenance(item)}</p>
+          <p title={`Operation ${item.provenance.operationId}`}>{provenance(item)}</p>
         </div><button type="button" aria-label={`Review ${item.label}`} onClick={event=>{opener.current=event.currentTarget;setCheckpoint(item);}}>Review</button>
       </li>)}</ul>
       {nextCursor&&<button type="button" disabled={loading} onClick={()=>setCursor(nextCursor)}>Next checkpoints</button>}
@@ -111,19 +112,19 @@ function CheckpointFiles({owner,adapter,checkpoint,preferences,onBack}:{owner:Ch
   };
   if(done)return <section aria-label="Checkpoint restore result">
     <button type="button" onClick={onBack}>Back to History</button><h3>Restore {done.state==='APPLIED'?'complete':'result'}</h3>
-    <p className="file-checkpoints-note">{done.state}</p>
+    <p className="file-checkpoints-note">{restoreOutcome(done.state)}</p>
     {done.restored.length>0&&<ul className="file-checkpoints-list">{done.restored.map(path=><li key={path}><strong>{displayFilePath(path)}</strong><p>Restored.</p></li>)}</ul>}
-    {done.conflicts.length>0&&<ul className="file-checkpoints-list">{done.conflicts.map(path=><li key={path}><strong>{displayFilePath(path)}</strong><p>Not restored: the file changed since the plan was reviewed.</p></li>)}</ul>}
+    {done.conflicts.length>0&&<ul className="file-checkpoints-list">{done.conflicts.map(path=><li key={path}><strong>{displayFilePath(path)}</strong><p>Not restored — the file changed after this review.</p></li>)}</ul>}
   </section>;
   return <section aria-label="Checkpoint review">
     <button ref={back} type="button" onClick={onBack}>Back to History</button><h3>{checkpoint.label}</h3>
     {error?<ErrorState message={error} retryLabel="Retry review" onRetry={()=>setAttempt(value=>value+1)}/>:!reviews?<p role="status">Loading checkpoint review…</p>:<>
-      <p className="file-checkpoints-note">{provenance(checkpoint)} · Revision {checkpoint.revision}</p>
+      <p className="file-checkpoints-note" title={`Revision ${checkpoint.revision}`}>{provenance(checkpoint)} · {checkpoint.provenance.operationId} · revision {checkpoint.revision.slice(0,10)}</p>
       {reviews.map((review,index)=><section key={review.reviewId} aria-label={`Review part ${index+1} of ${reviews.length}`}>
-      <p className="file-checkpoints-note">Part {index+1} of {reviews.length} · Review {review.reviewId} · {review.files.length} files</p>
-      {review.files.filter(file=>file.diff===null).map(file=><p className="file-checkpoints-note" key={file.path}>{displayFilePath(file.path)} · {file.status==='ready'?'No text comparison available':file.status}</p>)}
+      <p className="file-checkpoints-note">{reviews.length>1?`Part ${index+1} of ${reviews.length} · ${review.reviewId} · `:''}{review.files.length} {review.files.length===1?'file':'files'}</p>
+      {review.files.filter(file=>file.diff===null).map(file=><p className="file-checkpoints-note" key={file.path}>{displayFilePath(file.path)} · {statusNote(file.status)}</p>)}
       {review.files.filter(file=>file.diffTruncated).map(file=><p className="file-checkpoints-note" key={file.path}>{displayFilePath(file.path)} · Diff truncated. Only part of this comparison is shown.</p>)}
-      {review.files.some(file=>file.diff!==null)&&<RecordedDiffs diffs={review.files.flatMap(file=>file.diff===null?[]:[{id:file.path,title:displayFilePath(file.path),unified:file.diff||'No changes reported.',provenance:`Checkpoint ${checkpoint.id} · Review ${review.reviewId}`}])} preferences={preferences}/>}
+      {review.files.some(file=>file.diff!==null)&&<RecordedDiffs diffs={review.files.flatMap(file=>file.diff===null?[]:[{id:file.path,title:displayFilePath(file.path),unified:file.diff||'No changes reported.',provenance:checkpoint.label}])} preferences={preferences}/>}
       </section>)}
       {restorable&&<fieldset disabled={applying}>
         <legend className="file-checkpoints-note">Files to restore</legend>
@@ -133,7 +134,7 @@ function CheckpointFiles({owner,adapter,checkpoint,preferences,onBack}:{owner:Ch
       </fieldset>}
       {restoreError&&<ErrorState message={restoreError} onRetry={restorable?stage:undefined}/>}
       {confirming&&plan?<section aria-label="Confirm file restore">
-        <p className="file-checkpoints-caption">Restore {plan.selectedPaths.length} {plan.selectedPaths.length===1?'file':'files'} from this checkpoint? The current file bytes are snapshotted first; files that changed since this review are skipped and reported.</p>
+        <p className="file-checkpoints-caption">Restore {plan.selectedPaths.length} {plan.selectedPaths.length===1?'file':'files'} from this checkpoint? Current versions are backed up first; files changed since this review are skipped, not overwritten.</p>
         <ul className="file-checkpoints-list">{plan.selectedPaths.map(path=><li key={path}><strong>{displayFilePath(path)}</strong></li>)}</ul>
         <button type="button" disabled={applying} onClick={apply}>Confirm restore</button>
         <button type="button" disabled={applying} onClick={()=>{setConfirming(false);setPlan(undefined);setApprovalId('');}}>Cancel</button>

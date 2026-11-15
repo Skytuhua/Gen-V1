@@ -34,7 +34,7 @@ test('plan shows confirmation with planned paths; cancel resets; confirm applies
  await page.getByRole('button',{name:'Restore selected files',exact:true}).click();
  await page.getByRole('button',{name:'Confirm restore',exact:true}).click();
  await expect(page.getByRole('heading',{name:'Restore complete',exact:true})).toBeVisible();
- await expect(page.getByRole('region',{name:'Checkpoint restore result'})).toContainText('APPLIED');
+ await expect(page.getByRole('region',{name:'Checkpoint restore result'})).toContainText('All selected files were restored.');
  await expect(page.locator('.file-checkpoints-list',{hasText:'Restored.'}).locator('li')).toHaveCount(2);
  const calls=await page.evaluate(()=>(window as any).__restoreCalls);
  expect(calls.map((c:{kind:string})=>c.kind)).toEqual(['plan','plan','apply']);
@@ -50,9 +50,10 @@ test('conflict apply result names the skipped files',async({page})=>{
  await page.getByRole('button',{name:'Confirm restore',exact:true}).click();
  await expect(page.getByRole('heading',{name:'Restore result',exact:true})).toBeVisible();
  const result=page.getByRole('region',{name:'Checkpoint restore result'});
- await expect(result).toContainText('CONFLICT');
- await expect(result.locator('li',{hasText:'docs/info.md'})).toContainText('Restored.');
- await expect(result.locator('li',{hasText:'notes.txt'})).toContainText('Not restored: the file changed since the plan was reviewed.');
+ await expect(result).toContainText('Some files were not restored.');
+ // A CONFLICT result rolls every written path back — nothing was restored.
+ await expect(result.locator('li',{hasText:'docs/info.md'})).toHaveCount(0);
+ await expect(result.locator('li',{hasText:'notes.txt'})).toContainText('Not restored — the file changed after this review.');
 });
 
 test('disabled restore adapter shows its reason and no file checkboxes',async({page})=>{
