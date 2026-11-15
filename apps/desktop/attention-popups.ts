@@ -12,7 +12,11 @@ export function createAttentionPopups(options:Options){
  let native:AttentionPopupWindow|undefined,creating:Promise<AttentionPopupWindow>|undefined,polling:Promise<void>|undefined,pollTimer:ReturnType<typeof setTimeout>|undefined,closed=false,running=false,displayPolicy:string|undefined;
  const seen=new Set<string>(),active:ActiveCard[]=[],queue:AttentionPopupCard[]=[];
  const now=options.now??(()=>new Date());
- const layout=()=>{if(!native)return;const area=options.workArea(),width=Math.min(364,Math.max(220,area.width-32)),height=Math.min(area.height-32,active.length*116+16);native.setBounds({x:Math.round(area.x+area.width-width-16),y:Math.round(area.y+area.height-height-16),width:Math.round(width),height:Math.max(1,Math.round(height))});};
+ const layout=()=>{if(!native)return;const area=options.workArea();
+  // Preserve the usual margins, but trade them for space on compact work areas.
+  const desiredHeight=active.length*116+16,xGap=Math.min(16,Math.max(0,Math.floor((area.width-220)/2))),yGap=Math.min(16,Math.max(0,Math.floor((area.height-desiredHeight)/2)));
+  const width=Math.min(364,area.width-2*xGap),height=Math.min(desiredHeight,area.height-2*yGap);
+  native.setBounds({x:area.x+area.width-width-xGap,y:area.y+area.height-height-yGap,width,height});};
  const render=(sound=0)=>{if(!native)return;layout();native.render({cards:active.map(value=>value.card),sound});if(active.length)native.showInactive();else native.hide();};
  const arm=(value:ActiveCard)=>{clearTimeout(value.timer);value.deadline=Date.now()+value.remaining;value.timer=setTimeout(()=>remove(value.card.eventId),value.remaining);};
  const fill=()=>{while(queue.length&&active.length<3){const card=queue.shift()!,value:ActiveCard={card,deadline:0,remaining:6000,paused:false};active.push(value);arm(value);}};

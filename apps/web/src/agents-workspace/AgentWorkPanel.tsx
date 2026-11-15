@@ -18,8 +18,10 @@ export function AgentWorkPanel({threadId}: {threadId: string}) {
   const [plan, setPlan] = useState<PlanProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [output, setOutput] = useState<{workId: string; output: unknown} | null>(null);
-  const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const [drafts, setDrafts] = useState<Record<string, {text: string}>>({});
+  const [pendingInputs, setPendingInputs] = useState<ReadonlySet<string>>(() => new Set());
   const [post, setPost] = useState({recipientThreadId: '', topic: '', text: ''});
+  const [posting, setPosting] = useState(false);
   const [open, setOpen] = useState(false);
   const busy = useRef(false);
   const evidenceRequest = useRef(0);
@@ -55,8 +57,35 @@ export function AgentWorkPanel({threadId}: {threadId: string}) {
   };
 
   const send = (work: AgentWorkRow, kind: 'STEER' | 'FOLLOW_UP') => {
-    const text = (drafts[work.workId] ?? '').trim(); if (!text) return;
-    void sendAgentInput(threadId, {workId: work.workId, kind, text}).then(() => { setDrafts(d => ({...d, [work.workId]: ''})); return refresh(); }).catch(e => setError(e instanceof Error ? e.message : 'Send failed'));
+    const {workId} = work;
+    const submitted = drafts[workId];
+    const text = submitted?.text.trim();
+    if (!text || pendingInputs.has(workId)) return;
+    setPendingInputs(current => new Set(current).add(workId));
+    void sendAgentInput(threadId, {workId, kind, text})
+      .then(() => {
+        // An acknowledgement owns only the draft it submitted, even if a later edit has the same text.
+        setDrafts(current => current[workId] === submitted ? {...current, [workId]: {text: ''}} : current);
+        return refresh();
+      })
+      .catch(e => setError(e instanceof Error ? e.message : 'Send failed'))
+      .finally(() => setPendingInputs(current => {
+        const next = new Set(current);
+        next.delete(workId);
+        return next;
+      }));
+  };
+  const submitPost = () => {
+    if (posting || !post.recipientThreadId || !post.topic || !post.text) return;
+    const submitted = post;
+    setPosting(true);
+    void postAgentMessage(threadId, submitted)
+      .then(() => {
+        setPost(current => current === submitted ? {recipientThreadId: '', topic: '', text: ''} : current);
+        return refresh();
+      })
+      .catch(e => setError(e instanceof Error ? e.message : 'Post failed'))
+      .finally(() => setPosting(false));
   };
   return <section className="agents-work" aria-label="Agent work">
     <button type="button" className="agents-disclosure" aria-expanded={open} onClick={() => setOpen(!open)}>Agent work · {list.works.length}</button>
@@ -77,9 +106,9 @@ export function AgentWorkPanel({threadId}: {threadId: string}) {
           {work.state === 'INTERRUPTED' && <button type="button" className="agents-icon" aria-label={`Resume ${work.workId}`} onClick={() => { void resumeAgentWork(threadId, work.workId).then(refresh).catch(e => setError(e instanceof Error ? e.message : 'Resume failed')); }}><Play size={13}/></button>}
         </header>
         <div className="agents-work-send">
-          <input aria-label={`Message work ${work.workId}`} placeholder="Steer or queue a follow-up…" value={drafts[work.workId] ?? ''} onChange={e => setDrafts(d => ({...d, [work.workId]: e.target.value}))} disabled={work.state !== 'RUNNING' && work.state !== 'QUEUED'}/>
-          <button type="button" disabled={work.state !== 'RUNNING' || !work.steerSupported} title={work.steerSupported ? 'Delivered to the running child immediately' : 'This work does not support live steering'} onClick={() => send(work, 'STEER')}>Steer now</button>
-          <button type="button" disabled={work.state !== 'RUNNING' && work.state !== 'QUEUED'} onClick={() => send(work, 'FOLLOW_UP')}>Queue next</button>
+          <input aria-label={`Message work ${work.workId}`} placeholder="Steer or queue a follow-up…" value={drafts[work.workId]?.text ?? ''} onChange={e => {const text = e.target.value; setDrafts(d => ({...d, [work.workId]: {text}}));}} disabled={work.state !== 'RUNNING' && work.state !== 'QUEUED'}/>
+          <button type="button" disabled={pendingInputs.has(work.workId) || work.state !== 'RUNNING' || !work.steerSupported} title={work.steerSupported ? 'Delivered to the running child immediately' : 'This work does not support live steering'} onClick={() => send(work, 'STEER')}>Steer now</button>
+          <button type="button" disabled={pendingInputs.has(work.workId) || (work.state !== 'RUNNING' && work.state !== 'QUEUED')} onClick={() => send(work, 'FOLLOW_UP')}>Queue next</button>
         </div>
       </article>)}
       {inputs.length > 0 && <div className="agents-work-queue" aria-label="Queued inputs">
@@ -102,7 +131,7 @@ export function AgentWorkPanel({threadId}: {threadId: string}) {
             options={[{value: '', label: 'Choose recipient…', disabled: true}, ...list.works.map(work => ({value: work.owner.threadId, label: `${work.role} ${work.owner.threadId.slice(0, 8)}`}))]}/>
           <input aria-label="Topic" placeholder="Topic" value={post.topic} onChange={e => setPost(p => ({...p, topic: e.target.value}))}/>
           <input aria-label="Message" placeholder="Message…" value={post.text} onChange={e => setPost(p => ({...p, text: e.target.value}))}/>
-          <button type="button" disabled={!post.recipientThreadId || !post.topic || !post.text} onClick={() => { void postAgentMessage(threadId, {recipientThreadId: post.recipientThreadId, topic: post.topic, text: post.text}).then(() => { setPost({recipientThreadId: '', topic: '', text: ''}); return refresh(); }).catch(e => setError(e instanceof Error ? e.message : 'Post failed')); }}>Post</button>
+          <button type="button" disabled={posting || !post.recipientThreadId || !post.topic || !post.text} onClick={submitPost}>Post</button>
         </div>}
       </details> : null}
       {error && <p className="agents-error" role="alert">{error}</p>}
