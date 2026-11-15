@@ -13,7 +13,7 @@ for(const width of [1440,1024,768])test(`History and existing diff review fit ${
  await expect(page.getByRole('button',{name:'Back to History'})).toBeFocused();
  await expect(page.locator('.unified-diff').first()).toContainText('const panelWidth = 360;');
  await expect(page.locator('.unified-diff').first()).toContainText('const panelWidth = 420;');
- await expect(page.getByRole('button',{name:'Restore selected files'})).toBeDisabled();
+ await expect(page.locator('.file-checkpoints-callout')).toContainText('Restoring files isn’t set up');
  await page.screenshot({path:testInfo.outputPath(`5-review-${width}.png`),fullPage:true});
  await page.getByRole('button',{name:'Back to History'}).press('Enter');
  await expect(page.getByRole('button',{name:'Review Before updating workspace layout',exact:true})).toBeFocused();
@@ -56,11 +56,11 @@ test('review holds, rejects foreign/expired revisions, and never invokes writes'
 });
 test('binary, missing and renamed files retain provenance',async({page})=>{
  for(const state of ['binary','missing','rename']){
-  const note={binary:'Binary file — no text diff',missing:'Missing from the current working copy',rename:'No comparison available'}[state]!;
+  const note={binary:'Binary file, no preview',missing:'Not in your files now',rename:'No preview available'}[state]!;
   await page.goto('/file-checkpoints?state='+state);await page.getByRole('button',{name:'Review Before updating workspace layout',exact:true}).click();
   await expect(page.getByRole('region',{name:'Checkpoint review'})).toContainText(note);
   await expect(page.getByRole('region',{name:'Checkpoint review'})).not.toContainText('No recorded diffs');
-  await expect(page.getByRole('button',{name:'Restore selected files'})).toBeDisabled();
+  await expect(page.locator('.file-checkpoints-callout')).toContainText('Restoring files isn’t set up');
  }
 });
 test('stress names, light theme and 150% zoom preserve actions and immediate motion',async({page})=>{
@@ -87,7 +87,7 @@ test('frozen detail supplies all 100 paths before review, without summary paths'
  const calls=await page.evaluate(()=>(window as unknown as {checkpointCalls:{kind:string;paths?:string[]}[]}).checkpointCalls);
  expect(calls.map(call=>call.kind)).toEqual(['list','detail','review']);
  expect(calls[2].paths).toHaveLength(100);expect(calls[2].paths?.at(-1)).toBe('src/file-99.ts');
- await expect(page.getByRole('button',{name:'Restore selected files'})).toBeDisabled();
+ await expect(page.locator('.file-checkpoints-callout')).toContainText('Restoring files isn’t set up');
 });
 test('leading-space paths reach the review adapter unchanged',async({page})=>{
  await page.goto('/file-checkpoints?state=leading-space');await page.getByRole('button',{name:'Review Before updating workspace layout',exact:true}).click();
@@ -110,7 +110,7 @@ test('root binding and unified diff truncation stay visible without inventing a 
   await expect(page.locator('.unified-diff').first()).toContainText('@@ -1 +1 @@');await expect(page.getByRole('region',{name:'Checkpoint review'}).locator('.workspace-diff-pair')).toHaveCount(0);
   if(state==='truncated')await expect(page.getByText('Diff truncated. Only part of this comparison is shown.').first()).toBeVisible();
   if(state==='truncated')await page.screenshot({path:testInfo.outputPath('5-review-truncated-1440.png'),fullPage:true});
-  await expect(page.getByRole('region',{name:'Checkpoint review'})).toContainText('layout-edit');
+  await expect(page.getByRole('region',{name:'Checkpoint review'}).locator('.file-checkpoints-meta')).toHaveAttribute('title',/layout-edit/);
  }
 });
 test('leaving during detail loading cancels the review request',async({page})=>{
@@ -137,8 +137,8 @@ test('QA r2: long checkpoint requests remain bounded and every part keeps its id
  expect(calls.length).toBeGreaterThan(1);expect(calls.flatMap(call=>call.paths??[])).toHaveLength(100);
  for(const call of calls)expect(new TextEncoder().encode(JSON.stringify({threadId:call.owner.threadId,paths:call.paths})).byteLength).toBeLessThanOrEqual(32*1024);
  const parts=page.getByRole('region',{name:/Review part/});await expect(parts).toHaveCount(calls.length);
- for(let i=0;i<calls.length;i++)await expect(parts.nth(i)).toContainText(`review-layout-${i+1}`);
- await expect(page.getByRole('button',{name:'Restore selected files'})).toBeDisabled();
+ for(let i=0;i<calls.length;i++)await expect(parts.nth(i)).toHaveAttribute('data-review-id',`review-layout-${i+1}`);
+ await expect(page.locator('.file-checkpoints-callout')).toContainText('Restoring files isn’t set up');
  await testInfo.attach('bounded-review-requests',{body:JSON.stringify(calls.map(call=>({paths:call.paths,utf8Bytes:new TextEncoder().encode(JSON.stringify({threadId:call.owner.threadId,paths:call.paths})).byteLength})),null,2),contentType:'application/json'});
  await page.screenshot({path:testInfo.outputPath('5-review-batched-1440.png'),fullPage:false});
 });
@@ -155,5 +155,5 @@ test('QA #130 displays escaped control paths and reviews their exact original by
  const summaries=page.getByRole('region',{name:'Checkpoint review'}).locator('.workspace-diff summary');await expect(summaries).toHaveCount(2);
  await expect(summaries.nth(0)).toHaveText('src/notes\\t2026.txt');await expect(summaries.nth(1)).toHaveText('src/notes\\n2026.txt');
  const paths=await page.evaluate(()=>(window as unknown as {checkpointCalls:{kind:string;paths?:string[]}[]}).checkpointCalls.find(call=>call.kind==='review')?.paths);
- expect(paths).toEqual(['src/notes\t2026.txt','src/notes\n2026.txt']);await expect(page.getByRole('button',{name:'Restore selected files'})).toBeDisabled();await page.screenshot({path:testInfo.outputPath('control-paths.png'),fullPage:true});
+ expect(paths).toEqual(['src/notes\t2026.txt','src/notes\n2026.txt']);await expect(page.locator('.file-checkpoints-callout')).toContainText('Restoring files isn’t set up');await page.screenshot({path:testInfo.outputPath('control-paths.png'),fullPage:true});
 });

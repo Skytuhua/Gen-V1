@@ -13,29 +13,32 @@ const review=async(page:import('@playwright/test').Page,mode='working')=>{
 
 test('plan shows confirmation with planned paths; cancel resets; confirm applies',async({page})=>{
  await review(page);
- const button=page.getByRole('button',{name:'Restore selected files',exact:true});
- await expect(button).toBeDisabled();
- await page.getByRole('checkbox',{name:'notes.txt',exact:true}).check();
- await page.getByRole('checkbox',{name:'docs/info.md',exact:true}).check();
+ await expect(page.getByRole('button',{name:'Restore selected files',exact:true})).toBeDisabled();
+ const button=page.locator('.file-checkpoints-footer .file-checkpoints-primary');
+ await page.getByRole('checkbox',{name:'Restore notes.txt',exact:true}).check();
+ await page.getByRole('checkbox',{name:'Restore docs/info.md',exact:true}).check();
  await expect(button).toBeEnabled();
+ await expect(button).toHaveText('Restore 2 files…');
  await button.click();
  const confirm=page.getByRole('region',{name:'Confirm file restore'});
  await expect(confirm).toBeVisible();
- await expect(confirm).toContainText('Restore 2 files from this checkpoint?');
+ await expect(confirm).toContainText('Restore 2 files?');
  await expect(confirm.locator('li',{hasText:'notes.txt'})).toBeVisible();
  await expect(confirm.locator('li',{hasText:'docs/info.md'})).toBeVisible();
+ await expect(confirm.getByRole('button',{name:'Restore 2 files',exact:true})).toBeFocused();
+ await expect(page.getByRole('checkbox',{name:'Restore notes.txt',exact:true})).toBeDisabled();
  await expect(page.locator('.__restoreCalls')).toHaveCount(0);
  expect(await page.evaluate(()=>(window as any).__restoreCalls.map((c:{kind:string})=>c.kind))).toEqual(['plan']);
  // Cancel resets back to the review with selection kept.
  await confirm.getByRole('button',{name:'Cancel',exact:true}).click();
  await expect(page.getByRole('region',{name:'Confirm file restore'})).toHaveCount(0);
- await expect(page.getByRole('button',{name:'Restore selected files',exact:true})).toBeEnabled();
+ await expect(button).toBeEnabled();
  // Confirm applies and shows the APPLIED result.
- await page.getByRole('button',{name:'Restore selected files',exact:true}).click();
- await page.getByRole('button',{name:'Confirm restore',exact:true}).click();
- await expect(page.getByRole('heading',{name:'Restore complete',exact:true})).toBeVisible();
- await expect(page.getByRole('region',{name:'Checkpoint restore result'})).toContainText('All selected files were restored.');
- await expect(page.locator('.file-checkpoints-list',{hasText:'Restored.'}).locator('li')).toHaveCount(2);
+ await button.click();
+ await page.getByRole('button',{name:'Restore 2 files',exact:true}).click();
+ await expect(page.getByRole('heading',{name:'Restored 2 files',exact:true})).toBeVisible();
+ await expect(page.getByRole('region',{name:'Checkpoint restore result'})).toContainText('saved as a new checkpoint in History');
+ await expect(page.locator('.file-checkpoints-outcomes li[data-outcome="restored"]')).toHaveCount(2);
  const calls=await page.evaluate(()=>(window as any).__restoreCalls);
  expect(calls.map((c:{kind:string})=>c.kind)).toEqual(['plan','plan','apply']);
  expect(calls[2].planId).toBe('rst-fixture-1');
@@ -44,21 +47,23 @@ test('plan shows confirmation with planned paths; cancel resets; confirm applies
 
 test('conflict apply result names the skipped files',async({page})=>{
  await review(page,'conflict');
- await page.getByRole('checkbox',{name:'notes.txt',exact:true}).check();
- await page.getByRole('checkbox',{name:'docs/info.md',exact:true}).check();
- await page.getByRole('button',{name:'Restore selected files',exact:true}).click();
- await page.getByRole('button',{name:'Confirm restore',exact:true}).click();
- await expect(page.getByRole('heading',{name:'Restore result',exact:true})).toBeVisible();
+ await page.getByRole('checkbox',{name:'Restore notes.txt',exact:true}).check();
+ await page.getByRole('checkbox',{name:'Restore docs/info.md',exact:true}).check();
+ await page.locator('.file-checkpoints-footer .file-checkpoints-primary').click();
+ await page.getByRole('button',{name:'Restore 2 files',exact:true}).click();
+ await expect(page.getByRole('heading',{name:'Nothing was restored',exact:true})).toBeVisible();
  const result=page.getByRole('region',{name:'Checkpoint restore result'});
- await expect(result).toContainText('Some files were not restored.');
+ await expect(result).toContainText('Some files changed after you opened this review');
  // A CONFLICT result rolls every written path back — nothing was restored.
  await expect(result.locator('li',{hasText:'docs/info.md'})).toHaveCount(0);
- await expect(result.locator('li',{hasText:'notes.txt'})).toContainText('Not restored — the file changed after this review.');
+ await expect(result.locator('li',{hasText:'notes.txt'})).toContainText('Changed since review');
+ await result.getByRole('button',{name:'Review again',exact:true}).click();
+ await expect(page.getByRole('region',{name:'Checkpoint review'})).toBeVisible();
 });
 
 test('disabled restore adapter shows its reason and no file checkboxes',async({page})=>{
  await review(page,'disabled');
- await expect(page.getByRole('button',{name:'Restore selected files',exact:true})).toBeDisabled();
- await expect(page.getByText('Restore is unavailable until checkpoint recovery is connected',{exact:false})).toBeVisible();
- await expect(page.getByText('Files to restore')).toHaveCount(0);
+ await expect(page.locator('.file-checkpoints-callout')).toContainText('Restoring files isn’t set up for this workspace.');
+ await expect(page.getByRole('button',{name:/^Restore/})).toHaveCount(0);
+ await expect(page.getByRole('checkbox')).toHaveCount(0);
 });

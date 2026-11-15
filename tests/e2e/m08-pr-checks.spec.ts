@@ -24,12 +24,15 @@ for(const [label,checks] of Object.entries(rollups))test(`pull-request panel ren
  await panel.getByRole('button',{name:'#12 PR 12',exact:true}).click();
  const prChecks=panel.locator('.pr-checks');
  await expect(prChecks).toBeVisible();
- await expect(prChecks).toContainText('Checks for commit bbbbbbbbbb');
- await expect(prChecks).toContainText('stale: working copy moved to aaaaaaaaaa');
- if(label==='empty'){await expect(prChecks).toContainText('No checks reported for the tested head.');await expect(prChecks.locator('.pr-check-list li')).toHaveCount(0);}
+ await expect(prChecks.locator('.pr-checks-stale')).toContainText('These results are for commit bbbbbbb');
+ await expect(prChecks.locator('.pr-checks-stale')).toContainText('Your working copy is on aaaaaaa');
+ await expect(panel.locator('.pr-review')).toContainText('Update your working copy to this pull request’s latest commit to submit a review.');
+ await expect(panel.getByRole('button',{name:'Use latest commit'})).toHaveCount(0);
+ if(label==='empty'){await expect(prChecks).toContainText('No checks have reported for this commit yet.');await expect(prChecks.locator('.pr-check-list li')).toHaveCount(0);}
  else{
   const items=prChecks.locator('.pr-check-list li');
   await expect(items).toHaveCount(5);
+  await expect(prChecks.locator('.pr-checks-head small')).toHaveText('1 failed · 1 running · 1 passed · 2 skipped');
   await expect(items.nth(0)).toHaveAttribute('data-state','pass');
   await expect(items.nth(0)).toContainText('build');
   await expect(items.nth(0).locator('small')).toHaveText('Passed');
