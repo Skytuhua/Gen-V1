@@ -1,0 +1,372 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm@10.30.3",
+    "exec",
+    "vitest",
+    "run",
+    "tests/tool-program-diagnostics-v3.test.ts",
+    "--maxWorkers=2"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T11:05:32.257637+00:00",
+  "endedAt": "2026-11-15T11:05:35.535426+00:00",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+ ❯ tests/tool-program-diagnostics-v3.test.ts (11 tests | 11 failed) 1396ms
+     × identifies a changed private program source without disclosing its text 181ms
+     × identifies a changed executor runtime fingerprint 103ms
+     × identifies a changed host tool registry after explicit redisclosure 104ms
+     × identifies a retained journal 'program identity' mismatch 97ms
+     × identifies a retained journal 'source digest' mismatch 79ms
+     × identifies a retained journal 'runtime fingerprint' mismatch 107ms
+     × identifies a retained journal 'tool registry digest' mismatch 75ms
+     × identifies a retained journal 'start clock' mismatch 117ms
+     × identifies a retained journal 'deadline budget' mismatch 127ms
+     × identifies a changed absolute program deadline without renewing its budget 127ms
+     × retains failed private source details while reporting only the incompatible field 108ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 11 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/tool-program-diagnostics-v3.test.ts > M12 exact replay incompatibility diagnostics > identifies a changed private program source without disclosing its text
+AssertionError: expected { …(6) } to match object { state: 'FAILED', …(3) }
+(5 matching properties omitted from actual)
+
+- Expected
++ Received
+
+@@ -1,9 +1,9 @@
+  {
+    "error": {
+      "code": "REPLAY_DIVERGED",
+-     "message": "Program source digest differs from the original execution",
++     "message": "Program source, runtime fingerprint or tool registry differs from the original execution",
+      "originalResultRef": "result_13ec1ae2ac6d26ef06993942ebe0ec93",
+    },
+    "resultRef": "result_13ec1ae2ac6d26ef06993942ebe0ec93",
+    "sourceRefs": [
+      "result_f465d4f09ab4b3f6f5e839451f3d8a45",
+
+ ❯ rejectsBeforeExecution tests/tool-program-diagnostics-v3.test.ts:60:18
+     58|   };
+     59|   const replay = await programs.run(program.programId, REPLAY_OWNER, m…
+     60|   expect(replay).toMatchObject({
+       |                  ^
+     61|     state: 'FAILED', resultRef: result.resultRef, sourceRefs: result.s…
+     62|     error: { code: 'REPLAY_DIVERGED', message, originalResultRef: resu…
+ ❯ tests/tool-program-diagnostics-v3.test.ts:86:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/11]⎯
+
+ FAIL  tests/tool-program-diagnostics-v3.test.ts > M12 exact replay incompatibility diagnostics > identifies a changed executor runtime fingerprint
+AssertionError: expected { …(6) } to match object { state: 'FAILED', …(3) }
+(5 matching properties omitted from actual)
+
+- Expected
++ Received
+
+@@ -1,9 +1,9 @@
+  {
+    "error": {
+      "code": "REPLAY_DIVERGED",
+-     "message": "Program runtime fingerprint differs from the original execution",
++     "message": "Program source, runtime fingerprint or tool registry differs from the original execution",
+      "originalResultRef": "result_8957f04debb00b4a9a5d4a6595e6ee7e",
+    },
+    "resultRef": "result_8957f04debb00b4a9a5d4a6595e6ee7e",
+    "sourceRefs": [
+      "result_733448e8ba33bf0c5addab360d4766c6",
+
+ ❯ rejectsBeforeExecution tests/tool-program-diagnostics-v3.test.ts:60:18
+     58|   };
+     59|   const replay = await programs.run(program.programId, REPLAY_OWNER, m…
+     60|   expect(replay).toMatchObject({
+       |                  ^
+     61|     state: 'FAILED', resultRef: result.resultRef, sourceRefs: result.s…
+     62|     error: { code: 'REPLAY_DIVERGED', message, originalResultRef: resu…
+ ❯ tests/tool-program-diagnostics-v3.test.ts:95:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/11]⎯
+
+ FAIL  tests/tool-program-diagnostics-v3.test.ts > M12 exact replay incompatibility diagnostics > identifies a changed host tool registry after explicit redisclosure
+AssertionError: expected { …(6) } to match object { state: 'FAILED', …(3) }
+(5 matching properties omitted from actual)
+
+- Expected
++ Received
+
+@@ -1,9 +1,9 @@
+  {
+    "error": {
+      "code": "REPLAY_DIVERGED",
+-     "message": "Program tool registry digest differs from the original execution",
++     "message": "Program source, runtime fingerprint or tool registry differs from the original execution",
+      "originalResultRef": "result_d3af2545181c857fe92309104a8ad4f6",
+    },
+    "resultRef": "result_d3af2545181c857fe92309104a8ad4f6",
+    "sourceRefs": [
+      "result_bd4950b0e2edbbcb63f4994089691edf",
+
+ ❯ rejectsBeforeExecution tests/tool-program-diagnostics-v3.test.ts:60:18
+     58|   };
+     59|   const replay = await programs.run(program.programId, REPLAY_OWNER, m…
+     60|   expect(replay).toMatchObject({
+       |                  ^
+     61|     state: 'FAILED', resultRef: result.resultRef, sourceRefs: result.s…
+     62|     error: { code: 'REPLAY_DIVERGED', message, originalResultRef: resu…
+ ❯ tests/tool-program-diagnostics-v3.test.ts:108:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/11]⎯
+
+ FAIL  tests/tool-program-diagnostics-v3.test.ts > M12 exact replay incompatibility diagnostics > identifies a retained journal 'program identity' mismatch
+AssertionError: expected { …(6) } to match object { state: 'FAILED', …(3) }
+(5 matching properties omitted from actual)
+
+- Expected
++ Received
+
+@@ -1,9 +1,9 @@
+  {
+    "error": {
+      "code": "REPLAY_DIVERGED",
+-     "message": "Retained journal program identity differs from the program",
++     "message": "Journal identity, source, runtime, registry or original deadline is incompatible",
+      "originalResultRef": "result_9ee0b764efdffd26470331514268a923",
+    },
+    "resultRef": "result_9ee0b764efdffd26470331514268a923",
+    "sourceRefs": [
+      "result_801a630fc8c6af8d42a06c189e99740b",
+
+ ❯ rejectsBeforeExecution tests/tool-program-diagnostics-v3.test.ts:60:18
+     58|   };
+     59|   const replay = await programs.run(program.programId, REPLAY_OWNER, m…
+     60|   expect(replay).toMatchObject({
+       |                  ^
+     61|     state: 'FAILED', resultRef: result.resultRef, sourceRefs: result.s…
+     62|     error: { code: 'REPLAY_DIVERGED', message, originalResultRef: resu…
+ ❯ tests/tool-program-diagnostics-v3.test.ts:128:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/11]⎯
+
+ FAIL  tests/tool-program-diagnostics-v3.test.ts > M12 exact replay incompatibility diagnostics > identifies a retained journal 'source digest' mismatch
+AssertionError: expected { …(6) } to match object { state: 'FAILED', …(3) }
+(5 matching properties omitted from actual)
+
+- Expected
++ Received
+
+@@ -1,9 +1,9 @@
+  {
+    "error": {
+      "code": "REPLAY_DIVERGED",
+-     "message": "Retained journal source digest differs from the program",
++     "message": "Journal identity, source, runtime, registry or original deadline is incompatible",
+      "originalResultRef": "result_125495b9c1e6c5eb2be62ad646c91106",
+    },
+    "resultRef": "result_125495b9c1e6c5eb2be62ad646c91106",
+    "sourceRefs": [
+      "result_016d585400ea5ad2cd60156a0a0a9e00",
+
+ ❯ rejectsBeforeExecution tests/tool-program-diagnostics-v3.test.ts:60:18
+     58|   };
+     59|   const replay = await programs.run(program.programId, REPLAY_OWNER, m…
+     60|   expect(replay).toMatchObject({
+       |                  ^
+     61|     state: 'FAILED', resultRef: result.resultRef, sourceRefs: result.s…
+     62|     error: { code: 'REPLAY_DIVERGED', message, originalResultRef: resu…
+ ❯ tests/tool-program-diagnostics-v3.test.ts:128:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/11]⎯
+
+ FAIL  tests/tool-program-diagnostics-v3.test.ts > M12 exact replay incompatibility diagnostics > identifies a retained journal 'runtime fingerprint' mismatch
+AssertionError: expected { …(6) } to match object { state: 'FAILED', …(3) }
+(5 matching properties omitted from actual)
+
+- Expected
++ Received
+
+@@ -1,9 +1,9 @@
+  {
+    "error": {
+      "code": "REPLAY_DIVERGED",
+-     "message": "Retained journal runtime fingerprint differs from the program",
++     "message": "Journal identity, source, runtime, registry or original deadline is incompatible",
+      "originalResultRef": "result_0f39bb345fa7c261f09e4b88dee7ca6e",
+    },
+    "resultRef": "result_0f39bb345fa7c261f09e4b88dee7ca6e",
+    "sourceRefs": [
+      "result_201f051ba2f3736d95a9b24a979655f3",
+
+ ❯ rejectsBeforeExecution tests/tool-program-diagnostics-v3.test.ts:60:18
+     58|   };
+     59|   const replay = await programs.run(program.programId, REPLAY_OWNER, m…
+     60|   expect(replay).toMatchObject({
+       |                  ^
+     61|     state: 'FAILED', resultRef: result.resultRef, sourceRefs: result.s…
+     62|     error: { code: 'REPLAY_DIVERGED', message, originalResultRef: resu…
+ ❯ tests/tool-program-diagnostics-v3.test.ts:128:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/11]⎯
+
+ FAIL  tests/tool-program-diagnostics-v3.test.ts > M12 exact replay incompatibility diagnostics > identifies a retained journal 'tool registry digest' mismatch
+AssertionError: expected { …(6) } to match object { state: 'FAILED', …(3) }
+(5 matching properties omitted from actual)
+
+- Expected
++ Received
+
+@@ -1,9 +1,9 @@
+  {
+    "error": {
+      "code": "REPLAY_DIVERGED",
+-     "message": "Retained journal tool registry digest differs from the program",
++     "message": "Journal identity, source, runtime, registry or original deadline is incompatible",
+      "originalResultRef": "result_24b2554fb2b198e37975fb18399a5eb7",
+    },
+    "resultRef": "result_24b2554fb2b198e37975fb18399a5eb7",
+    "sourceRefs": [
+      "result_e4caa5fb3a69440d581ec32f85be70b1",
+
+ ❯ rejectsBeforeExecution tests/tool-program-diagnostics-v3.test.ts:60:18
+     58|   };
+     59|   const replay = await programs.run(program.programId, REPLAY_OWNER, m…
+     60|   expect(replay).toMatchObject({
+       |                  ^
+     61|     state: 'FAILED', resultRef: result.resultRef, sourceRefs: result.s…
+     62|     error: { code: 'REPLAY_DIVERGED', message, originalResultRef: resu…
+ ❯ tests/tool-program-diagnostics-v3.test.ts:128:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/11]⎯
+
+ FAIL  tests/tool-program-diagnostics-v3.test.ts > M12 exact replay incompatibility diagnostics > identifies a retained journal 'start clock' mismatch
+AssertionError: expected { …(6) } to match object { state: 'FAILED', …(3) }
+(5 matching properties omitted from actual)
+
+- Expected
++ Received
+
+@@ -1,9 +1,9 @@
+  {
+    "error": {
+      "code": "REPLAY_DIVERGED",
+-     "message": "Retained journal start clock differs from the original program start",
++     "message": "Journal identity, source, runtime, registry or original deadline is incompatible",
+      "originalResultRef": "result_8141c70254822995c69828e8f348a290",
+    },
+    "resultRef": "result_8141c70254822995c69828e8f348a290",
+    "sourceRefs": [
+      "result_2b7e31ff11c6168c77124b0eaf86a6d1",
+
+ ❯ rejectsBeforeExecution tests/tool-program-diagnostics-v3.test.ts:60:18
+     58|   };
+     59|   const replay = await programs.run(program.programId, REPLAY_OWNER, m…
+     60|   expect(replay).toMatchObject({
+       |                  ^
+     61|     state: 'FAILED', resultRef: result.resultRef, sourceRefs: result.s…
+     62|     error: { code: 'REPLAY_DIVERGED', message, originalResultRef: resu…
+ ❯ tests/tool-program-diagnostics-v3.test.ts:128:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/11]⎯
+
+ FAIL  tests/tool-program-diagnostics-v3.test.ts > M12 exact replay incompatibility diagnostics > identifies a retained journal 'deadline budget' mismatch
+AssertionError: expected { …(6) } to match object { state: 'FAILED', …(3) }
+(5 matching properties omitted from actual)
+
+- Expected
++ Received
+
+@@ -1,9 +1,9 @@
+  {
+    "error": {
+      "code": "REPLAY_DIVERGED",
+-     "message": "Retained journal deadline differs from its start clock and original deadline limit",
++     "message": "Journal identity, source, runtime, registry or original deadline is incompatible",
+      "originalResultRef": "result_7d3d05f3f2135b2ee4414d3de04cd9eb",
+    },
+    "resultRef": "result_7d3d05f3f2135b2ee4414d3de04cd9eb",
+    "sourceRefs": [
+      "result_246258a39f4ebc49fc5d016e45526977",
+
+ ❯ rejectsBeforeExecution tests/tool-program-diagnostics-v3.test.ts:60:18
+     58|   };
+     59|   const replay = await programs.run(program.programId, REPLAY_OWNER, m…
+     60|   expect(replay).toMatchObject({
+       |                  ^
+     61|     state: 'FAILED', resultRef: result.resultRef, sourceRefs: result.s…
+     62|     error: { code: 'REPLAY_DIVERGED', message, originalResultRef: resu…
+ ❯ tests/tool-program-diagnostics-v3.test.ts:128:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/11]⎯
+
+ FAIL  tests/tool-program-diagnostics-v3.test.ts > M12 exact replay incompatibility diagnostics > identifies a changed absolute program deadline without renewing its budget
+AssertionError: expected { …(6) } to match object { state: 'FAILED', …(3) }
+(5 matching properties omitted from actual)
+
+- Expected
++ Received
+
+@@ -1,9 +1,9 @@
+  {
+    "error": {
+      "code": "REPLAY_DIVERGED",
+-     "message": "Retained journal deadline differs from the original program deadline",
++     "message": "Journal identity, source, runtime, registry or original deadline is incompatible",
+      "originalResultRef": "result_d829fe2b4d0005e035325a936e4056f1",
+    },
+    "resultRef": "result_d829fe2b4d0005e035325a936e4056f1",
+    "sourceRefs": [
+      "result_5f4abc1efa48a005c07b774c9139ede9",
+
+ ❯ rejectsBeforeExecution tests/tool-program-diagnostics-v3.test.ts:60:18
+     58|   };
+     59|   const replay = await programs.run(program.programId, REPLAY_OWNER, m…
+     60|   expect(replay).toMatchObject({
+       |                  ^
+     61|     state: 'FAILED', resultRef: result.resultRef, sourceRefs: result.s…
+     62|     error: { code: 'REPLAY_DIVERGED', message, originalResultRef: resu…
+ ❯ tests/tool-program-diagnostics-v3.test.ts:136:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/11]⎯
+
+ FAIL  tests/tool-program-diagnostics-v3.test.ts > M12 exact replay incompatibility diagnostics > retains failed private source details while reporting only the incompatible field
+AssertionError: expected { …(6) } to match object { state: 'FAILED', …(3) }
+(5 matching properties omitted from actual)
+
+- Expected
++ Received
+
+@@ -1,9 +1,9 @@
+  {
+    "error": {
+      "code": "REPLAY_DIVERGED",
+-     "message": "Retained journal runtime fingerprint differs from the program",
++     "message": "Journal identity, source, runtime, registry or original deadline is incompatible",
+      "originalResultRef": null,
+    },
+    "resultRef": null,
+    "sourceRefs": [
+      "result_114e27806c979d07f3779107859dfb89",
+
+ ❯ rejectsBeforeExecution tests/tool-program-diagnostics-v3.test.ts:60:18
+     58|   };
+     59|   const replay = await programs.run(program.programId, REPLAY_OWNER, m…
+     60|   expect(replay).toMatchObject({
+       |                  ^
+     61|     state: 'FAILED', resultRef: result.resultRef, sourceRefs: result.s…
+     62|     error: { code: 'REPLAY_DIVERGED', message, originalResultRef: resu…
+ ❯ tests/tool-program-diagnostics-v3.test.ts:148:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/11]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  11 failed (11)
+   Start at  19:05:32
+   Duration  2.48s (transform 569ms, setup 0ms, import 891ms, tests 1.40s, environment 0ms)
+

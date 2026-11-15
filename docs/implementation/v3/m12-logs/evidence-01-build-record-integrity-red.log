@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "python3",
+    "docs/implementation/v3/M12-build-evidence.py"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T12:14:15.801445+00:00",
+  "endedAt": "2026-11-15T12:14:15.834029+00:00",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": false
+}
+
+Traceback (most recent call last):
+  File "/workspace/scratch/dbebe44a9817/m12-v3/docs/implementation/v3/M12-build-evidence.py", line 28, in <module>
+    assert sha(path)==record['logDigest'],name
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: core-01-prerequisite-tests

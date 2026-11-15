@@ -1,0 +1,343 @@
+{
+  "argv": [
+    "git",
+    "-c",
+    "core.whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol",
+    "diff",
+    "--cached",
+    "--check"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T12:25:03.836624+00:00",
+  "endedAt": "2026-11-15T12:25:03.873655+00:00",
+  "exitCode": 2,
+  "termination": "NONE",
+  "truncated": true
+}
+
+docs/implementation/v3/m12-artifacts/javascript-backend-attempt-1.txt:36: new blank line at EOF.
+docs/implementation/v3/m12-artifacts/javascript-backend-attempt-2.txt:9: new blank line at EOF.
+docs/implementation/v3/m12-artifacts/javascript-backend-red.txt:249: new blank line at EOF.
+docs/implementation/v3/m12-logs/authority-01-red.log:120: new blank line at EOF.
+docs/implementation/v3/m12-logs/authority-02-green.log:30: new blank line at EOF.
+docs/implementation/v3/m12-logs/baseline-02-build-widgets.log:18: new blank line at EOF.
+docs/implementation/v3/m12-logs/benchmark-03-red.log:44: new blank line at EOF.
+docs/implementation/v3/m12-logs/benchmark-04-green.log:26: new blank line at EOF.
+docs/implementation/v3/m12-logs/benchmark-05-unit-launch.log:18: new blank line at EOF.
+docs/implementation/v3/m12-logs/benchmark-07-bytes-only-record.log:512: new blank line at EOF.
+docs/implementation/v3/m12-logs/benchmark-08-token-red.log:47: new blank line at EOF.
+docs/implementation/v3/m12-logs/benchmark-09-cursor-red.log:50: new blank line at EOF.
+docs/implementation/v3/m12-logs/benchmark-10-token-cursor-green.log:26: new blank line at EOF.
+docs/implementation/v3/m12-logs/benchmark-11-host-envelope.log:26: new blank line at EOF.
+docs/implementation/v3/m12-logs/comparison-02-base-browser.log:191: trailing whitespace.
++  31) tests/e2e/skills.spec.ts:631:1 › a conflicting skill edit survives refresh and reload until the user chooses a saved version 
+docs/implementation/v3/m12-logs/comparison-02-base-browser.log:224: trailing whitespace.
++  32) tests/e2e/skills.spec.ts:811:1 › unconfirmed learning cleanup stays visibly blocked and allows an explicit stop retry 
+docs/implementation/v3/m12-logs/comparison-02-base-browser.log:257: trailing whitespace.
++  33) tests/e2e/skills.spec.ts:845:1 › skill controls and editors fit desktop and narrow light and dark views 
+docs/implementation/v3/m12-logs/comparison-02-base-browser.log:310: trailing whitespace.
++    tests/e2e/document-window.spec.ts:374:46 › Plan summary and a docked handoff remain reachable together at 390px 
+docs/implementation/v3/m12-logs/comparison-02-base-browser.log:311: trailing whitespace.
++    tests/e2e/host-loop.spec.ts:46:1 › actual create/send, cookies/CSRF/SSE and structured host autosave survive reload 
+docs/implementation/v3/m12-logs/comparison-02-base-browser.log:312: trailing whitespace.
++    tests/e2e/host-loop.spec.ts:140:1 › durable decision validation and acceptance continue the same owning runtime once 
+docs/implementation/v3/m12-logs/comparison-02-base-browser.log:313: trailing whitespace.
++    tests/e2e/host-loop.spec.ts:252:1 › generated operation button requires native approval; restart restores without repeating effects 
+docs/implementation/v3/m12-logs/comparison-02-base-browser.log:314: trailing whitespace.
++    tests/e2e/host-loop.spec.ts:332:1 › stale structured action shows rejection and retains its local review UI 
+docs/implementation/v3/m12-logs/comparison-02-base-browser.log:315: trailing whitespace.
++    tests/e2e/host-loop.spec.ts:361:1 › generated app validates mount tickets, source/channel/current nonce/state; acknowledges checkpoint and preserves same iframe 
+docs/implementation/v3/m12-logs/comparison-02-base-browser.log:316: trailing whitespace.
++    tests/e2e/host-loop.spec.ts:612:1 › cross-site infinite-loop widget leaves Settings, Stop and host navigation responsive 
+docs/implementation/v3/m12-logs/comparison-02-base-browser.log:317: trailing whitespace.
++    tests/e2e/host-loop.spec.ts:708:1 › generated program startup failure preserves host controls and durable artifact state 
+docs/implementation/v3/m12-logs/comparison-02-base-browser.log:318: trailing whitespace.
++    tests/e2e/latency.spec.ts:5:1 › records local, committed-event and specification latency independently of inference 
+docs/implementation/v3/m12-logs/comparison-02-base-browser.log:319: trailing whitespace.
++    tests/e2e/plan-timeline.spec.ts:10:1 › does not keep a removed owner working after an authoritative snapshot drops its plan and thread 
+docs/implementation/v3/m12-logs/comparison-02-base-browser.log:320: trailing whitespace.
++    tests/e2e/plan-timeline.spec.ts:24:1 › all details are expanded and assigned branches nest and rejoin before the dependent step 
+docs/implementation/v3/m12-logs/comparison-02-base-browser.log:321: trailing whitespace.
++    tests/e2e/plan-timeline.spec.ts:44:1 › retains manual collapse, focus and reading position across ordered live updates and rejects stale revisions 
+docs/implementation/v3/m12-logs/comparison-02-base-browser.log:322: trailing whitespace.
++    tests/e2e/plan-timeline.spec.ts:64:1 › resets the snapshot fence on thread switch and retains the old plan during restart publication 
+docs/implementation/v3/m12-logs/comparison-02-base-browser.log:323: trailing whitespace.
++    tests/e2e/plan-timeline.spec.ts:92:1 › retains a valid plan when the latest canonical graph is malformed 
+docs/implementation/v3/m12-logs/comparison-02-base-browser.log:324: trailing whitespace.
++    tests/e2e/plan-timeline.spec.ts:105:1 › host replan preserves assignment, collapse and reading anchor when earlier details grow 
+docs/implementation/v3/m12-logs/comparison-02-base-browser.log:325: trailing whitespace.
++    tests/e2e/plan-timeline.spec.ts:138:1 › collapsed step identity survives returning from another thread and stale epochs never regress it 
+docs/implementation/v3/m12-logs/comparison-02-base-browser.log:326: trailing whitespace.
++    tests/e2e/plan-timeline.spec.ts:162:1 › deep nested agents and long output labels fit a 280px panel without hiding details 
+docs/implementation/v3/m12-logs/comparison-02-base-browser.log:327: trailing whitespace.
++    tests/e2e/plan-timeline.spec.ts:185:1 › manual collapse survives reopening the plan with the same exact thread and step identity 
+docs/implementation/v3/m12-logs/comparison-02-base-browser.log:336: trailing whitespace.
++    tests/e2e/skills.spec.ts:377:1 › retirement during a history read marks only that row and preserves a newer draft generation 
+docs/implementation/v3/m12-logs/comparison-02-base-browser.log:337: trailing whitespace.
++    tests/e2e/skills.spec.ts:420:1 › retirement after historical detail rejects restore once and preserves the newer recovery draft 
+docs/implementation/v3/m12-logs/comparison-02-base-browser.log:338: trailing whitespace.
++    tests/e2e/skills.spec.ts:467:1 › ordinary history transport failures stay retryable and do not retire source rows 
+docs/implementation/v3/m12-logs/comparison-02-base-browser.log:339: trailing whitespace.
++    tests/e2e/skills.spec.ts:502:1 › empty libraries and automatic review controls work with old snapshots 
+docs/implementation/v3/m12-logs/comparison-02-base-browser.log:340: trailing whitespace.
++    tests/e2e/skills.spec.ts:631:1 › a conflicting skill edit survives refresh and reload until the user chooses a saved version 
+docs/implementation/v3/m12-logs/comparison-02-base-browser.log:341: trailing whitespace.
++    tests/e2e/skills.spec.ts:811:1 › unconfirmed learning cleanup stays visibly blocked and allows an explicit stop retry 
+docs/implementation/v3/m12-logs/comparison-02-base-browser.log:342: trailing whitespace.
++    tests/e2e/skills.spec.ts:845:1 › skill controls and editors fit desktop and narrow light and dark views 
+docs/implementation/v3/m12-logs/diagnostics-01-red.log:372: new blank line at EOF.
+docs/implementation/v3/m12-logs/diagnostics-02-green.log:27: new blank line at EOF.
+docs/implementation/v3/m12-logs/final-01-protocol.log:25: new blank line at EOF.
+docs/implementation/v3/m12-logs/final-02-replay.log:25: new blank line at EOF.
+docs/implementation/v3/m12-logs/final-03-python-kernel.log:25: new blank line at EOF.
+docs/implementation/v3/m12-logs/final-04-core-contracts.log:42: new blank line at EOF.
+docs/implementation/v3/m12-logs/final-05-runtime-integration.log:36: new blank line at EOF.
+docs/implementation/v3/m12-logs/final-10-typecheck.log:19: new blank line at EOF.
+docs/implementation/v3/m12-logs/final-12-typecheck-after-review.log:19: new blank line at EOF.
+docs/implementation/v3/m12-logs/final-13-benchmark.log:26: new blank line at EOF.
+docs/implementation/v3/m12-logs/final-15-typecheck-after-browser-fixtures.log:18: new blank line at EOF.
+docs/implementation/v3/m12-logs/final-16-benchmark-after-browser-fixtures.log:26: new blank line at EOF.
+docs/implementation/v3/m12-logs/fixture-01-terminal-program-response-red.log:59: trailing whitespace.
++  1) tests/e2e/terminal-excerpts.spec.ts:309:1 › keyboard selection and action are immediate; remove releases geometry immediately 
+docs/implementation/v3/m12-logs/fixture-01-terminal-program-response-red.log:85: trailing whitespace.
++  2) tests/e2e/terminal-excerpts.spec.ts:435:1 › authenticated precommit rejection retains excerpts for review and a fresh Send 
+docs/implementation/v3/m12-logs/fixture-01-terminal-program-response-red.log:119: trailing whitespace.
++  3) tests/e2e/terminal-excerpts.spec.ts:454:1 › disabled program fixture metadata requires an exact known thread and a read request 
+docs/implementation/v3/m12-logs/fixture-01-terminal-program-response-red.log:160: trailing whitespace.
++    tests/e2e/terminal-excerpts.spec.ts:309:1 › keyboard selection and action are immediate; remove releases geometry immediately 
+docs/implementation/v3/m12-logs/fixture-01-terminal-program-response-red.log:161: trailing whitespace.
++    tests/e2e/terminal-excerpts.spec.ts:435:1 › authenticated precommit rejection retains excerpts for review and a fresh Send 
+docs/implementation/v3/m12-logs/fixture-01-terminal-program-response-red.log:162: trailing whitespace.
++    tests/e2e/terminal-excerpts.spec.ts:454:1 › disabled program fixture metadata requires an exact known thread and a read request 
+docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log:163: trailing whitespace.
++  1) tests/e2e/saved-drafts.spec.ts:317:1 › named save, reload, delete/cancel and empty state stay local 
+docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log:192: trailing whitespace.
++  2) tests/e2e/saved-drafts.spec.ts:353:1 › replace keeps recoverable text, insert respects caret and preserves selection, cancel preserves current input 
+docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log:208: trailing whitespace.
++  22) tests/e2e/saved-drafts.spec.ts:1160:58 › malformed inactive library does not block valid load or inactive expiry 
+docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log:233: trailing whitespace.
++  23) tests/e2e/saved-drafts.spec.ts:1160:58 › malformed inactive library does not block valid save or inactive expiry 
+docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log:258: trailing whitespace.
++  24) tests/e2e/saved-drafts.spec.ts:1160:58 › malformed inactive library does not block valid list or inactive expiry 
+docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log:283: trailing whitespace.
++  25) tests/e2e/saved-drafts.spec.ts:1160:58 › malformed inactive library does not block valid switch or inactive expiry 
+docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log:308: trailing whitespace.
++  26) tests/e2e/saved-drafts.spec.ts:1200:1 › malformed inactive library does not stop the global expiry deadline 
+docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log:334: trailing whitespace.
++    tests/e2e/saved-drafts.spec.ts:317:1 › named save, reload, delete/cancel and empty state stay local 
+docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log:335: trailing whitespace.
++    tests/e2e/saved-drafts.spec.ts:353:1 › replace keeps recoverable text, insert respects caret and preserves selection, cancel preserves current input 
+docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log:336: trailing whitespace.
++    tests/e2e/saved-drafts.spec.ts:395:1 › stale restore is rejected atomically after a concurrent window edit 
+docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log:337: trailing whitespace.
++    tests/e2e/saved-drafts.spec.ts:425:1 › rich records list missing/revoked references but restore text only, preserving current excerpts 
+docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log:338: trailing whitespace.
++    tests/e2e/saved-drafts.spec.ts:456:1 › account/profile/thread/project/working-copy libraries remain isolated 
+docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log:339: trailing whitespace.
++    tests/e2e/saved-drafts.spec.ts:476:1 › quota failure and corrupt records keep the active draft and offer retry 
+docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log:340: trailing whitespace.
++    tests/e2e/saved-drafts.spec.ts:518:1 › keyboard/IME does not save or send a composing name; focus returns to the trigger 
+docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log:341: trailing whitespace.
++    tests/e2e/saved-drafts.spec.ts:554:1 › approved list captures and stress names remain usable at 1440/1024/768 with reduced motion 
+docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log:342: trailing whitespace.
++    tests/e2e/saved-drafts.spec.ts:599:55 › empty-composer quota restore failure shows a keyboard-reachable alert and preserves drafts 
+docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log:343: trailing whitespace.
++    tests/e2e/saved-drafts.spec.ts:599:55 › empty-composer abort restore failure shows a keyboard-reachable alert and preserves drafts 
+docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log:344: trailing whitespace.
++    tests/e2e/saved-drafts.spec.ts:599:55 › empty-composer conflict restore failure shows a keyboard-reachable alert and preserves drafts 
+docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log:345: trailing whitespace.
++    tests/e2e/saved-drafts.spec.ts:685:42 › new excerpt-only saves remain reviewable after the original selection is gone 
+docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log:346: trailing whitespace.
++    tests/e2e/saved-drafts.spec.ts:685:42 › new skill-only saves remain reviewable after the original selection is gone 
+docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log:347: trailing whitespace.
++    tests/e2e/saved-drafts.spec.ts:773:1 › legacy reference-only records expose IDs and keyboard-copyable excerpt text without restoring authority 
+docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log:348: trailing whitespace.
++    tests/e2e/saved-drafts.spec.ts:872:1 › approved thread capacity blocks a new draft with an alert and keeps records in every working copy 
+docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log:349: trailing whitespace.
++    tests/e2e/saved-drafts.spec.ts:921:1 › idle expiry refreshes an open list and deletes only the expired saved record 
+docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log:350: trailing whitespace.
++    tests/e2e/saved-drafts.spec.ts:1033:50 › global retention evicts inactive threads and copies on load 
+docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log:351: trailing whitespace.
++    tests/e2e/saved-drafts.spec.ts:1033:50 › global retention evicts inactive threads and copies on list 
+docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log:352: trailing whitespace.
++    tests/e2e/saved-drafts.spec.ts:1033:50 › global retention evicts inactive threads and copies on switch 
+docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log:353: trailing whitespace.
++    tests/e2e/saved-drafts.spec.ts:1044:1 › empty active library schedules expiry for inactive threads and copies without reading their owner 
+docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log:354: trailing whitespace.
++    tests/e2e/saved-drafts.spec.ts:1063:1 › another window adding an inactive library reschedules the empty active library deadline 
+docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log:355: trailing whitespace.
++    tests/e2e/saved-drafts.spec.ts:1160:58 › malformed inactive library does not block valid load or inactive expiry 
+docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log:356: trailing whitespace.
++    tests/e2e/saved-drafts.spec.ts:1160:58 › malformed inactive library does not block valid save or inactive expiry 
+docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log:357: trailing whitintegration.spec.ts:403:1 › QA r1 actual App fences named libraries by thread account and working copy 
+docs/implementation/v3/m12-logs/fixture-06-redundant-ui.log:79: trailing whitespace.
++  1) tests/e2e/redundant-ui.spec.ts:170:1 › actual detached composer restores overview Changes until its owner docks again 
+docs/implementation/v3/m12-logs/fixture-06-redundant-ui.log:217: trailing whitespace.
++  5) tests/e2e/redundant-ui.spec.ts:420:54 › retains the overview route for unproven detached owners 
+docs/implementation/v3/m12-logs/fixture-06-redundant-ui.log:252: trailing whitespace.
++  6) tests/e2e/redundant-ui.spec.ts:508:1 › retained destinations surface actual loading/error/empty boundaries 
+docs/implementation/v3/m12-logs/fixture-06-redundant-ui.log:288: trailing whitespace.
++    tests/e2e/redundant-ui.spec.ts:170:1 › actual detached composer restores overview Changes until its owner docks again 
+docs/implementation/v3/m12-logs/fixture-06-redundant-ui.log:292: trailing whitespace.
++    tests/e2e/redundant-ui.spec.ts:420:54 › retains the overview route for unproven detached owners 
+docs/implementation/v3/m12-logs/fixture-06-redundant-ui.log:293: trailing whitespace.
++    tests/e2e/redundant-ui.spec.ts:508:1 › retained destinations surface actual loading/error/empty boundaries 
+docs/implementation/v3/m12-logs/hygiene-02-preserved-crlf.log:24: new blank line at EOF.
+docs/implementation/v3/m12-logs/hygiene-03-staged-source-whitespace.log:17: new blank line at EOF.
+docs/implementation/v3/m12-logs/input-budget-01-red.log:403: new blank line at EOF.
+docs/implementation/v3/m12-logs/input-budget-02-green.log:27: new blank line at EOF.
+docs/implementation/v3/m12-logs/input-budget-03-focused-regression.log:31: new blank line at EOF.
+docs/implementation/v3/m12-logs/integration-01-red.log:86: new blank line at EOF.
+docs/implementation/v3/m12-logs/integration-02-tests.log:29: new blank line at EOF.
+docs/implementation/v3/m12-logs/integration-03-typecheck.log:18: new blank line at EOF.
+docs/implementation/v3/m12-logs/kernel-01-red.log:42: new blank line at EOF.
+docs/implementation/v3/m12-logs/kernel-02-tests.log:57: new blank line at EOF.
+docs/implementation/v3/m12-logs/linux-read-01-red.log:94: new blank line at EOF.
+docs/implementation/v3/m12-logs/linux-read-02-boundary-red.log:217: new blank line at EOF.
+docs/implementation/v3/m12-logs/linux-read-03-green-attempt.log:63: new blank line at EOF.
+docs/implementation/v3/m12-logs/linux-read-04-identity-red.log:69: new blank line at EOF.
+docs/implementation/v3/m12-logs/linux-read-05-native-green.log:29: new blank line at EOF.
+docs/implementation/v3/m12-logs/linux-read-07-integration-green.log:169: new blank line at EOF.
+docs/implementation/v3/m12-logs/packaging-01-public-source-red.log:154: new blank line at EOF.
+docs/implementation/v3/m12-logs/packaging-02-public-source-green.log:25: new blank line at EOF.
+docs/implementation/v3/m12-logs/packaging-03-token-review-red.log:51: new blank line at EOF.
+docs/implementation/v3/m12-logs/packaging-04-public-source-final-green.log:25: new blank line at EOF.
+docs/implementation/v3/m12-logs/prereq-01-red.log:43: new blank line at EOF.
+docs/implementation/v3/m12-logs/prereq-02-tests.log:27: new blank line at EOF.
+docs/implementation/v3/m12-logs/prereq-04-edge-red.log:86: new blank line at EOF.
+docs/implementation/v3/m12-logs/prereq-05-edge-green.log:27: new blank line at EOF.
+docs/implementation/v3/m12-logs/program-host-01-red.log:42: new blank line at EOF.
+docs/implementation/v3/m12-logs/program-host-02-tests.log:139: new blank line at EOF.
+docs/implementation/v3/m12-logs/program-host-03-tests.log:29: new blank line at EOF.
+docs/implementation/v3/m12-logs/protocol-01-red.log:41: new blank line at EOF.
+docs/implementation/v3/m12-logs/protocol-02-green.log:26: new blank line at EOF.
+docs/implementation/v3/m12-logs/python-backend-01-red.log:41: new blank line at EOF.
+docs/implementation/v3/m12-logs/python-backend-02-green-attempt.log:25: new blank line at EOF.
+docs/implementation/v3/m12-logs/python-backend-04-boundary-red.log:66: new blank line at EOF.
+docs/implementation/v3/m12-logs/python-backend-05-boundary-green.log:25: new blank line at EOF.
+docs/implementation/v3/m12-logs/python-backend-09-reset-red.log:51: new blank line at EOF.
+docs/implementation/v3/m12-logs/python-backend-10-reset-green.log:25: new blank line at EOF.
+docs/implementation/v3/m12-logs/python-backend-11-completion-red.log:48: new blank line at EOF.
+docs/implementation/v3/m12-logs/python-backend-12-supervisor-attempt.log:50: new blank line at EOF.
+docs/implementation/v3/m12-logs/python-backend-13-supervisor-green-attempt.log:50: new blank line at EOF.
+docs/implementation/v3/m12-logs/python-backend-16-quiescence-green.log:27: new blank line at EOF.
+docs/implementation/v3/m12-logs/python-backend-26-preflight-red.log:77: new blank line at EOF.
+docs/implementation/v3/m12-logs/python-backend-27-preflight-green.log:27: new blank line at EOF.
+docs/implementation/v3/m12-logs/python-kernel-19-admission-red.log:259: new blank line at EOF.
+docs/implementation/v3/m12-logs/python-kernel-20-admission-green.log:25: new blank line at EOF.
+docs/implementation/v3/m12-logs/python-kernel-21-owner-races-red.log:92: new blank line at EOF.
+docs/implementation/v3/m12-logs/python-kernel-22-prepare-red.log:50: new blank line at EOF.
+docs/implementation/v3/m12-logs/python-kernel-23-owner-prepare-green.log:25: new blank line at EOF.
+docs/implementation/v3/m12-logs/python-kernel-24-failure-custody-red.log:53: new blank line at EOF.
+docs/implementation/v3/m12-logs/python-kernel-25-custody-green.log:25: new blank line at EOF.
+docs/implementation/v3/m12-logs/python-native-17-combined-green.log:26: new blank line at EOF.
+docs/implementation/v3/m12-logs/python-native-28-review-regression.log:27: new blank line at EOF.
+docs/implementation/v3/m12-logs/python-provider-01-red.log:41: new blank line at EOF.
+docs/implementation/v3/m12-logs/python-provider-02-green-attempt.log:72: new blank line at EOF.
+docs/implementation/v3/m12-logs/python-provider-03-nested-diagnostic.log:74: new blank line at EOF.
+docs/implementation/v3/m12-logs/python-provider-04-typecheck.log:14: new blank line at EOF.
+docs/implementation/v3/m12-logs/python-provider-05-revocation.log:27: new blank line at EOF.
+docs/implementation/v3/m12-logs/python-provider-06-typecheck-bounded.log:19: trailing whitespace.
++[5:0x200f2000]    28141 ms: Scavenge 1526.3 (1540.0) -> 1523.1 (1540.5) MB, pooled: 0 MB, 2.02 / 0.00 ms  (average mu = 0.245, current mu = 0.273) allocation failure; 
+docs/implementation/v3/m12-logs/python-provider-07-storage-red.log:69: new blank line at EOF.
+docs/implementation/v3/m12-logs/recovery-01-red.log:209: new blank line at EOF.
+docs/implementation/v3/m12-logs/recovery-02-green.log:27: new blank line at EOF.
+docs/implementation/v3/m12-logs/recovery-03-focused-regression.log:29: new blank line at EOF.
+docs/implementation/v3/m12-logs/replay-01-red.log:218: new blank line at EOF.
+docs/implementation/v3/m12-logs/replay-02-error-red.log:112: new blank line at EOF.
+docs/implementation/v3/m12-logs/replay-03-green-attempt.log:29: new blank line at EOF.
+docs/implementation/v3/m12-logs/replay-04-count-red.log:59: new blank line at EOF.
+docs/implementation/v3/m12-logs/replay-05-green.log:30: new blank line at EOF.
+docs/implementation/v3/m12-logs/replay-06-typecheck.log:18: new blank line at EOF.
+docs/implementation/v3/m12-logs/review-01-host-red.log:92: new blank line at EOF.
+docs/implementation/v3/m12-logs/review-02-host-green.log:29: new blank line at EOF.
+docs/implementation/v3/m12-logs/review-03-concurrency-red.log:23: new blank line at EOF.
+docs/implementation/v3/m12-logs/review-04-rollback-red.log:91: new blank line at EOF.
+docs/implementation/v3/m12-logs/review-05-rollback-green.log:29: new blank line at EOF.
+docs/implementation/v3/m12-logs/review-06-memory-scope-red.log:59: new blank line at EOF.
+docs/implementation/v3/m12-logs/review-07-memory-scope-green.log:27: new blank line at EOF.
+docs/implementation/v3/m12-logs/review-08-planning-read-red.log:76: new blank line at EOF.
+docs/implementation/v3/m12-logs/review-09-planning-read-green.log:27: new blank line at EOF.
+docs/implementation/v3/m12-logs/review-10-falsy-source-red.log:55: new blank line at EOF.
+docs/implementation/v3/m12-logs/review-11-falsy-source-green.log:27: new blank line at EOF.
+docs/implementation/v3/m12-logs/review-12-crash-gaps-red.log:102: new blank line at EOF.
+docs/implementation/v3/m12-logs/review-13-crash-gaps-green.log:26: new blank line at EOF.
+docs/implementation/v3/m12-logs/review-14-javascript-busy-red.log:52: new blank line at EOF.
+docs/implementation/v3/m12-logs/review-15-javascript-busy-green.log:26: new blank line at EOF.
+docs/implementation/v3/m12-logs/setup-03-native-pty.log:58: trailing whitespace.
++gyp info ok 
+docs/implementation/v3/m12-logs/transport-01-red.log:111: new blank line at EOF.
+docs/implementation/v3/m12-logs/transport-02-hermes-red.log:53: new blank line at EOF.
+docs/implementation/v3/m12-logs/transport-03-green.log:41: new blank line at EOF.
+docs/implementation/v3/m12-logs/transport-04-green.log:29: new blank line at EOF.
+docs/implementation/v3/m12-logs/ui-01-red.log:72: trailing whitespace.
++  1) tests/e2e/tool-programs.spec.ts:192:1 › shows program metadata and fixed call details before explicit bounded source inspection 
+docs/implementation/v3/m12-logs/ui-01-red.log:106: trailing whitespace.
++    tests/e2e/tool-programs.spec.ts:192:1 › shows program metadata and fixed call details before explicit bounded source inspection 
+docs/implementation/v3/m12-logs/ui-04-elapsed-red.log:35: trailing whitespace.
++  1) tests/e2e/tool-programs.spec.ts:441:1 › advances active elapsed time while waiting and freezes the host value after settlement 
+docs/implementation/v3/m12-logs/ui-04-elapsed-red.log:71: trailing whitespace.
++    tests/e2e/tool-programs.spec.ts:441:1 › advances active elapsed time while waiting and freezes the host value after settlement 
+docs/implementation/v3/m12-logs/ui-06-research-launch-before.log:46: new blank line at EOF.
+docs/implementation/v3/m12-logs/ui-08-research-launch-after.log:35: trailing whitespace.
++  1) tests/e2e/research-workspace.spec.ts:66:1 › late source text cannot return after blur and grant revocation 
+docs/implementation/v3/m12-logs/ui-08-research-launch-after.log:49: trailing whitespace.
++    tests/e2e/research-workspace.spec.ts:66:1 › late source text cannot return after blur and grant revocation 
+docs/implementation/v3/m12-logs/validation-01-full-test.log:372: trailing whitespace.
++Error: locator.evaluate: Target crashed 
+docs/implementation/v3/m12-logs/validation-02-browser.log:182: trailing whitespace.
++  14) tests/e2e/usage-context.spec.ts:362:40 › overflow keeps header fixed, rows scroll, short/narrow dark 
+docs/implementation/v3/m12-logs/validation-02-browser.log:195: trailing whitespace.
++  15) tests/e2e/usage-context.spec.ts:362:40 › overflow keeps header fixed, rows scroll, short/narrow light 
+docs/implementation/v3/m12-logs/validation-02-browser.log:208: trailing whitespace.
++  16) tests/e2e/usage-context.spec.ts:392:40 › context category overflow and details stay reachable in dark 
+docs/implementation/v3/m12-logs/validation-02-browser.log:221: trailing whitespace.
++  17) tests/e2e/usage-context.spec.ts:392:40 › context category overflow and details stay reachable in light 
+docs/implementation/v3/m12-logs/validation-02-browser.log:234: trailing whitespace.
++  18) tests/e2e/usage-context.spec.ts:427:1 › accepted transition uses reference timing; reduced motion suppresses travel and sweep 
+docs/implementation/v3/m12-logs/validation-02-browser.log:247: trailing whitespace.
++  19) tests/e2e/usage-context.spec.ts:455:1 › optional summary keeps whole-header disclosure and opens the same Usage through its independent body action 
+docs/implementation/v3/m12-logs/validation-02-browser.log:260: trailing whitespace.
++  20) tests/e2e/usage-context.spec.ts:479:1 › invalidating a receipt ends accepted motion immediately and after its timer deadline 
+docs/implementation/v3/m12-logs/validation-02-browser.log:274: trailing whitespace.
++    tests/e2e/usage-context.spec.ts:33:1 › a token decrease after a command acknowledgement is not a compaction receipt 
+docs/implementation/v3/m12-logs/validation-02-browser.log:275: trailing whitespace.
++    tests/e2e/usage-context.spec.ts:61:1 › a compaction error does not follow a different thread or session 
+docs/implementation/v3/m12-logs/validation-02-browser.log:276: trailing whitespace.
++    tests/e2e/usage-context.spec.ts:95:1 › a late failure from a prior session cannot update the newly selected context 
+docs/implementation/v3/m12-logs/validation-02-browser.log:277: trailing whitespace.
++    tests/e2e/usage-context.spec.ts:129:1 › context takes keyboard focus on reveal and protects IME Escape before restoring its trigger 
+docs/implementation/v3/m12-logs/validation-02-browser.log:278: trailing whitespace.
++    tests/e2e/usage-context.spec.ts:148:1 › first reveal in a short window clears native caption chrome and all viewport edges 
+docs/implementation/v3/m12-logs/validation-02-browser.log:279: trailing whitespace.
++    tests/e2e/usage-context.spec.ts:166:1 › Usage has separate Cost, Tokens and Limits with exact reported data and per-metric unknowns 
+docs/implementation/v3/m12-logs/validation-02-browser.log:280: trailing whitespace.
++    tests/e2e/usage-context.spec.ts:192:1 › accepted receipt needs exact ownership; measured freed count is optional and reset on restart 
+docs/implementation/v3/m12-logs/validation-02-browser.log:281: trailing whitespace.
++    tests/e2e/usage-context.spec.ts:211:1 › reported segments fit their capacity track without cumulative separator overflow 
+docs/implementation/v3/m12-logs/validation-02-browser.log:282: trailing whitespace.
++    tests/e2e/usage-context.spec.ts:224:1 › pending sweep is actual-pending only and stopped state is not accepted success 
+docs/implementation/v3/m12-logs/validation-02-browser.log:283: trailing whitespace.
++    tests/e2e/usage-context.spec.ts:242:1 › reported categories reveal token/share/subitems on focus after dwell; IME and nested Escape work 
+docs/implementation/v3/m12-logs/validation-02-browser.log:284: trailing whitespace.
++    tests/e2e/usage-context.spec.ts:276:1 › unknown and invalid category measurements never retain stale values 
+docs/implementation/v3/m12-logs/validation-02-browser.log:285: trailing whitespace.
++    tests/e2e/usage-context.spec.ts:291:1 › scope/provider filters remain in the owning modal and refresh preserves tab and selection 
+docs/implementation/v3/m12-logs/validation-02-browser.log:286: trailing whitespace.
++    tests/e2e/usage-context.spec.ts:339:1 › loading, empty, provider failure and refresh failure preserve honest per-metric state 
+docs/implementation/v3/m12-logs/validation-02-browser.log:287: trailing whitespace.
++    tests/e2e/usage-context.spec.ts:362:40 › overflow keeps header fixed, rows scroll, short/narrow dark 
+docs/implementation/v3/m12-logs/validation-02-browser.log:288: trailing whitespace.
++    tests/e2e/usage-context.spec.ts:362:40 › overflow keeps header fixed, rows scroll, short/narrow light 
+docs/implementation/v3/m12-logs/validation-02-browser.log:289: trailing whitespace.
++    tests/e2e/usage-context.spec.ts:392:40 › context category overflow and details stay reachable in dark 
+docs/implementation/v3/m12-logs/validation-02-browser.log:290: trailing whitespace.
++    tests/e2e/usage-context.spec.ts:392:40 › context category overflow and details stay reachable in light 
+docs/implementation/v3/m12-logs/validation-02-browser.log:291: trailing whitespace.
++    tests/e2e/usage-context.spec.ts:427:1 › accepted transition uses reference timing; reduced motion suppresses travel and sweep 
+docs/implementation/v3/m12-logs/validation-02-browser.log:292: trailing whitespace.
++    tests/e2e/usage-context.spec.ts:455:1 › optional summary keeps whole-header disclosure and opens the same Usage through its independent body action 
+docs/implementation/v3/m12-logs/validation-02-browser.log:293: trailing whitespace.
++    tests/e2e/usage-context.spec.ts:479:1 › invalidating a receipt ends accepted motion immediately and after its timer deadline 
+
+[Retained first and last 16 KiB; middle output omitted.]

@@ -1,0 +1,175 @@
+{
+  "node": "v24.22.1",
+  "rawWasmSha256": "d4c9375f2b1ca4dc95f72c8aa2982a7a9951ac8011490d79c6582df732b4bbd9",
+  "patchedWasmSha256": "999261f3476b8957ae27a1c03def9a25c32202a5f74ed77c4cfa0f68c17578bf",
+  "patchedBytes": 637407,
+  "results": [
+    {
+      "name": "128MiB memory maximum",
+      "value": {
+        "before": 1376256,
+        "previousPages": 21,
+        "after": 134217728,
+        "denied": true,
+        "reason": "WebAssembly.Memory.grow(): Maximum memory size exceeded"
+      },
+      "calls": [],
+      "ms": 43,
+      "terminationCode": 0
+    },
+    {
+      "name": "evaluation without EVAL intrinsic",
+      "value": {
+        "withoutEval": "eval is not supported"
+      },
+      "calls": [],
+      "ms": 52,
+      "terminationCode": 1
+    },
+    {
+      "name": "bridge immutable inputs results and zero ambient authority",
+      "value": {
+        "inputBlocked": true,
+        "resultBlocked": true,
+        "importDenied": true,
+        "value": {
+          "echo": {
+            "total": 6
+          },
+          "items": [
+            1,
+            2
+          ]
+        },
+        "env": [
+          [
+            "process",
+            "undefined"
+          ],
+          [
+            "require",
+            "undefined"
+          ],
+          [
+            "fetch",
+            "undefined"
+          ],
+          [
+            "console",
+            "undefined"
+          ],
+          [
+            "WebAssembly",
+            "undefined"
+          ],
+          [
+            "std",
+            "undefined"
+          ],
+          [
+            "os",
+            "undefined"
+          ],
+          [
+            "Deno",
+            "undefined"
+          ],
+          [
+            "Bun",
+            "undefined"
+          ]
+        ],
+        "before": 1700000000000,
+        "after": 1700000000100
+      },
+      "memory": 1376256,
+      "heap": 79160,
+      "calls": [
+        {
+          "key": "call:0",
+          "name": "echo",
+          "args": {
+            "total": 6
+          }
+        }
+      ],
+      "workerEnvironmentKeys": [],
+      "ms": 55,
+      "terminationCode": 1
+    },
+    {
+      "name": "deterministic first",
+      "value": {
+        "clock": 1700000000000,
+        "utc": 0,
+        "rng": [
+          0.9830867739817837,
+          0.5308745379470943,
+          0.3626344019013128
+        ],
+        "perf": 0
+      },
+      "memory": 1376256,
+      "heap": 81716,
+      "calls": [],
+      "workerEnvironmentKeys": [],
+      "ms": 34,
+      "terminationCode": 1
+    },
+    {
+      "name": "deterministic second",
+      "value": {
+        "clock": 1700000000000,
+        "utc": 0,
+        "rng": [
+          0.9830867739817837,
+          0.5308745379470943,
+          0.3626344019013128
+        ],
+        "perf": 0
+      },
+      "memory": 1376256,
+      "heap": 81716,
+      "calls": [],
+      "workerEnvironmentKeys": [],
+      "ms": 28,
+      "terminationCode": 1
+    },
+    {
+      "name": "determinism comparison",
+      "equal": true
+    },
+    {
+      "name": "guest allocation bound",
+      "value": {
+        "bytes": 125829120,
+        "name": "InternalError",
+        "message": "out of memory"
+      },
+      "memory": 127205376,
+      "heap": 78168,
+      "calls": [],
+      "workerEnvironmentKeys": [],
+      "ms": 367,
+      "terminationCode": 1
+    },
+    {
+      "name": "infinite synchronous loop kill",
+      "timeout": true,
+      "readyAt": 34,
+      "calls": [],
+      "workerEnvironmentKeys": [],
+      "ms": 202,
+      "terminationCode": 1
+    },
+    {
+      "name": "infinite microtasks kill",
+      "timeout": true,
+      "readyAt": 35,
+      "calls": [],
+      "workerEnvironmentKeys": [],
+      "ms": 201,
+      "terminationCode": 1
+    }
+  ]
+}

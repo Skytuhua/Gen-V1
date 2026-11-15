@@ -6,6 +6,7 @@ import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/
 import { CallToolRequestSchema, ErrorCode, ListToolsRequestSchema, McpError } from '@modelcontextprotocol/sdk/types.js';
 import type { RunContext, RuntimeCallbacks } from '../contracts/index.ts';
 import type { ToolMetadata } from '../runtime-pi/tool-definitions.ts';
+import { programResultFailed } from '../core/tool-program-tools.ts';
 
 export interface HostMcp { url: string; headers: Record<string, string>; names: Set<string>; close(): Promise<void> }
 
@@ -45,7 +46,7 @@ export async function createHostMcp({ ctx, current, onTool, tools }: { ctx: RunC
         const args = request.params.arguments ?? {};
         const result = await onTool({ name: request.params.name, args }, ctx);
         assertAuthority();
-        return { content: [{ type: 'text' as const, text: JSON.stringify(result ?? null) }] };
+        return { content: [{ type: 'text' as const, text: JSON.stringify(result ?? null) }], ...(programResultFailed(request.params.name, result) ? { isError: true } : {}) };
       });
       const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true });
       await server.connect(transport);

@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm@10.30.3",
+    "exec",
+    "vitest",
+    "run",
+    "tests/tool-program-transport-v3.test.ts",
+    "tests/hermes-runtime.test.ts",
+    "tests/official-runtime-mcp.test.ts",
+    "--maxWorkers=2"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T10:39:40.321935+00:00",
+  "endedAt": "2026-11-15T10:39:44.480807+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+
+ Test Files  3 passed (3)
+      Tests  45 passed (45)
+   Start at  18:39:41
+   Duration  3.37s (transform 501ms, setup 0ms, import 1.00s, tests 2.85s, environment 0ms)
+

@@ -1,0 +1,59 @@
+{
+  "argv": [
+    "python3",
+    "/tmp/m12-prepare-native.py"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T10:39:38.738672+00:00",
+  "endedAt": "2026-11-15T10:39:51.261659+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+{
+  "node": "v24.22.1",
+  "headersSource": "https://nodejs.org/download/release/v24.22.1/node-v24.22.1-headers.tar.gz",
+  "headersSHA256": "322e0a27db9088093ab8347bdc8c7e0aaa21dc9ed548390bf06b394494c09267",
+  "dependency": "existing locked node-pty@1.1.0"
+}
+gyp info it worked if it ends with ok
+gyp info using node-gyp@12.4.0
+gyp info using node@24.22.1 | linux | x64
+gyp info chdir /workspace/scratch/dbebe44a9817/m12-v3/node_modules/node-pty
+gyp info find Python using Python version 3.12.14 found at "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3"
+gyp info spawn /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3
+gyp info spawn args [
+gyp info spawn args '/workspace/scratch/dbebe44a9817/m12-v3/node_modules/.pnpm/node-gyp@12.4.0/node_modules/node-gyp/gyp/gyp_main.py',
+gyp info spawn args 'binding.gyp',
+gyp info spawn args '-f',
+gyp info spawn args 'make',
+gyp info spawn args '-I',
+gyp info spawn args '/workspace/scratch/dbebe44a9817/m12-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/build/config.gypi',
+gyp info spawn args '-I',
+gyp info spawn args '/workspace/scratch/dbebe44a9817/m12-v3/node_modules/.pnpm/node-gyp@12.4.0/node_modules/node-gyp/addon.gypi',
+gyp info spawn args '-I',
+gyp info spawn args '/tmp/m12-node-headers/node-v24.22.1/include/node/common.gypi',
+gyp info spawn args '-Dlibrary=shared_library',
+gyp info spawn args '-Dvisibility=default',
+gyp info spawn args '-Dnode_root_dir=/tmp/m12-node-headers/node-v24.22.1',
+gyp info spawn args '-Dnode_gyp_dir=/workspace/scratch/dbebe44a9817/m12-v3/node_modules/.pnpm/node-gyp@12.4.0/node_modules/node-gyp',
+gyp info spawn args '-Dnode_lib_file=/tmp/m12-node-headers/node-v24.22.1/$(Configuration)/node.lib',
+gyp info spawn args '-Dmodule_root_dir=/workspace/scratch/dbebe44a9817/m12-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty',
+gyp info spawn args '-Dnode_engine=v8',
+gyp info spawn args '--depth=.',
+gyp info spawn args '--no-parallel',
+gyp info spawn args '--generator-output',
+gyp info spawn args 'build',
+gyp info spawn args '-Goutput_dir=.'
+gyp info spawn args ]
+make: Entering directory '/workspace/scratch/dbebe44a9817/m12-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/build'
+gyp info spawn make
+gyp info spawn args [ 'BUILDTYPE=Release', '-C', 'build' ]
+  TOUCH Release/obj.target/../../../node-addon-api@7.1.1/node_modules/node-addon-api/node_addon_api_except.stamp
+  CXX(target) Release/obj.target/pty/src/unix/pty.o
+  SOLINK_MODULE(target) Release/obj.target/pty.node
+  COPY Release/pty.node
+make: Leaving directory '/workspace/scratch/dbebe44a9817/m12-v3/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/build'
+gyp info ok 
+Native PTY smoke passed

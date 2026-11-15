@@ -1,0 +1,512 @@
+{
+  "argv": [
+    "python3",
+    "-c",
+    "from pathlib import Path; import json; text=Path(\"docs/implementation/v3/m12-artifacts/aggregation-benchmark.json\").read_text(); assert json.loads(text)[\"tokenization\"][\"actualCounts\"] is None; print(text)"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T10:43:53.625949+00:00",
+  "endedAt": "2026-11-15T10:43:53.653102+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+{
+  "schemaVersion": 1,
+  "kind": "FIXED_SYNTHETIC_WORKFLOW_MEASUREMENT",
+  "liveModelEvaluation": false,
+  "expectedAnswer": {
+    "paidOrders": 307,
+    "refundedOrders": 77,
+    "soldUnits": 1225,
+    "salesCents": 274750,
+    "salesCentsByRegion": {
+      "north": 67000,
+      "south": 69975,
+      "east": 69025,
+      "west": 68750
+    }
+  },
+  "cases": [
+    {
+      "name": "success",
+      "direct": {
+        "state": "SUCCEEDED",
+        "answer": {
+          "paidOrders": 307,
+          "refundedOrders": 77,
+          "soldUnits": 1225,
+          "salesCents": 274750,
+          "salesCentsByRegion": {
+            "north": 67000,
+            "south": 69975,
+            "east": 69025,
+            "west": 68750
+          }
+        },
+        "modelRequests": {
+          "setup": 0,
+          "execution": 6,
+          "diagnostic": 0,
+          "total": 6
+        },
+        "modelRoundTrips": 6,
+        "modelVisibleBytes": {
+          "requests": 528,
+          "responses": 139622,
+          "total": 140150,
+          "diagnostic": 0
+        },
+        "sourceRowsVisible": true,
+        "trace": [
+          {
+            "phase": "execution",
+            "tool": "repository_read",
+            "failed": false,
+            "requestBytes": 88,
+            "responseBytes": 23271,
+            "requestSha256": "41c927473b62beacf8228359eb76851cf88196d6b44af911fdb93d01a3cc15f3",
+            "responseSha256": "6ff048a747b81cc5c0025bcb671967e59ea5d67b2a8f86e90187b5e86a19efb1",
+            "elapsedMs": 5.221
+          },
+          {
+            "phase": "execution",
+            "tool": "repository_read",
+            "failed": false,
+            "requestBytes": 88,
+            "responseBytes": 23271,
+            "requestSha256": "d7a6f13dbb0d96633d214b3ddd2b53551ebdfea0390ee80f3815781048ab8f0c",
+            "responseSha256": "bea11448bdad5bee01bbc03102af67b9522c69a83cc184c80a78a7c53b42a9c5",
+            "elapsedMs": 2.449
+          },
+          {
+            "phase": "execution",
+            "tool": "repository_read",
+            "failed": false,
+            "requestBytes": 88,
+            "responseBytes": 23271,
+            "requestSha256": "c7f93a47e0b7495ea3088783d8f604cd832b43eae3b03cbfb8cc57cf72df4f13",
+            "responseSha256": "4d8675bb42360b49bb0ab072599de9570f8b6fe5787c4c71a1a252559a7f5192",
+            "elapsedMs": 1.939
+          },
+          {
+            "phase": "execution",
+            "tool": "repository_read",
+            "failed": false,
+            "requestBytes": 88,
+            "responseBytes": 23271,
+            "requestSha256": "10ed7f6444f6250d4deb346b1443336d26e6b4c98f607b60f976e9cf54e08cc9",
+            "responseSha256": "b71a208ed1c62b26418f2e47d03cb53162615882eea02fc45b146e5b11afe342",
+            "elapsedMs": 1.84
+          },
+          {
+            "phase": "execution",
+            "tool": "repository_read",
+            "failed": false,
+            "requestBytes": 88,
+            "responseBytes": 23267,
+            "requestSha256": "e90066f55f8c20aff1a5796e9fbb12661aade4335d108743cd1bc61c9a8be644",
+            "responseSha256": "65b59bbaa89d488e0e4d8f8ba1f7fbf25e544ba7081fa45c0d64e6efa2b0e55d",
+            "elapsedMs": 3.282
+          },
+          {
+            "phase": "execution",
+            "tool": "repository_read",
+            "failed": false,
+            "requestBytes": 88,
+            "responseBytes": 23271,
+            "requestSha256": "369f7d8db924c125ae2adf3806ecf20421cc1d033d53ddd210f62bedb12870a5",
+            "responseSha256": "1b367cb3c94f743d8761c8a26f31e1c99c529d2cc468830f6daacda8a09e17cc",
+            "elapsedMs": 1.462
+          }
+        ],
+        "hostReadCalls": 6,
+        "elapsedMs": 16.806,
+        "bulkInPublicStorage": true,
+        "retainedSourceFailures": 0,
+        "originalFailureInspected": false
+      },
+      "program": {
+        "state": "SUCCEEDED",
+        "answer": {
+          "paidOrders": 307,
+          "refundedOrders": 77,
+          "soldUnits": 1225,
+          "salesCents": 274750,
+          "salesCentsByRegion": {
+            "north": 67000,
+            "south": 69975,
+            "east": 69025,
+            "west": 68750
+          }
+        },
+        "modelRequests": {
+          "setup": 1,
+          "execution": 1,
+          "diagnostic": 0,
+          "total": 2
+        },
+        "modelRoundTrips": 2,
+        "modelVisibleBytes": {
+          "requests": 950,
+          "responses": 1101,
+          "total": 2051,
+          "diagnostic": 0
+        },
+        "sourceRowsVisible": false,
+        "trace": [
+          {
+            "phase": "setup",
+            "tool": "tool_program_discover",
+            "failed": false,
+            "requestBytes": 69,
+            "responseBytes": 469,
+            "requestSha256": "87df9447ccd6bf14194fc1ef212b2b1f71b4e344c345606509813ff50aa77d56",
+            "responseSha256": "f99ae05d16a33dd176f8f6553837f6722389d5cb1b16c7f020908c98ed8bdd5a",
+            "elapsedMs": 0.231
+          },
+          {
+            "phase": "execution",
+            "tool": "tool_program",
+            "failed": false,
+            "requestBytes": 881,
+            "responseBytes": 632,
+            "requestSha256": "680a7ce09f26ed8b0545bf9b2f8d88279c5bb48db46a45cc9cf242c4f10502e5",
+            "responseSha256": "3d11831677e62be570cc35307c367a1829ec5d6cc69dbec2be0c04e7160800ed",
+            "elapsedMs": 119.369
+          }
+        ],
+        "hostReadCalls": 6,
+        "elapsedMs": 119.763,
+        "bulkInPublicStorage": false,
+        "retainedSourceFailures": 0,
+        "originalFailureInspected": false
+      }
+    },
+    {
+      "name": "source_failure",
+      "direct": {
+        "state": "FAILED",
+        "answer": null,
+        "modelRequests": {
+          "setup": 0,
+          "execution": 3,
+          "diagnostic": 0,
+          "total": 3
+        },
+        "modelRoundTrips": 3,
+        "modelVisibleBytes": {
+          "requests": 264,
+          "responses": 46661,
+          "total": 46925,
+          "diagnostic": 0
+        },
+        "sourceRowsVisible": true,
+        "trace": [
+          {
+            "phase": "execution",
+            "tool": "repository_read",
+            "failed": false,
+            "requestBytes": 88,
+            "responseBytes": 23271,
+            "requestSha256": "41c927473b62beacf8228359eb76851cf88196d6b44af911fdb93d01a3cc15f3",
+            "responseSha256": "6ff048a747b81cc5c0025bcb671967e59ea5d67b2a8f86e90187b5e86a19efb1",
+            "elapsedMs": 3.208
+          },
+          {
+            "phase": "execution",
+            "tool": "repository_read",
+            "failed": false,
+            "requestBytes": 88,
+            "responseBytes": 23271,
+            "requestSha256": "d7a6f13dbb0d96633d214b3ddd2b53551ebdfea0390ee80f3815781048ab8f0c",
+            "responseSha256": "bea11448bdad5bee01bbc03102af67b9522c69a83cc184c80a78a7c53b42a9c5",
+            "elapsedMs": 1.984
+          },
+          {
+            "phase": "execution",
+            "tool": "repository_read",
+            "failed": true,
+            "requestBytes": 88,
+            "responseBytes": 119,
+            "requestSha256": "c7f93a47e0b7495ea3088783d8f604cd832b43eae3b03cbfb8cc57cf72df4f13",
+            "responseSha256": "526355bc0fba82247315d2eaaec212b6ed4dc4212c76532707cba549c48f949a",
+            "elapsedMs": 2.503
+          }
+        ],
+        "hostReadCalls": 3,
+        "elapsedMs": 7.846,
+        "bulkInPublicStorage": true,
+        "retainedSourceFailures": 0,
+        "originalFailureInspected": false
+      },
+      "program": {
+        "state": "FAILED",
+        "answer": null,
+        "modelRequests": {
+          "setup": 1,
+          "execution": 1,
+          "diagnostic": 1,
+          "total": 3
+        },
+        "modelRoundTrips": 3,
+        "modelVisibleBytes": {
+          "requests": 1126,
+          "responses": 1317,
+          "total": 2443,
+          "diagnostic": 581
+        },
+        "sourceRowsVisible": false,
+        "trace": [
+          {
+            "phase": "setup",
+            "tool": "tool_program_discover",
+            "failed": false,
+            "requestBytes": 69,
+            "responseBytes": 469,
+            "requestSha256": "87df9447ccd6bf14194fc1ef212b2b1f71b4e344c345606509813ff50aa77d56",
+            "responseSha256": "f99ae05d16a33dd176f8f6553837f6722389d5cb1b16c7f020908c98ed8bdd5a",
+            "elapsedMs": 0.166
+          },
+          {
+            "phase": "execution",
+            "tool": "tool_program",
+            "failed": false,
+            "requestBytes": 888,
+            "responseBytes": 436,
+            "requestSha256": "3cd822e2e26e3d2fed3c4d176215c79787444e0668cc9f29051f6d80b30a2f77",
+            "responseSha256": "f6d5e7eeb71f7015c81cf4eefbe806e1fdb4aa002fdd50bf5500822ed1028b55",
+            "elapsedMs": 62.284
+          },
+          {
+            "phase": "diagnostic",
+            "tool": "tool_program_result",
+            "failed": false,
+            "requestBytes": 169,
+            "responseBytes": 412,
+            "requestSha256": "f1c087f889b0114862cef1745457bb0a085aac29ea25fdbd3940829e92246d29",
+            "responseSha256": "72d69f99818cb8480cf5e6dcb21a8d53123640a2d4d8c87efdcb443d95293fed",
+            "elapsedMs": 3.63
+          }
+        ],
+        "hostReadCalls": 3,
+        "elapsedMs": 66.209,
+        "bulkInPublicStorage": false,
+        "retainedSourceFailures": 1,
+        "originalFailureInspected": true
+      }
+    }
+  ],
+  "tokenization": {
+    "actualCounts": null,
+    "status": "UNAVAILABLE_IN_CHECKED_RUNTIMES",
+    "gate": "Measure actual tokens with a pinned tokenizer and named vocabulary before wider exposure; no character-to-token conversion is used.",
+    "evidence": {
+      "nodePackages": [
+        {
+          "name": "tiktoken",
+          "resolved": null
+        },
+        {
+          "name": "js-tiktoken",
+          "resolved": null
+        },
+        {
+          "name": "@dqbd/tiktoken",
+          "resolved": null
+        },
+        {
+          "name": "gpt-tokenizer",
+          "resolved": null
+        },
+        {
+          "name": "@huggingface/tokenizers",
+          "resolved": null
+        },
+        {
+          "name": "@huggingface/transformers",
+          "resolved": null
+        },
+        {
+          "name": "llama-tokenizer-js",
+          "resolved": null
+        }
+      ],
+      "lockfileNameMatches": [],
+      "installedModuleNames": [],
+      "installedVirtualStoreNames": [],
+      "python": [
+        {
+          "requestedExecutable": "python3",
+          "exitCode": 0,
+          "launchError": null,
+          "result": {
+            "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+            "pythonVersion": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+            "packages": [
+              {
+                "name": "tiktoken",
+                "available": false,
+                "version": null
+              },
+              {
+                "name": "tokenizers",
+                "available": false,
+                "version": null
+              },
+              {
+                "name": "transformers",
+                "available": false,
+                "version": null
+              },
+              {
+                "name": "sentencepiece",
+                "available": false,
+                "version": null
+              }
+            ]
+          }
+        },
+        {
+          "requestedExecutable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+          "exitCode": 0,
+          "launchError": null,
+          "result": {
+            "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+            "pythonVersion": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+            "packages": [
+              {
+                "name": "tiktoken",
+                "available": false,
+                "version": null
+              },
+              {
+                "name": "tokenizers",
+                "available": false,
+                "version": null
+              },
+              {
+                "name": "transformers",
+                "available": false,
+                "version": null
+              },
+              {
+                "name": "sentencepiece",
+                "available": false,
+                "version": null
+              }
+            ]
+          }
+        },
+        {
+          "requestedExecutable": "/usr/bin/python3",
+          "exitCode": 0,
+          "launchError": null,
+          "result": {
+            "executable": "/usr/bin/python3",
+            "pythonVersion": "3.13.5 (main, Aug 10 2026, 12:06:59) [GCC 14.2.0]",
+            "packages": [
+              {
+                "name": "tiktoken",
+                "available": false,
+                "version": null
+              },
+              {
+                "name": "tokenizers",
+                "available": false,
+                "version": null
+              },
+              {
+                "name": "transformers",
+                "available": false,
+                "version": null
+              },
+              {
+                "name": "sentencepiece",
+                "available": false,
+                "version": null
+              }
+            ]
+          }
+        },
+        {
+          "requestedExecutable": "/usr/local/bin/python3",
+          "exitCode": null,
+          "launchError": "ENOENT",
+          "result": null
+        }
+      ]
+    }
+  },
+  "provenance": {
+    "beganAt": "2026-11-15T10:43:35.281Z",
+    "finishedAt": "2026-11-15T10:43:36.045Z",
+    "gitHead": "4fe2e778a0007c91c4455aff62e2e4d74646a8ab",
+    "workingTreeSourceSha256": {
+      "tests/tool-program-benchmark-v3.test.ts": "88b98faab4649681271949b0d6a0203fe46f9eab5c485b703ca825dc90b3c4f6",
+      "tests/fixtures/tool-program-benchmark-v3.ts": "66fe3c7729f61c2b4dd00aa07f7eb646e171710adf09f9a8a0f5fe119da1a3a8",
+      "tests/fixtures/tool-program-replay-harness-v3.ts": "8d8fb3a3b852eaaa9dd4e098173629313e300100eb2d74f7fde1da659b8615a9",
+      "packages/core/tool-programs.ts": "367bf5cb121091a33f9d5ab0fccfbc920f27be4d36268e6cf2b552d8f9bd559b",
+      "packages/core/tool-effects.ts": "25b1cc0e4320c272093a4d31f196ac7a4f9e1b442182c8dbf38e84c78dfe59b1",
+      "packages/core/tool-disclosure.ts": "d16bf7e57f7900e3410b88699d45ab07033ce650addf44c6477d5cba9c051ee3",
+      "packages/core/tool-results.ts": "889128cfff17a60398585c7b2d623627b9c5c9189ff14579d93123378e79f8c1",
+      "packages/core/tool-authority.ts": "bef3900a2a6419e00b2f89302e1aad11bc93d9be7464ac3aba3a606cc4f01465",
+      "packages/core/security.ts": "dd044a00969568dcdccb362595ca8df7174c4cf93a0f065faa27c15eda8f32e9",
+      "packages/storage/store.ts": "c4c53b6f7988b1471184a599fd16212f724afc243160b30675c6dceab651516b",
+      "packages/contracts/tool-program.ts": "1d008b4fdba98b7ee61e6b8ef6223538e105f6d526bf6b4aa2c8a18682e4d5d1",
+      "packages/contracts/tool-results.ts": "b52f84f03e8571c09ece8e247af457aa249450a47a9dabd7b1ec4d17005a7b1d",
+      "packages/contracts/tool-effects.ts": "8b17ca030d0e9fb476b1694adbec1dc9e725c4cc20b7f8a1f4a60173de9fec2a",
+      "packages/runtime/tool-program-worker.ts": "684114004fcc0873d2e9f5648b1d69db91461d8b147478da794287cbc555cb98",
+      "packages/runtime/tool-program-worker-child.mjs": "b4883cd2eaae0e14cb6eb84e40ca05f2bee5f295ca57e81cd1da9c0057a0ec07",
+      "package.json": "3f2119dd514d093606e80f3f17384108016e0fc33eede027c49f88f820a481ec",
+      "pnpm-lock.yaml": "2269337714e848fd47cca88f898e6d9fd5f70e276a04061e435546ddc9eb9fb9"
+    },
+    "node": "v24.22.1",
+    "v8": "13.6.233.17-node.58",
+    "platform": "linux",
+    "arch": "x64",
+    "packageManager": "pnpm@10.30.3",
+    "command": [
+      "corepack",
+      "pnpm@10.30.3",
+      "exec",
+      "vitest",
+      "run",
+      "tests/tool-program-benchmark-v3.test.ts"
+    ],
+    "executorProof": {
+      "backendId": "quickjs-wasi-worker-3.6.2-v1",
+      "runtimeFingerprint": "b940f34156698854e823dee62255930c18c2492f27e3349feaefbbef2abf40e2",
+      "platform": "linux-x64-node-24.22.1",
+      "isolation": "WASM_NO_HOST_IMPORTS",
+      "memoryLimitBytes": 134217728,
+      "hardMemoryLimit": true,
+      "tested": true,
+      "evidenceRef": "runtime-self-test:b940f34156698854e823dee62255930c18c2492f27e3349feaefbbef2abf40e2"
+    },
+    "datasetSha256": "304e8b2d44eb45b50b3b6a3b5c89c867c2aa061c22dddfb651c1796bc2dacb29",
+    "programSourceSha256": "a9557b0909cb6329d721f7bb35756353f72cc0b654bc2694ceae8ead435253ed",
+    "sourceDefinitionDigest": "bcdce6dc46fa49353b952d86ca43e6fab73323a5860793247b0c6dcae6c57adf"
+  },
+  "methodology": {
+    "task": "Count paid and refunded orders; sum paid units and integer USD cents, including paid cents by region. Return no individual orders.",
+    "dataset": {
+      "partitions": 6,
+      "ordersPerPartition": 64,
+      "totalOrders": 384,
+      "currency": "USD",
+      "arithmetic": "integer cents",
+      "rowNoteBytes": 274
+    },
+    "answerQuality": "Exact object equality against a fixed independently calculated arithmetic oracle. No live model judgement or model success rate is measured.",
+    "controller": "Fixed sequential direct-tool controller versus one authored JavaScript program using the real checked QuickJS executor and ToolPrograms host.",
+    "requests": "Observed provider-neutral JSON tool request/response exchanges. Cold program discovery and explicit failed-source inspection are included. No network round trip or LLM request is sent.",
+    "byteAccounting": "Sum UTF-8 bytes of JSON.stringify({name,args}) requests and complete JSON.stringify(result) responses. Includes program source, discovery schema, returned opaque handles and envelopes. Shared system prompt, preadvertised schema context, final user-facing answer and provider framing are excluded from both workflows.",
+    "failure": "The third sequential repository_read fails before aggregation completes. Neither workflow retries, resumes, or returns a partial answer. Program diagnostics add exactly one explicit bounded retained-source read; they do not execute the source tool again.",
+    "latency": "One local run per case. Timings include workflow setup and diagnostics, excluding fixture creation and executor startup self-test. They are not a production speedup estimate.",
+    "persistence": "Synthetic repository data only. Program source rows and original source failure remain absent from public snapshot, events and effect projections.",
+    "toolClassification": "Existing host repository_read definition with READ_RETRYABLE classification; fixture uses actual file grants and M02 dispatch, with a synthetic JSON read handler."
+  }
+}
+

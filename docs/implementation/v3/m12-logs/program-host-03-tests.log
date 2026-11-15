@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm@10.30.3",
+    "exec",
+    "vitest",
+    "run",
+    "tests/tool-program-v3.test.ts",
+    "tests/tool-program-prerequisites-v3.test.ts",
+    "tests/tool-program-authority-v3.test.ts",
+    "--maxWorkers=2"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T10:23:25.830150+00:00",
+  "endedAt": "2026-11-15T10:23:28.397095+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+
+ Test Files  3 passed (3)
+      Tests  40 passed (40)
+   Start at  18:23:26
+   Duration  1.65s (transform 788ms, setup 0ms, import 1.52s, tests 609ms, environment 0ms)
+

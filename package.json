@@ -19,8 +19,8 @@
     "test:ui-guard": "vitest run tests/ui-guard.test.ts tests/ui-numeric-children.test.ts --maxWorkers=1",
     "test": "pnpm build:credential-lease && pnpm build:widgets && vitest run",
     "test:no-lease": "pnpm build:widgets && vitest run",
-    "build:credential-lease": "tsx scripts/build-windows-credential-lease.ts",
-    "test:browser": "tsx scripts/test-browser.ts",
+    "build:credential-lease": "node --import tsx scripts/build-windows-credential-lease.ts",
+    "test:browser": "node --import tsx scripts/test-browser.ts",
     "test:e2e": "pnpm build && tsx scripts/test-browser.ts",
     "agent:login": "tsx packages/runtime-login/index.ts",
     "fixtures:create": "tsx scripts/create-fixtures.ts",
@@ -74,6 +74,7 @@
     "electron": "45.2.0",
     "electron-builder": "26.18.0",
     "esbuild": "0.25.12",
+    "js-tiktoken": "1.0.21",
     "typescript": "5.9.3",
     "vite": "7.3.7",
     "vitest": "4.1.12"

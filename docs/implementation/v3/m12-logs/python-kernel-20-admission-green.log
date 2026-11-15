@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/python-kernel-v3.test.ts",
+    "--maxWorkers=1"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T11:03:37.112512+00:00",
+  "endedAt": "2026-11-15T11:03:37.701776+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+
+ Test Files  1 passed (1)
+      Tests  14 passed (14)
+   Start at  19:03:37
+   Duration  349ms (transform 105ms, setup 0ms, import 167ms, tests 30ms, environment 0ms)
+

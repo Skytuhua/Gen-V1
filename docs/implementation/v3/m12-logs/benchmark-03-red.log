@@ -1,0 +1,44 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm@10.30.3",
+    "exec",
+    "vitest",
+    "run",
+    "tests/tool-program-benchmark-v3.test.ts"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T10:40:03.500399+00:00",
+  "endedAt": "2026-11-15T10:40:04.163527+00:00",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+ ❯ tests/tool-program-benchmark-v3.test.ts (1 test | 1 failed) 5ms
+   × measures exact aggregation, complete visible bytes, cold setup and retained failure overhead on the real JavaScript host 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/tool-program-benchmark-v3.test.ts > measures exact aggregation, complete visible bytes, cold setup and retained failure overhead on the real JavaScript host
+Error: BENCHMARK_NOT_IMPLEMENTED: real host and executor measurements have not run
+ ❯ runAggregationBenchmark tests/fixtures/tool-program-benchmark-v3.ts:35:9
+     33| /** Red fixture: measurements must come from the installed executor an…
+     34| export async function runAggregationBenchmark(): Promise<AggregationBe…
+     35|   throw new Error('BENCHMARK_NOT_IMPLEMENTED: real host and executor m…
+       |         ^
+     36| }
+     37|
+ ❯ tests/tool-program-benchmark-v3.test.ts:6:24
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  18:40:03
+   Duration  187ms (transform 27ms, setup 0ms, import 37ms, tests 5ms, environment 0ms)
+

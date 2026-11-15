@@ -1,0 +1,14 @@
+{
+  "argv": [
+    "node",
+    "/tmp/m12-comparison-probes/check-reporter.mjs"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T11:30:39.382594+00:00",
+  "endedAt": "2026-11-15T11:30:39.464984+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+{"syntheticReporterProbe":true,"noRepositoryTestsRun":true,"redaction":"PASS","messageBounds":"PASS","errorCountBound":"PASS","localReporterApi":"onInit(ctx), onTestRunEnd(testModules, unhandledErrors, reason)"}

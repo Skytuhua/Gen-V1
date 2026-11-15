@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "git",
+    "-c",
+    "core.whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol",
+    "diff",
+    "--cached",
+    "--check"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T12:22:20.430607+00:00",
+  "endedAt": "2026-11-15T12:22:20.443729+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+

@@ -1,0 +1,78 @@
+{
+  "argv": [
+    "python3",
+    "-c",
+    "import json,subprocess; from pathlib import Path; root=Path.cwd(); original=root.parent / \"Gen-V1\"; targets=[\"packages/core/service.ts\",\"packages/runtime-hermes/worker.py\",\"packages/runtime-pi/tool-definitions.ts\",\"packages/runtime-official/mcp.ts\",\"packages/core/security.ts\",\"packages/runtime-pi/process-tree.ts\"]; proposed=[\"packages/contracts/tool-program.ts\",\"packages/core/tool-programs.ts\",\"packages/runtime/tool-program-worker.ts\",\"tests/tool-program-v3.test.ts\",\"tests/tool-program-replay-v3.test.ts\",\"tests/python-kernel-v3.test.ts\"]; run=lambda *a:subprocess.check_output([\"git\",*a],text=True).strip(); assert run(\"rev-parse\",\"HEAD\")==\"fcaa52f7fcdc9f39420118a79f9a8250ba83c563\"; assert run(\"branch\",\"--show-current\")==\"agent/m12-v3\"; assert run(\"remote\",\"get-url\",\"origin\")==\"https://github.com/Skytuhua/Gen-V1.git\"; subprocess.run([\"git\",\"merge-base\",\"--is-ancestor\",\"a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54\",\"HEAD\"],check=True); assert not subprocess.check_output([\"git\",\"-C\",str(original),\"status\",\"--porcelain\"],text=True); print(json.dumps({\"repositoryRoot\":str(root),\"baseSha\":run(\"rev-parse\",\"HEAD\"),\"branch\":run(\"branch\",\"--show-current\"),\"origin\":run(\"remote\",\"get-url\",\"origin\"),\"auditAncestorIsAncestor\":True,\"originalRoot\":str(original),\"originalHead\":subprocess.check_output([\"git\",\"-C\",str(original),\"rev-parse\",\"HEAD\"],text=True).strip(),\"originalStatus\":\"clean\",\"worktrees\":run(\"worktree\",\"list\",\"--porcelain\"),\"targets\":[{\"path\":p,\"blobSha\":run(\"rev-parse\",\"HEAD:\"+p)} for p in targets],\"proposedPaths\":[{\"path\":p,\"exists\":(root/p).exists()} for p in proposed],\"agentsFiles\":run(\"ls-files\",\"*AGENTS.md\")},indent=2))"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T09:53:45.274883+00:00",
+  "endedAt": "2026-11-15T09:53:45.344059+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+{
+  "repositoryRoot": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "baseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+  "branch": "agent/m12-v3",
+  "origin": "https://github.com/Skytuhua/Gen-V1.git",
+  "auditAncestorIsAncestor": true,
+  "originalRoot": "/workspace/scratch/dbebe44a9817/Gen-V1",
+  "originalHead": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+  "originalStatus": "clean",
+  "worktrees": "worktree /workspace/scratch/dbebe44a9817/Gen-V1\nHEAD fcaa52f7fcdc9f39420118a79f9a8250ba83c563\nbranch refs/heads/main\n\nworktree /workspace/scratch/6460bc28782b/m15-v3\nHEAD fcaa52f7fcdc9f39420118a79f9a8250ba83c563\nbranch refs/heads/agent/m15-v3\n\nworktree /workspace/scratch/c4abb425a583/m14-v3\nHEAD fcaa52f7fcdc9f39420118a79f9a8250ba83c563\nbranch refs/heads/agent/m14-v3\n\nworktree /workspace/scratch/dbebe44a9817/m12-v3\nHEAD fcaa52f7fcdc9f39420118a79f9a8250ba83c563\nbranch refs/heads/agent/m12-v3",
+  "targets": [
+    {
+      "path": "packages/core/service.ts",
+      "blobSha": "2b3fb63acef915b052a468e104c6e4f00a4b82e4"
+    },
+    {
+      "path": "packages/runtime-hermes/worker.py",
+      "blobSha": "e28c6272f9aab28f76b9462a87768fe4226361c1"
+    },
+    {
+      "path": "packages/runtime-pi/tool-definitions.ts",
+      "blobSha": "2731bc9797fd40dd010a04099171452c0f993ebc"
+    },
+    {
+      "path": "packages/runtime-official/mcp.ts",
+      "blobSha": "791ebf88c58765f9e4625bde6b727019c1b33337"
+    },
+    {
+      "path": "packages/core/security.ts",
+      "blobSha": "693f251361bc464caee26df795c57002d120c9a7"
+    },
+    {
+      "path": "packages/runtime-pi/process-tree.ts",
+      "blobSha": "fb903470a172be1e1995557caa888b4f065e7270"
+    }
+  ],
+  "proposedPaths": [
+    {
+      "path": "packages/contracts/tool-program.ts",
+      "exists": false
+    },
+    {
+      "path": "packages/core/tool-programs.ts",
+      "exists": false
+    },
+    {
+      "path": "packages/runtime/tool-program-worker.ts",
+      "exists": false
+    },
+    {
+      "path": "tests/tool-program-v3.test.ts",
+      "exists": false
+    },
+    {
+      "path": "tests/tool-program-replay-v3.test.ts",
+      "exists": false
+    },
+    {
+      "path": "tests/python-kernel-v3.test.ts",
+      "exists": false
+    }
+  ],
+  "agentsFiles": ""
+}

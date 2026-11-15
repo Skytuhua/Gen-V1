@@ -1,0 +1,93 @@
+{
+  "argv": [
+    "node",
+    "--import",
+    "tsx",
+    "docs/implementation/v3/m12-artifacts/source-inventory-negative-probe.mts",
+    "--expect",
+    "rejected",
+    "--error",
+    "Unreviewed source inventory drift"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T12:19:28.349536+00:00",
+  "endedAt": "2026-11-15T12:19:31.166074+00:00",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": false
+}
+
+{
+  "kind": "M12_SOURCE_INVENTORY_NEGATIVE_PROBE",
+  "expected": "rejected",
+  "expectedError": "Unreviewed source inventory drift",
+  "beganAt": "2026-11-15T12:19:28.529Z",
+  "sourcePath": "m12-source-inventory-probe-dc9e3a15-7550-46cb-bb61-72eeffd8de7b.ts",
+  "originalVerificationSha256": "7f1b3f5c5d7c08817151c3d26069f3b19a242daefba98317dbadf0a3e182e8b2",
+  "childTimeoutMs": 45000,
+  "maximumCapturedBytesPerStream": 131072,
+  "maximumRetainedBytesPerStream": 4096,
+  "interpretation": "This is an evidence-integrity negative probe. A probe exit0 means the requested assertion was observed; it is not product or browser acceptance.",
+  "baseline": {
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "--import",
+      "tsx",
+      "docs/implementation/v3/M12-verify-evidence.mts"
+    ],
+    "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+    "startedAt": "2026-11-15T12:19:28.529Z",
+    "endedAt": "2026-11-15T12:19:29.996Z",
+    "exitCode": 0,
+    "signal": null,
+    "spawnError": null,
+    "stdout": {
+      "capturedBytes": 258,
+      "capturedSha256": "619d3dd05e7f0c3bce6813db40f15f4417dc82956181b1025d634a607228f394",
+      "truncated": false,
+      "text": "{\n  \"schemaValidation\": \"PASS\",\n  \"artifacts\": 80,\n  \"reviewedBaseBlobs\": 82,\n  \"dependencyContracts\": 14,\n  \"verifiedCommandLogs\": 193,\n  \"sourceGate\": \"LOCALLY_RESOLVED_CONTRACTS_REVIEW_PENDING\",\n  \"bundleStatus\": \"FAIL\",\n  \"activationAuthorized\": false\n}\n"
+    },
+    "stderr": {
+      "capturedBytes": 0,
+      "capturedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "truncated": false,
+      "text": ""
+    }
+  },
+  "mutatedVerificationSha256": "47e4c42bd2cb2eb734466b0ea7fc2f10cabc20c4dd847bb4f41b6120f42c753c",
+  "probeSourceSha256": "c8dfe69eafaa83149e2380e682ec5c45529def10f5df067d1fb85981e703c535",
+  "probe": {
+    "argv": [
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "--import",
+      "tsx",
+      "docs/implementation/v3/M12-verify-evidence.mts"
+    ],
+    "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+    "startedAt": "2026-11-15T12:19:29.998Z",
+    "endedAt": "2026-11-15T12:19:31.152Z",
+    "exitCode": 0,
+    "signal": null,
+    "spawnError": null,
+    "stdout": {
+      "capturedBytes": 258,
+      "capturedSha256": "619d3dd05e7f0c3bce6813db40f15f4417dc82956181b1025d634a607228f394",
+      "truncated": false,
+      "text": "{\n  \"schemaValidation\": \"PASS\",\n  \"artifacts\": 80,\n  \"reviewedBaseBlobs\": 82,\n  \"dependencyContracts\": 14,\n  \"verifiedCommandLogs\": 193,\n  \"sourceGate\": \"LOCALLY_RESOLVED_CONTRACTS_REVIEW_PENDING\",\n  \"bundleStatus\": \"FAIL\",\n  \"activationAuthorized\": false\n}\n"
+    },
+    "stderr": {
+      "capturedBytes": 0,
+      "capturedSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "truncated": false,
+      "text": ""
+    }
+  },
+  "observed": "UNREVIEWED_SOURCE_ACCEPTED",
+  "exactInventoryAssertionObserved": false,
+  "canonicalEvidenceRestored": true,
+  "probeFileRemoved": true,
+  "finishedAt": "2026-11-15T12:19:31.155Z",
+  "failure": "Expected inventory rejection, but the verifier accepted an unreviewed source file\n\n0 !== 1\n",
+  "cleanupErrors": [],
+  "status": "FAIL"
+}

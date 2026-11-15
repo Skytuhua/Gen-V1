@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "node",
+    "--import",
+    "tsx",
+    "docs/implementation/v3/M12-verify-evidence.mts"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T12:20:38.775246+00:00",
+  "endedAt": "2026-11-15T12:20:40.057501+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+{
+  "schemaValidation": "PASS",
+  "artifacts": 80,
+  "reviewedBaseBlobs": 82,
+  "dependencyContracts": 14,
+  "verifiedCommandLogs": 195,
+  "sourceGate": "LOCALLY_RESOLVED_CONTRACTS_REVIEW_PENDING",
+  "bundleStatus": "FAIL",
+  "activationAuthorized": false
+}

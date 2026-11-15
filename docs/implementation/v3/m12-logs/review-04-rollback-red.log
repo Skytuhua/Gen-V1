@@ -1,0 +1,91 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm@10.30.3",
+    "exec",
+    "vitest",
+    "run",
+    "tests/python-kernel-v3.test.ts",
+    "tests/tool-program-v3.test.ts",
+    "--maxWorkers=2"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T10:51:56.836368+00:00",
+  "endedAt": "2026-11-15T10:51:58.508840+00:00",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+ ❯ tests/python-kernel-v3.test.ts (7 tests | 1 failed) 31ms
+   × invalidates generations on host rollback without replaying or removing receipts 10ms
+ ❯ tests/tool-program-v3.test.ts (17 tests | 1 failed) 307ms
+     × admits only one owned program at a time so parallel tool envelopes cannot multiply the read budget 15ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/python-kernel-v3.test.ts > invalidates generations on host rollback without replaying or removing receipts
+AssertionError: expected { version: 1, …(9) } to match object { generation: 2, …(2) }
+(13 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "generation": 2,
++   "generation": 1,
+    "retainedState": false,
+    "state": "STOPPED",
+  }
+
+ ❯ tests/python-kernel-v3.test.ts:81:49
+     79|   await f.kernels.cell(kernel.kernelId, owner, { source: 'value = 42',…
+     80|   await f.kernels.close();
+     81|   expect(f.kernels.get(kernel.kernelId, owner)).toMatchObject({ genera…
+       |                                                 ^
+     82|   const before = f.counts(); await f.kernels.close();
+     83|   expect(f.counts()).toEqual(before);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/tool-program-v3.test.ts > M12 non-replaying synthetic host protocol > admits only one owned program at a time so parallel tool envelopes cannot multiply the read budget
+AssertionError: promise resolved "{ …(7) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "aggregate": 1,
++   "error": null,
++   "programId": "db794fb7-88f8-4671-9894-b49cd8e194b4",
++   "resultRef": "result_d8cff2538de5ff560e56b5499cebdbff",
++   "sourceRefs": [],
++   "state": "SUCCEEDED",
++   "usage": {
++     "elapsedMs": 0,
++     "nestedCalls": 0,
++     "visibleBytes": 228,
++   },
+  }
+
+ ❯ tests/tool-program-v3.test.ts:179:72
+    177|     const first = await prepare(f.programs, executor), second = await …
+    178|     const run = f.programs.run(first.programId, owner, executor); awai…
+    179|     try { await expect(f.programs.run(second.programId, owner, another…
+       |                                                                        ^
+    180|     finally { await f.programs.cancel(first.programId, owner); await r…
+    181|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 22 passed (24)
+   Start at  18:51:57
+   Duration  938ms (transform 461ms, setup 0ms, import 783ms, tests 339ms, environment 0ms)
+

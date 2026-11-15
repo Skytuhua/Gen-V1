@@ -56,9 +56,20 @@ export const M08_FLAG_KEYS = [
 ] as const;
 export type M08FlagKey = (typeof M08_FLAG_KEYS)[number];
 
-export type CapabilityFlagKey = M02FlagKey | M08FlagKey;
+export const M12_FLAG_KEYS = ['tools.jsReadProgramV1', 'tools.durableReplayExperimentV1', 'tools.pythonKernelV1'] as const;
+export type M12FlagKey = (typeof M12_FLAG_KEYS)[number];
+export const M12_FLAG_DEFINITIONS = M12_FLAG_KEYS.map(key => ({ key, owner: 'm12', description: {
+  'tools.jsReadProgramV1': 'Bounded JavaScript read programs through the host tool authority.',
+  'tools.durableReplayExperimentV1': 'Receipt-only deterministic read-program replay experiment.',
+  'tools.pythonKernelV1': 'Owner-scoped Python kernels requiring an approved confined interpreter.',
+}[key] }));
+export function createToolProgramFlags(overrides?: Partial<Record<M12FlagKey, boolean>>): CapabilityFlags<M12FlagKey> {
+  return createCapabilityFlags<M12FlagKey>(M12_FLAG_DEFINITIONS, overrides);
+}
+export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M12FlagKey;
 
 const hostFlags = createCapabilityFlags<CapabilityFlagKey>([
+  ...M12_FLAG_DEFINITIONS,
   { key: "audit.effectsV1", owner: "m02", description: "Append-only tool-effect ledger and owner-fenced read models." },
   { key: "security.authorityV1", owner: "m02", description: "Single-use approvals and the pre-dispatch authority gate." },
   { key: "workspace.provenanceV1", owner: "m08", description: "Edit provenance journal: prepared markers and proven/process-window receipts." },

@@ -1,0 +1,86 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm@10.30.3",
+    "exec",
+    "vitest",
+    "run",
+    "tests/tool-program-integration-v3.test.ts"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T10:30:23.304483+00:00",
+  "endedAt": "2026-11-15T10:30:25.000764+00:00",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+ ❯ tests/tool-program-integration-v3.test.ts (4 tests | 4 failed) 194ms
+   × keeps actual JavaScript nested host results private and returns only the explicit aggregate 70ms
+   × does not advertise or execute a disabled program capability 38ms
+   × deduplicates a top-level program command without running its script a second time 43ms
+   × supports authenticated retained inspection after settlement without renewing execution authority 42ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/tool-program-integration-v3.test.ts > keeps actual JavaScript nested host results private and returns only the explicit aggregate
+HarnessError: Tool is not registered in the authority: tool_program_discover
+ ❯ ToolAuthority.require packages/core/tool-authority.ts:133:23
+    131|   require(name: string): RegistryEntry {
+    132|     const entry = this.entries.get(name);
+    133|     if (!entry) throw new HarnessError("UNREGISTERED_TOOL", "Tool is n…
+       |                       ^
+    134|     return entry;
+    135|   }
+ ❯ ToolEffectLedger.invoke packages/core/tool-effects.ts:262:39
+ ❯ Service.tool packages/core/service.ts:953:122
+ ❯ tests/tool-program-integration-v3.test.ts:31:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  tests/tool-program-integration-v3.test.ts > does not advertise or execute a disabled program capability
+TypeError: f.service.programToolMetadata is not a function
+ ❯ tests/tool-program-integration-v3.test.ts:50:20
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  tests/tool-program-integration-v3.test.ts > deduplicates a top-level program command without running its script a second time
+HarnessError: Tool is not registered in the authority: tool_program
+ ❯ ToolAuthority.require packages/core/tool-authority.ts:133:23
+    131|   require(name: string): RegistryEntry {
+    132|     const entry = this.entries.get(name);
+    133|     if (!entry) throw new HarnessError("UNREGISTERED_TOOL", "Tool is n…
+       |                       ^
+    134|     return entry;
+    135|   }
+ ❯ ToolEffectLedger.invoke packages/core/tool-effects.ts:262:39
+ ❯ Service.tool packages/core/service.ts:953:122
+ ❯ tests/tool-program-integration-v3.test.ts:57:33
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  tests/tool-program-integration-v3.test.ts > supports authenticated retained inspection after settlement without renewing execution authority
+HarnessError: Tool is not registered in the authority: tool_program
+ ❯ ToolAuthority.require packages/core/tool-authority.ts:133:23
+    131|   require(name: string): RegistryEntry {
+    132|     const entry = this.entries.get(name);
+    133|     if (!entry) throw new HarnessError("UNREGISTERED_TOOL", "Tool is n…
+       |                       ^
+    134|     return entry;
+    135|   }
+ ❯ ToolEffectLedger.invoke packages/core/tool-effects.ts:262:39
+ ❯ Service.tool packages/core/service.ts:953:122
+ ❯ tests/tool-program-integration-v3.test.ts:66:34
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed (4)
+   Start at  18:30:23
+   Duration  1.20s (transform 609ms, setup 0ms, import 854ms, tests 194ms, environment 0ms)
+

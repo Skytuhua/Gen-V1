@@ -1,0 +1,35 @@
+{
+  "argv": [
+    "python",
+    "/tmp/m12-comparison-probes/preserve-before-packaging.py"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T11:41:24.043159+00:00",
+  "endedAt": "2026-11-15T11:41:24.072313+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+{
+  "exactByteCopies": [
+    {
+      "source": "candidate-vitest-unhandled.json",
+      "preserved": "candidate-vitest-unhandled-before-packaging.json",
+      "bytes": 8351,
+      "sha256": "319ca668c061e15a85def128fdfc0fd27467ad5c2d07e465329879c0afd152bf"
+    },
+    {
+      "source": "unit-baseline-comparison.json",
+      "preserved": "unit-baseline-comparison-before-packaging.json",
+      "bytes": 1741330,
+      "sha256": "8d6c08266ce294bf10760d8c4414ab666326cb1e30ec9891ce9696a44f1f36e7"
+    },
+    {
+      "source": "unit-baseline-comparison.md",
+      "preserved": "unit-baseline-comparison-before-packaging.md",
+      "bytes": 4192,
+      "sha256": "a59cf3e7fe9a9357c440ada1bcc4d270bb31a0127f9df5afa5b8ad73fd353fea"
+    }
+  ]
+}

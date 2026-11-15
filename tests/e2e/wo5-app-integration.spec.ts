@@ -31,7 +31,8 @@ async function host(page:Page){
   }
   if(path==='/api/commands')commands.push(route.request().postDataJSON());
   const allowed=['/api/bootstrap','/api/snapshot','/api/shell-settings','/api/models','/api/workspace','/api/shell/navigation','/api/shell/settings','/api/shell/archive','/api/shell/resources','/api/plugins','/api/skills/available','/api/environment','/api/integrations','/api/commands','/api/split-workspace/profiles'];
-  if(allowed.includes(path)||/^\/api\/shell\/navigation\/[^/]+$/.test(path))return shellRoute(route,snapshot,false);
+  const programView=route.request().method()==='GET'&&!url.search&&snapshot.threads.some(thread=>path===`/api/threads/${encodeURIComponent(thread.id)}/tool-programs`);
+  if(programView||allowed.includes(path)||/^\/api\/shell\/navigation\/[^/]+$/.test(path))return shellRoute(route,snapshot,false);
   unexpected.push(path);return route.abort('blockedbyclient');
  });
  await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();

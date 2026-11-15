@@ -1,0 +1,297 @@
+{
+  "argv": [
+    "pnpm",
+    "test:browser",
+    "--",
+    "--suite",
+    "redundant-ui"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T12:06:31.198279+00:00",
+  "endedAt": "2026-11-15T12:07:36.640659+00:00",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+> gen-v1@0.6.5 test:browser /workspace/scratch/dbebe44a9817/m12-v3
+> node --import tsx scripts/test-browser.ts -- --suite redundant-ui
+
+Browser results: /workspace/scratch/dbebe44a9817/m12-v3/test-results/browser/run-1794744391656-5703f227-1d88-4beb-9a89-c76e4f529819
+
+Browser suite: redundant-ui (1 spec files)
+[2m[WebServer] [22m(node:45) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:57) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 18 tests using 1 worker
+
+(node:97) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:97) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   1 tests/e2e/redundant-ui.spec.ts:170:1 › actual detached composer restores overview Changes until its owner docks again (7.5s)
+(node:177) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:177) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   2 tests/e2e/redundant-ui.spec.ts:197:46 › actual parked split composer retains its same-owner overview Changes route (4.2s)
+  ✓   3 tests/e2e/redundant-ui.spec.ts:197:46 › actual minimized split composer retains its same-owner overview Changes route (3.9s)
+  ✓   4 tests/e2e/redundant-ui.spec.ts:246:1 › actual loading composer keeps overview Changes until its draft is ready (1.3s)
+  ✓   5 tests/e2e/redundant-ui.spec.ts:260:1 › actual busy composer restores overview Changes until its action is enabled again (1.5s)
+  ✓   6 tests/e2e/redundant-ui.spec.ts:291:1 › production App hides the equivalent overview route and opens same-owner Changes from its composer (1.3s)
+  ✘   7 tests/e2e/redundant-ui.spec.ts:338:40 › reduced UI keeps its destinations at 1440 (6.3s)
+(node:351) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:351) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   8 tests/e2e/redundant-ui.spec.ts:338:40 › reduced UI keeps its destinations at 1024 (6.7s)
+(node:433) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:433) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   9 tests/e2e/redundant-ui.spec.ts:338:40 › reduced UI keeps its destinations at 768 (6.1s)
+(node:517) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:517) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 tests/e2e/redundant-ui.spec.ts:420:54 › retains the overview route for unproven custom owners (678ms)
+  ✓  11 tests/e2e/redundant-ui.spec.ts:420:54 › retains the overview route for unproven scoped owners (543ms)
+  ✘  12 tests/e2e/redundant-ui.spec.ts:420:54 › retains the overview route for unproven detached owners (5.7s)
+(node:630) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:630) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  13 tests/e2e/redundant-ui.spec.ts:446:1 › a proven custom owner can use the equivalent composer action (878ms)
+  ✓  14 tests/e2e/redundant-ui.spec.ts:463:1 › ownerless usage retains details rather than assuming a destination (475ms)
+  ✓  15 tests/e2e/redundant-ui.spec.ts:469:1 › Notes preserves its unsaved draft through navigation and reload (1.0s)
+  ✘  16 tests/e2e/redundant-ui.spec.ts:508:1 › retained destinations surface actual loading/error/empty boundaries (5.6s)
+(node:765) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:765) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  17 tests/e2e/redundant-ui.spec.ts:535:42 › light/zoom keyboard destinations respect reduced motion (852ms)
+  ✓  18 tests/e2e/redundant-ui.spec.ts:535:42 › light/zoom keyboard destinations respect off motion (582ms)
+
+
+  1) tests/e2e/redundant-ui.spec.ts:170:1 › actual detached composer restores overview Changes until its owner docks again 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('.summary-overview:visible').first().getByRole('button', { name: /^Changes/ })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('.summary-overview:visible').first().getByRole('button', { name: /^Changes/ })[22m
+
+
+      51 |  const {fallback}=await ownerApp(page,'desktop');await expect(fallback).toHaveCount(0);
+      52 |  await page.evaluate(()=>(window as unknown as {wo5SetDetached:(value:boolean)=>void}).wo5SetDetached(true));
+    > 53 |  await expect(page.getByRole('button',{name:'Focus chat',exact:true})).toBeVisible();await expect(fallback).toBeVisible();
+         |                                                                                                             ^
+      54 |  await page.screenshot({path:info.outputPath('r2-detached.png'),fullPage:true});
+      55 |  await fallback.focus();await page.keyboard.press('Enter');await expect(page.locator('.live-diff')).toContainText('Owner fallback diff');
+      56 |  await page.evaluate(()=>(window as unknown as {wo5SetDetached:(value:boolean)=>void}).wo5SetDetached(false));
+        at /workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/redundant-ui.spec.ts:53:109
+
+    Error Context: test-results/browser/run-1794744391656-5703f227-1d88-4beb-9a89-c76e4f529819/redundant-ui/artifacts/redundant-ui-actual-detach-60f5a-until-its-owner-docks-again/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794744391656-5703f227-1d88-4beb-9a89-c76e4f529819/redundant-ui/artifacts/redundant-ui-actual-detach-60f5a-until-its-owner-docks-again/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794744391656-5703f227-1d88-4beb-9a89-c76e4f529819/redundant-ui/artifacts/redundant-ui-actual-detach-60f5a-until-its-owner-docks-again/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/e2e/redundant-ui.spec.ts:338:40 › reduced UI keeps its destinations at 1440 ─────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByRole('dialog', { name: 'Usage', exact: true })
+    Expected substring: [32m"23.456%"[39m
+    Received string:    [31m"UsageCostTokensLimitsAll scopesAll scopesAudit the workspaceAll providersAll providersfixturefixtureAudit the workspaceSession limit23.5%ResetNot reportedWeekly limit67.9%ResetNot reported"[39m
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('dialog', { name: 'Usage', exact: true })[22m
+    [2m    9 × locator resolved to <dialog open="" aria-labelledby="_r_5_" data-escape-scope="true" class="ui-modal usage-dialog">…</dialog>[22m
+    [2m      - unexpected value "UsageCostTokensLimitsAll scopesAll scopesAudit the workspaceAll providersAll providersfixturefixtureAudit the workspaceSession limit23.5%ResetNot reportedWeekly limit67.9%ResetNot reported"[22m
+
+
+      116 |  await page.screenshot({path:info.outputPath(`6-usage-${width}.png`),fullPage:true});
+      117 |  await dialog.getByRole('tab',{name:'Tokens',exact:true}).click();await expect(dialog).toContainText('18,321');await expect(dialog).toContainText('791');
+    > 118 |  await dialog.getByRole('tab',{name:'Limits',exact:true}).click();await expect(dialog).toContainText('23.456%');await expect(dialog).toContainText('67.89%');
+          |                                                                                        ^
+      119 |  await page.keyboard.press('Escape');await expect(open).toBeFocused();
+      120 |  await page.getByRole('button',{name:'Usage panel',exact:true}).click();await expect(page.locator('.usage-context')).toContainText('18%');
+      121 |  await page.getByRole('button',{name:'Recorded changes',exact:true}).click();await expect(page.getByRole('region',{name:'Tool destination'})).toContainText('new recorded value');
+        at /workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/redundant-ui.spec.ts:118:88
+
+    Error Context: test-results/browser/run-1794744391656-5703f227-1d88-4beb-9a89-c76e4f529819/redundant-ui/artifacts/redundant-ui-reduced-UI-keeps-its-destinations-at-1440/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794744391656-5703f227-1d88-4beb-9a89-c76e4f529819/redundant-ui/artifacts/redundant-ui-reduced-UI-keeps-its-destinations-at-1440/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794744391656-5703f227-1d88-4beb-9a89-c76e4f529819/redundant-ui/artifacts/redundant-ui-reduced-UI-keeps-its-destinations-at-1440/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/e2e/redundant-ui.spec.ts:338:40 › reduced UI keeps its destinations at 1024 ─────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByRole('dialog', { name: 'Usage', exact: true })
+    Expected substring: [32m"23.456%"[39m
+    Received string:    [31m"UsageCostTokensLimitsAll scopesAll scopesAudit the workspaceAll providersAll providersfixturefixtureAudit the workspaceSession limit23.5%ResetNot reportedWeekly limit67.9%ResetNot reported"[39m
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('dialog', { name: 'Usage', exact: true })[22m
+    [2m    9 × locator resolved to <dialog open="" aria-labelledby="_r_5_" data-escape-scope="true" class="ui-modal usage-dialog">…</dialog>[22m
+    [2m      - unexpected value "UsageCostTokensLimitsAll scopesAll scopesAudit the workspaceAll providersAll providersfixturefixtureAudit the workspaceSession limit23.5%ResetNot reportedWeekly limit67.9%ResetNot reported"[22m
+
+
+      116 |  await page.screenshot({path:info.outputPath(`6-usage-${width}.png`),fullPage:true});
+      117 |  await dialog.getByRole('tab',{name:'Tokens',exact:true}).click();await expect(dialog).toContainText('18,321');await expect(dialog).toContainText('791');
+    > 118 |  await dialog.getByRole('tab',{name:'Limits',exact:true}).click();await expect(dialog).toContainText('23.456%');await expect(dialog).toContainText('67.89%');
+          |                                                                                        ^
+      119 |  await page.keyboard.press('Escape');await expect(open).toBeFocused();
+      120 |  await page.getByRole('button',{name:'Usage panel',exact:true}).click();await expect(page.locator('.usage-context')).toContainText('18%');
+      121 |  await page.getByRole('button',{name:'Recorded changes',exact:true}).click();await expect(page.getByRole('region',{name:'Tool destination'})).toContainText('new recorded value');
+        at /workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/redundant-ui.spec.ts:118:88
+
+    Error Context: test-results/browser/run-1794744391656-5703f227-1d88-4beb-9a89-c76e4f529819/redundant-ui/artifacts/redundant-ui-reduced-UI-keeps-its-destinations-at-1024/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794744391656-5703f227-1d88-4beb-9a89-c76e4f529819/redundant-ui/artifacts/redundant-ui-reduced-UI-keeps-its-destinations-at-1024/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794744391656-5703f227-1d88-4beb-9a89-c76e4f529819/redundant-ui/artifacts/redundant-ui-reduced-UI-keeps-its-destinations-at-1024/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/e2e/redundant-ui.spec.ts:338:40 › reduced UI keeps its destinations at 768 ──────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByRole('dialog', { name: 'Usage', exact: true })
+    Expected substring: [32m"23.456%"[39m
+    Received string:    [31m"UsageCostTokensLimitsAll scopesAll scopesAudit the workspaceAll providersAll providersfixturefixtureAudit the workspaceSession limit23.5%ResetNot reportedWeekly limit67.9%ResetNot reported"[39m
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('dialog', { name: 'Usage', exact: true })[22m
+    [2m    9 × locator resolved to <dialog open="" aria-labelledby="_r_5_" data-escape-scope="true" class="ui-modal usage-dialog">…</dialog>[22m
+    [2m      - unexpected value "UsageCostTokensLimitsAll scopesAll scopesAudit the workspaceAll providersAll providersfixturefixtureAudit the workspaceSession limit23.5%ResetNot reportedWeekly limit67.9%ResetNot reported"[22m
+
+
+      116 |  await page.screenshot({path:info.outputPath(`6-usage-${width}.png`),fullPage:true});
+      117 |  await dialog.getByRole('tab',{name:'Tokens',exact:true}).click();await expect(dialog).toContainText('18,321');await expect(dialog).toContainText('791');
+    > 118 |  await dialog.getByRole('tab',{name:'Limits',exact:true}).click();await expect(dialog).toContainText('23.456%');await expect(dialog).toContainText('67.89%');
+          |                                                                                        ^
+      119 |  await page.keyboard.press('Escape');await expect(open).toBeFocused();
+      120 |  await page.getByRole('button',{name:'Usage panel',exact:true}).click();await expect(page.locator('.usage-context')).toContainText('18%');
+      121 |  await page.getByRole('button',{name:'Recorded changes',exact:true}).click();await expect(page.getByRole('region',{name:'Tool destination'})).toContainText('new recorded value');
+        at /workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/redundant-ui.spec.ts:118:88
+
+    Error Context: test-results/browser/run-1794744391656-5703f227-1d88-4beb-9a89-c76e4f529819/redundant-ui/artifacts/redundant-ui-reduced-UI-keeps-its-destinations-at-768/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794744391656-5703f227-1d88-4beb-9a89-c76e4f529819/redundant-ui/artifacts/redundant-ui-reduced-UI-keeps-its-destinations-at-768/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794744391656-5703f227-1d88-4beb-9a89-c76e4f529819/redundant-ui/artifacts/redundant-ui-reduced-UI-keeps-its-destinations-at-768/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/e2e/redundant-ui.spec.ts:420:54 › retains the overview route for unproven detached owners 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: locator('.floating-usage-details')
+    Expected substring: [32m"67.[7m8[27m9%"[39m
+    Received string:    [31m"[7mInput tokens18,321Output tokens791Reported cost0.012345 (currency not reported)Session limit23.5%Weekly limit[27m67.9%"[39m
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for locator('.floating-usage-details')[22m
+    [2m    9 × locator resolved to <section class="floating-usage-details" aria-label="Runtime usage details">…</section>[22m
+    [2m      - unexpected value "Input tokens18,321Output tokens791Reported cost0.012345 (currency not reported)Session limit23.5%Weekly limit67.9%"[22m
+
+
+      129 |  await expect(page.getByRole('button',{name:'Inspect changes',exact:true})).toHaveCount(0);
+      130 |  if(mode==='detached'){
+    > 131 |   await expect(page.locator('.floating-usage-details')).toContainText('18,321');await expect(page.locator('.floating-usage-details')).toContainText('67.89%');
+          |                                                                                                                                       ^
+      132 |   await expect(page.getByRole('button',{name:'Open Usage',exact:true})).toHaveCount(0);
+      133 |  }
+      134 | });
+        at /workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/redundant-ui.spec.ts:131:135
+
+    Error Context: test-results/browser/run-1794744391656-5703f227-1d88-4beb-9a89-c76e4f529819/redundant-ui/artifacts/redundant-ui-retains-the-o-330dd-or-unproven-detached-owners/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794744391656-5703f227-1d88-4beb-9a89-c76e4f529819/redundant-ui/artifacts/redundant-ui-retains-the-o-330dd-or-unproven-detached-owners/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794744391656-5703f227-1d88-4beb-9a89-c76e4f529819/redundant-ui/artifacts/redundant-ui-retains-the-o-330dd-or-unproven-detached-owners/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/e2e/redundant-ui.spec.ts:508:1 › retained destinations surface actual loading/error/empty boundaries 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: locator('.project-context-card')
+    Expected substring: [32m"[7mRe[27mading project"[39m
+    Received string:    [31m"[7mLo[27mading project[7m…[27m"[39m
+    Timeout: 5000ms
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for locator('.project-context-card')[22m
+    [2m    9 × locator resolved to <div class="project-context-card" aria-label="Project context">…</div>[22m
+    [2m      - unexpected value "Loading project…"[22m
+
+
+      152 | });
+      153 | test('retained destinations surface actual loading/error/empty boundaries',async({page})=>{
+    > 154 |  await page.goto('/redundant-ui?state=loading');await expect(page.locator('.project-context-card')).toContainText('Reading project');
+          |                                                                                                     ^
+      155 |  await page.evaluate(()=>window.dispatchEvent(new Event('redundant-release')));await expect(page.getByRole('button',{name:'work/layout',exact:true})).toBeVisible();
+      156 |  await page.goto('/redundant-ui?state=error');await expect(page.locator('.project-context-card').getByRole('alert')).toContainText('could not load');
+      157 |  await page.goto('/redundant-ui?state=empty');await expect(page.locator('.project-context-card')).toContainText('No project connected.');
+        at /workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/redundant-ui.spec.ts:154:101
+
+    Error Context: test-results/browser/run-1794744391656-5703f227-1d88-4beb-9a89-c76e4f529819/redundant-ui/artifacts/redundant-ui-retained-dest-e6782-ding-error-empty-boundaries/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794744391656-5703f227-1d88-4beb-9a89-c76e4f529819/redundant-ui/artifacts/redundant-ui-retained-dest-e6782-ding-error-empty-boundaries/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794744391656-5703f227-1d88-4beb-9a89-c76e4f529819/redundant-ui/artifacts/redundant-ui-retained-dest-e6782-ding-error-empty-boundaries/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6 failed
+    tests/e2e/redundant-ui.spec.ts:170:1 › actual detached composer restores overview Changes until its owner docks again 
+    tests/e2e/redundant-ui.spec.ts:338:40 › reduced UI keeps its destinations at 1440 ──────────────
+    tests/e2e/redundant-ui.spec.ts:338:40 › reduced UI keeps its destinations at 1024 ──────────────
+    tests/e2e/redundant-ui.spec.ts:338:40 › reduced UI keeps its destinations at 768 ───────────────
+    tests/e2e/redundant-ui.spec.ts:420:54 › retains the overview route for unproven detached owners 
+    tests/e2e/redundant-ui.spec.ts:508:1 › retained destinations surface actual loading/error/empty boundaries 
+  12 passed (1.1m)
+
+Failed browser suites: redundant-ui (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.

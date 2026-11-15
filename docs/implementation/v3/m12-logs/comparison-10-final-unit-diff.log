@@ -1,0 +1,71 @@
+{
+  "argv": [
+    "python",
+    "docs/implementation/v3/m12-artifacts/compare-unit-reports.py",
+    "--candidate",
+    "docs/implementation/v3/m12-artifacts/candidate-vitest-after-review.json",
+    "--candidate-unhandled",
+    "docs/implementation/v3/m12-artifacts/candidate-vitest-unhandled-after-review.json",
+    "--candidate-log",
+    "docs/implementation/v3/m12-logs/final-11-full-test-after-review.log"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T11:50:58.629418+00:00",
+  "endedAt": "2026-11-15T11:50:58.748502+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+{
+  "output": "/workspace/scratch/dbebe44a9817/m12-v3/docs/implementation/v3/m12-artifacts/unit-baseline-comparison.json",
+  "sha256": "b0c18596f2bd9db2d3a277db0b7f6958a0a895eda58779d5ba2a2a93ad5b2af2",
+  "markdown": "/workspace/scratch/dbebe44a9817/m12-v3/docs/implementation/v3/m12-artifacts/unit-baseline-comparison.md",
+  "counts": {
+    "inheritedFailingAssertions": 269,
+    "candidateOnlyFailures": 0,
+    "baseOnlyFailures": 4,
+    "candidateAddedAssertions": 237,
+    "candidateRemovedAssertions": 1,
+    "sharedNotExecuted": 46,
+    "candidateNewlyNotExecuted": 0,
+    "baselineNotExecutedNowExecutedOrAbsent": 0
+  },
+  "statusTransitions": [
+    {
+      "baseline": "ABSENT",
+      "candidate": "passed",
+      "count": 237
+    },
+    {
+      "baseline": "failed",
+      "candidate": "failed",
+      "count": 269
+    },
+    {
+      "baseline": "failed",
+      "candidate": "passed",
+      "count": 4
+    },
+    {
+      "baseline": "passed",
+      "candidate": "ABSENT",
+      "count": 1
+    },
+    {
+      "baseline": "passed",
+      "candidate": "passed",
+      "count": 3035
+    },
+    {
+      "baseline": "skipped",
+      "candidate": "skipped",
+      "count": 46
+    }
+  ],
+  "unhandled": {
+    "baseline": "UNKNOWN",
+    "candidate": "RECORDED",
+    "candidateCount": 4
+  }
+}

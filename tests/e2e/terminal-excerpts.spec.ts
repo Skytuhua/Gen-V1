@@ -13,6 +13,12 @@ export async function shellRoute(route: Route, snapshot: Snapshot, error: boolea
   const url = new URL(route.request().url()), path = url.pathname;
   if (error) return route.fulfill({ status: 503, json: { error: { code: 'CAPTURE_503', message: 'Synthetic host unavailable. Retry workspace.' } } });
   const reply = (json: unknown) => route.fulfill({ json });
+  if (/^\/api\/threads\/[^/]*\/tool-programs(?:\/|$)/.test(path)) {
+    const knownThread = snapshot.threads.some(thread => path === `/api/threads/${encodeURIComponent(thread.id)}/tool-programs`);
+    if (!knownThread || url.search) return route.fulfill({ status: 404, json: { error: { code: 'CAPTURE_PROGRAM_NOT_FOUND', message: 'No program view exists for this fixture owner.' } } });
+    if (route.request().method() !== 'GET') return route.fulfill({ status: 405, headers: { allow: 'GET' }, json: { error: { code: 'CAPTURE_METHOD_NOT_ALLOWED', message: 'Program fixture metadata is read only.' } } });
+    return reply({ programs: [], kernels: [], available: { javascript: false, python: false, replay: false }, resetNotice: 'Reset clears variables. It does not undo files or prior remote effects. Previous cells are never replayed.' });
+  }
   if (path === '/api/bootstrap') return reply({ csrfToken: 'capture-shell' });
   if (path === '/api/snapshot') return reply(snapshot);
   if (path === '/api/shell-settings') return reply(snapshot.settings);
@@ -69,6 +75,28 @@ test('renders approved leaf UI at 1440/1024/768 and immediate reduced-motion att
 
 test('authenticated precommit rejection retains excerpts for review and a fresh Send',async({page})=>{
  const f=await setup(page);await add(page);f.reject();await page.getByRole('button',{name:'Send',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Rejected before admission');await expect(page.getByRole('button',{name:'Retry send'})).toBeHidden();await expect(page.getByRole('button',{name:'Terminal selection · capture-terminal',exact:true})).toBeVisible();
+});
+
+test('disabled program fixture metadata requires an exact known thread and a read request',async({page})=>{
+ await setup(page);
+ const responses=await page.evaluate(async()=>{
+  const requests=[
+   {path:'/api/threads/one/tool-programs',method:'GET'},
+   {path:'/api/threads/two/tool-programs',method:'GET'},
+   {path:'/api/threads/unknown/tool-programs',method:'GET'},
+   {path:'/api/threads//tool-programs',method:'GET'},
+   {path:'/api/threads/one/tool-programs/',method:'GET'},
+   {path:'/api/threads/one/tool-programs/program/results/ref',method:'GET'},
+   {path:'/api/threads/one/tool-programs?owner=two',method:'GET'},
+   {path:'/api/threads/one/tool-programs',method:'POST'},
+   {path:'/api/threads/one/tool-programs',method:'DELETE'},
+  ];
+  return Promise.all(requests.map(async request=>{const response=await fetch(request.path,{method:request.method});return{...request,status:response.status,body:await response.json()};}));
+ });
+ const empty={programs:[],kernels:[],available:{javascript:false,python:false,replay:false},resetNotice:'Reset clears variables. It does not undo files or prior remote effects. Previous cells are never replayed.'};
+ for(const response of responses.slice(0,2)){expect(response.status).toBe(200);expect(response.body).toEqual(empty);}
+ for(const response of responses.slice(2,7))expect(response.status).toBe(404);
+ for(const response of responses.slice(7))expect(response.status).toBe(405);
 });
 
 test('expired host output is captured from the current xterm selection, without rereading old output',async({page})=>{

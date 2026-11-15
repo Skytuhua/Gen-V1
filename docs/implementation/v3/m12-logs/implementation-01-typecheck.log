@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm@10.30.3",
+    "typecheck"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T10:23:31.323018+00:00",
+  "endedAt": "2026-11-15T10:24:11.478494+00:00",
+  "exitCode": 2,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+> gen-v1@0.6.5 typecheck /workspace/scratch/dbebe44a9817/m12-v3
+> tsc --noEmit
+
+tests/python-program-backend-v3.test.ts(2,33): error TS6133: 'writeFile' is declared but its value is never read.
+tests/python-program-backend-v3.test.ts(8,8): error TS2307: Cannot find module '../packages/runtime/python-program-worker.ts' or its corresponding type declarations.
+ ELIFECYCLE  Command failed with exit code 2.

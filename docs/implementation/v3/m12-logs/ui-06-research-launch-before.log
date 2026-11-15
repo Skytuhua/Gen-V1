@@ -1,0 +1,46 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm@10.30.3",
+    "exec",
+    "playwright",
+    "test",
+    "--config",
+    "tests/e2e/research-workspace.playwright.config.ts",
+    "--grep",
+    "late source text cannot return after blur"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T11:01:53.382919+00:00",
+  "endedAt": "2026-11-15T11:01:55.055380+00:00",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": false
+}
+
+[2m[WebServer] [22m(node:36) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:48) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22mnode:net:2368
+[2m[WebServer] [22m      const error = new UVExceptionWithHostPort(rval, 'listen', address, port);
+[2m[WebServer] [22m                    ^
+[2m[WebServer] [22m
+[2m[WebServer] [22mError: listen EPERM: operation not permitted /tmp/tsx-1000/48.pipe
+[2m[WebServer] [22m[90m    at Server.setupListenHandle [as _listen2] (node:net:2368:21)[39m
+[2m[WebServer] [22m[90m    at listenInCluster (node:net:2499:12)[39m
+[2m[WebServer] [22m[90m    at Server.listen (node:net:2641:5)[39m
+[2m[WebServer] [22m    at [90mfile:///workspace/scratch/dbebe44a9817/m12-v3/[39mnode_modules/[4m.pnpm[24m/tsx@4.20.6/node_modules/[4mtsx[24m/dist/cli.mjs:53:31537
+[2m[WebServer] [22m    at new Promise (<anonymous>)
+[2m[WebServer] [22m    at createIpcServer [90m(file:///workspace/scratch/dbebe44a9817/m12-v3/[39mnode_modules/[4m.pnpm[24m/tsx@4.20.6/node_modules/[4mtsx[24m/dist/cli.mjs:53:31515[90m)[39m
+[2m[WebServer] [22m    at async [90mfile:///workspace/scratch/dbebe44a9817/m12-v3/[39mnode_modules/[4m.pnpm[24m/tsx@4.20.6/node_modules/[4mtsx[24m/dist/cli.mjs:55:459 {
+[2m[WebServer] [22m  code: [32m'EPERM'[39m,
+[2m[WebServer] [22m  errno: [33m-1[39m,
+[2m[WebServer] [22m  syscall: [32m'listen'[39m,
+[2m[WebServer] [22m  address: [32m'/tmp/tsx-1000/48.pipe'[39m,
+[2m[WebServer] [22m  port: [33m-1[39m
+[2m[WebServer] [22m}
+[2m[WebServer] [22m
+[2m[WebServer] [22mNode.js v24.22.1
+Error: Process from config.webServer was not able to start. Exit code: 1
+

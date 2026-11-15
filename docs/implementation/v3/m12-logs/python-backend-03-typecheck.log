@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T10:27:01.752539+00:00",
+  "endedAt": "2026-11-15T10:27:26.120300+00:00",
+  "exitCode": 2,
+  "termination": "NONE",
+  "truncated": false
+}
+
+packages/runtime/python-program-worker.ts(5,10): error TS6133: 'dirname' is declared but its value is never read.

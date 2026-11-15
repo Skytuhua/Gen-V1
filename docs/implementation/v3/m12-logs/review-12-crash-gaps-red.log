@@ -1,0 +1,102 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/tool-program-replay-v3.test.ts",
+    "--maxWorkers=1",
+    "-t",
+    "recovers call.effect_committed|recovers call.read_returned"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T11:02:49.617531+00:00",
+  "endedAt": "2026-11-15T11:02:52.954043+00:00",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+ ❯ tests/tool-program-replay-v3.test.ts (33 tests | 2 failed | 31 skipped) 1798ms
+     × recovers call.effect_committed without repeating a committed or unknown read 839ms
+     × recovers call.read_returned without repeating a committed or unknown read 881ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/tool-program-replay-v3.test.ts > M12 real process death and explicit exact-owner restart > recovers call.effect_committed without repeating a committed or unknown read
+AssertionError: /workspace/scratch/dbebe44a9817/m12-v3/tests/fixtures/tool-program-crash-v3.mts:31
+throw new Error(`Crash boundary was not reached: ${target}`);
+      ^
+
+Error: Crash boundary was not reached: call.effect_committed
+    at <anonymous> (/workspace/scratch/dbebe44a9817/m12-v3/tests/fixtures/tool-program-crash-v3.mts:31:7)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+Node.js v24.22.1
+: expected { code: 1, signal: null, …(1) } to match object { code: null, signal: 'SIGKILL' }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "code": null,
+-   "signal": "SIGKILL",
++   "code": 1,
++   "signal": null,
+  }
+
+ ❯ <anonymous> tests/fixtures/tool-program-crash-v3.mts:31:7
+ ❯ tests/tool-program-replay-v3.test.ts:266:31
+    264|     const dir = directory();
+    265|     const exit = await killAt(dir, point);
+    266|     expect(exit, exit.output).toMatchObject({ code: null, signal: 'SIG…
+       |                               ^
+    267|     const f = fixture({}, dir);
+    268|     expect(f.state()).toMatchObject({ owner: REPLAY_OWNER, killedAt: p…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/tool-program-replay-v3.test.ts > M12 real process death and explicit exact-owner restart > recovers call.read_returned without repeating a committed or unknown read
+AssertionError: /workspace/scratch/dbebe44a9817/m12-v3/tests/fixtures/tool-program-crash-v3.mts:31
+throw new Error(`Crash boundary was not reached: ${target}`);
+      ^
+
+Error: Crash boundary was not reached: call.read_returned
+    at <anonymous> (/workspace/scratch/dbebe44a9817/m12-v3/tests/fixtures/tool-program-crash-v3.mts:31:7)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+Node.js v24.22.1
+: expected { code: 1, signal: null, …(1) } to match object { code: null, signal: 'SIGKILL' }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "code": null,
+-   "signal": "SIGKILL",
++   "code": 1,
++   "signal": null,
+  }
+
+ ❯ <anonymous> tests/fixtures/tool-program-crash-v3.mts:31:7
+ ❯ tests/tool-program-replay-v3.test.ts:266:31
+    264|     const dir = directory();
+    265|     const exit = await killAt(dir, point);
+    266|     expect(exit, exit.output).toMatchObject({ code: null, signal: 'SIG…
+       |                               ^
+    267|     const f = fixture({}, dir);
+    268|     expect(f.state()).toMatchObject({ owner: REPLAY_OWNER, killedAt: p…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 31 skipped (33)
+   Start at  19:02:50
+   Duration  2.49s (transform 340ms, setup 0ms, import 500ms, tests 1.80s, environment 0ms)
+

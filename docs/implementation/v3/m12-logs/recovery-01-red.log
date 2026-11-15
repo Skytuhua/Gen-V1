@@ -1,0 +1,209 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm@10.30.3",
+    "exec",
+    "vitest",
+    "run",
+    "tests/tool-program-recovery-v3.test.ts",
+    "--maxWorkers=2"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T11:08:54.570065+00:00",
+  "endedAt": "2026-11-15T11:09:00.348552+00:00",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+ ❯ tests/tool-program-recovery-v3.test.ts (14 tests | 14 failed) 3913ms
+     × reconciles only M12 receipts after call.effect_committed without execution or inference 473ms
+     × reconciles only M12 receipts after call.read_returned without execution or inference 753ms
+     × reconciles only M12 receipts after call.result_committed without execution or inference 554ms
+     × reconciles only M12 receipts after program.result_committed without execution or inference 617ms
+     × does not attribute the latest terminal result to an earlier unfinished parent attempt 510ms
+     × keeps a nested outcome unknown when its retained private receipt fails integrity 990ms
+     × verifies historical success and failure without exposing payloads or renewing owner/input authority 4ms
+     × rejects a recovery metadata threadId binding mismatch 2ms
+     × rejects a recovery metadata runId binding mismatch 2ms
+     × rejects a recovery metadata epoch binding mismatch 1ms
+     × rejects a recovery metadata projectId binding mismatch 1ms
+     × rejects a recovery metadata workspaceId binding mismatch 1ms
+     × rejects a recovery metadata accountBinding binding mismatch 1ms
+     × requires the exact program and invocation, including an absent invocation for aggregate receipts 2ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 14 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/tool-program-recovery-v3.test.ts > M12 default-off Service recovery after real process death > reconciles only M12 receipts after call.effect_committed without execution or inference
+AssertionError: expected 'PREPARED' to be 'UNKNOWN' // Object.is equality
+
+Expected: "UNKNOWN"
+Received: "PREPARED"
+
+ ❯ tests/tool-program-recovery-v3.test.ts:103:26
+    101|       const committed = point === 'call.result_committed' || point ===…
+    102|       expect(program.state).toBe(point === 'program.result_committed' …
+    103|       expect(call.state).toBe(committed ? 'SUCCEEDED' : 'UNKNOWN');
+       |                          ^
+    104|       expect(nested.state).toBe(committed ? 'SUCCEEDED' : 'UNKNOWN_EXT…
+    105|       expect(parent.state).toBe(point === 'program.result_committed' ?…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/14]⎯
+
+ FAIL  tests/tool-program-recovery-v3.test.ts > M12 default-off Service recovery after real process death > reconciles only M12 receipts after call.read_returned without execution or inference
+AssertionError: expected 'DISPATCHED' to be 'UNKNOWN' // Object.is equality
+
+Expected: "UNKNOWN"
+Received: "DISPATCHED"
+
+ ❯ tests/tool-program-recovery-v3.test.ts:103:26
+    101|       const committed = point === 'call.result_committed' || point ===…
+    102|       expect(program.state).toBe(point === 'program.result_committed' …
+    103|       expect(call.state).toBe(committed ? 'SUCCEEDED' : 'UNKNOWN');
+       |                          ^
+    104|       expect(nested.state).toBe(committed ? 'SUCCEEDED' : 'UNKNOWN_EXT…
+    105|       expect(parent.state).toBe(point === 'program.result_committed' ?…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/14]⎯
+
+ FAIL  tests/tool-program-recovery-v3.test.ts > M12 default-off Service recovery after real process death > reconciles only M12 receipts after call.result_committed without execution or inference
+AssertionError: expected 'DISPATCHED' to be 'SUCCEEDED' // Object.is equality
+
+Expected: "SUCCEEDED"
+Received: "DISPATCHED"
+
+ ❯ tests/tool-program-recovery-v3.test.ts:104:28
+    102|       expect(program.state).toBe(point === 'program.result_committed' …
+    103|       expect(call.state).toBe(committed ? 'SUCCEEDED' : 'UNKNOWN');
+    104|       expect(nested.state).toBe(committed ? 'SUCCEEDED' : 'UNKNOWN_EXT…
+       |                            ^
+    105|       expect(parent.state).toBe(point === 'program.result_committed' ?…
+    106|       if (committed) expect(nested.outcome?.value).toEqual({ resultRef…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/14]⎯
+
+ FAIL  tests/tool-program-recovery-v3.test.ts > M12 default-off Service recovery after real process death > reconciles only M12 receipts after program.result_committed without execution or inference
+AssertionError: expected 'DISPATCHED' to be 'SUCCEEDED' // Object.is equality
+
+Expected: "SUCCEEDED"
+Received: "DISPATCHED"
+
+ ❯ tests/tool-program-recovery-v3.test.ts:105:28
+    103|       expect(call.state).toBe(committed ? 'SUCCEEDED' : 'UNKNOWN');
+    104|       expect(nested.state).toBe(committed ? 'SUCCEEDED' : 'UNKNOWN_EXT…
+    105|       expect(parent.state).toBe(point === 'program.result_committed' ?…
+       |                            ^
+    106|       if (committed) expect(nested.outcome?.value).toEqual({ resultRef…
+    107|       if (point === 'call.result_committed') expect(nested.providerRec…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/14]⎯
+
+ FAIL  tests/tool-program-recovery-v3.test.ts > M12 default-off Service recovery after real process death > does not attribute the latest terminal result to an earlier unfinished parent attempt
+AssertionError: expected 'DISPATCHED' to be 'UNKNOWN_EXTERNAL_OUTCOME' // Object.is equality
+
+Expected: "UNKNOWN_EXTERNAL_OUTCOME"
+Received: "DISPATCHED"
+
+ ❯ tests/tool-program-recovery-v3.test.ts:138:84
+    136|     });
+    137|     await f.service.recover();
+    138|     expect(f.store.get<ToolEffectRecord>('toolEffect', first.invocatio…
+       |                                                                                    ^
+    139|     expect(f.store.get<ToolEffectRecord>('toolEffect', `${f.programId}…
+    140|       state: 'SUCCEEDED', providerReceiptRef: f.store.get<ToolProgramV…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/14]⎯
+
+ FAIL  tests/tool-program-recovery-v3.test.ts > M12 default-off Service recovery after real process death > keeps a nested outcome unknown when its retained private receipt fails integrity
+AssertionError: expected { version: 1, …(11) } to match object { state: 'UNKNOWN', …(1) }
+(16 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "resultRef": "result_aa585e6d32835d2c17d8b8c2da578e68",
+-   "state": "UNKNOWN",
++   "state": "SUCCEEDED",
+  }
+
+ ❯ tests/tool-program-recovery-v3.test.ts:154:72
+    152|     });
+    153|     await f.service.recover();
+    154|     expect(f.store.get<NestedCallV1>('nestedCall', call.invocationId))…
+       |                                                                        ^
+    155|     expect(f.store.get<ToolEffectRecord>('toolEffect', call.invocation…
+    156|     expect(retainedRefs(f.store, f.programId)).toContain(ref);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/14]⎯
+
+ FAIL  tests/tool-program-recovery-v3.test.ts > M12 host-only receipt metadata for recovery > verifies historical success and failure without exposing payloads or renewing owner/input authority
+TypeError: f.results.recoveryMetadata is not a function
+ ❯ tests/tool-program-recovery-v3.test.ts:180:34
+    178|     f.currentOwner.mockClear();
+    179|     for (const [ref, invocationId, status] of [[success, 'call', 'SUCC…
+    180|       const metadata = f.results.recoveryMetadata(REPLAY_OWNER, ref, {…
+       |                                  ^
+    181|       expect(metadata).toMatchObject({ resultRef: ref, status, revisio…
+    182|       expect(Object.keys(metadata).sort()).toEqual(['bytes', 'contentT…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/14]⎯
+
+ FAIL  tests/tool-program-recovery-v3.test.ts > M12 host-only receipt metadata for recovery > rejects a recovery metadata threadId binding mismatch
+ FAIL  tests/tool-program-recovery-v3.test.ts > M12 host-only receipt metadata for recovery > rejects a recovery metadata runId binding mismatch
+ FAIL  tests/tool-program-recovery-v3.test.ts > M12 host-only receipt metadata for recovery > rejects a recovery metadata epoch binding mismatch
+ FAIL  tests/tool-program-recovery-v3.test.ts > M12 host-only receipt metadata for recovery > rejects a recovery metadata projectId binding mismatch
+ FAIL  tests/tool-program-recovery-v3.test.ts > M12 host-only receipt metadata for recovery > rejects a recovery metadata workspaceId binding mismatch
+ FAIL  tests/tool-program-recovery-v3.test.ts > M12 host-only receipt metadata for recovery > rejects a recovery metadata accountBinding binding mismatch
+AssertionError: expected error to match asymmetric matcher
+
+- Expected
++ Received
+
+- ObjectContaining {
+-   "code": "RESULT_ACCESS_DENIED",
++ TypeError {
++   "message": "f.results.recoveryMetadata is not a function",
+  }
+
+ ❯ tests/tool-program-recovery-v3.test.ts:196:108
+    194|     const ref = await f.results.save({ owner: REPLAY_OWNER, programId:…
+    195|     const changed = { ...REPLAY_OWNER, [field]: field === 'epoch' ? 99…
+    196|     expect(() => f.results.recoveryMetadata(changed, ref, { programId:…
+       |                                                                                                            ^
+    197|   });
+    198|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/14]⎯
+
+ FAIL  tests/tool-program-recovery-v3.test.ts > M12 host-only receipt metadata for recovery > requires the exact program and invocation, including an absent invocation for aggregate receipts
+AssertionError: expected error to match asymmetric matcher
+
+- Expected
++ Received
+
+- ObjectContaining {
+-   "code": "RESULT_ACCESS_DENIED",
++ TypeError {
++   "message": "f.results.recoveryMetadata is not a function",
+  }
+
+ ❯ tests/tool-program-recovery-v3.test.ts:203:126
+    201|     const nested = await f.results.save({ owner: REPLAY_OWNER, program…
+    202|     const aggregate = await f.results.save({ owner: REPLAY_OWNER, prog…
+    203|     expect(() => f.results.recoveryMetadata(REPLAY_OWNER, nested, { pr…
+       |                                                                                                                              ^
+    204|     expect(() => f.results.recoveryMetadata(REPLAY_OWNER, nested, { pr…
+    205|     expect(() => f.results.recoveryMetadata(REPLAY_OWNER, nested, { pr…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/14]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  14 failed (14)
+   Start at  19:08:55
+   Duration  4.91s (transform 612ms, setup 0ms, import 871ms, tests 3.91s, environment 0ms)
+

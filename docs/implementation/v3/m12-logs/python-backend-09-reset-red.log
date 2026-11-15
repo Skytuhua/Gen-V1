@@ -1,0 +1,51 @@
+{
+  "argv": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/python-program-backend-v3.test.ts",
+    "--maxWorkers=1"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T10:33:40.634826+00:00",
+  "endedAt": "2026-11-15T10:33:48.256294+00:00",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+ ❯ tests/python-program-backend-v3.test.ts (18 tests | 1 failed) 7062ms
+     × requires an explicit reset after a cell asks to change the hard memory ceiling 461ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/python-program-backend-v3.test.ts > actual Linux Python program confinement with explicit test approval > requires an explicit reset after a cell asks to change the hard memory ceiling
+AssertionError: promise resolved "3" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+3
+
+ ❯ tests/python-program-backend-v3.test.ts:160:55
+    158|     expect(await worker.execute(request('result = 1'))).toBe(1);
+    159|     await expect(worker.execute(request('result = 2', { limits: { ...D…
+    160|     await expect(worker.execute(request('result = 3'))).rejects.toMatc…
+       |                                                       ^
+    161|   });
+    162|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 17 passed (18)
+   Start at  18:33:40
+   Duration  7.35s (transform 110ms, setup 0ms, import 162ms, tests 7.06s, environment 0ms)
+

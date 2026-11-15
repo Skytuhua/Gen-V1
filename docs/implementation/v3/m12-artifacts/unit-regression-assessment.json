@@ -1,0 +1,173 @@
+{
+  "version": 1,
+  "scope": "FINAL_AFTER_REVIEW_ASSERTION_COMPARISON",
+  "evidence": {
+    "comparison": {
+      "path": "docs/implementation/v3/m12-artifacts/unit-baseline-comparison.json",
+      "sha256": "b0c18596f2bd9db2d3a277db0b7f6958a0a895eda58779d5ba2a2a93ad5b2af2"
+    },
+    "candidate": {
+      "path": "docs/implementation/v3/m12-artifacts/candidate-vitest-after-review.json",
+      "sha256": "b31e751366e883b1de30047d7964dad420ae2ae4d5e0d482428623a3d06ddcdc"
+    },
+    "unhandled": {
+      "path": "docs/implementation/v3/m12-artifacts/candidate-vitest-unhandled-after-review.json",
+      "sha256": "00d4b7ee17a9a433fbd004ae9ebf89c3e3405023e7ee16d61fd67e929cc45416"
+    },
+    "beforePackagingComparison": {
+      "path": "docs/implementation/v3/m12-artifacts/unit-baseline-comparison-before-packaging.json",
+      "sha256": "8d6c08266ce294bf10760d8c4414ab666326cb1e30ec9891ce9696a44f1f36e7"
+    },
+    "beforePackagingDiagnosis": {
+      "path": "docs/implementation/v3/m12-artifacts/unit-candidate-diagnosis-before-packaging.json",
+      "sha256": "2ee2707a9d08aad74d5207a633f8576a8081333f32002819969605e52c42099d"
+    },
+    "packagingAdditions": {
+      "path": "docs/implementation/v3/m12-artifacts/public-source-manifest-additions.json",
+      "sha256": "17bf679918697aeafa1e5eacc6a007180cd08f46e5fa28385983c1dd9d31bc65"
+    }
+  },
+  "baselineTotals": {
+    "numTotalTestSuites": 502,
+    "numPassedTestSuites": 447,
+    "numFailedTestSuites": 55,
+    "numPendingTestSuites": 0,
+    "numTotalTests": 3355,
+    "numPassedTests": 3036,
+    "numFailedTests": 273,
+    "numPendingTests": 46,
+    "numTodoTests": 0,
+    "success": false
+  },
+  "candidateTotals": {
+    "numTotalTestSuites": 531,
+    "numPassedTestSuites": 478,
+    "numFailedTestSuites": 53,
+    "numPendingTestSuites": 0,
+    "numTotalTests": 3591,
+    "numPassedTests": 3276,
+    "numFailedTests": 269,
+    "numPendingTests": 46,
+    "numTodoTests": 0,
+    "success": false
+  },
+  "classificationCounts": {
+    "inheritedFailingAssertions": 269,
+    "candidateOnlyFailures": 0,
+    "baseOnlyFailures": 4,
+    "candidateAddedAssertions": 237,
+    "candidateRemovedAssertions": 1,
+    "sharedNotExecuted": 46,
+    "candidateNewlyNotExecuted": 0,
+    "baselineNotExecutedNowExecutedOrAbsent": 0
+  },
+  "candidateOnlyFailures": [],
+  "resolvedFirstRunCandidateOnlyFailures": [
+    {
+      "file": "tests/plugin-tools-dock.test.ts",
+      "fullName": "keeps tools, diagram controls and readable inspector separate at 1440px, including recovered free placement",
+      "firstCandidateStatus": "failed",
+      "finalCandidateStatus": "passed",
+      "attribution": "A 60-second timeout in the first candidate observation did not recur in the final run. This agent made no plug-in dock source change; the timeout alone did not establish a geometry regression."
+    },
+    {
+      "file": "tests/public-source.test.ts",
+      "fullName": "reviewed public source allowlist admits every browser suite spec and configuration with complete spec coverage",
+      "firstCandidateStatus": "failed",
+      "finalCandidateStatus": "passed",
+      "attribution": "Exact public source/runtime allowlist omission, fixed with explicit reviewed paths."
+    },
+    {
+      "file": "tests/public-source.test.ts",
+      "fullName": "reviewed public source allowlist admits the local import closure of exported TypeScript and JavaScript inputs",
+      "firstCandidateStatus": "failed",
+      "finalCandidateStatus": "passed",
+      "attribution": "Exact public source/runtime allowlist omission, fixed with explicit reviewed paths."
+    },
+    {
+      "file": "tests/public-source.test.ts",
+      "fullName": "reviewed public source allowlist resolves the staged browser entry using only admitted public sources",
+      "firstCandidateStatus": "failed",
+      "finalCandidateStatus": "passed",
+      "attribution": "Exact public source/runtime allowlist omission, fixed with explicit reviewed paths."
+    },
+    {
+      "file": "tests/public-source.test.ts",
+      "fullName": "reviewed public source allowlist resolves the staged host and worker entries using only admitted runtime sources",
+      "firstCandidateStatus": "failed",
+      "finalCandidateStatus": "passed",
+      "attribution": "Exact public source/runtime allowlist omission, fixed with explicit reviewed paths."
+    }
+  ],
+  "baselineFailuresNowPassing": [
+    {
+      "file": "tests/dev-plugin-runtime.test.ts",
+      "fullName": "prepares widgets and shared runtime before dev children, serves the trusted frame, and closes owned children",
+      "transition": "FAILED_TO_PASSED"
+    },
+    {
+      "file": "tests/hermes-service.test.ts",
+      "fullName": "never supplies completed-write custody for unapproved or failed effects",
+      "transition": "FAILED_TO_PASSED"
+    },
+    {
+      "file": "tests/project-trust-v3.test.ts",
+      "fullName": "reading an ordinary granted text file still works while execution approval stays distinct",
+      "transition": "FAILED_TO_PASSED"
+    },
+    {
+      "file": "tests/service.test.ts",
+      "fullName": "thread and UI integrity a generated operation button leads to native approval and cannot approve by its label",
+      "transition": "FAILED_TO_PASSED"
+    }
+  ],
+  "nondeterministicTestNames": [
+    {
+      "file": "tests/plan-key-connections.test.ts",
+      "baselineFullName": "dedicated stored plan-key connections rejects ambient, legacy, OAuth and mismatched credentials: {\"kimi-coding\":{\"type\":\"oauth\",\"access\":\"fixture-plan-key.with-no-required-prefix\",\"refresh\":\"fixture\",\"expires\":1794740779149}}",
+      "candidateFullName": "dedicated stored plan-key connections rejects ambient, legacy, OAuth and mismatched credentials: {\"kimi-coding\":{\"type\":\"oauth\",\"access\":\"fixture-plan-key.with-no-required-prefix\",\"refresh\":\"fixture\",\"expires\":1794743356223}}",
+      "source": "it.each input expires: Date.now() + 60000 is interpolated into %j test name.",
+      "baselineStatus": "passed",
+      "candidateStatus": "passed",
+      "exactMatchingWasChanged": false
+    }
+  ],
+  "netAdditionalAssertions": 236,
+  "inheritedMessageComparison": {
+    "WORKTREE_ROOT_ONLY": 211,
+    "FIRST_LINES_EQUAL": 252,
+    "CHANGED": 58,
+    "FIRST_LINES_CHANGED": 17
+  },
+  "causalityLimit": "Every final failed assertion has a matching failed baseline identity. This does not prove identical causes for all 269: 211 messages match after worktree-root normalization; 58 differ beyond roots, and 17 raw first lines differ. All original messages remain in the comparison JSON.",
+  "unhandledErrors": {
+    "candidateCount": 4,
+    "baselineCount": null,
+    "baselineCountStatus": "UNKNOWN_JSON_REPORTER_OMISSION",
+    "candidateEvents": [
+      {
+        "file": "/workspace/scratch/dbebe44a9817/m12-v3/tests/account-login.test.ts",
+        "testName": "does not admit a successor sign-in when an expired lease still has a live owner",
+        "message": "File access check failed \u2014 the folder could not be opened safely for this action"
+      },
+      {
+        "file": "/workspace/scratch/dbebe44a9817/m12-v3/tests/github-workspace.test.ts",
+        "testName": "fences cancel during private credential writing before rename and preserves the prior token",
+        "message": "expected HarnessError: File access check failed \u2014 \u2026 { \u2026(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }\n(2 matching properties omitted from actual)"
+      },
+      {
+        "file": "/workspace/scratch/dbebe44a9817/m12-v3/tests/github-workspace.test.ts",
+        "testName": "fences replace during private credential writing before rename and preserves the prior token",
+        "message": "expected HarnessError: File access check failed \u2014 \u2026 { \u2026(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }\n(2 matching properties omitted from actual)"
+      },
+      {
+        "file": "/workspace/scratch/dbebe44a9817/m12-v3/tests/github-workspace.test.ts",
+        "testName": "fences expire during private credential writing before rename and preserves the prior token",
+        "message": "expected HarnessError: File access check failed \u2014 \u2026 { \u2026(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }\n(2 matching properties omitted from actual)"
+      }
+    ],
+    "sourceDiagnosis": "The existing Linux directory guard rejects before the tests enter their awaited callback/write gate. The account-login rejected operation is not awaited until a finally that the never-entered ready gate prevents reaching; the GitHub expected rejection fails while the test awaits the never-entered temporary-write gate. These produce unhandled rejections and 60-second test timeouts. The four same tests already timed out on the accepted base; baseline unhandled events were not recorded."
+  },
+  "overallUnitCommandStatus": "FAIL_WITH_BASELINE_MATCHING_ASSERTION_FAILURES_AND_RECORDED_UNHANDLED_ERRORS",
+  "sourceChangesAfterFinalRunByThisAgent": false
+}

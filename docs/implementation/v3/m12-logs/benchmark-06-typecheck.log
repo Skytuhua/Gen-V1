@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm@10.30.3",
+    "exec",
+    "tsc",
+    "--noEmit",
+    "--pretty",
+    "false"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T10:42:38.089525+00:00",
+  "endedAt": "2026-11-15T10:42:54.554332+00:00",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": false
+}
+
+undefined
+ ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL  Command was killed with SIGKILL (Forced termination): tsc --noEmit --pretty false

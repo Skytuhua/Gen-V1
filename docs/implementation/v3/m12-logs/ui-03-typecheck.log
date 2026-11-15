@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm@10.30.3",
+    "exec",
+    "tsc",
+    "--noEmit",
+    "--pretty",
+    "false"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T10:34:25.821724+00:00",
+  "endedAt": "2026-11-15T10:34:48.317025+00:00",
+  "exitCode": 2,
+  "termination": "NONE",
+  "truncated": false
+}
+
+packages/core/tool-program-host.ts(95,54): error TS2345: Argument of type '{}' is not assignable to parameter of type 'string'.

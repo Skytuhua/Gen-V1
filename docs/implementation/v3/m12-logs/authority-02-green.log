@@ -1,0 +1,30 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm@10.30.3",
+    "exec",
+    "vitest",
+    "run",
+    "tests/tool-program-authority-v3.test.ts",
+    "tests/tool-effects-v3.test.ts",
+    "tests/tool-authority-v3.test.ts",
+    "tests/effect-recovery-v3.test.ts",
+    "--maxWorkers=2"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T10:15:46.644041+00:00",
+  "endedAt": "2026-11-15T10:15:49.970819+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+
+ Test Files  4 passed (4)
+      Tests  36 passed (36)
+   Start at  18:15:47
+   Duration  2.22s (transform 1.34s, setup 0ms, import 2.68s, tests 406ms, environment 2ms)
+

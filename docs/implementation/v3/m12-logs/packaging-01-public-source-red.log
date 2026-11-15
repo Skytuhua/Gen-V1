@@ -1,0 +1,154 @@
+{
+  "argv": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/public-source.test.ts",
+    "--maxWorkers=1"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T11:41:08.051371+00:00",
+  "endedAt": "2026-11-15T11:41:09.810819+00:00",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+ ❯ tests/public-source.test.ts (13 tests | 6 failed) 701ms
+     × admits the reviewed program runtime and its non-static worker assets by exact name 4ms
+     × admits the reviewed program UI and verification inputs only as public source 1ms
+     × resolves the staged host and worker entries using only admitted runtime sources 109ms
+     × resolves the staged browser entry using only admitted public sources 115ms
+     × admits every browser suite spec and configuration with complete spec coverage 2ms
+     × admits the local import closure of exported TypeScript and JavaScript inputs 391ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/public-source.test.ts > reviewed public source allowlist > admits the reviewed program runtime and its non-static worker assets by exact name
+AssertionError: apps/server/tool-program-routes.ts: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/public-source.test.ts:48:46
+     46|       'packages/runtime/tool-program-worker-child.mjs','packages/runti…
+     47|     ]){
+     48|       expect(publicSourceAllowed(path),path).toBe(true);
+       |                                              ^
+     49|       expect(publicRuntimeSourceAllowed(path),path).toBe(true);
+     50|       expect(runtimeSourceAllowed(path),path).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  tests/public-source.test.ts > reviewed public source allowlist > admits the reviewed program UI and verification inputs only as public source
+AssertionError: apps/web/src/ToolProgramPanel.tsx: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/public-source.test.ts:68:46
+     66|       'tests/tool-program-transport-v3.test.ts','tests/tool-program-v3…
+     67|     ]){
+     68|       expect(publicSourceAllowed(path),path).toBe(true);
+       |                                              ^
+     69|       expect(publicRuntimeSourceAllowed(path),path).toBe(false);
+     70|     }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  tests/public-source.test.ts > reviewed public source allowlist > resolves the staged host and worker entries using only admitted runtime sources
+Error: Build failed with 7 errors:
+apps/server/server.ts:31:40: ERROR: Could not resolve "./tool-program-routes.ts"
+packages/core/file-access.ts:9:82: ERROR: Could not resolve "./linux-file-read.ts"
+packages/core/service.ts:41:61: ERROR: Could not resolve "./tool-program-host.ts"
+packages/core/service.ts:42:35: ERROR: Could not resolve "./tool-program-tools.ts"
+packages/runtime-hermes/index.ts:12:52: ERROR: Could not resolve "../core/tool-program-tools.ts"
+...
+ ❯ failureErrorWithLog node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:1467:15
+ ❯ node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:926:25
+ ❯ node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:878:52
+ ❯ buildResponseToResult node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:924:7
+ ❯ node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:951:16
+ ❯ responseCallbacks.<computed> node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:603:9
+ ❯ handleIncomingPacket node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:658:12
+ ❯ Socket.readFromStdout node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:581:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  tests/public-source.test.ts > reviewed public source allowlist > resolves the staged browser entry using only admitted public sources
+Error: Build failed with 1 error:
+apps/web/src/App.tsx:27:33: ERROR: Could not resolve "./ToolProgramPanel"
+ ❯ failureErrorWithLog node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:1467:15
+ ❯ node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:926:25
+ ❯ node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:878:52
+ ❯ buildResponseToResult node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:924:7
+ ❯ node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:951:16
+ ❯ responseCallbacks.<computed> node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:603:9
+ ❯ handleIncomingPacket node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:658:12
+ ❯ Socket.readFromStdout node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:581:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  tests/public-source.test.ts > reviewed public source allowlist > admits every browser suite spec and configuration with complete spec coverage
+AssertionError: expected [Function] to not throw an error but 'Error: Browser spec coverage: missing…' was thrown
+
+- Expected:
+undefined
+
++ Received:
+"Error: Browser spec coverage: missing []; duplicate []; unknown [tool-programs.spec.ts]."
+
+ ❯ tests/public-source.test.ts:112:50
+    110|   it('admits every browser suite spec and configuration with complete …
+    111|     const specs=publicSourceFiles.filter(path=>path.startsWith('tests/…
+    112|     expect(()=>validateBrowserSuites(specs)).not.toThrow();
+       |                                                  ^
+    113|     for(const suite of browserSuites){
+    114|       for(const path of [suite.config,...suite.specs.map(spec=>'tests/…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  tests/public-source.test.ts > reviewed public source allowlist > admits the local import closure of exported TypeScript and JavaScript inputs
+AssertionError: expected [ …(9) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "apps/server/server.ts -> ./tool-program-routes.ts",
++   "apps/web/src/App.tsx -> ./ToolProgramPanel",
++   "packages/core/file-access.ts -> ./linux-file-read.ts",
++   "packages/core/service.ts -> ./tool-program-host.ts",
++   "packages/core/service.ts -> ./tool-program-tools.ts",
++   "packages/runtime-hermes/index.ts -> ../core/tool-program-tools.ts",
++   "packages/runtime-official/mcp.ts -> ../core/tool-program-tools.ts",
++   "packages/runtime-pi/tool-definitions.ts -> ../core/tool-program-tools.ts",
++   "tests/hermes-runtime.test.ts -> ../packages/core/tool-program-tools.ts",
++ ]
+
+ ❯ tests/public-source.test.ts:131:33
+    129|       }
+    130|     }
+    131|     expect([...missing].sort()).toEqual([]);
+       |                                 ^
+    132|   });
+    133|   it('admits only enumerated inputs and rejects an unexpected payload …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  6 failed | 7 passed (13)
+   Start at  19:41:08
+   Duration  1.48s (transform 231ms, setup 0ms, import 593ms, tests 701ms, environment 0ms)
+

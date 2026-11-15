@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/python-program-integration-v3.test.ts",
+    "--maxWorkers=1",
+    "-t",
+    "host execution flags change"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T10:43:10.577999+00:00",
+  "endedAt": "2026-11-15T10:43:13.712136+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 14 skipped (15)
+   Start at  18:43:10
+   Duration  2.77s (transform 1.06s, setup 0ms, import 1.47s, tests 1.15s, environment 0ms)
+

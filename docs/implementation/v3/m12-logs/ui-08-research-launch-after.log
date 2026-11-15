@@ -1,0 +1,49 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm@10.30.3",
+    "exec",
+    "playwright",
+    "test",
+    "--config",
+    "tests/e2e/research-workspace.playwright.config.ts",
+    "--grep",
+    "late source text cannot return after blur"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T11:02:19.688896+00:00",
+  "endedAt": "2026-11-15T11:02:24.215556+00:00",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": false
+}
+
+[2m[WebServer] [22m(node:36) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:36) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:72) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:72) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/e2e/research-workspace.spec.ts:66:1 › late source text cannot return after blur and grant revocation (3ms)
+
+
+  1) tests/e2e/research-workspace.spec.ts:66:1 › late source text cannot return after blur and grant revocation 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "pnpm exec playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    .harness-ui-shell/research-workspace/research-workspace-late-so-7266c-r-blur-and-grant-revocation/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace .harness-ui-shell/research-workspace/research-workspace-late-so-7266c-r-blur-and-grant-revocation/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/e2e/research-workspace.spec.ts:66:1 › late source text cannot return after blur and grant revocation 

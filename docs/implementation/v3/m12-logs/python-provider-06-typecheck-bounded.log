@@ -1,0 +1,34 @@
+{
+  "argv": [
+    "node",
+    "--max-old-space-size=1536",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T10:44:00.537597+00:00",
+  "endedAt": "2026-11-15T10:44:29.248639+00:00",
+  "exitCode": -6,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+<--- Last few GCs --->
+
+[5:0x200f2000]    28141 ms: Scavenge 1526.3 (1540.0) -> 1523.1 (1540.5) MB, pooled: 0 MB, 2.02 / 0.00 ms  (average mu = 0.245, current mu = 0.273) allocation failure; 
+[5:0x200f2000]    28600 ms: Mark-Compact 1527.0 (1540.5) -> 1515.0 (1540.5) MB, pooled: 0 MB, 450.70 / 0.00 ms  (average mu = 0.206, current mu = 0.162) allocation failure; scavenge might not succeed
+
+FATAL ERROR: Ineffective mark-compacts near heap limit Allocation failed - JavaScript heap out of memory
+----- Native stack trace -----
+
+ 1: 0x91d810  [node]
+ 2: 0x75bb1b node::OOMErrorHandler(char const*, v8::OOMDetails const&) [node]
+ 3: 0xc755c0  [node]
+ 4: 0xc756bf  [node]
+ 5: 0xf24835  [node]
+ 6: 0xf24862  [node]
+ 7: 0xf24be4  [node]
+ 8: 0xf3694a  [node]
+ 9: 0xf3ae00  [node]
+10: 0x1a3ed81  [node]

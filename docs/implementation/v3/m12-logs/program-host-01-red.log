@@ -1,0 +1,42 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm@10.30.3",
+    "exec",
+    "vitest",
+    "run",
+    "tests/tool-program-v3.test.ts"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T10:20:04.771615+00:00",
+  "endedAt": "2026-11-15T10:20:05.808261+00:00",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+ ❯ tests/tool-program-v3.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/tool-program-v3.test.ts [ tests/tool-program-v3.test.ts ]
+Error: Cannot find module '../packages/core/tool-disclosure.ts' imported from /workspace/scratch/dbebe44a9817/m12-v3/tests/tool-program-v3.test.ts
+ ❯ tests/tool-program-v3.test.ts:8:1
+      6| import { ToolAuthority, type RegistryEntry } from '../packages/core/to…
+      7| import { ToolEffectLedger } from '../packages/core/tool-effects.ts';
+      8| import { ToolDisclosure } from '../packages/core/tool-disclosure.ts';
+       | ^
+      9| import { PrivateToolResults } from '../packages/core/tool-results.ts';
+     10| import { ToolPrograms } from '../packages/core/tool-programs.ts';
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  18:20:05
+   Duration  387ms (transform 175ms, setup 0ms, import 0ms, tests 0ms, environment 0ms)
+

@@ -1,0 +1,60 @@
+{
+  "argv": [
+    "python",
+    "docs/implementation/v3/m12-artifacts/compare-unit-reports.py",
+    "--candidate",
+    "docs/implementation/v3/m12-logs/baseline-fcaa52-vitest.json",
+    "--candidate-root",
+    "/workspace/scratch/dbebe44a9817/m12-base-fcaa52",
+    "--candidate-unhandled",
+    "/tmp/m12-comparison-probes/no-unhandled-sidecar.json",
+    "--output",
+    "/tmp/m12-comparison-probes/self-comparison.json",
+    "--markdown",
+    "/tmp/m12-comparison-probes/self-comparison.md"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T11:32:41.055229+00:00",
+  "endedAt": "2026-11-15T11:32:41.157857+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+{
+  "output": "/tmp/m12-comparison-probes/self-comparison.json",
+  "sha256": "78b13024c5efb49d71c59187fc57aee3c98342d0b04720329ec4d49e4607f922",
+  "markdown": "/tmp/m12-comparison-probes/self-comparison.md",
+  "counts": {
+    "inheritedFailingAssertions": 273,
+    "candidateOnlyFailures": 0,
+    "baseOnlyFailures": 0,
+    "candidateAddedAssertions": 0,
+    "candidateRemovedAssertions": 0,
+    "sharedNotExecuted": 46,
+    "candidateNewlyNotExecuted": 0,
+    "baselineNotExecutedNowExecutedOrAbsent": 0
+  },
+  "statusTransitions": [
+    {
+      "baseline": "failed",
+      "candidate": "failed",
+      "count": 273
+    },
+    {
+      "baseline": "passed",
+      "candidate": "passed",
+      "count": 3036
+    },
+    {
+      "baseline": "skipped",
+      "candidate": "skipped",
+      "count": 46
+    }
+  ],
+  "unhandled": {
+    "baseline": "UNKNOWN",
+    "candidate": "UNKNOWN",
+    "candidateCount": null
+  }
+}

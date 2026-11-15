@@ -1,0 +1,36 @@
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+ ❯ tests/tool-program-backend-v3.test.ts (14 tests | 1 failed) 1483ms
+     × journals a failed tool promise before rejecting it into the guest 67ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 13 passed (14)
+   Start at  18:26:02
+   Duration  1.88s (transform 90ms, setup 0ms, import 109ms, tests 1.48s, environment 0ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/tool-program-backend-v3.test.ts > M12 checked QuickJS worker boundary > journals a failed tool promise before rejecting it into the guest
+AssertionError: expected { message: '', clock: 1700000000321 } to deeply equal { …(2) }
+
+- Expected
++ Received
+
+  {
+    "clock": 1700000000321,
+-   "message": "bounded original failure",
++   "message": "",
+  }
+
+ ❯ tests/tool-program-backend-v3.test.ts:146:19
+    144|     ));
+    145|     expect(commits).toEqual([{ key: 'call:0', count: 1 }]);
+    146|     expect(value).toEqual({ message: 'bounded original failure', clock…
+       |                   ^
+    147|   });
+    148|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+

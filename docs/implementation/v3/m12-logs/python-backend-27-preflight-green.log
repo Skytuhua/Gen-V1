@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/python-program-backend-v3.test.ts",
+    "--maxWorkers=1",
+    "-t",
+    "bounds a prior|stops preflight"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T11:16:49.172023+00:00",
+  "endedAt": "2026-11-15T11:16:55.248721+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed | 19 skipped (23)
+   Start at  19:16:49
+   Duration  5.82s (transform 159ms, setup 0ms, import 235ms, tests 5.45s, environment 0ms)
+

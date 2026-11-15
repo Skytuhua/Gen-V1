@@ -1,0 +1,43 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm@10.30.3",
+    "exec",
+    "vitest",
+    "run",
+    "tests/tool-program-prerequisites-v3.test.ts",
+    "--maxWorkers=2"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T10:19:36.615586+00:00",
+  "endedAt": "2026-11-15T10:19:37.620182+00:00",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+ ❯ tests/tool-program-prerequisites-v3.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/tool-program-prerequisites-v3.test.ts [ tests/tool-program-prerequisites-v3.test.ts ]
+Error: Cannot find module '../packages/core/tool-disclosure.ts' imported from /workspace/scratch/dbebe44a9817/m12-v3/tests/tool-program-prerequisites-v3.test.ts
+ ❯ tests/tool-program-prerequisites-v3.test.ts:7:1
+      5| import { Store, digest } from '../packages/storage/store.ts';
+      6| import { buildToolRegistry, ToolAuthority } from '../packages/core/too…
+      7| import { ToolDisclosure, toolDefinitionDigest } from '../packages/core…
+       | ^
+      8| import { PrivateToolResults } from '../packages/core/tool-results.ts';
+      9| import { sameToolOwner, type ToolResultLimits } from '../packages/cont…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  18:19:37
+   Duration  391ms (transform 166ms, setup 0ms, import 0ms, tests 0ms, environment 0ms)
+

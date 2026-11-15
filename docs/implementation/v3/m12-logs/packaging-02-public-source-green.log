@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/public-source.test.ts",
+    "--maxWorkers=1"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T11:41:54.332219+00:00",
+  "endedAt": "2026-11-15T11:41:55.661336+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+
+ Test Files  1 passed (1)
+      Tests  13 passed (13)
+   Start at  19:41:54
+   Duration  1.10s (transform 149ms, setup 0ms, import 336ms, tests 632ms, environment 0ms)
+

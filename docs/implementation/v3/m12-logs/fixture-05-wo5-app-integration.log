@@ -1,0 +1,334 @@
+{
+  "argv": [
+    "pnpm",
+    "test:browser",
+    "--",
+    "--suite",
+    "wo5-app-integration"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T12:03:12.640589+00:00",
+  "endedAt": "2026-11-15T12:05:31.988702+00:00",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+> gen-v1@0.6.5 test:browser /workspace/scratch/dbebe44a9817/m12-v3
+> node --import tsx scripts/test-browser.ts -- --suite wo5-app-integration
+
+Browser results: /workspace/scratch/dbebe44a9817/m12-v3/test-results/browser/run-1794744193063-c771560b-994a-4f09-997d-6db9ae1adb50
+
+Browser suite: wo5-app-integration (1 spec files)
+[2m[WebServer] [22m(node:45) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:57) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 9 tests using 1 worker
+
+(node:87) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:87) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/e2e/wo5-app-integration.spec.ts:159:40 › actual App keeps Files, find, Changes and Notes owners at 1440 (7.1s)
+(node:166) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:166) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 tests/e2e/wo5-app-integration.spec.ts:159:40 › actual App keeps Files, find, Changes and Notes owners at 1024 (4.3s)
+(node:245) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:245) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 tests/e2e/wo5-app-integration.spec.ts:159:40 › actual App keeps Files, find, Changes and Notes owners at 768 (4.4s)
+(node:324) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:324) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 tests/e2e/wo5-app-integration.spec.ts:235:1 › actual terminal selection reaches the same unsent composer and is serialized once by normal Send (3.2s)
+  ✘  5 tests/e2e/wo5-app-integration.spec.ts:268:1 › production overview and compact usage retain their exact destinations under reduced motion and light zoom (45.1s)
+(node:421) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:421) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  6 tests/e2e/wo5-app-integration.spec.ts:319:40 › QA r1 actual App saves, restores and deletes named drafts at 1440 (6.7s)
+(node:501) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:501) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  7 tests/e2e/wo5-app-integration.spec.ts:319:40 › QA r1 actual App saves, restores and deletes named drafts at 1024 (6.7s)
+(node:585) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:585) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  8 tests/e2e/wo5-app-integration.spec.ts:319:40 › QA r1 actual App saves, restores and deletes named drafts at 768 (6.6s)
+(node:666) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:666) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  9 tests/e2e/wo5-app-integration.spec.ts:403:1 › QA r1 actual App fences named libraries by thread account and working copy (45.5s)
+
+
+  1) tests/e2e/wo5-app-integration.spec.ts:159:40 › actual App keeps Files, find, Changes and Notes owners at 1440 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+    [32m- Expected  - 1[39m
+    [31m+ Received  + 3[39m
+
+    [32m- Array [][39m
+    [31m+ Array [[39m
+    [31m+   "/api/projects/capture-project/checkpoints/capability",[39m
+    [31m+ ][39m
+
+      57 |  await panel(page,'Output');await expect(page.getByRole('region',{name:'Thread memory'})).toHaveCount(0);
+      58 |  await panel(page,'Notes');await expect(note).toHaveValue('Retain this unsaved owner note.');
+    > 59 |  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);expect(h.unexpected).toEqual([]);expect(h.commands.filter(c=>c.type==='message.send')).toEqual([]);
+         |                                                                                                                    ^
+      60 |  const out=info.outputPath('screenshots');await mkdir(out,{recursive:true});await page.screenshot({path:`${out}/notes-${width}.png`,fullPage:true});
+      61 | });
+      62 | test('actual terminal selection reaches the same unsent composer and is serialized once by normal Send',async({page})=>{
+        at /workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/wo5-app-integration.spec.ts:59:116
+
+    Error Context: test-results/browser/run-1794744193063-c771560b-994a-4f09-997d-6db9ae1adb50/wo5-app-integration/artifacts/wo5-app-integration-actual-db5a7-es-and-Notes-owners-at-1440/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794744193063-c771560b-994a-4f09-997d-6db9ae1adb50/wo5-app-integration/artifacts/wo5-app-integration-actual-db5a7-es-and-Notes-owners-at-1440/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794744193063-c771560b-994a-4f09-997d-6db9ae1adb50/wo5-app-integration/artifacts/wo5-app-integration-actual-db5a7-es-and-Notes-owners-at-1440/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/e2e/wo5-app-integration.spec.ts:159:40 › actual App keeps Files, find, Changes and Notes owners at 1024 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+    [32m- Expected  - 1[39m
+    [31m+ Received  + 3[39m
+
+    [32m- Array [][39m
+    [31m+ Array [[39m
+    [31m+   "/api/projects/capture-project/checkpoints/capability",[39m
+    [31m+ ][39m
+
+      57 |  await panel(page,'Output');await expect(page.getByRole('region',{name:'Thread memory'})).toHaveCount(0);
+      58 |  await panel(page,'Notes');await expect(note).toHaveValue('Retain this unsaved owner note.');
+    > 59 |  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);expect(h.unexpected).toEqual([]);expect(h.commands.filter(c=>c.type==='message.send')).toEqual([]);
+         |                                                                                                                    ^
+      60 |  const out=info.outputPath('screenshots');await mkdir(out,{recursive:true});await page.screenshot({path:`${out}/notes-${width}.png`,fullPage:true});
+      61 | });
+      62 | test('actual terminal selection reaches the same unsent composer and is serialized once by normal Send',async({page})=>{
+        at /workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/wo5-app-integration.spec.ts:59:116
+
+    Error Context: test-results/browser/run-1794744193063-c771560b-994a-4f09-997d-6db9ae1adb50/wo5-app-integration/artifacts/wo5-app-integration-actual-4d724-es-and-Notes-owners-at-1024/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794744193063-c771560b-994a-4f09-997d-6db9ae1adb50/wo5-app-integration/artifacts/wo5-app-integration-actual-4d724-es-and-Notes-owners-at-1024/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794744193063-c771560b-994a-4f09-997d-6db9ae1adb50/wo5-app-integration/artifacts/wo5-app-integration-actual-4d724-es-and-Notes-owners-at-1024/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/e2e/wo5-app-integration.spec.ts:159:40 › actual App keeps Files, find, Changes and Notes owners at 768 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoEqual[2m([22m[32mexpected[39m[2m) // deep equality[22m
+
+    [32m- Expected  - 1[39m
+    [31m+ Received  + 3[39m
+
+    [32m- Array [][39m
+    [31m+ Array [[39m
+    [31m+   "/api/projects/capture-project/checkpoints/capability",[39m
+    [31m+ ][39m
+
+      57 |  await panel(page,'Output');await expect(page.getByRole('region',{name:'Thread memory'})).toHaveCount(0);
+      58 |  await panel(page,'Notes');await expect(note).toHaveValue('Retain this unsaved owner note.');
+    > 59 |  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);expect(h.unexpected).toEqual([]);expect(h.commands.filter(c=>c.type==='message.send')).toEqual([]);
+         |                                                                                                                    ^
+      60 |  const out=info.outputPath('screenshots');await mkdir(out,{recursive:true});await page.screenshot({path:`${out}/notes-${width}.png`,fullPage:true});
+      61 | });
+      62 | test('actual terminal selection reaches the same unsent composer and is serialized once by normal Send',async({page})=>{
+        at /workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/wo5-app-integration.spec.ts:59:116
+
+    Error Context: test-results/browser/run-1794744193063-c771560b-994a-4f09-997d-6db9ae1adb50/wo5-app-integration/artifacts/wo5-app-integration-actual-59be5-ges-and-Notes-owners-at-768/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794744193063-c771560b-994a-4f09-997d-6db9ae1adb50/wo5-app-integration/artifacts/wo5-app-integration-actual-59be5-ges-and-Notes-owners-at-768/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794744193063-c771560b-994a-4f09-997d-6db9ae1adb50/wo5-app-integration/artifacts/wo5-app-integration-actual-59be5-ges-and-Notes-owners-at-768/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/e2e/wo5-app-integration.spec.ts:268:1 › production overview and compact usage retain their exact destinations under reduced motion and light zoom 
+
+    [31mTest timeout of 45000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'Inspect live usage', exact: true })[22m
+
+
+      74 |  await page.getByRole('button',{name:'Expand Project overview',exact:true}).click();await expect(page.locator('.project-context-card')).toContainText('Audit project');
+      75 |  await expect(page.locator('.project-context-card').getByRole('button',{name:/^Changes/})).toHaveCount(0);
+    > 76 |  await page.getByRole('button',{name:'Inspect live usage',exact:true}).click();await expect(page.locator('.floating-usage-details dl')).toHaveCount(0);
+         |                                                                        ^
+      77 |  const open=page.getByRole('button',{name:'Open Usage',exact:true});await open.focus();await page.keyboard.press('Enter');
+      78 |  const usage=page.getByRole('dialog',{name:'Usage',exact:true});await expect(usage).toContainText('Audit the workspace');await expect(usage).toContainText('0.012345');
+      79 |  await usage.getByRole('tab',{name:'Tokens',exact:true}).click();await expect(usage).toContainText('18,321');await usage.getByRole('tab',{name:'Limits',exact:true}).click();await expect(usage).toContainText('67.89%');
+        at /workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/wo5-app-integration.spec.ts:76:72
+
+    Error Context: test-results/browser/run-1794744193063-c771560b-994a-4f09-997d-6db9ae1adb50/wo5-app-integration/artifacts/wo5-app-integration-produc-80d4a-duced-motion-and-light-zoom/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794744193063-c771560b-994a-4f09-997d-6db9ae1adb50/wo5-app-integration/artifacts/wo5-app-integration-produc-80d4a-duced-motion-and-light-zoom/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794744193063-c771560b-994a-4f09-997d-6db9ae1adb50/wo5-app-integration/artifacts/wo5-app-integration-produc-80d4a-duced-motion-and-light-zoom/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/e2e/wo5-app-integration.spec.ts:319:40 › QA r1 actual App saves, restores and deletes named drafts at 1440 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeEnabled[2m([22m[2m)[22m failed
+
+    Locator: getByRole('button', { name: 'Drafts', exact: true })
+    Expected: enabled
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeEnabled" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('button', { name: 'Drafts', exact: true })[22m
+
+
+      83 | for(const width of [1440,1024,768])test(`QA r1 actual App saves, restores and deletes named drafts at ${width}`,async({page},info)=>{
+      84 |  await page.setViewportSize({width,height:1000});const h=await host(page),input=page.getByRole('textbox',{name:'Message',exact:true});
+    > 85 |  await input.fill('Saved original prompt');const drafts=page.getByRole('button',{name:'Drafts',exact:true});await expect(drafts).toBeEnabled();await drafts.click();
+         |                                                                                                                                  ^
+      86 |  await page.getByRole('button',{name:'Save current prompt',exact:true}).click();await page.getByRole('textbox',{name:'Draft name',exact:true}).fill('Integration prompt');await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt',exact:true})).toBeHidden();
+      87 |  await input.fill('Keep my current prompt');await drafts.click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toContainText('Integration prompt');
+      88 |  await page.getByRole('button',{name:'Restore',exact:true}).click();await expect(page.getByRole('dialog',{name:'Restore saved draft',exact:true})).toContainText('Saved original prompt');
+        at /workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/wo5-app-integration.spec.ts:85:130
+
+    Error Context: test-results/browser/run-1794744193063-c771560b-994a-4f09-997d-6db9ae1adb50/wo5-app-integration/artifacts/wo5-app-integration-QA-r1--9548a-eletes-named-drafts-at-1440/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794744193063-c771560b-994a-4f09-997d-6db9ae1adb50/wo5-app-integration/artifacts/wo5-app-integration-QA-r1--9548a-eletes-named-drafts-at-1440/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794744193063-c771560b-994a-4f09-997d-6db9ae1adb50/wo5-app-integration/artifacts/wo5-app-integration-QA-r1--9548a-eletes-named-drafts-at-1440/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/e2e/wo5-app-integration.spec.ts:319:40 › QA r1 actual App saves, restores and deletes named drafts at 1024 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeEnabled[2m([22m[2m)[22m failed
+
+    Locator: getByRole('button', { name: 'Drafts', exact: true })
+    Expected: enabled
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeEnabled" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('button', { name: 'Drafts', exact: true })[22m
+
+
+      83 | for(const width of [1440,1024,768])test(`QA r1 actual App saves, restores and deletes named drafts at ${width}`,async({page},info)=>{
+      84 |  await page.setViewportSize({width,height:1000});const h=await host(page),input=page.getByRole('textbox',{name:'Message',exact:true});
+    > 85 |  await input.fill('Saved original prompt');const drafts=page.getByRole('button',{name:'Drafts',exact:true});await expect(drafts).toBeEnabled();await drafts.click();
+         |                                                                                                                                  ^
+      86 |  await page.getByRole('button',{name:'Save current prompt',exact:true}).click();await page.getByRole('textbox',{name:'Draft name',exact:true}).fill('Integration prompt');await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt',exact:true})).toBeHidden();
+      87 |  await input.fill('Keep my current prompt');await drafts.click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toContainText('Integration prompt');
+      88 |  await page.getByRole('button',{name:'Restore',exact:true}).click();await expect(page.getByRole('dialog',{name:'Restore saved draft',exact:true})).toContainText('Saved original prompt');
+        at /workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/wo5-app-integration.spec.ts:85:130
+
+    Error Context: test-results/browser/run-1794744193063-c771560b-994a-4f09-997d-6db9ae1adb50/wo5-app-integration/artifacts/wo5-app-integration-QA-r1--20d78-eletes-named-drafts-at-1024/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794744193063-c771560b-994a-4f09-997d-6db9ae1adb50/wo5-app-integration/artifacts/wo5-app-integration-QA-r1--20d78-eletes-named-drafts-at-1024/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794744193063-c771560b-994a-4f09-997d-6db9ae1adb50/wo5-app-integration/artifacts/wo5-app-integration-QA-r1--20d78-eletes-named-drafts-at-1024/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/e2e/wo5-app-integration.spec.ts:319:40 › QA r1 actual App saves, restores and deletes named drafts at 768 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeEnabled[2m([22m[2m)[22m failed
+
+    Locator: getByRole('button', { name: 'Drafts', exact: true })
+    Expected: enabled
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeEnabled" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('button', { name: 'Drafts', exact: true })[22m
+
+
+      83 | for(const width of [1440,1024,768])test(`QA r1 actual App saves, restores and deletes named drafts at ${width}`,async({page},info)=>{
+      84 |  await page.setViewportSize({width,height:1000});const h=await host(page),input=page.getByRole('textbox',{name:'Message',exact:true});
+    > 85 |  await input.fill('Saved original prompt');const drafts=page.getByRole('button',{name:'Drafts',exact:true});await expect(drafts).toBeEnabled();await drafts.click();
+         |                                                                                                                                  ^
+      86 |  await page.getByRole('button',{name:'Save current prompt',exact:true}).click();await page.getByRole('textbox',{name:'Draft name',exact:true}).fill('Integration prompt');await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt',exact:true})).toBeHidden();
+      87 |  await input.fill('Keep my current prompt');await drafts.click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toContainText('Integration prompt');
+      88 |  await page.getByRole('button',{name:'Restore',exact:true}).click();await expect(page.getByRole('dialog',{name:'Restore saved draft',exact:true})).toContainText('Saved original prompt');
+        at /workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/wo5-app-integration.spec.ts:85:130
+
+    Error Context: test-results/browser/run-1794744193063-c771560b-994a-4f09-997d-6db9ae1adb50/wo5-app-integration/artifacts/wo5-app-integration-QA-r1--f1bac-deletes-named-drafts-at-768/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794744193063-c771560b-994a-4f09-997d-6db9ae1adb50/wo5-app-integration/artifacts/wo5-app-integration-QA-r1--f1bac-deletes-named-drafts-at-768/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794744193063-c771560b-994a-4f09-997d-6db9ae1adb50/wo5-app-integration/artifacts/wo5-app-integration-QA-r1--f1bac-deletes-named-drafts-at-768/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/e2e/wo5-app-integration.spec.ts:403:1 › QA r1 actual App fences named libraries by thread account and working copy 
+
+    [31mTest timeout of 45000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 45000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'Drafts', exact: true })[22m
+
+
+       95 | test('QA r1 actual App fences named libraries by thread account and working copy',async({page})=>{
+       96 |  const h=await host(page),input=page.getByRole('textbox',{name:'Message',exact:true}),drafts=page.getByRole('button',{name:'Drafts',exact:true});
+    >  97 |  await input.fill('Private local owner text');await drafts.click();await page.getByRole('button',{name:'Save current prompt',exact:true}).click();await page.getByLabel('Draft name',{exact:true}).fill('Owner library');await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt',exact:true})).toBeHidden();
+          |                                                            ^
+       98 |  h.workingCopy.id='copy-two';await page.reload();await expect(drafts).toBeEnabled();await drafts.click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toContainText('No saved drafts yet.');await page.keyboard.press('Escape');
+       99 |  h.workingCopy.id='copy-one';h.snapshot.threads[0].accountId='other-account';await page.reload();await expect(drafts).toBeEnabled();await drafts.click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toContainText('No saved drafts yet.');await page.keyboard.press('Escape');
+      100 |  h.snapshot.threads[0].accountId=null;await page.reload();await expect(drafts).toBeEnabled();await drafts.click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toContainText('Owner library');await page.keyboard.press('Escape');
+        at /workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/wo5-app-integration.spec.ts:97:60
+
+    Error Context: test-results/browser/run-1794744193063-c771560b-994a-4f09-997d-6db9ae1adb50/wo5-app-integration/artifacts/wo5-app-integration-QA-r1--46316-ad-account-and-working-copy/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794744193063-c771560b-994a-4f09-997d-6db9ae1adb50/wo5-app-integration/artifacts/wo5-app-integration-QA-r1--46316-ad-account-and-working-copy/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794744193063-c771560b-994a-4f09-997d-6db9ae1adb50/wo5-app-integration/artifacts/wo5-app-integration-QA-r1--46316-ad-account-and-working-copy/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8 failed
+    tests/e2e/wo5-app-integration.spec.ts:159:40 › actual App keeps Files, find, Changes and Notes owners at 1440 
+    tests/e2e/wo5-app-integration.spec.ts:159:40 › actual App keeps Files, find, Changes and Notes owners at 1024 
+    tests/e2e/wo5-app-integration.spec.ts:159:40 › actual App keeps Files, find, Changes and Notes owners at 768 
+    tests/e2e/wo5-app-integration.spec.ts:268:1 › production overview and compact usage retain their exact destinations under reduced motion and light zoom 
+    tests/e2e/wo5-app-integration.spec.ts:319:40 › QA r1 actual App saves, restores and deletes named drafts at 1440 
+    tests/e2e/wo5-app-integration.spec.ts:319:40 › QA r1 actual App saves, restores and deletes named drafts at 1024 
+    tests/e2e/wo5-app-integration.spec.ts:319:40 › QA r1 actual App saves, restores and deletes named drafts at 768 
+    tests/e2e/wo5-app-integration.spec.ts:403:1 › QA r1 actual App fences named libraries by thread account and working copy 
+  1 passed (2.3m)
+
+Failed browser suites: wo5-app-integration (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.

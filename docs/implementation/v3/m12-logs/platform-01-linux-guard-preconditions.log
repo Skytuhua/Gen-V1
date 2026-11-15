@@ -1,0 +1,37 @@
+{
+  "argv": [
+    "node",
+    "--input-type=module",
+    "-e",
+    "import {fstatSync,readFileSync} from \"node:fs\"; const fd = n => {try {const s=fstatSync(n);return {exists:true,isSocket:s.isSocket(),isDirectory:s.isDirectory()}}catch(e){return {exists:false,error:e.code}}}; const status=readFileSync(\"/proc/self/status\",\"utf8\"); const field=n=>status.split(\"\\n\").find(s=>s.startsWith(n+\":\"))??null; console.log(JSON.stringify({platform:process.platform,uid:process.geteuid(),fd3:fd(3),fd4:fd(4),noNewPrivs:field(\"NoNewPrivs\"),caps:[\"CapEff\",\"CapPrm\",\"CapBnd\",\"CapAmb\"].map(field),interpretation:\"Read-only host observation. This process is not the required native directory-guard launcher and no confinement proof is asserted.\"},null,2));"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T09:58:32.826785+00:00",
+  "endedAt": "2026-11-15T09:58:32.930285+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+{
+  "platform": "linux",
+  "uid": 1000,
+  "fd3": {
+    "exists": true,
+    "isSocket": false,
+    "isDirectory": false
+  },
+  "fd4": {
+    "exists": true,
+    "isSocket": false,
+    "isDirectory": false
+  },
+  "noNewPrivs": "NoNewPrivs:\t1",
+  "caps": [
+    "CapEff:\t0000000000000000",
+    "CapPrm:\t0000000000000000",
+    "CapBnd:\t0000000000000000",
+    "CapAmb:\t0000000000000000"
+  ],
+  "interpretation": "Read-only host observation. This process is not the required native directory-guard launcher and no confinement proof is asserted."
+}

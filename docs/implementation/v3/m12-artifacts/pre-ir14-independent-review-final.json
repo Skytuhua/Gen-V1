@@ -1,0 +1,4001 @@
+{
+  "schemaVersion": 1,
+  "kind": "M12_INDEPENDENT_ENGINEERING_REVIEW",
+  "reviewedAt": "2026-11-15T11:54:36.918822+00:00",
+  "reviewer": "/root/m12_independent_review",
+  "repositoryRoot": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "acceptedBaseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+  "auditAncestorSha": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
+  "reviewStatus": "COMPLETE_FOR_RECORDED_WORKING_TREE_CUT",
+  "implementationFindingsOpen": 0,
+  "bundleAcceptance": "FAIL",
+  "productionApproval": false,
+  "scope": "Independent security/correctness review of the M12 execution lane and directly integrated authority/results/kernel/runtime/read/UI boundaries. Manifest hashing is source custody, not a whole-codebase audit. Final global validation and schema-owned ImplementationEvidenceV3 are separate coordinator gates.",
+  "sourceCut": {
+    "path": "docs/implementation/v3/M12-candidate-source-cut.json",
+    "sha256": "e6183f4ed56219611b7bd3352aa5d8412aced6d933380f7a85390fb2b9078ee1",
+    "sourceLockDigest": "ba19359635f62964e9b95fa1fa8c010b3e05bcfae6430ae8a2a7968dc772cb8d",
+    "fileCount": 118,
+    "changedProductTestConfigCount": 64,
+    "allWorktreeHashesVerified": true,
+    "allRecordedBaseBlobsVerified": true,
+    "files": [
+      {
+        "path": ".gitattributes",
+        "blobSha": "e99fdf22a8af6295257b67b5c1156f90969ccad4",
+        "sha256": "618dcb95d945bc5073871a05b1013e6fe1be893d2e5b9be49a429bc91aa9d787",
+        "bytes": 256,
+        "baseBlobSha": "e99fdf22a8af6295257b67b5c1156f90969ccad4",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "ADDITIONAL_EXISTING_INTEGRATION",
+          "NAMED_INTEGRATION_TARGET"
+        ]
+      },
+      {
+        "path": "apps/server/research-routes.ts",
+        "blobSha": "b6cb67717cd94bab778b676a1bf80bb6d9f2a7d5",
+        "sha256": "93b4691b3a6f816674bdf68ac5c1100d0e39d04b6b73dd31b61942a1d008a4b8",
+        "bytes": 4021,
+        "baseBlobSha": "b6cb67717cd94bab778b676a1bf80bb6d9f2a7d5",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      },
+      {
+        "path": "apps/server/server.ts",
+        "blobSha": "30b971c314e47cc8b6e5173a2ed365fec538d64d",
+        "sha256": "f2f55ba980040c5279f07907360f6e805ec7b1548c266923c3f301d6d5fe4fe0",
+        "bytes": 28092,
+        "baseBlobSha": "e4df5cae7274c99ff988f30a2bb5abb5aa0e3362",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "MODIFIED",
+        "roles": [
+          "ADDITIONAL_EXISTING_INTEGRATION",
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "apps/server/tool-program-routes.ts",
+        "blobSha": "9420f0b717af7674fa23d78c0d8892df5713b15a",
+        "sha256": "63659107d81a537c38d51726e76b203f4d68a21b31f04ea588ca20798927e1b7",
+        "bytes": 1350,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "apps/web/src/App.tsx",
+        "blobSha": "991799f8c30bbb58806e567541e61f072a405a2b",
+        "sha256": "7eefd0de00a99cd789d9f78f8568a675839e004654560b7943fc849aab03dc64",
+        "bytes": 141315,
+        "baseBlobSha": "2978a3af00fed8b277674f28beb0898d3755c179",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "MODIFIED",
+        "roles": [
+          "ADDITIONAL_EXISTING_INTEGRATION",
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "apps/web/src/ToolProgramPanel.tsx",
+        "blobSha": "20e31f4dcd4916840d48abf44a3a9c081c8cd4f3",
+        "sha256": "38ba645504008f4d61f10aba8185129d398972d527dd1a3f1b99bb2674fed139",
+        "bytes": 17375,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "apps/web/src/tool-programs.css",
+        "blobSha": "d7c384756eb65cc0400245b4e4fa7fa6ccc2cb39",
+        "sha256": "08d93cffa351f1545604f0da08e76ed0ea1161192a3620013bae567872f9ec51",
+        "bytes": 4418,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "docs/architecture.md",
+        "blobSha": "0bd9905c14f9243ee68509ea6e613f13932a064f",
+        "sha256": "b1822d1a21b812e2c0dbea2cc78553d2d4eefe16a8928c8ba11b1d395ec0c815",
+        "bytes": 13469,
+        "baseBlobSha": "b1317bfadb1c6b3b2e7f3c6324890e55ff2f5b7c",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "MODIFIED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      },
+      {
+        "path": "docs/implementation/v3/M01-verification.json",
+        "blobSha": "465bbb9d5d11adf0f7a1f2cf6c07dc8668e6491d",
+        "sha256": "806f844d92c05f1a280b7cec72bdae73b39365eef4417e654a3bf4bbc7bd1daf",
+        "bytes": 30977,
+        "baseBlobSha": "465bbb9d5d11adf0f7a1f2cf6c07dc8668e6491d",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      },
+      {
+        "path": "docs/implementation/v3/M02-source-lock.json",
+        "blobSha": "06c57a31c62de55e47f08cc4fe19ea63edec8ec9",
+        "sha256": "82c7fb4f0518f37873ab8bc557bbea1acc91e419c91fa5a2657b532e712fde3a",
+        "bytes": 1804,
+        "baseBlobSha": "06c57a31c62de55e47f08cc4fe19ea63edec8ec9",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      },
+      {
+        "path": "docs/implementation/v3/M02-verification.json",
+        "blobSha": "41f7fc679f4e9bcbc48ac089e179cec34bb8fe8b",
+        "sha256": "cfcd648127baedf633f59e736177e3c26e2b33758cd5cffec8f46bd63e3bf26e",
+        "bytes": 6889,
+        "baseBlobSha": "41f7fc679f4e9bcbc48ac089e179cec34bb8fe8b",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      },
+      {
+        "path": "docs/implementation/v3/M03-verification.json",
+        "blobSha": "7d1b03aab4ac556af608dbc886a15fb129181358",
+        "sha256": "c0501fcb3c95c45909300d87cefbe761951821c83893fe8766ce79d2cd945555",
+        "bytes": 15360,
+        "baseBlobSha": "7d1b03aab4ac556af608dbc886a15fb129181358",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      },
+      {
+        "path": "package.json",
+        "blobSha": "e8be5556b3882bf5513c6bf440981d2798e2820d",
+        "sha256": "c788247258046e87662fd7feb4104471dee87bc59c74e2aa81ed41ab31924c0f",
+        "bytes": 3229,
+        "baseBlobSha": "fa399f6542a4886e6d8cbf7d6eecfe498e2967c0",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "MODIFIED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION",
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "packages/capabilities/index.ts",
+        "blobSha": "ec87ea62d6b829ece3c10786d030e65e051e2a10",
+        "sha256": "ce3928b68652dd378578b6c63eb3b4204113f89c74bcd99b563e29df9c4eee82",
+        "bytes": 23894,
+        "baseBlobSha": "fc370fd43944656b9efaf78a10ead1f46f1a1018",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "MODIFIED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION",
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "packages/capabilities/process.ts",
+        "blobSha": "3ea847caa05ef6c0c8d2fc5ff258d8e676cfcbe0",
+        "sha256": "1ca568219ba8a39341c31f3202080cebd7ac37ab09b121c2fac0c48fccb0d485",
+        "bytes": 4318,
+        "baseBlobSha": "3ea847caa05ef6c0c8d2fc5ff258d8e676cfcbe0",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      },
+      {
+        "path": "packages/capabilities/schemas.ts",
+        "blobSha": "70d38064e9633ce6785486327453c92e38e1479f",
+        "sha256": "4de412f6f4861ec000a7b5b21b18fd3a7568d0de61ac85240f02873893a5e98e",
+        "bytes": 5435,
+        "baseBlobSha": "70d38064e9633ce6785486327453c92e38e1479f",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "ADDITIONAL_EXISTING_INTEGRATION",
+          "NAMED_INTEGRATION_TARGET"
+        ]
+      },
+      {
+        "path": "packages/contracts/execution-profile.ts",
+        "blobSha": "031a20ee2c4d0fa88e707441644225505e0358e4",
+        "sha256": "31741f2846e94d3f1bf9037338a25b8cc38b9e8fc87959650e9b57f5ad39108f",
+        "bytes": 9944,
+        "baseBlobSha": "031a20ee2c4d0fa88e707441644225505e0358e4",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION",
+          "CONTRACT_DEFINITION"
+        ]
+      },
+      {
+        "path": "packages/contracts/implementation-evidence.ts",
+        "blobSha": "559b720ccead1d29c9a1bd4db528af52534105c3",
+        "sha256": "149654583eb30c23922deb3c75e2e1b4113083b064b7b95ad6a7ada903d984df",
+        "bytes": 10262,
+        "baseBlobSha": "559b720ccead1d29c9a1bd4db528af52534105c3",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION",
+          "CONTRACT_DEFINITION"
+        ]
+      },
+      {
+        "path": "packages/contracts/index.ts",
+        "blobSha": "baeae3c0a453f7e9cd5a39ed2abc4d0680cb7b2b",
+        "sha256": "e581dca067f7340019a560a1d6cb0413777361b7fdbcda6da9c486d39d6d4648",
+        "bytes": 8386,
+        "baseBlobSha": "09517becaf0c35f5f63bd758878659ea0de5f57b",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "MODIFIED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION",
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "packages/contracts/preferences.ts",
+        "blobSha": "5cd7a562f3e331c06ffc82454f06075013080131",
+        "sha256": "2494afe5ef6936287295a4279a214486a8b0fe344042b0fbd93143ab315efb42",
+        "bytes": 8427,
+        "baseBlobSha": "5cd7a562f3e331c06ffc82454f06075013080131",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      },
+      {
+        "path": "packages/contracts/research.ts",
+        "blobSha": "341639f798dde03cadd0731e2ed77c8e32943c25",
+        "sha256": "c89176d0273fdaaef0e45ee03561e54eec1b8dd9ed1c2e2468c3f7249c04449d",
+        "bytes": 4587,
+        "baseBlobSha": "341639f798dde03cadd0731e2ed77c8e32943c25",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      },
+      {
+        "path": "packages/contracts/tool-effects.ts",
+        "blobSha": "41b6fff1364825122c33761c0bfaac66da03bca0",
+        "sha256": "8b17ca030d0e9fb476b1694adbec1dc9e725c4cc20b7f8a1f4a60173de9fec2a",
+        "bytes": 3275,
+        "baseBlobSha": "41b6fff1364825122c33761c0bfaac66da03bca0",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION",
+          "CONTRACT_DEFINITION"
+        ]
+      },
+      {
+        "path": "packages/contracts/tool-program.ts",
+        "blobSha": "bfd784a8a9ef80cf0cef89a356808c7bc5c9064e",
+        "sha256": "2724f364d39f6d53dff5b7d4a85ed783b02ebaef3c70a14711f918ba6f16f1ff",
+        "bytes": 6609,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG",
+          "CONTRACT_DEFINITION"
+        ]
+      },
+      {
+        "path": "packages/contracts/tool-results.ts",
+        "blobSha": "283eaa07cf03a019dc57b63289304fa5f58b15eb",
+        "sha256": "b52f84f03e8571c09ece8e247af457aa249450a47a9dabd7b1ec4d17005a7b1d",
+        "bytes": 3150,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG",
+          "CONTRACT_DEFINITION"
+        ]
+      },
+      {
+        "path": "packages/core/capability-flags.ts",
+        "blobSha": "1edfc1de2b68012da568dda8f2c40818641d81eb",
+        "sha256": "ce2e58d3075035d5c04f0b36d0a13403728d65b36455192db333d064dfbf3f89",
+        "bytes": 5317,
+        "baseBlobSha": "39e18abb43f7fa63cb2534ea3356ebb1be121161",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "MODIFIED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION",
+          "CHANGED_PRODUCT_TEST_OR_CONFIG",
+          "CONTRACT_DEFINITION"
+        ]
+      },
+      {
+        "path": "packages/core/discovery.ts",
+        "blobSha": "ace7f11aa8fb066608f9b70e6c7bd54a7fc0e3f7",
+        "sha256": "a645c1a752b661868e08dbccb27efc708368e5bd0241e331ba4a00ab672423d6",
+        "bytes": 5312,
+        "baseBlobSha": "ace7f11aa8fb066608f9b70e6c7bd54a7fc0e3f7",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      },
+      {
+        "path": "packages/core/execution-policy.ts",
+        "blobSha": "2dad179e75a47be477d0e7871cda2660ea39b2f7",
+        "sha256": "8afb24fbbcdb62025d1282994498f623777fe48cea416c53f02276b988046a64",
+        "bytes": 12796,
+        "baseBlobSha": "2dad179e75a47be477d0e7871cda2660ea39b2f7",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION",
+          "CONTRACT_DEFINITION"
+        ]
+      },
+      {
+        "path": "packages/core/file-access.ts",
+        "blobSha": "e561fd85628f79598d72ea98d29561ccd5abd09d",
+        "sha256": "fbb4495fb0639a40aec3c9c5f974843f4704c20a43a8a5c6c54faa84f79a724e",
+        "bytes": 14372,
+        "baseBlobSha": "d4e0a59c6f2418a869cc1aac18f0dad42036c412",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "MODIFIED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION",
+          "CHANGED_PRODUCT_TEST_OR_CONFIG",
+          "CONTRACT_DEFINITION"
+        ]
+      },
+      {
+        "path": "packages/core/host-flags.ts",
+        "blobSha": "bc42845181317c61018f2725ee1d62f9dd625cac",
+        "sha256": "71133c30f2a0b1f62d6cf3456c560fac3eaea695c290b7837dfda62f3b313abb",
+        "bytes": 2784,
+        "baseBlobSha": "bc42845181317c61018f2725ee1d62f9dd625cac",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION",
+          "CONTRACT_DEFINITION"
+        ]
+      },
+      {
+        "path": "packages/core/linux-file-read.ts",
+        "blobSha": "aae6f434eecfb7b511412982badf09bb83739359",
+        "sha256": "ab9b9adb7a755dae47775aaee05d7f9117e5a04587a109fa9c74d1754cfe1cd2",
+        "bytes": 7648,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "packages/core/linux-path-guard.py",
+        "blobSha": "713b351bf44002e46e07fb29436226a4a2ec258d",
+        "sha256": "f63d5df6d4340d89c40117dd2a819584bce79d0a72dc1159daaf77210d5d3440",
+        "bytes": 26990,
+        "baseBlobSha": "713b351bf44002e46e07fb29436226a4a2ec258d",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      },
+      {
+        "path": "packages/core/linux-path-guard.ts",
+        "blobSha": "13322b69419c9ab1bcc7d6850109b7cd82770686",
+        "sha256": "3462fa20bb06fb00fcb5944dde71c20a6e95a5e0dfde4d11b59e6b9bad38db54",
+        "bytes": 11384,
+        "baseBlobSha": "13322b69419c9ab1bcc7d6850109b7cd82770686",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      },
+      {
+        "path": "packages/core/planning.ts",
+        "blobSha": "ca1da4824877fb2c18701d038e793bed4b1b70d8",
+        "sha256": "92d5786e6de4acd79a304929c8f08646769502fb933711951bf3ad3895cb1eb3",
+        "bytes": 43832,
+        "baseBlobSha": "fdb75092c2c584f61c3c6a6106dae1b9e49fac6a",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "MODIFIED",
+        "roles": [
+          "ADDITIONAL_EXISTING_INTEGRATION",
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "packages/core/python-kernels.ts",
+        "blobSha": "6b977ea29e3a4796f2b5fdf0f4a6e8d543f85881",
+        "sha256": "df5e2d223ad6ec0888d6854a78dd28830705870a385100d9b935d87671885356",
+        "bytes": 16016,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "packages/core/python-program-provider.ts",
+        "blobSha": "f7b11614afd61ef46c5209833235d3bad78857d5",
+        "sha256": "0ea8777797f69e1d5f91fefcebcc8ae1b2b7b91ade3354a39244cd928cfc90cc",
+        "bytes": 10201,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "packages/core/security.ts",
+        "blobSha": "693f251361bc464caee26df795c57002d120c9a7",
+        "sha256": "dd044a00969568dcdccb362595ca8df7174c4cf93a0f065faa27c15eda8f32e9",
+        "bytes": 3604,
+        "baseBlobSha": "693f251361bc464caee26df795c57002d120c9a7",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      },
+      {
+        "path": "packages/core/service.ts",
+        "blobSha": "d77d4d699515465f0b094403de4f3a8447169c59",
+        "sha256": "170fa49b77172e839bed0743bf786d211fc10960f842179248056e4e767a04d9",
+        "bytes": 129644,
+        "baseBlobSha": "2b3fb63acef915b052a468e104c6e4f00a4b82e4",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "MODIFIED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION",
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "packages/core/task-inspection.ts",
+        "blobSha": "a61a31d23a1d38b58d365d34bb9f79187d61493e",
+        "sha256": "944f6c8f867e99d89c3cf84fa44ed252321950f5662f9efca604859f4a8bcd70",
+        "bytes": 7950,
+        "baseBlobSha": "a61a31d23a1d38b58d365d34bb9f79187d61493e",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      },
+      {
+        "path": "packages/core/tool-authority.ts",
+        "blobSha": "1d654522d9842838276d162a33dac6141f731c26",
+        "sha256": "bef3900a2a6419e00b2f89302e1aad11bc93d9be7464ac3aba3a606cc4f01465",
+        "bytes": 9666,
+        "baseBlobSha": "1d654522d9842838276d162a33dac6141f731c26",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION",
+          "CONTRACT_DEFINITION"
+        ]
+      },
+      {
+        "path": "packages/core/tool-disclosure.ts",
+        "blobSha": "5240b066ac0f1bce1bc0d14c3d8b6779494c0eab",
+        "sha256": "d16bf7e57f7900e3410b88699d45ab07033ce650addf44c6477d5cba9c051ee3",
+        "bytes": 6409,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG",
+          "CONTRACT_DEFINITION"
+        ]
+      },
+      {
+        "path": "packages/core/tool-effects.ts",
+        "blobSha": "2fbe10fd4903d1b420197338b07905c9d93a232b",
+        "sha256": "25b1cc0e4320c272093a4d31f196ac7a4f9e1b442182c8dbf38e84c78dfe59b1",
+        "bytes": 19076,
+        "baseBlobSha": "aa65f1d9b52d6a117b716a38feb8dd6c6d46b13a",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "MODIFIED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION",
+          "CHANGED_PRODUCT_TEST_OR_CONFIG",
+          "CONTRACT_DEFINITION"
+        ]
+      },
+      {
+        "path": "packages/core/tool-program-host.ts",
+        "blobSha": "4372844612aba18ead0b567a6cb8ec4dade4a8b6",
+        "sha256": "017140303a56a438543ee650baf57509b332eda6de784eea42ff99a7c77bacb2",
+        "bytes": 13236,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "packages/core/tool-program-tools.ts",
+        "blobSha": "8bd0a19c3c091e3ca222630111da539b45b92aea",
+        "sha256": "eb2fa3c23b8de3a3001bc8441ce2fa5a4969e2a02efeb0a5a52caf20bc148642",
+        "bytes": 4213,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "packages/core/tool-programs.ts",
+        "blobSha": "1a42e592ea8212b912360f3a228183d588ecb2c4",
+        "sha256": "4c6c73dd42d593b31ddffc9c4d8298d008bd60307d457cb656cadcaeb887715b",
+        "bytes": 50440,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "packages/core/tool-results.ts",
+        "blobSha": "1ebbf297a78a1c4b958344911d7d539c0a4a3e6c",
+        "sha256": "f5fb4583792bf55eddd38922522c120e439fbe9d3f1329dbc84b972a85ed5f62",
+        "bytes": 21314,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG",
+          "CONTRACT_DEFINITION"
+        ]
+      },
+      {
+        "path": "packages/core/ui-admission.ts",
+        "blobSha": "50a4006f6bd3056ebe7af75b7f40ea595a1f7920",
+        "sha256": "3b5a8447e9d54ff92f464227b9df32068165d7c5c1137a76264b56b1aaa3e0be",
+        "bytes": 8048,
+        "baseBlobSha": "50a4006f6bd3056ebe7af75b7f40ea595a1f7920",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      },
+      {
+        "path": "packages/research/repository.ts",
+        "blobSha": "c285e97b8acecbf46862c54163e8b038ec301092",
+        "sha256": "98efbf2993fcfef2592e873766af331a8d95ea7251db9e24327cc2a395359ccf",
+        "bytes": 17082,
+        "baseBlobSha": "c285e97b8acecbf46862c54163e8b038ec301092",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      },
+      {
+        "path": "packages/runtime-hermes/client.ts",
+        "blobSha": "c83ab13d1347c592df98ddf258788415bb971873",
+        "sha256": "8e87d57fc6836ba41bf4b3ce5ea8a7c4955134709f651a4402ac88e80d4c1fbb",
+        "bytes": 9192,
+        "baseBlobSha": "c83ab13d1347c592df98ddf258788415bb971873",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      },
+      {
+        "path": "packages/runtime-hermes/index.ts",
+        "blobSha": "38cbe38613784d5e1be8ba35b8a42a981734a8fd",
+        "sha256": "961ffd948152ad0a07699cc24fb7b864f9032249c998d426ebd155fcc0399117",
+        "bytes": 35994,
+        "baseBlobSha": "ca15682cd2ad86f296247e71a7b18a190c0968f4",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "MODIFIED",
+        "roles": [
+          "ADDITIONAL_EXISTING_INTEGRATION",
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "packages/runtime-hermes/worker.py",
+        "blobSha": "e28c6272f9aab28f76b9462a87768fe4226361c1",
+        "sha256": "b3c73a6c65ac09d512860fded5f6164ba8f52d592d0039c4df5dd7a8846ae09b",
+        "bytes": 77625,
+        "baseBlobSha": "e28c6272f9aab28f76b9462a87768fe4226361c1",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      },
+      {
+        "path": "packages/runtime-official/index.ts",
+        "blobSha": "9888b6e5b60a84af7298a1e1da42d7fa8d50b476",
+        "sha256": "84fcf0335eb99c87e74a14f975d13fd5dcd7e5483dc3fe9785be24a5d1c7b331",
+        "bytes": 20387,
+        "baseBlobSha": "b8e4b1a5892d60525e51ac86ae28b54c68c16ac0",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "MODIFIED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION",
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "packages/runtime-official/mcp.ts",
+        "blobSha": "485c68d93385f85e92a94733e5235c8c9b0bdd09",
+        "sha256": "24f52c07d55c8805c003c4ff489bfacd4883d4f253642d8a67366e8dc260a707",
+        "bytes": 5193,
+        "baseBlobSha": "791ebf88c58765f9e4625bde6b727019c1b33337",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "MODIFIED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION",
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "packages/runtime-pi/input-envelope.ts",
+        "blobSha": "7a0ce5ef511a769bb53af26c3cbcbbe72510bf0d",
+        "sha256": "ffc5e67407a5e362132cb9eabedb7c864b308866bf8b89e47b238ade6c73527f",
+        "bytes": 2369,
+        "baseBlobSha": "7a0ce5ef511a769bb53af26c3cbcbbe72510bf0d",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "ADDITIONAL_EXISTING_INTEGRATION",
+          "NAMED_INTEGRATION_TARGET"
+        ]
+      },
+      {
+        "path": "packages/runtime-pi/ipc.ts",
+        "blobSha": "96c46272df81afe0bc828ce277bc17420688d62c",
+        "sha256": "7cf8350074d7d1c66daa59b2c68ecd094c259f9ee5e089919bd93e080ccd4292",
+        "bytes": 3156,
+        "baseBlobSha": "96c46272df81afe0bc828ce277bc17420688d62c",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      },
+      {
+        "path": "packages/runtime-pi/process-tree.ts",
+        "blobSha": "fb903470a172be1e1995557caa888b4f065e7270",
+        "sha256": "05db4fd6e3c7d34cb4058b7ade27922c45dbd27374b971c49558a1f32634f5be",
+        "bytes": 1423,
+        "baseBlobSha": "fb903470a172be1e1995557caa888b4f065e7270",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      },
+      {
+        "path": "packages/runtime-pi/tool-definitions.ts",
+        "blobSha": "cc5209c1a44c45dfa4e9395a2cbb31ef06ce6731",
+        "sha256": "6416e019124c6164a6b91cbd1901d0f5795209a01cd2e1aced7100f44671a083",
+        "bytes": 17662,
+        "baseBlobSha": "2731bc9797fd40dd010a04099171452c0f993ebc",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "MODIFIED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION",
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "packages/runtime-pi/worker.ts",
+        "blobSha": "10d62c175ed3aa9c26a0a99268255f2c4f593994",
+        "sha256": "4efd6c437faa23a75d494cf07ea729a715a01dbe47ef5883506bf2c75bc55e14",
+        "bytes": 9395,
+        "baseBlobSha": "36bc8abb120c9e228635ba427544919c96ead4e9",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "MODIFIED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION",
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "packages/runtime/index.ts",
+        "blobSha": "c944011f863d8e54cefb027ccde24e4445a4738b",
+        "sha256": "a706d52e6b1108ce14455df60befcc93d1f656f1491a3e2c8acc9c0f4d55d57b",
+        "bytes": 14992,
+        "baseBlobSha": "c944011f863d8e54cefb027ccde24e4445a4738b",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "ADDITIONAL_EXISTING_INTEGRATION",
+          "NAMED_INTEGRATION_TARGET"
+        ]
+      },
+      {
+        "path": "packages/runtime/python-confinement.py",
+        "blobSha": "c575926f3fd734227d68174bb80294eb40123cf6",
+        "sha256": "78a1c1a85f8e7924ac08e02caceafd72b3b7d56a6e862ad7cf1fbc5162067c41",
+        "bytes": 3004,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "packages/runtime/python-program-supervisor.py",
+        "blobSha": "75ddc93e19241ebbd94b5930049307f371ca68db",
+        "sha256": "e9dc20e10f65cf4ef49e2c81e71882b687ce0fecdaf934ef161534133bea1a7e",
+        "bytes": 7910,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "packages/runtime/python-program-worker.py",
+        "blobSha": "8fac58ad109c048d54e6dbc8e7fdc79581738ca5",
+        "sha256": "2aaac3d6c251f10f54a0145a050377e03b45bf8eca33fb80de52bcb8cfad14a9",
+        "bytes": 6405,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "packages/runtime/python-program-worker.ts",
+        "blobSha": "f8fdabc27b59afff34819d216f46e6dfce46f897",
+        "sha256": "34219019cb030b683c107d8bb01ce4b8a42436aacbe5baee60fca50cad65caa2",
+        "bytes": 34464,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "packages/runtime/tool-program-worker-child.mjs",
+        "blobSha": "d13c6dfdce794c157161e7a57509dac6a6549134",
+        "sha256": "b4883cd2eaae0e14cb6eb84e40ca05f2bee5f295ca57e81cd1da9c0057a0ec07",
+        "bytes": 10611,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "packages/runtime/tool-program-worker.ts",
+        "blobSha": "a853692d3202c75bb4e301e8765c4bde7fbb8712",
+        "sha256": "a12fc504668b882638e74394eeef65cf3ad5005238e085812eca578f6ee27c4f",
+        "bytes": 22754,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "packages/storage/store.ts",
+        "blobSha": "ebab3cba8d56e074d0377623bffd2054790f622b",
+        "sha256": "c4c53b6f7988b1471184a599fd16212f724afc243160b30675c6dceab651516b",
+        "bytes": 14709,
+        "baseBlobSha": "ebab3cba8d56e074d0377623bffd2054790f622b",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION",
+          "CONTRACT_DEFINITION"
+        ]
+      },
+      {
+        "path": "packages/workspace/action-outcomes.ts",
+        "blobSha": "f1548dd8357a90125454dd17dbf36aab0de0bba6",
+        "sha256": "9e7a78fbbff04b34288664070189a0ec2d322dcea88a7a7a24d5c2180632ec65",
+        "bytes": 15062,
+        "baseBlobSha": "f1548dd8357a90125454dd17dbf36aab0de0bba6",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      },
+      {
+        "path": "pnpm-lock.yaml",
+        "blobSha": "00c6f11be2211c0eaea2c3b5302e383fa1cd2931",
+        "sha256": "af8c276d728a50815b46bff8b046900c6d4ae9590a7f8911f88c8e63ef7dbb16",
+        "bytes": 355958,
+        "baseBlobSha": "e6b064fc166611e518f4cf1297d9b00493d9eaaf",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "MODIFIED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION",
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "pnpm-workspace.yaml",
+        "blobSha": "35b5ea4a631be874735c19a4d8c8eead3f13e524",
+        "sha256": "11a9772a342e9c307a928a9a9d68e43a5bfef19059ed08b5f284764aba91e749",
+        "bytes": 129,
+        "baseBlobSha": "35b5ea4a631be874735c19a4d8c8eead3f13e524",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      },
+      {
+        "path": "scripts/browser-suites.ts",
+        "blobSha": "abd0c4fb71117dcb3be75cc1e675b3f8e22b68d7",
+        "sha256": "b0cd75c7dc8bd09f086501bb39a9271a1b25d4d32acb7502f71f3f39b1205c3b",
+        "bytes": 6364,
+        "baseBlobSha": "04d387152c17aad4eb3b6fbdd9f410178a51a5eb",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "MODIFIED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION",
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "scripts/build-windows-credential-lease.ts",
+        "blobSha": "0fd7da812762aa280d4ca7ec14647eaca22ad603",
+        "sha256": "4fed050d02a3d7e9c849300a515ba3a121ae33cc7fb77af0c1b057487a74b76b",
+        "bytes": 4536,
+        "baseBlobSha": "0fd7da812762aa280d4ca7ec14647eaca22ad603",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      },
+      {
+        "path": "scripts/public-source-files.json",
+        "blobSha": "5b9124fd049e065e54f2d246b7c1e14894330a37",
+        "sha256": "d21fbb9535d56d1c2885dfdf30f12dfe77824854229fd83a268d62bc89d0a6f2",
+        "bytes": 134673,
+        "baseBlobSha": "8cb3efe75c120185f957ab3df73255756adcf7b8",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "MODIFIED",
+        "roles": [
+          "ADDITIONAL_EXISTING_INTEGRATION",
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "scripts/research-baseline.ts",
+        "blobSha": "52c93dd316f69a601da41116723044a21d54b26c",
+        "sha256": "03cc5690eb725c78cb7542c6fccc701d6c385f7f4bc834d7ceb4062cf0c2d116",
+        "bytes": 17295,
+        "baseBlobSha": "52c93dd316f69a601da41116723044a21d54b26c",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      },
+      {
+        "path": "scripts/test-browser.ts",
+        "blobSha": "311a6c612e72fb3e444fff365698318e3b2f81a6",
+        "sha256": "6aba884457c135fc19cec841a3060b76a5c75ac90afbe19ce425fbe0fcada513",
+        "bytes": 3310,
+        "baseBlobSha": "311a6c612e72fb3e444fff365698318e3b2f81a6",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      },
+      {
+        "path": "tests/context-efficiency.test.ts",
+        "blobSha": "9995dbdccc039e117e2b68d2be5105f0ec530a40",
+        "sha256": "9ef215c60bc0a15014ebcb9e95cb0b8b90fb263c69aec517d8eb974162f9915d",
+        "bytes": 7496,
+        "baseBlobSha": "9995dbdccc039e117e2b68d2be5105f0ec530a40",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      },
+      {
+        "path": "tests/e2e/research-workspace.playwright.config.ts",
+        "blobSha": "17b3fcc7bb56428fa418089ea9c7fdd09c047c70",
+        "sha256": "9d9608e787309558bd04a618fbbc88da7e8289ed4aad8e32d1cd2b55fdcb5a5a",
+        "bytes": 641,
+        "baseBlobSha": "c3a3c4c8986390b5e88f5cd0a8fe79631b356c25",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "MODIFIED",
+        "roles": [
+          "ADDITIONAL_EXISTING_INTEGRATION",
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "tests/e2e/tool-programs-fixture.tsx",
+        "blobSha": "c4e8b35b60e119b53ba5ce67feddc88fc038b785",
+        "sha256": "373fc6984d62cae10c3a76f7a4114c19ed468d5665df29aff62dcf7ec1fcdef9",
+        "bytes": 966,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "tests/e2e/tool-programs.playwright.config.ts",
+        "blobSha": "c1e590ff897a99aff999229823759cd8d8319170",
+        "sha256": "f4f8af851cb38e277b4ca058a45809e8bc399949c80e82b1ec806268fa6edca6",
+        "bytes": 668,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "tests/e2e/tool-programs.spec.ts",
+        "blobSha": "3f303a5f501aadf089cf0b130dde611f44faeab7",
+        "sha256": "7b04a98ba046e43b74aa7729feb13148d216048a21039ad1af54ce1f16559542",
+        "bytes": 15190,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "tests/e2e/tool-programs.vite.config.ts",
+        "blobSha": "59d8c4ad4feb4bc22270343cfa55a536e4c88645",
+        "sha256": "1e2696bbdf0a4824732d8a20bebb004f65e8eeed5c813f243d32c92c0c8cdfc3",
+        "bytes": 1207,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "tests/effect-recovery-v3.test.ts",
+        "blobSha": "991b54d4c96820a382a28c4fc625719b3a6a79b8",
+        "sha256": "5968523be60c6086577c38088c2fa7f18afc733700b2daba9c107653cc0d0ae8",
+        "bytes": 12127,
+        "baseBlobSha": "991b54d4c96820a382a28c4fc625719b3a6a79b8",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION",
+          "CONTRACT_TEST"
+        ]
+      },
+      {
+        "path": "tests/execution-boundary-v3.test.ts",
+        "blobSha": "ab1545c878c2bc90bd66ff09d7820d4bb0d9ef8f",
+        "sha256": "a88c3ae6a2c7dc4aca80878db9cc70989c260486f563166ac977f91f4f7f0c0c",
+        "bytes": 13700,
+        "baseBlobSha": "ab1545c878c2bc90bd66ff09d7820d4bb0d9ef8f",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION",
+          "CONTRACT_TEST"
+        ]
+      },
+      {
+        "path": "tests/fixtures/linux-path-guard/native.mjs",
+        "blobSha": "7af7725472af1f48c36ed41e397758ec0f119ffe",
+        "sha256": "bdc1ece137547bdacd3faff7472351663511645abe13931c7bfd0d711840c3b6",
+        "bytes": 16779,
+        "baseBlobSha": "7af7725472af1f48c36ed41e397758ec0f119ffe",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "ADDITIONAL_EXISTING_INTEGRATION",
+          "NAMED_INTEGRATION_TARGET"
+        ]
+      },
+      {
+        "path": "tests/fixtures/tool-program-benchmark-v3.ts",
+        "blobSha": "18bf14509e10a3957a3911ee5ba69583900a8bf9",
+        "sha256": "2a92719bd4929ce9cf3439bd8e72bab6fa5007c1b474deb5d745981a4c7b4894",
+        "bytes": 29213,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "tests/fixtures/tool-program-crash-v3.mts",
+        "blobSha": "271d9e5c62ddd75d808e2ecd863555d16e607430",
+        "sha256": "66e09d021830ee9a865670708f0afa2c7783105736cfed96dce99768b4cd1cee",
+        "bytes": 1471,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "tests/fixtures/tool-program-replay-harness-v3.ts",
+        "blobSha": "0cd9a7784e337faf66f4a7be2ce99cb21809c25c",
+        "sha256": "938f3c8fd272aca77c06bc6a19c6b3b5e2ace44f122da89eb9ea32e3da0cc634",
+        "bytes": 4556,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "tests/hermes-runtime.test.ts",
+        "blobSha": "fd173f13c6df54e29979df5cbe44ac94eb38270b",
+        "sha256": "fc045558694a7656fba3c1413a83ea3a8f5d360e2ea2dc4856ec508207f0bf90",
+        "bytes": 37942,
+        "baseBlobSha": "fef5ffa4b7acdc9933914d7e11778708700404f8",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "MODIFIED",
+        "roles": [
+          "ADDITIONAL_EXISTING_INTEGRATION",
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "tests/linux-bound-read-v3.test.ts",
+        "blobSha": "66460997db519c4e547c003baa69974c4834de75",
+        "sha256": "0f7653881ce5c5c3c1d7456782eea0641fc81ad146a989e73068299e2c4129fc",
+        "bytes": 11430,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG",
+          "CONTRACT_TEST"
+        ]
+      },
+      {
+        "path": "tests/linux-path-guard.test.ts",
+        "blobSha": "c68a21a8c4d9a98b11aa3427162e91bda23c5ed6",
+        "sha256": "1da72ad3ba91cceac26ee6ac932752233e3d7abd94d3b4eed0d29b122dee4eb3",
+        "bytes": 2756,
+        "baseBlobSha": "c68a21a8c4d9a98b11aa3427162e91bda23c5ed6",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION",
+          "CONTRACT_TEST"
+        ]
+      },
+      {
+        "path": "tests/m01-m02-compatibility.test.ts",
+        "blobSha": "044b8b51fc0086ddfec6c47616e186c816cdad26",
+        "sha256": "9736e8cc531bc59103895f103a1caf07406d8be24ea01db22d2db8d86029982a",
+        "bytes": 1519,
+        "baseBlobSha": "044b8b51fc0086ddfec6c47616e186c816cdad26",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION",
+          "CONTRACT_TEST"
+        ]
+      },
+      {
+        "path": "tests/official-runtime-mcp.test.ts",
+        "blobSha": "1a5bfbde263fd15ff575a57c09aa3faa9367af05",
+        "sha256": "e95f1e3c6b38611b45f8731a62f48d2def12e35b36a2a8d5a6cd59f2fc8cb249",
+        "bytes": 3096,
+        "baseBlobSha": "1a5bfbde263fd15ff575a57c09aa3faa9367af05",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      },
+      {
+        "path": "tests/planning.test.ts",
+        "blobSha": "5e783a65569b97408c4458f02fd036ee149cde6e",
+        "sha256": "1fa5c9b08336a2fead4099bec7b02a98ab3d1f7ec3a5ee73a27ed0d46dae5dd6",
+        "bytes": 29757,
+        "baseBlobSha": "4bb3355294bd65a95dd9c9ff933e016617ff6cb5",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "MODIFIED",
+        "roles": [
+          "ADDITIONAL_EXISTING_INTEGRATION",
+          "CHANGED_PRODUCT_TEST_OR_CONFIG",
+          "CONTRACT_TEST"
+        ]
+      },
+      {
+        "path": "tests/project-trust-v3.test.ts",
+        "blobSha": "fa4ff1a711677619a5aaa00311cb3e9ff5e07f47",
+        "sha256": "e37c2e656950628bbe8a7a0770a6f3426c6be090b12426e4b2c62fc731ea45f8",
+        "bytes": 9608,
+        "baseBlobSha": "ca55f54ff9454c5aa3fa230b3d38e90fad03704b",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "MODIFIED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION",
+          "CHANGED_PRODUCT_TEST_OR_CONFIG",
+          "CONTRACT_TEST"
+        ]
+      },
+      {
+        "path": "tests/public-source.test.ts",
+        "blobSha": "ee41c9109e677bc73fb6191413797826df5edfc0",
+        "sha256": "7fe76f6de54ac7d0b4df257644a4c945912257dfc6269e1f71651af5d7285a10",
+        "bytes": 11667,
+        "baseBlobSha": "2ee2f1426c7b718a3d878099fb758e60737ea003",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "MODIFIED",
+        "roles": [
+          "ADDITIONAL_EXISTING_INTEGRATION",
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "tests/python-kernel-v3.test.ts",
+        "blobSha": "d1337f1aa6a25f9b72e6d0b37c15defb5cf949bd",
+        "sha256": "6fa4f890f97c956e341d957d7eea377e07fa0b72f734f44c5c628c796cc10157",
+        "bytes": 18008,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG",
+          "CONTRACT_TEST"
+        ]
+      },
+      {
+        "path": "tests/python-program-backend-v3.test.ts",
+        "blobSha": "9815bcd465fe2ab59f8507f50b9dad01dea926dc",
+        "sha256": "d7ddea532f56ac49710b4f21970851d37ee34269438d8058c0cb92edfd83ae53",
+        "bytes": 19630,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG",
+          "CONTRACT_TEST"
+        ]
+      },
+      {
+        "path": "tests/python-program-integration-v3.test.ts",
+        "blobSha": "6bdf5fa49db5bca9ede8ef4a16604cd2db177e41",
+        "sha256": "6736e767473e636c3dd7812761d804e2b5d71f496d0c6c20db0edeba2b053976",
+        "bytes": 21233,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "tests/research-artifacts.test.ts",
+        "blobSha": "f15a26ae3d9fe8d53593193dbadbf922e60d4f8b",
+        "sha256": "384119eebd54b16b1b8accfabd70d488c14d95503a1821e312576663b2b88f65",
+        "bytes": 10457,
+        "baseBlobSha": "f15a26ae3d9fe8d53593193dbadbf922e60d4f8b",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      },
+      {
+        "path": "tests/research-baseline.test.ts",
+        "blobSha": "a44a20573b4feee888f4709011658a6d50635893",
+        "sha256": "ae6eda779cc4581f086aea8a68f5fac169dd1fb860975b0fb34c6cc0785021f2",
+        "bytes": 19509,
+        "baseBlobSha": "a44a20573b4feee888f4709011658a6d50635893",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION",
+          "CONTRACT_TEST"
+        ]
+      },
+      {
+        "path": "tests/runtime-pi.test.ts",
+        "blobSha": "e5d86f8866870eedf50b461094494970d57dd850",
+        "sha256": "6fb0d7f1ea5814f167bee0d895c976b8f295b9fb7bdbf9102decccac54a7286d",
+        "bytes": 36211,
+        "baseBlobSha": "e5d86f8866870eedf50b461094494970d57dd850",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      },
+      {
+        "path": "tests/secret-custody-v3.test.ts",
+        "blobSha": "e43a8aeca0c929e0a317e9b106bc2c90cdbfb124",
+        "sha256": "75e4eb4c86c9b70d0ac74c43d4cfd2e6035e91bb32bb300103195a788b532ec6",
+        "bytes": 8161,
+        "baseBlobSha": "e43a8aeca0c929e0a317e9b106bc2c90cdbfb124",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION",
+          "CONTRACT_TEST"
+        ]
+      },
+      {
+        "path": "tests/store.test.ts",
+        "blobSha": "bb8dca6f2f4d209d9bb2d2412cbf87e56a5cf777",
+        "sha256": "fbc246a11decbe0f5fcdd151a77a54b25fe7f492bd5b7815aa1abc085a362220",
+        "bytes": 15102,
+        "baseBlobSha": "bb8dca6f2f4d209d9bb2d2412cbf87e56a5cf777",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION",
+          "CONTRACT_TEST"
+        ]
+      },
+      {
+        "path": "tests/tool-authority-v3.test.ts",
+        "blobSha": "9d7a4af5fda8f4f316ce7fac652e951fb5a14a05",
+        "sha256": "0114a5eb94f270c7ee5d5cac2e5fa6263997a7417fae597116f27a59dfb60235",
+        "bytes": 5754,
+        "baseBlobSha": "9d7a4af5fda8f4f316ce7fac652e951fb5a14a05",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION",
+          "CONTRACT_TEST"
+        ]
+      },
+      {
+        "path": "tests/tool-effects-v3.test.ts",
+        "blobSha": "8d4ac426134d7e9f77a1d9dcfe9d00d7c5897b35",
+        "sha256": "fcf19bff01dd5da09f504e5074fcdf0b9648b6c37b6a88c38b1d8d7c2eb70783",
+        "bytes": 15652,
+        "baseBlobSha": "8d4ac426134d7e9f77a1d9dcfe9d00d7c5897b35",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION",
+          "CONTRACT_TEST"
+        ]
+      },
+      {
+        "path": "tests/tool-program-authority-v3.test.ts",
+        "blobSha": "b5d6fa3dae75a907cc84b4fb67a4e4a193fc392c",
+        "sha256": "ffe2c9109a7d2e208ac9bb009a98a0de18037bb29ab1b331e259add592b83cfc",
+        "bytes": 3247,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG",
+          "CONTRACT_TEST"
+        ]
+      },
+      {
+        "path": "tests/tool-program-backend-v3.test.ts",
+        "blobSha": "3b70fb535639f42790c22b77dbadb39a35840485",
+        "sha256": "8a037bb8a9e3e59ddf9ecd17019bc76cbfb6ce83609421c4cc920f784da2c0e7",
+        "bytes": 10865,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG",
+          "CONTRACT_TEST"
+        ]
+      },
+      {
+        "path": "tests/tool-program-benchmark-v3.test.ts",
+        "blobSha": "19b0cc248a8fc7947bb1e9a87a9ae92aae79c484",
+        "sha256": "49ee0fe8368680e284d938989dfe44149e536d3dabd83d9d5125515f468d9d72",
+        "bytes": 4434,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "tests/tool-program-diagnostics-v3.test.ts",
+        "blobSha": "254e33b5b9f3d8c91f215b035371edb42cca65ba",
+        "sha256": "781f35e54c44cf01a3aa45dc41ce79bf21136104990ba60b66c84ea0616615be",
+        "bytes": 9024,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "tests/tool-program-input-budget-v3.test.ts",
+        "blobSha": "af77c8356f5dea99ef4de7a9026efb309856fb0d",
+        "sha256": "5cc9a5f37af9789b3a84eaebb2b1b1ccde75b10b0bd319b13b1f5ed25899a399",
+        "bytes": 14493,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG"
+        ]
+      },
+      {
+        "path": "tests/tool-program-integration-v3.test.ts",
+        "blobSha": "cef7bc76b1342e3f7a87deaaf3b8bc34d454d3c9",
+        "sha256": "83907060da144556bec405ea5d593cf93080742519aaa3169ba79f170e243228",
+        "bytes": 9249,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG",
+          "CONTRACT_TEST"
+        ]
+      },
+      {
+        "path": "tests/tool-program-prerequisites-v3.test.ts",
+        "blobSha": "b9f20596806e343f68c546c29192db2db0077b75",
+        "sha256": "0deca3ec493bb76b8239f9c6d1b4c10abc054e412f5c3bf529a4581a7d8784d8",
+        "bytes": 21051,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG",
+          "CONTRACT_TEST"
+        ]
+      },
+      {
+        "path": "tests/tool-program-recovery-v3.test.ts",
+        "blobSha": "72b9e2b6e81eaeda63c37876e8eb90c54980445d",
+        "sha256": "f830bd44ab4ce1a3d3a1a5a339b69167a7b94010b0aaf4540bbf29e8bd615cd1",
+        "bytes": 17266,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG",
+          "CONTRACT_TEST"
+        ]
+      },
+      {
+        "path": "tests/tool-program-replay-v3.test.ts",
+        "blobSha": "872493f16df0f9226d4831cac5c263dcf0e4f64d",
+        "sha256": "53d1a5fa3098fd36a6f66d44beb6975ccb8e884f5f012bde835ad193549e42c2",
+        "bytes": 21051,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG",
+          "CONTRACT_TEST"
+        ]
+      },
+      {
+        "path": "tests/tool-program-transport-v3.test.ts",
+        "blobSha": "4a8e20f405085a0d1c5971d6bc09fc466b2ced4f",
+        "sha256": "7a7ac2e1c1262a81b4cbcd3a2739c743c71e4e0f09ed8fd4929c33194200dafd",
+        "bytes": 2766,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG",
+          "CONTRACT_TEST"
+        ]
+      },
+      {
+        "path": "tests/tool-program-v3.test.ts",
+        "blobSha": "9a9394b5251b3f0aea63da1a8b6221c36dc69a65",
+        "sha256": "07fe4936c053de297e8f5b1093f8859cb330912ecaa1960569059f7df7c04587",
+        "bytes": 15356,
+        "baseBlobSha": null,
+        "trackedAtBase": false,
+        "existsInWorktree": true,
+        "change": "ADDED",
+        "roles": [
+          "CHANGED_PRODUCT_TEST_OR_CONFIG",
+          "CONTRACT_TEST"
+        ]
+      },
+      {
+        "path": "tests/workspace-action-outcomes.test.ts",
+        "blobSha": "a899897499603cd355e5ab7c7cc2c9ab714a8fcb",
+        "sha256": "959a36ff309b005961f9f2712ca654bd54b15ff962ca4f33546157dcd03a476b",
+        "bytes": 22862,
+        "baseBlobSha": "a899897499603cd355e5ab7c7cc2c9ab714a8fcb",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      },
+      {
+        "path": "third-party/hermes-agent/upstream/tools/tool_result_storage.py",
+        "blobSha": "39407dc51af60cd8dabe42c0fe4eceb6f4c3ed05",
+        "sha256": "95635888a64178214fb5584c0241ed5366aca66e0f5e0f84e5e44a95f1c42ed1",
+        "bytes": 24423,
+        "baseBlobSha": "39407dc51af60cd8dabe42c0fe4eceb6f4c3ed05",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      },
+      {
+        "path": "tsconfig.json",
+        "blobSha": "da1b352fcdf682e051bf0c53e5fe7050584c1515",
+        "sha256": "44f8f5415372e99c4bf3bc10524d536f87d1e0c43b69ca08cf846bd8f24d2633",
+        "bytes": 1066,
+        "baseBlobSha": "da1b352fcdf682e051bf0c53e5fe7050584c1515",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      },
+      {
+        "path": "vitest.config.ts",
+        "blobSha": "d6efe75f6d0a1c0a2d4cd325ea5cf54ea5c0f0cb",
+        "sha256": "142e0f1d5b6670f297873048317cfa53323676131db6793dd7095afef94720ea",
+        "bytes": 484,
+        "baseBlobSha": "d6efe75f6d0a1c0a2d4cd325ea5cf54ea5c0f0cb",
+        "trackedAtBase": true,
+        "existsInWorktree": true,
+        "change": "UNCHANGED",
+        "roles": [
+          "RETAINED_BASE_INSPECTION"
+        ]
+      }
+    ]
+  },
+  "findings": [
+    {
+      "id": "IR-01",
+      "title": "Initial Python factory revived a stopped or reset kernel",
+      "severity": "HIGH",
+      "status": "FIXED_AND_REVIEWED",
+      "source": "packages/core/python-kernels.ts",
+      "assessment": "A deferred initial factory previously overwrote STOPPED with generation-1 READY and retained its executor. Activation now compares the complete captured record inside a host transaction, checks the selected owner admission and stops a late executor.",
+      "intendedNegativeLog": "docs/implementation/v3/m12-logs/python-kernel-19-admission-red.log",
+      "passingLog": "docs/implementation/v3/m12-logs/python-kernel-20-admission-green.log"
+    },
+    {
+      "id": "IR-02",
+      "title": "Falsy rejected source values were recorded as success",
+      "severity": "HIGH",
+      "status": "FIXED_AND_REVIEWED",
+      "source": "packages/core/tool-programs.ts",
+      "assessment": "The independent throw-undefined probe previously produced a successful null result. An explicit sourceFailed tag now records all rejected values as FAILED; a caught source error cannot make the program aggregate successful.",
+      "intendedNegativeLog": "docs/implementation/v3/m12-logs/review-10-falsy-source-red.log",
+      "passingLog": "docs/implementation/v3/m12-logs/review-11-falsy-source-green.log"
+    },
+    {
+      "id": "IR-03",
+      "title": "Planning omitted the new descriptor-bound read API",
+      "severity": "MEDIUM",
+      "status": "FIXED_AND_REVIEWED",
+      "source": "packages/core/planning.ts",
+      "assessment": "Restricted planning DomainContext now forwards readResource with admission checks before and after the await, retaining the original grant and child-run boundaries.",
+      "intendedNegativeLog": "docs/implementation/v3/m12-logs/review-08-planning-read-red.log",
+      "passingLog": "docs/implementation/v3/m12-logs/review-09-planning-read-green.log"
+    },
+    {
+      "id": "IR-04",
+      "title": "Real crash matrix omitted two effect/result boundaries",
+      "severity": "HIGH",
+      "status": "FIXED_AND_REVIEWED",
+      "source": "tests/tool-program-replay-v3.test.ts",
+      "assessment": "Real SIGKILL cases now cover M02 effect admission before nested DISPATCHED and source return before private-result commitment. The implementation exposes explicit call.effect_committed and call.read_returned boundaries.",
+      "intendedNegativeLog": "docs/implementation/v3/m12-logs/review-12-crash-gaps-red.log",
+      "passingLog": "docs/implementation/v3/m12-logs/review-13-crash-gaps-green.log"
+    },
+    {
+      "id": "IR-05",
+      "title": "Replay diagnostics combined distinct incompatibilities",
+      "severity": "MEDIUM",
+      "status": "FIXED_AND_REVIEWED",
+      "source": "packages/core/tool-programs.ts",
+      "assessment": "Source, runtime, registry, journal identity/start/deadline, call arguments/order and issued-count failures now carry exact host-authored diagnoses while retaining the original result handle.",
+      "intendedNegativeLog": "docs/implementation/v3/m12-logs/diagnostics-01-red.log",
+      "passingLog": "docs/implementation/v3/m12-logs/diagnostics-02-green.log"
+    },
+    {
+      "id": "IR-06",
+      "title": "Python preflight traversal continued without structural or cancellation bounds",
+      "severity": "MEDIUM",
+      "status": "FIXED_AND_REVIEWED",
+      "source": "packages/runtime/python-program-worker.ts",
+      "assessment": "Private-directory traversal now has 4096-entry/depth-32 limits; runtime-tree traversal has 10000-entry/depth-64 limits. Every asynchronous filesystem boundary checks active cell, cancellation and deadline; streaming hashes are bounded and abortable. Late completion of a pending syscall cannot start another traversal or dispatch.",
+      "intendedNegativeLog": "docs/implementation/v3/m12-logs/python-backend-26-preflight-red.log",
+      "passingLog": "docs/implementation/v3/m12-logs/python-native-28-review-regression.log"
+    },
+    {
+      "id": "IR-07",
+      "title": "M12 crash recovery depended on unrelated M02 exposure flags",
+      "severity": "HIGH",
+      "status": "FIXED_AND_REVIEWED",
+      "source": "packages/core/tool-programs.ts",
+      "assessment": "Recovery now runs for M12-owned records even with all flags false, validates full parent/call/receipt linkage, settles verified receipts and marks uncertain dispatches UNKNOWN without redispatch. Historical metadata validation exposes no payload and renews no authority.",
+      "intendedNegativeLog": "docs/implementation/v3/m12-logs/recovery-01-red.log",
+      "passingLog": "docs/implementation/v3/m12-logs/recovery-03-focused-regression.log"
+    },
+    {
+      "id": "IR-08",
+      "title": "Concurrent key changes or reset of an old key retained two owner kernels",
+      "severity": "HIGH",
+      "status": "FIXED_AND_REVIEWED",
+      "source": "packages/core/python-kernels.ts",
+      "assessment": "Independent probes previously retained two READY owned executors. Owner-scoped selection tokens, full-record activation CAS and retained teardown custody now fence create/reset/stop. Reset stops other selected keys before activation; new admission remains blocked while old teardown is pending or failed.",
+      "intendedNegativeLog": "docs/implementation/v3/m12-logs/python-kernel-21-owner-races-red.log",
+      "passingLog": "docs/implementation/v3/m12-logs/python-kernel-25-custody-green.log"
+    },
+    {
+      "id": "IR-09",
+      "title": "Stop or Reset during input preparation left the old cell PREPARED",
+      "severity": "MEDIUM",
+      "status": "FIXED_AND_REVIEWED",
+      "source": "packages/core/python-kernels.ts",
+      "assessment": "The cell retains the prepared program ID across its catch path and cancels late preparation even after the kernel generation was superseded. The new generation is not overwritten. Controlled Stop and Reset races dispatch no old source.",
+      "intendedNegativeLog": "docs/implementation/v3/m12-logs/python-kernel-22-prepare-red.log",
+      "passingLog": "docs/implementation/v3/m12-logs/python-kernel-25-custody-green.log"
+    },
+    {
+      "id": "IR-10",
+      "title": "Input references amplified host memory before backend rejection",
+      "severity": "HIGH",
+      "status": "FIXED_AND_REVIEWED",
+      "source": "packages/core/tool-programs.ts",
+      "assessment": "The independent actual-QuickJS probe materialized 64 distinct decoded copies of one 262158-byte result before rejection. Public and stored references are now unique; preparation authorizes bounded raw receipts without decoding; sequential execution admission limits the entire input array to 4 MiB JSON, 100000 nodes and depth 64. Only the admitted aggregate plus one separately M10-bounded candidate is retained before dispatch.",
+      "intendedNegativeLog": "docs/implementation/v3/m12-logs/input-budget-01-red.log",
+      "passingLog": "docs/implementation/v3/m12-logs/input-budget-03-focused-regression.log"
+    },
+    {
+      "id": "IR-11",
+      "title": "Rejected JavaScript run left a prepared card active",
+      "severity": "MEDIUM",
+      "status": "FIXED_AND_REVIEWED",
+      "source": "packages/core/tool-program-host.ts",
+      "assessment": "The host facade retains the prepared program ID and cancels it if run rejects before owning an executor. An actual Service fixture holds the first read, rejects a second command as PROGRAM_BUSY and verifies the second card is CANCELLED.",
+      "intendedNegativeLog": "docs/implementation/v3/m12-logs/review-14-javascript-busy-red.log",
+      "passingLog": "docs/implementation/v3/m12-logs/review-15-javascript-busy-green.log"
+    },
+    {
+      "id": "IR-12",
+      "title": "Benchmark provenance labelled a static rerun recipe as the observed command",
+      "severity": "MEDIUM",
+      "status": "FIXED_AND_REVIEWED",
+      "source": "tests/fixtures/tool-program-benchmark-v3.ts",
+      "assessment": "The old provenance.command was a hardcoded standalone invocation even when combined/full suites produced the artifact. It is now reproductionCommand with an explicit recipe-versus-observed-launch note. The final standalone benchmark has a separately completed command record and an execution link binding exact artifact/source-cut bytes, actual argv/cwd/timestamps/exit. The controller verifies that binding and rejects stale review/source maps or overwritten measurements.",
+      "intendedNegativeLog": "docs/implementation/v3/m12-logs/review-16-benchmark-provenance-red.log",
+      "passingLog": "docs/implementation/v3/m12-logs/review-17-benchmark-provenance-green.log",
+      "additionalEvidence": [
+        "docs/implementation/v3/m12-logs/final-13-benchmark.log",
+        "docs/implementation/v3/m12-artifacts/benchmark-execution-link.json"
+      ]
+    },
+    {
+      "id": "IR-13",
+      "title": "Finite public-source manifest omitted M12 runtime, worker and browser inputs",
+      "severity": "HIGH",
+      "status": "FIXED_AND_REVIEWED",
+      "source": "scripts/public-source-files.json",
+      "assessment": "Full-suite comparison exposed four real packaging/import-closure regressions. The exact finite manifest now adds 42 reviewed source paths and 17 runtime paths, including the JS child and all three Python helper files that static import scans can miss. UI/tests/tokenizer review metadata remain source-only. No paths were removed and no wildcard/discovery authorization was added. Unknown-source denial, sorted uniqueness, runtime subset, staged-entry build and import closure checks remain intact; all 13 public-source tests pass.",
+      "intendedNegativeLog": "docs/implementation/v3/m12-logs/packaging-01-public-source-red.log",
+      "passingLog": "docs/implementation/v3/m12-logs/packaging-04-public-source-final-green.log",
+      "additionalEvidence": [
+        "docs/implementation/v3/m12-logs/packaging-03-token-review-red.log",
+        "docs/implementation/v3/m12-artifacts/public-source-manifest-additions.json",
+        "tests/public-source.test.ts"
+      ]
+    }
+  ],
+  "requirements": [
+    {
+      "id": "EXEC-01",
+      "requirement": "Isolated branch, accepted base and custody",
+      "status": "PASS_RECORDED",
+      "assessment": "Source audit records agent/m12-v3, the isolated worktree, original clean checkout, requested origin and canonical repository resolution. Every accepted-base blob in the 118-file cut was independently rechecked. The reviewer made no product/runtime, git-ref or external-account changes; the narrow IR-12 evidence-metadata edit is separately disclosed.",
+      "evidence": [
+        "docs/implementation/v3/M12-source-audit.json"
+      ]
+    },
+    {
+      "id": "EXEC-02",
+      "requirement": "M01/M02/M03/M04/M10 prerequisites on accepted base",
+      "status": "PARTIAL",
+      "assessment": "M01/M02/M03 definitions exist on accepted base; current touched contracts are pinned. Complete accepted-base M04/M10 milestones are not established. The reviewed local ToolDisclosure and private-result subsets solve the concrete M12 integration boundary but do not retroactively establish full upstream prerequisite acceptance.",
+      "evidence": [
+        "docs/implementation/v3/M12-source-lock.json"
+      ]
+    },
+    {
+      "id": "EXEC-03",
+      "requirement": "Read source, call sites, tests and detect API drift/collisions",
+      "status": "PASS_SCOPED",
+      "assessment": "The review read actual program/authority/ledger/disclosure/result/kernel/backend/service/transport/read-route code and direct tests. Required integration paths are present in the exact manifest; proposed M12 files were absent at base. Historical drift and original blocked attempts remain retained.",
+      "evidence": [
+        "docs/implementation/v3/M12-candidate-source-cut.json"
+      ]
+    },
+    {
+      "id": "EXEC-04",
+      "requirement": "Pinned package manager and dependency review",
+      "status": "PASS_SCOPED",
+      "assessment": "pnpm@10.30.3 is declared and the frozen-lockfile command exited 0. QuickJS-WASI is an existing pinned dependency. The new development-only js-tiktoken@1.0.21 is pinned and has retained package/file/lifecycle review; it is absent from the product execution lane.",
+      "evidence": [
+        "docs/implementation/v3/m12-artifacts/tokenizer-dependency-review.json"
+      ]
+    },
+    {
+      "id": "EXEC-05",
+      "requirement": "Host SQLite writer and synchronous Store callbacks",
+      "status": "PASS_SCOPED",
+      "assessment": "Workers receive JSON values and a checked bridge, never Store. New command/internal callbacks are synchronous; filesystem/process awaits happen outside the host transactions. M02 receipt transitions and private result commitments remain host-owned.",
+      "evidence": [
+        "packages/core/tool-programs.ts"
+      ]
+    },
+    {
+      "id": "EXEC-06",
+      "requirement": "Preserve native history, epochs, account pinning and cancellation",
+      "status": "PASS_SCOPED",
+      "assessment": "Existing native model-only paths receive no program tools. Full thread/run/epoch/project/workspace/account ownership is compared at admission, delivery, results and lifecycle commands. Run settlement cancels owned programs/kernels; retained UI reading does not renew execution authority.",
+      "evidence": [
+        "packages/core/service.ts"
+      ]
+    },
+    {
+      "id": "EXEC-07",
+      "requirement": "Failing fixtures before implementation and stages",
+      "status": "PASS_RECORDED",
+      "assessment": "Protocol-before-backend and stage-specific intended-negative logs exist, including all thirteen review fixes. Earlier failures and probes remain separate files and are not rewritten as successful attempts.",
+      "evidence": [
+        "docs/implementation/v3/m12-logs/protocol-01-red.log"
+      ]
+    },
+    {
+      "id": "CONTRACT-01",
+      "requirement": "ToolProgramV1 and host-classified read-only tools",
+      "status": "PASS",
+      "assessment": "Strict schema includes required identity, source/runtime/registry digests, full owner, tools, unique inputRefs, bounded limits/state/result. The finite host read allowlist requires READ, READ_RETRYABLE, approved executor binding and explicit disclosure; server annotations cannot grant admission.",
+      "evidence": [
+        "packages/contracts/tool-program.ts",
+        "packages/core/tool-disclosure.ts"
+      ]
+    },
+    {
+      "id": "CONTRACT-02",
+      "requirement": "NestedCallV1 and exact reattachment",
+      "status": "PASS",
+      "assessment": "Stable key, invocation, argument commitment, result, terminal state and effect class are persisted. Reattachment compares key, arguments, full owner and pinned definition digest, including the parent invocation linkage.",
+      "evidence": [
+        "packages/core/tool-programs.ts",
+        "packages/core/tool-effects.ts"
+      ]
+    },
+    {
+      "id": "CONTRACT-03",
+      "requirement": "ProgramJournalV1 deterministic start/delivery/issued counts",
+      "status": "PASS",
+      "assessment": "Start seed/clock/deadline, issued identities and actual VM issued count at every delivery are committed before crossing their boundaries. Changed fingerprint, source, registry, sequence or arguments prevents newly admitted effects.",
+      "evidence": [
+        "tests/tool-program-replay-v3.test.ts"
+      ]
+    },
+    {
+      "id": "CONTRACT-04",
+      "requirement": "PythonKernelV1 identity, generations and crash state",
+      "status": "PASS_LINUX_SCOPE",
+      "assessment": "Key covers complete owner plus interpreter/config/cwd identity/tool-set/profile. Owner selection and teardown custody prevent two live kernels. Reset increments before new source, clears globals and does not reconstruct variables after crash.",
+      "evidence": [
+        "packages/core/python-kernels.ts"
+      ]
+    },
+    {
+      "id": "IMPL-01",
+      "requirement": "Synthetic protocol before VM and dependency pinning",
+      "status": "PASS_RECORDED",
+      "assessment": "The missing-implementation protocol negative preceded host implementation and VM tests. Existing locked QuickJS is checked by exact module/WASM hashes; no unpinned runtime package was introduced.",
+      "evidence": [
+        "docs/implementation/v3/m12-logs/protocol-01-red.log"
+      ]
+    },
+    {
+      "id": "IMPL-02",
+      "requirement": "Dedicated JavaScript executor and no ambient capabilities",
+      "status": "PASS_SCOPED",
+      "assessment": "Actual QuickJS runs in a dedicated Worker/WASM VM with no guest filesystem, network, Node/process/module-loader, imports or credentials. Deeply immutable transferred values and a host bridge are the only inputs. Python/native access additionally uses actual M03 confinement.",
+      "evidence": [
+        "tests/tool-program-backend-v3.test.ts"
+      ]
+    },
+    {
+      "id": "IMPL-03",
+      "requirement": "Deadline, calls, concurrency, output and memory",
+      "status": "PARTIAL_SUPPORTED_SCOPES",
+      "assessment": "Guest execution/admission uses an original 30-second deadline, at most 64 calls, four admitted reads and a 256 KiB model-result envelope. QuickJS linear memory and Python interpreter address space are each capped at 128 MiB. Whole-executor memory and arbitrary host-I/O/RPC teardown are explicitly unsupported, not inferred from timers.",
+      "evidence": [
+        "packages/contracts/tool-program.ts",
+        "independent-review-deadline-observation.json"
+      ]
+    },
+    {
+      "id": "IMPL-04",
+      "requirement": "Every nested call through M02 and M04 before dispatch",
+      "status": "PASS",
+      "assessment": "Durable identities precede effect admission; host authority, exact owner, disclosed tool and definition pin are rechecked before dispatch. Hidden/write/alternate-account/workspace arguments are denied. No native transport bypass is admitted.",
+      "evidence": [
+        "tests/tool-program-authority-v3.test.ts",
+        "tests/tool-program-v3.test.ts"
+      ]
+    },
+    {
+      "id": "IMPL-05",
+      "requirement": "Private handles, explicit aggregates, grant-checked ranges and source errors",
+      "status": "PASS",
+      "assessment": "Bulk results and failures remain in private scoped immutable handles with quotas. Only an explicitly named aggregate plus bounded references reaches the model; range reads revalidate grants. All source failures, including falsy rejection values, remain failures even if guest code catches them.",
+      "evidence": [
+        "packages/core/tool-results.ts",
+        "tests/tool-program-input-budget-v3.test.ts"
+      ]
+    },
+    {
+      "id": "IMPL-06",
+      "requirement": "Replay after executor proof and receipt-only delivery",
+      "status": "PASS_SCOPED",
+      "assessment": "Non-replaying backend tests and replay tests are separate. Real completed source receipts are reused; uncertain dispatches never rerun. Journal identities and delivery order are committed before effect or VM admission. Replay is JavaScript-only and separately flagged.",
+      "evidence": [
+        "tests/tool-program-replay-v3.test.ts"
+      ]
+    },
+    {
+      "id": "IMPL-07",
+      "requirement": "Divergence/deadline failure, owned cancellation and process kills",
+      "status": "PASS_SCOPED",
+      "assessment": "Exact drift causes REPLAY_DIVERGED, expired original budget refuses restart, owned calls are cancelled conservatively, and UNKNOWN effects remain inspectable. The real SIGKILL matrix includes ten journal/call/result boundaries; default-off recovery verifies linkage without redispatch.",
+      "evidence": [
+        "tests/tool-program-recovery-v3.test.ts"
+      ]
+    },
+    {
+      "id": "IMPL-08",
+      "requirement": "Installed Python, owner process and actual OS confinement",
+      "status": "PARTIAL_PLATFORM_APPROVAL",
+      "assessment": "Actual installed Linux x64 interpreter/bwrap/runtime bytes are pinned; M03 profile, namespaces, readonly runtime mounts and default-deny seccomp confine code to its private directory with no host credentials/network/process creation. Native tests have explicit synthetic test approval only. Production operator approval and other target platforms remain unproved.",
+      "evidence": [
+        "docs/implementation/v3/m12-artifacts/python-runtime-configuration.json"
+      ]
+    },
+    {
+      "id": "IMPL-09",
+      "requirement": "Fresh cell budgets and wedged-state invalidation",
+      "status": "PASS_LINUX_SCOPE",
+      "assessment": "Each cell captures the current kernel generation with fresh source/input/call/output/time budget. Timeout/cancellation stops and waits for the owned process, invalidates variables and requires reset. Trusted supervisor quiescence, rather than guest completion text, controls return to READY. Prior cells are never rerun.",
+      "evidence": [
+        "tests/python-program-backend-v3.test.ts",
+        "tests/python-kernel-v3.test.ts"
+      ]
+    },
+    {
+      "id": "IMPL-10",
+      "requirement": "Exact-owner Stop/Reset and complete evidence ledger",
+      "status": "PASS_SCOPED",
+      "assessment": "Host commands require exact retained owner, captured generation and idempotent command identity. Stop and Reset remain distinct; reset warns that external effects persist. Program parent receipts contain usage and every nested read links to that parent receipt.",
+      "evidence": [
+        "packages/core/tool-program-host.ts",
+        "packages/core/tool-effects.ts"
+      ]
+    },
+    {
+      "id": "IMPL-11",
+      "requirement": "Independent flags and measured aggregation benchmark",
+      "status": "PASS_FIXED_FIXTURE_ONLY",
+      "assessment": "JavaScript, Python and durable replay have separate default-false host flags. The fixed cursor-dependent aggregation fixture measures actual request/response bytes and offline token encodings, equal exact arithmetic answers and failure inspection overhead. It is not live model evaluation or proof of general task-quality invariance.",
+      "evidence": [
+        "tests/fixtures/tool-program-benchmark-v3.ts",
+        "docs/implementation/v3/m12-artifacts/aggregation-benchmark.json",
+        "docs/implementation/v3/m12-artifacts/benchmark-execution-link.json",
+        "docs/implementation/v3/m12-logs/final-13-benchmark.log"
+      ]
+    },
+    {
+      "id": "UI-01",
+      "requirement": "Program card, call graph and retained handles",
+      "status": "PASS_BROWSER_SCOPE",
+      "assessment": "Card includes language, tools, elapsed time, nested count, cap and state. Expanded data exposes metadata/handles rather than private bulk. Range inspection is explicit, paged and escaped. Waiting elapsed time advances and freezes after settlement.",
+      "evidence": [
+        "apps/web/src/ToolProgramPanel.tsx",
+        "tests/e2e/tool-programs.spec.ts"
+      ]
+    },
+    {
+      "id": "UI-02",
+      "requirement": "Kernel generation, retained state, Stop and Reset warning",
+      "status": "PASS_BROWSER_SCOPE",
+      "assessment": "Kernel generation and retained-state status are visible. Separate Stop/Reset controls use captured owner/generation. Reset confirmation warns prior files/remote effects are not undone; owner change clears pending inspection and confirmation.",
+      "evidence": [
+        "tests/e2e/tool-programs.spec.ts"
+      ]
+    },
+    {
+      "id": "UI-03",
+      "requirement": "Exact replay incompatibility and original result; no blind Resume",
+      "status": "PASS_SCOPED",
+      "assessment": "Field-specific host messages and originalResultRef are retained and inspectable. No write replay or blind Resume control is offered. Private guest error messages are replaced with safe host text.",
+      "evidence": [
+        "tests/tool-program-diagnostics-v3.test.ts",
+        "apps/web/src/ToolProgramPanel.tsx"
+      ]
+    },
+    {
+      "id": "NEG-01",
+      "requirement": "Deny ambient access, hidden names and alternate accounts",
+      "status": "PASS_LOCAL_BOUNDARIES",
+      "assessment": "Actual QuickJS and native Linux Python tests exercise ambient denials. Contract and Service tests deny hidden/write tools and every owner-binding change before dispatch.",
+      "evidence": [
+        "tests/tool-program-backend-v3.test.ts",
+        "tests/python-program-backend-v3.test.ts"
+      ]
+    },
+    {
+      "id": "NEG-02",
+      "requirement": "Infinite loops, memory/output growth, fan-out and orphan prevention",
+      "status": "PARTIAL_SUPPORTED_SCOPES",
+      "assessment": "Real loops/memory/output/fan-out fixtures hit the stated guest/interpreter bounds; worker/process cleanup is verified. The independent noncooperative host-read probe deliberately fails a hard outer-RPC deadline claim. Whole executor memory is unsupported.",
+      "evidence": [
+        "independent-review-deadline-observation.json",
+        "tests/python-program-backend-v3.test.ts"
+      ]
+    },
+    {
+      "id": "NEG-03",
+      "requirement": "Crash boundaries and no duplicated non-replayable effects",
+      "status": "PASS_READ_ONLY_SCOPE",
+      "assessment": "Ten actual SIGKILL boundaries and explicit restart tests preserve committed results, reject divergence and never repeat uncertain dispatches. Mutation is denied at admission; no external mutation was executed for testing.",
+      "evidence": [
+        "tests/tool-program-replay-v3.test.ts",
+        "tests/tool-program-recovery-v3.test.ts"
+      ]
+    },
+    {
+      "id": "NEG-04",
+      "requirement": "Kernel key changes and owner isolation",
+      "status": "PASS_SCOPED",
+      "assessment": "Interpreter/config/workspace/account/tool-set/profile/cwd identity changes alter or invalidate the kernel key. Full owner checks and owner selection prevent variable reuse across owners and simultaneous key activation.",
+      "evidence": [
+        "tests/python-kernel-v3.test.ts",
+        "tests/python-program-integration-v3.test.ts"
+      ]
+    },
+    {
+      "id": "NEG-05",
+      "requirement": "Cancelled/wedged invalidation and no reset replay",
+      "status": "PASS_LINUX_SCOPE",
+      "assessment": "Actual process cancellation/deadlines invalidate globals and require a new generation. Core races cover delayed factory, Stop/Reset during preparation and failed cleanup custody. Reset preserves prior files and never replays cells.",
+      "evidence": [
+        "tests/python-program-integration-v3.test.ts",
+        "tests/python-kernel-v3.test.ts"
+      ]
+    },
+    {
+      "id": "NEG-06",
+      "requirement": "Benchmark counts, bytes, tokens, quality and failure overhead",
+      "status": "PASS_FIXED_FIXTURE_ONLY",
+      "assessment": "The retained benchmark includes cold discovery, source calls, requested aggregates, diagnostic range requests, failure state and exact oracle equality. Named cl100k_base/o200k_base counts are measured offline; provider framing/billing and live-model quality are explicitly excluded.",
+      "evidence": [
+        "docs/implementation/v3/m12-artifacts/aggregation-benchmark.json",
+        "docs/implementation/v3/m12-artifacts/benchmark-execution-link.json",
+        "docs/implementation/v3/m12-logs/final-13-benchmark.log"
+      ]
+    },
+    {
+      "id": "VERIFY-01",
+      "requirement": "Exact targeted commands and full required validation",
+      "status": "FAIL_REQUIRED_FULL_UNIT_GATE",
+      "assessment": "Final reviewed-cut typecheck and build exit 0; standalone benchmark and metadata probe pass; packaging passes 13/13. Final full pnpm test exits 1 with 3276 passed, 269 failed, 46 skipped and four unhandled errors. All 269 failed assertion identities also failed on accepted base, with zero candidate-only failures; 211 failure messages match after worktree-root normalization and 58 differ. This is observed overlap, not universal root-cause equivalence or a passing full-suite gate. The full browser outer command is still pending at this review handoff.",
+      "evidence": [
+        "docs/implementation/v3/m12-logs/final-01-protocol.log",
+        "docs/implementation/v3/m12-logs/final-06-typecheck.log",
+        "docs/implementation/v3/m12-logs/final-11-full-test-after-review.log",
+        "docs/implementation/v3/m12-logs/final-12-typecheck-after-review.log",
+        "docs/implementation/v3/m12-logs/final-08-build.log",
+        "docs/implementation/v3/m12-artifacts/unit-baseline-comparison.json"
+      ],
+      "previousSnapshots": [
+        {
+          "status": "PENDING_COORDINATOR_FINAL_GATE",
+          "assessment": "Targeted prior stage commands have actual exit codes and cwd. Final protocol and new browser suite passed; the first final typecheck failed on a new test union narrowing. Coordinator owns its correction, final source refresh and exact full typecheck/test/build/browser outcomes. This engineering review does not convert prior full-suite failures into passes."
+        }
+      ]
+    },
+    {
+      "id": "VERIFY-02",
+      "requirement": "Baseline browser suite and actual-platform requirements",
+      "status": "PARTIAL",
+      "assessment": "Actual accepted-base and candidate root browser runs both failed, with 33 unexpected cases each and four differing cases per run. All four candidate-only cases passed focused reruns, but both original full failures remain failures. Linux tests do not stand in for Windows or installed desktop.",
+      "evidence": [
+        "docs/implementation/v3/m12-artifacts/browser-baseline-comparison.json"
+      ]
+    },
+    {
+      "id": "VERIFY-03",
+      "requirement": "No guessed live evaluation endpoints",
+      "status": "PASS_REVIEW_SCOPE",
+      "assessment": "Review probes are isolated local synthetic fixtures; no credential/account or live endpoint was used. Offline workflow/token measurements are explicitly labelled, and no MANIFEST_ONLY artifact is treated as executed integration.",
+      "evidence": [
+        "docs/implementation/v3/m12-artifacts/aggregation-benchmark.json"
+      ]
+    },
+    {
+      "id": "ACTIVATE-01",
+      "requirement": "Tested backend before execution; pinned source adapters",
+      "status": "PASS_DEFAULT_OFF",
+      "assessment": "Factories verify actual selected backend bytes and live execution probes. Python additionally requires approved installed interpreter and M03 proof. Stable Gen-V1 contracts wrap reimplemented/pinned behavior; upstream durable/kernel modules are not imported wholesale.",
+      "evidence": [
+        "packages/runtime/tool-program-worker.ts",
+        "packages/core/python-program-provider.ts"
+      ]
+    },
+    {
+      "id": "ACTIVATE-02",
+      "requirement": "Only three finite shared host flag keys, default false",
+      "status": "PASS",
+      "assessment": "The three exact requested keys are registered in the shared finite registry, absent from strict UI preferences and not agent/plugin writable. Separate language/replay checks prevent one successful proof from enabling all capabilities.",
+      "evidence": [
+        "packages/core/capability-flags.ts",
+        "tests/tool-program-v3.test.ts"
+      ]
+    },
+    {
+      "id": "ROLLBACK-01",
+      "requirement": "Disable admission, cancel ownership, retain receipts, invalidate generations",
+      "status": "PASS_SCOPED",
+      "assessment": "Rollback closes admission, cancels programs, waits for owned executors and advances/invalidates kernel generations. Recovery only reconciles records; no script or cell is rerun to rebuild a UI view. Private receipts and uncertain effects are retained. Noncooperative host I/O may delay cleanup, explicitly unsupported.",
+      "evidence": [
+        "packages/core/tool-programs.ts",
+        "packages/core/python-kernels.ts",
+        "packages/core/service.ts"
+      ]
+    },
+    {
+      "id": "HANDOFF-01",
+      "requirement": "ImplementationEvidenceV3, complete source/log artifacts and honest bundle result",
+      "status": "PENDING_COORDINATOR_FINAL_GATE",
+      "assessment": "The final schema-owned verification/handoff is a separate coordinator deliverable. It must retain failed attempts, migration/rollback status and exact contract versions, distinguish CORE/INTEGRATION/PLATFORM, report PARTIAL while relevant gates remain open, and keep the final commit SHA outside its own commit. This review artifact is not a replacement evidence manifest.",
+      "evidence": [
+        "packages/contracts/implementation-evidence.ts",
+        "docs/implementation/v3/M12-verification.json"
+      ]
+    },
+    {
+      "id": "EXEC-08",
+      "requirement": "Distributable public/runtime source closure including non-static assets",
+      "status": "PASS_SCOPED",
+      "assessment": "The exact reviewed manifest admits the complete M12 public/runtime source closure, explicit JS/Python worker assets and browser/test inputs. Unknown files remain denied. Only the reviewed tokenizer dependency metadata is added from the evidence tree, source-only. All 13 existing and added public-source checks pass.",
+      "evidence": [
+        "scripts/public-source-files.json",
+        "tests/public-source.test.ts",
+        "docs/implementation/v3/m12-logs/packaging-04-public-source-final-green.log",
+        "docs/implementation/v3/m12-artifacts/public-source-manifest-additions.json"
+      ]
+    }
+  ],
+  "remainingGates": [
+    {
+      "id": "G-PREREQUISITES",
+      "status": "NOT_ESTABLISHED",
+      "scope": "Full accepted-base M04 and M10 milestones",
+      "detail": "Local reviewed required subsets cannot be relabelled as complete prerequisite milestones already accepted on the base."
+    },
+    {
+      "id": "G-MEMORY",
+      "status": "UNSUPPORTED",
+      "scope": "Whole-executor 128 MiB",
+      "detail": "QuickJS WASM linear memory and Python interpreter address space are bounded; Node/V8, supervisor, launcher, host copies and aggregate process-tree RSS are not covered. Both proofs set wholeExecutorMemoryLimitBytes=null."
+    },
+    {
+      "id": "G-HOST-IO",
+      "status": "UNSUPPORTED",
+      "scope": "Hard 30-second outer RPC and arbitrary host-I/O teardown",
+      "detail": "A host read ignoring AbortSignal leaves the RPC waiting after the guest/admission deadline. The receipt becomes UNKNOWN and ownership is retained until cleanup settles. Pending OS filesystem calls are similarly not guaranteed promptly interruptible."
+    },
+    {
+      "id": "G-PLATFORM",
+      "status": "BLOCKED_UNTESTED_TARGETS",
+      "scope": "Windows/native installed desktop and other unmeasured platforms",
+      "detail": "Actual Linux x64 proof is not a Windows, macOS, arm64 or installed-desktop proof. Relevant features remain disabled where no approved tested backend exists."
+    },
+    {
+      "id": "G-OPERATOR",
+      "status": "NOT_APPROVED",
+      "scope": "Production interpreter/backend activation",
+      "detail": "Native test approval is synthetic and limited to fixtures. Captured runtime configuration has operatorApproved=false. All product flags default false."
+    },
+    {
+      "id": "G-REQUIRED-COMMANDS",
+      "status": "FAIL_REQUIRED_FULL_UNIT_GATE_BROWSER_PENDING",
+      "scope": "Final complete required validation",
+      "detail": "The reviewed-cut full unit command exits 1 (3276 pass, 269 fail, 46 skip, four unhandled errors). Zero candidate-only failed assertion identities does not waive that failure; same failure identity does not prove a shared cause. Reviewed-cut typecheck and build exit 0. Full outer browser command completion and schema-owned final evidence remain coordinator-owned."
+    },
+    {
+      "id": "G-BROWSER-BASELINE",
+      "status": "FAIL_RETAINED",
+      "scope": "M01 baseline browser acceptance",
+      "detail": "Actual baseline and candidate root browser commands failed. Focused passing reruns do not replace those full-command results."
+    },
+    {
+      "id": "G-BENCHMARK-SCOPE",
+      "status": "LIMITED_TO_FIXED_OFFLINE_FIXTURES",
+      "scope": "General task quality, provider billing and live-model evaluation",
+      "detail": "The authored cursor-dependent aggregation program and fixed oracle show scoped request/byte/token savings. They do not establish general quality or production model latency/cost."
+    },
+    {
+      "id": "G-PRODUCTION-REVIEW",
+      "status": "NOT_APPROVED",
+      "scope": "Production activation and release",
+      "detail": "This independent engineering review closes the listed implementation findings only. It does not enable flags, approve deployment, waive source compatibility or authorize a production release."
+    }
+  ],
+  "commandEvidence": [
+    {
+      "path": "docs/implementation/v3/m12-logs/diagnostics-01-red.log",
+      "sha256": "4c65cc3822df806e693553172e1e9939403553d9b7bf48ab1d270360fcfc02ac",
+      "blobSha": "0a64f18df9049778394a2ed942c5dc5024e352ca",
+      "bytes": 15966,
+      "command": {
+        "argv": [
+          "corepack",
+          "pnpm@10.30.3",
+          "exec",
+          "vitest",
+          "run",
+          "tests/tool-program-diagnostics-v3.test.ts",
+          "--maxWorkers=2"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:05:32.257637+00:00",
+        "endedAt": "2026-11-15T11:05:35.535426+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": [
+        "Test Files  1 failed (1)",
+        "Tests  11 failed (11)"
+      ]
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/diagnostics-02-green.log",
+      "sha256": "403c031908cb38f7fbc14eccd983a22410016a4116bd63d54797b7a043506d36",
+      "blobSha": "e3327baccb074c41589908bdfe3b09a9e1a4a622",
+      "bytes": 604,
+      "command": {
+        "argv": [
+          "corepack",
+          "pnpm@10.30.3",
+          "exec",
+          "vitest",
+          "run",
+          "tests/tool-program-diagnostics-v3.test.ts",
+          "--maxWorkers=2"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:05:48.182015+00:00",
+        "endedAt": "2026-11-15T11:05:50.700911+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": [
+        "Test Files  1 passed (1)",
+        "Tests  11 passed (11)"
+      ]
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/final-00-frozen-lockfile.log",
+      "sha256": "a705fbb11d2e671f4bb4116f112a1ab394943e76248b2f596168021a8254b252",
+      "blobSha": "a5e674a23993adfb649af76f60d36fe19fae68a7",
+      "bytes": 1472,
+      "command": {
+        "argv": [
+          "pnpm",
+          "install",
+          "--frozen-lockfile",
+          "--ignore-scripts"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:15:29.829689+00:00",
+        "endedAt": "2026-11-15T11:15:30.996092+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": []
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/final-01-protocol.log",
+      "sha256": "5ae32ca4223960c819c59f52545c710d7c7e6b30adf3231a5815878be86930a6",
+      "blobSha": "c736b51aada79cdb25197a13d4a86206f39bd346",
+      "bytes": 546,
+      "command": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/tool-program-v3.test.ts"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:24:47.463976+00:00",
+        "endedAt": "2026-11-15T11:24:48.892648+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": [
+        "Test Files  1 passed (1)",
+        "Tests  22 passed (22)"
+      ]
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/final-06-typecheck.log",
+      "sha256": "bfcffa7656e18c20915067874d138d1e23c517804ddbeb9da5c9b71acd4a2f44",
+      "blobSha": "3c0a0af3d5771f4f7185601af33a912d61061ebb",
+      "bytes": 2605,
+      "command": {
+        "argv": [
+          "env",
+          "NODE_OPTIONS=--max-old-space-size=4096",
+          "pnpm",
+          "typecheck"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:24:49.060887+00:00",
+        "endedAt": "2026-11-15T11:25:13.046898+00:00",
+        "exitCode": 2,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": []
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/final-09-program-browser.log",
+      "sha256": "6301dc428fefaa29948bff60c6f77461e55bc30110ec9721bcaf1b9afd582627",
+      "blobSha": "7c9fd6e9cd2a09b0537c026f42fe87714e97a869",
+      "bytes": 2403,
+      "command": {
+        "argv": [
+          "pnpm",
+          "test:browser",
+          "--",
+          "--suite",
+          "tool-programs"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:18:08.317744+00:00",
+        "endedAt": "2026-11-15T11:18:15.354604+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": [
+        "7 passed (6.0s)"
+      ]
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/independent-review-01-deadline.log",
+      "sha256": "f6e9bd1e811a48d633263f7736712ae3c77b855d90aa78e569dca3a45d2e63dd",
+      "blobSha": "e0b95c4649363239961988e4802bd2169ae556dc",
+      "bytes": 2176,
+      "command": {
+        "argv": [
+          "node",
+          "--import",
+          "tsx",
+          "docs/implementation/v3/m12-artifacts/independent-review-deadline-probe.mts"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:06:16.226446+00:00",
+        "endedAt": "2026-11-15T11:06:17.927866+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": []
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/independent-review-02-input-amplification.log",
+      "sha256": "7ee07fbb538cd8ec0e13103015c81f1404fb2b034a5b7c8f9ad1a5804251489c",
+      "blobSha": "2e05e8df553976495eb93aadbf726e25111995c3",
+      "bytes": 1420,
+      "command": {
+        "argv": [
+          "node",
+          "--import",
+          "tsx",
+          "docs/implementation/v3/m12-artifacts/independent-review-input-amplification-probe.mts"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:17:34.751355+00:00",
+        "endedAt": "2026-11-15T11:17:36.078402+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": []
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/input-budget-01-red.log",
+      "sha256": "290d0c9c892975503a9800205dc409d7e39b1dd8434c60a1b8793fb13fb78cd2",
+      "blobSha": "29c6763a953ffba8a6b7bd1e0930991ab8241623",
+      "bytes": 16341,
+      "command": {
+        "argv": [
+          "corepack",
+          "pnpm@10.30.3",
+          "exec",
+          "vitest",
+          "run",
+          "tests/tool-program-input-budget-v3.test.ts",
+          "--maxWorkers=2"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:21:28.673237+00:00",
+        "endedAt": "2026-11-15T11:21:33.280313+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": [
+        "Test Files  1 failed (1)",
+        "Tests  12 failed | 6 passed (18)"
+      ]
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/input-budget-03-focused-regression.log",
+      "sha256": "b22935ff42f42e56f4b1651031948f90f3af2a7aa888214fa4d3589c124f2844",
+      "blobSha": "c419361f5cf11489c97ec8353c0cb71fb27eaf70",
+      "bytes": 789,
+      "command": {
+        "argv": [
+          "corepack",
+          "pnpm@10.30.3",
+          "exec",
+          "vitest",
+          "run",
+          "tests/tool-program-input-budget-v3.test.ts",
+          "tests/tool-program-v3.test.ts",
+          "tests/tool-program-prerequisites-v3.test.ts",
+          "tests/tool-program-integration-v3.test.ts",
+          "tests/tool-program-transport-v3.test.ts",
+          "--maxWorkers=2"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:23:48.043941+00:00",
+        "endedAt": "2026-11-15T11:23:53.119426+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": [
+        "Test Files  5 passed (5)",
+        "Tests  73 passed (73)"
+      ]
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-backend-26-preflight-red.log",
+      "sha256": "396c1a42e6a7b01c4a1b2f1c8b8d1fa3002e6e16c37bf621afb6957c27702aa2",
+      "blobSha": "8f80bca3d54a0a9226097c46d58c25575c198eb2",
+      "bytes": 3336,
+      "command": {
+        "argv": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "tests/python-program-backend-v3.test.ts",
+          "--maxWorkers=1",
+          "-t",
+          "bounds a prior|stops preflight"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:15:50.733838+00:00",
+        "endedAt": "2026-11-15T11:15:55.034824+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": [
+        "Test Files  1 failed (1)",
+        "Tests  4 failed | 19 skipped (23)"
+      ]
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-kernel-19-admission-red.log",
+      "sha256": "61a82412adeac4083bd27af95f51739f2f5d7c3c3887715a616656d132b66857",
+      "blobSha": "6705d8967f5ffb7596e3682f6f765f5fec9a939c",
+      "bytes": 10157,
+      "command": {
+        "argv": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "tests/python-kernel-v3.test.ts",
+          "--maxWorkers=1"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:03:11.167192+00:00",
+        "endedAt": "2026-11-15T11:03:11.808009+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": [
+        "Test Files  1 failed (1)",
+        "Tests  5 failed | 9 passed (14)"
+      ]
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-kernel-20-admission-green.log",
+      "sha256": "22b394b8f456b9e7283a4c0a71b979def05d31865eefc3e3648f024628afdd4c",
+      "blobSha": "d14c1bf66b2bc1ef0f38d521eeaec5a8971a0788",
+      "bytes": 580,
+      "command": {
+        "argv": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "tests/python-kernel-v3.test.ts",
+          "--maxWorkers=1"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:03:37.112512+00:00",
+        "endedAt": "2026-11-15T11:03:37.701776+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": [
+        "Test Files  1 passed (1)",
+        "Tests  14 passed (14)"
+      ]
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-kernel-21-owner-races-red.log",
+      "sha256": "859d83827b434ad6f65d4a46368191cc53bf7f1db35c1429b0bab463a8068d9a",
+      "blobSha": "2fe255f74c542ee9a7416d93e4aa39ff6b903a39",
+      "bytes": 3470,
+      "command": {
+        "argv": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "tests/python-kernel-v3.test.ts",
+          "--maxWorkers=1"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:08:30.094932+00:00",
+        "endedAt": "2026-11-15T11:08:31.204628+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": [
+        "Test Files  1 failed (1)",
+        "Tests  3 failed | 14 passed (17)"
+      ]
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-kernel-22-prepare-red.log",
+      "sha256": "5877601d62fe8f4ef3dd89288d11f864501e30ffa5ebea314fc999a60d306834",
+      "blobSha": "c193b6488b83ac41eccbf2de26f7142978a7807c",
+      "bytes": 1865,
+      "command": {
+        "argv": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "tests/python-kernel-v3.test.ts",
+          "--maxWorkers=1",
+          "-t",
+          "old program prepared"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:10:38.991564+00:00",
+        "endedAt": "2026-11-15T11:10:39.797557+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": [
+        "Test Files  1 failed (1)",
+        "Tests  2 failed | 17 skipped (19)"
+      ]
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-kernel-25-custody-green.log",
+      "sha256": "43e9af93c1d92c6a922af2f2a96097ca2d6c862fa1fda041931cd88b76ef585c",
+      "blobSha": "8f80951e73daa5ad6872f687dcf4f0b94192cc38",
+      "bytes": 580,
+      "command": {
+        "argv": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "tests/python-kernel-v3.test.ts",
+          "--maxWorkers=1"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:14:23.221504+00:00",
+        "endedAt": "2026-11-15T11:14:23.976525+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": [
+        "Test Files  1 passed (1)",
+        "Tests  21 passed (21)"
+      ]
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-native-28-review-regression.log",
+      "sha256": "dd352292e2a23b51e268dc1003d10d87eb7b9840cde5d2e60c06feb255d0eb91",
+      "blobSha": "40e0aa97cc5b19f46041e9b3e10daa954c712269",
+      "bytes": 681,
+      "command": {
+        "argv": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "tests/python-kernel-v3.test.ts",
+          "tests/python-program-backend-v3.test.ts",
+          "tests/python-program-integration-v3.test.ts",
+          "--maxWorkers=1"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:17:35.030027+00:00",
+        "endedAt": "2026-11-15T11:17:58.379511+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": [
+        "Test Files  3 passed (3)",
+        "Tests  60 passed (60)"
+      ]
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/recovery-01-red.log",
+      "sha256": "24ebfe2962a5a417d1ecec2040114746e907c0d01e8d424d6e66524e78aa2e50",
+      "blobSha": "bb8c7d9c57606a1cf8e879ff0754df5a1c6605c9",
+      "bytes": 10937,
+      "command": {
+        "argv": [
+          "corepack",
+          "pnpm@10.30.3",
+          "exec",
+          "vitest",
+          "run",
+          "tests/tool-program-recovery-v3.test.ts",
+          "--maxWorkers=2"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:08:54.570065+00:00",
+        "endedAt": "2026-11-15T11:09:00.348552+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": [
+        "Test Files  1 failed (1)",
+        "Tests  14 failed (14)"
+      ]
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/recovery-03-focused-regression.log",
+      "sha256": "dab256c5f7856fae87a4241d20c351cb9305826c2a9b2ddc7fa8ce9d36bf51a4",
+      "blobSha": "a697f41f7303a10d6a899388580706f1e969cebd",
+      "bytes": 698,
+      "command": {
+        "argv": [
+          "corepack",
+          "pnpm@10.30.3",
+          "exec",
+          "vitest",
+          "run",
+          "tests/tool-program-recovery-v3.test.ts",
+          "tests/tool-program-replay-v3.test.ts",
+          "tests/tool-program-prerequisites-v3.test.ts",
+          "--maxWorkers=2"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:12:02.965613+00:00",
+        "endedAt": "2026-11-15T11:12:17.244908+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": [
+        "Test Files  3 passed (3)",
+        "Tests  71 passed (71)"
+      ]
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/review-08-planning-read-red.log",
+      "sha256": "ecdf354da4f93cb147fb73e67101709e59e4cf2f9cc0c377737ce924f50799b3",
+      "blobSha": "1f97fafcd87b99147d9617a6d0af9be20552f562",
+      "bytes": 2898,
+      "command": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/planning.test.ts",
+          "--maxWorkers=1",
+          "-t",
+          "granted byte reader|delegated byte reads"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:00:45.594398+00:00",
+        "endedAt": "2026-11-15T11:00:47.394132+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": [
+        "Test Files  1 failed (1)",
+        "Tests  2 failed | 22 skipped (24)"
+      ]
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/review-09-planning-read-green.log",
+      "sha256": "95795ac998ade6678e08b5c4b0304060fe155863d2db7b321f704718222f0e26",
+      "blobSha": "f6b0f7af3f031ce069d6fcd63fb15687ee80e00e",
+      "bytes": 602,
+      "command": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/planning.test.ts",
+          "tests/linux-bound-read-v3.test.ts",
+          "--maxWorkers=1"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:01:06.379023+00:00",
+        "endedAt": "2026-11-15T11:01:09.410034+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": [
+        "Test Files  2 passed (2)",
+        "Tests  42 passed (42)"
+      ]
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/review-10-falsy-source-red.log",
+      "sha256": "c4dbccd1548b51cfd3c689b575d4d4dc79e856215d4ebf8f7769769ca08a1603",
+      "blobSha": "5320d355d987a4abffb5ae77a8a9818176c635e6",
+      "bytes": 2326,
+      "command": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/tool-program-v3.test.ts",
+          "--maxWorkers=1",
+          "-t",
+          "thrown value"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:01:43.175909+00:00",
+        "endedAt": "2026-11-15T11:01:44.492672+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": [
+        "Test Files  1 failed (1)",
+        "Tests  4 failed | 1 passed | 17 skipped (22)"
+      ]
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/review-11-falsy-source-green.log",
+      "sha256": "ab4c3ddd1c8f18c880e6129702be9cb97d2e4f195d2da26b9ce10f9a4b03d942",
+      "blobSha": "62b704a855619e0048fadeb2bd944c3338741bcb",
+      "bytes": 613,
+      "command": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/tool-program-v3.test.ts",
+          "tests/tool-program-replay-v3.test.ts",
+          "--maxWorkers=1"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:02:27.302119+00:00",
+        "endedAt": "2026-11-15T11:02:37.890658+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": [
+        "Test Files  2 passed (2)",
+        "Tests  53 passed (53)"
+      ]
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/review-12-crash-gaps-red.log",
+      "sha256": "aec0fbf9b5fdbdf9869ab94add2112cee02e37c8235d3f35a6eaa33ea27852e5",
+      "blobSha": "eb630dd5a149a24cbfb6bd96d10a391830e472f5",
+      "bytes": 3781,
+      "command": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/tool-program-replay-v3.test.ts",
+          "--maxWorkers=1",
+          "-t",
+          "recovers call.effect_committed|recovers call.read_returned"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:02:49.617531+00:00",
+        "endedAt": "2026-11-15T11:02:52.954043+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": [
+        "Test Files  1 failed (1)",
+        "Tests  2 failed | 31 skipped (33)"
+      ]
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/review-13-crash-gaps-green.log",
+      "sha256": "08fdb4c25a232a2d67eb5052c9e37c6219134cff1604027d9c23ee2897dc8624",
+      "blobSha": "e3c1d18a660bbbdacec4f9a23f9791a0cd7f661d",
+      "bytes": 577,
+      "command": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/tool-program-replay-v3.test.ts",
+          "--maxWorkers=1"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:03:39.573862+00:00",
+        "endedAt": "2026-11-15T11:03:55.615224+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": [
+        "Test Files  1 passed (1)",
+        "Tests  33 passed (33)"
+      ]
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/review-14-javascript-busy-red.log",
+      "sha256": "d2a59af6c654e28ee272f16bf16b2f6bc7fdbaa85b5058bb037e7b72f1c96369",
+      "blobSha": "4041162755dea57dfd83d543da2b12473eb422c2",
+      "bytes": 1673,
+      "command": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/tool-program-integration-v3.test.ts",
+          "--maxWorkers=1",
+          "-t",
+          "another program already"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:21:35.127839+00:00",
+        "endedAt": "2026-11-15T11:21:37.994465+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": [
+        "Test Files  1 failed (1)",
+        "Tests  1 failed | 5 skipped (6)"
+      ]
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/review-15-javascript-busy-green.log",
+      "sha256": "dc5308050fbfd8a3a7c1f8e1989d7e946a7517f1cf71b268de1cbae037defc34",
+      "blobSha": "c7eb0ec7d7d3c4a6c1feb08fcb75052b97405e51",
+      "bytes": 578,
+      "command": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/tool-program-integration-v3.test.ts",
+          "--maxWorkers=1"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:22:11.532974+00:00",
+        "endedAt": "2026-11-15T11:22:14.217166+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": [
+        "Test Files  1 passed (1)",
+        "Tests  6 passed (6)"
+      ]
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/packaging-01-public-source-red.log",
+      "sha256": "f4542d089a8c6344dd36897d6dd9e8fa0d298982ed05bc50c4d1b00642c83879",
+      "blobSha": "a5f92169eec59b4666bd69039b553f4ca9d3b4bc",
+      "bytes": 7411,
+      "command": {
+        "argv": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "tests/public-source.test.ts",
+          "--maxWorkers=1"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:41:08.051371+00:00",
+        "endedAt": "2026-11-15T11:41:09.810819+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": [
+        "Test Files  1 failed (1)",
+        "Tests  6 failed | 7 passed (13)"
+      ]
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/packaging-03-token-review-red.log",
+      "sha256": "9a8f6ccac2943293d675c3f4484c7866d1629872e0914c031e58171e64f7a885",
+      "blobSha": "53691940dbfdc5ac7161f8390ce027835c2e1b50",
+      "bytes": 1615,
+      "command": {
+        "argv": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "tests/public-source.test.ts",
+          "--maxWorkers=1",
+          "-t",
+          "admits the reviewed program UI"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:42:32.276007+00:00",
+        "endedAt": "2026-11-15T11:42:33.135428+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": [
+        "Test Files  1 failed (1)",
+        "Tests  1 failed | 12 skipped (13)"
+      ]
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/packaging-04-public-source-final-green.log",
+      "sha256": "994cf5a1fc6b852c3e8f39359d32c4a3505909f36058d04cd3bee8287df0c56e",
+      "blobSha": "fa2967be992a9f6a6571796ba39518c02f72a9dc",
+      "bytes": 578,
+      "command": {
+        "argv": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "tests/public-source.test.ts",
+          "--maxWorkers=1"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:42:46.462936+00:00",
+        "endedAt": "2026-11-15T11:42:48.156648+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": [
+        "Test Files  1 passed (1)",
+        "Tests  13 passed (13)"
+      ]
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/review-16-benchmark-provenance-red.log",
+      "sha256": "49d6c999069c180ad8cd8b8e54a48bc35fcf0a26cfeaeb5d7ead5e1bb636a132",
+      "blobSha": "6e2380698b0faf98b822a2b8093433b2eda5b766",
+      "bytes": 929,
+      "command": {
+        "argv": [
+          "python3",
+          "docs/implementation/v3/m12-artifacts/benchmark-command-provenance-probe.py"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:38:39.883549+00:00",
+        "endedAt": "2026-11-15T11:38:39.911090+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": []
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/review-17-benchmark-provenance-green.log",
+      "sha256": "f6933dbecdb190af81bedd8ea5ee07394e47cd184d2192ee9d354c2c8f0613b0",
+      "blobSha": "1a92b92db383583701ef11f8b1269ae3006cb90a",
+      "bytes": 1017,
+      "command": {
+        "argv": [
+          "python3",
+          "docs/implementation/v3/m12-artifacts/benchmark-command-provenance-probe.py"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:51:45.957954+00:00",
+        "endedAt": "2026-11-15T11:51:45.986284+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": []
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/final-11-full-test-after-review.log",
+      "sha256": "58295cce2bbf79dad176b6e65c038d002841bab0d9c334462d7eaa553d168837",
+      "blobSha": "d6f46c36fe7f1e530f4f041f9973e72f28c8e73c",
+      "bytes": 33337,
+      "command": {
+        "argv": [
+          "pnpm",
+          "test",
+          "--maxWorkers=2",
+          "--reporter=default",
+          "--reporter=json",
+          "--reporter=./docs/implementation/v3/m12-artifacts/unit-unhandled-reporter.mjs",
+          "--outputFile.json=docs/implementation/v3/m12-artifacts/candidate-vitest-after-review.json"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:43:53.172038+00:00",
+        "endedAt": "2026-11-15T11:49:26.114070+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "truncated": true
+      },
+      "summary": [
+        "Test Files  44 failed | 291 passed | 3 skipped (338)",
+        "Tests  269 failed | 3276 passed | 46 skipped (3591)",
+        "Errors  4 errors"
+      ]
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/final-12-typecheck-after-review.log",
+      "sha256": "56361f43245b0be2929e7b4fe16feaf2c0929cde4f6d29cae8c428a40aa42166",
+      "blobSha": "e53001612f2f726302345e97f3b2aac13f180ee4",
+      "bytes": 402,
+      "command": {
+        "argv": [
+          "env",
+          "NODE_OPTIONS=--max-old-space-size=4096",
+          "pnpm",
+          "typecheck"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:43:53.177777+00:00",
+        "endedAt": "2026-11-15T11:44:23.582612+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": []
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/final-08-build.log",
+      "sha256": "45d37101f930a5e190118e2abda54221a494e8920fb5b17a6b9c2f7ebec46b70",
+      "blobSha": "6870acb70e4d4ef08c08de705fe05f0ca35a8917",
+      "bytes": 8543,
+      "command": {
+        "argv": [
+          "pnpm",
+          "build"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:50:37.612206+00:00",
+        "endedAt": "2026-11-15T11:50:46.878713+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": []
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/final-13-benchmark.log",
+      "sha256": "558d719a719fd36ebb619746e9a18bd1832edce0d7d577acda26b5a5cc38ab0e",
+      "blobSha": "ba02f03e55cc3bacdc4efba06e3bb9321d1e6bca",
+      "bytes": 578,
+      "command": {
+        "argv": [
+          "corepack",
+          "pnpm@10.30.3",
+          "exec",
+          "vitest",
+          "run",
+          "tests/tool-program-benchmark-v3.test.ts"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T11:50:37.614665+00:00",
+        "endedAt": "2026-11-15T11:50:45.759995+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "summary": [
+        "Test Files  1 passed (1)",
+        "Tests  1 passed (1)"
+      ]
+    }
+  ],
+  "preservedReviewHistory": [
+    {
+      "path": "/workspace/scratch/dbebe44a9817/m12-v3/docs/implementation/v3/m12-artifacts/independent-review-current.md",
+      "sha256": "9cd79cdc19869bf7125da7e90069cd51ad8d2e3980a42dd8035c05c6e64c18c0",
+      "blobSha": "ff521847ecd6719b35fe5a77de25a72a219d9bec",
+      "bytes": 12939
+    },
+    {
+      "path": "/workspace/scratch/dbebe44a9817/m12-v3/docs/implementation/v3/m12-artifacts/independent-review-deadline-probe.mts",
+      "sha256": "43b9737abfb9c8b18c4d3f8e4fa9a83dfabd30a20f496701431b8b1c0e2a220a",
+      "blobSha": "8af0ce0387e684bdf0f3d6f36c16296d0a8db6ea",
+      "bytes": 4554
+    },
+    {
+      "path": "/workspace/scratch/dbebe44a9817/m12-v3/docs/implementation/v3/m12-artifacts/independent-review-deadline-observation.json",
+      "sha256": "2ab90b7c5ec3c4bbd0a7c4b428f98944cd77c79833878c7bf4ad2e2b8ec191e7",
+      "blobSha": "77855bfe7ce2663fc53faa719a63dfd0454afb99",
+      "bytes": 2501
+    },
+    {
+      "path": "/workspace/scratch/dbebe44a9817/m12-v3/docs/implementation/v3/m12-artifacts/independent-review-input-amplification-probe.mts",
+      "sha256": "c560685613886ef95a6086d4872d99acf33fc38b4f3e802dcd4f56125e76b499",
+      "blobSha": "ade976689fd32e08d2cfa93629141e318638ab21",
+      "bytes": 4051
+    },
+    {
+      "path": "/workspace/scratch/dbebe44a9817/m12-v3/docs/implementation/v3/m12-artifacts/independent-review-input-amplification-observation.json",
+      "sha256": "ab1d7a99c6d74212956b1cdac4a77a7e6d9e1895d5217d6cc90dfc9c8074915e",
+      "blobSha": "1cd9dadc5debf57c488410e8ceaf1a6ecb14f157",
+      "bytes": 1902
+    }
+  ],
+  "independentProbes": [
+    {
+      "artifact": "independent-review-deadline-observation.json",
+      "outcome": "EXPECTED_NEGATIVE_BOUNDARY",
+      "observation": "At 671 ms with a 300 ms requested deadline the program was FAILED/PROGRAM_DEADLINE, source UNKNOWN and M02 UNKNOWN_EXTERNAL_OUTCOME, while outer RPC/read were pending; explicit read release settled it at 672 ms. Probe exit 0 does not prove a hard RPC deadline."
+    },
+    {
+      "artifact": "independent-review-input-amplification-observation.json",
+      "outcome": "CONFIRMED_PRE_FIX_DEFECT",
+      "observation": "One retained 262158-byte JSON result referenced 64 times produced 64 unique decoded objects and 16778177 serialized input bytes before actual QuickJS rejected its input memory cap. IR-10 now rejects duplicates before authorization and bounds unique combined inputs."
+    }
+  ],
+  "additionalInspection": "Exact locked pi-agent-core 1.4.0 executePreparedToolCall uses result.isError===true and its AgentToolResult type supports isError. Program failure status propagation in the Pi wrapper is valid; no finding was raised.",
+  "limitations": [
+    "No independent full repository test/typecheck/build or live endpoint was run by this reviewer. Relevant real command logs were read; coordinator runs final gates.",
+    "No claim that the 128 MiB bound covers the entire process tree or host buffers.",
+    "Private Python files persist across reset; per-file RLIMIT_FSIZE is not an aggregate retained-disk quota.",
+    "No final commit SHA is included. Every conclusion binds to the listed source hashes and must be rechecked if those bytes change."
+  ],
+  "initialValidationSnapshot": {
+    "reviewedAt": "2026-11-15T11:30:28.922218+00:00",
+    "recordedTypecheckFailure": "final-06-typecheck exit 2",
+    "globalValidationAtThatSnapshot": "Coordinator final commands pending; failures not waived",
+    "historicalBenchmarkNumbersAreInMarkdownSnapshot": true
+  },
+  "implementationPlatformCoverage": "PARTIAL",
+  "validationAddenda": [
+    {
+      "recordedAt": "2026-11-15T11:33:28.918932+00:00",
+      "sourceCutSha256": "37b215e6d4a69cf050a4ca3b96382649720ef10e71d6b9c4df1c0cbcd907398f",
+      "sourceLockDigest": "038834375e6472068e92125015338b1a481de69f8f074ba7a86d141ad654efe6",
+      "sourceExceptionReview": {
+        "paths": [
+          "tests/fixtures/tool-program-benchmark-v3.ts",
+          "tests/tool-program-input-budget-v3.test.ts",
+          "docs/architecture.md"
+        ],
+        "result": "ACCEPTED_NO_PRODUCT_BEHAVIOR_CHANGE",
+        "detail": "Read the exact benchmark type annotations, successful-result union guard and existing input-budget documentation. All 116 worktree hashes and retained base blobs were reverified after the refresh."
+      },
+      "focusedValidation": {
+        "distinctTestFiles": 28,
+        "distinctTests": 435,
+        "duplicateFilesAcrossFiveCommands": false,
+        "exitCode": 0,
+        "commands": [
+          {
+            "path": "docs/implementation/v3/m12-logs/final-01-protocol.log",
+            "sha256": "5ae32ca4223960c819c59f52545c710d7c7e6b30adf3231a5815878be86930a6",
+            "blobSha": "c736b51aada79cdb25197a13d4a86206f39bd346",
+            "bytes": 546,
+            "command": {
+              "argv": [
+                "pnpm",
+                "exec",
+                "vitest",
+                "run",
+                "tests/tool-program-v3.test.ts"
+              ],
+              "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+              "startedAt": "2026-11-15T11:24:47.463976+00:00",
+              "endedAt": "2026-11-15T11:24:48.892648+00:00",
+              "exitCode": 0,
+              "termination": "NONE",
+              "truncated": false
+            },
+            "summary": [
+              "Test Files  1 passed (1)",
+              "Tests  22 passed (22)"
+            ]
+          },
+          {
+            "path": "docs/implementation/v3/m12-logs/final-02-replay.log",
+            "sha256": "112f39527d9441cf514500dd27875ed87c2fbc9cd93a342f42ff17c1dd983731",
+            "blobSha": "7e8c963a0d9764bc35a1159a62175f2417831ad6",
+            "bytes": 553,
+            "command": {
+              "argv": [
+                "pnpm",
+                "exec",
+                "vitest",
+                "run",
+                "tests/tool-program-replay-v3.test.ts"
+              ],
+              "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+              "startedAt": "2026-11-15T11:28:31.450958+00:00",
+              "endedAt": "2026-11-15T11:28:41.972724+00:00",
+              "exitCode": 0,
+              "termination": "NONE",
+              "truncated": false
+            },
+            "summary": [
+              "Test Files  1 passed (1)",
+              "Tests  33 passed (33)"
+            ]
+          },
+          {
+            "path": "docs/implementation/v3/m12-logs/final-03-python-kernel.log",
+            "sha256": "99c347904f3d7c3c0bf4edaa812a5c00c346733831689ed819c4b2c1320a138c",
+            "blobSha": "bb17463f579366fc903be34566ee231d56b78ed4",
+            "bytes": 546,
+            "command": {
+              "argv": [
+                "pnpm",
+                "exec",
+                "vitest",
+                "run",
+                "tests/python-kernel-v3.test.ts"
+              ],
+              "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+              "startedAt": "2026-11-15T11:28:38.228127+00:00",
+              "endedAt": "2026-11-15T11:28:39.483821+00:00",
+              "exitCode": 0,
+              "termination": "NONE",
+              "truncated": false
+            },
+            "summary": [
+              "Test Files  1 passed (1)",
+              "Tests  21 passed (21)"
+            ]
+          },
+          {
+            "path": "docs/implementation/v3/m12-logs/final-04-core-contracts.log",
+            "sha256": "ef09871ac40c8eaa76ef33e9661d395c6e2d7f8d3dbd6b2985390e6ba65b7b30",
+            "blobSha": "ec050f28b0c37aef6de02857ac15a6e71545baa5",
+            "bytes": 1403,
+            "command": {
+              "argv": [
+                "pnpm",
+                "exec",
+                "vitest",
+                "run",
+                "tests/research-baseline.test.ts",
+                "tests/m01-m02-compatibility.test.ts",
+                "tests/tool-authority-v3.test.ts",
+                "tests/tool-effects-v3.test.ts",
+                "tests/effect-recovery-v3.test.ts",
+                "tests/execution-boundary-v3.test.ts",
+                "tests/project-trust-v3.test.ts",
+                "tests/secret-custody-v3.test.ts",
+                "tests/store.test.ts",
+                "tests/context-efficiency.test.ts",
+                "tests/tool-program-authority-v3.test.ts",
+                "tests/tool-program-prerequisites-v3.test.ts",
+                "tests/linux-bound-read-v3.test.ts",
+                "tests/linux-path-guard.test.ts",
+                "--maxWorkers=2"
+              ],
+              "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+              "startedAt": "2026-11-15T11:28:50.691983+00:00",
+              "endedAt": "2026-11-15T11:28:54.909338+00:00",
+              "exitCode": 0,
+              "termination": "NONE",
+              "truncated": false
+            },
+            "summary": [
+              "Test Files  14 passed (14)",
+              "Tests  187 passed (187)"
+            ]
+          },
+          {
+            "path": "docs/implementation/v3/m12-logs/final-05-runtime-integration.log",
+            "sha256": "d53bf4b7abb52bde51d6351683a7ef4fb5ece626cef9cbf6ddb726db107c13d0",
+            "blobSha": "d19bc7888e6aacd51342eb03726085d521b05ef5",
+            "bytes": 1034,
+            "command": {
+              "argv": [
+                "pnpm",
+                "exec",
+                "vitest",
+                "run",
+                "tests/tool-program-backend-v3.test.ts",
+                "tests/python-program-backend-v3.test.ts",
+                "tests/python-program-integration-v3.test.ts",
+                "tests/tool-program-integration-v3.test.ts",
+                "tests/tool-program-transport-v3.test.ts",
+                "tests/tool-program-diagnostics-v3.test.ts",
+                "tests/tool-program-recovery-v3.test.ts",
+                "tests/tool-program-input-budget-v3.test.ts",
+                "tests/tool-program-benchmark-v3.test.ts",
+                "tests/hermes-runtime.test.ts",
+                "tests/planning.test.ts",
+                "--maxWorkers=2"
+              ],
+              "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+              "startedAt": "2026-11-15T11:29:23.556446+00:00",
+              "endedAt": "2026-11-15T11:29:51.777676+00:00",
+              "exitCode": 0,
+              "termination": "NONE",
+              "truncated": false
+            },
+            "summary": [
+              "Test Files  11 passed (11)",
+              "Tests  172 passed (172)"
+            ]
+          },
+          {
+            "path": "docs/implementation/v3/m12-logs/final-10-typecheck.log",
+            "sha256": "1bf0ae9de2b883d3668a3c804895067e489160aa28318452e97bada9f9175025",
+            "blobSha": "a18397b40347a860b79eb2b2648d9105efb9e32e",
+            "bytes": 402,
+            "command": {
+              "argv": [
+                "env",
+                "NODE_OPTIONS=--max-old-space-size=4096",
+                "pnpm",
+                "typecheck"
+              ],
+              "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+              "startedAt": "2026-11-15T11:29:17.255615+00:00",
+              "endedAt": "2026-11-15T11:29:43.876844+00:00",
+              "exitCode": 0,
+              "termination": "NONE",
+              "truncated": false
+            },
+            "summary": []
+          },
+          {
+            "path": "docs/implementation/v3/m12-logs/final-09-program-browser.log",
+            "sha256": "6301dc428fefaa29948bff60c6f77461e55bc30110ec9721bcaf1b9afd582627",
+            "blobSha": "7c9fd6e9cd2a09b0537c026f42fe87714e97a869",
+            "bytes": 2403,
+            "command": {
+              "argv": [
+                "pnpm",
+                "test:browser",
+                "--",
+                "--suite",
+                "tool-programs"
+              ],
+              "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+              "startedAt": "2026-11-15T11:18:08.317744+00:00",
+              "endedAt": "2026-11-15T11:18:15.354604+00:00",
+              "exitCode": 0,
+              "termination": "NONE",
+              "truncated": false
+            },
+            "summary": [
+              "7 passed (6.0s)"
+            ]
+          }
+        ]
+      },
+      "typecheck": {
+        "finalLog": "docs/implementation/v3/m12-logs/final-10-typecheck.log",
+        "exitCode": 0,
+        "priorFailPreserved": "docs/implementation/v3/m12-logs/final-06-typecheck.log"
+      },
+      "browser": {
+        "scopedM12Cases": 7,
+        "exitCode": 0,
+        "fullSuiteAcceptance": "NOT_GRANTED; recorded required full-browser failures remain FAIL"
+      },
+      "benchmarkSnapshot": {
+        "path": "docs/implementation/v3/m12-artifacts/independent-review-benchmark-snapshot.json",
+        "sha256": "6e2506540582287c5a92d97fca4bcdb38aa4f47b36e3f8c9b154ed033a009383",
+        "blobSha": "072a79ab5a544f201e805f274dee0f9c66487ddd",
+        "bytes": 23440,
+        "originalArtifact": "docs/implementation/v3/m12-artifacts/aggregation-benchmark.json",
+        "provenance": {
+          "beganAt": "2026-11-15T11:29:39.023Z",
+          "finishedAt": "2026-11-15T11:29:45.522Z",
+          "gitHead": "4fe2e778a0007c91c4455aff62e2e4d74646a8ab",
+          "workingTreeSourceSha256": {
+            "tests/tool-program-benchmark-v3.test.ts": "49ee0fe8368680e284d938989dfe44149e536d3dabd83d9d5125515f468d9d72",
+            "tests/fixtures/tool-program-benchmark-v3.ts": "80f50979e148d7a0ccc3618b05855e5fff97f92072947598a0f1d27560046f03",
+            "tests/fixtures/tool-program-replay-harness-v3.ts": "938f3c8fd272aca77c06bc6a19c6b3b5e2ace44f122da89eb9ea32e3da0cc634",
+            "packages/core/tool-programs.ts": "4c6c73dd42d593b31ddffc9c4d8298d008bd60307d457cb656cadcaeb887715b",
+            "packages/core/tool-effects.ts": "25b1cc0e4320c272093a4d31f196ac7a4f9e1b442182c8dbf38e84c78dfe59b1",
+            "packages/core/tool-disclosure.ts": "d16bf7e57f7900e3410b88699d45ab07033ce650addf44c6477d5cba9c051ee3",
+            "packages/core/tool-results.ts": "f5fb4583792bf55eddd38922522c120e439fbe9d3f1329dbc84b972a85ed5f62",
+            "packages/core/tool-authority.ts": "bef3900a2a6419e00b2f89302e1aad11bc93d9be7464ac3aba3a606cc4f01465",
+            "packages/core/security.ts": "dd044a00969568dcdccb362595ca8df7174c4cf93a0f065faa27c15eda8f32e9",
+            "packages/storage/store.ts": "c4c53b6f7988b1471184a599fd16212f724afc243160b30675c6dceab651516b",
+            "packages/contracts/tool-program.ts": "2724f364d39f6d53dff5b7d4a85ed783b02ebaef3c70a14711f918ba6f16f1ff",
+            "packages/contracts/tool-results.ts": "b52f84f03e8571c09ece8e247af457aa249450a47a9dabd7b1ec4d17005a7b1d",
+            "packages/contracts/tool-effects.ts": "8b17ca030d0e9fb476b1694adbec1dc9e725c4cc20b7f8a1f4a60173de9fec2a",
+            "packages/runtime/tool-program-worker.ts": "a12fc504668b882638e74394eeef65cf3ad5005238e085812eca578f6ee27c4f",
+            "packages/runtime/tool-program-worker-child.mjs": "b4883cd2eaae0e14cb6eb84e40ca05f2bee5f295ca57e81cd1da9c0057a0ec07",
+            "package.json": "c788247258046e87662fd7feb4104471dee87bc59c74e2aa81ed41ab31924c0f",
+            "pnpm-lock.yaml": "af8c276d728a50815b46bff8b046900c6d4ae9590a7f8911f88c8e63ef7dbb16",
+            "docs/implementation/v3/m12-artifacts/tokenizer-dependency-review.json": "f371f12a47b5de651fb17692e1f31a36df6d101bbfd049a9510f042df33f25c0"
+          },
+          "node": "v24.22.1",
+          "v8": "13.6.233.17-node.58",
+          "platform": "linux",
+          "arch": "x64",
+          "packageManager": "pnpm@10.30.3",
+          "command": [
+            "corepack",
+            "pnpm@10.30.3",
+            "exec",
+            "vitest",
+            "run",
+            "tests/tool-program-benchmark-v3.test.ts"
+          ],
+          "executorProof": {
+            "backendId": "quickjs-wasi-worker-3.6.2-v1",
+            "language": "JAVASCRIPT",
+            "runtimeFingerprint": "ca0ab3db65dea5acc44f7efc15a352e66e70bf2cb9496973c9366d75c9a9d7ab",
+            "platform": "linux-x64-node-24.22.1",
+            "isolation": "WASM_NO_HOST_IMPORTS",
+            "memoryScope": "GUEST_WASM_LINEAR",
+            "memoryLimitBytes": 134217728,
+            "wholeExecutorMemoryLimitBytes": null,
+            "hardMemoryLimit": true,
+            "tested": true,
+            "evidenceRef": "runtime-self-test:ca0ab3db65dea5acc44f7efc15a352e66e70bf2cb9496973c9366d75c9a9d7ab"
+          },
+          "datasetSha256": "56d2c1982200eda33d197d5c7889df75668fae22fbe2f2978617fd85fa9543b1",
+          "programSourceSha256": "f793d486228ef93c7367f19d479e67617f05c926afc366ea9126c087e806b423",
+          "sourceDefinitionDigest": "bcdce6dc46fa49353b952d86ca43e6fab73323a5860793247b0c6dcae6c57adf"
+        },
+        "tokenization": {
+          "status": "MEASURED_OFFLINE",
+          "actualCounts": {
+            "cl100k_base": {
+              "success": {
+                "direct": {
+                  "requests": 236,
+                  "responses": 26759,
+                  "total": 26995,
+                  "diagnostic": 0
+                },
+                "program": {
+                  "requests": 279,
+                  "responses": 396,
+                  "total": 675,
+                  "diagnostic": 0
+                }
+              },
+              "source_failure": {
+                "direct": {
+                  "requests": 118,
+                  "responses": 8954,
+                  "total": 9072,
+                  "diagnostic": 0
+                },
+                "program": {
+                  "requests": 354,
+                  "responses": 424,
+                  "total": 778,
+                  "diagnostic": 211
+                }
+              }
+            },
+            "o200k_base": {
+              "success": {
+                "direct": {
+                  "requests": 236,
+                  "responses": 26765,
+                  "total": 27001,
+                  "diagnostic": 0
+                },
+                "program": {
+                  "requests": 279,
+                  "responses": 404,
+                  "total": 683,
+                  "diagnostic": 0
+                }
+              },
+              "source_failure": {
+                "direct": {
+                  "requests": 118,
+                  "responses": 8957,
+                  "total": 9075,
+                  "diagnostic": 0
+                },
+                "program": {
+                  "requests": 354,
+                  "responses": 434,
+                  "total": 788,
+                  "diagnostic": 213
+                }
+              }
+            }
+          },
+          "gate": "Named offline transcript encodings are measured. These counts do not measure provider framing, billing, context totals, or live model performance.",
+          "evidence": {
+            "package": "js-tiktoken",
+            "version": "1.0.21",
+            "entryPoint": "js-tiktoken/lite",
+            "registryIntegrity": "sha512-biOj/6M5qdgx5TKjDnFT1ymSpM5tbd3ylwDtrQvFQSu0Z7bBYko2dF+W/aUkXUPuk6IVpRxk/3Q2sHOzGlS36g==",
+            "dependencyReviewRef": "docs/implementation/v3/m12-artifacts/tokenizer-dependency-review.json",
+            "dependencyReviewSha256": "f371f12a47b5de651fb17692e1f31a36df6d101bbfd049a9510f042df33f25c0",
+            "implementationFilesSha256": {
+              "package.json": "5040ae37366971233fd53ef33360bc8d94159fa55c0c541f5663980b53b6b3b3",
+              "dist/chunk-VL2OQCWN.js": "4095335817189ee393ce99588744e53d04f1dd32b6c9a7d4a9f365d5e4569035",
+              "dist/lite.js": "e7f8d0900a29c70a1155838cff633f5a66eef660bd3c4fb452882ec7cc4a316c",
+              "dist/ranks/cl100k_base.js": "0e301a9c7f82e2353bc484be0149b2fb8a6db85d516620a34d06e587efe090bd",
+              "dist/ranks/o200k_base.js": "a9e8a0c1f332c58f1a9cef2f8d7be59b31bb4b42531a3a0a64d9ad3b3d19033b"
+            },
+            "vocabularies": {
+              "cl100k_base": {
+                "rankModuleSha256": "0e301a9c7f82e2353bc484be0149b2fb8a6db85d516620a34d06e587efe090bd",
+                "mergeRankDataSha256": "3d687fd92cd8fa61f6e26453365e1678e1c35674dd3fcb3d686235c46d16e118",
+                "patternSha256": "aab5f2624d4f164e161d4db2fa958ff25c813a6ebefd3c7ae807ffd0379a3fc4",
+                "specialTokensSha256": "d7bf33181b8bb517d67bb780efdfa51b7a0aaa25f9a462c4c1ade92b770af71e"
+              },
+              "o200k_base": {
+                "rankModuleSha256": "a9e8a0c1f332c58f1a9cef2f8d7be59b31bb4b42531a3a0a64d9ad3b3d19033b",
+                "mergeRankDataSha256": "46095c39ad133184da5315ac91dd491f39901e6d89a05f58f24717fd7cbf0523",
+                "patternSha256": "6f88fcc3dd53c515d0835648c274a7df6e686598d0f3d4981319b524ed55ddd2",
+                "specialTokensSha256": "0f733568e70c814cc1b4b10f43ca9da02b336bc236d241090f7d9aa7e9826b63"
+              }
+            },
+            "transitiveDependency": {
+              "name": "base64-js",
+              "version": "1.5.1",
+              "implementationSha256": "829eadd8a1a441d25be0cb93b00e16a0d0c20fd294db95d8f2ed87e6954b7182"
+            },
+            "roundTripValidated": true,
+            "networkUsed": false,
+            "countingRule": "Sum actual encode(text, [], []).length for every observed serialized request and response independently; special-token-like text is literal data.",
+            "variability": "Opaque result identities and elapsed fields are serialized as observed, so exact program token counts can vary between executions."
+          }
+        },
+        "cases": [
+          {
+            "name": "success",
+            "direct": {
+              "state": "SUCCEEDED",
+              "modelRoundTrips": 6,
+              "modelVisibleBytes": {
+                "requests": 714,
+                "responses": 139918,
+                "total": 140632,
+                "diagnostic": 0
+              },
+              "hostReadCalls": 6,
+              "retainedSourceFailures": 0,
+              "originalFailureInspected": false
+            },
+            "program": {
+              "state": "SUCCEEDED",
+              "modelRoundTrips": 2,
+              "modelVisibleBytes": {
+                "requests": 997,
+                "responses": 1111,
+                "total": 2108,
+                "diagnostic": 0
+              },
+              "hostReadCalls": 6,
+              "retainedSourceFailures": 0,
+              "originalFailureInspected": false
+            }
+          },
+          {
+            "name": "source_failure",
+            "direct": {
+              "state": "FAILED",
+              "modelRoundTrips": 3,
+              "modelVisibleBytes": {
+                "requests": 357,
+                "responses": 46776,
+                "total": 47133,
+                "diagnostic": 0
+              },
+              "hostReadCalls": 3,
+              "retainedSourceFailures": 0,
+              "originalFailureInspected": false
+            },
+            "program": {
+              "state": "FAILED",
+              "modelRoundTrips": 3,
+              "modelVisibleBytes": {
+                "requests": 1173,
+                "responses": 1330,
+                "total": 2503,
+                "diagnostic": 584
+              },
+              "hostReadCalls": 3,
+              "retainedSourceFailures": 1,
+              "originalFailureInspected": true
+            }
+          }
+        ],
+        "allRecordedSourceHashesMatchReviewedCut": true
+      },
+      "evidenceControllerReview": {
+        "files": [
+          {
+            "path": "docs/implementation/v3/M12-build-evidence.py",
+            "sha256": "ce29a5c0a892a3dac106b3f99caccf936f73896c3670891df34a0d9e2fe7b7fe",
+            "blobSha": "92f3a0a88a184cccadd74aad40d1495ecaab34b2",
+            "bytes": 15543
+          },
+          {
+            "path": "docs/implementation/v3/M12-verify-evidence.mts",
+            "sha256": "6239d731efd3b1f4993dcaf2e556db36f0cf99477dfcf65814e13bf5700ecbb8",
+            "blobSha": "41ec1edd1d37c141edf74f467b0ec22337f4832d",
+            "bytes": 6498
+          }
+        ],
+        "result": "NO_CURRENT_OVERCLAIM_FOUND",
+        "detail": "Generator maps actual retained statuses into separate core/integration/platform cases, preserves historical nonzero attempts and leaves unsupported scopes blocked. Verifier checks strict M01 schema, current source and contract blobs, command headers/exits/log digests, artifact hashes, finite disabled flags, original checkout and changed-file inventory. Its own success is evidence-integrity validation, not bundle PASS or production activation."
+      },
+      "acceptanceRule": "Implementation/platform coverage remains PARTIAL. Canonical bundle acceptance is owned by final ImplementationEvidenceV3 and is FAIL when observed required full unit/browser failures remain. The 435 focused passes, typecheck pass and seven browser cases do not override those failures.",
+      "publicationRule": "Engineering review grants no production activation. PR publication authorization is separate and derives from the user request, not from this review."
+    },
+    {
+      "recordedAt": "2026-11-15T11:54:36.918822+00:00",
+      "kind": "IR12_IR13_FINAL_REBIND",
+      "sourceCutSha256": "e6183f4ed56219611b7bd3352aa5d8412aced6d933380f7a85390fb2b9078ee1",
+      "sourceLockDigest": "ba19359635f62964e9b95fa1fa8c010b3e05bcfae6430ae8a2a7968dc772cb8d",
+      "reviewedFiles": 118,
+      "acceptedBaseBlobsReverified": 77,
+      "deltaFromPreIR12": [
+        "tests/fixtures/tool-program-benchmark-v3.ts",
+        "scripts/public-source-files.json",
+        "tests/public-source.test.ts"
+      ],
+      "findingsClosed": [
+        "IR-12",
+        "IR-13"
+      ],
+      "newProductRuntimeBehaviorChanges": false,
+      "commandEvidence": [
+        {
+          "path": "docs/implementation/v3/m12-logs/packaging-01-public-source-red.log",
+          "sha256": "f4542d089a8c6344dd36897d6dd9e8fa0d298982ed05bc50c4d1b00642c83879",
+          "blobSha": "a5f92169eec59b4666bd69039b553f4ca9d3b4bc",
+          "bytes": 7411,
+          "command": {
+            "argv": [
+              "node",
+              "node_modules/vitest/vitest.mjs",
+              "run",
+              "tests/public-source.test.ts",
+              "--maxWorkers=1"
+            ],
+            "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+            "startedAt": "2026-11-15T11:41:08.051371+00:00",
+            "endedAt": "2026-11-15T11:41:09.810819+00:00",
+            "exitCode": 1,
+            "termination": "NONE",
+            "truncated": false
+          },
+          "summary": [
+            "Test Files  1 failed (1)",
+            "Tests  6 failed | 7 passed (13)"
+          ]
+        },
+        {
+          "path": "docs/implementation/v3/m12-logs/packaging-03-token-review-red.log",
+          "sha256": "9a8f6ccac2943293d675c3f4484c7866d1629872e0914c031e58171e64f7a885",
+          "blobSha": "53691940dbfdc5ac7161f8390ce027835c2e1b50",
+          "bytes": 1615,
+          "command": {
+            "argv": [
+              "node",
+              "node_modules/vitest/vitest.mjs",
+              "run",
+              "tests/public-source.test.ts",
+              "--maxWorkers=1",
+              "-t",
+              "admits the reviewed program UI"
+            ],
+            "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+            "startedAt": "2026-11-15T11:42:32.276007+00:00",
+            "endedAt": "2026-11-15T11:42:33.135428+00:00",
+            "exitCode": 1,
+            "termination": "NONE",
+            "truncated": false
+          },
+          "summary": [
+            "Test Files  1 failed (1)",
+            "Tests  1 failed | 12 skipped (13)"
+          ]
+        },
+        {
+          "path": "docs/implementation/v3/m12-logs/packaging-04-public-source-final-green.log",
+          "sha256": "994cf5a1fc6b852c3e8f39359d32c4a3505909f36058d04cd3bee8287df0c56e",
+          "blobSha": "fa2967be992a9f6a6571796ba39518c02f72a9dc",
+          "bytes": 578,
+          "command": {
+            "argv": [
+              "node",
+              "node_modules/vitest/vitest.mjs",
+              "run",
+              "tests/public-source.test.ts",
+              "--maxWorkers=1"
+            ],
+            "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+            "startedAt": "2026-11-15T11:42:46.462936+00:00",
+            "endedAt": "2026-11-15T11:42:48.156648+00:00",
+            "exitCode": 0,
+            "termination": "NONE",
+            "truncated": false
+          },
+          "summary": [
+            "Test Files  1 passed (1)",
+            "Tests  13 passed (13)"
+          ]
+        },
+        {
+          "path": "docs/implementation/v3/m12-logs/review-16-benchmark-provenance-red.log",
+          "sha256": "49d6c999069c180ad8cd8b8e54a48bc35fcf0a26cfeaeb5d7ead5e1bb636a132",
+          "blobSha": "6e2380698b0faf98b822a2b8093433b2eda5b766",
+          "bytes": 929,
+          "command": {
+            "argv": [
+              "python3",
+              "docs/implementation/v3/m12-artifacts/benchmark-command-provenance-probe.py"
+            ],
+            "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+            "startedAt": "2026-11-15T11:38:39.883549+00:00",
+            "endedAt": "2026-11-15T11:38:39.911090+00:00",
+            "exitCode": 1,
+            "termination": "NONE",
+            "truncated": false
+          },
+          "summary": []
+        },
+        {
+          "path": "docs/implementation/v3/m12-logs/review-17-benchmark-provenance-green.log",
+          "sha256": "f6933dbecdb190af81bedd8ea5ee07394e47cd184d2192ee9d354c2c8f0613b0",
+          "blobSha": "1a92b92db383583701ef11f8b1269ae3006cb90a",
+          "bytes": 1017,
+          "command": {
+            "argv": [
+              "python3",
+              "docs/implementation/v3/m12-artifacts/benchmark-command-provenance-probe.py"
+            ],
+            "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+            "startedAt": "2026-11-15T11:51:45.957954+00:00",
+            "endedAt": "2026-11-15T11:51:45.986284+00:00",
+            "exitCode": 0,
+            "termination": "NONE",
+            "truncated": false
+          },
+          "summary": []
+        },
+        {
+          "path": "docs/implementation/v3/m12-logs/final-11-full-test-after-review.log",
+          "sha256": "58295cce2bbf79dad176b6e65c038d002841bab0d9c334462d7eaa553d168837",
+          "blobSha": "d6f46c36fe7f1e530f4f041f9973e72f28c8e73c",
+          "bytes": 33337,
+          "command": {
+            "argv": [
+              "pnpm",
+              "test",
+              "--maxWorkers=2",
+              "--reporter=default",
+              "--reporter=json",
+              "--reporter=./docs/implementation/v3/m12-artifacts/unit-unhandled-reporter.mjs",
+              "--outputFile.json=docs/implementation/v3/m12-artifacts/candidate-vitest-after-review.json"
+            ],
+            "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+            "startedAt": "2026-11-15T11:43:53.172038+00:00",
+            "endedAt": "2026-11-15T11:49:26.114070+00:00",
+            "exitCode": 1,
+            "termination": "NONE",
+            "truncated": true
+          },
+          "summary": [
+            "Test Files  44 failed | 291 passed | 3 skipped (338)",
+            "Tests  269 failed | 3276 passed | 46 skipped (3591)",
+            "Errors  4 errors"
+          ]
+        },
+        {
+          "path": "docs/implementation/v3/m12-logs/final-12-typecheck-after-review.log",
+          "sha256": "56361f43245b0be2929e7b4fe16feaf2c0929cde4f6d29cae8c428a40aa42166",
+          "blobSha": "e53001612f2f726302345e97f3b2aac13f180ee4",
+          "bytes": 402,
+          "command": {
+            "argv": [
+              "env",
+              "NODE_OPTIONS=--max-old-space-size=4096",
+              "pnpm",
+              "typecheck"
+            ],
+            "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+            "startedAt": "2026-11-15T11:43:53.177777+00:00",
+            "endedAt": "2026-11-15T11:44:23.582612+00:00",
+            "exitCode": 0,
+            "termination": "NONE",
+            "truncated": false
+          },
+          "summary": []
+        },
+        {
+          "path": "docs/implementation/v3/m12-logs/final-08-build.log",
+          "sha256": "45d37101f930a5e190118e2abda54221a494e8920fb5b17a6b9c2f7ebec46b70",
+          "blobSha": "6870acb70e4d4ef08c08de705fe05f0ca35a8917",
+          "bytes": 8543,
+          "command": {
+            "argv": [
+              "pnpm",
+              "build"
+            ],
+            "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+            "startedAt": "2026-11-15T11:50:37.612206+00:00",
+            "endedAt": "2026-11-15T11:50:46.878713+00:00",
+            "exitCode": 0,
+            "termination": "NONE",
+            "truncated": false
+          },
+          "summary": []
+        },
+        {
+          "path": "docs/implementation/v3/m12-logs/final-13-benchmark.log",
+          "sha256": "558d719a719fd36ebb619746e9a18bd1832edce0d7d577acda26b5a5cc38ab0e",
+          "blobSha": "ba02f03e55cc3bacdc4efba06e3bb9321d1e6bca",
+          "bytes": 578,
+          "command": {
+            "argv": [
+              "corepack",
+              "pnpm@10.30.3",
+              "exec",
+              "vitest",
+              "run",
+              "tests/tool-program-benchmark-v3.test.ts"
+            ],
+            "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+            "startedAt": "2026-11-15T11:50:37.614665+00:00",
+            "endedAt": "2026-11-15T11:50:45.759995+00:00",
+            "exitCode": 0,
+            "termination": "NONE",
+            "truncated": false
+          },
+          "summary": [
+            "Test Files  1 passed (1)",
+            "Tests  1 passed (1)"
+          ]
+        }
+      ],
+      "benchmarkExecutionLink": {
+        "path": "docs/implementation/v3/m12-artifacts/benchmark-execution-link.json",
+        "sha256": "f2ab8ab04de98db32c879b028969e279657355f25fe09b7476d364efd369d7b6",
+        "blobSha": "7301abb8896bc2d449a81a81e68aba55f96223a2",
+        "bytes": 1474
+      },
+      "benchmarkSnapshot": {
+        "path": "docs/implementation/v3/m12-artifacts/independent-review-benchmark-final-snapshot.json",
+        "sha256": "1402e7af70de4cc86f43b2715b4fe745a73a51e153851e35d6d96f842b363238",
+        "blobSha": "0e0038dc3829e81287258c9b06cc306932623418",
+        "bytes": 23710
+      },
+      "benchmarkSourceHashesMatchCurrentCut": true,
+      "unitComparison": {
+        "artifact": {
+          "path": "docs/implementation/v3/m12-artifacts/unit-baseline-comparison.json",
+          "sha256": "b0c18596f2bd9db2d3a277db0b7f6958a0a895eda58779d5ba2a2a93ad5b2af2",
+          "blobSha": "82c5a093c04c1e3b1c18018ab9abfa721f17da3b",
+          "bytes": 1733820
+        },
+        "reportedTotals": {
+          "baseline": {
+            "numTotalTestSuites": 502,
+            "numPassedTestSuites": 447,
+            "numFailedTestSuites": 55,
+            "numPendingTestSuites": 0,
+            "numTotalTests": 3355,
+            "numPassedTests": 3036,
+            "numFailedTests": 273,
+            "numPendingTests": 46,
+            "numTodoTests": 0,
+            "success": false
+          },
+          "candidate": {
+            "numTotalTestSuites": 531,
+            "numPassedTestSuites": 478,
+            "numFailedTestSuites": 53,
+            "numPendingTestSuites": 0,
+            "numTotalTests": 3591,
+            "numPassedTests": 3276,
+            "numFailedTests": 269,
+            "numPendingTests": 46,
+            "numTodoTests": 0,
+            "success": false
+          }
+        },
+        "classificationCounts": {
+          "inheritedFailingAssertions": 269,
+          "candidateOnlyFailures": 0,
+          "baseOnlyFailures": 4,
+          "candidateAddedAssertions": 237,
+          "candidateRemovedAssertions": 1,
+          "sharedNotExecuted": 46,
+          "candidateNewlyNotExecuted": 0,
+          "baselineNotExecutedNowExecutedOrAbsent": 0
+        },
+        "inheritedFailureMessageCounts": {
+          "WORKTREE_ROOT_ONLY": 211,
+          "FIRST_LINES_EQUAL": 252,
+          "CHANGED": 58,
+          "FIRST_LINES_CHANGED": 17
+        },
+        "causalityLimit": "A same-named failing assertion is inherited as an observed failure, not automatically as an identical root cause. Candidate-only failures require source diagnosis.",
+        "candidateUnhandledErrors": 4
+      },
+      "pluginDockDiagnosis": {
+        "artifact": {
+          "path": "docs/implementation/v3/m12-artifacts/plugin-tools-dock-diagnosis.json",
+          "sha256": "4e97cd6a104b942332e057554741075ee16549a6fcc68443cac905219862bec2",
+          "blobSha": "cf51cb24d1b916c72742428eee37defddea2b23b",
+          "bytes": 42314
+        },
+        "disposition": "TIMEOUT_NOT_REPRODUCED",
+        "claimLimit": "The original full-suite timeout is preserved. An unchanged isolated fixture passed; source substitution emitted identical JS/CSS. Resource contention was not proven."
+      },
+      "evidenceControllers": [
+        {
+          "path": "docs/implementation/v3/M12-build-evidence.py",
+          "sha256": "7b7631245b7838585d2d23b96ee108f6a36b783989e9a415eadca083c64bc621",
+          "blobSha": "c975cc1928adbd6bc2a27b6e1efe84a71962977a",
+          "bytes": 16830
+        },
+        {
+          "path": "docs/implementation/v3/M12-verify-evidence.mts",
+          "sha256": "ed921e233d670161e95598b7133da5b9ce9c9a5fa60f370f370f3066c03ccf28",
+          "blobSha": "525f7c8716afb83a5881a4c6c986f09e4be7cc72",
+          "bytes": 12241
+        }
+      ],
+      "controllerBindingsReviewed": "Final review path/SHA/lock/complete file list are tied to the current cut. The exact 18-key benchmark source map is checked against current bytes and the cut; the one dependency-review JSON exception is checked against artifact integrity. The observed standalone command, log/header, artifact SHA, source cut and time interval must all agree. Reproduction recipe is explicitly separate.",
+      "overallAcceptance": "FAIL because a required full unit command fails. Platform coverage remains PARTIAL and production approval false; full-browser outer-command completion remains a final coordinator gate."
+    }
+  ],
+  "sourceCutHistory": [
+    {
+      "preservedSourceCut": {
+        "path": "docs/implementation/v3/m12-artifacts/pre-ir12-source-cut.json",
+        "sha256": "37b215e6d4a69cf050a4ca3b96382649720ef10e71d6b9c4df1c0cbcd907398f",
+        "blobSha": "4987acf8f1a434814b6443d035237ade3c2b8f4d",
+        "bytes": 56049
+      },
+      "preservedReviewJson": {
+        "path": "docs/implementation/v3/m12-artifacts/pre-ir12-independent-review-final.json",
+        "sha256": "f0e253835eb446c807ab0175b3a9f133b2d24015cdd92fb4e2ea105facaf446c",
+        "blobSha": "8c1341e86269402481d773e5c016f17ef5462a54",
+        "bytes": 136084
+      },
+      "preservedReviewMarkdown": {
+        "path": "docs/implementation/v3/m12-artifacts/pre-ir12-independent-review-final.md",
+        "sha256": "6fa96f1f039f7519d45504072814048315627f696c4d9d4540a4a03197a4b322",
+        "blobSha": "ebbb1ddd43147ee92623c5e9b1816139947e160d",
+        "bytes": 37674
+      },
+      "sourceLockDigest": "038834375e6472068e92125015338b1a481de69f8f074ba7a86d141ad654efe6",
+      "sourceCutSHA256": "37b215e6d4a69cf050a4ca3b96382649720ef10e71d6b9c4df1c0cbcd907398f",
+      "reason": "IR-12 benchmark provenance metadata and IR-13 exact public-source packaging corrections after initial review"
+    }
+  ],
+  "reviewerContributionDisclosure": "The reviewer made no product/runtime implementation edits. After the coordinator identified IR-12, the reviewer wrote a read-only provenance probe and, after its recorded red assertion and explicit authorization, renamed the benchmark fixture metadata field and added its explanatory note. The coordinator independently accepted that narrow change. IR-13 was implemented by another agent and independently reviewed here."
+}

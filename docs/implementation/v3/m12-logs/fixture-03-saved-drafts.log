@@ -1,0 +1,364 @@
+{
+  "argv": [
+    "pnpm",
+    "test:browser",
+    "--",
+    "--suite",
+    "saved-drafts"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T12:01:23.304939+00:00",
+  "endedAt": "2026-11-15T12:06:58.315373+00:00",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": true
+}
+
+
+> gen-v1@0.6.5 test:browser /workspace/scratch/dbebe44a9817/m12-v3
+> node --import tsx scripts/test-browser.ts -- --suite saved-drafts
+
+Browser results: /workspace/scratch/dbebe44a9817/m12-v3/test-results/browser/run-1794744083664-5412c5c9-4116-4f05-972f-d6fa15f727ae
+
+Browser suite: saved-drafts (1 spec files)
+[2m[WebServer] [22m(node:45) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:57) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 26 tests using 1 worker
+
+(node:86) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:86) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   1 tests/e2e/saved-drafts.spec.ts:317:1 › named save, reload, delete/cancel and empty state stay local (30.1s)
+(node:170) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:170) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   2 tests/e2e/saved-drafts.spec.ts:353:1 › replace keeps recoverable text, insert respects caret and preserves selection, cancel preserves current input (30.1s)
+(node:252) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:252) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   3 tests/e2e/saved-drafts.spec.ts:395:1 › stale restore is rejected atomically after a concurrent window edit (30.2s)
+(node:334) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:334) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   4 tests/e2e/saved-drafts.spec.ts:425:1 › rich records list missing/revoked references but restore text only, preserving current excerpts (30.1s)
+(node:417) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:417) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   5 tests/e2e/saved-drafts.spec.ts:456:1 › account/profile/thread/project/working-copy libraries remain isolated (30.1s)
+(node:498) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:498) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   6 tests/e2e/saved-drafts.spec.ts:476:1 › quota failure and corrupt records keep the active draft and offer retry (30.2s)
+(node:579) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:579) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   7 tests/e2e/saved-drafts.spec.ts:518:1 › keyboard/IME does not save or send a composing name; focus returns to the trigger (6.0s)
+(node:661) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:661) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   8 tests/e2e/saved-drafts.spec.ts:554:1 › approved list captures and stress names remain usable at 1440/1024/768 with reduced motion (30.1s)
+(node:747) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:747) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   9 tests/e2e/saved-drafts.spec.ts:599:55 › empty-composer quota restore failure shows a keyboard-reachable alert and preserves drafts (30.1s)
+(node:828) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:828) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  10 tests/e2e/saved-drafts.spec.ts:599:55 › empty-composer abort restore failure shows a keyboard-reachable alert and preserves drafts (30.2s)
+(node:911) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:911) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  11 tests/e2e/saved-drafts.spec.ts:599:55 › empty-composer conflict restore failure shows a keyboard-reachable alert and preserves drafts (30.1s)
+(node:995) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:995) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  12 tests/e2e/saved-drafts.spec.ts:685:42 › new excerpt-only saves remain reviewable after the original selection is gone (138ms)
+(node:1073) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1073) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  13 tests/e2e/saved-drafts.spec.ts:685:42 › new skill-only saves remain reviewable after the original selection is gone (212ms)
+(node:1155) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1155) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  14 tests/e2e/saved-drafts.spec.ts:773:1 › legacy reference-only records expose IDs and keyboard-copyable excerpt text without restoring authority (108ms)
+(node:1234) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1234) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  15 tests/e2e/saved-drafts.spec.ts:872:1 › approved thread capacity blocks a new draft with an alert and keeps records in every working copy (385ms)
+(node:1314) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1314) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  16 tests/e2e/saved-drafts.spec.ts:921:1 › idle expiry refreshes an open list and deletes only the expired saved record (285ms)
+(node:1395) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1395) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  17 tests/e2e/saved-drafts.spec.ts:1033:50 › global retention evicts inactive threads and copies on load (247ms)
+(node:1474) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1474) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  18 tests/e2e/saved-drafts.spec.ts:1033:50 › global retention evicts inactive threads and copies on list (117ms)
+(node:1555) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1555) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  19 tests/e2e/saved-drafts.spec.ts:1033:50 › global retention evicts inactive threads and copies on switch (662ms)
+(node:1634) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1634) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  20 tests/e2e/saved-drafts.spec.ts:1044:1 › empty active library schedules expiry for inactive threads and copies without reading their owner (142ms)
+(node:1712) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1712) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  21 tests/e2e/saved-drafts.spec.ts:1063:1 › another window adding an inactive library reschedules the empty active library deadline (139ms)
+(node:1791) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1791) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  22 tests/e2e/saved-drafts.spec.ts:1160:58 › malformed inactive library does not block valid load or inactive expiry (180ms)
+(node:1870) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1870) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  23 tests/e2e/saved-drafts.spec.ts:1160:58 › malformed inactive library does not block valid save or inactive expiry (153ms)
+(node:1949) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1949) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  24 tests/e2e/saved-drafts.spec.ts:1160:58 › malformed inactive library does not block valid list or inactive expiry (122ms)
+(node:2026) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2026) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  25 tests/e2e/saved-drafts.spec.ts:1160:58 › malformed inactive library does not block valid switch or inactive expiry (123ms)
+(node:2105) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2105) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  26 tests/e2e/saved-drafts.spec.ts:1200:1 › malformed inactive library does not stop the global expiry deadline (133ms)
+
+
+  1) tests/e2e/saved-drafts.spec.ts:317:1 › named save, reload, delete/cancel and empty state stay local 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'Drafts', exact: true })[22m
+
+
+      48 | }
+      49 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+    > 50 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+         |                                                                                          ^
+      51 | async function save(page:Page,text='Compare the changes with the checklist and flag anything missing.',name='Review the release notes'){
+      52 |  await draft(page).fill(text);await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name',{exact:true}).fill(name);await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt',exact:true})).toBeHidden();
+      53 | }
+        at open (/workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/saved-drafts.spec.ts:50:90)
+        at /workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/saved-drafts.spec.ts:63:39
+
+    Error Context: test-results/browser/run-1794744083664-5412c5c9-4116-4f05-972f-d6fa15f727ae/saved-drafts/artifacts/saved-drafts-named-save-re-5f419--and-empty-state-stay-local/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794744083664-5412c5c9-4116-4f05-972f-d6fa15f727ae/saved-drafts/artifacts/saved-drafts-named-save-re-5f419--and-empty-state-stay-local/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794744083664-5412c5c9-4116-4f05-972f-d6fa15f727ae/saved-drafts/artifacts/saved-drafts-named-save-re-5f419--and-empty-state-stay-local/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/e2e/saved-drafts.spec.ts:353:1 › replace keeps recoverable text, insert respects caret and preserves selection, cancel preserves current input 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'Drafts', exact: true })[22m
+
+
+      48 | }
+      49 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+    > 50 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+         |                                                                                          ^
+      51 | async function save(page:Page,text='Compare the changes with the checklist and flag anything missing.',name='Review the release notes'){
+      52 |  await draft(page).fill(text);await open(page);await page.getByRole('button',{name:'Save current prompt'}).c��───────────────────────────────────────────────────
+
+  22) tests/e2e/saved-drafts.spec.ts:1160:58 › malformed inactive library does not block valid load or inactive expiry 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5522/fixture", waiting until "load"[22m
+
+
+      45 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};
+      46 | async function setup(page:Page,query=''){
+    > 47 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;
+         |                                                                                                                                                                                                                                                                  ^
+      48 | }
+      49 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+      50 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+        at setup (/workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/saved-drafts.spec.ts:47:258)
+        at /workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/saved-drafts.spec.ts:192:133
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794744083664-5412c5c9-4116-4f05-972f-d6fa15f727ae/saved-drafts/artifacts/saved-drafts-malformed-ina-27f09-lid-load-or-inactive-expiry/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794744083664-5412c5c9-4116-4f05-972f-d6fa15f727ae/saved-drafts/artifacts/saved-drafts-malformed-ina-27f09-lid-load-or-inactive-expiry/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  23) tests/e2e/saved-drafts.spec.ts:1160:58 › malformed inactive library does not block valid save or inactive expiry 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5522/fixture", waiting until "load"[22m
+
+
+      45 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};
+      46 | async function setup(page:Page,query=''){
+    > 47 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;
+         |                                                                                                                                                                                                                                                                  ^
+      48 | }
+      49 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+      50 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+        at setup (/workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/saved-drafts.spec.ts:47:258)
+        at /workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/saved-drafts.spec.ts:192:133
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794744083664-5412c5c9-4116-4f05-972f-d6fa15f727ae/saved-drafts/artifacts/saved-drafts-malformed-ina-e7ac3-lid-save-or-inactive-expiry/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794744083664-5412c5c9-4116-4f05-972f-d6fa15f727ae/saved-drafts/artifacts/saved-drafts-malformed-ina-e7ac3-lid-save-or-inactive-expiry/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  24) tests/e2e/saved-drafts.spec.ts:1160:58 › malformed inactive library does not block valid list or inactive expiry 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5522/fixture", waiting until "load"[22m
+
+
+      45 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};
+      46 | async function setup(page:Page,query=''){
+    > 47 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;
+         |                                                                                                                                                                                                                                                                  ^
+      48 | }
+      49 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+      50 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+        at setup (/workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/saved-drafts.spec.ts:47:258)
+        at /workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/saved-drafts.spec.ts:192:133
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794744083664-5412c5c9-4116-4f05-972f-d6fa15f727ae/saved-drafts/artifacts/saved-drafts-malformed-ina-c346f-lid-list-or-inactive-expiry/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794744083664-5412c5c9-4116-4f05-972f-d6fa15f727ae/saved-drafts/artifacts/saved-drafts-malformed-ina-c346f-lid-list-or-inactive-expiry/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  25) tests/e2e/saved-drafts.spec.ts:1160:58 › malformed inactive library does not block valid switch or inactive expiry 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5522/fixture", waiting until "load"[22m
+
+
+      45 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};
+      46 | async function setup(page:Page,query=''){
+    > 47 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;
+         |                                                                                                                                                                                                                                                                  ^
+      48 | }
+      49 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+      50 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+        at setup (/workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/saved-drafts.spec.ts:47:258)
+        at /workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/saved-drafts.spec.ts:192:133
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794744083664-5412c5c9-4116-4f05-972f-d6fa15f727ae/saved-drafts/artifacts/saved-drafts-malformed-ina-dbecf-d-switch-or-inactive-expiry/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794744083664-5412c5c9-4116-4f05-972f-d6fa15f727ae/saved-drafts/artifacts/saved-drafts-malformed-ina-dbecf-d-switch-or-inactive-expiry/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  26) tests/e2e/saved-drafts.spec.ts:1200:1 › malformed inactive library does not stop the global expiry deadline 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5522/fixture", waiting until "load"[22m
+
+
+      45 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};
+      46 | async function setup(page:Page,query=''){
+    > 47 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;
+         |                                                                                                                                                                                                                                                                  ^
+      48 | }
+      49 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+      50 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+        at setup (/workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/saved-drafts.spec.ts:47:258)
+        at /workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/saved-drafts.spec.ts:197:42
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794744083664-5412c5c9-4116-4f05-972f-d6fa15f727ae/saved-drafts/artifacts/saved-drafts-malformed-ina-934cd--the-global-expiry-deadline/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794744083664-5412c5c9-4116-4f05-972f-d6fa15f727ae/saved-drafts/artifacts/saved-drafts-malformed-ina-934cd--the-global-expiry-deadline/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  26 failed
+    tests/e2e/saved-drafts.spec.ts:317:1 › named save, reload, delete/cancel and empty state stay local 
+    tests/e2e/saved-drafts.spec.ts:353:1 › replace keeps recoverable text, insert respects caret and preserves selection, cancel preserves current input 
+    tests/e2e/saved-drafts.spec.ts:395:1 › stale restore is rejected atomically after a concurrent window edit 
+    tests/e2e/saved-drafts.spec.ts:425:1 › rich records list missing/revoked references but restore text only, preserving current excerpts 
+    tests/e2e/saved-drafts.spec.ts:456:1 › account/profile/thread/project/working-copy libraries remain isolated 
+    tests/e2e/saved-drafts.spec.ts:476:1 › quota failure and corrupt records keep the active draft and offer retry 
+    tests/e2e/saved-drafts.spec.ts:518:1 › keyboard/IME does not save or send a composing name; focus returns to the trigger 
+    tests/e2e/saved-drafts.spec.ts:554:1 › approved list captures and stress names remain usable at 1440/1024/768 with reduced motion 
+    tests/e2e/saved-drafts.spec.ts:599:55 › empty-composer quota restore failure shows a keyboard-reachable alert and preserves drafts 
+    tests/e2e/saved-drafts.spec.ts:599:55 › empty-composer abort restore failure shows a keyboard-reachable alert and preserves drafts 
+    tests/e2e/saved-drafts.spec.ts:599:55 › empty-composer conflict restore failure shows a keyboard-reachable alert and preserves drafts 
+    tests/e2e/saved-drafts.spec.ts:685:42 › new excerpt-only saves remain reviewable after the original selection is gone 
+    tests/e2e/saved-drafts.spec.ts:685:42 › new skill-only saves remain reviewable after the original selection is gone 
+    tests/e2e/saved-drafts.spec.ts:773:1 › legacy reference-only records expose IDs and keyboard-copyable excerpt text without restoring authority 
+    tests/e2e/saved-drafts.spec.ts:872:1 › approved thread capacity blocks a new draft with an alert and keeps records in every working copy 
+    tests/e2e/saved-drafts.spec.ts:921:1 › idle expiry refreshes an open list and deletes only the expired saved record 
+    tests/e2e/saved-drafts.spec.ts:1033:50 › global retention evicts inactive threads and copies on load 
+    tests/e2e/saved-drafts.spec.ts:1033:50 › global retention evicts inactive threads and copies on list 
+    tests/e2e/saved-drafts.spec.ts:1033:50 › global retention evicts inactive threads and copies on switch 
+    tests/e2e/saved-drafts.spec.ts:1044:1 › empty active library schedules expiry for inactive threads and copies without reading their owner 
+    tests/e2e/saved-drafts.spec.ts:1063:1 › another window adding an inactive library reschedules the empty active library deadline 
+    tests/e2e/saved-drafts.spec.ts:1160:58 › malformed inactive library does not block valid load or inactive expiry 
+    tests/e2e/saved-drafts.spec.ts:1160:58 › malformed inactive library does not block valid save or inactive expiry 
+    tests/e2e/saved-drafts.spec.ts:1160:58 › malformed inactive library does not block valid list or inactive expiry 
+    tests/e2e/saved-drafts.spec.ts:1160:58 › malformed inactive library does not block valid switch or inactive expiry 
+    tests/e2e/saved-drafts.spec.ts:1200:1 › malformed inactive library does not stop the global expiry deadline 
+
+Failed browser suites: saved-drafts (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+
+[Retained first and last 16 KiB; middle output omitted.]

@@ -1,0 +1,112 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm@10.30.3",
+    "exec",
+    "vitest",
+    "run",
+    "tests/tool-program-replay-v3.test.ts",
+    "--maxWorkers=1",
+    "-t",
+    "issued count|uncaught failed|known backend"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T10:38:06.118911+00:00",
+  "endedAt": "2026-11-15T10:38:08.941838+00:00",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+ ❯ tests/tool-program-replay-v3.test.ts (30 tests | 3 failed | 27 skipped) 1487ms
+     × rejects a changed issued count with REPLAY_DIVERGED before any additional read 1041ms
+     × preserves an uncaught failed source classification without exposing its private error message 107ms
+     × retains a known backend script-failure code while replacing a private guest error message 275ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/tool-program-replay-v3.test.ts > M12 actual JavaScript durable replay > rejects a changed issued count with REPLAY_DIVERGED before any additional read
+AssertionError: expected { …(6) } to match object { state: 'FAILED', error: { …(2) } }
+(8 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "error": {
+-     "code": "REPLAY_DIVERGED",
++     "code": "PROGRAM_DEADLINE",
+      "originalResultRef": "result_f87f7ce87a13d75fa034a8463c51b6b6",
+    },
+    "state": "FAILED",
+  }
+
+ ❯ tests/tool-program-replay-v3.test.ts:118:22
+    116|       }));
+    117|       const replay = await f.programs.run(program.programId, REPLAY_OW…
+    118|       expect(replay).toMatchObject({ state: 'FAILED', error: { code: '…
+       |                      ^
+    119|       expectReadReceiptsUnchanged(f, 1, receipts);
+    120|     },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/tool-program-replay-v3.test.ts > M12 actual JavaScript durable replay > preserves an uncaught failed source classification without exposing its private error message
+AssertionError: expected { …(6) } to match object { state: 'FAILED', …(1) }
+(9 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "error": {
+-     "code": "NESTED_TOOL_FAILED",
++     "code": "PROGRAM_FAILED",
+    },
+    "state": "FAILED",
+  }
+
+ ❯ tests/tool-program-replay-v3.test.ts:213:19
+    211|     const program = await f.prepare(REPLAY_SOURCE);
+    212|     const first = await f.programs.run(program.programId, REPLAY_OWNER…
+    213|     expect(first).toMatchObject({ state: 'FAILED', error: { code: 'NES…
+       |                   ^
+    214|     expect(first.sourceRefs).toHaveLength(1);
+    215|     expect(JSON.stringify(first)).not.toContain('M12_PRIVATE_UNCAUGHT_…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  tests/tool-program-replay-v3.test.ts > M12 actual JavaScript durable replay > retains a known backend script-failure code while replacing a private guest error message
+AssertionError: expected { …(6) } to match object { state: 'FAILED', …(1) }
+(9 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "error": {
+-     "code": "PROGRAM_SCRIPT_ERROR",
++     "code": "PROGRAM_FAILED",
+    },
+    "state": "FAILED",
+  }
+
+ ❯ tests/tool-program-replay-v3.test.ts:226:20
+    224|     const program = await f.prepare("const value = await tools.call('r…
+    225|     const result = await f.programs.run(program.programId, REPLAY_OWNE…
+    226|     expect(result).toMatchObject({ state: 'FAILED', error: { code: 'PR…
+       |                    ^
+    227|     expect(JSON.stringify(result)).not.toContain('M12_REPLAY_PRIVATE_S…
+    228|     expect(JSON.stringify(f.store.eventsAfter(0))).not.toContain('M12_…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 27 skipped (30)
+   Start at  18:38:06
+   Duration  1.99s (transform 204ms, setup 0ms, import 347ms, tests 1.49s, environment 0ms)
+

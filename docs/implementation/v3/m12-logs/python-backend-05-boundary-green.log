@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/python-program-backend-v3.test.ts",
+    "--maxWorkers=1"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T10:30:30.592772+00:00",
+  "endedAt": "2026-11-15T10:30:36.908104+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+
+ Test Files  1 passed (1)
+      Tests  17 passed (17)
+   Start at  18:30:30
+   Duration  6.10s (transform 77ms, setup 0ms, import 127ms, tests 5.86s, environment 0ms)
+

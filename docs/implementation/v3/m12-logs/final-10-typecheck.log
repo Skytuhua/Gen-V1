@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "env",
+    "NODE_OPTIONS=--max-old-space-size=4096",
+    "pnpm",
+    "typecheck"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T11:29:17.255615+00:00",
+  "endedAt": "2026-11-15T11:29:43.876844+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+> gen-v1@0.6.5 typecheck /workspace/scratch/dbebe44a9817/m12-v3
+> tsc --noEmit
+

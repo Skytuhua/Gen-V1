@@ -1,0 +1,48 @@
+{
+  "argv": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/python-program-backend-v3.test.ts",
+    "--maxWorkers=1",
+    "-t",
+    "untrusted completion frame"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T10:47:09.697596+00:00",
+  "endedAt": "2026-11-15T10:47:11.241181+00:00",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+ ❯ tests/python-program-backend-v3.test.ts (19 tests | 1 failed | 18 skipped) 1046ms
+     × keeps the owned interpreter quiescent after an untrusted completion frame 573ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/python-program-backend-v3.test.ts > actual Linux Python program confinement with explicit test approval > keeps the owned interpreter quiescent after an untrusted completion frame
+AssertionError: expected '64552909841814' to be '64552753154587' // Object.is equality
+
+Expected: "64552753154587"
+Received: "64552909841814"
+
+ ❯ tests/python-program-backend-v3.test.ts:186:28
+    184|     const first = await sample();
+    185|     await new Promise(resolve => setTimeout(resolve, 150));
+    186|     expect(await sample()).toBe(first);
+       |                            ^
+    187|   });
+    188|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 18 skipped (19)
+   Start at  18:47:09
+   Duration  1.29s (transform 73ms, setup 0ms, import 122ms, tests 1.05s, environment 0ms)
+

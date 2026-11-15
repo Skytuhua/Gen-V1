@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm@10.30.3",
+    "exec",
+    "vitest",
+    "run",
+    "tests/tool-program-benchmark-v3.test.ts"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T12:05:58.661295+00:00",
+  "endedAt": "2026-11-15T12:06:06.613724+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  20:05:59
+   Duration  7.15s (transform 375ms, setup 0ms, import 569ms, tests 6.36s, environment 0ms)
+

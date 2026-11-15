@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "python3",
+    "docs/implementation/v3/m12-artifacts/benchmark-command-provenance-probe.py"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T12:06:38.000239+00:00",
+  "endedAt": "2026-11-15T12:06:38.023971+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+{
+  "check": "M12_BENCHMARK_COMMAND_PROVENANCE",
+  "status": "PASS",
+  "scope": "Metadata meaning only; no new benchmark execution or production approval",
+  "artifact": "docs/implementation/v3/m12-artifacts/aggregation-benchmark.json",
+  "artifactSHA256": "f8737fbd2ea20b6c685b88458715cc86ca0d0d90f136bf4922bb0e613caa0be5",
+  "benchmarkBeganAt": "2026-11-15T12:06:00.206Z",
+  "benchmarkFinishedAt": "2026-11-15T12:06:06.549Z",
+  "reproductionCommand": [
+    "corepack",
+    "pnpm@10.30.3",
+    "exec",
+    "vitest",
+    "run",
+    "tests/tool-program-benchmark-v3.test.ts"
+  ],
+  "actualInvocationSource": "Separate completed outer command record and benchmark-execution-link.json"
+}

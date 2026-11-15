@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm@10.30.3",
+    "--version"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T09:52:25.972902+00:00",
+  "endedAt": "2026-11-15T09:52:26.281503+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+10.30.3

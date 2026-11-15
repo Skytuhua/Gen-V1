@@ -1,0 +1,607 @@
+{
+  "schemaVersion": 3,
+  "bundleId": "M12",
+  "baseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+  "sourceLockDigest": "49b7563a4d8a550be9c6fb51624b7eebe7d3ceb8743b0021745ec734e67314e3",
+  "platform": "linux-x64",
+  "nodeVersion": "v24.22.1",
+  "packageManagerVersion": "10.30.3",
+  "phases": [
+    {
+      "id": "CORE.prerequisites",
+      "status": "FAIL",
+      "requiredCases": [
+        {
+          "id": "isolated-source-custody",
+          "status": "PASS",
+          "evidence": "Clean original checkout; isolated agent/m12-v3; origin verified; audit ancestor verified; accepted base recorded in source-01-custody.log."
+        },
+        {
+          "id": "declared-package-manager-and-frozen-setup",
+          "status": "PASS",
+          "evidence": "corepack pnpm@10.30.3 version and frozen-lockfile install both exited 0. Default pnpm 11.25.0 was not used for installation/testing."
+        },
+        {
+          "id": "M01-existing-evidence-contracts",
+          "status": "PASS",
+          "evidence": "research-baseline.test.ts and m01-m02-compatibility.test.ts passed in the current ten-file prerequisite run. This does not establish browser/platform acceptance."
+        },
+        {
+          "id": "M02-existing-authority-and-ledger-contracts",
+          "status": "PASS",
+          "evidence": "tool-authority-v3, tool-effects-v3 and effect-recovery-v3 test files passed in the current run. Parent-linked M12 admission and complete reattachment checks remain unproved."
+        },
+        {
+          "id": "M03-execution-decision-contract",
+          "status": "PASS",
+          "evidence": "execution-boundary-v3.test.ts passed; its synthetic backend does not launch or prove confinement."
+        },
+        {
+          "id": "M03-ordinary-granted-file-read",
+          "status": "FAIL",
+          "evidence": "project-trust-v3.test.ts > reading an ordinary granted text file still works while execution approval stays distinct failed with CAPABILITY_DENIED in linux-path-guard.ts. Repeated alone with exit 1. Initial run: 116 passed, 1 failed, 117 total. No product/test source changed."
+        },
+        {
+          "id": "M02-current-nested-integration-review",
+          "status": "NOT_RUN",
+          "evidence": "Historical source lock differs in three inspected blobs; existing invoke has no parent identity input and does not establish complete M12 owner/digest reattachment. No replacement API guessed."
+        },
+        {
+          "id": "M04-progressive-tool-visibility",
+          "status": "NOT_RUN",
+          "evidence": "BLOCKED_SOURCE_DRIFT: no integrated owner-scoped progressive visibility contract on accepted base; PR 326 remains draft and unmerged."
+        },
+        {
+          "id": "M10-private-result-handles",
+          "status": "NOT_RUN",
+          "evidence": "BLOCKED_SOURCE_DRIFT: ordinary DataRecord paging, research passages and effect outcomes are not the required generic result-handle contract."
+        },
+        {
+          "id": "evidence-schema-and-artifact-validation",
+          "status": "PASS",
+          "evidence": "Node native TypeScript executed M12-verify-evidence.mts successfully. Strict M01 schema, source/contract blob pins, source-lock/log digests, command headers, changed-file scope and preserved original checkout checked. This proves metadata consistency only; bundleStatus remains FAIL."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "python3",
+            "-c",
+            "import json,subprocess; from pathlib import Path; root=Path.cwd(); original=root.parent / \"Gen-V1\"; targets=[\"packages/core/service.ts\",\"packages/runtime-hermes/worker.py\",\"packages/runtime-pi/tool-definitions.ts\",\"packages/runtime-official/mcp.ts\",\"packages/core/security.ts\",\"packages/runtime-pi/process-tree.ts\"]; proposed=[\"packages/contracts/tool-program.ts\",\"packages/core/tool-programs.ts\",\"packages/runtime/tool-program-worker.ts\",\"tests/tool-program-v3.test.ts\",\"tests/tool-program-replay-v3.test.ts\",\"tests/python-kernel-v3.test.ts\"]; run=lambda *a:subprocess.check_output([\"git\",*a],text=True).strip(); assert run(\"rev-parse\",\"HEAD\")==\"fcaa52f7fcdc9f39420118a79f9a8250ba83c563\"; assert run(\"branch\",\"--show-current\")==\"agent/m12-v3\"; assert run(\"remote\",\"get-url\",\"origin\")==\"https://github.com/Skytuhua/Gen-V1.git\"; subprocess.run([\"git\",\"merge-base\",\"--is-ancestor\",\"a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54\",\"HEAD\"],check=True); assert not subprocess.check_output([\"git\",\"-C\",str(original),\"status\",\"--porcelain\"],text=True); print(json.dumps({\"repositoryRoot\":str(root),\"baseSha\":run(\"rev-parse\",\"HEAD\"),\"branch\":run(\"branch\",\"--show-current\"),\"origin\":run(\"remote\",\"get-url\",\"origin\"),\"auditAncestorIsAncestor\":True,\"originalRoot\":str(original),\"originalHead\":subprocess.check_output([\"git\",\"-C\",str(original),\"rev-parse\",\"HEAD\"],text=True).strip(),\"originalStatus\":\"clean\",\"worktrees\":run(\"worktree\",\"list\",\"--porcelain\"),\"targets\":[{\"path\":p,\"blobSha\":run(\"rev-parse\",\"HEAD:\"+p)} for p in targets],\"proposedPaths\":[{\"path\":p,\"exists\":(root/p).exists()} for p in proposed],\"agentsFiles\":run(\"ls-files\",\"*AGENTS.md\")},indent=2))"
+          ],
+          "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+          "startedAt": "2026-11-15T09:53:45.274883+00:00",
+          "endedAt": "2026-11-15T09:53:45.344059+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m12-logs/source-01-custody.log",
+          "logDigest": "d7ef31c15b8c0730dbfbd4636871f9df26c99e9899645b8ef328039ae225fc15"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm@10.30.3",
+            "--version"
+          ],
+          "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js",
+          "startedAt": "2026-11-15T09:52:25.972902+00:00",
+          "endedAt": "2026-11-15T09:52:26.281503+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m12-logs/setup-01-pnpm-version.log",
+          "logDigest": "e160f70ff58a391829eb7e3eb4254feff6b9876f1bfca78500bf3ef6c8a9294a"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm@10.30.3",
+            "install",
+            "--frozen-lockfile"
+          ],
+          "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js",
+          "startedAt": "2026-11-15T09:52:33.513771+00:00",
+          "endedAt": "2026-11-15T09:55:30.930330+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m12-logs/setup-02-frozen-install.log",
+          "logDigest": "861eb776493b01ba32b8f8b988f38295b95a3f94ba766afad28328ade84998fe"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm@10.30.3",
+            "exec",
+            "vitest",
+            "run",
+            "tests/research-baseline.test.ts",
+            "tests/m01-m02-compatibility.test.ts",
+            "tests/tool-authority-v3.test.ts",
+            "tests/tool-effects-v3.test.ts",
+            "tests/effect-recovery-v3.test.ts",
+            "tests/execution-boundary-v3.test.ts",
+            "tests/project-trust-v3.test.ts",
+            "tests/secret-custody-v3.test.ts",
+            "tests/store.test.ts",
+            "tests/context-efficiency.test.ts",
+            "--maxWorkers=2"
+          ],
+          "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js",
+          "startedAt": "2026-11-15T09:57:05.180417+00:00",
+          "endedAt": "2026-11-15T09:57:11.101009+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m12-logs/core-01-prerequisite-tests.log",
+          "logDigest": "652ea4a38c9da4f484d59601916bae2a2266e181827da82f418b314fc8c2b78b"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm@10.30.3",
+            "exec",
+            "vitest",
+            "run",
+            "tests/project-trust-v3.test.ts",
+            "-t",
+            "reading an ordinary granted text file still works while execution approval stays distinct",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js",
+          "startedAt": "2026-11-15T09:58:32.840572+00:00",
+          "endedAt": "2026-11-15T09:58:33.869469+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m12-logs/core-02-reproduce-granted-read.log",
+          "logDigest": "515ed1ad85c9645ad5366a3d7ca80c28464f8a3ac67c01ab3275c5a8038bf0c7"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm@10.30.3",
+            "exec",
+            "tsx",
+            ".harness-m12/verify-evidence.mts"
+          ],
+          "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js",
+          "startedAt": "2026-11-15T10:01:44.615521+00:00",
+          "endedAt": "2026-11-15T10:01:45.060177+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m12-logs/evidence-01-validation.log",
+          "logDigest": "9222a02c5a6f0b5af835e1855ea84e54db4c8f6840fdc7a80502ef5832049852"
+        },
+        {
+          "argv": [
+            "node",
+            "docs/implementation/v3/M12-verify-evidence.mts"
+          ],
+          "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "startedAt": "2026-11-15T10:02:23.479792+00:00",
+          "endedAt": "2026-11-15T10:02:24.172331+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m12-logs/evidence-02-validation-native.log",
+          "logDigest": "23a6e4cb0b7f644d8d29e382a70b8ff8b6c5cbd1776a44f41b60bf24765fd350"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v3/M12-source-lock.json",
+        "docs/implementation/v3/M12-source-audit.json",
+        "docs/implementation/v3/M12-handoff.md"
+      ]
+    },
+    {
+      "id": "CORE.program-protocols",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "ToolProgramV1-NestedCallV1-ProgramJournalV1-PythonKernelV1",
+          "status": "NOT_RUN",
+          "evidence": "Prerequisite stop before protocol implementation. Required identities, digests, states and generation rules remain specified in M12-handoff.md."
+        },
+        {
+          "id": "intentional-red-then-green-synthetic-fixtures",
+          "status": "NOT_RUN",
+          "evidence": "No M12 fixture was created or run after the failed prerequisite boundary. A missing fixture/dependency or pre-existing failure is not an expected-negative success."
+        },
+        {
+          "id": "host-only-sqlite-and-sync-transactions",
+          "status": "NOT_RUN",
+          "evidence": "Existing Store source/tests were inspected; no M12 persistence path was implemented. No async Store callback or second writer introduced."
+        }
+      ],
+      "commands": [],
+      "artifactRefs": [
+        "docs/implementation/v3/M12-source-lock.json",
+        "docs/implementation/v3/M12-source-audit.json",
+        "docs/implementation/v3/M12-handoff.md"
+      ]
+    },
+    {
+      "id": "INTEGRATION.javascript-and-handles",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "non-replaying-host-read-program",
+          "status": "NOT_RUN",
+          "evidence": "No executor, immutable-input bridge, M02/M04 nested dispatch, hidden/write/account/workspace denial or stable pre-dispatch identity implemented."
+        },
+        {
+          "id": "private-aggregate-and-range-retrieval",
+          "status": "NOT_RUN",
+          "evidence": "M10 is absent. No intermediate bulk data, error-preserving aggregate, resultRef, or owner/grant-scoped range API implemented."
+        },
+        {
+          "id": "limits-and-cancellation",
+          "status": "NOT_RUN",
+          "evidence": "No verified backend for 30-second deadline, 64 calls, four admitted concurrent reads, 256 KiB visible output, 128 MiB memory target, or orphan-free cleanup."
+        }
+      ],
+      "commands": [],
+      "artifactRefs": [
+        "docs/implementation/v3/M12-source-lock.json",
+        "docs/implementation/v3/M12-source-audit.json",
+        "docs/implementation/v3/M12-handoff.md"
+      ]
+    },
+    {
+      "id": "INTEGRATION.durable-replay",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "deterministic-start-issued-counts-delivery-order",
+          "status": "NOT_RUN",
+          "evidence": "Non-replaying executor did not pass; replay implementation stopped. No journal or nested result delivery executed."
+        },
+        {
+          "id": "receipt-reattach-and-divergence",
+          "status": "NOT_RUN",
+          "evidence": "Full owner/key/arguments/definition/runtime checks and REPLAY_DIVERGED behavior are untested. No new effects or mutation replay admitted."
+        },
+        {
+          "id": "process-kills-at-every-boundary",
+          "status": "NOT_RUN",
+          "evidence": "No M12 journal/call fault-injection fixture exists. Upstream source analysis does not substitute for real process kills."
+        }
+      ],
+      "commands": [],
+      "artifactRefs": [
+        "docs/implementation/v3/M12-source-lock.json",
+        "docs/implementation/v3/M12-source-audit.json",
+        "docs/implementation/v3/M12-handoff.md"
+      ]
+    },
+    {
+      "id": "INTEGRATION.python-kernel",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "approved-interpreter-and-owner-key",
+          "status": "NOT_RUN",
+          "evidence": "System Python 3.12.14 presence is not approved interpreter/config/cwd/tool-set/profile proof. No M12 process spawned."
+        },
+        {
+          "id": "generation-and-variable-custody",
+          "status": "NOT_RUN",
+          "evidence": "No persistent kernel/generation/cell implementation; variables never assumed to survive a crash or reset."
+        },
+        {
+          "id": "fresh-cell-budget-stop-reset-and-wedge",
+          "status": "NOT_RUN",
+          "evidence": "Exact-owner stop/reset, process-tree kill, reset-required status, fresh budgets, ledger usage and effects remain unimplemented; no cell rerun or external-effect undo claim."
+        }
+      ],
+      "commands": [],
+      "artifactRefs": [
+        "docs/implementation/v3/M12-source-lock.json",
+        "docs/implementation/v3/M12-source-audit.json",
+        "docs/implementation/v3/M12-handoff.md"
+      ]
+    },
+    {
+      "id": "INTEGRATION.ui-rollout-and-benchmark",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "program-card-call-graph-and-private-source-view",
+          "status": "NOT_RUN",
+          "evidence": "No frontend source changed; required language/tools/elapsed/count/cap/state/details card is not implemented."
+        },
+        {
+          "id": "kernel-status-and-separate-stop-reset",
+          "status": "NOT_RUN",
+          "evidence": "No generation/retained-state view or reset warning implemented."
+        },
+        {
+          "id": "inspectable-replay-incompatibility",
+          "status": "NOT_RUN",
+          "evidence": "No replay error view or blind resume path implemented."
+        },
+        {
+          "id": "independent-finite-host-flags",
+          "status": "NOT_RUN",
+          "evidence": "The three required M12 keys are unregistered and unavailable. They are recorded enabled:false, not as implemented registration. No strict UI preference or agent/plugin enable path changed."
+        },
+        {
+          "id": "fixed-aggregation-quality-and-token-roundtrip-measurement",
+          "status": "NOT_RUN",
+          "evidence": "No request/tool/visible-byte/token/quality/failure-overhead benchmark measured. No live eval endpoint called; no MANIFEST_ONLY artifact claimed as an evaluation."
+        }
+      ],
+      "commands": [],
+      "artifactRefs": [
+        "docs/implementation/v3/M12-source-lock.json",
+        "docs/implementation/v3/M12-source-audit.json",
+        "docs/implementation/v3/M12-handoff.md"
+      ]
+    },
+    {
+      "id": "INTEGRATION.repository-validation",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "pnpm-typecheck",
+          "status": "PASS",
+          "evidence": "Declared pnpm typecheck exited 0 on unchanged product source."
+        },
+        {
+          "id": "pnpm-build",
+          "status": "PASS",
+          "evidence": "Declared pnpm build exited 0 and generated required assets; existing large-chunk warning retained."
+        },
+        {
+          "id": "pnpm-test",
+          "status": "NOT_RUN",
+          "evidence": "Stopped after prerequisite contract failure under the failure-propagation rule. Full regression must be rerun on an accepted supported base/platform."
+        },
+        {
+          "id": "pnpm-test-browser-M01-baseline",
+          "status": "NOT_RUN",
+          "evidence": "Stopped after prerequisite failure. M01 baseline browser acceptance remains required. No changed frontend/browser paths to verify in this documentation-only branch."
+        },
+        {
+          "id": "pnpm-exec-vitest-run-tests-tool-program-v3.test.ts",
+          "status": "NOT_RUN",
+          "evidence": "Proposed test does not exist; dependent stage stopped before creation. No missing-test invocation misrepresented as a regression fixture."
+        },
+        {
+          "id": "pnpm-exec-vitest-run-tests-tool-program-replay-v3.test.ts",
+          "status": "NOT_RUN",
+          "evidence": "Proposed replay test does not exist; blocked behind non-replaying executor."
+        },
+        {
+          "id": "pnpm-exec-vitest-run-tests-python-kernel-v3.test.ts",
+          "status": "NOT_RUN",
+          "evidence": "Proposed kernel test does not exist; blocked behind contracts/interpreter/confinement."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "corepack",
+            "pnpm@10.30.3",
+            "build"
+          ],
+          "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js",
+          "startedAt": "2026-11-15T09:56:01.185414+00:00",
+          "endedAt": "2026-11-15T09:56:09.164830+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m12-logs/baseline-01-build.log",
+          "logDigest": "8bf98e4a25aa895953dacb260659f989fbdc5f399bf9127f30ccef0720e27086"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm@10.30.3",
+            "typecheck"
+          ],
+          "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js",
+          "startedAt": "2026-11-15T09:57:05.174300+00:00",
+          "endedAt": "2026-11-15T09:57:32.153604+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m12-logs/baseline-02-typecheck.log",
+          "logDigest": "36f85fe12605a02ad94e78024f957854ee0bc4cd474044c8c4d301160be01db7"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v3/M12-source-lock.json",
+        "docs/implementation/v3/M12-source-audit.json",
+        "docs/implementation/v3/M12-handoff.md"
+      ]
+    },
+    {
+      "id": "PLATFORM.confinement-and-native",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "actual-approved-backend-and-os-confinement",
+          "status": "NOT_RUN",
+          "evidence": "M03 declares a policy and backend interface, with no integrated production backend and no actual platform proof."
+        },
+        {
+          "id": "ambient-access-memory-loop-output-fanout-negatives",
+          "status": "NOT_RUN",
+          "evidence": "No tested executor; no hard-bound or no-orphan claim made. Diagnostics inspect host prerequisites only."
+        },
+        {
+          "id": "native-linux-guardian",
+          "status": "NOT_RUN",
+          "evidence": "Separate ordinary Node process observed descriptor 3 not a socket and descriptor 4 not a directory. No guardian/native process launched or policy bypassed; the dependency test failure remains FAIL."
+        },
+        {
+          "id": "actual-windows-installed-desktop",
+          "status": "NOT_RUN",
+          "evidence": "Current host is Linux. Windows/native/installed-desktop requirements must run on the actual target; no mocks or skipped cases substitute."
+        },
+        {
+          "id": "independent-production-security-review",
+          "status": "NOT_RUN",
+          "evidence": "No independent activation approval. reviewerApproval remains false."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "node",
+            "--input-type=module",
+            "-e",
+            "import {fstatSync,readFileSync} from \"node:fs\"; const fd = n => {try {const s=fstatSync(n);return {exists:true,isSocket:s.isSocket(),isDirectory:s.isDirectory()}}catch(e){return {exists:false,error:e.code}}}; const status=readFileSync(\"/proc/self/status\",\"utf8\"); const field=n=>status.split(\"\\n\").find(s=>s.startsWith(n+\":\"))??null; console.log(JSON.stringify({platform:process.platform,uid:process.geteuid(),fd3:fd(3),fd4:fd(4),noNewPrivs:field(\"NoNewPrivs\"),caps:[\"CapEff\",\"CapPrm\",\"CapBnd\",\"CapAmb\"].map(field),interpretation:\"Read-only host observation. This process is not the required native directory-guard launcher and no confinement proof is asserted.\"},null,2));"
+          ],
+          "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "startedAt": "2026-11-15T09:58:32.826785+00:00",
+          "endedAt": "2026-11-15T09:58:32.930285+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m12-logs/platform-01-linux-guard-preconditions.log",
+          "logDigest": "12567d8be2cf36586603e4e4afef51d2586a1ed275fadde1b89a4203af9a04b0"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v3/M12-source-lock.json",
+        "docs/implementation/v3/M12-source-audit.json",
+        "docs/implementation/v3/M12-handoff.md"
+      ]
+    }
+  ],
+  "changedFiles": [
+    "docs/implementation/v3/M12-handoff.md",
+    "docs/implementation/v3/M12-source-audit.json",
+    "docs/implementation/v3/M12-source-lock.json",
+    "docs/implementation/v3/M12-verification.json",
+    "docs/implementation/v3/M12-verify-evidence.mts",
+    "docs/implementation/v3/m12-logs/baseline-01-build.log",
+    "docs/implementation/v3/m12-logs/baseline-02-typecheck.log",
+    "docs/implementation/v3/m12-logs/core-01-prerequisite-tests.log",
+    "docs/implementation/v3/m12-logs/core-02-reproduce-granted-read.log",
+    "docs/implementation/v3/m12-logs/evidence-01-validation.log",
+    "docs/implementation/v3/m12-logs/evidence-02-validation-native.log",
+    "docs/implementation/v3/m12-logs/platform-01-linux-guard-preconditions.log",
+    "docs/implementation/v3/m12-logs/setup-01-pnpm-version.log",
+    "docs/implementation/v3/m12-logs/setup-02-frozen-install.log",
+    "docs/implementation/v3/m12-logs/source-01-custody.log"
+  ],
+  "dependencyContracts": [
+    {
+      "name": "M01.ImplementationEvidenceV3",
+      "version": "559b720ccead1d29c9a1bd4db528af52534105c3",
+      "testIds": [
+        "tests/research-baseline.test.ts",
+        "tests/m01-m02-compatibility.test.ts"
+      ]
+    },
+    {
+      "name": "M01.CapabilityFlags",
+      "version": "39e18abb43f7fa63cb2534ea3356ebb1be121161",
+      "testIds": [
+        "tests/tool-authority-v3.test.ts",
+        "tests/m01-m02-compatibility.test.ts"
+      ]
+    },
+    {
+      "name": "M01.StoreCommand",
+      "version": "ebab3cba8d56e074d0377623bffd2054790f622b",
+      "testIds": [
+        "tests/store.test.ts"
+      ]
+    },
+    {
+      "name": "M02.ToolEffectV1",
+      "version": "41b6fff1364825122c33761c0bfaac66da03bca0",
+      "testIds": [
+        "tests/tool-effects-v3.test.ts",
+        "tests/effect-recovery-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M02.ToolAuthority",
+      "version": "1d654522d9842838276d162a33dac6141f731c26",
+      "testIds": [
+        "tests/tool-authority-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M02.ToolEffectLedger",
+      "version": "aa65f1d9b52d6a117b716a38feb8dd6c6d46b13a",
+      "testIds": [
+        "tests/tool-effects-v3.test.ts",
+        "tests/effect-recovery-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M03.ExecutionProfileV1",
+      "version": "031a20ee2c4d0fa88e707441644225505e0358e4",
+      "testIds": [
+        "tests/execution-boundary-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M03.ExecutionDecision",
+      "version": "2dad179e75a47be477d0e7871cda2660ea39b2f7",
+      "testIds": [
+        "tests/execution-boundary-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M03.HostFlags",
+      "version": "bc42845181317c61018f2725ee1d62f9dd625cac",
+      "testIds": [
+        "tests/secret-custody-v3.test.ts"
+      ]
+    }
+  ],
+  "flags": [
+    {
+      "key": "tools.jsReadProgramV1",
+      "enabled": false
+    },
+    {
+      "key": "tools.durableReplayExperimentV1",
+      "enabled": false
+    },
+    {
+      "key": "tools.pythonKernelV1",
+      "enabled": false
+    }
+  ],
+  "remainingGates": [
+    "SOURCE GATE BLOCKED_SOURCE_DRIFT: M04 and M10 must be integrated and reviewed on the newly accepted base, with their actual contracts and current tests. PR 326 is draft/unmerged and is not a dependency.",
+    "CURRENT PREREQUISITE FAIL: the ordinary granted-file read test failed twice in the Linux path guard. Preserve failures; use a platform supporting the actual required guard and request shape. Do not weaken or bypass the guard.",
+    "M02 must expose a reviewed parent-linked admission/receipt route preserving full owner, registry definition, grants, epoch and cancellation; current invoke/admit contracts are not substituted or rewritten in M12.",
+    "M03 needs an explicitly approved installed backend, concrete production composition, and actual OS/platform negative proof. Policy decisions and process cleanup alone do not prove confinement.",
+    "No code execution until a tested backend enforces each claimed bound. The 128 MiB memory target is unsupported without that selected proof.",
+    "Implement the four M12 contracts and intentional failing synthetic protocol fixtures after prerequisites; record a real red/green cycle. No M12 implementation or intended-negative result exists yet.",
+    "Complete non-replaying JavaScript and read-only M02/M04 dispatch before replay; implement private M10 handles and user-requested aggregate/error-preserving outputs.",
+    "Replay needs deterministic start, committed issued identities/counts and delivery order, exact compatibility checks, original-result inspection, and process-kill tests at every journal/call boundary.",
+    "Python independently needs approved interpreter/config/cwd/profile identity, owner isolation, generation persistence, fresh cell budgets, owned-tree termination, reset-required behavior, exact-owner Stop/Reset and no prior-cell replay.",
+    "Implement the specified program/kernel/replay-error UI and validate changed browser paths; include usage and all nested effects in the evidence ledger without exposing secrets.",
+    "Register only tools.jsReadProgramV1, tools.durableReplayExperimentV1, tools.pythonKernelV1 in the appropriate shared finite host registry, each default false and independently gated. Current false entries mean unavailable, not completed registration.",
+    "Run all three requested M12 test commands, pnpm typecheck, pnpm test, pnpm build, and M01 baseline pnpm test:browser after source/setup/native prerequisite gates pass.",
+    "Measure fixed aggregation request/tool counts, visible bytes, actual token/round-trip reduction, quality and failure overhead. Do not claim model evaluation from a manifest or guess --host/--model.",
+    "Native Windows and installed-desktop checks require the actual target platform. Linux results do not satisfy those gates.",
+    "Migration NONE: documentation and audit logs only; no application state/schema/credentials/flags changed. Current rollback is revert documentation while retaining evidence.",
+    "Future implemented rollback must stop admission, cancel owned workers, retain receipts and invalidate kernel generations; never replay scripts/cells to reconstruct a view or claim dispatched effects were undone.",
+    "PUBLICATION BLOCKED_APPROVAL: automatic approval review rejected git push --set-upstream origin agent/m12-v3 because the copied M12 contract explicitly forbids pushes. The remote branch was confirmed absent and no PR was created. Explicit user authorization overriding this no-push constraint is required for this branch and draft PR only. No merge/deployment/force update/account change is authorized; no alternate publication route was attempted."
+  ],
+  "reviewerApproval": false
+}

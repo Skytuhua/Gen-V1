@@ -1,0 +1,37 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm@10.30.3",
+    "exec",
+    "playwright",
+    "test",
+    "--config",
+    "tests/e2e/tool-programs.playwright.config.ts"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T10:34:13.044623+00:00",
+  "endedAt": "2026-11-15T10:34:19.228066+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+[2m[WebServer] [22m(node:36) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:48) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 6 tests using 1 worker
+
+(node:77) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:77) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 tests/e2e/tool-programs.spec.ts:192:1 › shows program metadata and fixed call details before explicit bounded source inspection (692ms)
+  ✓  2 tests/e2e/tool-programs.spec.ts:243:1 › separates exact-owner Stop and confirmed Reset and never replays a previous cell (680ms)
+  ✓  3 tests/e2e/tool-programs.spec.ts:299:1 › preserves the exact replay failure, surfaces revoked inspection and cancels only the selected program (606ms)
+  ✓  4 tests/e2e/tool-programs.spec.ts:336:1 › ignores a late list response after switching threads (483ms)
+  ✓  5 tests/e2e/tool-programs.spec.ts:373:1 › clears pending private inspection and reset confirmation on a same-thread owner change (438ms)
+  ✓  6 tests/e2e/tool-programs.spec.ts:413:1 › keeps controls and long references inside a narrow viewport and exposes list errors (355ms)
+
+  6 passed (5.2s)

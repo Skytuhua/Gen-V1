@@ -1,0 +1,50 @@
+{
+  "argv": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/python-kernel-v3.test.ts",
+    "--maxWorkers=1",
+    "-t",
+    "old program prepared"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T11:10:38.991564+00:00",
+  "endedAt": "2026-11-15T11:10:39.797557+00:00",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+ ❯ tests/python-kernel-v3.test.ts (19 tests | 2 failed | 17 skipped) 23ms
+   × cancels an old program prepared after stop without dispatching it or changing the new kernel state 17ms
+   × cancels an old program prepared after reset without dispatching it or changing the new kernel state 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/python-kernel-v3.test.ts > cancels an old program prepared after stop without dispatching it or changing the new kernel state
+ FAIL  tests/python-kernel-v3.test.ts > cancels an old program prepared after reset without dispatching it or changing the new kernel state
+AssertionError: expected 'PREPARED' to be 'CANCELLED' // Object.is equality
+
+Expected: "CANCELLED"
+Received: "PREPARED"
+
+ ❯ tests/python-kernel-v3.test.ts:232:41
+    230|   else await f.kernels.reset(kernel.kernelId, owner);
+    231|   release.resolve(); await rejected;
+    232|   expect(f.programStates.get('cell-1')).toBe('CANCELLED');
+       |                                         ^
+    233|   expect(f.runCalls()).toBe(0);
+    234|   expect(f.kernels.get(kernel.kernelId, owner)).toMatchObject({ state:…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 17 skipped (19)
+   Start at  19:10:39
+   Duration  424ms (transform 149ms, setup 0ms, import 231ms, tests 23ms, environment 0ms)
+

@@ -1,0 +1,45 @@
+{
+  "schema": "M12IndependentReviewProbeV1",
+  "name": "duplicate-input-reference-materialization",
+  "recordedAt": "2026-11-15T11:17:36.030Z",
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3/",
+  "sourceSha256": {
+    "packages/core/tool-programs.ts": "c27f24e0f33c411efcc9f989473e303190ffb74aa3d2f6eea832127096136ebd",
+    "packages/core/tool-results.ts": "a5e06d1a50ffede1e054439aeac088207f539583de9e007931149a10248d6538",
+    "packages/contracts/tool-program.ts": "c07f95c57977707db55e73e2f24185c57c22f1056ea3269b983e53b5e9c6e645",
+    "packages/runtime/tool-program-worker.ts": "a12fc504668b882638e74394eeef65cf3ad5005238e085812eca578f6ee27c4f"
+  },
+  "liveExternalEffects": false,
+  "retainedUniqueReferences": 1,
+  "requestedReferenceCount": 64,
+  "storedJsonBytes": 262158,
+  "materialization": {
+    "inputValues": 64,
+    "uniqueValueObjects": 64,
+    "serializedBytes": 16778177
+  },
+  "outcome": {
+    "stage": "run",
+    "state": "FAILED",
+    "error": "PROGRAM_MEMORY_LIMIT"
+  },
+  "theoreticalMaximumRawInputBytesBeforeFix": 536870912,
+  "commandRecord": {
+    "argv": [
+      "node",
+      "--import",
+      "tsx",
+      "docs/implementation/v3/m12-artifacts/independent-review-input-amplification-probe.mts"
+    ],
+    "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
+    "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "startedAt": "2026-11-15T11:17:34.751355+00:00",
+    "endedAt": "2026-11-15T11:17:36.078402+00:00",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m12-logs/independent-review-02-input-amplification.log",
+    "logDigest": "7ee07fbb538cd8ec0e13103015c81f1404fb2b034a5b7c8f9ad1a5804251489c"
+  },
+  "reviewDisposition": "CONFIRMED_FAIL: duplicate private references amplified host input materialization before the backend rejected its limit"
+}

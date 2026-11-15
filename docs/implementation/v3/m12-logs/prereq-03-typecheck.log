@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm@10.30.3",
+    "exec",
+    "tsc",
+    "--noEmit",
+    "--pretty",
+    "false"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T10:22:22.214657+00:00",
+  "endedAt": "2026-11-15T10:22:48.110074+00:00",
+  "exitCode": 2,
+  "termination": "NONE",
+  "truncated": false
+}
+
+tests/python-program-backend-v3.test.ts(2,33): error TS6133: 'writeFile' is declared but its value is never read.
+tests/python-program-backend-v3.test.ts(8,8): error TS2307: Cannot find module '../packages/runtime/python-program-worker.ts' or its corresponding type declarations.
+tests/tool-program-v3.test.ts(10,30): error TS2307: Cannot find module '../packages/core/tool-programs.ts' or its corresponding type declarations.
+tests/tool-program-v3.test.ts(67,40): error TS7006: Parameter 'call' implicitly has an 'any' type.
+tests/tool-program-v3.test.ts(67,46): error TS7006: Parameter '_owner' implicitly has an 'any' type.
+tests/tool-program-v3.test.ts(67,54): error TS7006: Parameter 'signal' implicitly has an 'any' type.

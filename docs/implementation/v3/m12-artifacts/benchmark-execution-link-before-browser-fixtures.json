@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "kind": "M12_BENCHMARK_EXECUTION_LINK",
+  "benchmark": {
+    "path": "docs/implementation/v3/m12-artifacts/aggregation-benchmark.json",
+    "sha256": "1402e7af70de4cc86f43b2715b4fe745a73a51e153851e35d6d96f842b363238",
+    "bytes": 23710,
+    "beganAt": "2026-11-15T11:50:39.471Z",
+    "finishedAt": "2026-11-15T11:50:45.709Z"
+  },
+  "sourceCut": {
+    "path": "docs/implementation/v3/M12-candidate-source-cut.json",
+    "sha256": "e6183f4ed56219611b7bd3352aa5d8412aced6d933380f7a85390fb2b9078ee1",
+    "sourceLockDigest": "ba19359635f62964e9b95fa1fa8c010b3e05bcfae6430ae8a2a7968dc772cb8d"
+  },
+  "commandRecordId": "final-13-benchmark",
+  "command": {
+    "argv": [
+      "corepack",
+      "pnpm@10.30.3",
+      "exec",
+      "vitest",
+      "run",
+      "tests/tool-program-benchmark-v3.test.ts"
+    ],
+    "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
+    "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js",
+    "startedAt": "2026-11-15T11:50:37.614665+00:00",
+    "endedAt": "2026-11-15T11:50:45.759995+00:00",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m12-logs/final-13-benchmark.log",
+    "logDigest": "558d719a719fd36ebb619746e9a18bd1832edce0d7d577acda26b5a5cc38ab0e"
+  },
+  "attribution": "Explicit recorder selection after completion; no argv inferred from Vitest worker process"
+}

@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm@10.30.3",
+    "exec",
+    "vitest",
+    "run",
+    "tests/tool-program-diagnostics-v3.test.ts",
+    "--maxWorkers=2"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T11:05:48.182015+00:00",
+  "endedAt": "2026-11-15T11:05:50.700911+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Start at  19:05:48
+   Duration  1.89s (transform 503ms, setup 0ms, import 681ms, tests 1.01s, environment 0ms)
+

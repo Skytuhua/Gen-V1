@@ -1,0 +1,74 @@
+{
+  "argv": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/python-program-integration-v3.test.ts",
+    "--maxWorkers=1",
+    "-t",
+    "persists variables|rechecks actual grants"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T10:41:17.080871+00:00",
+  "endedAt": "2026-11-15T10:41:20.807118+00:00",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+ ❯ tests/python-program-integration-v3.test.ts (14 tests | 2 failed | 12 skipped) 1624ms
+     × persists variables, keeps nested read payloads private, journals M02 deliveries, and resets without replaying files 550ms
+     × rechecks actual grants before every nested read and invalidates a failed persistent kernel 593ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/python-program-integration-v3.test.ts > M03 Python provider through actual Service and M02 integration > persists variables, keeps nested read payloads private, journals M02 deliveries, and resets without replaying files
+AssertionError: expected { code: 'NESTED_TOOL_FAILED', …(2) } to be null
+
+- Expected:
+null
+
++ Received:
+{
+  "code": "NESTED_TOOL_FAILED",
+  "message": "The program includes failed source tools; inspect retained source handles",
+  "originalResultRef": null,
+}
+
+ ❯ tests/python-program-integration-v3.test.ts:140:25
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/python-program-integration-v3.test.ts > M03 Python provider through actual Service and M02 integration > rechecks actual grants before every nested read and invalidates a failed persistent kernel
+AssertionError: expected { code: 'NESTED_TOOL_FAILED', …(2) } to be null
+
+- Expected:
+null
+
++ Received:
+{
+  "code": "NESTED_TOOL_FAILED",
+  "message": "The program includes failed source tools; inspect retained source handles",
+  "originalResultRef": null,
+}
+
+ ❯ tests/python-program-integration-v3.test.ts:174:25
+    172|     const source = "payload = tools.call('repository_read', {'resource…
+    173|     const first = await cell(f, 'granted', source, { allowedTools: ['r…
+    174|     expect(first.error).toBeNull();
+       |                         ^
+    175|     expect(first.state).toBe('SUCCEEDED');
+    176|     f.store.internal('fixture.revoke', owner.threadId, () => f.store.r…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 12 skipped (14)
+   Start at  18:41:17
+   Duration  3.30s (transform 1.05s, setup 0ms, import 1.49s, tests 1.62s, environment 0ms)
+

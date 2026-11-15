@@ -1,0 +1,53 @@
+{
+  "argv": [
+    "node",
+    "--import",
+    "tsx",
+    "scripts/test-browser.ts",
+    "--suite",
+    "root"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-base-fcaa52",
+  "startedAt": "2026-11-15T10:54:48.064443+00:00",
+  "endedAt": "2026-11-15T10:54:53.805160+00:00",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": false
+}
+
+Browser results: /workspace/scratch/dbebe44a9817/m12-base-fcaa52/test-results/browser/run-1794740088302-ef667ee5-b071-4521-9298-c784984db030
+
+Browser suite: root (16 spec files)
+[2m[WebServer] [22m(node:40) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:52) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+Error: Trusted widget receiver is missing. Run pnpm build:widgets before starting the application or tests.
+
+   at ../../packages/widgets/document.ts:10
+
+   8 | function receiverBytes(): string {
+   9 |   try { return readFileSync(resolve('dist/widget-runtime/receiver.js'), 'utf8'); }
+> 10 |   catch { throw new Error('Trusted widget receiver is missing. Run pnpm build:widgets before starting the application or tests.'); }
+     |                 ^
+  11 | }
+  12 | const bootstrap = receiverBytes();
+  13 | if (/<\/script/i.test(bootstrap)) throw new Error('Trusted widget receiver contains an unsafe script terminator.');
+    at receiverBytes (/workspace/scratch/dbebe44a9817/m12-base-fcaa52/packages/widgets/document.ts:10:17)
+    at /workspace/scratch/dbebe44a9817/m12-base-fcaa52/packages/widgets/document.ts:12:19
+Error: Trusted widget receiver is missing. Run pnpm build:widgets before starting the application or tests.
+
+   at ../../packages/widgets/document.ts:10
+
+   8 | function receiverBytes(): string {
+   9 |   try { return readFileSync(resolve('dist/widget-runtime/receiver.js'), 'utf8'); }
+> 10 |   catch { throw new Error('Trusted widget receiver is missing. Run pnpm build:widgets before starting the application or tests.'); }
+     |                 ^
+  11 | }
+  12 | const bootstrap = receiverBytes();
+  13 | if (/<\/script/i.test(bootstrap)) throw new Error('Trusted widget receiver contains an unsafe script terminator.');
+    at receiverBytes (/workspace/scratch/dbebe44a9817/m12-base-fcaa52/packages/widgets/document.ts:10:17)
+    at /workspace/scratch/dbebe44a9817/m12-base-fcaa52/packages/widgets/document.ts:12:19
+
+
+Failed browser suites: root (exit 1)

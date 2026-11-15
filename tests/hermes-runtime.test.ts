@@ -7,6 +7,16 @@ import type {RuntimeAdapter,RuntimeCallbacks,RuntimeEvent,StartRun} from '../pac
 import {createHermesRuntime,type HermesRuntimeOptions,type HermesSourceClient} from '../packages/runtime-hermes/index.ts';
 import type {HermesClient,HermesEvent} from '../packages/runtime-hermes/client.ts';
 import {encodeInput} from '../packages/runtime-pi/input-envelope.ts';
+import {PROGRAM_TOOLS} from '../packages/core/tool-program-tools.ts';
+
+it('passes host-selected bounded program tools to Hermes while keeping its native transport model-only',async()=>{
+ const f=await fixture();try{await f.runtime.start(run({programTools:[...PROGRAM_TOOLS]}));
+ expect((f.start().hostTools as {name:string}[]).map(tool=>tool.name)).toEqual(['host_task',...PROGRAM_TOOLS.map(tool=>tool.name)]);
+ f.event('model_request',{sequence:1,inputIds:['input']});
+ const response=fetch(f.start().brokerURL as string,{method:'POST',headers:{Authorization:'Bearer '+f.start().jobKey,'content-type':'application/json'},body:JSON.stringify({sessionId:'acp',modelId:'openai/model',prompt:'Program aggregation transcript'})});
+ await vi.waitFor(()=>expect(f.natives[0]?.input).toBeDefined());const n=f.natives[0];expect(n.input.programTools).toBeUndefined();n.callbacks.onEvent({...n.input,type:'assistant.message',content:'text'});n.callbacks.onEvent({...n.input,type:'settled'});expect((await response).status).toBe(200);await f.settle();
+ }finally{await f.runtime.dispose();}
+});
 
 it('keeps private completed-write metadata off the default/company path and model envelope',async()=>{
  const f=await fixture(),input=run({completedWrites:[{operationId:'op',revision:1,inputId:'operation-result:op',origin:{threadId:'thread',runId:'before',epoch:0,sessionPath:'not-admitted',modelId:'openai/model',accountId:null,projectId:'project',workspaceId:'worktree',projectRoot:'C:/private-project'},path:'C:/private-project/App.tsx',sha256:'a'.repeat(64),bytes:1}]});

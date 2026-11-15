@@ -1,0 +1,36 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/tool-program-backend-v3.test.ts",
+    "tests/python-program-backend-v3.test.ts",
+    "tests/python-program-integration-v3.test.ts",
+    "tests/tool-program-integration-v3.test.ts",
+    "tests/tool-program-transport-v3.test.ts",
+    "tests/tool-program-diagnostics-v3.test.ts",
+    "tests/tool-program-recovery-v3.test.ts",
+    "tests/tool-program-input-budget-v3.test.ts",
+    "tests/tool-program-benchmark-v3.test.ts",
+    "tests/hermes-runtime.test.ts",
+    "tests/planning.test.ts",
+    "--maxWorkers=2"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T11:29:23.556446+00:00",
+  "endedAt": "2026-11-15T11:29:51.777676+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+
+ Test Files  11 passed (11)
+      Tests  172 passed (172)
+   Start at  19:29:24
+   Duration  27.52s (transform 1.75s, setup 0ms, import 3.85s, tests 49.56s, environment 1ms)
+

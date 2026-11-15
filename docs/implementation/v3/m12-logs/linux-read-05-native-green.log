@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm@10.30.3",
+    "exec",
+    "vitest",
+    "run",
+    "tests/linux-bound-read-v3.test.ts",
+    "tests/project-trust-v3.test.ts",
+    "tests/linux-path-guard.test.ts",
+    "--maxWorkers=1"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T10:51:00.031362+00:00",
+  "endedAt": "2026-11-15T10:51:01.998624+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+
+ Test Files  3 passed (3)
+      Tests  50 passed (50)
+   Start at  18:51:00
+   Duration  1.19s (transform 237ms, setup 0ms, import 443ms, tests 231ms, environment 0ms)
+

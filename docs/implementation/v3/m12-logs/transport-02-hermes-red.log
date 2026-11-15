@@ -1,0 +1,53 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm@10.30.3",
+    "exec",
+    "vitest",
+    "run",
+    "tests/hermes-runtime.test.ts",
+    "-t",
+    "host-selected",
+    "--maxWorkers=1"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T10:37:44.230982+00:00",
+  "endedAt": "2026-11-15T10:37:45.708032+00:00",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+ ❯ tests/hermes-runtime.test.ts (40 tests | 1 failed | 39 skipped) 22ms
+   × passes host-selected bounded program tools to Hermes while keeping its native transport model-only 20ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/hermes-runtime.test.ts > passes host-selected bounded program tools to Hermes while keeping its native transport model-only
+AssertionError: expected [ 'host_task' ] to deeply equal [ 'host_task', …(4) ]
+
+- Expected
++ Received
+
+  [
+    "host_task",
+-   "tool_program_discover",
+-   "tool_program",
+-   "python_cell",
+-   "tool_program_result",
+  ]
+
+ ❯ tests/hermes-runtime.test.ts:14:72
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 39 skipped (40)
+   Start at  18:37:44
+   Duration  865ms (transform 411ms, setup 0ms, import 646ms, tests 22ms, environment 0ms)
+

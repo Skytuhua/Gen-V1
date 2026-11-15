@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "git",
+    "-c",
+    "core.whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol",
+    "diff",
+    "--cached",
+    "--check",
+    "--",
+    ".",
+    ":!docs/implementation/v3/m12-logs/**",
+    ":!docs/implementation/v3/m12-artifacts/javascript-backend-attempt-1.txt",
+    ":!docs/implementation/v3/m12-artifacts/javascript-backend-attempt-2.txt",
+    ":!docs/implementation/v3/m12-artifacts/javascript-backend-red.txt"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T12:25:11.745038+00:00",
+  "endedAt": "2026-11-15T12:25:11.775800+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+

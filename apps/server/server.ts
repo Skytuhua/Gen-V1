@@ -28,6 +28,7 @@ import {registerAgentInputRoutes} from './agent-input-routes.ts';
 import {registerShellReadRoutes} from './shell-read-routes.ts';
 import {registerConversationReadRoutes} from './conversation-read-routes.ts';
 import {registerToolEffectReadRoutes} from './tool-effect-read-routes.ts';
+import {registerToolProgramRoutes} from './tool-program-routes.ts';
 import {ConversationReadModels} from '../../packages/core/conversation-read-models.ts';
 import {ToolEffectReadModels} from '../../packages/core/tool-effect-read-models.ts';
 import {verificationPanelModel} from '../../packages/core/verification-read-models.ts';
@@ -103,6 +104,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
     let preferences:UiPreferences;try{preferences=shellPreferencesSchema.parse(getPreferences(settings));}catch{preferences=shellPreferencesSchema.parse(getPreferences({}));}
     return{theme:settings.theme==='light'||settings.theme==='system'?settings.theme:'dark',preferences};
   });
+  registerToolProgramRoutes(app, service);
   app.get("/api/snapshot", async (_request, reply) => {
     const seq = service.store.sequence;
     let json = snapshotCache?.seq === seq ? snapshotCache.json : undefined;

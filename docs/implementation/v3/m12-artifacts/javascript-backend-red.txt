@@ -1,0 +1,249 @@
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+ ❯ tests/tool-program-backend-v3.test.ts (14 tests | 14 failed) 29ms
+     × verifies its actual WASM memory maximum before claiming a bounded backend 11ms
+     × has no ambient filesystem, network, process, console, or module loader 3ms
+     × snapshots and deeply freezes inputs before asynchronous execution 1ms
+     × returns private tool values through a frozen bridge and emits only the aggregate 1ms
+     × reproduces random values and virtual clocks from identical immutable start data 1ms
+     × commits each delivery before the VM resumes and includes all four issued identities 1ms
+     × does not deliver a tool result when its durable delivery commit is rejected 1ms
+     × journals a failed tool promise before rejecting it into the guest 1ms
+     × bounds admitted host work and gives every call a stable monotonic key 1ms
+     × rejects excess calls before dispatching work outside the budget 1ms
+     × kills a non-settling guest independently of its event loop: for (;;) {} 1ms
+     × kills a non-settling guest independently of its event loop: for (;;) await Promise.resolve(); 1ms
+     × cancels pending delivery and never admits queued work after cancellation 1ms
+     × rejects a guest aggregate above its byte limit 1ms
+
+ Test Files  1 failed (1)
+      Tests  14 failed (14)
+   Start at  18:21:49
+   Duration  358ms (transform 73ms, setup 0ms, import 129ms, tests 29ms, environment 0ms)
+
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 14 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/tool-program-backend-v3.test.ts > M12 checked QuickJS worker boundary > verifies its actual WASM memory maximum before claiming a bounded backend
+AssertionError: A checked JavaScript executor must be installed: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ create tests/tool-program-backend-v3.test.ts:15:91
+     13| async function create(): Promise<ProgramExecutor> {
+     14|   const api = await import(/* @vite-ignore */ moduleUrl).catch(() => (…
+     15|   expect(api.createJavaScriptExecutor, 'A checked JavaScript executor …
+       |                                                                                           ^
+     16|   const executor = await api.createJavaScriptExecutor();
+     17|   executors.push(executor);
+ ❯ tests/tool-program-backend-v3.test.ts:33:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/14]⎯
+
+ FAIL  tests/tool-program-backend-v3.test.ts > M12 checked QuickJS worker boundary > has no ambient filesystem, network, process, console, or module loader
+AssertionError: A checked JavaScript executor must be installed: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ create tests/tool-program-backend-v3.test.ts:15:91
+     13| async function create(): Promise<ProgramExecutor> {
+     14|   const api = await import(/* @vite-ignore */ moduleUrl).catch(() => (…
+     15|   expect(api.createJavaScriptExecutor, 'A checked JavaScript executor …
+       |                                                                                           ^
+     16|   const executor = await api.createJavaScriptExecutor();
+     17|   executors.push(executor);
+ ❯ tests/tool-program-backend-v3.test.ts:47:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/14]⎯
+
+ FAIL  tests/tool-program-backend-v3.test.ts > M12 checked QuickJS worker boundary > snapshots and deeply freezes inputs before asynchronous execution
+AssertionError: A checked JavaScript executor must be installed: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ create tests/tool-program-backend-v3.test.ts:15:91
+     13| async function create(): Promise<ProgramExecutor> {
+     14|   const api = await import(/* @vite-ignore */ moduleUrl).catch(() => (…
+     15|   expect(api.createJavaScriptExecutor, 'A checked JavaScript executor …
+       |                                                                                           ^
+     16|   const executor = await api.createJavaScriptExecutor();
+     17|   executors.push(executor);
+ ❯ tests/tool-program-backend-v3.test.ts:59:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/14]⎯
+
+ FAIL  tests/tool-program-backend-v3.test.ts > M12 checked QuickJS worker boundary > returns private tool values through a frozen bridge and emits only the aggregate
+AssertionError: A checked JavaScript executor must be installed: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ create tests/tool-program-backend-v3.test.ts:15:91
+     13| async function create(): Promise<ProgramExecutor> {
+     14|   const api = await import(/* @vite-ignore */ moduleUrl).catch(() => (…
+     15|   expect(api.createJavaScriptExecutor, 'A checked JavaScript executor …
+       |                                                                                           ^
+     16|   const executor = await api.createJavaScriptExecutor();
+     17|   executors.push(executor);
+ ❯ tests/tool-program-backend-v3.test.ts:71:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/14]⎯
+
+ FAIL  tests/tool-program-backend-v3.test.ts > M12 checked QuickJS worker boundary > reproduces random values and virtual clocks from identical immutable start data
+AssertionError: A checked JavaScript executor must be installed: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ create tests/tool-program-backend-v3.test.ts:15:91
+     13| async function create(): Promise<ProgramExecutor> {
+     14|   const api = await import(/* @vite-ignore */ moduleUrl).catch(() => (…
+     15|   expect(api.createJavaScriptExecutor, 'A checked JavaScript executor …
+       |                                                                                           ^
+     16|   const executor = await api.createJavaScriptExecutor();
+     17|   executors.push(executor);
+ ❯ tests/tool-program-backend-v3.test.ts:90:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/14]⎯
+
+ FAIL  tests/tool-program-backend-v3.test.ts > M12 checked QuickJS worker boundary > commits each delivery before the VM resumes and includes all four issued identities
+AssertionError: A checked JavaScript executor must be installed: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ create tests/tool-program-backend-v3.test.ts:15:91
+     13| async function create(): Promise<ProgramExecutor> {
+     14|   const api = await import(/* @vite-ignore */ moduleUrl).catch(() => (…
+     15|   expect(api.createJavaScriptExecutor, 'A checked JavaScript executor …
+       |                                                                                           ^
+     16|   const executor = await api.createJavaScriptExecutor();
+     17|   executors.push(executor);
+ ❯ tests/tool-program-backend-v3.test.ts:99:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/14]⎯
+
+ FAIL  tests/tool-program-backend-v3.test.ts > M12 checked QuickJS worker boundary > does not deliver a tool result when its durable delivery commit is rejected
+AssertionError: A checked JavaScript executor must be installed: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ create tests/tool-program-backend-v3.test.ts:15:91
+     13| async function create(): Promise<ProgramExecutor> {
+     14|   const api = await import(/* @vite-ignore */ moduleUrl).catch(() => (…
+     15|   expect(api.createJavaScriptExecutor, 'A checked JavaScript executor …
+       |                                                                                           ^
+     16|   const executor = await api.createJavaScriptExecutor();
+     17|   executors.push(executor);
+ ❯ tests/tool-program-backend-v3.test.ts:126:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/14]⎯
+
+ FAIL  tests/tool-program-backend-v3.test.ts > M12 checked QuickJS worker boundary > journals a failed tool promise before rejecting it into the guest
+AssertionError: A checked JavaScript executor must be installed: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ create tests/tool-program-backend-v3.test.ts:15:91
+     13| async function create(): Promise<ProgramExecutor> {
+     14|   const api = await import(/* @vite-ignore */ moduleUrl).catch(() => (…
+     15|   expect(api.createJavaScriptExecutor, 'A checked JavaScript executor …
+       |                                                                                           ^
+     16|   const executor = await api.createJavaScriptExecutor();
+     17|   executors.push(executor);
+ ❯ tests/tool-program-backend-v3.test.ts:136:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/14]⎯
+
+ FAIL  tests/tool-program-backend-v3.test.ts > M12 checked QuickJS worker boundary > bounds admitted host work and gives every call a stable monotonic key
+AssertionError: A checked JavaScript executor must be installed: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ create tests/tool-program-backend-v3.test.ts:15:91
+     13| async function create(): Promise<ProgramExecutor> {
+     14|   const api = await import(/* @vite-ignore */ moduleUrl).catch(() => (…
+     15|   expect(api.createJavaScriptExecutor, 'A checked JavaScript executor …
+       |                                                                                           ^
+     16|   const executor = await api.createJavaScriptExecutor();
+     17|   executors.push(executor);
+ ❯ tests/tool-program-backend-v3.test.ts:150:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/14]⎯
+
+ FAIL  tests/tool-program-backend-v3.test.ts > M12 checked QuickJS worker boundary > rejects excess calls before dispatching work outside the budget
+AssertionError: A checked JavaScript executor must be installed: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ create tests/tool-program-backend-v3.test.ts:15:91
+     13| async function create(): Promise<ProgramExecutor> {
+     14|   const api = await import(/* @vite-ignore */ moduleUrl).catch(() => (…
+     15|   expect(api.createJavaScriptExecutor, 'A checked JavaScript executor …
+       |                                                                                           ^
+     16|   const executor = await api.createJavaScriptExecutor();
+     17|   executors.push(executor);
+ ❯ tests/tool-program-backend-v3.test.ts:170:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/14]⎯
+
+ FAIL  tests/tool-program-backend-v3.test.ts > M12 checked QuickJS worker boundary > kills a non-settling guest independently of its event loop: for (;;) {}
+ FAIL  tests/tool-program-backend-v3.test.ts > M12 checked QuickJS worker boundary > kills a non-settling guest independently of its event loop: for (;;) await Promise.resolve();
+AssertionError: A checked JavaScript executor must be installed: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ create tests/tool-program-backend-v3.test.ts:15:91
+     13| async function create(): Promise<ProgramExecutor> {
+     14|   const api = await import(/* @vite-ignore */ moduleUrl).catch(() => (…
+     15|   expect(api.createJavaScriptExecutor, 'A checked JavaScript executor …
+       |                                                                                           ^
+     16|   const executor = await api.createJavaScriptExecutor();
+     17|   executors.push(executor);
+ ❯ tests/tool-program-backend-v3.test.ts:185:24
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/14]⎯
+
+ FAIL  tests/tool-program-backend-v3.test.ts > M12 checked QuickJS worker boundary > cancels pending delivery and never admits queued work after cancellation
+AssertionError: A checked JavaScript executor must be installed: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ create tests/tool-program-backend-v3.test.ts:15:91
+     13| async function create(): Promise<ProgramExecutor> {
+     14|   const api = await import(/* @vite-ignore */ moduleUrl).catch(() => (…
+     15|   expect(api.createJavaScriptExecutor, 'A checked JavaScript executor …
+       |                                                                                           ^
+     16|   const executor = await api.createJavaScriptExecutor();
+     17|   executors.push(executor);
+ ❯ tests/tool-program-backend-v3.test.ts:195:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/14]⎯
+
+ FAIL  tests/tool-program-backend-v3.test.ts > M12 checked QuickJS worker boundary > rejects a guest aggregate above its byte limit
+AssertionError: A checked JavaScript executor must be installed: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ create tests/tool-program-backend-v3.test.ts:15:91
+     13| async function create(): Promise<ProgramExecutor> {
+     14|   const api = await import(/* @vite-ignore */ moduleUrl).catch(() => (…
+     15|   expect(api.createJavaScriptExecutor, 'A checked JavaScript executor …
+       |                                                                                           ^
+     16|   const executor = await api.createJavaScriptExecutor();
+     17|   executors.push(executor);
+ ❯ tests/tool-program-backend-v3.test.ts:216:22
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/14]⎯
+

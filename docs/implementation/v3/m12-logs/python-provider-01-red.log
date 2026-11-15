@@ -1,0 +1,41 @@
+{
+  "argv": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/python-program-integration-v3.test.ts",
+    "--maxWorkers=1"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T10:39:15.349465+00:00",
+  "endedAt": "2026-11-15T10:39:17.454904+00:00",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+ ❯ tests/python-program-integration-v3.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/python-program-integration-v3.test.ts [ tests/python-program-integration-v3.test.ts ]
+Error: Cannot find module '../packages/core/python-program-provider.ts' imported from /workspace/scratch/dbebe44a9817/m12-v3/tests/python-program-integration-v3.test.ts
+ ❯ tests/python-program-integration-v3.test.ts:9:1
+      7| import { createProjectTrust } from '../packages/core/project-trust.ts';
+      8| import { hostFlagEnvName } from '../packages/core/host-flags.ts';
+      9| import { createPythonProgramProvider, type PythonHostConfiguration } f…
+       | ^
+     10| import { inspectPythonRuntime, pythonProgramArguments, type PythonRunt…
+     11| import { DEFAULT_PROGRAM_LIMITS, type ProgramExecutionRequest, type Pr…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  18:39:15
+   Duration  1.82s (transform 1.02s, setup 0ms, import 0ms, tests 0ms, environment 1ms)
+

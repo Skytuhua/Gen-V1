@@ -1,0 +1,139 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm@10.30.3",
+    "exec",
+    "vitest",
+    "run",
+    "tests/tool-program-v3.test.ts",
+    "tests/tool-program-prerequisites-v3.test.ts",
+    "tests/tool-program-authority-v3.test.ts",
+    "--maxWorkers=2"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T10:22:51.543666+00:00",
+  "endedAt": "2026-11-15T10:22:52.911671+00:00",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+ ❯ tests/tool-program-v3.test.ts (12 tests | 8 failed) 30ms
+     × persists identity and M02 dispatch before the read and keeps bulk out of snapshots and events 5ms
+     × denies hidden_read before an executor dispatch 2ms
+     × denies write_api before an executor dispatch 1ms
+     × denies unregistered before an executor dispatch 1ms
+     × denies account drift after preparation and before any read 2ms
+     × bounds admitted concurrency and call count before dispatch 2ms
+     × preserves a source failure even if a script catches it and returns an aggregate 2ms
+     × rejects oversized visible aggregates and cancellation fences queued reads 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 8 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/tool-program-v3.test.ts > M12 non-replaying synthetic host protocol > persists identity and M02 dispatch before the read and keeps bulk out of snapshots and events
+HarnessError: This tool is not an eligible program read.
+ ❯ ToolDisclosure.definition packages/core/tool-disclosure.ts:47:13
+     45|     if (!this.eligible.has(name) || !definition || definition.risk !==…
+     46|       definition.approval !== 'none' || definition.executorBinding !==…
+     47|       throw new HarnessError('TOOL_NOT_ELIGIBLE', 'This tool is not an…
+       |             ^
+     48|     const schema = toolSchemas[name as ToolName];
+     49|     if (!schema) throw new HarnessError('TOOL_NOT_ELIGIBLE', 'This too…
+ ❯ packages/core/tool-disclosure.ts:64:47
+ ❯ ToolDisclosure.disclose packages/core/tool-disclosure.ts:63:62
+ ❯ fixture tests/tool-program-v3.test.ts:63:14
+ ❯ tests/tool-program-v3.test.ts:83:9
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/8]⎯
+
+ FAIL  tests/tool-program-v3.test.ts > M12 non-replaying synthetic host protocol > denies hidden_read before an executor dispatch
+ FAIL  tests/tool-program-v3.test.ts > M12 non-replaying synthetic host protocol > denies write_api before an executor dispatch
+ FAIL  tests/tool-program-v3.test.ts > M12 non-replaying synthetic host protocol > denies unregistered before an executor dispatch
+HarnessError: This tool is not an eligible program read.
+ ❯ ToolDisclosure.definition packages/core/tool-disclosure.ts:47:13
+     45|     if (!this.eligible.has(name) || !definition || definition.risk !==…
+     46|       definition.approval !== 'none' || definition.executorBinding !==…
+     47|       throw new HarnessError('TOOL_NOT_ELIGIBLE', 'This tool is not an…
+       |             ^
+     48|     const schema = toolSchemas[name as ToolName];
+     49|     if (!schema) throw new HarnessError('TOOL_NOT_ELIGIBLE', 'This too…
+ ❯ packages/core/tool-disclosure.ts:64:47
+ ❯ ToolDisclosure.disclose packages/core/tool-disclosure.ts:63:62
+ ❯ fixture tests/tool-program-v3.test.ts:63:14
+ ❯ tests/tool-program-v3.test.ts:109:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/8]⎯
+
+ FAIL  tests/tool-program-v3.test.ts > M12 non-replaying synthetic host protocol > denies account drift after preparation and before any read
+HarnessError: This tool is not an eligible program read.
+ ❯ ToolDisclosure.definition packages/core/tool-disclosure.ts:47:13
+     45|     if (!this.eligible.has(name) || !definition || definition.risk !==…
+     46|       definition.approval !== 'none' || definition.executorBinding !==…
+     47|       throw new HarnessError('TOOL_NOT_ELIGIBLE', 'This tool is not an…
+       |             ^
+     48|     const schema = toolSchemas[name as ToolName];
+     49|     if (!schema) throw new HarnessError('TOOL_NOT_ELIGIBLE', 'This too…
+ ❯ packages/core/tool-disclosure.ts:64:47
+ ❯ ToolDisclosure.disclose packages/core/tool-disclosure.ts:63:62
+ ❯ fixture tests/tool-program-v3.test.ts:63:14
+ ❯ tests/tool-program-v3.test.ts:119:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/8]⎯
+
+ FAIL  tests/tool-program-v3.test.ts > M12 non-replaying synthetic host protocol > bounds admitted concurrency and call count before dispatch
+HarnessError: This tool is not an eligible program read.
+ ❯ ToolDisclosure.definition packages/core/tool-disclosure.ts:47:13
+     45|     if (!this.eligible.has(name) || !definition || definition.risk !==…
+     46|       definition.approval !== 'none' || definition.executorBinding !==…
+     47|       throw new HarnessError('TOOL_NOT_ELIGIBLE', 'This tool is not an…
+       |             ^
+     48|     const schema = toolSchemas[name as ToolName];
+     49|     if (!schema) throw new HarnessError('TOOL_NOT_ELIGIBLE', 'This too…
+ ❯ packages/core/tool-disclosure.ts:64:47
+ ❯ ToolDisclosure.disclose packages/core/tool-disclosure.ts:63:62
+ ❯ fixture tests/tool-program-v3.test.ts:63:14
+ ❯ tests/tool-program-v3.test.ts:129:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/8]⎯
+
+ FAIL  tests/tool-program-v3.test.ts > M12 non-replaying synthetic host protocol > preserves a source failure even if a script catches it and returns an aggregate
+HarnessError: This tool is not an eligible program read.
+ ❯ ToolDisclosure.definition packages/core/tool-disclosure.ts:47:13
+     45|     if (!this.eligible.has(name) || !definition || definition.risk !==…
+     46|       definition.approval !== 'none' || definition.executorBinding !==…
+     47|       throw new HarnessError('TOOL_NOT_ELIGIBLE', 'This tool is not an…
+       |             ^
+     48|     const schema = toolSchemas[name as ToolName];
+     49|     if (!schema) throw new HarnessError('TOOL_NOT_ELIGIBLE', 'This too…
+ ❯ packages/core/tool-disclosure.ts:64:47
+ ❯ ToolDisclosure.disclose packages/core/tool-disclosure.ts:63:62
+ ❯ fixture tests/tool-program-v3.test.ts:63:14
+ ❯ tests/tool-program-v3.test.ts:145:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/8]⎯
+
+ FAIL  tests/tool-program-v3.test.ts > M12 non-replaying synthetic host protocol > rejects oversized visible aggregates and cancellation fences queued reads
+HarnessError: This tool is not an eligible program read.
+ ❯ ToolDisclosure.definition packages/core/tool-disclosure.ts:47:13
+     45|     if (!this.eligible.has(name) || !definition || definition.risk !==…
+     46|       definition.approval !== 'none' || definition.executorBinding !==…
+     47|       throw new HarnessError('TOOL_NOT_ELIGIBLE', 'This tool is not an…
+       |             ^
+     48|     const schema = toolSchemas[name as ToolName];
+     49|     if (!schema) throw new HarnessError('TOOL_NOT_ELIGIBLE', 'This too…
+ ❯ packages/core/tool-disclosure.ts:64:47
+ ❯ ToolDisclosure.disclose packages/core/tool-disclosure.ts:63:62
+ ❯ fixture tests/tool-program-v3.test.ts:63:14
+ ❯ tests/tool-program-v3.test.ts:156:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/8]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  8 failed | 32 passed (40)
+   Start at  18:22:52
+   Duration  800ms (transform 387ms, setup 0ms, import 758ms, tests 227ms, environment 0ms)
+

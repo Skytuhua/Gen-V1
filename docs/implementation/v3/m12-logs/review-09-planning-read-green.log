@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/planning.test.ts",
+    "tests/linux-bound-read-v3.test.ts",
+    "--maxWorkers=1"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T11:01:06.379023+00:00",
+  "endedAt": "2026-11-15T11:01:09.410034+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+
+ Test Files  2 passed (2)
+      Tests  42 passed (42)
+   Start at  19:01:06
+   Duration  2.50s (transform 429ms, setup 0ms, import 673ms, tests 1.55s, environment 0ms)
+

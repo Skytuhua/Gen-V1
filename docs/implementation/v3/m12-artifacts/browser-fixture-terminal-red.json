@@ -1,0 +1,524 @@
+{
+  "config": {
+    "configFile": "/workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/terminal-excerpts.playwright.config.ts",
+    "rootDir": "/workspace/scratch/dbebe44a9817/m12-v3/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/workspace/scratch/dbebe44a9817/m12-v3/test-results/browser/run-1794743903245-f7d9d4e7-15ac-4766-9b74-34b36827cba2/terminal-excerpts/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/scratch/dbebe44a9817/m12-v3/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "terminal-excerpts.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": {
+      "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+      "command": "exec timeout --kill-after=5s 300s pnpm exec vite --config tests/e2e/terminal-excerpts.vite.config.ts --configLoader runner",
+      "url": "http://127.0.0.1:5523/fixture",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "terminal-excerpts.spec.ts",
+      "file": "terminal-excerpts.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "real xterm selection is copied before focus/scroll, edited and persisted without terminal input or Send",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4836,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T11:58:25.900Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "030681ec35141578588d-d296a790bd3998fc674b",
+          "file": "terminal-excerpts.spec.ts",
+          "line": 275,
+          "column": 1
+        },
+        {
+          "title": "keyboard selection and action are immediate; remove releases geometry immediately",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1152,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m0\u001b[39m\nReceived: \u001b[31m1\u001b[39m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m0\u001b[39m\nReceived: \u001b[31m1\u001b[39m\n    at /workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/terminal-excerpts.spec.ts:57:513",
+                    "location": {
+                      "file": "/workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/terminal-excerpts.spec.ts",
+                      "column": 513,
+                      "line": 57
+                    },
+                    "snippet": "  55 | });\n  56 | test('keyboard selection and action are immediate; remove releases geometry immediately',async({page})=>{\n> 57 |  const f=await setup(page);await select(page);await page.keyboard.press('Tab');await expect(page.getByRole('button',{name:'Add selection to prompt'})).toBeFocused();await page.keyboard.press('Enter');await page.getByRole('button',{name:'Remove terminal excerpt capture-terminal'}).click();await expect(page.getByRole('group',{name:'Attachments',exact:true})).toBeHidden();expect(f.terminalCommands).toEqual([]);expect(await page.locator('.composer').last().evaluate(el=>el.getAnimations({subtree:true}).length)).toBe(0);\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ^\n  58 | });\n  59 | test('uncertain retry retains original serialized bytes while later text and excerpt edits survive acknowledgment',async({page})=>{\n  60 |  const f=await setup(page);await add(page);f.uncertain();await page.getByRole('button',{name:'Send',exact:true}).click();await expect(page.getByRole('button',{name:'Retry send'})).toBeVisible();await page.getByRole('textbox',{name:'Message',exact:true}).fill('New draft');await page.getByRole('button',{name:'Terminal selection · capture-terminal',exact:true}).click();await page.getByLabel('Excerpt text').fill('Newer excerpt');await page.getByRole('button',{name:'Save excerpt'}).click();const previous=f.sends.length;f.accept();await page.getByRole('button',{name:'Retry send'}).click();await expect.poll(()=>f.sends.length).toBe(previous+1);await expect(page.getByRole('button',{name:'Retry send'})).toBeHidden();expect(f.sends.at(-1)).toEqual(f.sends[0]);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('New draft');await expect(page.getByRole('button',{name:'Terminal selection · capture-terminal',exact:true})).toBeVisible();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/terminal-excerpts.spec.ts",
+                        "column": 513,
+                        "line": 57
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBe\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // Object.is equality\u001b[22m\n\nExpected: \u001b[32m0\u001b[39m\nReceived: \u001b[31m1\u001b[39m\n\n  55 | });\n  56 | test('keyboard selection and action are immediate; remove releases geometry immediately',async({page})=>{\n> 57 |  const f=await setup(page);await select(page);await page.keyboard.press('Tab');await expect(page.getByRole('button',{name:'Add selection to prompt'})).toBeFocused();await page.keyboard.press('Enter');await page.getByRole('button',{name:'Remove terminal excerpt capture-terminal'}).click();await expect(page.getByRole('group',{name:'Attachments',exact:true})).toBeHidden();expect(f.terminalCommands).toEqual([]);expect(await page.locator('.composer').last().evaluate(el=>el.getAnimations({subtree:true}).length)).toBe(0);\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ^\n  58 | });\n  59 | test('uncertain retry retains original serialized bytes while later text and excerpt edits survive acknowledgment',async({page})=>{\n  60 |  const f=await setup(page);await add(page);f.uncertain();await page.getByRole('button',{name:'Send',exact:true}).click();await expect(page.getByRole('button',{name:'Retry send'})).toBeVisible();await page.getByRole('textbox',{name:'Message',exact:true}).fill('New draft');await page.getByRole('button',{name:'Terminal selection · capture-terminal',exact:true}).click();await page.getByLabel('Excerpt text').fill('Newer excerpt');await page.getByRole('button',{name:'Save excerpt'}).click();const previous=f.sends.length;f.accept();await page.getByRole('button',{name:'Retry send'}).click();await expect.poll(()=>f.sends.length).toBe(previous+1);await expect(page.getByRole('button',{name:'Retry send'})).toBeHidden();expect(f.sends.at(-1)).toEqual(f.sends[0]);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('New draft');await expect(page.getByRole('button',{name:'Terminal selection · capture-terminal',exact:true})).toBeVisible();\n    at /workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/terminal-excerpts.spec.ts:57:513"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T11:58:30.878Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/dbebe44a9817/m12-v3/test-results/browser/run-1794743903245-f7d9d4e7-15ac-4766-9b74-34b36827cba2/terminal-excerpts/artifacts/terminal-excerpts-keyboard-811e0-leases-geometry-immediately/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/dbebe44a9817/m12-v3/test-results/browser/run-1794743903245-f7d9d4e7-15ac-4766-9b74-34b36827cba2/terminal-excerpts/artifacts/terminal-excerpts-keyboard-811e0-leases-geometry-immediately/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/terminal-excerpts.spec.ts",
+                    "column": 513,
+                    "line": 57
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "030681ec35141578588d-14d4f84a02d5198e4cc6",
+          "file": "terminal-excerpts.spec.ts",
+          "line": 309,
+          "column": 1
+        },
+        {
+          "title": "uncertain retry retains original serialized bytes while later text and excerpt edits survive acknowledgment",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1724,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T11:58:32.739Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "030681ec35141578588d-fafcfafd8f71e2c8823e",
+          "file": "terminal-excerpts.spec.ts",
+          "line": 331,
+          "column": 1
+        },
+        {
+          "title": "owner switch and read-only/unavailable composer do not transfer excerpts",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2363,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T11:58:34.540Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "030681ec35141578588d-242e764a6de036ad232c",
+          "file": "terminal-excerpts.spec.ts",
+          "line": 375,
+          "column": 1
+        },
+        {
+          "title": "renders approved leaf UI at 1440/1024/768 and immediate reduced-motion attachment geometry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1791,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T11:58:36.918Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "030681ec35141578588d-e686b13046bf13ac63bb",
+          "file": "terminal-excerpts.spec.ts",
+          "line": 394,
+          "column": 1
+        },
+        {
+          "title": "authenticated precommit rejection retains excerpts for review and a fresh Send",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1229,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected substring: \u001b[32m\"Rejected before admission\"\u001b[39m\nError: strict mode violation: getByRole('alert') resolved to 2 elements:\n    1) <p role=\"alert\" class=\"tool-program-error\">The host returned an unexpected program response.</p> aka getByText('The host returned an')\n    2) <p role=\"alert\">Rejected before admission</p> aka getByText('Rejected before admission')\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected substring: \u001b[32m\"Rejected before admission\"\u001b[39m\nError: strict mode violation: getByRole('alert') resolved to 2 elements:\n    1) <p role=\"alert\" class=\"tool-program-error\">The host returned an unexpected program response.</p> aka getByText('The host returned an')\n    2) <p role=\"alert\">Rejected before admission</p> aka getByText('Rejected before admission')\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\n    at /workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/terminal-excerpts.spec.ts:71:157",
+                    "location": {
+                      "file": "/workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/terminal-excerpts.spec.ts",
+                      "column": 157,
+                      "line": 71
+                    },
+                    "snippet": "  69 |\n  70 | test('authenticated precommit rejection retains excerpts for review and a fresh Send',async({page})=>{\n> 71 |  const f=await setup(page);await add(page);f.reject();await page.getByRole('button',{name:'Send',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Rejected before admission');await expect(page.getByRole('button',{name:'Retry send'})).toBeHidden();await expect(page.getByRole('button',{name:'Terminal selection · capture-terminal',exact:true})).toBeVisible();\n     |                                                                                                                                                             ^\n  72 | });\n  73 |\n  74 | test('disabled program fixture metadata requires an exact known thread and a read request',async({page})=>{"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/terminal-excerpts.spec.ts",
+                        "column": 157,
+                        "line": 71
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert')\nExpected substring: \u001b[32m\"Rejected before admission\"\u001b[39m\nError: strict mode violation: getByRole('alert') resolved to 2 elements:\n    1) <p role=\"alert\" class=\"tool-program-error\">The host returned an unexpected program response.</p> aka getByText('The host returned an')\n    2) <p role=\"alert\">Rejected before admission</p> aka getByText('Rejected before admission')\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n\n\n  69 |\n  70 | test('authenticated precommit rejection retains excerpts for review and a fresh Send',async({page})=>{\n> 71 |  const f=await setup(page);await add(page);f.reject();await page.getByRole('button',{name:'Send',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Rejected before admission');await expect(page.getByRole('button',{name:'Retry send'})).toBeHidden();await expect(page.getByRole('button',{name:'Terminal selection · capture-terminal',exact:true})).toBeVisible();\n     |                                                                                                                                                             ^\n  72 | });\n  73 |\n  74 | test('disabled program fixture metadata requires an exact known thread and a read request',async({page})=>{\n    at /workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/terminal-excerpts.spec.ts:71:157"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T11:58:38.721Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/dbebe44a9817/m12-v3/test-results/browser/run-1794743903245-f7d9d4e7-15ac-4766-9b74-34b36827cba2/terminal-excerpts/artifacts/terminal-excerpts-authenti-908fd-for-review-and-a-fresh-Send/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/dbebe44a9817/m12-v3/test-results/browser/run-1794743903245-f7d9d4e7-15ac-4766-9b74-34b36827cba2/terminal-excerpts/artifacts/terminal-excerpts-authenti-908fd-for-review-and-a-fresh-Send/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/terminal-excerpts.spec.ts",
+                    "column": 157,
+                    "line": 71
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "030681ec35141578588d-111f24a3ed9f734d4711",
+          "file": "terminal-excerpts.spec.ts",
+          "line": 435,
+          "column": 1
+        },
+        {
+          "title": "disabled program fixture metadata requires an exact known thread and a read request",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1192,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 8\u001b[39m\n\u001b[31m+ Received  + 3\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[32m-   \"available\": Object {\u001b[39m\n\u001b[32m-     \"javascript\": false,\u001b[39m\n\u001b[32m-     \"python\": false,\u001b[39m\n\u001b[32m-     \"replay\": false,\u001b[39m\n\u001b[32m-   },\u001b[39m\n\u001b[32m-   \"kernels\": Array [],\u001b[39m\n\u001b[32m-   \"programs\": Array [],\u001b[39m\n\u001b[32m-   \"resetNotice\": \"Reset clears variables. It does not undo files or prior remote effects. Previous cells are never replayed.\",\u001b[39m\n\u001b[31m+   \"items\": Array [],\u001b[39m\n\u001b[31m+   \"nextCursor\": null,\u001b[39m\n\u001b[31m+   \"profiles\": Array [],\u001b[39m\n\u001b[2m  }\u001b[22m",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 8\u001b[39m\n\u001b[31m+ Received  + 3\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[32m-   \"available\": Object {\u001b[39m\n\u001b[32m-     \"javascript\": false,\u001b[39m\n\u001b[32m-     \"python\": false,\u001b[39m\n\u001b[32m-     \"replay\": false,\u001b[39m\n\u001b[32m-   },\u001b[39m\n\u001b[32m-   \"kernels\": Array [],\u001b[39m\n\u001b[32m-   \"programs\": Array [],\u001b[39m\n\u001b[32m-   \"resetNotice\": \"Reset clears variables. It does not undo files or prior remote effects. Previous cells are never replayed.\",\u001b[39m\n\u001b[31m+   \"items\": Array [],\u001b[39m\n\u001b[31m+   \"nextCursor\": null,\u001b[39m\n\u001b[31m+   \"profiles\": Array [],\u001b[39m\n\u001b[2m  }\u001b[22m\n    at /workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/terminal-excerpts.spec.ts:91:102",
+                    "location": {
+                      "file": "/workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/terminal-excerpts.spec.ts",
+                      "column": 102,
+                      "line": 91
+                    },
+                    "snippet": "  89 |  });\n  90 |  const empty={programs:[],kernels:[],available:{javascript:false,python:false,replay:false},resetNotice:'Reset clears variables. It does not undo files or prior remote effects. Previous cells are never replayed.'};\n> 91 |  for(const response of responses.slice(0,2)){expect(response.status).toBe(200);expect(response.body).toEqual(empty);}\n     |                                                                                                      ^\n  92 |  for(const response of responses.slice(2,7))expect(response.status).toBe(404);\n  93 |  for(const response of responses.slice(7))expect(response.status).toBe(405);\n  94 | });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/terminal-excerpts.spec.ts",
+                        "column": 102,
+                        "line": 91
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 8\u001b[39m\n\u001b[31m+ Received  + 3\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[32m-   \"available\": Object {\u001b[39m\n\u001b[32m-     \"javascript\": false,\u001b[39m\n\u001b[32m-     \"python\": false,\u001b[39m\n\u001b[32m-     \"replay\": false,\u001b[39m\n\u001b[32m-   },\u001b[39m\n\u001b[32m-   \"kernels\": Array [],\u001b[39m\n\u001b[32m-   \"programs\": Array [],\u001b[39m\n\u001b[32m-   \"resetNotice\": \"Reset clears variables. It does not undo files or prior remote effects. Previous cells are never replayed.\",\u001b[39m\n\u001b[31m+   \"items\": Array [],\u001b[39m\n\u001b[31m+   \"nextCursor\": null,\u001b[39m\n\u001b[31m+   \"profiles\": Array [],\u001b[39m\n\u001b[2m  }\u001b[22m\n\n  89 |  });\n  90 |  const empty={programs:[],kernels:[],available:{javascript:false,python:false,replay:false},resetNotice:'Reset clears variables. It does not undo files or prior remote effects. Previous cells are never replayed.'};\n> 91 |  for(const response of responses.slice(0,2)){expect(response.status).toBe(200);expect(response.body).toEqual(empty);}\n     |                                                                                                      ^\n  92 |  for(const response of responses.slice(2,7))expect(response.status).toBe(404);\n  93 |  for(const response of responses.slice(7))expect(response.status).toBe(405);\n  94 | });\n    at /workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/terminal-excerpts.spec.ts:91:102"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T11:58:40.440Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/dbebe44a9817/m12-v3/test-results/browser/run-1794743903245-f7d9d4e7-15ac-4766-9b74-34b36827cba2/terminal-excerpts/artifacts/terminal-excerpts-disabled-38658-n-thread-and-a-read-request/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/dbebe44a9817/m12-v3/test-results/browser/run-1794743903245-f7d9d4e7-15ac-4766-9b74-34b36827cba2/terminal-excerpts/artifacts/terminal-excerpts-disabled-38658-n-thread-and-a-read-request/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/dbebe44a9817/m12-v3/tests/e2e/terminal-excerpts.spec.ts",
+                    "column": 102,
+                    "line": 91
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "030681ec35141578588d-10aaef1e9903cbfc7346",
+          "file": "terminal-excerpts.spec.ts",
+          "line": 454,
+          "column": 1
+        },
+        {
+          "title": "expired host output is captured from the current xterm selection, without rereading old output",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1810,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T11:58:42.196Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "030681ec35141578588d-b5b669689db44a68549b",
+          "file": "terminal-excerpts.spec.ts",
+          "line": 515,
+          "column": 1
+        },
+        {
+          "title": "uncertain retry retains a newer A to B to A generation from another window after reload",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4897,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T11:58:44.075Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "030681ec35141578588d-279fcc78aa52afb33e9a",
+          "file": "terminal-excerpts.spec.ts",
+          "line": 546,
+          "column": 1
+        },
+        {
+          "title": "real scoped retry permits review, edit and removal without changing the frozen send",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3194,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T11:58:48.984Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "030681ec35141578588d-191ca7befdeb4d6ab0fc",
+          "file": "terminal-excerpts.spec.ts",
+          "line": 593,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-15T11:58:24.060Z",
+    "duration": 28232.454,
+    "expected": 7,
+    "skipped": 0,
+    "unexpected": 3,
+    "flaky": 0
+  }
+}

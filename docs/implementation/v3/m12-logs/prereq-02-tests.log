@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm@10.30.3",
+    "exec",
+    "vitest",
+    "run",
+    "tests/tool-program-prerequisites-v3.test.ts",
+    "--maxWorkers=2"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T10:22:01.113609+00:00",
+  "endedAt": "2026-11-15T10:22:02.340662+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+
+ Test Files  1 passed (1)
+      Tests  22 passed (22)
+   Start at  18:22:01
+   Duration  498ms (transform 152ms, setup 0ms, import 265ms, tests 114ms, environment 0ms)
+

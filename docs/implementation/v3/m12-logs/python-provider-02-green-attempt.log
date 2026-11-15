@@ -1,0 +1,72 @@
+{
+  "argv": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/python-program-integration-v3.test.ts",
+    "--maxWorkers=1"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T10:40:43.410975+00:00",
+  "endedAt": "2026-11-15T10:40:49.851709+00:00",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+ ❯ tests/python-program-integration-v3.test.ts (14 tests | 2 failed) 3995ms
+     × persists variables, keeps nested read payloads private, journals M02 deliveries, and resets without replaying files 545ms
+     × rechecks actual grants before every nested read and invalidates a failed persistent kernel 451ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/python-program-integration-v3.test.ts > M03 Python provider through actual Service and M02 integration > persists variables, keeps nested read payloads private, journals M02 deliveries, and resets without replaying files
+AssertionError: expected { …(8) } to match object { state: 'SUCCEEDED', …(3) }
+(8 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "aggregate": {
+-     "envAbsent": true,
+-     "total": 6,
+-   },
+    "generation": 1,
+-   "state": "SUCCEEDED",
++   "state": "FAILED",
+    "usage": {
+      "nestedCalls": 1,
+    },
+  }
+
+ ❯ tests/python-program-integration-v3.test.ts:140:19
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/python-program-integration-v3.test.ts > M03 Python provider through actual Service and M02 integration > rechecks actual grants before every nested read and invalidates a failed persistent kernel
+AssertionError: expected 'FAILED' to be 'SUCCEEDED' // Object.is equality
+
+Expected: "SUCCEEDED"
+Received: "FAILED"
+
+ ❯ tests/python-program-integration-v3.test.ts:173:25
+    171|     const source = "payload = tools.call('repository_read', {'resource…
+    172|     const first = await cell(f, 'granted', source, { allowedTools: ['r…
+    173|     expect(first.state).toBe('SUCCEEDED');
+       |                         ^
+    174|     f.store.internal('fixture.revoke', owner.threadId, () => f.store.r…
+    175|     const denied = await cell(f, 'revoked', source, { kernelId: first.…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 12 passed (14)
+   Start at  18:40:43
+   Duration  5.96s (transform 1.28s, setup 0ms, import 1.70s, tests 3.99s, environment 0ms)
+

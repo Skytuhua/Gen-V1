@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm@10.30.3",
+    "exec",
+    "vitest",
+    "run",
+    "tests/tool-program-recovery-v3.test.ts",
+    "tests/tool-program-replay-v3.test.ts",
+    "tests/tool-program-prerequisites-v3.test.ts",
+    "--maxWorkers=2"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T11:12:02.965613+00:00",
+  "endedAt": "2026-11-15T11:12:17.244908+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+
+ Test Files  3 passed (3)
+      Tests  71 passed (71)
+   Start at  19:12:03
+   Duration  13.55s (transform 1.15s, setup 0ms, import 1.80s, tests 19.41s, environment 0ms)
+

@@ -1,0 +1,69 @@
+{
+  "argv": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/python-program-integration-v3.test.ts",
+    "--maxWorkers=1",
+    "-t",
+    "expose protected host storage"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T10:50:28.052233+00:00",
+  "endedAt": "2026-11-15T10:50:31.655245+00:00",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+ ❯ tests/python-program-integration-v3.test.ts (16 tests | 1 failed | 15 skipped) 1280ms
+     × rejects working directories that expose protected host storage, its ancestors, descendants or aliases 27ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/python-program-integration-v3.test.ts > M03 Python provider through actual Service and M02 integration > rejects working directories that expose protected host storage, its ancestors, descendants or aliases
+AssertionError: promise resolved "{ identity: { …(6) }, …(1) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "factory": [Function factory],
++   "identity": {
++     "configurationDigest": "da31fb7c9db51b31dd86dc11f7a73fd244c2d4d9cfc5d14314cbe459a31373bb",
++     "cwdIdentity": "f1161219aa588ab310595e019f143973169bea5eb82e4f3c6df60b1d0f15e736",
++     "executionProfileDigest": "7bb0dc39f2e0330f856805aa85f53d3f31f04ea780eb3f5e790ee355ade610e0",
++     "interpreterDigest": "889c603f0d17cb54060951bcf4c4f9b8c9ebd9e52b392c70209bbb9755d797d9",
++     "owner": {
++       "accountBinding": "account",
++       "epoch": 1,
++       "projectId": "project",
++       "runId": "run",
++       "threadId": "thread",
++       "workspaceId": "workspace",
++     },
++     "toolRegistryDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
++   },
+  }
+
+ ❯ tests/python-program-integration-v3.test.ts:248:76
+    246|     for (const cwd of [f.store.dataDir, f.directory, descendant, alias…
+    247|       f.host.current.cwd = cwd; f.host.current.profile.readRoots = [cw…
+    248|       await expect(f.provider.configure(owner, digest([]), f.store.dat…
+       |                                                                            ^
+    249|     }
+    250|     expect(f.store.all('pythonKernel')).toEqual([]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 15 skipped (16)
+   Start at  18:50:28
+   Duration  3.22s (transform 1.32s, setup 0ms, import 1.69s, tests 1.28s, environment 0ms)
+

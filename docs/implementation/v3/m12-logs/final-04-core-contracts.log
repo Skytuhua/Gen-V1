@@ -1,0 +1,42 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/research-baseline.test.ts",
+    "tests/m01-m02-compatibility.test.ts",
+    "tests/tool-authority-v3.test.ts",
+    "tests/tool-effects-v3.test.ts",
+    "tests/effect-recovery-v3.test.ts",
+    "tests/execution-boundary-v3.test.ts",
+    "tests/project-trust-v3.test.ts",
+    "tests/secret-custody-v3.test.ts",
+    "tests/store.test.ts",
+    "tests/context-efficiency.test.ts",
+    "tests/tool-program-authority-v3.test.ts",
+    "tests/tool-program-prerequisites-v3.test.ts",
+    "tests/linux-bound-read-v3.test.ts",
+    "tests/linux-path-guard.test.ts",
+    "--maxWorkers=2"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T11:28:50.691983+00:00",
+  "endedAt": "2026-11-15T11:28:54.909338+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+fatal: Not a valid commit name bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+
+ Test Files  14 passed (14)
+      Tests  187 passed (187)
+   Start at  19:28:51
+   Duration  3.73s (transform 1.04s, setup 0ms, import 2.52s, tests 3.12s, environment 1ms)
+

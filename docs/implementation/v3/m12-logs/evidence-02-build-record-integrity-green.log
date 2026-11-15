@@ -1,0 +1,41 @@
+{
+  "argv": [
+    "python3",
+    "docs/implementation/v3/M12-build-evidence.py"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T12:18:59.056259+00:00",
+  "endedAt": "2026-11-15T12:18:59.230548+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+{
+  "phases": {
+    "CORE.source-and-toolchain": "PASS",
+    "CORE.dependency-contracts": "PASS",
+    "CORE.program-protocol": "PASS",
+    "CORE.python-generation": "PASS",
+    "INTEGRATION.javascript": "PASS",
+    "INTEGRATION.replay": "PASS",
+    "INTEGRATION.python": "PASS",
+    "INTEGRATION.host-and-native-transports": "PASS",
+    "INTEGRATION.public-source-packaging": "PASS",
+    "INTEGRATION.frontend": "PASS",
+    "INTEGRATION.browser-fixture-repair": "PASS",
+    "INTEGRATION.affected-browser-regression": "FAIL",
+    "INTEGRATION.fixed-aggregation-benchmark": "PASS",
+    "INTEGRATION.repository-regression": "FAIL",
+    "PLATFORM.linux-javascript": "PASS",
+    "PLATFORM.linux-python": "PASS",
+    "PLATFORM.unsupported-aggregate-bounds": "BLOCKED",
+    "PLATFORM.windows-and-installed-desktop": "BLOCKED",
+    "ACTIVATION.independent-review": "BLOCKED",
+    "CORE.evidence-integrity": "NOT_RUN",
+    "HISTORY.recorded-attempts": "PASS"
+  },
+  "commands": 185,
+  "changedFiles": 346,
+  "artifactCount": 80
+}

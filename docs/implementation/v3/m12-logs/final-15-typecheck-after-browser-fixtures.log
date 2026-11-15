@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "corepack",
+    "pnpm@10.30.3",
+    "typecheck"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T12:05:58.661106+00:00",
+  "endedAt": "2026-11-15T12:06:28.349550+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+> gen-v1@0.6.5 typecheck /workspace/scratch/dbebe44a9817/m12-v3
+> tsc --noEmit
+

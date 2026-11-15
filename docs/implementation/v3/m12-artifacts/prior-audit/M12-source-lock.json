@@ -1,0 +1,334 @@
+{
+  "schemaVersion": 3,
+  "auditAncestorSha": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
+  "executionBaseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+  "inspectedPaths": [
+    {
+      "path": "apps/server/research-routes.ts",
+      "blobSha": "b6cb67717cd94bab778b676a1bf80bb6d9f2a7d5"
+    },
+    {
+      "path": "docs/architecture.md",
+      "blobSha": "b1317bfadb1c6b3b2e7f3c6324890e55ff2f5b7c"
+    },
+    {
+      "path": "docs/implementation/v3/M01-verification.json",
+      "blobSha": "465bbb9d5d11adf0f7a1f2cf6c07dc8668e6491d"
+    },
+    {
+      "path": "docs/implementation/v3/M02-source-lock.json",
+      "blobSha": "06c57a31c62de55e47f08cc4fe19ea63edec8ec9"
+    },
+    {
+      "path": "docs/implementation/v3/M02-verification.json",
+      "blobSha": "41f7fc679f4e9bcbc48ac089e179cec34bb8fe8b"
+    },
+    {
+      "path": "docs/implementation/v3/M03-verification.json",
+      "blobSha": "7d1b03aab4ac556af608dbc886a15fb129181358"
+    },
+    {
+      "path": "package.json",
+      "blobSha": "fa399f6542a4886e6d8cbf7d6eecfe498e2967c0"
+    },
+    {
+      "path": "packages/capabilities/index.ts",
+      "blobSha": "fc370fd43944656b9efaf78a10ead1f46f1a1018"
+    },
+    {
+      "path": "packages/capabilities/process.ts",
+      "blobSha": "3ea847caa05ef6c0c8d2fc5ff258d8e676cfcbe0"
+    },
+    {
+      "path": "packages/contracts/execution-profile.ts",
+      "blobSha": "031a20ee2c4d0fa88e707441644225505e0358e4"
+    },
+    {
+      "path": "packages/contracts/implementation-evidence.ts",
+      "blobSha": "559b720ccead1d29c9a1bd4db528af52534105c3"
+    },
+    {
+      "path": "packages/contracts/index.ts",
+      "blobSha": "09517becaf0c35f5f63bd758878659ea0de5f57b"
+    },
+    {
+      "path": "packages/contracts/preferences.ts",
+      "blobSha": "5cd7a562f3e331c06ffc82454f06075013080131"
+    },
+    {
+      "path": "packages/contracts/research.ts",
+      "blobSha": "341639f798dde03cadd0731e2ed77c8e32943c25"
+    },
+    {
+      "path": "packages/contracts/tool-effects.ts",
+      "blobSha": "41b6fff1364825122c33761c0bfaac66da03bca0"
+    },
+    {
+      "path": "packages/core/capability-flags.ts",
+      "blobSha": "39e18abb43f7fa63cb2534ea3356ebb1be121161"
+    },
+    {
+      "path": "packages/core/discovery.ts",
+      "blobSha": "ace7f11aa8fb066608f9b70e6c7bd54a7fc0e3f7"
+    },
+    {
+      "path": "packages/core/execution-policy.ts",
+      "blobSha": "2dad179e75a47be477d0e7871cda2660ea39b2f7"
+    },
+    {
+      "path": "packages/core/file-access.ts",
+      "blobSha": "d4e0a59c6f2418a869cc1aac18f0dad42036c412"
+    },
+    {
+      "path": "packages/core/host-flags.ts",
+      "blobSha": "bc42845181317c61018f2725ee1d62f9dd625cac"
+    },
+    {
+      "path": "packages/core/linux-path-guard.py",
+      "blobSha": "713b351bf44002e46e07fb29436226a4a2ec258d"
+    },
+    {
+      "path": "packages/core/linux-path-guard.ts",
+      "blobSha": "13322b69419c9ab1bcc7d6850109b7cd82770686"
+    },
+    {
+      "path": "packages/core/security.ts",
+      "blobSha": "693f251361bc464caee26df795c57002d120c9a7"
+    },
+    {
+      "path": "packages/core/service.ts",
+      "blobSha": "2b3fb63acef915b052a468e104c6e4f00a4b82e4"
+    },
+    {
+      "path": "packages/core/task-inspection.ts",
+      "blobSha": "a61a31d23a1d38b58d365d34bb9f79187d61493e"
+    },
+    {
+      "path": "packages/core/tool-authority.ts",
+      "blobSha": "1d654522d9842838276d162a33dac6141f731c26"
+    },
+    {
+      "path": "packages/core/tool-effects.ts",
+      "blobSha": "aa65f1d9b52d6a117b716a38feb8dd6c6d46b13a"
+    },
+    {
+      "path": "packages/core/ui-admission.ts",
+      "blobSha": "50a4006f6bd3056ebe7af75b7f40ea595a1f7920"
+    },
+    {
+      "path": "packages/research/repository.ts",
+      "blobSha": "c285e97b8acecbf46862c54163e8b038ec301092"
+    },
+    {
+      "path": "packages/runtime-hermes/client.ts",
+      "blobSha": "c83ab13d1347c592df98ddf258788415bb971873"
+    },
+    {
+      "path": "packages/runtime-hermes/worker.py",
+      "blobSha": "e28c6272f9aab28f76b9462a87768fe4226361c1"
+    },
+    {
+      "path": "packages/runtime-official/index.ts",
+      "blobSha": "b8e4b1a5892d60525e51ac86ae28b54c68c16ac0"
+    },
+    {
+      "path": "packages/runtime-official/mcp.ts",
+      "blobSha": "791ebf88c58765f9e4625bde6b727019c1b33337"
+    },
+    {
+      "path": "packages/runtime-pi/ipc.ts",
+      "blobSha": "96c46272df81afe0bc828ce277bc17420688d62c"
+    },
+    {
+      "path": "packages/runtime-pi/process-tree.ts",
+      "blobSha": "fb903470a172be1e1995557caa888b4f065e7270"
+    },
+    {
+      "path": "packages/runtime-pi/tool-definitions.ts",
+      "blobSha": "2731bc9797fd40dd010a04099171452c0f993ebc"
+    },
+    {
+      "path": "packages/runtime-pi/worker.ts",
+      "blobSha": "36bc8abb120c9e228635ba427544919c96ead4e9"
+    },
+    {
+      "path": "packages/storage/store.ts",
+      "blobSha": "ebab3cba8d56e074d0377623bffd2054790f622b"
+    },
+    {
+      "path": "packages/workspace/action-outcomes.ts",
+      "blobSha": "f1548dd8357a90125454dd17dbf36aab0de0bba6"
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "blobSha": "e6b064fc166611e518f4cf1297d9b00493d9eaaf"
+    },
+    {
+      "path": "pnpm-workspace.yaml",
+      "blobSha": "35b5ea4a631be874735c19a4d8c8eead3f13e524"
+    },
+    {
+      "path": "scripts/browser-suites.ts",
+      "blobSha": "04d387152c17aad4eb3b6fbdd9f410178a51a5eb"
+    },
+    {
+      "path": "scripts/build-windows-credential-lease.ts",
+      "blobSha": "0fd7da812762aa280d4ca7ec14647eaca22ad603"
+    },
+    {
+      "path": "scripts/research-baseline.ts",
+      "blobSha": "52c93dd316f69a601da41116723044a21d54b26c"
+    },
+    {
+      "path": "scripts/test-browser.ts",
+      "blobSha": "311a6c612e72fb3e444fff365698318e3b2f81a6"
+    },
+    {
+      "path": "tests/context-efficiency.test.ts",
+      "blobSha": "9995dbdccc039e117e2b68d2be5105f0ec530a40"
+    },
+    {
+      "path": "tests/effect-recovery-v3.test.ts",
+      "blobSha": "991b54d4c96820a382a28c4fc625719b3a6a79b8"
+    },
+    {
+      "path": "tests/execution-boundary-v3.test.ts",
+      "blobSha": "ab1545c878c2bc90bd66ff09d7820d4bb0d9ef8f"
+    },
+    {
+      "path": "tests/linux-path-guard.test.ts",
+      "blobSha": "c68a21a8c4d9a98b11aa3427162e91bda23c5ed6"
+    },
+    {
+      "path": "tests/m01-m02-compatibility.test.ts",
+      "blobSha": "044b8b51fc0086ddfec6c47616e186c816cdad26"
+    },
+    {
+      "path": "tests/official-runtime-mcp.test.ts",
+      "blobSha": "1a5bfbde263fd15ff575a57c09aa3faa9367af05"
+    },
+    {
+      "path": "tests/project-trust-v3.test.ts",
+      "blobSha": "ca55f54ff9454c5aa3fa230b3d38e90fad03704b"
+    },
+    {
+      "path": "tests/research-artifacts.test.ts",
+      "blobSha": "f15a26ae3d9fe8d53593193dbadbf922e60d4f8b"
+    },
+    {
+      "path": "tests/research-baseline.test.ts",
+      "blobSha": "a44a20573b4feee888f4709011658a6d50635893"
+    },
+    {
+      "path": "tests/runtime-pi.test.ts",
+      "blobSha": "e5d86f8866870eedf50b461094494970d57dd850"
+    },
+    {
+      "path": "tests/secret-custody-v3.test.ts",
+      "blobSha": "e43a8aeca0c929e0a317e9b106bc2c90cdbfb124"
+    },
+    {
+      "path": "tests/store.test.ts",
+      "blobSha": "bb8dca6f2f4d209d9bb2d2412cbf87e56a5cf777"
+    },
+    {
+      "path": "tests/tool-authority-v3.test.ts",
+      "blobSha": "9d7a4af5fda8f4f316ce7fac652e951fb5a14a05"
+    },
+    {
+      "path": "tests/tool-effects-v3.test.ts",
+      "blobSha": "8d4ac426134d7e9f77a1d9dcfe9d00d7c5897b35"
+    },
+    {
+      "path": "tests/workspace-action-outcomes.test.ts",
+      "blobSha": "a899897499603cd355e5ab7c7cc2c9ab714a8fcb"
+    },
+    {
+      "path": "third-party/hermes-agent/upstream/tools/tool_result_storage.py",
+      "blobSha": "39407dc51af60cd8dabe42c0fe4eceb6f4c3ed05"
+    },
+    {
+      "path": "tsconfig.json",
+      "blobSha": "da1b352fcdf682e051bf0c53e5fe7050584c1515"
+    },
+    {
+      "path": "vitest.config.ts",
+      "blobSha": "d6efe75f6d0a1c0a2d4cd325ea5cf54ea5c0f0cb"
+    }
+  ],
+  "publicContracts": [
+    {
+      "name": "M01.ImplementationEvidenceV3",
+      "version": "559b720ccead1d29c9a1bd4db528af52534105c3",
+      "testIds": [
+        "tests/research-baseline.test.ts",
+        "tests/m01-m02-compatibility.test.ts"
+      ]
+    },
+    {
+      "name": "M01.CapabilityFlags",
+      "version": "39e18abb43f7fa63cb2534ea3356ebb1be121161",
+      "testIds": [
+        "tests/tool-authority-v3.test.ts",
+        "tests/m01-m02-compatibility.test.ts"
+      ]
+    },
+    {
+      "name": "M01.StoreCommand",
+      "version": "ebab3cba8d56e074d0377623bffd2054790f622b",
+      "testIds": [
+        "tests/store.test.ts"
+      ]
+    },
+    {
+      "name": "M02.ToolEffectV1",
+      "version": "41b6fff1364825122c33761c0bfaac66da03bca0",
+      "testIds": [
+        "tests/tool-effects-v3.test.ts",
+        "tests/effect-recovery-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M02.ToolAuthority",
+      "version": "1d654522d9842838276d162a33dac6141f731c26",
+      "testIds": [
+        "tests/tool-authority-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M02.ToolEffectLedger",
+      "version": "aa65f1d9b52d6a117b716a38feb8dd6c6d46b13a",
+      "testIds": [
+        "tests/tool-effects-v3.test.ts",
+        "tests/effect-recovery-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M03.ExecutionProfileV1",
+      "version": "031a20ee2c4d0fa88e707441644225505e0358e4",
+      "testIds": [
+        "tests/execution-boundary-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M03.ExecutionDecision",
+      "version": "2dad179e75a47be477d0e7871cda2660ea39b2f7",
+      "testIds": [
+        "tests/execution-boundary-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M03.HostFlags",
+      "version": "bc42845181317c61018f2725ee1d62f9dd625cac",
+      "testIds": [
+        "tests/secret-custody-v3.test.ts"
+      ]
+    }
+  ],
+  "acceptedDependencyCommits": [
+    "5f0958f4cb5b40bc10c1eea0e1cd517b57aaa1b9",
+    "e871257aa82beb06ab4b8f3989cbe436cb9a6a8c",
+    "f33a20a1b35ed346c4b44df4b0c0eba06c7c0d7a"
+  ],
+  "approvedDrift": []
+}

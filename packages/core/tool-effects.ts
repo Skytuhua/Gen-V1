@@ -15,6 +15,9 @@ import { digest, type Store } from "../storage/store.ts";
 
 const now = () => new Date().toISOString();
 export const APPROVAL_TTL_MS = 15 * 60_000;
+export const toolDefinitionCommitment = (definition: RegistryEntry): string => digest(definition);
+const sameOwner = (left: ToolOwner, right: ToolOwner): boolean => digest(left) === digest(right);
+
 const CONTROL_KEYS = new Set(["commandId", "invocationId"]);
 const SECRET_KEY = /secret|token|password|credential|api[_-]?key/i;
 const TRANSITION_CAP = 200;
@@ -122,6 +125,7 @@ export class ToolEffectLedger {
     definition: RegistryEntry;
     approvalId?: string | null;
     parentInvocationId?: string | null;
+    privateArguments?: boolean;
     targetPreconditions?: string[];
     extraPut?: () => void;
   }): ToolEffectRecord {
@@ -133,7 +137,7 @@ export class ToolEffectLedger {
       fault("admission");
       const prior = this.get(invocationId);
       if (prior) {
-        if (prior.owner.threadId === owner.threadId && prior.owner.runId === owner.runId && prior.owner.epoch === owner.epoch && prior.privateArgumentCommitment === commitment) {
+        if (sameOwner(prior.owner, owner) && prior.privateArgumentCommitment === commitment && prior.definitionDigest === toolDefinitionCommitment(definition) && prior.parentInvocationId === (input.parentInvocationId ?? null)) {
           effect = prior;
           return { effectId: prior.effectId, invocationId, state: prior.state, reused: true };
         }
@@ -147,9 +151,9 @@ export class ToolEffectLedger {
         parentInvocationId: input.parentInvocationId ?? null,
         owner,
         toolId: definition.id,
-        definitionDigest: definition.schemaDigest,
+        definitionDigest: toolDefinitionCommitment(definition),
         privateArgumentCommitment: commitment,
-        publicRedactedSummary: publicRedactedSummary(call),
+        publicRedactedSummary: input.privateArguments ? call.name + " (private program arguments)" : publicRedactedSummary(call),
         targetPreconditions: input.targetPreconditions ?? [],
         approvalId: input.approvalId ?? null,
         state: "PREPARED" satisfies EffectState,
@@ -253,7 +257,7 @@ export class ToolEffectLedger {
   /** Gate + admit + dispatch + settle one host tool call. ctx may omit runId/
    * epoch to bind the invocation to the thread's current owner (e.g. learning
    * jobs that outlive the run they review). */
-  async invoke(input: { call: ToolCall; ctx: { threadId: string; runId?: string | null; epoch?: number | null }; thread: Thread; role: ActorRole }, executor: () => Promise<unknown>): Promise<unknown> {
+  async invoke(input: { call: ToolCall; ctx: { threadId: string; runId?: string | null; epoch?: number | null }; thread: Thread; role: ActorRole; parentInvocationId?: string; privateArguments?: boolean }, executor: () => Promise<unknown>): Promise<unknown> {
     const { call, ctx, thread, role } = input;
     const definition = this.authority.require(call.name);
     const owner = ownerFor(thread, ctx);
@@ -267,7 +271,10 @@ export class ToolEffectLedger {
     const invocationId = String(call.args.commandId ?? call.args.invocationId ?? "");
     const prior = invocationId ? this.get(invocationId) : undefined;
     if (prior) {
-      if (prior.owner.threadId === owner.threadId && prior.owner.runId === owner.runId && prior.owner.epoch === owner.epoch && prior.privateArgumentCommitment === privateArgumentCommitment(call)) {
+      if (sameOwner(prior.owner, owner) && prior.privateArgumentCommitment === privateArgumentCommitment(call) && prior.definitionDigest === toolDefinitionCommitment(definition) && prior.parentInvocationId === (input.parentInvocationId ?? null)) {
+        // A receipt is evidence, never a substitute for current authority. Do not
+        // overwrite a settled receipt when a later caller has lost permission.
+        if (decision.kind !== "ALLOW") throw new HarnessError(decision.kind === "DENY" ? "AUTHORITY_DENIED" : "APPROVAL_REQUIRED", "Current authority does not permit receipt reuse");
         if (prior.state === "SUCCEEDED") return prior.outcome?.value;
         if (prior.state === "FAILED" || prior.state === "DENIED" || prior.state === "CANCELLED")
           throw new HarnessError("EFFECT_" + prior.state, prior.outcome?.error ?? "This invocation already settled: " + prior.state);
@@ -285,7 +292,7 @@ export class ToolEffectLedger {
       const effect = this.recordTerminal(call, owner, definition, "PREPARED", decision.reason);
       throw new HarnessError("APPROVAL_REQUIRED", "This effect requires explicit user approval before dispatch", { effectId: effect.effectId });
     }
-    const effect = this.admit({ call, owner, definition });
+    const effect = this.admit({ call, owner, definition, parentInvocationId: input.parentInvocationId, privateArguments: input.privateArguments });
     if (effect.state !== "DISPATCHED") {
       // Coalesced duplicate admitted in a racing call.
       return this.settledOutcome(effect);
@@ -297,7 +304,7 @@ export class ToolEffectLedger {
       return value;
     } catch (error) {
       const unknown = error instanceof HarnessError && error.code === "OPERATION_OUTCOME_UNKNOWN";
-      this.settle(effect.invocationId, { error: error instanceof Error ? error.message : String(error) }, unknown ? "UNKNOWN_EXTERNAL_OUTCOME" : "FAILED");
+      this.settle(effect.invocationId, { error: input.privateArguments ? "Private nested tool failed; inspect the program result reference" : error instanceof Error ? error.message : String(error) }, unknown ? "UNKNOWN_EXTERNAL_OUTCOME" : "FAILED");
       throw error;
     }
   }
@@ -320,7 +327,7 @@ export class ToolEffectLedger {
         parentInvocationId: null,
         owner,
         toolId: definition.id,
-        definitionDigest: definition.schemaDigest,
+        definitionDigest: toolDefinitionCommitment(definition),
         privateArgumentCommitment: privateArgumentCommitment(call),
         publicRedactedSummary: publicRedactedSummary(call),
         targetPreconditions: [],

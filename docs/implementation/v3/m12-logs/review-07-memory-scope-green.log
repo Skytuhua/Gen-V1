@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/tool-program-backend-v3.test.ts",
+    "tests/tool-program-v3.test.ts",
+    "--maxWorkers=1"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T11:00:00.731426+00:00",
+  "endedAt": "2026-11-15T11:00:04.675535+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 /workspace/scratch/dbebe44a9817/m12-v3
+
+
+ Test Files  2 passed (2)
+      Tests  31 passed (31)
+   Start at  19:00:01
+   Duration  2.65s (transform 240ms, setup 0ms, import 371ms, tests 1.58s, environment 0ms)
+

@@ -1,0 +1,36 @@
+{
+  "argv": [
+    "node",
+    "--import",
+    "tsx",
+    "/tmp/m12-python-probes/capture-runtime.ts"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T10:32:23.812066+00:00",
+  "endedAt": "2026-11-15T10:32:24.031114+00:00",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+Error: Transform failed with 2 errors:
+/tmp/m12-python-probes/capture-runtime.ts:5:16: ERROR: Top-level await is currently not supported with the "cjs" output format
+/tmp/m12-python-probes/capture-runtime.ts:27:0: ERROR: Top-level await is currently not supported with the "cjs" output format
+    at failureErrorWithLog (/workspace/scratch/dbebe44a9817/m12-v3/node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:1467:15)
+    at /workspace/scratch/dbebe44a9817/m12-v3/node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:736:50
+    at responseCallbacks.<computed> (/workspace/scratch/dbebe44a9817/m12-v3/node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:603:9)
+    at handleIncomingPacket (/workspace/scratch/dbebe44a9817/m12-v3/node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:658:12)
+    at Socket.readFromStdout (/workspace/scratch/dbebe44a9817/m12-v3/node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:581:7)
+    at Socket.emit (node:events:514:28)
+    at addChunk (node:internal/streams/readable:569:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:520:3)
+    at Readable.push (node:internal/streams/readable:400:5)
+    at Pipe.onStreamRead (node:internal/stream_base_commons:194:23) {
+  name: 'TransformError'
+}
+
+Node.js v24.22.1
