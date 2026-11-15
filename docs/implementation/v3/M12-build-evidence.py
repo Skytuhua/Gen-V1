@@ -160,15 +160,19 @@ phase('PLATFORM.windows-and-installed-desktop',[],[
  ('windows-native','NOT_RUN on actual Windows. Linux tests and mocks do not establish Windows process or filesystem confinement.'),
  ('installed-desktop','NOT_RUN on an actual installed desktop distribution. Source/runtime tests are not packaged-platform proof.'),
  ('configured-browser-channels','Some baseline suites require installed Chrome or Edge channels unavailable on this target. No substitute browser is relabeled as those platforms.')],forced='BLOCKED')
+phase('INTEGRATION.current-main-source-compatibility',['source-02-current-main-merge-preview','source-03-current-main-audit'],[
+ ('accepted-source-cut-preserved','The accepted fcaa52f7fcdc9f39420118a79f9a8250ba83c563 cut and reviewed M12 product bytes remain unchanged. The audit checks exact immutable upstream and candidate blobs; its success is evidence custody, not combined integration acceptance.',['source-03-current-main-audit']),
+ ('advanced-main-dispatch-contract','BLOCKED_SOURCE_DRIFT: main 5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42 adds request-context preparation, one-input custody and asynchronous finalization before runtime dispatch, plus M09 lifecycle obligations. No combined integration was implemented or tested; the old cut is not acceptance of this changed API.'),
+ ('advanced-main-conflicts','The worktree/ref-preserving merge-tree diagnostic reports conflicts in the shared StartRun contract, Service, finite capability registry and public-source manifest. It writes unreferenced Git objects; its actual exit 1 is retained. No branch merge, rebase or replacement of either integration was performed.')],['current-main-source-drift.json','current-main-source-drift.md','current-main-source-drift-check.py','current-main-source-drift-review.json','current-main-source-drift-review.md'],forced='BLOCKED')
 phase('ACTIVATION.independent-review',[],[
  ('production-approval','Production activation has no independent operator/reviewer approval. All three flags default false, and agents/plugins/UI cannot enable them.'),
  ('upstream-prerequisites','Full reviewed M04/M10 prerequisite milestones were absent on the accepted upstream base; local required subsets and exact blobs are documented, not mislabeled as accepted upstream milestones.'),
  ('live-evaluation','No --host or --model was authorized and no live endpoint was guessed. Fixed offline controller benchmark is not live model task-quality proof.')],['independent-review-final.md','independent-review-final.json'],forced='BLOCKED')
 
-phase('CORE.evidence-integrity',['evidence-02-build-record-integrity-green','evidence-04-source-inventory-green','final-14-evidence-validation'],[
+phase('CORE.evidence-integrity',['evidence-02-build-record-integrity-green','evidence-04-source-inventory-green','final-14-evidence-validation','final-18-evidence-after-source-drift'],[
  ('historical-command-custody','Three exact stale temporary digest records are reconciled only against preserved committed audit bytes and complete identical execution metadata. Both versions and the one-LF relationship remain retained; unexplained collisions reject.',['evidence-02-build-record-integrity-green']),
  ('reject-unreviewed-source-additions','An actual reversible probe adds a new source file and updates the canonical inventory. The controller must still reject it because the independent reviewed source cut did not include that file.',['evidence-04-source-inventory-green']),
- ('exact-artifact-and-source-custody','Controller validates strict schema, actual command headers and digests, original checkout, exact current source and review binding, finite default-off flags and complete changed-file inventory.',['final-14-evidence-validation']),
+ ('exact-artifact-and-source-custody','Controller validates strict schema, actual command headers and digests, original checkout, exact current source and review binding, finite default-off flags and complete changed-file inventory. The later documentation-only source-drift addendum receives a fresh recorded controller check.',['final-18-evidence-after-source-drift']),
  ('actual-benchmark-launch','Benchmark source hashes and artifact digest must match a selected completed actual command, whose interval contains the measurement. The standalone recipe is separately labelled and is never execution proof.',['final-14-evidence-validation'])],['artifact-integrity.json','independent-review-final.json','benchmark-execution-link.json','command-record-reconciliation.json','source-inventory-negative-probe.mts'])
 
 historical=[record for name,record in sorted(records.items()) if name not in used]
@@ -176,6 +180,7 @@ phases.append({'id':'HISTORY.recorded-attempts','status':'PASS','requiredCases':
 
 remaining=[
  'All three M12 flags remain false. Production admission requires independent review and explicit tested backend/operator configuration.',
+ 'BLOCKED_SOURCE_DRIFT against newly advanced main 5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42. Evidence remains bound to accepted fcaa52f7fcdc9f39420118a79f9a8250ba83c563. Changed request-custody/admission/dispatch APIs and four merge conflicts require explicit reviewed composition and current combined tests; the draft PR is not merge-ready.',
  'The full required repository regression gates must pass; every observed failing command remains FAIL even when reproduced on the accepted base.',
  'Full M04/M10 milestone acceptance on an approved upstream base remains distinct from the locally implemented, tested prerequisite subsets.',
  'Actual Windows and installed-desktop proof is unavailable on this Linux target. These platforms remain unsupported for activation.',

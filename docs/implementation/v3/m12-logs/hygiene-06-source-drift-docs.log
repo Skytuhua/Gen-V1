@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "git",
+    "diff",
+    "--cached",
+    "--check",
+    "--",
+    "docs/implementation/v3",
+    ":!docs/implementation/v3/m12-logs"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T13:01:13.494308+00:00",
+  "endedAt": "2026-11-15T13:01:13.499214+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+

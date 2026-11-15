@@ -109,13 +109,38 @@
     },
     {
       "path": "docs/implementation/v3/m12-artifacts/command-records.json",
-      "bytes": 143616,
-      "sha256": "d94a9f1d73715bdda494e14fcce1f26283d06119eaeece63a00081c271871073"
+      "bytes": 146360,
+      "sha256": "bbe3fb3ff8ad41e95e07f9e0c5d96d7050aeba2e5093959b4e7a97863c8470c5"
     },
     {
       "path": "docs/implementation/v3/m12-artifacts/compare-unit-reports.py",
       "bytes": 14179,
       "sha256": "6f2552f125d89d2719a640802048fea16f4bb84642ca404ebc68ab4293c7353c"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/current-main-source-drift-check.py",
+      "bytes": 4931,
+      "sha256": "15d533451a65297de3b3894093245d7e4caf605f7832d0b02d16e1e5b01dbe39"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/current-main-source-drift-review.json",
+      "bytes": 21256,
+      "sha256": "32151344c3ff11a6b3619ef5aa173829bea8597470a6f0b3de24d7f0dca9601d"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/current-main-source-drift-review.md",
+      "bytes": 10108,
+      "sha256": "4f059accf7e2757ec2a8140e4b5fcdba6b260b6beefeb4739e9b4fec1439b02f"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/current-main-source-drift.json",
+      "bytes": 26954,
+      "sha256": "8a71d35378e0f303726abd029d0a4f8f4dd132357e958e0599da05fad6966ebb"
+    },
+    {
+      "path": "docs/implementation/v3/m12-artifacts/current-main-source-drift.md",
+      "bytes": 12132,
+      "sha256": "b4c777e101e6f4a433e09ee784aee00f28e54c3018b45191a2be4ebd4f037148"
     },
     {
       "path": "docs/implementation/v3/m12-artifacts/independent-review-benchmark-final-snapshot.json",

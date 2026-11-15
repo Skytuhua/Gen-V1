@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "python3",
+    "docs/implementation/v3/m12-artifacts/current-main-source-drift-check.py"
+  ],
+  "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "startedAt": "2026-11-15T12:57:00.108979+00:00",
+  "endedAt": "2026-11-15T12:57:00.464343+00:00",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+{
+  "auditCustody": "PASS",
+  "integrationDisposition": "BLOCKED_SOURCE_DRIFT",
+  "verifiedRevisionPathPairs": 54,
+  "unchangedReviewedSourceEntries": 123,
+  "actualMergePreviewExit": 1,
+  "conflictingPaths": [
+    "packages/contracts/index.ts",
+    "packages/core/capability-flags.ts",
+    "packages/core/service.ts",
+    "scripts/public-source-files.json"
+  ],
+  "combinedIntegrationExecuted": false,
+  "productionActivationAuthorized": false,
+  "artifactSha256": "8a71d35378e0f303726abd029d0a4f8f4dd132357e958e0599da05fad6966ebb"
+}

@@ -1086,6 +1086,71 @@
       "artifactRefs": []
     },
     {
+      "id": "INTEGRATION.current-main-source-compatibility",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "accepted-source-cut-preserved",
+          "status": "PASS",
+          "evidence": "The accepted fcaa52f7fcdc9f39420118a79f9a8250ba83c563 cut and reviewed M12 product bytes remain unchanged. The audit checks exact immutable upstream and candidate blobs; its success is evidence custody, not combined integration acceptance."
+        },
+        {
+          "id": "advanced-main-dispatch-contract",
+          "status": "NOT_RUN",
+          "evidence": "BLOCKED_SOURCE_DRIFT: main 5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42 adds request-context preparation, one-input custody and asynchronous finalization before runtime dispatch, plus M09 lifecycle obligations. No combined integration was implemented or tested; the old cut is not acceptance of this changed API."
+        },
+        {
+          "id": "advanced-main-conflicts",
+          "status": "NOT_RUN",
+          "evidence": "The worktree/ref-preserving merge-tree diagnostic reports conflicts in the shared StartRun contract, Service, finite capability registry and public-source manifest. It writes unreferenced Git objects; its actual exit 1 is retained. No branch merge, rebase or replacement of either integration was performed."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "git",
+            "merge-tree",
+            "--write-tree",
+            "--name-only",
+            "--messages",
+            "d55433f2231597d0efe7515b187e237e11b7ac95",
+            "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42"
+          ],
+          "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
+          "executableIdentity": "/usr/local/bin/git",
+          "startedAt": "2026-11-15T12:53:34.415133+00:00",
+          "endedAt": "2026-11-15T12:53:34.425631+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m12-logs/source-02-current-main-merge-preview.log",
+          "logDigest": "689570899c3ad51934aa1ff9203c8b003790a4e2c978d52592a66879a06309b1"
+        },
+        {
+          "argv": [
+            "python3",
+            "docs/implementation/v3/m12-artifacts/current-main-source-drift-check.py"
+          ],
+          "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+          "startedAt": "2026-11-15T12:57:00.108979+00:00",
+          "endedAt": "2026-11-15T12:57:00.464343+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m12-logs/source-03-current-main-audit.log",
+          "logDigest": "83e9afdaec65db26575f67f72d84a61de1d72c2dc4d42c720aeb926e6484b889"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v3/m12-artifacts/current-main-source-drift.json",
+        "docs/implementation/v3/m12-artifacts/current-main-source-drift.md",
+        "docs/implementation/v3/m12-artifacts/current-main-source-drift-check.py",
+        "docs/implementation/v3/m12-artifacts/current-main-source-drift-review.json",
+        "docs/implementation/v3/m12-artifacts/current-main-source-drift-review.md"
+      ]
+    },
+    {
       "id": "ACTIVATION.independent-review",
       "status": "BLOCKED",
       "requiredCases": [
@@ -1128,7 +1193,7 @@
         {
           "id": "exact-artifact-and-source-custody",
           "status": "PASS",
-          "evidence": "Controller validates strict schema, actual command headers and digests, original checkout, exact current source and review binding, finite default-off flags and complete changed-file inventory."
+          "evidence": "Controller validates strict schema, actual command headers and digests, original checkout, exact current source and review binding, finite default-off flags and complete changed-file inventory. The later documentation-only source-drift addendum receives a fresh recorded controller check."
         },
         {
           "id": "actual-benchmark-launch",
@@ -1189,6 +1254,23 @@
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m12-logs/final-14-evidence-validation.log",
           "logDigest": "a9d7373e380dbc0faa162b55cb961127705ed03f5b668369afe13b5cf318806f"
+        },
+        {
+          "argv": [
+            "node",
+            "--import",
+            "tsx",
+            "docs/implementation/v3/M12-verify-evidence.mts"
+          ],
+          "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
+          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+          "startedAt": "2026-11-15T13:01:11.068060+00:00",
+          "endedAt": "2026-11-15T13:01:12.233152+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m12-logs/final-18-evidence-after-source-drift.log",
+          "logDigest": "4384f706d53682489b2e9e6d46982555d734efc84bc9ff77908c22f0cae486f1"
         }
       ],
       "artifactRefs": [
@@ -2291,6 +2373,26 @@
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m12-logs/hygiene-05-source-and-doc-whitespace.log",
           "logDigest": "942d11e93aef535cfff85d1c94d0ae2187946a35a0e9abdf5bf7e43f18e9c5ae"
+        },
+        {
+          "argv": [
+            "git",
+            "diff",
+            "--cached",
+            "--check",
+            "--",
+            "docs/implementation/v3",
+            ":!docs/implementation/v3/m12-logs"
+          ],
+          "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
+          "executableIdentity": "/usr/local/bin/git",
+          "startedAt": "2026-11-15T13:01:13.494308+00:00",
+          "endedAt": "2026-11-15T13:01:13.499214+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m12-logs/hygiene-06-source-drift-docs.log",
+          "logDigest": "90eed675d3f7fb2cc95110df1f9cba5700c4d8402d58e86012b3009ca969acd2"
         },
         {
           "argv": [
@@ -4455,6 +4557,11 @@
     "docs/implementation/v3/m12-artifacts/command-recorder.py",
     "docs/implementation/v3/m12-artifacts/command-records.json",
     "docs/implementation/v3/m12-artifacts/compare-unit-reports.py",
+    "docs/implementation/v3/m12-artifacts/current-main-source-drift-check.py",
+    "docs/implementation/v3/m12-artifacts/current-main-source-drift-review.json",
+    "docs/implementation/v3/m12-artifacts/current-main-source-drift-review.md",
+    "docs/implementation/v3/m12-artifacts/current-main-source-drift.json",
+    "docs/implementation/v3/m12-artifacts/current-main-source-drift.md",
     "docs/implementation/v3/m12-artifacts/independent-review-benchmark-final-snapshot.json",
     "docs/implementation/v3/m12-artifacts/independent-review-benchmark-post-ir14-link.json",
     "docs/implementation/v3/m12-artifacts/independent-review-benchmark-post-ir14-snapshot.json",
@@ -4578,6 +4685,7 @@
     "docs/implementation/v3/m12-logs/final-15-typecheck-after-browser-fixtures.log",
     "docs/implementation/v3/m12-logs/final-16-benchmark-after-browser-fixtures.log",
     "docs/implementation/v3/m12-logs/final-17-benchmark-provenance-after-browser-fixtures.log",
+    "docs/implementation/v3/m12-logs/final-18-evidence-after-source-drift.log",
     "docs/implementation/v3/m12-logs/fixture-01-terminal-program-response-red.log",
     "docs/implementation/v3/m12-logs/fixture-02-terminal-program-response-green.log",
     "docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log",
@@ -4590,6 +4698,7 @@
     "docs/implementation/v3/m12-logs/hygiene-03-staged-source-whitespace.log",
     "docs/implementation/v3/m12-logs/hygiene-04-retained-log-whitespace.log",
     "docs/implementation/v3/m12-logs/hygiene-05-source-and-doc-whitespace.log",
+    "docs/implementation/v3/m12-logs/hygiene-06-source-drift-docs.log",
     "docs/implementation/v3/m12-logs/implementation-01-typecheck.log",
     "docs/implementation/v3/m12-logs/independent-review-01-deadline.log",
     "docs/implementation/v3/m12-logs/independent-review-02-input-amplification.log",
@@ -4691,6 +4800,8 @@
     "docs/implementation/v3/m12-logs/setup-03-native-pty.log",
     "docs/implementation/v3/m12-logs/setup-04-test-launch-red.log",
     "docs/implementation/v3/m12-logs/source-01-custody.log",
+    "docs/implementation/v3/m12-logs/source-02-current-main-merge-preview.log",
+    "docs/implementation/v3/m12-logs/source-03-current-main-audit.log",
     "docs/implementation/v3/m12-logs/transport-01-red.log",
     "docs/implementation/v3/m12-logs/transport-02-hermes-red.log",
     "docs/implementation/v3/m12-logs/transport-03-green.log",
@@ -4906,6 +5017,7 @@
   ],
   "remainingGates": [
     "All three M12 flags remain false. Production admission requires independent review and explicit tested backend/operator configuration.",
+    "BLOCKED_SOURCE_DRIFT against newly advanced main 5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42. Evidence remains bound to accepted fcaa52f7fcdc9f39420118a79f9a8250ba83c563. Changed request-custody/admission/dispatch APIs and four merge conflicts require explicit reviewed composition and current combined tests; the draft PR is not merge-ready.",
     "The full required repository regression gates must pass; every observed failing command remains FAIL even when reproduced on the accepted base.",
     "Full M04/M10 milestone acceptance on an approved upstream base remains distinct from the locally implemented, tested prerequisite subsets.",
     "Actual Windows and installed-desktop proof is unavailable on this Linux target. These platforms remain unsupported for activation.",

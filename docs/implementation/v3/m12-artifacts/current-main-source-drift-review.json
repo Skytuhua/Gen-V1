@@ -1,0 +1,433 @@
+{
+  "schemaVersion": 1,
+  "kind": "M12_CURRENT_MAIN_SOURCE_DRIFT_REVIEW",
+  "reviewer": "/root/m12_independent_review",
+  "reviewedAt": "2026-11-15T13:00:17.103829+00:00",
+  "scope": "Documentation/controller follow-up relative to reviewed implementation d55433f; immutable product cut and original sixteen-finding review are not modified. This does not review or approve a composed implementation with newer main.",
+  "reviewStatus": "PASS_DOCUMENTATION_AND_EVIDENCE_REVIEW",
+  "documentationFindingsOpen": 0,
+  "integrationDisposition": "BLOCKED_SOURCE_DRIFT",
+  "bundleAcceptance": "FAIL",
+  "implementationPlatformCoverage": "PARTIAL",
+  "productionApproval": false,
+  "mergeApproval": false,
+  "combinedIntegrationExecuted": false,
+  "repositoryRoot": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "revisions": {
+    "acceptedBase": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+    "reviewedM12": "d55433f2231597d0efe7515b187e237e11b7ac95",
+    "currentMain": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42"
+  },
+  "auditAncestorSha": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
+  "publicationObservation": {
+    "observedAt": "2026-11-15T12:58:25.581Z",
+    "source": "Independent reviewer GitHub GET https://api.github.com/repos/skytuhua-org/Gen-V1/pulls/355",
+    "url": "https://github.com/skytuhua-org/Gen-V1/pull/355",
+    "number": 355,
+    "state": "open",
+    "draft": true,
+    "merged": false,
+    "mergeable": false,
+    "mergeableState": "dirty",
+    "autoMerge": null,
+    "headRef": "agent/m12-v3",
+    "headSha": "dd39ce637348445c9db5740b8b05c5d3853c32af",
+    "headRepository": "skytuhua-org/Gen-V1",
+    "baseRef": "main",
+    "baseSha": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42",
+    "baseRepository": "skytuhua-org/Gen-V1",
+    "qualification": "This is the observed initial publication head. A later documentation-only commit is not claimed here."
+  },
+  "reviewedDocumentationCut": {
+    "controllers": [
+      {
+        "path": "docs/implementation/v3/M12-build-evidence.py",
+        "sha256": "ee08c4dc3d13e05c68ef08af70ad62b9faf6fc07332a4ce062a045b2049eaf5b",
+        "gitBlobSha1": "b9bff25cfc4b2cf4649b99ecf5d33970c1322917",
+        "bytes": 24780
+      },
+      {
+        "path": "docs/implementation/v3/M12-verify-evidence.mts",
+        "sha256": "9ec383d31f16c2af199f164d167ac149c79d74e36db2e9882320578560ab0aff",
+        "gitBlobSha1": "927175197b24890de25f502492c451c8a26a20ba",
+        "bytes": 12818
+      },
+      {
+        "path": "docs/implementation/v3/m12-artifacts/current-main-source-drift-check.py",
+        "sha256": "15d533451a65297de3b3894093245d7e4caf605f7832d0b02d16e1e5b01dbe39",
+        "gitBlobSha1": "0417309d332eb9fd258e9bf2f04b4d3aa3bcee9f",
+        "bytes": 4931
+      }
+    ],
+    "handoffAtReview": {
+      "path": "docs/implementation/v3/M12-handoff.md",
+      "sha256": "f029f7d18b79a26c5724bfc9e284f94a61de1940f151c12ad52a707308a1443b",
+      "gitBlobSha1": "e34f7c6b32e1247506f125e80adac4690f3d2b82",
+      "bytes": 56342
+    },
+    "sourceAuditJson": {
+      "path": "docs/implementation/v3/m12-artifacts/current-main-source-drift.json",
+      "sha256": "8a71d35378e0f303726abd029d0a4f8f4dd132357e958e0599da05fad6966ebb",
+      "gitBlobSha1": "667b5950cb4240a8bf04bd36b46bbcfa460e9301",
+      "bytes": 26954
+    },
+    "sourceAuditMarkdown": {
+      "path": "docs/implementation/v3/m12-artifacts/current-main-source-drift.md",
+      "sha256": "b4c777e101e6f4a433e09ee784aee00f28e54c3018b45191a2be4ebd4f037148",
+      "gitBlobSha1": "a3b3c175f35fbf99c6b58d4c0c0e216bca1fbc82",
+      "bytes": 12132
+    },
+    "scopeQualification": "The handoff and controller/audit-script bytes remain frozen at the reviewed hashes. The coordinator will record the actual final-18 result in new command logs and regenerated canonical evidence after this review is released; those future generated artifacts are not silently claimed already validated here."
+  },
+  "unchangedProductProof": {
+    "candidateSourceCut": {
+      "path": "docs/implementation/v3/M12-candidate-source-cut.json",
+      "sha256": "8327bd5b99f29a5153504f993cc201e577543dbf43009b41cab2cf2697110384",
+      "gitBlobSha1": "87b8800554d3fc2f191619da9e86b1b7a9eb79c7",
+      "bytes": 59786
+    },
+    "sourceLock": {
+      "path": "docs/implementation/v3/M12-source-lock.json",
+      "sha256": "943b2c4f69146c0f864760d8557b429721eca28f3019b28666be01f201dd97b7",
+      "gitBlobSha1": "e5a458222353d70fae2db028d6327b7f3c52067b",
+      "bytes": 25082
+    },
+    "verifiedFiles": 123,
+    "verifiedChangedProductTestConfigPaths": 69,
+    "hashSemantics": "Every current source entry was independently checked for SHA-256, Git blob identity and byte length. Current non-doc Git paths equal the pinned cut inventory.",
+    "nonDocChangesComparedToReviewedImplementation": [],
+    "nonDocUntrackedFiles": [],
+    "originalCheckoutClean": true,
+    "originalCheckoutHead": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563"
+  },
+  "originalReviewPreserved": {
+    "json": {
+      "path": "docs/implementation/v3/m12-artifacts/independent-review-final.json",
+      "sha256": "964cb5afac1baff1488324c4cd47392ca5cdfd483d36ac4615f36955a8630261",
+      "gitBlobSha1": "ffe0b8dd41b856c15471ca43cbb5833f20a87827",
+      "bytes": 226425
+    },
+    "markdown": {
+      "path": "docs/implementation/v3/m12-artifacts/independent-review-final.md",
+      "sha256": "c88a88fb91128334288bf5b9708ca7bb956544766db34551f4ec982e634fe2da",
+      "gitBlobSha1": "e98640802ee9f2183fb0583d40560d5a22f9daba",
+      "bytes": 61923
+    },
+    "findingsClosedAtAcceptedCut": 16,
+    "notExtendedToNewMain": true
+  },
+  "sourceGateDistinction": {
+    "retainedAcceptedBaseAuditLabel": "LOCALLY_RESOLVED_CONTRACTS_REVIEW_PENDING",
+    "acceptedEvidenceBase": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+    "acceptedSourceProofUnchanged": true,
+    "newCanonicalPhase": "INTEGRATION.current-main-source-compatibility",
+    "newPhaseStatus": "BLOCKED",
+    "newTargetReason": "BLOCKED_SOURCE_DRIFT",
+    "newTarget": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42",
+    "auditPassMeaning": "Immutable source and recorded mismatch custody only; no combined runtime, browser, package or lifecycle acceptance."
+  },
+  "verifiedRevisionPathPairs": 54,
+  "sourceBlobMap": [
+    {
+      "path": "packages/core/service.ts",
+      "acceptedBase": "2b3fb63acef915b052a468e104c6e4f00a4b82e4",
+      "reviewedM12": "d77d4d699515465f0b094403de4f3a8447169c59",
+      "currentMain": "00351f5a3a69c3313fd58f75cc38d90938c63cee",
+      "currentMainEqualsAcceptedBase": false
+    },
+    {
+      "path": "packages/runtime-hermes/worker.py",
+      "acceptedBase": "e28c6272f9aab28f76b9462a87768fe4226361c1",
+      "reviewedM12": "e28c6272f9aab28f76b9462a87768fe4226361c1",
+      "currentMain": "e28c6272f9aab28f76b9462a87768fe4226361c1",
+      "currentMainEqualsAcceptedBase": true
+    },
+    {
+      "path": "packages/runtime-pi/tool-definitions.ts",
+      "acceptedBase": "2731bc9797fd40dd010a04099171452c0f993ebc",
+      "reviewedM12": "cc5209c1a44c45dfa4e9395a2cbb31ef06ce6731",
+      "currentMain": "2731bc9797fd40dd010a04099171452c0f993ebc",
+      "currentMainEqualsAcceptedBase": true
+    },
+    {
+      "path": "packages/runtime-official/mcp.ts",
+      "acceptedBase": "791ebf88c58765f9e4625bde6b727019c1b33337",
+      "reviewedM12": "485c68d93385f85e92a94733e5235c8c9b0bdd09",
+      "currentMain": "791ebf88c58765f9e4625bde6b727019c1b33337",
+      "currentMainEqualsAcceptedBase": true
+    },
+    {
+      "path": "packages/core/security.ts",
+      "acceptedBase": "693f251361bc464caee26df795c57002d120c9a7",
+      "reviewedM12": "693f251361bc464caee26df795c57002d120c9a7",
+      "currentMain": "693f251361bc464caee26df795c57002d120c9a7",
+      "currentMainEqualsAcceptedBase": true
+    },
+    {
+      "path": "packages/runtime-pi/process-tree.ts",
+      "acceptedBase": "fb903470a172be1e1995557caa888b4f065e7270",
+      "reviewedM12": "fb903470a172be1e1995557caa888b4f065e7270",
+      "currentMain": "fb903470a172be1e1995557caa888b4f065e7270",
+      "currentMainEqualsAcceptedBase": true
+    },
+    {
+      "path": "packages/contracts/index.ts",
+      "acceptedBase": "09517becaf0c35f5f63bd758878659ea0de5f57b",
+      "reviewedM12": "baeae3c0a453f7e9cd5a39ed2abc4d0680cb7b2b",
+      "currentMain": "faa57ba3f2180fe5360f4a50b0c142e57871c91f",
+      "currentMainEqualsAcceptedBase": false
+    },
+    {
+      "path": "packages/core/capability-flags.ts",
+      "acceptedBase": "39e18abb43f7fa63cb2534ea3356ebb1be121161",
+      "reviewedM12": "1edfc1de2b68012da568dda8f2c40818641d81eb",
+      "currentMain": "823b9aa9a02499039c69756795144d035c4ce2a6",
+      "currentMainEqualsAcceptedBase": false
+    },
+    {
+      "path": "scripts/public-source-files.json",
+      "acceptedBase": "8cb3efe75c120185f957ab3df73255756adcf7b8",
+      "reviewedM12": "5b9124fd049e065e54f2d246b7c1e14894330a37",
+      "currentMain": "7738bed5d6fa1903ce76a86e06f5778af91caeae",
+      "currentMainEqualsAcceptedBase": false
+    },
+    {
+      "path": "packages/contracts/request-context.ts",
+      "acceptedBase": null,
+      "reviewedM12": null,
+      "currentMain": "30185cc5e66a74ef438af8ec8e9ec1d91989c614",
+      "currentMainEqualsAcceptedBase": null
+    },
+    {
+      "path": "packages/core/request-custody.ts",
+      "acceptedBase": null,
+      "reviewedM12": null,
+      "currentMain": "b7f0946c0ae48acc8d0673739c6960a5601b8841",
+      "currentMainEqualsAcceptedBase": null
+    },
+    {
+      "path": "packages/core/context-compiler.ts",
+      "acceptedBase": null,
+      "reviewedM12": null,
+      "currentMain": "7b6f9040160b8440845c256c57bd5aba52f1ca4b",
+      "currentMainEqualsAcceptedBase": null
+    },
+    {
+      "path": "packages/contracts/agent-work.ts",
+      "acceptedBase": null,
+      "reviewedM12": null,
+      "currentMain": "f7969fc248647c5e0859c2c0811dc8fdd255951b",
+      "currentMainEqualsAcceptedBase": null
+    },
+    {
+      "path": "packages/core/agent-work.ts",
+      "acceptedBase": null,
+      "reviewedM12": null,
+      "currentMain": "2aeaee56468670f39c5fa1a81e6b9e544c60141d",
+      "currentMainEqualsAcceptedBase": null
+    },
+    {
+      "path": "packages/contracts/tool-program.ts",
+      "acceptedBase": null,
+      "reviewedM12": "bfd784a8a9ef80cf0cef89a356808c7bc5c9064e",
+      "currentMain": null,
+      "currentMainEqualsAcceptedBase": null
+    },
+    {
+      "path": "packages/core/tool-disclosure.ts",
+      "acceptedBase": null,
+      "reviewedM12": "5240b066ac0f1bce1bc0d14c3d8b6779494c0eab",
+      "currentMain": null,
+      "currentMainEqualsAcceptedBase": null
+    },
+    {
+      "path": "packages/runtime-pi/worker.ts",
+      "acceptedBase": "36bc8abb120c9e228635ba427544919c96ead4e9",
+      "reviewedM12": "10d62c175ed3aa9c26a0a99268255f2c4f593994",
+      "currentMain": "36bc8abb120c9e228635ba427544919c96ead4e9",
+      "currentMainEqualsAcceptedBase": true
+    },
+    {
+      "path": "packages/runtime-official/index.ts",
+      "acceptedBase": "b8e4b1a5892d60525e51ac86ae28b54c68c16ac0",
+      "reviewedM12": "9888b6e5b60a84af7298a1e1da42d7fa8d50b476",
+      "currentMain": "b8e4b1a5892d60525e51ac86ae28b54c68c16ac0",
+      "currentMainEqualsAcceptedBase": true
+    }
+  ],
+  "behaviorReview": [
+    {
+      "id": "SD-01",
+      "boundary": "StartRun and runtime tool metadata",
+      "assessment": "SUPPORTED_BY_INSPECTED_IMMUTABLE_SOURCE",
+      "impact": "The shared interface and Service construction require both extensions to be preserved. Selecting either conflicting declaration wholesale drops the other field. Taking main Service input construction unchanged with the reviewed M12 adapters omits their program metadata."
+    },
+    {
+      "id": "SD-02",
+      "boundary": "Prepared request admission and one-input ownership",
+      "assessment": "SUPPORTED_BY_INSPECTED_IMMUTABLE_SOURCE",
+      "impact": "M12 admission evidence does not cover the newly introduced custody state machine or its one-input dispatch cadence. Existing batching cannot be passed unchanged through the enabled finalization contract."
+    },
+    {
+      "id": "SD-03",
+      "boundary": "Asynchronous custody immediately before Runtime.start/followUp",
+      "assessment": "SUPPORTED_BY_INSPECTED_IMMUTABLE_SOURCE",
+      "impact": "Combined tool selection, owner/grant checks and cancellation across the new asynchronous boundary are unverified by the accepted M12 source cut.",
+      "qualification": "The finalizer returns freezeRequestValue({ ...input, prompt, requestContext: receipt }). It preserves supplied input fields by spreading input. This audit does not claim inherent loss of programTools by the finalizer."
+    },
+    {
+      "id": "SD-04",
+      "boundary": "Request metadata identity versus M12 disclosure authority",
+      "assessment": "SUPPORTED_BY_INSPECTED_IMMUTABLE_SOURCE",
+      "impact": "The new M04 request metadata is not an interchangeable replacement for the locally reviewed M12 disclosure/result prerequisite subset. Its registry commitment does not itself prove the exact M12 selected tool set or lifecycle composition."
+    },
+    {
+      "id": "SD-05",
+      "boundary": "Cancellation, recovery and disposal",
+      "assessment": "SUPPORTED_BY_INSPECTED_IMMUTABLE_SOURCE",
+      "impact": "The two complete Service implementations have distinct lifecycle obligations. Replacing either side wholesale would lose the other side's cleanup or recovery behavior. Their combined ordering has not been tested in this audit."
+    },
+    {
+      "id": "SD-06",
+      "boundary": "Finite host capability registry",
+      "assessment": "SUPPORTED_BY_INSPECTED_IMMUTABLE_SOURCE",
+      "impact": "Neither conflicting union/registry is the full combined set. Registration reconciliation is required; source comparison does not authorize enabling any flag."
+    },
+    {
+      "id": "SD-07",
+      "boundary": "Finite public source and runtime packaging",
+      "assessment": "SUPPORTED_BY_INSPECTED_IMMUTABLE_SOURCE",
+      "impact": "The finite manifest conflict cannot be resolved by selecting one entire side without discarding the other feature's explicit entries. Combined package closure has not been tested here."
+    }
+  ],
+  "reviewCorrections": [
+    {
+      "id": "SDR-01",
+      "issue": "Initial handoff attributed upstream advancement to after publication/freeze.",
+      "disposition": "CORRECTED",
+      "evidence": "Main commit time is 2026-11-15T12:02:38Z, before source-cut capture at 12:05:53.795209Z and initial publication at 12:42:21Z. Current text correctly describes later discovery, not later occurrence."
+    },
+    {
+      "id": "SDR-02",
+      "issue": "Calling merge-tree --write-tree wholly read-only obscured its diagnostic Git-object writes.",
+      "disposition": "CORRECTED",
+      "evidence": "Current text says the preview writes unreferenced diagnostic Git objects but does not apply a merge or change refs, index or checked-out source. The diagnostic tree is not accepted implementation output."
+    }
+  ],
+  "commandEvidence": [
+    {
+      "artifact": {
+        "path": "docs/implementation/v3/m12-logs/source-02-current-main-merge-preview.log",
+        "sha256": "689570899c3ad51934aa1ff9203c8b003790a4e2c978d52592a66879a06309b1",
+        "gitBlobSha1": "e8acc1f0c8421b3a75aa6da1796755e9790ed545",
+        "bytes": 1058
+      },
+      "command": {
+        "argv": [
+          "git",
+          "merge-tree",
+          "--write-tree",
+          "--name-only",
+          "--messages",
+          "d55433f2231597d0efe7515b187e237e11b7ac95",
+          "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T12:53:34.415133+00:00",
+        "endedAt": "2026-11-15T12:53:34.425631+00:00",
+        "exitCode": 1,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "output": "7fbcf03cd6c43fbd1d9f9c9a41e09610ac8d3557\npackages/contracts/index.ts\npackages/core/capability-flags.ts\npackages/core/service.ts\nscripts/public-source-files.json\n\nAuto-merging apps/server/server.ts\nAuto-merging packages/contracts/index.ts\nCONFLICT (content): Merge conflict in packages/contracts/index.ts\nAuto-merging packages/core/capability-flags.ts\nCONFLICT (content): Merge conflict in packages/core/capability-flags.ts\nAuto-merging packages/core/service.ts\nCONFLICT (content): Merge conflict in packages/core/service.ts\nAuto-merging scripts/public-source-files.json\nCONFLICT (content): Merge conflict in scripts/public-source-files.json"
+    },
+    {
+      "artifact": {
+        "path": "docs/implementation/v3/m12-logs/source-03-current-main-audit.log",
+        "sha256": "83e9afdaec65db26575f67f72d84a61de1d72c2dc4d42c720aeb926e6484b889",
+        "gitBlobSha1": "be2938d0126488e3918bcee9c8b9d38bcc402c00",
+        "bytes": 864
+      },
+      "command": {
+        "argv": [
+          "python3",
+          "docs/implementation/v3/m12-artifacts/current-main-source-drift-check.py"
+        ],
+        "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+        "startedAt": "2026-11-15T12:57:00.108979+00:00",
+        "endedAt": "2026-11-15T12:57:00.464343+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "truncated": false
+      },
+      "output": "{\n  \"auditCustody\": \"PASS\",\n  \"integrationDisposition\": \"BLOCKED_SOURCE_DRIFT\",\n  \"verifiedRevisionPathPairs\": 54,\n  \"unchangedReviewedSourceEntries\": 123,\n  \"actualMergePreviewExit\": 1,\n  \"conflictingPaths\": [\n    \"packages/contracts/index.ts\",\n    \"packages/core/capability-flags.ts\",\n    \"packages/core/service.ts\",\n    \"scripts/public-source-files.json\"\n  ],\n  \"combinedIntegrationExecuted\": false,\n  \"productionActivationAuthorized\": false,\n  \"artifactSha256\": \"8a71d35378e0f303726abd029d0a4f8f4dd132357e958e0599da05fad6966ebb\"\n}"
+    }
+  ],
+  "checkerReview": {
+    "result": "PASS_SCOPED",
+    "checks": [
+      "Exact three immutable revisions and ancestry",
+      "All54 source path/blob-or-absence comparisons",
+      "Retained source-lock/source-cut digests",
+      "All123 current source hashes, sizes and Git blobs",
+      "No tracked or untracked non-doc source change relative to reviewed implementation",
+      "Exact preview argv/cwd/nonzero exit/termination/digest and four conflicts",
+      "Original checkout remains clean at accepted base and isolated branch identity retained"
+    ],
+    "doesNotExecute": [
+      "Combined M12/new-main runtime or browser suites",
+      "A merge or rebase",
+      "Any backend, worker or interpreter activation"
+    ],
+    "actualAuditResult": {
+      "auditCustody": "PASS",
+      "integrationDisposition": "BLOCKED_SOURCE_DRIFT",
+      "verifiedRevisionPathPairs": 54,
+      "unchangedReviewedSourceEntries": 123,
+      "actualMergePreviewExit": 1,
+      "conflictingPaths": [
+        "packages/contracts/index.ts",
+        "packages/core/capability-flags.ts",
+        "packages/core/service.ts",
+        "scripts/public-source-files.json"
+      ],
+      "combinedIntegrationExecuted": false,
+      "productionActivationAuthorized": false,
+      "artifactSha256": "8a71d35378e0f303726abd029d0a4f8f4dd132357e958e0599da05fad6966ebb"
+    }
+  },
+  "builderDeltaReview": {
+    "result": "PASS_SCOPED",
+    "changes": [
+      "Adds an explicitly BLOCKED current-main source-compatibility phase and exact audit/review artifact references",
+      "Retains actual merge-preview exit1 and custody-audit exit0 as separate command evidence",
+      "Adds the BLOCKED_SOURCE_DRIFT remaining gate",
+      "Requires a fresh final-18-evidence-after-source-drift custody check while preserving final-14 historical evidence"
+    ],
+    "unchanged": [
+      "Product sources and accepted-base/source lock",
+      "Original independent-review-final artifacts",
+      "Verifier source and its source-completeness, artifact, log, ownership and flag checks",
+      "Global test outcomes and activation flags"
+    ]
+  },
+  "remainingGates": [
+    "Review and implement the changed request-custody/dispatch and M09 lifecycle composition before claiming compatibility with main5098bffb. No replacement API was guessed in this follow-up.",
+    "Resolve and verify the four exact conflicts in a separately accepted source cut; this documentation review does not accept the diagnostic conflict tree.",
+    "Run current combined contract/runtime/browser/package tests before transferring any accepted-base result to the newer target. No such tests ran here.",
+    "Existing full unit/browser FAIL gates, unsupported whole-executor memory/host-I/O bounds, unmeasured platforms and production operator approval remain.",
+    "Coordinator must rebuild canonical generated evidence and record the fresh final-18 integrity check after these two new review artifacts exist. Integrity success cannot make the blocked integration or overall FAIL become PASS."
+  ],
+  "reviewerActions": {
+    "productEdits": false,
+    "originalFinalReviewEdits": false,
+    "commitOrRefChanges": false,
+    "mergeOrRebase": false,
+    "combinedTestExecution": false,
+    "newArtifacts": [
+      "docs/implementation/v3/m12-artifacts/current-main-source-drift-review.json",
+      "docs/implementation/v3/m12-artifacts/current-main-source-drift-review.md"
+    ]
+  },
+  "finalDocumentationCommitShaIncluded": false
+}
