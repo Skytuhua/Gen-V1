@@ -5,8 +5,8 @@ cmd: pnpm exec vitest run tests/model-transport-v3.test.ts tests/model-schedulin
 
 
  Test Files  3 passed (3)
-      Tests  18 passed (18)
-   Start at  10:36:36
-   Duration  720ms (transform 319ms, setup 0ms, import 633ms, tests 679ms, environment 0ms)
+      Tests  19 passed (19)
+   Start at  10:54:09
+   Duration  837ms (transform 322ms, setup 0ms, import 708ms, tests 784ms, environment 1ms)
 
 exit: 0

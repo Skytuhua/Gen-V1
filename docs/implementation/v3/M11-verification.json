@@ -28,7 +28,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/logs/m11-vitest.log",
-          "logDigest": "e1509bd80095d23dff9ab87832dcbbac74d934d8d50d02af274f62644365a6a7"
+          "logDigest": "625919eab3cb112c78fe5efebf263195057dd358d3a0e7585a4bb298238810c6"
         }
       ],
       "artifactRefs": ["docs/implementation/v3/logs/m11-red-fixtures.log", "docs/implementation/v3/logs/m11-vitest.log"]
@@ -51,7 +51,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/logs/m11-vitest.log",
-          "logDigest": "e1509bd80095d23dff9ab87832dcbbac74d934d8d50d02af274f62644365a6a7"
+          "logDigest": "625919eab3cb112c78fe5efebf263195057dd358d3a0e7585a4bb298238810c6"
         }
       ],
       "artifactRefs": ["docs/implementation/v3/logs/m11-vitest.log"]
@@ -76,7 +76,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/logs/m11-vitest.log",
-          "logDigest": "e1509bd80095d23dff9ab87832dcbbac74d934d8d50d02af274f62644365a6a7"
+          "logDigest": "625919eab3cb112c78fe5efebf263195057dd358d3a0e7585a4bb298238810c6"
         }
       ],
       "artifactRefs": ["docs/implementation/v3/logs/m11-red-fixtures.log", "docs/implementation/v3/logs/m11-vitest.log"]
@@ -104,7 +104,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/logs/m11-vitest.log",
-          "logDigest": "e1509bd80095d23dff9ab87832dcbbac74d934d8d50d02af274f62644365a6a7"
+          "logDigest": "625919eab3cb112c78fe5efebf263195057dd358d3a0e7585a4bb298238810c6"
         }
       ],
       "artifactRefs": ["docs/implementation/v3/logs/m11-vitest.log"]
@@ -154,7 +154,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/logs/m11-vitest.log",
-          "logDigest": "e1509bd80095d23dff9ab87832dcbbac74d934d8d50d02af274f62644365a6a7"
+          "logDigest": "625919eab3cb112c78fe5efebf263195057dd358d3a0e7585a4bb298238810c6"
         }
       ],
       "artifactRefs": ["docs/implementation/v3/logs/m11-vitest.log"]
@@ -267,6 +267,7 @@
     "apps/web/src/usage-presentation.ts",
     "packages/contracts/index.ts",
     "packages/contracts/model-request.ts",
+    "packages/runtime/model-capacity.ts",
     "packages/core/capability-flags.ts",
     "packages/core/service.ts",
     "packages/runtime/request-capabilities.ts",
@@ -278,6 +279,7 @@
     "packages/runtime-hermes/worker.py",
     "packages/storage/store.ts",
     "scripts/public-source-files.json",
+    "tests/hermes_source_worker.py",
     "tests/model-scheduling-v3.test.ts",
     "tests/model-transport-v3.test.ts",
     "tests/usage-accounting-v3.test.ts",
