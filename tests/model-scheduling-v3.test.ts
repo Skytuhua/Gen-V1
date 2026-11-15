@@ -96,3 +96,32 @@ it('task-role routing only resolves approved static mappings and blocks on unava
  expect(()=>resolveNewTaskProfile('unknown',mapping,['openai/gpt-5'])).toThrowError(expect.objectContaining({code:'MODEL_PROFILE_UNKNOWN'}));
  expect(()=>resolveNewTaskProfile('reviewer',mapping,['openai/gpt-5'])).toThrowError(expect.objectContaining({code:'MODEL_PROFILE_UNAVAILABLE'}));
 });
+
+it('ages and measures each queued request on its own monotonic clock',async()=>{
+ let holderTime=10_000,backgroundTime=100,foregroundTime=0;
+ const scheduler=new RequestScheduler(1,50);
+ const held=await scheduler.acquire('p','a',undefined,{now:()=>holderTime});
+ const background=scheduler.acquire('p','a',undefined,{requestClass:'background',now:()=>backgroundTime});
+ const foreground=scheduler.acquire('p','a',undefined,{now:()=>foregroundTime});
+ holderTime+=90;backgroundTime+=65;foregroundTime+=30;
+ held.release();
+ const first=await Promise.race([background,foreground]);first.release();
+ const [bg,fg]=await Promise.all([background,foreground]);bg.release();fg.release();
+ expect(first.requestClass).toBe('background');
+ expect(bg.queuedMs).toBe(65);
+ expect(fg.queuedMs).toBe(30);
+});
+
+it('measures production queue time independently of wall-clock adjustments',async()=>{
+ const wall=vi.spyOn(Date,'now').mockReturnValue(1_000);
+ const monotonic=vi.spyOn(performance,'now').mockReturnValue(5);
+ try{
+  const scheduler=new RequestScheduler(1);
+  const held=await scheduler.acquire('p','a');
+  const queued=scheduler.acquire('p','a');
+  wall.mockReturnValue(86_401_000);monotonic.mockReturnValue(42);
+  held.release();
+  const request=await queued;request.release();
+  expect(request.queuedMs).toBe(37);
+ }finally{wall.mockRestore();monotonic.mockRestore();}
+});
