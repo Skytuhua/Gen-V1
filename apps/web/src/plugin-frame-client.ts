@@ -58,7 +58,7 @@ export function pluginRequest<T=unknown>(operation:string,input:unknown=null,sig
     void connection.then(()=>{if(pending.has(id))send(request);},cause=>finish(cause));
   });
 }
-export async function pluginFlush(){await Promise.all([...editorGuards.values()].map(guard=>guard()));await Promise.all([...journalWrites.values()]);await Promise.all([...pending.values()].filter(item=>item.blocksClose).map(item=>new Promise<void>((resolve,reject)=>{const originalResolve=item.resolve,originalReject=item.reject;item.resolve=value=>{originalResolve(value);resolve();};item.reject=cause=>{originalReject(cause);reject(cause);};})));if(journalIntents.size)throw Error('A draft could not be saved. Retry saving before closing this view.');}
+export async function pluginFlush(){const saves=await Promise.allSettled(Array.from(editorGuards.values(),guard=>Promise.resolve().then(guard)));const failure=saves.find(save=>save.status==='rejected');if(failure?.status==='rejected')throw failure.reason;await Promise.all([...journalWrites.values()]);await Promise.all([...pending.values()].filter(item=>item.blocksClose).map(item=>new Promise<void>((resolve,reject)=>{const originalResolve=item.resolve,originalReject=item.reject;item.resolve=value=>{originalResolve(value);resolve();};item.reject=cause=>{originalReject(cause);reject(cause);};})));if(journalIntents.size)throw Error('A draft could not be saved. Retry saving before closing this view.');}
 export function registerEditorHandoff(id:string,guard:()=>Promise<void>){editorGuards.set(id,guard);return()=>{if(editorGuards.get(id)===guard)editorGuards.delete(id);};}
 export const prepareEditorHandoff=pluginFlush;
 export function pluginReady(){void connection.then(()=>send({type:'gen.plugin.ready',pluginId,session}),()=>{});}
