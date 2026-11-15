@@ -29,7 +29,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
  },60000);
  afterAll(async()=>{try{await browser?.close();}finally{if(server&&server.exitCode===null){server.kill();await new Promise<void>(resolve=>{const timer=setTimeout(resolve,2000);server!.once('exit',()=>{clearTimeout(timer);resolve();});});}}});
 
- async function fixture({plan=false,plugins=[],retainedCanvas=false,retainedPlan=false,unstarted=false,width=1600,height=1000,deferPluginFlush=false,mode='split'}:{plan?:boolean;plugins?:PluginManifest[];retainedCanvas?:boolean;retainedPlan?:boolean;unstarted?:boolean;width?:number;height?:number;deferPluginFlush?:boolean;mode?:'split'|'chat'|'default'}={}){
+ async function fixture({plan=false,plugins=[],retainedCanvas=false,retainedPlan=false,unstarted=false,width=1600,height=1000,deferPluginFlush=false,mode='split',singleThread=false}:{plan?:boolean;plugins?:PluginManifest[];retainedCanvas?:boolean;retainedPlan?:boolean;unstarted?:boolean;width?:number;height?:number;deferPluginFlush?:boolean;mode?:'split'|'chat'|'default';singleThread?:boolean}={}){
   const page=await browser!.newPage({viewport:{width,height}});page.setDefaultTimeout(7000);
   const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));
   await page.addInitScript((initialMode)=>{if(window.parent===window){localStorage.setItem('harness:selected-thread','thread-a');if(initialMode==='split')localStorage.setItem('harness:workspace-mode:v3','split');}},mode);
@@ -42,7 +42,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
   snapshot.data=[];if(plan)snapshot.data.push(canonicalPlan());
   const host=await serveTaskFixture(page,snapshot);
   let layout=createSplitWorkspaceLayout();layout=applySplitWorkspaceCommand(layout,'view.open',{view:{id:'thread:thread-a',kind:'thread',binding:{authority:{kind:'local'},threadId:'thread-a',projectId:'project-a'}}});
-  layout=applySplitWorkspaceCommand(layout,'pane.split',{paneId:'pane-main',newPaneId:'right',splitId:'columns',axis:'horizontal',view:{id:'thread:thread-b',kind:'thread',binding:{authority:{kind:'local'},threadId:'thread-b',projectId:'project-b'}}});
+  if(!singleThread)layout=applySplitWorkspaceCommand(layout,'pane.split',{paneId:'pane-main',newPaneId:'right',splitId:'columns',axis:'horizontal',view:{id:'thread:thread-b',kind:'thread',binding:{authority:{kind:'local'},threadId:'thread-b',projectId:'project-b'}}});
   const envelope:WorkspaceEnvelope={projects:['a','b'].map(key=>({id:'project-'+key,name:key==='a'?'First project':'Second project',authority:{kind:'local'},rootPath:'C:/synthetic/'+key,createdAt:stamp})),state:{version:1,revision:0,activeCanvasId:'workspace-default',canvases:[{version:1,id:'workspace-default',name:'Workspace',preset:'workspace',viewport:{x:0,y:0,zoom:1},panels:[],filter:'active',projectIds:[]}],profiles:[],disabledKinds:[],integrations:{}}};
   if(retainedCanvas)envelope.state.canvases[0]!.panels.push({id:'retained-usage',canvasId:'workspace-default',kind:'usage',binding:{authority:{kind:'local'},threadId:'thread-a',projectId:'project-a'},placement:'canvas',visible:true,collapsed:false,bounds:{x:56,y:72,width:352,height:320},order:9,alwaysOnTop:false});
   if(retainedPlan)envelope.state.canvases[0]!.panels.push({id:'retained-plan',canvasId:'workspace-default',kind:'plan',binding:{authority:{kind:'local'},threadId:'thread-a',projectId:'project-a'},placement:'canvas',visible:true,collapsed:false,bounds:{x:56,y:72,width:480,height:560},order:10,alwaysOnTop:false});
@@ -53,7 +53,9 @@ describe.runIf(enabled)('actual App split workspace',()=>{
   await page.route('**/api/models?*',route=>route.fulfill({json:{models:[{id:'test/model-a',provider:'test',name:'Model A'},{id:'test/model-b',provider:'test',name:'Model B'}]}}));
   await page.route('**/api/workspace',route=>route.fulfill({json:envelope}));
   await page.route('**/api/workspace/commands',async route=>{const command=route.request().postDataJSON() as HostCommand;workspaceCommands.push(command);if(command.type==='workspace.profile.apply'){const saved=envelope.state.profiles.find(profile=>profile.id===command.payload.profileId)!;envelope.state.canvases=structuredClone(saved.canvases);envelope.state.activeCanvasId=saved.activeCanvasId;}if(command.type==='workspace.canvas.select')envelope.state.activeCanvasId=String(command.payload.canvasId);if(command.type==='workspace.project.connect'){const target=snapshot.threads.find(thread=>thread.id===command.payload.threadId),project=envelope.projects.find(item=>item.rootPath===command.payload.path&&item.name===command.payload.name);if(!target||!project)return route.fulfill({status:404,json:{error:{code:'NOT_FOUND',message:'The canonical project or conversation is unavailable.'}}});if(target.runId||target.sessionPath||target.workspaceId)return route.fulfill({status:409,json:{error:{code:'PROJECT_BUSY',message:'This started conversation keeps its existing project.'}}});target.projectId=project.id;target.projectName=project.name;}envelope.state.revision++;await route.fulfill({json:{commandId:command.id,eventSeq:snapshot.seq,result:envelope}});if(command.type==='workspace.project.connect')await host.publish();});
-  await page.route('**/api/commands',async route=>{const command=route.request().postDataJSON() as HostCommand;if(command.type!=='thread.create')return route.fallback();host.commands.push(command);const created={id:'new-thread-'+(snapshot.threads.filter(thread=>thread.id.startsWith('new-thread-')).length+1),title:'New conversation',projectName:null,createdAt:stamp,updatedAt:stamp,status:'ready' as const,epoch:0,runId:null,sessionPath:null,modelId:null,accountId:null,...(typeof command.payload.projectId==='string'?{projectId:command.payload.projectId,projectName:envelope.projects.find(project=>project.id===command.payload.projectId)?.name??null}:{})};snapshot.threads.push(created);snapshot.seq++;await route.fulfill({json:{commandId:command.id,eventSeq:snapshot.seq,result:created}});await host.publish();});
+  await page.route('**/api/commands',async route=>{const command=route.request().postDataJSON() as HostCommand;
+   if(command.type==='thread.archive'){host.commands.push(command);const id=String(command.threadId??'');snapshot.threads=snapshot.threads.filter(thread=>thread.id!==id);snapshot.activeThreadId=snapshot.threads.find(thread=>thread.kind!=='delegate'&&thread.kind!=='side')?.id??null;const viewId='thread:'+id;delete layout.views[viewId];for(const pane of Object.values(layout.panes)){pane.viewIds=pane.viewIds.filter(value=>value!==viewId);if(pane.activeViewId===viewId)pane.activeViewId=pane.viewIds.at(-1);}layout.parkedViewIds=layout.parkedViewIds.filter(value=>value!==viewId);layout={...layout,revision:layout.revision+1};snapshot.seq++;await route.fulfill({json:{commandId:command.id,eventSeq:snapshot.seq,result:{}}});await host.publish();await page.evaluate(()=>window.dispatchEvent(new Event('harness:workspace-changed')));return;}
+   if(command.type!=='thread.create')return route.fallback();host.commands.push(command);const created={id:'new-thread-'+(snapshot.threads.filter(thread=>thread.id.startsWith('new-thread-')).length+1),title:'New conversation',projectName:null,createdAt:stamp,updatedAt:stamp,status:'ready' as const,epoch:0,runId:null,sessionPath:null,modelId:null,accountId:null,...(typeof command.payload.projectId==='string'?{projectId:command.payload.projectId,projectName:envelope.projects.find(project=>project.id===command.payload.projectId)?.name??null}:{})};snapshot.threads.push(created);snapshot.seq++;await route.fulfill({json:{commandId:command.id,eventSeq:snapshot.seq,result:created}});await host.publish();});
   await page.route('**/api/split-workspace?*',route=>route.fulfill({json:layout}));
   await page.route('**/api/split-workspace/profiles?*',route=>route.fulfill({json:[...profiles.values()].map(({id,name,updatedAt})=>({id,name,updatedAt}))}));
   await page.route('**/api/split-workspace/commands',route=>{
@@ -113,6 +115,26 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    await page.route('**/api/commands',async route=>{const command=route.request().postDataJSON() as HostCommand;if(command.type==='message.send'){host.commands.push(command);return route.fulfill({status:409,json:{error:{code:'RUN_BUSY',message:'Synthetic send rejected'}}});}await route.fallback();});
    await second.getByRole('button',{name:'Send message',exact:true}).click();await page.getByRole('alert').filter({hasText:'Synthetic send rejected'}).waitFor();expect(host.commands.find(command=>command.type==='message.send')?.threadId).toBe('thread-b');
    await page.reload();const restoredA=first.locator('textarea[aria-label="Message"]'),restoredB=second.locator('textarea[aria-label="Message"]');await restoredA.waitFor({state:'attached'});await restoredB.waitFor({state:'attached'});expect(await restoredA.inputValue()).toBe('First independent draft');expect(await restoredB.inputValue()).toBe('Second independent draft');expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
+ it('archiving the selected conversation leaves an explicit empty main that never revives activeThreadId, even after reload (T02/R02)',async()=>{
+  const host=await fixture({mode:'default',singleThread:true}),{page}=host;try{
+   await page.locator('[data-split-view="thread:thread-a"]').getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});
+   await page.getByRole('button',{name:'Options for First investigation',exact:true}).click();
+   await page.getByRole('menuitem',{name:'Archive thread',exact:true}).click();
+   await page.getByRole('button',{name:'Archive thread',exact:true}).click();
+   await page.waitForFunction(()=>!document.querySelector('[data-split-view="thread:thread-a"]'));
+   // The host dropped thread-a and pointed activeThreadId at thread-b; give any revival time to land.
+   await page.waitForTimeout(750);
+   expect(await page.locator('[data-split-view="thread:thread-b"]').count()).toBe(0);
+   expect(await page.getByText('Second transcript only').count()).toBe(0);
+   await page.reload();
+   await page.locator('.shell-workarea, .split-workspace').first().waitFor({state:'visible'});
+   await page.waitForTimeout(750);
+   expect(await page.locator('[data-split-view="thread:thread-b"]').count()).toBe(0);
+   expect(await page.getByText('Second transcript only').count()).toBe(0);
+   expect(host.errors).toEqual([]);
   }finally{await page.close();}
  },30000);
 
