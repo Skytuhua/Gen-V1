@@ -839,6 +839,7 @@
     "tests/e2e/clarity-schedule-logs.spec.ts",
     "tests/e2e/clarity-software.playwright.config.ts",
     "tests/e2e/clarity-software.spec.ts",
+    "tests/e2e/code-intelligence-scenarios.ts",
     "tests/e2e/code-review-host.playwright.config.ts",
     "tests/e2e/code-review-host.spec.ts",
     "tests/e2e/code-review-workspace-fixture.tsx",
