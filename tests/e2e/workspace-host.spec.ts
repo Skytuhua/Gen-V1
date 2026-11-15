@@ -364,6 +364,16 @@ test('keyboard and status Stop share the ordinary composer pending owner', async
   await expect.poll(() => h.commands.filter(command => command.type === 'run.stop').length).toBe(1);
 });
 
+test('monitor Stop shortcut stops the focused working agent exactly once (AUD-06)', async ({page}) => {
+  const h = await fixture(page);
+  const stop = page.getByRole('button', {name: 'Stop Project investigation', exact: true});
+  await stop.waitFor({state: 'visible'});
+  await stop.focus();
+  await page.keyboard.press('Escape');
+  await expect.poll(() => h.commands.filter(command => command.type === 'run.stop').length).toBe(1);
+  expect(h.commands.find(command => command.type === 'run.stop')?.threadId).toBe('parent-a');
+});
+
 test('review: returning through All Agents retains the latest conversation selection', async ({page}) => {
  await fixture(page, {working:false});
  await page.getByRole('button',{name:'Open conversation Project investigation',exact:true}).click();

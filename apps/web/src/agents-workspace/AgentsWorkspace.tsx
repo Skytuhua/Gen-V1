@@ -99,7 +99,7 @@ function Agent({node, controller, composers, onOpenConversation, preferences}: {
  useSyncExternalStore(controller.subscribe, controller.getSnapshot);
  const view = controller.view(agent.agentId), child = Boolean(agent.parentId), groupId = useId();
  const toggle = () => controller.setView(agent.agentId, {collapsed: !view.collapsed}, true);
- return <section className={`agents-agent${child ? ' agents-child' : ''}`} role="group" aria-label={`Agent ${agent.title}`}>
+ return <section className={`agents-agent${child ? ' agents-child' : ''}`} role="group" aria-label={`Agent ${agent.title}`} data-agent-id={agent.agentId}>
   <header className="agents-agent-header"><div className="agents-agent-title"><h3>{agent.title}</h3><span className="agents-agent-state" data-state={agent.status}>{statusLabel(agent.status)}</span></div>
    {!child && agent.threadId && <button type="button" className="agents-icon" aria-label={`Open conversation ${agent.title}`} onClick={() => onOpenConversation(agent.threadId!)}><ExternalLink size={15}/></button>}
   </header>
