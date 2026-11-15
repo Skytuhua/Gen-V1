@@ -11,7 +11,7 @@ type GuardPath = { path: string; leaf: boolean; dev?: string; ino?: string; empt
 export interface GuardEntry { readonly path: string; readonly directory: boolean; readonly dev: string; readonly ino: string; readonly size: number }
 interface GuardSession { rpc(request: Record<string, unknown>): Promise<readonly GuardEntry[]>; exited: boolean; loss:Set<()=>void> }
 const sessions = new AsyncLocalStorage<GuardSession>();
-const denied = () => new HarnessError("CAPABILITY_DENIED", "Cannot establish a stable ordinary filesystem resource guard");
+const denied = () => new HarnessError("CAPABILITY_DENIED", "File access check failed — the folder could not be opened safely for this action");
 function active(signal: AbortSignal) { if (signal.aborted) throw new HarnessError("CANCELLED", "Filesystem operation cancelled"); }
 
 /** Application-scoped namespace guard; never an OS sandbox for project code. */
@@ -50,7 +50,7 @@ export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal, 
       let output = "";
       const metadataImport = Array.isArray(request.paths) && (request.paths as GuardPath[]).some(path => path.gitMetadataImport);
       const timer = setTimeout(() => finish(denied()), metadataImport ? 120_000 : 15_000);
-      const failed = () => finish(new HarnessError(/limit exceeded/i.test(diagnostics)?"RESOURCE_LIMIT":"CAPABILITY_DENIED", "Cannot establish a stable ordinary filesystem resource guard", { nativeCode: /GUARD_NATIVE_ERROR:([-0-9]+)/.exec(diagnostics)?.[1] ?? "unavailable",nativeMessage:/GUARD_NATIVE_MESSAGE:([^\r\n]*)/.exec(diagnostics)?.[1] }));
+      const failed = () => finish(new HarnessError(/limit exceeded/i.test(diagnostics)?"RESOURCE_LIMIT":"CAPABILITY_DENIED", "File access check failed — the folder could not be opened safely for this action", { nativeCode: /GUARD_NATIVE_ERROR:([-0-9]+)/.exec(diagnostics)?.[1] ?? "unavailable",nativeMessage:/GUARD_NATIVE_MESSAGE:([^\r\n]*)/.exec(diagnostics)?.[1] }));
       const data = (bytes: string) => {
         output += bytes;
         if (output.length > (metadataImport ? 64 : 16) * 1024 * 1024) return finish(denied());

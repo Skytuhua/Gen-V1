@@ -31,6 +31,9 @@ import type {HermesRuntime} from '../runtime-hermes/index.ts';
 import type {HermesSourceLibrary} from '../runtime-hermes/library.ts';
 import type {ApprovedWriteOrigin,CompletedWriteReceipt,WriteHookDiagnostic} from '../contracts/index.ts';
 import { HarnessError, EMPTY_USAGE, type ArtifactRecord, type DataRecord, type HostCommand, type InputRequest, type Message, type Operation, type ResourceGrant, type RunContext, type RuntimeAdapter, type RuntimeEvent, type RuntimeUsage, type Snapshot, type StartRun, type SurfaceSpec, type Thread, type ToolCall, type UserStateRecord } from "../contracts/index.ts";
+import { buildToolRegistry, ToolAuthority, type ActorRole } from "./tool-authority.ts";
+import { ToolEffectLedger, createToolEffectFlags, type ToolEffectFlag } from "./tool-effects.ts";
+import { recoverEffects } from "./effect-recovery.ts";
 
 type Outbox = { id: string; threadId: string; content: string; status: "persisted" | "processing" | "handled"; runId: string | null; enteredRuntime?: boolean;messageId?:string;completedWrite?:CompletedWriteReceipt;hookClaimed?:boolean;hookDiagnostic?:WriteHookDiagnostic };
 type Lease = { id: string; threadId: string; clientId: string; fields: string[]; expiresAt: number };
@@ -49,6 +52,8 @@ export interface ServiceOptions {
   researchBrowserCapture?:VerifiedBrowserCaptureProvider;
   canonicalPlanJobs?:CanonicalPlanJobProvider;
   approvedWriteHooks?:boolean;
+  /** Host constructor only; absent in user preferences. */
+  toolEffectFlags?: Partial<Record<ToolEffectFlag, boolean>>;
   source?:SourceIntegration;sideRuntimeFactory?:()=>RuntimeAdapter|Promise<RuntimeAdapter>;planningRuntimeFactory?:()=>RuntimeAdapter|Promise<RuntimeAdapter>;
   predictionRuntimeFactory?:()=>RuntimeAdapter|Promise<RuntimeAdapter>;learningRuntimeFactory?:(job:LearningJob)=>RuntimeAdapter|Promise<RuntimeAdapter>;
   prepareWorkspace?:(thread:Thread)=>Promise<void>;
@@ -84,15 +89,20 @@ export class Service {
   private readonly deliveries=new Map<string,Promise<void>>();
   private readonly mainAdmissions=new Set<string>();
   private readonly teardowns=new Map<string,{ctx:RunContext;side:boolean;promise:Promise<void>}>();
+  private readonly authority:ToolAuthority;
+  private readonly effects:ToolEffectLedger;
+  private readonly effectFlags:ReturnType<typeof createToolEffectFlags>;
   constructor(readonly store: Store, readonly runtime: RuntimeAdapter,private readonly options:ServiceOptions={}) {
+    this.effectFlags=createToolEffectFlags(options.toolEffectFlags);
+    this.authority=new ToolAuthority(buildToolRegistry());this.effects=new ToolEffectLedger(store,this.authority,this.effectFlags);
     this.source=options.source;
     this.research=new PersonalResearchRepository(store,{browser:options.researchBrowserCapture,assertHostActive:()=>{if(this.closed||this.updateClosing)throw new HarnessError('HOST_CLOSING','Gen is closing. Saved work is retained.');}});
     this.predictions=new ComposerPredictions({factory:()=>{if(!options.predictionRuntimeFactory)throw new HarnessError('PREDICTION_UNAVAILABLE','Composer predictions are unavailable in this host.');return options.predictionRuntimeFactory();},current:id=>this.predictionBasis(id)});
-    this.planning=new PlanningCoordinator({store,assertRun:ctx=>this.assertRun(ctx),domainContext:(ctx,signal)=>this.context(ctx.threadId,signal,undefined,ctx),runtimeFactory:options.planningRuntimeFactory,canonicalJobs:options.canonicalPlanJobs});
+    this.planning=new PlanningCoordinator({store,assertRun:ctx=>this.assertRun(ctx),domainContext:(ctx,signal)=>this.context(ctx.threadId,signal,undefined,ctx),runtimeFactory:options.planningRuntimeFactory,canonicalJobs:options.canonicalPlanJobs,observeTool:(call,parent,execute)=>this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1")?this.effects.invoke({call,ctx:parent,thread:this.thread(parent.threadId),role:"planning_child"},execute):execute()});
     runtime.configure({ onEvent: event => this.onRuntimeEvent(event), onTool: (call, ctx) => this.tool(call, ctx) });
     this.sideRuntime=new SideRuntime(options.sideRuntimeFactory??(()=>import('../runtime/index.ts').then(({createRuntime})=>createRuntime({dataDir:store.dataDir,accounts:accountResolver(store)}))),{onEvent:event=>this.onRuntimeEvent(event),onTool:(call,ctx)=>this.tool(call,ctx)});
     this.learningSupported=Boolean(options.source||options.learningRuntimeFactory);
-    this.learning=new LearningCoordinator({factory:job=>{if(!options.learningRuntimeFactory)throw new HarnessError('LEARNING_UNAVAILABLE','Automatic reviews are unavailable in this host.');return options.learningRuntimeFactory(job);},tool:(call,job,reads)=>this.learningTool(call,job,reads),result:(job,outcome)=>this.learningResult(job,outcome)});
+    this.learning=new LearningCoordinator({factory:job=>{if(!options.learningRuntimeFactory)throw new HarnessError('LEARNING_UNAVAILABLE','Automatic reviews are unavailable in this host.');return options.learningRuntimeFactory(job);},tool:(call,job,reads)=>this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1")?this.effects.invoke({call,ctx:{threadId:job.source.threadId},thread:this.thread(job.source.threadId),role:"learning"},async()=>this.learningTool(call,job,reads)) as Promise<LearningToolResult>:this.learningTool(call,job,reads),result:(job,outcome)=>this.learningResult(job,outcome)});
     this.curatorTimer=setInterval(()=>{if(!this.closed&&!this.updateClosing)this.curateIdle();},60_000);this.curatorTimer.unref();
   }
   private background(promise: Promise<unknown>): void {
@@ -607,7 +617,9 @@ export class Service {
         this.assertMutation(thread.id); const op = this.store.get<Operation>("operation", text(p, "operationId", 200));
         if (!op || op.threadId !== thread.id) throw new HarnessError("NOT_FOUND", "Operation not found");
         if (op.revision !== p.revision || op.status !== "prepared") throw new HarnessError("STALE_REVISION", "Operation has changed; review it again");
-        const next = { ...op, approved: true }; this.store.put("operation", op.id, thread.id, next); return next;
+        const next = { ...op, approved: true }; this.store.put("operation", op.id, thread.id, next);
+        if (this.effectFlags.enabled("security.authorityV1")) { const approval = this.effects.issueApproval(next, thread); this.store.put("approval", approval.approvalId, thread.id, approval); }
+        return next;
       }
       case "operation.reject": {
         const op = this.store.get<Operation>("operation", text(p, "operationId", 200));
@@ -925,6 +937,11 @@ export class Service {
     const owningThread=this.assertRun(ctx);
     if(owningThread.kind==='delegate')throw new HarnessError('AGENT_TOOL_DENIED','Delegated tools must use their parent-owned read-only coordinator.');
     if(owningThread.sideParentId&&call.name!=='task_finish')throw new HarnessError('SIDE_CHAT_READ_ONLY','Side conversations answer in text; files, mutations and delegation are unavailable.');
+    const role:ActorRole=owningThread.sideParentId?'side':'run';
+    if(this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1"))return this.effects.invoke({call,ctx,thread:owningThread,role},()=>this.toolBody(call,ctx,owningThread));
+    return this.toolBody(call,ctx,owningThread);
+  }
+  private async toolBody(call: ToolCall, ctx: RunContext, owningThread: Thread): Promise<unknown> {
     if(!this.source&&!owningThread.sideParentId&&owningThread.mode!=='plan')this.learningCalls.set(ctx.threadId,(this.learningCalls.get(ctx.threadId)??0)+1);
     const controller = this.aborts.get(ctx.threadId);
     const args = call.args;
@@ -1058,7 +1075,11 @@ export class Service {
     if (op.status !== "prepared") throw new HarnessError("RECONCILIATION_REQUIRED", "An operation is already running or has an uncertain outcome");
     this.assertMutation(op.threadId);
     if (!op.approved) throw new HarnessError("APPROVAL_REQUIRED", "Approve this prepared operation first");
-    this.store.internal("operation.started", op.threadId, () => { const started: Operation = { ...op, status: "running" }; this.store.put("operation", id, op.threadId, started); this.operationData(started); return { operationId: id }; });
+    const markStarted = () => { const started: Operation = { ...op, status: "running" }; this.store.put("operation", id, op.threadId, started); this.operationData(started); return { operationId: id }; };
+    if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1")) {
+      this.effects.verifyOperationApproval(op, this.thread(op.threadId));
+      this.effects.admitOperationDispatch(op, this.thread(op.threadId), markStarted);
+    } else this.store.internal("operation.started", op.threadId, markStarted);
     try {
       const domain = await import("../capabilities/index.ts");
       let writeEvidence:{path:string;sha256:string;bytes:number}|undefined;
@@ -1068,10 +1089,12 @@ export class Service {
       }
       const renewedGrant = await this.replacementGrant(op, result);
       if (!this.closed) this.store.internal("operation.succeeded", op.threadId, () => { const ended: Operation = { ...op, status: "succeeded", result }; if (renewedGrant) this.store.put("resource", renewedGrant.id, op.threadId, renewedGrant); this.store.put("operation", id, op.threadId, ended); this.operationData(ended); this.enqueueOperationResult(ended,writeEvidence); return { operationId: id }; });
+      if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1")) this.effects.settle("operation:" + id + "@" + op.revision, { value: result }, "SUCCEEDED");
       this.background(this.deliverOutbox(op.threadId));
       return result;
     } catch (error) {
       if (!this.closed) this.store.internal("operation.failed", op.threadId, () => { const ended: Operation = { ...op, status: control.signal.aborted || error instanceof HarnessError && error.code === "OPERATION_OUTCOME_UNKNOWN" ? "unknown" : "failed", error: error instanceof Error ? error.message : String(error), ...(error instanceof HarnessError && error.details ? { result: error.details } : {}) }; this.store.put("operation", id, op.threadId, ended); this.operationData(ended); this.enqueueOperationResult(ended); return { operationId: id }; });
+      if ((this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1")) && this.effects.get("operation:" + id + "@" + op.revision)) this.effects.settle("operation:" + id + "@" + op.revision, { error: error instanceof Error ? error.message : String(error) }, control.signal.aborted || error instanceof HarnessError && error.code === "OPERATION_OUTCOME_UNKNOWN" ? "UNKNOWN_EXTERNAL_OUTCOME" : "FAILED");
       this.background(this.deliverOutbox(op.threadId));
       throw error;
     }
@@ -1124,6 +1147,7 @@ export class Service {
       for (const input of this.store.all<Outbox>("outbox").filter(i => i.status !== "handled")) this.store.put("outbox", input.id, input.threadId, { ...input, status: "persisted" });
       return { inferenceCalls: 0 };
     });
+    if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1")) recoverEffects(this.store);
   }
   async dispose(): Promise<void> {
     for(const key of [...this.deltaBuffers.keys()])this.flushDelta(key);

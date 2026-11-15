@@ -13,6 +13,7 @@ import {Markdown} from '../Markdown';
 import {projectColor} from '../project-colors';
 import {groupAgents, type AgentNode, type AgentsWorkspaceController, type ProjectRow} from './controller';
 import type {SharedAgentComposers} from './composer';
+import {agentProjectCatalog} from './project-catalog';
 import './agents-workspace.css';
 import {ErrorState} from '../../../../packages/ui-shell/Feedback';
 
@@ -31,9 +32,7 @@ const statusLabel = (value: AgentStatus) => value.replaceAll('_', ' ');
 export function AgentsWorkspace({controller, composers, onOpenConversation, preferences, projects = [], hasConversations = false}: AgentsWorkspaceProps) {
  const state = useSyncExternalStore(controller.subscribe, controller.getSnapshot), [searchOpen, setSearchOpen] = useState(Boolean(state.scope.text)), [text, setText] = useState(state.scope.text ?? '');
  const rows = useMemo(() => groupAgents(state.agents), [state.agents]);
- const catalog = useRef(new Map<string, string>());
- for (const project of projects) catalog.current.set(project.id, project.name);
- for (const agent of state.agents) if (agent.projectId) catalog.current.set(agent.projectId, agent.projectName ?? agent.projectId);
+ const catalog = useMemo(() => agentProjectCatalog(projects, state.agents), [projects, state.agents]);
  const viewport = useRef<HTMLDivElement>(null), search = useRef<HTMLInputElement>(null), latestScope = useRef(state.scope); latestScope.current = state.scope;
  const visible = useMemo(() => {
   const ids = new Set<string>(); let frame = 0;
@@ -48,7 +47,7 @@ export function AgentsWorkspace({controller, composers, onOpenConversation, pref
  useLayoutEffect(() => {if (viewport.current) viewport.current.scrollTop = controller.view('$workspace').top;}, [controller]);
  return <Visibility.Provider value={visible.set}><section className="agents-workspace" aria-label="Agent workspace" data-density={preferences?.density ?? 'comfortable'}>
   <div className="agents-toolbar" role="toolbar" aria-label="Agent filters">
-   <Select aria-label="Project filter" value={state.scope.projectId === undefined ? '$all' : state.scope.projectId === null ? '$none' : state.scope.projectId} options={[{value: '$all', label: 'All projects'}, ...[...catalog.current].map(([value, label]) => ({value, label})), {value: '$none', label: 'No project'}]} onValueChange={value => {void controller.setScope({...state.scope, projectId: value === '$all' ? undefined : value === '$none' ? null : value});}}/>
+   <Select aria-label="Project filter" value={state.scope.projectId === undefined ? '$all' : state.scope.projectId === null ? '$none' : state.scope.projectId} options={[{value: '$all', label: 'All projects'}, ...[...catalog].map(([value, label]) => ({value, label})), {value: '$none', label: 'No project'}]} onValueChange={value => {void controller.setScope({...state.scope, projectId: value === '$all' ? undefined : value === '$none' ? null : value});}}/>
    <Select aria-label="Status filter" value={state.scope.statuses?.[0] ?? '$all'} options={[{value: '$all', label: 'All statuses'}, ...agentStatuses.map(value => ({value, label: statusLabel(value)}))]} onValueChange={value => {void controller.setScope({...state.scope, statuses: value === '$all' ? undefined : [value as AgentStatus]});}}/>
    <button type="button" className="agents-icon" aria-label={searchOpen ? 'Close agent search' : 'Search agents'} aria-expanded={searchOpen} onClick={() => {setSearchOpen(!searchOpen); if (searchOpen) setText(''); else requestAnimationFrame(() => search.current?.focus());}}>{searchOpen ? <X size={16}/> : <Search size={16}/>}</button>
    {searchOpen && <input ref={search} type="search" aria-label="Filter agents" placeholder="Find agent…" maxLength={200} value={text} onChange={event => setText(event.target.value)}/>}

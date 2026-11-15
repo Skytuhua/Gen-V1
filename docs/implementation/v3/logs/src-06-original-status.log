@@ -1,0 +1,7 @@
+argv: ["C:\\Program Files\\Git\\cmd\\git.exe","-C","C:\\Users\\Administrator\\repos\\Gen-V1","status","--porcelain=v1"]
+cwd: C:\Users\Administrator\repos\Gen-V1-m01
+termination: NONE
+exitCode: 0
+--- stdout ---
+
+--- stderr ---
