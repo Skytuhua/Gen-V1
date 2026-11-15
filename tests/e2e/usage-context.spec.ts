@@ -182,3 +182,20 @@ test('invalidating a receipt ends accepted motion immediately and after its time
   expect(await context(page).locator('.context-receipt-pulse').count()).toBe(0);
   await expect(context(page).locator('.context-measurement-accepted,.context-receipt-pulse')).toHaveCount(0);
 });
+
+test('Requests can filter measured providers even when no usage report exists', async ({ page }) => {
+  await page.goto('/usage-context?requests'); await update(page, 'empty');
+  await page.getByRole('button', { name: 'Open Usage', exact: true }).click();
+  const modal = usage(page);
+  await modal.getByRole('tab', { name: 'Requests', exact: true }).click();
+  const panel = modal.getByRole('tabpanel');
+  await expect(panel).toContainText('openai/model');
+  await expect(panel).toContainText('gemini-cli/model');
+  await modal.getByRole('combobox', { name: 'Usage provider', exact: true }).click();
+  await modal.getByRole('option', { name: 'provider-b', exact: true }).click();
+  await expect(panel).toContainText('gemini-cli/model');
+  await expect(panel).not.toContainText('openai/model');
+  await expect(modal.getByRole('combobox', { name: 'Usage scope', exact: true })).toHaveCount(0);
+  await modal.getByRole('tab', { name: 'Cost', exact: true }).click();
+  await expect(modal.getByRole('combobox', { name: 'Usage scope', exact: true })).toBeVisible();
+});
