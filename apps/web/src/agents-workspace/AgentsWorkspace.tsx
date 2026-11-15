@@ -106,11 +106,11 @@ function Project({row, controller, ...props}: {row: ProjectRow} & Omit<AgentsWor
  };
  return <section className="agents-project" role="region" aria-label={`Project ${row.name}`}>
   <header className="agents-project-header"><span className="agents-project-mark" style={{'--project-color': color} as CSSProperties} aria-hidden="true">{row.name.slice(0, 1).toUpperCase()}</span><h2>{row.name}</h2><span>{count(row.parents)} working</span></header>
-  <VirtualSlot className="agents-project-slot" label={`${row.name} agents`}>
+  <div className="agents-project-slot">
    <div className="agents-agent-grid" role="region" aria-label={`${row.name} agents`} tabIndex={0} onKeyDown={navigate}>
     {row.parents.map(node => <VirtualSlot className="agents-grid-slot" key={node.agent.agentId} label={node.agent.title}><Agent node={node} controller={controller} {...props}/></VirtualSlot>)}
    </div>
-  </VirtualSlot>
+  </div>
  </section>;
 }
 function Agent({node, controller, composers, onOpenConversation, preferences}: {node: AgentNode} & Omit<AgentsWorkspaceProps, 'projects'>) {
