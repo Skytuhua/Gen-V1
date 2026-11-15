@@ -1,4 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
+
+const flushFrames = (page: Page) => page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
 import { serveTaskFixture, taskFixture, type TaskSpec } from './task-interface-fixture';
 
 const spec: TaskSpec = { root: 'root', elements: {
@@ -52,7 +54,7 @@ test('an interrupted collapse reverses from its current height without replacing
   await fixture(page);
   const field = page.getByRole('textbox', { name: 'Visit note' }), identity = await field.elementHandle();
   const button = page.getByRole('button', { name: 'What should I bring?', exact: true });
-  await button.click(); await page.waitForTimeout(65); await button.click();
+  await button.click(); await flushFrames(page); await button.click();
   await expect(field).toBeVisible(); await expect(field).toHaveValue('Keep this draft');
   expect(await field.evaluate((node, previous) => node === previous, identity)).toBe(true);
   await expect(button).toBeFocused();

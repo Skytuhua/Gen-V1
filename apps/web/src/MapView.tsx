@@ -13,7 +13,7 @@ export function MapView({ element: { props } }: ComponentRenderProps) {
   const points = parsed.success ? parsed.data.points : [];
   const saved = store.get(statePath(props.stateKey));
   const index = Math.max(0, points.findIndex(point => point.id === saved));
-  const selected = points[index];
+  const selected = points[index], hasCarousel = Boolean(selected);
   const [localTheme, setLocalTheme] = useState<string>();
   const [shellTheme, setShellTheme] = useState(() => document.documentElement.dataset.theme);
   useEffect(() => {
@@ -41,7 +41,7 @@ export function MapView({ element: { props } }: ComponentRenderProps) {
     align(aligned.current&&selectionIntent.current===selected?.id);aligned.current=true;selectionIntent.current=undefined;
     let width=container.clientWidth;const observer = new ResizeObserver(()=>{if(width!==container.clientWidth){width=container.clientWidth;align();}}); observer.observe(container);
     return () => observer.disconnect();
-  }, [index]);
+  }, [index, hasCarousel]);
   if (!parsed.success || !selected) return <p className="task-unavailable">Map points are unavailable from the connected source.</p>;
   const choose = (next: number) => { userScrolling.current = false;const point=points[(next + points.length) % points.length];selectionIntent.current=point.id;store.set(statePath(props.stateKey), point.id); };
   const finishScroll = () => { const area = carousel.current; if (!area?.clientWidth) return;const point=points[Math.round(area.scrollLeft / area.clientWidth)];if(point)store.set(statePath(props.stateKey),point.id);userScrolling.current=false; };

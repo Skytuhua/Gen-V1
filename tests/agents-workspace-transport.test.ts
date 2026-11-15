@@ -26,3 +26,11 @@ it('decodes fragmented UTF-8 SSE frames and releases the reader on abort', async
  await personalAgentTransport.events({after: 1, scopeKey: 's', visibleAgentIds: ['😀']}, accept, new AbortController().signal);
  expect(accept).toHaveBeenCalledExactlyOnceWith(update);
 });
+it('skips a malformed agents frame and keeps decoding later updates', async () => {
+ const update: InventoryUpdates = {authority: 'personal', scopeKey: 's', sequence: 3, fromSequence: 2, resync: false, upserts: [], removed: [], ancestors: [], transcripts: []};
+ const payload = `event: agents\r\ndata: {not json\r\n\r\nevent: agents\r\ndata: ${JSON.stringify(update)}\r\n\r\n`;
+ vi.stubGlobal('fetch', vi.fn(async (input: string) => input === '/api/bootstrap' ? Response.json({csrfToken: 'test'}) : new Response(new ReadableStream({start(controller) {controller.enqueue(new TextEncoder().encode(payload)); controller.close();}}), {headers: {'content-type': 'text/event-stream'}})));
+ const {personalAgentTransport} = await import('../apps/web/src/agents-workspace/transport'); const accept = vi.fn();
+ await personalAgentTransport.events({after: 2, scopeKey: 's', visibleAgentIds: []}, accept, new AbortController().signal);
+ expect(accept).toHaveBeenCalledExactlyOnceWith(update);
+});

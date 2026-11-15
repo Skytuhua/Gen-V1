@@ -32,3 +32,13 @@ it('still cycles through matching items when repeating a single key', () => {
   expect(rows[0].focus).toHaveBeenCalledOnce();
   expect(rows[2].focus).toHaveBeenCalledOnce();
 });
+
+it('does not select a stale index after a menu loses rows', () => {
+  const items = [{ label: 'First' }, { label: 'Second' }];
+  const selected: number[] = [];
+  const navigation = useListNavigation(items, index => selected.push(index), () => {});
+  navigation.onFocus(1);
+  items.pop();
+  navigation.onKeyDown({key:'Enter', nativeEvent:{}, target:{}, preventDefault(){}} as KeyboardEvent);
+  expect(selected).toEqual([]);
+});

@@ -154,7 +154,7 @@ test('batched theme and narrow captures preserve distinct geometry and reduced m
 
 test('architecture and trace selections have subtle finite perimeter accents without white edges',async({page})=>{
  await fixture(page,'ArchitectureCanvas',suppliedGraph);await page.goto('/');const queue=page.locator('[data-architecture-node="queue"]');expect(await queue.evaluate(node=>getComputedStyle(node).borderLeftWidth)).toBe('1px');
- await queue.click();await expect(queue.locator('.work-selection-halo')).toBeAttached();await page.waitForTimeout(500);await expect(queue.locator('.work-selection-halo')).toHaveCount(0);
+ await queue.click();await expect(queue.locator('.work-selection-halo')).toBeAttached();await expect(queue.locator('.work-selection-halo')).toHaveCount(0);
  await page.reload();await expect(queue).toHaveAttribute('aria-pressed','true');await expect(queue.locator('.work-selection-halo')).toHaveCount(0);
  await fixture(page,'TraceWaterfall',suppliedTrace);await page.goto('/');const span=page.getByRole('treeitem',{name:'Parse document',exact:true});expect(await span.locator('.trace-bar').evaluate(node=>getComputedStyle(node).borderLeftColor)).not.toBe(await span.evaluate(node=>getComputedStyle(node).color));
  await page.emulateMedia({reducedMotion:'reduce'});await span.click();await expect(span.locator('.work-selection-halo')).toHaveCount(0);await expect(span).toHaveAttribute('aria-selected','true');

@@ -16,3 +16,32 @@ describe('main-owned attention popups',()=>{
  it('pauses expiry on hover and revalidates event identity for Open',async()=>{vi.useFakeTimers();const{popups,native,action,open}=setup([item('a')]);await popups.poll();await action('pause','a');await vi.advanceTimersByTimeAsync(7000);expect(native.hide).not.toHaveBeenCalled();await action('open','unknown');expect(open).not.toHaveBeenCalled();await action('open','a');expect(open).toHaveBeenCalledWith('a');popups.stop();});
  it('handles overnight quiet hours and uses fixed CSP-protected markup',()=>{expect(isQuietHours({enabled:true,start:'22:00',end:'08:00'},new Date(2026,10,4,23,0))).toBe(true);expect(isQuietHours({enabled:true,start:'22:00',end:'08:00'},new Date(2026,10,4,12,0))).toBe(false);const html=attentionPopupHtml('a'.repeat(32));expect(html).toContain("default-src 'none'");expect(html).toContain('textContent');expect(html).not.toContain('fetch(');expect(html).toContain('expiry');expect(html).toContain('aria-live="polite"');expect(html).toContain("api.action('pause'");expect(html).toContain("api.action('dismiss'");expect(html).not.toContain('innerHTML');expect(()=>attentionPopupHtml('bad')).toThrow();});
 });
+
+it('rereads and delivers an item when the native surface recovers from a transient creation error',async()=>{
+ vi.useFakeTimers();
+ const {popups,native,create}=setup([item('a')]);
+ create.mockRejectedValueOnce(Error('Native surface failed to load'));
+ try {
+  await popups.poll();
+  expect(native.showInactive).not.toHaveBeenCalled();
+  await vi.advanceTimersByTimeAsync(7000);
+  await popups.poll();
+  expect(create).toHaveBeenCalledTimes(2);
+  expect(native.render).toHaveBeenLastCalledWith({cards:[expect.objectContaining({eventId:'a'})],sound:.3});
+  await popups.poll();
+  expect(native.showInactive).toHaveBeenCalledTimes(1);
+ } finally {popups.stop();}
+});
+
+it('does not resurrect an undelivered alert if quiet hours begin after a creation error',async()=>{
+ const {popups,native,create,read}=setup([item('a')]);
+ create.mockRejectedValueOnce(Error('Native surface failed to load'));
+ try {
+  await popups.poll();
+  read.mockResolvedValueOnce({items:[item('a')],preferences:{...preferences,quietHours:{enabled:true,start:'00:00',end:'00:00'}}});
+  await popups.poll();
+  await popups.poll();
+  expect(create).toHaveBeenCalledOnce();
+  expect(native.showInactive).not.toHaveBeenCalled();
+ } finally {popups.stop();}
+});

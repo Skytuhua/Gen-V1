@@ -1,6 +1,8 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import { graphData, graphSpec } from '../../scripts/review-fixtures';
 import { branchGraphData, branchGraphSpec, migrationTableSpec, serveTaskFixture, taskFixture } from './task-interface-fixture';
+
+const flushFrames = (page: Page) => page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
 
 test('PR phases retain busy actions and add resolution history before merged checks exit', async ({ page }) => {
   const initial = taskFixture(graphSpec('vertical', 'conflicts'), { graph: graphData('conflicts') });
@@ -21,7 +23,8 @@ test('PR phases retain busy actions and add resolution history before merged che
 
 test('vertical row dots and existing SVG endpoints remain attached throughout history insertion', async ({ page }) => {
   const fixture = await serveTaskFixture(page, taskFixture(branchGraphSpec('vertical'), { graph: branchGraphData })); await page.goto('/');
-  await expect(page.locator('[data-node-id=base]')).toBeVisible(); await page.waitForTimeout(500);
+  await expect(page.locator('[data-node-id=base]')).toBeVisible();
+  await expect.poll(() => page.locator('.task-graph').evaluate(graph => graph.getAnimations({ subtree: true }).filter(animation => animation.playState === 'running' ).length)).toBe(0);
   fixture.setInput('graph', { ...branchGraphData, nodes: [{ id: 'inserted', label: 'Resolved merge', lane: 0, status: 'success' }, ...branchGraphData.nodes] });
   await fixture.publish(); await expect(page.locator('[data-node-id=inserted]')).toBeVisible();
   const samples = await page.locator('.task-graph').evaluate(async graph => {
@@ -52,28 +55,29 @@ test('accepted cell values reveal with the change highlight and sweep follows de
   const firstTop = await sweep.evaluate(node => node.getBoundingClientRect().top);
   fixture.setInput('changes', { revision: 2, activeRowId: 'two', rows: [{ id: 'one', cells: [{ key: 'workspace_id', status: 'updated', before: null }] }] }); await fixture.publish();
   await expect.poll(() => sweep.evaluate(node => node.getBoundingClientRect().top)).toBeGreaterThan(firstTop + 20);
-  await page.waitForTimeout(450); await fixture.publish();
+  await expect.poll(() => cell.evaluate(node => node.getAnimations({ subtree: true }).filter(animation => animation.playState === 'running' ).length)).toBe(0); await fixture.publish();
+  await flushFrames(page);
   expect(await cell.evaluate(node => node.getAnimations({ subtree: true }).filter(animation => animation.playState === 'running').length)).toBe(0);
 });
 
-test('new column geometry arrives continuously while the existing header stays mounted', async ({ page }) => {
-  const spec = { root: 'table', elements: { table: { type: 'Table', props: { rowsBinding: 'rows', columns: [{ key: 'name', label: 'Name' }], rowKey: 'id' } } } };
+test('column geometry arrives continuously while the existing header stays mounted', async ({ page }) => {
+  const spec = { root: 'table', elements: { table: { type: 'Table', props: { rowsBinding: 'rows', columns: [{ key: 'workspace', label: 'Workspace' }, { key: 'name', label: 'Name' }], rowKey: 'id' } } } };
   const fixture = await serveTaskFixture(page, taskFixture(spec, { rows: [{ id: 'one', name: 'Ada', workspace: 'studio' }] })); await page.goto('/');
-  const header = page.getByRole('columnheader', { name: 'Name', exact: true }); const identity = await header.elementHandle();
+  const header = page.getByRole('columnheader', { name: 'Name' }); const identity = await header.elementHandle();
   await header.evaluate(node => {
     const table = node.closest('table')!;
     Object.assign(window, { operationalColumnMotion: new Promise<number[]>(resolve => {
       const observer = new MutationObserver(() => {
-        if (!table.querySelector('th[data-column-key=workspace]')) return;
+        if (table.querySelector('th[data-column-key=workspace]')) return;
         observer.disconnect();
         const values: number[] = [], start = performance.now();
-        const sample = () => { values.push(node.getBoundingClientRect().x); if (performance.now() - start < 320) requestAnimationFrame(sample); else resolve(values); };
+        const sample = () => { const cell = table.querySelector('td[data-column-key=name]'); if (cell) values.push(cell.getBoundingClientRect().x); if (performance.now() - start < 320) requestAnimationFrame(sample); else resolve(values); };
         sample();
       }); observer.observe(table, { childList: true, subtree: true });
     }) });
   });
-  fixture.snapshot.artifacts[0].spec!.elements.table.props.columns = [{ key: 'workspace', label: 'Workspace' }, { key: 'name', label: 'Name' }]; fixture.snapshot.artifacts[0].revision++; await fixture.publish();
-  await expect(page.getByRole('columnheader', { name: 'Workspace', exact: true })).toBeVisible();
+  fixture.snapshot.artifacts[0].spec!.elements.table.props.columns = [{ key: 'name', label: 'Name' }]; fixture.snapshot.artifacts[0].revision++; await fixture.publish();
+  await expect(page.getByRole('columnheader', { name: 'Workspace' })).toHaveCount(0);
   expect(await header.evaluate((node, old) => node === old, identity)).toBe(true);
   const positions = await page.evaluate(() => (window as unknown as { operationalColumnMotion: Promise<number[]> }).operationalColumnMotion);
   expect(Math.max(...positions) - Math.min(...positions)).toBeGreaterThan(10);
@@ -96,7 +100,8 @@ test('context shell keeps header, body and footer bands and compacting shimmers 
   expect(await dialog.evaluate((node, old) => node === old, identity)).toBe(true);
   fixture.snapshot.usage['task-thread'].activity = 'compacting'; await fixture.publish();
   await expect(dialog.locator('.context-compaction-shimmer')).toBeVisible(); await expect(dialog.locator('header')).toContainText('60%');
-  await page.waitForTimeout(200); await expect(dialog.locator('header')).toContainText('60%');
+  await flushFrames(page); await expect(dialog.locator('header')).toContainText('60%');
+  await flushFrames(page); await expect(dialog.locator('header')).toContainText('60%');
 });
 
 test('reduced motion skips graph travel and context shimmer while preserving source state', async ({ page }) => {
@@ -118,7 +123,7 @@ test('a token decrease without a host receipt never claims freed tokens and keep
   const fixture=await serveTaskFixture(page,initial);await page.goto('/');await page.getByRole('button',{name:'Inspect context usage'}).click();
   const dialog=page.getByRole('dialog',{name:'Context inspector'});await dialog.getByRole('button',{name:'Compact now',exact:true}).click();
   initial.usage['task-thread']={...initial.usage['task-thread'],contextTokens:80000};await fixture.publish();
-  await page.waitForTimeout(200);await expect(dialog.getByRole('status')).not.toContainText('Freed');
+  await flushFrames(page);await expect(dialog.getByRole('status')).not.toContainText('Freed');
   await expect(dialog.getByRole('button',{name:'Compact now',exact:true})).toBeEnabled();
   await expect(dialog.getByRole('status')).toContainText('Result not reported',{timeout:2500});
   await expect(dialog.getByRole('status')).not.toContainText('Freed');

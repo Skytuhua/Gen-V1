@@ -25,7 +25,7 @@ async function setup(page: Page) {
       return route.fulfill({json: {commandId: command.id, seq: ++model.sequence, result: {}}});
     }
     if (path === '/api/environment') return route.fulfill({json: {revision: 0, entries: [], secretStorageAvailable: false}});
-    if (path === '/api/workspace') return route.fulfill({json: {projects: []}});
+    if (path === '/api/workspace') return route.fulfill({json: {projects: [], state: {version: 1, revision: 0, activeCanvasId: 'workspace', canvases: [{id: 'workspace', name: 'Workspace', preset: 'workspace', version: 1, panels: [], filter: 'active', projectIds: [], viewport: {x: 0, y: 0, zoom: 1}}], profiles: [], disabledKinds: [], integrations: {}}}});
     if (path === '/api/integrations') return route.fulfill({json: {integrations: []}});
     if (path === '/api/account-auth') return route.fulfill({json: {state: 'signed-out', message: 'Synthetic readiness', identity: {availability: 'unavailable'}}});
     return route.fulfill({status: 500, json: {error: {message: 'Unexpected fixture read: ' + path}}});

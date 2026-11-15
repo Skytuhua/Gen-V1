@@ -12,7 +12,7 @@ import {fileURLToPath} from 'node:url';
 import {DESKTOP_CHANNELS as channels,desktopId,desktopSurfaceKey,parseDesktopSurface,parseDesktopLayout,parseDesktopWindowControl,type DesktopLayout,type DesktopLayoutEntry,type DesktopSurface,type DesktopWindowInfo,type DesktopContext,type DesktopState,type DesktopBrowserState} from '../../packages/desktop-contract/index.ts';
 import {allowRemoteBrowserUrl,clampDesktopBounds,pluginDesktopChannelAllowed,pluginDesktopRequiresGrant,nativeTitlebarOptions,nativeTitlebarTheme,needsEditorHandoff,desktopSurfaceAllowed,isTrustedDesktopSender,parseBrowserCommand,remoteBrowserUrl,surfaceSize,trustedDesktopUrl,trustedDesktopSubframe,type DesktopBounds} from './window-policy.ts';
 import {createBrowserProxy,type BrowserProxy} from './browser-proxy.ts';
-import {nodeSidecarArguments,requestBackendShutdown,waitForBackendReady} from './backend-policy.ts';
+import {finishBackendStartup,nodeSidecarArguments,requestBackendShutdown,waitForBackendReady} from './backend-policy.ts';
 import {releaseOwnedBrowsers,detachOwnedBrowser} from './browser-lifecycle.ts';
 import {ensureMainDockedBrowser} from './docked-browser.ts';
 import {nativeBrowserBounds} from './browser-bounds.ts';
@@ -170,7 +170,7 @@ async function openSurface(raw:unknown,sourceBounds?:DesktopBounds):Promise<Desk
  await native.loadURL(url).catch(error=>{if(!record.settled){record.settled=true;record.rejectReady(error);}if(!native.isDestroyed())native.destroy();});
  return readyPromise;
 }
-function trustedUrl(id:string){return trustedDesktopUrl(backendOrigin,id);}
+function trustedUrl(id:string){return trustedDesktopUrl(backendOrigin,id,launchToken||undefined);}
 function requestClose(record:WindowRecord):Promise<boolean>{
  if(record.window.isDestroyed())return Promise.resolve(true);if(record.closePromise)return record.closePromise;
  const requestId=randomUUID();record.closePromise=new Promise<boolean>(resolve=>{const finish=(allow:boolean)=>{record.closeRequest=undefined;record.closePromise=undefined;resolve(allow);};record.closeRequest={id:requestId,resolve:finish,timer:setTimeout(()=>finish(false),15000)};record.window.webContents.send(channels.closeRequest,requestId);});return record.closePromise;
@@ -288,11 +288,15 @@ async function startBackend():Promise<void>{
  const pathKey=Object.keys(env).find(key=>key.toLowerCase()==='path')??'PATH';env[pathKey]=dirname(env.HARNESS_BUNDLED_GIT)+';'+(env[pathKey]??'');
  const child=spawn(nodePath,nodeSidecarArguments(root),{cwd:root,env,stdio:['ignore','pipe','pipe','ipc'],windowsHide:true,serialization:'json'});backend=child;
  let stderr='';child.stderr?.on('data',bytes=>{stderr=(stderr+String(bytes)).slice(-8000);});child.stdout?.on('data',()=>{});
- const value=await waitForBackendReady(child,token,backendPort,()=>stderr);backendOrigin=value.origin as string;
- if(value.nativeLayout!==undefined)try{hostLayout=parseDesktopLayout(value.nativeLayout);}catch{layoutError='The saved host workspace layout is invalid. The local backup is retained.';}
- await workspaceRelay?.close();workspaceRelay=workspaceEvents(backendOrigin,change=>{for(const record of windows.values())if(!record.window.isDestroyed())record.window.webContents.send(channels.workspaceChanged,change);});
- backendError=undefined;broadcast();
- child.once('exit',()=>{if(closing||backend!==child)return;backendError='The local backend stopped. Reconnecting…';broadcast();if(restarting)return;restarting=true;setTimeout(()=>{void startBackend().catch(error=>{backendError='Backend restart failed: '+String(error instanceof Error?error.message:error).slice(0,500);broadcast();}).finally(()=>{restarting=false;});},700);});
+ const value=await waitForBackendReady(child,token,backendPort,()=>stderr);
+ const oldRelay=workspaceRelay;workspaceRelay=undefined;
+ await finishBackendStartup(child,oldRelay?.close(),()=>stderr,()=>{
+  backendOrigin=value.origin as string;
+  if(value.nativeLayout!==undefined)try{hostLayout=parseDesktopLayout(value.nativeLayout);}catch{layoutError='The saved host workspace layout is invalid. The local backup is retained.';}
+  workspaceRelay=workspaceEvents(backendOrigin,change=>{for(const record of windows.values())if(!record.window.isDestroyed())record.window.webContents.send(channels.workspaceChanged,change);});
+  child.once('exit',()=>{if(closing||backend!==child)return;backendError='The local backend stopped. Reconnecting…';broadcast();if(restarting)return;restarting=true;setTimeout(()=>{void startBackend().catch(error=>{backendError='Backend restart failed: '+String(error instanceof Error?error.message:error).slice(0,500);broadcast();}).finally(()=>{restarting=false;});},700);});
+  backendError=undefined;broadcast();
+ });
 }
 async function stopBackend():Promise<boolean>{
  let clean=true;

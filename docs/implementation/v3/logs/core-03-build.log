@@ -1,0 +1,110 @@
+argv: ["C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe","C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js","build"]
+cwd: C:\Users\Administrator\repos\Gen-V1-m01
+termination: NONE
+exitCode: 0
+--- stdout ---
+
+> gen-v1@0.6.5 build C:\Users\Administrator\repos\Gen-V1-m01
+> node scripts/build.mjs
+
+[36mvite v7.3.7 [32mbuilding client environment for production...[36m[39m
+transforming...
+[36mvite v7.3.7 [32mbuilding client environment for production...[36m[39m
+transforming...
+[32m✓[39m 1787 modules transformed.
+rendering chunks...
+computing gzip size...
+[2mdist/plugin-runtime/[22m[32massets/pdf-draft.worker-BsXEv1s_.js  [39m[1m[2m  438.34 kB[22m[1m[22m
+[2mdist/plugin-runtime/[22m[35mruntime.css                          [39m[1m[2m1,052.71 kB[22m[1m[22m[2m │ gzip: 666.46 kB[22m
+[2mdist/plugin-runtime/[22m[36mruntime.js                           [39m[1m[33m2,955.27 kB[39m[22m[2m │ gzip: 957.05 kB[22m
+[32m✓ built in 5.62s[39m
+[32m✓[39m 2128 modules transformed.
+rendering chunks...
+computing gzip size...
+[2m../../dist/web/[22m[32mindex.html                                                  [39m[1m[2m    0.55 kB[22m[1m[22m[2m │ gzip:   0.34 kB[22m
+[2m../../dist/web/[22m[32massets/dancing-script-vietnamese-400-normal-lz8MlVep.woff2  [39m[1m[2m    4.94 kB[22m[1m[22m
+[2m../../dist/web/[22m[32massets/dancing-script-vietnamese-400-normal-D2srOv8f.woff   [39m[1m[2m    6.72 kB[22m[1m[22m
+[2m../../dist/web/[22m[32massets/inter-vietnamese-wght-normal-CBcvBZtf.woff2          [39m[1m[2m   10.25 kB[22m[1m[22m
+[2m../../dist/web/[22m[32massets/inter-greek-ext-wght-normal-DlzME5K_.woff2           [39m[1m[2m   11.23 kB[22m[1m[22m
+[2m../../dist/web/[22m[32massets/dancing-script-latin-ext-400-normal-C917Kz-3.woff2   [39m[1m[2m   13.56 kB[22m[1m[22m
+[2m../../dist/web/[22m[32massets/dancing-script-latin-ext-400-normal-DaWfpMsu.woff    [39m[1m[2m   18.19 kB[22m[1m[22m
+[2m../../dist/web/[22m[32massets/caveat-latin-ext-400-normal-D7hBUiug.woff2           [39m[1m[2m   18.60 kB[22m[1m[22m
+[2m../../dist/web/[22m[32massets/inter-cyrillic-wght-normal-DqGufNeO.woff2            [39m[1m[2m   18.75 kB[22m[1m[22m
+[2m../../dist/web/[22m[32massets/inter-greek-wght-normal-CkhJZR-_.woff2               [39m[1m[2m   19.00 kB[22m[1m[22m
+[2m../../dist/web/[22m[32massets/dancing-script-latin-400-normal--YrtvvVF.woff2       [39m[1m[2m   23.82 kB[22m[1m[22m
+[2m../../dist/web/[22m[32massets/caveat-latin-ext-400-normal-DtiRFvw0.woff            [39m[1m[2m   24.09 kB[22m[1m[22m
+[2m../../dist/web/[22m[32massets/caveat-cyrillic-ext-400-normal-3iEGd-c5.woff2        [39m[1m[2m   24.23 kB[22m[1m[22m
+[2m../../dist/web/[22m[32massets/inter-cyrillic-ext-wght-normal-BOeWTOD4.woff2        [39m[1m[2m   25.96 kB[22m[1m[22m
+[2m../../dist/web/[22m[32massets/dancing-script-latin-400-normal-BY5FxJb0.woff        [39m[1m[2m   29.13 kB[22m[1m[22m
+[2m../../dist/web/[22m[32massets/caveat-cyrillic-ext-400-normal-Cg0RnRQ5.woff         [39m[1m[2m   29.73 kB[22m[1m[22m
+[2m../../dist/web/[22m[32massets/caveat-cyrillic-400-normal-9cDH9rLW.woff2            [39m[1m[2m   45.12 kB[22m[1m[22m
+[2m../../dist/web/[22m[32massets/inter-latin-wght-normal-Dx4kXJAl.woff2               [39m[1m[2m   48.26 kB[22m[1m[22m
+[2m../../dist/web/[22m[32massets/caveat-latin-400-normal-D6LQsQ_v.woff2               [39m[1m[2m   48.84 kB[22m[1m[22m
+[2m../../dist/web/[22m[32massets/caveat-cyrillic-400-normal-CebvvJET.woff             [39m[1m[2m   53.10 kB[22m[1m[22m
+[2m../../dist/web/[22m[32massets/caveat-latin-400-normal-BzhAQZkN.woff                [39m[1m[2m   60.11 kB[22m[1m[22m
+[2m../../dist/web/[22m[32massets/inter-latin-ext-wght-normal-DO1Apj_S.woff2           [39m[1m[2m   85.07 kB[22m[1m[22m
+[2m../../dist/web/[22m[32massets/pdf-draft.worker-BsXEv1s_.js                         [39m[1m[2m  438.34 kB[22m[1m[22m
+[2m../../dist/web/[22m[32massets/pdf.worker.min-Dkey6ZUl.mjs                          [39m[1m[2m1,321.31 kB[22m[1m[22m
+[2m../../dist/web/[22m[35massets/SignaturePad-DAcKZblR.css                            [39m[1m[2m    2.68 kB[22m[1m[22m[2m │ gzip:   0.65 kB[22m
+[2m../../dist/web/[22m[35massets/xterm-DDGTF8rc.css                                   [39m[1m[2m    3.62 kB[22m[1m[22m[2m │ gzip:   0.99 kB[22m
+[2m../../dist/web/[22m[35massets/ImageCompare-RPgQ1nt1.css                            [39m[1m[2m    3.69 kB[22m[1m[22m[2m │ gzip:   1.19 kB[22m
+[2m../../dist/web/[22m[35massets/Settings-BRmCrfp5.css                                [39m[1m[2m    5.42 kB[22m[1m[22m[2m │ gzip:   1.42 kB[22m
+[2m../../dist/web/[22m[35massets/EverydayData-73YFHHqC.css                            [39m[1m[2m    9.21 kB[22m[1m[22m[2m │ gzip:   2.16 kB[22m
+[2m../../dist/web/[22m[35massets/InteractionTools-DVgicenx.css                        [39m[1m[2m   13.41 kB[22m[1m[22m[2m │ gzip:   2.89 kB[22m
+[2m../../dist/web/[22m[35massets/ExplorationTools-nl79hqvf.css                        [39m[1m[2m   13.54 kB[22m[1m[22m[2m │ gzip:   3.06 kB[22m
+[2m../../dist/web/[22m[35massets/SoftwareDevelopment-CyrBH-cW.css                     [39m[1m[2m   14.18 kB[22m[1m[22m[2m │ gzip:   3.09 kB[22m
+[2m../../dist/web/[22m[35massets/WorkObjects-Bhzs1ppu.css                             [39m[1m[2m   14.84 kB[22m[1m[22m[2m │ gzip:   3.28 kB[22m
+[2m../../dist/web/[22m[35massets/index-BuzQxom1.css                                   [39m[1m[2m   44.06 kB[22m[1m[22m[2m │ gzip:   9.96 kB[22m
+[2m../../dist/web/[22m[35massets/DesktopEntry-BCH3REiB.css                            [39m[1m[2m  261.98 kB[22m[1m[22m[2m │ gzip:  45.82 kB[22m
+[2m../../dist/web/[22m[36massets/pdf.worker.min-OGYDhRwp.js                           [39m[1m[2m    0.07 kB[22m[1m[22m[2m │ gzip:   0.09 kB[22m
+[2m../../dist/web/[22m[36massets/chevron-left-CEvtj1zv.js                             [39m[1m[2m    0.13 kB[22m[1m[22m[2m │ gzip:   0.15 kB[22m
+[2m../../dist/web/[22m[36massets/focus-DGPctE52.js                                    [39m[1m[2m    0.34 kB[22m[1m[22m[2m │ gzip:   0.23 kB[22m
+[2m../../dist/web/[22m[36massets/addon-fit-DX4qG4td.js                                [39m[1m[2m    1.21 kB[22m[1m[22m[2m │ gzip:   0.51 kB[22m
+[2m../../dist/web/[22m[36massets/CompactSettings-RfVrzKAb.js                          [39m[1m[2m    3.35 kB[22m[1m[22m[2m │ gzip:   1.40 kB[22m
+[2m../../dist/web/[22m[36massets/ImageCompare-869CMsQ9.js                             [39m[1m[2m    6.27 kB[22m[1m[22m[2m │ gzip:   2.53 kB[22m
+[2m../../dist/web/[22m[36massets/SignaturePad-jZS20RKI.js                             [39m[1m[2m   11.97 kB[22m[1m[22m[2m │ gzip:   4.85 kB[22m
+[2m../../dist/web/[22m[36massets/EverydayData-BHzbXtCR.js                             [39m[1m[2m   16.14 kB[22m[1m[22m[2m │ gzip:   5.71 kB[22m
+[2m../../dist/web/[22m[36massets/InteractionTools-DzKPS0mR.js                         [39m[1m[2m   21.53 kB[22m[1m[22m[2m │ gzip:   7.14 kB[22m
+[2m../../dist/web/[22m[36massets/ExplorationTools-q7nReMl2.js                         [39m[1m[2m   21.96 kB[22m[1m[22m[2m │ gzip:   7.59 kB[22m
+[2m../../dist/web/[22m[36massets/SoftwareDevelopment-Cv1BGXP4.js                      [39m[1m[2m   24.49 kB[22m[1m[22m[2m │ gzip:   7.37 kB[22m
+[2m../../dist/web/[22m[36massets/DocumentPreview-CyeiAZDx.js                          [39m[1m[2m   25.19 kB[22m[1m[22m[2m │ gzip:   9.54 kB[22m
+[2m../../dist/web/[22m[36massets/WorkObjects-kXae2tvB.js                              [39m[1m[2m   28.16 kB[22m[1m[22m[2m │ gzip:   9.56 kB[22m
+[2m../../dist/web/[22m[36massets/Settings-BIQk8TcL.js                                 [39m[1m[2m   65.86 kB[22m[1m[22m[2m │ gzip:  20.42 kB[22m
+[2m../../dist/web/[22m[36massets/index-BmoM78A7.js                                    [39m[1m[2m  194.76 kB[22m[1m[22m[2m │ gzip:  61.37 kB[22m
+[2m../../dist/web/[22m[36massets/xterm-B-qIQCd3.js                                    [39m[1m[2m  329.31 kB[22m[1m[22m[2m │ gzip:  83.04 kB[22m
+[2m../../dist/web/[22m[36massets/pdf-CL8ynlU4.js                                      [39m[1m[2m  495.58 kB[22m[1m[22m[2m │ gzip: 151.29 kB[22m
+[2m../../dist/web/[22m[36massets/DesktopEntry-Dd7WizyX.js                             [39m[1m[33m1,105.02 kB[39m[22m[2m │ gzip: 342.15 kB[22m
+[32m✓ built in 6.77s[39m
+
+--- stderr ---
+(node:2856) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[33mnode_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/util.js (400:0): A comment
+
+"// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
+
+in "node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.[39m
+[33mnode_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/regexes.js (74:0): A comment
+
+"/** Anchors a pattern source. The interpolation lives here rather than at the call site because
+ * esbuild will not drop a `@__PURE__` call whose own argument interpolates a variable, but it
+ * will drop `anchor(dateSource)`. Keeping it inline pinned `date` into every bundle. */"
+
+in "node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/regexes.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.[39m
+[33mnode_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/regexes.js (74:0): A comment
+
+"/** Anchors a pattern source. The interpolation lives here rather than at the call site because
+ * esbuild will not drop a `@__PURE__` call whose own argument interpolates a variable, but it
+ * will drop `anchor(dateSource)`. Keeping it inline pinned `date` into every bundle. */"
+
+in "node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/regexes.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.[39m
+[33mnode_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/util.js (400:0): A comment
+
+"// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
+
+in "node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.[39m
+[33m
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m

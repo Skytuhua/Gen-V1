@@ -20,10 +20,16 @@ export function useShellLayout() {
   return [layout, setLayout] as const;
 }
 export function matchesShortcut(event: Pick<KeyboardEvent, 'key' | 'ctrlKey' | 'metaKey' | 'shiftKey' | 'altKey'>, shortcut: string) {
-  const parts = shortcut.toLowerCase().split('+').map(part => part.trim());
-  const rawKey = parts.at(-1);
+  const binding = shortcut.toLowerCase().trim();
+  // Settings records the literal plus key as '+' or a chord ending in '++'.
+  const plus = binding === '+' || binding.endsWith('++');
+  const parts = (plus ? binding.slice(0, -1) : binding).split('+').map(part => part.trim());
+  const rawKey = plus ? '+' : parts.at(-1);
   const key = rawKey === 'comma' ? ',' : rawKey === 'esc' ? 'escape' : rawKey;
-  const mod = parts.includes('ctrl') || parts.includes('mod');
-  return event.key.toLowerCase() === key && (mod ? event.ctrlKey || event.metaKey : parts.includes('meta') ? event.metaKey : !event.ctrlKey && !event.metaKey)
-    && event.shiftKey === parts.includes('shift') && event.altKey === parts.includes('alt');
+  const modifiers = parts.slice(0, -1), ctrl = modifiers.includes('ctrl'), meta = modifiers.includes('meta');
+  const either = ctrl || modifiers.includes('mod');
+  const matchesPlatform = either && meta ? event.ctrlKey && event.metaKey
+    : either ? event.ctrlKey !== event.metaKey : meta ? event.metaKey && !event.ctrlKey : !event.ctrlKey && !event.metaKey;
+  return event.key.toLowerCase() === key && matchesPlatform
+    && event.shiftKey === modifiers.includes('shift') && event.altKey === modifiers.includes('alt');
 }

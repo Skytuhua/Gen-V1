@@ -17,7 +17,7 @@ async function fixture(page: Page, width: number, height: number, artifact = fal
   const snapshot = taskFixture({root: 'text', elements: {text: {type: 'Text', props: {text: 'Synthetic geometry fixture'}}}});
   if (!artifact) {snapshot.artifacts = []; snapshot.messages = []; snapshot.userStates = []; snapshot.data = [];}
   await serveTaskFixture(page, snapshot);
-  await page.route('**/api/workspace', route => route.fulfill({json: {projects: [], state: {version: 1, revision: 0, activeCanvasId: 'main', canvases: [{id: 'main', name: 'Workspace', preset: 'workspace', panels: [], viewport: {x: 0, y: 0, zoom: 1}}], profiles: [], disabledKinds: [], integrations: {}}}}));
+  await page.route('**/api/workspace', route => route.fulfill({json: {projects: [], state: {version: 1, revision: 0, activeCanvasId: 'main', canvases: [{id: 'main', name: 'Workspace', preset: 'workspace', version: 1, panels: [], filter: 'active', projectIds: [], viewport: {x: 0, y: 0, zoom: 1}}], profiles: [], disabledKinds: [], integrations: {}}}}));
   await page.route('**/api/plugins', route => route.fulfill({json: {plugins: []}}));
   const module = '/@fs/' + encodeURI(fileURLToPath(new URL('./workspace-app-fixture.tsx', import.meta.url)).replaceAll('\\', '/'));
   await page.route('**/short-tools', route => route.fulfill({contentType: 'text/html', body: `<html><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${module}');</script></body></html>`}));

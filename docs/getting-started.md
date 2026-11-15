@@ -142,6 +142,15 @@ Check [the Gen V1 beta release](https://github.com/Skytuhua/Gen-V1/releases/tag/
 
 ## Run the checks
 
+The full regression suite needs local runtime inputs beyond `pnpm install`.
+Install the isolated Hermes requirements above, then prepare
+`.harness-integrations-python-deps/` using the **Install pinned integration
+wheels for regression tests** step in [Windows CI](../.github/workflows/ci.yml).
+That step installs the exact wheels from the integration lock and checks their
+hashes. Run it from the repository root using your Python 3.14 executable.
+When adapting the CI step locally, use a writable temporary directory in place
+of the runner-only `$env:RUNNER_TEMP`.
+
 ```powershell
 pnpm exec playwright install chromium
 pnpm typecheck

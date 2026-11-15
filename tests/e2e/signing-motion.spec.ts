@@ -4,6 +4,9 @@ import { PDFDocument } from 'pdf-lib';
 import { createSigningPdfFixture } from './document-preview-fixture';
 import { serveTaskFixture, taskFixture, type TaskSpec } from './task-interface-fixture';
 
+const animationsSettled = (page: Page) => page.evaluate(() => Promise.all(document.getAnimations().filter(a => a.playState === 'running').map(a => a.finished.catch(() => {}))));
+const flushFrames = (page: Page) => page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+
 const spec: TaskSpec = { root: 'pair', elements: {
   pair: { type: 'Split', props: { ratio: .5 }, children: ['pdf', 'form'] },
   pdf: { type: 'DocumentPreview', props: { resourceId: 'input', title: 'Agreement.pdf', fieldStateKeys: { Name: 'name' }, activeFieldStateKey: 'field' } },
@@ -41,10 +44,10 @@ async function fixture(page: Page) {
   } };
 }
 test('ordinary draft edits do not restart field navigation', async ({ page }) => {
-  const host = await fixture(page); await page.goto('/'); const preview = page.locator('.document-preview'); await expect(preview).toHaveAttribute('data-preview-state', 'ready', { timeout: 15_000 }); await page.waitForTimeout(900);
+  const host = await fixture(page); await page.goto('/'); const preview = page.locator('.document-preview'); await expect(preview).toHaveAttribute('data-preview-state', 'ready', { timeout: 15_000 }); await animationsSettled(page);
   await page.evaluate(() => { (window as unknown as { pdfPanCalls: number }).pdfPanCalls = 0; });
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('A changed name');
-  await expect.poll(() => host.snapshot.userStates[0].values.name).toBe('A changed name'); await page.waitForTimeout(1000);
+  await expect.poll(() => host.snapshot.userStates[0].values.name).toBe('A changed name'); await flushFrames(page);
   expect(await page.evaluate(() => (window as unknown as { pdfPanCalls: number }).pdfPanCalls)).toBe(0);
 });
 for (const reduce of [false, true]) test(`generated signature reveal respects ${reduce ? 'reduced' : 'normal'} motion and never animates direct drawing`, async ({ page }) => {
@@ -72,15 +75,16 @@ test('verified export keeps the same visible canvas while a candidate loads, the
 });
 test('completion holds editing geometry until the verified candidate and receipt can enter together', async ({ page }) => {
   const host = await fixture(page); await page.goto('/'); const preview = page.locator('.document-preview');
-  await expect(preview).toHaveAttribute('data-preview-state', 'ready', { timeout: 15_000 }); await page.waitForTimeout(800);
+  await expect(preview).toHaveAttribute('data-preview-state', 'ready', { timeout: 15_000 }); await animationsSettled(page);
   const before = await preview.locator('canvas').boundingBox();
-  host.delay(); await host.complete(); await expect(preview).toHaveAttribute('data-export-handoff', 'pending'); await page.waitForTimeout(700);
+  host.delay(); await host.complete(); await expect(preview).toHaveAttribute('data-export-handoff', 'pending'); await flushFrames(page);
   const held = await preview.locator('canvas').boundingBox(); expect(Math.abs(held!.width - before!.width)).toBeLessThan(2);
   await page.evaluate(() => {
     const samples: {phase:string|undefined;width:number;t:number}[]=[]; Object.assign(window,{completionFrames:samples}); const started=performance.now();
     const sample=()=>{const node=document.querySelector<HTMLElement>('.document-preview')!;samples.push({phase:node.dataset.exportHandoff,width:node.querySelector('canvas')!.getBoundingClientRect().width,t:performance.now()-started});if(performance.now()-started<5000)requestAnimationFrame(sample);};requestAnimationFrame(sample);
   });
-  host.release(); await expect(preview).toHaveAttribute('data-export-handoff', 'ready'); await page.waitForTimeout(700);
+  host.release(); await expect(preview).toHaveAttribute('data-export-handoff', 'ready');
+  await expect.poll(async () => { const frames = await page.evaluate(() => (window as unknown as { completionFrames: { phase?: string; width: number }[] }).completionFrames); const ready = frames.filter(frame => frame.phase === 'ready'); return ready.length > 1 && Math.abs(ready.at(-1)!.width - ready.at(-2)!.width) < 0.5; }).toBe(true);
   const frames=await page.evaluate(()=>(window as unknown as {completionFrames:{phase:string|undefined;width:number;t:number}[]}).completionFrames);
   const beginning=frames.find(frame=>frame.phase==='ready')!,end=frames.at(-1)!;
   expect(beginning.width-end.width).toBeGreaterThan(30);
@@ -97,7 +101,7 @@ test('revoked grant clears an already committed preview', async ({ page }) => {
 });
 test('cloned export evidence does not refetch or replay a committed handoff', async ({ page }) => {
   const host = await fixture(page); await page.goto('/'); const preview = page.locator('.document-preview'); await expect(preview).toHaveAttribute('data-preview-state', 'ready', { timeout: 15_000 }); await host.complete(); await expect(preview).toHaveAttribute('data-export-handoff', 'ready');
-  const count = host.fetches(); host.snapshot.operations = structuredClone(host.snapshot.operations); host.snapshot.resources = structuredClone(host.snapshot.resources); await host.publish(); await page.waitForTimeout(300);
+  const count = host.fetches(); host.snapshot.operations = structuredClone(host.snapshot.operations); host.snapshot.resources = structuredClone(host.snapshot.resources); await host.publish(); await flushFrames(page);
   expect(host.fetches()).toBe(count); await expect(preview).toHaveAttribute('data-export-handoff', 'ready');
 });
 test('cancelling the continuity reference clears the predecessor while the destination is loading', async ({ page }) => {

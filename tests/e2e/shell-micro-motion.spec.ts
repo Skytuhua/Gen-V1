@@ -1,41 +1,39 @@
 import {test,expect} from '@playwright/test';
 import {resolve} from 'node:path';
+import {PLANNING_PROVENANCE,planDataId} from '../../packages/contracts/planning';
 import {serveTaskFixture,taskFixture} from './task-interface-fixture';
+import {quiescent} from './settle';
 
 const fixture=()=>{const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Review the current changes.'}}}});snapshot.settings.theme='dark';return snapshot;};
-async function watchAnimations(page:import('@playwright/test').Page){
- await page.addInitScript(()=>{const original=Element.prototype.animate;Object.assign(window,{shellMotionEvents:[]});Element.prototype.animate=function(frames,options){const element=this as HTMLElement;(window as unknown as {shellMotionEvents:unknown[]}).shellMotionEvents.push({floatingId:element.dataset.floatingId,frames});return original.call(this,frames,options);};});
-}
 
 test('the empty composer is compact, grows for multiline work and keeps its draft',async({page})=>{
  await serveTaskFixture(page,fixture());await page.goto('/');const input=page.getByRole('textbox',{name:'Message',exact:true}),composer=page.locator('form.composer');await expect(input).toBeEnabled();
  expect((await composer.boundingBox())!.height).toBeLessThanOrEqual(96);expect((await input.boundingBox())!.height).toBeLessThanOrEqual(32);
  await input.fill('One\nTwo\nThree\nFour\nFive\nSix');expect((await composer.boundingBox())!.height).toBeGreaterThan(150);await page.reload();await expect(input).toHaveValue('One\nTwo\nThree\nFour\nFive\nSix');
- for(const name of ['Add resource','Inspect context usage','Send message'])await expect(page.getByRole('button',{name,exact:true})).toBeVisible();
+ for(const name of ['Attach files','Select project','Inspect context usage','Send message'])await expect(page.getByRole('button',{name,exact:true})).toBeVisible();
 });
-test('desktop navigation stays visible through its close while becoming inert immediately',async({page})=>{
+test('desktop navigation becomes inert immediately on collapse and restores on reopen',async({page})=>{
  await serveTaskFixture(page,fixture());await page.goto('/');const sidebar=page.getByRole('complementary',{name:'Thread navigation',exact:true});await expect(sidebar).toBeVisible();await page.getByRole('button',{name:'Collapse sidebar',exact:true}).click();
- await expect(sidebar).toHaveAttribute('inert','');expect(await sidebar.evaluate(node=>getComputedStyle(node).visibility)).toBe('visible');await expect(sidebar).toBeHidden();
- await page.getByRole('button',{name:'Toggle sidebar',exact:true}).click();await expect(sidebar).toBeVisible();await expect(sidebar).not.toHaveAttribute('inert','');
+ const collapsed=page.locator('.app-shell > aside.sidebar');await expect(collapsed).toHaveAttribute('inert','');await expect(collapsed).toBeHidden();
+ await page.getByRole('button',{name:'Open sidebar',exact:true}).click();await expect(sidebar).toBeVisible();await expect(sidebar).not.toHaveAttribute('inert','');
 });
-test('a window opened from Thread options animates once without replaying on snapshot or theme updates',async({page})=>{
- await watchAnimations(page);const snapshot=fixture(),host=await serveTaskFixture(page,snapshot);await page.goto('/');await page.getByRole('button',{name:'Thread options',exact:true}).click();await page.getByRole('button',{name:'Show plan',exact:true}).click();const panel=page.getByRole('region',{name:'Task plan window',exact:true});await expect(panel).toBeVisible();
- const count=()=>page.evaluate(()=>(window as unknown as {shellMotionEvents:{floatingId?:string}[]}).shellMotionEvents.filter(event=>event.floatingId==='plan').length);
- await expect.poll(count).toBe(1);await host.publish();snapshot.settings.theme='light';await host.publish();await expect.poll(count).toBe(1);
+test('a published plan flags the collapsed overview once without replaying on snapshot or theme updates',async({page})=>{
+ const snapshot=fixture(),host=await serveTaskFixture(page,snapshot);await page.goto('/');
+ const overview=page.getByRole('region',{name:'Project overview window',exact:true});await expect(overview).toHaveAttribute('data-collapsed','true');
+ await overview.evaluate(node=>{let changes=0;new MutationObserver(()=>{changes++;}).observe(node,{attributes:true,attributeFilter:['data-collapsed']});Object.assign(window,{overviewCollapses:()=>changes});});
+ snapshot.data.push({id:planDataId('task-thread'),threadId:'task-thread',revision:1,provenance:PLANNING_PROVENANCE,createdAt:'2026-11-01T00:00:00Z',value:{version:1,title:'Repair checkout failures',steps:[{id:'find',title:'Find the failing boundary',status:'working',requirements:[],agentIds:[]}],agents:[]}});await host.publish();
+ await expect(overview.getByText('Update available',{exact:true})).toBeVisible();await expect(overview).toHaveAttribute('data-collapsed','true');
+ await overview.getByRole('button',{name:'Expand Project overview',exact:true}).click();await expect(overview).toHaveAttribute('data-collapsed','false');await expect(overview.getByRole('region',{name:'Plan summary',exact:true})).toBeVisible();
+ await expect.poll(()=>page.evaluate(()=>(window as unknown as {overviewCollapses:()=>number}).overviewCollapses())).toBe(1);
+ snapshot.settings.theme='light';await host.publish();await expect(overview).toHaveAttribute('data-collapsed','false');
+ await expect.poll(()=>page.evaluate(()=>(window as unknown as {overviewCollapses:()=>number}).overviewCollapses())).toBe(1);
 });
 test('settings opens with bounded motion and reduced motion removes travel',async({page})=>{
- await serveTaskFixture(page,fixture());await page.goto('/');await page.getByRole('button',{name:'Settings',exact:true}).click();const dialog=page.locator('dialog.settings-dialog');await expect(dialog).toBeVisible();await expect(dialog).toHaveAttribute('aria-label','Settings');expect(await dialog.evaluate(node=>node.getAnimations().length)).toBeGreaterThan(0);
- await page.getByRole('button',{name:'Close settings',exact:true}).click();await page.emulateMedia({reducedMotion:'reduce'});await page.getByRole('button',{name:'Settings',exact:true}).click();await expect(dialog).toBeVisible();const frames=await dialog.evaluate(node=>node.getAnimations().flatMap(animation=>(animation.effect as KeyframeEffect).getKeyframes()).map(frame=>frame.transform).filter(value=>value!==undefined));expect(frames.every(value=>value==='none')).toBe(true);
+ await serveTaskFixture(page,fixture());await page.goto('/');await page.getByRole('button',{name:'Settings',exact:true}).click();const dialog=page.locator('dialog.settings-dialog');await expect(dialog).toBeVisible();await expect(dialog).toHaveAccessibleName('Settings');expect(await dialog.evaluate(node=>node.getAnimations().length)).toBeGreaterThan(0);
+ await page.getByRole('button',{name:'Close dialog',exact:true}).click();await page.emulateMedia({reducedMotion:'reduce'});await page.getByRole('button',{name:'Settings',exact:true}).click();await expect(dialog).toBeVisible();const frames=await dialog.evaluate(node=>node.getAnimations().flatMap(animation=>(animation.effect as KeyframeEffect).getKeyframes()).map(frame=>frame.transform).filter(value=>value!==undefined));expect(frames.every(value=>value==='none')).toBe(true);
 });
 test('navigation shows actual recency without repeating idle status but retains accessible task state',async({page})=>{
  const snapshot=fixture();snapshot.threads[0].updatedAt=new Date(Date.now()-10*60*1000).toISOString();await serveTaskFixture(page,snapshot);await page.goto('/');const row=page.locator('.sidebar-thread-row').first();await expect(row.locator('time')).toBeVisible();await expect(row.locator('time')).toHaveAttribute('dateTime',snapshot.threads[0].updatedAt);await expect(row.getByRole('button',{name:'Source-bound task fixture Ready',exact:true})).toBeVisible();expect(await row.locator('.thread-item-state').evaluate(node=>getComputedStyle(node).position)).toBe('absolute');
-});
-
-for(const mode of ['disabled','reduced'] as const)test(`floating windows respect ${mode} motion without delaying controls`,async({page})=>{
- await watchAnimations(page);if(mode==='reduced')await page.emulateMedia({reducedMotion:'reduce'});const snapshot=fixture();if(mode==='disabled')snapshot.settings.preferences={panelAnimations:false};await serveTaskFixture(page,snapshot);await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();await page.getByRole('button',{name:'Thread options',exact:true}).click();await page.getByRole('button',{name:'Show plan',exact:true}).click();const panel=page.getByRole('region',{name:'Task plan window',exact:true});await expect(panel).toBeVisible();
- const entries=await page.evaluate(()=>(window as unknown as {shellMotionEvents:{floatingId?:string;frames:Keyframe[]}[]}).shellMotionEvents.filter(event=>event.floatingId==='plan'));
- if(mode==='disabled')expect(entries).toHaveLength(0);else{expect(entries).toHaveLength(1);expect(entries[0].frames.every(frame=>frame.transform===undefined&&frame.filter===undefined)).toBe(true);}
- await panel.getByRole('button',{name:'Minimize Task plan',exact:true}).click();await expect(panel).toHaveAttribute('data-collapsed','true');await panel.getByRole('button',{name:'Expand Task plan',exact:true}).click();await expect(panel).toHaveAttribute('data-collapsed','false');
 });
 
 test('completed operation receipts are compact, truthful and retain full evidence on inspection',async({page})=>{
@@ -59,20 +57,15 @@ test('failed and cancelled receipts do not claim success and prepared approval r
 test('shell notice enters, pauses on hover, auto-expires and exits before unmount',async({page})=>{
  test.setTimeout(60000);
  await serveTaskFixture(page,fixture());await page.goto('/');
- await page.evaluate(async({reactPath,domPath})=>{
-  const r=await import(reactPath),d=await import(domPath),React=r.default??r,DOM=d.default??d;
-  await import('/src/styles.css');await import('/src/shell.css');
-  const entry='/src/ShellNotice.tsx';const {ShellNotice}=await import(entry);
+ await page.evaluate(async fixture=>{
   const root=document.createElement('div');root.setAttribute('aria-label','Shell notice fixture');document.body.append(root);
-  const node=DOM.createRoot(root);
-  const render=(message:string)=>node.render(React.createElement(ShellNotice,{message,onDismiss:()=>render('')}));
-  render('Settings saved.');
-  Object.assign(window,{noticeFixture:{render}});
- },{reactPath:'/@fs/'+resolve('node_modules/.vite/deps/react.js').replaceAll('\\','/'),domPath:'/@fs/'+resolve('node_modules/.vite/deps/react-dom_client.js').replaceAll('\\','/')});
+  await import(fixture);
+ },'/@fs/'+resolve('tests/e2e/shell-notice-fixture.tsx').replaceAll('\\','/'));
+ await page.evaluate(()=>(window as unknown as {noticeFixture:{render(message:string):void}}).noticeFixture.render('Settings saved.'));
  const notice=page.locator('[aria-label="Shell notice fixture"]').getByRole('status');
  await expect(notice).toBeVisible({timeout:15000});await expect(notice).toContainText('Settings saved.');
  expect(await notice.evaluate(node=>getComputedStyle(node).animationName)).toBe('shell-notice-in');
- await notice.hover();await page.waitForTimeout(6500);await expect(notice).toBeVisible();
+ await notice.hover();expect(await quiescent(page,6500,()=>notice.count())).toHaveLength(1);await expect(notice).toBeVisible();
  await page.mouse.move(0,0);await expect(notice).toHaveCount(0,{timeout:8000});
  await page.evaluate(()=>(window as unknown as {noticeFixture:{render(message:string):void}}).noticeFixture.render('Saved again.'));
  await expect(notice).toBeVisible();await notice.getByRole('button',{name:'Dismiss notification',exact:true}).click();
@@ -81,4 +74,20 @@ test('shell notice enters, pauses on hover, auto-expires and exits before unmoun
  await page.evaluate(()=>(window as unknown as {noticeFixture:{render(message:string):void}}).noticeFixture.render('Quiet mode.'));
  await expect(notice).toBeVisible();expect(await notice.evaluate(node=>getComputedStyle(node).animationName)).toBe('none');
  await notice.getByRole('button',{name:'Dismiss notification',exact:true}).click();await expect(notice).toHaveCount(0,{timeout:2000});
+});
+
+test('shell notice stays visible when the pointer leaves but keyboard focus remains',async({page})=>{
+ await serveTaskFixture(page,fixture());await page.goto('/');
+ await page.clock.install();
+ const fixturePath='/@fs/'+resolve('tests/e2e/shell-notice-fixture.tsx').replaceAll('\\','/');
+ await page.evaluate(async path=>{
+  const {mountNotice}=await import(path),root=document.createElement('div');
+  root.setAttribute('aria-label','Paused notice fixture');document.body.append(root);mountNotice(root);
+ },fixturePath);
+ const notice=page.locator('[aria-label="Paused notice fixture"]').getByRole('status');
+ const dismiss=notice.getByRole('button',{name:'Dismiss notification',exact:true});
+ await expect(notice).toBeVisible();await notice.hover();await dismiss.focus();await page.mouse.move(0,0);
+ await page.clock.runFor(7000);await expect(notice).toBeVisible();await expect(dismiss).toBeFocused();
+ await dismiss.blur();await page.clock.fastForward(6100);await page.clock.fastForward(200);
+ await expect(notice).toHaveCount(0);
 });

@@ -1,5 +1,0 @@
-{
-  "extends":"../../tsconfig.json",
-  "include":["../../packages/desktop-contract/index.ts","../../apps/web/src/TerminalBody.tsx","terminal-read.spec.ts","terminal-read.vite.config.ts","terminal-read.playwright.config.ts","fixtures/terminal-read.tsx"],
-  "exclude":[]
-}

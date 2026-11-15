@@ -51,10 +51,14 @@ describe('browser suite entrypoint',()=>{
     }finally{vi.unstubAllEnvs();}
   });
 
-  it('stops before another suite after a child failure and preserves its exit code',()=>{
-    vi.mocked(spawnSync).mockReturnValueOnce(result(7));
-    expect(runBrowserSuites([only('root'),only('terminal-read')])).toBe(7);
-    expect(spawnSync).toHaveBeenCalledTimes(1);
+  it('runs every suite after a child failure and preserves its exit code',()=>{
+    const error=vi.spyOn(console,'error').mockImplementation(()=>{});
+    try{
+      vi.mocked(spawnSync).mockReturnValueOnce(result(7));
+      expect(runBrowserSuites([only('root'),only('terminal-read')])).toBe(7);
+      expect(spawnSync).toHaveBeenCalledTimes(2);
+      expect(error).toHaveBeenCalledWith(expect.stringContaining('root'));
+    }finally{error.mockRestore();}
   });
 
   it('retains prior reports when the same suite is invoked again',()=>{
@@ -74,6 +78,11 @@ describe('browser suite entrypoint',()=>{
   it('rejects an unknown suite or configuration override before starting a process',()=>{
     expect(()=>browserTestMain(['--suite','misspelled'])).toThrow(/Unknown browser suite/);
     expect(()=>browserTestMain(['--config','elsewhere.ts'])).toThrow(/Usage/);
+    expect(spawnSync).not.toHaveBeenCalled();
+  });
+
+  it('rejects repeated suite selection instead of silently running only the last suite',()=>{
+    expect(()=>browserTestMain(['--suite','root','--suite','browser-action','--list'])).toThrow(/--suite may be specified only once/);
     expect(spawnSync).not.toHaveBeenCalled();
   });
 

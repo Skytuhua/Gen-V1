@@ -1,4 +1,6 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+
+const flushFrames = (page: Page) => page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
 import { serveTaskFixture, taskFixture } from './task-interface-fixture';
 
 test('secondary place descriptions stay behind details while selection and useful controls remain available', async ({ page }) => {
@@ -39,7 +41,7 @@ test('only a newly published live artifact enters; restored history and unchange
   snapshot.artifacts = [artifact]; await fixture.publish();
   await expect(page.locator('.artifact')).toBeVisible();
   await expect.poll(() => page.evaluate(() => (window as unknown as {artifactEntries:number}).artifactEntries)).toBe(1);
-  await fixture.publish(); await page.waitForTimeout(400);
+  await fixture.publish(); await flushFrames(page);
   expect(await page.evaluate(() => (window as unknown as {artifactEntries:number}).artifactEntries)).toBe(1);
   await page.reload(); await expect(page.locator('.artifact')).toBeVisible();
   expect(await page.evaluate(() => (window as unknown as {artifactEntries:number}).artifactEntries)).toBe(0);

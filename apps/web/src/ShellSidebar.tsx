@@ -35,6 +35,7 @@ import type {ThreadHoverScope} from './thread-hover/facts';
 import {loadPersonalThreadHover,type ThreadHoverPRTarget} from './thread-hover/host';
 import { projectColor, threadDragPayload } from './project-colors';
 import { ActionMenu } from '../../../packages/ui-shell/ActionMenu';
+import { toast } from '../../../packages/ui-shell/Toast';
 import { useThreadMove } from './sidebar-thread-move';
 import './sidebar-thread-move.css';
 
@@ -59,9 +60,30 @@ export function projectMonogram(name?: string | null): string {
   if (!cleaned) return 'CV';
   const parts = cleaned.split(/[\s._/-]+/).filter(Boolean);
   if (parts.length >= 2) return (parts[0]![0]! + parts[1]![0]!).toUpperCase();
-  const word = parts[0]!.replace(/[^A-Za-z0-9]/g, '');
+  const word = (parts[0] ?? '').replace(/[^A-Za-z0-9]/g, '');
   if (!word) return 'CV';
   return word.slice(0, 2).toUpperCase();
+}
+
+export function orderSidebarProjects(remaining: Thread[], projectGrouping: boolean, projectOrder: UiPreferences['projectOrder']) {
+  if (!projectGrouping) return remaining;
+  const groups = new Map<string, { rows: Thread[]; earliest: string; latest: string; order: number }>();
+  for (const item of remaining) {
+    const key = item.projectId ?? item.projectName ?? 'Conversations';
+    const order = item.presentation?.order ?? 0;
+    const group = groups.get(key);
+    if (!group) groups.set(key, { rows: [item], earliest: item.createdAt, latest: item.updatedAt, order });
+    else {
+      group.rows.push(item);
+      if (item.createdAt < group.earliest) group.earliest = item.createdAt;
+      if (item.updatedAt > group.latest) group.latest = item.updatedAt;
+      if (order < group.order) group.order = order;
+    }
+  }
+  return [...groups.values()].sort((a, b) => projectOrder === 'created'
+    ? a.earliest.localeCompare(b.earliest)
+    : projectOrder === 'manual' ? a.order - b.order : b.latest.localeCompare(a.latest)
+  ).flatMap(group => group.rows);
 }
 
 export function ShellSidebar({
@@ -161,21 +183,7 @@ export function ShellSidebar({
   const settled = visibleMatching.filter(item => !pinned.includes(item) && !working.includes(item) && item.presentation?.settled);
   const remaining = visibleMatching.filter(item => !pinned.includes(item) && !working.includes(item) && !settled.includes(item));
 
-  const projects = preferences.projectGrouping
-    ? [...new Set(remaining.map(item => item.projectId ?? item.projectName ?? 'Conversations'))]
-    : ['Conversations'];
-  const orderedProjects = projects.toSorted((a, b) => {
-    const group = (name: string) => remaining.filter(item => (item.projectId ?? item.projectName ?? 'Conversations') === name);
-    if (preferences.projectOrder === 'created')
-      return (group(a).map(item => item.createdAt).sort()[0] ?? '').localeCompare(group(b).map(item => item.createdAt).sort()[0] ?? '');
-    if (preferences.projectOrder === 'manual')
-      return Math.min(...group(a).map(item => item.presentation?.order ?? 0)) - Math.min(...group(b).map(item => item.presentation?.order ?? 0));
-    return (group(b).map(item => item.updatedAt).sort().at(-1) ?? '').localeCompare(group(a).map(item => item.updatedAt).sort().at(-1) ?? '');
-  });
-
-  const orderedRemaining = preferences.projectGrouping
-    ? orderedProjects.flatMap(project => remaining.filter(item => (item.projectId ?? item.projectName ?? 'Conversations') === project))
-    : remaining;
+  const orderedRemaining = orderSidebarProjects(remaining, preferences.projectGrouping, preferences.projectOrder);
 
   const renderMenu = (item: Thread) => (
     <span className="sidebar-thread-menu-button" {...threadMove.menuEvents}>
@@ -190,7 +198,7 @@ export function ShellSidebar({
           {id: 'unread', label: item.presentation?.unread ? 'Mark as read' : 'Mark as unread', icon: <Circle size={12} />,
             onSelect: () => presentation(item, {unread: !item.presentation?.unread})},
           {id: 'settle', label: item.presentation?.settled ? 'Return to inbox' : 'Settle thread', icon: <Check size={13} />,
-            onSelect: () => presentation(item, {settled: !item.presentation?.settled})},
+            onSelect: () => { const next = !item.presentation?.settled; presentation(item, {settled: next}); toast(next ? `"${item.title}" settled — find it under Settled` : `"${item.title}" returned to your threads`); }},
           {id: 'top', label: 'Move to top', icon: <ArrowUp size={13} />, onSelect: () => {
             const min = orderBounds?.minOrder ?? Math.min(0, ...matching.map(thread => thread.presentation?.order ?? 0));
             threadMove.prepare(item.id, min - 1);
@@ -441,7 +449,7 @@ export function ShellSidebar({
           </section>
         )}
         {loaded && !visibleMatching.length && (
-          <div className="sidebar-empty">{search ? 'No matching threads.' : 'Your threads will appear here.'}</div>
+          <div className="sidebar-empty">{search ? 'No matching threads.' : filter === 'working' ? 'No working threads right now.' : filter === 'waiting' ? 'No threads waiting for your input.' : 'Your threads will appear here.'}</div>
         )}
         {pageControls}
       </nav>

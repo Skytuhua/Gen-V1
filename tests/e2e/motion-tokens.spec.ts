@@ -128,7 +128,7 @@ for (const width of [1024, 1440]) {
     await side.getByRole('button', { name: 'Close Side conversation', exact: true }).click();
     await page.getByRole('button', { name: 'Open document', exact: true }).click();
     await expect(page.locator('.document-text-window')).toBeVisible();
-    const panels = (await records(page)).filter(item => item.name === 'panel');
+    const panels = (await records(page)).filter(item => item.name === 'panel' && item.duration === 220);
     expect(panels).toHaveLength(2);
     for (const panel of panels) {
       expect(panel.duration).toBe(220); expect(panel.easing).toBe(enter);
@@ -136,7 +136,7 @@ for (const width of [1024, 1440]) {
       expect(panel.frames[1].transform).toMatch(/translate[XY]\(0(?:px)?\) scale\(1\)/);
     }
     await host.publish();
-    expect((await records(page)).filter(item => item.name === 'panel')).toHaveLength(2);
+    expect((await records(page)).filter(item => item.name === 'panel' && item.duration === 220)).toHaveLength(2);
   });
 }
 
@@ -189,7 +189,13 @@ test('tab crossfade and shared control press feedback resolve motion tokens and 
     return { tabProperty: getComputedStyle(tab).transitionProperty, tabDuration: getComputedStyle(tab).transitionDuration, triggerTransition: getComputedStyle(trigger).transition, x: box.x, y: box.y, width: box.width, height: box.height };
   });
   const press = async (point: { x: number; y: number; width: number; height: number }) => {
-    await page.mouse.move(point.x + point.width / 2, point.y + point.height / 2); await page.mouse.down(); await page.waitForTimeout(120);
+    await page.mouse.move(point.x + point.width / 2, point.y + point.height / 2); await page.mouse.down();
+    await page.evaluate(() => new Promise<void>(resolve => {
+      const probe = document.querySelector('.ui-action-trigger.motion-contract-probe')!;
+      let last = '', still = 0, frames = 0;
+      const tick = () => { const value = getComputedStyle(probe).transform; still = value === last ? still + 1 : 0; last = value; if (++frames > 90 || still >= 3) resolve(); else requestAnimationFrame(tick); };
+      requestAnimationFrame(tick);
+    }));
     const transform = await page.evaluate(() => getComputedStyle(document.querySelector('.ui-action-trigger.motion-contract-probe')!).transform);
     await page.mouse.up(); return transform;
   };

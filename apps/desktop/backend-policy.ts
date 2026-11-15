@@ -17,3 +17,12 @@ export function waitForBackendReady(child:ChildProcess,token:string,port:number,
   child.on('message',message);child.once('error',failed);child.once('exit',exited);
  });
 }
+
+/** The ready IPC handshake can precede an asynchronous relay handoff. */
+export async function finishBackendStartup(child:Pick<ChildProcess,'exitCode'|'signalCode'>,previousRelayClosed:Promise<void>|undefined,stderr:()=>string,activate:()=>void):Promise<void>{
+ await previousRelayClosed;
+ const stopped=child.exitCode??child.signalCode;
+ if(stopped!==null)throw Error('The local backend stopped during startup ('+stopped+'). '+stderr().slice(-500));
+ // Publish readiness and install the normal exit listener in the same turn.
+ activate();
+}
