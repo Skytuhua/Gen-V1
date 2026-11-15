@@ -5,6 +5,7 @@ import {join} from 'node:path';
 import {Store} from '../packages/storage/store';
 import {runBrowserChecklist,type BrowserDriver,type BrowserSession,type BrowserPage} from '../packages/core/browser-verification';
 import {browserChecklistSchema,type BrowserChecklistV1,type BrowserStep} from '../packages/contracts/verification';
+import {computeAssessment} from '../packages/core/verification-gate';
 import type {ToolOwner} from '../packages/contracts/tool-effects';
 import {hostFlagEnabled} from '../packages/core/host-flags';
 import {HarnessError} from '../packages/contracts/index';
@@ -24,7 +25,7 @@ interface FakePage extends BrowserPage {visits:string[];clicks:string[];typed:[s
 // `requests` models subresource/popup traffic the page attempts after goto:
 // a compliant driver consults allowOrigin before each request; denied traffic
 // is blocked at the boundary and never reaches observedOrigins.
-function fakeDriver(over:{url?:string;texts?:Record<string,string>;visible?:Record<string,boolean>;failures?:{console?:string[];network?:string[]};origins?:string[];shotBytes?:number;requests?:string[]}={}):FakeDriver{
+function fakeDriver(over:{url?:string;texts?:Record<string,string>;visible?:Record<string,boolean>;failures?:{console?:string[];network?:string[]};origins?:string[];shotBytes?:number;requests?:string[];cancelOnText?:boolean}={}):FakeDriver{
  const state={url:over.url??'http://127.0.0.1:4100/',screens:Buffer.alloc(over.shotBytes??128,7),origins:over.origins??['http://127.0.0.1:4100'],blocked:[] as string[]};
  const driver:FakeDriver={profileDir:undefined,launched:0,page:undefined as unknown as FakePage,allow:undefined,launch:async opts=>{driver.profileDir=opts.profileDir;driver.launched++;driver.allow=opts.allowOrigin;return session;}};
  const page:FakePage={
@@ -39,7 +40,7 @@ function fakeDriver(over:{url?:string;texts?:Record<string,string>;visible?:Reco
   },
   click:async s=>{page.clicks.push(s);},
   type:async(s,t)=>{page.typed.push([s,t]);},
-  text:async s=>over.texts?.[s]??null,
+  text:async s=>{if(over.cancelOnText)throw new HarnessError('CANCELLED_RUN','run cancelled');return over.texts?.[s]??null;},
   visible:async s=>over.visible?.[s]??false,
   screenshot:async()=>state.screens,
  };
@@ -154,6 +155,28 @@ it('the origin policy blocks unapproved traffic at request time',async()=>{
  expect(result.deniedOrigins).toContain('https://tracker.example');
  expect(driver.page.visits).toEqual(['http://127.0.0.1:4100/']);
  expect(result.observations.find(obs=>obs.checklistItemId==='__boundary__')?.outcome).toBe('PASS');
+});
+
+it('a cancelled run leaves terminal evidence and audit markers never verify a requirement',async()=>{
+ const store=stateStore();
+ // Denied tracker traffic happens, then the first assertion is cancelled:
+ // the run records the boundary denial and the cancellation, but neither is
+ // item evidence a requirement can bind through the execution id.
+ const driver=fakeDriver({requests:['https://tracker.example'],cancelOnText:true});
+ const result=await run(store,[
+  {kind:'NAVIGATE',url:'http://127.0.0.1:4100/'},
+  {kind:'ASSERT_TEXT',selector:'h1',text:'Welcome home',checklistItemId:'item-1'},
+ ],driver);
+ expect(result.outcome).toBe('CANCELLED');
+ expect(result.observations.find(obs=>obs.checklistItemId==='__cancelled__')?.outcome).toBe('CANCELLED');
+ const executionId=result.observations[0].executionId;
+ const assessment=computeAssessment({
+  threadId:'t1',sourceCut:{headSha:null,codeDigest:digests.codeDigest,dependencyDigest:digests.dependencyDigest,environmentId:digests.environmentId},
+  requirements:[{id:'page-works',checkRefs:[executionId]}],observations:result.observations,
+  unresolvedEffects:[],verifierIdentity:'test',provenance:'test',
+ });
+ expect(assessment.requirements[0].assessment).toBe('UNVERIFIED');
+ expect(assessment.label).not.toBe('VERIFIED');
 });
 
 it('bounded console and network failure collection fails the run',async()=>{

@@ -196,7 +196,13 @@ export async function runBrowserChecklist(store: Store, input: BrowserRunInput, 
       try {
         if ((await runStep(step)) === 'stop') break;
       } catch (error) {
-        if (error instanceof HarnessError && error.code === 'CANCELLED_RUN') { outcome = 'CANCELLED'; break; }
+        if (error instanceof HarnessError && error.code === 'CANCELLED_RUN') {
+          outcome = 'CANCELLED';
+          // Cancellation is terminal evidence, not silence: an audit marker can
+          // never satisfy a behavioral requirement (see verification-gate).
+          record('__cancelled__', 'Browser run completed its checklist', 'Cancelled before the checklist finished', 'CANCELLED', null);
+          break;
+        }
         if (error instanceof HarnessError && error.code === 'BROWSER_STEP_TIMEOUT') {
           record(`__step__`, `Step ${step.kind} deadline`, 'Exceeded the 15s step deadline', 'FAIL', null);
           outcome = 'FAIL';

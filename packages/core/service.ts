@@ -1046,7 +1046,9 @@ export class Service {
       }
       if (call.name === "verification_declare") {
         if (!hostFlagEnabled("verification.workflowV1")) throw new HarnessError("CAPABILITY_DENIED", "The verification workflow capability is disabled on this host.");
-        const declaration = verificationDeclarationV1Schema.parse({ version: 1, ...a });
+        // commandId is host plumbing for receipt dedup, not declaration data.
+        const { commandId: _commandId, ...declarationArgs } = a;
+        const declaration = verificationDeclarationV1Schema.parse({ version: 1, ...declarationArgs });
         this.store.put("verificationDeclaration", ctx.threadId, ctx.threadId, declaration);
         return { requirements: declaration.requirements.length };
       }

@@ -199,9 +199,14 @@ export function computeAssessment(input: AssessmentInput): DeliverableAssessment
   // A check reference names an observation by checkId or the execution that
   // produced it; bindings are explicit, never inferred from result kind.
   const match = (obs: CheckObservationV1, ref: string) => obs.checkId === ref || obs.executionId === ref;
+  // Run-level audit markers (__boundary__, __traffic__, __errors__, ...) prove
+  // run policy held, not that a checklist item was verified — they can never
+  // satisfy a behavioral requirement, even via an execution-id binding.
+  const isAuditMarker = (obs: CheckObservationV1) =>
+    'checklistItemId' in obs && typeof obs.checklistItemId === 'string' && obs.checklistItemId.startsWith('__');
   const current = { codeDigest: input.sourceCut.codeDigest, dependencyDigest: input.sourceCut.dependencyDigest, environmentId: input.sourceCut.environmentId };
   const requirements: AssessedRequirement[] = input.requirements.map(req => {
-    const bound = input.observations.filter(obs => req.checkRefs.some(ref => match(obs, ref)));
+    const bound = input.observations.filter(obs => !isAuditMarker(obs) && req.checkRefs.some(ref => match(obs, ref)));
     const missing: string[] = [];
     if (!bound.length) missing.push(`no observation bound to ${req.id}`);
     let assessment: AssessedRequirement['assessment'] = 'UNVERIFIED';

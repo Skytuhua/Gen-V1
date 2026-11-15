@@ -130,5 +130,8 @@ export function verificationPanelModel(store: Store, threadId: string): Verifica
     counts.missing.push(...req.missing);
   }
   const staleBanner = rows.some(row => row.freshness === 'STALE');
-  return { label: recomputed?.label ?? latest?.label ?? null, staleBanner, summary: counts, rows };
+  // A completion label exists only after a saved completion assessment — the
+  // task_finish boundary. Before that the panel still recomputes requirement
+  // rows and freshness against the live cut, but shows no label.
+  return { label: latest ? (recomputed?.label ?? latest.label) : null, staleBanner, summary: counts, rows };
 }

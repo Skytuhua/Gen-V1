@@ -287,6 +287,42 @@ it('an audited task_finish does not block its own completion assessment',async()
  expect(assessment.unresolvedEffects).toEqual([]);
 });
 
+it('verification_declare accepts commandId for receipts without polluting the declaration',async()=>{
+ const {Service}=await import('../packages/core/service');
+ const root=workspace();const store=stateStore();
+ const runtime={configure:()=>{},models:async()=>[],start:async()=>{},followUp:async()=>{},cancel:async()=>{},compact:async()=>{},history:async()=>[],dispose:async()=>{}};
+ const service=new Service(store,runtime as never,{});
+ const stamp=new Date().toISOString();
+ store.internal('test.fixture','t1',()=>store.put('thread','t1','t1',{id:'t1',threadId:'t1',title:'T',kind:'main',mode:'build',projectName:null,status:'working',createdAt:stamp,updatedAt:stamp,modelId:'test/model',sessionPath:null,runId:'r1',epoch:1}));
+ const args={commandId:'decl-1',rootPath:root,sourceFiles:['app.ts'],dependencyFiles:['pnpm-lock.yaml'],environmentId:'win32/24.10.0/pnpm@10.30.3',requirements:[{id:'tests-pass',checkRefs:['exec-1']}]};
+ const saved=process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1;
+ process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1='1';
+ try{
+  const first=await service.tool({name:'verification_declare',args},{threadId:'t1',runId:'r1',epoch:1});
+  expect(first).toEqual({requirements:1});
+  // A repeated call hits the command receipt instead of revalidating.
+  const second=await service.tool({name:'verification_declare',args},{threadId:'t1',runId:'r1',epoch:1});
+  expect(second).toEqual({requirements:1});
+  const declaration=store.get<Record<string,unknown>>('verificationDeclaration','t1')!;
+  expect('commandId' in declaration).toBe(false);
+ }finally{if(saved===undefined)delete process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1;else process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1=saved;}
+});
+
+it('the panel shows no completion label until task_finish saved an assessment',async()=>{
+ const {verificationPanelModel}=await import('../packages/core/verification-read-models');
+ const root=workspace();const store=stateStore();
+ const code=await sourceDigest(root,['app.ts']);const dep=await sourceDigest(root,['pnpm-lock.yaml']);
+ const envId='win32/24.10.0/pnpm@10.30.3';const stamp=new Date().toISOString();
+ const declaration={version:1,rootPath:root,sourceFiles:['app.ts'],dependencyFiles:['pnpm-lock.yaml'],environmentId:envId,requirements:[{id:'tests-pass',checkRefs:['exec-1']}],declaredAt:stamp};
+ const obs:CheckObservationV1={version:1,checkId:'c1',executionId:'exec-1',owner:owner(),codeDigest:code,dependencyDigest:dep,recipeDigest:'a'.repeat(64),environmentId:envId,argv:['pnpm','test'],cwdIdentity:root,phase:'TEST',startedAt:stamp,endedAt:stamp,exitCode:0,outcome:'PASS',artifactRefs:[],observationKind:'process'};
+ store.internal('test.fixture','t1',()=>{store.put('verificationDeclaration','t1','t1',declaration);store.put('checkObservation','c1','t1',obs);});
+ const model=verificationPanelModel(store,'t1');
+ // Rows and freshness still compute against the live cut; the label stays
+ // absent until the completion boundary records an assessment.
+ expect(model.label).toBeNull();
+ expect(model.rows.some(row=>row.freshness==='CURRENT')).toBe(true);
+});
+
 it('the panel read model re-digests declared inputs so edits never keep a green Verified',async()=>{
  const {verificationPanelModel}=await import('../packages/core/verification-read-models');
  const root=workspace();const store=stateStore();
