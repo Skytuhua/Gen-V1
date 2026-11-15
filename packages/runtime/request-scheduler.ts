@@ -127,6 +127,10 @@ export class RequestBudget {
   admit(): void {
     if (this.limits.maxCalls !== undefined && this.calls >= this.limits.maxCalls)
       throw new HarnessError('MODEL_BUDGET_EXCEEDED', 'The model request call budget is exhausted.');
+    if (this.limits.maxInputTokens !== undefined && this.inputTokens >= this.limits.maxInputTokens)
+      throw new HarnessError('MODEL_BUDGET_EXCEEDED', 'The model input-token budget is exhausted.');
+    if (this.limits.maxOutputTokens !== undefined && this.outputTokens >= this.limits.maxOutputTokens)
+      throw new HarnessError('MODEL_BUDGET_EXCEEDED', 'The model output-token budget is exhausted.');
   }
 
   /** Reconcile measured spend; unknown fields never count as spend. */

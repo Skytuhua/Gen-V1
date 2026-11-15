@@ -43,8 +43,14 @@ it('budgets admit before dispatch and reconcile measured spend only',()=>{
  tokens.reconcile({inputTokens:40,outputTokens:null});
  expect(()=>tokens.reconcile({inputTokens:70,outputTokens:5})).toThrowError(expect.objectContaining({code:'MODEL_BUDGET_EXCEEDED'}));
  expect(()=>new RequestBudget({maxOutputTokens:1}).reconcile({outputTokens:2})).toThrowError(expect.objectContaining({code:'MODEL_BUDGET_EXCEEDED'}));
- // Missing pricing is never invented: absent usage fields count as nothing.
+ // An exhausted token budget blocks the NEXT dispatch too, not only the
+ // reconciling call.
+ expect(()=>tokens.admit()).toThrowError(expect.objectContaining({code:'MODEL_BUDGET_EXCEEDED'}));
+ // Missing pricing is never invented: absent usage fields count as nothing,
+ // but a settled request still spends its call.
  expect(new RequestBudget({maxInputTokens:1}).reconcile(null)).toBeUndefined();
+ const noUsage=new RequestBudget({maxCalls:1});noUsage.reconcile(null);
+ expect(()=>noUsage.admit()).toThrowError(expect.objectContaining({code:'MODEL_BUDGET_EXCEEDED'}));
 });
 it('stateless pooling requires exact keys, clears owner state, expires idle transports and invalidates on change',async()=>{
  let tick=0;const pool=new StatelessTransportPool(()=>tick);
