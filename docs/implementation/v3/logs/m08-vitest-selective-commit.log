@@ -1,9 +1,5 @@
-
- RUN  v4.1.12 C:/Users/Administrator/gen-m08-v3-wt
-
-
- Test Files  1 passed (1)
-      Tests  8 passed (8)
-   Start at  05:38:54
-   Duration  162.37s (transform 1.69s, setup 0ms, import 1.80s, tests 160.37s, environment 0ms)
-
+argv: ["C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe", "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js", "exec", "vitest", "run", "tests/selective-commit-v3.test.ts"]
+cwd: C:\Users\Administrator\gen-m08-v3-wt
+termination: NONE
+exitCode: 0
+outcome: 1 test file passed; 8 tests passed; 162.37s.
