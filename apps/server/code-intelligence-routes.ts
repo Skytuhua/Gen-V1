@@ -13,7 +13,11 @@ import {
 import { EditPreviewRegistry } from '../../packages/core/edit-preview.ts';
 import { DebugRegistry, type DebugAdapter } from '../../packages/core/debug-session.ts';
 import type { ExecutionBackend } from '../../packages/core/execution-policy.ts';
-import type { RegisteredHostFlag } from '../../packages/core/host-flags.ts';
+import { hostFlagEnabled, type RegisteredHostFlag } from '../../packages/core/host-flags.ts';
+import { ProjectVerificationService } from '../../packages/core/project-verification.ts';
+import type { CheckObservationV1 } from '../../packages/contracts/verification.ts';
+import type { ToolOwner } from '../../packages/contracts/tool-effects.ts';
+import { randomUUID } from 'node:crypto';
 
 const identifier = z.string().regex(/^[a-zA-Z0-9:_.-]{1,200}$/);
 const sha = (value: string | Buffer) => createHash('sha256').update(value).digest('hex');
@@ -75,6 +79,22 @@ export function registerCodeIntelligenceRoutes(app: FastifyInstance, service: Se
     : null;
   const journalRoot = service.store.dataDir;
   const profileDigest = sha('workspace-execute-no-network');
+  const verification = new ProjectVerificationService(service.store, env);
+
+  /** M06 evidence feed: completed diagnostics observations and debug commands
+   * are recorded as review-advisory checks. The feed is advisory-only — it
+   * never satisfies a declared requirement — and stays silent while the M06
+   * workflow flag is off. */
+  const feed = (owner: ToolOwner, advisory: Omit<CheckObservationV1, 'checkId' | 'observationKind' | 'owner'>) => {
+    if (!hostFlagEnabled('verification.workflowV1', env)) return;
+    verification.recordAdvisory(owner, advisory);
+  };
+  const advisoryOwner = (projectId: string, threadId: string | undefined, bound: { workspaceIdentity: string }): ToolOwner => ({
+    threadId: threadId ?? projectId, runId: null, epoch: 0, projectId,
+    workspaceId: bound.workspaceIdentity, accountBinding: null,
+  });
+  const advisoryRecipeDigest = (tool: string, language?: string) => sha(JSON.stringify({ kind: 'code-intelligence-advisory', tool, language }));
+  const advisoryEnvironment = () => `${process.platform}/${process.version}`;
 
   const binding = async (projectId: string, threadId?: string) => {
     const bound = await projects.binding(projectId, threadId);
@@ -119,12 +139,25 @@ export function registerCodeIntelligenceRoutes(app: FastifyInstance, service: Se
       const { projectId } = z.strictObject({ projectId: identifier }).parse(request.params);
       const input = observeSchema.parse(request.body);
       const bound = await binding(projectId, input.threadId);
-      return intelligence.observe({
+      const descriptor = languageServerDescriptor(input.language);
+      const startedAt = new Date().toISOString();
+      const result = await intelligence.observe({
         workspaceIdentity: bound.workspaceIdentity, root: bound.root, language: input.language,
-        descriptor: languageServerDescriptor(input.language), profileDigest,
+        descriptor, profileDigest,
         path: input.path, beforeDigest: input.beforeDigest ?? null, afterDigest: sha(input.text), text: input.text,
         editInvocationId: input.editInvocationId ?? null, wait: input.wait ?? 'delayed', signal: signal(),
       });
+      const errors = result.diagnostics.filter(d => d.severity === 'error').length;
+      feed(advisoryOwner(projectId, input.threadId, bound), {
+        version: 1, executionId: `intel-${randomUUID()}`, codeDigest: result.afterDigest,
+        dependencyDigest: descriptor.configDigest, recipeDigest: advisoryRecipeDigest('diagnostics', input.language),
+        environmentId: advisoryEnvironment(), argv: [descriptor.executable, ...descriptor.argv], cwdIdentity: bound.root,
+        phase: 'BUILD', startedAt, endedAt: new Date().toISOString(), exitCode: null,
+        outcome: result.baselineStatus === 'UNAVAILABLE' ? 'UNKNOWN' : errors > 0 ? 'FAIL' : 'PASS',
+        artifactRefs: [],
+        detail: `diagnostics=${result.diagnostics.length} errors=${errors} state=${result.state} baseline=${result.baselineStatus}`.slice(0, 2000),
+      });
+      return result;
     });
 
     scope.post('/api/projects/:projectId/intelligence/navigate', { bodyLimit: 8 * 1024 * 1024 }, async request => {
@@ -203,15 +236,30 @@ export function registerCodeIntelligenceRoutes(app: FastifyInstance, service: Se
       const input = debugSchema.parse(request.body);
       const owner = sha(projectId);
       if (!debug) throw new HarnessError('UNSUPPORTED', 'No proven debugger backend is installed on this host.');
+      const feedDebug = (command: string, outcome: 'PASS' | 'FAIL' | 'UNKNOWN', detail: string) =>
+        feed({ threadId: input.threadId ?? projectId, runId: null, epoch: 0, projectId, workspaceId: null, accountBinding: null }, {
+          version: 1, executionId: `debug-${randomUUID()}`, codeDigest: sha(command), dependencyDigest: sha('debug-adapter'),
+          recipeDigest: input.recipe ? sha(JSON.stringify(input.recipe)) : advisoryRecipeDigest('debug'),
+          environmentId: advisoryEnvironment(), argv: ['debug', command], cwdIdentity: projectId,
+          phase: 'TEST', startedAt: new Date().toISOString(), endedAt: new Date().toISOString(), exitCode: null,
+          outcome, artifactRefs: [], detail: detail.slice(0, 2000),
+        });
       if (input.command === 'launch') {
         if (!input.recipe) throw new HarnessError('INVALID_INPUT', 'Launch requires the approved recipe.');
-        return debug.launch({ owner, recipe: input.recipe, signal: signal() });
+        const launched = await debug.launch({ owner, recipe: input.recipe, signal: signal() });
+        feedDebug('launch', launched.state === 'UNKNOWN' ? 'UNKNOWN' : 'PASS', `debug launch recipe=${input.recipe.recipeId} state=${launched.state}`);
+        return launched;
       }
       if (!input.sessionId) throw new HarnessError('INVALID_INPUT', 'The command requires a sessionId.');
-      if ((['threads', 'stackTrace', 'scopes', 'variables'] as const).includes(input.command as never))
-        return debug.inspect(input.sessionId, owner, input.command as 'threads', input.args ?? {}, signal());
-      if (input.command === 'terminate') { await debug.terminate(input.sessionId, owner, signal()); return { terminated: true }; }
-      return debug.effect(input.sessionId, owner, input.command as 'continue', input.args ?? {}, signal());
+      if ((['threads', 'stackTrace', 'scopes', 'variables'] as const).includes(input.command as never)) {
+        const inspected = await debug.inspect(input.sessionId, owner, input.command as 'threads', input.args ?? {}, signal());
+        feedDebug(input.command, 'PASS', `debug inspect ${input.command}`);
+        return inspected;
+      }
+      if (input.command === 'terminate') { await debug.terminate(input.sessionId, owner, signal()); feedDebug('terminate', 'PASS', 'debug session terminated'); return { terminated: true }; }
+      const effected = await debug.effect(input.sessionId, owner, input.command as 'continue', input.args ?? {}, signal());
+      feedDebug(input.command, 'PASS', `debug effect ${input.command}`);
+      return effected;
     });
   });
 

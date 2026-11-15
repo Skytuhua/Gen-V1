@@ -1,11 +1,12 @@
 {
   "version": 3,
   "bundle": "M07",
-  "generatedAt": "2026-11-15T05:57:03Z",
+  "generatedAt": "2026-11-15T07:20:00Z",
   "base": {
     "repository": "Skytuhua/Gen-V1",
     "approvedBase": "origin/main",
-    "baseSha": "80b5d6ff5b1d664f7c8407603f78ebf4388315aa",
+    "baseSha": "686bda81061c6451330d2f111cca4bcefa251e5e",
+    "baseNote": "Rebased onto origin/main after M06 landed as PR #327 (commit 686bda8, 'M06: verified build, browser QA, bounded repair and completion evidence'). Three mechanical conflicts resolved: host-flags.ts (kept all seven keys), secret-custody-v3.test.ts (registry assertion now seven keys), public-source-files.json (kept both verification manifests).",
     "auditAncestor": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
     "branch": "agent/m07-v3",
     "worktree": "C:/Users/Administrator/repos/gen-v1-m07"
@@ -28,8 +29,8 @@
     },
     {
       "contract": "M06",
-      "status": "BLOCKED_SOURCE_DRIFT",
-      "evidence": "No M06 commits, remote branch, pull request or verification artifact exist on the approved base or origin (git ls-remote verified). The sibling session that implemented M06 (359b5fee27da48ec9af3d4411f44bab3, branch agent/m06-v3) was suspended before pushing. Spec item 11 — feeding diagnostics and debug observations into M06 evidence — is recorded as BLOCKED_SOURCE_DRIFT rather than guessing a replacement API. Observation contracts (DiagnosticObservationV1, DebugSessionV1) are shaped for that feed and carry the fields an M06 evidence recorder needs."
+      "status": "VERIFIED",
+      "evidence": "M06 landed on the approved base as commit 686bda81061c6451330d2f111cca4bcefa251e5e (PR #327). Verified present: CheckObservationV1/VisualObservationV1/VerificationRecipeV1/DeliverableAssessmentV1 in packages/contracts/verification.ts, ProjectVerificationService in packages/core/project-verification.ts (append-only checkObservation bucket read by task_finish completionAssessment and verificationPanelModel), verification.workflowV1 host flag, M06-verification.json in docs/implementation/v3. The feed API used is a new public recordAdvisory on ProjectVerificationService (additive); 'review-advisory' was the reserved observation kind."
     }
   ],
   "results": {
@@ -103,8 +104,8 @@
       },
       {
         "stage": "Diagnostics/debug observations into M06 evidence",
-        "result": "BLOCKED",
-        "detail": "M06 is absent from the approved base (see dependencies). BLOCKED_SOURCE_DRIFT: no integration API was guessed."
+        "result": "PASS",
+        "detail": "Completed diagnostics observations feed as CheckObservationV1 records with observationKind 'review-advisory' through the new public recordAdvisory on ProjectVerificationService — the same append-only checkObservation bucket task_finish completionAssessment and the verification panel read. Debug launch/inspect/effect/terminate commands feed the same way. Advisory digests bind honestly: codeDigest is the observed document digest, dependencyDigest the language-server executable digest, recipeDigest a deterministic digest of the advisory tool descriptor. verification-gate.computeAssessment treats a review-advisory PASS like an audit marker — it informs review but can never satisfy a declared requirement, while advisory FAIL/BLOCKED/CANCELLED outcomes still count against completion. The feed is silent while verification.workflowV1 is off and asserts the flag on write."
       },
       {
         "stage": "Hermes worker write-hook feed",
@@ -178,7 +179,14 @@
       "cwd": "C:/Users/Administrator/repos/gen-v1-m07",
       "exitCode": 1,
       "result": "FAIL",
-      "logArtifact": "docs/implementation/v3/logs/m07-core-04-full-suite.log — 3186 passed, 60 failed, 53 skipped; all failures environmental/pre-existing as logged"
+      "logArtifact": "docs/implementation/v3/logs/m07-core-04-full-suite.log — 3186 passed, 60 failed, 53 skipped; all failures environmental/pre-existing as logged (run pre-rebase on base 80b5d6f)"
+    },
+    {
+      "command": "pnpm exec vitest run tests/verification-v3.test.ts tests/secret-custody-v3.test.ts tests/lsp-revisions-v3.test.ts tests/edit-preview-v3.test.ts tests/rename-recovery-v3.test.ts tests/debug-policy-v3.test.ts && pnpm typecheck && pnpm lint && pnpm build",
+      "cwd": "C:/Users/Administrator/repos/gen-v1-m07",
+      "exitCode": 0,
+      "result": "PASS",
+      "logArtifact": "docs/implementation/v3/logs/m07-feed-01-advisory.log — post-rebase verification on base 686bda8: 6 files / 57 tests passed including the recordAdvisory feed tests, typecheck/lint/build clean"
     },
     {
       "command": "pnpm test:browser",
@@ -285,6 +293,9 @@
     "tests/rename-recovery-v3.test.ts",
     "tests/debug-policy-v3.test.ts",
     "tests/secret-custody-v3.test.ts",
+    "packages/core/project-verification.ts",
+    "packages/core/verification-gate.ts",
+    "tests/verification-v3.test.ts",
     "docs/implementation/v3/M07-verification.json"
   ],
   "artifacts": [
@@ -301,7 +312,8 @@
     "docs/implementation/v3/logs/m07-core-01-typecheck.log",
     "docs/implementation/v3/logs/m07-core-02-lint.log",
     "docs/implementation/v3/logs/m07-core-03-build.log",
-    "docs/implementation/v3/logs/m07-core-04-full-suite.log"
+    "docs/implementation/v3/logs/m07-core-04-full-suite.log",
+    "docs/implementation/v3/logs/m07-feed-01-advisory.log"
   ],
   "migration": {
     "status": "NONE",
@@ -311,8 +323,8 @@
   "gates": [
     {
       "gate": "M06 evidence feed",
-      "status": "BLOCKED",
-      "detail": "BLOCKED_SOURCE_DRIFT: M06 is absent from the approved base (sibling session suspended before push). Once M06 lands, intelligence.observe results and debug sessions must feed its evidence recorder; no API was guessed."
+      "status": "CLOSED",
+      "detail": "RESOLVED after M06 landed (686bda8): diagnostics and debug observations record as 'review-advisory' CheckObservationV1 rows via recordAdvisory on ProjectVerificationService; advisory PASS cannot satisfy a declared requirement while FAIL/BLOCKED still count against completion."
     },
     {
       "gate": "Installed approved language servers",
