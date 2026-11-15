@@ -20,7 +20,11 @@ async function setup(page: Page, candidate = false, burstHistory = false, delaye
   if (url.pathname === '/api/commands') {
    commands.push(route.request().postDataJSON());
    if (failSend) return route.fulfill({status: 503, json: {error: {code: 'TEMPORARY', message: 'Send interrupted. Retry.'}}});
-   return route.fulfill({json: {id: commands.at(-1)!.id, status: 'accepted', result: commands.at(-1)!.type === 'agent.followUp' ? {ticketId: commands.at(-1)!.id, status: 'queued'} : null}});
+   const command = commands.at(-1)!;
+   if (command.type === 'agent.followUp') {
+    return route.fulfill({json: {commandId: command.id, eventSeq: sequence, result: {ticketId: command.id, status: 'queued'}}});
+   }
+   return route.fulfill({json: {id: command.id, status: 'accepted', result: null}});
   }
   if (url.pathname === '/api/agents') {
    await gate;
