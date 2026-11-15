@@ -58,10 +58,31 @@ it('records a cancelled outcome through the failed teardown path and preserves a
   expect(observation.timings.teardownConfirmed).not.toBeNull();
  }finally{release?.();await b.close();}
 });
+it('thrown failures record a failed outcome and failed disposal never confirms teardown',async()=>{
+ const n=native();n.runtime.start=vi.fn(async()=>{throw new Error('engine refused');});
+ const b=await createHermesBroker({input,createRuntime:()=>n.runtime});try{
+  b.expect({sequence:1,inputIds:[],phase:'foreground'});
+  const response=await post(b,{sessionId:'acp',modelId:input.modelId,prompt:'x'});
+  expect(response.status).toBe(400);
+  const observation=b.observation(1)!;
+  expect(observation.outcome).toBe('failed');expect(observation.error).toContain('engine refused');
+  // The runtime was created so teardown still ran and was confirmed.
+  expect(observation.timings.teardownConfirmed).not.toBeNull();
+ }finally{await b.close();}
+ const n2=native();n2.runtime.dispose=vi.fn(async()=>{throw new Error('leak');});
+ const b2=await createHermesBroker({input,createRuntime:()=>n2.runtime});try{
+  b2.expect({sequence:1,inputIds:[],phase:'foreground'});
+  const response=post(b2,{sessionId:'acp',modelId:input.modelId,prompt:'x'});await vi.waitFor(()=>expect(n2.runtime.start).toHaveBeenCalled());
+  n2.event('assistant.message',{content:'hi'});n2.event('settled');
+  expect((await response).status).toBe(400);
+  const observation=b2.observation(1)!;
+  expect(observation.outcome).toBe('failed');expect(observation.timings.teardownConfirmed).toBeNull();
+ }finally{await b2.close().catch(()=>{});}
+});
 it('RequestMetrics finishes exactly once and first mark wins',()=>{
  let tick=0;const metrics=new RequestMetrics({version:1,requestId:'r1',owner:{threadId:'t',runId:'r',epoch:1,sequence:1,inputIds:['i'],phase:'foreground'},binding:{providerId:'p',modelId:'m',accountId:null},measurementSource:'test'},()=>tick);
  tick=5;expect(metrics.mark('acquired')).toBe(5);tick=9;expect(metrics.mark('acquired')).toBe(5);
- tick=12;const observation=metrics.finish('completed',{inputTokens:null,outputTokens:null,cacheReadTokens:0,cacheWriteTokens:null,cost:null});
+ tick=12;metrics.mark('teardownConfirmed');const observation=metrics.finish('completed',{inputTokens:null,outputTokens:null,cacheReadTokens:0,cacheWriteTokens:null,cost:null});
  expect(observation.timings.teardownConfirmed).toBe(12);expect(observation.usageConvention).toBe('provider-reported');
  expect(observation.usage.cacheReadTokens).toBe(0);expect(observation.usage.cacheReadTokens).not.toBeNull();
  expect(metrics.finish('failed',null)).toBe(observation);expect(metrics.mark('settled')).toBeNull();
