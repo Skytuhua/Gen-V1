@@ -1,5 +1,11 @@
-import { expect, test } from '@playwright/test';
-import { serveTaskFixture, taskFixture } from './task-interface-fixture';
+import { expect, test, type Page } from '@playwright/test';
+import { serveTaskFixture, serveTaskSplitLayout, taskFixture } from './task-interface-fixture';
+
+// The main pane intentionally starts empty without a saved selection.
+async function openFixtureConversation(page: Page) {
+  await page.getByRole('button', { name: 'Source-bound task fixture Ready', exact: true }).click();
+  await expect(page.getByText('Synthetic local source data for the reusable renderer.', { exact: true })).toBeVisible();
+}
 
 test('Settings load on demand, retain focus and drafts, and reuse the loaded module', async ({ page }) => {
   const fixture = await serveTaskFixture(page, taskFixture({ root: 'note', elements: { note: { type: 'Input', props: { label: 'Review note', stateKey: 'note' } } } }));
@@ -45,10 +51,12 @@ test('Settings load on demand, retain focus and drafts, and reuse the loaded mod
 
 test('a failed Settings chunk preserves the conversation and can be safely reloaded', async ({ page }) => {
   await serveTaskFixture(page, taskFixture({ root: 'note', elements: { note: { type: 'Input', props: { label: 'Review note', stateKey: 'note' } } } }));
+  await serveTaskSplitLayout(page);
   let requests = 0; const pageErrors: string[] = [];
   page.on('pageerror', error => pageErrors.push(error.message));
   await page.route('**/src/Settings.tsx*', route => ++requests === 1 ? route.abort('failed') : route.continue());
   await page.goto('/');
+  await openFixtureConversation(page);
   const composer = page.getByRole('textbox', { name: 'Message', exact: true }), note = page.getByRole('textbox', { name: 'Review note', exact: true });
   await composer.fill('Keep the composer draft'); await note.fill('Keep the artifact draft');
   const original = await note.elementHandle(), opener = page.getByRole('button', { name: 'Settings', exact: true });
@@ -74,9 +82,11 @@ test('failed draft persistence blocks Settings recovery reload and retains the m
     Storage.prototype.setItem = function(key, value) { if ((window as any).failDraftWrites && key.startsWith('harness:journal-pending:')) throw Error('Staging unavailable'); return original.call(this, key, value); };
   });
   await serveTaskFixture(page, taskFixture({ root: 'text', elements: { text: { type: 'Text', props: { text: 'Current task' } } } }));
+  await serveTaskSplitLayout(page);
   await page.route('**/src/Settings.tsx*', route => route.abort('failed'));
   const bootstrapped = page.waitForResponse(response => new URL(response.url()).pathname === '/api/bootstrap' && response.ok());
   await page.goto('/'); await bootstrapped;
+  await openFixtureConversation(page);
   const composer = page.getByRole('textbox', { name: 'Message', exact: true }); await expect(composer).toBeEnabled();
   await page.evaluate(() => {(window as any).failDraftWrites = true;});
   await composer.fill('Only memory retains this draft');
@@ -99,14 +109,17 @@ test('PNG preprocessing blocks Settings recovery reload before the mark reaches 
     }) as typeof createImageBitmap;
   });
   await serveTaskFixture(page, taskFixture({ root: 'signature', elements: { signature: { type: 'SignaturePad', props: { stateKey: 'signature', initialMode: 'upload' } } } }));
+  await serveTaskSplitLayout(page);
   await page.route('**/src/Settings.tsx*', route => route.abort('failed'));
   try {
     await page.goto('/');
-    const signature = page.locator('.signature-pad'), original = await signature.elementHandle();
+    await openFixtureConversation(page);
+    const signature = page.locator('.signature-pad:visible');
     const base64 = await page.evaluate(() => { const canvas = document.createElement('canvas'); canvas.width = 100; canvas.height = 50; canvas.getContext('2d')!.fillRect(10, 10, 70, 10); return canvas.toDataURL('image/png').split(',')[1]; });
     await page.getByLabel('Upload PNG signature', { exact: true }).setInputFiles({ name: 'mark.png', mimeType: 'image/png', buffer: Buffer.from(base64, 'base64') });
     await expect.poll(() => page.evaluate(() => typeof (window as unknown as { releaseMarkDecode?: unknown }).releaseMarkDecode)).toBe('function');
     expect(await page.evaluate(async () => {const path='/src/signature-assets.tsx'; return (await import(path)).hasPendingDocumentAssets();})).toBe(true);
+    const original = await signature.elementHandle();
     await page.getByRole('button', { name: 'Settings', exact: true }).click();
     const alert = page.getByRole('dialog', { name: 'Settings', exact: true }).getByRole('alert'); await expect(alert).toContainText('Settings could not load');
     let navigations = 0; page.on('framenavigated', frame => { if (frame === page.mainFrame()) navigations++; });

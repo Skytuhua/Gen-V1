@@ -1,5 +1,5 @@
 import {test,expect} from '@playwright/test';
-import {taskFixture,serveTaskFixture} from './task-interface-fixture.ts';
+import {taskFixture,serveTaskFixture,serveTaskSplitLayout} from './task-interface-fixture.ts';
 const p={id:'project-a',name:'Alpha',authority:{kind:'local'},rootPath:'C:/Synthetic/Alpha',createdAt:'2026-01-01T00:00:00.000Z'};
 async function host(page,empty=false){
   const s=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Synthetic project flow'}}}});
@@ -7,6 +7,7 @@ async function host(page,empty=false){
   s.threads[0].projectId=p.id;s.threads[0].projectName=p.name;
   if(empty){s.threads=[];s.activeThreadId=null;}
   const h=await serveTaskFixture(page,s);
+  await serveTaskSplitLayout(page);
   const workspace={state:{version:1,revision:1,activeCanvasId:'main',canvases:[{id:'main',version:1,name:'Workspace',preset:'workspace',viewport:{x:0,y:0,zoom:1},panels:[],filter:'all',projectIds:[]}],disabledKinds:[],integrations:{},profiles:[]},projects:[p,{...p,id:'project-b',name:'Beta',rootPath:'C:/Synthetic/Beta'}]};
   await page.route('**/api/workspace',r=>r.fulfill({json:workspace}));
   await page.route('**/api/workspace/commands',r=>{h.commands.push(r.request().postDataJSON());return r.fulfill({json:{result:workspace}});});
@@ -47,7 +48,11 @@ test('actual App chosen project migrates a new-composer draft only after confirm
 });
 
 test('actual App started conversation keeps its owner and draft when another project creates a new chat',async({page})=>{
- const h=await host(page);await page.getByRole('textbox',{name:'Message',exact:true}).fill('Keep this started draft');
+ const h=await host(page);
+ await page.getByRole('button',{name:'Source-bound task fixture Ready',exact:true}).click();
+ await expect(page.getByRole('tab',{name:'Source-bound task fixture',exact:true,selected:true})).toBeVisible();
+ await expect(page.getByRole('button',{name:'Select project',exact:true})).toContainText('Alpha');
+ await page.getByRole('textbox',{name:'Message',exact:true}).fill('Keep this started draft');
  await page.getByRole('button',{name:'Select project',exact:true}).click();await page.getByRole('option',{name:'Beta',exact:true}).click();
  await expect.poll(()=>h.commands.find(c=>c.type==='thread.create')?.payload).toEqual({projectId:'project-b'});
  expect(h.snapshot.threads[0].projectId).toBe('project-a');expect(h.snapshot.threads[0].sessionPath).toBe('fixture');
@@ -69,7 +74,9 @@ test('actual App No project creates an unbound personal thread explicitly',async
 });
 test('actual App color save merges current profile overrides and sends validated preferences',async({page})=>{
  const h=await host(page);h.snapshot.settings.preferences={projectColors:{'["local","other"]':'#4F6EFF'}};await h.publish();
- await page.getByRole('button',{name:'Select project',exact:true}).click();await page.getByRole('button',{name:'Color for Alpha'}).click();
+ await page.getByRole('button',{name:'Select project',exact:true}).click();
+ await page.getByRole('combobox',{name:'Search projects',exact:true}).press('ArrowDown');
+ await page.getByRole('button',{name:'Color for Alpha',exact:true}).click();
  await page.getByRole('textbox',{name:'Custom color'}).fill('#123abc');await page.getByRole('button',{name:'Save color',exact:true}).click();
  await expect.poll(()=>h.commands.find(c=>c.type==='settings.update')?.payload).toEqual({preferences:{projectColors:{'["local","other"]':'#4F6EFF','["local","project-a"]':'#123abc'}}});
  expect(h.commands.filter(c=>c.type==='thread.create')).toHaveLength(0);
