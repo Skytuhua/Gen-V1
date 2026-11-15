@@ -74,7 +74,7 @@
 .agents-work-row header { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 12px; }
 .agents-work-meta { color: var(--muted); font-size: 11px; overflow-wrap: anywhere; }
 .agents-work-state { font-weight: 600; }
-.agents-work-state[data-state='RUNNING'] { color: var(--accent, #4c8dff); }
+.agents-work-state[data-state='RUNNING'] { color: var(--accent-fg); }
 .agents-work-state[data-state='FAILED'], .agents-work-state[data-state='INTERRUPTED'] { color: var(--danger, #d44); }
 .agents-work-state[data-state='COMPLETED_REPORTED'], .agents-work-state[data-state='VERIFIED'] { color: var(--ok, #2a4); }
 .agents-work-send { display: flex; gap: 4px; }

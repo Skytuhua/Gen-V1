@@ -38,6 +38,7 @@ describe('T14 running semantics stay fixed under a custom accent',()=>{
   ['../apps/web/src/relationship-graph.css',/\.graph-edge\.status-running\s*\{([^}]+)\}/],
   ['../apps/web/src/software-development.css',/\.software-state-running\s*\{([^}]+)\}/],
   ['../apps/web/src/software-development.css',/\.software-stage-node\.software-state-running\s*\{([^}]+)\}/],
+  ['../apps/web/src/agents-workspace/agents-workspace.css',/\.agents-work-state\[data-state='RUNNING'\]\s*\{([^}]+)\}/],
  ] as const;
  it('running status references the fixed --accent-fg, never the customizable --accent',()=>{
   for(const [path,pattern] of runningRules){
