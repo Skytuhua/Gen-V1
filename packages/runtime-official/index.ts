@@ -228,6 +228,9 @@ export function createOfficialRuntime({ dataDir,modelOnly:requestedModelOnly,pur
       }
       return structuredClone(await modelDiscovery);
     },
+    async invalidateModels() {
+      modelCache = undefined;
+    },
     start(input) { return queue(input, false); },
     followUp(input) {
       if(purpose==='memory-extraction')return Promise.reject(new HarnessError('MEMORY_EXTRACTION_SESSION_UNSUPPORTED','Memory extraction cannot continue a conversation.'));

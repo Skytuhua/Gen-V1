@@ -20,7 +20,11 @@ async function setup(page: Page, candidate = false, burstHistory = false, delaye
   if (url.pathname === '/api/commands') {
    commands.push(route.request().postDataJSON());
    if (failSend) return route.fulfill({status: 503, json: {error: {code: 'TEMPORARY', message: 'Send interrupted. Retry.'}}});
-   return route.fulfill({json: {id: commands.at(-1)!.id, status: 'accepted', result: commands.at(-1)!.type === 'agent.followUp' ? {ticketId: commands.at(-1)!.id, status: 'queued'} : null}});
+   const command = commands.at(-1)!;
+   if (command.type === 'agent.followUp') {
+    return route.fulfill({json: {commandId: command.id, eventSeq: sequence, result: {ticketId: command.id, status: 'queued'}}});
+   }
+   return route.fulfill({json: {id: command.id, status: 'accepted', result: null}});
   }
   if (url.pathname === '/api/agents') {
    await gate;
@@ -89,6 +93,41 @@ test('missing history remains reachable after offscreen bursts without moving th
  expect(await log.locator('article').evaluateAll(nodes => nodes.map(node => Number(node.textContent!.match(/Transcript message (\d+)/)![1])))).toEqual(Array.from({length: 140}, (_, i) => i + 1));
 });
 
+test('a slower evidence request cannot replace the latest selected child', async ({page}) => {
+ const fixtureHost = await setup(page, false, false, true);
+ let finish!: () => void;
+ const delayed = new Promise<void>(resolve => {finish = resolve;});
+ await page.route('**/api/agent-work?taskId=parent-00', route => route.fulfill({json: {
+  enabled: true, roles: {}, budget: {reservedTokens: 0}, works: ['first', 'second'].map(id => ({
+   workId: id, role: 'QA', state: 'VERIFIED', owner: {threadId: id},
+   budget: {tokens: null}, evidence: {refs: 1, stale: 0},
+  })),
+ }}));
+ await page.route(/\/api\/agent-work\/(plan|messages)\?/, route => route.fulfill({json: {extension: false, messages: []}}));
+ await page.route('**/api/agent-work/output?*', async route => {
+  const workId = new URL(route.request().url()).searchParams.get('workId');
+  if (workId === 'first') await delayed;
+  await route.fulfill({json: {workId, output: workId === 'first' ? 'Older selection' : 'Latest selection', lateArtifacts: 0}});
+ });
+ try {
+  fixtureHost.release();
+  await page.getByRole('button', {name: 'Agent work · 2', exact: true}).click();
+  const first = page.waitForRequest(request => request.url().includes('/api/agent-work/output?') && request.url().includes('workId=first'));
+  await page.getByRole('button', {name: 'Open evidence for first', exact: true}).click();
+  await first;
+  const evidence = page.locator('.agents-work-output');
+  await page.getByRole('button', {name: 'Open evidence for second', exact: true}).click();
+  await expect(evidence).toContainText('Latest selection');
+  const drained = page.waitForResponse(response => response.url().includes('/api/agent-work/output?') && response.url().includes('workId=first'));
+  finish();
+  expect((await drained).ok()).toBe(true);
+  // Wait until the delayed response body and the following rendering turn finish.
+  await (await drained).finished();
+  await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+  await expect(evidence).toContainText('Latest selection');
+ } finally {finish();}
+});
+
 test('project rows expose working parent and nested child transcripts before any details click', async ({page}) => {
  const h = await setup(page); const parent = page.getByRole('group', {name: 'Agent parent-00', exact: true});
  await expect(parent.getByRole('log', {name: 'parent-00 messages', exact: true})).toContainText('Current transcript output');
@@ -150,6 +189,30 @@ test('child follow-up uses the published parent/run target and current ticket th
  expect(Object.keys(h.commands[0].payload).sort()).toEqual(['childRun', 'content', 'jobId', 'parentRun']);
  h.ticket('handled'); await expect(child.getByRole('status')).toHaveText('handled'); expect(h.commands).toHaveLength(1);
 });
+test('agent task progress exposes its name and unknown share to assistive technology', async ({page}) => {
+ const fixtureHost = await setup(page, false, false, true);
+ await page.route('**/api/agent-work?taskId=parent-00', route => route.fulfill({json: {
+  enabled: true, roles: {}, budget: {reservedTokens: 0}, works: [{
+   workId: 'demo-progress', role: 'QA', state: 'VERIFIED', owner: {threadId: 'child-active'},
+   budget: {tokens: null}, evidence: {refs: 0},
+  }],
+ }}));
+ await page.route('**/api/agent-work/plan?*', route => route.fulfill({json: {
+  extension: true, planId: 'demo-plan', progress: {total: 10, completed: 3, pending: 5, unknown: 2},
+ }}));
+ await page.route('**/api/agent-work/messages?*', route => route.fulfill({json: {messages: []}}));
+ try {
+  fixtureHost.release();
+  await page.getByRole('button', {name: 'Agent work · 1', exact: true}).click();
+  const work = page.getByRole('region', {name: 'Agent work', exact: true});
+  await expect(work.getByText('30% known complete · 20% unknown', {exact: true})).toBeVisible();
+  const progress = work.getByRole('progressbar', {name: 'Task progress', exact: true});
+  await expect(progress).toHaveAttribute('aria-valuetext', '30% known complete · 20% unknown');
+  await expect(progress).toHaveAttribute('value', '3');
+  await expect(progress).toHaveAttribute('max', '10');
+ } finally {fixtureHost.release();}
+});
+
 test('output while reading earlier retains position and exposes an explicit new-output action', async ({page}) => {
  const h = await setup(page), parent = page.getByRole('group', {name: 'Agent parent-00', exact: true}), log = parent.getByRole('log', {name: 'parent-00 messages', exact: true});
  await expect(log).toContainText('Current transcript output'); await log.evaluate(node => {node.scrollTop = 100;});
@@ -172,3 +235,90 @@ for (const [theme, width, height, zoom] of [['dark', 1440, 900, 1], ['light', 10
   await page.screenshot({path: info.outputPath(`agents-${theme}-${width}-${zoom}.png`)});
  });
 }
+
+test('a child input acknowledgement preserves a newer draft', async ({page}) => {
+ const fixtureHost = await setup(page, false, false, true);
+ let finish!: () => void;
+ const acknowledgement = new Promise<void>(resolve => {finish = resolve;});
+ const sent: unknown[] = [];
+ await page.route('**/api/agent-work?taskId=parent-00', route => route.fulfill({json: {
+  enabled: true, roles: {}, budget: {reservedTokens: 0}, works: [{
+   workId: 'demo-child', role: 'QA', state: 'RUNNING', steerSupported: true,
+   owner: {threadId: 'child-active'}, budget: {tokens: null}, evidence: {refs: 0},
+  }],
+ }}));
+ await page.route(/\/api\/agent-work\/(plan|messages|inputs)\?/, route => route.fulfill({json: {extension: false, messages: [], inputs: []}}));
+ await page.route('**/api/commands', async route => {
+  const command = route.request().postDataJSON();
+  sent.push(command.payload);
+  await acknowledgement;
+  await route.fulfill({json: {commandId: command.id, eventSeq: 11, result: null}});
+ });
+ try {
+  fixtureHost.release();
+  await page.getByRole('button', {name: 'Agent work · 1', exact: true}).click();
+  const work = page.getByRole('region', {name: 'Agent work', exact: true});
+  const input = work.getByRole('textbox', {name: 'Message work demo-child'});
+  const queue = work.getByRole('button', {name: 'Queue next'});
+  await input.fill('First instruction');
+  await queue.click();
+  await expect.poll(() => sent.length).toBe(1);
+  await expect(queue).toBeDisabled();
+  await expect(work.getByRole('button', {name: 'Steer now'})).toBeDisabled();
+  await input.fill('Draft for later');
+  const response = page.waitForResponse('**/api/commands');
+  const refreshed = page.waitForResponse('**/api/agent-work?taskId=parent-00');
+  finish();
+  expect((await response).ok()).toBe(true);
+  expect((await refreshed).ok()).toBe(true);
+  await expect(queue).toBeEnabled();
+  await expect(input).toHaveValue('Draft for later');
+  expect(sent[0]).toMatchObject({workId: 'demo-child', kind: 'FOLLOW_UP', text: 'First instruction'});
+ } finally {finish();}
+});
+
+test('a message board post acknowledgement preserves edits for the next post', async ({page}) => {
+ const fixtureHost = await setup(page, false, false, true);
+ let finish!: () => void;
+ const acknowledgement = new Promise<void>(resolve => {finish = resolve;});
+ const sent: unknown[] = [];
+ await page.route('**/api/agent-work?taskId=parent-00', route => route.fulfill({json: {
+  enabled: true, roles: {}, budget: {reservedTokens: 0}, works: [{
+   workId: 'demo-child', role: 'QA', state: 'VERIFIED', owner: {threadId: 'child-active'},
+   budget: {tokens: null}, evidence: {refs: 0},
+  }],
+ }}));
+ await page.route(/\/api\/agent-work\/(plan|messages)\?/, route => route.fulfill({json: {extension: false, messages: []}}));
+ await page.route('**/api/commands', async route => {
+  const command = route.request().postDataJSON();
+  sent.push(command.payload);
+  await acknowledgement;
+  await route.fulfill({json: {commandId: command.id, eventSeq: 11, result: null}});
+ });
+ try {
+  fixtureHost.release();
+  await page.getByRole('button', {name: 'Agent work · 1', exact: true}).click();
+  const work = page.getByRole('region', {name: 'Agent work', exact: true});
+  await work.getByText('Message board · 0', {exact: true}).click();
+  await work.getByRole('combobox', {name: 'Recipient', exact: true}).click();
+  await page.getByRole('option', {name: 'QA child-ac', exact: true}).click();
+  const topic = work.getByRole('textbox', {name: 'Topic', exact: true});
+  const message = work.getByRole('textbox', {name: 'Message', exact: true});
+  const post = work.getByRole('button', {name: 'Post', exact: true});
+  await topic.fill('First topic');
+  await message.fill('First note');
+  await post.click();
+  await expect.poll(() => sent.length).toBe(1);
+  await expect(post).toBeDisabled();
+  await message.fill('Next note');
+  const response = page.waitForResponse('**/api/commands');
+  const refreshed = page.waitForResponse('**/api/agent-work?taskId=parent-00');
+  finish();
+  expect((await response).ok()).toBe(true);
+  expect((await refreshed).ok()).toBe(true);
+  await expect(post).toBeEnabled();
+  await expect(message).toHaveValue('Next note');
+  await expect(topic).toHaveValue('First topic');
+  expect(sent[0]).toMatchObject({recipientThreadId: 'child-active', topic: 'First topic', text: 'First note'});
+ } finally {finish();}
+});

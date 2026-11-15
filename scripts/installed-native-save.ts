@@ -74,7 +74,11 @@ export function parseInstalledNativeSaveTranscript(raw: string, pid: number): In
 }
 
 // The script is fixed. Only validated owner/path data crosses stdin, never command text.
+// Its root lease pins the existing owner receipt to keep the writable root nonempty.
+// Data/list handle access enforces sharing denial; attribute-only opens would not.
+// Keep the compiled caller frame while .NET Framework discovers its native control providers.
 const NATIVE_SAVE_SCRIPT = String.raw`
+using namespace System.Windows.Automation
 $ErrorActionPreference='Stop'
 $clock=[Diagnostics.Stopwatch]::StartNew()
 $ownedPid=0; $processTicks=$null; $dialogHandle=$null; $failureReason='startup-failed'; $controls=@(); $rootGuard=$null
@@ -90,9 +94,10 @@ try {
   if(@($request.psobject.Properties).Count -ne 6){Fail 'startup-failed'}
   $ownedPid=[int]$request.pid; $expectedImage=[string]$request.executable; $evidenceRoot=[string]$request.directory; $targetPath=[string]$request.target
   if($ownedPid -le 0 -or -not [IO.Path]::IsPathRooted($expectedImage) -or -not [IO.Path]::IsPathRooted($evidenceRoot) -or $targetPath -cne [IO.Path]::Combine($evidenceRoot,'installed-memory-redacted-export.json')){Fail 'startup-failed'}
-  Add-Type -AssemblyName UIAutomationClient
-  Add-Type -AssemblyName UIAutomationTypes
-  Add-Type -TypeDefinition @'
+  Add-Type -AssemblyName UIAutomationClient,UIAutomationTypes
+  $u=[AutomationElement].Assembly
+  $p=[Reflection.AssemblyName]::new($u.FullName);$p.Name='UIAutomationClientsideProviders'
+  Add-Type -ReferencedAssemblies @($u.Location,[ControlType].Assembly.Location) -TypeDefinition @'
 using System;
 using System.IO;
 using System.Text;
@@ -100,8 +105,20 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Microsoft.Win32.SafeHandles;
 public static class NativeSaveWindowOwner {
+  [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining | System.Runtime.CompilerServices.MethodImplOptions.NoOptimization)]
+  public static void Register(System.Reflection.AssemblyName name) {
+    System.Windows.Automation.ClientSettings.RegisterClientSideProviderAssembly(name);
+    System.GC.KeepAlive(name);
+  }
   [DllImport("user32.dll")] static extern uint GetWindowThreadProcessId(IntPtr h, out uint p);
   public static uint Read(int h) { uint p; GetWindowThreadProcessId(new IntPtr(h), out p); return p; }
+  public delegate bool Visit(IntPtr h,IntPtr p);
+  [DllImport("user32.dll")] static extern bool EnumWindows(Visit visit,IntPtr p);
+  public static IntPtr[] Windows(uint p) {
+    var items=new List<IntPtr>();
+    if(!EnumWindows((h,x)=>{uint q;GetWindowThreadProcessId(h,out q);if(q==p)items.Add(h);return items.Count<=32;},IntPtr.Zero))throw new IOException("Window enumeration refused");
+    return items.ToArray();
+  }
 }
 public sealed class NativeSaveRootLease : IDisposable {
   [StructLayout(LayoutKind.Sequential)] struct Info {
@@ -123,12 +140,10 @@ public sealed class NativeSaveRootLease : IDisposable {
       string[] parts=this.path.Substring(current.Length).Split(new char[]{'\\'},StringSplitOptions.RemoveEmptyEntries);
       for(int i=0;i<parts.Length;i++){current=Path.Combine(current,parts[i]);root=Pin(current,true,i==parts.Length-1?3u:1u);}
       Check();
-      // The existing immutable owner receipt keeps the writable evidence root nonempty.
       Pin(Path.Combine(this.path,"owner.json"),false,1);
     } catch {Dispose();throw;}
   }
   SafeFileHandle Pin(string name,bool directory,uint sharing) {
-    // Data/list access is intentional: attribute-only opens do not enforce sharing denial.
     var handle=CreateFile(name,directory?0x81u:0x80000080u,sharing,IntPtr.Zero,3,0x02200000,IntPtr.Zero);
     if(handle.IsInvalid){handle.Dispose();throw new IOException("Evidence path lease unavailable");}
     held.Add(handle);Info info;
@@ -148,6 +163,7 @@ public sealed class NativeSaveRootLease : IDisposable {
   public void Dispose(){for(int i=held.Count-1;i>=0;i--)held[i].Dispose();held.Clear();}
 }
 '@ | Out-Null
+  [NativeSaveWindowOwner]::Register($p)
   try { $rootGuard=[NativeSaveRootLease]::new($evidenceRoot,[string]$request.dev,[string]$request.ino) } catch { Fail 'target-changed' }
   function Check-Owner {
     try {
@@ -166,11 +182,12 @@ public sealed class NativeSaveRootLease : IDisposable {
     if(Test-Path -LiteralPath $targetPath){Fail 'target-exists'}
   }
   function Find-Dialogs {
-    $condition=[System.Windows.Automation.AndCondition]::new([System.Windows.Automation.Condition[]]@(
-      [System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::ProcessIdProperty,$ownedPid),
-      [System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::NameProperty,'Export project memory'),
-      [System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::ControlTypeProperty,[System.Windows.Automation.ControlType]::Window)))
-    return ,([System.Windows.Automation.AutomationElement]::RootElement.FindAll([System.Windows.Automation.TreeScope]::Children,$condition))
+    $found=[Collections.ArrayList]::new()
+    foreach($handle in [NativeSaveWindowOwner]::Windows([uint32]$ownedPid)) {
+      try { $dialog=[AutomationElement]::FromHandle($handle);$info=$dialog.Current } catch { continue }
+      if($info.ProcessId -eq $ownedPid -and $info.Name -ceq 'Export project memory' -and $info.ControlType -eq [ControlType]::Window){[void]$found.Add($dialog)}
+    }
+    return ,$found
   }
   function Check-Dialog($dialog) {
     Check-Owner
@@ -181,37 +198,37 @@ public sealed class NativeSaveRootLease : IDisposable {
     $script:dialogHandle=$handle
   }
   function Capture-ControlIdentities($dialog) {
-    $condition=[System.Windows.Automation.OrCondition]::new([System.Windows.Automation.Condition[]]@(
-      [System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::ControlTypeProperty,[System.Windows.Automation.ControlType]::Edit),
-      [System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::ControlTypeProperty,[System.Windows.Automation.ControlType]::Button)))
-    $found=$dialog.FindAll([System.Windows.Automation.TreeScope]::Descendants,$condition); $items=@()
+    $condition=[OrCondition]::new([Condition[]]@(
+      [PropertyCondition]::new([AutomationElement]::ControlTypeProperty,[ControlType]::Edit),
+      [PropertyCondition]::new([AutomationElement]::ControlTypeProperty,[ControlType]::Button)))
+    $found=$dialog.FindAll([TreeScope]::Descendants,$condition); $items=@()
     for($index=0;$index -lt [Math]::Min(24,$found.Count);$index++) {
       $info=$found.Item($index).Current
       if($info.ProcessId -ne $ownedPid){continue}
       $id=$info.AutomationId;if($id -notmatch '^[A-Za-z0-9_-]{0,64}$'){$id='<other>'}
       $class=$info.ClassName;if($class -notmatch '^[A-Za-z0-9_.#-]{0,64}$'){$class='<other>'}
       $name=$info.Name;if($name -cnotin @('File name:','Save','Cancel')){$name='<other>'}
-      $kind='button';if($info.ControlType -eq [System.Windows.Automation.ControlType]::Edit){$kind='edit'}
+      $kind='button';if($info.ControlType -eq [ControlType]::Edit){$kind='edit'}
       $items+=@{controlType=$kind;automationId=$id;name=$name;className=$class;pid=$info.ProcessId;enabled=$info.IsEnabled}
     }
     $script:controls=$items
   }
   function Save-Controls($dialog) {
     Check-Dialog $dialog
-    $fileCondition=[System.Windows.Automation.AndCondition]::new([System.Windows.Automation.Condition[]]@(
-      [System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::ControlTypeProperty,[System.Windows.Automation.ControlType]::Edit),
-      [System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::AutomationIdProperty,'1001'),
-      [System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::NameProperty,'File name:')))
-    $saveCondition=[System.Windows.Automation.AndCondition]::new([System.Windows.Automation.Condition[]]@(
-      [System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::ControlTypeProperty,[System.Windows.Automation.ControlType]::Button),
-      [System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::AutomationIdProperty,'1'),
-      [System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::NameProperty,'Save')))
-    $file=$dialog.FindAll([System.Windows.Automation.TreeScope]::Descendants,$fileCondition); $save=$dialog.FindAll([System.Windows.Automation.TreeScope]::Descendants,$saveCondition)
+    $fileCondition=[AndCondition]::new([Condition[]]@(
+      [PropertyCondition]::new([AutomationElement]::ControlTypeProperty,[ControlType]::Edit),
+      [PropertyCondition]::new([AutomationElement]::AutomationIdProperty,'1001'),
+      [PropertyCondition]::new([AutomationElement]::NameProperty,'File name:')))
+    $saveCondition=[AndCondition]::new([Condition[]]@(
+      [PropertyCondition]::new([AutomationElement]::ControlTypeProperty,[ControlType]::Button),
+      [PropertyCondition]::new([AutomationElement]::AutomationIdProperty,'1'),
+      [PropertyCondition]::new([AutomationElement]::NameProperty,'Save')))
+    $file=$dialog.FindAll([TreeScope]::Descendants,$fileCondition); $save=$dialog.FindAll([TreeScope]::Descendants,$saveCondition)
     if($file.Count -ne 1 -or $save.Count -ne 1){Capture-ControlIdentities $dialog;Fail 'unknown-controls'}
     $edit=$file.Item(0); $button=$save.Item(0)
     if($edit.Current.ProcessId -ne $ownedPid -or $button.Current.ProcessId -ne $ownedPid -or -not $edit.Current.IsEnabled -or -not $button.Current.IsEnabled){Capture-ControlIdentities $dialog;Fail 'unknown-controls'}
     $value=$null; $invoke=$null
-    if(-not $edit.TryGetCurrentPattern([System.Windows.Automation.ValuePattern]::Pattern,[ref]$value) -or $value.Current.IsReadOnly -or -not $button.TryGetCurrentPattern([System.Windows.Automation.InvokePattern]::Pattern,[ref]$invoke)){Capture-ControlIdentities $dialog;Fail 'unknown-controls'}
+    if(-not $edit.TryGetCurrentPattern([ValuePattern]::Pattern,[ref]$value) -or $value.Current.IsReadOnly -or -not $button.TryGetCurrentPattern([InvokePattern]::Pattern,[ref]$invoke)){Capture-ControlIdentities $dialog;Fail 'unknown-controls'}
     return @{value=$value;invoke=$invoke}
   }
   Check-Owner;Check-Target

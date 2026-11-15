@@ -12,7 +12,7 @@ Open the [v0.6.1 preview release](https://github.com/Skytuhua/Gen-V1/releases/ta
 Get-FileHash -Algorithm SHA256 -LiteralPath .\Gen-V1-Setup-0.6.1-win-x64.exe
 ```
 
-This is a prerelease. There is no published stable 0.6.4 installer yet. The current source and the [gallery](media/README.md) include later changes, including plug-in API v1; they may differ from the published preview. Installed upgrade acceptance remains incomplete.
+This is a prerelease. The published installer does not include the later [source preview changes](release-notes.md#unreleased-065-source). The [gallery](media/README.md) shows a 0.6.4 source snapshot, not the installer or the latest checkout. Installed upgrade acceptance remains incomplete.
 
 ## Develop from a fresh checkout
 
@@ -72,7 +72,7 @@ Only the OpenAI route has recorded live task acceptance. Other routes still need
 
 ![Sample conversation and interactive investigation in the dark workspace](media/workspace-dark.png)
 
-*Sample UI from the current source. [Media scope](media/README.md).*
+*Sample UI from the 0.6.4 source preview. [Media scope](media/README.md).*
 
 ## Keep your data recoverable
 

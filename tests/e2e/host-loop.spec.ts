@@ -80,10 +80,13 @@ test('durable decision validation and acceptance continue the same owning runtim
   expect(host.runtime.deliveries).toHaveLength(1);
   await decision.getByRole('combobox', { name: 'choice', exact: true }).click();
   await page.getByRole('option', { name: 'Keep', exact: true }).click();
-  await decision.getByRole('textbox', { name: 'Decision rationale' }).fill('short');
+  const rationale = decision.getByRole('textbox', { name: 'Decision rationale', exact: true });
+  await expect(decision.getByText('Enter at least 10 characters.', { exact: true })).toBeVisible();
+  await expect(rationale).toHaveAccessibleDescription('Enter at least 10 characters.');
+  await rationale.fill('short');
   await decision.getByRole('button', { name: 'Continue', exact: true }).click();
   await expect(decision.getByRole('status')).toContainText('The response does not match the requested schema. Check the required fields and values.');
-  await expect(decision.getByRole('textbox', { name: 'Decision rationale' })).toHaveValue('short');
+  await expect(rationale).toHaveValue('short');
   expect(host.snapshot().requests[0]?.status).toBe('pending');
   expect(host.runtime.deliveries).toHaveLength(1);
   await decision.getByRole('textbox', { name: 'Decision rationale' }).fill('Verified source evidence.');

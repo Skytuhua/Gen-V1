@@ -89,7 +89,7 @@ export async function createHermesBroker(options:HermesBrokerOptions):Promise<He
      throw error;
     }finally{
      if(owned.runtime){const actual=usage??{...EMPTY_USAGE};usages.set(metadata.sequence,actual);try{options.onUsage?.(actual,metadata);}catch{/* Usage projection cannot prevent native teardown. */}}
-     try{await owned.runtime?.dispose();release?.();stage('teardownConfirmed');}catch(error){cleanupError=error;if(failure===undefined)failure=error;throw error;}finally{
+     try{await owned.runtime?.dispose();release?.();if(owned.runtime)stage('teardownConfirmed');}catch(error){cleanupError=error;if(failure===undefined)failure=error;throw error;}finally{
       const outcome=owned.cancelled?'cancelled':failure?'failed':'completed';
       // Adapter errors can contain source text or credentials. This telemetry
       // lives outside memory Forget custody, so publish only a fixed diagnosis.

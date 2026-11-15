@@ -73,8 +73,7 @@ export function Artifact({ artifact: incoming, snapshot, theme, refresh, onDirty
     return () => cancelAnimationFrame(frame);
   }, [restored, prepared]);
   useArtifactEntrance(section, animateEntry && ready, entranceBody);
-  useArtifactEntrance(section, animateEntry);
-  const placed = useRef({ expanded: false, inWorkspace: false });
+  const placed = useRef<{ expanded: boolean; inWorkspace: boolean } | null>(null);
   const expandButton = useRef<HTMLElement | null>(null);
   const pendingApproval = useRef<string | null>(null);
   const [widgetRecord, setWidgetRecord] = useState<UserStateRecord | undefined>(record);
@@ -84,7 +83,9 @@ export function Artifact({ artifact: incoming, snapshot, theme, refresh, onDirty
   useLayoutEffect(() => {
     const element = section.current, before = placed.current;
     placed.current = { expanded, inWorkspace };
-    if (!element || (before.expanded === expanded && before.inWorkspace === inWorkspace)) return;
+    // Initial mount is not a placement transition: a restored/docked artifact must
+    // stay quiet. Only a real expand/dock/return change animates.
+    if (!element || !before || (before.expanded === expanded && before.inWorkspace === inWorkspace)) return;
     // Entering the docked panel slides in from the rail; returning inline settles like a new row.
     animateTask(element, inWorkspace || expanded
       ? [{ opacity: 0, transform: 'translateX(12px)' }, { opacity: 1, transform: 'translateX(0)' }]

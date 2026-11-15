@@ -364,6 +364,16 @@ test('keyboard and status Stop share the ordinary composer pending owner', async
   await expect.poll(() => h.commands.filter(command => command.type === 'run.stop').length).toBe(1);
 });
 
+test('monitor Stop shortcut stops the focused working agent exactly once (AUD-06)', async ({page}) => {
+  const h = await fixture(page);
+  const stop = page.getByRole('button', {name: 'Stop Project investigation', exact: true});
+  await stop.waitFor({state: 'visible'});
+  await stop.focus();
+  await page.keyboard.press('Escape');
+  await expect.poll(() => h.commands.filter(command => command.type === 'run.stop').length).toBe(1);
+  expect(h.commands.find(command => command.type === 'run.stop')?.threadId).toBe('parent-a');
+});
+
 test('review: returning through All Agents retains the latest conversation selection', async ({page}) => {
  await fixture(page, {working:false});
  await page.getByRole('button',{name:'Open conversation Project investigation',exact:true}).click();
@@ -501,7 +511,7 @@ test('desktop ownership change prevents a slash mode retry after authentication 
  await input.fill('/plan');
  await expect(page.getByRole('option',{name:'/plan Switch to Plan'})).toBeVisible();
  await input.press('Enter');
- await expect(page.getByRole('alert').filter({hasText:'The command owner changed'})).toBeVisible();
+ await expect(page.getByRole('status').filter({hasText:'The command owner changed'})).toBeVisible();
  expect(attempts).toBe(1);
 });
 
@@ -531,7 +541,7 @@ test('a native owner roundtrip before auth retry still rejects the stale mode',a
  await expect.poll(()=>attempts).toBe(1);
  await page.evaluate(()=>(window as any).publishOwner(true));await expect(input).toBeDisabled();
  await page.evaluate(()=>(window as any).publishOwner(false));await expect(input).toBeEnabled();release();
- await expect(page.getByRole('alert').filter({hasText:'The command owner changed'})).toBeVisible();expect(attempts).toBe(1);
+ await expect(page.getByRole('status').filter({hasText:'The command owner changed'})).toBeVisible();expect(attempts).toBe(1);
 });
 
 test('unmounting the monitor before native takeover rejects a stale mode retry',async({page})=>{
@@ -548,7 +558,7 @@ test('unmounting the monitor before native takeover rejects a stale mode retry',
  await page.getByRole('button',{name:'Open conversation Project investigation',exact:true}).click();
  await expect(input).toHaveCount(0);
  await page.evaluate(()=>(window as any).publishOwner(true));
- await expect(page.getByText('This conversation is open in another window.',{exact:false})).toBeVisible();release();
+ await expect(page.getByText('Conversation open in another window.',{exact:false})).toBeVisible();release();
  await expect.poll(()=>attempts,{timeout:1500}).toBe(1);
  console.log(JSON.stringify({scenario:'unmount-then-native-takeover',attempts,sent}));
  expect(attempts).toBe(1);
@@ -569,7 +579,7 @@ test('synchronous native owner roundtrip fences the pending mode retry and permi
  // Both trusted callbacks run in one task: there is no DOM wait or React render between them.
  await page.evaluate(()=>{(window as any).publishOwner(true);(window as any).publishOwner(false);});
  release();
- await expect(page.getByRole('alert').filter({hasText:'The command owner changed'})).toBeVisible();
+ await expect(page.getByRole('status').filter({hasText:'The command owner changed'})).toBeVisible();
  expect(sent).toHaveLength(1);expect(sent[0]).toMatchObject({type:'thread.mode',threadId:'parent-a',payload:{mode:'plan'}});
  await expect(input).toBeEnabled();await input.fill('/default');
  await expect(page.getByRole('option',{name:'/default Switch to Build'})).toBeVisible();await input.press('Enter');
@@ -594,7 +604,7 @@ test('native takeover immediately before the mode callback prevents its initial 
   });
  });
  await input.press('Enter');
- await expect(page.getByRole('alert').filter({hasText:'The command owner changed'})).toBeVisible();
+ await expect(page.getByRole('status').filter({hasText:'The command owner changed'})).toBeVisible();
  expect(await page.evaluate(()=>(window as any).ownerCallbackSawEnabled)).toBe(true);
  expect(h.commands.filter(command=>command.type==='thread.mode')).toHaveLength(0);
  await expect(input).toBeDisabled();
@@ -723,7 +733,7 @@ test('Custom dock stays inside its owner at wide, narrow and short sizes',async(
  for(const [width,height] of [[1600,1000],[1024,768],[640,420]]){
   await page.setViewportSize({width,height});
   await expect.poll(()=>dock.evaluate(element=>{const outer=element.parentElement!.getBoundingClientRect(),inner=element.getBoundingClientRect();return {contained:inner.left>=outer.left-1&&inner.right<=outer.right+1&&inner.top>=outer.top-1&&inner.bottom<=outer.bottom+1,outer:{width:outer.width,height:outer.height},inner:{width:inner.width,height:inner.height}};}),{message:`Custom ${width}x${height} dock bounds`}).toMatchObject({contained:true});
-  const bounds=await page.locator('.shell-workarea').evaluate(element=>{const chat=element.querySelector('.workspace')!.getBoundingClientRect(),tools=element.querySelector('.workspace-tools')!.getBoundingClientRect();return{stacked:element.getAttribute('data-tool-layout')==='stacked',chat:{x:chat.x,y:chat.y,width:chat.width,height:chat.height,bottom:chat.bottom},tools:{x:tools.x,y:tools.y,width:tools.width,height:tools.height}};});
+  const bounds=await page.locator('.personal-workarea > .shell-workarea').first().evaluate(element=>{const chat=element.querySelector('.split-root-workarea')!.getBoundingClientRect(),tools=element.querySelector('.workspace-tools')!.getBoundingClientRect();return{stacked:element.getAttribute('data-tool-layout')==='stacked',chat:{x:chat.x,y:chat.y,width:chat.width,height:chat.height,bottom:chat.bottom},tools:{x:tools.x,y:tools.y,width:tools.width,height:tools.height}};});
   if(bounds.stacked)expect(bounds.tools.y).toBeGreaterThanOrEqual(bounds.chat.bottom);else{expect(bounds.chat.width).toBeGreaterThanOrEqual(419);expect(bounds.tools.width).toBeLessThanOrEqual(721);}
   for(const theme of ['dark','light']){await page.evaluate(theme=>document.documentElement.dataset.theme=theme,theme);await page.screenshot({path:info.outputPath(`custom-${theme}-${width}x${height}.png`),fullPage:true,animations:'disabled'});}
  }
@@ -772,7 +782,7 @@ test('Custom binds distinct artifacts and its Artifact menu resolves the active 
 test('Custom sidebar offers selection without movable conversation placement',async({page})=>{
  const h=await fixture(page,{working:false});await page.getByRole('button',{name:'Open conversation Project investigation',exact:true}).click();await page.getByRole('button',{name:'Custom',exact:true}).click();
  await page.getByRole('button',{name:'Options for Empty draft stays in navigation',exact:true}).click();await expect(page.getByRole('menuitem',{name:/^Place in workspace/})).toHaveCount(0);
- expect(h.dockCommands.filter(command=>JSON.stringify(command.payload).includes('"kind":"thread"'))).toEqual([]);
+ expect(h.dockCommands.filter(command=>command.payload.workspaceId==='custom'&&JSON.stringify(command.payload).includes('"kind":"thread"'))).toEqual([]);
 });
 
 test('Custom metadata recovery keeps each canvas save receipt in its original scope',async({page})=>{
