@@ -152,3 +152,16 @@ test('overlay focus recovery skips controls hidden by CSS visibility', async ({ 
   }, path);
   expect(focused).toBe(true);
 });
+
+test('a tall tooltip stays visible in a short viewport when neither side fits', async ({ page }) => {
+  await page.setViewportSize({ width: 250, height: 210 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/ui-shell-overlays?tooltip');
+  await page.getByRole('button', { name: 'Tooltip anchor', exact: true }).hover();
+  const tooltip = page.getByRole('tooltip');
+  await expect(tooltip).toBeVisible();
+  await expect.poll(async () => {
+    const box = await tooltip.boundingBox();
+    return Boolean(box && box.y >= 7 && box.y + box.height <= 203);
+  }).toBe(true);
+});
