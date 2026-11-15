@@ -89,7 +89,7 @@ class NativeCheckpointWorker(unittest.TestCase):
         before = self.request('agent.history', {})['messages']
         result = self.request('agent.compact', params)
         self.assertTrue(result['compacted'])
-        self.assertEqual(self.host_calls, ['$memory.checkpoint', '$transport.usage'])
+        self.assertEqual(self.host_calls, ['$memory.checkpoint', '$transport.usage', '$transport.observation'])
         self.assertEqual(len(self.checkpoints), 1)
         request = self.checkpoints[0]['args']
         self.assertEqual(request['ctx'], params['ctx'])

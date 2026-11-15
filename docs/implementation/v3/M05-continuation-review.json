@@ -1,15 +1,15 @@
 {
   "schemaVersion": 1,
-  "reviewScope": "Independent review of M05 Service integration, accepted M04 custody, merged M09 lifecycle, optional consolidation dispatch/accounting and Windows failure repairs; original-prompt mapping is retained in M05-handoff.md.",
+  "reviewScope": "Independent original-prompt review of all twelve M05 implementation steps/four UI requirements, accepted M04 custody, merged M09/M11 lifecycle, shared provider/account admission and native cancellation ownership, maintenance measurement identity, metadata privacy, optional consolidation and Windows failure repairs.",
   "reviewer": "dependency_audit",
   "reviewedFiles": [
     {
       "path": "packages/core/service.ts",
-      "sha256": "e4f2d3c3190f75b4e1afcc13612cc3b44e3e6f97527d9897732b7730dfd5c8fa"
+      "sha256": "731ac75786a3bdd46f622095e30c804ce819c03002024f6d66045cdc26067451"
     },
     {
       "path": "packages/core/project-memory-host.ts",
-      "sha256": "dc8b07826647b7dc4cff18e9f235659198d9d7c3ef4bc037e1d407ede2b17c8d"
+      "sha256": "8a522f1ca2b33d1968f921e19b6d972cbaf5bf52ed781efc0e0ccc27f7ab5809"
     },
     {
       "path": "packages/core/project-memory.ts",
@@ -41,7 +41,7 @@
     },
     {
       "path": "tests/memory_native_checkpoint_worker_v3.py",
-      "sha256": "4335997070d9d8f2f7d29a3075e8d6b88e6a1cdfe51bbf420a2a472bf81c84fd"
+      "sha256": "9aa2e5cda9e6db8215d9fc13340bf425e59d562a11dc645de66aff4d29a04730"
     },
     {
       "path": "apps/web/src/Settings.tsx",
@@ -58,6 +58,42 @@
     {
       "path": "tests/e2e/document-window.spec.ts",
       "sha256": "7eba0062a278971bc4763e67526791623dafd29f0e937a625bc80426200a9d09"
+    },
+    {
+      "path": "packages/core/memory-extraction.ts",
+      "sha256": "93cd4a69b00dedcc26a2afbe2a2025878256c5a24997885b964884ea74cef9ee"
+    },
+    {
+      "path": "packages/runtime-hermes/index.ts",
+      "sha256": "59ca3d23177e8f1f9015d7c28d2159aed813cff19525675d12439635aef98d07"
+    },
+    {
+      "path": "packages/runtime-hermes/broker.ts",
+      "sha256": "815ae92e597d28328bc89a2cf527ea6dc423c342a86682255e5099e685e6c59c"
+    },
+    {
+      "path": "apps/server/hermes-service.ts",
+      "sha256": "f0a072e7f5749291f2613fabd1f81cadefc7d8dc990e07440baf4f8561763381"
+    },
+    {
+      "path": "tests/memory-extraction-scheduler-v3.test.ts",
+      "sha256": "0ee0b1ba7685212252f89a17b9d87f0d8affd2c09b9c73109fd86d4212dc2e32"
+    },
+    {
+      "path": "tests/hermes-runtime.test.ts",
+      "sha256": "d5394c5bad01c55c6beef9f1d5c2140292abf00a2d4a9f15165ad4a50c1b6f10"
+    },
+    {
+      "path": "tests/model-transport-v3.test.ts",
+      "sha256": "adaafdf0def7b32a352aed66bbe7ab24406fee616504bf35650e5db9dccadcac"
+    },
+    {
+      "path": "packages/core/capability-flags.ts",
+      "sha256": "f1e6bcab541fb7ae5ad0601f43d38eedf2807cb387476e3bf9b2d9fde8737e41"
+    },
+    {
+      "path": "scripts/public-source-files.json",
+      "sha256": "5e8d68fd54a0025a1c7f38c6dba321c335e6824ef3eb789c59d8650f963a9050"
     }
   ],
   "findingsResolved": [
@@ -72,7 +108,12 @@
     "Optional consolidation attempted usage durability before provider entry",
     "Disconnected narrow Skills responsive layout",
     "Root plan fixture URL served the application fallback instead of its renderer",
-    "Desktop document fixture incorrectly expected automatic overview expansion"
+    "Desktop document fixture incorrectly expected automatic overview expansion",
+    "Shared M11 provider/account admission for production memory extraction",
+    "Original native cancellation promise and cancellation arriving during successful cleanup",
+    "M11 maintenance observations bound to the newly admitted run and epoch",
+    "Arbitrary adapter error text retained outside memory deletion custody",
+    "Pinned native worker observation-call expectation after accepted M11 integration"
   ],
   "remainingActionableFindings": [],
   "evidenceRefs": [
@@ -89,11 +130,33 @@
     "docs/implementation/v3/m05-logs/continuation-ci-final-ui-policy.log",
     "docs/implementation/v3/M05-windows-ci-43716553796.json",
     "docs/implementation/v3/m05-logs/continuation-plan-fixture-route-lifecycle-verification.log",
-    "docs/implementation/v3/m05-logs/continuation-plan-route-typecheck.log"
+    "docs/implementation/v3/m05-logs/continuation-plan-route-typecheck.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-contracts.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-final-build.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-final-contracts.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-final-memory-regression.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-final-typecheck.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-final-ui-policy-node.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-final-ui-policy.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-maintenance-observation-green.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-maintenance-observation-red.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-memory-regression.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-native-facade.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-native-worker-green.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-native-worker-red.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-scheduler-cancel-disposal-red.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-scheduler-cancel-promise-red.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-scheduler-green-2.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-scheduler-green.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-scheduler-red.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-telemetry-green.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-telemetry-red-callbacks.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-telemetry-red.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-typecheck.log"
   ],
   "activationApproval": false,
   "limitations": [
-    "The second Windows run passed all application/native/build checks but retained 20 root-browser failures; the exact fixture route and desktop expectation repairs need a new full Windows run.",
+    "Both earlier Windows attempts remain failed history. The repaired browser fixtures and current accepted M11 integration pass local scoped checks but require the new complete Windows workflow.",
     "Code and synthetic browser review do not establish installed-desktop or live-provider quality/cost.",
     "Both M05 host flags remain false."
   ],
@@ -108,10 +171,11 @@
     "userFacingRequirementsReviewed": 4,
     "additionalConcreteCorrectnessBlockers": [],
     "remainingProofGates": [
-      "Updated-source Windows browser rerun and required full CI",
+      "Complete Windows CI on the published combined M05/M09/M11 source cut",
       "Actual native FILE capture",
       "Installed desktop",
       "Authorized live repeated-task quality and total auxiliary cost"
     ]
-  }
+  },
+  "acceptedMainSha": "399cde39ff4ee82272c7a7700944325c44b36070"
 }

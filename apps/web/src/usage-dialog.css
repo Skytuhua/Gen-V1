@@ -40,3 +40,23 @@ html[data-native-titlebar="true"] .usage-dialog.ui-modal { height:min(560px,calc
 @media(forced-colors:active) { .usage-dialog [role="tab"][aria-selected="true"] { outline:1px solid Highlight; } }
 
 .usage-dialog [role="tab"][aria-selected="true"]:hover { background:var(--subtle); color:var(--text); }
+
+.usage-request { padding:12px 0; border-top:1px solid var(--border); }
+.usage-request:first-child { padding-top:0; border-top:0; }
+.usage-request>header { display:flex; flex-wrap:wrap; align-items:center; gap:4px 8px; margin-bottom:8px; }
+.usage-request>header>strong { font-size:13px; font-weight:600; overflow-wrap:anywhere; }
+.usage-request-meta { color:var(--muted); font-size:12px; overflow-wrap:anywhere; }
+.usage-request-outcome { padding:1px 8px; border-radius:999px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; }
+.usage-request-outcome-completed { background:var(--success-bg); color:var(--success-fg); }
+.usage-request-outcome-failed { background:var(--danger-bg); color:var(--danger-fg); }
+.usage-request-outcome-cancelled { background:var(--warning-bg); color:var(--warning-fg); }
+.usage-request-stages,.usage-request-metrics { display:flex; flex-wrap:wrap; gap:4px; margin:0 0 8px; padding:0; list-style:none; }
+.usage-request-metrics { margin-bottom:0; }
+.usage-request-stages>li,.usage-request-metrics>li { display:flex; align-items:baseline; gap:5px; min-height:24px; padding:2px 8px; border:1px solid var(--border); border-radius:var(--radius,6px); background:var(--subtle); font-size:12px; line-height:1.4; }
+.usage-request-chip-label { color:var(--muted); }
+.usage-request-chip-value { color:var(--text); font-variant-numeric:tabular-nums; }
+.usage-request-stages>li[data-missing] { background:none; border-style:dashed; }
+.usage-request-stages>li[data-missing] .usage-request-chip-value { color:var(--muted); }
+.usage-request .usage-dialog-error { margin-top:8px; }
+@media(max-width:420px) { .usage-request-stages>li,.usage-request-metrics>li { padding:2px 6px; } }
+@media(forced-colors:active) { .usage-request-stages>li,.usage-request-metrics>li { border-color:ButtonBorder; } }

@@ -1513,6 +1513,78 @@
       "termination": "NONE",
       "status": "FAIL",
       "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "e71faedbc330aab1bff222620262afaebc7d687ae5473275283693aa6a22be45",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-native-worker-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "6794246330632537e155f6f35e06361f592e45b71cd7e7ece149d435e1f0ca64",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-maintenance-observation-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "352364dfcd579e4d99cec6ae430d7c172675a8fb6c43c5d1cf990ad662bf9c39",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-telemetry-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "15a2f23575b14d4f5891382e4962755e05e49f243e636f64d8252bf8300fd773",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-telemetry-red-callbacks.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "5531a879eae0c3080d13ddb00073a05cc554cb3feab1cbc8fa3a0177b825ae3a",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-scheduler-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "ac7f8a7d733555dbcb0f2e96040fc11bb4381ebf7981fbbe8590abe910bbe117",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-scheduler-green.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "382f1d04478fb67c834868f76fe8f1ccb2460c944806541928934a917433dce6",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-scheduler-cancel-promise-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "063fc2a12dc76ed9079fdfb82d56865389ee8310055ec738172692cd8a4e86c0",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-scheduler-cancel-disposal-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "be5dd7d6718d7678f4d65a7234c89ca08a215a0fd26c013dcf3c4d1b17f6acd6",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-final-ui-policy.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
     }
   ],
   "refreshes": [
@@ -1603,6 +1675,42 @@
       ],
       "ledgerBeforeDigest": "dc67dc148635e6b2df3c8cda66503694b599166f7350454af4f274eb5b47727e",
       "ledgerAfterDigest": "f57aca947bc6fa4dae885fa59266a78e1dd1df2f3302cad708bf31ad79ff51bc",
+      "windowsCiRef": "docs/implementation/v3/M05-windows-ci-43716553796.json",
+      "windowsCiCurrentCodeCut": false
+    },
+    {
+      "recordedAt": "2026-11-15T13:51:18.329229+00:00",
+      "executionBaseSha": "399cde39ff4ee82272c7a7700944325c44b36070",
+      "sourceParentHeadSha": "1eb532afb53f1b747a215465b503e3ce8995cf78",
+      "selectedCurrentCommandRefs": [
+        "docs/implementation/v3/m05-logs/continuation-m11-final-build.log",
+        "docs/implementation/v3/m05-logs/continuation-m11-final-contracts.log",
+        "docs/implementation/v3/m05-logs/continuation-m11-final-memory-regression.log",
+        "docs/implementation/v3/m05-logs/continuation-m11-final-typecheck.log",
+        "docs/implementation/v3/m05-logs/continuation-m11-native-facade.log",
+        "docs/implementation/v3/m05-logs/continuation-m11-native-worker-green.log",
+        "docs/implementation/v3/m05-logs/continuation-study-manifest-final.log"
+      ],
+      "ledgerBeforeDigest": "f814337fda49212a5282543a6c45385b1a913ce5eb5cfddadb81d6cd17e9788a",
+      "ledgerAfterDigest": "9a0e0678fd5c530f24cd67c023e742221b6e0fe83408162c0fc926e3d98f4c0d",
+      "windowsCiRef": "docs/implementation/v3/M05-windows-ci-43716553796.json",
+      "windowsCiCurrentCodeCut": false
+    },
+    {
+      "recordedAt": "2026-11-15T13:51:39.068925+00:00",
+      "executionBaseSha": "399cde39ff4ee82272c7a7700944325c44b36070",
+      "sourceParentHeadSha": "1eb532afb53f1b747a215465b503e3ce8995cf78",
+      "selectedCurrentCommandRefs": [
+        "docs/implementation/v3/m05-logs/continuation-m11-final-build.log",
+        "docs/implementation/v3/m05-logs/continuation-m11-final-contracts.log",
+        "docs/implementation/v3/m05-logs/continuation-m11-final-memory-regression.log",
+        "docs/implementation/v3/m05-logs/continuation-m11-final-typecheck.log",
+        "docs/implementation/v3/m05-logs/continuation-m11-native-facade.log",
+        "docs/implementation/v3/m05-logs/continuation-m11-native-worker-green.log",
+        "docs/implementation/v3/m05-logs/continuation-study-manifest-final.log"
+      ],
+      "ledgerBeforeDigest": "9a0e0678fd5c530f24cd67c023e742221b6e0fe83408162c0fc926e3d98f4c0d",
+      "ledgerAfterDigest": "9a0e0678fd5c530f24cd67c023e742221b6e0fe83408162c0fc926e3d98f4c0d",
       "windowsCiRef": "docs/implementation/v3/M05-windows-ci-43716553796.json",
       "windowsCiCurrentCodeCut": false
     }

@@ -6,17 +6,21 @@ import type { MemoryAuxiliaryUsage } from './memory-consolidation.ts';
 import { ProjectMemory } from './project-memory.ts';
 
 export interface MemoryExtractionJob { access: MemoryAccess; source: RunContext; modelId: string; thinkingLevel?: string | null; signal?: AbortSignal }
+export type MemoryExtractionAdmission = (job: Readonly<MemoryExtractionJob>, signal: AbortSignal) => Promise<() => void>;
 export interface MemoryExtractionOutcome { status: 'PUBLISHED' | 'EMPTY' | 'UNCHANGED' | 'BUSY' | 'STALE' | 'FAILED' | 'TIMEOUT' | 'CANCELLED'; itemIds: string[]; usage: MemoryAuxiliaryUsage }
 export interface MemoryExtractionHooks {
   /** Production admits the model, then supplies createRuntime({purpose:'memory-extraction'}) with the source profile's account resolver. */
   factory(job: Readonly<MemoryExtractionJob>): RuntimeAdapter | Promise<RuntimeAdapter>;
+  /** Production shares the provider/account scheduler. Release only after native cleanup. */
+  admit?: MemoryExtractionAdmission;
   timeoutMs?: number;
   maxPending?: number;
 }
 interface Owner {
   id: string; key: string; ctx: RunContext; job: MemoryExtractionJob; usage: MemoryAuxiliaryUsage;
   cancelled: boolean; dispatched?: boolean; stopReason?: 'TIMEOUT' | 'CANCELLED' | 'FAILED'; startedAt: string;
-  adapter?: RuntimeAdapter; startup?: Promise<void>; work?: Promise<MemoryExtractionOutcome>;
+  adapter?: RuntimeAdapter; startup?: Promise<void>; cancellation?: Promise<void>; work?: Promise<MemoryExtractionOutcome>;
+  admissionAbort: AbortController;
   cancel(): void;
 }
 const pendingByStore = new WeakMap<Store, Map<string, Owner>>();
@@ -58,8 +62,11 @@ export class MemoryExtractionCoordinator {
     void completion.catch(() => {});
     let stopped!: (value: MemoryExtractionOutcome) => void;
     const stopResult = new Promise<MemoryExtractionOutcome>(resolve => {stopped = resolve;});
-    const owner: Owner = {id, key, ctx, job, usage, cancelled: false, startedAt: new Date().toISOString(), cancel: () => {}};
+    const owner: Owner = {id, key, ctx, job, usage, cancelled: false, admissionAbort: new AbortController(), startedAt: new Date().toISOString(), cancel: () => {}};
     this.pending.set(key, owner);
+    // Retain the first cancellation operation. A second idempotent call cannot
+    // substitute for proof that the original native cancellation has settled.
+    const cancelNative = () => owner.cancellation ??= Promise.resolve().then(() => owner.adapter!.cancel(ctx));
     const record = (status: MemoryExtractionOutcome['status'] | 'PENDING', settled: boolean) => {
       if (!this.store.db.isOpen) return;
       this.store.internal('project.memory.extraction.usage', null, () => {
@@ -72,11 +79,12 @@ export class MemoryExtractionCoordinator {
       owner.cancelled = true; owner.stopReason = reason;
       if (!owner.dispatched) {usage.modelCalls = 0; usage.inputBytes = 0;}
       clearTimeout(timer); job.signal?.removeEventListener('abort', abort);
+      owner.admissionAbort.abort();
       fail(error ?? new HarnessError('MEMORY_EXTRACTION_CANCELLED', 'Memory extraction was cancelled.'));
       record(reason, false); stopped(outcome(reason));
       // Cancellation revokes publication now. Only work's confirmed teardown
       // can release capacity; a hanging cancellation is never a free slot.
-      if (owner.adapter) void owner.adapter.cancel(ctx).catch(() => {});
+      if (owner.adapter) void cancelNative().catch(() => {});
     };
     owner.cancel = () => stop('CANCELLED');
     const timer = setTimeout(() => stop('TIMEOUT'), this.timeoutMs); timer.unref?.();
@@ -104,8 +112,14 @@ export class MemoryExtractionCoordinator {
       if (event.type === 'settled') event.aborted ? stop('CANCELLED') : finish();
     };
     owner.work = (async (): Promise<MemoryExtractionOutcome> => {
-      let result = outcome('FAILED'), cleanupConfirmed = false;
+      let result = outcome('FAILED'), cleanupConfirmed = false, releaseAdmission: (() => void) | undefined;
       try {
+        // Capture a late grant before checking cancellation so finally releases
+        // it even when the waiter was revoked before the admission resolved.
+        if (this.hooks.admit) releaseAdmission = await this.hooks.admit(Object.freeze(job), owner.admissionAbort.signal);
+        if (owner.cancelled) return outcome(owner.stopReason!);
+        this.memory.assertExtractionCut(cut);
+        assertModel();
         owner.adapter = await this.hooks.factory(Object.freeze(job));
         if (owner.cancelled) return outcome(owner.stopReason!);
         this.memory.assertExtractionCut(cut);
@@ -143,8 +157,11 @@ export class MemoryExtractionCoordinator {
         if (!owner.dispatched) record(result.status, false);
       } finally {
         try {
-          if (owner.adapter) {if (result.status !== 'PUBLISHED' && result.status !== 'EMPTY') await owner.adapter.cancel(ctx); await owner.adapter.dispose();}
+          if (owner.adapter) {if (result.status !== 'PUBLISHED' && result.status !== 'EMPTY') await cancelNative(); await owner.adapter.dispose();}
           if (owner.startup) await Promise.allSettled([owner.startup]);
+          // Cancellation can begin while a successful result is disposing.
+          if (owner.cancellation) await owner.cancellation;
+          releaseAdmission?.();
           cleanupConfirmed = true;
         } catch {result = outcome(owner.stopReason ?? 'FAILED');}
         clearTimeout(timer); job.signal?.removeEventListener('abort', abort);

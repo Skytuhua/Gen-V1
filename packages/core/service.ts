@@ -39,6 +39,7 @@ import { computeAssessment } from "./verification-gate.ts";
 import { sourceDigestSync } from "./project-verification.ts";
 import { verificationDeclarationV1Schema, type CheckObservationV1, type DeliverableAssessmentV1, type VerificationDeclarationV1, type VisualObservationV1 } from "../contracts/verification.ts";
 import type { ToolEffectRecord } from "../contracts/tool-effects.ts";
+import { MODEL_REQUEST_OBSERVATION_LIMIT, modelRequestObservationV1Schema } from "../contracts/model-request.ts";
 import { buildToolRegistry, ToolAuthority, type ActorRole } from "./tool-authority.ts";
 import { ToolEffectLedger, createToolEffectFlags, privateArgumentCommitment, type ToolEffectFlag } from "./tool-effects.ts";
 import { recoverEffects } from "./effect-recovery.ts";
@@ -48,7 +49,7 @@ import { CheckpointService } from "../workspace/checkpoints.ts";
 import { RequestContextCustody, REQUEST_PREPARATION_LIMITS, type RequestContextBasis, type RequestContextHooks, type RequestPreparationOptions, type RequestTextSource } from './request-custody.ts';
 import type { RequestPreparationV1 } from '../contracts/request-context.ts';
 import {ProjectMemoryHost} from './project-memory-host.ts';
-import type {MemoryExtractionJob} from './memory-extraction.ts';
+import type {MemoryExtractionAdmission,MemoryExtractionJob} from './memory-extraction.ts';
 import type {MemoryAccess,MemoryAction,MemoryScope} from '../contracts/project-memory.ts';
 
 type Outbox = { id: string; threadId: string; content: string; status: "persisted" | "processing" | "handled"; runId: string | null; requestContextId?:string; enteredRuntime?: boolean;messageId?:string;completedWrite?:CompletedWriteReceipt;hookClaimed?:boolean;hookDiagnostic?:WriteHookDiagnostic };
@@ -78,6 +79,7 @@ export interface ServiceOptions {
   requestContextEnabled?:boolean;
   requestContextHooks?:RequestContextHooks;
   memoryExtractionRuntimeFactory?:(job:Readonly<MemoryExtractionJob>)=>RuntimeAdapter|Promise<RuntimeAdapter>;
+  memoryExtractionAdmission?:MemoryExtractionAdmission;
   additionalTool?:(call:ToolCall,ctx:RunContext)=>Promise<unknown>;
 }
 export class Service {
@@ -147,7 +149,7 @@ export class Service {
   }
   private memoryHost():ProjectMemoryHost {
     if(this.closed)throw new HarnessError('CANCELLED_RUN','The memory host has closed.');
-    return this.memoryHostInstance??=new ProjectMemoryHost(this.store,{extractionFactory:this.options.memoryExtractionRuntimeFactory,
+    return this.memoryHostInstance??=new ProjectMemoryHost(this.store,{extractionFactory:this.options.memoryExtractionRuntimeFactory,extractionAdmission:this.options.memoryExtractionAdmission,
       canExtract:()=>!this.closed&&!this.updateClosing&&!this.predictionMutations&&!this.store.all<Thread>('thread').some(thread=>!!thread.runId||thread.status==='working'||thread.status==='awaiting_input'),
       beforeExtract:async()=>{if(this.reviewing)await this.cancelReview();},
     });
@@ -1150,6 +1152,22 @@ export class Service {
         const next = { ...old, ...(typeof event.usage === "object" ? event.usage : {}), ...(event.type === "compaction.start" ? { activity: "compacting" } : event.type === "compaction.end" ? { activity: "idle" } : {}) };
         this.store.put("usage", thread.id, thread.id, { id: thread.id, value: next });
         return { runId: event.runId, usage: next };
+      }
+      if (event.type === "model.observation" && capabilityEnabled("models.requestMetricsV1")) {
+        const candidate = event.observation;
+        const parsed = modelRequestObservationV1Schema.safeParse(candidate);
+        if (parsed.success && parsed.data.owner.threadId === thread.id && parsed.data.owner.runId === event.runId) {
+          const id = "modelRequest:" + parsed.data.requestId;
+          const old = this.store.get<{ value?: { owner?: { threadId?: string } } }>("modelRequest", id);
+          if (old?.value?.owner?.threadId && old.value.owner.threadId !== thread.id)
+            throw new HarnessError("CAPABILITY_DENIED", "Request observation belongs to another thread");
+          this.store.put("modelRequest", id, thread.id, { id, value: parsed.data });
+          // Bounded per-thread retention: drop the oldest completed records.
+          const kept = this.store.all<{ id: string; value: { timings?: { settled?: unknown } } }>("modelRequest", thread.id);
+          if (kept.length > MODEL_REQUEST_OBSERVATION_LIMIT)
+            for (const stale of kept.slice(0, kept.length - MODEL_REQUEST_OBSERVATION_LIMIT)) this.store.remove("modelRequest", stale.id);
+          return { runId: event.runId, modelRequest: parsed.data };
+        }
       }
       if (event.type === "settled") {
         this.failUnansweredDetails(event,event.aborted?'The explanation was stopped. Resume the task to retry.':'The agent finished without updating this option. Try again.');

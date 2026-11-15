@@ -14,7 +14,7 @@
 
 - Preserve the original checkout, the prior `agent/m05-v3` worktree and user changes. Continue in isolated `agent/m05-v3-continuation`.
 - Original base: `fcaa52f7fcdc9f39420118a79f9a8250ba83c563`. Accepted M04 core entered main at `9d4a5141173f54f0f47ff70dcc5167a5c781389e` through PR 351 after all eight Windows CI jobs passed. Broader draft PR 326 remains separate.
-- Current accepted main base: `5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42`, including M09 PR 350. Latest main has been merged into the continuation; the merged local tests, typecheck and build pass.
+- Current accepted main base: `399cde39ff4ee82272c7a7700944325c44b36070`, including M09 PR 350 and M11 PR 345. M11 advanced main before the next Windows run; preserve both feature sets and explicitly verify shared scheduler admission, maintenance observation ownership and metadata privacy.
 - Origin redirects from `Skytuhua/Gen-V1` to the same repository ID 1442565952 at `skytuhua-org/Gen-V1`. Exact final source/base identities belong in the source lock.
 - The host is the sole SQLite writer. No Store.command/Store.internal callback awaits. Preserve native history, epochs, account pinning, grants, cancellation, existing task notes and Hermes skills.
 - Both memory flags default off. Item text is at most 2 KiB UTF-8; recall is at most eight items/4 KiB including framing; local lexical selection uses the remaining 750 ms budget.
@@ -87,6 +87,7 @@ Files: offline fixture, `evals/project-memory-study.ts`, runner tests/README, ha
 - [x] Restore legacy native compaction argument compatibility, explicitly decode Windows UTF-8 history, and repair baseline browser selectors/readiness and narrow Skills layout without weakening behavior assertions.
 - [x] Preserve second continuation Windows run 43716553796: all 3,709 application cases and 33 native contracts pass; root browser still has 20 failed cases. Import 24 observed command records, including its failing browser command.
 - [x] Diagnose the root plan fixture returning the app HTML fallback and restore desktop manual expansion in the document fixture. The exact fixture route passes HTTP/module checks and full typecheck; actual browser execution remains required.
+- [x] Resolve the M11 merge and verify shared background account admission, memoized cancellation lifetime, maintenance observation ownership and metadata-only diagnostics. Final local checks pass 347 memory cases and 185 dependency/runtime/packaging cases, typecheck, build and UI policy; the source lock records the accepted M11 contracts.
 - [ ] Complete current Windows full-suite evidence and refresh strict CORE/INTEGRATION/PLATFORM receipts.
 - [ ] Obtain the continuation's exact-head Windows and browser CI result and disposition every required failure. M04's green CI is dependency evidence only.
 - [ ] Obtain installed-desktop execution proof. A desktop build alone does not satisfy it.
@@ -95,6 +96,6 @@ Files: offline fixture, `evals/project-memory-study.ts`, runner tests/README, ha
 
 ## Evidence boundaries
 
-The current handoff records named local runs, including 27 Service cases, 12 HTTP cases, 14 study protocol cases, 88 renderer/controller cases, 114 native checkpoint cases and three actual pinned Worker Python cases with scripted ACP. These are overlapping scoped runs, not one aggregate or live/platform acceptance result. The current focused aggregate passes 331 memory cases across 21 files and 125 dependency/compatibility cases across nine files; typecheck and build pass. Current Windows and live proof are reported separately.
+The current handoff records named local runs, including 27 Service cases, 12 HTTP cases, 14 study protocol cases, 88 renderer/controller cases, 114 native checkpoint cases and three actual pinned Worker Python cases with scripted ACP. These are overlapping scoped runs, not one aggregate or live/platform acceptance result. The final M11-integrated focused aggregate passes 347 memory cases across 22 files and 185 dependency/runtime/packaging cases across 13 files; typecheck, build and UI policy pass. Current Windows and live proof are reported separately.
 
 Default flags stay off. No endpoint, account or credential is guessed or borrowed. Retained records/tombstones remain user-editable under rollback, source authorization and CAS. External provider deletion, arbitrary same-user process protection and whole-parent/system rollback resistance are not claimed.

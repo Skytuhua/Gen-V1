@@ -1,8 +1,8 @@
 {
   "schemaVersion": 3,
   "bundleId": "M05",
-  "baseSha": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42",
-  "sourceLockDigest": "8b6a1ecf23a42be9775d7005f4fe7806f6a48f7bc1ea119948945b4262d1217f",
+  "baseSha": "399cde39ff4ee82272c7a7700944325c44b36070",
+  "sourceLockDigest": "4f9c0093597eaa9a6d708df2e9bbd0f15c93d357892cfcf6239df121c4bc3226",
   "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
   "nodeVersion": "v24.22.1",
   "packageManagerVersion": "pnpm@10.30.3",
@@ -14,7 +14,7 @@
         {
           "id": "M05.schemas-scope-source-revisions-correction-forget-retrieval-consolidation-and-storage",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/continuation-ci-final-memory-regression.log; Current selected complete focused suite; individual files and counts remain in the actual argv/log. No live quality claim."
+          "evidence": "docs/implementation/v3/m05-logs/continuation-m11-final-memory-regression.log; Current selected complete focused suite; individual files and counts remain in the actual argv/log. No live quality claim."
         }
       ],
       "commands": [
@@ -2130,6 +2130,351 @@
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-ci-final-memory-regression.log",
           "logDigest": "65454da3d9e205ec08dc0a00f79cd5f67bfa7db3835171760eba7bfb504b9ad0"
+        },
+        {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/context-compiler-v3.test.ts",
+            "tests/request-preparation-service-v3.test.ts",
+            "tests/m01-m02-compatibility.test.ts",
+            "tests/tool-effects-v3.test.ts",
+            "tests/effect-recovery-v3.test.ts",
+            "tests/public-source.test.ts",
+            "tests/agent-work-v3.test.ts",
+            "tests/agent-input-v3.test.ts",
+            "tests/plan-extension-v3.test.ts",
+            "tests/model-scheduling-v3.test.ts",
+            "tests/model-transport-v3.test.ts",
+            "tests/usage-accounting-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "node",
+          "startedAt": "2026-11-15T13:34:23.750905+00:00",
+          "endedAt": "2026-11-15T13:34:33.307493+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-contracts.log",
+          "logDigest": "ee02023a302115ae1d598a8c5350b8d29001e78ac29f9e9b0a7bb2f745565adc"
+        },
+        {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/memory-checkpoint-worker-ownership-v3.test.ts",
+            "tests/memory-consolidation-v3.test.ts",
+            "tests/memory-enrollment-recovery-v3.test.ts",
+            "tests/memory-extraction-native-v3.test.ts",
+            "tests/memory-extraction-runtime-v3.test.ts",
+            "tests/memory-forget-v3.test.ts",
+            "tests/memory-host-lifecycle-v3.test.ts",
+            "tests/memory-native-checkpoint-v3.test.ts",
+            "tests/memory-restored-index-v3.test.ts",
+            "tests/memory-retrieval-v3.test.ts",
+            "tests/memory-review-extra-v3.test.ts",
+            "tests/memory-source-reuse-v3.test.ts",
+            "tests/memory-storage-boundary-v3.test.ts",
+            "tests/memory-study-v3.test.ts",
+            "tests/project-memory-http-v3.test.ts",
+            "tests/project-memory-preparation-ui.test.ts",
+            "tests/project-memory-request-http-v3.test.ts",
+            "tests/project-memory-service-v3.test.ts",
+            "tests/project-memory-ui.test.ts",
+            "tests/project-memory-v3.test.ts",
+            "tests/agents-workspace-composer.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "node",
+          "startedAt": "2026-11-15T13:34:23.933665+00:00",
+          "endedAt": "2026-11-15T13:34:39.927955+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-memory-regression.log",
+          "logDigest": "67965afab7985cf4848be952dc3f1223cae68d763df9914064ea82513025df73"
+        },
+        {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/hermes-runtime.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "node",
+          "startedAt": "2026-11-15T13:37:58.643134+00:00",
+          "endedAt": "2026-11-15T13:38:02.238167+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-maintenance-observation-red.log",
+          "logDigest": "de70b262be69d3f45b983b1d1ba1732cccad8f37ab658142dbe26d9845b1cc59"
+        },
+        {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/hermes-runtime.test.ts",
+            "tests/memory-native-checkpoint-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "node",
+          "startedAt": "2026-11-15T13:38:24.313795+00:00",
+          "endedAt": "2026-11-15T13:38:29.354445+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-maintenance-observation-green.log",
+          "logDigest": "10353a4c622f1b74cdfd5085755211a4040e381ddb9bb137d99b2f88b972d95a"
+        },
+        {
+          "argv": [
+            "/workspace/scratch/36f66011d961/bin/pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/model-transport-v3.test.ts"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "/workspace/scratch/36f66011d961/bin/pnpm",
+          "startedAt": "2026-11-15T13:40:18.679580+00:00",
+          "endedAt": "2026-11-15T13:40:20.138143+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-telemetry-red.log",
+          "logDigest": "2456810631de2a5d93d533e5e92d7979034e1daa028dbb3eb5cd44a3f560c670"
+        },
+        {
+          "argv": [
+            "/workspace/scratch/36f66011d961/bin/pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/model-transport-v3.test.ts"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "/workspace/scratch/36f66011d961/bin/pnpm",
+          "startedAt": "2026-11-15T13:40:44.655986+00:00",
+          "endedAt": "2026-11-15T13:40:46.174568+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-telemetry-red-callbacks.log",
+          "logDigest": "0fc12a21035daada3e836fcc65e7b29887a16aefa54a31c928dd1fccb786452b"
+        },
+        {
+          "argv": [
+            "/workspace/scratch/36f66011d961/bin/pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/model-transport-v3.test.ts"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "/workspace/scratch/36f66011d961/bin/pnpm",
+          "startedAt": "2026-11-15T13:41:13.431843+00:00",
+          "endedAt": "2026-11-15T13:41:14.895667+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-telemetry-green.log",
+          "logDigest": "008bfa255bbb615bfebe9671f2a8fd1cc5148c32a9bdbb809f6ec601982a8840"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-extraction-scheduler-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T13:42:28.017234+00:00",
+          "endedAt": "2026-11-15T13:42:32.405792+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-scheduler-red.log",
+          "logDigest": "0d6264f8088ce3878740aecd060c2e523d49e2c41ac5b6c2ea09a78509296adc"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-extraction-scheduler-v3.test.ts",
+            "tests/memory-extraction-runtime-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T13:43:25.826292+00:00",
+          "endedAt": "2026-11-15T13:43:30.281157+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-scheduler-green.log",
+          "logDigest": "29ce6bed208e6e20bc6409440a322ce0a2803265e65787bc8e6deacaf7343035"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-extraction-scheduler-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T13:46:32.074061+00:00",
+          "endedAt": "2026-11-15T13:46:35.530730+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-scheduler-cancel-promise-red.log",
+          "logDigest": "4c08830e20de392a74d9999677e3a08cff9e81ad15153b375a983c465c53de8c"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-extraction-scheduler-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T13:47:10.535086+00:00",
+          "endedAt": "2026-11-15T13:47:13.777475+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-scheduler-cancel-disposal-red.log",
+          "logDigest": "f652415b8a8a2be0481186a3d17e601d39b14aeef2c0f1f53c3f44c55b7041ef"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-extraction-scheduler-v3.test.ts",
+            "tests/memory-extraction-runtime-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T13:47:22.970581+00:00",
+          "endedAt": "2026-11-15T13:47:26.699899+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-scheduler-green-2.log",
+          "logDigest": "915b3434c718fd0241f7d6a497e05d22a19998502a1bc560f4dfa5688c02b34d"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "lint:ui"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T13:48:20.509873+00:00",
+          "endedAt": "2026-11-15T13:48:21.129138+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-final-ui-policy.log",
+          "logDigest": "282e267c4c35a27e348cac1122b9814f9f9fb1e73e8c9b312c0926f510a1e9eb"
+        },
+        {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/context-compiler-v3.test.ts",
+            "tests/request-preparation-service-v3.test.ts",
+            "tests/m01-m02-compatibility.test.ts",
+            "tests/tool-effects-v3.test.ts",
+            "tests/effect-recovery-v3.test.ts",
+            "tests/public-source.test.ts",
+            "tests/agent-work-v3.test.ts",
+            "tests/agent-input-v3.test.ts",
+            "tests/plan-extension-v3.test.ts",
+            "tests/model-scheduling-v3.test.ts",
+            "tests/model-transport-v3.test.ts",
+            "tests/usage-accounting-v3.test.ts",
+            "tests/hermes-runtime.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "node",
+          "startedAt": "2026-11-15T13:48:20.564380+00:00",
+          "endedAt": "2026-11-15T13:48:33.739294+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-final-contracts.log",
+          "logDigest": "7fb10e0a6c5bbc694ec142870cbda0d9a86b14b55d3e70390bcaf08b46340a06"
+        },
+        {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/memory-checkpoint-worker-ownership-v3.test.ts",
+            "tests/memory-consolidation-v3.test.ts",
+            "tests/memory-enrollment-recovery-v3.test.ts",
+            "tests/memory-extraction-native-v3.test.ts",
+            "tests/memory-extraction-runtime-v3.test.ts",
+            "tests/memory-forget-v3.test.ts",
+            "tests/memory-host-lifecycle-v3.test.ts",
+            "tests/memory-native-checkpoint-v3.test.ts",
+            "tests/memory-restored-index-v3.test.ts",
+            "tests/memory-retrieval-v3.test.ts",
+            "tests/memory-review-extra-v3.test.ts",
+            "tests/memory-source-reuse-v3.test.ts",
+            "tests/memory-storage-boundary-v3.test.ts",
+            "tests/memory-study-v3.test.ts",
+            "tests/project-memory-http-v3.test.ts",
+            "tests/project-memory-preparation-ui.test.ts",
+            "tests/project-memory-request-http-v3.test.ts",
+            "tests/project-memory-service-v3.test.ts",
+            "tests/project-memory-ui.test.ts",
+            "tests/project-memory-v3.test.ts",
+            "tests/agents-workspace-composer.test.ts",
+            "tests/memory-extraction-scheduler-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "node",
+          "startedAt": "2026-11-15T13:48:20.546101+00:00",
+          "endedAt": "2026-11-15T13:48:40.155175+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-final-memory-regression.log",
+          "logDigest": "73c56d7b0589665998042e1fba156a51152d905ab1a8e6a28f7dc0a3f2d1684b"
         }
       ],
       "artifactRefs": [
@@ -2146,7 +2491,7 @@
         {
           "id": "accepted-M04-current-contract-tests",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/continuation-postmerge-contracts-complete.log; Accepted M04 core PR351 defines request identity/generation, immutable finalization and dispatch custody; original incomplete PR326 is not substituted."
+          "evidence": "docs/implementation/v3/m05-logs/continuation-m11-final-contracts.log; Accepted M04 core PR351 defines request identity/generation, immutable finalization and dispatch custody; original incomplete PR326 is not substituted."
         }
       ],
       "commands": [
@@ -2164,17 +2509,21 @@
             "tests/agent-work-v3.test.ts",
             "tests/agent-input-v3.test.ts",
             "tests/plan-extension-v3.test.ts",
+            "tests/model-scheduling-v3.test.ts",
+            "tests/model-transport-v3.test.ts",
+            "tests/usage-accounting-v3.test.ts",
+            "tests/hermes-runtime.test.ts",
             "--maxWorkers=1"
           ],
           "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
           "executableIdentity": "node",
-          "startedAt": "2026-11-15T12:25:42.685192+00:00",
-          "endedAt": "2026-11-15T12:25:48.214164+00:00",
+          "startedAt": "2026-11-15T13:48:20.564380+00:00",
+          "endedAt": "2026-11-15T13:48:33.739294+00:00",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-postmerge-contracts-complete.log",
-          "logDigest": "1b6f722979e5fef1cfd3626657969e369ec4c9fd35ded041f72d1de5b2ca83f0"
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-final-contracts.log",
+          "logDigest": "7fb10e0a6c5bbc694ec142870cbda0d9a86b14b55d3e70390bcaf08b46340a06"
         }
       ],
       "artifactRefs": [
@@ -2189,7 +2538,7 @@
         {
           "id": "Service-request-preparation-freeze-exclusion-dispatch-usage-and-authenticated-review",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/continuation-ci-final-memory-regression.log; Actual Service/Store and authenticated request/review tests; test doubles do not establish live-provider/browser execution."
+          "evidence": "docs/implementation/v3/m05-logs/continuation-m11-final-memory-regression.log; Actual Service/Store and authenticated request/review tests; test doubles do not establish live-provider/browser execution."
         }
       ],
       "commands": [
@@ -2691,17 +3040,18 @@
             "tests/project-memory-ui.test.ts",
             "tests/project-memory-v3.test.ts",
             "tests/agents-workspace-composer.test.ts",
+            "tests/memory-extraction-scheduler-v3.test.ts",
             "--maxWorkers=1"
           ],
           "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
           "executableIdentity": "node",
-          "startedAt": "2026-11-15T12:53:48.440953+00:00",
-          "endedAt": "2026-11-15T12:54:07.641556+00:00",
+          "startedAt": "2026-11-15T13:48:20.546101+00:00",
+          "endedAt": "2026-11-15T13:48:40.155175+00:00",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-ci-final-memory-regression.log",
-          "logDigest": "65454da3d9e205ec08dc0a00f79cd5f67bfa7db3835171760eba7bfb504b9ad0"
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-final-memory-regression.log",
+          "logDigest": "73c56d7b0589665998042e1fba156a51152d905ab1a8e6a28f7dc0a3f2d1684b"
         }
       ],
       "artifactRefs": [
@@ -2717,7 +3067,7 @@
         {
           "id": "settled-extraction-model-account-authority-ephemeral-session-pending-spend-recovery-preferences-and-consolidation",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/continuation-ci-final-memory-regression.log; Bounded extraction and host lifecycle tests; configured fake providers are offline. No paid inference is claimed."
+          "evidence": "docs/implementation/v3/m05-logs/continuation-m11-final-memory-regression.log; Bounded extraction and host lifecycle tests; configured fake providers are offline. No paid inference is claimed."
         }
       ],
       "commands": [
@@ -3300,17 +3650,18 @@
             "tests/project-memory-ui.test.ts",
             "tests/project-memory-v3.test.ts",
             "tests/agents-workspace-composer.test.ts",
+            "tests/memory-extraction-scheduler-v3.test.ts",
             "--maxWorkers=1"
           ],
           "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
           "executableIdentity": "node",
-          "startedAt": "2026-11-15T12:53:48.440953+00:00",
-          "endedAt": "2026-11-15T12:54:07.641556+00:00",
+          "startedAt": "2026-11-15T13:48:20.546101+00:00",
+          "endedAt": "2026-11-15T13:48:40.155175+00:00",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-ci-final-memory-regression.log",
-          "logDigest": "65454da3d9e205ec08dc0a00f79cd5f67bfa7db3835171760eba7bfb504b9ad0"
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-final-memory-regression.log",
+          "logDigest": "73c56d7b0589665998042e1fba156a51152d905ab1a8e6a28f7dc0a3f2d1684b"
         }
       ],
       "artifactRefs": [
@@ -3326,17 +3677,17 @@
         {
           "id": "Pi-real-native-hook-ordering-and-owner-bridge",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/continuation-ci-final-memory-regression.log; Pinned Pi hook ordering, cancellation and durable receipt checks; provider calls are scripted/stubbed."
+          "evidence": "docs/implementation/v3/m05-logs/continuation-m11-final-memory-regression.log; Pinned Pi hook ordering, cancellation and durable receipt checks; provider calls are scripted/stubbed."
         },
         {
           "id": "Hermes-pinned-compression-facade",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/windows-ci-43716553796-a1-j132819252707-s7-native-facade.log; Actual pinned native facade/API version checks, offline."
+          "evidence": "docs/implementation/v3/m05-logs/continuation-m11-native-facade.log; Actual pinned native facade/API version checks, offline."
         },
         {
           "id": "Hermes-actual-Worker-compaction",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/windows-ci-43716553796-a1-j132819252707-s7-native-worker.log; Actual pinned Worker and scripted ACP summary; persistence failure/cancellation preserve native history. No live provider spend."
+          "evidence": "docs/implementation/v3/m05-logs/continuation-m11-native-worker-green.log; Actual pinned Worker and scripted ACP summary; persistence failure/cancellation preserve native history. No live provider spend."
         }
       ],
       "commands": [
@@ -3894,6 +4245,57 @@
         },
         {
           "argv": [
+            "python",
+            "-B",
+            "tests/memory_native_checkpoint_v3.py",
+            "-v"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "python",
+          "startedAt": "2026-11-15T13:35:22.257878+00:00",
+          "endedAt": "2026-11-15T13:35:22.413768+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-native-facade.log",
+          "logDigest": "a258cf03c09fe307fe230fcacbb00e4159f4eaae7b38988245c5c93a52dd28a5"
+        },
+        {
+          "argv": [
+            "python",
+            "-B",
+            "tests/memory_native_checkpoint_worker_v3.py",
+            "-v"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "python",
+          "startedAt": "2026-11-15T13:35:22.282136+00:00",
+          "endedAt": "2026-11-15T13:35:30.050573+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-native-worker-red.log",
+          "logDigest": "29cb695646ccb93da196c6bafb490eb1e8ce8f449fd2d32bcf67ec498859d88d"
+        },
+        {
+          "argv": [
+            "python",
+            "-B",
+            "tests/memory_native_checkpoint_worker_v3.py",
+            "-v"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "python",
+          "startedAt": "2026-11-15T13:36:16.980878+00:00",
+          "endedAt": "2026-11-15T13:36:25.765292+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-native-worker-green.log",
+          "logDigest": "0cf1bd7465ca11492627853d2757b0b860c016270a2eecf8335836fd74212b9c"
+        },
+        {
+          "argv": [
             "node",
             "node_modules/vitest/vitest.mjs",
             "run",
@@ -3918,17 +4320,18 @@
             "tests/project-memory-ui.test.ts",
             "tests/project-memory-v3.test.ts",
             "tests/agents-workspace-composer.test.ts",
+            "tests/memory-extraction-scheduler-v3.test.ts",
             "--maxWorkers=1"
           ],
           "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
           "executableIdentity": "node",
-          "startedAt": "2026-11-15T12:53:48.440953+00:00",
-          "endedAt": "2026-11-15T12:54:07.641556+00:00",
+          "startedAt": "2026-11-15T13:48:20.546101+00:00",
+          "endedAt": "2026-11-15T13:48:40.155175+00:00",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-ci-final-memory-regression.log",
-          "logDigest": "65454da3d9e205ec08dc0a00f79cd5f67bfa7db3835171760eba7bfb504b9ad0"
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-final-memory-regression.log",
+          "logDigest": "73c56d7b0589665998042e1fba156a51152d905ab1a8e6a28f7dc0a3f2d1684b"
         }
       ],
       "artifactRefs": [
@@ -3943,12 +4346,12 @@
         {
           "id": "TypeScript-current-selected-check",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/continuation-plan-route-typecheck.log; Full typecheck only, not a scoped tsconfig substitution."
+          "evidence": "docs/implementation/v3/m05-logs/continuation-m11-final-typecheck.log; Full typecheck only, not a scoped tsconfig substitution."
         },
         {
           "id": "production-build-current-selected-check",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/continuation-ci-final-build.log; Actual recorded production build; installed-desktop execution is separate."
+          "evidence": "docs/implementation/v3/m05-logs/continuation-m11-final-build.log; Actual recorded production build; installed-desktop execution is separate."
         }
       ],
       "commands": [
@@ -4997,6 +5400,71 @@
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43716553796-a1-j132819252788-s4-build-web.log",
           "logDigest": "da99d33d2b121b038e25a256fd497a30e4520118888e68e19106ffc0b00c103c"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T13:34:23.740091+00:00",
+          "endedAt": "2026-11-15T13:34:50.487580+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-typecheck.log",
+          "logDigest": "725c701c2df5342fc103cc0f823bf0beb594484b8ca3f9fe7f0bb3902999a5ca"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "build"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T13:48:20.650877+00:00",
+          "endedAt": "2026-11-15T13:48:30.886257+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-final-build.log",
+          "logDigest": "d828a36317364cbeeb476460c963abc6737e30d55553c1c36726f870e9bf7a5e"
+        },
+        {
+          "argv": [
+            "node",
+            "--import",
+            "tsx",
+            "scripts/lint-ui.ts"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "node",
+          "startedAt": "2026-11-15T13:48:34.624557+00:00",
+          "endedAt": "2026-11-15T13:48:47.695328+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-final-ui-policy-node.log",
+          "logDigest": "f071b9f4f9fd604584bc60ddc296ce7878085e6c0ae846d295a1d2cb83ce15d3"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T13:48:20.556061+00:00",
+          "endedAt": "2026-11-15T13:48:51.533590+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-final-typecheck.log",
+          "logDigest": "725c701c2df5342fc103cc0f823bf0beb594484b8ca3f9fe7f0bb3902999a5ca"
         }
       ],
       "artifactRefs": [
@@ -5010,12 +5478,12 @@
         {
           "id": "current-M05-focused-regression",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/continuation-ci-final-memory-regression.log; Historical full-suite and prior Windows failures remain in the command history. Current required full regression needs a new selected full run or exact-cut Windows shards."
+          "evidence": "docs/implementation/v3/m05-logs/continuation-m11-final-memory-regression.log; Historical full-suite and prior Windows failures remain in the command history. Current required full regression needs a new selected full run or exact-cut Windows shards."
         },
         {
           "id": "current-Windows-full-regression",
           "status": "NOT_RUN",
-          "evidence": "NOT_RUN for this source cut. All four application regression shards required. CI code/test/workflow cut differs from the current worktree: tests/e2e/document-window.spec.ts; CI code/test/workflow cut differs from the current worktree: tests/e2e/vite.config.ts"
+          "evidence": "NOT_RUN for this source cut. All four application regression shards required. CI code/test/workflow cut differs from the current worktree: apps/server/hermes-service.ts; CI code/test/workflow cut differs from the current worktree: apps/server/server.ts; CI code/test/workflow cut differs from the current worktree: apps/web/src/App.tsx; CI code/test/workflow cut differs from the current worktree: apps/web/src/ComposerToolbar.tsx; CI code/test/workflow cut differs from the current worktree: apps/web/src/ModelPicker.tsx; CI code/test/workflow cut differs from the current worktree: apps/web/src/UsageDialog.tsx; CI code/test/workflow cut differs from the current worktree: apps/web/src/model-picker.css; CI code/test/workflow cut differs from the current worktree: apps/web/src/snapshot-events.ts; CI code/test/workflow cut differs from the current worktree: apps/web/src/usage-dialog.css; CI code/test/workflow cut differs from the current worktree: apps/web/src/usage-presentation.ts; CI code/test/workflow cut differs from the current worktree: packages/contracts/index.ts; CI code/test/workflow cut differs from the current worktree: packages/contracts/model-request.ts; CI code/test/workflow cut differs from the current worktree: packages/core/capability-flags.ts; CI code/test/workflow cut differs from the current worktree: packages/core/memory-extraction.ts; CI code/test/workflow cut differs from the current worktree: packages/core/project-memory-host.ts; CI code/test/workflow cut differs from the current worktree: packages/core/service.ts; CI code/test/workflow cut differs from the current worktree: packages/runtime-hermes/acp-server.ts; CI code/test/workflow cut differs from the current worktree: packages/runtime-hermes/broker.ts; CI code/test/workflow cut differs from the current worktree: packages/runtime-hermes/index.ts; CI code/test/workflow cut differs from the current worktree: packages/runtime-hermes/worker.py; CI code/test/workflow cut differs from the current worktree: packages/runtime/model-capacity.ts; CI code/test/workflow cut differs from the current worktree: packages/runtime/request-capabilities.ts; CI code/test/workflow cut differs from the current worktree: packages/runtime/request-metrics.ts; CI code/test/workflow cut differs from the current worktree: packages/runtime/request-scheduler.ts; CI code/test/workflow cut differs from the current worktree: packages/storage/store.ts; CI code/test/workflow cut differs from the current worktree: scripts/public-source-files.json; CI code/test/workflow cut differs from the current worktree: tests/e2e/document-window.spec.ts; CI code/test/workflow cut differs from the current worktree: tests/e2e/usage-context-fixture.tsx; CI code/test/workflow cut differs from the current worktree: tests/e2e/usage-context.spec.ts; CI code/test/workflow cut differs from the current worktree: tests/e2e/vite.config.ts; CI code/test/workflow cut differs from the current worktree: tests/hermes-runtime.test.ts; CI code/test/workflow cut differs from the current worktree: tests/hermes_source_worker.py; CI code/test/workflow cut differs from the current worktree: tests/memory-extraction-scheduler-v3.test.ts; CI code/test/workflow cut differs from the current worktree: tests/memory_native_checkpoint_worker_v3.py; CI code/test/workflow cut differs from the current worktree: tests/model-scheduling-v3.test.ts; CI code/test/workflow cut differs from the current worktree: tests/model-transport-v3.test.ts; CI code/test/workflow cut differs from the current worktree: tests/usage-accounting-v3.test.ts"
         }
       ],
       "commands": [
@@ -5254,17 +5722,18 @@
             "tests/project-memory-ui.test.ts",
             "tests/project-memory-v3.test.ts",
             "tests/agents-workspace-composer.test.ts",
+            "tests/memory-extraction-scheduler-v3.test.ts",
             "--maxWorkers=1"
           ],
           "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
           "executableIdentity": "node",
-          "startedAt": "2026-11-15T12:53:48.440953+00:00",
-          "endedAt": "2026-11-15T12:54:07.641556+00:00",
+          "startedAt": "2026-11-15T13:48:20.546101+00:00",
+          "endedAt": "2026-11-15T13:48:40.155175+00:00",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-ci-final-memory-regression.log",
-          "logDigest": "65454da3d9e205ec08dc0a00f79cd5f67bfa7db3835171760eba7bfb504b9ad0"
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-m11-final-memory-regression.log",
+          "logDigest": "73c56d7b0589665998042e1fba156a51152d905ab1a8e6a28f7dc0a3f2d1684b"
         }
       ],
       "artifactRefs": [
@@ -5278,7 +5747,7 @@
         {
           "id": "current-project-memory-context-and-baseline-browser",
           "status": "NOT_RUN",
-          "evidence": "NOT_RUN for this source cut. The matching current workflow must execute project-memory, usage-context, frontend-refinement and root browser suites. CI code/test/workflow cut differs from the current worktree: tests/e2e/document-window.spec.ts; CI code/test/workflow cut differs from the current worktree: tests/e2e/vite.config.ts"
+          "evidence": "NOT_RUN for this source cut. The matching current workflow must execute project-memory, usage-context, frontend-refinement and root browser suites. CI code/test/workflow cut differs from the current worktree: apps/server/hermes-service.ts; CI code/test/workflow cut differs from the current worktree: apps/server/server.ts; CI code/test/workflow cut differs from the current worktree: apps/web/src/App.tsx; CI code/test/workflow cut differs from the current worktree: apps/web/src/ComposerToolbar.tsx; CI code/test/workflow cut differs from the current worktree: apps/web/src/ModelPicker.tsx; CI code/test/workflow cut differs from the current worktree: apps/web/src/UsageDialog.tsx; CI code/test/workflow cut differs from the current worktree: apps/web/src/model-picker.css; CI code/test/workflow cut differs from the current worktree: apps/web/src/snapshot-events.ts; CI code/test/workflow cut differs from the current worktree: apps/web/src/usage-dialog.css; CI code/test/workflow cut differs from the current worktree: apps/web/src/usage-presentation.ts; CI code/test/workflow cut differs from the current worktree: packages/contracts/index.ts; CI code/test/workflow cut differs from the current worktree: packages/contracts/model-request.ts; CI code/test/workflow cut differs from the current worktree: packages/core/capability-flags.ts; CI code/test/workflow cut differs from the current worktree: packages/core/memory-extraction.ts; CI code/test/workflow cut differs from the current worktree: packages/core/project-memory-host.ts; CI code/test/workflow cut differs from the current worktree: packages/core/service.ts; CI code/test/workflow cut differs from the current worktree: packages/runtime-hermes/acp-server.ts; CI code/test/workflow cut differs from the current worktree: packages/runtime-hermes/broker.ts; CI code/test/workflow cut differs from the current worktree: packages/runtime-hermes/index.ts; CI code/test/workflow cut differs from the current worktree: packages/runtime-hermes/worker.py; CI code/test/workflow cut differs from the current worktree: packages/runtime/model-capacity.ts; CI code/test/workflow cut differs from the current worktree: packages/runtime/request-capabilities.ts; CI code/test/workflow cut differs from the current worktree: packages/runtime/request-metrics.ts; CI code/test/workflow cut differs from the current worktree: packages/runtime/request-scheduler.ts; CI code/test/workflow cut differs from the current worktree: packages/storage/store.ts; CI code/test/workflow cut differs from the current worktree: scripts/public-source-files.json; CI code/test/workflow cut differs from the current worktree: tests/e2e/document-window.spec.ts; CI code/test/workflow cut differs from the current worktree: tests/e2e/usage-context-fixture.tsx; CI code/test/workflow cut differs from the current worktree: tests/e2e/usage-context.spec.ts; CI code/test/workflow cut differs from the current worktree: tests/e2e/vite.config.ts; CI code/test/workflow cut differs from the current worktree: tests/hermes-runtime.test.ts; CI code/test/workflow cut differs from the current worktree: tests/hermes_source_worker.py; CI code/test/workflow cut differs from the current worktree: tests/memory-extraction-scheduler-v3.test.ts; CI code/test/workflow cut differs from the current worktree: tests/memory_native_checkpoint_worker_v3.py; CI code/test/workflow cut differs from the current worktree: tests/model-scheduling-v3.test.ts; CI code/test/workflow cut differs from the current worktree: tests/model-transport-v3.test.ts; CI code/test/workflow cut differs from the current worktree: tests/usage-accounting-v3.test.ts"
         }
       ],
       "commands": [
@@ -5871,6 +6340,7 @@
     "docs/implementation/v3/M05-evidence-integrity.json",
     "docs/implementation/v3/M05-handoff.md",
     "docs/implementation/v3/M05-log-policy.json",
+    "docs/implementation/v3/M05-premerge-evidence-integrity-20261115.json",
     "docs/implementation/v3/M05-provenance.json",
     "docs/implementation/v3/M05-source-lock.json",
     "docs/implementation/v3/M05-spec.md",
@@ -5949,6 +6419,28 @@
     "docs/implementation/v3/m05-logs/continuation-legacy-reader-probe.log",
     "docs/implementation/v3/m05-logs/continuation-m05-browser-discovery.log",
     "docs/implementation/v3/m05-logs/continuation-m05-browser-expanded-discovery.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-contracts.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-final-build.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-final-contracts.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-final-memory-regression.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-final-typecheck.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-final-ui-policy-node.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-final-ui-policy.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-maintenance-observation-green.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-maintenance-observation-red.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-memory-regression.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-native-facade.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-native-worker-green.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-native-worker-red.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-scheduler-cancel-disposal-red.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-scheduler-cancel-promise-red.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-scheduler-green-2.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-scheduler-green.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-scheduler-red.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-telemetry-green.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-telemetry-red-callbacks.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-telemetry-red.log",
+    "docs/implementation/v3/m05-logs/continuation-m11-typecheck.log",
     "docs/implementation/v3/m05-logs/continuation-plan-fixture-route-green.log",
     "docs/implementation/v3/m05-logs/continuation-plan-fixture-route-lifecycle-verification.log",
     "docs/implementation/v3/m05-logs/continuation-plan-fixture-route-red.log",
@@ -6259,6 +6751,7 @@
     "packages/core/project-memory.ts",
     "packages/core/security.ts",
     "packages/core/service.ts",
+    "packages/runtime-hermes/broker.ts",
     "packages/runtime-hermes/index.ts",
     "packages/runtime-hermes/memory_checkpoint.py",
     "packages/runtime-hermes/worker.py",
@@ -6292,11 +6785,13 @@
     "tests/e2e/usage-context.playwright.config.ts",
     "tests/e2e/vite.config.ts",
     "tests/hermes-desktop-assets.test.ts",
+    "tests/hermes-runtime.test.ts",
     "tests/memory-checkpoint-worker-ownership-v3.test.ts",
     "tests/memory-consolidation-v3.test.ts",
     "tests/memory-enrollment-recovery-v3.test.ts",
     "tests/memory-extraction-native-v3.test.ts",
     "tests/memory-extraction-runtime-v3.test.ts",
+    "tests/memory-extraction-scheduler-v3.test.ts",
     "tests/memory-forget-v3.test.ts",
     "tests/memory-host-lifecycle-v3.test.ts",
     "tests/memory-native-checkpoint-v3.test.ts",
@@ -6308,6 +6803,7 @@
     "tests/memory-study-v3.test.ts",
     "tests/memory_native_checkpoint_v3.py",
     "tests/memory_native_checkpoint_worker_v3.py",
+    "tests/model-transport-v3.test.ts",
     "tests/project-memory-fixture.ts",
     "tests/project-memory-http-v3.test.ts",
     "tests/project-memory-preparation-ui.test.ts",
@@ -6327,7 +6823,7 @@
     },
     {
       "name": "M01.CapabilityFlags",
-      "version": "823b9aa9a02499039c69756795144d035c4ce2a6",
+      "version": "829f51f534524beaafe81010ba4fc9aa25498537",
       "testIds": [
         "tests/project-memory-v3.test.ts",
         "tests/m01-m02-compatibility.test.ts"
@@ -6356,7 +6852,7 @@
     },
     {
       "name": "Store.SynchronousCommand",
-      "version": "ebab3cba8d56e074d0377623bffd2054790f622b",
+      "version": "bff67fade13b7813ba89aff98cbf853acb7e3723",
       "testIds": [
         "tests/project-memory-v3.test.ts",
         "tests/memory-forget-v3.test.ts",
@@ -6411,11 +6907,36 @@
     },
     {
       "name": "M04.HostRequestPreparation",
-      "version": "00351f5a3a69c3313fd58f75cc38d90938c63cee",
+      "version": "cdef7f205a6d19357478d9676f9c43c26be512b1",
       "testIds": [
         "tests/request-preparation-service-v3.test.ts",
         "tests/project-memory-request-http-v3.test.ts",
         "tests/project-memory-service-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M11.ModelRequestObservationV1",
+      "version": "17cbabb11a2b3653578456f563be70e49aeb0cdf",
+      "testIds": [
+        "tests/model-transport-v3.test.ts",
+        "tests/usage-accounting-v3.test.ts",
+        "tests/hermes-runtime.test.ts"
+      ]
+    },
+    {
+      "name": "M11.RequestScheduler",
+      "version": "95f3fa03c2ab80288a434c95c3e215cd4943a917",
+      "testIds": [
+        "tests/model-scheduling-v3.test.ts",
+        "tests/memory-extraction-runtime-v3.test.ts",
+        "tests/memory-extraction-scheduler-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M11.RequestCapabilities",
+      "version": "45df1e61813b4bd9548841561b8a6c49dfc44ffa",
+      "testIds": [
+        "tests/model-transport-v3.test.ts"
       ]
     }
   ],

@@ -5,7 +5,7 @@ import { PROJECT_MEMORY_LIMITS, memoryPreparedRequestSchema, memoryScope, type M
 import { Store, digest } from '../storage/store.ts';
 import { ProjectMemory } from './project-memory.ts';
 import { MemoryRequestSnapshots } from './memory-retrieval.ts';
-import { MemoryExtractionCoordinator, type MemoryExtractionJob } from './memory-extraction.ts';
+import { MemoryExtractionCoordinator, type MemoryExtractionAdmission, type MemoryExtractionJob } from './memory-extraction.ts';
 import { MemoryConsolidator, checkpointBeforeCompaction } from './memory-consolidation.ts';
 import { SUPPLEMENTAL_EVIDENCE_HEADER, frameRequestSupplementalSources, requestPromptDigest, type RequestPreparationRelease, type RequestSupplementalSource } from './request-custody.ts';
 
@@ -27,6 +27,7 @@ interface Scheduled { id: string; source: RunContext; modelId: string; thinkingL
 export interface ProjectMemoryHostOptions {
   memory?: ProjectMemory;
   extractionFactory?: (job: Readonly<MemoryExtractionJob>) => RuntimeAdapter | Promise<RuntimeAdapter>;
+  extractionAdmission?: MemoryExtractionAdmission;
   canExtract?: () => boolean;
   beforeExtract?: () => Promise<void>;
 }
@@ -49,7 +50,7 @@ export class ProjectMemoryHost {
   private closed = false;
   constructor(private readonly store: Store, private readonly options: ProjectMemoryHostOptions = {}) {
     this.memory = options.memory ?? new ProjectMemory(store);
-    this.extractor = new MemoryExtractionCoordinator(store, this.memory, {factory: job => {
+    this.extractor = new MemoryExtractionCoordinator(store, this.memory, {admit: options.extractionAdmission, factory: job => {
       if (!options.extractionFactory) throw new HarnessError('MEMORY_EXTRACTION_UNAVAILABLE', 'This host has no ephemeral extraction runtime.');
       return options.extractionFactory(job);
     }});

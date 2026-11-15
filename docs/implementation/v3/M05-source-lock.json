@@ -1,7 +1,7 @@
 {
   "schemaVersion": 3,
   "auditAncestorSha": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
-  "executionBaseSha": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42",
+  "executionBaseSha": "399cde39ff4ee82272c7a7700944325c44b36070",
   "inspectedPaths": [
     {
       "path": "apps/server/host.ts",
@@ -13,7 +13,7 @@
     },
     {
       "path": "apps/server/server.ts",
-      "blobSha": "af1a4d8e58331d0fa0481e6ec76ff25d822a0b4b"
+      "blobSha": "4854b01ed49d5a6ae81a793e6bab2e22a31c0f45"
     },
     {
       "path": "apps/web/src/ContextInspector.tsx",
@@ -61,7 +61,11 @@
     },
     {
       "path": "packages/contracts/index.ts",
-      "blobSha": "faa57ba3f2180fe5360f4a50b0c142e57871c91f"
+      "blobSha": "14c59034b8bb2c37137a266320fbeca90af95a52"
+    },
+    {
+      "path": "packages/contracts/model-request.ts",
+      "blobSha": "17cbabb11a2b3653578456f563be70e49aeb0cdf"
     },
     {
       "path": "packages/contracts/request-context.ts",
@@ -73,7 +77,7 @@
     },
     {
       "path": "packages/core/capability-flags.ts",
-      "blobSha": "823b9aa9a02499039c69756795144d035c4ce2a6"
+      "blobSha": "829f51f534524beaafe81010ba4fc9aa25498537"
     },
     {
       "path": "packages/core/context-compiler.ts",
@@ -101,7 +105,7 @@
     },
     {
       "path": "packages/core/service.ts",
-      "blobSha": "00351f5a3a69c3313fd58f75cc38d90938c63cee"
+      "blobSha": "cdef7f205a6d19357478d9676f9c43c26be512b1"
     },
     {
       "path": "packages/core/skills.ts",
@@ -121,7 +125,7 @@
     },
     {
       "path": "packages/runtime-hermes/index.ts",
-      "blobSha": "ca15682cd2ad86f296247e71a7b18a190c0968f4"
+      "blobSha": "08e1c4b1db2ef47da609364fcba4d28de3078167"
     },
     {
       "path": "packages/runtime-hermes/library.ts",
@@ -129,15 +133,23 @@
     },
     {
       "path": "packages/runtime-hermes/worker.py",
-      "blobSha": "e28c6272f9aab28f76b9462a87768fe4226361c1"
+      "blobSha": "ce8d20eae27cc81716669365257bb34ce9575420"
     },
     {
       "path": "packages/runtime/index.ts",
       "blobSha": "c944011f863d8e54cefb027ccde24e4445a4738b"
     },
     {
+      "path": "packages/runtime/request-capabilities.ts",
+      "blobSha": "45df1e61813b4bd9548841561b8a6c49dfc44ffa"
+    },
+    {
+      "path": "packages/runtime/request-scheduler.ts",
+      "blobSha": "95f3fa03c2ab80288a434c95c3e215cd4943a917"
+    },
+    {
       "path": "packages/storage/store.ts",
-      "blobSha": "ebab3cba8d56e074d0377623bffd2054790f622b"
+      "blobSha": "bff67fade13b7813ba89aff98cbf853acb7e3723"
     },
     {
       "path": "packages/workspace/tools.ts",
@@ -153,7 +165,7 @@
     },
     {
       "path": "scripts/public-source-files.json",
-      "blobSha": "7738bed5d6fa1903ce76a86e06f5778af91caeae"
+      "blobSha": "7ead37fd2a30d0ef030f18525df6cae556881a65"
     },
     {
       "path": "tests/context-compiler-v3.test.ts",
@@ -199,7 +211,7 @@
     },
     {
       "name": "M01.CapabilityFlags",
-      "version": "823b9aa9a02499039c69756795144d035c4ce2a6",
+      "version": "829f51f534524beaafe81010ba4fc9aa25498537",
       "testIds": [
         "tests/project-memory-v3.test.ts",
         "tests/m01-m02-compatibility.test.ts"
@@ -228,7 +240,7 @@
     },
     {
       "name": "Store.SynchronousCommand",
-      "version": "ebab3cba8d56e074d0377623bffd2054790f622b",
+      "version": "bff67fade13b7813ba89aff98cbf853acb7e3723",
       "testIds": [
         "tests/project-memory-v3.test.ts",
         "tests/memory-forget-v3.test.ts",
@@ -283,11 +295,36 @@
     },
     {
       "name": "M04.HostRequestPreparation",
-      "version": "00351f5a3a69c3313fd58f75cc38d90938c63cee",
+      "version": "cdef7f205a6d19357478d9676f9c43c26be512b1",
       "testIds": [
         "tests/request-preparation-service-v3.test.ts",
         "tests/project-memory-request-http-v3.test.ts",
         "tests/project-memory-service-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M11.ModelRequestObservationV1",
+      "version": "17cbabb11a2b3653578456f563be70e49aeb0cdf",
+      "testIds": [
+        "tests/model-transport-v3.test.ts",
+        "tests/usage-accounting-v3.test.ts",
+        "tests/hermes-runtime.test.ts"
+      ]
+    },
+    {
+      "name": "M11.RequestScheduler",
+      "version": "95f3fa03c2ab80288a434c95c3e215cd4943a917",
+      "testIds": [
+        "tests/model-scheduling-v3.test.ts",
+        "tests/memory-extraction-runtime-v3.test.ts",
+        "tests/memory-extraction-scheduler-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M11.RequestCapabilities",
+      "version": "45df1e61813b4bd9548841561b8a6c49dfc44ffa",
+      "testIds": [
+        "tests/model-transport-v3.test.ts"
       ]
     }
   ],
@@ -295,7 +332,8 @@
     "5f0958f4cb5b40bc10c1eea0e1cd517b57aaa1b9",
     "f331cf16b268282da888a41da42fc776ea7befd5",
     "e871257aa82beb06ab4b8f3989cbe436cb9a6a8c",
-    "b4281a4292c5585660b9fbbcb6cf8dc9ed0775fb"
+    "b4281a4292c5585660b9fbbcb6cf8dc9ed0775fb",
+    "399cde39ff4ee82272c7a7700944325c44b36070"
   ],
   "approvedDrift": [
     {
@@ -307,32 +345,50 @@
     {
       "path": "apps/server/server.ts",
       "fromBlob": "e4df5cae7274c99ff988f30a2bb5abb5aa0e3362",
-      "toBlob": "af1a4d8e58331d0fa0481e6ec76ff25d822a0b4b",
-      "note": "Accepted-base advancement, including reviewed M04 core PR351 and subsequent reviewed main changes. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
+      "toBlob": "4854b01ed49d5a6ae81a793e6bab2e22a31c0f45",
+      "note": "Accepted-base advancement, including reviewed M04 core PR351, M09 PR350 and M11 PR345. M05/M11 scheduler, checkpoint observation ownership and metadata privacy receive separate current integration regressions. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
     },
     {
       "path": "packages/contracts/index.ts",
       "fromBlob": "09517becaf0c35f5f63bd758878659ea0de5f57b",
-      "toBlob": "faa57ba3f2180fe5360f4a50b0c142e57871c91f",
-      "note": "Accepted-base advancement, including reviewed M04 core PR351 and subsequent reviewed main changes. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
+      "toBlob": "14c59034b8bb2c37137a266320fbeca90af95a52",
+      "note": "Accepted-base advancement, including reviewed M04 core PR351, M09 PR350 and M11 PR345. M05/M11 scheduler, checkpoint observation ownership and metadata privacy receive separate current integration regressions. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
     },
     {
       "path": "packages/core/capability-flags.ts",
       "fromBlob": "39e18abb43f7fa63cb2534ea3356ebb1be121161",
-      "toBlob": "823b9aa9a02499039c69756795144d035c4ce2a6",
-      "note": "Accepted-base advancement, including reviewed M04 core PR351 and subsequent reviewed main changes. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
+      "toBlob": "829f51f534524beaafe81010ba4fc9aa25498537",
+      "note": "Accepted-base advancement, including reviewed M04 core PR351, M09 PR350 and M11 PR345. M05/M11 scheduler, checkpoint observation ownership and metadata privacy receive separate current integration regressions. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
     },
     {
       "path": "packages/core/service.ts",
       "fromBlob": "2b3fb63acef915b052a468e104c6e4f00a4b82e4",
-      "toBlob": "00351f5a3a69c3313fd58f75cc38d90938c63cee",
-      "note": "Accepted-base advancement, including reviewed M04 core PR351 and subsequent reviewed main changes. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
+      "toBlob": "cdef7f205a6d19357478d9676f9c43c26be512b1",
+      "note": "Accepted-base advancement, including reviewed M04 core PR351, M09 PR350 and M11 PR345. M05/M11 scheduler, checkpoint observation ownership and metadata privacy receive separate current integration regressions. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
+    },
+    {
+      "path": "packages/runtime-hermes/index.ts",
+      "fromBlob": "ca15682cd2ad86f296247e71a7b18a190c0968f4",
+      "toBlob": "08e1c4b1db2ef47da609364fcba4d28de3078167",
+      "note": "Accepted-base advancement, including reviewed M04 core PR351, M09 PR350 and M11 PR345. M05/M11 scheduler, checkpoint observation ownership and metadata privacy receive separate current integration regressions. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
+    },
+    {
+      "path": "packages/runtime-hermes/worker.py",
+      "fromBlob": "e28c6272f9aab28f76b9462a87768fe4226361c1",
+      "toBlob": "ce8d20eae27cc81716669365257bb34ce9575420",
+      "note": "Accepted-base advancement, including reviewed M04 core PR351, M09 PR350 and M11 PR345. M05/M11 scheduler, checkpoint observation ownership and metadata privacy receive separate current integration regressions. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
+    },
+    {
+      "path": "packages/storage/store.ts",
+      "fromBlob": "ebab3cba8d56e074d0377623bffd2054790f622b",
+      "toBlob": "bff67fade13b7813ba89aff98cbf853acb7e3723",
+      "note": "Accepted-base advancement, including reviewed M04 core PR351, M09 PR350 and M11 PR345. M05/M11 scheduler, checkpoint observation ownership and metadata privacy receive separate current integration regressions. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
     },
     {
       "path": "scripts/public-source-files.json",
       "fromBlob": "8cb3efe75c120185f957ab3df73255756adcf7b8",
-      "toBlob": "7738bed5d6fa1903ce76a86e06f5778af91caeae",
-      "note": "Accepted-base advancement, including reviewed M04 core PR351 and subsequent reviewed main changes. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
+      "toBlob": "7ead37fd2a30d0ef030f18525df6cae556881a65",
+      "note": "Accepted-base advancement, including reviewed M04 core PR351, M09 PR350 and M11 PR345. M05/M11 scheduler, checkpoint observation ownership and metadata privacy receive separate current integration regressions. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
     }
   ]
 }

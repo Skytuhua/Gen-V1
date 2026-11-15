@@ -1,4 +1,5 @@
 import {HarnessError} from '../contracts/index.ts';
+import {hermesRequestScheduler} from './request-scheduler.ts';
 
 type Waiter = {signal?:AbortSignal;grant(release:()=>void):void;reject(error:unknown):void;abort?:()=>void};
 type Lane = {active:number;queue:Waiter[]};
@@ -25,5 +26,13 @@ export class ModelCapacity {
  }
 }
 
-export const hermesModelCapacity=new ModelCapacity(2);
+/** Structural gate shared by broker and integration model traffic. */
+export interface ModelRequestGate {acquire(providerId:string,accountId:string|null,signal?:AbortSignal):Promise<()=>void>;}
+
+// One per-account gate for every model caller: the shared request scheduler
+// owns class scheduling, and hermesModelCapacity is the same lanes through the
+// legacy acquire() signature so broker and integration traffic never double up.
+export const hermesModelCapacity:ModelRequestGate={
+ acquire(providerId,accountId,signal){return hermesRequestScheduler.acquire(providerId,accountId,signal).then(permit=>permit.release);},
+};
 export const hermesReviewCapacity=new ModelCapacity(1);
