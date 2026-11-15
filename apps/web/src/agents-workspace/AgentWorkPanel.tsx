@@ -22,6 +22,7 @@ export function AgentWorkPanel({threadId}: {threadId: string}) {
   const [post, setPost] = useState({recipientThreadId: '', topic: '', text: ''});
   const [open, setOpen] = useState(false);
   const busy = useRef(false);
+  const evidenceRequest = useRef(0);
   const refresh = useCallback(async () => {
     if (busy.current) return;
     busy.current = true;
@@ -39,6 +40,17 @@ export function AgentWorkPanel({threadId}: {threadId: string}) {
   useEffect(() => { void refresh(); const timer = setInterval(() => void refresh(), 4000); return () => clearInterval(timer); }, [refresh]);
   if (error && !list) return null;
   if (!list || list.works.length === 0) return null;
+
+  const openEvidence = (workId: string) => {
+    const request = ++evidenceRequest.current;
+    void getAgentWorkOutput(threadId, workId)
+      .then(next => {if (request === evidenceRequest.current) setOutput(next);})
+      .catch(e => {if (request === evidenceRequest.current) setError(e instanceof Error ? e.message : 'Evidence unavailable');});
+  };
+  const closeEvidence = () => {
+    evidenceRequest.current++;
+    setOutput(null);
+  };
 
   const send = (work: AgentWorkRow, kind: 'STEER' | 'FOLLOW_UP') => {
     const text = (drafts[work.workId] ?? '').trim(); if (!text) return;
@@ -58,7 +70,7 @@ export function AgentWorkPanel({threadId}: {threadId: string}) {
           {work.worktree && <span className="agents-work-meta" title={work.worktree}>{work.worktree.split(/[\\/]/).pop()}</span>}
           <span className="agents-work-state" data-state={work.state}>{work.state.replaceAll('_', ' ')}{work.blockedReason ? ` — ${work.blockedReason}` : ''}</span>
           <span className="agents-work-meta">{work.budget.tokens !== null ? `${work.budget.tokens}tok ` : ''}{work.evidence.refs ? `${work.evidence.stale}/${work.evidence.refs} refs stale` : 'no evidence yet'}</span>
-          <button type="button" className="agents-icon" aria-label={`Open evidence for ${work.workId}`} onClick={() => { void getAgentWorkOutput(threadId, work.workId).then(setOutput).catch(e => setError(e instanceof Error ? e.message : 'Evidence unavailable')); }}><Eye size={14}/></button>
+          <button type="button" className="agents-icon" aria-label={`Open evidence for ${work.workId}`} onClick={() => openEvidence(work.workId)}><Eye size={14}/></button>
           {(work.state === 'RUNNING' || work.state === 'QUEUED') && <button type="button" className="agents-icon" aria-label={`Stop ${work.workId}`} onClick={() => { void stopAgentWork(threadId, work.workId).then(refresh).catch(e => setError(e instanceof Error ? e.message : 'Stop failed')); }}><Square size={13}/></button>}
           {work.state === 'INTERRUPTED' && <button type="button" className="agents-icon" aria-label={`Resume ${work.workId}`} onClick={() => { void resumeAgentWork(threadId, work.workId).then(refresh).catch(e => setError(e instanceof Error ? e.message : 'Resume failed')); }}><Play size={13}/></button>}
         </header>
@@ -75,7 +87,7 @@ export function AgentWorkPanel({threadId}: {threadId: string}) {
           {input.editable && <button type="button" className="agents-icon" aria-label="Cancel input" onClick={() => { void cancelAgentInput(threadId, input.targetOwner.threadId, input.inputId).then(refresh).catch(e => setError(e instanceof Error ? e.message : 'Cancel failed')); }}><Ban size={13}/></button>}
         </div>)}
       </div>}
-      {output && <pre className="agents-work-output" aria-label="Work output evidence"><button type="button" className="agents-disclosure" onClick={() => setOutput(null)}>Close evidence</button>{JSON.stringify(output.output, null, 2).slice(0, 4000)}</pre>}
+      {output && <pre className="agents-work-output" aria-label="Work output evidence"><button type="button" className="agents-disclosure" onClick={closeEvidence}>Close evidence</button>{JSON.stringify(output.output, null, 2).slice(0, 4000)}</pre>}
       {messages.length > 0 || list.works.length ? <details className="agents-work-board">
         <summary>Message board · {messages.length}</summary>
         {messages.map(message => <div key={message.messageId} className="agents-board-row">
