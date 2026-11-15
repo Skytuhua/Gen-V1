@@ -113,8 +113,8 @@ describe('structured secret redaction',()=>{
 });
 
 describe('host-owned security flags',()=>{
- it('registers exactly the three finite keys, all default false',()=>{
-  expect(HOST_FLAG_NAMES.sort()).toEqual(['security.executionProfilesV1','security.projectTrustV1','security.secretRefsV1']);
+ it('registers exactly the four finite keys, all default false',()=>{
+  expect(HOST_FLAG_NAMES.sort()).toEqual(['security.executionProfilesV1','security.projectTrustV1','security.secretRefsV1','verification.workflowV1']);
   for(const name of HOST_FLAG_NAMES){expect(HOST_FLAG_REGISTRY[name].default).toBe(false);expect(hostFlagEnabled(name,{})).toBe(false);}
   expect(hostFlagEnabled('security.projectTrustV1',{HARNESS_FLAG_SECURITY_PROJECT_TRUST_V1:'1'})).toBe(true);
   expect(hostFlagEnabled('security.projectTrustV1',{HARNESS_FLAG_SECURITY_PROJECT_TRUST_V1:'true'})).toBe(true);

@@ -1,4 +1,4 @@
-import {afterEach,expect,it} from 'vitest';
+import {afterEach,expect,it,vi} from 'vitest';
 import {mkdtempSync,realpathSync,lstatSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join,resolve,sep} from 'node:path';
@@ -33,4 +33,20 @@ it('rejects a continuation when its exact message is replaced with different con
  const x=setup(),first=x.projection.history({agentId:'thread:parent'}).messages.find(message=>message.id==='history-long')!;
  x.callbacks.onEvent({...x.ctx,type:'assistant.message',messageId:'history-long',content:'b'.repeat(10000)});
  expect(()=>x.projection.content({agentId:'thread:parent',cursor:first.nextContentCursor!})).toThrow(/resync/i);
+});
+
+it('does not scan all roots to project a newly created conversation',async()=>{
+ const x=setup(),first=x.projection.inventory({});
+ const original=x.store.db.prepare.bind(x.store.db);
+ let rootScans=0;
+ const prepare=vi.spyOn(x.store.db,'prepare').mockImplementation(sql=>{
+  if(sql.startsWith("SELECT id FROM entities WHERE kind='thread'"))rootScans++;
+  return original(sql);
+ });
+ try{
+  const created=await x.service.command({id:'projection-create',type:'thread.create',payload:{title:'New conversation'}});
+  expect(x.projection.inventory({}).items.map(item=>item.agentId)).toEqual(first.items.map(item=>item.agentId));
+  expect(rootScans).toBe(0);
+  expect(created.result).toMatchObject({title:'New conversation'});
+ }finally{prepare.mockRestore();}
 });

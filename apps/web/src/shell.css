@@ -281,3 +281,16 @@
 @keyframes shell-notice-in { from { opacity:0; transform:translate(-50%,8px); } }
 @keyframes shell-notice-out { to { opacity:0; transform:translate(-50%,8px); } }
 @media(prefers-reduced-motion:reduce) { .shell-notice { animation:none; } }
+.verification-panel { margin:8px 12px; border:1px solid var(--border); border-radius:10px; background:var(--surface); padding:10px 12px; font-size:12px; }
+.verification-panel > header { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+.verification-title { font-weight:600; }
+.verification-outcome { padding:1px 8px; border-radius:999px; border:1px solid var(--border); }
+.verification-outcome.pass { color:var(--success,#4caf7d); }
+.verification-outcome.fail { color:var(--danger,#e05d5d); }
+.verification-outcome.stale { color:var(--warning,#d9a13b); text-decoration:line-through; }
+.verification-outcome.other { color:var(--muted); }
+.verification-stale-banner { color:var(--warning,#d9a13b); }
+.verification-missing { color:var(--muted); margin:0 0 8px; }
+.verification-table { width:100%; border-collapse:collapse; }
+.verification-table th,.verification-table td { text-align:left; padding:4px 8px; border-top:1px solid var(--border); vertical-align:top; }
+.verification-table th { border-top:none; color:var(--muted); font-weight:500; }

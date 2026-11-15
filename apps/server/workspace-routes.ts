@@ -11,6 +11,10 @@ import {registerGitHubAuthRoutes} from './github-auth-routes.ts';
 import {SplitWorkspaceRepository} from '../../packages/core/split-workspace.ts';
 import {WorkspaceActionOutcomes} from '../../packages/workspace/action-outcomes.ts';
 import {workspaceActionTypeSchema,workspaceActionOperationSchema} from '../../packages/contracts/workspace-action-outcomes.ts';
+import {capabilityEnabled} from '../../packages/core/capability-flags.ts';
+import {workspaceOwnerScope} from '../../packages/workspace/edit-journal.ts';
+import {CheckpointService} from '../../packages/workspace/checkpoints.ts';
+import type {CheckpointScope} from '../../packages/contracts/workspace-checkpoints.ts';
 
 const identifier=z.string().regex(/^[a-zA-Z0-9:_.-]{1,200}$/),record=z.record(z.string(),z.unknown());
 const envelope=z.strictObject({id:identifier,type:z.string().min(1).max(100),payload:record,threadId:identifier.optional()});
@@ -69,6 +73,57 @@ export function registerWorkspaceRoutes(app:FastifyInstance,service:Service){
   return{repo,items:[...new Map(saved.map(value=>[value.item.number,value.item])).values()]};
  });
  app.get('/api/projects/:projectId/pull-requests/:number',async request=>{const{projectId,number}=z.object({projectId:identifier,number:z.coerce.number().int().positive()}).parse(request.params),{threadId}=querySchema.parse(request.query);return github.details(projectId,threadId,number);});
+ // M08 managed-workspace checkpoints. The owner is always recomputed from the
+ // thread's managed binding server-side; a client-supplied owner must match.
+ const ownerPayload=z.strictObject({projectId:identifier,threadId:identifier.nullable(),workingCopyId:identifier.nullable(),binding:z.string().regex(/^[a-f0-9]{64}$/)});
+ const checkpointBody=z.strictObject({owner:ownerPayload,threadId:identifier.optional()});
+ const checkpointOwner=async(projectId:string,threadId:string|undefined)=>{
+  const bound=await projects.binding(projectId,threadId);
+  return{root:bound.path,owner:workspaceOwnerScope(projectId,threadId,bound.workspace)};
+ };
+ const admitOwner=(computed:CheckpointScope,presented:unknown)=>{const owner=ownerPayload.parse(presented);if(JSON.stringify(owner)!==JSON.stringify(computed))throw new HarnessError('CAPABILITY_DENIED','The checkpoint owner does not match this thread.');};
+ app.get('/api/projects/:projectId/checkpoints/capability',async request=>{
+  const{projectId}=z.object({projectId:identifier}).parse(request.params),{threadId}=querySchema.parse(request.query);
+  if(!capabilityEnabled('workspace.checkpointsV1'))return{available:false,restore:capabilityEnabled('workspace.restoreV1')};
+  try{const{owner}=await checkpointOwner(projectId,threadId);return{available:true,restore:capabilityEnabled('workspace.restoreV1'),owner};}
+  catch{return{available:false,restore:capabilityEnabled('workspace.restoreV1')};}
+ });
+ const checkpoints=new CheckpointService(service.store);
+ app.post('/api/projects/:projectId/checkpoints/list',{bodyLimit:64*1024},async(request,reply)=>{
+  reply.header('Cache-Control','no-store');
+  if(!capabilityEnabled('workspace.checkpointsV1'))throw new HarnessError('CAPABILITY_DENIED','File checkpoints are disabled.');
+  const{projectId}=z.object({projectId:identifier}).parse(request.params),input=checkpointBody.extend({cursor:z.string().max(128).optional()}).parse(request.body);
+  const{owner}=await checkpointOwner(projectId,input.threadId??input.owner.threadId??undefined);admitOwner(owner,input.owner);
+  return checkpoints.list(owner,{cursor:input.cursor});
+ });
+ app.post('/api/projects/:projectId/checkpoints/detail',{bodyLimit:64*1024},async(request,reply)=>{
+  reply.header('Cache-Control','no-store');
+  if(!capabilityEnabled('workspace.checkpointsV1'))throw new HarnessError('CAPABILITY_DENIED','File checkpoints are disabled.');
+  const{projectId}=z.object({projectId:identifier}).parse(request.params),input=checkpointBody.extend({checkpointId:identifier}).parse(request.body);
+  const{owner}=await checkpointOwner(projectId,input.threadId??input.owner.threadId??undefined);admitOwner(owner,input.owner);
+  return checkpoints.detail(owner,input.checkpointId);
+ });
+ app.post('/api/projects/:projectId/checkpoints/review',{bodyLimit:256*1024},async(request,reply)=>{
+  reply.header('Cache-Control','no-store');
+  if(!capabilityEnabled('workspace.checkpointsV1'))throw new HarnessError('CAPABILITY_DENIED','File checkpoints are disabled.');
+  const{projectId}=z.object({projectId:identifier}).parse(request.params),input=checkpointBody.extend({checkpointId:identifier,paths:z.array(z.string().min(1).max(1024)).min(1).max(100)}).parse(request.body);
+  const{owner,root}=await checkpointOwner(projectId,input.threadId??input.owner.threadId??undefined);admitOwner(owner,input.owner);
+  return checkpoints.review(owner,input.checkpointId,{paths:input.paths,root});
+ });
+ app.post('/api/projects/:projectId/checkpoints/restore/plan',{bodyLimit:256*1024},async(request,reply)=>{
+  reply.header('Cache-Control','no-store');
+  if(!capabilityEnabled('workspace.restoreV1'))throw new HarnessError('CAPABILITY_DENIED','Checkpoint restore is disabled.');
+  const{projectId}=z.object({projectId:identifier}).parse(request.params),input=checkpointBody.extend({checkpointId:identifier,selectedPaths:z.array(z.string().min(1).max(1024)).min(1).max(100),approvalId:identifier}).parse(request.body);
+  const{owner,root}=await checkpointOwner(projectId,input.threadId??input.owner.threadId??undefined);admitOwner(owner,input.owner);
+  return checkpoints.planRestore(owner,{checkpointId:input.checkpointId,root,selectedPaths:input.selectedPaths,approvalId:input.approvalId});
+ });
+ app.post('/api/projects/:projectId/checkpoints/restore/apply',{bodyLimit:64*1024},async(request,reply)=>{
+  reply.header('Cache-Control','no-store');
+  if(!capabilityEnabled('workspace.restoreV1'))throw new HarnessError('CAPABILITY_DENIED','Checkpoint restore is disabled.');
+  const{projectId}=z.object({projectId:identifier}).parse(request.params),input=checkpointBody.extend({planId:identifier,approvalId:identifier}).parse(request.body);
+  const{owner,root}=await checkpointOwner(projectId,input.threadId??input.owner.threadId??undefined);admitOwner(owner,input.owner);
+  return checkpoints.applyRestore(owner,{planId:input.planId,approvalId:input.approvalId,root});
+ });
  app.post('/api/projects/:projectId/actions',{bodyLimit:1024*1024},async(request,reply)=>{
   const{projectId}=z.object({projectId:identifier}).parse(request.params),input=envelope.parse(request.body);
   if(workspaceActionTypeSchema.safeParse(input.type).success){

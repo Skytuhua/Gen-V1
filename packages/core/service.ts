@@ -1,5 +1,4 @@
 import { randomUUID, createHash } from "node:crypto";
-import { capabilityEnabled } from './capability-flags.ts';
 import { MODEL_ONLY_MAX_PROMPT_BYTES } from '../runtime/model-only.ts';
 import type { ContextRequestObservationV1 } from '../contracts/request-context.ts';
 import { createContextResults, CONTEXT_PREVIEW_CAP_BYTES, type ContextResultStorage } from './context-results.ts';
@@ -8,7 +7,7 @@ import { contextResultReadArgs } from './context-result-tool.ts';
 import { projectHostRequest } from './host-context-projection.ts';
 import {privateFamilyForBinding} from '../workspace/git-storage.ts';
 import { mkdir, readFile, writeFile, stat, open } from "node:fs/promises";
-import { basename, join } from "node:path";
+import { basename, join, relative, sep } from "node:path";
 import { Store, digest } from "../storage/store.ts";
 import {PersonalResearchRepository} from '../research/repository.ts';
 import type {VerifiedBrowserCaptureProvider} from '../research/capture.ts';
@@ -38,9 +37,17 @@ import type {HermesRuntime} from '../runtime-hermes/index.ts';
 import type {HermesSourceLibrary} from '../runtime-hermes/library.ts';
 import type {ApprovedWriteOrigin,CompletedWriteReceipt,WriteHookDiagnostic} from '../contracts/index.ts';
 import { HarnessError, EMPTY_USAGE, type ArtifactRecord, type DataRecord, type HostCommand, type InputRequest, type Message, type Operation, type ResourceGrant, type RunContext, type RuntimeAdapter, type RuntimeEvent, type RuntimeUsage, type Snapshot, type StartRun, type SurfaceSpec, type Thread, type ToolCall, type UserStateRecord } from "../contracts/index.ts";
+import { hostFlagEnabled } from "./host-flags.ts";
+import { computeAssessment } from "./verification-gate.ts";
+import { sourceDigestSync } from "./project-verification.ts";
+import { verificationDeclarationV1Schema, type CheckObservationV1, type DeliverableAssessmentV1, type VerificationDeclarationV1, type VisualObservationV1 } from "../contracts/verification.ts";
+import type { ToolEffectRecord } from "../contracts/tool-effects.ts";
 import { buildToolRegistry, ToolAuthority, type ActorRole } from "./tool-authority.ts";
-import { ToolEffectLedger, createToolEffectFlags, type ToolEffectFlag } from "./tool-effects.ts";
+import { ToolEffectLedger, createToolEffectFlags, privateArgumentCommitment, type ToolEffectFlag } from "./tool-effects.ts";
 import { recoverEffects } from "./effect-recovery.ts";
+import { capabilityEnabled } from "./capability-flags.ts";
+import { EditJournal, workspaceOwnerScope } from "../workspace/edit-journal.ts";
+import { CheckpointService } from "../workspace/checkpoints.ts";
 
 type Outbox = { id: string; threadId: string; content: string; status: "persisted" | "processing" | "handled"; runId: string | null; enteredRuntime?: boolean;messageId?:string;completedWrite?:CompletedWriteReceipt;hookClaimed?:boolean;hookDiagnostic?:WriteHookDiagnostic };
 type Lease = { id: string; threadId: string; clientId: string; fields: string[]; expiresAt: number };
@@ -388,10 +395,14 @@ export class Service {
     if(binding?.id!==thread.workspaceId||binding.threadId!==thread.id||binding.projectId!==thread.projectId||project?.authority.kind!=='local')return;
     return {...authority,sessionPath:thread.sessionPath,modelId:thread.modelId,accountId:thread.accountId??null,projectId:thread.projectId,workspaceId:thread.workspaceId,projectRoot:binding.path};
   }
-  private context(threadId: string, signal?: AbortSignal, operationId?: string, authority?: RunContext, completedWrite?:(evidence:{path:string;sha256:string;bytes:number})=>void) {
+  private m08Journal?: EditJournal;
+  private m08Checkpoints?: CheckpointService;
+  private m08PreimageDigests = new Map<string, string>();
+  private m08PendingReceipts: { operation: Operation; evidence: { path: string; sha256: string; bytes: number } }[] = [];
+  private context(threadId: string, signal?: AbortSignal, operationId?: string, authority?: RunContext, completedWrite?:(evidence:{path:string;sha256:string;bytes:number})=>void, preWrite?:(evidence:{path:string;bytes:Uint8Array;sha256:string})=>Promise<void>) {
     const assertAuthority = () => { if (authority) this.assertRun(authority); };
     return {
-      threadId, signal: signal ?? new AbortController().signal,completedWrite,
+      threadId, signal: signal ?? new AbortController().signal,completedWrite,preWrite,
       managedGitFamily: (cwd: string) => {
         assertAuthority();
         // Git snapshots enumerate descendants, so a broad grant cannot include host storage.
@@ -1058,7 +1069,7 @@ export class Service {
       return { ...result, totalBytes: bytes.length };
     }
     if (call.name === "ui_inspect") return inspectTask(this.store, this.thread(ctx.threadId), this.planning.inspect(ctx.threadId), args);
-    if (call.name.startsWith("ui_") || call.name === "task_finish") return this.uiTool(call, ctx);
+    if (call.name.startsWith("ui_") || call.name === "task_finish" || call.name === "verification_declare") return this.uiTool(call, ctx);
     if (call.name === "operation_execute") {
       this.assertMutation(ctx.threadId); const op = this.store.get<Operation>("operation", text(args, "operationId", 200));
       if (!op || op.threadId !== ctx.threadId || !op.approved) throw new HarnessError("APPROVAL_REQUIRED", "The user must approve the exact prepared operation");
@@ -1129,17 +1140,68 @@ export class Service {
         const next = { ...artifact, placement: a.placement === "expanded" ? "expanded" : "inline", lifecycle: call.name === "ui_close" ? "archived" : artifact.lifecycle } as ArtifactRecord;
         this.store.put("artifact", artifact.id, ctx.threadId, next); return { artifactId: artifact.id, revision: artifact.revision };
       }
+      if (call.name === "verification_declare") {
+        if (!hostFlagEnabled("verification.workflowV1")) throw new HarnessError("CAPABILITY_DENIED", "The verification workflow capability is disabled on this host.");
+        // commandId is host plumbing for receipt dedup, not declaration data.
+        const { commandId: _commandId, ...declarationArgs } = a;
+        const declaration = verificationDeclarationV1Schema.parse({ version: 1, ...declarationArgs });
+        this.store.put("verificationDeclaration", ctx.threadId, ctx.threadId, declaration);
+        return { requirements: declaration.requirements.length };
+      }
       if (call.name === "task_finish") {
         if (this.hasGate(ctx.threadId) || this.store.all<Operation>("operation", ctx.threadId).some(o => ["running", "unknown", "prepared"].includes(o.status))) throw new HarnessError("REQUEST_GATED", "Resolve decisions and outstanding operations before completion");
         const current = this.store.all<Outbox>("outbox", ctx.threadId).filter(i => i.status !== "handled");
         const pending = current.filter(i => i.runId !== ctx.runId || !i.enteredRuntime);
         if (pending.length) throw new HarnessError("REQUEST_GATED", "There is unfinished input");
         this.store.put("finish", ctx.runId, ctx.threadId, { outcome: a.outcome ?? a.summary, evidence: a.evidence ?? [], assessment: true, inputIds: current.map(i => i.id) });
+        if (hostFlagEnabled("verification.workflowV1")) {
+          const assessment = this.completionAssessment(ctx, call);
+          if (assessment) this.store.put("assessment", assessment.assessmentId, ctx.threadId, assessment);
+        }
         return { accepted: true, settlesAfterRuntime: true };
       }
       throw new HarnessError("UNKNOWN_CAPABILITY", "Unknown UI tool");
     };
     return command ? this.store.command(command, apply).result : this.store.internal(call.name, ctx.threadId, apply);
+  }
+  /** M06 additive completion projection. Runs synchronously inside the
+   * task_finish store transaction — no awaits. Verified only when every
+   * declared requirement carries a fresh PASS observation against the current
+   * source/environment digests and no external effect is unresolved. */
+  private completionAssessment(ctx: RunContext, call: ToolCall): DeliverableAssessmentV1 | null {
+    const declaration = this.store.get<VerificationDeclarationV1>("verificationDeclaration", ctx.threadId);
+    const observations: (CheckObservationV1 | VisualObservationV1)[] = [
+      ...this.store.all<CheckObservationV1>("checkObservation", ctx.threadId),
+      ...this.store.all<VisualObservationV1>("visualObservation", ctx.threadId),
+    ];
+    if (!declaration && !observations.length) return null;
+    // When effect auditing wraps task_finish, the ledger admits this very call
+    // as DISPATCHED and settles it only after the body returns. That record is
+    // the invocation itself, not an outstanding external effect — exclude it by
+    // its argument commitment so audited completion does not block on itself.
+    const selfCommitment = privateArgumentCommitment(call);
+    const unresolvedEffects = this.store.all<ToolEffectRecord>("toolEffect", ctx.threadId)
+      .filter(effect => !["SUCCEEDED", "FAILED", "CANCELLED", "DENIED"].includes(effect.state) || effect.state === "UNKNOWN_EXTERNAL_OUTCOME")
+      .filter(effect => !(effect.toolId === "task_finish" && effect.privateArgumentCommitment === selfCommitment))
+      .map(effect => effect.invocationId);
+    const empty = "0".repeat(64);
+    let sourceCut: { headSha: string | null; codeDigest: string; dependencyDigest: string; environmentId: string };
+    if (declaration) {
+      const digestOf = (files: string[]) => { try { return sourceDigestSync(declaration.rootPath, files); } catch { return empty; } };
+      sourceCut = { headSha: null, codeDigest: digestOf(declaration.sourceFiles), dependencyDigest: digestOf(declaration.dependencyFiles), environmentId: declaration.environmentId };
+    } else {
+      const last = observations.at(-1)!;
+      sourceCut = { headSha: null, codeDigest: last.codeDigest, dependencyDigest: last.dependencyDigest, environmentId: last.environmentId };
+    }
+    return computeAssessment({
+      threadId: ctx.threadId,
+      sourceCut,
+      requirements: declaration?.requirements ?? [],
+      observations,
+      unresolvedEffects,
+      verifierIdentity: "service/" + ctx.runId,
+      provenance: "task_finish completion projection",
+    });
   }
   async dispatchOperation(id: string): Promise<unknown> {
     const requested = this.store.get<Operation>('operation', id);
@@ -1173,12 +1235,15 @@ export class Service {
     try {
       const domain = await import("../capabilities/index.ts");
       let writeEvidence:{path:string;sha256:string;bytes:number}|undefined;
-      const result = await domain.executeDomainOperation({ ...op, status: "running" }, this.context(op.threadId, control.signal, op.id,undefined,evidence=>{writeEvidence=evidence;}));
+      const result = await domain.executeDomainOperation({ ...op, status: "running" }, this.context(op.threadId, control.signal, op.id,undefined,evidence=>{writeEvidence=evidence;},evidence=>this.captureEditPreimage(op,evidence)));
       if (result && typeof result === "object" && "exitCode" in result && (result.exitCode !== 0 || ("cancelled" in result && result.cancelled) || ("timedOut" in result && result.timedOut))) {
         throw new HarnessError("OPERATION_FAILED", "The check did not finish successfully", result);
       }
       const renewedGrant = await this.replacementGrant(op, result);
       if (!this.closed) this.store.internal("operation.succeeded", op.threadId, () => { const ended: Operation = { ...op, status: "succeeded", result }; if (renewedGrant) this.store.put("resource", renewedGrant.id, op.threadId, renewedGrant); this.store.put("operation", id, op.threadId, ended); this.operationData(ended); this.enqueueOperationResult(ended,writeEvidence); return { operationId: id }; });
+      // Journal receipts append in their own transactions — Store rejects a
+      // nested transaction, so they must run after the success commit returns.
+      for(const pending of this.m08PendingReceipts.splice(0))this.recordEditReceipt(pending.operation,pending.evidence);
       if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1")) this.effects.settle("operation:" + id + "@" + op.revision, { value: result }, "SUCCEEDED");
       this.background(this.deliverOutbox(op.threadId));
       return result;
@@ -1206,6 +1271,40 @@ export class Service {
       } finally { await file.close(); }
     } catch { return null; }
   }
+  /** M08: capture the preimage checkpoint and journal preparation for an
+   *  approved managed-workspace write, before the bytes change. Best effort:
+   *  checkpoint capture failures never abort an already-approved write. */
+  private async captureEditPreimage(op: Operation, evidence: {path:string;bytes:Uint8Array;sha256:string}): Promise<void> {
+    if(!capabilityEnabled('workspace.provenanceV1')&&!capabilityEnabled('workspace.checkpointsV1'))return;
+    const thread=this.store.get<Thread>('thread',op.threadId);
+    if(!thread?.projectId||!thread.workspaceId)return;
+    const binding=this.store.get<{id:string;threadId:string;projectId:string;path:string;gitDirectory?:string|null;identity?:unknown}>('workspaceBinding',thread.workspaceId);
+    if(!binding||binding.id!==thread.workspaceId||binding.threadId!==thread.id||binding.projectId!==thread.projectId||!inside(binding.path,evidence.path))return;
+    const owner=workspaceOwnerScope(thread.projectId,thread.id,binding),path=relative(binding.path,evidence.path).split(sep).join('/');
+    this.m08PreimageDigests.set(op.id,evidence.sha256);
+    try{
+      if(capabilityEnabled('workspace.checkpointsV1')){
+        const info=await stat(evidence.path).catch(()=>null);
+        await (this.m08Checkpoints??=new CheckpointService(this.store)).createFromBytes({owner,files:[{path,data:Buffer.from(evidence.bytes),identity:info?{dev:String(info.dev),ino:String(info.ino)}:null}],label:`Before ${op.description}`,provenance:{kind:'guarded_write',operationId:op.id}});
+      }
+    }catch{/* a failed snapshot never blocks an approved write */}
+    try{
+      if(capabilityEnabled('workspace.provenanceV1'))(this.m08Journal??=new EditJournal(this.store)).prepareStructuredEdit({invocationId:'op:'+op.id,owner,repositoryId:owner.projectId,path,beforeDigest:evidence.sha256});
+    }catch{/* journal preparation is best effort */}
+  }
+  /** M08: record a proven edit receipt for a completed managed-workspace write. */
+  private recordEditReceipt(operation: Operation,evidence:{path:string;sha256:string;bytes:number}): void {
+    if(!capabilityEnabled('workspace.provenanceV1'))return;
+    try{
+      const thread=this.store.get<Thread>('thread',operation.threadId);
+      if(!thread?.projectId||!thread.workspaceId)return;
+      const binding=this.store.get<{id:string;threadId:string;projectId:string;path:string;gitDirectory?:string|null;identity?:unknown}>('workspaceBinding',thread.workspaceId);
+      if(!binding||binding.id!==thread.workspaceId||binding.threadId!==thread.id||binding.projectId!==thread.projectId||!inside(binding.path,evidence.path))return;
+      const owner=workspaceOwnerScope(thread.projectId,thread.id,binding),path=relative(binding.path,evidence.path).split(sep).join('/'),beforeDigest=this.m08PreimageDigests.get(operation.id)??null;
+      this.m08PreimageDigests.delete(operation.id);
+      (this.m08Journal??=new EditJournal(this.store)).recordProvenEdit({invocationId:'op:'+operation.id,owner,repositoryId:owner.projectId,workspaceIdentity:owner.binding,path,beforeIdentity:null,beforeDigest,afterDigest:evidence.sha256,boundedBlobRefs:[]});
+    }catch{/* journal receipts never block the outbox */}
+  }
   private enqueueOperationResult(operation: Operation,writeEvidence?:{path:string;sha256:string;bytes:number}): void {
     const data = this.store.get<DataRecord>("data", operation.id), input: Outbox = {
       id: "operation-result:" + operation.id, threadId: operation.threadId, status: "persisted", runId: null,
@@ -1213,7 +1312,7 @@ export class Service {
     };
     if(this.options.approvedWriteHooks&&operation.kind==='file.replace'&&operation.status==='succeeded'){
       const capture=this.store.get<{revision:number;origin?:ApprovedWriteOrigin;unavailable?:'scope_unavailable'|'no_project'}>('operationWriteOrigin',operation.id);
-      if(capture?.revision===operation.revision&&capture.origin&&writeEvidence)input.completedWrite={operationId:operation.id,revision:operation.revision,inputId:input.id,origin:capture.origin,...writeEvidence};
+      if(capture?.revision===operation.revision&&capture.origin&&writeEvidence){input.completedWrite={operationId:operation.id,revision:operation.revision,inputId:input.id,origin:capture.origin,...writeEvidence};this.m08PendingReceipts.push({operation,evidence:writeEvidence});}
       else input.hookDiagnostic={operationId:operation.id,revision:operation.revision,inputId:input.id,status:capture?.unavailable??'scope_unavailable',message:'No authenticated source/project write origin was captured; no hook was run.'};
     }
     if (!this.store.get("outbox", input.id)) this.enqueueInput(input);

@@ -7,7 +7,10 @@ export function workspaceEvents(origin:string,notify:(change:DesktopWorkspaceCha
  if(!/^http:\/\/127\.0\.0\.1:[0-9]{4,5}$/.test(origin))throw Error('Workspace events require the owned loopback host');
  let stopped=false,sequence=0,connected=false,controller:AbortController|undefined,stream:ReadableStreamDefaultReader<Uint8Array>|undefined,wake:undefined|(()=>void),retry=250;
  const cancel=()=>{const pending=stream?.cancel().catch(()=>{});controller?.abort();return pending;};
- const publish=(online:boolean)=>{connected=online;notify({connected,sequence});};
+ const publish=(online:boolean)=>{
+  connected=online;
+  try{notify({connected,sequence});}catch{/* Renderer delivery must not interrupt the owned stream or close. */}
+ };
  const task=(async()=>{
   while(!stopped){
    controller=new AbortController();let watchdog:ReturnType<typeof setTimeout>|undefined;

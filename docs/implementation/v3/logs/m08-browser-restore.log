@@ -1,0 +1,5 @@
+argv: ["C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe", "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js", "test:browser", "--suite", "m08-restore"]
+cwd: C:\Users\Administrator\gen-m08-v3-wt
+termination: NONE
+exitCode: 0
+outcome: 5 passed (6.9s) across m08-pr-checks.spec.ts and m08-restore-ui.spec.ts: plan -> confirm -> apply, cancel resets, conflict names skipped files, disabled restore adapter shows its reason.
