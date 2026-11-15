@@ -5,11 +5,10 @@ import { join, resolve, sep } from 'node:path';
 import { crc32, inflateSync } from 'node:zlib';
 import { DatabaseSync } from 'node:sqlite';
 import { PDFDocument } from 'pdf-lib';
-import { chromium, expect as browserExpect } from '@playwright/test';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { openReviewHost, reviewColorStudyPng, type Scenario } from '../scripts/review-host';
 import type { ArtifactRecord, DataRecord, Operation, RunContext, UserStateRecord } from '../packages/contracts';
-import { disclosureData, relationshipData, tableChangesData } from '../packages/ui-catalog/workflow';
+import { relationshipData, tableChangesData } from '../packages/ui-catalog/workflow';
 
 describe('isolated actual-host recording fixtures', () => {
   let folder: string;
@@ -92,40 +91,17 @@ describe('isolated actual-host recording fixtures', () => {
     const db = new DatabaseSync(join(folder, 'resources', 'project.sqlite'), { readOnly: true });
     try { expect(db.prepare('SELECT COUNT(*) AS n FROM users WHERE workspace_id IS NOT NULL').get()!.n).toBe(12); } finally { db.close(); }
   }, 30_000);
-  it('opens an inserted custom question and preserves the existing question state', async () => {
+  it('keeps the faq topic free of an automatic question form and preserves state through composer continuation', async () => {
     await send('faq');
-    await action('faq', 'ask', { question: 'Can I use a wire transfer?' }, { eligibilityOpen: true, question: 'Can I use a wire transfer?' });
+    const current = artifact('faq');
+    expect(current.spec!.elements.root.children).toEqual(['history']);
+    expect(current.spec!.elements.ask).toBeUndefined();
+    expect(current.spec!.elements.question).toBeUndefined();
+    expect(Object.keys(current.actions)).toEqual(['answer']);
+    await action('faq', 'answer', { questionId: 'payments' }, { eligibilityOpen: true });
     await settled('faq');
-    const current = artifact('faq'), state = host.store.get<UserStateRecord>('userState', current.stateId)!;
+    const state = host.store.get<UserStateRecord>('userState', artifact('faq').stateId)!;
     expect(state.values).toMatchObject({ eligibilityOpen: true });
-    expect(state.values).not.toHaveProperty('custom3Open');
-    expect(current.spec!.elements.custom3.props.defaultOpen).toBe(true);
-    expect(current.spec!.elements.custom3.props.title).toBe('Can I use a wire transfer?');
-    expect(disclosureData.parse(source('faq', 'custom3'))).toMatchObject({ status: 'ready', answer: expect.stringContaining('wire transfers') });
-    expect(current.spec!.elements.custom3.children).toContain('custom3plans');
-  });
-  it('keeps browser input focus while an inserted custom answer becomes visible', async () => {
-    const browser = await chromium.launch({ headless: true });
-    try {
-      const page = await browser.newPage();
-      await page.addInitScript(id => localStorage.setItem('harness:selected-thread', id), thread('faq').id);
-      await page.goto('http://127.0.0.1:4367');
-      const input = page.getByRole('textbox', { name: 'Your question' });
-      // Restored open unanswered branches load on mount. Let that genuine
-      // disclosure action settle before beginning a second scripted request.
-      await expect.poll(() => disclosureData.parse(source('faq', 'eligibility')).status, { timeout: 5_000, interval: 25 }).toBe('ready');
-      await settled('faq');
-      await input.fill('Can the example receive wire transfers?');
-      await input.press('Enter');
-      await browserExpect(page.getByRole('button', { name: 'Can the example receive wire transfers?', exact: true })).toHaveAttribute('aria-expanded', 'true');
-      const questionId = Object.entries(artifact('faq').spec!.elements).find(([, node]) => node.props.title === 'Can the example receive wire transfers?')![0];
-      await expect.poll(() => disclosureData.parse(source('faq', questionId)).status, { timeout: 5_000, interval: 25 }).toBe('ready');
-      await browserExpect(input).toBeFocused();
-      await browserExpect(page.getByText('Yes, wire transfers are supported. Review the destination and fee before confirming.', { exact: true }).last()).toBeVisible();
-      // Answer arrival precedes the source-declared follow-up phase. Do not
-      // leak this still-owned run into the next single-run fixture scenario.
-      await settled('faq');
-    } finally { await browser.close(); }
   });
   it.each(['pr-dark', 'pr-light'] as const)('keeps %s outcomes illustrative and denies a source mutation with a stale original epoch', async scenario => {
     await send(scenario);
