@@ -699,7 +699,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
     const anchor = historyAnchor.consume(id, element);
     conversationMotion.current.update(id,position,anchor);
     if (anchor && !changedThread) readingPositions.current.set(id, { ...position, top: element.scrollTop });
-    if (!changedThread && previousUpdate.current !== update) { if (!position.tail) { setAnnouncement('New conversation updates available.'); setLatestAvailable(true); } }
+    if (!changedThread && previousUpdate.current !== update) { const live = conversationMotion.current?.position(); if (!(live ?? position).tail) { setAnnouncement('New conversation updates available.'); setLatestAvailable(true); } }
     if (changedThread) { setLatestAvailable(!position.tail); setAnnouncement(''); }
     previousConversation.current = id; previousUpdate.current = update;
   }, [thread?.id, snapshot, loaded, historyCounts, olderPageTick, canvasActive, historyAnchor]);
