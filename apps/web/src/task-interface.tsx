@@ -7,7 +7,7 @@ import './task-interface.css';
 export { ArtifactTitle } from './task-context';
 export { RelationshipGraph } from './RelationshipGraph';
 import { inputPath, statePath } from './task-context';
-import { StatusIcon, type StatusKind } from './task-status';
+import { StatusIcon, operationStatusKind, type StatusKind } from './task-status';
 import { animateTask, reducedMotion, TASK_MOTION } from './task-motion';
 import './task-motion.css';
 import './document-preview.css';
@@ -93,14 +93,13 @@ export function Status({ element: { props } }: ComponentRenderProps) {
   const parsed = statusData.safeParse(raw);
   const operation = operationStatusData.safeParse(raw);
   if (!parsed.success && !operation.success) return <p className="task-unavailable">Status is unavailable from the connected source.</p>;
-  const states: Record<string, StatusKind> = { prepared: 'pending', running: 'running', succeeded: 'success', failed: 'error', cancelled: 'error', unknown: 'pending' };
   const labels: Record<string, string> = { prepared: 'Prepared · not run', running: 'Running', succeeded: 'Completed', failed: 'Failed', cancelled: 'Cancelled', unknown: 'Outcome unknown' };
   const op = operation.success ? operation.data : undefined;
   const receipt = op?.result && typeof op.result === 'object' ? op.result as Record<string, unknown> : undefined;
   const exit = typeof receipt?.exitCode === 'number' && Number.isFinite(receipt.exitCode) ? `Exit code ${receipt.exitCode}` : undefined;
   const sourceDetail = op ? op.error || op.progress?.message || op.message || exit || (op.status === 'prepared' && op.approved === false ? 'Awaiting approval' : op.status === 'succeeded' ? undefined : labels[op.status]) : parsed.success ? parsed.data.detail : undefined;
   const label = typeof props.label === 'string' ? props.label : op?.description || op?.kind || (parsed.success ? parsed.data.label : 'Operation');
-  const status = op ? states[op.status] : parsed.success ? parsed.data.status : 'neutral';
+  const status = op ? operationStatusKind[op.status] : parsed.success ? parsed.data.status : 'neutral';
   const detail = sourceDetail && sourceDetail.length > 180 ? `${sourceDetail.slice(0, 180)}…` : sourceDetail;
   return <StatusPresentation view={{ label, status, detail }} receipt={props.presentation === 'receipt'} operation={Boolean(op)} raw={raw} />;
 }

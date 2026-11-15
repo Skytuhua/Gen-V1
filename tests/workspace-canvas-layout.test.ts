@@ -73,3 +73,33 @@ describe('workspace canvas geometry and live ordering',()=>{
   expect(result.find(panel=>panel.id===saved.id)).toEqual(saved);expect(child.bounds.x).toBeGreaterThanOrEqual(saved.bounds.x+saved.bounds.width+16);expect(child.bounds.y).toBe(saved.bounds.y);
  });
 });
+
+it('visits the parent links only a bounded number of times in a wide live conversation family', () => {
+ const root=thread('root',{runId:'run'}),members=[root];
+ let reads=0;
+ for(let index=0;index<800;index++){
+  const child=thread('child-'+index);
+  Object.defineProperty(child,'parentThreadId',{get(){reads++;return 'root';}});
+  members.push(child);
+ }
+ const rows=liveProjectRows(members,canvas);
+ expect(rows[0].threads.map(item=>item.id)).toEqual(members.map(item=>item.id));
+ expect(reads).toBeLessThan(members.length*5);
+});
+
+it('preserves depth-first sibling order even when children precede their parents in the snapshot',()=>{
+ const members=[thread('grandchild',{parentThreadId:'child-b'}),thread('child-b',{parentThreadId:'root'}),thread('child-a',{parentThreadId:'root'}),thread('root',{runId:'run'})];
+ expect(liveProjectRows(members,canvas)[0].threads.map(item=>item.id)).toEqual(['root','child-b','grandchild','child-a']);
+});
+
+it('reuses resolved family roots while traversing a deep history',()=>{
+ let reads=0;
+ const members=Array.from({length:400},(_,index)=>{
+  const entry=thread('chain-'+index,index===0?{runId:'run'}:{});
+  if(index)Object.defineProperty(entry,'parentThreadId',{get(){reads++;return 'chain-'+(index-1);}});
+  return entry;
+ });
+ const rows=liveProjectRows([...members].reverse(),canvas);
+ expect(rows[0].threads.map(item=>item.id)).toEqual(members.map(item=>item.id));
+ expect(reads).toBeLessThan(members.length*5);
+});

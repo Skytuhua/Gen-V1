@@ -10,7 +10,7 @@ import {
   type ToolOwner,
 } from "../contracts/tool-effects.ts";
 import { authorize, type RegistryEntry, type ToolAuthority } from "./tool-authority.ts";
-import { capabilityEnabled } from "./capability-flags.ts";
+import { createCapabilityFlags, type CapabilityFlags } from "./capability-flags.ts";
 import { digest, type Store } from "../storage/store.ts";
 
 const now = () => new Date().toISOString();
@@ -79,8 +79,17 @@ export function actionCommitment(operation: Operation, thread: Thread): string {
 
 const settled = (state: EffectState): boolean => ["SUCCEEDED", "FAILED", "CANCELLED", "DENIED"].includes(state);
 
+export type ToolEffectFlag = 'audit.effectsV1' | 'security.authorityV1';
+
+export function createToolEffectFlags(overrides?: Partial<Record<ToolEffectFlag, boolean>>): CapabilityFlags<ToolEffectFlag> {
+  return createCapabilityFlags<ToolEffectFlag>([
+    { key: 'audit.effectsV1', owner: 'host', description: 'Record tool execution evidence' },
+    { key: 'security.authorityV1', owner: 'host', description: 'Require bound tool approvals' },
+  ], overrides);
+}
+
 export class ToolEffectLedger {
-  constructor(private readonly store: Store, private readonly authority: ToolAuthority) {}
+  constructor(private readonly store: Store, private readonly authority: ToolAuthority, private readonly flags = createToolEffectFlags()) {}
 
   get(invocationId: string): ToolEffectRecord | null {
     return this.store.get<ToolEffectRecord>("toolEffect", invocationId);
@@ -202,7 +211,7 @@ export class ToolEffectLedger {
     if (prior && settled(prior.state)) return prior;
     if (prior) throw new HarnessError("INVOCATION_IN_FLIGHT", "This operation dispatch is already in flight");
     const call: ToolCall = { name: "operation:" + operation.kind, args: { invocationId, operationId: operation.id, ...operation.args } };
-    const approvalId = capabilityEnabled("security.authorityV1") ? (this.approvalFor(operation.id)?.approvalId ?? null) : null;
+    const approvalId = this.flags.enabled("security.authorityV1") ? (this.approvalFor(operation.id)?.approvalId ?? null) : null;
     return this.admit({
       call,
       owner: ownerFor(thread),
@@ -233,7 +242,7 @@ export class ToolEffectLedger {
   /** Consume a recorded approval for dispatch; verifies the commitment still
    * matches the current operation and thread before the single use is spent. */
   verifyOperationApproval(operation: Operation, thread: Thread): void {
-    if (!capabilityEnabled("security.authorityV1")) return;
+    if (!this.flags.enabled("security.authorityV1")) return;
     const approval = this.approvalFor(operation.id);
     if (!approval) throw new HarnessError("APPROVAL_REQUIRED", "Approve this prepared operation first");
     if (approval.actionCommitment !== actionCommitment(operation, thread)) throw new HarnessError("APPROVAL_REQUIRED", "The approved action changed; approve the current intent again");
