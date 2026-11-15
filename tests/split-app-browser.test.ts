@@ -342,7 +342,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
 
  it('renders the canonical detailed plan requirements in an explicitly recovered canvas panel',async()=>{
   const host=await fixture({plan:true,retainedPlan:true}),{page}=host;try{
-   const retained=structuredClone(host.envelope);await page.getByRole('button',{name:'Layouts',exact:true}).click();await page.getByRole('button',{name:'Recover Retained desk',exact:true}).click();const panel=page.locator('[data-panel-id="retained-plan"]'),detail=panel.getByRole('region',{name:/^Task plan(?::|$)/});await detail.waitFor({state:'visible'});
+   const retained=structuredClone(host.envelope);await page.getByRole('button',{name:'Layouts',exact:true}).click();await page.getByRole('button',{name:'Recover Retained desk',exact:true}).click();const panel=page.locator('[data-panel-id="retained-plan"]'),detail=panel.getByRole('region',{name:/^Task plan(?::|$)/});await detail.waitFor({state:'visible'});await detail.locator('[data-step-id="inspect"] > .plan-step-summary').click();
    expect(await detail.getAttribute('aria-label')).toBe('Task plan: Inspect then verify');expect(await detail.getByText('Retain the original draft',{exact:true}).isVisible()).toBe(true);expect(await detail.locator('[data-step-id="inspect"] > .plan-step-summary').getAttribute('aria-expanded')).toBe('true');expect(await detail.getByText('Read the actual source',{exact:true}).isVisible()).toBe(true);expect(await panel.getByRole('region',{name:'Plan summary',exact:true}).count()).toBe(0);expect({...host.envelope,state:{...host.envelope.state,revision:retained.state.revision}}).toEqual(retained);expect(host.errors).toEqual([]);
   }finally{await page.close();}
  },30000);
