@@ -113,6 +113,7 @@ export async function handleDomainTool(name: string, rawArgs: unknown, ctx: Doma
     case "file_replace_prepare": {
       const a = parse("file_replace_prepare", rawArgs), source = await readResource(ctx, a.resourceId, a.path); utf8(source.bytes);
       if (source.sha256 !== a.expectedSha256) throw new HarnessError("PRECONDITION_FAILED", "File hash changed before preparation");
+      await ctx.resolveResource(a.resourceId, a.path, true);
       return ctx.prepareOperation("file.replace", a, [a.resourceId], { sha256: source.sha256 }, `Replace ${a.path ?? a.resourceId} if SHA-256 ${source.sha256} still matches`);
     }
     case "repository_test_prepare": {

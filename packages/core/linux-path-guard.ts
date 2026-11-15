@@ -8,7 +8,7 @@ import type {GuardEntry} from './file-access.ts';
 
 type DirectoryPath={path:string;leaf:boolean;dev?:string;ino?:string;empty?:boolean;tree?:boolean;readOnly?:boolean;allowChildWrites?:boolean;childWriteRoot?:string;gitMetadataImport?:boolean};
 interface Session {rpc(request:Record<string,unknown>):Promise<readonly GuardEntry[]>;readonly exited:boolean;loss:Set<()=>void>}
-const denied=()=>new HarnessError('CAPABILITY_DENIED','Cannot establish a stable ordinary filesystem resource guard');
+const denied=()=>new HarnessError('CAPABILITY_DENIED','File access check failed — the folder could not be opened safely for this action');
 const within=(root:string,path:string)=>path===root||path.startsWith(root+'/');
 export function validateLinuxDirectoryPaths(paths:DirectoryPath[],root:string){
  if(!paths.length||paths.length>256)throw denied();

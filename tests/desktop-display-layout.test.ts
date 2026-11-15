@@ -50,3 +50,10 @@ it('keeps precise manual normal-window changes and explicit programmatic placeme
  const rescue={x:10,y:10,width:1000,height:700};normal.apply(rescue);expect(normal.read()).toEqual(rescue);
  const copy=normal.read();copy.x=99;expect(normal.read()).toEqual(rescue);
 });
+
+it('centers the restored window using its final minimum size when a tiny display grows',()=>{
+ const old:DesktopDisplay={id:'compact',workArea:{x:0,y:0,width:240,height:120}};
+ const larger:DesktopDisplay={id:'compact',workArea:{x:0,y:0,width:800,height:600}};
+ const preferred=captureDesktopPlacement(old.workArea,[old]);
+ expect(restoreDesktopPlacement(preferred,[larger],{width:430,height:720})).toEqual({x:240,y:220,width:320,height:160});
+});
