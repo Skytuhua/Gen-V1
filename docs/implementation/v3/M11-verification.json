@@ -28,7 +28,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/logs/m11-vitest.log",
-          "logDigest": "9561e6a6acfafd11754a049938dd79dbaa82f2a00c1997cf109da0e602627da3"
+          "logDigest": "e1509bd80095d23dff9ab87832dcbbac74d934d8d50d02af274f62644365a6a7"
         }
       ],
       "artifactRefs": ["docs/implementation/v3/logs/m11-red-fixtures.log", "docs/implementation/v3/logs/m11-vitest.log"]
@@ -51,7 +51,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/logs/m11-vitest.log",
-          "logDigest": "9561e6a6acfafd11754a049938dd79dbaa82f2a00c1997cf109da0e602627da3"
+          "logDigest": "e1509bd80095d23dff9ab87832dcbbac74d934d8d50d02af274f62644365a6a7"
         }
       ],
       "artifactRefs": ["docs/implementation/v3/logs/m11-vitest.log"]
@@ -76,7 +76,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/logs/m11-vitest.log",
-          "logDigest": "9561e6a6acfafd11754a049938dd79dbaa82f2a00c1997cf109da0e602627da3"
+          "logDigest": "e1509bd80095d23dff9ab87832dcbbac74d934d8d50d02af274f62644365a6a7"
         }
       ],
       "artifactRefs": ["docs/implementation/v3/logs/m11-red-fixtures.log", "docs/implementation/v3/logs/m11-vitest.log"]
@@ -104,7 +104,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/logs/m11-vitest.log",
-          "logDigest": "9561e6a6acfafd11754a049938dd79dbaa82f2a00c1997cf109da0e602627da3"
+          "logDigest": "e1509bd80095d23dff9ab87832dcbbac74d934d8d50d02af274f62644365a6a7"
         }
       ],
       "artifactRefs": ["docs/implementation/v3/logs/m11-vitest.log"]
@@ -154,7 +154,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/logs/m11-vitest.log",
-          "logDigest": "9561e6a6acfafd11754a049938dd79dbaa82f2a00c1997cf109da0e602627da3"
+          "logDigest": "e1509bd80095d23dff9ab87832dcbbac74d934d8d50d02af274f62644365a6a7"
         }
       ],
       "artifactRefs": ["docs/implementation/v3/logs/m11-vitest.log"]
@@ -306,6 +306,7 @@
     "models.statelessPoolExperimentV1 stays off: live pooling requires an adapter proof (supportsStatelessReuse=false today); enabling needs cold-start justification, exact request semantics and the 60s idle expiry already implemented",
     "models.newTaskProfilesV1 stays off: task-role routing requires an operator-approved static mapping before dispatch",
     "the paired cold-vs-repeated identical-context benchmark needs live provider credentials; the eval runner without authorized --host/--model is MANIFEST_ONLY by spec and was not executed",
+    "the perf comparison view ships only with that paired benchmark evidence; small samples would be labelled exploratory",
     "models.requestMetricsV1 gates only the publish path; instrumentation runs unconditionally, so enabling metrics later requires no redeploy of the broker",
     "full-suite parity on this box is blocked by environmental failures verified identical on main (Python source worker, node-pty, MSVC); hermes custody tests cannot run here",
     "rollback: disabling pooling/streaming/routing independently returns to fresh-request transport; observations and account leases are preserved through teardown"

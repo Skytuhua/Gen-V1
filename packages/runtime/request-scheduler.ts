@@ -195,6 +195,7 @@ export class StatelessTransportPool {
   offer(key: WarmTransportKey, transport: StatelessTransport): boolean {
     if (transport.outstanding !== 0) return false;
     const id = warmTransportKeyId(key);
+    if (this.idle.has(id)) return false;
     this.idle.set(id, { transport, expiresAt: this.now() + STATELESS_IDLE_EXPIRY_MS });
     const timer = setTimeout(() => { void this.expire(id); }, STATELESS_IDLE_EXPIRY_MS);
     timer.unref?.();

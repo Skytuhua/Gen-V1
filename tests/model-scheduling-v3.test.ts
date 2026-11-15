@@ -51,8 +51,11 @@ it('stateless pooling requires exact keys, clears owner state, expires idle tran
  const item=transport();expect(pool.offer(key(),item)).toBe(true);
  expect(await pool.take(key({accountId:'other'}))).toBeNull();
  const reused=await pool.take(key());expect(reused).toBe(item);expect(item.resetCount).toBe(1);
- // Busy transports are never pooled.
+ // Busy transports are never pooled, and one key holds exactly one idle
+ // transport — a second offer is refused so no owner state lingers.
  expect(pool.offer(key(),transport(1))).toBe(false);
+ const first=transport(),second=transport();expect(pool.offer(key(),first)).toBe(true);
+ expect(pool.offer(key(),second)).toBe(false);expect(await pool.take(key())).toBe(first);
  const stale=transport();expect(pool.offer(key(),stale)).toBe(true);
  tick+=STATELESS_IDLE_EXPIRY_MS+1;expect(await pool.take(key())).toBeNull();expect(stale.closed).toBe(true);
  const invalidated=transport();expect(pool.offer(key(),invalidated)).toBe(true);

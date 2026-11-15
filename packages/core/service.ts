@@ -937,8 +937,8 @@ export class Service {
         const parsed = modelRequestObservationV1Schema.safeParse(candidate);
         if (parsed.success && parsed.data.owner.threadId === thread.id && parsed.data.owner.runId === event.runId) {
           const id = "modelRequest:" + parsed.data.requestId;
-          const old = this.store.get<{ observation: unknown }>("modelRequest", id);
-          if (old && old.observation && typeof old.observation === "object" && (old.observation as { owner?: { threadId?: string } }).owner?.threadId !== thread.id)
+          const old = this.store.get<{ value?: { owner?: { threadId?: string } } }>("modelRequest", id);
+          if (old?.value?.owner?.threadId && old.value.owner.threadId !== thread.id)
             throw new HarnessError("CAPABILITY_DENIED", "Request observation belongs to another thread");
           this.store.put("modelRequest", id, thread.id, { id, value: parsed.data });
           // Bounded per-thread retention: drop the oldest completed records.
