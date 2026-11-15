@@ -64,7 +64,7 @@ export async function createHermesBroker(options:HermesBrokerOptions):Promise<He
    owner=active={ctx:nativeInput,controller:new AbortController(),cancelled:false,completion,operation:Promise.resolve()};
    const owned=owner;
    owned.operation=(async()=>{
-    let release:(()=>void)|undefined;
+    let release:(()=>void)|undefined,dispatched=false;
     try{
      try{options.onStage?.('queued',metadata);}catch{/* Stage observers cannot release a live request. */}
      options.budget?.admit();
@@ -83,30 +83,33 @@ export async function createHermesBroker(options:HermesBrokerOptions):Promise<He
     if(event.type==='settled'){if(event.aborted===true)failure=new HarnessError('HERMES_MODEL_CANCELLED','The selected native model was cancelled.');completion.resolve();}
      }});
      stage('runtimeReady');
-     await runtime.start(nativeInput);stage('requestSent');await completion.promise;stage('settled');await writes;if(owned.cancelled||failure)throw failure??invalid();return{content,usage:usage??{...EMPTY_USAGE}};
+     await runtime.start(nativeInput);dispatched=true;stage('requestSent');await completion.promise;stage('settled');await writes;if(owned.cancelled||failure)throw failure??invalid();return{content,usage:usage??{...EMPTY_USAGE}};
     }catch(error){
      if(failure===undefined)failure=error;
      throw error;
     }finally{
      if(owned.runtime){const actual=usage??{...EMPTY_USAGE};usages.set(metadata.sequence,actual);try{options.onUsage?.(actual,metadata);}catch{/* Usage projection cannot prevent native teardown. */}}
-     // The buffered transport publishes after teardown: firstPublicDelta is
-     // stamped only when completed output is actually committed to the wire.
-     if(content&&!failure&&!owned.cancelled&&!response.destroyed)metrics.mark('firstPublicDelta');
      try{await owned.runtime?.dispose();release?.();stage('teardownConfirmed');}catch(error){cleanupError=error;if(failure===undefined)failure=error;throw error;}finally{
       const outcome=owned.cancelled?'cancelled':failure?'failed':'completed';
       const observation=metrics.finish(outcome,usageV1(usage),failure instanceof Error?failure.message:undefined);
       observations.set(metadata.sequence,observation);if(observations.size>256)observations.delete(observations.keys().next().value!);
       try{options.onObservation?.(observation,metadata);}catch{/* Observation cannot prevent native teardown. */}
-      // Every settled request spends a call, usage report or not; missing
-      // usage never means zero spend.
-      try{options.budget?.reconcile(usage);}catch{/* Budget conflicts surface through the next admission. */}
+      // Every dispatched request spends a call, usage report or not; missing
+      // usage never means zero spend. A request cancelled before dispatch
+      // consumed no model call.
+      try{if(dispatched)options.budget?.reconcile(usage);}catch{/* Budget conflicts surface through the next admission. */}
       if(active===owned)active=undefined;
      }
     }
    })();
    // The native router emits settled only after its owned SDK/account teardown.
    const result=await owned.operation;
-   if(!owned.cancelled)send(response,200,result);
+   if(!owned.cancelled){
+    // The buffered transport's first public output is the completed response
+    // committing to the wire — after teardown, never earlier.
+    send(response,200,result);
+    if(content){metrics.mark('firstPublicDelta');const published=metrics.result;if(published){observations.set(metadata.sequence,published);try{options.onObservation?.(published,metadata);}catch{/* Observation cannot prevent native teardown. */}}}
+   }
   })().catch(()=>{if(!response.headersSent)send(response,400,{error:'The owned model request could not finish.'});else response.destroy();});
  });
  await new Promise<void>((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',()=>{server.off('error',reject);resolve();});});

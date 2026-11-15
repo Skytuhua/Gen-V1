@@ -93,6 +93,11 @@ export class RequestMetrics {
 
   private snapshot!: ModelRequestObservationV1;
 
+  /** The finished observation, including any late firstPublicDelta stamp. */
+  get result(): ModelRequestObservationV1 | null {
+    return this.snapshot ?? null;
+  }
+
   get finished(): boolean {
     return this.done;
   }

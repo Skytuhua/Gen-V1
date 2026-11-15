@@ -26,9 +26,11 @@ it('records a stable request id and monotonic stage timings with owned binding',
   expect(observation!.timings.requestSent!).toBeLessThanOrEqual(observation!.timings.firstProviderDelta!);
   expect(observation!.timings.firstProviderDelta!).toBeLessThanOrEqual(observation!.timings.firstPublicDelta!);
   expect(observation!.timings.settled!).toBeLessThanOrEqual(observation!.timings.firstPublicDelta!);
-  expect(observation!.timings.firstPublicDelta!).toBeLessThanOrEqual(observation!.timings.teardownConfirmed!);
+  expect(observation!.timings.teardownConfirmed!).toBeLessThanOrEqual(observation!.timings.firstPublicDelta!);
   expect(observation!.timings.settled!).toBeLessThanOrEqual(observation!.timings.teardownConfirmed!);
-  expect(observations).toHaveLength(1);
+  // The observation is emitted once at teardown and again when the response
+  // actually commits with the final firstPublicDelta stamp.
+  expect(observations).toHaveLength(2);
  }finally{await b.close();}
 });
 it('marks no firstPublicDelta when buffered output never publishes, and keeps absent usage unknown',async()=>{
