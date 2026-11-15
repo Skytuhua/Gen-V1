@@ -2,11 +2,11 @@
   "schemaVersion": 1,
   "status": "PASS",
   "purpose": "Evidence integrity only; not release approval or a passing implementation bundle.",
-  "implementationBundleStatus": "FAIL",
-  "executionBaseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
-  "inspectedPaths": 40,
-  "verifiedCommandRecords": 101,
-  "changedFiles": 148,
+  "implementationBundleStatus": "PARTIAL",
+  "executionBaseSha": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42",
+  "inspectedPaths": 46,
+  "verifiedCommandRecords": 224,
+  "changedFiles": 327,
   "reviewerApproval": false,
   "errors": []
 }

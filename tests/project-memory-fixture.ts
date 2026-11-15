@@ -6,7 +6,7 @@ import { Store } from '../packages/storage/store.ts';
 import { ProjectMemory } from '../packages/core/project-memory.ts';
 import type { MemoryAccess, MemoryAction, MemorySourceRefV1 } from '../packages/contracts/project-memory.ts';
 
-export async function memoryFixture() {
+export async function memoryFixture(beforeMemoryInit?: (store: Store) => void) {
   const root = mkdtempSync(join(tmpdir(), 'm05-')), path = join(root, 'project'); mkdirSync(path);
   const store = new Store(join(root, 'profile')), stamp = new Date().toISOString();
   const physical = statSync(path, { bigint: true });
@@ -16,6 +16,7 @@ export async function memoryFixture() {
     for (const id of ['thread', 'other']) store.put('thread', id, id, { id, title: id, projectId: 'project', projectName: 'Original', createdAt: stamp, updatedAt: stamp, status: 'completed', epoch: 1, runId: null, modelId: 'model', sessionPath: null, accountId: 'account' });
     store.put('message', 'source', 'thread', { id: 'source', threadId: 'thread', role: 'user', content: 'Use SQLite for project persistence.', createdAt: stamp, runId: null });
   });
+  beforeMemoryInit?.(store);
   const memory = new ProjectMemory(store, { enabled: () => true });
   const access = await memory.access('project', 'thread');
   const act = (operation: MemoryAction, owner: MemoryAccess = access) => memory.review(owner, { id: randomUUID(), type: 'project.memory.review', threadId: owner.threadId, payload: { operation } }, 'local-user');

@@ -13,6 +13,7 @@ import {Markdown} from '../Markdown';
 import {projectColor} from '../project-colors';
 import {groupAgents, type AgentNode, type AgentsWorkspaceController, type ProjectRow} from './controller';
 import type {SharedAgentComposers} from './composer';
+import {AgentWorkPanel} from './AgentWorkPanel';
 import {agentProjectCatalog} from './project-catalog';
 import './agents-workspace.css';
 import {ErrorState} from '../../../../packages/ui-shell/Feedback';
@@ -104,6 +105,7 @@ function Agent({node, controller, composers, onOpenConversation, preferences}: {
   </header>
   <div className="agents-activity">{agent.modelId && <span className="agents-model">{agent.modelId}</span>}<p>{agent.currentAction || (agent.status === 'completed' ? 'Work completed' : statusLabel(agent.status))}</p>{agent.reportedPercent !== null && <progress max={100} value={agent.reportedPercent} aria-label={`${agent.title} progress`}/>}</div>
   {agent.threadId ? <Transcript agent={agent} controller={controller}/> : <p className="agents-empty">Transcript unavailable.</p>}
+  {!child && agent.threadId && <AgentWorkPanel threadId={agent.threadId}/>}
   {composers.supports(agent) ? <InlineComposer agent={agent} composers={composers} controller={controller} onOpenConversation={onOpenConversation}/> : child && <p className="agents-readonly">{agent.status === 'working' ? 'Follow-up unavailable' : 'Read-only'}</p>}
   {Boolean(children.length) && <div className="agents-children"><button type="button" className="agents-disclosure" aria-expanded={!view.collapsed} aria-controls={groupId} onClick={toggle}>{view.collapsed ? <ChevronRight size={15}/> : <ChevronDown size={15}/>}Subagents · {children.length}</button><div id={groupId} hidden={view.collapsed}>{children.map(child => <Agent key={child.agent.agentId} node={child} controller={controller} composers={composers} onOpenConversation={onOpenConversation} preferences={preferences}/>)}</div></div>}
  </section>;

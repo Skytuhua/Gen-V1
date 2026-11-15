@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "reviewScope": "Independent agent review of M05 Service integration, accepted M04 custody and merged M09 lifecycle; original-prompt mapping reviewed separately.",
+  "reviewer": "dependency_audit",
+  "reviewedFiles": [
+    {
+      "path": "packages/core/service.ts",
+      "sha256": "e4f2d3c3190f75b4e1afcc13612cc3b44e3e6f97527d9897732b7730dfd5c8fa"
+    },
+    {
+      "path": "packages/core/project-memory-host.ts",
+      "sha256": "dc8b07826647b7dc4cff18e9f235659198d9d7c3ef4bc037e1d407ede2b17c8d"
+    },
+    {
+      "path": "packages/core/project-memory.ts",
+      "sha256": "8a16e89273a6853e71237ca595b620e9864dc486ad28cfc3ac39e0672690dfd2"
+    },
+    {
+      "path": "packages/core/request-custody.ts",
+      "sha256": "8f85c8a7ac97e5fc8232e5154e0a1c62e65ed8c4231b4d8be366824c5200c4ee"
+    },
+    {
+      "path": "tests/project-memory-service-v3.test.ts",
+      "sha256": "bbbd0a0c3062a5da19b372eafb36a2d2540bc9b1779f74b98fa10787892b1ef0"
+    }
+  ],
+  "findingsResolved": [
+    "Pending extraction count duplication",
+    "Checkpoint owner/session drift after await",
+    "Interrupted auxiliary accounting recovery",
+    "Executor-generated input cancellation",
+    "Running scheduled source cleanup drain",
+    "Admitted M09 child startup precedence"
+  ],
+  "remainingActionableFindings": [],
+  "evidenceRefs": [
+    "docs/implementation/v3/m05-logs/continuation-postmerge-memory-regression.log",
+    "docs/implementation/v3/m05-logs/continuation-postmerge-contracts-complete.log",
+    "docs/implementation/v3/m05-logs/continuation-postmerge-typecheck.log",
+    "docs/implementation/v3/m05-logs/continuation-postmerge-build.log"
+  ],
+  "activationApproval": false,
+  "limitations": [
+    "This review is local code acceptance, not Windows/installed desktop/live-provider proof.",
+    "Both M05 host flags remain false."
+  ]
+}

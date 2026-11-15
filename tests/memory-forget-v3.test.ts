@@ -10,7 +10,7 @@ import type { MemorySourceSnapshot } from '../packages/contracts/project-memory.
 import { projectMemoryDeletionLedgerPath } from '../packages/core/security.ts';
 
 const fixtures: Awaited<ReturnType<typeof memoryFixture>>[] = [];
-async function fixture() { const value = await memoryFixture(); fixtures.push(value); return value; }
+async function fixture(beforeMemoryInit?: Parameters<typeof memoryFixture>[0]) { const value = await memoryFixture(beforeMemoryInit); fixtures.push(value); return value; }
 afterEach(() => { for (const f of fixtures.splice(0)) { try { f.store.close(); } catch {} rmSync(f.root, { recursive: true, force: true }); } });
 
 it('forgets immediately, invalidates derived references and rejects source replay and stale restoration', async () => {
@@ -117,6 +117,66 @@ it('physically purges permitted local memory copies while preserving tombstones 
   expect(f.store.get<any>('message', 'source').content).toBe('Use SQLite for project persistence.');
   const exported = f.memory.export(f.access);
   expect(exported.redacted).toBe(true); expect(JSON.stringify(exported)).not.toContain('Erase local memory copies');
+});
+
+it.each([64, 128])('purges bytes freed by earlier revisions when SQLite starts with secure_delete disabled (retained padding %i)', async paddingBytes => {
+  const f = await fixture(store => {
+    store.db.exec('PRAGMA secure_delete=OFF');
+    // Retained rows vary page placement, including the layout that exposed this on Windows.
+    store.internal('fixture-retained-padding', null, () => store.put('fixturePadding', 'padding', null, { text: 'p'.repeat(paddingBytes) }));
+  });
+  const text = 'Erase local memory copies', item = f.accept(text);
+  f.store.db.exec('PRAGMA wal_checkpoint(TRUNCATE)');
+  f.act({ action: 'forget', itemId: item.id, baseRevision: item.revision });
+  expect(f.memory.purge(Date.now() + 8 * 86400000, 10)).toBe(1);
+  expect(f.memory.read(f.access).tombstones[0].purgeStatus).toBe('COMPLETE');
+  expect(readFileSync(join(f.store.dataDir, 'harness.sqlite')).includes(Buffer.from(text))).toBe(false);
+  expect(readFileSync(join(f.store.dataDir, 'harness.sqlite-wal')).includes(Buffer.from(text))).toBe(false);
+  expect(f.store.get<{ text: string }>('fixturePadding', 'padding')?.text).toBe('p'.repeat(paddingBytes));
+  expect(f.store.get<{ content: string }>('message', 'source')?.content).toBe('Use SQLite for project persistence.');
+});
+
+it.each([64, 128])('scrubs a legacy profile before acknowledging physical purge after reopen (retained padding %i)', async paddingBytes => {
+  const f = await fixture();
+  // Published M05 wrote these revisions before secure deletion was enabled.
+  f.store.db.exec('PRAGMA secure_delete=OFF');
+  f.store.internal('fixture-legacy-profile', null, () => {
+    for (const row of f.store.db.prepare("SELECT id FROM entities WHERE kind='projectMemoryStorageFormat'").all() as { id: string }[]) f.store.remove('projectMemoryStorageFormat', row.id);
+    f.store.put('fixturePadding', 'padding', null, { text: 'p'.repeat(paddingBytes) });
+  });
+  const text = 'Erase local memory copies', item = f.accept(text), dataDir = f.store.dataDir;
+  f.store.close(); f.store = new Store(dataDir);
+  const memory = new ProjectMemory(f.store, { enabled: () => true }), access = await memory.access('project', 'thread');
+  memory.review(access, { id: `legacy-forget-${paddingBytes}`, type: 'project.memory.review', threadId: access.threadId, payload: { operation: { action: 'forget', itemId: item.id, baseRevision: item.revision } } }, 'local-user');
+  expect(memory.purge(Date.now() + 8 * 86400000, 10)).toBe(1);
+  expect(memory.read(access).tombstones[0].purgeStatus).toBe('COMPLETE');
+  expect(readFileSync(join(dataDir, 'harness.sqlite')).includes(Buffer.from(text))).toBe(false);
+  expect(readFileSync(join(dataDir, 'harness.sqlite-wal')).includes(Buffer.from(text))).toBe(false);
+  expect(f.store.get<{ text: string }>('fixturePadding', 'padding')?.text).toBe('p'.repeat(paddingBytes));
+  expect(f.store.get<{ content: string }>('message', 'source')?.content).toBe('Use SQLite for project persistence.');
+});
+
+it('does not complete the legacy storage migration while an old reader pins pre-scrub pages', async () => {
+  const f = await fixture();
+  f.store.db.exec('PRAGMA secure_delete=OFF');
+  f.store.internal('fixture-old-storage', null, () => {
+    f.store.remove('projectMemoryStorageFormat', 'secure-delete-v1');
+    f.store.put('fixturePadding', 'padding', null, {text: 'p'.repeat(64)});
+  });
+  const item = f.accept('Legacy text behind a pinned reader'), dataDir = f.store.dataDir;
+  f.act({action: 'forget', itemId: item.id, baseRevision: item.revision});
+  f.memory.purge(Date.now() + 8 * 86400000);
+  f.store.db.exec('PRAGMA wal_checkpoint(TRUNCATE)');
+  f.store.close(); f.store = new Store(dataDir);
+  const reader = new DatabaseSync(join(dataDir, 'harness.sqlite'), {readOnly: true});
+  reader.exec('BEGIN'); reader.prepare('SELECT COUNT(*) FROM entities').get();
+  try {
+    expect(() => new ProjectMemory(f.store, {enabled: () => true})).toThrow(/migration|reader|checkpoint/i);
+    expect(f.store.get('projectMemoryStorageFormat', 'secure-delete-v1')).toBeNull();
+  } finally {reader.exec('ROLLBACK'); reader.close();}
+  const reopened = new ProjectMemory(f.store, {enabled: () => true});
+  expect(reopened.read(await reopened.access('project', 'thread')).tombstones[0].purgeStatus).toBe('COMPLETE');
+  expect(readFileSync(join(dataDir, 'harness.sqlite')).includes(Buffer.from('Legacy text behind a pinned reader'))).toBe(false);
 });
 
 it('reopens purge work if an old backup restores already-purged local text', async () => {

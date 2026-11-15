@@ -1,78 +1,95 @@
 # M05 Source-linked Project Memory Implementation Plan
 
-> **For agentic workers:** Use the execution and verification skills. Each owner writes and runs its failing fixtures before implementation.
+> **For agentic workers:** Use the execution and verification skills. Write and record failing fixtures before fixing a new boundary. Preserve earlier failed attempts.
 
-**Goal:** Add bounded, source-linked, user-reviewed project memory without promoting model claims into authority.
+**Goal:** Add bounded, source-linked, user-reviewed project knowledge without promoting model claims into authority.
 
-**Architecture:** A separate host-owned entity family stores immutable source cuts, item revisions, consent, indexes, leases and deletion tombstones. Authenticated project routes admit the existing physical workspace binding and account before reading or changing records. Pure bounded recall and consolidation are independently testable; runtime request preparation and native compaction remain gated on the missing reviewed M04 contract.
+**Architecture:** A separate host entity family owns source cuts, immutable revisions, consent, indexes, leases and deletion fences. Service and authenticated routes share one ProjectMemoryHost. Accepted M04 custody supplies exact request IDs/generations, admission and final dispatch checks. Settled tasks schedule tool-free ephemeral extraction, user review and local reference consolidation. Supported native compaction requires host checkpoint API v2.
 
-**Tech Stack:** Existing TypeScript, Zod, host SQLite Store, React and Vitest/Playwright. No dependency changes.
+**Stack:** Existing TypeScript, Zod, SQLite Store, React and Vitest/Playwright. No dependency or lockfile changes.
 
-**Spec:** `docs/implementation/v3/M05-spec.md`.
+**Spec and handoff:** `docs/implementation/v3/M05-spec.md` and `docs/implementation/v3/M05-handoff.md`.
 
-## Global Constraints
+## Constraints and accepted source
 
-- Isolated `agent/m05-v3` worktree; preserve the original checkout and other worktrees.
-- Base `fcaa52f7fcdc9f39420118a79f9a8250ba83c563`; origin redirects from Skytuhua/Gen-V1 to the same repository ID 1442565952 at skytuhua-org/Gen-V1.
-- Host is the sole SQLite writer; every Store callback is synchronous. Existing task notes, Hermes skills, native sessions and grants remain intact.
-- Memory defaults off. Maximum item text 2 KiB UTF-8, recall 8 items / 4 KiB including serialized envelope, foreground deadline 750 ms.
-- Only authenticated users accept, reject, edit, expire, resolve or forget. Agent extraction only proposes. Explicit source scope and account binding are mandatory.
-- External recall stays independently disabled. No embedding provider or data egress is configured. User-wide sharing requires separate consent and remains unavailable in this pilot.
-- M04 is unmerged draft #326 and absent from the accepted base. Do not guess its context-generation API or inject through task-note memory. Record BLOCKED_SOURCE_DRIFT for dependent runtime stages while completing independent core and review work.
-- Latest user instruction authorizes branch publication and PR creation, superseding the attachment's no-push handoff limit. No merge or deployment.
+- Preserve the original checkout, the prior `agent/m05-v3` worktree and user changes. Continue in isolated `agent/m05-v3-continuation`.
+- Original base: `fcaa52f7fcdc9f39420118a79f9a8250ba83c563`. Accepted M04 core entered main at `9d4a5141173f54f0f47ff70dcc5167a5c781389e` through PR 351 after all eight Windows CI jobs passed. Broader draft PR 326 remains separate.
+- Current accepted main base: `5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42`, including M09 PR 350. Latest main has been merged into the continuation; the merged local tests, typecheck and build pass.
+- Origin redirects from `Skytuhua/Gen-V1` to the same repository ID 1442565952 at `skytuhua-org/Gen-V1`. Exact final source/base identities belong in the source lock.
+- The host is the sole SQLite writer. No Store.command/Store.internal callback awaits. Preserve native history, epochs, account pinning, grants, cancellation, existing task notes and Hermes skills.
+- Both memory flags default off. Item text is at most 2 KiB UTF-8; recall is at most eight items/4 KiB including framing; local lexical selection uses the remaining 750 ms budget.
+- Only authenticated users accept, edit, reject, expire, resolve, confirm preferences or forget. Extraction only proposes. Project opt-in and explicit source scope are required.
+- External embeddings/recall, auto-acceptance and user-wide sharing remain disabled. Provider-specific and native capabilities retain independent proof gates.
+- Later user authorization permits completion, publication and merge and supersedes the attachment's original publication restriction. Production activation and deployment remain separate.
 
-## Review Focus
+## Task 1: Contracts, durable review and deletion
 
-- A project label or folder alias must not authorize a different physical directory or another account.
-- A user correction racing another edit must preserve both candidates and remove stale indexes from recall.
-- A deleted claim must remain excluded across restart, stale source proposals, reindex and old SQLite backup replay.
-- Provider cancellation must retain occupied capacity until the actual call settles, including orphaned calls.
-- UI owner changes and late responses must not expose or mutate another project's memory.
+Files: `packages/contracts/project-memory.ts`, `packages/core/project-memory.ts`, `packages/core/capability-flags.ts`, storage protection and focused lifecycle tests.
 
-## Task 1: Contracts and durable review lifecycle
+- [x] Record failing registry/contract fixtures before implementation.
+- [x] Define the four V1 contracts, strict review/read models and byte/row limits.
+- [x] Bind physical profile/project/workspace identity, account and explicit source-thread consent.
+- [x] Implement immutable exact-source snapshots, exact-source reuse, revisions, CAS correction, conflicts, explicit resolution and expiry.
+- [x] Implement project-only reusable-preference confirmation without automatic preference publication or global sharing.
+- [x] Implement durable immediate tombstones, protected authoritative sibling and local mirror, fail-closed enrollment, source-collateral invalidation and replay protection.
+- [x] Enable secure deletion before retention; add versioned legacy VACUUM plus nonbusy WAL checkpoint before committing `secure-delete-v1`.
+- [x] Keep maintenance bounded to at most 256 deleted entity rows per call and seven-day retention; preserve original task/file history.
+- [x] Reproduce and fix freed-page retention, source-only replay, pinned-reader migration, full-profile restoration, revoked FILE grants and matched-term receipt retention; retain red/green evidence.
 
-Files: `packages/contracts/project-memory.ts`, `packages/core/project-memory.ts`, `packages/core/capability-flags.ts`, `tests/project-memory-v3.test.ts`, `tests/memory-forget-v3.test.ts`.
+## Task 2: Production request, extraction and native integration
 
-- [x] Write and record intentional failing registry/contract fixtures before implementation.
-- [x] Define the four specified V1 schemas, bounded review/read models and strict commands.
-- [x] Bind project identity to host enrollment and physical identity; scope sources to the selected account and explicit thread set.
-- [x] Store immutable source snapshots and revisions; implement CAS review, conflict resolution, correction and expiry.
-- [x] Implement durable immediate tombstones, protected authoritative sibling deletion storage and local mirror, enrollment checks, collateral derived-reference invalidation, replay exclusion and a 256-row local purge budget without text in event/receipt payloads.
-- [x] Run lifecycle, secrecy, scope, race, restart, storage-boundary and restore tests, preserving red runs and later fixes. Final proof-cut counts are recorded separately.
+Files: `packages/core/project-memory-host.ts`, `packages/core/service.ts`, `memory-retrieval.ts`, `memory-extraction.ts`, `memory-consolidation.ts`, production service composition, checkpoint contracts and runtime bridges.
 
-## Task 2: Bounded recall, extraction and consolidation
+- [x] Test and implement lexical eligibility, ranking, exact source ownership, expiration, stable ties, byte caps and tombstones.
+- [x] Integrate accepted M04 custody with host-issued request/generation snapshots, exact-draft preparation, per-request exclusion, final revision/source/consent checks and actual prompt injection.
+- [x] Return no editable preview for an unbound first send; capture its automatically allocated request after account binding.
+- [x] Publish CAPTURED recall and usage/last-used projection only after native acceptance of the exact input.
+- [x] Persist only IDs/counts/digests and numeric scores in request receipts; keep plaintext matched terms ephemeral.
+- [x] Implement the separately disabled bounded external-recall adapter and its synthetic timeout/cancellation/orphan/circuit tests.
+- [x] Register metadata-only extraction scheduling in the accepted settled projection before event publication.
+- [x] Connect bounded authorized message extraction to the production tool-free ephemeral Pi transport, preserving provider/model/account/reasoning and refusing unsupported transports before source dispatch.
+- [x] Validate exact references, unsupported action fields and secrets before proposed publication; distinguish unresolved work; require separate user preference confirmation.
+- [x] Keep FILE grant custody private. Public cuts explicitly omit host-only metadata; any future FILE-cut caller must validate and strip it.
+- [x] Connect review/settled consolidation to the per-project lease/watermark reference index; unchanged inputs skip work and stale/deleted inputs cannot publish.
+- [x] Connect native host checkpoint API v2 through pinned Pi and Hermes compaction boundaries; reject unsupported adapters and recheck owner/session after asynchronous persistence.
+- [x] Fix pending count deduplication, orphan accounting, checkpoint session races, executor/outbox cancellation and running-schedule drain; preserve unknown attempted costs on interrupted recovery.
+- [x] Close the M09 delegate-startup scheduling interaction and include it in the passing 318-case postmerge memory regression.
+- [ ] Complete exact-head Windows/native and installed-desktop verification. Controlled native worker fixtures are not substitutes for target-platform execution.
 
-Files: `packages/core/memory-retrieval.ts`, `packages/core/memory-consolidation.ts`, focused tests.
+## Task 3: Authenticated review and preparation UI
 
-- [x] Test lexical project/symbol ranking, source authorization, expiration, stable ties, byte caps and tombstones before implementation.
-- [x] Implement and test immutable request/generation snapshots and per-request exclusion as a dormant core seam; finalized snapshots cannot be mutated.
-- [x] Test/implement keyed bounded provider admission, timeout, cancellation, orphan occupancy and circuits with synthetic callbacks. No live provider is enabled.
-- [x] Test/implement settled, authorized source-cut validation and host proposal methods with exact references and secret checks.
-- [x] Test/implement reference-only consolidation under per-project lease and source watermark; unchanged inputs skip work and stale output cannot publish.
-- [x] Implement and test adapter-gated structured checkpoint preparation with fail-closed unsupported-version handling, without changing native workers.
-- [ ] Integrate real M04 request preparation, prompt injection, exclusion and usage/last-used updates. BLOCKED_SOURCE_DRIFT: M04 is absent from the accepted base.
-- [ ] Connect automatic settled-task extraction, separately confirmed preference publication and consolidation scheduling. These production callers are absent.
-- [ ] Connect and verify a native checkpoint persistence/registration adapter and actual compaction caller. The helper alone does not satisfy native integration.
+Files: authenticated project routes, `ProjectMemoryReview.tsx`, API/CSS, `ProjectContextSurface.tsx`, preparation controller/hook, `App.tsx`, shared composer and `ContextInspector.tsx`.
 
-## Task 3: Authenticated review UI
+- [x] Record failing session/CSRF, strict schema, owner/account/revision and source-fabrication tests before integration.
+- [x] Implement four tabs, source/age/expiry/last-used metadata, lazy project entry, explicit opt-in and exact supporting bytes verified by SHA-256.
+- [x] Implement accept/edit/reject/expire/resolve, explicit project-only preference confirmation, forget preview/purge state and redacted export.
+- [x] Connect Why recalled to real request preparation with exact serialized terminal excerpts and opaque-token plumbing in ordinary/shared sends.
+- [x] Fence late owner responses and preserve retry command identity. Draft/model/reasoning/owner changes invalidate preview; pending/failed exclusion blocks token use until explicit reprepare or draft change.
+- [x] Show the last accepted capture for an empty draft; disable exclusion for captured requests, missing adapters, pending work or unbound/disabled preparation.
+- [x] Author/discover 15 synthetic browser scenarios and retain fixture ownership separate from real HTTP/Service integration.
+- [x] Add actual CI execution of M05, usage-context, frontend-refinement and root baseline suites; retain failure artifacts and native Edge on Windows.
+- [ ] Execute those browser suites successfully on the continuation's final head. Discovery and local controller assertions are not browser passes.
 
-Files: `apps/server/project-memory-routes.ts`, server registration, `apps/web/src/ProjectMemoryReview.tsx`, API/CSS, ProjectContextSurface and ContextInspector additive seams, browser fixtures.
+## Task 4: Evaluation, proof and publication
 
-- [x] Test session/CSRF, owner/account/revision and fabricated-source rejection before wiring routes.
-- [x] Add Accepted, Proposals, Conflicts and Deleted history tabs, pinned source detail with byte verification, explicit opt-in and source scope.
-- [x] Add accept/edit/reject/expire/resolve actions, forget preview with purge status and explicit redacted export.
-- [x] Add optional Why recalled/exclude UI consuming only request-bound results. No runtime caller is connected; exclusion is labelled unavailable without a real adapter.
-- [x] Author ten synthetic browser cases and preserve execution attempts for review actions, owner changes, narrow layout and disabled integration.
-- [ ] Execute the browser cases and required baseline suite successfully. Current attempts are blocked by denied IPC/socket operations and provide no browser pass.
+Files: offline fixture, `evals/project-memory-study.ts`, runner tests/README, handoff, strict verification/source lock and bounded logs.
 
-## Task 4: Evaluation, review and PR
+- [x] Add scenarios for contradicted claims, changed APIs, renamed projects, stale references, malicious memory, secrets, corrections and repeated tasks.
+- [x] Implement a real-host runner with three frozen tasks, alternating isolated arms, identical provider/model/account/reasoning, verified zero-memory warmups, thread-note-only controls and exact preparation/exclusion tokens.
+- [x] Score actual task output; record bytes and latency; wait for scheduled auxiliary work and include setup/extraction/consolidation spend while retaining unknown measurements.
+- [x] Preserve raw foreground usage snapshots without guessing cumulative/per-run accounting. Do not report an unsupported net-cost result.
+- [x] Record fail-first and green tests for protocol ownership, captured binding/redaction, strict selection/query/numeric evidence and incomplete cost.
+- [x] Map all twelve implementation steps and four UI requirements to production callers and remaining gates in the handoff.
+- [x] Preserve the first published Windows purge failure, old Linux full-suite/browser restrictions and all intermediate regression failures.
+- [x] Run the postmerge focused regression (318 memory cases and 125 contract/packaging cases), typecheck and build.
+- [ ] Complete current Windows full-suite evidence and refresh strict CORE/INTEGRATION/PLATFORM receipts.
+- [ ] Obtain the continuation's exact-head Windows and browser CI result and disposition every required failure. M04's green CI is dependency evidence only.
+- [ ] Obtain installed-desktop execution proof. A desktop build alone does not satisfy it.
+- [ ] Run the live repeated-task comparison using an authorized actual host/model and disposable opted-in project/source. Current live status is NOT_RUN; manifests and mocked protocols are not live proof.
+- [ ] Commit only reviewed M05 changes, publish the updated head, complete independent review and merge under the user's authorization. Report the final commit separately from files in that commit.
 
-Files: `docs/implementation/v3/M05-verification.json`, source lock, bounded logs, evaluation fixtures and handoff.
+## Evidence boundaries
 
-- [x] Add offline evaluation scenarios for contradictory claims, changed APIs, renamed projects, stale sources, malicious instructions, secrets, corrections and repeated tasks, with unmeasured live results left null.
-- [x] Record current M01/M02 contracts, targeted M05 suites, typecheck, full-test, build and browser attempts with actual exit codes and preserved failures. The full suite fails and browser execution is blocked.
-- [x] Map all twelve implementation steps and four UI requirements to implemented core/seams and outstanding gates in `docs/implementation/v3/M05-handoff.md`; add regressions and fixes for confirmed review findings.
-- [ ] Finalize `M05-verification.json` and the source lock with separate CORE, INTEGRATION and PLATFORM results and the final focused proof cut.
-- [ ] Resolve required full-suite/browser/platform gates. No platform result is claimed from Linux mocks or synthetic renderer fixtures.
-- [ ] Run the live repeated-task comparison using an authorized host/model after runtime integration. Current evaluation is MANIFEST_ONLY and the live study is NOT_RUN.
-- [ ] Commit only reviewed M05 changes, publish a draft PR if any required gates remain, and report the exact commit separately from its evidence file.
+The current handoff records named local runs, including 27 Service cases, 12 HTTP cases, 14 study protocol cases, 88 renderer/controller cases, 114 native checkpoint cases and three actual pinned Worker Python cases with scripted ACP. These are overlapping scoped runs, not one aggregate or live/platform acceptance result. The current postmerge aggregate passes 318 memory cases across 21 files and 125 dependency/compatibility cases across nine files; typecheck and build pass. Current Windows and live proof are reported separately.
+
+Default flags stay off. No endpoint, account or credential is guessed or borrowed. Retained records/tombstones remain user-editable under rollback, source authorization and CAS. External provider deletion, arbitrary same-user process protection and whole-parent/system rollback resistance are not claimed.

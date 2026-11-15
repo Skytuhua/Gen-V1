@@ -1,5 +1,5 @@
 import { afterEach, expect, it } from 'vitest';
-import { rmSync, statSync, writeFileSync } from 'node:fs';
+import { rmSync, statSync, writeFileSync, renameSync } from 'node:fs';
 import { join } from 'node:path';
 import { createHash } from 'node:crypto';
 import { memoryFixture } from './project-memory-fixture.ts';
@@ -15,7 +15,7 @@ afterEach(() => {
   }
 });
 
-it.each(['removed', 'owner-changed', 'replaced'] as const)('host source authority excludes a retained FILE snapshot when its grant is %s', async change => {
+it.each(['removed', 'owner-changed', 'replaced', 'physical-replacement', 'missing-file'] as const)('host source authority excludes a retained FILE snapshot when its grant is %s', async change => {
   const fixture = await memoryFixture(); fixtures.push(fixture);
   const path = join(fixture.path, 'constraints.txt');
   const content = 'Use an explicit transaction for every persistence change.';
@@ -41,10 +41,13 @@ it.each(['removed', 'owner-changed', 'replaced'] as const)('host source authorit
   const accepted = fixture.memory.accepted(fixture.access)[0].item;
   expect(fixture.memory.sourceAvailable(fixture.access, ref)).toBe(true);
 
+  if (change === 'physical-replacement') { renameSync(path, path + '.old'); writeFileSync(path, 'A different physical source.'); }
+  if (change === 'missing-file') rmSync(path);
+
   fixture.store.internal('fixture.file-grant-revoked', fixture.access.threadId, () => {
     if (change === 'removed') fixture.store.remove('resource', grant.id);
     else if (change === 'owner-changed') fixture.store.put('resource', grant.id, 'other', { ...grant, threadId: 'other' });
-    else fixture.store.put('resource', grant.id, grant.threadId, { ...grant, identity: { ...grant.identity, ino: '0' } });
+    else if (change === 'replaced') fixture.store.put('resource', grant.id, grant.threadId, { ...grant, identity: { ...grant.identity, ino: '0' } });
   });
 
   expect(fixture.memory.sourceAvailable(fixture.access, ref)).toBe(false);

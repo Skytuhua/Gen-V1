@@ -1,37 +1,40 @@
 {
-  "schemaVersion": 1,
-  "recordedAt": "2026-11-15T11:02:57.544342+00:00",
-  "repositoryRoot": "/workspace/scratch/36f66011d961/m05-v3",
-  "branch": "agent/m05-v3",
+  "schemaVersion": 2,
+  "recordedAt": "2026-11-15T12:27:14.826149+00:00",
+  "repositoryRoot": "/workspace/scratch/36f66011d961/m05-continuation",
+  "branch": "agent/m05-v3-continuation",
   "origin": "https://github.com/Skytuhua/Gen-V1.git",
-  "acceptedBaseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
-  "fetchedOriginMainSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
-  "originalCheckout": "/workspace/scratch/dbebe44a9817/Gen-V1",
-  "originalCheckoutStatus": "",
-  "isolatedBaselineCheckout": "/workspace/scratch/36f66011d961/m05-baseline",
-  "currentPlatform": "Linux-6.18.57-x86_64-with-glibc2.41",
-  "nodeVersion": "v24.22.1",
-  "declaredPackageManager": "pnpm@10.30.3",
-  "nestedPnpmLauncher": {
-    "path": "/workspace/scratch/36f66011d961/bin/pnpm",
-    "target": "/home/agent/.cache/node/corepack/v1/pnpm/10.30.3/bin/pnpm.cjs",
-    "use": "Prepended to PATH for nested pnpm build/test/browser commands; pnpm 10.30.3."
-  },
-  "resolvedPackageManager": "10.30.3",
-  "newDependencies": [],
-  "lockfileChanged": false,
+  "canonicalRepository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "canonicalIdentityEvidence": "docs/implementation/v3/M05-upstream-check.json",
+  "acceptedBaseSha": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42",
+  "sourceParentHeadSha": "09fac8dbc1ef6fc134da3a5400d90ff6c856c9ce",
   "acceptedDependencyCommits": [
     "5f0958f4cb5b40bc10c1eea0e1cd517b57aaa1b9",
     "f331cf16b268282da888a41da42fc776ea7befd5",
-    "e871257aa82beb06ab4b8f3989cbe436cb9a6a8c"
+    "e871257aa82beb06ab4b8f3989cbe436cb9a6a8c",
+    "b4281a4292c5585660b9fbbcb6cf8dc9ed0775fb"
   ],
-  "missingAcceptedContracts": [
-    {
-      "name": "M04.RequestPreparationAndContextGeneration",
-      "status": "BLOCKED_SOURCE_DRIFT",
-      "evidence": "M05-upstream-check.json",
-      "notSubstitutedBy": "StartRun.memory remains existing task notes; no runtime request/worker mutation is included."
-    }
+  "acceptedM04MergeSha": "9d4a5141173f54f0f47ff70dcc5167a5c781389e",
+  "originalPublishedProvenanceRef": "docs/implementation/v3/M05-continuation-history.json",
+  "currentPlatform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "nodeVersion": "v24.22.1",
+  "declaredPackageManager": "pnpm@10.30.3",
+  "packageManagerEvidence": "Declared package manager plus preserved setup/build argv; no new package installation is performed by this builder.",
+  "lockfileChangedAgainstAcceptedBase": false,
+  "selectedCurrentCommandRefs": [
+    "docs/implementation/v3/m05-logs/continuation-final-native-facade.log",
+    "docs/implementation/v3/m05-logs/continuation-final-native-worker.log",
+    "docs/implementation/v3/m05-logs/continuation-postmerge-build.log",
+    "docs/implementation/v3/m05-logs/continuation-postmerge-contracts-complete.log",
+    "docs/implementation/v3/m05-logs/continuation-postmerge-memory-regression.log",
+    "docs/implementation/v3/m05-logs/continuation-postmerge-typecheck.log",
+    "docs/implementation/v3/m05-logs/continuation-study-manifest-final.log"
   ],
-  "publicationAuthority": "The latest user instruction explicitly requests a PR. It supersedes the attachment no-push limit for this reviewed branch only; no merge or deployment."
+  "commandCutLimitation": "Command ledger records actual times/argv/results, not a per-command Git tree. Selection is explicit; the current file inventory is generated separately. Exact-head Windows status is admitted only when its current code/test/workflow cut matches.",
+  "windowsCiRef": null,
+  "windowsCiCurrentCodeCut": false,
+  "windowsCiCutNotes": [],
+  "studyRef": "docs/implementation/v3/m05-study-20261115/results.json",
+  "reviewerApproval": false
 }

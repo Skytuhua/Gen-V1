@@ -1,0 +1,1476 @@
+{
+  "schemaVersion": 1,
+  "publishedCommit": "14e6a1743a5eb6a09bd96021ef724ed0967d442b",
+  "publishedArtifacts": {
+    "M05-provenance.json": {
+      "sha256": "e7b9761c122dbec282e8c03605cecee60b1104e2e0fdcff4e6f15bee52821e96",
+      "blobSha": "6da7e114202bc22643e21602f61ed99ecd4021d8"
+    },
+    "M05-source-lock.json": {
+      "sha256": "9cada1af67b52abb89d645e5b521d4096a2d1d211f1ed40c40a16304c3eafb2e",
+      "blobSha": "c4f6c305bc25f87ed41d1b7c673a481c8ac1298f"
+    },
+    "M05-verification.json": {
+      "sha256": "0a59d351c152dc56310c576fe0989b8195b75e51909d8f9425051a7c87631f60",
+      "blobSha": "b63cc59ce394ea2019098567ca3bd41193550d3e"
+    },
+    "M05-log-policy.json": {
+      "sha256": "5a59a5d907ae9800f721ba8cbb9dfe42408a60d360e7d11cd3659dbce81e6f86",
+      "blobSha": "5e7ae4b983c2b42124271c262000c5fdacc45d8a"
+    },
+    "M05-upstream-check.json": {
+      "sha256": "d1293c014538a3941a503b2813833927e7cc9cc2b3557532e01cb81312ef5f77",
+      "blobSha": "41747a3eb68c4aee266c78d4537d5a45ae8054b5"
+    }
+  },
+  "originalPublishedProvenance": {
+    "schemaVersion": 1,
+    "recordedAt": "2026-11-15T11:02:57.544342+00:00",
+    "repositoryRoot": "/workspace/scratch/36f66011d961/m05-v3",
+    "branch": "agent/m05-v3",
+    "origin": "https://github.com/Skytuhua/Gen-V1.git",
+    "acceptedBaseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+    "fetchedOriginMainSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+    "originalCheckout": "/workspace/scratch/dbebe44a9817/Gen-V1",
+    "originalCheckoutStatus": "",
+    "isolatedBaselineCheckout": "/workspace/scratch/36f66011d961/m05-baseline",
+    "currentPlatform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "nodeVersion": "v24.22.1",
+    "declaredPackageManager": "pnpm@10.30.3",
+    "nestedPnpmLauncher": {
+      "path": "/workspace/scratch/36f66011d961/bin/pnpm",
+      "target": "/home/agent/.cache/node/corepack/v1/pnpm/10.30.3/bin/pnpm.cjs",
+      "use": "Prepended to PATH for nested pnpm build/test/browser commands; pnpm 10.30.3."
+    },
+    "resolvedPackageManager": "10.30.3",
+    "newDependencies": [],
+    "lockfileChanged": false,
+    "acceptedDependencyCommits": [
+      "5f0958f4cb5b40bc10c1eea0e1cd517b57aaa1b9",
+      "f331cf16b268282da888a41da42fc776ea7befd5",
+      "e871257aa82beb06ab4b8f3989cbe436cb9a6a8c"
+    ],
+    "missingAcceptedContracts": [
+      {
+        "name": "M04.RequestPreparationAndContextGeneration",
+        "status": "BLOCKED_SOURCE_DRIFT",
+        "evidence": "M05-upstream-check.json",
+        "notSubstitutedBy": "StartRun.memory remains existing task notes; no runtime request/worker mutation is included."
+      }
+    ],
+    "publicationAuthority": "The latest user instruction explicitly requests a PR. It supersedes the attachment no-push limit for this reviewed branch only; no merge or deployment."
+  },
+  "originalPublishedSourceLock": {
+    "schemaVersion": 3,
+    "auditAncestorSha": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
+    "executionBaseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+    "inspectedPaths": [
+      {
+        "path": "apps/server/host.ts",
+        "blobSha": "be98ae5bcdcd310dcaf34257c4b928c9d1045492"
+      },
+      {
+        "path": "apps/server/profile-lease.ts",
+        "blobSha": "8ba9106aa0607c27403f69035355612ab1a138b4"
+      },
+      {
+        "path": "apps/server/server.ts",
+        "blobSha": "e4df5cae7274c99ff988f30a2bb5abb5aa0e3362"
+      },
+      {
+        "path": "apps/web/src/ContextInspector.tsx",
+        "blobSha": "0fa748ae093ea5541d2a194aa408471c8fd02aea"
+      },
+      {
+        "path": "apps/web/src/ProjectContextSurface.tsx",
+        "blobSha": "0008281500bc9bb2216160978b81565885afa27d"
+      },
+      {
+        "path": "docs/architecture.md",
+        "blobSha": "b1317bfadb1c6b3b2e7f3c6324890e55ff2f5b7c"
+      },
+      {
+        "path": "docs/implementation/v3/M01-verification.json",
+        "blobSha": "465bbb9d5d11adf0f7a1f2cf6c07dc8668e6491d"
+      },
+      {
+        "path": "docs/implementation/v3/M02-source-lock.json",
+        "blobSha": "06c57a31c62de55e47f08cc4fe19ea63edec8ec9"
+      },
+      {
+        "path": "docs/implementation/v3/M02-verification.json",
+        "blobSha": "41f7fc679f4e9bcbc48ac089e179cec34bb8fe8b"
+      },
+      {
+        "path": "evals/cases.ts",
+        "blobSha": "f1a9ebfea2e63a18f2fcb8540e3306088f3bb3ae"
+      },
+      {
+        "path": "evals/runner.ts",
+        "blobSha": "074f6c1f321df213ac39f2f3e58b627d3319163f"
+      },
+      {
+        "path": "package.json",
+        "blobSha": "fa399f6542a4886e6d8cbf7d6eecfe498e2967c0"
+      },
+      {
+        "path": "packages/contracts/implementation-evidence.ts",
+        "blobSha": "559b720ccead1d29c9a1bd4db528af52534105c3"
+      },
+      {
+        "path": "packages/contracts/index.ts",
+        "blobSha": "09517becaf0c35f5f63bd758878659ea0de5f57b"
+      },
+      {
+        "path": "packages/contracts/tool-effects.ts",
+        "blobSha": "41b6fff1364825122c33761c0bfaac66da03bca0"
+      },
+      {
+        "path": "packages/core/capability-flags.ts",
+        "blobSha": "39e18abb43f7fa63cb2534ea3356ebb1be121161"
+      },
+      {
+        "path": "packages/core/effect-recovery.ts",
+        "blobSha": "e2addef2f65df69a504495e0b3c9954d0006ac5c"
+      },
+      {
+        "path": "packages/core/file-access.ts",
+        "blobSha": "d4e0a59c6f2418a869cc1aac18f0dad42036c412"
+      },
+      {
+        "path": "packages/core/learning.ts",
+        "blobSha": "dfc53335151a50d87912de17f7a19166491dd3bc"
+      },
+      {
+        "path": "packages/core/security.ts",
+        "blobSha": "693f251361bc464caee26df795c57002d120c9a7"
+      },
+      {
+        "path": "packages/core/service.ts",
+        "blobSha": "2b3fb63acef915b052a468e104c6e4f00a4b82e4"
+      },
+      {
+        "path": "packages/core/skills.ts",
+        "blobSha": "cb00ae6763b7f2ee0907943dc0d33baf786e41ae"
+      },
+      {
+        "path": "packages/core/task-memory.ts",
+        "blobSha": "df7c09ef7ae3ed277b0cb8298afd950f2eea934d"
+      },
+      {
+        "path": "packages/core/tool-authority.ts",
+        "blobSha": "1d654522d9842838276d162a33dac6141f731c26"
+      },
+      {
+        "path": "packages/core/tool-effects.ts",
+        "blobSha": "aa65f1d9b52d6a117b716a38feb8dd6c6d46b13a"
+      },
+      {
+        "path": "packages/runtime-hermes/index.ts",
+        "blobSha": "ca15682cd2ad86f296247e71a7b18a190c0968f4"
+      },
+      {
+        "path": "packages/runtime-hermes/library.ts",
+        "blobSha": "ba0bf768e44ee9385065401a067028131fe3392c"
+      },
+      {
+        "path": "packages/runtime-hermes/worker.py",
+        "blobSha": "e28c6272f9aab28f76b9462a87768fe4226361c1"
+      },
+      {
+        "path": "packages/runtime/index.ts",
+        "blobSha": "c944011f863d8e54cefb027ccde24e4445a4738b"
+      },
+      {
+        "path": "packages/storage/store.ts",
+        "blobSha": "ebab3cba8d56e074d0377623bffd2054790f622b"
+      },
+      {
+        "path": "packages/workspace/tools.ts",
+        "blobSha": "3f404cbbbb08842fad8e191a98055dc42f52159f"
+      },
+      {
+        "path": "pnpm-lock.yaml",
+        "blobSha": "e6b064fc166611e518f4cf1297d9b00493d9eaaf"
+      },
+      {
+        "path": "scripts/browser-suites.ts",
+        "blobSha": "04d387152c17aad4eb3b6fbdd9f410178a51a5eb"
+      },
+      {
+        "path": "scripts/public-source-files.json",
+        "blobSha": "8cb3efe75c120185f957ab3df73255756adcf7b8"
+      },
+      {
+        "path": "tests/effect-recovery-v3.test.ts",
+        "blobSha": "991b54d4c96820a382a28c4fc625719b3a6a79b8"
+      },
+      {
+        "path": "tests/m01-m02-compatibility.test.ts",
+        "blobSha": "044b8b51fc0086ddfec6c47616e186c816cdad26"
+      },
+      {
+        "path": "tests/research-baseline.test.ts",
+        "blobSha": "a44a20573b4feee888f4709011658a6d50635893"
+      },
+      {
+        "path": "tests/task-memory.test.ts",
+        "blobSha": "2ada92f323eda1d39131c3a5a17835392f857cac"
+      },
+      {
+        "path": "tests/tool-authority-v3.test.ts",
+        "blobSha": "9d7a4af5fda8f4f316ce7fac652e951fb5a14a05"
+      },
+      {
+        "path": "tests/tool-effects-v3.test.ts",
+        "blobSha": "8d4ac426134d7e9f77a1d9dcfe9d00d7c5897b35"
+      }
+    ],
+    "publicContracts": [
+      {
+        "name": "M01.ImplementationEvidenceV3",
+        "version": "559b720ccead1d29c9a1bd4db528af52534105c3",
+        "testIds": [
+          "tests/research-baseline.test.ts",
+          "tests/m01-m02-compatibility.test.ts"
+        ]
+      },
+      {
+        "name": "M01.CapabilityFlags",
+        "version": "39e18abb43f7fa63cb2534ea3356ebb1be121161",
+        "testIds": [
+          "tests/project-memory-v3.test.ts",
+          "tests/m01-m02-compatibility.test.ts"
+        ]
+      },
+      {
+        "name": "M02.ToolEffectsV3",
+        "version": "41b6fff1364825122c33761c0bfaac66da03bca0",
+        "testIds": [
+          "tests/tool-effects-v3.test.ts"
+        ]
+      },
+      {
+        "name": "M02.ToolAuthority",
+        "version": "1d654522d9842838276d162a33dac6141f731c26",
+        "testIds": [
+          "tests/tool-authority-v3.test.ts"
+        ]
+      },
+      {
+        "name": "M02.EffectRecovery",
+        "version": "e2addef2f65df69a504495e0b3c9954d0006ac5c",
+        "testIds": [
+          "tests/effect-recovery-v3.test.ts"
+        ]
+      },
+      {
+        "name": "Store.SynchronousCommand",
+        "version": "ebab3cba8d56e074d0377623bffd2054790f622b",
+        "testIds": [
+          "tests/project-memory-v3.test.ts",
+          "tests/memory-forget-v3.test.ts",
+          "tests/project-memory-http-v3.test.ts"
+        ]
+      },
+      {
+        "name": "Workspace.PhysicalBinding",
+        "version": "3f404cbbbb08842fad8e191a98055dc42f52159f",
+        "testIds": [
+          "tests/project-memory-v3.test.ts"
+        ]
+      },
+      {
+        "name": "ResourceGrant.StorageBoundary",
+        "version": "693f251361bc464caee26df795c57002d120c9a7",
+        "testIds": [
+          "tests/memory-storage-boundary-v3.test.ts",
+          "tests/account-storage-boundary.test.ts"
+        ]
+      },
+      {
+        "name": "Existing.TaskMemory",
+        "version": "df7c09ef7ae3ed277b0cb8298afd950f2eea934d",
+        "testIds": [
+          "tests/task-memory.test.ts"
+        ]
+      }
+    ],
+    "acceptedDependencyCommits": [
+      "5f0958f4cb5b40bc10c1eea0e1cd517b57aaa1b9",
+      "f331cf16b268282da888a41da42fc776ea7befd5",
+      "e871257aa82beb06ab4b8f3989cbe436cb9a6a8c"
+    ],
+    "approvedDrift": [
+      {
+        "path": "packages/core/capability-flags.ts",
+        "fromBlob": "a45226df77eae1e58594609140252c1f93a985f6",
+        "toBlob": "39e18abb43f7fa63cb2534ea3356ebb1be121161",
+        "note": "The accepted main base already adds M08 finite registry keys after the M02 receipt. Current M01/M02 compatibility tests pass. M05 only adds its two specified default-false keys; no UI preference or runtime contract is substituted."
+      }
+    ]
+  },
+  "originalPublishedPhaseResults": [
+    {
+      "id": "CORE",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "M05.schemas.flags-and-explicit-consent",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/project-memory-v3.test.ts"
+        },
+        {
+          "id": "M05.scope.project-account-physical-identity",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/project-memory-v3.test.ts; tests/memory-retrieval-v3.test.ts"
+        },
+        {
+          "id": "M05.immutable-source-reference-integrity",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/project-memory-v3.test.ts; tests/project-memory-ui.test.ts"
+        },
+        {
+          "id": "M05.correction-CAS-conflict-expiry",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/project-memory-v3.test.ts"
+        },
+        {
+          "id": "M05.forget-immediate-shared-source-exclusion",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-forget-v3.test.ts"
+        },
+        {
+          "id": "M05.restore-SQLite-and-full-profile-with-surviving-sibling",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-forget-v3.test.ts"
+        },
+        {
+          "id": "M05.restore-index-dependency-reconciliation",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-restored-index-v3.test.ts"
+        },
+        {
+          "id": "M05.enrollment-retry-and-missing-replaced-corrupt-fence",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-enrollment-recovery-v3.test.ts; tests/memory-forget-v3.test.ts"
+        },
+        {
+          "id": "M05.purge-bounded-copies-and-WAL-retention",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-forget-v3.test.ts"
+        },
+        {
+          "id": "M05.storage-resource-grant-exclusion",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-storage-boundary-v3.test.ts"
+        },
+        {
+          "id": "M05.FILE-grant-revocation-host-snapshot",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-review-extra-v3.test.ts"
+        },
+        {
+          "id": "M05.lexical-byte-budget-expiry-source-tombstones",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-retrieval-v3.test.ts"
+        },
+        {
+          "id": "M05.frozen-request-generation-and-exclusion-seam",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-retrieval-v3.test.ts"
+        },
+        {
+          "id": "M05.provider-deadlines-orphans-capacity-scoped-circuits",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-retrieval-v3.test.ts"
+        },
+        {
+          "id": "M05.extraction-supplied-cut-secrets-references-proposals",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-consolidation-v3.test.ts"
+        },
+        {
+          "id": "M05.consolidation-incremental-lease-watermark-and-usage",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-consolidation-v3.test.ts"
+        },
+        {
+          "id": "M05.checkpoint-capability-and-durable-acknowledgement-seam",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-consolidation-v3.test.ts"
+        },
+        {
+          "id": "M05.renderer-owner-source-crypto-and-transport-guards",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/project-memory-ui.test.ts"
+        },
+        {
+          "id": "M01.M02.current-contract-tests",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/research-baseline.test.ts; tests/m01-m02-compatibility.test.ts; tests/tool-authority-v3.test.ts; tests/tool-effects-v3.test.ts; tests/effect-recovery-v3.test.ts"
+        },
+        {
+          "id": "M05.offline-evaluation-scenarios-not-live-outcomes",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; evals/fixtures/project-memory-v3.json; m05-logs/memory-eval-fixture-json.log"
+        }
+      ]
+    },
+    {
+      "id": "INTEGRATION_AUTHENTICATED_REVIEW",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "actual-Fastify-Store-session-CSRF-scope-CAS-rollback",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/project-memory-http-v3.test.ts; unrelated node-pty loading is mocked, terminal execution is never used"
+        }
+      ]
+    },
+    {
+      "id": "BUILD_AND_SETUP",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "frozen-declared-package-manager",
+          "status": "PASS",
+          "evidence": "m05-logs/setup-pinned.log: pnpm 10.30.3, unchanged lockfile"
+        },
+        {
+          "id": "typecheck",
+          "status": "PASS",
+          "evidence": "m05-logs/proof-typecheck.log: exit 0"
+        },
+        {
+          "id": "production-build",
+          "status": "PASS",
+          "evidence": "m05-logs/proof-build.log: exit 0"
+        },
+        {
+          "id": "public-source-inventory-and-ui-guards",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log"
+        }
+      ]
+    },
+    {
+      "id": "INTEGRATION_M04_REQUEST_CONTEXT",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "accepted-M04-request-preparation-contract",
+          "status": "NOT_RUN",
+          "evidence": "M04 is absent from accepted main; draft PR #326 remains unmerged. BLOCKED_SOURCE_DRIFT."
+        },
+        {
+          "id": "runtime-injection-exclusion-generation-and-last-used",
+          "status": "NOT_RUN",
+          "evidence": "No production caller and no substitution through StartRun.memory."
+        }
+      ]
+    },
+    {
+      "id": "INTEGRATION_AUXILIARY_RUNTIME",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "settled-task-extraction-and-explicit-preference-publication",
+          "status": "NOT_RUN",
+          "evidence": "No host lifecycle cut or provider caller is wired. Host-only FILE grant metadata must be stripped after validation by the future source-cut adapter."
+        },
+        {
+          "id": "consolidation-scheduler-and-native-checkpoint-caller",
+          "status": "NOT_RUN",
+          "evidence": "Pure injected-callback tests do not prove native runtime integration."
+        }
+      ]
+    },
+    {
+      "id": "REGRESSION_REQUIRED",
+      "status": "FAIL",
+      "requiredCases": [
+        {
+          "id": "pnpm-test-command",
+          "status": "FAIL",
+          "evidence": "m05-logs/full-test-command.log: exit 1 at denied tsx IPC setup."
+        },
+        {
+          "id": "full-Vitest-regression",
+          "status": "FAIL",
+          "evidence": "m05-logs/full-tests-final.log: exit 1; 62 failed files, 244 failed tests, 2993 passed, 45 skipped, 4 unhandled errors. Run predates the last targeted restoration/enrollment regression fixes, which pass in proof-focused-green."
+        },
+        {
+          "id": "sample-accepted-base-failure-reproduction",
+          "status": "PASS",
+          "evidence": "m05-logs/baseline-failure-reproductions.log: five files fail on untouched accepted base, 8 failed / 15 passed. This sample does not disposition every full-suite failure."
+        }
+      ]
+    },
+    {
+      "id": "PLATFORM_BROWSER",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "project-memory-review-browser-flows",
+          "status": "NOT_RUN",
+          "evidence": "Authored ten synthetic scenarios; tsx IPC and Chromium Unix sockets are denied before assertions."
+        },
+        {
+          "id": "baseline-root-browser",
+          "status": "NOT_RUN",
+          "evidence": "Baseline direct runner cannot collect native terminal-dependent suites because pty.node is unavailable."
+        },
+        {
+          "id": "context-inspector-and-project-surface-browser-regression",
+          "status": "NOT_RUN",
+          "evidence": "Direct usage-context: 20 launch failures. Frontend-refinement: 89 launch failures and 2 checks passing without browser. Required msedge binary is unavailable."
+        }
+      ]
+    },
+    {
+      "id": "PLATFORM_NATIVE",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "actual-native-FILE-capture-custody",
+          "status": "NOT_RUN",
+          "evidence": "Native Linux path guard cannot establish required IPC. Host snapshot/grant fixtures and requested-pin stubs are not native proof."
+        },
+        {
+          "id": "Windows-installed-desktop-and-checkpoint-custody",
+          "status": "NOT_RUN",
+          "evidence": "No actual Windows/installed-target execution. Global Hermes memory stays disabled."
+        }
+      ]
+    },
+    {
+      "id": "LIVE_REPEATED_TASK_STUDY",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "thread-note-control-versus-project-memory-quality-and-total-cost",
+          "status": "NOT_RUN",
+          "evidence": "NOT_RUN: no authorized live host/model and M04 request integration is absent; all unmeasured quality/cost values remain null."
+        }
+      ]
+    },
+    {
+      "id": "CORE_EVIDENCE_INTEGRITY",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "ImplementationEvidenceV3-source-lock-log-digests-and-file-inventory",
+          "status": "PASS",
+          "evidence": "scripts/verify-m05-evidence.ts validates integrity separately from the FAIL bundle status."
+        }
+      ]
+    }
+  ],
+  "acceptedM04MergeSha": "9d4a5141173f54f0f47ff70dcc5167a5c781389e",
+  "acceptedM04DependencyCommit": "b4281a4292c5585660b9fbbcb6cf8dc9ed0775fb",
+  "historicalFailures": [
+    {
+      "commandKey": "88c02f4505f54eae7e50d13dc5074caa81a23a7879088e6ffc192c183e57ba46",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/initial-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "0af63cda31f523d31591efde5292f7135c486eb4c692eb10d5bc54fbf5130f22",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/ui-red-client.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "c01e420183e066297cf6929934b67abe54117e036398a523357215026d63344c",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/lifecycle-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "d3d9b174055626fa9c3cdbdcfe1166d02204a6762f45d92ae2ae72dbce40bed0",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/ui-red-browser.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "82adfce11cf38be15a55e02f51ef49681c4c4bfb59291fc1471fc375658a3e3f",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/consolidation-core-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "f3bf6435c5c1217f536dd39e2f23688ad232a46653a3e15a3a6341c814130bf0",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/typecheck-first.log",
+      "exitCode": 2,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "428b37aeb48208a0f21201039f288cd2c21089af326d6ea12db7ef37937b4cfc",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/http-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "0d8bf94e8440b4144da5d319471c3cf15ff4d3df6251e01315e5cd72749bad46",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/http-first.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "e0b32475da2dfd89eb0a414a5e677eb8d328d888a579a4d963d70e0bb4012057",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/retrieval-red-01.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "9ce68be96a2576c5f0287b8db8e1c723329a69ddd0c6600cfb6703848196bd21",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/extraction-core-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "0b80bdb5881fc26e870deef07395f644217cde094cfa7d4b76d9f7b1bc1efa5e",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/http-assets-ready.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "cd3829eee4bc2b2722212e6423581a1988b3a4a4ce746b2c62fa983c0ea5d41d",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/extraction-specific-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "9c399e0804bdb5d6ddeb91f3ea4f63c451e9b6983be363c4ad884affa99a6451",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/physical-purge-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "5f079ddb302f07a2ec2a66743dba81ad48431085ec05f39718e0fbf0e8b2a70a",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/retrieval-red-02.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "da27072cb1959ab8ea92d92f27c1293154c79078d7452de10124bbb7da6882ca",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/ui-red-recall.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "2555324dc84caed603bc08db6d6b661f6d45b8a876077a209bdd0a7767650c0c",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/retrieval-local-02.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "a3e6df3fbd293e6961e608c12358b7b0bdf9e45abcc8f2e978dc8ebe2c4d9418",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/checkpoint-core-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "f9479e257165b9b0d3aee2d67565b79ab816b0c15ffeea357509443b33ebe5dc",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/ui-typecheck-01.log",
+      "exitCode": 2,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "edf697761e367685fd5c253a4ab86eb263b3b9bffabae1373fef5e96fda5013a",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/typecheck-integration.log",
+      "exitCode": 2,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "bf2682d9f301324145d8c51d8134344e90c2794fdce42722fe81b88bf0d1aeea",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/ui-red-tombstone.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "baec13d61c79a77e81e8b2d8f5f909bb567fb2347894f48647e120b3916e5aad",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/consolidation-cancel-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "a5bf144cb12414619cd9b7bc09555aba2f9abe0376ae38d535ffdcdee2478893",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/correction-purge-review-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "1ba02951dea9bc0652fd19f97d23a3d2583b5d97151d6729d137b4e516f8e00b",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/ui-red-source-digest.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "8c9c58ce869f3aff0cb24c1f98ba4fb17953ce242c49ad8a3e624f81252f497e",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/baseline-browser-command.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "92468c47e017c4c97a4d459b6581b5d95c79ff8cdeff2f51dda5fd27cd90d3d1",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/full-test-command.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "5a3275f3896cb71e96f88f53f9ce45628953d6f167bd8b1efc503680d1672b63",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/consolidation-spend-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "412f811652f5acb2269b6c66391acba328a7e7fb010b5c25e03d4558212b65fd",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/retrieval-provider-red-02.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "45b2d78c90356bd9b5af7e44f905bbd2fe041bd52a82136a16eb73df4ff455ce",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/ui-browser-final.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "3cbdbf040325991367b7ae762eaa2342244dd0aa8d62ad0b88aed3f9e448d327",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/baseline-browser-direct.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "908b6a41ef8c17a7934e2ca167b0d910afae4ef4e3f1b0430f7ba0463713cbe2",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/ui-red-digest-unavailable.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "edc0ba944d936e99b77be73dde5633db1f5643500b56cd226bf67272e1da1ed8",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/evaluation-manifest.log",
+      "exitCode": 2,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "9338bdbefcc02524d8ab930a21e53f0f4951f1d3fd3d19ed4cd3577a6534f116",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/baseline-failure-reproductions.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "0a143a21fe7bdf612e691b47113e2baa05759ddbf114dfde87fb0fcb334f4b6e",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/full-tests-direct.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "e0ef09416a2580d672ecae92df31035df4ca33680414060b4a3bad94ae7e4edb",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/retrieval-secret-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "a02babbc17930b3fcbad37908d898ec145f549192c66331d148d97e1113f12a2",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/memory-review-derived-repro.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "6d545ea3f8381c439b19998ce72ac76c2bde717cb9184869dcad399e21c3a552",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/memory-review-derived-repro-02.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "fe5f88804826383064400891ecab31e4c8757844e72db56b3ac03025fcde9a90",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/memory-review-full-backup-repro.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "0184ef378723a00e82c219aed76a51358f9dedf541cf100bd5becbbc11db9f2b",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/review-red-disable-source-replay.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "4364c95d0a5c0fa4aa6becdee8ede5f31dc6817c7ee13d9bfe0d8998035c347d",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/review-red-derived-bounds.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "dac83e3ad26bc1026eb401b95237068eab955d0ab8a6b4e7c8a0600c19c0495e",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/source-grant-review-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "31ada6226a6f1b08f60d9a81765cea99261a1ac2d057ef587a658a397eb517a2",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/review-red-bounds-corrected.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "e7f7cc5548b78cf8debf5af64a37abb6513e82e0e3fd01b7028fc0cf620b67f1",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/source-grant-authority-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "ddc211c22edb6aa2e9990002a1621bafd4f3489d3df977c1a0688d571cc715bb",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/review-red-full-profile.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "bec537c3ec2100c21937fb7af22fb04e697e6edeb86fa71c2632f5f5a0b84c4c",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/memory-storage-boundary-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "4a12f84cda3208396bb1d5aa84e9ac24be1011245319f78b68a439a46d0ba8f9",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/consolidation-shared-secret-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "a4387cee89f679892fa0a0a2ca0ed7b9c0cb8f6e602e4093a014ed7ee49f884a",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/shared-client-secret-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "a7401e082755ccbec61fe69815f35bcbf4792c2bfd79fc34f1d4cd2fe8a05e47",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/memory-review-index-replay-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "55e3529cb1815771a5e78a7d216cab377e4ad83833f9d7a52c399a7deccd9679",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/browser-context-command.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "c982975f4fda558a35f5ac620d39a0776081a71c641f2e94d223753938937c45",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/browser-refinement-command.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "9e9ef4d9528648390f9059989b2bac0ee4141c6b880d665bbc3d9172b179af39",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/memory-restored-index-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "6a9a4ffa2958d8f5b1e98b01ed418fc0f2009a4b54ed9970059ee9eb9773f775",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/browser-context-direct.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "6875fb81e987f4924f9e1d4fd9f6ab8bd4733d4b71258ce1f906479156fcea2a",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/browser-refinement-direct.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "65f21ee9e3a1a7afbd008d97d03882b589c56a4a8bc3934d3dc2356a87046f34",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/memory-review-enrollment-retry-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "c7d3ddda12e7e1a9413be33ec0276bfb58bcd0d0b15c622418f714c8f37a3b6e",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/full-tests-final.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "7df17d7f3a85194c3faad80cc28b312b1117841657261782cdabebf33e97ab1c",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/proof-focused.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "b418f7c7e529303ed54867184dd6b38cfdbff9ad6da13e698069f51fe46f3150",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-red-host-lifecycle.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "dc05dafc73d748acb0c043f79b4fc8f81918d213e9fa1dd654483a83039aad4c",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-red-extraction-runtime.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "1605bfe8c44f511a12d11c992753a157c9f6dd394a49d5a7e11c7454b07a05f6",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-red-freed-pages.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "68bdef2466f803255e7112f5a07ed6da4b10fc816c1b7b4929e8dd471732e603",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-checkpoint-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "9a7eef7935d469eee13f7249d6ad1c9e321ca174c8cc78d06b64d8f0e596b012",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-checkpoint-boundary-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "c8fe9c70d5ebe8d51d4ace3691ab0d7a5785d3ac511ffc980367cef66f709899",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-red-preference-confirmation.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "7988df45b49899cc8ff812649bf09c9dc041d3b13f2a17d18afbac00534222d7",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-red-legacy-freed-pages.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "9de4181427f1b4d4fcd37fb19f862c9e6522a9e407f8b1e75ee27ebe1cf58f93",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-preference-confirmation-green.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "502223d4266eab41e2668048962f2c74c2348c31324f659d48e15fdda0c15974",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-hermes-checkpoint-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "835e0e4286793ec65e5f37215816ac231769cbadee74b4712930ea1450889489",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-intermediate-typecheck.log",
+      "exitCode": 2,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "af6499cbce7fdc14dfed36871852076c3123de4baaf5957bf1b972c89d9cb129",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-red-legacy-reader.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "2289bd0553160a600222e7058a871eae5e6c9b0fa04300c9c58cfc651a573885",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-red-extraction-model-bounded.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "30f853343aa56946fb92db270d6567189044e98fbd23c37610828b3ee30a60a7",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-red-extraction-model.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "ecf320d7f1b5f7d9b1cbef238b4e62c5fadbff1712e8ac6b4a173c53deea4559",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-checkpoint-compatibility.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "00ea1931e99312a3d9673fe117c67a1090512814bc105fb1e14219600dd006cd",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-red-preparation-ui.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "2fceef0fa9962af04c5da31522a01681a2299ab4c2a5b8972dc2342255b84eee",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-checkpoint-late-foreground-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "280ddf620d92bb47de3d6593e2d6e3c5dd2deb1475ac173619ad89c1488b73be",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-red-prepared-transport.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "47463fe7bf2c5bbddb030997742777175c6b4574147040ffb4b31443e5d08c24",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-red-spend.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "82bc1d63b8625128329e5e7399ebab965c5e28b7668569cc01b771f22604f5e2",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-checkpoint-worker-exit-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "e15b97ad677b66d2a40c023fef904fb092ddb161be2f8093439684e221d2fa96",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-checkpoint-assets-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "db377226d1dd4c6524ab2599e451673685025083ecb23ab5a42e82179bf2c0fc",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-checkpoint-assets.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "1fbb2ebe59eb8c87477309635d03053873753875c67ee47a85c4d15bfee1c366",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-red-study-runner.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "e9c3bf38c42dda3fb82d05034504b86cf711471fcdb46e48d1744d54ac7332f5",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-checkpoint-typecheck.log",
+      "exitCode": -9,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "acc8c5df44995b0ae0e500ce2819dde9151b3db6de17b844cb0c2bb9d2de311a",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-checkpoint-assets-green.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "0f09ee9e6c92fe618dc2060211b219f44f18ac4bd56c4b888c88bea8b9de0afb",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-preparation-typecheck.log",
+      "exitCode": 2,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "ce02bf0f2ea03f05498cc4c83dc64a4f06eb6c152c7183e2e033838b304a8c54",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/native-checkpoint-scoped-typecheck.log",
+      "exitCode": 2,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "69b21bba0325dc3ffc8896be401985ebce7754118a256e65798361a5bb0c93d4",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/extraction-dispatch-authority-review-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "93b003a46a05043116e39653d5ea0f3a1c2407c95b546785f4c0cd703919a34e",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/extraction-dispatch-authority-review-confirmed-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "ab6c02255cf7d875ee7c35e5406798c9576c6da328938c7ffb362244f3f6afa8",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/extraction-native-dispatch-race-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "4aef80a18ed8271da72cb574737e185f79220c4091dbb14ef37efdbcdad876c7",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/extraction-output-bounds-review-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "ce80b9effcbd276f5c4e79cf6e92fe3f9bfce98dcf72874f825dea0f98a4f443",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/extraction-output-retention-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "4230888ad8269167efedefb83cdc83b59205e27a7a21e899f4f0ce9cbcc930bb",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-red-study-protocol.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "2d7d65a30f6d016bdba882e7ec85f635434f0ae745ae786fd9d8e06f5da1fcd7",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-red-file-grant-physical.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "210c2cb70fe2583c31324031fd455d41b2431b7bf50348c2b255c1f71c8a8b84",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/extraction-native-ephemeral-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "2897c1753bb0fae0079e2b9bcefef476446d3aac2b7602899be339309131ad6d",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/extraction-native-ephemeral-boundary-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "df46de301e20ca51e22e3f91a76a98f3162f42c9813a77ff6880fc1fb0509702",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/service-memory-api-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "489027de5900d039486a04c24694eb606cfcc3afe0cc1430c120df26f43dca41",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-red-request-http.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "8ab75cae91b507ce09ff891ddd7c781dad8caf351f185c7722a72f27e9debb7a",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/service-memory-lifecycle-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "2dc94d21e5cb0636aea8deffc1dcc331bc10738fe54085630d7dcfe8d402d685",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/extraction-pending-usage-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "9595c36711a88b63ab243d58424c36c2e2cf34e4c87204bc9e1b14128d24a95f",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-runtime-integration-attempt-1.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "d18e5491fed0ddef56af5ddb0f39c8939e48b9fb98c3afdb922968eb9f6fa6cc",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-host-typecheck.log",
+      "exitCode": 2,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "6b9d294722f19b7d53e45a3337f720102041cab7a4a6777ec2b13fa5b1ed44a4",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-red-captured-memory-terms.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "2a12c9e5baf4d5d1aa83bfabb7dc25ce00602e0b909a183869e9ae010e4ab320",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/extraction-source-reuse-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "f9cebdf185241c06eec4f4727f404c9d0b97c8799e43cb85322c8f9f1db18a5d",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-red-study-captured-transition.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "305198b6f9b63ec9e51edd497bded09fbb975fe48cf2a428bdbff01e1c7a544c",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-runtime-integration-attempt-2.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "30d239b0121ce5581229b047e38df9c52f5acfa7ea5619a7304be44ebd149bad",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/service-memory-pending-checkpoint-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "ac7b05e45553d824eaf6595ec666101d15a114aa6371ff4fb02bab80d027dc20",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/extraction-pending-revocation-cleanup-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "c335a2cfa1ccf7a7cd85937fa38431f25e713f14cd48b4474be16158eeb237f6",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/service-memory-orphan-recovery-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "9a61e68ba251744665c8def8fad7adfc99a1300a76ff37a729d4083c7c6f2367",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-host-audit-fixes.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "40b8e3fb3de2f06604f61c373b0e739dc5f7ff6a00b4ff312c39f2374db23abc",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/service-memory-executor-recovery-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "be4e9120b190ea6a49a8f6ef2b643ee8f6639ff48e58fa61a53024282504800f",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-study-manifest-final.log",
+      "exitCode": 2,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": true
+    },
+    {
+      "commandKey": "da0076a30c555b1e7311324d76ac775c5efa7045d0363cddec39a1932bbd1eac",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/service-memory-schedule-drain-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "bb516ce75d212d83c8ce55b6c64412a1ba11dc360d8e0edb724479b123690760",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/service-memory-m09-child-admission-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    }
+  ],
+  "refreshes": [
+    {
+      "recordedAt": "2026-11-15T12:25:18.942689+00:00",
+      "executionBaseSha": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42",
+      "sourceParentHeadSha": "09fac8dbc1ef6fc134da3a5400d90ff6c856c9ce",
+      "selectedCurrentCommandRefs": [
+        "docs/implementation/v3/m05-logs/continuation-final-native-facade.log",
+        "docs/implementation/v3/m05-logs/continuation-final-native-worker.log",
+        "docs/implementation/v3/m05-logs/continuation-postmerge-build.log",
+        "docs/implementation/v3/m05-logs/continuation-postmerge-contracts.log",
+        "docs/implementation/v3/m05-logs/continuation-postmerge-memory-regression.log",
+        "docs/implementation/v3/m05-logs/continuation-postmerge-typecheck.log",
+        "docs/implementation/v3/m05-logs/continuation-study-manifest-final.log"
+      ],
+      "ledgerBeforeDigest": "d5b545729373f642fcd88c39e6f55367a7c8fc30a1076799ba7a4e0808737b48",
+      "ledgerAfterDigest": "961522a5df026adeb9ff022d3ec8efa70c41bf56d7197eb50797956087549579",
+      "windowsCiRef": null,
+      "windowsCiCurrentCodeCut": false
+    },
+    {
+      "recordedAt": "2026-11-15T12:27:14.826149+00:00",
+      "executionBaseSha": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42",
+      "sourceParentHeadSha": "09fac8dbc1ef6fc134da3a5400d90ff6c856c9ce",
+      "selectedCurrentCommandRefs": [
+        "docs/implementation/v3/m05-logs/continuation-final-native-facade.log",
+        "docs/implementation/v3/m05-logs/continuation-final-native-worker.log",
+        "docs/implementation/v3/m05-logs/continuation-postmerge-build.log",
+        "docs/implementation/v3/m05-logs/continuation-postmerge-contracts-complete.log",
+        "docs/implementation/v3/m05-logs/continuation-postmerge-memory-regression.log",
+        "docs/implementation/v3/m05-logs/continuation-postmerge-typecheck.log",
+        "docs/implementation/v3/m05-logs/continuation-study-manifest-final.log"
+      ],
+      "ledgerBeforeDigest": "0567aaddf06899f4233822abc1d4b5a71a22acfe9b1cf44e937787197876d4fd",
+      "ledgerAfterDigest": "ca67c8dcd6dd323b9821ad8c3f60284e406cd0b10ea75ea7c470b59844f803d8",
+      "windowsCiRef": null,
+      "windowsCiCurrentCodeCut": false
+    }
+  ]
+}

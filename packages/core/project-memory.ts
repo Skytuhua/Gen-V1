@@ -2,15 +2,17 @@ import { constants, closeSync, existsSync, fstatSync, fsyncSync, lstatSync, open
 import { createHash, randomUUID } from 'node:crypto';
 import { dirname, join, resolve } from 'node:path';
 import { z } from 'zod';
-import { HarnessError, type HostCommand, type Message, type ResourceGrant, type Thread } from '../contracts/index.ts';
+import { HarnessError, type HostCommand, type Message, type ResourceGrant, type RunContext, type Thread } from '../contracts/index.ts';
 import type { ProjectSummary } from '../contracts/workspace.ts';
-import { PROJECT_MEMORY_LIMITS as LIMITS, memoryActionSchema, memoryItemV1Schema, memorySourceRefV1Schema, memoryTombstoneV1Schema, memoryScope, type MemoryAccess, type MemoryAction, type MemoryExport, type MemoryForgetPreview, type MemoryItemV1, type MemoryMutationResult, type MemorySourceDetail, type MemorySourceRefV1, type MemorySourceSnapshot, type MemoryTombstoneV1, type ProjectMemoryView, type StoredMemory } from '../contracts/project-memory.ts';
+import { PROJECT_MEMORY_LIMITS as LIMITS, memoryActionSchema, memoryItemV1Schema, memoryRecallV1Schema, memorySourceRefV1Schema, memoryTombstoneV1Schema, memoryScope, type MemoryAccess, type MemoryAction, type MemoryExport, type MemoryForgetPreview, type MemoryItemV1, type MemoryMutationResult, type MemoryRecallV1, type MemorySourceDetail, type MemorySourceRefV1, type MemorySourceSnapshot, type MemoryTombstoneV1, type ProjectMemoryView, type StoredMemory } from '../contracts/project-memory.ts';
 import { digest, Store } from '../storage/store.ts';
 import { ProjectTools, type WorkspaceBinding } from '../workspace/tools.ts';
 import { capabilityEnabled } from './capability-flags.ts';
 import { readBoundFile, withResourceGrant } from './file-access.ts';
 import { projectMemoryDeletionLedgerPath } from './security.ts';
 import { memoryContainsSecret } from './memory-publication.ts';
+import { memoryUsageReportSchema, type MemoryUsageReport } from '../contracts/project-memory.ts';
+import { validateMemoryExtraction, type MemoryCheckpointV1, type MemoryConsolidationSnapshot, type MemoryExtractionCut, type MemoryExtractionResult } from './memory-consolidation.ts';
 export { memoryContainsSecret } from './memory-publication.ts';
 
 interface Config { id: string; revision: number; enabled: boolean; sourceThreadIds: string[]; watermark: number }
@@ -26,11 +28,11 @@ function checkedText(text: string): string {
   if (!text.trim() || Buffer.byteLength(text) > LIMITS.textBytes || memoryContainsSecret(text) || text.includes('\0')) fail('Keep memory under 2 KiB and omit credentials and private keys.');
   return text.trim();
 }
-function physicalMatches(root: PhysicalRoot): boolean {
-  try { const info = lstatSync(root.path, { bigint: true }); return info.isDirectory() && !info.isSymbolicLink() && resolve(realpathSync(root.path)) === resolve(root.path) && String(info.dev) === root.identity.dev && String(info.ino) === root.identity.ino; } catch { return false; }
+function physicalMatches(root: PhysicalRoot, kind: 'directory' | 'file' = 'directory'): boolean {
+  try { const info = lstatSync(root.path, { bigint: true }), normalize = (path: string) => process.platform === 'win32' ? resolve(path).toLowerCase() : resolve(path); return (kind === 'directory' ? info.isDirectory() : info.isFile()) && !info.isSymbolicLink() && normalize(realpathSync(root.path)) === normalize(root.path) && String(info.dev) === root.identity.dev && String(info.ino) === root.identity.ino; } catch { return false; }
 }
 
-/** Dormant M05 host boundary. No runtime, agent tool, native memory, or provider is enabled here. */
+/** Host-owned memory admission and storage. Models never receive its mutation API. */
 export class ProjectMemory {
   private readonly tools: ProjectTools;
   private readonly profileId: string;
@@ -40,6 +42,29 @@ export class ProjectMemory {
   private fenceIdentity: LedgerIdentity | null;
   private readonly enabled: () => boolean;
   constructor(readonly store: Store, options: { enabled?: () => boolean } = {}) {
+    // Updates can free old item/source cells before a later Forget. Erase those
+    // cells from the first memory write, not only while deleting current rows.
+    store.db.exec('PRAGMA secure_delete=ON');
+    if (!store.get('projectMemoryStorageFormat', 'secure-delete-v1')) {
+      // A pre-fix database (including a restored backup) can already contain
+      // unreferenced plaintext cells. Secure deletion cannot erase them after
+      // the fact. This one-time host migration rebuilds live pages outside a
+      // Store transaction; it is not part of the bounded maintenance batch.
+      // Failure leaves the format unmarked and M05 unavailable for retry.
+      const legacy = store.db.prepare("SELECT 1 FROM entities WHERE kind >= 'projectMemory' AND kind < 'projectMemorz' LIMIT 1").get();
+      if (legacy) {
+        store.db.exec('VACUUM');
+        const busyTimeout = (store.db.prepare('PRAGMA busy_timeout').get() as {timeout: number}).timeout;
+        store.db.exec('PRAGMA busy_timeout=0');
+        try {
+          if ((store.db.prepare('PRAGMA wal_checkpoint(TRUNCATE)').get() as {busy: number}).busy) fail('The memory storage migration is waiting for an old database reader.', 'MEMORY_STORAGE_MIGRATION_PENDING');
+        } finally {store.db.exec(`PRAGMA busy_timeout=${busyTimeout}`);}
+      }
+      store.internal('project.memory.storage.migrated', null, () => {
+        store.put('projectMemoryStorageFormat', 'secure-delete-v1', null, {version: 1, secureDelete: true});
+        return {version: 1, legacyPagesRebuilt: Boolean(legacy)};
+      });
+    }
     this.tools = new ProjectTools(store); this.enabled = options.enabled ?? (() => capabilityEnabled('memory.projectV1'));
     const profile = lstatSync(store.dataDir, { bigint: true });
     this.profileId = digest({ path: store.dataDir, dev: String(profile.dev), ino: String(profile.ino) });
@@ -52,8 +77,11 @@ export class ProjectMemory {
       CREATE INDEX IF NOT EXISTS project_memory_items_scope ON entities(json_extract(body,'$.item.projectIdentity'),json_extract(body,'$.accountId'),json_extract(body,'$.profileId')) WHERE kind='projectMemoryItem';
       CREATE INDEX IF NOT EXISTS project_memory_revisions_scope ON entities(json_extract(body,'$.item.projectIdentity'),json_extract(body,'$.accountId'),json_extract(body,'$.item.id'),id) WHERE kind='projectMemoryRevision';
       CREATE INDEX IF NOT EXISTS project_memory_sources_scope ON entities(json_extract(body,'$.projectIdentity'),json_extract(body,'$.accountId'),json_extract(body,'$.ref.digest'),id) WHERE kind='projectMemorySource';
+      CREATE INDEX IF NOT EXISTS project_memory_sources_revision ON entities(json_extract(body,'$.projectIdentity'),json_extract(body,'$.accountId'),json_extract(body,'$.ref.ownerThreadId'),json_extract(body,'$.ref.sourceKind'),json_extract(body,'$.ref.sourceId'),json_extract(body,'$.ref.sourceRevision'),json_extract(body,'$.ref.digest'),json_extract(body,'$.ref.observedStatus'),json_extract(body,'$.fileGrant.resourceId'),json_extract(body,'$.fileGrant.grantDigest'),json_extract(body,'$.ref.capturedSeq'),id) WHERE kind='projectMemorySource';
       CREATE INDEX IF NOT EXISTS project_memory_derived_scope ON entities(json_extract(body,'$.projectIdentity'),json_extract(body,'$.accountId')) WHERE kind='projectMemoryDerived';
       CREATE INDEX IF NOT EXISTS project_memory_tombstones_scope ON entities(json_extract(body,'$.tombstone.projectIdentity'),json_extract(body,'$.accountId'),json_extract(body,'$.profileId')) WHERE kind='projectMemoryTombstone';
+      CREATE INDEX IF NOT EXISTS project_memory_auxiliary_scope ON entities(json_extract(body,'$.projectIdentity'),json_extract(body,'$.accountId'),json_extract(body,'$.profileId')) WHERE kind='projectMemoryAuxiliaryUsage';
+      CREATE INDEX IF NOT EXISTS project_memory_request_usage_scope ON entities(json_extract(body,'$.projectIdentity'),json_extract(body,'$.accountId'),json_extract(body,'$.profileId')) WHERE kind='projectMemoryRequestUsage';
     `);
     this.loadDeletions();
   }
@@ -142,7 +170,8 @@ export class ProjectMemory {
     this.deletions.set(entry.tombstone.itemId, structuredClone(entry));
     this.writeDeletion(this.deletionPath, entry);
   }
-  private currentAccess(projectId: string, threadId: string): MemoryAccess {
+  /** Synchronous attestation for an already admitted host lifecycle transaction. */
+  currentAccess(projectId: string, threadId: string): MemoryAccess {
     const project = this.store.get<ProjectSummary>('workspaceProject', projectId), thread = this.store.get<Thread>('thread', threadId), root = this.store.get<PhysicalRoot>('workspaceProjectRoot', projectId);
     if (!project || project.authority.kind !== 'local' || !thread || thread.projectId !== projectId || thread.sideParentId || thread.kind === 'side' || thread.kind === 'delegate' || this.store.get('archivedThread', threadId) || !root || !physicalMatches(root)) fail('The attested project or owning conversation changed.', 'CAPABILITY_DENIED');
     const workspace = thread!.workspaceId ? this.store.get<WorkspaceBinding>('workspaceBinding', thread!.workspaceId) : null;
@@ -197,7 +226,7 @@ export class ProjectMemory {
       const source = this.store.get<MemorySourceSnapshot>('projectMemorySource', digest(ref));
       if (ref.sourceKind === 'FILE') {
         const grant = source?.fileGrant && this.store.get<ResourceGrant>('resource', source.fileGrant.resourceId);
-        if (!grant || grant.threadId !== ref.ownerThreadId || !['project', 'file'].includes(grant.kind) || digest(grant) !== source!.fileGrant!.grantDigest) return false;
+        if (!grant || grant.threadId !== ref.ownerThreadId || !['project', 'file'].includes(grant.kind) || !grant.identity || !physicalMatches({path: grant.path, identity: grant.identity}, grant.kind === 'file' ? 'file' : 'directory') || digest(grant) !== source!.fileGrant!.grantDigest) return false;
       }
       return !!source && digest(source.ref) === digest(ref) && source.projectIdentity === access.projectIdentity && source.accountId === access.accountId && sha256(source.content) === ref.digest;
     } catch { return false; }
@@ -206,7 +235,20 @@ export class ProjectMemory {
     this.requireEnabled(access); this.settled(access, source.ref.ownerThreadId);
     if (Buffer.byteLength(source.content) > LIMITS.sourceBytes || memoryContainsSecret(source.content) || this.sourceExcluded(access, source.ref)) fail('The source is secret-bearing, excluded, or exceeds the bounded source cut.');
     const key = digest(source.ref), existing = this.store.get<MemorySourceSnapshot>('projectMemorySource', key);
-    if (existing) { if (digest(existing) !== digest(source)) fail('Source digest collision.'); return structuredClone(existing.ref); }
+    if (existing) { if (digest(existing) !== digest(source)) fail('Source digest collision.'); if (!this.sourceAvailable(access, existing.ref)) fail('The retained source is no longer authorized.', 'MEMORY_SOURCE_DENIED'); return structuredClone(existing.ref); }
+    // A retry preserves the first immutable capture. Scope and all revision /
+    // grant fields participate in the indexed lookup; plaintext equality and
+    // current authorization are checked before any retained ref is returned.
+    const previous = this.store.db.prepare(`SELECT body FROM entities INDEXED BY project_memory_sources_revision
+      WHERE kind='projectMemorySource' AND json_extract(body,'$.projectIdentity')=? AND json_extract(body,'$.accountId') IS ?
+      AND json_extract(body,'$.ref.ownerThreadId')=? AND json_extract(body,'$.ref.sourceKind')=? AND json_extract(body,'$.ref.sourceId')=?
+      AND json_extract(body,'$.ref.sourceRevision')=? AND json_extract(body,'$.ref.digest')=? AND json_extract(body,'$.ref.observedStatus')=?
+      AND json_extract(body,'$.fileGrant.resourceId') IS ? AND json_extract(body,'$.fileGrant.grantDigest') IS ?
+      ORDER BY json_extract(body,'$.ref.capturedSeq'),id LIMIT 1`).get(source.projectIdentity, source.accountId, source.ref.ownerThreadId, source.ref.sourceKind, source.ref.sourceId, source.ref.sourceRevision, source.ref.digest, source.ref.observedStatus, source.fileGrant?.resourceId ?? null, source.fileGrant?.grantDigest ?? null) as {body: string} | undefined;
+    if (previous) {
+      const retained = JSON.parse(previous.body) as MemorySourceSnapshot;
+      if (digest({...retained, ref: {...retained.ref, capturedSeq: source.ref.capturedSeq}}) === digest(source) && this.sourceAvailable(access, retained.ref)) return structuredClone(retained.ref);
+    }
     const count = (this.store.db.prepare("SELECT count(*) AS n FROM entities WHERE kind='projectMemorySource' AND json_extract(body,'$.projectIdentity')=?").get(access.projectIdentity) as { n: number }).n;
     if (count >= 1000) fail('The retained source limit was reached.');
     this.store.internal('project.memory.source.captured', access.threadId, () => { this.assertAccess(access); this.settled(access, source.ref.ownerThreadId); this.store.put('projectMemorySource', key, source.ref.ownerThreadId, source); return { digest: source.ref.digest, sourceRevision: source.ref.sourceRevision }; });
@@ -222,7 +264,7 @@ export class ProjectMemory {
   async captureFile(access: MemoryAccess, resourceId: string, relativePath?: string): Promise<MemorySourceRefV1> {
     this.requireEnabled(access); this.settled(access, access.threadId);
     const resource = this.store.get<ResourceGrant>('resource', resourceId);
-    if (!resource || resource.threadId !== access.threadId || !['project', 'file'].includes(resource.kind)) fail('The source file needs an owning project resource grant.', 'MEMORY_SOURCE_DENIED');
+    if (!resource || resource.threadId !== access.threadId || !['project', 'file'].includes(resource.kind) || !resource.identity || !physicalMatches({path: resource.path, identity: resource.identity}, resource.kind === 'file' ? 'file' : 'directory')) fail('The source file needs a current physically bound owning resource grant.', 'MEMORY_SOURCE_DENIED');
     const bytes = await withResourceGrant(resource!, this.store.dataDir, relativePath, false, new AbortController().signal, path => readBoundFile(path, LIMITS.sourceBytes));
     this.assertAccess(access); this.settled(access, access.threadId);
     if (digest(resource) !== digest(this.store.get('resource', resourceId))) fail('The file grant changed.', 'CAPABILITY_DENIED');
@@ -285,13 +327,127 @@ export class ProjectMemory {
     return this.rows(access).filter(row => row.item.state === 'ACCEPTED' && !deleted.has(row.item.id) && (!row.item.expiresAt || Date.parse(row.item.expiresAt) > Date.now()) && row.item.sourceRefs.every(ref => this.authorizedSource(access, ref, excluded)));
   }
   watermark(access: MemoryAccess): number { this.assertAccess(access); return this.config(access).watermark; }
+  isEnabled(access: MemoryAccess): boolean { this.assertAccess(access); return this.enabled() && this.config(access).enabled; }
+  consolidationSnapshot(access: MemoryAccess): MemoryConsolidationSnapshot {
+    return { access: structuredClone(access), items: this.accepted(access).map(row => row.item), watermark: this.watermark(access), tombstones: this.tombstones(access) };
+  }
+  /** Only the accepted settled event and its canonical outbox/messages define a cut. */
+  extractionCut(access: MemoryAccess, source: RunContext): MemoryExtractionCut {
+    this.requireEnabled(access); const thread = this.settled(access, access.threadId);
+    if (source.threadId !== access.threadId || source.epoch !== thread.epoch || !source.runId) fail('The settled source owner changed.', 'MEMORY_SOURCE_BUSY');
+    const inputs = this.store.all<{status: string; runId: string | null; messageId?: string}>('outbox', access.threadId);
+    if (inputs.some(input => input.status !== 'handled')) fail('A new input is waiting for this source task.', 'MEMORY_SOURCE_BUSY');
+    const inputIds = new Set(inputs.filter(input => input.runId === source.runId).map(input => input.messageId).filter(Boolean));
+    const messages = this.store.all<Message>('message', access.threadId).filter(message => message.role !== 'activity' && (message.runId === source.runId || inputIds.has(message.id))).slice(-LIMITS.sources);
+    const cut: MemoryExtractionCut = { access: structuredClone(access), settled: true, sourceRunId: source.runId, watermark: this.store.sequence, authorizedThreadIds: [access.threadId], sources: [], tombstones: this.tombstones(access) };
+    for (const message of messages) {
+      if (!message.content.trim() || memoryContainsSecret(message.content) || Buffer.byteLength(message.content) > LIMITS.sourceBytes / 2) continue;
+      const estimated = { ref: {ownerThreadId: message.threadId, sourceKind: 'MESSAGE', sourceId: message.id, sourceRevision: '0'.repeat(64), capturedSeq: Number.MAX_SAFE_INTEGER, digest: '0'.repeat(64), observedStatus: 'PROPOSED'}, projectIdentity: access.projectIdentity, accountId: access.accountId, content: message.content, label: `${message.role} message ${message.id}` };
+      if (Buffer.byteLength(JSON.stringify({...cut, sources: [...cut.sources, estimated]})) > LIMITS.sourceBytes) continue;
+      const ref = this.captureMessage(access, message.id);
+      const retained = this.store.get<MemorySourceSnapshot>('projectMemorySource', digest(ref))!;
+      // Private source/grant metadata is never sent to a provider or public cut.
+      cut.sources.push({ref: retained.ref, projectIdentity: retained.projectIdentity, accountId: retained.accountId, content: retained.content, label: retained.label});
+      cut.watermark = this.store.sequence;
+    }
+    if (!cut.sources.length || Buffer.byteLength(JSON.stringify(cut)) > LIMITS.sourceBytes) fail('No bounded authorized source cut is available.', 'MEMORY_SOURCE_UNAVAILABLE');
+    return structuredClone(cut);
+  }
+  assertExtractionCut(cut: MemoryExtractionCut): void {
+    this.requireEnabled(cut.access); this.settled(cut.access, cut.access.threadId);
+    if (!cut.settled || cut.authorizedThreadIds.length !== 1 || cut.authorizedThreadIds[0] !== cut.access.threadId || cut.sources.some(source => source.ref.ownerThreadId !== cut.access.threadId)) fail('The source cut owner changed.', 'MEMORY_SOURCE_DENIED');
+    if (this.store.all<{status: string}>('outbox', cut.access.threadId).some(input => input.status !== 'handled')) fail('The source task has new work.', 'MEMORY_SOURCE_BUSY');
+    for (const source of cut.sources) {
+      if (!this.sourceAvailable(cut.access, source.ref)) fail('An extraction source is no longer authorized.', 'MEMORY_SOURCE_DENIED');
+      if (source.ref.sourceKind === 'MESSAGE') {
+        const message = this.store.get<Message>('message', source.ref.sourceId);
+        if (!message || message.threadId !== source.ref.ownerThreadId || digest({role: message.role, createdAt: message.createdAt, content: message.content}) !== source.ref.sourceRevision) fail('The extraction source revision changed.', 'MEMORY_SOURCE_CHANGED');
+      }
+    }
+  }
+  publishExtraction(cut: MemoryExtractionCut, candidates: unknown, modelId: string): MemoryExtractionResult {
+    this.assertExtractionCut(cut);
+    const key = digest({projectIdentity: cut.access.projectIdentity, accountId: cut.access.accountId, sourceRunId: cut.sourceRunId});
+    const result = validateMemoryExtraction({...cut, tombstones: this.tombstones(cut.access)}, candidates, {assertedBy: 'model:' + sha256(modelId).slice(0, 32), observedAt: stamp()});
+    if (this.store.get('projectMemoryExtraction', key)) return {...result, items: [], unresolvedWork: []};
+    if (result.items.some(item => item.kind === 'PREFERENCE')) fail('Reusable preferences require an authenticated user confirmation.', 'MEMORY_PREFERENCE_CONFIRMATION_REQUIRED');
+    if (this.rows(cut.access).length + this.tombstones(cut.access).length + result.items.length > LIMITS.items) fail('Project memory is full.');
+    this.store.internal('project.memory.extracted', cut.access.threadId, () => {
+      this.assertExtractionCut(cut);
+      for (const item of result.items) this.save(cut.access, item);
+      // No source prose, unresolved prose, or provider response is copied here.
+      this.store.put('projectMemoryExtraction', key, cut.access.threadId, {id: key, projectIdentity: cut.access.projectIdentity, accountId: cut.access.accountId, sourceRunId: cut.sourceRunId, watermark: cut.watermark, sourceDigest: digest(cut.sources.map(source => source.ref)), itemIds: result.items.map(item => item.id), unresolvedCount: result.unresolvedWork.length});
+      return {itemIds: result.items.map(item => item.id), unresolvedCount: result.unresolvedWork.length};
+    });
+    return result;
+  }
+  extractionComplete(access: MemoryAccess, sourceRunId: string): boolean {
+    this.assertAccess(access); return Boolean(this.store.get('projectMemoryExtraction', digest({projectIdentity: access.projectIdentity, accountId: access.accountId, sourceRunId})));
+  }
+  markUsed(access: MemoryAccess, raw: MemoryRecallV1): void {
+    const recall = memoryRecallV1Schema.parse(raw); this.assertAccess(access);
+    if (recall.projectIdentity !== access.projectIdentity) fail('Recall usage belongs to another project.', 'MEMORY_SCOPE_CHANGED');
+    const selected = new Map(recall.selectedRevisions.map(ref => [ref.itemId, ref.revision]));
+    const items = this.accepted(access).filter(row => selected.get(row.item.id) === row.item.revision);
+    if (!items.length) return;
+    this.store.internal('project.memory.used', access.threadId, () => {
+      this.assertAccess(access);
+      for (const row of items) this.store.put('projectMemoryUsage', row.item.id, null, {at: stamp(), revision: row.item.revision, requestId: recall.requestId, contextGeneration: recall.contextGeneration});
+      return {requestId: recall.requestId, selectedRevisions: items.map(row => ({itemId: row.item.id, revision: row.item.revision}))};
+    });
+  }
+  recordRequestUsage(access: MemoryAccess, requestId: string, contextGeneration: number, injectedBytes: number, latencyMs: number): void {
+    this.assertAccess(access);
+    if (!/^[a-zA-Z0-9:_.-]{1,200}$/.test(requestId) || !Number.isSafeInteger(contextGeneration) || contextGeneration < 0 || !Number.isSafeInteger(injectedBytes) || injectedBytes < 0 || injectedBytes > LIMITS.recallBytes || !Number.isFinite(latencyMs) || latencyMs < 0) fail('The dispatched recall measurement is invalid.');
+    if (this.store.get('projectMemoryRequestUsage', requestId)) return;
+    this.store.internal('project.memory.request.used', access.threadId, () => {
+      this.assertAccess(access);
+      this.store.put('projectMemoryRequestUsage', requestId, access.threadId, {requestId, contextGeneration, profileId: access.profileId, projectIdentity: access.projectIdentity, projectId: access.projectId, accountId: access.accountId, injectedBytes, latencyMs, at: stamp()});
+      return {requestId, contextGeneration, injectedBytes, latencyMs};
+    });
+  }
+  usage(access: MemoryAccess): MemoryUsageReport {
+    this.assertAccess(access);
+    type Spend = MemoryUsageReport['extraction'];
+    const zero = (): Spend => ({modelCalls: 0, inputTokens: 0, outputTokens: 0, cost: 0, pending: 0});
+    const rows = this.store.db.prepare(`SELECT json_extract(body,'$.phase') AS phase,
+      COALESCE(SUM(json_extract(body,'$.usage.modelCalls')),0) AS modelCalls,
+      CASE WHEN SUM(CASE WHEN json_extract(body,'$.usage.modelCalls')>0 AND json_extract(body,'$.usage.inputTokens') IS NULL THEN 1 ELSE 0 END)>0 THEN NULL ELSE COALESCE(SUM(json_extract(body,'$.usage.inputTokens')),0) END AS inputTokens,
+      CASE WHEN SUM(CASE WHEN json_extract(body,'$.usage.modelCalls')>0 AND json_extract(body,'$.usage.outputTokens') IS NULL THEN 1 ELSE 0 END)>0 THEN NULL ELSE COALESCE(SUM(json_extract(body,'$.usage.outputTokens')),0) END AS outputTokens,
+      CASE WHEN SUM(CASE WHEN json_extract(body,'$.usage.modelCalls')>0 AND json_extract(body,'$.usage.cost') IS NULL THEN 1 ELSE 0 END)>0 THEN NULL ELSE COALESCE(SUM(json_extract(body,'$.usage.cost')),0) END AS cost,
+      COUNT(DISTINCT CASE WHEN json_extract(body,'$.settled')<>1 AND COALESCE(json_extract(body,'$.interrupted'),0)<>1 THEN COALESCE(json_extract(body,'$.sourceRunId'),id) ELSE NULL END) AS pending
+      FROM entities WHERE kind='projectMemoryAuxiliaryUsage' AND json_extract(body,'$.projectIdentity')=? AND json_extract(body,'$.accountId') IS ? AND json_extract(body,'$.profileId')=? GROUP BY json_extract(body,'$.phase')`).all(access.projectIdentity, access.accountId, access.profileId) as (Spend & {phase: string})[];
+    const spend = (phase: string): Spend => {const row = rows.find(row => row.phase === phase); if (!row) return zero(); const {phase: _, ...value} = row; return value;};
+    const retrieval = this.store.db.prepare("SELECT COUNT(*) AS requests, COALESCE(SUM(json_extract(body,'$.injectedBytes')),0) AS injectedBytes, COALESCE(SUM(json_extract(body,'$.latencyMs')),0) AS latencyMs FROM entities WHERE kind='projectMemoryRequestUsage' AND json_extract(body,'$.projectIdentity')=? AND json_extract(body,'$.accountId') IS ? AND json_extract(body,'$.profileId')=?").get(access.projectIdentity, access.accountId, access.profileId);
+    return memoryUsageReportSchema.parse({scope: memoryScope(access), extraction: spend('EXTRACTION'), consolidation: spend('CONSOLIDATION'), retrieval});
+  }
+  assertCheckpointCurrent(access: MemoryAccess, checkpoint: MemoryCheckpointV1): void {
+    this.requireEnabled(access);
+    const {digest: packetDigest, ...body} = checkpoint;
+    const items = this.accepted(access).map(row => row.item).filter(item => item.kind === 'CONSTRAINT' || item.kind === 'DECISION').sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+    const expected = items.map(({id, revision, kind, text, sourceRefs}) => ({itemId: id, revision, kind, text, sourceRefs}));
+    if (checkpoint.version !== 1 || !/^memory-checkpoint:[a-zA-Z0-9-]+$/.test(checkpoint.id) || checkpoint.profileId !== access.profileId || checkpoint.projectId !== access.projectId || checkpoint.projectIdentity !== access.projectIdentity || checkpoint.accountId !== access.accountId || checkpoint.threadId !== access.threadId || checkpoint.bindingDigest !== access.bindingDigest || checkpoint.watermark !== this.watermark(access) || digest(body) !== packetDigest || digest(checkpoint.constraints) !== digest(expected) || digest(checkpoint.refs) !== digest(expected.map(({itemId, revision}) => ({itemId, revision}))) || Buffer.byteLength(JSON.stringify(checkpoint)) > LIMITS.sourceBytes) fail('The checkpoint no longer matches accepted memory.', 'MEMORY_CHECKPOINT_STALE');
+  }
+  persistCheckpoint(access: MemoryAccess, checkpoint: MemoryCheckpointV1): {id: string; persisted: true; digest: string} {
+    this.assertCheckpointCurrent(access, checkpoint);
+    this.store.internal('project.memory.checkpoint.saved', access.threadId, () => {
+      this.assertAccess(access);
+      const existing = this.store.get<{checkpoint?: MemoryCheckpointV1}>('projectMemoryDerived', checkpoint.id);
+      if (existing && digest(existing.checkpoint) !== digest(checkpoint)) fail('Checkpoint IDs are immutable.', 'MEMORY_CHECKPOINT_FAILED');
+      this.store.put('projectMemoryDerived', checkpoint.id, null, {id: checkpoint.id, profileId: access.profileId, projectId: access.projectId, projectIdentity: access.projectIdentity, accountId: access.accountId, refs: checkpoint.refs, valid: true, checkpoint});
+      const old = this.derived(access.projectIdentity, access.accountId).filter(row => row.id.startsWith('memory-checkpoint:') && row.id !== checkpoint.id);
+      for (const row of old.slice(0, Math.max(0, old.length - 15))) this.store.remove('projectMemoryDerived', row.id);
+      return {id: checkpoint.id, digest: checkpoint.digest};
+    });
+    return {id: checkpoint.id, persisted: true, digest: checkpoint.digest};
+  }
   read(access: MemoryAccess): ProjectMemoryView {
     this.assertAccess(access); const config = this.config(access);
     const items = this.rows(access).filter(row => !this.isDeleted(access, row.item.id)).map(row => {
       const revisions = this.store.get<{ revisions: number[] }>('projectMemoryConflict', row.item.id)?.revisions ?? [];
       return { item: row.item, lastUsedAt: this.store.get<{ at: string }>('projectMemoryUsage', row.item.id)?.at ?? row.lastUsedAt, conflictRevisions: revisions.map(revision => this.store.get<StoredMemory>('projectMemoryRevision', `${row.item.id}@${revision}`)?.item).filter((item): item is MemoryItemV1 => !!item) };
     });
-    return { scope: memoryScope(access), projectName: this.store.get<ProjectSummary>('workspaceProject', access.projectId)!.name, available: this.enabled(), disabledReason: this.enabled() ? null : 'Project memory activation awaits reviewed request-context integration. Existing records remain reviewable.', enabled: config.enabled, configRevision: config.revision, sourceThreadIds: config.sourceThreadIds,
+    return { scope: memoryScope(access), projectName: this.store.get<ProjectSummary>('workspaceProject', access.projectId)!.name, available: this.enabled(), disabledReason: this.enabled() ? null : 'Project memory is disabled by this host. Existing records remain reviewable.', enabled: config.enabled, configRevision: config.revision, sourceThreadIds: config.sourceThreadIds,
       eligibleThreads: this.store.all<Thread>('thread').filter(thread => thread.projectId === access.projectId && (thread.accountId ?? null) === access.accountId && !thread.sideParentId && !['side', 'delegate'].includes(thread.kind ?? '') && !this.store.get('archivedThread', thread.id)).slice(0, 200).map(thread => ({ id: thread.id, title: thread.title.slice(0, 1000) })), items, tombstones: this.tombstones(access) };
   }
   source(access: MemoryAccess, itemId: string, revision: number, sourceDigest: string, selector?: MemorySourceRefV1): MemorySourceDetail {
@@ -340,14 +496,14 @@ export class ProjectMemory {
   }
   private applyReview(access: MemoryAccess, action: Exclude<MemoryAction, { action: 'configure' }>, userId: string) {
     const row = this.item(access, action.itemId), old = row.item;
-    if (old.revision !== action.baseRevision && action.action !== 'edit') fail('Memory changed. Review its current revision.', 'STALE_MEMORY');
+    if (old.revision !== action.baseRevision && action.action !== 'edit' && action.action !== 'confirm-preference') fail('Memory changed. Review its current revision.', 'STALE_MEMORY');
     if (action.action === 'forget') fail('Forget requires a durable deletion fence.');
-    if (['accept', 'edit', 'resolve'].includes(action.action) && old.sourceRefs.some(ref => !this.sourceAvailable(access, ref))) fail('The supporting source is unavailable.', 'MEMORY_SOURCE_DENIED');
+    if (['accept', 'edit', 'confirm-preference', 'resolve'].includes(action.action) && old.sourceRefs.some(ref => !this.sourceAvailable(access, ref))) fail('The supporting source is unavailable.', 'MEMORY_SOURCE_DENIED');
     let state: MemoryItemV1['state'], text = old.text, decision: NonNullable<MemoryItemV1['reviewDecision']>['action'], expiresAt = old.expiresAt;
     if (action.action === 'accept') { if (old.state !== 'PROPOSED') fail('Only a proposal can be accepted.'); state = 'ACCEPTED'; decision = 'ACCEPT'; }
     else if (action.action === 'reject') { if (old.state !== 'PROPOSED') fail('Only a proposal can be rejected.'); state = 'EXPIRED'; decision = 'REJECT'; expiresAt = stamp(); }
     else if (action.action === 'expire') { if (old.state !== 'ACCEPTED') fail('Only accepted memory can be expired.'); state = 'EXPIRED'; decision = 'EXPIRE'; expiresAt = stamp(); }
-    else if (action.action === 'edit') {
+    else if (action.action === 'edit' || action.action === 'confirm-preference') {
       text = checkedText(action.text); decision = 'EDIT_ACCEPT'; expiresAt = action.expiresAt === undefined ? old.expiresAt : action.expiresAt;
       if (!this.store.get('projectMemoryRevision', `${old.id}@${action.baseRevision}`)) fail('The corrected revision is unavailable.', 'STALE_MEMORY');
       state = old.revision !== action.baseRevision || old.state === 'CONFLICT' ? 'CONFLICT' : 'ACCEPTED';
@@ -368,7 +524,7 @@ export class ProjectMemory {
       this.store.remove('projectMemoryConflict', old.id);
       return { itemId: old.id, revision: old.revision + 1, state: 'ACCEPTED', additionalItemIds };
     }
-    this.save(access, { ...old, text, ...(action.action === 'edit' ? { assertedBy: { kind: 'USER' as const, id: userId } } : {}), revision: old.revision + 1, state, expiresAt, supersedes: [{ itemId: old.id, revision: action.baseRevision }], reviewDecision: { action: decision, userId, at: stamp() } });
+    this.save(access, { ...old, text, ...(['edit', 'confirm-preference'].includes(action.action) ? { assertedBy: { kind: 'USER' as const, id: userId } } : {}), ...(action.action === 'confirm-preference' ? {kind: 'PREFERENCE' as const, scope: 'PROJECT' as const} : {}), revision: old.revision + 1, state, expiresAt, supersedes: [{ itemId: old.id, revision: action.baseRevision }], reviewDecision: { action: decision, userId, at: stamp(), ...(action.action === 'confirm-preference' ? {note: 'Confirmed reusable preference for this project only.'} : {}) } });
     return { itemId: old.id, revision: old.revision + 1, state };
   }
   /** Bounded host maintenance. Tombstones survive; native history is outside this purge. */

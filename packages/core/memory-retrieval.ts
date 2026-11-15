@@ -165,8 +165,8 @@ const ownerDigest = (access: MemoryAccess) => sha256(JSON.stringify([access.prof
 const requestKey = (access: MemoryAccess, requestId: string) => JSON.stringify([access.profileId, requestId]);
 interface RecallSnapshot { owner: string; fingerprint: string; captured: boolean; result: MemoryRecallResult }
 
-/** Dormant request-preparation seam. M04 must supply real generation custody
- * before use in the runtime. No update can alter a finalized/in-flight prompt. */
+/** Immutable memory projections. The host supplies M04 request and generation
+ * custody. No update can alter a finalized or in-flight prompt. */
 export class MemoryRequestSnapshots {
   private readonly snapshots = new Map<string, RecallSnapshot>();
   constructor(private readonly capacity = 128) {

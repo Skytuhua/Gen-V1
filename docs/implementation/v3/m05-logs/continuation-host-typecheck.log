@@ -1,0 +1,12 @@
+packages/core/project-memory-host.ts(96,9): error TS18048: 'entry' is possibly 'undefined'.
+packages/core/project-memory-host.ts(97,9): error TS18048: 'entry' is possibly 'undefined'.
+packages/core/project-memory-host.ts(97,48): error TS18048: 'entry' is possibly 'undefined'.
+packages/core/project-memory-host.ts(98,22): error TS2345: Argument of type 'Prepared | undefined' is not assignable to parameter of type 'Prepared'.
+  Type 'undefined' is not assignable to type 'Prepared'.
+packages/core/project-memory-host.ts(103,5): error TS18048: 'entry' is possibly 'undefined'.
+packages/core/project-memory-host.ts(103,43): error TS18048: 'entry' is possibly 'undefined'.
+packages/core/project-memory-host.ts(103,43): error TS2345: Argument of type 'MemoryAccess | undefined' is not assignable to parameter of type 'MemoryAccess'.
+  Type 'undefined' is not assignable to type 'MemoryAccess'.
+packages/core/project-memory-host.ts(104,22): error TS2345: Argument of type 'Prepared | undefined' is not assignable to parameter of type 'Prepared'.
+  Type 'undefined' is not assignable to type 'Prepared'.
+packages/core/project-memory-host.ts(109,24): error TS18048: 'entry.result' is possibly 'undefined'.

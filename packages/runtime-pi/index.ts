@@ -11,6 +11,7 @@ import { safeError } from "./sdk.ts";
 import { taskPaths, validateSessionPath } from "./session.ts";
 import { terminateProcessTree } from "./process-tree.ts";
 import {assertModelOnlyInput,type ModelPurpose} from '../runtime/model-only.ts';
+import {requiresMemoryCheckpoint,routeMemoryCheckpoint,sameMemoryCheckpointRequirement} from '../runtime/memory-checkpoint.ts';
 
 interface Worker {
   process: ChildProcess; ctx?: RunContext; allowed: Set<string>; active: boolean; stopping: boolean;
@@ -18,11 +19,12 @@ interface Worker {
   pending: Map<string, { resolve: (value: unknown) => void; reject: (error: Error) => void; timer: ReturnType<typeof setTimeout> }>;
   exited: Promise<void>;
   termination?: Promise<void>;
+  input?:StartRun;sessionPath?:string;checkpointWork?:Promise<unknown>;
 }
 interface RunAuthority { ctx: RunContext; revoked: boolean; settled?: boolean; worker?: Worker }
 
 export function createPiRuntime({ dataDir,modelOnly:requestedModelOnly,purpose }: { dataDir: string;modelOnly?:boolean;purpose?:ModelPurpose }): RuntimeAdapter {
-  const modelOnly=requestedModelOnly||purpose==='prediction';
+  const modelOnly=requestedModelOnly||purpose==='prediction'||purpose==='memory-extraction';
   const storage = resolve(dataDir);
   let callbacks: RuntimeCallbacks | undefined;
   let disposed = false;
@@ -85,11 +87,20 @@ export function createPiRuntime({ dataDir,modelOnly:requestedModelOnly,purpose }
       } else if (message.type === "ready" && worker.ctx && sameContext(message.ctx, worker.ctx) && current(worker)) {
         worker.allowed = new Set(modelOnly?[]:message.tools);
       } else if (message.type === "event" && worker.ctx && sameContext(message.ctx, worker.ctx) && sameContext(message.event, worker.ctx) && current(worker)) {
+        if(message.event.type==='session'&&typeof message.event.sessionPath==='string')worker.sessionPath=message.event.sessionPath;
         if (message.event.type === "settled") {
           worker.active = false;
           if (worker.authority) { worker.authority.settled = true; worker.authority.revoked = true; }
         }
         callbacks?.onEvent(message.event);
+      } else if(message.type==='memory.checkpoint'&&worker.ctx&&current(worker)){
+        const request=message.request;
+        const check=()=>{if(!current(worker)||!worker.active||modelOnly||!worker.input||!requiresMemoryCheckpoint(worker.input.memoryCheckpoint))throw new HarnessError('MEMORY_CHECKPOINT_OWNER','Native checkpoint authority is no longer current.');};
+        const respond=(value?:unknown)=>{try{if(current(worker)&&child.connected)child.send({type:'memory.checkpoint.result',requestId:request?.requestId,ctx:worker.ctx,...(value?{value}:{error:'Required memory checkpoint was not confirmed.'})},()=>{});}catch{/* A disconnected owner cannot resume native compaction. */}};
+        if(worker.checkpointWork){respond();return;}
+        const work=Promise.resolve().then(()=>{check();return routeMemoryCheckpoint(request,{adapterId:'pi',ctx:worker.ctx!,sessionPath:worker.sessionPath??worker.input!.sessionPath??'',modelId:worker.input!.modelId,accountId:worker.input!.accountId??null},callbacks?.onMemoryCheckpoint,check);});
+        worker.checkpointWork=work;
+        void work.then(value=>respond(value),()=>respond()).finally(()=>{if(worker.checkpointWork===work)worker.checkpointWork=undefined;});
       } else if (message.type === "tool.call" && worker.ctx && current(worker)) {
         const request = message as ToolRequest;
         void routeToolCall(request, worker.ctx, worker.allowed, callbacks!.onTool).then(
@@ -108,8 +119,10 @@ export function createPiRuntime({ dataDir,modelOnly:requestedModelOnly,purpose }
       worker.active = false;
       if (worker.authority) { worker.authority.settled = true; worker.authority.revoked = true; }
       if (worker.ctx && runs.get(worker.ctx.threadId) === worker) runs.delete(worker.ctx.threadId);
-      workers.delete(worker);
-      if (authority) authorities.delete(authority);
+      const release=()=>{workers.delete(worker);if(authority)authorities.delete(authority);};
+      // Exiting the native process revokes execution, but pending trusted host
+      // persistence still belongs to this worker's cleanup barrier.
+      if(worker.checkpointWork)void worker.checkpointWork.then(release,release);else release();
       didExit();
     };
     child.once("exit", ended);
@@ -136,6 +149,7 @@ export function createPiRuntime({ dataDir,modelOnly:requestedModelOnly,purpose }
       if (worker.process.connected) await request(worker, "abort", { ctx: worker.ctx }, 1500).catch(() => {});
       await terminateProcessTree(worker.process);
       await worker.exited;
+      await worker.checkpointWork?.catch(()=>{});
     })();
     return worker.termination;
   }
@@ -156,14 +170,16 @@ export function createPiRuntime({ dataDir,modelOnly:requestedModelOnly,purpose }
   async function queueRun(input: StartRun, command: "start" | "compact", timeoutMs?: number): Promise<void> {
     if(modelOnly)assertModelOnlyInput(input,purpose);
     assertContext(input);
+    if(requiresMemoryCheckpoint(input.memoryCheckpoint)&&(modelOnly||!callbacks?.onMemoryCheckpoint))throw new HarnessError('MEMORY_CHECKPOINT_UNSUPPORTED','Required memory checkpoint persistence is unavailable to this native runtime.');
     const ctx = { threadId: input.threadId, runId: input.runId, epoch: input.epoch };
-    const original = { ...input, ...ctx, inputIds: input.inputIds && [...input.inputIds] };
+    const original = structuredClone({ ...input, ...ctx, inputIds: input.inputIds && [...input.inputIds] });
     // Cancellation owns the original run before any queue or asynchronous setup can yield.
     const authority: RunAuthority = { ctx, revoked: false };
     authorities.add(authority);
     return serial(ctx.threadId, async () => {
       try {
         const worker = await prepare(authority);
+        worker.input=original;worker.sessionPath=original.sessionPath??undefined;
         assertAuthority(authority);
         await request(worker, command, { input: original }, timeoutMs);
         if (authority.settled) return;
@@ -195,11 +211,12 @@ export function createPiRuntime({ dataDir,modelOnly:requestedModelOnly,purpose }
       return structuredClone(await modelDiscovery);
     },
     start(input) { return queueRun(input, "start"); },
-    followUp(input) { if(purpose==='prediction')return Promise.reject(new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions cannot continue a conversation.'));return serial(input.threadId, async () => {
+    followUp(input) { if(purpose==='memory-extraction')return Promise.reject(new HarnessError('MEMORY_EXTRACTION_SESSION_UNSUPPORTED','Memory extraction cannot continue a conversation.'));if(purpose==='prediction')return Promise.reject(new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions cannot continue a conversation.'));return serial(input.threadId, async () => {
       assertContext(input);
       const worker = runs.get(input.threadId);
       if (!worker || !sameContext(worker.ctx, input) || worker.stopping || !worker.active) throw new HarnessError("PI_STALE_RUN", "No matching active Pi run for this follow-up. Start or resume the task first.");
       assertAuthority(worker.authority);
+      if(!sameMemoryCheckpointRequirement(input.memoryCheckpoint,worker.input?.memoryCheckpoint)||(input.accountId??null)!==(worker.input?.accountId??null))throw new HarnessError('MEMORY_CHECKPOINT_OWNER','Follow-up changed the captured checkpoint or account binding.');
       worker.active = true;
       await request(worker, "followUp", { input });
     }); },
@@ -213,12 +230,14 @@ export function createPiRuntime({ dataDir,modelOnly:requestedModelOnly,purpose }
         callbacks?.onEvent({ ...matching[0].ctx, type: "settled", aborted: true });
       }
     },
-    compact(ctx, sessionPath, modelId) {
+    compact(ctx, sessionPath, modelId,accountId,memoryCheckpoint) {
+      if(purpose==='memory-extraction')return Promise.reject(new HarnessError('MEMORY_EXTRACTION_SESSION_UNSUPPORTED','Memory extraction cannot compact conversations.'));
       if(purpose==='prediction')return Promise.reject(new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions cannot compact conversations.'));
-      const input: StartRun = { ...ctx, sessionPath, modelId, prompt: "", inputId: "", resources: [] };
+      const input: StartRun = { ...ctx, sessionPath, modelId,accountId,memoryCheckpoint, prompt: "", inputId: "", resources: [] };
       return queueRun(input, "compact", 180_000);
     },
     async history(sessionPath) {
+      if(purpose==='memory-extraction')throw new HarnessError('MEMORY_EXTRACTION_SESSION_UNSUPPORTED','Memory extraction cannot read conversations.');
       if(purpose==='prediction')throw new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions cannot read conversations.');
       const file = await validateSessionPath(storage, sessionPath);
       return extractInputIds(await readFile(file, "utf8"));

@@ -58,6 +58,7 @@ export const memoryActionSchema = z.discriminatedUnion('action', [
   z.strictObject({ action: z.literal('configure'), baseRevision: z.number().int().nonnegative(), enabled: z.boolean(), sourceThreadIds: z.array(id).max(200) }),
   z.strictObject({ action: z.literal('accept'), itemId: id, baseRevision: revision }),
   z.strictObject({ action: z.literal('edit'), itemId: id, baseRevision: revision, text: memoryTextSchema, expiresAt: time.nullable().optional() }),
+  z.strictObject({ action: z.literal('confirm-preference'), itemId: id, baseRevision: revision, text: memoryTextSchema, expiresAt: time.nullable().optional(), confirmation: z.literal('PROJECT_ONLY') }),
   z.strictObject({ action: z.literal('reject'), itemId: id, baseRevision: revision }),
   z.strictObject({ action: z.literal('expire'), itemId: id, baseRevision: revision }),
   z.strictObject({ action: z.literal('forget'), itemId: id, baseRevision: revision }),
@@ -67,6 +68,18 @@ export type MemoryAction = z.infer<typeof memoryActionSchema>;
 export const memoryActionEnvelopeSchema = z.strictObject({ commandId: id, scope: memoryScopeSchema, operation: memoryActionSchema });
 export const memoryMutationResultSchema = z.strictObject({ commandId: id, eventSeq: z.number().int().nonnegative(), result: z.strictObject({ itemId: id.optional(), revision: z.number().int().nonnegative(), state: z.string().max(50), additionalItemIds: z.array(id).max(2).optional() }) });
 export type MemoryMutationResult = z.infer<typeof memoryMutationResultSchema>;
+export const memoryPreparedRequestSchema = z.strictObject({
+  scope: memoryScopeSchema, requestId: id, contextGeneration: z.number().int().nonnegative(), phase: z.enum(['PREPARING', 'CAPTURED']),
+  recall: memoryRecallV1Schema, items: z.array(memoryItemV1Schema).max(PROJECT_MEMORY_LIMITS.recallItems),
+  injectedBytes: z.number().int().min(0).max(PROJECT_MEMORY_LIMITS.recallBytes), expiresAt: time,
+});
+export type MemoryPreparedRequest = z.infer<typeof memoryPreparedRequestSchema>;
+const memorySpendSchema = z.strictObject({modelCalls: z.number().int().nonnegative(), inputTokens: z.number().nonnegative().nullable(), outputTokens: z.number().nonnegative().nullable(), cost: z.number().nonnegative().nullable(), pending: z.number().int().nonnegative()});
+export const memoryUsageReportSchema = z.strictObject({
+  scope: memoryScopeSchema, extraction: memorySpendSchema, consolidation: memorySpendSchema,
+  retrieval: z.strictObject({requests: z.number().int().nonnegative(), injectedBytes: z.number().int().nonnegative(), latencyMs: z.number().nonnegative()}),
+});
+export type MemoryUsageReport = z.infer<typeof memoryUsageReportSchema>;
 export const memoryExportSchema = z.strictObject({ scope: memoryScopeSchema, redacted: z.literal(true), items: z.array(z.strictObject({ id, revision, kind: memoryItemV1Schema.shape.kind, state: memoryItemV1Schema.shape.state, text: memoryTextSchema, sourceDigests: z.array(hash).max(8) })).max(500), tombstones: z.array(z.strictObject({ itemId: id, deletionRevision: revision, deletedAt: time, purgeStatus: memoryTombstoneV1Schema.shape.purgeStatus })).max(500) });
 export type MemoryExport = z.infer<typeof memoryExportSchema>;
 

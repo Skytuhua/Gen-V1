@@ -8,9 +8,10 @@ import './context-inspector.css';
 import {ErrorState} from '../../../packages/ui-shell/Feedback';
 import {memoryItemV1Schema, memoryRecallV1Schema, type MemoryItemV1, type MemoryRecallV1, type MemoryRevisionRef} from '../../../packages/contracts/project-memory';
 
-/** Only a real request preparation owner may supply this adapter. No caller is connected yet. */
+/** Only the owner of a real host-prepared request may supply this adapter. */
 export interface MemoryRequestExclusionAdapter {
   requestId: string; contextGeneration: number; phase: 'PREPARING' | 'CAPTURED';
+  disabled?: boolean;
   exclude: (revision: MemoryRevisionRef) => Promise<void>;
 }
 export interface ContextMemoryRecall {
@@ -59,6 +60,7 @@ export interface ContextInspectorProps {
   usage: ContextUsage | undefined; thread: Thread | undefined;
   close: () => void; refresh: () => Promise<void>; onError?: (message: string) => void;
   anchor?: RefObject<HTMLElement | null>; compaction?: ContextCompactionReport; memoryRecall?: ContextMemoryRecall;
+  memoryPreparation?: {pending: boolean; error: string; refresh: () => void; disabled?: boolean};
 }
 export function ContextInspector(props: ContextInspectorProps) {
   const fallback = useRef<HTMLElement | null>(null);
@@ -67,7 +69,7 @@ export function ContextInspector(props: ContextInspectorProps) {
     <ContextSession key={identity} {...props} anchor={props.anchor ?? fallback} />
   </>;
 }
-function ContextSession({ usage, thread, close, refresh, onError, anchor, compaction, memoryRecall }: ContextInspectorProps & { anchor: RefObject<HTMLElement | null> }) {
+function ContextSession({ usage, thread, close, refresh, onError, anchor, compaction, memoryRecall, memoryPreparation }: ContextInspectorProps & { anchor: RefObject<HTMLElement | null> }) {
   const [error, setError] = useState(''), [submitting, setSubmitting] = useState(false), [requested, setRequested] = useState(false);
   const [animateReceipt, setAnimateReceipt] = useState(false);
   const panel = useRef<HTMLDivElement>(null), action = useRef<HTMLButtonElement>(null), restoreActionFocus = useRef(false);
@@ -119,6 +121,9 @@ function ContextSession({ usage, thread, close, refresh, onError, anchor, compac
       {measured && <span className="context-inspector-total">{contextNumber(measured.used)} of {contextNumber(measured.total)} tokens</span>}</header>
     <div className="context-inspector-body"><ContextMeter usage={usage} busy={compacting} accepted={playingReceipt} />
       {failure && <ErrorState className="context-inspector-error" message={failure}/>}
+      {memoryPreparation?.pending && <p role="status">Preparing project memory…</p>}
+      {memoryPreparation?.error && <ErrorState message={memoryPreparation.error}/>}
+      {memoryPreparation && (recalled || memoryPreparation.error) && <button type="button" disabled={memoryPreparation.pending || memoryPreparation.disabled} onClick={memoryPreparation.refresh}>Refresh prepared context</button>}
       {recalled && <MemoryRecallDetails value={recalled}/>}
     </div>
     <footer><span role="status" aria-live="polite" className={playingReceipt ? 'context-receipt-pulse' : undefined}>{activity}</span>
@@ -133,7 +138,7 @@ function MemoryRecallDetails({value}: {value: ContextMemoryRecall}) {
   const active = useRef(false), locked = useRef(false);
   useLayoutEffect(() => {active.current = true; return () => {active.current = false;};}, []);
   const adapter = value.exclusionAdapter;
-  const canExclude = adapter?.phase === 'PREPARING' && adapter.requestId === value.requestId && adapter.contextGeneration === value.contextGeneration;
+  const canExclude = adapter?.phase === 'PREPARING' && !adapter.disabled && adapter.requestId === value.requestId && adapter.contextGeneration === value.contextGeneration;
   async function exclude(item: MemoryItemV1) {
     if (!canExclude || !adapter || locked.current) return;
     locked.current = true; setPending(item.id); setError('');
@@ -141,10 +146,10 @@ function MemoryRecallDetails({value}: {value: ContextMemoryRecall}) {
     catch (cause) {if (active.current) setError(cause instanceof Error ? cause.message : 'This request could not be updated.');}
     finally {if (active.current) {locked.current = false; setPending(undefined);}}
   }
-  return <section className="context-memory-recall" aria-label="Recalled project memory"><h3>Why recalled</h3><p>{value.recall.status} · {value.injectedBytes} of {value.recall.budgetBytes} memory bytes</p><p>Request {value.requestId} · generation {value.contextGeneration}</p>
+  return <section className="context-memory-recall" aria-label="Recalled project memory"><h3>Why recalled</h3>{adapter && <p>{adapter.phase === 'CAPTURED' ? 'Captured for the last sent request.' : 'Prepared for the current draft.'}</p>}<p>{value.recall.status} · {value.injectedBytes} of {value.recall.budgetBytes} memory bytes</p><p>Request {value.requestId} · generation {value.contextGeneration}</p>
     {!value.items.length && <p>No memory was selected for this request.</p>}
     {value.items.map(item => {const score = value.recall.scores.find(score => score.itemId === item.id && score.revision === item.revision); return <article key={`${item.id}:${item.revision}`}><p>{item.text}</p><p>Project scope{score ? ` · ${score.projectOverlap} project matches · ${score.symbolOverlap} symbol matches` : ''}{score?.matchedTerms.length ? ` · ${score.matchedTerms.join(', ')}` : ''}</p>{item.sourceRefs.map((source, index) => <p key={`${source.digest}:${index}`}>Source: {source.sourceKind.toLowerCase()} {source.sourceId} · revision {source.sourceRevision} · {source.observedStatus.toLowerCase()}</p>)}<button type="button" disabled={!canExclude || Boolean(pending) || requested.includes(item.id)} onClick={() => void exclude(item)}>Exclude from this request</button>{requested.includes(item.id) && <p role="status">Exclusion requested for this prepared request.</p>}</article>;})}
-    {!canExclude && <p>{adapter?.phase === 'CAPTURED' ? 'This request is already captured. Its prompt cannot be changed.' : 'Request exclusion is unavailable until request preparation is connected.'}</p>}
+    {!canExclude && <p>{adapter?.phase === 'CAPTURED' ? 'This request is already captured. Its prompt cannot be changed.' : adapter?.disabled ? 'Request exclusion is unavailable while context is pending or the request is being sent.' : 'Request exclusion is unavailable until request preparation is connected.'}</p>}
     <p>Matched evidence can be mistaken. Exclusion does not permanently forget memory.</p>{error && <ErrorState message={error}/>}
   </section>;
 }

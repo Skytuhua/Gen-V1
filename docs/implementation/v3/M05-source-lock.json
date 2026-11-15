@@ -1,7 +1,7 @@
 {
   "schemaVersion": 3,
   "auditAncestorSha": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
-  "executionBaseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+  "executionBaseSha": "5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42",
   "inspectedPaths": [
     {
       "path": "apps/server/host.ts",
@@ -13,7 +13,7 @@
     },
     {
       "path": "apps/server/server.ts",
-      "blobSha": "e4df5cae7274c99ff988f30a2bb5abb5aa0e3362"
+      "blobSha": "af1a4d8e58331d0fa0481e6ec76ff25d822a0b4b"
     },
     {
       "path": "apps/web/src/ContextInspector.tsx",
@@ -40,6 +40,10 @@
       "blobSha": "41f7fc679f4e9bcbc48ac089e179cec34bb8fe8b"
     },
     {
+      "path": "docs/implementation/v3/M04-core-verification.json",
+      "blobSha": "0725a706ca45cb20bd5ea0d0e19a7092dc14610d"
+    },
+    {
       "path": "evals/cases.ts",
       "blobSha": "f1a9ebfea2e63a18f2fcb8540e3306088f3bb3ae"
     },
@@ -57,7 +61,11 @@
     },
     {
       "path": "packages/contracts/index.ts",
-      "blobSha": "09517becaf0c35f5f63bd758878659ea0de5f57b"
+      "blobSha": "faa57ba3f2180fe5360f4a50b0c142e57871c91f"
+    },
+    {
+      "path": "packages/contracts/request-context.ts",
+      "blobSha": "30185cc5e66a74ef438af8ec8e9ec1d91989c614"
     },
     {
       "path": "packages/contracts/tool-effects.ts",
@@ -65,7 +73,11 @@
     },
     {
       "path": "packages/core/capability-flags.ts",
-      "blobSha": "39e18abb43f7fa63cb2534ea3356ebb1be121161"
+      "blobSha": "823b9aa9a02499039c69756795144d035c4ce2a6"
+    },
+    {
+      "path": "packages/core/context-compiler.ts",
+      "blobSha": "7b6f9040160b8440845c256c57bd5aba52f1ca4b"
     },
     {
       "path": "packages/core/effect-recovery.ts",
@@ -80,12 +92,16 @@
       "blobSha": "dfc53335151a50d87912de17f7a19166491dd3bc"
     },
     {
+      "path": "packages/core/request-custody.ts",
+      "blobSha": "b7f0946c0ae48acc8d0673739c6960a5601b8841"
+    },
+    {
       "path": "packages/core/security.ts",
       "blobSha": "693f251361bc464caee26df795c57002d120c9a7"
     },
     {
       "path": "packages/core/service.ts",
-      "blobSha": "2b3fb63acef915b052a468e104c6e4f00a4b82e4"
+      "blobSha": "00351f5a3a69c3313fd58f75cc38d90938c63cee"
     },
     {
       "path": "packages/core/skills.ts",
@@ -137,7 +153,11 @@
     },
     {
       "path": "scripts/public-source-files.json",
-      "blobSha": "8cb3efe75c120185f957ab3df73255756adcf7b8"
+      "blobSha": "7738bed5d6fa1903ce76a86e06f5778af91caeae"
+    },
+    {
+      "path": "tests/context-compiler-v3.test.ts",
+      "blobSha": "8c1d31c29d55cae269d42861f506bb769ea82d10"
     },
     {
       "path": "tests/effect-recovery-v3.test.ts",
@@ -146,6 +166,10 @@
     {
       "path": "tests/m01-m02-compatibility.test.ts",
       "blobSha": "044b8b51fc0086ddfec6c47616e186c816cdad26"
+    },
+    {
+      "path": "tests/request-preparation-service-v3.test.ts",
+      "blobSha": "aa26bcf8997e450de648ac26006770d745a0434c"
     },
     {
       "path": "tests/research-baseline.test.ts",
@@ -175,7 +199,7 @@
     },
     {
       "name": "M01.CapabilityFlags",
-      "version": "39e18abb43f7fa63cb2534ea3356ebb1be121161",
+      "version": "823b9aa9a02499039c69756795144d035c4ce2a6",
       "testIds": [
         "tests/project-memory-v3.test.ts",
         "tests/m01-m02-compatibility.test.ts"
@@ -232,12 +256,46 @@
       "testIds": [
         "tests/task-memory.test.ts"
       ]
+    },
+    {
+      "name": "M04.RequestContextV1",
+      "version": "30185cc5e66a74ef438af8ec8e9ec1d91989c614",
+      "testIds": [
+        "tests/context-compiler-v3.test.ts",
+        "tests/request-preparation-service-v3.test.ts",
+        "tests/project-memory-service-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M04.RequestCustody",
+      "version": "b7f0946c0ae48acc8d0673739c6960a5601b8841",
+      "testIds": [
+        "tests/request-preparation-service-v3.test.ts",
+        "tests/project-memory-service-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M04.ContextCompiler",
+      "version": "7b6f9040160b8440845c256c57bd5aba52f1ca4b",
+      "testIds": [
+        "tests/context-compiler-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M04.HostRequestPreparation",
+      "version": "00351f5a3a69c3313fd58f75cc38d90938c63cee",
+      "testIds": [
+        "tests/request-preparation-service-v3.test.ts",
+        "tests/project-memory-request-http-v3.test.ts",
+        "tests/project-memory-service-v3.test.ts"
+      ]
     }
   ],
   "acceptedDependencyCommits": [
     "5f0958f4cb5b40bc10c1eea0e1cd517b57aaa1b9",
     "f331cf16b268282da888a41da42fc776ea7befd5",
-    "e871257aa82beb06ab4b8f3989cbe436cb9a6a8c"
+    "e871257aa82beb06ab4b8f3989cbe436cb9a6a8c",
+    "b4281a4292c5585660b9fbbcb6cf8dc9ed0775fb"
   ],
   "approvedDrift": [
     {
@@ -245,6 +303,36 @@
       "fromBlob": "a45226df77eae1e58594609140252c1f93a985f6",
       "toBlob": "39e18abb43f7fa63cb2534ea3356ebb1be121161",
       "note": "The accepted main base already adds M08 finite registry keys after the M02 receipt. Current M01/M02 compatibility tests pass. M05 only adds its two specified default-false keys; no UI preference or runtime contract is substituted."
+    },
+    {
+      "path": "apps/server/server.ts",
+      "fromBlob": "e4df5cae7274c99ff988f30a2bb5abb5aa0e3362",
+      "toBlob": "af1a4d8e58331d0fa0481e6ec76ff25d822a0b4b",
+      "note": "Accepted-base advancement, including reviewed M04 core PR351 and subsequent reviewed main changes. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
+    },
+    {
+      "path": "packages/contracts/index.ts",
+      "fromBlob": "09517becaf0c35f5f63bd758878659ea0de5f57b",
+      "toBlob": "faa57ba3f2180fe5360f4a50b0c142e57871c91f",
+      "note": "Accepted-base advancement, including reviewed M04 core PR351 and subsequent reviewed main changes. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
+    },
+    {
+      "path": "packages/core/capability-flags.ts",
+      "fromBlob": "39e18abb43f7fa63cb2534ea3356ebb1be121161",
+      "toBlob": "823b9aa9a02499039c69756795144d035c4ce2a6",
+      "note": "Accepted-base advancement, including reviewed M04 core PR351 and subsequent reviewed main changes. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
+    },
+    {
+      "path": "packages/core/service.ts",
+      "fromBlob": "2b3fb63acef915b052a468e104c6e4f00a4b82e4",
+      "toBlob": "00351f5a3a69c3313fd58f75cc38d90938c63cee",
+      "note": "Accepted-base advancement, including reviewed M04 core PR351 and subsequent reviewed main changes. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
+    },
+    {
+      "path": "scripts/public-source-files.json",
+      "fromBlob": "8cb3efe75c120185f957ab3df73255756adcf7b8",
+      "toBlob": "7738bed5d6fa1903ce76a86e06f5778af91caeae",
+      "note": "Accepted-base advancement, including reviewed M04 core PR351 and subsequent reviewed main changes. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
     }
   ]
 }

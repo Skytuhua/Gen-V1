@@ -1,0 +1,20 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/memory-host-lifecycle-v3.test.ts (7 tests | 1 failed) 82ms
+   × reports complete project-scoped auxiliary spend while preserving unknown charges and orphan occupancy 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-host-lifecycle-v3.test.ts > reports complete project-scoped auxiliary spend while preserving unknown charges and orphan occupancy
+TypeError: f.memory.usage is not a function
+ ❯ tests/memory-host-lifecycle-v3.test.ts:106:19
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 passed (7)
+   Start at  19:32:47
+   Duration  501ms (transform 223ms, setup 0ms, import 305ms, tests 82ms, environment 0ms)

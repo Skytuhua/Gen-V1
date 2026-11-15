@@ -1,0 +1,34 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/memory-review-extra-v3.test.ts (5 tests | 2 failed) 59ms
+   × host source authority excludes a retained FILE snapshot when its grant is physical-replacement 13ms
+   × host source authority excludes a retained FILE snapshot when its grant is missing-file 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-review-extra-v3.test.ts > host source authority excludes a retained FILE snapshot when its grant is physical-replacement
+ FAIL  tests/memory-review-extra-v3.test.ts > host source authority excludes a retained FILE snapshot when its grant is missing-file
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/memory-review-extra-v3.test.ts:53:63
+     51|   });
+     52|
+     53|   expect(fixture.memory.sourceAvailable(fixture.access, ref)).toBe(fal…
+       |                                                               ^
+     54|   expect(fixture.memory.accepted(fixture.access)).toEqual([]);
+     55|   expect(() => fixture.memory.source(fixture.access, accepted.id, acce…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 3 passed (5)
+   Start at  19:49:35
+   Duration  524ms (transform 238ms, setup 0ms, import 345ms, tests 59ms, environment 0ms)

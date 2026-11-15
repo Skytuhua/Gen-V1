@@ -1,0 +1,15 @@
+Browser results: /workspace/scratch/36f66011d961/m05-continuation/test-results/browser/run-1794741682152-0c487017-9397-41f5-9e28-eadb1a4ee07c
+
+Browser suite: project-memory (1 spec files)
+Listing tests:
+  project-memory.spec.ts:263:1 › opens lazily, keeps all four tabs keyboard accessible and fits a narrow viewport
+  project-memory.spec.ts:306:1 › requires an explicit source selection before enabling the project
+  project-memory.spec.ts:333:1 › disabled host prevents new opt-in and preserves correction of retained records
+  project-memory.spec.ts:365:1 › opens an exact source as inert text and accepts a proposal by its reviewed revision
+  project-memory.spec.ts:398:1 › retains the exact correction draft when the reviewed revision is stale
+  project-memory.spec.ts:422:1 › conflict resolution requires explicit revisions and a note before preserving both
+  project-memory.spec.ts:460:1 › forget names invalidated artifacts before committing and shows pending purge afterward
+  project-memory.spec.ts:493:1 › owner change closes the old review without retaining the previous project text
+  project-memory.spec.ts:507:1 › explicit export produces only the host redacted export envelope
+  project-memory.spec.ts:520:1 › recall explains exact source and disables exclusion without a request preparation adapter
+Total: 10 tests in 1 file

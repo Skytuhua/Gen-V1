@@ -332,7 +332,7 @@ export interface MemoryCheckpointHooks<T> {
   capability: MemoryCheckpointCapability | null;
   required: boolean;
   /** Must durably save the packet, register its refs for Forget invalidation,
-   * and return {id, persisted:true, digest}. No existing native adapter does so. */
+   * and return {id, persisted:true, digest}. The native adapter awaits this receipt. */
   persist(checkpoint: MemoryCheckpointV1): unknown | Promise<unknown>;
   compact(): T | Promise<T>;
   now?: () => number;
@@ -341,7 +341,7 @@ export interface MemoryCheckpointHooks<T> {
 const checkpointCapabilitySchema = z.strictObject({ adapterId: identity, apiVersion: z.literal(2), hostOwned: z.literal(true) });
 const checkpointReceiptSchema = z.strictObject({ id: identity, persisted: z.literal(true), digest: z.string().regex(/^[a-f0-9]{64}$/) });
 
-/** A capability gate only. Production adapters remain unchanged and disabled. */
+/** Host checkpoint custody. Native adapters perform compaction only after this gate. */
 export async function checkpointBeforeCompaction<T>(hooks: MemoryCheckpointHooks<T>): Promise<{ checkpoint: MemoryCheckpointV1 | null; result: T }> {
   const active = () => { if (hooks.signal?.aborted) fail('Memory checkpointing was cancelled.', 'MEMORY_CHECKPOINT_CANCELLED'); };
   active();

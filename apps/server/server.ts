@@ -25,11 +25,11 @@ import {createPersonalSkillCatalog} from '../../packages/skill-catalog/adapters.
 import type {SkillCatalogRepository} from '../../packages/skill-catalog/repository.ts';
 import {registerAgentInventoryRoutes} from './agent-inventory-routes.ts';
 import {registerAgentInputRoutes} from './agent-input-routes.ts';
+import {registerAgentWorkRoutes} from './agent-work-routes.ts';
 import {registerShellReadRoutes} from './shell-read-routes.ts';
 import {registerConversationReadRoutes} from './conversation-read-routes.ts';
 import {registerToolEffectReadRoutes} from './tool-effect-read-routes.ts';
 import {registerProjectMemoryRoutes} from './project-memory-routes.ts';
-import {ProjectMemory} from '../../packages/core/project-memory.ts';
 import {ConversationReadModels} from '../../packages/core/conversation-read-models.ts';
 import {ToolEffectReadModels} from '../../packages/core/tool-effect-read-models.ts';
 import {verificationPanelModel} from '../../packages/core/verification-read-models.ts';
@@ -189,11 +189,12 @@ export async function buildServer(service: Service, options: ServerOptions) {
   });
   registerAccountAuthRoutes(app,service);
   registerWorkspaceRoutes(app,service);
-  registerProjectMemoryRoutes(app,()=>new ProjectMemory(service.store));
+  registerProjectMemoryRoutes(app,()=>service.projectMemory,service);
   registerAttentionRoutes(app,service);
   const agentInventory=options.agentInventory??new AgentProjection(service.store);
   registerAgentInventoryRoutes(app,agentInventory);
   registerAgentInputRoutes(app,service.planning);
+  registerAgentWorkRoutes(app,service);
   registerShellReadRoutes(app,service.store);
   const conversationReads=new ConversationReadModels(service.store);
   registerConversationReadRoutes(app,conversationReads);

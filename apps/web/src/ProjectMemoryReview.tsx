@@ -146,12 +146,14 @@ function MemoryRow({row, projectName, disabled, onAction, onEdit, onSource, onFo
 }
 function MemoryEditor({item, disabled, onCancel, onSave}: {item: MemoryItemV1; disabled: boolean; onCancel: () => void; onSave: (operation: MemoryAction) => Promise<boolean>}) {
   const [text, setText] = useState(item.text), [expiry, setExpiry] = useState(item.expiresAt?.slice(0, 16) ?? '');
+  const [preference, setPreference] = useState(false);
   const bytes = new TextEncoder().encode(text).length;
   const expiryDate = expiry ? new Date(expiry + 'Z') : null, validExpiry = !expiryDate || Number.isFinite(expiryDate.getTime()) && expiryDate.getUTCFullYear() <= 9999;
-  return <form className="project-memory-detail" aria-label="Edit memory" onSubmit={event => {event.preventDefault(); if (disabled || !validExpiry || !text.trim() || bytes > PROJECT_MEMORY_LIMITS.textBytes) return; void onSave({action: 'edit', itemId: item.id, baseRevision: item.revision, text, expiresAt: expiryDate?.toISOString() ?? null});}}>
+  return <form className="project-memory-detail" aria-label="Edit memory" onSubmit={event => {event.preventDefault(); if (disabled || !validExpiry || !text.trim() || bytes > PROJECT_MEMORY_LIMITS.textBytes) return; const revision = {itemId: item.id, baseRevision: item.revision, text, expiresAt: expiryDate?.toISOString() ?? null}; void onSave(preference ? {action: 'confirm-preference', confirmation: 'PROJECT_ONLY', ...revision} : {action: 'edit', ...revision});}}>
     <h3>{item.state === 'PROPOSED' ? 'Edit and accept' : 'Correct memory'} · revision {item.revision}</h3>
     <label>Memory text<textarea autoFocus rows={5} value={text} maxLength={2048} disabled={disabled} required onChange={event => setText(event.target.value)}/></label><p className={bytes > PROJECT_MEMORY_LIMITS.textBytes ? 'error-text' : 'project-memory-caption'}>{bytes} of 2048 UTF-8 bytes</p>
     <label>Expiry (UTC)<input type="datetime-local" max="9999-12-31T23:59" value={expiry} disabled={disabled} onChange={event => setExpiry(event.target.value)}/></label>{!validExpiry && <p role="alert">Choose a valid expiry date.</p>}
+    {item.kind !== 'PREFERENCE' && <label><input type="checkbox" checked={preference} disabled={disabled} onChange={event => setPreference(event.target.checked)}/>Confirm this as a reusable preference for this project only</label>}
     <p>Your correction supersedes this exact revision. A concurrent edit becomes a conflict.</p><div className="project-memory-actions"><button type="button" disabled={disabled} onClick={onCancel}>Cancel edit</button><button type="submit" disabled={disabled || !validExpiry || !text.trim() || bytes > PROJECT_MEMORY_LIMITS.textBytes}>{item.state === 'PROPOSED' ? 'Accept edited memory' : 'Save correction'}</button></div>
   </form>;
 }

@@ -12,7 +12,7 @@ export interface AgentSend {agent: AgentSummary; content: string; commandId: str
 /** A real conversation owner can share drafts without joining the agent inventory. */
 export interface ConversationComposerTarget {kind: 'conversation'; projectId?:string; threadId: string; modelId: string | null; working: boolean}
 export type ComposerTarget = AgentSummary | ConversationComposerTarget;
-export interface ParentSend {threadId: string; modelId: string | null; thinkingLevel?: string | null; content: string; commandId: string; skills?: SkillReference[]}
+export interface ParentSend {threadId: string; modelId: string | null; thinkingLevel?: string | null; content: string; commandId: string; skills?: SkillReference[]; requestContextId?: string}
 const inventoryAgent = (target: ComposerTarget): target is AgentSummary => !('kind' in target);
 const identity = (target: ComposerTarget) => target.threadId ?? (inventoryAgent(target) ? target.agentId : '');
 /** Parent supplies canonical run/epoch validation and durable receipts. No child message.send fallback. */
@@ -37,14 +37,14 @@ export interface SharedAgentComposers {
  addExcerpt(agent:ComposerTarget,excerpt:TerminalExcerpt):Promise<void>;
  editExcerpt(agent:ComposerTarget,id:string,text:string):Promise<void>;
  removeExcerpt(agent:ComposerTarget,id:string):Promise<void>;
- submit(agent: ComposerTarget, options?: {thinkingLevel?: string | null; submission?: ComposerSubmission}): Promise<void>;
+ submit(agent: ComposerTarget, options?: {thinkingLevel?: string | null; submission?: ComposerSubmission; requestContextId?: string}): Promise<void>;
  clearError(agent: ComposerTarget): void;
  stop(agent: ComposerTarget): Promise<void>;
  canSend(agent: ComposerTarget): boolean;
  supports(agent: ComposerTarget): boolean;
  dispose(): void;
 }
-interface PendingSend {commandId: string; content: string; generation: string | undefined; modelId?: string | null; thinkingLevel?: string | null; skills?: SkillBinding[]; excerpts?:TerminalExcerpt[]; excerptGeneration?:string}
+interface PendingSend {commandId: string; content: string; generation: string | undefined; modelId?: string | null; thinkingLevel?: string | null; skills?: SkillBinding[]; excerpts?:TerminalExcerpt[]; excerptGeneration?:string; requestContextId?: string}
 interface Entry {agent: ComposerTarget; inventory?: AgentSummary; stopEpoch: number; state: ComposerState; pending?: PendingSend; prepared?: Promise<void>; listeners: Set<() => void>; unsubscribe?: () => void}
 export function createSharedAgentComposers(actions: {sendParent(input: ParentSend): Promise<void>; stopParent(agent: ComposerTarget): Promise<void>; followUp?: ChildFollowUpController; ownership?: (agent: ComposerTarget) => unknown}): SharedAgentComposers {
  const entries = new Map<string, Entry>();
@@ -149,7 +149,7 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
    catch(cause){emit(value,{error:cause instanceof Error?cause.message:'Terminal excerpts could not load.'});return;}
    let content:string;
    try{content=value.pending?.content??serializeTerminalExcerpts(submission?.content??value.state.draft,excerpts);}catch(cause){emit(value,{error:cause instanceof Error?cause.message:'Prompt exceeds the limit.'});return;}
-   const pending = value.pending ?? {commandId: crypto.randomUUID(), content, ...(excerpts.length?{excerpts,excerptGeneration:submission?.excerpts===undefined?journalGeneration(excerptDraftKey(identity(agent))):submission.excerptGeneration}:{}), generation: submission ? submission.generation : journalGeneration(key(agent)), modelId: agent.modelId, ...(thinkingLevel !== undefined ? {thinkingLevel} : {}), ...((skills?.length ?? 0) > 0 ? {skills: skillBindingsSchema.parse(skills)} : {})};
+   const pending = value.pending ?? {commandId: crypto.randomUUID(), content, ...(options?.requestContextId ? {requestContextId: options.requestContextId} : {}), ...(excerpts.length?{excerpts,excerptGeneration:submission?.excerpts===undefined?journalGeneration(excerptDraftKey(identity(agent))):submission.excerptGeneration}:{}), generation: submission ? submission.generation : journalGeneration(key(agent)), modelId: agent.modelId, ...(thinkingLevel !== undefined ? {thinkingLevel} : {}), ...((skills?.length ?? 0) > 0 ? {skills: skillBindingsSchema.parse(skills)} : {})};
    value.pending = pending; emit(value, {busy: true, error: '', retry: false});
    try {
     // Persist before transport; retries after disconnect/reload keep the same command identity.
@@ -161,7 +161,7 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
      const ticket = await actions.followUp!.send({agent, content: pending.content, commandId: pending.commandId, isCurrent: () => ownership(agent) === owner && value.stopEpoch === stopEpoch});
      await journalWrite(ticketKey(agent), ticket); emit(value, {ticket});
      if (ticketError(ticket)) emit(value, {error: ticketError(ticket)});
-    } else await actions.sendParent({threadId: identity(agent), modelId: pending.modelId === undefined ? agent.modelId : pending.modelId, ...(pending.thinkingLevel !== undefined ? {thinkingLevel: pending.thinkingLevel} : {}), content: pending.content, commandId: pending.commandId, ...(pending.skills?.length ? {skills: pending.skills.map(binding => binding.ref)} : {})});
+    } else await actions.sendParent({threadId: identity(agent), modelId: pending.modelId === undefined ? agent.modelId : pending.modelId, ...(pending.thinkingLevel !== undefined ? {thinkingLevel: pending.thinkingLevel} : {}), content: pending.content, commandId: pending.commandId, ...(pending.requestContextId ? {requestContextId: pending.requestContextId} : {}), ...(pending.skills?.length ? {skills: pending.skills.map(binding => binding.ref)} : {})});
     await journalCompareAndSwap(key(agent), pending.generation, '');
     await clearAcceptedSkills(skillDraftKey(identity(agent)), pending.skills ?? []);
     await clearAcceptedExcerpts(identity(agent),pending.excerptGeneration);
@@ -197,9 +197,9 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
 /** The outer host adopts this owner for both its ordinary composer and agent columns. */
 export function createPersonalAgentComposers(followUp?: ChildFollowUpController, ownership?: (agent: ComposerTarget) => unknown): SharedAgentComposers {
  return createSharedAgentComposers({
-  sendParent: async ({threadId, modelId, thinkingLevel, content, commandId, skills}) => {
+  sendParent: async ({threadId, modelId, thinkingLevel, content, commandId, skills, requestContextId}) => {
    const target: ConversationComposerTarget = {kind: 'conversation', threadId, modelId, working: false}, owner = ownership?.(target);
-   await command('message.send', {content, modelId, ...(thinkingLevel !== undefined ? {thinkingLevel} : {}), ...(skills?.length ? {skills} : {})}, threadId, commandId, () => !ownership || owner !== undefined && ownership(target) === owner);
+   await command('message.send', {content, modelId, ...(thinkingLevel !== undefined ? {thinkingLevel} : {}), ...(skills?.length ? {skills} : {}), ...(requestContextId ? {requestContextId} : {})}, threadId, commandId, () => !ownership || owner !== undefined && ownership(target) === owner);
   },
   stopParent: async agent => {
    const owner = ownership?.(agent);
