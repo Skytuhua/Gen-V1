@@ -43,6 +43,7 @@ const CLASSIFICATION: Row[] = [
   ["ui_request_input", "WORKSPACE_WRITE", "NONREPLAYABLE", RUN, "presentation", "none"],
   ["ui_close", "WORKSPACE_WRITE", "NONREPLAYABLE", RUN, "presentation", "none"],
   ["task_finish", "WORKSPACE_WRITE", "NONREPLAYABLE", ["run", "side", "planning_child"], "store", "none"],
+  ["verification_declare", "WORKSPACE_WRITE", "NONREPLAYABLE", RUN, "store", "none"],
   ["task_memory", "WORKSPACE_WRITE", "PROVIDER_IDEMPOTENT", RUN, "store", "none"],
   ["plan_update", "WORKSPACE_WRITE", "NONREPLAYABLE", RUN, "store", "none"],
   ["agent_progress", "WORKSPACE_WRITE", "NONREPLAYABLE", ["planning_child"], "store", "none"],

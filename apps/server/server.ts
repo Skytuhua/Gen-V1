@@ -30,6 +30,7 @@ import {registerConversationReadRoutes} from './conversation-read-routes.ts';
 import {registerToolEffectReadRoutes} from './tool-effect-read-routes.ts';
 import {ConversationReadModels} from '../../packages/core/conversation-read-models.ts';
 import {ToolEffectReadModels} from '../../packages/core/tool-effect-read-models.ts';
+import {verificationPanelModel} from '../../packages/core/verification-read-models.ts';
 import {AgentProjection} from '../../packages/agent-projection/index.ts';
 import type {PersonalAgentInventory} from '../../packages/contracts/agent-inventory.ts';
 
@@ -144,6 +145,14 @@ export async function buildServer(service: Service, options: ServerOptions) {
       settings: { theme: 'dark', modelId: null },
       activeThreadId: null,
     };
+  });
+  // M06 additive verification read model: requirement | observed check |
+  // source revision | outcome | freshness | verifier | evidence.
+  app.get<{ Params: { id: string } }>('/api/threads/:id/verification', async (request, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    const { id } = request.params;
+    if (!service.store.get('thread', id) || service.store.get('archivedThread', id)) throw new HarnessError('NOT_FOUND', 'Thread unavailable');
+    return { seq: service.store.sequence, verification: verificationPanelModel(service.store, id) };
   });
   // Deep message search for threads whose history the snapshot windowed: the
   // client passes the truncated thread ids it knows about.
