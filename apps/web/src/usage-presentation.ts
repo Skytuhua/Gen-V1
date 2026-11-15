@@ -18,6 +18,9 @@ export const usagePercent = (value: unknown) => reported(value) && value <= 100 
 export function usageReset(value: string | null | undefined) {
   const text = value?.trim();
   if (!text) return 'Not reported';
+  // Localize only an explicit instant; a calendar date or timezone-less label
+  // must not acquire an invented hour or move to the previous calendar day.
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:Z|[+-]\d{2}:\d{2})$/i.test(text)) return text;
   const date = new Date(text);
   return Number.isNaN(date.getTime()) ? text : resetFormat.format(date);
 }
