@@ -5,7 +5,7 @@ import type { AttentionDelivery, AttentionItem } from '../packages/contracts/att
 const item=(id:string):AttentionItem=>({id,threadId:'thread-'+id,kind:'request',title:'Private task '+id,summary:'Sensitive prompt '+id,state:'needs-input',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),read:false,popupDismissed:false,actionable:true,notificationKey:id+':needs-input',destination:{threadId:'thread-'+id}});
 const preferences:AttentionDelivery['preferences']={threadNotifications:'both',inAppNotifications:true,volume:.3,preview:'title',quietHours:{enabled:false,start:'22:00',end:'08:00'}};
 afterEach(()=>vi.useRealTimers());
-function setup(values:AttentionItem[],overrides:Partial<AttentionDelivery['preferences']>={}){let callback:Parameters<AttentionPopupWindow['onAction']>[0]=()=>{};const native={render:vi.fn(),showInactive:vi.fn(),hide:vi.fn(),destroy:vi.fn(),setBounds:vi.fn(),onAction:vi.fn((next:typeof callback)=>{callback=next;})};const read=vi.fn(async()=>({items:values,preferences:{...preferences,...overrides}})),open=vi.fn(async()=>{}),dismiss=vi.fn(async()=>{}),create=vi.fn(async()=>native);const popups=createAttentionPopups({read,open,dismiss,createWindow:create,workArea:()=>({x:-1920,y:0,width:1920,height:1080}),focused:()=>false});return{popups,native,read,open,dismiss,create,action:(type:'open'|'dismiss'|'pause'|'resume',eventId:string)=>callback({type,eventId})};}
+function setup(values:AttentionItem[],overrides:Partial<AttentionDelivery['preferences']>={},workArea=()=>({x:-1920,y:0,width:1920,height:1080})){let callback:Parameters<AttentionPopupWindow['onAction']>[0]=()=>{};const native={render:vi.fn(),showInactive:vi.fn(),hide:vi.fn(),destroy:vi.fn(),setBounds:vi.fn(),onAction:vi.fn((next:typeof callback)=>{callback=next;})};const read=vi.fn(async()=>({items:values,preferences:{...preferences,...overrides}})),open=vi.fn(async()=>{}),dismiss=vi.fn(async()=>{}),create=vi.fn(async()=>native);const popups=createAttentionPopups({read,open,dismiss,createWindow:create,workArea,focused:()=>false});return{popups,native,read,open,dismiss,create,action:(type:'open'|'dismiss'|'pause'|'resume',eventId:string)=>callback({type,eventId})};}
 
 describe('main-owned attention popups',()=>{
  it('shows at most three cards without focus and redacts message previews',async()=>{const{popups,native}=setup(['a','b','c','d'].map(item));await popups.poll();expect(native.showInactive).toHaveBeenCalledTimes(1);const payload=native.render.mock.calls.at(-1)![0];expect(payload.cards).toHaveLength(3);expect(JSON.stringify(payload)).not.toContain('Sensitive prompt');expect(native.setBounds).toHaveBeenCalledWith(expect.objectContaining({x:-380}));popups.stop();});
@@ -43,5 +43,20 @@ it('does not resurrect an undelivered alert if quiet hours begin after a creatio
   await popups.poll();
   expect(create).toHaveBeenCalledOnce();
   expect(native.showInactive).not.toHaveBeenCalled();
+ } finally {popups.stop();}
+});
+
+it('keeps the popup within a narrow work area after a display change',async()=>{
+ let area={x:-320,y:50,width:320,height:240};
+ const {popups,native}=setup([item('a')],{},()=>area);
+ try {
+  await popups.poll();
+  expect(native.setBounds).toHaveBeenLastCalledWith({x:-304,y:142,width:288,height:132});
+  area={x:-160,y:-35,width:160,height:140};popups.displayChanged();
+  const bounds=native.setBounds.mock.calls.at(-1)![0];
+  expect(bounds.x).toBeGreaterThanOrEqual(area.x);
+  expect(bounds.y).toBeGreaterThanOrEqual(area.y);
+  expect(bounds.x+bounds.width).toBeLessThanOrEqual(area.x+area.width);
+  expect(bounds.y+bounds.height).toBeLessThanOrEqual(area.y+area.height);
  } finally {popups.stop();}
 });
