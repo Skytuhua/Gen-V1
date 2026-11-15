@@ -15,7 +15,7 @@ const suite = (name:string, specs=[`${name}.spec.ts`], options:Partial<BrowserSu
 // channels and timeouts; their overlapping caller projects run in their full suites.
 export const browserSuites:BrowserSuite[] = [
   {name:'root', config:'playwright.config.ts', specs:rootBrowserSpecs},
-  suite('agents-workspace', undefined, {env:{AGENTSUI_APP_CANDIDATE:'1'}}),
+  suite('agents-workspace', ['agents-workspace.spec.ts', 'agents-workspace-evidence.spec.ts'], {env:{AGENTSUI_APP_CANDIDATE:'1'}}),
   suite('artifact-settle', ['artifact-settle.spec.ts']),
   suite('browser-action'),
   suite('code-review-host'),
