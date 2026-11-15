@@ -1175,6 +1175,7 @@
     "tests/floating-order.test.ts",
     "tests/frontend-schema-validator.test.ts",
     "tests/generated-ui-endurance-v3.test.ts",
+    "tests/gesture-cleanup.test.ts",
     "tests/git-metadata-guard.test.ts",
     "tests/github-workspace.test.ts",
     "tests/hermes-acp-server.test.ts",

@@ -203,7 +203,8 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
   }, [settings.theme]);
   const action = (kind: ConversationIntent) => fail(() => openConversation(undefined, kind));
   const openSettings = () => fail(async () => {await prepare(); setSettingsOpen(true);});
-  const shortcuts = useRef({action, openSettings}); shortcuts.current = {action, openSettings};
+  const stopFocused = () => {const card=(document.activeElement as HTMLElement|null)?.closest<HTMLElement>('[data-agent-id]');const agent=card?controller.getSnapshot().agents.find(item=>item.agentId===card.dataset.agentId):undefined;if(agent&&agent.status==='working')void composers.stop(agent);};
+  const shortcuts = useRef({action, openSettings, stopFocused}); shortcuts.current = {action, openSettings, stopFocused};
   const keybindings = JSON.stringify(preferences.keybindings);
   useEffect(() => {
     const key = (event: KeyboardEvent) => {
@@ -212,6 +213,7 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
       else if (matchesShortcut(event, preferences.keybindings.newThread)) {event.preventDefault(); shortcuts.current.action('new-thread');}
       else if (matchesShortcut(event, preferences.keybindings.search)) {event.preventDefault(); setOpen(true); setLayout(value => ({...value, sidebarCollapsed: false})); requestAnimationFrame(() => searchRef.current?.focus());}
       else if (matchesShortcut(event, preferences.keybindings.toggleSidebar)) {event.preventDefault(); if (mobile) setOpen(value => !value); else setLayout(value => ({...value, sidebarCollapsed: !value.sidebarCollapsed}));}
+      else if (matchesShortcut(event, preferences.keybindings.stop)) {event.preventDefault(); shortcuts.current.stopFocused();}
     };
     window.addEventListener('keydown', key); return () => window.removeEventListener('keydown', key);
   }, [keybindings, mobile]);

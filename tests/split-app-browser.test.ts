@@ -214,6 +214,25 @@ describe.runIf(enabled)('actual App split workspace',()=>{
   }finally{await page.close();}
  },30000);
 
+ it('keyboard Stop targets the focused float owner exactly once and leaves the main run untouched (AUD-06)',async()=>{
+  const host=await fixture({mode:'default',singleThread:true}),{page}=host;try{
+   for(const [id,runId] of [['thread-a','run-a'],['thread-b','run-b']] as const){const thread=host.snapshot.threads.find(item=>item.id===id)!;thread.status='working';thread.runId=runId;}
+   await host.publish();
+   const aView=page.locator('[data-split-view="thread:thread-a"]'),bView=page.locator('[data-split-view="thread:thread-b"]');
+   await aView.locator('.working-status').waitFor({state:'visible'});
+   await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();
+   await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();
+   await page.waitForFunction(()=>!!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
+   await page.getByRole('button',{name:/^Second investigation/}).click();
+   await bView.locator('.working-status').waitFor({state:'visible'});
+   await aView.getByRole('textbox',{name:'Message',exact:true}).focus();
+   await page.keyboard.press('Escape');
+   await expect.poll(()=>host.commands.filter(command=>command.type==='run.stop').length).toBe(1);
+   expect(host.commands.filter(command=>command.type==='run.stop').map(command=>command.threadId)).toEqual(['thread-a']);
+   expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
  it('docks a float into a real directional pane split at a main edge (T03/R03 #3/#4)',async()=>{
   const host=await fixture({mode:'split'}),{page}=host;try{
    await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();
