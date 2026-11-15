@@ -61,7 +61,14 @@ function displays():DesktopDisplay[]{const primary=screen.getPrimaryDisplay(),al
 function info(record:WindowRecord):DesktopWindowInfo{return {id:record.id,surface:record.surface,ready:record.ready,minimized:record.window.isMinimized(),visible:record.visible,alwaysOnTop:record.window.isAlwaysOnTop(),bounds:record.window.getNormalBounds(),displayId:record.placement?.displayId};}
 function captureLayout():DesktopLayout{return {version:1,windows:[...windows.values()].filter(record=>!record.window.isDestroyed()).map(record=>({surface:record.surface,bounds:record.normalBounds.read(),visible:record.visible,alwaysOnTop:record.window.isAlwaysOnTop(),...(record.dockedBrowser?{dockedBrowserId:record.dockedBrowser.id}:{}),...(record.placement?{displayId:record.placement.displayId,placement:record.placement}:{})}))};}
 function snapshot(record:WindowRecord):DesktopState{return {windows:[...windows.values()].map(info),...(record.browser?{browser:record.browser.state}:{}),...(record.dockedBrowser?{dockedBrowser:{browserId:record.dockedBrowser.id,state:record.dockedBrowser.state}}:{}),...(backendError?{backendError}:{}),...(layoutError?{layoutError}:{}),update:updateStatus,nativeTitleBar:process.platform==='win32'};}
-function broadcast(focusSurface?:DesktopSurface){for(const record of windows.values())if(!record.window.isDestroyed())record.window.webContents.send(channels.state,{...snapshot(record),...(record.surface.kind==='main'&&focusSurface?{focusSurface}:{})});}
+function broadcast(focusSurface?:DesktopSurface){
+ for(const record of windows.values()){
+  if(record.window.isDestroyed())continue;
+  const state={...snapshot(record),...(record.surface.kind==='main'&&focusSurface?{focusSurface}:{})};
+  try{record.window.webContents.send(channels.state,state);}
+  catch{/* Renderer disposal must not interrupt other live windows' updates. */}
+ }
+}
 function cancelClose(record:WindowRecord){if(!record.window.isDestroyed())record.window.webContents.send(channels.state,{...snapshot(record),closeCancelled:true});}
 function context(record:WindowRecord):DesktopContext{return {...snapshot(record),windowId:record.id,surface:record.surface};}
 function authorize(event:IpcMainInvokeEvent):WindowRecord {
