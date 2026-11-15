@@ -4,7 +4,7 @@ import {existsSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import { StringDecoder } from 'node:string_decoder';
 import { HarnessError } from "../contracts/index.ts";
-export interface ProcessResult { status: "succeeded" | "failed" | "cancelled"; exitCode: number | null; signal: string | null; cancelled: boolean; timedOut: boolean; stdout: string; stderr: string; truncated: boolean }
+export interface ProcessResult { status: "succeeded" | "failed" | "cancelled"; exitCode: number | null; signal: string | null; cancelled: boolean; timedOut: boolean; stdout: string; stderr: string; truncated: boolean; pid: number | undefined }
 export function gitExecutable():string{
   const bundled=process.env.HARNESS_BUNDLED_GIT??fileURLToPath(new URL('../../.harness-tool-bundles/git/cmd/git.exe',import.meta.url));
   if(existsSync(bundled))return bundled;
@@ -51,6 +51,6 @@ export async function runProcess(command: string, args: string[], cwd: string, s
     const cleanup = () => { clearTimeout(timer); signal.removeEventListener("abort", onAbort); };
     child.once("spawn", () => { progress(`Started ${command === process.execPath ? "node --test" : "git"} (PID ${child.pid})`); if (signal.aborted) onAbort(); });
     child.once("error", error => { settled = true; cleanup(); reject(error); });
-    child.once("close", async (exitCode, terminationSignal) => { cleanup(); await treeKill; settled = true; progress(`Process exited: ${exitCode ?? terminationSignal ?? "unknown"}`); resolve({ status: cancelled ? "cancelled" : !timedOut && exitCode === 0 ? "succeeded" : "failed", exitCode, signal: terminationSignal, cancelled, timedOut, stdout: stdout(), stderr: stderr(), truncated }); });
+    child.once("close", async (exitCode, terminationSignal) => { cleanup(); await treeKill; settled = true; progress(`Process exited: ${exitCode ?? terminationSignal ?? "unknown"}`); resolve({ status: cancelled ? "cancelled" : !timedOut && exitCode === 0 ? "succeeded" : "failed", exitCode, signal: terminationSignal, cancelled, timedOut, stdout: stdout(), stderr: stderr(), truncated, pid: child.pid }); });
   });
 }

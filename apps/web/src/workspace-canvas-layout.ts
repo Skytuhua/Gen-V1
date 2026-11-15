@@ -19,21 +19,50 @@ export const threadParent=(thread:Thread)=>thread.sideParentId??thread.parentThr
 export const delegatedThread=(thread:Thread)=>thread.kind==='delegate';
 export const threadProject=(thread:Thread)=>thread.projectId??'unassigned';
 
-function rootFor(id:string,threads:Map<string,Thread>,projectId:string){
- const seen:string[]=[],visited=new Set<string>();let current=id;
- while(!visited.has(current)){visited.add(current);seen.push(current);const value=threads.get(current),parent=value&&threadParent(value);if(!parent||!threads.has(parent)||threadProject(threads.get(parent)!)!==projectId)return current;current=parent;}
- return seen.slice(seen.indexOf(current)).sort()[0]??id;
+function rootFor(id:string,threads:Map<string,Thread>,projectId:string,roots?:Map<string,string>){
+ const path:string[]=[],positions=new Map<string,number>();let current=id,root=id;
+ for(;;){
+  const cached=roots?.get(current);
+  if(cached!==undefined){root=cached;break;}
+  const cycleStart=positions.get(current);
+  if(cycleStart!==undefined){root=path.slice(cycleStart).sort()[0];break;}
+  positions.set(current,path.length);path.push(current);
+  const value=threads.get(current),parentId=value&&threadParent(value),parent=parentId?threads.get(parentId):undefined;
+  if(!parent||threadProject(parent)!==projectId){root=current;break;}
+  current=parentId!;
+ }
+ for(const member of path)roots?.set(member,root);
+ return root;
 }
 export function liveProjectRows(threads:Thread[],canvas:Pick<CanvasLayout,'filter'|'projectIds'>){
- const eligible=threads.filter(thread=>!canvas.projectIds.length||canvas.projectIds.includes(threadProject(thread))),byId=new Map(eligible.map(thread=>[thread.id,thread])),families=new Map<string,Thread[]>(),groups=new Map<string,Thread[]>();
- for(const thread of eligible){const key=`${threadProject(thread)}:${rootFor(thread.id,byId,threadProject(thread))}`;families.set(key,[...(families.get(key)??[]),thread]);}
+ const selected=new Set(canvas.projectIds),eligible=threads.filter(thread=>!selected.size||selected.has(threadProject(thread)));
+ const byId=new Map(eligible.map(thread=>[thread.id,thread])),roots=new Map<string,string>(),families=new Map<string,{root:string;members:Thread[]}>(),groups=new Map<string,Thread[]>();
+ for(const thread of eligible){
+  const project=threadProject(thread),root=rootFor(thread.id,byId,project,roots),key=JSON.stringify([project,root]);
+  let family=families.get(key);if(!family){family={root,members:[]};families.set(key,family);}
+  family.members.push(thread);
+ }
  const active=(thread:Thread)=>Boolean(thread.runId)||thread.status==='working'||thread.status==='awaiting_input'||thread.presentation?.pinned;
- for(const members of families.values()){
+ for(const {root,members} of families.values()){
   if(canvas.filter!=='all'&&!members.some(active))continue;
-  const root=rootFor(members[0].id,byId,threadProject(members[0])),ordered:Thread[]=[],seen=new Set<string>();
-  const descend=(id:string)=>{if(seen.has(id))return;seen.add(id);const value=members.find(item=>item.id===id);if(value)ordered.push(value);for(const child of members.filter(item=>threadParent(item)===id))descend(child.id);};
-  descend(root);for(const member of members)descend(member.id);
-  const project=threadProject(members[0]);groups.set(project,[...(groups.get(project)??[]),...ordered]);
+  const children=new Map<string,Thread[]>(),seen=new Set<string>();
+  for(const member of members){
+   const parent=threadParent(member);if(!parent)continue;
+   let siblings=children.get(parent);if(!siblings){siblings=[];children.set(parent,siblings);}siblings.push(member);
+  }
+  const project=threadProject(members[0]);
+  let ordered=groups.get(project);if(!ordered){ordered=[];groups.set(project,ordered);}
+  const output=ordered;
+  const descend=(first:Thread)=>{
+   const pending=[first];
+   while(pending.length){
+    const member=pending.pop()!;if(seen.has(member.id))continue;seen.add(member.id);output.push(member);
+    const next=children.get(member.id);
+    if(next)for(let index=next.length-1;index>=0;index--)pending.push(next[index]);
+   }
+  };
+  const first=byId.get(root);if(first)descend(first);
+  for(const member of members)descend(member);
  }
  return [...groups].sort(([a],[b])=>a.localeCompare(b)).map(([projectId,items])=>({projectId,threads:items}));
 }
