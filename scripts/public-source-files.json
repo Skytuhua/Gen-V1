@@ -784,6 +784,8 @@
     "tests/agent-input-v3.test.ts",
     "tests/agent-work-v3.test.ts",
     "tests/agents-project-catalog.test.ts",
+    "tests/agents-workspace-grid-fixture.ts",
+    "tests/agents-workspace-grid.test.ts",
     "tests/appearance-draft.test.ts",
     "tests/artifact-inputs.test.ts",
     "tests/attention-boundaries.test.ts",
