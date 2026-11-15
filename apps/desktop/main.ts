@@ -21,14 +21,14 @@ import {captureDesktopPlacement,createNormalBounds,parseDesktopPlacement,placeOn
 import type {ConnectionProviderId} from '../../packages/contracts/connections.ts';
 import {createAccountLoginFlows} from './account-login.ts';
 import {workspaceEvents} from './workspace-events.ts';
-import {applyNativeLayout} from './layout-transaction.ts';
+import {applyNativeLayout,requestNativeClose,type NativeCloseOwner} from './layout-transaction.ts';
 import {createPersistenceQueue,reconcileSavedWindows} from './persistence.ts';
 import {createAttentionPopups,attentionPopupHtml,type AttentionPopupAction,type AttentionPopupWindow} from './attention-popups.ts';
 import {attentionDeliverySchema} from '../../packages/contracts/attention.ts';
 const persistence=createPersistenceQueue();
 
 interface BrowserRecord {id:string;view:WebContentsView;state:DesktopBrowserState;owner?:WindowRecord;generation:number;networkReady:Promise<void>}
-interface WindowRecord {id:string;surface:DesktopSurface;window:BrowserWindow;url:string;ready:boolean;settled:boolean;visible:boolean;normalBounds:ReturnType<typeof createNormalBounds>;placement?:DesktopPlacement;appliedBounds?:DesktopBounds;monitorRescued?:boolean;recoveries?:number;resolveReady:(value:DesktopWindowInfo)=>void;rejectReady:(error:Error)=>void;readyPromise:Promise<DesktopWindowInfo>;readyTimer:ReturnType<typeof setTimeout>;browser?:BrowserRecord;dockedBrowser?:BrowserRecord;closePromise?:Promise<boolean>;closeRequest?:{id:string;resolve:(allow:boolean)=>void;timer:ReturnType<typeof setTimeout>}}
+interface WindowRecord extends NativeCloseOwner {id:string;surface:DesktopSurface;window:BrowserWindow;url:string;ready:boolean;settled:boolean;visible:boolean;normalBounds:ReturnType<typeof createNormalBounds>;placement?:DesktopPlacement;appliedBounds?:DesktopBounds;monitorRescued?:boolean;recoveries?:number;resolveReady:(value:DesktopWindowInfo)=>void;rejectReady:(error:Error)=>void;readyPromise:Promise<DesktopWindowInfo>;readyTimer:ReturnType<typeof setTimeout>;browser?:BrowserRecord;dockedBrowser?:BrowserRecord}
 interface SavedWindow {surface:DesktopSurface;bounds:DesktopBounds;placement?:DesktopPlacement;open:boolean;visible?:boolean;alwaysOnTop?:boolean;dockedBrowserId?:string}
 const windows=new Map<string,WindowRecord>(),browsers=new Map<string,BrowserRecord>();
 const testData=process.env.HARNESS_DESKTOP_TEST_DATA_DIR;
@@ -179,8 +179,8 @@ async function openSurface(raw:unknown,sourceBounds?:DesktopBounds):Promise<Desk
 }
 function trustedUrl(id:string){return trustedDesktopUrl(backendOrigin,id,launchToken||undefined);}
 function requestClose(record:WindowRecord):Promise<boolean>{
- if(record.window.isDestroyed())return Promise.resolve(true);if(record.closePromise)return record.closePromise;
- const requestId=randomUUID();record.closePromise=new Promise<boolean>(resolve=>{const finish=(allow:boolean)=>{record.closeRequest=undefined;record.closePromise=undefined;resolve(allow);};record.closeRequest={id:requestId,resolve:finish,timer:setTimeout(()=>finish(false),15000)};record.window.webContents.send(channels.closeRequest,requestId);});return record.closePromise;
+ if(record.window.isDestroyed())return Promise.resolve(true);
+ return requestNativeClose(record,id=>record.window.webContents.send(channels.closeRequest,id));
 }
 function destroyWindow(record:WindowRecord){if(record.window.isDestroyed())return;remember(record,quitting);loseBrowserOwner(record);record.window.destroy();}
 async function mainWindow(){const existing=[...windows.values()].find(record=>record.surface.kind==='main');if(existing){existing.visible=true;if(existing.window.isMinimized())existing.window.restore();existing.window.show();existing.window.focus();remember(existing);broadcast();await existing.readyPromise;return existing;}const result=await openSurface({kind:'main'});return windows.get(result.id)!;}
