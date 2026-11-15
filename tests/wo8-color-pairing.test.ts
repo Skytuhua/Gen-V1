@@ -31,6 +31,38 @@ describe('WO-8 fixed semantic colors',()=>{
     tokens['--accent']='#ffffff';expect(resolve('--accent-fg')).toBe(pairs.accent[0]);
   });
 });
+describe('T14 running semantics stay fixed under a custom accent',()=>{
+ const read=(path:string)=>readFileSync(new URL(path,import.meta.url),'utf8');
+ const runningRules=[
+  ['../apps/web/src/task-interface.css',/\.status-running\s*\{([^}]+)\}/],
+  ['../apps/web/src/relationship-graph.css',/\.graph-edge\.status-running\s*\{([^}]+)\}/],
+  ['../apps/web/src/software-development.css',/\.software-state-running\s*\{([^}]+)\}/],
+  ['../apps/web/src/software-development.css',/\.software-stage-node\.software-state-running\s*\{([^}]+)\}/],
+ ] as const;
+ it('running status references the fixed --accent-fg, never the customizable --accent',()=>{
+  for(const [path,pattern] of runningRules){
+   const match=read(path).match(pattern);
+   expect(match,`${path} has a running-status rule`).not.toBeNull();
+   const declaration=match![1];
+   expect(declaration,`${path} running must use the fixed semantic blue`).toContain('var(--accent-fg)');
+   expect(declaration,`${path} running must not use the customizable accent`).not.toMatch(/var\(--accent\)/);
+  }
+ });
+ it('a custom project accent does not recolor the running status',()=>{
+  const css=read('../apps/web/src/styles.css');
+  const tokens:Record<string,string>={};
+  for(const match of css.matchAll(/(:root(?:\[data-theme="dark"\])?)\s*\{([^}]+)\}/g)){
+   if(match[1]!==':root')continue;
+   for(const token of match[2].matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g))tokens[token[1]]=token[2].trim();
+  }
+  // appearance.css overrides --accent with the user's project accent; the fixed
+  // semantic pair must be unaffected.
+  tokens['--accent']='#ff0000';
+  const resolve=(key:string):string=>tokens[key].startsWith('var(')?resolve(tokens[key].slice(4,-1)):tokens[key];
+  expect(resolve('--accent-fg')).toBe('#3b5bdb');
+  expect(resolve('--accent-fg')).not.toBe('#ff0000');
+ });
+});
 it('accepts explicit numeric column metadata without treating text codes as numbers',()=>{
   const spec={root:'table',elements:{table:{type:'Table',props:{rowsBinding:'rows',columns:[{key:'count',label:'Count',type:'number'},{key:'code',label:'Code'}]}}}};
   expect(()=>validateSurface(spec)).not.toThrow();
