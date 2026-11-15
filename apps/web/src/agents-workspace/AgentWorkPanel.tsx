@@ -21,6 +21,7 @@ export function AgentWorkPanel({threadId}: {threadId: string}) {
   const [drafts, setDrafts] = useState<Record<string, {text: string}>>({});
   const [pendingInputs, setPendingInputs] = useState<ReadonlySet<string>>(() => new Set());
   const [post, setPost] = useState({recipientThreadId: '', topic: '', text: ''});
+  const [posting, setPosting] = useState(false);
   const [open, setOpen] = useState(false);
   const busy = useRef(false);
   const refresh = useCallback(async () => {
@@ -59,6 +60,18 @@ export function AgentWorkPanel({threadId}: {threadId: string}) {
         next.delete(workId);
         return next;
       }));
+  };
+  const submitPost = () => {
+    if (posting || !post.recipientThreadId || !post.topic || !post.text) return;
+    const submitted = post;
+    setPosting(true);
+    void postAgentMessage(threadId, submitted)
+      .then(() => {
+        setPost(current => current === submitted ? {recipientThreadId: '', topic: '', text: ''} : current);
+        return refresh();
+      })
+      .catch(e => setError(e instanceof Error ? e.message : 'Post failed'))
+      .finally(() => setPosting(false));
   };
   return <section className="agents-work" aria-label="Agent work">
     <button type="button" className="agents-disclosure" aria-expanded={open} onClick={() => setOpen(!open)}>Agent work · {list.works.length}</button>
@@ -104,7 +117,7 @@ export function AgentWorkPanel({threadId}: {threadId: string}) {
             options={[{value: '', label: 'Choose recipient…', disabled: true}, ...list.works.map(work => ({value: work.owner.threadId, label: `${work.role} ${work.owner.threadId.slice(0, 8)}`}))]}/>
           <input aria-label="Topic" placeholder="Topic" value={post.topic} onChange={e => setPost(p => ({...p, topic: e.target.value}))}/>
           <input aria-label="Message" placeholder="Message…" value={post.text} onChange={e => setPost(p => ({...p, text: e.target.value}))}/>
-          <button type="button" disabled={!post.recipientThreadId || !post.topic || !post.text} onClick={() => { void postAgentMessage(threadId, {recipientThreadId: post.recipientThreadId, topic: post.topic, text: post.text}).then(() => { setPost({recipientThreadId: '', topic: '', text: ''}); return refresh(); }).catch(e => setError(e instanceof Error ? e.message : 'Post failed')); }}>Post</button>
+          <button type="button" disabled={posting || !post.recipientThreadId || !post.topic || !post.text} onClick={submitPost}>Post</button>
         </div>}
       </details> : null}
       {error && <p className="agents-error" role="alert">{error}</p>}
