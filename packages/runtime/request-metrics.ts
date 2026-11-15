@@ -77,7 +77,8 @@ export class RequestMetrics {
   finish(outcome: ModelRequestOutcomeV1, usage: ModelRequestUsageV1 | null, error?: string): ModelRequestObservationV1 {
     if (this.done) return this.snapshot;
     this.done = true;
-    if (this.timings.teardownConfirmed === null) this.timings.teardownConfirmed = this.elapsed();
+    // teardownConfirmed is only stamped by an explicit mark after a successful
+    // teardown; an absent mark means the teardown was never confirmed.
     const result: ModelRequestObservationV1 = {
       ...this.observation,
       timings: { ...this.timings },

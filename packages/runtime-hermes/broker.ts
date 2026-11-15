@@ -76,6 +76,7 @@ export async function createHermesBroker(options:HermesBrokerOptions):Promise<He
      runtime.configure({onTool:async()=>{throw new HarnessError('MODEL_ONLY_TOOL_DENIED','The model transport cannot execute host tools.');},onEvent(event:RuntimeEvent){
     if(active!==owned||owned.cancelled||event.threadId!==nativeInput.threadId||event.runId!==nativeInput.runId||event.epoch!==nativeInput.epoch)return;
     if(event.type==='input.processing'&&!entered&&Array.isArray(event.inputIds)&&event.inputIds.includes(id)){entered=true;if(metadata.phase==='foreground')writes=writes.then(()=>options.onInput?.([...metadata.inputIds]));}
+    if(event.type==='assistant.delta')stage('firstProviderDelta');
     if(event.type==='assistant.message'&&typeof event.content==='string'&&!failure){stage('firstProviderDelta');if(Buffer.byteLength(event.content)>MODEL_ONLY_MAX_WIRE_BYTES-Buffer.byteLength(content))failure=invalid();else content+=event.content;}
     if(event.type==='usage')usage=measured(event.usage);
     if(event.type==='error')failure=new HarnessError('HERMES_NATIVE_FAILED','The selected native model could not complete its request.');
@@ -83,18 +84,22 @@ export async function createHermesBroker(options:HermesBrokerOptions):Promise<He
      }});
      stage('runtimeReady');
      await runtime.start(nativeInput);stage('requestSent');await completion.promise;stage('settled');await writes;if(owned.cancelled||failure)throw failure??invalid();return{content,usage:usage??{...EMPTY_USAGE}};
+    }catch(error){
+     if(failure===undefined)failure=error;
+     throw error;
     }finally{
      if(owned.runtime){const actual=usage??{...EMPTY_USAGE};usages.set(metadata.sequence,actual);try{options.onUsage?.(actual,metadata);}catch{/* Usage projection cannot prevent native teardown. */}}
-     try{await owned.runtime?.dispose();release?.();}catch(error){cleanupError=error;throw error;}finally{
-      // The buffered transport publishes after teardown: firstPublicDelta is
-      // stamped only when completed output is actually committed to the wire.
-      if(content&&!failure&&!owned.cancelled&&!response.destroyed)metrics.mark('firstPublicDelta');
-      stage('teardownConfirmed');
+     // The buffered transport publishes after teardown: firstPublicDelta is
+     // stamped only when completed output is actually committed to the wire.
+     if(content&&!failure&&!owned.cancelled&&!response.destroyed)metrics.mark('firstPublicDelta');
+     try{await owned.runtime?.dispose();release?.();stage('teardownConfirmed');}catch(error){cleanupError=error;if(failure===undefined)failure=error;throw error;}finally{
       const outcome=owned.cancelled?'cancelled':failure?'failed':'completed';
       const observation=metrics.finish(outcome,usageV1(usage),failure instanceof Error?failure.message:undefined);
       observations.set(metadata.sequence,observation);if(observations.size>256)observations.delete(observations.keys().next().value!);
       try{options.onObservation?.(observation,metadata);}catch{/* Observation cannot prevent native teardown. */}
-      try{if(usage)options.budget?.reconcile(usage);}catch{/* Budget conflicts surface through the next admission. */}
+      // Every settled request spends a call, usage report or not; missing
+      // usage never means zero spend.
+      try{options.budget?.reconcile(usage);}catch{/* Budget conflicts surface through the next admission. */}
       if(active===owned)active=undefined;
      }
     }
