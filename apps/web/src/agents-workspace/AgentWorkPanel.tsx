@@ -18,7 +18,8 @@ export function AgentWorkPanel({threadId}: {threadId: string}) {
   const [plan, setPlan] = useState<PlanProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [output, setOutput] = useState<{workId: string; output: unknown} | null>(null);
-  const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const [drafts, setDrafts] = useState<Record<string, {text: string}>>({});
+  const [pendingInputs, setPendingInputs] = useState<ReadonlySet<string>>(() => new Set());
   const [post, setPost] = useState({recipientThreadId: '', topic: '', text: ''});
   const [open, setOpen] = useState(false);
   const busy = useRef(false);
@@ -41,8 +42,23 @@ export function AgentWorkPanel({threadId}: {threadId: string}) {
   if (!list || list.works.length === 0) return null;
 
   const send = (work: AgentWorkRow, kind: 'STEER' | 'FOLLOW_UP') => {
-    const text = (drafts[work.workId] ?? '').trim(); if (!text) return;
-    void sendAgentInput(threadId, {workId: work.workId, kind, text}).then(() => { setDrafts(d => ({...d, [work.workId]: ''})); return refresh(); }).catch(e => setError(e instanceof Error ? e.message : 'Send failed'));
+    const {workId} = work;
+    const submitted = drafts[workId];
+    const text = submitted?.text.trim();
+    if (!text || pendingInputs.has(workId)) return;
+    setPendingInputs(current => new Set(current).add(workId));
+    void sendAgentInput(threadId, {workId, kind, text})
+      .then(() => {
+        // An acknowledgement owns only the draft it submitted, even if a later edit has the same text.
+        setDrafts(current => current[workId] === submitted ? {...current, [workId]: {text: ''}} : current);
+        return refresh();
+      })
+      .catch(e => setError(e instanceof Error ? e.message : 'Send failed'))
+      .finally(() => setPendingInputs(current => {
+        const next = new Set(current);
+        next.delete(workId);
+        return next;
+      }));
   };
   return <section className="agents-work" aria-label="Agent work">
     <button type="button" className="agents-disclosure" aria-expanded={open} onClick={() => setOpen(!open)}>Agent work · {list.works.length}</button>
@@ -63,9 +79,9 @@ export function AgentWorkPanel({threadId}: {threadId: string}) {
           {work.state === 'INTERRUPTED' && <button type="button" className="agents-icon" aria-label={`Resume ${work.workId}`} onClick={() => { void resumeAgentWork(threadId, work.workId).then(refresh).catch(e => setError(e instanceof Error ? e.message : 'Resume failed')); }}><Play size={13}/></button>}
         </header>
         <div className="agents-work-send">
-          <input aria-label={`Message work ${work.workId}`} placeholder="Steer or queue a follow-up…" value={drafts[work.workId] ?? ''} onChange={e => setDrafts(d => ({...d, [work.workId]: e.target.value}))} disabled={work.state !== 'RUNNING' && work.state !== 'QUEUED'}/>
-          <button type="button" disabled={work.state !== 'RUNNING' || !work.steerSupported} title={work.steerSupported ? 'Delivered to the running child immediately' : 'This work does not support live steering'} onClick={() => send(work, 'STEER')}>Steer now</button>
-          <button type="button" disabled={work.state !== 'RUNNING' && work.state !== 'QUEUED'} onClick={() => send(work, 'FOLLOW_UP')}>Queue next</button>
+          <input aria-label={`Message work ${work.workId}`} placeholder="Steer or queue a follow-up…" value={drafts[work.workId]?.text ?? ''} onChange={e => {const text = e.target.value; setDrafts(d => ({...d, [work.workId]: {text}}));}} disabled={work.state !== 'RUNNING' && work.state !== 'QUEUED'}/>
+          <button type="button" disabled={pendingInputs.has(work.workId) || work.state !== 'RUNNING' || !work.steerSupported} title={work.steerSupported ? 'Delivered to the running child immediately' : 'This work does not support live steering'} onClick={() => send(work, 'STEER')}>Steer now</button>
+          <button type="button" disabled={pendingInputs.has(work.workId) || (work.state !== 'RUNNING' && work.state !== 'QUEUED')} onClick={() => send(work, 'FOLLOW_UP')}>Queue next</button>
         </div>
       </article>)}
       {inputs.length > 0 && <div className="agents-work-queue" aria-label="Queued inputs">
