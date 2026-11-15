@@ -887,3 +887,26 @@ test('All Agents empty copy reconciles with existing conversations and shows a l
  await expect(connectivity.locator('.agents-connectivity-dot')).toHaveCount(1);
  await expect(connectivity).toHaveAttribute('data-connected','true');
 });
+
+test('an unavailable main layout gives the user a retry without reloading the page', async ({page}) => {
+  await fixture(page, {working: false});
+  let reads = 0;
+  let unavailable = true;
+  await page.route('**/api/split-workspace?*', route => {
+    reads++;
+    if (unavailable) return route.fulfill({status: 503, json: {error: {code: 'UNAVAILABLE', message: 'Workspace layout temporarily unavailable.'}}});
+    return route.fallback();
+  });
+  await page.getByRole('button', {name: 'Workspace', exact: true}).click();
+  const retry = page.getByRole('button', {name: 'Retry workspace layout', exact: true});
+  await expect(page.getByRole('alert').filter({hasText: 'Workspace layout temporarily unavailable.'})).toBeVisible();
+  const failedReads = reads;
+  unavailable = false;
+  let navigations = 0;
+  page.on('framenavigated', frame => {if (frame === page.mainFrame()) navigations++;});
+  await retry.click();
+  await expect(page.getByRole('textbox', {name: 'Message', exact: true})).toBeVisible();
+  await expect(retry).toHaveCount(0);
+  expect(reads).toBeGreaterThan(failedReads);
+  expect(navigations).toBe(0);
+});
