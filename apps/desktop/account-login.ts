@@ -28,9 +28,9 @@ export function createAccountLoginFlows(launch: (provider: ConnectionProviderId,
         try {
           owner.handle = await launch(providerId, accountId, owner.control.signal);
           if (active !== owner) return;
-          update(owner, 'waiting', 'Complete sign-in in the private native console.');
+          if (owner.flow.state === 'opening') update(owner, 'waiting', 'Complete sign-in in the private native console.');
           void owner.handle.completion.then(() => {
-            if (active !== owner) return;
+            if (active !== owner || owner.flow.state !== 'waiting') return;
             update(owner, 'completed', 'Console completed. Check connection status to confirm readiness.'); active = undefined;
           }, (error: unknown) => {
             if (active !== owner || owner.flow.state === 'cancelling' || owner.flow.state === 'blocked') return;

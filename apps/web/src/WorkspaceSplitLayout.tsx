@@ -2,8 +2,10 @@ import {useCallback,useEffect,useLayoutEffect,useRef,useState,type CSSProperties
 import type {SurfaceRef} from '../../../packages/contracts/workspace.ts';
 import type {SplitDropEdge,SplitWorkspaceLayout,SplitWorkspaceNode} from '../../../packages/contracts/split-workspace.ts';
 import {minimumSplitSize,minimumViewSize,splitDropEdge,splitPaneIds} from '../../../packages/core/split-workspace-layout.ts';
+import {clampChatRect,type ChatRect} from '../../../packages/ui-shell/chat-layout.ts';
 import {MoreHorizontal} from 'lucide-react';
 import {ActionMenu} from '../../../packages/ui-shell/ActionMenu';
+import {Popover} from '../../../packages/ui-shell/Popover';
 import {Select} from '../../../packages/ui-shell/Select';
 import './workspace-split.css';
 
@@ -21,6 +23,12 @@ export interface WorkspaceSplitLayoutProps {
  showHistory?:boolean;
  toolDock?:boolean;
  className?:string;
+ floating?:Record<string,ChatRect>;
+ onReturnFloat?:(view:SurfaceRef)=>void;
+ onDetachView?:(view:SurfaceRef)=>void;
+ onMoveFloat?:(viewId:string,rect:ChatRect)=>void;
+ onDockFloat?:(view:SurfaceRef,paneId:string,edge:SplitDropEdge,outer?:boolean)=>void;
+ emptyMainPaneId?:string;
 }
 interface SlotRect {left:number;top:number;width:number;height:number}
 interface ResizeGesture {pointerId:number;splitId:string;axis:'horizontal'|'vertical';start:number;span:number;ratio:number;minimum:number;maximum:number;revision:number;element:HTMLElement}
@@ -29,9 +37,23 @@ const edgeLabel:Record<SplitDropEdge,string>={left:'Left',right:'Side by side',t
 const defaultTitle=(view:SurfaceRef)=>view.kind==='thread'?'Conversation':view.kind.replaceAll('-',' ');
 
 /** View bodies keep one stable DOM parent; layout changes only reposition their slots. */
-export function WorkspaceSplitLayout({layout,onCommand,renderView,title=defaultTitle,onDropThread,editorOptions=[],onSelectEditor,prepare,toolDock=false,className=''}:WorkspaceSplitLayoutProps){
+export function WorkspaceSplitLayout({layout,onCommand,renderView,title=defaultTitle,onDropThread,editorOptions=[],onSelectEditor,prepare,toolDock=false,className='',floating,onReturnFloat,onDetachView,onMoveFloat,onDockFloat,emptyMainPaneId}:WorkspaceSplitLayoutProps){
  const root=useRef<HTMLDivElement>(null),slots=useRef(new Map<string,HTMLDivElement>()),resize=useRef<ResizeGesture|null>(null),corner=useRef<CornerGesture|null>(null),pending=useRef(false);
  const[rects,setRects]=useState<Record<string,SlotRect>>({}),[size,setSize]=useState({width:0,height:0}),[previewRatio,setPreviewRatio]=useState<{id:string;ratio:number}|null>(null),[drop,setDrop]=useState<{paneId:string;edge:SplitDropEdge;outer?:boolean;joinFrom?:string}|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState(''),[menuPane,setMenuPane]=useState<string|null>(null);
+ const[floatRects,setFloatRects]=useState<Record<string,ChatRect>>({});
+ const[floatMenu,setFloatMenu]=useState<string|null>(null);
+ const floatDragged=useRef(false);
+ const floatGripAnchor=useRef<HTMLElement|null>(null),floatMenuContent=useRef<HTMLDivElement|null>(null),floatMenuItem=useRef<HTMLButtonElement|null>(null);
+ const floatDockTarget=useRef<{paneId:string;edge:SplitDropEdge;outer?:boolean}|null>(null);
+ const floatGesture=useRef<{viewId:string;mode:'move'|'resize';pointerId:number;startX:number;startY:number;startRect:ChatRect;element:HTMLElement}|null>(null);
+ const floatRectOf=(viewId:string)=>floatRects[viewId]??floating?.[viewId];
+ const releaseFloat=useCallback(()=>{const g=floatGesture.current;floatGesture.current=null;if(g&&g.element.hasPointerCapture?.(g.pointerId))g.element.releasePointerCapture(g.pointerId);},[]);
+ const cancelFloat=useCallback(()=>{const g=floatGesture.current;if(!g)return;floatDockTarget.current=null;setDrop(null);releaseFloat();setFloatRects(current=>({...current,[g.viewId]:g.startRect}));},[releaseFloat]);
+ const beginFloat=(event:ReactPointerEvent<HTMLElement>,viewId:string,mode:'move'|'resize')=>{if(event.button!==0||busy||floatGesture.current)return;const rect=floatRectOf(viewId);if(!rect)return;floatDragged.current=false;event.preventDefault();event.currentTarget.setPointerCapture(event.pointerId);floatGesture.current={viewId,mode,pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,startRect:rect,element:event.currentTarget};};
+ const moveFloat=(event:ReactPointerEvent<HTMLElement>)=>{const g=floatGesture.current;if(!g||g.pointerId!==event.pointerId)return;const dx=event.clientX-g.startX,dy=event.clientY-g.startY;if(g.mode==='move'&&Math.hypot(dx,dy)<3)return;floatDragged.current=true;if(g.mode==='move'&&onDockFloat){const target=locateDropAt(event.clientX,event.clientY);const dockable=target&&target.edge!=='center'&&fitSplit(target.paneId,target.edge,target.outer,layout.views[g.viewId])?target:null;floatDockTarget.current=dockable;setDrop(dockable);}const next=g.mode==='move'?{...g.startRect,x:g.startRect.x+dx,y:g.startRect.y+dy}:{...g.startRect,width:g.startRect.width+dx,height:g.startRect.height+dy};setFloatRects(current=>({...current,[g.viewId]:clampChatRect(next,{width:size.width,height:size.height})}));};
+ const endFloat=(event:ReactPointerEvent<HTMLElement>)=>{const g=floatGesture.current;if(!g||g.pointerId!==event.pointerId)return;const dock=floatDockTarget.current;floatDockTarget.current=null;setDrop(null);if(g.mode==='move'&&dock&&onDockFloat){const view=layout.views[g.viewId];releaseFloat();if(view)onDockFloat(view,dock.paneId,dock.edge,dock.outer);return;}const dx=event.clientX-g.startX,dy=event.clientY-g.startY;const next=g.mode==='move'?{...g.startRect,x:g.startRect.x+dx,y:g.startRect.y+dy}:{...g.startRect,width:g.startRect.width+dx,height:g.startRect.height+dy};const rect=clampChatRect(next,{width:size.width,height:size.height});releaseFloat();setFloatRects(current=>({...current,[g.viewId]:rect}));onMoveFloat?.(g.viewId,rect);};
+ const keyFloat=(event:KeyboardEvent<HTMLElement>,viewId:string)=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key))return;const rect=floatRectOf(viewId);if(!rect)return;event.preventDefault();const step=event.shiftKey?24:8,dx=event.key==='ArrowLeft'?-step:event.key==='ArrowRight'?step:0,dy=event.key==='ArrowUp'?-step:event.key==='ArrowDown'?step:0;const next=clampChatRect({...rect,x:rect.x+dx,y:rect.y+dy},{width:size.width,height:size.height});setFloatRects(current=>({...current,[viewId]:next}));onMoveFloat?.(viewId,next);};
+ useEffect(()=>{const escape=(event:globalThis.KeyboardEvent)=>{if(event.key==='Escape'){if(floatGesture.current){event.preventDefault();cancelFloat();}setFloatMenu(null);}};const blur=()=>{cancelFloat();setFloatMenu(null);};window.addEventListener('keydown',escape);window.addEventListener('blur',blur);return()=>{window.removeEventListener('keydown',escape);window.removeEventListener('blur',blur);cancelFloat();};},[cancelFloat]);
  const minimum=minimumSplitSize(layout),narrow=size.width>0&&(size.width<minimum.width||(toolDock?size.height<minimum.height:size.width<700)),topBar=narrow?30:0;
  useEffect(()=>{if(menuPane&&(!layout.panes[menuPane]||layout.panes[menuPane].collapsed||narrow&&layout.focusedPaneId!==menuPane))setMenuPane(null);},[menuPane,layout.panes,layout.focusedPaneId,narrow]);
  const measure=useCallback(()=>{
@@ -63,11 +85,12 @@ export function WorkspaceSplitLayout({layout,onCommand,renderView,title=defaultT
   if(!fitSplit(paneId,edge,outer,view)){setError('Make this area larger before splitting it.');return Promise.resolve();}
   return send('pane.split',{paneId,newPaneId:'pane-'+crypto.randomUUID(),splitId:'split-'+crypto.randomUUID(),axis:edge==='left'||edge==='right'?'horizontal':'vertical',before:edge==='left'||edge==='top',...(view?{view}:{}),...(outer?{outer:true}:{})});
  };
- const locateDrop=(event:DragEvent<HTMLDivElement>)=>{
-  const host=root.current;if(!host)return null;const box=host.getBoundingClientRect(),x=event.clientX-box.left,y=event.clientY-box.top;
+ const locateDropAt=(clientX:number,clientY:number)=>{
+  const host=root.current;if(!host)return null;const box=host.getBoundingClientRect(),x=clientX-box.left,y=clientY-box.top;
   const entry=Object.entries(rects).find(([paneId,rect])=>(!narrow||paneId===layout.focusedPaneId)&&rect.width>0&&rect.height>0&&x>=rect.left&&x<=rect.left+rect.width&&y>=rect.top-36&&y<=rect.top+rect.height);
   if(!entry)return null;const[paneId,rect]=entry,outerEdge:SplitDropEdge|undefined=!narrow?(x<16?'left':x>box.width-16?'right':y>box.height-16?'bottom':y<topBar+20?'top':undefined):undefined;return{paneId,edge:outerEdge??splitDropEdge({x:x-rect.left,y:y-rect.top,width:rect.width,height:rect.height}),...(outerEdge?{outer:true}:{})};
  };
+ const locateDrop=(event:DragEvent<HTMLDivElement>)=>locateDropAt(event.clientX,event.clientY);
  const recognized=(event:DragEvent)=>Array.from(event.dataTransfer.types).some(type=>type===GEN_THREAD_DRAG_TYPE||type===GEN_VIEW_DRAG_TYPE);
  const dragOver=(event:DragEvent<HTMLDivElement>)=>{if(!recognized(event))return;event.preventDefault();event.dataTransfer.dropEffect='move';setDrop(locateDrop(event));};
  const dropView=(event:DragEvent<HTMLDivElement>)=>{
@@ -105,25 +128,27 @@ export function WorkspaceSplitLayout({layout,onCommand,renderView,title=defaultT
      {id:'split-rows',label:'Split above / below',disabled:busy||narrow,onSelect:()=>{void splitPane(paneId,'bottom');}},
      {id:'join',label:'Join adjacent area',disabled:busy||Object.keys(layout.panes).length<2,onSelect:()=>{void send('pane.join',{paneId});}},
      ...(current?[{id:'park',label:'Park current view',disabled:busy,onSelect:()=>{void send('view.park',{viewId:current.id});}}]:[]),
+     ...(current&&onDetachView&&current.kind==='thread'?[{id:'detach',label:'Detach conversation',disabled:busy,onSelect:()=>{onDetachView(current);}}]:[]),
      ...(onSelectEditor?editorOptions.map(option=>({id:`editor:${option.id}`,label:`Editor: ${option.title}`,disabled:busy,onSelect:()=>{void run(()=>onSelectEditor(option.id,paneId));}})):[]),
      ...layout.parkedViewIds.map(viewId=>({id:`recover:${viewId}`,label:`Recover: ${title(layout.views[viewId]!)}`,disabled:busy,onSelect:()=>{void send('view.move',{viewId,paneId});}})),
     ]}/></div>
     <button className="split-collapse" disabled={busy} aria-label={pane.collapsed?'Restore area':'Minimize area'} title={pane.collapsed&&current?title(current):undefined} aria-expanded={!pane.collapsed} onClick={()=>{void send('pane.collapse',{paneId,collapsed:!pane.collapsed},false);}}>{pane.collapsed?<><span aria-hidden="true">▾</span><span className="split-collapsed-title">{current?title(current):'Empty area'}</span></>:'▴'}</button>
    </header>
-   {!pane.collapsed&&<div className="split-pane-slot" ref={node=>{if(node)slots.current.set(paneId,node);else slots.current.delete(paneId);}}>{!current&&<div className="split-empty"><strong>{onDropThread?'Drag a thread here':'Add a tool'}</strong><span>{onDropThread?'Drop at an edge to split, or in the middle to add a tab.':'Choose a tool from Panels or the area menu. Split its area to arrange tools together.'}</span></div>}</div>}
+   {!pane.collapsed&&<div className="split-pane-slot" ref={node=>{if(node)slots.current.set(paneId,node);else slots.current.delete(paneId);}}>{(!current||paneId===emptyMainPaneId)&&<div className="split-empty"><strong>{onDropThread?'Drag a thread here':'Add a tool'}</strong><span>{onDropThread?'Drop at an edge to split, or in the middle to add a tab.':'Choose a tool from Panels or the area menu. Split its area to arrange tools together.'}</span></div>}</div>}
   </section>;
  };
  const renderNode=(node:SplitWorkspaceNode):ReactNode=>{
   if(node.kind==='pane')return renderPane(node.paneId);const ratio=previewRatio?.id===node.id?previewRatio.ratio:node.ratio,firstCollapsed=splitPaneIds(node.first).every(id=>layout.panes[id]!.collapsed),secondCollapsed=splitPaneIds(node.second).every(id=>layout.panes[id]!.collapsed),style={'--split-ratio':ratio,...(firstCollapsed!==secondCollapsed?{[node.axis==='horizontal'?'gridTemplateColumns':'gridTemplateRows']:firstCollapsed?'36px 6px minmax(0,1fr)':'minmax(0,1fr) 6px 36px'}:{})} as CSSProperties;
   return <div key={node.id} className={`split-node split-${node.axis}`} style={style}>{renderNode(node.first)}<div role="separator" tabIndex={0} aria-label={`Resize ${node.axis==='horizontal'?'columns':'rows'}`} aria-orientation={node.axis==='horizontal'?'vertical':'horizontal'} aria-valuenow={Math.round(ratio*100)} aria-valuemin={5} aria-valuemax={95} className={`split-divider${previewRatio?.id===node.id?' is-dragging':''}`} onPointerDown={event=>beginResize(event,node)} onPointerMove={moveResize} onPointerUp={endResize} onPointerCancel={cancel} onLostPointerCapture={()=>{if(resize.current)cancel();}} onContextMenu={event=>{event.preventDefault();cancel();}} onKeyDown={event=>keyResize(event,node)}>{previewRatio?.id===node.id&&<span>{Math.round(ratio*100)}% {node.axis==='horizontal'?'width':'height'}</span>}</div>{renderNode(node.second)}</div>;
  };
- const visibleOwner=new Map<string,string>();for(const pane of Object.values(layout.panes))if(!pane.collapsed&&pane.activeViewId&&(!narrow||pane.id===layout.focusedPaneId))visibleOwner.set(pane.activeViewId,pane.id);
+ const visibleOwner=new Map<string,string>();for(const pane of Object.values(layout.panes))if(!pane.collapsed&&pane.activeViewId&&pane.id!==emptyMainPaneId&&(!narrow||pane.id===layout.focusedPaneId))visibleOwner.set(pane.activeViewId,pane.id);
  const overlay=drop?rects[drop.paneId]:undefined;
  return <div ref={root} className={`split-workspace${narrow?' is-narrow':''} ${className}`} data-workspace-id={layout.id} aria-busy={busy} onPointerDownCapture={event=>{const paneId=(event.target as HTMLElement).closest<HTMLElement>('[data-split-view]')?.dataset.paneId;if(paneId&&paneId!==layout.focusedPaneId&&!busy)void send('pane.focus',{paneId},false);}} onDragOver={dragOver} onDragLeave={event=>{if(!event.currentTarget.contains(event.relatedTarget as Node|null))setDrop(null);}} onDrop={dropView}>
   {narrow&&<div className="split-workspace-tools"><label>Area<Select aria-label="Active workspace area" value={layout.focusedPaneId} disabled={busy} onValueChange={paneId=>{void send('pane.focus',{paneId},false);}} options={splitPaneIds(layout.root).map(paneId=>{const viewId=layout.panes[paneId]!.activeViewId;return{value:paneId,label:viewId?title(layout.views[viewId]!):'Empty area'};})}/></label></div>}
   {error&&<p role="alert" className="split-layout-error">{error}<button onClick={()=>setError('')}>Dismiss</button></p>}
   <div className="split-tree">{narrow?renderPane(layout.focusedPaneId):renderNode(layout.root)}</div>
-  <div className="split-surface-plane">{Object.values(layout.views).map(view=>{const paneId=visibleOwner.get(view.id),slot=paneId?rects[paneId]:undefined,active=Boolean(slot&&slot.width>0&&slot.height>0);return <div key={view.id} className="split-surface" data-split-view={view.id} data-pane-id={paneId} style={active?{left:slot!.left,top:slot!.top,width:slot!.width,height:slot!.height}:{display:'none'}} inert={!active} aria-hidden={!active}>{renderView(view,active)}</div>;})}</div>
+  <div className="split-surface-plane">{Object.values(layout.views).map(view=>{const paneId=visibleOwner.get(view.id),slot=paneId?rects[paneId]:undefined,floatRect=!paneId&&layout.parkedViewIds.includes(view.id)?floatRectOf(view.id):undefined,active=Boolean(slot&&slot.width>0&&slot.height>0)||Boolean(floatRect),style=floatRect?{left:floatRect.x,top:floatRect.y,width:floatRect.width,height:floatRect.height}:active?{left:slot!.left,top:slot!.top,width:slot!.width,height:slot!.height}:{display:'none'};return <div key={view.id} className={`split-surface${floatRect?' split-surface-float':''}`} data-split-view={view.id} data-pane-id={paneId} data-floating={floatRect?true:undefined} style={style} inert={!active} aria-hidden={!active}>{renderView(view,active)}{floatRect&&<div className="split-float-header"><strong ref={node=>{if(floatMenu===view.id)floatGripAnchor.current=node;}} className="split-float-grip" role="button" tabIndex={0} aria-label={`Placement and move for ${title(view)}`} aria-haspopup="menu" aria-expanded={floatMenu===view.id} onPointerDown={event=>beginFloat(event,view.id,'move')} onPointerMove={moveFloat} onPointerUp={endFloat} onPointerCancel={cancelFloat} onLostPointerCapture={()=>{if(floatGesture.current)cancelFloat();}} onClick={()=>{if(floatDragged.current)return;setFloatMenu(current=>current===view.id?null:view.id);}} onKeyDown={event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();setFloatMenu(current=>current===view.id?null:view.id);}else keyFloat(event,view.id);}}>{title(view)}</strong></div>}{floatRect&&<button type="button" className="split-float-resize" aria-label={`Resize ${title(view)}`} onPointerDown={event=>beginFloat(event,view.id,'resize')} onPointerMove={moveFloat} onPointerUp={endFloat} onPointerCancel={cancelFloat} onLostPointerCapture={()=>{if(floatGesture.current)cancelFloat();}}/>}</div>;})}</div>
   {drop&&overlay&&<div className={`split-drop-preview edge-${drop.edge}`} style={drop.outer?{left:0,top:topBar,width:size.width,height:size.height-topBar}:{left:overlay.left,top:overlay.top,width:overlay.width,height:overlay.height}}><span>{drop.joinFrom?'Join into this area':edgeLabel[drop.edge]}</span></div>}
+  {floatMenu&&onReturnFloat&&layout.views[floatMenu]&&<Popover anchor={floatGripAnchor} contentRef={floatMenuContent} initialFocus={floatMenuItem} open width={220} height={46} preferredSide="below" align="start" role="menu" aria-label={`Placement for ${title(layout.views[floatMenu]!)}`} className="ui-control-popup" onDismiss={()=>setFloatMenu(null)}><button ref={floatMenuItem} type="button" role="menuitem" className="ui-control-option" onClick={()=>{const view=layout.views[floatMenu];setFloatMenu(null);if(view)onReturnFloat(view);}}>Return to main</button></Popover>}
  </div>;
 }

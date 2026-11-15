@@ -84,12 +84,12 @@ test("RED source: denied A then successful B clears the project preview error", 
 	await project(page);
 	await go();
 	await page.getByRole("button", { name: "denied.txt", exact: true }).click();
-	await expect(page.getByRole("alert")).toContainText("Denied");
+	await expect(page.locator(".files-error[role=status]")).toContainText("Denied");
 	await page.getByRole("button", { name: "ok.txt", exact: true }).click();
 	await expect(
 		page.getByRole("region", { name: "File content" }),
 	).toContainText("Current file");
-	await expect(page.getByRole("alert")).toHaveCount(0);
+	await expect(page.locator(".files-error[role=status]")).toHaveCount(0);
 });
 test("RED source: held project directory and file requests expose separate pending states", async ({
 	page,
@@ -229,12 +229,12 @@ test("refresh retains the selected project content and retry recovers directory 
 		status: 500,
 		json: { error: { message: "Folder read failed" } },
 	});
-	await expect(page.getByRole("alert")).toContainText("Folder read failed");
+	await expect(page.locator(".files-error[role=status]")).toContainText("Folder read failed");
 	await page.route("**/api/projects/*/files?*", (route) =>
 		route.fulfill({ json: { entries: [entry("ok.txt")] } }),
 	);
 	await page.getByRole("button", { name: "Retry" }).click();
-	await expect(page.getByRole("alert")).toHaveCount(0);
+	await expect(page.locator(".files-error[role=status]")).toHaveCount(0);
 });
 
 for (const code of ["CAPABILITY_DENIED", "PROJECT_NOT_CONNECTED"])
@@ -252,7 +252,7 @@ for (const code of ["CAPABILITY_DENIED", "PROJECT_NOT_CONNECTED"])
 					page.getByRole("combobox", { name: "Granted resource" }),
 				).toBeVisible();
 			else {
-				await expect(page.getByRole("alert")).toContainText(
+				await expect(page.locator(".files-error[role=status]")).toContainText(
 					"Denied by owning project",
 				);
 				await expect(
@@ -352,7 +352,7 @@ for (const source of ["project", "granted"])
 			await expect(
 				page.getByRole("region", { name: "File content" }),
 			).toContainText("Accepted B");
-			await expect(page.getByRole("alert")).toHaveCount(0);
+			await expect(page.locator(".files-error[role=status]")).toHaveCount(0);
 			held = undefined;
 			await page.getByRole("button", { name: "late.txt", exact: true }).click();
 			await expect.poll(() => !!held).toBe(true);
@@ -364,7 +364,7 @@ for (const source of ["project", "granted"])
 			await expect(
 				page.getByRole("region", { name: "File content" }),
 			).not.toContainText("Accepted B");
-			await expect(page.getByRole("alert")).toHaveCount(0);
+			await expect(page.locator(".files-error[role=status]")).toHaveCount(0);
 		});
 
 for (const source of ["project", "granted"])
@@ -389,6 +389,7 @@ for (const source of ["project", "granted"])
 				}
 				return route.fulfill({
 					json: {
+						path: "",
 						entries: [entry("ok.txt"), entry("next", "directory")],
 						truncated: false,
 					},
@@ -404,7 +405,7 @@ for (const source of ["project", "granted"])
 			if (late === "error") await deny(held!);
 			else
 				await held!.fulfill({
-					json: { entries: [entry("stale.txt")], truncated: false },
+					json: { path: "next", entries: [entry("stale.txt")], truncated: false },
 				});
 			await settled(page, held!);
 			await expect(
@@ -413,7 +414,7 @@ for (const source of ["project", "granted"])
 			await expect(
 				page.getByRole("button", { name: "stale.txt", exact: true }),
 			).toHaveCount(0);
-			await expect(page.getByRole("alert")).toHaveCount(0);
+			await expect(page.locator(".files-error[role=status]")).toHaveCount(0);
 		});
 
 for (const change of ["project", "thread"])
@@ -445,7 +446,7 @@ for (const change of ["project", "thread"])
 				page.getByRole("region", { name: "File content" }),
 			).toContainText("New owner file");
 			await deny(held!);
-			await expect(page.getByRole("alert")).toHaveCount(0);
+			await expect(page.locator(".files-error[role=status]")).toHaveCount(0);
 			expect(requests[1].pathname).toBe(
 				"/api/projects/" +
 					(change === "project" ? "project-two" : "project-one") +
@@ -491,7 +492,7 @@ for (const change of ["grant", "thread"])
 				page.getByRole("region", { name: "File content" }),
 			).toContainText("Accepted new grant");
 			await deny(held!);
-			await expect(page.getByRole("alert")).toHaveCount(0);
+			await expect(page.locator(".files-error[role=status]")).toHaveCount(0);
 		},
 	);
 
@@ -542,7 +543,7 @@ for (const mode of [
 			if (mode === "binary")
 				await expect(preview).toContainText("no inline preview");
 			else {
-				await expect(preview.getByRole("alert")).toBeVisible();
+				await expect(preview.locator(".files-error[role=status]")).toBeVisible();
 				if (mode.startsWith("large"))
 					await expect(preview).toContainText(/limit/);
 				await page.route("**/api/resources/*/content*", (route) =>
@@ -550,7 +551,7 @@ for (const mode of [
 				);
 				await page.getByRole("button", { name: "Retry" }).click();
 				await expect(preview).toContainText("Retry succeeded");
-				await expect(preview.getByRole("alert")).toHaveCount(0);
+				await expect(preview.locator(".files-error[role=status]")).toHaveCount(0);
 			}
 		},
 	);
@@ -726,7 +727,7 @@ test("RED source: granted refresh retries the selected failed preview", async ({
 	);
 	await go();
 	await page.getByRole("button", { name: /^retry.txt/ }).click();
-	await expect(page.getByRole("alert")).toBeVisible();
+	await expect(page.locator(".files-error[role=status]")).toBeVisible();
 	await page.getByRole("button", { name: "Refresh granted files" }).click();
 	await expect(page.locator(".granted-files")).toContainText(
 		"Recovered preview",
@@ -787,7 +788,7 @@ test("project empty text, binary and too-large errors remain distinct", async ({
 	await page.getByRole("button", { name: "binary.dat", exact: true }).click();
 	await expect(preview).toContainText("Binary file");
 	await page.getByRole("button", { name: "large.txt", exact: true }).click();
-	await expect(preview.getByRole("alert")).toContainText("1 MiB");
+	await expect(preview.locator(".files-error[role=status]")).toContainText("1 MiB");
 	await expect(
 		preview.getByRole("button", { name: "Retry" }),
 	).toBeVisible();
@@ -832,7 +833,7 @@ test("granted refresh retains folder and preview with independent pending feedba
 		page.getByRole("navigation", { name: "Granted files" }).getByRole("status"),
 	).toContainText("Refreshing…");
 	await tree!.fulfill({
-		json: { entries: [entry("ok.txt")], truncated: false },
+		json: { path: "", entries: [entry("ok.txt")], truncated: false },
 	});
 	await expect(page.getByRole("status")).toHaveCount(0);
 });
@@ -860,7 +861,7 @@ test("preferred grant change resets a held directory and invalid preference fall
 	).toBeVisible();
 	await deny(held!);
 	await settled(page, held!);
-	await expect(page.getByRole("alert")).toHaveCount(0);
+	await expect(page.locator(".files-error[role=status]")).toHaveCount(0);
 });
 
 test("project inactive state aborts its read and resumes without stale content", async ({
@@ -905,7 +906,7 @@ for (const source of ["project", "granted"])
 			if (source === "granted")
 				await page.route("**/api/resources/*/tree*", (route) =>
 					route.fulfill({
-						json: { entries: [entry("only-returned.txt")], truncated: true },
+						json: { path: "", entries: [entry("only-returned.txt")], truncated: true },
 					}),
 				);
 			await go();

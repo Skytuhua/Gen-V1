@@ -3,7 +3,7 @@ import type {DesktopWorkspaceChange} from '../../packages/desktop-contract/index
 // Chromium shares six HTTP/1 connections across all trusted windows. Keep the
 // one persistent workspace stream in Node's separate pool, and relay only its
 // sequence so every renderer still obtains its own authenticated snapshot.
-export function workspaceEvents(origin:string,notify:(change:DesktopWorkspaceChange)=>void){
+export function workspaceEvents(origin:string,notify:(change:DesktopWorkspaceChange)=>void,launchToken?:string){
  if(!/^http:\/\/127\.0\.0\.1:[0-9]{4,5}$/.test(origin))throw Error('Workspace events require the owned loopback host');
  let stopped=false,sequence=0,connected=false,controller:AbortController|undefined,stream:ReadableStreamDefaultReader<Uint8Array>|undefined,wake:undefined|(()=>void),retry=250;
  const cancel=()=>{const pending=stream?.cancel().catch(()=>{});controller?.abort();return pending;};
@@ -17,7 +17,7 @@ export function workspaceEvents(origin:string,notify:(change:DesktopWorkspaceCha
    const bounded=()=>{clearTimeout(watchdog);watchdog=setTimeout(()=>void cancel(),45000);};
    try{
     watchdog=setTimeout(()=>controller?.abort(),5000);
-    const bootstrap=await fetch(origin+'/api/bootstrap',{redirect:'error',signal:controller.signal});
+    const bootstrap=await fetch(origin+'/api/bootstrap',{headers:launchToken?{'x-harness-launch':launchToken}:undefined,redirect:'error',signal:controller.signal});
     const token=/(?:^|;\s*)harness_session=([a-f0-9]+)(?:;|$)/.exec(bootstrap.headers.get('set-cookie')??'')?.[1];
     await bootstrap.body?.cancel();
     if(stopped)break;
@@ -25,11 +25,13 @@ export function workspaceEvents(origin:string,notify:(change:DesktopWorkspaceCha
     const response=await fetch(origin+'/api/events?after='+sequence,{headers:{Cookie:'harness_session='+token},redirect:'error',signal:controller.signal});
     if(stopped){await response.body?.cancel();break;}
     if(!response.ok||!response.headers.get('content-type')?.startsWith('text/event-stream')||!response.body){await response.body?.cancel();throw Error('The workspace event stream is unavailable');}
-    bounded();retry=250;publish(true);
+    bounded();const openedAt=performance.now();publish(true);
     const reader=response.body.getReader(),decoder=new TextDecoder();stream=reader;let line='',discard=false;
     try{
      for(;;){
       const chunk=await reader.read();if(chunk.done)break;bounded();
+      // Headers or the initial connected comment alone do not mean recovery.
+      if(performance.now()-openedAt>=15000)retry=250;
       const text=decoder.decode(chunk.value,{stream:true}),before=sequence;let start=0;
       for(let index=0;index<=text.length;index++){
        if(index<text.length&&text[index]!=='\n')continue;
@@ -42,7 +44,7 @@ export function workspaceEvents(origin:string,notify:(change:DesktopWorkspaceCha
        start=index+1;
       }
       // Renderers refresh the current snapshot; they do not consume each event.
-      if(sequence!==before)publish(true);
+      if(sequence!==before){retry=250;publish(true);}
      }
     }finally{await reader.cancel().catch(()=>{});stream=undefined;}
    }catch{/* The next connection obtains a fresh session after a host restart. */}

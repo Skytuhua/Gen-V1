@@ -298,7 +298,7 @@ test('workspace layout persists and context unknowns never appear as zero', asyn
   await page.reload();
   await expect(page.locator('.app-shell')).toHaveAttribute('data-sidebar-collapsed', 'true');
   await expect(page.getByRole('tab', { name: 'Notes', exact: true })).toHaveAttribute('aria-selected', 'true');
-  await page.getByRole('button', { name: 'Close workspace panel', exact: true }).click();
+  await page.getByRole('button', { name: 'Hide workspace panel', exact: true }).click();
   await page.getByRole('button', { name: 'Inspect context usage' }).click();
   await expect(page.getByRole('dialog', { name: 'Context inspector' })).toContainText('Not reported');
   await expect(page.getByRole('progressbar', { name: 'Context used' })).toHaveCount(0);
@@ -419,7 +419,7 @@ test('capture shell and settings review batch', async ({ page }, testInfo) => {
   await page.screenshot({ path: testInfo.outputPath('shell-desktop.png'), fullPage: true });
   await page.getByRole('button', { name: 'Open artifact in workspace', exact: true }).click();
   await page.screenshot({ path: testInfo.outputPath('shell-workspace.png'), fullPage: true });
-  await page.getByRole('button', { name: 'Close workspace panel', exact: true }).click();
+  await page.getByRole('button', { name: 'Hide workspace panel', exact: true }).click();
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await page.getByRole('dialog', { name: 'Settings', exact: true }).getByRole('button', { name: 'Appearance', exact: true }).click();
   await page.screenshot({ path: testInfo.outputPath('shell-settings.png'), fullPage: true });

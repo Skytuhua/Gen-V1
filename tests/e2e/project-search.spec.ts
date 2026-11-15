@@ -53,7 +53,7 @@ async function fixture(page: Page, query = "") {
 		route.fulfill({
 			json: {
 				path: "",
-				entries: [{ name: "granted.txt", path: "granted.txt", kind: "file" }],
+				entries: [{ name: "granted.txt", path: "granted.txt", kind: "file", bytes: 15 }],
 				truncated: false,
 			},
 		}),
@@ -79,6 +79,9 @@ async function projectScope(page: Page, q = "workspace") {
 	await page.getByRole("combobox", { name: "Search scope" }).click();
 	await page.getByRole("option", { name: "Project", exact: true }).click();
 	await search(page).fill(q);
+}
+async function waitForSearchRequest(page: Page) {
+	await expect.poll(() => page.evaluate(() => window.projectSearchFixture.pending.length)).toBe(1);
 }
 async function settled(page: Page) {
 	await page.evaluate(
@@ -203,10 +206,10 @@ test("empty, failed and retry states are actionable", async ({ page }) => {
 	).toBeVisible();
 	await fixture(page, "?state=error");
 	await projectScope(page);
-	await expect(page.getByRole("alert")).toContainText("could not be read");
+	await expect(page.locator(".files-error[role=status]")).toContainText("could not be read");
 	await page.getByRole("button", { name: "Retry search" }).click();
 	await expect(hits(page)).toHaveCount(3);
-	await expect(page.getByRole("alert")).toHaveCount(0);
+	await expect(page.locator(".files-error[role=status]")).toHaveCount(0);
 });
 
 test("overlong queries are bounded and blank queries cancel without a request", async ({
@@ -214,7 +217,7 @@ test("overlong queries are bounded and blank queries cancel without a request", 
 }) => {
 	await fixture(page);
 	await projectScope(page, "x".repeat(201));
-	await expect(page.getByRole("alert")).toContainText("200");
+	await expect(page.locator(".files-error[role=status]")).toContainText("200");
 	expect(
 		await page.evaluate(() => window.projectSearchFixture.requests.length),
 	).toBe(0);
@@ -272,7 +275,7 @@ for (const late of ["success", "error"])
 		);
 		await settled(page);
 		await expect(hits(page)).toHaveCount(3);
-		await expect(page.getByRole("alert")).toHaveCount(0);
+		await expect(page.locator(".files-error[role=status]")).toHaveCount(0);
 		expect(
 			await page.evaluate(
 				() => window.projectSearchFixture.pending[0].signal.aborted,
@@ -295,7 +298,7 @@ for (const change of ["project", "thread"])
 		await page.evaluate(() => window.projectSearchFixture.release(0));
 		await settled(page);
 		await expect(hits(page)).toHaveCount(0);
-		await expect(page.getByRole("alert")).toHaveCount(0);
+		await expect(page.locator(".files-error[role=status]")).toHaveCount(0);
 		await page.evaluate(() => {
 			window.projectSearchFixture.hold = false;
 		});
@@ -315,6 +318,7 @@ test("deactivation rejects held results until the owner is active again", async 
 }) => {
 	await fixture(page, "?state=loading");
 	await projectScope(page);
+	await waitForSearchRequest(page);
 	await page.getByRole("button", { name: "Toggle active" }).click();
 	await page.evaluate(() => window.projectSearchFixture.release(0));
 	await settled(page);
@@ -442,7 +446,7 @@ for (const state of ["expired", "binding", "wrong-owner"])
 		await projectScope(page);
 		if (state !== "wrong-owner")
 			await page.getByRole("button", { name: "Load more results" }).click();
-		await expect(page.getByRole("alert")).toContainText(
+		await expect(page.locator(".files-error[role=status]")).toContainText(
 			state === "expired"
 				? "expired"
 				: state === "binding"
@@ -452,7 +456,7 @@ for (const state of ["expired", "binding", "wrong-owner"])
 		await expect(hits(page)).toHaveCount(state === "wrong-owner" ? 0 : 2);
 		if (state !== "wrong-owner") {
 			await page.getByRole("button", { name: "Restart search" }).click();
-			await expect(page.getByRole("alert")).toHaveCount(0);
+			await expect(page.locator(".files-error[role=status]")).toHaveCount(0);
 		}
 	});
 
@@ -494,7 +498,7 @@ test("a denied preview retries and a late file read cannot replace another resul
 		});
 	});
 	await hits(page).first().click();
-	await expect(page.getByRole("alert")).toContainText("Access denied");
+	await expect(page.locator(".files-error[role=status]")).toContainText("Access denied");
 	denied = false;
 	await preview(page).getByRole("button", { name: "Retry", exact: true }).click();
 	await expect.poll(() => !!held).toBe(true);
@@ -543,7 +547,7 @@ for (const width of [1440, 1024, 768])
 			if (state === "loading")
 				await expect(page.getByRole("status")).toContainText("Searching");
 			else if (state === "error")
-				await expect(page.getByRole("alert")).toBeVisible();
+				await expect(page.locator(".files-error[role=status]")).toBeVisible();
 			else if (state === "empty")
 				await expect(page.getByRole("status")).toContainText("0 results");
 			else await expect(hits(page).first()).toBeVisible();
@@ -592,6 +596,7 @@ for (const motion of ["system", "reduced", "off"])
 		await page.emulateMedia({ reducedMotion: "reduce" });
 		await fixture(page, `?width=420&motion=${motion}`);
 		await projectScope(page);
+		await expect(hits(page).first()).toBeVisible();
 		await search(page).press("ArrowDown");
 		await page.keyboard.press("Enter");
 		await expect(preview(page)).toBeFocused();
@@ -618,6 +623,7 @@ for (const theme of ["dark", "light"])
 				document.body.style.zoom = String(value);
 			}, zoom);
 			await projectScope(page);
+			await expect(hits(page).first()).toBeVisible();
 			await search(page).press("ArrowDown");
 			await expect(hits(page).first()).toBeFocused();
 			expect(
@@ -641,6 +647,7 @@ for (const theme of ["dark", "light"])
 	}) => {
 		await fixture(page, `?theme=${theme}`);
 		await projectScope(page);
+		await expect(hits(page).first()).toBeVisible();
 		const ratios = await page.evaluate(() => {
 			const luminance = (color: string) => {
 				const values = color
@@ -694,6 +701,7 @@ test("QA r1 displays frozen binding, issues and complete paged results", async (
 }, testInfo) => {
 	await fixture(page, "?state=loading");
 	await projectScope(page);
+	await waitForSearchRequest(page);
 	await page.evaluate(() => {
 		const pending = window.projectSearchFixture.pending[0];
 		pending.resolve({
@@ -755,7 +763,7 @@ test("QA r1 uses the trimmed 200-code-point input boundary", async ({
 }) => {
 	await fixture(page);
 	await projectScope(page, "x".repeat(201));
-	await expect(page.getByRole("alert")).toContainText("200");
+	await expect(page.locator(".files-error[role=status]")).toContainText("200");
 	expect(
 		await page.evaluate(() => window.projectSearchFixture.requests.length),
 	).toBe(0);
@@ -771,6 +779,7 @@ test("QA r2 valid control paths stay visible and retain the exact read target", 
 }, testInfo) => {
 	await fixture(page, "?state=loading");
 	await projectScope(page);
+	await waitForSearchRequest(page);
 	await page.evaluate(() => {
 		const pending = window.projectSearchFixture.pending[0];
 		pending.resolve({
@@ -861,6 +870,7 @@ for (const { name, text, line } of [
 	}, testInfo) => {
 		await fixture(page, "?state=loading");
 		await projectScope(page, "needle");
+		await waitForSearchRequest(page);
 		await page.evaluate(
 			({ line }) => {
 				const pending = window.projectSearchFixture.pending[0];

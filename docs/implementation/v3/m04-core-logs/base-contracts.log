@@ -1,0 +1,9 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m04-core-dependency
+
+
+ Test Files  4 passed (4)
+      Tests  32 passed (32)
+   Start at  19:19:12
+   Duration  2.04s (transform 648ms, setup 0ms, import 1.25s, tests 257ms, environment 0ms)
+

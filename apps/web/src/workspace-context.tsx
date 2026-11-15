@@ -10,6 +10,9 @@ export interface WorkspaceContextValue {
   rightPanelOpen: boolean;
   activeTab: WorkspaceTab;
   setActiveTab: (tab: WorkspaceTab) => void;
+  openTabs?: WorkspaceTab[];
+  openTab?: (tab: WorkspaceTab) => void;
+  closeTab?: (tab: WorkspaceTab) => void;
   documentWindow?: OpenDocumentWindow | null;
   requestOpenDocument?: (id:string) => void;
   closeDocument?: (id:string) => void;

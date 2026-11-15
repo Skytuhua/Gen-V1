@@ -1,6 +1,6 @@
 import {SentenceReveal} from './SentenceReveal';
 import {WindowDocument} from './DocumentWindow';
-import { Children, createContext, lazy, Suspense, useContext, useRef, useState, type ReactNode } from 'react';
+import { Children, createContext, lazy, Suspense, useContext, useId, useRef, useState, type ReactNode } from 'react';
 import { useStateStore, type ComponentRegistry, type ComponentRenderProps } from '@json-render/react';
 import { ExternalLink, FileText, Check, AlertTriangle, CornerDownLeft } from 'lucide-react';
 import { Markdown } from './Markdown';
@@ -243,6 +243,7 @@ function sameJsonValue(left: unknown, right: unknown): boolean {
   return keys.length === Object.keys(b).length && keys.every(key => Object.hasOwn(b, key) && sameJsonValue(a[key], b[key]));
 }
 function SchemaValue({ schema, label, value, required, onChange }: { schema: Record<string, unknown>; label: string; value: unknown; required: boolean; onChange: (value: unknown) => void }) {
+  const id = useId(), helpId = id + "-help";
   const omittedDraft = useRef<unknown>(undefined);
   if (value !== undefined) omittedDraft.current = value;
   if (Array.isArray(schema.enum)) {
@@ -256,5 +257,7 @@ function SchemaValue({ schema, label, value, required, onChange }: { schema: Rec
   }
   if (schema.type === 'boolean') return <label className="check-field"><input type="checkbox" checked={value === true} onChange={event => onChange(event.target.checked)} />{label}</label>;
   const numeric = schema.type === 'number' || schema.type === 'integer';
-  return <label className="field">{label}<input type={numeric ? 'number' : schema.format === 'email' ? 'email' : 'text'} step={schema.type === 'integer' ? 1 : 'any'} min={typeof schema.minimum === 'number' ? schema.minimum : undefined} max={typeof schema.maximum === 'number' ? schema.maximum : undefined} required={required} value={value == null ? '' : String(value)} onChange={event => onChange(numeric && event.target.value !== '' ? Number(event.target.value) : event.target.value)} />{schema.description ? <small>{string(schema.description)}</small> : null}</label>;
+  const minimum = schema.type === 'string' && typeof schema.minLength === 'number' && Number.isSafeInteger(schema.minLength) && schema.minLength > 0 ? schema.minLength : undefined;
+  const help = [string(schema.description), minimum === undefined ? '' : `Enter at least ${minimum} ${minimum === 1 ? 'character' : 'characters'}.`].filter(Boolean);
+  return <div className="field"><label htmlFor={id}>{label}</label><input id={id} aria-describedby={help.length ? helpId : undefined} type={numeric ? 'number' : schema.format === 'email' ? 'email' : 'text'} step={schema.type === 'integer' ? 1 : 'any'} min={typeof schema.minimum === 'number' ? schema.minimum : undefined} max={typeof schema.maximum === 'number' ? schema.maximum : undefined} required={required} value={value == null ? '' : String(value)} onChange={event => onChange(numeric && event.target.value !== '' ? Number(event.target.value) : event.target.value)} />{help.length ? <small id={helpId} className="muted">{help.join(' ')}</small> : null}</div>;
 }

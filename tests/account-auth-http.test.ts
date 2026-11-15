@@ -10,12 +10,12 @@ import { buildServer } from '../apps/server/server.ts';
 const close: (() => Promise<void>)[] = [];afterEach(async()=>{for(const action of close.splice(0))await action();});
 async function fixture() {
   const store = new Store(await mkdtemp(join(tmpdir(), 'account-auth-http-')));
-  const runtime: RuntimeAdapter = { configure:()=>{}, models:async()=>[], start:async()=>{}, followUp:async()=>{}, cancel:async()=>{}, compact:async()=>{}, dispose:async()=>{}, history:async()=>[] };
+  const runtime: RuntimeAdapter = { configure:()=>{}, models:async()=>[], invalidateModels:vi.fn(async()=>{}), start:async()=>{}, followUp:async()=>{}, cancel:async()=>{}, compact:async()=>{}, dispose:async()=>{}, history:async()=>[] };
   const service = new Service(store, runtime), app = await buildServer(service,{port:4317,dev:false});
   close.push(async()=>{await app.close();await service.dispose();store.close();});
   const response = await app.inject({url:'/api/bootstrap',headers:{host:'127.0.0.1:4317'}}), bootstrap = response.json();
   const headers = {host:'127.0.0.1:4317',cookie:String(response.headers['set-cookie']).split(';')[0],'x-harness-csrf':bootstrap.csrfToken};
-  return {store,service,app,headers};
+  return {store,service,app,headers,runtime};
 }
 it('uses existing session/CSRF protection and requires a provider plus explicit legacy or named target', async()=>{
   const {app,headers}=await fixture();
@@ -33,3 +33,10 @@ it('awaits prediction teardown before exclusive local signout and never accepts 
   const response=await pending;expect(response.statusCode).toBe(200);expect(response.json()).toMatchObject({state:'signed-out',accountId:null,message:expect.stringContaining('not revoked')});
   expect((await app.inject({method:'POST',url:'/api/account-auth/signout',headers,payload:{providerId:'openai',accountId:null,accessToken:'must-not-accept'}})).statusCode).toBe(400);
 },15000);
+it('sign-out invalidates the signed-out account model catalog while leaving the runtime usable (AUD-07)',async()=>{
+  const {app,service,headers,runtime}=await fixture();
+  vi.spyOn(service,'cancelComposerPredictions').mockResolvedValue(undefined);
+  const response=await app.inject({method:'POST',url:'/api/account-auth/signout',headers,payload:{providerId:'openai',accountId:null}});
+  expect(response.statusCode).toBe(200);expect(response.json()).toMatchObject({state:'signed-out'});
+  expect(runtime.invalidateModels).toHaveBeenCalledWith({accountId:null});
+});

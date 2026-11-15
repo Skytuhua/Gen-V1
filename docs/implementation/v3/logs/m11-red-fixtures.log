@@ -1,0 +1,7 @@
+
+ RUN  v4.1.12 C:/Users/Administrator/repos/Gen-V1-m11
+
+ ❯ tests/model-transport-v3.test.ts (5 tests | 2 failed) 351ms
+   × records a stable request id and monotonic stage timings with owned binding 96ms
+   × adapter capabilities are asserted with reasons and proof, never inferred from a model name 2ms
+ ❯ tests/model-scheduling-v3.test.ts (7 tests | 3 failed) 61041ms

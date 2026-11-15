@@ -1,7 +1,7 @@
 import { afterEach, expect, it, vi } from 'vitest';
 import { workspaceEvents } from '../apps/desktop/workspace-events';
 
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); });
 
 it('relays only the highest complete sequence per decoded chunk', async () => {
   let stream!: ReadableStreamDefaultController<Uint8Array>;
@@ -42,5 +42,36 @@ it('keeps consuming workspace events when one notification throws', async () => 
     stream.enqueue(new TextEncoder().encode('id: 7\nevent: workspace\ndata: {}\n\n'));
     await expect.poll(() => relay.state().sequence).toBe(7);
     expect(fetch).toHaveBeenCalledTimes(2);
+  } finally { await relay.close(); }
+});
+
+
+it('backs off after an event-stream connection repeatedly closes without data', async () => {
+  vi.useFakeTimers();
+  let bootstraps = 0;
+  const mockFetch = vi.fn(async (url: string) => {
+    if (url.endsWith('/api/bootstrap')) {
+      bootstraps++;
+      return new Response(null, { headers: { 'Set-Cookie': 'harness_session=abcd; HttpOnly' } });
+    }
+    return new Response(new ReadableStream({ start(controller) { controller.close(); } }), {
+      headers: { 'Content-Type': 'text/event-stream' },
+    });
+  });
+  vi.stubGlobal('fetch', mockFetch);
+  const relay = workspaceEvents('http://127.0.0.1:4317', () => {});
+  try {
+    await vi.advanceTimersByTimeAsync(0);
+    expect(bootstraps).toBe(1);
+    await vi.advanceTimersByTimeAsync(250);
+    expect(bootstraps).toBe(2);
+    await vi.advanceTimersByTimeAsync(250);
+    expect(bootstraps).toBe(2);
+    await vi.advanceTimersByTimeAsync(250);
+    expect(bootstraps).toBe(3);
+    await vi.advanceTimersByTimeAsync(999);
+    expect(bootstraps).toBe(3);
+    await vi.advanceTimersByTimeAsync(1);
+    expect(bootstraps).toBe(4);
   } finally { await relay.close(); }
 });

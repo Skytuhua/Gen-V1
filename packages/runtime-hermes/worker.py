@@ -240,7 +240,8 @@ class Worker:
                 worker.event("model_request", {"inputIds": list(dict.fromkeys(input_ids)), "sequence": sequence})
                 response = super()._create_chat_completion(**kwargs)
                 usage = worker.host_call("$transport.usage", {"jobKey": worker.params.get("jobKey"), "sequence": sequence}) or {}
-                worker.native_usage.append({"sequence": sequence, "phase": worker.current_ctx()["phase"], "usage": usage or None})
+                observation = worker.host_call("$transport.observation", {"jobKey": worker.params.get("jobKey"), "sequence": sequence}) or {}
+                worker.native_usage.append({"sequence": sequence, "phase": worker.current_ctx()["phase"], "usage": usage or None, "observation": observation or None})
                 # Absent usage stays unknown at the host. Hermes requires a numeric
                 # namespace internally; never emit its compatibility zeros as paid proof.
                 if isinstance(usage, dict) and isinstance(usage.get("inputTokens"), int) and isinstance(usage.get("outputTokens"), int):
