@@ -126,8 +126,8 @@
       },
       {
         "stage": "Browser end-to-end of the review-pane surface",
-        "result": "BLOCKED",
-        "detail": "pnpm test:browser was not run: no real LSP/debug data can be produced on this host and the panel is flag-gated off by default. Component-level rendering is covered by contract-shaped props; live browser proof is a remaining gate."
+        "result": "PASS",
+        "detail": "pnpm test:browser --suite code-review-workspace — 57/57 Playwright specs passed on Windows on base 686bda8 (tests/e2e/code-review-workspace.spec.ts), covering the review-pane surface CodeIntelligencePanel mounts into. The M07 panel itself remains flag-gated off, so live LSP-driven rendering is not exercised; spec-scoped browser coverage for the changed frontend path is green."
       }
     ]
   },
@@ -186,14 +186,14 @@
       "cwd": "C:/Users/Administrator/repos/gen-v1-m07",
       "exitCode": 0,
       "result": "PASS",
-      "logArtifact": "docs/implementation/v3/logs/m07-feed-01-advisory.log — post-rebase verification on base 686bda8: 6 files / 57 tests passed including the recordAdvisory feed tests, typecheck/lint/build clean"
+      "logArtifact": "docs/implementation/v3/logs/m07-feed-01-advisory.log — post-rebase verification on base 686bda8: 6 files / 58 tests passed including the recordAdvisory feed tests and the revoked-workspace rename apply test, typecheck/lint/build clean"
     },
     {
-      "command": "pnpm test:browser",
+      "command": "pnpm test:browser --suite code-review-workspace",
       "cwd": "C:/Users/Administrator/repos/gen-v1-m07",
-      "exitCode": null,
-      "result": "NOT_RUN",
-      "logArtifact": "No real LSP/DAP servers exist on this host and the panel is flag-gated off; live browser proof recorded as a remaining gate"
+      "exitCode": 0,
+      "result": "PASS",
+      "logArtifact": "docs/implementation/v3/logs/m07-plt-01-browser-suite.log — 57/57 specs in 1.4m"
     }
   ],
   "intendedNegatives": [
@@ -249,6 +249,12 @@
       "case": "External edit of a renamed file during recovery",
       "expected": "stop, PARTIAL_RECOVERY_REQUIRED, no silent overwrite",
       "observed": "Conflict entry retained; external bytes preserved; backups kept",
+      "result": "PASS"
+    },
+    {
+      "case": "Workspace grant revoked between rename plan and apply",
+      "expected": "denied, no write",
+      "observed": "CAPABILITY_DENIED under the mutation lock; file bytes unchanged",
       "result": "PASS"
     },
     {
@@ -313,7 +319,8 @@
     "docs/implementation/v3/logs/m07-core-02-lint.log",
     "docs/implementation/v3/logs/m07-core-03-build.log",
     "docs/implementation/v3/logs/m07-core-04-full-suite.log",
-    "docs/implementation/v3/logs/m07-feed-01-advisory.log"
+    "docs/implementation/v3/logs/m07-feed-01-advisory.log",
+    "docs/implementation/v3/logs/m07-plt-01-browser-suite.log"
   ],
   "migration": {
     "status": "NONE",
@@ -343,8 +350,8 @@
     },
     {
       "gate": "Browser proof of the review-pane surface",
-      "status": "OPEN",
-      "detail": "pnpm test:browser remains to run once real intelligence data can be produced on a proving host."
+      "status": "CLOSED",
+      "detail": "RESOLVED: pnpm test:browser --suite code-review-workspace passed 57/57 on base 686bda8. (Panel content is flag-gated; the suite covers the host surface it mounts into.)"
     },
     {
       "gate": "Independent review",

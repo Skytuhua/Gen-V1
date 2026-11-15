@@ -160,7 +160,9 @@ it('the pool keys servers by workspace, language, config digest and profile',asy
  expect(made).toHaveLength(1);
  await pool.acquire(root,{...descriptor,configDigest:'d'.repeat(64)},'p1');
  await pool.acquire(root,descriptor,'p2');
- expect(made).toHaveLength(3);
+ // A Python workspace pools separately from TypeScript — provenance stays per language.
+ await pool.acquire(root,{...descriptor,language:'python'},'p1');
+ expect(made).toHaveLength(4);
  await pool.dispose();
  expect(pool.size).toBe(0);
 });

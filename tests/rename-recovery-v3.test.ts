@@ -185,3 +185,20 @@ it('an external edit of a renamed file stops recovery with PARTIAL_RECOVERY_REQU
  // Backups stay on disk for manual reconciliation.
  expect(readdirSync(join(journal,'code-intelligence','rename',plan.planId)).filter(n=>n.startsWith('backup-')).length).toBe(2);
 });
+
+it('a revoked workspace produces no write: apply re-validates granted roots',async()=>{
+ const root=tempDir('rename-root-');
+ const journal=tempDir('rename-journal-');
+ const a=file(root,'a.ts');
+ const aText='const alpha = 1;\n';
+ writeFileSync(a,aText);
+ const adapter=new RenameAdapter();
+ adapter.edit={changes:{[uri(a)]:[{range:{start:{line:0,character:6},end:{line:0,character:11}},newText:'beta2'}]}};
+ const ci=new CodeIntelligence(()=>adapter);
+ disposables.push(ci);
+ const plan=await ci.planRename(planInput(root,a,aText));
+ // The workspace grant was revoked between plan and apply: no write, no journal entry beyond the plan.
+ const other=tempDir('rename-other-');
+ await expect(ci.applyRename({plan,approvalId:'approval-1',journalRoot:journal,grantedRoots:[other],signal:signal()})).rejects.toThrowError(/granted roots|CAPABILITY/i);
+ expect(readFileSync(a,'utf8')).toBe('const alpha = 1;\n');
+});

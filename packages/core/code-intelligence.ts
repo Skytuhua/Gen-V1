@@ -668,6 +668,11 @@ export class CodeIntelligence {
     if (plan.exactApprovalId !== input.approvalId)
       throw new HarnessError("CAPABILITY_DENIED", "The rename approval does not match this plan.");
     return this.underLock(plan.workspaceIdentity, async () => {
+      // Grants are re-validated at apply: a revoked root between plan and
+      // apply must produce no write.
+      for (const target of plan.textEdits)
+        if (!input.grantedRoots.some(root => inside(root, target.path)))
+          throw new HarnessError("CAPABILITY_DENIED", "A rename target is outside the granted roots.");
       // Validate every target's preimage before the first change.
       const preimages = new Map<string, Buffer>();
       for (const expected of plan.expectedBeforeDigests) {
