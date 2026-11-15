@@ -19,6 +19,23 @@ type ContentManifest={files:{path:string;bytes:number;sha256:string}[];bytes:num
 type FileIdentity={dev:string;ino:string;sha256:string};
 type OwnedCache={path:string;dev:string;ino:string;file:FileIdentity}|null;
 type MemoryRetention={seed:InstalledMemorySeed;observations:InstalledMemoryObservation[]};
+const PREFLIGHT_TIMEOUT_MS=60000;
+const PREFLIGHT_PHASES=['script-start','registry-complete','shortcuts-complete','cache-complete','processes-complete','result-complete'] as const;
+type PreflightProgress={phase:typeof PREFLIGHT_PHASES[number];scriptElapsedMs:number};
+type PreflightStage='before-install'|'pre-install-recheck'|'after-install'|'before-uninstall'|'after-uninstall-poll'|'after-uninstall';
+type PreflightObservation={stage:PreflightStage;startedAt:string;timeoutMs:number;elapsedMs:number;status:'running'|'completed'|'failed';subphases:(PreflightProgress&{observedElapsedMs:number})[]};
+
+/** Diagnostic markers contain fixed names and bounded numbers, never probe output. */
+export function parseInstallPreflightProgress(stderr:string):PreflightProgress[]{
+ const result:PreflightProgress[]=[];let previous=-1,elapsed=0;
+ for(const line of stderr.slice(-16000).split(/\r?\n/)){
+  const match=/^HARNESS_INSTALL_PREFLIGHT_PHASE=([a-z-]+):([0-9]{1,6})$/.exec(line);if(!match)continue;
+  const index=PREFLIGHT_PHASES.indexOf(match[1] as PreflightProgress['phase']),value=Number(match[2]);
+  if(index<=previous||value<elapsed||value>PREFLIGHT_TIMEOUT_MS)continue;
+  result.push({phase:PREFLIGHT_PHASES[index]!,scriptElapsedMs:value});previous=index;elapsed=value;
+ }
+ return result;
+}
 
 export function readInstalledVerificationArguments(args:string[]){
  const [setup,unpacked,option,...extra]=args;
@@ -102,21 +119,25 @@ function baseEnvironment():NodeJS.ProcessEnv{
  for(const key of ['PATH','Path','SystemRoot','SYSTEMROOT','WINDIR','COMSPEC','PATHEXT','LANG','LC_ALL','TERM','TEMP','TMP','USERPROFILE','HOME','LOCALAPPDATA','APPDATA'])if(process.env[key]!==undefined)env[key]=process.env[key];
  return env;
 }
-async function runOwned(file:string,args:string[],options:{cwd:string;env:NodeJS.ProcessEnv;timeoutMs:number;rawTail?:boolean}){
+async function runOwned(file:string,args:string[],options:{cwd:string;env:NodeJS.ProcessEnv;timeoutMs:number;rawTail?:boolean;phase?:'installation-preflight'|'installer'|'uninstaller';onStderr?:(stderr:string)=>void}){
  const started=Date.now(),child=spawn(file,args,{cwd:options.cwd,env:options.env,windowsHide:true,windowsVerbatimArguments:options.rawTail,stdio:['ignore','pipe','pipe']});
+ const phase=options.phase??'verification';
  const output=await new Promise<{exitCode:number;stdout:string;stderr:string}>((accept,reject)=>{
   let stdout='',stderr='',bytes=0,failed=false;
   const fail=(error:Error)=>{if(failed)return;failed=true;clearTimeout(timer);void terminateProcessTree(child).then(()=>reject(error),reject);};
-  const timer=setTimeout(()=>fail(Error('Owned installer verification process exceeded its deadline.')),options.timeoutMs);
-  child.once('error',fail);
-  for(const stream of [child.stdout,child.stderr])stream.on('data',(chunk:Buffer)=>{bytes+=chunk.length;if(bytes>256*1024){fail(Error('Owned verification process exceeded its output bound.'));return;}if(stream===child.stdout)stdout+=String(chunk);else stderr=(stderr+String(chunk)).slice(-16000);});
-  child.once('close',code=>{clearTimeout(timer);if(failed)return;failed=true;code===0?accept({exitCode:code,stdout,stderr}):reject(Error('Owned verification process exited '+code+'. '+stderr));});
+  const timer=setTimeout(()=>fail(Error('Owned '+phase+' process exceeded its '+options.timeoutMs+' ms deadline.')),options.timeoutMs);
+  child.once('error',()=>fail(Error('Owned '+phase+' process could not start.')));
+  for(const stream of [child.stdout,child.stderr])stream.on('data',(chunk:Buffer)=>{bytes+=chunk.length;if(bytes>256*1024){fail(Error('Owned '+phase+' process exceeded its output bound.'));return;}if(stream===child.stdout)stdout+=String(chunk);else{stderr=(stderr+String(chunk)).slice(-16000);options.onStderr?.(stderr);}});
+  child.once('close',code=>{clearTimeout(timer);if(failed)return;failed=true;code===0?accept({exitCode:code,stdout,stderr}):reject(Error('Owned '+phase+' process exited '+code+'.'));});
  });
  return {...output,elapsedMs:Date.now()-started};
 }
 const REGISTRY_PROBE=String.raw`
 $ErrorActionPreference='Stop'
 [Console]::OutputEncoding=[System.Text.UTF8Encoding]::new($false)
+$probeClock=[Diagnostics.Stopwatch]::StartNew()
+function Report-Phase([string]$name){[Console]::Error.WriteLine('HARNESS_INSTALL_PREFLIGHT_PHASE='+$name+':'+$probeClock.ElapsedMilliseconds)}
+Report-Phase 'script-start'
 $guid=$env:HARNESS_VERIFY_NSIS_GUID
 if($guid -notmatch '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'){throw 'Invalid fixed installer identity'}
 $entries=@()
@@ -138,19 +159,35 @@ foreach($hiveName in @('HKCU','HKLM')){
   }finally{$base.Dispose()}
  }
 }
+Report-Phase 'registry-complete'
 function Exists-Literally([string]$path){try{$null=[System.IO.File]::GetAttributes($path);return $true}catch{$errorType=$_.Exception.GetBaseException();if($errorType -is [System.IO.FileNotFoundException] -or $errorType -is [System.IO.DirectoryNotFoundException]){return $false};throw}}
 $shortcuts=@();foreach($folderName in @('DesktopDirectory','CommonDesktopDirectory','Programs','CommonPrograms')){$folder=[Environment]::GetFolderPath([Enum]::Parse([Environment+SpecialFolder],$folderName));if([string]::IsNullOrWhiteSpace($folder)){throw 'Windows shortcut folder is unavailable'};foreach($name in @('Gen V1.lnk','Generative Harness.lnk')){$path=[IO.Path]::Combine($folder,$name);$shortcuts+=@{path=$path;present=(Exists-Literally $path)}}}
+Report-Phase 'shortcuts-complete'
 $cache=[IO.Path]::Combine([Environment]::GetFolderPath([Environment+SpecialFolder]::LocalApplicationData),'generative-harness-desktop-updater')
+$cachePresent=Exists-Literally $cache
+Report-Phase 'cache-complete'
 $pids=@(foreach($name in @('Gen V1','Generative Harness')){[Diagnostics.Process]::GetProcessesByName($name)|ForEach-Object{$_.Id; $_.Dispose()}})
-@{entries=@($entries);runningAppPids=@($pids);shortcuts=@($shortcuts);updaterCache=@{path=$cache;present=(Exists-Literally $cache)}}|ConvertTo-Json -Depth 6 -Compress
+Report-Phase 'processes-complete'
+$result=@{entries=@($entries);runningAppPids=@($pids);shortcuts=@($shortcuts);updaterCache=@{path=$cache;present=$cachePresent}}|ConvertTo-Json -Depth 6 -Compress
+Report-Phase 'result-complete'
+Write-Output $result
 `;
-async function installPreflight(directory:string):Promise<InstallPreflight>{
+async function installPreflight(directory:string,stage:PreflightStage,observations:PreflightObservation[]):Promise<InstallPreflight>{
  const systemRoot=process.env.SystemRoot??process.env.SYSTEMROOT;
  if(!systemRoot||!win32.isAbsolute(systemRoot))throw Error('Windows system directory is unavailable.');
- const output=await runOwned(join(systemRoot,'System32/WindowsPowerShell/v1.0/powershell.exe'),['-NoLogo','-NoProfile','-NonInteractive','-EncodedCommand',Buffer.from(REGISTRY_PROBE,'utf16le').toString('base64')],{cwd:directory,env:{...baseEnvironment(),HARNESS_VERIFY_NSIS_GUID:nsisApplicationGuid(APP_ID)},timeoutMs:15000});
- const result=JSON.parse(output.stdout.trim()) as InstallPreflight;
- if(!Array.isArray(result.entries)||result.entries.length>8||!Array.isArray(result.runningAppPids)||!Array.isArray(result.shortcuts)||typeof result.updaterCache?.path!=='string'||typeof result.updaterCache.present!=='boolean')throw Error('Windows installation preflight returned an invalid shape.');
- return result;
+ if(observations.length>=256)throw Error('Installation preflight observations exceeded their bound.');
+ const started=Date.now(),observation:PreflightObservation={stage,startedAt:new Date(started).toISOString(),timeoutMs:PREFLIGHT_TIMEOUT_MS,elapsedMs:0,status:'running',subphases:[]};observations.push(observation);
+ try{
+  // The first Windows PowerShell probe exceeded the old 15-second budget in CI.
+  // Keep the read-only probe bounded and record phases instead of assuming why.
+  const output=await runOwned(join(systemRoot,'System32/WindowsPowerShell/v1.0/powershell.exe'),['-NoLogo','-NoProfile','-NonInteractive','-EncodedCommand',Buffer.from(REGISTRY_PROBE,'utf16le').toString('base64')],{cwd:directory,env:{...baseEnvironment(),HARNESS_VERIFY_NSIS_GUID:nsisApplicationGuid(APP_ID)},timeoutMs:PREFLIGHT_TIMEOUT_MS,phase:'installation-preflight',onStderr:stderr=>{
+   const complete=stderr.slice(0,stderr.lastIndexOf('\n')+1);
+   for(const progress of parseInstallPreflightProgress(complete))if(!observation.subphases.some(row=>row.phase===progress.phase))observation.subphases.push({...progress,observedElapsedMs:Date.now()-started});
+  }});
+  let result:InstallPreflight;try{result=JSON.parse(output.stdout.trim()) as InstallPreflight;}catch{throw Error('Windows installation preflight returned invalid JSON.');}
+  if(!result||!Array.isArray(result.entries)||result.entries.length>8||!Array.isArray(result.runningAppPids)||!Array.isArray(result.shortcuts)||typeof result.updaterCache?.path!=='string'||typeof result.updaterCache.present!=='boolean')throw Error('Windows installation preflight returned an invalid shape.');
+  observation.status='completed';return result;
+ }catch(error){observation.status='failed';throw error;}finally{observation.elapsedMs=Date.now()-started;}
 }
 async function identity(path:string):Promise<FileIdentity>{const stat=await lstat(path,{bigint:true});if(!stat.isFile()||stat.isSymbolicLink()||stat.nlink!==1n)throw Error('Owned executable is not a single ordinary file.');return {dev:String(stat.dev),ino:String(stat.ino),sha256:await hashFile(path)};}
 function sameIdentity(left:FileIdentity,right:FileIdentity){return left.dev===right.dev&&left.ino===right.ino&&left.sha256===right.sha256;}
@@ -219,18 +256,20 @@ export async function verifyInstalledDesktop(setupPath:string,expectedUnpackedPa
  // Keep the exclusive application sibling short; evidence remains in its own directory.
  const installDirectory=join(workspace,'.harness-app-'+randomUUID().replaceAll('-','').slice(0,12)),version=(JSON.parse(await readFile(join(expectedUnpacked,'resources/host/package.json'),'utf8')) as {version:string}).version;
  const receipt:Record<string,unknown>={createdAt:new Date().toISOString(),setup,setupSha256:setupIdentity.sha256,expectedUnpacked,installDirectory,nsisGuid:nsisApplicationGuid(APP_ID),version,scope:'Owned temporary per-user installation, exact payload/provider custody, two personal installed executable launches with local recovery, and identity-bound uninstall. No sign-in, credentials, inference or user-profile adoption.',inference:false,auth:false,memoryRetentionRequested:options.memoryRetention===true,launches:[],passed:false};
+ const preflightObservations:PreflightObservation[]=[];receipt.preflightObservations=preflightObservations;
+ const preflight=(stage:PreflightStage)=>installPreflight(ownedDirectory,stage,preflightObservations);
  let installedUninstaller:{path:string;identity:FileIdentity}|undefined,ownedCache:OwnedCache|undefined,installationInvoked=false,mainError:unknown;
  try{
-  const before=await installPreflight(ownedDirectory);assertClearInstallPreflight(before);receipt.preflight=before;
+  const before=await preflight('before-install');assertClearInstallPreflight(before);receipt.preflight=before;
   try{await lstat(installDirectory);throw Error('Exclusive install destination already exists.');}catch(error){if((error as NodeJS.ErrnoException).code!=='ENOENT')throw error;}
   const expected=await packageContentManifest(expectedUnpacked);receipt.expectedPayload={files:expected.files.length,bytes:expected.bytes,sha256:expected.sha256,maxInstalledPathLength:assertZipDestinationFits(installDirectory,expected.files.map(file=>file.path))};
   // Repeat the read-only preflight immediately before installation; never upgrade an existing user installation.
-  assertClearInstallPreflight(await installPreflight(ownedDirectory));
+  assertClearInstallPreflight(await preflight('pre-install-recheck'));
   if(!sameIdentity(await identity(setup),setupIdentity))throw Error('Installer changed since verification began.');
   await writeFile(join(ownedDirectory,'owner.json'),JSON.stringify({setup,setupSha256:setupIdentity.sha256,installDirectory,guid:nsisApplicationGuid(APP_ID)},null,2),{flag:'wx'});
-  installationInvoked=true;receipt.installCommand=await runOwned(setup,installedCommandArguments('install',installDirectory),{cwd:ownedDirectory,env:baseEnvironment(),timeoutMs:600000,rawTail:true});
+  installationInvoked=true;receipt.installCommand=await runOwned(setup,installedCommandArguments('install',installDirectory),{cwd:ownedDirectory,env:baseEnvironment(),timeoutMs:600000,rawTail:true,phase:'installer'});
   if(!sameWindowsPath(await realpath(installDirectory),installDirectory))throw Error('Installer did not create the exact ordinary owned directory.');
-  const after=await installPreflight(ownedDirectory),uninstaller=assertOwnedInstallEntries(after.entries,installDirectory,version);
+  const after=await preflight('after-install'),uninstaller=assertOwnedInstallEntries(after.entries,installDirectory,version);
   installedUninstaller={path:uninstaller,identity:await identity(uninstaller)};receipt.installedRegistry=after.entries;
   if(after.runningAppPids.length)throw Error('Installer unexpectedly started the native application.');
   ownedCache=await captureOwnedCache(after.updaterCache.path,setupIdentity.sha256);
@@ -249,13 +288,13 @@ export async function verifyInstalledDesktop(setupPath:string,expectedUnpackedPa
  finally{
   if(installedUninstaller){
    try{
-    const current=await installPreflight(ownedDirectory);if(current.runningAppPids.length)throw Error('A Harness application remains running; uninstall is withheld.');
+    const current=await preflight('before-uninstall');if(current.runningAppPids.length)throw Error('A Harness application remains running; uninstall is withheld.');
     const path=assertOwnedInstallEntries(current.entries,installDirectory,version);if(!sameWindowsPath(path,installedUninstaller.path)||!sameIdentity(await identity(path),installedUninstaller.identity))throw Error('Owned uninstaller identity changed; uninstall is withheld.');
     const cleanupExecutable=join(ownedDirectory,'owned-uninstaller.exe');await copyFile(path,cleanupExecutable);if((await identity(cleanupExecutable)).sha256!==installedUninstaller.identity.sha256)throw Error('Uninstaller copy differs; cleanup is withheld.');
-    const result=await runOwned(cleanupExecutable,installedCommandArguments('uninstall',installDirectory),{cwd:ownedDirectory,env:baseEnvironment(),timeoutMs:180000,rawTail:true});
-    await expect.poll(async()=>{const state=await installPreflight(ownedDirectory);let exists=true;try{await lstat(installDirectory);}catch(error){if((error as NodeJS.ErrnoException).code==='ENOENT')exists=false;else throw error;}return !state.entries.length&&!exists;},{timeout:120000,intervals:[250,500,1000]}).toBe(true);
+    const result=await runOwned(cleanupExecutable,installedCommandArguments('uninstall',installDirectory),{cwd:ownedDirectory,env:baseEnvironment(),timeoutMs:180000,rawTail:true,phase:'uninstaller'});
+    await expect.poll(async()=>{const state=await preflight('after-uninstall-poll');let exists=true;try{await lstat(installDirectory);}catch(error){if((error as NodeJS.ErrnoException).code==='ENOENT')exists=false;else throw error;}return !state.entries.length&&!exists;},{timeout:120000,intervals:[250,500,1000]}).toBe(true);
     const cache=ownedCache===undefined?{status:'not-confirmed-owned-retained'}:await cleanOwnedCache(ownedCache);
-    assertClearInstallPreflight(await installPreflight(ownedDirectory));
+    assertClearInstallPreflight(await preflight('after-uninstall'));
     receipt.cleanup={status:'uninstalled-owned-installation',command:result,cache,shortcuts:'absent',installationKeys:'absent',nativeProcesses:'absent'};
    }catch(error){receipt.cleanup={status:'preserved-for-inspection',error:error instanceof Error?error.message:'Owned cleanup failed.'};mainError??=error;}
   }else receipt.cleanup={status:installationInvoked?'preserved-unconfirmed-installation':'not-installed'};

@@ -1,0 +1,21 @@
+2026-11-15T16:41:33.3663281Z ##[group]Run python -I -S -B tests/hermes_atomic_controls.py -v
+2026-11-15T16:41:33.3664021Z python -I -S -B tests/hermes_atomic_controls.py -v
+2026-11-15T16:41:33.3740167Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T16:41:33.3740781Z env:
+2026-11-15T16:41:33.3741307Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T16:41:33.3743120Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T16:41:33.3743778Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T16:41:33.3744371Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T16:41:33.3744943Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T16:41:33.3745436Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T16:41:33.3746043Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T16:41:33.3746680Z ##[endgroup]
+2026-11-15T16:41:37.5097936Z test_failed_atomic_writer_leaves_all_controls_unchanged (__main__.AtomicControls.test_failed_atomic_writer_leaves_all_controls_unchanged) ... ok
+2026-11-15T16:41:37.5695060Z test_later_writer_failure_cannot_leave_half_a_protection_state (__main__.AtomicControls.test_later_writer_failure_cannot_leave_half_a_protection_state) ... ok
+2026-11-15T16:41:37.6404131Z test_legacy_metrics_are_preserved_once_without_resetting_later_source_use (__main__.AtomicControls.test_legacy_metrics_are_preserved_once_without_resetting_later_source_use) ... ok
+2026-11-15T16:41:37.7078340Z test_matching_existing_source_keeps_its_newer_activity (__main__.AtomicControls.test_matching_existing_source_keeps_its_newer_activity) ... ok
+2026-11-15T16:41:37.7110908Z 
+2026-11-15T16:41:37.7111510Z ----------------------------------------------------------------------
+2026-11-15T16:41:37.7112413Z Ran 4 tests in 3.767s
+2026-11-15T16:41:37.7112644Z 
+2026-11-15T16:41:37.7112843Z OK

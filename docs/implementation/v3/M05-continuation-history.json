@@ -1,22 +1,22 @@
 {
   "schemaVersion": 1,
-  "publishedCommit": "5a647b04c14ba4de8d80411aeba7e649227664fc",
+  "publishedCommit": "828cdf52c76e44ca07c0fcdd647601a64bf30081",
   "publishedArtifacts": {
     "M05-provenance.json": {
-      "sha256": "e97235afb761bd9d67b107b004af4eb17a68e61ee5cfc6247f44358da3161c3d",
-      "blobSha": "e88fd97e07162ff70d8d02cea50414257a366400"
+      "sha256": "5f688b85de03e7aa186b19c6940fc7c95005d25cacd006fa4046df873454af9d",
+      "blobSha": "76f84dd66d9e0291e39c70775f313013d462dc53"
     },
     "M05-source-lock.json": {
-      "sha256": "9504b7f4288a9589eb924a94a1876a90f333a64a3d60a0d6cff8f8e1fad8171c",
-      "blobSha": "03650c4b36d2f49741a564bec0c8f0cf0c9f2c25"
+      "sha256": "e1fd86617463f153d852629498cfa1b6894d9cc9c4b0f844d3c7aa19d4fd2302",
+      "blobSha": "4b546f13181be0769feff8d4ec54e2d3393a9419"
     },
     "M05-verification.json": {
-      "sha256": "5c59ef91bb8d20b737bd5c13620527d29b55b63c2b6b6091f7f4613f05867ca3",
-      "blobSha": "8e5cc0248d87d89d51f44aff77c7f9a299f5c5a0"
+      "sha256": "6583f1ba835a7bf8c2579eeb60c8384af40fcaffc42ba50bf1ff0f43bf4a874d",
+      "blobSha": "8202e5d9387c37001085860d41c0eadca8e5a93c"
     },
     "M05-log-policy.json": {
-      "sha256": "7a8e1b3201a5c8359745054532bb5aaf385df6f84a9312785b161bb30065ff57",
-      "blobSha": "b7e963c9277a8785bcba7ece2f04e900bcdcf708"
+      "sha256": "a45830d8a4fbadefb5b205647cdef2391eb7001595a1c1431016a50877926c92",
+      "blobSha": "cf37c04510a613bfaa8aa24c2f500b8292ae5198"
     },
     "M05-upstream-check.json": {
       "sha256": "d1293c014538a3941a503b2813833927e7cc9cc2b3557532e01cb81312ef5f77",
@@ -25,7 +25,7 @@
   },
   "originalPublishedProvenance": {
     "schemaVersion": 2,
-    "recordedAt": "2026-11-15T15:58:49.754079+00:00",
+    "recordedAt": "2026-11-15T16:39:01.249026+00:00",
     "repositoryRoot": "/workspace/scratch/36f66011d961/m05-continuation",
     "branch": "agent/m05-v3-continuation",
     "origin": "https://github.com/Skytuhua/Gen-V1.git",
@@ -33,7 +33,7 @@
     "repositoryId": 1442565952,
     "canonicalIdentityEvidence": "docs/implementation/v3/M05-upstream-check.json",
     "acceptedBaseSha": "399cde39ff4ee82272c7a7700944325c44b36070",
-    "sourceParentHeadSha": "fe59f09076591fac1fc5769747d6f4feeb4590e0",
+    "sourceParentHeadSha": "41028750e48d4e456f7636c1a2fb43d9adc541a2",
     "acceptedDependencyCommits": [
       "5f0958f4cb5b40bc10c1eea0e1cd517b57aaa1b9",
       "f331cf16b268282da888a41da42fc776ea7befd5",
@@ -49,25 +49,25 @@
     "packageManagerEvidence": "Declared package manager plus preserved setup/build argv; no new package installation is performed by this builder.",
     "lockfileChangedAgainstAcceptedBase": false,
     "selectedCurrentCommandRefs": [
-      "docs/implementation/v3/m05-logs/continuation-installed-memory-final-typecheck.log",
+      "docs/implementation/v3/m05-logs/continuation-integration-record-projection-final-typecheck.log",
       "docs/implementation/v3/m05-logs/continuation-m11-final-build.log",
       "docs/implementation/v3/m05-logs/continuation-m11-final-contracts.log",
       "docs/implementation/v3/m05-logs/continuation-m11-final-memory-regression.log",
       "docs/implementation/v3/m05-logs/continuation-study-manifest-final.log",
-      "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859717009-s7-native-facade.log",
-      "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859717009-s7-native-worker.log"
+      "docs/implementation/v3/m05-logs/windows-ci-43733008039-a1-j132869421229-s7-native-facade.log",
+      "docs/implementation/v3/m05-logs/windows-ci-43733008039-a1-j132869421229-s7-native-worker.log",
+      "docs/implementation/v3/m05-logs/windows-ci-43733008039-a1-j132869421442-s5-application-regression.log"
     ],
     "commandCutLimitation": "Command ledger records actual times/argv/results, not a per-command Git tree. Selection is explicit; the current file inventory is generated separately. Exact-head Windows status is admitted only when its current code/test/workflow cut matches.",
-    "windowsCiRef": "docs/implementation/v3/M05-windows-ci-43729864202.json",
+    "windowsCiRef": "docs/implementation/v3/M05-windows-ci-43733008039.json",
     "windowsCiCurrentCodeCut": false,
     "windowsCiCutNotes": [
       "CI code/test/workflow cut differs from the current worktree: .github/workflows/ci.yml",
+      "CI code/test/workflow cut differs from the current worktree: scripts/integration-assets.ts",
+      "CI code/test/workflow cut differs from the current worktree: scripts/package-desktop.ts",
       "CI code/test/workflow cut differs from the current worktree: scripts/public-source-files.json",
-      "CI code/test/workflow cut differs from the current worktree: scripts/verify-installed-desktop.ts",
-      "CI code/test/workflow cut differs from the current worktree: tests/e2e/artifact-acknowledgment.spec.ts",
-      "CI code/test/workflow cut differs from the current worktree: tests/installed-desktop-verification.test.ts",
-      "CI code/test/workflow cut differs from the current worktree: scripts/installed-memory-retention.ts",
-      "CI code/test/workflow cut differs from the current worktree: tests/memory-native-file-capture-v3.test.ts"
+      "CI code/test/workflow cut differs from the current worktree: scripts/integration_python_projection.py",
+      "CI code/test/workflow cut differs from the current worktree: tests/integration-packaging-canonical-negative.test.ts"
     ],
     "studyRef": "docs/implementation/v3/m05-study-20261115/results.json",
     "reviewerApproval": false
@@ -77,6 +77,10 @@
     "auditAncestorSha": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
     "executionBaseSha": "399cde39ff4ee82272c7a7700944325c44b36070",
     "inspectedPaths": [
+      {
+        "path": ".github/actions/setup/action.yml",
+        "blobSha": "1751a7153b9ef0b30c8a081774e47990827613ef"
+      },
       {
         "path": ".github/workflows/ci.yml",
         "blobSha": "f5e248c2da4f661f37e518cf9894c31b590ac68b"
@@ -242,6 +246,10 @@
         "blobSha": "04d387152c17aad4eb3b6fbdd9f410178a51a5eb"
       },
       {
+        "path": "scripts/integration-assets.ts",
+        "blobSha": "3f63ca242294a49a02cbfcd2f8a5b1a2e6537c50"
+      },
+      {
         "path": "scripts/package-desktop.ts",
         "blobSha": "ce720a73b51156943e6fc127192a42a2c2b558cf"
       },
@@ -288,6 +296,10 @@
       {
         "path": "tests/tool-effects-v3.test.ts",
         "blobSha": "8d4ac426134d7e9f77a1d9dcfe9d00d7c5897b35"
+      },
+      {
+        "path": "third-party/integrations/PYTHON_LOCK.json",
+        "blobSha": "81164624983c3754f4a1c90cfeae7bc08eb68f66"
       }
     ],
     "publicContracts": [
@@ -357,6 +369,64 @@
         "version": "df7c09ef7ae3ed277b0cb8298afd950f2eea934d",
         "testIds": [
           "tests/task-memory.test.ts"
+        ]
+      },
+      {
+        "name": "M04.RequestContextV1",
+        "version": "30185cc5e66a74ef438af8ec8e9ec1d91989c614",
+        "testIds": [
+          "tests/context-compiler-v3.test.ts",
+          "tests/request-preparation-service-v3.test.ts",
+          "tests/project-memory-service-v3.test.ts"
+        ]
+      },
+      {
+        "name": "M04.RequestCustody",
+        "version": "b7f0946c0ae48acc8d0673739c6960a5601b8841",
+        "testIds": [
+          "tests/request-preparation-service-v3.test.ts",
+          "tests/project-memory-service-v3.test.ts"
+        ]
+      },
+      {
+        "name": "M04.ContextCompiler",
+        "version": "7b6f9040160b8440845c256c57bd5aba52f1ca4b",
+        "testIds": [
+          "tests/context-compiler-v3.test.ts"
+        ]
+      },
+      {
+        "name": "M04.HostRequestPreparation",
+        "version": "cdef7f205a6d19357478d9676f9c43c26be512b1",
+        "testIds": [
+          "tests/request-preparation-service-v3.test.ts",
+          "tests/project-memory-request-http-v3.test.ts",
+          "tests/project-memory-service-v3.test.ts"
+        ]
+      },
+      {
+        "name": "M11.ModelRequestObservationV1",
+        "version": "17cbabb11a2b3653578456f563be70e49aeb0cdf",
+        "testIds": [
+          "tests/model-transport-v3.test.ts",
+          "tests/usage-accounting-v3.test.ts",
+          "tests/hermes-runtime.test.ts"
+        ]
+      },
+      {
+        "name": "M11.RequestScheduler",
+        "version": "95f3fa03c2ab80288a434c95c3e215cd4943a917",
+        "testIds": [
+          "tests/model-scheduling-v3.test.ts",
+          "tests/memory-extraction-runtime-v3.test.ts",
+          "tests/memory-extraction-scheduler-v3.test.ts"
+        ]
+      },
+      {
+        "name": "M11.RequestCapabilities",
+        "version": "45df1e61813b4bd9548841561b8a6c49dfc44ffa",
+        "testIds": [
+          "tests/model-transport-v3.test.ts"
         ]
       },
       {
@@ -539,12 +609,12 @@
         {
           "id": "Hermes-pinned-compression-facade",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859717009-s7-native-facade.log; Actual pinned native facade/API version checks, offline."
+          "evidence": "docs/implementation/v3/m05-logs/windows-ci-43733008039-a1-j132869421229-s7-native-facade.log; Actual pinned native facade/API version checks, offline."
         },
         {
           "id": "Hermes-actual-Worker-compaction",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859717009-s7-native-worker.log; Actual pinned Worker and scripted ACP summary; persistence failure/cancellation preserve native history. No live provider spend."
+          "evidence": "docs/implementation/v3/m05-logs/windows-ci-43733008039-a1-j132869421229-s7-native-worker.log; Actual pinned Worker and scripted ACP summary; persistence failure/cancellation preserve native history. No live provider spend."
         }
       ]
     },
@@ -555,7 +625,7 @@
         {
           "id": "TypeScript-current-selected-check",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/continuation-installed-memory-final-typecheck.log; Full typecheck only, not a scoped tsconfig substitution."
+          "evidence": "docs/implementation/v3/m05-logs/continuation-integration-record-projection-final-typecheck.log; Full typecheck only, not a scoped tsconfig substitution."
         },
         {
           "id": "production-build-current-selected-check",
@@ -576,7 +646,7 @@
         {
           "id": "current-Windows-full-regression",
           "status": "NOT_RUN",
-          "evidence": "NOT_RUN for this source cut. All four application regression shards required. CI code/test/workflow cut differs from the current worktree: .github/workflows/ci.yml; CI code/test/workflow cut differs from the current worktree: scripts/public-source-files.json; CI code/test/workflow cut differs from the current worktree: scripts/verify-installed-desktop.ts; CI code/test/workflow cut differs from the current worktree: tests/e2e/artifact-acknowledgment.spec.ts; CI code/test/workflow cut differs from the current worktree: tests/installed-desktop-verification.test.ts; CI code/test/workflow cut differs from the current worktree: scripts/installed-memory-retention.ts; CI code/test/workflow cut differs from the current worktree: tests/memory-native-file-capture-v3.test.ts"
+          "evidence": "NOT_RUN for this source cut. All four application regression shards required. CI code/test/workflow cut differs from the current worktree: .github/workflows/ci.yml; CI code/test/workflow cut differs from the current worktree: scripts/integration-assets.ts; CI code/test/workflow cut differs from the current worktree: scripts/package-desktop.ts; CI code/test/workflow cut differs from the current worktree: scripts/public-source-files.json; CI code/test/workflow cut differs from the current worktree: scripts/integration_python_projection.py; CI code/test/workflow cut differs from the current worktree: tests/integration-packaging-canonical-negative.test.ts"
         }
       ]
     },
@@ -587,7 +657,7 @@
         {
           "id": "current-project-memory-context-and-baseline-browser",
           "status": "NOT_RUN",
-          "evidence": "NOT_RUN for this source cut. The matching current workflow must execute project-memory, usage-context, frontend-refinement and root browser suites. CI code/test/workflow cut differs from the current worktree: .github/workflows/ci.yml; CI code/test/workflow cut differs from the current worktree: scripts/public-source-files.json; CI code/test/workflow cut differs from the current worktree: scripts/verify-installed-desktop.ts; CI code/test/workflow cut differs from the current worktree: tests/e2e/artifact-acknowledgment.spec.ts; CI code/test/workflow cut differs from the current worktree: tests/installed-desktop-verification.test.ts; CI code/test/workflow cut differs from the current worktree: scripts/installed-memory-retention.ts; CI code/test/workflow cut differs from the current worktree: tests/memory-native-file-capture-v3.test.ts"
+          "evidence": "NOT_RUN for this source cut. The matching current workflow must execute project-memory, usage-context, frontend-refinement and root browser suites. CI code/test/workflow cut differs from the current worktree: .github/workflows/ci.yml; CI code/test/workflow cut differs from the current worktree: scripts/integration-assets.ts; CI code/test/workflow cut differs from the current worktree: scripts/package-desktop.ts; CI code/test/workflow cut differs from the current worktree: scripts/public-source-files.json; CI code/test/workflow cut differs from the current worktree: scripts/integration_python_projection.py; CI code/test/workflow cut differs from the current worktree: tests/integration-packaging-canonical-negative.test.ts"
         }
       ]
     },
@@ -597,8 +667,8 @@
       "requiredCases": [
         {
           "id": "actual-native-FILE-capture",
-          "status": "NOT_RUN",
-          "evidence": "NOT_RUN: three unmocked Windows guard capture/reuse/revocation/replacement cases are authored and typechecked. Their actual Windows execution remains pending; prior host-custody mocks do not prove this boundary."
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/windows-ci-43733008039-a1-j132869421442-s5-application-regression.log; docs/implementation/v3/M05-native-file-review-43733008039.json; three unmocked cases passed with zero skips on Windows at head 5a647b04c14ba4de8d80411aeba7e649227664fc, checkout a6853729ff49ce2b42ec5cb29526a731e38a07df. Exact UTF-8 capture/reuse and denied recall/detail/recapture after grant revocation or physical replacement are evidenced. Current native implementation/test/fixture/config bytes match. This historical native result does not establish a later workflow, installed target or live provider run."
         },
         {
           "id": "installed-default-off-retained-memory-review-and-restart",
@@ -1722,6 +1792,30 @@
       "termination": "NONE",
       "status": "FAIL",
       "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "aba426e8984034e9947361878a28efe00386254e81ef7ebface14205a750d881",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43736761161-a1-j132880966492-s7-installed-retention.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "a475dacd881d96ea78446e0853d8652cab7674b8d96ced0730ebca81dd5d5f64",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43736761161-a1-j132880966837-s6-browser-root.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "b6f6fabb2bb09a75f38451aca68170dcce1647da7026ef6291f73c6897133579",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-installed-preflight-diagnostics-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
     }
   ],
   "refreshes": [
@@ -2012,6 +2106,25 @@
       "ledgerBeforeDigest": "a2ea61fccb672d0ea2e4b73756684583dc7cc3ca4c17cee007d6888790be1bb2",
       "ledgerAfterDigest": "7b8013581147836e0c73f24ce1e936bf205ae25337792f9dd514f79d7a3047cc",
       "windowsCiRef": "docs/implementation/v3/M05-windows-ci-43733008039.json",
+      "windowsCiCurrentCodeCut": false
+    },
+    {
+      "recordedAt": "2026-11-15T17:08:42.419156+00:00",
+      "executionBaseSha": "399cde39ff4ee82272c7a7700944325c44b36070",
+      "sourceParentHeadSha": "53e9e8d909b9a06033430e1927a17db7183d5e6f",
+      "selectedCurrentCommandRefs": [
+        "docs/implementation/v3/m05-logs/continuation-installed-preflight-browser-final-typecheck.log",
+        "docs/implementation/v3/m05-logs/continuation-m11-final-contracts.log",
+        "docs/implementation/v3/m05-logs/continuation-m11-final-memory-regression.log",
+        "docs/implementation/v3/m05-logs/continuation-study-manifest-final.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43733008039-a1-j132869421442-s5-application-regression.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43736761161-a1-j132880966787-s4-build-web.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43736761161-a1-j132880966804-s7-native-facade.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43736761161-a1-j132880966804-s7-native-worker.log"
+      ],
+      "ledgerBeforeDigest": "942446c32e87b633c683aa7a59a81e8de8ab7339bb6069c3337c437a12f161f3",
+      "ledgerAfterDigest": "9747710f332154b0979c71a365c053f7e2ac2537fd1ed4678a5b1b9fe7d2d063",
+      "windowsCiRef": "docs/implementation/v3/M05-windows-ci-43736761161.json",
       "windowsCiCurrentCodeCut": false
     }
   ]

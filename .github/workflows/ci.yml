@@ -132,6 +132,7 @@ jobs:
             test-results/browser/**/results.json
             test-results/browser/**/artifacts/**/*.png
             test-results/browser/**/artifacts/**/trace.zip
+            test-results/browser/**/artifacts/**/host-observations.json
 
   hermes:
     name: Hermes contracts

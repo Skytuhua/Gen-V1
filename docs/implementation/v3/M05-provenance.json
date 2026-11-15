@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "recordedAt": "2026-11-15T16:39:01.249026+00:00",
+  "recordedAt": "2026-11-15T17:08:42.419156+00:00",
   "repositoryRoot": "/workspace/scratch/36f66011d961/m05-continuation",
   "branch": "agent/m05-v3-continuation",
   "origin": "https://github.com/Skytuhua/Gen-V1.git",
@@ -8,7 +8,7 @@
   "repositoryId": 1442565952,
   "canonicalIdentityEvidence": "docs/implementation/v3/M05-upstream-check.json",
   "acceptedBaseSha": "399cde39ff4ee82272c7a7700944325c44b36070",
-  "sourceParentHeadSha": "41028750e48d4e456f7636c1a2fb43d9adc541a2",
+  "sourceParentHeadSha": "53e9e8d909b9a06033430e1927a17db7183d5e6f",
   "acceptedDependencyCommits": [
     "5f0958f4cb5b40bc10c1eea0e1cd517b57aaa1b9",
     "f331cf16b268282da888a41da42fc776ea7befd5",
@@ -24,25 +24,24 @@
   "packageManagerEvidence": "Declared package manager plus preserved setup/build argv; no new package installation is performed by this builder.",
   "lockfileChangedAgainstAcceptedBase": false,
   "selectedCurrentCommandRefs": [
-    "docs/implementation/v3/m05-logs/continuation-integration-record-projection-final-typecheck.log",
-    "docs/implementation/v3/m05-logs/continuation-m11-final-build.log",
+    "docs/implementation/v3/m05-logs/continuation-installed-preflight-browser-final-typecheck.log",
     "docs/implementation/v3/m05-logs/continuation-m11-final-contracts.log",
     "docs/implementation/v3/m05-logs/continuation-m11-final-memory-regression.log",
     "docs/implementation/v3/m05-logs/continuation-study-manifest-final.log",
-    "docs/implementation/v3/m05-logs/windows-ci-43733008039-a1-j132869421229-s7-native-facade.log",
-    "docs/implementation/v3/m05-logs/windows-ci-43733008039-a1-j132869421229-s7-native-worker.log",
-    "docs/implementation/v3/m05-logs/windows-ci-43733008039-a1-j132869421442-s5-application-regression.log"
+    "docs/implementation/v3/m05-logs/windows-ci-43733008039-a1-j132869421442-s5-application-regression.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43736761161-a1-j132880966787-s4-build-web.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43736761161-a1-j132880966804-s7-native-facade.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43736761161-a1-j132880966804-s7-native-worker.log"
   ],
   "commandCutLimitation": "Command ledger records actual times/argv/results, not a per-command Git tree. Selection is explicit; the current file inventory is generated separately. Exact-head Windows status is admitted only when its current code/test/workflow cut matches.",
-  "windowsCiRef": "docs/implementation/v3/M05-windows-ci-43733008039.json",
+  "windowsCiRef": "docs/implementation/v3/M05-windows-ci-43736761161.json",
   "windowsCiCurrentCodeCut": false,
   "windowsCiCutNotes": [
     "CI code/test/workflow cut differs from the current worktree: .github/workflows/ci.yml",
-    "CI code/test/workflow cut differs from the current worktree: scripts/integration-assets.ts",
-    "CI code/test/workflow cut differs from the current worktree: scripts/package-desktop.ts",
-    "CI code/test/workflow cut differs from the current worktree: scripts/public-source-files.json",
-    "CI code/test/workflow cut differs from the current worktree: scripts/integration_python_projection.py",
-    "CI code/test/workflow cut differs from the current worktree: tests/integration-packaging-canonical-negative.test.ts"
+    "CI code/test/workflow cut differs from the current worktree: scripts/verify-installed-desktop.ts",
+    "CI code/test/workflow cut differs from the current worktree: tests/e2e/host-loop.spec.ts",
+    "CI code/test/workflow cut differs from the current worktree: tests/host-fixture.ts",
+    "CI code/test/workflow cut differs from the current worktree: tests/installed-desktop-verification.test.ts"
   ],
   "studyRef": "docs/implementation/v3/m05-study-20261115/results.json",
   "reviewerApproval": false

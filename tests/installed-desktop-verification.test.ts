@@ -11,6 +11,35 @@ import {registeredCapabilityFlags} from '../packages/core/capability-flags.ts';
 const directory='C:\\verification\\exclusive\\installed';
 const clear=():InstallPreflight=>({entries:[],runningAppPids:[],shortcuts:[],updaterCache:{path:'C:\\fixture\\generative-harness-desktop-updater',present:false}});
 describe('installed desktop verification custody',()=>{
+ it('retains only bounded fixed preflight milestones without copying child output or commands',()=>{
+  const parse=(installedVerification as unknown as {parseInstallPreflightProgress:(stderr:string)=>{phase:string;scriptElapsedMs:number}[]}).parseInstallPreflightProgress;
+  expect(typeof parse).toBe('function');
+  const input=[
+   'PRIVATE_COMMAND_SENTINEL provider-secret=do-not-record',
+   'HARNESS_INSTALL_PREFLIGHT_PHASE=script-start:0',
+   'HARNESS_INSTALL_PREFLIGHT_PHASE=registry-complete:12',
+   'HARNESS_INSTALL_PREFLIGHT_PHASE=PRIVATE_COMMAND_SENTINEL:13',
+   'HARNESS_INSTALL_PREFLIGHT_PHASE=registry-complete:14',
+   'HARNESS_INSTALL_PREFLIGHT_PHASE=shortcuts-complete:11',
+   'HARNESS_INSTALL_PREFLIGHT_PHASE=shortcuts-complete:20',
+   'HARNESS_INSTALL_PREFLIGHT_PHASE=cache-complete:25',
+   'HARNESS_INSTALL_PREFLIGHT_PHASE=processes-complete:31',
+   'HARNESS_INSTALL_PREFLIGHT_PHASE=result-complete:33',
+   'HARNESS_INSTALL_PREFLIGHT_PHASE=script-start:34',
+  ].join('\r\n');
+  expect(parse(input)).toEqual([
+   {phase:'script-start',scriptElapsedMs:0},{phase:'registry-complete',scriptElapsedMs:12},
+   {phase:'shortcuts-complete',scriptElapsedMs:20},{phase:'cache-complete',scriptElapsedMs:25},
+   {phase:'processes-complete',scriptElapsedMs:31},{phase:'result-complete',scriptElapsedMs:33},
+  ]);
+  expect(JSON.stringify(parse(input))).not.toMatch(/PRIVATE_COMMAND_SENTINEL|provider-secret|do-not-record/);
+ });
+ it('refuses malformed or unbounded preflight timings and bounds retained output',()=>{
+  const parse=(installedVerification as unknown as {parseInstallPreflightProgress:(stderr:string)=>{phase:string;scriptElapsedMs:number}[]}).parseInstallPreflightProgress;
+  expect(typeof parse).toBe('function');
+  for(const value of ['-1','NaN','Infinity','60001','1.5','1 trailing-output'])expect(parse('HARNESS_INSTALL_PREFLIGHT_PHASE=script-start:'+value)).toEqual([]);
+  expect(parse('HARNESS_INSTALL_PREFLIGHT_PHASE=script-start:0\n'+'UNTRUSTED_OUTPUT\n'.repeat(2000))).toEqual([]);
+ });
  it('rejects a destination that exceeds the pinned ZIP extractor Windows path limit',()=>{
   const file='resources\\host\\node_modules\\'+'x'.repeat(139);
   expect(()=>assertZipDestinationFits('C:\\Users\\user\\AppData\\Local\\Programs\\generative-harness-desktop',[file])).not.toThrow();

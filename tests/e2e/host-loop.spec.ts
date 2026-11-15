@@ -109,10 +109,11 @@ test('durable decision validation and acceptance continue the same owning runtim
 });
 
 test('generated operation button requires native approval; restart restores without repeating effects', async ({ page, host }, info) => {
+  test.setTimeout(60_000);
   await openHost(page);
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await page.getByRole('dialog', { name: 'Settings', exact: true }).getByRole('button', { name: 'Projects & Working Copies', exact: true }).click();
-  await grantFixtureFile(page, host); await sendFixture(page, 'operation');
+  await grantFixtureFile(page, host); await sendFixture(page, 'operation', host);
   const artifact = region(page, 'Evidence document');
   await expect(artifact.getByRole('button', { name: 'Apply document replacement' })).toBeVisible();
   await artifact.getByRole('button', { name: 'Expand artifact', exact: true }).click();

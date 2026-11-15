@@ -1,0 +1,139 @@
+{
+  "version": 1,
+  "kind": "installed-verifier-initial-preflight-failure-and-repair-review",
+  "reviewedAt": "2026-11-15T17:02:08.110611+00:00",
+  "identity": {
+    "runId": 43736761161,
+    "jobId": 132880966492,
+    "head": "828cdf52c76e44ca07c0fcdd647601a64bf30081",
+    "tree": "a3f5f1b083689302f85dfd68fa5fcf735f5d401b",
+    "actualCheckout": "ce93c20a3394157af18f585f794c97dd067f37a5"
+  },
+  "rawLog": {
+    "ref": "/workspace/scratch/36f66011d961/m05-ci-43736761161/job-132880966492.log",
+    "bytes": 124917,
+    "sha256": "d01dda66e6751ebb87b15ba228814e6ee18cdd6a263b90b97f24f3e5197b3234"
+  },
+  "artifact": {
+    "id": 14171500306,
+    "name": "installed-memory-43736761161-1",
+    "bytes": 355244,
+    "sha256": "f205f14fb5456ed1f934acc9512a409ddcd698503f54be7d99c1ea5d22b0cbcb",
+    "downloads": 1,
+    "fileCount": 3,
+    "screenshots": [],
+    "verification": {
+      "ref": "/workspace/scratch/36f66011d961/m05-ci-43736761161/installed-artifact-14171500306/.harness-desktop-installed/run-1794761429044-962ed3b7-cc21-46e0-9970-674a44e1bcd1/verification.json",
+      "bytes": 987,
+      "sha256": "7a0f27427cb7394d1245a8544a6666139c7648a18cf1145884d3128254d868e9"
+    }
+  },
+  "observedFailure": {
+    "phase": "initial read-only installation preflight",
+    "deadlineMs": 15000,
+    "receiptCreatedAt": "2026-11-15T16:50:29.048Z",
+    "receiptLoggedAt": "2026-11-15T16:50:44.1848058Z",
+    "error": "Owned installer verification process exceeded its deadline.",
+    "preflightFieldPresent": false,
+    "expectedPayloadFieldPresent": false,
+    "installCommandFieldPresent": false,
+    "memoryRetentionFieldPresent": false,
+    "launches": [],
+    "cleanup": {
+      "status": "not-installed"
+    },
+    "passed": false,
+    "internalSubphase": null,
+    "internalCauseMeasured": false
+  },
+  "phaseResults": {
+    "canonicalPackaging": "PASS",
+    "installerInvocation": "NOT_RUN",
+    "installedPayloadComparison": "NOT_RUN",
+    "installedMemoryReview": "NOT_RUN",
+    "installedRestart": "NOT_RUN",
+    "ownedUninstall": "NOT_RUN",
+    "screenshots": "NOT_RUN"
+  },
+  "canonicalPackagingReviewRef": "docs/implementation/v3/M05-canonical-package-review-43736761161.json",
+  "repair": {
+    "scope": "Verifier harness only; production application and memory policy are unchanged.",
+    "readOnlyProbeDeadlineMs": 60000,
+    "installerDeadlineMs": 600000,
+    "uninstallerDeadlineMs": 180000,
+    "retryAdded": false,
+    "adoptionAdded": false,
+    "guardsPreserved": [
+      "Both registry hives and both registry views; fixed installation and uninstall keys.",
+      "Existing native processes, shortcuts and updater cache prevent installation.",
+      "Immediate repeated preflight before installer invocation.",
+      "Exact installer and payload identities, launch nonce/executable custody, and identity-bound uninstall."
+    ],
+    "diagnostics": {
+      "fields": [
+        "stage",
+        "startedAt",
+        "timeoutMs",
+        "elapsedMs",
+        "status",
+        "subphases[].phase",
+        "subphases[].scriptElapsedMs",
+        "subphases[].observedElapsedMs"
+      ],
+      "subphases": [
+        "script-start",
+        "registry-complete",
+        "shortcuts-complete",
+        "cache-complete",
+        "processes-complete",
+        "result-complete"
+      ],
+      "maxProbeObservations": 256,
+      "maxPhasesPerProbe": 6,
+      "childOutputLimitBytes": 262144,
+      "retainedStderrCharacters": 16000,
+      "copiesCommandTextOrArbitraryChildTextIntoDiagnostics": false
+    },
+    "sources": [
+      {
+        "path": "scripts/verify-installed-desktop.ts",
+        "failedHeadSha256": "6a5f85e1b399472068d7c1915241227225ba22754957eab8dd04289d670ff3b1",
+        "repairSha256": "4a6a80e9033d8ba7a3e63911f4e3e719c6c7fb541e081343758955fc672c5bd6",
+        "repairBytes": 30832
+      },
+      {
+        "path": "tests/installed-desktop-verification.test.ts",
+        "failedHeadSha256": "6ddfbc5398100548f1f64cefb9ce45dc8d817e232e2b1dacd6804535395251cf",
+        "repairSha256": "a37d69aaf6b0d3b2ec0b50f28f7e650159e1ca6db22535d76010aad78a39afae",
+        "repairBytes": 12588
+      }
+    ]
+  },
+  "localVerification": {
+    "red": {
+      "ref": "docs/implementation/v3/m05-logs/continuation-installed-preflight-diagnostics-red.log",
+      "exitCode": 1,
+      "failed": 2,
+      "passed": 13,
+      "reason": "New fixed-diagnostic parser absent before implementation."
+    },
+    "green": {
+      "ref": "docs/implementation/v3/m05-logs/continuation-installed-preflight-diagnostics-green.log",
+      "exitCode": 0,
+      "passed": 15
+    },
+    "finalTypecheck": {
+      "status": "PASS",
+      "ref": "docs/implementation/v3/m05-logs/continuation-installed-preflight-browser-final-typecheck.log",
+      "exitCode": 0,
+      "startedAt": "2026-11-15T17:05:44.097579+00:00",
+      "endedAt": "2026-11-15T17:06:07.978026+00:00"
+    }
+  },
+  "limitations": [
+    "The failed Windows receipt identifies the initial 15-second preflight deadline but records no internal subphase; cold PowerShell startup is a possible cause, not a measured diagnosis.",
+    "Focused tests verify diagnostic filtering and existing custody rules; they do not execute the Windows registry probe, installer or desktop.",
+    "The 60-second probe repair requires another Windows run. No installed retention, full enabled M05 lifecycle, or live-provider proof is claimed.",
+    "Production project-memory flags remain false; provider network metrics are unmeasured."
+  ]
+}

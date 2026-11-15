@@ -2,6 +2,7 @@ import { test as base, expect, type Page, type TestInfo } from '@playwright/test
 import { createHash, randomUUID } from 'node:crypto';
 import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { performance } from 'node:perf_hooks';
 import { buildServer, buildWidgetServer, type MountRegistry } from '../apps/server/server.ts';
 import { Service } from '../packages/core/service.ts';
 import { Store } from '../packages/storage/store.ts';
@@ -12,6 +13,11 @@ export const FIXTURE_LABEL = 'Host contract fixture (no model inference)';
 export const BEFORE = '# Evidence ledger\n\nOriginal test-owned source.\n';
 export const AFTER = '# Evidence ledger\n\nApproved test-owned replacement.\n';
 const sha = (value: string) => createHash('sha256').update(value).digest('hex');
+type FixtureStage = {
+  kind: 'runtime' | 'tool'; name: string; status: 'pending' | 'succeeded' | 'failed';
+  startedAt: string; startedMs: number; finishedAt?: string; elapsedMs?: number;
+  error?: { name: string; code?: string; message: string };
+};
 
 // This is an explicit scripted regression fixture, never a model-generation test.
 // Every publication uses the REAL Service.tool callback and the owning active run.
@@ -19,19 +25,41 @@ export class ContractRuntime implements RuntimeAdapter {
   callbacks!: RuntimeCallbacks;
   deliveries: Array<{ method: 'start' | 'followUp'; input: StartRun }> = [];
   cancellations: RunContext[] = [];
+  readonly observations: FixtureStage[] = [];
+  private failure: Error | undefined;
   activeRunContext: RunContext | undefined;
   constructor(readonly dataDir: string) {}
   configure(callbacks: RuntimeCallbacks) { this.callbacks = callbacks; }
   async models() { return [{ id: 'fixture/host-contract', provider: 'fixture', name: FIXTURE_LABEL }]; }
   async history(sessionPath: string): Promise<string[]> { try { return JSON.parse(await readFile(sessionPath, 'utf8')); } catch { return []; } }
-  async start(input: StartRun) { await this.deliver('start', input); }
-  async followUp(input: StartRun) { await this.deliver('followUp', input); }
+  async start(input: StartRun) { await this.observe('runtime', 'start', () => this.deliver('start', input)); }
+  async followUp(input: StartRun) { await this.observe('runtime', 'followUp', () => this.deliver('followUp', input)); }
   async cancel(ctx: RunContext) { this.cancellations.push(ctx); }
   async compact() { throw new Error('Compaction is outside this no-inference fixture'); }
   async dispose() {}
+  assertHealthy() { if (this.failure) throw this.failure; }
+  private async observe<T>(kind: FixtureStage['kind'], name: string, action: () => Promise<T>): Promise<T> {
+    if (this.observations.length >= 64) {
+      const error = new Error('Fixture exceeded its bounded runtime observation count');
+      this.failure ??= error; throw error;
+    }
+    const stage: FixtureStage = { kind, name: name.slice(0, 120), status: 'pending', startedAt: new Date().toISOString(), startedMs: performance.now() };
+    this.observations.push(stage);
+    try { const result = await action(); stage.status = 'succeeded'; return result; }
+    catch (error) {
+      const observed = error instanceof Error ? error : new Error(String(error));
+      const code = (observed as Error & { code?: unknown }).code;
+      stage.status = 'failed';
+      stage.error = { name: observed.name.slice(0, 80), ...(typeof code === 'string' ? { code: code.slice(0, 80) } : {}), message: observed.message.slice(0, 500) };
+      this.failure ??= observed;
+      throw error;
+    } finally { stage.finishedAt = new Date().toISOString(); stage.elapsedMs = performance.now() - stage.startedMs; }
+  }
   async tool(call: ToolCall) {
-    if (!this.activeRunContext) throw new Error('Fixture requires an actual active runtime context');
-    return this.callbacks.onTool(call, this.activeRunContext);
+    return this.observe('tool', call.name, async () => {
+      if (!this.activeRunContext) throw new Error('Fixture requires an actual active runtime context');
+      return this.callbacks.onTool(call, this.activeRunContext);
+    });
   }
   event(type: string, fields: Record<string, unknown> = {}) {
     if (!this.activeRunContext) throw new Error('No owning run');
@@ -144,7 +172,7 @@ export const test = base.extend<{ host: HostFixture }>({
     const sourceFile = join(folder, 'evidence-ledger.md'); await writeFile(sourceFile, BEFORE, { flag: 'wx' });
     const host = new HostFixture(folder, sourceFile); await host.start();
     try { await use(host); } finally {
-      await writeFile(info.outputPath('host-observations.json'), JSON.stringify({ fixture: FIXTURE_LABEL, ports: [4337, 4338], commands: host.commands, runtimeDeliveries: host.generations.map(runtime => runtime.deliveries), snapshot: host.snapshot() }, null, 2));
+      await writeFile(info.outputPath('host-observations.json'), JSON.stringify({ fixture: FIXTURE_LABEL, ports: [4337, 4338], commands: host.commands, runtimeDeliveries: host.generations.map(runtime => runtime.deliveries), runtimeStages: host.generations.map(runtime => runtime.observations), snapshot: host.snapshot() }, null, 2));
       await host.close();
     }
   },
@@ -156,13 +184,34 @@ export async function openHost(page: Page) {
   await expect(page.getByRole('textbox', { name: 'Message', exact: true })).toBeVisible();
   await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toHaveText(FIXTURE_LABEL);
 }
-export async function sendFixture(page: Page, mode: string) {
+export async function sendFixture(page: Page, mode: string, operationHost?: HostFixture) {
   await page.getByRole('textbox', { name: 'Message', exact: true }).fill(`[fixture:${mode}] Verify the local host contract.`);
   await page.getByRole('button', { name: 'Send message', exact: true }).click();
   const artifact = page.locator('[data-artifact-id]').first();
-  // Native file preparation precedes publication; keep its startup budget
-  // separate from the existing five-second rendering assertion.
-  await expect(artifact).toBeAttached({ timeout: 15_000 });
+  if (mode === 'operation' && operationHost) {
+    // This fixture awaits two real file tools before publication. Its functional
+    // budget covers both 15-second native RPC bounds and child teardown, while
+    // recorded failures still stop readiness on the next poll. No guard changes.
+    const deadline = performance.now() + 40_000;
+    const healthy = () => {
+      operationHost.runtime.assertHealthy();
+      const error = operationHost.snapshot().threads.find(thread => thread.error)?.error;
+      if (error) throw new Error('Fixture host run failed: ' + error);
+    };
+    for (;;) {
+      healthy();
+      if (await artifact.count()) { healthy(); break; }
+      const remaining = deadline - performance.now();
+      if (remaining <= 0) {
+        const pending = operationHost.runtime.observations.filter(stage => stage.status === 'pending').map(stage => stage.kind + ':' + stage.name);
+        throw new Error('Fixture operation publication exceeded 40000ms; pending stages: ' + pending.join(', '));
+      }
+      await new Promise(resolve => setTimeout(resolve, Math.min(100, remaining)));
+    }
+  } else {
+    // Other fixtures retain their original publication bound.
+    await expect(artifact).toBeAttached({ timeout: 15_000 });
+  }
   await expect(artifact).toBeVisible();
 }
 export async function grantFixtureFile(page: Page, host: HostFixture) {
