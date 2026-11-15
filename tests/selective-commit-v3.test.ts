@@ -1,6 +1,6 @@
 import { afterEach, expect, it } from "vitest";
 import { execFileSync } from "node:child_process";
-import { lstat, mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { lstat, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Store } from "../packages/storage/store.ts";
@@ -265,4 +265,65 @@ it("requires a managed working copy", async () => {
   const f = await fixture();
   const service = f.service;
   await expect(service.preview(f.projectId, "missing-thread")).rejects.toMatchObject({ code: "CAPABILITY_DENIED" });
+});
+
+it("records the commit and observed head when the branch update is uncertain", async () => {
+  const f = await fixture();
+  await writeFile(join(f.workspace.path, "one.txt"), "one-1\n");
+  const preview = await f.service.preview(f.projectId, f.threadId, f.scope);
+  // A concurrent commit object exists but is unreferenced until the fault moves
+  // the branch to it the instant the service runs its compare-and-swap.
+  const headTree = git(f.workspace.path, "rev-parse", "HEAD^{tree}").trim();
+  const concurrent = git(f.workspace.path, "commit-tree", headTree, "-p", preview.expectedHead, "-m", "concurrent").trim();
+  const branch = git(f.workspace.path, "branch", "--show-current").trim();
+  const original = f.projects.managedWorktree.bind(f.projects);
+  let moved = false;
+  f.projects.managedWorktree = <T>(projectId: string, threadId: string, action: Parameters<ProjectTools["managedWorktree"]>[2]): Promise<T> =>
+    original(projectId, threadId, (context) =>
+      action({
+        ...context,
+        git: async (args: string[], environment?: NodeJS.ProcessEnv) => {
+          if (args[0] === "update-ref" && !moved) {
+            moved = true;
+            await context.git(["update-ref", `refs/heads/${branch}`, concurrent]);
+          }
+          return context.git(args, environment);
+        },
+      }) as Promise<T>,
+    );
+  const error = await f.service
+    .commit(f.projectId, f.threadId, {
+      expectedHead: preview.expectedHead,
+      selectedHunks: select(preview, ["one.txt"]),
+      message: "uncertain",
+      approvalId: "approval-7",
+      scope: f.scope,
+    })
+    .then(() => undefined, (failure: { code: string; message: string }) => failure);
+  expect(error).toMatchObject({ code: "REVISION_CHANGED" });
+  const observedCommit = /selective commit ([0-9a-f]{40}) was created/.exec(error!.message)?.[1];
+  expect(observedCommit).toBeTruthy();
+  expect(git(f.workspace.path, "cat-file", "-t", observedCommit!).trim()).toBe("commit");
+  const records = f.service.records(f.workspace.id);
+  expect(records).toHaveLength(1);
+  expect(records[0]!.uncertain).toBe(true);
+  expect(records[0]!.observedCommit).toBe(observedCommit);
+  expect(records[0]!.observedHead).toBe(concurrent);
+  // The observed head is the concurrent commit; the selective commit exists but
+  // was never replayed onto the branch.
+  expect(git(f.workspace.path, "rev-parse", branch).trim()).toBe(concurrent);
+  expect(git(f.workspace.path, "status", "--porcelain")).toContain("one.txt");
+});
+
+it("retains a dirty managed worktree when its operation is cancelled", async () => {
+  const f = await fixture();
+  const dirty = join(f.workspace.path, "one.txt");
+  await writeFile(dirty, "dirty-work\n");
+  await expect(
+    f.projects.managedWorktree(f.projectId, f.threadId, async () => {
+      throw Object.assign(new Error("cancelled"), { code: "CANCELLED" });
+    }),
+  ).rejects.toMatchObject({ code: "CANCELLED" });
+  expect((await lstat(f.workspace.path)).isDirectory()).toBe(true);
+  expect(await readFile(dirty, "utf8")).toBe("dirty-work\n");
 });

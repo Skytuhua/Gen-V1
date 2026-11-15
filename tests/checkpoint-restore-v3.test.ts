@@ -1,4 +1,4 @@
-import { afterEach, expect, it } from "vitest";
+import { afterEach, expect, it, vi } from "vitest";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -8,9 +8,24 @@ import { CheckpointService } from "../packages/workspace/checkpoints.ts";
 import { readCheckpointDetail, readCheckpointList, readCheckpointReview } from "../apps/web/src/file-checkpoint-api.ts";
 import type { CheckpointOwner } from "../apps/web/src/file-checkpoint-api.ts";
 
+// Deterministic fault injection at the single file-replacement seam: a test can
+// tamper with or abort the destination write the moment a restore lands.
+const fault = vi.hoisted(() => ({ onReplace: undefined as undefined | ((destination: string) => Promise<void> | void) }));
+vi.mock("../packages/core/file-access.ts", async (importActual) => {
+  const actual = await importActual<typeof import("../packages/core/file-access.ts")>();
+  return {
+    ...actual,
+    replaceOwnedFile: async (source: string, destination: string, identity: { dev: bigint; ino: bigint }, sha256: string, signal: AbortSignal, expectedDestinationHash?: string) => {
+      await actual.replaceOwnedFile(source, destination, identity, sha256, signal, expectedDestinationHash);
+      if (fault.onReplace) await fault.onReplace(destination);
+    },
+  };
+});
+
 const roots: string[] = [];
 const stores: Store[] = [];
 afterEach(async () => {
+  fault.onReplace = undefined;
   for (const store of stores.splice(0)) store.close();
   for (const root of roots.splice(0)) await rm(root, { recursive: true, force: true, maxRetries: 5 });
 });
@@ -192,4 +207,66 @@ it("selects exactly one repository or an approved recipe in a group", async () =
   expect(() => service.selectRepository(group, { repositoryId: "repo-c" })).toThrow(expect.objectContaining({ code: "CAPABILITY_DENIED" }));
   store.internal("fixture.recipe", null, () => store.put("workspaceRepositoryRecipe", "recipe-1", null, { id: "recipe-1", repositories: ["repo-a", "repo-b"] }));
   expect(service.selectRepository(group, { recipeId: "recipe-1" })).toHaveLength(2);
+});
+
+it("stops on cancellation after the first write and reports PARTIAL_RECOVERY_REQUIRED", async () => {
+  const { project, service, owner, store } = await fixture();
+  await writeFile(join(project, "a.txt"), "a-old\n");
+  await writeFile(join(project, "b.txt"), "b-old\n");
+  const checkpoint = await service.create({ owner, root: project, paths: ["a.txt", "b.txt"] });
+  await writeFile(join(project, "a.txt"), "a-new\n");
+  await writeFile(join(project, "b.txt"), "b-new\n");
+  const plan = await service.planRestore(owner, { checkpointId: checkpoint.id, root: project, selectedPaths: ["a.txt", "b.txt"], approvalId: "approval-cancel" });
+  const controller = new AbortController();
+  fault.onReplace = (destination) => {
+    if (destination.endsWith("a.txt")) {
+      fault.onReplace = undefined;
+      controller.abort();
+    }
+  };
+  await expect(service.applyRestore(owner, { planId: plan.id, approvalId: "approval-cancel", root: project, signal: controller.signal })).rejects.toMatchObject({ code: "CANCELLED" });
+  // The cancelled run can no longer verify or revert its write: the plan is
+  // terminal as PARTIAL and the restored bytes are preserved, never clobbered.
+  expect(store.get<{ state: string }>("workspaceRestorePlan", plan.id)!.state).toBe("PARTIAL_RECOVERY_REQUIRED");
+  expect((await readFile(join(project, "a.txt"), "utf8"))).toBe("a-old\n");
+  expect((await readFile(join(project, "b.txt"), "utf8"))).toBe("b-new\n");
+});
+
+it("preserves both versions and reports PARTIAL_RECOVERY_REQUIRED when a write is edited during rollback", async () => {
+  const { project, service, owner } = await fixture();
+  await writeFile(join(project, "a.txt"), "a-old\n");
+  await writeFile(join(project, "b.txt"), "b-old\n");
+  const checkpoint = await service.create({ owner, root: project, paths: ["a.txt", "b.txt"] });
+  const plan = await service.planRestore(owner, { checkpointId: checkpoint.id, root: project, selectedPaths: ["a.txt", "b.txt"], approvalId: "approval-race" });
+  // External change lands between preview and apply on b.txt (conflict), and a
+  // second writer edits a.txt the instant this restore's write lands.
+  await writeFile(join(project, "b.txt"), "b-external\n");
+  fault.onReplace = async (destination) => {
+    if (destination.endsWith("a.txt")) {
+      fault.onReplace = undefined;
+      await writeFile(destination, "a-external-edit\n");
+    }
+  };
+  const applied = await service.applyRestore(owner, { planId: plan.id, approvalId: "approval-race", root: project });
+  expect(applied.state).toBe("PARTIAL_RECOVERY_REQUIRED");
+  expect(applied.conflicts).toEqual(["b.txt"]);
+  // Rollback refuses to clobber bytes this operation did not write.
+  expect((await readFile(join(project, "a.txt"), "utf8"))).toBe("a-external-edit\n");
+  expect((await readFile(join(project, "b.txt"), "utf8"))).toBe("b-external\n");
+});
+
+it("refuses to re-apply a plan left APPLYING by a killed process", async () => {
+  const { project, service, owner, store } = await fixture();
+  await writeFile(join(project, "a.txt"), "a-old\n");
+  const checkpoint = await service.create({ owner, root: project, paths: ["a.txt"] });
+  const plan = await service.planRestore(owner, { checkpointId: checkpoint.id, root: project, selectedPaths: ["a.txt"], approvalId: "approval-kill" });
+  // A process kill mid-apply leaves the durable plan APPLYING; a second apply
+  // must refuse rather than blindly retry.
+  store.internal("fixture.killed", "thread", () => {
+    const latest = store.get<{ state: string }>("workspaceRestorePlan", plan.id)!;
+    store.put("workspaceRestorePlan", plan.id, "thread", { ...latest, state: "APPLYING" });
+  });
+  await expect(service.applyRestore(owner, { planId: plan.id, approvalId: "approval-kill", root: project })).rejects.toMatchObject({ code: "REVISION_CHANGED" });
+  expect(store.get<{ state: string }>("workspaceRestorePlan", plan.id)!.state).toBe("APPLYING");
+  expect((await readFile(join(project, "a.txt"), "utf8"))).toBe("a-old\n");
 });

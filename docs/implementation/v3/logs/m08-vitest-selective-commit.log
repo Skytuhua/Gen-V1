@@ -1,5 +1,5 @@
-argv: ["C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe", "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js", "exec", "vitest", "run", "tests/selective-commit-v3.test.ts"]
+argv: ["C:\hostedtoolcache\node\24.22.2\x64\node.exe", "C:\hostedtoolcache\node\24.22.2\x64\node_modules\corepack\dist\pnpm.js", "exec", "vitest", "run", "tests/selective-commit-v3.test.ts"]
 cwd: C:\Users\Administrator\gen-m08-v3-wt
 termination: NONE
 exitCode: 0
-outcome: 1 test file passed; 8 tests passed; 162.37s.
+outcome: 1 test file passed; 13 tests passed; 136.90s. Adds an uncertain-commit case (concurrent ref move during compare-and-swap records observedCommit + observedHead without blind retry) and a cancelled dirty managed worktree retention case.

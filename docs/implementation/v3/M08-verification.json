@@ -114,6 +114,16 @@
           "id": "managed-copy-required",
           "status": "PASS",
           "evidence": "commit requires a managed working copy"
+        },
+        {
+          "id": "uncertain-branch-update-recorded",
+          "status": "PASS",
+          "evidence": "concurrent ref move during compare-and-swap records observedCommit and observedHead, throws REVISION_CHANGED, and never retries blindly"
+        },
+        {
+          "id": "cancelled-dirty-worktree-retained",
+          "status": "PASS",
+          "evidence": "a cancelled managed operation leaves the dirty worktree on disk with its bytes intact"
         }
       ],
       "commands": [
@@ -133,7 +143,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/logs/m08-vitest-selective-commit.log",
-          "logDigest": "843b5c4a13204b1b4f14796e23f5e4e018400e04c028c82d68279389f84d4931"
+          "logDigest": "4fe3e2997d84d9ab30ff93186f436d5562ce2d0fe0470ab79a7adb38c4a0df90"
         }
       ],
       "artifactRefs": [
@@ -188,6 +198,21 @@
           "id": "single-repo-group-selection",
           "status": "PASS",
           "evidence": "a repository group selects exactly one repository or an approved recipe"
+        },
+        {
+          "id": "cancellation-after-first-write",
+          "status": "PASS",
+          "evidence": "CANCELLED mid-apply leaves the durable plan PARTIAL_RECOVERY_REQUIRED; restored bytes preserved, untouched files unchanged"
+        },
+        {
+          "id": "external-edit-during-rollback",
+          "status": "PASS",
+          "evidence": "bytes changed between write and rollback are never clobbered; state PARTIAL_RECOVERY_REQUIRED preserves both versions"
+        },
+        {
+          "id": "killed-applying-plan-refused",
+          "status": "PASS",
+          "evidence": "a plan left APPLYING by a process kill refuses re-apply with REVISION_CHANGED and stays APPLYING"
         }
       ],
       "commands": [
@@ -207,7 +232,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/logs/m08-vitest-checkpoint-restore.log",
-          "logDigest": "9d477bff9da3f51654078db8b92eeda71e21f9e7122673a2d666964a0d27bdbe"
+          "logDigest": "0b6f82eb655e3577311201f265b34812829aae2829f2f240f99b251f1ced440b"
         }
       ],
       "artifactRefs": [
