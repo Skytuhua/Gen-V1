@@ -103,13 +103,18 @@ export class ProjectSearch {
       throw new HarnessError('CAPABILITY_DENIED', 'Project access changed during search.');
     }
     if (signal?.aborted) throw new HarnessError('RESOURCE_LIMIT', 'Search was cancelled.');
-    const page: SearchResponse = { ...snapshot.response, matches: [], issues: [...snapshot.response.issues] };
-    let next = offset;
+    const page: SearchResponse = { ...snapshot.response, matches: [], issues: [...snapshot.response.issues], nextCursor: null };
+    const envelopeBytes = bytes(page);
+    let matchBytes = 0, next = offset;
     for (const match of snapshot.response.matches.slice(offset, offset + limit)) {
+      // Keep exact UTF-8 JSON accounting: adding an array member costs its
+      // serialized size plus a comma, and a cursor replaces the four-byte null.
+      const candidateBytes = bytes(match) + Number(page.matches.length > 0);
+      const cursorBytes = next + 1 < snapshot.response.matches.length ? bytes(this.cursor(handle, next + 1)) - 4 : 0;
+      // Reserve room for the response-limit issue if the next match won't fit.
+      if (envelopeBytes + matchBytes + candidateBytes + cursorBytes + 100 > RESPONSE_BYTES) break;
       page.matches.push(match);
-      page.nextCursor = next + 1 < snapshot.response.matches.length ? this.cursor(handle, next + 1) : null;
-      // Reserve metadata for the response-limit issue if the next match will not fit.
-      if (bytes(page) + 100 > RESPONSE_BYTES) { page.matches.pop(); break; }
+      matchBytes += candidateBytes;
       next++;
     }
     if (next < Math.min(offset + limit, snapshot.response.matches.length)) {

@@ -332,3 +332,21 @@ it('uses the real platform guard: Windows ordinary reads succeed; unsupported pl
   if (process.platform === 'win32') expect(result).toMatchObject({ complete: true, matches: [{ path: 'a.txt', kind: 'text' }] });
   else expect(result).toMatchObject({ complete: false, matches: [], issues: [{ path: null, reason: 'changed' }] });
 });
+
+it('sizes multibyte search pages without repeatedly serializing the growing response', async () => {
+  const f = await fixture();
+  await f.write('large-results.txt', ('needle "quoted" ' + '😀'.repeat(410) + '\n').repeat(140));
+  const stringify = JSON.stringify;
+  const spy = vi.spyOn(JSON, 'stringify');
+  let first: SearchResponse;
+  try {
+    first = await f.search.search(f.projectId, { q: 'needle', limit: 100 });
+    const responseWrites = spy.mock.calls.filter(([value]) => value && typeof value === 'object' && 'matches' in value && 'nextCursor' in value);
+    expect(responseWrites.length).toBeLessThanOrEqual(3);
+  } finally { spy.mockRestore(); }
+  expect(first.matches).toHaveLength(100);
+  expect(Buffer.byteLength(stringify(first))).toBeLessThanOrEqual(512 * 1024);
+  const rest = await f.search.search(f.projectId, { q: 'needle', limit: 100, cursor: first.nextCursor! });
+  expect(rest.matches.map(value => value.line)).toEqual(Array.from({ length: 40 }, (_, i) => i + 101));
+  expect(rest.nextCursor).toBeNull();
+});
