@@ -9,6 +9,7 @@ export interface HermesBrokerOptions {
  input:StartRun;createRuntime:()=>RuntimeAdapter;
  onInput?:(ids:string[])=>void|Promise<void>;
  onUsage?:(usage:RuntimeUsage,request:ModelRequest)=>void;
+ onContextRequest?:(summary:{sequence:number;promptBytes:number;knownInputs:number})=>void;
  capacity?:ModelCapacity;
 }
 export interface HermesBroker {
@@ -63,6 +64,7 @@ export async function createHermesBroker(options:HermesBrokerOptions):Promise<He
     if(event.type==='error')failure=new HarnessError('HERMES_NATIVE_FAILED','The selected native model could not complete its request.');
     if(event.type==='settled'){if(event.aborted===true)failure=new HarnessError('HERMES_MODEL_CANCELLED','The selected native model was cancelled.');completion.resolve();}
      }});
+     if(metadata.phase==='foreground')try{options.onContextRequest?.({sequence:metadata.sequence,promptBytes:Buffer.byteLength(nativeInput.prompt),knownInputs:new Set(metadata.inputIds).size});}catch{/* Observations do not affect admission or teardown. */}
      await runtime.start(nativeInput);await completion.promise;await writes;if(owned.cancelled||failure)throw failure??invalid();return{content,usage:usage??{...EMPTY_USAGE}};
     }finally{
      if(owned.runtime){const actual=usage??{...EMPTY_USAGE};usages.set(metadata.sequence,actual);try{options.onUsage?.(actual,metadata);}catch{/* Usage projection cannot prevent native teardown. */}}

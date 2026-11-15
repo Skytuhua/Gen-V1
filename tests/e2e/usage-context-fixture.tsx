@@ -19,6 +19,7 @@ function Fixture() {
   useEffect(() => {
     const update = (event: Event) => {
       const action = (event as CustomEvent<string>).detail;
+      if (action === 'request-proof' || action === 'request-schemas') setUsage(value => ({ ...value, lastRequest: { threadId, runId: 'fixture-run', epoch, sequence: 1, promptBytes: 13, knownInputs: 1, visibility: 'OPAQUE_NATIVE_CONTEXT', source: 'hermes', ...(action === 'request-schemas' ? {toolSnapshot:{count:7,schemaBytes:428,digest:'a'.repeat(64)}} : {}) }, hostProjection: { threadId, runId:'fixture-run', epoch, sourceCutDigest: 'fixture', measurement:'BYTE_ONLY', sources: [{category:'USER',revision:1,utf8Bytes:13}], omittedSources:0 } }));
       if (action === 'decrease') setUsage(value => ({ ...value, contextTokens: 4000 }));
       if (action === 'unknown') setUsage({ ...EMPTY_USAGE });
       if (action === 'session') setSession('two');

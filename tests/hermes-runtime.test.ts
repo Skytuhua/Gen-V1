@@ -6,6 +6,7 @@ import {spawn} from 'node:child_process';
 import type {RuntimeAdapter,RuntimeCallbacks,RuntimeEvent,StartRun} from '../packages/contracts/index.ts';
 import {createHermesRuntime,type HermesRuntimeOptions,type HermesSourceClient} from '../packages/runtime-hermes/index.ts';
 import type {HermesClient,HermesEvent} from '../packages/runtime-hermes/client.ts';
+import {__setCapabilityFlagForTests} from '../packages/core/capability-flags.ts';
 import {encodeInput} from '../packages/runtime-pi/input-envelope.ts';
 
 it('keeps private completed-write metadata off the default/company path and model envelope',async()=>{
@@ -227,4 +228,47 @@ it('waits for an already dispatched shared write before confirming cancellation'
 
 it('admits fenced capture during active source work while refusing mutation',async()=>{
  const f=await fixture();try{await f.runtime.start(run());await expect(f.runtime.sourceRequest('skills.capture',{name:'procedure',expected:{procedure:{}}})).resolves.toBeDefined();await expect(f.runtime.sourceRequest('skills.manage',{name:'procedure',action:'delete'})).rejects.toMatchObject({code:'HERMES_SOURCE_BUSY'});await f.settle();}finally{await f.runtime.dispose();}
+});
+
+
+it('uses one owned snapshot for progressive discovery and denies premature and hidden calls',async()=>{
+ const f=await fixture({hostTools:[
+  {name:'repository_status',description:'Read tracked file status',parameters:{type:'object'}},
+  {name:'codemode',description:'Unavailable widget',parameters:{type:'object'}},
+  {name:'host_task',description:'Direct tool',parameters:{type:'object'}},
+ ]});
+ __setCapabilityFlagForTests('context.compilerV1',true);
+ __setCapabilityFlagForTests('tools.deferredV1',true);
+ try{
+  await f.runtime.start(run());const ctx=f.start().ctx as Record<string,unknown>;
+  const call=(name:string,args:Record<string,unknown>={},scope=ctx)=>f.source().options.onHostCall!({id:name,name,args,ctx:scope});
+  expect(f.source().calls[0].params.config).toMatchObject({tools:{tool_search:{enabled:'off'}}});
+  expect(f.start().progressiveTools).toBe(true);
+  expect((f.start().hostTools as {name:string}[]).map(tool=>tool.name)).not.toContain('codemode');
+  const initial=await call('$context.tools.snapshot',{sequence:1}) as {names:string[];digest:string};
+  expect(initial.names).toContain('context_describe_tool');
+  expect(initial.names).not.toContain('repository_status');
+  await expect(call('repository_status')).rejects.toMatchObject({code:'HERMES_TOOL_DENIED'});
+  expect(await call('context_describe_tool',{name:'repository_status'})).toMatchObject({name:'repository_status',schema:{type:'object'}});
+  expect(await call('context_describe_tool',{name:'codemode'})).toBeNull();
+  await expect(call('repository_status')).rejects.toMatchObject({code:'HERMES_TOOL_DENIED'});
+  await expect(call('$context.tools.snapshot',{sequence:1})).rejects.toMatchObject({code:'HERMES_TOOL_DENIED'});
+  const next=await call('$context.tools.snapshot',{sequence:2}) as {names:string[];digest:string};
+  expect(next.names).toContain('repository_status');expect(next.digest).not.toBe(initial.digest);
+  await expect(call('repository_status')).resolves.toEqual({ok:true});
+  const release: Array<() => void> = [];
+  f.runtime.configure({onEvent:event=>f.events.push(event),onTool:async()=>new Promise(resolve=>release.push(()=>resolve({ok:true})))});
+  const reads=Array.from({length:4},()=>call('repository_status'));
+  try{
+   await vi.waitFor(()=>expect(release).toHaveLength(4));
+   await expect(call('repository_status')).rejects.toMatchObject({code:'CONTEXT_READ_LIMIT'});
+  }finally{for(const done of release)done();await Promise.all(reads);}
+
+  await expect(call('repository_status',{}, {...ctx,epoch:99})).rejects.toMatchObject({code:'HERMES_STALE_TOOL'});
+  await f.settle();
+ }finally{
+  __setCapabilityFlagForTests('context.compilerV1',undefined);
+  __setCapabilityFlagForTests('tools.deferredV1',undefined);
+  await f.runtime.dispose();
+ }
 });

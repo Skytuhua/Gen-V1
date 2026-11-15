@@ -50,6 +50,10 @@ def scripted_acp() -> None:
             elif "AUTO_SKILL_FIXTURE" in prompt and "Review the conversation above and update the skill library." in prompt and '"success": true' not in prompt:
                 skill = "---\nname: auto-source\ndescription: Reuse verified source-backed workflows.\n---\n\n# Source-backed workflows\n\nRun the original source and retain its behavior.\n"
                 content = '<tool_call>' + json.dumps({"id": "auto-create", "type": "function", "function": {"name": "skill_manage", "arguments": json.dumps({"operations": [{"action": "create", "name": "auto-source", "content": skill}]})}}) + '</tool_call>'
+            elif "M04_EXPOSURE_FIXTURE" in prompt:
+                direct = '"name": "m04_direct_fixture"' in prompt
+                deferred = '"name": "m04_deferred_fixture"' in prompt
+                content = "M04 visibility: direct=" + str(int(direct)) + ", deferred=" + str(int(deferred))
             elif "PLAIN_REPLY_ONLY" in prompt:
                 content = "A plain source reply."
             elif '"success": true' in prompt or '"success":true' in prompt:
@@ -75,6 +79,7 @@ class WorkerFixture(unittest.TestCase):
         threading.Thread(target=lambda: [self.stderr.append(line) for line in self.proc.stderr], daemon=True).start()
         self.counter = 0
         self.host_calls = []
+        self.m04_snapshot = None
 
     def tearDown(self):
         self.proc.terminate()
@@ -97,7 +102,8 @@ class WorkerFixture(unittest.TestCase):
             if "hostCall" in frame:
                 call = frame["hostCall"]
                 self.host_calls.append(call["name"])
-                self.proc.stdin.write(json.dumps({"hostResult": {"id": call["id"], "result": {"acquired": True} if call["name"] == "$background.acquire" else {}}}) + "\n")
+                result = {"acquired": True} if call["name"] == "$background.acquire" else self.m04_snapshot if call["name"] == "$context.tools.snapshot" else {}
+                self.proc.stdin.write(json.dumps({"hostResult": {"id": call["id"], "result": result}}) + "\n")
                 self.proc.stdin.flush()
             elif frame.get("id") == self.counter:
                 if error_code is not None:
@@ -119,7 +125,8 @@ class WorkerFixture(unittest.TestCase):
             if "hostCall" in frame:
                 call = frame["hostCall"]
                 self.host_calls.append(call["name"])
-                self.proc.stdin.write(json.dumps({"hostResult": {"id": call["id"], "result": {"acquired": True} if call["name"] == "$background.acquire" else {}}}) + "\n")
+                result = {"acquired": True} if call["name"] == "$background.acquire" else self.m04_snapshot if call["name"] == "$context.tools.snapshot" else {}
+                self.proc.stdin.write(json.dumps({"hostResult": {"id": call["id"], "result": result}}) + "\n")
                 self.proc.stdin.flush()
             else:
                 events.append(frame)
@@ -176,6 +183,28 @@ class WorkerFixture(unittest.TestCase):
         saved = json.loads(Path(params["sessionPath"]).read_text(encoding="utf8"))
         self.assertEqual(saved["messages"], self.request("agent.history", {})["messages"])
         self.assertEqual(saved["format"], "hermes-source-session-v1")
+
+    def test_m04_progressive_hook_filters_host_schemas_at_the_original_acp_boundary(self):
+        self.hello(config={"tools": {"tool_search": {"enabled": "off"}}, "auxiliary": {"background_review": {"enabled": False}}})
+        self.m04_snapshot = {"names": ["m04_direct_fixture"]}
+        names = ["m04_direct_fixture", "m04_deferred_fixture"]
+        params = {
+            "ctx": {"threadId": "m04-exposure", "runId": "m04-first", "epoch": 1},
+            "sessionId": "m04-exposure", "modelId": "fixture-model", "accountId": None,
+            "prompt": "M04_EXPOSURE_FIXTURE", "hostTools": [
+                {"name": name, "description": "Synthetic host tool", "parameters": {"type": "object"}} for name in names
+            ], "progressiveTools": True, "maxIterations": 2,
+            "skillPolicy": {"enabled": False}, "sessionPath": self.session_path("m04-exposure"),
+        }
+        self.request("agent.start", params)
+        events = self.until_settled()
+        self.assertIn("$context.tools.snapshot", self.host_calls)
+        self.assertEqual(events[-1]["data"]["text"], "M04 visibility: direct=1, deferred=0")
+        self.m04_snapshot = {"names": names}
+        params["ctx"] = {"threadId": "m04-exposure", "runId": "m04-second", "epoch": 2}
+        self.request("agent.start", params)
+        events = self.until_settled()
+        self.assertEqual(events[-1]["data"]["text"], "M04 visibility: direct=1, deferred=1")
 
     def test_original_summary_compaction_executes_with_the_retained_dependency_subset(self):
         self.hello(config={"compression": {"enabled": True, "protect_first_n": 0, "protect_last_n": 4, "abort_on_summary_failure": True}, "auxiliary": {"background_review": {"enabled": False}}})

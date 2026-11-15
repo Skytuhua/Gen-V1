@@ -44,19 +44,27 @@ export function createCapabilityFlags<K extends string>(definitions: readonly Ca
 export const M02_FLAG_KEYS = ["audit.effectsV1", "security.authorityV1"] as const;
 export type M02FlagKey = (typeof M02_FLAG_KEYS)[number];
 
-const m02Flags = createCapabilityFlags<M02FlagKey>([
+export const M04_FLAG_KEYS = ["context.compilerV1", "tools.deferredV1", "context.lossAwareCompactionV1", "context.precomputeExperimentV1"] as const;
+export type M04FlagKey = (typeof M04_FLAG_KEYS)[number];
+type RegisteredFlag = M02FlagKey | M04FlagKey;
+
+const hostFlags = createCapabilityFlags<RegisteredFlag>([
   { key: "audit.effectsV1", owner: "m02", description: "Append-only tool-effect ledger and owner-fenced read models." },
   { key: "security.authorityV1", owner: "m02", description: "Single-use approvals and the pre-dispatch authority gate." },
+  { key: "context.compilerV1", owner: "m04", description: "Read-only observations at the owned request boundary." },
+  { key: "tools.deferredV1", owner: "m04", description: "Progressive tool schema disclosure." },
+  { key: "context.lossAwareCompactionV1", owner: "m04", description: "Loss-aware native compaction." },
+  { key: "context.precomputeExperimentV1", owner: "m04", description: "Experimental summary precomputation." },
 ]);
 
-export function capabilityEnabled(key: M02FlagKey): boolean {
-  return m02Flags.enabled(key);
+export function capabilityEnabled(key: RegisteredFlag): boolean {
+  return hostFlags.enabled(key);
 }
 export function registeredCapabilityFlags(): Record<M02FlagKey, boolean> {
-  return m02Flags.snapshot() as Record<M02FlagKey, boolean>;
+  return Object.freeze(Object.fromEntries(M02_FLAG_KEYS.map(key => [key, hostFlags.enabled(key)]))) as Record<M02FlagKey, boolean>;
 }
 /** Test-only seam: flips a flag without touching user-visible preferences. All
  * defaults are false, so `undefined` restores the default. */
-export function __setCapabilityFlagForTests(key: M02FlagKey, value: boolean | undefined): void {
-  m02Flags.set(key, value === true);
+export function __setCapabilityFlagForTests(key: RegisteredFlag, value: boolean | undefined): void {
+  hostFlags.set(key, value === true);
 }
