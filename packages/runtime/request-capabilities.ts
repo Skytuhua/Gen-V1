@@ -17,7 +17,7 @@ export function assertCapabilities(
   proofRef: string,
 ): RequestCapabilitiesV1 {
   const result: Record<string, unknown> = { version: 1, proofRef, reasons: {} };
-  const allReasons = reasons as Record<RequestCapabilityKey, string>;
+  const allReasons = {...reasons};
   for (const key of REQUEST_CAPABILITY_KEYS) {
     result[key] = values[key] === true;
     if (values[key] !== true && !allReasons[key])

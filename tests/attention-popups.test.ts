@@ -45,3 +45,21 @@ it('does not resurrect an undelivered alert if quiet hours begin after a creatio
   expect(native.showInactive).not.toHaveBeenCalled();
  } finally {popups.stop();}
 });
+
+
+it('does not spend the remaining notification lifetime while duplicate pause notices arrive', async () => {
+ vi.useFakeTimers();
+ const {popups,native,action}=setup([item('a')]);
+ try {
+  await popups.poll();
+  await vi.advanceTimersByTimeAsync(2000);
+  await action('pause','a');
+  await vi.advanceTimersByTimeAsync(8000);
+  await action('pause','a');
+  await action('resume','a');
+  await vi.advanceTimersByTimeAsync(3999);
+  expect(native.hide).not.toHaveBeenCalled();
+  await vi.advanceTimersByTimeAsync(1);
+  expect(native.hide).toHaveBeenCalledOnce();
+ } finally { popups.stop(); }
+});

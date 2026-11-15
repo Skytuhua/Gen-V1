@@ -27,6 +27,30 @@ it('uses one authenticated Node stream and relays only connection state and sequ
  expect(value.state()).toEqual({connected:false,sequence:4});expect(changes.at(-1)).toEqual({connected:false,sequence:4});
 });
 
+it('bootstraps the owned desktop relay using the sidecar launch credential', async () => {
+ const launchCredential = 'fixture-launch-credential';
+ let sessionCookie: string | undefined;
+ let streamCredential: string | undefined;
+ const origin = await host((request, response) => {
+  if (request.url === '/api/bootstrap') {
+   if (request.headers['x-harness-launch'] !== launchCredential) { response.writeHead(403).end(); return; }
+   response.setHeader('Set-Cookie', 'harness_session=abc; Path=/; HttpOnly');
+   response.end('{}');
+   return;
+  }
+  sessionCookie = request.headers.cookie;
+  streamCredential = request.headers['x-harness-launch'] as string | undefined;
+  response.writeHead(200, {'Content-Type':'text/event-stream'});
+  response.write('id: 5\n\n');
+ });
+ // Pass the launch secret as a separate argument, not as a URL parameter.
+ const value = workspaceEvents(origin, () => {}, launchCredential);
+ cleanup.push(value.close);
+ await vi.waitFor(() => expect(value.state()).toEqual({connected:true,sequence:5}), {timeout:750});
+ expect(sessionCookie).toBe('harness_session=abc');
+ expect(streamCredential).toBeUndefined();
+});
+
 it('renews its private session and resumes after the last accepted sequence when the owned host disconnects',async()=>{
  let bootstraps=0,streams=0;const changes:DesktopWorkspaceChange[]=[];
  const origin=await host((request,response)=>{

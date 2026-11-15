@@ -266,6 +266,7 @@
     "apps/web/src/settings-data.ts",
     "apps/web/src/settings-inventory.ts",
     "apps/web/src/settings-operations.ts",
+    "apps/web/src/settings-registry.ts",
     "apps/web/src/settings.css",
     "apps/web/src/shell-layout.ts",
     "apps/web/src/shell-navigation.ts",

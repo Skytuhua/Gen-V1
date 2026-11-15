@@ -179,7 +179,7 @@ button:has(>svg.lucide-x):hover:not(:disabled),button:has(>svg.lucide-circle-x):
 @media(hover:none) { .artifact-secondary-tools,.save-state.is-saved,.artifact-state:not(.is-dirty) { opacity:1; } }
 .artifact-state { font-size:10px; color:var(--muted); margin-right:6px; max-width:145px; }
 .artifact-state.is-dirty { color:var(--pending); }
-.artifact-body { padding:16px; min-height:80px; }
+.artifact-body { padding:16px; }
 .artifact-content { width:100%; max-width:1040px; margin:0 auto; container:artifact / inline-size; }
 .artifact :is(h2,h3) { font-size:14px; font-weight:550; letter-spacing:0; }
 .artifact .markdown { font-size:13px; line-height:1.65; }

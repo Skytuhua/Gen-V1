@@ -89,6 +89,41 @@ test('missing history remains reachable after offscreen bursts without moving th
  expect(await log.locator('article').evaluateAll(nodes => nodes.map(node => Number(node.textContent!.match(/Transcript message (\d+)/)![1])))).toEqual(Array.from({length: 140}, (_, i) => i + 1));
 });
 
+test('a slower evidence request cannot replace the latest selected child', async ({page}) => {
+ const fixtureHost = await setup(page, false, false, true);
+ let finish!: () => void;
+ const delayed = new Promise<void>(resolve => {finish = resolve;});
+ await page.route('**/api/agent-work?taskId=parent-00', route => route.fulfill({json: {
+  enabled: true, roles: {}, budget: {reservedTokens: 0}, works: ['first', 'second'].map(id => ({
+   workId: id, role: 'QA', state: 'VERIFIED', owner: {threadId: id},
+   budget: {tokens: null}, evidence: {refs: 1, stale: 0},
+  })),
+ }}));
+ await page.route(/\/api\/agent-work\/(plan|messages)\?/, route => route.fulfill({json: {extension: false, messages: []}}));
+ await page.route('**/api/agent-work/output?*', async route => {
+  const workId = new URL(route.request().url()).searchParams.get('workId');
+  if (workId === 'first') await delayed;
+  await route.fulfill({json: {workId, output: workId === 'first' ? 'Older selection' : 'Latest selection', lateArtifacts: 0}});
+ });
+ try {
+  fixtureHost.release();
+  await page.getByRole('button', {name: 'Agent work · 2', exact: true}).click();
+  const first = page.waitForRequest(request => request.url().includes('/api/agent-work/output?') && request.url().includes('workId=first'));
+  await page.getByRole('button', {name: 'Open evidence for first', exact: true}).click();
+  await first;
+  const evidence = page.locator('.agents-work-output');
+  await page.getByRole('button', {name: 'Open evidence for second', exact: true}).click();
+  await expect(evidence).toContainText('Latest selection');
+  const drained = page.waitForResponse(response => response.url().includes('/api/agent-work/output?') && response.url().includes('workId=first'));
+  finish();
+  expect((await drained).ok()).toBe(true);
+  // Wait until the delayed response body and the following rendering turn finish.
+  await (await drained).finished();
+  await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+  await expect(evidence).toContainText('Latest selection');
+ } finally {finish();}
+});
+
 test('project rows expose working parent and nested child transcripts before any details click', async ({page}) => {
  const h = await setup(page); const parent = page.getByRole('group', {name: 'Agent parent-00', exact: true});
  await expect(parent.getByRole('log', {name: 'parent-00 messages', exact: true})).toContainText('Current transcript output');
@@ -150,6 +185,30 @@ test('child follow-up uses the published parent/run target and current ticket th
  expect(Object.keys(h.commands[0].payload).sort()).toEqual(['childRun', 'content', 'jobId', 'parentRun']);
  h.ticket('handled'); await expect(child.getByRole('status')).toHaveText('handled'); expect(h.commands).toHaveLength(1);
 });
+test('agent task progress exposes its name and unknown share to assistive technology', async ({page}) => {
+ const fixtureHost = await setup(page, false, false, true);
+ await page.route('**/api/agent-work?taskId=parent-00', route => route.fulfill({json: {
+  enabled: true, roles: {}, budget: {reservedTokens: 0}, works: [{
+   workId: 'demo-progress', role: 'QA', state: 'VERIFIED', owner: {threadId: 'child-active'},
+   budget: {tokens: null}, evidence: {refs: 0},
+  }],
+ }}));
+ await page.route('**/api/agent-work/plan?*', route => route.fulfill({json: {
+  extension: true, planId: 'demo-plan', progress: {total: 10, completed: 3, pending: 5, unknown: 2},
+ }}));
+ await page.route('**/api/agent-work/messages?*', route => route.fulfill({json: {messages: []}}));
+ try {
+  fixtureHost.release();
+  await page.getByRole('button', {name: 'Agent work · 1', exact: true}).click();
+  const work = page.getByRole('region', {name: 'Agent work', exact: true});
+  await expect(work.getByText('30% known complete · 20% unknown', {exact: true})).toBeVisible();
+  const progress = work.getByRole('progressbar', {name: 'Task progress', exact: true});
+  await expect(progress).toHaveAttribute('aria-valuetext', '30% known complete · 20% unknown');
+  await expect(progress).toHaveAttribute('value', '3');
+  await expect(progress).toHaveAttribute('max', '10');
+ } finally {fixtureHost.release();}
+});
+
 test('output while reading earlier retains position and exposes an explicit new-output action', async ({page}) => {
  const h = await setup(page), parent = page.getByRole('group', {name: 'Agent parent-00', exact: true}), log = parent.getByRole('log', {name: 'parent-00 messages', exact: true});
  await expect(log).toContainText('Current transcript output'); await log.evaluate(node => {node.scrollTop = 100;});

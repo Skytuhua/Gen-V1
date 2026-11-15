@@ -35,6 +35,8 @@ export interface StartRun extends RunContext { prompt: string; modelId: string; 
 export interface RuntimeAdapter {
   configure(callbacks: RuntimeCallbacks): void;
   models(options?: { refresh?: boolean; accountId?: string | null }): Promise<ModelInfo[]>;
+  /** Drop cached model catalogs for an account (or all) after sign-out so a stale catalog is never served. */
+  invalidateModels?(options?: { accountId?: string | null }): Promise<void>;
   start(input: StartRun): Promise<void>;
   followUp(input: StartRun): Promise<void>;
   cancel(ctx: RunContext): Promise<void>;

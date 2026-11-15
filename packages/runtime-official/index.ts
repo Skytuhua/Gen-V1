@@ -225,6 +225,9 @@ export function createOfficialRuntime({ dataDir,modelOnly:requestedModelOnly,pur
       }
       return structuredClone(await modelDiscovery);
     },
+    async invalidateModels() {
+      modelCache = undefined;
+    },
     start(input) { return queue(input, false); },
     followUp(input) {
       if(purpose==='prediction')return Promise.reject(new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions cannot continue a conversation.'));
