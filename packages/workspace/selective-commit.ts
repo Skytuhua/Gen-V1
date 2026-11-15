@@ -122,8 +122,9 @@ export class SelectiveCommitService {
         let text: string;
         try {
           // A synthesized patch must carry the file's exact bytes; lossy
-          // decoding would commit replacement characters instead.
-          text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+          // decoding would commit replacement characters instead. ignoreBOM
+          // keeps a leading BOM as U+FEFF so it survives the re-encode.
+          text = new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(bytes);
         } catch {
           continue;
         }

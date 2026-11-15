@@ -218,6 +218,22 @@ it("never offers an untracked non-UTF-8 file as a commit candidate", async () =>
   expect(preview.candidates.some((candidate) => candidate.path === "latin.txt")).toBe(false);
 });
 
+it("commits an untracked UTF-8 file without dropping its BOM", async () => {
+  const f = await fixture();
+  await writeFile(join(f.workspace.path, "bom.txt"), Buffer.concat([Buffer.from([0xef, 0xbb, 0xbf]), Buffer.from("café\n", "utf8")]));
+  const preview = await f.service.preview(f.projectId, f.threadId, f.scope);
+  const candidate = preview.candidates.find((entry) => entry.path === "bom.txt");
+  expect(candidate).toBeTruthy();
+  await f.service.commit(f.projectId, f.threadId, {
+    expectedHead: preview.expectedHead,
+    selectedHunks: [candidate!].map(({ path, index, digest }) => ({ path, index, digest })),
+    message: "add bom file",
+    approvalId: "approval-6",
+    scope: f.scope,
+  });
+  expect(git(f.workspace.path, "show", "HEAD:bom.txt")).toBe("\uFEFFcaf\u00e9\n");
+});
+
 it("rejects a hunk whose digest no longer matches the live postimage", async () => {
   const f = await fixture();
   await writeFile(join(f.workspace.path, "one.txt"), "one-1\n");
