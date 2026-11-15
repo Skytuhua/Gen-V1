@@ -36,7 +36,9 @@ const provenance=(checkpoint:FileCheckpoint)=>checkpoint.provenance.kind==='rest
 const statusNote=(status:string)=>status==='missing'?'Not in your files now':status==='binary'?'Binary file, no preview':status==='too_large'?'Too large to preview':status==='unreadable'?'Could not be read':'No preview available';
 const diffLineKind=(line:string)=>line.startsWith('@@')?'hunk':line.startsWith('+')?'add':line.startsWith('-')?'remove':'context';
 function CheckpointDiff({diff}:{diff:string}){
-  const lines=diff.split('\n').filter(line=>!line.startsWith('--- ')&&!line.startsWith('+++ '));
+  const all=diff.split('\n'),firstHunk=all.findIndex(line=>line.startsWith('@@'));
+  const headerEnd=firstHunk===-1?Math.min(2,all.length):firstHunk;
+  const lines=all.filter((line,index)=>index>=headerEnd||!(line.startsWith('--- ')||line.startsWith('+++ ')));
   if(!lines.some(line=>line.trim()))return <pre className="unified-diff"><span data-kind="context">No differences.</span></pre>;
   return <pre className="unified-diff">{lines.map((line,index)=><span key={index} data-kind={diffLineKind(line)}>{line||' '}{'\n'}</span>)}</pre>;
 }
