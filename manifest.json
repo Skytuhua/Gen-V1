@@ -1,52 +1,132 @@
 {
   "schemaVersion": 1,
-  "kind": "M12_EXACT_LOCAL_HISTORY_ARCHIVE",
-  "createdAt": "2026-11-15T12:36:10.522018+00:00",
-  "sourceRepository": "skytuhua-org/Gen-V1",
-  "repositoryId": 1442565952,
-  "acceptedBaseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
-  "reviewedLocalHead": "d55433f2231597d0efe7515b187e237e11b7ac95",
-  "reviewedTreeSha": "7cafb5be7f88247b14b6224b716b74812137aa24",
-  "bundle": {
-    "fileName": "m12-reviewed-history.bundle",
-    "bytes": 1605429,
-    "sha256": "fda85983d78b16598160d72464e639cf9ed694c50f1ad8816917fe7b826b2bb3",
-    "gitBlobSha": "607d5d8208aea904b37bddbf5586a448a297dc94",
-    "prerequisite": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
-    "advertisedRef": "refs/heads/agent/m12-v3"
-  },
-  "restoredCommitObjects": [
+  "kind": "M12_ORIGINAL_LOCAL_HISTORY_ARCHIVE",
+  "purpose": "Preserve original audit, implementation and documentation commit objects when the authenticated GitHub connector publishes equivalent trees with different commit metadata.",
+  "sourceRepositoryRoot": "/workspace/scratch/dbebe44a9817/m12-v3",
+  "prerequisiteCommit": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+  "advertisedRef": "refs/heads/agent/m12-v3",
+  "localHead": "be824cdbc07a07db89bce7aac8c7c2ff148152c3",
+  "localTree": "2778ae29bc4cec8bf47be5767a515f7641eb8f45",
+  "commits": [
     {
       "commit": "c4a70f435531cc245aeac3231b8f1b4f21e5e0a0",
-      "commitObjectSha256": "841b0fa8388579d982b80393da84e67147263450cc7676e1db05560a2760a012",
       "tree": "9822cbf81ff3d5eb2fce4e58dc130de04fb796b0",
-      "byteIdentical": true
+      "rawCommitSha256": "841b0fa8388579d982b80393da84e67147263450cc7676e1db05560a2760a012",
+      "restoredByteIdentical": true
     },
     {
       "commit": "4fe2e778a0007c91c4455aff62e2e4d74646a8ab",
-      "commitObjectSha256": "f861a8415b6ff1dfdc966facb27b7a194c2f7e0c28c97910056421cc611265c6",
       "tree": "04d37d8d4e4c971e5f953474a0da99bc94af5676",
-      "byteIdentical": true
+      "rawCommitSha256": "f861a8415b6ff1dfdc966facb27b7a194c2f7e0c28c97910056421cc611265c6",
+      "restoredByteIdentical": true
     },
     {
       "commit": "d55433f2231597d0efe7515b187e237e11b7ac95",
-      "commitObjectSha256": "381a316928cefb045fba1beb45cb9f06e6cea56f75191a599d592965e44858ab",
       "tree": "7cafb5be7f88247b14b6224b716b74812137aa24",
-      "byteIdentical": true
+      "rawCommitSha256": "381a316928cefb045fba1beb45cb9f06e6cea56f75191a599d592965e44858ab",
+      "restoredByteIdentical": true
+    },
+    {
+      "commit": "be824cdbc07a07db89bce7aac8c7c2ff148152c3",
+      "tree": "2778ae29bc4cec8bf47be5767a515f7641eb8f45",
+      "rawCommitSha256": "27001b4e8600ebfde5967d00695e9e72240f47d5605404fb274bf0e317951732",
+      "restoredByteIdentical": true
     }
   ],
-  "restorationCommands": [
+  "bundle": {
+    "path": "m12-reviewed-history.bundle",
+    "bytes": 1630591,
+    "sha256": "875c1fe97d40c50c0704080a37f8266bb51ca202c3f6a20c13380b9d5c371da0",
+    "gitBlobSha1": "cc86479ce3b89dcf36d56a3f8053452c2eb480a6"
+  },
+  "restorationProof": {
+    "repository": "/tmp/m12-final-bundle-proof-ht41nphe",
+    "onlyInitialHistory": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+    "allOriginalCommitsAbsentBeforeImport": true,
+    "allOriginalCommitObjectsRestoredByteIdentical": true,
+    "finalTreeVerified": "2778ae29bc4cec8bf47be5767a515f7641eb8f45",
+    "unbundleDidNotUpdateRefs": true,
+    "fsckExitCode": 0
+  },
+  "controllerEnvironmentCaveat": "Restoring the objects is not enough for an arbitrary clone to pass the controller: it also checks recorded workspace/original-checkout/branch/origin assumptions. The new target-drift audit additionally references immutable upstream commit 5098bffbfbcd1725c54d8c2c8b19537e7d2cfa42, which can be fetched separately for source inspection and is not the accepted execution base.",
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "status",
+        "--porcelain"
+      ],
+      "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+      "startedAt": "2026-11-15T13:01:57.976946+00:00",
+      "endedAt": "2026-11-15T13:01:57.983971+00:00",
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "branch",
+        "--show-current"
+      ],
+      "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+      "startedAt": "2026-11-15T13:01:57.983991+00:00",
+      "endedAt": "2026-11-15T13:01:57.985151+00:00",
+      "exitCode": 0,
+      "stdout": "agent/m12-v3\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+      "startedAt": "2026-11-15T13:01:57.985162+00:00",
+      "endedAt": "2026-11-15T13:01:57.986259+00:00",
+      "exitCode": 0,
+      "stdout": "be824cdbc07a07db89bce7aac8c7c2ff148152c3\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "HEAD^{tree}"
+      ],
+      "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+      "startedAt": "2026-11-15T13:01:57.986272+00:00",
+      "endedAt": "2026-11-15T13:01:57.988538+00:00",
+      "exitCode": 0,
+      "stdout": "2778ae29bc4cec8bf47be5767a515f7641eb8f45\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-list",
+        "--reverse",
+        "fcaa52f7fcdc9f39420118a79f9a8250ba83c563..be824cdbc07a07db89bce7aac8c7c2ff148152c3"
+      ],
+      "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+      "startedAt": "2026-11-15T13:01:57.988548+00:00",
+      "endedAt": "2026-11-15T13:01:57.990124+00:00",
+      "exitCode": 0,
+      "stdout": "c4a70f435531cc245aeac3231b8f1b4f21e5e0a0\n4fe2e778a0007c91c4455aff62e2e4d74646a8ab\nd55433f2231597d0efe7515b187e237e11b7ac95\nbe824cdbc07a07db89bce7aac8c7c2ff148152c3\n",
+      "stderr": ""
+    },
     {
       "argv": [
         "git",
         "bundle",
         "create",
-        "/tmp/m12-reviewed-d55433f.bundle",
+        "/tmp/m12-final-history/m12-reviewed-history.bundle",
         "fcaa52f7fcdc9f39420118a79f9a8250ba83c563..refs/heads/agent/m12-v3"
       ],
       "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
-      "startedAt": "2026-11-15T12:36:07.537705+00:00",
-      "endedAt": "2026-11-15T12:36:07.969350+00:00",
+      "startedAt": "2026-11-15T13:01:57.990163+00:00",
+      "endedAt": "2026-11-15T13:01:58.405712+00:00",
       "exitCode": 0,
       "stdout": "",
       "stderr": ""
@@ -56,141 +136,343 @@
         "git",
         "bundle",
         "verify",
-        "/tmp/m12-reviewed-d55433f.bundle"
+        "/tmp/m12-final-history/m12-reviewed-history.bundle"
       ],
       "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
-      "startedAt": "2026-11-15T12:36:07.969376+00:00",
-      "endedAt": "2026-11-15T12:36:07.977200+00:00",
+      "startedAt": "2026-11-15T13:01:58.405838+00:00",
+      "endedAt": "2026-11-15T13:01:58.410265+00:00",
       "exitCode": 0,
-      "stdout": "The bundle contains this ref:\nd55433f2231597d0efe7515b187e237e11b7ac95 refs/heads/agent/m12-v3\nThe bundle requires this ref:\nfcaa52f7fcdc9f39420118a79f9a8250ba83c563 \nThe bundle uses this hash algorithm: sha1\n",
-      "stderr": "/tmp/m12-reviewed-d55433f.bundle is okay\n"
+      "stdout": "The bundle contains this ref:\nbe824cdbc07a07db89bce7aac8c7c2ff148152c3 refs/heads/agent/m12-v3\nThe bundle requires this ref:\nfcaa52f7fcdc9f39420118a79f9a8250ba83c563 \nThe bundle uses this hash algorithm: sha1\n",
+      "stderr": "/tmp/m12-final-history/m12-reviewed-history.bundle is okay\n"
     },
     {
       "argv": [
         "git",
         "init",
         "--bare",
-        "--initial-branch=main",
-        "/tmp/m12-bundle-proof-ofg0_5k4"
+        "/tmp/m12-final-bundle-proof-ht41nphe"
       ],
       "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
-      "startedAt": "2026-11-15T12:36:07.977441+00:00",
-      "endedAt": "2026-11-15T12:36:07.979331+00:00",
+      "startedAt": "2026-11-15T13:01:58.410478+00:00",
+      "endedAt": "2026-11-15T13:01:58.412897+00:00",
       "exitCode": 0,
-      "stdout": "Initialized empty Git repository in /tmp/m12-bundle-proof-ofg0_5k4/\n",
-      "stderr": ""
+      "stdout": "Initialized empty Git repository in /tmp/m12-final-bundle-proof-ht41nphe/\n",
+      "stderr": "hint: Using 'master' as the name for the initial branch. This default branch name\nhint: will change to \"main\" in Git 3.0. To configure the initial branch name\nhint: to use in all of your new repositories, which will suppress this warning,\nhint: call:\nhint:\nhint: \tgit config --global init.defaultBranch <name>\nhint:\nhint: Names commonly chosen instead of 'master' are 'main', 'trunk' and\nhint: 'development'. The just-created branch can be renamed via this command:\nhint:\nhint: \tgit branch -m <name>\nhint:\nhint: Disable this message with \"git config set advice.defaultBranchName false\"\n"
     },
     {
       "argv": [
         "git",
         "fetch",
         "--no-tags",
-        "/workspace/scratch/dbebe44a9817/Gen-V1",
+        "/workspace/scratch/dbebe44a9817/m12-v3",
         "fcaa52f7fcdc9f39420118a79f9a8250ba83c563:refs/heads/base-proof"
       ],
-      "cwd": "/tmp/m12-bundle-proof-ofg0_5k4",
-      "startedAt": "2026-11-15T12:36:07.979386+00:00",
-      "endedAt": "2026-11-15T12:36:09.131284+00:00",
+      "cwd": "/tmp/m12-final-bundle-proof-ht41nphe",
+      "startedAt": "2026-11-15T13:01:58.412909+00:00",
+      "endedAt": "2026-11-15T13:01:59.554386+00:00",
       "exitCode": 0,
       "stdout": "",
-      "stderr": "From /workspace/scratch/dbebe44a9817/Gen-V1\n * [new ref]         fcaa52f7fcdc9f39420118a79f9a8250ba83c563 -> base-proof\n"
+      "stderr": "From /workspace/scratch/dbebe44a9817/m12-v3\n * [new ref]         fcaa52f7fcdc9f39420118a79f9a8250ba83c563 -> base-proof\n"
     },
     {
       "argv": [
         "git",
         "cat-file",
         "-e",
-        "c4a70f435531cc245aeac3231b8f1b4f21e5e0a0^{commit}"
+        "c4a70f435531cc245aeac3231b8f1b4f21e5e0a0"
       ],
-      "cwd": "/tmp/m12-bundle-proof-ofg0_5k4",
-      "exitCode": 128,
-      "purpose": "Confirm this original commit is absent before importing the bundle",
-      "stderr": "fatal: Not a valid object name c4a70f435531cc245aeac3231b8f1b4f21e5e0a0^{commit}\n"
+      "cwd": "/tmp/m12-final-bundle-proof-ht41nphe",
+      "startedAt": "2026-11-15T13:01:59.554421+00:00",
+      "endedAt": "2026-11-15T13:01:59.556142+00:00",
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": ""
     },
     {
       "argv": [
         "git",
         "cat-file",
         "-e",
-        "4fe2e778a0007c91c4455aff62e2e4d74646a8ab^{commit}"
+        "4fe2e778a0007c91c4455aff62e2e4d74646a8ab"
       ],
-      "cwd": "/tmp/m12-bundle-proof-ofg0_5k4",
-      "exitCode": 128,
-      "purpose": "Confirm this original commit is absent before importing the bundle",
-      "stderr": "fatal: Not a valid object name 4fe2e778a0007c91c4455aff62e2e4d74646a8ab^{commit}\n"
+      "cwd": "/tmp/m12-final-bundle-proof-ht41nphe",
+      "startedAt": "2026-11-15T13:01:59.556151+00:00",
+      "endedAt": "2026-11-15T13:01:59.557438+00:00",
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": ""
     },
     {
       "argv": [
         "git",
         "cat-file",
         "-e",
-        "d55433f2231597d0efe7515b187e237e11b7ac95^{commit}"
+        "d55433f2231597d0efe7515b187e237e11b7ac95"
       ],
-      "cwd": "/tmp/m12-bundle-proof-ofg0_5k4",
-      "exitCode": 128,
-      "purpose": "Confirm this original commit is absent before importing the bundle",
-      "stderr": "fatal: Not a valid object name d55433f2231597d0efe7515b187e237e11b7ac95^{commit}\n"
+      "cwd": "/tmp/m12-final-bundle-proof-ht41nphe",
+      "startedAt": "2026-11-15T13:01:59.557443+00:00",
+      "endedAt": "2026-11-15T13:01:59.558948+00:00",
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "-e",
+        "be824cdbc07a07db89bce7aac8c7c2ff148152c3"
+      ],
+      "cwd": "/tmp/m12-final-bundle-proof-ht41nphe",
+      "startedAt": "2026-11-15T13:01:59.558953+00:00",
+      "endedAt": "2026-11-15T13:01:59.560052+00:00",
+      "exitCode": 1,
+      "stdout": "",
+      "stderr": ""
     },
     {
       "argv": [
         "git",
         "bundle",
         "verify",
-        "/tmp/m12-reviewed-d55433f.bundle"
+        "/tmp/m12-final-history/m12-reviewed-history.bundle"
       ],
-      "cwd": "/tmp/m12-bundle-proof-ofg0_5k4",
-      "startedAt": "2026-11-15T12:36:09.135851+00:00",
-      "endedAt": "2026-11-15T12:36:09.138469+00:00",
+      "cwd": "/tmp/m12-final-bundle-proof-ht41nphe",
+      "startedAt": "2026-11-15T13:01:59.560057+00:00",
+      "endedAt": "2026-11-15T13:01:59.562882+00:00",
       "exitCode": 0,
-      "stdout": "The bundle contains this ref:\nd55433f2231597d0efe7515b187e237e11b7ac95 refs/heads/agent/m12-v3\nThe bundle requires this ref:\nfcaa52f7fcdc9f39420118a79f9a8250ba83c563 \nThe bundle uses this hash algorithm: sha1\n",
-      "stderr": "/tmp/m12-reviewed-d55433f.bundle is okay\n"
+      "stdout": "The bundle contains this ref:\nbe824cdbc07a07db89bce7aac8c7c2ff148152c3 refs/heads/agent/m12-v3\nThe bundle requires this ref:\nfcaa52f7fcdc9f39420118a79f9a8250ba83c563 \nThe bundle uses this hash algorithm: sha1\n",
+      "stderr": "/tmp/m12-final-history/m12-reviewed-history.bundle is okay\n"
     },
     {
       "argv": [
         "git",
         "bundle",
         "unbundle",
-        "/tmp/m12-reviewed-d55433f.bundle"
+        "/tmp/m12-final-history/m12-reviewed-history.bundle"
       ],
-      "cwd": "/tmp/m12-bundle-proof-ofg0_5k4",
-      "startedAt": "2026-11-15T12:36:09.138480+00:00",
-      "endedAt": "2026-11-15T12:36:09.234640+00:00",
+      "cwd": "/tmp/m12-final-bundle-proof-ht41nphe",
+      "startedAt": "2026-11-15T13:01:59.562893+00:00",
+      "endedAt": "2026-11-15T13:01:59.645738+00:00",
       "exitCode": 0,
-      "stdout": "d55433f2231597d0efe7515b187e237e11b7ac95 refs/heads/agent/m12-v3\n",
+      "stdout": "be824cdbc07a07db89bce7aac8c7c2ff148152c3 refs/heads/agent/m12-v3\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "commit",
+        "c4a70f435531cc245aeac3231b8f1b4f21e5e0a0"
+      ],
+      "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+      "startedAt": "2026-11-15T13:01:59.645795+00:00",
+      "endedAt": "2026-11-15T13:01:59.648681+00:00",
+      "exitCode": 0,
+      "stdout": "tree 9822cbf81ff3d5eb2fce4e58dc130de04fb796b0\nparent fcaa52f7fcdc9f39420118a79f9a8250ba83c563\nauthor Codex <codex@openai.com> 1794737108 +0800\ncommitter Codex <codex@openai.com> 1794737108 +0800\n\ndocs(m12): record blocked prerequisites and verification evidence\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "commit",
+        "c4a70f435531cc245aeac3231b8f1b4f21e5e0a0"
+      ],
+      "cwd": "/tmp/m12-final-bundle-proof-ht41nphe",
+      "startedAt": "2026-11-15T13:01:59.648691+00:00",
+      "endedAt": "2026-11-15T13:01:59.650531+00:00",
+      "exitCode": 0,
+      "stdout": "tree 9822cbf81ff3d5eb2fce4e58dc130de04fb796b0\nparent fcaa52f7fcdc9f39420118a79f9a8250ba83c563\nauthor Codex <codex@openai.com> 1794737108 +0800\ncommitter Codex <codex@openai.com> 1794737108 +0800\n\ndocs(m12): record blocked prerequisites and verification evidence\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "c4a70f435531cc245aeac3231b8f1b4f21e5e0a0^{tree}"
+      ],
+      "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+      "startedAt": "2026-11-15T13:01:59.650539+00:00",
+      "endedAt": "2026-11-15T13:01:59.652300+00:00",
+      "exitCode": 0,
+      "stdout": "9822cbf81ff3d5eb2fce4e58dc130de04fb796b0\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "commit",
+        "4fe2e778a0007c91c4455aff62e2e4d74646a8ab"
+      ],
+      "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+      "startedAt": "2026-11-15T13:01:59.652355+00:00",
+      "endedAt": "2026-11-15T13:01:59.653715+00:00",
+      "exitCode": 0,
+      "stdout": "tree 04d37d8d4e4c971e5f953474a0da99bc94af5676\nparent c4a70f435531cc245aeac3231b8f1b4f21e5e0a0\nauthor Codex <codex@openai.com> 1794737250 +0800\ncommitter Codex <codex@openai.com> 1794737250 +0800\n\ndocs(m12): record rejected publication and approval gate\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "commit",
+        "4fe2e778a0007c91c4455aff62e2e4d74646a8ab"
+      ],
+      "cwd": "/tmp/m12-final-bundle-proof-ht41nphe",
+      "startedAt": "2026-11-15T13:01:59.653719+00:00",
+      "endedAt": "2026-11-15T13:01:59.655624+00:00",
+      "exitCode": 0,
+      "stdout": "tree 04d37d8d4e4c971e5f953474a0da99bc94af5676\nparent c4a70f435531cc245aeac3231b8f1b4f21e5e0a0\nauthor Codex <codex@openai.com> 1794737250 +0800\ncommitter Codex <codex@openai.com> 1794737250 +0800\n\ndocs(m12): record rejected publication and approval gate\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "4fe2e778a0007c91c4455aff62e2e4d74646a8ab^{tree}"
+      ],
+      "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+      "startedAt": "2026-11-15T13:01:59.655629+00:00",
+      "endedAt": "2026-11-15T13:01:59.657125+00:00",
+      "exitCode": 0,
+      "stdout": "04d37d8d4e4c971e5f953474a0da99bc94af5676\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "commit",
+        "d55433f2231597d0efe7515b187e237e11b7ac95"
+      ],
+      "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+      "startedAt": "2026-11-15T13:01:59.657134+00:00",
+      "endedAt": "2026-11-15T13:01:59.658396+00:00",
+      "exitCode": 0,
+      "stdout": "tree 7cafb5be7f88247b14b6224b716b74812137aa24\nparent 4fe2e778a0007c91c4455aff62e2e4d74646a8ab\nauthor Codex <codex@openai.com> 1794745587 +0800\ncommitter Codex <codex@openai.com> 1794745587 +0800\n\nfeat(m12): add gated bounded tool programs and Python kernels\n\nImplement host-authorized reads, private results, checked QuickJS execution, crash-aware replay, confined persistent Python kernels, transports and inspection UI. Preserve staged red/green evidence and independent review. Keep all capability defaults false and record failed global validation and unsupported platform scopes explicitly.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "commit",
+        "d55433f2231597d0efe7515b187e237e11b7ac95"
+      ],
+      "cwd": "/tmp/m12-final-bundle-proof-ht41nphe",
+      "startedAt": "2026-11-15T13:01:59.658405+00:00",
+      "endedAt": "2026-11-15T13:01:59.659780+00:00",
+      "exitCode": 0,
+      "stdout": "tree 7cafb5be7f88247b14b6224b716b74812137aa24\nparent 4fe2e778a0007c91c4455aff62e2e4d74646a8ab\nauthor Codex <codex@openai.com> 1794745587 +0800\ncommitter Codex <codex@openai.com> 1794745587 +0800\n\nfeat(m12): add gated bounded tool programs and Python kernels\n\nImplement host-authorized reads, private results, checked QuickJS execution, crash-aware replay, confined persistent Python kernels, transports and inspection UI. Preserve staged red/green evidence and independent review. Keep all capability defaults false and record failed global validation and unsupported platform scopes explicitly.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "d55433f2231597d0efe7515b187e237e11b7ac95^{tree}"
+      ],
+      "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+      "startedAt": "2026-11-15T13:01:59.659785+00:00",
+      "endedAt": "2026-11-15T13:01:59.661022+00:00",
+      "exitCode": 0,
+      "stdout": "7cafb5be7f88247b14b6224b716b74812137aa24\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "commit",
+        "be824cdbc07a07db89bce7aac8c7c2ff148152c3"
+      ],
+      "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+      "startedAt": "2026-11-15T13:01:59.661037+00:00",
+      "endedAt": "2026-11-15T13:01:59.664101+00:00",
+      "exitCode": 0,
+      "stdout": "tree 2778ae29bc4cec8bf47be5767a515f7641eb8f45\nparent d55433f2231597d0efe7515b187e237e11b7ac95\nauthor Codex <codex@openai.com> 1794747706 +0800\ncommitter Codex <codex@openai.com> 1794747706 +0800\n\ndocs(m12): retain current-main source compatibility gate\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "commit",
+        "be824cdbc07a07db89bce7aac8c7c2ff148152c3"
+      ],
+      "cwd": "/tmp/m12-final-bundle-proof-ht41nphe",
+      "startedAt": "2026-11-15T13:01:59.664107+00:00",
+      "endedAt": "2026-11-15T13:01:59.665448+00:00",
+      "exitCode": 0,
+      "stdout": "tree 2778ae29bc4cec8bf47be5767a515f7641eb8f45\nparent d55433f2231597d0efe7515b187e237e11b7ac95\nauthor Codex <codex@openai.com> 1794747706 +0800\ncommitter Codex <codex@openai.com> 1794747706 +0800\n\ndocs(m12): retain current-main source compatibility gate\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "be824cdbc07a07db89bce7aac8c7c2ff148152c3^{tree}"
+      ],
+      "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+      "startedAt": "2026-11-15T13:01:59.665453+00:00",
+      "endedAt": "2026-11-15T13:01:59.666745+00:00",
+      "exitCode": 0,
+      "stdout": "2778ae29bc4cec8bf47be5767a515f7641eb8f45\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "be824cdbc07a07db89bce7aac8c7c2ff148152c3^{tree}"
+      ],
+      "cwd": "/tmp/m12-final-bundle-proof-ht41nphe",
+      "startedAt": "2026-11-15T13:01:59.666764+00:00",
+      "endedAt": "2026-11-15T13:01:59.668300+00:00",
+      "exitCode": 0,
+      "stdout": "2778ae29bc4cec8bf47be5767a515f7641eb8f45\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "for-each-ref",
+        "--format=%(refname)"
+      ],
+      "cwd": "/tmp/m12-final-bundle-proof-ht41nphe",
+      "startedAt": "2026-11-15T13:01:59.668304+00:00",
+      "endedAt": "2026-11-15T13:01:59.669514+00:00",
+      "exitCode": 0,
+      "stdout": "refs/heads/base-proof\n",
       "stderr": ""
     },
     {
       "argv": [
         "git",
         "fsck",
-        "--full",
-        "--no-reflogs"
+        "--no-dangling"
       ],
-      "cwd": "/tmp/m12-bundle-proof-ofg0_5k4",
-      "startedAt": "2026-11-15T12:36:09.248150+00:00",
-      "endedAt": "2026-11-15T12:36:10.521997+00:00",
+      "cwd": "/tmp/m12-final-bundle-proof-ht41nphe",
+      "startedAt": "2026-11-15T13:01:59.669518+00:00",
+      "endedAt": "2026-11-15T13:02:00.668992+00:00",
       "exitCode": 0,
-      "stdout": "dangling commit d55433f2231597d0efe7515b187e237e11b7ac95\n",
-      "stderr": "notice: HEAD points to an unborn branch (main)\n"
+      "stdout": "",
+      "stderr": "notice: HEAD points to an unborn branch (master)\n"
+    },
+    {
+      "argv": [
+        "git",
+        "hash-object",
+        "/tmp/m12-final-history/m12-reviewed-history.bundle"
+      ],
+      "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+      "startedAt": "2026-11-15T13:02:00.674055+00:00",
+      "endedAt": "2026-11-15T13:02:00.679024+00:00",
+      "exitCode": 0,
+      "stdout": "cc86479ce3b89dcf36d56a3f8053452c2eb480a6\n",
+      "stderr": ""
     }
-  ],
-  "publicationTransportObservation": {
-    "standardGitPushExitCode": 128,
-    "canonicalGitPushExitCode": 128,
-    "message": "fatal: could not read Username for https://github.com: No such device or address",
-    "timing": "Observed in the live tool session before this manifest was created; no original start/end timestamps invented",
-    "connectorPermissions": "Repository metadata reports push permission; supported connector commit API cannot set original commit identity metadata"
-  },
-  "publicationPolicy": {
-    "featureTreeMustEqual": "7cafb5be7f88247b14b6224b716b74812137aa24",
-    "newApiCommitIdentityMustBeDisclosed": true,
-    "originalCheckoutModified": false,
-    "forcedRefUpdates": false,
-    "mergeOrDeployment": false
-  },
-  "limitations": [
-    "The bundle restores exact objects without updating refs.",
-    "The implementation evidence controller also checks its recorded worktree, original checkout, branch and origin; this is not a claim that an arbitrary fresh clone satisfies those environment assumptions.",
-    "A source-tree hash match proves identical file contents and modes, not identical commit metadata or successful global test gates."
   ]
 }
