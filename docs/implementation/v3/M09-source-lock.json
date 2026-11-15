@@ -1,152 +1,164 @@
 {
-  "schemaVersion": 3,
-  "auditAncestorSha": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
-  "executionBaseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
-  "inspectedPaths": [
-    {
-      "path": "package.json",
-      "blobSha": "fa399f6542a4886e6d8cbf7d6eecfe498e2967c0"
-    },
-    {
-      "path": "pnpm-lock.yaml",
-      "blobSha": "e6b064fc166611e518f4cf1297d9b00493d9eaaf"
-    },
-    {
-      "path": "vitest.config.ts",
-      "blobSha": "d6efe75f6d0a1c0a2d4cd325ea5cf54ea5c0f0cb"
-    },
-    {
-      "path": "scripts/public-source-files.json",
-      "blobSha": "00b721509d940c3a8b4e2b8f3ebb84353971c465"
-    },
-    {
-      "path": "packages/contracts/index.ts",
-      "blobSha": "09517becaf0c35f5f63bd758878659ea0de5f57b"
-    },
-    {
-      "path": "packages/contracts/planning.ts",
-      "blobSha": "9b8f978fccb0e6e1a6d1dcba44ed293cf8fe6fe0"
-    },
-    {
-      "path": "packages/contracts/agent-input.ts",
-      "blobSha": "1f546c48895e5eac61d06bf21aba26fdfe801fe8"
-    },
-    {
-      "path": "packages/contracts/implementation-evidence.ts",
-      "blobSha": "559b720ccead1d29c9a1bd4db528af52534105c3"
-    },
-    {
-      "path": "packages/contracts/agent-work.ts",
-      "blobSha": "8033a9d4eb35e300e2e7ceca48071764739adcc5"
-    },
-    {
-      "path": "packages/core/planning.ts",
-      "blobSha": "fdb75092c2c584f61c3c6a6106dae1b9e49fac6a"
-    },
-    {
-      "path": "packages/core/planning-tools.ts",
-      "blobSha": "f07b21b7d1ae9d8d3d213814d19ea8198874d91d"
-    },
-    {
-      "path": "packages/core/plan-timeline.ts",
-      "blobSha": "60575405d854830d5823969f7697403d8148a2bf"
-    },
-    {
-      "path": "packages/core/capability-flags.ts",
-      "blobSha": "715dcaf1257c57555110496692f338e8398f6f6d"
-    },
-    {
-      "path": "packages/core/verification-gate.ts",
-      "blobSha": "cab50d4339531585d19f39a760bb1e0b6cfadcc6"
-    },
-    {
-      "path": "packages/core/service.ts",
-      "blobSha": "2b3fb63acef915b052a468e104c6e4f00a4b82e4"
-    },
-    {
-      "path": "packages/core/agent-inbox.ts",
-      "blobSha": "221a9d1e2be56f4824f65a4dc3f76ce64c14b26b"
-    },
-    {
-      "path": "packages/core/agent-work.ts",
-      "blobSha": "0e647f1db903cf29bc4c04b44f05fb59d66b80cc"
-    },
-    {
-      "path": "packages/core/plan-extension.ts",
-      "blobSha": "1c03d13e39f357f22f209b4cef8b71cef6058931"
-    },
-    {
-      "path": "packages/storage/store.ts",
-      "blobSha": "ebab3cba8d56e074d0377623bffd2054790f622b"
-    },
-    {
-      "path": "packages/workspace/tools.ts",
-      "blobSha": "3f404cbbbb08842fad8e191a98055dc42f52159f"
-    },
-    {
-      "path": "packages/agent-projection/index.ts",
-      "blobSha": "efb152781fd9e30ac83ee98a96760a9f7a3371ef"
-    },
-    {
-      "path": "packages/runtime-pi/delivery.ts",
-      "blobSha": "5998b3a379b2d45ee81587af221c82744444bf69"
-    },
-    {
-      "path": "tests/agent-follow-up.test.ts",
-      "blobSha": "da9bedde2bdd9cfc04c2dec08abd0d9db4c8f16a"
-    },
-    {
-      "path": "tests/agent-work-v3.test.ts",
-      "blobSha": "557c7adec1e005cc2c2ef6e92a23a211b35a8cb6"
-    },
-    {
-      "path": "tests/agent-input-v3.test.ts",
-      "blobSha": "1eb3ea3b21d7064242a88d9dfec59b957cba4c89"
-    },
-    {
-      "path": "tests/plan-extension-v3.test.ts",
-      "blobSha": "657fd1dd3ab8922bf1949d59b5b408eb86e67590"
-    }
-  ],
-  "publicContracts": [
-    {
-      "name": "agent-work-contract",
-      "version": "8033a9d4eb35e300e2e7ceca48071764739adcc5",
-      "testIds": [
-        "tests/agent-work-v3.test.ts",
-        "tests/agent-input-v3.test.ts",
-        "tests/plan-extension-v3.test.ts"
-      ]
-    },
-    {
-      "name": "agent-work-coordinator",
-      "version": "0e647f1db903cf29bc4c04b44f05fb59d66b80cc",
-      "testIds": [
-        "tests/agent-work-v3.test.ts"
-      ]
-    },
-    {
-      "name": "agent-inbox",
-      "version": "221a9d1e2be56f4824f65a4dc3f76ce64c14b26b",
-      "testIds": [
-        "tests/agent-input-v3.test.ts"
-      ]
-    },
-    {
-      "name": "plan-extension-sidecar",
-      "version": "1c03d13e39f357f22f209b4cef8b71cef6058931",
-      "testIds": [
-        "tests/plan-extension-v3.test.ts"
-      ]
-    }
-  ],
-  "acceptedDependencyCommits": [],
-  "approvedDrift": [
-    {
-      "path": "packages/contracts/index.ts",
-      "fromBlob": "15e6c254349ac6ad6ce1d1b16898d40bd1ea31d8",
-      "toBlob": "09517becaf0c35f5f63bd758878659ea0de5f57b",
-      "note": "The file evolved on main between the M01 execution base and the M08/M09 execution base. The M09 bundle does not change it; the drift is accepted, not authored, by this bundle."
-    }
-  ]
+ "schemaVersion": 3,
+ "auditAncestorSha": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
+ "executionBaseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+ "inspectedPaths": [
+  {
+   "path": "apps/server/agent-work-routes.ts",
+   "blobSha": "f2c446bf62a4f083bd2def73f2268872ecf485ac"
+  },
+  {
+   "path": "apps/web/src/agent-work-api.ts",
+   "blobSha": "bd27ff7ef4e0f6e0ffa514ed79fefe5a0674faf6"
+  },
+  {
+   "path": "apps/web/src/agents-workspace/AgentWorkPanel.tsx",
+   "blobSha": "5fb82d3be7b939711db13a161c21978d76576c91"
+  },
+  {
+   "path": "package.json",
+   "blobSha": "fa399f6542a4886e6d8cbf7d6eecfe498e2967c0"
+  },
+  {
+   "path": "packages/agent-projection/index.ts",
+   "blobSha": "efb152781fd9e30ac83ee98a96760a9f7a3371ef"
+  },
+  {
+   "path": "packages/contracts/agent-input.ts",
+   "blobSha": "1f546c48895e5eac61d06bf21aba26fdfe801fe8"
+  },
+  {
+   "path": "packages/contracts/agent-work.ts",
+   "blobSha": "f7969fc248647c5e0859c2c0811dc8fdd255951b"
+  },
+  {
+   "path": "packages/contracts/implementation-evidence.ts",
+   "blobSha": "559b720ccead1d29c9a1bd4db528af52534105c3"
+  },
+  {
+   "path": "packages/contracts/index.ts",
+   "blobSha": "09517becaf0c35f5f63bd758878659ea0de5f57b"
+  },
+  {
+   "path": "packages/contracts/planning.ts",
+   "blobSha": "9b8f978fccb0e6e1a6d1dcba44ed293cf8fe6fe0"
+  },
+  {
+   "path": "packages/core/agent-inbox.ts",
+   "blobSha": "221a9d1e2be56f4824f65a4dc3f76ce64c14b26b"
+  },
+  {
+   "path": "packages/core/agent-work.ts",
+   "blobSha": "71f5dc8837f8b72eba50015600cf5c2743a46132"
+  },
+  {
+   "path": "packages/core/capability-flags.ts",
+   "blobSha": "715dcaf1257c57555110496692f338e8398f6f6d"
+  },
+  {
+   "path": "packages/core/plan-extension.ts",
+   "blobSha": "90ed70c8d432ac84dfc7a083647c9dfc779f735e"
+  },
+  {
+   "path": "packages/core/plan-timeline.ts",
+   "blobSha": "60575405d854830d5823969f7697403d8148a2bf"
+  },
+  {
+   "path": "packages/core/planning-tools.ts",
+   "blobSha": "f07b21b7d1ae9d8d3d213814d19ea8198874d91d"
+  },
+  {
+   "path": "packages/core/planning.ts",
+   "blobSha": "fdb75092c2c584f61c3c6a6106dae1b9e49fac6a"
+  },
+  {
+   "path": "packages/core/service.ts",
+   "blobSha": "62f8c7c85ef0e5f4d238ea3388d26c8cf502b0bb"
+  },
+  {
+   "path": "packages/core/verification-gate.ts",
+   "blobSha": "cab50d4339531585d19f39a760bb1e0b6cfadcc6"
+  },
+  {
+   "path": "packages/runtime-pi/delivery.ts",
+   "blobSha": "5998b3a379b2d45ee81587af221c82744444bf69"
+  },
+  {
+   "path": "packages/storage/store.ts",
+   "blobSha": "ebab3cba8d56e074d0377623bffd2054790f622b"
+  },
+  {
+   "path": "packages/workspace/tools.ts",
+   "blobSha": "3f404cbbbb08842fad8e191a98055dc42f52159f"
+  },
+  {
+   "path": "pnpm-lock.yaml",
+   "blobSha": "e6b064fc166611e518f4cf1297d9b00493d9eaaf"
+  },
+  {
+   "path": "scripts/public-source-files.json",
+   "blobSha": "b9259ce1ef0e49692d0a1bcab7c7a69ccf6f43af"
+  },
+  {
+   "path": "tests/agent-follow-up.test.ts",
+   "blobSha": "da9bedde2bdd9cfc04c2dec08abd0d9db4c8f16a"
+  },
+  {
+   "path": "tests/agent-input-v3.test.ts",
+   "blobSha": "1eb3ea3b21d7064242a88d9dfec59b957cba4c89"
+  },
+  {
+   "path": "tests/agent-work-v3.test.ts",
+   "blobSha": "4303ce9e7f8f84c4d5f01a1cba168eb08d24f38c"
+  },
+  {
+   "path": "tests/plan-extension-v3.test.ts",
+   "blobSha": "cc27b13047fa6d829aaac18a8085864b4e07d1ea"
+  },
+  {
+   "path": "vitest.config.ts",
+   "blobSha": "d6efe75f6d0a1c0a2d4cd325ea5cf54ea5c0f0cb"
+  }
+ ],
+ "publicContracts": [
+  {
+   "name": "agent-work-contract",
+   "version": "f7969fc248647c5e0859c2c0811dc8fdd255951b",
+   "testIds": [
+    "tests/agent-work-v3.test.ts",
+    "tests/agent-input-v3.test.ts",
+    "tests/plan-extension-v3.test.ts"
+   ]
+  },
+  {
+   "name": "agent-work-coordinator",
+   "version": "0e647f1db903cf29bc4c04b44f05fb59d66b80cc",
+   "testIds": [
+    "tests/agent-work-v3.test.ts"
+   ]
+  },
+  {
+   "name": "agent-inbox",
+   "version": "221a9d1e2be56f4824f65a4dc3f76ce64c14b26b",
+   "testIds": [
+    "tests/agent-input-v3.test.ts"
+   ]
+  },
+  {
+   "name": "plan-extension-sidecar",
+   "version": "1c03d13e39f357f22f209b4cef8b71cef6058931",
+   "testIds": [
+    "tests/plan-extension-v3.test.ts"
+   ]
+  }
+ ],
+ "acceptedDependencyCommits": [],
+ "approvedDrift": [
+  {
+   "path": "packages/contracts/index.ts",
+   "fromBlob": "15e6c254349ac6ad6ce1d1b16898d40bd1ea31d8",
+   "toBlob": "09517becaf0c35f5f63bd758878659ea0de5f57b",
+   "note": "The file evolved on main between the M01 execution base and the M08/M09 execution base. The M09 bundle does not change it; the drift is accepted, not authored, by this bundle."
+  }
+ ]
 }

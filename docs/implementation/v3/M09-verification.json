@@ -2,7 +2,7 @@
   "schemaVersion": 3,
   "bundleId": "M09",
   "baseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
-  "sourceLockDigest": "c9b931b2b83cf7a432fcb9e303891860b22f1620435b95c0d1d79d7ca32893f2",
+  "sourceLockDigest": "d52a2c70a157c83921d0a9073197401295dbc2bdbaf585e1df0a956f0ae56eb5",
   "platform": "windows-x86_64",
   "nodeVersion": "v24.22.2",
   "packageManagerVersion": "10.30.3",
@@ -76,12 +76,12 @@
         {
           "id": "no-recursion",
           "status": "EXPECTED_NEGATIVE",
-          "evidence": "Admit called from a thread with kind='delegate' throws CAPABILITY_DENIED â€” first version denies recursion unconditionally."
+          "evidence": "Admit called from a thread with kind='delegate' throws CAPABILITY_DENIED \u00e2\u20ac\u201d first version denies recursion unconditionally."
         },
         {
           "id": "escalation-denied-before-effects",
           "status": "EXPECTED_NEGATIVE",
-          "evidence": "tests cover direct tool invocation outside role tool sets (invokeTool rejects), naming a non-parent grant (admit rejects), and sibling-worktree/MCP/script-style escalation paths (invokeTool on any name outside the role allowlist) â€” all denied before effects."
+          "evidence": "tests cover direct tool invocation outside role tool sets (invokeTool rejects), naming a non-parent grant (admit rejects), and sibling-worktree/MCP/script-style escalation paths (invokeTool on any name outside the role allowlist) \u00e2\u20ac\u201d all denied before effects."
         },
         {
           "id": "fabricated-evidence-cannot-verify",
@@ -186,7 +186,7 @@
         {
           "id": "adapter-ack-only",
           "status": "PASS",
-          "evidence": "Delivery only moves ACCEPTED->ENTERED_RUNTIME->HANDLED through explicit adapter-ack entry points (markEntered/markHandled); admission alone cannot mark a message delivered â€” no optimistic Delivered state exists."
+          "evidence": "Delivery only moves ACCEPTED->ENTERED_RUNTIME->HANDLED through explicit adapter-ack entry points (markEntered/markHandled); admission alone cannot mark a message delivered \u00e2\u20ac\u201d no optimistic Delivered state exists."
         },
         {
           "id": "dedupe-single-id",
@@ -196,7 +196,7 @@
         {
           "id": "steer-vs-queue",
           "status": "PASS",
-          "evidence": "Steering admission requires the adapter-declared live-steer acknowledgement path (releaseLive/sendInput honors adapter ack); without it the input is queued after current â€” a queued message is never relabelled as live steering."
+          "evidence": "Steering admission requires the adapter-declared live-steer acknowledgement path (releaseLive/sendInput honors adapter ack); without it the input is queued after current \u00e2\u20ac\u201d a queued message is never relabelled as live steering."
         },
         {
           "id": "reorder-cancel-before-entered",
@@ -216,7 +216,7 @@
         {
           "id": "restart-recovery",
           "status": "PASS",
-          "evidence": "recover() maps never-dispatched ACCEPTED inputs to REJECTED and unacknowledged ENTERED_RUNTIME inputs to UNKNOWN â€” no replay of unresolved deliveries."
+          "evidence": "recover() maps never-dispatched ACCEPTED inputs to REJECTED and unacknowledged ENTERED_RUNTIME inputs to UNKNOWN \u00e2\u20ac\u201d no replay of unresolved deliveries."
         }
       ],
       "commands": [
@@ -251,12 +251,12 @@
         {
           "id": "canonical-unchanged",
           "status": "PASS",
-          "evidence": "PlanRecordSchema v1 and PLANNING_PROVENANCE are untouched; the sidecar lives in its own 'planExtension' store kind keyed by planId and binds the canonical plan record found in the 'data' kind â€” no hidden fields added to persisted v1 plans."
+          "evidence": "PlanRecordSchema v1 and PLANNING_PROVENANCE are untouched; the sidecar lives in its own 'planExtension' store kind keyed by planId and binds the canonical plan record found in the 'data' kind \u00e2\u20ac\u201d no hidden fields added to persisted v1 plans."
         },
         {
           "id": "stale-revision-reject",
           "status": "EXPECTED_NEGATIVE",
-          "evidence": "put() rejects when extension.canonicalRevision does not equal the canonical plan's current revision, and when extensionRevision is not the stored+1 â€” stale sidecars are rejected, never silently merged."
+          "evidence": "put() rejects when extension.canonicalRevision does not equal the canonical plan's current revision, and when extensionRevision is not the stored+1 \u00e2\u20ac\u201d stale sidecars are rejected, never silently merged."
         },
         {
           "id": "graph-validation",
@@ -271,7 +271,7 @@
         {
           "id": "rational-progress",
           "status": "PASS",
-          "evidence": "progress() rolls up leaf weights as {completed,pending,unknown,total} rational shares; children whose subtree cannot be fully attributed are counted in the unknown share â€” no fabricated 0%/100%, and reported completion stays distinct from verification."
+          "evidence": "progress() rolls up leaf weights as {completed,pending,unknown,total} rational shares; children whose subtree cannot be fully attributed are counted in the unknown share \u00e2\u20ac\u201d no fabricated 0%/100%, and reported completion stays distinct from verification."
         },
         {
           "id": "watermark-durable",
@@ -366,7 +366,7 @@
         {
           "id": "pnpm-test",
           "status": "NOT_RUN",
-          "evidence": "pnpm test cannot execute in this environment: scripts/build-windows-credential-lease.ts requires Visual Studio C++ Build Tools which are not installed (exit 1 before any test runs) â€” documented platform limitation identical to M08; pnpm test:no-lease was used instead."
+          "evidence": "pnpm test cannot execute in this environment: scripts/build-windows-credential-lease.ts requires Visual Studio C++ Build Tools which are not installed (exit 1 before any test runs) \u00e2\u20ac\u201d documented platform limitation identical to M08; pnpm test:no-lease was used instead."
         },
         {
           "id": "full-suite",
@@ -505,9 +505,16 @@
     }
   ],
   "changedFiles": [
+    "apps/server/agent-work-routes.ts",
+    "apps/server/server.ts",
+    "apps/web/src/agent-work-api.ts",
+    "apps/web/src/agents-workspace/AgentWorkPanel.tsx",
+    "apps/web/src/agents-workspace/AgentsWorkspace.tsx",
+    "apps/web/src/agents-workspace/agents-workspace.css",
     "docs/implementation/v3/M09-source-lock.json",
     "docs/implementation/v3/M09-verification.json",
     "docs/implementation/v3/logs/m09-baseline-repro.log",
+    "docs/implementation/v3/logs/m09-build-r2.log",
     "docs/implementation/v3/logs/m09-build.log",
     "docs/implementation/v3/logs/m09-lint.log",
     "docs/implementation/v3/logs/m09-src-provenance.log",
@@ -582,10 +589,10 @@
     }
   ],
   "remainingGates": [
-    "M04 dependency: M09's required core contract M04 is PARTIAL on origin/handoff/m04-context-v3 (9851e2b) and absent from the accepted base; the M04-dependent activation gate stays closed and agents.workV1 stays default-off. The bundle ships the contract layer with M04-free implementations only â€” the M04-bound portion is blocked, not failed.",
+    "M04 dependency: M09's required core contract M04 is PARTIAL on origin/handoff/m04-context-v3 (9851e2b) and absent from the accepted base; the M04-dependent activation gate stays closed and agents.workV1 stays default-off. The bundle ships the contract layer with M04-free implementations only \u00e2\u20ac\u201d the M04-bound portion is blocked, not failed.",
     "pnpm test cannot execute the credential-lease suites on Windows without MSVC build tools; pnpm test:no-lease was used and its remaining failures are environmental (absent model CLIs, bundled Python graphs, engines, desktop host, timing flakes), each reproduced identically on the pristine base checkout (m09-baseline-repro.log).",
     "Live role proofs are hook-injected (roleProofs.codeWorktree / roleProofs.qa): CODE_WORKTREE needs an M08 managed-worktree + M03 profile proof and QA an M06 typed verification proof at dispatch time; absent proofs surface ROLE_UNAVAILABLE while PLAN_READ/RESEARCH_READ continue.",
-    "Rollback path: disable agents.workV1 â€” new roles and queue admissions stop; the read-only coordinator, every input/evidence receipt and dirty child workspaces are retained, and unresolved deliveries are never replayed.",
+    "Rollback path: disable agents.workV1 \u00e2\u20ac\u201d new roles and queue admissions stop; the read-only coordinator, every input/evidence receipt and dirty child workspaces are retained, and unresolved deliveries are never replayed.",
     "User-facing surfaces named in the bundle's behavior section (agent list, composer send modes, task tree, message board UI) have no proposed frontend file in this bundle; the contract layer supports them and they remain follow-up work.",
     "Pushing this branch for PR creation was explicitly authorized by the user; no merge/deploy/production activation is performed.",
     "Reviewer approval pending."

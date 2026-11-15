@@ -44,7 +44,7 @@ export interface AgentWorkHooks {
     qa?: (call: ToolCall, work: AgentWorkV1) => Promise<unknown>;
   };
   /** Read-only resource access for the read roles; always invoked with write=false. */
-  resourceResolver?: (grant: ResourceGrant, write: boolean) => Promise<unknown> | unknown;
+  resourceResolver?: (grant: ResourceGrant, write: boolean, call: ToolCall) => Promise<unknown> | unknown;
   /** Global reservation limits; failed and cancelled work still counts. */
   globalBudget?: {tokens: number | null; ms: number | null};
   runtimeFactory?: (work: AgentWorkV1, spec: {prompt: string; grants: ResourceGrant[]; allowSpawn: false}) => Promise<AgentWorkChild> | AgentWorkChild;
@@ -379,7 +379,7 @@ export class AgentWorkCoordinator {
       if (!current || current.threadId !== work.parentOwner.threadId)
         throw new HarnessError('PERMISSION_REVOKED', `Grant ${grant.id} is no longer held by the parent`);
       if (!this.hooks.resourceResolver) throw new HarnessError('AGENT_TOOL_DENIED', 'No read resolver is bound for this host');
-      return this.hooks.resourceResolver({...current, writable: grant.writable}, false);
+      return this.hooks.resourceResolver({...current, writable: grant.writable}, false, call);
     }
     if (work.role === 'QA') {
       if (!QA_TOOLS.has(call.name) || !this.hooks.roleHandlers?.qa) throw new HarnessError('AGENT_TOOL_DENIED', `Tool ${call.name} is outside the QA allowlist`);
@@ -503,6 +503,12 @@ export class AgentWorkCoordinator {
         childKnown: this.hooks.store.get<Thread>('thread', work.childOwner.threadId) !== null,
         outputRef: work.outputRef,
       }));
+  }
+
+  /** Whether the live child accepts runtime steering right now. */
+  supportsLiveSteer(workId: string): boolean {
+    const live = this.live.get(workId);
+    return live ? live.child.supportsLiveSteer : false;
   }
 
   inspect(workId: string): AgentWorkV1 | null { return this.hooks.store.get<AgentWorkV1>(WORK_KIND, workId) ?? null; }
