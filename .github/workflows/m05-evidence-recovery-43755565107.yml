@@ -1,0 +1,281 @@
+name: M05 exact evidence transport 43755565107
+
+on:
+  push:
+    branches: ['agent/m05-evidence-recovery-43755565107']
+    paths: ['.github/workflows/m05-evidence-recovery-43755565107.yml']
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: m05-evidence-recovery-43755565107
+  cancel-in-progress: false
+
+jobs:
+  transport:
+    name: Evidence transport shard ${{ matrix.shard }}
+    if: github.repository == 'skytuhua-org/Gen-V1' && github.ref == 'refs/heads/agent/m05-evidence-recovery-43755565107'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - name: Validate and emit exact original installed evidence
+        shell: python
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TRANSPORT_SHARD: ${{ matrix.shard }}
+          PYTHONIOENCODING: utf-8
+        run: |
+          import base64, hashlib, io, json, os, pathlib, re, stat, sys, urllib.error, urllib.parse, urllib.request, zipfile
+          
+          REPO = "skytuhua-org/Gen-V1"
+          REPO_ID = 1442565952
+          SOURCE_RUN = 43755565107
+          SOURCE_ATTEMPT = 1
+          SOURCE_HEAD = "0e072230965d15e0bcad8bb7579653a1332085e4"
+          SOURCE_TREE = "0494c5bd17e0cf9d3fdf3d142596bb6b4b4866e9"
+          SOURCE_JOB = 132938786198
+          BRANCH = "agent/m05-evidence-recovery-43755565107"
+          WORKFLOW_PATH = ".github/workflows/m05-evidence-recovery-43755565107.yml"
+          ARTIFACT_NAME = "installed-memory-43755565107-1"
+          ARTIFACT_ID = 14179432077
+          ARTIFACT_BYTES = 397424
+          ARTIFACT_SHA = "b2b2a76f38b4a7734d2f768a0ab4268021d5e3720a031b981f5ff17362cc5461"
+          CANONICAL_BLOB = "36681cd0179881c91d4f08d9fffc68fc39d2bb69"
+          CANONICAL_SHA = "0eba7dbc92f9ceb13158e4084db3817f952f9704b1856f8ead4d708f91af30bc"
+          CANONICAL_BYTES = 1511066
+          SHARDS = 8
+          CHUNK_BYTES = 12288
+          MAX_STDOUT = 540 * 1024
+          MAX_ARCHIVE = 8 * 1024 * 1024
+          MAX_MEMBER = 4 * 1024 * 1024
+          MAX_UNCOMPRESSED = 16 * 1024 * 1024
+          API = "https://api.github.com/repos/" + REPO
+          
+          class TransportError(Exception):
+              pass
+          
+          def need(condition, code):
+              if not condition:
+                  raise TransportError(code)
+          
+          def sha(data):
+              return hashlib.sha256(data).hexdigest()
+          
+          def git_blob(data):
+              return hashlib.sha1(b"blob " + str(len(data)).encode("ascii") + b"\0" + data).hexdigest()
+          
+          def compact(value):
+              return json.dumps(value, ensure_ascii=True, separators=(",", ":"), sort_keys=True)
+          
+          class NoRedirect(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self, request, response, code, message, headers, new_url):
+                  return None
+          
+          opener = urllib.request.build_opener(NoRedirect)
+          
+          def bounded(response, limit):
+              with response:
+                  data = response.read(limit + 1)
+              need(len(data) <= limit, "HTTP_SIZE_BOUND")
+              return data
+          
+          def request_api(path, limit=1024 * 1024):
+              need(path.startswith("/") and "\n" not in path and "\r" not in path, "API_PATH")
+              token = os.environ.get("GH_TOKEN", "")
+              need(bool(token), "API_TOKEN_UNAVAILABLE")
+              request = urllib.request.Request(API + path, headers={
+                  "Accept": "application/vnd.github+json",
+                  "Authorization": "Bearer " + token,
+                  "X-GitHub-Api-Version": "2022-11-28",
+                  "User-Agent": "M05-owned-evidence-transport",
+              })
+              try:
+                  response = opener.open(request, timeout=45)
+                  need(response.status == 200, "API_STATUS")
+                  return json.loads(bounded(response, limit))
+              except TransportError:
+                  raise
+              except Exception:
+                  raise TransportError("API_READ_FAILED") from None
+          
+          def download_archive():
+              # Authentication is sent only to this fixed API endpoint.
+              request = urllib.request.Request(API + "/actions/artifacts/" + str(ARTIFACT_ID) + "/zip", headers={
+                  "Accept": "application/vnd.github+json",
+                  "Authorization": "Bearer " + os.environ["GH_TOKEN"],
+                  "X-GitHub-Api-Version": "2022-11-28",
+                  "User-Agent": "M05-owned-evidence-transport",
+              })
+              location = None
+              try:
+                  response = opener.open(request, timeout=45)
+                  response.close()
+                  raise TransportError("ARTIFACT_REDIRECT_REQUIRED")
+              except urllib.error.HTTPError as error:
+                  need(error.code == 302, "ARTIFACT_REDIRECT_STATUS")
+                  location = error.headers.get("Location")
+                  error.close()
+              except TransportError:
+                  raise
+              except Exception:
+                  raise TransportError("ARTIFACT_API_FAILED") from None
+              need(isinstance(location, str), "ARTIFACT_REDIRECT_MISSING")
+              parsed = urllib.parse.urlsplit(location)
+              hostname = parsed.hostname or ""
+              allowed = re.fullmatch(r"productionresultssa[0-9]+\.blob\.core\.windows\.net", hostname) or re.fullmatch(r"github-production-[a-z0-9-]+\.s3(?:\.[a-z0-9-]+)?\.amazonaws\.com", hostname)
+              need(parsed.scheme == "https" and allowed and not parsed.username and not parsed.password and parsed.port in (None, 443) and not parsed.fragment, "ARTIFACT_STORAGE_ORIGIN")
+              # The signed storage request has no Authorization header and redirects stay disabled.
+              try:
+                  response = opener.open(urllib.request.Request(location, headers={"User-Agent": "M05-owned-evidence-transport"}), timeout=90)
+                  need(response.status == 200, "ARTIFACT_STORAGE_STATUS")
+                  data = bounded(response, MAX_ARCHIVE)
+              except TransportError:
+                  raise
+              except Exception:
+                  raise TransportError("ARTIFACT_STORAGE_FAILED") from None
+              need(len(data) == ARTIFACT_BYTES and sha(data) == ARTIFACT_SHA, "ARTIFACT_IDENTITY")
+              return data
+          
+          def allowed_member(name):
+              if re.fullmatch(r"\.harness-installed-package/desktop-release-0\.6\.5/build-manifest\.json", name):
+                  return "build"
+              if re.fullmatch(r"\.harness-installed-package/desktop-stage-[0-9]+/desktop-host/third-party/integrations/PYTHON_INSTALLATION_V2\.json", name):
+                  return "canonical"
+              match = re.fullmatch(r"\.harness-desktop-installed/(run-[A-Za-z0-9-]+)/([^/]+)", name)
+              if match:
+                  leaf = match[2]
+                  if leaf in ("owner.json", "verification.json", "installed-memory-redacted-export.json"):
+                      return {"owner.json":"owner", "verification.json":"main", "installed-memory-redacted-export.json":"export"}[leaf]
+                  images = {
+                      "installed-main.png", "installed-settings.png", "installed-official-connections.png",
+                      "installed-memory-source.png", "installed-memory-reviewed.png", "installed-memory-rejected.png",
+                      "installed-memory-forgotten.png", "installed-memory-restart-reviewed.png",
+                      "installed-memory-restart-tombstone.png", "installed-memory-launch-1-failure.png",
+                      "installed-memory-launch-2-failure.png",
+                  }
+                  if leaf in images:
+                      return "image"
+              if re.fullmatch(r"\.harness-packaged-providers/run-[A-Za-z0-9-]+/verification\.json", name):
+                  return "providers"
+              return None
+          
+          def main():
+              shard = int(os.environ["TRANSPORT_SHARD"])
+              need(0 <= shard < SHARDS and ARTIFACT_ID > 0 and 0 < ARTIFACT_BYTES <= MAX_ARCHIVE and re.fullmatch(r"[0-9a-f]{64}", ARTIFACT_SHA), "FIXED_INPUTS")
+              need(os.environ.get("GITHUB_REPOSITORY") == REPO and os.environ.get("GITHUB_REF") == "refs/heads/" + BRANCH, "RECOVERY_OWNER")
+              recovery_head = os.environ.get("GITHUB_SHA", "")
+              need(re.fullmatch(r"[0-9a-f]{40}", recovery_head), "RECOVERY_HEAD")
+              source = request_api("/git/commits/" + SOURCE_HEAD)
+              need(source.get("sha") == SOURCE_HEAD and source.get("tree", {}).get("sha") == SOURCE_TREE, "SOURCE_TREE")
+              recovery = request_api("/commits/" + recovery_head)
+              need([parent.get("sha") for parent in recovery.get("parents", [])] == [SOURCE_HEAD], "RECOVERY_PARENT")
+              need([(row.get("filename"), row.get("status")) for row in recovery.get("files", [])] == [(WORKFLOW_PATH, "added")], "RECOVERY_SOURCE_DELTA")
+              run = request_api("/actions/runs/" + str(SOURCE_RUN))
+              need(run.get("id") == SOURCE_RUN and run.get("run_attempt") == SOURCE_ATTEMPT and run.get("status") == "completed" and run.get("head_sha") == SOURCE_HEAD and run.get("repository", {}).get("id") == REPO_ID and run["repository"].get("full_name") == REPO, "ORIGINAL_RUN")
+              job = request_api("/actions/jobs/" + str(SOURCE_JOB))
+              need(job.get("id") == SOURCE_JOB and job.get("run_id") == SOURCE_RUN and job.get("status") == "completed" and job.get("name") == "Installed desktop memory retention", "ORIGINAL_JOB")
+              listing = request_api("/actions/runs/" + str(SOURCE_RUN) + "/artifacts?per_page=100")
+              rows = listing.get("artifacts", [])
+              need(listing.get("total_count") == len(rows) and len(rows) <= 100, "ARTIFACT_LIST_BOUND")
+              matches = [row for row in rows if row.get("name") == ARTIFACT_NAME]
+              need(len(matches) == 1, "ARTIFACT_AMBIGUOUS")
+              artifact = matches[0]
+              need(artifact.get("id") == ARTIFACT_ID and artifact.get("size_in_bytes") == ARTIFACT_BYTES and artifact.get("digest") == "sha256:" + ARTIFACT_SHA and artifact.get("expired") is False, "ARTIFACT_METADATA")
+              owner = artifact.get("workflow_run", {})
+              need(owner.get("id") == SOURCE_RUN and owner.get("head_sha") == SOURCE_HEAD, "ARTIFACT_RUN_OWNER")
+              archive = download_archive()
+              canonical = request_api("/git/blobs/" + CANONICAL_BLOB, limit=3 * 1024 * 1024)
+              need(canonical.get("sha") == CANONICAL_BLOB and canonical.get("encoding") == "base64" and canonical.get("size") == CANONICAL_BYTES, "PUBLISHED_CANONICAL_METADATA")
+              published_canonical = base64.b64decode(canonical["content"], validate=False)
+              need(len(published_canonical) == CANONICAL_BYTES and sha(published_canonical) == CANONICAL_SHA and git_blob(published_canonical) == CANONICAL_BLOB, "PUBLISHED_CANONICAL_BYTES")
+              members = []
+              payloads = [("archive", archive)]
+              with zipfile.ZipFile(io.BytesIO(archive)) as zipped:
+                  entries = zipped.infolist()
+                  need(len(entries) <= 64, "ZIP_ENTRY_BOUND")
+                  names = set()
+                  declared = 0
+                  for info in entries:
+                      name = info.filename
+                      need(name.isascii() and 0 < len(name) <= 300 and "\\" not in name and "\0" not in name and "\r" not in name and "\n" not in name and not name.startswith("/") and ":" not in name, "ZIP_MEMBER_NAME")
+                      pieces = name.rstrip("/").split("/")
+                      need(all(part not in ("", ".", "..") for part in pieces) and name.casefold() not in names and not stat.S_ISLNK(info.external_attr >> 16), "ZIP_MEMBER_CUSTODY")
+                      names.add(name.casefold())
+                      need(info.flag_bits & 1 == 0 and info.compress_type in (zipfile.ZIP_STORED, zipfile.ZIP_DEFLATED), "ZIP_MEMBER_ENCODING")
+                      if info.is_dir():
+                          need(info.file_size == 0, "ZIP_DIRECTORY_BYTES")
+                          continue
+                      role = allowed_member(name)
+                      need(role is not None and 0 <= info.file_size <= MAX_MEMBER, "ZIP_MEMBER_ALLOWLIST")
+                      declared += info.file_size
+                      need(declared <= MAX_UNCOMPRESSED, "ZIP_TOTAL_BOUND")
+                      with zipped.open(info) as member:
+                          data = member.read(MAX_MEMBER + 1)
+                      need(len(data) == info.file_size and len(data) <= MAX_MEMBER, "ZIP_MEMBER_SIZE")
+                      item = {"path":name,"role":role,"bytes":len(data),"sha256":sha(data),"gitBlobSha":git_blob(data)}
+                      if role == "canonical":
+                          need(data == published_canonical, "ARCHIVED_CANONICAL_BYTES")
+                          item["transport"] = "already-published-exact-bytes"
+                          item["publishedGitBlobSha"] = CANONICAL_BLOB
+                      else:
+                          item["transport"] = "base64"
+                          payloads.append((name, data))
+                      members.append(item)
+              members.sort(key=lambda item:item["path"])
+              need(len(members) <= 32 and all(sum(item["role"] == role for item in members) == 1 for role in ("canonical","build","main")), "REQUIRED_ARTIFACT_MEMBERS")
+              for role in ("owner","providers","export"):
+                  need(sum(item["role"] == role for item in members) <= 1, "DUPLICATE_RECEIPT_ROLE")
+              payloads = [payloads[0]] + sorted(payloads[1:])
+              stream_rows = []
+              chunks = [[] for _ in range(SHARDS)]
+              global_chunk = 0
+              for index, (name, data) in enumerate(payloads):
+                  stream_id = "s" + str(index).zfill(3)
+                  count = (len(data) + CHUNK_BYTES - 1) // CHUNK_BYTES
+                  stream_rows.append({"id":stream_id,"member":None if index == 0 else name,"bytes":len(data),"sha256":sha(data),"gitBlobSha":git_blob(data),"parts":count,"firstGlobalChunk":global_chunk})
+                  for part in range(count):
+                      offset = part * CHUNK_BYTES
+                      piece = data[offset:offset + CHUNK_BYTES]
+                      assigned = global_chunk % SHARDS
+                      chunks[assigned].append("M05R1_CHUNK " + compact({"stream":stream_id,"part":part,"global":global_chunk,"offset":offset,"bytes":len(piece),"sha256":sha(piece),"base64":base64.b64encode(piece).decode("ascii")}))
+                      global_chunk += 1
+              manifest = {
+                  "schemaVersion":1,"scope":"EXACT_ARTIFACT_TRANSPORT_ONLY_NO_EXECUTION_ADMISSION",
+                  "repository":REPO,"repositoryId":REPO_ID,
+                  "sourceRun":{"id":SOURCE_RUN,"attempt":SOURCE_ATTEMPT,"headSha":SOURCE_HEAD,"treeSha":SOURCE_TREE,"conclusion":run.get("conclusion")},
+                  "sourceJob":{"id":SOURCE_JOB,"name":job["name"],"conclusion":job.get("conclusion")},
+                  "recovery":{"runId":int(os.environ["GITHUB_RUN_ID"]),"attempt":int(os.environ["GITHUB_RUN_ATTEMPT"]),"headSha":recovery_head,"branch":BRANCH},
+                  "artifact":{"id":ARTIFACT_ID,"name":ARTIFACT_NAME,"bytes":len(archive),"sha256":sha(archive),"createdAt":artifact.get("created_at")},
+                  "files":members,"streams":stream_rows,
+                  "partition":{"shards":SHARDS,"chunkBytes":CHUNK_BYTES,"totalChunks":global_chunk,"rule":"globalChunk modulo shards","perJobStdoutCapBytes":MAX_STDOUT},
+                  "canonicalOmission":{"memberRole":"canonical","bytes":CANONICAL_BYTES,"sha256":CANONICAL_SHA,"gitBlobSha":CANONICAL_BLOB,"fullPublishedBytesCompared":True},
+              }
+              encoded_manifest = compact(manifest)
+              manifest_sha = sha(encoded_manifest.encode("ascii"))
+              outputs = []
+              for index in range(SHARDS):
+                  header = "M05R1_HEADER " + compact({"shard":index,"shards":SHARDS,"manifestSha256":manifest_sha})
+                  body = "\n".join([header,"M05R1_MANIFEST " + encoded_manifest] + chunks[index]) + "\n"
+                  footer = "M05R1_END " + compact({"shard":index,"chunks":len(chunks[index]),"bodyBytes":len(body.encode("ascii")),"bodySha256":sha(body.encode("ascii")),"manifestSha256":manifest_sha})
+                  output = body + footer + "\n"
+                  need(len(output.encode("ascii")) <= MAX_STDOUT, "TRANSPORT_STDOUT_BOUND")
+                  outputs.append(output)
+              # All identities, members and all eight output bounds pass before any evidence marker is emitted.
+              sys.stdout.write(outputs[shard])
+          
+          try:
+              main()
+          except TransportError as error:
+              print("M05R1_ERROR " + str(error))
+              raise SystemExit(1)
+          except Exception:
+              print("M05R1_ERROR INTERNAL_VALIDATION_FAILURE")
+              raise SystemExit(1)
+          
