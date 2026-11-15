@@ -855,7 +855,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   const placeSplitThread=async(threadId:string,paneId=convSplitState.layout?.focusedPaneId,edge:SplitDropEdge='center',outer=false)=>{
     const current=convSplitState.layout;if(!current||!paneId)throw Error('Wait for the workspace to load.');
     await prepareWorkspace();const next=threadPlacementCommand(current,snapshotRef.current.threads,threadId,paneId,edge,outer);
-    await convSplitState.send(next.type,next.payload);try{localStorage.setItem('harness:selected-thread',threadId);}catch{/* Current selection remains usable. */}placedThread.current=threadId;setSelectedId(threadId);setSelectedPluginId(null);setSelectedPluginWorkspace(null);
+    const placed=await convSplitState.send(next.type,next.payload);try{localStorage.setItem('harness:selected-thread',threadId);}catch{/* Current selection remains usable. */}placedThread.current=threadId;setSelectedId(threadId);setSelectedPluginId(null);setSelectedPluginWorkspace(null);publishMainSelection(placed);
   };
   useEffect(()=>{
     if(!splitEnabled||!convSplitState.layout||!thread||placedThread.current===thread.id)return;
@@ -871,7 +871,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   };
   const convSendSplitCommand=async(type:string,payload:Record<string,unknown>)=>{
     const before=convSplitState.layout,next=await convSplitState.send(type,payload),target=typeof payload.viewId==='string'?before?.views[payload.viewId]:next.panes[next.focusedPaneId]?.activeViewId?next.views[next.panes[next.focusedPaneId]!.activeViewId!]:undefined;
-    if(target)focusSplitOwner(target);return next;
+    if(target)focusSplitOwner(target);publishMainSelection(next);return next;
   };
   const placementBase=(layout:SplitWorkspaceLayout,mainPaneId:string):ConversationPlacementRecord=>mainPlacement??{version:1,workspaceId:layout.id,mainPaneId,mainSelection:{kind:'new'},floating:{},mainBasis:mainBasisOf(layout,mainPaneId)};
   // Detach parks the conversation and floats it on the same plane; main becomes explicitly empty (T02/R02).
@@ -916,6 +916,16 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
     const base=mainPlacement;
     if(!base||!base.floating[viewId])return;
     writePlacementRecord({...base,floating:{...base.floating,[viewId]:{...base.floating[viewId],rect}}});
+  };
+  // Explicit main navigation publishes the main selection, clearing any explicit-empty override (T02/R02).
+  const publishMainSelection=(layout:SplitWorkspaceLayout)=>{
+    if(!mainPlacement)return;
+    const mainPaneId=resolveMainPaneId(layout),activeViewId=layout.panes[mainPaneId]?.activeViewId,activeView=activeViewId?layout.views[activeViewId]:undefined;
+    const activeThreadId=activeView?.kind==='thread'&&activeView.binding.authority.kind==='local'?activeView.binding.threadId:undefined;
+    if(!activeThreadId)return;
+    const sel=mainPlacement.mainSelection;
+    if(sel.kind==='thread'&&sel.threadId===activeThreadId)return;
+    writePlacementRecord({...mainPlacement,mainSelection:{kind:'thread',threadId:activeThreadId},mainBasis:mainBasisOf(layout,mainPaneId),pending:undefined});
   };
   const openSplitTool=async(kind:WorkspacePanelKind,paneId=layoutSplitState.layout?.focusedPaneId,beside=false,ownerThreadId?:string,preserveFocus=false,explicitBinding?:PanelBinding)=>{
     if(explicitBinding&&explicitBinding.authority.kind!=='local')throw Error('Open this tool in its owning workspace.');
@@ -981,7 +991,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   const rightWindowOpen=layout.rightPanelOpen||sideOpen||Boolean(documentWindow&&documentWindow.placement==='docked')||Boolean(desktop?.state.dockedBrowser);
   const contextSummaries=<SummaryDock><DockedSummary id="plan" title="Project overview" className="summary-overview" open={!detachedPlan&&!rightWindowOpen}
     defaultCollapsed focusOnOpen={false} expandRequest={planExpandRequest||undefined}><ProjectContextSurface composerChangesAvailable={composerChangesAvailable} key={thread?.id??'new'} thread={thread} snapshot={snapshot} onOpenDetailedPlan={()=>void openSplitTool('plan',undefined,true,thread?.id).catch(cause=>setError(messageOf(cause)))} onSelectThread={select} onShowChanges={()=>void openSplitTool('diff',undefined,true,thread?.id).catch(cause=>setError(messageOf(cause)))} onConnect={()=>openProjectConnect({threadId:thread?.id,projectId:thread?.projectId})}/></DockedSummary><UsageFooter open={liveUsageOpen} threadId={thread?.id} usage={thread?snapshot.usage[thread.id]:undefined} visible={preferences.showUsageFooter} onOpenUsage={()=>openUsage()}/></SummaryDock>;
-  const renderSplitRoot=()=>{const planeLayout=customDock?customConversationLayout:convSplitState.layout;return planeLayout?<div className="split-root-workarea"><SummaryLayout active={!detachedPlan||(preferences.showUsageFooter&&liveUsageOpen)} summaries={contextSummaries}><WorkspaceSplitLayout layout={planeLayout} onCommand={convSendSplitCommand} prepare={prepareWorkspace} renderView={renderConversationView} floating={mainPlacement?Object.fromEntries(Object.entries(mainPlacement.floating).map(([id,entry])=>[id,entry.rect])):undefined} onReturnFloat={returnConversation} onDetachView={detachConversation} onMoveFloat={moveFloat} title={view=>view.kind==='thread'?snapshot.threads.find(item=>item.id===view.binding.threadId)?.title??'Unavailable conversation':view.kind==='workspace'&&view.binding.resourceId==='agent-inbox'?'Agent inbox':panelLabels[view.kind]} onDropThread={placeSplitThread} editorOptions={['thread','browser','files','diff','notes','plan','terminal','linked-pull-requests','context','usage','inbox'].map(id=>({id,title:id==='inbox'?'Agent inbox':panelLabels[id as WorkspacePanelKind]}))} onSelectEditor={(kind,paneId)=>kind==='inbox'?openInbox(paneId):openSplitTool(kind as WorkspacePanelKind,paneId)}/></SummaryLayout>{convSplitState.error&&!layoutChooserOpen&&<p className="split-layout-error" role="alert">{convSplitState.error}</p>}</div>:<LoadingState pending hasContent={false} label="Opening workspace layout..." skeleton={<WorkspaceSkeleton sidebar={false}/>} className="view-loading-state"/>;};
+  const renderSplitRoot=()=>{const planeLayout=customDock?customConversationLayout:convSplitState.layout;return planeLayout?<div className="split-root-workarea"><SummaryLayout active={!detachedPlan||(preferences.showUsageFooter&&liveUsageOpen)} summaries={contextSummaries}><WorkspaceSplitLayout layout={planeLayout} onCommand={convSendSplitCommand} prepare={prepareWorkspace} renderView={renderConversationView} floating={mainPlacement?Object.fromEntries(Object.entries(mainPlacement.floating).map(([id,entry])=>[id,entry.rect])):undefined} onReturnFloat={returnConversation} onDetachView={detachConversation} onMoveFloat={moveFloat} emptyMainPaneId={!customDock&&mainPlacement?.mainSelection.kind==='empty'?resolveMainPaneId(planeLayout):undefined} title={view=>view.kind==='thread'?snapshot.threads.find(item=>item.id===view.binding.threadId)?.title??'Unavailable conversation':view.kind==='workspace'&&view.binding.resourceId==='agent-inbox'?'Agent inbox':panelLabels[view.kind]} onDropThread={placeSplitThread} editorOptions={['thread','browser','files','diff','notes','plan','terminal','linked-pull-requests','context','usage','inbox'].map(id=>({id,title:id==='inbox'?'Agent inbox':panelLabels[id as WorkspacePanelKind]}))} onSelectEditor={(kind,paneId)=>kind==='inbox'?openInbox(paneId):openSplitTool(kind as WorkspacePanelKind,paneId)}/></SummaryLayout>{convSplitState.error&&!layoutChooserOpen&&<p className="split-layout-error" role="alert">{convSplitState.error}</p>}</div>:<LoadingState pending hasContent={false} label="Opening workspace layout..." skeleton={<WorkspaceSkeleton sidebar={false}/>} className="view-loading-state"/>;};
   const interfaceFont = preferences.interfaceFont === 'system' ? '-apple-system, BlinkMacSystemFont, "Inter Variable", "Segoe UI", system-ui, sans-serif' : preferences.interfaceFont === 'Inter' ? '"Inter Variable", sans-serif' : preferences.interfaceFont;
   const handledHostIntent=useRef<number|undefined>(undefined),[modelPickerRequest,setModelPickerRequest]=useState<{id:number;threadId?:string}>();
   const pickerRequest=externalModelPicker??modelPickerRequest;

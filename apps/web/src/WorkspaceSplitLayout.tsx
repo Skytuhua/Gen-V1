@@ -26,6 +26,7 @@ export interface WorkspaceSplitLayoutProps {
  onReturnFloat?:(view:SurfaceRef)=>void;
  onDetachView?:(view:SurfaceRef)=>void;
  onMoveFloat?:(viewId:string,rect:ChatRect)=>void;
+ emptyMainPaneId?:string;
 }
 interface SlotRect {left:number;top:number;width:number;height:number}
 interface ResizeGesture {pointerId:number;splitId:string;axis:'horizontal'|'vertical';start:number;span:number;ratio:number;minimum:number;maximum:number;revision:number;element:HTMLElement}
@@ -34,7 +35,7 @@ const edgeLabel:Record<SplitDropEdge,string>={left:'Left',right:'Side by side',t
 const defaultTitle=(view:SurfaceRef)=>view.kind==='thread'?'Conversation':view.kind.replaceAll('-',' ');
 
 /** View bodies keep one stable DOM parent; layout changes only reposition their slots. */
-export function WorkspaceSplitLayout({layout,onCommand,renderView,title=defaultTitle,onDropThread,editorOptions=[],onSelectEditor,prepare,toolDock=false,className='',floating,onReturnFloat,onDetachView,onMoveFloat}:WorkspaceSplitLayoutProps){
+export function WorkspaceSplitLayout({layout,onCommand,renderView,title=defaultTitle,onDropThread,editorOptions=[],onSelectEditor,prepare,toolDock=false,className='',floating,onReturnFloat,onDetachView,onMoveFloat,emptyMainPaneId}:WorkspaceSplitLayoutProps){
  const root=useRef<HTMLDivElement>(null),slots=useRef(new Map<string,HTMLDivElement>()),resize=useRef<ResizeGesture|null>(null),corner=useRef<CornerGesture|null>(null),pending=useRef(false);
  const[rects,setRects]=useState<Record<string,SlotRect>>({}),[size,setSize]=useState({width:0,height:0}),[previewRatio,setPreviewRatio]=useState<{id:string;ratio:number}|null>(null),[drop,setDrop]=useState<{paneId:string;edge:SplitDropEdge;outer?:boolean;joinFrom?:string}|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState(''),[menuPane,setMenuPane]=useState<string|null>(null);
  const[floatRects,setFloatRects]=useState<Record<string,ChatRect>>({});
@@ -126,14 +127,14 @@ export function WorkspaceSplitLayout({layout,onCommand,renderView,title=defaultT
     ]}/></div>
     <button className="split-collapse" disabled={busy} aria-label={pane.collapsed?'Restore area':'Minimize area'} title={pane.collapsed&&current?title(current):undefined} aria-expanded={!pane.collapsed} onClick={()=>{void send('pane.collapse',{paneId,collapsed:!pane.collapsed},false);}}>{pane.collapsed?<><span aria-hidden="true">▾</span><span className="split-collapsed-title">{current?title(current):'Empty area'}</span></>:'▴'}</button>
    </header>
-   {!pane.collapsed&&<div className="split-pane-slot" ref={node=>{if(node)slots.current.set(paneId,node);else slots.current.delete(paneId);}}>{!current&&<div className="split-empty"><strong>{onDropThread?'Drag a thread here':'Add a tool'}</strong><span>{onDropThread?'Drop at an edge to split, or in the middle to add a tab.':'Choose a tool from Panels or the area menu. Split its area to arrange tools together.'}</span></div>}</div>}
+   {!pane.collapsed&&<div className="split-pane-slot" ref={node=>{if(node)slots.current.set(paneId,node);else slots.current.delete(paneId);}}>{(!current||paneId===emptyMainPaneId)&&<div className="split-empty"><strong>{onDropThread?'Drag a thread here':'Add a tool'}</strong><span>{onDropThread?'Drop at an edge to split, or in the middle to add a tab.':'Choose a tool from Panels or the area menu. Split its area to arrange tools together.'}</span></div>}</div>}
   </section>;
  };
  const renderNode=(node:SplitWorkspaceNode):ReactNode=>{
   if(node.kind==='pane')return renderPane(node.paneId);const ratio=previewRatio?.id===node.id?previewRatio.ratio:node.ratio,firstCollapsed=splitPaneIds(node.first).every(id=>layout.panes[id]!.collapsed),secondCollapsed=splitPaneIds(node.second).every(id=>layout.panes[id]!.collapsed),style={'--split-ratio':ratio,...(firstCollapsed!==secondCollapsed?{[node.axis==='horizontal'?'gridTemplateColumns':'gridTemplateRows']:firstCollapsed?'36px 6px minmax(0,1fr)':'minmax(0,1fr) 6px 36px'}:{})} as CSSProperties;
   return <div key={node.id} className={`split-node split-${node.axis}`} style={style}>{renderNode(node.first)}<div role="separator" tabIndex={0} aria-label={`Resize ${node.axis==='horizontal'?'columns':'rows'}`} aria-orientation={node.axis==='horizontal'?'vertical':'horizontal'} aria-valuenow={Math.round(ratio*100)} aria-valuemin={5} aria-valuemax={95} className={`split-divider${previewRatio?.id===node.id?' is-dragging':''}`} onPointerDown={event=>beginResize(event,node)} onPointerMove={moveResize} onPointerUp={endResize} onPointerCancel={cancel} onLostPointerCapture={()=>{if(resize.current)cancel();}} onContextMenu={event=>{event.preventDefault();cancel();}} onKeyDown={event=>keyResize(event,node)}>{previewRatio?.id===node.id&&<span>{Math.round(ratio*100)}% {node.axis==='horizontal'?'width':'height'}</span>}</div>{renderNode(node.second)}</div>;
  };
- const visibleOwner=new Map<string,string>();for(const pane of Object.values(layout.panes))if(!pane.collapsed&&pane.activeViewId&&(!narrow||pane.id===layout.focusedPaneId))visibleOwner.set(pane.activeViewId,pane.id);
+ const visibleOwner=new Map<string,string>();for(const pane of Object.values(layout.panes))if(!pane.collapsed&&pane.activeViewId&&pane.id!==emptyMainPaneId&&(!narrow||pane.id===layout.focusedPaneId))visibleOwner.set(pane.activeViewId,pane.id);
  const overlay=drop?rects[drop.paneId]:undefined;
  return <div ref={root} className={`split-workspace${narrow?' is-narrow':''} ${className}`} data-workspace-id={layout.id} aria-busy={busy} onPointerDownCapture={event=>{const paneId=(event.target as HTMLElement).closest<HTMLElement>('[data-split-view]')?.dataset.paneId;if(paneId&&paneId!==layout.focusedPaneId&&!busy)void send('pane.focus',{paneId},false);}} onDragOver={dragOver} onDragLeave={event=>{if(!event.currentTarget.contains(event.relatedTarget as Node|null))setDrop(null);}} onDrop={dropView}>
   {narrow&&<div className="split-workspace-tools"><label>Area<Select aria-label="Active workspace area" value={layout.focusedPaneId} disabled={busy} onValueChange={paneId=>{void send('pane.focus',{paneId},false);}} options={splitPaneIds(layout.root).map(paneId=>{const viewId=layout.panes[paneId]!.activeViewId;return{value:paneId,label:viewId?title(layout.views[viewId]!):'Empty area'};})}/></label></div>}

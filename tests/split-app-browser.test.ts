@@ -29,7 +29,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
  },60000);
  afterAll(async()=>{try{await browser?.close();}finally{if(server&&server.exitCode===null){server.kill();await new Promise<void>(resolve=>{const timer=setTimeout(resolve,2000);server!.once('exit',()=>{clearTimeout(timer);resolve();});});}}});
 
- async function fixture({plan=false,plugins=[],retainedCanvas=false,retainedPlan=false,unstarted=false,width=1600,height=1000,deferPluginFlush=false,mode='split',singleThread=false}:{plan?:boolean;plugins?:PluginManifest[];retainedCanvas?:boolean;retainedPlan?:boolean;unstarted?:boolean;width?:number;height?:number;deferPluginFlush?:boolean;mode?:'split'|'chat'|'default';singleThread?:boolean}={}){
+ async function fixture({plan=false,plugins=[],retainedCanvas=false,retainedPlan=false,unstarted=false,width=1600,height=1000,deferPluginFlush=false,mode='split',singleThread=false,mainTabs=false}:{plan?:boolean;plugins?:PluginManifest[];retainedCanvas?:boolean;retainedPlan?:boolean;unstarted?:boolean;width?:number;height?:number;deferPluginFlush?:boolean;mode?:'split'|'chat'|'default';singleThread?:boolean;mainTabs?:boolean}={}){
   const page=await browser!.newPage({viewport:{width,height}});page.setDefaultTimeout(7000);
   const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));
   await page.addInitScript((initialMode)=>{if(window.parent===window){localStorage.setItem('harness:selected-thread','thread-a');if(initialMode==='split')localStorage.setItem('harness:workspace-mode:v3','split');}},mode);
@@ -41,8 +41,10 @@ describe.runIf(enabled)('actual App split workspace',()=>{
   snapshot.artifacts[0]={...snapshot.artifacts[0]!,threadId:'thread-a',messageId:'message-a'};snapshot.userStates[0]={...snapshot.userStates[0]!,threadId:'thread-a'};
   snapshot.data=[];if(plan)snapshot.data.push(canonicalPlan());
   const host=await serveTaskFixture(page,snapshot);
-  let layout=createSplitWorkspaceLayout();layout=applySplitWorkspaceCommand(layout,'view.open',{view:{id:'thread:thread-a',kind:'thread',binding:{authority:{kind:'local'},threadId:'thread-a',projectId:'project-a'}}});
-  if(!singleThread)layout=applySplitWorkspaceCommand(layout,'pane.split',{paneId:'pane-main',newPaneId:'right',splitId:'columns',axis:'horizontal',view:{id:'thread:thread-b',kind:'thread',binding:{authority:{kind:'local'},threadId:'thread-b',projectId:'project-b'}}});
+  let layout=createSplitWorkspaceLayout();
+  if(mainTabs){layout=applySplitWorkspaceCommand(layout,'view.open',{view:{id:'thread:thread-a',kind:'thread',binding:{authority:{kind:'local'},threadId:'thread-a',projectId:'project-a'}}});layout=applySplitWorkspaceCommand(layout,'view.open',{paneId:'pane-main',view:{id:'thread:thread-b',kind:'thread',binding:{authority:{kind:'local'},threadId:'thread-b',projectId:'project-b'}}});layout=applySplitWorkspaceCommand(layout,'view.activate',{paneId:'pane-main',viewId:'thread:thread-a'});}
+  else{layout=applySplitWorkspaceCommand(layout,'view.open',{view:{id:'thread:thread-a',kind:'thread',binding:{authority:{kind:'local'},threadId:'thread-a',projectId:'project-a'}}});
+  if(!singleThread)layout=applySplitWorkspaceCommand(layout,'pane.split',{paneId:'pane-main',newPaneId:'right',splitId:'columns',axis:'horizontal',view:{id:'thread:thread-b',kind:'thread',binding:{authority:{kind:'local'},threadId:'thread-b',projectId:'project-b'}}});}
   const envelope:WorkspaceEnvelope={projects:['a','b'].map(key=>({id:'project-'+key,name:key==='a'?'First project':'Second project',authority:{kind:'local'},rootPath:'C:/synthetic/'+key,createdAt:stamp})),state:{version:1,revision:0,activeCanvasId:'workspace-default',canvases:[{version:1,id:'workspace-default',name:'Workspace',preset:'workspace',viewport:{x:0,y:0,zoom:1},panels:[],filter:'active',projectIds:[]}],profiles:[],disabledKinds:[],integrations:{}}};
   if(retainedCanvas)envelope.state.canvases[0]!.panels.push({id:'retained-usage',canvasId:'workspace-default',kind:'usage',binding:{authority:{kind:'local'},threadId:'thread-a',projectId:'project-a'},placement:'canvas',visible:true,collapsed:false,bounds:{x:56,y:72,width:352,height:320},order:9,alwaysOnTop:false});
   if(retainedPlan)envelope.state.canvases[0]!.panels.push({id:'retained-plan',canvasId:'workspace-default',kind:'plan',binding:{authority:{kind:'local'},threadId:'thread-a',projectId:'project-a'},placement:'canvas',visible:true,collapsed:false,bounds:{x:56,y:72,width:480,height:560},order:10,alwaysOnTop:false});
@@ -178,6 +180,24 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    await page.reload();
    await page.locator('[data-split-view="thread:thread-a"]').getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});
    expect(await page.locator('[data-split-view="thread:thread-a"][data-floating="true"]').count()).toBe(0);
+   expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
+ it('detaching from a multi-tab main overrides the previous tab with an explicit empty main, and navigation clears it (T02/R02)',async()=>{
+  const host=await fixture({mode:'default',mainTabs:true}),{page}=host;try{
+   const aView=page.locator('[data-split-view="thread:thread-a"]'),bView=page.locator('[data-split-view="thread:thread-b"]');
+   await aView.getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});
+   expect(await page.locator('[data-split-pane="pane-main"] [role="tab"]').count()).toBe(2);
+   await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();
+   await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();
+   await page.waitForFunction(()=>!!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
+   await page.waitForFunction(()=>!!document.querySelector('[data-split-pane="pane-main"] .split-empty'));
+   expect(await bView.isVisible()).toBe(false);
+   expect(await page.locator('[data-split-pane="pane-main"]').getByRole('tab',{name:/Second investigation/}).count()).toBe(1);
+   await page.locator('[data-split-pane="pane-main"]').getByRole('tab',{name:/Second investigation/}).click();
+   await bView.getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});
+   expect(await page.locator('[data-split-pane="pane-main"] .split-empty').count()).toBe(0);
    expect(host.errors).toEqual([]);
   }finally{await page.close();}
  },30000);
