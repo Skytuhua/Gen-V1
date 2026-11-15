@@ -71,11 +71,11 @@ for (const width of [1440, 1024, 768]) test(`first agent reads reserve project r
 });
 
 test('missing history remains reachable after offscreen bursts without moving the message being read', async ({page}) => {
- const h = await setup(page, false, true), log = page.getByRole('log', {name: 'parent-00 messages', exact: true}), row = page.getByRole('region', {name: 'Alpha agents', exact: true});
+ const h = await setup(page, false, true), log = page.getByRole('log', {name: 'parent-00 messages', exact: true}), projects = page.locator('.agents-projects');
  await expect(log).toContainText('Transcript message 40.');
  await page.getByRole('button', {name: 'Search agents', exact: true}).focus();
- await row.evaluate(node => {node.scrollLeft = node.scrollWidth;}); await expect(log).toHaveCount(0);
- h.burst(140); await row.evaluate(node => {node.scrollLeft = 0;});
+ await projects.evaluate(node => {node.scrollTop = node.scrollHeight;}); await expect(log).toHaveCount(0);
+ h.burst(140); await projects.evaluate(node => {node.scrollTop = 0;});
  await expect(log.getByRole('button', {name: 'Load missing messages', exact: true})).toBeVisible();
  const reading = log.locator('article').filter({hasText: 'Transcript message 110.'});
  await reading.evaluate(node => {const owner = node.closest('[role="log"]')!; owner.scrollTop += node.getBoundingClientRect().top - owner.getBoundingClientRect().top - 20;});
@@ -99,17 +99,17 @@ test('project rows expose working parent and nested child transcripts before any
  await expect(page.getByRole('region', {name: 'Project Beta', exact: true})).toHaveCount(1);
  expect(h.requests.filter(path => path.startsWith('/api/agents?')).length).toBe(3);
 });
-test('all horizontal parents are reachable, subscriptions follow visibility, and drafts survive virtualization', async ({page}) => {
+test('all grid parents are reachable, subscriptions follow visibility, and drafts survive virtualization', async ({page}) => {
  const h = await setup(page), input = page.getByRole('textbox', {name: 'Message to parent-00', exact: true});
  await input.fill('Keep my draft');
  await page.getByRole('button', {name: 'Search agents', exact: true}).focus();
- const row = page.getByRole('region', {name: 'Alpha agents', exact: true});
- await row.evaluate(node => {node.scrollLeft = node.scrollWidth;});
+ const projects = page.locator('.agents-projects');
+ await projects.evaluate(node => {node.scrollTop = node.scrollHeight;});
  await expect(page.getByRole('log', {name: 'parent-32 messages', exact: true})).toContainText('Current transcript output');
  await expect(input).toHaveCount(0);
  expect(h.requests.some(path => path.includes('agentId=parent-32'))).toBe(true);
  for (const path of h.requests.filter(path => path.includes('visible='))) expect(new URL(path, 'http://fixture').searchParams.get('visible')!.split(',').length).toBeLessThanOrEqual(24);
- await row.evaluate(node => {node.scrollLeft = 0;}); await expect(input).toHaveValue('Keep my draft');
+ await projects.evaluate(node => {node.scrollTop = 0;}); await expect(input).toHaveValue('Keep my draft');
  await page.getByRole('button', {name: 'Open conversation parent-00', exact: true}).click();
  await expect(page.locator('html')).toHaveAttribute('data-opened-thread', 'parent-00');
 });

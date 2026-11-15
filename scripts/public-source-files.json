@@ -837,6 +837,7 @@
     "tests/document-window.test.ts",
     "tests/draft-transfer.test.ts",
     "tests/e2e/agents-workspace-App-candidate.ts",
+    "tests/e2e/agents-workspace-evidence.spec.ts",
     "tests/e2e/agents-workspace-fixture.tsx",
     "tests/e2e/agents-workspace.playwright.config.ts",
     "tests/e2e/agents-workspace.spec.ts",
