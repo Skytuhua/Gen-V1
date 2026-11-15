@@ -321,7 +321,7 @@
         {
           "id": "m04-context",
           "status": "NOT_RUN",
-          "evidence": "BLOCKED_SOURCE_DRIFT: M04 exists only as a PARTIAL bundle on origin/handoff/m04-context-v3 (commit 9851e2b) and is not on the accepted base. M09 deliverables do not import any M04 file; the M04-dependent activation gate stays closed and is listed as a remaining gate. No replacement API was guessed and no colliding file was overwritten."
+          "evidence": "RESOLVED_BY_MERGED_BASE: a reviewed M04 core request custody dependency landed on main via PR #351 (merge 9d4a514, M04-core-verification.json, 8/8 Windows CI green). After merging main into this branch M04 is on the accepted base ancestry; M09 deliverables still import no M04 file and agents.workV1 stays default-off until the host enables it."
         },
         {
           "id": "m03-m06-m08-role-gates",
@@ -589,7 +589,7 @@
     }
   ],
   "remainingGates": [
-    "M04 dependency: M09's required core contract M04 is PARTIAL on origin/handoff/m04-context-v3 (9851e2b) and absent from the accepted base; the M04-dependent activation gate stays closed and agents.workV1 stays default-off. The bundle ships the contract layer with M04-free implementations only \u00e2\u20ac\u201d the M04-bound portion is blocked, not failed.",
+    "M04 dependency: RESOLVED by merge \u2014 reviewed M04-core (PR #351, 9d4a514) is on the merged base ancestry; the flag stays default-off pending host enablement.",
     "pnpm test cannot execute the credential-lease suites on Windows without MSVC build tools; pnpm test:no-lease was used and its remaining failures are environmental (absent model CLIs, bundled Python graphs, engines, desktop host, timing flakes), each reproduced identically on the pristine base checkout (m09-baseline-repro.log).",
     "Live role proofs are hook-injected (roleProofs.codeWorktree / roleProofs.qa): CODE_WORKTREE needs an M08 managed-worktree + M03 profile proof and QA an M06 typed verification proof at dispatch time; absent proofs surface ROLE_UNAVAILABLE while PLAN_READ/RESEARCH_READ continue.",
     "Rollback path: disable agents.workV1 \u00e2\u20ac\u201d new roles and queue admissions stop; the read-only coordinator, every input/evidence receipt and dirty child workspaces are retained, and unresolved deliveries are never replayed.",
