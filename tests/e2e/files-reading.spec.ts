@@ -300,6 +300,20 @@ test("granted preferred selection and keyboard Select retain the exact thread ow
 	);
 });
 
+test("mobile breadcrumb reopens the folder list after reading a file", async ({page}) => {
+ await page.setViewportSize({width:390,height:840});
+ const go = await fixture(page);
+ await project(page);
+ await go();
+ await page.getByRole("button", {name:"ok.txt", exact:true}).click();
+ const toggle = page.getByRole("button", {name:"Toggle file list"});
+ await expect(toggle).toHaveAttribute("aria-expanded","false");
+ await expect(page.getByRole("region", {name:"File content"})).toContainText("Current file");
+ await page.getByRole("navigation", {name:"Folder breadcrumb"}).getByRole("button", {name:"Project files", exact:true}).click();
+ await expect(toggle).toHaveAttribute("aria-expanded","true");
+ await expect(page.getByRole("button", {name:"ok.txt", exact:true})).toBeVisible();
+});
+
 for (const source of ["project", "granted"])
 	for (const late of ["success", "error"])
 		test(`${source} ignores stale file ${late} after another selection or directory`, async ({
