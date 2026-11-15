@@ -59,7 +59,13 @@ export type M08FlagKey = (typeof M08_FLAG_KEYS)[number];
 export const M04_CORE_FLAG_KEYS = ["context.compilerV1"] as const;
 export type M04CoreFlagKey = (typeof M04_CORE_FLAG_KEYS)[number];
 
-export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M04CoreFlagKey;
+// M09 flag set: typed multi-agent work. The single key admits the
+// AgentWorkV1 coordinator surface; role availability stays separately gated
+// by each role's own registered host capability proof.
+export const M09_FLAG_KEYS = ["agents.workV1"] as const;
+export type M09FlagKey = (typeof M09_FLAG_KEYS)[number];
+
+export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M04CoreFlagKey | M09FlagKey;
 
 const hostFlags = createCapabilityFlags<CapabilityFlagKey>([
   { key: "context.compilerV1", owner: "m04-core", description: "Host-issued immutable request preparation and measured context receipts." },
@@ -69,6 +75,7 @@ const hostFlags = createCapabilityFlags<CapabilityFlagKey>([
   { key: "workspace.checkpointsV1", owner: "m08", description: "File checkpoint capture and the host checkpoint provider behind the read adapter." },
   { key: "workspace.restoreV1", owner: "m08", description: "Reviewed restore protocol with pre-restore checkpoint and per-file preimage checks." },
   { key: "workspace.writeDelegateV1", owner: "m08", description: "Write-capable child worktrees gated by the M03 child profile and an M02 approval." },
+  { key: "agents.workV1", owner: "m09", description: "Typed multi-agent work admission: role-gated child dispatch, ordered inputs, budget reservation and verified outputs." },
 ]);
 
 export function capabilityEnabled(key: CapabilityFlagKey): boolean {
