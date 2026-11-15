@@ -58,6 +58,10 @@ function Fixture() {
       binding: { providerId: 'provider-b', modelId: 'gemini-cli/model', accountId: null }, measurementSource: 'hermes-broker',
       timings: { queued: Date.now(), acquired: null, runtimeReady: null, requestSent: null, firstProviderDelta: null, firstPublicDelta: null, settled: null, teardownConfirmed: null },
       usage: { inputTokens: null, outputTokens: null, cacheReadTokens: null, cacheWriteTokens: null, cost: null }, usageConvention: 'unreported', outcome: 'failed', error: 'Synthetic request failure.' },
+    { version: 1, requestId: 'fixture-request-3', owner: { threadId, runId: 'run-2', epoch, sequence: 3, inputIds: [], phase: 'foreground' },
+      binding: { providerId: 'provider-a', modelId: 'openai/model', accountId: null }, measurementSource: 'hermes-broker',
+      timings: { queued: Date.now(), acquired: 10, runtimeReady: 120, requestSent: 125, firstProviderDelta: null, firstPublicDelta: null, settled: 900, teardownConfirmed: 910 },
+      usage: { inputTokens: 128, outputTokens: null, cacheReadTokens: null, cacheWriteTokens: null, cost: null }, usageConvention: 'provider-reported', outcome: 'cancelled' },
   ] : [];
   return <main style={{ padding: 12 }}><p>Synthetic usage/context fixture</p>
     <button onClick={() => setUsageOpen(true)}>Open Usage</button>

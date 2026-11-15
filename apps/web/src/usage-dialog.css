@@ -49,7 +49,7 @@ html[data-native-titlebar="true"] .usage-dialog.ui-modal { height:min(560px,calc
 .usage-request-outcome { padding:1px 8px; border-radius:999px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.04em; }
 .usage-request-outcome-completed { background:var(--success-bg); color:var(--success-fg); }
 .usage-request-outcome-failed { background:var(--danger-bg); color:var(--danger-fg); }
-.usage-request-outcome-cancelled { background:var(--warning-bg); color:var(--warning-fg); }
+.usage-request-outcome-cancelled { background:var(--subtle); color:var(--muted); }
 .usage-request-stages,.usage-request-metrics { display:flex; flex-wrap:wrap; gap:4px; margin:0 0 8px; padding:0; list-style:none; }
 .usage-request-metrics { margin-bottom:0; }
 .usage-request-stages>li,.usage-request-metrics>li { display:flex; align-items:baseline; gap:5px; min-height:24px; padding:2px 8px; border:1px solid var(--border); border-radius:var(--radius,6px); background:var(--subtle); font-size:12px; line-height:1.4; }
