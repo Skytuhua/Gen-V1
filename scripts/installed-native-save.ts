@@ -74,6 +74,8 @@ export function parseInstalledNativeSaveTranscript(raw: string, pid: number): In
 }
 
 // The script is fixed. Only validated owner/path data crosses stdin, never command text.
+// Its root lease pins the existing owner receipt to keep the writable root nonempty.
+// Data/list handle access enforces sharing denial; attribute-only opens would not.
 const NATIVE_SAVE_SCRIPT = String.raw`
 $ErrorActionPreference='Stop'
 $clock=[Diagnostics.Stopwatch]::StartNew()
@@ -90,8 +92,9 @@ try {
   if(@($request.psobject.Properties).Count -ne 6){Fail 'startup-failed'}
   $ownedPid=[int]$request.pid; $expectedImage=[string]$request.executable; $evidenceRoot=[string]$request.directory; $targetPath=[string]$request.target
   if($ownedPid -le 0 -or -not [IO.Path]::IsPathRooted($expectedImage) -or -not [IO.Path]::IsPathRooted($evidenceRoot) -or $targetPath -cne [IO.Path]::Combine($evidenceRoot,'installed-memory-redacted-export.json')){Fail 'startup-failed'}
-  Add-Type -AssemblyName UIAutomationClient
-  Add-Type -AssemblyName UIAutomationTypes
+  Add-Type -AssemblyName UIAutomationClient,UIAutomationTypes
+  $p=[System.Windows.Automation.AutomationElement].Assembly.GetName();$p.Name='UIAutomationClientsideProviders'
+  [System.Windows.Automation.ClientSettings]::RegisterClientSideProviderAssembly($p)
   Add-Type -TypeDefinition @'
 using System;
 using System.IO;
@@ -130,12 +133,10 @@ public sealed class NativeSaveRootLease : IDisposable {
       string[] parts=this.path.Substring(current.Length).Split(new char[]{'\\'},StringSplitOptions.RemoveEmptyEntries);
       for(int i=0;i<parts.Length;i++){current=Path.Combine(current,parts[i]);root=Pin(current,true,i==parts.Length-1?3u:1u);}
       Check();
-      // The existing immutable owner receipt keeps the writable evidence root nonempty.
       Pin(Path.Combine(this.path,"owner.json"),false,1);
     } catch {Dispose();throw;}
   }
   SafeFileHandle Pin(string name,bool directory,uint sharing) {
-    // Data/list access is intentional: attribute-only opens do not enforce sharing denial.
     var handle=CreateFile(name,directory?0x81u:0x80000080u,sharing,IntPtr.Zero,3,0x02200000,IntPtr.Zero);
     if(handle.IsInvalid){handle.Dispose();throw new IOException("Evidence path lease unavailable");}
     held.Add(handle);Info info;

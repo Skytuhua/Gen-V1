@@ -16,7 +16,7 @@ const mode = process.argv[2];
 if (process.platform !== 'win32' || (mode !== 'direct' && mode !== 'policy')) throw Error('This diagnostic requires Windows and an explicit direct or policy lane.');
 const repository = process.cwd(), sources = dirname(fileURLToPath(import.meta.url));
 const pins: Record<string, string> = {
-  'scripts/installed-native-save.ts': '26073e70a236860de8ec3359961d8048b6d3d5c969ab741c9fb69fb23fdb5741',
+  'scripts/installed-native-save.ts': '588e9388eea40761686d59bc165d65b7607f5bf12cb79375a45922e6edf86f96',
   'apps/desktop/memory-export.ts': '6c61d0724d67e5afd165c923a64626add408a41e174b9e929c0775b34ed430e9',
   'packages/contracts/project-memory.ts': 'c091c003e0cefb56313bf684bebbf5aaf3100b432649a76c2579ac7706e155c9',
   'packages/core/memory-publication.ts': 'c7b875cea7c3b30bdacad9bd1ec7c29851a6c154bce2126bcd15927175db6711',
