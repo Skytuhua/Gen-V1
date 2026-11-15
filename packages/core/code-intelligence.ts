@@ -754,7 +754,8 @@ export class CodeIntelligence {
    * stops recovery with PARTIAL_RECOVERY_REQUIRED — never a silent overwrite. */
   async recoverRename(input: { journalRoot: string; planId: string; grantedRoots: readonly string[]; signal: AbortSignal }): Promise<RenameRecoveryResult> {
     const journalDir = join(input.journalRoot, "code-intelligence", "rename", input.planId);
-    const journal = JSON.parse(await readFile(join(journalDir, "journal.json"), "utf8")) as {
+    const journal = JSON.parse(await readFile(join(journalDir, "journal.json"), "utf8")
+      .catch(() => { throw new HarnessError("NOT_FOUND", "No rename journal exists for this plan."); })) as {
       planId: string; resolved: boolean;
       entries: { path: string; preimage: string; postimage: string | null; backup: string; disposition: RenameRecoveryEntry["disposition"] }[];
     };

@@ -86,4 +86,6 @@
 .cr-problem[data-severity="error"] .cr-problem-severity { color: var(--danger, #d64545); }
 .cr-problem[data-severity="warning"] .cr-problem-severity { color: var(--warning, #c08019); }
 .cr-badge-not-applied { display: inline-block; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--warning, #c08019); color: var(--warning, #c08019); font-size: 11px; font-weight: 600; }
+.cr-previews li, .cr-rename li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; }
+.cr-preview-files, .cr-rename .cr-file-path { overflow-wrap: anywhere; font-weight: 500; }
 .cr-debug-controls { display: flex; gap: 8px; margin-top: 8px; }
