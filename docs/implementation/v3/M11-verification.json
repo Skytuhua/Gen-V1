@@ -167,7 +167,8 @@
         { "id": "tokens-tab-cache-rows", "status": "PASS", "evidence": "Tokens tab reports cache read/write rows" },
         { "id": "foreground-status-labels", "status": "PASS", "evidence": "working status distinguishes Queued for account / Starting runtime / Generating / Running tool / Cleaning up / Compacting context" },
         { "id": "new-task-profile-picker", "status": "PASS", "evidence": "model picker shows 'Applies to new tasks' scope hint and 'Start new task with profile' action; existing conversation keeps its binding" },
-        { "id": "browser-suites", "status": "PASS", "evidence": "usage-context 21/21 pass including a Requests-tab spec; usage-app-integration, model-picker, compact-model-picker and composer-press failures are byte-identical on the pristine main checkout (baseline/environmental)" }
+        { "id": "browser-suites", "status": "PASS", "evidence": "usage-context 21/21 pass including a Requests-tab spec; usage-app-integration, model-picker, compact-model-picker and composer-press failures are byte-identical on the pristine main checkout (baseline/environmental)" },
+        { "id": "root-baseline-parity", "status": "PASS", "evidence": "root browser suite run on the worktree (79 suites, 59 failed) and on pristine base fcaa52f (79 suites, the same 58 failed): identical failure sets (environmental/baseline); the single extra failure (code-review-workspace) passed 57/57 on isolated re-run — verified flake, no browser regression attributable to M11" }
       ],
       "commands": [
         {
@@ -193,9 +194,21 @@
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/logs/m11-build.log",
           "logDigest": "f2f3b92a2896fe92884808e50dbbbd417444ca4717332960330acf736d01204b"
+        },
+        {
+          "argv": ["pnpm", "test:browser"],
+          "cwdIdentity": "isolated M11 worktree C:\\Users\\Administrator\\repos\\Gen-V1-m11 and pristine base checkout C:\\Users\\Administrator\\repos\\Gen-V1",
+          "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies; Playwright chromium",
+          "startedAt": "2026-11-15T10:35:00Z",
+          "endedAt": "2026-11-15T14:30:00Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "BLOCKED",
+          "boundedLogRef": "docs/implementation/v3/logs/m11-browser-root-baseline.log",
+          "logDigest": "612c29d80656f0074905ddda5e599bac612dab029e3ba77bc43c422fbc6e989f"
         }
       ],
-      "artifactRefs": ["docs/implementation/v3/logs/m11-browser.log", "docs/implementation/v3/logs/m11-build.log"]
+      "artifactRefs": ["docs/implementation/v3/logs/m11-browser.log", "docs/implementation/v3/logs/m11-build.log", "docs/implementation/v3/logs/m11-browser-root-baseline.log"]
     },
     {
       "id": "m11.platform.full-suite",
@@ -302,6 +315,7 @@
     "docs/implementation/v3/M11-source-lock.json",
     "docs/implementation/v3/M11-verification.json",
     "docs/implementation/v3/logs/m11-browser.log",
+    "docs/implementation/v3/logs/m11-browser-root-baseline.log",
     "docs/implementation/v3/logs/m11-build.log",
     "docs/implementation/v3/logs/m11-full-suite.log",
     "docs/implementation/v3/logs/m11-m04-merge-vitest.log",
