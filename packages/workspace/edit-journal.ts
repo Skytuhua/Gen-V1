@@ -239,13 +239,15 @@ export class EditJournal {
     return "unattributed";
   }
 
-  /** A hunk can auto-enter a selective commit only when every receipt covering it is proven. */
-  hunkAttribution(owner: CheckpointScope, path: string): "proven" | "process-window" | "unattributed" {
+  /** A hunk can auto-enter a selective commit only when every receipt covering it is proven
+   *  and the live bytes still equal the newest proven postimage — a later change made
+   *  outside the journal has no receipt and stays unattributed. */
+  hunkAttribution(owner: CheckpointScope, path: string, currentDigest: string | null): "proven" | "process-window" | "unattributed" {
     const entries = this.receipts(owner, { path });
     if (!entries.length) return "unattributed";
     if (entries.some((entry) => entry.attribution === "UNATTRIBUTED")) return "unattributed";
     if (entries.some((entry) => entry.attribution === "PROCESS_WINDOW_ONLY")) return "process-window";
-    return "proven";
+    return entries[entries.length - 1]!.afterDigest === currentDigest ? "proven" : "unattributed";
   }
 
   requireOwned(owner: CheckpointScope, scope: CheckpointScope): void {

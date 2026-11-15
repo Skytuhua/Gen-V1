@@ -178,7 +178,7 @@ it("labels hunk attribution from the provenance journal and requires explicit se
     path: "one.txt",
     beforeIdentity: null,
     beforeDigest: null,
-    afterDigest: sha256hex("written"),
+    afterDigest: sha256hex("one-1\n"),
   });
   const preview = await f.service.preview(f.projectId, f.threadId, f.scope);
   const proven = preview.candidates.find((candidate) => candidate.path === "one.txt")!;
@@ -187,6 +187,35 @@ it("labels hunk attribution from the provenance journal and requires explicit se
   expect(proven.requiresExplicitSelection).toBe(false);
   expect(unproven.attribution).toBe("unattributed");
   expect(unproven.requiresExplicitSelection).toBe(true);
+});
+
+it("keeps a path unattributed when its live bytes no longer match the proven receipt", async () => {
+  const f = await fixture();
+  await writeFile(join(f.workspace.path, "one.txt"), "one-1\n");
+  f.journal.recordProvenEdit({
+    invocationId: "inv-1",
+    owner: f.scope,
+    workspaceIdentity: "0".repeat(64),
+    repositoryId: "repo",
+    path: "one.txt",
+    beforeIdentity: null,
+    beforeDigest: null,
+    afterDigest: sha256hex("one-1\n"),
+  });
+  // A manual edit after the proven write is not covered by the receipt.
+  await writeFile(join(f.workspace.path, "one.txt"), "one-2\n");
+  const preview = await f.service.preview(f.projectId, f.threadId, f.scope);
+  const candidate = preview.candidates.find((entry) => entry.path === "one.txt")!;
+  expect(candidate.attribution).toBe("unattributed");
+  expect(candidate.requiresExplicitSelection).toBe(true);
+});
+
+it("never offers an untracked non-UTF-8 file as a commit candidate", async () => {
+  const f = await fixture();
+  // Latin-1 bytes that are invalid UTF-8 but contain no NUL.
+  await writeFile(join(f.workspace.path, "latin.txt"), Buffer.from([0x63, 0x61, 0x66, 0xe9, 0x0a]));
+  const preview = await f.service.preview(f.projectId, f.threadId, f.scope);
+  expect(preview.candidates.some((candidate) => candidate.path === "latin.txt")).toBe(false);
 });
 
 it("rejects a hunk whose digest no longer matches the live postimage", async () => {
