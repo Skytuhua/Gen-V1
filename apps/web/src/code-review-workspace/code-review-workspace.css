@@ -76,3 +76,14 @@
   .cr-context { display: flex; flex-direction: column; }
 }
 @media (prefers-reduced-motion: reduce) { .cr-workspace button { transition: none; } }
+
+/* M07 code-intelligence surface */
+.cr-problems, .cr-previews, .cr-rename { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 4px; }
+.cr-problem button { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 8px; width: 100%; text-align: left; background: none; border: 0; padding: 4px 6px; border-radius: 6px; cursor: pointer; color: inherit; font: inherit; }
+.cr-problem button:hover { background: var(--surface-hover, rgba(128,128,128,.12)); }
+.cr-problem .cr-meta { grid-column: 2; }
+.cr-problem-severity { text-transform: capitalize; font-weight: 600; }
+.cr-problem[data-severity="error"] .cr-problem-severity { color: var(--danger, #d64545); }
+.cr-problem[data-severity="warning"] .cr-problem-severity { color: var(--warning, #c08019); }
+.cr-badge-not-applied { display: inline-block; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--warning, #c08019); color: var(--warning, #c08019); font-size: 11px; font-weight: 600; }
+.cr-debug-controls { display: flex; gap: 8px; margin-top: 8px; }

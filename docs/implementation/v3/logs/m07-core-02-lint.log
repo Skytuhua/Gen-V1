@@ -1,0 +1,3 @@
+cwd: C:/Users/Administrator/repos/gen-v1-m07
+command: pnpm lint
+exit code: 0 — UI guard: 506 sources; 0 violations

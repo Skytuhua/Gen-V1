@@ -1,0 +1,4 @@
+cwd: C:/Users/Administrator/repos/gen-v1-m07
+command: pnpm exec vitest run tests/lsp-revisions-v3.test.ts tests/edit-preview-v3.test.ts tests/rename-recovery-v3.test.ts tests/debug-policy-v3.test.ts
+executed against the approved base with M07 work stashed (git stash -u), before implementation files existed on disk
+exit code: 1 — "No test files found" (contract+implementation modules and the four suites absent on base); restores cleanly via git stash pop

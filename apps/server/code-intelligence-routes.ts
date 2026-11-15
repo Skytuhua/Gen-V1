@@ -1,0 +1,219 @@
+import type { FastifyInstance } from 'fastify';
+import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import { z } from 'zod';
+import type { Service } from '../../packages/core/service.ts';
+import { HarnessError } from '../../packages/contracts/index.ts';
+import { workspaceHost } from './workspace-host.ts';
+import {
+  CodeIntelligence, StdioLspAdapter, requireCodeIntelligenceFlag,
+  type LanguageServerAdapter, type LanguageServerDescriptor,
+} from '../../packages/core/code-intelligence.ts';
+import { EditPreviewRegistry } from '../../packages/core/edit-preview.ts';
+import { DebugRegistry, type DebugAdapter } from '../../packages/core/debug-session.ts';
+import type { ExecutionBackend } from '../../packages/core/execution-policy.ts';
+import type { RegisteredHostFlag } from '../../packages/core/host-flags.ts';
+
+const identifier = z.string().regex(/^[a-zA-Z0-9:_.-]{1,200}$/);
+const sha = (value: string | Buffer) => createHash('sha256').update(value).digest('hex');
+const signal = () => new AbortController().signal;
+
+/** Approved language servers: installed executables only, never downloaded,
+ * launched under the project execution profile. An absent server is
+ * UNSUPPORTED — never a reason for a regex or unrestricted-shell fallback. */
+const APPROVED_SERVERS: Record<string, { executable: string; argv: string[] }> = {
+  typescript: { executable: 'typescript-language-server', argv: ['--stdio'] },
+  javascript: { executable: 'typescript-language-server', argv: ['--stdio'] },
+  python: { executable: 'pyright-langserver', argv: ['--stdio'] },
+};
+
+function installedExecutable(name: string): string | null {
+  try {
+    const command = process.platform === 'win32' ? 'where' : 'command';
+    const args = process.platform === 'win32' ? [name] : ['-v', name];
+    const out = execFileSync(command, args, { encoding: 'utf8', stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true });
+    const first = out.split(/\r?\n/).find(line => line.trim());
+    return first?.trim() || null;
+  } catch { return null; }
+}
+
+export function languageServerDescriptor(language: string): LanguageServerDescriptor {
+  const approved = APPROVED_SERVERS[language];
+  if (!approved) throw new HarnessError('UNSUPPORTED', `No approved language server exists for "${language}".`);
+  const executable = installedExecutable(approved.executable);
+  if (!executable) throw new HarnessError('UNSUPPORTED', `The approved ${language} language server is not installed on this host.`);
+  let configDigest: string;
+  try { configDigest = sha(readFileSync(executable)); }
+  catch { configDigest = sha(executable); }
+  return { language, executable, argv: approved.argv, configDigest };
+}
+
+export interface CodeIntelligenceHostOptions {
+  /** Test seam: supply a factory to replace the real stdio adapter. */
+  adapterFactory?: (descriptor: LanguageServerDescriptor, root: string) => LanguageServerAdapter;
+  /** Proven execution backends for the debug registry. */
+  backends?: readonly ExecutionBackend[];
+  approvedBackendId?: string;
+  debugAdapterFor?: (backend: ExecutionBackend, recipe: { recipeId: string; executableDigest: string; confinementProfile: string }) => DebugAdapter;
+  env?: Readonly<Record<string, string | undefined>>;
+}
+
+/** M07 surface: revision-aware diagnostics, bounded navigation, streamed edit
+ * previews, guarded rename and restricted debug controls. Every endpoint sits
+ * beneath the existing authenticated hooks and fails closed when its host flag
+ * is off. */
+export function registerCodeIntelligenceRoutes(app: FastifyInstance, service: Service, options: CodeIntelligenceHostOptions = {}) {
+  const projects = workspaceHost(service).projects;
+  const env = options.env ?? process.env;
+  const gate = (flag: Extract<RegisteredHostFlag, `coding.${string}`>) => requireCodeIntelligenceFlag(flag, env);
+  const intelligence = new CodeIntelligence(
+    options.adapterFactory ?? ((descriptor, root) => new StdioLspAdapter(descriptor, root)));
+  const previews = new EditPreviewRegistry();
+  const debug = options.debugAdapterFor
+    ? new DebugRegistry(options.backends ?? [], options.approvedBackendId ?? '', options.debugAdapterFor)
+    : null;
+  const journalRoot = service.store.dataDir;
+  const profileDigest = sha('workspace-execute-no-network');
+
+  const binding = async (projectId: string, threadId?: string) => {
+    const bound = await projects.binding(projectId, threadId);
+    const identity = bound.workspace?.identity;
+    const workspaceIdentity = identity ? sha(`${identity.dev}:${identity.ino}`) : sha(`${bound.project.id}:${bound.path}`);
+    return { root: bound.path, workspaceIdentity };
+  };
+
+  const observeSchema = z.strictObject({
+    threadId: identifier.optional(), language: z.string().min(1).max(64), path: z.string().min(1).max(4096),
+    text: z.string().max(4 * 1024 * 1024), beforeDigest: z.string().regex(/^[a-f0-9]{64}$/).nullable().optional(),
+    editInvocationId: z.string().max(256).nullable().optional(), wait: z.enum(['inline', 'delayed']).optional(),
+  });
+  const navigateSchema = z.strictObject({
+    threadId: identifier.optional(), language: z.string().min(1).max(64), path: z.string().min(1).max(4096),
+    text: z.string().max(4 * 1024 * 1024), kind: z.enum(['definition', 'references', 'implementation', 'hover']),
+    position: z.strictObject({ line: z.number().int().nonnegative(), character: z.number().int().nonnegative() }),
+  });
+  const previewSchema = z.strictObject({
+    threadId: identifier.optional(), previewId: z.string().max(128).optional(),
+    schemaDigest: z.string().regex(/^[a-f0-9]{64}$/).optional(), chunk: z.string().max(1024 * 1024).optional(),
+    finalArgumentsDigest: z.string().regex(/^[a-f0-9]{64}$/).optional(), outcome: z.enum(['APPLIED', 'CONFLICT']).optional(),
+    command: z.enum(['begin', 'append', 'seal', 'validate', 'settle', 'discard']),
+  });
+  const renameSchema = z.strictObject({
+    threadId: identifier.optional(), language: z.string().min(1).max(64), path: z.string().min(1).max(4096),
+    text: z.string().max(4 * 1024 * 1024), position: z.strictObject({ line: z.number().int().nonnegative(), character: z.number().int().nonnegative() }),
+    newName: z.string().min(1).max(512), approvalId: z.string().min(1).max(256), plan: z.unknown().optional(), planId: z.string().max(128).optional(),
+    command: z.enum(['plan', 'apply', 'recover']),
+  });
+  const debugSchema = z.strictObject({
+    threadId: identifier.optional(), sessionId: z.string().max(128).optional(),
+    recipe: z.strictObject({ recipeId: z.string().min(1).max(256), executableDigest: z.string().regex(/^[a-f0-9]{64}$/), confinementProfile: z.string().min(1).max(256) }).optional(),
+    command: z.string().min(1).max(64), args: z.record(z.string(), z.unknown()).optional(),
+  });
+
+  app.register(async scope => {
+    scope.addHook('onSend', async (_request, reply, payload) => { reply.header('Cache-Control', 'no-store'); return payload; });
+
+    scope.post('/api/projects/:projectId/intelligence/diagnostics', { bodyLimit: 8 * 1024 * 1024 }, async request => {
+      gate('coding.intelligenceV1');
+      const { projectId } = z.strictObject({ projectId: identifier }).parse(request.params);
+      const input = observeSchema.parse(request.body);
+      const bound = await binding(projectId, input.threadId);
+      return intelligence.observe({
+        workspaceIdentity: bound.workspaceIdentity, root: bound.root, language: input.language,
+        descriptor: languageServerDescriptor(input.language), profileDigest,
+        path: input.path, beforeDigest: input.beforeDigest ?? null, afterDigest: sha(input.text), text: input.text,
+        editInvocationId: input.editInvocationId ?? null, wait: input.wait ?? 'delayed', signal: signal(),
+      });
+    });
+
+    scope.post('/api/projects/:projectId/intelligence/navigate', { bodyLimit: 8 * 1024 * 1024 }, async request => {
+      gate('coding.intelligenceV1');
+      const { projectId } = z.strictObject({ projectId: identifier }).parse(request.params);
+      const input = navigateSchema.parse(request.body);
+      const bound = await binding(projectId, input.threadId);
+      return intelligence.navigate({
+        root: bound.root, path: input.path, language: input.language, descriptor: languageServerDescriptor(input.language),
+        profileDigest, kind: input.kind, position: input.position, grantedRoots: [bound.root],
+        signal: signal(), text: input.text, afterDigest: sha(input.text),
+      });
+    });
+
+    scope.post('/api/projects/:projectId/previews', { bodyLimit: 2 * 1024 * 1024 }, async request => {
+      gate('coding.intelligenceV1');
+      const { projectId } = z.strictObject({ projectId: identifier }).parse(request.params);
+      const input = previewSchema.parse(request.body);
+      const owner = sha(projectId);
+      switch (input.command) {
+        case 'begin': {
+          if (!input.schemaDigest) throw new HarnessError('INVALID_INPUT', 'A preview requires the tool schema digest.');
+          return previews.begin(owner, input.schemaDigest);
+        }
+        case 'append': {
+          if (!input.previewId || input.chunk === undefined) throw new HarnessError('INVALID_INPUT', 'Append requires a previewId and a chunk.');
+          return previews.append(input.previewId, owner, input.chunk);
+        }
+        case 'seal': {
+          if (!input.previewId) throw new HarnessError('INVALID_INPUT', 'Seal requires a previewId.');
+          return previews.seal(input.previewId, owner, () => null);
+        }
+        case 'validate': {
+          if (!input.previewId || !input.finalArgumentsDigest) throw new HarnessError('INVALID_INPUT', 'Validate requires a previewId and the final arguments digest.');
+          return previews.validateFinal(input.previewId, owner, input.finalArgumentsDigest);
+        }
+        case 'settle': {
+          if (!input.previewId || !input.outcome) throw new HarnessError('INVALID_INPUT', 'Settle requires a previewId and an outcome.');
+          return previews.settle(input.previewId, owner, input.outcome);
+        }
+        case 'discard': {
+          if (!input.previewId) throw new HarnessError('INVALID_INPUT', 'Discard requires a previewId.');
+          previews.discard(input.previewId, owner);
+          return { discarded: true };
+        }
+      }
+    });
+
+    scope.post('/api/projects/:projectId/intelligence/rename', { bodyLimit: 8 * 1024 * 1024 }, async request => {
+      gate('coding.renameV1');
+      const { projectId } = z.strictObject({ projectId: identifier }).parse(request.params);
+      const input = renameSchema.parse(request.body);
+      const bound = await binding(projectId, input.threadId);
+      switch (input.command) {
+        case 'plan':
+          return intelligence.planRename({
+            root: bound.root, descriptor: languageServerDescriptor(input.language), profileDigest,
+            path: input.path, language: input.language, position: input.position, newName: input.newName,
+            grantedRoots: [bound.root], workspaceIdentity: bound.workspaceIdentity, approvalId: input.approvalId,
+            signal: signal(), text: input.text, afterDigest: sha(input.text),
+          });
+        case 'apply': {
+          if (!input.plan) throw new HarnessError('INVALID_INPUT', 'Apply requires the reviewed plan.');
+          return intelligence.applyRename({ plan: input.plan as never, approvalId: input.approvalId, journalRoot, grantedRoots: [bound.root], signal: signal() });
+        }
+        case 'recover': {
+          if (!input.planId) throw new HarnessError('INVALID_INPUT', 'Recover requires a planId.');
+          return intelligence.recoverRename({ journalRoot, planId: input.planId, signal: signal() });
+        }
+      }
+    });
+
+    scope.post('/api/projects/:projectId/debug', { bodyLimit: 256 * 1024 }, async request => {
+      gate('coding.debuggerV1');
+      const { projectId } = z.strictObject({ projectId: identifier }).parse(request.params);
+      const input = debugSchema.parse(request.body);
+      const owner = sha(projectId);
+      if (!debug) throw new HarnessError('UNSUPPORTED', 'No proven debugger backend is installed on this host.');
+      if (input.command === 'launch') {
+        if (!input.recipe) throw new HarnessError('INVALID_INPUT', 'Launch requires the approved recipe.');
+        return debug.launch({ owner, recipe: input.recipe, signal: signal() });
+      }
+      if (!input.sessionId) throw new HarnessError('INVALID_INPUT', 'The command requires a sessionId.');
+      if ((['threads', 'stackTrace', 'scopes', 'variables'] as const).includes(input.command as never))
+        return debug.inspect(input.sessionId, owner, input.command as 'threads', input.args ?? {}, signal());
+      if (input.command === 'terminate') { await debug.terminate(input.sessionId, owner, signal()); return { terminated: true }; }
+      return debug.effect(input.sessionId, owner, input.command as 'continue', input.args ?? {}, signal());
+    });
+  });
+
+  app.addHook('onClose', async () => { await intelligence.dispose(); await debug?.dispose(signal()); });
+}

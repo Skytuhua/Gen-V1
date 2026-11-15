@@ -10,6 +10,7 @@ import {DiffSkeleton, ReviewComparisonSkeleton} from '../ViewSkeletons';
 import {journalCompareAndSwap, journalFlush, journalRead, journalReadRecord, journalSubscribe, journalWrite} from '../journal';
 import {acknowledgeOperation, canUseDraft, comparisonKey, newDraft, ownerKey, rebindDraft, sameOwner, selectionKey, type ActionIdentity, type ReviewDraft, type ReviewOwner, type ReviewSelection, type ReviewOperation} from './model';
 import {codeReviewClient, reviewError} from './client';
+import {CodeIntelligencePanel} from './CodeIntelligencePanel';
 import './code-review-workspace.css';
 import {ErrorState} from '../../../../packages/ui-shell/Feedback';
 import {Search} from 'lucide-react';
@@ -40,6 +41,8 @@ export interface CodeReviewWorkspaceProps {
   writes?: ReviewWrites;
   chat?: ReactNode;
   terminal?: ReactNode | ((active: boolean) => ReactNode);
+  /** M07 code-intelligence surface; absent when the host flags are off. */
+  codeIntelligence?: import('./CodeIntelligencePanel').CodeIntelligencePanelProps;
 }
 export function CodeReviewWorkspace(props: CodeReviewWorkspaceProps) {
   const {selection, owners, pullRequests, onNavigate, chat, terminal} = props;
@@ -84,7 +87,7 @@ function reviewable(selection: ReviewSelection, comparison: CodeReviewComparison
     && review.item.headRefOid === identity.headOid && review.head === identity.headOid && review.revision === writes?.git.revision;
 }
 
-function ComparisonBody({selection, writes, onRefresh}: CodeReviewWorkspaceProps) {
+function ComparisonBody({selection, writes, onRefresh, codeIntelligence}: CodeReviewWorkspaceProps) {
   const [read, setRead] = useState<ComparisonRead>({state: 'loading'}), [refreshing, setRefreshing] = useState(false), [reading, setReading] = useState(false), [refresh, setRefresh] = useState(0);
   const [path, setPath] = useState(''), [filter, setFilter] = useState(''), [busy, setBusy] = useState(false), [notice, setNotice] = useState(''), [menuOpen, setMenuOpen] = useState(false);
   const mounted = useRef(true), inFlight = useRef(false), latestWrites = useRef(writes); latestWrites.current = writes;
@@ -194,6 +197,7 @@ function ComparisonBody({selection, writes, onRefresh}: CodeReviewWorkspaceProps
     </section>
     <aside className="cr-context" aria-label="Review context">
       <section aria-label="Checks"><h2>Checks</h2>{comparison && !comparison.checks.length ? <p className="cr-meta">No checks reported for this comparison.</p> : <ul className="cr-checks">{comparison?.checks.map((check, index) => <li key={`${check.name}:${index}`}><span>{check.name}</span><span className="cr-check-state" data-state={check.status}>{check.status}</span></li>)}</ul>}</section>
+      {codeIntelligence && <CodeIntelligencePanel {...codeIntelligence} />}
       <section className="cr-draft" aria-label="Review draft">
         <label htmlFor={`cr-draft-${selection.owner.projectId}`}>Review draft</label>
         <textarea id={`cr-draft-${selection.owner.projectId}`} value={draft.value?.body ?? ''} disabled={!draft.ready || !draft.value} maxLength={64000} rows={7}
