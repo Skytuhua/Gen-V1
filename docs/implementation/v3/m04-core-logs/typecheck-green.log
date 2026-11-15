@@ -1,0 +1,2 @@
+tests/request-preparation-service-v3.test.ts(238,9): error TS7034: Variable 'previews' implicitly has type 'any[]' in some locations where its type cannot be determined.
+tests/request-preparation-service-v3.test.ts(242,61): error TS7005: Variable 'previews' implicitly has an 'any[]' type.
