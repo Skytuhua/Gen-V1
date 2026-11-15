@@ -2,6 +2,7 @@ $ErrorActionPreference = 'Stop'
 $clock = [Diagnostics.Stopwatch]::StartNew()
 $ownedPid = 0
 $ticks = $null
+$probeStage = 'startup'
 function Emit($value) { [Console]::Out.WriteLine(($value | ConvertTo-Json -Depth 10 -Compress)); [Console]::Out.Flush() }
 try {
   $line = [Console]::In.ReadLine()
@@ -92,16 +93,20 @@ public static class OwnedWindowProbe {
   }
   Check-Owner
   foreach ($due in @(0,1000,5000,15000,28000,33000)) {
+    $probeStage = 'waiting-sample'
     while ($clock.ElapsedMilliseconds -lt $due) { Start-Sleep -Milliseconds 100; Check-Owner }
     Check-Owner
     $rootItems = @(); $rootError = $false
+    $probeStage = 'root-children'
     try {
       $condition = [System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::ProcessIdProperty, $ownedPid)
       $elements = [System.Windows.Automation.AutomationElement]::RootElement.FindAll([System.Windows.Automation.TreeScope]::Children, $condition)
       for ($i=0; $i -lt [Math]::Min(32,$elements.Count); $i++) { $rootItems += (Element-Meta $elements.Item($i)) }
     } catch { $rootError = $true }
     $windows = @()
+    $probeStage = 'owned-window-enumeration'
     foreach ($number in [OwnedWindowProbe]::Windows([uint32]$ownedPid)) {
+      $probeStage = 'window-metadata'
       $handle = [IntPtr]::new($number)
       $owner = [OwnedWindowProbe]::GetWindow($handle,4)
       $rootOwner = [OwnedWindowProbe]::GetAncestor($handle,3)
@@ -136,12 +141,14 @@ public static class OwnedWindowProbe {
         }
       } catch { $entry.uiaError=$true }
       if ($entry.titleKind -eq 'expected-export') {
+        $probeStage = 'dialog-owner-before-children'
         Check-Owner
         if ([OwnedWindowProbe]::Pid($handle) -ne $ownedPid) {throw 'Dialog owner changed'}
         $children=[OwnedWindowProbe]::Children($handle,[uint32]$ownedPid)
         if ($children.Length -gt 64) {throw 'Owned child enumeration exceeded its bound'}
         $entry.ownedChildCount=$children.Length;$candidateCount=0
         foreach ($childNumber in $children) {
+          $probeStage = 'child-owner-before-metadata'
           $childHandle=[IntPtr]::new($childNumber)
           if ([OwnedWindowProbe]::Pid($childHandle) -ne $ownedPid) {throw 'Native child owner changed'}
           $childClass=[OwnedWindowProbe]::ChildClass($childHandle);$childId=[OwnedWindowProbe]::GetDlgCtrlID($childHandle)
@@ -153,16 +160,18 @@ public static class OwnedWindowProbe {
           $entry.nativeChildren += $child
         }
         $entry.nativeCandidateCount=$candidateCount
+        $probeStage = 'owner-after-children'
         Check-Owner
       }
       $windows += $entry
     }
     Check-Owner
+    $probeStage = 'emit-snapshot'
     Emit ([ordered]@{version=1;phase='snapshot';elapsedMs=[int]$clock.ElapsedMilliseconds;pid=$ownedPid;processStartTicks=$ticks;rootChildren=$rootItems;rootQueryFailed=$rootError;windows=$windows})
   }
   Emit @{version=1;phase='completed';pid=$ownedPid;processStartTicks=$ticks;elapsedMs=[int]$clock.ElapsedMilliseconds}
   exit 0
 } catch {
-  Emit @{version=1;phase='failed';pid=$ownedPid;processStartTicks=$ticks;elapsedMs=[int]$clock.ElapsedMilliseconds;reason='owned-window-observation-failed'}
+  Emit @{version=1;phase='failed';pid=$ownedPid;processStartTicks=$ticks;elapsedMs=[int]$clock.ElapsedMilliseconds;reason='owned-window-observation-failed';stage=$probeStage}
   exit 1
 }

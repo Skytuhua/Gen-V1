@@ -1,6 +1,6 @@
 import {spawn, execFileSync, type ChildProcess} from 'node:child_process';
 import {createHash, randomBytes} from 'node:crypto';
-import {readFile, writeFile, mkdir, mkdtemp, realpath} from 'node:fs/promises';
+import {readFile, writeFile, mkdir, mkdtemp, realpath, lstat} from 'node:fs/promises';
 import {join, resolve, dirname, win32} from 'node:path';
 import {tmpdir} from 'node:os';
 import {createServer} from 'node:net';
@@ -39,6 +39,18 @@ let fixtureOutput = '', fixtureStderrBytes = 0, observerOutput = '', observerStd
 let fixtureStderr = Buffer.alloc(0), fixtureLines = 0;
 const fixtureStderrHash = createHash('sha256'), fixturePhases: {phase: string; elapsedMs: number}[] = [];
 let native: InstalledNativeSaveObservation | undefined;
+const completionStages: string[] = [];
+const completionErrorCode = (cause: unknown) => {
+  const code = typeof cause === 'object' && cause !== null && 'code' in cause ? (cause as {code?: unknown}).code : undefined;
+  return typeof code === 'string' && ['ENOENT', 'EACCES', 'EPERM', 'EBUSY', 'EIO', 'ENOTDIR', 'ELOOP'].includes(code) ? code : 'other';
+};
+const fixedTargetMetadata = async (path: string) => {
+  try {
+    const info = await lstat(path, {bigint: true});
+    return {exists: true, ordinaryFile: info.isFile() && !info.isSymbolicLink(), symbolicLink: info.isSymbolicLink(),
+      bytes: info.size <= 1048576n ? Number(info.size) : 'over-bound'};
+  } catch (cause) {return {exists: null, errorCode: completionErrorCode(cause)};}
+};
 let observerError: string | undefined;
 let deadline: ReturnType<typeof setTimeout> | undefined;
 const isAlive = (child: ChildProcess | undefined) => !!child?.pid && child.exitCode === null && child.signalCode === null;
@@ -150,15 +162,30 @@ try {
   try {
     const result = await saveInstalledMemoryThroughNativeDialog({pid: fixture.pid!, executable, isAlive: () => isAlive(fixture)}, target,
       () => page.getByRole('button', {name: 'Export redacted JSON', exact: true}).click(), async () => {
+        completionStages.push('waiting-renderer-saved');
         await expect(page.locator('#status')).toHaveText('saved', {timeout: 30000});
-        const bytes = await readInstalledNativeSave(target), digest = hash(bytes), actual = await state();
+        completionStages.push('target-lstat');
+        receipt.fixedTarget = await fixedTargetMetadata(target.path);
+        completionStages.push('reading-fixed-target');
+        const bytes = await readInstalledNativeSave(target);
+        completionStages.push('hashing-read-bytes');
+        const digest = hash(bytes);
+        completionStages.push('reading-native-state');
+        const actual = await state();
+        completionStages.push('matching-native-result');
         if (actual?.status !== 'saved' || actual.outcome?.status !== 'saved' || actual.outcome.bytes !== bytes.length || actual.outcome.sha256 !== digest || actual.outcome.filename !== 'project-memory-diagnostic_project.json') throw Error('Native completion did not match exact saved bytes.');
+        completionStages.push('checking-redacted-json');
         const parsed = JSON.parse(bytes.toString('utf8'));
         if (parsed.redacted !== true || parsed.scope.projectId !== 'diagnostic:project') throw Error('Unexpected synthetic output.');
         return {bytes: bytes.length, sha256: digest, canonicalFilename: actual.outcome.filename};
       }, value => {native = value;});
     receipt.nativeSave = result.dialog; receipt.saved = result.value; receipt.passed = true;
-  } catch (cause) {receipt.failure = {stage, error: safeFailure(cause)}; receipt.nativeSave = native ?? null;}
+  } catch (cause) {
+    receipt.failure = {stage, error: safeFailure(cause), completionErrorCode: completionErrorCode(cause)};
+    receipt.fixedTarget = await fixedTargetMetadata(target.path);
+    receipt.nativeSave = native ?? null;
+  }
+  receipt.completionStages = completionStages;
   stage = 'terminal-observations';
   receipt.fixtureAfterProbe = await state();
   if (isAlive(observer)) await bounded(new Promise<void>(accept => observer!.once('close', () => accept())), 45000, 'The read-only window observer exceeded its bound.');

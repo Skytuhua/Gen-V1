@@ -1,7 +1,7 @@
 import {app, BrowserWindow, dialog, ipcMain} from 'electron';
 import {createServer} from 'node:http';
 import {readFile, writeFile} from 'node:fs/promises';
-import {resolve, join} from 'node:path';
+import {resolve, join, win32} from 'node:path';
 import {createHash} from 'node:crypto';
 import {createMemoryExportDownloads} from '../../apps/desktop/memory-export.ts';
 
@@ -33,6 +33,22 @@ const value = {scope: {projectId: 'diagnostic:project', projectIdentity: 'a'.rep
 const canonical = JSON.stringify(value, null, 2) + '\n';
 const filename = 'project-memory-diagnostic_project.json';
 const target = join(config.root, 'installed-memory-redacted-export.json');
+// Diagnostic comparisons only. The original exact target admission below remains unchanged.
+function destinationRelation(candidate: unknown) {
+  if (typeof candidate !== 'string' || candidate.length > 32768) return {available: false};
+  const normalized = win32.normalize(candidate), expected = win32.normalize(target);
+  const stripExtended = (path: string) => path.startsWith('\\\\?\\UNC\\') ? '\\\\' + path.slice(8) : path.startsWith('\\\\?\\') ? path.slice(4) : path;
+  const lower = (path: string) => path.toLowerCase();
+  const basename = win32.basename(normalized);
+  return {available: true, absolute: win32.isAbsolute(candidate), exactString: candidate === target,
+    normalizedExact: normalized === expected, normalizedCaseInsensitive: lower(normalized) === lower(expected),
+    sameExpectedParent: lower(win32.dirname(normalized)) === lower(win32.dirname(expected)),
+    sameExpectedBasename: lower(basename) === lower(win32.basename(expected)),
+    sameDefaultBasename: lower(basename) === lower(filename),
+    sameAfterStripExtendedPrefix: lower(win32.normalize(stripExtended(candidate))) === lower(expected),
+    extendedPrefix: candidate.startsWith('\\\\?\\'), length: candidate.length, expectedLength: target.length,
+    suffix: /\.json\.json$/i.test(basename) ? 'double-json' : /\.json$/i.test(basename) ? 'json' : 'other'};
+}
 const started = Date.now();
 type Event = {phase: string; elapsedMs: number; [key: string]: unknown};
 const events: Event[] = [];
@@ -83,7 +99,11 @@ contents.session.on('will-download', (event, item, sender, frame) => {
       originMatches: item.getInitiatorOrigin() === origin, filenameMatches: item.getFilename() === filename,
       dataUrl: item.getURL().startsWith('data:application/json;'), chainLength: item.getURLChain().length,
       titleMatches: item.getSaveDialogOptions().title === 'Export project memory'});
-    item.once('done', (_event, state) => record('download-done', {state: ['completed', 'cancelled', 'interrupted'].includes(state) ? state : 'other'}));
+    item.once('done', (_event, state) => {
+      let destination: ReturnType<typeof destinationRelation>;
+      try {destination = destinationRelation(item.getSavePath());} catch {destination = {available: false};}
+      record('download-done', {state: ['completed', 'cancelled', 'interrupted'].includes(state) ? state : 'other', destination});
+    });
   } catch {record('download-observation-unavailable');}
 });
 ipcMain.handle('diagnostic:native-save', async event => {
@@ -93,7 +113,7 @@ ipcMain.handle('diagnostic:native-save', async event => {
     if (config.mode === 'direct') {
       record('direct-dialog-requested');
       const result = await dialog.showSaveDialog(owned, {title: 'Export project memory', defaultPath: filename, filters: [{name: 'JSON', extensions: ['json']}], properties: ['showOverwriteConfirmation']});
-      record('direct-dialog-returned', {cancelled: result.canceled, selectedExactTarget: result.filePath === target});
+      record('direct-dialog-returned', {cancelled: result.canceled, selectedExactTarget: result.filePath === target, destination: destinationRelation(result.filePath)});
       if (result.canceled || result.filePath !== target) throw Error('The direct native dialog did not select the owned fixed target.');
       await writeFile(target, canonical, {flag: 'wx'});
       outcome = {status: 'saved', admitted: true, filename, bytes: Buffer.byteLength(canonical), sha256: createHash('sha256').update(canonical).digest('hex')};
