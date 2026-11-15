@@ -129,10 +129,11 @@ describe("domain permission wrapper and file operations", () => {
     expect(s.progress.length).toBeGreaterThan(0);
     await expect(handleDomainTool("database_inspect", { resourceId: "app-db" }, s.ctx)).rejects.toThrow(/denied/i);
   });
-  it("rechecks readonly grants and rejects cross-thread or non-running operation dispatch", async () => {
+  it("rejects readonly grants at prepare and rejects cross-thread or non-running operation dispatch", async () => {
     const s = await sandbox(); await writeFile(join(s.root, "file.txt"), "original");
-    const op = await handleDomainTool("file_replace_prepare", { resourceId: "readonly", path: "file.txt", content: "new", expectedSha256: hash("original") }, s.ctx) as Operation;
-    await expect(executeDomainOperation(approve(op), s.ctx)).rejects.toThrow(/read only/i);
+    await expect(handleDomainTool("file_replace_prepare", { resourceId: "readonly", path: "file.txt", content: "new", expectedSha256: hash("original") }, s.ctx)).rejects.toThrow(/read only/i);
+    expect(s.operations.length).toBe(0);
+    const op = await handleDomainTool("file_replace_prepare", { resourceId: "file", content: "new", expectedSha256: hash("original") }, s.ctx) as Operation;
     await expect(executeDomainOperation({ ...approve(op), threadId: "other" }, s.ctx)).rejects.toThrow();
     await expect(executeDomainOperation({ ...approve(op), status: "succeeded" }, s.ctx)).rejects.toThrow();
   });

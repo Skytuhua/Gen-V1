@@ -322,6 +322,12 @@ class Worker:
             if restricted.intersection(names) or resolved_restricted or source_restricted:
                 raise PermissionError("Skill is disabled or protected by the host")
 
+    # M02 coverage: skill_tool/shared_skill_tool execute inside this worker and
+    # are NOT observed by the host tool ledger (COVERAGE_GAP). Only calls routed
+    # through Service.tool are audited; keep this label until native calls flow
+    # through the host boundary.
+    NATIVE_TOOL_COVERAGE = {"skill_tool": "coverage_gap", "shared_skill_tool": "coverage_gap"}
+
     def skill_tool(self, name, args, kw):
         if self.shared_library:
             if name == "skill_manage":
