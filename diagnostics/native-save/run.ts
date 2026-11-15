@@ -36,6 +36,8 @@ let fixture: ChildProcess | undefined, observer: ChildProcess | undefined, brows
 let origin = '', documentUrl = '', stage = 'source-custody';
 let ready: {origin: string; documentUrl: string; pid: number; electron: string} | undefined;
 let fixtureOutput = '', fixtureStderrBytes = 0, observerOutput = '', observerStderrBytes = 0;
+let fixtureStderr = Buffer.alloc(0), fixtureLines = 0;
+const fixtureStderrHash = createHash('sha256'), fixturePhases: {phase: string; elapsedMs: number}[] = [];
 let native: InstalledNativeSaveObservation | undefined;
 let observerError: string | undefined;
 let deadline: ReturnType<typeof setTimeout> | undefined;
@@ -91,10 +93,23 @@ try {
   fixture.stdout!.on('data', (bytes: Buffer) => {
     fixtureOutput += bytes.toString('utf8');
     if (Buffer.byteLength(fixtureOutput) > 32768) {fixtureFailure = 'stdout-bound'; void terminateProcessTree(fixture!); return;}
-    const line = fixtureOutput.slice(0, fixtureOutput.lastIndexOf('\n') + 1).split(/\r?\n/).find(line => line.startsWith('M05_NATIVE_SAVE_READY='));
-    if (line && !ready) {try {ready = JSON.parse(line.slice('M05_NATIVE_SAVE_READY='.length));} catch {fixtureFailure = 'invalid-ready';}}
+    const lines = fixtureOutput.slice(0, fixtureOutput.lastIndexOf('\n') + 1).split(/\r?\n/).filter(Boolean);
+    for (const line of lines.slice(fixtureLines)) {
+      try {
+        if (line.startsWith('M05_NATIVE_SAVE_PHASE=')) {
+          const entry = JSON.parse(line.slice('M05_NATIVE_SAVE_PHASE='.length));
+          if (fixturePhases.length >= 8 || !['module-entered','config-read','server-listening','ready-scheduled','app-ready','renderer-ready','startup-failed'].includes(entry.phase) || !Number.isSafeInteger(entry.elapsedMs) || entry.elapsedMs < 0 || entry.elapsedMs > 150000) throw Error('Invalid fixture phase.');
+          fixturePhases.push({phase: entry.phase, elapsedMs: entry.elapsedMs});
+        } else if (line.startsWith('M05_NATIVE_SAVE_READY=') && !ready) ready = JSON.parse(line.slice('M05_NATIVE_SAVE_READY='.length));
+      } catch {fixtureFailure = 'invalid-ready';}
+    }
+    fixtureLines = lines.length;
   });
-  fixture.stderr!.on('data', (bytes: Buffer) => {fixtureStderrBytes += bytes.length; if (fixtureStderrBytes > 65536) {fixtureFailure = 'stderr-bound'; void terminateProcessTree(fixture!);}});
+  fixture.stderr!.on('data', (bytes: Buffer) => {
+    fixtureStderrBytes += bytes.length; fixtureStderrHash.update(bytes);
+    if (fixtureStderr.length < 65536) fixtureStderr = Buffer.concat([fixtureStderr, bytes.subarray(0, 65536 - fixtureStderr.length)]);
+    if (fixtureStderrBytes > 65536) {fixtureFailure = 'stderr-bound'; void terminateProcessTree(fixture!);}
+  });
   deadline = setTimeout(() => {void terminateProcessTree(fixture!); if (observer) void terminateProcessTree(observer);}, 145000);
   const startup = Date.now();
   while (!ready && Date.now() - startup < 30000) {if (fixtureFailure || !isAlive(fixture)) throw Error('The owned fixture did not become ready.'); await delay(100);}
@@ -174,6 +189,16 @@ try {
   cleanup.fixtureStderrBytes = fixtureStderrBytes; cleanup.ownedProcessesExited = !isAlive(fixture) && !isAlive(observer);
   if (!cleanup.ownedProcessesExited) receipt.passed = false;
   if (receipt.passed && (cleanup.fixtureExitCode !== 0 || cleanup.fixtureSignal !== null || cleanup.fixtureTerminated)) {receipt.passed = false; receipt.failure = {stage: 'owned-cleanup', error: 'The successful fixture did not close cleanly.'};}
+  let normalizedStderr = fixtureStderr.toString('utf8');
+  for (const [value, replacement] of [[root, '<owned-root>'], [repository, '<repository>'], [nonce, '<owned-nonce>']]) {
+    const variants = new Set([value!, value!.replaceAll('\\', '/'), JSON.stringify(value).slice(1,-1), JSON.stringify(value!.replaceAll('\\', '/')).slice(1,-1)]);
+    for (const variant of [...variants].sort((left,right) => right.length-left.length)) normalizedStderr = normalizedStderr.split(variant).join(replacement!);
+  }
+  normalizedStderr = normalizedStderr.replace(/ws:\/\/127\.0\.0\.1:[0-9]+\/devtools\/browser\/[a-zA-Z0-9-]+/g, '<owned-devtools-endpoint>');
+  const normalizedBytes = Buffer.from(normalizedStderr);
+  receipt.fixtureStartup = {phases: fixturePhases, stderr: {observedBytes: fixtureStderrBytes, observedSha256: fixtureStderrHash.digest('hex'), capturedBytes: fixtureStderr.length,
+    normalized: true, truncated: normalizedBytes.length > 8192 || fixtureStderrBytes > fixtureStderr.length,
+    head: normalizedBytes.subarray(0, 4096).toString('utf8'), tail: normalizedBytes.length > 4096 ? normalizedBytes.subarray(Math.max(4096, normalizedBytes.length - 4096)).toString('utf8') : ''}};
   receipt.cleanup = cleanup; receipt.completedAt = new Date().toISOString();
   const content = JSON.stringify(receipt, null, 2) + '\n';
   if (Buffer.byteLength(content) > 262144) throw Error('The bounded diagnostic receipt exceeded 256 KiB.');

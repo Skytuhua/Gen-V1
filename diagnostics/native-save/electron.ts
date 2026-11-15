@@ -6,10 +6,22 @@ import {createHash} from 'node:crypto';
 import {createMemoryExportDownloads} from '../../apps/desktop/memory-export.ts';
 
 // Diagnostic-only process. It does not import the application host, accounts or providers.
+const startupStarted = Date.now();
+type StartupPhase = 'module-entered' | 'config-read' | 'server-listening' | 'ready-scheduled' | 'app-ready' | 'renderer-ready' | 'startup-failed';
+const startupPhase = (phase: StartupPhase) => process.stdout.write('M05_NATIVE_SAVE_PHASE=' + JSON.stringify({phase, elapsedMs: Date.now() - startupStarted}) + '\n');
+const startupFailure = (cause: unknown) => {
+  startupPhase('startup-failed');
+  const error = cause instanceof Error ? cause : Error('The diagnostic fixture failed.');
+  process.stderr.write('M05_NATIVE_SAVE_STARTUP_ERROR=' + JSON.stringify({name: error.name.slice(0,80), message: error.message.slice(0,1000), stack: (error.stack ?? '').slice(0,3000)}) + '\n');
+  app.exit(3);
+};
+process.on('uncaughtException', startupFailure); process.on('unhandledRejection', startupFailure);
+startupPhase('module-entered');
 const configPath = process.argv.find(value => value.startsWith('--fixture-config='))?.slice(17);
 if (!configPath || resolve(configPath) !== configPath) throw Error('A fixed fixture configuration is required.');
 const config = JSON.parse(await readFile(configPath, 'utf8')) as {mode: 'direct' | 'policy'; root: string; nonce: string; preload: string; debugPort: number};
 if (!['direct', 'policy'].includes(config.mode) || resolve(config.root) !== config.root || !/^[a-f0-9]{48}$/.test(config.nonce) || config.preload !== join(config.root, 'preload.cjs') || !Number.isInteger(config.debugPort) || config.debugPort < 1 || config.debugPort > 65535) throw Error('Invalid fixture configuration.');
+startupPhase('config-read');
 app.setPath('userData', join(config.root, 'profile'));
 app.commandLine.appendSwitch('remote-debugging-port', String(config.debugPort));
 app.commandLine.appendSwitch('remote-debugging-address', '127.0.0.1');
@@ -51,7 +63,11 @@ const address = server.address();
 if (!address || typeof address === 'string') throw Error('Fixture loopback address unavailable.');
 const origin = 'http://127.0.0.1:' + address.port;
 documentUrl = origin + '/?fixture=' + config.nonce;
-await app.whenReady();
+startupPhase('server-listening');
+// Electron joins ESM evaluation before its ready event. Do not await ready at module scope.
+startupPhase('ready-scheduled');
+void app.whenReady().then(async () => {
+startupPhase('app-ready');
 window = new BrowserWindow({title, width: 800, height: 600, show: true, webPreferences: {preload: config.preload, sandbox: true, contextIsolation: true, nodeIntegration: false}});
 const owned = window, contents = owned.webContents, policy = createMemoryExportDownloads();
 contents.session.setPermissionRequestHandler((_contents, _permission, callback) => callback(false));
@@ -96,6 +112,8 @@ ipcMain.handle('diagnostic:native-save', async event => {
 });
 await owned.loadURL(documentUrl);
 record('renderer-ready');
+startupPhase('renderer-ready');
 process.stdout.write('M05_NATIVE_SAVE_READY=' + JSON.stringify({origin, documentUrl, pid: process.pid, electron: process.versions.electron}) + '\n');
 app.on('window-all-closed', () => {server.close(); app.quit();});
 setTimeout(() => {closing = true; owned.destroy(); server.close(); app.exit(2);}, 150000).unref();
+}).catch(startupFailure);
