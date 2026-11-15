@@ -59,7 +59,8 @@ export class RequestMetrics {
     // observation is already finished when the response is actually sent, so
     // firstPublicDelta may still be stamped late. It can never be backdated.
     if (this.done) {
-      if (stage === 'firstPublicDelta' && this.timings.firstPublicDelta === null) {
+      if (stage !== 'firstPublicDelta') return null;
+      if (this.timings.firstPublicDelta === null) {
         this.timings.firstPublicDelta = this.elapsed();
         if (this.snapshot) this.snapshot.timings.firstPublicDelta = this.timings.firstPublicDelta;
       }
