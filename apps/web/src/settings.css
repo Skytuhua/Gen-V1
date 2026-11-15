@@ -71,3 +71,5 @@
 @media(prefers-reduced-motion:reduce) { .settings-switch>span { transition:none; } }
 
 .settings-card-row output { color:var(--text); font-weight:400; white-space:nowrap; font-variant-numeric:tabular-nums; }
+
+.appearance-dirty { font-size:12px; color:var(--muted); }

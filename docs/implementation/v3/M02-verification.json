@@ -1,220 +1,159 @@
 {
   "schemaVersion": 3,
   "bundleId": "M02",
-  "baseSha": "5f0958f4cb5b40bc10c1eea0e1cd517b57aaa1b9",
-  "sourceLockDigest": "e368f8f588ad37296a17f7ecbfab71e900302c82645d2d2e91ab93763ccab0e0",
-  "platform": "win32-x64",
-  "nodeVersion": "v24.22.2",
+  "baseSha": "055007ff9ab43fc24cfbc0af76b0b4cea3db473d",
+  "sourceLockDigest": "82c7fb4f0518f37873ab8bc557bbea1acc91e419c91fa5a2657b532e712fde3a",
+  "platform": "linux-x86_64",
+  "nodeVersion": "v24.22.1",
   "packageManagerVersion": "10.30.3",
   "phases": [
     {
-      "id": "core.source-custody",
+      "id": "core.m01-m02-shared-contracts",
       "status": "PASS",
       "requiredCases": [
         {
-          "id": "worktree-isolated",
-          "status": "PASS",
-          "evidence": "Separate worktree C:\\Users\\Administrator\\repos\\Gen-V1-m02 on agent/m02-v3; original checkout untouched."
+          "id": "research-baseline",
+          "status": "PASS"
         },
         {
-          "id": "base-recorded",
-          "status": "PASS",
-          "evidence": "origin/main advanced to 5f0958f4cb5b40bc10c1eea0e1cd517b57aaa1b9 (M01 merge); branch merged onto it, conflicts resolved adopting the real M01 contracts."
+          "id": "regression-selection",
+          "status": "PASS"
         },
         {
-          "id": "audit-ancestor-verified",
-          "status": "PASS",
-          "evidence": "a7fc0bc7 verified ancestor of base."
+          "id": "tool-authority",
+          "status": "PASS"
         },
         {
-          "id": "no-push-merge-deploy",
-          "status": "PASS",
-          "evidence": "Local commits only on agent/m02-v3 during implementation; push/merge performed only after explicit user authorization."
+          "id": "tool-effects",
+          "status": "PASS"
+        },
+        {
+          "id": "effect-recovery",
+          "status": "PASS"
         }
       ],
       "commands": [
         {
           "argv": [
-            "C:\\Program Files\\Git\\cmd\\git.exe",
-            "merge-base",
-            "--is-ancestor",
-            "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
-            "origin/main"
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/research-baseline.test.ts",
+            "tests/regression-selection.test.ts",
+            "tests/tool-authority-v3.test.ts",
+            "tests/tool-effects-v3.test.ts",
+            "tests/effect-recovery-v3.test.ts",
+            "--maxWorkers=1"
           ],
-          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m02",
-          "executableIdentity": "C:\\Program Files\\Git\\cmd\\git.exe",
-          "startedAt": "2026-11-15T01:20:00Z",
-          "endedAt": "2026-11-15T01:20:05Z",
+          "cwdIdentity": "isolated M01/M02 reconciliation checkout",
+          "executableIdentity": "Node v24.22.1; locked pnpm 10.30.3 dependencies",
+          "startedAt": "2026-11-14T23:52:40Z",
+          "endedAt": "2026-11-14T23:52:46Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "logs/m02-merge-00-source-custody.log",
-          "logDigest": "1f233dbc39aaab0ae9a21e771504383bef131d7fc614c4111500a8cee7026129"
+          "boundedLogRef": "docs/implementation/v3/m02-reconcile-logs/core.txt",
+          "logDigest": "3af36a9ee9312a05700a1033b5e50285f4ea08387d3fe46372c29dde42395c49"
         }
       ],
       "artifactRefs": [
-        "docs/implementation/v3/M02-source-lock.json"
+        "docs/implementation/v3/m02-reconcile-logs/core.txt"
       ]
     },
     {
-      "id": "core.validation",
+      "id": "integration.static-verification",
       "status": "PASS",
       "requiredCases": [
         {
           "id": "typecheck",
-          "status": "PASS",
-          "evidence": "tsc --noEmit clean post-merge (m02-merge-01-typecheck.log)."
+          "status": "PASS"
         },
         {
-          "id": "lint",
-          "status": "PASS",
-          "evidence": "lint-ui --check: 491 sources, 0 violations (m02-merge-04-lint.log)."
+          "id": "ui-guard",
+          "status": "PASS"
         },
         {
-          "id": "build",
-          "status": "PASS",
-          "evidence": "pnpm build exit 0 post-merge (m02-merge-05-build.log)."
+          "id": "production-build",
+          "status": "PASS"
         }
       ],
       "commands": [
         {
           "argv": [
-            "C:\\Program Files\\nodejs\\node.exe",
+            "node",
             "node_modules/typescript/bin/tsc",
             "--noEmit"
           ],
-          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m02",
-          "executableIdentity": "C:\\Program Files\\nodejs\\node.exe",
-          "startedAt": "2026-11-15T01:10:00Z",
-          "endedAt": "2026-11-15T01:12:00Z",
+          "cwdIdentity": "isolated M01/M02 reconciliation checkout",
+          "executableIdentity": "Node v24.22.1; locked pnpm 10.30.3 dependencies",
+          "startedAt": "2026-11-14T23:52:20Z",
+          "endedAt": "2026-11-14T23:52:56Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "logs/m02-merge-01-typecheck.log",
-          "logDigest": "16446ce8714d78817091a831ad21abee10e14ec699e5f00595ef441c5bc0c6ca"
+          "boundedLogRef": "docs/implementation/v3/m02-reconcile-logs/typecheck.txt",
+          "logDigest": "8a0cf2ec20daa46c74e492cadb42b38b2649a96bd30b256de9c16f2e66b5c435"
         },
         {
           "argv": [
-            "C:\\Program Files\\nodejs\\node.exe",
-            "node_modules/tsx/dist/cli.mjs",
+            "node",
+            "--import",
+            "tsx",
             "scripts/lint-ui.ts",
             "--check"
           ],
-          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m02",
-          "executableIdentity": "C:\\Program Files\\nodejs\\node.exe",
-          "startedAt": "2026-11-15T01:14:00Z",
-          "endedAt": "2026-11-15T01:16:00Z",
+          "cwdIdentity": "isolated M01/M02 reconciliation checkout",
+          "executableIdentity": "Node v24.22.1; locked pnpm 10.30.3 dependencies",
+          "startedAt": "2026-11-14T23:52:20Z",
+          "endedAt": "2026-11-14T23:52:47Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "logs/m02-merge-04-lint.log",
-          "logDigest": "f35ae8a7a27ee469607e4be3990c850acc550e587a2a047adc3f9c784fec91db"
+          "boundedLogRef": "docs/implementation/v3/m02-reconcile-logs/lint.txt",
+          "logDigest": "6270f5c09bfc65361da28b3d3deedbec46ae498db8b8fa3084d209042a28cf3c"
         },
         {
           "argv": [
-            "C:\\Program Files\\nodejs\\node.exe",
-            "node_modules/pnpm/bin/pnpm.cjs",
+            "corepack",
+            "pnpm",
             "build"
           ],
-          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m02",
-          "executableIdentity": "C:\\Program Files\\nodejs\\node.exe",
-          "startedAt": "2026-11-15T01:12:00Z",
-          "endedAt": "2026-11-15T01:17:30Z",
+          "cwdIdentity": "isolated M01/M02 reconciliation checkout",
+          "executableIdentity": "Node v24.22.1; locked pnpm 10.30.3 dependencies",
+          "startedAt": "2026-11-14T23:52:20Z",
+          "endedAt": "2026-11-14T23:52:32Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "logs/m02-merge-05-build.log",
-          "logDigest": "ddae8f06ef258e9daedebb70973f61554b8aead3c73a2ba8c541f01fd9d48297"
+          "boundedLogRef": "docs/implementation/v3/m02-reconcile-logs/build.txt",
+          "logDigest": "c6a2b8b18de112e9f8e75bbc98be7efb8e4a9f6ae0e3ec09df5ce8bcf6b0e196"
         }
       ],
-      "artifactRefs": []
+      "artifactRefs": [
+        "docs/implementation/v3/m02-reconcile-logs/typecheck.txt",
+        "docs/implementation/v3/m02-reconcile-logs/lint.txt",
+        "docs/implementation/v3/m02-reconcile-logs/build.txt"
+      ]
     },
     {
-      "id": "unit.spec-tests",
-      "status": "PASS",
-      "requiredCases": [
-        {
-          "id": "tool-effects-v3",
-          "status": "PASS",
-          "evidence": "tests/tool-effects-v3.test.ts - admission/approval consumption, dedupe coalescing, INVOCATION_CONFLICT."
-        },
-        {
-          "id": "tool-authority-v3",
-          "status": "PASS",
-          "evidence": "tests/tool-authority-v3.test.ts - authorize() outcomes, commitment binding, flag registry."
-        },
-        {
-          "id": "effect-recovery-v3",
-          "status": "PASS",
-          "evidence": "tests/effect-recovery-v3.test.ts - crash recovery, replay-class policy, archive-parent acceptance."
-        },
-        {
-          "id": "m01-evidence-regression",
-          "status": "PASS",
-          "evidence": "tests/research-baseline.test.ts 26/26 after adopting real M01 contracts."
-        }
-      ],
-      "commands": [
-        {
-          "argv": [
-            "C:\\Program Files\\nodejs\\node.exe",
-            "node_modules/vitest/vitest.mjs",
-            "run",
-            "tests/tool-effects-v3.test.ts",
-            "tests/tool-authority-v3.test.ts",
-            "tests/effect-recovery-v3.test.ts"
-          ],
-          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m02",
-          "executableIdentity": "C:\\Program Files\\nodejs\\node.exe",
-          "startedAt": "2026-11-15T01:13:30Z",
-          "endedAt": "2026-11-15T01:13:36Z",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "logs/m02-merge-02-spec-tests.log",
-          "logDigest": "76ee3059b38144701a83f37925053e0bed8504a27a4c25c1bf24512611ba7587"
-        },
-        {
-          "argv": [
-            "C:\\Program Files\\nodejs\\node.exe",
-            "node_modules/vitest/vitest.mjs",
-            "run",
-            "tests/research-baseline.test.ts"
-          ],
-          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m02",
-          "executableIdentity": "C:\\Program Files\\nodejs\\node.exe",
-          "startedAt": "2026-11-15T01:13:38Z",
-          "endedAt": "2026-11-15T01:13:42Z",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "logs/m02-merge-03-m01-evidence-tests.log",
-          "logDigest": "a139182a330c5ce0b83f754d72e8fed9b92abdec620f2107a995432b51d3adaa"
-        }
-      ],
-      "artifactRefs": []
-    },
-    {
-      "id": "unit.full-suite",
+      "id": "integration.full-runtime",
       "status": "BLOCKED",
       "requiredCases": [
         {
-          "id": "pnpm-test-full",
-          "status": "NOT_RUN",
-          "evidence": "Full suite cannot complete on this host: no Visual Studio C++ Build Tools for windows-credential-lease.node; .harness-integrations-python-deps absent; Playwright browsers missing at run time; node-pty AttachConsole failures. 2967 passed / 63 environment-bound failures pre-merge; the same failures reproduce at the clean base."
+          "id": "combined-full-application-regression",
+          "status": "NOT_RUN"
         }
       ],
       "commands": [],
       "artifactRefs": []
     },
     {
-      "id": "browser.host-loop",
+      "id": "platform.windows",
       "status": "BLOCKED",
       "requiredCases": [
         {
-          "id": "host-loop-suite",
-          "status": "NOT_RUN",
-          "evidence": "host-loop.spec.ts: 3 pass / 4 fail on branch vs 7 fail / 0 pass at clean base 055007f - all failures are baseline environment issues, not M02."
+          "id": "exact-combined-windows-ci",
+          "status": "NOT_RUN"
         }
       ],
       "commands": [],
@@ -222,40 +161,36 @@
     }
   ],
   "changedFiles": [
-    "apps/server/server.ts",
-    "apps/server/tool-effect-read-routes.ts",
-    "apps/web/src/App.tsx",
-    "apps/web/src/api.ts",
-    "docs/implementation/v3/M02-verification.json",
-    "packages/contracts/index.ts",
-    "packages/contracts/tool-effects.ts",
+    "packages/contracts/implementation-evidence.ts",
     "packages/core/capability-flags.ts",
-    "packages/core/effect-recovery.ts",
-    "packages/core/planning.ts",
-    "packages/core/service.ts",
-    "packages/core/tool-authority.ts",
-    "packages/core/tool-effect-read-models.ts",
     "packages/core/tool-effects.ts",
-    "packages/runtime-hermes/worker.py",
-    "scripts/public-source-files.json",
-    "tests/effect-recovery-v3.test.ts",
+    "packages/core/service.ts",
     "tests/tool-authority-v3.test.ts",
-    "tests/tool-effects-v3.test.ts"
+    "tests/tool-effects-v3.test.ts",
+    "tests/effect-recovery-v3.test.ts",
+    "tests/m01-m02-compatibility.test.ts",
+    "docs/implementation/v3/M02-source-lock.json",
+    "docs/implementation/v3/M02-verification.json",
+    "docs/implementation/v3/m02-reconcile-logs/core.txt",
+    "docs/implementation/v3/m02-reconcile-logs/typecheck.txt",
+    "docs/implementation/v3/m02-reconcile-logs/lint.txt",
+    "docs/implementation/v3/m02-reconcile-logs/build.txt"
   ],
   "dependencyContracts": [
     {
-      "name": "capability-flags",
-      "version": "a45226df77eae1e58594609140252c1f93a985f6",
+      "name": "M01.ImplementationEvidenceV3",
+      "version": "559b720ccead1d29c9a1bd4db528af52534105c3",
       "testIds": [
-        "tests/tool-authority-v3.test.ts",
-        "tests/research-baseline.test.ts"
+        "tests/research-baseline.test.ts",
+        "tests/m01-m02-compatibility.test.ts"
       ]
     },
     {
-      "name": "implementation-evidence",
-      "version": "559b720ccead1d29c9a1bd4db528af52534105c3",
+      "name": "M01.CapabilityFlags",
+      "version": "a45226df77eae1e58594609140252c1f93a985f6",
       "testIds": [
-        "tests/research-baseline.test.ts"
+        "tests/tool-authority-v3.test.ts",
+        "tests/m01-m02-compatibility.test.ts"
       ]
     }
   ],
@@ -270,10 +205,10 @@
     }
   ],
   "remainingGates": [
-    "Full pnpm test requires Visual Studio C++ Build Tools, .harness-integrations-python-deps, and Playwright browsers on the host.",
-    "host-loop browser suite baseline fails on this box for environment reasons; needs a green baseline host or CI.",
-    "Hermes worker.py native skill_tool/shared_skill_tool remains COVERAGE_GAP (not host-observed).",
-    "Flags stay off until adapter coverage and regression gates pass; release permission separate."
+    "M01 and M02 must be approved on an accepted base; the two reviewed PR inputs are not in main and acceptedDependencyCommits remains empty.",
+    "Run combined full application regression and native Windows CI; neither is proved by the standalone M02 workflow.",
+    "Retained original M02 evidence (including previous failures) at e8968996132413feee704cf0439294559eb16d8d:docs/implementation/v3/M02-verification.json. Hermes native hooks remain unobserved; plugin/integration sub-effects remain partial.",
+    "Do not activate either flag on this evidence."
   ],
   "reviewerApproval": false
 }

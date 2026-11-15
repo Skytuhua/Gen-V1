@@ -76,7 +76,7 @@ The trusted PDF draft worker moves parse/edit/save into terminable work with dea
 | Unit suite | **171/171 passed** on the final milestone source. |
 | Whole-tree typecheck / build | Both passed. Vite retains a chunk-size advisory; PDF code is lazy-loaded. |
 | PDF browser checks | 12 checks cover actual canvas/fields, signatures, parser workers, repeated/cyclic trees, deadlines, cleanup and focus. Included in the combined run below. |
-| Artifact restyle | That checkpoint's actual Pi signing captures are linked in [signing-milestone.md](signing-milestone.md). The nine earlier renderer captures were synthetic and are not tracked here. |
+| Artifact restyle | [The historical signing milestone](signing-milestone.md) summarizes the actual Pi run. Neither those result captures nor the nine earlier synthetic renderer captures are tracked here. |
 | Immediate-reload journal | Deterministic RED-to-GREEN regression plus existing nested-decision and old-acknowledgment cases: 3/3 passed; independent scoped GO. Synchronous write-ahead staging precedes IndexedDB, and generation compare-and-swap protects newer drafts. |
 | Runtime/Git authority | Independent scoped GO at review r6 with 64 scoped tests, covering runtime authority and frozen-manifest/private-snapshot/fixed-config Git reads. This is a scoped result, not production or OS sandbox acceptance. |
 | Combined browser run | **72 passed, 2 opt-in captures skipped** across frontend, artifact, PDF and journal checks. The earlier failure was a proven test-driver attempt to fill an inert composer; its corrected test waits for collapse and verifies the input destination. |

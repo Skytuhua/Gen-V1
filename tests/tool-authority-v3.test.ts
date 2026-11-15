@@ -1,11 +1,10 @@
 import { afterEach, expect, it, vi } from 'vitest';
 import { authorize, buildToolRegistry, ToolAuthority, TOOL_COVERAGE_NOTES } from '../packages/core/tool-authority.ts';
-import { actionCommitment, privateArgumentCommitment, publicRedactedSummary } from '../packages/core/tool-effects.ts';
-import { __setCapabilityFlagForTests, capabilityEnabled, registeredCapabilityFlags } from '../packages/core/capability-flags.ts';
+import { actionCommitment, privateArgumentCommitment, publicRedactedSummary, createToolEffectFlags } from '../packages/core/tool-effects.ts';
 import { toolDefinitionSchema } from '../packages/contracts/tool-effects.ts';
 import type { Operation, Thread } from '../packages/contracts/index.ts';
 
-afterEach(() => { __setCapabilityFlagForTests('audit.effectsV1', undefined); __setCapabilityFlagForTests('security.authorityV1', undefined); vi.restoreAllMocks(); });
+afterEach(() => vi.restoreAllMocks());
 
 const owner = { threadId: 't1', runId: 'r1', epoch: 1, projectId: 'p1', workspaceId: 'w1', accountBinding: 'acct-1' };
 const current = { epoch: 1, runId: 'r1', accountId: 'acct-1', projectId: 'p1', workspaceId: 'w1' };
@@ -61,13 +60,10 @@ it('binds the approval commitment to args, revision, account, workspace and epoc
 });
 
 it('keeps rollout flags finite, host-owned and off by default', () => {
-  expect(registeredCapabilityFlags()).toEqual({ 'audit.effectsV1': false, 'security.authorityV1': false });
-  expect(capabilityEnabled('audit.effectsV1')).toBe(false);
-  __setCapabilityFlagForTests('audit.effectsV1', true);
-  expect(capabilityEnabled('audit.effectsV1')).toBe(true);
-  __setCapabilityFlagForTests('audit.effectsV1', undefined);
-  expect(capabilityEnabled('audit.effectsV1')).toBe(false);
-  expect(() => capabilityEnabled('user.preferences' as never)).toThrow(/Unknown capability flag/);
+  const flags = createToolEffectFlags();
+  expect(flags.snapshot()).toEqual({ 'audit.effectsV1': false, 'security.authorityV1': false });
+  expect(() => flags.enabled('user.preferences' as never)).toThrow(/Unknown capability flag/);
+  expect(() => createToolEffectFlags({ 'user.preferences': true } as never)).toThrow(/Unknown capability flag/);
 });
 
 it('commits arguments privately and redacts secret-looking values publicly', () => {
