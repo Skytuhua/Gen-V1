@@ -121,3 +121,9 @@ it('QA #130 every WO-5 fixture derives its cache from the runner output override
   }
  }finally{vi.unstubAllEnvs();vi.resetModules();}
 });
+
+it('reports a missing suite name without swallowing the next flag', () => {
+  expect(() => browserTestMain(['--suite', '--list'])).toThrow(/--suite requires a suite name/);
+  expect(() => browserTestMain(['--suite'])).toThrow(/--suite requires a suite name/);
+  expect(spawnSync).not.toHaveBeenCalled();
+});

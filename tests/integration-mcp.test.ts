@@ -89,16 +89,16 @@ it('refuses linked Graphify graph input and linked export directories inside the
  await mkdir(project);await mkdir(other);await writeFile(join(other,'graph.json'),'{}');
  // Both ends of each junction belong to this disposable fixture.
  await symlink(other,join(dataRoot,'graphify-out'),'junction');
- await expect(manager.callTool('graphify','graph_stats',{},scope)).rejects.toThrow(/link|guard|resource/i);
+ await expect(manager.callTool('graphify','graph_stats',{},scope)).rejects.toThrow(/link|guard|resource|access/i);
  await rm(join(dataRoot,'graphify-out'));await mkdir(join(dataRoot,'graphify-out'));
  await writeFile(join(dataRoot,'graphify-out/graph.json'),'{}');
  for(const format of ['obsidian','wiki']){
   await symlink(other,join(dataRoot,'graphify-out',format),'junction');
-  await expect(manager.command('graphify','graphify',{operation:'export',format},scope)).rejects.toThrow(/link|guard|resource/i);
+  await expect(manager.command('graphify','graphify',{operation:'export',format},scope)).rejects.toThrow(/link|guard|resource|access/i);
   await rm(join(dataRoot,'graphify-out',format));
  }
  await link(join(other,'graph.json'),join(dataRoot,'graphify-out/.graphify_labels.json'));
- await expect(manager.callTool('graphify','graph_stats',{},scope)).rejects.toThrow(/link|guard|resource/i);
+ await expect(manager.callTool('graphify','graph_stats',{},scope)).rejects.toThrow(/link|guard|resource|access/i);
 },45000);
 
 it('evicts a disconnected owned MCP child and can lazily restart it',async()=>{

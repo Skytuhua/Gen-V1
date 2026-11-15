@@ -1,107 +1,63 @@
 {
   "schemaVersion": 3,
   "auditAncestorSha": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
-  "executionBaseSha": "5f0958f4cb5b40bc10c1eea0e1cd517b57aaa1b9",
+  "executionBaseSha": "055007ff9ab43fc24cfbc0af76b0b4cea3db473d",
   "inspectedPaths": [
     {
-      "path": "apps/server/server.ts",
-      "blobSha": "57b608f81c3342858a6c845653b22cf6d9478041"
+      "path": "packages/contracts/implementation-evidence.ts",
+      "blobSha": "559b720ccead1d29c9a1bd4db528af52534105c3"
     },
     {
-      "path": "apps/server/tool-effect-read-routes.ts",
-      "blobSha": "ffbb4543b4d38df4f7e36406af2666191afd780f"
+      "path": "packages/core/capability-flags.ts",
+      "blobSha": "a45226df77eae1e58594609140252c1f93a985f6"
     },
     {
-      "path": "apps/web/src/App.tsx",
-      "blobSha": "deb86d54ff68c067332df044f1f5ae0f35bbf7db"
+      "path": "packages/core/tool-effects.ts",
+      "blobSha": "aa65f1d9b52d6a117b716a38feb8dd6c6d46b13a"
     },
     {
-      "path": "apps/web/src/api.ts",
-      "blobSha": "65d567ae8e591fa59ffa6fd72a1ffe775cac3abd"
-    },
-    {
-      "path": "packages/contracts/index.ts",
-      "blobSha": "09517becaf0c35f5f63bd758878659ea0de5f57b"
+      "path": "packages/core/service.ts",
+      "blobSha": "b03da4dec57eeca1c8542da51b9e895de8e6c982"
     },
     {
       "path": "packages/contracts/tool-effects.ts",
       "blobSha": "41b6fff1364825122c33761c0bfaac66da03bca0"
     },
     {
-      "path": "packages/core/capability-flags.ts",
-      "blobSha": "812a5094356145651b4f5f3c187d2b3cd05e0394"
+      "path": "packages/core/tool-authority.ts",
+      "blobSha": "d5fd39998f4598316872d949df7b4341156ba8f1"
     },
     {
       "path": "packages/core/effect-recovery.ts",
       "blobSha": "e2addef2f65df69a504495e0b3c9954d0006ac5c"
     },
     {
-      "path": "packages/core/planning.ts",
-      "blobSha": "fdb75092c2c584f61c3c6a6106dae1b9e49fac6a"
+      "path": "package.json",
+      "blobSha": "fa399f6542a4886e6d8cbf7d6eecfe498e2967c0"
     },
     {
-      "path": "packages/core/service.ts",
-      "blobSha": "616b50e81c86c780a255e450a0bb8ca235ccb309"
-    },
-    {
-      "path": "packages/core/tool-authority.ts",
-      "blobSha": "d5fd39998f4598316872d949df7b4341156ba8f1"
-    },
-    {
-      "path": "packages/core/tool-effect-read-models.ts",
-      "blobSha": "988caf1d690e91e7a8cca567d8840492702f26dc"
-    },
-    {
-      "path": "packages/core/tool-effects.ts",
-      "blobSha": "cff9e8df69af2ecc2377b20421066a36ae2822bd"
-    },
-    {
-      "path": "packages/runtime-hermes/worker.py",
-      "blobSha": "e28c6272f9aab28f76b9462a87768fe4226361c1"
-    },
-    {
-      "path": "scripts/public-source-files.json",
-      "blobSha": "a18c77d722f0cf0ab90bd67fd408a26e448ce883"
-    },
-    {
-      "path": "tests/effect-recovery-v3.test.ts",
-      "blobSha": "1711f8bde270f8480487ee416798baf60f9288e9"
-    },
-    {
-      "path": "tests/tool-authority-v3.test.ts",
-      "blobSha": "4a405bbb0b347b6840dfd70b246ff84e229214c6"
-    },
-    {
-      "path": "tests/tool-effects-v3.test.ts",
-      "blobSha": "58de31ddadc11b457545f4b2a4bab133907a1400"
+      "path": "pnpm-lock.yaml",
+      "blobSha": "e6b064fc166611e518f4cf1297d9b00493d9eaaf"
     }
   ],
   "publicContracts": [
     {
-      "name": "capability-flags",
+      "name": "M01.ImplementationEvidenceV3",
+      "version": "559b720ccead1d29c9a1bd4db528af52534105c3",
+      "testIds": [
+        "tests/research-baseline.test.ts",
+        "tests/m01-m02-compatibility.test.ts"
+      ]
+    },
+    {
+      "name": "M01.CapabilityFlags",
       "version": "a45226df77eae1e58594609140252c1f93a985f6",
       "testIds": [
         "tests/tool-authority-v3.test.ts",
-        "tests/research-baseline.test.ts"
-      ]
-    },
-    {
-      "name": "implementation-evidence",
-      "version": "559b720ccead1d29c9a1bd4db528af52534105c3",
-      "testIds": [
-        "tests/research-baseline.test.ts"
-      ]
-    },
-    {
-      "name": "tool-effects",
-      "version": "41b6fff1364825122c33761c0bfaac66da03bca0",
-      "testIds": [
-        "tests/tool-effects-v3.test.ts"
+        "tests/m01-m02-compatibility.test.ts"
       ]
     }
   ],
-  "acceptedDependencyCommits": [
-    "5f0958f4cb5b40bc10c1eea0e1cd517b57aaa1b9"
-  ],
+  "acceptedDependencyCommits": [],
   "approvedDrift": []
 }

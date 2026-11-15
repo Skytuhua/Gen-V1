@@ -4,18 +4,15 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Store } from '../packages/storage/store.ts';
 import { buildToolRegistry, ToolAuthority } from '../packages/core/tool-authority.ts';
-import { __setEffectFaultHookForTests, ToolEffectLedger } from '../packages/core/tool-effects.ts';
+import { __setEffectFaultHookForTests, ToolEffectLedger, createToolEffectFlags } from '../packages/core/tool-effects.ts';
 import { disableEffects, observationFreshness, reconcileEffect, recoverEffects, retryDecision } from '../packages/core/effect-recovery.ts';
 import { ToolEffectReadModels } from '../packages/core/tool-effect-read-models.ts';
-import { __setCapabilityFlagForTests } from '../packages/core/capability-flags.ts';
 import type { ToolEffectRecord } from '../packages/contracts/tool-effects.ts';
 import type { Thread, ToolCall } from '../packages/contracts/index.ts';
 
 const cleanups: (() => Promise<void>)[] = [];
 afterEach(async () => {
   __setEffectFaultHookForTests(null);
-  __setCapabilityFlagForTests('audit.effectsV1', undefined);
-  __setCapabilityFlagForTests('security.authorityV1', undefined);
   vi.restoreAllMocks();
   for (const cleanup of cleanups.splice(0)) await cleanup();
 });
@@ -31,9 +28,7 @@ async function fixture() {
   const root = await mkdtemp(join(tmpdir(), 'harness-effect-recovery-'));
   const store = new Store(join(root, 'state'));
   const authority = new ToolAuthority(buildToolRegistry());
-  const ledger = new ToolEffectLedger(store, authority);
-  __setCapabilityFlagForTests('audit.effectsV1', true);
-  __setCapabilityFlagForTests('security.authorityV1', true);
+  const ledger = new ToolEffectLedger(store, authority, createToolEffectFlags({ 'audit.effectsV1': true, 'security.authorityV1': true }));
   cleanups.push(async () => { store.close(); await rm(root, { recursive: true, force: true }); });
   return { store, authority, ledger };
 }

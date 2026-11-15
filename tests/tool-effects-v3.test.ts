@@ -5,16 +5,13 @@ import { join } from 'node:path';
 import { Service } from '../packages/core/service.ts';
 import { Store } from '../packages/storage/store.ts';
 import { buildToolRegistry, ToolAuthority } from '../packages/core/tool-authority.ts';
-import { ToolEffectLedger } from '../packages/core/tool-effects.ts';
-import { __setCapabilityFlagForTests } from '../packages/core/capability-flags.ts';
+import { ToolEffectLedger, createToolEffectFlags, type ToolEffectFlag } from '../packages/core/tool-effects.ts';
 import type { ApprovalV1, ToolEffectRecord } from '../packages/contracts/tool-effects.ts';
 import type { Operation, RunContext, RuntimeAdapter, RuntimeCallbacks, StartRun, Thread, ToolCall } from '../packages/contracts/index.ts';
 import * as domain from '../packages/capabilities/index.ts';
 
 const cleanups: (() => Promise<void>)[] = [];
 afterEach(async () => {
-  __setCapabilityFlagForTests('audit.effectsV1', undefined);
-  __setCapabilityFlagForTests('security.authorityV1', undefined);
   vi.restoreAllMocks();
   for (const cleanup of cleanups.splice(0)) await cleanup();
 });
@@ -30,21 +27,17 @@ async function ledgerFixture() {
   const root = await mkdtemp(join(tmpdir(), 'harness-tool-effects-'));
   const store = new Store(join(root, 'state'));
   const authority = new ToolAuthority(buildToolRegistry());
-  const ledger = new ToolEffectLedger(store, authority);
-  __setCapabilityFlagForTests('audit.effectsV1', true);
-  __setCapabilityFlagForTests('security.authorityV1', true);
+  const ledger = new ToolEffectLedger(store, authority, createToolEffectFlags({ 'audit.effectsV1': true, 'security.authorityV1': true }));
   cleanups.push(async () => { store.close(); await rm(root, { recursive: true, force: true }); });
   return { store, authority, ledger };
 }
 
-async function serviceFixture() {
+async function serviceFixture(toolEffectFlags: Partial<Record<ToolEffectFlag, boolean>> = { 'audit.effectsV1': true, 'security.authorityV1': true }) {
   const root = await mkdtemp(join(tmpdir(), 'harness-tool-effects-svc-'));
   const store = new Store(join(root, 'state'));
   let callbacks!: RuntimeCallbacks;
   const runtime: RuntimeAdapter = { configure: value => { callbacks = value; }, models: async () => [{ id: 'test/model', provider: 'test', name: 'Test' }], start: async (_input: StartRun) => {}, followUp: async () => {}, cancel: async () => {}, compact: async () => {}, history: async () => [], dispose: async () => {} };
-  const service = new Service(store, runtime);
-  __setCapabilityFlagForTests('audit.effectsV1', true);
-  __setCapabilityFlagForTests('security.authorityV1', true);
+  const service = new Service(store, runtime, { toolEffectFlags });
   const command = (type: string, threadId?: string, payload: Record<string, unknown> = {}) => service.command({ id: crypto.randomUUID(), type, payload, threadId });
   const first = (await command('thread.create')).result as Thread;
   const operation = (id: string) => {
@@ -225,8 +218,7 @@ it('binds learning invocations to the thread\'s current owner after the run sett
 });
 
 it('still requires the bound approval under authorityV1 when effectsV1 is off', async () => {
-  const x = await serviceFixture();
-  __setCapabilityFlagForTests('audit.effectsV1', false);
+  const x = await serviceFixture({ 'security.authorityV1': true });
   const op = x.operation('op-authority-only');
   const dispatch = vi.spyOn(domain, 'executeDomainOperation').mockImplementation(async () => ({ verified: true }));
   const approved: Operation = { ...op, approved: true };

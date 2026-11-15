@@ -114,6 +114,34 @@ describe.runIf(enabled)('actual App split workspace',()=>{
   }finally{await page.close();}
  },30000);
 
+ it('embedded transcript Stop routes through the shared composer owner, not raw run.stop (AUD-05)',async()=>{
+  const page=await browser!.newPage({viewport:{width:1200,height:800}});page.setDefaultTimeout(7000);
+  const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));
+  try{
+   const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Synthetic working transcript'}}}});
+   const base=snapshot.threads[0]!;
+   snapshot.threads=[{...base,id:'thread-a',title:'Working conversation',status:'working',runId:'run-a',modelId:'test/model',projectId:'project-a',projectName:'First project'}];
+   snapshot.activeThreadId='thread-a';
+   snapshot.messages=[{...snapshot.messages[0]!,id:'message-a',threadId:'thread-a',content:'Working transcript'}];
+   snapshot.artifacts=[];snapshot.userStates=[];snapshot.data=[];
+   const host=await serveTaskFixture(page,snapshot);
+   await page.route('**/api/models?*',route=>route.fulfill({json:{models:[{id:'test/model',provider:'test',name:'Model'}]}}));
+   const stopModule='/@fs/'+encodeURI(fileURLToPath(new URL('./e2e/split-stop-owner-fixture.tsx',import.meta.url)).replaceAll('\\','/'));
+   await page.route('**/split-stop-check',route=>route.fulfill({contentType:'text/html',body:`<html><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${stopModule}');</script></body></html>`}));
+   await page.goto(origin+'/split-stop-check');
+   await page.waitForLoadState('networkidle').catch(()=>{});
+   const stopButton=page.locator('.working-status').getByRole('button',{name:'Stop',exact:true});
+   await stopButton.waitFor({state:'visible'});
+   await stopButton.dispatchEvent('click');
+   await page.waitForFunction(()=>((window as unknown as {__stopOwnerCalls?:unknown[]}).__stopOwnerCalls??[]).length>0,null,{timeout:4000}).catch(()=>{});
+   const calls=await page.evaluate(()=>(window as unknown as {__stopOwnerCalls?:unknown[]}).__stopOwnerCalls??[]);
+   expect(calls).toHaveLength(1);
+   expect(calls[0]).toMatchObject({kind:'conversation',threadId:'thread-a'});
+   expect(host.commands.some(command=>command.type==='run.stop')).toBe(false);
+   expect(errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
  it('places a sidebar thread into a spatial edge target without duplicating its composer',async()=>{
   const host=await fixture(),{page}=host;try{
    const second=page.locator('[data-split-view="thread:thread-b"]'),draft=second.getByRole('textbox',{name:'Message',exact:true});await draft.waitFor({state:'visible'});await draft.fill('Keep sidebar placement draft');

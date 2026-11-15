@@ -35,6 +35,7 @@ import type {ThreadHoverScope} from './thread-hover/facts';
 import {loadPersonalThreadHover,type ThreadHoverPRTarget} from './thread-hover/host';
 import { projectColor, threadDragPayload } from './project-colors';
 import { ActionMenu } from '../../../packages/ui-shell/ActionMenu';
+import { toast } from '../../../packages/ui-shell/Toast';
 import { useThreadMove } from './sidebar-thread-move';
 import './sidebar-thread-move.css';
 
@@ -197,7 +198,7 @@ export function ShellSidebar({
           {id: 'unread', label: item.presentation?.unread ? 'Mark as read' : 'Mark as unread', icon: <Circle size={12} />,
             onSelect: () => presentation(item, {unread: !item.presentation?.unread})},
           {id: 'settle', label: item.presentation?.settled ? 'Return to inbox' : 'Settle thread', icon: <Check size={13} />,
-            onSelect: () => presentation(item, {settled: !item.presentation?.settled})},
+            onSelect: () => { const next = !item.presentation?.settled; presentation(item, {settled: next}); toast(next ? `"${item.title}" settled — find it under Settled` : `"${item.title}" returned to your threads`); }},
           {id: 'top', label: 'Move to top', icon: <ArrowUp size={13} />, onSelect: () => {
             const min = orderBounds?.minOrder ?? Math.min(0, ...matching.map(thread => thread.presentation?.order ?? 0));
             threadMove.prepare(item.id, min - 1);
@@ -448,7 +449,7 @@ export function ShellSidebar({
           </section>
         )}
         {loaded && !visibleMatching.length && (
-          <div className="sidebar-empty">{search ? 'No matching threads.' : 'Your threads will appear here.'}</div>
+          <div className="sidebar-empty">{search ? 'No matching threads.' : filter === 'working' ? 'No working threads right now.' : filter === 'waiting' ? 'No threads waiting for your input.' : 'Your threads will appear here.'}</div>
         )}
         {pageControls}
       </nav>
