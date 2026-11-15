@@ -52,15 +52,17 @@ test('first reveal in a short window clears native caption chrome and all viewpo
 test('Requests lists measured requests with stage timings, and absent fields stay unknown', async ({ page }) => {
   await page.goto('/usage-context?requests'); await page.getByRole('button', { name: 'Open Usage', exact: true }).click();
   await usage(page).getByRole('tab', { name: 'Requests', exact: true }).click();
-  await expect(usage(page)).toContainText('provider-a · openai/model'); await expect(usage(page)).toContainText('completed');
-  await expect(usage(page)).toContainText('First public output'); await expect(usage(page)).toContainText('1980 ms');
-  await expect(usage(page)).toContainText('Cache read tokens'); await expect(usage(page)).toContainText('512');
+  await expect(usage(page)).toContainText('openai/model'); await expect(usage(page)).toContainText('provider-a');
+  await expect(usage(page)).toContainText('completed');
+  await expect(usage(page)).toContainText('First output'); await expect(usage(page)).toContainText('1980 ms');
+  await expect(usage(page)).toContainText('Cache read'); await expect(usage(page)).toContainText('512');
   // `queued` is an epoch admission point, not an elapsed duration — it renders
   // as a time and never as a millisecond figure.
-  const queued = usage(page).locator('.usage-request-stage').filter({ hasText: 'Queued' }).first();
+  const queued = usage(page).locator('.usage-request-stages>li').filter({ hasText: 'Queued' }).first();
   await expect(queued).not.toContainText('ms');
-  await expect(usage(page)).toContainText('provider-b · gemini-cli/model'); await expect(usage(page)).toContainText('failed');
-  await expect(usage(page)).toContainText('Not reported'); await expect(usage(page)).toContainText('Synthetic request failure.');
+  await expect(usage(page)).toContainText('gemini-cli/model'); await expect(usage(page)).toContainText('failed');
+  // Missing measurements render as '—' chips, never as invented zeros.
+  await expect(usage(page)).toContainText('—'); await expect(usage(page)).toContainText('Synthetic request failure.');
 });
 test('Usage has separate Cost, Tokens and Limits with exact reported data and per-metric unknowns', async ({ page }) => {
   await page.goto('/usage-context'); await page.getByRole('button', { name: 'Open Usage', exact: true }).click();

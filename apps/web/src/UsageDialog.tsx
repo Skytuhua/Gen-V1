@@ -21,13 +21,19 @@ const stageValue = (stage: typeof REQUEST_STAGES[number][0], value: number | nul
   stage === 'queued' ? (value === null ? 'Not reported' : new Date(value).toLocaleTimeString()) : elapsed(value);
 const REQUEST_STAGES = [
   ['queued', 'Queued'],
-  ['acquired', 'Capacity acquired'],
-  ['runtimeReady', 'Runtime ready'],
-  ['requestSent', 'Request sent'],
-  ['firstProviderDelta', 'First provider bytes'],
-  ['firstPublicDelta', 'First public output'],
+  ['acquired', 'Capacity'],
+  ['runtimeReady', 'Runtime'],
+  ['requestSent', 'Sent'],
+  ['firstProviderDelta', 'First bytes'],
+  ['firstPublicDelta', 'First output'],
   ['settled', 'Settled'],
-  ['teardownConfirmed', 'Cleanup confirmed'],
+  ['teardownConfirmed', 'Cleanup'],
+] as const;
+const REQUEST_METRICS = [
+  ['inputTokens', 'Input'],
+  ['outputTokens', 'Output'],
+  ['cacheReadTokens', 'Cache read'],
+  ['cacheWriteTokens', 'Cache write'],
 ] as const;
 export function UsageDialog({ open, onClose, reports = [], requests = [], loading = false, error, onRefresh }: UsageDialogProps) {
   const [tab, setTab] = useState<typeof tabs[number]>('Cost'), [scope, setScope] = useState(''), [provider, setProvider] = useState('');
@@ -41,6 +47,9 @@ export function UsageDialog({ open, onClose, reports = [], requests = [], loadin
   const selectedScope = scopes.some(([value]) => value === scope) ? scope : '';
   const selectedProvider = providers.some(([value]) => value === provider) ? provider : '';
   const visible = reports.filter(report => (!selectedScope || report.scopeId === selectedScope) && (!selectedProvider || report.providerId === selectedProvider));
+  // Requests are measured per binding, not per provider report — filter them by
+  // the provider picker only and render them as their own list.
+  const visibleRequests = requests.filter(request => !selectedProvider || request.binding.providerId === selectedProvider);
   const refresh = async () => {
     if (!onRefresh || pending.current) return;
     pending.current = true; setRefreshing(true); setRefreshError(''); const owner = generation.current;
@@ -67,6 +76,31 @@ export function UsageDialog({ open, onClose, reports = [], requests = [], loadin
       {(loading || refreshing) && <p className="usage-dialog-status" role="status">{reports.length ? 'Refreshing usage…' : 'Loading usage…'}</p>}
     </div>
     <div className="usage-provider-list" role="tabpanel" id={`${id}-rows`} aria-labelledby={`${id}-${tab}`} aria-busy={loading || refreshing} tabIndex={0}>
+      {tab === 'Requests' ? (visibleRequests.length ? visibleRequests.map(request => <section className="usage-request" key={request.requestId}>
+        <header>
+          <strong>{request.binding.modelId}</strong>
+          <span className="usage-request-meta">{request.binding.providerId}</span>
+          <span className={`usage-request-outcome usage-request-outcome-${request.outcome}`}>{request.outcome}</span>
+          <span className="usage-request-meta">{request.owner.phase}</span>
+        </header>
+        <ol className="usage-request-stages">
+          {REQUEST_STAGES.map(([stage, label]) => <li key={stage} data-missing={request.timings[stage] === null ? true : undefined}>
+            <span className="usage-request-chip-label">{label}</span>
+            <span className="usage-request-chip-value">{request.timings[stage] === null ? '—' : stageValue(stage, request.timings[stage])}</span>
+          </li>)}
+        </ol>
+        <ul className="usage-request-metrics">
+          {REQUEST_METRICS.map(([field, label]) => <li key={field}>
+            <span className="usage-request-chip-label">{label}</span>
+            <span className="usage-request-chip-value">{request.usage[field] === null ? '—' : usageCount(request.usage[field])}</span>
+          </li>)}
+          <li>
+            <span className="usage-request-chip-label">Cost</span>
+            <span className="usage-request-chip-value">{request.usage.cost === null ? '—' : usageCost({ amount: request.usage.cost })}</span>
+          </li>
+        </ul>
+        {request.error && <p className="usage-dialog-error">{request.error}</p>}
+      </section>) : <p className="usage-dialog-empty">No measured model requests for this scope yet.</p>) : <>
       {!visible.length && !loading && (reports.length
         ? <p className="usage-dialog-empty">No reported usage matches these filters.</p>
         : <div className="usage-dialog-empty-state">
@@ -82,18 +116,8 @@ export function UsageDialog({ open, onClose, reports = [], requests = [], loadin
         {tab === 'Cost' && <dl><dt>Reported cost</dt><dd>{usageCost(report.cost)}</dd></dl>}
         {tab === 'Tokens' && <dl><dt>Input tokens</dt><dd>{usageCount(report.inputTokens)}</dd><dt>Output tokens</dt><dd>{usageCount(report.outputTokens)}</dd><dt>Cache read tokens</dt><dd>{usageCount(report.cacheReadTokens)}</dd><dt>Cache write tokens</dt><dd>{usageCount(report.cacheWriteTokens)}</dd></dl>}
         {tab === 'Limits' && (report.limits?.length ? report.limits : [{ id: 'unknown', label: 'Provider limit' }]).map(limit => <div key={limit.id} className="usage-limit"><dl><dt>{limit.label}</dt><dd>{usagePercent(limit.usedPercent)}</dd><dt>Reset</dt><dd>{usageReset(limit.reset)}</dd></dl></div>)}
-        {tab === 'Requests' && (requests.length ? requests.map(request => <dl key={request.requestId}>
-          <dt>Request</dt><dd>{request.binding.providerId} · {request.binding.modelId}</dd>
-          <dt>Outcome</dt><dd>{request.outcome}</dd>
-          {REQUEST_STAGES.map(([stage, label]) => <span key={stage} className="usage-request-stage"><dt>{label}</dt><dd>{stageValue(stage, request.timings[stage])}</dd></span>)}
-          <dt>Input tokens</dt><dd>{usageCount(request.usage.inputTokens)}</dd>
-          <dt>Output tokens</dt><dd>{usageCount(request.usage.outputTokens)}</dd>
-          <dt>Cache read tokens</dt><dd>{usageCount(request.usage.cacheReadTokens)}</dd>
-          <dt>Cache write tokens</dt><dd>{usageCount(request.usage.cacheWriteTokens)}</dd>
-          <dt>Reported cost</dt><dd>{usageCost(request.usage.cost === null ? null : { amount: request.usage.cost })}</dd>
-          {request.error && <><dt>Error</dt><dd>{request.error}</dd></>}
-        </dl>) : <p className="usage-dialog-empty">No measured model requests for this scope yet.</p>)}
       </section>)}
+      </>}
     </div>
   </Modal>;
 }
