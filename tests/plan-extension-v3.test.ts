@@ -61,12 +61,14 @@ describe('PlanExtensionV1 integrity', () => {
     expect(() => f.extensions.put(f.extension({weights: [{nodeId: 's1', units: 1.5}, {nodeId: 's2', units: 1}, {nodeId: 's3', units: 1}, {nodeId: 'ag1', units: 1}]}))).toThrow(/weight/i);
     expect(() => f.extensions.put(f.extension({weights: [{nodeId: 's1', units: 1}, {nodeId: 's2', units: 1}, {nodeId: 's3', units: 1}, {nodeId: 'ag1', units: 1}, {nodeId: 'ghost', units: 1}]}))).toThrow(/unknown|weight/i);
   });
-  it('requires conservation: child units must equal the parent units they split', () => {
+  it('requires conservation: child units may not exceed the parent allocation', () => {
     const f = fixture();
     // ag1 claims 2 units under s1 but s1 only holds 1 unit here -> over-budget.
     expect(() => f.extensions.put(f.extension({weights: [{nodeId: 's1', units: 1}, {nodeId: 's2', units: 1}, {nodeId: 's3', units: 1}, {nodeId: 'ag1', units: 2}]}))).toThrow(/conservation|allocation|budget/i);
-    // ag1 holds fewer units than its parent — under-allocation also rejected.
-    expect(() => f.extensions.put(f.extension({weights: [{nodeId: 's1', units: 3}, {nodeId: 's2', units: 1}, {nodeId: 's3', units: 1}, {nodeId: 'ag1', units: 1}]}))).toThrow(/conservation|allocation|budget/i);
+    // ag1 holds fewer units than its parent — the undivided remainder stays
+    // with the parent, so under-allocation is valid.
+    const partial = f.extensions.put(f.extension({weights: [{nodeId: 's1', units: 3}, {nodeId: 's2', units: 1}, {nodeId: 's3', units: 1}, {nodeId: 'ag1', units: 1}]}));
+    expect(partial.weights.find(weight => weight.nodeId === 's1')).toMatchObject({units: 3});
   });
   it('split() allocates a child inside the parent budget and preserves the parent allocation', () => {
     const f = fixture();
@@ -77,6 +79,17 @@ describe('PlanExtensionV1 integrity', () => {
     expect(split.weights.find(weight => weight.nodeId === 's2')).toMatchObject({units: 1});
     expect(split.parentRelationships).toContainEqual({parentId: 's2', childId: 'ag2'});
     expect(() => f.extensions.split(saved.planId, 's2', 'ag3', 5)).toThrow(/budget|allocation|units/i);
+  });
+  it('partial splits succeed and the parent keeps the residual share', () => {
+    const f = fixture();
+    const saved = f.extensions.put(f.extension({weights: [{nodeId: 's1', units: 2}, {nodeId: 's2', units: 4}, {nodeId: 's3', units: 1}, {nodeId: 'ag1', units: 2}]}));
+    const first = f.extensions.split(saved.planId, 's2', 'ag2', 1);
+    expect(first.weights.find(weight => weight.nodeId === 's2')).toMatchObject({units: 4});
+    const second = f.extensions.split(saved.planId, 's2', 'ag3', 2);
+    expect(second.parentRelationships).toContainEqual({parentId: 's2', childId: 'ag3'});
+    // Residual s2 = 1; leaves: ag1(2), ag2(1), ag3(2), s3(1) -> total 7.
+    const progress = f.extensions.progress(saved.planId, {s2: 'completed', ag1: 'completed'});
+    expect(progress).toEqual({completed: 3, pending: 4, unknown: 0, total: 7});
   });
 });
 
@@ -125,5 +138,21 @@ describe('progress and report watermark', () => {
     expect(again.deltas).toHaveLength(0);
     expect(again.watermark).toBe(report.nextWatermark);
     expect(f.extensions.get(saved.planId)!.reportWatermark).toBe(again.nextWatermark);
+  });
+  it('reaches task events beyond a page of unrelated events', () => {
+    const f = fixture();
+    const saved = f.extensions.put(f.extension({reportWatermark: f.store.sequence}));
+    // Flood the store with unrelated-thread events so a task event lands
+    // beyond one report page; it must still surface in a later report.
+    for (let i = 0; i < 505; i++)
+      f.store.internal('noise.' + i, 'other-thread', () => f.store.put('data', 'noise-' + i, 'other-thread', {id: 'noise-' + i, threadId: 'other-thread', revision: 1, value: {}, provenance: 'p', createdAt: 'n'}));
+    f.store.internal('evt.task', f.threadId, () => f.store.put('data', 'task-ev', f.threadId, {id: 'task-ev', threadId: f.threadId, revision: 1, value: {}, provenance: 'p', createdAt: 'n'}));
+    const first = f.extensions.report(saved.planId);
+    expect(first.deltas).toHaveLength(0);
+    const second = f.extensions.report(saved.planId);
+    expect(second.deltas.map(delta => delta.type)).toContain('evt.task');
+    const third = f.extensions.report(saved.planId);
+    expect(third.deltas).toHaveLength(0);
+    expect(third.watermark).toBe(second.nextWatermark);
   });
 });

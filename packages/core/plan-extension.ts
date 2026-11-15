@@ -98,30 +98,38 @@ export class PlanExtensionStore {
         seen.add(cursor);
       }
     }
-    // Conservation: a node's allocation splits exactly into its children's.
+    // Conservation: children may never exceed the parent's allocation. The
+    // undivided remainder stays with the parent as its own work share, so
+    // successive partial splits keep the parent's total weight unchanged.
     const children = new Map<string, number>();
     for (const rel of extension.parentRelationships)
       children.set(rel.parentId, (children.get(rel.parentId) ?? 0) + (weightBy.get(rel.childId) ?? 0));
     for (const [parentId, allocated] of children)
-      if (allocated !== weightBy.get(parentId))
+      if (allocated > (weightBy.get(parentId) ?? 0))
         throw new HarnessError('INVALID_PLAN_EXTENSION', `Weight conservation violated at ${parentId}: children hold ${allocated} of ${weightBy.get(parentId)} units`);
   }
 
-  /** Rational progress over leaf weight units. A parent's units are fully
-   * delegated to its children, so only leaves report; unknown shares stay
-   * unknown — no fabricated 0% or 100%. */
+  /** Rational progress over leaf weight units plus each parent's undivided
+   * residual share. Unknown shares stay unknown — no fabricated 0% or 100%. */
   progress(planId: string, statuses: Record<string, 'completed' | 'pending' | 'unknown'>): PlanProgress {
     const extension = this.get(planId);
     if (!extension) throw new HarnessError('INVALID_PLAN_EXTENSION', `No plan extension at ${planId}`);
-    const parents = new Set(extension.parentRelationships.map(rel => rel.parentId));
-    const leaves = extension.weights.filter(weight => !parents.has(weight.nodeId));
+    const weightBy = new Map(extension.weights.map(weight => [weight.nodeId, weight.units]));
+    const delegated = new Map<string, number>();
+    for (const rel of extension.parentRelationships)
+      delegated.set(rel.parentId, (delegated.get(rel.parentId) ?? 0) + (weightBy.get(rel.childId) ?? 0));
     const progress: PlanProgress = {completed: 0, pending: 0, unknown: 0, total: 0};
-    for (const leaf of leaves) {
-      progress.total += leaf.units;
-      const status = statuses[leaf.nodeId] ?? 'pending';
-      if (status === 'completed') progress.completed += leaf.units;
-      else if (status === 'unknown') progress.unknown += leaf.units;
-      else progress.pending += leaf.units;
+    for (const weight of extension.weights) {
+      // A node is a leaf unless it delegated; a delegating node's own share
+      // is the residual its children did not take.
+      const residual = weight.units - (delegated.get(weight.nodeId) ?? 0);
+      const units = delegated.has(weight.nodeId) ? residual : weight.units;
+      if (units <= 0) continue;
+      progress.total += units;
+      const status = statuses[weight.nodeId] ?? 'pending';
+      if (status === 'completed') progress.completed += units;
+      else if (status === 'unknown') progress.unknown += units;
+      else progress.pending += units;
     }
     return progress;
   }
@@ -134,15 +142,16 @@ export class PlanExtensionStore {
     if (!extension) throw new HarnessError('INVALID_PLAN_EXTENSION', `No plan extension at ${planId}`);
     const {record} = this.canonical(extension.planId);
     const watermark = extension.reportWatermark;
-    const deltas = this.hooks.store.eventsAfter(watermark, AGENT_WORK_LIMITS.reportEvents)
-      .filter(event => event.threadId === record.threadId && !SELF_EVENT.test(event.type));
-    const truncated = deltas.length >= AGENT_WORK_LIMITS.reportEvents;
+    const raw = this.hooks.store.eventsAfter(watermark, AGENT_WORK_LIMITS.reportEvents);
+    const deltas = raw.filter(event => event.threadId === record.threadId && !SELF_EVENT.test(event.type));
     const reportId = `plan-report:${planId}:${extension.extensionRevision}`;
     this.hooks.store.internal('agentWorkReport', record.threadId, () =>
       this.hooks.store.put(REPORT_KIND, reportId, record.threadId, {
         id: reportId, planId, watermark, deltaSeqs: deltas.map(delta => delta.seq), createdAt: new Date().toISOString(),
       }));
-    const nextWatermark = truncated ? deltas[deltas.length - 1].seq : this.hooks.store.sequence;
+    // The watermark covers the raw window actually consumed, not the filtered
+    // count — task events beyond a full page are reached by later reports.
+    const nextWatermark = raw.length >= AGENT_WORK_LIMITS.reportEvents ? raw[raw.length - 1].seq : this.hooks.store.sequence;
     this.hooks.store.internal('planExtension.watermark', record.threadId, () => {
       const current = this.hooks.store.get<PlanExtensionV1>(KIND, planId);
       if (current) this.hooks.store.put(KIND, planId, record.threadId, {...current, reportWatermark: nextWatermark, extensionRevision: current.extensionRevision + 1});
