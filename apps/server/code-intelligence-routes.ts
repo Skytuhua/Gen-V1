@@ -17,6 +17,8 @@ import { hostFlagEnabled, type RegisteredHostFlag } from '../../packages/core/ho
 import { ProjectVerificationService } from '../../packages/core/project-verification.ts';
 import type { CheckObservationV1 } from '../../packages/contracts/verification.ts';
 import { approvalSchema, type ApprovalV1, type ToolOwner } from '../../packages/contracts/tool-effects.ts';
+import type { Operation, Thread } from '../../packages/contracts/index.ts';
+import { actionCommitment } from '../../packages/core/tool-effects.ts';
 import { renamePlanV1Schema } from '../../packages/contracts/code-intelligence.ts';
 import { digest } from '../../packages/storage/store.ts';
 import { randomUUID } from 'node:crypto';
@@ -106,11 +108,12 @@ export function registerCodeIntelligenceRoutes(app: FastifyInstance, service: Se
   const advisoryRecipeDigest = (tool: string, language?: string) => sha(JSON.stringify({ kind: 'code-intelligence-advisory', tool, language }));
   const advisoryEnvironment = () => `${process.platform}/${process.version}`;
 
-  /** Consume a stored M02 exact approval whose actionCommitment binds this
-   * operation's digest — single-use, owner-bound, expiry-checked, verified
-   * inside a store transaction. A plan or recipe the caller merely supplies
-   * cannot satisfy this. */
-  const consumeApproval = (owner: ToolOwner, approvalId: string, commitment: string) => {
+  /** Consume a stored M02 approval — single-use, owner-bound, expiry-checked,
+   * verified inside a store transaction. The approval must be the one the
+   * user issued through `operation.approve` for a prepared operation whose
+   * kind and args bind this exact plan or recipe; a plan, recipe or approval
+   * id the caller merely supplies cannot satisfy this. */
+  const consumeApproval = (owner: ToolOwner, approvalId: string, kind: string, args: Record<string, unknown>) => {
     service.store.internal('code-intelligence.approval.consumed', owner.threadId, () => {
       let approval: ApprovalV1;
       try { approval = approvalSchema.parse(service.store.get('approval', approvalId)); }
@@ -119,8 +122,14 @@ export function registerCodeIntelligenceRoutes(app: FastifyInstance, service: Se
         throw new HarnessError('APPROVAL_REQUIRED', 'The approval belongs to another owner.');
       if (approval.remainingUses < 1 || approval.expiresAt <= new Date().toISOString())
         throw new HarnessError('APPROVAL_REQUIRED', 'The approval expired or was already consumed.');
-      if (approval.actionCommitment !== commitment)
-        throw new HarnessError('APPROVAL_REQUIRED', 'The approval does not bind this operation; approve the current input again.');
+      const operation = service.store.get<Operation>('operation', approval.operationId);
+      const thread = service.store.get<Thread>('thread', owner.threadId);
+      if (!operation || !thread || operation.threadId !== owner.threadId || !operation.approved)
+        throw new HarnessError('APPROVAL_REQUIRED', 'Approve the prepared operation first.');
+      if (approval.actionCommitment !== actionCommitment(operation, thread))
+        throw new HarnessError('APPROVAL_REQUIRED', 'The approved action changed; approve the current intent again.');
+      if (operation.kind !== kind || digest(operation.args) !== digest(args))
+        throw new HarnessError('APPROVAL_REQUIRED', 'The approved operation does not bind this input; approve the current one.');
       service.store.put('approval', approvalId, approval.owner.threadId, { ...approval, remainingUses: 0 });
     });
   };
@@ -254,7 +263,7 @@ export function registerCodeIntelligenceRoutes(app: FastifyInstance, service: Se
           if (plan.exactApprovalId !== input.approvalId)
             throw new HarnessError('APPROVAL_REQUIRED', 'The supplied approval does not match the approved plan.');
           consumeApproval(advisoryOwner(projectId, input.threadId, bound), input.approvalId,
-            digest({ kind: 'code-intelligence.rename.apply', planDigest: digest(plan), workspaceIdentity: bound.workspaceIdentity }));
+            'code-intelligence.rename.apply', { planDigest: digest(plan), workspaceIdentity: bound.workspaceIdentity });
           return intelligence.applyRename({ plan, approvalId: input.approvalId, journalRoot, grantedRoots: [bound.root], signal: signal() });
         }
         case 'recover': {
@@ -282,7 +291,7 @@ export function registerCodeIntelligenceRoutes(app: FastifyInstance, service: Se
         if (!input.recipe || !input.approvalId) throw new HarnessError('INVALID_INPUT', 'Launch requires the approved recipe and its approval.');
         const bound = await binding(projectId, input.threadId);
         consumeApproval(advisoryOwner(projectId, input.threadId, bound), input.approvalId,
-          digest({ kind: 'code-intelligence.debug.launch', recipeDigest: digest(input.recipe), workspaceIdentity: bound.workspaceIdentity }));
+          'code-intelligence.debug.launch', { recipeDigest: digest(input.recipe), workspaceIdentity: bound.workspaceIdentity });
         const launched = await debug.launch({ owner, recipe: input.recipe, signal: signal() });
         feedDebug('launch', launched.state === 'UNKNOWN' ? 'UNKNOWN' : 'PASS', `debug launch recipe=${input.recipe.recipeId} state=${launched.state}`);
         return launched;
