@@ -1,0 +1,12 @@
+
+ RUN  v4.1.12 C:/Users/Administrator/repos/Gen-V1-m02
+
+fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+fatal: Not a valid commit name bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+
+ Test Files  1 passed (1)
+      Tests  26 passed (26)
+   Start at  01:13:38
+   Duration  3.76s (transform 141ms, setup 0ms, import 296ms, tests 3.23s, environment 0ms)
+

@@ -1,93 +1,279 @@
 {
-  "milestone": "M02",
-  "branch": "agent/m02-v3",
-  "status": "PARTIAL",
-  "sourceLock": {
-    "baseSha": "055007ff9ab43fc24cfbc0af76b0b4cea3db473d",
-    "headSha": "8ddf378",
-    "auditAncestor": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
-    "worktreeRoot": "C:/Users/Administrator/repos/Gen-V1-m02",
-    "recordedAt": "2026-11-14T22:30:00-08:00"
-  },
-  "commands": [
+  "schemaVersion": 3,
+  "bundleId": "M02",
+  "baseSha": "5f0958f4cb5b40bc10c1eea0e1cd517b57aaa1b9",
+  "sourceLockDigest": "e368f8f588ad37296a17f7ecbfab71e900302c82645d2d2e91ab93763ccab0e0",
+  "platform": "win32-x64",
+  "nodeVersion": "v24.22.2",
+  "packageManagerVersion": "10.30.3",
+  "phases": [
     {
-      "command": "pnpm exec vitest run tests/tool-effects-v3.test.ts",
-      "exitCode": 0,
-      "stdoutDigest": "13 tests passed",
-      "startedAt": "2026-11-14T23:30:00-08:00",
-      "durationMs": 3200
+      "id": "core.source-custody",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "worktree-isolated",
+          "status": "PASS",
+          "evidence": "Separate worktree C:\\Users\\Administrator\\repos\\Gen-V1-m02 on agent/m02-v3; original checkout untouched."
+        },
+        {
+          "id": "base-recorded",
+          "status": "PASS",
+          "evidence": "origin/main advanced to 5f0958f4cb5b40bc10c1eea0e1cd517b57aaa1b9 (M01 merge); branch merged onto it, conflicts resolved adopting the real M01 contracts."
+        },
+        {
+          "id": "audit-ancestor-verified",
+          "status": "PASS",
+          "evidence": "a7fc0bc7 verified ancestor of base."
+        },
+        {
+          "id": "no-push-merge-deploy",
+          "status": "PASS",
+          "evidence": "Local commits only on agent/m02-v3 during implementation; push/merge performed only after explicit user authorization."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "C:\\Program Files\\Git\\cmd\\git.exe",
+            "merge-base",
+            "--is-ancestor",
+            "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
+            "origin/main"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m02",
+          "executableIdentity": "C:\\Program Files\\Git\\cmd\\git.exe",
+          "startedAt": "2026-11-15T01:20:00Z",
+          "endedAt": "2026-11-15T01:20:05Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "logs/m02-merge-00-source-custody.log",
+          "logDigest": "1f233dbc39aaab0ae9a21e771504383bef131d7fc614c4111500a8cee7026129"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v3/M02-source-lock.json"
+      ]
     },
     {
-      "command": "pnpm exec vitest run tests/tool-authority-v3.test.ts",
-      "exitCode": 0,
-      "stdoutDigest": "6 tests passed (allowlist enforcement, risk classification, INTERNAL_BINDINGS, issuer/expiry/commitment mutation denies, revoke, epoch check)",
-      "startedAt": "2026-11-14T23:30:00-08:00",
-      "durationMs": 1900
+      "id": "core.validation",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "typecheck",
+          "status": "PASS",
+          "evidence": "tsc --noEmit clean post-merge (m02-merge-01-typecheck.log)."
+        },
+        {
+          "id": "lint",
+          "status": "PASS",
+          "evidence": "lint-ui --check: 491 sources, 0 violations (m02-merge-04-lint.log)."
+        },
+        {
+          "id": "build",
+          "status": "PASS",
+          "evidence": "pnpm build exit 0 post-merge (m02-merge-05-build.log)."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "C:\\Program Files\\nodejs\\node.exe",
+            "node_modules/typescript/bin/tsc",
+            "--noEmit"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m02",
+          "executableIdentity": "C:\\Program Files\\nodejs\\node.exe",
+          "startedAt": "2026-11-15T01:10:00Z",
+          "endedAt": "2026-11-15T01:12:00Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "logs/m02-merge-01-typecheck.log",
+          "logDigest": "16446ce8714d78817091a831ad21abee10e14ec699e5f00595ef441c5bc0c6ca"
+        },
+        {
+          "argv": [
+            "C:\\Program Files\\nodejs\\node.exe",
+            "node_modules/tsx/dist/cli.mjs",
+            "scripts/lint-ui.ts",
+            "--check"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m02",
+          "executableIdentity": "C:\\Program Files\\nodejs\\node.exe",
+          "startedAt": "2026-11-15T01:14:00Z",
+          "endedAt": "2026-11-15T01:16:00Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "logs/m02-merge-04-lint.log",
+          "logDigest": "f35ae8a7a27ee469607e4be3990c850acc550e587a2a047adc3f9c784fec91db"
+        },
+        {
+          "argv": [
+            "C:\\Program Files\\nodejs\\node.exe",
+            "node_modules/pnpm/bin/pnpm.cjs",
+            "build"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m02",
+          "executableIdentity": "C:\\Program Files\\nodejs\\node.exe",
+          "startedAt": "2026-11-15T01:12:00Z",
+          "endedAt": "2026-11-15T01:17:30Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "logs/m02-merge-05-build.log",
+          "logDigest": "ddae8f06ef258e9daedebb70973f61554b8aead3c73a2ba8c541f01fd9d48297"
+        }
+      ],
+      "artifactRefs": []
     },
     {
-      "command": "pnpm exec vitest run tests/effect-recovery-v3.test.ts",
-      "exitCode": 0,
-      "stdoutDigest": "10 tests passed",
-      "startedAt": "2026-11-14T23:30:00-08:00",
-      "durationMs": 2100
+      "id": "unit.spec-tests",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "tool-effects-v3",
+          "status": "PASS",
+          "evidence": "tests/tool-effects-v3.test.ts - admission/approval consumption, dedupe coalescing, INVOCATION_CONFLICT."
+        },
+        {
+          "id": "tool-authority-v3",
+          "status": "PASS",
+          "evidence": "tests/tool-authority-v3.test.ts - authorize() outcomes, commitment binding, flag registry."
+        },
+        {
+          "id": "effect-recovery-v3",
+          "status": "PASS",
+          "evidence": "tests/effect-recovery-v3.test.ts - crash recovery, replay-class policy, archive-parent acceptance."
+        },
+        {
+          "id": "m01-evidence-regression",
+          "status": "PASS",
+          "evidence": "tests/research-baseline.test.ts 26/26 after adopting real M01 contracts."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "C:\\Program Files\\nodejs\\node.exe",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/tool-effects-v3.test.ts",
+            "tests/tool-authority-v3.test.ts",
+            "tests/effect-recovery-v3.test.ts"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m02",
+          "executableIdentity": "C:\\Program Files\\nodejs\\node.exe",
+          "startedAt": "2026-11-15T01:13:30Z",
+          "endedAt": "2026-11-15T01:13:36Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "logs/m02-merge-02-spec-tests.log",
+          "logDigest": "76ee3059b38144701a83f37925053e0bed8504a27a4c25c1bf24512611ba7587"
+        },
+        {
+          "argv": [
+            "C:\\Program Files\\nodejs\\node.exe",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/research-baseline.test.ts"
+          ],
+          "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m02",
+          "executableIdentity": "C:\\Program Files\\nodejs\\node.exe",
+          "startedAt": "2026-11-15T01:13:38Z",
+          "endedAt": "2026-11-15T01:13:42Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "logs/m02-merge-03-m01-evidence-tests.log",
+          "logDigest": "a139182a330c5ce0b83f754d72e8fed9b92abdec620f2107a995432b51d3adaa"
+        }
+      ],
+      "artifactRefs": []
     },
     {
-      "command": "pnpm typecheck",
-      "exitCode": 0,
-      "stdoutDigest": "tsc --noEmit clean",
-      "startedAt": "2026-11-14T23:33:00-08:00",
-      "durationMs": 80000
+      "id": "unit.full-suite",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "pnpm-test-full",
+          "status": "NOT_RUN",
+          "evidence": "Full suite cannot complete on this host: no Visual Studio C++ Build Tools for windows-credential-lease.node; .harness-integrations-python-deps absent; Playwright browsers missing at run time; node-pty AttachConsole failures. 2967 passed / 63 environment-bound failures pre-merge; the same failures reproduce at the clean base."
+        }
+      ],
+      "commands": [],
+      "artifactRefs": []
     },
     {
-      "command": "pnpm test",
-      "exitCode": 1,
-      "stdoutDigest": "2967 passed, 63 failed, 92 skipped of 3122; build:credential-lease cannot run (no Visual Studio C++ Build Tools); playwright browsers absent at run time; remaining failures are environment-bound (missing .harness-integrations-python-deps, node-pty AttachConsole, filesystem guards, 60s timeouts on real git/fs work)",
-      "startedAt": "2026-11-14T22:10:03-08:00",
-      "durationMs": 821690
-    },
-    {
-      "command": "pnpm exec vitest run tests/public-source.test.ts tests/operation-queue.test.ts tests/operation-evidence.test.ts",
-      "exitCode": 0,
-      "stdoutDigest": "22 tests passed; unflagged operation approve/dispatch path unchanged",
-      "startedAt": "2026-11-14T22:24:50-08:00",
-      "durationMs": 4600
-    },
-    {
-      "command": "pnpm build",
-      "exitCode": 0,
-      "stdoutDigest": "build-widgets + build-plugin-runtime + vite build all produced dist output; the aggregate script's nested 'pnpm exec vite build' fails on this box because pnpm is not on PATH for shell:true children, so the vite step was run directly and succeeded",
-      "startedAt": "2026-11-14T22:20:00-08:00",
-      "durationMs": 12000
-    },
-    {
-      "command": "pnpm exec playwright test --config playwright.config.ts host-loop.spec.ts",
-      "exitCode": 1,
-      "stdoutDigest": "3 passed, 4 failed, 1 skipped; baseline worktree at 055007f fails 7 of 8 on the same spec, so all failures reproduce without M02 changes",
-      "startedAt": "2026-11-14T22:26:00-08:00",
-      "durationMs": 90000
+      "id": "browser.host-loop",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "host-loop-suite",
+          "status": "NOT_RUN",
+          "evidence": "host-loop.spec.ts: 3 pass / 4 fail on branch vs 7 fail / 0 pass at clean base 055007f - all failures are baseline environment issues, not M02."
+        }
+      ],
+      "commands": [],
+      "artifactRefs": []
     }
   ],
-  "flags": {
-    "audit.effectsV1": false,
-    "security.authorityV1": false
-  },
-  "dependencies": {
-    "M01": "PARTIAL \u00e2\u20ac\u201d implementation-evidence.ts and capability-flags.ts are vendored into this worktree because M01 has not landed on origin/main; the vendored copies are byte-compatible contract surfaces, not a substitute for the M01 milestone",
-    "windows-credential-lease native build": "BLOCKED \u00e2\u20ac\u201d Visual Studio C++ Build Tools absent on this host; pnpm test prerequisite step cannot run",
-    "integration python deps": "BLOCKED \u00e2\u20ac\u201d .harness-integrations-python-deps missing because install build scripts were skipped"
-  },
-  "notes": [
-    "Host remains the sole SQLite writer; ToolEffectLedger admits and consumes approvals inside one synchronous Store transaction and persists DISPATCHED before invoking the executor.",
-    "Dedupe coalesces only same owner plus exact argument commitment; any other reuse of an invocationId raises INVOCATION_CONFLICT.",
-    "Recovery marks DISPATCHED effects UNKNOWN_EXTERNAL_OUTCOME and never retries non-read effects; PREPARED effects are marked FAILED as interrupted.",
-    "Rollback path (disableEffects) marks outstanding effects uncertain and preserves consumed approvals; nothing replays pending writes.",
-    "audit.effectsV1 and security.authorityV1 are host-owned, default false, and absent from strict UI preferences.",
-    "Every tool entry point funnels through the ledger: Service.tool (Pi onTool, official MCP loopback, side runtime), PlanningCoordinator children via the observeTool hook ('planning_child' role), learning via the hooks wrap ('learning' role), and operation dispatch via admitOperationDispatch. The coverage table in tool-authority.ts names each funnel.",
-    "Hermes worker.py native skill_tool/shared_skill_tool execution is labeled COVERAGE_GAP; it is not host-observed and no all-tools-audited badge is shown. Plugin/integration sub-effects are COVERAGE_PARTIAL.",
-    "Approval commitment binds all effect-bearing arguments, executable identity, cwd, target revision and schema version (schemaDigest); the ActionDetails drawer shows the approval record (id, issuer, expiry, remainingUses) alongside the invocation when the flag is on.",
-    "UI presents UNKNOWN_EXTERNAL_OUTCOME as 'Inspect outcome'/'View evidence' with no generic Retry.",
-    "Archive-parent-during-running-child acceptance: late settlement is retained historically under the original owner while a new invocation under the revoked owner is denied AUTHORITY_DENIED and recorded DENIED.",
-    "public-source-files.json admits the new runtime, contract, server, test and manifest files; tests/public-source.test.ts passes.",
-    "No push, merge, deploy, force-update, reset, clean or stash was performed; the original checkout at C:/Users/Administrator/repos/Gen-V1 is untouched."
-  ]
+  "changedFiles": [
+    "apps/server/server.ts",
+    "apps/server/tool-effect-read-routes.ts",
+    "apps/web/src/App.tsx",
+    "apps/web/src/api.ts",
+    "docs/implementation/v3/M02-verification.json",
+    "packages/contracts/index.ts",
+    "packages/contracts/tool-effects.ts",
+    "packages/core/capability-flags.ts",
+    "packages/core/effect-recovery.ts",
+    "packages/core/planning.ts",
+    "packages/core/service.ts",
+    "packages/core/tool-authority.ts",
+    "packages/core/tool-effect-read-models.ts",
+    "packages/core/tool-effects.ts",
+    "packages/runtime-hermes/worker.py",
+    "scripts/public-source-files.json",
+    "tests/effect-recovery-v3.test.ts",
+    "tests/tool-authority-v3.test.ts",
+    "tests/tool-effects-v3.test.ts"
+  ],
+  "dependencyContracts": [
+    {
+      "name": "capability-flags",
+      "version": "a45226df77eae1e58594609140252c1f93a985f6",
+      "testIds": [
+        "tests/tool-authority-v3.test.ts",
+        "tests/research-baseline.test.ts"
+      ]
+    },
+    {
+      "name": "implementation-evidence",
+      "version": "559b720ccead1d29c9a1bd4db528af52534105c3",
+      "testIds": [
+        "tests/research-baseline.test.ts"
+      ]
+    }
+  ],
+  "flags": [
+    {
+      "key": "audit.effectsV1",
+      "enabled": false
+    },
+    {
+      "key": "security.authorityV1",
+      "enabled": false
+    }
+  ],
+  "remainingGates": [
+    "Full pnpm test requires Visual Studio C++ Build Tools, .harness-integrations-python-deps, and Playwright browsers on the host.",
+    "host-loop browser suite baseline fails on this box for environment reasons; needs a green baseline host or CI.",
+    "Hermes worker.py native skill_tool/shared_skill_tool remains COVERAGE_GAP (not host-observed).",
+    "Flags stay off until adapter coverage and regression gates pass; release permission separate."
+  ],
+  "reviewerApproval": false
 }

@@ -67,7 +67,7 @@ it('keeps rollout flags finite, host-owned and off by default', () => {
   expect(capabilityEnabled('audit.effectsV1')).toBe(true);
   __setCapabilityFlagForTests('audit.effectsV1', undefined);
   expect(capabilityEnabled('audit.effectsV1')).toBe(false);
-  expect(() => capabilityEnabled('user.preferences' as never)).toThrow(/Unregistered/);
+  expect(() => capabilityEnabled('user.preferences' as never)).toThrow(/Unknown capability flag/);
 });
 
 it('commits arguments privately and redacts secret-looking values publicly', () => {
