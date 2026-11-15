@@ -101,4 +101,9 @@ it('adapter capabilities are asserted with reasons and proof, never inferred fro
  const asserted=assertCapabilities({supportsSteering:true},{supportsPublicStreaming:'No typed public delta channel exists.'},'proof');
  expect(asserted.supportsSteering).toBe(true);expect(asserted.supportsPublicStreaming).toBe(false);
  expect(asserted.reasons.supportsStatelessReuse).toBeTruthy();
+ const reasons = Object.freeze({supportsSteering:'Supplied note', supportsPublicStreaming:'No public streaming'});
+ const fromFrozen = assertCapabilities({supportsSteering:true}, reasons, 'proof');
+ expect(fromFrozen.reasons.supportsSteering).toBeUndefined();
+ expect(fromFrozen.reasons.supportsPublicStreaming).toBe('No public streaming');
+ expect(reasons).toEqual({supportsSteering:'Supplied note', supportsPublicStreaming:'No public streaming'});
 });
