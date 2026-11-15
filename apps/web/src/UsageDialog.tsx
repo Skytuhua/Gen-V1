@@ -15,6 +15,10 @@ export interface UsageDialogProps {
 }
 const tabs = ['Cost', 'Tokens', 'Limits', 'Requests'] as const;
 const elapsed = (value: number | null) => value === null ? 'Not reported' : `${value < 10 ? Math.round(value * 10) / 10 : Math.round(value)} ms`;
+// `queued` is the epoch-ms admission point, not an elapsed offset like the
+// other stages — render it as a time, not a duration.
+const stageValue = (stage: typeof REQUEST_STAGES[number][0], value: number | null) =>
+  stage === 'queued' ? (value === null ? 'Not reported' : new Date(value).toLocaleTimeString()) : elapsed(value);
 const REQUEST_STAGES = [
   ['queued', 'Queued'],
   ['acquired', 'Capacity acquired'],
@@ -81,12 +85,13 @@ export function UsageDialog({ open, onClose, reports = [], requests = [], loadin
         {tab === 'Requests' && (requests.length ? requests.map(request => <dl key={request.requestId}>
           <dt>Request</dt><dd>{request.binding.providerId} · {request.binding.modelId}</dd>
           <dt>Outcome</dt><dd>{request.outcome}</dd>
-          {REQUEST_STAGES.map(([stage, label]) => <span key={stage} className="usage-request-stage"><dt>{label}</dt><dd>{elapsed(request.timings[stage])}</dd></span>)}
+          {REQUEST_STAGES.map(([stage, label]) => <span key={stage} className="usage-request-stage"><dt>{label}</dt><dd>{stageValue(stage, request.timings[stage])}</dd></span>)}
           <dt>Input tokens</dt><dd>{usageCount(request.usage.inputTokens)}</dd>
           <dt>Output tokens</dt><dd>{usageCount(request.usage.outputTokens)}</dd>
           <dt>Cache read tokens</dt><dd>{usageCount(request.usage.cacheReadTokens)}</dd>
           <dt>Cache write tokens</dt><dd>{usageCount(request.usage.cacheWriteTokens)}</dd>
           <dt>Reported cost</dt><dd>{usageCost(request.usage.cost === null ? null : { amount: request.usage.cost })}</dd>
+          {request.error && <><dt>Error</dt><dd>{request.error}</dd></>}
         </dl>) : <p className="usage-dialog-empty">No measured model requests for this scope yet.</p>)}
       </section>)}
     </div>
