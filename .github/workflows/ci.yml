@@ -27,33 +27,8 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
-        with:
-          version: 10.30.3
-
-      - name: Install Node.js
-        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
-        with:
-          node-version: 24.22.2
-          cache: pnpm
-
-      - name: Install Python
-        id: python
-        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
-        with:
-          python-version: '3.14'
-          architecture: x64
-          cache: pip
-          cache-dependency-path: third-party/hermes-agent/runtime-requirements.txt
-
-      - name: Select the isolated worker interpreter
-        run: |
-          $workerPython = (Get-Command python).Source
-          "HARNESS_HERMES_PYTHON=$workerPython" >> $env:GITHUB_ENV
-
-      - name: Install locked dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Install toolchain
+        uses: ./.github/actions/setup
 
       - name: Build and verify the public plug-in API package
         run: |
@@ -67,27 +42,6 @@ jobs:
       - name: Exercise UI guard negative and positive fixtures
         run: pnpm test:ui-guard
 
-      - name: Install isolated Hermes dependencies
-        run: python -m pip install --disable-pip-version-check --no-warn-script-location --target .harness-hermes-python-deps -r third-party/hermes-agent/runtime-requirements.txt
-
-      - name: Install pinned integration wheels for regression tests
-        run: |
-          $lock = Get-Content -Raw -LiteralPath third-party/integrations/PYTHON_LOCK.json | ConvertFrom-Json
-          $requirements = foreach ($distribution in $lock.distributions) {
-            if ($distribution.name -notmatch '^[A-Za-z0-9][A-Za-z0-9._-]*$' -or
-                $distribution.sourceUrl -notmatch '^https://files\.pythonhosted\.org/[^?#\s]+\.whl$' -or
-                $distribution.wheelSha256 -notmatch '^[0-9a-f]{64}$') {
-              throw 'Invalid pinned integration wheel identity'
-            }
-            "$($distribution.name) @ $($distribution.sourceUrl) --hash=sha256:$($distribution.wheelSha256)"
-          }
-          $requirementsPath = Join-Path $env:RUNNER_TEMP 'gen-integration-wheel-requirements.txt'
-          $requirements | Set-Content -LiteralPath $requirementsPath -Encoding utf8
-          python -m pip install --disable-pip-version-check --no-warn-script-location --only-binary=:all: --no-deps --require-hashes --no-compile --target .harness-integrations-python-deps --requirement $requirementsPath
-
-      - name: Install test browser
-        run: pnpm exec playwright install chromium
-
       - name: Check TypeScript and enforce UI architecture policy
         run: pnpm lint
 
@@ -99,17 +53,95 @@ jobs:
       - name: Build web application
         run: pnpm build
 
-      - name: Build the Windows credential lease addon
-        run: pnpm build:credential-lease
+  test:
+    name: Tests (shard ${{ matrix.shard }}/4)
+    runs-on: windows-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Install toolchain
+        uses: ./.github/actions/setup
+        with:
+          python: 'true'
+
+      - name: Build web application
+        run: pnpm build
 
       - name: Run application regression tests
-        run: pnpm test --maxWorkers=2
+        run: pnpm test --maxWorkers=2 --shard=${{ matrix.shard }}/4
+
+  browser:
+    name: Browser tests
+    runs-on: windows-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Install toolchain
+        uses: ./.github/actions/setup
+        with:
+          python: 'true'
+
+      - name: Build web application
+        run: pnpm build
+
+      - name: Read the pinned browser version
+        id: playwright-version
+        run: |
+          $version = node -p "require('playwright-core/package.json').version"
+          "version=$version" | Out-File -Append -FilePath $env:GITHUB_OUTPUT -Encoding utf8
+
+      - name: Cache the test browser
+        id: playwright-cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ~\AppData\Local\ms-playwright
+          key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
+
+      - name: Install test browser
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install chromium
 
       - name: Exercise split workspace in the browser
         env:
           GEN_SPLIT_RENDERER_BROWSER: '1'
           GEN_SPLIT_APP_BROWSER: '1'
         run: pnpm exec vitest run tests/split-workspace-renderer.test.ts tests/split-app-browser.test.ts --maxWorkers=1
+
+  hermes:
+    name: Hermes contracts
+    runs-on: windows-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Install toolchain
+        uses: ./.github/actions/setup
+        with:
+          python: 'true'
 
       - name: Verify original source custody
         run: python -I -S -B tests/hermes_source_contract.py -v
@@ -119,6 +151,25 @@ jobs:
 
       - name: Verify original Hermes worker behavior
         run: python -I -S -B tests/hermes_source_worker.py -v
+
+  desktop:
+    name: Desktop build
+    runs-on: windows-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Install toolchain
+        uses: ./.github/actions/setup
+
+      - name: Build web application
+        run: pnpm build
 
       - name: Build desktop shell
         run: pnpm desktop:build
