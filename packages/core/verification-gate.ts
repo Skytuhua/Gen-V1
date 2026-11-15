@@ -200,13 +200,15 @@ export function computeAssessment(input: AssessmentInput): DeliverableAssessment
   // produced it; bindings are explicit, never inferred from result kind.
   const match = (obs: CheckObservationV1, ref: string) => obs.checkId === ref || obs.executionId === ref;
   // Run-level audit markers (__boundary__, __traffic__, __errors__, ...) prove
-  // run policy held, not that a checklist item was verified — they can never
-  // satisfy a behavioral requirement, even via an execution-id binding.
+  // run policy held, not that a checklist item was verified — a marker PASS can
+  // never satisfy a requirement, but marker failures/blocks/cancellations stay
+  // effective so a failed execution cannot verify. The __ namespace is reserved
+  // at checklist admission (browserChecklistSchema).
   const isAuditMarker = (obs: CheckObservationV1) =>
     'checklistItemId' in obs && typeof obs.checklistItemId === 'string' && obs.checklistItemId.startsWith('__');
   const current = { codeDigest: input.sourceCut.codeDigest, dependencyDigest: input.sourceCut.dependencyDigest, environmentId: input.sourceCut.environmentId };
   const requirements: AssessedRequirement[] = input.requirements.map(req => {
-    const bound = input.observations.filter(obs => !isAuditMarker(obs) && req.checkRefs.some(ref => match(obs, ref)));
+    const bound = input.observations.filter(obs => req.checkRefs.some(ref => match(obs, ref)));
     const missing: string[] = [];
     if (!bound.length) missing.push(`no observation bound to ${req.id}`);
     let assessment: AssessedRequirement['assessment'] = 'UNVERIFIED';
@@ -218,7 +220,7 @@ export function computeAssessment(input: AssessmentInput): DeliverableAssessment
       } else if (stale.length === bound.length) {
         assessment = 'UNVERIFIED';
         missing.push(`evidence for ${req.id} is stale against the current source`);
-      } else if (fresh.some(obs => obs.outcome === 'PASS')) {
+      } else if (fresh.some(obs => obs.outcome === 'PASS' && !isAuditMarker(obs))) {
         assessment = 'VERIFIED';
       } else {
         assessment = 'UNVERIFIED';

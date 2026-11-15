@@ -175,8 +175,36 @@ it('a cancelled run leaves terminal evidence and audit markers never verify a re
   requirements:[{id:'page-works',checkRefs:[executionId]}],observations:result.observations,
   unresolvedEffects:[],verifierIdentity:'test',provenance:'test',
  });
- expect(assessment.requirements[0].assessment).toBe('UNVERIFIED');
- expect(assessment.label).not.toBe('VERIFIED');
+ // Cancelled execution-level evidence stays effective — never VERIFIED.
+ expect(assessment.requirements[0].assessment).toBe('FAILED');
+ expect(assessment.label).toBe('FAILED');
+});
+
+it('a failing COLLECT_ERRORS fails an execution-bound requirement even when assertions pass',async()=>{
+ const store=stateStore();
+ const driver=fakeDriver({texts:{'h1':'Welcome home'},failures:{network:['GET /api 500']}});
+ const result=await run(store,[
+  {kind:'NAVIGATE',url:'http://127.0.0.1:4100/'},
+  {kind:'ASSERT_TEXT',selector:'h1',text:'Welcome home',checklistItemId:'item-1'},
+  {kind:'ASSERT_TEXT',selector:'h1',text:'Welcome home',checklistItemId:'item-2'},
+  {kind:'COLLECT_ERRORS'},
+ ],driver);
+ expect(result.outcome).toBe('FAIL');
+ const executionId=result.observations[0].executionId;
+ const assessment=computeAssessment({
+  threadId:'t1',sourceCut:{headSha:null,codeDigest:digests.codeDigest,dependencyDigest:digests.dependencyDigest,environmentId:digests.environmentId},
+  requirements:[{id:'page-works',checkRefs:[executionId]}],observations:result.observations,
+  unresolvedEffects:[],verifierIdentity:'test',provenance:'test',
+ });
+ expect(assessment.requirements[0].assessment).toBe('FAILED');
+ expect(assessment.label).toBe('FAILED');
+});
+
+it('the __ namespace is reserved for run-level audit markers at checklist admission',()=>{
+ expect(()=>browserChecklistSchema.parse({
+  version:1,checklistId:'cl-x',approvedOrigins:['http://127.0.0.1:4100'],viewport:{width:1280,height:800},
+  steps:[{kind:'NAVIGATE',url:'http://127.0.0.1:4100/'}],items:['__login'],
+ })).toThrow();
 });
 
 it('bounded console and network failure collection fails the run',async()=>{

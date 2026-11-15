@@ -251,6 +251,6 @@ export const browserChecklistSchema = z.strictObject({
   approvedOrigins: z.array(boundedText(2048)).min(1).max(32),
   viewport: z.strictObject({ width: z.number().int().positive(), height: z.number().int().positive() }),
   steps: z.array(browserStepSchema).min(1).max(BROWSER_STEP_LIMIT),
-  items: z.array(boundedText(200)).min(1).max(64).refine(items => new Set(items).size === items.length, 'Checklist item IDs must be unique'),
+  items: z.array(boundedText(200).refine(id => !id.startsWith('__'), 'Checklist item IDs must not start with __ — reserved for run-level audit markers')).min(1).max(64).refine(items => new Set(items).size === items.length, 'Checklist item IDs must be unique'),
 });
 export type BrowserChecklistV1 = z.infer<typeof browserChecklistSchema>;
