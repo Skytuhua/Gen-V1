@@ -205,8 +205,8 @@ test('reopening source import refreshes granted files for its unchanged owner',a
 
 test('committing a different model clears unsupported reasoning before Research sends',async({page})=>{
  const h=await fixture(page,{working:false,reasoning:true});await page.getByRole('button',{name:'Show chat',exact:true}).click();
- await page.getByRole('combobox',{name:'Model',exact:true}).click();await page.getByRole('button',{name:'Reasoning: Default',exact:true}).click();await page.getByRole('menuitemcheckbox',{name:'High',exact:true}).click();
- await page.getByRole('combobox',{name:'Model',exact:true}).click();await page.getByRole('option',{name:'Other model',exact:true}).click();await page.keyboard.press('Escape');
+ await page.getByRole('combobox',{name:'Model',exact:true}).click();const high=page.getByRole('radiogroup',{name:'Reasoning effort'}).getByRole('radio',{name:'High',exact:true});await high.click();await expect(high).toBeChecked();
+ await page.getByRole('option',{name:'Other model',exact:true}).click();await page.keyboard.press('Escape');
  await page.getByRole('textbox',{name:'Message',exact:true}).fill('Use the selected model');await page.getByRole('button',{name:'Send message',exact:true}).click();
  await expect.poll(()=>h.commands.filter(command=>command.type==='message.send').length).toBe(1);
  expect(h.commands.find(command=>command.type==='message.send')).toMatchObject({threadId:'parent-a',payload:{modelId:'test/other',thinkingLevel:null}});
