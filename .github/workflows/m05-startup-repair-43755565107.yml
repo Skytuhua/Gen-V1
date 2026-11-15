@@ -1,0 +1,35 @@
+name: M05 installed startup boundary
+
+on:
+  push:
+    branches: ['agent/m05-startup-repair-43755565107']
+    paths:
+      - '.github/workflows/m05-startup-repair-43755565107.yml'
+      - 'scripts/verify-installed-desktop.ts'
+      - 'tests/installed-desktop-verification.test.ts'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: m05-startup-repair-43755565107
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Installed startup boundary reproduction
+    if: github.repository == 'skytuhua-org/Gen-V1' && github.ref == 'refs/heads/agent/m05-startup-repair-43755565107'
+    runs-on: windows-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Check out exact repair source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - name: Install pinned toolchain
+        uses: ./.github/actions/setup
+      - name: Reproduce premature installed page deadline
+        run: pnpm exec vitest run tests/installed-desktop-verification.test.ts -t 'waits for a correctly owned main page beyond the old 30-second cutoff' --reporter=verbose
