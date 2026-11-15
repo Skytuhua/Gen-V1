@@ -127,7 +127,7 @@ function CheckpointFiles({owner,adapter,checkpoint,preferences,onBack}:{owner:Ch
       </section>)}
       {restorable&&<fieldset disabled={applying}>
         <legend className="file-checkpoints-note">Files to restore</legend>
-        {reviews.map(review=>review.files.filter(file=>file.status==='ready').map(file=><label key={review.reviewId+file.path} className="file-checkpoints-select">
+        {reviews.map(review=>review.files.filter(file=>file.status==='ready'||(file.status==='missing'&&file.targetHash!==null)).map(file=><label key={review.reviewId+file.path} className="file-checkpoints-select">
           <input type="checkbox" checked={selected.has(file.path)} onChange={event=>setSelected(previous=>{const next=new Set(previous);if(event.target.checked)next.add(file.path);else next.delete(file.path);return next;})}/> {displayFilePath(file.path)}
         </label>))}
       </fieldset>}
