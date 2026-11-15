@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { discoverTestFiles, selectRegressionTests, type SourceChange } from '../scripts/select-regression-tests.ts';
+import { changedSources, discoverTestFiles, selectRegressionTests, type SourceChange } from '../scripts/select-regression-tests.ts';
 import { dirname, join } from 'node:path';
-import { readdirSync } from 'node:fs';
+import { mkdtempSync, readdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const testsDir = dirname(fileURLToPath(import.meta.url));
@@ -37,6 +39,27 @@ describe('regression test selection', () => {
     const result = select([{ path: 'packages/core/new-module.ts', previousPath: 'packages/core/old-module.ts', status: 'R' }]);
     expect(result.tests.sort()).toEqual(['tests/capabilities.test.ts', 'tests/store.test.ts']);
     expect(result.coverage).toBe('PARTIAL');
+  });
+
+  it('preserves the exact names of renamed files containing Unicode or spaces', () => {
+    const root = mkdtempSync(join(tmpdir(), 'gen-regression-selection-'));
+    const git = (...args: string[]) => execFileSync('git', ['-C', root, ...args], { stdio: 'pipe' });
+    try {
+      git('init');
+      git('config', 'core.quotePath', 'true');
+      git('config', 'commit.gpgSign', 'false');
+      const before = 'old café.ts';
+      const after = 'new résumé.ts';
+      writeFileSync(join(root, before), 'export const value = 42;\n');
+      git('add', '--', before);
+      git('-c', 'user.name=Test', '-c', 'user.email=test@example.invalid', 'commit', '-m', 'Before');
+      renameSync(join(root, before), join(root, after));
+      git('add', '-A');
+      git('-c', 'user.name=Test', '-c', 'user.email=test@example.invalid', 'commit', '-m', 'After');
+      expect(changedSources(root, 'HEAD~1')).toEqual([{ status: 'R', previousPath: before, path: after }]);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
   });
 
   it('keeps the old path coverage when a source is renamed into docs or a test path', () => {
