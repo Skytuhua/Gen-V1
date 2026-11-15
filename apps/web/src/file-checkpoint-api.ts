@@ -1,5 +1,6 @@
 import {z} from 'zod';
 import {authenticated,csrfToken,read} from './api.ts';
+import {RESTORE_STATES} from '../../../packages/contracts/workspace-checkpoints.ts';
 
 const encoder=new TextEncoder(),decoder=new TextDecoder('utf-8',{ignoreBOM:true});
 const utf8=(value:string)=>decoder.decode(encoder.encode(value))===value;
@@ -88,15 +89,20 @@ export function readRestorePlan(value:unknown):CheckpointRestorePlan{
   const result=restorePlanPayloadSchema.parse(value);
   return{planId:result.id,state:result.state,selectedPaths:result.selectedPaths,preRestoreCheckpointId:result.preRestoreCheckpointId};
 }
-const restorePlanPayloadSchema=z.strictObject({id,state:z.string().min(1),selectedPaths:z.array(z.string()).max(500),preRestoreCheckpointId:id.nullable(),conflicts:z.array(z.string()).max(500).optional()});
+// The server returns the whole StoredRestorePlan (RestorePlanV1 plus id,
+// conflicts and createdAt) for both plan and apply — the client must admit
+// that full shape, not just the fields it displays.
+const restorePlanPayloadSchema=z.strictObject({version:z.literal(1),id,checkpointId:id,scope:ownerSchema,currentRevision:hash,selectedPaths:z.array(path).min(1).max(200),beforeDigests:z.array(z.strictObject({path,digest:hash.nullable()})).max(200),targetDigests:z.array(z.strictObject({path,digest:hash.nullable()})).max(200),preRestoreCheckpointId:id.nullable(),approvalId:id,state:z.enum(RESTORE_STATES),conflicts:z.array(path).max(200),createdAt:time});
 const restoreResultPayloadSchema=restorePlanPayloadSchema;
 export function readRestoreResult(value:unknown):{planId:string;state:string;conflicts:string[];restored:string[];preRestoreCheckpointId:string|null}{
   const result=restoreResultPayloadSchema.parse(value);
-  return{planId:result.id,state:result.state,conflicts:result.conflicts??[],restored:result.selectedPaths.filter(path=>!(result.conflicts??[]).includes(path)),preRestoreCheckpointId:result.preRestoreCheckpointId};
+  return{planId:result.id,state:result.state,conflicts:result.conflicts,restored:result.selectedPaths.filter(path=>!result.conflicts.includes(path)),preRestoreCheckpointId:result.preRestoreCheckpointId};
 }
 /** Live host adapter: speaks to the flag-gated /checkpoints/* routes. `base` is
- *  the project API root (e.g. /api/projects/<id>?threadId=... is folded in via query). */
-export function createHttpCheckpointAdapter(base:string,threadId:string|undefined):FileCheckpointAdapter{
+ *  the project API root (e.g. /api/projects/<id>?threadId=... is folded in via query).
+ *  `restoreEnabled` mirrors the capability endpoint's `restore` flag so the UI
+ *  stays inert — instead of failing on click — when restore is off. */
+export function createHttpCheckpointAdapter(base:string,threadId:string|undefined,restoreEnabled:boolean):FileCheckpointAdapter{
   const query=threadId?'?threadId='+encodeURIComponent(threadId):'';
   const post=async(path:string,body:Record<string,unknown>,signal?:AbortSignal)=>{
     const response=await authenticated(()=>fetch(`${base}/checkpoints${path}${query}`,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','x-harness-csrf':csrfToken},body:JSON.stringify(body),signal}));
@@ -108,9 +114,11 @@ export function createHttpCheckpointAdapter(base:string,threadId:string|undefine
     detail:(owner,checkpoint,options)=>post('/detail',{owner,checkpointId:checkpoint.id,threadId},options.signal),
     review:(owner,checkpoint,options)=>post('/review',{owner,checkpointId:checkpoint.id,paths:options.paths,threadId},options.signal),
     restore:{
-      enabled:true,reason:'',
+      enabled:restoreEnabled,reason:restoreEnabled?'':'Checkpoint restore is disabled.',
+      ...(restoreEnabled?{
       plan:(owner,checkpoint,paths,approvalId)=>post('/restore/plan',{owner,checkpointId:checkpoint.id,selectedPaths:paths,approvalId,threadId}),
       apply:(owner,_checkpoint,planId,approvalId)=>post('/restore/apply',{owner,planId,approvalId,threadId}),
+    }:{}),
     },
   };
 }

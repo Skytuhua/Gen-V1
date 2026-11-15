@@ -1,0 +1,17 @@
+
+> gen-v1@0.6.5 test:browser C:\Users\Administrator\gen-m08-v3-wt
+> tsx scripts/test-browser.ts "--suite" "m08-restore"
+
+Browser results: C:\Users\Administrator\gen-m08-v3-wt\test-results\browser\run-1794724510965-bc115a4a-b80a-4eed-80eb-63d6e9a2e98b
+
+Browser suite: m08-restore (2 spec files)
+
+Running 5 tests using 1 worker
+
+  ok 1 tests\e2e\m08-pr-checks.spec.ts:70:56 › pull-request panel renders .pr-checks (populated rollup) (1.9s)
+  ok 2 tests\e2e\m08-pr-checks.spec.ts:70:56 › pull-request panel renders .pr-checks (empty rollup) (562ms)
+  ok 3 tests\e2e\m08-restore-ui.spec.ts:17:1 › plan shows confirmation with planned paths; cancel resets; confirm applies (972ms)
+  ok 4 tests\e2e\m08-restore-ui.spec.ts:85:1 › conflict apply result names the skipped files (830ms)
+  ok 5 tests\e2e\m08-restore-ui.spec.ts:120:1 › disabled restore adapter shows its reason and no file checkboxes (612ms)
+
+  5 passed (6.9s)

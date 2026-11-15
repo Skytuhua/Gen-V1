@@ -44,7 +44,7 @@ function ChangesBody({base,query,active,recorded,preferences}:{base:string;query
  // Enable History only with a host adapter and the context's exact workingCopy.id.
  const threadId=query.get('threadId')??undefined;
  const{value}=useProjectRequest<{available:boolean;restore:boolean;owner?:CheckpointOwner}>(base+'/checkpoints/capability?'+query,active);
- const adapter=useMemo(()=>value?.available?createHttpCheckpointAdapter(base,threadId):disabledCheckpointAdapter,[value?.available,base,threadId]);
+ const adapter=useMemo(()=>value?.available?createHttpCheckpointAdapter(base,threadId,value.restore===true):disabledCheckpointAdapter,[value?.available,value?.restore,base,threadId]);
  return <FileCheckpoints preferences={preferences} owner={value?.available?value.owner:undefined} adapter={adapter} current={<DiffBody base={base} query={query} active={active} fallback={recorded}/>} recorded={recorded}/>;
 }
 export function WorkspaceSurfaceBody({kind,binding,snapshot,refresh,active=true,preferences,onSelectThread,onOpenTool,panelId,excerptComposer}:{excerptComposer?:TerminalExcerptComposer;kind:WorkspacePanelKind;binding:PanelBinding;snapshot:Snapshot;refresh:()=>Promise<void>;active?:boolean;preferences?:UiPreferences;panelId?:string;onSelectThread?:(id:string)=>void|Promise<void>;onOpenTool?:(kind:WorkspacePanelKind)=>void|Promise<void>}){

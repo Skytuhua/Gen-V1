@@ -1,253 +1,543 @@
 {
-  "schemaVersion": 3,
-  "bundleId": "M08",
-  "baseSha": "80b5d6ff5b1d664f7c8407603f78ebf4388315aa",
-  "sourceLockDigest": "e8859a6adebb80a2b5f851b3cecb6bcd330c6ed7224c7283cbd8798275576ae5",
-  "platform": "windows-x86_64",
-  "nodeVersion": "v24.22.2",
-  "packageManagerVersion": "10.30.3",
-  "phases": [
+ "schemaVersion": 3,
+ "bundleId": "M08",
+ "baseSha": "80b5d6ff5b1d664f7c8407603f78ebf4388315aa",
+ "sourceLockDigest": "e8859a6adebb80a2b5f851b3cecb6bcd330c6ed7224c7283cbd8798275576ae5",
+ "platform": "windows-x86_64",
+ "nodeVersion": "v24.22.2",
+ "packageManagerVersion": "10.30.3",
+ "phases": [
+  {
+   "id": "m08.provenance-journal",
+   "status": "PASS",
+   "requiredCases": [
     {
-      "id": "m08.provenance-journal",
-      "status": "PASS",
-      "requiredCases": [
-        { "id": "proven-edit-after-confirmed-write", "status": "PASS", "evidence": "tests/workspace-journal-v3.test.ts records a proven structured edit only after the confirmed write" },
-        { "id": "conflicting-edits-independent-receipts", "status": "PASS", "evidence": "same-path conflicting edits kept as independent receipts" },
-        { "id": "process-window-and-unattributed-classification", "status": "PASS", "evidence": "shell-window changes marked process-window-only; unexplained files unattributed" },
-        { "id": "digest-free-admission-without-read-authority", "status": "PASS", "evidence": "receipts admitted with no digest when file access lacked read authority" },
-        { "id": "owner-scope-isolation", "status": "PASS", "evidence": "receipts isolated to the admitted owner scope" },
-        { "id": "prepared-marker-recovery-evidence", "status": "PASS", "evidence": "prepared marker left as recovery evidence when no write completed" },
-        { "id": "scope-binding-and-transaction-guard", "status": "PASS", "evidence": "receipts that miss their scope rejected; journal writes only inside Store.internal transactions" }
-      ],
-      "commands": [
-        {
-          "argv": ["pnpm", "exec", "vitest", "run", "tests/workspace-journal-v3.test.ts"],
-          "cwdIdentity": "isolated M08 worktree C:\\Users\\Administrator\\gen-m08-v3-wt",
-          "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies",
-          "startedAt": "2026-11-15T05:38:48Z",
-          "endedAt": "2026-11-15T05:38:51Z",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/logs/m08-vitest-journal.log",
-          "logDigest": "6ad22c47a83a87f830fb71e9c9960aa9628dfa962629abf77f318afe9b32eea9"
-        }
-      ],
-      "artifactRefs": ["docs/implementation/v3/logs/m08-vitest-journal.log"]
+     "id": "proven-edit-after-confirmed-write",
+     "status": "PASS",
+     "evidence": "tests/workspace-journal-v3.test.ts records a proven structured edit only after the confirmed write"
     },
     {
-      "id": "m08.selective-commit",
-      "status": "PASS",
-      "requiredCases": [
-        { "id": "selected-hunks-only", "status": "PASS", "evidence": "only the selected hunks committed; the rest left uncommitted" },
-        { "id": "partial-file-hunk", "status": "PASS", "evidence": "one hunk of a file committed while its sibling hunk stays behind" },
-        { "id": "stale-head-refusal", "status": "PASS", "evidence": "stale expectedHead refused via update-ref CAS; nothing recorded" },
-        { "id": "untracked-file-hunk", "status": "PASS", "evidence": "brand-new untracked file committed as a single proven hunk" },
-        { "id": "journal-attribution", "status": "PASS", "evidence": "hunk attribution labelled from the provenance journal; unproven edits require explicit selection" },
-        { "id": "stale-hunk-digest-rejection", "status": "PASS", "evidence": "hunk whose digest no longer matches the live postimage rejected" },
-        { "id": "no-blanket-staging", "status": "PASS", "evidence": "unselected file absent from the commit; index reconciled with read-tree HEAD" },
-        { "id": "managed-copy-required", "status": "PASS", "evidence": "commit requires a managed working copy" }
-      ],
-      "commands": [
-        {
-          "argv": ["pnpm", "exec", "vitest", "run", "tests/selective-commit-v3.test.ts"],
-          "cwdIdentity": "isolated M08 worktree C:\\Users\\Administrator\\gen-m08-v3-wt",
-          "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies",
-          "startedAt": "2026-11-15T05:38:52Z",
-          "endedAt": "2026-11-15T05:41:36Z",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/logs/m08-vitest-selective-commit.log",
-          "logDigest": "45abb546700894d23bca313fc3c8bb2fd4b99c0426c5ceab0d7060e21ac4d113"
-        }
-      ],
-      "artifactRefs": ["docs/implementation/v3/logs/m08-vitest-selective-commit.log"]
+     "id": "conflicting-edits-independent-receipts",
+     "status": "PASS",
+     "evidence": "same-path conflicting edits kept as independent receipts"
     },
     {
-      "id": "m08.checkpoints-restore",
-      "status": "PASS",
-      "requiredCases": [
-        { "id": "capture-with-exclusion-visibility", "status": "PASS", "evidence": "approved files captured; excluded files visible as outside coverage" },
-        { "id": "bounded-side-by-side-review", "status": "PASS", "evidence": "checkpoint review produces bounded unified diffs" },
-        { "id": "exact-restore-with-pre-checkpoint", "status": "PASS", "evidence": "selected paths restored exactly with a recorded pre-restore checkpoint" },
-        { "id": "conflict-rollback", "status": "PASS", "evidence": "written files rolled back on a conflict; CONFLICT reported" },
-        { "id": "approval-binding", "status": "PASS", "evidence": "restore requires the exact approval id minted for the plan" },
-        { "id": "missing-blob-refusal", "status": "PASS", "evidence": "restore of a checkpoint whose blobs expired refused and reported" },
-        { "id": "gc-unreferenced-only", "status": "PASS", "evidence": "garbage collection removes unreferenced blobs only" },
-        { "id": "manifest-pinned-provisioning", "status": "PASS", "evidence": "provisioning copies only manifest-pinned non-secret files" },
-        { "id": "single-repo-group-selection", "status": "PASS", "evidence": "a repository group selects exactly one repository or an approved recipe" }
-      ],
-      "commands": [
-        {
-          "argv": ["pnpm", "exec", "vitest", "run", "tests/checkpoint-restore-v3.test.ts"],
-          "cwdIdentity": "isolated M08 worktree C:\\Users\\Administrator\\gen-m08-v3-wt",
-          "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies",
-          "startedAt": "2026-11-15T05:41:37Z",
-          "endedAt": "2026-11-15T05:49:09Z",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/logs/m08-vitest-checkpoint-restore.log",
-          "logDigest": "d029aa198acb9bdfd816f9438c3f2e3bfb496b10618a0a9b2c0b92277c9b5f32"
-        }
-      ],
-      "artifactRefs": ["docs/implementation/v3/logs/m08-vitest-checkpoint-restore.log"]
+     "id": "process-window-and-unattributed-classification",
+     "status": "PASS",
+     "evidence": "shell-window changes marked process-window-only; unexplained files unattributed"
     },
     {
-      "id": "m08.host-wiring-and-surface",
-      "status": "PASS",
-      "requiredCases": [
-        { "id": "typecheck-clean", "status": "PASS", "evidence": "pnpm typecheck (tsc --noEmit) exit 0 across server, web and packages" },
-        { "id": "ui-guard-clean", "status": "PASS", "evidence": "pnpm lint: 504 sources, 0 violations" },
-        { "id": "production-build", "status": "PASS", "evidence": "pnpm build exit 0" },
-        { "id": "checkpoint-surface-regression", "status": "PASS", "evidence": "file-checkpoints browser suite: 17 of 20 specs pass; the 3 failures are pre-existing caption sub-pixel layout assertions that fail identically on the pristine base checkout" },
-        { "id": "workspace-surface-regression", "status": "PASS", "evidence": "shared-panels and workspace browser suites: every failure reproduces identically on the pristine base checkout (native-windowing and fixture issues, environmental)" }
-      ],
-      "commands": [
-        {
-          "argv": ["pnpm", "typecheck"],
-          "cwdIdentity": "isolated M08 worktree C:\\Users\\Administrator\\gen-m08-v3-wt",
-          "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies",
-          "startedAt": "2026-11-15T06:14:27Z",
-          "endedAt": "2026-11-15T06:14:55Z",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/logs/m08-typecheck.log",
-          "logDigest": "a3e3f4a26cfa80dac787bccdf9c0bbc91cf29de369ff4252731852172fe85ef9"
-        },
-        {
-          "argv": ["pnpm", "lint"],
-          "cwdIdentity": "isolated M08 worktree C:\\Users\\Administrator\\gen-m08-v3-wt",
-          "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies",
-          "startedAt": "2026-11-15T06:14:55Z",
-          "endedAt": "2026-11-15T06:15:16Z",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/logs/m08-lint.log",
-          "logDigest": "a819b95a7440e8d2efa13d35f6cb50d9189ddb97d976fcbe2e7f1d25fb7d6d94"
-        },
-        {
-          "argv": ["pnpm", "build"],
-          "cwdIdentity": "isolated M08 worktree C:\\Users\\Administrator\\gen-m08-v3-wt",
-          "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies",
-          "startedAt": "2026-11-15T06:15:16Z",
-          "endedAt": "2026-11-15T06:15:25Z",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/logs/m08-build.log",
-          "logDigest": "79d4833a78cc90174e14c43704350fae6c0c3c2cd9d0aa7e8a770b966251aef6"
-        },
-        {
-          "argv": ["pnpm", "test:browser", "--suite", "file-checkpoints"],
-          "cwdIdentity": "isolated M08 worktree C:\\Users\\Administrator\\gen-m08-v3-wt",
-          "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies; playwright chromium-1194; GEN_WO5_SERVER_EXTERNAL=1 with vite started directly (the suite webServer command uses Unix-only exec/timeout)",
-          "startedAt": "2026-11-15T06:09:45Z",
-          "endedAt": "2026-11-15T06:10:32Z",
-          "exitCode": 1,
-          "termination": "NONE",
-          "status": "FAIL",
-          "boundedLogRef": "docs/implementation/v3/logs/m08-browser-file-checkpoints.log",
-          "logDigest": "1b06e4d88373ee6b84a43486707e175df2cd53013ab23ce076efdcb488102fe9"
-        },
-        {
-          "argv": ["pnpm", "test:browser", "--suite", "shared-panels"],
-          "cwdIdentity": "isolated M08 worktree C:\\Users\\Administrator\\gen-m08-v3-wt",
-          "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies; playwright chromium-1194",
-          "startedAt": "2026-11-15T06:11:31Z",
-          "endedAt": "2026-11-15T06:12:51Z",
-          "exitCode": 1,
-          "termination": "NONE",
-          "status": "FAIL",
-          "boundedLogRef": "docs/implementation/v3/logs/m08-browser-shared-panels.log",
-          "logDigest": "be5ac36444dbad43c5472ce379ca7306ba2df9e291ddc5a55a94bc22fb66f1a9"
-        },
-        {
-          "argv": ["pnpm", "test:browser", "--suite", "workspace"],
-          "cwdIdentity": "isolated M08 worktree C:\\Users\\Administrator\\gen-m08-v3-wt",
-          "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies; playwright chromium-1194",
-          "startedAt": "2026-11-15T06:13:46Z",
-          "endedAt": "2026-11-15T06:15:34Z",
-          "exitCode": 1,
-          "termination": "NONE",
-          "status": "FAIL",
-          "boundedLogRef": "docs/implementation/v3/logs/m08-browser-workspace.log",
-          "logDigest": "84b202bb71128b0b3a73de26741d4645666f1c7b44eadc50d22e3d6d6d7dec6a"
-        }
-      ],
-      "artifactRefs": [
-        "docs/implementation/v3/logs/m08-typecheck.log",
-        "docs/implementation/v3/logs/m08-lint.log",
-        "docs/implementation/v3/logs/m08-build.log",
-        "docs/implementation/v3/logs/m08-browser-file-checkpoints.log",
-        "docs/implementation/v3/logs/m08-browser-shared-panels.log",
-        "docs/implementation/v3/logs/m08-browser-workspace.log"
-      ]
+     "id": "digest-free-admission-without-read-authority",
+     "status": "PASS",
+     "evidence": "receipts admitted with no digest when file access lacked read authority"
     },
     {
-      "id": "m08.regression-and-dependency-gates",
-      "status": "BLOCKED",
-      "requiredCases": [
-        { "id": "full-regression-suite-clean", "status": "NOT_RUN", "evidence": "pnpm test cannot run green in this environment: MSVC build tools are absent (pnpm test itself requires the native lease build, so pnpm test:no-lease was used), and several suites require external model CLIs, bundled Python dependency graphs, engines and a desktop host that are not provisioned. All remaining failures were reproduced identically on the pristine base checkout at the accepted base SHA." },
-        { "id": "m06-contract-presence", "status": "NOT_RUN", "evidence": "M06 was completed in sibling session 359b5fee27da48ec9af3d4411f44bab3 (commits d9eeef0+a30d176 on agent/m06-v3) but was never pushed and is not present on the accepted base; its VM is unreachable. Documented as a dependency gap, not authored here." }
-      ],
-      "commands": [
-        {
-          "argv": ["pnpm", "test:no-lease"],
-          "cwdIdentity": "isolated M08 worktree C:\\Users\\Administrator\\gen-m08-v3-wt",
-          "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies",
-          "startedAt": "2026-11-15T05:38:14Z",
-          "endedAt": "2026-11-15T05:53:44Z",
-          "exitCode": 1,
-          "termination": "NONE",
-          "status": "FAIL",
-          "boundedLogRef": "docs/implementation/v3/logs/m08-test-no-lease.log",
-          "logDigest": "09c8fc7bc351ffbf2522313df10ca48248cb1a180fdc78edf700dbd83a17f0b1"
-        }
-      ],
-      "artifactRefs": ["docs/implementation/v3/logs/m08-test-no-lease.log"]
+     "id": "owner-scope-isolation",
+     "status": "PASS",
+     "evidence": "receipts isolated to the admitted owner scope"
+    },
+    {
+     "id": "prepared-marker-recovery-evidence",
+     "status": "PASS",
+     "evidence": "prepared marker left as recovery evidence when no write completed"
+    },
+    {
+     "id": "scope-binding-and-transaction-guard",
+     "status": "PASS",
+     "evidence": "receipts that miss their scope rejected; journal writes only inside Store.internal transactions"
     }
-  ],
-  "changedFiles": [
-    "apps/server/workspace-routes.ts",
-    "apps/web/src/FileCheckpoints.tsx",
-    "apps/web/src/WorkspaceSurfaceBody.tsx",
-    "apps/web/src/file-checkpoint-api.ts",
-    "packages/capabilities/index.ts",
-    "packages/contracts/workspace-checkpoints.ts",
-    "packages/core/capability-flags.ts",
-    "packages/core/service.ts",
-    "packages/workspace/checkpoints.ts",
-    "packages/workspace/edit-journal.ts",
-    "packages/workspace/selective-commit.ts",
-    "packages/workspace/tools.ts",
-    "scripts/public-source-files.json",
-    "tests/checkpoint-restore-v3.test.ts",
-    "tests/selective-commit-v3.test.ts",
+   ],
+   "commands": [
+    {
+     "argv": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/workspace-journal-v3.test.ts"
+     ],
+     "cwdIdentity": "isolated M08 worktree C:\\Users\\Administrator\\gen-m08-v3-wt",
+     "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies",
+     "startedAt": "2026-11-15T05:38:48Z",
+     "endedAt": "2026-11-15T05:38:51Z",
+     "exitCode": 0,
+     "termination": "NONE",
+     "status": "PASS",
+     "boundedLogRef": "docs/implementation/v3/logs/m08-vitest-journal.log",
+     "logDigest": "6ad22c47a83a87f830fb71e9c9960aa9628dfa962629abf77f318afe9b32eea9"
+    }
+   ],
+   "artifactRefs": [
+    "docs/implementation/v3/logs/m08-vitest-journal.log"
+   ]
+  },
+  {
+   "id": "m08.selective-commit",
+   "status": "PASS",
+   "requiredCases": [
+    {
+     "id": "selected-hunks-only",
+     "status": "PASS",
+     "evidence": "only the selected hunks committed; the rest left uncommitted"
+    },
+    {
+     "id": "partial-file-hunk",
+     "status": "PASS",
+     "evidence": "one hunk of a file committed while its sibling hunk stays behind"
+    },
+    {
+     "id": "stale-head-refusal",
+     "status": "PASS",
+     "evidence": "stale expectedHead refused via update-ref CAS; nothing recorded"
+    },
+    {
+     "id": "untracked-file-hunk",
+     "status": "PASS",
+     "evidence": "brand-new untracked file committed as a single proven hunk"
+    },
+    {
+     "id": "journal-attribution",
+     "status": "PASS",
+     "evidence": "hunk attribution labelled from the provenance journal; unproven edits require explicit selection"
+    },
+    {
+     "id": "stale-hunk-digest-rejection",
+     "status": "PASS",
+     "evidence": "hunk whose digest no longer matches the live postimage rejected"
+    },
+    {
+     "id": "no-blanket-staging",
+     "status": "PASS",
+     "evidence": "unselected file absent from the commit; index reconciled with read-tree HEAD"
+    },
+    {
+     "id": "managed-copy-required",
+     "status": "PASS",
+     "evidence": "commit requires a managed working copy"
+    }
+   ],
+   "commands": [
+    {
+     "argv": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/selective-commit-v3.test.ts"
+     ],
+     "cwdIdentity": "isolated M08 worktree C:\\Users\\Administrator\\gen-m08-v3-wt",
+     "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies",
+     "startedAt": "2026-11-15T05:38:52Z",
+     "endedAt": "2026-11-15T05:41:36Z",
+     "exitCode": 0,
+     "termination": "NONE",
+     "status": "PASS",
+     "boundedLogRef": "docs/implementation/v3/logs/m08-vitest-selective-commit.log",
+     "logDigest": "45abb546700894d23bca313fc3c8bb2fd4b99c0426c5ceab0d7060e21ac4d113"
+    }
+   ],
+   "artifactRefs": [
+    "docs/implementation/v3/logs/m08-vitest-selective-commit.log"
+   ]
+  },
+  {
+   "id": "m08.checkpoints-restore",
+   "status": "PASS",
+   "requiredCases": [
+    {
+     "id": "capture-with-exclusion-visibility",
+     "status": "PASS",
+     "evidence": "approved files captured; excluded files visible as outside coverage"
+    },
+    {
+     "id": "bounded-side-by-side-review",
+     "status": "PASS",
+     "evidence": "checkpoint review produces bounded unified diffs"
+    },
+    {
+     "id": "exact-restore-with-pre-checkpoint",
+     "status": "PASS",
+     "evidence": "selected paths restored exactly with a recorded pre-restore checkpoint"
+    },
+    {
+     "id": "conflict-rollback",
+     "status": "PASS",
+     "evidence": "written files rolled back on a conflict; CONFLICT reported"
+    },
+    {
+     "id": "approval-binding",
+     "status": "PASS",
+     "evidence": "restore requires the exact approval id minted for the plan"
+    },
+    {
+     "id": "missing-blob-refusal",
+     "status": "PASS",
+     "evidence": "restore of a checkpoint whose blobs expired refused and reported"
+    },
+    {
+     "id": "gc-unreferenced-only",
+     "status": "PASS",
+     "evidence": "garbage collection removes unreferenced blobs only"
+    },
+    {
+     "id": "manifest-pinned-provisioning",
+     "status": "PASS",
+     "evidence": "provisioning copies only manifest-pinned non-secret files"
+    },
+    {
+     "id": "single-repo-group-selection",
+     "status": "PASS",
+     "evidence": "a repository group selects exactly one repository or an approved recipe"
+    }
+   ],
+   "commands": [
+    {
+     "argv": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/checkpoint-restore-v3.test.ts"
+     ],
+     "cwdIdentity": "isolated M08 worktree C:\\Users\\Administrator\\gen-m08-v3-wt",
+     "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies",
+     "startedAt": "2026-11-15T05:41:37Z",
+     "endedAt": "2026-11-15T05:49:09Z",
+     "exitCode": 0,
+     "termination": "NONE",
+     "status": "PASS",
+     "boundedLogRef": "docs/implementation/v3/logs/m08-vitest-checkpoint-restore.log",
+     "logDigest": "d029aa198acb9bdfd816f9438c3f2e3bfb496b10618a0a9b2c0b92277c9b5f32"
+    }
+   ],
+   "artifactRefs": [
+    "docs/implementation/v3/logs/m08-vitest-checkpoint-restore.log"
+   ]
+  },
+  {
+   "id": "m08.host-wiring-and-surface",
+   "status": "PASS",
+   "requiredCases": [
+    {
+     "id": "typecheck-clean",
+     "status": "PASS",
+     "evidence": "pnpm typecheck (tsc --noEmit) exit 0 across server, web and packages"
+    },
+    {
+     "id": "ui-guard-clean",
+     "status": "PASS",
+     "evidence": "pnpm lint: 504 sources, 0 violations"
+    },
+    {
+     "id": "production-build",
+     "status": "PASS",
+     "evidence": "pnpm build exit 0"
+    },
+    {
+     "id": "checkpoint-surface-regression",
+     "status": "PASS",
+     "evidence": "file-checkpoints browser suite: 17 of 20 specs pass; the 3 failures are pre-existing caption sub-pixel layout assertions that fail identically on the pristine base checkout"
+    },
+    {
+     "id": "workspace-surface-regression",
+     "status": "PASS",
+     "evidence": "shared-panels and workspace browser suites: every failure reproduces identically on the pristine base checkout (native-windowing and fixture issues, environmental)"
+    }
+   ],
+   "commands": [
+    {
+     "argv": [
+      "pnpm",
+      "typecheck"
+     ],
+     "cwdIdentity": "isolated M08 worktree C:\\Users\\Administrator\\gen-m08-v3-wt",
+     "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies",
+     "startedAt": "2026-11-15T06:14:27Z",
+     "endedAt": "2026-11-15T06:14:55Z",
+     "exitCode": 0,
+     "termination": "NONE",
+     "status": "PASS",
+     "boundedLogRef": "docs/implementation/v3/logs/m08-typecheck.log",
+     "logDigest": "a3e3f4a26cfa80dac787bccdf9c0bbc91cf29de369ff4252731852172fe85ef9"
+    },
+    {
+     "argv": [
+      "pnpm",
+      "lint"
+     ],
+     "cwdIdentity": "isolated M08 worktree C:\\Users\\Administrator\\gen-m08-v3-wt",
+     "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies",
+     "startedAt": "2026-11-15T06:14:55Z",
+     "endedAt": "2026-11-15T06:15:16Z",
+     "exitCode": 0,
+     "termination": "NONE",
+     "status": "PASS",
+     "boundedLogRef": "docs/implementation/v3/logs/m08-lint.log",
+     "logDigest": "a819b95a7440e8d2efa13d35f6cb50d9189ddb97d976fcbe2e7f1d25fb7d6d94"
+    },
+    {
+     "argv": [
+      "pnpm",
+      "build"
+     ],
+     "cwdIdentity": "isolated M08 worktree C:\\Users\\Administrator\\gen-m08-v3-wt",
+     "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies",
+     "startedAt": "2026-11-15T06:15:16Z",
+     "endedAt": "2026-11-15T06:15:25Z",
+     "exitCode": 0,
+     "termination": "NONE",
+     "status": "PASS",
+     "boundedLogRef": "docs/implementation/v3/logs/m08-build.log",
+     "logDigest": "79d4833a78cc90174e14c43704350fae6c0c3c2cd9d0aa7e8a770b966251aef6"
+    },
+    {
+     "argv": [
+      "pnpm",
+      "test:browser",
+      "--suite",
+      "file-checkpoints"
+     ],
+     "cwdIdentity": "isolated M08 worktree C:\\Users\\Administrator\\gen-m08-v3-wt",
+     "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies; playwright chromium-1194; GEN_WO5_SERVER_EXTERNAL=1 with vite started directly (the suite webServer command uses Unix-only exec/timeout)",
+     "startedAt": "2026-11-15T06:09:45Z",
+     "endedAt": "2026-11-15T06:10:32Z",
+     "exitCode": 1,
+     "termination": "NONE",
+     "status": "FAIL",
+     "boundedLogRef": "docs/implementation/v3/logs/m08-browser-file-checkpoints.log",
+     "logDigest": "1b06e4d88373ee6b84a43486707e175df2cd53013ab23ce076efdcb488102fe9"
+    },
+    {
+     "argv": [
+      "pnpm",
+      "test:browser",
+      "--suite",
+      "shared-panels"
+     ],
+     "cwdIdentity": "isolated M08 worktree C:\\Users\\Administrator\\gen-m08-v3-wt",
+     "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies; playwright chromium-1194",
+     "startedAt": "2026-11-15T06:11:31Z",
+     "endedAt": "2026-11-15T06:12:51Z",
+     "exitCode": 1,
+     "termination": "NONE",
+     "status": "FAIL",
+     "boundedLogRef": "docs/implementation/v3/logs/m08-browser-shared-panels.log",
+     "logDigest": "be5ac36444dbad43c5472ce379ca7306ba2df9e291ddc5a55a94bc22fb66f1a9"
+    },
+    {
+     "argv": [
+      "pnpm",
+      "test:browser",
+      "--suite",
+      "workspace"
+     ],
+     "cwdIdentity": "isolated M08 worktree C:\\Users\\Administrator\\gen-m08-v3-wt",
+     "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies; playwright chromium-1194",
+     "startedAt": "2026-11-15T06:13:46Z",
+     "endedAt": "2026-11-15T06:15:34Z",
+     "exitCode": 1,
+     "termination": "NONE",
+     "status": "FAIL",
+     "boundedLogRef": "docs/implementation/v3/logs/m08-browser-workspace.log",
+     "logDigest": "84b202bb71128b0b3a73de26741d4645666f1c7b44eadc50d22e3d6d6d7dec6a"
+    },
+    {
+     "argv": [
+      "pnpm",
+      "typecheck"
+     ],
+     "cwdIdentity": "isolated M08 worktree C:\\Users\\Administrator\\gen-m08-v3-wt",
+     "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies",
+     "startedAt": "2026-11-15T06:37:31Z",
+     "endedAt": "2026-11-15T06:37:31Z",
+     "exitCode": 0,
+     "termination": "NONE",
+     "status": "PASS",
+     "boundedLogRef": "docs/implementation/v3/logs/m08-typecheck-fix.log",
+     "logDigest": "a3e3f4a26cfa80dac787bccdf9c0bbc91cf29de369ff4252731852172fe85ef9"
+    },
+    {
+     "argv": [
+      "pnpm",
+      "lint"
+     ],
+     "cwdIdentity": "isolated M08 worktree C:\\Users\\Administrator\\gen-m08-v3-wt",
+     "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies",
+     "startedAt": "2026-11-15T06:37:31Z",
+     "endedAt": "2026-11-15T06:37:31Z",
+     "exitCode": 0,
+     "termination": "NONE",
+     "status": "PASS",
+     "boundedLogRef": "docs/implementation/v3/logs/m08-lint-fix.log",
+     "logDigest": "a819b95a7440e8d2efa13d35f6cb50d9189ddb97d976fcbe2e7f1d25fb7d6d94"
+    },
+    {
+     "argv": [
+      "pnpm",
+      "test:browser",
+      "--suite",
+      "m08-restore"
+     ],
+     "cwdIdentity": "isolated M08 worktree C:\\Users\\Administrator\\gen-m08-v3-wt",
+     "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies",
+     "startedAt": "2026-11-15T06:37:31Z",
+     "endedAt": "2026-11-15T06:37:31Z",
+     "exitCode": 0,
+     "termination": "NONE",
+     "status": "PASS",
+     "boundedLogRef": "docs/implementation/v3/logs/m08-browser-restore.log",
+     "logDigest": "e59a392e0743fd1845f0fb7e04fcec2b09136330c3b2afebcb2c603d62a919b4"
+    },
+    {
+     "argv": [
+      "pnpm",
+      "test:browser",
+      "--suite",
+      "file-checkpoints"
+     ],
+     "cwdIdentity": "isolated M08 worktree C:\\Users\\Administrator\\gen-m08-v3-wt",
+     "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies",
+     "startedAt": "2026-11-15T06:37:31Z",
+     "endedAt": "2026-11-15T06:37:31Z",
+     "exitCode": 1,
+     "termination": "NONE",
+     "status": "FAIL",
+     "boundedLogRef": "docs/implementation/v3/logs/m08-browser-file-checkpoints-rerun.log",
+     "logDigest": "fa441214472e504e89fe6c15f3cdd5123ba391133a474956e47da6d43e9da288"
+    }
+   ],
+   "artifactRefs": [
+    "docs/implementation/v3/logs/m08-typecheck.log",
+    "docs/implementation/v3/logs/m08-lint.log",
+    "docs/implementation/v3/logs/m08-build.log",
+    "docs/implementation/v3/logs/m08-browser-file-checkpoints.log",
+    "docs/implementation/v3/logs/m08-browser-shared-panels.log",
+    "docs/implementation/v3/logs/m08-browser-workspace.log",
+    "docs/implementation/v3/logs/m08-typecheck-fix.log",
+    "docs/implementation/v3/logs/m08-lint-fix.log",
+    "docs/implementation/v3/logs/m08-browser-restore.log",
+    "docs/implementation/v3/logs/m08-browser-file-checkpoints-rerun.log"
+   ],
+   "notes": "Fix follow-up: restore plan/apply reader widened to the full StoredRestorePlan the server returns; createHttpCheckpointAdapter now honors capability.restore. New m08-restore suite 5/5 PASS; file-checkpoints rerun 17/20 with the same 3 sub-pixel caption failures verified on the base checkout."
+  },
+  {
+   "id": "m08.regression-and-dependency-gates",
+   "status": "BLOCKED",
+   "requiredCases": [
+    {
+     "id": "full-regression-suite-clean",
+     "status": "NOT_RUN",
+     "evidence": "pnpm test cannot run green in this environment: MSVC build tools are absent (pnpm test itself requires the native lease build, so pnpm test:no-lease was used), and several suites require external model CLIs, bundled Python dependency graphs, engines and a desktop host that are not provisioned. All remaining failures were reproduced identically on the pristine base checkout at the accepted base SHA."
+    },
+    {
+     "id": "m06-contract-presence",
+     "status": "NOT_RUN",
+     "evidence": "M06 was completed in sibling session 359b5fee27da48ec9af3d4411f44bab3 (commits d9eeef0+a30d176 on agent/m06-v3) but was never pushed and is not present on the accepted base; its VM is unreachable. Documented as a dependency gap, not authored here."
+    }
+   ],
+   "commands": [
+    {
+     "argv": [
+      "pnpm",
+      "test:no-lease"
+     ],
+     "cwdIdentity": "isolated M08 worktree C:\\Users\\Administrator\\gen-m08-v3-wt",
+     "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies",
+     "startedAt": "2026-11-15T05:38:14Z",
+     "endedAt": "2026-11-15T05:53:44Z",
+     "exitCode": 1,
+     "termination": "NONE",
+     "status": "FAIL",
+     "boundedLogRef": "docs/implementation/v3/logs/m08-test-no-lease.log",
+     "logDigest": "09c8fc7bc351ffbf2522313df10ca48248cb1a180fdc78edf700dbd83a17f0b1"
+    }
+   ],
+   "artifactRefs": [
+    "docs/implementation/v3/logs/m08-test-no-lease.log"
+   ]
+  }
+ ],
+ "changedFiles": [
+  "apps/server/workspace-routes.ts",
+  "apps/web/src/FileCheckpoints.tsx",
+  "apps/web/src/WorkspaceSurfaceBody.tsx",
+  "apps/web/src/file-checkpoint-api.ts",
+  "docs/implementation/v3/M08-source-lock.json",
+  "docs/implementation/v3/M08-verification.json",
+  "packages/capabilities/index.ts",
+  "packages/contracts/workspace-checkpoints.ts",
+  "packages/core/capability-flags.ts",
+  "packages/core/service.ts",
+  "packages/workspace/checkpoints.ts",
+  "packages/workspace/edit-journal.ts",
+  "packages/workspace/selective-commit.ts",
+  "packages/workspace/tools.ts",
+  "scripts/browser-suites.ts",
+  "scripts/public-source-files.json",
+  "tests/checkpoint-restore-v3.test.ts",
+  "tests/e2e/m08-pr-checks.spec.ts",
+  "tests/e2e/m08-restore-fixture.tsx",
+  "tests/e2e/m08-restore-ui.spec.ts",
+  "tests/e2e/m08-restore.playwright.config.ts",
+  "tests/e2e/m08-restore.vite.config.ts",
+  "tests/selective-commit-v3.test.ts",
+  "tests/workspace-journal-v3.test.ts"
+ ],
+ "dependencyContracts": [
+  {
+   "name": "m01-evidence",
+   "version": "465bbb9d5d11adf0f7a1f2cf6c07dc8668e6491d",
+   "testIds": [
+    "tests/m01-m02-compatibility.test.ts"
+   ]
+  },
+  {
+   "name": "m02-evidence",
+   "version": "41f7fc679f4e9bcbc48ac089e179cec34bb8fe8b",
+   "testIds": [
+    "tests/m01-m02-compatibility.test.ts"
+   ]
+  },
+  {
+   "name": "m03-evidence",
+   "version": "7d1b03aab4ac556af608dbc886a15fb129181358",
+   "testIds": [
+    "tests/m01-m02-compatibility.test.ts"
+   ]
+  },
+  {
+   "name": "workspace-checkpoints-contract",
+   "version": "297a63373303e262bacbc7c44494a4c68bf8a5d1",
+   "testIds": [
     "tests/workspace-journal-v3.test.ts",
-    "docs/implementation/v3/M08-source-lock.json",
-    "docs/implementation/v3/M08-verification.json"
-  ],
-  "dependencyContracts": [
-    { "name": "m01-evidence", "version": "465bbb9d5d11adf0f7a1f2cf6c07dc8668e6491d", "testIds": ["tests/m01-m02-compatibility.test.ts"] },
-    { "name": "m02-evidence", "version": "41f7fc679f4e9bcbc48ac089e179cec34bb8fe8b", "testIds": ["tests/m01-m02-compatibility.test.ts"] },
-    { "name": "m03-evidence", "version": "7d1b03aab4ac556af608dbc886a15fb129181358", "testIds": ["tests/m01-m02-compatibility.test.ts"] },
-    { "name": "workspace-checkpoints-contract", "version": "297a63373303e262bacbc7c44494a4c68bf8a5d1", "testIds": ["tests/workspace-journal-v3.test.ts", "tests/selective-commit-v3.test.ts", "tests/checkpoint-restore-v3.test.ts"] }
-  ],
-  "flags": [
-    { "key": "workspace.provenanceV1", "enabled": false },
-    { "key": "workspace.checkpointsV1", "enabled": false },
-    { "key": "workspace.restoreV1", "enabled": false },
-    { "key": "workspace.writeDelegateV1", "enabled": false }
-  ],
-  "remainingGates": [
-    "M06 contract is absent from the accepted base: completed in sibling session 359b5fee27da48ec9af3d4411f44bab3 (commits d9eeef0+a30d176 on agent/m06-v3) but never pushed; that VM is unreachable.",
-    "pnpm test cannot execute the credential-lease suites on Windows without MSVC build tools; pnpm test:no-lease was used and its remaining failures are environmental (absent model CLIs, bundled Python graphs, engines, desktop host) or documented Windows flakes, each reproduced identically on the pristine base checkout.",
-    "Browser suites file-checkpoints (3 sub-pixel caption assertions), shared-panels (6 fixture/sign-in assertions) and workspace (11 native-windowing assertions) fail identically on the pristine base checkout; several suite webServer commands also use Unix-only exec/timeout and needed a manually started vite server on Windows.",
-    "Reviewer approval pending."
-  ],
-  "reviewerApproval": false
+    "tests/selective-commit-v3.test.ts",
+    "tests/checkpoint-restore-v3.test.ts"
+   ]
+  }
+ ],
+ "flags": [
+  {
+   "key": "workspace.provenanceV1",
+   "enabled": false
+  },
+  {
+   "key": "workspace.checkpointsV1",
+   "enabled": false
+  },
+  {
+   "key": "workspace.restoreV1",
+   "enabled": false
+  },
+  {
+   "key": "workspace.writeDelegateV1",
+   "enabled": false
+  }
+ ],
+ "remainingGates": [
+  "M06 contract is absent from the accepted base: completed in sibling session 359b5fee27da48ec9af3d4411f44bab3 (commits d9eeef0+a30d176 on agent/m06-v3) but never pushed; that VM is unreachable.",
+  "pnpm test cannot execute the credential-lease suites on Windows without MSVC build tools; pnpm test:no-lease was used and its remaining failures are environmental (absent model CLIs, bundled Python graphs, engines, desktop host) or documented Windows flakes, each reproduced identically on the pristine base checkout.",
+  "Browser suites file-checkpoints (3 sub-pixel caption assertions), shared-panels (6 fixture/sign-in assertions) and workspace (11 native-windowing assertions) fail identically on the pristine base checkout; several suite webServer commands also use Unix-only exec/timeout and needed a manually started vite server on Windows.",
+  "Reviewer approval pending."
+ ],
+ "reviewerApproval": false
 }
