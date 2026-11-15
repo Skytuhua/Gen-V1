@@ -3,7 +3,7 @@ import {z} from 'zod';
 import {HarnessError,type HostCommand,type Thread} from '../contracts/index.ts';
 import {threadNavigationRevision} from '../contracts/shell-read-models.ts';
 import {DEFAULT_INTEGRATIONS,integrationIdSchema,integrationPreferenceSchema} from '../contracts/integrations.ts';
-import {canvasLayoutSchema,nativeLayoutSchema,panelBindingSchema,panelBoundsSchema,panelPlacementSchema,surfaceRefSchema,workspaceIdSchema,workspacePanelKindSchema,workspacePresetSchema,workspaceStateSchema,type CanvasLayout,type PanelBinding,type PanelPlacement,type ProjectSummary,type WorkspaceEnvelope,type WorkspaceState} from '../contracts/workspace.ts';
+import {canvasLayoutSchema,isSupportedWorkspacePreset,nativeLayoutSchema,panelBindingSchema,panelBoundsSchema,panelPlacementSchema,surfaceRefSchema,workspaceIdSchema,workspacePanelKindSchema,workspacePresetSchema,workspaceStateSchema,type CanvasLayout,type PanelBinding,type PanelPlacement,type ProjectSummary,type WorkspaceEnvelope,type WorkspaceState} from '../contracts/workspace.ts';
 import {Store} from '../storage/store.ts';
 
 const name=z.string().trim().min(1).max(100),revision=z.number().int().nonnegative();
@@ -54,6 +54,7 @@ export class WorkspaceRepository{
    };
    if(type==='canvas.create'){
     const data=z.strictObject({name,preset:workspacePresetSchema,projectIds:z.array(workspaceIdSchema).max(200).optional(),threadId:workspaceIdSchema.optional(),expected:expectedReviewOwner.optional(),baseRevision:revision.optional()}).parse(p);
+    if(!isSupportedWorkspacePreset(data.preset))throw new HarnessError('PRESET_RETIRED','This workspace preset is no longer available. Open Workspace or All Agents.');
     if(data.expected&&(data.preset!=='code-review'||!data.threadId))throw new HarnessError('INVALID_INPUT','An exact review owner requires a Code Review conversation.');
     const ownerId=data.threadId??(data.preset==='research'?this.store.snapshot().activeThreadId:undefined),owner=ownerId?this.store.get<Thread>('thread',ownerId):undefined;if(data.threadId&&!owner)throw missing('conversation');const next=createWorkspaceCanvas(data.preset,data.name,undefined,owner?{authority:{kind:'local'},threadId:owner.id,...(owner.projectId?{projectId:owner.projectId}:{})}:undefined);next.projectIds=data.projectIds??next.projectIds;if(data.preset==='code-review'&&data.threadId)bindReview(next,data.threadId,data.expected);state.canvases.push(next);state.activeCanvasId=next.id;
    }else if(type==='canvas.select'){
