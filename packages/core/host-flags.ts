@@ -21,6 +21,10 @@ export const HOST_FLAG_REGISTRY = Object.freeze({
     default: false,
     description: 'ExecutionProfileV1 confined launch evaluation requiring an approved backend with a PASS platform proof.',
   }),
+  'verification.workflowV1': Object.freeze({
+    default: false,
+    description: 'Verification workflow: approved recipes, check/visual observations, bounded repair and the additive completion read model.',
+  }),
 } as const satisfies Record<string, HostFlagDefinition>);
 
 export type RegisteredHostFlag = keyof typeof HOST_FLAG_REGISTRY;

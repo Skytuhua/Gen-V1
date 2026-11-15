@@ -31,8 +31,13 @@ import type {HermesRuntime} from '../runtime-hermes/index.ts';
 import type {HermesSourceLibrary} from '../runtime-hermes/library.ts';
 import type {ApprovedWriteOrigin,CompletedWriteReceipt,WriteHookDiagnostic} from '../contracts/index.ts';
 import { HarnessError, EMPTY_USAGE, type ArtifactRecord, type DataRecord, type HostCommand, type InputRequest, type Message, type Operation, type ResourceGrant, type RunContext, type RuntimeAdapter, type RuntimeEvent, type RuntimeUsage, type Snapshot, type StartRun, type SurfaceSpec, type Thread, type ToolCall, type UserStateRecord } from "../contracts/index.ts";
+import { hostFlagEnabled } from "./host-flags.ts";
+import { computeAssessment } from "./verification-gate.ts";
+import { sourceDigestSync } from "./project-verification.ts";
+import { verificationDeclarationV1Schema, type CheckObservationV1, type DeliverableAssessmentV1, type VerificationDeclarationV1, type VisualObservationV1 } from "../contracts/verification.ts";
+import type { ToolEffectRecord } from "../contracts/tool-effects.ts";
 import { buildToolRegistry, ToolAuthority, type ActorRole } from "./tool-authority.ts";
-import { ToolEffectLedger, createToolEffectFlags, type ToolEffectFlag } from "./tool-effects.ts";
+import { ToolEffectLedger, createToolEffectFlags, privateArgumentCommitment, type ToolEffectFlag } from "./tool-effects.ts";
 import { recoverEffects } from "./effect-recovery.ts";
 
 type Outbox = { id: string; threadId: string; content: string; status: "persisted" | "processing" | "handled"; runId: string | null; enteredRuntime?: boolean;messageId?:string;completedWrite?:CompletedWriteReceipt;hookClaimed?:boolean;hookDiagnostic?:WriteHookDiagnostic };
@@ -968,7 +973,7 @@ export class Service {
     if(call.name==='agent_progress')throw new HarnessError('AGENT_TOOL_DENIED','Agent progress belongs to a delegated session');
     if (call.name === "ui_discover") return discoverCapabilities(args);
     if (call.name === "ui_inspect") return inspectTask(this.store, this.thread(ctx.threadId), this.planning.inspect(ctx.threadId), args);
-    if (call.name.startsWith("ui_") || call.name === "task_finish") return this.uiTool(call, ctx);
+    if (call.name.startsWith("ui_") || call.name === "task_finish" || call.name === "verification_declare") return this.uiTool(call, ctx);
     if (call.name === "operation_execute") {
       this.assertMutation(ctx.threadId); const op = this.store.get<Operation>("operation", text(args, "operationId", 200));
       if (!op || op.threadId !== ctx.threadId || !op.approved) throw new HarnessError("APPROVAL_REQUIRED", "The user must approve the exact prepared operation");
@@ -1039,17 +1044,68 @@ export class Service {
         const next = { ...artifact, placement: a.placement === "expanded" ? "expanded" : "inline", lifecycle: call.name === "ui_close" ? "archived" : artifact.lifecycle } as ArtifactRecord;
         this.store.put("artifact", artifact.id, ctx.threadId, next); return { artifactId: artifact.id, revision: artifact.revision };
       }
+      if (call.name === "verification_declare") {
+        if (!hostFlagEnabled("verification.workflowV1")) throw new HarnessError("CAPABILITY_DENIED", "The verification workflow capability is disabled on this host.");
+        // commandId is host plumbing for receipt dedup, not declaration data.
+        const { commandId: _commandId, ...declarationArgs } = a;
+        const declaration = verificationDeclarationV1Schema.parse({ version: 1, ...declarationArgs });
+        this.store.put("verificationDeclaration", ctx.threadId, ctx.threadId, declaration);
+        return { requirements: declaration.requirements.length };
+      }
       if (call.name === "task_finish") {
         if (this.hasGate(ctx.threadId) || this.store.all<Operation>("operation", ctx.threadId).some(o => ["running", "unknown", "prepared"].includes(o.status))) throw new HarnessError("REQUEST_GATED", "Resolve decisions and outstanding operations before completion");
         const current = this.store.all<Outbox>("outbox", ctx.threadId).filter(i => i.status !== "handled");
         const pending = current.filter(i => i.runId !== ctx.runId || !i.enteredRuntime);
         if (pending.length) throw new HarnessError("REQUEST_GATED", "There is unfinished input");
         this.store.put("finish", ctx.runId, ctx.threadId, { outcome: a.outcome ?? a.summary, evidence: a.evidence ?? [], assessment: true, inputIds: current.map(i => i.id) });
+        if (hostFlagEnabled("verification.workflowV1")) {
+          const assessment = this.completionAssessment(ctx, call);
+          if (assessment) this.store.put("assessment", assessment.assessmentId, ctx.threadId, assessment);
+        }
         return { accepted: true, settlesAfterRuntime: true };
       }
       throw new HarnessError("UNKNOWN_CAPABILITY", "Unknown UI tool");
     };
     return command ? this.store.command(command, apply).result : this.store.internal(call.name, ctx.threadId, apply);
+  }
+  /** M06 additive completion projection. Runs synchronously inside the
+   * task_finish store transaction — no awaits. Verified only when every
+   * declared requirement carries a fresh PASS observation against the current
+   * source/environment digests and no external effect is unresolved. */
+  private completionAssessment(ctx: RunContext, call: ToolCall): DeliverableAssessmentV1 | null {
+    const declaration = this.store.get<VerificationDeclarationV1>("verificationDeclaration", ctx.threadId);
+    const observations: (CheckObservationV1 | VisualObservationV1)[] = [
+      ...this.store.all<CheckObservationV1>("checkObservation", ctx.threadId),
+      ...this.store.all<VisualObservationV1>("visualObservation", ctx.threadId),
+    ];
+    if (!declaration && !observations.length) return null;
+    // When effect auditing wraps task_finish, the ledger admits this very call
+    // as DISPATCHED and settles it only after the body returns. That record is
+    // the invocation itself, not an outstanding external effect — exclude it by
+    // its argument commitment so audited completion does not block on itself.
+    const selfCommitment = privateArgumentCommitment(call);
+    const unresolvedEffects = this.store.all<ToolEffectRecord>("toolEffect", ctx.threadId)
+      .filter(effect => !["SUCCEEDED", "FAILED", "CANCELLED", "DENIED"].includes(effect.state) || effect.state === "UNKNOWN_EXTERNAL_OUTCOME")
+      .filter(effect => !(effect.toolId === "task_finish" && effect.privateArgumentCommitment === selfCommitment))
+      .map(effect => effect.invocationId);
+    const empty = "0".repeat(64);
+    let sourceCut: { headSha: string | null; codeDigest: string; dependencyDigest: string; environmentId: string };
+    if (declaration) {
+      const digestOf = (files: string[]) => { try { return sourceDigestSync(declaration.rootPath, files); } catch { return empty; } };
+      sourceCut = { headSha: null, codeDigest: digestOf(declaration.sourceFiles), dependencyDigest: digestOf(declaration.dependencyFiles), environmentId: declaration.environmentId };
+    } else {
+      const last = observations.at(-1)!;
+      sourceCut = { headSha: null, codeDigest: last.codeDigest, dependencyDigest: last.dependencyDigest, environmentId: last.environmentId };
+    }
+    return computeAssessment({
+      threadId: ctx.threadId,
+      sourceCut,
+      requirements: declaration?.requirements ?? [],
+      observations,
+      unresolvedEffects,
+      verifierIdentity: "service/" + ctx.runId,
+      provenance: "task_finish completion projection",
+    });
   }
   async dispatchOperation(id: string): Promise<unknown> {
     const requested = this.store.get<Operation>('operation', id);
