@@ -1,5 +1,5 @@
 import {useEffect,useId,useRef,useState,type ReactNode} from 'react';
-import {Clock3} from 'lucide-react';
+import {CheckCircle2,Clock3,XCircle} from 'lucide-react';
 import type {UiPreferences} from '../../../packages/contracts/preferences';
 import {isComposing} from '../../../packages/ui-shell/list-navigation';
 import {displayFilePath} from './files/FilesView';
@@ -113,32 +113,35 @@ function CheckpointFiles({owner,adapter,checkpoint,preferences,onBack}:{owner:Ch
   if(done)return <section aria-label="Checkpoint restore result">
     <button type="button" onClick={onBack}>Back to History</button><h3>Restore {done.state==='APPLIED'?'complete':'result'}</h3>
     <p className="file-checkpoints-note">{restoreOutcome(done.state)}</p>
-    {done.restored.length>0&&<ul className="file-checkpoints-list">{done.restored.map(path=><li key={path}><strong>{displayFilePath(path)}</strong><p>Restored.</p></li>)}</ul>}
-    {done.conflicts.length>0&&<ul className="file-checkpoints-list">{done.conflicts.map(path=><li key={path}><strong>{displayFilePath(path)}</strong><p>Not restored — the file changed after this review.</p></li>)}</ul>}
+    {done.restored.length>0&&<ul className="file-checkpoints-list">{done.restored.map(path=><li key={path} data-outcome="restored"><CheckCircle2 size={15} aria-hidden="true"/><div><strong>{displayFilePath(path)}</strong><p>Restored.</p></div></li>)}</ul>}
+    {done.conflicts.length>0&&<ul className="file-checkpoints-list">{done.conflicts.map(path=><li key={path} data-outcome="skipped"><XCircle size={15} aria-hidden="true"/><div><strong>{displayFilePath(path)}</strong><p>Not restored — the file changed after this review.</p></div></li>)}</ul>}
   </section>;
   return <section aria-label="Checkpoint review">
     <button ref={back} type="button" onClick={onBack}>Back to History</button><h3>{checkpoint.label}</h3>
     {error?<ErrorState message={error} retryLabel="Retry review" onRetry={()=>setAttempt(value=>value+1)}/>:!reviews?<p role="status">Loading checkpoint review…</p>:<>
-      <p className="file-checkpoints-note" title={`Revision ${checkpoint.revision}`}>{provenance(checkpoint)} · {checkpoint.provenance.operationId} · revision {checkpoint.revision.slice(0,10)}</p>
+      <p className="file-checkpoints-meta" title={`Revision ${checkpoint.revision}`}>{provenance(checkpoint)} · {checkpoint.provenance.operationId} · revision <code>{checkpoint.revision.slice(0,10)}</code></p>
       {reviews.map((review,index)=><section key={review.reviewId} aria-label={`Review part ${index+1} of ${reviews.length}`}>
       <p className="file-checkpoints-note">{reviews.length>1?`Part ${index+1} of ${reviews.length} · ${review.reviewId} · `:''}{review.files.length} {review.files.length===1?'file':'files'}</p>
       {review.files.filter(file=>file.diff===null).map(file=><p className="file-checkpoints-note" key={file.path}>{displayFilePath(file.path)} · {statusNote(file.status)}</p>)}
       {review.files.filter(file=>file.diffTruncated).map(file=><p className="file-checkpoints-note" key={file.path}>{displayFilePath(file.path)} · Diff truncated. Only part of this comparison is shown.</p>)}
       {review.files.some(file=>file.diff!==null)&&<RecordedDiffs diffs={review.files.flatMap(file=>file.diff===null?[]:[{id:file.path,title:displayFilePath(file.path),unified:file.diff||'No changes reported.',provenance:checkpoint.label}])} preferences={preferences}/>}
       </section>)}
-      {restorable&&<fieldset disabled={applying}>
-        <legend className="file-checkpoints-note">Files to restore</legend>
+      {restorable&&<fieldset className="file-checkpoints-restore" disabled={applying}>
+        <legend>Files to restore</legend>
         {reviews.map(review=>review.files.filter(file=>file.status==='ready'||(file.status==='missing'&&file.targetHash!==null)).map(file=><label key={review.reviewId+file.path} className="file-checkpoints-select">
           <input type="checkbox" checked={selected.has(file.path)} onChange={event=>setSelected(previous=>{const next=new Set(previous);if(event.target.checked)next.add(file.path);else next.delete(file.path);return next;})}/> {displayFilePath(file.path)}
         </label>))}
       </fieldset>}
       {restoreError&&<ErrorState message={restoreError} onRetry={restorable?stage:undefined}/>}
-      {confirming&&plan?<section aria-label="Confirm file restore">
-        <p className="file-checkpoints-caption">Restore {plan.selectedPaths.length} {plan.selectedPaths.length===1?'file':'files'} from this checkpoint? Current versions are backed up first; files changed since this review are skipped, not overwritten.</p>
+      {confirming&&plan?<section aria-label="Confirm file restore" className="file-checkpoints-confirm">
+        <strong>Restore {plan.selectedPaths.length} {plan.selectedPaths.length===1?'file':'files'} from this checkpoint?</strong>
+        <p className="file-checkpoints-caption">Current versions are backed up first. Files changed since this review are skipped, not overwritten.</p>
         <ul className="file-checkpoints-list">{plan.selectedPaths.map(path=><li key={path}><strong>{displayFilePath(path)}</strong></li>)}</ul>
-        <button type="button" disabled={applying} onClick={apply}>Confirm restore</button>
-        <button type="button" disabled={applying} onClick={()=>{setConfirming(false);setPlan(undefined);setApprovalId('');}}>Cancel</button>
-      </section>:<button type="button" disabled={!restorable||!selected.size||applying} onClick={stage} aria-describedby={restorable?undefined:reason}>Restore selected files</button>}
+        <div className="file-checkpoints-actions">
+          <button type="button" className="file-checkpoints-primary" disabled={applying} onClick={apply}>Confirm restore</button>
+          <button type="button" disabled={applying} onClick={()=>{setConfirming(false);setPlan(undefined);setApprovalId('');}}>Cancel</button>
+        </div>
+      </section>:<button type="button" className="file-checkpoints-primary" disabled={!restorable||!selected.size||applying} onClick={stage} aria-describedby={restorable?undefined:reason}>Restore selected files</button>}
       {!restorable&&<p id={reason} className="file-checkpoints-note">{adapter.restore.reason}</p>}
     </>}
   </section>;

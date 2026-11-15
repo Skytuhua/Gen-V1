@@ -20,9 +20,26 @@
 .file-checkpoints-list p { margin:4px 0 0; }
 .file-checkpoints-list button { flex:none; }
 .file-checkpoints-caption { margin:12px 0 0; font-size:11px; line-height:1.5; color:var(--muted); }
+.file-checkpoints-meta { display:flex; flex-wrap:wrap; align-items:baseline; gap:6px; margin:6px 0 4px; color:var(--muted); font-size:12px; line-height:1.6; }
+.file-checkpoints-meta code { font:11px/1.4 var(--font-mono,monospace); font-variant-numeric:tabular-nums; padding:1px 6px; border-radius:4px; background:var(--selection-bg); }
+.file-checkpoints-restore { margin:14px 0 0; padding:0; border:1px solid var(--border); border-radius:10px; }
+.file-checkpoints-restore>legend { padding:0 6px; font-size:11px; font-weight:550; color:var(--muted); }
+.file-checkpoints-select { display:flex; align-items:center; gap:10px; padding:9px 12px; font-size:13px; cursor:pointer; }
+.file-checkpoints-select+.file-checkpoints-select { border-top:1px solid var(--border); }
+.file-checkpoints-select input { margin:0; flex:none; }
+.file-checkpoints-confirm { margin-top:14px; padding:14px; display:grid; gap:10px; border:1px solid var(--border); border-radius:10px; }
+.file-checkpoints-confirm>strong { font-size:13px; font-weight:550; }
+.file-checkpoints-confirm .file-checkpoints-caption { margin:0; }
+.file-checkpoints-confirm .file-checkpoints-list>li { padding:6px 0; border:0; }
+.file-checkpoints-actions { display:flex; gap:8px; }
+.file-checkpoints button.file-checkpoints-primary { background:var(--accent); border-color:transparent; color:#fff; font-weight:550; }
+.file-checkpoints button.file-checkpoints-primary:disabled { background:var(--selection-bg); color:var(--muted); }
+.file-checkpoints-list li[data-outcome="restored"]>svg { color:var(--success); }
+.file-checkpoints-list li[data-outcome="skipped"]>svg { color:var(--danger); }
 .file-checkpoints-history>section>h3 { margin-top:12px; }
 .file-checkpoints .workspace-diff>summary { white-space:break-spaces; }
 .file-checkpoints .unified-diff { white-space:pre-wrap; overflow-wrap:anywhere; font:12px/1.6 var(--font-mono,monospace); }
 [data-density="touch"] .file-checkpoints button { min-height:44px; }
-@media(hover:hover) and (pointer:fine) { .file-checkpoints button:enabled:hover { background:var(--hover); color:var(--text); } }
+@media(hover:hover) and (pointer:fine) { .file-checkpoints button:enabled:not(.file-checkpoints-primary):hover, .file-checkpoints-select:hover { background:var(--hover); color:var(--text); }
+ .file-checkpoints button.file-checkpoints-primary:enabled:hover { filter:brightness(1.12); } }
 @media(forced-colors:active) { .file-checkpoints [aria-selected="true"] { outline:1px solid Highlight; } }
