@@ -1,0 +1,9 @@
+
+ RUN  v4.1.12 C:/Users/Administrator/gen-m08-v3-wt
+
+
+ Test Files  3 passed (3)
+      Tests  28 passed (28)
+   Start at  06:49:54
+   Duration  103.30s (transform 589ms, setup 0ms, import 907ms, tests 186.59s, environment 0ms)
+

@@ -404,6 +404,56 @@
      "status": "FAIL",
      "boundedLogRef": "docs/implementation/v3/logs/m08-browser-file-checkpoints-rerun.log",
      "logDigest": "fa441214472e504e89fe6c15f3cdd5123ba391133a474956e47da6d43e9da288"
+    },
+    {
+     "argv": [
+      "pnpm",
+      "typecheck"
+     ],
+     "cwdIdentity": "isolated M08 worktree C:\\Users\\Administrator\\gen-m08-v3-wt",
+     "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies",
+     "startedAt": "2026-11-15T06:52:32Z",
+     "endedAt": "2026-11-15T06:52:32Z",
+     "exitCode": 0,
+     "termination": "NONE",
+     "status": "PASS",
+     "boundedLogRef": "docs/implementation/v3/logs/m08-typecheck-review.log",
+     "logDigest": "a3e3f4a26cfa80dac787bccdf9c0bbc91cf29de369ff4252731852172fe85ef9"
+    },
+    {
+     "argv": [
+      "pnpm",
+      "lint"
+     ],
+     "cwdIdentity": "isolated M08 worktree C:\\Users\\Administrator\\gen-m08-v3-wt",
+     "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies",
+     "startedAt": "2026-11-15T06:52:32Z",
+     "endedAt": "2026-11-15T06:52:32Z",
+     "exitCode": 0,
+     "termination": "NONE",
+     "status": "PASS",
+     "boundedLogRef": "docs/implementation/v3/logs/m08-lint-review.log",
+     "logDigest": "a819b95a7440e8d2efa13d35f6cb50d9189ddb97d976fcbe2e7f1d25fb7d6d94"
+    },
+    {
+     "argv": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/checkpoint-restore-v3.test.ts",
+      "tests/selective-commit-v3.test.ts",
+      "tests/workspace-journal-v3.test.ts"
+     ],
+     "cwdIdentity": "isolated M08 worktree C:\\Users\\Administrator\\gen-m08-v3-wt",
+     "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies",
+     "startedAt": "2026-11-15T06:52:32Z",
+     "endedAt": "2026-11-15T06:52:32Z",
+     "exitCode": 0,
+     "termination": "NONE",
+     "status": "PASS",
+     "boundedLogRef": "docs/implementation/v3/logs/m08-vitest-review-fixes.log",
+     "logDigest": "b323fca37d5201277ca581f55944859f87b3db0f5a147db9d9058866ef6e237a"
     }
    ],
    "artifactRefs": [
@@ -416,9 +466,12 @@
     "docs/implementation/v3/logs/m08-typecheck-fix.log",
     "docs/implementation/v3/logs/m08-lint-fix.log",
     "docs/implementation/v3/logs/m08-browser-restore.log",
-    "docs/implementation/v3/logs/m08-browser-file-checkpoints-rerun.log"
+    "docs/implementation/v3/logs/m08-browser-file-checkpoints-rerun.log",
+    "docs/implementation/v3/logs/m08-typecheck-review.log",
+    "docs/implementation/v3/logs/m08-lint-review.log",
+    "docs/implementation/v3/logs/m08-vitest-review-fixes.log"
    ],
-   "notes": "Fix follow-up: restore plan/apply reader widened to the full StoredRestorePlan the server returns; createHttpCheckpointAdapter now honors capability.restore. New m08-restore suite 5/5 PASS; file-checkpoints rerun 17/20 with the same 3 sub-pixel caption failures verified on the base checkout."
+   "notes": "Review round: 8 reviewer findings triaged and fixed \u2014 restore never overwrites unrecoverable content and never clobbers a concurrently created file, apply failures roll back and end terminally, journal receipts append outside the success transaction, hunk attribution binds to the live postimage, non-UTF-8 untracked files are skipped, CONFLICT reports zero restored paths, and deleted files are restorable from History. Targeted vitest 28/28 PASS; typecheck/lint clean."
   },
   {
    "id": "m08.regression-and-dependency-gates",
