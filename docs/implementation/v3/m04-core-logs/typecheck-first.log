@@ -1,0 +1,7 @@
+packages/core/request-custody.ts(88,55): error TS2322: Type '(source: ContextSource) => string | undefined' is not assignable to type '(source: ContextSource) => string'.
+  Type 'string | undefined' is not assignable to type 'string'.
+    Type 'undefined' is not assignable to type 'string'.
+packages/core/request-custody.ts(110,5): error TS2322: Type 'Entry | undefined' is not assignable to type 'Entry'.
+  Type 'undefined' is not assignable to type 'Entry'.
+tests/request-preparation-service-v3.test.ts(26,199): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type '`${string}-${string}-${string}-${string}-${string}` | undefined'.
+  Type 'string' is not assignable to type '`${string}-${string}-${string}-${string}-${string}`'.

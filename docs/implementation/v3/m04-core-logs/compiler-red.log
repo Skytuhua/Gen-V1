@@ -1,0 +1,99 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m04-core-dependency
+
+ ❯ tests/context-compiler-v3.test.ts (11 tests | 11 failed) 6ms
+   × produces the same stable prefix and reads only an eligible appended tail 3ms
+   × rebuilds after rewinding the same thread 0ms
+   × re-reads existing content after a different account 0ms
+   × re-reads existing content after a different model 0ms
+   × re-reads existing content after a changed workspace 0ms
+   × re-reads existing content after a new generation 0ms
+   × re-reads existing content after changed instructions 0ms
+   × re-reads existing content after a changed registry 0ms
+   × re-reads existing content after a revised source 0ms
+   × counts UTF-8 bytes without inventing tokens when no tokenizer is provided 0ms
+   × includes cached input, new tool tokens and output reserve in the next request budget 0ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 11 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/context-compiler-v3.test.ts > produces the same stable prefix and reads only an eligible appended tail
+Error: M04 context compiler has not been implemented
+ ❯ loadCompiler tests/context-compiler-v3.test.ts:27:20
+     25|   const loaders = import.meta.glob<CompilerModule>('../packages/core/c…
+     26|   const load = loaders['../packages/core/context-compiler.ts'];
+     27|   if (!load) throw new Error('M04 context compiler has not been implem…
+       |                    ^
+     28|   return load();
+     29| }
+ ❯ recorder tests/context-compiler-v3.test.ts:41:21
+ ❯ tests/context-compiler-v3.test.ts:48:41
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/11]⎯
+
+ FAIL  tests/context-compiler-v3.test.ts > rebuilds after rewinding the same thread
+Error: M04 context compiler has not been implemented
+ ❯ loadCompiler tests/context-compiler-v3.test.ts:27:20
+     25|   const loaders = import.meta.glob<CompilerModule>('../packages/core/c…
+     26|   const load = loaders['../packages/core/context-compiler.ts'];
+     27|   if (!load) throw new Error('M04 context compiler has not been implem…
+       |                    ^
+     28|   return load();
+     29| }
+ ❯ recorder tests/context-compiler-v3.test.ts:41:21
+ ❯ tests/context-compiler-v3.test.ts:58:41
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/11]⎯
+
+ FAIL  tests/context-compiler-v3.test.ts > re-reads existing content after a different account
+ FAIL  tests/context-compiler-v3.test.ts > re-reads existing content after a different model
+ FAIL  tests/context-compiler-v3.test.ts > re-reads existing content after a changed workspace
+ FAIL  tests/context-compiler-v3.test.ts > re-reads existing content after a new generation
+ FAIL  tests/context-compiler-v3.test.ts > re-reads existing content after changed instructions
+ FAIL  tests/context-compiler-v3.test.ts > re-reads existing content after a changed registry
+ FAIL  tests/context-compiler-v3.test.ts > re-reads existing content after a revised source
+Error: M04 context compiler has not been implemented
+ ❯ loadCompiler tests/context-compiler-v3.test.ts:27:20
+     25|   const loaders = import.meta.glob<CompilerModule>('../packages/core/c…
+     26|   const load = loaders['../packages/core/context-compiler.ts'];
+     27|   if (!load) throw new Error('M04 context compiler has not been implem…
+       |                    ^
+     28|   return load();
+     29| }
+ ❯ recorder tests/context-compiler-v3.test.ts:41:21
+ ❯ tests/context-compiler-v3.test.ts:74:41
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/11]⎯
+
+ FAIL  tests/context-compiler-v3.test.ts > counts UTF-8 bytes without inventing tokens when no tokenizer is provided
+Error: M04 context compiler has not been implemented
+ ❯ loadCompiler tests/context-compiler-v3.test.ts:27:20
+     25|   const loaders = import.meta.glob<CompilerModule>('../packages/core/c…
+     26|   const load = loaders['../packages/core/context-compiler.ts'];
+     27|   if (!load) throw new Error('M04 context compiler has not been implem…
+       |                    ^
+     28|   return load();
+     29| }
+ ❯ recorder tests/context-compiler-v3.test.ts:41:21
+ ❯ tests/context-compiler-v3.test.ts:82:30
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/11]⎯
+
+ FAIL  tests/context-compiler-v3.test.ts > includes cached input, new tool tokens and output reserve in the next request budget
+Error: M04 context compiler has not been implemented
+ ❯ loadCompiler tests/context-compiler-v3.test.ts:27:20
+     25|   const loaders = import.meta.glob<CompilerModule>('../packages/core/c…
+     26|   const load = loaders['../packages/core/context-compiler.ts'];
+     27|   if (!load) throw new Error('M04 context compiler has not been implem…
+       |                    ^
+     28|   return load();
+     29| }
+ ❯ tests/context-compiler-v3.test.ts:90:48
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/11]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  11 failed (11)
+   Start at  19:27:38
+   Duration  325ms (transform 38ms, setup 0ms, import 49ms, tests 6ms, environment 0ms)
+
