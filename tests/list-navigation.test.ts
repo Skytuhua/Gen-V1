@@ -56,3 +56,12 @@ it.each(['Enter', ' '])('does not activate a different row with %j after focus f
   navigation.onKeyDown({ key, nativeEvent: {}, target: replacement, preventDefault() {} } as unknown as KeyboardEvent);
   expect(choose).toHaveBeenCalledExactlyOnceWith(0);
 });
+
+it('starts a fresh typeahead after explicit keyboard navigation', () => {
+  const { rows, press } = list();
+  press('a');
+  press('End');
+  press('b');
+  expect(rows[4].focus).toHaveBeenCalledOnce();
+  expect(rows[1].focus).toHaveBeenCalledOnce();
+});
