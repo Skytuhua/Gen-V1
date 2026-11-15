@@ -1,6 +1,6 @@
 # Frontend fidelity pass — recorded delivery
 
-[Review all ten videos](evidence/frontend-review/fidelity-20261030/index.html). This standalone handoff needs no running harness. It includes nine workflow/catalog/shell demonstrations, a fresh genuine-Pi run, chapters, six reference/result pairs, component coverage, exact local effect receipts and source/state evidence.
+The historical, standalone ten-video handoff is not included in this checkout. See the [current README demos](../README.md) for recordings shipped with this repository. It documented nine workflow/catalog/shell demonstrations, a fresh genuine-Pi run, chapters, six reference/result pairs, component coverage, exact local effect receipts and source/state evidence.
 
 ## Visible corrections
 
@@ -11,7 +11,7 @@
 - Migration: stable operation header/tabs, contextual SQL/result footer, actual committed row inspection and cell highlights that do not replay on an unchanged snapshot.
 - Shell typography now loads the pinned T3 Inter Variable font. Explicit font preferences remain authoritative. Canvas artifact tools stay quiet while remaining keyboard reachable.
 
-All six original timelines were decoded and sampled throughout. Native keyframes and consecutive 30 fps transition windows were inspected; automated all-frame measurements are not a claim that every native frame was individually viewed. [Analysis scope](evidence/frontend-review/fidelity-20261030/analysis/README.md). Baked camera zoom, smear and recording/player UI were excluded from application motion.
+All six original timelines were decoded and sampled throughout. Native keyframes and consecutive 30 fps transition windows were inspected; automated all-frame measurements are not a claim that every native frame was individually viewed. Baked camera zoom, smear and recording/player UI were excluded from application motion.
 
 ## Verification
 
@@ -25,7 +25,7 @@ The first full unit attempt exposed a fixture sequencing error: answer arrival n
 
 ## Genuine generation and boundaries
 
-A fresh subscription **GPT-6.1 Sol** run discovered components, read a fictional local source packet, chose its own interface and accepted a real semantic user action. It updated the **same artifact from revision 1 to 2**. Reload retained the exact notes and open branches. Generation took **82.53 s**, continuation **73.15 s**, with **zero repair prompts**. [Proof and snapshots](evidence/frontend-review/fidelity-20261030/genuine-pi/proof.json).
+A fresh subscription **GPT-6.1 Sol** run discovered components, read a fictional local source packet, chose its own interface and accepted a real semantic user action. It updated the **same artifact from revision 1 to 2**. Reload retained the exact notes and open branches. Generation took **82.53 s**, continuation **73.15 s**, with **zero repair prompts**. The underlying proof and snapshots are not included in this checkout.
 
 The genuine continuation remains more verbose than the reference fixtures. It proves generation and continuity; consistent concise presentation across arbitrary prompts remains unfinished. No pixel-identical or universal visual-parity claim is made.
 
