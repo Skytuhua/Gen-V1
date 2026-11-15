@@ -27,6 +27,7 @@ export interface WorkspaceSplitLayoutProps {
  onReturnFloat?:(view:SurfaceRef)=>void;
  onDetachView?:(view:SurfaceRef)=>void;
  onMoveFloat?:(viewId:string,rect:ChatRect)=>void;
+ onDockFloat?:(view:SurfaceRef,paneId:string,edge:SplitDropEdge,outer?:boolean)=>void;
  emptyMainPaneId?:string;
 }
 interface SlotRect {left:number;top:number;width:number;height:number}
@@ -36,20 +37,21 @@ const edgeLabel:Record<SplitDropEdge,string>={left:'Left',right:'Side by side',t
 const defaultTitle=(view:SurfaceRef)=>view.kind==='thread'?'Conversation':view.kind.replaceAll('-',' ');
 
 /** View bodies keep one stable DOM parent; layout changes only reposition their slots. */
-export function WorkspaceSplitLayout({layout,onCommand,renderView,title=defaultTitle,onDropThread,editorOptions=[],onSelectEditor,prepare,toolDock=false,className='',floating,onReturnFloat,onDetachView,onMoveFloat,emptyMainPaneId}:WorkspaceSplitLayoutProps){
+export function WorkspaceSplitLayout({layout,onCommand,renderView,title=defaultTitle,onDropThread,editorOptions=[],onSelectEditor,prepare,toolDock=false,className='',floating,onReturnFloat,onDetachView,onMoveFloat,onDockFloat,emptyMainPaneId}:WorkspaceSplitLayoutProps){
  const root=useRef<HTMLDivElement>(null),slots=useRef(new Map<string,HTMLDivElement>()),resize=useRef<ResizeGesture|null>(null),corner=useRef<CornerGesture|null>(null),pending=useRef(false);
  const[rects,setRects]=useState<Record<string,SlotRect>>({}),[size,setSize]=useState({width:0,height:0}),[previewRatio,setPreviewRatio]=useState<{id:string;ratio:number}|null>(null),[drop,setDrop]=useState<{paneId:string;edge:SplitDropEdge;outer?:boolean;joinFrom?:string}|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState(''),[menuPane,setMenuPane]=useState<string|null>(null);
  const[floatRects,setFloatRects]=useState<Record<string,ChatRect>>({});
  const[floatMenu,setFloatMenu]=useState<string|null>(null);
  const floatDragged=useRef(false);
  const floatGripAnchor=useRef<HTMLElement|null>(null),floatMenuContent=useRef<HTMLDivElement|null>(null),floatMenuItem=useRef<HTMLButtonElement|null>(null);
+ const floatDockTarget=useRef<{paneId:string;edge:SplitDropEdge;outer?:boolean}|null>(null);
  const floatGesture=useRef<{viewId:string;mode:'move'|'resize';pointerId:number;startX:number;startY:number;startRect:ChatRect;element:HTMLElement}|null>(null);
  const floatRectOf=(viewId:string)=>floatRects[viewId]??floating?.[viewId];
  const releaseFloat=useCallback(()=>{const g=floatGesture.current;floatGesture.current=null;if(g&&g.element.hasPointerCapture?.(g.pointerId))g.element.releasePointerCapture(g.pointerId);},[]);
- const cancelFloat=useCallback(()=>{const g=floatGesture.current;if(!g)return;releaseFloat();setFloatRects(current=>({...current,[g.viewId]:g.startRect}));},[releaseFloat]);
+ const cancelFloat=useCallback(()=>{const g=floatGesture.current;if(!g)return;floatDockTarget.current=null;setDrop(null);releaseFloat();setFloatRects(current=>({...current,[g.viewId]:g.startRect}));},[releaseFloat]);
  const beginFloat=(event:ReactPointerEvent<HTMLElement>,viewId:string,mode:'move'|'resize')=>{if(event.button!==0||busy||floatGesture.current)return;const rect=floatRectOf(viewId);if(!rect)return;floatDragged.current=false;event.preventDefault();event.currentTarget.setPointerCapture(event.pointerId);floatGesture.current={viewId,mode,pointerId:event.pointerId,startX:event.clientX,startY:event.clientY,startRect:rect,element:event.currentTarget};};
- const moveFloat=(event:ReactPointerEvent<HTMLElement>)=>{const g=floatGesture.current;if(!g||g.pointerId!==event.pointerId)return;const dx=event.clientX-g.startX,dy=event.clientY-g.startY;if(g.mode==='move'&&Math.hypot(dx,dy)<3)return;floatDragged.current=true;const next=g.mode==='move'?{...g.startRect,x:g.startRect.x+dx,y:g.startRect.y+dy}:{...g.startRect,width:g.startRect.width+dx,height:g.startRect.height+dy};setFloatRects(current=>({...current,[g.viewId]:clampChatRect(next,{width:size.width,height:size.height})}));};
- const endFloat=(event:ReactPointerEvent<HTMLElement>)=>{const g=floatGesture.current;if(!g||g.pointerId!==event.pointerId)return;const dx=event.clientX-g.startX,dy=event.clientY-g.startY;const next=g.mode==='move'?{...g.startRect,x:g.startRect.x+dx,y:g.startRect.y+dy}:{...g.startRect,width:g.startRect.width+dx,height:g.startRect.height+dy};const rect=clampChatRect(next,{width:size.width,height:size.height});releaseFloat();setFloatRects(current=>({...current,[g.viewId]:rect}));onMoveFloat?.(g.viewId,rect);};
+ const moveFloat=(event:ReactPointerEvent<HTMLElement>)=>{const g=floatGesture.current;if(!g||g.pointerId!==event.pointerId)return;const dx=event.clientX-g.startX,dy=event.clientY-g.startY;if(g.mode==='move'&&Math.hypot(dx,dy)<3)return;floatDragged.current=true;if(g.mode==='move'&&onDockFloat){const target=locateDropAt(event.clientX,event.clientY);const dockable=target&&target.edge!=='center'&&fitSplit(target.paneId,target.edge,target.outer,layout.views[g.viewId])?target:null;floatDockTarget.current=dockable;setDrop(dockable);}const next=g.mode==='move'?{...g.startRect,x:g.startRect.x+dx,y:g.startRect.y+dy}:{...g.startRect,width:g.startRect.width+dx,height:g.startRect.height+dy};setFloatRects(current=>({...current,[g.viewId]:clampChatRect(next,{width:size.width,height:size.height})}));};
+ const endFloat=(event:ReactPointerEvent<HTMLElement>)=>{const g=floatGesture.current;if(!g||g.pointerId!==event.pointerId)return;const dock=floatDockTarget.current;floatDockTarget.current=null;setDrop(null);if(g.mode==='move'&&dock&&onDockFloat){const view=layout.views[g.viewId];releaseFloat();if(view)onDockFloat(view,dock.paneId,dock.edge,dock.outer);return;}const dx=event.clientX-g.startX,dy=event.clientY-g.startY;const next=g.mode==='move'?{...g.startRect,x:g.startRect.x+dx,y:g.startRect.y+dy}:{...g.startRect,width:g.startRect.width+dx,height:g.startRect.height+dy};const rect=clampChatRect(next,{width:size.width,height:size.height});releaseFloat();setFloatRects(current=>({...current,[g.viewId]:rect}));onMoveFloat?.(g.viewId,rect);};
  const keyFloat=(event:KeyboardEvent<HTMLElement>,viewId:string)=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key))return;const rect=floatRectOf(viewId);if(!rect)return;event.preventDefault();const step=event.shiftKey?24:8,dx=event.key==='ArrowLeft'?-step:event.key==='ArrowRight'?step:0,dy=event.key==='ArrowUp'?-step:event.key==='ArrowDown'?step:0;const next=clampChatRect({...rect,x:rect.x+dx,y:rect.y+dy},{width:size.width,height:size.height});setFloatRects(current=>({...current,[viewId]:next}));onMoveFloat?.(viewId,next);};
  useEffect(()=>{const escape=(event:globalThis.KeyboardEvent)=>{if(event.key==='Escape'){if(floatGesture.current){event.preventDefault();cancelFloat();}setFloatMenu(null);}};const blur=()=>{cancelFloat();setFloatMenu(null);};window.addEventListener('keydown',escape);window.addEventListener('blur',blur);return()=>{window.removeEventListener('keydown',escape);window.removeEventListener('blur',blur);cancelFloat();};},[cancelFloat]);
  const minimum=minimumSplitSize(layout),narrow=size.width>0&&(size.width<minimum.width||(toolDock?size.height<minimum.height:size.width<700)),topBar=narrow?30:0;
@@ -83,11 +85,12 @@ export function WorkspaceSplitLayout({layout,onCommand,renderView,title=defaultT
   if(!fitSplit(paneId,edge,outer,view)){setError('Make this area larger before splitting it.');return Promise.resolve();}
   return send('pane.split',{paneId,newPaneId:'pane-'+crypto.randomUUID(),splitId:'split-'+crypto.randomUUID(),axis:edge==='left'||edge==='right'?'horizontal':'vertical',before:edge==='left'||edge==='top',...(view?{view}:{}),...(outer?{outer:true}:{})});
  };
- const locateDrop=(event:DragEvent<HTMLDivElement>)=>{
-  const host=root.current;if(!host)return null;const box=host.getBoundingClientRect(),x=event.clientX-box.left,y=event.clientY-box.top;
+ const locateDropAt=(clientX:number,clientY:number)=>{
+  const host=root.current;if(!host)return null;const box=host.getBoundingClientRect(),x=clientX-box.left,y=clientY-box.top;
   const entry=Object.entries(rects).find(([paneId,rect])=>(!narrow||paneId===layout.focusedPaneId)&&rect.width>0&&rect.height>0&&x>=rect.left&&x<=rect.left+rect.width&&y>=rect.top-36&&y<=rect.top+rect.height);
   if(!entry)return null;const[paneId,rect]=entry,outerEdge:SplitDropEdge|undefined=!narrow?(x<16?'left':x>box.width-16?'right':y>box.height-16?'bottom':y<topBar+20?'top':undefined):undefined;return{paneId,edge:outerEdge??splitDropEdge({x:x-rect.left,y:y-rect.top,width:rect.width,height:rect.height}),...(outerEdge?{outer:true}:{})};
  };
+ const locateDrop=(event:DragEvent<HTMLDivElement>)=>locateDropAt(event.clientX,event.clientY);
  const recognized=(event:DragEvent)=>Array.from(event.dataTransfer.types).some(type=>type===GEN_THREAD_DRAG_TYPE||type===GEN_VIEW_DRAG_TYPE);
  const dragOver=(event:DragEvent<HTMLDivElement>)=>{if(!recognized(event))return;event.preventDefault();event.dataTransfer.dropEffect='move';setDrop(locateDrop(event));};
  const dropView=(event:DragEvent<HTMLDivElement>)=>{

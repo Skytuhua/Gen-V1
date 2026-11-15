@@ -214,6 +214,22 @@ describe.runIf(enabled)('actual App split workspace',()=>{
   }finally{await page.close();}
  },30000);
 
+ it('docks a float into a real directional pane split at a main edge (T03/R03 #3/#4)',async()=>{
+  const host=await fixture({mode:'split'}),{page}=host;try{
+   await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();
+   await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();
+   await page.waitForFunction(()=>!!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
+   const gripBox=(await page.locator('[data-split-view="thread:thread-a"] .split-float-grip').boundingBox())!;
+   const rightSlot=(await page.locator('[data-split-pane="right"] .split-pane-slot').boundingBox())!;
+   await page.mouse.move(gripBox.x+gripBox.width/2,gripBox.y+gripBox.height/2);await page.mouse.down();
+   await page.mouse.move(rightSlot.x+8,rightSlot.y+rightSlot.height/2,{steps:8});await page.mouse.up();
+   await page.waitForFunction(()=>!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
+   expect(await page.locator('[data-split-pane]').count()).toBeGreaterThanOrEqual(3);
+   expect(await page.locator('[data-split-view="thread:thread-a"]').isVisible()).toBe(true);
+   expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
  it('embedded transcript Stop routes through the shared composer owner, not raw run.stop (AUD-05)',async()=>{
   const page=await browser!.newPage({viewport:{width:1200,height:800}});page.setDefaultTimeout(7000);
   const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));

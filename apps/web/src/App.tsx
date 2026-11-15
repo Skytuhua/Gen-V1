@@ -911,6 +911,28 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
       }else writePlacementRecord({...base,pending:undefined,recovery:'layout-changed'});
     }catch(cause){setError(messageOf(cause));}
   };
+  // Docking a float into a real pane split is an acknowledged command, never a local geometry change (T03/R03).
+  const dockFloat=async(view:SurfaceRef,paneId:string,edge:SplitDropEdge,outer=false)=>{
+    const current=convSplitState.layout;
+    if(!current||view.binding.authority.kind!=='local'||!view.binding.threadId)return;
+    const base=mainPlacement;if(!base)return;
+    const mainPaneId=resolveMainPaneId(current);
+    const payload={paneId,newPaneId:'pane-'+crypto.randomUUID(),splitId:'split-'+crypto.randomUUID(),axis:edge==='left'||edge==='right'?'horizontal':'vertical',before:edge==='left'||edge==='top',view,...(outer?{outer:true}:{})};
+    const expectation=capturePlacementExpectation(current,{type:'pane.split',payload},mainPaneId);
+    const intent:PendingPlacementIntent={id:crypto.randomUUID(),kind:'dock',baseRevision:current.revision,targetViewId:view.id,desiredMainSelection:base.mainSelection,desiredMainPaneId:mainPaneId,floatingAdd:{},floatingRemove:[view.id],expectation};
+    writePlacementRecord({...base,pending:intent});
+    try{
+      await prepareWorkspace();
+      const next=await convSplitState.send('pane.split',payload);
+      if(expectationHolds(next,expectation)){
+        const floating={...base.floating};delete floating[view.id];
+        const activeViewId=next.panes[mainPaneId]?.activeViewId,activeView=activeViewId?next.views[activeViewId]:undefined;
+        const activeThreadId=activeView?.kind==='thread'&&activeView.binding.authority.kind==='local'?activeView.binding.threadId:undefined;
+        writePlacementRecord({version:1,workspaceId:next.id,mainPaneId,mainSelection:activeThreadId?{kind:'thread',threadId:activeThreadId}:{kind:'empty'},floating,mainBasis:mainBasisOf(next,mainPaneId)});
+        placedThread.current=view.binding.threadId;setSelectedId(view.binding.threadId);try{localStorage.setItem('harness:selected-thread',view.binding.threadId);}catch{/* Selection remains usable. */}
+      }else writePlacementRecord({...base,pending:undefined,recovery:'layout-changed'});
+    }catch(cause){setError(messageOf(cause));}
+  };
   // Local float geometry persists without a split command; the plane keeps the live rect (T02/R02).
   const moveFloat=(viewId:string,rect:ChatRect)=>{
     const base=mainPlacement;
@@ -991,7 +1013,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   const rightWindowOpen=layout.rightPanelOpen||sideOpen||Boolean(documentWindow&&documentWindow.placement==='docked')||Boolean(desktop?.state.dockedBrowser);
   const contextSummaries=<SummaryDock><DockedSummary id="plan" title="Project overview" className="summary-overview" open={!detachedPlan&&!rightWindowOpen}
     defaultCollapsed focusOnOpen={false} expandRequest={planExpandRequest||undefined}><ProjectContextSurface composerChangesAvailable={composerChangesAvailable} key={thread?.id??'new'} thread={thread} snapshot={snapshot} onOpenDetailedPlan={()=>void openSplitTool('plan',undefined,true,thread?.id).catch(cause=>setError(messageOf(cause)))} onSelectThread={select} onShowChanges={()=>void openSplitTool('diff',undefined,true,thread?.id).catch(cause=>setError(messageOf(cause)))} onConnect={()=>openProjectConnect({threadId:thread?.id,projectId:thread?.projectId})}/></DockedSummary><UsageFooter open={liveUsageOpen} threadId={thread?.id} usage={thread?snapshot.usage[thread.id]:undefined} visible={preferences.showUsageFooter} onOpenUsage={()=>openUsage()}/></SummaryDock>;
-  const renderSplitRoot=()=>{const planeLayout=customDock?customConversationLayout:convSplitState.layout;return planeLayout?<div className="split-root-workarea"><SummaryLayout active={!detachedPlan||(preferences.showUsageFooter&&liveUsageOpen)} summaries={contextSummaries}><WorkspaceSplitLayout layout={planeLayout} onCommand={convSendSplitCommand} prepare={prepareWorkspace} renderView={renderConversationView} floating={mainPlacement?Object.fromEntries(Object.entries(mainPlacement.floating).map(([id,entry])=>[id,entry.rect])):undefined} onReturnFloat={returnConversation} onDetachView={detachConversation} onMoveFloat={moveFloat} emptyMainPaneId={!customDock&&mainPlacement?.mainSelection.kind==='empty'?resolveMainPaneId(planeLayout):undefined} title={view=>view.kind==='thread'?snapshot.threads.find(item=>item.id===view.binding.threadId)?.title??'Unavailable conversation':view.kind==='workspace'&&view.binding.resourceId==='agent-inbox'?'Agent inbox':panelLabels[view.kind]} onDropThread={placeSplitThread} editorOptions={['thread','browser','files','diff','notes','plan','terminal','linked-pull-requests','context','usage','inbox'].map(id=>({id,title:id==='inbox'?'Agent inbox':panelLabels[id as WorkspacePanelKind]}))} onSelectEditor={(kind,paneId)=>kind==='inbox'?openInbox(paneId):openSplitTool(kind as WorkspacePanelKind,paneId)}/></SummaryLayout>{convSplitState.error&&!layoutChooserOpen&&<p className="split-layout-error" role="alert">{convSplitState.error}</p>}</div>:<LoadingState pending hasContent={false} label="Opening workspace layout..." skeleton={<WorkspaceSkeleton sidebar={false}/>} className="view-loading-state"/>;};
+  const renderSplitRoot=()=>{const planeLayout=customDock?customConversationLayout:convSplitState.layout;return planeLayout?<div className="split-root-workarea"><SummaryLayout active={!detachedPlan||(preferences.showUsageFooter&&liveUsageOpen)} summaries={contextSummaries}><WorkspaceSplitLayout layout={planeLayout} onCommand={convSendSplitCommand} prepare={prepareWorkspace} renderView={renderConversationView} floating={mainPlacement?Object.fromEntries(Object.entries(mainPlacement.floating).map(([id,entry])=>[id,entry.rect])):undefined} onReturnFloat={returnConversation} onDetachView={detachConversation} onMoveFloat={moveFloat} onDockFloat={dockFloat} emptyMainPaneId={!customDock&&mainPlacement?.mainSelection.kind==='empty'?resolveMainPaneId(planeLayout):undefined} title={view=>view.kind==='thread'?snapshot.threads.find(item=>item.id===view.binding.threadId)?.title??'Unavailable conversation':view.kind==='workspace'&&view.binding.resourceId==='agent-inbox'?'Agent inbox':panelLabels[view.kind]} onDropThread={placeSplitThread} editorOptions={['thread','browser','files','diff','notes','plan','terminal','linked-pull-requests','context','usage','inbox'].map(id=>({id,title:id==='inbox'?'Agent inbox':panelLabels[id as WorkspacePanelKind]}))} onSelectEditor={(kind,paneId)=>kind==='inbox'?openInbox(paneId):openSplitTool(kind as WorkspacePanelKind,paneId)}/></SummaryLayout>{convSplitState.error&&!layoutChooserOpen&&<p className="split-layout-error" role="alert">{convSplitState.error}</p>}</div>:<LoadingState pending hasContent={false} label="Opening workspace layout..." skeleton={<WorkspaceSkeleton sidebar={false}/>} className="view-loading-state"/>;};
   const interfaceFont = preferences.interfaceFont === 'system' ? '-apple-system, BlinkMacSystemFont, "Inter Variable", "Segoe UI", system-ui, sans-serif' : preferences.interfaceFont === 'Inter' ? '"Inter Variable", sans-serif' : preferences.interfaceFont;
   const handledHostIntent=useRef<number|undefined>(undefined),[modelPickerRequest,setModelPickerRequest]=useState<{id:number;threadId?:string}>();
   const pickerRequest=externalModelPicker??modelPickerRequest;
