@@ -276,7 +276,7 @@ public sealed class L : IDisposable {
   if($x.value.Current.Value -cne $t){Fail 'action-failed'}
   Emit 'file-name-set'
   $ds=Ds;if($ds.Count -ne 1){Fail 'ambiguous-dialog'}
-  $x=C ($ds.Item(0));T;F $x.button
+  $x=C ($ds.Item(0));T
   if($x.value.Current.Value -cne $t){Fail 'action-failed'}
   Emit 'save-invoked';$x.invoke.Invoke()
   while($sw.ElapsedMilliseconds -lt 60000) {
