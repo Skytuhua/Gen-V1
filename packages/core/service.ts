@@ -365,6 +365,7 @@ export class Service {
   private m08Journal?: EditJournal;
   private m08Checkpoints?: CheckpointService;
   private m08PreimageDigests = new Map<string, string>();
+  private m08PendingReceipts: { operation: Operation; evidence: { path: string; sha256: string; bytes: number } }[] = [];
   private context(threadId: string, signal?: AbortSignal, operationId?: string, authority?: RunContext, completedWrite?:(evidence:{path:string;sha256:string;bytes:number})=>void, preWrite?:(evidence:{path:string;bytes:Uint8Array;sha256:string})=>Promise<void>) {
     const assertAuthority = () => { if (authority) this.assertRun(authority); };
     return {
@@ -1151,6 +1152,9 @@ export class Service {
       }
       const renewedGrant = await this.replacementGrant(op, result);
       if (!this.closed) this.store.internal("operation.succeeded", op.threadId, () => { const ended: Operation = { ...op, status: "succeeded", result }; if (renewedGrant) this.store.put("resource", renewedGrant.id, op.threadId, renewedGrant); this.store.put("operation", id, op.threadId, ended); this.operationData(ended); this.enqueueOperationResult(ended,writeEvidence); return { operationId: id }; });
+      // Journal receipts append in their own transactions — Store rejects a
+      // nested transaction, so they must run after the success commit returns.
+      for(const pending of this.m08PendingReceipts.splice(0))this.recordEditReceipt(pending.operation,pending.evidence);
       if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1")) this.effects.settle("operation:" + id + "@" + op.revision, { value: result }, "SUCCEEDED");
       this.background(this.deliverOutbox(op.threadId));
       return result;
@@ -1219,7 +1223,7 @@ export class Service {
     };
     if(this.options.approvedWriteHooks&&operation.kind==='file.replace'&&operation.status==='succeeded'){
       const capture=this.store.get<{revision:number;origin?:ApprovedWriteOrigin;unavailable?:'scope_unavailable'|'no_project'}>('operationWriteOrigin',operation.id);
-      if(capture?.revision===operation.revision&&capture.origin&&writeEvidence){input.completedWrite={operationId:operation.id,revision:operation.revision,inputId:input.id,origin:capture.origin,...writeEvidence};this.recordEditReceipt(operation,writeEvidence);}
+      if(capture?.revision===operation.revision&&capture.origin&&writeEvidence){input.completedWrite={operationId:operation.id,revision:operation.revision,inputId:input.id,origin:capture.origin,...writeEvidence};this.m08PendingReceipts.push({operation,evidence:writeEvidence});}
       else input.hookDiagnostic={operationId:operation.id,revision:operation.revision,inputId:input.id,status:capture?.unavailable??'scope_unavailable',message:'No authenticated source/project write origin was captured; no hook was run.'};
     }
     if (!this.store.get("outbox", input.id)) this.enqueueInput(input);
