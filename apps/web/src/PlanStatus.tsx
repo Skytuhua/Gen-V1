@@ -22,25 +22,56 @@ export interface PlanStatusProps {
   onOpenAgentTranscript?: (job: AgentJob, threadId: string) => void;
 }
 type PlanContext = Pick<Thread, "runId" | "epoch" | "status">;
-const collapseStorageKey = "harness:plan-collapse:v1";
-const boundedCollapse = (value: Record<string, unknown>) =>
-  Object.fromEntries(
-    Object.entries(value)
-      .filter(([key, collapsed]) => key.length <= 400 && collapsed === true)
-      .slice(-128),
+export const collapseStorageKey = "harness:plan-collapse:v2";
+export const legacyCollapseStorageKey = "harness:plan-collapse:v1";
+const maxKeyLength = 400, maxEntries = 128, maxRecordBytes = 65536;
+export const planDefaultCollapsed = (kind: string, status: string | undefined): boolean =>
+  kind === "step" ? status === "completed" || status === "accepted" : status === "completed";
+export const boundPlanCollapse = (value: unknown): Record<string, boolean> => {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  return Object.fromEntries(
+    Object.entries(value as Record<string, unknown>)
+      .filter(([key, collapsed]) => key.length <= maxKeyLength && typeof collapsed === "boolean")
+      .slice(-maxEntries),
   ) as Record<string, boolean>;
-function readCollapse(): Record<string, boolean> {
+};
+const readStoredRecord = (get: (key: string) => string | null, key: string): Record<string, boolean> => {
+  let raw: string | null = null;
   try {
-    const raw = localStorage.getItem(collapseStorageKey);
-    if (!raw || raw.length > 65536) return {};
-    const value: unknown = JSON.parse(raw);
-    return value && typeof value === "object" && !Array.isArray(value)
-      ? boundedCollapse(value as Record<string, unknown>)
-      : {};
+    raw = get(key);
   } catch {
     return {};
   }
-}
+  if (!raw || raw.length > maxRecordBytes) return {};
+  try {
+    return boundPlanCollapse(JSON.parse(raw) as unknown);
+  } catch {
+    return {};
+  }
+};
+export const readPlanCollapse = (get: (key: string) => string | null): Record<string, boolean> => ({
+  // v1 stored only explicit closed choices (its default was open); keep both
+  // true and false explicit in v2, and let v2 win once the user re-chooses.
+  ...Object.fromEntries(
+    Object.entries(readStoredRecord(get, legacyCollapseStorageKey)).filter(([, collapsed]) => collapsed === true),
+  ),
+  ...readStoredRecord(get, collapseStorageKey),
+});
+export const resolvePlanOpen = (
+  record: Record<string, boolean>,
+  key: string,
+  kind: string,
+  status: string | undefined,
+): boolean => (key in record ? !record[key] : !planDefaultCollapsed(kind, status));
+export const togglePlanCollapse = (
+  record: Record<string, boolean>,
+  key: string,
+  kind: string,
+  status: string | undefined,
+): Record<string, boolean> =>
+  // The stored value is the negation of the new visibility, i.e. the resolved
+  // visibility before the toggle — never `!old[key]`, which ignores defaults.
+  ({ ...record, [key]: resolvePlanOpen(record, key, kind, status) });
 
 export function PlanStatus({ snapshot, threadId, loading, error, focusAgentId, onOpenAgentTranscript }: PlanStatusProps) {
   const prefix = useId();
@@ -91,19 +122,22 @@ export function PlanStatus({ snapshot, threadId, loading, error, focusAgentId, o
   // A revision belongs to one thread. Clear the fence before accepting its replacement.
   if (retained.threadId !== threadId || retained.record !== record || retained.owner !== owner || retained.unavailable !== unavailable)
     setRetained({ threadId, record, owner, unavailable });
-  const [collapsed, setCollapsed] = useState<Record<string, boolean>>(readCollapse);
+  const [collapsed, setCollapsed] = useState<Record<string, boolean>>(() =>
+    readPlanCollapse((key) => localStorage.getItem(key)),
+  );
   useEffect(() => {
     try {
-      localStorage.setItem(collapseStorageKey, JSON.stringify(boundedCollapse(collapsed)));
+      localStorage.setItem(collapseStorageKey, JSON.stringify(boundPlanCollapse(collapsed)));
     } catch {
       /* Optional disclosure preferences never block the plan. */
     }
   }, [collapsed]);
   const [menuOpen, setMenuOpen] = useState(false);
   const identity = (kind: string, id: string) => JSON.stringify([threadId, kind, id]);
-  const open = (kind: string, id: string) => !collapsed[identity(kind, id)];
-  const toggle = (kind: string, id: string) =>
-    setCollapsed((old) => ({ ...old, [identity(kind, id)]: !old[identity(kind, id)] }));
+  const open = (kind: string, id: string, status?: string) =>
+    resolvePlanOpen(collapsed, identity(kind, id), kind, status);
+  const toggle = (kind: string, id: string, status?: string) =>
+    setCollapsed((old) => togglePlanCollapse(old, identity(kind, id), kind, status));
   const projection = useMemo(() => {
     if (!record) return null;
     try {
@@ -158,8 +192,8 @@ export function PlanStatus({ snapshot, threadId, loading, error, focusAgentId, o
     );
   const stepDomId = (id: string) => `${prefix}-step-${id}`;
   const allOpen =
-    timeline.steps.every((step) => open("step", step.id)) &&
-    plan.agents.every((job) => open("agent", job.id));
+    timeline.steps.every((step) => open("step", step.id, step.status)) &&
+    plan.agents.every((job) => open("agent", job.id, job.status));
   const agentProps = { open, toggle, snapshot, threadId: timeline.threadId, onOpenAgentTranscript };
   if (focusAgentId) {
     const lanes = [...timeline.steps.flatMap(step => step.agents), ...timeline.unassignedAgents];
