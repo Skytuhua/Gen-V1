@@ -18,7 +18,13 @@ type Snapshot = { response: SearchResponse; query: string; limit: number; expire
 const identity = (info: BigIntStats): Identity => ({ dev: String(info.dev), ino: String(info.ino) });
 const equal = (a: Identity, b: Identity) => a.dev === b.dev && a.ino === b.ino;
 const bytes = (value: unknown) => Buffer.byteLength(JSON.stringify(value), 'utf8');
-const preview = (value: string) => [...value].slice(0, 512).join('');
+const preview = (value: string, column = 1) => {
+  const points = [...value];
+  // Show context before a late match, and fill the bounded window at the
+  // right edge. The reported column continues to address the original line.
+  const start = Math.max(0, Math.min(column - 1 - 128, points.length - 512));
+  return points.slice(start, start + 512).join('');
+};
 // Locale-independent Unicode default caseless matching, including expansions. Cherokee
 // folds to uppercase; dotless i remains distinct; capital sharp s also expands to ss.
 const foldPoint = (point: string) => {
@@ -210,7 +216,7 @@ export class ProjectSearch {
         for (let end = 0; end <= text.length; end++) {
           if (end < text.length && text[end] !== '\n' && text[end] !== '\r') continue;
           check(); const value = text.slice(start, end), column = findColumn(value, query);
-          if (column !== null) add({ path: relative, kind: 'text', line, column, preview: preview(value), sha256 });
+          if (column !== null) add({ path: relative, kind: 'text', line, column, preview: preview(value, column), sha256 });
           if (text[end] === '\r' && text[end + 1] === '\n') end++;
           start = end + 1; line++;
         }
