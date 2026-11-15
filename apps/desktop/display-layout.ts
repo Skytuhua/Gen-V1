@@ -42,7 +42,7 @@ export function restoreDesktopPlacement(preferred:DesktopPlacement|undefined,dis
  const display=displays.find(item=>item.id===preferred.displayId);
  if(!display)return placeOnDesktopDisplay(preferred.bounds,primary(displays));
  const old=preferred.workArea,next=display.workArea,bounds=preferred.bounds;
- const width=Math.min(bounds.width,next.width),height=Math.min(bounds.height,next.height);
+ const {width,height}=placeOnDesktopDisplay(bounds,display);
  const position=(value:number,start:number,extent:number,windowExtent:number)=>extent>windowExtent?Math.max(0,Math.min(1,(value-start)/(extent-windowExtent))):0.5;
  const x=next.x+position(bounds.x,old.x,old.width,bounds.width)*Math.max(0,next.width-width),y=next.y+position(bounds.y,old.y,old.height,bounds.height)*Math.max(0,next.height-height);
  return clampDesktopBounds({x,y,width,height},[next],size);

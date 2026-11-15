@@ -45,3 +45,4 @@ export interface RuntimeAdapter {
 export interface Capability { name: string; category: string; description: string; props: Record<string, unknown>; example?: unknown }
 export const EMPTY_USAGE: RuntimeUsage = { contextTokens: null, contextWindow: null, inputTokens: null, outputTokens: null, cost: null, activity: "idle", sessionPercent: null, weeklyPercent: null };
 export class HarnessError extends Error { constructor(public code: string, message: string, public details?: unknown) { super(message); this.name = "HarnessError"; } }
+export * from "./tool-effects.ts";

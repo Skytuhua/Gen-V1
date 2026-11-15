@@ -51,8 +51,10 @@ export function useListNavigation(items: readonly ListEntry[], choose: (index: n
         }
       } else if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
-        const current = items[active.current];
-        if (current && !current.disabled) choose(active.current);
+        // Focus can fall back to the popup after a row is removed. In that
+        // case the remembered index may now belong to a different action.
+        const current = items[index];
+        if (current && !current.disabled) choose(index);
       } else if (event.key.length === 1) { event.preventDefault(); type(event.key); }
     },
   };
