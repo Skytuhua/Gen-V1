@@ -3682,12 +3682,12 @@
         {
           "id": "Hermes-pinned-compression-facade",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/windows-ci-43726164418-a1-j132848442427-s7-native-facade.log; Actual pinned native facade/API version checks, offline."
+          "evidence": "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853240058-s7-native-facade.log; Actual pinned native facade/API version checks, offline."
         },
         {
           "id": "Hermes-actual-Worker-compaction",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/windows-ci-43726164418-a1-j132848442427-s7-native-worker.log; Actual pinned Worker and scripted ACP summary; persistence failure/cancellation preserve native history. No live provider spend."
+          "evidence": "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853240058-s7-native-worker.log; Actual pinned Worker and scripted ACP summary; persistence failure/cancellation preserve native history. No live provider spend."
         }
       ],
       "commands": [
@@ -4660,6 +4660,97 @@
         },
         {
           "argv": [
+            "python",
+            "-I",
+            "-S",
+            "-B",
+            "tests/hermes_source_contract.py",
+            "-v"
+          ],
+          "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+          "executableIdentity": "python",
+          "startedAt": "2026-11-15T15:04:52Z",
+          "endedAt": "2026-11-15T15:04:55Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853240058-s4-hermes-source.log",
+          "logDigest": "48837628e3457046ac7ff51c785ea27e7a6a261bd496149d9d49e29b5c144fc7"
+        },
+        {
+          "argv": [
+            "python",
+            "-I",
+            "-S",
+            "-B",
+            "tests/hermes_atomic_controls.py",
+            "-v"
+          ],
+          "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+          "executableIdentity": "python",
+          "startedAt": "2026-11-15T15:04:55Z",
+          "endedAt": "2026-11-15T15:04:59Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853240058-s5-hermes-controls.log",
+          "logDigest": "ece9aaae20e610bb6b0bccde772246a00778405521cbb95843c7d39962d511dd"
+        },
+        {
+          "argv": [
+            "python",
+            "-I",
+            "-S",
+            "-B",
+            "tests/hermes_source_worker.py",
+            "-v"
+          ],
+          "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+          "executableIdentity": "python",
+          "startedAt": "2026-11-15T15:04:59Z",
+          "endedAt": "2026-11-15T15:06:22Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853240058-s6-hermes-worker.log",
+          "logDigest": "34c955185746430b0cd3e0d99c254ec20f1768fe434359381887b6c33834cd21"
+        },
+        {
+          "argv": [
+            "python",
+            "-B",
+            "tests/memory_native_checkpoint_v3.py",
+            "-v"
+          ],
+          "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+          "executableIdentity": "python",
+          "startedAt": "2026-11-15T15:06:22Z",
+          "endedAt": "2026-11-15T15:06:39Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853240058-s7-native-facade.log",
+          "logDigest": "6d3b26a0969355973c7332f3999e599518f1a6b5248dc9d50f020dbb5decf46a"
+        },
+        {
+          "argv": [
+            "python",
+            "-B",
+            "tests/memory_native_checkpoint_worker_v3.py",
+            "-v"
+          ],
+          "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+          "executableIdentity": "python",
+          "startedAt": "2026-11-15T15:06:22Z",
+          "endedAt": "2026-11-15T15:06:39Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853240058-s7-native-worker.log",
+          "logDigest": "cfdc3c7106d32e8196326e0f111e86b1f555e006ccb81d5579a34529dee94239"
+        },
+        {
+          "argv": [
             "node",
             "node_modules/vitest/vitest.mjs",
             "run",
@@ -4710,7 +4801,7 @@
         {
           "id": "TypeScript-current-selected-check",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/continuation-faq-expansion-readiness-typecheck.log; Full typecheck only, not a scoped tsconfig substitution."
+          "evidence": "docs/implementation/v3/m05-logs/continuation-host-publication-readiness-typecheck-node.log; Full typecheck only, not a scoped tsconfig substitution."
         },
         {
           "id": "production-build-current-selected-check",
@@ -6461,6 +6552,187 @@
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43726164418-a1-j132848442479-s4-build-web.log",
           "logDigest": "8f3f9efcb27a0a861c1b536c1dc35a6eb7e41126900dc8249acc5458b0e637af"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "build"
+          ],
+          "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-15T15:04:57Z",
+          "endedAt": "2026-11-15T15:05:10Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239765-s4-build-web.log",
+          "logDigest": "dd089a3e0fd1d5c4775b4f6eb49a841523ffe554c4f1df9fb8feea1bc35be6e5"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "build"
+          ],
+          "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-15T15:04:48Z",
+          "endedAt": "2026-11-15T15:04:59Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239918-s4-build-web.log",
+          "logDigest": "73c29a76a598fba2a04b3f95b1d9fc974e340163ac58517fde844206db1d4be9"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "build"
+          ],
+          "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-15T15:04:39Z",
+          "endedAt": "2026-11-15T15:04:49Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239939-s4-build-web.log",
+          "logDigest": "1e188cc378beaf84faf0d5fcd7f638bacf68b39772debcefe8045bf3d372a60d"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "build"
+          ],
+          "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-15T15:04:33Z",
+          "endedAt": "2026-11-15T15:04:43Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239961-s4-build-web.log",
+          "logDigest": "4620a9e94ed7da22d491682db2217dd302369c1c98dc50b86566c98494635f64"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "test:ui-guard"
+          ],
+          "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-15T15:04:55Z",
+          "endedAt": "2026-11-15T15:05:02Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239972-s6-ui-guard.log",
+          "logDigest": "f399b49602b34a628c0327376b3fd9cb7ae0d31cd003fe6e65ab438a7903f354"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "lint"
+          ],
+          "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-15T15:05:02Z",
+          "endedAt": "2026-11-15T15:05:18Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239972-s7-lint.log",
+          "logDigest": "134163493c241a3be8f4d0e94382e3282fa5bac1811864dc623135950c8a3c21"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "build"
+          ],
+          "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-15T15:05:20Z",
+          "endedAt": "2026-11-15T15:05:28Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239972-s9-build-web.log",
+          "logDigest": "3bd96dfaa9fbc8888afae91f25ea5a92476263d6c46389f6f2599855e868ce28"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "build"
+          ],
+          "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-15T15:04:24Z",
+          "endedAt": "2026-11-15T15:04:32Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853240025-s4-build-web.log",
+          "logDigest": "75c3cdb0573f8f70a7cc984e2cab989fca906ec15761d2853ca8f9c270bf6e9c"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "desktop:build"
+          ],
+          "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-15T15:04:32Z",
+          "endedAt": "2026-11-15T15:04:33Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853240025-s5-build-desktop.log",
+          "logDigest": "80a446a1f49664fb44141514a987dc541a3f7150f3cb6229a55a930020bd6409"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "build"
+          ],
+          "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-15T15:04:34Z",
+          "endedAt": "2026-11-15T15:04:42Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853240047-s4-build-web.log",
+          "logDigest": "5d591a64351cc47ac806c865d6460f9178ed73044cd85da4bace8a2bc8015918"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-15T15:22:20.398223+00:00",
+          "endedAt": "2026-11-15T15:22:22.034274+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-host-publication-readiness-typecheck.log",
+          "logDigest": "86089ad62f64c33d82e8fafc726cfcdf6467d1d37f5c6cd10cc3a00421325dad"
+        },
+        {
+          "argv": [
+            "node",
+            "node_modules/typescript/bin/tsc",
+            "--noEmit"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "node",
+          "startedAt": "2026-11-15T15:22:51.292376+00:00",
+          "endedAt": "2026-11-15T15:23:18.566571+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-host-publication-readiness-typecheck-node.log",
+          "logDigest": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
         }
       ],
       "artifactRefs": [
@@ -6469,7 +6741,7 @@
     },
     {
       "id": "REGRESSION_REQUIRED",
-      "status": "PASS",
+      "status": "BLOCKED",
       "requiredCases": [
         {
           "id": "current-M05-focused-regression",
@@ -6478,8 +6750,8 @@
         },
         {
           "id": "current-Windows-full-regression",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/M05-windows-ci-43726164418.json; exact source/test/workflow cut, required job conclusions success. All four application regression shards required."
+          "status": "NOT_RUN",
+          "evidence": "NOT_RUN for this source cut. All four application regression shards required. CI code/test/workflow cut differs from the current worktree: tests/host-fixture.ts"
         }
       ],
       "commands": [
@@ -6966,6 +7238,74 @@
         },
         {
           "argv": [
+            "pnpm",
+            "test",
+            "--maxWorkers=2",
+            "--shard=3/4"
+          ],
+          "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-15T15:04:59Z",
+          "endedAt": "2026-11-15T15:08:16Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239918-s5-application-regression.log",
+          "logDigest": "258d9f4e548c382a140756e5fb68dba7175cff2af03847a91dae311abe4381a4"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "test",
+            "--maxWorkers=2",
+            "--shard=1/4"
+          ],
+          "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-15T15:04:49Z",
+          "endedAt": "2026-11-15T15:08:07Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239939-s5-application-regression.log",
+          "logDigest": "1e10378bf1b999f4532aad12767fe99a0afa2f2c4666ed6eb698c96f83ba48c1"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "test",
+            "--maxWorkers=2",
+            "--shard=2/4"
+          ],
+          "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-15T15:04:43Z",
+          "endedAt": "2026-11-15T15:07:14Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239961-s5-application-regression.log",
+          "logDigest": "38aee092bb27ecd6003d4e704484a83f37b3b0a2846f0d99a3551616e3098e88"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "test",
+            "--maxWorkers=2",
+            "--shard=4/4"
+          ],
+          "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-15T15:04:42Z",
+          "endedAt": "2026-11-15T15:07:18Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853240047-s5-application-regression.log",
+          "logDigest": "cac8415dbaad57b7191ce6d658567f9850292f2670f4ae11e8d840924e798411"
+        },
+        {
+          "argv": [
             "node",
             "node_modules/vitest/vitest.mjs",
             "run",
@@ -7005,17 +7345,17 @@
         }
       ],
       "artifactRefs": [
-        "docs/implementation/v3/M05-windows-ci-43726164418.json"
+        "docs/implementation/v3/M05-windows-ci-43727736261.json"
       ]
     },
     {
       "id": "PLATFORM_BROWSER",
-      "status": "PASS",
+      "status": "BLOCKED",
       "requiredCases": [
         {
           "id": "current-project-memory-context-and-baseline-browser",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/M05-windows-ci-43726164418.json; exact source/test/workflow cut, required job conclusions success. The matching current workflow must execute project-memory, usage-context, frontend-refinement and root browser suites."
+          "status": "NOT_RUN",
+          "evidence": "NOT_RUN for this source cut. The matching current workflow must execute project-memory, usage-context, frontend-refinement and root browser suites. CI code/test/workflow cut differs from the current worktree: tests/host-fixture.ts"
         }
       ],
       "commands": [
@@ -7788,11 +8128,99 @@
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43726164418-a1-j132848442428-s6-browser-root.log",
           "logDigest": "7227c2ba3554ce9ad8b75721cc66dd7c8d6c589749eb1839113d8f327004bd62"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/split-workspace-renderer.test.ts",
+            "tests/split-app-browser.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-15T15:05:10Z",
+          "endedAt": "2026-11-15T15:06:25Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239765-s5-browser-split.log",
+          "logDigest": "e87e41bcb9875cdfbefba7e8e1a198563765fe46974f35dd49f8d10526b37f8b"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "test:browser",
+            "--suite",
+            "project-memory"
+          ],
+          "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-15T15:06:25Z",
+          "endedAt": "2026-11-15T15:16:46Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239765-s6-browser-project-memory.log",
+          "logDigest": "6b75638946d4197625296482eabeeef338ae2521ede397f99c12e18a8bc1f771"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "test:browser",
+            "--suite",
+            "usage-context"
+          ],
+          "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-15T15:06:25Z",
+          "endedAt": "2026-11-15T15:16:46Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239765-s6-browser-usage-context.log",
+          "logDigest": "0de89adf09cb0282e71a4d02c5029dbfd17962fc05546433a9a77596c34d95d9"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "test:browser",
+            "--suite",
+            "frontend-refinement"
+          ],
+          "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-15T15:06:25Z",
+          "endedAt": "2026-11-15T15:16:46Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239765-s6-browser-frontend-refinement.log",
+          "logDigest": "34440fbcf25f1e7f158648f906fecba5b203b2754498158fc0e6566d7a1c307d"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "test:browser",
+            "--suite",
+            "root"
+          ],
+          "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-15T15:06:25Z",
+          "endedAt": "2026-11-15T15:16:46Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239765-s6-browser-root.log",
+          "logDigest": "5130b4aa7a4c4b4bdd38ac7da63062516e1f73aecc625a7f63bfed6eec1f184c"
         }
       ],
       "artifactRefs": [
         "tests/e2e/project-memory.spec.ts",
-        "docs/implementation/v3/M05-windows-ci-43726164418.json"
+        "docs/implementation/v3/M05-windows-ci-43727736261.json"
       ]
     },
     {
@@ -7894,6 +8322,7 @@
     "docs/implementation/v3/M05-evidence-integrity.json",
     "docs/implementation/v3/M05-faq-readiness-review-43724428807.json",
     "docs/implementation/v3/M05-handoff.md",
+    "docs/implementation/v3/M05-host-publication-review-43727736261.json",
     "docs/implementation/v3/M05-log-policy.json",
     "docs/implementation/v3/M05-premerge-evidence-integrity-20261115.json",
     "docs/implementation/v3/M05-provenance.json",
@@ -7908,6 +8337,7 @@
     "docs/implementation/v3/M05-windows-ci-43723377122.json",
     "docs/implementation/v3/M05-windows-ci-43724428807.json",
     "docs/implementation/v3/M05-windows-ci-43726164418.json",
+    "docs/implementation/v3/M05-windows-ci-43727736261.json",
     "docs/implementation/v3/M05-windows-ci-repair.md",
     "docs/implementation/v3/m05-eval-manifest/frozen-cases.json",
     "docs/implementation/v3/m05-eval-manifest/results.json",
@@ -7971,6 +8401,8 @@
     "docs/implementation/v3/m05-logs/continuation-host-audit-fixes.log",
     "docs/implementation/v3/m05-logs/continuation-host-lifecycle-green.log",
     "docs/implementation/v3/m05-logs/continuation-host-loop-selectors-attempt-1.log",
+    "docs/implementation/v3/m05-logs/continuation-host-publication-readiness-typecheck-node.log",
+    "docs/implementation/v3/m05-logs/continuation-host-publication-readiness-typecheck.log",
     "docs/implementation/v3/m05-logs/continuation-host-schedule-drain-green.log",
     "docs/implementation/v3/m05-logs/continuation-host-typecheck-fixed.log",
     "docs/implementation/v3/m05-logs/continuation-host-typecheck.log",
@@ -8509,6 +8941,62 @@
     "docs/implementation/v3/m05-logs/windows-ci-43726164418-a1-j132848442479-s4-build-web.meta.json",
     "docs/implementation/v3/m05-logs/windows-ci-43726164418-a1-j132848442479-s5-application-regression.log",
     "docs/implementation/v3/m05-logs/windows-ci-43726164418-a1-j132848442479-s5-application-regression.meta.json",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-132853239765.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-132853239918.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-132853239939.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-132853239961.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-132853239972.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-132853240025.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-132853240047.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-132853240058.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239765-s4-build-web.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239765-s4-build-web.meta.json",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239765-s5-browser-split.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239765-s5-browser-split.meta.json",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239765-s6-browser-frontend-refinement.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239765-s6-browser-frontend-refinement.meta.json",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239765-s6-browser-project-memory.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239765-s6-browser-project-memory.meta.json",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239765-s6-browser-root.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239765-s6-browser-root.meta.json",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239765-s6-browser-usage-context.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239765-s6-browser-usage-context.meta.json",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239918-s4-build-web.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239918-s4-build-web.meta.json",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239918-s5-application-regression.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239918-s5-application-regression.meta.json",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239939-s4-build-web.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239939-s4-build-web.meta.json",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239939-s5-application-regression.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239939-s5-application-regression.meta.json",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239961-s4-build-web.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239961-s4-build-web.meta.json",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239961-s5-application-regression.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239961-s5-application-regression.meta.json",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239972-s6-ui-guard.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239972-s6-ui-guard.meta.json",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239972-s7-lint.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239972-s7-lint.meta.json",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239972-s9-build-web.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853239972-s9-build-web.meta.json",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853240025-s4-build-web.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853240025-s4-build-web.meta.json",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853240025-s5-build-desktop.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853240025-s5-build-desktop.meta.json",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853240047-s4-build-web.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853240047-s4-build-web.meta.json",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853240047-s5-application-regression.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853240047-s5-application-regression.meta.json",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853240058-s4-hermes-source.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853240058-s4-hermes-source.meta.json",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853240058-s5-hermes-controls.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853240058-s5-hermes-controls.meta.json",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853240058-s6-hermes-worker.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853240058-s6-hermes-worker.meta.json",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853240058-s7-native-facade.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853240058-s7-native-facade.meta.json",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853240058-s7-native-worker.log",
+    "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853240058-s7-native-worker.meta.json",
     "docs/implementation/v3/m05-study-20261115/frozen-cases.json",
     "docs/implementation/v3/m05-study-20261115/results.json",
     "docs/superpowers/plans/2026-11-15-project-memory.md",
@@ -8564,6 +9052,7 @@
     "tests/e2e/vite.config.ts",
     "tests/hermes-desktop-assets.test.ts",
     "tests/hermes-runtime.test.ts",
+    "tests/host-fixture.ts",
     "tests/memory-checkpoint-worker-ownership-v3.test.ts",
     "tests/memory-consolidation-v3.test.ts",
     "tests/memory-enrollment-recovery-v3.test.ts",
@@ -8730,6 +9219,7 @@
     }
   ],
   "remainingGates": [
+    "Current remote M05 Windows CI remains pending or has required failures; inspect the current immutable CI receipt.",
     "Actual native FILE capture and installed-target desktop requirements remain unverified by host-custody mocks or a desktop build.",
     "Live repeated-task evaluation is MANIFEST_ONLY: no actual host/model was supplied; all six unmeasured summary metrics remain null.",
     "Production activation remains default off and independently gated. reviewerApproval is false even when publication/merge is separately authorized.",

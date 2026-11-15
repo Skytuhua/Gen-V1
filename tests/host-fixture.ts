@@ -159,7 +159,11 @@ export async function openHost(page: Page) {
 export async function sendFixture(page: Page, mode: string) {
   await page.getByRole('textbox', { name: 'Message', exact: true }).fill(`[fixture:${mode}] Verify the local host contract.`);
   await page.getByRole('button', { name: 'Send message', exact: true }).click();
-  await expect(page.locator('[data-artifact-id]').first()).toBeVisible();
+  const artifact = page.locator('[data-artifact-id]').first();
+  // Native file preparation precedes publication; keep its startup budget
+  // separate from the existing five-second rendering assertion.
+  await expect(artifact).toBeAttached({ timeout: 15_000 });
+  await expect(artifact).toBeVisible();
 }
 export async function grantFixtureFile(page: Page, host: HostFixture) {
   await page.getByRole('button', { name: 'Add resource', exact: true }).click();

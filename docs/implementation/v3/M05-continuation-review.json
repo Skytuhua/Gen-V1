@@ -102,6 +102,10 @@
     {
       "path": "tests/e2e/artifact-style.spec.ts",
       "sha256": "5a55da8033e1092070c47eb4bf6b8fe8054d20185854159cbe62df5276c96dda"
+    },
+    {
+      "path": "tests/host-fixture.ts",
+      "sha256": "54b7c58b1f02d7ec5adada5b638f32a4c5405d5609939ebb3f01c5ff9368bc11"
     }
   ],
   "findingsResolved": [
@@ -123,7 +127,8 @@
     "Arbitrary adapter error text retained outside memory deletion custody",
     "Pinned native worker observation-call expectation after accepted M11 integration",
     "Initial split-browser fixture navigation inherited the seven-second interaction budget; startup now has a separate bounded twenty-second budget with all behavior assertions retained",
-    "FAQ test sent Escape while expansion was still unpublished; an exact Collapse artifact focus assertion now observes modal readiness before the existing Escape and focus-return assertions"
+    "FAQ test sent Escape while expansion was still unpublished; an exact Collapse artifact focus assertion now observes modal readiness before the existing Escape and focus-return assertions",
+    "The first artifact-bearing snapshot arrived near the end of the host-operation fixture's combined five-second wait; an explicit bounded fifteen-second attachment assertion now precedes the retained five-second visibility assertion. Individual native-operation durations are unmeasured. Windows validation is pending."
   ],
   "remainingActionableFindings": [],
   "evidenceRefs": [
@@ -171,14 +176,18 @@
     "docs/implementation/v3/M05-windows-ci-43724428807.json",
     "docs/implementation/v3/M05-faq-readiness-review-43724428807.json",
     "docs/implementation/v3/m05-logs/continuation-faq-expansion-readiness-typecheck.log",
-    "docs/implementation/v3/M05-windows-ci-43726164418.json"
+    "docs/implementation/v3/M05-windows-ci-43726164418.json",
+    "docs/implementation/v3/M05-windows-ci-43727736261.json",
+    "docs/implementation/v3/M05-host-publication-review-43727736261.json",
+    "docs/implementation/v3/m05-logs/continuation-host-publication-readiness-typecheck.log",
+    "docs/implementation/v3/m05-logs/continuation-host-publication-readiness-typecheck-node.log"
   ],
   "activationApproval": false,
   "limitations": [
-    "Windows run 43726164418 passes all eight jobs on the exact combined M05/M09/M11 code/test/workflow cut, including both browser fixture repairs. Its source and command evidence are distinct from installed-desktop and live activation proof.",
+    "The earlier complete Windows run 43726164418 passed all eight jobs on its immutable code/test/workflow cut. The later documentation-only run 43727736261 failed the host-operation fixture setup; the new publication assertion requires fresh Windows verification.",
     "Code and synthetic browser review do not establish actual native FILE capture, installed-desktop execution or live-provider quality/cost.",
     "Both M05 host flags remain false.",
-    "All prior failed Windows attempts remain failed historical evidence. The two later fixture repairs execute successfully in run 43726164418."
+    "All prior failed Windows attempts remain failed historical evidence. Split and FAQ repairs also pass in run 43727736261. The host-publication repair is test-only and has no Windows execution claim yet."
   ],
   "additionalReviewers": [
     "ui_audit",
@@ -222,31 +231,36 @@
     "faqReadiness": "Exact focused Collapse assertion and all retained draft/branch/focus-return assertions pass; whole-test duration 2.2 s."
   },
   "latestWindowsAttempt": {
-    "runId": 43726164418,
-    "headSha": "d081973eedf23c684986076424cbbec9db7af951",
-    "checkoutSha": "9caea6e081805c19a961030fe61fa9fa856153e1",
-    "treeSha": "ffac9062087884b98f2ba73eb1c03e5219b43edb",
-    "jobsPassed": 8,
-    "jobsFailed": 0,
+    "runId": 43727736261,
+    "headSha": "5e835ff71ad02298ce3a7c6c080d92f5f04deb47",
+    "checkoutSha": "a8629917231acf1950145684a38d2c0ff937e3eb",
+    "treeSha": "d3dc4a903defee022d79be00391f6a52e7487cc3",
+    "jobsPassed": 7,
+    "jobsFailed": 1,
     "application": {
       "passed": 3746,
       "skipped": 39,
       "failed": 0
     },
     "browser": {
-      "passed": 267,
+      "passed": 266,
       "skipped": 2,
-      "failed": 0,
+      "failed": 1,
       "flaky": 0
     },
     "hermesContractsPassed": 33,
     "policyPluginTestsPassed": 37,
     "observedCommandsImported": 24,
-    "startupBaseline": "All 29 cases pass; first case whole-test duration 6,836 ms, not navigation duration.",
-    "faqReadiness": "Exact focused Collapse assertion and all retained draft/branch/focus-return assertions pass; whole-test duration 2.2 s."
+    "startupBaseline": "All 29 cases pass; first case whole-test duration 8,346 ms, not navigation duration.",
+    "faqReadiness": "FAQ case passes with exact focused Collapse assertion; whole-test duration 2.5 s.",
+    "failure": "Host operation fixture visibility assertion expired before approval/effect/restart assertions; native preparation preceded artifact publication near the deadline."
   },
   "priorFailedWindowsAttemptRefs": [
     "docs/implementation/v3/M05-windows-ci-43723377122.json",
-    "docs/implementation/v3/M05-windows-ci-43724428807.json"
+    "docs/implementation/v3/M05-windows-ci-43724428807.json",
+    "docs/implementation/v3/M05-windows-ci-43727736261.json"
+  ],
+  "pendingValidation": [
+    "Complete Windows workflow including the new host-publication attachment assertion."
   ]
 }
