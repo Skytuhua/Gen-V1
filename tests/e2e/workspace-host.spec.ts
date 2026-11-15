@@ -501,7 +501,7 @@ test('desktop ownership change prevents a slash mode retry after authentication 
  await input.fill('/plan');
  await expect(page.getByRole('option',{name:'/plan Switch to Plan'})).toBeVisible();
  await input.press('Enter');
- await expect(page.getByRole('alert').filter({hasText:'The command owner changed'})).toBeVisible();
+ await expect(page.getByRole('status').filter({hasText:'The command owner changed'})).toBeVisible();
  expect(attempts).toBe(1);
 });
 
@@ -531,7 +531,7 @@ test('a native owner roundtrip before auth retry still rejects the stale mode',a
  await expect.poll(()=>attempts).toBe(1);
  await page.evaluate(()=>(window as any).publishOwner(true));await expect(input).toBeDisabled();
  await page.evaluate(()=>(window as any).publishOwner(false));await expect(input).toBeEnabled();release();
- await expect(page.getByRole('alert').filter({hasText:'The command owner changed'})).toBeVisible();expect(attempts).toBe(1);
+ await expect(page.getByRole('status').filter({hasText:'The command owner changed'})).toBeVisible();expect(attempts).toBe(1);
 });
 
 test('unmounting the monitor before native takeover rejects a stale mode retry',async({page})=>{
@@ -548,7 +548,7 @@ test('unmounting the monitor before native takeover rejects a stale mode retry',
  await page.getByRole('button',{name:'Open conversation Project investigation',exact:true}).click();
  await expect(input).toHaveCount(0);
  await page.evaluate(()=>(window as any).publishOwner(true));
- await expect(page.getByText('This conversation is open in another window.',{exact:false})).toBeVisible();release();
+ await expect(page.getByText('Conversation open in another window.',{exact:false})).toBeVisible();release();
  await expect.poll(()=>attempts,{timeout:1500}).toBe(1);
  console.log(JSON.stringify({scenario:'unmount-then-native-takeover',attempts,sent}));
  expect(attempts).toBe(1);
@@ -569,7 +569,7 @@ test('synchronous native owner roundtrip fences the pending mode retry and permi
  // Both trusted callbacks run in one task: there is no DOM wait or React render between them.
  await page.evaluate(()=>{(window as any).publishOwner(true);(window as any).publishOwner(false);});
  release();
- await expect(page.getByRole('alert').filter({hasText:'The command owner changed'})).toBeVisible();
+ await expect(page.getByRole('status').filter({hasText:'The command owner changed'})).toBeVisible();
  expect(sent).toHaveLength(1);expect(sent[0]).toMatchObject({type:'thread.mode',threadId:'parent-a',payload:{mode:'plan'}});
  await expect(input).toBeEnabled();await input.fill('/default');
  await expect(page.getByRole('option',{name:'/default Switch to Build'})).toBeVisible();await input.press('Enter');
@@ -594,7 +594,7 @@ test('native takeover immediately before the mode callback prevents its initial 
   });
  });
  await input.press('Enter');
- await expect(page.getByRole('alert').filter({hasText:'The command owner changed'})).toBeVisible();
+ await expect(page.getByRole('status').filter({hasText:'The command owner changed'})).toBeVisible();
  expect(await page.evaluate(()=>(window as any).ownerCallbackSawEnabled)).toBe(true);
  expect(h.commands.filter(command=>command.type==='thread.mode')).toHaveLength(0);
  await expect(input).toBeDisabled();
