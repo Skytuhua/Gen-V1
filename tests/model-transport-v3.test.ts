@@ -88,6 +88,10 @@ it('RequestMetrics finishes exactly once and first mark wins',()=>{
  expect(observation.timings.teardownConfirmed).toBe(12);expect(observation.usageConvention).toBe('provider-reported');
  expect(observation.usage.cacheReadTokens).toBe(0);expect(observation.usage.cacheReadTokens).not.toBeNull();
  expect(metrics.finish('failed',null)).toBe(observation);expect(metrics.mark('settled')).toBeNull();
+ tick=13;expect(metrics.mark('firstPublicDelta')).toBe(13);
+ expect(metrics.mark('settled')).toBeNull();
+ expect(observation.timings.settled).toBeNull();
+ tick=20;expect(metrics.mark('firstPublicDelta')).toBe(13);
  const log=new RequestMetricsLog(2);log.record(observation);log.record(observation);log.record({...observation,requestId:'r2'});
  expect(log.list()).toHaveLength(2);
 });
