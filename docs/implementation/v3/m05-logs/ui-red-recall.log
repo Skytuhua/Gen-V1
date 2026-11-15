@@ -1,0 +1,24 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-v3
+
+ ❯ tests/project-memory-ui.test.ts (13 tests | 1 failed) 500ms
+   × only exposes recall for the exact request generation and owner 29ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/project-memory-ui.test.ts > only exposes recall for the exact request generation and owner
+AssertionError: Context inspector must fence request-bound recall.: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ tests/project-memory-ui.test.ts:91:97
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 12 passed (13)
+   Start at  18:30:10
+   Duration  662ms (transform 299ms, setup 0ms, import 52ms, tests 500ms, environment 0ms)

@@ -1,0 +1,2649 @@
+{
+  "schemaVersion": 3,
+  "bundleId": "M05",
+  "baseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+  "sourceLockDigest": "9cada1af67b52abb89d645e5b521d4096a2d1d211f1ed40c40a16304c3eafb2e",
+  "platform": "Linux-6.18.57-x86_64-with-glibc2.41",
+  "nodeVersion": "v24.22.1",
+  "packageManagerVersion": "pnpm@10.30.3",
+  "phases": [
+    {
+      "id": "CORE",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "M05.schemas.flags-and-explicit-consent",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/project-memory-v3.test.ts"
+        },
+        {
+          "id": "M05.scope.project-account-physical-identity",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/project-memory-v3.test.ts; tests/memory-retrieval-v3.test.ts"
+        },
+        {
+          "id": "M05.immutable-source-reference-integrity",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/project-memory-v3.test.ts; tests/project-memory-ui.test.ts"
+        },
+        {
+          "id": "M05.correction-CAS-conflict-expiry",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/project-memory-v3.test.ts"
+        },
+        {
+          "id": "M05.forget-immediate-shared-source-exclusion",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-forget-v3.test.ts"
+        },
+        {
+          "id": "M05.restore-SQLite-and-full-profile-with-surviving-sibling",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-forget-v3.test.ts"
+        },
+        {
+          "id": "M05.restore-index-dependency-reconciliation",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-restored-index-v3.test.ts"
+        },
+        {
+          "id": "M05.enrollment-retry-and-missing-replaced-corrupt-fence",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-enrollment-recovery-v3.test.ts; tests/memory-forget-v3.test.ts"
+        },
+        {
+          "id": "M05.purge-bounded-copies-and-WAL-retention",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-forget-v3.test.ts"
+        },
+        {
+          "id": "M05.storage-resource-grant-exclusion",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-storage-boundary-v3.test.ts"
+        },
+        {
+          "id": "M05.FILE-grant-revocation-host-snapshot",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-review-extra-v3.test.ts"
+        },
+        {
+          "id": "M05.lexical-byte-budget-expiry-source-tombstones",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-retrieval-v3.test.ts"
+        },
+        {
+          "id": "M05.frozen-request-generation-and-exclusion-seam",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-retrieval-v3.test.ts"
+        },
+        {
+          "id": "M05.provider-deadlines-orphans-capacity-scoped-circuits",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-retrieval-v3.test.ts"
+        },
+        {
+          "id": "M05.extraction-supplied-cut-secrets-references-proposals",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-consolidation-v3.test.ts"
+        },
+        {
+          "id": "M05.consolidation-incremental-lease-watermark-and-usage",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-consolidation-v3.test.ts"
+        },
+        {
+          "id": "M05.checkpoint-capability-and-durable-acknowledgement-seam",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-consolidation-v3.test.ts"
+        },
+        {
+          "id": "M05.renderer-owner-source-crypto-and-transport-guards",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/project-memory-ui.test.ts"
+        },
+        {
+          "id": "M01.M02.current-contract-tests",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/research-baseline.test.ts; tests/m01-m02-compatibility.test.ts; tests/tool-authority-v3.test.ts; tests/tool-effects-v3.test.ts; tests/effect-recovery-v3.test.ts"
+        },
+        {
+          "id": "M05.offline-evaluation-scenarios-not-live-outcomes",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; evals/fixtures/project-memory-v3.json; m05-logs/memory-eval-fixture-json.log"
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/project-memory-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:22:31.118425+00:00",
+          "endedAt": "2026-11-15T10:22:32.456337+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/initial-red.log",
+          "logDigest": "a3c003c5e10ea294f0a63cd31b30e9400882a2b2f305795f6f7b75695ab60bdc"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/research-baseline.test.ts",
+            "tests/m01-m02-compatibility.test.ts",
+            "tests/tool-authority-v3.test.ts",
+            "tests/tool-effects-v3.test.ts",
+            "tests/effect-recovery-v3.test.ts",
+            "tests/task-memory.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:23:04.727502+00:00",
+          "endedAt": "2026-11-15T10:23:12.106896+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/baseline-contracts.log",
+          "logDigest": "7c2fdab08030d5afd75b4cc520c309f22449179e029a30613e9f58de011626fc"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/project-memory-ui.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:24:28.674353+00:00",
+          "endedAt": "2026-11-15T10:24:29.962037+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/ui-red-client.log",
+          "logDigest": "78aade1be7a9d8362b59d5ae7966975c2a5c658cd12b033fa6344da39e0f414e"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/project-memory-v3.test.ts",
+            "tests/memory-forget-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:24:46.839143+00:00",
+          "endedAt": "2026-11-15T10:24:47.824283+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/lifecycle-red.log",
+          "logDigest": "09790ceebc3544f54ad26cf0c5d2d7422356900aa89e65f04a89538c5310c65c"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-consolidation-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:26:26.480819+00:00",
+          "endedAt": "2026-11-15T10:26:27.670818+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/consolidation-core-red.log",
+          "logDigest": "f4459e93202da429ec6ca1ca5e05b1ad3441b1c0b8c70a9b54a3423276566041"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/project-memory-v3.test.ts",
+            "tests/memory-forget-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:26:47.043860+00:00",
+          "endedAt": "2026-11-15T10:26:48.426939+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/lifecycle-first.log",
+          "logDigest": "79f57c1c51d5040fdd40249d49bb00e256cd23ec8f09022e46222c83d6f4bc92"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-consolidation-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:27:39.198269+00:00",
+          "endedAt": "2026-11-15T10:27:40.472352+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/consolidation-core-green.log",
+          "logDigest": "ec5db9c49c5f3e2d1c112caea030bfa77048ab3d3a2fb7da3d2d9fa53aeb5f1e"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-retrieval-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:28:12.564786+00:00",
+          "endedAt": "2026-11-15T10:28:13.856171+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/retrieval-red-01.log",
+          "logDigest": "bdf06a365a501d63245e3bd29c8559ff05e4a1949ccc57f470ba7ef17af5b9b1"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-consolidation-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:28:46.633068+00:00",
+          "endedAt": "2026-11-15T10:28:48.321354+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/extraction-core-red.log",
+          "logDigest": "dbffbb285bf5c51e8e946db87c9489ff6e6c1a73ab11bf94190632d93627d205"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-consolidation-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:29:03.335124+00:00",
+          "endedAt": "2026-11-15T10:29:05.148843+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/extraction-specific-red.log",
+          "logDigest": "527abee23035d972e7c6d0f79b95c475e66f3d53063bd6b32c7f68e0bcbac83f"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-retrieval-v3.test.ts",
+            "-t",
+            "bounded lexical recall",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:29:20.846786+00:00",
+          "endedAt": "2026-11-15T10:29:22.050764+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/retrieval-local-01.log",
+          "logDigest": "d5c6472869d8fbb345425ccba4f243d3877d0e23df60a3c111454f5427c4daa6"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-forget-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:29:25.306558+00:00",
+          "endedAt": "2026-11-15T10:29:26.120929+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/physical-purge-red.log",
+          "logDigest": "8a3cc9962dcfc84be1df41d3f47644c9a322463cab98221536683ccad1116db9"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-consolidation-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:29:41.791327+00:00",
+          "endedAt": "2026-11-15T10:29:43.411820+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/extraction-core-green.log",
+          "logDigest": "6fea64747631223a21bbbedc392335f77ec0334fb85865d7b94edde5a6c83a24"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/project-memory-v3.test.ts",
+            "tests/memory-forget-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:29:49.489582+00:00",
+          "endedAt": "2026-11-15T10:29:50.714586+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/physical-purge-green.log",
+          "logDigest": "62ae0d43686c37db37852d58365eba3c6de1d340259bb0c162cf6ae280ea584a"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-retrieval-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:30:09.331296+00:00",
+          "endedAt": "2026-11-15T10:30:10.110797+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/retrieval-red-02.log",
+          "logDigest": "babdac99e09505c809f01f9a955b1a5e8dabd2168e33742c0629c30d802b651f"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/project-memory-ui.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:30:09.637254+00:00",
+          "endedAt": "2026-11-15T10:30:10.836164+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/ui-red-recall.log",
+          "logDigest": "faa1dc96e35dda4551a7ffbe5ec3513cbb6039b06bc444ca1318bbc658682e29"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-retrieval-v3.test.ts",
+            "-t",
+            "bounded lexical recall",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:30:23.804081+00:00",
+          "endedAt": "2026-11-15T10:30:24.775891+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/retrieval-local-02.log",
+          "logDigest": "476c8676df710dd00580c8fd8947a38b1335a5056950ef010f36682926084d02"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-retrieval-v3.test.ts",
+            "-t",
+            "bounded lexical recall",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:30:31.258602+00:00",
+          "endedAt": "2026-11-15T10:30:32.307697+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/retrieval-local-03.log",
+          "logDigest": "4242c02292da113673ae81f1c1f04c3fc0623b61cdf890ae9e36274be3d145d2"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/project-memory-ui.test.ts",
+            "tests/project-context-owner.test.ts",
+            "tests/usage-context.test.ts",
+            "tests/browser-runner.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:30:44.211503+00:00",
+          "endedAt": "2026-11-15T10:30:46.508180+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/ui-green-client.log",
+          "logDigest": "faa58595ed7b73ca36cd356bc36c4c3c133734f28f7ad888545f167799c51560"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-consolidation-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:30:51.971173+00:00",
+          "endedAt": "2026-11-15T10:30:54.059579+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/checkpoint-core-red.log",
+          "logDigest": "924e90f20e608bf898c6d00314b744160e8bde1d74c14747d653aa329d21a3ff"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-retrieval-v3.test.ts",
+            "-t",
+            "bounded lexical recall|immutable request snapshots",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:31:06.925954+00:00",
+          "endedAt": "2026-11-15T10:31:08.042453+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/retrieval-snapshots-01.log",
+          "logDigest": "994215fdab46278f6fae813229fa117ea0c1f1a683581ea2b46f4d72292ad7ad"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-consolidation-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:31:28.798533+00:00",
+          "endedAt": "2026-11-15T10:31:30.760583+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/checkpoint-core-green.log",
+          "logDigest": "735d1587362c39718677c4e5c73146a3113dfc3bd8f495ac4e9b5d6c73c4afa8"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/project-memory-ui.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:32:25.836949+00:00",
+          "endedAt": "2026-11-15T10:32:27.395712+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/ui-red-tombstone.log",
+          "logDigest": "660b88fb3b3b39504653c552eed4775e78ff2ce55959a82f1b8f40c61fa35b6a"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-consolidation-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:32:29.466351+00:00",
+          "endedAt": "2026-11-15T10:32:31.181693+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/consolidation-cancel-red.log",
+          "logDigest": "d7cfb1dac34b9e98fd3d59bc9d1d0fd8ea1c28fb2833dfcdbc73dbfad0135f25"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-retrieval-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:32:38.041282+00:00",
+          "endedAt": "2026-11-15T10:32:39.248483+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/retrieval-provider-01.log",
+          "logDigest": "49142a34acb172e1470dba41df9c00fda9a9882f287770909dd13ee6925c0e52"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/project-memory-v3.test.ts",
+            "tests/memory-forget-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:32:38.326012+00:00",
+          "endedAt": "2026-11-15T10:32:39.905304+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/correction-purge-review-red.log",
+          "logDigest": "1dde5a80260a24b43a88de5b83ebd1186723494ef304c4f103b2435a8a47f320"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-consolidation-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:32:46.598297+00:00",
+          "endedAt": "2026-11-15T10:32:47.940707+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/consolidation-cancel-green.log",
+          "logDigest": "ed6dfa39e66dfc5eb07a76a41e6d814c5ec7484b1b28d83a00f1396fe5b24d2e"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/project-memory-v3.test.ts",
+            "tests/memory-forget-v3.test.ts",
+            "tests/project-memory-http-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:33:20.988178+00:00",
+          "endedAt": "2026-11-15T10:33:23.830233+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/correction-purge-review-green.log",
+          "logDigest": "83ac80ede1fe7429a89bffd0a0fffef36162568d647505d5844bf205207cd539"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/project-memory-ui.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:33:37.681330+00:00",
+          "endedAt": "2026-11-15T10:33:39.448670+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/ui-red-source-digest.log",
+          "logDigest": "9ae2a9b1b967d2beed4fe20bb1abf0236f83b0dc4dfe7dbe49dbd741c5842083"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/project-memory-ui.test.ts",
+            "tests/project-context-owner.test.ts",
+            "tests/usage-context.test.ts",
+            "tests/browser-runner.test.ts",
+            "tests/ui-numeric-children.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:33:54.734334+00:00",
+          "endedAt": "2026-11-15T10:33:57.935428+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/ui-green-final.log",
+          "logDigest": "dc99fb58056548e9ff5933c1c5234cfd81980b90328fe45132c856412cbb8893"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-consolidation-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:34:05.645706+00:00",
+          "endedAt": "2026-11-15T10:34:07.120951+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/consolidation-spend-red.log",
+          "logDigest": "0120fd9de0d5378c5a76591d0978a6a4b70b20810d884eba953a7ca701fa81e8"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-retrieval-v3.test.ts",
+            "-t",
+            "host admission",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:34:10.598233+00:00",
+          "endedAt": "2026-11-15T10:34:11.291070+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/retrieval-provider-red-02.log",
+          "logDigest": "a4cf8ecc3cf47933dcc1ac9e40b7f89548e00c863ec268cc6635f9d094b3babc"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-retrieval-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:34:25.795682+00:00",
+          "endedAt": "2026-11-15T10:34:26.598817+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/retrieval-provider-02.log",
+          "logDigest": "ffd7b69056e9a4bbfe5686e9d8e1726f9f81e8aa3c7dc8a93e8394ce01736570"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-consolidation-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:34:47.144863+00:00",
+          "endedAt": "2026-11-15T10:34:48.768622+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/consolidation-spend-green.log",
+          "logDigest": "b14122096af364f126c416f6b05875f4b968e572ce97d18a0e8f05ee8aebc914"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/project-memory-ui.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:35:01.758971+00:00",
+          "endedAt": "2026-11-15T10:35:03.035711+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/ui-red-digest-unavailable.log",
+          "logDigest": "32ea6ecbabac0d3d9a7f63f873f3a42f965754c5628c4b00c9986b1c07df6799"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/project-memory-ui.test.ts",
+            "tests/project-context-owner.test.ts",
+            "tests/usage-context.test.ts",
+            "tests/browser-runner.test.ts",
+            "tests/ui-numeric-children.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:35:12.078708+00:00",
+          "endedAt": "2026-11-15T10:35:15.195151+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/ui-green-digest-final.log",
+          "logDigest": "0963bd4c1fad72c3e3fe43434d2116d93d491b98d26c472c3d18998d0647999d"
+        },
+        {
+          "argv": [
+            "python",
+            "-c",
+            "import json; p=\"evals/fixtures/project-memory-v3.json\"; d=json.load(open(p)); assert d[\"execution\"][\"liveStudy\"]==\"NOT_RUN\"; assert len({x[\"id\"] for x in d[\"cases\"]})==len(d[\"cases\"]); assert all(v is None for v in d[\"unmeasuredResults\"].values()); print(json.dumps({\"file\":p,\"caseCount\":len(d[\"cases\"]),\"liveStudy\":d[\"execution\"][\"liveStudy\"],\"providerCalls\":d[\"execution\"][\"providerCalls\"]}))"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "python",
+          "startedAt": "2026-11-15T10:35:44.924826+00:00",
+          "endedAt": "2026-11-15T10:35:44.940286+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/memory-eval-fixture-json.log",
+          "logDigest": "557867ac9f28d9c46ca1356782e7e3245ce00e8eb080f84ea246757159f2f54e"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/project-memory-v3.test.ts",
+            "tests/memory-forget-v3.test.ts",
+            "tests/project-memory-http-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:37:06.142038+00:00",
+          "endedAt": "2026-11-15T10:37:09.024120+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/host-local-flow.log",
+          "logDigest": "954d6e6e564404c8006147a5f24a624016126cc88024b45b977d1f851760b7d3"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-retrieval-v3.test.ts",
+            "-t",
+            "rejects accepted, unsupported",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:38:24.247180+00:00",
+          "endedAt": "2026-11-15T10:38:25.045050+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/retrieval-secret-red.log",
+          "logDigest": "08c92ab9de71bd363cfeddc7bc49171c8515c610d65d844a3af6109620f9a2d4"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-retrieval-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:38:36.432453+00:00",
+          "endedAt": "2026-11-15T10:38:37.561581+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/retrieval-final-01.log",
+          "logDigest": "13a0165a45142def778ab7106e9a2a3685fa6c73c267c984e79a0ad9d35c3a8c"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "tsx",
+            "-e",
+            "import assert from \"node:assert/strict\"; import { rmSync } from \"node:fs\"; import { memoryFixture } from \"./tests/project-memory-fixture.ts\"; void (async () => { const f = await memoryFixture(); try { const retained = f.accept(\"Independent retained claim from the same source.\"); f.store.internal(\"derived\", null, () => f.store.put(\"projectMemoryDerived\", \"prior-index\", null, { id: \"prior-index\", projectIdentity: f.access.projectIdentity, accountId: f.access.accountId, refs: [{ itemId: retained.id, revision: retained.revision }], valid: true })); const forgotten = f.accept(\"Claim to forget.\"); const preview = f.memory.forgetPreview(f.access, forgotten.id, forgotten.revision); f.act({ action: \"forget\", itemId: forgotten.id, baseRevision: forgotten.revision }); console.log(JSON.stringify({ previewArtifacts: preview.affectedDerivedArtifacts, acceptedCount: f.memory.accepted(f.access).length, sourceAvailable: f.memory.sourceAvailable(f.access, retained.sourceRefs[0]), derivedValid: f.store.get(\"projectMemoryDerived\", \"prior-index\").valid })); assert.equal(f.store.get(\"projectMemoryDerived\", \"prior-index\").valid, false, \"Source-excluded derived references must be invalidated immediately\"); } finally { f.store.close(); rmSync(f.root, { recursive: true, force: true }); } })().catch(error => { console.error(error.message); process.exitCode = 1; });"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:38:51.063666+00:00",
+          "endedAt": "2026-11-15T10:38:51.563468+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/memory-review-derived-repro.log",
+          "logDigest": "fb9d1f7fcfccc1e4edad2949b333dcbdaa4e55a30cce740dd43598b00fd44f83"
+        },
+        {
+          "argv": [
+            "node",
+            "--import",
+            "tsx",
+            "--input-type=module",
+            "-e",
+            "import assert from \"node:assert/strict\"; import { rmSync } from \"node:fs\"; import { memoryFixture } from \"./tests/project-memory-fixture.ts\"; const f = await memoryFixture(); try { const retained = f.accept(\"Independent retained claim from the same source.\"); f.store.internal(\"derived\", null, () => f.store.put(\"projectMemoryDerived\", \"prior-index\", null, { id: \"prior-index\", projectIdentity: f.access.projectIdentity, accountId: f.access.accountId, refs: [{ itemId: retained.id, revision: retained.revision }], valid: true })); const forgotten = f.accept(\"Claim to forget.\"); const preview = f.memory.forgetPreview(f.access, forgotten.id, forgotten.revision); f.act({ action: \"forget\", itemId: forgotten.id, baseRevision: forgotten.revision }); console.log(JSON.stringify({ previewArtifacts: preview.affectedDerivedArtifacts, acceptedCount: f.memory.accepted(f.access).length, sourceAvailable: f.memory.sourceAvailable(f.access, retained.sourceRefs[0]), derivedValid: f.store.get(\"projectMemoryDerived\", \"prior-index\").valid })); assert.equal(f.store.get(\"projectMemoryDerived\", \"prior-index\").valid, false, \"Source-excluded derived references must be invalidated immediately\"); } finally { f.store.close(); rmSync(f.root, { recursive: true, force: true }); }"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "node",
+          "startedAt": "2026-11-15T10:38:58.348405+00:00",
+          "endedAt": "2026-11-15T10:38:58.628590+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/memory-review-derived-repro-02.log",
+          "logDigest": "da5b9fddab22e57710fa007a7568567c45126c57b45bfa81e8d71c1f1638d265"
+        },
+        {
+          "argv": [
+            "node",
+            "--import",
+            "tsx",
+            "--input-type=module",
+            "-e",
+            "import assert from \"node:assert/strict\"; import { copyFileSync, rmSync } from \"node:fs\"; import { join } from \"node:path\"; import { memoryFixture } from \"./tests/project-memory-fixture.ts\"; import { ProjectMemory } from \"./packages/core/project-memory.ts\"; import { Store } from \"./packages/storage/store.ts\"; const f = await memoryFixture(); try { const item = f.accept(\"Deleted claim in a profile backup.\"); f.store.db.exec(\"PRAGMA wal_checkpoint(TRUNCATE)\"); const backup = join(f.root, \"before-forget.sqlite\"), dataDir = f.store.dataDir; copyFileSync(join(dataDir, \"harness.sqlite\"), backup); f.act({ action: \"forget\", itemId: item.id, baseRevision: item.revision }); f.store.close(); copyFileSync(backup, join(dataDir, \"harness.sqlite\")); rmSync(join(dataDir, \"project-memory-deletions.jsonl\")); f.store = new Store(dataDir); const memory = new ProjectMemory(f.store, { enabled: () => true }), access = await memory.access(\"project\", \"thread\"); const restored = memory.accepted(access); console.log(JSON.stringify({ acceptedAfterRestoringAllPreForgetProfileFiles: restored.length })); assert.equal(restored.length, 0, \"An old full-profile restore must not revive a deleted claim\"); } finally { f.store.close(); rmSync(f.root, { recursive: true, force: true }); }"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "node",
+          "startedAt": "2026-11-15T10:39:38.610236+00:00",
+          "endedAt": "2026-11-15T10:39:38.945961+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/memory-review-full-backup-repro.log",
+          "logDigest": "01c18d9f7a10b667cd7b469ecf21e21a54093fca75f31d1dd05fca5a9e6360bc"
+        },
+        {
+          "argv": [
+            "/workspace/scratch/36f66011d961/bin/pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/project-memory-v3.test.ts",
+            "tests/memory-forget-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "/workspace/scratch/36f66011d961/bin/pnpm",
+          "startedAt": "2026-11-15T10:41:28.443837+00:00",
+          "endedAt": "2026-11-15T10:41:29.893925+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/review-red-disable-source-replay.log",
+          "logDigest": "6157c7e6ae317c3ac61f5e07450d3476ff26f00cf2c8fafd740b515603a0916f"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-forget-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:43:00.843831+00:00",
+          "endedAt": "2026-11-15T10:43:03.064866+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/review-red-derived-bounds.log",
+          "logDigest": "1b2a43d31a22418aabf5a5e5d0d33cdd8845dcfee86d2dafdae55eae09f1b4f7"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-forget-v3.test.ts",
+            "-t",
+            "bounds each",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:43:25.367182+00:00",
+          "endedAt": "2026-11-15T10:43:27.452580+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/review-red-bounds-corrected.log",
+          "logDigest": "6f4bb5c9040461a833b6ffab523092363a20988836892f3f1b5b145b5f4ebd3d"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-review-extra-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:43:36.000903+00:00",
+          "endedAt": "2026-11-15T10:43:38.143241+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/source-grant-authority-red.log",
+          "logDigest": "d6fc1c495526880b12168ea29846e8e43f74883522ad4406750a9e565906923b"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-forget-v3.test.ts",
+            "-t",
+            "full-profile",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:45:32.929921+00:00",
+          "endedAt": "2026-11-15T10:45:34.377906+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/review-red-full-profile.log",
+          "logDigest": "634b59b4446699386cfb12faa0d2e03ef1f2c8763847a28984b6ef017769e266"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-storage-boundary-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:45:43.088324+00:00",
+          "endedAt": "2026-11-15T10:45:44.293244+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/memory-storage-boundary-red.log",
+          "logDigest": "4b51a8a8e6f3ea0fe8e59fdd1c72192e168a8698281cfedd0a80ce91fd40cd01"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-consolidation-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:45:51.610951+00:00",
+          "endedAt": "2026-11-15T10:45:53.746924+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/consolidation-shared-secret-red.log",
+          "logDigest": "22d15baee62662722cb1bc49a255bfe5a55ed0b308d97a8ade14e59823bbd405"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-consolidation-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:46:14.854203+00:00",
+          "endedAt": "2026-11-15T10:46:16.368276+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/consolidation-shared-secret-green.log",
+          "logDigest": "bbb29c9db0431a18cbbdadbf92d54c8bf6ef60065e0af72be4c2865a0f5d2c8a"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-storage-boundary-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:46:18.058321+00:00",
+          "endedAt": "2026-11-15T10:46:18.846549+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/memory-storage-boundary-green-01.log",
+          "logDigest": "8fe769cd00817c6f77f60a3d539ca2cf7d4e6432aad800e648100560750b8eab"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-retrieval-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:46:33.335204+00:00",
+          "endedAt": "2026-11-15T10:46:34.289860+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/retrieval-shared-secret-green.log",
+          "logDigest": "af5fe125ff4039e34bf6128be8e6157bd8264f47bc9bb2bac5ea9d7c7b26bfa3"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-storage-boundary-v3.test.ts",
+            "tests/account-storage-boundary.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:47:00.633290+00:00",
+          "endedAt": "2026-11-15T10:47:03.292366+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/memory-storage-regression-01.log",
+          "logDigest": "2654df9a13694e62e1da946ede9658eb90066c7d44b644e61e183c39d6b2f3f7"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-consolidation-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:47:10.452694+00:00",
+          "endedAt": "2026-11-15T10:47:12.740279+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/shared-client-secret-red.log",
+          "logDigest": "69d492c25b4300694b67997f7ab3cf96796ae682d1592b656faaa583c988c998"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/project-memory-v3.test.ts",
+            "tests/memory-forget-v3.test.ts",
+            "tests/project-memory-http-v3.test.ts",
+            "tests/memory-review-extra-v3.test.ts",
+            "tests/memory-storage-boundary-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:47:24.585574+00:00",
+          "endedAt": "2026-11-15T10:47:28.183176+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/review-core-green-01.log",
+          "logDigest": "87dda8b21c4fbac436738b702945664539a5e73ca24a1ba6be0bf940112480c3"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-consolidation-v3.test.ts",
+            "tests/memory-retrieval-v3.test.ts",
+            "tests/memory-review-extra-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:47:33.075202+00:00",
+          "endedAt": "2026-11-15T10:47:35.517871+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/memory-shared-final-green.log",
+          "logDigest": "c0272e29ae14477bda1c4fba091d555bb49ccb97700b62a0e6fa2d3057fcf45a"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/project-memory-v3.test.ts",
+            "tests/memory-forget-v3.test.ts",
+            "tests/memory-retrieval-v3.test.ts",
+            "tests/memory-consolidation-v3.test.ts",
+            "tests/project-memory-http-v3.test.ts",
+            "tests/project-memory-ui.test.ts",
+            "tests/memory-review-extra-v3.test.ts",
+            "tests/memory-storage-boundary-v3.test.ts",
+            "tests/research-baseline.test.ts",
+            "tests/m01-m02-compatibility.test.ts",
+            "tests/tool-authority-v3.test.ts",
+            "tests/tool-effects-v3.test.ts",
+            "tests/effect-recovery-v3.test.ts",
+            "tests/task-memory.test.ts",
+            "tests/project-context-owner.test.ts",
+            "tests/usage-context.test.ts",
+            "tests/browser-runner.test.ts",
+            "tests/account-storage-boundary.test.ts",
+            "tests/public-source-package.test.ts",
+            "--maxWorkers=2"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:48:46.677290+00:00",
+          "endedAt": "2026-11-15T10:48:57.061367+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/final-focused.log",
+          "logDigest": "bbcab36a1e25a12eacd2e3590ad059c095d58a56c24a88667d5d630c25169fa0"
+        },
+        {
+          "argv": [
+            "node",
+            "--import",
+            "tsx",
+            "/workspace/scratch/36f66011d961/memory_index_replay_repro.mjs"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "node",
+          "startedAt": "2026-11-15T10:49:09.674154+00:00",
+          "endedAt": "2026-11-15T10:49:10.242804+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/memory-review-index-replay-red.log",
+          "logDigest": "27e32b7a95195241ecd9d206aa9be0d72531c3ede12afb51f590ed874174919a"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-restored-index-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:50:13.930307+00:00",
+          "endedAt": "2026-11-15T10:50:16.357425+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/memory-restored-index-red.log",
+          "logDigest": "cd2bb031370e76db1cfcbc8e810eaeebb60cf736f4e19cf4654ff3839101136f"
+        },
+        {
+          "argv": [
+            "node",
+            "--import",
+            "tsx",
+            "/workspace/scratch/36f66011d961/memory_query_plan_review.mjs"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "node",
+          "startedAt": "2026-11-15T10:50:37.175571+00:00",
+          "endedAt": "2026-11-15T10:50:37.556491+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/memory-review-query-plan.log",
+          "logDigest": "d3eb9eaaac0bc0c28307c7f965f0d728d6cdae1230ce6851e068e1e9493e036b"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-restored-index-v3.test.ts",
+            "tests/memory-forget-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:51:32.792158+00:00",
+          "endedAt": "2026-11-15T10:51:34.807005+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/restored-index-green.log",
+          "logDigest": "2388ca1689b666e09ecabcf49a4e4f1fcdc18db9b6a2125338c2f45cb2d1239c"
+        },
+        {
+          "argv": [
+            "node",
+            "--import",
+            "tsx",
+            "/workspace/scratch/36f66011d961/memory_enrollment_retry_repro.mjs"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "node",
+          "startedAt": "2026-11-15T10:51:40.050150+00:00",
+          "endedAt": "2026-11-15T10:51:40.706780+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/memory-review-enrollment-retry-red.log",
+          "logDigest": "254da1a4b17282ad4435be20f2376ac149907ae1fba800e58cc30b214a736290"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-restored-index-v3.test.ts",
+            "tests/memory-enrollment-recovery-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:52:32.320941+00:00",
+          "endedAt": "2026-11-15T10:52:33.880372+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/memory-recovery-review-green-01.log",
+          "logDigest": "2354781bf264478f42f4466bf2a671a62f69debcf8b5623b346f4942c4bcb87a"
+        },
+        {
+          "argv": [
+            "node",
+            "--import",
+            "tsx",
+            "/workspace/scratch/36f66011d961/memory_query_plan_review.mjs"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "node",
+          "startedAt": "2026-11-15T10:52:40.480483+00:00",
+          "endedAt": "2026-11-15T10:52:40.847195+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/memory-review-query-plan-green.log",
+          "logDigest": "b923f67df911a447ae49b31ca6d201729059db5b215dbca2f39e8cdde20acb4e"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/project-memory-v3.test.ts",
+            "tests/memory-forget-v3.test.ts",
+            "tests/memory-retrieval-v3.test.ts",
+            "tests/memory-consolidation-v3.test.ts",
+            "tests/project-memory-http-v3.test.ts",
+            "tests/project-memory-ui.test.ts",
+            "tests/memory-review-extra-v3.test.ts",
+            "tests/memory-storage-boundary-v3.test.ts",
+            "tests/memory-restored-index-v3.test.ts",
+            "tests/memory-enrollment-recovery-v3.test.ts",
+            "tests/research-baseline.test.ts",
+            "tests/m01-m02-compatibility.test.ts",
+            "tests/tool-authority-v3.test.ts",
+            "tests/tool-effects-v3.test.ts",
+            "tests/effect-recovery-v3.test.ts",
+            "tests/task-memory.test.ts",
+            "tests/project-context-owner.test.ts",
+            "tests/usage-context.test.ts",
+            "tests/browser-runner.test.ts",
+            "tests/account-storage-boundary.test.ts",
+            "tests/public-source.test.ts",
+            "tests/ui-guard.test.ts",
+            "tests/ui-numeric-children.test.ts",
+            "--maxWorkers=2"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:55:21.544405+00:00",
+          "endedAt": "2026-11-15T10:55:41.090549+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/proof-focused.log",
+          "logDigest": "e88845ec882d2a02a043d0acfaad8d0a910cd0d6a72b6c3f64a64c182a17752b"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/project-memory-v3.test.ts",
+            "tests/memory-forget-v3.test.ts",
+            "tests/memory-retrieval-v3.test.ts",
+            "tests/memory-consolidation-v3.test.ts",
+            "tests/project-memory-http-v3.test.ts",
+            "tests/project-memory-ui.test.ts",
+            "tests/memory-review-extra-v3.test.ts",
+            "tests/memory-storage-boundary-v3.test.ts",
+            "tests/memory-restored-index-v3.test.ts",
+            "tests/memory-enrollment-recovery-v3.test.ts",
+            "tests/research-baseline.test.ts",
+            "tests/m01-m02-compatibility.test.ts",
+            "tests/tool-authority-v3.test.ts",
+            "tests/tool-effects-v3.test.ts",
+            "tests/effect-recovery-v3.test.ts",
+            "tests/task-memory.test.ts",
+            "tests/project-context-owner.test.ts",
+            "tests/usage-context.test.ts",
+            "tests/browser-runner.test.ts",
+            "tests/account-storage-boundary.test.ts",
+            "tests/public-source.test.ts",
+            "tests/ui-guard.test.ts",
+            "tests/ui-numeric-children.test.ts",
+            "--maxWorkers=2"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:56:40.676953+00:00",
+          "endedAt": "2026-11-15T10:56:53.725198+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/proof-focused-green.log",
+          "logDigest": "d9d87563d2dc7a385f00aa2f624f9315d0a5d931a5dea3b4f6ca336668b65db5"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v3/M05-handoff.md",
+        "evals/fixtures/project-memory-v3.json"
+      ]
+    },
+    {
+      "id": "INTEGRATION_AUTHENTICATED_REVIEW",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "actual-Fastify-Store-session-CSRF-scope-CAS-rollback",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/project-memory-http-v3.test.ts; unrelated node-pty loading is mocked, terminal execution is never used"
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/project-memory-http-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:27:31.773735+00:00",
+          "endedAt": "2026-11-15T10:27:32.853709+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/http-red.log",
+          "logDigest": "4f563927eee4cc8285599d9c0955356d2b7b68cd58f02c212b7a4bd2952535e1"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/project-memory-http-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:27:54.301898+00:00",
+          "endedAt": "2026-11-15T10:27:55.479603+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/http-first.log",
+          "logDigest": "29f8aa8aac84819f946689f49ac4527031d60d5cb82b56a6814f7d3f6ebdae82"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/project-memory-http-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:29:02.297678+00:00",
+          "endedAt": "2026-11-15T10:29:04.570326+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/http-assets-ready.log",
+          "logDigest": "dfeaaad4d8e04c79c2f348c5caa8108e81389d1e040b18971353447282911751"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/project-memory-http-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:30:26.549340+00:00",
+          "endedAt": "2026-11-15T10:30:28.545306+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/http-integration.log",
+          "logDigest": "d00507a9cd0a046c03af01f6d57fe98c921039f31a51d844a968abb35c54ddc3"
+        }
+      ],
+      "artifactRefs": [
+        "apps/server/project-memory-routes.ts"
+      ]
+    },
+    {
+      "id": "BUILD_AND_SETUP",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "frozen-declared-package-manager",
+          "status": "PASS",
+          "evidence": "m05-logs/setup-pinned.log: pnpm 10.30.3, unchanged lockfile"
+        },
+        {
+          "id": "typecheck",
+          "status": "PASS",
+          "evidence": "m05-logs/proof-typecheck.log: exit 0"
+        },
+        {
+          "id": "production-build",
+          "status": "PASS",
+          "evidence": "m05-logs/proof-build.log: exit 0"
+        },
+        {
+          "id": "public-source-inventory-and-ui-guards",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log"
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:26:58.130947+00:00",
+          "endedAt": "2026-11-15T10:27:22.465734+00:00",
+          "exitCode": 2,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/typecheck-first.log",
+          "logDigest": "79f657ab7b91a6d1c57c5d86de29142250b5de495f19bd86f613f5e8ab4dbeda"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "build:widgets"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:28:50.938508+00:00",
+          "endedAt": "2026-11-15T10:28:51.310587+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/widgets.log",
+          "logDigest": "ff934ab18ca0bf7e0a24e7ccccc6d8401460a2cbcaea2e535d35b64a5dc2e2bc"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "install",
+            "--frozen-lockfile",
+            "--offline"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:30:00.581117+00:00",
+          "endedAt": "2026-11-15T10:30:02.131497+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/setup-pinned.log",
+          "logDigest": "75a99c015dda3fcfc00b54a4e51d77f33d2e91779e2b6c9ab6223dd6cd7199b0"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:30:44.236578+00:00",
+          "endedAt": "2026-11-15T10:31:11.815572+00:00",
+          "exitCode": 2,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/ui-typecheck-01.log",
+          "logDigest": "9d50f646c39539134045668caa1d33b83bd888aed339131ee6056673d9f4a1a3"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:30:48.523287+00:00",
+          "endedAt": "2026-11-15T10:31:18.113006+00:00",
+          "exitCode": 2,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/typecheck-integration.log",
+          "logDigest": "8a74c8ad965f969ed9875dd9aa1c5e5931e50af762479e295ed57cef1e48253c"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "tsc",
+            "--noEmit",
+            "--target",
+            "ES2023",
+            "--module",
+            "ESNext",
+            "--moduleResolution",
+            "Bundler",
+            "--lib",
+            "ES2023,DOM,DOM.Iterable",
+            "--strict",
+            "--noUnusedLocals",
+            "--noUnusedParameters",
+            "--esModuleInterop",
+            "--skipLibCheck",
+            "--allowImportingTsExtensions",
+            "--types",
+            "node",
+            "packages/core/memory-consolidation.ts",
+            "tests/memory-consolidation-v3.test.ts"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:32:53.753230+00:00",
+          "endedAt": "2026-11-15T10:32:55.266816+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/consolidation-types.log",
+          "logDigest": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:33:35.253423+00:00",
+          "endedAt": "2026-11-15T10:33:58.729241+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/retrieval-typecheck-01.log",
+          "logDigest": "eabe7c472211926a07021765977e1298881aeee240c31dea3abdded807a0c023"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:33:54.718440+00:00",
+          "endedAt": "2026-11-15T10:34:19.349776+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/ui-typecheck-02.log",
+          "logDigest": "eabe7c472211926a07021765977e1298881aeee240c31dea3abdded807a0c023"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "build"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:34:49.195110+00:00",
+          "endedAt": "2026-11-15T10:34:58.332101+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/build.log",
+          "logDigest": "a9c8aa9a03c45f9d566591cff750a8884f77bbf48903db357842cb2af53b5abc"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "tsc",
+            "--noEmit",
+            "--target",
+            "ES2023",
+            "--module",
+            "ESNext",
+            "--moduleResolution",
+            "Bundler",
+            "--lib",
+            "ES2023,DOM,DOM.Iterable",
+            "--strict",
+            "--noUnusedLocals",
+            "--noUnusedParameters",
+            "--esModuleInterop",
+            "--skipLibCheck",
+            "--allowImportingTsExtensions",
+            "--types",
+            "node",
+            "packages/core/memory-consolidation.ts",
+            "tests/memory-consolidation-v3.test.ts"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:35:42.458424+00:00",
+          "endedAt": "2026-11-15T10:35:44.301813+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/consolidation-final-types.log",
+          "logDigest": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/public-source.test.ts",
+            "tests/browser-runner.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:35:51.102870+00:00",
+          "endedAt": "2026-11-15T10:35:53.259175+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/source-package-tests.log",
+          "logDigest": "3dd96294216c6364c04aac36273df5a7432a4fc77d383d6bc8e5395b6c4b5f0d"
+        },
+        {
+          "argv": [
+            "/workspace/scratch/36f66011d961/bin/pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "/workspace/scratch/36f66011d961/bin/pnpm",
+          "startedAt": "2026-11-15T10:40:25.414750+00:00",
+          "endedAt": "2026-11-15T10:40:51.995510+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/ui-typecheck-final.log",
+          "logDigest": "eabe7c472211926a07021765977e1298881aeee240c31dea3abdded807a0c023"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:48:46.667533+00:00",
+          "endedAt": "2026-11-15T10:49:24.079285+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/final-typecheck.log",
+          "logDigest": "eabe7c472211926a07021765977e1298881aeee240c31dea3abdded807a0c023"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "build"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:55:21.537004+00:00",
+          "endedAt": "2026-11-15T10:55:35.570522+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/proof-build.log",
+          "logDigest": "76b16c7ccf5743f4334a7b6110368459b29712c6cd75c1ef1d5d925d2bfd11ff"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:55:21.548959+00:00",
+          "endedAt": "2026-11-15T10:56:02.836215+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/proof-typecheck.log",
+          "logDigest": "eabe7c472211926a07021765977e1298881aeee240c31dea3abdded807a0c023"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v3/M05-provenance.json"
+      ]
+    },
+    {
+      "id": "INTEGRATION_M04_REQUEST_CONTEXT",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "accepted-M04-request-preparation-contract",
+          "status": "NOT_RUN",
+          "evidence": "M04 is absent from accepted main; draft PR #326 remains unmerged. BLOCKED_SOURCE_DRIFT."
+        },
+        {
+          "id": "runtime-injection-exclusion-generation-and-last-used",
+          "status": "NOT_RUN",
+          "evidence": "No production caller and no substitution through StartRun.memory."
+        }
+      ],
+      "commands": [],
+      "artifactRefs": [
+        "docs/implementation/v3/M05-upstream-check.json"
+      ]
+    },
+    {
+      "id": "INTEGRATION_AUXILIARY_RUNTIME",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "settled-task-extraction-and-explicit-preference-publication",
+          "status": "NOT_RUN",
+          "evidence": "No host lifecycle cut or provider caller is wired. Host-only FILE grant metadata must be stripped after validation by the future source-cut adapter."
+        },
+        {
+          "id": "consolidation-scheduler-and-native-checkpoint-caller",
+          "status": "NOT_RUN",
+          "evidence": "Pure injected-callback tests do not prove native runtime integration."
+        }
+      ],
+      "commands": [],
+      "artifactRefs": [
+        "docs/implementation/v3/M05-handoff.md"
+      ]
+    },
+    {
+      "id": "REGRESSION_REQUIRED",
+      "status": "FAIL",
+      "requiredCases": [
+        {
+          "id": "pnpm-test-command",
+          "status": "FAIL",
+          "evidence": "m05-logs/full-test-command.log: exit 1 at denied tsx IPC setup."
+        },
+        {
+          "id": "full-Vitest-regression",
+          "status": "FAIL",
+          "evidence": "m05-logs/full-tests-final.log: exit 1; 62 failed files, 244 failed tests, 2993 passed, 45 skipped, 4 unhandled errors. Run predates the last targeted restoration/enrollment regression fixes, which pass in proof-focused-green."
+        },
+        {
+          "id": "sample-accepted-base-failure-reproduction",
+          "status": "PASS",
+          "evidence": "m05-logs/baseline-failure-reproductions.log: five files fail on untouched accepted base, 8 failed / 15 passed. This sample does not disposition every full-suite failure."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "test",
+            "--maxWorkers=2"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:33:39.536381+00:00",
+          "endedAt": "2026-11-15T10:33:40.276578+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/full-test-command.log",
+          "logDigest": "c1d24e541b76409d8462bb92c15731608a094bcdcdb9a43340688a3ac931f0dd"
+        },
+        {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/git-metadata-guard.test.ts",
+            "tests/account-profile.test.ts",
+            "tests/skills-http.test.ts",
+            "tests/integration-host.test.ts",
+            "tests/cursor-sdk-mcp-metadata.test.ts",
+            "--maxWorkers=2"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-baseline",
+          "executableIdentity": "node",
+          "startedAt": "2026-11-15T10:37:24.788126+00:00",
+          "endedAt": "2026-11-15T10:37:27.298506+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/baseline-failure-reproductions.log",
+          "logDigest": "7d044e933af688ad993cf8dcfa87d4d7a92e8b3a17c729c13bf907cf7cc05612"
+        },
+        {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "--maxWorkers=4"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "node",
+          "startedAt": "2026-11-15T10:34:47.639414+00:00",
+          "endedAt": "2026-11-15T10:38:03.039573+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/full-tests-direct.log",
+          "logDigest": "abed2bc7572ec5b1bbb310fc7dd8523da3009068b7f5a42d8e97b1295bc4bd3f"
+        },
+        {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "--maxWorkers=4"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "node",
+          "startedAt": "2026-11-15T10:48:46.667243+00:00",
+          "endedAt": "2026-11-15T10:51:48.382629+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/full-tests-final.log",
+          "logDigest": "4dbf43dd24ebc71d5fe27d2208e17a3f93868f99ee766777979aaa88000c0e86"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v3/M05-handoff.md"
+      ]
+    },
+    {
+      "id": "PLATFORM_BROWSER",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "project-memory-review-browser-flows",
+          "status": "NOT_RUN",
+          "evidence": "Authored ten synthetic scenarios; tsx IPC and Chromium Unix sockets are denied before assertions."
+        },
+        {
+          "id": "baseline-root-browser",
+          "status": "NOT_RUN",
+          "evidence": "Baseline direct runner cannot collect native terminal-dependent suites because pty.node is unavailable."
+        },
+        {
+          "id": "context-inspector-and-project-surface-browser-regression",
+          "status": "NOT_RUN",
+          "evidence": "Direct usage-context: 20 launch failures. Frontend-refinement: 89 launch failures and 2 checks passing without browser. Required msedge binary is unavailable."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "env",
+            "GEN_E2E=1",
+            "GEN_MEMORY_BROWSER_EXECUTABLE=/usr/bin/chromium",
+            "corepack",
+            "pnpm",
+            "exec",
+            "playwright",
+            "test",
+            "--config",
+            "tests/e2e/project-memory.playwright.config.ts",
+            "--grep",
+            "opens lazily",
+            "--reporter=line"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "env",
+          "startedAt": "2026-11-15T10:25:59.545149+00:00",
+          "endedAt": "2026-11-15T10:26:02.878041+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/ui-red-browser.log",
+          "logDigest": "3363bcfd5eb26d99b0014acb8b5d4395c0515b74b119f76c8f7ce11afd26d41e"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "test:browser",
+            "--suite",
+            "root"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:33:39.536591+00:00",
+          "endedAt": "2026-11-15T10:33:39.938336+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/baseline-browser-command.log",
+          "logDigest": "7876d34190d29d6b6b60f1a803cbeda7a6d8aa3efd7d9fd8da9cffa23edf40b4"
+        },
+        {
+          "argv": [
+            "env",
+            "PATH=/workspace/scratch/36f66011d961/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/usr/local/bin:/usr/bin:/bin",
+            "GEN_MEMORY_BROWSER_EXECUTABLE=/usr/bin/chromium",
+            "corepack",
+            "pnpm",
+            "test:browser",
+            "--",
+            "--suite",
+            "project-memory"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "env",
+          "startedAt": "2026-11-15T10:34:23.620431+00:00",
+          "endedAt": "2026-11-15T10:34:23.957783+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/ui-browser-final.log",
+          "logDigest": "b3e0fc10f8e9f426661b02d89f44d3f70048704b559a419c643eeb8d5d7982ec"
+        },
+        {
+          "argv": [
+            "node",
+            "--import",
+            "tsx",
+            "scripts/test-browser.ts",
+            "--suite",
+            "root"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "node",
+          "startedAt": "2026-11-15T10:34:50.821493+00:00",
+          "endedAt": "2026-11-15T10:34:57.077082+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/baseline-browser-direct.log",
+          "logDigest": "06640ae9a71872dac0a1cf79e321a3f74755239ed2b6f83c14f1f31606733e84"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "test:browser",
+            "--suite",
+            "usage-context"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:49:42.755220+00:00",
+          "endedAt": "2026-11-15T10:49:43.124541+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/browser-context-command.log",
+          "logDigest": "1a1f9535609d722398ef2aafde49128dba628c9e64183d8e6f0ea1d584703ffc"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "test:browser",
+            "--suite",
+            "frontend-refinement"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:49:42.750228+00:00",
+          "endedAt": "2026-11-15T10:49:43.146740+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/browser-refinement-command.log",
+          "logDigest": "ac3c05716a218806bdcc6293af808cccd8f00e5fc3e7f03dc6d4c52a03a0fcdd"
+        },
+        {
+          "argv": [
+            "node",
+            "--import",
+            "tsx",
+            "scripts/test-browser.ts",
+            "--suite",
+            "usage-context"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "node",
+          "startedAt": "2026-11-15T10:50:10.719117+00:00",
+          "endedAt": "2026-11-15T10:50:29.430359+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/browser-context-direct.log",
+          "logDigest": "c1aa76e66e05cf983d8e44ded9fa5a4fce3f43028660762abae306cb5ea9c41a"
+        },
+        {
+          "argv": [
+            "node",
+            "--import",
+            "tsx",
+            "scripts/test-browser.ts",
+            "--suite",
+            "frontend-refinement"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "node",
+          "startedAt": "2026-11-15T10:50:10.703989+00:00",
+          "endedAt": "2026-11-15T10:51:21.585580+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/browser-refinement-direct.log",
+          "logDigest": "3e8476bf08eead559540b4f38685f7aa7fe2e812f37b46517b578147e81c0ca9"
+        }
+      ],
+      "artifactRefs": [
+        "tests/e2e/project-memory.spec.ts"
+      ]
+    },
+    {
+      "id": "PLATFORM_NATIVE",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "actual-native-FILE-capture-custody",
+          "status": "NOT_RUN",
+          "evidence": "Native Linux path guard cannot establish required IPC. Host snapshot/grant fixtures and requested-pin stubs are not native proof."
+        },
+        {
+          "id": "Windows-installed-desktop-and-checkpoint-custody",
+          "status": "NOT_RUN",
+          "evidence": "No actual Windows/installed-target execution. Global Hermes memory stays disabled."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/memory-review-extra-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "corepack",
+          "startedAt": "2026-11-15T10:43:08.131998+00:00",
+          "endedAt": "2026-11-15T10:43:10.117978+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/source-grant-review-red.log",
+          "logDigest": "c3b374beb39f678f05a44394fe91eedafdd68ac52af9118c7dd8629892ee5d44"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v3/M05-provenance.json"
+      ]
+    },
+    {
+      "id": "LIVE_REPEATED_TASK_STUDY",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "thread-note-control-versus-project-memory-quality-and-total-cost",
+          "status": "NOT_RUN",
+          "evidence": "NOT_RUN: no authorized live host/model and M04 request integration is absent; all unmeasured quality/cost values remain null."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "node",
+            "--import",
+            "tsx",
+            "evals/runner.ts",
+            "--out",
+            "docs/implementation/v3/m05-eval-manifest"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "node",
+          "startedAt": "2026-11-15T10:35:49.880230+00:00",
+          "endedAt": "2026-11-15T10:35:50.209611+00:00",
+          "exitCode": 2,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/evaluation-manifest.log",
+          "logDigest": "60f2748a69dfc41f0e51e76b60b23516faf0a9c73d5c9513847f1fba29ab12c9"
+        }
+      ],
+      "artifactRefs": [
+        "evals/fixtures/project-memory-v3.json",
+        "docs/implementation/v3/m05-eval-manifest/frozen-cases.json",
+        "docs/implementation/v3/m05-eval-manifest/results.json"
+      ]
+    },
+    {
+      "id": "CORE_EVIDENCE_INTEGRITY",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "ImplementationEvidenceV3-source-lock-log-digests-and-file-inventory",
+          "status": "PASS",
+          "evidence": "scripts/verify-m05-evidence.ts validates integrity separately from the FAIL bundle status."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "node",
+            "--import",
+            "tsx",
+            "scripts/verify-m05-evidence.ts"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-v3",
+          "executableIdentity": "node",
+          "startedAt": "2026-11-15T10:59:25.036336+00:00",
+          "endedAt": "2026-11-15T10:59:25.570921+00:00",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/evidence-integrity.log",
+          "logDigest": "3bf1d60d7701228fe6765a2ce9133cb816ea82cb391ff9d0c6dfff3747dcd913"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v3/M05-source-lock.json",
+        "docs/implementation/v3/M05-evidence-integrity.json",
+        "docs/implementation/v3/M05-log-policy.json"
+      ]
+    }
+  ],
+  "changedFiles": [
+    "apps/server/project-memory-routes.ts",
+    "apps/server/server.ts",
+    "apps/web/src/ContextInspector.tsx",
+    "apps/web/src/ProjectContextSurface.tsx",
+    "apps/web/src/ProjectMemoryReview.tsx",
+    "apps/web/src/context-inspector.css",
+    "apps/web/src/project-memory-api.ts",
+    "apps/web/src/project-memory.css",
+    "docs/implementation/v3/M05-evidence-integrity.json",
+    "docs/implementation/v3/M05-handoff.md",
+    "docs/implementation/v3/M05-log-policy.json",
+    "docs/implementation/v3/M05-provenance.json",
+    "docs/implementation/v3/M05-source-lock.json",
+    "docs/implementation/v3/M05-spec.md",
+    "docs/implementation/v3/M05-upstream-check.json",
+    "docs/implementation/v3/M05-verification.json",
+    "docs/implementation/v3/m05-eval-manifest/frozen-cases.json",
+    "docs/implementation/v3/m05-eval-manifest/results.json",
+    "docs/implementation/v3/m05-logs/baseline-browser-command.log",
+    "docs/implementation/v3/m05-logs/baseline-browser-direct.log",
+    "docs/implementation/v3/m05-logs/baseline-contracts.log",
+    "docs/implementation/v3/m05-logs/baseline-failure-reproductions.log",
+    "docs/implementation/v3/m05-logs/browser-context-command.log",
+    "docs/implementation/v3/m05-logs/browser-context-direct.log",
+    "docs/implementation/v3/m05-logs/browser-refinement-command.log",
+    "docs/implementation/v3/m05-logs/browser-refinement-direct.log",
+    "docs/implementation/v3/m05-logs/build.log",
+    "docs/implementation/v3/m05-logs/checkpoint-core-green.log",
+    "docs/implementation/v3/m05-logs/checkpoint-core-red.log",
+    "docs/implementation/v3/m05-logs/commands.jsonl",
+    "docs/implementation/v3/m05-logs/consolidation-cancel-green.log",
+    "docs/implementation/v3/m05-logs/consolidation-cancel-red.log",
+    "docs/implementation/v3/m05-logs/consolidation-core-green.log",
+    "docs/implementation/v3/m05-logs/consolidation-core-red.log",
+    "docs/implementation/v3/m05-logs/consolidation-final-types.log",
+    "docs/implementation/v3/m05-logs/consolidation-shared-secret-green.log",
+    "docs/implementation/v3/m05-logs/consolidation-shared-secret-red.log",
+    "docs/implementation/v3/m05-logs/consolidation-spend-green.log",
+    "docs/implementation/v3/m05-logs/consolidation-spend-red.log",
+    "docs/implementation/v3/m05-logs/consolidation-types.log",
+    "docs/implementation/v3/m05-logs/correction-purge-review-green.log",
+    "docs/implementation/v3/m05-logs/correction-purge-review-red.log",
+    "docs/implementation/v3/m05-logs/evaluation-manifest.log",
+    "docs/implementation/v3/m05-logs/evidence-integrity.log",
+    "docs/implementation/v3/m05-logs/extraction-core-green.log",
+    "docs/implementation/v3/m05-logs/extraction-core-red.log",
+    "docs/implementation/v3/m05-logs/extraction-specific-red.log",
+    "docs/implementation/v3/m05-logs/final-focused.log",
+    "docs/implementation/v3/m05-logs/final-typecheck.log",
+    "docs/implementation/v3/m05-logs/full-test-command.log",
+    "docs/implementation/v3/m05-logs/full-tests-direct.log",
+    "docs/implementation/v3/m05-logs/full-tests-final.log",
+    "docs/implementation/v3/m05-logs/host-local-flow.log",
+    "docs/implementation/v3/m05-logs/http-assets-ready.log",
+    "docs/implementation/v3/m05-logs/http-first.log",
+    "docs/implementation/v3/m05-logs/http-integration.log",
+    "docs/implementation/v3/m05-logs/http-red.log",
+    "docs/implementation/v3/m05-logs/initial-red.log",
+    "docs/implementation/v3/m05-logs/lifecycle-first.log",
+    "docs/implementation/v3/m05-logs/lifecycle-red.log",
+    "docs/implementation/v3/m05-logs/memory-eval-fixture-json.log",
+    "docs/implementation/v3/m05-logs/memory-recovery-review-green-01.log",
+    "docs/implementation/v3/m05-logs/memory-restored-index-red.log",
+    "docs/implementation/v3/m05-logs/memory-review-derived-repro-02.log",
+    "docs/implementation/v3/m05-logs/memory-review-derived-repro.log",
+    "docs/implementation/v3/m05-logs/memory-review-enrollment-retry-red.log",
+    "docs/implementation/v3/m05-logs/memory-review-full-backup-repro.log",
+    "docs/implementation/v3/m05-logs/memory-review-index-replay-red.log",
+    "docs/implementation/v3/m05-logs/memory-review-query-plan-green.log",
+    "docs/implementation/v3/m05-logs/memory-review-query-plan.log",
+    "docs/implementation/v3/m05-logs/memory-shared-final-green.log",
+    "docs/implementation/v3/m05-logs/memory-storage-boundary-green-01.log",
+    "docs/implementation/v3/m05-logs/memory-storage-boundary-red.log",
+    "docs/implementation/v3/m05-logs/memory-storage-regression-01.log",
+    "docs/implementation/v3/m05-logs/physical-purge-green.log",
+    "docs/implementation/v3/m05-logs/physical-purge-red.log",
+    "docs/implementation/v3/m05-logs/proof-build.log",
+    "docs/implementation/v3/m05-logs/proof-focused-green.log",
+    "docs/implementation/v3/m05-logs/proof-focused.log",
+    "docs/implementation/v3/m05-logs/proof-typecheck.log",
+    "docs/implementation/v3/m05-logs/restored-index-green.log",
+    "docs/implementation/v3/m05-logs/retrieval-final-01.log",
+    "docs/implementation/v3/m05-logs/retrieval-local-01.log",
+    "docs/implementation/v3/m05-logs/retrieval-local-02.log",
+    "docs/implementation/v3/m05-logs/retrieval-local-03.log",
+    "docs/implementation/v3/m05-logs/retrieval-provider-01.log",
+    "docs/implementation/v3/m05-logs/retrieval-provider-02.log",
+    "docs/implementation/v3/m05-logs/retrieval-provider-red-02.log",
+    "docs/implementation/v3/m05-logs/retrieval-red-01.log",
+    "docs/implementation/v3/m05-logs/retrieval-red-02.log",
+    "docs/implementation/v3/m05-logs/retrieval-secret-red.log",
+    "docs/implementation/v3/m05-logs/retrieval-shared-secret-green.log",
+    "docs/implementation/v3/m05-logs/retrieval-snapshots-01.log",
+    "docs/implementation/v3/m05-logs/retrieval-typecheck-01.log",
+    "docs/implementation/v3/m05-logs/review-core-green-01.log",
+    "docs/implementation/v3/m05-logs/review-red-bounds-corrected.log",
+    "docs/implementation/v3/m05-logs/review-red-derived-bounds.log",
+    "docs/implementation/v3/m05-logs/review-red-disable-source-replay.log",
+    "docs/implementation/v3/m05-logs/review-red-full-profile.log",
+    "docs/implementation/v3/m05-logs/setup-pinned.log",
+    "docs/implementation/v3/m05-logs/shared-client-secret-red.log",
+    "docs/implementation/v3/m05-logs/source-grant-authority-red.log",
+    "docs/implementation/v3/m05-logs/source-grant-review-red.log",
+    "docs/implementation/v3/m05-logs/source-package-tests.log",
+    "docs/implementation/v3/m05-logs/typecheck-first.log",
+    "docs/implementation/v3/m05-logs/typecheck-integration.log",
+    "docs/implementation/v3/m05-logs/ui-browser-final.log",
+    "docs/implementation/v3/m05-logs/ui-green-client.log",
+    "docs/implementation/v3/m05-logs/ui-green-digest-final.log",
+    "docs/implementation/v3/m05-logs/ui-green-final.log",
+    "docs/implementation/v3/m05-logs/ui-red-browser.log",
+    "docs/implementation/v3/m05-logs/ui-red-client.log",
+    "docs/implementation/v3/m05-logs/ui-red-digest-unavailable.log",
+    "docs/implementation/v3/m05-logs/ui-red-recall.log",
+    "docs/implementation/v3/m05-logs/ui-red-source-digest.log",
+    "docs/implementation/v3/m05-logs/ui-red-tombstone.log",
+    "docs/implementation/v3/m05-logs/ui-typecheck-01.log",
+    "docs/implementation/v3/m05-logs/ui-typecheck-02.log",
+    "docs/implementation/v3/m05-logs/ui-typecheck-final.log",
+    "docs/implementation/v3/m05-logs/widgets.log",
+    "docs/superpowers/plans/2026-11-15-project-memory.md",
+    "evals/fixtures/project-memory-v3.json",
+    "packages/contracts/project-memory.ts",
+    "packages/core/capability-flags.ts",
+    "packages/core/file-access.ts",
+    "packages/core/memory-consolidation.ts",
+    "packages/core/memory-publication.ts",
+    "packages/core/memory-retrieval.ts",
+    "packages/core/project-memory.ts",
+    "packages/core/security.ts",
+    "scripts/browser-suites.ts",
+    "scripts/public-source-files.json",
+    "scripts/verify-m05-evidence.ts",
+    "tests/e2e/project-memory-fixture.tsx",
+    "tests/e2e/project-memory.playwright.config.ts",
+    "tests/e2e/project-memory.spec.ts",
+    "tests/e2e/project-memory.vite.config.ts",
+    "tests/memory-consolidation-v3.test.ts",
+    "tests/memory-enrollment-recovery-v3.test.ts",
+    "tests/memory-forget-v3.test.ts",
+    "tests/memory-restored-index-v3.test.ts",
+    "tests/memory-retrieval-v3.test.ts",
+    "tests/memory-review-extra-v3.test.ts",
+    "tests/memory-storage-boundary-v3.test.ts",
+    "tests/project-memory-fixture.ts",
+    "tests/project-memory-http-v3.test.ts",
+    "tests/project-memory-ui.test.ts",
+    "tests/project-memory-v3.test.ts"
+  ],
+  "dependencyContracts": [
+    {
+      "name": "M01.ImplementationEvidenceV3",
+      "version": "559b720ccead1d29c9a1bd4db528af52534105c3",
+      "testIds": [
+        "tests/research-baseline.test.ts",
+        "tests/m01-m02-compatibility.test.ts"
+      ]
+    },
+    {
+      "name": "M01.CapabilityFlags",
+      "version": "39e18abb43f7fa63cb2534ea3356ebb1be121161",
+      "testIds": [
+        "tests/project-memory-v3.test.ts",
+        "tests/m01-m02-compatibility.test.ts"
+      ]
+    },
+    {
+      "name": "M02.ToolEffectsV3",
+      "version": "41b6fff1364825122c33761c0bfaac66da03bca0",
+      "testIds": [
+        "tests/tool-effects-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M02.ToolAuthority",
+      "version": "1d654522d9842838276d162a33dac6141f731c26",
+      "testIds": [
+        "tests/tool-authority-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M02.EffectRecovery",
+      "version": "e2addef2f65df69a504495e0b3c9954d0006ac5c",
+      "testIds": [
+        "tests/effect-recovery-v3.test.ts"
+      ]
+    },
+    {
+      "name": "Store.SynchronousCommand",
+      "version": "ebab3cba8d56e074d0377623bffd2054790f622b",
+      "testIds": [
+        "tests/project-memory-v3.test.ts",
+        "tests/memory-forget-v3.test.ts",
+        "tests/project-memory-http-v3.test.ts"
+      ]
+    },
+    {
+      "name": "Workspace.PhysicalBinding",
+      "version": "3f404cbbbb08842fad8e191a98055dc42f52159f",
+      "testIds": [
+        "tests/project-memory-v3.test.ts"
+      ]
+    },
+    {
+      "name": "ResourceGrant.StorageBoundary",
+      "version": "693f251361bc464caee26df795c57002d120c9a7",
+      "testIds": [
+        "tests/memory-storage-boundary-v3.test.ts",
+        "tests/account-storage-boundary.test.ts"
+      ]
+    },
+    {
+      "name": "Existing.TaskMemory",
+      "version": "df7c09ef7ae3ed277b0cb8298afd950f2eea934d",
+      "testIds": [
+        "tests/task-memory.test.ts"
+      ]
+    }
+  ],
+  "flags": [
+    {
+      "key": "memory.projectV1",
+      "enabled": false
+    },
+    {
+      "key": "memory.externalRecallExperimentV1",
+      "enabled": false
+    }
+  ],
+  "remainingGates": [
+    "BLOCKED_SOURCE_DRIFT: M04 is not present on accepted base; unmerged draft #326 is not a reviewed dependency. No replacement request API is invented.",
+    "Wire actual request custody, context generation, prompt injection/exclusion and last-used updates only after M04 acceptance.",
+    "Implement host-attested settled-task source-cut construction, extraction/provider publication, explicit reusable-preference confirmation and consolidation scheduling. Host-only FILE grant metadata is not provider input.",
+    "Native checkpoint persistence and reference invalidation need a reviewed provider-specific adapter; mandatory failure must block real compaction. Native workers remain unchanged.",
+    "Full regression is FAIL. Representative baseline failures were reproduced, but every full-suite failure still requires disposition on a platform with required native dependencies and IPC.",
+    "Browser flows, baseline browser suite, native file custody and Windows installed desktop are unverified. Synthetic fixtures and mocks are not platform proof.",
+    "The authoritative sibling ledger must survive profile restoration. Whole-parent/system rollback and arbitrary unsandboxed same-user process writes are outside the application boundary; no monotonic external anchor is claimed.",
+    "Ledger growth is capped at 64 MiB and fails closed when exhausted; an operator recovery/compaction protocol is not implemented. Purge bounds deletion rows, not a benchmarked maximum wall-clock time.",
+    "Live repeated-task comparison is NOT_RUN. No authorized host/model was supplied; frozen evaluation manifests are not quality or auxiliary-cost measurements.",
+    "External embeddings, external recall and user-wide sharing remain disabled pending separate provider/egress approval and testing. No external deletion guarantee exists.",
+    "Independent review and activation approval are still required. reviewerApproval remains false; no merge or deployment."
+  ],
+  "reviewerApproval": false
+}

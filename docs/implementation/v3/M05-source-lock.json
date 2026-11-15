@@ -1,0 +1,250 @@
+{
+  "schemaVersion": 3,
+  "auditAncestorSha": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
+  "executionBaseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+  "inspectedPaths": [
+    {
+      "path": "apps/server/host.ts",
+      "blobSha": "be98ae5bcdcd310dcaf34257c4b928c9d1045492"
+    },
+    {
+      "path": "apps/server/profile-lease.ts",
+      "blobSha": "8ba9106aa0607c27403f69035355612ab1a138b4"
+    },
+    {
+      "path": "apps/server/server.ts",
+      "blobSha": "e4df5cae7274c99ff988f30a2bb5abb5aa0e3362"
+    },
+    {
+      "path": "apps/web/src/ContextInspector.tsx",
+      "blobSha": "0fa748ae093ea5541d2a194aa408471c8fd02aea"
+    },
+    {
+      "path": "apps/web/src/ProjectContextSurface.tsx",
+      "blobSha": "0008281500bc9bb2216160978b81565885afa27d"
+    },
+    {
+      "path": "docs/architecture.md",
+      "blobSha": "b1317bfadb1c6b3b2e7f3c6324890e55ff2f5b7c"
+    },
+    {
+      "path": "docs/implementation/v3/M01-verification.json",
+      "blobSha": "465bbb9d5d11adf0f7a1f2cf6c07dc8668e6491d"
+    },
+    {
+      "path": "docs/implementation/v3/M02-source-lock.json",
+      "blobSha": "06c57a31c62de55e47f08cc4fe19ea63edec8ec9"
+    },
+    {
+      "path": "docs/implementation/v3/M02-verification.json",
+      "blobSha": "41f7fc679f4e9bcbc48ac089e179cec34bb8fe8b"
+    },
+    {
+      "path": "evals/cases.ts",
+      "blobSha": "f1a9ebfea2e63a18f2fcb8540e3306088f3bb3ae"
+    },
+    {
+      "path": "evals/runner.ts",
+      "blobSha": "074f6c1f321df213ac39f2f3e58b627d3319163f"
+    },
+    {
+      "path": "package.json",
+      "blobSha": "fa399f6542a4886e6d8cbf7d6eecfe498e2967c0"
+    },
+    {
+      "path": "packages/contracts/implementation-evidence.ts",
+      "blobSha": "559b720ccead1d29c9a1bd4db528af52534105c3"
+    },
+    {
+      "path": "packages/contracts/index.ts",
+      "blobSha": "09517becaf0c35f5f63bd758878659ea0de5f57b"
+    },
+    {
+      "path": "packages/contracts/tool-effects.ts",
+      "blobSha": "41b6fff1364825122c33761c0bfaac66da03bca0"
+    },
+    {
+      "path": "packages/core/capability-flags.ts",
+      "blobSha": "39e18abb43f7fa63cb2534ea3356ebb1be121161"
+    },
+    {
+      "path": "packages/core/effect-recovery.ts",
+      "blobSha": "e2addef2f65df69a504495e0b3c9954d0006ac5c"
+    },
+    {
+      "path": "packages/core/file-access.ts",
+      "blobSha": "d4e0a59c6f2418a869cc1aac18f0dad42036c412"
+    },
+    {
+      "path": "packages/core/learning.ts",
+      "blobSha": "dfc53335151a50d87912de17f7a19166491dd3bc"
+    },
+    {
+      "path": "packages/core/security.ts",
+      "blobSha": "693f251361bc464caee26df795c57002d120c9a7"
+    },
+    {
+      "path": "packages/core/service.ts",
+      "blobSha": "2b3fb63acef915b052a468e104c6e4f00a4b82e4"
+    },
+    {
+      "path": "packages/core/skills.ts",
+      "blobSha": "cb00ae6763b7f2ee0907943dc0d33baf786e41ae"
+    },
+    {
+      "path": "packages/core/task-memory.ts",
+      "blobSha": "df7c09ef7ae3ed277b0cb8298afd950f2eea934d"
+    },
+    {
+      "path": "packages/core/tool-authority.ts",
+      "blobSha": "1d654522d9842838276d162a33dac6141f731c26"
+    },
+    {
+      "path": "packages/core/tool-effects.ts",
+      "blobSha": "aa65f1d9b52d6a117b716a38feb8dd6c6d46b13a"
+    },
+    {
+      "path": "packages/runtime-hermes/index.ts",
+      "blobSha": "ca15682cd2ad86f296247e71a7b18a190c0968f4"
+    },
+    {
+      "path": "packages/runtime-hermes/library.ts",
+      "blobSha": "ba0bf768e44ee9385065401a067028131fe3392c"
+    },
+    {
+      "path": "packages/runtime-hermes/worker.py",
+      "blobSha": "e28c6272f9aab28f76b9462a87768fe4226361c1"
+    },
+    {
+      "path": "packages/runtime/index.ts",
+      "blobSha": "c944011f863d8e54cefb027ccde24e4445a4738b"
+    },
+    {
+      "path": "packages/storage/store.ts",
+      "blobSha": "ebab3cba8d56e074d0377623bffd2054790f622b"
+    },
+    {
+      "path": "packages/workspace/tools.ts",
+      "blobSha": "3f404cbbbb08842fad8e191a98055dc42f52159f"
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "blobSha": "e6b064fc166611e518f4cf1297d9b00493d9eaaf"
+    },
+    {
+      "path": "scripts/browser-suites.ts",
+      "blobSha": "04d387152c17aad4eb3b6fbdd9f410178a51a5eb"
+    },
+    {
+      "path": "scripts/public-source-files.json",
+      "blobSha": "8cb3efe75c120185f957ab3df73255756adcf7b8"
+    },
+    {
+      "path": "tests/effect-recovery-v3.test.ts",
+      "blobSha": "991b54d4c96820a382a28c4fc625719b3a6a79b8"
+    },
+    {
+      "path": "tests/m01-m02-compatibility.test.ts",
+      "blobSha": "044b8b51fc0086ddfec6c47616e186c816cdad26"
+    },
+    {
+      "path": "tests/research-baseline.test.ts",
+      "blobSha": "a44a20573b4feee888f4709011658a6d50635893"
+    },
+    {
+      "path": "tests/task-memory.test.ts",
+      "blobSha": "2ada92f323eda1d39131c3a5a17835392f857cac"
+    },
+    {
+      "path": "tests/tool-authority-v3.test.ts",
+      "blobSha": "9d7a4af5fda8f4f316ce7fac652e951fb5a14a05"
+    },
+    {
+      "path": "tests/tool-effects-v3.test.ts",
+      "blobSha": "8d4ac426134d7e9f77a1d9dcfe9d00d7c5897b35"
+    }
+  ],
+  "publicContracts": [
+    {
+      "name": "M01.ImplementationEvidenceV3",
+      "version": "559b720ccead1d29c9a1bd4db528af52534105c3",
+      "testIds": [
+        "tests/research-baseline.test.ts",
+        "tests/m01-m02-compatibility.test.ts"
+      ]
+    },
+    {
+      "name": "M01.CapabilityFlags",
+      "version": "39e18abb43f7fa63cb2534ea3356ebb1be121161",
+      "testIds": [
+        "tests/project-memory-v3.test.ts",
+        "tests/m01-m02-compatibility.test.ts"
+      ]
+    },
+    {
+      "name": "M02.ToolEffectsV3",
+      "version": "41b6fff1364825122c33761c0bfaac66da03bca0",
+      "testIds": [
+        "tests/tool-effects-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M02.ToolAuthority",
+      "version": "1d654522d9842838276d162a33dac6141f731c26",
+      "testIds": [
+        "tests/tool-authority-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M02.EffectRecovery",
+      "version": "e2addef2f65df69a504495e0b3c9954d0006ac5c",
+      "testIds": [
+        "tests/effect-recovery-v3.test.ts"
+      ]
+    },
+    {
+      "name": "Store.SynchronousCommand",
+      "version": "ebab3cba8d56e074d0377623bffd2054790f622b",
+      "testIds": [
+        "tests/project-memory-v3.test.ts",
+        "tests/memory-forget-v3.test.ts",
+        "tests/project-memory-http-v3.test.ts"
+      ]
+    },
+    {
+      "name": "Workspace.PhysicalBinding",
+      "version": "3f404cbbbb08842fad8e191a98055dc42f52159f",
+      "testIds": [
+        "tests/project-memory-v3.test.ts"
+      ]
+    },
+    {
+      "name": "ResourceGrant.StorageBoundary",
+      "version": "693f251361bc464caee26df795c57002d120c9a7",
+      "testIds": [
+        "tests/memory-storage-boundary-v3.test.ts",
+        "tests/account-storage-boundary.test.ts"
+      ]
+    },
+    {
+      "name": "Existing.TaskMemory",
+      "version": "df7c09ef7ae3ed277b0cb8298afd950f2eea934d",
+      "testIds": [
+        "tests/task-memory.test.ts"
+      ]
+    }
+  ],
+  "acceptedDependencyCommits": [
+    "5f0958f4cb5b40bc10c1eea0e1cd517b57aaa1b9",
+    "f331cf16b268282da888a41da42fc776ea7befd5",
+    "e871257aa82beb06ab4b8f3989cbe436cb9a6a8c"
+  ],
+  "approvedDrift": [
+    {
+      "path": "packages/core/capability-flags.ts",
+      "fromBlob": "a45226df77eae1e58594609140252c1f93a985f6",
+      "toBlob": "39e18abb43f7fa63cb2534ea3356ebb1be121161",
+      "note": "The accepted main base already adds M08 finite registry keys after the M02 receipt. Current M01/M02 compatibility tests pass. M05 only adds its two specified default-false keys; no UI preference or runtime contract is substituted."
+    }
+  ]
+}

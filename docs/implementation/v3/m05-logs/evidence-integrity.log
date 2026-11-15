@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "purpose": "Evidence integrity only; not release approval or a passing implementation bundle.",
+  "implementationBundleStatus": "FAIL",
+  "executionBaseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+  "inspectedPaths": 40,
+  "verifiedCommandRecords": 100,
+  "changedFiles": 148,
+  "reviewerApproval": false,
+  "errors": []
+}

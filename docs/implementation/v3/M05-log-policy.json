@@ -1,0 +1,6 @@
+{
+  "schemaVersion": 1,
+  "policy": "Retain actual argv, cwd, timestamps, termination and exit codes. Bound each log below 64 KiB, strip ANSI and trailing display whitespace, retain one final newline, and redact credential-shaped tokens/assignments. Synthetic failure fixtures may be redacted too. Nonzero setup, intended red and regression commands remain FAIL. Never reclassify a nonzero command as EXPECTED_NEGATIVE.",
+  "records": 101,
+  "allLogsWithin64KiB": true
+}

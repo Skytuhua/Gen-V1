@@ -1,0 +1,19 @@
+{"previewArtifacts":[],"acceptedCount":0,"sourceAvailable":false,"derivedValid":true}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Source-excluded derived references must be invalidated immediately
+
+true !== false
+
+    at file:///workspace/scratch/36f66011d961/m05-v3/[eval1]:1:1041 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: true,
+  expected: false,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.22.1

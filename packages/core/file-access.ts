@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { open, lstat } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { HarnessError, type ResourceGrant } from "../contracts/index.ts";
-import { assertNotStorage, resolveGrant, PROTECTED_STORAGE_DIRECTORIES } from "./security.ts";
+import { assertNotStorage, resolveGrant, PROTECTED_STORAGE_DIRECTORIES, projectMemoryDeletionLedgerPath } from "./security.ts";
 
 type GuardPath = { path: string; leaf: boolean; dev?: string; ino?: string; empty?: boolean; tree?: boolean; readOnly?: boolean; allowChildWrites?:boolean; childWriteRoot?:string; gitMetadataImport?:boolean };
 export interface GuardEntry { readonly path: string; readonly directory: boolean; readonly dev: string; readonly ino: string; readonly size: number }
@@ -110,7 +110,7 @@ export async function replaceOwnedFile(source: string, destination: string, iden
 
 export async function withResourceGrant<T>(grant: ResourceGrant, dataDir: string, relativePath: string | undefined, write: boolean, signal: AbortSignal, action: (path: string) => Promise<T>): Promise<T> {
   const path = await resolveGrant(grant, relativePath, write, dataDir);
-  const paths: GuardPath[] = [{ path: resolve(dataDir), leaf: false }, { path, leaf: !write }];
+  const paths: GuardPath[] = [{ path: resolve(dataDir), leaf: false }, { path: dirname(projectMemoryDeletionLedgerPath(dataDir)), leaf: false }, { path, leaf: !write }];
   for (const child of PROTECTED_STORAGE_DIRECTORIES) {
     const protectedPath = join(dataDir, child);
     try { await lstat(protectedPath); paths.push({ path: protectedPath, leaf: false }); }
