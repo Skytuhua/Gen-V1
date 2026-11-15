@@ -194,6 +194,9 @@ export function createPiRuntime({ dataDir,modelOnly:requestedModelOnly,purpose }
       }
       return structuredClone(await modelDiscovery);
     },
+    async invalidateModels() {
+      modelCache = undefined;
+    },
     start(input) { return queueRun(input, "start"); },
     followUp(input) { if(purpose==='prediction')return Promise.reject(new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions cannot continue a conversation.'));return serial(input.threadId, async () => {
       assertContext(input);

@@ -105,6 +105,11 @@ export function createRuntime(options:{dataDir:string;accounts?:RuntimeAccountRe
    });
    if(!models.length&&results.some(result=>result.status==='rejected'))throw new HarnessError('AI_AUTH_REQUIRED','No signed-in subscription runtime is available. Connect a provider in Settings and refresh models.');return models;
   },
+  async invalidateModels(query){
+   active();
+   const targets=query?.accountId===undefined?[...pairs.values()]:[pairs.get(query.accountId)].filter((value):value is Pair=>Boolean(value));
+   await Promise.all(targets.flatMap(value=>[value.pi,value.official]).map(adapter=>adapter.invalidateModels?.()));
+  },
   async start(input:StartRun){if(modelOnly)assertModelOnlyInput(input,options.purpose);const captured={...input},selected=reserve(captured,choose(captured.modelId,captured.sessionPath,captured.accountId)),account=resolveAccount(selected.accountId);try{await withAccountProfile(root,account,async()=>{owner(captured,selected.adapter);available(captured.modelId.split('/')[0],selected.accountId);await selected.adapter.start(captured);},undefined,captured.threadId);}catch(error){await close(selected);throw error;}},
   async followUp(input){active();if(options.purpose==='prediction')throw new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions cannot continue a conversation.');if(modelOnly)assertModelOnlyInput(input,options.purpose);const captured={...input},current=owners.get(key(captured));if(!current)throw new HarnessError('STALE_RUN','Start or resume this task under fresh run authority.');if(current.accountId!==(captured.accountId??null))throw new HarnessError('RUNTIME_ACCOUNT_MISMATCH','This run belongs to another account.');if(current.modelId!==captured.modelId)throw new HarnessError('RUNTIME_MODEL_MISMATCH','Stop the active run before changing models.');choose(captured.modelId,captured.sessionPath,captured.accountId);const account=resolveAccount(current.accountId);await withAccountProfile(root,account,async()=>{owner(captured,current.adapter);available(captured.modelId.split('/')[0],current.accountId);await current.adapter.followUp(captured);},undefined,captured.threadId);},
   async cancel(ctx){const current=owners.get(key(ctx));if(current)await close(current);},
