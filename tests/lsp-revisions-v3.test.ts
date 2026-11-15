@@ -81,6 +81,8 @@ it('end-of-file positions and empty documents are valid edit targets',()=>{
  expect(applyTextEdit('a\r\n',{start:{line:1,character:0},end:{line:1,character:0}},'b','UTF16')).toBe('a\r\nb');
  // Still bounded: a line past the empty tail is invalid.
  expect(()=>applyTextEdit('a\n',{start:{line:2,character:0},end:{line:2,character:0}},'b','UTF16')).toThrowError(/exceeds/i);
+ // Without a trailing newline there is no line 1 to edit.
+ expect(()=>applyTextEdit('a',{start:{line:1,character:0},end:{line:1,character:0}},'b','UTF16')).toThrowError(/exceeds/i);
 });
 
 it('diagnostics bind to the exact document version and after-digest',async()=>{
