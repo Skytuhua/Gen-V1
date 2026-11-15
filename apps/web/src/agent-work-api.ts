@@ -1,6 +1,6 @@
 import {authenticated, command, read} from './api.ts';
 
-export type WorkState = 'QUEUED' | 'RUNNING' | 'WAITING_HUMAN' | 'COMPLETED' | 'FAILED' | 'CANCELLED' | 'INTERRUPTED';
+export type WorkState = 'QUEUED' | 'RUNNING' | 'WAITING_HUMAN' | 'COMPLETED_REPORTED' | 'VERIFIED' | 'FAILED' | 'CANCELLED' | 'INTERRUPTED';
 export interface AgentWorkRow {
   workId: string; role: 'PLAN_READ' | 'RESEARCH_READ' | 'CODE_WORKTREE' | 'QA'; state: WorkState;
   failureReason: string | null; blockedReason: string | null; steerSupported: boolean;

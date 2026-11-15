@@ -47,6 +47,7 @@ export function AgentWorkPanel({threadId}: {threadId: string}) {
   return <section className="agents-work" aria-label="Agent work">
     <button type="button" className="agents-disclosure" aria-expanded={open} onClick={() => setOpen(!open)}>Agent work · {list.works.length}</button>
     {open && <div className="agents-work-body">
+      <div className="agents-work-meta">roles: {Object.entries(list.roles).map(([role, r]) => `${role}${r.available ? '' : ' (unavailable)'}`).join(', ')} · budget reserved {list.budget.reservedTokens}tok</div>
       {plan?.extension && plan.progress && <div className="agents-work-progress" aria-label="Task progress">
         <progress max={plan.progress.total || 1} value={plan.progress.completed}/><span>{plan.progress.total ? Math.round(plan.progress.completed / plan.progress.total * 100) : 0}% known complete · {plan.progress.total ? Math.round(plan.progress.unknown / plan.progress.total * 100) : 0}% unknown</span>
       </div>}
@@ -62,9 +63,9 @@ export function AgentWorkPanel({threadId}: {threadId: string}) {
           {work.state === 'INTERRUPTED' && <button type="button" className="agents-icon" aria-label={`Resume ${work.workId}`} onClick={() => { void resumeAgentWork(threadId, work.workId).then(refresh); }}><Play size={13}/></button>}
         </header>
         <div className="agents-work-send">
-          <input aria-label={`Message work ${work.workId}`} placeholder="Steer or queue a follow-up…" value={drafts[work.workId] ?? ''} onChange={e => setDrafts(d => ({...d, [work.workId]: e.target.value}))} disabled={work.state !== 'RUNNING'}/>
-          <button type="button" disabled={work.state !== 'RUNNING' || !work.steerSupported} title={work.steerSupported ? 'Delivered to the running child immediately' : 'This work does not support live steering'} onClick={() => send(work, 'STEER')}>Send now</button>
-          <button type="button" disabled={work.state !== 'RUNNING' && work.state !== 'QUEUED'} onClick={() => send(work, 'FOLLOW_UP')}>After current</button>
+          <input aria-label={`Message work ${work.workId}`} placeholder="Steer or queue a follow-up…" value={drafts[work.workId] ?? ''} onChange={e => setDrafts(d => ({...d, [work.workId]: e.target.value}))} disabled={work.state !== 'RUNNING' && work.state !== 'QUEUED'}/>
+          <button type="button" disabled={work.state !== 'RUNNING' || !work.steerSupported} title={work.steerSupported ? 'Delivered to the running child immediately' : 'This work does not support live steering'} onClick={() => send(work, 'STEER')}>Steer now</button>
+          <button type="button" disabled={work.state !== 'RUNNING' && work.state !== 'QUEUED'} onClick={() => send(work, 'FOLLOW_UP')}>Queue next</button>
         </div>
       </article>)}
       {inputs.length > 0 && <div className="agents-work-queue" aria-label="Queued inputs">
