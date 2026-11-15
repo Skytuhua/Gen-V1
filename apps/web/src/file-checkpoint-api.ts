@@ -1,4 +1,6 @@
 import {z} from 'zod';
+import {authenticated,csrfToken,read} from './api.ts';
+import {RESTORE_STATES} from '../../../packages/contracts/workspace-checkpoints.ts';
 
 const encoder=new TextEncoder(),decoder=new TextDecoder('utf-8',{ignoreBOM:true});
 const utf8=(value:string)=>decoder.decode(encoder.encode(value))===value;
@@ -61,15 +63,66 @@ export function readCheckpointReview(value:unknown,owner:CheckpointOwner,checkpo
   return result;
 }
 
-/** Frozen v1 read seam only; no checkpoint service or restore API is connected. */
+/** Frozen v1 read seam plus the reviewed selective-restore seam. */
 export interface FileCheckpointAdapter {
   available:boolean;
   list:(owner:CheckpointOwner,options:{cursor?:string;signal:AbortSignal})=>Promise<unknown>;
   detail:(owner:CheckpointOwner,checkpoint:FileCheckpoint,options:{signal:AbortSignal})=>Promise<unknown>;
   review:(owner:CheckpointOwner,checkpoint:FileCheckpoint,options:{paths:string[];signal:AbortSignal})=>Promise<unknown>;
-  restore:{readonly enabled:false;readonly reason:string};
+  restore:{
+    readonly enabled:boolean;
+    readonly reason:string;
+    /** Stage a restore plan; the returned payload names the files and digests the confirmation echoes. */
+    plan?:(owner:CheckpointOwner,checkpoint:FileCheckpoint,paths:string[],approvalId:string)=>Promise<unknown>;
+    /** Apply a staged plan; requires the same approvalId the plan was created with. */
+    apply?:(owner:CheckpointOwner,checkpoint:FileCheckpoint,planId:string,approvalId:string)=>Promise<unknown>;
+  };
 }
 const unavailable=async():Promise<never>=>{throw Error('File checkpoints are unavailable. No checkpoint service is connected.');};
 export const disabledCheckpointAdapter:FileCheckpointAdapter={available:false,list:unavailable,detail:unavailable,review:unavailable,
   restore:{enabled:false,reason:'Restore is unavailable until checkpoint recovery is connected and its conflict, confirmation and receipt designs are approved.'},
 };
+
+/** Plan payload the restore confirmation screen shows back to the user. */
+export interface CheckpointRestorePlan{planId:string;state:string;selectedPaths:string[];preRestoreCheckpointId:string|null}
+export function readRestorePlan(value:unknown):CheckpointRestorePlan{
+  const result=restorePlanPayloadSchema.parse(value);
+  return{planId:result.id,state:result.state,selectedPaths:result.selectedPaths,preRestoreCheckpointId:result.preRestoreCheckpointId};
+}
+// The server returns the whole StoredRestorePlan (RestorePlanV1 plus id,
+// conflicts and createdAt) for both plan and apply — the client must admit
+// that full shape, not just the fields it displays.
+const restorePlanPayloadSchema=z.strictObject({version:z.literal(1),id,checkpointId:id,scope:ownerSchema,currentRevision:hash,selectedPaths:z.array(path).min(1).max(200),beforeDigests:z.array(z.strictObject({path,digest:hash.nullable()})).max(200),targetDigests:z.array(z.strictObject({path,digest:hash.nullable()})).max(200),preRestoreCheckpointId:id.nullable(),approvalId:id,state:z.enum(RESTORE_STATES),conflicts:z.array(path).max(200),createdAt:time});
+const restoreResultPayloadSchema=restorePlanPayloadSchema;
+export function readRestoreResult(value:unknown):{planId:string;state:string;conflicts:string[];restored:string[];preRestoreCheckpointId:string|null}{
+  const result=restoreResultPayloadSchema.parse(value);
+  // On CONFLICT the service rolls every written path back — nothing was restored.
+  return{planId:result.id,state:result.state,conflicts:result.conflicts,restored:result.state==='CONFLICT'?[]:result.selectedPaths.filter(path=>!result.conflicts.includes(path)),preRestoreCheckpointId:result.preRestoreCheckpointId};
+}
+/** Live host adapter: speaks to the flag-gated /checkpoints/* routes. `base` is
+ *  the project API root (e.g. /api/projects/<id>?threadId=... is folded in via query).
+ *  `restoreEnabled` mirrors the capability endpoint's `restore` flag so the UI
+ *  stays inert — instead of failing on click — when restore is off. */
+export function createHttpCheckpointAdapter(base:string,threadId:string|undefined,restoreEnabled:boolean):FileCheckpointAdapter{
+  const query=threadId?'?threadId='+encodeURIComponent(threadId):'';
+  const post=async(path:string,body:Record<string,unknown>,signal?:AbortSignal)=>{
+    const response=await authenticated(()=>fetch(`${base}/checkpoints${path}${query}`,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','x-harness-csrf':csrfToken},body:JSON.stringify(body),signal}));
+    return read<unknown>(response);
+  };
+  return{
+    available:true,
+    list:(owner,options)=>post('/list',{owner,cursor:options.cursor,threadId},options.signal),
+    detail:(owner,checkpoint,options)=>post('/detail',{owner,checkpointId:checkpoint.id,threadId},options.signal),
+    review:(owner,checkpoint,options)=>post('/review',{owner,checkpointId:checkpoint.id,paths:options.paths,threadId},options.signal),
+    restore:{
+      enabled:restoreEnabled,reason:restoreEnabled?'':'Checkpoint restore is disabled.',
+      ...(restoreEnabled?{
+      plan:(owner,checkpoint,paths,approvalId)=>post('/restore/plan',{owner,checkpointId:checkpoint.id,selectedPaths:paths,approvalId,threadId}),
+      apply:(owner,_checkpoint,planId,approvalId)=>post('/restore/apply',{owner,planId,approvalId,threadId}),
+    }:{}),
+    },
+  };
+}
+/** Server reports whether checkpoint reads and restore are enabled plus the
+ *  owner scope the UI must echo on every call. */
+export const getCheckpointCapability=(base:string,threadId?:string)=>authenticated(()=>fetch(`${base}/checkpoints/capability${threadId?'?threadId='+encodeURIComponent(threadId):''}`,{credentials:'same-origin',cache:'no-store'})).then(read<{available:boolean;restore:boolean;owner?:CheckpointOwner}>);
