@@ -1,5 +1,5 @@
 import {mkdir,readFile,writeFile,copyFile,readdir,lstat} from 'node:fs/promises';
-import {resolve,join,relative,dirname} from 'node:path';
+import {resolve,join,relative,dirname,isAbsolute} from 'node:path';
 import {spawn} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {build,type Configuration} from 'electron-builder';
@@ -11,8 +11,11 @@ import {buildWindowsCredentialLease} from './build-windows-credential-lease.ts';
 
 if(process.platform!=='win32'||process.arch!=='x64')throw Error('This package target requires Windows x64');
 const root=resolve('.'),dist=readDesktopOutputRoot(process.argv.slice(2)),pkg=JSON.parse(await readFile('package.json','utf8')),release=await reserveDesktopRelease(dist,pkg.version),stage=resolve(dist,'desktop-stage-'+Date.now()),host=resolve(stage,'desktop-host'),cache=resolve('.harness-desktop-cache');
-const hermes=await collectHermesPayload(root,await discoverHermesPython());
-const integrations=await collectIntegrationPayload(root);await collectGitTools(root);
+const python=await discoverHermesPython(),hermes=await collectHermesPayload(root,python);
+const wheelDirectory=process.env.HARNESS_INTEGRATION_WHEELS;
+if(wheelDirectory!==undefined&&(!wheelDirectory||!isAbsolute(wheelDirectory)))throw Error('HARNESS_INTEGRATION_WHEELS must name an explicit absolute archive directory');
+const integrations=await collectIntegrationPayload(root,wheelDirectory===undefined?{}:{canonicalPython:{wheelDirectory,pythonExecutable:join(python.directory,'python.exe')}});await collectGitTools(root);
+if(integrations.pythonProjection)console.log('HARNESS_PYTHON_INPUT_DIAGNOSIS='+JSON.stringify(integrations.pythonInputDiagnosis));
 await mkdir(host,{recursive:true});await mkdir(cache,{recursive:true});
 const run=(file:string,args:string[],cwd:string,extraEnv:Record<string,string>={})=>new Promise<void>((accept,reject)=>{const child=spawn(file,args,{cwd,windowsHide:true,stdio:'inherit',env:{...process.env,...extraEnv}});child.on('error',reject);child.on('exit',code=>code===0?accept():reject(Error(file+' exited '+code)));});
 async function copySources(directory:string){for(const entry of await readdir(directory,{withFileTypes:true})){const path=join(directory,entry.name),part=relative(root,path).replaceAll('\\','/');if(entry.isSymbolicLink())throw Error('Runtime source link is not allowed: '+part);if(entry.isDirectory()){if(!entry.name.startsWith('.')&&!['node_modules','tests','fixtures'].includes(entry.name))await copySources(path);}else if(runtimeSourceAllowed(part)){const info=await lstat(path);if(!info.isFile()||info.size>2*1024*1024)throw Error('Invalid runtime source: '+part);const output=resolve(host,part);await mkdir(dirname(output),{recursive:true});await copyFile(path,output);}}}
@@ -38,5 +41,6 @@ const nodeTarget=resolve(stage,'desktop-node');await mkdir(nodeTarget,{recursive
 const config=desktopBuilderConfig(stage);config.directories.output=release;
 const options={publish:'never' as const,projectDir:resolve(stage,'desktop-app'),config:{...config,afterPack:async(context:import('electron-builder').AfterPackContext)=>{for(const file of REQUIRED_RUNTIME_FILES){const path=resolve(context.appOutDir,'resources',file);if(!(await lstat(path)).isFile())throw Error('Packaged runtime is incomplete: '+file);}const packagedHost=resolve(context.appOutDir,'resources/host');await verifyHermesPayload(packagedHost,hermes);await verifyRelocatedHermesPython(packagedHost);await verifyIntegrationPayload(packagedHost,integrations);await verifyRelocatedIntegrations(packagedHost);await collectGitTools(packagedHost);}} as Configuration};
 const result=await build(options);
-await writeFile(resolve(release,'build-manifest.json'),JSON.stringify({createdAt:new Date().toISOString(),nodeVersion:NODE_VERSION,nodeArchiveSha256:NODE_ARCHIVE_SHA256,electronVersion:'45.2.0',hermes:{pythonVersion:hermes.python.version,files:hermes.files.length,bytes:hermes.bytes,sourceCommit:'c627ec84664d43e0b18b95d9d86d8963747d56c7'},files:await Promise.all(result.map(async file=>({file:relative(root,file),bytes:(await lstat(file)).size,sha256:createHash('sha256').update(await readFile(file)).digest('hex')})))},null,2),{flag:'wx'});
+const integrationPython=integrations.pythonProjection?{mode:integrations.pythonProjection.mode,sourceLockSha256:integrations.pythonProjection.sourceLockSha256,wheels:integrations.pythonProjection.wheels,projectionSha256:integrations.files.find(file=>file.path==='third-party/integrations/PYTHON_INSTALLATION_V2.json')!.sha256}:{mode:'exact-v1',sourceLockSha256:integrations.files.find(file=>file.path==='third-party/integrations/PYTHON_LOCK.json')!.sha256};
+await writeFile(resolve(release,'build-manifest.json'),JSON.stringify({createdAt:new Date().toISOString(),nodeVersion:NODE_VERSION,nodeArchiveSha256:NODE_ARCHIVE_SHA256,electronVersion:'45.2.0',integrationPython,hermes:{pythonVersion:hermes.python.version,files:hermes.files.length,bytes:hermes.bytes,sourceCommit:'c627ec84664d43e0b18b95d9d86d8963747d56c7'},files:await Promise.all(result.map(async file=>({file:relative(root,file),bytes:(await lstat(file)).size,sha256:createHash('sha256').update(await readFile(file)).digest('hex')})))},null,2),{flag:'wx'});
 console.log(JSON.stringify({artifacts:result}));

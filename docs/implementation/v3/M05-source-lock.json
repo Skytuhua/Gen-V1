@@ -4,6 +4,10 @@
   "executionBaseSha": "399cde39ff4ee82272c7a7700944325c44b36070",
   "inspectedPaths": [
     {
+      "path": ".github/actions/setup/action.yml",
+      "blobSha": "1751a7153b9ef0b30c8a081774e47990827613ef"
+    },
+    {
       "path": ".github/workflows/ci.yml",
       "blobSha": "f5e248c2da4f661f37e518cf9894c31b590ac68b"
     },
@@ -168,6 +172,10 @@
       "blobSha": "04d387152c17aad4eb3b6fbdd9f410178a51a5eb"
     },
     {
+      "path": "scripts/integration-assets.ts",
+      "blobSha": "3f63ca242294a49a02cbfcd2f8a5b1a2e6537c50"
+    },
+    {
       "path": "scripts/package-desktop.ts",
       "blobSha": "ce720a73b51156943e6fc127192a42a2c2b558cf"
     },
@@ -214,6 +222,10 @@
     {
       "path": "tests/tool-effects-v3.test.ts",
       "blobSha": "8d4ac426134d7e9f77a1d9dcfe9d00d7c5897b35"
+    },
+    {
+      "path": "third-party/integrations/PYTHON_LOCK.json",
+      "blobSha": "81164624983c3754f4a1c90cfeae7bc08eb68f66"
     }
   ],
   "publicContracts": [
@@ -283,6 +295,64 @@
       "version": "df7c09ef7ae3ed277b0cb8298afd950f2eea934d",
       "testIds": [
         "tests/task-memory.test.ts"
+      ]
+    },
+    {
+      "name": "M04.RequestContextV1",
+      "version": "30185cc5e66a74ef438af8ec8e9ec1d91989c614",
+      "testIds": [
+        "tests/context-compiler-v3.test.ts",
+        "tests/request-preparation-service-v3.test.ts",
+        "tests/project-memory-service-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M04.RequestCustody",
+      "version": "b7f0946c0ae48acc8d0673739c6960a5601b8841",
+      "testIds": [
+        "tests/request-preparation-service-v3.test.ts",
+        "tests/project-memory-service-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M04.ContextCompiler",
+      "version": "7b6f9040160b8440845c256c57bd5aba52f1ca4b",
+      "testIds": [
+        "tests/context-compiler-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M04.HostRequestPreparation",
+      "version": "cdef7f205a6d19357478d9676f9c43c26be512b1",
+      "testIds": [
+        "tests/request-preparation-service-v3.test.ts",
+        "tests/project-memory-request-http-v3.test.ts",
+        "tests/project-memory-service-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M11.ModelRequestObservationV1",
+      "version": "17cbabb11a2b3653578456f563be70e49aeb0cdf",
+      "testIds": [
+        "tests/model-transport-v3.test.ts",
+        "tests/usage-accounting-v3.test.ts",
+        "tests/hermes-runtime.test.ts"
+      ]
+    },
+    {
+      "name": "M11.RequestScheduler",
+      "version": "95f3fa03c2ab80288a434c95c3e215cd4943a917",
+      "testIds": [
+        "tests/model-scheduling-v3.test.ts",
+        "tests/memory-extraction-runtime-v3.test.ts",
+        "tests/memory-extraction-scheduler-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M11.RequestCapabilities",
+      "version": "45df1e61813b4bd9548841561b8a6c49dfc44ffa",
+      "testIds": [
+        "tests/model-transport-v3.test.ts"
       ]
     },
     {

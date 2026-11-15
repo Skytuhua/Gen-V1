@@ -1,0 +1,196 @@
+{
+  "runId": 43733008039,
+  "headSha": "5a647b04c14ba4de8d80411aeba7e649227664fc",
+  "testedCheckout": {
+    "commitSha": "a6853729ff49ce2b42ec5cb29526a731e38a07df",
+    "treeSha": "2f8043bbb9dcd95c068eb91380ca5c897f0c754f",
+    "parents": [
+      "399cde39ff4ee82272c7a7700944325c44b36070",
+      "5a647b04c14ba4de8d80411aeba7e649227664fc"
+    ],
+    "matchesPublishedTree": true,
+    "rawResponseRef": "/workspace/scratch/36f66011d961/m05-ci-43733008039/checkout-commit.json",
+    "rawResponseSha256": "50a2c704a0e44487cbb4bdc56be2ded58b79daa41bc989276cd99a3077eb2456"
+  },
+  "rawBrowserLogRef": "/workspace/scratch/36f66011d961/m05-ci-43733008039/job-132869421586.log",
+  "rawBrowserLogSha256": "d2299c952118cbd1fbb18728c8f98f80dcdde7784e40bc27fce50d1dd641dba5",
+  "counts": {
+    "m05": 15,
+    "plan": 17,
+    "documentWidths": 4,
+    "hostOperation": 1,
+    "acknowledgment": 1,
+    "faq": 1
+  },
+  "caseLines": {
+    "m05": [
+      {
+        "line": 630,
+        "text": "2026-11-15T16:03:27.6428980Z   ok  1 tests\\e2e\\project-memory.spec.ts:358:1 › opens lazily, keeps all four tabs keyboard accessible and fits a narrow viewport (3.5s)"
+      },
+      {
+        "line": 631,
+        "text": "2026-11-15T16:03:28.9506067Z   ok  2 tests\\e2e\\project-memory.spec.ts:401:1 › requires an explicit source selection before enabling the project (1.3s)"
+      },
+      {
+        "line": 632,
+        "text": "2026-11-15T16:03:30.2044196Z   ok  3 tests\\e2e\\project-memory.spec.ts:428:1 › disabled host prevents new opt-in and preserves correction of retained records (1.2s)"
+      },
+      {
+        "line": 633,
+        "text": "2026-11-15T16:03:31.5781532Z   ok  4 tests\\e2e\\project-memory.spec.ts:460:1 › opens an exact source as inert text and accepts a proposal by its reviewed revision (1.4s)"
+      },
+      {
+        "line": 634,
+        "text": "2026-11-15T16:03:32.8495920Z   ok  5 tests\\e2e\\project-memory.spec.ts:493:1 › retains the exact correction draft when the reviewed revision is stale (1.3s)"
+      },
+      {
+        "line": 635,
+        "text": "2026-11-15T16:03:34.3447487Z   ok  6 tests\\e2e\\project-memory.spec.ts:517:1 › conflict resolution requires explicit revisions and a note before preserving both (1.5s)"
+      },
+      {
+        "line": 636,
+        "text": "2026-11-15T16:03:35.8753684Z   ok  7 tests\\e2e\\project-memory.spec.ts:555:1 › forget names invalidated artifacts before committing and shows pending purge afterward (1.5s)"
+      },
+      {
+        "line": 637,
+        "text": "2026-11-15T16:03:37.1439237Z   ok  8 tests\\e2e\\project-memory.spec.ts:588:1 › owner change closes the old review without retaining the previous project text (1.3s)"
+      },
+      {
+        "line": 638,
+        "text": "2026-11-15T16:03:38.4056501Z   ok  9 tests\\e2e\\project-memory.spec.ts:602:1 › explicit export produces only the host redacted export envelope (1.2s)"
+      },
+      {
+        "line": 639,
+        "text": "2026-11-15T16:03:39.0947786Z   ok 10 tests\\e2e\\project-memory.spec.ts:615:1 › recall explains exact source and disables exclusion without a request preparation adapter (675ms)"
+      },
+      {
+        "line": 640,
+        "text": "2026-11-15T16:03:40.5274102Z   ok 11 tests\\e2e\\project-memory.spec.ts:637:1 › confirms a reusable preference only after explicit project-only confirmation (1.4s)"
+      },
+      {
+        "line": 641,
+        "text": "2026-11-15T16:03:41.3398160Z   ok 12 tests\\e2e\\project-memory.spec.ts:671:1 › prepares the exact draft with terminal excerpts, excludes a revision, and sends its host token (801ms)"
+      },
+      {
+        "line": 642,
+        "text": "2026-11-15T16:03:42.0567721Z   ok 13 tests\\e2e\\project-memory.spec.ts:713:1 › invalidates exclusions when the draft changes and does not reuse its previous token (705ms)"
+      },
+      {
+        "line": 643,
+        "text": "2026-11-15T16:03:42.8534334Z   ok 14 tests\\e2e\\project-memory.spec.ts:745:1 › blocks send during exclusion and after failure until explicit refresh (785ms)"
+      },
+      {
+        "line": 644,
+        "text": "2026-11-15T16:03:43.7744758Z   ok 15 tests\\e2e\\project-memory.spec.ts:806:1 › an empty draft shows the last captured request with exclusion disabled (909ms)"
+      }
+    ],
+    "plan": [
+      {
+        "line": 849,
+        "text": "2026-11-15T16:11:22.1072337Z   ok  56 tests\\e2e\\plan-timeline.spec.ts:12:1 › does not keep a removed owner working after an authoritative snapshot drops its plan and thread (476ms)"
+      },
+      {
+        "line": 850,
+        "text": "2026-11-15T16:11:22.6456501Z   ok  57 tests\\e2e\\plan-timeline.spec.ts:26:1 › all details are expanded and assigned branches nest and rejoin before the dependent step (522ms)"
+      },
+      {
+        "line": 851,
+        "text": "2026-11-15T16:11:23.2596637Z   ok  58 tests\\e2e\\plan-timeline.spec.ts:46:1 › retains manual collapse, focus and reading position across ordered live updates and rejects stale revisions (596ms)"
+      },
+      {
+        "line": 852,
+        "text": "2026-11-15T16:11:23.8374368Z   ok  59 tests\\e2e\\plan-timeline.spec.ts:66:1 › resets the snapshot fence on thread switch and retains the old plan during restart publication (565ms)"
+      },
+      {
+        "line": 853,
+        "text": "2026-11-15T16:11:24.3254784Z   ok  60 tests\\e2e\\plan-timeline.spec.ts:94:1 › retains a valid plan when the latest canonical graph is malformed (474ms)"
+      },
+      {
+        "line": 854,
+        "text": "2026-11-15T16:11:25.6310835Z   ok  61 tests\\e2e\\plan-timeline.spec.ts:112:1 › host replan preserves assignment, collapse and reading anchor when earlier details grow (1.3s)"
+      },
+      {
+        "line": 855,
+        "text": "2026-11-15T16:11:26.2875903Z   ok  62 tests\\e2e\\plan-timeline.spec.ts:145:1 › collapsed step identity survives returning from another thread and stale epochs never regress it (641ms)"
+      },
+      {
+        "line": 856,
+        "text": "2026-11-15T16:11:26.8954115Z   ok  63 tests\\e2e\\plan-timeline.spec.ts:169:1 › deep nested agents and long output labels fit a 280px panel without hiding details (594ms)"
+      },
+      {
+        "line": 857,
+        "text": "2026-11-15T16:11:27.6210792Z   ok  64 tests\\e2e\\plan-timeline.spec.ts:192:1 › manual collapse survives reopening the plan with the same exact thread and step identity (711ms)"
+      },
+      {
+        "line": 858,
+        "text": "2026-11-15T16:11:28.1512513Z   ok  65 tests\\e2e\\plan-timeline.spec.ts:201:3 › dark narrow/short 100% geometry and reduced motion (514ms)"
+      },
+      {
+        "line": 859,
+        "text": "2026-11-15T16:11:28.7332684Z   ok  66 tests\\e2e\\plan-timeline.spec.ts:201:3 › dark narrow/short 125% geometry and reduced motion (567ms)"
+      },
+      {
+        "line": 860,
+        "text": "2026-11-15T16:11:29.3364777Z   ok  67 tests\\e2e\\plan-timeline.spec.ts:201:3 › dark narrow/short 150% geometry and reduced motion (589ms)"
+      },
+      {
+        "line": 861,
+        "text": "2026-11-15T16:11:29.8778316Z   ok  68 tests\\e2e\\plan-timeline.spec.ts:201:3 › light narrow/short 100% geometry and reduced motion (527ms)"
+      },
+      {
+        "line": 862,
+        "text": "2026-11-15T16:11:30.4818525Z   ok  69 tests\\e2e\\plan-timeline.spec.ts:201:3 › light narrow/short 125% geometry and reduced motion (588ms)"
+      },
+      {
+        "line": 863,
+        "text": "2026-11-15T16:11:31.0706775Z   ok  70 tests\\e2e\\plan-timeline.spec.ts:201:3 › light narrow/short 150% geometry and reduced motion (573ms)"
+      },
+      {
+        "line": 864,
+        "text": "2026-11-15T16:11:31.7873257Z   ok  71 tests\\e2e\\plan-timeline.spec.ts:240:40 › dark desktop parallel branches and join (703ms)"
+      },
+      {
+        "line": 865,
+        "text": "2026-11-15T16:11:32.4585048Z   ok  72 tests\\e2e\\plan-timeline.spec.ts:240:40 › light desktop parallel branches and join (657ms)"
+      }
+    ],
+    "documentWidths": [
+      {
+        "line": 816,
+        "text": "2026-11-15T16:09:56.5751202Z   ok  23 tests\\e2e\\document-window.spec.ts:374:46 › Plan summary and a docked handoff remain reachable together at 1920px (2.9s)"
+      },
+      {
+        "line": 817,
+        "text": "2026-11-15T16:09:59.4889768Z   ok  24 tests\\e2e\\document-window.spec.ts:374:46 › Plan summary and a docked handoff remain reachable together at 1440px (2.9s)"
+      },
+      {
+        "line": 818,
+        "text": "2026-11-15T16:10:02.3959229Z   ok  25 tests\\e2e\\document-window.spec.ts:374:46 › Plan summary and a docked handoff remain reachable together at 1280px (2.9s)"
+      },
+      {
+        "line": 819,
+        "text": "2026-11-15T16:10:05.1463320Z   ok  26 tests\\e2e\\document-window.spec.ts:374:46 › Plan summary and a docked handoff remain reachable together at 390px (2.7s)"
+      }
+    ],
+    "hostOperation": [
+      {
+        "line": 822,
+        "text": "2026-11-15T16:10:20.1169667Z   ok  29 tests\\e2e\\host-loop.spec.ts:252:1 › generated operation button requires native approval; restart restores without repeating effects (9.1s)"
+      }
+    ],
+    "acknowledgment": [
+      {
+        "line": 794,
+        "text": "2026-11-15T16:08:41.1644253Z   ok   1 tests\\e2e\\artifact-acknowledgment.spec.ts:4:1 › an older snapshot cannot replace a newer acknowledged selection (8.6s)"
+      }
+    ],
+    "faq": [
+      {
+        "line": 697,
+        "text": "2026-11-15T16:05:13.3316753Z   ok  8 tests\\e2e\\artifact-style.spec.ts:900:1 › connected FAQ branches and follow-up draft retain independent state (2.6s)"
+      }
+    ]
+  },
+  "durationLimit": "Parenthesized timings are whole-test durations, not navigation durations."
+}

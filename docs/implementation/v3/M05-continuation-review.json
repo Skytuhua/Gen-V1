@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "reviewScope": "Independent original-prompt review of all twelve M05 implementation steps/four UI requirements, accepted M04 custody, merged M09/M11 lifecycle, shared provider/account admission and native cancellation ownership, maintenance measurement identity, metadata privacy, optional consolidation and Windows failure repairs. The continuation also reviews authored unmocked Windows FILE tests and the owned default-off installed retained-memory verifier; their platform execution is pending.",
+  "reviewScope": "Independent original-prompt review of all twelve M05 implementation steps/four UI requirements, accepted M04 custody, merged M09/M11 lifecycle, shared provider/account admission and native cancellation ownership, maintenance measurement identity, metadata privacy, optional consolidation and Windows failure repairs. The continuation also reviews authored unmocked Windows FILE tests and the owned default-off installed retained-memory verifier; the three native FILE cases actually pass on Windows and installed execution remains pending. The frozen canonical Python packaging repair is independently reviewed with 28 passing focused cases and final full typecheck.",
   "reviewer": "dependency_audit",
   "reviewedFiles": [
     {
@@ -93,7 +93,7 @@
     },
     {
       "path": "scripts/public-source-files.json",
-      "sha256": "e39651748d87280a91343b7df67a721632e16ed1bbce31a7973391822af02f3d"
+      "sha256": "af69a61ac71ba60de4869dccb6b1a3fa1d915e71fd300f6ecd428bbe6fad5889"
     },
     {
       "path": "tests/split-app-browser.test.ts",
@@ -129,7 +129,27 @@
     },
     {
       "path": ".github/workflows/ci.yml",
-      "sha256": "f6784cbf55a423682a12729499fdb9c3b9fa3a7518039dc5750a13a66315c462"
+      "sha256": "6728cdd5e9eb90e27e7c2f4791ff280ca2622bae70dcb98b70741348fbac53c2"
+    },
+    {
+      "path": "scripts/integration-assets.ts",
+      "sha256": "d043b991f82e30dc8b4b7f32b28e489de91e3a14ed9e7e535d9141c44da00d5f"
+    },
+    {
+      "path": "scripts/integration_python_projection.py",
+      "sha256": "8c98f8677364e9df2a55ff3717b8c6977d5eb56ad5773b206d8290cdf5fcbd1f"
+    },
+    {
+      "path": "scripts/package-desktop.ts",
+      "sha256": "fda3abe8294450e8d225a4027100b3b8819ff30695ce3b4f2aa6df117f11db8b"
+    },
+    {
+      "path": "tests/integration-packaging-canonical-negative.test.ts",
+      "sha256": "f273e8246bb1be2fe32804af44bc93e6580e86cce57e6d1bd058265881265cad"
+    },
+    {
+      "path": "docs/getting-started.md",
+      "sha256": "807fa686ad92eb2f567adc11dabc9f2cd74dde18f8ad06a558b5b540db21f6f3"
     }
   ],
   "findingsResolved": [
@@ -153,10 +173,14 @@
     "Initial split-browser fixture navigation inherited the seven-second interaction budget; startup now has a separate bounded twenty-second budget with all behavior assertions retained",
     "FAQ test sent Escape while expansion was still unpublished; an exact Collapse artifact focus assertion now observes modal readiness before the existing Escape and focus-return assertions",
     "The first artifact-bearing snapshot arrived near the end of the host-operation fixture's combined five-second wait. An explicit bounded fifteen-second attachment assertion now precedes the retained five-second visibility assertion. Individual native-operation durations are unmeasured. The complete operation, approval, replacement and restart case passes in run 43729864202.",
-    "Initial acknowledgment-fixture checked assertion included the asynchronous shell bootstrap after document load. A bounded initial visibility assertion now precedes every unchanged selection, save-barrier, revision and quiescence assertion; Windows validation remains pending.",
-    "The installed verifier used obsolete Providers and Close settings selectors. It now observes the accepted Models & Accounts section and the Settings dialog close control while retaining every connection-button assertion. Actual installed execution remains pending."
+    "The initial acknowledgment-fixture checked assertion included asynchronous shell bootstrap after document load. A bounded visibility assertion now precedes every unchanged selection, save, revision and quiescence assertion. The complete case passes in Windows run 43733008039.",
+    "The installed verifier used obsolete Providers and Close settings selectors. It now observes the accepted Models & Accounts section and the Settings dialog close control while retaining every connection-button assertion. Actual installed execution remains pending.",
+    "Wheel data spreading could claim another distribution metadata directory. A reproduced failing case now passes with ownership checked after installation-path spreading.",
+    "A spread alias for its own RECORD could generate duplicate self rows. The reproduced failing case now passes with aliases rejected before installed ownership insertion."
   ],
-  "remainingActionableFindings": [],
+  "remainingActionableFindings": [
+    "The reviewed canonical Python packaging repair passes 28 local cases and final full typecheck. Actual validation of all 91 pinned archives, production NSIS packaging and installed retained-memory execution requires the next complete nine-job Windows workflow."
+  ],
   "evidenceRefs": [
     "docs/implementation/v3/m05-logs/continuation-postmerge-memory-regression.log",
     "docs/implementation/v3/m05-logs/continuation-postmerge-contracts-complete.log",
@@ -215,14 +239,30 @@
     "docs/implementation/v3/m05-logs/continuation-installed-memory-retention-custody-green.log",
     "docs/implementation/v3/m05-logs/continuation-installed-memory-retention-typecheck.log",
     "docs/implementation/v3/m05-logs/continuation-installed-memory-final-typecheck.log",
-    "docs/implementation/v3/M05-installed-ci-input-review.json"
+    "docs/implementation/v3/M05-installed-ci-input-review.json",
+    "docs/implementation/v3/M05-windows-ci-43733008039.json",
+    "docs/implementation/v3/M05-native-file-review-43733008039.json",
+    "docs/implementation/v3/M05-browser-cases-43733008039.json",
+    "docs/implementation/v3/m05-logs/windows-ci-43733008039-a1-j132869421472-s5-installed-package.log",
+    "docs/implementation/v3/M05-canonical-packaging-input-review-20261115.json",
+    "docs/implementation/v3/M05-canonical-projection-review.json",
+    "docs/implementation/v3/m05-logs/continuation-integration-record-own-alias-red.log",
+    "docs/implementation/v3/m05-logs/continuation-integration-record-packaging-regression.log",
+    "docs/implementation/v3/m05-logs/continuation-integration-record-projection-final-typecheck.log",
+    "docs/implementation/v3/m05-logs/continuation-integration-record-projection-green-1.log",
+    "docs/implementation/v3/m05-logs/continuation-integration-record-projection-green-2.log",
+    "docs/implementation/v3/m05-logs/continuation-integration-record-projection-green-3.log",
+    "docs/implementation/v3/m05-logs/continuation-integration-record-projection-red.log",
+    "docs/implementation/v3/m05-logs/continuation-integration-record-projection-typecheck.log",
+    "docs/implementation/v3/m05-logs/continuation-integration-record-spread-owner-red.log"
   ],
   "activationApproval": false,
   "limitations": [
-    "The earlier complete Windows run 43726164418 passed all eight jobs on its immutable cut. Run 43727736261 failed host-operation fixture setup. That repaired case passes in run 43729864202, whose sole failure is initial acknowledgment-fixture readiness. The new acknowledgment assertion, unmocked native FILE tests and installed-retention verifier require a fresh nine-job Windows run.",
-    "Code review, typechecking and local seed/custody tests do not establish actual native FILE capture, installed-desktop execution or live-provider quality and cost.",
-    "Both M05 host flags remain false. The disposable installed fixture uses constructor-local enablement only while seeding, disables the project before launch and gives the installed host its normal default-off policy.",
-    "All prior failed Windows attempts remain failed historical evidence. The current platform-proof work does not provide an enabled installed recall, extraction or native checkpoint flow, or measure live quality and cost. Provider network calls remain unmeasured rather than asserted to be zero."
+    "Run 43733008039 passes all eight application, native, browser, policy and build jobs, including the three unmocked Windows FILE cases and the acknowledgment readiness repair. Its ninth installed-memory job fails in Python packaging preflight; no installer or installed UI result is claimed.",
+    "The original Python lock contains 91 RECORD files and two REQUESTED files, with no direct_url.json entries. Regression setup requests all 91 distributions by direct URL. Pip-generated console-launcher bookkeeping is not reproducible across installation paths and creation times. The failed job has no actual per-file mismatch report, so other payload differences are not ruled out.",
+    "Canonical packaging preserves the original v1 lock and all 7,324 non-RECORD hashes; deterministic RECORD ownership comes only from authenticated pinned wheel archives. Actual 91-wheel and Windows package compatibility is pending.",
+    "Both M05 host flags remain false. The installed fixture uses constructor-local enablement only while seeding and disables the project before actual launch. Full enabled installed recall, extraction and checkpoint flows remain unverified.",
+    "Live repeated-task quality and cost remain unmeasured. All prior failed workflows retain their actual outcomes; provider network counts in the installed verifier remain null."
   ],
   "additionalReviewers": [
     "ui_audit",
@@ -235,10 +275,11 @@
     "userFacingRequirementsReviewed": 4,
     "additionalConcreteCorrectnessBlockers": [],
     "remainingProofGates": [
-      "Actual native FILE capture",
-      "Installed desktop",
+      "Installed default-off retained-memory review and restart after real packaging",
+      "Full enabled installed memory lifecycle",
       "Authorized live repeated-task quality and total auxiliary cost"
-    ]
+    ],
+    "nativeFileExecutionRef": "docs/implementation/v3/M05-native-file-review-43733008039.json"
   },
   "acceptedMainSha": "399cde39ff4ee82272c7a7700944325c44b36070",
   "integratedWindowsCI": {
@@ -266,28 +307,36 @@
     "faqReadiness": "Exact focused Collapse assertion and all retained draft/branch/focus-return assertions pass; whole-test duration 2.2 s."
   },
   "latestWindowsAttempt": {
-    "runId": 43729864202,
-    "headSha": "9321f979e8feebe7899be365ad6678ac82343f54",
-    "checkoutSha": "f54bd7b045ec83bd63cb69b46570adf580ba7fea",
-    "treeSha": "faccdd5ea6c029573060443a20d06a911c16b34c",
-    "jobsPassed": 7,
+    "runId": 43733008039,
+    "headSha": "5a647b04c14ba4de8d80411aeba7e649227664fc",
+    "checkoutSha": "a6853729ff49ce2b42ec5cb29526a731e38a07df",
+    "treeSha": "2f8043bbb9dcd95c068eb91380ca5c897f0c754f",
+    "jobsPassed": 8,
     "jobsFailed": 1,
     "application": {
-      "passed": 3746,
+      "passed": 3754,
       "skipped": 39,
       "failed": 0
     },
     "browser": {
-      "passed": 266,
+      "passed": 267,
       "skipped": 2,
-      "failed": 1,
+      "failed": 0,
       "flaky": 0
     },
     "hermesContractsPassed": 33,
     "policyPluginTestsPassed": 37,
-    "observedCommandsImported": 24,
-    "hostPublicationReadiness": "The repaired real-host operation, approval, replacement and restart case passes, with a whole-test duration of 9.1 seconds. All 15 M05, 17 plan and four document-width cases pass.",
-    "failure": "The initial acknowledgment-fixture checkbox assertion expires while the shell bootstraps. No selection commands occur before failure; the final DOM contains the expected checked row 16.324 milliseconds after the assertion ends."
+    "observedCommandsImported": 26,
+    "nativeFile": {
+      "passed": 3,
+      "skipped": 0,
+      "failed": 0,
+      "jobId": 132869421442,
+      "reviewRef": "docs/implementation/v3/M05-native-file-review-43733008039.json"
+    },
+    "acknowledgmentReadiness": "The repaired initial visibility assertion and every unchanged selection, save, revision and quiescence assertion pass; whole-test duration is 8.6 seconds.",
+    "hostPublicationReadiness": "The operation, approval, physical replacement and restart case passes in 9.1 seconds of whole-test time. All 15 M05, 17 plan and four document-width cases pass.",
+    "failure": "Installed desktop memory retention job fails during package preflight: Installed Python integration payload differs from the exact lock. NSIS packaging and installed verification did not execute. The failed log does not enumerate actual per-file differences."
   },
   "priorFailedWindowsAttemptRefs": [
     "docs/implementation/v3/M05-windows-ci-43723377122.json",
@@ -296,16 +345,18 @@
     "docs/implementation/v3/M05-windows-ci-43729864202.json"
   ],
   "pendingValidation": [
-    "The complete nine-job Windows workflow, including initial acknowledgment-fixture readiness.",
-    "Three unmocked Windows native FILE capture/reuse, grant-revocation and same-bytes physical-replacement cases.",
-    "Actual installed default-off retained-memory review, redacted export, Forget and same-profile restart with disposable seeded records."
+    "The complete nine-job Windows workflow after repairing deterministic Python packaging-input preparation.",
+    "Actual production NSIS packaging, installed default-off retained-memory review, redacted export, Forget, same-profile restart and identity-bound uninstall."
   ],
   "platformProofPreparation": {
     "nativeFile": {
       "file": "tests/memory-native-file-capture-v3.test.ts",
       "cases": 3,
-      "execution": "Pending real Windows execution. Linux skip and typecheck are not native-capture proof.",
-      "mocks": false
+      "execution": "Three named cases actually passed with zero skips on Windows Server 2025 in run 43733008039, shard 4.",
+      "mocks": false,
+      "reviewRef": "docs/implementation/v3/M05-native-file-review-43733008039.json",
+      "runId": 43733008039,
+      "headSha": "5a647b04c14ba4de8d80411aeba7e649227664fc"
     },
     "installedRetention": {
       "helper": "scripts/installed-memory-retention.ts",
@@ -313,11 +364,11 @@
       "job": "Installed desktop memory retention",
       "localCustodyCasesPassed": 13,
       "localTypecheck": "PASS",
-      "execution": "Pending actual production NSIS packaging, owned installation, two exact installed executable launches, UI review and identity-bound uninstall.",
+      "execution": "Real Windows packaging was attempted in run 43733008039 and failed at the exact Python dependency inventory preflight. NSIS installation, UI actions, restart and uninstall remain NOT_RUN.",
       "scope": "Retained MESSAGE records with production memory flags off. No model or account is selected.",
       "providerNetworkCalls": null
     },
-    "publicSourceInventory": "The helper and native FILE test are present in the sorted source inventory. Runtime inventory is unchanged.",
+    "publicSourceInventory": "The installed retention helper, native FILE test, canonical Python helper and canonical negative tests are present in the sorted source inventory. Runtime inventory is unchanged.",
     "independentReview": {
       "reviewer": "memory_integration_audit",
       "mode": "Read-only source review; no tests or installed launch performed by this reviewer.",
@@ -357,6 +408,23 @@
       "findings": [],
       "expandedWorkflowJobCount": 9,
       "scope": "Read-only pinned input, packaging, exact argv and artifact review. No Windows execution is claimed."
+    },
+    "canonicalPackaging": {
+      "status": "IMPLEMENTED_LOCALLY_VERIFIED",
+      "sourceLock": "third-party/integrations/PYTHON_LOCK.json",
+      "sourceLockSha256": "264d28c353d065001daaad796abf3602074599ab5fbd630bcb0958c529b63700",
+      "protectedNonRecordFiles": 7324,
+      "scope": "Explicit canonical per-distribution RECORD projection derived from authenticated pinned wheels, preserving the original lock and every protected non-RECORD hash. Exact legacy mode remains.",
+      "windowsExecution": "NOT_RUN",
+      "focusedCasesPassed": 28,
+      "focusedCasesFailed": 0,
+      "finalFullTypecheck": "PASS",
+      "independentReviewRefs": [
+        "docs/implementation/v3/M05-canonical-packaging-input-review-20261115.json",
+        "docs/implementation/v3/M05-canonical-projection-review.json"
+      ],
+      "unresolvedConcreteSourceFindings": [],
+      "generatedReceipt": "third-party/integrations/PYTHON_INSTALLATION_V2.json"
     }
   }
 }

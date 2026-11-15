@@ -1,22 +1,22 @@
 {
   "schemaVersion": 1,
-  "publishedCommit": "14e6a1743a5eb6a09bd96021ef724ed0967d442b",
+  "publishedCommit": "5a647b04c14ba4de8d80411aeba7e649227664fc",
   "publishedArtifacts": {
     "M05-provenance.json": {
-      "sha256": "e7b9761c122dbec282e8c03605cecee60b1104e2e0fdcff4e6f15bee52821e96",
-      "blobSha": "6da7e114202bc22643e21602f61ed99ecd4021d8"
+      "sha256": "e97235afb761bd9d67b107b004af4eb17a68e61ee5cfc6247f44358da3161c3d",
+      "blobSha": "e88fd97e07162ff70d8d02cea50414257a366400"
     },
     "M05-source-lock.json": {
-      "sha256": "9cada1af67b52abb89d645e5b521d4096a2d1d211f1ed40c40a16304c3eafb2e",
-      "blobSha": "c4f6c305bc25f87ed41d1b7c673a481c8ac1298f"
+      "sha256": "9504b7f4288a9589eb924a94a1876a90f333a64a3d60a0d6cff8f8e1fad8171c",
+      "blobSha": "03650c4b36d2f49741a564bec0c8f0cf0c9f2c25"
     },
     "M05-verification.json": {
-      "sha256": "0a59d351c152dc56310c576fe0989b8195b75e51909d8f9425051a7c87631f60",
-      "blobSha": "b63cc59ce394ea2019098567ca3bd41193550d3e"
+      "sha256": "5c59ef91bb8d20b737bd5c13620527d29b55b63c2b6b6091f7f4613f05867ca3",
+      "blobSha": "8e5cc0248d87d89d51f44aff77c7f9a299f5c5a0"
     },
     "M05-log-policy.json": {
-      "sha256": "5a59a5d907ae9800f721ba8cbb9dfe42408a60d360e7d11cd3659dbce81e6f86",
-      "blobSha": "5e7ae4b983c2b42124271c262000c5fdacc45d8a"
+      "sha256": "7a8e1b3201a5c8359745054532bb5aaf385df6f84a9312785b161bb30065ff57",
+      "blobSha": "b7e963c9277a8785bcba7ece2f04e900bcdcf708"
     },
     "M05-upstream-check.json": {
       "sha256": "d1293c014538a3941a503b2813833927e7cc9cc2b3557532e01cb81312ef5f77",
@@ -24,47 +24,63 @@
     }
   },
   "originalPublishedProvenance": {
-    "schemaVersion": 1,
-    "recordedAt": "2026-11-15T11:02:57.544342+00:00",
-    "repositoryRoot": "/workspace/scratch/36f66011d961/m05-v3",
-    "branch": "agent/m05-v3",
+    "schemaVersion": 2,
+    "recordedAt": "2026-11-15T15:58:49.754079+00:00",
+    "repositoryRoot": "/workspace/scratch/36f66011d961/m05-continuation",
+    "branch": "agent/m05-v3-continuation",
     "origin": "https://github.com/Skytuhua/Gen-V1.git",
-    "acceptedBaseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
-    "fetchedOriginMainSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
-    "originalCheckout": "/workspace/scratch/dbebe44a9817/Gen-V1",
-    "originalCheckoutStatus": "",
-    "isolatedBaselineCheckout": "/workspace/scratch/36f66011d961/m05-baseline",
-    "currentPlatform": "Linux-6.18.57-x86_64-with-glibc2.41",
-    "nodeVersion": "v24.22.1",
-    "declaredPackageManager": "pnpm@10.30.3",
-    "nestedPnpmLauncher": {
-      "path": "/workspace/scratch/36f66011d961/bin/pnpm",
-      "target": "/home/agent/.cache/node/corepack/v1/pnpm/10.30.3/bin/pnpm.cjs",
-      "use": "Prepended to PATH for nested pnpm build/test/browser commands; pnpm 10.30.3."
-    },
-    "resolvedPackageManager": "10.30.3",
-    "newDependencies": [],
-    "lockfileChanged": false,
+    "canonicalRepository": "skytuhua-org/Gen-V1",
+    "repositoryId": 1442565952,
+    "canonicalIdentityEvidence": "docs/implementation/v3/M05-upstream-check.json",
+    "acceptedBaseSha": "399cde39ff4ee82272c7a7700944325c44b36070",
+    "sourceParentHeadSha": "fe59f09076591fac1fc5769747d6f4feeb4590e0",
     "acceptedDependencyCommits": [
       "5f0958f4cb5b40bc10c1eea0e1cd517b57aaa1b9",
       "f331cf16b268282da888a41da42fc776ea7befd5",
-      "e871257aa82beb06ab4b8f3989cbe436cb9a6a8c"
+      "e871257aa82beb06ab4b8f3989cbe436cb9a6a8c",
+      "b4281a4292c5585660b9fbbcb6cf8dc9ed0775fb",
+      "399cde39ff4ee82272c7a7700944325c44b36070"
     ],
-    "missingAcceptedContracts": [
-      {
-        "name": "M04.RequestPreparationAndContextGeneration",
-        "status": "BLOCKED_SOURCE_DRIFT",
-        "evidence": "M05-upstream-check.json",
-        "notSubstitutedBy": "StartRun.memory remains existing task notes; no runtime request/worker mutation is included."
-      }
+    "acceptedM04MergeSha": "9d4a5141173f54f0f47ff70dcc5167a5c781389e",
+    "originalPublishedProvenanceRef": "docs/implementation/v3/M05-continuation-history.json",
+    "currentPlatform": "Linux-6.18.57-x86_64-with-glibc2.41",
+    "nodeVersion": "v24.22.1",
+    "declaredPackageManager": "pnpm@10.30.3",
+    "packageManagerEvidence": "Declared package manager plus preserved setup/build argv; no new package installation is performed by this builder.",
+    "lockfileChangedAgainstAcceptedBase": false,
+    "selectedCurrentCommandRefs": [
+      "docs/implementation/v3/m05-logs/continuation-installed-memory-final-typecheck.log",
+      "docs/implementation/v3/m05-logs/continuation-m11-final-build.log",
+      "docs/implementation/v3/m05-logs/continuation-m11-final-contracts.log",
+      "docs/implementation/v3/m05-logs/continuation-m11-final-memory-regression.log",
+      "docs/implementation/v3/m05-logs/continuation-study-manifest-final.log",
+      "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859717009-s7-native-facade.log",
+      "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859717009-s7-native-worker.log"
     ],
-    "publicationAuthority": "The latest user instruction explicitly requests a PR. It supersedes the attachment no-push limit for this reviewed branch only; no merge or deployment."
+    "commandCutLimitation": "Command ledger records actual times/argv/results, not a per-command Git tree. Selection is explicit; the current file inventory is generated separately. Exact-head Windows status is admitted only when its current code/test/workflow cut matches.",
+    "windowsCiRef": "docs/implementation/v3/M05-windows-ci-43729864202.json",
+    "windowsCiCurrentCodeCut": false,
+    "windowsCiCutNotes": [
+      "CI code/test/workflow cut differs from the current worktree: .github/workflows/ci.yml",
+      "CI code/test/workflow cut differs from the current worktree: scripts/public-source-files.json",
+      "CI code/test/workflow cut differs from the current worktree: scripts/verify-installed-desktop.ts",
+      "CI code/test/workflow cut differs from the current worktree: tests/e2e/artifact-acknowledgment.spec.ts",
+      "CI code/test/workflow cut differs from the current worktree: tests/installed-desktop-verification.test.ts",
+      "CI code/test/workflow cut differs from the current worktree: scripts/installed-memory-retention.ts",
+      "CI code/test/workflow cut differs from the current worktree: tests/memory-native-file-capture-v3.test.ts"
+    ],
+    "studyRef": "docs/implementation/v3/m05-study-20261115/results.json",
+    "reviewerApproval": false
   },
   "originalPublishedSourceLock": {
     "schemaVersion": 3,
     "auditAncestorSha": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
-    "executionBaseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+    "executionBaseSha": "399cde39ff4ee82272c7a7700944325c44b36070",
     "inspectedPaths": [
+      {
+        "path": ".github/workflows/ci.yml",
+        "blobSha": "f5e248c2da4f661f37e518cf9894c31b590ac68b"
+      },
       {
         "path": "apps/server/host.ts",
         "blobSha": "be98ae5bcdcd310dcaf34257c4b928c9d1045492"
@@ -75,7 +91,7 @@
       },
       {
         "path": "apps/server/server.ts",
-        "blobSha": "e4df5cae7274c99ff988f30a2bb5abb5aa0e3362"
+        "blobSha": "4854b01ed49d5a6ae81a793e6bab2e22a31c0f45"
       },
       {
         "path": "apps/web/src/ContextInspector.tsx",
@@ -102,6 +118,10 @@
         "blobSha": "41f7fc679f4e9bcbc48ac089e179cec34bb8fe8b"
       },
       {
+        "path": "docs/implementation/v3/M04-core-verification.json",
+        "blobSha": "0725a706ca45cb20bd5ea0d0e19a7092dc14610d"
+      },
+      {
         "path": "evals/cases.ts",
         "blobSha": "f1a9ebfea2e63a18f2fcb8540e3306088f3bb3ae"
       },
@@ -119,7 +139,15 @@
       },
       {
         "path": "packages/contracts/index.ts",
-        "blobSha": "09517becaf0c35f5f63bd758878659ea0de5f57b"
+        "blobSha": "14c59034b8bb2c37137a266320fbeca90af95a52"
+      },
+      {
+        "path": "packages/contracts/model-request.ts",
+        "blobSha": "17cbabb11a2b3653578456f563be70e49aeb0cdf"
+      },
+      {
+        "path": "packages/contracts/request-context.ts",
+        "blobSha": "30185cc5e66a74ef438af8ec8e9ec1d91989c614"
       },
       {
         "path": "packages/contracts/tool-effects.ts",
@@ -127,7 +155,11 @@
       },
       {
         "path": "packages/core/capability-flags.ts",
-        "blobSha": "39e18abb43f7fa63cb2534ea3356ebb1be121161"
+        "blobSha": "829f51f534524beaafe81010ba4fc9aa25498537"
+      },
+      {
+        "path": "packages/core/context-compiler.ts",
+        "blobSha": "7b6f9040160b8440845c256c57bd5aba52f1ca4b"
       },
       {
         "path": "packages/core/effect-recovery.ts",
@@ -142,12 +174,16 @@
         "blobSha": "dfc53335151a50d87912de17f7a19166491dd3bc"
       },
       {
+        "path": "packages/core/request-custody.ts",
+        "blobSha": "b7f0946c0ae48acc8d0673739c6960a5601b8841"
+      },
+      {
         "path": "packages/core/security.ts",
         "blobSha": "693f251361bc464caee26df795c57002d120c9a7"
       },
       {
         "path": "packages/core/service.ts",
-        "blobSha": "2b3fb63acef915b052a468e104c6e4f00a4b82e4"
+        "blobSha": "cdef7f205a6d19357478d9676f9c43c26be512b1"
       },
       {
         "path": "packages/core/skills.ts",
@@ -167,7 +203,7 @@
       },
       {
         "path": "packages/runtime-hermes/index.ts",
-        "blobSha": "ca15682cd2ad86f296247e71a7b18a190c0968f4"
+        "blobSha": "08e1c4b1db2ef47da609364fcba4d28de3078167"
       },
       {
         "path": "packages/runtime-hermes/library.ts",
@@ -175,15 +211,23 @@
       },
       {
         "path": "packages/runtime-hermes/worker.py",
-        "blobSha": "e28c6272f9aab28f76b9462a87768fe4226361c1"
+        "blobSha": "ce8d20eae27cc81716669365257bb34ce9575420"
       },
       {
         "path": "packages/runtime/index.ts",
         "blobSha": "c944011f863d8e54cefb027ccde24e4445a4738b"
       },
       {
+        "path": "packages/runtime/request-capabilities.ts",
+        "blobSha": "45df1e61813b4bd9548841561b8a6c49dfc44ffa"
+      },
+      {
+        "path": "packages/runtime/request-scheduler.ts",
+        "blobSha": "95f3fa03c2ab80288a434c95c3e215cd4943a917"
+      },
+      {
         "path": "packages/storage/store.ts",
-        "blobSha": "ebab3cba8d56e074d0377623bffd2054790f622b"
+        "blobSha": "bff67fade13b7813ba89aff98cbf853acb7e3723"
       },
       {
         "path": "packages/workspace/tools.ts",
@@ -198,16 +242,36 @@
         "blobSha": "04d387152c17aad4eb3b6fbdd9f410178a51a5eb"
       },
       {
+        "path": "scripts/package-desktop.ts",
+        "blobSha": "ce720a73b51156943e6fc127192a42a2c2b558cf"
+      },
+      {
         "path": "scripts/public-source-files.json",
-        "blobSha": "8cb3efe75c120185f957ab3df73255756adcf7b8"
+        "blobSha": "7ead37fd2a30d0ef030f18525df6cae556881a65"
+      },
+      {
+        "path": "scripts/verify-installed-desktop.ts",
+        "blobSha": "08ebb547cd2a95c2514783c131dd0fc4cb93dc25"
+      },
+      {
+        "path": "tests/context-compiler-v3.test.ts",
+        "blobSha": "8c1d31c29d55cae269d42861f506bb769ea82d10"
       },
       {
         "path": "tests/effect-recovery-v3.test.ts",
         "blobSha": "991b54d4c96820a382a28c4fc625719b3a6a79b8"
       },
       {
+        "path": "tests/installed-desktop-verification.test.ts",
+        "blobSha": "ea70ad3f662754095df20f6686457317266a5e23"
+      },
+      {
         "path": "tests/m01-m02-compatibility.test.ts",
         "blobSha": "044b8b51fc0086ddfec6c47616e186c816cdad26"
+      },
+      {
+        "path": "tests/request-preparation-service-v3.test.ts",
+        "blobSha": "aa26bcf8997e450de648ac26006770d745a0434c"
       },
       {
         "path": "tests/research-baseline.test.ts",
@@ -237,7 +301,7 @@
       },
       {
         "name": "M01.CapabilityFlags",
-        "version": "39e18abb43f7fa63cb2534ea3356ebb1be121161",
+        "version": "829f51f534524beaafe81010ba4fc9aa25498537",
         "testIds": [
           "tests/project-memory-v3.test.ts",
           "tests/m01-m02-compatibility.test.ts"
@@ -266,7 +330,7 @@
       },
       {
         "name": "Store.SynchronousCommand",
-        "version": "ebab3cba8d56e074d0377623bffd2054790f622b",
+        "version": "bff67fade13b7813ba89aff98cbf853acb7e3723",
         "testIds": [
           "tests/project-memory-v3.test.ts",
           "tests/memory-forget-v3.test.ts",
@@ -294,12 +358,72 @@
         "testIds": [
           "tests/task-memory.test.ts"
         ]
+      },
+      {
+        "name": "M04.RequestContextV1",
+        "version": "30185cc5e66a74ef438af8ec8e9ec1d91989c614",
+        "testIds": [
+          "tests/context-compiler-v3.test.ts",
+          "tests/request-preparation-service-v3.test.ts",
+          "tests/project-memory-service-v3.test.ts"
+        ]
+      },
+      {
+        "name": "M04.RequestCustody",
+        "version": "b7f0946c0ae48acc8d0673739c6960a5601b8841",
+        "testIds": [
+          "tests/request-preparation-service-v3.test.ts",
+          "tests/project-memory-service-v3.test.ts"
+        ]
+      },
+      {
+        "name": "M04.ContextCompiler",
+        "version": "7b6f9040160b8440845c256c57bd5aba52f1ca4b",
+        "testIds": [
+          "tests/context-compiler-v3.test.ts"
+        ]
+      },
+      {
+        "name": "M04.HostRequestPreparation",
+        "version": "cdef7f205a6d19357478d9676f9c43c26be512b1",
+        "testIds": [
+          "tests/request-preparation-service-v3.test.ts",
+          "tests/project-memory-request-http-v3.test.ts",
+          "tests/project-memory-service-v3.test.ts"
+        ]
+      },
+      {
+        "name": "M11.ModelRequestObservationV1",
+        "version": "17cbabb11a2b3653578456f563be70e49aeb0cdf",
+        "testIds": [
+          "tests/model-transport-v3.test.ts",
+          "tests/usage-accounting-v3.test.ts",
+          "tests/hermes-runtime.test.ts"
+        ]
+      },
+      {
+        "name": "M11.RequestScheduler",
+        "version": "95f3fa03c2ab80288a434c95c3e215cd4943a917",
+        "testIds": [
+          "tests/model-scheduling-v3.test.ts",
+          "tests/memory-extraction-runtime-v3.test.ts",
+          "tests/memory-extraction-scheduler-v3.test.ts"
+        ]
+      },
+      {
+        "name": "M11.RequestCapabilities",
+        "version": "45df1e61813b4bd9548841561b8a6c49dfc44ffa",
+        "testIds": [
+          "tests/model-transport-v3.test.ts"
+        ]
       }
     ],
     "acceptedDependencyCommits": [
       "5f0958f4cb5b40bc10c1eea0e1cd517b57aaa1b9",
       "f331cf16b268282da888a41da42fc776ea7befd5",
-      "e871257aa82beb06ab4b8f3989cbe436cb9a6a8c"
+      "e871257aa82beb06ab4b8f3989cbe436cb9a6a8c",
+      "b4281a4292c5585660b9fbbcb6cf8dc9ed0775fb",
+      "399cde39ff4ee82272c7a7700944325c44b36070"
     ],
     "approvedDrift": [
       {
@@ -307,6 +431,54 @@
         "fromBlob": "a45226df77eae1e58594609140252c1f93a985f6",
         "toBlob": "39e18abb43f7fa63cb2534ea3356ebb1be121161",
         "note": "The accepted main base already adds M08 finite registry keys after the M02 receipt. Current M01/M02 compatibility tests pass. M05 only adds its two specified default-false keys; no UI preference or runtime contract is substituted."
+      },
+      {
+        "path": "apps/server/server.ts",
+        "fromBlob": "e4df5cae7274c99ff988f30a2bb5abb5aa0e3362",
+        "toBlob": "4854b01ed49d5a6ae81a793e6bab2e22a31c0f45",
+        "note": "Accepted-base advancement, including reviewed M04 core PR351, M09 PR350 and M11 PR345. M05/M11 scheduler, checkpoint observation ownership and metadata privacy receive separate current integration regressions. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
+      },
+      {
+        "path": "packages/contracts/index.ts",
+        "fromBlob": "09517becaf0c35f5f63bd758878659ea0de5f57b",
+        "toBlob": "14c59034b8bb2c37137a266320fbeca90af95a52",
+        "note": "Accepted-base advancement, including reviewed M04 core PR351, M09 PR350 and M11 PR345. M05/M11 scheduler, checkpoint observation ownership and metadata privacy receive separate current integration regressions. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
+      },
+      {
+        "path": "packages/core/capability-flags.ts",
+        "fromBlob": "39e18abb43f7fa63cb2534ea3356ebb1be121161",
+        "toBlob": "829f51f534524beaafe81010ba4fc9aa25498537",
+        "note": "Accepted-base advancement, including reviewed M04 core PR351, M09 PR350 and M11 PR345. M05/M11 scheduler, checkpoint observation ownership and metadata privacy receive separate current integration regressions. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
+      },
+      {
+        "path": "packages/core/service.ts",
+        "fromBlob": "2b3fb63acef915b052a468e104c6e4f00a4b82e4",
+        "toBlob": "cdef7f205a6d19357478d9676f9c43c26be512b1",
+        "note": "Accepted-base advancement, including reviewed M04 core PR351, M09 PR350 and M11 PR345. M05/M11 scheduler, checkpoint observation ownership and metadata privacy receive separate current integration regressions. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
+      },
+      {
+        "path": "packages/runtime-hermes/index.ts",
+        "fromBlob": "ca15682cd2ad86f296247e71a7b18a190c0968f4",
+        "toBlob": "08e1c4b1db2ef47da609364fcba4d28de3078167",
+        "note": "Accepted-base advancement, including reviewed M04 core PR351, M09 PR350 and M11 PR345. M05/M11 scheduler, checkpoint observation ownership and metadata privacy receive separate current integration regressions. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
+      },
+      {
+        "path": "packages/runtime-hermes/worker.py",
+        "fromBlob": "e28c6272f9aab28f76b9462a87768fe4226361c1",
+        "toBlob": "ce8d20eae27cc81716669365257bb34ce9575420",
+        "note": "Accepted-base advancement, including reviewed M04 core PR351, M09 PR350 and M11 PR345. M05/M11 scheduler, checkpoint observation ownership and metadata privacy receive separate current integration regressions. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
+      },
+      {
+        "path": "packages/storage/store.ts",
+        "fromBlob": "ebab3cba8d56e074d0377623bffd2054790f622b",
+        "toBlob": "bff67fade13b7813ba89aff98cbf853acb7e3723",
+        "note": "Accepted-base advancement, including reviewed M04 core PR351, M09 PR350 and M11 PR345. M05/M11 scheduler, checkpoint observation ownership and metadata privacy receive separate current integration regressions. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
+      },
+      {
+        "path": "scripts/public-source-files.json",
+        "fromBlob": "8cb3efe75c120185f957ab3df73255756adcf7b8",
+        "toBlob": "7ead37fd2a30d0ef030f18525df6cae556881a65",
+        "note": "Accepted-base advancement, including reviewed M04 core PR351, M09 PR350 and M11 PR345. M05/M11 scheduler, checkpoint observation ownership and metadata privacy receive separate current integration regressions. Original published base and evidence are preserved in M05-continuation-history.json; current selected contract evidence is recorded separately."
       }
     ]
   },
@@ -316,115 +488,63 @@
       "status": "PASS",
       "requiredCases": [
         {
-          "id": "M05.schemas.flags-and-explicit-consent",
+          "id": "M05.schemas-scope-source-revisions-correction-forget-retrieval-consolidation-and-storage",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/project-memory-v3.test.ts"
-        },
-        {
-          "id": "M05.scope.project-account-physical-identity",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/project-memory-v3.test.ts; tests/memory-retrieval-v3.test.ts"
-        },
-        {
-          "id": "M05.immutable-source-reference-integrity",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/project-memory-v3.test.ts; tests/project-memory-ui.test.ts"
-        },
-        {
-          "id": "M05.correction-CAS-conflict-expiry",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/project-memory-v3.test.ts"
-        },
-        {
-          "id": "M05.forget-immediate-shared-source-exclusion",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-forget-v3.test.ts"
-        },
-        {
-          "id": "M05.restore-SQLite-and-full-profile-with-surviving-sibling",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-forget-v3.test.ts"
-        },
-        {
-          "id": "M05.restore-index-dependency-reconciliation",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-restored-index-v3.test.ts"
-        },
-        {
-          "id": "M05.enrollment-retry-and-missing-replaced-corrupt-fence",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-enrollment-recovery-v3.test.ts; tests/memory-forget-v3.test.ts"
-        },
-        {
-          "id": "M05.purge-bounded-copies-and-WAL-retention",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-forget-v3.test.ts"
-        },
-        {
-          "id": "M05.storage-resource-grant-exclusion",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-storage-boundary-v3.test.ts"
-        },
-        {
-          "id": "M05.FILE-grant-revocation-host-snapshot",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-review-extra-v3.test.ts"
-        },
-        {
-          "id": "M05.lexical-byte-budget-expiry-source-tombstones",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-retrieval-v3.test.ts"
-        },
-        {
-          "id": "M05.frozen-request-generation-and-exclusion-seam",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-retrieval-v3.test.ts"
-        },
-        {
-          "id": "M05.provider-deadlines-orphans-capacity-scoped-circuits",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-retrieval-v3.test.ts"
-        },
-        {
-          "id": "M05.extraction-supplied-cut-secrets-references-proposals",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-consolidation-v3.test.ts"
-        },
-        {
-          "id": "M05.consolidation-incremental-lease-watermark-and-usage",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-consolidation-v3.test.ts"
-        },
-        {
-          "id": "M05.checkpoint-capability-and-durable-acknowledgement-seam",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/memory-consolidation-v3.test.ts"
-        },
-        {
-          "id": "M05.renderer-owner-source-crypto-and-transport-guards",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/project-memory-ui.test.ts"
-        },
-        {
-          "id": "M01.M02.current-contract-tests",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/research-baseline.test.ts; tests/m01-m02-compatibility.test.ts; tests/tool-authority-v3.test.ts; tests/tool-effects-v3.test.ts; tests/effect-recovery-v3.test.ts"
-        },
-        {
-          "id": "M05.offline-evaluation-scenarios-not-live-outcomes",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; evals/fixtures/project-memory-v3.json; m05-logs/memory-eval-fixture-json.log"
+          "evidence": "docs/implementation/v3/m05-logs/continuation-m11-final-memory-regression.log; Current selected complete focused suite; individual files and counts remain in the actual argv/log. No live quality claim."
         }
       ]
     },
     {
-      "id": "INTEGRATION_AUTHENTICATED_REVIEW",
+      "id": "INTEGRATION_M04_REQUEST_CONTEXT",
       "status": "PASS",
       "requiredCases": [
         {
-          "id": "actual-Fastify-Store-session-CSRF-scope-CAS-rollback",
+          "id": "accepted-M04-current-contract-tests",
           "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log; tests/project-memory-http-v3.test.ts; unrelated node-pty loading is mocked, terminal execution is never used"
+          "evidence": "docs/implementation/v3/m05-logs/continuation-m11-final-contracts.log; Accepted M04 core PR351 defines request identity/generation, immutable finalization and dispatch custody; original incomplete PR326 is not substituted."
+        }
+      ]
+    },
+    {
+      "id": "INTEGRATION_REQUEST_AND_REVIEW",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "Service-request-preparation-freeze-exclusion-dispatch-usage-and-authenticated-review",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/continuation-m11-final-memory-regression.log; Actual Service/Store and authenticated request/review tests; test doubles do not establish live-provider/browser execution."
+        }
+      ]
+    },
+    {
+      "id": "INTEGRATION_AUXILIARY",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "settled-extraction-model-account-authority-ephemeral-session-pending-spend-recovery-preferences-and-consolidation",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/continuation-m11-final-memory-regression.log; Bounded extraction and host lifecycle tests; configured fake providers are offline. No paid inference is claimed."
+        }
+      ]
+    },
+    {
+      "id": "INTEGRATION_NATIVE_CHECKPOINT",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "Pi-real-native-hook-ordering-and-owner-bridge",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/continuation-m11-final-memory-regression.log; Pinned Pi hook ordering, cancellation and durable receipt checks; provider calls are scripted/stubbed."
+        },
+        {
+          "id": "Hermes-pinned-compression-facade",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859717009-s7-native-facade.log; Actual pinned native facade/API version checks, offline."
+        },
+        {
+          "id": "Hermes-actual-Worker-compaction",
+          "status": "PASS",
+          "evidence": "docs/implementation/v3/m05-logs/windows-ci-43729864202-a1-j132859717009-s7-native-worker.log; Actual pinned Worker and scripted ACP summary; persistence failure/cancellation preserve native history. No live provider spend."
         }
       ]
     },
@@ -433,77 +553,30 @@
       "status": "PASS",
       "requiredCases": [
         {
-          "id": "frozen-declared-package-manager",
+          "id": "TypeScript-current-selected-check",
           "status": "PASS",
-          "evidence": "m05-logs/setup-pinned.log: pnpm 10.30.3, unchanged lockfile"
+          "evidence": "docs/implementation/v3/m05-logs/continuation-installed-memory-final-typecheck.log; Full typecheck only, not a scoped tsconfig substitution."
         },
         {
-          "id": "typecheck",
+          "id": "production-build-current-selected-check",
           "status": "PASS",
-          "evidence": "m05-logs/proof-typecheck.log: exit 0"
-        },
-        {
-          "id": "production-build",
-          "status": "PASS",
-          "evidence": "m05-logs/proof-build.log: exit 0"
-        },
-        {
-          "id": "public-source-inventory-and-ui-guards",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m05-logs/proof-focused-green.log"
-        }
-      ]
-    },
-    {
-      "id": "INTEGRATION_M04_REQUEST_CONTEXT",
-      "status": "BLOCKED",
-      "requiredCases": [
-        {
-          "id": "accepted-M04-request-preparation-contract",
-          "status": "NOT_RUN",
-          "evidence": "M04 is absent from accepted main; draft PR #326 remains unmerged. BLOCKED_SOURCE_DRIFT."
-        },
-        {
-          "id": "runtime-injection-exclusion-generation-and-last-used",
-          "status": "NOT_RUN",
-          "evidence": "No production caller and no substitution through StartRun.memory."
-        }
-      ]
-    },
-    {
-      "id": "INTEGRATION_AUXILIARY_RUNTIME",
-      "status": "BLOCKED",
-      "requiredCases": [
-        {
-          "id": "settled-task-extraction-and-explicit-preference-publication",
-          "status": "NOT_RUN",
-          "evidence": "No host lifecycle cut or provider caller is wired. Host-only FILE grant metadata must be stripped after validation by the future source-cut adapter."
-        },
-        {
-          "id": "consolidation-scheduler-and-native-checkpoint-caller",
-          "status": "NOT_RUN",
-          "evidence": "Pure injected-callback tests do not prove native runtime integration."
+          "evidence": "docs/implementation/v3/m05-logs/continuation-m11-final-build.log; Actual recorded production build; installed-desktop execution is separate."
         }
       ]
     },
     {
       "id": "REGRESSION_REQUIRED",
-      "status": "FAIL",
+      "status": "BLOCKED",
       "requiredCases": [
         {
-          "id": "pnpm-test-command",
-          "status": "FAIL",
-          "evidence": "m05-logs/full-test-command.log: exit 1 at denied tsx IPC setup."
-        },
-        {
-          "id": "full-Vitest-regression",
-          "status": "FAIL",
-          "evidence": "m05-logs/full-tests-final.log: exit 1; 62 failed files, 244 failed tests, 2993 passed, 45 skipped, 4 unhandled errors. Run predates the last targeted restoration/enrollment regression fixes, which pass in proof-focused-green."
-        },
-        {
-          "id": "sample-accepted-base-failure-reproduction",
+          "id": "current-M05-focused-regression",
           "status": "PASS",
-          "evidence": "m05-logs/baseline-failure-reproductions.log: five files fail on untouched accepted base, 8 failed / 15 passed. This sample does not disposition every full-suite failure."
+          "evidence": "docs/implementation/v3/m05-logs/continuation-m11-final-memory-regression.log; Historical full-suite and prior Windows failures remain in the command history. Current required full regression needs a new selected full run or exact-cut Windows shards."
+        },
+        {
+          "id": "current-Windows-full-regression",
+          "status": "NOT_RUN",
+          "evidence": "NOT_RUN for this source cut. All four application regression shards required. CI code/test/workflow cut differs from the current worktree: .github/workflows/ci.yml; CI code/test/workflow cut differs from the current worktree: scripts/public-source-files.json; CI code/test/workflow cut differs from the current worktree: scripts/verify-installed-desktop.ts; CI code/test/workflow cut differs from the current worktree: tests/e2e/artifact-acknowledgment.spec.ts; CI code/test/workflow cut differs from the current worktree: tests/installed-desktop-verification.test.ts; CI code/test/workflow cut differs from the current worktree: scripts/installed-memory-retention.ts; CI code/test/workflow cut differs from the current worktree: tests/memory-native-file-capture-v3.test.ts"
         }
       ]
     },
@@ -512,35 +585,30 @@
       "status": "BLOCKED",
       "requiredCases": [
         {
-          "id": "project-memory-review-browser-flows",
+          "id": "current-project-memory-context-and-baseline-browser",
           "status": "NOT_RUN",
-          "evidence": "Authored ten synthetic scenarios; tsx IPC and Chromium Unix sockets are denied before assertions."
-        },
-        {
-          "id": "baseline-root-browser",
-          "status": "NOT_RUN",
-          "evidence": "Baseline direct runner cannot collect native terminal-dependent suites because pty.node is unavailable."
-        },
-        {
-          "id": "context-inspector-and-project-surface-browser-regression",
-          "status": "NOT_RUN",
-          "evidence": "Direct usage-context: 20 launch failures. Frontend-refinement: 89 launch failures and 2 checks passing without browser. Required msedge binary is unavailable."
+          "evidence": "NOT_RUN for this source cut. The matching current workflow must execute project-memory, usage-context, frontend-refinement and root browser suites. CI code/test/workflow cut differs from the current worktree: .github/workflows/ci.yml; CI code/test/workflow cut differs from the current worktree: scripts/public-source-files.json; CI code/test/workflow cut differs from the current worktree: scripts/verify-installed-desktop.ts; CI code/test/workflow cut differs from the current worktree: tests/e2e/artifact-acknowledgment.spec.ts; CI code/test/workflow cut differs from the current worktree: tests/installed-desktop-verification.test.ts; CI code/test/workflow cut differs from the current worktree: scripts/installed-memory-retention.ts; CI code/test/workflow cut differs from the current worktree: tests/memory-native-file-capture-v3.test.ts"
         }
       ]
     },
     {
-      "id": "PLATFORM_NATIVE",
+      "id": "PLATFORM_NATIVE_STORAGE_AND_INSTALLED_DESKTOP",
       "status": "BLOCKED",
       "requiredCases": [
         {
-          "id": "actual-native-FILE-capture-custody",
+          "id": "actual-native-FILE-capture",
           "status": "NOT_RUN",
-          "evidence": "Native Linux path guard cannot establish required IPC. Host snapshot/grant fixtures and requested-pin stubs are not native proof."
+          "evidence": "NOT_RUN: three unmocked Windows guard capture/reuse/revocation/replacement cases are authored and typechecked. Their actual Windows execution remains pending; prior host-custody mocks do not prove this boundary."
         },
         {
-          "id": "Windows-installed-desktop-and-checkpoint-custody",
+          "id": "installed-default-off-retained-memory-review-and-restart",
           "status": "NOT_RUN",
-          "evidence": "No actual Windows/installed-target execution. Global Hermes memory stays disabled."
+          "evidence": "NOT_RUN: the owned NSIS installation verifier now exercises retained source detail, correction, acceptance, rejection, redacted export, Forget and restart with a disposable seeded profile and production flags off. Local fixture/custody tests do not establish installed execution."
+        },
+        {
+          "id": "installed-enabled-memory-flow",
+          "status": "NOT_RUN",
+          "evidence": "NOT_RUN: the retained-record verifier does not activate installed recall, automatic extraction or native checkpoint flows. Production flags remain false."
         }
       ]
     },
@@ -549,20 +617,9 @@
       "status": "BLOCKED",
       "requiredCases": [
         {
-          "id": "thread-note-control-versus-project-memory-quality-and-total-cost",
+          "id": "thread-note-control-versus-project-memory-quality-and-complete-auxiliary-cost",
           "status": "NOT_RUN",
-          "evidence": "NOT_RUN: no authorized live host/model and M04 request integration is absent; all unmeasured quality/cost values remain null."
-        }
-      ]
-    },
-    {
-      "id": "CORE_EVIDENCE_INTEGRITY",
-      "status": "PASS",
-      "requiredCases": [
-        {
-          "id": "ImplementationEvidenceV3-source-lock-log-digests-and-file-inventory",
-          "status": "PASS",
-          "evidence": "scripts/verify-m05-evidence.ts validates integrity separately from the FAIL bundle status."
+          "evidence": "docs/implementation/v3/m05-logs/continuation-study-manifest-final.log; actual current MANIFEST_ONLY result, exit code 2 retained as FAIL command. No host/model, no provider calls, all six summary metrics null. Live assertions NOT_RUN."
         }
       ]
     }
@@ -1633,6 +1690,38 @@
       "termination": "NONE",
       "status": "FAIL",
       "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "318b2a0e253e2b3881be1947df11837ea9963eaa5f312583db8b3e7534b85b63",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43733008039-a1-j132869421472-s5-installed-package.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "6ea3800879f616b3246a6874096d1eb2a78bca84af411fd63da0098e2773d584",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-integration-record-projection-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "fe3020143dad6607007d2b71f94fb6adcdd52482f9691d2a0a205733a817daef",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-integration-record-spread-owner-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
+    },
+    {
+      "commandKey": "270892c450fc4467b85f915f43dc558e52b743a37c422a8399e57c80e6e2f2f2",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-integration-record-own-alias-red.log",
+      "exitCode": 1,
+      "termination": "NONE",
+      "status": "FAIL",
+      "selectedForCurrentCase": false
     }
   ],
   "refreshes": [
@@ -1904,6 +1993,25 @@
       "ledgerBeforeDigest": "6232652aba5ff4f1fef6d6ccf3483869c23228977d1da87d582d6205f254b966",
       "ledgerAfterDigest": "c20c6294a6afeb9ca6ba0e28b6e47751cd5297cd853caf812137468575f667ff",
       "windowsCiRef": "docs/implementation/v3/M05-windows-ci-43729864202.json",
+      "windowsCiCurrentCodeCut": false
+    },
+    {
+      "recordedAt": "2026-11-15T16:39:01.249026+00:00",
+      "executionBaseSha": "399cde39ff4ee82272c7a7700944325c44b36070",
+      "sourceParentHeadSha": "41028750e48d4e456f7636c1a2fb43d9adc541a2",
+      "selectedCurrentCommandRefs": [
+        "docs/implementation/v3/m05-logs/continuation-integration-record-projection-final-typecheck.log",
+        "docs/implementation/v3/m05-logs/continuation-m11-final-build.log",
+        "docs/implementation/v3/m05-logs/continuation-m11-final-contracts.log",
+        "docs/implementation/v3/m05-logs/continuation-m11-final-memory-regression.log",
+        "docs/implementation/v3/m05-logs/continuation-study-manifest-final.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43733008039-a1-j132869421229-s7-native-facade.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43733008039-a1-j132869421229-s7-native-worker.log",
+        "docs/implementation/v3/m05-logs/windows-ci-43733008039-a1-j132869421442-s5-application-regression.log"
+      ],
+      "ledgerBeforeDigest": "a2ea61fccb672d0ea2e4b73756684583dc7cc3ca4c17cee007d6888790be1bb2",
+      "ledgerAfterDigest": "7b8013581147836e0c73f24ce1e936bf205ae25337792f9dd514f79d7a3047cc",
+      "windowsCiRef": "docs/implementation/v3/M05-windows-ci-43733008039.json",
       "windowsCiCurrentCodeCut": false
     }
   ]

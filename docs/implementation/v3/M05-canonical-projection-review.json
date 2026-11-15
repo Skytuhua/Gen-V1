@@ -1,0 +1,198 @@
+{
+  "version": 1,
+  "kind": "independent-canonical-python-projection-review",
+  "reviewedAt": "2026-11-15T16:34:51.512334+00:00",
+  "reviewer": "memory_integration_audit",
+  "conclusion": {
+    "boundedReview": "PASS",
+    "unresolvedConcreteFindings": [],
+    "meaning": "The two reproduced ownership invariants are repaired; the complete focused fixture suite passes. This is not an installed-desktop or actual pinned-wheel payload result."
+  },
+  "sourceCut": {
+    "worktree": "/workspace/scratch/36f66011d961/m05-continuation",
+    "headContext": "41028750e48d4e456f7636c1a2fb43d9adc541a2",
+    "binding": "The reviewed file bytes are bound by the SHA-256 values below. The HEAD identifier is repository context, not a claim that this review artifact has been committed.",
+    "files": [
+      {
+        "path": "scripts/integration_python_projection.py",
+        "bytes": 17295,
+        "sha256": "8c98f8677364e9df2a55ff3717b8c6977d5eb56ad5773b206d8290cdf5fcbd1f"
+      },
+      {
+        "path": "scripts/integration-assets.ts",
+        "bytes": 14137,
+        "sha256": "d043b991f82e30dc8b4b7f32b28e489de91e3a14ed9e7e535d9141c44da00d5f"
+      },
+      {
+        "path": "tests/integration-packaging-canonical-negative.test.ts",
+        "bytes": 16843,
+        "sha256": "f273e8246bb1be2fe32804af44bc93e6580e86cce57e6d1bd058265881265cad"
+      },
+      {
+        "path": "third-party/integrations/PYTHON_LOCK.json",
+        "bytes": 1526869,
+        "sha256": "264d28c353d065001daaad796abf3602074599ab5fbd630bcb0958c529b63700"
+      }
+    ],
+    "originalLock": {
+      "path": "third-party/integrations/PYTHON_LOCK.json",
+      "sha256": "264d28c353d065001daaad796abf3602074599ab5fbd630bcb0958c529b63700",
+      "gitHeadSha256": "264d28c353d065001daaad796abf3602074599ab5fbd630bcb0958c529b63700",
+      "byteIdenticalToGitHead": true,
+      "version": 1,
+      "python": "3.14",
+      "distributions": 91,
+      "files": 7415,
+      "recordFiles": 91,
+      "protectedNonRecordFiles": 7324,
+      "bytes": 254072246,
+      "recordBytes": 671101,
+      "protectedNonRecordBytes": 253401145,
+      "unchanged": true
+    }
+  },
+  "evidence": {
+    "finalFocusedSuite": {
+      "passed": 28,
+      "failed": 0,
+      "skipped": 0,
+      "filesPassed": 1,
+      "command": {
+        "argv": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "tests/integration-packaging-canonical-negative.test.ts",
+          "--maxWorkers=1",
+          "--reporter=dot"
+        ],
+        "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+        "executableIdentity": "node",
+        "startedAt": "2026-11-15T16:32:42.302729+00:00",
+        "endedAt": "2026-11-15T16:32:46.430286+00:00",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS",
+        "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-integration-record-projection-green-3.log",
+        "logDigest": "42d69ab74b0e22e1c116b9272597f28a412aa4d9b20705e2140209b541f8afd9"
+      }
+    },
+    "reproducedFailures": [
+      {
+        "invariant": "Distribution ownership must be checked after wheel installation-path spreading.",
+        "testName": "rejects foreign distribution metadata ownership after wheel data spreading",
+        "result": {
+          "passed": 0,
+          "failed": 1,
+          "skipped": 26
+        },
+        "command": {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/integration-packaging-canonical-negative.test.ts",
+            "--maxWorkers=1",
+            "--reporter=dot",
+            "-t",
+            "foreign distribution metadata ownership after wheel data spreading"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "node",
+          "startedAt": "2026-11-15T16:26:25.302500+00:00",
+          "endedAt": "2026-11-15T16:26:26.328746+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-integration-record-spread-owner-red.log",
+          "logDigest": "3483e8af2dbeb3aa31c161b38a93a3559611a28a7f28bcf3d8ab02b385ed6388"
+        },
+        "observedFailure": "The collector resolved when an alpha wheel member under alpha.data/purelib claimed beta.dist-info/licenses/LICENSE. The original locked license bytes were preserved and the full wheel pin was updated in the owned fixture.",
+        "repair": "_spread rechecks the resulting top-level .dist-info owner after stripping the approved .data installation scheme."
+      },
+      {
+        "invariant": "Only the root wheel RECORD may supply archive authority; a spread alias must not enter the generated installed RECORD ownership set.",
+        "testName": "rejects an own RECORD alias after wheel data spreading instead of generating duplicate self rows",
+        "result": {
+          "passed": 0,
+          "failed": 1,
+          "skipped": 27
+        },
+        "command": {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/integration-packaging-canonical-negative.test.ts",
+            "--maxWorkers=1",
+            "--reporter=dot",
+            "-t",
+            "own RECORD alias after wheel data spreading"
+          ],
+          "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+          "executableIdentity": "node",
+          "startedAt": "2026-11-15T16:32:02.570295+00:00",
+          "endedAt": "2026-11-15T16:32:03.385549+00:00",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-integration-record-own-alias-red.log",
+          "logDigest": "9d2b975e65e072affccbb0c235835be1d01d808fc21698309f95e93d595da293"
+        },
+        "observedFailure": "The collector resolved and emitted both a blank self row and a hashed self row for fixture_alpha-1.0.0.dist-info/RECORD. Both rows are preserved at lines 47-48 of the red log.",
+        "repair": "_wheel_members rejects _record_path(relative) after _spread and before adding the installed path to claimed/owned. Root wheel RECORD parsing and its blank self-row validation remain intact.",
+        "chronology": "This edge was initially reported as source-only. The recorded red command subsequently reproduced it before the repair."
+      }
+    ],
+    "logIntegrity": "Each referenced log digest was recomputed and matched its existing command ledger record when this review was written."
+  },
+  "coverage": {
+    "authenticatedInput": "Whole-wheel SHA-256 and archive RECORD membership/checksums authenticate ownership. Tests use Python standard-library ZIP generation with deterministic timestamps; no dependency or custom ZIP parser was added.",
+    "deterministicRecords": "Two same-input collections produce equal receipts. Each distribution receives exactly its owned locked files, including shared-namespace modules, with one blank self row.",
+    "nonRecordPreservation": "The positive fixture checks exact output bytes, byte counts, hashes and source/content exclusivity; tampering tests cover module, METADATA, INSTALLER, entry_points, license and REQUESTED paths.",
+    "membershipRefusals": [
+      "wrong full-wheel hash",
+      "unsafe and traversing ZIP paths",
+      "duplicate archive names",
+      "foreign metadata ownership before and after spreading",
+      "own RECORD spread alias",
+      "two wheels claiming one runtime file",
+      "missing ownership for a locked runtime file",
+      "wheel bytes conflicting with the original lock"
+    ],
+    "cacheRefusals": [
+      "missing locked runtime file",
+      "unexpected root module",
+      "unexpected file in known dist-info",
+      "bookkeeping in an unknown dist-info"
+    ],
+    "stagedSetEquality": {
+      "positive": "Each stage verifies every staged projected byte against collected bytes and then invokes the strict final payload verifier.",
+      "negativeCases": [
+        "undeclared rogue.py",
+        "known dist-info/direct_url.json",
+        "Scripts/rogue.exe",
+        "shared/__pycache__/alpha.cpython-314.pyc"
+      ],
+      "property": "All four additions are refused, including files omitted by the legacy input scan. The canonical final scan does not omit install artifacts."
+    },
+    "sourceRecheck": "Mutating a protected module after collection and before staging is refused by stageIntegrationPayload.",
+    "legacyBehavior": "Independent source review confirms that collectIntegrationPayload without the explicit canonicalPython option retains the original exact-v1 inventory/hash branch."
+  },
+  "proofLimits": [
+    "The focused suite uses two disposable authenticated fixture wheels, not the actual 91 pinned distribution archives.",
+    "This review does not establish that the current regression pip cache matches all 7,324 protected original non-RECORD files. The real collector must verify that at packaging time.",
+    "No Windows canonical packaging, installer production, relocated Graphify/Specify command execution, or installed-desktop retained-memory flow was executed by this review.",
+    "Actual pinned wheels with unsupported installation schemes fail closed. Their compatibility remains a target packaging check.",
+    "No model/provider call, live-memory quality metric, activation claim, or new image inspection is part of this result.",
+    "Final project-wide typecheck is separately owned and recorded by the UI agent; it is not inferred from the focused suite or claimed by this artifact."
+  ],
+  "changeScope": {
+    "thisAgentRepositoryEdits": [
+      "tests/integration-packaging-canonical-negative.test.ts"
+    ],
+    "productionImplementationOwner": "ui_audit",
+    "reviewWrite": "Only this scratch JSON was created in this final review step; no repository or ledger write was performed.",
+    "frozen": true
+  }
+}

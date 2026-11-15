@@ -206,6 +206,24 @@ jobs:
         with:
           python: 'true'
 
+      - name: Stage pinned integration wheels for canonical packaging
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $lock = Get-Content -Raw -LiteralPath third-party/integrations/PYTHON_LOCK.json | ConvertFrom-Json
+          $wheels = Join-Path $env:RUNNER_TEMP ('gen-packaging-wheels-' + [guid]::NewGuid().ToString('N'))
+          New-Item -ItemType Directory -Path $wheels | Out-Null
+          $names = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+          foreach ($distribution in $lock.distributions) {
+            if ($distribution.sourceUrl -notmatch '^https://files\.pythonhosted\.org/[^?#\s]+\.whl$' -or $distribution.wheelSha256 -notmatch '^[0-9a-f]{64}$') { throw 'Invalid pinned integration wheel identity' }
+            $name = [System.IO.Path]::GetFileName(([System.Uri]$distribution.sourceUrl).AbsolutePath)
+            if ($name -notmatch '^[A-Za-z0-9_.+-]+\.whl$' -or -not $names.Add($name)) { throw 'Ambiguous pinned integration wheel filename' }
+            $archive = Join-Path $wheels $name
+            Invoke-WebRequest -Uri $distribution.sourceUrl -OutFile $archive -TimeoutSec 180
+            if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $distribution.wheelSha256) { throw 'Pinned integration wheel archive checksum mismatch' }
+          }
+          "HARNESS_INTEGRATION_WHEELS=$wheels" >> $env:GITHUB_ENV
+          Write-Output ('HARNESS_PINNED_INTEGRATION_WHEELS=' + (@{count=$names.Count; sourceLockSha256=(Get-FileHash -LiteralPath third-party/integrations/PYTHON_LOCK.json -Algorithm SHA256).Hash.ToLowerInvariant()} | ConvertTo-Json -Compress))
+
       - name: Stage declared Git and GitHub CLI packaging inputs
         run: |
           $ErrorActionPreference = 'Stop'
@@ -270,6 +288,7 @@ jobs:
           include-hidden-files: true
           path: |
             .harness-installed-package/desktop-release-*/build-manifest.json
+            .harness-installed-package/desktop-stage-*/desktop-host/third-party/integrations/PYTHON_INSTALLATION_V2.json
             .harness-desktop-installed/run-*/owner.json
             .harness-desktop-installed/run-*/verification.json
             .harness-desktop-installed/run-*/*.png
