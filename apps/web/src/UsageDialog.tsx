@@ -48,8 +48,10 @@ export function UsageDialog({ open, onClose, reports = [], requests = [], loadin
   const selectedProvider = providers.some(([value]) => value === provider) ? provider : '';
   const visible = reports.filter(report => (!selectedScope || report.scopeId === selectedScope) && (!selectedProvider || report.providerId === selectedProvider));
   // Requests are measured per binding, not per provider report — filter them by
-  // the provider picker only and render them as their own list.
-  const visibleRequests = requests.filter(request => !selectedProvider || request.binding.providerId === selectedProvider);
+  // the provider picker only, newest first, and render them as their own list.
+  const visibleRequests = requests
+    .filter(request => !selectedProvider || request.binding.providerId === selectedProvider)
+    .sort((a, b) => b.timings.queued - a.timings.queued);
   const refresh = async () => {
     if (!onRefresh || pending.current) return;
     pending.current = true; setRefreshing(true); setRefreshError(''); const owner = generation.current;

@@ -110,4 +110,3 @@
 .model-picker-new-task{margin:.4rem .6rem .6rem;padding:.45rem .7rem;border:1px solid var(--border,#333);border-radius:.45rem;background:transparent;color:inherit;font-size:.82rem;cursor:pointer;text-align:left}
 .model-picker-new-task:hover:not(:disabled){background:var(--hover,#2a2a2a)}
 .model-picker-new-task:disabled{opacity:.5;cursor:default}
-.usage-request-stage{display:contents}

@@ -163,7 +163,7 @@
       "id": "m11.integration.ui-surface",
       "status": "PASS",
       "requiredCases": [
-        { "id": "usage-dialog-requests-tab", "status": "PASS", "evidence": "Requests tab renders per-request cards (model, provider, outcome badge, phase), a stage-timing chip strip with '—' for unmeasured stages, metrics strip and recorded errors; Queued shows the admission clock time; tab placed after Limits so existing keyboard navigation is preserved (regression found and fixed)" },
+        { "id": "usage-dialog-requests-tab", "status": "PASS", "evidence": "Requests tab renders per-request cards (model, provider, outcome badge, phase), a stage-timing chip strip with '—' for unmeasured stages, metrics strip and recorded errors, newest request first; Queued shows the admission clock time; tab placed after Limits so existing keyboard navigation is preserved (regression found and fixed)" },
         { "id": "tokens-tab-cache-rows", "status": "PASS", "evidence": "Tokens tab reports cache read/write rows" },
         { "id": "foreground-status-labels", "status": "PASS", "evidence": "working status distinguishes Queued for account / Starting runtime / Generating / Running tool / Cleaning up / Compacting context" },
         { "id": "new-task-profile-picker", "status": "PASS", "evidence": "model picker shows 'Applies to new tasks' scope hint and 'Start new task with profile' action; existing conversation keeps its binding" },
