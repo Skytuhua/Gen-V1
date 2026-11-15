@@ -37,7 +37,7 @@ import { sourceDigestSync } from "./project-verification.ts";
 import { verificationDeclarationV1Schema, type CheckObservationV1, type DeliverableAssessmentV1, type VerificationDeclarationV1, type VisualObservationV1 } from "../contracts/verification.ts";
 import type { ToolEffectRecord } from "../contracts/tool-effects.ts";
 import { buildToolRegistry, ToolAuthority, type ActorRole } from "./tool-authority.ts";
-import { ToolEffectLedger, createToolEffectFlags, type ToolEffectFlag } from "./tool-effects.ts";
+import { ToolEffectLedger, createToolEffectFlags, privateArgumentCommitment, type ToolEffectFlag } from "./tool-effects.ts";
 import { recoverEffects } from "./effect-recovery.ts";
 
 type Outbox = { id: string; threadId: string; content: string; status: "persisted" | "processing" | "handled"; runId: string | null; enteredRuntime?: boolean;messageId?:string;completedWrite?:CompletedWriteReceipt;hookClaimed?:boolean;hookDiagnostic?:WriteHookDiagnostic };
@@ -1057,7 +1057,7 @@ export class Service {
         if (pending.length) throw new HarnessError("REQUEST_GATED", "There is unfinished input");
         this.store.put("finish", ctx.runId, ctx.threadId, { outcome: a.outcome ?? a.summary, evidence: a.evidence ?? [], assessment: true, inputIds: current.map(i => i.id) });
         if (hostFlagEnabled("verification.workflowV1")) {
-          const assessment = this.completionAssessment(ctx);
+          const assessment = this.completionAssessment(ctx, call);
           if (assessment) this.store.put("assessment", assessment.assessmentId, ctx.threadId, assessment);
         }
         return { accepted: true, settlesAfterRuntime: true };
@@ -1070,15 +1070,21 @@ export class Service {
    * task_finish store transaction — no awaits. Verified only when every
    * declared requirement carries a fresh PASS observation against the current
    * source/environment digests and no external effect is unresolved. */
-  private completionAssessment(ctx: RunContext): DeliverableAssessmentV1 | null {
+  private completionAssessment(ctx: RunContext, call: ToolCall): DeliverableAssessmentV1 | null {
     const declaration = this.store.get<VerificationDeclarationV1>("verificationDeclaration", ctx.threadId);
     const observations: (CheckObservationV1 | VisualObservationV1)[] = [
       ...this.store.all<CheckObservationV1>("checkObservation", ctx.threadId),
       ...this.store.all<VisualObservationV1>("visualObservation", ctx.threadId),
     ];
     if (!declaration && !observations.length) return null;
+    // When effect auditing wraps task_finish, the ledger admits this very call
+    // as DISPATCHED and settles it only after the body returns. That record is
+    // the invocation itself, not an outstanding external effect — exclude it by
+    // its argument commitment so audited completion does not block on itself.
+    const selfCommitment = privateArgumentCommitment(call);
     const unresolvedEffects = this.store.all<ToolEffectRecord>("toolEffect", ctx.threadId)
       .filter(effect => !["SUCCEEDED", "FAILED", "CANCELLED", "DENIED"].includes(effect.state) || effect.state === "UNKNOWN_EXTERNAL_OUTCOME")
+      .filter(effect => !(effect.toolId === "task_finish" && effect.privateArgumentCommitment === selfCommitment))
       .map(effect => effect.invocationId);
     const empty = "0".repeat(64);
     let sourceCut: { headSha: string | null; codeDigest: string; dependencyDigest: string; environmentId: string };

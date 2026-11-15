@@ -3,7 +3,8 @@ import type {
   CheckObservationV1, CompletionLabel, DeliverableAssessmentV1,
   VerificationDeclarationV1, VisualObservationV1,
 } from '../contracts/verification.ts';
-import { observationFreshness } from './verification-gate.ts';
+import { computeAssessment, observationFreshness } from './verification-gate.ts';
+import { sourceDigestSync } from './project-verification.ts';
 
 /** M06 additive read model for the verification panel. Columns: requirement,
  * observed check, source revision, outcome, freshness, verifier and evidence.
@@ -40,11 +41,45 @@ export function verificationPanelModel(store: Store, threadId: string): Verifica
     ...store.all<CheckObservationV1>('checkObservation', threadId),
     ...store.all<VisualObservationV1>('visualObservation', threadId),
   ];
-  const current = latest
-    ? { codeDigest: latest.sourceCut.codeDigest, dependencyDigest: latest.sourceCut.dependencyDigest, environmentId: latest.sourceCut.environmentId }
-    : observations.length
-      ? { codeDigest: observations.at(-1)!.codeDigest, dependencyDigest: observations.at(-1)!.dependencyDigest, environmentId: observations.at(-1)!.environmentId }
-      : null;
+  // The current source cut describes the workspace at READ time, not when an
+  // assessment was saved: with a declaration, re-digest the declared inputs
+  // live. Unavailable inputs make freshness indeterminate — never verified.
+  let current: { codeDigest: string; dependencyDigest: string; environmentId: string } | null;
+  let recomputed: DeliverableAssessmentV1 | null = null;
+  if (declaration) {
+    try {
+      current = {
+        codeDigest: sourceDigestSync(declaration.rootPath, declaration.sourceFiles),
+        dependencyDigest: sourceDigestSync(declaration.rootPath, declaration.dependencyFiles),
+        environmentId: declaration.environmentId,
+      };
+    } catch {
+      current = null;
+    }
+    // The stored assessment is immutable; the displayed label/summary is
+    // recomputed against the live cut so a source edit cannot keep a green
+    // Verified badge.
+    recomputed = computeAssessment({
+      threadId,
+      sourceCut: {
+        headSha: latest?.sourceCut.headSha ?? null,
+        codeDigest: current?.codeDigest ?? '0'.repeat(64),
+        dependencyDigest: current?.dependencyDigest ?? '0'.repeat(64),
+        environmentId: declaration.environmentId,
+      },
+      requirements: declaration.requirements,
+      observations,
+      unresolvedEffects: latest?.unresolvedEffects ?? [],
+      verifierIdentity: latest?.verifierIdentity ?? 'verification-panel',
+      provenance: 'read model recomputed against live source digests',
+    });
+  } else {
+    current = latest
+      ? { codeDigest: latest.sourceCut.codeDigest, dependencyDigest: latest.sourceCut.dependencyDigest, environmentId: latest.sourceCut.environmentId }
+      : observations.length
+        ? { codeDigest: observations.at(-1)!.codeDigest, dependencyDigest: observations.at(-1)!.dependencyDigest, environmentId: observations.at(-1)!.environmentId }
+        : null;
+  }
 
   const byRef = new Map<string, CheckObservationV1>();
   for (const obs of observations) {
@@ -54,7 +89,7 @@ export function verificationPanelModel(store: Store, threadId: string): Verifica
   const freshnessOf = (obs: CheckObservationV1) => (current ? observationFreshness(obs, current) : 'INDETERMINATE' as const);
 
   const rows: VerificationPanelRow[] = [];
-  const assessed = new Map(latest?.requirements.map(req => [req.id, req]) ?? []);
+  const assessed = new Map((recomputed?.requirements ?? latest?.requirements ?? []).map(req => [req.id, req]));
   if (declaration) {
     for (const req of declaration.requirements) {
       const bound = req.checkRefs.map(ref => byRef.get(ref)).filter((obs): obs is CheckObservationV1 => Boolean(obs));
@@ -87,7 +122,7 @@ export function verificationPanelModel(store: Store, threadId: string): Verifica
   }
 
   const counts = { verified: 0, failed: 0, unverified: 0, blocked: 0, missing: [] as string[] };
-  for (const req of latest?.requirements ?? []) {
+  for (const req of recomputed?.requirements ?? latest?.requirements ?? []) {
     if (req.assessment === 'VERIFIED') counts.verified += 1;
     else if (req.assessment === 'FAILED') counts.failed += 1;
     else if (req.assessment === 'BLOCKED') counts.blocked += 1;
@@ -95,5 +130,5 @@ export function verificationPanelModel(store: Store, threadId: string): Verifica
     counts.missing.push(...req.missing);
   }
   const staleBanner = rows.some(row => row.freshness === 'STALE');
-  return { label: latest?.label ?? null, staleBanner, summary: counts, rows };
+  return { label: recomputed?.label ?? latest?.label ?? null, staleBanner, summary: counts, rows };
 }

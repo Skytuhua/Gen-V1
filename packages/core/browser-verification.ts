@@ -41,9 +41,14 @@ export interface BrowserSession {
 }
 
 /** The only browser entry point: a fresh profile directory the driver owns.
- * Drivers must not reuse an existing user profile or its credentials. */
+ * Drivers must not reuse an existing user profile or its credentials.
+ * `allowOrigin` is the request-time policy hook: the driver MUST consult it for
+ * every navigation, popup and subresource request and abort the request before
+ * it is sent when the hook returns false. Post-hoc observation in
+ * `observedOrigins` is the audit layer, not the enforcement layer — an origin
+ * that appears there means traffic already reached it, which fails the run. */
 export interface BrowserDriver {
-  launch(options: { profileDir: string; viewport: { width: number; height: number }; approvedOrigins: readonly string[] }): Promise<BrowserSession>;
+  launch(options: { profileDir: string; viewport: { width: number; height: number }; approvedOrigins: readonly string[]; allowOrigin: (origin: string) => boolean }): Promise<BrowserSession>;
 }
 
 export interface BrowserRunInput {
@@ -93,7 +98,15 @@ export async function runBrowserChecklist(store: Store, input: BrowserRunInput, 
   const observations: VisualObservationV1[] = [];
   const deniedOrigins: string[] = [];
   let outcome: BrowserRunResult['outcome'] = 'PASS';
-  const session = await input.driver.launch({ profileDir: join(input.artifactDir, 'profile'), viewport: checklist.viewport, approvedOrigins: checklist.approvedOrigins });
+  const deniedAtBoundary: string[] = [];
+  const session = await input.driver.launch({
+    profileDir: join(input.artifactDir, 'profile'), viewport: checklist.viewport, approvedOrigins: checklist.approvedOrigins,
+    allowOrigin: origin => {
+      const approved = sameOrigin(checklist.approvedOrigins, origin);
+      if (!approved && !deniedAtBoundary.includes(origin)) deniedAtBoundary.push(origin);
+      return approved;
+    },
+  });
 
   const screenshots = new Map<string, string>();
   const writeShot = async (itemId: string, data: Buffer): Promise<string> => {
@@ -121,8 +134,11 @@ export async function runBrowserChecklist(store: Store, input: BrowserRunInput, 
     });
   };
 
+  // Items verified by an executed behavioral assertion, not by capture alone.
+  const assertedItems = new Set<string>();
   const runStep = async (step: BrowserStep): Promise<'ok' | 'stop'> => {
     if (clock() > deadlineAt) { outcome = 'FAIL'; record('__deadline__', 'Overall browser deadline', `Exceeded ${BROWSER_RUN_DEADLINE_MS}ms`, 'FAIL', null); return 'stop'; }
+    if ('checklistItemId' in step && step.kind.startsWith('ASSERT_')) assertedItems.add(step.checklistItemId);
     switch (step.kind) {
       case 'NAVIGATE': {
         if (!sameOrigin(checklist.approvedOrigins, step.url)) {
@@ -199,11 +215,24 @@ export async function runBrowserChecklist(store: Store, input: BrowserRunInput, 
         outcome = 'FAIL';
       }
     }
-    // A required screenshot that never ran leaves its item BLOCKED, never PASS.
+    // Request-time denial is evidence the origin policy held; traffic that
+    // actually reached an unapproved origin still fails the run above.
+    if (deniedAtBoundary.length) {
+      deniedOrigins.push(...deniedAtBoundary);
+      record('__boundary__', 'Unapproved traffic was denied at the request boundary', deniedAtBoundary.join(', '), 'PASS', null);
+    }
+    // A required screenshot that never ran leaves its item BLOCKED, never PASS;
+    // a screenshot alone cannot verify an item — each needs an executed
+    // behavioral assertion, plus its required screenshot when declared.
     for (const itemId of checklist.items) {
+      if (outcome === 'CANCELLED') continue;
       const itemObs = observations.filter(obs => obs.checklistItemId === itemId);
-      if (!itemObs.length && outcome !== 'CANCELLED') {
-        record(itemId, 'Checklist item observed', 'No observation was produced for this item', 'BLOCKED', null);
+      const requiredShot = checklist.steps.some(s => s.kind === 'SCREENSHOT' && s.checklistItemId === itemId && s.required);
+      if (!assertedItems.has(itemId)) {
+        record(itemId, 'Checklist item requires an executed assertion', itemObs.length ? 'Only screenshot evidence was produced; a capture alone cannot verify behavior' : 'No observation was produced for this item', 'BLOCKED', null);
+        if (outcome === 'PASS') outcome = 'BLOCKED';
+      } else if (requiredShot && !screenshots.has(itemId)) {
+        record(itemId, 'Required visual assertion needs a screenshot', 'No screenshot was captured for this item', 'BLOCKED', null);
         if (outcome === 'PASS') outcome = 'BLOCKED';
       }
     }

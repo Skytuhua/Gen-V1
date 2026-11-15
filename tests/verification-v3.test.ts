@@ -60,15 +60,15 @@ function approval(store:Store,recipe:VerificationRecipeV1,o:ToolOwner):ApprovalV
  store.internal('test.fixture',o.threadId,()=>store.put('approval',value.approvalId,o.threadId,value));
  return value;
 }
-interface FakeProc extends LaunchedProcess {terminated:boolean;launchedArgv:string[]}
-function launcher(results:{exitCode:number|null;termination?:'NONE'|'TIMEOUT'|'CANCELLED'|'SPAWN_ERROR'}[]){
+interface FakeProc extends LaunchedProcess {terminated:boolean;launchedArgv:string[];end?:()=>void}
+function launcher(results:{exitCode:number|null;termination?:'NONE'|'TIMEOUT'|'CANCELLED'|'SPAWN_ERROR';stayAlive?:boolean}[]){
  const launched:FakeProc[]=[];let i=0;
  const fn:VerificationLauncher={launch:async req=>{
   const next=results[Math.min(i++,results.length-1)];
   const proc:FakeProc={pid:4000+i,launchedArgv:req.argv,terminated:false,
    tree:async()=>[4000+i,5000+i],
-   wait:async()=>({exitCode:next.exitCode,termination:next.termination??'NONE'}),
-   terminate:async()=>{proc.terminated=true;},
+   wait:()=>next.stayAlive?new Promise(resolve=>{proc.end=()=>resolve({exitCode:143,termination:'NONE'})}):Promise.resolve({exitCode:next.exitCode,termination:next.termination??'NONE'}),
+   terminate:async()=>{proc.terminated=true;proc.end?.();},
    log:async()=>({text:'bounded log output',truncated:false})};
   launched.push(proc);return proc;
  }};
@@ -105,7 +105,7 @@ it('an approved recipe runs the fixed phase order and records bound observations
  const service=new ProjectVerificationService(store,FLAGS_ON);
  const o=owner();const r=await recipe(root);const ap=approval(store,r,o);
  service.registerRecipe(r,ap.approvalId,o);
- const l=launcher([{exitCode:0},{exitCode:0},{exitCode:0}]);
+ const l=launcher([{exitCode:0},{exitCode:0},{exitCode:0,stayAlive:true}]);
  const probe:ListenerProbe={probe:async()=>({reachable:true,ownerPid:4003})};
  const result=await service.runRecipe(o,request('recipe-1'),l.fn,probe);
  expect(result.outcome).toBe('PASS');
@@ -139,7 +139,8 @@ it('readiness requires the launched process tree to own the approved endpoint',a
  const root=workspace();const store=stateStore();
  const service=new ProjectVerificationService(store,FLAGS_ON);
  const o=owner();const r=await recipe(root);service.registerRecipe(r,approval(store,r,o).approvalId,o);
- const l=launcher([{exitCode:0},{exitCode:0},{exitCode:0}]);
+ const l=launcher([{exitCode:0},{exitCode:0},{exitCode:0,stayAlive:true}]);
+ const l2=launcher([{exitCode:0},{exitCode:0},{exitCode:0,stayAlive:true}]);
  // A stale server answers 200 but the owner cannot be proven: still BLOCKED.
  const stale:ListenerProbe={probe:async()=>({reachable:true,ownerPid:null})};
  const blocked=await service.runRecipe(o,request('recipe-1'),l.fn,stale);
@@ -149,7 +150,7 @@ it('readiness requires the launched process tree to own the approved endpoint',a
  expect(readinessObs?.outcome).toBe('BLOCKED');
  // A foreign PID owning the endpoint is also unproven.
  const foreign:ListenerProbe={probe:async()=>({reachable:true,ownerPid:99999})};
- const again=await service.runRecipe(o,request('recipe-1'),l.fn,foreign);
+ const again=await service.runRecipe(o,request('recipe-1'),l2.fn,foreign);
  expect(again.observations.find(obs=>obs.phase==='READINESS')?.outcome).toBe('BLOCKED');
 });
 
@@ -157,7 +158,7 @@ it('freshness is derived from the current source cut and never rewrites the reco
  const root=workspace();const store=stateStore();
  const service=new ProjectVerificationService(store,FLAGS_ON);
  const o=owner();const r=await recipe(root);service.registerRecipe(r,approval(store,r,o).approvalId,o);
- const result=await service.runRecipe(o,request('recipe-1'),launcher([{exitCode:0},{exitCode:0},{exitCode:0}]).fn,{probe:async()=>({reachable:true,ownerPid:4003})});
+ const result=await service.runRecipe(o,request('recipe-1'),launcher([{exitCode:0},{exitCode:0},{exitCode:0,stayAlive:true}]).fn,{probe:async()=>({reachable:true,ownerPid:4003})});
  const obs=result.observations[0];
  const current={codeDigest:await sourceDigest(root,['app.ts']),dependencyDigest:await sourceDigest(root,['pnpm-lock.yaml']),environmentId:environmentId(r)};
  expect(observationFreshness(obs,current)).toBe('CURRENT');
@@ -210,4 +211,101 @@ it('the completion projection marks fresh trusted evidence verified and names mi
  expect(failed.label).toBe('FAILED');
  const blocked=computeAssessment({threadId:'t1',sourceCut:{headSha:null,codeDigest:code,dependencyDigest:dep,environmentId:envId},requirements:[{id:'tests-pass',checkRefs:['exec-1']}],observations:[obs],unresolvedEffects:['effect-x'],verifierIdentity:'service/r1',provenance:'test'});
  expect(blocked.label).toBe('BLOCKED');expect(blocked.unresolvedEffects).toEqual(['effect-x']);
+});
+
+it('recipes reject phases outside the canonical order, duplicates and empty cwd',async()=>{
+ const root=workspace();const r=await recipe(root);
+ expect(()=>verificationRecipeV1Schema.parse({...r,phases:[...r.phases].reverse()})).toThrow();
+ expect(()=>verificationRecipeV1Schema.parse({...r,phases:[r.phases[0],r.phases[0]]})).toThrow();
+ // The workspace root itself is a valid phase working directory.
+ const rooted=verificationRecipeV1Schema.parse({...r,phases:r.phases.map(p=>({...p,relativeCwd:'.'}))});
+ expect(rooted.phases.every(p=>p.relativeCwd==='.')).toBe(true);
+});
+
+it('a START server stays owned and alive; early exit fails the phase',async()=>{
+ const root=workspace();const store=stateStore();
+ const service=new ProjectVerificationService(store,FLAGS_ON);
+ const o=owner();const r=await recipe(root);service.registerRecipe(r,approval(store,r,o).approvalId,o);
+ const l=launcher([{exitCode:0},{exitCode:0},{exitCode:0,stayAlive:true}]);
+ const result=await service.runRecipe(o,request('recipe-1'),l.fn,{probe:async()=>({reachable:true,ownerPid:4003})});
+ expect(result.outcome).toBe('PASS');
+ const startObs=result.observations.find(obs=>obs.phase==='START')!;
+ expect(startObs.outcome).toBe('PASS');expect(startObs.exitCode).toBeNull();
+ expect(l.launched.every(proc=>proc.terminated)).toBe(true);
+ // Early exit before readiness is proven fails START and halts the run.
+ const dead=await service.runRecipe(o,request('recipe-1'),launcher([{exitCode:0},{exitCode:0},{exitCode:3}]).fn,{probe:async()=>({reachable:true,ownerPid:4003})});
+ expect(dead.outcome).toBe('FAIL');
+ const deadStart=dead.observations.find(obs=>obs.phase==='START')!;
+ expect(deadStart.outcome).toBe('FAIL');expect(deadStart.detail).toMatch(/exited before readiness/);
+ expect(dead.observations.some(obs=>obs.phase==='READINESS')).toBe(false);
+});
+
+it('owned processes are terminated even when a phase throws outside its error handling',async()=>{
+ const root=workspace();const store=stateStore();
+ const service=new ProjectVerificationService(store,FLAGS_ON);
+ const o=owner();const r=await recipe(root);service.registerRecipe(r,approval(store,r,o).approvalId,o);
+ // Delete a declared input mid-run so the next phase's digest recomputation throws.
+ let built=false;
+ const l=launcher([{exitCode:0},{exitCode:0}]);
+ const destructive:VerificationLauncher={launch:async req=>{const proc=await l.fn.launch(req);if(!built){built=true;rmSync(join(root,'app.ts'),{force:true});}return proc;}};
+ expect(await codeAsync(service.runRecipe(o,request('recipe-1'),destructive,{probe:async()=>({reachable:true,ownerPid:1})}))).toBe('INVALID_RESOURCE');
+ expect(l.launched.length).toBeGreaterThan(0);
+ expect(l.launched.every(proc=>proc.terminated)).toBe(true);
+});
+
+it('verification_declare is published to runtimes with strict metadata and a real authority schema',async()=>{
+ const {createHostTools,VERIFICATION_DECLARE}=await import('../packages/runtime-pi/tool-definitions');
+ const {ToolAuthority,buildToolRegistry}=await import('../packages/core/tool-authority');
+ const {digest}=await import('../packages/storage/store');
+ const tools=createHostTools([],async()=>({}));
+ expect(tools.map(tool=>tool.name)).toContain('verification_declare');
+ const definition=new ToolAuthority(buildToolRegistry()).definition('verification_declare');
+ expect(definition).toBeTruthy();
+ expect(definition!.schemaDigest).toBe(digest(VERIFICATION_DECLARE.parameters));
+});
+
+it('an audited task_finish does not block its own completion assessment',async()=>{
+ const {Service}=await import('../packages/core/service');
+ const root=workspace();const store=stateStore();
+ const runtime={configure:()=>{},models:async()=>[],start:async()=>{},followUp:async()=>{},cancel:async()=>{},compact:async()=>{},history:async()=>[],dispose:async()=>{}};
+ const service=new Service(store,runtime as never,{toolEffectFlags:{'audit.effectsV1':true}});
+ const stamp=new Date().toISOString();
+ store.internal('test.fixture','t1',()=>store.put('thread','t1','t1',{id:'t1',threadId:'t1',title:'T',kind:'main',mode:'build',projectName:null,status:'working',createdAt:stamp,updatedAt:stamp,modelId:'test/model',sessionPath:null,runId:'r1',epoch:1}));
+ const code=await sourceDigest(root,['app.ts']);const dep=await sourceDigest(root,['pnpm-lock.yaml']);
+ const envId='win32/24.10.0/pnpm@10.30.3';
+ const declaration={version:1,rootPath:root,sourceFiles:['app.ts'],dependencyFiles:['pnpm-lock.yaml'],environmentId:envId,requirements:[{id:'tests-pass',checkRefs:['exec-1']}],declaredAt:stamp};
+ const obs:CheckObservationV1={version:1,checkId:'c1',executionId:'exec-1',owner:owner(),codeDigest:code,dependencyDigest:dep,recipeDigest:'a'.repeat(64),environmentId:envId,argv:['pnpm','test'],cwdIdentity:root,phase:'TEST',startedAt:stamp,endedAt:stamp,exitCode:0,outcome:'PASS',artifactRefs:[],observationKind:'process'};
+ store.internal('test.fixture','t1',()=>{store.put('verificationDeclaration','t1','t1',declaration);store.put('checkObservation','c1','t1',obs);});
+ // Audited path admits this very task_finish as DISPATCHED before the body
+ // runs; the assessment must exclude it by argument commitment.
+ const saved=process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1;
+ process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1='1';
+ try{await service.tool({name:'task_finish',args:{commandId:'finish-1',outcome:'done'}},{threadId:'t1',runId:'r1',epoch:1});}
+ finally{if(saved===undefined)delete process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1;else process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1=saved;}
+ const assessment=store.all<{label:string;unresolvedEffects:string[]}>('assessment','t1').at(-1)!;
+ expect(assessment.label).toBe('VERIFIED');
+ expect(assessment.unresolvedEffects).toEqual([]);
+});
+
+it('the panel read model re-digests declared inputs so edits never keep a green Verified',async()=>{
+ const {verificationPanelModel}=await import('../packages/core/verification-read-models');
+ const root=workspace();const store=stateStore();
+ const code=await sourceDigest(root,['app.ts']);const dep=await sourceDigest(root,['pnpm-lock.yaml']);
+ const envId='win32/24.10.0/pnpm@10.30.3';const stamp=new Date().toISOString();
+ const declaration={version:1,rootPath:root,sourceFiles:['app.ts'],dependencyFiles:['pnpm-lock.yaml'],environmentId:envId,requirements:[{id:'tests-pass',checkRefs:['exec-1']}],declaredAt:stamp};
+ const obs:CheckObservationV1={version:1,checkId:'c1',executionId:'exec-1',owner:owner(),codeDigest:code,dependencyDigest:dep,recipeDigest:'a'.repeat(64),environmentId:envId,argv:['pnpm','test'],cwdIdentity:root,phase:'TEST',startedAt:stamp,endedAt:stamp,exitCode:0,outcome:'PASS',artifactRefs:[],observationKind:'process'};
+ const assessment=computeAssessment({threadId:'t1',sourceCut:{headSha:null,codeDigest:code,dependencyDigest:dep,environmentId:envId},requirements:declaration.requirements,observations:[obs],unresolvedEffects:[],verifierIdentity:'service/r1',provenance:'test'});
+ store.internal('test.fixture','t1',()=>{store.put('verificationDeclaration','t1','t1',declaration);store.put('checkObservation','c1','t1',obs);store.put('assessment',assessment.assessmentId,'t1',assessment);});
+ const before=verificationPanelModel(store,'t1');
+ expect(before.label).toBe('VERIFIED');
+ // Editing a declared input makes the recorded PASS stale on the next read.
+ writeFileSync(join(root,'app.ts'),'export const v=2; // edited after verification\n');
+ const after=verificationPanelModel(store,'t1');
+ expect(after.label).toBe('COMPLETED_UNVERIFIED');
+ expect(after.rows.some(row=>row.freshness==='STALE')).toBe(true);
+ // Unavailable declared inputs make freshness indeterminate — never verified.
+ rmSync(join(root,'app.ts'),{force:true});
+ const unavailable=verificationPanelModel(store,'t1');
+ expect(unavailable.rows.every(row=>row.freshness==='INDETERMINATE')).toBe(true);
+ expect(unavailable.label).not.toBe('VERIFIED');
 });

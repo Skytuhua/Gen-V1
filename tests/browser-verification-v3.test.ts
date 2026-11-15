@@ -19,13 +19,24 @@ afterEach(()=>{for(const store of stores.splice(0))store.close();for(const dir o
 const FLAGS_ON={HARNESS_FLAG_VERIFICATION_WORKFLOW_V1:'1'};
 const owner:ToolOwner={threadId:'t1',runId:'r1',epoch:1,projectId:null,workspaceId:null,accountBinding:null};
 
-interface FakeDriver extends BrowserDriver {profileDir:string|undefined;launched:number;page:FakePage}
+interface FakeDriver extends BrowserDriver {profileDir:string|undefined;launched:number;page:FakePage;allow:((origin:string)=>boolean)|undefined}
 interface FakePage extends BrowserPage {visits:string[];clicks:string[];typed:[string,string][];screens:Buffer}
-function fakeDriver(over:{url?:string;texts?:Record<string,string>;visible?:Record<string,boolean>;failures?:{console?:string[];network?:string[]};origins?:string[];shotBytes?:number}={}):FakeDriver{
- const state={url:over.url??'http://127.0.0.1:4100/',screens:Buffer.alloc(over.shotBytes??128,7),origins:over.origins??['http://127.0.0.1:4100']};
+// `requests` models subresource/popup traffic the page attempts after goto:
+// a compliant driver consults allowOrigin before each request; denied traffic
+// is blocked at the boundary and never reaches observedOrigins.
+function fakeDriver(over:{url?:string;texts?:Record<string,string>;visible?:Record<string,boolean>;failures?:{console?:string[];network?:string[]};origins?:string[];shotBytes?:number;requests?:string[]}={}):FakeDriver{
+ const state={url:over.url??'http://127.0.0.1:4100/',screens:Buffer.alloc(over.shotBytes??128,7),origins:over.origins??['http://127.0.0.1:4100'],blocked:[] as string[]};
+ const driver:FakeDriver={profileDir:undefined,launched:0,page:undefined as unknown as FakePage,allow:undefined,launch:async opts=>{driver.profileDir=opts.profileDir;driver.launched++;driver.allow=opts.allowOrigin;return session;}};
  const page:FakePage={
   url:()=>state.url,visits:[],clicks:[],typed:[],screens:state.screens,
-  goto:async url=>{page.visits.push(url);state.url=url;},
+  goto:async url=>{
+   if(driver.allow&&driver.allow(new URL(url).origin)===false)throw new Error('navigation denied by host policy');
+   page.visits.push(url);state.url=url;
+   for(const origin of over.requests??[]){
+    if(driver.allow&&driver.allow(origin)===false){state.blocked.push(origin);continue;}
+    if(!state.origins.includes(origin))state.origins.push(origin);
+   }
+  },
   click:async s=>{page.clicks.push(s);},
   type:async(s,t)=>{page.typed.push([s,t]);},
   text:async s=>over.texts?.[s]??null,
@@ -33,7 +44,7 @@ function fakeDriver(over:{url?:string;texts?:Record<string,string>;visible?:Reco
   screenshot:async()=>state.screens,
  };
  const session:BrowserSession={page,collectedFailures:()=>({console:over.failures?.console??[],network:over.failures?.network??[]}),observedOrigins:()=>state.origins,close:async()=>{}};
- const driver:FakeDriver={profileDir:undefined,launched:0,page,launch:async opts=>{driver.profileDir=opts.profileDir;driver.launched++;return session;}};
+ driver.page=page;
  return driver;
 }
 function checklist(steps:BrowserStep[],over:Record<string,unknown>={}):BrowserChecklistV1{
@@ -55,6 +66,7 @@ it('a passing checklist navigates, asserts and captures bound visual observation
   {kind:'NAVIGATE',url:'http://127.0.0.1:4100/'},
   {kind:'ASSERT_TEXT',selector:'h1',text:'Welcome home',checklistItemId:'item-1'},
   {kind:'ASSERT_VISIBLE',selector:'nav',checklistItemId:'item-1'},
+  {kind:'ASSERT_VISIBLE',selector:'nav',checklistItemId:'item-2'},
   {kind:'SCREENSHOT',checklistItemId:'item-2',required:true},
  ],driver);
  expect(result.outcome).toBe('PASS');
@@ -105,8 +117,43 @@ it('a schema-valid record or image alone never produces PASS',async()=>{
   {kind:'NAVIGATE',url:'http://127.0.0.1:4100/'},
   {kind:'SCREENSHOT',checklistItemId:'item-1',required:true},
  ],fakeDriver());
- expect(result.outcome).toBe('BLOCKED'); // item-2 has no observation at all
+ expect(result.outcome).toBe('BLOCKED');
+ // The screenshot did run and captured evidence, yet item-1 stays BLOCKED:
+ // a capture alone is not a verification.
+ expect(result.observations.find(obs=>obs.checklistItemId==='item-1'&&obs.assertion.includes('executed assertion'))?.outcome).toBe('BLOCKED');
  expect(result.observations.find(obs=>obs.checklistItemId==='item-2')?.outcome).toBe('BLOCKED');
+});
+
+it('an asserted item still needs its required screenshot',async()=>{
+ const store=stateStore();
+ // item-2 is asserted, then its required screenshot fails at capture —
+ // the assertion does not rescue the missing visual evidence.
+ const driver=fakeDriver({texts:{'h1':'Welcome home'},shotBytes:70*1024*1024});
+ const result=await run(store,[
+  {kind:'NAVIGATE',url:'http://127.0.0.1:4100/'},
+  {kind:'ASSERT_TEXT',selector:'h1',text:'Welcome home',checklistItemId:'item-1'},
+  {kind:'ASSERT_TEXT',selector:'h1',text:'Welcome home',checklistItemId:'item-2'},
+  {kind:'SCREENSHOT',checklistItemId:'item-2',required:true},
+ ],driver);
+ expect(result.outcome).toBe('BLOCKED');
+ expect(result.observations.find(obs=>obs.checklistItemId==='item-2'&&obs.assertion.includes('needs a screenshot'))?.outcome).toBe('BLOCKED');
+});
+
+it('the origin policy blocks unapproved traffic at request time',async()=>{
+ const store=stateStore();
+ // A compliant driver consults allowOrigin before each request; a tracker
+ // subresource is blocked at the boundary — never in observedOrigins — and
+ // the blocked attempt is recorded as evidence.
+ const driver=fakeDriver({texts:{'h1':'Welcome home'},requests:['https://tracker.example']});
+ const result=await run(store,[
+  {kind:'NAVIGATE',url:'http://127.0.0.1:4100/'},
+  {kind:'ASSERT_TEXT',selector:'h1',text:'Welcome home',checklistItemId:'item-1'},
+  {kind:'ASSERT_TEXT',selector:'h1',text:'Welcome home',checklistItemId:'item-2'},
+ ],driver);
+ expect(result.outcome).toBe('PASS');
+ expect(result.deniedOrigins).toContain('https://tracker.example');
+ expect(driver.page.visits).toEqual(['http://127.0.0.1:4100/']);
+ expect(result.observations.find(obs=>obs.checklistItemId==='__boundary__')?.outcome).toBe('PASS');
 });
 
 it('bounded console and network failure collection fails the run',async()=>{

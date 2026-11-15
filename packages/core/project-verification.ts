@@ -23,6 +23,10 @@ const now = () => new Date().toISOString();
 const MAX_DIGEST_FILE_BYTES = 64 * 1024 * 1024;
 const MAX_DIGEST_FILES = 2048;
 const MAX_LOG_BYTES = 64 * 1024;
+/** A START server must stay alive past this bounded settle window; the
+ * READINESS phase then proves it actually serves the approved endpoint. */
+const START_SETTLE_MS = 2_000;
+const delay = (ms: number) => new Promise<void>(resolve => setTimeout(resolve, ms));
 
 export interface LaunchedProcess {
   /** Host-level identity of the launched root process, for ownership checks. */
@@ -228,6 +232,20 @@ export class ProjectVerificationService {
       return result;
     };
 
+    const captureLog = async (process: LaunchedProcess, phase: RecipePhase): Promise<string[]> => {
+      const artifactRefs: string[] = [];
+      if (!request.artifactDir) return artifactRefs;
+      const log = await process.log().catch(() => ({ text: '', truncated: false }));
+      const name = `${executionId}-${phase.name.toLowerCase()}.log`;
+      const clipped = log.text.length > MAX_LOG_BYTES ? log.text.slice(0, MAX_LOG_BYTES) : log.text;
+      const fs = await import('node:fs/promises');
+      await fs.mkdir(request.artifactDir, { recursive: true });
+      await fs.writeFile(join(request.artifactDir, name), clipped);
+      artifactRefs.push(join(request.artifactDir, name));
+      return artifactRefs;
+    };
+
+    try {
     for (const phase of recipe.phases) {
       if (phase.name === 'TEARDOWN') continue;
       if (phase.name === 'READINESS') {
@@ -258,19 +276,37 @@ export class ProjectVerificationService {
         if (result.outcome === 'BLOCKED') { halted = true; outcome = 'BLOCKED'; }
         continue;
       }
+      if (phase.name === 'START') {
+        // START launches a long-running server: it stays owned and alive past a
+        // bounded settle window instead of waiting for exit. Early exit fails
+        // the phase; serving is proven separately by READINESS, and teardown
+        // terminates it in the guaranteed cleanup below.
+        const result = await recordPhase(phase, async () => {
+          try {
+            const process = await launcher.launch({ executableId: phase.executableId, argv: phase.argv, cwd: join(root, ...phase.relativeCwd.split('/')), envRefs: phase.environmentRefs, timeoutMs: phase.timeoutMs });
+            owned.push(process);
+            const settled = await Promise.race([process.wait(), delay(Math.min(phase.timeoutMs, START_SETTLE_MS)).then(() => null)]);
+            const artifactRefs = await captureLog(process, phase);
+            if (settled === null) return { exitCode: null, outcome: 'PASS' as const, artifactRefs, detail: 'START process stayed alive through the settle window; readiness is proven by the READINESS phase' };
+            if (settled.termination === 'CANCELLED') return { exitCode: settled.exitCode, outcome: 'CANCELLED' as const, artifactRefs };
+            if (settled.termination === 'SPAWN_ERROR') return { exitCode: settled.exitCode, outcome: 'BLOCKED' as const, artifactRefs, detail: 'Launch failed inside the permitted execution environment' };
+            return { exitCode: settled.exitCode, outcome: 'FAIL' as const, artifactRefs, detail: 'START process exited before readiness was proven' };
+          } catch (error) {
+            if (error instanceof HarnessError && error.code === 'CANCELLED_RUN') return { exitCode: null, outcome: 'CANCELLED' as const, artifactRefs: [] };
+            return { exitCode: null, outcome: 'BLOCKED' as const, artifactRefs: [], detail: error instanceof Error ? error.message.slice(0, 500) : 'Launch failed' };
+          }
+        });
+        if (result.outcome === 'FAIL') { halted = true; outcome = 'FAIL'; }
+        else if (result.outcome === 'BLOCKED') { halted = true; outcome = 'BLOCKED'; }
+        else if (result.outcome === 'CANCELLED') { halted = true; outcome = 'CANCELLED'; }
+        continue;
+      }
       const result = await recordPhase(phase, async () => {
         try {
           const process = await launcher.launch({ executableId: phase.executableId, argv: phase.argv, cwd: join(root, ...phase.relativeCwd.split('/')), envRefs: phase.environmentRefs, timeoutMs: phase.timeoutMs });
           owned.push(process);
           const settled = await process.wait();
-          const log = await process.log().catch(() => ({ text: '', truncated: false }));
-          const artifactRefs: string[] = [];
-          if (request.artifactDir) {
-            const name = `${executionId}-${phase.name.toLowerCase()}.log`;
-            const clipped = log.text.length > MAX_LOG_BYTES ? log.text.slice(0, MAX_LOG_BYTES) : log.text;
-            await import('node:fs/promises').then(fs => fs.mkdir(request.artifactDir!, { recursive: true }).then(() => fs.writeFile(join(request.artifactDir!, name), clipped)));
-            artifactRefs.push(join(request.artifactDir, name));
-          }
+          const artifactRefs = await captureLog(process, phase);
           if (settled.termination === 'TIMEOUT') return { exitCode: settled.exitCode, outcome: 'FAIL' as const, artifactRefs, detail: 'Phase timed out' };
           if (settled.termination === 'CANCELLED') return { exitCode: settled.exitCode, outcome: 'CANCELLED' as const, artifactRefs };
           if (settled.termination === 'SPAWN_ERROR') return { exitCode: settled.exitCode, outcome: 'BLOCKED' as const, artifactRefs, detail: 'Launch failed inside the permitted execution environment' };
@@ -284,8 +320,9 @@ export class ProjectVerificationService {
       else if (result.outcome === 'BLOCKED') { halted = true; outcome = 'BLOCKED'; }
       else if (result.outcome === 'CANCELLED') { halted = true; outcome = 'CANCELLED'; }
     }
-
-    // Cleanup runs unconditionally for resources this recipe actually launched.
+    } finally {
+    // Cleanup runs unconditionally for resources this recipe actually launched —
+    // including when a phase threw outside its own error handling.
     const teardownPhase = recipe.phases.find(phase => phase.name === 'TEARDOWN');
     const startedAt = now();
     for (const process of owned) {
@@ -293,6 +330,7 @@ export class ProjectVerificationService {
       catch (error) { cleanupFailures.push(error instanceof Error ? error.message.slice(0, 300) : 'Owned process cleanup failed'); }
     }
     if (teardownPhase || cleanupFailures.length) {
+      try {
       observations.push(this.record(owner, {
         version: 1, checkId: '', executionId, owner,
         codeDigest: await sourceDigest(root, request.sourceFiles).catch(() => '0'.repeat(64)),
@@ -303,6 +341,11 @@ export class ProjectVerificationService {
         artifactRefs: [], observationKind: 'cleanup',
         ...(cleanupFailures.length ? { detail: cleanupFailures.join('; ').slice(0, 2000) } : {}),
       }));
+      } catch (error) {
+        // Cleanup evidence must never mask the original phase failure.
+        cleanupFailures.push(error instanceof Error ? error.message.slice(0, 300) : 'Cleanup evidence could not be recorded');
+      }
+    }
     }
     return { executionId, observations, cleanupFailures, outcome };
   }

@@ -27,8 +27,9 @@ export const recipePhaseSchema = z.strictObject({
    * 'node'). It is never a shell fragment and never a path inside the project. */
   executableId: boundedText(100),
   argv: z.array(z.string().max(4096)).max(64),
-  /** Working directory relative to the trusted workspace root. */
-  relativeCwd: rootRelativePathSchema,
+  /** Working directory relative to the trusted workspace root; '.' names the
+   * root itself. */
+  relativeCwd: z.union([z.literal('.'), rootRelativePathSchema]),
   /** Names of environment references resolved inside the permitted execution
    * environment; never literal values. */
   environmentRefs: z.array(boundedText(128)).max(32),
@@ -58,7 +59,12 @@ export const verificationRecipeV1Schema = z.strictObject({
    * M02 approval committed to. Registration or change requires a new approval. */
   approvedDigest: sha256HexSchema,
   environment: recipeEnvironmentV1Schema,
-  phases: z.array(recipePhaseSchema).min(1).max(16),
+  /** Phases must appear in the canonical verification order (BOOTSTRAP →
+   * TEARDOWN), each at most once — a TEST before BUILD would check the previous
+   * build's output. */
+  phases: z.array(recipePhaseSchema).min(1).max(16).refine(
+    phases => phases.every((phase, index) => index === 0 || VERIFICATION_PHASE_NAMES.indexOf(phase.name) > VERIFICATION_PHASE_NAMES.indexOf(phases[index - 1].name)),
+    'Recipe phases must appear once each, in the canonical verification order'),
   createdAt: isoTimestamp,
   revision: z.number().int().positive(),
 });
