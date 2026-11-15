@@ -176,10 +176,16 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    await bView.getByRole('textbox',{name:'Message',exact:true}).fill('Main draft B');
    await aView.getByRole('button',{name:'Send message',exact:true}).click();
    await bView.getByRole('button',{name:'Send message',exact:true}).click();
-   await page.waitForFunction(()=>{const ta=document.querySelector('[data-split-view="thread:thread-a"] textarea');const tb=document.querySelector('[data-split-view="thread:thread-b"] textarea');return !!ta&&!!tb&&ta.value===''&&tb.value==='';});
+   await page.waitForFunction(()=>{const ta=document.querySelector<HTMLTextAreaElement>('[data-split-view="thread:thread-a"] textarea');const tb=document.querySelector<HTMLTextAreaElement>('[data-split-view="thread:thread-b"] textarea');return !!ta&&!!tb&&ta.value===''&&tb.value==='';});
    const sends=host.commands.filter(command=>command.type==='message.send');
    expect(sends.map(command=>command.threadId).sort()).toEqual(['thread-a','thread-b']);
-   await page.getByRole('button',{name:'Return First investigation to main',exact:true}).click();
+   const grip=page.locator('[data-split-view="thread:thread-a"] .split-float-grip');
+   await grip.focus();await page.keyboard.press('Enter');
+   await page.getByRole('menuitem',{name:'Return to main',exact:true}).waitFor({state:'visible'});
+   await page.keyboard.press('Escape');
+   await page.waitForFunction(()=>!document.querySelector('.split-float-menu'));
+   await grip.click();
+   await page.getByRole('menuitem',{name:'Return to main',exact:true}).click();
    await page.waitForFunction(()=>!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
    await a.waitFor({state:'visible'});expect(await a.inputValue()).toBe('');
    expect(await page.evaluate(()=>(window as any).floatTextarea===document.querySelector('[data-split-view="thread:thread-a"] textarea'))).toBe(true);
