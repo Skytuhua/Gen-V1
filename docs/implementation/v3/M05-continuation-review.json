@@ -152,11 +152,13 @@
     "docs/implementation/v3/m05-logs/continuation-m11-telemetry-green.log",
     "docs/implementation/v3/m05-logs/continuation-m11-telemetry-red-callbacks.log",
     "docs/implementation/v3/m05-logs/continuation-m11-telemetry-red.log",
-    "docs/implementation/v3/m05-logs/continuation-m11-typecheck.log"
+    "docs/implementation/v3/m05-logs/continuation-m11-typecheck.log",
+    "docs/implementation/v3/M05-windows-ci-43721299625.json",
+    "docs/implementation/v3/M05-browser-review-43721299625.json"
   ],
   "activationApproval": false,
   "limitations": [
-    "Both earlier Windows attempts remain failed history. The repaired browser fixtures and current accepted M11 integration pass local scoped checks but require the new complete Windows workflow.",
+    "Windows run 43721299625 passes all eight jobs on the exact combined M05/M09/M11 code/test/workflow cut. Its source and command evidence are distinct from installed-desktop and live activation proof.",
     "Code and synthetic browser review do not establish installed-desktop or live-provider quality/cost.",
     "Both M05 host flags remain false."
   ],
@@ -171,11 +173,30 @@
     "userFacingRequirementsReviewed": 4,
     "additionalConcreteCorrectnessBlockers": [],
     "remainingProofGates": [
-      "Complete Windows CI on the published combined M05/M09/M11 source cut",
       "Actual native FILE capture",
       "Installed desktop",
       "Authorized live repeated-task quality and total auxiliary cost"
     ]
   },
-  "acceptedMainSha": "399cde39ff4ee82272c7a7700944325c44b36070"
+  "acceptedMainSha": "399cde39ff4ee82272c7a7700944325c44b36070",
+  "integratedWindowsCI": {
+    "runId": 43721299625,
+    "headSha": "a0755d344513feced0f79717cf90d39f64cfe619",
+    "checkoutSha": "887a831e29b6f13ee75cd645e641aeb71855cbfb",
+    "treeSha": "c391fa72e7fa1e263442195a119adfc1aa073cd0",
+    "jobsPassed": 8,
+    "application": {
+      "passed": 3746,
+      "skipped": 39,
+      "failed": 0
+    },
+    "browser": {
+      "passed": 267,
+      "skipped": 2,
+      "failed": 0
+    },
+    "hermesContractsPassed": 33,
+    "policyPluginTestsPassed": 37,
+    "observedCommandsImported": 24
+  }
 }
