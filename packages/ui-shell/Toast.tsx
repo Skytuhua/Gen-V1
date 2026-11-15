@@ -1,5 +1,5 @@
 import { AlertCircle, CheckCircle2, Info, X } from 'lucide-react';
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react';
 import './tokens.css';
 import './feedback.css';
 
@@ -53,8 +53,14 @@ function ToastItem({ entry, paused }: { entry: ToastEntry; paused: boolean }) {
 export function Toaster() {
   const list = useSyncExternalStore(subscribe, () => entries, () => entries);
   const [hovered, setHovered] = useState(false), [focused, setFocused] = useState(false);
-  useEffect(() => { if (!list.length) { setHovered(false); setFocused(false); } }, [list.length]);
-  return <div className="ui-toaster" role="region" aria-label="Notifications" onPointerEnter={() => setHovered(true)} onPointerLeave={() => setHovered(false)}
+  const stack = useRef<HTMLDivElement>(null);
+  useEffect(() => { if (!list.length) setHovered(false); }, [list.length]);
+  useLayoutEffect(() => {
+    // Removing or replacing a focused toast can happen without a blur event.
+    const root = stack.current;
+    if (root && !root.contains(root.ownerDocument.activeElement)) setFocused(false);
+  }, [list]);
+  return <div ref={stack} className="ui-toaster" role="region" aria-label="Notifications" onPointerEnter={() => setHovered(true)} onPointerLeave={() => setHovered(false)}
     onFocus={() => setFocused(true)} onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false); }}>
     {list.map(entry => <ToastItem key={entry.id} entry={entry} paused={hovered || focused} />)}
   </div>;
