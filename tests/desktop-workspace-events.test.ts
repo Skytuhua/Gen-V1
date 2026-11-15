@@ -26,3 +26,21 @@ it('relays only the highest complete sequence per decoded chunk', async () => {
   } finally { await relay.close(); }
   expect(notify.mock.calls.at(-1)?.[0]).toEqual({ connected: false, sequence: 3 });
 });
+
+it('keeps consuming workspace events when one notification throws', async () => {
+  let stream!: ReadableStreamDefaultController<Uint8Array>;
+  const body = new ReadableStream<Uint8Array>({ start(controller) { stream = controller; } });
+  const fetch = vi.fn()
+    .mockResolvedValueOnce(new Response(null, { headers: { 'Set-Cookie': 'harness_session=abcd; HttpOnly' } }))
+    .mockResolvedValueOnce(new Response(body, { headers: { 'Content-Type': 'text/event-stream' } }));
+  vi.stubGlobal('fetch', fetch);
+  const notify = vi.fn().mockImplementationOnce(() => { throw new Error('Renderer closed'); });
+  const relay = workspaceEvents('http://127.0.0.1:4317', notify);
+  try {
+    await expect.poll(() => notify.mock.calls.length).toBeGreaterThan(0);
+    expect(relay.state().connected).toBe(true);
+    stream.enqueue(new TextEncoder().encode('id: 7\nevent: workspace\ndata: {}\n\n'));
+    await expect.poll(() => relay.state().sequence).toBe(7);
+    expect(fetch).toHaveBeenCalledTimes(2);
+  } finally { await relay.close(); }
+});
