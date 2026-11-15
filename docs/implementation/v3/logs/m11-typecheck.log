@@ -1,0 +1,6 @@
+cmd: pnpm typecheck
+
+> gen-v1@0.6.5 typecheck C:\Users\Administrator\repos\Gen-V1-m11
+> tsc --noEmit
+
+exit: 0

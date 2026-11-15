@@ -142,6 +142,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
       resources: service.store.all('resource', id),
       memory: service.store.all('taskMemory', id),
       usage: usage === undefined ? {} : { [id]: usage },
+      modelRequests: { [id]: service.store.all<{ value: unknown }>('modelRequest', id).map(item => item.value) },
       settings: { theme: 'dark', modelId: null },
       activeThreadId: null,
     };

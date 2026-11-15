@@ -5,6 +5,7 @@ export interface UsageProviderReport {
   id: string; scopeId: string; scopeLabel: string; providerId: string; providerLabel: string;
   cost?: { amount: number; currency?: string } | null;
   inputTokens?: number | null; outputTokens?: number | null;
+  cacheReadTokens?: number | null; cacheWriteTokens?: number | null;
   limits?: readonly UsageLimitReport[]; error?: string;
 }
 const reported = (value: unknown): value is number => typeof value === 'number' && Number.isFinite(value) && value >= 0;
@@ -33,6 +34,7 @@ export function runtimeUsageReport(thread: Pick<Thread, 'id' | 'title' | 'modelI
   return { id: thread.id, scopeId: thread.id, scopeLabel: thread.title, providerId,
     providerLabel: thread.modelId?.split('/')[0] || 'Provider not reported',
     cost: usage.cost == null ? undefined : { amount: usage.cost }, inputTokens: usage.inputTokens, outputTokens: usage.outputTokens,
+    cacheReadTokens: usage.cacheReadTokens, cacheWriteTokens: usage.cacheWriteTokens,
     limits: [{ id: 'session', label: 'Session limit', usedPercent: usage.sessionPercent }, { id: 'weekly', label: 'Weekly limit', usedPercent: usage.weeklyPercent }],
   };
 }

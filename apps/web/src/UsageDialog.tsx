@@ -4,15 +4,28 @@ import { Modal } from '../../../packages/ui-shell/Modal';
 import { Select } from '../../../packages/ui-shell/Select';
 import { isComposing } from '../../../packages/ui-shell/list-navigation';
 import { usageCost, usageCount, usagePercent, usageReset, type UsageProviderReport } from './usage-presentation';
+import type { ModelRequestObservationV1 } from '../../../packages/contracts/model-request';
 import './usage-dialog.css';
 import {ErrorState} from '../../../packages/ui-shell/Feedback';
 
 export interface UsageDialogProps {
   open: boolean; onClose: () => void; reports?: readonly UsageProviderReport[];
+  requests?: readonly ModelRequestObservationV1[];
   loading?: boolean; error?: string; onRefresh?: () => Promise<void>;
 }
-const tabs = ['Cost', 'Tokens', 'Limits'] as const;
-export function UsageDialog({ open, onClose, reports = [], loading = false, error, onRefresh }: UsageDialogProps) {
+const tabs = ['Cost', 'Tokens', 'Limits', 'Requests'] as const;
+const elapsed = (value: number | null) => value === null ? 'Not reported' : `${value < 10 ? Math.round(value * 10) / 10 : Math.round(value)} ms`;
+const REQUEST_STAGES = [
+  ['queued', 'Queued'],
+  ['acquired', 'Capacity acquired'],
+  ['runtimeReady', 'Runtime ready'],
+  ['requestSent', 'Request sent'],
+  ['firstProviderDelta', 'First provider bytes'],
+  ['firstPublicDelta', 'First public output'],
+  ['settled', 'Settled'],
+  ['teardownConfirmed', 'Cleanup confirmed'],
+] as const;
+export function UsageDialog({ open, onClose, reports = [], requests = [], loading = false, error, onRefresh }: UsageDialogProps) {
   const [tab, setTab] = useState<typeof tabs[number]>('Cost'), [scope, setScope] = useState(''), [provider, setProvider] = useState('');
   const [refreshing, setRefreshing] = useState(false), [refreshError, setRefreshError] = useState('');
   const pending = useRef(false), generation = useRef(0), id = useId();
@@ -63,8 +76,18 @@ export function UsageDialog({ open, onClose, reports = [], loading = false, erro
         <header><strong>{report.providerLabel}</strong><span>{report.scopeLabel}</span></header>
         {report.error && <ErrorState className="usage-dialog-error" message={report.error}/>}
         {tab === 'Cost' && <dl><dt>Reported cost</dt><dd>{usageCost(report.cost)}</dd></dl>}
-        {tab === 'Tokens' && <dl><dt>Input tokens</dt><dd>{usageCount(report.inputTokens)}</dd><dt>Output tokens</dt><dd>{usageCount(report.outputTokens)}</dd></dl>}
+        {tab === 'Tokens' && <dl><dt>Input tokens</dt><dd>{usageCount(report.inputTokens)}</dd><dt>Output tokens</dt><dd>{usageCount(report.outputTokens)}</dd><dt>Cache read tokens</dt><dd>{usageCount(report.cacheReadTokens)}</dd><dt>Cache write tokens</dt><dd>{usageCount(report.cacheWriteTokens)}</dd></dl>}
         {tab === 'Limits' && (report.limits?.length ? report.limits : [{ id: 'unknown', label: 'Provider limit' }]).map(limit => <div key={limit.id} className="usage-limit"><dl><dt>{limit.label}</dt><dd>{usagePercent(limit.usedPercent)}</dd><dt>Reset</dt><dd>{usageReset(limit.reset)}</dd></dl></div>)}
+        {tab === 'Requests' && (requests.length ? requests.map(request => <dl key={request.requestId}>
+          <dt>Request</dt><dd>{request.binding.providerId} · {request.binding.modelId}</dd>
+          <dt>Outcome</dt><dd>{request.outcome}</dd>
+          {REQUEST_STAGES.map(([stage, label]) => <span key={stage} className="usage-request-stage"><dt>{label}</dt><dd>{elapsed(request.timings[stage])}</dd></span>)}
+          <dt>Input tokens</dt><dd>{usageCount(request.usage.inputTokens)}</dd>
+          <dt>Output tokens</dt><dd>{usageCount(request.usage.outputTokens)}</dd>
+          <dt>Cache read tokens</dt><dd>{usageCount(request.usage.cacheReadTokens)}</dd>
+          <dt>Cache write tokens</dt><dd>{usageCount(request.usage.cacheWriteTokens)}</dd>
+          <dt>Reported cost</dt><dd>{usageCost(request.usage.cost === null ? null : { amount: request.usage.cost })}</dd>
+        </dl>) : <p className="usage-dialog-empty">No measured model requests for this scope yet.</p>)}
       </section>)}
     </div>
   </Modal>;

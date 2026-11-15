@@ -36,6 +36,7 @@ import { computeAssessment } from "./verification-gate.ts";
 import { sourceDigestSync } from "./project-verification.ts";
 import { verificationDeclarationV1Schema, type CheckObservationV1, type DeliverableAssessmentV1, type VerificationDeclarationV1, type VisualObservationV1 } from "../contracts/verification.ts";
 import type { ToolEffectRecord } from "../contracts/tool-effects.ts";
+import { MODEL_REQUEST_OBSERVATION_LIMIT, modelRequestObservationV1Schema } from "../contracts/model-request.ts";
 import { buildToolRegistry, ToolAuthority, type ActorRole } from "./tool-authority.ts";
 import { ToolEffectLedger, createToolEffectFlags, privateArgumentCommitment, type ToolEffectFlag } from "./tool-effects.ts";
 import { recoverEffects } from "./effect-recovery.ts";
@@ -930,6 +931,22 @@ export class Service {
         const next = { ...old, ...(typeof event.usage === "object" ? event.usage : {}), ...(event.type === "compaction.start" ? { activity: "compacting" } : event.type === "compaction.end" ? { activity: "idle" } : {}) };
         this.store.put("usage", thread.id, thread.id, { id: thread.id, value: next });
         return { runId: event.runId, usage: next };
+      }
+      if (event.type === "model.observation" && capabilityEnabled("models.requestMetricsV1")) {
+        const candidate = event.observation;
+        const parsed = modelRequestObservationV1Schema.safeParse(candidate);
+        if (parsed.success && parsed.data.owner.threadId === thread.id && parsed.data.owner.runId === event.runId) {
+          const id = "modelRequest:" + parsed.data.requestId;
+          const old = this.store.get<{ observation: unknown }>("modelRequest", id);
+          if (old && old.observation && typeof old.observation === "object" && (old.observation as { owner?: { threadId?: string } }).owner?.threadId !== thread.id)
+            throw new HarnessError("CAPABILITY_DENIED", "Request observation belongs to another thread");
+          this.store.put("modelRequest", id, thread.id, { id, value: parsed.data });
+          // Bounded per-thread retention: drop the oldest completed records.
+          const kept = this.store.all<{ id: string; value: { timings?: { settled?: unknown } } }>("modelRequest", thread.id);
+          if (kept.length > MODEL_REQUEST_OBSERVATION_LIMIT)
+            for (const stale of kept.slice(0, kept.length - MODEL_REQUEST_OBSERVATION_LIMIT)) this.store.remove("modelRequest", stale.id);
+          return { runId: event.runId, modelRequest: parsed.data };
+        }
       }
       if (event.type === "settled") {
         this.failUnansweredDetails(event,event.aborted?'The explanation was stopped. Resume the task to retry.':'The agent finished without updating this option. Try again.');
