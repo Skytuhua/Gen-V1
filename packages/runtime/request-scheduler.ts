@@ -17,6 +17,7 @@ export interface RequestAdmission {
   requestClass?: RequestClass;
   /** Queue age after which a background waiter counts as foreground. */
   agingMs?: number;
+  /** Monotonic clock for this waiter. Used for deterministic timing in tests. */
   now?: () => number;
 }
 
@@ -37,44 +38,37 @@ export class RequestScheduler {
   }
 
   acquire(providerId: string, accountId: string | null, signal?: AbortSignal, meta: RequestAdmission = {}): Promise<ModelPermit> {
-    const now = meta.now ?? (() => Date.now());
+    const now = meta.now ?? (() => performance.now());
     if (signal?.aborted) return Promise.reject(new HarnessError('MODEL_REQUEST_CANCELLED', 'The queued model request was cancelled.'));
     const key = JSON.stringify([providerId, accountId]);
     const lane = this.lanes.get(key) ?? { active: 0, queue: [] };
     this.lanes.set(key, lane);
     return new Promise((resolve, reject) => {
-      const waiter: Waiter = { signal, resolve, reject, requestClass: meta.requestClass ?? 'foreground', enqueuedAt: now(), agingMs: meta.agingMs ?? this.agingMs };
+      const waiter: Waiter = { signal, resolve, reject, requestClass: meta.requestClass ?? 'foreground', enqueuedAt: now(), now, agingMs: meta.agingMs ?? this.agingMs };
       waiter.abort = () => {
         const index = lane.queue.indexOf(waiter);
         if (index < 0) return;
         lane.queue.splice(index, 1);
         reject(new HarnessError('MODEL_REQUEST_CANCELLED', 'The queued model request was cancelled.'));
-        this.drain(key, lane, now);
+        this.drain(key, lane);
       };
       lane.queue.push(waiter);
       signal?.addEventListener('abort', waiter.abort, { once: true });
-      this.drain(key, lane, now);
+      this.drain(key, lane);
     });
   }
 
-  private rank(waiter: Waiter, now: number): number {
-    // A background waiter that has already waited the aging bound is promoted:
-    // it keeps its queue position by enqueue time but cannot be passed again.
-    return waiter.requestClass === 'background' && now - waiter.enqueuedAt < waiter.agingMs ? 1 : 0;
-  }
-
-  private drain(key: string, lane: Lane, now: () => number): void {
+  private drain(key: string, lane: Lane): void {
     while (lane.active < this.limit && lane.queue.length) {
-      const at = now();
-      let next = 0;
-      for (let i = 1; i < lane.queue.length; i++)
-        if (this.rank(lane.queue[i], at) < this.rank(lane.queue[next], at) ||
-            (this.rank(lane.queue[i], at) === this.rank(lane.queue[next], at) && lane.queue[i].enqueuedAt < lane.queue[next].enqueuedAt))
-          next = i;
+      // The first foreground or aged waiter wins. Queue position breaks ties
+      // without comparing timestamps from unrelated clocks.
+      const promoted = lane.queue.findIndex(waiter =>
+        waiter.requestClass === 'foreground' || waiter.now() - waiter.enqueuedAt >= waiter.agingMs);
+      const next = promoted === -1 ? 0 : promoted;
       const waiter = lane.queue.splice(next, 1)[0];
       waiter.signal?.removeEventListener('abort', waiter.abort!);
       lane.active++;
-      const queuedMs = Math.max(0, now() - waiter.enqueuedAt);
+      const queuedMs = Math.max(0, waiter.now() - waiter.enqueuedAt);
       this.delayRing.push(queuedMs);
       if (this.delayRing.length > this.delayBound) this.delayRing.shift();
       let released = false;
@@ -85,7 +79,7 @@ export class RequestScheduler {
           if (released) return;
           released = true;
           lane.active--;
-          this.drain(key, lane, now);
+          this.drain(key, lane);
         },
       });
     }
@@ -105,6 +99,7 @@ type Waiter = {
   abort?: () => void;
   requestClass: RequestClass;
   enqueuedAt: number;
+  now: () => number;
   agingMs: number;
 };
 type Lane = { active: number; queue: Waiter[] };
