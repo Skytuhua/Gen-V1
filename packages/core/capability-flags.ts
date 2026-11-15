@@ -37,3 +37,26 @@ export class CapabilityFlags<K extends string = string> {
 export function createCapabilityFlags<K extends string>(definitions: readonly CapabilityFlagDefinition[], overrides?: Partial<Record<K, boolean>>): CapabilityFlags<K> {
   return new CapabilityFlags<K>(definitions, overrides);
 }
+
+// M02 flag set: the single process registry the host owns. Both flags gate the
+// M02 authority gate / effect ledger and stay off until coverage and regression
+// gates pass.
+export const M02_FLAG_KEYS = ["audit.effectsV1", "security.authorityV1"] as const;
+export type M02FlagKey = (typeof M02_FLAG_KEYS)[number];
+
+const m02Flags = createCapabilityFlags<M02FlagKey>([
+  { key: "audit.effectsV1", owner: "m02", description: "Append-only tool-effect ledger and owner-fenced read models." },
+  { key: "security.authorityV1", owner: "m02", description: "Single-use approvals and the pre-dispatch authority gate." },
+]);
+
+export function capabilityEnabled(key: M02FlagKey): boolean {
+  return m02Flags.enabled(key);
+}
+export function registeredCapabilityFlags(): Record<M02FlagKey, boolean> {
+  return m02Flags.snapshot() as Record<M02FlagKey, boolean>;
+}
+/** Test-only seam: flips a flag without touching user-visible preferences. All
+ * defaults are false, so `undefined` restores the default. */
+export function __setCapabilityFlagForTests(key: M02FlagKey, value: boolean | undefined): void {
+  m02Flags.set(key, value === true);
+}
