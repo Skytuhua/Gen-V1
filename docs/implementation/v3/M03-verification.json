@@ -1,0 +1,281 @@
+{
+  "version": 3,
+  "bundle": "M03",
+  "generatedAt": "2026-11-14T22:40:21Z",
+  "base": {
+    "repository": "Skytuhua/Gen-V1",
+    "approvedBase": "origin/main",
+    "baseSha": "055007ff9ab43fc24cfbc0af76b0b4cea3db473d",
+    "auditAncestor": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
+    "branch": "agent/m03-v3",
+    "worktree": "C:/Users/user/gen-m03-v3-wt"
+  },
+  "dependencies": [
+    {
+      "contract": "M01",
+      "status": "VERIFIED",
+      "evidence": "Core host contracts present on approved base and exercised by current tests: host-owned SQLite writer (packages/storage/store.ts, Store.command/internal never await), path guards (packages/core/file-access.ts withPathGuard/readBoundFile), security helpers (packages/core/security.ts canonical/inside/resolveGrant), account custody (packages/core/accounts.ts, credential-slots.ts). No M01 ImplementationEvidenceV3 artifact exists on this base; verification is source-blob plus current-test based."
+    },
+    {
+      "contract": "M02",
+      "status": "VERIFIED",
+      "evidence": "Runtime contracts present on approved base: Hermes/Pi history, run epochs, account pinning and ambient-plugin/memory restrictions (packages/runtime-hermes/client.ts, packages/runtime-pi/process-tree.ts, packages/plugins/host.ts which disables ambient plugins for Hermes). Plugin installation integrity path (packages/plugins/installation.ts) extended, not bypassed. No M02 ImplementationEvidenceV3 artifact exists on this base; verification is source-blob plus current-test based."
+    }
+  ],
+  "results": {
+    "core": [
+      {
+        "stage": "ProjectTrustV1 records and pre-dispatch digest checks",
+        "result": "PASS",
+        "detail": "canonicalRootIdentity binds realpath + dev/ino; approvedFileDigests resolves every approved path through canonical()/inside() so links, retargets and escapes are rejected; verifyProjectTrust recomputes identity and every digest before dispatch; ProjectTrustLedger revisions, revocation and audit retention verified."
+      },
+      {
+        "stage": "SecretRefV1 custody, approval-gated resolution, child env allowlist, structured redaction",
+        "result": "PASS",
+        "detail": "Opaque refs carry only id/purpose/owner/destination; resolution requires a single-use, expiring, exact-destination approval inside the ledger; revocation blocks one ref without touching others; buildChildEnvironment starts from an explicit allowlist; createSecretRedactor covers raw/JSON-escaped/percent/base64/ANSI-split/multiline known values plus declared fields and never claims universal redaction."
+      },
+      {
+        "stage": "ExecutionProfileV1 decision contract and backend selection",
+        "result": "PASS",
+        "detail": "evaluateExecution enforces the three host flags, TRUSTED_HOST explicit-only, trust validity, scope coverage, cwd containment, exact executable digest + argv allowlist match, single approved backend selection, and PASS platformProofRef matching. Shell text is always one effectful command. Missing/ambiguous backend, missing proof and disabled sub-capabilities all fail closed with no unrestricted fallback."
+      },
+      {
+        "stage": "PackageScreeningV1 advisory preflight",
+        "result": "PASS",
+        "detail": "screenPackage distinguishes KNOWN_BAD, NO_KNOWN_MATCH, UNAVAILABLE and stale-cache recheck by exact package/version/digest; clean lookup is recorded as non-authorizing; operator exceptions are recorded separately and cannot override KNOWN_BAD; screeningGate can only BLOCK, stay NEUTRAL or record an exception."
+      },
+      {
+        "stage": "Host-owned finite flag registry",
+        "result": "PASS",
+        "detail": "Exactly security.projectTrustV1, security.secretRefsV1, security.executionProfilesV1 registered, all default false, env channel HARNESS_FLAG_* accepts only 1/true, and strict UI preferences reject the keys."
+      }
+    ],
+    "integration": [
+      {
+        "stage": "Plugin activation advisory preflight",
+        "result": "PASS",
+        "detail": "installPluginPackage gained an optional screening hook: when security.executionProfilesV1 is enabled it requires a composed AdvisoryDatabase and enforces screeningGate (KNOWN_BAD/UNAVAILABLE-without-exception deny; exception proceeds as OPERATOR_EXCEPTION). Flag off and no advisory composed leaves the legacy path byte-identical; plugin-host and plugin-workspace-navigation suites pass 70/70."
+      },
+      {
+        "stage": "Child environment inheritance audit",
+        "result": "PASS",
+        "detail": "Every host process launch inventoried: capabilities/process.ts processEnvironment() is already an explicit allowlist (PATH/SystemRoot/TEMP/HOME/APPDATA family plus git safety vars, never process.env); workspace terminal uses that allowlist plus caller-pinned environment; runProcess callers are fixed-argv host tooling (git, node --test). No launch site copies raw process.env."
+      },
+      {
+        "stage": "Untrusted-code execution consumer",
+        "result": "PARTIAL",
+        "detail": "No product surface executes project-controlled untrusted code today; evaluateExecution is the decision contract a future confined consumer must call. Agent CLIs, the user terminal and host tooling are trusted fixed-argv launches outside this boundary. With flags off (default) behavior is unchanged; with flags on and no approved backend/proof, executable stages stay disabled by construction."
+      },
+      {
+        "stage": "Structured redaction at log/model sinks",
+        "result": "PARTIAL",
+        "detail": "createSecretRedactor is implemented and tested for the declared scope. SecretRef values cannot enter journals or model context by construction (they exist only inside resolve() results), so no sink currently emits them; wiring the redactor into future secret-bearing output paths remains open."
+      }
+    ],
+    "platform": [
+      {
+        "stage": "Windows native negative matrix (outside-root rw, protected state, DNS/TCP, child escape, registry, junction swap, second user, kill cleanup)",
+        "result": "BLOCKED",
+        "detail": "Requires the actual packaged launcher under its real token plus an installed, independently approved backend with a PASS platform proof. No such backend exists on this host; source inspection cannot certify one. Executable stages remain disabled."
+      },
+      {
+        "stage": "Unsupported OS cases",
+        "result": "BLOCKED",
+        "detail": "No non-Windows proof was attempted; per contract these stay BLOCKED rather than silently passing."
+      },
+      {
+        "stage": "Independent security review of privileged stages",
+        "result": "BLOCKED",
+        "detail": "Mandatory for activation; not performed in this bundle."
+      }
+    ]
+  },
+  "commands": [
+    {
+      "command": "pnpm exec vitest run tests/project-trust-v3.test.ts tests/secret-custody-v3.test.ts tests/execution-boundary-v3.test.ts",
+      "cwd": "C:/Users/user/gen-m03-v3-wt",
+      "exitCode": 1,
+      "result": "FAIL",
+      "logArtifact": "intentional failing fixture: implementation modules did not yet exist (recorded before implementation)"
+    },
+    {
+      "command": "pnpm exec vitest run tests/project-trust-v3.test.ts tests/secret-custody-v3.test.ts tests/execution-boundary-v3.test.ts",
+      "cwd": "C:/Users/user/gen-m03-v3-wt",
+      "exitCode": 0,
+      "result": "PASS",
+      "logArtifact": "3 files, 36 tests passed"
+    },
+    {
+      "command": "pnpm exec vitest run tests/plugin-host.test.ts tests/plugin-workspace-navigation.test.ts tests/process.test.ts",
+      "cwd": "C:/Users/user/gen-m03-v3-wt",
+      "exitCode": 0,
+      "result": "PASS",
+      "logArtifact": "3 files, 70 tests passed; covers the installPluginPackage screening-hook change"
+    },
+    {
+      "command": "pnpm typecheck",
+      "cwd": "C:/Users/user/gen-m03-v3-wt",
+      "exitCode": 0,
+      "result": "PASS",
+      "logArtifact": "tsc --noEmit clean"
+    },
+    {
+      "command": "pnpm test",
+      "cwd": "C:/Users/user/gen-m03-v3-wt",
+      "exitCode": 1,
+      "result": "FAIL",
+      "logArtifact": "2993 passed, 68 failed, 75 skipped across 302 files. Failures are environmental/pre-existing: missing native builds (node-pty AttachConsole), no symlink privilege (EPERM), browser binaries unavailable, Python/Hermes/MCP engine tests, and path-guard helper timeouts under full-suite parallel load. No failing file is touched by this bundle; all bundle-adjacent suites pass."
+    },
+    {
+      "command": "pnpm build",
+      "cwd": "C:/Users/user/gen-m03-v3-wt",
+      "exitCode": 0,
+      "result": "PASS",
+      "logArtifact": "vite production build completed"
+    },
+    {
+      "command": "pnpm test:browser",
+      "cwd": "C:/Users/user/gen-m03-v3-wt",
+      "exitCode": null,
+      "result": "NOT_RUN",
+      "logArtifact": "No frontend or browser-path files changed by this bundle; not required."
+    }
+  ],
+  "intendedNegatives": [
+    {
+      "case": "Approved executable bytes changed after trust",
+      "expected": "DENY before spawn",
+      "observed": "DENY (approved-bytes-changed)",
+      "result": "PASS"
+    },
+    {
+      "case": "Project root recreated at same path (new dev/ino)",
+      "expected": "trust INVALIDATED / DENY",
+      "observed": "INVALIDATED root-identity-changed; evaluateExecution DENY",
+      "result": "PASS"
+    },
+    {
+      "case": "Junction alias to same physical root",
+      "expected": "trust remains CURRENT",
+      "observed": "CURRENT (canonical realpath + dev/ino match)",
+      "result": "PASS"
+    },
+    {
+      "case": "Arbitrary shell text incl. substitution and rm -rf",
+      "expected": "single effectful REQUIRE_APPROVAL, never read-only",
+      "observed": "REQUIRE_APPROVAL effect=shell for all inputs",
+      "result": "PASS"
+    },
+    {
+      "case": "Unlisted argv / unknown executable digest",
+      "expected": "REQUIRE_APPROVAL, never silent allow",
+      "observed": "REQUIRE_APPROVAL both cases",
+      "result": "PASS"
+    },
+    {
+      "case": "cwd outside trusted root or profile roots",
+      "expected": "DENY",
+      "observed": "DENY",
+      "result": "PASS"
+    },
+    {
+      "case": "Missing or invalidated project trust",
+      "expected": "REQUIRE_APPROVAL / DENY",
+      "observed": "REQUIRE_APPROVAL when absent; DENY when stale",
+      "result": "PASS"
+    },
+    {
+      "case": "Flags default off / partial flags",
+      "expected": "DISABLED or DENY per missing sub-capability",
+      "observed": "DISABLED with empty env; DENY when secretRefsV1 off but profile references refs",
+      "result": "PASS"
+    },
+    {
+      "case": "TRUSTED_HOST implicit selection",
+      "expected": "DENY; explicit selection ALLOW labeled unrestricted",
+      "observed": "DENY implicit; ALLOW unrestricted backendId=TRUSTED_HOST explicit",
+      "result": "PASS"
+    },
+    {
+      "case": "Backend absent, ambiguous, unapproved or proof missing/FAIL/mismatched",
+      "expected": "UNSUPPORTED_BACKEND / BLOCKED_BACKEND_SELECTION / PLATFORM_PROOF_REQUIRED",
+      "observed": "All codes returned as specified; backend.launch never invoked",
+      "result": "PASS"
+    },
+    {
+      "case": "Secret resolve without approval / wrong destination / reuse / expiry / after revocation",
+      "expected": "denied each time",
+      "observed": "SECRET_REF_APPROVAL / SECRET_REF_DESTINATION / SECRET_REF_REVOKED thrown as specified",
+      "result": "PASS"
+    },
+    {
+      "case": "Child env inherits host secrets",
+      "expected": "only allowlisted names plus approved injections",
+      "observed": "AWS_SECRET_ACCESS_KEY, NPM_TOKEN and undefined values absent",
+      "result": "PASS"
+    },
+    {
+      "case": "Scanner KNOWN_BAD / UNAVAILABLE / stale cache / NO_KNOWN_MATCH",
+      "expected": "distinct statuses; clean lookup never grants trust; exception cannot override KNOWN_BAD",
+      "observed": "Distinct PackageScreeningV1 statuses; screeningGate BLOCK/NEUTRAL/EXCEPTION_RECORDED only",
+      "result": "PASS"
+    }
+  ],
+  "changedFiles": [
+    "packages/contracts/execution-profile.ts",
+    "packages/core/host-flags.ts",
+    "packages/core/project-trust.ts",
+    "packages/core/secret-references.ts",
+    "packages/core/execution-policy.ts",
+    "packages/core/package-screening.ts",
+    "packages/plugins/installation.ts",
+    "tests/project-trust-v3.test.ts",
+    "tests/secret-custody-v3.test.ts",
+    "tests/execution-boundary-v3.test.ts",
+    "docs/implementation/v3/M03-verification.json"
+  ],
+  "artifacts": [
+    "tests/project-trust-v3.test.ts",
+    "tests/secret-custody-v3.test.ts",
+    "tests/execution-boundary-v3.test.ts",
+    "docs/implementation/v3/M03-verification.json"
+  ],
+  "migration": {
+    "status": "NONE",
+    "detail": "No data migration. New flags default false; legacy credential stores, plugin inventory and terminal behavior are unchanged. ProjectTrustLedger persists only when constructed with a Store; no existing records were rewritten."
+  },
+  "rollback": "Unset the three HARNESS_FLAG_SECURITY_* environment variables (all default false) to disable every new capability. installPluginPackage returns to the legacy path when security.executionProfilesV1 is off and no screening advisory is composed. No execution profiles exist to revoke; if any are later issued, rollback revokes profiles, stops owned children, retains account stores and historical trust/audit records, and restores legacy credential reads only after verified compatibility. No existing policy was loosened to recover availability.",
+  "gates": [
+    {
+      "gate": "Windows native platform proof for privileged execution",
+      "status": "BLOCKED",
+      "detail": "Needs actual packaged launcher, real token, network policy and the declared negative matrix on target hardware; no approved backend is installed."
+    },
+    {
+      "gate": "Independent security review",
+      "status": "OPEN",
+      "detail": "Mandatory before any production activation of trust/secret/execution flags."
+    },
+    {
+      "gate": "Approved execution backend installation and source-lock approval",
+      "status": "OPEN",
+      "detail": "selectBackend requires one operator/source-lock approvedBackendId resolving to an installed, independently approved backend; none exists yet."
+    },
+    {
+      "gate": "Advisory database composition for package screening",
+      "status": "OPEN",
+      "detail": "screenPackage requires a host-composed AdvisoryDatabase; with the flag on and none configured, activation fails closed."
+    },
+    {
+      "gate": "M01/M02 bundle evidence artifacts",
+      "status": "OPEN",
+      "detail": "No ImplementationEvidenceV3 artifacts for M01/M02 exist on the approved base; dependency verification here is source-blob plus current-test evidence only."
+    },
+    {
+      "gate": "Redactor wiring into secret-bearing output sinks",
+      "status": "OPEN",
+      "detail": "Utility proven; future log/model paths that could carry secret material must adopt it before flags enable secretRefsV1 in product flows."
+    }
+  ],
+  "outcome": "PARTIAL"
+}

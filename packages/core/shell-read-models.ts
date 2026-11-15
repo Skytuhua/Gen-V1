@@ -70,8 +70,17 @@ export class ShellReadModels {
   navigation(input: unknown): NavigationPage {
     const query = navInput.parse(input), {all, archived} = this.owners(), text = query.text.toLowerCase();
     const rows = all.filter(thread => !thread.sideParentId && thread.kind !== 'side' && archived.has(thread.id) === query.archived && (!text || (thread.title + ' ' + (thread.projectName ?? '')).toLowerCase().includes(text))).sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id.localeCompare(a.id)).map(thread => this.row(thread));
-    const order = rows.map(row => row.presentation?.order ?? 0);
-    return {...this.page(rows, query, {kind: 'navigation', archived: query.archived, text}), order: 'created-desc', stats: {pinned: rows.filter(row => row.presentation?.pinned).length, working: rows.filter(row => row.runId || row.status === 'working').length, waiting: rows.filter(row => row.status === 'awaiting_input').length, settled: rows.filter(row => row.presentation?.settled).length, minOrder: Math.min(0, ...order), maxOrder: Math.max(0, ...order)}};
+    const stats = {pinned: 0, working: 0, waiting: 0, settled: 0, minOrder: 0, maxOrder: 0};
+    for (const row of rows) {
+      const presentation = row.presentation, order = presentation?.order ?? 0;
+      if (presentation?.pinned) stats.pinned++;
+      if (row.runId || row.status === 'working') stats.working++;
+      if (row.status === 'awaiting_input') stats.waiting++;
+      if (presentation?.settled) stats.settled++;
+      stats.minOrder = Math.min(stats.minOrder, order);
+      stats.maxOrder = Math.max(stats.maxOrder, order);
+    }
+    return {...this.page(rows, query, {kind: 'navigation', archived: query.archived, text}), order: 'created-desc', stats};
   }
   navigationItem(id: string): ThreadNavigationRow {
     const {all, archived} = this.owners();
