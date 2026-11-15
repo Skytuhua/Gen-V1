@@ -44,19 +44,37 @@ export function createCapabilityFlags<K extends string>(definitions: readonly Ca
 export const M02_FLAG_KEYS = ["audit.effectsV1", "security.authorityV1"] as const;
 export type M02FlagKey = (typeof M02_FLAG_KEYS)[number];
 
-const m02Flags = createCapabilityFlags<M02FlagKey>([
+// M08 flag set: managed-workspace lifecycle. All default false and only the
+// host that owns this registry can enable one — the provenance journal,
+// checkpoint provider/restore protocol, and the write-delegate child
+// worktrees each stay behind their own key.
+export const M08_FLAG_KEYS = [
+  "workspace.provenanceV1",
+  "workspace.checkpointsV1",
+  "workspace.restoreV1",
+  "workspace.writeDelegateV1",
+] as const;
+export type M08FlagKey = (typeof M08_FLAG_KEYS)[number];
+
+export type CapabilityFlagKey = M02FlagKey | M08FlagKey;
+
+const hostFlags = createCapabilityFlags<CapabilityFlagKey>([
   { key: "audit.effectsV1", owner: "m02", description: "Append-only tool-effect ledger and owner-fenced read models." },
   { key: "security.authorityV1", owner: "m02", description: "Single-use approvals and the pre-dispatch authority gate." },
+  { key: "workspace.provenanceV1", owner: "m08", description: "Edit provenance journal: prepared markers and proven/process-window receipts." },
+  { key: "workspace.checkpointsV1", owner: "m08", description: "File checkpoint capture and the host checkpoint provider behind the read adapter." },
+  { key: "workspace.restoreV1", owner: "m08", description: "Reviewed restore protocol with pre-restore checkpoint and per-file preimage checks." },
+  { key: "workspace.writeDelegateV1", owner: "m08", description: "Write-capable child worktrees gated by the M03 child profile and an M02 approval." },
 ]);
 
-export function capabilityEnabled(key: M02FlagKey): boolean {
-  return m02Flags.enabled(key);
+export function capabilityEnabled(key: CapabilityFlagKey): boolean {
+  return hostFlags.enabled(key);
 }
-export function registeredCapabilityFlags(): Record<M02FlagKey, boolean> {
-  return m02Flags.snapshot() as Record<M02FlagKey, boolean>;
+export function registeredCapabilityFlags(): Record<CapabilityFlagKey, boolean> {
+  return hostFlags.snapshot() as Record<CapabilityFlagKey, boolean>;
 }
 /** Test-only seam: flips a flag without touching user-visible preferences. All
  * defaults are false, so `undefined` restores the default. */
-export function __setCapabilityFlagForTests(key: M02FlagKey, value: boolean | undefined): void {
-  m02Flags.set(key, value === true);
+export function __setCapabilityFlagForTests(key: CapabilityFlagKey, value: boolean | undefined): void {
+  hostFlags.set(key, value === true);
 }

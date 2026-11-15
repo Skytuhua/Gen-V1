@@ -1,0 +1,5 @@
+
+> gen-v1@0.6.5 lint C:\Users\Administrator\gen-m08-v3-wt
+> tsx scripts/lint-ui.ts --check
+
+UI guard: 504 sources; 0 violations; 39 inventoried legacy/geometry occurrences (not primitive approvals); 0 retired entries.

@@ -1,4 +1,5 @@
 import {z} from 'zod';
+import {authenticated,csrfToken,read} from './api.ts';
 
 const encoder=new TextEncoder(),decoder=new TextDecoder('utf-8',{ignoreBOM:true});
 const utf8=(value:string)=>decoder.decode(encoder.encode(value))===value;
@@ -61,15 +62,58 @@ export function readCheckpointReview(value:unknown,owner:CheckpointOwner,checkpo
   return result;
 }
 
-/** Frozen v1 read seam only; no checkpoint service or restore API is connected. */
+/** Frozen v1 read seam plus the reviewed selective-restore seam. */
 export interface FileCheckpointAdapter {
   available:boolean;
   list:(owner:CheckpointOwner,options:{cursor?:string;signal:AbortSignal})=>Promise<unknown>;
   detail:(owner:CheckpointOwner,checkpoint:FileCheckpoint,options:{signal:AbortSignal})=>Promise<unknown>;
   review:(owner:CheckpointOwner,checkpoint:FileCheckpoint,options:{paths:string[];signal:AbortSignal})=>Promise<unknown>;
-  restore:{readonly enabled:false;readonly reason:string};
+  restore:{
+    readonly enabled:boolean;
+    readonly reason:string;
+    /** Stage a restore plan; the returned payload names the files and digests the confirmation echoes. */
+    plan?:(owner:CheckpointOwner,checkpoint:FileCheckpoint,paths:string[],approvalId:string)=>Promise<unknown>;
+    /** Apply a staged plan; requires the same approvalId the plan was created with. */
+    apply?:(owner:CheckpointOwner,checkpoint:FileCheckpoint,planId:string,approvalId:string)=>Promise<unknown>;
+  };
 }
 const unavailable=async():Promise<never>=>{throw Error('File checkpoints are unavailable. No checkpoint service is connected.');};
 export const disabledCheckpointAdapter:FileCheckpointAdapter={available:false,list:unavailable,detail:unavailable,review:unavailable,
   restore:{enabled:false,reason:'Restore is unavailable until checkpoint recovery is connected and its conflict, confirmation and receipt designs are approved.'},
 };
+
+/** Plan payload the restore confirmation screen shows back to the user. */
+export interface CheckpointRestorePlan{planId:string;state:string;selectedPaths:string[];preRestoreCheckpointId:string|null}
+export function readRestorePlan(value:unknown):CheckpointRestorePlan{
+  const result=restorePlanPayloadSchema.parse(value);
+  return{planId:result.id,state:result.state,selectedPaths:result.selectedPaths,preRestoreCheckpointId:result.preRestoreCheckpointId};
+}
+const restorePlanPayloadSchema=z.strictObject({id,state:z.string().min(1),selectedPaths:z.array(z.string()).max(500),preRestoreCheckpointId:id.nullable(),conflicts:z.array(z.string()).max(500).optional()});
+const restoreResultPayloadSchema=restorePlanPayloadSchema;
+export function readRestoreResult(value:unknown):{planId:string;state:string;conflicts:string[];restored:string[];preRestoreCheckpointId:string|null}{
+  const result=restoreResultPayloadSchema.parse(value);
+  return{planId:result.id,state:result.state,conflicts:result.conflicts??[],restored:result.selectedPaths.filter(path=>!(result.conflicts??[]).includes(path)),preRestoreCheckpointId:result.preRestoreCheckpointId};
+}
+/** Live host adapter: speaks to the flag-gated /checkpoints/* routes. `base` is
+ *  the project API root (e.g. /api/projects/<id>?threadId=... is folded in via query). */
+export function createHttpCheckpointAdapter(base:string,threadId:string|undefined):FileCheckpointAdapter{
+  const query=threadId?'?threadId='+encodeURIComponent(threadId):'';
+  const post=async(path:string,body:Record<string,unknown>,signal?:AbortSignal)=>{
+    const response=await authenticated(()=>fetch(`${base}/checkpoints${path}${query}`,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','x-harness-csrf':csrfToken},body:JSON.stringify(body),signal}));
+    return read<unknown>(response);
+  };
+  return{
+    available:true,
+    list:(owner,options)=>post('/list',{owner,cursor:options.cursor,threadId},options.signal),
+    detail:(owner,checkpoint,options)=>post('/detail',{owner,checkpointId:checkpoint.id,threadId},options.signal),
+    review:(owner,checkpoint,options)=>post('/review',{owner,checkpointId:checkpoint.id,paths:options.paths,threadId},options.signal),
+    restore:{
+      enabled:true,reason:'',
+      plan:(owner,checkpoint,paths,approvalId)=>post('/restore/plan',{owner,checkpointId:checkpoint.id,selectedPaths:paths,approvalId,threadId}),
+      apply:(owner,_checkpoint,planId,approvalId)=>post('/restore/apply',{owner,planId,approvalId,threadId}),
+    },
+  };
+}
+/** Server reports whether checkpoint reads and restore are enabled plus the
+ *  owner scope the UI must echo on every call. */
+export const getCheckpointCapability=(base:string,threadId?:string)=>authenticated(()=>fetch(`${base}/checkpoints/capability${threadId?'?threadId='+encodeURIComponent(threadId):''}`,{credentials:'same-origin',cache:'no-store'})).then(read<{available:boolean;restore:boolean;owner?:CheckpointOwner}>);

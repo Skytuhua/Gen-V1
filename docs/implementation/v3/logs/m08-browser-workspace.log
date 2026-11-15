@@ -1,0 +1,319 @@
+
+> gen-v1@0.6.5 test:browser C:\Users\Administrator\gen-m08-v3-wt
+> tsx scripts/test-browser.ts "--suite" "workspace"
+
+Browser results: C:\Users\Administrator\gen-m08-v3-wt\test-results\browser\run-1794723227093-207470bc-2504-4458-a24e-2b45a6a45440
+
+Browser suite: workspace (2 spec files)
+
+Running 33 tests using 1 worker
+
+  x   1 tests\e2e\workspace-components.spec.ts:3:1 › native pin control targets its window without stopping a task (5.2s)
+  x   2 tests\e2e\workspace-components.spec.ts:35:1 › canvas shortcuts affect only canvas zoom and keyboard layout uses snapped coordinates (5.1s)
+  x   3 tests\e2e\workspace-components.spec.ts:62:1 › automatic context-plan expansion preserves composer focus and reduced motion (5.2s)
+  x   4 tests\e2e\workspace-components.spec.ts:83:1 › failed native profile restoration restores the prior host layout (5.2s)
+  x   5 tests\e2e\workspace-components.spec.ts:111:1 › a refused draft flush prevents profile mutation and hiding does not stop tasks (5.2s)
+  x   6 tests\e2e\workspace-components.spec.ts:139:1 › collapsed and offscreen artifact bodies preserve mounted edits with active=false (5.1s)
+  ok  7 tests\e2e\workspace-ui.spec.ts:397:1 › primary Workspace keeps tools fixed and preserves its anchored draft through close reopen and reload (5.1s)
+  ok  8 tests\e2e\workspace-ui.spec.ts:445:1 › retained navigation directs tools to the main workspace without creating detached owners (702ms)
+  ok  9 tests\e2e\workspace-ui.spec.ts:464:1 › delegated agent panels page the actual child transcript without a composer (844ms)
+  ok 10 tests\e2e\workspace-ui.spec.ts:486:1 › main and side composers keep independent drafts across reload and rejected sends (2.0s)
+  x  11 tests\e2e\workspace-ui.spec.ts:528:1 › offscreen tool bodies unmount while zoom leaves the surrounding shell unchanged (5.9s)
+  ok 12 tests\e2e\workspace-ui.spec.ts:575:106 › docking specialized thread restores its saved originating tile using canonical native identity (749ms)
+  ok 13 tests\e2e\workspace-ui.spec.ts:575:106 › docking specialized agent restores its saved originating tile using canonical native identity (997ms)
+  ok 14 tests\e2e\workspace-ui.spec.ts:575:106 › docking specialized artifact restores its saved originating tile using canonical native identity (1.1s)
+  ok 15 tests\e2e\workspace-ui.spec.ts:575:106 › docking specialized context restores its saved originating tile using canonical native identity (984ms)
+  ok 16 tests\e2e\workspace-ui.spec.ts:575:106 › docking specialized plan restores its saved originating tile using canonical native identity (761ms)
+  ok 17 tests\e2e\workspace-ui.spec.ts:575:106 › docking specialized usage restores its saved originating tile using canonical native identity (729ms)
+  ok 18 tests\e2e\workspace-ui.spec.ts:575:106 › docking specialized navigation restores its saved originating tile using canonical native identity (878ms)
+  ok 19 tests\e2e\workspace-ui.spec.ts:575:106 › docking specialized browser restores its saved originating tile using canonical native identity (952ms)
+  x  20 tests\e2e\workspace-ui.spec.ts:595:1 › live native dock retries a concurrent layout revision without losing either draft (1.1s)
+  x  21 tests\e2e\workspace-ui.spec.ts:657:1 › native dock refuses a panel retargeted by a concurrent profile change (6.0s)
+  ok 22 tests\e2e\workspace-ui.spec.ts:690:43 › canvas command retries native geometry only without rebasing its owner (1.0s)
+  x  23 tests\e2e\workspace-ui.spec.ts:690:43 › canvas command refuses a changed canvas without rebasing its owner (6.0s)
+  ok 24 tests\e2e\workspace-ui.spec.ts:717:42 › saved native selected task binding survives reload and dock (1.4s)
+  ok 25 tests\e2e\workspace-ui.spec.ts:717:42 › saved native live project binding survives reload and dock (1.8s)
+  ok 26 tests\e2e\workspace-ui.spec.ts:741:1 › keyboard and refreshed browser panel geometry updates native bounds while menus still occlude it (1.5s)
+  ok 27 tests\e2e\workspace-ui.spec.ts:866:1 › canvas owner tool callbacks open fixed Files and Diff panels while another conversation is selected (3.2s)
+  ok 28 tests\e2e\workspace-ui.spec.ts:991:1 › canvas project selection targets its owner and cancellation restores independent drafts and focus (2.7s)
+  ok 29 tests\e2e\workspace-ui.spec.ts:1069:1 › canvas Connect project captures its owner across selection updates and preserves drafts and focus (2.6s)
+  ok 30 tests\e2e\workspace-ui.spec.ts:1150:1 › obsolete model reads cancel on panel disposal and selection without cancelling another live owner (2.2s)
+  ok 31 tests\e2e\workspace-ui.spec.ts:1184:1 › closing Settings cancels its pending catalog read and leaves the current workspace read alive (1.7s)
+  ok 32 tests\e2e\workspace-ui.spec.ts:1215:1 › disposing a project context cancels its read while another context still loads successfully (1.6s)
+  x  33 tests\e2e\workspace-ui.spec.ts:1243:1 › a completed old project action cannot refresh over a retargeted context while current-owner actions still refresh (7.1s)
+
+
+  1) tests\e2e\workspace-components.spec.ts:3:1 › native pin control targets its window without stopping a task 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('region', { name: 'Fixture canvas canvas', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Fixture canvas canvas', exact: true })[22m
+
+
+       8 | });
+       9 | const harness='${fixtureRoot}/.harness-gen-v1-workspace/ui-component-check.tsx';
+    > 10 | test.beforeEach(async({page})=>{await page.route('**/workspace-component-check',route=>route.fulfill({contentType:'text/html',body:`<html><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${harness}');</script></body></html>`}));await page.goto('/workspace-component-check');await expect(page.getByRole('region',{name:'Fixture canvas canvas',exact:true})).toBeVisible();});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^
+      11 | test('canvas shortcuts affect only canvas zoom and keyboard layout uses snapped coordinates',async({page})=>{await page.getByRole('textbox',{name:'Outside composer'}).focus();await page.keyboard.press('Control+-');expect(await page.evaluate(()=>(window as any).__workspaceCalls)).toEqual([]);await page.getByLabel('Canvas panels; drag empty space to pan').focus();await page.keyboard.press('Control+=');await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('110%');await page.keyboard.press('Control+0');await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('100%');const handle=page.getByRole('button',{name:'Move Granted files',exact:true});await handle.focus();await page.keyboard.press('ArrowRight');await expect.poll(()=>page.locator('[data-panel-id="source-panel"]').evaluate(node=>parseFloat((node as HTMLElement).style.left))).toBe(32);await page.keyboard.press('Shift+ArrowRight');await expect.poll(()=>page.locator('[data-panel-id="source-panel"]').evaluate(node=>parseFloat((node as HTMLElement).style.width))).toBe(488);});
+      12 | test('automatic context-plan expansion preserves composer focus and reduced motion',async({page})=>{await page.emulateMedia({reducedMotion:'reduce'});const input=page.getByRole('textbox',{name:'Outside composer'});await input.fill('Keep composing');await page.evaluate(()=>(window as any).__planOpen());await expect(page.getByText('Validated fixture plan',{exact:true})).toBeVisible();await expect(input).toBeFocused();await expect(input).toHaveValue('Keep composing');expect(await page.locator('.project-plan-expansion').evaluate(node=>Number.parseFloat(getComputedStyle(node).transitionDuration))).toBeLessThanOrEqual(.001);await expect(page.getByText('Unknown',{exact:true})).toHaveCount(2);});
+      13 | test('failed native profile restoration restores the prior host layout',async({page})=>{await page.getByRole('textbox',{name:'Outside composer'}).fill('Retain draft after rollback');await page.getByRole('button',{name:'Profiles',exact:false}).click();await page.getByRole('combobox',{name:'Workspace profile'}).selectOption('profile');await page.evaluate(()=>(window as any).__failApply=true);await page.getByRole('button',{name:'Apply',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Synthetic native readiness failure');await expect.poll(()=>page.evaluate(()=>(window as any).__workspaceCalls.map((value:any)=>value[0]))).toContain('workspace.profile.restore');await expect(page.getByRole('region',{name:'Fixture canvas canvas'})).toBeVisible();await expect(page.getByRole('textbox',{name:'Outside composer'})).toHaveValue('Retain draft after rollback');await expect(page.locator('[data-panel-id="source-panel"]')).toBeVisible();});
+        at C:\Users\Administrator\gen-m08-v3-wt\tests\e2e\workspace-components.spec.ts:10:574
+
+  2) tests\e2e\workspace-components.spec.ts:35:1 › canvas shortcuts affect only canvas zoom and keyboard layout uses snapped coordinates 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('region', { name: 'Fixture canvas canvas', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Fixture canvas canvas', exact: true })[22m
+
+
+       8 | });
+       9 | const harness='${fixtureRoot}/.harness-gen-v1-workspace/ui-component-check.tsx';
+    > 10 | test.beforeEach(async({page})=>{await page.route('**/workspace-component-check',route=>route.fulfill({contentType:'text/html',body:`<html><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${harness}');</script></body></html>`}));await page.goto('/workspace-component-check');await expect(page.getByRole('region',{name:'Fixture canvas canvas',exact:true})).toBeVisible();});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^
+      11 | test('canvas shortcuts affect only canvas zoom and keyboard layout uses snapped coordinates',async({page})=>{await page.getByRole('textbox',{name:'Outside composer'}).focus();await page.keyboard.press('Control+-');expect(await page.evaluate(()=>(window as any).__workspaceCalls)).toEqual([]);await page.getByLabel('Canvas panels; drag empty space to pan').focus();await page.keyboard.press('Control+=');await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('110%');await page.keyboard.press('Control+0');await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('100%');const handle=page.getByRole('button',{name:'Move Granted files',exact:true});await handle.focus();await page.keyboard.press('ArrowRight');await expect.poll(()=>page.locator('[data-panel-id="source-panel"]').evaluate(node=>parseFloat((node as HTMLElement).style.left))).toBe(32);await page.keyboard.press('Shift+ArrowRight');await expect.poll(()=>page.locator('[data-panel-id="source-panel"]').evaluate(node=>parseFloat((node as HTMLElement).style.width))).toBe(488);});
+      12 | test('automatic context-plan expansion preserves composer focus and reduced motion',async({page})=>{await page.emulateMedia({reducedMotion:'reduce'});const input=page.getByRole('textbox',{name:'Outside composer'});await input.fill('Keep composing');await page.evaluate(()=>(window as any).__planOpen());await expect(page.getByText('Validated fixture plan',{exact:true})).toBeVisible();await expect(input).toBeFocused();await expect(input).toHaveValue('Keep composing');expect(await page.locator('.project-plan-expansion').evaluate(node=>Number.parseFloat(getComputedStyle(node).transitionDuration))).toBeLessThanOrEqual(.001);await expect(page.getByText('Unknown',{exact:true})).toHaveCount(2);});
+      13 | test('failed native profile restoration restores the prior host layout',async({page})=>{await page.getByRole('textbox',{name:'Outside composer'}).fill('Retain draft after rollback');await page.getByRole('button',{name:'Profiles',exact:false}).click();await page.getByRole('combobox',{name:'Workspace profile'}).selectOption('profile');await page.evaluate(()=>(window as any).__failApply=true);await page.getByRole('button',{name:'Apply',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Synthetic native readiness failure');await expect.poll(()=>page.evaluate(()=>(window as any).__workspaceCalls.map((value:any)=>value[0]))).toContain('workspace.profile.restore');await expect(page.getByRole('region',{name:'Fixture canvas canvas'})).toBeVisible();await expect(page.getByRole('textbox',{name:'Outside composer'})).toHaveValue('Retain draft after rollback');await expect(page.locator('[data-panel-id="source-panel"]')).toBeVisible();});
+        at C:\Users\Administrator\gen-m08-v3-wt\tests\e2e\workspace-components.spec.ts:10:574
+
+  3) tests\e2e\workspace-components.spec.ts:62:1 › automatic context-plan expansion preserves composer focus and reduced motion 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('region', { name: 'Fixture canvas canvas', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Fixture canvas canvas', exact: true })[22m
+
+
+       8 | });
+       9 | const harness='${fixtureRoot}/.harness-gen-v1-workspace/ui-component-check.tsx';
+    > 10 | test.beforeEach(async({page})=>{await page.route('**/workspace-component-check',route=>route.fulfill({contentType:'text/html',body:`<html><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${harness}');</script></body></html>`}));await page.goto('/workspace-component-check');await expect(page.getByRole('region',{name:'Fixture canvas canvas',exact:true})).toBeVisible();});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^
+      11 | test('canvas shortcuts affect only canvas zoom and keyboard layout uses snapped coordinates',async({page})=>{await page.getByRole('textbox',{name:'Outside composer'}).focus();await page.keyboard.press('Control+-');expect(await page.evaluate(()=>(window as any).__workspaceCalls)).toEqual([]);await page.getByLabel('Canvas panels; drag empty space to pan').focus();await page.keyboard.press('Control+=');await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('110%');await page.keyboard.press('Control+0');await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('100%');const handle=page.getByRole('button',{name:'Move Granted files',exact:true});await handle.focus();await page.keyboard.press('ArrowRight');await expect.poll(()=>page.locator('[data-panel-id="source-panel"]').evaluate(node=>parseFloat((node as HTMLElement).style.left))).toBe(32);await page.keyboard.press('Shift+ArrowRight');await expect.poll(()=>page.locator('[data-panel-id="source-panel"]').evaluate(node=>parseFloat((node as HTMLElement).style.width))).toBe(488);});
+      12 | test('automatic context-plan expansion preserves composer focus and reduced motion',async({page})=>{await page.emulateMedia({reducedMotion:'reduce'});const input=page.getByRole('textbox',{name:'Outside composer'});await input.fill('Keep composing');await page.evaluate(()=>(window as any).__planOpen());await expect(page.getByText('Validated fixture plan',{exact:true})).toBeVisible();await expect(input).toBeFocused();await expect(input).toHaveValue('Keep composing');expect(await page.locator('.project-plan-expansion').evaluate(node=>Number.parseFloat(getComputedStyle(node).transitionDuration))).toBeLessThanOrEqual(.001);await expect(page.getByText('Unknown',{exact:true})).toHaveCount(2);});
+      13 | test('failed native profile restoration restores the prior host layout',async({page})=>{await page.getByRole('textbox',{name:'Outside composer'}).fill('Retain draft after rollback');await page.getByRole('button',{name:'Profiles',exact:false}).click();await page.getByRole('combobox',{name:'Workspace profile'}).selectOption('profile');await page.evaluate(()=>(window as any).__failApply=true);await page.getByRole('button',{name:'Apply',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Synthetic native readiness failure');await expect.poll(()=>page.evaluate(()=>(window as any).__workspaceCalls.map((value:any)=>value[0]))).toContain('workspace.profile.restore');await expect(page.getByRole('region',{name:'Fixture canvas canvas'})).toBeVisible();await expect(page.getByRole('textbox',{name:'Outside composer'})).toHaveValue('Retain draft after rollback');await expect(page.locator('[data-panel-id="source-panel"]')).toBeVisible();});
+        at C:\Users\Administrator\gen-m08-v3-wt\tests\e2e\workspace-components.spec.ts:10:574
+
+  4) tests\e2e\workspace-components.spec.ts:83:1 › failed native profile restoration restores the prior host layout 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('region', { name: 'Fixture canvas canvas', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Fixture canvas canvas', exact: true })[22m
+
+
+       8 | });
+       9 | const harness='${fixtureRoot}/.harness-gen-v1-workspace/ui-component-check.tsx';
+    > 10 | test.beforeEach(async({page})=>{await page.route('**/workspace-component-check',route=>route.fulfill({contentType:'text/html',body:`<html><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${harness}');</script></body></html>`}));await page.goto('/workspace-component-check');await expect(page.getByRole('region',{name:'Fixture canvas canvas',exact:true})).toBeVisible();});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^
+      11 | test('canvas shortcuts affect only canvas zoom and keyboard layout uses snapped coordinates',async({page})=>{await page.getByRole('textbox',{name:'Outside composer'}).focus();await page.keyboard.press('Control+-');expect(await page.evaluate(()=>(window as any).__workspaceCalls)).toEqual([]);await page.getByLabel('Canvas panels; drag empty space to pan').focus();await page.keyboard.press('Control+=');await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('110%');await page.keyboard.press('Control+0');await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('100%');const handle=page.getByRole('button',{name:'Move Granted files',exact:true});await handle.focus();await page.keyboard.press('ArrowRight');await expect.poll(()=>page.locator('[data-panel-id="source-panel"]').evaluate(node=>parseFloat((node as HTMLElement).style.left))).toBe(32);await page.keyboard.press('Shift+ArrowRight');await expect.poll(()=>page.locator('[data-panel-id="source-panel"]').evaluate(node=>parseFloat((node as HTMLElement).style.width))).toBe(488);});
+      12 | test('automatic context-plan expansion preserves composer focus and reduced motion',async({page})=>{await page.emulateMedia({reducedMotion:'reduce'});const input=page.getByRole('textbox',{name:'Outside composer'});await input.fill('Keep composing');await page.evaluate(()=>(window as any).__planOpen());await expect(page.getByText('Validated fixture plan',{exact:true})).toBeVisible();await expect(input).toBeFocused();await expect(input).toHaveValue('Keep composing');expect(await page.locator('.project-plan-expansion').evaluate(node=>Number.parseFloat(getComputedStyle(node).transitionDuration))).toBeLessThanOrEqual(.001);await expect(page.getByText('Unknown',{exact:true})).toHaveCount(2);});
+      13 | test('failed native profile restoration restores the prior host layout',async({page})=>{await page.getByRole('textbox',{name:'Outside composer'}).fill('Retain draft after rollback');await page.getByRole('button',{name:'Profiles',exact:false}).click();await page.getByRole('combobox',{name:'Workspace profile'}).selectOption('profile');await page.evaluate(()=>(window as any).__failApply=true);await page.getByRole('button',{name:'Apply',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Synthetic native readiness failure');await expect.poll(()=>page.evaluate(()=>(window as any).__workspaceCalls.map((value:any)=>value[0]))).toContain('workspace.profile.restore');await expect(page.getByRole('region',{name:'Fixture canvas canvas'})).toBeVisible();await expect(page.getByRole('textbox',{name:'Outside composer'})).toHaveValue('Retain draft after rollback');await expect(page.locator('[data-panel-id="source-panel"]')).toBeVisible();});
+        at C:\Users\Administrator\gen-m08-v3-wt\tests\e2e\workspace-components.spec.ts:10:574
+
+  5) tests\e2e\workspace-components.spec.ts:111:1 › a refused draft flush prevents profile mutation and hiding does not stop tasks 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('region', { name: 'Fixture canvas canvas', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Fixture canvas canvas', exact: true })[22m
+
+
+       8 | });
+       9 | const harness='${fixtureRoot}/.harness-gen-v1-workspace/ui-component-check.tsx';
+    > 10 | test.beforeEach(async({page})=>{await page.route('**/workspace-component-check',route=>route.fulfill({contentType:'text/html',body:`<html><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${harness}');</script></body></html>`}));await page.goto('/workspace-component-check');await expect(page.getByRole('region',{name:'Fixture canvas canvas',exact:true})).toBeVisible();});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^
+      11 | test('canvas shortcuts affect only canvas zoom and keyboard layout uses snapped coordinates',async({page})=>{await page.getByRole('textbox',{name:'Outside composer'}).focus();await page.keyboard.press('Control+-');expect(await page.evaluate(()=>(window as any).__workspaceCalls)).toEqual([]);await page.getByLabel('Canvas panels; drag empty space to pan').focus();await page.keyboard.press('Control+=');await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('110%');await page.keyboard.press('Control+0');await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('100%');const handle=page.getByRole('button',{name:'Move Granted files',exact:true});await handle.focus();await page.keyboard.press('ArrowRight');await expect.poll(()=>page.locator('[data-panel-id="source-panel"]').evaluate(node=>parseFloat((node as HTMLElement).style.left))).toBe(32);await page.keyboard.press('Shift+ArrowRight');await expect.poll(()=>page.locator('[data-panel-id="source-panel"]').evaluate(node=>parseFloat((node as HTMLElement).style.width))).toBe(488);});
+      12 | test('automatic context-plan expansion preserves composer focus and reduced motion',async({page})=>{await page.emulateMedia({reducedMotion:'reduce'});const input=page.getByRole('textbox',{name:'Outside composer'});await input.fill('Keep composing');await page.evaluate(()=>(window as any).__planOpen());await expect(page.getByText('Validated fixture plan',{exact:true})).toBeVisible();await expect(input).toBeFocused();await expect(input).toHaveValue('Keep composing');expect(await page.locator('.project-plan-expansion').evaluate(node=>Number.parseFloat(getComputedStyle(node).transitionDuration))).toBeLessThanOrEqual(.001);await expect(page.getByText('Unknown',{exact:true})).toHaveCount(2);});
+      13 | test('failed native profile restoration restores the prior host layout',async({page})=>{await page.getByRole('textbox',{name:'Outside composer'}).fill('Retain draft after rollback');await page.getByRole('button',{name:'Profiles',exact:false}).click();await page.getByRole('combobox',{name:'Workspace profile'}).selectOption('profile');await page.evaluate(()=>(window as any).__failApply=true);await page.getByRole('button',{name:'Apply',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Synthetic native readiness failure');await expect.poll(()=>page.evaluate(()=>(window as any).__workspaceCalls.map((value:any)=>value[0]))).toContain('workspace.profile.restore');await expect(page.getByRole('region',{name:'Fixture canvas canvas'})).toBeVisible();await expect(page.getByRole('textbox',{name:'Outside composer'})).toHaveValue('Retain draft after rollback');await expect(page.locator('[data-panel-id="source-panel"]')).toBeVisible();});
+        at C:\Users\Administrator\gen-m08-v3-wt\tests\e2e\workspace-components.spec.ts:10:574
+
+  6) tests\e2e\workspace-components.spec.ts:139:1 › collapsed and offscreen artifact bodies preserve mounted edits with active=false 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('region', { name: 'Fixture canvas canvas', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Fixture canvas canvas', exact: true })[22m
+
+
+       8 | });
+       9 | const harness='${fixtureRoot}/.harness-gen-v1-workspace/ui-component-check.tsx';
+    > 10 | test.beforeEach(async({page})=>{await page.route('**/workspace-component-check',route=>route.fulfill({contentType:'text/html',body:`<html><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${harness}');</script></body></html>`}));await page.goto('/workspace-component-check');await expect(page.getByRole('region',{name:'Fixture canvas canvas',exact:true})).toBeVisible();});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^
+      11 | test('canvas shortcuts affect only canvas zoom and keyboard layout uses snapped coordinates',async({page})=>{await page.getByRole('textbox',{name:'Outside composer'}).focus();await page.keyboard.press('Control+-');expect(await page.evaluate(()=>(window as any).__workspaceCalls)).toEqual([]);await page.getByLabel('Canvas panels; drag empty space to pan').focus();await page.keyboard.press('Control+=');await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('110%');await page.keyboard.press('Control+0');await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('100%');const handle=page.getByRole('button',{name:'Move Granted files',exact:true});await handle.focus();await page.keyboard.press('ArrowRight');await expect.poll(()=>page.locator('[data-panel-id="source-panel"]').evaluate(node=>parseFloat((node as HTMLElement).style.left))).toBe(32);await page.keyboard.press('Shift+ArrowRight');await expect.poll(()=>page.locator('[data-panel-id="source-panel"]').evaluate(node=>parseFloat((node as HTMLElement).style.width))).toBe(488);});
+      12 | test('automatic context-plan expansion preserves composer focus and reduced motion',async({page})=>{await page.emulateMedia({reducedMotion:'reduce'});const input=page.getByRole('textbox',{name:'Outside composer'});await input.fill('Keep composing');await page.evaluate(()=>(window as any).__planOpen());await expect(page.getByText('Validated fixture plan',{exact:true})).toBeVisible();await expect(input).toBeFocused();await expect(input).toHaveValue('Keep composing');expect(await page.locator('.project-plan-expansion').evaluate(node=>Number.parseFloat(getComputedStyle(node).transitionDuration))).toBeLessThanOrEqual(.001);await expect(page.getByText('Unknown',{exact:true})).toHaveCount(2);});
+      13 | test('failed native profile restoration restores the prior host layout',async({page})=>{await page.getByRole('textbox',{name:'Outside composer'}).fill('Retain draft after rollback');await page.getByRole('button',{name:'Profiles',exact:false}).click();await page.getByRole('combobox',{name:'Workspace profile'}).selectOption('profile');await page.evaluate(()=>(window as any).__failApply=true);await page.getByRole('button',{name:'Apply',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Synthetic native readiness failure');await expect.poll(()=>page.evaluate(()=>(window as any).__workspaceCalls.map((value:any)=>value[0]))).toContain('workspace.profile.restore');await expect(page.getByRole('region',{name:'Fixture canvas canvas'})).toBeVisible();await expect(page.getByRole('textbox',{name:'Outside composer'})).toHaveValue('Retain draft after rollback');await expect(page.locator('[data-panel-id="source-panel"]')).toBeVisible();});
+        at C:\Users\Administrator\gen-m08-v3-wt\tests\e2e\workspace-components.spec.ts:10:574
+
+  7) tests\e2e\workspace-ui.spec.ts:528:1 › offscreen tool bodies unmount while zoom leaves the surrounding shell unchanged 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  getByRole('button', { name: 'Reset canvas zoom' })
+    Expected: [32m"[7m9[27m0%"[39m
+    Received: [31m"[7m10[27m0%"[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toHaveText" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('button', { name: 'Reset canvas zoom' })[22m
+    [2m    9 × locator resolved to <button title="Reset canvas zoom" aria-label="Reset canvas zoom">100%</button>[22m
+    [2m      - unexpected value "100%"[22m
+
+
+      124 |  const sidebar=page.locator('.sidebar'),before=await sidebar.boundingBox();
+      125 |  await page.getByRole('button',{name:'Zoom canvas out',exact:true}).click();
+    > 126 |  await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('90%');
+          |                                                                    ^
+      127 |  expect(await sidebar.boundingBox()).toEqual(before);
+      128 |  files.bounds.x=24;host.envelope.state.revision++;
+      129 |  await page.evaluate(()=>window.dispatchEvent(new Event('harness:workspace-changed')));
+        at C:\Users\Administrator\gen-m08-v3-wt\tests\e2e\workspace-ui.spec.ts:126:68
+
+    Error Context: test-results\browser\run-1794723227093-207470bc-2504-4458-a24e-2b45a6a45440\workspace\artifacts\workspace-ui-offscreen-too-58c0d-surrounding-shell-unchanged\error-context.md
+
+  8) tests\e2e\workspace-ui.spec.ts:595:1 › live native dock retries a concurrent layout revision without losing either draft 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m1[39m
+    Received: [31m0[39m
+
+      159 |  await returnSavedNative(page,surface);
+      160 |  await expect(tile).toBeVisible();await expect(main).toHaveValue('Main native handoff draft');await expect(side).toHaveValue('Independent side draft');
+    > 161 |  expect(conflicts).toBe(1);expect(value.placement).toBe('canvas');expect(host.envelope.state.canvases[0].panels.map(panel=>panel.id)).toEqual(['main-origin','side-origin']);
+          |                    ^
+      162 | });
+      163 |
+      164 | test('native dock refuses a panel retargeted by a concurrent profile change',async({page})=>{
+        at C:\Users\Administrator\gen-m08-v3-wt\tests\e2e\workspace-ui.spec.ts:161:20
+
+    Error Context: test-results\browser\run-1794723227093-207470bc-2504-4458-a24e-2b45a6a45440\workspace\artifacts\workspace-ui-live-native-d-e715f-without-losing-either-draft\error-context.md
+
+  9) tests\e2e\workspace-ui.spec.ts:657:1 › native dock refuses a panel retargeted by a concurrent profile change 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('alert').filter({ hasText: 'owning panel changed' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('alert').filter({ hasText: 'owning panel changed' })[22m
+
+
+      167 |  await expect(page.locator('[data-panel-id="origin"]')).toHaveCount(0);raceEnabled=true;
+      168 |  await returnSavedNative(page,surface);
+    > 169 |  await expect(page.getByRole('alert').filter({hasText:'owning panel changed'})).toBeVisible();
+          |                                                                                 ^
+      170 |  expect(original).toMatchObject({binding:{threadId:'side'},placement:'native',visible:false});
+      171 | });
+      172 |
+        at C:\Users\Administrator\gen-m08-v3-wt\tests\e2e\workspace-ui.spec.ts:169:81
+
+    Error Context: test-results\browser\run-1794723227093-207470bc-2504-4458-a24e-2b45a6a45440\workspace\artifacts\workspace-ui-native-dock-r-590dc-a-concurrent-profile-change\error-context.md
+
+  10) tests\e2e\workspace-ui.spec.ts:690:43 › canvas command refuses a changed canvas without rebasing its owner 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('alert').filter({ hasText: 'workspace revision changed' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('alert').filter({ hasText: 'workspace revision changed' })[22m
+
+
+      176 |  await page.locator('[data-panel-id="owner"]').getByRole('button',{name:'Inspect changes',exact:true}).click();
+      177 |  if(geometryOnly){await expect(page.locator('.canvas-panel-diff')).toBeVisible();expect(host.envelope.state.canvases[0].panels.find(panel=>panel.kind==='diff')!.binding.threadId).toBe('task-thread');}
+    > 178 |  else{await expect(page.getByRole('alert').filter({hasText:'workspace revision changed'})).toBeVisible();expect(host.envelope.state.canvases[0].panels.some(panel=>panel.kind==='diff')).toBe(false);}
+          |                                                                                            ^
+      179 |  expect(conflicts).toBe(1);
+      180 | });
+      181 |
+        at C:\Users\Administrator\gen-m08-v3-wt\tests\e2e\workspace-ui.spec.ts:178:92
+
+    Error Context: test-results\browser\run-1794723227093-207470bc-2504-4458-a24e-2b45a6a45440\workspace\artifacts\workspace-ui-canvas-comman-d58c7--without-rebasing-its-owner\error-context.md
+
+  11) tests\e2e\workspace-ui.spec.ts:1243:1 › a completed old project action cannot refresh over a retargeted context while current-owner actions still refresh 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeEnabled[2m([22m[2m)[22m failed
+
+    Locator: locator('[data-panel-id="action-context"]').getByRole('button', { name: 'Open in Fixture editor', exact: true, includeHidden: true })
+    Expected: enabled
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeEnabled" with timeout 5000ms[22m
+    [2m  - waiting for locator('[data-panel-id="action-context"]').getByRole('button', { name: 'Open in Fixture editor', exact: true, includeHidden: true })[22m
+
+
+      338 |  const oldReads=(await reads()).filter(read=>read.url.includes('/old-project/context')).length;
+      339 |  const response=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/projects/old-project/actions');release();await response;
+    > 340 |  await expect(editor).toBeEnabled();
+          |                       ^
+      341 |  expect((await reads()).filter(read=>read.url.includes('/new-project/context')).every(read=>!read.aborted)).toBe(true);
+      342 |  expect((await reads()).filter(read=>read.url.includes('/old-project/context'))).toHaveLength(oldReads);
+      343 |  await page.evaluate(value=>(window as any).__pendingWorkspaceReads.filter((read:any)=>read.url.includes('/new-project/context')&&!read.aborted).forEach((read:any)=>read.complete(value)),value('new-project','Current owner'));
+        at C:\Users\Administrator\gen-m08-v3-wt\tests\e2e\workspace-ui.spec.ts:340:23
+
+    Error Context: test-results\browser\run-1794723227093-207470bc-2504-4458-a24e-2b45a6a45440\workspace\artifacts\workspace-ui-a-completed-o-78fe9-owner-actions-still-refresh\error-context.md
+
+  11 failed
+    tests\e2e\workspace-components.spec.ts:3:1 › native pin control targets its window without stopping a task 
+    tests\e2e\workspace-components.spec.ts:35:1 › canvas shortcuts affect only canvas zoom and keyboard layout uses snapped coordinates 
+    tests\e2e\workspace-components.spec.ts:62:1 › automatic context-plan expansion preserves composer focus and reduced motion 
+    tests\e2e\workspace-components.spec.ts:83:1 › failed native profile restoration restores the prior host layout 
+    tests\e2e\workspace-components.spec.ts:111:1 › a refused draft flush prevents profile mutation and hiding does not stop tasks 
+    tests\e2e\workspace-components.spec.ts:139:1 › collapsed and offscreen artifact bodies preserve mounted edits with active=false 
+    tests\e2e\workspace-ui.spec.ts:528:1 › offscreen tool bodies unmount while zoom leaves the surrounding shell unchanged 
+    tests\e2e\workspace-ui.spec.ts:595:1 › live native dock retries a concurrent layout revision without losing either draft 
+    tests\e2e\workspace-ui.spec.ts:657:1 › native dock refuses a panel retargeted by a concurrent profile change 
+    tests\e2e\workspace-ui.spec.ts:690:43 › canvas command refuses a changed canvas without rebasing its owner 
+    tests\e2e\workspace-ui.spec.ts:1243:1 › a completed old project action cannot refresh over a retargeted context while current-owner actions still refresh 
+  22 passed (1.8m)
+
+Failed browser suites: workspace (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.

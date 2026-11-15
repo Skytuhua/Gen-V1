@@ -1,7 +1,7 @@
 import { randomUUID, createHash } from "node:crypto";
 import {privateFamilyForBinding} from '../workspace/git-storage.ts';
 import { mkdir, readFile, writeFile, stat, open } from "node:fs/promises";
-import { basename, join } from "node:path";
+import { basename, join, relative, sep } from "node:path";
 import { Store, digest } from "../storage/store.ts";
 import {PersonalResearchRepository} from '../research/repository.ts';
 import type {VerifiedBrowserCaptureProvider} from '../research/capture.ts';
@@ -39,6 +39,9 @@ import type { ToolEffectRecord } from "../contracts/tool-effects.ts";
 import { buildToolRegistry, ToolAuthority, type ActorRole } from "./tool-authority.ts";
 import { ToolEffectLedger, createToolEffectFlags, privateArgumentCommitment, type ToolEffectFlag } from "./tool-effects.ts";
 import { recoverEffects } from "./effect-recovery.ts";
+import { capabilityEnabled } from "./capability-flags.ts";
+import { EditJournal, workspaceOwnerScope } from "../workspace/edit-journal.ts";
+import { CheckpointService } from "../workspace/checkpoints.ts";
 
 type Outbox = { id: string; threadId: string; content: string; status: "persisted" | "processing" | "handled"; runId: string | null; enteredRuntime?: boolean;messageId?:string;completedWrite?:CompletedWriteReceipt;hookClaimed?:boolean;hookDiagnostic?:WriteHookDiagnostic };
 type Lease = { id: string; threadId: string; clientId: string; fields: string[]; expiresAt: number };
@@ -359,10 +362,13 @@ export class Service {
     if(binding?.id!==thread.workspaceId||binding.threadId!==thread.id||binding.projectId!==thread.projectId||project?.authority.kind!=='local')return;
     return {...authority,sessionPath:thread.sessionPath,modelId:thread.modelId,accountId:thread.accountId??null,projectId:thread.projectId,workspaceId:thread.workspaceId,projectRoot:binding.path};
   }
-  private context(threadId: string, signal?: AbortSignal, operationId?: string, authority?: RunContext, completedWrite?:(evidence:{path:string;sha256:string;bytes:number})=>void) {
+  private m08Journal?: EditJournal;
+  private m08Checkpoints?: CheckpointService;
+  private m08PreimageDigests = new Map<string, string>();
+  private context(threadId: string, signal?: AbortSignal, operationId?: string, authority?: RunContext, completedWrite?:(evidence:{path:string;sha256:string;bytes:number})=>void, preWrite?:(evidence:{path:string;bytes:Uint8Array;sha256:string})=>Promise<void>) {
     const assertAuthority = () => { if (authority) this.assertRun(authority); };
     return {
-      threadId, signal: signal ?? new AbortController().signal,completedWrite,
+      threadId, signal: signal ?? new AbortController().signal,completedWrite,preWrite,
       managedGitFamily: (cwd: string) => {
         assertAuthority();
         // Git snapshots enumerate descendants, so a broad grant cannot include host storage.
@@ -1139,7 +1145,7 @@ export class Service {
     try {
       const domain = await import("../capabilities/index.ts");
       let writeEvidence:{path:string;sha256:string;bytes:number}|undefined;
-      const result = await domain.executeDomainOperation({ ...op, status: "running" }, this.context(op.threadId, control.signal, op.id,undefined,evidence=>{writeEvidence=evidence;}));
+      const result = await domain.executeDomainOperation({ ...op, status: "running" }, this.context(op.threadId, control.signal, op.id,undefined,evidence=>{writeEvidence=evidence;},evidence=>this.captureEditPreimage(op,evidence)));
       if (result && typeof result === "object" && "exitCode" in result && (result.exitCode !== 0 || ("cancelled" in result && result.cancelled) || ("timedOut" in result && result.timedOut))) {
         throw new HarnessError("OPERATION_FAILED", "The check did not finish successfully", result);
       }
@@ -1172,6 +1178,40 @@ export class Service {
       } finally { await file.close(); }
     } catch { return null; }
   }
+  /** M08: capture the preimage checkpoint and journal preparation for an
+   *  approved managed-workspace write, before the bytes change. Best effort:
+   *  checkpoint capture failures never abort an already-approved write. */
+  private async captureEditPreimage(op: Operation, evidence: {path:string;bytes:Uint8Array;sha256:string}): Promise<void> {
+    if(!capabilityEnabled('workspace.provenanceV1')&&!capabilityEnabled('workspace.checkpointsV1'))return;
+    const thread=this.store.get<Thread>('thread',op.threadId);
+    if(!thread?.projectId||!thread.workspaceId)return;
+    const binding=this.store.get<{id:string;threadId:string;projectId:string;path:string;gitDirectory?:string|null;identity?:unknown}>('workspaceBinding',thread.workspaceId);
+    if(!binding||binding.id!==thread.workspaceId||binding.threadId!==thread.id||binding.projectId!==thread.projectId||!inside(binding.path,evidence.path))return;
+    const owner=workspaceOwnerScope(thread.projectId,thread.id,binding),path=relative(binding.path,evidence.path).split(sep).join('/');
+    this.m08PreimageDigests.set(op.id,evidence.sha256);
+    try{
+      if(capabilityEnabled('workspace.checkpointsV1')){
+        const info=await stat(evidence.path).catch(()=>null);
+        await (this.m08Checkpoints??=new CheckpointService(this.store)).createFromBytes({owner,files:[{path,data:Buffer.from(evidence.bytes),identity:info?{dev:String(info.dev),ino:String(info.ino)}:null}],label:`Before ${op.description}`,provenance:{kind:'guarded_write',operationId:op.id}});
+      }
+    }catch{/* a failed snapshot never blocks an approved write */}
+    try{
+      if(capabilityEnabled('workspace.provenanceV1'))(this.m08Journal??=new EditJournal(this.store)).prepareStructuredEdit({invocationId:'op:'+op.id,owner,repositoryId:owner.projectId,path,beforeDigest:evidence.sha256});
+    }catch{/* journal preparation is best effort */}
+  }
+  /** M08: record a proven edit receipt for a completed managed-workspace write. */
+  private recordEditReceipt(operation: Operation,evidence:{path:string;sha256:string;bytes:number}): void {
+    if(!capabilityEnabled('workspace.provenanceV1'))return;
+    try{
+      const thread=this.store.get<Thread>('thread',operation.threadId);
+      if(!thread?.projectId||!thread.workspaceId)return;
+      const binding=this.store.get<{id:string;threadId:string;projectId:string;path:string;gitDirectory?:string|null;identity?:unknown}>('workspaceBinding',thread.workspaceId);
+      if(!binding||binding.id!==thread.workspaceId||binding.threadId!==thread.id||binding.projectId!==thread.projectId||!inside(binding.path,evidence.path))return;
+      const owner=workspaceOwnerScope(thread.projectId,thread.id,binding),path=relative(binding.path,evidence.path).split(sep).join('/'),beforeDigest=this.m08PreimageDigests.get(operation.id)??null;
+      this.m08PreimageDigests.delete(operation.id);
+      (this.m08Journal??=new EditJournal(this.store)).recordProvenEdit({invocationId:'op:'+operation.id,owner,repositoryId:owner.projectId,workspaceIdentity:owner.binding,path,beforeIdentity:null,beforeDigest,afterDigest:evidence.sha256,boundedBlobRefs:[]});
+    }catch{/* journal receipts never block the outbox */}
+  }
   private enqueueOperationResult(operation: Operation,writeEvidence?:{path:string;sha256:string;bytes:number}): void {
     const data = this.store.get<DataRecord>("data", operation.id), input: Outbox = {
       id: "operation-result:" + operation.id, threadId: operation.threadId, status: "persisted", runId: null,
@@ -1179,7 +1219,7 @@ export class Service {
     };
     if(this.options.approvedWriteHooks&&operation.kind==='file.replace'&&operation.status==='succeeded'){
       const capture=this.store.get<{revision:number;origin?:ApprovedWriteOrigin;unavailable?:'scope_unavailable'|'no_project'}>('operationWriteOrigin',operation.id);
-      if(capture?.revision===operation.revision&&capture.origin&&writeEvidence)input.completedWrite={operationId:operation.id,revision:operation.revision,inputId:input.id,origin:capture.origin,...writeEvidence};
+      if(capture?.revision===operation.revision&&capture.origin&&writeEvidence){input.completedWrite={operationId:operation.id,revision:operation.revision,inputId:input.id,origin:capture.origin,...writeEvidence};this.recordEditReceipt(operation,writeEvidence);}
       else input.hookDiagnostic={operationId:operation.id,revision:operation.revision,inputId:input.id,status:capture?.unavailable??'scope_unavailable',message:'No authenticated source/project write origin was captured; no hook was run.'};
     }
     if (!this.store.get("outbox", input.id)) this.enqueueInput(input);
