@@ -98,6 +98,35 @@ it("rolls written files back on a conflict and reports CONFLICT", async () => {
   expect((await readFile(join(project, "b.txt"), "utf8"))).toBe("b-external\n");
 });
 
+it("recreates a file the working copy deleted", async () => {
+  const { project, service, owner } = await fixture();
+  await writeFile(join(project, "a.txt"), "a-old\n");
+  const checkpoint = await service.create({ owner, root: project, paths: ["a.txt"] });
+  await rm(join(project, "a.txt"));
+  const review = await service.review(owner, checkpoint.id, { paths: ["a.txt"], root: project });
+  expect(review.files[0]!.status).toBe("missing");
+  expect(review.files[0]!.targetHash).toBeTruthy();
+  const plan = await service.planRestore(owner, { checkpointId: checkpoint.id, root: project, selectedPaths: ["a.txt"], approvalId: "approval-del" });
+  const applied = await service.applyRestore(owner, { planId: plan.id, approvalId: "approval-del", root: project });
+  expect(applied.state).toBe("APPLIED");
+  expect((await readFile(join(project, "a.txt"), "utf8"))).toBe("a-old\n");
+});
+
+it("conflicts rather than overwrite content the recovery checkpoint cannot hold", async () => {
+  const { project, service, owner } = await fixture();
+  await writeFile(join(project, "a.txt"), "a-old\n");
+  await writeFile(join(project, "b.txt"), "b-old\n");
+  const checkpoint = await service.create({ owner, root: project, paths: ["a.txt", "b.txt"] });
+  // a.txt is now binary: the pre-restore checkpoint cannot back it up.
+  await writeFile(join(project, "a.txt"), Buffer.from([0, 1, 2, 0, 3]));
+  const plan = await service.planRestore(owner, { checkpointId: checkpoint.id, root: project, selectedPaths: ["a.txt", "b.txt"], approvalId: "approval-bin" });
+  const applied = await service.applyRestore(owner, { planId: plan.id, approvalId: "approval-bin", root: project });
+  expect(applied.state).toBe("CONFLICT");
+  expect(applied.conflicts).toEqual(["a.txt"]);
+  expect(Buffer.from(await readFile(join(project, "a.txt")))).toEqual(Buffer.from([0, 1, 2, 0, 3]));
+  expect((await readFile(join(project, "b.txt"), "utf8"))).toBe("b-old\n");
+});
+
 it("requires the exact approval for a restore plan", async () => {
   const { project, service, owner } = await fixture();
   await writeFile(join(project, "a.txt"), "a-old\n");

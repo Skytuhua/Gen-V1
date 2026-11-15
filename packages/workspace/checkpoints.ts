@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { lstat, mkdir, open, readdir, rename, rm } from "node:fs/promises";
+import { link, lstat, mkdir, open, readdir, rm } from "node:fs/promises";
 import { dirname, join, resolve, sep } from "node:path";
 import { HarnessError } from "../contracts/index.ts";
 import { readBoundFile, replaceOwnedFile, withPathGuard } from "../core/file-access.ts";
@@ -488,54 +488,80 @@ export class CheckpointService {
     const written: { path: string; before: Buffer | null }[] = [];
     const conflicts: string[] = [];
     let partialRecovery = false;
-    for (const target of plan.targetDigests) {
-      const before = plan.beforeDigests.find((entry) => entry.path === target.path)!;
-      const blob = await this.readBlob(checkpoint.files.find((file) => file.path === target.path)!.blobRef, signal);
-      if (blob === null || sha256hex(blob) !== target.digest) {
-        conflicts.push(target.path);
-        continue;
-      }
-      const absolute = join(input.root, ...target.path.split("/"));
-      // Preimage must still match; otherwise the path conflicts.
-      const current = await this.readOptional(absolute, signal);
-      const currentDigest = current ? sha256hex(current) : null;
-      if (currentDigest !== before.digest) {
-        conflicts.push(target.path);
-        continue;
-      }
-      await this.writeRestored(absolute, blob, current, signal);
-      written.push({ path: target.path, before: current });
-      // Postimage must equal the checkpoint digest.
-      const after = await this.readOptional(absolute, signal);
-      if (after === null) {
-        partialRecovery = true;
-        continue;
-      }
-      if (sha256hex(after) !== target.digest) partialRecovery = true;
-    }
-
-    if (conflicts.length) {
-      // Roll back only writes whose bytes still equal the written image.
-      for (const entry of written) {
-        const absolute = join(input.root, ...entry.path.split("/"));
-        const nowBytes = await this.readOptional(absolute, signal);
-        const targetDigest = plan.targetDigests.find((item) => item.path === entry.path)!.digest;
-        if (!nowBytes || sha256hex(nowBytes) !== targetDigest) {
+    let applyError: unknown;
+    try {
+      for (const target of plan.targetDigests) {
+        const before = plan.beforeDigests.find((entry) => entry.path === target.path)!;
+        const blob = await this.readBlob(checkpoint.files.find((file) => file.path === target.path)!.blobRef, signal);
+        if (blob === null || sha256hex(blob) !== target.digest) {
+          conflicts.push(target.path);
+          continue;
+        }
+        const absolute = join(input.root, ...target.path.split("/"));
+        // Preimage must still match; otherwise the path conflicts.
+        const current = await this.readOptional(absolute, signal);
+        const currentDigest = current ? sha256hex(current) : null;
+        if (currentDigest !== before.digest) {
+          conflicts.push(target.path);
+          continue;
+        }
+        // The recovery checkpoint cannot hold excluded content; never
+        // overwrite bytes there is no recovery copy of.
+        if (current !== null && exclusionReason(target.path, current) !== null) {
+          conflicts.push(target.path);
+          continue;
+        }
+        try {
+          await this.writeRestored(absolute, blob, current, signal);
+        } catch (error) {
+          // The destination appeared between preview and apply.
+          if (error instanceof HarnessError && error.code === "REVISION_CHANGED") {
+            conflicts.push(target.path);
+            continue;
+          }
+          throw error;
+        }
+        written.push({ path: target.path, before: current });
+        // Postimage must equal the checkpoint digest.
+        const after = await this.readOptional(absolute, signal);
+        if (after === null) {
           partialRecovery = true;
           continue;
         }
-        if (entry.before === null) {
-          await rm(absolute, { force: true });
-        } else {
-          await this.writeRestored(absolute, entry.before, nowBytes, signal);
+        if (sha256hex(after) !== target.digest) partialRecovery = true;
+      }
+    } catch (error) {
+      applyError = error;
+    }
+
+    if (conflicts.length || applyError) {
+      // Roll back only writes whose bytes still equal the written image.
+      for (const entry of written) {
+        try {
+          const absolute = join(input.root, ...entry.path.split("/"));
+          const nowBytes = await this.readOptional(absolute, signal);
+          const targetDigest = plan.targetDigests.find((item) => item.path === entry.path)!.digest;
+          if (!nowBytes || sha256hex(nowBytes) !== targetDigest) {
+            partialRecovery = true;
+            continue;
+          }
+          if (entry.before === null) {
+            await rm(absolute, { force: true });
+          } else {
+            await this.writeRestored(absolute, entry.before, nowBytes, signal);
+          }
+        } catch {
+          partialRecovery = true;
         }
       }
     }
-    const state = partialRecovery ? "PARTIAL_RECOVERY_REQUIRED" : conflicts.length ? "CONFLICT" : "APPLIED";
+    const state = partialRecovery ? "PARTIAL_RECOVERY_REQUIRED" : conflicts.length || applyError ? "CONFLICT" : "APPLIED";
     this.store.internal("workspace.restore.finished", scope.threadId, () => {
       const latest = this.store.get<StoredRestorePlan>(RESTORE_PLAN_KIND, plan.id);
       if (latest) this.store.put(RESTORE_PLAN_KIND, plan.id, scope.threadId, { ...latest, state, conflicts });
     });
+    // The plan is terminal before the failure surfaces — it never stays APPLYING.
+    if (applyError) throw applyError;
     return { ...plan, state, conflicts, preRestoreCheckpointId: preRestore.id };
   }
 
@@ -559,13 +585,17 @@ export class CheckpointService {
           await file.close();
         }
         if (before === null) {
-          // New file: the temp becomes the target only when the target is absent.
+          // New file: hard-link the temp into place. EEXIST means another
+          // writer created the destination between preview and apply — those
+          // bytes have no recovery backup, so the rename must never clobber.
           try {
-            await rename(temp, absolute);
+            await link(temp, absolute);
           } catch (error) {
             await rm(temp, { force: true }).catch(() => {});
+            if ((error as NodeJS.ErrnoException).code === "EEXIST") throw new HarnessError("REVISION_CHANGED", `The destination ${absolute} appeared during restore.`);
             throw error;
           }
+          await rm(temp, { force: true });
           return;
         }
         // identity names the verified temp source; the destination preimage is
