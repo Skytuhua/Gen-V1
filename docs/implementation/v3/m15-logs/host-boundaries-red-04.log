@@ -1,0 +1,63 @@
+argv: ["pnpm","exec","vitest","run","tests/source-selection-v3.test.ts","tests/source-workbench-host-v3.test.ts","--maxWorkers=1"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ❯ tests/source-workbench-host-v3.test.ts (12 tests | 1 failed | 1 skipped) 3730ms
+   × blocks dispatch if a source mutates during the M04 finalize boundary 1053ms
+ ❯ tests/source-selection-v3.test.ts (6 tests | 2 failed) 215ms
+     × uses inclusive one-based file lines and refuses bytes or revisions from another read 49ms
+     × admits an entire exact diff hunk and rejects partial or spanning hunks 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/source-selection-v3.test.ts > exact source selection from authorized read models > uses inclusive one-based file lines and refuses bytes or revisions from another read
+AssertionError: expected { SourceWorkbench: [Function SourceW…], …(1) } to have property "validateSourceSelection"
+ ❯ validate tests/source-selection-v3.test.ts:45:20
+     43|   async function validate() {
+     44|     const loaded = await import('../packages/core/source-workbench.ts'…
+     45|     expect(loaded).toHaveProperty('validateSourceSelection'); return l…
+       |                    ^
+     46|   }
+     47|   it('uses inclusive one-based file lines and refuses bytes or revisio…
+ ❯ tests/source-selection-v3.test.ts:48:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/source-selection-v3.test.ts > exact source selection from authorized read models > admits an entire exact diff hunk and rejects partial or spanning hunks
+AssertionError: expected { SourceWorkbench: [Function SourceW…], …(1) } to have property "validateSourceSelection"
+ ❯ validate tests/source-selection-v3.test.ts:45:20
+     43|   async function validate() {
+     44|     const loaded = await import('../packages/core/source-workbench.ts'…
+     45|     expect(loaded).toHaveProperty('validateSourceSelection'); return l…
+       |                    ^
+     46|   }
+     47|   it('uses inclusive one-based file lines and refuses bytes or revisio…
+ ❯ tests/source-selection-v3.test.ts:58:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > blocks dispatch if a source mutates during the M04 finalize boundary
+AssertionError: expected 'interrupted' to be 'failed' // Object.is equality
+
+Expected: "failed"
+Received: "interrupted"
+
+ ❯ tests/source-workbench-host-v3.test.ts:125:85
+    123|   mutate = () => f.store.internal('fixture.finalize', f.thread.id, () …
+    124|   await f.send('finalize-send', [captured.ref]);
+    125|   await vi.waitFor(() => expect(f.store.get<Thread>('thread', f.thread…
+       |                                                                                     ^
+    126|   expect(f.starts).toEqual([]); expect(f.store.get('outbox', 'finalize…
+    127| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  3 failed | 14 passed | 1 skipped (18)
+   Start at  05:45:57
+   Duration  7.98s (transform 3.45s, setup 0ms, import 3.32s, tests 3.94s, environment 0ms)
+

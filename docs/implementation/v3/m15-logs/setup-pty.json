@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "node",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/npm/node_modules/node-gyp/bin/node-gyp.js",
+    "rebuild",
+    "--directory",
+    "node_modules/node-pty"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+  "startedAt": "2026-11-15T21:39:40.354Z",
+  "endedAt": "2026-11-15T21:39:52.962Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/setup-pty.log",
+  "logDigest": "cb2381f23ec61c88b511d55a90c439fc431e52b3b9c8aa249ce74d6058b627bf"
+}

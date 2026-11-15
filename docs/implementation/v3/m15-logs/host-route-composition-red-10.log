@@ -1,0 +1,32 @@
+argv: ["pnpm","exec","vitest","run","tests/source-workbench-host-v3.test.ts","--maxWorkers=1","-t","owning service is absent"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ❯ tests/source-workbench-host-v3.test.ts (36 tests | 1 failed | 35 skipped) 1883ms
+   × composes unrelated host routes without exposing workbench APIs when its owning service is absent 1881ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > composes unrelated host routes without exposing workbench APIs when its owning service is absent
+TypeError: Cannot read properties of undefined (reading 'bindProjectReaders')
+ ❯ registerSourceWorkbenchRoutes apps/server/source-workbench-routes.ts:11:27
+      9| export function registerSourceWorkbenchRoutes(app: FastifyInstance, se…
+     10|   const host = workspaceHost(service);
+     11|   service.sourceWorkbench.bindProjectReaders(host.projects, githubFor(…
+       |                           ^
+     12|   app.get('/api/workbench/threads/:threadId', async (request, reply) =…
+     13|     reply.header('Cache-Control', 'no-store'); z.strictObject({}).pars…
+ ❯ buildServer apps/server/server.ts:193:3
+ ❯ tests/source-workbench-host-v3.test.ts:266:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 35 skipped (36)
+   Start at  06:19:49
+   Duration  5.02s (transform 3.54s, setup 0ms, import 2.85s, tests 1.88s, environment 0ms)
+

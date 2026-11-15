@@ -48,8 +48,10 @@ import { EditJournal, workspaceOwnerScope } from "../workspace/edit-journal.ts";
 import { CheckpointService } from "../workspace/checkpoints.ts";
 import { RequestContextCustody, REQUEST_PREPARATION_LIMITS, type RequestContextBasis, type RequestContextHooks, type RequestPreparationOptions, type RequestTextSource } from './request-custody.ts';
 import type { RequestPreparationV1 } from '../contracts/request-context.ts';
+import {SourceWorkbench, type PreparedSourceContext, type WorkbenchQueuedInput} from './source-workbench.ts';
+import {sourceRefsV1Schema, sendModeV1Schema, type SendModeV1} from '../contracts/source-selection.ts';
 
-type Outbox = { id: string; threadId: string; content: string; status: "persisted" | "processing" | "handled"; runId: string | null; requestContextId?:string; enteredRuntime?: boolean;messageId?:string;completedWrite?:CompletedWriteReceipt;hookClaimed?:boolean;hookDiagnostic?:WriteHookDiagnostic };
+type Outbox = WorkbenchQueuedInput & {messageId?:string;completedWrite?:CompletedWriteReceipt;hookClaimed?:boolean;hookDiagnostic?:WriteHookDiagnostic;sendMode?:SendModeV1};
 type Lease = { id: string; threadId: string; clientId: string; fields: string[]; expiresAt: number };
 type FinishRecord = { inputIds: string[]; invalidated?: boolean; [key: string]: unknown };
 const text = (p: Record<string, unknown>, key: string, max = 128 * 1024): string => {
@@ -78,6 +80,7 @@ export interface ServiceOptions {
   additionalTool?:(call:ToolCall,ctx:RunContext)=>Promise<unknown>;
 }
 export class Service {
+  readonly sourceWorkbench: SourceWorkbench;
   readonly research:PersonalResearchRepository;
   readonly planning: PlanningCoordinator;
   readonly agentWork: AgentWorkCoordinator;
@@ -107,6 +110,7 @@ export class Service {
   private readonly predictions:ComposerPredictions;
   private predictionMutations=0;
   private readonly deliveries=new Map<string,Promise<void>>();
+  private readonly messageAdmissions=new Map<string,{commitment:string;work:Promise<CommandReceipt>}>();
   private readonly mainAdmissions=new Set<string>();
   private readonly teardowns=new Map<string,{ctx:RunContext;side:boolean;promise:Promise<void>}>();
   private readonly authority:ToolAuthority;
@@ -116,6 +120,7 @@ export class Service {
   private readonly requestRegistryDigest=digest(buildToolRegistry());
   private requestPreparationWork=0;
   constructor(readonly store: Store, readonly runtime: RuntimeAdapter,private readonly options:ServiceOptions={}) {
+    this.sourceWorkbench = new SourceWorkbench(store, requestId => this.requestCustody.release(requestId, 'cancelled'));
     this.requestCustody=new RequestContextCustody(store,options.requestContextHooks);
     this.effectFlags=createToolEffectFlags(options.toolEffectFlags);
     this.authority=new ToolAuthority(buildToolRegistry());this.effects=new ToolEffectLedger(store,this.authority,this.effectFlags);
@@ -275,7 +280,7 @@ export class Service {
   private enqueueInput(input: Outbox): void {
     const thread = this.store.get<Thread>("thread", input.threadId);
     const finish = thread?.runId ? this.store.get<FinishRecord>("finish", thread.runId) : null;
-    if (finish && thread?.runId) this.store.put("finish", thread.runId, input.threadId, { ...finish, invalidated: true });
+    if (finish && thread?.runId && input.sendMode !== 'AFTER_CURRENT') this.store.put("finish", thread.runId, input.threadId, { ...finish, invalidated: true });
     this.store.put("outbox", input.id, input.threadId, input);
   }
   private afterMaintenance(threadId: string, previous: Thread["status"]): Thread["status"] {
@@ -549,7 +554,26 @@ export class Service {
       }
     };
   }
-  async command(command: HostCommand) {
+  async command(command: HostCommand): Promise<CommandReceipt> {
+    if (command.type !== 'message.send') return this.commandAdmitted(command);
+    const accepted = this.store.receipt(command); if (accepted) return accepted;
+    const commitment = digest(command), pending = this.messageAdmissions.get(command.id);
+    if (pending) {if (pending.commitment !== commitment) throw new HarnessError('DUPLICATE_COMMAND', 'A pending send command already belongs to different content.'); return pending.work;}
+    if (this.messageAdmissions.size >= 128) throw new HarnessError('SEND_BUSY', 'Too many messages are being admitted.', {sendAccepted: false});
+    const captured = structuredClone(command);
+    const work = Promise.resolve().then(async () => {
+      try {return await this.commandAdmitted(captured);} catch (error) {
+        const receipt = this.store.receipt(captured); if (receipt) return receipt;
+        // There is exactly one matching admission while this entry is held.
+        // Typed precommit denial can therefore unlock an edited new command.
+        if (error instanceof HarnessError && !this.store.get('outbox', captured.id)) throw new HarnessError(error.code, error.message, {...(error.details && typeof error.details === 'object' ? error.details : {}), sendAccepted: false});
+        throw error;
+      }
+    });
+    this.messageAdmissions.set(command.id, {commitment, work});
+    try {return await work;} finally {if (this.messageAdmissions.get(command.id)?.work === work) this.messageAdmissions.delete(command.id);}
+  }
+  private async commandAdmitted(command: HostCommand): Promise<CommandReceipt> {
     if(this.updateClosing)throw new HarnessError('HOST_CLOSING','Gen is closing. Saved work is retained.');
     if(command.type==='agent.followUp'){if(this.closed)throw new HarnessError('CANCELLED_RUN','The workspace has closed.');this.lastActivity=Date.now();return this.planning.followUp(command);}
     if(command.type.startsWith('research.')){
@@ -858,15 +882,22 @@ export class Service {
     if(busy.size>=3)throw new HarnessError('RUN_BUSY','Three main agents are working; your draft is preserved.',{threadIds:[...busy]});
   }
   private async sendMessage(command: HostCommand, thread: Thread) {
+    try {
     // Replaced by explicit verified admission when the runtime adapter is connected.
     // Until then a selected reference must never become an ordinary unpinned send.
     if (command.payload.skills !== undefined) throw new HarnessError('SKILL_ADMISSION_UNAVAILABLE', 'Selected skills are unavailable for this runtime. Your draft is retained.', {sendAccepted: false});
+    const sourceRefs = sourceRefsV1Schema.parse(command.payload.sourceRefs ?? []), sendMode = sendModeV1Schema.parse(command.payload.sendMode ?? 'NOW');
+    if ((sourceRefs.length || sendMode === 'AFTER_CURRENT') && !capabilityEnabled('ui.sourceWorkbenchV1')) throw new HarnessError('CAPABILITY_DENIED', 'The source workbench is disabled on this host.');
+    if ((sourceRefs.length || sendMode === 'AFTER_CURRENT') && (thread.sideParentId || thread.kind === 'side' || thread.kind === 'delegate')) throw new HarnessError('CAPABILITY_DENIED', 'This task does not admit source workbench mutations.');
+    const sourceOwner = sourceRefs.length ? this.sourceWorkbench.owner(thread.id) : null;
     this.assertNoOtherRun(thread.id);
     if (["stopped", "interrupted"].includes(thread.status)) throw new HarnessError("RESUME_REQUIRED", "Resume this thread before sending more work");
     const content = text(command.payload, "content", 64 * 1024), modelId = text(command.payload, "modelId", 300);
     const providerId=modelProvider(modelId),binding=this.binding(thread,providerId);
     if(this.reviewing){await this.cancelReview();this.assertBinding(this.thread(thread.id),providerId,binding);}
-    const model=(await this.runtime.models({accountId:binding.accountId})).find(m=>m.id===modelId);if(!model)throw new HarnessError("MODEL_UNAVAILABLE", "Connect this account and choose an available model");
+    const availableModels = await this.runtime.models({accountId:binding.accountId});
+    const concurrentReceipt = this.store.receipt(command); if (concurrentReceipt) return concurrentReceipt;
+    const model=availableModels.find(m=>m.id===modelId);if(!model)throw new HarnessError("MODEL_UNAVAILABLE", "Connect this account and choose an available model");
     if(this.reviewing)await this.cancelReview();
     this.assertNoOtherRun(thread.id);
     let current = this.thread(thread.id);
@@ -879,18 +910,38 @@ export class Service {
     if(command.payload.requestContextId!==undefined){requestContextId=text(command.payload,'requestContextId',200);if(!this.requestContextEnabled())throw new HarnessError('REQUEST_CONTEXT_DISABLED','Request context custody is not enabled by this host.');this.getRequestPreparation(thread.id,requestContextId);}
     else if(this.requestContextEnabled())requestContextId=(await this.prepareRequestContext(thread.id,content,{modelId,thinkingLevel})).requestId;
     if(requestContextId){this.assertNoOtherRun(thread.id);current=this.thread(thread.id);this.assertBinding(current,providerId,binding);}
+    // Source I/O completes before the single synchronous accepted-input commit.
+    // Its final checks run again inside that commit and at runtime dispatch.
+    const preparedSources = sourceOwner ? await this.sourceWorkbench.prepareSend(sourceOwner, sourceRefs) : null;
+    if (preparedSources) {current = this.thread(thread.id); if (current.epoch !== thread.epoch || current.runId !== thread.runId || ['stopped', 'interrupted'].includes(current.status)) throw new HarnessError('CANCELLED_RUN', 'The task changed while validating the selected sources.');}
     const receipt = this.store.command(command, () => {
       this.assertBinding(this.thread(thread.id),providerId,binding);
+      if (sourceRefs.length || sendMode === 'AFTER_CURRENT') {
+        const latest = this.thread(thread.id);
+        if (!capabilityEnabled('ui.sourceWorkbenchV1') || latest.sideParentId || latest.kind === 'side' || latest.kind === 'delegate') throw new HarnessError('CAPABILITY_DENIED', 'This task no longer admits source workbench mutations.');
+        if (latest.epoch !== thread.epoch || ['stopped', 'interrupted'].includes(latest.status)) throw new HarnessError('CANCELLED_RUN', 'The task changed while preparing this input.');
+        this.assertNoOtherRun(thread.id);
+      }
+      preparedSources?.assertCurrent();
       const before=requestContextId?this.requestBasis(this.thread(thread.id),modelId,thinkingLevel):null;
       if(requestContextId)this.requestCustody.claim(requestContextId,command.id,content,before!);
-      const message: Message = { id: randomUUID(), threadId: thread.id, role: "user", content, createdAt: now(), runId: current.runId };
-      const input: Outbox = { id: command.id, threadId: thread.id, content, status: "persisted", runId: null,messageId:message.id,...(requestContextId?{requestContextId}:{}) };
+      const sourceFields = {...(sourceRefs.length ? {sourceRefs} : {}), ...(sendMode === 'AFTER_CURRENT' ? {sendMode} : {})};
+      const message: Message = { id: randomUUID(), threadId: thread.id, role: "user", content, createdAt: now(), runId: current.runId, ...sourceFields };
+      const input: Outbox = { id: command.id, threadId: thread.id, content, status: "persisted", runId: null,messageId:message.id,...(requestContextId?{requestContextId}:{}), ...sourceFields };
       this.store.put("message", message.id, thread.id, message); this.enqueueInput(input);
       this.store.put("thread", thread.id, thread.id, { ...current, accountId:binding.accountId,modelId, thinkingLevel, error: null, ...(["completed", "failed"].includes(current.status) ? { status: "ready" } : {}), updatedAt: now(), ...(current.title === "New thread" ? { title: content.slice(0, 65) } : {}) });
+      preparedSources?.assertCurrent();
       if(before)this.requestCustody.advanceAdmission(before,this.requestBasis(this.thread(thread.id),modelId,thinkingLevel));
       return { messageId: message.id, inputId: input.id };
     });
     this.background(this.deliverOutbox(thread.id)); return receipt;
+    } catch (error) {
+      // A concurrent replay can finish its asynchronous admission after the
+      // original input has already advanced the run. A prior matching receipt
+      // acknowledges that accepted input; it does not send it a second time.
+      const accepted = this.store.receipt(command); if (accepted) return accepted;
+      throw error;
+    }
   }
   private async resume(command: HostCommand, thread: Thread) {
     this.assertNoOtherRun(thread.id);
@@ -913,7 +964,7 @@ export class Service {
       const current = this.thread(thread.id);
       this.assertBinding(current,providerId,binding);
       if (current.epoch !== thread.epoch || current.runId !== thread.runId || current.status !== thread.status) throw new HarnessError("CANCELLED_RUN", "Thread authority changed while preparing resume");
-      for (const input of this.store.all<Outbox>("outbox", thread.id).filter(i => i.status !== "handled")) {if(input.requestContextId)this.requestCustody.release(input.requestContextId,'cancelled');this.store.put("outbox", input.id, thread.id, { ...input, requestContextId:undefined, status: "persisted", content: history.includes(input.id) ? "Continue the unfinished handling of previously delivered input " + input.id + ". Do not repeat completed operations; inspect their receipts first." : input.content });}
+      for (const input of this.store.all<Outbox>("outbox", thread.id).filter(i => i.status !== "handled")) {if(input.requestContextId)this.requestCustody.release(input.requestContextId,'cancelled');this.store.put("outbox", input.id, thread.id, { ...input, requestContextId:undefined, sourceFailure:undefined, ...(input.sourceRecovery?{sourceRecovery:{...input.sourceRecovery,resumeRequired:false}}:{}), status: "persisted", content: history.includes(input.id) ? "Continue the unfinished handling of previously delivered input " + input.id + ". Do not repeat completed operations; inspect their receipts first." : input.content });}
       if (!this.store.all<Outbox>("outbox", thread.id).some(i => i.status === "persisted")) this.store.put("outbox", command.id, thread.id, { id: command.id, threadId: thread.id, content: "Resume this task from saved state and evidence.", status: "persisted", runId: null });
       this.store.put("thread", thread.id, thread.id, { ...thread,accountId:binding.accountId, modelId,thinkingLevel,status: this.hasGate(thread.id) ? "awaiting_input" : "ready", updatedAt: now(), error: null }); return { resumed: true };
     }); this.background(this.deliverOutbox(thread.id)); return receipt;
@@ -923,12 +974,33 @@ export class Service {
     this.deliveries.set(threadId,work);
     try{await work;}finally{if(this.deliveries.get(threadId)===work)this.deliveries.delete(threadId);}
   }
+  private assertSavedInput(input: Outbox): void {
+    const current = this.store.get<Outbox>('outbox', input.id);
+    if (!current || current.status !== 'persisted' || digest(current) !== digest(input)) throw new HarnessError('INPUT_CHANGED', 'The accepted input changed during preparation.');
+  }
+  /** A failed preparation is recoverable only with local proof that the
+   * runtime call was never entered. A dispatched input remains ambiguous. */
+  private blockSourceInputs(inputs: Outbox[], error: unknown, undispatchedRunId?: string): void {
+    if (!inputs.length) return;
+    this.store.internal('input.source_blocked', inputs[0].threadId, () => {
+      const blocked: string[] = [];
+      for (const input of inputs) {
+        const current = this.store.get<Outbox>('outbox', input.id);
+        if (!current || current.threadId !== input.threadId || current.content !== input.content || digest(current.sourceRefs) !== digest(input.sourceRefs) || current.enteredRuntime === true || current.status === 'handled') continue;
+        const proven = current.status === 'persisted' && current.runId === null || undispatchedRunId !== undefined && current.status === 'processing' && current.runId === undispatchedRunId;
+        if (!proven) continue;
+        this.store.put('outbox', current.id, current.threadId, {...current, status: 'persisted', runId: null, enteredRuntime: false, sourceFailure: {code: error instanceof HarnessError ? error.code : 'SOURCE_PREPARATION_FAILED', reason: (error instanceof Error ? error.message : 'Source preparation failed.').slice(0, 1000)}});
+        blocked.push(input.id);
+      }
+      return {inputIds: blocked, reason: 'Source preparation failed before runtime entry; explicit recovery is available.'};
+    });
+  }
   private async deliverInputs(threadId:string):Promise<void>{
     let thread = this.thread(threadId);
     if (["stopped", "interrupted", "failed", "completed"].includes(thread.status) || !thread.modelId) return;
     if (thread.runId && (this.store.get<{kind:string}>("runtimeIntent", thread.runId)?.kind === "compaction" || this.store.get("finish", thread.runId))) return;
     this.assertNoOtherRun(threadId);
-    if(!this.store.all<Outbox>('outbox',threadId).some(i=>i.status==='persisted'&&(!thread.runId||!i.completedWrite)))return;
+    if(!this.store.all<Outbox>('outbox',threadId).some(i=>i.status==='persisted'&&!i.sourceFailure&&!i.sourceRecovery?.resumeRequired&&(!thread.runId||!i.completedWrite)&&(!thread.runId||i.sendMode!=='AFTER_CURRENT')))return;
     // Executor completions can enqueue input without a user command. Re-read
     // the thread after teardown; no captured state survives the async boundary.
     if(this.predictions.busy){this.predictionMutations++;try{await this.cancelComposerPredictions();await this.deliverInputs(threadId);}finally{this.predictionMutations--;}return;}
@@ -936,10 +1008,14 @@ export class Service {
     if(preparing)this.mainAdmissions.add(threadId);
     const preparingEpoch=thread.epoch;
     let requestContextId:string|undefined;
+    let separatedSourceInputs = false;
+    let sourceInputs: Outbox[] = [];
     try{
     if(preparing&&this.options.prepareWorkspace){const captured=thread;await this.options.prepareWorkspace(thread);thread=this.thread(threadId);if(thread.epoch!==captured.epoch||thread.runId!==captured.runId||thread.status!==captured.status)throw new HarnessError('CANCELLED_RUN','The task changed while preparing its workspace.');}
-    const eligible=this.store.all<Outbox>('outbox',threadId).filter(i=>i.status==='persisted'&&(!thread.runId||!i.completedWrite));
-    const inputs=this.requestContextEnabled()?eligible.slice(0,1):eligible;if(!inputs.length)return;
+    const eligible=this.store.all<Outbox>('outbox',threadId).filter(i=>i.status==='persisted'&&!i.sourceFailure&&!i.sourceRecovery?.resumeRequired&&(!thread.runId||!i.completedWrite)&&(!thread.runId||i.sendMode!=='AFTER_CURRENT'));
+    separatedSourceInputs = eligible.some(input=>input.sourceRefs?.length);
+    const inputs=this.requestContextEnabled()||separatedSourceInputs?eligible.slice(0,1):eligible;if(!inputs.length)return;
+    sourceInputs = inputs.filter(input => input.sourceRefs?.length);
     const modelId=thread.modelId;if(!modelId)throw new HarnessError('MODEL_UNAVAILABLE','Choose a model before starting the prepared workspace.');
     if(this.requestContextEnabled()){
       requestContextId=inputs[0].requestContextId;
@@ -947,16 +1023,21 @@ export class Service {
         requestContextId=(await this.prepareRequestContext(threadId,inputs[0].content,{modelId,thinkingLevel:thread.thinkingLevel})).requestId;
         thread=this.thread(threadId);
         const basis=this.requestBasis(thread,modelId,thread.thinkingLevel);
-        this.store.internal('request.context.claimed',threadId,()=>{this.requestCustody.claim(requestContextId!,inputs[0].id,inputs[0].content,basis);this.store.put('outbox',inputs[0].id,threadId,{...inputs[0],requestContextId});return{requestId:requestContextId,inputId:inputs[0].id};});
+        this.store.internal('request.context.claimed',threadId,()=>{this.assertSavedInput(inputs[0]);this.requestCustody.claim(requestContextId!,inputs[0].id,inputs[0].content,basis);this.store.put('outbox',inputs[0].id,threadId,{...inputs[0],requestContextId});return{requestId:requestContextId,inputId:inputs[0].id};});
         inputs[0]={...inputs[0],requestContextId};
       }
       this.requestCustody.assertClaim(requestContextId,inputs[0].id,inputs[0].content,this.requestBasis(thread,modelId,thread.thinkingLevel));
     }else if(inputs.some(input=>input.requestContextId))throw new HarnessError('REQUEST_CONTEXT_DISABLED','This accepted input requires request context custody.');
+    const sourceContexts: PreparedSourceContext[] = [];
+    for (const input of inputs) if (input.sourceRefs?.length) sourceContexts.push(await this.sourceWorkbench.prepareSend(this.sourceWorkbench.owner(threadId), input.sourceRefs, {accepted: true}));
+    if (sourceContexts.length) {const latest = this.thread(threadId); if (latest.epoch !== thread.epoch || latest.runId !== thread.runId || latest.status !== thread.status) throw new HarnessError('CANCELLED_RUN', 'The task changed while preparing source evidence.');}
     const ctx = { threadId, runId: thread.runId ?? randomUUID(), epoch: thread.runId ? thread.epoch : thread.epoch + 1 };
     const binding=this.binding(thread,modelProvider(modelId));
     const completedWrites:CompletedWriteReceipt[]=[];
     this.store.internal("input.processing", threadId, () => {
+      for (const input of inputs) this.assertSavedInput(input);
       this.assertBinding(this.thread(threadId),modelProvider(modelId),binding);
+      for (const context of sourceContexts) context.assertCurrent();
       const before=requestContextId?this.requestBasis(this.thread(threadId),modelId,thread.thinkingLevel):null;
       if(requestContextId)this.requestCustody.assertClaim(requestContextId,inputs[0].id,inputs[0].content,before!);
       this.store.put("thread", threadId, threadId, { ...thread, ...ctx,accountId:binding.accountId, id: threadId, status: this.hasGate(threadId) ? "awaiting_input" : "working", updatedAt: now() });
@@ -983,7 +1064,8 @@ export class Service {
     let contents=requestContextId?[this.requestCustody.resolvedPrompt(requestContextId,inputs[0].id)]:inputs.map(input=>input.content);
     if(!requestContextId&&this.source&&!thread.sideParentId&&contents.some(content=>/^\/learn(?:\s|$)/i.test(content.trim())))try{contents=await Promise.all(contents.map(async content=>/^\/learn(?:\s|$)/i.test(content.trim())?(await this.source!.runtime.sourceRequest<{prompt:string}>('learn.prompt',{request:content.trim().replace(/^\/learn\s*/i,'')})).prompt:content));}catch(error){this.runtimeFailure(ctx,error);return;}
     const userPrompt=inputs.map((input,index) => "Input " + input.id + ":\n" + contents[index]).join("\n\n");
-    let input: StartRun = { ...ctx,accountId:binding.accountId, memory: taskMemoryContext(this.store, threadId), modelId, thinkingLevel:thread.thinkingLevel, sessionPath: thread.sessionPath, inputId: inputs[0].id, inputIds: inputs.map(i => i.id), resources: thread.sideParentId?[]:this.store.all("resource", threadId), ...(completedWrites.length?{completedWrites}:{}),prompt: guidance+userPrompt };
+    const sourceContext = sourceContexts.map(context => context.text).join(''), deliveredRefs = sourceContexts.flatMap(context => context.refs);
+    let input: StartRun = { ...ctx,accountId:binding.accountId, memory: taskMemoryContext(this.store, threadId), modelId, thinkingLevel:thread.thinkingLevel, sessionPath: thread.sessionPath, inputId: inputs[0].id, inputIds: inputs.map(i => i.id), resources: thread.sideParentId?[]:this.store.all("resource", threadId), ...(completedWrites.length?{completedWrites}:{}), ...(deliveredRefs.length ? {sourceRefs: deliveredRefs} : {}), prompt: guidance+userPrompt+sourceContext };
     if (!this.aborts.has(threadId) || !thread.runId) this.aborts.set(threadId, new AbortController());
     const control=this.aborts.get(threadId)!;this.retainController(control);
     let dispatched=false;
@@ -991,23 +1073,27 @@ export class Service {
       this.assertRun(ctx);this.assertBinding(this.thread(threadId),modelProvider(input.modelId),binding);
       if(requestContextId){
         const sources:RequestTextSource[]=[{id:'host-guidance',revision:1,category:'INSTRUCTION',text:guidance},{id:'input:'+input.inputId,revision:1,category:'USER',text:userPrompt}];
+        if(sourceContext)sources.push({id:'selected-sources:'+input.inputId,revision:1,category:'REFERENCE',text:sourceContext,inclusionReason:'Explicit user-selected source captures; quoted data only'});
         if(input.memory)sources.push({id:'task-notes:'+threadId,revision:1,category:'MEMORY',text:input.memory});
         input=await this.requestCustody.finalize(requestContextId,input,sources,()=>this.requestBasis(this.assertRun(ctx),modelId,thread.thinkingLevel));
         this.requestCustody.assertFinalized(requestContextId,input,this.requestBasis(this.assertRun(ctx),modelId,thread.thinkingLevel));
       }
-      this.assertRun(ctx);this.assertBinding(this.thread(threadId),modelProvider(input.modelId),binding);dispatched=true;
+      this.assertRun(ctx);this.assertBinding(this.thread(threadId),modelProvider(input.modelId),binding);for(const context of sourceContexts)context.assertCurrent();dispatched=true;
       if(thread.sideParentId)await this.sideRuntime.start(input);else if (thread.runId) await this.runtime.followUp(input); else await this.runtime.start(input);
     }
-    catch (error) { this.runtimeFailure(ctx, error); }
+    catch (error) { if (!dispatched) this.blockSourceInputs(sourceInputs, error, ctx.runId); this.runtimeFailure(ctx, error); }
     finally { if(requestContextId)this.requestCustody.release(requestContextId,dispatched?'dispatched':'failed');this.releaseController(threadId,control); }
     }catch(error){
       const current=this.store.get<Thread>('thread',threadId);
       if(requestContextId)this.requestCustody.release(requestContextId,'failed');
+      if (error instanceof HarnessError && error.code === 'INPUT_CHANGED') return;
+      this.blockSourceInputs(sourceInputs, error);
       if(!this.closed&&preparing&&current?.epoch===preparingEpoch&&!current.runId&&!['stopped','interrupted'].includes(current.status))this.store.internal('input.preparation_failed',threadId,()=>{this.store.put('thread',threadId,threadId,{...current,status:'interrupted',error:error instanceof Error?error.message:String(error),updatedAt:now()});return{error:'Workspace preparation failed; the input remains saved.'};});
       else if(this.requestContextEnabled()&&current?.runId&&current.epoch===thread.epoch&&current.runId===thread.runId)this.runtimeFailure({threadId,epoch:current.epoch,runId:current.runId},error);
       else throw error;
     }finally{if(preparing)this.mainAdmissions.delete(threadId);}
-    if(this.requestContextEnabled()&&this.store.all<Outbox>('outbox',threadId).some(input=>input.status==='persisted'))await this.deliverInputs(threadId);
+    const activeRun = this.thread(threadId).runId;
+    if((this.requestContextEnabled()||separatedSourceInputs)&&this.store.all<Outbox>('outbox',threadId).some(input=>input.status==='persisted'&&!input.sourceFailure&&!input.sourceRecovery?.resumeRequired&&(!activeRun||!input.completedWrite&&input.sendMode!=='AFTER_CURRENT')))await this.deliverInputs(threadId);
   }
   private runtimeFailure(ctx: RunContext, error: unknown): void {
     if (this.closed) return;
@@ -1141,7 +1227,8 @@ export class Service {
         for (const input of this.store.all<Outbox>("outbox", thread.id).filter(i => i.runId === event.runId && i.status !== "handled" && i.enteredRuntime && handled.has(i.id))) this.store.put("outbox", input.id, thread.id, { ...input, status:"handled" });
         const unresolved = this.store.all<Outbox>("outbox", thread.id).some(i => i.runId === event.runId && i.status !== "handled");
         if(intent?.kind!=="compaction")this.planning.endRun(event,event.aborted?"cancelled":unresolved?"interrupted":"review_required");
-        this.store.put("thread", thread.id, thread.id, { ...thread, runId: null, status: event.aborted ? "stopped" : unresolved ? "interrupted" : intent?.kind === "compaction" ? this.afterMaintenance(thread.id, intent.previousStatus) : this.hasGate(thread.id) ? "awaiting_input" : finished && !finished.invalidated ? "completed" : "ready", updatedAt: now() });
+        const queuedNext = this.store.all<Outbox>('outbox', thread.id).some(input => input.status === 'persisted' && (input.sendMode === 'AFTER_CURRENT' || input.sourceFailure || input.sourceRecovery?.resumeRequired));
+        this.store.put("thread", thread.id, thread.id, { ...thread, runId: null, status: event.aborted ? "stopped" : unresolved ? "interrupted" : intent?.kind === "compaction" ? this.afterMaintenance(thread.id, intent.previousStatus) : this.hasGate(thread.id) ? "awaiting_input" : finished && !finished.invalidated && !queuedNext ? "completed" : "ready", updatedAt: now() });
         const old = this.store.get<{ value: RuntimeUsage }>("usage", thread.id)?.value ?? EMPTY_USAGE; this.store.put("usage", thread.id, thread.id, { id: thread.id, value: { ...old, activity: "idle" } });
         advanceLifecycle();
       }
@@ -1264,7 +1351,7 @@ export class Service {
       }
       if (call.name === "task_finish") {
         if (this.hasGate(ctx.threadId) || this.store.all<Operation>("operation", ctx.threadId).some(o => ["running", "unknown", "prepared"].includes(o.status))) throw new HarnessError("REQUEST_GATED", "Resolve decisions and outstanding operations before completion");
-        const current = this.store.all<Outbox>("outbox", ctx.threadId).filter(i => i.status !== "handled");
+        const current = this.store.all<Outbox>("outbox", ctx.threadId).filter(i => i.status !== "handled" && !(i.status === 'persisted' && (i.sendMode === 'AFTER_CURRENT' || i.sourceFailure || i.sourceRecovery?.resumeRequired) && i.runId === null));
         const pending = current.filter(i => i.runId !== ctx.runId || !i.enteredRuntime);
         if (pending.length) throw new HarnessError("REQUEST_GATED", "There is unfinished input");
         this.store.put("finish", ctx.runId, ctx.threadId, { outcome: a.outcome ?? a.summary, evidence: a.evidence ?? [], assessment: true, inputIds: current.map(i => i.id) });

@@ -1,18 +1,20 @@
 import type {AgentSummary} from '../../../../packages/contracts/agent-inventory';
 import {AgentFollowUpSchema, type AgentInputTicket} from '../../../../packages/contracts/agent-input';
 import {ApiError, command} from '../api';
-import {journalCompareAndSwap, journalGeneration, journalReadRecord, journalSubscribe, journalWrite} from '../journal';
+import {journalCompareAndSwap, journalEntries, journalGeneration, journalReadRecord, journalSubscribe, journalWrite} from '../journal';
 import type {SkillReference} from '../../../../packages/contracts/skill-catalog';
 import {skillBindingSchema, skillBindingsSchema, type SkillBinding} from '../composer-commands';
 import {changeTerminalExcerpts,clearAcceptedExcerpts,editTerminalExcerpt,excerptDraftKey,readTerminalExcerpts,serializeTerminalExcerpts,type TerminalExcerpt} from '../terminal-excerpts';
 import {clearAcceptedSkills, readSkillBindings, skillDraftKey} from '../composer-skill-drafts';
+import {logicalOwnerV1Schema, sameLogicalOwner, sendModeV1Schema, sourceRefsV1Schema, type LogicalOwnerV1, type SourceRefV1} from '../../../../packages/contracts/source-selection';
+import {clearAcceptedSourceDraft, parseSourceDraftMetadata, readSourceDraft} from '../workbench-recovery';
 
 export type ChildInputTicket = AgentInputTicket;
 export interface AgentSend {agent: AgentSummary; content: string; commandId: string; isCurrent?(): boolean}
 /** A real conversation owner can share drafts without joining the agent inventory. */
-export interface ConversationComposerTarget {kind: 'conversation'; projectId?:string; threadId: string; modelId: string | null; working: boolean}
+export interface ConversationComposerTarget {kind: 'conversation'; projectId?:string; workspaceId?:string; threadId: string; modelId: string | null; working: boolean}
 export type ComposerTarget = AgentSummary | ConversationComposerTarget;
-export interface ParentSend {threadId: string; modelId: string | null; thinkingLevel?: string | null; content: string; commandId: string; skills?: SkillReference[]}
+export interface ParentSend {threadId: string; modelId: string | null; thinkingLevel?: string | null; content: string; commandId: string; skills?: SkillReference[]; sourceRefs?: SourceRefV1[]; sendMode?: 'NOW' | 'AFTER_CURRENT'}
 const inventoryAgent = (target: ComposerTarget): target is AgentSummary => !('kind' in target);
 const identity = (target: ComposerTarget) => target.threadId ?? (inventoryAgent(target) ? target.agentId : '');
 /** Parent supplies canonical run/epoch validation and durable receipts. No child message.send fallback. */
@@ -37,14 +39,14 @@ export interface SharedAgentComposers {
  addExcerpt(agent:ComposerTarget,excerpt:TerminalExcerpt):Promise<void>;
  editExcerpt(agent:ComposerTarget,id:string,text:string):Promise<void>;
  removeExcerpt(agent:ComposerTarget,id:string):Promise<void>;
- submit(agent: ComposerTarget, options?: {thinkingLevel?: string | null; submission?: ComposerSubmission}): Promise<void>;
+ submit(agent: ComposerTarget, options?: {thinkingLevel?: string | null; submission?: ComposerSubmission; sourceContextVisible?:boolean}): Promise<void>;
  clearError(agent: ComposerTarget): void;
  stop(agent: ComposerTarget): Promise<void>;
  canSend(agent: ComposerTarget): boolean;
  supports(agent: ComposerTarget): boolean;
  dispose(): void;
 }
-interface PendingSend {commandId: string; content: string; generation: string | undefined; modelId?: string | null; thinkingLevel?: string | null; skills?: SkillBinding[]; excerpts?:TerminalExcerpt[]; excerptGeneration?:string}
+interface PendingSend {commandId: string; content: string; generation: string | undefined; modelId?: string | null; thinkingLevel?: string | null; skills?: SkillBinding[]; excerpts?:TerminalExcerpt[]; excerptGeneration?:string; sourceRefs?:SourceRefV1[]; sourceOwner?:LogicalOwnerV1; sourceGeneration?:string; sendMode?:'NOW'|'AFTER_CURRENT'}
 interface Entry {agent: ComposerTarget; inventory?: AgentSummary; stopEpoch: number; state: ComposerState; pending?: PendingSend; prepared?: Promise<void>; listeners: Set<() => void>; unsubscribe?: () => void}
 export function createSharedAgentComposers(actions: {sendParent(input: ParentSend): Promise<void>; stopParent(agent: ComposerTarget): Promise<void>; followUp?: ChildFollowUpController; ownership?: (agent: ComposerTarget) => unknown}): SharedAgentComposers {
  const entries = new Map<string, Entry>();
@@ -91,6 +93,12 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
     value.pending = pending?.value ?? undefined;
     if(value.pending?.excerpts)value.pending.excerpts=readTerminalExcerpts(value.pending.excerpts);
     if (value.pending?.skills) value.pending.skills = skillBindingsSchema.parse(value.pending.skills);
+    if (value.pending?.sourceRefs) {
+     value.pending.sourceRefs = sourceRefsV1Schema.parse(value.pending.sourceRefs);
+     value.pending.sourceOwner = logicalOwnerV1Schema.parse(value.pending.sourceOwner);
+     if (value.pending.sourceRefs.some(ref => !sameLogicalOwner(ref.source.logicalOwner, value.pending!.sourceOwner!))) throw Error('Invalid pending source ownership.');
+    }
+    if (value.pending?.sendMode) value.pending.sendMode = sendModeV1Schema.parse(value.pending.sendMode);
     emit(value, {draft: draft?.value ?? '', skills: readSkillBindings(skills?.value), excerpts:readTerminalExcerpts(excerpts?.value), ready: true, retry: Boolean(value.pending), ticket: ticket?.value, thinkingLevel: typeof thinking?.value === 'string' ? thinking.value || null : undefined, error: value.state.error === recoveryError ? '' : value.state.error});
     if (ticket?.value && inventoryAgent(agent)) actions.followUp?.track?.(agent, ticket.value);
    } catch {
@@ -149,7 +157,33 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
    catch(cause){emit(value,{error:cause instanceof Error?cause.message:'Terminal excerpts could not load.'});return;}
    let content:string;
    try{content=value.pending?.content??serializeTerminalExcerpts(submission?.content??value.state.draft,excerpts);}catch(cause){emit(value,{error:cause instanceof Error?cause.message:'Prompt exceeds the limit.'});return;}
-   const pending = value.pending ?? {commandId: crypto.randomUUID(), content, ...(excerpts.length?{excerpts,excerptGeneration:submission?.excerpts===undefined?journalGeneration(excerptDraftKey(identity(agent))):submission.excerptGeneration}:{}), generation: submission ? submission.generation : journalGeneration(key(agent)), modelId: agent.modelId, ...(thinkingLevel !== undefined ? {thinkingLevel} : {}), ...((skills?.length ?? 0) > 0 ? {skills: skillBindingsSchema.parse(skills)} : {})};
+   const submittedGeneration = submission ? submission.generation : journalGeneration(key(agent));
+   const submittedExcerptGeneration = submission?.excerpts===undefined?journalGeneration(excerptDraftKey(identity(agent))):submission.excerptGeneration;
+   const sourceOwner:LogicalOwnerV1 = {threadId:identity(agent),projectId:agent.projectId??null,workspaceId:inventoryAgent(agent)?null:agent.workspaceId??null};
+   let sourceFields:Pick<PendingSend,'sourceRefs'|'sourceOwner'|'sourceGeneration'|'sendMode'> = {};
+   // Acquire the existing companion before transport, while excluding a concurrent
+   // submit. Uncertain retries never replace their frozen source identities.
+   emit(value, {busy:true});
+   try {
+    if(!options?.sourceContextVisible){
+     const prefix=`source-context:${encodeURIComponent(identity(agent))}:`;
+     for(const entry of await journalEntries())if(entry.key.startsWith(prefix)){
+      const metadata=entry.record.value as {logicalOwner?:unknown};
+      const retained=parseSourceDraftMetadata(metadata,logicalOwnerV1Schema.parse(metadata?.logicalOwner));
+      if(retained.sourceRefs.length||retained.sendMode!=='NOW'||retained.conflictState!=='NONE')throw Error('Open this task in its source-aware composer to review retained sources and delivery mode before sending.');
+     }
+    }
+    if (value.pending?.sourceOwner && !sameLogicalOwner(value.pending.sourceOwner, sourceOwner)) throw Error('The pending source owner or workspace changed. Original input is retained.');
+    if(value.pending?.sourceOwner&&!options?.sourceContextVisible)throw Error('Open this task in its source-aware composer to review the retained source context before sending.');
+    if (!value.pending) {
+     const source = await readSourceDraft(sourceOwner);
+     if (source.conflictState !== 'NONE') throw Error('Resolve the retained source draft conflict before sending.');
+     if((source.sourceRefs.length||source.sendMode!=='NOW')&&!options?.sourceContextVisible)throw Error('Open this task in its source-aware composer to review selected sources and delivery mode before sending.');
+     if (inventoryAgent(agent) && agent.parentId && source.sourceRefs.length) throw Error('Attach selected sources in the parent conversation.');
+     if (source.sourceRefs.length || source.sendMode !== 'NOW') sourceFields = {sourceRefs:source.sourceRefs,sourceOwner,sourceGeneration:source.generation,sendMode:source.sendMode};
+    }
+   } catch(cause) {emit(value,{busy:false,error:cause instanceof Error?cause.message:'Source context could not be recovered.',retry:Boolean(value.pending)});return;}
+   const pending = value.pending ?? {commandId: crypto.randomUUID(), content, ...sourceFields, ...(excerpts.length?{excerpts,excerptGeneration:submittedExcerptGeneration}:{}), generation: submittedGeneration, modelId: agent.modelId, ...(thinkingLevel !== undefined ? {thinkingLevel} : {}), ...((skills?.length ?? 0) > 0 ? {skills: skillBindingsSchema.parse(skills)} : {})};
    value.pending = pending; emit(value, {busy: true, error: '', retry: false});
    try {
     // Persist before transport; retries after disconnect/reload keep the same command identity.
@@ -161,10 +195,11 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
      const ticket = await actions.followUp!.send({agent, content: pending.content, commandId: pending.commandId, isCurrent: () => ownership(agent) === owner && value.stopEpoch === stopEpoch});
      await journalWrite(ticketKey(agent), ticket); emit(value, {ticket});
      if (ticketError(ticket)) emit(value, {error: ticketError(ticket)});
-    } else await actions.sendParent({threadId: identity(agent), modelId: pending.modelId === undefined ? agent.modelId : pending.modelId, ...(pending.thinkingLevel !== undefined ? {thinkingLevel: pending.thinkingLevel} : {}), content: pending.content, commandId: pending.commandId, ...(pending.skills?.length ? {skills: pending.skills.map(binding => binding.ref)} : {})});
+    } else await actions.sendParent({threadId: identity(agent), modelId: pending.modelId === undefined ? agent.modelId : pending.modelId, ...(pending.thinkingLevel !== undefined ? {thinkingLevel: pending.thinkingLevel} : {}), content: pending.content, commandId: pending.commandId, ...(pending.skills?.length ? {skills: pending.skills.map(binding => binding.ref)} : {}), ...(pending.sourceRefs?{sourceRefs:pending.sourceRefs}:{}), ...(pending.sendMode?{sendMode:pending.sendMode}:{})});
     await journalCompareAndSwap(key(agent), pending.generation, '');
     await clearAcceptedSkills(skillDraftKey(identity(agent)), pending.skills ?? []);
     await clearAcceptedExcerpts(identity(agent),pending.excerptGeneration);
+    if(pending.sourceOwner) await clearAcceptedSourceDraft(pending.sourceOwner,pending.sourceGeneration);
     await journalWrite(pendingKey(agent), null); value.pending = undefined;
     // journal notifications own the draft; never clear text authored during transport.
     const [draft, skills, excerpts] = await Promise.all([journalReadRecord<string>(key(agent)), journalReadRecord(skillDraftKey(identity(agent))),journalReadRecord(excerptDraftKey(identity(agent)))]); emit(value, {draft: draft?.value ?? value.state.draft, skills: readSkillBindings(skills?.value),excerpts:readTerminalExcerpts(excerpts?.value)});
@@ -197,9 +232,9 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
 /** The outer host adopts this owner for both its ordinary composer and agent columns. */
 export function createPersonalAgentComposers(followUp?: ChildFollowUpController, ownership?: (agent: ComposerTarget) => unknown): SharedAgentComposers {
  return createSharedAgentComposers({
-  sendParent: async ({threadId, modelId, thinkingLevel, content, commandId, skills}) => {
+  sendParent: async ({threadId, modelId, thinkingLevel, content, commandId, skills, sourceRefs, sendMode}) => {
    const target: ConversationComposerTarget = {kind: 'conversation', threadId, modelId, working: false}, owner = ownership?.(target);
-   await command('message.send', {content, modelId, ...(thinkingLevel !== undefined ? {thinkingLevel} : {}), ...(skills?.length ? {skills} : {})}, threadId, commandId, () => !ownership || owner !== undefined && ownership(target) === owner);
+   await command('message.send', {content, modelId, ...(thinkingLevel !== undefined ? {thinkingLevel} : {}), ...(skills?.length ? {skills} : {}), ...(sourceRefs?{sourceRefs}:{}), ...(sendMode?{sendMode}:{})}, threadId, commandId, () => !ownership || owner !== undefined && ownership(target) === owner);
   },
   stopParent: async agent => {
    const owner = ownership?.(agent);

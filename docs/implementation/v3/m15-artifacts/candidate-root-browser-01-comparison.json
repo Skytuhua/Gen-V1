@@ -1,0 +1,497 @@
+{
+  "baseline": {
+    "receipt": "baseline-browser-root-native-ready",
+    "sourceHead": "399cde39ff4ee82272c7a7700944325c44b36070",
+    "results": "docs/implementation/v3/m15-artifacts/baseline-root-native-ready-results.json",
+    "sha256": "ef4f637c38b1e2271235945fecc1d82dc6f755517349baac187461193017c3a0",
+    "stats": {
+      "startTime": "2026-11-15T21:40:31.340Z",
+      "duration": 528994.2969999999,
+      "expected": 79,
+      "skipped": 1,
+      "unexpected": 33,
+      "flaky": 0
+    }
+  },
+  "candidate": {
+    "receipt": "candidate-root-browser-01",
+    "results": "docs/implementation/v3/m15-artifacts/candidate-root-browser-01-results.json",
+    "sha256": "8c35ba8f5219eebc7d46f795c0eedc0e2922598eca08b69ca4a5a2978ccdeda9",
+    "stats": {
+      "startTime": "2026-11-15T22:00:45.143Z",
+      "duration": 619935.097,
+      "expected": 74,
+      "skipped": 1,
+      "unexpected": 38,
+      "flaky": 0
+    }
+  },
+  "identicalCaseIdentities": true,
+  "caseCount": 113,
+  "sameUnexpectedCount": 32,
+  "newUnexpectedCount": 6,
+  "resolvedUnexpectedCount": 1,
+  "classificationLimit": "These classifications describe observed failure stages. The six new failures passed on this baseline. They are not classified as baseline failures or established product regressions. A quiet focused rerun must retain the same assertions and deadlines to resolve remaining uncertainty. The broad candidate attempt remains FAIL regardless of later focused results.",
+  "newUnexpected": [
+    {
+      "file": "artifact-acknowledgment.spec.ts",
+      "title": "an older snapshot cannot replace a newer acknowledged selection",
+      "project": "",
+      "baselineStatus": "expected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 7426,
+      "candidateDurationMs": 5710,
+      "classification": "INITIAL_CONTROL_TIMEOUT",
+      "observation": "Initial checkbox expectation expired at5 seconds. Trace snapshots show an empty root DIV; the acknowledgment assertions were not reached.",
+      "errors": [
+        "Error: expect(locator).toBeChecked() failed\n\nLocator: getByRole('checkbox', { name: 'Select row 1', exact: true })\nExpected: checked\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeChecked\" with timeout 5000ms\n  - waiting for getByRole('checkbox', { name: 'Select row 1', exact: true })\n\n\n  30 |     await page.goto('/');\n  31 |     const selected = page.getByRole('checkbox', { name: 'Select row 1', exact: true });\n> 32 |     await expect(selected).toBeChecked();\n     |                            ^\n  33 |     await selected.click();\n  34 |     await expect.poll(() => saves.length).toBe(1);\n  35 |     expect(saves[0]).toMatchObject({ revision: 2, values: { selection: [] } });\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/artifact-acknowledgment.spec.ts:32:28"
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "originalPath": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780042749-7465c294-a92c-45fe-b8a2-b5eadb74465e/root/artifacts/artifact-acknowledgment-an-4ab50-ewer-acknowledged-selection/trace.zip",
+          "retainedPath": "docs/implementation/v3/m15-artifacts/candidate-root-browser-01-extra-failures/artifact-acknowledgment/trace.zip",
+          "bytes": 32777,
+          "sha256": "9916373b1d4cbae90af31676be5b9fe1871f30b9b26165c9c2e086d8c85b0ba2"
+        }
+      ]
+    },
+    {
+      "file": "clarity-data-work.spec.ts",
+      "title": "trend gives its actual scale and units without hiding gaps or fabricating a zero baseline",
+      "project": "",
+      "baselineStatus": "expected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 2498,
+      "candidateDurationMs": 6115,
+      "classification": "INITIAL_CONTROL_TIMEOUT",
+      "observation": "Initial Trend scale visibility expectation expired at5 seconds. The failure snapshot already contains Trend scale,210ms and184ms; scale/value correctness assertions were not reached.",
+      "errors": [
+        "Error: expect(locator).toBeVisible() failed\n\nLocator: getByRole('group', { name: 'Trend scale', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for getByRole('group', { name: 'Trend scale', exact: true })\n\n\n   7 |  const data={title:'Request latency',metrics:[{id:'latency',label:'Response time',value:184,unit:'ms',series:[{label:'Mon',value:210},{label:'Tue',value:null},{label:'Wed',value:184}]}]};\n   8 |  await serveTaskFixture(page,taskFixture(one('Stats'),{source:data}));await page.goto('/');\n>  9 |  const scale=page.getByRole('group',{name:'Trend scale',exact:true});await expect(scale).toBeVisible();await expect(scale).toContainText('210 ms');await expect(scale).toContainText('184 ms');await expect(scale.getByText('0 ms',{exact:true})).toHaveCount(0);\n     |                                                                                          ^\n  10 |  const path=await page.locator('.everyday-trend-line').getAttribute('d');expect(path?.match(/M/g)).toHaveLength(2);\n  11 |  await expect(page.locator('.everyday-trend-point')).toHaveCount(2);\n  12 |  await page.getByText('View source values',{exact:true}).click();await expect(page.getByRole('row',{name:'Tue Unavailable',exact:true})).toBeVisible();\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/clarity-data-work.spec.ts:9:90"
+      ],
+      "artifacts": [
+        {
+          "name": "error-context",
+          "originalPath": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780042749-7465c294-a92c-45fe-b8a2-b5eadb74465e/root/artifacts/clarity-data-work-trend-gi-47e44-fabricating-a-zero-baseline/error-context.md",
+          "retainedPath": "docs/implementation/v3/m15-artifacts/candidate-root-browser-01-extra-failures/trend-scale/error-context.md",
+          "bytes": 8673,
+          "sha256": "93abc25d6a57a6fc813e3164488fbc3c6899a095526bed0331014f844cbaaf43"
+        },
+        {
+          "name": "trace",
+          "originalPath": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780042749-7465c294-a92c-45fe-b8a2-b5eadb74465e/root/artifacts/clarity-data-work-trend-gi-47e44-fabricating-a-zero-baseline/trace.zip",
+          "retainedPath": "docs/implementation/v3/m15-artifacts/candidate-root-browser-01-extra-failures/trend-scale/trace.zip",
+          "bytes": 679607,
+          "sha256": "c9d413d447ca0fdb207b8219265a0e8159f7cae0a55177bd6f083929dd3181e3"
+        }
+      ]
+    },
+    {
+      "file": "clarity-data-work.spec.ts",
+      "title": "flat and unavailable trends describe only supplied values",
+      "project": "",
+      "baselineStatus": "expected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 2382,
+      "candidateDurationMs": 5763,
+      "classification": "INITIAL_CONTROL_TIMEOUT",
+      "observation": "Initial Trend scale text expectation expired at5 seconds. The failure snapshot already contains Trend scale and184ms; unavailable-value update assertions were not reached.",
+      "errors": [
+        "Error: expect(locator).toHaveText(expected) failed\n\nLocator: getByRole('group', { name: 'Trend scale', exact: true })\nExpected: \"184 ms\"\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toHaveText\" with timeout 5000ms\n  - waiting for getByRole('group', { name: 'Trend scale', exact: true })\n\n\n  14 | test('flat and unavailable trends describe only supplied values',async({page})=>{\n  15 |  const data={metrics:[{id:'flat',label:'Response time',value:184,unit:'ms',series:[{label:'Mon',value:184},{label:'Tue',value:184}]}]};\n> 16 |  const host=await serveTaskFixture(page,taskFixture(one('Stats'),{source:data}));await page.goto('/');const scale=page.getByRole('group',{name:'Trend scale',exact:true});await expect(scale).toHaveText('184 ms');\n     |                                                                                                                                                                                               ^\n  17 |  host.setInput('source',{metrics:[{...data.metrics[0],value:null,series:[{label:'Mon',value:null},{label:'Tue',value:null}]}]});await host.publish();await expect(page.getByText('Trend unavailable',{exact:true})).toBeVisible();await expect(scale).toHaveCount(0);await expect(page.locator('.everyday-trend')).not.toContainText(/Infinity|NaN/);\n  18 | });\n  19 | for(const {width,theme} of [{width:1440,theme:'light'},{width:390,theme:'light'},{width:1440,theme:'dark'}] as const)test(`trend periods align with their plotted values at ${width}px ${theme}`,async({page})=>{\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/clarity-data-work.spec.ts:16:191"
+      ],
+      "artifacts": [
+        {
+          "name": "error-context",
+          "originalPath": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780042749-7465c294-a92c-45fe-b8a2-b5eadb74465e/root/artifacts/clarity-data-work-flat-and-ea95d-scribe-only-supplied-values/error-context.md",
+          "retainedPath": "docs/implementation/v3/m15-artifacts/candidate-root-browser-01-extra-failures/trend-flat/error-context.md",
+          "bytes": 8556,
+          "sha256": "7207448cdbfe3fdf48354a562e4dd00e9adaf14d72b59b0951ff60810db340e1"
+        },
+        {
+          "name": "trace",
+          "originalPath": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780042749-7465c294-a92c-45fe-b8a2-b5eadb74465e/root/artifacts/clarity-data-work-flat-and-ea95d-scribe-only-supplied-values/trace.zip",
+          "retainedPath": "docs/implementation/v3/m15-artifacts/candidate-root-browser-01-extra-failures/trend-flat/trace.zip",
+          "bytes": 600960,
+          "sha256": "621b79fd2263a4c128373442d12669df1597089a09bac801276566813fbe553a"
+        }
+      ]
+    },
+    {
+      "file": "clarity-data-work.spec.ts",
+      "title": "light architecture is legible before selecting a node",
+      "project": "",
+      "baselineStatus": "expected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 4493,
+      "candidateDurationMs": 6662,
+      "classification": "INITIAL_CONTROL_TIMEOUT",
+      "observation": "Initial architecture-node visibility expectation expired at5 seconds. The available trace snapshot shows an empty root DIV; later font,opacity and retained-selection assertions were not reached.",
+      "errors": [
+        "Error: expect(locator).toBeVisible() failed\n\nLocator: locator('.architecture-node strong').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for locator('.architecture-node strong').first()\n\n\n  27 | for(const theme of ['light','dark']as const)test(`${theme} architecture is legible before selecting a node`,async({page})=>{\n  28 |  const snapshot=taskFixture(one('ArchitectureCanvas'),{source:WORK_OBJECT_REVIEW_DATA.architecture});snapshot.settings.theme=theme;await serveTaskFixture(page,snapshot);await page.goto('/');\n> 29 |  const node=page.locator('.architecture-node strong').first();await expect(node).toBeVisible();expect(await node.evaluate(node=>parseFloat(getComputedStyle(node).fontSize))).toBeGreaterThanOrEqual(12);\n     |                                                                                  ^\n  30 |  const edge=page.locator('.architecture-edge').first();expect(await edge.evaluate(node=>Number(getComputedStyle(node).opacity))).toBe(1);\n  31 |  await page.getByRole('button',{name:'Document preview',exact:true}).click();await expect(page.getByRole('button',{name:'Document preview',exact:true})).toHaveAttribute('aria-pressed','true');await page.reload();await expect(page.getByRole('button',{name:'Document preview',exact:true})).toHaveAttribute('aria-pressed','true');\n  32 | });\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/clarity-data-work.spec.ts:29:82"
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "originalPath": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780042749-7465c294-a92c-45fe-b8a2-b5eadb74465e/root/artifacts/clarity-data-work-light-ar-4e680-ble-before-selecting-a-node/trace.zip",
+          "retainedPath": "docs/implementation/v3/m15-artifacts/candidate-root-browser-01-extra-failures/architecture-light/trace.zip",
+          "bytes": 53649,
+          "sha256": "39d161339a6a05d0b6e2f28784e05bfd302013b762ba55c43dbc8c3bfd89719b"
+        }
+      ]
+    },
+    {
+      "file": "clarity-data-work.spec.ts",
+      "title": "dark architecture is legible before selecting a node",
+      "project": "",
+      "baselineStatus": "expected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 4569,
+      "candidateDurationMs": 6835,
+      "classification": "INITIAL_CONTROL_TIMEOUT",
+      "observation": "Initial architecture-node visibility expectation expired at5 seconds. Trace snapshots show an empty root DIV; later font,opacity and retained-selection assertions were not reached.",
+      "errors": [
+        "Error: expect(locator).toBeVisible() failed\n\nLocator: locator('.architecture-node strong').first()\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n  - Expect \"toBeVisible\" with timeout 5000ms\n  - waiting for locator('.architecture-node strong').first()\n\n\n  27 | for(const theme of ['light','dark']as const)test(`${theme} architecture is legible before selecting a node`,async({page})=>{\n  28 |  const snapshot=taskFixture(one('ArchitectureCanvas'),{source:WORK_OBJECT_REVIEW_DATA.architecture});snapshot.settings.theme=theme;await serveTaskFixture(page,snapshot);await page.goto('/');\n> 29 |  const node=page.locator('.architecture-node strong').first();await expect(node).toBeVisible();expect(await node.evaluate(node=>parseFloat(getComputedStyle(node).fontSize))).toBeGreaterThanOrEqual(12);\n     |                                                                                  ^\n  30 |  const edge=page.locator('.architecture-edge').first();expect(await edge.evaluate(node=>Number(getComputedStyle(node).opacity))).toBe(1);\n  31 |  await page.getByRole('button',{name:'Document preview',exact:true}).click();await expect(page.getByRole('button',{name:'Document preview',exact:true})).toHaveAttribute('aria-pressed','true');await page.reload();await expect(page.getByRole('button',{name:'Document preview',exact:true})).toHaveAttribute('aria-pressed','true');\n  32 | });\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/clarity-data-work.spec.ts:29:82"
+      ],
+      "artifacts": [
+        {
+          "name": "trace",
+          "originalPath": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780042749-7465c294-a92c-45fe-b8a2-b5eadb74465e/root/artifacts/clarity-data-work-dark-arc-d03b9-ble-before-selecting-a-node/trace.zip",
+          "retainedPath": "docs/implementation/v3/m15-artifacts/candidate-root-browser-01-extra-failures/architecture-dark/trace.zip",
+          "bytes": 54532,
+          "sha256": "dbba78673ce11daeb4ca5811b675c1eae24c541ef914afdb1aba0fd1488e1f55"
+        }
+      ]
+    },
+    {
+      "file": "document-window.spec.ts",
+      "title": "large edited source fits the real host state limit without duplicating the source text",
+      "project": "",
+      "baselineStatus": "expected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 14342,
+      "candidateDurationMs": 31638,
+      "classification": "EDIT_ACTION_TIMEOUT",
+      "observation": "The test reached and verified its70000-character source. The subsequent fill of70001 characters had no completed trace event before the30-second test timeout; the observed state.save command count remained0. No payload-size violation was observed.",
+      "errors": [
+        "Test timeout of 30000ms exceeded."
+      ],
+      "artifacts": [
+        {
+          "name": "error-context",
+          "originalPath": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780042749-7465c294-a92c-45fe-b8a2-b5eadb74465e/root/artifacts/document-window-large-edit-4ac4d-duplicating-the-source-text/error-context.md",
+          "retainedPath": "docs/implementation/v3/m15-artifacts/candidate-root-browser-01-extra-failures/document-large-edit/error-context.md",
+          "bytes": 77559,
+          "sha256": "102f0e3f050a3cd3e6d24e94a5e1f231f1e93f42c52c7dcc4af7188781166a7d"
+        },
+        {
+          "name": "trace",
+          "originalPath": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780042749-7465c294-a92c-45fe-b8a2-b5eadb74465e/root/artifacts/document-window-large-edit-4ac4d-duplicating-the-source-text/trace.zip",
+          "retainedPath": "docs/implementation/v3/m15-artifacts/candidate-root-browser-01-extra-failures/document-large-edit/trace.zip",
+          "bytes": 813219,
+          "sha256": "6dbe5f5cfe9ce2e670c7f74a280fe2f95c0153009b2c9ed23a95ea58c77228a5"
+        }
+      ]
+    }
+  ],
+  "resolvedUnexpected": [
+    {
+      "file": "signing-motion.spec.ts",
+      "title": "failed original-hash handoff clears retained source pixels",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "expected",
+      "baselineDurationMs": 6364,
+      "candidateDurationMs": 3534
+    }
+  ],
+  "sameUnexpected": [
+    {
+      "file": "host-loop.spec.ts",
+      "title": "actual create/send, cookies/CSRF/SSE and structured host autosave survive reload",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 5274,
+      "candidateDurationMs": 5475
+    },
+    {
+      "file": "host-loop.spec.ts",
+      "title": "durable decision validation and acceptance continue the same owning runtime once",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 5291,
+      "candidateDurationMs": 5400
+    },
+    {
+      "file": "host-loop.spec.ts",
+      "title": "generated operation button requires native approval; restart restores without repeating effects",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 5342,
+      "candidateDurationMs": 5518
+    },
+    {
+      "file": "host-loop.spec.ts",
+      "title": "stale structured action shows rejection and retains its local review UI",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 5310,
+      "candidateDurationMs": 5442
+    },
+    {
+      "file": "host-loop.spec.ts",
+      "title": "generated app validates mount tickets, source/channel/current nonce/state; acknowledges checkpoint and preserves same iframe",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 5392,
+      "candidateDurationMs": 5501
+    },
+    {
+      "file": "host-loop.spec.ts",
+      "title": "cross-site infinite-loop widget leaves Settings, Stop and host navigation responsive",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 5386,
+      "candidateDurationMs": 5446
+    },
+    {
+      "file": "host-loop.spec.ts",
+      "title": "generated program startup failure preserves host controls and durable artifact state",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 5355,
+      "candidateDurationMs": 5441
+    },
+    {
+      "file": "latency.spec.ts",
+      "title": "records local, committed-event and specification latency independently of inference",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 5266,
+      "candidateDurationMs": 5430
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "title": "does not keep a removed owner working after an authoritative snapshot drops its plan and thread",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 515,
+      "candidateDurationMs": 442
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "title": "all details are expanded and assigned branches nest and rejoin before the dependent step",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 1093,
+      "candidateDurationMs": 602
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "title": "retains manual collapse, focus and reading position across ordered live updates and rejects stale revisions",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 1047,
+      "candidateDurationMs": 569
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "title": "resets the snapshot fence on thread switch and retains the old plan during restart publication",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 491,
+      "candidateDurationMs": 774
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "title": "retains a valid plan when the latest canonical graph is malformed",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 711,
+      "candidateDurationMs": 971
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "title": "host replan preserves assignment, collapse and reading anchor when earlier details grow",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 587,
+      "candidateDurationMs": 955
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "title": "collapsed step identity survives returning from another thread and stale epochs never regress it",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 449,
+      "candidateDurationMs": 551
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "title": "deep nested agents and long output labels fit a 280px panel without hiding details",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 1164,
+      "candidateDurationMs": 774
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "title": "manual collapse survives reopening the plan with the same exact thread and step identity",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 1043,
+      "candidateDurationMs": 820
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "title": "dark narrow/short 100% geometry and reduced motion",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 922,
+      "candidateDurationMs": 805
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "title": "dark narrow/short 125% geometry and reduced motion",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 715,
+      "candidateDurationMs": 529
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "title": "dark narrow/short 150% geometry and reduced motion",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 1006,
+      "candidateDurationMs": 1106
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "title": "light narrow/short 100% geometry and reduced motion",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 706,
+      "candidateDurationMs": 560
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "title": "light narrow/short 125% geometry and reduced motion",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 856,
+      "candidateDurationMs": 592
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "title": "light narrow/short 150% geometry and reduced motion",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 1038,
+      "candidateDurationMs": 796
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "title": "dark desktop parallel branches and join",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 705,
+      "candidateDurationMs": 1512
+    },
+    {
+      "file": "plan-timeline.spec.ts",
+      "title": "light desktop parallel branches and join",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 824,
+      "candidateDurationMs": 511
+    },
+    {
+      "file": "skills.spec.ts",
+      "title": "retirement during a history read marks only that row and preserves a newer draft generation",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 25750,
+      "candidateDurationMs": 8521
+    },
+    {
+      "file": "skills.spec.ts",
+      "title": "retirement after historical detail rejects restore once and preserves the newer recovery draft",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 9402,
+      "candidateDurationMs": 8943
+    },
+    {
+      "file": "skills.spec.ts",
+      "title": "ordinary history transport failures stay retryable and do not retire source rows",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 10329,
+      "candidateDurationMs": 8877
+    },
+    {
+      "file": "skills.spec.ts",
+      "title": "empty libraries and automatic review controls work with old snapshots",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 13869,
+      "candidateDurationMs": 8730
+    },
+    {
+      "file": "skills.spec.ts",
+      "title": "a conflicting skill edit survives refresh and reload until the user chooses a saved version",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 7796,
+      "candidateDurationMs": 8833
+    },
+    {
+      "file": "skills.spec.ts",
+      "title": "unconfirmed learning cleanup stays visibly blocked and allows an explicit stop retry",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 7211,
+      "candidateDurationMs": 8231
+    },
+    {
+      "file": "skills.spec.ts",
+      "title": "skill controls and editors fit desktop and narrow light and dark views",
+      "project": "",
+      "baselineStatus": "unexpected",
+      "candidateStatus": "unexpected",
+      "baselineDurationMs": 30483,
+      "candidateDurationMs": 30551
+    }
+  ]
+}

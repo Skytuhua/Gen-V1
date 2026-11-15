@@ -1,0 +1,29 @@
+argv: ["pnpm","typecheck"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 2
+termination: NONE
+
+> gen-v1@0.6.5 typecheck /workspace/scratch/1b47eb428672/m15-v3
+> tsc --noEmit
+
+scripts/m15-evidence.mts(5,130): error TS6133: 'CommandEvidence' is declared but its value is never read.
+tests/workbench-input-recovery-v3.test.ts(16,68): error TS2345: Argument of type 'Mock<(request: any) => Promise<{ commandId: string; eventSeq: number; result: { inputId: string; action: string; resumeRequired: boolean; }; }>>' is not assignable to parameter of type '(request: { commandId: string; logicalOwner: { threadId: string; projectId: string | null; workspaceId: string | null; }; inputId: string; action: "KEEP_CAPTURED" | "CANCEL"; }) => Promise<RecoveryReceipt>'.
+  Type 'Promise<{ commandId: string; eventSeq: number; result: { inputId: string; action: string; resumeRequired: boolean; }; }>' is not assignable to type 'Promise<RecoveryReceipt>'.
+    Type '{ commandId: string; eventSeq: number; result: { inputId: string; action: string; resumeRequired: boolean; }; }' is not assignable to type 'RecoveryReceipt'.
+      The types of 'result.action' are incompatible between these types.
+        Type 'string' is not assignable to type '"KEEP_CAPTURED" | "CANCEL"'.
+tests/workbench-input-recovery-v3.test.ts(32,105): error TS2345: Argument of type 'Mock<(request: any) => Promise<{ commandId: string; eventSeq: number; result: { inputId: string; action: string; resumeRequired: boolean; }; }>>' is not assignable to parameter of type '(request: { commandId: string; logicalOwner: { threadId: string; projectId: string | null; workspaceId: string | null; }; inputId: string; action: "KEEP_CAPTURED" | "CANCEL"; }) => Promise<RecoveryReceipt>'.
+  Type 'Promise<{ commandId: string; eventSeq: number; result: { inputId: string; action: string; resumeRequired: boolean; }; }>' is not assignable to type 'Promise<RecoveryReceipt>'.
+    Type '{ commandId: string; eventSeq: number; result: { inputId: string; action: string; resumeRequired: boolean; }; }' is not assignable to type 'RecoveryReceipt'.
+      The types of 'result.action' are incompatible between these types.
+        Type 'string' is not assignable to type '"KEEP_CAPTURED" | "CANCEL"'.
+tests/workbench-input-recovery-v3.test.ts(35,76): error TS2322: Type 'Promise<{ commandId: string; eventSeq: number; result: { inputId: string; action: string; resumeRequired: boolean; }; }>' is not assignable to type 'Promise<RecoveryReceipt>'.
+  Type '{ commandId: string; eventSeq: number; result: { inputId: string; action: string; resumeRequired: boolean; }; }' is not assignable to type 'RecoveryReceipt'.
+    The types of 'result.action' are incompatible between these types.
+      Type 'string' is not assignable to type '"KEEP_CAPTURED" | "CANCEL"'.
+tests/workbench-input-recovery-v3.test.ts(40,54): error TS2345: Argument of type '(request: { commandId: string; logicalOwner: { threadId: string; projectId: string | null; workspaceId: string | null; }; inputId: string; action: "KEEP_CAPTURED" | "CANCEL"; }) => Promise<{ ...; }>' is not assignable to parameter of type '(request: { commandId: string; logicalOwner: { threadId: string; projectId: string | null; workspaceId: string | null; }; inputId: string; action: "KEEP_CAPTURED" | "CANCEL"; }) => Promise<RecoveryReceipt>'.
+  Type 'Promise<{ commandId: string; eventSeq: number; result: { inputId: string; action: string; resumeRequired: boolean; }; }>' is not assignable to type 'Promise<RecoveryReceipt>'.
+    Type '{ commandId: string; eventSeq: number; result: { inputId: string; action: string; resumeRequired: boolean; }; }' is not assignable to type 'RecoveryReceipt'.
+      The types of 'result.action' are incompatible between these types.
+        Type 'string' is not assignable to type '"KEEP_CAPTURED" | "CANCEL"'.
+ ELIFECYCLE  Command failed with exit code 2.

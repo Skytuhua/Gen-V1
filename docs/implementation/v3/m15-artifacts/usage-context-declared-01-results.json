@@ -1,0 +1,1087 @@
+{
+  "config": {
+    "configFile": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-context.playwright.config.ts",
+    "rootDir": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794781407295-276a584d-67a0-43e9-8660-296e9e5ad35d/usage-context/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "usage-context.spec.ts"
+        ],
+        "timeout": 15000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": {
+      "command": "pnpm exec vite --host 127.0.0.1 --port 5413 --strictPort",
+      "cwd": "/workspace/scratch/1b47eb428672/m15-v3",
+      "url": "http://127.0.0.1:5413",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "usage-context.spec.ts",
+      "file": "usage-context.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "a token decrease after a command acknowledgement is not a compaction receipt",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 7,
+                  "error": {
+                    "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\"",
+                    "stack": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:23:33.799Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794781407295-276a584d-67a0-43e9-8660-296e9e5ad35d/usage-context/artifacts/usage-context-a-token-decr-9a88d-is-not-a-compaction-receipt/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "614a98ca13d0358004c7-9d76e12eef110a98fc57",
+          "file": "usage-context.spec.ts",
+          "line": 33,
+          "column": 1
+        },
+        {
+          "title": "a compaction error does not follow a different thread or session",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 10,
+                  "error": {
+                    "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\"",
+                    "stack": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:23:35.645Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794781407295-276a584d-67a0-43e9-8660-296e9e5ad35d/usage-context/artifacts/usage-context-a-compaction-d7575-different-thread-or-session/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "614a98ca13d0358004c7-429ed29b154f678d77b8",
+          "file": "usage-context.spec.ts",
+          "line": 61,
+          "column": 1
+        },
+        {
+          "title": "a late failure from a prior session cannot update the newly selected context",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 5,
+                  "error": {
+                    "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\"",
+                    "stack": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:23:37.423Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794781407295-276a584d-67a0-43e9-8660-296e9e5ad35d/usage-context/artifacts/usage-context-a-late-failu-1ec89--the-newly-selected-context/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "614a98ca13d0358004c7-210a59d98136f74d5584",
+          "file": "usage-context.spec.ts",
+          "line": 95,
+          "column": 1
+        },
+        {
+          "title": "context takes keyboard focus on reveal and protects IME Escape before restoring its trigger",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 9,
+                  "error": {
+                    "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\"",
+                    "stack": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:23:38.523Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794781407295-276a584d-67a0-43e9-8660-296e9e5ad35d/usage-context/artifacts/usage-context-context-take-aae8e-efore-restoring-its-trigger/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "614a98ca13d0358004c7-7b5422688fa4a65351c5",
+          "file": "usage-context.spec.ts",
+          "line": 129,
+          "column": 1
+        },
+        {
+          "title": "first reveal in a short window clears native caption chrome and all viewport edges",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 5,
+                  "error": {
+                    "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\"",
+                    "stack": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:23:39.973Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794781407295-276a584d-67a0-43e9-8660-296e9e5ad35d/usage-context/artifacts/usage-context-first-reveal-92da3-rome-and-all-viewport-edges/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "614a98ca13d0358004c7-c211543caf0185df591c",
+          "file": "usage-context.spec.ts",
+          "line": 148,
+          "column": 1
+        },
+        {
+          "title": "Requests lists measured requests with stage timings, and absent fields stay unknown",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 10,
+                  "error": {
+                    "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\"",
+                    "stack": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:23:41.233Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794781407295-276a584d-67a0-43e9-8660-296e9e5ad35d/usage-context/artifacts/usage-context-Requests-lis-2c7e2--absent-fields-stay-unknown/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "614a98ca13d0358004c7-8acbd4f76456dacbc445",
+          "file": "usage-context.spec.ts",
+          "line": 166,
+          "column": 1
+        },
+        {
+          "title": "Usage has separate Cost, Tokens and Limits with exact reported data and per-metric unknowns",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 6,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 11,
+                  "error": {
+                    "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\"",
+                    "stack": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:23:42.694Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794781407295-276a584d-67a0-43e9-8660-296e9e5ad35d/usage-context/artifacts/usage-context-Usage-has-se-f3044-ata-and-per-metric-unknowns/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "614a98ca13d0358004c7-b486f309ce1575e1a6d4",
+          "file": "usage-context.spec.ts",
+          "line": 197,
+          "column": 1
+        },
+        {
+          "title": "accepted receipt needs exact ownership; measured freed count is optional and reset on restart",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 7,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 5,
+                  "error": {
+                    "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\"",
+                    "stack": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:23:44.044Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794781407295-276a584d-67a0-43e9-8660-296e9e5ad35d/usage-context/artifacts/usage-context-accepted-rec-c64c5-tional-and-reset-on-restart/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "614a98ca13d0358004c7-9cab26276e8c715eeffd",
+          "file": "usage-context.spec.ts",
+          "line": 223,
+          "column": 1
+        },
+        {
+          "title": "reported segments fit their capacity track without cumulative separator overflow",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 8,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 7,
+                  "error": {
+                    "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\"",
+                    "stack": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:23:45.466Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794781407295-276a584d-67a0-43e9-8660-296e9e5ad35d/usage-context/artifacts/usage-context-reported-seg-674f0-mulative-separator-overflow/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "614a98ca13d0358004c7-3b8792a79fe982e5f4ae",
+          "file": "usage-context.spec.ts",
+          "line": 242,
+          "column": 1
+        },
+        {
+          "title": "pending sweep is actual-pending only and stopped state is not accepted success",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 9,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 14,
+                  "error": {
+                    "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\"",
+                    "stack": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:23:47.010Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794781407295-276a584d-67a0-43e9-8660-296e9e5ad35d/usage-context/artifacts/usage-context-pending-swee-f1455-ate-is-not-accepted-success/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "614a98ca13d0358004c7-51cd6c76160f75ed378a",
+          "file": "usage-context.spec.ts",
+          "line": 255,
+          "column": 1
+        },
+        {
+          "title": "reported categories reveal token/share/subitems on focus after dwell; IME and nested Escape work",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 10,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 6,
+                  "error": {
+                    "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\"",
+                    "stack": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:23:48.572Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794781407295-276a584d-67a0-43e9-8660-296e9e5ad35d/usage-context/artifacts/usage-context-reported-cat-7c3f8--IME-and-nested-Escape-work/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "614a98ca13d0358004c7-6047fe080a711732e51e",
+          "file": "usage-context.spec.ts",
+          "line": 273,
+          "column": 1
+        },
+        {
+          "title": "unknown and invalid category measurements never retain stale values",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 11,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 10,
+                  "error": {
+                    "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\"",
+                    "stack": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:23:50.788Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794781407295-276a584d-67a0-43e9-8660-296e9e5ad35d/usage-context/artifacts/usage-context-unknown-and--1d714-s-never-retain-stale-values/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "614a98ca13d0358004c7-010b80e07fb48efe99d7",
+          "file": "usage-context.spec.ts",
+          "line": 307,
+          "column": 1
+        },
+        {
+          "title": "scope/provider filters remain in the owning modal and refresh preserves tab and selection",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 12,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 11,
+                  "error": {
+                    "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\"",
+                    "stack": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:23:52.422Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794781407295-276a584d-67a0-43e9-8660-296e9e5ad35d/usage-context/artifacts/usage-context-scope-provid-aa06b-preserves-tab-and-selection/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "614a98ca13d0358004c7-07f41d1c09ff87ba123a",
+          "file": "usage-context.spec.ts",
+          "line": 322,
+          "column": 1
+        },
+        {
+          "title": "loading, empty, provider failure and refresh failure preserve honest per-metric state",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 13,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 7,
+                  "error": {
+                    "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\"",
+                    "stack": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:23:54.179Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794781407295-276a584d-67a0-43e9-8660-296e9e5ad35d/usage-context/artifacts/usage-context-loading-empt-d9ca2-rve-honest-per-metric-state/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "614a98ca13d0358004c7-82aca3fe15fd63434a02",
+          "file": "usage-context.spec.ts",
+          "line": 370,
+          "column": 1
+        },
+        {
+          "title": "overflow keeps header fixed, rows scroll, short/narrow dark",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 14,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 6,
+                  "error": {
+                    "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\"",
+                    "stack": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:23:55.867Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794781407295-276a584d-67a0-43e9-8660-296e9e5ad35d/usage-context/artifacts/usage-context-overflow-kee-9f6c8-ws-scroll-short-narrow-dark/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "614a98ca13d0358004c7-36aac5733df03948fc5f",
+          "file": "usage-context.spec.ts",
+          "line": 393,
+          "column": 40
+        },
+        {
+          "title": "overflow keeps header fixed, rows scroll, short/narrow light",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 15,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 6,
+                  "error": {
+                    "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\"",
+                    "stack": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:23:56.989Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794781407295-276a584d-67a0-43e9-8660-296e9e5ad35d/usage-context/artifacts/usage-context-overflow-kee-2773d-s-scroll-short-narrow-light/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "614a98ca13d0358004c7-5e49cf3aef00ea32260b",
+          "file": "usage-context.spec.ts",
+          "line": 393,
+          "column": 40
+        },
+        {
+          "title": "context category overflow and details stay reachable in dark",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 16,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 4,
+                  "error": {
+                    "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\"",
+                    "stack": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:23:58.732Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794781407295-276a584d-67a0-43e9-8660-296e9e5ad35d/usage-context/artifacts/usage-context-context-cate-c3e44-ails-stay-reachable-in-dark/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "614a98ca13d0358004c7-7f701a615de29b81783b",
+          "file": "usage-context.spec.ts",
+          "line": 423,
+          "column": 40
+        },
+        {
+          "title": "context category overflow and details stay reachable in light",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 17,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 5,
+                  "error": {
+                    "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\"",
+                    "stack": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:23:59.795Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794781407295-276a584d-67a0-43e9-8660-296e9e5ad35d/usage-context/artifacts/usage-context-context-cate-96eb0-ils-stay-reachable-in-light/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "614a98ca13d0358004c7-a8406058b82540f504ba",
+          "file": "usage-context.spec.ts",
+          "line": 423,
+          "column": 40
+        },
+        {
+          "title": "accepted transition uses reference timing; reduced motion suppresses travel and sweep",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 18,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 34,
+                  "error": {
+                    "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\"",
+                    "stack": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:24:00.603Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794781407295-276a584d-67a0-43e9-8660-296e9e5ad35d/usage-context/artifacts/usage-context-accepted-tra-05b38-suppresses-travel-and-sweep/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "614a98ca13d0358004c7-2eaaad733f2438e43095",
+          "file": "usage-context.spec.ts",
+          "line": 458,
+          "column": 1
+        },
+        {
+          "title": "optional summary keeps whole-header disclosure and opens the same Usage through its independent body action",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 19,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 4,
+                  "error": {
+                    "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\"",
+                    "stack": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:24:02.218Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794781407295-276a584d-67a0-43e9-8660-296e9e5ad35d/usage-context/artifacts/usage-context-optional-sum-3f75f-its-independent-body-action/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "614a98ca13d0358004c7-9192f5063607d8ee76eb",
+          "file": "usage-context.spec.ts",
+          "line": 486,
+          "column": 1
+        },
+        {
+          "title": "invalidating a receipt ends accepted motion immediately and after its timer deadline",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 20,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 5,
+                  "error": {
+                    "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\"",
+                    "stack": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge\nRun \"npx playwright install msedge\""
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:24:03.545Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794781407295-276a584d-67a0-43e9-8660-296e9e5ad35d/usage-context/artifacts/usage-context-invalidating-fe45b-nd-after-its-timer-deadline/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "614a98ca13d0358004c7-a6ffdcb3a5caa21bb1cc",
+          "file": "usage-context.spec.ts",
+          "line": 510,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-15T22:23:29.254Z",
+    "duration": 34416.254,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 21,
+    "flaky": 0
+  }
+}

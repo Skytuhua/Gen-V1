@@ -1,0 +1,13 @@
+argv: ["pnpm","exec","vitest","run","tests/source-draft-transfer-v3.test.ts","tests/saved-drafts.test.ts","tests/draft-transfer.test.ts","tests/compact-draft-transfer.test.ts","tests/journal.test.ts","tests/workbench-recovery-v3.test.ts","--maxWorkers=1"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+
+ Test Files  6 passed (6)
+      Tests  86 passed (86)
+   Start at  05:50:39
+   Duration  16.30s (transform 7.14s, setup 0ms, import 9.02s, tests 1.50s, environment 1ms)
+

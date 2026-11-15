@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "node",
+    "--import",
+    "tsx",
+    "scripts/test-browser.ts",
+    "--suite",
+    "workbench-app"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-15T22:34:14.001Z",
+  "endedAt": "2026-11-15T22:36:01.229Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/app-browser-final-03.log",
+  "logDigest": "41771c8f0b3ea873c14531f808d327f6c1abbe9b5b1a075f8872acde5524f5c9"
+}

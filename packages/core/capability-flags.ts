@@ -76,9 +76,13 @@ export const M11_FLAG_KEYS = [
 ] as const;
 export type M11FlagKey = (typeof M11_FLAG_KEYS)[number];
 
-export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M04CoreFlagKey | M09FlagKey | M11FlagKey;
+export const M15_FLAG_KEYS = ["ui.sourceWorkbenchV1"] as const;
+export type M15FlagKey = (typeof M15_FLAG_KEYS)[number];
+
+export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M04CoreFlagKey | M09FlagKey | M11FlagKey | M15FlagKey;
 
 const hostFlags = createCapabilityFlags<CapabilityFlagKey>([
+  { key: "ui.sourceWorkbenchV1", owner: "m15", description: "Owner-validated source selections and read-only operator workbench contributions." },
   { key: "context.compilerV1", owner: "m04-core", description: "Host-issued immutable request preparation and measured context receipts." },
   { key: "audit.effectsV1", owner: "m02", description: "Append-only tool-effect ledger and owner-fenced read models." },
   { key: "security.authorityV1", owner: "m02", description: "Single-use approvals and the pre-dispatch authority gate." },

@@ -1,0 +1,461 @@
+argv: ["pnpm","exec","vitest","run","tests/source-draft-transfer-v3.test.ts","--maxWorkers=1"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ❯ tests/source-draft-transfer-v3.test.ts (19 tests | 18 failed) 754ms
+     × exports exact source identity and send mode alongside the single text owner 483ms
+     × exports a source-only draft with an explicit empty text record for atomic restoration 5ms
+     × refuses to export a corrupt source companion as a deceptively complete text backup 6ms
+     × imports text and its exact full-owner source metadata together (reverse order: false) 5ms
+     × imports text and its exact full-owner source metadata together (reverse order: true) 2ms
+     × blocks the entire text/source group when source identity or bounds are invalid 3ms
+     × blocks the entire text/source group when source identity or bounds are invalid 3ms
+     × blocks the entire text/source group when source identity or bounds are invalid 3ms
+     × blocks the entire text/source group when source identity or bounds are invalid 2ms
+     × retains local orphan source context when importing a prompt (source in backup: true) 2ms
+     × retains local orphan source context when importing a prompt (source in backup: false) 2ms
+     × keeps both imported records absent when source context arrives in another window during CAS 8ms
+     × rolls back imported text when the source metadata write fails 3ms
+     × saves bounded source identity and send mode while retaining the active source selection 115ms
+     × keeps a source-only named draft inspectable after the active selection is gone 10ms
+     × rejects a named save when another window changes its source selection before the commit 16ms
+     × rejects foreign-owner, oversized and extra source fields in saved metadata 21ms
+     × text-only replacement retains active sources and stores their identity with the recovery copy 59ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 18 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/source-draft-transfer-v3.test.ts > M15 source-aware draft backups > exports exact source identity and send mode alongside the single text owner
+AssertionError: expected undefined to deeply equal { draftId: 'draft-a', …(5) }
+
+- Expected:
+{
+  "conflictState": "NONE",
+  "draftId": "draft-a",
+  "logicalOwner": {
+    "projectId": "project-a",
+    "threadId": "thread-a",
+    "workspaceId": "copy-a",
+  },
+  "revision": 7,
+  "sendMode": "AFTER_CURRENT",
+  "sourceRefs": [
+    {
+      "captureId": "capture-a",
+      "keepCaptured": true,
+      "source": {
+        "capturedAt": "2026-11-15T10:00:00.000Z",
+        "contentDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "kind": "MESSAGE",
+        "logicalOwner": {
+          "projectId": "project-a",
+          "threadId": "thread-a",
+          "workspaceId": "copy-a",
+        },
+        "range": {
+          "encoding": "UTF16",
+          "end": 4,
+          "selectedTextDigest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "start": 1,
+        },
+        "sourceId": "message-a",
+        "sourceRevision": "revision-a",
+      },
+    },
+  ],
+}
+
++ Received:
+undefined
+
+ ❯ tests/source-draft-transfer-v3.test.ts:56:97
+     54|     const {exportDraftTransfer} = await import('../apps/web/src/draft-…
+     55|     const saved = JSON.parse(await exportDraftTransfer(refs));
+     56|     expect(saved.entries.find((entry: {key: string}) => entry.key === …
+       |                                                                                                 ^
+     57|     expect(saved.entries.find((entry: {key: string}) => entry.key === …
+     58|     expect(saved.entries).toHaveLength(2);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/18]⎯
+
+ FAIL  tests/source-draft-transfer-v3.test.ts > M15 source-aware draft backups > exports a source-only draft with an explicit empty text record for atomic restoration
+AssertionError: expected undefined to be '' // Object.is equality
+
+- Expected:
+""
+
++ Received:
+undefined
+
+ ❯ tests/source-draft-transfer-v3.test.ts:65:104
+     63|     const {exportDraftTransfer} = await import('../apps/web/src/draft-…
+     64|     const saved = JSON.parse(await exportDraftTransfer(refs));
+     65|     expect(saved.entries.find((entry: {key: string}) => entry.key === …
+       |                                                                                                        ^
+     66|     expect(saved.entries.find((entry: {key: string}) => entry.key === …
+     67|     expect(local.rows.has('draft:thread-a')).toBe(false);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/18]⎯
+
+ FAIL  tests/source-draft-transfer-v3.test.ts > M15 source-aware draft backups > refuses to export a corrupt source companion as a deceptively complete text backup
+AssertionError: promise resolved "'{"app":"generative-harness-drafts","v…'" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+"{\"app\":\"generative-harness-drafts\",\"version\":1,\"exportedAt\":\"2026-11-15T21:47:46.895Z\",\"entries\":[{\"key\":\"draft:thread-a\",\"record\":{\"value\":\"Keep prompt\",\"generation\":\"f8b1ed3a-925f-43e8-b678-f1b2bdb29514\",\"updatedAt\":1794779266891}}]}"
+
+ ❯ tests/source-draft-transfer-v3.test.ts:73:43
+     71|     const local = storage(); local.put('draft:thread-a', 'Keep prompt'…
+     72|     const {exportDraftTransfer} = await import('../apps/web/src/draft-…
+     73|     await expect(exportDraftTransfer(refs)).rejects.toThrow(/source/i);
+       |                                           ^
+     74|     expect(local.rows.get('draft:thread-a')?.value).toBe('Keep prompt'…
+     75|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/18]⎯
+
+ FAIL  tests/source-draft-transfer-v3.test.ts > M15 source-aware draft backups > imports text and its exact full-owner source metadata together (reverse order: false)
+AssertionError: expected [ 'imported', 'blocked' ] to deeply equal [ 'imported', 'imported' ]
+
+- Expected
++ Received
+
+  [
+    "imported",
+-   "imported",
++   "blocked",
+  ]
+
+ ❯ tests/source-draft-transfer-v3.test.ts:82:45
+     80|     const entries = [row('draft:thread-a', 'Imported prompt'), row(sou…
+     81|     const report = await importDraftTransfer(backup(reverse ? entries.…
+     82|     expect(report.map(item => item.status)).toEqual(['imported', 'impo…
+       |                                             ^
+     83|     expect(local.rows.get('draft:thread-a')?.value).toBe('Imported pro…
+     84|     expect(local.rows.get(sourceKey)?.value).toEqual(context);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/18]⎯
+
+ FAIL  tests/source-draft-transfer-v3.test.ts > M15 source-aware draft backups > imports text and its exact full-owner source metadata together (reverse order: true)
+AssertionError: expected [ 'blocked', 'imported' ] to deeply equal [ 'imported', 'imported' ]
+
+- Expected
++ Received
+
+  [
+-   "imported",
++   "blocked",
+    "imported",
+  ]
+
+ ❯ tests/source-draft-transfer-v3.test.ts:82:45
+     80|     const entries = [row('draft:thread-a', 'Imported prompt'), row(sou…
+     81|     const report = await importDraftTransfer(backup(reverse ? entries.…
+     82|     expect(report.map(item => item.status)).toEqual(['imported', 'impo…
+       |                                             ^
+     83|     expect(local.rows.get('draft:thread-a')?.value).toBe('Imported pro…
+     84|     expect(local.rows.get(sourceKey)?.value).toEqual(context);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/18]⎯
+
+ FAIL  tests/source-draft-transfer-v3.test.ts > M15 source-aware draft backups > blocks the entire text/source group when source identity or bounds are invalid
+ FAIL  tests/source-draft-transfer-v3.test.ts > M15 source-aware draft backups > blocks the entire text/source group when source identity or bounds are invalid
+ FAIL  tests/source-draft-transfer-v3.test.ts > M15 source-aware draft backups > blocks the entire text/source group when source identity or bounds are invalid
+ FAIL  tests/source-draft-transfer-v3.test.ts > M15 source-aware draft backups > blocks the entire text/source group when source identity or bounds are invalid
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/source-draft-transfer-v3.test.ts:96:61
+     94|     const {importDraftTransfer} = await import('../apps/web/src/draft-…
+     95|     const report = await importDraftTransfer(backup([row('draft:thread…
+     96|     expect(report.every(item => item.status === 'blocked')).toBe(true);
+       |                                                             ^
+     97|     expect(local.rows.size).toBe(0);
+     98|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/18]⎯
+
+ FAIL  tests/source-draft-transfer-v3.test.ts > M15 source-aware draft backups > retains local orphan source context when importing a prompt (source in backup: true)
+ FAIL  tests/source-draft-transfer-v3.test.ts > M15 source-aware draft backups > retains local orphan source context when importing a prompt (source in backup: false)
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/source-draft-transfer-v3.test.ts:111:62
+    109|     const {importDraftTransfer} = await import('../apps/web/src/draft-…
+    110|     const report = await importDraftTransfer(backup(withSource ? undef…
+    111|     expect(report.every(item => item.status === 'retained')).toBe(true…
+       |                                                              ^
+    112|     expect(local.rows.has('draft:thread-a')).toBe(false); expect(local…
+    113|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/18]⎯
+
+ FAIL  tests/source-draft-transfer-v3.test.ts > M15 source-aware draft backups > keeps both imported records absent when source context arrives in another window during CAS
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/source-draft-transfer-v3.test.ts:120:62
+    118|     const {importDraftTransfer} = await import('../apps/web/src/draft-…
+    119|     const report = await importDraftTransfer(backup(), refs);
+    120|     expect(report.every(item => item.status === 'retained')).toBe(true…
+       |                                                              ^
+    121|     expect(local.rows.has('draft:thread-a')).toBe(false); expect(local…
+    122|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/18]⎯
+
+ FAIL  tests/source-draft-transfer-v3.test.ts > M15 source-aware draft backups > rolls back imported text when the source metadata write fails
+AssertionError: promise resolved "[ …(2) ]" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+[
+  {
+    "key": "draft:thread-a",
+    "status": "imported",
+  },
+  {
+    "key": "source-context:thread-a:project-a:copy-a",
+    "reason": "Not a transferable draft",
+    "status": "blocked",
+  },
+]
+
+ ❯ tests/source-draft-transfer-v3.test.ts:127:53
+    125|     const local = storage(); local.controls.beforePut = key => {if (ke…
+    126|     const {importDraftTransfer} = await import('../apps/web/src/draft-…
+    127|     await expect(importDraftTransfer(backup(), refs)).rejects.toThrow(…
+       |                                                     ^
+    128|     expect(local.rows.size).toBe(0);
+    129|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/18]⎯
+
+ FAIL  tests/source-draft-transfer-v3.test.ts > M15 source-aware named drafts > saves bounded source identity and send mode while retaining the active source selection
+AssertionError: expected undefined to deeply equal { draftId: 'draft-a', …(5) }
+
+- Expected:
+{
+  "conflictState": "NONE",
+  "draftId": "draft-a",
+  "logicalOwner": {
+    "projectId": "project-a",
+    "threadId": "thread-a",
+    "workspaceId": "copy-a",
+  },
+  "revision": 7,
+  "sendMode": "AFTER_CURRENT",
+  "sourceRefs": [
+    {
+      "captureId": "capture-a",
+      "keepCaptured": true,
+      "source": {
+        "capturedAt": "2026-11-15T10:00:00.000Z",
+        "contentDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "kind": "MESSAGE",
+        "logicalOwner": {
+          "projectId": "project-a",
+          "threadId": "thread-a",
+          "workspaceId": "copy-a",
+        },
+        "range": {
+          "encoding": "UTF16",
+          "end": 4,
+          "selectedTextDigest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "start": 1,
+        },
+        "sourceId": "message-a",
+        "sourceRevision": "revision-a",
+      },
+    },
+  ],
+}
+
++ Received:
+undefined
+
+ ❯ tests/source-draft-transfer-v3.test.ts:137:33
+    135|     const {saveNamedDraft, loadSavedDrafts} = await import('../apps/we…
+    136|     const saved = await saveNamedDraft(owner, 'Review sources');
+    137|     expect(saved.sourceContext).toEqual(context);
+       |                                 ^
+    138|     expect((await loadSavedDrafts(owner)).library.records[0].sourceCon…
+    139|     expect(local.rows.get(sourceKey)?.value).toEqual(context);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/18]⎯
+
+ FAIL  tests/source-draft-transfer-v3.test.ts > M15 source-aware named drafts > keeps a source-only named draft inspectable after the active selection is gone
+Error: Write a prompt before saving.
+ ❯ saveNamedDraft apps/web/src/saved-drafts.ts:103:139
+    101|  if(active&&typeof active.value!=='string')throw Error('Active draft c…
+    102|  const text=active?.value??'';
+    103|  if(!text.trim()&&!resourceRefs.length&&!readSkillBindings(skills?.val…
+       |                                                                                                                                           ^
+    104|  const draft=createSavedDraft(owner,name,text,{resourceRefs,skills:rea…
+    105|  const next=append(library.library,draft,library.count);
+ ❯ tests/source-draft-transfer-v3.test.ts:145:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/18]⎯
+
+ FAIL  tests/source-draft-transfer-v3.test.ts > M15 source-aware named drafts > rejects a named save when another window changes its source selection before the commit
+AssertionError: promise resolved "{ version: 1, …(8) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "excerpts": [],
++   "id": "3afad9c6-3575-4976-81b1-2b6a60074e24",
++   "name": "Racing save",
++   "owner": {
++     "accountId": "account-a",
++     "profileId": "profile-a",
++     "projectId": "project-a",
++     "threadId": "thread-a",
++     "workingCopyId": "copy-a",
++   },
++   "resourceRefs": [],
++   "skills": [],
++   "text": "Save prompt",
++   "updatedAt": "2026-11-15T21:47:47.070Z",
++   "version": 1,
+  }
+
+ ❯ tests/source-draft-transfer-v3.test.ts:154:54
+    152|     local.controls.beforeGet = (key, mode) => {if (key === sourceKey &…
+    153|     const {saveNamedDraft, savedDraftLibraryKey} = await import('../ap…
+    154|     await expect(saveNamedDraft(owner, 'Racing save')).rejects.toThrow…
+       |                                                      ^
+    155|     expect(local.rows.has(savedDraftLibraryKey(owner))).toBe(false);
+    156|     expect(local.rows.get('draft:thread-a')?.value).toBe('Save prompt'…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/18]⎯
+
+ FAIL  tests/source-draft-transfer-v3.test.ts > M15 source-aware named drafts > rejects foreign-owner, oversized and extra source fields in saved metadata
+AssertionError: expected undefined to deeply equal [ { captureId: 'capture-a', …(2) } ]
+
+- Expected:
+[
+  {
+    "captureId": "capture-a",
+    "keepCaptured": true,
+    "source": {
+      "capturedAt": "2026-11-15T10:00:00.000Z",
+      "contentDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "kind": "MESSAGE",
+      "logicalOwner": {
+        "projectId": "project-a",
+        "threadId": "thread-a",
+        "workspaceId": "copy-a",
+      },
+      "range": {
+        "encoding": "UTF16",
+        "end": 4,
+        "selectedTextDigest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "start": 1,
+      },
+      "sourceId": "message-a",
+      "sourceRevision": "revision-a",
+    },
+  },
+]
+
++ Received:
+undefined
+
+ ❯ tests/source-draft-transfer-v3.test.ts:168:44
+    166|       {...context, sourceRefs: Array.from({length: 9}, (_, i) => ({...…
+    167|     ]) expect(() => readSavedDraftLibrary({version: 1, owner, records:…
+    168|     expect(good.sourceContext?.sourceRefs).toEqual(context.sourceRefs);
+       |                                            ^
+    169|   });
+    170|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/18]⎯
+
+ FAIL  tests/source-draft-transfer-v3.test.ts > M15 source-aware named drafts > text-only replacement retains active sources and stores their identity with the recovery copy
+AssertionError: expected undefined to deeply equal { draftId: 'draft-a', …(5) }
+
+- Expected:
+{
+  "conflictState": "NONE",
+  "draftId": "draft-a",
+  "logicalOwner": {
+    "projectId": "project-a",
+    "threadId": "thread-a",
+    "workspaceId": "copy-a",
+  },
+  "revision": 8,
+  "sendMode": "NOW",
+  "sourceRefs": [
+    {
+      "captureId": "capture-current",
+      "keepCaptured": true,
+      "source": {
+        "capturedAt": "2026-11-15T10:00:00.000Z",
+        "contentDigest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "kind": "MESSAGE",
+        "logicalOwner": {
+          "projectId": "project-a",
+          "threadId": "thread-a",
+          "workspaceId": "copy-a",
+        },
+        "range": {
+          "encoding": "UTF16",
+          "end": 4,
+          "selectedTextDigest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "start": 1,
+        },
+        "sourceId": "message-a",
+        "sourceRevision": "revision-a",
+      },
+    },
+  ],
+}
+
++ Received:
+undefined
+
+ ❯ tests/source-draft-transfer-v3.test.ts:182:84
+    180|     expect(local.rows.get('draft:thread-a')?.value).toBe('Saved prompt…
+    181|     const recovery = (await saved.loadSavedDrafts(owner)).library.reco…
+    182|     expect(recovery?.text).toBe('Current prompt'); expect(recovery?.so…
+       |                                                                                    ^
+    183|   });
+    184| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/18]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  18 failed | 1 passed (19)
+   Start at  05:47:45
+   Duration  1.39s (transform 422ms, setup 0ms, import 130ms, tests 754ms, environment 0ms)
+

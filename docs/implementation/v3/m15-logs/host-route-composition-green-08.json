@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/model-discovery.test.ts",
+    "tests/workspace-linked-pr.test.ts",
+    "tests/plugin-frame-custody.test.ts",
+    "tests/source-workbench-host-v3.test.ts",
+    "--maxWorkers=1"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-15T22:20:05.703Z",
+  "endedAt": "2026-11-15T22:20:31.031Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/host-route-composition-green-08.log",
+  "logDigest": "4ab83056e45a2471a77fa2dd46a1197814a8445947bcc722e6cb8072cc8ff440"
+}

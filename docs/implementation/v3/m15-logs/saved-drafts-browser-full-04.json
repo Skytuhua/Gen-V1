@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "node",
+    "--import",
+    "tsx",
+    "scripts/test-browser.ts",
+    "--suite",
+    "saved-drafts"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+  "startedAt": "2026-11-15T22:18:36.185Z",
+  "endedAt": "2026-11-15T22:21:20.015Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/saved-drafts-browser-full-04.log",
+  "logDigest": "cd43ce0eea5e91a11bbaa254eaa905b242f5c5ff6e78441c709474ed6da60d15"
+}

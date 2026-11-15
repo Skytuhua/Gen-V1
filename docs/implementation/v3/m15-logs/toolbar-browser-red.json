@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "playwright",
+    "test",
+    "--config",
+    "tests/e2e/workbench.playwright.config.ts",
+    "-g",
+    "exposes explicit actions"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-15T21:33:40.744Z",
+  "endedAt": "2026-11-15T21:33:44.247Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/toolbar-browser-red.log",
+  "logDigest": "173fc460c747a0f769c021c792f90255a3d784189cf1e3bbf1ce5db42427ddd1"
+}

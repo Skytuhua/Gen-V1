@@ -5,7 +5,9 @@ import {CHAT_LAYOUT_KEY,type ChatMode} from '../../packages/ui-shell/chat-layout
 const names={full:'Full page',drawer:'Side drawer',popup:'Pop-up'};
 const panel=(page:Page)=>page.getByRole('main',{name:'Chat',exact:true});
 const input=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
-async function open(page:Page,long=false){await serveChatFixture(page,long);await page.goto('/');await expect(input(page)).toBeEnabled();}
+// Both the accepted baseline and the candidate exceeded five seconds while
+// loading the development app. This is startup readiness, not a geometry wait.
+async function open(page:Page,long=false){await serveChatFixture(page,long);await page.goto('/');await expect(input(page)).toBeEnabled({timeout:15000});}
 async function mode(page:Page,value:ChatMode){
  await page.getByRole('button',{name:'Switch layout',exact:true}).click();
  await page.getByRole('menuitemcheckbox',{name:names[value],exact:true}).click();
@@ -78,6 +80,28 @@ test('header drag is 1:1, stores position, cancels cleanly, and snaps to the doc
  await page.mouse.move(handle.x+12,handle.y+12);await page.mouse.down();await page.mouse.move(1420,150,{steps:15});
  await expect(page.locator('.chat-dock-target')).toHaveAttribute('data-active','true');await page.mouse.up();
  await expect(panel(page)).toHaveAttribute('data-chat-mode','drawer');await expect(panel(page)).toHaveAttribute('data-detached','false');
+});
+test('active drag Escape cancels before an open tooltip and then releases keyboard ownership',async({page})=>{
+ await open(page);await mode(page,'popup');const before=await bounds(page);
+ await drag(page,'Move chat panel',-64,-32,false);await expect(panel(page)).toHaveAttribute('data-tracking','true');
+ // Keyboard focus opens the real shared tooltip while the pointer still owns
+ // the drag. Its document capture listener must not swallow cancellation.
+ await page.keyboard.press('Tab');const tooltip=page.getByRole('tooltip');await expect(tooltip).toBeVisible();
+ await page.keyboard.press('Escape');await expect(panel(page)).toHaveAttribute('data-tracking','false');
+ const cancelled=await bounds(page);for(const key of ['x','y','width','height'] as const)expect(cancelled[key]).toBeCloseTo(before[key],0);
+ await page.mouse.up();await page.keyboard.press('Escape');await expect(tooltip).not.toBeVisible();
+});
+for(const composition of [{name:'composition flag',isComposing:true,keyCode:27},{name:'legacy key 229',isComposing:false,keyCode:229}])test(`active drag ignores Escape with IME ${composition.name}`,async({page})=>{
+ await open(page);await mode(page,'popup');const before=await bounds(page),saved=await page.evaluate(key=>localStorage.getItem(key),CHAT_LAYOUT_KEY);
+ await drag(page,'Move chat panel',-64,-32,false);await expect(panel(page)).toHaveAttribute('data-tracking','true');
+ const prevented=await page.evaluate(flags=>{
+  const event=new KeyboardEvent('keydown',{key:'Escape',code:'Escape',bubbles:true,cancelable:true,isComposing:flags.isComposing,keyCode:flags.keyCode});
+  document.activeElement!.dispatchEvent(event);return event.defaultPrevented;
+ },composition);
+ expect(prevented).toBe(false);await expect(panel(page)).toHaveAttribute('data-tracking','true');
+ expect((await bounds(page)).x).toBeCloseTo(before.x-64,0);expect(await page.evaluate(key=>localStorage.getItem(key),CHAT_LAYOUT_KEY)).toBe(saved);
+ await page.keyboard.press('Escape');await expect(panel(page)).toHaveAttribute('data-tracking','false');await page.mouse.up();
+ expect((await bounds(page)).x).toBeCloseTo(before.x,0);
 });
 test('detach/dock button and keyboard paths preserve the live draft and drawer size',async({page})=>{
  await open(page);await input(page).fill('This draft travels with me');await mode(page,'drawer');await drag(page,'Resize chat left',-64,0);const drawer=await bounds(page);

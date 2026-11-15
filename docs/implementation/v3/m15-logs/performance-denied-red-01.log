@@ -1,0 +1,29 @@
+argv: ["pnpm","exec","vitest","run","tests/workbench-performance-v3.test.ts","--maxWorkers=1"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ❯ tests/workbench-performance-v3.test.ts (7 tests | 1 failed) 300ms
+     × hides denied source bytes and keeps full-read actions disabled in unavailable states 12ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/workbench-performance-v3.test.ts > M15 bounded workbench presentation > hides denied source bytes and keeps full-read actions disabled in unavailable states
+AssertionError: expected '<section class="workbench-output" ari…' not to contain 'previously visible private output'
+
+Expected: "previously visible private output"
+Received: "<section class="workbench-output" aria-label="Retained tool output" data-output-source-id="tool-output-a" data-output-revision="revision-a"><div class="workbench-output-actions"><button type="button" class="quiet" disabled="">Copy full result</button><form role="search" aria-label="Search full output"><input aria-label="Search full result" type="search" disabled="" value=""/><button type="submit" class="quiet" disabled="">Search full result</button></form></div><p class="workbench-output-state" role="status">Loading retained output.</p><div class="workbench-output-viewport" data-output-viewport="true" tabindex="0" role="region" aria-label="Retained tool output, scrollable rows" style="--workbench-row-height:22px"><div aria-hidden="true" style="height:0"></div><div role="list" aria-label="1 retained lines"><div class="workbench-output-row" data-output-row-id="private-row" role="listitem" aria-posinset="1" aria-setsize="1">previously visible private output</div></div><div aria-hidden="true" style="height:0"></div></div></section>"
+
+ ❯ tests/workbench-performance-v3.test.ts:103:26
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 passed (7)
+   Start at  05:39:35
+   Duration  611ms (transform 117ms, setup 0ms, import 113ms, tests 300ms, environment 0ms)
+

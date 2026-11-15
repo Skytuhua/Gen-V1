@@ -1,0 +1,11 @@
+argv: ["pnpm","typecheck"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 2
+termination: NONE
+
+> gen-v1@0.6.5 typecheck /workspace/scratch/1b47eb428672/m15-v3
+> tsc --noEmit
+
+tests/e2e/saved-drafts.spec.ts(117,49): error TS7006: Parameter 'state' implicitly has an 'any' type.
+tests/e2e/saved-drafts.spec.ts(124,230): error TS7006: Parameter 'state' implicitly has an 'any' type.
+ ELIFECYCLE  Command failed with exit code 2.

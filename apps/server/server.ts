@@ -16,6 +16,7 @@ import {SessionCredentials} from '../../packages/core/credential-slots.ts';
 import { streamEvents } from './event-stream.ts';
 import {registerAccountAuthRoutes} from './account-auth.ts';
 import {registerWorkspaceRoutes} from './workspace-routes.ts';
+import {registerSourceWorkbenchRoutes} from './source-workbench-routes.ts';
 import {registerAttentionRoutes} from './attention-routes.ts';
 import {registerPluginRoutes} from './plugin-routes.ts';
 import type {PluginRegistry} from '../../packages/plugins/host.ts';
@@ -189,6 +190,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
   });
   registerAccountAuthRoutes(app,service);
   registerWorkspaceRoutes(app,service);
+  registerSourceWorkbenchRoutes(app,service);
   registerAttentionRoutes(app,service);
   const agentInventory=options.agentInventory??new AgentProjection(service.store);
   registerAgentInventoryRoutes(app,agentInventory);

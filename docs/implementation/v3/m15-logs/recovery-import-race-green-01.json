@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/workbench-recovery-v3.test.ts",
+    "tests/workbench-performance-v3.test.ts",
+    "tests/draft-transfer.test.ts",
+    "tests/compact-draft-transfer.test.ts",
+    "tests/saved-drafts.test.ts",
+    "--maxWorkers=1"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-15T21:53:04.965Z",
+  "endedAt": "2026-11-15T21:53:13.081Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/recovery-import-race-green-01.log",
+  "logDigest": "17e838449f9c6742870986bea7fddc97cb912a98fedc814e1cf31742c3e77ee4"
+}

@@ -1,0 +1,107 @@
+{
+  "probes": [
+    {
+      "receipt": "docs/implementation/v3/m15-logs/evidence-controller-red-02.json",
+      "status": "FAIL",
+      "exitCode": 1,
+      "logDigest": "6827bb5634bbc05e0013c6cf5660b781f429dd91f5ee92bc2d9269d8be22730e",
+      "scope": "Actual controller with disposable copies of this bundle; originals restored in finally.",
+      "cases": [
+        {
+          "id": "unchanged-bundle",
+          "accepted": true,
+          "exitCode": 0,
+          "termination": null
+        },
+        {
+          "id": "omit-failed-and-blocked-phases",
+          "rejected": false,
+          "exitCode": 0,
+          "termination": null
+        },
+        {
+          "id": "alter-command-index",
+          "rejected": false,
+          "exitCode": 0,
+          "termination": null
+        },
+        {
+          "id": "malformed-command-receipt",
+          "rejected": false,
+          "exitCode": 0,
+          "termination": null
+        },
+        {
+          "id": "alter-legacy-renderer-exception",
+          "rejected": false,
+          "exitCode": 0,
+          "termination": null
+        },
+        {
+          "id": "alter-source-cut-metadata",
+          "rejected": false,
+          "exitCode": 0,
+          "termination": null
+        },
+        {
+          "id": "alter-dependency-contract",
+          "rejected": false,
+          "exitCode": 0,
+          "termination": null
+        }
+      ]
+    },
+    {
+      "receipt": "docs/implementation/v3/m15-logs/evidence-controller-green-01.json",
+      "status": "PASS",
+      "exitCode": 0,
+      "logDigest": "e57d760522ffdf114b37ef6c6df0a514da347f81809ccf6e3f2e93f5d751715b",
+      "scope": "Actual controller with disposable copies of this bundle; originals restored in finally.",
+      "cases": [
+        {
+          "id": "unchanged-bundle",
+          "accepted": true,
+          "exitCode": 0,
+          "termination": null
+        },
+        {
+          "id": "omit-failed-and-blocked-phases",
+          "rejected": true,
+          "exitCode": 1,
+          "termination": null
+        },
+        {
+          "id": "alter-command-index",
+          "rejected": true,
+          "exitCode": 1,
+          "termination": null
+        },
+        {
+          "id": "malformed-command-receipt",
+          "rejected": true,
+          "exitCode": 1,
+          "termination": null
+        },
+        {
+          "id": "alter-legacy-renderer-exception",
+          "rejected": true,
+          "exitCode": 1,
+          "termination": null
+        },
+        {
+          "id": "alter-source-cut-metadata",
+          "rejected": true,
+          "exitCode": 1,
+          "termination": null
+        },
+        {
+          "id": "alter-dependency-contract",
+          "rejected": true,
+          "exitCode": 1,
+          "termination": null
+        }
+      ]
+    }
+  ],
+  "originalEvidence": "Original entries were moved aside on the same filesystem, disposable copies were mutated, and original entries restored in finally. The first attempt failed before mutation because /tmp was another filesystem; its FAIL receipt is retained."
+}

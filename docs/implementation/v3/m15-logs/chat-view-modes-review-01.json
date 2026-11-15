@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "node",
+    "--import",
+    "tsx",
+    "scripts/test-browser.ts",
+    "--suite",
+    "chat-view-modes"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-15T22:00:59.221Z",
+  "endedAt": "2026-11-15T22:04:03.938Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/chat-view-modes-review-01.log",
+  "logDigest": "4398c82d4a63fcf09d72a08e15018e0acc65581fde529195e56e538066068721"
+}
