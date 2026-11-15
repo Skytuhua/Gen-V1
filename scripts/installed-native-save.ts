@@ -102,6 +102,13 @@ using Microsoft.Win32.SafeHandles;
 public static class NativeSaveWindowOwner {
   [DllImport("user32.dll")] static extern uint GetWindowThreadProcessId(IntPtr h, out uint p);
   public static uint Read(int h) { uint p; GetWindowThreadProcessId(new IntPtr(h), out p); return p; }
+  public delegate bool Visit(IntPtr h,IntPtr p);
+  [DllImport("user32.dll")] static extern bool EnumWindows(Visit visit,IntPtr p);
+  public static IntPtr[] Windows(uint p) {
+    var items=new List<IntPtr>();
+    if(!EnumWindows((h,x)=>{uint q;GetWindowThreadProcessId(h,out q);if(q==p)items.Add(h);return items.Count<=32;},IntPtr.Zero))throw new IOException("Window enumeration refused");
+    return items.ToArray();
+  }
 }
 public sealed class NativeSaveRootLease : IDisposable {
   [StructLayout(LayoutKind.Sequential)] struct Info {
@@ -166,11 +173,12 @@ public sealed class NativeSaveRootLease : IDisposable {
     if(Test-Path -LiteralPath $targetPath){Fail 'target-exists'}
   }
   function Find-Dialogs {
-    $condition=[System.Windows.Automation.AndCondition]::new([System.Windows.Automation.Condition[]]@(
-      [System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::ProcessIdProperty,$ownedPid),
-      [System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::NameProperty,'Export project memory'),
-      [System.Windows.Automation.PropertyCondition]::new([System.Windows.Automation.AutomationElement]::ControlTypeProperty,[System.Windows.Automation.ControlType]::Window)))
-    return ,([System.Windows.Automation.AutomationElement]::RootElement.FindAll([System.Windows.Automation.TreeScope]::Children,$condition))
+    $found=[Collections.ArrayList]::new()
+    foreach($handle in [NativeSaveWindowOwner]::Windows([uint32]$ownedPid)) {
+      try { $dialog=[System.Windows.Automation.AutomationElement]::FromHandle($handle);$info=$dialog.Current } catch { continue }
+      if($info.ProcessId -eq $ownedPid -and $info.Name -ceq 'Export project memory' -and $info.ControlType -eq [System.Windows.Automation.ControlType]::Window){[void]$found.Add($dialog)}
+    }
+    return ,$found
   }
   function Check-Dialog($dialog) {
     Check-Owner

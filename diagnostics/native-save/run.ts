@@ -16,7 +16,7 @@ const mode = process.argv[2];
 if (process.platform !== 'win32' || (mode !== 'direct' && mode !== 'policy')) throw Error('This diagnostic requires Windows and an explicit direct or policy lane.');
 const repository = process.cwd(), sources = dirname(fileURLToPath(import.meta.url));
 const pins: Record<string, string> = {
-  'scripts/installed-native-save.ts': 'f7a8f9b91c682eede154123f5d341aa2a6a41e9aae49d1707d937c3790bb289d',
+  'scripts/installed-native-save.ts': '26073e70a236860de8ec3359961d8048b6d3d5c969ab741c9fb69fb23fdb5741',
   'apps/desktop/memory-export.ts': '6c61d0724d67e5afd165c923a64626add408a41e174b9e929c0775b34ed430e9',
   'packages/contracts/project-memory.ts': 'c091c003e0cefb56313bf684bebbf5aaf3100b432649a76c2579ac7706e155c9',
   'packages/core/memory-publication.ts': 'c7b875cea7c3b30bdacad9bd1ec7c29851a6c154bce2126bcd15927175db6711',
@@ -29,9 +29,9 @@ const output = resolve('.harness-native-save-diagnostic', mode);
 await mkdir(dirname(output), {recursive: true}); await mkdir(output);
 const root = await realpath(await mkdtemp(join(tmpdir(), 'm05-native-save-' + mode + '-')));
 const nonce = randomBytes(24).toString('hex');
-const receipt: Record<string, unknown> = {version: 1, mode, createdAt: new Date().toISOString(), sourceHead: '013c044d66f40136752df4f1903132d601d57851',
-  scope: mode === 'direct' ? 'Direct native Save and exact unchanged helper; not production export admission.' : 'Exact production memory export policy and exact unchanged native Save helper with a synthetic loopback fixture; not installed retention proof.',
-  nativeHelperChanged: false, savePathBypass: false, providerOrAccountCodeLoaded: false, fixture: true, passed: false, sourceHashes: {}, cleanup: {}};
+const receipt: Record<string, unknown> = {version: 1, mode, createdAt: new Date().toISOString(), sourceBaseSha: '013c044d66f40136752df4f1903132d601d57851',
+  scope: mode === 'direct' ? 'Direct native Save and reviewed helper; not production export admission.' : 'Exact production memory export policy and reviewed native Save helper with a synthetic loopback fixture; not installed retention proof.',
+  nativeHelperChanged: true, nativeHelperBaselineSha256: 'f7a8f9b91c682eede154123f5d341aa2a6a41e9aae49d1707d937c3790bb289d', savePathBypass: false, providerOrAccountCodeLoaded: false, fixture: true, passed: false, sourceHashes: {}, cleanup: {}};
 let fixture: ChildProcess | undefined, observer: ChildProcess | undefined, browser: Browser | undefined;
 let origin = '', documentUrl = '', stage = 'source-custody';
 let ready: {origin: string; documentUrl: string; pid: number; electron: string} | undefined;
@@ -144,7 +144,7 @@ try {
   if (!observerOutput.includes('\n')) throw Error('Owned window observer did not produce its baseline.');
   const initial = JSON.parse(observerOutput.split(/\r?\n/)[0]!);
   if (initial.phase !== 'snapshot' || initial.pid !== fixture.pid || initial.windows.some((item: {titleKind: string}) => item.titleKind === 'expected-export')) throw Error('Owned window baseline was not clean.');
-  stage = 'native-save-through-unchanged-helper';
+  stage = 'native-save-through-reviewed-helper';
   const target = await prepareInstalledNativeSave(root);
   receipt.fixtureBeforeTrigger = await state();
   try {
