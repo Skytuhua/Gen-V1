@@ -27,6 +27,8 @@ describe('WO-8 fixed semantic colors',()=>{
       expect(contrast(fg,bg),`${theme} ${name} mark`).toBeGreaterThanOrEqual(3);
     }
     expect(contrast(resolve('--text'),resolve('--accent-bg'))).toBeGreaterThanOrEqual(4.5);
+    // Neutral terminal states (ready/stopped/cancelled) use muted-on-subtle and stay readable.
+    expect(contrast(resolve('--muted'),resolve('--subtle')),`${theme} neutral status text`).toBeGreaterThanOrEqual(4.5);
     // Fixed semantic pairs must not inherit a user-selected project accent.
     tokens['--accent']='#ffffff';expect(resolve('--accent-fg')).toBe(pairs.accent[0]);
   });
