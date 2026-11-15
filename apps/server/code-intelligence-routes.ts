@@ -12,11 +12,13 @@ import {
 } from '../../packages/core/code-intelligence.ts';
 import { EditPreviewRegistry } from '../../packages/core/edit-preview.ts';
 import { DebugRegistry, type DebugAdapter } from '../../packages/core/debug-session.ts';
-import type { ExecutionBackend } from '../../packages/core/execution-policy.ts';
+import { selectBackend, type ExecutionBackend } from '../../packages/core/execution-policy.ts';
 import { hostFlagEnabled, type RegisteredHostFlag } from '../../packages/core/host-flags.ts';
 import { ProjectVerificationService } from '../../packages/core/project-verification.ts';
 import type { CheckObservationV1 } from '../../packages/contracts/verification.ts';
-import type { ToolOwner } from '../../packages/contracts/tool-effects.ts';
+import { approvalSchema, type ApprovalV1, type ToolOwner } from '../../packages/contracts/tool-effects.ts';
+import { renamePlanV1Schema } from '../../packages/contracts/code-intelligence.ts';
+import { digest } from '../../packages/storage/store.ts';
 import { randomUUID } from 'node:crypto';
 
 const identifier = z.string().regex(/^[a-zA-Z0-9:_.-]{1,200}$/);
@@ -49,7 +51,7 @@ export function languageServerDescriptor(language: string): LanguageServerDescri
   if (!executable) throw new HarnessError('UNSUPPORTED', `The approved ${language} language server is not installed on this host.`);
   let configDigest: string;
   try { configDigest = sha(readFileSync(executable)); }
-  catch { configDigest = sha(executable); }
+  catch { throw new HarnessError('UNSUPPORTED', `The approved ${language} language server binary is unreadable on this host.`); }
   return { language, executable, argv: approved.argv, configDigest };
 }
 
@@ -71,8 +73,16 @@ export function registerCodeIntelligenceRoutes(app: FastifyInstance, service: Se
   const projects = workspaceHost(service).projects;
   const env = options.env ?? process.env;
   const gate = (flag: Extract<RegisteredHostFlag, `coding.${string}`>) => requireCodeIntelligenceFlag(flag, env);
+  // A real language server only launches under the project execution profile:
+  // an installed, approved backend with a PASS platform proof. An injected
+  // adapterFactory is a test seam and bypasses this gate.
+  const requireProvenBackend = () => {
+    const selection = selectBackend(options.approvedBackendId, options.backends ?? []);
+    if (selection.status !== 'SELECTED' || !selection.backend?.proof || selection.backend.proof.status !== 'PASS')
+      throw new HarnessError('UNSUPPORTED', 'Code intelligence requires an installed, approved backend with a PASS platform proof.');
+  };
   const intelligence = new CodeIntelligence(
-    options.adapterFactory ?? ((descriptor, root) => new StdioLspAdapter(descriptor, root)));
+    options.adapterFactory ?? ((descriptor, root) => { requireProvenBackend(); return new StdioLspAdapter(descriptor, root); }));
   const previews = new EditPreviewRegistry();
   const debug = options.debugAdapterFor
     ? new DebugRegistry(options.backends ?? [], options.approvedBackendId ?? '', options.debugAdapterFor)
@@ -95,6 +105,25 @@ export function registerCodeIntelligenceRoutes(app: FastifyInstance, service: Se
   });
   const advisoryRecipeDigest = (tool: string, language?: string) => sha(JSON.stringify({ kind: 'code-intelligence-advisory', tool, language }));
   const advisoryEnvironment = () => `${process.platform}/${process.version}`;
+
+  /** Consume a stored M02 exact approval whose actionCommitment binds this
+   * operation's digest — single-use, owner-bound, expiry-checked, verified
+   * inside a store transaction. A plan or recipe the caller merely supplies
+   * cannot satisfy this. */
+  const consumeApproval = (owner: ToolOwner, approvalId: string, commitment: string) => {
+    service.store.internal('code-intelligence.approval.consumed', owner.threadId, () => {
+      let approval: ApprovalV1;
+      try { approval = approvalSchema.parse(service.store.get('approval', approvalId)); }
+      catch { throw new HarnessError('APPROVAL_REQUIRED', 'The approval is unavailable or malformed.'); }
+      if (approval.owner.threadId !== owner.threadId)
+        throw new HarnessError('APPROVAL_REQUIRED', 'The approval belongs to another owner.');
+      if (approval.remainingUses < 1 || approval.expiresAt <= new Date().toISOString())
+        throw new HarnessError('APPROVAL_REQUIRED', 'The approval expired or was already consumed.');
+      if (approval.actionCommitment !== commitment)
+        throw new HarnessError('APPROVAL_REQUIRED', 'The approval does not bind this operation; approve the current input again.');
+      service.store.put('approval', approvalId, approval.owner.threadId, { ...approval, remainingUses: 0 });
+    });
+  };
 
   const binding = async (projectId: string, threadId?: string) => {
     const bound = await projects.binding(projectId, threadId);
@@ -126,7 +155,7 @@ export function registerCodeIntelligenceRoutes(app: FastifyInstance, service: Se
     command: z.enum(['plan', 'apply', 'recover']),
   });
   const debugSchema = z.strictObject({
-    threadId: identifier.optional(), sessionId: z.string().max(128).optional(),
+    threadId: identifier.optional(), sessionId: z.string().max(128).optional(), approvalId: z.string().min(1).max(256).optional(),
     recipe: z.strictObject({ recipeId: z.string().min(1).max(256), executableDigest: z.string().regex(/^[a-f0-9]{64}$/), confinementProfile: z.string().min(1).max(256) }).optional(),
     command: z.string().min(1).max(64), args: z.record(z.string(), z.unknown()).optional(),
   });
@@ -153,7 +182,7 @@ export function registerCodeIntelligenceRoutes(app: FastifyInstance, service: Se
         dependencyDigest: descriptor.configDigest, recipeDigest: advisoryRecipeDigest('diagnostics', input.language),
         environmentId: advisoryEnvironment(), argv: [descriptor.executable, ...descriptor.argv], cwdIdentity: bound.root,
         phase: 'BUILD', startedAt, endedAt: new Date().toISOString(), exitCode: null,
-        outcome: result.baselineStatus === 'UNAVAILABLE' ? 'UNKNOWN' : errors > 0 ? 'FAIL' : 'PASS',
+        outcome: errors > 0 ? 'FAIL' : result.baselineStatus === 'UNAVAILABLE' ? 'UNKNOWN' : 'PASS',
         artifactRefs: [],
         detail: `diagnostics=${result.diagnostics.length} errors=${errors} state=${result.state} baseline=${result.baselineStatus}`.slice(0, 2000),
       });
@@ -221,11 +250,16 @@ export function registerCodeIntelligenceRoutes(app: FastifyInstance, service: Se
           });
         case 'apply': {
           if (!input.plan) throw new HarnessError('INVALID_INPUT', 'Apply requires the reviewed plan.');
-          return intelligence.applyRename({ plan: input.plan as never, approvalId: input.approvalId, journalRoot, grantedRoots: [bound.root], signal: signal() });
+          const plan = renamePlanV1Schema.parse(input.plan);
+          if (plan.exactApprovalId !== input.approvalId)
+            throw new HarnessError('APPROVAL_REQUIRED', 'The supplied approval does not match the approved plan.');
+          consumeApproval(advisoryOwner(projectId, input.threadId, bound), input.approvalId,
+            digest({ kind: 'code-intelligence.rename.apply', planDigest: digest(plan), workspaceIdentity: bound.workspaceIdentity }));
+          return intelligence.applyRename({ plan, approvalId: input.approvalId, journalRoot, grantedRoots: [bound.root], signal: signal() });
         }
         case 'recover': {
           if (!input.planId) throw new HarnessError('INVALID_INPUT', 'Recover requires a planId.');
-          return intelligence.recoverRename({ journalRoot, planId: input.planId, signal: signal() });
+          return intelligence.recoverRename({ journalRoot, planId: input.planId, grantedRoots: [bound.root], signal: signal() });
         }
       }
     });
@@ -245,7 +279,10 @@ export function registerCodeIntelligenceRoutes(app: FastifyInstance, service: Se
           outcome, artifactRefs: [], detail: detail.slice(0, 2000),
         });
       if (input.command === 'launch') {
-        if (!input.recipe) throw new HarnessError('INVALID_INPUT', 'Launch requires the approved recipe.');
+        if (!input.recipe || !input.approvalId) throw new HarnessError('INVALID_INPUT', 'Launch requires the approved recipe and its approval.');
+        const bound = await binding(projectId, input.threadId);
+        consumeApproval(advisoryOwner(projectId, input.threadId, bound), input.approvalId,
+          digest({ kind: 'code-intelligence.debug.launch', recipeDigest: digest(input.recipe), workspaceIdentity: bound.workspaceIdentity }));
         const launched = await debug.launch({ owner, recipe: input.recipe, signal: signal() });
         feedDebug('launch', launched.state === 'UNKNOWN' ? 'UNKNOWN' : 'PASS', `debug launch recipe=${input.recipe.recipeId} state=${launched.state}`);
         return launched;
