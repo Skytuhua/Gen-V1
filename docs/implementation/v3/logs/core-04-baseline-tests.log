@@ -1,0 +1,22 @@
+argv: ["C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe","C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js","exec","vitest","run","tests/research-baseline.test.ts"]
+cwd: C:\Users\Administrator\repos\Gen-V1-m01
+termination: NONE
+exitCode: 0
+--- stdout ---
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90mC:/Users/Administrator/repos/Gen-V1-m01[39m
+
+ [32m✓[39m tests/research-baseline.test.ts [2m([22m[2m25 tests[22m[2m)[22m[33m 2795[2mms[22m[39m
+     [33m[2m✓[22m[39m times out a hung child and kills its process tree [33m 1588[2mms[22m[39m
+     [33m[2m✓[22m[39m reproduce identical control actions and effect counts per fixed seed [33m 457[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m25 passed[39m[22m[90m (25)[39m
+[2m   Start at [22m 22:42:28
+[2m   Duration [22m 3.17s[2m (transform 115ms, setup 0ms, import 202ms, tests 2.80s, environment 0ms)[22m
+
+
+--- stderr ---
+fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+fatal: Not a valid commit name bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'

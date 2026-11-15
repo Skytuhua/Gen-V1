@@ -1,93 +1,214 @@
 {
-  "milestone": "M02",
-  "branch": "agent/m02-v3",
-  "status": "PARTIAL",
-  "sourceLock": {
-    "baseSha": "055007ff9ab43fc24cfbc0af76b0b4cea3db473d",
-    "headSha": "8ddf378",
-    "auditAncestor": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
-    "worktreeRoot": "C:/Users/Administrator/repos/Gen-V1-m02",
-    "recordedAt": "2026-11-14T22:30:00-08:00"
-  },
-  "commands": [
+  "schemaVersion": 3,
+  "bundleId": "M02",
+  "baseSha": "055007ff9ab43fc24cfbc0af76b0b4cea3db473d",
+  "sourceLockDigest": "82c7fb4f0518f37873ab8bc557bbea1acc91e419c91fa5a2657b532e712fde3a",
+  "platform": "linux-x86_64",
+  "nodeVersion": "v24.22.1",
+  "packageManagerVersion": "10.30.3",
+  "phases": [
     {
-      "command": "pnpm exec vitest run tests/tool-effects-v3.test.ts",
-      "exitCode": 0,
-      "stdoutDigest": "13 tests passed",
-      "startedAt": "2026-11-14T23:30:00-08:00",
-      "durationMs": 3200
+      "id": "core.m01-m02-shared-contracts",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "research-baseline",
+          "status": "PASS"
+        },
+        {
+          "id": "regression-selection",
+          "status": "PASS"
+        },
+        {
+          "id": "tool-authority",
+          "status": "PASS"
+        },
+        {
+          "id": "tool-effects",
+          "status": "PASS"
+        },
+        {
+          "id": "effect-recovery",
+          "status": "PASS"
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/research-baseline.test.ts",
+            "tests/regression-selection.test.ts",
+            "tests/tool-authority-v3.test.ts",
+            "tests/tool-effects-v3.test.ts",
+            "tests/effect-recovery-v3.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "isolated M01/M02 reconciliation checkout",
+          "executableIdentity": "Node v24.22.1; locked pnpm 10.30.3 dependencies",
+          "startedAt": "2026-11-14T23:52:40Z",
+          "endedAt": "2026-11-14T23:52:46Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m02-reconcile-logs/core.txt",
+          "logDigest": "3af36a9ee9312a05700a1033b5e50285f4ea08387d3fe46372c29dde42395c49"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v3/m02-reconcile-logs/core.txt"
+      ]
     },
     {
-      "command": "pnpm exec vitest run tests/tool-authority-v3.test.ts",
-      "exitCode": 0,
-      "stdoutDigest": "6 tests passed (allowlist enforcement, risk classification, INTERNAL_BINDINGS, issuer/expiry/commitment mutation denies, revoke, epoch check)",
-      "startedAt": "2026-11-14T23:30:00-08:00",
-      "durationMs": 1900
+      "id": "integration.static-verification",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "typecheck",
+          "status": "PASS"
+        },
+        {
+          "id": "ui-guard",
+          "status": "PASS"
+        },
+        {
+          "id": "production-build",
+          "status": "PASS"
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "node",
+            "node_modules/typescript/bin/tsc",
+            "--noEmit"
+          ],
+          "cwdIdentity": "isolated M01/M02 reconciliation checkout",
+          "executableIdentity": "Node v24.22.1; locked pnpm 10.30.3 dependencies",
+          "startedAt": "2026-11-14T23:52:20Z",
+          "endedAt": "2026-11-14T23:52:56Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m02-reconcile-logs/typecheck.txt",
+          "logDigest": "8a0cf2ec20daa46c74e492cadb42b38b2649a96bd30b256de9c16f2e66b5c435"
+        },
+        {
+          "argv": [
+            "node",
+            "--import",
+            "tsx",
+            "scripts/lint-ui.ts",
+            "--check"
+          ],
+          "cwdIdentity": "isolated M01/M02 reconciliation checkout",
+          "executableIdentity": "Node v24.22.1; locked pnpm 10.30.3 dependencies",
+          "startedAt": "2026-11-14T23:52:20Z",
+          "endedAt": "2026-11-14T23:52:47Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m02-reconcile-logs/lint.txt",
+          "logDigest": "6270f5c09bfc65361da28b3d3deedbec46ae498db8b8fa3084d209042a28cf3c"
+        },
+        {
+          "argv": [
+            "corepack",
+            "pnpm",
+            "build"
+          ],
+          "cwdIdentity": "isolated M01/M02 reconciliation checkout",
+          "executableIdentity": "Node v24.22.1; locked pnpm 10.30.3 dependencies",
+          "startedAt": "2026-11-14T23:52:20Z",
+          "endedAt": "2026-11-14T23:52:32Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m02-reconcile-logs/build.txt",
+          "logDigest": "c6a2b8b18de112e9f8e75bbc98be7efb8e4a9f6ae0e3ec09df5ce8bcf6b0e196"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v3/m02-reconcile-logs/typecheck.txt",
+        "docs/implementation/v3/m02-reconcile-logs/lint.txt",
+        "docs/implementation/v3/m02-reconcile-logs/build.txt"
+      ]
     },
     {
-      "command": "pnpm exec vitest run tests/effect-recovery-v3.test.ts",
-      "exitCode": 0,
-      "stdoutDigest": "10 tests passed",
-      "startedAt": "2026-11-14T23:30:00-08:00",
-      "durationMs": 2100
+      "id": "integration.full-runtime",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "combined-full-application-regression",
+          "status": "NOT_RUN"
+        }
+      ],
+      "commands": [],
+      "artifactRefs": []
     },
     {
-      "command": "pnpm typecheck",
-      "exitCode": 0,
-      "stdoutDigest": "tsc --noEmit clean",
-      "startedAt": "2026-11-14T23:33:00-08:00",
-      "durationMs": 80000
-    },
-    {
-      "command": "pnpm test",
-      "exitCode": 1,
-      "stdoutDigest": "2967 passed, 63 failed, 92 skipped of 3122; build:credential-lease cannot run (no Visual Studio C++ Build Tools); playwright browsers absent at run time; remaining failures are environment-bound (missing .harness-integrations-python-deps, node-pty AttachConsole, filesystem guards, 60s timeouts on real git/fs work)",
-      "startedAt": "2026-11-14T22:10:03-08:00",
-      "durationMs": 821690
-    },
-    {
-      "command": "pnpm exec vitest run tests/public-source.test.ts tests/operation-queue.test.ts tests/operation-evidence.test.ts",
-      "exitCode": 0,
-      "stdoutDigest": "22 tests passed; unflagged operation approve/dispatch path unchanged",
-      "startedAt": "2026-11-14T22:24:50-08:00",
-      "durationMs": 4600
-    },
-    {
-      "command": "pnpm build",
-      "exitCode": 0,
-      "stdoutDigest": "build-widgets + build-plugin-runtime + vite build all produced dist output; the aggregate script's nested 'pnpm exec vite build' fails on this box because pnpm is not on PATH for shell:true children, so the vite step was run directly and succeeded",
-      "startedAt": "2026-11-14T22:20:00-08:00",
-      "durationMs": 12000
-    },
-    {
-      "command": "pnpm exec playwright test --config playwright.config.ts host-loop.spec.ts",
-      "exitCode": 1,
-      "stdoutDigest": "3 passed, 4 failed, 1 skipped; baseline worktree at 055007f fails 7 of 8 on the same spec, so all failures reproduce without M02 changes",
-      "startedAt": "2026-11-14T22:26:00-08:00",
-      "durationMs": 90000
+      "id": "platform.windows",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "exact-combined-windows-ci",
+          "status": "NOT_RUN"
+        }
+      ],
+      "commands": [],
+      "artifactRefs": []
     }
   ],
-  "flags": {
-    "audit.effectsV1": false,
-    "security.authorityV1": false
-  },
-  "dependencies": {
-    "M01": "PARTIAL \u00e2\u20ac\u201d implementation-evidence.ts and capability-flags.ts are vendored into this worktree because M01 has not landed on origin/main; the vendored copies are byte-compatible contract surfaces, not a substitute for the M01 milestone",
-    "windows-credential-lease native build": "BLOCKED \u00e2\u20ac\u201d Visual Studio C++ Build Tools absent on this host; pnpm test prerequisite step cannot run",
-    "integration python deps": "BLOCKED \u00e2\u20ac\u201d .harness-integrations-python-deps missing because install build scripts were skipped"
-  },
-  "notes": [
-    "Host remains the sole SQLite writer; ToolEffectLedger admits and consumes approvals inside one synchronous Store transaction and persists DISPATCHED before invoking the executor.",
-    "Dedupe coalesces only same owner plus exact argument commitment; any other reuse of an invocationId raises INVOCATION_CONFLICT.",
-    "Recovery marks DISPATCHED effects UNKNOWN_EXTERNAL_OUTCOME and never retries non-read effects; PREPARED effects are marked FAILED as interrupted.",
-    "Rollback path (disableEffects) marks outstanding effects uncertain and preserves consumed approvals; nothing replays pending writes.",
-    "audit.effectsV1 and security.authorityV1 are host-owned, default false, and absent from strict UI preferences.",
-    "Every tool entry point funnels through the ledger: Service.tool (Pi onTool, official MCP loopback, side runtime), PlanningCoordinator children via the observeTool hook ('planning_child' role), learning via the hooks wrap ('learning' role), and operation dispatch via admitOperationDispatch. The coverage table in tool-authority.ts names each funnel.",
-    "Hermes worker.py native skill_tool/shared_skill_tool execution is labeled COVERAGE_GAP; it is not host-observed and no all-tools-audited badge is shown. Plugin/integration sub-effects are COVERAGE_PARTIAL.",
-    "Approval commitment binds all effect-bearing arguments, executable identity, cwd, target revision and schema version (schemaDigest); the ActionDetails drawer shows the approval record (id, issuer, expiry, remainingUses) alongside the invocation when the flag is on.",
-    "UI presents UNKNOWN_EXTERNAL_OUTCOME as 'Inspect outcome'/'View evidence' with no generic Retry.",
-    "Archive-parent-during-running-child acceptance: late settlement is retained historically under the original owner while a new invocation under the revoked owner is denied AUTHORITY_DENIED and recorded DENIED.",
-    "public-source-files.json admits the new runtime, contract, server, test and manifest files; tests/public-source.test.ts passes.",
-    "No push, merge, deploy, force-update, reset, clean or stash was performed; the original checkout at C:/Users/Administrator/repos/Gen-V1 is untouched."
-  ]
+  "changedFiles": [
+    "packages/contracts/implementation-evidence.ts",
+    "packages/core/capability-flags.ts",
+    "packages/core/tool-effects.ts",
+    "packages/core/service.ts",
+    "tests/tool-authority-v3.test.ts",
+    "tests/tool-effects-v3.test.ts",
+    "tests/effect-recovery-v3.test.ts",
+    "tests/m01-m02-compatibility.test.ts",
+    "docs/implementation/v3/M02-source-lock.json",
+    "docs/implementation/v3/M02-verification.json",
+    "docs/implementation/v3/m02-reconcile-logs/core.txt",
+    "docs/implementation/v3/m02-reconcile-logs/typecheck.txt",
+    "docs/implementation/v3/m02-reconcile-logs/lint.txt",
+    "docs/implementation/v3/m02-reconcile-logs/build.txt"
+  ],
+  "dependencyContracts": [
+    {
+      "name": "M01.ImplementationEvidenceV3",
+      "version": "559b720ccead1d29c9a1bd4db528af52534105c3",
+      "testIds": [
+        "tests/research-baseline.test.ts",
+        "tests/m01-m02-compatibility.test.ts"
+      ]
+    },
+    {
+      "name": "M01.CapabilityFlags",
+      "version": "a45226df77eae1e58594609140252c1f93a985f6",
+      "testIds": [
+        "tests/tool-authority-v3.test.ts",
+        "tests/m01-m02-compatibility.test.ts"
+      ]
+    }
+  ],
+  "flags": [
+    {
+      "key": "audit.effectsV1",
+      "enabled": false
+    },
+    {
+      "key": "security.authorityV1",
+      "enabled": false
+    }
+  ],
+  "remainingGates": [
+    "M01 and M02 must be approved on an accepted base; the two reviewed PR inputs are not in main and acceptedDependencyCommits remains empty.",
+    "Run combined full application regression and native Windows CI; neither is proved by the standalone M02 workflow.",
+    "Retained original M02 evidence (including previous failures) at e8968996132413feee704cf0439294559eb16d8d:docs/implementation/v3/M02-verification.json. Hermes native hooks remain unobserved; plugin/integration sub-effects remain partial.",
+    "Do not activate either flag on this evidence."
+  ],
+  "reviewerApproval": false
 }
