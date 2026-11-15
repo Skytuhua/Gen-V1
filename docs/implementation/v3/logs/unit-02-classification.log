@@ -1,7 +1,0 @@
-argv: ["C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe","-e","const t=require('fs').readFileSync('docs/implementation/v3/logs/unit-01-full-suite.log','utf8');process.exit(/53 failed/.test(t)&&/Test Files/.test(t)?0:1)"]
-cwd: C:\Users\Administrator\repos\Gen-V1-m01
-termination: NONE
-exitCode: 0
---- stdout ---
-
---- stderr ---

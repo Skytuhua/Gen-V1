@@ -1,7 +1,0 @@
-argv: ["C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe","-e","const s=JSON.parse(require('fs').readFileSync('docs/implementation/v3/browser-root/results.json','utf8')).stats;process.exit(s.expected===83&&s.unexpected===29&&s.skipped===1?0:1)"]
-cwd: C:\Users\Administrator\repos\Gen-V1-m01
-termination: NONE
-exitCode: 0
---- stdout ---
-
---- stderr ---

@@ -1,8 +1,0 @@
-argv: ["C:\\Program Files\\Git\\cmd\\git.exe","rev-parse","origin/main"]
-cwd: C:\Users\Administrator\repos\Gen-V1-m01
-termination: NONE
-exitCode: 0
---- stdout ---
-055007ff9ab43fc24cfbc0af76b0b4cea3db473d
-
---- stderr ---

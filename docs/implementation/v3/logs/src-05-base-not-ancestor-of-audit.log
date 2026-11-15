@@ -1,7 +1,0 @@
-argv: ["C:\\Program Files\\Git\\cmd\\git.exe","merge-base","--is-ancestor","055007ff9ab43fc24cfbc0af76b0b4cea3db473d","a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54"]
-cwd: C:\Users\Administrator\repos\Gen-V1-m01
-termination: NONE
-exitCode: 1
---- stdout ---
-
---- stderr ---

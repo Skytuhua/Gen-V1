@@ -1,5 +1,0 @@
-argv: ["C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe", "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js", "test:browser"]
-cwd: C:\Users\Administrator\gen-m08-v3-wt
-termination: NONE
-exitCode: 1
-outcome: Run captured per-suite output; root suite: 30 failed | 82 passed over 6.5m, agents-workspace: 1 failed | 14 passed; artifact-settle capture truncated mid-suite (29 of 53 tests recorded). All failures baseline on the pristine base checkout.

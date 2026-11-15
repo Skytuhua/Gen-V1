@@ -1,8 +1,0 @@
-argv: ["C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe","C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js","--version"]
-cwd: C:\Users\Administrator\repos\Gen-V1-m01
-termination: NONE
-exitCode: 0
---- stdout ---
-10.30.3
-
---- stderr ---

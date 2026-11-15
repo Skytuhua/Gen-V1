@@ -1,0 +1,196 @@
+{
+  "schemaVersion": 1,
+  "kind": "M12_EXACT_LOCAL_HISTORY_ARCHIVE",
+  "createdAt": "2026-11-15T12:36:10.522018+00:00",
+  "sourceRepository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "acceptedBaseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+  "reviewedLocalHead": "d55433f2231597d0efe7515b187e237e11b7ac95",
+  "reviewedTreeSha": "7cafb5be7f88247b14b6224b716b74812137aa24",
+  "bundle": {
+    "fileName": "m12-reviewed-history.bundle",
+    "bytes": 1605429,
+    "sha256": "fda85983d78b16598160d72464e639cf9ed694c50f1ad8816917fe7b826b2bb3",
+    "gitBlobSha": "607d5d8208aea904b37bddbf5586a448a297dc94",
+    "prerequisite": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+    "advertisedRef": "refs/heads/agent/m12-v3"
+  },
+  "restoredCommitObjects": [
+    {
+      "commit": "c4a70f435531cc245aeac3231b8f1b4f21e5e0a0",
+      "commitObjectSha256": "841b0fa8388579d982b80393da84e67147263450cc7676e1db05560a2760a012",
+      "tree": "9822cbf81ff3d5eb2fce4e58dc130de04fb796b0",
+      "byteIdentical": true
+    },
+    {
+      "commit": "4fe2e778a0007c91c4455aff62e2e4d74646a8ab",
+      "commitObjectSha256": "f861a8415b6ff1dfdc966facb27b7a194c2f7e0c28c97910056421cc611265c6",
+      "tree": "04d37d8d4e4c971e5f953474a0da99bc94af5676",
+      "byteIdentical": true
+    },
+    {
+      "commit": "d55433f2231597d0efe7515b187e237e11b7ac95",
+      "commitObjectSha256": "381a316928cefb045fba1beb45cb9f06e6cea56f75191a599d592965e44858ab",
+      "tree": "7cafb5be7f88247b14b6224b716b74812137aa24",
+      "byteIdentical": true
+    }
+  ],
+  "restorationCommands": [
+    {
+      "argv": [
+        "git",
+        "bundle",
+        "create",
+        "/tmp/m12-reviewed-d55433f.bundle",
+        "fcaa52f7fcdc9f39420118a79f9a8250ba83c563..refs/heads/agent/m12-v3"
+      ],
+      "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+      "startedAt": "2026-11-15T12:36:07.537705+00:00",
+      "endedAt": "2026-11-15T12:36:07.969350+00:00",
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "bundle",
+        "verify",
+        "/tmp/m12-reviewed-d55433f.bundle"
+      ],
+      "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+      "startedAt": "2026-11-15T12:36:07.969376+00:00",
+      "endedAt": "2026-11-15T12:36:07.977200+00:00",
+      "exitCode": 0,
+      "stdout": "The bundle contains this ref:\nd55433f2231597d0efe7515b187e237e11b7ac95 refs/heads/agent/m12-v3\nThe bundle requires this ref:\nfcaa52f7fcdc9f39420118a79f9a8250ba83c563 \nThe bundle uses this hash algorithm: sha1\n",
+      "stderr": "/tmp/m12-reviewed-d55433f.bundle is okay\n"
+    },
+    {
+      "argv": [
+        "git",
+        "init",
+        "--bare",
+        "--initial-branch=main",
+        "/tmp/m12-bundle-proof-ofg0_5k4"
+      ],
+      "cwd": "/workspace/scratch/dbebe44a9817/m12-v3",
+      "startedAt": "2026-11-15T12:36:07.977441+00:00",
+      "endedAt": "2026-11-15T12:36:07.979331+00:00",
+      "exitCode": 0,
+      "stdout": "Initialized empty Git repository in /tmp/m12-bundle-proof-ofg0_5k4/\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "fetch",
+        "--no-tags",
+        "/workspace/scratch/dbebe44a9817/Gen-V1",
+        "fcaa52f7fcdc9f39420118a79f9a8250ba83c563:refs/heads/base-proof"
+      ],
+      "cwd": "/tmp/m12-bundle-proof-ofg0_5k4",
+      "startedAt": "2026-11-15T12:36:07.979386+00:00",
+      "endedAt": "2026-11-15T12:36:09.131284+00:00",
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "From /workspace/scratch/dbebe44a9817/Gen-V1\n * [new ref]         fcaa52f7fcdc9f39420118a79f9a8250ba83c563 -> base-proof\n"
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "-e",
+        "c4a70f435531cc245aeac3231b8f1b4f21e5e0a0^{commit}"
+      ],
+      "cwd": "/tmp/m12-bundle-proof-ofg0_5k4",
+      "exitCode": 128,
+      "purpose": "Confirm this original commit is absent before importing the bundle",
+      "stderr": "fatal: Not a valid object name c4a70f435531cc245aeac3231b8f1b4f21e5e0a0^{commit}\n"
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "-e",
+        "4fe2e778a0007c91c4455aff62e2e4d74646a8ab^{commit}"
+      ],
+      "cwd": "/tmp/m12-bundle-proof-ofg0_5k4",
+      "exitCode": 128,
+      "purpose": "Confirm this original commit is absent before importing the bundle",
+      "stderr": "fatal: Not a valid object name 4fe2e778a0007c91c4455aff62e2e4d74646a8ab^{commit}\n"
+    },
+    {
+      "argv": [
+        "git",
+        "cat-file",
+        "-e",
+        "d55433f2231597d0efe7515b187e237e11b7ac95^{commit}"
+      ],
+      "cwd": "/tmp/m12-bundle-proof-ofg0_5k4",
+      "exitCode": 128,
+      "purpose": "Confirm this original commit is absent before importing the bundle",
+      "stderr": "fatal: Not a valid object name d55433f2231597d0efe7515b187e237e11b7ac95^{commit}\n"
+    },
+    {
+      "argv": [
+        "git",
+        "bundle",
+        "verify",
+        "/tmp/m12-reviewed-d55433f.bundle"
+      ],
+      "cwd": "/tmp/m12-bundle-proof-ofg0_5k4",
+      "startedAt": "2026-11-15T12:36:09.135851+00:00",
+      "endedAt": "2026-11-15T12:36:09.138469+00:00",
+      "exitCode": 0,
+      "stdout": "The bundle contains this ref:\nd55433f2231597d0efe7515b187e237e11b7ac95 refs/heads/agent/m12-v3\nThe bundle requires this ref:\nfcaa52f7fcdc9f39420118a79f9a8250ba83c563 \nThe bundle uses this hash algorithm: sha1\n",
+      "stderr": "/tmp/m12-reviewed-d55433f.bundle is okay\n"
+    },
+    {
+      "argv": [
+        "git",
+        "bundle",
+        "unbundle",
+        "/tmp/m12-reviewed-d55433f.bundle"
+      ],
+      "cwd": "/tmp/m12-bundle-proof-ofg0_5k4",
+      "startedAt": "2026-11-15T12:36:09.138480+00:00",
+      "endedAt": "2026-11-15T12:36:09.234640+00:00",
+      "exitCode": 0,
+      "stdout": "d55433f2231597d0efe7515b187e237e11b7ac95 refs/heads/agent/m12-v3\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "fsck",
+        "--full",
+        "--no-reflogs"
+      ],
+      "cwd": "/tmp/m12-bundle-proof-ofg0_5k4",
+      "startedAt": "2026-11-15T12:36:09.248150+00:00",
+      "endedAt": "2026-11-15T12:36:10.521997+00:00",
+      "exitCode": 0,
+      "stdout": "dangling commit d55433f2231597d0efe7515b187e237e11b7ac95\n",
+      "stderr": "notice: HEAD points to an unborn branch (main)\n"
+    }
+  ],
+  "publicationTransportObservation": {
+    "standardGitPushExitCode": 128,
+    "canonicalGitPushExitCode": 128,
+    "message": "fatal: could not read Username for https://github.com: No such device or address",
+    "timing": "Observed in the live tool session before this manifest was created; no original start/end timestamps invented",
+    "connectorPermissions": "Repository metadata reports push permission; supported connector commit API cannot set original commit identity metadata"
+  },
+  "publicationPolicy": {
+    "featureTreeMustEqual": "7cafb5be7f88247b14b6224b716b74812137aa24",
+    "newApiCommitIdentityMustBeDisclosed": true,
+    "originalCheckoutModified": false,
+    "forcedRefUpdates": false,
+    "mergeOrDeployment": false
+  },
+  "limitations": [
+    "The bundle restores exact objects without updating refs.",
+    "The implementation evidence controller also checks its recorded worktree, original checkout, branch and origin; this is not a claim that an arbitrary fresh clone satisfies those environment assumptions.",
+    "A source-tree hash match proves identical file contents and modes, not identical commit metadata or successful global test gates."
+  ]
+}

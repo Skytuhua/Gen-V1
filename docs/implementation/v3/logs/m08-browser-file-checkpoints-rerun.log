@@ -1,9 +1,0 @@
-argv: ["C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe", "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js", "test:browser", "--suite", "file-checkpoints"]
-cwd: C:\Users\Administrator\gen-m08-v3-wt
-termination: NONE
-exitCode: 1
-outcome: 3 failed | 17 passed (21.2s); same caption assertions as the first run, baseline on pristine base.
-failures:
-  - tests\e2e\file-checkpoints.spec.ts:347:40 > QA r2: held list does not move the painted caption at 1440
-  - tests\e2e\file-checkpoints.spec.ts:347:40 > QA r2: held list does not move the painted caption at 1024
-  - tests\e2e\file-checkpoints.spec.ts:347:40 > QA r2: held list does not move the painted caption at 768

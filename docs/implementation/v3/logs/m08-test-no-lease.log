@@ -1,5 +1,0 @@
-argv: ["C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe", "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js", "test:no-lease"]
-cwd: C:\Users\Administrator\gen-m08-v3-wt
-termination: NONE
-exitCode: 1
-outcome: 21 test files failed | 295 passed | 2 skipped; 54 tests failed | 3191 passed | 53 skipped; 928.19s. Failures are environmental (no MSVC for the credential-lease build, absent model CLIs/engines/bundled Python graphs/desktop host) or documented Windows flakes, each reproduced identically on the pristine base checkout.

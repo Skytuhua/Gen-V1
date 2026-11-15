@@ -1,8 +1,0 @@
-argv: ["C:\\Program Files\\Git\\cmd\\git.exe","remote","get-url","origin"]
-cwd: C:\Users\Administrator\repos\Gen-V1-m01
-termination: NONE
-exitCode: 0
---- stdout ---
-https://github.com/Skytuhua/Gen-V1
-
---- stderr ---

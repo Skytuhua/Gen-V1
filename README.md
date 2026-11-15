@@ -1,146 +1,26 @@
-<div align="center">
+# Exact reviewed M12 history
 
-<p><strong>GEN V1 · WINDOWS PREVIEW</strong></p>
+This artifact preserves the original local M12 audit and implementation commit objects. The feature publication through the GitHub connector has the same reviewed file tree but separate commit metadata.
 
-# AI answers you can work with
+Accepted prerequisite: `fcaa52f7fcdc9f39420118a79f9a8250ba83c563`
 
-Ask for a study plan, a trip itinerary, or a comparison. Gen V1 puts a checklist, a set of options, or an interactive plan right in the conversation so you can start using it.
+Original local head: `d55433f2231597d0efe7515b187e237e11b7ac95`
 
-**[Watch the developer demo](docs/public/media/gen-v1-launch.mp4)** · **[Download the Windows preview](https://github.com/Skytuhua/Gen-V1/releases/tag/v0.6.1)** · **[Run from source](#run-from-source)**
+Reviewed tree: `7cafb5be7f88247b14b6224b716b74812137aa24`
 
-<a href="docs/public/media/gen-v1-launch.mp4"><img src="docs/public/media/launch-workspace.webp" width="100%" alt="Watch the launch video. Shown: Gen V1 with a branch graph and the result of a sample pull request merge."></a>
+Bundle SHA-256: `fda85983d78b16598160d72464e639cf9ed694c50f1ad8816917fe7b826b2bb3`
 
-</div>
+The bundle was verified and imported into a disposable repository that held only the accepted-base history. All three original commit objects and the reviewed final tree matched byte for byte. The original repository and refs were unchanged. See `manifest.json` for exact observed commands and exits.
 
-## See Gen in action
+## Restore the audit objects
 
-### Turn a deadline into a study plan
+Use a repository containing the accepted prerequisite commit. Verify the downloaded bundle SHA-256, then run:
 
-Ask for a checklist that fits 30 minutes a night. Check off the first sessions without copying the plan to another app.
-
-![The user sends a study request, Gen displays a four-day checklist, and the user checks two sessions](docs/public/media/launch-study-plan.gif)
-
-[Watch the study plan video](docs/public/media/launch-study-plan.mp4)
-
-### Choose a laptop without comparing three tabs
-
-Ask Gen to put sample laptops side by side. Sort by price, then by weight, and select the one you want to shortlist.
-
-![In Gen V1, the user sends a comparison request, sorts three laptops by price and weight, and selects a row](docs/public/media/launch-laptop-comparison.gif)
-
-[Watch the laptop comparison video](docs/public/media/launch-laptop-comparison.mp4)
-
-### Make a weekend plan, then change it
-
-Ask for a Saturday itinerary with a backup for rain. Open the backup to see the details, then ask Gen to move it to the morning in the same thread.
-
-[Watch the weekend itinerary video](docs/public/media/launch-weekend-trip.mp4) · [See the GIF](docs/public/media/launch-weekend-trip.gif)
-
-### Review and merge a pull request
-
-Start by asking what changed. Open a commit to inspect conflicting lines, follow the checks, and choose when to merge.
-
-[Watch the PR workflow](docs/public/media/launch-pr-review-workflow.mp4) · [See the GIF](docs/public/media/launch-pr-review-workflow.gif)
-
-### Pinpoint a failed CI check
-
-Search the build log, select the failed step, and open the compiler error right inside the conversation.
-
-[Watch the CI workflow](docs/public/media/launch-ci-log-workflow.mp4) · [See the GIF](docs/public/media/launch-ci-log-workflow.gif)
-
-These are recordings of the actual Gen browser interface using scripted responses and sample data. They are not live model runs. The PR workflow simulates check results and merging; nothing is sent to GitHub. [Transcripts, stills, and how to reproduce the recordings](docs/public/media/launch-demos.md).
-
-## What makes Gen different
-
-Gen combines **generative UI in the same thread, a local host that saves your progress, and a runtime that keeps each thread tied to the account you chose.** [See how that compares with other tools](docs/public/media/launch-demos.md#how-this-compares).
-
-- **Useful controls, not just a visual answer.** Gen renders typed tables, timelines, and review tools with the trusted component catalog. A selection or other supported edit belongs to the task, so it isn't lost in a screenshot or pasted transcript.
-- **A record of what actually happened.** The local host records accepted commands and keeps execution separate. Retried commands can return the same receipt, and interrupted work stays visible rather than being automatically repeated.
-- **One agent engine, multiple provider paths.** Gen runs the pinned Hermes engine locally and routes model calls to the thread's selected account. Gen does not silently rotate accounts or fall back to API-key billing. Model requests still go to the connected provider.
-- **The host owns consequential actions.** Model output can propose an action, but does not grant its own access. Resource grants, validation, and required approval remain host-controlled.
-
-[Architecture and recovery](docs/architecture.md) · [Provider support and limits](docs/subscription-connections.md) · [Plug-in API](docs/plugin-api.md)
-
-## Get started
-
-### Try the Windows preview
-
-**[Download v0.6.1 for Windows x64 →](https://github.com/Skytuhua/Gen-V1/releases/tag/v0.6.1)**
-
-The published download is an **unsigned prerelease**. Read its notes and compare the installer with `SHA256SUMS.txt` before running it. The source tree includes newer workspace and plug-in changes than the installer. The [demo notes](docs/public/media/launch-demos.md) identify which source was recorded.
-
-[Installation and provider sign-in](docs/public/getting-started.md) · [Release status and known limits](docs/public/release-notes.md)
-
-### Run from source
-
-Use **Windows x64**, **Node.js ≥ 24.10.0**, **pnpm 10.30.3** and **CPython 3.14 with pip**.
-
-```powershell
-git clone https://github.com/Skytuhua/Gen-V1.git
-cd Gen-V1
-pnpm install --frozen-lockfile
-pnpm build:credential-lease
-py -3.14 -m pip install --no-cache-dir --no-compile --target .harness-hermes-python-deps -r third-party/hermes-agent/runtime-requirements.txt
-pnpm desktop:dev
+```sh
+git bundle verify m12-reviewed-history.bundle
+git bundle unbundle m12-reviewed-history.bundle
 ```
 
-Protected credential evidence on Windows also requires Visual Studio C++ Build Tools to build the Node-API helper. Desktop packaging builds it automatically. Credential files must belong to the current user and grant access only to that user, SYSTEM and Administrators; the helper refuses broader access.
+Unbundling imports objects without updating branch refs. The original audit commits are required by the M12 evidence builder's committed-log custody checks. The controller also checks the recorded workspace, branch, origin and original checkout; this restoration does not make arbitrary fresh-clone validation equivalent to the recorded environment.
 
-For the browser interface, use `pnpm dev` and open `http://127.0.0.1:5173`. Open **Settings → Providers**, add an account and choose **Connect**, then refresh models and select an available model.
-
-Use the [development setup guide](docs/public/getting-started.md#develop-from-a-fresh-checkout) to create a separate data directory before sign-in and startup. See the [full setup reference](docs/getting-started.md) for runtime and packaging details. Repository access and use remain subject to [LICENSE](LICENSE).
-
-<details>
-<summary><strong>Current preview boundaries</strong></summary>
-
-- OpenAI has recorded live task verification. Other provider routes need their own entitlement and inference checks.
-- Installed upgrade/update acceptance, the broader generation-quality pilot and physical mixed-DPI/multi-monitor acceptance remain open.
-- On desktop, conversations can detach into pinned windows. Canvas panel detachment is unavailable; context and usage tools minimize within the workspace.
-- The composer can browse installed skills. Binding a selected skill to a new message is unavailable.
-- Gemini/Cursor native compaction, the separate OpenCode agent runtime and Meta/Muse access are unavailable.
-- Generated-code interfaces use opaque workers, validated messages and a termination watchdog. This is not a hard operating-system memory quota. Approved native runtimes and project tests execute with local-user privileges.
-- Existing installations retain the `GenerativeHarness` storage namespace for compatibility.
-
-Read [release status](docs/public/release-notes.md), [security and local data](SECURITY.md), and the [historical acceptance report](docs/2026-11-01-product-completion.md) for the scope behind these statements.
-
-</details>
-
-## Find your way
-
-| I want to… | Start here |
-| :--- | :--- |
-| Install Gen and connect an account | [Getting started](docs/public/getting-started.md) |
-| Explore what the workspace can do | [Feature tour](docs/public/features.md) |
-| Understand the current preview | [Release notes and limitations](docs/public/release-notes.md) |
-| Understand the host and recovery model | [Architecture](docs/architecture.md) |
-| Build a workspace extension | [Plug-in API](docs/plugin-api.md) |
-| Report a security issue privately | [Security policy](SECURITY.md) |
-| Make a useful contribution | [Contributor guide](CONTRIBUTING.md) |
-
-## Contribute to Gen
-
-Good contributions start with a clear problem. A reproducible bug, a better explanation, an accessibility improvement or a focused fix can all make Gen better.
-
-**[Read the contributor guide →](CONTRIBUTING.md)**
-
-[Report a bug](https://github.com/Skytuhua/Gen-V1/issues/new?template=bug_report.yml) · [Suggest a feature](https://github.com/Skytuhua/Gen-V1/issues/new?template=feature_request.yml) · [Improve the docs](https://github.com/Skytuhua/Gen-V1/issues/new?template=documentation.yml)
-
-Coordinate source changes with the maintainer before starting; the current first-party license does not grant general modification or redistribution rights. The guide explains setup, focused checks and what makes a pull request easy to review.
-
-### Contributors
-
-<a href="https://github.com/Skytuhua"><img src="https://avatars.githubusercontent.com/u/99881928?v=4&amp;s=64" width="56" height="56" alt="Skytuhua, Gen V1 creator and maintainer"></a>
-
-Created and maintained by [Skytuhua](https://github.com/Skytuhua). [View the contribution history →](https://github.com/Skytuhua/Gen-V1/graphs/contributors)
-
-## License and acknowledgments
-
-**Gen’s first-party source is proprietary and currently unlicensed for redistribution.** Source availability does not grant an open-source license. Read [LICENSE](LICENSE) before using or redistributing it.
-
-Gen builds on the work of [Nous Research Hermes Agent](third-party/hermes-agent/README.md) and identified [T3 Code](third-party/t3code/README.md) components, with retained source provenance and MIT notices. Other retained integrations and dependencies keep their own terms; see [third-party notices](THIRD_PARTY_NOTICES.md), [package.json](package.json) and [pnpm-lock.yaml](pnpm-lock.yaml).
-
-<div align="center">
-
-<sub>Gen V1 is an independent project. Provider names and marks belong to their respective owners.</sub>
-
-</div>
+The bundle and manifest are provenance artifacts. They do not enable features, change test outcomes, approve production execution or deploy the application.
