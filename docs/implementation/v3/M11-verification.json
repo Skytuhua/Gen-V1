@@ -168,7 +168,7 @@
         { "id": "foreground-status-labels", "status": "PASS", "evidence": "working status distinguishes Queued for account / Starting runtime / Generating / Running tool / Cleaning up / Compacting context" },
         { "id": "new-task-profile-picker", "status": "PASS", "evidence": "model picker shows 'Applies to new tasks' scope hint and 'Start new task with profile' action; existing conversation keeps its binding" },
         { "id": "browser-suites", "status": "PASS", "evidence": "usage-context 21/21 pass including a Requests-tab spec; usage-app-integration, model-picker, compact-model-picker and composer-press failures are byte-identical on the pristine main checkout (baseline/environmental)" },
-        { "id": "root-baseline-parity", "status": "PASS", "evidence": "root browser suite run on the worktree (79 suites, 59 failed) and on pristine base fcaa52f (79 suites, the same 58 failed): identical failure sets (environmental/baseline); the single extra failure (code-review-workspace) passed 57/57 on isolated re-run — verified flake, no browser regression attributable to M11" }
+        { "id": "root-baseline-parity", "status": "PASS", "evidence": "root browser suite run on the worktree (79 suites, 57 failed) and on pristine base fcaa52f (79 suites, the same 56 failed): identical failure sets (environmental/baseline); the single extra failure (code-review-workspace) passed 57/57 on isolated re-run — verified flake, no browser regression attributable to M11" }
       ],
       "commands": [
         {
@@ -205,7 +205,7 @@
           "termination": "NONE",
           "status": "BLOCKED",
           "boundedLogRef": "docs/implementation/v3/logs/m11-browser-root-baseline.log",
-          "logDigest": "612c29d80656f0074905ddda5e599bac612dab029e3ba77bc43c422fbc6e989f"
+          "logDigest": "59babbb0c8ed6a00de54d7982af8dc8c1353faa284a93bcbe53de591b8e5a098"
         }
       ],
       "artifactRefs": ["docs/implementation/v3/logs/m11-browser.log", "docs/implementation/v3/logs/m11-build.log", "docs/implementation/v3/logs/m11-browser-root-baseline.log"]
