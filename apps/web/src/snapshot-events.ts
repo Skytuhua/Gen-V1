@@ -22,5 +22,13 @@ export function applyRuntimeEvent(snapshot: Snapshot, event: WorkspaceEvent): Sn
     if (!usage || typeof usage !== 'object') return null;
     return { ...snapshot, seq: event.seq, usage: { ...snapshot.usage, [event.threadId]: usage } };
   }
+  if (event.type === 'runtime.model.observation') {
+    const observation = (result as { modelRequest?: { requestId?: string; owner?: { threadId?: string } } }).modelRequest;
+    if (!observation || observation.owner?.threadId !== event.threadId || typeof observation.requestId !== 'string') return null;
+    const requests = { ...(snapshot.modelRequests ?? {}) };
+    const list = (requests[event.threadId] ?? []).filter(item => item.requestId !== observation.requestId);
+    requests[event.threadId] = [...list, observation as never].slice(-64);
+    return { ...snapshot, seq: event.seq, modelRequests: requests };
+  }
   return null;
 }

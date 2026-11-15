@@ -1,0 +1,16 @@
+cmd: pnpm build
+[2m../../dist/web/[22m[36massets/ExplorationTools-BOYa3CUW.js                         [39m[1m[2m   21.96 kB[22m[1m[22m[2m │ gzip:   7.59 kB[22m
+[2m../../dist/web/[22m[36massets/SoftwareDevelopment-D8W8l2RZ.js                      [39m[1m[2m   24.49 kB[22m[1m[22m[2m │ gzip:   7.37 kB[22m
+[2m../../dist/web/[22m[36massets/DocumentPreview-CCD8juEK.js                          [39m[1m[2m   25.19 kB[22m[1m[22m[2m │ gzip:   9.54 kB[22m
+[2m../../dist/web/[22m[36massets/WorkObjects-d5nXX1qz.js                              [39m[1m[2m   28.16 kB[22m[1m[22m[2m │ gzip:   9.56 kB[22m
+[2m../../dist/web/[22m[36massets/Settings-rFId3Gn9.js                                 [39m[1m[2m   66.60 kB[22m[1m[22m[2m │ gzip:  20.67 kB[22m
+[2m../../dist/web/[22m[36massets/index-C9sWvGc0.js                                    [39m[1m[2m  194.76 kB[22m[1m[22m[2m │ gzip:  61.38 kB[22m
+[2m../../dist/web/[22m[36massets/xterm-B-qIQCd3.js                                    [39m[1m[2m  329.31 kB[22m[1m[22m[2m │ gzip:  83.04 kB[22m
+[2m../../dist/web/[22m[36massets/pdf-CL8ynlU4.js                                      [39m[1m[2m  495.58 kB[22m[1m[22m[2m │ gzip: 151.29 kB[22m
+[2m../../dist/web/[22m[36massets/DesktopEntry-DTDAD6YL.js                             [39m[1m[33m1,122.66 kB[39m[22m[2m │ gzip: 347.58 kB[22m
+[33m
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.[39m
+[32m✓ built in 6.36s[39m

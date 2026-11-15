@@ -65,7 +65,18 @@ export type M04CoreFlagKey = (typeof M04_CORE_FLAG_KEYS)[number];
 export const M09_FLAG_KEYS = ["agents.workV1"] as const;
 export type M09FlagKey = (typeof M09_FLAG_KEYS)[number];
 
-export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M04CoreFlagKey | M09FlagKey;
+// M11 flag set: model transport. Instrumentation ships on; the optimizer
+// surfaces each stay behind its own key until paired cold/repeated evidence,
+// account isolation and cancellation tests pass.
+export const M11_FLAG_KEYS = [
+  "models.requestMetricsV1",
+  "models.publicStreamingV1",
+  "models.statelessPoolExperimentV1",
+  "models.newTaskProfilesV1",
+] as const;
+export type M11FlagKey = (typeof M11_FLAG_KEYS)[number];
+
+export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M04CoreFlagKey | M09FlagKey | M11FlagKey;
 
 const hostFlags = createCapabilityFlags<CapabilityFlagKey>([
   { key: "context.compilerV1", owner: "m04-core", description: "Host-issued immutable request preparation and measured context receipts." },
@@ -76,6 +87,10 @@ const hostFlags = createCapabilityFlags<CapabilityFlagKey>([
   { key: "workspace.restoreV1", owner: "m08", description: "Reviewed restore protocol with pre-restore checkpoint and per-file preimage checks." },
   { key: "workspace.writeDelegateV1", owner: "m08", description: "Write-capable child worktrees gated by the M03 child profile and an M02 approval." },
   { key: "agents.workV1", owner: "m09", description: "Typed multi-agent work admission: role-gated child dispatch, ordered inputs, budget reservation and verified outputs." },
+  { key: "models.requestMetricsV1", owner: "m11", description: "Publish measured per-request observations into the thread Usage dialog." },
+  { key: "models.publicStreamingV1", owner: "m11", description: "Public streaming via a typed parser-approved delta channel; off until a real source parser integration exists." },
+  { key: "models.statelessPoolExperimentV1", owner: "m11", description: "Warm stateless transport reuse experiment; off until adapter proof and paired evidence." },
+  { key: "models.newTaskProfilesV1", owner: "m11", description: "Operator-approved static task-role routing applied only at new-task creation." },
 ]);
 
 export function capabilityEnabled(key: CapabilityFlagKey): boolean {
