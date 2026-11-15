@@ -248,7 +248,7 @@ describe('escalation, budget and authority', () => {
     const childRun = {threadId: work.childOwner.threadId, runId: work.childOwner.runId!, epoch: work.childOwner.epoch};
     const result = await f.coordinator.invokeTool(work.workId, childRun, {name: 'repository_read', args: {grantId: f.grants[0].id, path: 'a.txt'}});
     expect(result).toEqual({bytes: 4});
-    expect(resolver).toHaveBeenCalledWith(expect.objectContaining({id: f.grants[0].id, writable: false}), false, {name: 'repository_read', args: {grantId: f.grants[0].id, path: 'a.txt'}});
+    expect(resolver).toHaveBeenCalledWith(expect.objectContaining({id: f.grants[0].id, writable: false}), false, {name: 'repository_read', args: {grantId: f.grants[0].id, path: 'a.txt', resourceId: f.grants[0].id}});
     await expect(f.coordinator.invokeTool(work.workId, childRun, {name: 'repository_read', args: {grantId: f.grants[0].id, path: 'a.txt', write: true}})).rejects.toMatchObject({code: 'AGENT_TOOL_DENIED'});
     expect(resolver).toHaveBeenCalledTimes(1);
   });

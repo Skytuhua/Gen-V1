@@ -120,7 +120,6 @@ export class Service {
     this.agentWork=new AgentWorkCoordinator({store,assertRun:ctx=>this.assertRun(ctx),isEnabled:capabilityEnabled,
       resourceResolver:async(_grant,_write,call)=>{const domain=await import('../capabilities/index.ts');return domain.handleDomainTool(call.name,call.args,this.agentReadDomain(_grant.threadId));},
       runtimeFactory:options.agentWorkRuntimeFactory});
-    this.agentWork.recover();
     runtime.configure({ onEvent: event => this.onRuntimeEvent(event), onTool: (call, ctx) => this.tool(call, ctx) });
     this.sideRuntime=new SideRuntime(options.sideRuntimeFactory??(()=>import('../runtime/index.ts').then(({createRuntime})=>createRuntime({dataDir:store.dataDir,accounts:accountResolver(store)}))),{onEvent:event=>this.onRuntimeEvent(event),onTool:(call,ctx)=>this.tool(call,ctx)});
     this.learningSupported=Boolean(options.source||options.learningRuntimeFactory);
@@ -401,9 +400,9 @@ export class Service {
   }
   private async agentWorkCommand(ctx: RunContext, command: HostCommand): Promise<CommandReceipt> {
     const p = command.payload;
-    // The durable command id dedupes retries; each op also carries its own
-    // durable ids (inputId/dedupeKey, workId, messageId).
-    const receipt = this.store.command(command, () => ({ accepted: true }));
+    // Execute first, then record the receipt: a crash before the receipt
+    // leaves the command retryable; the durable ids (inputId/dedupeKey,
+    // workId, messageId) dedupe a retried op itself.
     const run = async (): Promise<unknown> => {
       switch (command.type) {
         case 'agentWork.input':
@@ -430,7 +429,8 @@ export class Service {
         default: throw new HarnessError('UNKNOWN_CAPABILITY', 'Unknown agent work command');
       }
     };
-    return { ...receipt, result: await run() };
+    const result = await run();
+    return this.store.command(command, () => result);
   }
   private context(threadId: string, signal?: AbortSignal, operationId?: string, authority?: RunContext, completedWrite?:(evidence:{path:string;sha256:string;bytes:number})=>void, preWrite?:(evidence:{path:string;bytes:Uint8Array;sha256:string})=>Promise<void>) {
     const assertAuthority = () => { if (authority) this.assertRun(authority); };
@@ -569,10 +569,11 @@ export class Service {
       const ctx = !thread.runId&&pending?pending.ctx:{ threadId: thread.id, runId: thread.runId ?? "", epoch: thread.epoch };
       const receipt = this.store.command(command, () => { this.planning.endRun(ctx,'cancelled'); this.failUnansweredDetails(ctx,"The explanation was stopped. Resume the task to retry."); this.store.put("thread", thread.id, thread.id, { ...thread, epoch: thread.epoch + 1, runId: null, status: "stopped", updatedAt: now() }); return { stopped: true,nativeOwner:ctx }; });
       this.aborts.get(thread.id)?.abort();
-      // M09: revoking dispatch first, then cancelling children, is part of
-      // teardown — never let a stopped parent leave live child work behind.
-      await this.agentWork.revokeForParent(thread.id).catch(() => {});
-      await this.cancelRun(ctx,!!thread.sideParentId); return receipt;
+      // Register the native teardown first — a racing resume must still see
+      // RUN_BUSY — then revoke child work so no stopped parent leaves live
+      // dispatch behind.
+      await this.cancelRun(ctx,!!thread.sideParentId);
+      await this.agentWork.revokeForParent(thread.id).catch(() => {}); return receipt;
     }
     if (command.type === "run.resume") return this.resume(command, thread);
     if (command.type === "operation.reconcile") {
@@ -1321,12 +1322,15 @@ export class Service {
       return { inferenceCalls: 0 };
     });
     if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1")) recoverEffects(this.store);
+    // M09 recovery runs after the listeners bind (service.recover is called
+    // post-listen in launchHost) so a failed launch never mutates saved work.
+    this.agentWork.recover();
   }
   async dispose(): Promise<void> {
     for(const key of [...this.deltaBuffers.keys()])this.flushDelta(key);
     this.closed=true;clearInterval(this.curatorTimer);for(const controller of this.aborts.values())controller.abort();
     for(const controller of this.researchAborts)controller.abort();
-    const settled=await Promise.allSettled([this.predictions.dispose(),this.learning.dispose(),this.planning.dispose(),this.sideRuntime.dispose(),this.runtime.dispose()]);
+    const settled=await Promise.allSettled([this.agentWork.dispose(),this.predictions.dispose(),this.learning.dispose(),this.planning.dispose(),this.sideRuntime.dispose(),this.runtime.dispose()]);
     await Promise.allSettled([...this.pending]);
     const failures=settled.flatMap(result=>result.status==='rejected'?[result.reason]:[]);if(failures.length)throw new AggregateError(failures,'Could not close every workspace runtime.');
   }

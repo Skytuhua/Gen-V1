@@ -255,7 +255,7 @@ export class AgentWorkCoordinator {
       if (state === 'FAILED') ledger.failed += 1; else if (state === 'CANCELLED') ledger.cancelled += 1; else ledger.interrupted += 1;
       this.hooks.store.put(BUDGET_KIND, BUDGET_ID, null, ledger);
       const thread = this.hooks.store.get<Thread>('thread', work.childOwner.threadId);
-      if (thread) this.hooks.store.put('thread', thread.id, thread.id, {...thread, status: state === 'CANCELLED' ? 'stopped' : 'interrupted'});
+      if (thread) this.hooks.store.put('thread', thread.id, thread.id, {...thread, runId: null, status: state === 'CANCELLED' ? 'stopped' : 'interrupted'});
     });
   }
 
@@ -373,13 +373,14 @@ export class AgentWorkCoordinator {
     if (readOnly) {
       if (!READ_TOOLS.has(call.name)) throw new HarnessError('AGENT_TOOL_DENIED', `Tool ${call.name} is outside the ${work.role} allowlist`);
       if (call.args.write === true || call.args.writable === true) throw new HarnessError('AGENT_TOOL_DENIED', 'Read roles hold no write authority');
-      const grant = admission.grants.find(item => item.id === call.args.grantId);
-      if (!grant) throw new HarnessError('AGENT_TOOL_DENIED', `Grant ${String(call.args.grantId)} is outside the child's authority subset`);
+      const grantId = call.args.resourceId ?? call.args.grantId;
+      const grant = admission.grants.find(item => item.id === grantId);
+      if (!grant) throw new HarnessError('AGENT_TOOL_DENIED', `Grant ${String(grantId)} is outside the child's authority subset`);
       const current = this.hooks.store.get<ResourceGrant>('resource', grant.id);
       if (!current || current.threadId !== work.parentOwner.threadId)
         throw new HarnessError('PERMISSION_REVOKED', `Grant ${grant.id} is no longer held by the parent`);
       if (!this.hooks.resourceResolver) throw new HarnessError('AGENT_TOOL_DENIED', 'No read resolver is bound for this host');
-      return this.hooks.resourceResolver({...current, writable: grant.writable}, false, call);
+      return this.hooks.resourceResolver({...current, writable: grant.writable}, false, {...call, args: {...call.args, resourceId: grant.id}});
     }
     if (work.role === 'QA') {
       if (!QA_TOOLS.has(call.name) || !this.hooks.roleHandlers?.qa) throw new HarnessError('AGENT_TOOL_DENIED', `Tool ${call.name} is outside the QA allowlist`);
@@ -388,7 +389,8 @@ export class AgentWorkCoordinator {
     // CODE_WORKTREE: worktree-scoped effects only, through the gated handler.
     if (!WORKTREE_TOOLS.has(call.name) || !this.hooks.roleHandlers?.codeWorktree) throw new HarnessError('AGENT_TOOL_DENIED', `Tool ${call.name} is outside the CODE_WORKTREE allowlist`);
     if (call.name === 'worktree.write') {
-      const grant = admission.grants.find(item => item.id === call.args.grantId && item.writable);
+      const grantId = call.args.resourceId ?? call.args.grantId;
+      const grant = admission.grants.find(item => item.id === grantId && item.writable);
       if (!grant) throw new HarnessError('AGENT_TOOL_DENIED', 'Write call names a grant outside the worktree authority');
       const current = this.hooks.store.get<ResourceGrant>('resource', grant.id);
       if (!current || current.threadId !== work.parentOwner.threadId || !current.writable)
@@ -462,6 +464,9 @@ export class AgentWorkCoordinator {
     // resume outright and re-scoped rights (including a narrowed worktree
     // binding) flow into the refreshed admission, never the stale snapshot.
     const {grants: effectiveGrants, proofMeta} = await this.admittedAuthority(ctx, {role: work.role, grantSubset: work.grantSubset}, 'STALE_AGENT_AUTHORITY');
+    // A parent stop during the awaited authority check must not let this
+    // pending resume start a child on the revoked run.
+    this.hooks.assertRun(ctx);
 
     const ledger = this.ledger();
     if (work.budget.tokens !== null && this.hooks.globalBudget?.tokens != null && ledger.reservedTokens + ledger.spentTokens + work.budget.tokens > this.hooks.globalBudget.tokens)
@@ -473,6 +478,11 @@ export class AgentWorkCoordinator {
       outputRef: null, repairAttempts: 0, failureReason: undefined,
       updatedAt: new Date().toISOString(), revision: work.revision + 1});
     this.hooks.store.internal('agentWork.resumed', ctx.threadId, () => {
+      // Concurrent resumes cannot both reserve: the state re-check and the
+      // reservation commit inside one transaction.
+      const current = this.hooks.store.get<AgentWorkV1>(WORK_KIND, workId);
+      if (!current || !AGENT_WORK_TERMINAL_STATES.has(current.state))
+        throw new HarnessError('INVALID_AGENT_WORK', `Work ${workId} is already ${current?.state ?? 'missing'}`);
       this.hooks.store.put(WORK_KIND, workId, ctx.threadId, resumed);
       this.hooks.store.put(ADMISSION_KIND, workId, ctx.threadId, {...admission, grants: effectiveGrants, proofMeta});
       const next = this.ledger();

@@ -28,8 +28,10 @@ export function AgentWorkPanel({threadId}: {threadId: string}) {
     try {
       const next = await getAgentWork(threadId);
       setList(next); setPlan(await getAgentWorkPlan(threadId)); setMessages((await getAgentWorkMessages(threadId)).messages);
-      const queuedTarget = next.works.find(work => work.state === 'RUNNING' || work.state === 'QUEUED')?.owner.threadId;
-      setInputs(queuedTarget ? (await getAgentWorkInputs(threadId, queuedTarget)).inputs : []);
+      // Every active child's queue is shown — inputs to any child get real
+      // delivery status and cancellation controls.
+      const targets = next.works.filter(work => work.state === 'RUNNING' || work.state === 'QUEUED').map(work => work.owner.threadId);
+      setInputs((await Promise.all(targets.map(owner => getAgentWorkInputs(threadId, owner)))).flatMap(batch => batch.inputs));
       setError(null);
     } catch (e) { setError(e instanceof Error ? e.message : 'Agent work unavailable'); }
     finally { busy.current = false; }
@@ -42,12 +44,11 @@ export function AgentWorkPanel({threadId}: {threadId: string}) {
     const text = (drafts[work.workId] ?? '').trim(); if (!text) return;
     void sendAgentInput(threadId, {workId: work.workId, kind, text}).then(() => { setDrafts(d => ({...d, [work.workId]: ''})); return refresh(); }).catch(e => setError(e instanceof Error ? e.message : 'Send failed'));
   };
-  const pct = (fraction: {numerator: number; denominator: number}) => fraction.denominator ? Math.round(fraction.numerator / fraction.denominator * 100) : 0;
   return <section className="agents-work" aria-label="Agent work">
     <button type="button" className="agents-disclosure" aria-expanded={open} onClick={() => setOpen(!open)}>Agent work · {list.works.length}</button>
     {open && <div className="agents-work-body">
       {plan?.extension && plan.progress && <div className="agents-work-progress" aria-label="Task progress">
-        <progress max={100} value={pct(plan.progress.completedFraction)}/><span>{pct(plan.progress.completedFraction)}% known complete · {pct(plan.progress.unknownFraction)}% unknown</span>
+        <progress max={plan.progress.total || 1} value={plan.progress.completed}/><span>{plan.progress.total ? Math.round(plan.progress.completed / plan.progress.total * 100) : 0}% known complete · {plan.progress.total ? Math.round(plan.progress.unknown / plan.progress.total * 100) : 0}% unknown</span>
       </div>}
       {list.works.map(work => <article key={work.workId} className="agents-work-row" data-state={work.state}>
         <header>

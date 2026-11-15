@@ -25,7 +25,7 @@ export interface AgentMessageRow {
 }
 export interface PlanProgress {
   extension: boolean; planId: string;
-  progress?: {completedFraction: {numerator: number; denominator: number}; pendingFraction: {numerator: number; denominator: number}; unknownFraction: {numerator: number; denominator: number}; perLeaf: {nodeId: string; weight: number; status: string}[]};
+  progress?: {completed: number; pending: number; unknown: number; total: number};
 }
 
 const get = <T>(path: string) => authenticated(() => fetch(path, {credentials: 'same-origin', cache: 'no-store'})).then(read<T>);
