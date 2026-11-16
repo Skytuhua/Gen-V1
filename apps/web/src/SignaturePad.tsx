@@ -106,6 +106,10 @@ export function SignaturePad({ stateKey, label = 'Your signature', initialMode =
   };
   const move = (event: PointerEvent<HTMLCanvasElement>) => { if (!drawing.current || drawing.current.pointerId !== event.pointerId) return; if (drawing.current.strokes.reduce((count, stroke) => count + stroke.length, 0) < MAX_SIGNATURE_POINTS) { drawing.current.strokes.at(-1)!.push(pointAt(event)); const now = performance.now(); if (now - lastSave.current >= 100) { lastSave.current = now; saveStrokes(); } } };
   const finish = (event: PointerEvent<HTMLCanvasElement>) => { if (!drawing.current || drawing.current.pointerId !== event.pointerId) return; saveStrokes(); drawing.current = null; if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId); };
+  useEffect(() => {
+    const blur = () => { const pointer = drawing.current?.pointerId; if (pointer == null) return; saveStrokes(); drawing.current = null; if (canvas.current?.hasPointerCapture(pointer)) canvas.current.releasePointerCapture(pointer); };
+    window.addEventListener('blur', blur); return () => window.removeEventListener('blur', blur);
+  }, [mode, store, assets, stateKey]);
   const undo = () => { const strokes = markStrokes().slice(0, -1); drawing.current = null; write(strokes.length === 1 ? { kind: 'drawn', points: strokes[0] } : strokes.length ? { kind: 'drawn', strokes } : null); paint.current?.(); };
   const keyDown = (event: KeyboardEvent<HTMLCanvasElement>) => {
     if (['Delete', 'Backspace', 'Escape', 'Enter', ' ', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key)) event.preventDefault(); else return;
