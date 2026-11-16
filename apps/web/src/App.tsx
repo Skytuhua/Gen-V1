@@ -836,11 +836,18 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   const renderWorkspaceCanvas=(embedded=false)=>activeCanvas&&workspaceEnvelope?<WorkspaceCanvas embedded={embedded} threads={snapshot.threads} canvas={activeCanvas} panels={embedded?canvasPanels.filter(panel=>!(panel.kind==='thread'&&panel.binding.authority.kind==='local'&&resolvePanelBinding(panel).threadId===thread?.id)):canvasPanels} projects={workspaceEnvelope.projects} disabledKinds={workspaceEnvelope.state.disabledKinds} title={panelTitle} updatePanel={updateCanvasPanel} updateViewport={async viewport=>{await workspaceState.send('workspace.canvas.viewport',{canvasId:activeCanvas.id,...viewport});}} setFilter={async filter=>{await workspaceState.send('workspace.canvas.filter',{canvasId:activeCanvas.id,filter});}} renderBody={canvasBodyGuarded}/>:null;
   const openSidebarTool=(kind:'usage'|'linked-pull-requests')=>{if(navigationOnly){toast('Open this tool in the main workspace.');return;}if(kind==='usage'){openUsage();return;}setSelectedPluginId(null);if(canvasActive)void addCanvasPanel(kind).catch(cause=>setError(messageOf(cause)));else if(splitEnabled&&splitState.layout)void openSplitTool(kind,undefined,true,thread?.id).catch(cause=>setError(messageOf(cause)));else setLayout(value=>({...value,rightPanelOpen:true,activeTab:kind,openTabs:value.openTabs.includes(kind)?value.openTabs:[...value.openTabs,kind]}));};
   const handledDockTarget=useRef<unknown>(null);
+  const splitSelectionReady=Boolean(convSplitState.layout);
   useEffect(()=>{
     const target=desktop?.state.focusSurface;if(!target){handledDockTarget.current=null;return;}
-    if(!workspaceEnvelope||handledDockTarget.current===target)return;handledDockTarget.current=target;
+    if(!workspaceEnvelope||handledDockTarget.current===target)return;
+    const returningSplitThread=target.kind==='thread'&&desktop?.context.surface.kind==='main'&&splitEnabled;
+    // Wait for canonical placement before consuming the native return intent.
+    if(returningSplitThread&&!splitSelectionReady)return;
+    handledDockTarget.current=target;
     if(target.kind==='plugin'){setOpenedPlugins(value=>value.includes(target.pluginId)?value:[...value,target.pluginId]);setSelectedPluginId(target.pluginId);}
-    if('threadId'in target&&target.threadId&&!pinnedThreadId)setSelectedId(target.threadId);
+    if(returningSplitThread){
+      if(resolvedMainId!==target.threadId)select(target.threadId);
+    }else if('threadId'in target&&target.threadId&&!pinnedThreadId)setSelectedId(target.threadId);
     if(target.kind==='plan')setPlanOpen(true);
     if(target.kind==='workspace'&&!target.panelId&&(!target.tab||['launcher','artifact','plan','files','diff','notes','output','usage'].includes(target.tab)))setLayout(value=>{const tab=target.tab&&target.tab!=='launcher'?target.tab as typeof value.activeTab:'artifact';return {...value,rightPanelOpen:true,activeTab:tab,openTabs:value.openTabs.includes(tab)?value.openTabs:[...value.openTabs,tab]};});
     void(async()=>{
@@ -860,7 +867,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
         latest=await workspaceState.refresh();
       }
     })().catch(cause=>{if(handledDockTarget.current===target)handledDockTarget.current=null;setError(messageOf(cause));});
-  },[desktop?.state.focusSurface,workspaceEnvelope]);
+  },[desktop?.state.focusSurface,workspaceEnvelope,splitEnabled,splitSelectionReady]);
   const placeSplitThread=async(threadId:string,paneId=convSplitState.layout?.focusedPaneId,edge:SplitDropEdge='center',outer=false)=>{
     const current=convSplitState.layout;if(!current||!paneId)throw Error('Wait for the workspace to load.');
     await prepareWorkspace();const next=threadPlacementCommand(current,snapshotRef.current.threads,threadId,paneId,edge,outer);

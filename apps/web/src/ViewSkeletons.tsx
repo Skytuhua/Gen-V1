@@ -1,8 +1,6 @@
 import {Skeleton} from './LoadingState';
-import type {ReactNode} from 'react';
 import './settings.css';
 import './agents-workspace/agents-workspace.css';
-import './code-review-workspace/code-review-workspace.css';
 
 // Use the destination's layout classes so its breakpoints and reserved areas agree.
 export function ConversationSkeleton() {
@@ -36,22 +34,6 @@ export function AgentsSkeleton() {
       <div className="agents-children"><div className="agents-child"><Skeleton/></div></div>
     </div></div>)}</div></div>
   </div>)}</div>;
-}
-
-export function DiffSkeleton() {
-  return <div className="cr-patch loading-diff" aria-hidden="true">{[0, 1, 2, 3].map(hunk => <Skeleton key={hunk}/>)}</div>;
-}
-
-export function ReviewComparisonSkeleton({fileControls}: {fileControls?: ReactNode}) {
-  return <div className="cr-main">
-    <div className="cr-files">{fileControls}<div aria-hidden="true"><span className="loading-skeleton loading-skeleton-control"/><span className="loading-skeleton loading-skeleton-field"/><Skeleton/><Skeleton/></div></div>
-    <div className="cr-diff" aria-hidden="true"><span className="loading-skeleton loading-skeleton-control"/><DiffSkeleton/></div>
-    <div className="cr-context" aria-hidden="true"><div><span className="loading-skeleton loading-skeleton-control"/><Skeleton/></div><div className="cr-draft"><span className="loading-skeleton loading-skeleton-control"/><span className="loading-skeleton loading-skeleton-editor"/><span className="loading-skeleton loading-skeleton-field"/></div></div>
-  </div>;
-}
-
-export function ReviewWorkspaceSkeleton() {
-  return <div className="cr-workspace" aria-hidden="true"><div className="cr-toolbar"><span className="loading-skeleton loading-skeleton-control"/><span className="loading-skeleton loading-skeleton-control"/></div><div className="cr-body"><ReviewComparisonSkeleton/></div></div>;
 }
 
 export function SettingsSkeleton() {

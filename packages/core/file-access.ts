@@ -26,7 +26,7 @@ export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal, 
   const session = sessions.getStore();
   if (session) {
     const id = randomUUID();
-    const manifest = await session.rpc({ command: "acquire", id, paths },options?.startupAcquisition===true);
+    const manifest = await session.rpc({ command: "acquire", id, paths });
     if(onLoss)session.loss.add(onLoss);
     try { active(signal); const value = await action(manifest); if (session.exited) throw denied(); return value; }
     finally { if(onLoss)session.loss.delete(onLoss);if (!session.exited) await session.rpc({ command: "release", id }); }
