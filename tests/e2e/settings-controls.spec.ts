@@ -61,9 +61,9 @@ test('saving a project color preserves the active appearance preview',async({pag
 
 async function installManualBrowserFixture(page:Page){
   await page.addInitScript(()=>{
-    const context={windowId:'main',surface:{kind:'main'},windows:[]},calls:unknown[]=[];
+    const context:{windowId:string;surface:{kind:string};windows:unknown[];dockedBrowser?:{browserId:string;state:{url:string;title:string;canGoBack:boolean;canGoForward:boolean;loading:boolean}}}={windowId:'main',surface:{kind:'main'},windows:[]},calls:unknown[]=[];
     (window as unknown as {manualBrowserCalls:unknown[]}).manualBrowserCalls=calls;
-    window.harnessDesktop={getContext:async()=>context,ready:async()=>context,list:async()=>[],reattach:async()=>{},minimize:async()=>{},resetBounds:async()=>{},focus:async()=>{},browser:async(value:unknown)=>{calls.push(value);},onState:()=>()=>{},onCloseRequested:()=>()=>{},onWorkspaceChanged:()=>()=>{}} as unknown as NonNullable<Window['harnessDesktop']>;
+    window.harnessDesktop={getContext:async()=>context,ready:async()=>context,list:async()=>[],reattach:async()=>{},minimize:async()=>{},resetBounds:async()=>{},focus:async()=>{},browser:async(value:unknown)=>{calls.push(value);if((value as {type?:string})?.type==='open')context.dockedBrowser={browserId:'browser-fixture',state:{url:'about:blank',title:'',canGoBack:false,canGoForward:false,loading:false}};},onState:()=>()=>{},onCloseRequested:()=>()=>{},onWorkspaceChanged:()=>()=>{}} as unknown as NonNullable<Window['harnessDesktop']>;
   });
 }
 
@@ -266,13 +266,13 @@ test('appearance preview, cancel, failed apply and retry preserve accepted prefe
   await dialog.getByRole('option', {name:'Off',exact:true}).click();
   await dialog.getByRole('button', {name:'Preview',exact:true}).click();
   await expect(page.locator('html')).toHaveAttribute('data-density','touch');
-  await expect(page.locator('.app-shell')).toHaveAttribute('data-chat-width','full');
+  await expect(page.locator('.app-shell:not(.embedded-thread-app)')).toHaveAttribute('data-chat-width','full');
   await expect(page.locator('html')).toHaveAttribute('data-motion','off');
   expect(await page.locator('html').evaluate(node => node.style.getPropertyValue('--chat-font-size'))).toBe('18px');
   expect(commands.filter(command => command.type === 'settings.update')).toEqual([]);
   await dialog.getByRole('button', {name:'Cancel',exact:true}).click();
   await expect(page.locator('html')).toHaveAttribute('data-density','comfortable');
-  await expect(page.locator('.app-shell')).toHaveAttribute('data-chat-width','wide');
+  await expect(page.locator('.app-shell:not(.embedded-thread-app)')).toHaveAttribute('data-chat-width','wide');
   await dialog.getByRole('spinbutton', {name:'Chat size',exact:true}).fill('19');
   await page.route('**/api/commands', route => route.request().postDataJSON().type === 'settings.update' ? route.fulfill({status:503,json:{error:{message:'Synthetic save failure'}}}) : route.fallback());
   await dialog.getByRole('button', {name:'Apply',exact:true}).click();
