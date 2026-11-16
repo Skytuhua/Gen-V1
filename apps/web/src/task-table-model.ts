@@ -45,12 +45,14 @@ const emptyValue = (value: unknown) => value == null || typeof value === 'string
   || typeof value === 'number' && Number.isNaN(value) || value instanceof Date && Number.isNaN(value.getTime());
 // One type order keeps mixed comparisons transitive: number, string, date, boolean, object, other.
 const valueType = (value: unknown) => typeof value === 'number' ? 0 : typeof value === 'string' ? 1 : value instanceof Date ? 2 : typeof value === 'boolean' ? 3 : typeof value === 'object' ? 4 : 5;
+// Fold case and accents so "wis" matches "Wiśniewska" — filters should find what users mean to type.
+const fold = (value: string) => value.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
 export function tableView(rows: unknown[], columns: TableColumn[], query: string, sort: TableSort) {
-  const needle = query.trim().toLowerCase();
+  const needle = fold(query.trim());
   const result = rows.map((row, index) => ({ item: tableObject(row), index })).filter(({ item }) => !needle || columns.some(column => {
     const value = item[column.key];
-    return tableText(value).toLowerCase().includes(needle)
-      || (column.type === 'number' && typeof value === 'number' && tableCellText(value, column).toLowerCase().includes(needle));
+    return fold(tableText(value)).includes(needle)
+      || (column.type === 'number' && typeof value === 'number' && fold(tableCellText(value, column)).includes(needle));
   }));
   if (!sort) return result;
   return result.sort((a, b) => {

@@ -120,6 +120,7 @@
     "apps/web/src/SignaturePad.tsx",
     "apps/web/src/SkillLibrary.tsx",
     "apps/web/src/SoftwareDevelopment.tsx",
+    "apps/web/src/SurfaceBoundary.tsx",
     "apps/web/src/TaskDisclosure.tsx",
     "apps/web/src/TaskHistory.tsx",
     "apps/web/src/TaskMemory.tsx",
