@@ -1,0 +1,3 @@
+cwd: C:/Users/Administrator/repos/gen-v1-m07
+command: pnpm typecheck
+exit code: 0 — tsc --noEmit clean

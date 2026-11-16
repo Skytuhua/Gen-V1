@@ -26,7 +26,7 @@ export function FloatingWindow({id,title,children,open=true,onClose,anchor='top-
   const floating=useRef(!rail);
   const areaFor=(collapsed:boolean,released=floating.current)=>{const area=viewport(collapsed,rail?.element.current,Boolean(rail),released,shell.current,anchor);return minimizeOnly&&rail&&!released?{...area,pinned:'right' as const}:area;};
   const content=useRef<HTMLDivElement>(null),contentHeight=useRef(defaultSize.height);
-  const opener=useRef<HTMLElement|null>(null),previousOpen=useRef<boolean|undefined>(undefined),previousCollapsed=useRef<boolean|undefined>(undefined),collapsedOrigin=useRef<{x:number;y:number}|undefined>(undefined),stopInteraction=useRef<()=>void>(()=>{}),entrance=useRef<Animation|undefined>(undefined);
+  const opener=useRef<HTMLElement|null>(null),previousOpen=useRef<boolean|undefined>(undefined),previousCollapsed=useRef<boolean|undefined>(undefined),collapsedOrigin=useRef<{x:number;y:number}|undefined>(undefined),stopInteraction=useRef<()=>void>(()=>{}),activePointer=useRef<number|null>(null),entrance=useRef<Animation|undefined>(undefined);
   const description=useId(),bodyId=useId();
   const [layout,setLayout]=useState(()=>{
     const area=areaFor(defaultCollapsed),visibleHeight=defaultCollapsed?FLOATING_COLLAPSED_HEIGHT:defaultSize.height;
@@ -145,13 +145,13 @@ export function FloatingWindow({id,title,children,open=true,onClose,anchor='top-
     update(resize||event.shiftKey?{...before,width:before.width+dx,height:before.height+dy}:{...before,x:before.x+dx,y:before.y+dy},true);
   };
   const pointer=(event:PointerEvent<HTMLElement>,resize=false)=>{
-    if(event.button!==0||minimizeOnly)return;
-    event.preventDefault();stopInteraction.current();bringForward(id);collapsedOrigin.current=undefined;
+    if(event.button!==0||minimizeOnly||activePointer.current!==null)return;
+    event.preventDefault();bringForward(id);collapsedOrigin.current=undefined;
     event.currentTarget.focus({preventScroll:true});const element=event.currentTarget,start=release(),x=event.clientX,y=event.clientY,pointerId=event.pointerId;
-    setInteracting(true);document.documentElement.classList.add('floating-window-interaction');element.setPointerCapture?.(pointerId);
+    setInteracting(true);document.documentElement.classList.add('floating-window-interaction');element.setPointerCapture?.(pointerId);activePointer.current=pointerId;
     const move=(next:globalThis.PointerEvent)=>{if(next.pointerId!==pointerId)return;const dx=next.clientX-x,dy=next.clientY-y;update(resize?{...start,width:start.width+dx,height:start.height+dy}:{...start,x:start.x+dx,y:start.y+dy},false,true);};
     let finished=false;
-    const finish=(ending?:Event)=>{if(finished||ending instanceof globalThis.PointerEvent&&ending.pointerId!==pointerId)return;finished=true;window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',finish);window.removeEventListener('pointercancel',finish);window.removeEventListener('blur',finish);element.removeEventListener('lostpointercapture',finish);if(element.hasPointerCapture?.(pointerId))element.releasePointerCapture(pointerId);document.documentElement.classList.remove('floating-window-interaction');setInteracting(false);writeLayout(id,current.current);};
+    const finish=(ending?:Event)=>{if(finished||ending instanceof globalThis.PointerEvent&&ending.pointerId!==pointerId)return;finished=true;activePointer.current=null;window.removeEventListener('pointermove',move);window.removeEventListener('pointerup',finish);window.removeEventListener('pointercancel',finish);window.removeEventListener('blur',finish);element.removeEventListener('lostpointercapture',finish);if(element.hasPointerCapture?.(pointerId))element.releasePointerCapture(pointerId);document.documentElement.classList.remove('floating-window-interaction');setInteracting(false);writeLayout(id,current.current);};
     stopInteraction.current=finish;window.addEventListener('pointermove',move);window.addEventListener('pointerup',finish);window.addEventListener('pointercancel',finish);window.addEventListener('blur',finish);element.addEventListener('lostpointercapture',finish);
   };
   const style:CSSProperties={left:layout.x,top:layout.y,width:layout.width,height:layout.collapsed?FLOATING_COLLAPSED_HEIGHT:layout.height,zIndex:layer};

@@ -220,7 +220,10 @@ export function computeAssessment(input: AssessmentInput): DeliverableAssessment
       } else if (stale.length === bound.length) {
         assessment = 'UNVERIFIED';
         missing.push(`evidence for ${req.id} is stale against the current source`);
-      } else if (fresh.some(obs => obs.outcome === 'PASS' && !isAuditMarker(obs))) {
+      // M07 review-advisory observations (language diagnostics, debug state)
+      // inform review but are not executed checks: like audit markers their
+      // PASS cannot verify, while their FAIL/BLOCKED/CANCELLED stay effective.
+      } else if (fresh.some(obs => obs.outcome === 'PASS' && !isAuditMarker(obs) && obs.observationKind !== 'review-advisory')) {
         assessment = 'VERIFIED';
       } else {
         assessment = 'UNVERIFIED';

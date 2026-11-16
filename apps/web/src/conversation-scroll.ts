@@ -23,7 +23,7 @@ export function createHistoryAnchor() {
 
 /** Own only tail-following scrolls. Reading history and user intent always win. */
 export function createConversationScroll(element:HTMLElement){
- let thread='',following=false,disposed=false,ownedTop:number|undefined,dragging=false;
+ let thread='',following=false,disposed=false,ownedTop:number|undefined,dragging=false,nativePointer:number|undefined;
  const maximum=()=>Math.max(0,element.scrollHeight-element.clientHeight);
  const nearTail=()=>maximum()-element.scrollTop<80;
  const write=(value:number)=>{element.scrollTop=Math.min(maximum(),Math.max(0,value));ownedTop=element.scrollTop;};
@@ -44,10 +44,10 @@ export function createConversationScroll(element:HTMLElement){
  const pointerDown=(event:PointerEvent)=>{
   // Ordinary button clicks should not detach a conversation from the tail.
   // The scrollbar and middle-button pan do constitute reading intent.
-  if(event.button!==1&&!(event.target===element&&event.clientX>=element.getBoundingClientRect().left+element.clientWidth))return;
-  dragging=true;interrupt();
+  if(dragging||event.button!==1&&!(event.target===element&&event.clientX>=element.getBoundingClientRect().left+element.clientWidth))return;
+  nativePointer=event.pointerId;dragging=true;interrupt();
  };
- const pointerEnd=()=>{if(dragging){dragging=false;following=nearTail();}};
+ const pointerEnd=(event:PointerEvent)=>{if(dragging&&nativePointer!==undefined&&event.pointerId===nativePointer){nativePointer=undefined;dragging=false;following=nearTail();}};
  const key=(event:KeyboardEvent)=>{
   if(event.defaultPrevented||event.ctrlKey||event.metaKey||event.altKey||!['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' '].includes(event.key))return;
   const target=event.target as HTMLElement|null;
@@ -68,12 +68,12 @@ export function createConversationScroll(element:HTMLElement){
  document.addEventListener('pointercancel',pointerEnd);
  document.addEventListener('visibilitychange',settleHidden);
  return {
-  beginManualScroll(){if(!disposed){dragging=true;interrupt();}},
+  beginManualScroll(){if(!disposed){nativePointer=undefined;dragging=true;interrupt();}},
   scrollTo(top:number):ConversationPosition{
    if(!disposed&&Number.isFinite(top)){interrupt();element.scrollTop=Math.max(0,Math.min(maximum(),top));following=!dragging&&nearTail();}
    return {top:element.scrollTop,tail:following};
   },
-  endManualScroll(){if(!disposed){dragging=false;following=nearTail();}},
+  endManualScroll(){if(!disposed){nativePointer=undefined;dragging=false;following=nearTail();}},
   update(id:string,position:ConversationPosition,anchor?:ConversationAnchor){
    if(disposed)return;
    observeContent();
