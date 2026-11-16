@@ -30,6 +30,31 @@ test('Fit and Arrange keep editors mounted and pointer cancellation clears drag 
  const handle=page.getByRole('button',{name:'Move Main investigation',exact:true}),box=await handle.boundingBox();if(!box)throw new Error('Handle missing');
  await page.mouse.move(box.x+20,box.y+12);await page.mouse.down();await page.mouse.move(box.x+80,box.y+40);await page.evaluate(()=>window.dispatchEvent(new Event('blur')));await page.mouse.up();await expect(page.locator('html')).not.toHaveClass(/workspace-canvas-interaction/);
 });
+test('losing panel pointer capture cancels the gesture without saving',async({page})=>{
+ const handle=page.getByRole('button',{name:'Move Main investigation',exact:true}),panel=page.locator('[data-panel-id="live-thread:clarity:parent"]');
+ const box=(await handle.boundingBox())!,before=(await panel.boundingBox())!;
+ await page.mouse.move(box.x+20,box.y+12);await page.mouse.down();await page.mouse.move(box.x+80,box.y+40);
+ await expect(page.locator('html')).toHaveClass(/workspace-canvas-interaction/);
+ await handle.evaluate(element=>{if(element.hasPointerCapture(1))element.releasePointerCapture(1);element.dispatchEvent(new PointerEvent('lostpointercapture',{pointerId:1,bubbles:true}));});
+ await expect(page.locator('html')).not.toHaveClass(/workspace-canvas-interaction/);
+ await page.mouse.move(box.x+120,box.y+60);await page.mouse.up();
+ await expect.poll(async()=>Math.round((await panel.boundingBox())!.x)).toBe(Math.round(before.x));
+ expect(await page.evaluate(()=>(window as any).__canvasPanelWrites??[])).toEqual([]);
+});
+test('another pointer cannot move or commit a canvas pan',async({page})=>{
+ const canvas=page.locator('.workspace-canvas'),world=page.locator('.canvas-world'),box=(await canvas.boundingBox())!;
+ const start=await world.evaluate(element=>(element as HTMLElement).style.transform);
+ await page.mouse.move(box.x+box.width-30,box.y+100);await page.mouse.down();
+ await canvas.dispatchEvent('pointerdown',{pointerId:77,pointerType:'touch',button:0,clientX:10,clientY:10,bubbles:true});
+ await page.evaluate(()=>window.dispatchEvent(new PointerEvent('pointermove',{pointerId:77,clientX:10,clientY:10})));
+ expect(await world.evaluate(element=>(element as HTMLElement).style.transform)).toBe(start);
+ await page.evaluate(()=>window.dispatchEvent(new PointerEvent('pointerup',{pointerId:77})));
+ await page.evaluate(()=>window.dispatchEvent(new PointerEvent('pointercancel',{pointerId:77})));
+ expect(await page.evaluate(()=>(window as any).__canvasViewportWrites??[])).toEqual([]);
+ await page.mouse.move(box.x+box.width-80,box.y+130);
+ await expect.poll(()=>world.evaluate(element=>(element as HTMLElement).style.transform)).not.toBe(start);
+ await page.mouse.up();await expect.poll(()=>page.evaluate(()=>(window as any).__canvasViewportWrites?.length??0)).toBe(1);
+});
 
 test('switching canvases before debounce saves both owning viewports',async({page})=>{
  await page.evaluate(()=>{

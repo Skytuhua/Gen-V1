@@ -121,6 +121,7 @@ test('leaving during detail loading cancels the review request',async({page})=>{
 
 for(const width of [1440,1024,768])test(`QA r2: held list does not move the painted caption at ${width}`,async({page})=>{
  await page.setViewportSize({width,height:1000});await page.goto('/file-checkpoints?state=loading');await expect(page.getByRole('status')).toBeVisible();
+ await page.locator('.file-checkpoints-history').evaluate(element=>Promise.all([...element.getAnimations(),...element.parentElement!.getAnimations()].map(animation=>animation.finished)));
  const caption=page.locator('.file-checkpoints-caption'),before=(await caption.boundingBox())!;
  await page.evaluate(()=>{const shifts:number[]=[];Object.defineProperty(window,'checkpointShifts',{value:shifts});new PerformanceObserver(list=>{for(const entry of list.getEntries())if(!(entry as PerformanceEntry&{hadRecentInput:boolean}).hadRecentInput)shifts.push((entry as PerformanceEntry&{value:number}).value);}).observe({type:'layout-shift'});});
  await flushFrames(page);await page.evaluate(()=>window.dispatchEvent(new Event('checkpoint-release')));
