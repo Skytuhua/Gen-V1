@@ -1311,6 +1311,7 @@
     "tests/recorded-diffs.test.ts",
     "tests/redundant-ui.test.ts",
     "tests/rename-recovery-v3.test.ts",
+    "tests/repository-screenshots-cleanup.test.ts",
     "tests/request-preparation-service-v3.test.ts",
     "tests/research-fixture.ts",
     "tests/resource-tree.test.ts",
