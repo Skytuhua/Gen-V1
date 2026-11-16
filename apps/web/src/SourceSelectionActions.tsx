@@ -86,7 +86,7 @@ export function SourceSelectionActions({children,text,enabled,onAction,onOpenCan
     const value=candidateRef.current,element=root.current,version=revision.current;
     if(!value||!element||busy||!latest.current.enabled||authored.current!==latest.current.text||element.textContent!==value.rendered||!visible(value.range,element))return;
     setBusy(true);setError('');
-    try{await latest.current.onAction(action,{start:value.start,end:value.end,text:value.text});if(version===revision.current)setCandidate(null);}
+    try{await latest.current.onAction(action,{start:value.start,end:value.end,text:value.text});if(version===revision.current){setCandidate(null);getSelection()?.removeAllRanges();}}
     catch(cause){if(version===revision.current)setError(cause instanceof Error?cause.message:'Source could not be captured.');}
     finally{if(version===revision.current)setBusy(false);}
   }

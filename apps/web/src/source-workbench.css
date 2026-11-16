@@ -3,11 +3,12 @@
 .workbench-panel>header { display:flex; justify-content:space-between; align-items:center; gap:12px; }
 .workbench-panel input { max-width:100%; }
 .workbench-panel input[type=number] { width:90px; }
-.source-selection-toolbar { flex-direction: row; flex-wrap: wrap; gap: var(--ui-space-1); font-size: 13px; }
+.source-selection-toolbar { flex-direction: row; flex-wrap: wrap; gap: var(--ui-space-1); font-size: 13px; overflow-y: hidden; scrollbar-gutter: auto; }
 .source-selection-toolbar button { min-height: 32px; flex: 1 1 auto; }
 .source-selection-toolbar [role=alert] { width: 100%; }
 .workbench-panel { display: flex; flex-direction: column; gap: 12px; width: min(760px, calc(100% - 32px)); max-height: calc(100% - 64px); overflow: auto; min-width: 0; }
 .workbench-panel nav,.workbench-source-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+.workbench-panel nav button[aria-pressed="true"] { color: var(--text); background: var(--selection-bg); }
 .workbench-panel pre { overflow: auto; max-height: 50dvh; white-space: pre-wrap; overflow-wrap: anywhere; }
 .workbench-source-chips { display: flex; flex-direction: column; gap: 6px; padding: 6px; max-height: 240px; overflow: auto; }
 .workbench-source-chip { border: 1px solid var(--border, #555); border-radius: 6px; padding: 6px; min-width: 0; }
