@@ -23,14 +23,14 @@ export function InboxView({attention,onOpenThread,emptyTitle,emptyMessage,projec
  const selected=attention.items.find(item=>item.id===chosen),columns=shownColumns(single,selected?.id);
  useEffect(()=>{const node=root.current;if(!node)return;const measure=(width:number)=>{if(width>0)setSingle(was=>oneColumn(width,was));};measure(node.getBoundingClientRect().width);const observer=new ResizeObserver(entries=>{if(entries[0])measure(entries[0].contentRect.width);});observer.observe(node);return()=>observer.disconnect();},[]);
  const activeReads=useRef(new Map<string,Promise<void>>());
- const act=(work:()=>void|Promise<void>)=>{
-  const version=++actionVersion.current,request=Promise.resolve().then(work);
+ const act=(work:()=>void|Promise<void>,version=++actionVersion.current)=>{
+  const request=Promise.resolve().then(work);
   void request.then(()=>{if(version===actionVersion.current)setActionError('');},cause=>{if(version===actionVersion.current)setActionError(cause instanceof Error?cause.message:String(cause));});
   return request;
  };
- const recordRead=(id:string)=>{
-  if(activeReads.current.has(id))return;
-  const request=act(()=>attention.markRead(id));activeReads.current.set(id,request);
+ const recordRead=(id:string,version:number)=>{
+  const pending=activeReads.current.get(id);
+  const request=act(()=>pending??attention.markRead(id),version);if(pending)return;activeReads.current.set(id,request);
   const finish=()=>activeReads.current.delete(id);void request.then(finish,finish);
  };
  const markUnread=(id:string)=>{
@@ -40,7 +40,7 @@ export function InboxView({attention,onOpenThread,emptyTitle,emptyMessage,projec
  };
  // Arrow-key traversal calls choose() per step; only the settled selection
  // earns a mark-read write, so coalesce rapid choices into one request.
- const choose=(item:AttentionItem,focusReader=false)=>{actionVersion.current++;setChosen(item.id);setActionError('');clearTimeout(markTimer.current);if(!item.read)markTimer.current=setTimeout(()=>recordRead(item.id),500);if(focusReader&&single)requestAnimationFrame(()=>reader.current?.focus());};
+ const choose=(item:AttentionItem,focusReader=false)=>{const version=++actionVersion.current;setChosen(item.id);setActionError('');clearTimeout(markTimer.current);if(!item.read)markTimer.current=setTimeout(()=>recordRead(item.id,version),500);if(focusReader&&single)requestAnimationFrame(()=>reader.current?.focus());};
  const back=()=>{const id=chosen;actionVersion.current++;clearTimeout(markTimer.current);setChosen(undefined);setActionError('');requestAnimationFrame(()=>id&&rows.current.get(id)?.focus());};
  const keyboard=(event:KeyboardEvent<HTMLElement>)=>{if(event.defaultPrevented||(event.target as HTMLElement).closest('input,textarea,select,[role=combobox],[role=listbox],[contenteditable=true]'))return;if(event.key==='Escape'&&single&&chosen){event.preventDefault();event.stopPropagation();back();return;}const direction=event.key==='ArrowDown'||event.key==='j'?1:event.key==='ArrowUp'||event.key==='k'?-1:0;if(!direction&&event.key!=='Home'&&event.key!=='End')return;event.preventDefault();const index=visible.findIndex(item=>item.id===chosen),next=event.key==='Home'?0:event.key==='End'?visible.length-1:Math.max(0,Math.min(visible.length-1,index<0?direction>0?0:visible.length-1:index+direction)),item=visible[next];if(item){choose(item);const row=rows.current.get(item.id);if(columns!=='item'){row?.focus();row?.scrollIntoView({block:'nearest'});}}};
  const sourceLabels:Record<AttentionItem['kind'],string>={request:'Question',operation:'Change review','thread-completed':'Task result','thread-failed':'Task needs attention'};
