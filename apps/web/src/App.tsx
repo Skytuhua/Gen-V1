@@ -103,7 +103,7 @@ let loadedSettings: SettingsComponent | undefined;
 const readPlacementRaw=(workspaceId:string):string|null=>{try{return localStorage.getItem(conversationPlacementKey(workspaceId));}catch{return null;}};
 const writePlacementRecord=(record:ConversationPlacementRecord)=>{try{localStorage.setItem(conversationPlacementKey(record.workspaceId),JSON.stringify(record));}catch{/* Placement remains usable when storage is unavailable. */}};
 const mainBasisOf=(layout:SplitWorkspaceLayout,paneId:string):MainBasis=>({paneId,activeViewId:layout.panes[paneId]?.activeViewId??null,viewIds:[...(layout.panes[paneId]?.viewIds??[])],revision:layout.revision});
-const DEFAULT_FLOAT_RECT:ChatRect={x:40,y:40,width:420,height:520};
+const DEFAULT_FLOAT_RECT:ChatRect={x:48,y:48,width:480,height:680};
 
 const emptySnapshot: Snapshot = { seq: 0, threads: [], messages: [], artifacts: [], userStates: [], data: [], requests: [], operations: [], resources: [], usage: {}, settings: { theme: 'dark', modelId: null }, activeThreadId: null };
 const hasPinnedAccount = (thread: Thread | undefined, snapshot: Snapshot) => Boolean(thread && (thread.accountId !== undefined || thread.modelId || thread.sessionPath || thread.runId || thread.epoch > 0 || snapshot.messages.some(message => message.threadId === thread.id)));

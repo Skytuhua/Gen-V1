@@ -62,6 +62,12 @@
       "gitBlob": "337c2db4dd6d9be2438b324e6fcdbb68edb02374"
     },
     {
+      "path": "apps/server/dev-stub-entry.ts",
+      "bytes": 3507,
+      "sha256": "df0c88a6c21e393675a37c9c2d35ef98682d3e80b2623851d61a66d3f276c75a",
+      "gitBlob": "f064f53d251b648dcc85ddb0af09cd99582d4525"
+    },
+    {
       "path": "apps/server/server.ts",
       "bytes": 28747,
       "sha256": "95075b1d8a0912fc5fe2d057a8fccb71eb1ef8d46fe69e16e1d38189e1aeefae",
@@ -88,8 +94,8 @@
     {
       "path": "apps/web/src/App.tsx",
       "bytes": 164622,
-      "sha256": "e77e9c22e122b5db1d6ebc147fc7f45f86ec8dccf40d3e4b3757fd01b7329727",
-      "gitBlob": "4c2faee96ed162e0cb9e3339923e36b8f50462b3"
+      "sha256": "cdb98b69981d90ba976155a5fff3b6707a72d13a8f02e9a97688da0366588d51",
+      "gitBlob": "8153a6a9b9449983edbff24361be90a807c04207"
     },
     {
       "path": "apps/web/src/AppearanceSettings.tsx",
@@ -339,9 +345,9 @@
     },
     {
       "path": "apps/web/src/WorkspaceSplitLayout.tsx",
-      "bytes": 29297,
-      "sha256": "c674200ea2554faa108d33cf8c233a317763eca7614028210a2d87107516170f",
-      "gitBlob": "60da18d9712f90c5a9953545c1169d951ef10a5a"
+      "bytes": 30545,
+      "sha256": "04d4f69e680609d148e725f54f5826ca3f836bad728f3b09990d9d966d549de9",
+      "gitBlob": "9d4eb0d72cac8900ce7765c28a083785ba92f339"
     },
     {
       "path": "apps/web/src/WorkspaceSurfaceBody.tsx",
@@ -558,6 +564,12 @@
       "bytes": 5142,
       "sha256": "f60e74407b09c9bea6956153f65a90fc124c009d8b06cf6d10f2c3943e856a2d",
       "gitBlob": "41ffe99e4b489b0d18d118fec3012458058b126b"
+    },
+    {
+      "path": "apps/web/src/workspace-split.css",
+      "bytes": 7524,
+      "sha256": "d991a991867f40dcaccecd12e4043c7203201ad6c07c5be71ae15576082c2f7a",
+      "gitBlob": "a22300177dd55a959c820a2fbad7db7002c49ea7"
     },
     {
       "path": "apps/web/src/workspace-tools.css",
@@ -812,6 +824,12 @@
       "gitBlob": "5056f2cbc361e4ccc08898ceff79c873621fb8e6"
     },
     {
+      "path": "packages/ui-shell/chat-layout.ts",
+      "bytes": 3715,
+      "sha256": "6e09664c9b055f1ff8eef0e44efee106c3e4248898935590d31c77ae0cad417d",
+      "gitBlob": "1a22648d8c428b5dc8b91633cd46889e9316214d"
+    },
+    {
       "path": "packages/ui-shell/controls.css",
       "bytes": 6041,
       "sha256": "bc7748d1ebc5d3992823ce92c93058a2f3ee18b47e70206cd3e1fefcd25cb424",
@@ -990,6 +1008,12 @@
       "bytes": 1775,
       "sha256": "0d5f9d8ca0f35e9f8bf642002a0ca7477b41a1eba97a04c5a42a4f715c502bc0",
       "gitBlob": "e6abf0183c056f841cee8b5a6837a7f51605788e"
+    },
+    {
+      "path": "tests/chat-layout.test.ts",
+      "bytes": 5166,
+      "sha256": "b39b283553ceb5fc7e25e812bef9df8467f9a95991e48b4abeb55e0034de56e5",
+      "gitBlob": "bfbd27bb09084fdc5d281dbfdecd00035e1ab0b8"
     },
     {
       "path": "tests/context-measurement.test.ts",
