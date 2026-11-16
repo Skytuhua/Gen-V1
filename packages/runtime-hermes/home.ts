@@ -23,5 +23,5 @@ export async function withHermesHome<T>(home:string,action:()=>Promise<T>,onLoss
   await assertHermesTree(home);
   const roots=[home];for(const name of ['skills','sessions','workspace','.curator_backups']){const path=join(home,name);try{await mkdir(path,{mode:0o700});}catch(error){if((error as NodeJS.ErrnoException).code!=='EEXIST')throw error;}roots.push(path);}
   return withPathGuard(roots.map(path=>({path,leaf:false,allowChildWrites:true,childWriteRoot:parent})),signal,async()=>{await assertHermesTree(home);return action();});
- },onLoss);
+ },onLoss,{startupAcquisition:true});
 }

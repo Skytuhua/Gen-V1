@@ -50,6 +50,9 @@ import { RequestContextCustody, REQUEST_PREPARATION_LIMITS, type RequestContextB
 import type { RequestPreparationV1 } from '../contracts/request-context.ts';
 import {SourceWorkbench, type PreparedSourceContext, type WorkbenchQueuedInput} from './source-workbench.ts';
 import {sourceRefsV1Schema, sendModeV1Schema, type SendModeV1} from '../contracts/source-selection.ts';
+import {ProjectMemoryHost} from './project-memory-host.ts';
+import type {MemoryExtractionAdmission,MemoryExtractionJob} from './memory-extraction.ts';
+import type {MemoryAccess,MemoryAction,MemoryScope} from '../contracts/project-memory.ts';
 
 type Outbox = WorkbenchQueuedInput & {messageId?:string;completedWrite?:CompletedWriteReceipt;hookClaimed?:boolean;hookDiagnostic?:WriteHookDiagnostic;sendMode?:SendModeV1};
 type Lease = { id: string; threadId: string; clientId: string; fields: string[]; expiresAt: number };
@@ -77,6 +80,8 @@ export interface ServiceOptions {
   /** Trusted host activation only. Never accepted from UI preferences or commands. */
   requestContextEnabled?:boolean;
   requestContextHooks?:RequestContextHooks;
+  memoryExtractionRuntimeFactory?:(job:Readonly<MemoryExtractionJob>)=>RuntimeAdapter|Promise<RuntimeAdapter>;
+  memoryExtractionAdmission?:MemoryExtractionAdmission;
   additionalTool?:(call:ToolCall,ctx:RunContext)=>Promise<unknown>;
 }
 export class Service {
@@ -119,9 +124,14 @@ export class Service {
   private readonly requestCustody:RequestContextCustody;
   private readonly requestRegistryDigest=digest(buildToolRegistry());
   private requestPreparationWork=0;
+  private memoryHostInstance?:ProjectMemoryHost;
   constructor(readonly store: Store, readonly runtime: RuntimeAdapter,private readonly options:ServiceOptions={}) {
+    this.requestCustody=new RequestContextCustody(store,{
+      prepare:async(preparation,prompt)=>{await options.requestContextHooks?.prepare?.(preparation,prompt);if(capabilityEnabled('memory.projectV1'))await this.memoryHost().prepare(preparation,prompt);},
+      finalize:async(preparation,input)=>{const memory=this.memoryHostInstance?await this.memoryHostInstance.finalize(preparation,input):{sources:[]},extra=await options.requestContextHooks?.finalize?.(preparation,input);return{sources:[...memory.sources,...(extra?.sources??[])],assertCurrent:()=>{memory.assertCurrent?.();extra?.assertCurrent?.();}};},
+      released:(preparation,reason)=>{this.memoryHostInstance?.released(preparation,reason);options.requestContextHooks?.released?.(preparation,reason);},
+    });
     this.sourceWorkbench = new SourceWorkbench(store, requestId => this.requestCustody.release(requestId, 'cancelled'));
-    this.requestCustody=new RequestContextCustody(store,options.requestContextHooks);
     this.effectFlags=createToolEffectFlags(options.toolEffectFlags);
     this.authority=new ToolAuthority(buildToolRegistry());this.effects=new ToolEffectLedger(store,this.authority,this.effectFlags);
     this.source=options.source;
@@ -136,12 +146,31 @@ export class Service {
     this.agentWork=new AgentWorkCoordinator({store,assertRun:ctx=>this.assertRun(ctx),isEnabled:capabilityEnabled,
       resourceResolver:async(_grant,_write,call)=>{const domain=await import('../capabilities/index.ts');return domain.handleDomainTool(call.name,call.args,this.agentReadDomain(_grant.threadId));},
       runtimeFactory:options.agentWorkRuntimeFactory});
-    runtime.configure({ onEvent: event => this.onRuntimeEvent(event), onTool: (call, ctx) => this.tool(call, ctx) });
+    runtime.configure({ onEvent: event => this.onRuntimeEvent(event), onTool: (call, ctx) => this.tool(call, ctx), onMemoryCheckpoint: request => this.memoryHost().checkpoint(request,()=>{this.assertRun(request.ctx);}) });
     this.sideRuntime=new SideRuntime(options.sideRuntimeFactory??(()=>import('../runtime/index.ts').then(({createRuntime})=>createRuntime({dataDir:store.dataDir,accounts:accountResolver(store)}))),{onEvent:event=>this.onRuntimeEvent(event),onTool:(call,ctx)=>this.tool(call,ctx)});
     this.learningSupported=Boolean(options.source||options.learningRuntimeFactory);
     this.learning=new LearningCoordinator({factory:job=>{if(!options.learningRuntimeFactory)throw new HarnessError('LEARNING_UNAVAILABLE','Automatic reviews are unavailable in this host.');return options.learningRuntimeFactory(job);},tool:(call,job,reads)=>this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1")?this.effects.invoke({call,ctx:{threadId:job.source.threadId},thread:this.thread(job.source.threadId),role:"learning"},async()=>this.learningTool(call,job,reads)) as Promise<LearningToolResult>:this.learningTool(call,job,reads),result:(job,outcome)=>this.learningResult(job,outcome)});
     this.curatorTimer=setInterval(()=>{if(!this.closed&&!this.updateClosing)this.curateIdle();},60_000);this.curatorTimer.unref();
   }
+  private memoryHost():ProjectMemoryHost {
+    if(this.closed)throw new HarnessError('CANCELLED_RUN','The memory host has closed.');
+    return this.memoryHostInstance??=new ProjectMemoryHost(this.store,{extractionFactory:this.options.memoryExtractionRuntimeFactory,extractionAdmission:this.options.memoryExtractionAdmission,
+      canExtract:()=>!this.closed&&!this.updateClosing&&!this.predictionMutations&&!this.store.all<Thread>('thread').some(thread=>!!thread.runId||thread.status==='working'||thread.status==='awaiting_input'),
+      beforeExtract:async()=>{if(this.reviewing)await this.cancelReview();},
+    });
+  }
+  get projectMemory(){return this.memoryHost().memory;}
+  async prepareProjectMemory(projectId:string,threadId:string,prompt:string,options:RequestPreparationOptions={}){
+    const memory=this.projectMemory,access=await memory.access(projectId,threadId);
+    if(!capabilityEnabled('memory.projectV1')||!memory.isEnabled(access))return null;
+    const preparation=await this.prepareRequestContext(threadId,prompt,options),view=this.memoryHost().preparedView(preparation);
+    if(!view)this.requestCustody.release(preparation.requestId,'cancelled');return view;
+  }
+  latestProjectMemory(projectId:string,threadId:string){return this.memoryHost().latest(projectId,threadId);}
+  excludeProjectMemory(requestId:string,input:{scope:MemoryScope;contextGeneration:number;itemId:string;revision:number}){
+    const preparation=this.getRequestPreparation(input.scope.threadId,requestId);return this.memoryHost().exclude(preparation,input);
+  }
+  projectMemoryReviewed(access:MemoryAccess,operation:MemoryAction):void {this.background(this.memoryHost().reviewed(access,operation));}
   private background(promise: Promise<unknown>): void {
     this.pending.add(promise); void promise.catch(() => {}).finally(() => this.pending.delete(promise));
   }
@@ -182,7 +211,7 @@ export class Service {
   /** Host-owned evidence; cancelling work during shutdown never turns a busy
    * close into permission to install an update. */
   isUpdateIdle():boolean {
-    return !this.closed&&!this.aborts.size&&!this.pending.size&&!this.deliveries.size&&!this.mainAdmissions.size&&!this.teardowns.size&&!this.predictionMutations&&!this.predictions.busy&&!this.reviewing&&!this.learning.busy&&!this.source?.runtime.sourceBusy
+    return !this.closed&&!this.aborts.size&&!this.pending.size&&!this.deliveries.size&&!this.mainAdmissions.size&&!this.teardowns.size&&!this.predictionMutations&&!this.predictions.busy&&!this.memoryHostInstance?.busy&&!this.reviewing&&!this.learning.busy&&!this.source?.runtime.sourceBusy
       &&!this.store.all<Thread>('thread').some(thread=>thread.runId||thread.status==='working'||thread.status==='awaiting_input'||this.planning.hasActiveChildren(thread.id))
       &&!this.store.all<Operation>('operation').some(operation=>['prepared','running','unknown'].includes(operation.status))
       &&!this.store.all<Outbox>('outbox').some(input=>input.status!=='handled')
@@ -202,7 +231,7 @@ export class Service {
   }
   composerPrediction(input:PredictionRequest,signal?:AbortSignal){return this.predictions.request(input,signal);}
   /** Credential mutations and real work wait for the independently owned session. */
-  cancelComposerPredictions():Promise<void>{return this.predictions.cancel();}
+  async cancelComposerPredictions():Promise<void>{await Promise.all([this.predictions.cancel(),this.memoryHostInstance?.cancel()]);}
   async skillDetail(name:string,options:Parameters<typeof viewSkill>[2]={}){return this.source?this.source.library.view(name,options):viewSkill(this.store,name,options);}
   async skillProposal(id:string){return this.source?this.source.library.proposal(id):viewSkillProposal(this.store,id);}
   sourceEvent(event:HermesEvent):void {
@@ -325,7 +354,7 @@ export class Service {
     const current=this.binding(thread,providerId);
     if(current.accountId!==captured.accountId)throw new HarnessError('ACCOUNT_SELECTION_CHANGED','The selected account changed. Send the message again using the current selection.');
   }
-  private requestContextEnabled():boolean { return this.options.requestContextEnabled??capabilityEnabled('context.compilerV1'); }
+  private requestContextEnabled():boolean { return capabilityEnabled('memory.projectV1')||(this.options.requestContextEnabled??capabilityEnabled('context.compilerV1')); }
   private requestBasis(thread:Thread,modelId:string,thinkingLevel:string|null|undefined):RequestContextBasis {
     if(this.closed||this.updateClosing)throw new HarnessError('CANCELLED_RUN','The request owner has closed.');
     if(this.store.get('archivedThread',thread.id)||['stopped','interrupted'].includes(thread.status))throw new HarnessError('STALE_REQUEST_CONTEXT','The request owner no longer admits this draft.');
@@ -597,7 +626,7 @@ export class Service {
     // Hold admission through asynchronous model discovery/history/teardown. A
     // previous reply settling in that interval must not start optional work.
     this.predictionMutations++;
-    try{const busy=this.predictions.busy,cancelled=this.cancelComposerPredictions();if(busy)await cancelled;return await this.executeCommand(command);}
+    try{const busy=this.predictions.busy||this.memoryHostInstance?.busy,cancelled=this.cancelComposerPredictions();if(busy)await cancelled;return await this.executeCommand(command);}
     finally{this.predictionMutations--;}
   }
   private async executeCommand(command:HostCommand){
@@ -683,9 +712,11 @@ export class Service {
       if (thread.runId) throw new HarnessError("RUN_BUSY", "Wait for the current run before compacting");
       this.assertNoOtherRun(thread.id);
       const binding=this.binding(thread,modelProvider(thread.modelId));
+      const memoryCheckpoint=capabilityEnabled('memory.projectV1')?await this.memoryHost().requirement(thread.id):undefined;
+      const current=this.thread(thread.id);if(current.epoch!==thread.epoch||current.runId!==thread.runId||current.modelId!==thread.modelId||current.sessionPath!==thread.sessionPath)throw new HarnessError('CANCELLED_RUN','The compaction owner changed while preparing memory.');
       const ctx = { threadId: thread.id, runId: randomUUID(), epoch: thread.epoch + 1 };
       const receipt = this.store.command(command, () => { this.assertBinding(this.thread(thread.id),modelProvider(thread.modelId!),binding);this.store.put("runtimeIntent", ctx.runId, thread.id, { kind: "compaction", previousStatus: thread.status }); this.store.put("thread", thread.id, thread.id, { ...thread, ...ctx, accountId:binding.accountId,id: thread.id, status: "working", updatedAt: now() }); return ctx; });
-      this.background(this.runtime.compact(ctx, thread.sessionPath, thread.modelId,binding.accountId).catch(e => this.runtimeFailure(ctx, e))); return receipt;
+      this.background((memoryCheckpoint?this.runtime.compact(ctx,thread.sessionPath,thread.modelId,binding.accountId,memoryCheckpoint):this.runtime.compact(ctx,thread.sessionPath,thread.modelId,binding.accountId)).catch(e => this.runtimeFailure(ctx, e))); return receipt;
     }
     if (command.type === "resource.grant") {
       const path = await canonical(text(p, "path", 4096)); assertNotStorage(path, this.store.dataDir);
@@ -1003,7 +1034,7 @@ export class Service {
     if(!this.store.all<Outbox>('outbox',threadId).some(i=>i.status==='persisted'&&!i.sourceFailure&&!i.sourceRecovery?.resumeRequired&&(!thread.runId||!i.completedWrite)&&(!thread.runId||i.sendMode!=='AFTER_CURRENT')))return;
     // Executor completions can enqueue input without a user command. Re-read
     // the thread after teardown; no captured state survives the async boundary.
-    if(this.predictions.busy){this.predictionMutations++;try{await this.cancelComposerPredictions();await this.deliverInputs(threadId);}finally{this.predictionMutations--;}return;}
+    if(this.predictions.busy||this.memoryHostInstance?.busy){this.predictionMutations++;try{await this.cancelComposerPredictions();await this.deliverInputs(threadId);}finally{this.predictionMutations--;}return;}
     const preparing=!thread.sideParentId&&thread.kind!=='delegate'&&!thread.runId;
     if(preparing)this.mainAdmissions.add(threadId);
     const preparingEpoch=thread.epoch;
@@ -1071,6 +1102,7 @@ export class Service {
     let dispatched=false;
     try {
       this.assertRun(ctx);this.assertBinding(this.thread(threadId),modelProvider(input.modelId),binding);
+      if(capabilityEnabled('memory.projectV1')){const memoryCheckpoint=await this.memoryHost().requirement(threadId);if(memoryCheckpoint)input={...input,memoryCheckpoint};}
       if(requestContextId){
         const sources:RequestTextSource[]=[{id:'host-guidance',revision:1,category:'INSTRUCTION',text:guidance},{id:'input:'+input.inputId,revision:1,category:'USER',text:userPrompt}];
         if(sourceContext)sources.push({id:'selected-sources:'+input.inputId,revision:1,category:'REFERENCE',text:sourceContext,inclusionReason:'Explicit user-selected source captures; quoted data only'});
@@ -1154,13 +1186,17 @@ export class Service {
     this.flushDeltas(thread.id);
     const control=this.aborts.get(thread.id);
     this.commitRuntimeProjection(thread, event);
+    if(event.type==='input.processing')try{this.memoryHostInstance?.acceptedInput(event);}catch{/* Runtime acceptance remains authoritative; revoked memory cannot be re-read for a usage projection. */}
     if (event.type === "settled") this.retireController(thread.id,control);
     if (event.type === "settled" && !event.aborted) {
       // Hermes may still be closing its background review here. Only this
       // accepted transition mints the slot; request admission waits for cleanup.
       const basis=this.predictionBasis(thread.id,true),reply=basis?this.store.get<Message>('message',basis.replyId):null;
       if(basis&&reply?.runId===event.runId&&!this.store.get('runtimeIntent',event.runId))this.predictions.settled(basis);
-      this.background(this.deliverOutbox(thread.id).then(()=>this.reviewAfter(event)));
+      this.background(this.deliverOutbox(thread.id).then(async()=>{
+        await this.memoryHostInstance?.runSettled(event);
+        return this.reviewAfter(event);
+      }));
     }
   }
   private commitRuntimeProjection(thread: Thread, event: RuntimeEvent): void {
@@ -1231,6 +1267,7 @@ export class Service {
         this.store.put("thread", thread.id, thread.id, { ...thread, runId: null, status: event.aborted ? "stopped" : unresolved ? "interrupted" : intent?.kind === "compaction" ? this.afterMaintenance(thread.id, intent.previousStatus) : this.hasGate(thread.id) ? "awaiting_input" : finished && !finished.invalidated && !queuedNext ? "completed" : "ready", updatedAt: now() });
         const old = this.store.get<{ value: RuntimeUsage }>("usage", thread.id)?.value ?? EMPTY_USAGE; this.store.put("usage", thread.id, thread.id, { id: thread.id, value: { ...old, activity: "idle" } });
         advanceLifecycle();
+        if(!event.aborted&&!unresolved&&intent?.kind!=='compaction')this.memoryHostInstance?.scheduleSettled(event);
       }
       return { runId: event.runId };
     });
@@ -1520,10 +1557,18 @@ export class Service {
     if(input.hookDiagnostic)this.operationData(operation);
   }
   async recover(): Promise<void> {
+    if(this.memoryHostInstance?.busy)throw new HarnessError('MEMORY_SOURCE_BUSY','Active memory work must finish cleanup before host recovery.');
     if(this.source)await this.source.library.initialize();
+    if(this.memoryHostInstance?.busy)throw new HarnessError('MEMORY_SOURCE_BUSY','Active memory work must finish cleanup before host recovery.');
     this.planning.recover();
     sweepStaleAccountLeases(this.store);
     this.store.internal("workspace.recovered", null, () => {
+      // A former host can no longer publish, but its unconfirmed native cleanup
+      // and cost are not converted into successful teardown or zero spend.
+      for(const row of this.store.db.prepare("SELECT id,thread_id,body FROM entities WHERE kind='projectMemoryAuxiliaryUsage' AND json_extract(body,'$.settled')=0 AND COALESCE(json_extract(body,'$.interrupted'),0)=0").all() as {id:string;thread_id:string|null;body:string}[]){
+        const value=JSON.parse(row.body),neverDispatched=value.status==='SCHEDULED'&&value.usage?.modelCalls===0;
+        this.store.put('projectMemoryAuxiliaryUsage',row.id,row.thread_id,{...value,status:neverDispatched?'INTERRUPTED_BEFORE_DISPATCH':'INTERRUPTED_UNCONFIRMED',interrupted:true,settled:neverDispatched,recoveredAt:now()});
+      }
       const learning=this.store.get<Snapshot['learning']>('learningStatus','global'),last=learning?.lastReview;
       this.store.put('learningStatus','global',null,{...learning,supported:this.learningSupported,status:'idle',lastCuratedAt:learning?.lastCuratedAt??now(),lastReview:last?.status==='reviewing'?{...last,status:'cancelled',finishedAt:now(),error:'The interrupted review was not restarted.'}:last??null});
       for (const op of this.store.all<Operation>("operation").filter(o => o.status === "running")) {
@@ -1546,7 +1591,7 @@ export class Service {
     for(const key of [...this.deltaBuffers.keys()])this.flushDelta(key);
     this.closed=true;this.requestCustody.dispose();clearInterval(this.curatorTimer);for(const controller of this.aborts.values())controller.abort();
     for(const controller of this.researchAborts)controller.abort();
-    const settled=await Promise.allSettled([this.agentWork.dispose(),this.predictions.dispose(),this.learning.dispose(),this.planning.dispose(),this.sideRuntime.dispose(),this.runtime.dispose()]);
+    const settled=await Promise.allSettled([this.agentWork.dispose(),this.memoryHostInstance?.dispose(),this.predictions.dispose(),this.learning.dispose(),this.planning.dispose(),this.sideRuntime.dispose(),this.runtime.dispose()]);
     await Promise.allSettled([...this.pending]);
     const failures=settled.flatMap(result=>result.status==='rejected'?[result.reason]:[]);if(failures.length)throw new AggregateError(failures,'Could not close every workspace runtime.');
   }

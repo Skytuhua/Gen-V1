@@ -72,6 +72,7 @@ export const browserSuites:BrowserSuite[] = [
   suite('project-app-integration', ['project-app-integration.spec.mjs']),
   suite('project-picker'),
   suite('project-search'),
+  suite('project-memory'),
   suite('wo5-app-integration'),
   suite('runtime-presentation'),
   suite('shared-panels'),

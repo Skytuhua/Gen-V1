@@ -1,0 +1,199 @@
+{
+  "version": 1,
+  "kind": "installed-verifier-phase-review",
+  "reviewedAt": "2026-11-15T17:42:30.782981+00:00",
+  "runId": 43739565577,
+  "jobId": 132889515576,
+  "head": "b2c81411b4783c12a56eda3f0e7cd54d66fe67b4",
+  "tree": "3a157a5a3be86368e8a4b1404ab2e8886b630bdc",
+  "actualCheckout": "21b97981b0eebc48be38d5d98bb705abaa35f7c3",
+  "artifact": {
+    "id": 14172970343,
+    "name": "installed-memory-43739565577-1",
+    "bytes": 356377,
+    "sha256": "4b965d11507bc7f01441310c358581c03b35a19e512e44d304c34e6008eaea90",
+    "downloads": 1,
+    "fileCount": 4,
+    "screenshots": []
+  },
+  "verification": {
+    "ref": "/workspace/scratch/36f66011d961/m05-ci-43739565577/installed-artifact-14172970343/.harness-desktop-installed/run-1794763379114-eac9fe38-4aaf-4246-b500-f55696071fbe/verification.json",
+    "bytes": 4446,
+    "sha256": "a140751889c929b3575732ea391fdaca75e0bcc68a283ca78e85c19a3ddc60c6"
+  },
+  "observed": {
+    "preflightObservations": [
+      {
+        "stage": "before-install",
+        "startedAt": "2026-11-15T17:22:59.120Z",
+        "timeoutMs": 60000,
+        "elapsedMs": 29665,
+        "status": "completed",
+        "subphases": [
+          {
+            "phase": "script-start",
+            "scriptElapsedMs": 5,
+            "observedElapsedMs": 222
+          },
+          {
+            "phase": "registry-complete",
+            "scriptElapsedMs": 26,
+            "observedElapsedMs": 238
+          },
+          {
+            "phase": "shortcuts-complete",
+            "scriptElapsedMs": 122,
+            "observedElapsedMs": 334
+          },
+          {
+            "phase": "cache-complete",
+            "scriptElapsedMs": 127,
+            "observedElapsedMs": 339
+          },
+          {
+            "phase": "processes-complete",
+            "scriptElapsedMs": 133,
+            "observedElapsedMs": 345
+          },
+          {
+            "phase": "result-complete",
+            "scriptElapsedMs": 29414,
+            "observedElapsedMs": 29625
+          }
+        ]
+      },
+      {
+        "stage": "pre-install-recheck",
+        "startedAt": "2026-11-15T17:24:26.880Z",
+        "timeoutMs": 60000,
+        "elapsedMs": 22682,
+        "status": "completed",
+        "subphases": [
+          {
+            "phase": "script-start",
+            "scriptElapsedMs": 6,
+            "observedElapsedMs": 201
+          },
+          {
+            "phase": "registry-complete",
+            "scriptElapsedMs": 25,
+            "observedElapsedMs": 216
+          },
+          {
+            "phase": "shortcuts-complete",
+            "scriptElapsedMs": 48,
+            "observedElapsedMs": 239
+          },
+          {
+            "phase": "cache-complete",
+            "scriptElapsedMs": 53,
+            "observedElapsedMs": 245
+          },
+          {
+            "phase": "processes-complete",
+            "scriptElapsedMs": 60,
+            "observedElapsedMs": 251
+          },
+          {
+            "phase": "result-complete",
+            "scriptElapsedMs": 22447,
+            "observedElapsedMs": 22638
+          }
+        ]
+      }
+    ],
+    "clearPreflight": {
+      "entries": [],
+      "shortcuts": [
+        {
+          "present": false,
+          "path": "C:\\Users\\runneradmin\\Desktop\\Gen V1.lnk"
+        },
+        {
+          "present": false,
+          "path": "C:\\Users\\runneradmin\\Desktop\\Generative Harness.lnk"
+        },
+        {
+          "present": false,
+          "path": "C:\\Users\\Public\\Desktop\\Gen V1.lnk"
+        },
+        {
+          "present": false,
+          "path": "C:\\Users\\Public\\Desktop\\Generative Harness.lnk"
+        },
+        {
+          "present": false,
+          "path": "C:\\Users\\runneradmin\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Gen V1.lnk"
+        },
+        {
+          "present": false,
+          "path": "C:\\Users\\runneradmin\\AppData\\Roaming\\Microsoft\\Windows\\Start Menu\\Programs\\Generative Harness.lnk"
+        },
+        {
+          "present": false,
+          "path": "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Gen V1.lnk"
+        },
+        {
+          "present": false,
+          "path": "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\Generative Harness.lnk"
+        }
+      ],
+      "updaterCache": {
+        "present": false,
+        "path": "C:\\Users\\runneradmin\\AppData\\Local\\generative-harness-desktop-updater"
+      },
+      "runningAppPids": []
+    },
+    "expectedPayload": {
+      "files": 92880,
+      "bytes": 2567765358,
+      "sha256": "0d2fd55f5424b9c0057306b849d6f4276f7526b1fb81765d4154ec8d764ae604",
+      "maxInstalledPathLength": 240
+    },
+    "setupSha256": "5980141204c178790423c2803ded5080ea9c43e5d25948dfee47047f38b24afc",
+    "error": "Owned installer process exceeded its 600000 ms deadline.",
+    "launches": [],
+    "cleanup": {
+      "status": "preserved-unconfirmed-installation"
+    },
+    "absentFields": [
+      "installCommand",
+      "installedRegistry",
+      "payloadCustody",
+      "providerVerification",
+      "memoryRetention"
+    ]
+  },
+  "phaseResults": {
+    "canonicalPackaging": "PASS",
+    "initialPreflight": "PASS",
+    "preInstallRecheck": "PASS",
+    "installerInvocation": "TIMEOUT_600000_MS",
+    "installedPayloadComparison": "NOT_RUN",
+    "installedMemoryReview": "NOT_RUN",
+    "installedRestart": "NOT_RUN",
+    "ownedUninstall": "NOT_RUN",
+    "screenshots": "NOT_RUN"
+  },
+  "sourceEvidence": [
+    {
+      "path": "scripts/verify-installed-desktop.ts",
+      "sha256": "4a6a80e9033d8ba7a3e63911f4e3e719c6c7fb541e081343758955fc672c5bd6"
+    },
+    {
+      "path": "scripts/desktop-assets.ts",
+      "sha256": "1cdf863ee743ef3d0f8f08a9a9081529f82bb28a67036e4085e48bf94043620b"
+    },
+    {
+      "path": "node_modules/.pnpm/app-builder-lib@26.18.0_dmg-builder@26.18.0_electron-builder-squirrel-windows@26.18.0/node_modules/app-builder-lib/templates/nsis/include/extractAppPackage.nsh",
+      "sha256": "e4174388a0f7a1df0b85a0742aa1ea7a4b2b18f9f29dccd6ef10a66212f68148"
+    }
+  ],
+  "diagnosticLimits": [
+    "The completed preflight checks are directly observed; most script time is between processes-complete and result-complete, which bounds the fixed ConvertTo-Json operation in this source.",
+    "No installer extraction progress, native window state, or child exit-versus-close event was retained. The 600-second timeout does not identify the underlying installer cause.",
+    "Pinned NSIS ZIP extraction displays an error MessageBox without a silent default on a non-success result. That is a possible blocking path, not an observed failure in this run.",
+    "No source, timeout, custody rule or assertion was changed during this review.",
+    "No installed launch, memory flow, screenshots, provider inference or owned uninstall is claimed."
+  ]
+}

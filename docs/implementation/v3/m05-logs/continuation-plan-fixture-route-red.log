@@ -1,0 +1,644 @@
+{"root":"/workspace/scratch/36f66011d961/m05-continuation/apps/web","fixturePath":"/plan-timeline.html","title":"Gen V1","containsRenderer":false,"containsMain":true}
+(!) Failed to run dependency scan. Skipping dependency pre-bundling. Error:   Failed to scan for dependencies from entries:
+  /workspace/scratch/36f66011d961/m05-continuation/apps/web/index.html
+
+  ✘ [ERROR] The server is being restarted or closed. Request is outdated [plugin vite:dep-scan]
+
+    node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1502:27:
+      1502 │         let result = await callback({
+           ╵                            ^
+
+    at throwClosedServerError (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:28810:32)
+    at EnvironmentPluginContainer.resolveId (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:28942:65)
+    at resolveId (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31751:38)
+    at resolve$4 (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31756:22)
+    at file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31881:28
+    at requestCallbacks.on-resolve (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1502:28)
+    at handleRequest (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:911:17)
+    at handleIncomingPacket (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:936:7)
+    at Socket.readFromStdout (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:864:7)
+    at Socket.emit (node:events:514:28)
+
+  This error came from the "onResolve" callback registered here:
+
+    node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1426:20:
+      1426 │       let promise = setup({
+           ╵                     ^
+
+    at setup (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31878:12)
+    at handlePlugins (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1426:21)
+    at buildOrContextImpl (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1139:5)
+    at Object.buildOrContext (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:963:5)
+    at /workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2329:68
+    at new Promise (<anonymous>)
+    at Object.context (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2329:27)
+    at Object.context (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2171:58)
+    at prepareEsbuildScanner (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31705:23)
+
+  The plugin "vite:dep-scan" was triggered by this import
+
+    apps/web/src/DesktopEntry.tsx:1:68:
+      1 │ ...seCallback,useEffect,useLayoutEffect,useRef,useState} from 'react';
+        ╵                                                               ~~~~~~~
+
+
+✘ [ERROR] The server is being restarted or closed. Request is outdated [plugin vite:dep-scan]
+
+    node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1502:27:
+      1502 │         let result = await callback({
+           ╵                            ^
+
+    at throwClosedServerError (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:28810:32)
+    at EnvironmentPluginContainer.resolveId (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:28942:65)
+    at resolveId (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31751:38)
+    at resolve$4 (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31756:22)
+    at file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31909:28
+    at requestCallbacks.on-resolve (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1502:28)
+    at handleRequest (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:911:17)
+    at handleIncomingPacket (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:936:7)
+    at Socket.readFromStdout (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:864:7)
+    at Socket.emit (node:events:514:28)
+
+  This error came from the "onResolve" callback registered here:
+
+    node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1426:20:
+      1426 │       let promise = setup({
+           ╵                     ^
+
+    at setup (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31908:12)
+    at handlePlugins (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1426:21)
+    at buildOrContextImpl (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1139:5)
+    at Object.buildOrContext (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:963:5)
+    at /workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2329:68
+    at new Promise (<anonymous>)
+    at Object.context (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2329:27)
+    at Object.context (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2171:58)
+    at prepareEsbuildScanner (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/
+[output bounded; middle omitted]
+:1426:20:
+      1426 │       let promise = setup({
+           ╵                     ^
+
+    at setup (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31908:12)
+    at handlePlugins (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1426:21)
+    at buildOrContextImpl (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1139:5)
+    at Object.buildOrContext (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:963:5)
+    at /workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2329:68
+    at new Promise (<anonymous>)
+    at Object.context (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2329:27)
+    at Object.context (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2171:58)
+    at prepareEsbuildScanner (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31705:23)
+
+  The plugin "vite:dep-scan" was triggered by this import
+
+    apps/web/src/DesktopEntry.tsx:8:23:
+      8 │ import {Artifact} from './Artifact';
+        ╵                        ~~~~~~~~~~~~
+
+
+✘ [ERROR] The server is being restarted or closed. Request is outdated [plugin vite:dep-scan]
+
+    node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1502:27:
+      1502 │         let result = await callback({
+           ╵                            ^
+
+    at throwClosedServerError (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:28810:32)
+    at EnvironmentPluginContainer.resolveId (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:28942:65)
+    at resolveId (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31751:38)
+    at resolve$4 (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31756:22)
+    at file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31909:28
+    at requestCallbacks.on-resolve (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1502:28)
+    at handleRequest (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:911:17)
+    at handleIncomingPacket (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:936:7)
+    at Socket.readFromStdout (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:864:7)
+    at Socket.emit (node:events:514:28)
+
+  This error came from the "onResolve" callback registered here:
+
+    node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1426:20:
+      1426 │       let promise = setup({
+           ╵                     ^
+
+    at setup (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31908:12)
+    at handlePlugins (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1426:21)
+    at buildOrContextImpl (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1139:5)
+    at Object.buildOrContext (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:963:5)
+    at /workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2329:68
+    at new Promise (<anonymous>)
+    at Object.context (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2329:27)
+    at Object.context (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2171:58)
+    at prepareEsbuildScanner (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31705:23)
+
+  The plugin "vite:dep-scan" was triggered by this import
+
+    apps/web/src/DesktopEntry.tsx:9:46:
+      9 │ import {bootstrap,getSnapshot,subscribe} from './api';
+        ╵                                               ~~~~~~~
+
+
+✘ [ERROR] The server is being restarted or closed. Request is outdated [plugin vite:dep-scan]
+
+    node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1502:27:
+      1502 │         let result = await callback({
+           ╵                            ^
+
+    at throwClosedServerError (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:28810:32)
+    at EnvironmentPluginContainer.resolveId (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:28942:65)
+    at resolveId (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31751:38)
+    at resolve$4 (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31756:22)
+    at file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31909:28
+    at requestCallbacks.on-resolve (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1502:28)
+    at handleRequest (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:911:17)
+    at handleIncomingPacket (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:936:7)
+    at Socket.readFromStdout (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:864:7)
+    at Socket.emit (node:events:514:28)
+
+  This error came from the "onResolve" callback registered here:
+
+    node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1426:20:
+      1426 │       let promise = setup({
+           ╵                     ^
+
+    at setup (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31908:12)
+    at handlePlugins (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1426:21)
+    at buildOrContextImpl (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1139:5)
+    at Object.buildOrContext (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:963:5)
+    at /workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2329:68
+    at new Promise (<anonymous>)
+    at Object.context (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2329:27)
+    at Object.context (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2171:58)
+    at prepareEsbuildScanner (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31705:23)
+
+  The plugin "vite:dep-scan" was triggered by this import
+
+    apps/web/src/DesktopEntry.tsx:10:39:
+      10 │ import {DelegatedAgentTranscript} from './DelegatedAgentTranscript';
+         ╵                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+✘ [ERROR] The server is being restarted or closed. Request is outdated [plugin vite:dep-scan]
+
+    node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1502:27:
+      1502 │         let result = await callback({
+           ╵                            ^
+
+    at throwClosedServerError (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:28810:32)
+    at EnvironmentPluginContainer.resolveId (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:28942:65)
+    at resolveId (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31751:38)
+    at resolve$4 (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31756:22)
+    at file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31909:28
+    at requestCallbacks.on-resolve (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1502:28)
+    at handleRequest (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:911:17)
+    at handleIncomingPacket (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:936:7)
+    at Socket.readFromStdout (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:864:7)
+    at Socket.emit (node:events:514:28)
+
+  This error came from the "onResolve" callback registered here:
+
+    node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1426:20:
+      1426 │       let promise = setup({
+           ╵                     ^
+
+    at setup (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31908:12)
+    at handlePlugins (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1426:21)
+    at buildOrContextImpl (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1139:5)
+    at Object.buildOrContext (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:963:5)
+    at /workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2329:68
+    at new Promise (<anonymous>)
+    at Object.context (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2329:27)
+    at Object.context (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2171:58)
+    at prepareEsbuildScanner (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31705:23)
+
+  The plugin "vite:dep-scan" was triggered by this import
+
+    apps/web/src/DesktopEntry.tsx:11:36:
+      11 │ import {ProjectContextSurface} from './ProjectContextSurface';
+         ╵                                     ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+✘ [ERROR] The server is being restarted or closed. Request is outdated [plugin vite:dep-scan]
+
+    node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1502:27:
+      1502 │         let result = await callback({
+           ╵                            ^
+
+    at throwClosedServerError (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:28810:32)
+    at EnvironmentPluginContainer.resolveId (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:28942:65)
+    at resolveId (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31751:38)
+    at resolve$4 (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31756:22)
+    at file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31909:28
+    at requestCallbacks.on-resolve (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1502:28)
+    at handleRequest (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:911:17)
+    at handleIncomingPacket (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:936:7)
+    at Socket.readFromStdout (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:864:7)
+    at Socket.emit (node:events:514:28)
+
+  This error came from the "onResolve" callback registered here:
+
+    node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1426:20:
+      1426 │       let promise = setup({
+           ╵                     ^
+
+    at setup (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31908:12)
+    at handlePlugins (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1426:21)
+    at buildOrContextImpl (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1139:5)
+    at Object.buildOrContext (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:963:5)
+    at /workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2329:68
+    at new Promise (<anonymous>)
+    at Object.context (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2329:27)
+    at Object.context (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2171:58)
+    at prepareEsbuildScanner (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31705:23)
+
+  The plugin "vite:dep-scan" was triggered by this import
+
+    apps/web/src/DesktopEntry.tsx:12:35:
+      12 │ import {WorkspaceSurfaceBody} from './WorkspaceSurfaceBody';
+         ╵                                    ~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+✘ [ERROR] The server is being restarted or closed. Request is outdated [plugin vite:dep-scan]
+
+    node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1502:27:
+      1502 │         let result = await callback({
+           ╵                            ^
+
+    at throwClosedServerError (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:28810:32)
+    at EnvironmentPluginContainer.resolveId (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:28942:65)
+    at resolveId (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31751:38)
+    at resolve$4 (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31756:22)
+    at file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31909:28
+    at requestCallbacks.on-resolve (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1502:28)
+    at handleRequest (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:911:17)
+    at handleIncomingPacket (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:936:7)
+    at Socket.readFromStdout (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:864:7)
+    at Socket.emit (node:events:514:28)
+
+  This error came from the "onResolve" callback registered here:
+
+    node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1426:20:
+      1426 │       let promise = setup({
+           ╵                     ^
+
+    at setup (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31908:12)
+    at handlePlugins (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1426:21)
+    at buildOrContextImpl (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1139:5)
+    at Object.buildOrContext (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:963:5)
+    at /workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2329:68
+    at new Promise (<anonymous>)
+    at Object.context (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2329:27)
+    at Object.context (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2171:58)
+    at prepareEsbuildScanner (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31705:23)
+
+  The plugin "vite:dep-scan" was triggered by this import
+
+    apps/web/src/DesktopEntry.tsx:13:32:
+      13 │ import {useWorkspaceState} from './workspace-api';
+         ╵                                 ~~~~~~~~~~~~~~~~~
+
+
+✘ [ERROR] The server is being restarted or closed. Request is outdated [plugin vite:dep-scan]
+
+    node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1502:27:
+      1502 │         let result = await callback({
+           ╵                            ^
+
+    at throwClosedServerError (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:28810:32)
+    at EnvironmentPluginContainer.resolveId (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:28942:65)
+    at resolveId (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31751:38)
+    at resolve$4 (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31756:22)
+    at file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31909:28
+    at requestCallbacks.on-resolve (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1502:28)
+    at handleRequest (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:911:17)
+    at handleIncomingPacket (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:936:7)
+    at Socket.readFromStdout (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:864:7)
+    at Socket.emit (node:events:514:28)
+
+  This error came from the "onResolve" callback registered here:
+
+    node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1426:20:
+      1426 │       let promise = setup({
+           ╵                     ^
+
+    at setup (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31908:12)
+    at handlePlugins (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1426:21)
+    at buildOrContextImpl (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1139:5)
+    at Object.buildOrContext (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:963:5)
+    at /workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2329:68
+    at new Promise (<anonymous>)
+    at Object.context (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2329:27)
+    at Object.context (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2171:58)
+    at prepareEsbuildScanner (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31705:23)
+
+  The plugin "vite:dep-scan" was triggered by this import
+
+    apps/web/src/DesktopEntry.tsx:16:42:
+      16 │ import {UsageSummary,WorkspacePanel} from './WorkspacePanel';
+         ╵                                           ~~~~~~~~~~~~~~~~~~
+
+
+✘ [ERROR] The server is being restarted or closed. Request is outdated [plugin vite:dep-scan]
+
+    node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1502:27:
+      1502 │         let result = await callback({
+           ╵                            ^
+
+    at throwClosedServerError (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:28810:32)
+    at EnvironmentPluginContainer.resolveId (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:28942:65)
+    at resolveId (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31751:38)
+    at resolve$4 (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31756:22)
+    at file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31909:28
+    at requestCallbacks.on-resolve (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1502:28)
+    at handleRequest (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:911:17)
+    at handleIncomingPacket (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:936:7)
+    at Socket.readFromStdout (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:864:7)
+    at Socket.emit (node:events:514:28)
+
+  This error came from the "onResolve" callback registered here:
+
+    node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1426:20:
+      1426 │       let promise = setup({
+           ╵                     ^
+
+    at setup (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31908:12)
+    at handlePlugins (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1426:21)
+    at buildOrContextImpl (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1139:5)
+    at Object.buildOrContext (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:963:5)
+    at /workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2329:68
+    at new Promise (<anonymous>)
+    at Object.context (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2329:27)
+    at Object.context (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2171:58)
+    at prepareEsbuildScanner (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31705:23)
+
+  The plugin "vite:dep-scan" was triggered by this import
+
+    apps/web/src/DesktopEntry.tsx:17:32:
+      17 │ import {WorkspaceProvider} from './workspace-context';
+         ╵                                 ~~~~~~~~~~~~~~~~~~~~~
+
+
+✘ [ERROR] The server is being restarted or closed. Request is outdated [plugin vite:dep-scan]
+
+    node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1502:27:
+      1502 │         let result = await callback({
+           ╵                            ^
+
+    at throwClosedServerError (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:28810:32)
+    at EnvironmentPluginContainer.resolveId (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:28942:65)
+    at resolveId (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31751:38)
+    at resolve$4 (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31756:22)
+    at file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31909:28
+    at requestCallbacks.on-resolve (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1502:28)
+    at handleRequest (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:911:17)
+    at handleIncomingPacket (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:936:7)
+    at Socket.readFromStdout (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:864:7)
+    at Socket.emit (node:events:514:28)
+
+  This error came from the "onResolve" callback registered here:
+
+    node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1426:20:
+      1426 │       let promise = setup({
+           ╵                     ^
+
+    at setup (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31908:12)
+    at handlePlugins (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1426:21)
+    at buildOrContextImpl (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1139:5)
+    at Object.buildOrContext (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:963:5)
+    at /workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2329:68
+    at new Promise (<anonymous>)
+    at Object.context (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2329:27)
+    at Object.context (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2171:58)
+    at prepareEsbuildScanner (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31705:23)
+
+  The plugin "vite:dep-scan" was triggered by this import
+
+    apps/web/src/DesktopEntry.tsx:18:30:
+      18 │ import {readShellLayout} from './shell-layout';
+         ╵                               ~~~~~~~~~~~~~~~~
+
+
+✘ [ERROR] The server is being restarted or closed. Request is outdated [plugin vite:dep-scan]
+
+    node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1502:27:
+      1502 │         let result = await callback({
+           ╵                            ^
+
+    at throwClosedServerError (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:28810:32)
+    at EnvironmentPluginContainer.resolveId (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:28942:65)
+    at resolveId (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31751:38)
+    at resolve$4 (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31756:22)
+    at file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31909:28
+    at requestCallbacks.on-resolve (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1502:28)
+    at handleRequest (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:911:17)
+    at handleIncomingPacket (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:936:7)
+    at Socket.readFromStdout (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:864:7)
+    at Socket.emit (node:events:514:28)
+
+  This error came from the "onResolve" callback registered here:
+
+    node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1426:20:
+      1426 │       let promise = setup({
+           ╵                     ^
+
+    at setup (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31908:12)
+    at handlePlugins (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1426:21)
+    at buildOrContextImpl (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1139:5)
+    at Object.buildOrContext (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:963:5)
+    at /workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2329:68
+    at new Promise (<anonymous>)
+    at Object.context (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2329:27)
+    at Object.context (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2171:58)
+    at prepareEsbuildScanner (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31705:23)
+
+  The plugin "vite:dep-scan" was triggered by this import
+
+    apps/web/src/DesktopEntry.tsx:19:78:
+      19 │ ...indowActions,useDesktop,useDesktopReady} from './desktop-context';
+         ╵                                                  ~~~~~~~~~~~~~~~~~~~
+
+
+✘ [ERROR] The server is being restarted or closed. Request is outdated [plugin vite:dep-scan]
+
+    node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1502:27:
+      1502 │         let result = await callback({
+           ╵                            ^
+
+    at throwClosedServerError (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:28810:32)
+    at EnvironmentPluginContainer.resolveId (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:28942:65)
+    at resolveId (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31751:38)
+    at resolve$4 (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31756:22)
+    at file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31909:28
+    at requestCallbacks.on-resolve (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1502:28)
+    at handleRequest (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:911:17)
+    at handleIncomingPacket (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:936:7)
+    at Socket.readFromStdout (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:864:7)
+    at Socket.emit (node:events:514:28)
+
+  This error came from the "onResolve" callback registered here:
+
+    node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1426:20:
+      1426 │       let promise = setup({
+           ╵                     ^
+
+    at setup (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31908:12)
+    at handlePlugins (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1426:21)
+    at buildOrContextImpl (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1139:5)
+    at Object.buildOrContext (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:963:5)
+    at /workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2329:68
+    at new Promise (<anonymous>)
+    at Object.context (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2329:27)
+    at Object.context (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2171:58)
+    at prepareEsbuildScanner (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31705:23)
+
+  The plugin "vite:dep-scan" was triggered by this import
+
+    apps/web/src/DesktopEntry.tsx:20:36:
+      20 │ import {DesktopBrowserSurface} from './DesktopBrowser';
+         ╵                                     ~~~~~~~~~~~~~~~~~~
+
+
+✘ [ERROR] The server is being restarted or closed. Request is outdated [plugin vite:dep-scan]
+
+    node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1502:27:
+      1502 │         let result = await callback({
+           ╵                            ^
+
+    at throwClosedServerError (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:28810:32)
+    at EnvironmentPluginContainer.resolveId (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:28942:65)
+    at resolveId (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31751:38)
+    at resolve$4 (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31756:22)
+    at file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31909:28
+    at requestCallbacks.on-resolve (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1502:28)
+    at handleRequest (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:911:17)
+    at handleIncomingPacket (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:936:7)
+    at Socket.readFromStdout (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:864:7)
+    at Socket.emit (node:events:514:28)
+
+  This error came from the "onResolve" callback registered here:
+
+    node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1426:20:
+      1426 │       let promise = setup({
+           ╵                     ^
+
+    at setup (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31908:12)
+    at handlePlugins (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1426:21)
+    at buildOrContextImpl (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1139:5)
+    at Object.buildOrContext (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:963:5)
+    at /workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2329:68
+    at new Promise (<anonymous>)
+    at Object.context (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2329:27)
+    at Object.context (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2171:58)
+    at prepareEsbuildScanner (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31705:23)
+
+  The plugin "vite:dep-scan" was triggered by this import
+
+    apps/web/src/DesktopEntry.tsx:22:43:
+      22 │ import {PluginFrame,usePluginCatalog} from './PluginFrame';
+         ╵                                            ~~~~~~~~~~~~~~~
+
+
+✘ [ERROR] The server is being restarted or closed. Request is outdated [plugin vite:dep-scan]
+
+    node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1502:27:
+      1502 │         let result = await callback({
+           ╵                            ^
+
+    at throwClosedServerError (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:28810:32)
+    at EnvironmentPluginContainer.resolveId (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:28942:65)
+    at resolveId (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31751:38)
+    at resolve$4 (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31756:22)
+    at file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31909:28
+    at requestCallbacks.on-resolve (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1502:28)
+    at handleRequest (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:911:17)
+    at handleIncomingPacket (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:936:7)
+    at Socket.readFromStdout (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:864:7)
+    at Socket.emit (node:events:514:28)
+
+  This error came from the "onResolve" callback registered here:
+
+    node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1426:20:
+      1426 │       let promise = setup({
+           ╵                     ^
+
+    at setup (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31908:12)
+    at handlePlugins (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1426:21)
+    at buildOrContextImpl (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1139:5)
+    at Object.buildOrContext (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:963:5)
+    at /workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2329:68
+    at new Promise (<anonymous>)
+    at Object.context (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2329:27)
+    at Object.context (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2171:58)
+    at prepareEsbuildScanner (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31705:23)
+
+  The plugin "vite:dep-scan" was triggered by this import
+
+    apps/web/src/DesktopEntry.tsx:23:22:
+      23 │ import {Toaster} from '../../../packages/ui-shell/Toast';
+         ╵                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+✘ [ERROR] The server is being restarted or closed. Request is outdated [plugin vite:dep-scan]
+
+    node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1502:27:
+      1502 │         let result = await callback({
+           ╵                            ^
+
+    at throwClosedServerError (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:28810:32)
+    at EnvironmentPluginContainer.resolveId (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:28942:65)
+    at resolveId (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31751:38)
+    at resolve$4 (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31756:22)
+    at file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31909:28
+    at requestCallbacks.on-resolve (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1502:28)
+    at handleRequest (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:911:17)
+    at handleIncomingPacket (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:936:7)
+    at Socket.readFromStdout (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:864:7)
+    at Socket.emit (node:events:514:28)
+
+  This error came from the "onResolve" callback registered here:
+
+    node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1426:20:
+      1426 │       let promise = setup({
+           ╵                     ^
+
+    at setup (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31908:12)
+    at handlePlugins (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1426:21)
+    at buildOrContextImpl (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1139:5)
+    at Object.buildOrContext (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:963:5)
+    at /workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2329:68
+    at new Promise (<anonymous>)
+    at Object.context (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2329:27)
+    at Object.context (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:2171:58)
+    at prepareEsbuildScanner (file:///workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:31705:23)
+
+  The plugin "vite:dep-scan" was triggered by this import
+
+    apps/web/src/DesktopEntry.tsx:24:27:
+      24 │ import {TooltipLayer} from '../../../packages/ui-shell/Tooltip';
+         ╵                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+    at failureErrorWithLog (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1752:15)
+    at /workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1211:25
+    at runOnEndCallbacks (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1592:45)
+    at buildResponseToResult (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1209:7)
+    at /workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1221:9
+    at new Promise (<anonymous>)
+    at requestCallbacks.on-end (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:1220:54)
+    at handleRequest (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:911:17)
+    at handleIncomingPacket (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:936:7)
+    at Socket.readFromStdout (/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/esbuild@0.28.2/node_modules/esbuild/lib/main.js:864:7)
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: The plan fixture URL must serve the plan renderer, not the application fallback.
+    at file:///workspace/scratch/36f66011d961/m05-plan-fixture-http-probe.mjs:19:10
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.22.1

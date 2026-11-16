@@ -25,7 +25,8 @@ describe('useTableOverflow', () => {
     script = (await build({stdin: {contents: fixture, resolveDir: process.cwd(), loader: 'tsx'}, loader: {'.css': 'empty'}, bundle: true, write: false, format: 'iife', platform: 'browser', jsx: 'automatic', define: {'process.env.NODE_ENV': '"production"'}})).outputFiles[0]!.text;
     browser = await chromium.launch({headless: true, ...(process.platform === 'win32' ? {channel: 'msedge'} : {})});
   });
-  afterAll(async () => { await browser?.close(); });
+  // Playwright's closeOrKill window is 30 seconds; allow owned cleanup to finish.
+  afterAll(async () => { await browser?.close(); }, 45000);
   async function open(): Promise<Page> {
     const page = await browser.newPage();
     await page.setContent('<div id="root"></div>');

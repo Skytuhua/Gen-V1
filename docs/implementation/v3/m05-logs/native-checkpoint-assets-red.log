@@ -1,0 +1,35 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/hermes-desktop-assets.test.ts (9 tests | 2 failed) 123ms
+   × admits only the exact Hermes Python worker and checkpoint bridge and requires their packaged runtime 5ms
+   × selects a bounded relocatable runtime without caches, development installs or unrelated Python data 14ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/hermes-desktop-assets.test.ts > admits only the exact Hermes Python worker and checkpoint bridge and requires their packaged runtime
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/hermes-desktop-assets.test.ts:32:79
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/hermes-desktop-assets.test.ts > selects a bounded relocatable runtime without caches, development installs or unrelated Python data
+AssertionError: expected [ 'hermes-python/python.exe', …(17) ] to include 'packages/runtime-hermes/memory_checkp…'
+ ❯ tests/hermes-desktop-assets.test.ts:37:18
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 7 passed (9)
+   Start at  19:33:28
+   Duration  403ms (transform 85ms, setup 0ms, import 106ms, tests 123ms, environment 0ms)

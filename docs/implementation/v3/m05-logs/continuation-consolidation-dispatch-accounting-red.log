@@ -1,0 +1,121 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/memory-consolidation-v3.test.ts (73 tests | 10 failed) 794ms
+     × does not dispatch captured prose after pre-dispatch correction 9ms
+     × does not dispatch captured prose after pre-dispatch forget 2ms
+     × does not dispatch captured prose after pre-dispatch source-revocation 10ms
+     × does not dispatch captured prose after pre-dispatch binding 4ms
+     × does not dispatch captured prose after pre-dispatch lease-token 3ms
+     × does not dispatch captured prose after pre-dispatch lease-expiry 3ms
+     × durably records an unknown-cost attempt before the optional provider receives source text 4ms
+     × rechecks forget caused by a pending-usage observer before provider dispatch 3ms
+     × rechecks lease-token caused by a pending-usage observer before provider dispatch 2ms
+     × rechecks cancel caused by a pending-usage observer before provider dispatch 2ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 10 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-consolidation-v3.test.ts > M05 reference consolidation > does not dispatch captured prose after pre-dispatch correction
+ FAIL  tests/memory-consolidation-v3.test.ts > M05 reference consolidation > does not dispatch captured prose after pre-dispatch forget
+ FAIL  tests/memory-consolidation-v3.test.ts > M05 reference consolidation > does not dispatch captured prose after pre-dispatch binding
+ FAIL  tests/memory-consolidation-v3.test.ts > M05 reference consolidation > does not dispatch captured prose after pre-dispatch lease-token
+ FAIL  tests/memory-consolidation-v3.test.ts > M05 reference consolidation > does not dispatch captured prose after pre-dispatch lease-expiry
+AssertionError: expected { status: 'STALE', usage: { …(6) } } to match object { status: 'STALE', usage: { …(2) } }
+(4 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "status": "STALE",
+    "usage": {
+-     "inputBytes": 0,
+-     "modelCalls": 0,
++     "inputBytes": 1174,
++     "modelCalls": 1,
+    },
+  }
+
+ ❯ tests/memory-consolidation-v3.test.ts:108:25
+    106|     }
+    107|     if (change === 'lease-expiry') clock += 1001;
+    108|     await expect(pending).resolves.toMatchObject({ status: 'STALE', us…
+       |                         ^
+    109|     expect(run).not.toHaveBeenCalled();
+    110|     expect(x.store.all('projectMemoryDerived')).toEqual([]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/10]⎯
+
+ FAIL  tests/memory-consolidation-v3.test.ts > M05 reference consolidation > does not dispatch captured prose after pre-dispatch source-revocation
+AssertionError: promise rejected "HarnessError: Source consent was revoked. { …(2) }" instead of resolving
+ ❯ tests/memory-consolidation-v3.test.ts:108:25
+    106|     }
+    107|     if (change === 'lease-expiry') clock += 1001;
+    108|     await expect(pending).resolves.toMatchObject({ status: 'STALE', us…
+       |                         ^
+    109|     expect(run).not.toHaveBeenCalled();
+    110|     expect(x.store.all('projectMemoryDerived')).toEqual([]);
+
+Caused by: HarnessError: Source consent was revoked.
+ ❯ Object.snapshot tests/memory-consolidation-v3.test.ts:97:49
+ ❯ packages/core/memory-consolidation.ts:200:54
+ ❯ Store.commit packages/storage/store.ts:128:16
+ ❯ Store.internal packages/storage/store.ts:153:17
+ ❯ packages/core/memory-consolidation.ts:197:32
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'CAPABILITY_DENIED', details: undefined }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/10]⎯
+
+ FAIL  tests/memory-consolidation-v3.test.ts > M05 reference consolidation > durably records an unknown-cost attempt before the optional provider receives source text
+AssertionError: expected [] to match object [ { phase: 'CONSOLIDATION', …(7) } ]
+
+- Expected
++ Received
+
+- [
+-   {
+-     "accountId": "account-one",
+-     "finishedAt": null,
+-     "phase": "CONSOLIDATION",
+-     "projectIdentity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+-     "providerId": "fixture-provider",
+-     "settled": false,
+-     "status": "PENDING",
+-     "usage": {
+-       "cost": null,
+-       "inputBytes": Any<Number>,
+-       "inputTokens": null,
+-       "modelCalls": 1,
+-       "outputTokens": null,
+-     },
+-   },
+- ]
++ []
+
+ ❯ tests/memory-consolidation-v3.test.ts:122:22
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/10]⎯
+
+ FAIL  tests/memory-consolidation-v3.test.ts > M05 reference consolidation > rechecks forget caused by a pending-usage observer before provider dispatch
+ FAIL  tests/memory-consolidation-v3.test.ts > M05 reference consolidation > rechecks lease-token caused by a pending-usage observer before provider dispatch
+ FAIL  tests/memory-consolidation-v3.test.ts > M05 reference consolidation > rechecks cancel caused by a pending-usage observer before provider dispatch
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/memory-consolidation-v3.test.ts:144:23
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/10]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  10 failed | 63 passed (73)
+   Start at  20:51:43
+   Duration  1.29s (transform 173ms, setup 0ms, import 271ms, tests 794ms, environment 0ms)

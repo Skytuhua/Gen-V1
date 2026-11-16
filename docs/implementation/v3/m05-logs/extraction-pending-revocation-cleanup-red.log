@@ -1,0 +1,43 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/memory-extraction-runtime-v3.test.ts (11 tests | 1 failed) 153ms
+   × persists known zero dispatches after observer opt-out even while native teardown remains occupied 65ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-extraction-runtime-v3.test.ts > persists known zero dispatches after observer opt-out even while native teardown remains occupied
+AssertionError: expected { …(14) } to match object { status: 'STALE', …(2) }
+(14 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "settled": false,
+-   "status": "STALE",
++   "status": "PENDING",
+    "usage": {
+      "cost": null,
+-     "inputBytes": 0,
+-     "modelCalls": 0,
++     "inputBytes": 1670,
++     "modelCalls": 1,
+    },
+  }
+
+ ❯ tests/memory-extraction-runtime-v3.test.ts:73:64
+     71|     await vi.waitFor(() => expect(dispose).toHaveBeenCalledOnce());
+     72|     expect(start).not.toHaveBeenCalled(); expect(coordinator.busy).toB…
+     73|     expect(f.store.all<any>('projectMemoryAuxiliaryUsage')[0]).toMatch…
+       |                                                                ^
+     74|   } finally {unsubscribe(); release(); await pending; await coordinato…
+     75| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 passed (11)
+   Start at  20:08:34
+   Duration  598ms (transform 251ms, setup 0ms, import 331ms, tests 153ms, environment 0ms)

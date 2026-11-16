@@ -1,0 +1,51 @@
+2026-11-15T12:31:36.0398220Z ##[group]Run $failedSuites = @()
+2026-11-15T12:31:36.0398542Z $failedSuites = @()
+2026-11-15T12:31:36.0398908Z foreach ($suite in @('project-memory', 'usage-context', 'frontend-refinement', 'root')) {
+2026-11-15T12:31:36.0399311Z   pnpm test:browser --suite $suite
+2026-11-15T12:31:36.0399620Z   if ($LASTEXITCODE -ne 0) { $failedSuites += $suite }
+2026-11-15T12:31:36.0399886Z }
+2026-11-15T12:31:36.0400065Z if ($failedSuites.Count -gt 0) {
+2026-11-15T12:31:36.0400368Z   throw "Failed browser suites: $($failedSuites -join ', ')"
+2026-11-15T12:31:36.0400650Z }
+2026-11-15T12:31:36.0458185Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T12:31:36.0458481Z env:
+2026-11-15T12:31:36.0458712Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T12:31:36.0459068Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T12:31:36.0459487Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T12:31:36.0459851Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T12:31:36.0460188Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T12:31:36.0460517Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T12:31:36.0460878Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T12:31:36.0461191Z ##[endgroup]
+2026-11-15T12:31:55.9555211Z Browser suite: usage-context (1 spec files)
+2026-11-15T12:31:58.2937024Z 
+2026-11-15T12:31:58.2937781Z Running 20 tests using 1 worker
+2026-11-15T12:31:58.2938075Z 
+2026-11-15T12:32:02.9119938Z   ok  1 tests\e2e\usage-context.spec.ts:33:1 › a token decrease after a command acknowledgement is not a compaction receipt (3.0s)
+2026-11-15T12:32:03.9181408Z   ok  2 tests\e2e\usage-context.spec.ts:61:1 › a compaction error does not follow a different thread or session (995ms)
+2026-11-15T12:32:04.6644771Z   ok  3 tests\e2e\usage-context.spec.ts:95:1 › a late failure from a prior session cannot update the newly selected context (733ms)
+2026-11-15T12:32:05.2047751Z   ok  4 tests\e2e\usage-context.spec.ts:129:1 › context takes keyboard focus on reveal and protects IME Escape before restoring its trigger (528ms)
+2026-11-15T12:32:05.8472786Z   ok  5 tests\e2e\usage-context.spec.ts:148:1 › first reveal in a short window clears native caption chrome and all viewport edges (631ms)
+2026-11-15T12:32:06.5978873Z   ok  6 tests\e2e\usage-context.spec.ts:166:1 › Usage has separate Cost, Tokens and Limits with exact reported data and per-metric unknowns (738ms)
+2026-11-15T12:32:07.1843470Z   ok  7 tests\e2e\usage-context.spec.ts:192:1 › accepted receipt needs exact ownership; measured freed count is optional and reset on restart (575ms)
+2026-11-15T12:32:07.8752624Z   ok  8 tests\e2e\usage-context.spec.ts:211:1 › reported segments fit their capacity track without cumulative separator overflow (678ms)
+2026-11-15T12:32:08.4253038Z   ok  9 tests\e2e\usage-context.spec.ts:224:1 › pending sweep is actual-pending only and stopped state is not accepted success (538ms)
+2026-11-15T12:32:09.5347231Z   ok 10 tests\e2e\usage-context.spec.ts:242:1 › reported categories reveal token/share/subitems on focus after dwell; IME and nested Escape work (1.1s)
+2026-11-15T12:32:10.2111378Z   ok 11 tests\e2e\usage-context.spec.ts:276:1 › unknown and invalid category measurements never retain stale values (664ms)
+2026-11-15T12:32:11.1679147Z   ok 12 tests\e2e\usage-context.spec.ts:291:1 › scope/provider filters remain in the owning modal and refresh preserves tab and selection (945ms)
+2026-11-15T12:32:11.9371400Z   ok 13 tests\e2e\usage-context.spec.ts:339:1 › loading, empty, provider failure and refresh failure preserve honest per-metric state (757ms)
+2026-11-15T12:32:12.6995263Z   ok 14 tests\e2e\usage-context.spec.ts:362:40 › overflow keeps header fixed, rows scroll, short/narrow dark (751ms)
+2026-11-15T12:32:13.4326748Z   ok 15 tests\e2e\usage-context.spec.ts:362:40 › overflow keeps header fixed, rows scroll, short/narrow light (722ms)
+2026-11-15T12:32:14.9712365Z   ok 16 tests\e2e\usage-context.spec.ts:392:40 › context category overflow and details stay reachable in dark (1.5s)
+2026-11-15T12:32:16.5382738Z   ok 17 tests\e2e\usage-context.spec.ts:392:40 › context category overflow and details stay reachable in light (1.6s)
+2026-11-15T12:32:17.2829661Z   ok 18 tests\e2e\usage-context.spec.ts:427:1 › accepted transition uses reference timing; reduced motion suppresses travel and sweep (733ms)
+2026-11-15T12:32:17.9353775Z   ok 19 tests\e2e\usage-context.spec.ts:455:1 › optional summary keeps whole-header disclosure and opens the same Usage through its independent body action (641ms)
+2026-11-15T12:32:18.6310914Z   ok 20 tests\e2e\usage-context.spec.ts:479:1 › invalidating a receipt ends accepted motion immediately and after its timer deadline (684ms)
+2026-11-15T12:32:19.0493648Z 
+2026-11-15T12:32:19.0497857Z   20 passed (22.3s)
+2026-11-15T12:32:19.3643031Z 
+2026-11-15T12:32:19.3643894Z > gen-v1@0.6.5 test:browser D:\a\Gen-V1\Gen-V1
+2026-11-15T12:32:19.3644559Z > tsx scripts/test-browser.ts "--suite" "frontend-refinement"
+2026-11-15T12:32:19.3644923Z 
+2026-11-15T12:32:19.6125997Z Browser results: D:\a\Gen-V1\Gen-V1\test-results\browser\run-1794745939611-ca2a8e1f-e4a8-4c83-9d67-5c33ce1523d0
+2026-11-15T12:32:19.6129962Z 

@@ -12,9 +12,10 @@ const snapshot=()=>{
 };
 const captureDirectory=process.env.RESERVED_RAIL_CAPTURE_DIR;
 async function showPlan(page:Page){const panel=page.getByRole('region',{name:'Project overview window',exact:true});await expect(panel).toBeVisible();if(await panel.getAttribute('data-collapsed')==='true')await panel.getByRole('button',{name:'Expand Project overview',exact:true}).click();return panel;}
-async function showUsage(page:Page){const usage=page.getByRole('region',{name:'Live usage',exact:true}),launcher=page.getByRole('button',{name:'Show live usage',exact:true});await expect(usage.or(launcher)).toBeVisible();if(await launcher.isVisible())await launcher.click();await expect(usage).toBeVisible();return usage;}
+// Await the retained conversation before checking its launcher during initial App replacement.
+async function showUsage(page:Page){const owner=page.locator('[data-split-view="thread:task-thread"]');await expect(owner.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled({timeout:15000});const usage=page.getByRole('region',{name:'Live usage',exact:true}),launcher=owner.getByRole('button',{name:'Show live usage',exact:true});await expect(usage.or(launcher)).toBeVisible();if(await launcher.isVisible())await launcher.click();await expect(usage).toBeVisible();return usage;}
 async function open(page:Page,value=snapshot()){
- await serveTaskFixture(page,value);await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();await showPlan(page);await showUsage(page);
+ await serveTaskFixture(page,value);await page.goto('/');await expect(page.locator('[data-split-view="thread:task-thread"]').getByRole('textbox',{name:'Message',exact:true})).toBeEnabled({timeout:15000});await showPlan(page);await showUsage(page);
  const plan=page.getByRole('region',{name:'Project overview window',exact:true});await expect(plan).toBeVisible();await expect.poll(()=>plan.evaluate(el=>el.getAnimations().filter(a=>a.playState==='running').length)).toBe(0);return plan;
 }
 
@@ -36,8 +37,10 @@ test('both protected tools minimize to a compact flow region on narrow screens',
  await expect.poll(async()=>Math.round((await page.getByRole('region',{name:'Live usage',exact:true}).boundingBox())!.height)).toBe(38);
 });
 test('minimized summaries retain their rail until an explicit artifact panel takes over',async({page})=>{
- await page.setViewportSize({width:1600,height:1000});const plan=await open(page);await plan.getByRole('button',{name:'Collapse Project overview',exact:true}).click();await expect(plan).toBeVisible();const main=(await page.locator('main.workspace').boundingBox())!,dock=(await page.getByRole('complementary',{name:'Conversation summaries',exact:true}).boundingBox())!;expect(dock.y).toBeGreaterThanOrEqual(main.y+main.height-1);expect(dock.x+dock.width).toBeCloseTo(main.x+main.width,0);expect(dock.height).toBeLessThanOrEqual(110);
- await page.getByRole('button',{name:'Open artifact in workspace',exact:true}).click();await expect(plan).toBeHidden();await expect.poll(async()=>{const main=await page.locator('main.workspace').boundingBox(),panel=await page.locator('.workspace-right').boundingBox();return panel&&main?panel.x>main.x+main.width-1&&panel.x+panel.width>1580&&main.width<1100:null;}).toBe(true);
+ // The summary rail belongs to the complete canonical workspace, including its open Plan pane.
+ const frame=page.locator('.split-root-workarea .split-workspace');
+ await page.setViewportSize({width:1600,height:1000});const plan=await open(page);await plan.getByRole('button',{name:'Collapse Project overview',exact:true}).click();await expect(plan).toBeVisible();const main=(await frame.boundingBox())!,dock=(await page.getByRole('complementary',{name:'Conversation summaries',exact:true}).boundingBox())!;expect(dock.y).toBeGreaterThanOrEqual(main.y+main.height-1);expect(dock.x+dock.width).toBeCloseTo(main.x+main.width,0);expect(dock.height).toBeLessThanOrEqual(110);
+ await page.getByRole('button',{name:'Open artifact in workspace',exact:true}).click();await expect(plan).toBeHidden();await expect.poll(async()=>{const main=await frame.boundingBox(),panel=await page.locator('.workspace-right').boundingBox();return panel&&main?panel.x>main.x+main.width-1&&panel.x+panel.width>1580&&main.width<1100:null;}).toBe(true);
 });
 test('expanded context keeps the header and composer across the full available chat frame',async({page})=>{
  await page.setViewportSize({width:1440,height:1000});const plan=await open(page);

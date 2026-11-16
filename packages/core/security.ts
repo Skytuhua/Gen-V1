@@ -1,8 +1,28 @@
 import { realpath, stat } from "node:fs/promises";
 import { lstatSync, realpathSync, statSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { isAbsolute, relative, resolve, dirname, basename, sep } from "node:path";
 import { HarnessError, type ResourceGrant } from "../contracts/index.ts";
 export const PROTECTED_STORAGE_DIRECTORIES = ['pi', 'artifacts', 'official', 'accounts', 'hermes', 'github', 'git', 'integrations'] as const;
+const MEMORY_DELETION_LEDGER_NAME = /^\.gen-memory-deletions-[a-f0-9]{64}\.jsonl$/i;
+
+/** Outside a profile-only restore set. This is an application storage boundary,
+ * not an OS sandbox or a monotonic anchor against whole-machine rollback. */
+export function projectMemoryDeletionLedgerPath(dataDir: string): string {
+  let root: string;
+  try { root = realpathSync(dataDir); } catch { throw new HarnessError("CAPABILITY_DENIED", "Harness storage is unavailable"); }
+  const key = process.platform === 'win32' ? root.toLowerCase() : root;
+  return resolve(dirname(root), '.gen-memory-deletions-' + createHash('sha256').update(key, 'utf8').digest('hex') + '.jsonl');
+}
+
+function assertPrivateMemoryLedger(path: string): void {
+  try {
+    const info = lstatSync(path), uid = process.getuid?.();
+    if (!info.isFile() || info.isSymbolicLink() || info.nlink !== 1 || process.platform !== 'win32' && ((uid !== undefined && info.uid !== uid) || (info.mode & 0o077) !== 0)) {
+      throw new HarnessError("CAPABILITY_DENIED", "Protected deletion storage must remain an ordinary private file");
+    }
+  } catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; }
+}
 
 export function inside(parent: string, child: string): boolean {
   const rel = relative(parent, child);
@@ -38,8 +58,13 @@ export function assertNotStorage(path: string, dataDir: string): void {
     try { if (lstatSync(resolve(root, child)).isSymbolicLink()) throw new HarnessError("CAPABILITY_DENIED", "Protected storage must not be redirected"); }
     catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; }
   }
+  const legacyLedger = resolve(root, 'project-memory-deletions.jsonl'), deletionLedger = projectMemoryDeletionLedgerPath(root);
+  assertPrivateMemoryLedger(legacyLedger); assertPrivateMemoryLedger(deletionLedger);
   const protectedPaths = ["harness.sqlite", "harness.sqlite-wal", "harness.sqlite-shm", ".host-lease.sqlite", ".host-lease.sqlite-wal", ".host-lease.sqlite-shm", ...PROTECTED_STORAGE_DIRECTORIES].map(p => resolve(root, p));
-  if (protectedPaths.some(p => inside(p, path))) throw new HarnessError("CAPABILITY_DENIED", "Task tools cannot access harness storage or credentials");
+  protectedPaths.push(legacyLedger, deletionLedger);
+  // Reserve peer-profile ledgers too. Canonicalization resolves symlink aliases;
+  // the single-link check below rejects ordinary-name hardlink aliases.
+  if (protectedPaths.some(p => inside(p, path)) || resolve(path).split(/[\\/]+/).some(part => MEMORY_DELETION_LEDGER_NAME.test(part))) throw new HarnessError("CAPABILITY_DENIED", "Task tools cannot access harness storage or credentials");
   try { if (statSync(path).isFile() && statSync(path).nlink !== 1) throw new HarnessError("CAPABILITY_DENIED", "Files with multiple hardlinks cannot be granted"); }
   catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; }
 }

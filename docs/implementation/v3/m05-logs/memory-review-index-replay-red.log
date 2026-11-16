@@ -1,0 +1,19 @@
+{"acceptedCount":0,"sourceAvailable":false,"derivedValid":true,"affected":[]}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: Restored shared-source index must remain invalid after Forget
+
+true !== false
+
+    at file:///workspace/scratch/36f66011d961/memory_index_replay_repro.mjs:28:10 {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: true,
+  expected: false,
+  operator: 'strictEqual',
+  diff: 'simple'
+}
+
+Node.js v24.22.1

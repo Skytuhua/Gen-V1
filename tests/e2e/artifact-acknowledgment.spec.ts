@@ -29,6 +29,9 @@ test('an older snapshot cannot replace a newer acknowledged selection', async ({
   try {
     await page.goto('/');
     const selected = page.getByRole('checkbox', { name: 'Select row 1', exact: true });
+    // The shell bootstraps through a dynamic import after the load event.
+    // Bound initial readiness separately from the selection assertions below.
+    await expect(selected).toBeVisible({ timeout: 15_000 });
     await expect(selected).toBeChecked();
     await selected.click();
     await expect.poll(() => saves.length).toBe(1);

@@ -1,0 +1,89 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/agents-workspace-composer.test.ts (27 tests | 1 failed) 90ms
+   × preserves the host prepared request token through an ambiguous send and durable retry 9ms
+ ❯ tests/project-memory-preparation-ui.test.ts (14 tests | 1 failed) 39ms
+   × does not let an exclusion response replace the prepared query or its remaining evidence 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/agents-workspace-composer.test.ts > preserves the host prepared request token through an ambiguous send and durable retry
+AssertionError: expected { threadId: 'owner', …(3) } to match object { …(2) }
+(3 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "content": "Exact prepared draft",
+-   "requestContextId": "prepared-1",
+  }
+
+ ❯ tests/agents-workspace-composer.test.ts:26:32
+     24|  let owner = createSharedAgentComposers({sendParent: send, stopParent:…
+     25|  await owner.prepare(target); await owner.edit(target, 'Exact prepared…
+     26|  expect(send.mock.calls[0][0]).toMatchObject({content: 'Exact prepared…
+       |                                ^
+     27|  expect(records.get('agents-pending:owner')?.value).toMatchObject({req…
+     28|  owner.dispose(); send.mockImplementation(async () => {});
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/project-memory-preparation-ui.test.ts > does not let an exclusion response replace the prepared query or its remaining evidence
+AssertionError: promise resolved "{ scope: { …(5) }, …(7) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "contextGeneration": 7,
++   "expiresAt": "2026-11-15T11:32:56.325Z",
++   "injectedBytes": 0,
++   "items": [],
++   "phase": "PREPARING",
++   "recall": {
++     "budgetBytes": 4096,
++     "candidateIds": [],
++     "contextGeneration": 7,
++     "exclusions": [
++       {
++         "itemId": "memory",
++         "reason": "USER_EXCLUDED",
++       },
++     ],
++     "producedAt": "2026-11-15T00:00:00Z",
++     "projectIdentity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
++     "queryDigest": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
++     "requestId": "request-1",
++     "scores": [],
++     "selectedRevisions": [],
++     "status": "COMPLETE",
++   },
++   "requestId": "request-1",
++   "scope": {
++     "accountId": "account",
++     "bindingDigest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
++     "projectId": "project",
++     "projectIdentity": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
++     "threadId": "thread",
++   },
+  }
+
+ ❯ tests/project-memory-preparation-ui.test.ts:99:115
+     97|   vi.stubGlobal('fetch', vi.fn(async (url: RequestInfo | URL) => Strin…
+     98|   const api = await import('../apps/web/src/project-memory-request-api…
+     99|   await expect(api.excludeMemoryFromRequest(before, {itemId: 'memory',…
+       |                                                                                                                   ^
+    100| });
+    101|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 39 passed (41)
+   Start at  19:31:55
+   Duration  693ms (transform 192ms, setup 0ms, import 336ms, tests 129ms, environment 0ms)

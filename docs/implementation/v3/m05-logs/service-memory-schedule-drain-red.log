@@ -1,0 +1,32 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/project-memory-service-v3.test.ts (28 tests | 1 failed | 27 skipped) 110ms
+   × drains scheduled source cleanup before cancellation completes even before an extraction runtime exists 108ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/project-memory-service-v3.test.ts > drains scheduled source cleanup before cancellation completes even before an extraction runtime exists
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/project-memory-service-v3.test.ts:329:23
+    327|     let cancelled = false; cancellation = f.service.cancelComposerPred…
+    328|     await new Promise<void>(resolve => setImmediate(resolve));
+    329|     expect(cancelled).toBe(false); expect(factory).not.toHaveBeenCalle…
+       |                       ^
+    330|     release(); await cancellation;
+    331|     expect(factory).not.toHaveBeenCalled(); expect(f.service.projectMe…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 27 skipped (28)
+   Start at  20:19:04
+   Duration  1.54s (transform 848ms, setup 0ms, import 1.21s, tests 110ms, environment 0ms)

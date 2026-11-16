@@ -1,0 +1,602 @@
+{
+  "schemaVersion": 1,
+  "runId": 43748168614,
+  "headSha": "bbc07f07fe8957de846433d51ecde51cd8b0fe00",
+  "treeSha": "de3949b14d44b0d9490503d625e6acc4ce8ae978",
+  "testedCheckout": "2428711e2f135d869605c52b53e48c9f3350be63",
+  "reviewedAt": "2026-11-15T18:49:56.674644+00:00",
+  "scope": "Read-only source and actual Windows log review. No retry, local browser launch, test rerun, source edit or ledger write.",
+  "fixtures": [
+    {
+      "path": "tests/table-overflow.test.ts",
+      "publishedSourceSha256": "d1935bb908c0ba8a8068c78acf0d563f5977c433dc60fa5221235910487a710b",
+      "publishedSourceBytes": 2295,
+      "identicalToAcceptedMain": true,
+      "acceptedMain": "399cde39ff4ee82272c7a7700944325c44b36070",
+      "jobId": 132915985300,
+      "rawLogRef": "/workspace/scratch/36f66011d961/m05-ci-43748168614/job-132915985300.log",
+      "rawLogSha256": "ea24ac28af8c3bdb375c0c5de6ef3cdeacf3db2f6692ed2f73088db75e1dbecf",
+      "rawLogBytes": 109214,
+      "failure": "afterAll awaits browser.close; observed hook deadline10000ms",
+      "publishedSourceLineProof": [
+        {
+          "line": 28,
+          "text": "  afterAll(async () => { await browser?.close(); });"
+        },
+        {
+          "line": 46,
+          "text": "    await page.close();"
+        }
+      ],
+      "actualLogProof": [
+        {
+          "line": 882,
+          "text": "2026-11-15T18:45:53.0439613Z  ✓ tests/api-response-cap.test.ts (2 tests) 88ms"
+        },
+        {
+          "line": 883,
+          "text": "2026-11-15T18:45:56.0853724Z  ❯ tests/table-overflow.test.ts (1 test) 10894ms"
+        },
+        {
+          "line": 884,
+          "text": "2026-11-15T18:45:56.0854592Z      ✓ detects overflow when a wide table mounts after the container  618ms"
+        },
+        {
+          "line": 885,
+          "text": "2026-11-15T18:45:56.0931875Z "
+        },
+        {
+          "line": 886,
+          "text": "2026-11-15T18:45:56.0935812Z ⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯"
+        },
+        {
+          "line": 887,
+          "text": "2026-11-15T18:45:56.0936255Z "
+        },
+        {
+          "line": 888,
+          "text": "2026-11-15T18:45:56.0936799Z  FAIL  tests/table-overflow.test.ts > useTableOverflow"
+        },
+        {
+          "line": 889,
+          "text": "2026-11-15T18:45:56.0937423Z Error: Hook timed out in 10000ms."
+        },
+        {
+          "line": 890,
+          "text": "2026-11-15T18:45:56.0938441Z If this is a long-running hook, pass a timeout value as the last argument or configure it globally with \"hookTimeout\"."
+        },
+        {
+          "line": 891,
+          "text": "2026-11-15T18:45:56.0938937Z "
+        },
+        {
+          "line": 892,
+          "text": "2026-11-15T18:45:56.0939353Z  ❯ tests/table-overflow.test.ts:28:3"
+        },
+        {
+          "line": 893,
+          "text": "2026-11-15T18:45:56.0940099Z      26|     browser = await chromium.launch({headless: true, ...(process.platf…"
+        },
+        {
+          "line": 894,
+          "text": "2026-11-15T18:45:56.0940683Z      27|   });"
+        },
+        {
+          "line": 895,
+          "text": "2026-11-15T18:45:56.0941474Z      28|   afterAll(async () => { await browser?.close(); });"
+        },
+        {
+          "line": 896,
+          "text": "2026-11-15T18:45:56.0942161Z        |   ^"
+        },
+        {
+          "line": 897,
+          "text": "2026-11-15T18:45:56.0943754Z  Test Files  1 failed | 87 passed (88)"
+        },
+        {
+          "line": 898,
+          "text": "2026-11-15T18:45:56.0948233Z      29|   async function open(): Promise<Page> {"
+        },
+        {
+          "line": 899,
+          "text": "2026-11-15T18:45:56.0949405Z       Tests  845 passed | 2 skipped (847)"
+        },
+        {
+          "line": 900,
+          "text": "2026-11-15T18:45:56.0950351Z      30|     const page = await browser.newPage();"
+        },
+        {
+          "line": 901,
+          "text": "2026-11-15T18:45:56.0950884Z    Start at  18:42:59"
+        },
+        {
+          "line": 902,
+          "text": "2026-11-15T18:45:56.0951215Z "
+        },
+        {
+          "line": 903,
+          "text": "2026-11-15T18:45:56.0951680Z    Duration  176.48s (transform 8.29s, setup 0ms, import 21.89s, tests 314.84s, environment 6ms)"
+        },
+        {
+          "line": 904,
+          "text": "2026-11-15T18:45:56.0952456Z ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯"
+        },
+        {
+          "line": 905,
+          "text": "2026-11-15T18:45:56.0952664Z "
+        },
+        {
+          "line": 906,
+          "text": "2026-11-15T18:45:56.0953089Z "
+        }
+      ],
+      "workingFixtureSha256": "3d9c5057ea8fe5007535081cea6cf613c7c83e5ec3ef115594ed66dc80dbd5bb",
+      "workingFixtureIsSeparateFromTestedCut": true
+    },
+    {
+      "path": "tests/startup-feedback.test.ts",
+      "publishedSourceSha256": "457255f95c48cb9aeb7ae348e376629a6c366e17aaf583ec5c17d27911933056",
+      "publishedSourceBytes": 5100,
+      "identicalToAcceptedMain": true,
+      "acceptedMain": "399cde39ff4ee82272c7a7700944325c44b36070",
+      "jobId": 132915985143,
+      "rawLogRef": "/workspace/scratch/36f66011d961/m05-ci-43748168614/job-132915985143.log",
+      "rawLogSha256": "69f56db45a950c40ac4753e1e22599a72ad17f39293c768f3aa699984c966122",
+      "rawLogBytes": 117184,
+      "failure": "afterAll awaits browser.close; observed hook deadline10000ms",
+      "publishedSourceLineProof": [
+        {
+          "line": 24,
+          "text": "  afterAll(async () => {"
+        },
+        {
+          "line": 25,
+          "text": "    await browser?.close();"
+        },
+        {
+          "line": 63,
+          "text": "        await page.close();"
+        },
+        {
+          "line": 85,
+          "text": "      await page.close();"
+        },
+        {
+          "line": 106,
+          "text": "      await page.close();"
+        }
+      ],
+      "actualLogProof": [
+        {
+          "line": 947,
+          "text": "2026-11-15T18:47:58.5644971Z  ✓ tests/official-native-boundaries.test.ts (4 tests) 9ms"
+        },
+        {
+          "line": 948,
+          "text": "2026-11-15T18:47:58.6752071Z  ✓ tests/browser-lifecycle-cleanup.test.ts (1 test) 5ms"
+        },
+        {
+          "line": 949,
+          "text": "2026-11-15T18:47:58.8700899Z  ✓ tests/desktop-thread-ownership.test.ts (1 test) 4ms"
+        },
+        {
+          "line": 950,
+          "text": "2026-11-15T18:47:58.8754320Z "
+        },
+        {
+          "line": 951,
+          "text": "2026-11-15T18:47:58.8755963Z ⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯"
+        },
+        {
+          "line": 952,
+          "text": "2026-11-15T18:47:58.8756648Z "
+        },
+        {
+          "line": 953,
+          "text": "2026-11-15T18:47:58.8758151Z  FAIL  tests/startup-feedback.test.ts > static startup feedback"
+        },
+        {
+          "line": 954,
+          "text": "2026-11-15T18:47:58.8765373Z Error: Hook timed out in 10000ms."
+        },
+        {
+          "line": 955,
+          "text": "2026-11-15T18:47:58.8766638Z If this is a long-running hook, pass a timeout value as the last argument or configure it globally with \"hookTimeout\"."
+        },
+        {
+          "line": 956,
+          "text": "2026-11-15T18:47:58.8767953Z  ❯ tests/startup-feedback.test.ts:24:3"
+        },
+        {
+          "line": 957,
+          "text": "2026-11-15T18:47:58.8820790Z      22|   });"
+        },
+        {
+          "line": 958,
+          "text": "2026-11-15T18:47:58.8821136Z "
+        },
+        {
+          "line": 959,
+          "text": "2026-11-15T18:47:58.8821581Z      23|"
+        },
+        {
+          "line": 960,
+          "text": "2026-11-15T18:47:58.8822306Z      24|   afterAll(async () => {"
+        },
+        {
+          "line": 961,
+          "text": "2026-11-15T18:47:58.8823261Z        |   ^"
+        },
+        {
+          "line": 962,
+          "text": "2026-11-15T18:47:58.8824135Z  Test Files  1 failed | 88 passed (89)"
+        },
+        {
+          "line": 963,
+          "text": "2026-11-15T18:47:58.8825676Z      25|     await browser?.close();"
+        },
+        {
+          "line": 964,
+          "text": "2026-11-15T18:47:58.8832480Z      26|   });"
+        },
+        {
+          "line": 965,
+          "text": "2026-11-15T18:47:58.8833242Z       Tests  1112 passed (1112)"
+        },
+        {
+          "line": 966,
+          "text": "2026-11-15T18:47:58.8834118Z    Start at  18:43:14"
+        },
+        {
+          "line": 967,
+          "text": "2026-11-15T18:47:58.8834572Z "
+        },
+        {
+          "line": 968,
+          "text": "2026-11-15T18:47:58.8836523Z ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯"
+        },
+        {
+          "line": 969,
+          "text": "2026-11-15T18:47:58.8837532Z    Duration  284.65s (transform 5.93s, setup 0ms, import 24.86s, tests 528.88s, environment 8ms)"
+        },
+        {
+          "line": 970,
+          "text": "2026-11-15T18:47:58.8839004Z "
+        },
+        {
+          "line": 971,
+          "text": "2026-11-15T18:47:58.8839139Z "
+        }
+      ],
+      "workingFixtureSha256": "ae5d05d100146dce0a79f839c4482fcc4c418b8ebbad9ec5a46b2dbbf055026b",
+      "workingFixtureIsSeparateFromTestedCut": true
+    }
+  ],
+  "pinnedSource": [
+    {
+      "path": "node_modules/.pnpm/playwright-core@1.56.1/node_modules/playwright-core/package.json",
+      "sha256": "428ba2490bb4eec3a9bf62838207d35318ecfb6677801ae770445bfa52007c27",
+      "bytes": 1454,
+      "lineProof": [
+        {
+          "line": 1,
+          "text": "{"
+        },
+        {
+          "line": 2,
+          "text": "  \"name\": \"playwright-core\","
+        },
+        {
+          "line": 3,
+          "text": "  \"version\": \"1.56.1\","
+        },
+        {
+          "line": 4,
+          "text": "  \"description\": \"A high-level API to automate web browsers\","
+        },
+        {
+          "line": 5,
+          "text": "  \"repository\": {"
+        },
+        {
+          "line": 6,
+          "text": "    \"type\": \"git\","
+        },
+        {
+          "line": 7,
+          "text": "    \"url\": \"git+https://github.com/microsoft/playwright.git\""
+        },
+        {
+          "line": 8,
+          "text": "  },"
+        },
+        {
+          "line": 9,
+          "text": "  \"homepage\": \"https://playwright.dev\","
+        },
+        {
+          "line": 10,
+          "text": "  \"engines\": {"
+        }
+      ]
+    },
+    {
+      "path": "node_modules/.pnpm/playwright-core@1.56.1/node_modules/playwright-core/lib/server/browser.js",
+      "sha256": "4f461d840a29f0eac9fe2a0f10f7cf97c06b2d5ee37f17988540abbb85fae19d",
+      "bytes": 5788,
+      "lineProof": [
+        {
+          "line": 132,
+          "text": "  async close(options) {"
+        },
+        {
+          "line": 133,
+          "text": "    if (!this._startedClosing) {"
+        },
+        {
+          "line": 134,
+          "text": "      if (options.reason)"
+        },
+        {
+          "line": 135,
+          "text": "        this._closeReason = options.reason;"
+        },
+        {
+          "line": 136,
+          "text": "      this._startedClosing = true;"
+        },
+        {
+          "line": 137,
+          "text": "      await this.options.browserProcess.close();"
+        },
+        {
+          "line": 138,
+          "text": "    }"
+        },
+        {
+          "line": 139,
+          "text": "    if (this.isConnected())"
+        },
+        {
+          "line": 140,
+          "text": "      await new Promise((x) => this.once(Browser.Events.Disconnected, x));"
+        }
+      ]
+    },
+    {
+      "path": "node_modules/.pnpm/playwright-core@1.56.1/node_modules/playwright-core/lib/server/browserType.js",
+      "sha256": "79a831a557bf2a96d2d5315e8a0acb1ae206dc3b59d7ff45157514adfc00329d",
+      "bytes": 15152,
+      "lineProof": [
+        {
+          "line": 228,
+          "text": "    async function closeOrKill(timeout) {"
+        },
+        {
+          "line": 229,
+          "text": "      let timer;"
+        },
+        {
+          "line": 230,
+          "text": "      try {"
+        },
+        {
+          "line": 231,
+          "text": "        await Promise.race(["
+        },
+        {
+          "line": 232,
+          "text": "          gracefullyClose(),"
+        },
+        {
+          "line": 233,
+          "text": "          new Promise((resolve, reject) => timer = setTimeout(reject, timeout))"
+        },
+        {
+          "line": 234,
+          "text": "        ]);"
+        },
+        {
+          "line": 235,
+          "text": "      } catch (ignored) {"
+        },
+        {
+          "line": 236,
+          "text": "        await kill().catch((ignored2) => {"
+        },
+        {
+          "line": 237,
+          "text": "        });"
+        },
+        {
+          "line": 238,
+          "text": "      } finally {"
+        },
+        {
+          "line": 239,
+          "text": "        clearTimeout(timer);"
+        },
+        {
+          "line": 240,
+          "text": "      }"
+        },
+        {
+          "line": 241,
+          "text": "    }"
+        },
+        {
+          "line": 242,
+          "text": "    browserProcess = {"
+        },
+        {
+          "line": 243,
+          "text": "      onclose: void 0,"
+        },
+        {
+          "line": 244,
+          "text": "      process: launchedProcess,"
+        },
+        {
+          "line": 245,
+          "text": "      close: () => closeOrKill(options.__testHookBrowserCloseTimeout || import_time.DEFAULT_PLAYWRIGHT_TIMEOUT),"
+        }
+      ]
+    },
+    {
+      "path": "node_modules/.pnpm/playwright-core@1.56.1/node_modules/playwright-core/lib/utils/isomorphic/time.js",
+      "sha256": "0eebe61ffd113084f595545209536b7b354bff04faa0f8a7e0ab29ebc5fcc179",
+      "bytes": 1759,
+      "lineProof": [
+        {
+          "line": 38,
+          "text": "  return Math.floor((performance.now() + _timeShift) * 1e3) / 1e3;"
+        },
+        {
+          "line": 39,
+          "text": "}"
+        },
+        {
+          "line": 40,
+          "text": "const DEFAULT_PLAYWRIGHT_TIMEOUT = 3e4;"
+        },
+        {
+          "line": 41,
+          "text": "const DEFAULT_PLAYWRIGHT_LAUNCH_TIMEOUT = 3 * 60 * 1e3;"
+        }
+      ]
+    },
+    {
+      "path": "node_modules/.pnpm/playwright-core@1.56.1/node_modules/playwright-core/lib/server/utils/processLauncher.js",
+      "sha256": "da9cb41cc1605fca1e26c6a6212f01ef0af0125a9e97eecb70671bb3a8f1fd07",
+      "bytes": 9325,
+      "lineProof": [
+        {
+          "line": 150,
+          "text": "  let fulfillCleanup = () => {"
+        },
+        {
+          "line": 151,
+          "text": "  };"
+        },
+        {
+          "line": 152,
+          "text": "  const waitForCleanup = new Promise((f) => fulfillCleanup = f);"
+        },
+        {
+          "line": 153,
+          "text": "  spawnedProcess.once(\"close\", (exitCode, signal) => {"
+        },
+        {
+          "line": 154,
+          "text": "    options.log(`[pid=${spawnedProcess.pid}] <process did exit: exitCode=${exitCode}, signal=${signal}>`);"
+        },
+        {
+          "line": 155,
+          "text": "    processClosed = true;"
+        },
+        {
+          "line": 156,
+          "text": "    gracefullyCloseSet.delete(gracefullyClose);"
+        },
+        {
+          "line": 157,
+          "text": "    killSet.delete(killProcessAndCleanup);"
+        },
+        {
+          "line": 158,
+          "text": "    removeProcessHandlersIfNeeded();"
+        },
+        {
+          "line": 159,
+          "text": "    options.onExit(exitCode, signal);"
+        },
+        {
+          "line": 160,
+          "text": "    cleanup().then(fulfillCleanup);"
+        },
+        {
+          "line": 172,
+          "text": "  async function gracefullyClose() {"
+        },
+        {
+          "line": 173,
+          "text": "    if (gracefullyClosing) {"
+        },
+        {
+          "line": 174,
+          "text": "      options.log(`[pid=${spawnedProcess.pid}] <forcefully close>`);"
+        },
+        {
+          "line": 175,
+          "text": "      killProcess();"
+        },
+        {
+          "line": 176,
+          "text": "      await waitForCleanup;"
+        },
+        {
+          "line": 177,
+          "text": "      return;"
+        },
+        {
+          "line": 178,
+          "text": "    }"
+        },
+        {
+          "line": 179,
+          "text": "    gracefullyClosing = true;"
+        },
+        {
+          "line": 180,
+          "text": "    options.log(`[pid=${spawnedProcess.pid}] <gracefully close start>`);"
+        },
+        {
+          "line": 181,
+          "text": "    await options.attemptToGracefullyClose().catch(() => killProcess());"
+        },
+        {
+          "line": 182,
+          "text": "    await waitForCleanup;"
+        },
+        {
+          "line": 183,
+          "text": "    options.log(`[pid=${spawnedProcess.pid}] <gracefully close end>`);"
+        },
+        {
+          "line": 222,
+          "text": "  function killAndWait() {"
+        },
+        {
+          "line": 223,
+          "text": "    killProcess();"
+        },
+        {
+          "line": 224,
+          "text": "    return waitForCleanup;"
+        },
+        {
+          "line": 225,
+          "text": "  }"
+        },
+        {
+          "line": 226,
+          "text": "  return { launchedProcess: spawnedProcess, gracefullyClose, kill: killAndWait };"
+        }
+      ]
+    }
+  ],
+  "projectPackage": {
+    "sha256": "d9359bdc24c127410c0168424a07f80460b8099632303e987d9b219de5a88ba0",
+    "playwrightTestPin": "1.56.1"
+  },
+  "conclusions": [
+    "Both observed failures are suite afterAll cleanup hooks; their reported test bodies passed. They remain failed jobs and are not reclassified as passes.",
+    "The fixtures were byte-identical to accepted main399cde39 at the tested source cut. Their Windows launch selects the owned msedge channel.",
+    "Pinned Playwright1.56.1 Browser.close awaits browserProcess.close and disconnection. browserProcess.close uses closeOrKill(DEFAULT_PLAYWRIGHT_TIMEOUT); that constant is30000ms.",
+    "Graceful close waits for process closure and temporary-directory cleanup. If the30s race expires, closeOrKill invokes kill and awaits its cleanup promise.",
+    "The observed Vitest10000ms hook budget can expire before this existing30s graceful-close policy finishes. A fixture-local45000ms hook preserves awaited close and allows bounded outer headroom for fallback cleanup. It does not establish a separate15s internal cleanup deadline or guarantee cleanup succeeds.",
+    "The logs do not establish why these specific Edge close operations exceeded10000ms. No browser process trace or detailed teardown timing is available.",
+    "The proposed/reviewed repair must change only the two failed afterAll hook budgets and comments, retain page.close and every behavior assertion, and remain subject to new Windows execution."
+  ],
+  "repairAcceptance": "No global hookTimeout change, no catch/swallow, no test-body or browser-launch timeout change, no retry, no production change, and no retroactive PASS claim."
+}

@@ -329,7 +329,8 @@ test('keyboard entry into a virtual agent keeps focus on that card', async ({pag
  await page.setViewportSize({width: 1440, height: 780});
  await setup(page);
  const grid = page.getByRole('region', {name: 'Alpha agents', exact: true});
- await expect(grid.getByRole('group', {name: 'Agent parent-00', exact: true})).toBeVisible();
+ // The fixture's dynamic import can finish after the document load event.
+ await expect(grid.getByRole('group', {name: 'Agent parent-00', exact: true})).toBeVisible({timeout: 15_000});
  await grid.focus();
  // ArrowLeft from the grid entry targets the last agent, outside the mounted viewport.
  const destination = grid.getByRole('group', {name: 'Agent parent-32', exact: true});

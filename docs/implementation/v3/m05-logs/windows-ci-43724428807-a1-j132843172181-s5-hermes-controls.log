@@ -1,0 +1,21 @@
+2026-11-15T14:28:28.7442045Z ##[group]Run python -I -S -B tests/hermes_atomic_controls.py -v
+2026-11-15T14:28:28.7442499Z python -I -S -B tests/hermes_atomic_controls.py -v
+2026-11-15T14:28:28.7501720Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T14:28:28.7502023Z env:
+2026-11-15T14:28:28.7502244Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T14:28:28.7502582Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T14:28:28.7502946Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T14:28:28.7503306Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T14:28:28.7503624Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T14:28:28.7503939Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T14:28:28.7504282Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T14:28:28.7504635Z ##[endgroup]
+2026-11-15T14:28:32.1549606Z test_failed_atomic_writer_leaves_all_controls_unchanged (__main__.AtomicControls.test_failed_atomic_writer_leaves_all_controls_unchanged) ... ok
+2026-11-15T14:28:32.2083075Z test_later_writer_failure_cannot_leave_half_a_protection_state (__main__.AtomicControls.test_later_writer_failure_cannot_leave_half_a_protection_state) ... ok
+2026-11-15T14:28:32.2784891Z test_legacy_metrics_are_preserved_once_without_resetting_later_source_use (__main__.AtomicControls.test_legacy_metrics_are_preserved_once_without_resetting_later_source_use) ... ok
+2026-11-15T14:28:32.3414648Z test_matching_existing_source_keeps_its_newer_activity (__main__.AtomicControls.test_matching_existing_source_keeps_its_newer_activity) ... ok
+2026-11-15T14:28:32.3452860Z 
+2026-11-15T14:28:32.3453322Z ----------------------------------------------------------------------
+2026-11-15T14:28:32.3453970Z Ran 4 tests in 3.114s
+2026-11-15T14:28:32.3454091Z 
+2026-11-15T14:28:32.3454188Z OK

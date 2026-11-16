@@ -1,0 +1,33 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/runtime-router.test.ts (18 tests | 3 failed) 118ms
+   × lazily isolates account adapters, pins routing and denies cross-account sessions 34ms
+   × scopes named-account model discovery to its provider and blocks a profile being signed in 2ms
+   × rejects a resolver that changes the provider of an already acquired account profile 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/runtime-router.test.ts > lazily isolates account adapters, pins routing and denies cross-account sessions
+ FAIL  tests/runtime-router.test.ts > scopes named-account model discovery to its provider and blocks a profile being signed in
+ FAIL  tests/runtime-router.test.ts > rejects a resolver that changes the provider of an already acquired account profile
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ denied packages/core/linux-path-guard.ts:11:18
+      9| type DirectoryPath={path:string;leaf:boolean;dev?:string;ino?:string;e…
+     10| interface Session {rpc(request:Record<string,unknown>):Promise<readonl…
+     11| const denied=()=>new HarnessError('CAPABILITY_DENIED','File access che…
+       |                  ^
+     12| const within=(root:string,path:string)=>path===root||path.startsWith(r…
+     13| export function validateLinuxDirectoryPaths(paths:DirectoryPath[],root…
+ ❯ packages/core/linux-path-guard.ts:88:24
+ ❯ withLinuxDirectoryGuard packages/core/linux-path-guard.ts:152:42
+ ❯ Object.start packages/runtime/index.ts:115:291
+ ❯ tests/runtime-router.test.ts:134:2
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  3 failed | 43 passed (46)
+   Start at  20:35:41
+   Duration  1.97s (transform 334ms, setup 0ms, import 1.26s, tests 429ms, environment 0ms)

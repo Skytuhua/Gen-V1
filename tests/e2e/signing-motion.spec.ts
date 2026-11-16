@@ -6,6 +6,22 @@ import { serveTaskFixture, taskFixture, type TaskSpec } from './task-interface-f
 
 const animationsSettled = (page: Page) => page.evaluate(() => Promise.all(document.getAnimations().filter(a => a.playState === 'running').map(a => a.finished.catch(() => {}))));
 const flushFrames = (page: Page) => page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+async function fieldNavigationSettled(page: Page) {
+  await expect(page.locator('.document-active-field')).toBeVisible();
+  // The PDF navigation spring uses RAF, so document.getAnimations omits it.
+  await page.evaluate(() => new Promise<void>((resolve, reject) => {
+    const state = window as unknown as { pdfPanCalls: number };
+    const started = performance.now(); let previous = state.pdfPanCalls, stableSince = started;
+    const check = () => {
+      const now = performance.now();
+      if (state.pdfPanCalls !== previous) { previous = state.pdfPanCalls; stableSince = now; }
+      if (now - stableSince >= 250) { resolve(); return; }
+      if (now - started >= 5000) { reject(new Error('PDF field navigation did not settle.')); return; }
+      requestAnimationFrame(check);
+    };
+    requestAnimationFrame(check);
+  }));
+}
 
 const spec: TaskSpec = { root: 'pair', elements: {
   pair: { type: 'Split', props: { ratio: .5 }, children: ['pdf', 'form'] },
@@ -45,9 +61,12 @@ async function fixture(page: Page) {
 }
 test('ordinary draft edits do not restart field navigation', async ({ page }) => {
   const host = await fixture(page); await page.goto('/'); const preview = page.locator('.document-preview'); await expect(preview).toHaveAttribute('data-preview-state', 'ready', { timeout: 15_000 }); await animationsSettled(page);
+  await fieldNavigationSettled(page);
   await page.evaluate(() => { (window as unknown as { pdfPanCalls: number }).pdfPanCalls = 0; });
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('A changed name');
-  await expect.poll(() => host.snapshot.userStates[0].values.name).toBe('A changed name'); await flushFrames(page);
+  await expect.poll(() => host.snapshot.userStates[0].values.name).toBe('A changed name');
+  await expect(preview).toHaveAttribute('data-preview-state', 'ready'); await flushFrames(page);
+  await fieldNavigationSettled(page);
   expect(await page.evaluate(() => (window as unknown as { pdfPanCalls: number }).pdfPanCalls)).toBe(0);
 });
 for (const reduce of [false, true]) test(`generated signature reveal respects ${reduce ? 'reduced' : 'normal'} motion and never animates direct drawing`, async ({ page }) => {
