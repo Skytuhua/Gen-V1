@@ -1,6 +1,7 @@
 import {useEffect,useId,useRef,useState,type ReactNode} from 'react';
 import {Clock3} from 'lucide-react';
 import type {UiPreferences} from '../../../packages/contracts/preferences';
+import {formatLocalDateTime} from './time-format';
 import {isComposing} from '../../../packages/ui-shell/list-navigation';
 import {displayFilePath} from './files/FilesView';
 import {RecordedDiffs} from './WorkspacePanelBodies';
@@ -55,7 +56,7 @@ function CheckpointHistory({owner,adapter,preferences}:{owner:CheckpointOwner;pr
       {!loading&&!error&&items.length===0&&!nextCursor&&<p className="file-checkpoints-note">No file checkpoints available.</p>}
       <ul className="file-checkpoints-list">{items.map(item=><li key={item.id}>
         <Clock3 size={15} aria-hidden="true"/><div><strong>{item.label}</strong>
-          <p><time dateTime={item.createdAt}>{new Date(item.createdAt).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short',hour12:preferences.timeFormat==='system'?undefined:preferences.timeFormat==='12h'})}</time> · {item.fileCount} {item.fileCount===1?'file':'files'}</p>
+          <p><time dateTime={item.createdAt}>{formatLocalDateTime(item.createdAt,preferences.timeFormat,undefined,{dateStyle:'medium',timeStyle:'short'})}</time> · {item.fileCount} {item.fileCount===1?'file':'files'}</p>
           <p>{provenance(item)}</p>
         </div><button type="button" aria-label={`Review ${item.label}`} onClick={event=>{opener.current=event.currentTarget;setCheckpoint(item);}}>Review</button>
       </li>)}</ul>

@@ -14,6 +14,8 @@ import { getAccountAuth, signOutAccount, cancelAccountPredictions } from './acco
 import type { DesktopBridge } from '../../../packages/desktop-contract';
 import type { ConnectionAccount } from '../../../packages/contracts/accounts';
 import { command } from './api';
+import { getPreferences } from '../../../packages/contracts/preferences';
+import { formatLocalClock, type TimeFormat } from './time-format';
 import { useDesktop } from './desktop-context';
 import './connections.css';
 export function matchingSubscriptionConnections(query: string) {
@@ -22,7 +24,7 @@ export function matchingSubscriptionConnections(query: string) {
 }
 
 const targetKey = (providerId: string, accountId?: string | null) => JSON.stringify([providerId, accountId ?? null]);
-function AccountReadiness({ target, flow, bridge, onFlow, login }: { target: AccountAuthTarget; flow?: AccountLoginFlow; bridge?: DesktopBridge; onFlow: (flow: AccountLoginFlow) => void; login: () => void }) {
+function AccountReadiness({ target, flow, bridge, onFlow, login, timeFormat }: { target: AccountAuthTarget; flow?: AccountLoginFlow; bridge?: DesktopBridge; onFlow: (flow: AccountLoginFlow) => void; login: () => void; timeFormat: TimeFormat }) {
   const [auth, setAuth] = useState<AccountAuthStatus | null>(null), [checking, setChecking] = useState(false), [error, setError] = useState('');
   const generation = useRef(0), pending = useRef(false);
   const check = async () => {
@@ -43,7 +45,7 @@ function AccountReadiness({ target, flow, bridge, onFlow, login }: { target: Acc
     <p aria-live="polite">{auth ? `${auth.state === 'configured' ? 'Credential configured' : auth.state.replaceAll('-', ' ')}. ${auth.message}` : 'Connection status not checked. Identity unavailable.'}</p>
     {auth?.identity.availability !== 'unavailable' && auth?.identity && <p>{auth.identity.availability === 'verified' ? `Verified provider user ${auth.identity.subject}` : 'Authenticated account metadata (immutable identity unavailable)'}{auth.identity.email ? ` | ${auth.identity.email}` : ''}{auth.identity.organization ? ` | ${auth.identity.organization}` : ''}{auth.identity.subscription ? ` | ${auth.identity.subscription}` : ''}</p>}
     {auth?.identity.availability === 'unavailable' && <small>Authenticated identity unavailable.</small>}
-    {auth?.lastCheckedAt && <small>Last checked {new Date(auth.lastCheckedAt).toLocaleTimeString()}</small>}
+    {auth?.lastCheckedAt && <small>Last checked {formatLocalClock(auth.lastCheckedAt, timeFormat)}</small>}
     {flow && <p aria-live="polite">{flow.message}</p>}
     {error && <p className="error-text" role="status">{error}</p>}
     <div className="connection-account-actions"><button className="quiet" disabled={checking || !!active} onClick={() => void check()}>Check connection</button>
@@ -103,6 +105,7 @@ function AccountPicker({ connection, accounts, selectedAccountId, busy, run, log
 
 export function Connections({ snapshot, refresh, loadModels, query = '' }: { models: ModelInfo[]; snapshot: Pick<Snapshot, 'settings' | 'accounts'>; refresh: () => Promise<void>; loadModels: (refresh?: boolean) => Promise<void>; query?: string }) {
   const desktop = useDesktop();
+  const timeFormat = getPreferences(snapshot.settings).timeFormat;
   const [busy, setBusy] = useState(''), [notice, setNotice] = useState(''), [error, setError] = useState('');
   const pending = useRef(false);
   const [flows, setFlows] = useState<Record<string, AccountLoginFlow>>({});
@@ -130,7 +133,7 @@ export function Connections({ snapshot, refresh, loadModels, query = '' }: { mod
     catch (cause) { setError(cause instanceof Error ? cause.message : 'The sign-in console could not open.'); }
     finally { pending.current = false; setBusy(''); }
   };
-  const readiness = (providerId: string, accountId: string | null) => isConnectionProviderId(providerId) ? <AccountReadiness target={{ providerId, accountId }} flow={flows[targetKey(providerId, accountId)]} bridge={desktop?.bridge} onFlow={onFlow} login={() => void login(providerId, accountId ?? undefined)} /> : null;
+  const readiness = (providerId: string, accountId: string | null) => isConnectionProviderId(providerId) ? <AccountReadiness target={{ providerId, accountId }} flow={flows[targetKey(providerId, accountId)]} bridge={desktop?.bridge} onFlow={onFlow} login={() => void login(providerId, accountId ?? undefined)} timeFormat={timeFormat} /> : null;
   return <section className="connection-list" aria-label="AI subscription connections"><header><h2>AI subscriptions</h2><p>Choose a local account for new tasks, connect it, then refresh models. Existing tasks keep their account. No automatic rotation or pay-as-you-go fallback. Provider Extra Usage settings still apply.</p></header>{notice && <p role="status">{notice}</p>}{error && <p role="status" className="error-text">{error}</p>}{rows.map(connection => {
     const ready = connection.status === 'available';
     return <article key={connection.id} className="connection-row" data-provider={connection.id}><header><strong>{connection.label}</strong><span className={ready ? 'connection-ready' : 'connection-pending'}>{ready ? 'Ready to connect' : 'Integration pending'}</span></header><p>{connection.description}</p>
