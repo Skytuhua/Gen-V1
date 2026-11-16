@@ -68,7 +68,8 @@ Only the OpenAI route has recorded live task acceptance. Other routes still need
 - Interactive task cards appear in the conversation. Their controls depend on the task; review consequential actions before accepting them.
 - A validated task plan opens automatically. Project context and usage tools minimize within the workspace.
 - Open **Settings → Skills & learning** to inspect saved procedures and revisions.
-- `/btw` and `/side` remain available for side conversations. New native detachment is unavailable in the current source.
+- In the current Windows desktop source, open a conversation’s sidebar menu and choose **Detach thread** to open it in a pinned window. The main workspace stays available for other conversations. Canvas panels do not detach.
+- Use `/btw` or `/side` for side conversations.
 
 ![Sample conversation and interactive investigation in the dark workspace](media/workspace-dark.png)
 

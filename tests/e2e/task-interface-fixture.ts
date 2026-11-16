@@ -1,5 +1,4 @@
 import type { Page } from '@playwright/test';
-import {isDeepStrictEqual} from 'node:util';
 import {panelBindingSchema} from '../../packages/contracts/workspace';
 import {splitWorkspaceLayoutSchema,type SplitWorkspaceLayout} from '../../packages/contracts/split-workspace';
 import type { ArtifactRecord, HostCommand, Snapshot } from '../../packages/contracts';
@@ -36,7 +35,10 @@ function taskSplitCommand(layout: SplitWorkspaceLayout, command: HostCommand, sn
   if (Object.keys(command.payload).sort().join(',') !== 'baseRevision,expectedBinding,projectId,viewId,workspaceId' || command.payload.workspaceId !== layout.id || command.payload.baseRevision !== layout.revision) throw Error('The captured workspace identity or revision changed.');
   const expected = panelBindingSchema.parse(command.payload.expectedBinding), target = layout.views[String(command.payload.viewId)];
   if (!target || target.kind !== 'thread' || target.binding.authority.kind !== 'local' || !target.binding.threadId) throw Error('Only an existing local conversation view can be reconciled.');
-  if (!isDeepStrictEqual(target.binding, expected)) throw Error('The captured conversation owner binding changed.');
+  // Strict local authority has only kind; every other parsed binding field is primitive.
+  const bindingEntries = Object.entries(target.binding);
+  if (expected.authority.kind !== 'local' || bindingEntries.length !== Object.keys(expected).length ||
+      bindingEntries.some(([key, value]) => !Object.hasOwn(expected, key) || (key !== 'authority' && !Object.is(value, expected[key as keyof typeof expected])))) throw Error('The captured conversation owner binding changed.');
   const owner = snapshot?.threads.find(thread => thread.id === target.binding.threadId);
   if (!owner || (owner.projectId ?? null) !== command.payload.projectId) throw Error('The canonical conversation project changed.');
   const next = structuredClone(layout);
