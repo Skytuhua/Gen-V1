@@ -40,7 +40,9 @@ function guard() {
 }
 const path = { path: 'C:\\owned\\host', leaf: false, allowChildWrites: true, childWriteRoot: 'C:\\owned\\host' };
 const signal = () => new AbortController().signal;
-const startupGuard = <T>(paths: Parameters<typeof withPathGuard>[0], signal: AbortSignal, action: (manifest: readonly GuardEntry[]) => Promise<T>) => withPathGuard(paths, signal, action, undefined, { startupAcquisition: true });
+// The first acquire after a spawn is the startup acquisition; the pooled guard
+// applies its extended deadline automatically while the helper is still cold.
+const startupGuard = <T>(paths: Parameters<typeof withPathGuard>[0], signal: AbortSignal, action: (manifest: readonly GuardEntry[]) => Promise<T>) => withPathGuard(paths, signal, action);
 function observe<T>(operation: Promise<T>) {
   let settled = false;
   const result = operation.then(value => ({ value, error: undefined }), error => ({ value: undefined, error })).finally(() => { settled = true; });
@@ -74,7 +76,7 @@ it('denies a silent first acquisition at its bounded startup deadline without en
   expect(g.child.stdin.writableEnded).toBe(false);
 });
 
-it('ignores a nested startup opt-in and keeps its acquisition deadline at fifteen seconds', async () => {
+it('keeps a nested acquisition deadline at fifteen seconds', async () => {
   const g = guard(), nested = vi.fn(async () => undefined);
   const observed = observe(startupGuard([path], signal(), () => startupGuard([path], signal(), nested)));
   await vi.advanceTimersByTimeAsync(31_944);
@@ -83,16 +85,31 @@ it('ignores a nested startup opt-in and keeps its acquisition deadline at fiftee
   expect(g.requests.map(request => request.command)).toEqual(['acquire', 'acquire']);
   await vi.advanceTimersByTimeAsync(14_999);
   expect(observed.settled()).toBe(false);
-  await vi.advanceTimersByTimeAsync(1);
-  await vi.advanceTimersByTimeAsync(0);
-  expect(g.requests.map(request => request.command)).toEqual(['acquire', 'acquire', 'release']);
-  await vi.advanceTimersByTimeAsync(14_999);
-  expect(observed.settled()).toBe(false);
+  // A silent helper is retired: the dead child's teardown frees its leases,
+  // so no release request is issued and the operation settles at the deadline.
   await vi.advanceTimersByTimeAsync(1);
   expect(observed.settled()).toBe(true);
   expect((await observed.result).error).toMatchObject({ code: 'CAPABILITY_DENIED' });
   expect(nested).not.toHaveBeenCalled();
+  expect(g.requests.map(request => request.command)).toEqual(['acquire', 'acquire']);
+  expect(g.child.kill).toHaveBeenCalled();
   expect(g.child.stdin.writableEnded).toBe(false);
+});
+
+it('denies a request-level failure without killing the shared guard', async () => {
+  const g = guard(), action = vi.fn(async () => undefined);
+  const observed = observe(startupGuard([path], signal(), action));
+  await vi.advanceTimersByTimeAsync(0);
+  g.child.stdout.write(JSON.stringify({ id: g.requests[0]!.id, error: 'The process cannot access the file', code: 32 }) + '\n');
+  expect((await observed.result).error).toMatchObject({ code: 'CAPABILITY_DENIED', details: { nativeCode: '32' } });
+  expect(action).not.toHaveBeenCalled();
+  expect(g.child.kill).not.toHaveBeenCalled();
+  // The helper answered, so the guard is warm and keeps the strict deadline.
+  const second = observe(withPathGuard([path], signal(), vi.fn(async () => 'next')));
+  await vi.advanceTimersByTimeAsync(14_999);
+  expect(second.settled()).toBe(false);
+  await vi.advanceTimersByTimeAsync(1);
+  expect((await second.result).error).toMatchObject({ code: 'CAPABILITY_DENIED' });
 });
 
 it('keeps the later release deadline at fifteen seconds', async () => {
@@ -105,11 +122,12 @@ it('keeps the later release deadline at fifteen seconds', async () => {
   expect(g.requests.map(request => request.command)).toEqual(['acquire', 'acquire', 'release']);
   await vi.advanceTimersByTimeAsync(14_999);
   expect(observed.settled()).toBe(false);
+  // The timed-out release retires the child; teardown frees the outer lease too,
+  // so no outer release request is sent and the operation settles immediately.
   await vi.advanceTimersByTimeAsync(1);
-  await vi.advanceTimersByTimeAsync(14_999); // the outer release shares the same deadline
-  expect(observed.settled()).toBe(false);
-  await vi.advanceTimersByTimeAsync(1);
+  expect(observed.settled()).toBe(true);
   expect((await observed.result).error).toMatchObject({ code: 'CAPABILITY_DENIED' });
+  expect(g.child.kill).toHaveBeenCalled();
   expect(g.child.stdin.writableEnded).toBe(false);
 });
 
