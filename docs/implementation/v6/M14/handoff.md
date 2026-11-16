@@ -1,10 +1,15 @@
 # M14 v6 handoff — Branchable sessions and inert history imports
 
-Status: PARTIAL/BLOCKED — every implementable phase is complete and
-source-bound; the remaining phases are named holds that require external
-proof (a tested adapter fork API, an admitted parser manifest) or
-platforms this Linux host cannot provide (browser, Windows/installed).
-The final commit SHA is reported in the session response, not here.
+Status: computed `bundleStatus` is **FAIL** — two phases carry FAIL
+status (`CORE.existing-contract-tests`, `INTEGRATION.direct-unit-baseline`),
+driven entirely by pre-existing environmental denials on this Linux host
+(linux-path-guard CAP_SYS_ADMIN, missing `pty.node`, port conflicts,
+contention timeouts). Every implementable M14 phase is complete and
+source-bound (PASS); the remaining phases are named holds that require
+external proof (a tested adapter fork API, an admitted parser manifest)
+or platforms this host cannot provide (browser, Windows/installed).
+No required M14 product case failed. The final commit SHA is reported in
+the session response, not inside this artifact.
 
 ## Custody
 

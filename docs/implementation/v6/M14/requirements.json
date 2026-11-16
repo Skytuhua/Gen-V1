@@ -15,272 +15,445 @@
       "id": "M14-C01",
       "clause": "BranchRequestV1 binds sourceThreadId, immutable sourceCut, nativeCheckpointRef|null, requestedModelBinding, intent INSPECT|FORK_CONVERSATION; START_NEW_WITH_QUOTE is a separate intent and never a native fork; new live work uses new thread/run identity and fresh authorization",
       "disposition": "IMPLEMENT",
-      "sourcePaths": ["packages/contracts/session-branch.ts", "packages/core/session-branches.ts", "packages/core/service.ts"],
-      "testIds": ["tests/session-branch-v3.test.ts", "tests/history-import-decisions-v6.test.ts"],
+      "sourcePaths": [
+        "packages/contracts/session-branch.ts",
+        "packages/core/session-branches.ts",
+        "packages/core/service.ts"
+      ],
+      "testIds": [
+        "tests/session-branch-v3.test.ts",
+        "tests/history-import-decisions-v6.test.ts"
+      ],
       "reason": "branchRequestV1Schema + applyBranchCommand implement all three intents; FORK_CONVERSATION refuses without tested adapter API; START_NEW_WITH_QUOTE allocates a fresh thread and stores immutable lineage. Verified by session-branch-v3 tests."
     },
     {
       "id": "M14-C02",
       "clause": "ArchiveV1 JSON format: version=1, sourceProduct, exportedAt, conversations[], provenance, importWarnings; message fields id/parentId/role/text/sourceTimestamp/attachmentRefs; imported system/tool text is historical untrusted content only",
       "disposition": "IMPLEMENT",
-      "sourcePaths": ["packages/contracts/session-branch.ts", "packages/core/history-import.ts"],
-      "testIds": ["tests/history-import-v3.test.ts", "tests/history-import-decisions-v6.test.ts"],
+      "sourcePaths": [
+        "packages/contracts/session-branch.ts",
+        "packages/core/history-import.ts"
+      ],
+      "testIds": [
+        "tests/history-import-v3.test.ts",
+        "tests/history-import-decisions-v6.test.ts"
+      ],
       "reason": "archiveV1DocumentSchema is strict; decodeArchiveBytes/validateArchiveSemantics enforce every field before publication; system/tool roles persist as display text only."
     },
     {
       "id": "M14-C03",
       "clause": "HistoricalCursorV1 binds owner, source session, snapshot upper sequence, filters and schema version; fork ability is SUPPORTED|UNSUPPORTED|UNPROVEN never inferred from UI timeline",
       "disposition": "IMPLEMENT",
-      "sourcePaths": ["packages/contracts/session-branch.ts", "packages/core/session-branches.ts"],
-      "testIds": ["tests/session-branch-v3.test.ts"],
+      "sourcePaths": [
+        "packages/contracts/session-branch.ts",
+        "packages/core/session-branches.ts"
+      ],
+      "testIds": [
+        "tests/session-branch-v3.test.ts"
+      ],
       "reason": "historicalCursorV1Schema + HMAC-signed cursor in SessionBranchReadModels bind owner/cut/schema; M14_ADAPTER_CAPABILITIES reports per-adapter UNPROVEN fork status independent of the timeline."
     },
     {
       "id": "M14-S01",
       "clause": "Adapter capability matrix for read history, fixed-cut inspect and native fork; test each actual implementation; text transcript export does not prove fork",
       "disposition": "IMPLEMENT",
-      "sourcePaths": ["packages/core/session-branches.ts"],
-      "testIds": ["tests/session-branch-v3.test.ts"],
+      "sourcePaths": [
+        "packages/core/session-branches.ts"
+      ],
+      "testIds": [
+        "tests/session-branch-v3.test.ts"
+      ],
       "reason": "M14_ADAPTER_CAPABILITIES enumerates hermes/pi/official-claude/official-gemini/official-cursor: receiptHistory=true (source-inspected RuntimeAdapter.history), fixedCutInspect=UNSUPPORTED, nativeFork=UNPROVEN. No adapter exposes a tested fork API in this tree."
     },
     {
       "id": "M14-S02",
       "clause": "Read-only historical view with snapshot-bound pagination; new events do not move the upper cut; archived/missing attachments and incomplete source coverage shown explicitly",
       "disposition": "IMPLEMENT",
-      "sourcePaths": ["packages/core/session-branches.ts"],
-      "testIds": ["tests/session-branch-v3.test.ts"],
+      "sourcePaths": [
+        "packages/core/session-branches.ts"
+      ],
+      "testIds": [
+        "tests/session-branch-v3.test.ts"
+      ],
       "reason": "captureSession freezes a bounded message copy at store.sequence; captureMessages pages the frozen rows; coverage/truncated/incompleteSource (TRUNCATED_HISTORY, NATIVE_TRANSCRIPT_UNAVAILABLE, ATTACHMENTS_NOT_CAPTURED) are recorded explicitly."
     },
     {
       "id": "M14-S03",
       "clause": "Actual native fork uses source engine's tested API, new thread/run/epoch, account custody, revalidated binding; never silently reuse a session file",
       "disposition": "BLOCKED",
-      "sourcePaths": ["packages/core/session-branches.ts"],
-      "testIds": ["tests/session-branch-v3.test.ts", "tests/history-import-decisions-v6.test.ts"],
+      "sourcePaths": [
+        "packages/core/session-branches.ts"
+      ],
+      "testIds": [
+        "tests/session-branch-v3.test.ts",
+        "tests/history-import-decisions-v6.test.ts"
+      ],
       "reason": "HOLD_NATIVE_FORK: no adapter in this tree exposes a tested native fork API; RuntimeAdapter.history returns receipt IDs only. FORK_CONVERSATION returns FORK_UNSUPPORTED and creates nothing."
     },
     {
       "id": "M14-S04",
       "clause": "When native forking is unsupported: Inspect archive or Start new task with selected quoted context; label the latter as a new task, never exact replay; never rewrite native history from projected UI messages",
       "disposition": "IMPLEMENT",
-      "sourcePaths": ["packages/core/session-branches.ts", "apps/web/src/SessionBranchMenu.tsx"],
-      "testIds": ["tests/session-branch-v3.test.ts", "tests/history-import-decisions-v6.test.ts"],
+      "sourcePaths": [
+        "packages/core/session-branches.ts",
+        "apps/web/src/SessionBranchMenu.tsx"
+      ],
+      "testIds": [
+        "tests/session-branch-v3.test.ts",
+        "tests/history-import-decisions-v6.test.ts"
+      ],
       "reason": "START_NEW_WITH_QUOTE creates an ordinary new thread titled 'New task (quoted context)' with quoted excerpts stored as immutable lineage; the UI labels it a new task and explains files do not change."
     },
     {
       "id": "M14-S05",
       "clause": "Previous tool calls stay inert historical observations; no branch operation replays shell commands, reinstates approvals or reverses remote effects; branch does not auto-restore files",
       "disposition": "IMPLEMENT",
-      "sourcePaths": ["packages/core/session-branches.ts", "packages/core/history-import.ts"],
-      "testIds": ["tests/session-branch-v3.test.ts", "tests/history-import-decisions-v6.test.ts"],
+      "sourcePaths": [
+        "packages/core/session-branches.ts",
+        "packages/core/history-import.ts"
+      ],
+      "testIds": [
+        "tests/session-branch-v3.test.ts",
+        "tests/history-import-decisions-v6.test.ts"
+      ],
       "reason": "Neither capture, branch nor import writes operation/resource/toolEffect/workspaceCheckpoint/checkpoint/editJournal/outbox entities or calls runtime.start/compact. Asserted by dedicated store-entity and mock-call checks."
     },
     {
       "id": "M14-S06",
       "clause": "M08 file checkpoint review connects only through a separate Restore files action and approval; never combined with conversation changes into one opaque undo",
       "disposition": "PRESERVE_EXISTING",
-      "sourcePaths": ["packages/contracts/session-branch.ts", "apps/web/src/SessionBranchMenu.tsx"],
-      "testIds": ["tests/session-branch-v3.test.ts"],
+      "sourcePaths": [
+        "packages/contracts/session-branch.ts",
+        "apps/web/src/SessionBranchMenu.tsx"
+      ],
+      "testIds": [
+        "tests/session-branch-v3.test.ts"
+      ],
       "reason": "Session-branch contracts and UI carry no restore-files path; the menu renders Restore files as a distinct control only when the file-checkpoint capability is present. M08 keeps its own approval flow unchanged."
     },
     {
       "id": "M14-S07",
       "clause": "ArchiveV1 UTF-8 JSON importer only: reject >20 MiB before parse, >100 conversations, >10,000 messages; unique conversation/message IDs, same-conversation parents, acyclic iterative graph check; validate all before publishing",
       "disposition": "IMPLEMENT",
-      "sourcePaths": ["packages/core/history-import.ts", "packages/contracts/session-branch.ts"],
-      "testIds": ["tests/history-import-v3.test.ts", "tests/history-import-decisions-v6.test.ts"],
+      "sourcePaths": [
+        "packages/core/history-import.ts",
+        "packages/contracts/session-branch.ts"
+      ],
+      "testIds": [
+        "tests/history-import-v3.test.ts",
+        "tests/history-import-decisions-v6.test.ts"
+      ],
       "reason": "decodeArchiveBytes enforces the byte gate before JSON.parse; validateArchiveSemantics performs iterative cycle detection and all graph checks pre-publication; publication is one atomic Store command. D01/D02 assert edges and atomicity."
     },
     {
       "id": "M14-S08",
       "clause": "No external-product parser admitted: reject ZIP/gzip/binary/extraction as UNSUPPORTED_IMPORT_FORMAT; never claim DeepSeek/Codex support; never open attachment paths or fetch URLs",
       "disposition": "IMPLEMENT",
-      "sourcePaths": ["packages/core/history-import.ts"],
-      "testIds": ["tests/history-import-v3.test.ts"],
+      "sourcePaths": [
+        "packages/core/history-import.ts"
+      ],
+      "testIds": [
+        "tests/history-import-v3.test.ts"
+      ],
       "reason": "Magic-byte checks reject ZIP/gzip/UTF-16 pre-parse; attachmentRefs are validated as opaque inert identifiers and never dereferenced. External format support remains HOLD_EXTERNAL_FORMAT pending a pinned parser manifest."
     },
     {
       "id": "M14-S09",
       "clause": "Render imported text literally; preview reports secret-bearing fields and access-bearing links without dereferencing; block publication of secret-classified fields; heuristic caveat; show source/counts/warnings/destination; never promote to project memory",
       "disposition": "IMPLEMENT",
-      "sourcePaths": ["packages/core/history-import.ts", "apps/web/src/SessionBranchMenu.tsx", "apps/web/src/session-branch-api.ts"],
-      "testIds": ["tests/history-import-v3.test.ts", "tests/history-import-decisions-v6.test.ts"],
+      "sourcePaths": [
+        "packages/core/history-import.ts",
+        "apps/web/src/SessionBranchMenu.tsx",
+        "apps/web/src/session-branch-api.ts"
+      ],
+      "testIds": [
+        "tests/history-import-v3.test.ts",
+        "tests/history-import-decisions-v6.test.ts"
+      ],
       "reason": "scanForSensitiveContent reports secretFields (commit blocked with IMPORT_SECRET_CONTENT) and accessLinks without fetching; preview returns counts/warnings/destination + IMPORT_PREVIEW_HEURISTIC_NOTE; no memory-write path exists in import."
     },
     {
       "id": "M14-S10",
       "clause": "Deterministic source digest/deduplication and immutable provenance; cancellation leaves no half-active conversation; staged artifacts finalized or cleaned under exact staging identity",
       "disposition": "IMPLEMENT",
-      "sourcePaths": ["packages/core/history-import.ts"],
-      "testIds": ["tests/history-import-v3.test.ts", "tests/history-import-decisions-v6.test.ts"],
+      "sourcePaths": [
+        "packages/core/history-import.ts"
+      ],
+      "testIds": [
+        "tests/history-import-v3.test.ts",
+        "tests/history-import-decisions-v6.test.ts"
+      ],
       "reason": "digestKey dedupes per owner scope inside one Store transaction; cancel removes only the staging importId pre-commit and returns the committed receipt post-commit. D03 asserts both branches."
     },
     {
       "id": "M14-S11",
       "clause": "Branch after compaction, archive, account revocation and source removal; unresolved source pointers stay unavailable; never invent replacement evidence",
       "disposition": "IMPLEMENT",
-      "sourcePaths": ["packages/core/session-branches.ts"],
-      "testIds": ["tests/session-branch-v3.test.ts"],
-      "reason": "SessionBranchReadModels.sourceThread re-fences capture reads against current thread ownership: account revocation and thread removal both yield CAPABILITY_DENIED with no substituted content."
+      "sourcePaths": [
+        "packages/core/session-branches.ts"
+      ],
+      "testIds": [
+        "tests/session-branch-v3.test.ts"
+      ],
+      "reason": "SessionBranchReadModels.sourceThread re-fences capture reads against the current thread record: account swap and thread removal deny CAPABILITY_DENIED; the archive-after-capture case is asserted by the dedicated archival test; compaction cannot move a host-projected cut (compact spy never called)."
     },
     {
       "id": "M14-U01",
       "clause": "History view exposes Inspect point, Fork conversation where supported, and Start new task with quoted context as distinct actions; each explains whether files change",
       "disposition": "IMPLEMENT",
-      "sourcePaths": ["apps/web/src/SessionBranchMenu.tsx"],
-      "testIds": ["tests/session-branch-v3.test.ts"],
+      "sourcePaths": [
+        "apps/web/src/SessionBranchMenu.tsx"
+      ],
+      "testIds": [
+        "tests/session-branch-v3.test.ts"
+      ],
       "reason": "SessionBranchMenu renders three distinct actions; fork is hidden/disabled while capability is UNPROVEN with an explicit unsupported note; each action states files are unchanged."
     },
     {
       "id": "M14-U02",
       "clause": "Branch header names parent and source cut; tool effects marked historical and cannot be replayed by clicking",
       "disposition": "IMPLEMENT",
-      "sourcePaths": ["apps/web/src/SessionBranchMenu.tsx"],
-      "testIds": ["tests/session-branch-v3.test.ts"],
+      "sourcePaths": [
+        "apps/web/src/SessionBranchMenu.tsx"
+      ],
+      "testIds": [
+        "tests/session-branch-v3.test.ts"
+      ],
       "reason": "SessionBranchLineage renders parent thread + source cut (sequence, message count); capture/imported messages render as static historical text with no replay control."
     },
     {
       "id": "M14-U03",
       "clause": "Import preview lists format support, warnings, omitted attachments and destination; Imported archive badge persists until an explicit new live task",
       "disposition": "IMPLEMENT",
-      "sourcePaths": ["apps/web/src/SessionBranchMenu.tsx", "packages/core/history-import.ts"],
-      "testIds": ["tests/history-import-v3.test.ts"],
+      "sourcePaths": [
+        "apps/web/src/SessionBranchMenu.tsx",
+        "packages/core/history-import.ts"
+      ],
+      "testIds": [
+        "tests/history-import-v3.test.ts"
+      ],
       "reason": "stageImport returns format/counts/warnings/omittedAttachments/destination; the menu shows them pre-commit and renders a persistent 'Imported archive' badge on imported conversations."
     },
     {
       "id": "M14-T01",
       "clause": "Paging while new events arrive preserves the fixed cut with no cross-owner records",
       "disposition": "IMPLEMENT",
-      "sourcePaths": ["packages/core/session-branches.ts"],
-      "testIds": ["tests/session-branch-v3.test.ts"],
-      "reason": "Covered by 'captures an owner-bound frozen view that new events never move' — messages added after the cut and a cross-thread message never appear."
+      "sourcePaths": [
+        "packages/core/session-branches.ts"
+      ],
+      "testIds": [
+        "tests/session-branch-v3.test.ts"
+      ],
+      "reason": "Covered by 'captures an owner-bound frozen view that new events never move' \u2014 messages added after the cut and a cross-thread message never appear."
     },
     {
       "id": "M14-T02",
       "clause": "Unsupported native fork never produces an apparent exact continuation; account mismatch and revoked source refuse live fork",
       "disposition": "IMPLEMENT",
-      "sourcePaths": ["packages/core/session-branches.ts"],
-      "testIds": ["tests/session-branch-v3.test.ts", "tests/history-import-decisions-v6.test.ts"],
+      "sourcePaths": [
+        "packages/core/session-branches.ts"
+      ],
+      "testIds": [
+        "tests/session-branch-v3.test.ts",
+        "tests/history-import-decisions-v6.test.ts"
+      ],
       "reason": "FORK_CONVERSATION always returns FORK_UNSUPPORTED without creating threads/branches; the account-mismatch case yields the same refusal; no continuation artifact exists."
     },
     {
       "id": "M14-T03",
       "clause": "Branch/import cannot execute tools, restore old approvals or change files",
       "disposition": "IMPLEMENT",
-      "sourcePaths": ["packages/core/session-branches.ts", "packages/core/history-import.ts"],
-      "testIds": ["tests/session-branch-v3.test.ts", "tests/history-import-v3.test.ts", "tests/history-import-decisions-v6.test.ts"],
+      "sourcePaths": [
+        "packages/core/session-branches.ts",
+        "packages/core/history-import.ts"
+      ],
+      "testIds": [
+        "tests/session-branch-v3.test.ts",
+        "tests/history-import-v3.test.ts",
+        "tests/history-import-decisions-v6.test.ts"
+      ],
       "reason": "D04 plus the branch-authority test assert zero operations/resources/grants/memory writes and no runtime.start/compact calls across capture, quote-task and import."
     },
     {
       "id": "M14-T04",
       "clause": "Duplicate/cyclic IDs, traversal paths, symlinks, oversized archive and malformed attachments fail before publication",
       "disposition": "IMPLEMENT",
-      "sourcePaths": ["packages/core/history-import.ts"],
-      "testIds": ["tests/history-import-v3.test.ts", "tests/history-import-decisions-v6.test.ts"],
+      "sourcePaths": [
+        "packages/core/history-import.ts"
+      ],
+      "testIds": [
+        "tests/history-import-v3.test.ts",
+        "tests/history-import-decisions-v6.test.ts"
+      ],
       "reason": "Attachment ref validation rejects traversal/absolute/URL forms; D01/D02 cover size and graph rejection before any publish."
     },
     {
       "id": "M14-T05",
       "clause": "Import cancellation and repeated import digest are deterministic; memory is not silently populated",
       "disposition": "IMPLEMENT",
-      "sourcePaths": ["packages/core/history-import.ts"],
-      "testIds": ["tests/history-import-v3.test.ts", "tests/history-import-decisions-v6.test.ts"],
+      "sourcePaths": [
+        "packages/core/history-import.ts"
+      ],
+      "testIds": [
+        "tests/history-import-v3.test.ts",
+        "tests/history-import-decisions-v6.test.ts"
+      ],
       "reason": "D03 covers cancel-before/after-commit; dedup test asserts identical digest returns the same receipt; D04 asserts zero memory writes."
     },
     {
       "id": "M14-T06",
       "clause": "Conversation fork leaves M08 file state unchanged until separately approved restore",
       "disposition": "IMPLEMENT",
-      "sourcePaths": ["packages/core/session-branches.ts"],
-      "testIds": ["tests/session-branch-v3.test.ts"],
+      "sourcePaths": [
+        "packages/core/session-branches.ts"
+      ],
+      "testIds": [
+        "tests/session-branch-v3.test.ts"
+      ],
       "reason": "Branch-authority test asserts no workspaceCheckpoint/checkpoint/editJournal entities are created by any branch intent."
     },
     {
       "id": "M14-G01",
       "clause": "Read-only inspection passes independently of native fork; each adapter's fork capability requires runtime proof; imported archives never inherit executable authority",
       "disposition": "IMPLEMENT",
-      "sourcePaths": ["packages/core/session-branches.ts", "packages/core/history-import.ts"],
-      "testIds": ["tests/session-branch-v3.test.ts", "tests/history-import-decisions-v6.test.ts"],
-      "reason": "INSPECT works while FORK_CONVERSATION stays UNSUPPORTED; imports persist inert records only — verified by zero-effect assertions."
+      "sourcePaths": [
+        "packages/core/session-branches.ts",
+        "packages/core/history-import.ts"
+      ],
+      "testIds": [
+        "tests/session-branch-v3.test.ts",
+        "tests/history-import-decisions-v6.test.ts"
+      ],
+      "reason": "INSPECT works while FORK_CONVERSATION stays UNSUPPORTED; imports persist inert records only \u2014 verified by zero-effect assertions."
     },
     {
       "id": "M14-G02",
       "clause": "Host-owned flags sessions.branchV1 and sessions.inertImportV1 default false; not in strict UI preferences; agents/plugins cannot enable; each sub-capability needs own proof",
       "disposition": "IMPLEMENT",
-      "sourcePaths": ["packages/core/capability-flags.ts", "packages/core/service.ts", "packages/core/session-branches.ts", "packages/core/history-import.ts"],
-      "testIds": ["tests/session-branch-v3.test.ts", "tests/history-import-v3.test.ts"],
+      "sourcePaths": [
+        "packages/core/capability-flags.ts",
+        "packages/core/service.ts",
+        "packages/core/session-branches.ts",
+        "packages/core/history-import.ts"
+      ],
+      "testIds": [
+        "tests/session-branch-v3.test.ts",
+        "tests/history-import-v3.test.ts"
+      ],
       "reason": "Both keys registered default-false in the central owner registry (not user preferences, not plugin/agent writable); every command enforces its flag at the host boundary; tests inject via __setCapabilityFlagForTests only."
     },
     {
       "id": "M14-G03",
       "clause": "Rollback: disable creation/import while preserving immutable parent/child and archive provenance; no source-session deletion or external-effect reversal",
       "disposition": "IMPLEMENT",
-      "sourcePaths": ["packages/core/capability-flags.ts", "packages/core/session-branches.ts", "packages/core/history-import.ts"],
-      "testIds": ["tests/history-import-v3.test.ts", "tests/session-branch-v3.test.ts"],
+      "sourcePaths": [
+        "packages/core/capability-flags.ts",
+        "packages/core/session-branches.ts",
+        "packages/core/history-import.ts"
+      ],
+      "testIds": [
+        "tests/history-import-v3.test.ts",
+        "tests/session-branch-v3.test.ts"
+      ],
       "reason": "Flag-off denies new commands while persisted captures/branches/imports remain readable evidence; nothing deletes source sessions or reverses effects."
     },
     {
       "id": "M14-D01",
       "clause": "20 MiB admitted; 20 MiB+1 rejected before JSON parsing; 100 conversations and 10,000 messages are maxima",
       "disposition": "IMPLEMENT",
-      "sourcePaths": ["packages/core/history-import.ts"],
-      "testIds": ["tests/history-import-decisions-v6.test.ts"],
+      "sourcePaths": [
+        "packages/core/history-import.ts"
+      ],
+      "testIds": [
+        "tests/history-import-decisions-v6.test.ts"
+      ],
       "reason": "Exact decision case implemented: at-limit bytes reach validation (typed format error), +1 yields IMPORT_TOO_LARGE pre-parse, both count maxima admitted and +1 rejected."
     },
     {
       "id": "M14-D02",
       "clause": "Duplicate message IDs, cross-conversation parents and cycles reject the whole import; no published conversation exists",
       "disposition": "IMPLEMENT",
-      "sourcePaths": ["packages/core/history-import.ts"],
-      "testIds": ["tests/history-import-decisions-v6.test.ts"],
+      "sourcePaths": [
+        "packages/core/history-import.ts"
+      ],
+      "testIds": [
+        "tests/history-import-decisions-v6.test.ts"
+      ],
       "reason": "it.each covers all five graph violations through the real stage command; zero importedConversation/importReceipt/importStaging remain."
     },
     {
       "id": "M14-D03",
       "clause": "Cancel before publish leaves no active records; cancel after returns the original committed receipt; never half-public data",
       "disposition": "IMPLEMENT",
-      "sourcePaths": ["packages/core/history-import.ts"],
-      "testIds": ["tests/history-import-decisions-v6.test.ts", "tests/history-import-v3.test.ts"],
+      "sourcePaths": [
+        "packages/core/history-import.ts"
+      ],
+      "testIds": [
+        "tests/history-import-decisions-v6.test.ts",
+        "tests/history-import-v3.test.ts"
+      ],
       "reason": "Decision test exercises both orderings through service.command; assertions cover staging removal, committed receipt identity and no half-public records."
     },
     {
       "id": "M14-D04",
       "clause": "Imported system/tool command text leaves executor, grant-creation and memory-write counters at zero",
       "disposition": "IMPLEMENT",
-      "sourcePaths": ["packages/core/history-import.ts"],
-      "testIds": ["tests/history-import-decisions-v6.test.ts", "tests/history-import-v3.test.ts"],
+      "sourcePaths": [
+        "packages/core/history-import.ts"
+      ],
+      "testIds": [
+        "tests/history-import-decisions-v6.test.ts",
+        "tests/history-import-v3.test.ts"
+      ],
       "reason": "Archive embeds shell/command-shaped system+tool text; after commit all operation/resource/taskMemory entities remain empty and runtime.start/followUp/compact stay uncalled."
     },
     {
       "id": "M14-D05",
       "clause": "Provider with history export but no tested fork returns UNSUPPORTED; quoted-context creation is explicitly a separate new task",
       "disposition": "IMPLEMENT",
-      "sourcePaths": ["packages/core/session-branches.ts"],
-      "testIds": ["tests/history-import-decisions-v6.test.ts", "tests/session-branch-v3.test.ts"],
+      "sourcePaths": [
+        "packages/core/session-branches.ts"
+      ],
+      "testIds": [
+        "tests/history-import-decisions-v6.test.ts",
+        "tests/session-branch-v3.test.ts"
+      ],
       "reason": "adapterForkCapability() is UNPROVEN with receipt-history-only adapters; FORK_CONVERSATION refuses while START_NEW_WITH_QUOTE creates a distinct labeled thread."
     },
     {
       "id": "HOLD_NATIVE_FORK",
-      "clause": "C4 actual native fork — requires a named adapter fork API with platform proof",
+      "clause": "C4 actual native fork \u2014 requires a named adapter fork API with platform proof",
       "disposition": "BLOCKED",
-      "sourcePaths": ["packages/core/session-branches.ts"],
-      "testIds": ["tests/session-branch-v3.test.ts"],
+      "sourcePaths": [
+        "packages/core/session-branches.ts"
+      ],
+      "testIds": [
+        "tests/session-branch-v3.test.ts"
+      ],
       "reason": "HOLD_NATIVE_FORK: source inspection of the five RuntimeAdapter implementations shows no fork/branch/forkSession API; RuntimeAdapter.history returns receipt IDs. Fork stays UNSUPPORTED."
     },
     {
       "id": "HOLD_EXTERNAL_FORMAT",
-      "clause": "C5 external format parsers (ZIP, DeepSeek export, raw Codex/Pi directories) — unadmitted by this revision",
+      "clause": "C5 external format parsers (ZIP, DeepSeek export, raw Codex/Pi directories) \u2014 unadmitted by this revision",
       "disposition": "BLOCKED",
-      "sourcePaths": ["packages/core/history-import.ts"],
-      "testIds": ["tests/history-import-v3.test.ts"],
+      "sourcePaths": [
+        "packages/core/history-import.ts"
+      ],
+      "testIds": [
+        "tests/history-import-v3.test.ts"
+      ],
       "reason": "HOLD_EXTERNAL_FORMAT: only strict ArchiveV1 JSON is admitted; other formats are rejected as UNSUPPORTED_IMPORT_FORMAT pending an exact parser manifest."
     },
     {
       "id": "HOLD_IMMUTABLE_SOURCE",
       "clause": "Mutable-only history cannot back a native continuation",
       "disposition": "BLOCKED",
-      "sourcePaths": ["packages/core/session-branches.ts"],
-      "testIds": ["tests/session-branch-v3.test.ts"],
+      "sourcePaths": [
+        "packages/core/session-branches.ts"
+      ],
+      "testIds": [
+        "tests/session-branch-v3.test.ts"
+      ],
       "reason": "HOLD_IMMUTABLE_SOURCE applies to the native-fork path: projected UI messages and receipt IDs are not an immutable native transcript, so Inspect uses a host-copied frozen view instead."
     }
   ]
