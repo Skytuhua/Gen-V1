@@ -1299,6 +1299,7 @@
     "tests/runtime-pi.test.ts",
     "tests/runtime-router.test.ts",
     "tests/runtime-worker-settlement.test.ts",
+    "tests/saved-drafts-suspended-audit.test.ts",
     "tests/saved-drafts.test.ts",
     "tests/schema-admission.test.ts",
     "tests/scoped-conversation-fixture.ts",
