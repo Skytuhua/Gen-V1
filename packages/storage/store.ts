@@ -158,12 +158,26 @@ export class Store {
     return rows.map(row => ({ seq: row.seq, id: row.id, type: row.type, threadId: row.thread_id, payload: JSON.parse(row.payload), occurredAt: row.occurred_at }));
   }
   get sequence(): number { return Number((this.statements.sequence.get() as { seq: number }).seq); }
-  snapshot(): Snapshot {
-    const allThreads = this.all<Snapshot["threads"][number]>("thread");
+  private visibleEntities() {
     const archivedRows = this.db.prepare("SELECT id,body FROM entities WHERE kind=?").all("archivedThread") as { id: string; body: string }[];
     const archived = new Set(archivedRows.filter(row => JSON.parse(row.body)).map(row => row.id));
-    const visibleRows=this.db.prepare("SELECT body FROM entities WHERE kind=? AND (thread_id IS NULL OR thread_id NOT IN (SELECT value FROM json_each(?))) ORDER BY rowid"),archivedIds=JSON.stringify([...archived]);
-    const visible=<T>(kind:string):T[] => (visibleRows.all(kind,archivedIds) as {body:string}[]).map(row=>JSON.parse(row.body) as T);
+    const archivedIds = JSON.stringify([...archived]);
+    const rows = this.db.prepare("SELECT body FROM entities WHERE kind=? AND (thread_id IS NULL OR thread_id NOT IN (SELECT value FROM json_each(?))) ORDER BY rowid");
+    const visible = <T>(kind: string): T[] => (rows.all(kind, archivedIds) as {body: string}[]).map(row => JSON.parse(row.body) as T);
+    return {archived, archivedIds, visible};
+  }
+  /** Inbox and desktop notification polling need no transcripts or artifact history. */
+  attentionProjection(): Pick<Snapshot, "threads" | "requests" | "operations"> {
+    const {archived, visible} = this.visibleEntities();
+    return {
+      threads: this.all<Snapshot["threads"][number]>("thread").filter(thread => !archived.has(thread.id)),
+      requests: visible("request"),
+      operations: visible("operation"),
+    };
+  }
+  snapshot(): Snapshot {
+    const allThreads = this.all<Snapshot["threads"][number]>("thread");
+    const {archived, archivedIds, visible} = this.visibleEntities();
     const threads = allThreads.filter(thread => !archived.has(thread.id));
     const artifacts = visible<Snapshot["artifacts"][number]>("artifact"), requests = visible<Snapshot["requests"][number]>("request");
     const data = visible<Snapshot["data"][number]>("data"), seen = new Set(data.map(d => d.id + "@" + d.revision));
