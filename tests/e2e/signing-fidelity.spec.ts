@@ -10,6 +10,23 @@ const signingSpec = (fit?: 'width' | 'page'): TaskSpec => ({ root: 'pair', eleme
   signature: { type: 'SignaturePad', props: { stateKey: 'signature', nameStateKey: 'name', label: 'Add your signature', initialMode: 'generate' } },
 } });
 
+test('unmount preserves the last points of an active signature',async({page})=>{
+ const host=await signingFixture(page,undefined,{step:'signature',name:''});await page.goto('/');
+ const signature=page.getByRole('region',{name:'Add your signature',exact:true});await signature.getByRole('button',{name:'Draw',exact:true}).click();
+ const canvas=signature.getByRole('application',{name:'Draw visual signature',exact:true});await canvas.scrollIntoViewIfNeeded();
+ await canvas.evaluate(node=>{const el=node as HTMLCanvasElement, r=el.getBoundingClientRect();el.setPointerCapture=()=>{};for(const [type,x] of [['pointerdown',.2],['pointermove',.4],['pointermove',.6]] as const)el.dispatchEvent(new PointerEvent(type,{pointerId:77,pointerType:'mouse',isPrimary:true,button:0,buttons:1,clientX:r.left+r.width*x,clientY:r.top+r.height*.5,bubbles:true}));});
+ host.snapshot.artifacts[0].spec!.root='pdf';await host.publish();await expect(signature).toHaveCount(0);
+ await expect.poll(()=>(host.snapshot.userStates[0].values.signature as {points?:unknown[]}|null)?.points?.length).toBe(4);
+});
+test('journal updates do not end an active signature stroke',async({page})=>{
+ const host=await signingFixture(page,undefined,{step:'signature',name:''});await page.goto('/');
+ const signature=page.getByRole('region',{name:'Add your signature',exact:true});await signature.getByRole('button',{name:'Draw',exact:true}).click();
+ const canvas=signature.getByRole('application',{name:'Draw visual signature',exact:true});await canvas.scrollIntoViewIfNeeded();const box=(await canvas.boundingBox())!;
+ await page.mouse.move(box.x+box.width*.2,box.y+box.height*.5);await page.mouse.down();
+ await expect.poll(()=>(host.snapshot.userStates[0].values.signature as {points?:unknown[]}|null)?.points?.length).toBe(2);
+ await page.mouse.move(box.x+box.width*.6,box.y+box.height*.5);await page.mouse.up();
+ await expect.poll(()=>(host.snapshot.userStates[0].values.signature as {points?:unknown[]}|null)?.points?.length).toBeGreaterThan(2);
+});
 test('canonical dark signature ink stays readable in the image-backed well in dark theme',async({page})=>{
  const fixture=await signingFixture(page,undefined,{step:'signature'});fixture.snapshot.settings.theme='dark';await page.goto('/');await expect(page.locator('.signature-image-preview img')).toBeVisible();
  const contrast=await page.locator('.signature-well[data-mode="generate"]').evaluate(node=>{const color=getComputedStyle(node).backgroundColor.match(/[\d.]+/g)!.slice(0,3).map(Number);const luminance=(rgb:number[])=>rgb.map(value=>{const n=value/255;return n<=.04045?n/12.92:((n+.055)/1.055)**2.4;}).reduce((sum,value,index)=>sum+value*[.2126,.7152,.0722][index],0);const background=luminance(color),ink=luminance([25,27,48]);return(Math.max(background,ink)+.05)/(Math.min(background,ink)+.05);});expect(contrast).toBeGreaterThan(7);
