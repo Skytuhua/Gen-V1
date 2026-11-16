@@ -7,7 +7,7 @@ import './controls.css';
 export interface ModalProps { open: boolean; title: string; onClose: () => void; children: ReactNode; className?: string }
 
 export function Modal({ open, title, onClose, children, className = '' }: ModalProps) {
-  const dialog = useRef<HTMLDialogElement>(null), close = useRef(onClose), pressedBackdrop = useRef(false);
+  const dialog = useRef<HTMLDialogElement>(null), close = useRef(onClose), pressedBackdrop = useRef(false), armedEscape = useRef<Element | null>(null);
   const titleId = useId(); close.current = onClose;
   // The closed dialog stays mounted, showing its last open content, until the CSS exit finishes.
   const shown = useRef({ title, children });
@@ -56,9 +56,11 @@ export function Modal({ open, title, onClose, children, className = '' }: ModalP
         if (isComposing(event)) event.preventDefault();
         const target = event.target;
         // Esc inside a native picker (date/time input, open select) must close
-        // the picker, not the dialog: preventDefault suppresses dialog cancel.
-        if (target instanceof HTMLSelectElement || (target instanceof HTMLInputElement && ['date', 'datetime-local', 'month', 'time', 'week'].includes(target.type))) event.preventDefault();
-      }
+        // the picker, not the dialog. The picker's open state is not observable,
+        // so only the first Esc is consumed; the next one dismisses the dialog.
+        const picker = target instanceof HTMLSelectElement || (target instanceof HTMLInputElement && ['date', 'datetime-local', 'month', 'time', 'week'].includes(target.type));
+        if (picker && armedEscape.current !== target) { armedEscape.current = target; event.preventDefault(); }
+      } else armedEscape.current = null;
       if (event.key === 'Tab' && dialog.current) {
         const scope = dialog.current;
         const focusable = Array.from(scope.querySelectorAll<HTMLElement>('button, [href], input, select, textarea, summary, [contenteditable="true"], [tabindex]')).filter(element => {
