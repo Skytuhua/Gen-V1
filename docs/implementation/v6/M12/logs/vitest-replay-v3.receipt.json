@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/tool-program-replay-v3.test.ts"
+  ],
+  "cwdIdentity": "/home/piadmin/Gen-V1-m12-v6",
+  "executableIdentity": "/home/piadmin/tools/node24/bin/pnpm",
+  "startedAt": "2026-11-16T13:27:47.633Z",
+  "endedAt": "2026-11-16T13:28:36.934Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v6/M12/logs/vitest-replay-v3.log",
+  "logDigest": "2bf57146f86074797c87aedf0ecdadcf01a76c7188c5e30f9855f83727738d43"
+}

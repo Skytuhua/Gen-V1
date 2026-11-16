@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "pnpm",
+    "lint"
+  ],
+  "cwdIdentity": "/home/piadmin/Gen-V1-m12-v6",
+  "executableIdentity": "/home/piadmin/tools/node24/bin/pnpm",
+  "startedAt": "2026-11-16T13:45:22.358Z",
+  "endedAt": "2026-11-16T13:47:05.421Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v6/M12/logs/lint.log",
+  "logDigest": "63e80f70b23c4f38b8d8130c868d8f1c87ebd61228464f32e57522c9ac1fdf0d"
+}

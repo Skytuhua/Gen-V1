@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "pnpm",
+    "typecheck"
+  ],
+  "cwd": "/home/piadmin/Gen-V1-m12-v6",
+  "startedAt": "2026-11-16T13:40:58.039Z",
+  "endedAt": "2026-11-16T13:43:40.378Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+> gen-v1@0.6.5 typecheck /home/piadmin/Gen-V1-m12-v6
+> tsc --noEmit
+
+

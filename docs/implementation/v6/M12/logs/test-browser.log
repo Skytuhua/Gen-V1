@@ -1,0 +1,701 @@
+{
+  "argv": [
+    "pnpm",
+    "test:browser"
+  ],
+  "cwd": "/home/piadmin/Gen-V1-m12-v6",
+  "startedAt": "2026-11-16T14:52:47.879Z",
+  "endedAt": "2026-11-16T17:27:07.877Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": true
+}
+
+
+> gen-v1@0.6.5 test:browser /home/piadmin/Gen-V1-m12-v6
+> node --import tsx scripts/test-browser.ts
+
+Browser results: /home/piadmin/Gen-V1-m12-v6/test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d
+
+Browser suite: root (16 spec files)
+
+Running 116 tests using 1 worker
+
+  ✓    1 tests/e2e/artifact-acknowledgment.spec.ts:6:1 › an older snapshot cannot replace a newer acknowledged selection (16.6s)
+  ✘    2 tests/e2e/clarity-data-work.spec.ts:6:1 › trend gives its actual scale and units without hiding gaps or fabricating a zero baseline (6.5s)
+  ✘    3 tests/e2e/clarity-data-work.spec.ts:14:1 › flat and unavailable trends describe only supplied values (6.5s)
+  ✓    4 tests/e2e/clarity-data-work.spec.ts:19:118 › trend periods align with their plotted values at 1440px light (6.2s)
+  ✓    5 tests/e2e/clarity-data-work.spec.ts:19:118 › trend periods align with their plotted values at 390px light (4.2s)
+  ✘    6 tests/e2e/clarity-data-work.spec.ts:19:118 › trend periods align with their plotted values at 1440px dark (6.5s)
+  ✘    7 tests/e2e/clarity-data-work.spec.ts:27:45 › light architecture is legible before selecting a node (6.9s)
+  ✓    8 tests/e2e/clarity-data-work.spec.ts:27:45 › dark architecture is legible before selecting a node (11.6s)
+  ✓    9 tests/e2e/clarity-data-work.spec.ts:34:1 › save feedback reserves its checkmark for acknowledged saves (6.5s)
+  ✓   10 tests/e2e/dark-default.spec.ts:4:1 › the document paints dark before the application module starts (384ms)
+  ✓   11 tests/e2e/dark-default.spec.ts:9:1 › the mounted shell stays dark while fresh settings are still loading on a light device (3.1s)
+  ✓   12 tests/e2e/dark-default.spec.ts:14:47 › an existing light preference still controls the loaded application (5.4s)
+  ✓   13 tests/e2e/dark-default.spec.ts:14:47 › an existing system preference still controls the loaded application (5.3s)
+  ✓   14 tests/e2e/document-window.spec.ts:6:1 › an expanded artifact keeps its handoff editor interactive and owns Escape separately (8.8s)
+  ✓   15 tests/e2e/document-window.spec.ts:14:1 › opens actual editable text, docks beside chat and retains the draft after floating and reload (14.4s)
+  ✓   16 tests/e2e/document-window.spec.ts:27:1 › new source never overwrites edited text and the document can explicitly adopt the update (8.2s)
+  ✓   17 tests/e2e/document-window.spec.ts:33:1 › granted text clears immediately on revocation and retry rereads the authorized source (7.9s)
+  ✓   18 tests/e2e/document-window.spec.ts:43:1 › narrow document window has no page overflow and keyboard undocking retains its editor (7.6s)
+  ✓   19 tests/e2e/document-window.spec.ts:50:1 › large edited source fits the real host state limit without duplicating the source text (25.0s)
+  ✓   20 tests/e2e/document-window.spec.ts:55:1 › closing and reloading the handoff preserves its reading position (16.0s)
+  ✓   21 tests/e2e/document-window.spec.ts:60:1 › oversized UTF-8 edits are rejected without replacing the last durable draft (7.8s)
+  ✓   22 tests/e2e/document-window.spec.ts:65:1 › retargeting a document cannot overwrite a draft belonging to its previous source (9.7s)
+  ✓   23 tests/e2e/document-window.spec.ts:72:41 › Plan summary and a docked handoff remain reachable together at 1920px (9.7s)
+  ✓   24 tests/e2e/document-window.spec.ts:72:41 › Plan summary and a docked handoff remain reachable together at 1440px (9.2s)
+  ✓   25 tests/e2e/document-window.spec.ts:72:41 › Plan summary and a docked handoff remain reachable together at 1280px (10.0s)
+  ✓   26 tests/e2e/document-window.spec.ts:72:41 › Plan summary and a docked handoff remain reachable together at 390px (8.1s)
+  ✓   27 tests/e2e/host-loop.spec.ts:28:1 › actual create/send, cookies/CSRF/SSE and structured host autosave survive reload (8.1s)
+  ✓   28 tests/e2e/host-loop.spec.ts:71:1 › durable decision validation and acceptance continue the same owning runtime once (10.4s)
+  ✘   29 tests/e2e/host-loop.spec.ts:114:1 › generated operation button requires native approval; restart restores without repeating effects (17.8s)
+  ✓   30 tests/e2e/host-loop.spec.ts:159:1 › stale structured action shows rejection and retains its local review UI (6.8s)
+  ✓   31 tests/e2e/host-loop.spec.ts:175:1 › generated app validates mount tickets, source/channel/current nonce/state; acknowledges checkpoint and preserves same iframe (16.7s)
+  ✓   32 tests/e2e/host-loop.spec.ts:249:1 › real widget checkpoint ACK immediately submits the accepted state through Artifact (7.1s)
+  ✓   33 tests/e2e/host-loop.spec.ts:270:49 › real widget replacement during lease acquisition preserves the released old lease (6.2s)
+  ✓   34 tests/e2e/host-loop.spec.ts:270:49 › real widget replacement during lease acquisition preserves the replacement lease (6.3s)
+  ✓   35 tests/e2e/host-loop.spec.ts:310:1 › cross-site infinite-loop widget leaves Settings, Stop and host navigation responsive (12.0s)
+  ✓   36 tests/e2e/host-loop.spec.ts:362:1 › generated program startup failure preserves host controls and durable artifact state (7.0s)
+  -   37 tests/e2e/host-loop.spec.ts:372:1 › the real host rejects generated apps while preserving its trusted interface
+  ✓   38 tests/e2e/journal-reload.spec.ts:3:1 › a last edit survives reload before IndexedDB opens its write transaction (2.8s)
+  ✓   39 tests/e2e/journal-reload.spec.ts:26:1 › successful CAS clear stays newer across clock rollback (5.8s)
+  ✓   40 tests/e2e/journal-reload.spec.ts:81:1 › repeated CAS replacements advance when the wall clock stays fixed (1.9s)
+  ✓   41 tests/e2e/journal-reload.spec.ts:101:1 › a later peer edit survives an acknowledgment of the captured generation (6.1s)
+  ✘   42 tests/e2e/latency.spec.ts:7:1 › records local, committed-event and specification latency independently of inference (37.6s)
+  ✓   43 tests/e2e/map-theme.spec.ts:4:40 › map follows the shell until a style is chosen (local) (9.2s)
+  ✓   44 tests/e2e/map-theme.spec.ts:4:40 › map follows the shell until a style is chosen (saved) (8.4s)
+  ✓   45 tests/e2e/map-theme.spec.ts:19:1 › a carousel that mounts when map data arrives begins observing viewport size (7.4s)
+  ✓   46 tests/e2e/migration-redesign.spec.ts:22:1 › migration leads with workspace relationships, visible value changes and inspectable SQL (8.8s)
+  ✘   47 tests/e2e/migration-redesign.spec.ts:42:1 › completed inspection retains table identity, keyboard navigation and chat-only scrolling (6.5s)
+  ✓   48 tests/e2e/migration-redesign.spec.ts:58:1 › generic tables keep unchanged values plain and reject untrusted change metadata (7.3s)
+  ✘   49 tests/e2e/operational-motion.spec.ts:7:1 › PR phases retain busy actions and add resolution history before merged checks exit (7.3s)
+  ✘   50 tests/e2e/operational-motion.spec.ts:24:1 › vertical row dots and existing SVG endpoints remain attached throughout history insertion (6.8s)
+  ✓   51 tests/e2e/operational-motion.spec.ts:45:1 › accepted cell values reveal with the change highlight and sweep follows declared rows without replay (8.1s)
+  ✓   52 tests/e2e/operational-motion.spec.ts:63:1 › column geometry arrives continuously while the existing header stays mounted (7.1s)
+  ✓   53 tests/e2e/operational-motion.spec.ts:86:1 › context shell keeps header, body and footer bands and compacting shimmers without predicting token totals (7.9s)
+  ✘   54 tests/e2e/operational-motion.spec.ts:107:1 › reduced motion skips graph travel and context shimmer while preserving source state (7.3s)
+  ✓   55 tests/e2e/operational-motion.spec.ts:120:1 › a token decrease without a host receipt never claims freed tokens and keeps controls responsive (8.4s)
+  ✓   56 tests/e2e/overnight-shell.spec.ts:6:1 › sidebar group folding retains its rows, becomes inert immediately and reverses without losing identity (13.8s)
+  ✓   57 tests/e2e/overnight-shell.spec.ts:16:57 › sidebar groups settle immediately with reduced shell motion (6.3s)
+  ✓   58 tests/e2e/overnight-shell.spec.ts:16:57 › sidebar groups settle immediately with disabled shell motion (6.5s)
+  ✓   59 tests/e2e/plan-timeline.spec.ts:10:1 › does not keep a removed owner working after an authoritative snapshot drops its plan and thread (1.5s)
+  ✓   60 tests/e2e/plan-timeline.spec.ts:18:1 › all details are expanded and assigned branches nest and rejoin before the dependent step (1.7s)
+  ✓   61 tests/e2e/plan-timeline.spec.ts:36:1 › retains manual collapse, focus and reading position across ordered live updates and rejects stale revisions (2.5s)
+  ✓   62 tests/e2e/plan-timeline.spec.ts:55:1 › resets the snapshot fence on thread switch and retains the old plan during restart publication (2.3s)
+  ✓   63 tests/e2e/plan-timeline.spec.ts:82:1 › retains a valid plan when the latest canonical graph is malformed (1.8s)
+  ✓   64 tests/e2e/plan-timeline.spec.ts:92:1 › host replan preserves assignment, collapse and reading anchor when earlier details grow (3.9s)
+  ✓   65 tests/e2e/plan-timeline.spec.ts:126:1 › collapsed step identity survives returning from another thread and stale epochs never regress it (2.9s)
+  ✓   66 tests/e2e/plan-timeline.spec.ts:155:1 › deep nested agents and long output labels fit a 280px panel without hiding details (3.2s)
+  ✓   67 tests/e2e/plan-timeline.spec.ts:178:1 › manual collapse survives reopening the plan with the same exact thread and step identity (2.6s)
+  ✓   68 tests/e2e/plan-timeline.spec.ts:195:5 › dark narrow/short 100% geometry and reduced motion (2.2s)
+  ✓   69 tests/e2e/plan-timeline.spec.ts:195:5 › dark narrow/short 125% geometry and reduced motion (1.8s)
+  ✓   70 tests/e2e/plan-timeline.spec.ts:195:5 › dark narrow/short 150% geometry and reduced motion (2.0s)
+  ✓   71 tests/e2e/plan-timeline.spec.ts:195:5 › light narrow/short 100% geometry and reduced motion (1.6s)
+  ✓   72 tests/e2e/plan-timeline.spec.ts:195:5 › light narrow/short 125% geometry and reduced motion (1.8s)
+  ✓   73 tests/e2e/plan-timeline.spec.ts:195:5 › light narrow/short 150% geometry and reduced motion (2.3s)
+  ✓   74 tests/e2e/plan-timeline.spec.ts:223:3 › dark desktop parallel branches and join (2.3s)
+  ✓   75 tests/e2e/plan-timeline.spec.ts:223:3 › light desktop parallel branches and join (2.1s)
+  ✓   76 tests/e2e/review-capture-theme.spec.ts:4:1 › capture theme defaults dark and rejects accidental unrecognized values (11ms)
+  ✓   77 tests/e2e/review-capture-theme.spec.ts:10:1 › theme audit catches a transient opposite theme even after it returns (692ms)
+  ✘   78 tests/e2e/shell-micro-motion.spec.ts:9:1 › the empty composer is compact, grows for multiline work and keeps its draft (6.3s)
+  ✓   79 tests/e2e/shell-micro-motion.spec.ts:15:1 › desktop navigation becomes inert immediately on collapse and restores on reopen (6.5s)
+  ✓   80 tests/e2e/shell-micro-motion.spec.ts:20:1 › a published plan flags the collapsed overview once without replaying on snapshot or theme updates (7.4s)
+  ✘   81 tests/e2e/shell-micro-motion.spec.ts:31:1 › settings opens with bounded motion and reduced motion removes travel (6.8s)
+  ✓   82 tests/e2e/shell-micro-motion.spec.ts:35:1 › navigation shows actual recency without repeating idle status but retains accessible task state (5.7s)
+  ✓   83 tests/e2e/shell-micro-motion.spec.ts:39:1 › completed operation receipts are compact, truthful and retain full evidence on inspection (7.2s)
+  ✓   84 tests/e2e/shell-micro-motion.spec.ts:48:1 › failed and cancelled receipts do not claim success and prepared approval retains exact authority (7.1s)
+  ✓   85 tests/e2e/shell-micro-motion.spec.ts:57:1 › shell notice enters, pauses on hover, auto-expires and exits before unmount (17.0s)
+  ✓   86 tests/e2e/shell-micro-motion.spec.ts:79:1 › shell notice stays visible when the pointer leaves but keyboard focus remains (4.8s)
+  ✘   87 tests/e2e/signing-motion.spec.ts:62:1 › ordinary draft edits do not restart field navigation (16.2s)
+  ✓   88 tests/e2e/signing-motion.spec.ts:72:37 › generated signature reveal respects normal motion and never animates direct drawing (13.0s)
+  ✓   89 tests/e2e/signing-motion.spec.ts:72:37 › generated signature reveal respects reduced motion and never animates direct drawing (12.5s)
+  ✓   90 tests/e2e/signing-motion.spec.ts:88:1 › verified export keeps the same visible canvas while a candidate loads, then commits (13.9s)
+  ✓   91 tests/e2e/signing-motion.spec.ts:95:1 › completion holds editing geometry until the verified candidate and receipt can enter together (14.5s)
+  ✓   92 tests/e2e/signing-motion.spec.ts:111:128 › failed denied handoff clears retained source pixels (7.8s)
+  ✓   93 tests/e2e/signing-motion.spec.ts:111:128 › failed hash handoff clears retained source pixels (8.0s)
+  ✓   94 tests/e2e/signing-motion.spec.ts:111:128 › failed cross-thread handoff clears retained source pixels (8.3s)
+  ✓   95 tests/e2e/signing-motion.spec.ts:111:128 › failed original-hash handoff clears retained source pixels (10.1s)
+  ✓   96 tests/e2e/signing-motion.spec.ts:111:128 › failed original-grant handoff clears retained source pixels (9.1s)
+  ✓   97 tests/e2e/signing-motion.spec.ts:111:128 › failed unapproved handoff clears retained source pixels (10.3s)
+  ✓   98 tests/e2e/signing-motion.spec.ts:111:128 › failed unknown handoff clears retained source pixels (9.7s)
+  ✓   99 tests/e2e/signing-motion.spec.ts:116:1 › revoked grant clears an already committed preview (10.2s)
+  ✓  100 tests/e2e/signing-motion.spec.ts:121:1 › cloned export evidence does not refetch or replay a committed handoff (13.9s)
+  ✓  101 tests/e2e/signing-motion.spec.ts:126:1 › cancelling the continuity reference clears the predecessor while the destination is loading (14.5s)
+  ✓  102 tests/e2e/skills.spec.ts:45:1 › source history retains metadata and disables unavailable views while current instructions stay editable (11.0s)
+  ✓  103 tests/e2e/skills.spec.ts:52:1 › a retained source revision can be viewed without replacing current instructions (9.3s)
+  ✓  104 tests/e2e/skills.spec.ts:57:1 › retirement during a history read marks only that row and preserves a newer draft generation (15.8s)
+  ✓  105 tests/e2e/skills.spec.ts:65:1 › retirement after historical detail rejects restore once and preserves the newer recovery draft (11.0s)
+  ✓  106 tests/e2e/skills.spec.ts:73:1 › ordinary history transport failures stay retryable and do not retire source rows (10.3s)
+  ✓  107 tests/e2e/skills.spec.ts:79:1 › empty libraries and automatic review controls work with old snapshots (9.4s)
+  ✓  108 tests/e2e/skills.spec.ts:88:1 › pending legacy migration keeps saved instructions and supporting files readable (8.4s)
+  ✓  109 tests/e2e/skills.spec.ts:97:1 › inspect, edit, supporting files, flags and recoverable archive use current revisions (12.8s)
+  ✓  110 tests/e2e/skills.spec.ts:104:1 › a conflicting skill edit survives refresh and reload until the user chooses a saved version (17.3s)
+  ✓  111 tests/e2e/skills.spec.ts:109:1 › pending changes show the proposed text and require an explicit approval or rejection (8.2s)
+  ✓  112 tests/e2e/skills.spec.ts:113:1 › version history restores a prior version through a new current revision (10.3s)
+  ✓  113 tests/e2e/skills.spec.ts:116:1 › a proposal can create a skill and its supporting file before the skill exists (9.2s)
+  ✓  114 tests/e2e/skills.spec.ts:119:1 › rejecting a proposed change preserves the active skill (8.4s)
+  ✓  115 tests/e2e/skills.spec.ts:122:1 › unconfirmed learning cleanup stays visibly blocked and allows an explicit stop retry (7.6s)
+  ✘  116 tests/e2e/skills.spec.ts:126:1 › skill controls and editors fit desktop and narrow light and dark views (30.6s)
+
+
+  1) tests/e2e/clarity-data-work.spec.ts:6:1 › trend gives its actual scale and units without hiding gaps or fabricating a zero baseline 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('group', { name: 'Trend scale', exact: true })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for getByRole('group', { name: 'Trend scale', exact: true })
+
+
+       7 |  const data={title:'Request latency',metrics:[{id:'latency',label:'Response time',value:184,unit:'ms',series:[{label:'Mon',value:210},{label:'Tue',value:null},{label:'Wed',value:184}]}]};
+       8 |  await serveTaskFixture(page,taskFixture(one('Stats'),{source:data}));await page.goto('/');
+    >  9 |  const scale=page.getByRole('group',{name:'Trend scale',exact:true});await expect(scale).toBeVisible();await expect(scale).toContainText('210 ms');await expect(scale).toContainText('184 ms');await expect(scale.getByText('0 ms',{exact:true})).toHaveCount(0);
+         |                                                                                          ^
+      10 |  const path=await page.locator('.everyday-trend-line').getAttribute('d');expect(path?.match(/M/g)).toHaveLength(2);
+      11 |  await expect(page.locator('.everyday-trend-point')).toHaveCount(2);
+      12 |  await page.getByText('View source values',{exact:true}).click();await expect(page.getByRole('row',{name:'Tue Unavailable',exact:true})).toBeVisible();
+        at /home/piadmin/Gen-V1-m12-v6/tests/e2e/clarity-data-work.spec.ts:9:90
+
+    Error Context: test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/root/artifacts/clarity-data-work-trend-gi-47e44-fabricating-a-zero-baseline/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/root/artifacts/clarity-data-work-trend-gi-47e44-fabricating-a-zero-baseline/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/root/artifacts/clarity-data-work-trend-gi-47e44-fabricating-a-zero-baseline/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/e2e/clarity-data-work.spec.ts:14:1 › flat and unavailable trends describe only supplied values 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: getByRole('group', { name: 'Trend scale', exact: true })
+    Expected: "184 ms"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" with timeout 5000ms
+      - waiting for getByRole('group', { name: 'Trend scale', exact: true })
+
+
+      14 | test('flat and unavailable trends describe only supplied values',async({page})=>{
+      15 |  const data={metrics:[{id:'flat',label:'Response time',value:184,unit:'ms',series:[{label:'Mon',value:184},{label:'Tue',value:184}]}]};
+    > 16 |  const host=await serveTaskFixture(page,taskFixture(one('Stats'),{source:data}));await page.goto('/');const scale=page.getByRole('group',{name:'Trend scale',exact:true});await expect(scale).toHaveText('184 ms');
+         |                                                                                                                                                                                               ^
+      17 |  host.setInput('source',{metrics:[{...data.metrics[0],value:null,series:[{label:'Mon',value:null},{label:'Tue',value:null}]}]});await host.publish();await expect(page.getByText('Trend unavailable',{exact:true})).toBeVisible();await expect(scale).toHaveCount(0);await expect(page.locator('.everyday-trend')).not.toContainText(/Infinity|NaN/);
+      18 | });
+      19 | for(const {width,theme} of [{width:1440,theme:'light'},{width:390,theme:'light'},{width:1440,theme:'dark'}] as const)test(`trend periods align with their plotted values at ${width}px ${theme}`,async({page})=>{
+        at /home/piadmin/Gen-V1-m12-v6/tests/e2e/clarity-data-work.spec.ts:16:191
+
+    Error Context: test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/root/artifacts/clarity-data-work-flat-and-ea95d-scribe-only-supplied-values/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/root/artifacts/clarity-data-work-flat-and-ea95d-scribe-only-supplied-values/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/root/artifacts/clarity-data-work-flat-and-ea95d-scribe-only-supplied-values/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/e2e/clarity-data-work.spec.ts:19:118 › trend periods align with their plotted values at 1440px dark 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('.everyday-trend-point')
+    Expected: 2
+    Received: 0
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" with timeout 5000ms
+      - waiting for locator('.everyday-trend-point')
+        8 × locator resolved to 0 elements
+          - unexpected value "0"
+
+
+      20 |  await page.setViewportSize({width,height:1000});
+      21 |  const snapshot=taskFixture(one('Stats'),{source:{metrics:[{id:'latency',label:'Response time',value:184,unit:'ms',series:[{label:'Mon',value:210},{label:'Fri',value:184}]}]}});snapshot.settings.theme=theme;await serveTaskFixture(page,snapshot);await page.goto('/');
+    > 22 |  const points=page.locator('.everyday-trend-point'),labels=page.locator('.everyday-trend-labels span');await expect(points).toHaveCount(2);
+         |                                                                                                                             ^
+      23 |  const first=(await points.first().boundingBox())!,last=(await points.last().boundingBox())!,start=(await labels.first().boundingBox())!,end=(await labels.last().boundingBox())!;
+      24 |  expect(Math.abs(first.x+first.width/2-start.x)).toBeLessThan(3);expect(Math.abs(last.x+last.width/2-(end.x+end.width))).toBeLessThan(3);
+      25 |  if(theme==='dark')await page.screenshot({path:'docs/evidence/ui-clarity-20261031/stats-dark-confirm.png'});
+        at /home/piadmin/Gen-V1-m12-v6/tests/e2e/clarity-data-work.spec.ts:22:125
+
+    Error Context: test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/root/artifacts/clarity-data-work-trend-pe-7d2d1-otted-values-at-1440px-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/root/artifacts/clarity-data-work-trend-pe-7d2d1-otted-values-at-1440px-dark/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/root/artifacts/clarity-data-work-trend-pe-7d2d1-otted-values-at-1440px-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/e2e/clarity-data-work.spec.ts:27:45 › light architecture is legible before selecting a node 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('.architecture-node strong').first()
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('.architecture-node strong').first()
+
+
+      27 | for(const theme of ['light','dark']as const)test(`${theme} architecture is legible before selecting a node`,async({page})=>{
+      28 |  const snapshot=taskFixture(one('ArchitectureCanvas'),{source:WORK_OBJECT_REVIEW_DATA.architecture});snapshot.settings.theme=theme;await serveTaskFixture(page,snapshot);await page.goto('/');
+    > 29 |  const node=page.locator('.architecture-node strong').first();await expect(node).toBeVisible();expect(await node.evaluate(node=>parseFloat(getComputedStyle(node).fontSize))).toBeGreaterThanOrEqual(12);
+         |                                                                                  ^
+      30 |  const edge=page.locator('.architecture-edge').first();expect(await edge.evaluate(node=>Number(getComputedStyle(node).opacity))).toBe(1);
+      31 |  await page.getByRole('button',{name:'Document preview',exact:true}).click();await expect(page.getByRole('button',{name:'Document preview',exact:true})).toHaveAttribute('aria-pressed','true');await page.reload();await expect(page.getByRole('button',{name:'Document preview',exact:true})).toHaveAttribute('aria-pressed','true');
+      32 | });
+        at /home/piadmin/Gen-V1-m12-v6/tests/e2e/clarity-data-work.spec.ts
+[bounded: elided 1183225 chars]
+n "pnpm exec playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/ui-shell-controls/artifacts/ui-shell-controls-selected-312cb-th-spaced-32px-rows-in-dark/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/ui-shell-controls/artifacts/ui-shell-controls-selected-312cb-th-spaced-32px-rows-in-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) tests/e2e/ui-shell-controls.spec.ts:220:40 › selected, hovered and focused states stay distinct with spaced 32px rows in light 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "pnpm exec playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/ui-shell-controls/artifacts/ui-shell-controls-selected-90f64-h-spaced-32px-rows-in-light/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/ui-shell-controls/artifacts/ui-shell-controls-selected-90f64-h-spaced-32px-rows-in-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) tests/e2e/ui-shell-controls.spec.ts:239:1 › a large selected catalog is visible on the first modal popup frame in a short window 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "pnpm exec playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/ui-shell-controls/artifacts/ui-shell-controls-a-large--765a0-pup-frame-in-a-short-window/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/ui-shell-controls/artifacts/ui-shell-controls-a-large--765a0-pup-frame-in-a-short-window/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) tests/e2e/ui-shell-controls.spec.ts:262:1 › the actual resource selector renders first-party options and retains its value/callback 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "pnpm exec playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/ui-shell-controls/artifacts/ui-shell-controls-the-actu-1994b--retains-its-value-callback/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/ui-shell-controls/artifacts/ui-shell-controls-the-actu-1994b--retains-its-value-callback/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) tests/e2e/ui-shell-controls.spec.ts:273:1 › Panels failures stay visible and Layouts keeps its saved-layout controls 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "pnpm exec playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/ui-shell-controls/artifacts/ui-shell-controls-Panels-f-079f7-s-its-saved-layout-controls/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/ui-shell-controls/artifacts/ui-shell-controls-Panels-f-079f7-s-its-saved-layout-controls/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) tests/e2e/ui-shell-controls.spec.ts:285:1 › Panels fits a short window with a visible scrollbar and reachable last action 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "pnpm exec playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/ui-shell-controls/artifacts/ui-shell-controls-Panels-f-e04df-r-and-reachable-last-action/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/ui-shell-controls/artifacts/ui-shell-controls-Panels-f-e04df-r-and-reachable-last-action/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19 failed
+    tests/e2e/ui-shell-controls.spec.ts:14:1 › required validation retains visible focus and blocks submission until corrected 
+    tests/e2e/ui-shell-controls.spec.ts:26:1 › a stale required Select never submits a hidden fallback choice 
+    tests/e2e/ui-shell-controls.spec.ts:44:1 › shared Select preserves caller-owned invalid feedback for an otherwise valid choice 
+    tests/e2e/ui-shell-controls.spec.ts:49:1 › a fieldset disabling an open Select closes it and blocks a queued selection 
+    tests/e2e/ui-shell-controls.spec.ts:59:1 › a fieldset disabling an open ActionMenu blocks queued actions and closes through re-enabling 
+    tests/e2e/ui-shell-controls.spec.ts:76:1 › Panels supports keyboard typeahead, invokes the existing tool owner and returns focus 
+    tests/e2e/ui-shell-controls.spec.ts:91:1 › Select skips disabled choices, preserves form name/disabled semantics and resets to its initial value 
+    tests/e2e/ui-shell-controls.spec.ts:113:1 › menu arrows wrap enabled rows, typeahead and checkbox selection do not submit a form 
+    tests/e2e/ui-shell-controls.spec.ts:129:1 › IME keys leave menu selection and modal ownership unchanged, then Escape unwinds one layer at a time 
+    tests/e2e/ui-shell-controls.spec.ts:155:1 › modal Shift+Tab wraps past rendered but unavailable controls 
+    tests/e2e/ui-shell-controls.spec.ts:183:1 › Tab leaves a popup for the next field and outside focus does not get stolen 
+    tests/e2e/ui-shell-controls.spec.ts:196:1 › IME legacy keycode cannot dismiss Select or ActionMenu 
+    tests/e2e/ui-shell-controls.spec.ts:209:1 › disabling an open Select closes it through re-enabling 
+    tests/e2e/ui-shell-controls.spec.ts:220:40 › selected, hovered and focused states stay distinct with spaced 32px rows in dark 
+    tests/e2e/ui-shell-controls.spec.ts:220:40 › selected, hovered and focused states stay distinct with spaced 32px rows in light 
+    tests/e2e/ui-shell-controls.spec.ts:239:1 › a large selected catalog is visible on the first modal popup frame in a short window 
+    tests/e2e/ui-shell-controls.spec.ts:262:1 › the actual resource selector renders first-party options and retains its value/callback 
+    tests/e2e/ui-shell-controls.spec.ts:273:1 › Panels failures stay visible and Layouts keeps its saved-layout controls 
+    tests/e2e/ui-shell-controls.spec.ts:285:1 › Panels fits a short window with a visible scrollbar and reachable last action 
+
+Browser suite: usage-context (1 spec files)
+
+Running 24 tests using 1 worker
+
+  ✓   1 tests/e2e/usage-context.spec.ts:15:1 › a token decrease after a command acknowledgement is not a compaction receipt (3.9s)
+  ✓   2 tests/e2e/usage-context.spec.ts:23:1 › a compaction error does not follow a different thread or session (3.4s)
+  ✓   3 tests/e2e/usage-context.spec.ts:31:1 › a late failure from a prior session cannot update the newly selected context (2.8s)
+  ✓   4 tests/e2e/usage-context.spec.ts:40:1 › context takes keyboard focus on reveal and protects IME Escape before restoring its trigger (2.2s)
+  ✓   5 tests/e2e/usage-context.spec.ts:45:1 › first reveal in a short window clears native caption chrome and all viewport edges (2.4s)
+  ✓   6 tests/e2e/usage-context.spec.ts:52:1 › Requests lists measured requests with stage timings, and absent fields stay unknown (3.2s)
+  ✓   7 tests/e2e/usage-context.spec.ts:67:40 › request outcomes keep fixed semantic colors in dark: completed green, failed red, cancelled neutral (T14/R17) (3.0s)
+  ✓   8 tests/e2e/usage-context.spec.ts:67:40 › request outcomes keep fixed semantic colors in light: completed green, failed red, cancelled neutral (T14/R17) (2.7s)
+  ✓   9 tests/e2e/usage-context.spec.ts:80:1 › Usage has separate Cost, Tokens and Limits with exact reported data and per-metric unknowns (3.2s)
+  ✓  10 tests/e2e/usage-context.spec.ts:89:1 › accepted receipt needs exact ownership; measured freed count is optional and reset on restart (2.4s)
+  ✓  11 tests/e2e/usage-context.spec.ts:96:1 › reported segments fit their capacity track without cumulative separator overflow (1.8s)
+  ✓  12 tests/e2e/usage-context.spec.ts:102:1 › pending sweep is actual-pending only and stopped state is not accepted success (2.2s)
+  ✓  13 tests/e2e/usage-context.spec.ts:108:1 › reported categories reveal token/share/subitems on focus after dwell; IME and nested Escape work (2.3s)
+  ✓  14 tests/e2e/usage-context.spec.ts:118:1 › unknown and invalid category measurements never retain stale values (2.5s)
+  ✓  15 tests/e2e/usage-context.spec.ts:123:1 › scope/provider filters remain in the owning modal and refresh preserves tab and selection (3.5s)
+  ✓  16 tests/e2e/usage-context.spec.ts:136:1 › loading, empty, provider failure and refresh failure preserve honest per-metric state (3.3s)
+  ✘  17 tests/e2e/usage-context.spec.ts:144:40 › overflow keeps header fixed, rows scroll, short/narrow dark (2.7s)
+  ✘  18 tests/e2e/usage-context.spec.ts:144:40 › overflow keeps header fixed, rows scroll, short/narrow light (3.3s)
+  ✓  19 tests/e2e/usage-context.spec.ts:156:40 › context category overflow and details stay reachable in dark (3.1s)
+  ✓  20 tests/e2e/usage-context.spec.ts:156:40 › context category overflow and details stay reachable in light (3.3s)
+  ✓  21 tests/e2e/usage-context.spec.ts:170:1 › accepted transition uses reference timing; reduced motion suppresses travel and sweep (3.4s)
+  ✓  22 tests/e2e/usage-context.spec.ts:182:1 › optional summary keeps whole-header disclosure and opens the same Usage through its independent body action (2.2s)
+  ✓  23 tests/e2e/usage-context.spec.ts:189:1 › invalidating a receipt ends accepted motion immediately and after its timer deadline (2.8s)
+  ✓  24 tests/e2e/usage-context.spec.ts:199:1 › Requests can filter measured providers even when no usage report exists (3.6s)
+
+
+  1) tests/e2e/usage-context.spec.ts:144:40 › overflow keeps header fixed, rows scroll, short/narrow dark 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      151 |   const bounds = (await modal.boundingBox())!; expect(bounds.x).toBeGreaterThanOrEqual(8); expect(bounds.y).toBeGreaterThanOrEqual(50);
+      152 |   expect(bounds.x + bounds.width).toBeLessThanOrEqual(332); expect(bounds.y + bounds.height).toBeLessThanOrEqual(312);
+    > 153 |   expect(await modal.evaluate(node => node.scrollWidth <= node.clientWidth)).toBe(true);
+          |                                                                              ^
+      154 |   await page.screenshot({ path: info.outputPath(`usage-${theme}-short.png`) });
+      155 | });
+      156 | for (const theme of ['dark', 'light']) test(`context category overflow and details stay reachable in ${theme}`, async ({ page }, info) => {
+        at /home/piadmin/Gen-V1-m12-v6/tests/e2e/usage-context.spec.ts:153:78
+
+    Error Context: test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/usage-context/artifacts/usage-context-overflow-kee-9f6c8-ws-scroll-short-narrow-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/usage-context/artifacts/usage-context-overflow-kee-9f6c8-ws-scroll-short-narrow-dark/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/usage-context/artifacts/usage-context-overflow-kee-9f6c8-ws-scroll-short-narrow-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/e2e/usage-context.spec.ts:144:40 › overflow keeps header fixed, rows scroll, short/narrow light 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      151 |   const bounds = (await modal.boundingBox())!; expect(bounds.x).toBeGreaterThanOrEqual(8); expect(bounds.y).toBeGreaterThanOrEqual(50);
+      152 |   expect(bounds.x + bounds.width).toBeLessThanOrEqual(332); expect(bounds.y + bounds.height).toBeLessThanOrEqual(312);
+    > 153 |   expect(await modal.evaluate(node => node.scrollWidth <= node.clientWidth)).toBe(true);
+          |                                                                              ^
+      154 |   await page.screenshot({ path: info.outputPath(`usage-${theme}-short.png`) });
+      155 | });
+      156 | for (const theme of ['dark', 'light']) test(`context category overflow and details stay reachable in ${theme}`, async ({ page }, info) => {
+        at /home/piadmin/Gen-V1-m12-v6/tests/e2e/usage-context.spec.ts:153:78
+
+    Error Context: test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/usage-context/artifacts/usage-context-overflow-kee-2773d-s-scroll-short-narrow-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/usage-context/artifacts/usage-context-overflow-kee-2773d-s-scroll-short-narrow-light/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/usage-context/artifacts/usage-context-overflow-kee-2773d-s-scroll-short-narrow-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    tests/e2e/usage-context.spec.ts:144:40 › overflow keeps header fixed, rows scroll, short/narrow dark 
+    tests/e2e/usage-context.spec.ts:144:40 › overflow keeps header fixed, rows scroll, short/narrow light 
+  22 passed (1.3m)
+
+Browser suite: wo8 (1 spec files)
+
+Running 24 tests using 1 worker
+
+  ✓   1 tests/e2e/wo8.spec.ts:11:3 › thread diff dark 1440 (14.4s)
+  ✓   2 tests/e2e/wo8.spec.ts:27:3 › usage and context dark 1440 (4.1s)
+  ✓   3 tests/e2e/wo8.spec.ts:11:3 › thread diff dark 1024 (6.9s)
+  ✓   4 tests/e2e/wo8.spec.ts:27:3 › usage and context dark 1024 (3.8s)
+  ✓   5 tests/e2e/wo8.spec.ts:11:3 › thread diff light 1440 (8.9s)
+  ✓   6 tests/e2e/wo8.spec.ts:27:3 › usage and context light 1440 (4.1s)
+  ✓   7 tests/e2e/wo8.spec.ts:11:3 › thread diff light 1024 (7.9s)
+  ✓   8 tests/e2e/wo8.spec.ts:27:3 › usage and context light 1024 (4.1s)
+  ✓   9 tests/e2e/wo8.spec.ts:55:3 › right-aligned stats and full-width numeric tables dark (4.4s)
+  ✓  10 tests/e2e/wo8.spec.ts:98:3 › rendered semantic pairs pass AA dark (2.3s)
+  ✓  11 tests/e2e/wo8.spec.ts:55:3 › right-aligned stats and full-width numeric tables light (4.5s)
+  ✓  12 tests/e2e/wo8.spec.ts:98:3 › rendered semantic pairs pass AA light (3.1s)
+  ✓  13 tests/e2e/wo8.spec.ts:112:46 › inline numeric table preserves full numbers dark (6.1s)
+  ✘  14 tests/e2e/wo8.spec.ts:112:46 › inline numeric table preserves full numbers light (8.3s)
+  ✓  15 tests/e2e/wo8.spec.ts:122:81 › long metric values stay visible dark 1440 (7.0s)
+  ✓  16 tests/e2e/wo8.spec.ts:122:81 › long metric values stay visible dark 1024 (6.5s)
+  ✓  17 tests/e2e/wo8.spec.ts:122:81 › long metric values stay visible dark 768 (6.1s)
+  ✘  18 tests/e2e/wo8.spec.ts:122:81 › long metric values stay visible light 1440 (7.3s)
+  ✘  19 tests/e2e/wo8.spec.ts:122:81 › long metric values stay visible light 1024 (7.6s)
+  ✓  20 tests/e2e/wo8.spec.ts:122:81 › long metric values stay visible light 768 (7.0s)
+  ✓  21 tests/e2e/wo8.spec.ts:153:3 › numeric precision survives metric and table rendering dark (7.7s)
+  ✓  22 tests/e2e/wo8.spec.ts:181:3 › numeric metric grid contains every value and unit dark (11.0s)
+  ✘  23 tests/e2e/wo8.spec.ts:153:3 › numeric precision survives metric and table rendering light (11.7s)
+  ✘  24 tests/e2e/wo8.spec.ts:181:3 › numeric metric grid contains every value and unit light (8.2s)
+
+
+  1) tests/e2e/wo8.spec.ts:112:46 › inline numeric table preserves full numbers light ──────────────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: locator('.task-table td.number')
+    Expected: "123,456,789,012,345"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toHaveText" with timeout 5000ms
+      - waiting for locator('.task-table td.number')
+
+
+      115 |   const snapshot=taskFixture({root:'records',elements:{records:{type:'Table',props:{rowsBinding:'records',columns:[{key:'label',label:'Source record'},{key:'value',label:'Reported count',type:'number'},{key:'code',label:'Code'}]}}}}, {records:[{label:'Source record with a long label',value:123456789012345,code:'00123456789'}]});
+      116 |   snapshot.settings.theme=theme;await serveTaskFixture(page,snapshot);await page.goto('/');
+    > 117 |   const value=page.locator('.task-table td.number');await expect(value).toHaveText('123,456,789,012,345');await expect(value).toHaveCSS('white-space','nowrap');
+          |                                                                         ^
+      118 |   const scroll=page.locator('.task-table-scroll');await expect.poll(()=>scroll.evaluate(element=>element.scrollWidth>element.clientWidth)).toBe(true);await expect(scroll).toHaveAttribute('tabindex','0');await scroll.focus();await expect(scroll).toBeFocused();
+      119 |   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+      120 | });
+        at /home/piadmin/Gen-V1-m12-v6/tests/e2e/wo8.spec.ts:117:73
+
+    Error Context: test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/wo8/artifacts/wo8-inline-numeric-table-preserves-full-numbers-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/wo8/artifacts/wo8-inline-numeric-table-preserves-full-numbers-light/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/wo8/artifacts/wo8-inline-numeric-table-preserves-full-numbers-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/e2e/wo8.spec.ts:122:81 › long metric values stay visible light 1440 ─────────────────────
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('.surface-metric')
+    Expected: 3
+    Received: 0
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" with timeout 5000ms
+      - waiting for locator('.surface-metric')
+        7 × locator resolved to 0 elements
+          - unexpected value "0"
+
+
+      132 |   snapshot.settings.theme=theme;snapshot.artifacts[0].title='Reported metrics';
+      133 |   await serveTaskFixture(page,snapshot);await page.goto('/');
+    > 134 |   const metrics=page.locator('.surface-metric');await expect(metrics).toHaveCount(3);await page.evaluate(()=>document.fonts.ready);
+          |                                                                       ^
+      135 |   if(width===1440)await page.screenshot({path:info.outputPath(`metric-long-value-${stage}-${theme}-${width}.png`),animations:'disabled'});
+      136 |   const numeric=metrics.nth(0);await expect(numeric.locator('strong')).toHaveText('124,800 files');
+      137 |   const pair=await numeric.evaluate(element=>{const label=element.querySelector('span')!.getBoundingClientRect(),value=element.querySelector('strong')!.getBoundingClientRect();return {gap:value.left-label.right,right:value.right,ownerRight:element.getBoundingClientRect().right,overlap:Math.min(label.bottom,value.bottom)-Math.max(label.top,value.top)};});
+        at /home/piadmin/Gen-V1-m12-v6/tests/e2e/wo8.spec.ts:134:71
+
+    Error Context: test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/wo8/artifacts/wo8-long-metric-values-stay-visible-light-1440/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/wo8/artifacts/wo8-long-metric-values-stay-visible-light-1440/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/wo8/artifacts/wo8-long-metric-values-stay-visible-light-1440/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/e2e/wo8.spec.ts:122:81 › long metric values stay visible light 1024 ─────────────────────
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('.surface-metric')
+    Expected: 3
+    Received: 0
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" with timeout 5000ms
+      - waiting for locator('.surface-metric')
+        7 × locator resolved to 0 elements
+          - unexpected value "0"
+
+
+      132 |   snapshot.settings.theme=theme;snapshot.artifacts[0].title='Reported metrics';
+      133 |   await serveTaskFixture(page,snapshot);await page.goto('/');
+    > 134 |   const metrics=page.locator('.surface-metric');await expect(metrics).toHaveCount(3);await page.evaluate(()=>document.fonts.ready);
+          |                                                                       ^
+      135 |   if(width===1440)await page.screenshot({path:info.outputPath(`metric-long-value-${stage}-${theme}-${width}.png`),animations:'disabled'});
+      136 |   const numeric=metrics.nth(0);await expect(numeric.locator('strong')).toHaveText('124,800 files');
+      137 |   const pair=await numeric.evaluate(element=>{const label=element.querySelector('span')!.getBoundingClientRect(),value=element.querySelector('strong')!.getBoundingClientRect();return {gap:value.left-label.right,right:value.right,ownerRight:element.getBoundingClientRect().right,overlap:Math.min(label.bottom,value.bottom)-Math.max(label.top,value.top)};});
+        at /home/piadmin/Gen-V1-m12-v6/tests/e2e/wo8.spec.ts:134:71
+
+    Error Context: test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/wo8/artifacts/wo8-long-metric-values-stay-visible-light-1024/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/wo8/artifacts/wo8-long-metric-values-stay-visible-light-1024/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/wo8/artifacts/wo8-long-metric-values-stay-visible-light-1024/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/e2e/wo8.spec.ts:153:3 › numeric precision survives metric and table rendering light ─────
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator: locator('.surface-metric strong')
+    Timeout: 5000ms
+    - Expected  - 10
+    + Received  +  1
+
+    - Array [
+    -   "0.0004",
+    -   "123.456789",
+    -   "0.0000000000000000000000001",
+    -   "-123,456.78901234567",
+    -   "0.12345678901234568",
+    -   "0",
+    -   "0012",
+    -   "12345678901234567890.0000000000000000000004",
+    - ]
+    + Array []
+
+    Call log:
+      - Expect "soft toHaveText" with timeout 5000ms
+      - waiting for locator('.surface-metric strong')
+        7 × locator resolved to 0 elements
+
+
+      170 |     snapshot.settings.theme=theme;
+      171 |     const fixture=await serveTaskFixture(page,snapshot);await page.goto("/");
+    > 172 |     await expect.soft(page.locator(".surface-metric strong")).toHaveText(cases.map(item=>item.expected));
+          |                                                               ^
+      173 |     await expect.soft(page.locator(".task-table-value")).toHaveText(cases.map(item=>item.expected));
+      174 |     await expect.soft(page.locator(".task-table-before")).toHaveText("123.456789");
+      175 |     fixture.setInput("records",cases.map(({value},index)=>({id:String(index),value:index===0?123.0000004:value})));
+        at /home/piadmin/Gen-V1-m12-v6/tests/e2e/wo8.spec.ts:172:63
+
+    Error Context: test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/wo8/artifacts/wo8-numeric-precision-surv-d07fb-c-and-table-rendering-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/wo8/artifacts/wo8-numeric-precision-surv-d07fb-c-and-table-rendering-light/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/wo8/artifacts/wo8-numeric-precision-surv-d07fb-c-and-table-rendering-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/e2e/wo8.spec.ts:181:3 › numeric metric grid contains every value and unit light ─────────
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('.surface-metric')
+    Expected: 12
+    Received: 0
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" with timeout 5000ms
+      - waiting for locator('.surface-metric')
+        7 × locator resolved to 0 elements
+          - unexpected value "0"
+
+
+      186 |     }});
+      187 |     snapshot.settings.theme=theme;await serveTaskFixture(page,snapshot);await page.goto("/");
+    > 188 |     const metrics=page.locator(".surface-metric");await expect(metrics).toHaveCount(keys.length);
+          |                                                                         ^
+      189 |     await page.evaluate(()=>document.fonts.ready);
+      190 |     for(const width of [1440,1024,768,375]){
+      191 |       await page.setViewportSize({width,height:1000});
+        at /home/piadmin/Gen-V1-m12-v6/tests/e2e/wo8.spec.ts:188:73
+
+    Error Context: test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/wo8/artifacts/wo8-numeric-metric-grid-contains-every-value-and-unit-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/wo8/artifacts/wo8-numeric-metric-grid-contains-every-value-and-unit-light/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794840770300-e4b80fe7-926b-4011-8789-5ebe64a7719d/wo8/artifacts/wo8-numeric-metric-grid-contains-every-value-and-unit-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    tests/e2e/wo8.spec.ts:112:46 › inline numeric table preserves full numbers light ───────────────
+    tests/e2e/wo8.spec.ts:122:81 › long metric values stay visible light 1440 ──────────────────────
+    tests/e2e/wo8.spec.ts:122:81 › long metric values stay visible light 1024 ──────────────────────
+    tests/e2e/wo8.spec.ts:153:3 › numeric precision survives metric and table rendering light ──────
+    tests/e2e/wo8.spec.ts:181:3 › numeric metric grid contains every value and unit light ──────────
+  19 passed (3.1m)
+ ELIFECYCLE  Command failed with exit code 1.
+
+(node:836930) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:838863) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:842241) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] Error: EACCES: permission denied, scandir '/tmp/wo-3-1-artifact-settle-vite'
+[WebServer]     at async Object.readdir (node:internal/fs/promises:958:18)
+[WebServer]     at async cleanupDepsCacheStaleDirs (file:///home/piadmin/Gen-V1-m12-v6/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/chunks/config.js:32673:20) {
+[WebServer]   errno: -13,
+[WebServer]   code: 'EACCES',
+[WebServer]   syscall: 'scandir',
+[WebServer]   path: '/tmp/wo-3-1-artifact-settle-vite'
+[WebServer] }
+[WebServer] error when starting dev server:
+[WebServer] Error: EACCES: permission denied, lstat '/tmp/wo-3-1-artifact-settle-vite/deps'
+[WebServer] [BABEL] Note: The code generator has deoptimised the styling of /tmp/wo-3-2-sidebar-collapse-vite/deps/react-dom_client.js?v=92914aa1 as it exceeds the max of 500KB.
+[WebServer] [BABEL] Note: The code generator has deoptimised the styling of /tmp/wo-2-6-vite/deps/react-dom_client.js?v=0e91ad8d as it exceeds the max of 500KB.
+[WebServer] [BABEL] Note: The code generator has deoptimised the styling of /tmp/wo-2-6-vite/deps/react-dom_client.js?v=da0bfd07 as it exceeds the max of 500KB.
+[WebServer] [BABEL] Note: The code generator has deoptimised the styling of /tmp/wo-3-3-composer-press-vite/deps/react-dom_client.js?v=dd84304c as it exceeds the max of 500KB.
+(node:964375) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:964414) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:964846) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:965257) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+Failed browser suites: root (exit 1), agents-workspace (exit 1), artifact-settle (exit 1), browser-action (exit 1), compact-model-picker (exit 1), ui-shell-overlays (exit 1), files-reading (exit 1), generated-selects (exit 1), graph-popovers (exit 1), inbox-controls (exit 1), memory-recovery (exit 1), redundant-ui (exit 1), saved-drafts (exit 1), saved-layout-chooser (exit 1), scoped-conversation (exit 1), settings-leaf-selects (exit 1), sidebar-collapse (exit 1), sidebar-shared-menu (exit 1), terminal-read (exit 1), thread-hover (exit 1), thread-move (exit 1), usage-app-integration (exit 1), workspace-host (exit 1), memory-recovery-app (exit 1), memory-recovery-journal (exit 1), frontend-refinement (exit 1), micro-motion (exit 1), motion-tokens (exit 1), clarity-software (exit 1), clarity-review-parameters (exit 1), clarity-schedule-logs (exit 1), fidelity (exit 1), model-picker (exit 1), workspace (exit 1), compact-settings (exit 1), compact-tools-cleanup (exit 1), composer-commands (exit 1), composer-prediction (exit 1), composer-press (exit 1), context-connections (exit 1), desktop-surfaces (exit 1), everyday (exit 1), floating (exit 1), inline-surfaces (exit 1), native-browser-bounds (exit 1), pdf (exit 1), plan-presentation (exit 1), project-app-integration (exit 1), project-picker (exit 1), project-search (exit 1), wo5-app-integration (exit 1), runtime-presentation (exit 1), shared-panels (exit 1), shell (exit 1), short-tool-overflow (exit 1), side-chat (exit 1), chat-view-modes (exit 1), smooth-operational (exit 1), smooth-pdf (exit 1), snapshot-performance (exit 1), summary-dock (exit 1), t3-centered (exit 1), tabs-identity (exit 1), table-controls (exit 1), task-design (exit 1), task-interface (exit 1), ui-shell-controls (exit 1), usage-context (exit 1), wo8 (exit 1)

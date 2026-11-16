@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "kind": "M12_V6_SOURCE_DRIFT_RESOLUTION",
+  "taskBranch": "agent/m12-v3",
+  "preservedTaskHead": "16cd0311a45b755f8ade87fe0637c77dc319f74d",
+  "mergedMainSha": "1c09d492278b1014bc3ab5455191b1f5913c96d8",
+  "mergeBaseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+  "mergeCommitSha": "44c19075a3341f85a0f6c2c8e8455f2f70a970df",
+  "procedure": "git merge --no-commit --no-ff 1c09d492278b1014bc3ab5455191b1f5913c96d8 on a clean task worktree at the recorded remote head; every conflict path staged only after a semantic composition; no blanket ours/theirs resolution anywhere; merge committed with inline committer identity (global git config unchanged).",
+  "conflicts": [
+    {
+      "path": "packages/contracts/index.ts",
+      "base": "09517becaf0c", "ours": "baeae3c0a453", "theirs": "4543457cd2b7", "result": "ee432076bbb7",
+      "resolution": "Additive composition: kept M12 programTools on StartRun input, current-main requestContext and memoryCheckpoint fields, and optional onMemoryCheckpoint in RuntimeCallbacks."
+    },
+    {
+      "path": "packages/core/capability-flags.ts",
+      "base": "39e18abb43f7", "ours": "1edfc1de2b68", "theirs": "02783eb029b6", "result": "5265d79b3522",
+      "resolution": "Unioned CapabilityFlagKey and host registry: all current-main M02/M04/M05/M08/M09/M11 keys plus the three M12 tools.* keys; every M12 default stays false."
+    },
+    {
+      "path": "packages/core/service.ts",
+      "base": "2b3fb63acef9", "ours": "d77d4d699515", "theirs": "58ac6b1607c0", "result": "afa314931fc7",
+      "resolution": "Six-region composition: both import sets (ToolOwner + model observation), programHost field plus request-custody/project-memory fields, both agentWork.* and toolProgram.*/pythonKernel.* command routes, custody-resolved prompt with programTools attachment (finalize spreads input), memory accepted-input handling plus M12 program cancellation on settlement, and disposal of request custody, program host, agent work and memory services. Obsolete ours-only researchAborts mechanism dropped (theirs removed it entirely)."
+    },
+    {
+      "path": "apps/server/server.ts",
+      "base": "e4df5cae7274", "ours": "30b971c314e4", "theirs": "f47211cc6c67", "result": "567c219e58dd",
+      "resolution": "Both import sets retained; both sides' route registrations had already auto-merged."
+    },
+    {
+      "path": "apps/web/src/App.tsx",
+      "base": "2978a3af00fe", "ours": "991799f8c30b", "theirs": "6858a165c1fe", "result": "3e4d00dc0cf1",
+      "resolution": "Theirs' JSX composition adopted with ToolProgramPanel re-inserted at its existing render site beside VerificationPanel; both ToolProgramPanel render sites preserved."
+    },
+    {
+      "path": "packages/core/file-access.ts",
+      "base": "d4e0a59c6f24", "ours": "e561fd85628f", "theirs": "818fcb763fb7", "result": "98699c065f82",
+      "resolution": "Both-sides extension of a shared line composed so bound-read checks and program input authorization coexist."
+    },
+    {
+      "path": "packages/runtime-hermes/index.ts",
+      "base": "ca15682cd2ad", "ours": "38cbe3861378", "theirs": "83d5d7856551", "result": "f66b527194e5",
+      "resolution": "Theirs' checkpoint plumbing plus ours' programTools wiring into the shared createHostTools call."
+    },
+    {
+      "path": "packages/runtime-pi/worker.ts",
+      "base": "36bc8abb120c", "ours": "10d62c175ed3", "theirs": "fc62b5d481c3", "result": "bbeabae45349",
+      "resolution": "Same composition: theirs' memory-checkpoint plumbing plus ours' programTools wiring; shared createHostTools signature verified to accept both."
+    },
+    {
+      "path": "scripts/public-source-files.json",
+      "base": "8cb3efe75c12", "ours": "5b9124fd049e", "theirs": "6557a3a2fbb2", "result": "5efa32d672c7",
+      "resolution": "Programmatic union of both branches' source/runtime manifests preserving shared baseline and theirs' key order (version, source, runtime, baseline); theirs' removals of retired Research/Code Review workspace files honored, not recreated. Result: 2400 source + 247 runtime entries."
+    },
+    {
+      "path": "tests/e2e/research-workspace.playwright.config.ts",
+      "base": "c3a3c4c89863", "ours": "17b3fcc7bb56", "theirs": "absent", "result": "absent",
+      "resolution": "Modify/delete accepted as delete: current main removed the entire retired research-workspace e2e suite; per R10 retired workspaces are not recreated."
+    }
+  ],
+  "postMergeVerification": {
+    "typecheck": "pnpm typecheck PASS on the unverified combined tree before merge commit",
+    "focusedSuites": "tool-program-v3, tool-program-replay-v3, python-kernel-v3, tool-program-continuation-v6 plus authority/prerequisites/transport/diagnostics/recovery/backend/integration/benchmark suites all pass on the merged tree",
+    "note": "python-program-backend-v3 and python-program-integration-v3 are gated linux-x64 and SKIP on this linux-arm64 host; see requirements.json holds."
+  }
+}

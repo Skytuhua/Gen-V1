@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/tool-program-v3.test.ts"
+  ],
+  "cwdIdentity": "/home/piadmin/Gen-V1-m12-v6",
+  "executableIdentity": "/home/piadmin/tools/node24/bin/pnpm",
+  "startedAt": "2026-11-16T12:47:02.774Z",
+  "endedAt": "2026-11-16T12:48:18.682Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v6/M12/logs/vitest-tool-program-v3.log",
+  "logDigest": "573f5d097ecf3f19815a344f0a311d1d2e3e85f635abe0ddc6be7d55238ef18d"
+}
