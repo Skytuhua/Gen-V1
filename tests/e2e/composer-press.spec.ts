@@ -67,6 +67,20 @@ test('a foreign primary pointer does not replace the active composer press', asy
   await page.mouse.up(); await expect(control).not.toHaveAttribute('data-pointer-pressed');
 });
 
+for(const separate of [false,true])test(`a touch-held task action rejects a mouse press in its group (separate=${separate})`,async({page})=>{
+  await fixture(page,separate);
+  const owner=page.getByRole('button',{name:'Inspect changes',exact:true}),other=page.getByRole('button',{name:'Create PR',exact:true});
+  const session=await page.context().newCDPSession(page),box=(await owner.boundingBox())!;
+  await session.send('Emulation.setTouchEmulationEnabled',{enabled:true,maxTouchPoints:2});
+  await session.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:box.x+box.width/2,y:box.y+box.height/2,id:9}]});
+  try{
+    await expect(owner).toHaveAttribute('data-pointer-pressed');await other.hover();await page.mouse.down();
+    await expect(owner).toHaveAttribute('data-pointer-pressed');await expect(other).toHaveCSS('transform','none');
+    await expect(other).not.toHaveAttribute('data-pointer-pressed');
+  }finally{await page.mouse.up();await session.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await session.detach();}
+  await expect(owner).not.toHaveAttribute('data-pointer-pressed');
+});
+
 for (const width of [1024, 1440]) {
   test(`pointer presses use 80ms, .97 and immediate release at ${width}`, async ({ page }) => {
     await page.setViewportSize({ width, height: 1000 }); await page.emulateMedia({ reducedMotion: 'no-preference' });
