@@ -49,12 +49,16 @@ export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal, 
   child.stderr.on("data", bytes => { if (diagnostics.length < 1024) diagnostics += String(bytes); });
   const closed = new Promise<void>(finish => child.once("close", () => { current.exited = true; finish(); }));
   let queue = Promise.resolve();
+  let warmed = false;
   current.rpc = (request,startupAcquisition=false) => {
     const pending = queue.then(() => new Promise<readonly GuardEntry[]>((accept, reject) => {
       if (current.exited) return reject(denied());
       let output = "";
       const metadataImport = Array.isArray(request.paths) && (request.paths as GuardPath[]).some(path => path.gitMetadataImport);
-      const timer = setTimeout(() => finish(denied()), pathGuardRpcDeadline(request.command,metadataImport,startupAcquisition));
+      // A respawned guard is just as cold as the first one, so the first RPC on
+      // any fresh process gets the extended deadline even when the caller did
+      // not flag this as the startup acquisition.
+      const timer = setTimeout(() => finish(denied()), pathGuardRpcDeadline(request.command,metadataImport,startupAcquisition||!warmed));
       const failed = () => finish(new HarnessError(/limit exceeded/i.test(diagnostics)?"RESOURCE_LIMIT":"CAPABILITY_DENIED", "File access check failed — the folder could not be opened safely for this action", { nativeCode: /GUARD_NATIVE_ERROR:([-0-9]+)/.exec(diagnostics)?.[1] ?? "unavailable",nativeMessage:/GUARD_NATIVE_MESSAGE:([^\r\n]*)/.exec(diagnostics)?.[1] }));
       const data = (bytes: string) => {
         output += bytes;
@@ -71,7 +75,7 @@ export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal, 
           finish(undefined, Object.freeze(response.entries));
         } catch { finish(denied()); }
       };
-      const finish = (error?: Error, manifest: readonly GuardEntry[] = []) => { clearTimeout(timer); child.stdout.removeListener("data", data); child.removeListener("error", failed); child.removeListener("exit", failed); error ? reject(error) : accept(manifest); };
+      const finish = (error?: Error, manifest: readonly GuardEntry[] = []) => { clearTimeout(timer); child.stdout.removeListener("data", data); child.removeListener("error", failed); child.removeListener("exit", failed); error ? reject(error) : (warmed = true, accept(manifest)); };
       child.once("error", failed); child.once("exit", failed); child.stdout.on("data", data);
       child.stdin.write(JSON.stringify(request) + "\n");
     }));
