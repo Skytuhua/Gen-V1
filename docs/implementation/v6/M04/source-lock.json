@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 3,
+  "auditAncestorSha": "4805af4680094d2af48ecf666688e750797e9dda",
+  "executionBaseSha": "ee2c7ad1d8137a355ae907ef0a340b04c8cb7c38",
+  "inspectedPaths": [
+    { "path": "package.json", "blobSha": "fa399f6542a4886e6d8cbf7d6eecfe498e2967c0" },
+    { "path": "packages/contracts/request-context.ts", "blobSha": "863632ff8a7c878f4d2a3df6688f52c662c423e7" },
+    { "path": "packages/contracts/implementation-evidence.ts", "blobSha": "559b720ccead1d29c9a1bd4db528af52534105c3" },
+    { "path": "packages/contracts/tool-effects.ts", "blobSha": "41b6fff1364825122c33761c0bfaac66da03bca0" },
+    { "path": "packages/core/capability-flags.ts", "blobSha": "984030800cd371d70fc20f9c0c7ad076a85a2afa" },
+    { "path": "packages/core/context-compiler.ts", "blobSha": "7b6f9040160b8440845c256c57bd5aba52f1ca4b" },
+    { "path": "packages/core/context-results.ts", "blobSha": "6dd957443ff6ab29f3df61b3f77b8503ebbe2774" },
+    { "path": "packages/core/context-compaction.ts", "blobSha": "a3e461f63f8c668e69c766d63b4a150e675e3f2c" },
+    { "path": "packages/core/context-relevance.ts", "blobSha": "85ea190bc7c216b76b4364962551e50bba16f4b1" },
+    { "path": "packages/core/context-draft-sources.ts", "blobSha": "8d96db52f45d7c50ae964e4d5321434a55b3ee4e" },
+    { "path": "packages/core/context-tool-discovery.ts", "blobSha": "185b28d7a37bf7f86a5a3b1809e34a112fba3d36" },
+    { "path": "packages/core/instruction-manifest.ts", "blobSha": "ca5145c43273a1cb6ebef6d06e4c50c775513de5" },
+    { "path": "packages/workspace/repo-map.ts", "blobSha": "0094362e4c128bc19e208618e87c104fec7afd1b" },
+    { "path": "packages/core/service.ts", "blobSha": "39b01ba266719fd6400ed0120d7c6513f5da7518" },
+    { "path": "packages/runtime-hermes/index.ts", "blobSha": "a9cfca0adce66ed61120827dbfeab693e333a9a3" },
+    { "path": "packages/runtime-hermes/broker.ts", "blobSha": "ccad6e975b0a1e1ccf09f6e8c3bd3d5c9b637327" },
+    { "path": "packages/runtime-hermes/worker.py", "blobSha": "1ab855e49b030712b9a0b057739505ccce64c238" },
+    { "path": "apps/web/src/ContextInspector.tsx", "blobSha": "a06b00e052f2fc428f70417e606197dd0ef49850" },
+    { "path": "docs/implementation/v3/M04-handoff.md", "blobSha": "adbebe51e5ca8033d16ca2b34e15c40e55c9cb6e" }
+  ],
+  "publicContracts": [
+    {
+      "name": "implementation-evidence",
+      "version": "559b720ccead1d29c9a1bd4db528af52534105c3",
+      "testIds": ["tests/research-baseline.test.ts", "tests/m01-m02-compatibility.test.ts"]
+    },
+    {
+      "name": "capability-flags",
+      "version": "984030800cd371d70fc20f9c0c7ad076a85a2afa",
+      "testIds": ["tests/tool-authority-v3.test.ts", "tests/m01-m02-compatibility.test.ts", "tests/context-request-observation.test.ts"]
+    },
+    {
+      "name": "tool-effects",
+      "version": "41b6fff1364825122c33761c0bfaac66da03bca0",
+      "testIds": ["tests/tool-effects-v3.test.ts", "tests/effect-recovery-v3.test.ts"]
+    },
+    {
+      "name": "request-context",
+      "version": "335de718a510f29e32dc6bd227a9bcec9afcd7bb",
+      "testIds": ["tests/context-compiler-v3.test.ts", "tests/context-results-v3.test.ts", "tests/compaction-v3.test.ts", "tests/context-contract-preservation-v6.test.ts"]
+    }
+  ],
+  "acceptedDependencyCommits": [],
+  "approvedDrift": []
+}

@@ -55,6 +55,17 @@ export interface CompactionCandidateV1 {
   readonly status: 'PREPARING' | 'READY' | 'DISCARDED' | 'APPLIED' | 'FAILED';
 }
 
+/** Strict host sidecar for a compaction candidate; never merged into CompactionCandidateV1.
+ * Referenced artifacts and observations still require their normal owner checks. */
+export interface CompactionMetadataV1 {
+  readonly version: 1;
+  readonly candidateId: string;
+  readonly binding: CompactionBindingV1;
+  readonly summaryRef: string | null;
+  readonly sourceInterval: { readonly firstSeq: number; readonly lastSeq: number } | null;
+  readonly usageObservationRef: string | null;
+}
+
 /** Public counts at the admitted broker boundary; never the provider's actual context. */
 export interface ContextRequestObservationV1 {
   readonly threadId: string;

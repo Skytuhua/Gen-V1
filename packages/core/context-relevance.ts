@@ -35,3 +35,51 @@ export function createRelevanceObserver() {
     },
   };
 }
+
+export const SHADOW_OBSERVER_TIMEOUT_MS = 6000;
+type ShadowCut = { cutId: string; retainedTailStart: number; inspectionBudgetBytes: number; segments: readonly Segment[] };
+type ShadowObservation = { candidateIds: readonly string[]; estimatedSavingsBytes: number };
+type ShadowApproval = { modelId: string; accountId: string; budgetCalls: number };
+type ShadowStatus = 'OBSERVER_UNAVAILABLE' | 'COMPLETED' | 'TIMED_OUT' | 'FAILED' | 'CANCELLED';
+type ShadowResult = { status: ShadowStatus; observation: ShadowObservation | null };
+
+/** Opt-in shadow phase over one immutable cut. Without an explicit approved model/account and auxiliary
+ * budget it returns OBSERVER_UNAVAILABLE and makes no model call. It never alters the foreground request. */
+export function createShadowRelevancePhase(options: {
+  approval: ShadowApproval | null;
+  observe: (cut: ShadowCut) => Promise<ShadowObservation>;
+  schedule?: (callback: () => void, ms: number) => unknown;
+  unschedule?: (handle: unknown) => void;
+}) {
+  const schedule = options.schedule ?? ((callback, ms) => setTimeout(callback, ms));
+  const unschedule = options.unschedule ?? (handle => clearTimeout(handle as ReturnType<typeof setTimeout>));
+  let budget = options.approval && Number.isSafeInteger(options.approval.budgetCalls) ? options.approval.budgetCalls : 0;
+  const approved = () => Boolean(options.approval?.modelId && options.approval?.accountId && budget > 0);
+  let cancelled = false;
+  let pending: { resolve: (result: ShadowResult) => void; timer: unknown } | null = null;
+  const settle = (status: ShadowStatus, observation: ShadowObservation | null) => {
+    if (!pending) return;
+    const current = pending;
+    pending = null;
+    unschedule(current.timer);
+    current.resolve({ status, observation });
+  };
+  return {
+    run(cut: ShadowCut): Promise<ShadowResult> {
+      if (!approved() || cancelled || pending) return Promise.resolve({ status: 'OBSERVER_UNAVAILABLE', observation: null });
+      budget--;
+      return new Promise(resolve => {
+        const timer = schedule(() => settle('TIMED_OUT', null), SHADOW_OBSERVER_TIMEOUT_MS);
+        pending = { resolve, timer };
+        let observation: Promise<ShadowObservation>;
+        try { observation = options.observe(cut); } catch { settle('FAILED', null); return; }
+        void observation.then(result => {
+          if (result && Array.isArray(result.candidateIds) && Number.isSafeInteger(result.estimatedSavingsBytes))
+            settle('COMPLETED', Object.freeze({ candidateIds: Object.freeze([...result.candidateIds]), estimatedSavingsBytes: result.estimatedSavingsBytes }));
+          else settle('FAILED', null);
+        }, () => settle('FAILED', null));
+      });
+    },
+    cancel() { cancelled = true; settle('CANCELLED', null); },
+  };
+}

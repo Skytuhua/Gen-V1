@@ -36,3 +36,18 @@ export function buildRepoMap(grantedPaths: readonly string[], readAdmitted: (pat
   }
   return { files, omittedFiles: Math.max(0, ordered.length - files.length) };
 }
+
+/** Deterministic ranking over an existing map: explicit requested-path match first, then referenced-symbol
+ * count descending, then normalized path and first matching symbol ascending. Never mutates the map. */
+export function rankRepoMap(map: { files: readonly MappedFile[] }, request: { paths?: readonly string[]; symbols?: readonly string[] }) {
+  const paths = new Set((request.paths ?? []).filter(path => typeof path === 'string' && allowed(path)));
+  const symbols = [...new Set((request.symbols ?? []).filter(symbol => typeof symbol === 'string' && symbol.length > 0))].sort(compare);
+  const ranked = map.files.map(file => {
+    const matched = symbols.filter(symbol => file.exports.some(entry => entry.name === symbol));
+    return { ...file, imports: [...file.imports], exports: file.exports.map(entry => ({ ...entry })),
+      requestedPath: paths.has(file.path), referencedSymbols: matched.length, matchedSymbols: matched };
+  });
+  ranked.sort((a, b) => Number(b.requestedPath) - Number(a.requestedPath) || b.referencedSymbols - a.referencedSymbols ||
+    compare(a.path, b.path) || compare(a.matchedSymbols[0] ?? '', b.matchedSymbols[0] ?? ''));
+  return { files: ranked };
+}

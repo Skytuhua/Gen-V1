@@ -37,6 +37,28 @@ it('maps only granted source, reporting import edges and verified symbol lines',
   ]);
 });
 
+it('ranks the repository map by requested path, referenced symbols, then normalized path and symbol', async () => {
+  const { buildRepoMap, rankRepoMap } = await repoMap() as typeof import('../packages/workspace/repo-map.ts');
+  const sources: Record<string, string> = {
+    'src/zeta.ts': "export function zeta() {}\nexport function shared() {}\n",
+    'src/alpha.ts': "export function alpha() {}\nexport function shared() {}\nexport function other() {}\n",
+    'src/requested.ts': "export function requested() {}\n",
+    'src/beta.ts': "export function shared() {}\n",
+    'notes.py': 'print(1)\n',
+  };
+  const map = buildRepoMap(Object.keys(sources), path => sources[path]!);
+  const ranked = rankRepoMap(map, { paths: ['src/requested.ts'], symbols: ['shared', 'alpha'] });
+  expect(ranked.files.map(file => file.path)).toEqual(['src/requested.ts', 'src/alpha.ts', 'src/beta.ts', 'src/zeta.ts', 'notes.py']);
+  expect(ranked.files[0]).toMatchObject({ requestedPath: true, referencedSymbols: 0 });
+  expect(ranked.files[1]).toMatchObject({ requestedPath: false, referencedSymbols: 2 });
+  expect(ranked.files[2]).toMatchObject({ referencedSymbols: 1 });
+  expect(ranked.files[3]).toMatchObject({ referencedSymbols: 1 });
+  const again = rankRepoMap(map, { paths: ['src/requested.ts'], symbols: ['shared', 'alpha'] });
+  expect(again).toEqual(ranked);
+  expect(map.files.map(file => file.path)).toEqual(['notes.py', 'src/alpha.ts', 'src/beta.ts', 'src/requested.ts', 'src/zeta.ts']);
+  expect(rankRepoMap(map, {}).files.map(file => file.path)).toEqual(['notes.py', 'src/alpha.ts', 'src/beta.ts', 'src/requested.ts', 'src/zeta.ts']);
+});
+
 it.each([100, 500])('reveals schema on the next request without exposing denied tools, for %i tools', async count => {
   const { createContextToolDiscovery } = await tools() as typeof import('../packages/core/context-tool-discovery.ts');
   const entries = Array.from({ length: count }, (_, index) => ({

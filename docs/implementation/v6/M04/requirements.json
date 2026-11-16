@@ -1,0 +1,263 @@
+{
+  "task": "M04 context compiler, progressive tools and compaction (v6)",
+  "branch": "handoff/m04-context-v3",
+  "worktree": "/home/piadmin/Gen-V1-m04-v6",
+  "preservedTaskHead": "ee2c7ad1d8137a355ae907ef0a340b04c8cb7c38",
+  "capturedMain": "1c09d492278b1014bc3ab5455191b1f5913c96d8",
+  "auditAnchor": "4805af4680094d2af48ecf666688e750797e9dda",
+  "baseIntegration": "HOLD_SOURCE_DRIFT: git merge --no-commit --no-ff 1c09d492 conflicted in 9 paths; aborted per R03; conflict blob identities recorded in docs/implementation/v6/M04/handoff.md. Only join-independent stages continue on the preserved task cut.",
+  "requirements": [
+    {
+      "id": "M04-C01",
+      "disposition": "BLOCKED",
+      "sourcePaths": ["packages/contracts/request-context.ts", "packages/core/context-compiler.ts"],
+      "testIds": ["tests/context-compiler-v3.test.ts", "tests/context-request-observation.test.ts"],
+      "reason": "RequestContextV1 with utf8Bytes, ContextMeasurement and nullable accountId is present and reused; no second request-context authority exists. RequestPreparationV1 and issued-token admission exist only on captured main (packages/core/request-custody.ts); the join is HOLD_SOURCE_DRIFT, so the custody-preservation clause cannot be exercised at this cut. HOLD_SOURCE_DRIFT."
+    },
+    {
+      "id": "M04-C02",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": ["packages/contracts/request-context.ts", "packages/core/context-results.ts", "packages/core/context-result-custody.ts"],
+      "testIds": ["tests/context-results-v3.test.ts", "tests/context-result-custody.test.ts", "tests/context-request-observation.test.ts"],
+      "reason": "ToolResultHandleV1 keeps handle/owner/sourceInvocationId/digest/bytes/mediaType/expiresAtMs/operation='read-result-range'. Retrieval rechecks owner, grant, expiry, range and digest; missing/deleted/expired returns UNAVAILABLE. Inspected code plus passing current tests at ee2c7ad1."
+    },
+    {
+      "id": "M04-C03",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/contracts/request-context.ts", "packages/core/context-compaction.ts"],
+      "testIds": ["tests/compaction-v3.test.ts"],
+      "reason": "CompactionBindingV1/CompactionCandidateV1 fields and status union are preserved unchanged. The specified CompactionMetadataV1 strict sidecar (version:1, candidateId, binding, summaryRef, sourceInterval, usageObservationRef), one-time UUID candidate minting retained across retries, at most one nonterminal candidate per exact binding, and nonnegative integer firstSeq<=lastSeq validation are absent and must be added without altering CompactionCandidateV1."
+    },
+    {
+      "id": "M04-C04",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": ["packages/core/context-draft-sources.ts", "packages/core/context-results.ts", "packages/runtime-hermes/index.ts"],
+      "testIds": ["tests/context-draft-sources.test.ts", "tests/context-results-v3.test.ts", "tests/hermes-runtime.test.ts"],
+      "reason": "8 explicit references and 64 KiB combined preview enforced in context-draft-sources.ts; 16 KiB preview and 1 MiB range caps in context-results.ts; 4 concurrent admitted bounded reads enforced by the Hermes engine (CONTEXT_READ_LIMIT). UTF-8 byte limits are independent of token accounting. All covered by passing current tests."
+    },
+    {
+      "id": "M04-S01",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": ["packages/core/service.ts", "packages/runtime-hermes/broker.ts", "packages/runtime-hermes/index.ts", "packages/contracts/request-context.ts"],
+      "testIds": ["tests/context-request-observation.test.ts", "tests/hermes-runtime.test.ts"],
+      "reason": "The owned Hermes boundary publishes OPAQUE_NATIVE_CONTEXT observations (promptBytes, knownInputs, frozen tool snapshot) without reconstructing role messages; the ACP adapter surface stays opaque. Flag-gated and epoch/sequence fenced in service.ts."
+    },
+    {
+      "id": "M04-S02",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": ["packages/core/context-compiler.ts"],
+      "testIds": ["tests/context-compiler-v3.test.ts"],
+      "reason": "Deterministic pure projection over an immutable cut; stable host prefix first, append-only changing tail; no timestamps/random IDs in segments; requestId derived from scope+revision digests."
+    },
+    {
+      "id": "M04-S03",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": ["packages/core/context-compiler.ts"],
+      "testIds": ["tests/context-compiler-v3.test.ts"],
+      "reason": "Cache scope hashes owner, model, account, generation, instruction digest, registry digest and grant digest; append-only eligible tail; rebuild on rewind/instruction/registry/workspace/account/model change; REFERENCE/contentRef sources never reuse without a host grantDigest."
+    },
+    {
+      "id": "M04-S04",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": ["packages/core/instruction-manifest.ts"],
+      "testIds": ["tests/context-discovery-v3.test.ts"],
+      "reason": "Manifest projects only host-admitted physical files (granted roots enforced by the host reader), records path/scope/precedence/digest/bytes, loads each physicalId once, surfaces duplicates as visible conflicts, rejects path escapes and unapproved names, and never expands includes/hooks. Precedence is deterministic host policy, not model choice."
+    },
+    {
+      "id": "M04-S05",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/workspace/repo-map.ts"],
+      "testIds": ["tests/context-discovery-v3.test.ts"],
+      "reason": "Existing buildRepoMap uses the pinned TypeScript 5.9.3 compiler, normalized-path order, import/export edges with proven symbol lines, FILE_LIST_ONLY for other languages, and excludes node_modules/.git/secret paths/escapes. The specified ranking (explicit requested-path match, then referenced-symbol count descending, then normalized path and symbol ascending) is absent and must be added as an extension, not a rewrite."
+    },
+    {
+      "id": "M04-S06",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": ["packages/core/context-tool-discovery.ts", "packages/core/context-progressive-tools.ts", "packages/runtime-hermes/index.ts", "packages/runtime-hermes/worker.py"],
+      "testIds": ["tests/context-discovery-v3.test.ts", "tests/hermes-runtime.test.ts"],
+      "reason": "DIRECT/DEFERRED/SCRIPT_ONLY/HIDDEN exposure classes; bounded discover; describe reveals the exact admitted schema for the next request; per-request frozen schema digest; hidden/denied tools rejected at the engine dispatch gate and filtered from the native tool list. D04 adds explicit script/child dispatch negatives."
+    },
+    {
+      "id": "M04-S07",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": ["packages/core/context-results.ts", "packages/core/context-result-custody.ts", "packages/core/service.ts"],
+      "testIds": ["tests/context-results-v3.test.ts", "tests/context-result-custody.test.ts", "tests/context-request-observation.test.ts"],
+      "reason": "Large permitted output spilled privately once with bounded head/tail preview, exact omitted bytes and a handle; full retrieval rechecks owner/grant/expiry/range/digest; spill failure returns clipped preview plus FULL_RESULT_UNAVAILABLE with no fabricated path. Host retention supplies expiry; no policy means no retained handle."
+    },
+    {
+      "id": "M04-S08",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": ["packages/core/context-compiler.ts"],
+      "testIds": ["tests/context-compiler-v3.test.ts"],
+      "reason": "calculateNextContextBudget adds last measured input (including its cached subset), unreported new tool tokens and reserved output; cached subset may not exceed observed input; a completed turn (turnNeedsAnotherRequest=false) never triggers compaction; unavailable tokenizer stays null/BYTE_ONLY."
+    },
+    {
+      "id": "M04-S09",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/core/context-relevance.ts"],
+      "testIds": ["tests/compaction-v3.test.ts", "tests/context-contract-preservation-v6.test.ts"],
+      "reason": "The report-only metadata observer exists and never mutates input. The specified opt-in shadow phase wrapper (one eligible immutable cut, fixed 6-second timeout, OBSERVER_UNAVAILABLE with no model call absent an approved model/account and auxiliary budget, cancellation) is absent and must be added. Any live auxiliary model call remains BLOCKED: HOLD_AUXILIARY_MODEL."
+    },
+    {
+      "id": "M04-S10",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": ["packages/core/context-compaction.ts", "tests/fixtures/m04-context-v3.json"],
+      "testIds": ["tests/compaction-v3.test.ts"],
+      "reason": "previewCompaction retains the host-seeded unresolved references (requirement, decision, pending-approval reference, active work, source-evidence pointer, recent-user verbatim) and complete tool-call/result pairs as references, never grants; it does not rewrite or mutate the source cut or native history."
+    },
+    {
+      "id": "M04-S11",
+      "disposition": "BLOCKED",
+      "sourcePaths": ["packages/core/context-compaction.ts", "packages/core/service.ts"],
+      "testIds": ["tests/compaction-v3.test.ts", "tests/context-request-observation.test.ts", "tests/context-contract-preservation-v6.test.ts"],
+      "reason": "Deterministic eligibility gate exists (exact-binding recheck, cancellation, tail bound, UNSUPPORTED_COMPACTION when no native CAS) and run.compact refuses loss-aware compaction without a verified native compare-and-swap. A host apply gate that never invokes nativeApply on a stale binding is added for D05. Actual native application is BLOCKED: HOLD_NATIVE_COMPACTION (no adapter with an observed native loss-aware apply API and runtime proof at this cut)."
+    },
+    {
+      "id": "M04-S12",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/core/context-compaction.ts", "packages/core/capability-flags.ts"],
+      "testIds": ["tests/compaction-v3.test.ts"],
+      "reason": "context.precomputeExperimentV1 is registered default-off, but the precompute coordinator is absent: prepare one summary from a fixed prefix while newer messages accumulate; reject changed start/instructions/model or oversized retained tail at use time; account every failed/discarded background call; never race a second compaction or mutate active context. Deterministic coordinator with injected summarizer is implementable; live summarization stays HOLD_AUXILIARY_MODEL."
+    },
+    {
+      "id": "M04-S13",
+      "disposition": "TEST_ONLY",
+      "sourcePaths": ["tests/fixtures/m04-context-v3.json", "docs/implementation/v3/logs/m04-paired-synthetic.log"],
+      "testIds": ["tests/context-compiler-v3.test.ts", "tests/context-results-v3.test.ts", "tests/compaction-v3.test.ts"],
+      "reason": "Run the fixed paired deterministic fixtures and report every outcome; seeded unresolved constraints and complete tool pairs must survive. Live quality/cost measurements remain NOT_RUN: no authorized provider fixture exists, and this prompt never authorizes activating pruning or precompute."
+    },
+    {
+      "id": "M04-U01",
+      "disposition": "BLOCKED",
+      "sourcePaths": ["apps/web/src/ContextInspector.tsx", "packages/contracts/request-context.ts"],
+      "testIds": ["tests/e2e/usage-context.spec.ts"],
+      "reason": "The single ContextInspector already exposes Last request/Sources/Tools/Compaction tabs with source category, revision, bytes and explicit opaque-native notes. Per-row inclusion reason, measured/estimated tokens and exclusion reason have no representation in HostRequestProjectionV1 and no supplemental shape is specified in this block: HOLD_CONTRACT_SHAPE (missing fields: inclusionReason, tokens, measurement, exclusionReason; consuming requirement M04-U01). No competing interface is invented."
+    },
+    {
+      "id": "M04-U02",
+      "disposition": "BLOCKED",
+      "sourcePaths": ["packages/core/context-draft-sources.ts", "apps/web/src/ContextInspector.tsx"],
+      "testIds": ["tests/context-draft-sources.test.ts"],
+      "reason": "Revision pinning, Refresh/Keep decisions, removal semantics and the 8-reference/64 KiB bounds exist and are tested as draft state. Composer wiring requires the merged RequestPreparationV1 custody admission path; that join is HOLD_SOURCE_DRIFT, so chips are not wired into the composer at this cut."
+    },
+    {
+      "id": "M04-U03",
+      "disposition": "BLOCKED",
+      "sourcePaths": ["apps/web/src/ContextInspector.tsx", "packages/core/context-compaction.ts"],
+      "testIds": ["tests/e2e/usage-context.spec.ts"],
+      "reason": "The Compaction tab honestly reports that no loss-aware receipt exists and disables unsupported native operations with a reason. Retained-constraint/omitted-category preview and measured before/after result views require the native compaction data path (HOLD_NATIVE_COMPACTION) and the host custody join (HOLD_SOURCE_DRIFT)."
+    },
+    {
+      "id": "M04-U04",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": ["apps/web/src/ContextMeter.tsx", "apps/web/src/ContextInspector.tsx", "packages/contracts/index.ts"],
+      "testIds": ["tests/context-request-observation.test.ts", "tests/e2e/usage-context.spec.ts"],
+      "reason": "No cache attribution is labeled measured: RuntimeUsage carries no provider cache fields at this cut (M11 not merged), and the inspector never infers provider tokens. Local fingerprints (instructionDigest, toolRegistryDigest, sourceCut revisionDigest, frozen schema digest) explain prefix changes; vendor cache-miss causes remain unknown."
+    },
+    {
+      "id": "M04-T01",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": ["packages/core/context-compiler.ts"],
+      "testIds": ["tests/context-compiler-v3.test.ts"],
+      "reason": "Append reads only the eligible new tail; rewind and changed instructions/account/model/workspace/generation/registry/source revision re-read; cross-account reuse denied by scope key."
+    },
+    {
+      "id": "M04-T02",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": ["packages/core/context-tool-discovery.ts", "packages/runtime-hermes/index.ts"],
+      "testIds": ["tests/context-discovery-v3.test.ts", "tests/hermes-runtime.test.ts"],
+      "reason": "100/500-tool fixtures: initial disclosed schema bytes below full-catalog baseline; correct tools discoverable/describable; hidden and denied tools cannot dispatch (engine gate plus native list filtering)."
+    },
+    {
+      "id": "M04-T03",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": ["packages/core/context-results.ts", "packages/core/context-result-custody.ts"],
+      "testIds": ["tests/context-results-v3.test.ts", "tests/context-result-custody.test.ts", "tests/context-request-observation.test.ts"],
+      "reason": "Large fixture retains a retrievable exact full result across reopen; preview/range bounds enforced; disk failure reported honestly as FULL_RESULT_UNAVAILABLE; expired/revoked/foreign handles leak no cross-scope data."
+    },
+    {
+      "id": "M04-T04",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": ["packages/core/context-compiler.ts"],
+      "testIds": ["tests/context-compiler-v3.test.ts"],
+      "reason": "Provider usage (8000 observed incl. 5000 cached) plus 4000 unreported tool tokens and 2000 reserve yields 14000 required; cached input is not absent context; missing tokenizer stays BYTE_ONLY with null tokens."
+    },
+    {
+      "id": "M04-T05",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": ["packages/core/context-compaction.ts"],
+      "testIds": ["tests/compaction-v3.test.ts", "tests/context-request-observation.test.ts"],
+      "reason": "Seeded unresolved requirements, tool-result pairs and source pointers retained; every wrong generation/model/account/workspace/instruction/registry/source-cut refuses application; unsupported native path reports UNSUPPORTED_COMPACTION without calling legacy compaction."
+    },
+    {
+      "id": "M04-T06",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/core/context-compaction.ts"],
+      "testIds": ["tests/compaction-v3.test.ts"],
+      "reason": "Precompute race negatives are absent: rewind, new instruction, cancellation and a long new tail must discard the candidate; failed background calls must remain in cost accounting. Added with the S12 coordinator."
+    },
+    {
+      "id": "M04-T07",
+      "disposition": "TEST_ONLY",
+      "sourcePaths": ["packages/core/context-relevance.ts", "packages/core/host-context-projection.ts"],
+      "testIds": ["tests/compaction-v3.test.ts", "tests/context-request-observation.test.ts", "tests/context-contract-preservation-v6.test.ts"],
+      "reason": "Observer non-mutation and prompt-invariant host projection are already tested; D05 adds the explicit observer-failure foreground byte-for-byte assertion against the new shadow phase wrapper."
+    },
+    {
+      "id": "M04-G01",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": ["packages/core/capability-flags.ts", "packages/core/service.ts", "packages/runtime-hermes/index.ts"],
+      "testIds": ["tests/context-request-observation.test.ts", "tests/hermes-runtime.test.ts"],
+      "reason": "Pure projection/read-only discovery run on the M01/M02 core present at the base; project-executing servers remain behind M03; native compaction and precompute stay disabled without adapter-specific runtime proof. Each path checks its own flags."
+    },
+    {
+      "id": "M04-G02",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": ["packages/core/capability-flags.ts"],
+      "testIds": ["tests/context-request-observation.test.ts"],
+      "reason": "All four keys (context.compilerV1, tools.deferredV1, context.lossAwareCompactionV1, context.precomputeExperimentV1) are registered in the host-owned registry alongside M02/M08 keys, default false, unknown keys reject, test-only injection seam exists, and no flag lives in strict UI preferences or agent/plugin commands."
+    },
+    {
+      "id": "M04-G03",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": ["packages/core/service.ts", "packages/core/context-result-custody.ts", "packages/core/context-relevance.ts"],
+      "testIds": ["tests/context-request-observation.test.ts", "tests/context-result-custody.test.ts", "tests/context-contract-preservation-v6.test.ts"],
+      "reason": "Disabling flags stops injections/observations; no code path mutates native history; result artifacts are retained until retention expiry (pruneExpired only removes expired receipts); failed summaries never replace active sessions. Shadow wrapper adds explicit observer cancellation."
+    },
+    {
+      "id": "M04-D01",
+      "disposition": "BLOCKED",
+      "sourcePaths": ["packages/contracts/request-context.ts"],
+      "testIds": [],
+      "reason": "RequestPreparationV1 and the issued-token custody core exist only on captured main; the add/add conflict on packages/contracts/request-context.ts aborted the R03 merge. Replay/admission assertions cannot run at this cut without inventing a competing contract. HOLD_SOURCE_DRIFT; recorded NOT_RUN, never a placeholder pass."
+    },
+    {
+      "id": "M04-D02",
+      "disposition": "TEST_ONLY",
+      "sourcePaths": ["packages/core/context-results.ts"],
+      "testIds": ["tests/context-contract-preservation-v6.test.ts"],
+      "reason": "Authorized/expired/foreign-owner cases exist; add the exact decision case where ownership changes while the read awaits storage and assert no late bytes enter the new owner view."
+    },
+    {
+      "id": "M04-D03",
+      "disposition": "TEST_ONLY",
+      "sourcePaths": ["packages/core/context-results.ts"],
+      "testIds": ["tests/context-contract-preservation-v6.test.ts"],
+      "reason": "Add multibyte splits at each preview cap boundary asserting valid UTF-8, exact omitted byte count and total preview <= 16 KiB."
+    },
+    {
+      "id": "M04-D04",
+      "disposition": "TEST_ONLY",
+      "sourcePaths": ["packages/runtime-hermes/index.ts", "packages/core/context-tool-discovery.ts"],
+      "testIds": ["tests/context-contract-preservation-v6.test.ts"],
+      "reason": "Add hidden-tool attempts by direct name, script dispatch and child/background dispatch through the real engine host-call seam; the external onTool counter must remain zero."
+    },
+    {
+      "id": "M04-D05",
+      "disposition": "TEST_ONLY",
+      "sourcePaths": ["packages/core/context-relevance.ts", "packages/core/context-compaction.ts"],
+      "testIds": ["tests/context-contract-preservation-v6.test.ts"],
+      "reason": "Add observer-failure foreground byte-for-byte invariance and a stale-binding assertion that the native apply operation is never invoked (spy counter zero)."
+    }
+  ]
+}
