@@ -1,0 +1,25 @@
+M07 browser verification — changed frontend path
+cwd: C:/Users/Administrator/repos/gen-v1-m07
+base: 686bda81061c6451330d2f111cca4bcefa251e5e (origin/main)
+date: 2026-11-15T07:40Z
+platform: Windows Server 2022, Playwright (GEN_E2E=1)
+
+Changed frontend path: apps/web/src/code-review-workspace/
+  (CodeIntelligencePanel.tsx, CodeReviewWorkspace.tsx, code-review-workspace.css)
+
+$ pnpm test:browser --suite code-review-workspace
+
+  Browser suite: code-review-workspace (1 spec file)
+  tests/e2e/code-review-workspace.spec.ts
+
+  57 passed (1.4m)
+
+exit 0
+
+Notes:
+- The M07 CodeIntelligencePanel renders through the optional `codeIntelligence`
+  prop on CodeReviewWorkspace and is absent while host flags are off (default),
+  so live LSP-driven rows cannot be exercised in a browser on this host — no
+  approved language server is installed. The suite proves the host surface the
+  panel mounts into is unchanged and green.
+- Full Playwright output archived under test-results/browser/run-*/results.json

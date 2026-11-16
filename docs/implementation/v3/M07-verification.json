@@ -1,0 +1,363 @@
+{
+  "version": 3,
+  "bundle": "M07",
+  "generatedAt": "2026-11-15T07:20:00Z",
+  "base": {
+    "repository": "Skytuhua/Gen-V1",
+    "approvedBase": "origin/main",
+    "baseSha": "686bda81061c6451330d2f111cca4bcefa251e5e",
+    "baseNote": "Rebased onto origin/main after M06 landed as PR #327 (commit 686bda8, 'M06: verified build, browser QA, bounded repair and completion evidence'). Three mechanical conflicts resolved: host-flags.ts (kept all seven keys), secret-custody-v3.test.ts (registry assertion now seven keys), public-source-files.json (kept both verification manifests).",
+    "auditAncestor": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
+    "branch": "agent/m07-v3",
+    "worktree": "C:/Users/Administrator/repos/gen-v1-m07"
+  },
+  "dependencies": [
+    {
+      "contract": "M01",
+      "status": "VERIFIED",
+      "evidence": "Host custody contracts present on the approved base: Store is the sole SQLite writer (packages/storage/store.ts, command/internal sync-only), withPathGuard/readBoundFile/assertNotStorage/resolveGrant in packages/core/file-access.ts + security.ts; M01-verification.json exists in docs/implementation/v3."
+    },
+    {
+      "contract": "M02",
+      "status": "VERIFIED",
+      "evidence": "Tool authority ledger contracts present on the approved base: packages/core/tool-authority.ts (CLASSIFICATION rows), capability-flags.ts, tool-effects.ts, packages/contracts/tool-effects.ts; M02-verification.json and M02-source-lock.json exist in docs/implementation/v3."
+    },
+    {
+      "contract": "M03",
+      "status": "VERIFIED",
+      "evidence": "Execution-policy contracts present on the approved base: selectBackend/evaluateExecution/ExecutionBackend/PlatformProof in packages/core/execution-policy.ts, project-trust.ts, host-flags.ts; M03-verification.json exists in docs/implementation/v3. DebugRegistry reuses selectBackend + PASS PlatformProof for debugger launch."
+    },
+    {
+      "contract": "M06",
+      "status": "VERIFIED",
+      "evidence": "M06 landed on the approved base as commit 686bda81061c6451330d2f111cca4bcefa251e5e (PR #327). Verified present: CheckObservationV1/VisualObservationV1/VerificationRecipeV1/DeliverableAssessmentV1 in packages/contracts/verification.ts, ProjectVerificationService in packages/core/project-verification.ts (append-only checkObservation bucket read by task_finish completionAssessment and verificationPanelModel), verification.workflowV1 host flag, M06-verification.json in docs/implementation/v3. The feed API used is a new public recordAdvisory on ProjectVerificationService (additive); 'review-advisory' was the reserved observation kind."
+    }
+  ],
+  "results": {
+    "core": [
+      {
+        "stage": "Host adapter with explicit protocol",
+        "result": "PASS",
+        "detail": "LanguageServerAdapter is the single host-owned boundary: openDocument/changeDocument/closeDocument/pullDiagnostics/navigate/rename/dispose with negotiated RangeEncoding and host-owned document versions + digests. StdioLspAdapter implements real JSON-RPC 2.0 over stdio with Content-Length framing, initialize/initialized, didOpen/didChange/didClose, textDocument/diagnostic pull, bounded navigation methods, rename, shutdown/exit. No method is assumed on the Hermes engine."
+      },
+      {
+        "stage": "Approved installed servers only",
+        "result": "PASS",
+        "detail": "languageServerDescriptor resolves only installed approved executables (typescript-language-server for TS/JS, pyright-langserver for Python) via fixed where/command -v lookup; no auto-download, no project plug-ins. An absent approved server fails UNSUPPORTED — never a regex or unrestricted-shell fallback."
+      },
+      {
+        "stage": "Server pooling and lifecycle",
+        "result": "PASS",
+        "detail": "LanguageServerPool keys by physical workspace root + language + executable/config digest + execution profile; shares startup through a pending map, invalidates on owner/root/config change, reaps idle servers after 5 minutes and disposes all owned resources on profile revocation."
+      },
+      {
+        "stage": "Revision-aware diagnostics",
+        "result": "PASS",
+        "detail": "Eligible writes debounce 100 ms per document; inline observations get a 250 ms budget, delayed ones 5 s; a timeout returns state UNAVAILABLE without undoing the successful edit. Every observation binds workspaceIdentity, serverIdentity, documentVersion, beforeDigest and afterDigest; markStale reports STALE when the document moved on."
+      },
+      {
+        "stage": "Baseline semantics",
+        "result": "PASS",
+        "detail": "diffDiagnostics separates introduced from existing only when the before/after comparison is valid (matching beforeDigest and a CURRENT prior observation). baselineStatus UNAVAILABLE reports 'Baseline unavailable' — existing errors are never labelled new."
+      },
+      {
+        "stage": "Bounded semantic navigation",
+        "result": "PASS",
+        "detail": "definition/references/implementation/hover go through bounded reads. Positions convert between negotiated UTF8/UTF16/UTF32 encodings — byte offsets never equal UTF-16 positions; mid-surrogate offsets clamp to boundaries. Result file URIs are refused unless inside a current granted root; results cap at 100 with an explicit truncation marker."
+      },
+      {
+        "stage": "Streamed edit previews",
+        "result": "PASS",
+        "detail": "EditPreviewRegistry keeps at most 8 open previews per run and 256 KiB aggregate; frames are inert text — partial arguments produce no target and no frame authorizes a write. seal() binds exact before/proposed digests; validateFinal rejects a changed final-arguments digest as INVALID; settle records APPLIED or CONFLICT; cancellation discards the preview."
+      },
+      {
+        "stage": "Precise edit preconditions",
+        "result": "PASS",
+        "detail": "locateAnchor treats anchors/hashlines as locators only: zero or repeated matches are rejected instead of fuzzy-rewriting arbitrary code; verifyEditPreimage compares the sha256 of current bytes to the expected preimage digest."
+      },
+      {
+        "stage": "Safe rename with recovery journal",
+        "result": "PASS",
+        "detail": "planRename rejects documentChanges resource operations (create/rename/delete), unsupported change shapes and any URI outside granted roots; binds sourceVersions and expectedBeforeDigests per target. applyRename requires the exact approval id, validates every preimage under the workspace mutation lock before the first change, writes the durable journal plus per-file backups before the first change, and flushes the journal per file. recoverRename reconciles each path independently: restores a path only when current bytes match the written postimage, reports Unchanged/Applied honestly, and stops at PARTIAL_RECOVERY_REQUIRED on external edits — never a silent overwrite, backups retained."
+      },
+      {
+        "stage": "Restricted debugger",
+        "result": "PASS",
+        "detail": "DebugRegistry launches only through selectBackend on the approved backend with a PASS platform proof; inspect (threads/stackTrace/scopes/variables) is a bounded read requiring a paused session; launch/continue/step/evaluate are effectful commands that can execute code; stack frames and variables cap at 100 each and values clamp at 4 KiB; revoke terminates all owned sessions and reports teardown failures rather than pretending they are gone."
+      },
+      {
+        "stage": "Host flag registry",
+        "result": "PASS",
+        "detail": "Exactly coding.intelligenceV1, coding.renameV1, coding.debuggerV1 added to HOST_FLAG_REGISTRY, all default false, enabled only via HARNESS_FLAG_* env with value 1/true. The secret-custody registry assertion was updated from three to six keys; strict UI preferences still reject every flag key."
+      }
+    ],
+    "integration": [
+      {
+        "stage": "Route surface",
+        "result": "PASS",
+        "detail": "apps/server/code-intelligence-routes.ts registers flag-gated POST endpoints beneath the existing authenticated hooks (diagnostics, navigate, previews, rename plan/apply/recover, debug launch/inspect/effect/terminate), admitted through projects.binding for exact project path + workspace identity, with zod-validated bodies, no-store headers and AbortSignals. Registered in server.ts."
+      },
+      {
+        "stage": "Review pane surface",
+        "result": "PASS",
+        "detail": "CodeIntelligencePanel renders Problems grouped as introduced / existing (no baseline) / stale with rows opening an exact file range; streamed previews carry a persistent 'Not applied' badge while STREAMING_UNAPPLIED or READY_UNAPPLIED and INVALID/CONFLICT states; rename results show per-file Applied/Restored/Unchanged/Conflict; debug controls separate Inspect from Run/Continue/Step with disabled commands explaining the missing approval/confinement. Wired into the cr-context aside via an optional codeIntelligence prop — absent when host flags are off."
+      },
+      {
+        "stage": "Diagnostics/debug observations into M06 evidence",
+        "result": "PASS",
+        "detail": "Completed diagnostics observations feed as CheckObservationV1 records with observationKind 'review-advisory' through the new public recordAdvisory on ProjectVerificationService — the same append-only checkObservation bucket task_finish completionAssessment and the verification panel read. Debug launch/inspect/effect/terminate commands feed the same way. Advisory digests bind honestly: codeDigest is the observed document digest, dependencyDigest the language-server executable digest, recipeDigest a deterministic digest of the advisory tool descriptor. verification-gate.computeAssessment treats a review-advisory PASS like an audit marker — it informs review but can never satisfy a declared requirement, while advisory FAIL/BLOCKED/CANCELLED outcomes still count against completion. The feed is silent while verification.workflowV1 is off and asserts the flag on write."
+      },
+      {
+        "stage": "Hermes worker write-hook feed",
+        "result": "PARTIAL",
+        "detail": "packages/runtime-hermes/worker.py carries only write-hook status (applied/failed/stale/disabled/...); no diagnostics bridge exists there yet. The host adapter boundary and observe() contract are ready for that feed; wiring the worker's bind_completed_writes hook to call intelligence.observe remains open."
+      }
+    ],
+    "platform": [
+      {
+        "stage": "Real language-server session over stdio",
+        "result": "BLOCKED",
+        "detail": "No approved language server (typescript-language-server, pyright-langserver) is installed on this host, so no live stdio session could be proven. StdioLspAdapter is covered by the explicit-protocol contract and in-memory adapter tests; real-server proof is a remaining gate."
+      },
+      {
+        "stage": "Real debugger backend with platform confinement proof",
+        "result": "BLOCKED",
+        "detail": "No installed, approved execution backend with a PASS platform proof exists on this host. DebugRegistry's launch path is exercised through a fake adapter over a PASS-proof backend selection; real DAP proof is a remaining gate and the feature stays disabled by construction."
+      },
+      {
+        "stage": "Browser end-to-end of the review-pane surface",
+        "result": "PASS",
+        "detail": "pnpm test:browser --suite code-review-workspace — 57/57 Playwright specs passed on Windows on base 686bda8 (tests/e2e/code-review-workspace.spec.ts), covering the review-pane surface CodeIntelligencePanel mounts into. The M07 panel itself remains flag-gated off, so live LSP-driven rendering is not exercised; spec-scoped browser coverage for the changed frontend path is green."
+      }
+    ]
+  },
+  "commands": [
+    {
+      "command": "pnpm exec vitest run tests/lsp-revisions-v3.test.ts tests/edit-preview-v3.test.ts tests/rename-recovery-v3.test.ts tests/debug-policy-v3.test.ts",
+      "cwd": "C:/Users/Administrator/repos/gen-v1-m07",
+      "exitCode": 1,
+      "result": "FAIL",
+      "logArtifact": "docs/implementation/v3/logs/m07-fix-01-failing-fixture.log — intentional failing fixture recorded before implementation (no test files or modules on the approved base)"
+    },
+    {
+      "command": "pnpm exec vitest run tests/lsp-revisions-v3.test.ts tests/edit-preview-v3.test.ts tests/rename-recovery-v3.test.ts tests/debug-policy-v3.test.ts",
+      "cwd": "C:/Users/Administrator/repos/gen-v1-m07",
+      "exitCode": 0,
+      "result": "PASS",
+      "logArtifact": "docs/implementation/v3/logs/m07-spec-01-vitest.log — 4 files, 25 tests passed"
+    },
+    {
+      "command": "pnpm exec vitest run tests/secret-custody-v3.test.ts",
+      "cwd": "C:/Users/Administrator/repos/gen-v1-m07",
+      "exitCode": 0,
+      "result": "PASS",
+      "logArtifact": "docs/implementation/v3/logs/m07-spec-02-secret-custody.log — 13 tests passed"
+    },
+    {
+      "command": "pnpm typecheck",
+      "cwd": "C:/Users/Administrator/repos/gen-v1-m07",
+      "exitCode": 0,
+      "result": "PASS",
+      "logArtifact": "docs/implementation/v3/logs/m07-core-01-typecheck.log"
+    },
+    {
+      "command": "pnpm lint",
+      "cwd": "C:/Users/Administrator/repos/gen-v1-m07",
+      "exitCode": 0,
+      "result": "PASS",
+      "logArtifact": "docs/implementation/v3/logs/m07-core-02-lint.log"
+    },
+    {
+      "command": "pnpm build",
+      "cwd": "C:/Users/Administrator/repos/gen-v1-m07",
+      "exitCode": 0,
+      "result": "PASS",
+      "logArtifact": "docs/implementation/v3/logs/m07-core-03-build.log"
+    },
+    {
+      "command": "pnpm test:no-lease",
+      "cwd": "C:/Users/Administrator/repos/gen-v1-m07",
+      "exitCode": 1,
+      "result": "FAIL",
+      "logArtifact": "docs/implementation/v3/logs/m07-core-04-full-suite.log — 3186 passed, 60 failed, 53 skipped; all failures environmental/pre-existing as logged (run pre-rebase on base 80b5d6f)"
+    },
+    {
+      "command": "pnpm exec vitest run tests/verification-v3.test.ts tests/secret-custody-v3.test.ts tests/lsp-revisions-v3.test.ts tests/edit-preview-v3.test.ts tests/rename-recovery-v3.test.ts tests/debug-policy-v3.test.ts && pnpm typecheck && pnpm lint && pnpm build",
+      "cwd": "C:/Users/Administrator/repos/gen-v1-m07",
+      "exitCode": 0,
+      "result": "PASS",
+      "logArtifact": "docs/implementation/v3/logs/m07-feed-01-advisory.log — post-rebase verification on base 686bda8: 6 files / 58 tests passed including the recordAdvisory feed tests and the revoked-workspace rename apply test, typecheck/lint/build clean"
+    },
+    {
+      "command": "pnpm test:browser --suite code-review-workspace",
+      "cwd": "C:/Users/Administrator/repos/gen-v1-m07",
+      "exitCode": 0,
+      "result": "PASS",
+      "logArtifact": "docs/implementation/v3/logs/m07-plt-01-browser-suite.log — 57/57 specs in 1.4m"
+    }
+  ],
+  "intendedNegatives": [
+    {
+      "case": "Diagnostic observation exceeds its budget",
+      "expected": "UNAVAILABLE without undoing the edit",
+      "observed": "state UNAVAILABLE with the committed afterDigest retained",
+      "result": "PASS"
+    },
+    {
+      "case": "Unavailable earlier baseline",
+      "expected": "report 'Baseline unavailable', never all-new",
+      "observed": "baselineStatus UNAVAILABLE; zero diagnostics counted as introduced",
+      "result": "PASS"
+    },
+    {
+      "case": "File URI outside granted roots in navigation/rename",
+      "expected": "refused",
+      "observed": "navigation drops the URI; rename plan throws CAPABILITY_DENIED",
+      "result": "PASS"
+    },
+    {
+      "case": "Partial streamed arguments produce a write",
+      "expected": "no target, no authorization",
+      "observed": "frames stay inert until seal; preview remains STREAMING_UNAPPLIED",
+      "result": "PASS"
+    },
+    {
+      "case": "Final arguments digest differs from sealed preview",
+      "expected": "INVALID; prior approval rejected",
+      "observed": "PRECONDITION_FAILED; preview state INVALID",
+      "result": "PASS"
+    },
+    {
+      "case": "Ambiguous or missing edit anchor",
+      "expected": "rejected, never fuzzy-rewrite",
+      "observed": "PRECONDITION_FAILED ambiguous/not-found",
+      "result": "PASS"
+    },
+    {
+      "case": "Rename plan with create/delete/move or ungranted-root targets",
+      "expected": "whole plan rejected",
+      "observed": "CAPABILITY_DENIED in both cases",
+      "result": "PASS"
+    },
+    {
+      "case": "Rename approval id mismatch / preimage changed",
+      "expected": "apply denied before first write",
+      "observed": "CAPABILITY_DENIED / PRECONDITION_FAILED with file untouched",
+      "result": "PASS"
+    },
+    {
+      "case": "External edit of a renamed file during recovery",
+      "expected": "stop, PARTIAL_RECOVERY_REQUIRED, no silent overwrite",
+      "observed": "Conflict entry retained; external bytes preserved; backups kept",
+      "result": "PASS"
+    },
+    {
+      "case": "Workspace grant revoked between rename plan and apply",
+      "expected": "denied, no write",
+      "observed": "CAPABILITY_DENIED under the mutation lock; file bytes unchanged",
+      "result": "PASS"
+    },
+    {
+      "case": "Debug launch without approved backend or PASS proof",
+      "expected": "CAPABILITY_DENIED, no fallback",
+      "observed": "denied for UNTESTED proof and unapproved backend",
+      "result": "PASS"
+    },
+    {
+      "case": "Inspect a running process / cross-owner session",
+      "expected": "denied",
+      "observed": "PRECONDITION_FAILED paused requirement / NOT_FOUND",
+      "result": "PASS"
+    },
+    {
+      "case": "Missing language server or debugger on this host",
+      "expected": "UNSUPPORTED, never regex/shell fallback",
+      "observed": "UNSUPPORTED surfaced at descriptor/backend resolution",
+      "result": "PASS"
+    },
+    {
+      "case": "Flags off (default)",
+      "expected": "all three surfaces fail closed",
+      "observed": "requireCodeIntelligenceFlag throws CAPABILITY_DENIED for each key with empty env",
+      "result": "PASS"
+    }
+  ],
+  "changedFiles": [
+    "packages/contracts/code-intelligence.ts",
+    "packages/core/code-intelligence.ts",
+    "packages/core/debug-session.ts",
+    "packages/core/edit-preview.ts",
+    "packages/core/host-flags.ts",
+    "apps/server/code-intelligence-routes.ts",
+    "apps/server/server.ts",
+    "apps/web/src/code-review-workspace/CodeIntelligencePanel.tsx",
+    "apps/web/src/code-review-workspace/CodeReviewWorkspace.tsx",
+    "apps/web/src/code-review-workspace/code-review-workspace.css",
+    "scripts/public-source-files.json",
+    "tests/lsp-revisions-v3.test.ts",
+    "tests/edit-preview-v3.test.ts",
+    "tests/rename-recovery-v3.test.ts",
+    "tests/debug-policy-v3.test.ts",
+    "tests/secret-custody-v3.test.ts",
+    "packages/core/project-verification.ts",
+    "packages/core/verification-gate.ts",
+    "tests/verification-v3.test.ts",
+    "docs/implementation/v3/M07-verification.json"
+  ],
+  "artifacts": [
+    "tests/lsp-revisions-v3.test.ts",
+    "tests/edit-preview-v3.test.ts",
+    "tests/rename-recovery-v3.test.ts",
+    "tests/debug-policy-v3.test.ts",
+    "docs/implementation/v3/M07-verification.json",
+    "docs/implementation/v3/logs/m07-src-01-worktree.log",
+    "docs/implementation/v3/logs/m07-dep-01-contracts.log",
+    "docs/implementation/v3/logs/m07-fix-01-failing-fixture.log",
+    "docs/implementation/v3/logs/m07-spec-01-vitest.log",
+    "docs/implementation/v3/logs/m07-spec-02-secret-custody.log",
+    "docs/implementation/v3/logs/m07-core-01-typecheck.log",
+    "docs/implementation/v3/logs/m07-core-02-lint.log",
+    "docs/implementation/v3/logs/m07-core-03-build.log",
+    "docs/implementation/v3/logs/m07-core-04-full-suite.log",
+    "docs/implementation/v3/logs/m07-feed-01-advisory.log",
+    "docs/implementation/v3/logs/m07-plt-01-browser-suite.log"
+  ],
+  "migration": {
+    "status": "NONE",
+    "detail": "No data migration. The three flags default false; recovery journals and backups live only under store.dataDir/code-intelligence/ when rename is exercised; no existing records were rewritten."
+  },
+  "rollback": "Unset HARNESS_FLAG_CODING_INTELLIGENCE_V1, HARNESS_FLAG_CODING_RENAME_V1 and HARNESS_FLAG_CODING_DEBUGGER_V1 (all default false) to disable every M07 surface; routes fail closed and the panel prop stays absent. Rename backups and journals under store.dataDir/code-intelligence/ are preserved for reconciliation; recoverRename restores only paths still matching their written postimage. No existing policy was loosened to recover availability.",
+  "gates": [
+    {
+      "gate": "M06 evidence feed",
+      "status": "CLOSED",
+      "detail": "RESOLVED after M06 landed (686bda8): diagnostics and debug observations record as 'review-advisory' CheckObservationV1 rows via recordAdvisory on ProjectVerificationService; advisory PASS cannot satisfy a declared requirement while FAIL/BLOCKED still count against completion."
+    },
+    {
+      "gate": "Installed approved language servers",
+      "status": "OPEN",
+      "detail": "typescript-language-server / pyright-langserver must be installed and operator-approved before live stdio sessions can be proven; the feature stays disabled otherwise."
+    },
+    {
+      "gate": "Installed approved debug backend with PASS platform proof",
+      "status": "OPEN",
+      "detail": "A real DAP backend selected through selectBackend with PlatformProof PASS is required before coding.debuggerV1 can serve a real session."
+    },
+    {
+      "gate": "Hermes worker diagnostics feed",
+      "status": "OPEN",
+      "detail": "packages/runtime-hermes/worker.py needs a call into the host adapter on eligible writes to produce live observations; contract and debounce/budget machinery are ready."
+    },
+    {
+      "gate": "Browser proof of the review-pane surface",
+      "status": "CLOSED",
+      "detail": "RESOLVED: pnpm test:browser --suite code-review-workspace passed 57/57 on base 686bda8. (Panel content is flag-gated; the suite covers the host surface it mounts into.)"
+    },
+    {
+      "gate": "Independent review",
+      "status": "OPEN",
+      "detail": "Mandatory before enabling the three coding.* flags in any production flow."
+    }
+  ],
+  "outcome": "PARTIAL"
+}

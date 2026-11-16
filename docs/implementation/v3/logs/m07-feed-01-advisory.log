@@ -1,0 +1,37 @@
+M07 post-rebase verification — M06 advisory evidence feed
+cwd: C:/Users/Administrator/repos/gen-v1-m07
+base: 686bda81061c6451330d2f111cca4bcefa251e5e (origin/main, M06 merged via PR #327)
+date: 2026-11-15T07:20Z
+
+Rebase:
+  git fetch origin && git rebase origin/main
+  Conflicts (3, mechanical):
+    packages/core/host-flags.ts            -> kept all seven flag keys
+    tests/secret-custody-v3.test.ts        -> registry assertion now seven keys
+    scripts/public-source-files.json       -> kept M06 + M07 manifests
+  Result: agent/m07-v3 rebased, commit 88b73b8
+
+Feed implementation:
+  packages/core/project-verification.ts  -> public recordAdvisory(owner, advisory)
+       validates with checkObservationV1Schema minus checkId/observationKind/owner,
+       pins observationKind 'review-advisory', writes through the private append-only
+       record() path; asserts verification.workflowV1.
+  packages/core/verification-gate.ts     -> fresh review-advisory PASS cannot satisfy
+       a declared requirement (same carve-out as audit markers); FAIL/BLOCKED/CANCELLED
+       advisories still count against completion.
+  apps/server/code-intelligence-routes.ts -> feeds completed diagnostics observations
+       (phase BUILD) and debug launch/inspect/effect/terminate (phase TEST) as
+       review-advisory CheckObservationV1 rows; silent while the M06 flag is off.
+  tests/verification-v3.test.ts          -> +2 tests covering recordAdvisory semantics
+       and the flag gate.
+
+Commands (all on base 686bda8):
+  $ pnpm exec vitest run tests/verification-v3.test.ts tests/secret-custody-v3.test.ts \
+      tests/lsp-revisions-v3.test.ts tests/edit-preview-v3.test.ts \
+      tests/rename-recovery-v3.test.ts tests/debug-policy-v3.test.ts
+    Test Files  6 passed (6)
+         Tests  57 passed (57)
+    exit 0
+  $ pnpm typecheck   -> exit 0
+  $ pnpm lint        -> exit 0 (UI guard: 512 sources; 0 violations)
+  $ pnpm build       -> exit 0 (vite build, 7.30s)
