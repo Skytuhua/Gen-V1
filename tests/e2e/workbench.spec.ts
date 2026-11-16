@@ -20,6 +20,58 @@ test('M15 refuses transformed Markdown whose visible selection could match a dif
 test('M15 Escape respects IME and dismisses pointing without activating buttons',async({page})=>{await page.goto('/fixture');await select(page);const attach=page.getByRole('button',{name:'Attach to prompt',exact:true});await expect(attach).toBeVisible();await attach.focus();await attach.dispatchEvent('keydown',{key:'Escape',isComposing:true});await expect(attach).toBeVisible();await page.keyboard.press('Escape');await expect(attach).toHaveCount(0);await expect(page.locator('output')).toHaveText('');});
 test('M15 toolbar stays reachable at both viewports and 200 percent zoom',async({page})=>{for(const viewport of [{width:1280,height:800},{width:1920,height:1080}]){await page.setViewportSize(viewport);await page.goto('/fixture');await page.emulateMedia({reducedMotion:'reduce'});await page.evaluate(()=>{document.body.style.zoom='2';});await select(page);const toolbar=page.getByRole('toolbar',{name:'Selected source'});await expect(toolbar).toBeVisible();const rect=await toolbar.boundingBox();expect(rect!.x).toBeGreaterThanOrEqual(0);expect(rect!.x+rect!.width).toBeLessThanOrEqual(viewport.width);expect(rect!.y+rect!.height).toBeLessThanOrEqual(viewport.height);await page.getByRole('button',{name:'Open source',exact:true}).focus();await page.keyboard.press('Enter');await expect(page.locator('output')).toHaveText('open:selected text');}});
 
+test('M15 range-anchored toolbar keeps native modal ownership inside a tall canonical source at normal and 200 percent zoom',async({page})=>{
+ for(const zoom of [1,2]){
+  await page.setViewportSize({width:1280,height:800});await page.emulateMedia({reducedMotion:'reduce'});
+  await page.goto('/fixture?fixture=selection-modal');await page.evaluate(value=>{document.body.style.zoom=String(value);},zoom);
+  const opener=page.getByRole('button',{name:'Open canonical source fixture',exact:true});await opener.click();
+  const dialog=page.getByRole('dialog',{name:'Canonical source fixture',exact:true}),source=dialog.locator('#tall-source-text');
+  await expect(dialog).toBeVisible();
+  await source.evaluate(element=>{
+   const viewport=element.closest<HTMLElement>('[data-source-scroll]')!,text=element.firstChild!,start=element.textContent!.indexOf('selected canonical text'),range=document.createRange();
+   range.setStart(text,start);range.setEnd(text,start+'selected canonical text'.length);
+   const bounds=viewport.getBoundingClientRect(),scale=bounds.height/viewport.offsetHeight;
+   viewport.scrollTop+=(range.getBoundingClientRect().top-bounds.top)/scale-viewport.clientHeight/2;
+   element.parentElement!.focus({preventScroll:true});
+  });
+  await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
+  const chooseRange=async(text:string)=>source.evaluate((element,value)=>{
+   const start=element.textContent!.indexOf(value),end=start+value.length,range=document.createRange();
+   if(start<0)throw Error('The canonical fixture range is absent.');
+   element.parentElement!.focus({preventScroll:true});range.setStart(element.firstChild!,start);range.setEnd(element.firstChild!,end);
+   getSelection()!.removeAllRanges();getSelection()!.addRange(range);document.dispatchEvent(new Event('selectionchange'));
+   const root=element.parentElement!.getBoundingClientRect();return {start,end,text:value,rootTop:root.top,rootBottom:root.bottom};
+  },text);
+  const selected=await chooseRange('selected canonical text');expect(selected.rootTop).toBeLessThan(0);expect(selected.rootBottom).toBeGreaterThan(800);
+  const toolbar=dialog.getByRole('toolbar',{name:'Selected source',exact:true});await expect(toolbar).toBeVisible();
+  await expect(dialog.locator('.source-selection-text')).toBeFocused();
+  const before=await toolbar.boundingBox();expect(before!.height).toBeGreaterThan(0);expect(before!.x).toBeGreaterThanOrEqual(0);expect(before!.x+before!.width).toBeLessThanOrEqual(1280);expect(before!.y).toBeGreaterThanOrEqual(0);expect(before!.y+before!.height).toBeLessThanOrEqual(800);
+  await chooseRange('Retained canonical line 74.');await expect.poll(async()=>(await toolbar.boundingBox())?.y).not.toBe(before!.y);
+  await page.keyboard.press('Shift+F10');const ask=toolbar.getByRole('button',{name:'Ask about this',exact:true});await expect(ask).toBeFocused();
+  await ask.dispatchEvent('keydown',{key:'Escape',keyCode:27,isComposing:true});await expect(toolbar).toBeVisible();await expect(dialog).toBeVisible();
+  await ask.dispatchEvent('keydown',{key:'Escape',keyCode:229,isComposing:false});await expect(toolbar).toBeVisible();await expect(dialog).toBeVisible();
+  await page.keyboard.press('Escape');await expect(toolbar).toHaveCount(0);await expect(dialog).toBeVisible();await expect(dialog.locator('.source-selection-text')).toBeFocused();await expect(page.locator('[data-selection-result]')).toHaveText('');
+  await chooseRange('selected canonical text');await toolbar.getByRole('button',{name:'Attach to prompt',exact:true}).click();
+  await expect(page.locator('[data-selection-result]')).toHaveText(JSON.stringify({kind:'attach',start:selected.start,end:selected.end,text:selected.text}));await expect(dialog).toBeVisible();
+  await page.keyboard.press('Escape');await expect(dialog).toHaveCount(0);await expect(opener).toBeFocused();
+ }
+});
+
+test.describe('M15 source toolbar scroll ownership',()=>{
+ test('M15 internal toolbar scrolling retains the selected action while ancestor scrolling dismisses it',async({page})=>{
+  await page.setViewportSize({width:280,height:400});await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/fixture');
+  await page.locator('main').evaluate(element=>{element.style.minHeight='1000px';});await select(page);
+  const toolbar=page.getByRole('toolbar',{name:'Selected source',exact:true});await expect(toolbar).toBeVisible();
+  const overflow=await toolbar.evaluate(element=>({content:element.scrollHeight,viewport:element.clientHeight}));expect(overflow.content).toBeGreaterThan(overflow.viewport);
+  const open=toolbar.getByRole('button',{name:'Open source',exact:true});await open.focus();
+  await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
+  await expect(toolbar).toBeVisible();await expect(open).toBeFocused();await open.click();await expect(page.locator('output')).toHaveText('open:selected text');
+  await select(page);await expect(toolbar).toBeVisible();await page.evaluate(()=>window.scrollBy(0,16));
+  await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
+  await expect(toolbar).toHaveCount(0);await expect(page.locator('output')).toHaveText('open:selected text');
+ });
+});
+
 async function openOutput(page: Page, mode = 'windowed') {
   await page.goto(`/fixture?fixture=output&mode=${mode}`);
   await expect(page.locator('[data-fixture-ready]')).toHaveText('Ready', {timeout: mode === 'unwindowed' ? 30_000 : 5_000});

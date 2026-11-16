@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "playwright",
+    "test",
+    "--config",
+    "docs/implementation/v3/m15-artifacts/browser-adapters/agents-workspace.chromium.playwright.config.ts",
+    "--grep",
+    "first agent reads reserve project rows and parent conversations at 1440|IME does not send, working parents send, uncertain retries keep identity and later drafts",
+    "--trace",
+    "on",
+    "--output",
+    "docs/implementation/v3/m15-artifacts/c2-browser-parent-receipt-green-01/artifacts",
+    "--reporter=list,json"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-16T00:24:24.008Z",
+  "endedAt": "2026-11-16T00:24:38.084Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c2-browser-parent-receipt-green-01.log",
+  "logDigest": "d15ade3295387967dbaf43198f58d623048de68b25efee59ce0eae5ed2842628"
+}

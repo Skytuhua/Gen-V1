@@ -18,7 +18,7 @@ export function conversationRanges(root:HTMLElement,query:string):ConversationMa
   const nodes:Text[]=[];let text='';
   const walker=root.ownerDocument.createTreeWalker(block,NodeFilter.SHOW_TEXT,{acceptNode(node){
    const parent=node.parentElement;
-   if(!parent||parent.closest('button, input, textarea, select, [hidden], [aria-hidden="true"], [inert], script, style')||!parent.getClientRects().length||getComputedStyle(parent).visibility==='hidden')return NodeFilter.FILTER_REJECT;
+   if(!parent||parent.closest('button, input, textarea, select, .sr-only, [hidden], [aria-hidden="true"], [inert], script, style')||!parent.getClientRects().length||getComputedStyle(parent).visibility==='hidden')return NodeFilter.FILTER_REJECT;
    return NodeFilter.FILTER_ACCEPT;
   }});
   while(walker.nextNode()){nodes.push(walker.currentNode as Text);text+=walker.currentNode.textContent;}

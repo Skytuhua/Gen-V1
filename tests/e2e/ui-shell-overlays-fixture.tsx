@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { ModelPicker } from '../../apps/web/src/ModelPicker';
 import { useModalRegion } from '../../apps/web/src/focus';
 import { Modal } from '../../packages/ui-shell/Modal';
+import { TooltipLayer } from '../../packages/ui-shell/Tooltip';
 import { Popover } from '../../packages/ui-shell/Popover';
 import '../../apps/web/src/styles.css';
 
@@ -42,6 +43,11 @@ function Fixture() {
       { id: 'model-a', provider: 'openai', name: 'Model A' },
       { id: 'model-b', provider: 'openai', name: 'Model B' },
     ]} modelId={model} onChange={setModel} /></div>
+  </>;
+  if (new URLSearchParams(location.search).has('tooltip')) return <>
+    <button type="button" style={{ position: 'fixed', top: 94, left: 80 }}
+      title={'Help text for the selected action and keyboard shortcut. '.repeat(7).trim()}>Tooltip anchor</button>
+    <TooltipLayer />
   </>;
   return <>
     <button type="button">Background control</button>

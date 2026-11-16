@@ -882,6 +882,7 @@ export class Service {
     if(busy.size>=3)throw new HarnessError('RUN_BUSY','Three main agents are working; your draft is preserved.',{threadIds:[...busy]});
   }
   private async sendMessage(command: HostCommand, thread: Thread) {
+    let rollbackClaim: (() => void) | undefined, rollbackAdmission: (() => void) | undefined;
     try {
     // Replaced by explicit verified admission when the runtime adapter is connected.
     // Until then a selected reference must never become an ordinary unpinned send.
@@ -923,15 +924,17 @@ export class Service {
         this.assertNoOtherRun(thread.id);
       }
       preparedSources?.assertCurrent();
+      const bindCapturedAccount = this.sourceWorkbench.prepareInitialAccountBinding(thread.id, command.id, binding.accountId);
       const before=requestContextId?this.requestBasis(this.thread(thread.id),modelId,thinkingLevel):null;
-      if(requestContextId)this.requestCustody.claim(requestContextId,command.id,content,before!);
+      if(requestContextId)rollbackClaim=this.requestCustody.claim(requestContextId,command.id,content,before!);
       const sourceFields = {...(sourceRefs.length ? {sourceRefs} : {}), ...(sendMode === 'AFTER_CURRENT' ? {sendMode} : {})};
       const message: Message = { id: randomUUID(), threadId: thread.id, role: "user", content, createdAt: now(), runId: current.runId, ...sourceFields };
       const input: Outbox = { id: command.id, threadId: thread.id, content, status: "persisted", runId: null,messageId:message.id,...(requestContextId?{requestContextId}:{}), ...sourceFields };
       this.store.put("message", message.id, thread.id, message); this.enqueueInput(input);
       this.store.put("thread", thread.id, thread.id, { ...current, accountId:binding.accountId,modelId, thinkingLevel, error: null, ...(["completed", "failed"].includes(current.status) ? { status: "ready" } : {}), updatedAt: now(), ...(current.title === "New thread" ? { title: content.slice(0, 65) } : {}) });
+      bindCapturedAccount?.();
       preparedSources?.assertCurrent();
-      if(before)this.requestCustody.advanceAdmission(before,this.requestBasis(this.thread(thread.id),modelId,thinkingLevel));
+      if(before)rollbackAdmission=this.requestCustody.advanceAdmission(before,this.requestBasis(this.thread(thread.id),modelId,thinkingLevel));
       return { messageId: message.id, inputId: input.id };
     });
     this.background(this.deliverOutbox(thread.id)); return receipt;
@@ -940,6 +943,7 @@ export class Service {
       // original input has already advanced the run. A prior matching receipt
       // acknowledges that accepted input; it does not send it a second time.
       const accepted = this.store.receipt(command); if (accepted) return accepted;
+      if ((rollbackAdmission || rollbackClaim) && !this.store.get('outbox', command.id)) {rollbackAdmission?.(); rollbackClaim?.();}
       throw error;
     }
   }

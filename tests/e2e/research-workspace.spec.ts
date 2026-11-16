@@ -482,3 +482,24 @@ test('an active receipt still reconciles after its editor unmounts without a ret
   await body.fill('Next edit'); await page.getByRole('button', {name: 'Save document', exact: true}).click();
   await expect(page.locator('.research-document > p.research-meta')).toContainText('Saved revision 2');
 });
+
+test('Retry passage resumes the failed page and retains backward navigation', async ({page}) => {
+  await importText(page, 'a'.repeat(64000) + 'next-page');
+  await page.getByRole('button', {name:'Read captured source', exact:true}).click();
+  const captured = page.getByRole('textbox', {name:'Captured passage', exact:true});
+  await expect(captured).toHaveValue('a'.repeat(64000));
+  let failed = false;
+  await page.route('**/api/research/sources/*/passage?**', async route => {
+    if (!failed && new URL(route.request().url()).searchParams.get('start') === '64000') {
+      failed = true;
+      return route.fulfill({status:503, json:{error:{code:'UNAVAILABLE', message:'Synthetic transient read failure'}}});
+    }
+    return route.fallback();
+  });
+  await page.getByRole('button', {name:'Next passage', exact:true}).click();
+  await page.getByRole('button', {name:'Retry passage', exact:true}).click();
+  await expect(captured).toHaveValue('next-page');
+  await page.getByRole('button', {name:'Previous passage', exact:true}).click();
+  await expect(captured).toHaveValue('a'.repeat(64000));
+  await expect(page.getByRole('button', {name:'Previous passage', exact:true})).toHaveCount(0);
+});

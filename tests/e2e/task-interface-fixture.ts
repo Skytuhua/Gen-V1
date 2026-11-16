@@ -1,5 +1,6 @@
 import type { Page } from '@playwright/test';
 import type { ArtifactRecord, HostCommand, Snapshot } from '../../packages/contracts';
+import {applySplitWorkspaceCommand, createSplitWorkspaceLayout} from '../../packages/core/split-workspace-layout';
 
 export type TaskSpec = NonNullable<ArtifactRecord['spec']>;
 const now = '2026-10-29T23:00:00.000Z';
@@ -49,6 +50,22 @@ export async function serveTaskFixture(page: Page, snapshot: Snapshot, action?: 
     async publish() { snapshot.seq++; await page.evaluate(seq => window.dispatchEvent(new CustomEvent('task-fixture-update', { detail: seq })), snapshot.seq); },
     setInput(name: string, value: unknown) { const data = snapshot.data.find(row => row.id === `input-${name}`)!; data.value = value; data.revision++; },
   };
+}
+// Opt in for fixtures that navigate real App conversations in the canonical split workspace.
+export async function serveTaskSplitLayout(page: Page, initialThreadId?: string) {
+  let layout = createSplitWorkspaceLayout();
+  // Main conversation selection now comes from durable pane placement rather
+  // than the snapshot's activeThreadId fallback.
+  if (initialThreadId) layout = applySplitWorkspaceCommand(layout, 'view.open', {
+    view: {id: `thread:${initialThreadId}`, kind: 'thread', binding: {authority: {kind: 'local'}, threadId: initialThreadId}},
+  });
+  await page.route('**/api/split-workspace?workspaceId=workspace', route => route.fulfill({json: layout}));
+  await page.route('**/api/split-workspace/profiles?workspaceId=workspace', route => route.fulfill({json: []}));
+  await page.route('**/api/split-workspace/commands', route => {
+    const command = route.request().postDataJSON();
+    layout = applySplitWorkspaceCommand(layout, command.type, command.payload);
+    return route.fulfill({json: {commandId: command.id, seq: layout.revision, result: layout}});
+  });
 }
 export const branchGraphSpec = (orientation: 'vertical' | 'horizontal'): TaskSpec => ({ root: 'graph', elements: { graph: { type: 'RelationshipGraph', props: { dataBinding: 'graph', stateKey: 'selectedCommit', label: 'Release branches', orientation } } } });
 export const branchGraphData = {

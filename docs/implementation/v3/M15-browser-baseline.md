@@ -1,8 +1,22 @@
-# M15 clean current-base browser baseline
+# M15 historical root-browser baseline
 
-## Result
+## Source and result boundary
 
-**The clean current-base root suite completed: 79 passed, 33 failed, 1 skipped, 0 flaky; exit 1.** The final attempt used Node's supported tsx import loader after rebuilding the exact locked `node-pty` 1.1.0 binary against Node 24.22.1. It ran all 113 discovered cases in 528,994 ms and provides actual assertion outcomes for candidate comparison.
+This document retains the baseline executed at `399cde39ff4ee82272c7a7700944325c44b36070` for the published M15 cut `fd17d9f1b3931eb2b974b86ccc5a3892da47ba33`. It is not a baseline execution of accepted reconciliation base `138b1356495bb3a2c9b35020240513f8faa84964` or the current C2 working tree. The original document and its hash remain in `m15-artifacts/publication-cut-01/`.
+
+C2 merged the accepted upstream source into the published candidate without rewriting published history. Its focused browser results are App 20 passed, workbench 16 passed, agents 22 passed, canonical/direct ChatView 6 passed, artifact acknowledgment 1 passed, and saved drafts 27 passed. Those runs were collected on the uncommitted reconciliation cut and have separate `c2-` receipts. They do not constitute a complete root-browser baseline or parity run. Full current repository/root-browser aggregates and actual Windows/Edge evidence remain separate gates. See `M15-c2-browser-regression-review.md` and `M15-handoff.md` for the current ledger.
+
+Those six browser runs precede the shared-primitive UI-policy migration. The later declared repository attempt is a separate Vitest result: 3,344 passed, 271 failed, 56 skipped and four unhandled errors at its preserved pre-migration cut. Its audit records 188 file denials, 10 explicit dependency/executable failures and 73 cause-unclassified failures without accepted-baseline attribution. Separate later migration and sizing receipts cover affected components; none replaces this historical root baseline or establishes complete current root parity.
+
+The first complete post-migration App attempt, `c2-workbench-app-02`, is a separate failure with 19 passed and two failed. Its 200% zoom case reproduced an oversized native modal after switching to taller Evidence content. The recorded percentage-sizing correction passes the identical strict filtered case. The other case reached reload after overall-timeout teardown had begun and passed unchanged in isolation; it supplies no observed lost-draft diagnosis. The subsequent complete `c2-workbench-app-03` passes all 21 cases, `c2-workbench-browser-02` all 18, and shared overlays/controls all 15/18 through their explicit Chromium adapters, with no skipped, unexpected or flaky outcomes. Measured red/green receipts, source hashes and current results are in `M15-c2-browser-regression-review.md`. Remaining renewed gates are separate from both this historical baseline and the earlier migration results.
+
+The final shared-CSS saved-draft run passes all 27 cases in `c2-saved-drafts-03`, but final ChatView `c2-browser-chat-view-green-02` fails with five passed and one failed. The first canonical App case misses its unchanged five-second input-readiness assertion; all three direct Escape/IME cases pass. That active Linux result is not replaced by the pre-UI six-case pass. Its source/platform attribution and exact-head Windows/current-root comparison remain open. This historical baseline at `399cde39` cannot classify a failure on the later accepted `138b135` reconciliation.
+
+Final typecheck/build/UI policy `-03` gates pass with zero policy violations. Focused03 remains FAIL, 333 passed/one redirect-custody timeout/three genuine Windows-only skips, and its confirmed shared-output conflict with build03 is documented in `m15-artifacts/c2-plugin-frame-concurrency-audit.md`. The exact failed navigation response was not captured. The identical complete 24-file command run serially afterward as `c2-final-focused-04` passes 334 cases with three Windows skips, without source/test/deadline changes. Earlier focused02 retains its pre-final-CSS scope. Neither the source comparison nor the serial correction establishes an accepted-base execution or native acceptance.
+
+## Historical result
+
+**The clean historical-base root suite completed: 79 passed, 33 failed, 1 skipped, 0 flaky; exit 1.** The final attempt used Node's supported tsx import loader after rebuilding the exact locked `node-pty` 1.1.0 binary against Node 24.22.1. It ran all 113 discovered cases in 528,994 ms and provides actual assertion outcomes for the publication-cut comparison.
 
 Two earlier setup failures remain preserved: the required pnpm wrapper could not open the tsx CLI IPC socket, and the first direct-loader attempt could not load the then-missing native binary. Their zero result counters mean zero observed test outcomes. The completed baseline supersedes those setup blockers, without converting either failed command into a pass.
 
@@ -52,7 +66,7 @@ Size: 269,635 bytes. SHA-256: `ef4f637c38b1e2271235945fecc1d82dc6f755517349baac1
 | `signing-motion.spec.ts` | 1 | Original-hash handoff case did not reach a ready document preview. |
 | `skills.spec.ts` | 7 | Retirement/history case could not find its expected alert. |
 
-These are observations on unchanged main. The first error in a spec does not establish one common cause for every failure in that spec. Candidate parity must compare exact case outcomes, including the 79 baseline passes. No candidate result is implied here.
+These are observations on unchanged `399cde39`, which was the execution base at that time. The first error in a spec does not establish one common cause for every failure in that spec. The historical candidate comparison used the same 113 identities and is retained separately. Neither these 79 passes nor C2 focused passes establish complete parity against `138b135`.
 
 ## Earlier setup-only Playwright artifact
 
@@ -68,4 +82,4 @@ Size: 5,783 bytes. SHA-256: `61a9f1865c9c9d7b26d2541bff96373be842afb966bb431d7f7
 
 Playwright reported `expected: 0`, `unexpected: 0`, `skipped: 0`, `flaky: 0`, an empty suite list, and two setup errors for the missing native module. The errors identify the unchanged dependency installation shared by the clean baseline and candidate checkout.
 
-For the M15 verification manifest, retain all three nonzero browser command records as `FAIL`. The first two attempts were blocked before any assertions; the final attempt has actual failing cases. Do not label any attempt as an expected-negative success or claim candidate parity before the same candidate outcomes are compared. Required native/platform evidence and production activation remain open.
+All three nonzero historical browser command records remain `FAIL`. The first two attempts were blocked before any assertions; the final attempt has actual failing cases. No attempt is relabeled as an expected-negative success. A current root-browser comparison requires its own observed result and source identity. Required native/platform evidence remains open, and production activation remains disabled.

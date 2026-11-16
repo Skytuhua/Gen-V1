@@ -42,7 +42,7 @@ export function registerAgentInventoryRoutes(app: FastifyInstance, provider: Per
     const last = request.headers['last-event-id'];
     if (last !== undefined) query.after = z.coerce.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER).parse(last);
     // Validate the scoped checkpoint before hijacking, so all errors use the normal host handler.
-    provider.updates(query);
+    let initial: ReturnType<PersonalAgentInventory['updates']> | undefined = provider.updates(query);
     if (streams.size >= 32) return reply.code(429).send({ error: { code: 'STREAM_LIMIT', message: 'Too many inventory readers' } });
     reply.hijack();
     const response = reply.raw, controller = new AbortController();
@@ -55,7 +55,8 @@ export function registerAgentInventoryRoutes(app: FastifyInstance, provider: Per
       try {
         while (pending && !closed) {
           pending = false;
-          const update = provider.updates(query);
+          const update = initial ?? provider.updates(query);
+          initial = undefined;
           const changed = update.sequence !== query.after || update.resync;
           const chunk = changed ? `id: ${update.sequence}\nevent: agents\ndata: ${JSON.stringify(update)}\n\n` : comment;
           query.after = update.sequence; comment = '';

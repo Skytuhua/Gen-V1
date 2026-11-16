@@ -1,5 +1,5 @@
 import {describe,expect,it} from 'vitest';
-import {applyNativeLayout} from '../apps/desktop/layout-transaction.ts';
+import {applyNativeLayout,requestNativeClose,type NativeCloseOwner} from '../apps/desktop/layout-transaction.ts';
 import {desktopSurfaceKey,type DesktopLayoutEntry} from '../packages/desktop-contract/index.ts';
 const entry=(threadId?:string):DesktopLayoutEntry=>({surface:threadId?{kind:'plan',threadId}:{kind:'main'},bounds:{x:0,y:0,width:800,height:700},visible:true,alwaysOnTop:false});
 function fixture(entries:DesktopLayoutEntry[]){const records=new Map(entries.map(value=>[desktopSurfaceKey(value.surface),structuredClone(value)])),events:string[]=[];return {records,events,adapter:{current:()=>[...records.values()],prepare:async(value:DesktopLayoutEntry)=>{events.push('prepare:'+desktopSurfaceKey(value.surface));},open:async(value:DesktopLayoutEntry)=>{events.push('open:'+desktopSurfaceKey(value.surface));records.set(desktopSurfaceKey(value.surface),structuredClone(value));},apply:async(value:DesktopLayoutEntry)=>{events.push('apply:'+desktopSurfaceKey(value.surface));records.set(desktopSurfaceKey(value.surface),structuredClone(value));},close:async(value:DesktopLayoutEntry)=>{events.push('close:'+desktopSurfaceKey(value.surface));records.delete(desktopSurfaceKey(value.surface));},resume:()=>{events.push('resume');}}};}
@@ -10,4 +10,20 @@ describe('native profile transaction',()=>{
  it('does not open or close a window if a draft flush refuses',async()=>{const f=fixture([entry(),entry('old')]);f.adapter.prepare=async()=>{throw Error('draft flush refused');};await expect(applyNativeLayout({version:1,windows:[entry(),entry('new')]},f.adapter)).rejects.toThrow('draft');expect(f.records.size).toBe(2);expect(f.events).toEqual(['resume']);});
  it('restores geometry and pin state after a staged placement failure',async()=>{const original=[entry(),entry('old')],f=fixture(original);let failed=false;f.adapter.apply=async value=>{if(!failed&&value.alwaysOnTop){failed=true;throw Error('placement refused');}f.records.set(desktopSurfaceKey(value.surface),value);};const changed={...entry(),alwaysOnTop:true,bounds:{x:100,y:100,width:900,height:600}};await expect(applyNativeLayout({version:1,windows:[changed,entry('new')]},f.adapter)).rejects.toThrow('placement');expect([...f.records.values()]).toEqual(original);});
  it('returns a docked view to its original owner before destroying a staged browser window',async()=>{const original={...entry(),dockedBrowserId:'browser-one'},f=fixture([original]);const browser={...entry(),surface:{kind:'browser' as const,browserId:'browser-one'}},view={owner:'main',destroyed:false};f.adapter.open=async value=>{if(value.surface.kind==='plan')throw Error('readiness failed');view.owner='staged';f.records.set(desktopSurfaceKey(value.surface),value);};f.adapter.apply=async value=>{if(value.dockedBrowserId)view.owner='main';f.records.set(desktopSurfaceKey(value.surface),value);};f.adapter.close=async value=>{if(value.surface.kind==='browser'&&view.owner==='staged')view.destroyed=true;f.records.delete(desktopSurfaceKey(value.surface));};await expect(applyNativeLayout({version:1,windows:[entry(),browser,entry('fail')]},f.adapter)).rejects.toThrow('readiness');expect(view).toEqual({owner:'main',destroyed:false});});
+});
+
+
+it('treats a failed native close delivery as a refusal and allows a fresh request',async()=>{
+ const owner:NativeCloseOwner={};
+ const failed=requestNativeClose(owner,()=>{throw Error('Renderer gone');});
+ await expect(failed).resolves.toBe(false);
+ expect(owner.closeRequest).toBeUndefined();
+ expect(owner.closePromise).toBeUndefined();
+ let delivered:string|undefined;
+ const next=requestNativeClose(owner,id=>{delivered=id;});
+ expect(owner.closeRequest?.id).toBe(delivered);
+ expect(requestNativeClose(owner,()=>{throw Error('Do not repeat delivery');})).toBe(next);
+ owner.closeRequest!.resolve(true);
+ await expect(next).resolves.toBe(true);
+ expect(owner.closePromise).toBeUndefined();
 });

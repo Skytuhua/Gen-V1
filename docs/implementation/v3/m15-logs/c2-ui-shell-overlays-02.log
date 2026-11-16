@@ -1,0 +1,32 @@
+argv: ["pnpm","exec","playwright","test","--config","docs/implementation/v3/m15-artifacts/browser-adapters/ui-shell-overlays.chromium.playwright.config.ts","--output","docs/implementation/v3/m15-artifacts/c2-ui-shell-overlays-02/artifacts","--reporter=list,json"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 15 tests using 1 worker
+
+(node:86) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:86) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/e2e/ui-shell-overlays.spec.ts:13:1 › a model popup belongs to its native modal and keeps selection, draft and Escape usable (1.9s)
+  ✓   2 tests/e2e/ui-shell-overlays.spec.ts:51:33 › modal-owned model popup remains inside viewport at CSS zoom 1.25 (717ms)
+  ✓   3 tests/e2e/ui-shell-overlays.spec.ts:51:33 › modal-owned model popup remains inside viewport at CSS zoom 1.5 (697ms)
+  ✓   4 tests/e2e/ui-shell-overlays.spec.ts:80:1 › blocking dialog backdrops blur the background without blurring their content (356ms)
+  ✓   5 tests/e2e/ui-shell-overlays.spec.ts:90:1 › composition Escape and Enter neither close the popup nor select a model (560ms)
+  ✓   6 tests/e2e/ui-shell-overlays.spec.ts:114:1 › legacy composition Escape keeps the model popup and owning dialog open (522ms)
+  ✓   7 tests/e2e/ui-shell-overlays.spec.ts:133:1 › first opening a long catalog reveals the committed selected model (731ms)
+  ✓   8 tests/e2e/ui-shell-overlays.spec.ts:157:1 › Escape closes a popup before its surrounding ARIA modal region (594ms)
+  ✓   9 tests/e2e/ui-shell-overlays.spec.ts:175:1 › a disabled control drops focus to body but the modal pulls it back inside (700ms)
+  ✓  10 tests/e2e/ui-shell-overlays.spec.ts:198:1 › a popover keeps focus inside when its focused action disables (733ms)
+  ✓  11 tests/e2e/ui-shell-overlays.spec.ts:218:1 › a popover still dismisses when focus moves to a control outside it (1.1s)
+  ✓  12 tests/e2e/ui-shell-overlays.spec.ts:251:5 › narrow light › popup fits its first visible frame below native caption controls (586ms)
+  ✓  13 tests/e2e/ui-shell-overlays.spec.ts:251:5 › short dark › popup fits its first visible frame below native caption controls (479ms)
+  ✓  14 tests/e2e/ui-shell-overlays.spec.ts:277:1 › overlay focus recovery skips controls hidden by CSS visibility (207ms)
+  ✓  15 tests/e2e/ui-shell-overlays.spec.ts:297:1 › a tall tooltip stays visible in a short viewport when neither side fits (1.1s)
+
+  15 passed (14.8s)

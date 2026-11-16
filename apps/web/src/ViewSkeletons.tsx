@@ -29,7 +29,7 @@ export function WorkspaceSkeleton({sidebar = true}: {sidebar?: boolean}) {
 export function AgentsSkeleton() {
   return <div className="loading-agents" aria-hidden="true">{[0, 1].map(project => <div className="agents-project" key={project}>
     <div className="agents-project-header"><span className="loading-skeleton agents-project-mark"/><span className="loading-skeleton loading-skeleton-control"/></div>
-    <div className="agents-project-slot"><div className="agents-parent-strip">{[0, 1].map(agent => <div className="agents-column-slot" key={agent}><div className="agents-column-scroll">
+    <div className="agents-project-slot"><div className="agents-agent-grid">{[0, 1].map(agent => <div className="agents-grid-slot" key={agent}><div className="agents-agent">
       <div className="agents-agent-header"><span className="loading-skeleton loading-skeleton-line"/></div><div className="agents-activity"><span className="loading-skeleton loading-skeleton-control"/></div>
       <div className="agents-transcript-wrap"><div className="agents-transcript"><ConversationSkeleton/></div></div>
       <div className="loading-agent-composer"><ComposerSkeleton/></div>

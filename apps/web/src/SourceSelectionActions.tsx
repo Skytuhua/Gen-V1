@@ -1,5 +1,6 @@
 import {useEffect,useLayoutEffect,useRef,useState,type ReactNode} from 'react';
-import {createPortal} from 'react-dom';
+import {Popover} from '../../../packages/ui-shell/Popover';
+import '../../../packages/ui-shell/controls.css';
 import './source-workbench.css';
 export interface VisibleSourceSelection {start:number;end:number;text:string}
 export type SourceSelectionAction = 'ask'|'attach'|'open';
@@ -42,7 +43,7 @@ function visible(range:Range,root:HTMLElement):boolean {
   }
   return true;
 }
-interface Candidate extends VisibleSourceSelection {rect:DOMRect;range:Range;rendered:string}
+interface Candidate extends VisibleSourceSelection {range:Range;rendered:string}
 export function SourceSelectionActions({children,text,enabled,onAction,onOpenCanonical}:{text:string;enabled:boolean;onAction:(action:SourceSelectionAction,selection:VisibleSourceSelection)=>void|Promise<void>;onOpenCanonical?:()=>void|Promise<void>;children:ReactNode}) {
   const root=useRef<HTMLDivElement>(null),toolbar=useRef<HTMLDivElement>(null),authored=useRef(''),latest=useRef({text,enabled,onAction,onOpenCanonical});
   latest.current={text,enabled,onAction,onOpenCanonical};
@@ -63,7 +64,7 @@ export function SourceSelectionActions({children,text,enabled,onAction,onOpenCan
       if(focused&&focused!==document.body&&!element.contains(focused)&&!element.parentElement?.contains(focused)){setCandidate(null);return;}
       const mapped=mapSelectedText(latest.current.text,selection.toString());
       if(!mapped){setCandidate(null);return;}
-      setCandidate({...mapped,range:range.cloneRange(),rect:range.getBoundingClientRect(),rendered:authored.current});setError('');
+      setCandidate({...mapped,range:range.cloneRange(),rendered:authored.current});setError('');
     };
     const key=(event:KeyboardEvent)=>{
       if(event.isComposing||event.keyCode===229||composing.current)return;
@@ -73,12 +74,13 @@ export function SourceSelectionActions({children,text,enabled,onAction,onOpenCan
     };
     const start=()=>{composing.current=true;setCandidate(null);},end=()=>{composing.current=false;};
     const dismiss=()=>setCandidate(null);
+    const scroll=(event:Event)=>{if(!(event.target instanceof Node)||!toolbar.current?.contains(event.target))dismiss();};
     const focus=(event:FocusEvent)=>{if(!root.current?.contains(event.target as Node)&&!toolbar.current?.contains(event.target as Node))dismiss();};
     document.addEventListener('selectionchange',read);document.addEventListener('pointerup',read);document.addEventListener('keyup',read);
     document.addEventListener('keydown',key,true);document.addEventListener('compositionstart',start);document.addEventListener('compositionend',end);
     document.addEventListener('focusin',focus);
-    window.addEventListener('resize',dismiss);window.addEventListener('scroll',dismiss,true);
-    return()=>{revision.current++;document.removeEventListener('selectionchange',read);document.removeEventListener('pointerup',read);document.removeEventListener('keyup',read);document.removeEventListener('keydown',key,true);document.removeEventListener('compositionstart',start);document.removeEventListener('compositionend',end);document.removeEventListener('focusin',focus);window.removeEventListener('resize',dismiss);window.removeEventListener('scroll',dismiss,true);};
+    window.addEventListener('resize',dismiss);window.addEventListener('scroll',scroll,true);
+    return()=>{revision.current++;document.removeEventListener('selectionchange',read);document.removeEventListener('pointerup',read);document.removeEventListener('keyup',read);document.removeEventListener('keydown',key,true);document.removeEventListener('compositionstart',start);document.removeEventListener('compositionend',end);document.removeEventListener('focusin',focus);window.removeEventListener('resize',dismiss);window.removeEventListener('scroll',scroll,true);};
   },[enabled]);
   async function act(action:SourceSelectionAction){
     const value=candidateRef.current,element=root.current,version=revision.current;
@@ -88,12 +90,11 @@ export function SourceSelectionActions({children,text,enabled,onAction,onOpenCan
     catch(cause){if(version===revision.current)setError(cause instanceof Error?cause.message:'Source could not be captured.');}
     finally{if(version===revision.current)setBusy(false);}
   }
-  const width=Math.min(430,Math.max(220,innerWidth-16));
   return <div className="source-selection" data-escape-scope={candidate?'source-selection':undefined}><div ref={root} tabIndex={enabled?0:undefined} className="source-selection-text">{children}</div>
     {enabled&&!exactRendering&&<p className="muted" role="status">Inline selection is unavailable for this formatted message. {onOpenCanonical?<button type="button" disabled={busy} onClick={()=>{const version=revision.current;setBusy(true);void Promise.resolve().then(()=>latest.current.onOpenCanonical?.()).catch(cause=>{if(version===revision.current)setError(cause instanceof Error?cause.message:'Canonical source is unavailable.');}).finally(()=>{if(version===revision.current)setBusy(false);});}}>Select canonical source</button>:'Open Sources to select the canonical message text.'}{error&&<span role="alert">{error}</span>}</p>}
-    {candidate&&enabled&&createPortal(<div ref={toolbar} data-escape-scope="source-selection" role="toolbar" aria-label="Selected source" className="source-selection-toolbar" style={{width,left:Math.max(8,Math.min(candidate.rect.left,innerWidth-width-8)),top:Math.max(8,Math.min(candidate.rect.top-60,innerHeight-100))}} onPointerDown={event=>event.preventDefault()}>
+    {candidate&&enabled&&<Popover anchor={root} getAnchorRect={()=>candidate.range.getBoundingClientRect()} contentRef={toolbar} open width={430} height={error?96:52} preferredSide="above" align="start" onDismiss={()=>setCandidate(null)} role="toolbar" aria-label="Selected source" tabIndex={-1} className="ui-control-popup source-selection-toolbar" onPointerDown={event=>event.preventDefault()}>
       <button type="button" disabled={busy} onClick={()=>void act('ask')}>Ask about this</button><button type="button" disabled={busy} onClick={()=>void act('attach')}>Attach to prompt</button><button type="button" disabled={busy} onClick={()=>void act('open')}>Open source</button>
       {error&&<span role="alert">{error}</span>}
-    </div>,root.current?.closest('[role="dialog"]')??document.body)}
+    </Popover>}
   </div>;
 }

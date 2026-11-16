@@ -1,0 +1,150 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - complementary "Thread navigation" [ref=e4]:
+      - generic [ref=e5]:
+        - img [ref=e7]
+        - strong [ref=e9]: Gen V1
+        - button "Collapse sidebar" [ref=e10] [cursor=pointer]:
+          - img [ref=e11]
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - img [ref=e16]
+          - textbox "Search threads" [ref=e19]:
+            - /placeholder: Search
+        - button "Filter threads" [ref=e20] [cursor=pointer]:
+          - img [ref=e21]
+        - button "Connect project" [ref=e22] [cursor=pointer]:
+          - img [ref=e23]
+        - button "New thread" [ref=e25] [cursor=pointer]:
+          - img [ref=e26]
+      - navigation "Threads" [ref=e29]:
+        - generic [ref=e31]:
+          - button "Source-bound task fixture Ready" [ref=e32]:
+            - generic [ref=e33]:
+              - generic [ref=e34]:
+                - generic [ref=e35]: RT
+                - generic [ref=e36]: Reusable task surfaces
+              - time [ref=e38]: 17d
+            - generic [ref=e39]: Source-bound task fixture
+            - generic [ref=e40]: Ready
+          - button "Options for Source-bound task fixture" [ref=e42] [cursor=pointer]:
+            - img [ref=e43]
+      - generic "App controls" [ref=e47]:
+        - button "Settings" [ref=e48] [cursor=pointer]:
+          - img [ref=e49]
+          - generic [ref=e52]: Settings
+        - button "Pull requests" [ref=e53] [cursor=pointer]:
+          - img [ref=e54]
+          - generic [ref=e58]: PRs
+        - button "Usage" [ref=e59] [cursor=pointer]:
+          - img [ref=e60]
+          - generic [ref=e62]: Usage
+        - button "Update" [disabled] [ref=e63]:
+          - img [ref=e64]
+          - generic [ref=e67]: Update
+    - separator "Resize sidebar" [ref=e68]
+    - generic [ref=e69]:
+      - generic [ref=e70]:
+        - status [ref=e71]:
+          - generic [ref=e72]: Plug-ins could not be loaded.
+          - button "Retry" [ref=e73] [cursor=pointer]
+        - generic "Workspace layouts" [ref=e74]:
+          - button "Workspace" [pressed] [ref=e75] [cursor=pointer]
+          - button "All Agents" [ref=e76] [cursor=pointer]
+          - button "Code Review" [ref=e77] [cursor=pointer]
+          - button "Research" [ref=e78] [cursor=pointer]
+          - button "Custom" [ref=e79] [cursor=pointer]
+          - button "Open workspace panel" [ref=e80] [cursor=pointer]:
+            - img [ref=e81]
+          - button "Layouts" [ref=e84] [cursor=pointer]:
+            - img [ref=e85]
+            - text: Layouts
+            - img [ref=e89]
+      - generic [ref=e95]:
+        - generic [ref=e96]:
+          - region "Source-bound task fixture" [ref=e98]:
+            - generic [ref=e99]:
+              - button "Split this area" [ref=e100]: ◩
+              - tablist "Area views" [ref=e101]:
+                - tab "Source-bound task fixture" [selected] [ref=e102] [cursor=pointer]
+              - button "Area actions" [ref=e104] [cursor=pointer]:
+                - img [ref=e105]
+              - button "Minimize area" [expanded] [ref=e109] [cursor=pointer]: ▴
+          - generic [ref=e120]:
+            - main "Chat" [ref=e121]:
+              - generic [ref=e122]:
+                - generic [ref=e123]:
+                  - img [ref=e124]
+                  - generic [ref=e126]: Reusable task surfaces
+                  - generic [ref=e127]: /
+                  - strong [ref=e128]: Source-bound task fixture
+                - button "Find in conversation" [ref=e131] [cursor=pointer]:
+                  - img [ref=e132]
+              - generic "Conversation" [ref=e136]:
+                - generic [ref=e139]:
+                  - generic [ref=e140]: Assistant
+                  - generic [ref=e141]:
+                    - button "Copy message" [ref=e142] [cursor=pointer]:
+                      - img [ref=e143]
+                    - status [ref=e146]
+                    - paragraph [ref=e148]: Synthetic local source data for the reusable renderer.
+              - generic [ref=e151]:
+                - generic [ref=e152]:
+                  - generic [ref=e153]:
+                    - textbox "Message" [disabled] [ref=e155]:
+                      - /placeholder: Ask anything…
+                    - group "Task actions" [ref=e156]:
+                      - button "Inspect changes" [disabled] [ref=e157]:
+                        - img [ref=e158]
+                        - generic [ref=e160]: Changes
+                      - button "Create PR" [disabled] [ref=e161]:
+                        - img [ref=e162]
+                        - generic [ref=e167]: Create PR
+                  - status [ref=e168]
+                  - generic [ref=e170]:
+                    - group "Project and runtime" [ref=e171]:
+                      - button "Saved drafts" [disabled] [ref=e172]
+                      - button "Attach files" [ref=e173] [cursor=pointer]:
+                        - img [ref=e174]
+                      - button "Select project" [disabled] [ref=e175]:
+                        - img [ref=e176]
+                        - generic [ref=e178]: Reusable task surfaces
+                      - generic "Local workspace" [ref=e179]:
+                        - img [ref=e180]
+                        - text: Local
+                      - button "Task mode" [ref=e182] [cursor=pointer]:
+                        - img [ref=e183]
+                        - generic [ref=e186]: Build
+                      - button "Show live usage" [ref=e187] [cursor=pointer]:
+                        - img [ref=e188]
+                    - group "Model and voice" [ref=e190]:
+                      - combobox "Model" [disabled] [ref=e191]:
+                        - img [ref=e192]
+                        - generic [ref=e195]: test/model
+                        - img [ref=e196]
+                      - button "Inspect context usage" [ref=e199] [cursor=pointer]:
+                        - img [ref=e200]
+                      - button "Start voice input" [disabled] [ref=e201]:
+                        - img [ref=e202]
+                      - button "Send message" [disabled] [ref=e206]:
+                        - img [ref=e207]
+                - button "Connect a model to start" [ref=e210] [cursor=pointer]:
+                  - text: Connect a model to start
+                  - img [ref=e211]
+            - generic:
+              - img
+              - generic: Dock chat
+        - complementary "Conversation summaries" [ref=e214]:
+          - region "Project overview window" [ref=e215]:
+            - button "Expand Project overview" [ref=e217] [cursor=pointer]:
+              - strong [ref=e218]: Project overview
+              - img [ref=e219]
+    - region "Notifications"
+  - status [ref=e221]:
+    - generic [ref=e222]: Plug-ins could not be loaded. Check the host connection, then retry.
+    - button "Dismiss notification" [ref=e223] [cursor=pointer]:
+      - img [ref=e224]
+```

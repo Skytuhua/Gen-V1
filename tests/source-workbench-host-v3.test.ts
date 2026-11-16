@@ -10,12 +10,13 @@ import type {ArtifactRecord, DataRecord, Message, ResourceGrant, RuntimeAdapter,
 import {sourceDigestSync} from '../packages/core/project-verification.ts';
 import {computeAssessment} from '../packages/core/verification-gate.ts';
 import type {CheckObservationV1} from '../packages/contracts/verification.ts';
+import type {ConnectionAccount} from '../packages/contracts/accounts.ts';
 
 const cleanup: (() => Promise<void>)[] = [];
 const sha = (text: string) => createHash('sha256').update(text).digest('hex');
 afterEach(async () => {vi.restoreAllMocks(); for (const close of cleanup.splice(0).reverse()) await close(); try {__setCapabilityFlagForTests('ui.sourceWorkbenchV1', undefined);} catch {/* The initial failing fixture predates the flag. */}});
 
-function fixture(options: ServiceOptions = {}) {
+function fixture(options: ServiceOptions = {}, seedAssistant = true) {
   const root = mkdtempSync(join(tmpdir(), 'm15-host-')), store = new Store(join(root, 'data'));
   const starts: StartRun[] = [], followUps: StartRun[] = []; let callbacks!: RuntimeCallbacks;
   const runtime: RuntimeAdapter = {configure(value) {callbacks = value;}, models: async () => [{id: 'test/model', provider: 'test', name: 'Test'}], start: async input => {starts.push(input);}, followUp: async input => {followUps.push(input);}, cancel: async () => {}, compact: async () => {}, history: async () => [], dispose: async () => {}};
@@ -23,13 +24,125 @@ function fixture(options: ServiceOptions = {}) {
   cleanup.push(async () => {await service.dispose(); store.close(); rmSync(root, {recursive: true, force: true});});
   const thread: Thread = {id: 'thread-a', title: 'Task', projectName: null, createdAt: '2026-11-15T10:00:00.000Z', updatedAt: '2026-11-15T10:00:00.000Z', status: 'ready', epoch: 0, runId: null, modelId: null, sessionPath: null};
   const assistant: Message = {id: 'message-a', threadId: thread.id, role: 'assistant', content: 'A😀B\nSecond line', runId: null, createdAt: thread.createdAt};
-  store.internal('fixture', thread.id, () => {store.put('thread', thread.id, thread.id, thread); store.put('message', assistant.id, thread.id, assistant);});
+  store.internal('fixture', thread.id, () => {store.put('thread', thread.id, thread.id, thread); if (seedAssistant) store.put('message', assistant.id, thread.id, assistant);});
   const owner = {threadId: thread.id, projectId: null, workspaceId: null};
   const source = {kind: 'MESSAGE' as const, sourceId: assistant.id, sourceRevision: sha(assistant.content), contentDigest: sha(assistant.content), logicalOwner: owner, capturedAt: thread.createdAt, range: {encoding: 'UTF16' as const, start: 1, end: 3, selectedTextDigest: sha('😀')}};
   const workbench = () => {expect(service, 'M15 must use a host source service').toHaveProperty('sourceWorkbench'); __setCapabilityFlagForTests('ui.sourceWorkbenchV1', true); return service.sourceWorkbench;};
   const send = (id: string, sourceRefs: unknown[], sendMode = 'NOW') => service.command({id, type: 'message.send', threadId: thread.id, payload: {content: 'Explain the source', modelId: 'test/model', sourceRefs, sendMode}});
   return {root, store, service, runtime, starts, followUps, thread, assistant, owner, source, workbench, send, event: (event: Record<string, unknown>) => callbacks.onEvent(event as Parameters<RuntimeCallbacks['onEvent']>[0])};
 }
+
+async function emptyTaskAccountFixture(requestContextEnabled = false) {
+  const f = fixture({requestContextEnabled}, false), workbench = f.workbench();
+  vi.spyOn(f.runtime, 'models').mockResolvedValue([{id: 'openai/model', provider: 'openai', name: 'Account fixture'}]);
+  const account = (await f.service.command({id: 'first-account-create', type: 'account.create', payload: {providerId: 'openai', label: 'First account'}})).result as ConnectionAccount;
+  await f.service.command({id: 'first-account-select', type: 'account.select', payload: {providerId: 'openai', accountId: account.id}});
+  const send = (id: string, sourceRefs: unknown[] = []) => f.service.command({id, type: 'message.send', threadId: f.thread.id, payload: {content: 'Explain the source', modelId: 'openai/model', sourceRefs}});
+  return {...f, workbench, account, send};
+}
+
+async function emptyTaskSourceFixture(requestContextEnabled = false) {
+  const f = await emptyTaskAccountFixture(requestContextEnabled), workbench = f.workbench;
+  // A declared host artifact isolates account admission from native file access.
+  // This fixture has no canonical messages, native session or accepted inputs.
+  const data: DataRecord = {id: 'empty-task-data', threadId: f.thread.id, revision: 1, value: [{name: 'Retained first source'}], provenance: 'executor', createdAt: f.thread.createdAt};
+  const artifact: ArtifactRecord = {id: 'empty-task-artifact', threadId: f.thread.id, messageId: 'declared-fixture-source', title: 'Declared source', purpose: 'Account custody fixture', kind: 'structured', revision: 1, spec: {root: 'rows', elements: {rows: {type: 'Table', props: {rowsBinding: 'rows'}}}}, widget: null, bindings: {rows: {mode: 'live', id: data.id}}, actions: {}, stateId: 'empty-task-state', lifecycle: 'active', placement: 'inline', pinned: false, catalogVersion: '1', createdAt: f.thread.createdAt, updatedAt: f.thread.createdAt};
+  f.store.internal('fixture.empty-task-artifact', f.thread.id, () => {f.store.put('data', data.id, f.thread.id, data); f.store.put('artifact', artifact.id, f.thread.id, artifact);});
+  const descriptor = await workbench.describe({logicalOwner: f.owner, locator: {kind: 'ARTIFACT_REGION', sourceId: artifact.id, binding: 'rows'}});
+  const captured = await workbench.capture({commandId: 'first-source-capture', source: {...descriptor.locator, logicalOwner: f.owner, sourceRevision: descriptor.sourceRevision, contentDigest: descriptor.contentDigest, capturedAt: f.thread.createdAt, range: {encoding: 'JSON_POINTER', pointer: '/0'}}});
+  const send = (id: string, sourceRefs: unknown[] = [captured.ref]) => f.service.command({id, type: 'message.send', threadId: f.thread.id, payload: {content: 'Explain the source', modelId: 'openai/model', sourceRefs}});
+  return {...f, captured, send};
+}
+
+it.each([false, true])('admits first-account source custody for a truly empty task (host artifact fixture, M04 %s)', async requestContextEnabled => {
+  const f = await emptyTaskSourceFixture(requestContextEnabled);
+  expect(f.store.all('message', f.thread.id)).toEqual([]); expect(f.store.all('outbox', f.thread.id)).toEqual([]);
+  expect(f.store.get<Thread>('thread', f.thread.id)?.accountId).toBeUndefined();
+  const savedCapture = f.store.get('sourceCapture', f.captured.ref.captureId);
+  const receipt = await f.send('first-source-send');
+  expect(receipt.result).toMatchObject({inputId: 'first-source-send'});
+  await vi.waitFor(() => expect(f.starts).toHaveLength(1));
+  expect(f.starts[0]).toMatchObject({accountId: f.account.id, sourceRefs: [f.captured.ref], resources: []});
+  expect(f.starts[0].prompt).toContain('Retained first source');
+  expect(await f.workbench.open({logicalOwner: f.owner, ref: f.captured.ref})).toMatchObject({ref: f.captured.ref, state: 'CURRENT', text: '{"name":"Retained first source"}'});
+  expect(await f.send('first-source-send')).toEqual(receipt);
+  expect(f.store.all('outbox', f.thread.id)).toHaveLength(1);
+  expect(f.store.get('sourceCapture', f.captured.ref.captureId)).toEqual(savedCapture);
+});
+
+it('preserves unsent captured custody when an ordinary first input pins its account', async () => {
+  const f = await emptyTaskSourceFixture();
+  await f.send('plain-first-account-send', []); await vi.waitFor(() => expect(f.starts).toHaveLength(1));
+  expect(f.starts[0].sourceRefs).toBeUndefined();
+  expect(await f.workbench.open({logicalOwner: f.owner, ref: f.captured.ref})).toMatchObject({ref: f.captured.ref, state: 'CURRENT', text: '{"name":"Retained first source"}'});
+});
+
+it('rolls back initial source-account custody with a failed input commit and retries the same identity', async () => {
+  const f = await emptyTaskSourceFixture(), savedCapture = f.store.get('sourceCapture', f.captured.ref.captureId), put = f.store.put.bind(f.store);
+  const failure = vi.spyOn(f.store, 'put').mockImplementation((kind, ...args) => {if (kind === 'sourceAccountAdmission') throw new Error('fixture admission persistence failed'); return put(kind, ...args);});
+  await expect(f.send('atomic-first-source-send')).rejects.toThrow('fixture admission persistence failed'); failure.mockRestore();
+  expect(f.store.get('sourceAccountAdmission', f.thread.id)).toBeNull(); expect(f.store.all('outbox', f.thread.id)).toEqual([]); expect(f.store.all('message', f.thread.id)).toEqual([]);
+  expect(f.store.get<Thread>('thread', f.thread.id)?.accountId).toBeUndefined(); expect(f.store.get('sourceCapture', f.captured.ref.captureId)).toEqual(savedCapture);
+  expect(await f.send('atomic-first-source-send')).toMatchObject({result: {inputId: 'atomic-first-source-send'}});
+  await vi.waitFor(() => expect(f.starts).toHaveLength(1)); expect(f.starts[0].accountId).toBe(f.account.id);
+});
+
+it('retries the same explicit M04 preparation after initial source-account persistence rolls back', async () => {
+  const f = await emptyTaskSourceFixture(true), savedCapture = f.store.get('sourceCapture', f.captured.ref.captureId);
+  const preparation = await f.service.prepareRequestContext(f.thread.id, 'Explain the source', {modelId: 'openai/model'});
+  const command = {id: 'm04-atomic-first-source-send', type: 'message.send', threadId: f.thread.id, payload: {content: 'Explain the source', modelId: 'openai/model', sourceRefs: [f.captured.ref], requestContextId: preparation.requestId}};
+  const put = f.store.put.bind(f.store), failure = new Error('fixture M04 source admission persistence failed');
+  const persistence = vi.spyOn(f.store, 'put').mockImplementation((kind, ...args) => {if (kind === 'sourceAccountAdmission') throw failure; return put(kind, ...args);});
+  await expect(f.service.command(command)).rejects.toBe(failure); persistence.mockRestore();
+  expect(f.store.receipt(command)).toBeNull(); expect(f.store.all('outbox', f.thread.id)).toEqual([]); expect(f.store.all('message', f.thread.id)).toEqual([]);
+  expect(f.store.get('sourceAccountAdmission', f.thread.id)).toBeNull(); expect(f.store.get<Thread>('thread', f.thread.id)?.accountId).toBeUndefined();
+  expect(f.store.get('sourceCapture', f.captured.ref.captureId)).toEqual(savedCapture);
+  const receipt = await f.service.command(command);
+  await vi.waitFor(() => expect(f.starts).toHaveLength(1));
+  expect(f.starts[0]).toMatchObject({accountId: f.account.id, sourceRefs: [f.captured.ref], requestContext: {requestId: preparation.requestId, contextGeneration: preparation.contextGeneration}});
+  expect(f.starts[0].prompt).toContain('Retained first source');
+  expect(await f.service.command(command)).toEqual(receipt); expect(f.store.all('outbox', f.thread.id)).toHaveLength(1);
+  await expect(f.service.command({...command, id: 'm04-source-token-reuse'})).rejects.toMatchObject({code: 'STALE_REQUEST_CONTEXT'});
+  expect(f.store.get('sourceCapture', f.captured.ref.captureId)).toEqual(savedCapture);
+});
+
+it('rejects a selected-account change during first-source admission without creating a custody witness', async () => {
+  const f = await emptyTaskSourceFixture(), savedCapture = f.store.get('sourceCapture', f.captured.ref.captureId);
+  const replacement = (await f.service.command({id: 'replacement-account-create', type: 'account.create', payload: {providerId: 'openai', label: 'Replacement account'}})).result as ConnectionAccount;
+  let release!: () => void, entered!: () => void; const gate = new Promise<void>(resolve => {release = resolve;}), began = new Promise<void>(resolve => {entered = resolve;});
+  vi.mocked(f.runtime.models).mockImplementationOnce(async () => {entered(); await gate; return [{id: 'openai/model', provider: 'openai', name: 'Account fixture'}];});
+  const pending = f.send('changed-account-first-send'); await began;
+  await f.service.command({id: 'replacement-account-select', type: 'account.select', payload: {providerId: 'openai', accountId: replacement.id}}); release();
+  await expect(pending).rejects.toMatchObject({code: 'ACCOUNT_SELECTION_CHANGED', details: {sendAccepted: false}});
+  expect(f.store.get('sourceAccountAdmission', f.thread.id)).toBeNull(); expect(f.store.all('outbox', f.thread.id)).toEqual([]); expect(f.store.get('sourceCapture', f.captured.ref.captureId)).toEqual(savedCapture);
+  await f.send('current-account-first-send'); await vi.waitFor(() => expect(f.starts).toHaveLength(1)); expect(f.starts[0].accountId).toBe(replacement.id);
+});
+
+it('denies captured source reuse after a settled account is replaced, even when captured bytes are retained', async () => {
+  const f = await emptyTaskSourceFixture(); await f.send('settled-account-first-send'); await vi.waitFor(() => expect(f.starts).toHaveLength(1));
+  f.store.internal('fixture.replace-settled-account', f.thread.id, () => f.store.put('thread', f.thread.id, f.thread.id, {...f.store.get<Thread>('thread', f.thread.id)!, accountId: 'replacement-account'}));
+  const retained = {...f.captured.ref, keepCaptured: true};
+  await expect(f.workbench.open({logicalOwner: f.owner, ref: retained})).rejects.toMatchObject({code: 'CAPABILITY_DENIED'});
+  await expect(f.workbench.prepareSend(f.owner, [retained])).rejects.toMatchObject({code: 'CAPABILITY_DENIED'});
+  expect(f.store.all('outbox', f.thread.id)).toHaveLength(1);
+});
+
+it('preserves initial source custody when the admitted account is the default profile', async () => {
+  const f = await emptyTaskSourceFixture();
+  await f.service.command({id: 'default-account-select', type: 'account.select', payload: {providerId: 'openai', accountId: null}});
+  await f.send('default-account-first-send'); await vi.waitFor(() => expect(f.starts).toHaveLength(1)); expect(f.starts[0].accountId).toBeNull();
+  expect(await f.workbench.open({logicalOwner: f.owner, ref: f.captured.ref})).toMatchObject({ref: f.captured.ref, state: 'CURRENT'});
+});
+
+it('requires recapture for legacy sources without proof of initial unbound account custody', async () => {
+  const f = await emptyTaskSourceFixture(), saved = f.store.get<Record<string, unknown>>('sourceCapture', f.captured.ref.captureId)!;
+  const {accountUnbound: _unbound, ...legacy} = saved;
+  f.store.internal('fixture.legacy-source-capture', f.thread.id, () => f.store.put('sourceCapture', f.captured.ref.captureId, f.thread.id, legacy));
+  await expect(f.send('legacy-first-source-send')).rejects.toMatchObject({code: 'CAPABILITY_DENIED', details: {sendAccepted: false}});
+  expect(f.store.get('sourceAccountAdmission', f.thread.id)).toBeNull(); expect(f.store.all('outbox', f.thread.id)).toEqual([]); expect(f.store.get<Thread>('thread', f.thread.id)?.accountId).toBeUndefined();
+  const refreshed = await f.workbench.refresh({commandId: 'legacy-source-refresh', logicalOwner: f.owner, ref: f.captured.ref});
+  await f.send('refreshed-first-source-send', [refreshed.ref]); await vi.waitFor(() => expect(f.starts).toHaveLength(1)); expect(f.starts[0].sourceRefs).toEqual([refreshed.ref]);
+});
 
 it('captures exact UTF16 text once, rejects forged revisions and prevents surrogate splitting', async () => {
   const f = fixture(), workbench = f.workbench();
@@ -68,6 +181,22 @@ it.runIf(process.platform === 'win32')('reauthorizes retained file bytes after g
   await expect(workbench.open({logicalOwner: f.owner, ref: {...captured.ref, keepCaptured: true}})).rejects.toMatchObject({code: 'CAPABILITY_DENIED'});
   await expect(f.send('revoked-send', [{...captured.ref, keepCaptured: true}])).rejects.toMatchObject({code: 'CAPABILITY_DENIED'});
   expect(f.store.all('outbox', f.thread.id)).toEqual([]);
+});
+
+it.runIf(process.platform === 'win32')('admits the first captured file under its selected account [Windows native guard, runtime fixture]', async () => {
+  const f = await emptyTaskAccountFixture(true), path = join(f.root, 'first-source.txt'); writeFileSync(path, 'first\nselected second\nthird\n');
+  const grant: ResourceGrant = {id: 'first-file-grant', threadId: f.thread.id, kind: 'file', path, label: 'first-source.txt', writable: false, createdAt: f.thread.createdAt};
+  f.store.internal('fixture.first-file-grant', f.thread.id, () => f.store.put('resource', grant.id, f.thread.id, grant));
+  const descriptor = await f.workbench.describe({logicalOwner: f.owner, locator: {kind: 'FILE_RANGE', sourceId: grant.id}});
+  const captured = await f.workbench.capture({commandId: 'first-file-capture', source: {...descriptor.locator, logicalOwner: f.owner, sourceRevision: descriptor.sourceRevision, contentDigest: descriptor.contentDigest, capturedAt: f.thread.createdAt, range: {encoding: 'LINES_1_BASED', startLine: 2, endLine: 2}}});
+  expect(f.store.all('message', f.thread.id)).toEqual([]); expect(f.store.get<Thread>('thread', f.thread.id)?.accountId).toBeUndefined();
+  await f.send('first-file-send', [captured.ref]); await vi.waitFor(() => expect(f.starts).toHaveLength(1));
+  expect(f.starts[0]).toMatchObject({accountId: f.account.id, sourceRefs: [captured.ref], resources: [grant]}); expect(f.starts[0].prompt).toContain('selected second');
+  expect(await f.workbench.open({logicalOwner: f.owner, ref: captured.ref})).toMatchObject({ref: captured.ref, text: 'selected second', state: 'CURRENT'});
+  f.store.internal('fixture.revoke-first-file', f.thread.id, () => f.store.remove('resource', grant.id));
+  await expect(f.workbench.open({logicalOwner: f.owner, ref: {...captured.ref, keepCaptured: true}})).rejects.toMatchObject({code: 'CAPABILITY_DENIED'});
+  await expect(f.send('revoked-first-file-send', [{...captured.ref, keepCaptured: true}])).rejects.toMatchObject({code: 'CAPABILITY_DENIED'});
+  expect(f.store.all('outbox', f.thread.id)).toHaveLength(1);
 });
 
 it('reads artifact rows only through a declared same-owner structured binding', async () => {

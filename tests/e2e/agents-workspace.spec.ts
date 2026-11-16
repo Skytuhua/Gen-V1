@@ -1,5 +1,6 @@
 import {test, expect, type Page} from '@playwright/test';
 import {resolve} from 'node:path';
+import type {CommandReceipt} from '../../packages/contracts';
 import type {AgentSummary} from '../../packages/contracts/agent-inventory';
 const fixture = '/@fs/' + resolve('tests/e2e/agents-workspace-fixture.tsx').replaceAll('\\', '/');
 const agent = (id: string, patch: Partial<AgentSummary> = {}): AgentSummary => ({agentId: id, parentId: null, rootId: id, jobId: null, threadId: id, projectId: 'a', projectName: 'Alpha', title: id, status: 'working', modelId: 'test/model', currentAction: 'Reading project sources', reportedPercent: 35, createdAt: '2026-11-06', updatedAt: '2026-11-06', orderKey: id, revision: 1, archived: false, readOnly: false, metadata: 'thread', ...patch});
@@ -20,7 +21,13 @@ async function setup(page: Page, candidate = false, burstHistory = false, delaye
   if (url.pathname === '/api/commands') {
    commands.push(route.request().postDataJSON());
    if (failSend) return route.fulfill({status: 503, json: {error: {code: 'TEMPORARY', message: 'Send interrupted. Retry.'}}});
-   return route.fulfill({json: {id: commands.at(-1)!.id, status: 'accepted', result: commands.at(-1)!.type === 'agent.followUp' ? {ticketId: commands.at(-1)!.id, status: 'queued'} : null}});
+
+   const command = commands.at(-1)!;
+   if (command.type === 'agent.followUp') {
+    return route.fulfill({json: {commandId: command.id, eventSeq: sequence, result: {ticketId: command.id, status: 'queued'}} satisfies CommandReceipt});
+   }
+   return route.fulfill({json: {commandId: command.id, eventSeq: sequence, result: null} satisfies CommandReceipt});
+
   }
   if (url.pathname === '/api/agents') {
    await gate;
@@ -44,6 +51,10 @@ async function setup(page: Page, candidate = false, burstHistory = false, delaye
  });
  await page.route('**/agents-workspace-check*', route => route.fulfill({contentType: 'text/html', body: `<html data-theme="dark"><head><meta name="viewport" content="width=device-width, initial-scale=1"></head><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${encodeURI(fixture)}');</script></body></html>`}));
  await page.goto('/agents-workspace-check' + (candidate ? '?candidate=1' : ''));
+ // The App candidate is intentionally imported only by its integration case.
+ // Start its API assertions after that cold module graph mounts the fixture;
+ // requests made during startup remain in the same history for the assertions.
+ if (candidate) await page.getByText('Synthetic agent workspace fixture', {exact: true}).waitFor({state: 'attached'});
  return {requests, commands, delay: () => {gate = new Promise<void>(resolve => {release = resolve;});}, release: () => release?.(), fail: (value: boolean) => {failSend = value;}, output: (value: string) => {output = value; sequence++;}, ticket: (value: string) => {ticketStatus = value;}, burst: (total: number) => {messageTotal = total; sequence++;}};
 }
 
@@ -71,11 +82,11 @@ for (const width of [1440, 1024, 768]) test(`first agent reads reserve project r
 });
 
 test('missing history remains reachable after offscreen bursts without moving the message being read', async ({page}) => {
- const h = await setup(page, false, true), log = page.getByRole('log', {name: 'parent-00 messages', exact: true}), row = page.getByRole('region', {name: 'Alpha agents', exact: true});
+ const h = await setup(page, false, true), log = page.getByRole('log', {name: 'parent-00 messages', exact: true}), projects = page.locator('.agents-projects');
  await expect(log).toContainText('Transcript message 40.');
  await page.getByRole('button', {name: 'Search agents', exact: true}).focus();
- await row.evaluate(node => {node.scrollLeft = node.scrollWidth;}); await expect(log).toHaveCount(0);
- h.burst(140); await row.evaluate(node => {node.scrollLeft = 0;});
+ await projects.evaluate(node => {node.scrollTop = node.scrollHeight;}); await expect(log).toHaveCount(0);
+ h.burst(140); await projects.evaluate(node => {node.scrollTop = 0;});
  await expect(log.getByRole('button', {name: 'Load missing messages', exact: true})).toBeVisible();
  const reading = log.locator('article').filter({hasText: 'Transcript message 110.'});
  await reading.evaluate(node => {const owner = node.closest('[role="log"]')!; owner.scrollTop += node.getBoundingClientRect().top - owner.getBoundingClientRect().top - 20;});
@@ -89,6 +100,41 @@ test('missing history remains reachable after offscreen bursts without moving th
  expect(await log.locator('article').evaluateAll(nodes => nodes.map(node => Number(node.textContent!.match(/Transcript message (\d+)/)![1])))).toEqual(Array.from({length: 140}, (_, i) => i + 1));
 });
 
+test('a slower evidence request cannot replace the latest selected child', async ({page}) => {
+ const fixtureHost = await setup(page, false, false, true);
+ let finish!: () => void;
+ const delayed = new Promise<void>(resolve => {finish = resolve;});
+ await page.route('**/api/agent-work?taskId=parent-00', route => route.fulfill({json: {
+  enabled: true, roles: {}, budget: {reservedTokens: 0}, works: ['first', 'second'].map(id => ({
+   workId: id, role: 'QA', state: 'VERIFIED', owner: {threadId: id},
+   budget: {tokens: null}, evidence: {refs: 1, stale: 0},
+  })),
+ }}));
+ await page.route(/\/api\/agent-work\/(plan|messages)\?/, route => route.fulfill({json: {extension: false, messages: []}}));
+ await page.route('**/api/agent-work/output?*', async route => {
+  const workId = new URL(route.request().url()).searchParams.get('workId');
+  if (workId === 'first') await delayed;
+  await route.fulfill({json: {workId, output: workId === 'first' ? 'Older selection' : 'Latest selection', lateArtifacts: 0}});
+ });
+ try {
+  fixtureHost.release();
+  await page.getByRole('button', {name: 'Agent work · 2', exact: true}).click();
+  const first = page.waitForRequest(request => request.url().includes('/api/agent-work/output?') && request.url().includes('workId=first'));
+  await page.getByRole('button', {name: 'Open evidence for first', exact: true}).click();
+  await first;
+  const evidence = page.locator('.agents-work-output');
+  await page.getByRole('button', {name: 'Open evidence for second', exact: true}).click();
+  await expect(evidence).toContainText('Latest selection');
+  const drained = page.waitForResponse(response => response.url().includes('/api/agent-work/output?') && response.url().includes('workId=first'));
+  finish();
+  expect((await drained).ok()).toBe(true);
+  // Wait until the delayed response body and the following rendering turn finish.
+  await (await drained).finished();
+  await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+  await expect(evidence).toContainText('Latest selection');
+ } finally {finish();}
+});
+
 test('project rows expose working parent and nested child transcripts before any details click', async ({page}) => {
  const h = await setup(page); const parent = page.getByRole('group', {name: 'Agent parent-00', exact: true});
  await expect(parent.getByRole('log', {name: 'parent-00 messages', exact: true})).toContainText('Current transcript output');
@@ -99,17 +145,17 @@ test('project rows expose working parent and nested child transcripts before any
  await expect(page.getByRole('region', {name: 'Project Beta', exact: true})).toHaveCount(1);
  expect(h.requests.filter(path => path.startsWith('/api/agents?')).length).toBe(3);
 });
-test('all horizontal parents are reachable, subscriptions follow visibility, and drafts survive virtualization', async ({page}) => {
+test('all grid parents are reachable, subscriptions follow visibility, and drafts survive virtualization', async ({page}) => {
  const h = await setup(page), input = page.getByRole('textbox', {name: 'Message to parent-00', exact: true});
  await input.fill('Keep my draft');
  await page.getByRole('button', {name: 'Search agents', exact: true}).focus();
- const row = page.getByRole('region', {name: 'Alpha agents', exact: true});
- await row.evaluate(node => {node.scrollLeft = node.scrollWidth;});
+ const projects = page.locator('.agents-projects');
+ await projects.evaluate(node => {node.scrollTop = node.scrollHeight;});
  await expect(page.getByRole('log', {name: 'parent-32 messages', exact: true})).toContainText('Current transcript output');
  await expect(input).toHaveCount(0);
  expect(h.requests.some(path => path.includes('agentId=parent-32'))).toBe(true);
  for (const path of h.requests.filter(path => path.includes('visible='))) expect(new URL(path, 'http://fixture').searchParams.get('visible')!.split(',').length).toBeLessThanOrEqual(24);
- await row.evaluate(node => {node.scrollLeft = 0;}); await expect(input).toHaveValue('Keep my draft');
+ await projects.evaluate(node => {node.scrollTop = 0;}); await expect(input).toHaveValue('Keep my draft');
  await page.getByRole('button', {name: 'Open conversation parent-00', exact: true}).click();
  await expect(page.locator('html')).toHaveAttribute('data-opened-thread', 'parent-00');
 });
@@ -120,6 +166,7 @@ test('IME does not send, working parents send, uncertain retries keep identity a
  await input.fill('Later'); h.fail(false); await page.getByRole('button', {name: 'Retry send to parent-00', exact: true}).click();
  await expect(input).toHaveValue('Later'); expect(h.commands).toHaveLength(2); expect(h.commands[0].id).toBe(h.commands[1].id); expect(h.commands[1].payload.content).toBe('First');
  expect(h.commands.every(command => command.threadId === 'parent-00')).toBe(true);
+ await expect(page.getByRole('button', {name: 'Retry send to parent-00', exact: true})).toHaveCount(0);
 });
 test('filtered children retain their completed owning parent and local reading state', async ({page}) => {
  const h = await setup(page); const log = page.getByRole('log', {name: 'parent-00 messages', exact: true});
@@ -150,6 +197,30 @@ test('child follow-up uses the published parent/run target and current ticket th
  expect(Object.keys(h.commands[0].payload).sort()).toEqual(['childRun', 'content', 'jobId', 'parentRun']);
  h.ticket('handled'); await expect(child.getByRole('status')).toHaveText('handled'); expect(h.commands).toHaveLength(1);
 });
+test('agent task progress exposes its name and unknown share to assistive technology', async ({page}) => {
+ const fixtureHost = await setup(page, false, false, true);
+ await page.route('**/api/agent-work?taskId=parent-00', route => route.fulfill({json: {
+  enabled: true, roles: {}, budget: {reservedTokens: 0}, works: [{
+   workId: 'demo-progress', role: 'QA', state: 'VERIFIED', owner: {threadId: 'child-active'},
+   budget: {tokens: null}, evidence: {refs: 0},
+  }],
+ }}));
+ await page.route('**/api/agent-work/plan?*', route => route.fulfill({json: {
+  extension: true, planId: 'demo-plan', progress: {total: 10, completed: 3, pending: 5, unknown: 2},
+ }}));
+ await page.route('**/api/agent-work/messages?*', route => route.fulfill({json: {messages: []}}));
+ try {
+  fixtureHost.release();
+  await page.getByRole('button', {name: 'Agent work · 1', exact: true}).click();
+  const work = page.getByRole('region', {name: 'Agent work', exact: true});
+  await expect(work.getByText('30% known complete · 20% unknown', {exact: true})).toBeVisible();
+  const progress = work.getByRole('progressbar', {name: 'Task progress', exact: true});
+  await expect(progress).toHaveAttribute('aria-valuetext', '30% known complete · 20% unknown');
+  await expect(progress).toHaveAttribute('value', '3');
+  await expect(progress).toHaveAttribute('max', '10');
+ } finally {fixtureHost.release();}
+});
+
 test('output while reading earlier retains position and exposes an explicit new-output action', async ({page}) => {
  const h = await setup(page), parent = page.getByRole('group', {name: 'Agent parent-00', exact: true}), log = parent.getByRole('log', {name: 'parent-00 messages', exact: true});
  await expect(log).toContainText('Current transcript output'); await log.evaluate(node => {node.scrollTop = 100;});
@@ -172,3 +243,103 @@ for (const [theme, width, height, zoom] of [['dark', 1440, 900, 1], ['light', 10
   await page.screenshot({path: info.outputPath(`agents-${theme}-${width}-${zoom}.png`)});
  });
 }
+
+test('a child input acknowledgement preserves a newer draft', async ({page}) => {
+ const fixtureHost = await setup(page, false, false, true);
+ let finish!: () => void;
+ const acknowledgement = new Promise<void>(resolve => {finish = resolve;});
+ const sent: unknown[] = [];
+ await page.route('**/api/agent-work?taskId=parent-00', route => route.fulfill({json: {
+  enabled: true, roles: {}, budget: {reservedTokens: 0}, works: [{
+   workId: 'demo-child', role: 'QA', state: 'RUNNING', steerSupported: true,
+   owner: {threadId: 'child-active'}, budget: {tokens: null}, evidence: {refs: 0},
+  }],
+ }}));
+ await page.route(/\/api\/agent-work\/(plan|messages|inputs)\?/, route => route.fulfill({json: {extension: false, messages: [], inputs: []}}));
+ await page.route('**/api/commands', async route => {
+  const command = route.request().postDataJSON();
+  sent.push(command.payload);
+  await acknowledgement;
+  await route.fulfill({json: {commandId: command.id, eventSeq: 11, result: null}});
+ });
+ try {
+  fixtureHost.release();
+  await page.getByRole('button', {name: 'Agent work · 1', exact: true}).click();
+  const work = page.getByRole('region', {name: 'Agent work', exact: true});
+  const input = work.getByRole('textbox', {name: 'Message work demo-child'});
+  const queue = work.getByRole('button', {name: 'Queue next'});
+  await input.fill('First instruction');
+  await queue.click();
+  await expect.poll(() => sent.length).toBe(1);
+  await expect(queue).toBeDisabled();
+  await expect(work.getByRole('button', {name: 'Steer now'})).toBeDisabled();
+  await input.fill('Draft for later');
+  const response = page.waitForResponse('**/api/commands');
+  const refreshed = page.waitForResponse('**/api/agent-work?taskId=parent-00');
+  finish();
+  expect((await response).ok()).toBe(true);
+  expect((await refreshed).ok()).toBe(true);
+  await expect(queue).toBeEnabled();
+  await expect(input).toHaveValue('Draft for later');
+  expect(sent[0]).toMatchObject({workId: 'demo-child', kind: 'FOLLOW_UP', text: 'First instruction'});
+ } finally {finish();}
+});
+
+test('a message board post acknowledgement preserves edits for the next post', async ({page}) => {
+ const fixtureHost = await setup(page, false, false, true);
+ let finish!: () => void;
+ const acknowledgement = new Promise<void>(resolve => {finish = resolve;});
+ const sent: unknown[] = [];
+ await page.route('**/api/agent-work?taskId=parent-00', route => route.fulfill({json: {
+  enabled: true, roles: {}, budget: {reservedTokens: 0}, works: [{
+   workId: 'demo-child', role: 'QA', state: 'VERIFIED', owner: {threadId: 'child-active'},
+   budget: {tokens: null}, evidence: {refs: 0},
+  }],
+ }}));
+ await page.route(/\/api\/agent-work\/(plan|messages)\?/, route => route.fulfill({json: {extension: false, messages: []}}));
+ await page.route('**/api/commands', async route => {
+  const command = route.request().postDataJSON();
+  sent.push(command.payload);
+  await acknowledgement;
+  await route.fulfill({json: {commandId: command.id, eventSeq: 11, result: null}});
+ });
+ try {
+  fixtureHost.release();
+  await page.getByRole('button', {name: 'Agent work · 1', exact: true}).click();
+  const work = page.getByRole('region', {name: 'Agent work', exact: true});
+  await work.getByText('Message board · 0', {exact: true}).click();
+  await work.getByRole('combobox', {name: 'Recipient', exact: true}).click();
+  await page.getByRole('option', {name: 'QA child-ac', exact: true}).click();
+  const topic = work.getByRole('textbox', {name: 'Topic', exact: true});
+  const message = work.getByRole('textbox', {name: 'Message', exact: true});
+  const post = work.getByRole('button', {name: 'Post', exact: true});
+  await topic.fill('First topic');
+  await message.fill('First note');
+  await post.click();
+  await expect.poll(() => sent.length).toBe(1);
+  await expect(post).toBeDisabled();
+  await message.fill('Next note');
+  const response = page.waitForResponse('**/api/commands');
+  const refreshed = page.waitForResponse('**/api/agent-work?taskId=parent-00');
+  finish();
+  expect((await response).ok()).toBe(true);
+  expect((await refreshed).ok()).toBe(true);
+  await expect(post).toBeEnabled();
+  await expect(message).toHaveValue('Next note');
+  await expect(topic).toHaveValue('First topic');
+  expect(sent[0]).toMatchObject({recipientThreadId: 'child-active', topic: 'First topic', text: 'First note'});
+ } finally {finish();}
+});
+
+test('keyboard entry into a virtual agent keeps focus on that card', async ({page}) => {
+ await page.setViewportSize({width: 1440, height: 780});
+ await setup(page);
+ const grid = page.getByRole('region', {name: 'Alpha agents', exact: true});
+ await expect(grid.getByRole('group', {name: 'Agent parent-00', exact: true})).toBeVisible();
+ await grid.focus();
+ // ArrowLeft from the grid entry targets the last agent, outside the mounted viewport.
+ const destination = grid.getByRole('group', {name: 'Agent parent-32', exact: true});
+ await expect(destination).toHaveCount(0);
+ await page.keyboard.press('ArrowLeft');
+ await expect(destination).toBeFocused();
+});

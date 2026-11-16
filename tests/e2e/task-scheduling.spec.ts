@@ -101,3 +101,15 @@ test('an overnight interval identifies its ending day and retains its actual ela
   await page.setViewportSize({width:390,height:844});
   expect(await slot.locator('.schedule-slot-time').evaluate(node=>node.scrollWidth<=node.clientWidth+1)).toBe(true);
 });
+
+
+test('schedule navigation leaves a composing arrow key to the input method', async ({page}) => {
+ await open(page,'SchedulePicker',windows);
+ const first=page.getByRole('option',{name:'Opening review',exact:true});
+ await first.click();
+ await first.dispatchEvent('keydown',{key:'ArrowDown',isComposing:true,bubbles:true});
+ await expect(first).toBeFocused();
+ await expect(first).toHaveAttribute('aria-selected','true');
+ await first.press('ArrowDown');
+ await expect(first).toHaveAttribute('aria-selected','false');
+});
