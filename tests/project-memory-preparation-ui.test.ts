@@ -127,7 +127,7 @@ it.each(['disabled', 'input'] as const)('keeps visible prepared controls on thei
     plugin.onLoad({filter: /.*/, namespace: 'fixture'}, () => ({loader: 'js', contents: `
       export const prepareMemoryRequest=async()=>(${JSON.stringify(withMemory())});
       export const latestMemoryRequest=async()=>null;
-      export const excludeMemoryFromRequest=async view=>{window.exclusions=(window.exclusions??0)+1;return {...view,items:[],injectedBytes:0}};
+      export const excludeMemoryFromRequest=async view=>{window.exclusions=(window.exclusions??0)+1;return {...view,items:[],injectedBytes:0,recall:{...view.recall,selectedRevisions:[],exclusions:[{itemId:'memory',reason:'USER_EXCLUDED'}]}}};
     `}));
   }}]})).outputFiles[0]!.text;
   const browser=await chromium.launch({headless:true,...(process.platform==='win32'?{channel:'msedge'}:{})});
