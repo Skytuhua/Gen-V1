@@ -13,9 +13,10 @@ interface GuardSession { rpc(request: Record<string, unknown>, startupAcquisitio
 const sessions = new AsyncLocalStorage<GuardSession>();
 const denied = () => new HarnessError("CAPABILITY_DENIED", "File access check failed — the folder could not be opened safely for this action");
 // A cold, app-owned Hermes guard may need PowerShell startup and C# initialization.
-// Extend only its first acquire, not unrelated reads, writes, or lease releases.
-export function pathGuardRpcDeadline(command: unknown, metadataImport: boolean, startupAcquisition: boolean): number {
-  return metadataImport ? 120_000 : command === 'acquire' && startupAcquisition ? 45_000 : 15_000;
+// Acquisitions on a cold process get a wider bound than unrelated reads, writes,
+// or lease releases; only the flagged startup acquisition gets the widest one.
+export function pathGuardRpcDeadline(command: unknown, metadataImport: boolean, startupAcquisition: boolean, cold = true): number {
+  return metadataImport ? 120_000 : command === 'acquire' ? (startupAcquisition ? 45_000 : cold ? 30_000 : 15_000) : 15_000;
 }
 function active(signal: AbortSignal) { if (signal.aborted) throw new HarnessError("CANCELLED", "Filesystem operation cancelled"); }
 
@@ -55,10 +56,10 @@ export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal, 
       if (current.exited) return reject(denied());
       let output = "";
       const metadataImport = Array.isArray(request.paths) && (request.paths as GuardPath[]).some(path => path.gitMetadataImport);
-      // A respawned guard is just as cold as the first one, so the first RPC on
-      // any fresh process gets the extended deadline even when the caller did
-      // not flag this as the startup acquisition.
-      const timer = setTimeout(() => finish(denied()), pathGuardRpcDeadline(request.command,metadataImport,startupAcquisition||!warmed));
+      // A respawned guard is just as cold as the first one, so the first RPC on a
+      // fresh process gets the wider acquisition deadline even when the caller
+      // did not flag it as the startup acquisition. Warm RPCs keep the 15s bound.
+      const timer = setTimeout(() => finish(denied()), pathGuardRpcDeadline(request.command,metadataImport,startupAcquisition,!warmed));
       const failed = () => finish(new HarnessError(/limit exceeded/i.test(diagnostics)?"RESOURCE_LIMIT":"CAPABILITY_DENIED", "File access check failed — the folder could not be opened safely for this action", { nativeCode: /GUARD_NATIVE_ERROR:([-0-9]+)/.exec(diagnostics)?.[1] ?? "unavailable",nativeMessage:/GUARD_NATIVE_MESSAGE:([^\r\n]*)/.exec(diagnostics)?.[1] }));
       const data = (bytes: string) => {
         output += bytes;
