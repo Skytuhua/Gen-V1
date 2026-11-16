@@ -449,13 +449,13 @@ function CanvasThread({sharedComposers,thread,snapshot,visible,blocked,refresh,s
 function stopConversation(thread: Thread, composers?: SharedAgentComposers) {
  return composers ? composers.stop({kind: 'conversation', threadId: thread.id, modelId: thread.modelId ?? null, working: Boolean(thread.runId) || thread.status === 'working'}) : command('run.stop', {}, thread.id);
 }
-export interface AppProps {onComposerChangesAvailability?:ComposerChangesAvailability;sharedComposers?:SharedAgentComposers;embeddedThreadId?:string;embeddedActive?:boolean;onRequestThread?:(id:string)=>void;liveUsage?:{open:boolean;toggle:()=>void};modelPickerRequest?:{id:number;threadId?:string};hostWorkspaceContext?:WorkspaceContextValue;onRequestWorkspaceTool?:(kind:WorkspaceContextValue['activeTab'],resourceId?:string,artifactId?:string)=>void}
+export interface AppProps {onDirtyWidgetChange?:(id:string,threadId:string,dirty:boolean,discard?:()=>Promise<void>)=>void;onComposerChangesAvailability?:ComposerChangesAvailability;sharedComposers?:SharedAgentComposers;embeddedThreadId?:string;embeddedActive?:boolean;onRequestThread?:(id:string)=>void;liveUsage?:{open:boolean;toggle:()=>void};modelPickerRequest?:{id:number;threadId?:string};hostWorkspaceContext?:WorkspaceContextValue;onRequestWorkspaceTool?:(kind:WorkspaceContextValue['activeTab'],resourceId?:string,artifactId?:string)=>void}
 export function App(props:AppProps={}) {
   const desktop=useDesktop();
   if(props.embeddedThreadId||desktop?.context.surface.kind==='thread'||desktop?.context.surface.kind==='navigation')return <ConversationWorkspace {...props}/>;
   return <WorkspaceHost conversation={host=><ConversationWorkspace {...props} host={host}/>}/>;
 }
-function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,embeddedThreadId,embeddedActive=true,onRequestThread,liveUsage,modelPickerRequest:externalModelPicker,hostWorkspaceContext,onRequestWorkspaceTool,host}:AppProps&{host?:ConversationHost}={}) {
+function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,embeddedThreadId,embeddedActive=true,onRequestThread,liveUsage,modelPickerRequest:externalModelPicker,hostWorkspaceContext,onRequestWorkspaceTool,onDirtyWidgetChange,host}:AppProps&{host?:ConversationHost}={}) {
   const ownPluginCatalog=usePluginCatalog(!host&&!embeddedThreadId),pluginCatalog=host?.pluginCatalog??ownPluginCatalog,plugins=pluginCatalog.plugins,[selectedPluginId,setSelectedPluginId]=useState<string|null>(null),[openedPlugins,setOpenedPlugins]=useState<string[]>([]);
   useEffect(()=>{if(pluginCatalog.error)toast(pluginCatalog.error,{tone:'error'});},[pluginCatalog.error]);
   const [selectedPluginWorkspace,setSelectedPluginWorkspace]=useState<string|null>(null),[openedPluginWorkspaces,setOpenedPluginWorkspaces]=useState<{pluginId:string;workspaceId:string}[]>([]);
@@ -567,9 +567,10 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   const widgetDiscards = useRef(new Map<string, () => Promise<void>>());
   const [archiveThread, setArchiveThread] = useState<string | null>(null);
   const onDirtyWidget = useCallback((id: string, threadId: string, dirty: boolean, discard?: () => Promise<void>) => {
+    onDirtyWidgetChange?.(id,threadId,dirty,discard);
     if (dirty && discard) widgetDiscards.current.set(id, discard); else widgetDiscards.current.delete(id);
     setDirtyWidgets(previous => { if (dirty && previous[id] === threadId || !dirty && !Object.hasOwn(previous, id)) return previous; const next = { ...previous }; if (dirty) next[id] = threadId; else delete next[id]; return next; });
-  }, []);
+  }, [onDirtyWidgetChange]);
   const discardHiddenWidgets = async () => {
     let failed = 0;
     for (const artifactId of Object.keys(dirtyWidgets).filter(artifactId => dirtyWidgets[artifactId] !== thread?.id)) {
@@ -1037,13 +1038,13 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   useEffect(()=>{if(embeddedThreadId)return;return desktop?.bridge.onAttentionOpen?.(id=>select(id));},[desktop?.bridge,embeddedThreadId]);
   const renderSplitView=(view:SurfaceRef,active:boolean)=>{
     if(view.binding.authority.kind!=='local')return <p className="panel-note">This view belongs to another installed workspace.</p>;
-    if(view.kind==='thread')return <div className="split-thread-owner" onFocusCapture={()=>focusSplitOwner(view)}>{view.binding.threadId?<App onComposerChangesAvailability={reportComposerChanges} sharedComposers={host?.composers??sharedComposers} embeddedThreadId={view.binding.threadId} embeddedActive={active} modelPickerRequest={modelPickerRequest} onRequestThread={select} liveUsage={{open:liveUsageOpen,toggle:()=>{focusSplitOwner(view);setLiveUsageOpen(value=>!value);}}}/>:<p>The owning conversation is unavailable.</p>}</div>;
+    if(view.kind==='thread')return <div className="split-thread-owner" onFocusCapture={()=>focusSplitOwner(view)}>{view.binding.threadId?<App onDirtyWidgetChange={onDirtyWidget} onComposerChangesAvailability={reportComposerChanges} sharedComposers={host?.composers??sharedComposers} embeddedThreadId={view.binding.threadId} embeddedActive={active} modelPickerRequest={modelPickerRequest} onRequestThread={select} liveUsage={{open:liveUsageOpen,toggle:()=>{focusSplitOwner(view);setLiveUsageOpen(value=>!value);}}}/>:<p>The owning conversation is unavailable.</p>}</div>;
     if(view.kind==='workspace'&&view.binding.resourceId==='agent-inbox')return <AgentInbox active={active} onOpenThread={select} timeFormat={preferences.timeFormat}/>;
     if(view.kind==='plan')return <PlanStatus snapshot={snapshot} threadId={view.binding.threadId}/>;
     const panel:PanelPlacement={...view,canvasId:activeCanvas?.id??'workspace-default',placement:'canvas',visible:true,collapsed:false,bounds:{x:0,y:0,width:480,height:380},order:0,alwaysOnTop:false};return canvasBodyGuarded(panel,active);
   };
   const renderConversationView=(view:SurfaceRef,active:boolean)=>view.kind==='thread'
-    ?<div className="split-thread-owner" onFocusCapture={()=>focusSplitOwner(view)}>{view.binding.threadId?<App onComposerChangesAvailability={reportComposerChanges} sharedComposers={host?.composers??sharedComposers} embeddedThreadId={view.binding.threadId} embeddedActive={active} modelPickerRequest={modelPickerRequest} hostWorkspaceContext={workspaceContext} onRequestWorkspaceTool={(kind,resourceId,artifactId)=>revealWorkspaceTool(kind,resourceId,artifactId,view.binding)} onRequestThread={select} liveUsage={{open:liveUsageOpen,toggle:()=>{focusSplitOwner(view);setLiveUsageOpen(value=>!value);}}}/>:<p>The owning conversation is unavailable.</p>}</div>
+    ?<div className="split-thread-owner" onFocusCapture={()=>focusSplitOwner(view)}>{view.binding.threadId?<App onDirtyWidgetChange={onDirtyWidget} onComposerChangesAvailability={reportComposerChanges} sharedComposers={host?.composers??sharedComposers} embeddedThreadId={view.binding.threadId} embeddedActive={active} modelPickerRequest={modelPickerRequest} hostWorkspaceContext={workspaceContext} onRequestWorkspaceTool={(kind,resourceId,artifactId)=>revealWorkspaceTool(kind,resourceId,artifactId,view.binding)} onRequestThread={select} liveUsage={{open:liveUsageOpen,toggle:()=>{focusSplitOwner(view);setLiveUsageOpen(value=>!value);}}}/>:<p>The owning conversation is unavailable.</p>}</div>
     :<SurfaceBoundary resetKey={view.id}>{renderSplitView(view,active)}</SurfaceBoundary>;
   const splitRoot=splitEnabled&&Boolean(thread||convSplitState.layout&&Object.keys(convSplitState.layout.views).length);
   const panelToggle=!embeddedThreadId?<button type="button" className={`icon-button workspace-panel-toggle ${layout.rightPanelOpen ? 'selected' : ''}`} aria-label={layout.rightPanelOpen ? 'Hide workspace panel' : 'Open workspace panel'} aria-pressed={layout.rightPanelOpen} title={layout.rightPanelOpen ? 'Close right panel' : 'Open right panel'} onClick={() => setLayout(value => value.rightPanelOpen ? { ...value, rightPanelOpen: false, rightPanelMaximized: false } : { ...value, rightPanelOpen: true })}><PanelRight size={17} /></button>:null;
