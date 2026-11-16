@@ -252,6 +252,46 @@ for(const [kind,label] of [['file','File'],['database','SQLite database'],['expo
  expect(h.commands.filter(command=>command.type==='resource.grant').map(({threadId,payload})=>({threadId,payload}))).toEqual([{threadId:'parent-a',payload:{path:'C:/synthetic/granted-item',kind,writable:true}}]);
 });
 
+test('a finished resource grant does not close a reopened picker', async ({page}) => {
+ const h=await fixture(page,{working:false});
+ let finish!:()=>void;
+ const pending=new Promise<void>(resolve=>{finish=resolve;});
+ await page.route('**/api/commands',async route=>{
+  const input=route.request().postDataJSON();
+  if(input.type!=='resource.grant')return route.fallback();
+  h.commands.push(input);await pending;
+  h.snapshot.resources.push({id:'granted-first',threadId:input.threadId,kind:'file',path:input.payload.path,label:'first-file',writable:false,createdAt:'2026-11-06T00:00:00.000Z'});
+  return route.fulfill({json:{commandId:input.id,seq:++h.snapshot.seq,result:{}}});
+ });
+ const openPicker=async()=>{
+  await page.getByRole('button',{name:'Settings',exact:true}).click();
+  const settings=page.getByRole('dialog',{name:'Settings',exact:true});
+  await settings.getByRole('button',{name:'Projects & Working Copies',exact:true}).click();
+  await settings.getByRole('button',{name:'Add resource',exact:true}).click();
+ };
+ await page.getByRole('button',{name:'Open conversation Project investigation',exact:true}).click();
+ await openPicker();
+ const dialog=page.getByRole('dialog',{name:'Add a resource',exact:true}),path=dialog.getByRole('textbox',{name:'Absolute local path',exact:true});
+ await dialog.getByRole('combobox',{name:'Resource type',exact:true}).click();
+ await dialog.getByRole('option',{name:'File',exact:true}).click();
+ await path.fill('C:/synthetic/first-file');
+ await dialog.getByRole('button',{name:'Add resource',exact:true}).click();
+ await expect(dialog.getByRole('button',{name:'Granting…',exact:true})).toBeDisabled();
+ await expect.poll(()=>h.commands.filter(command=>command.type==='resource.grant').length).toBe(1);
+ await dialog.getByRole('button',{name:'Cancel',exact:true}).click();
+ await expect(dialog).toBeHidden();
+ await openPicker();
+ await path.fill('C:/synthetic/second-draft');
+ const refreshed=page.waitForResponse(async response=>new URL(response.url()).pathname==='/api/snapshot'&&response.ok()&&(await response.json()).resources.some((item:{id:string})=>item.id==='granted-first'));
+ finish();
+ await refreshed;
+ // Let the command's refresh and completion handlers commit before inspecting the new dialog.
+ await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
+ await expect(path).toBeFocused();
+ await expect(path).toHaveValue('C:/synthetic/second-draft');
+ expect(h.commands.filter(command=>command.type==='resource.grant').map(({threadId,payload})=>[threadId,payload.path])).toEqual([['parent-a','C:/synthetic/first-file']]);
+});
+
 test('monitor preserves unpin confirmation with a shared dialog and cancellation', async ({page}) => {
   const h = await fixture(page, {pinned: true});
   await page.getByRole('button', {name: 'Options for Project investigation', exact: true}).click();

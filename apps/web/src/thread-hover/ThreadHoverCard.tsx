@@ -45,6 +45,18 @@ export function ThreadHoverCard<Target>({facts, loadFacts, cache: suppliedCache,
     return () => {document.removeEventListener('dragstart', start, true); document.removeEventListener('dragend', end, true); document.removeEventListener('drop', end, true);};
   }, [interaction]);
   useEffect(() => {
+    if (!visible) return;
+    const ownerDocument = anchor.current?.ownerDocument;
+    if (!ownerDocument) return;
+    // Pointer hover can open the card while focus stays elsewhere. Let the
+    // focused control handle Escape first, and never move its focus.
+    const escape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && !event.defaultPrevented && !event.isComposing && event.keyCode !== 229) interaction.dismiss();
+    };
+    ownerDocument.addEventListener('keydown', escape);
+    return () => ownerDocument.removeEventListener('keydown', escape);
+  }, [visible, interaction]);
+  useEffect(() => {
     if (!visible || !controller) return;
     controller.activate(facts.scope);
     return () => controller.deactivate();
