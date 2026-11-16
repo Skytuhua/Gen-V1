@@ -72,25 +72,25 @@ export function WorkspaceCanvas({canvas,panels,projects,disabledKinds,threads=[]
   return {...next,width,height,x:Math.max(left,Math.min((size.width-8-view.x)/view.zoom-width,next.x)),y:Math.max(top,Math.min((size.height-8-view.y)/view.zoom-height,next.y))};
  };
  const move=(event:PointerEvent<HTMLButtonElement>,panel:PanelPlacement,resize=false)=>{
-  if(event.button!==0||arranging)return;event.preventDefault();event.stopPropagation();interaction.current?.();
+  if(event.button!==0||arranging||interaction.current)return;event.preventDefault();event.stopPropagation();
   const original=drafts[panel.id]??panel.bounds,startX=event.clientX,startY=event.clientY,scale=viewportRef.current.zoom,element=event.currentTarget,pointerId=event.pointerId;let current=original,finished=false;
   document.documentElement.classList.add('workspace-canvas-interaction');
   element.setPointerCapture?.(pointerId);
   const changed=(value:globalThis.PointerEvent)=>{if(value.pointerId!==pointerId)return;const dx=(value.clientX-startX)/scale,dy=(value.clientY-startY)/scale;current=reachableBounds(resize?{...original,width:original.width+dx,height:original.height+dy}:{...original,x:original.x+dx,y:original.y+dy});setDrafts(previous=>({...previous,[panel.id]:current}));};
   const clearDraft=()=>setDrafts(previous=>{const next={...previous};delete next[panel.id];return next;});
-  const cleanup=()=>{finished=true;window.removeEventListener('pointermove',changed);window.removeEventListener('pointerup',done);window.removeEventListener('pointercancel',cancel);window.removeEventListener('blur',cancel);if(element.hasPointerCapture?.(pointerId))element.releasePointerCapture(pointerId);document.documentElement.classList.remove('workspace-canvas-interaction');interaction.current=null;window.dispatchEvent(new Event('harness:canvas-layout'));};
+  const cleanup=()=>{finished=true;window.removeEventListener('pointermove',changed);window.removeEventListener('pointerup',done);window.removeEventListener('pointercancel',cancel);window.removeEventListener('blur',cancel);element.removeEventListener('lostpointercapture',cancel);if(element.hasPointerCapture?.(pointerId))element.releasePointerCapture(pointerId);document.documentElement.classList.remove('workspace-canvas-interaction');interaction.current=null;window.dispatchEvent(new Event('harness:canvas-layout'));};
   const cancel=(value?:Event)=>{if(finished||value instanceof globalThis.PointerEvent&&value.pointerId!==pointerId)return;cleanup();if(mounted.current)clearDraft();};
   const done=(value:globalThis.PointerEvent)=>{if(finished||value.pointerId!==pointerId)return;cleanup();run(async()=>{try{await updatePanel(panel,{bounds:current,order:Math.min(100000,Math.max(0,...panels.map(value=>value.order))+1)});}finally{if(mounted.current)clearDraft();}});};
-  interaction.current=cancel;window.addEventListener('pointermove',changed);window.addEventListener('pointerup',done);window.addEventListener('pointercancel',cancel);window.addEventListener('blur',cancel);
+  interaction.current=cancel;window.addEventListener('pointermove',changed);window.addEventListener('pointerup',done);window.addEventListener('pointercancel',cancel);window.addEventListener('blur',cancel);element.addEventListener('lostpointercapture',cancel);
  };
  const pan=(event:PointerEvent<HTMLDivElement>)=>{
-  const target=event.target;if(embedded||event.button!==0||arranging||target instanceof Element&&target.closest('.canvas-panel,.canvas-family-heading,.canvas-project-heading'))return;
-  event.preventDefault();interaction.current?.();const start={...viewportRef.current},x=event.clientX,y=event.clientY;let next=start;
+  const target=event.target;if(embedded||event.button!==0||arranging||interaction.current||target instanceof Element&&target.closest('.canvas-panel,.canvas-family-heading,.canvas-project-heading'))return;
+  event.preventDefault();const start={...viewportRef.current},x=event.clientX,y=event.clientY,pointerId=event.pointerId;let next=start;
   document.documentElement.classList.add('workspace-canvas-interaction');
-  const changed=(value:globalThis.PointerEvent)=>{next={...start,x:start.x+value.clientX-x,y:start.y+value.clientY-y};publish(next);};
+  const changed=(value:globalThis.PointerEvent)=>{if(value.pointerId!==pointerId)return;next={...start,x:start.x+value.clientX-x,y:start.y+value.clientY-y};publish(next);};
   const cleanup=()=>{window.removeEventListener('pointermove',changed);window.removeEventListener('pointerup',done);window.removeEventListener('pointercancel',cancel);window.removeEventListener('blur',cancel);document.documentElement.classList.remove('workspace-canvas-interaction');interaction.current=null;};
-  const done=()=>{cleanup();saveViewport(next);},cancel=()=>{cleanup();publish(start);};
-  interaction.current=cancel;window.addEventListener('pointermove',changed);window.addEventListener('pointerup',done,{once:true});window.addEventListener('pointercancel',cancel,{once:true});window.addEventListener('blur',cancel,{once:true});
+  const done=(value:globalThis.PointerEvent)=>{if(value.pointerId!==pointerId)return;cleanup();saveViewport(next);},cancel=(value?:Event)=>{if(value instanceof globalThis.PointerEvent&&value.pointerId!==pointerId)return;cleanup();publish(start);};
+  interaction.current=cancel;window.addEventListener('pointermove',changed);window.addEventListener('pointerup',done);window.addEventListener('pointercancel',cancel);window.addEventListener('blur',cancel);
  };
  return <section className="workspace-canvas-shell" data-embedded={embedded} aria-label={`${canvas.name} canvas`}>
   {!embedded&&<div className="canvas-toolbar"><strong>{canvas.name}</strong>{canvas.preset==='all-agents'&&<div className="canvas-filter" role="group" aria-label="Agent history filter"><button aria-pressed={canvas.filter==='active'} onClick={()=>run(()=>setFilter('active'))}>Active & pinned</button><button aria-pressed={canvas.filter==='all'} onClick={()=>run(()=>setFilter('all'))}>All history</button></div>}<span className="canvas-toolbar-spacer"/>
