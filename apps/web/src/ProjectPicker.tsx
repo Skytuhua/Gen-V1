@@ -107,9 +107,9 @@ function ProjectPickerDialog({ authority, projects, selectedProjectId, recentPro
     {(failure || error) && <ErrorState className="project-picker-error" message={failure || error || ''}/>}
     <footer className="project-picker-footer">
       <button type="button" disabled={locked} onClick={() => void run(onAddProject)}><FolderPlus size={15} />Add project</button>
-      {active && <button type="button" ref={colorAnchor} disabled={locked} aria-label={`Color for ${active.name}`} aria-expanded={Boolean(editing)} onClick={() => {
+      <button type="button" ref={colorAnchor} disabled={locked || !active} aria-label={active ? `Color for ${active.name}` : 'Project color'} aria-expanded={Boolean(editing)} onClick={() => { if (!active) return;
         setColorKey(keyOf(active)); setCustom(projectColor(active.authority, active.id, colors) ?? ''); setColorError('');
-      }}><Palette size={15} /><span>Color</span></button>}
+      }}><Palette size={15} /><span>Color</span></button>
       <button type="button" disabled={locked} onClick={onClose}>Cancel</button>
     </footer>
     <p className="project-picker-hint">↑↓ navigate · Enter select · Esc cancel</p>
