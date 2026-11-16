@@ -6,7 +6,7 @@ import {createSplitWorkspaceLayout,applySplitWorkspaceCommand} from '../../packa
 import type {SplitWorkspaceLayout} from '../../packages/contracts/split-workspace';
 import {serveTaskFixture, taskFixture} from './task-interface-fixture';
 
-async function fixture(page: Page, {native = false, delayed = false, unavailable = false, invalidOwner = false, working = true, pinned = false, archiveConfirmation = true, emptyAgents = false, retiredActive = '', plugins = {} as {fail?: boolean; manifests?: unknown[]}} = {}) {
+async function fixture(page: Page, {native = false, delayed = false, unavailable = false, invalidOwner = false, working = true, pinned = false, archiveConfirmation = true, emptyAgents = false, retiredActive = '', retiredSelectionFailsOnce = false, plugins = {} as {fail?: boolean; manifests?: unknown[]}} = {}) {
   const snapshot = taskFixture({root: 'text', elements: {text: {type: 'Text', props: {text: 'Synthetic host fixture'}}}});
   snapshot.threads[0] = {...snapshot.threads[0], id: 'parent-a', title: 'Project investigation', projectId: 'project-a', projectName: 'Alpha', status: working ? 'working' : 'ready', runId: working ? 'run-a' : null};
   snapshot.activeThreadId = 'parent-a'; snapshot.artifacts = []; snapshot.userStates = []; snapshot.data = []; snapshot.messages = [];
@@ -43,6 +43,10 @@ async function fixture(page: Page, {native = false, delayed = false, unavailable
   await page.route('**/api/workspace', async route => {await gate; return failed ? route.fulfill({status: 503, json: {error: {code: 'UNAVAILABLE', message: 'Workspace unavailable'}}}) : route.fulfill({json: envelope});});
   await page.route('**/api/workspace/commands', route => {
     const input = route.request().postDataJSON();
+    if (retiredSelectionFailsOnce && input.type === 'workspace.canvas.select') {
+      retiredSelectionFailsOnce = false;
+      return route.fulfill({status: 503, json: {error: {code: 'UNAVAILABLE', message: 'Could not open the replacement workspace'}}});
+    }
     if (input.type === 'workspace.canvas.select') envelope.state.activeCanvasId = input.payload.canvasId;
     envelope.state.revision++; return route.fulfill({json: {commandId: input.id, seq: 1, result: envelope}});
   });
@@ -372,6 +376,17 @@ for (const preset of ['code-review', 'custom'] as const) test(`a saved ${preset}
   const retired = h.envelope.state.canvases.find(canvas => canvas.id === preset)!;
   expect(retired.preset).toBe(preset);
   for (const label of ['Code Review', 'Research', 'Custom']) await expect(page.getByRole('button', {name: label, exact: true})).toHaveCount(0);
+});
+
+test('Retry workspace reattempts a failed retired canvas transition at the same revision', async ({page}) => {
+  const h = await fixture(page, {working: false, retiredActive: 'custom', retiredSelectionFailsOnce: true});
+  await expect(page.getByRole('alert')).toContainText('Could not open the replacement workspace');
+  expect(h.envelope.state.revision).toBe(1);
+  await page.getByRole('button', {name: 'Retry workspace', exact: true}).click();
+  await expect(page.getByRole('textbox', {name: 'Message', exact: true})).toBeVisible();
+  expect(h.envelope.state.activeCanvasId).toBe('workspace');
+  expect(h.envelope.state.revision).toBe(2);
+  expect(h.envelope.state.canvases.find(canvas => canvas.id === 'custom')?.preset).toBe('custom');
 });
 
 test('explicit retained-canvas restoration still renders a saved retired canvas record (T05/R12)', async ({page}) => {
