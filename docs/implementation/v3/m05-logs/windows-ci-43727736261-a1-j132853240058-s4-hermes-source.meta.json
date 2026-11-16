@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "command": {
+    "argv": [
+      "python",
+      "-I",
+      "-S",
+      "-B",
+      "tests/hermes_source_contract.py",
+      "-v"
+    ],
+    "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+    "executableIdentity": "python",
+    "startedAt": "2026-11-15T15:04:52Z",
+    "endedAt": "2026-11-15T15:04:55Z",
+    "exitCode": 0,
+    "termination": "NONE",
+    "status": "PASS",
+    "boundedLogRef": "docs/implementation/v3/m05-logs/windows-ci-43727736261-a1-j132853240058-s4-hermes-source.log",
+    "logDigest": "48837628e3457046ac7ff51c785ea27e7a6a261bd496149d9d49e29b5c144fc7"
+  },
+  "runId": 43727736261,
+  "runAttempt": 1,
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "headSha": "5e835ff71ad02298ce3a7c6c080d92f5f04deb47",
+  "testedCheckout": {
+    "commitSha": "a8629917231acf1950145684a38d2c0ff937e3eb",
+    "treeSha": "d3dc4a903defee022d79be00391f6a52e7487cc3",
+    "parents": [
+      "399cde39ff4ee82272c7a7700944325c44b36070",
+      "5e835ff71ad02298ce3a7c6c080d92f5f04deb47"
+    ],
+    "matchesPublishedTree": true,
+    "rawResponseRef": "/workspace/scratch/36f66011d961/m05-ci-43727736261/checkout-commit.json",
+    "rawResponseSha256": "3c94c1b8174ab56d1562433c391700a1145b37733bca6d7abae38f64c0a08f11"
+  },
+  "job": {
+    "id": 132853240058,
+    "name": "Hermes contracts",
+    "htmlUrl": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43727736261/job/132853240058",
+    "status": "completed",
+    "conclusion": "success",
+    "runner": {
+      "id": 1000001101,
+      "name": "GitHub Actions 1000001101",
+      "groupId": 0,
+      "groupName": "GitHub Actions",
+      "labels": [
+        "windows-latest"
+      ]
+    }
+  },
+  "step": {
+    "name": "Verify original source custody",
+    "status": "completed",
+    "conclusion": "success",
+    "number": 4,
+    "started_at": "2026-11-15T15:04:52Z",
+    "completed_at": "2026-11-15T15:04:55Z"
+  },
+  "receiptRef": "/workspace/scratch/36f66011d961/m05-continuation/docs/implementation/v3/M05-windows-ci-43727736261.json",
+  "receiptSha256": "1b6dcfd82877abf30a81e012982c071cb45c64b736c13d499e7accd64ffc8d7f",
+  "rawJobLogRef": "/workspace/scratch/36f66011d961/m05-ci-43727736261/job-132853240058.log",
+  "rawJobLogDigest": "f46526e430b9efe3e31b38b9683de62a714ad79471df4e8b6fe7f06ac154ed30",
+  "rawJobLogBytes": 51087,
+  "rawPolicy": "Exact connector-decoded string encoded as UTF-8; BOM and original line endings retained. Original HTTP archive bytes are not available from this connector.",
+  "excerptLineRanges1BasedInclusive": [
+    [
+      402,
+      423
+    ]
+  ],
+  "excerptInputSha256": "45d32a583f85f9668d85046b3726d422b8a5e8c1c304d93203c3bc3409508f3e",
+  "excerptInputBytes": 2187,
+  "transformations": [
+    "EXCERPT_FROM_CONNECTOR_DECODED_JOB_LOG",
+    "UTF8_BOM_REMOVED_IF_PRESENT",
+    "ANSI_REMOVED_IF_PRESENT",
+    "LINE_ENDINGS_NORMALIZED_TO_LF"
+  ],
+  "boundedBytes": 2154,
+  "timingBasis": "OBSERVED_CI_STEP_ENVELOPE",
+  "timingLimit": "startedAt/endedAt are jobs-API step bounds at source precision. Individual command process start/end and duration are not claimed, including subcommands sharing a step.",
+  "exitBasis": "Single-command step completed successfully in the jobs API.",
+  "observedShell": "C:\\Program Files\\PowerShell\\7\\pwsh.EXE -command \". '{0}'\"",
+  "executableBasis": "Exact invoked command name; a resolved pnpm/Python executable path is not claimed.",
+  "cwdBasis": "Checkout working-directory line observed in this job; selected script contains no directory change.",
+  "observedScript": "python -I -S -B tests/hermes_source_contract.py -v"
+}

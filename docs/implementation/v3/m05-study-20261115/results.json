@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "study": "project-memory-v3-repeated-tasks",
+  "status": "MANIFEST_ONLY",
+  "createdAt": "2026-11-15T12:16:53.359Z",
+  "execution": {
+    "host": null,
+    "modelId": null,
+    "providerId": null,
+    "accountId": null,
+    "thinkingLevel": null,
+    "projectId": null,
+    "sourceThreadId": null,
+    "providerCalls": 0,
+    "foregroundSubmissions": 0
+  },
+  "fixtureDigest": "a497101f589777e661b6d3cfd3c6c9aa9a73ff0e0e1c9d1c5dfecb487c94f26f",
+  "runs": [],
+  "auxiliaryBefore": null,
+  "auxiliaryAfter": null,
+  "sourceCut": null,
+  "warmups": [],
+  "summary": {
+    "controlCorrectness": null,
+    "treatmentCorrectness": null,
+    "recallUsefulness": null,
+    "totalAuxiliaryCost": null,
+    "injectedBytes": null,
+    "retrievalLatencyMs": null
+  },
+  "gates": [
+    "Supply an actual loopback host, available model, and explicitly opted-in disposable fixture project/source conversation."
+  ],
+  "definitions": {
+    "correctness": "Exact JSON output for UTC conversion, two decimal amounts, and no extra fields. Reject recorded operations and writable grants; this inline-input study does not independently measure source-file preservation.",
+    "recallUsefulness": "Fraction of treatment outputs that are correct and whose captured request selected only the pinned policy. This is an operational proxy, not a causal truth claim.",
+    "auxiliaryCost": "All reported extraction and consolidation spend for the dedicated fixture project, including setup. Unknown cost or pending cleanup remains null.",
+    "foregroundCost": "RuntimeUsage does not specify cumulative versus per-run counters. Preserve warmup and task snapshots without subtracting them; attributed foreground charges and tokens remain null.",
+    "foregroundSubmissions": "Attempted message.send submissions, including warmup and uncertain transport outcomes. This is not a provider-call count.",
+    "control": "The same policy in existing thread notes, with every project-memory revision excluded from that exact prepared request.",
+    "ordering": "Alternating control/treatment order across three fixed tasks. Each arm uses a fresh thread and identical READY warmup with the pinned thinking level; missing warmup capture or any recalled memory rejects the study."
+  }
+}

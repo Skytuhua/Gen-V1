@@ -1,0 +1,25 @@
+2026-11-15T16:02:16.1774267Z ##[group]Run pnpm test:ui-guard
+2026-11-15T16:02:16.1774805Z pnpm test:ui-guard
+2026-11-15T16:02:16.1842899Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T16:02:16.1843434Z env:
+2026-11-15T16:02:16.1843854Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T16:02:16.1844404Z ##[endgroup]
+2026-11-15T16:02:16.8170973Z 
+2026-11-15T16:02:16.8171827Z > gen-v1@0.6.5 test:ui-guard D:\a\Gen-V1\Gen-V1
+2026-11-15T16:02:16.8172964Z > vitest run tests/ui-guard.test.ts tests/ui-numeric-children.test.ts --maxWorkers=1
+2026-11-15T16:02:16.8173908Z 
+2026-11-15T16:02:17.3839315Z 
+2026-11-15T16:02:17.3842090Z  RUN  v4.1.12 D:/a/Gen-V1/Gen-V1
+2026-11-15T16:02:17.3842731Z 
+2026-11-15T16:02:25.6122214Z  ✓ tests/ui-guard.test.ts (29 tests) 7557ms
+2026-11-15T16:02:25.6124145Z      ✓ follows declared map callbacks and array-returning components  424ms
+2026-11-15T16:02:25.6125888Z      ✓ keeps hoisted discarded callbacks equivalent to inline handlers, while checking dual render use  419ms
+2026-11-15T16:02:25.6127823Z      ✓ checks helper HTML at srcdoc and explicit HTML response sinks without flagging unused documentation  311ms
+2026-11-15T16:02:25.6128941Z    ✓ the CLI exits nonzero for seeded numeric and overlay violations in an existing legacy file  2504ms
+2026-11-15T16:02:26.6540034Z  ✓ tests/ui-numeric-children.test.ts (2 tests) 13ms
+2026-11-15T16:02:26.6578666Z 
+2026-11-15T16:02:26.6584242Z  Test Files  2 passed (2)
+2026-11-15T16:02:26.6585493Z       Tests  31 passed (31)
+2026-11-15T16:02:26.6586607Z    Start at  16:02:17
+2026-11-15T16:02:26.6587588Z    Duration  9.25s (transform 732ms, setup 0ms, import 1.32s, tests 7.57s, environment 0ms)
+2026-11-15T16:02:26.6588703Z 

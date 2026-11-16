@@ -1,0 +1,29 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/memory-study-v3.test.ts (14 tests | 1 failed) 346ms
+   × accepts the admitted owner binding and metadata-only captured scores while preserving exact preparation evidence 12ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-study-v3.test.ts > accepts the admitted owner binding and metadata-only captured scores while preserving exact preparation evidence
+AssertionError: expected 'SETUP_FAILED' to be 'EXECUTED' // Object.is equality
+
+Expected: "EXECUTED"
+Received: "SETUP_FAILED"
+
+ ❯ tests/memory-study-v3.test.ts:112:25
+    110| it('accepts the admitted owner binding and metadata-only captured scor…
+    111|   const report = await liveProtocol({nativeCapture: true}).run();
+    112|   expect(report.status).toBe('EXECUTED'); expect(report.runs).toHaveLe…
+       |                         ^
+    113| });
+    114| it.each(['account', 'selection', 'query', 'score'] as const)('rejects …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 13 passed (14)
+   Start at  20:06:30
+   Duration  623ms (transform 90ms, setup 0ms, import 154ms, tests 346ms, environment 0ms)

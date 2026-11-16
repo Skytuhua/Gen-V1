@@ -1,0 +1,83 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-v3
+
+ ❯ tests/memory-restored-index-v3.test.ts (3 tests | 3 failed) 81ms
+   × recomputes collateral source dependencies when a backup restores an older index payload 46ms
+   × invalidates a restored collateral index even when its deletion projection already matches the ledger 13ms
+   × rechecks restored collateral references in the same host before a physical purge batch 20ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-restored-index-v3.test.ts > recomputes collateral source dependencies when a backup restores an older index payload
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/memory-restored-index-v3.test.ts:30:84
+     28|   expect(memory.accepted(access)).toEqual([]);
+     29|   expect(memory.sourceAvailable(access, f.ref)).toBe(false);
+     30|   expect(f.store.get<typeof oldIndex>('projectMemoryDerived', oldIndex…
+       |                                                                                    ^
+     31|   expect(memory.read(access).tombstones[0].affectedDerivedArtifacts).t…
+     32|   expect(memory.purge(Date.now() + 8 * 86400000)).toBe(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/memory-restored-index-v3.test.ts > invalidates a restored collateral index even when its deletion projection already matches the ledger
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/memory-restored-index-v3.test.ts:45:94
+     43|   f.store.internal('fixture.derived-only-replay', null, () => f.store.…
+     44|   const memory = new ProjectMemory(f.store, { enabled: () => true }), …
+     45|   expect(f.store.get<typeof restoredIndex>('projectMemoryDerived', res…
+       |                                                                                              ^
+     46|   expect(memory.read(access).tombstones[0].affectedDerivedArtifacts).t…
+     47|   expect(memory.purge(Date.now() + 8 * 86400000)).toBe(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  tests/memory-restored-index-v3.test.ts > rechecks restored collateral references in the same host before a physical purge batch
+AssertionError: expected { id: 'same-index', …(4) } to be null
+
+- Expected:
+null
+
++ Received:
+{
+  "accountId": "account",
+  "id": "same-index",
+  "projectIdentity": "b6c2313d278d308cc059ede6b7dee4f9f42e09cd0eab6d8a497c2a3dfb3f55f3",
+  "refs": [
+    {
+      "itemId": "6d0736f2-b5c8-4a6b-95e3-e3bf069868cb",
+      "revision": 2,
+    },
+  ],
+  "valid": true,
+}
+
+ ❯ tests/memory-restored-index-v3.test.ts:57:65
+     55|   f.store.internal('fixture.live-derived-replay', null, () => f.store.…
+     56|   expect(f.memory.purge(Date.now() + 8 * 86400000)).toBe(1);
+     57|   expect(f.store.get('projectMemoryDerived', restoredIndex.id)).toBeNu…
+       |                                                                 ^
+     58|   expect(f.memory.read(f.access).tombstones[0].affectedDerivedArtifact…
+     59| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  18:50:15
+   Duration  1.12s (transform 443ms, setup 0ms, import 653ms, tests 81ms, environment 0ms)

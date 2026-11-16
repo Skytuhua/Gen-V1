@@ -1,0 +1,558 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ × tests/desktop-memory-export.test.ts > keeps an ordinary download denied without an explicit memory export request 18ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > admits canonical main-owned JSON once and acknowledges only a completed native save 13ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > allows the owning detached {"kind":"thread","threadId":"thread-a"} surface 2ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > allows the owning detached {"kind":"plan","threadId":"thread-a"} surface 2ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > allows the owning detached {"kind":"workspace","threadId":"thread-a","tab":"context"} surface 2ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"plugin","pluginId":"plugin-a","scopeId":"scope-a","surfaceId":"view-a"} 3ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"browser","browserId":"browser-a"} 5ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"navigation"} 2ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"usage","threadId":"thread-a"} 2ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"thread","threadId":"foreign"} 2ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"plan","threadId":"foreign"} 2ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"workspace","threadId":"foreign","tab":"context"} 1ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"workspace","tab":"context"} 2ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > does not consume the permit for a foreign origin 1ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > does not consume the permit for a foreign url 2ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > does not consume the permit for a foreign filename 3ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > does not consume the permit for a foreign chain 2ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > does not consume the permit for a foreign frame 1ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > does not consume the permit for a foreign contents 1ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > refuses a changed live owner before a pending native download is admitted 1ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > revokes a pending export on navigation 2ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > revokes a pending export on destroyed 2ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > revokes a pending export on replacement frame 2ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > expires an unused grant and never authorizes a late matching download 4ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > cancels a hung admitted save within its separate completion bound 2ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > reports native cancellation without claiming the file was saved 2ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > refuses to acknowledge a completed export after interrupted 2ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > refuses to acknowledge a completed export after short bytes 1ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > revokes the grant when fixed-script execution fails 2ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > does not replace a live export with a second same-window request 1ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > rejects invalid or unredacted input before creating a grant 1ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > rejects invalid or unredacted input before creating a grant 1ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > rejects invalid or unredacted input before creating a grant 1ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > rejects invalid or unredacted input before creating a grant 1ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > rejects invalid or unredacted input before creating a grant 1ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > bounds UTF-8 input before JSON parsing or script execution 1ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/desktop-memory-export.test.ts > supports the full schema with escaped control text without a one-megabyte truncation 1ms
+   → Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+ × tests/memory-export-client-v3.test.ts > passes only a validated server export through the native bridge and binds its completed receipt 185ms
+   → The native export branch must preserve HTTP scope admission and await the native save result.: expected undefined to be type of 'function'
+ × tests/memory-export-client-v3.test.ts > does not offer a foreign server scope to the native download policy 4ms
+   → The native export branch must preserve HTTP scope admission and await the native save result.: expected undefined to be type of 'function'
+ × tests/memory-export-client-v3.test.ts > fails closed on an older desktop bridge instead of attempting the blocked browser download 3ms
+   → The native export branch must preserve HTTP scope admission and await the native save result.: expected undefined to be type of 'function'
+ × tests/memory-export-client-v3.test.ts > does not fall back to an arbitrary browser download when native export is refused 2ms
+   → The native export branch must preserve HTTP scope admission and await the native save result.: expected undefined to be type of 'function'
+ × tests/memory-export-client-v3.test.ts > rejects native completion metadata that does not attest the exact export 3ms
+   → The native export branch must preserve HTTP scope admission and await the native save result.: expected undefined to be type of 'function'
+ × tests/memory-export-client-v3.test.ts > rejects native completion metadata that does not attest the exact export 3ms
+   → The native export branch must preserve HTTP scope admission and await the native save result.: expected undefined to be type of 'function'
+ × tests/memory-export-client-v3.test.ts > rejects native completion metadata that does not attest the exact export 2ms
+   → The native export branch must preserve HTTP scope admission and await the native save result.: expected undefined to be type of 'function'
+ × tests/memory-export-client-v3.test.ts > rejects native completion metadata that does not attest the exact export 9ms
+   → The native export branch must preserve HTTP scope admission and await the native save result.: expected undefined to be type of 'function'
+ × tests/memory-export-client-v3.test.ts > rejects native completion metadata that does not attest the exact export 3ms
+   → The native export branch must preserve HTTP scope admission and await the native save result.: expected undefined to be type of 'function'
+ × tests/memory-export-client-v3.test.ts > retains cancellation as cancellation rather than reporting a saved export 3ms
+   → The native export branch must preserve HTTP scope admission and await the native save result.: expected undefined to be type of 'function'
+ × tests/memory-export-client-v3.test.ts > does not acknowledge a native save after the owning review has changed 3ms
+   → The native export branch must preserve HTTP scope admission and await the native save result.: expected undefined to be type of 'function'
+ × tests/memory-export-client-v3.test.ts > keeps the ordinary browser export path without granting it native save status 3ms
+   → The native export branch must preserve HTTP scope admission and await the native save result.: expected undefined to be type of 'function'
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 49 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/desktop-memory-export.test.ts > keeps an ordinary download denied without an explicit memory export request
+AssertionError: Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/desktop-memory-export.test.ts:13:117
+     11| const implementation = async () => {
+     12|   const module = await import('../apps/desktop/memory-export.ts').catc…
+     13|   expect(module?.createMemoryExportDownloads, 'Native export must use …
+       |                                                                                                                     ^
+     14|   return module!;
+     15| };
+ ❯ fixture tests/desktop-memory-export.test.ts:55:18
+ ❯ tests/desktop-memory-export.test.ts:71:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/49]⎯
+
+ FAIL  tests/desktop-memory-export.test.ts > admits canonical main-owned JSON once and acknowledges only a completed native save
+AssertionError: Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/desktop-memory-export.test.ts:13:117
+     11| const implementation = async () => {
+     12|   const module = await import('../apps/desktop/memory-export.ts').catc…
+     13|   expect(module?.createMemoryExportDownloads, 'Native export must use …
+       |                                                                                                                     ^
+     14|   return module!;
+     15| };
+ ❯ fixture tests/desktop-memory-export.test.ts:55:18
+ ❯ tests/desktop-memory-export.test.ts:75:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/49]⎯
+
+ FAIL  tests/desktop-memory-export.test.ts > allows the owning detached {"kind":"thread","threadId":"thread-a"} surface
+ FAIL  tests/desktop-memory-export.test.ts > allows the owning detached {"kind":"plan","threadId":"thread-a"} surface
+ FAIL  tests/desktop-memory-export.test.ts > allows the owning detached {"kind":"workspace","threadId":"thread-a","tab":"context"} surface
+AssertionError: Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/desktop-memory-export.test.ts:13:117
+     11| const implementation = async () => {
+     12|   const module = await import('../apps/desktop/memory-export.ts').catc…
+     13|   expect(module?.createMemoryExportDownloads, 'Native export must use …
+       |                                                                                                                     ^
+     14|   return module!;
+     15| };
+ ❯ fixture tests/desktop-memory-export.test.ts:55:18
+ ❯ tests/desktop-memory-export.test.ts:90:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/49]⎯
+
+ FAIL  tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"plugin","pluginId":"plugin-a","scopeId":"scope-a","surfaceId":"view-a"}
+ FAIL  tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"browser","browserId":"browser-a"}
+ FAIL  tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"navigation"}
+ FAIL  tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"usage","threadId":"thread-a"}
+ FAIL  tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"thread","threadId":"foreign"}
+ FAIL  tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"plan","threadId":"foreign"}
+ FAIL  tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"workspace","threadId":"foreign","tab":"context"}
+ FAIL  tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"workspace","tab":"context"}
+AssertionError: Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/desktop-memory-export.test.ts:13:117
+     11| const implementation = async () => {
+     12|   const module = await import('../apps/desktop/memory-export.ts').catc…
+     13|   expect(module?.createMemoryExportDownloads, 'Native export must use …
+       |                                                                                                                     ^
+     14|   return module!;
+     15| };
+ ❯ fixture tests/desktop-memory-export.test.ts:55:18
+ ❯ tests/desktop-memory-export.test.ts:95:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/49]⎯
+
+ FAIL  tests/desktop-memory-export.test.ts > does not consume the permit for a foreign origin
+ FAIL  tests/desktop-memory-export.test.ts > does not consume the permit for a foreign url
+ FAIL  tests/desktop-memory-export.test.ts > does not consume the permit for a foreign filename
+ FAIL  tests/desktop-memory-export.test.ts > does not consume the permit for a foreign chain
+ FAIL  tests/desktop-memory-export.test.ts > does not consume the permit for a foreign frame
+ FAIL  tests/desktop-memory-export.test.ts > does not consume the permit for a foreign contents
+AssertionError: Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/desktop-memory-export.test.ts:13:117
+     11| const implementation = async () => {
+     12|   const module = await import('../apps/desktop/memory-export.ts').catc…
+     13|   expect(module?.createMemoryExportDownloads, 'Native export must use …
+       |                                                                                                                     ^
+     14|   return module!;
+     15| };
+ ❯ fixture tests/desktop-memory-export.test.ts:55:18
+ ❯ tests/desktop-memory-export.test.ts:99:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/49]⎯
+
+ FAIL  tests/desktop-memory-export.test.ts > refuses a changed live owner before a pending native download is admitted
+AssertionError: Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/desktop-memory-export.test.ts:13:117
+     11| const implementation = async () => {
+     12|   const module = await import('../apps/desktop/memory-export.ts').catc…
+     13|   expect(module?.createMemoryExportDownloads, 'Native export must use …
+       |                                                                                                                     ^
+     14|   return module!;
+     15| };
+ ❯ fixture tests/desktop-memory-export.test.ts:55:18
+ ❯ tests/desktop-memory-export.test.ts:108:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/49]⎯
+
+ FAIL  tests/desktop-memory-export.test.ts > revokes a pending export on navigation
+ FAIL  tests/desktop-memory-export.test.ts > revokes a pending export on destroyed
+ FAIL  tests/desktop-memory-export.test.ts > revokes a pending export on replacement frame
+AssertionError: Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/desktop-memory-export.test.ts:13:117
+     11| const implementation = async () => {
+     12|   const module = await import('../apps/desktop/memory-export.ts').catc…
+     13|   expect(module?.createMemoryExportDownloads, 'Native export must use …
+       |                                                                                                                     ^
+     14|   return module!;
+     15| };
+ ❯ fixture tests/desktop-memory-export.test.ts:55:18
+ ❯ tests/desktop-memory-export.test.ts:113:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/49]⎯
+
+ FAIL  tests/desktop-memory-export.test.ts > expires an unused grant and never authorizes a late matching download
+AssertionError: Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/desktop-memory-export.test.ts:13:117
+     11| const implementation = async () => {
+     12|   const module = await import('../apps/desktop/memory-export.ts').catc…
+     13|   expect(module?.createMemoryExportDownloads, 'Native export must use …
+       |                                                                                                                     ^
+     14|   return module!;
+     15| };
+ ❯ fixture tests/desktop-memory-export.test.ts:55:18
+ ❯ tests/desktop-memory-export.test.ts:121:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/49]⎯
+
+ FAIL  tests/desktop-memory-export.test.ts > cancels a hung admitted save within its separate completion bound
+AssertionError: Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/desktop-memory-export.test.ts:13:117
+     11| const implementation = async () => {
+     12|   const module = await import('../apps/desktop/memory-export.ts').catc…
+     13|   expect(module?.createMemoryExportDownloads, 'Native export must use …
+       |                                                                                                                     ^
+     14|   return module!;
+     15| };
+ ❯ fixture tests/desktop-memory-export.test.ts:55:18
+ ❯ tests/desktop-memory-export.test.ts:126:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/49]⎯
+
+ FAIL  tests/desktop-memory-export.test.ts > reports native cancellation without claiming the file was saved
+AssertionError: Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/desktop-memory-export.test.ts:13:117
+     11| const implementation = async () => {
+     12|   const module = await import('../apps/desktop/memory-export.ts').catc…
+     13|   expect(module?.createMemoryExportDownloads, 'Native export must use …
+       |                                                                                                                     ^
+     14|   return module!;
+     15| };
+ ❯ fixture tests/desktop-memory-export.test.ts:55:18
+ ❯ tests/desktop-memory-export.test.ts:131:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/49]⎯
+
+ FAIL  tests/desktop-memory-export.test.ts > refuses to acknowledge a completed export after interrupted
+ FAIL  tests/desktop-memory-export.test.ts > refuses to acknowledge a completed export after short bytes
+AssertionError: Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/desktop-memory-export.test.ts:13:117
+     11| const implementation = async () => {
+     12|   const module = await import('../apps/desktop/memory-export.ts').catc…
+     13|   expect(module?.createMemoryExportDownloads, 'Native export must use …
+       |                                                                                                                     ^
+     14|   return module!;
+     15| };
+ ❯ fixture tests/desktop-memory-export.test.ts:55:18
+ ❯ tests/desktop-memory-export.test.ts:136:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/49]⎯
+
+ FAIL  tests/desktop-memory-export.test.ts > revokes the grant when fixed-script execution fails
+AssertionError: Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/desktop-memory-export.test.ts:13:117
+     11| const implementation = async () => {
+     12|   const module = await import('../apps/desktop/memory-export.ts').catc…
+     13|   expect(module?.createMemoryExportDownloads, 'Native export must use …
+       |                                                                                                                     ^
+     14|   return module!;
+     15| };
+ ❯ fixture tests/desktop-memory-export.test.ts:55:18
+ ❯ tests/desktop-memory-export.test.ts:142:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/49]⎯
+
+ FAIL  tests/desktop-memory-export.test.ts > does not replace a live export with a second same-window request
+AssertionError: Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/desktop-memory-export.test.ts:13:117
+     11| const implementation = async () => {
+     12|   const module = await import('../apps/desktop/memory-export.ts').catc…
+     13|   expect(module?.createMemoryExportDownloads, 'Native export must use …
+       |                                                                                                                     ^
+     14|   return module!;
+     15| };
+ ❯ fixture tests/desktop-memory-export.test.ts:55:18
+ ❯ tests/desktop-memory-export.test.ts:147:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/49]⎯
+
+ FAIL  tests/desktop-memory-export.test.ts > rejects invalid or unredacted input before creating a grant
+ FAIL  tests/desktop-memory-export.test.ts > rejects invalid or unredacted input before creating a grant
+ FAIL  tests/desktop-memory-export.test.ts > rejects invalid or unredacted input before creating a grant
+ FAIL  tests/desktop-memory-export.test.ts > rejects invalid or unredacted input before creating a grant
+ FAIL  tests/desktop-memory-export.test.ts > rejects invalid or unredacted input before creating a grant
+AssertionError: Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/desktop-memory-export.test.ts:13:117
+     11| const implementation = async () => {
+     12|   const module = await import('../apps/desktop/memory-export.ts').catc…
+     13|   expect(module?.createMemoryExportDownloads, 'Native export must use …
+       |                                                                                                                     ^
+     14|   return module!;
+     15| };
+ ❯ fixture tests/desktop-memory-export.test.ts:55:18
+ ❯ tests/desktop-memory-export.test.ts:152:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/49]⎯
+
+ FAIL  tests/desktop-memory-export.test.ts > bounds UTF-8 input before JSON parsing or script execution
+AssertionError: Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/desktop-memory-export.test.ts:13:117
+     11| const implementation = async () => {
+     12|   const module = await import('../apps/desktop/memory-export.ts').catc…
+     13|   expect(module?.createMemoryExportDownloads, 'Native export must use …
+       |                                                                                                                     ^
+     14|   return module!;
+     15| };
+ ❯ fixture tests/desktop-memory-export.test.ts:55:18
+ ❯ tests/desktop-memory-export.test.ts:156:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/49]⎯
+
+ FAIL  tests/desktop-memory-export.test.ts > supports the full schema with escaped control text without a one-megabyte truncation
+AssertionError: Native export must use a bounded explicit one-use download policy.: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ implementation tests/desktop-memory-export.test.ts:13:117
+     11| const implementation = async () => {
+     12|   const module = await import('../apps/desktop/memory-export.ts').catc…
+     13|   expect(module?.createMemoryExportDownloads, 'Native export must use …
+       |                                                                                                                     ^
+     14|   return module!;
+     15| };
+ ❯ fixture tests/desktop-memory-export.test.ts:55:18
+ ❯ tests/desktop-memory-export.test.ts:160:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/49]⎯
+
+ FAIL  tests/memory-export-client-v3.test.ts > passes only a validated server export through the native bridge and binds its completed receipt
+AssertionError: The native export branch must preserve HTTP scope admission and await the native save result.: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ client tests/memory-export-client-v3.test.ts:11:137
+      9| const client = async () => {
+     10|   const module = await import('../apps/web/src/project-memory-api.ts');
+     11|   expect(module.downloadProjectMemory, 'The native export branch must …
+       |                                                                                                                                         ^
+     12|   return module;
+     13| };
+ ❯ tests/memory-export-client-v3.test.ts:20:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/49]⎯
+
+ FAIL  tests/memory-export-client-v3.test.ts > does not offer a foreign server scope to the native download policy
+AssertionError: The native export branch must preserve HTTP scope admission and await the native save result.: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ client tests/memory-export-client-v3.test.ts:11:137
+      9| const client = async () => {
+     10|   const module = await import('../apps/web/src/project-memory-api.ts');
+     11|   expect(module.downloadProjectMemory, 'The native export branch must …
+       |                                                                                                                                         ^
+     12|   return module;
+     13| };
+ ❯ tests/memory-export-client-v3.test.ts:29:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/49]⎯
+
+ FAIL  tests/memory-export-client-v3.test.ts > fails closed on an older desktop bridge instead of attempting the blocked browser download
+AssertionError: The native export branch must preserve HTTP scope admission and await the native save result.: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ client tests/memory-export-client-v3.test.ts:11:137
+      9| const client = async () => {
+     10|   const module = await import('../apps/web/src/project-memory-api.ts');
+     11|   expect(module.downloadProjectMemory, 'The native export branch must …
+       |                                                                                                                                         ^
+     12|   return module;
+     13| };
+ ❯ tests/memory-export-client-v3.test.ts:34:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/49]⎯
+
+ FAIL  tests/memory-export-client-v3.test.ts > does not fall back to an arbitrary browser download when native export is refused
+AssertionError: The native export branch must preserve HTTP scope admission and await the native save result.: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ client tests/memory-export-client-v3.test.ts:11:137
+      9| const client = async () => {
+     10|   const module = await import('../apps/web/src/project-memory-api.ts');
+     11|   expect(module.downloadProjectMemory, 'The native export branch must …
+       |                                                                                                                                         ^
+     12|   return module;
+     13| };
+ ❯ tests/memory-export-client-v3.test.ts:40:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/49]⎯
+
+ FAIL  tests/memory-export-client-v3.test.ts > rejects native completion metadata that does not attest the exact export
+ FAIL  tests/memory-export-client-v3.test.ts > rejects native completion metadata that does not attest the exact export
+ FAIL  tests/memory-export-client-v3.test.ts > rejects native completion metadata that does not attest the exact export
+ FAIL  tests/memory-export-client-v3.test.ts > rejects native completion metadata that does not attest the exact export
+ FAIL  tests/memory-export-client-v3.test.ts > rejects native completion metadata that does not attest the exact export
+AssertionError: The native export branch must preserve HTTP scope admission and await the native save result.: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ client tests/memory-export-client-v3.test.ts:11:137
+      9| const client = async () => {
+     10|   const module = await import('../apps/web/src/project-memory-api.ts');
+     11|   expect(module.downloadProjectMemory, 'The native export branch must …
+       |                                                                                                                                         ^
+     12|   return module;
+     13| };
+ ❯ tests/memory-export-client-v3.test.ts:45:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/49]⎯
+
+ FAIL  tests/memory-export-client-v3.test.ts > retains cancellation as cancellation rather than reporting a saved export
+AssertionError: The native export branch must preserve HTTP scope admission and await the native save result.: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ client tests/memory-export-client-v3.test.ts:11:137
+      9| const client = async () => {
+     10|   const module = await import('../apps/web/src/project-memory-api.ts');
+     11|   expect(module.downloadProjectMemory, 'The native export branch must …
+       |                                                                                                                                         ^
+     12|   return module;
+     13| };
+ ❯ tests/memory-export-client-v3.test.ts:50:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/49]⎯
+
+ FAIL  tests/memory-export-client-v3.test.ts > does not acknowledge a native save after the owning review has changed
+AssertionError: The native export branch must preserve HTTP scope admission and await the native save result.: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ client tests/memory-export-client-v3.test.ts:11:137
+      9| const client = async () => {
+     10|   const module = await import('../apps/web/src/project-memory-api.ts');
+     11|   expect(module.downloadProjectMemory, 'The native export branch must …
+       |                                                                                                                                         ^
+     12|   return module;
+     13| };
+ ❯ tests/memory-export-client-v3.test.ts:56:17
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/49]⎯
+
+ FAIL  tests/memory-export-client-v3.test.ts > keeps the ordinary browser export path without granting it native save status
+AssertionError: The native export branch must preserve HTTP scope admission and await the native save result.: expected undefined to be type of 'function'
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ client tests/memory-export-client-v3.test.ts:11:137
+      9| const client = async () => {
+     10|   const module = await import('../apps/web/src/project-memory-api.ts');
+     11|   expect(module.downloadProjectMemory, 'The native export branch must …
+       |                                                                                                                                         ^
+     12|   return module;
+     13| };
+ ❯ tests/memory-export-client-v3.test.ts:64:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/49]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  49 failed (49)
+   Start at  03:28:18
+   Duration  532ms (transform 161ms, setup 0ms, import 130ms, tests 320ms, environment 0ms)

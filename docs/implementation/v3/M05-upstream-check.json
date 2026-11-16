@@ -1,0 +1,18 @@
+{
+  "repository": "skytuhua-org/Gen-V1",
+  "repositoryId": 1442565952,
+  "origin": "https://github.com/Skytuhua/Gen-V1.git",
+  "acceptedBase": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+  "mainRef": "refs/heads/main",
+  "mainRefSource": "https://api.github.com/repos/skytuhua-org/Gen-V1/git/ref/heads/main",
+  "m04": {
+    "url": "https://github.com/skytuhua-org/Gen-V1/pull/326",
+    "state": "open",
+    "draft": true,
+    "merged": false,
+    "baseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+    "headSha": "ee2c7ad1d8137a355ae907ef0a340b04c8cb7c38",
+    "updatedAt": "2026-11-15T10:45:13Z",
+    "limitation": "Unmerged handoff explicitly requires additional integration and exact-head acceptance. It is not an accepted M04 contract."
+  }
+}

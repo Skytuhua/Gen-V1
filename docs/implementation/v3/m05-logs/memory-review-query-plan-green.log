@@ -1,0 +1,3 @@
+{"name":"revisions","plan":["SEARCH entities USING INDEX project_memory_revisions_scope (<expr>=? AND <expr>=? AND <expr>=?)"]}
+{"name":"items","plan":["SEARCH entities USING INDEX project_memory_items_scope (<expr>=? AND <expr>=?)"]}
+{"name":"tombstones","plan":["SEARCH entities USING INDEX project_memory_tombstones_scope (<expr>=? AND <expr>=? AND <expr>=?)"]}

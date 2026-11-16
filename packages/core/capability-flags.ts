@@ -59,6 +59,9 @@ export type M08FlagKey = (typeof M08_FLAG_KEYS)[number];
 export const M04_CORE_FLAG_KEYS = ["context.compilerV1"] as const;
 export type M04CoreFlagKey = (typeof M04_CORE_FLAG_KEYS)[number];
 
+export const M05_FLAG_KEYS = ["memory.projectV1", "memory.externalRecallExperimentV1"] as const;
+export type M05FlagKey = (typeof M05_FLAG_KEYS)[number];
+
 // M09 flag set: typed multi-agent work. The single key admits the
 // AgentWorkV1 coordinator surface; role availability stays separately gated
 // by each role's own registered host capability proof.
@@ -76,10 +79,12 @@ export const M11_FLAG_KEYS = [
 ] as const;
 export type M11FlagKey = (typeof M11_FLAG_KEYS)[number];
 
-export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M04CoreFlagKey | M09FlagKey | M11FlagKey;
+export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M04CoreFlagKey | M05FlagKey | M09FlagKey | M11FlagKey;
 
 const hostFlags = createCapabilityFlags<CapabilityFlagKey>([
   { key: "context.compilerV1", owner: "m04-core", description: "Host-issued immutable request preparation and measured context receipts." },
+  { key: "memory.projectV1", owner: "m05", description: "Opt-in source-linked project memory; reviewed request integration required." },
+  { key: "memory.externalRecallExperimentV1", owner: "m05", description: "Separate bounded external recall experiment; provider and egress consent required." },
   { key: "audit.effectsV1", owner: "m02", description: "Append-only tool-effect ledger and owner-fenced read models." },
   { key: "security.authorityV1", owner: "m02", description: "Single-use approvals and the pre-dispatch authority gate." },
   { key: "workspace.provenanceV1", owner: "m08", description: "Edit provenance journal: prepared markers and proven/process-window receipts." },

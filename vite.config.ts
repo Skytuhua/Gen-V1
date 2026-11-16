@@ -14,6 +14,8 @@ function devProxy() {
 export const application = defineConfig({
   root: "apps/web",
   plugins: [react()],
+  // Prepare the lazy PDF renderer before a fixture can trigger a new dependency generation.
+  optimizeDeps: { include: ["pdfjs-dist/legacy/build/pdf.mjs"] },
   build: { outDir: "../../dist/web", emptyOutDir: true }
 });
 

@@ -1,0 +1,77 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-v3
+
+ ❯ tests/memory-forget-v3.test.ts (9 tests | 1 failed | 8 skipped) 37ms
+   × keeps an authoritative deletion fence outside an in-place full-profile backup restore 36ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-forget-v3.test.ts > keeps an authoritative deletion fence outside an in-place full-profile backup restore
+AssertionError: expected [ { item: { …(14) }, …(4) } ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   {
++     "accountId": "account",
++     "item": {
++       "assertedBy": {
++         "id": "agent",
++         "kind": "AGENT",
++       },
++       "expiresAt": null,
++       "id": "3fd5b648-ea64-40ba-ad44-8fb8dd21e6c9",
++       "kind": "DECISION",
++       "observedAt": "2026-11-15T10:45:34.313Z",
++       "projectIdentity": "74032ee8ec423e7b5f7f39af37b4caab93e7b215bbd1c26bd2ae2f36ed778756",
++       "reviewDecision": {
++         "action": "ACCEPT",
++         "at": "2026-11-15T10:45:34.317Z",
++         "userId": "local-user",
++       },
++       "revision": 2,
++       "scope": "PROJECT",
++       "sensitivity": "NORMAL",
++       "sourceRefs": [
++         {
++           "capturedSeq": 2,
++           "digest": "4a55c04ba4b6ce663d4dcfdd2c192153bfee03bdf6463882b71607c65ebf7fb9",
++           "observedStatus": "REPORTED",
++           "ownerThreadId": "thread",
++           "sourceId": "source",
++           "sourceKind": "MESSAGE",
++           "sourceRevision": "ecf6161f949705e269439e9d4658dd0fd1e04c4c6f6f1bb93cc504cf74377e1c",
++         },
++       ],
++       "state": "ACCEPTED",
++       "supersedes": [
++         {
++           "itemId": "3fd5b648-ea64-40ba-ad44-8fb8dd21e6c9",
++           "revision": 1,
++         },
++       ],
++       "text": "Do not restore this forgotten claim",
++     },
++     "lastUsedAt": null,
++     "profileId": "926e2d168e35ff1074fe7af8a3c7a139a8c644bf2afb23f344bce3d794d83c5d",
++     "projectId": "project",
++   },
++ ]
+
+ ❯ tests/memory-forget-v3.test.ts:92:35
+     90|   f.store = new Store(dataDir);
+     91|   const memory = new ProjectMemory(f.store, { enabled: () => true }), …
+     92|   expect(memory.accepted(access)).toEqual([]);
+       |                                   ^
+     93|   expect(memory.read(access).tombstones.map(t => t.itemId)).toContain(…
+     94|   expect(() => memory.source(access, item.id, item.revision, f.ref.dig…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 8 skipped (9)
+   Start at  18:45:33
+   Duration  607ms (transform 276ms, setup 0ms, import 377ms, tests 37ms, environment 0ms)

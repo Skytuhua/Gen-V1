@@ -2,6 +2,7 @@ import {expect,it,vi} from 'vitest';
 import type {RuntimeAdapter,RuntimeCallbacks,StartRun} from '../packages/contracts/index.ts';
 import {createHermesBroker} from '../packages/runtime-hermes/broker.ts';
 import {RequestMetrics,RequestMetricsLog} from '../packages/runtime/request-metrics.ts';
+import {RequestScheduler} from '../packages/runtime/request-scheduler.ts';
 import {assertCapabilities,hermesModelTransportCapabilities} from '../packages/runtime/request-capabilities.ts';
 import {modelRequestObservationV1Schema,requestCapabilitiesV1Schema} from '../packages/contracts/model-request.ts';
 
@@ -67,7 +68,7 @@ it('thrown failures record a failed outcome and failed disposal never confirms t
   const response=await post(b,{sessionId:'acp',modelId:input.modelId,prompt:'x'});
   expect(response.status).toBe(400);
   const observation=b.observation(1)!;
-  expect(observation.outcome).toBe('failed');expect(observation.error).toContain('engine refused');
+  expect(observation.outcome).toBe('failed');expect(observation.error).toBe('The owned model request failed.');
   // The runtime was created so teardown still ran and was confirmed.
   expect(observation.timings.teardownConfirmed).not.toBeNull();
  }finally{await b.close();}
@@ -80,6 +81,42 @@ it('thrown failures record a failed outcome and failed disposal never confirms t
   const observation=b2.observation(1)!;
   expect(observation.outcome).toBe('failed');expect(observation.timings.teardownConfirmed).toBeNull();
  }finally{await b2.close().catch(()=>{});}
+});
+it.each(['start','dispose'] as const)('%s failure never copies source prose or credential text into broker observations',async phase=>{
+ const source='Private source prose: the release handoff codeword is scarlet ibis.',credential='sk-test-M05_TELEMETRY_ONLY_NOT_A_REAL_KEY_7c31f81e';
+ const failure=new Error(`${source} Credential: ${credential}`),n=native(),scheduler=new RequestScheduler(1),emitted:unknown[]=[],log=new RequestMetricsLog();
+ if(phase==='start')n.runtime.start=vi.fn(async()=>{throw failure;});else n.runtime.dispose=vi.fn(async()=>{throw failure;});
+ const b=await createHermesBroker({input,createRuntime:()=>n.runtime,scheduler,onObservation:value=>{emitted.push(structuredClone(value));log.record(structuredClone(value));}});
+ try{
+  b.expect({sequence:1,inputIds:['input'],phase:'foreground'});
+  const response=post(b,{sessionId:'acp',modelId:input.modelId,prompt:source});
+  if(phase==='dispose'){
+   await vi.waitFor(()=>expect(n.runtime.start).toHaveBeenCalled());
+   n.event('assistant.message',{content:'Buffered output is withheld after failed teardown.'});
+   n.event('usage',{usage:{inputTokens:7,outputTokens:3}});n.event('settled');
+  }
+  expect((await response).status).toBe(400);
+  const stored=b.observation(1)!;expect(stored).not.toBeNull();expect(emitted).toHaveLength(1);expect(log.list()).toHaveLength(1);
+  for(const [channel,value] of [['stored',stored],['callback',emitted[0]],['log',log.list()[0]]] as const){
+   const serialized=JSON.stringify(value);
+   expect.soft(serialized,`${channel} source custody`).not.toContain(source);
+   expect.soft(serialized,`${channel} credential custody`).not.toContain(credential);
+   expect.soft(value,`${channel} safe diagnostic and ownership`).toMatchObject({outcome:'failed',error:'The owned model request failed.',measurementSource:'hermes-broker',owner:{threadId:'outer',runId:'run',epoch:3,sequence:1,inputIds:['input'],phase:'foreground'},binding:{providerId:'openai',modelId:'openai/model',accountId:'selected-account'}});
+  }
+  expect(modelRequestObservationV1Schema.safeParse(stored).success).toBe(true);
+  expect(stored.timings.queued).toBeGreaterThan(0);expect(stored.timings.acquired).toBeGreaterThanOrEqual(0);expect(stored.timings.runtimeReady).toBeGreaterThanOrEqual(stored.timings.acquired!);
+  expect(stored.timings.firstPublicDelta).toBeNull();
+  if(phase==='start'){
+   expect(stored.timings.requestSent).toBeNull();expect(stored.timings.firstProviderDelta).toBeNull();expect(stored.timings.settled).toBeNull();
+   expect(stored.timings.teardownConfirmed).toBeGreaterThanOrEqual(stored.timings.runtimeReady!);expect(stored.usageConvention).toBe('unreported');
+   expect(stored.usage).toEqual({inputTokens:null,outputTokens:null,cacheReadTokens:null,cacheWriteTokens:null,cost:null});
+  }else{
+   expect(stored.timings.requestSent).toBeGreaterThanOrEqual(stored.timings.runtimeReady!);expect(stored.timings.firstProviderDelta).toBeGreaterThanOrEqual(stored.timings.requestSent!);expect(stored.timings.settled).toBeGreaterThanOrEqual(stored.timings.firstProviderDelta!);
+   expect(stored.timings.teardownConfirmed).toBeNull();expect(stored.usageConvention).toBe('provider-reported');expect(stored.usage).toMatchObject({inputTokens:7,outputTokens:3});
+   // Failed native disposal still owns its permit; telemetry redaction must not release it.
+   const abort=new AbortController(),queued=scheduler.acquire('openai','selected-account',abort.signal);abort.abort();await expect(queued).rejects.toMatchObject({code:'MODEL_REQUEST_CANCELLED'});
+  }
+ }finally{if(phase==='dispose')await expect(b.close()).rejects.toBe(failure);else await b.close();}
 });
 it('RequestMetrics finishes exactly once and first mark wins',()=>{
  let tick=0;const metrics=new RequestMetrics({version:1,requestId:'r1',owner:{threadId:'t',runId:'r',epoch:1,sequence:1,inputIds:['i'],phase:'foreground'},binding:{providerId:'p',modelId:'m',accountId:null},measurementSource:'test'},()=>tick);

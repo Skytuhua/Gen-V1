@@ -1,0 +1,22 @@
+
+> gen-v1@0.6.5 typecheck /workspace/scratch/36f66011d961/m05-v3
+> tsc --noEmit
+
+packages/core/project-memory.ts(232,26): error TS2339: Property 'survivingRevisions' does not exist on type '{ action: "forget"; itemId: string; baseRevision: number; } | { action: "resolve"; itemId: string; baseRevision: number; survivingRevisions: number[]; note: string; }'.
+  Property 'survivingRevisions' does not exist on type '{ action: "forget"; itemId: string; baseRevision: number; }'.
+packages/core/project-memory.ts(232,62): error TS2339: Property 'survivingRevisions' does not exist on type '{ action: "forget"; itemId: string; baseRevision: number; } | { action: "resolve"; itemId: string; baseRevision: number; survivingRevisions: number[]; note: string; }'.
+  Property 'survivingRevisions' does not exist on type '{ action: "forget"; itemId: string; baseRevision: number; }'.
+packages/core/project-memory.ts(232,98): error TS2339: Property 'survivingRevisions' does not exist on type '{ action: "forget"; itemId: string; baseRevision: number; } | { action: "resolve"; itemId: string; baseRevision: number; survivingRevisions: number[]; note: string; }'.
+  Property 'survivingRevisions' does not exist on type '{ action: "forget"; itemId: string; baseRevision: number; }'.
+packages/core/project-memory.ts(232,122): error TS7006: Parameter 'revision' implicitly has an 'any' type.
+packages/core/project-memory.ts(233,39): error TS2339: Property 'note' does not exist on type '{ action: "forget"; itemId: string; baseRevision: number; } | { action: "resolve"; itemId: string; baseRevision: number; survivingRevisions: number[]; note: string; }'.
+  Property 'note' does not exist on type '{ action: "forget"; itemId: string; baseRevision: number; }'.
+packages/core/project-memory.ts(234,32): error TS2339: Property 'survivingRevisions' does not exist on type '{ action: "forget"; itemId: string; baseRevision: number; } | { action: "resolve"; itemId: string; baseRevision: number; survivingRevisions: number[]; note: string; }'.
+  Property 'survivingRevisions' does not exist on type '{ action: "forget"; itemId: string; baseRevision: number; }'.
+packages/core/project-memory.ts(234,55): error TS7006: Parameter 'revision' implicitly has an 'any' type.
+packages/core/project-memory.ts(235,88): error TS2339: Property 'note' does not exist on type '{ action: "forget"; itemId: string; baseRevision: number; } | { action: "resolve"; itemId: string; baseRevision: number; survivingRevisions: number[]; note: string; }'.
+  Property 'note' does not exist on type '{ action: "forget"; itemId: string; baseRevision: number; }'.
+tests/memory-consolidation-v3.test.ts(8,95): error TS2307: Cannot find module '../packages/core/memory-consolidation.ts' or its corresponding type declarations.
+tests/memory-consolidation-v3.test.ts(54,158): error TS7006: Parameter 'input' implicitly has an 'any' type.
+tests/project-memory-ui.test.ts(12,31): error TS2307: Cannot find module '../apps/web/src/project-memory-api' or its corresponding type declarations.
+ ELIFECYCLE  Command failed with exit code 2.

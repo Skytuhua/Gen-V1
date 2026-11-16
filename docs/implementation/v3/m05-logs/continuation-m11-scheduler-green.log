@@ -1,0 +1,28 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/memory-extraction-scheduler-v3.test.ts (13 tests | 1 failed) 1410ms
+   × production Service composition forwards the shared per-account background admission through its memory host 1023ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-extraction-scheduler-v3.test.ts > production Service composition forwards the shared per-account background admission through its memory host
+AssertionError: expected "acquire" to be called with arguments: [ 'openai', 'account', …(2) ]
+
+Number of calls: 0
+
+ ❯ tests/memory-extraction-scheduler-v3.test.ts:150:44
+    148|   const host = Reflect.get(service, 'memoryHostInstance') as ProjectMe…
+    149|   try {
+    150|     await vi.waitFor(() => expect(acquire).toHaveBeenCalledWith('opena…
+       |                                            ^
+    151|     expect(factory).not.toHaveBeenCalled();
+    152|     expect(service.projectMemory.usage(await service.projectMemory.acc…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 23 passed (24)
+   Start at  21:43:26
+   Duration  3.65s (transform 1.23s, setup 0ms, import 1.77s, tests 1.55s, environment 0ms)

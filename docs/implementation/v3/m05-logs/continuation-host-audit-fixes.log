@@ -1,0 +1,32 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/project-memory-service-v3.test.ts (24 tests | 1 failed) 1073ms
+   × recovers orphaned auxiliary reservations without replaying inference or erasing unknown attempted spend 14ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/project-memory-service-v3.test.ts > recovers orphaned auxiliary reservations without replaying inference or erasing unknown attempted spend
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/project-memory-service-v3.test.ts:242:102
+    240|   expect(factory).not.toHaveBeenCalled();
+    241|   expect(f.service.projectMemory.usage(await f.currentAccess()).extrac…
+    242|   expect(f.store.all<{ settled: boolean }>('projectMemoryAuxiliaryUsag…
+       |                                                                                                      ^
+    243| });
+    244|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  1 failed | 42 passed (43)
+   Start at  20:12:22
+   Duration  5.14s (transform 1.54s, setup 0ms, import 2.66s, tests 2.01s, environment 0ms)

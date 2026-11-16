@@ -1,0 +1,471 @@
+{
+  "schemaVersion": 1,
+  "reviewId": "M05-installer-progress-review-43744480609",
+  "reviewedAt": "2026-11-15T18:36:17.999740+00:00",
+  "reviewMode": "Independent read-only review of one shared CI artifact, immutable source blobs, raw job log and canonical inventory. No installer, provider, implementation test or browser was executed locally.",
+  "status": "FAILED_INSTALLER_DEADLINE_WITH_BOUNDED_DESTINATION_PROGRESS",
+  "ci": {
+    "repository": "skytuhua-org/Gen-V1",
+    "runId": 43744480609,
+    "runAttempt": 1,
+    "headSha": "60f030a2a6a764b858da110586c666353705a5fd",
+    "treeSha": "b133507695a2130ba4c80cf738e70d4553378864",
+    "checkoutSha": "a7ab39080e2d8a27449774a40d55282cd132f828",
+    "checkoutParents": [
+      "399cde39ff4ee82272c7a7700944325c44b36070",
+      "60f030a2a6a764b858da110586c666353705a5fd"
+    ],
+    "jobId": 132904644508,
+    "jobName": "Installed desktop memory retention",
+    "jobConclusion": "failure",
+    "summary": {
+      "ref": "/workspace/scratch/36f66011d961/m05-ci-43744480609/summary-20261115T183309530Z.json",
+      "bytes": 43617,
+      "sha256": "a94fee8f0fcef32bf5c239df88af1ca1d61556cde454521e883a98d7c331e1c7"
+    },
+    "checkoutMetadata": {
+      "ref": "/workspace/scratch/36f66011d961/m05-ci-43744480609/checkout-commit.json",
+      "bytes": 2656,
+      "sha256": "30c2383d04254b1614bcbb119f5fac4af8fa46fccba68c7562d712a40aaf85ed"
+    },
+    "rawLog": {
+      "ref": "/workspace/scratch/36f66011d961/m05-ci-43744480609/job-132904644508.log",
+      "bytes": 126900,
+      "sha256": "40dd0d32afb8319222190334e90c894c575f09f3babcb8888cebf118c0d87992"
+    },
+    "steps": [
+      {
+        "name": "Package the production Windows installer",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 6,
+        "started_at": "2026-11-15T18:04:19Z",
+        "completed_at": "2026-11-15T18:20:50Z"
+      },
+      {
+        "name": "Verify installed default-off memory retention and restart",
+        "status": "completed",
+        "conclusion": "failure",
+        "number": 7,
+        "started_at": "2026-11-15T18:20:50Z",
+        "completed_at": "2026-11-15T18:32:46Z"
+      },
+      {
+        "name": "Preserve installed verification receipts and screenshots",
+        "status": "completed",
+        "conclusion": "success",
+        "number": 8,
+        "started_at": "2026-11-15T18:32:46Z",
+        "completed_at": "2026-11-15T18:32:48Z"
+      }
+    ],
+    "command": {
+      "executable": "pnpm",
+      "argv": [
+        "exec",
+        "tsx",
+        "scripts/verify-installed-desktop.ts",
+        "D:\\a\\Gen-V1\\Gen-V1\\.harness-installed-package\\desktop-release-0.6.5\\Gen-V1-Setup-0.6.5-win-x64.exe",
+        "D:\\a\\Gen-V1\\Gen-V1\\.harness-installed-package\\desktop-release-0.6.5\\win-unpacked",
+        "--project-memory-retention"
+      ],
+      "cwd": "D:\\a\\Gen-V1\\Gen-V1",
+      "rawMarkerLine": 680,
+      "observedExitCode": 1,
+      "rawFailureLine": 686
+    }
+  },
+  "artifact": {
+    "id": 14174947305,
+    "name": "installed-memory-43744480609-1",
+    "downloadOwner": "ui_audit",
+    "independentDownloadPerformed": false,
+    "archive": {
+      "ref": "/workspace/scratch/36f66011d961/m05-ci-43744480609/installed-artifact-14174947305.zip",
+      "bytes": 356644,
+      "sha256": "b8d2a59321b58ba20d0799b05d91458240e585eb87c362ddca783b7784e9b41b"
+    },
+    "downloadMetadata": {
+      "ref": "/workspace/scratch/36f66011d961/m05-ci-43744480609/installed-artifact-14174947305-metadata.json",
+      "bytes": 1358,
+      "sha256": "f051b98d356898e4b7c8e172ea6b4f3d59a6f32af52fde5f66fd33d1fdcb3c2f"
+    },
+    "extractedDirectory": "/workspace/scratch/36f66011d961/m05-ci-43744480609/installed-artifact-14174947305",
+    "files": [
+      {
+        "ref": "/workspace/scratch/36f66011d961/m05-ci-43744480609/installed-artifact-14174947305/.harness-desktop-installed/run-1794766853439-25068186-956c-4659-ad0c-f8b1ebf3ce04/owner.json",
+        "bytes": 330,
+        "sha256": "b55761c8feb1257d6a9120d00849721d4a9c9f659d5565d13202006c55e45527"
+      },
+      {
+        "ref": "/workspace/scratch/36f66011d961/m05-ci-43744480609/installed-artifact-14174947305/.harness-desktop-installed/run-1794766853439-25068186-956c-4659-ad0c-f8b1ebf3ce04/verification.json",
+        "bytes": 6165,
+        "sha256": "58b54ce2ab2ee2f523624072613d508368592fc898ccd4c8bd2703e6f5361547"
+      },
+      {
+        "ref": "/workspace/scratch/36f66011d961/m05-ci-43744480609/installed-artifact-14174947305/.harness-installed-package/desktop-release-0.6.5/build-manifest.json",
+        "bytes": 15611,
+        "sha256": "45ad932ce30eea8e4cc341481eb11bc364acd6c27c27b8ff198552608009be61"
+      },
+      {
+        "ref": "/workspace/scratch/36f66011d961/m05-ci-43744480609/installed-artifact-14174947305/.harness-installed-package/desktop-stage-1794765876010/desktop-host/third-party/integrations/PYTHON_INSTALLATION_V2.json",
+        "bytes": 1511066,
+        "sha256": "0eba7dbc92f9ceb13158e4084db3817f952f9704b1856f8ead4d708f91af30bc"
+      }
+    ],
+    "screenshotsPresent": false
+  },
+  "sourceBindings": [
+    {
+      "path": "scripts/verify-installed-desktop.ts",
+      "treeSha": "b133507695a2130ba4c80cf738e70d4553378864",
+      "gitBlobSha": "5086f25ac32159c6eaea7ceab10d540de8f01858",
+      "bytes": 38801,
+      "sha256": "1ee1f139802ecba042a2a8e5d317e43245504b3077d498748d935f1c7aa0e8b1"
+    },
+    {
+      "path": "scripts/desktop-assets.ts",
+      "treeSha": "b133507695a2130ba4c80cf738e70d4553378864",
+      "gitBlobSha": "dd51d62314c63657be29a098861293ad8051f339",
+      "bytes": 7629,
+      "sha256": "e8c2a0f25f3b449c0704f9f240b95496279270a9b4f9aebe1390d3497a7d3022"
+    },
+    {
+      "path": "scripts/package-desktop.ts",
+      "treeSha": "b133507695a2130ba4c80cf738e70d4553378864",
+      "gitBlobSha": "f9e5fc3d90e8637c884faad02dd993812a858633",
+      "bytes": 7568,
+      "sha256": "fda3abe8294450e8d225a4027100b3b8819ff30695ce3b4f2aa6df117f11db8b"
+    },
+    {
+      "path": "scripts/installed-memory-retention.ts",
+      "treeSha": "b133507695a2130ba4c80cf738e70d4553378864",
+      "gitBlobSha": "e992788b1718409b66e8fc6251e8133eeb39f3b4",
+      "bytes": 19526,
+      "sha256": "be4eb6958fed2571ab3c92523b212c5017ba67ff5d749ddf3452163c140d42cc"
+    },
+    {
+      "path": "scripts/integration-assets.ts",
+      "treeSha": "b133507695a2130ba4c80cf738e70d4553378864",
+      "gitBlobSha": "c3c939bf12f9e41d82793351d5495355ebe70c98",
+      "bytes": 14137,
+      "sha256": "d043b991f82e30dc8b4b7f32b28e489de91e3a14ed9e7e535d9141c44da00d5f"
+    },
+    {
+      "path": "scripts/integration_python_projection.py",
+      "treeSha": "b133507695a2130ba4c80cf738e70d4553378864",
+      "gitBlobSha": "9af564d744f4b9a8d83d549115a13afc0e7c2edf",
+      "bytes": 17295,
+      "sha256": "8c98f8677364e9df2a55ff3717b8c6977d5eb56ad5773b206d8290cdf5fcbd1f"
+    },
+    {
+      "path": "tests/installed-desktop-verification.test.ts",
+      "treeSha": "b133507695a2130ba4c80cf738e70d4553378864",
+      "gitBlobSha": "2aded7d06d86afeee21d450fe4a23976277e9148",
+      "bytes": 18347,
+      "sha256": "b0346fca20ea6603deff30a0f3ab2e356264022a2c95747372505d3dc7bbe13d"
+    },
+    {
+      "path": "tests/desktop-packaging.test.ts",
+      "treeSha": "b133507695a2130ba4c80cf738e70d4553378864",
+      "gitBlobSha": "fd46e406409a2e7a608f9601f46c7083b902ba7c",
+      "bytes": 7814,
+      "sha256": "118804b89b0b99947b268cbcfa825f3e75032950e54f1b2b0fff4d2b9a622935"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "treeSha": "b133507695a2130ba4c80cf738e70d4553378864",
+      "gitBlobSha": "36e07921fb9981c1cd6525bb9a1feeb6a2652530",
+      "bytes": 12542,
+      "sha256": "10db43b6d5602bbb8cd7509c992b61445ecd756bbb5a66607c46e2095853a75f"
+    },
+    {
+      "path": "third-party/integrations/PYTHON_LOCK.json",
+      "treeSha": "b133507695a2130ba4c80cf738e70d4553378864",
+      "gitBlobSha": "81164624983c3754f4a1c90cfeae7bc08eb68f66",
+      "bytes": 1526869,
+      "sha256": "264d28c353d065001daaad796abf3602074599ab5fbd630bcb0958c529b63700"
+    }
+  ],
+  "preflight": {
+    "status": "COMPLETED_CLEAR",
+    "observations": [
+      {
+        "stage": "before-install",
+        "startedAt": "2026-11-15T18:20:53.445Z",
+        "timeoutMs": 60000,
+        "elapsedMs": 29997,
+        "status": "completed",
+        "subphases": [
+          {
+            "phase": "script-start",
+            "scriptElapsedMs": 6,
+            "observedElapsedMs": 239
+          },
+          {
+            "phase": "registry-complete",
+            "scriptElapsedMs": 28,
+            "observedElapsedMs": 256
+          },
+          {
+            "phase": "shortcuts-complete",
+            "scriptElapsedMs": 119,
+            "observedElapsedMs": 347
+          },
+          {
+            "phase": "cache-complete",
+            "scriptElapsedMs": 124,
+            "observedElapsedMs": 353
+          },
+          {
+            "phase": "processes-complete",
+            "scriptElapsedMs": 131,
+            "observedElapsedMs": 359
+          },
+          {
+            "phase": "result-complete",
+            "scriptElapsedMs": 29724,
+            "observedElapsedMs": 29952
+          }
+        ]
+      },
+      {
+        "stage": "pre-install-recheck",
+        "startedAt": "2026-11-15T18:22:22.261Z",
+        "timeoutMs": 60000,
+        "elapsedMs": 22749,
+        "status": "completed",
+        "subphases": [
+          {
+            "phase": "script-start",
+            "scriptElapsedMs": 5,
+            "observedElapsedMs": 216
+          },
+          {
+            "phase": "registry-complete",
+            "scriptElapsedMs": 25,
+            "observedElapsedMs": 231
+          },
+          {
+            "phase": "shortcuts-complete",
+            "scriptElapsedMs": 48,
+            "observedElapsedMs": 254
+          },
+          {
+            "phase": "cache-complete",
+            "scriptElapsedMs": 53,
+            "observedElapsedMs": 259
+          },
+          {
+            "phase": "processes-complete",
+            "scriptElapsedMs": 59,
+            "observedElapsedMs": 265
+          },
+          {
+            "phase": "result-complete",
+            "scriptElapsedMs": 22503,
+            "observedElapsedMs": 22710
+          }
+        ]
+      }
+    ],
+    "observedElapsedMs": [
+      29997,
+      22749
+    ],
+    "entries": [],
+    "allDeclaredShortcutPathsAbsent": true,
+    "updaterCachePresent": false,
+    "runningAppPids": []
+  },
+  "setupIdentity": {
+    "verification": {
+      "ref": "/workspace/scratch/36f66011d961/m05-ci-43744480609/installed-artifact-14174947305/.harness-desktop-installed/run-1794766853439-25068186-956c-4659-ad0c-f8b1ebf3ce04/verification.json",
+      "bytes": 6165,
+      "sha256": "58b54ce2ab2ee2f523624072613d508368592fc898ccd4c8bd2703e6f5361547"
+    },
+    "owner": {
+      "ref": "/workspace/scratch/36f66011d961/m05-ci-43744480609/installed-artifact-14174947305/.harness-desktop-installed/run-1794766853439-25068186-956c-4659-ad0c-f8b1ebf3ce04/owner.json",
+      "bytes": 330,
+      "sha256": "b55761c8feb1257d6a9120d00849721d4a9c9f659d5565d13202006c55e45527"
+    },
+    "buildManifest": {
+      "ref": "/workspace/scratch/36f66011d961/m05-ci-43744480609/installed-artifact-14174947305/.harness-installed-package/desktop-release-0.6.5/build-manifest.json",
+      "bytes": 15611,
+      "sha256": "45ad932ce30eea8e4cc341481eb11bc364acd6c27c27b8ff198552608009be61"
+    },
+    "setupPath": "D:\\a\\Gen-V1\\Gen-V1\\.harness-installed-package\\desktop-release-0.6.5\\Gen-V1-Setup-0.6.5-win-x64.exe",
+    "setupSha256": "e5ef67ec621974fbda248b42a157ccefe35753a1ca0a4dee2295a2c73cb622be",
+    "setupBytesInBuildManifest": 476195175,
+    "setupDigestMatchesOwnerAndBuildManifest": true,
+    "destinationMatchesOwner": true,
+    "nsisGuidMatchesOwner": true,
+    "expectedPayload": {
+      "files": 92880,
+      "bytes": 2567765358,
+      "sha256": "4e10d6a58d410ffbaab748b459bc44298a924d8cfc883ee8865632f2d18191ce",
+      "maxInstalledPathLength": 240
+    },
+    "actualSetupBinaryIncludedInArtifact": false
+  },
+  "installerObservation": {
+    "phase": "installer",
+    "startedAt": "2026-11-15T18:22:46.286Z",
+    "timeoutMs": 600000,
+    "elapsedMs": 600211,
+    "status": "failed",
+    "pid": 5628,
+    "spawnElapsedMs": 18,
+    "exit": {
+      "elapsedMs": 600211,
+      "code": 1,
+      "signal": null
+    },
+    "close": {
+      "elapsedMs": 600211,
+      "code": 1,
+      "signal": null
+    },
+    "stdoutBytes": 0,
+    "stderrBytes": 0,
+    "failure": "deadline",
+    "terminationRequested": true,
+    "pathProgress": [
+      {
+        "elapsedMs": 30024,
+        "durationMs": 4,
+        "status": "completed",
+        "root": "ordinary",
+        "sampledFiles": 16,
+        "absent": 16,
+        "sizeMatched": 0,
+        "sizeMismatched": 0,
+        "refused": 0,
+        "uninstaller": "absent"
+      },
+      {
+        "elapsedMs": 120021,
+        "durationMs": 2,
+        "status": "completed",
+        "root": "ordinary",
+        "sampledFiles": 16,
+        "absent": 16,
+        "sizeMatched": 0,
+        "sizeMismatched": 0,
+        "refused": 0,
+        "uninstaller": "absent"
+      },
+      {
+        "elapsedMs": 300033,
+        "durationMs": 2,
+        "status": "completed",
+        "root": "ordinary",
+        "sampledFiles": 16,
+        "absent": 16,
+        "sizeMatched": 0,
+        "sizeMismatched": 0,
+        "refused": 0,
+        "uninstaller": "absent"
+      },
+      {
+        "elapsedMs": 540022,
+        "durationMs": 13,
+        "status": "completed",
+        "root": "ordinary",
+        "sampledFiles": 16,
+        "absent": 4,
+        "sizeMatched": 12,
+        "sizeMismatched": 0,
+        "refused": 0,
+        "uninstaller": "absent"
+      }
+    ]
+  },
+  "interpretation": {
+    "measured": [
+      "The installer PID was recorded after18ms. Its first recorded exit and pipe close occurred600211ms after start, after the deadline path requested termination; both report code1 and no signal.",
+      "All16 deterministic expected-path samples were absent at30024,120021 and300033ms. At540022ms,12 samples existed with expected sizes and4 remained absent. No sampled path was refused or size-mismatched.",
+      "The exact owned destination remained an ordinary directory in every sample. The sampled uninstaller remained absent.",
+      "These observations establish newly present expected-size files sometime between the300033ms and540022ms samples. They do not establish complete installation or file-content integrity."
+    ],
+    "notMeasured": [
+      "No percentage-complete estimate or completion-time forecast is derived from16 samples.",
+      "The observations do not identify whether the installer was extracting, copying, retrying or performing another native step at any sample.",
+      "Continuous progress between samples, native temporary-directory contents, filesystem throughput, disk capacity and native error dialogs were not measured.",
+      "The cause of the earlier ZIP-based600s timeout remains unknown. The separate pinned ZIP64 reader incompatibility and this7z progress observation do not establish that historical cause."
+    ]
+  },
+  "boundedNextAttempt": {
+    "status": "RATIONALE_REVIEWED_NOT_EXECUTED",
+    "scope": "Installer process deadline only",
+    "priorTimeoutMs": 600000,
+    "proposedTimeoutMs": 1200000,
+    "rationale": "The existing deadline terminated a live installer after the first observed destination-file progress between five and nine minutes. A single finite twenty-minute installer allowance permits a further bounded attempt without treating progress as success. The evidence cannot guarantee completion within that allowance.",
+    "unchangedRequiredGates": [
+      "60000ms clear read-only preflight bounds",
+      "180000ms owned uninstaller bound",
+      "Exact setup and owned destination identity",
+      "Successful natural installer exit and pipe close",
+      "Exact registry and uninstaller custody",
+      "Complete92880-file expected payload path/size/SHA256 equality before any launch",
+      "Packaged provider verification before launch",
+      "Two exact installed-executable launches with owned physical profile and per-launch nonce",
+      "Default-off retained source/review/accept/reject/redacted-export/Forget actions and restart persistence",
+      "Identity-bound uninstall and final cleanup assertions"
+    ],
+    "noSourceEditPerformedByThisReview": true
+  },
+  "canonicalPython": {
+    "status": "ACTUAL_WINDOWS_PACKAGE_RECEIPT_REVALIDATED",
+    "sourceLockSha256": "264d28c353d065001daaad796abf3602074599ab5fbd630bcb0958c529b63700",
+    "receipt": {
+      "ref": "/workspace/scratch/36f66011d961/m05-ci-43744480609/installed-artifact-14174947305/.harness-installed-package/desktop-stage-1794765876010/desktop-host/third-party/integrations/PYTHON_INSTALLATION_V2.json",
+      "bytes": 1511066,
+      "sha256": "0eba7dbc92f9ceb13158e4084db3817f952f9704b1856f8ead4d708f91af30bc"
+    },
+    "receiptByteIdenticalToPreviousWindowsPackages": true,
+    "previousReceiptRefs": [
+      "/workspace/scratch/36f66011d961/m05-ci-43739565577/installed-artifact-14172970343/.harness-installed-package/desktop-stage-1794762716143/desktop-host/third-party/integrations/PYTHON_INSTALLATION_V2.json"
+    ],
+    "pinnedWheelCount": 91,
+    "wheelNameVersionSha256MatchesOriginalLock": true,
+    "canonicalPathCount": 7415,
+    "canonicalPathSetEqualsOriginalLock": true,
+    "unchangedNonRecordCount": 7324,
+    "unchangedNonRecordBytes": 253401145,
+    "canonicalRecordCount": 91,
+    "recordRowsEqualOriginal": 75,
+    "recordRowsChangedFromOriginal": 16,
+    "canonicalRecordBytes": 669096,
+    "totalCanonicalBytes": 254070241,
+    "buildManifestModeLockWheelAndProjectionBindingsMatch": true,
+    "rawPinnedWheelMarkerLine": 429,
+    "rawInputDiagnosisLine": 605,
+    "inputDiagnosis": {
+      "expectedFiles": 7415,
+      "actualFiles": 7595,
+      "addedCount": 180,
+      "missingCount": 0,
+      "changedCount": 91,
+      "changedRowsAreRecordOnly": true,
+      "addedSampleCount": 100
+    },
+    "limits": "The artifact contains the canonical inventory, not the7415 staged bytes,91wheel archives, installer binary or generated RECORD bodies. Actual package execution passed; independent review revalidated every recorded non-RECORD row and the complete declared path/pin set, without claiming a second content read of the payload."
+  },
+  "admission": {
+    "installedDefaultOffRetainedMemoryReviewAndRestart": "NOT_RUN",
+    "fullEnabledInstalledMemory": "NOT_RUN",
+    "liveRepeatedTaskStudy": "NOT_RUN",
+    "installedPayloadVerification": "NOT_RUN",
+    "installedPackagedProviderVerification": "NOT_RUN",
+    "ownedExecutableLaunchCount": 0,
+    "retainedMemoryActionsObserved": false,
+    "cleanupStatus": "preserved-unconfirmed-installation",
+    "cleanupSuccess": false,
+    "providerNetworkCalls": null,
+    "featureFlagsRemainFalse": [
+      "memory.projectV1",
+      "memory.externalRecallExperimentV1"
+    ]
+  }
+}
