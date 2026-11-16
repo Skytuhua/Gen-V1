@@ -28,7 +28,7 @@ it('uses the upstream 860/892 container-width hysteresis instead of a redesigned
 });
 
 
-it.each(['mutation','stream','reconnect'] as const)('reconciles %s invalidation after an older Inbox read without overlapping reads',async trigger=>{
+it.each(['mutation','stream','reconnect','busy-stream'] as const)('reconciles %s invalidation after an older Inbox read without overlapping reads',async trigger=>{
  const {build}=await import('esbuild'),{chromium}=await import('@playwright/test');
  const script=(await build({stdin:{resolveDir:process.cwd(),loader:'tsx',contents:`
   import React from 'react';import {createRoot} from 'react-dom/client';
@@ -39,7 +39,7 @@ it.each(['mutation','stream','reconnect'] as const)('reconciles %s invalidation 
   window.fetch=async(url,options)=>{
    if(options?.method==='POST'){hostRead=true;window.accepted=true;return Response.json({});}
    window.gets++;window.active++;window.maximum=Math.max(window.maximum,window.active);
-   const snapshot=value();if(window.hold){window.hold=false;await new Promise(resolve=>window.release=resolve);}
+   const snapshot=value();if(window.hold||window.holdEvery){window.hold=false;await new Promise(resolve=>window.release=resolve);}
    window.active--;return Response.json(snapshot);
   };
   window.changeHost=()=>hostRead=true;
@@ -53,7 +53,7 @@ it.each(['mutation','stream','reconnect'] as const)('reconciles %s invalidation 
   `}));
  }}]})).outputFiles[0]!.text;
  const browser=await chromium.launch({headless:true,...(process.platform==='win32'?{channel:'msedge'}:{})}),page=await browser.newPage();
- type AttentionWindow=Window&{gets:number;maximum:number;active:number;hold:boolean;accepted?:boolean;mutationDone:boolean;subscribed?:boolean;disconnected?:number;release:()=>void;changeHost:()=>void;stream:()=>void;reconnect:()=>Promise<void>;hide:()=>void};
+ type AttentionWindow=Window&{gets:number;maximum:number;active:number;hold:boolean;holdEvery?:boolean;accepted?:boolean;mutationDone:boolean;subscribed?:boolean;disconnected?:number;release:()=>void;changeHost:()=>void;stream:()=>void;reconnect:()=>Promise<void>;hide:()=>void};
  try{
   await page.setContent('<div id="root"></div>');await page.addScriptTag({content:script});
   await expect.poll(()=>page.evaluate(()=>Boolean((window as unknown as AttentionWindow).subscribed))).toBe(true);
@@ -61,18 +61,25 @@ it.each(['mutation','stream','reconnect'] as const)('reconciles %s invalidation 
   const before=await page.evaluate(()=>{const state=window as unknown as AttentionWindow;state.hold=true;return state.gets;});
   await page.getByRole('button',{name:'Refresh',exact:true}).click();
   await expect.poll(()=>page.evaluate(()=>(window as unknown as AttentionWindow).gets)).toBe(before+1);
-  if(trigger==='mutation'){
+  if(trigger==='mutation'||trigger==='busy-stream'){
    await page.getByRole('button',{name:'Read',exact:true}).click();
    await expect.poll(()=>page.evaluate(()=>Boolean((window as unknown as AttentionWindow).accepted))).toBe(true);
    await page.evaluate(async()=>{(window as unknown as AttentionWindow).stream();await new Promise(resolve=>setTimeout(resolve,80));});
    expect(await page.evaluate(()=>(window as unknown as AttentionWindow).mutationDone)).toBe(false);
   }else await page.evaluate(async trigger=>{const state=window as unknown as AttentionWindow;state.changeHost();if(trigger==='stream'){state.stream();await new Promise(resolve=>setTimeout(resolve,80));}else void state.reconnect();},trigger);
   expect(await page.evaluate(()=>(window as unknown as AttentionWindow).gets)).toBe(before+1);
+  if(trigger==='busy-stream')await page.evaluate(()=>(window as unknown as AttentionWindow).holdEvery=true);
   await page.evaluate(()=>(window as unknown as AttentionWindow).release());
+  if(trigger==='busy-stream'){
+   await expect.poll(()=>page.evaluate(()=>(window as unknown as AttentionWindow).gets)).toBe(before+2);
+   await page.evaluate(async()=>{(window as unknown as AttentionWindow).stream();await new Promise(resolve=>setTimeout(resolve,80));});
+   await page.evaluate(()=>(window as unknown as AttentionWindow).release());
+  }
   await expect.poll(()=>page.locator('output').textContent()).toBe('0');
-  expect(await page.evaluate(()=>(window as unknown as AttentionWindow).gets)).toBe(before+2);
+  expect(await page.evaluate(()=>(window as unknown as AttentionWindow).gets)).toBe(before+(trigger==='busy-stream'?3:2));
   expect(await page.evaluate(()=>(window as unknown as AttentionWindow).maximum)).toBe(1);
-  if(trigger==='mutation')expect(await page.evaluate(()=>(window as unknown as AttentionWindow).mutationDone)).toBe(true);
+  if(trigger==='mutation'||trigger==='busy-stream')expect(await page.evaluate(()=>(window as unknown as AttentionWindow).mutationDone)).toBe(true);
+  if(trigger==='busy-stream'){await page.evaluate(()=>{const state=window as unknown as AttentionWindow;state.holdEvery=false;state.release();});await expect.poll(()=>page.evaluate(()=>(window as unknown as AttentionWindow).active)).toBe(0);}
   await page.evaluate(()=>(window as unknown as AttentionWindow).hide());
   expect(await page.evaluate(()=>(window as unknown as AttentionWindow).disconnected)).toBe(1);
  }finally{await browser.close();}
