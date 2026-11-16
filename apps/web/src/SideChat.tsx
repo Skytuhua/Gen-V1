@@ -18,19 +18,20 @@ export function SideChat({parent,snapshot,modelId,open,onClose,refresh,ref}:{par
  const side=snapshot.threads.find(thread=>thread.id===selectedId&&thread.sideParentId===parent.id);
  const histories=snapshot.threads.filter(thread=>thread.sideParentId===parent.id).toSorted((a,b)=>b.createdAt.localeCompare(a.createdAt));
  const draftKey=`side-draft:${parent.id}:${selectedId??'new'}`;
- const draftTarget=useRef(draftKey);
+ const draftTarget=useRef(draftKey),draftEpoch=useRef(0);
  const [draft,setDraft]=useState(''),[ready,setReady]=useState(false),[busy,setBusy]=useState(false),[error,setError]=useState('');
  const sending=useRef(false),input=useRef<HTMLTextAreaElement>(null),scroll=useRef<HTMLDivElement>(null),tail=useRef(true);
  const working=Boolean(side?.runId)||side?.status==='working';
  const threadMessages=useThreadMessages(snapshot,side?.id,true),messages=threadMessages.messages.filter(message=>message.role!=='activity');
- useLayoutEffect(()=>{draftTarget.current=draftKey;},[draftKey]);
+ useLayoutEffect(()=>{if(draftTarget.current!==draftKey){draftEpoch.current++;draftTarget.current=draftKey;}},[draftKey]);
+ useLayoutEffect(()=>()=>{draftEpoch.current++;},[]);
  useEffect(()=>{try{if(selectedId)localStorage.setItem(storageKey,selectedId);else localStorage.removeItem(storageKey);}catch{/* Drafts remain in the journal. */}},[storageKey,selectedId]);
  useEffect(()=>{let active=true;setReady(false);void journalRead<string>(draftKey).then(value=>{if(active){setDraft(value??'');setReady(true);}}).catch(()=>{if(active){setReady(true);setError('Draft recovery is unavailable. Keep this window open.');}});return()=>{active=false;};},[draftKey]);
  useEffect(()=>journalSubscribe(draftKey,value=>{if(draftTarget.current===draftKey)setDraft(typeof value==='string'?value:'');}),[draftKey]);
  useEffect(()=>{if(open&&ready)input.current?.focus({preventScroll:true});},[open,ready]);
  useLayoutEffect(()=>{if(tail.current&&scroll.current)scroll.current.scrollTop=scroll.current.scrollHeight;},[messages.map(message=>message.id+message.content).join('\n'),open]);
- const updateDraft=(value:string)=>{setDraft(value);void journalWrite(draftTarget.current,value).catch(cause=>setError(errorMessage(cause)));};
- const select=(id:string|null)=>{if(sending.current)return;setSelectedId(id);setError('');tail.current=true;};
+ const updateDraft=(value:string)=>{setDraft(value);const target=draftTarget.current,epoch=draftEpoch.current;void journalWrite(target,value).catch(cause=>{if(draftTarget.current===target&&draftEpoch.current===epoch)setError(errorMessage(cause));});};
+ const select=(id:string|null)=>{if(sending.current)return;if(id!==selectedId)draftEpoch.current++;setSelectedId(id);setError('');tail.current=true;};
  const send=async(content=draft)=>{
   if(sending.current||working)throw new Error('Wait for this side response, or stop it before asking another question.');
   if(!ready)throw new Error('Your saved side draft is still opening.');
@@ -44,7 +45,7 @@ export function SideChat({parent,snapshot,modelId,open,onClose,refresh,ref}:{par
     const latest=await journalReadRecord<string>(draftKey);copiedGeneration=latest?.generation;
     // Keystrokes after creation follow the destination immediately, including
     // while its journal transaction and snapshot refresh are still pending.
-    draftTarget.current=`side-draft:${parent.id}:${id}`;
+    draftEpoch.current++;draftTarget.current=`side-draft:${parent.id}:${id}`;
     newGeneration=await journalWrite(draftTarget.current,latest?.value??content);
     if(latest)await journalCompareAndSwap(draftKey,latest.generation,'');
     setSelectedId(id);
