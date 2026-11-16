@@ -383,9 +383,21 @@ test('explicit retained-canvas restoration still renders a saved retired canvas 
 });
 
 test('PR hover opens the shared linked-pull-requests surface in Workspace, not a retired review canvas (T05/R12)', async ({page}) => {
+  await page.addInitScript(() => {
+    for (const thread of ['parent-a', 'empty-draft']) for (const panel of ['sidebar', 'linked-pull-requests:' + thread]) {
+      const key = 'pr-panel:' + JSON.stringify(['local', 'project-a', thread, 'linked-pull-requests', panel]);
+      const value = {version: 1, draft: false, title: '', body: '', baseBranch: 'main', push: false, link: '', basis: null, selected: 8, comments: {}};
+      localStorage.setItem('harness:journal-pending:' + encodeURIComponent(key), JSON.stringify({value, updatedAt: Date.now(), generation: crypto.randomUUID()}));
+    }
+  });
   const h = await fixture(page, {working: false});
   await page.route('**/api/projects/project-a/context*', route => route.fulfill({json: {project: {id: 'project-a', name: 'Alpha', authority: {kind: 'local'}, rootPath: 'C:/synthetic/alpha', createdAt: '2026-11-06T00:00:00.000Z'}, threadId: 'parent-a', workingCopy: {id: 'copy-a', path: 'C:/synthetic/alpha'}, threadRevision: 'rev-hover-1', machineName: 'Synthetic host', editor: {available: false, label: 'Editor'}, branch: 'feature/fixture', head: null, changes: {added: 1, removed: 0, files: 1}, lineage: [], scripts: [], capabilities: {git: true, terminal: false, pullRequests: true}}}));
-  await page.route('**/api/projects/project-a/pull-requests*', route => route.fulfill({json: {repo: 'synthetic/alpha', items: [{number: 7, title: 'Review me', state: 'open'}]}}));
+  await page.route('**/api/projects/project-a/pull-requests/**', route => {
+    const number = Number(new URL(route.request().url()).pathname.split('/').at(-1));
+    if (number === 7 || number === 8) return route.fulfill({json: {item: {number, title: number === 7 ? 'Review me' : 'Saved selection', headRefOid: 'a'.repeat(40), state: 'open', files: [], statusCheckRollup: []}, head: 'a'.repeat(40), revision: 'b'.repeat(64), canReview: false}});
+    return route.fulfill({json: {repo: 'synthetic/alpha', items: [{number: 7, title: 'Review me', state: 'open'}]}});
+  });
+  await page.route('**/api/projects/project-a/pull-requests?*', route => route.fulfill({json: {repo: 'synthetic/alpha', items: [{number: 7, title: 'Review me', state: 'open'}]}}));
   await page.route('**/api/projects/project-a/git*', route => route.fulfill({json: {branch: 'feature/fixture', head: 'abcdef1234', revision: 'rev-1', files: [], gitWrite: false, stagedDiff: '', diff: ''}}));
   await page.locator('[data-thread-id="parent-a"] .thread-item').hover();
   const action = page.getByRole('button', {name: /Open PR #7/});
@@ -393,6 +405,7 @@ test('PR hover opens the shared linked-pull-requests surface in Workspace, not a
   await action.click();
   await expect(page.getByRole('textbox', {name: 'Message', exact: true})).toBeVisible();
   await expect(page.getByText('Linked pull requests', {exact: true}).first()).toBeVisible();
+  await expect(page.locator('.pr-review').first()).toContainText('#7 Review me');
   expect(h.envelope.state.activeCanvasId).toBe('workspace');
   expect(h.envelope.state.canvases).toHaveLength(5);
   await expect(page.getByRole('button', {name: 'Code Review', exact: true})).toHaveCount(0);
