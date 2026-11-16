@@ -133,6 +133,8 @@ note.oninput=()=>bridge.setDirty(true);
 document.querySelector('#save').onclick=async()=>{status.textContent='Waiting for host checkpoint';try{const ack=await bridge.checkpoint({note:note.value});status.textContent='Host acknowledged revision '+ack.stateRevision}catch(e){status.textContent='Checkpoint rejected: '+e.message}};
 document.querySelector('#invalid').onclick=async()=>{try{await bridge.checkpoint({note:42});status.textContent='INVALID CHECKPOINT ACCEPTED'}catch(e){status.textContent='Checkpoint rejected: '+e.message}};
 document.querySelector('#continue').onclick=()=>bridge.emit('continue',{});
+const saveAndContinue=document.createElement('button');saveAndContinue.textContent='Checkpoint and continue';document.querySelector('#continue').after(saveAndContinue);
+saveAndContinue.onclick=async()=>{try{const ack=await bridge.checkpoint({note:note.value});bridge.emit('continue',{});status.textContent='Checkpoint then action revision '+ack.stateRevision}catch(e){status.textContent='Checkpoint rejected: '+e.message}};
 document.querySelector('#spin').onclick=()=>{status.textContent='Infinite loop entered';setTimeout(()=>{while(true){}},150)};
 </script></body></html>`;
 
@@ -144,6 +146,7 @@ export class HostFixture {
   widgets!: Awaited<ReturnType<typeof buildWidgetServer>>;
   readonly commands: HostCommand[] = [];
   readonly generations: ContractRuntime[] = [];
+  beforeCommand?: (command: HostCommand) => Promise<void>;
   constructor(readonly folder: string, readonly sourceFile: string) {}
   async start() {
     this.store = new Store(join(this.folder, 'storage'));
@@ -152,7 +155,7 @@ export class HostFixture {
     const mounts: MountRegistry = new Map();
     this.host = await buildServer(this.service, { port: 4337, widgetPort: 4338, mounts, dev: false });
     this.widgets = await buildWidgetServer(this.service, mounts, 4338);
-    this.host.addHook('preHandler', async request => { if (request.url === '/api/commands') this.commands.push(request.body as HostCommand); });
+    this.host.addHook('preHandler', async request => { if (request.url === '/api/commands') { const command = request.body as HostCommand; this.commands.push(command); await this.beforeCommand?.(command); } });
     try {
       // Exclusive bind: an existing listener fails the fixture; never reuse another worker's host.
       await this.host.listen({ port: 4337, host: '127.0.0.1' });

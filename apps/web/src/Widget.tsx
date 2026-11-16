@@ -153,7 +153,7 @@ function WidgetOwner({ ref: widgetRef, artifact, inputs, values, stateRevision, 
     const beat = () => { if (sameOwner() && leaseDirty.current && !leaseSuspended.current) void lease().catch(error => reportError(error, 'The edit lease expired.')); if (active) timer = setTimeout(beat, heartbeatMs()); };
     timer = setTimeout(beat, heartbeatMs());
     const leaseClientId = clientId.current;
-    return () => { active = false; runtime.current?.dispose(); runtime.current = null; clearTimeout(timer); window.removeEventListener('message', receive); if (leaseDirty.current && !leaseSuspended.current) void Promise.allSettled([leasePending.current, checkpointPending.current, ...pendingActions.current]).then(() => command('edit.end', { stateId: artifact.stateId, clientId: leaseClientId }, artifact.threadId)).catch(() => {}); };
+    return () => { active = false; runtime.current?.dispose(); runtime.current = null; clearTimeout(timer); window.removeEventListener('message', receive); if (!leaseSuspended.current && (leaseDirty.current || leasePending.current || checkpointPending.current || pendingActions.current.size)) void Promise.allSettled([leasePending.current, checkpointPending.current, ...pendingActions.current]).then(() => command('edit.end', { stateId: artifact.stateId, clientId: leaseClientId }, artifact.threadId)).catch(() => {}); };
   }, [mount, artifact.id, artifact.revision, artifact.stateId, artifact.threadId, validators]);
 
   useEffect(() => {
