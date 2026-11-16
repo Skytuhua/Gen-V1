@@ -39,9 +39,10 @@ export const shellInit = `
 `;
 
 import {scopedContext,scopedEnvelope,scopedMessage} from '../scoped-conversation-fixture';
+import {serveTaskSplitLayout} from './task-interface-fixture';
 async function setup(page:Page,count=3){
  const snapshot=shellSnapshot();snapshot.messages=Array.from({length:count},(_,i)=>({...snapshot.messages[0],id:'m'+i,content:i===0?'Review the **work**space, sidebar and composer.':i===1?'I reviewed the workspace and found two areas to check.':'The workspace panel starts closed.',role:i===0?'user':'assistant'}));
- await page.addInitScript(shellInit);await page.route('**/api/**',r=>shellRoute(r,snapshot,false));await page.goto('/fixture');await page.locator('.composer textarea').waitFor();return snapshot;
+ await page.addInitScript(shellInit);await page.route('**/api/**',r=>shellRoute(r,snapshot,false));await serveTaskSplitLayout(page,snapshot);await page.goto('/fixture');await page.locator('.composer textarea').waitFor();return snapshot;
 }
 const phrase=(p:Page)=>p.getByRole('textbox',{name:'Find phrase'});
 async function open(p:Page){await p.locator('.composer textarea').focus();await p.keyboard.press('Control+f');await expect(phrase(p)).toBeFocused();}
