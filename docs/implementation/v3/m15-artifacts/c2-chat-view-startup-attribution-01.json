@@ -1,0 +1,680 @@
+{
+  "schema": "m15-chat-view-startup-attribution/v1",
+  "auditId": "c2-chat-view-startup-attribution-01",
+  "createdAt": "2026-11-16T01:45:00.921989+00:00",
+  "method": "Read-only retained trace, network, result, error-context and source inspection. No browser run, test edit, source edit or deadline change.",
+  "worktreeHead": "fd17d9f1b3931eb2b974b86ccc5a3892da47ba33",
+  "acceptedBase": "138b1356495bb3a2c9b35020240513f8faa84964",
+  "originalRun": {
+    "id": "c2-browser-chat-view-green-02",
+    "argv": [
+      "pnpm",
+      "exec",
+      "playwright",
+      "test",
+      "--config",
+      "tests/e2e/chat-view-modes.playwright.config.ts",
+      "--output",
+      "docs/implementation/v3/m15-artifacts/c2-browser-chat-view-green-02/artifacts",
+      "--reporter=list,json"
+    ],
+    "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+    "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+    "startedAt": "2026-11-16T01:35:32.465Z",
+    "endedAt": "2026-11-16T01:35:58.896Z",
+    "exitCode": 1,
+    "termination": "NONE",
+    "status": "FAIL",
+    "boundedLogRef": "docs/implementation/v3/m15-logs/c2-browser-chat-view-green-02.log",
+    "logDigest": "d429d7ba9bee9447c973de06a0b54b1fd30c9e0b9fb10d1a85d2d384bb1c5132",
+    "stats": {
+      "startTime": "2026-11-16T01:35:34.449Z",
+      "duration": 24281.328,
+      "expected": 5,
+      "skipped": 0,
+      "unexpected": 1,
+      "flaky": 0
+    },
+    "unhandledResultErrors": [],
+    "cases": [
+      {
+        "title": "active drag Escape cancels before an open tooltip and then releases keyboard ownership",
+        "file": "chat-view-escape.spec.ts",
+        "status": "passed",
+        "expectedStatus": "passed",
+        "durationMs": 3224,
+        "startTime": "2026-11-16T01:35:38.217Z"
+      },
+      {
+        "title": "active drag ignores Escape with IME composition flag",
+        "file": "chat-view-escape.spec.ts",
+        "status": "passed",
+        "expectedStatus": "passed",
+        "durationMs": 2469,
+        "startTime": "2026-11-16T01:35:41.720Z"
+      },
+      {
+        "title": "active drag ignores Escape with IME legacy key 229",
+        "file": "chat-view-escape.spec.ts",
+        "status": "passed",
+        "expectedStatus": "passed",
+        "durationMs": 1935,
+        "startTime": "2026-11-16T01:35:44.208Z"
+      },
+      {
+        "title": "the conversation lives in the split plane with its messages, composer and attachments",
+        "file": "chat-view-modes.spec.ts",
+        "status": "failed",
+        "expectedStatus": "passed",
+        "durationMs": 5558,
+        "startTime": "2026-11-16T01:35:46.323Z"
+      },
+      {
+        "title": "draft, selection and reading position survive the workspace panel opening",
+        "file": "chat-view-modes.spec.ts",
+        "status": "passed",
+        "expectedStatus": "passed",
+        "durationMs": 2904,
+        "startTime": "2026-11-16T01:35:52.996Z"
+      },
+      {
+        "title": "reduced motion settles instantly and keyboard focus stays in the composer",
+        "file": "chat-view-modes.spec.ts",
+        "status": "passed",
+        "expectedStatus": "passed",
+        "durationMs": 2471,
+        "startTime": "2026-11-16T01:35:56.027Z"
+      }
+    ]
+  },
+  "classification": {
+    "observed": "CANDIDATE_COLD_APP_READINESS_DEADLINE_MISSED",
+    "originalOutcomePreserved": "FAIL",
+    "baselineRuntimeEstablished": false,
+    "sourceOrDraftFunctionalDefectEstablished": false,
+    "wholeTestTimeoutInterruptedAssertion": false,
+    "finding": "The first canonical App case exhausted its original five-second enabled-textbox expectation. Its retained after snapshot contains the requested composer in the correct split view. The dominant observed ordering is delayed App/module startup before bootstrap, followed by successful snapshot/layout responses. This proves a startup readiness miss for this candidate run, not its delta from accepted main or a specific introduced module as cause."
+  },
+  "timeline": {
+    "clock": "Playwright trace monotonic milliseconds; network _monotonicTime and frame snapshot timestamp. Runner/library calls are identified separately.",
+    "navigation": {
+      "runnerCall": "pw:api@35",
+      "waitUntil": "load",
+      "startMs": 13370.783,
+      "endMs": 13543.924,
+      "durationMs": 173.141
+    },
+    "rootAfterNavigation": {
+      "snapshot": "after@call@236",
+      "timestampMs": 13542.975,
+      "rootChildCount": 0
+    },
+    "readinessExpectation": {
+      "runnerCall": "expect@36",
+      "runnerStartMs": 13545.964,
+      "runnerEndMs": 18675.949,
+      "libraryCall": "call@238",
+      "libraryStartMs": 13547.566,
+      "libraryEndMs": 18554.063,
+      "libraryDurationMs": 5006.497,
+      "configuredTimeoutMs": 5000,
+      "selector": "[data-split-view=\"thread:task-thread\"] >> internal:role=textbox[name=\"Message\"s]",
+      "result": {
+        "matches": false,
+        "log": [
+          "  - Expect \"toBeEnabled\" with timeout 5000ms",
+          "  - waiting for locator('[data-split-view=\"thread:task-thread\"]').getByRole('textbox', { name: 'Message', exact: true })"
+        ],
+        "errorMessage": "Error: element(s) not found",
+        "timedOut": true
+      }
+    },
+    "bootstrap": {
+      "url": "http://127.0.0.1:5491/api/bootstrap",
+      "method": "GET",
+      "status": 200,
+      "startMs": 17461.794,
+      "durationMs": 6.528,
+      "startedDateTime": "2026-11-16T01:35:50.517Z",
+      "afterRunnerExpectationStartMs": 3915.83
+    },
+    "composerAfterSnapshot": {
+      "snapshot": "after@call@238",
+      "timestampMs": 18662.594,
+      "wallTime": 1794792951671,
+      "afterLibraryExpectationEndMs": 108.531,
+      "textareaAttributes": {
+        "__playwright_value_": "",
+        "__playwright_target__": "call@238",
+        "aria-label": "Message",
+        "placeholder": "Ask anything…",
+        "rows": "1",
+        "style": "height: 26px;"
+      },
+      "splitViewAttributes": {
+        "class": "split-surface",
+        "data-split-view": "thread:task-thread",
+        "data-pane-id": "pane-main",
+        "aria-hidden": "false",
+        "style": "left: 1px; top: 35px; width: 1350px; height: 809.203px;"
+      },
+      "noDisabledInertOrAriaHiddenTrueInRecordedAncestorPath": true,
+      "interpretation": "The composer is recorded by this snapshot time. The trace does not pinpoint its mount time or establish that it became actionable before the failed polling deadline."
+    },
+    "afterHooksStartMs": 18678.901,
+    "contextCloseStartMs": 18830.278
+  },
+  "network": {
+    "resourceSnapshotCount": 308,
+    "apiRequests": [
+      {
+        "url": "http://127.0.0.1:5491/api/bootstrap",
+        "method": "GET",
+        "status": 200,
+        "startMs": 17461.794,
+        "durationMs": 6.528,
+        "startedDateTime": "2026-11-16T01:35:50.517Z"
+      },
+      {
+        "url": "http://127.0.0.1:5491/api/workspace",
+        "method": "GET",
+        "status": 200,
+        "startMs": 17505.238,
+        "durationMs": 25.165,
+        "startedDateTime": "2026-11-16T01:35:50.561Z"
+      },
+      {
+        "url": "http://127.0.0.1:5491/api/plugins",
+        "method": "GET",
+        "status": 404,
+        "startMs": 17505.431,
+        "durationMs": 24.891,
+        "startedDateTime": "2026-11-16T01:35:50.561Z"
+      },
+      {
+        "url": "http://127.0.0.1:5491/api/shell-settings",
+        "method": "GET",
+        "status": 200,
+        "startMs": 17505.522,
+        "durationMs": 23.94,
+        "startedDateTime": "2026-11-16T01:35:50.561Z"
+      },
+      {
+        "url": "http://127.0.0.1:5491/api/snapshot",
+        "method": "GET",
+        "status": 200,
+        "startMs": 17848.166,
+        "durationMs": 6.126,
+        "startedDateTime": "2026-11-16T01:35:50.904Z"
+      },
+      {
+        "url": "http://127.0.0.1:5491/api/models",
+        "method": "GET",
+        "status": 200,
+        "startMs": 18029.978,
+        "durationMs": 11.223,
+        "startedDateTime": "2026-11-16T01:35:51.086Z"
+      },
+      {
+        "url": "http://127.0.0.1:5491/api/split-workspace/profiles?workspaceId=workspace",
+        "method": "GET",
+        "status": 200,
+        "startMs": 18030.32,
+        "durationMs": 11.202,
+        "startedDateTime": "2026-11-16T01:35:51.086Z"
+      },
+      {
+        "url": "http://127.0.0.1:5491/api/split-workspace?workspaceId=workspace",
+        "method": "GET",
+        "status": 200,
+        "startMs": 18037.062,
+        "durationMs": 13.414,
+        "startedDateTime": "2026-11-16T01:35:51.093Z"
+      },
+      {
+        "url": "http://127.0.0.1:5491/api/models?threadId=task-thread",
+        "method": "GET",
+        "status": 200,
+        "startMs": 18256.954,
+        "durationMs": 104.147,
+        "startedDateTime": "2026-11-16T01:35:51.312Z"
+      },
+      {
+        "url": "http://127.0.0.1:5491/api/snapshot",
+        "method": "GET",
+        "status": 200,
+        "startMs": 18288.373,
+        "durationMs": 124.841,
+        "startedDateTime": "2026-11-16T01:35:51.344Z"
+      },
+      {
+        "url": "http://127.0.0.1:5491/api/workbench/threads/task-thread",
+        "method": "GET",
+        "status": 404,
+        "startMs": 18510.833,
+        "durationMs": 92.477,
+        "startedDateTime": "2026-11-16T01:35:51.566Z"
+      },
+      {
+        "url": "http://127.0.0.1:5491/api/models?threadId=task-thread",
+        "method": "GET",
+        "status": 200,
+        "startMs": 18541.757,
+        "durationMs": 61.041,
+        "startedDateTime": "2026-11-16T01:35:51.597Z"
+      },
+      {
+        "url": "http://127.0.0.1:5491/api/workspace",
+        "method": "GET",
+        "status": 200,
+        "startMs": 18542.059,
+        "durationMs": 61.255,
+        "startedDateTime": "2026-11-16T01:35:51.598Z"
+      }
+    ],
+    "slowestNonApiResources": [
+      {
+        "url": "http://127.0.0.1:5491/src/App.tsx",
+        "method": "GET",
+        "status": 200,
+        "startMs": 13604.195,
+        "durationMs": 1215.394,
+        "startedDateTime": "2026-11-16T01:35:46.660Z"
+      },
+      {
+        "url": "http://127.0.0.1:5491/src/Artifact.tsx",
+        "method": "GET",
+        "status": 200,
+        "startMs": 13604.347,
+        "durationMs": 747.113,
+        "startedDateTime": "2026-11-16T01:35:46.660Z"
+      },
+      {
+        "url": "http://127.0.0.1:5491/@fs/workspace/scratch/1b47eb428672/m15-v3/packages/contracts/preferences.ts",
+        "method": "GET",
+        "status": 200,
+        "startMs": 13604.006,
+        "durationMs": 663.689,
+        "startedDateTime": "2026-11-16T01:35:46.660Z"
+      },
+      {
+        "url": "http://127.0.0.1:5491/@fs/workspace/scratch/1b47eb428672/m15-v3/packages/desktop-contract/index.ts",
+        "method": "GET",
+        "status": 200,
+        "startMs": 13599.767,
+        "durationMs": 659.716,
+        "startedDateTime": "2026-11-16T01:35:46.655Z"
+      },
+      {
+        "url": "http://127.0.0.1:5491/@fs/workspace/scratch/1b47eb428672/m15-v3/packages/ui-shell/Select.tsx",
+        "method": "GET",
+        "status": 200,
+        "startMs": 14262.686,
+        "durationMs": 608.301,
+        "startedDateTime": "2026-11-16T01:35:47.318Z"
+      },
+      {
+        "url": "http://127.0.0.1:5491/src/secure-artifact-context.tsx",
+        "method": "GET",
+        "status": 200,
+        "startMs": 14357.598,
+        "durationMs": 603.88,
+        "startedDateTime": "2026-11-16T01:35:47.413Z"
+      },
+      {
+        "url": "http://127.0.0.1:5491/@fs/workspace/scratch/1b47eb428672/m15-v3/packages/ui-shell/ActionMenu.tsx",
+        "method": "GET",
+        "status": 200,
+        "startMs": 14263.122,
+        "durationMs": 601.581,
+        "startedDateTime": "2026-11-16T01:35:47.319Z"
+      },
+      {
+        "url": "http://127.0.0.1:5491/src/WorkspacePanelBodies.tsx",
+        "method": "GET",
+        "status": 200,
+        "startMs": 14265.211,
+        "durationMs": 599.732,
+        "startedDateTime": "2026-11-16T01:35:47.321Z"
+      },
+      {
+        "url": "http://127.0.0.1:5491/@fs/workspace/scratch/1b47eb428672/m15-v3/node_modules/.vite/deps/react.js?v=c4defae2",
+        "method": "GET",
+        "status": 200,
+        "startMs": 13599.526,
+        "durationMs": 590.264,
+        "startedDateTime": "2026-11-16T01:35:46.655Z"
+      },
+      {
+        "url": "http://127.0.0.1:5491/src/api.ts",
+        "method": "GET",
+        "status": 200,
+        "startMs": 13604.442,
+        "durationMs": 588.635,
+        "startedDateTime": "2026-11-16T01:35:46.660Z"
+      },
+      {
+        "url": "http://127.0.0.1:5491/src/task-context.ts",
+        "method": "GET",
+        "status": 200,
+        "startMs": 14357.918,
+        "durationMs": 560.567,
+        "startedDateTime": "2026-11-16T01:35:47.413Z"
+      },
+      {
+        "url": "http://127.0.0.1:5491/@fs/workspace/scratch/1b47eb428672/m15-v3/node_modules/.vite/deps/@json-render_react.js?v=c4defae2",
+        "method": "GET",
+        "status": 200,
+        "startMs": 14358.143,
+        "durationMs": 558.567,
+        "startedDateTime": "2026-11-16T01:35:47.414Z"
+      }
+    ],
+    "nonGetRequests": [],
+    "httpFailureResponses": [
+      {
+        "url": "http://127.0.0.1:5491/api/plugins",
+        "method": "GET",
+        "status": 404,
+        "startMs": 17505.431,
+        "durationMs": 24.891,
+        "startedDateTime": "2026-11-16T01:35:50.561Z"
+      },
+      {
+        "url": "http://127.0.0.1:5491/api/workbench/threads/task-thread",
+        "method": "GET",
+        "status": 404,
+        "startMs": 18510.833,
+        "durationMs": 92.477,
+        "startedDateTime": "2026-11-16T01:35:51.566Z"
+      }
+    ],
+    "console": [
+      {
+        "messageType": "debug",
+        "text": "[vite] connecting...",
+        "location": {
+          "url": "http://127.0.0.1:5491/@vite/client",
+          "lineNumber": 732,
+          "columnNumber": 8
+        },
+        "time": 13432.133
+      },
+      {
+        "messageType": "debug",
+        "text": "[vite] connected.",
+        "location": {
+          "url": "http://127.0.0.1:5491/@vite/client",
+          "lineNumber": 826,
+          "columnNumber": 11
+        },
+        "time": 13441.621
+      },
+      {
+        "messageType": "info",
+        "text": "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold",
+        "location": {
+          "url": "http://127.0.0.1:5491/@fs/workspace/scratch/1b47eb428672/m15-v3/node_modules/.vite/deps/react-dom_client.js?v=c4defae2",
+          "lineNumber": 20102,
+          "columnNumber": 53
+        },
+        "time": 13531.166
+      },
+      {
+        "messageType": "error",
+        "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "location": {
+          "url": "http://127.0.0.1:5491/api/plugins",
+          "lineNumber": 0,
+          "columnNumber": 0
+        },
+        "time": 17527.088
+      },
+      {
+        "messageType": "error",
+        "text": "Failed to load resource: the server responded with a status of 404 (Not Found)",
+        "location": {
+          "url": "http://127.0.0.1:5491/api/workbench/threads/task-thread",
+          "lineNumber": 0,
+          "columnNumber": 0
+        },
+        "time": 18624.83
+      }
+    ],
+    "interpretation": "Module delivery and application startup dominate the elapsed period before bootstrap. Network durations do not distinguish Vite transform work, scheduling, instrumentation, or other host contention. The fixture explicitly returns 404 for API paths it does not implement. Both 404s are nonfatal in this captured startup; no capture/describe/open/send request occurred."
+  },
+  "sourceContract": [
+    {
+      "path": "tests/e2e/chat-view-modes.spec.ts",
+      "fact": "open() installs the synthetic host fixture, awaits page.goto(/) at document load, then immediately asserts that the Message textbox inside thread:task-thread is enabled. The failed first case did not reach message/attachment assertions. It never authors a draft."
+    },
+    {
+      "path": "tests/e2e/chat-view-modes-fixture.ts",
+      "fact": "Uses canonical App at / with a real split layout containing thread:task-thread, authored messages and notes.txt. It installs routes without an intentional startup delay."
+    },
+    {
+      "path": "tests/e2e/chat-view-escape.spec.ts",
+      "fact": "The preceding three Escape/IME tests navigate a dedicated synthetic HTML route importing chat-view-escape-fixture.tsx. They do not initialize the canonical App."
+    },
+    {
+      "path": "tests/e2e/task-interface-fixture.ts",
+      "fact": "serveTaskFixture returns bootstrap, models, snapshot, shell-settings and workspace data. Unimplemented non-command endpoints fall through to status404. The only diff from accepted main is an optional initialThreadId on the separate serveTaskSplitLayout helper, which serveChatFixture does not call."
+    },
+    {
+      "path": "apps/web/src/main.tsx",
+      "fact": "Creates the React root and starts void import(DesktopEntry). App rendering is asynchronous relative to document load."
+    },
+    {
+      "path": "apps/web/src/DesktopEntry.tsx",
+      "fact": "Imports App statically and renders App when the native desktop bridge is absent, as in this fixture."
+    },
+    {
+      "path": "apps/web/src/App.tsx",
+      "fact": "App initialization awaits bootstrap then snapshot refresh before setting loaded. Canonical split layout is loaded after App readiness."
+    },
+    {
+      "path": "apps/web/src/SourceWorkbench.tsx",
+      "fact": "Catalogue is fetched in a layout effect and rejected requests are reported. The provider returns its children without a DOM wrapper; the captured 404 did not prevent the composer from appearing."
+    }
+  ],
+  "sourceIdentity": {
+    "policy": "Embedded test/fixture bytes are matched to the current working tree. Other hashes record source inspected at audit time only; the retained trace does not include production response bodies, so these hashes are not asserted as an independently sealed run source cut. Static equality to accepted main does not establish runtime parity.",
+    "files": [
+      {
+        "path": "tests/e2e/chat-view-modes.spec.ts",
+        "auditWorktreeSha256": "fd2eba2ec4afadf42c82c35dc54e6910fcaf135bfa88f8b241f6a8294f593fa1",
+        "auditWorktreeBytes": 3304,
+        "acceptedBaseExists": true,
+        "acceptedBaseSha256": "fd2eba2ec4afadf42c82c35dc54e6910fcaf135bfa88f8b241f6a8294f593fa1",
+        "equalsAcceptedBaseBytes": true,
+        "traceEmbedded": {
+          "member": "resources/src@2ef5b24c9359af6bea74708c8cb5f65419fd4b6a.txt",
+          "bytes": 3304,
+          "sha256": "fd2eba2ec4afadf42c82c35dc54e6910fcaf135bfa88f8b241f6a8294f593fa1",
+          "matchesAuditWorktreeBytes": true
+        }
+      },
+      {
+        "path": "tests/e2e/chat-view-modes-fixture.ts",
+        "auditWorktreeSha256": "cab5db7d8b6bc644929d675fb72cd36a618c610a860644612f191e57d89f721b",
+        "auditWorktreeBytes": 2769,
+        "acceptedBaseExists": true,
+        "acceptedBaseSha256": "cab5db7d8b6bc644929d675fb72cd36a618c610a860644612f191e57d89f721b",
+        "equalsAcceptedBaseBytes": true,
+        "traceEmbedded": {
+          "member": "resources/src@54b33cdb79b53be7d01c713ab9f6799837ffede1.txt",
+          "bytes": 2769,
+          "sha256": "cab5db7d8b6bc644929d675fb72cd36a618c610a860644612f191e57d89f721b",
+          "matchesAuditWorktreeBytes": true
+        }
+      },
+      {
+        "path": "tests/e2e/chat-view-modes.playwright.config.ts",
+        "auditWorktreeSha256": "f8265e93fe341253ccf01c5f17832bfcbb85c0b4d6811b439924290fb98f5cf0",
+        "auditWorktreeBytes": 578,
+        "acceptedBaseExists": true,
+        "acceptedBaseSha256": "01adbc4ba770b9d06edcd4782c8344cfc709d7e74512a249229e505f0b3d5abb",
+        "equalsAcceptedBaseBytes": false
+      },
+      {
+        "path": "tests/e2e/chat-view-escape.spec.ts",
+        "auditWorktreeSha256": "c5f23bdbb70a96a444e6621a1557692306b8f988306ffb291058cb56cf003b35",
+        "auditWorktreeBytes": 3921,
+        "acceptedBaseExists": false,
+        "acceptedBaseSha256": null,
+        "equalsAcceptedBaseBytes": false
+      },
+      {
+        "path": "tests/e2e/chat-view-escape-fixture.tsx",
+        "auditWorktreeSha256": "d0eeedf82f93825d5eae1f23e6227889f8ad46262c4a56638cf4ea9aff074cb2",
+        "auditWorktreeBytes": 884,
+        "acceptedBaseExists": false,
+        "acceptedBaseSha256": null,
+        "equalsAcceptedBaseBytes": false
+      },
+      {
+        "path": "tests/e2e/task-interface-fixture.ts",
+        "auditWorktreeSha256": "d06775ef1f79e435e602e547130530d8c9d9759e2c285168e90ec3c45b25c05d",
+        "auditWorktreeBytes": 10212,
+        "acceptedBaseExists": true,
+        "acceptedBaseSha256": "36f78cd686a347968ef4e5d49fb1a5c6bc49fce4bf74949eb7acf0947bc79dd3",
+        "equalsAcceptedBaseBytes": false,
+        "traceEmbedded": {
+          "member": "resources/src@db468c82c886d33abf01603fd75688cfcfbb1707.txt",
+          "bytes": 10212,
+          "sha256": "d06775ef1f79e435e602e547130530d8c9d9759e2c285168e90ec3c45b25c05d",
+          "matchesAuditWorktreeBytes": true
+        }
+      },
+      {
+        "path": "apps/web/src/main.tsx",
+        "auditWorktreeSha256": "3d98c829e45846b51f41a7c9ce9fc0b5596237ab208d6a4ac3f434e2d3a09c29",
+        "auditWorktreeBytes": 587,
+        "acceptedBaseExists": true,
+        "acceptedBaseSha256": "3d98c829e45846b51f41a7c9ce9fc0b5596237ab208d6a4ac3f434e2d3a09c29",
+        "equalsAcceptedBaseBytes": true
+      },
+      {
+        "path": "apps/web/src/DesktopEntry.tsx",
+        "auditWorktreeSha256": "ea05a88b5687073d113197590ff792f729eb1c9e66e0f3f1bd4511ccb76abb1d",
+        "auditWorktreeBytes": 10077,
+        "acceptedBaseExists": true,
+        "acceptedBaseSha256": "ea05a88b5687073d113197590ff792f729eb1c9e66e0f3f1bd4511ccb76abb1d",
+        "equalsAcceptedBaseBytes": true
+      },
+      {
+        "path": "apps/web/src/App.tsx",
+        "auditWorktreeSha256": "35c85b82775d7268a1ff7d412b2bc328b38121b6defbafd45dca2068391d862b",
+        "auditWorktreeBytes": 156202,
+        "acceptedBaseExists": true,
+        "acceptedBaseSha256": "a3b7252bd57ec61f54cd8c92bb6b7b543da86b71babf2cdd18b5c90cea8a0a42",
+        "equalsAcceptedBaseBytes": false
+      },
+      {
+        "path": "apps/web/src/SourceWorkbench.tsx",
+        "auditWorktreeSha256": "309199491dcede75bffbb08bc73bf7fd5d2493601191fd11fc5392c77820e419",
+        "auditWorktreeBytes": 20550,
+        "acceptedBaseExists": false,
+        "acceptedBaseSha256": null,
+        "equalsAcceptedBaseBytes": false
+      },
+      {
+        "path": "apps/web/src/workbench-api.ts",
+        "auditWorktreeSha256": "8f99344e9451e931e9aa77684df14a67ad2497bf28ebbb0921d3314c604ea088",
+        "auditWorktreeBytes": 4860,
+        "acceptedBaseExists": false,
+        "acceptedBaseSha256": null,
+        "equalsAcceptedBaseBytes": false
+      }
+    ]
+  },
+  "limits": [
+    "No accepted-main 138 runtime comparison exists in this audit. Do not classify the failure as baseline or environment-only.",
+    "No new run was executed, no timeout was increased, and no failed result was replaced by the later passing cases.",
+    "The later draft/selection/reading-position and reduced-motion/focus tests passed on separate test contexts against the same dev server. They do not retroactively satisfy the first case or establish cold-start parity.",
+    "The retained runtime is Linux Chromium. Planned exact-head Windows/Edge and paired accepted-base evidence are not executed evidence here.",
+    "A specific source/draft logic defect or a causal module-level performance regression is not established. The unresolved attributable symptom is canonical App startup exceeding the existing five-second readiness contract."
+  ],
+  "evidence": [
+    {
+      "path": "docs/implementation/v3/m15-logs/c2-browser-chat-view-green-02.json",
+      "bytes": 773,
+      "sha256": "dfd4ec9f7a1662488a0e59ce8363c94fbdff9b3ca694d802dee8b655aef12d05"
+    },
+    {
+      "path": "docs/implementation/v3/m15-logs/c2-browser-chat-view-green-02.log",
+      "bytes": 4820,
+      "sha256": "d429d7ba9bee9447c973de06a0b54b1fd30c9e0b9fb10d1a85d2d384bb1c5132"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c2-browser-chat-view-green-02/results.json",
+      "bytes": 13459,
+      "sha256": "a6418e02b56449154d00379d56bce69e3c1e60e4273730c9a1e818b1f4df0e86"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c2-browser-chat-view-green-02/artifacts/chat-view-modes-the-conver-d799a-es-composer-and-attachments/trace.zip",
+      "bytes": 558571,
+      "sha256": "1c276c00e5e3ef9ce5764541fea7a23b6532806be935df01e7d5f2ad82687c5d"
+    },
+    {
+      "path": "docs/implementation/v3/m15-artifacts/c2-browser-chat-view-green-02/artifacts/chat-view-modes-the-conver-d799a-es-composer-and-attachments/error-context.md",
+      "bytes": 23882,
+      "sha256": "221d0b40de7193ce3ac2a7b9ec5685c57c9b93aa897771877c3d4b9eb73f919d"
+    }
+  ],
+  "traceMembers": [
+    {
+      "member": "test.trace",
+      "bytes": 38407,
+      "sha256": "0d84236d4f608b7bee1eaba70681f34d53b97fbb4baeb9f05ffb197cf9632d2b"
+    },
+    {
+      "member": "0-trace.trace",
+      "bytes": 486694,
+      "sha256": "67f5c6917d8e16855bbe5ecb2a6c49bfbf999eacdd4cb29b31a617be6bf18983"
+    },
+    {
+      "member": "0-trace.network",
+      "bytes": 555205,
+      "sha256": "62806dd3ddbbcf17e2ad79fcada529ca82c83ca81f809fd1e5e729c957dfe95b"
+    },
+    {
+      "member": "0-trace.stacks",
+      "bytes": 987,
+      "sha256": "8dfbfb46f25d39c50317925da58cdf11614707034681da8e670887034f3c4243"
+    }
+  ],
+  "traceContext": {
+    "version": 8,
+    "type": "context-options",
+    "origin": "library",
+    "browserName": "chromium",
+    "options": {
+      "noDefaultViewport": false,
+      "viewport": {
+        "width": 1600,
+        "height": 1000
+      },
+      "ignoreHTTPSErrors": false,
+      "javaScriptEnabled": true,
+      "bypassCSP": false,
+      "locale": "en-US",
+      "offline": false,
+      "isMobile": false,
+      "hasTouch": false,
+      "colorScheme": "light",
+      "acceptDownloads": "accept",
+      "baseURL": "http://127.0.0.1:5491",
+      "serviceWorkers": "allow",
+      "selectorEngines": [],
+      "testIdAttributeName": "data-testid"
+    },
+    "platform": "linux",
+    "wallTime": 1794792946350,
+    "monotonicTime": 13294.596,
+    "sdkLanguage": "javascript",
+    "testIdAttributeName": "data-testid",
+    "contextId": "browser-context@fd767b03bbf5180c6ddc3b694235a98f",
+    "title": "chat-view-modes.spec.ts:13 › the conversation lives in the split plane with its messages, composer and attachments"
+  }
+}

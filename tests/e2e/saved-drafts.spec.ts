@@ -155,7 +155,7 @@ test('legacy reference-only records expose IDs and keyboard-copyable excerpt tex
  await page.keyboard.press('Escape');await expect(draft(page)).toHaveValue('');expect(await library()).toEqual(before);await page.reload();await expect(draft(page)).toBeEnabled();expect(await library()).toEqual(before);expect(writes).toEqual([]);
 });
 
-test('approved thread capacity blocks a new draft with an error message and keeps records in every working copy',async({page})=>{
+test('approved thread capacity blocks a new draft with an alert and keeps records in every working copy',async({page})=>{
  const writes=await setup(page);await page.evaluate(async owner=>{const sp='/apps/web/src/saved-drafts.ts',jp='/apps/web/src/journal.ts',s=await import(sp),j=await import(jp),other={...owner,workingCopyId:'other-copy'};
   for(const [scope,count] of [[owner,19],[other,1]] as const)await j.journalWrite(s.savedDraftLibraryKey(scope),{version:1,owner:scope,records:Array.from({length:count},(_,i)=>s.createSavedDraft(scope,`Existing ${i}`,'Existing text'))});
  },owner);

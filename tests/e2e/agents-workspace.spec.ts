@@ -1,5 +1,6 @@
 import {test, expect, type Page} from '@playwright/test';
 import {resolve} from 'node:path';
+import type {CommandReceipt} from '../../packages/contracts';
 import type {AgentSummary} from '../../packages/contracts/agent-inventory';
 const fixture = '/@fs/' + resolve('tests/e2e/agents-workspace-fixture.tsx').replaceAll('\\', '/');
 const agent = (id: string, patch: Partial<AgentSummary> = {}): AgentSummary => ({agentId: id, parentId: null, rootId: id, jobId: null, threadId: id, projectId: 'a', projectName: 'Alpha', title: id, status: 'working', modelId: 'test/model', currentAction: 'Reading project sources', reportedPercent: 35, createdAt: '2026-11-06', updatedAt: '2026-11-06', orderKey: id, revision: 1, archived: false, readOnly: false, metadata: 'thread', ...patch});
@@ -23,9 +24,9 @@ async function setup(page: Page, candidate = false, burstHistory = false, delaye
 
    const command = commands.at(-1)!;
    if (command.type === 'agent.followUp') {
-    return route.fulfill({json: {commandId: command.id, eventSeq: sequence, result: {ticketId: command.id, status: 'queued'}}});
+    return route.fulfill({json: {commandId: command.id, eventSeq: sequence, result: {ticketId: command.id, status: 'queued'}} satisfies CommandReceipt});
    }
-   return route.fulfill({json: {id: command.id, status: 'accepted', result: null}});
+   return route.fulfill({json: {commandId: command.id, eventSeq: sequence, result: null} satisfies CommandReceipt});
 
   }
   if (url.pathname === '/api/agents') {
@@ -50,6 +51,10 @@ async function setup(page: Page, candidate = false, burstHistory = false, delaye
  });
  await page.route('**/agents-workspace-check*', route => route.fulfill({contentType: 'text/html', body: `<html data-theme="dark"><head><meta name="viewport" content="width=device-width, initial-scale=1"></head><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${encodeURI(fixture)}');</script></body></html>`}));
  await page.goto('/agents-workspace-check' + (candidate ? '?candidate=1' : ''));
+ // The App candidate is intentionally imported only by its integration case.
+ // Start its API assertions after that cold module graph mounts the fixture;
+ // requests made during startup remain in the same history for the assertions.
+ if (candidate) await page.getByText('Synthetic agent workspace fixture', {exact: true}).waitFor({state: 'attached'});
  return {requests, commands, delay: () => {gate = new Promise<void>(resolve => {release = resolve;});}, release: () => release?.(), fail: (value: boolean) => {failSend = value;}, output: (value: string) => {output = value; sequence++;}, ticket: (value: string) => {ticketStatus = value;}, burst: (total: number) => {messageTotal = total; sequence++;}};
 }
 
@@ -161,6 +166,7 @@ test('IME does not send, working parents send, uncertain retries keep identity a
  await input.fill('Later'); h.fail(false); await page.getByRole('button', {name: 'Retry send to parent-00', exact: true}).click();
  await expect(input).toHaveValue('Later'); expect(h.commands).toHaveLength(2); expect(h.commands[0].id).toBe(h.commands[1].id); expect(h.commands[1].payload.content).toBe('First');
  expect(h.commands.every(command => command.threadId === 'parent-00')).toBe(true);
+ await expect(page.getByRole('button', {name: 'Retry send to parent-00', exact: true})).toHaveCount(0);
 });
 test('filtered children retain their completed owning parent and local reading state', async ({page}) => {
  const h = await setup(page); const log = page.getByRole('log', {name: 'parent-00 messages', exact: true});

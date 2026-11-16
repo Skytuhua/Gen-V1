@@ -93,8 +93,14 @@ export async function serveTaskFixture(page: Page, snapshot: Snapshot, action?: 
   };
 }
 // Opt in for fixtures that navigate real App conversations in the canonical split workspace.
-export async function serveTaskSplitLayout(page: Page, snapshot?: Snapshot) {
+export async function serveTaskSplitLayout(page: Page, initial?: string | Snapshot) {
+  const snapshot = typeof initial === 'string' ? undefined : initial;
   let layout = taskSplitLayout(snapshot);
+  // Main conversation selection now comes from durable pane placement rather
+  // than the snapshot's activeThreadId fallback.
+  if (typeof initial === 'string') layout = applySplitWorkspaceCommand(layout, 'view.open', {
+    view: {id: `thread:${initial}`, kind: 'thread', binding: {authority: {kind: 'local'}, threadId: initial}},
+  });
   await page.route('**/api/split-workspace?workspaceId=workspace', route => route.fulfill({json: layout}));
   await page.route('**/api/split-workspace/profiles?workspaceId=workspace', route => route.fulfill({json: []}));
   await page.route('**/api/split-workspace/commands', route => {

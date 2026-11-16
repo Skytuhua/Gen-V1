@@ -1,5 +1,6 @@
 import {useCallback,useEffect,useMemo,useRef,useState} from 'react';
 import {createRoot} from 'react-dom/client';
+import {Modal} from '../../packages/ui-shell/Modal';
 import {SourceSelectionActions} from '../../apps/web/src/SourceSelectionActions';
 import {Markdown} from '../../apps/web/src/Markdown';
 import {WorkbenchOutput} from '../../apps/web/src/WorkbenchOutput';
@@ -9,6 +10,17 @@ import {sameLogicalOwner,type LogicalOwnerV1,type SourceRefV1} from '../../packa
 import type {OutputScrollAnchor,WorkbenchOutputRow} from '../../apps/web/src/workbench-window';
 const transformedMessage='| Column |\n| --- |\n| left\\|right |\n\nPlain later left|right';
 function Fixture(){const [action,setAction]=useState('');return <main style={{padding:24}}><SourceSelectionActions text="Visible selected text from an assistant." enabled onAction={(kind,selection)=>setAction(kind+':'+selection.text)}><p id="source-text">Visible selected text from an assistant.</p></SourceSelectionActions><button id="background">Other pane</button><output>{action}</output><div data-source-id="forged">Forged selected text</div><section id="transformed-source"><SourceSelectionActions text={transformedMessage} enabled onAction={(kind,selection)=>setAction(kind+':'+selection.start)}><Markdown text={transformedMessage}/></SourceSelectionActions></section></main>;}
+
+const tallCanonicalText=Array.from({length:150},(_,index)=>index===75?'Visible selected canonical text from the current owner.':`Retained canonical line ${index}.`).join('\n');
+function ModalSelectionFixture(){
+ const [open,setOpen]=useState(false),[action,setAction]=useState('');
+ return <main style={{padding:24}}><button type="button" onClick={()=>setOpen(true)}>Open canonical source fixture</button><output data-selection-result>{action}</output>
+  <Modal open={open} title="Canonical source fixture" onClose={()=>setOpen(false)}>
+   <div data-source-scroll style={{height:180,overflow:'auto'}}><SourceSelectionActions text={tallCanonicalText} enabled onAction={(kind,selection)=>setAction(JSON.stringify({kind,...selection}))}><pre id="tall-source-text" style={{margin:0}}>{tallCanonicalText}</pre></SourceSelectionActions></div>
+   <button type="button">Other modal control</button>
+  </Modal>
+ </main>;
+}
 
 function createReadModels() {
   return Object.freeze({
@@ -118,4 +130,5 @@ function OutputFixture() {
   </main>;
 }
 
-createRoot(document.getElementById('root')!).render(new URLSearchParams(location.search).get('fixture')==='output'?<OutputFixture/>:<Fixture/>);
+const fixtureKind=new URLSearchParams(location.search).get('fixture');
+createRoot(document.getElementById('root')!).render(fixtureKind==='output'?<OutputFixture/>:fixtureKind==='selection-modal'?<ModalSelectionFixture/>:<Fixture/>);

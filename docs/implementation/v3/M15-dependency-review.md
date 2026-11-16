@@ -1,4 +1,50 @@
-# M15 current-base dependency review
+# M15 dependency review, publication cut 2
+
+The accepted reconciliation base is `138b1356495bb3a2c9b35020240513f8faa84964`.
+Current prerequisite execution `c2-core-prerequisites` passed 72 tests in the
+same six owning suites. The initial merged source also passed
+`c2-merge-typecheck-01`. Later edits require the final source verification.
+
+The eight prerequisite contract paths differ from the first publication base only
+in `packages/contracts/index.ts`: upstream added optional
+`RuntimeAdapter.invalidateModels({accountId?})`. Existing command, receipt, input,
+effect and transaction contracts are unchanged. The source lock records their
+current immutable blobs; no replacement owner API was guessed.
+
+The four merge conflicts in App, browser registry, chat-mode tests and saved-draft
+tests were resolved by retaining upstream's canonical split-pane ownership and
+M15's source/draft integration. Upstream's three canonical chat cases are retained
+unchanged. The three tooltip/drag/IME cases now exercise the real ChatView directly,
+because upstream removed the old App presentation modes.
+
+The immutable owner audit `c2-host-owners-source-cut-01` and
+`c2-host-owners-unchanged-01` verifies that the eight native file, comparison,
+verification and optional-module owner sources inspected for the previous gates
+are unchanged at this accepted base. There is no new contract that authorizes
+Linux file leaf capture, atomic diff capture, historical evidence artifact reads,
+or M05/M10/M14 mutation panels.
+
+Remote main first advanced to `bfd4247994674c5a60ed14b12ff2dda223b07879` with three CSS changes, then reached `49cd633273a3f61c14a4191a9877e99ab23ec88f` while this cut was being verified. The six additional commits include workspace-surface retirement, a surface error boundary and native-thread split selection. A source-only merge probe identifies conflicts in App and the public-source manifest. This preserved cut remains pinned to138; a follow-up reconciliation must review49 before current-main compatibility can be claimed. CI merge-tree and explicit PR-head results retain separate identities.
+
+## Current M04 and runtime boundary review
+
+The current source lock also names the existing M04 request-context contract and request-custody owner. The repair stays in `Service.sendMessage`: a claim undo is used only after no matching durable command receipt and no outbox input exist. Admission advances are undone before the newly acquired claim, and exact entry/input/basis references prevent an old callback from reopening newer custody. A late SQLite COMMIT failure can affect other already-claimed entries; their original bases are restored while they remain consumed. Other admission/lifecycle callers are outside this repair's acceptance claim.
+
+First-input source account custody uses one host projection within the ordinary synchronous input transaction. The witness binds the original unbound owner stamp to the exact admitted account and input. It does not rewrite captures, selected text, source identities or grants. In-flight describe/capture operations retain their original owner fences; legacy captures without the new proof are not granted migrated authority.
+
+Hermes cleanup distinguishes a guard that never admitted startup from a guard that was acquired. Failed admission is not rethrown a second time during cleanup. Acquired-guard loss/release failure and uncertain descendant cancellation still fail and retain custody where required.
+
+| Reviewed source | Accepted-base blob | Current implementation SHA-256 |
+| --- | --- | --- |
+| `packages/contracts/request-context.ts` | `30185cc5e66a74ef438af8ec8e9ec1d91989c614` | `6f1dc5669b95a2697aa97df44a3d9c86d48ed15ec23bc75db4f20b257a1d2957` |
+| `packages/core/request-custody.ts` | `b7f0946c0ae48acc8d0673739c6960a5601b8841` | `0c3f71fcf8843f280ba5118c97edf9cab0b147c6cc16761f3906f3bb92fa2a94` |
+| `packages/core/service.ts` | `cdef7f205a6d19357478d9676f9c43c26be512b1` | `27256b1d6851d69c2d4d92aa22088c70e5780e5668248990be42803c32b75c81` |
+| `packages/runtime-hermes/client.ts` | `c83ab13d1347c592df98ddf258788415bb971873` | `159ba27af61f7a4052bf12b132645008baddbcb1cb622653b696283749dbcac4` |
+
+`c2-m04-admission-final-green-01` passed 103 tests with two genuine Windows-only skips. The independent review and immutable red/green attempts are in `m15-artifacts/c2-m04-admission-review-01.json`. Final serial `c2-final-focused-04` passed 334 tests with three Windows-only skips, including collection of the actual-Hermes integration case. `c2-final-typecheck-03`, `c2-final-build-03` and `c2-final-ui-policy-03` exited 0. The focused03 failure remains retained: its browser fixture shared mutable dist/web with the concurrent build; the same command passed after serialization without source or deadline changes. These results do not stand in for actual Windows file guards, original-engine history execution or the full repository gate.
+
+## Historical first-publication dependency review
+
 
 Reviewed on 2026-11-15 against execution base `399cde39ff4ee82272c7a7700944325c44b36070` in `/workspace/scratch/1b47eb428672/m15-v3`, branch `agent/m15-v3`. This review inspected the accepted source, its relevant callers, and current prerequisite tests. It changes no product code and grants no production activation permission.
 

@@ -1,4 +1,26 @@
-# M15 continuation plan
+# M15 continuation plan, publication cut 2
+
+Continue the reviewed draft PR #390 from published commit
+`fd17d9f1b3931eb2b974b86ccc5a3892da47ba33`.
+The accepted reconciliation base for this cut is
+`138b1356495bb3a2c9b35020240513f8faa84964`.
+The original checkout remains at `399cde39ff4ee82272c7a7700944325c44b36070`.
+The exact first publication documents are retained under
+`m15-artifacts/publication-cut-01/`, with a hash manifest. Their counts and
+failed attempts remain historical evidence for that source cut.
+
+## Current sequence
+
+1. Reconcile the four colliding files against accepted main. Preserve the canonical split-pane layout and M15 draft/source behavior. Recheck exact M01/M02 contracts and run current prerequisites.
+2. Repair the initial account transition for captures made before a task's first input. Keep retained bytes immutable and require a host-owned proof written with the first accepted input. Verify M04 admission rollback separately.
+3. Correct denied-startup Hermes cleanup and the platform-capable credential helper launcher. Preserve acquired native guard and uncertain cancellation failures.
+4. Update stale browser fixtures to the current owning APIs. Preserve receipt assertions, canonical layout and Escape/IME behavior. Load optional workbench views only when requested, with retained drafts and contained loading failures.
+5. Run focused host, recovery, browser, renderer, typecheck and build checks against the reconciled source. Retain all failed and overlapping attempts with their actual status.
+6. Publish the reviewed merge to the existing draft branch. Use the repository's Windows CI and an exact-head M15 workflow for native source reads, original Hermes engine integration, installed Edge, and complete root-browser comparison against the accepted base.
+7. Audit actual CI outcomes, fix defects attributable to this change, update the evidence manifest and draft PR. Keep missing owning contracts and installed-desktop requirements explicit. Keep `ui.sourceWorkbenchV1` disabled.
+
+## Historical first-publication plan
+
 
 ## Source custody
 

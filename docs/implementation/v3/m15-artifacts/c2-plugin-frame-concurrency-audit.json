@@ -1,0 +1,721 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-11-16T01:46:06.036050+00:00",
+  "scope": "Read-only diagnosis. The reviewer ran no isolated test, browser, build, source edit or staging operation. Root ran the serial complete command.",
+  "acceptedBase": "138b1356495bb3a2c9b35020240513f8faa84964",
+  "contextualPublishedHead": "fd17d9f1b3931eb2b974b86ccc5a3892da47ba33",
+  "disposition": {
+    "confirmed": "The focused03 test and concurrent build share dist/web incompatibly: the test installs a persistent HTML fixture there and Vite explicitly clears that directory at renderStart.",
+    "supportedFailureMechanism": "Deletion or replacement of the fixture during the final case can select the production index fallback or temporary 503 instead of the fixture, leaving the expected alert absent. The build overlapped that case and wrote index/assets during it.",
+    "unobserved": "No failing navigation response body, browser trace, request timestamp or unlink event was retained; the exact response and unique cause of the timeout are not established.",
+    "serialValidation": "Focused04 ran the same 24 files/options/deadlines alone after the completed build and passed 334 with three explicit Windows skips. All four plugin-frame cases passed.",
+    "attribution": "No concrete M15 runtime defect was identified. This is not a claim that the failure occurred on an executed baseline. Focused03 remains FAIL."
+  },
+  "commandsEqualExceptResultDestination": true,
+  "testTimeoutMs": 60000,
+  "confirmedSourceMechanism": {
+    "fixtureCreation": "tests/plugin-frame-custody.test.ts beforeAll creates dist/web/plugin-custody-${randomUUID()}.html once. Cases 1 and 4 load it; cases 2 and 3 load server-defined unrestricted routes.",
+    "build": "scripts/build.mjs starts Vite build; vite.config.ts sets root apps/web, outDir ../../dist/web, emptyOutDir true.",
+    "cleanup": "Installed Vite 7.3.7 prepareOutDirPlugin renderStart order pre calls prepareOutDir, whose emptyDir removes files recursively. The fixture has no exclusion.",
+    "serverFallback": "apps/server/server.ts wildcard route maps missing files to dist/web/index.html and returns 503 if the fallback cannot be read.",
+    "cssBoundary": "The plugin-frame test esbuild bundle helper sets loader .css to empty. The two CSS changes after focused02 do not execute in those test bundles."
+  },
+  "commands": [
+    {
+      "id": "c2-final-focused-02",
+      "receiptPath": "docs/implementation/v3/m15-logs/c2-final-focused-02.json",
+      "receiptSha256": "c5883b97ade86ad614a2609d24ffe9977a87795e3dfb397e0b91c6f6b0124227",
+      "receipt": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/source-selection-v3.test.ts",
+          "tests/source-workbench-host-v3.test.ts",
+          "tests/source-workbench-hermes-v3.test.ts",
+          "tests/source-selection-dom-v3.test.ts",
+          "tests/source-composer-v3.test.ts",
+          "tests/source-draft-transfer-v3.test.ts",
+          "tests/activity-output-v3.test.ts",
+          "tests/workbench-input-recovery-v3.test.ts",
+          "tests/workbench-performance-v3.test.ts",
+          "tests/workbench-recovery-v3.test.ts",
+          "tests/agents-workspace-composer.test.ts",
+          "tests/agents-workspace-dispatch.test.ts",
+          "tests/saved-drafts.test.ts",
+          "tests/draft-transfer.test.ts",
+          "tests/compact-draft-transfer.test.ts",
+          "tests/journal.test.ts",
+          "tests/editor-handoff.test.ts",
+          "tests/accounts.test.ts",
+          "tests/request-preparation-service-v3.test.ts",
+          "tests/hermes-client-startup.test.ts",
+          "tests/hermes-runtime.test.ts",
+          "tests/model-discovery.test.ts",
+          "tests/workspace-linked-pr.test.ts",
+          "tests/plugin-frame-custody.test.ts",
+          "--maxWorkers=1",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile=docs/implementation/v3/m15-artifacts/c2-final-focused-02-results.json"
+        ],
+        "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+        "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+        "startedAt": "2026-11-16T01:15:08.676Z",
+        "endedAt": "2026-11-16T01:16:00.021Z",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS",
+        "boundedLogRef": "docs/implementation/v3/m15-logs/c2-final-focused-02.log",
+        "logDigest": "d0b9132ef9d66da5ec99db899c90bcc976a13ec4fd6eb284b397d3efc00b8498"
+      },
+      "resultPath": "docs/implementation/v3/m15-artifacts/c2-final-focused-02-results.json",
+      "resultSha256": "83205ba2c1368388427b2869a701b894f4b1d7dabee57da8d8caeacbb34b7bf4",
+      "counts": {
+        "numTotalTests": 337,
+        "numPassedTests": 334,
+        "numFailedTests": 0,
+        "numPendingTests": 3
+      },
+      "fileCounts": {
+        "passed": 23,
+        "skipped": 1
+      },
+      "fileCount": 24,
+      "pluginFile": {
+        "assertionResults": [
+          {
+            "ancestorTitles": [],
+            "fullName": "restricts parent frames to installed plug-in documents and the explicit widget destination",
+            "status": "passed",
+            "title": "restricts parent frames to installed plug-in documents and the explicit widget destination",
+            "duration": 2697.1728790000006,
+            "failureMessages": [],
+            "meta": {},
+            "tags": []
+          },
+          {
+            "ancestorTitles": [],
+            "fullName": "never gives a replacement document the bridge, pending results or a successful flush, even with the old session",
+            "status": "passed",
+            "title": "never gives a replacement document the bridge, pending results or a successful flush, even with the old session",
+            "duration": 1351.7194309999995,
+            "failureMessages": [],
+            "meta": {},
+            "tags": []
+          },
+          {
+            "ancestorTitles": [],
+            "fullName": "revokes an unexpected same-URL reload and recovers only through a fresh parent remount",
+            "status": "passed",
+            "title": "revokes an unexpected same-URL reload and recovers only through a fresh parent remount",
+            "duration": 1729.7627869999997,
+            "failureMessages": [],
+            "meta": {},
+            "tags": []
+          },
+          {
+            "ancestorTitles": [],
+            "fullName": "rejects a redirected replacement before the initial trusted bootstrap can connect",
+            "status": "passed",
+            "title": "rejects a redirected replacement before the initial trusted bootstrap can connect",
+            "duration": 1121.1520359999995,
+            "failureMessages": [],
+            "meta": {},
+            "tags": []
+          }
+        ],
+        "startTime": 1794791717994,
+        "endTime": 1794791724895.152,
+        "status": "passed",
+        "message": "",
+        "name": "/workspace/scratch/1b47eb428672/m15-v3/tests/plugin-frame-custody.test.ts"
+      }
+    },
+    {
+      "id": "c2-final-focused-03",
+      "receiptPath": "docs/implementation/v3/m15-logs/c2-final-focused-03.json",
+      "receiptSha256": "88328445a64582238b435500cd96fe3b3b815becbe2c069574cbfb6441a67dc8",
+      "receipt": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/source-selection-v3.test.ts",
+          "tests/source-workbench-host-v3.test.ts",
+          "tests/source-workbench-hermes-v3.test.ts",
+          "tests/source-selection-dom-v3.test.ts",
+          "tests/source-composer-v3.test.ts",
+          "tests/source-draft-transfer-v3.test.ts",
+          "tests/activity-output-v3.test.ts",
+          "tests/workbench-input-recovery-v3.test.ts",
+          "tests/workbench-performance-v3.test.ts",
+          "tests/workbench-recovery-v3.test.ts",
+          "tests/agents-workspace-composer.test.ts",
+          "tests/agents-workspace-dispatch.test.ts",
+          "tests/saved-drafts.test.ts",
+          "tests/draft-transfer.test.ts",
+          "tests/compact-draft-transfer.test.ts",
+          "tests/journal.test.ts",
+          "tests/editor-handoff.test.ts",
+          "tests/accounts.test.ts",
+          "tests/request-preparation-service-v3.test.ts",
+          "tests/hermes-client-startup.test.ts",
+          "tests/hermes-runtime.test.ts",
+          "tests/model-discovery.test.ts",
+          "tests/workspace-linked-pr.test.ts",
+          "tests/plugin-frame-custody.test.ts",
+          "--maxWorkers=1",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile=docs/implementation/v3/m15-artifacts/c2-final-focused-03-results.json"
+        ],
+        "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+        "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+        "startedAt": "2026-11-16T01:38:24.622Z",
+        "endedAt": "2026-11-16T01:40:03.196Z",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL",
+        "boundedLogRef": "docs/implementation/v3/m15-logs/c2-final-focused-03.log",
+        "logDigest": "1779171ed01d46a6dc768244e4ef83efdfba9133830858bbb1e52bb757ba76ab"
+      },
+      "resultPath": "docs/implementation/v3/m15-artifacts/c2-final-focused-03-results.json",
+      "resultSha256": "272c6972aeb8b8734b5930b5e12e0e72ab72ed570c1dbe98c4721a0dd238810d",
+      "counts": {
+        "numTotalTests": 337,
+        "numPassedTests": 333,
+        "numFailedTests": 1,
+        "numPendingTests": 3
+      },
+      "fileCounts": {
+        "passed": 22,
+        "failed": 1,
+        "skipped": 1
+      },
+      "fileCount": 24,
+      "pluginFile": {
+        "assertionResults": [
+          {
+            "ancestorTitles": [],
+            "fullName": "restricts parent frames to installed plug-in documents and the explicit widget destination",
+            "status": "passed",
+            "title": "restricts parent frames to installed plug-in documents and the explicit widget destination",
+            "duration": 2468.2884839999997,
+            "failureMessages": [],
+            "meta": {},
+            "tags": []
+          },
+          {
+            "ancestorTitles": [],
+            "fullName": "never gives a replacement document the bridge, pending results or a successful flush, even with the old session",
+            "status": "passed",
+            "title": "never gives a replacement document the bridge, pending results or a successful flush, even with the old session",
+            "duration": 1385.6351569999988,
+            "failureMessages": [],
+            "meta": {},
+            "tags": []
+          },
+          {
+            "ancestorTitles": [],
+            "fullName": "revokes an unexpected same-URL reload and recovers only through a fresh parent remount",
+            "status": "passed",
+            "title": "revokes an unexpected same-URL reload and recovers only through a fresh parent remount",
+            "duration": 2578.9542930000007,
+            "failureMessages": [],
+            "meta": {},
+            "tags": []
+          },
+          {
+            "ancestorTitles": [],
+            "fullName": "rejects a redirected replacement before the initial trusted bootstrap can connect",
+            "status": "failed",
+            "title": "rejects a redirected replacement before the initial trusted bootstrap can connect",
+            "duration": 60009.188967,
+            "failureMessages": [
+              "Error: STACK_TRACE_ERROR\n    at task (file:///workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:1784:27)\n    at Object.<anonymous> (file:///workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:1817:16)\n    at Object.<anonymous> (file:///workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:1563:28)\n    at chain (file:///workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:599:14)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/plugin-frame-custody.test.ts:115:1\n    at processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at VitestModuleEvaluator._runInlinedModule (file:///workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/vitest@4.1.12_@opentelemetry+api@1.10.0_@types+node@24.10.0_vite@7.3.7_@types+node@24.1_7eba4be4726cb38515c4a1a7e4505812/node_modules/vitest/dist/module-evaluator.js:206:4)\n    at VitestModuleRunner.directRequest (file:///workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/module-runner.js:1146:59)\n    at VitestModuleRunner.cachedRequest (file:///workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/module-runner.js:1053:73)\n    at VitestModuleRunner.import (file:///workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/node/module-runner.js:1014:10)"
+            ],
+            "meta": {},
+            "tags": []
+          }
+        ],
+        "startTime": 1794793114606,
+        "endTime": 1794793181052.189,
+        "status": "failed",
+        "message": "",
+        "name": "/workspace/scratch/1b47eb428672/m15-v3/tests/plugin-frame-custody.test.ts"
+      }
+    },
+    {
+      "id": "c2-final-focused-04",
+      "receiptPath": "docs/implementation/v3/m15-logs/c2-final-focused-04.json",
+      "receiptSha256": "2cde084ae1d5d80ab1ab34db7441647b26c56328c21ae8e313baa254abac3f2c",
+      "receipt": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "vitest",
+          "run",
+          "tests/source-selection-v3.test.ts",
+          "tests/source-workbench-host-v3.test.ts",
+          "tests/source-workbench-hermes-v3.test.ts",
+          "tests/source-selection-dom-v3.test.ts",
+          "tests/source-composer-v3.test.ts",
+          "tests/source-draft-transfer-v3.test.ts",
+          "tests/activity-output-v3.test.ts",
+          "tests/workbench-input-recovery-v3.test.ts",
+          "tests/workbench-performance-v3.test.ts",
+          "tests/workbench-recovery-v3.test.ts",
+          "tests/agents-workspace-composer.test.ts",
+          "tests/agents-workspace-dispatch.test.ts",
+          "tests/saved-drafts.test.ts",
+          "tests/draft-transfer.test.ts",
+          "tests/compact-draft-transfer.test.ts",
+          "tests/journal.test.ts",
+          "tests/editor-handoff.test.ts",
+          "tests/accounts.test.ts",
+          "tests/request-preparation-service-v3.test.ts",
+          "tests/hermes-client-startup.test.ts",
+          "tests/hermes-runtime.test.ts",
+          "tests/model-discovery.test.ts",
+          "tests/workspace-linked-pr.test.ts",
+          "tests/plugin-frame-custody.test.ts",
+          "--maxWorkers=1",
+          "--reporter=default",
+          "--reporter=json",
+          "--outputFile=docs/implementation/v3/m15-artifacts/c2-final-focused-04-results.json"
+        ],
+        "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+        "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+        "startedAt": "2026-11-16T01:43:46.513Z",
+        "endedAt": "2026-11-16T01:44:17.629Z",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS",
+        "boundedLogRef": "docs/implementation/v3/m15-logs/c2-final-focused-04.log",
+        "logDigest": "ab6cadd309609de0e82a2a1974a4fe4c85da8a7c87d2012267031d4c1a64381f"
+      },
+      "resultPath": "docs/implementation/v3/m15-artifacts/c2-final-focused-04-results.json",
+      "resultSha256": "eef264f1e4e7e91510483509e828b9be60e314d9dd2997a6b1cbc21d04e785eb",
+      "counts": {
+        "numTotalTests": 337,
+        "numPassedTests": 334,
+        "numFailedTests": 0,
+        "numPendingTests": 3
+      },
+      "fileCounts": {
+        "passed": 23,
+        "skipped": 1
+      },
+      "fileCount": 24,
+      "pluginFile": {
+        "assertionResults": [
+          {
+            "ancestorTitles": [],
+            "fullName": "restricts parent frames to installed plug-in documents and the explicit widget destination",
+            "status": "passed",
+            "title": "restricts parent frames to installed plug-in documents and the explicit widget destination",
+            "duration": 1661.0928700000004,
+            "failureMessages": [],
+            "meta": {},
+            "tags": []
+          },
+          {
+            "ancestorTitles": [],
+            "fullName": "never gives a replacement document the bridge, pending results or a successful flush, even with the old session",
+            "status": "passed",
+            "title": "never gives a replacement document the bridge, pending results or a successful flush, even with the old session",
+            "duration": 1227.8633010000003,
+            "failureMessages": [],
+            "meta": {},
+            "tags": []
+          },
+          {
+            "ancestorTitles": [],
+            "fullName": "revokes an unexpected same-URL reload and recovers only through a fresh parent remount",
+            "status": "passed",
+            "title": "revokes an unexpected same-URL reload and recovers only through a fresh parent remount",
+            "duration": 1443.6249109999999,
+            "failureMessages": [],
+            "meta": {},
+            "tags": []
+          },
+          {
+            "ancestorTitles": [],
+            "fullName": "rejects a redirected replacement before the initial trusted bootstrap can connect",
+            "status": "passed",
+            "title": "rejects a redirected replacement before the initial trusted bootstrap can connect",
+            "duration": 294.5010050000001,
+            "failureMessages": [],
+            "meta": {},
+            "tags": []
+          }
+        ],
+        "startTime": 1794793432186,
+        "endTime": 1794793436814.501,
+        "status": "passed",
+        "message": "",
+        "name": "/workspace/scratch/1b47eb428672/m15-v3/tests/plugin-frame-custody.test.ts"
+      }
+    },
+    {
+      "id": "c2-final-build-03",
+      "receiptPath": "docs/implementation/v3/m15-logs/c2-final-build-03.json",
+      "receiptSha256": "cac6d65123bd4e19203028b141ae61b77538a2679eec9731d7c64bc65e006329",
+      "receipt": {
+        "argv": [
+          "pnpm",
+          "build"
+        ],
+        "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+        "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+        "startedAt": "2026-11-16T01:38:24.645Z",
+        "endedAt": "2026-11-16T01:38:42.634Z",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS",
+        "boundedLogRef": "docs/implementation/v3/m15-logs/c2-final-build-03.log",
+        "logDigest": "bae98e59e8046253bd2e975676581aea12359e208cc6a2af875c1f84b8b6c9c6"
+      }
+    }
+  ],
+  "focused03AssertionIntervals": {
+    "method": "Approximation from file startTime plus ordered assertion durations; runner gaps are not separately recorded.",
+    "items": [
+      {
+        "title": "restricts parent frames to installed plug-in documents and the explicit widget destination",
+        "status": "passed",
+        "startApproxUtc": "2026-11-16T01:38:34.606000+00:00",
+        "endApproxUtc": "2026-11-16T01:38:37.074289+00:00",
+        "durationMs": 2468.2884839999997
+      },
+      {
+        "title": "never gives a replacement document the bridge, pending results or a successful flush, even with the old session",
+        "status": "passed",
+        "startApproxUtc": "2026-11-16T01:38:37.074289+00:00",
+        "endApproxUtc": "2026-11-16T01:38:38.459924+00:00",
+        "durationMs": 1385.6351569999988
+      },
+      {
+        "title": "revokes an unexpected same-URL reload and recovers only through a fresh parent remount",
+        "status": "passed",
+        "startApproxUtc": "2026-11-16T01:38:38.459924+00:00",
+        "endApproxUtc": "2026-11-16T01:38:41.038878+00:00",
+        "durationMs": 2578.9542930000007
+      },
+      {
+        "title": "rejects a redirected replacement before the initial trusted bootstrap can connect",
+        "status": "failed",
+        "startApproxUtc": "2026-11-16T01:38:41.038878+00:00",
+        "endApproxUtc": "2026-11-16T01:39:41.048067+00:00",
+        "durationMs": 60009.188967
+      }
+    ]
+  },
+  "builtAssetTimestampObservations": [
+    {
+      "path": "dist/web/index.html",
+      "observedAt": "2026-11-16T01:46:06.036050+00:00",
+      "bytes": 554,
+      "mtimeUtc": "2026-11-16T01:38:42.184263+00:00",
+      "ctimeUtc": "2026-11-16T01:38:42.184263+00:00"
+    },
+    {
+      "path": "dist/web/assets/index-B1lpzUV3.css",
+      "observedAt": "2026-11-16T01:46:06.036050+00:00",
+      "bytes": 44041,
+      "mtimeUtc": "2026-11-16T01:38:42.180263+00:00",
+      "ctimeUtc": "2026-11-16T01:38:42.180263+00:00"
+    },
+    {
+      "path": "dist/web/assets/WorkbenchActivity-Bp5t6DiN.js",
+      "observedAt": "2026-11-16T01:46:06.036050+00:00",
+      "bytes": 1551,
+      "mtimeUtc": "2026-11-16T01:38:42.180263+00:00",
+      "ctimeUtc": "2026-11-16T01:38:42.180263+00:00"
+    }
+  ],
+  "sourceCorrespondence": [
+    {
+      "path": "tests/plugin-frame-custody.test.ts",
+      "currentSha256": "46090f2f5970cb79f3d26de339a21ecdd623d6c3646d655bd86696803fbe9c14",
+      "immutableRefSha256": {
+        "138b1356495bb3a2c9b35020240513f8faa84964": "46090f2f5970cb79f3d26de339a21ecdd623d6c3646d655bd86696803fbe9c14",
+        "fd17d9f1b3931eb2b974b86ccc5a3892da47ba33": "46090f2f5970cb79f3d26de339a21ecdd623d6c3646d655bd86696803fbe9c14"
+      },
+      "matchesAcceptedBase": true,
+      "matchesPublishedHead": true,
+      "preUiSourceCutSha256": null,
+      "matchesPreUiSourceCut": null
+    },
+    {
+      "path": "tests/fixtures/trusted-plugin-frame.ts",
+      "currentSha256": "f26d09e52ce5704fa42a6089cc74022f7cd6f81ce06d657310753a5be2aa5fe0",
+      "immutableRefSha256": {
+        "138b1356495bb3a2c9b35020240513f8faa84964": "f26d09e52ce5704fa42a6089cc74022f7cd6f81ce06d657310753a5be2aa5fe0",
+        "fd17d9f1b3931eb2b974b86ccc5a3892da47ba33": "f26d09e52ce5704fa42a6089cc74022f7cd6f81ce06d657310753a5be2aa5fe0"
+      },
+      "matchesAcceptedBase": true,
+      "matchesPublishedHead": true,
+      "preUiSourceCutSha256": null,
+      "matchesPreUiSourceCut": null
+    },
+    {
+      "path": "apps/web/src/PluginFrame.tsx",
+      "currentSha256": "0ba7f0199c0d23420e943b3410ef4e6c24b145ec373b1a1b64c9158429235a81",
+      "immutableRefSha256": {
+        "138b1356495bb3a2c9b35020240513f8faa84964": "0ba7f0199c0d23420e943b3410ef4e6c24b145ec373b1a1b64c9158429235a81",
+        "fd17d9f1b3931eb2b974b86ccc5a3892da47ba33": "0ba7f0199c0d23420e943b3410ef4e6c24b145ec373b1a1b64c9158429235a81"
+      },
+      "matchesAcceptedBase": true,
+      "matchesPublishedHead": true,
+      "preUiSourceCutSha256": null,
+      "matchesPreUiSourceCut": null
+    },
+    {
+      "path": "apps/web/src/plugin-runtime.tsx",
+      "currentSha256": "5dde3158f130094c780de819585c80fa750550b8b28a8e3128fd013ed35a04b3",
+      "immutableRefSha256": {
+        "138b1356495bb3a2c9b35020240513f8faa84964": "5dde3158f130094c780de819585c80fa750550b8b28a8e3128fd013ed35a04b3",
+        "fd17d9f1b3931eb2b974b86ccc5a3892da47ba33": "5dde3158f130094c780de819585c80fa750550b8b28a8e3128fd013ed35a04b3"
+      },
+      "matchesAcceptedBase": true,
+      "matchesPublishedHead": true,
+      "preUiSourceCutSha256": null,
+      "matchesPreUiSourceCut": null
+    },
+    {
+      "path": "apps/web/src/editor-handoff.ts",
+      "currentSha256": "57708b91b0aae6c7f28fc259ccb85fbc8d3a7e8e5f4a4e94b237d9e9406d29b3",
+      "immutableRefSha256": {
+        "138b1356495bb3a2c9b35020240513f8faa84964": "57708b91b0aae6c7f28fc259ccb85fbc8d3a7e8e5f4a4e94b237d9e9406d29b3",
+        "fd17d9f1b3931eb2b974b86ccc5a3892da47ba33": "57708b91b0aae6c7f28fc259ccb85fbc8d3a7e8e5f4a4e94b237d9e9406d29b3"
+      },
+      "matchesAcceptedBase": true,
+      "matchesPublishedHead": true,
+      "preUiSourceCutSha256": null,
+      "matchesPreUiSourceCut": null
+    },
+    {
+      "path": "apps/web/src/api.ts",
+      "currentSha256": "6351790dc044ca3f56ae193c7c316e0f678929fa16522de9f039b23f1689cce3",
+      "immutableRefSha256": {
+        "138b1356495bb3a2c9b35020240513f8faa84964": "6351790dc044ca3f56ae193c7c316e0f678929fa16522de9f039b23f1689cce3",
+        "fd17d9f1b3931eb2b974b86ccc5a3892da47ba33": "6351790dc044ca3f56ae193c7c316e0f678929fa16522de9f039b23f1689cce3"
+      },
+      "matchesAcceptedBase": true,
+      "matchesPublishedHead": true,
+      "preUiSourceCutSha256": null,
+      "matchesPreUiSourceCut": null
+    },
+    {
+      "path": "apps/web/src/desktop-context.tsx",
+      "currentSha256": "5e12e3db398a998b1e492d0e8124c330b0f8d66aa0561f73ea25511f29ba4893",
+      "immutableRefSha256": {
+        "138b1356495bb3a2c9b35020240513f8faa84964": "5e12e3db398a998b1e492d0e8124c330b0f8d66aa0561f73ea25511f29ba4893",
+        "fd17d9f1b3931eb2b974b86ccc5a3892da47ba33": "5e12e3db398a998b1e492d0e8124c330b0f8d66aa0561f73ea25511f29ba4893"
+      },
+      "matchesAcceptedBase": true,
+      "matchesPublishedHead": true,
+      "preUiSourceCutSha256": null,
+      "matchesPreUiSourceCut": null
+    },
+    {
+      "path": "packages/plugins/frame-protocol.ts",
+      "currentSha256": "642c3da34a33486bd42c74a83fd7094bd5afb4fcb1e7589d2e5375cd1e6a540e",
+      "immutableRefSha256": {
+        "138b1356495bb3a2c9b35020240513f8faa84964": "642c3da34a33486bd42c74a83fd7094bd5afb4fcb1e7589d2e5375cd1e6a540e",
+        "fd17d9f1b3931eb2b974b86ccc5a3892da47ba33": "642c3da34a33486bd42c74a83fd7094bd5afb4fcb1e7589d2e5375cd1e6a540e"
+      },
+      "matchesAcceptedBase": true,
+      "matchesPublishedHead": true,
+      "preUiSourceCutSha256": null,
+      "matchesPreUiSourceCut": null
+    },
+    {
+      "path": "vitest.config.ts",
+      "currentSha256": "142e0f1d5b6670f297873048317cfa53323676131db6793dd7095afef94720ea",
+      "immutableRefSha256": {
+        "138b1356495bb3a2c9b35020240513f8faa84964": "142e0f1d5b6670f297873048317cfa53323676131db6793dd7095afef94720ea",
+        "fd17d9f1b3931eb2b974b86ccc5a3892da47ba33": "142e0f1d5b6670f297873048317cfa53323676131db6793dd7095afef94720ea"
+      },
+      "matchesAcceptedBase": true,
+      "matchesPublishedHead": true,
+      "preUiSourceCutSha256": null,
+      "matchesPreUiSourceCut": null
+    },
+    {
+      "path": "scripts/build.mjs",
+      "currentSha256": "9956269f46ec2e3b0eba4021c2dec7d31b4d6270a6b99aa6cca7cddfc521e879",
+      "immutableRefSha256": {
+        "138b1356495bb3a2c9b35020240513f8faa84964": "9956269f46ec2e3b0eba4021c2dec7d31b4d6270a6b99aa6cca7cddfc521e879",
+        "fd17d9f1b3931eb2b974b86ccc5a3892da47ba33": "9956269f46ec2e3b0eba4021c2dec7d31b4d6270a6b99aa6cca7cddfc521e879"
+      },
+      "matchesAcceptedBase": true,
+      "matchesPublishedHead": true,
+      "preUiSourceCutSha256": null,
+      "matchesPreUiSourceCut": null
+    },
+    {
+      "path": "vite.config.ts",
+      "currentSha256": "eb0239431e3ddd7e2b302697a4bfd7996c699557e5935388ab7bb03c7620aef5",
+      "immutableRefSha256": {
+        "138b1356495bb3a2c9b35020240513f8faa84964": "eb0239431e3ddd7e2b302697a4bfd7996c699557e5935388ab7bb03c7620aef5",
+        "fd17d9f1b3931eb2b974b86ccc5a3892da47ba33": "eb0239431e3ddd7e2b302697a4bfd7996c699557e5935388ab7bb03c7620aef5"
+      },
+      "matchesAcceptedBase": true,
+      "matchesPublishedHead": true,
+      "preUiSourceCutSha256": null,
+      "matchesPreUiSourceCut": null
+    },
+    {
+      "path": "apps/server/server.ts",
+      "currentSha256": "bad37847a060e0c04e98b3299f56e41ecd4b06893a34b42bd161a13a88cfb1cd",
+      "immutableRefSha256": {
+        "138b1356495bb3a2c9b35020240513f8faa84964": "302c3581f277c3e11b0bf8e6bf359d7c2cefb814a4e37ae9824b35c119fb2a2a",
+        "fd17d9f1b3931eb2b974b86ccc5a3892da47ba33": "bad37847a060e0c04e98b3299f56e41ecd4b06893a34b42bd161a13a88cfb1cd"
+      },
+      "matchesAcceptedBase": false,
+      "matchesPublishedHead": true,
+      "preUiSourceCutSha256": "bad37847a060e0c04e98b3299f56e41ecd4b06893a34b42bd161a13a88cfb1cd",
+      "matchesPreUiSourceCut": true
+    },
+    {
+      "path": "packages/core/service.ts",
+      "currentSha256": "27256b1d6851d69c2d4d92aa22088c70e5780e5668248990be42803c32b75c81",
+      "immutableRefSha256": {
+        "138b1356495bb3a2c9b35020240513f8faa84964": "5ef9d6267b9e79db04e5a97e2eec732198c6c5544ce44d970e817783f527171c",
+        "fd17d9f1b3931eb2b974b86ccc5a3892da47ba33": "7e85486e701753d0b62d40376f61848751b41b852f2899308127fd120ee66966"
+      },
+      "matchesAcceptedBase": false,
+      "matchesPublishedHead": false,
+      "preUiSourceCutSha256": "27256b1d6851d69c2d4d92aa22088c70e5780e5668248990be42803c32b75c81",
+      "matchesPreUiSourceCut": true
+    },
+    {
+      "path": "package.json",
+      "currentSha256": "58d6665ea47afdbbd9d7a67ee30195d202981b10e36832c860ddc3f534856a1b",
+      "immutableRefSha256": {
+        "138b1356495bb3a2c9b35020240513f8faa84964": "d9359bdc24c127410c0168424a07f80460b8099632303e987d9b219de5a88ba0",
+        "fd17d9f1b3931eb2b974b86ccc5a3892da47ba33": "d9359bdc24c127410c0168424a07f80460b8099632303e987d9b219de5a88ba0"
+      },
+      "matchesAcceptedBase": false,
+      "matchesPublishedHead": false,
+      "preUiSourceCutSha256": "58d6665ea47afdbbd9d7a67ee30195d202981b10e36832c860ddc3f534856a1b",
+      "matchesPreUiSourceCut": true
+    }
+  ],
+  "preUiSourceCut": {
+    "path": "docs/implementation/v3/m15-artifacts/c2-pre-ui-policy-source-cut.json",
+    "sha256": "9a3b3177520471b915902bf7d017b296885a679834d2c626ae67150b692eb0d5"
+  },
+  "sizingReviewSourceCorrespondence": {
+    "path": "docs/implementation/v3/m15-artifacts/c2-ui-primitives-independent-review-02.md",
+    "sha256": "a7e768dbc865ce514e599144ca9aeca452e506b886eb73dc20671679dd5b2513",
+    "files": [
+      {
+        "path": "packages/ui-shell/Modal.tsx",
+        "sha256": "3b07a74846a4c15c9e7497ee8d8d1ffee8e17ea95d089d2db68026b018cba4eb",
+        "matchesCurrent": true
+      },
+      {
+        "path": "packages/ui-shell/Popover.tsx",
+        "sha256": "fb5c94be1a32ba8d77d0dd919fab3a2917d207cba8096e56f47622535c9b6b4a",
+        "matchesCurrent": true
+      },
+      {
+        "path": "packages/ui-shell/Select.tsx",
+        "sha256": "de0ea16b5992e56ab96b3bc7c16a11fb304a4822dc8b6bb961c700914e6ebbbb",
+        "matchesCurrent": true
+      },
+      {
+        "path": "packages/ui-shell/focus-retention.ts",
+        "sha256": "3b4bd0ffe9f36f79678f05678cfe0d6adc66fda12831314531c732b3f24415dc",
+        "matchesCurrent": true
+      },
+      {
+        "path": "packages/ui-shell/list-navigation.ts",
+        "sha256": "8cdcbcde83606b791aed704c63b73152b3fa6c15303683e7ee803ddde4dc7662",
+        "matchesCurrent": true
+      },
+      {
+        "path": "packages/ui-shell/overlay-position.ts",
+        "sha256": "5aff00ab185315278c14b58e59db4d6ac2f3400ce88e76ecd3c5e20b396d29ed",
+        "matchesCurrent": true
+      },
+      {
+        "path": "packages/ui-shell/controls.css",
+        "sha256": "bc7748d1ebc5d3992823ce92c93058a2f3ee18b47e70206cd3e1fefcd25cb424",
+        "matchesCurrent": true
+      },
+      {
+        "path": "packages/ui-shell/tokens.css",
+        "sha256": "92f4d06b982aec3104484142bb305b8c570631e14d953fdf50abbf1a31b19c6e",
+        "matchesCurrent": true
+      },
+      {
+        "path": "apps/web/src/SourceSelectionActions.tsx",
+        "sha256": "89306758de311d070aa8f90b1a39c1be5a58a2dc01aa2ff1e26ace65fc292d2d",
+        "matchesCurrent": true
+      },
+      {
+        "path": "apps/web/src/SourceWorkbench.tsx",
+        "sha256": "309199491dcede75bffbb08bc73bf7fd5d2493601191fd11fc5392c77820e419",
+        "matchesCurrent": true
+      },
+      {
+        "path": "apps/web/src/WorkbenchPanelContent.tsx",
+        "sha256": "baf2e842d74dbbb66a02ecaf25a25299fa42da5fae8c5c6a951be34c2a4bfa33",
+        "matchesCurrent": true
+      },
+      {
+        "path": "apps/web/src/source-workbench.css",
+        "sha256": "b60a1aaa3596bef94b1ad2481f66c4378186b93221ec727065995293fe81b531",
+        "matchesCurrent": true
+      },
+      {
+        "path": "apps/web/src/focus.ts",
+        "sha256": "8ca47390b2047777f6539a8c14cd397c2fe37aa75685ad9929d0cdd255be13c1",
+        "matchesCurrent": true
+      },
+      {
+        "path": "apps/web/src/App.tsx",
+        "sha256": "35c85b82775d7268a1ff7d412b2bc328b38121b6defbafd45dca2068391d862b",
+        "matchesCurrent": true
+      },
+      {
+        "path": "tests/e2e/workbench-fixture.tsx",
+        "sha256": "e59ee834615e3c3a9a393bf2b399e502bcdaed5d843b3189eadf8fdaac0e1e71",
+        "matchesCurrent": true
+      },
+      {
+        "path": "tests/e2e/workbench.spec.ts",
+        "sha256": "56dbae9c54d6fbafdfa02d3ee8f0e6303f508a7642a2496eee7d325a4e15b2bd",
+        "matchesCurrent": true
+      },
+      {
+        "path": "tests/e2e/workbench-app.spec.ts",
+        "sha256": "f7d8151795a3ee1706f65d381aa1f6c5df9d5e3f1993229ada00ee0065e73912",
+        "matchesCurrent": true
+      },
+      {
+        "path": "tests/e2e/workbench.playwright.config.ts",
+        "sha256": "8fc46e2ac81103eb3674ad3cf0a0b550c673395b3aa2d6aeb14310d229b7e8c4",
+        "matchesCurrent": true
+      },
+      {
+        "path": "tests/e2e/workbench-app.playwright.config.ts",
+        "sha256": "2ab30cea0296d11dd68e850160d9f41754588abdf2709a264941376ff51e80c6",
+        "matchesCurrent": true
+      }
+    ]
+  },
+  "installedViteSource": {
+    "version": "7.3.7",
+    "path": "node_modules/vite/dist/node/chunks/config.js",
+    "sha256": "2e71344450b7c25a7fe0848d5ee474fb7342614d900ab9168588986150cbb9f9"
+  },
+  "operationalCorrection": "Schedule build and this focused command serially because they mutate/read the same output tree. No product behavior, guard, deadline, assertion or failure receipt was changed."
+}

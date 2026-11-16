@@ -20,7 +20,7 @@
   {
     "id": "agents-workspace-chromium-01",
     "receipt": "docs/implementation/v3/m15-logs/agents-workspace-chromium-01.json",
-    "phase": "CHANGED_PATH_CHROMIUM",
+    "phase": "ATTEMPT_HISTORY",
     "status": "FAIL",
     "exitCode": 1,
     "startedAt": "2026-11-15T22:25:39.429Z",
@@ -29,7 +29,7 @@
   {
     "id": "agents-workspace-declared-01",
     "receipt": "docs/implementation/v3/m15-logs/agents-workspace-declared-01.json",
-    "phase": "PLATFORM",
+    "phase": "ATTEMPT_HISTORY",
     "status": "FAIL",
     "exitCode": 1,
     "startedAt": "2026-11-15T22:23:26.686Z",
@@ -92,7 +92,7 @@
   {
     "id": "app-browser-final-03",
     "receipt": "docs/implementation/v3/m15-logs/app-browser-final-03.json",
-    "phase": "INTEGRATION_APP",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-15T22:34:14.001Z",
@@ -110,7 +110,7 @@
   {
     "id": "baseline-browser-root-native-ready",
     "receipt": "docs/implementation/v3/m15-logs/baseline-browser-root-native-ready.json",
-    "phase": "FULL_REPOSITORY_REGRESSION",
+    "phase": "ATTEMPT_HISTORY",
     "status": "FAIL",
     "exitCode": 1,
     "startedAt": "2026-11-15T21:40:29.677Z",
@@ -144,9 +144,621 @@
     "endedAt": "2026-11-15T21:35:30.445Z"
   },
   {
+    "id": "c2-browser-agents-full-green-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-browser-agents-full-green-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T00:31:33.910Z",
+    "endedAt": "2026-11-16T00:32:30.937Z"
+  },
+  {
+    "id": "c2-browser-agents-full-green-02",
+    "receipt": "docs/implementation/v3/m15-logs/c2-browser-agents-full-green-02.json",
+    "phase": "RECONCILED_BROWSER_CHROMIUM",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T00:33:40.482Z",
+    "endedAt": "2026-11-16T00:34:40.939Z"
+  },
+  {
+    "id": "c2-browser-agents-merged-red-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-browser-agents-merged-red-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T00:21:51.839Z",
+    "endedAt": "2026-11-16T00:22:07.599Z"
+  },
+  {
+    "id": "c2-browser-app-merge-review-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-browser-app-merge-review-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T00:41:48.198Z",
+    "endedAt": "2026-11-16T00:41:48.262Z"
+  },
+  {
+    "id": "c2-browser-artifact-green-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-browser-artifact-green-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T00:27:12.498Z",
+    "endedAt": "2026-11-16T00:27:24.908Z"
+  },
+  {
+    "id": "c2-browser-artifact-green-02",
+    "receipt": "docs/implementation/v3/m15-logs/c2-browser-artifact-green-02.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T00:27:59.911Z",
+    "endedAt": "2026-11-16T00:28:11.651Z"
+  },
+  {
+    "id": "c2-browser-artifact-green-03",
+    "receipt": "docs/implementation/v3/m15-logs/c2-browser-artifact-green-03.json",
+    "phase": "RECONCILED_BROWSER_CHROMIUM",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T00:30:55.329Z",
+    "endedAt": "2026-11-16T00:31:10.379Z"
+  },
+  {
+    "id": "c2-browser-artifact-merged-red-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-browser-artifact-merged-red-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T00:22:16.325Z",
+    "endedAt": "2026-11-16T00:22:26.712Z"
+  },
+  {
+    "id": "c2-browser-chat-view-green-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-browser-chat-view-green-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T00:35:00.677Z",
+    "endedAt": "2026-11-16T00:35:24.582Z"
+  },
+  {
+    "id": "c2-browser-chat-view-green-02",
+    "receipt": "docs/implementation/v3/m15-logs/c2-browser-chat-view-green-02.json",
+    "phase": "DRAFT_AND_CHAT_REGRESSION",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T01:35:32.465Z",
+    "endedAt": "2026-11-16T01:35:58.896Z"
+  },
+  {
+    "id": "c2-browser-parent-receipt-green-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-browser-parent-receipt-green-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T00:24:24.008Z",
+    "endedAt": "2026-11-16T00:24:38.084Z"
+  },
+  {
+    "id": "c2-browser-parent-receipt-red-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-browser-parent-receipt-red-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T00:23:18.893Z",
+    "endedAt": "2026-11-16T00:23:32.829Z"
+  },
+  {
+    "id": "c2-core-prerequisites",
+    "receipt": "docs/implementation/v3/m15-logs/c2-core-prerequisites.json",
+    "phase": "CORE",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T00:19:14.933Z",
+    "endedAt": "2026-11-16T00:19:50.929Z"
+  },
+  {
+    "id": "c2-final-build-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-final-build-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T00:53:05.883Z",
+    "endedAt": "2026-11-16T00:53:23.766Z"
+  },
+  {
+    "id": "c2-final-build-02",
+    "receipt": "docs/implementation/v3/m15-logs/c2-final-build-02.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T01:15:08.761Z",
+    "endedAt": "2026-11-16T01:15:35.357Z"
+  },
+  {
+    "id": "c2-final-build-03",
+    "receipt": "docs/implementation/v3/m15-logs/c2-final-build-03.json",
+    "phase": "BUILD_AND_PACKAGING",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T01:38:24.645Z",
+    "endedAt": "2026-11-16T01:38:42.634Z"
+  },
+  {
+    "id": "c2-final-custody-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-final-custody-01.json",
+    "phase": "EVIDENCE_INTEGRITY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T01:55:00.425Z",
+    "endedAt": "2026-11-16T01:55:00.660Z"
+  },
+  {
+    "id": "c2-final-focused-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-final-focused-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T00:52:01.087Z",
+    "endedAt": "2026-11-16T00:52:35.572Z"
+  },
+  {
+    "id": "c2-final-focused-02",
+    "receipt": "docs/implementation/v3/m15-logs/c2-final-focused-02.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T01:15:08.676Z",
+    "endedAt": "2026-11-16T01:16:00.021Z"
+  },
+  {
+    "id": "c2-final-focused-03",
+    "receipt": "docs/implementation/v3/m15-logs/c2-final-focused-03.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T01:38:24.622Z",
+    "endedAt": "2026-11-16T01:40:03.196Z"
+  },
+  {
+    "id": "c2-final-focused-04",
+    "receipt": "docs/implementation/v3/m15-logs/c2-final-focused-04.json",
+    "phase": "CORE",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T01:43:46.513Z",
+    "endedAt": "2026-11-16T01:44:17.629Z"
+  },
+  {
+    "id": "c2-final-integrity-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-final-integrity-01.json",
+    "phase": "EVIDENCE_INTEGRITY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T01:55:06.185Z",
+    "endedAt": "2026-11-16T01:55:08.734Z"
+  },
+  {
+    "id": "c2-final-package-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-final-package-01.json",
+    "phase": "BUILD_AND_PACKAGING",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T01:49:20.448Z",
+    "endedAt": "2026-11-16T01:49:24.486Z"
+  },
+  {
+    "id": "c2-final-typecheck-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-final-typecheck-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T00:52:01.065Z",
+    "endedAt": "2026-11-16T00:52:52.063Z"
+  },
+  {
+    "id": "c2-final-typecheck-02",
+    "receipt": "docs/implementation/v3/m15-logs/c2-final-typecheck-02.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T01:15:08.673Z",
+    "endedAt": "2026-11-16T01:16:11.613Z"
+  },
+  {
+    "id": "c2-final-typecheck-03",
+    "receipt": "docs/implementation/v3/m15-logs/c2-final-typecheck-03.json",
+    "phase": "BUILD_AND_PACKAGING",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T01:38:24.573Z",
+    "endedAt": "2026-11-16T01:39:19.317Z"
+  },
+  {
+    "id": "c2-final-ui-policy-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-final-ui-policy-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T00:57:47.266Z",
+    "endedAt": "2026-11-16T00:58:21.686Z"
+  },
+  {
+    "id": "c2-final-ui-policy-02",
+    "receipt": "docs/implementation/v3/m15-logs/c2-final-ui-policy-02.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T01:15:08.732Z",
+    "endedAt": "2026-11-16T01:16:10.953Z"
+  },
+  {
+    "id": "c2-final-ui-policy-03",
+    "receipt": "docs/implementation/v3/m15-logs/c2-final-ui-policy-03.json",
+    "phase": "BUILD_AND_PACKAGING",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T01:38:24.612Z",
+    "endedAt": "2026-11-16T01:39:05.633Z"
+  },
+  {
+    "id": "c2-full-repository-test-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-full-repository-test-01.json",
+    "phase": "FULL_REPOSITORY_REGRESSION",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T00:53:39.421Z",
+    "endedAt": "2026-11-16T01:00:39.918Z"
+  },
+  {
+    "id": "c2-host-account-green-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-host-account-green-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T00:23:24.071Z",
+    "endedAt": "2026-11-16T00:23:27.852Z"
+  },
+  {
+    "id": "c2-host-account-red-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-host-account-red-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T00:20:39.593Z",
+    "endedAt": "2026-11-16T00:20:43.212Z"
+  },
+  {
+    "id": "c2-host-focused-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-host-focused-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T00:25:23.669Z",
+    "endedAt": "2026-11-16T00:25:32.256Z"
+  },
+  {
+    "id": "c2-host-focused-02",
+    "receipt": "docs/implementation/v3/m15-logs/c2-host-focused-02.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T00:27:05.773Z",
+    "endedAt": "2026-11-16T00:27:13.353Z"
+  },
+  {
+    "id": "c2-host-hermes-collection-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-host-hermes-collection-01.json",
+    "phase": "PLATFORM",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T00:41:43.307Z",
+    "endedAt": "2026-11-16T00:41:46.902Z"
+  },
+  {
+    "id": "c2-host-owners-source-cut-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-host-owners-source-cut-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T00:28:04.493Z",
+    "endedAt": "2026-11-16T00:28:04.508Z"
+  },
+  {
+    "id": "c2-host-owners-unchanged-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-host-owners-unchanged-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T00:28:08.149Z",
+    "endedAt": "2026-11-16T00:28:08.168Z"
+  },
+  {
+    "id": "c2-m04-admission-final-green-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-m04-admission-final-green-01.json",
+    "phase": "INTEGRATION_HOST",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T00:47:46.385Z",
+    "endedAt": "2026-11-16T00:47:55.854Z"
+  },
+  {
+    "id": "c2-m04-admission-green-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-m04-admission-green-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T00:39:09.063Z",
+    "endedAt": "2026-11-16T00:39:19.468Z"
+  },
+  {
+    "id": "c2-m04-admission-red-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-m04-admission-red-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T00:38:33.093Z",
+    "endedAt": "2026-11-16T00:38:42.415Z"
+  },
+  {
+    "id": "c2-m04-claim-basis-red-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-m04-claim-basis-red-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T00:47:23.311Z",
+    "endedAt": "2026-11-16T00:47:26.477Z"
+  },
+  {
+    "id": "c2-m04-shared-admission-green-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-m04-shared-admission-green-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T00:43:34.830Z",
+    "endedAt": "2026-11-16T00:43:44.042Z"
+  },
+  {
+    "id": "c2-m04-shared-admission-red-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-m04-shared-admission-red-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T00:42:17.983Z",
+    "endedAt": "2026-11-16T00:42:22.578Z"
+  },
+  {
+    "id": "c2-main-merge-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-main-merge-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T00:15:11.865Z",
+    "endedAt": "2026-11-16T00:15:22.255Z"
+  },
+  {
+    "id": "c2-merge-typecheck-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-merge-typecheck-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T00:19:16.470Z",
+    "endedAt": "2026-11-16T00:20:06.269Z"
+  },
+  {
+    "id": "c2-saved-drafts-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-saved-drafts-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T00:44:44.205Z",
+    "endedAt": "2026-11-16T00:46:56.336Z"
+  },
+  {
+    "id": "c2-saved-drafts-02",
+    "receipt": "docs/implementation/v3/m15-logs/c2-saved-drafts-02.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T00:48:25.604Z",
+    "endedAt": "2026-11-16T00:50:26.671Z"
+  },
+  {
+    "id": "c2-saved-drafts-03",
+    "receipt": "docs/implementation/v3/m15-logs/c2-saved-drafts-03.json",
+    "phase": "DRAFT_AND_CHAT_REGRESSION",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T01:32:15.780Z",
+    "endedAt": "2026-11-16T01:34:17.975Z"
+  },
+  {
+    "id": "c2-setup-hermes-green-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-setup-hermes-green-01.json",
+    "phase": "INTEGRATION_HOST",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T00:24:03.047Z",
+    "endedAt": "2026-11-16T00:24:10.396Z"
+  },
+  {
+    "id": "c2-setup-hermes-red-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-setup-hermes-red-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T00:23:13.314Z",
+    "endedAt": "2026-11-16T00:23:15.327Z"
+  },
+  {
+    "id": "c2-setup-launcher-green-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-setup-launcher-green-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T00:24:03.047Z",
+    "endedAt": "2026-11-16T00:24:04.125Z"
+  },
+  {
+    "id": "c2-setup-launcher-red-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-setup-launcher-red-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T00:22:25.966Z",
+    "endedAt": "2026-11-16T00:22:26.791Z"
+  },
+  {
+    "id": "c2-ui-app-reload-recheck-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-ui-app-reload-recheck-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T01:24:45.459Z",
+    "endedAt": "2026-11-16T01:24:59.763Z"
+  },
+  {
+    "id": "c2-ui-modal-zoom-green-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-ui-modal-zoom-green-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T01:25:23.142Z",
+    "endedAt": "2026-11-16T01:25:39.019Z"
+  },
+  {
+    "id": "c2-ui-modal-zoom-red-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-ui-modal-zoom-red-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T01:22:15.360Z",
+    "endedAt": "2026-11-16T01:22:29.211Z"
+  },
+  {
+    "id": "c2-ui-shell-controls-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-ui-shell-controls-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T01:20:32.432Z",
+    "endedAt": "2026-11-16T01:21:43.914Z"
+  },
+  {
+    "id": "c2-ui-shell-controls-02",
+    "receipt": "docs/implementation/v3/m15-logs/c2-ui-shell-controls-02.json",
+    "phase": "SHARED_UI_REGRESSION",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T01:31:00.592Z",
+    "endedAt": "2026-11-16T01:31:30.956Z"
+  },
+  {
+    "id": "c2-ui-shell-controls-ime-repro-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-ui-shell-controls-ime-repro-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T01:24:22.005Z",
+    "endedAt": "2026-11-16T01:24:31.227Z"
+  },
+  {
+    "id": "c2-ui-shell-overlays-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-ui-shell-overlays-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T01:19:29.633Z",
+    "endedAt": "2026-11-16T01:19:47.580Z"
+  },
+  {
+    "id": "c2-ui-shell-overlays-02",
+    "receipt": "docs/implementation/v3/m15-logs/c2-ui-shell-overlays-02.json",
+    "phase": "SHARED_UI_REGRESSION",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T01:29:33.501Z",
+    "endedAt": "2026-11-16T01:29:50.111Z"
+  },
+  {
+    "id": "c2-ui-toolbar-scroll-green-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-ui-toolbar-scroll-green-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T01:12:06.045Z",
+    "endedAt": "2026-11-16T01:12:12.123Z"
+  },
+  {
+    "id": "c2-ui-toolbar-scroll-red-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-ui-toolbar-scroll-red-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T01:10:36.808Z",
+    "endedAt": "2026-11-16T01:10:41.892Z"
+  },
+  {
+    "id": "c2-ui-toolbar-scroll-red-02",
+    "receipt": "docs/implementation/v3/m15-logs/c2-ui-toolbar-scroll-red-02.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T01:11:34.922Z",
+    "endedAt": "2026-11-16T01:11:46.308Z"
+  },
+  {
+    "id": "c2-workbench-app-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-workbench-app-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T00:36:03.896Z",
+    "endedAt": "2026-11-16T00:37:30.576Z"
+  },
+  {
+    "id": "c2-workbench-app-02",
+    "receipt": "docs/implementation/v3/m15-logs/c2-workbench-app-02.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T01:16:25.623Z",
+    "endedAt": "2026-11-16T01:19:02.512Z"
+  },
+  {
+    "id": "c2-workbench-app-03",
+    "receipt": "docs/implementation/v3/m15-logs/c2-workbench-app-03.json",
+    "phase": "INTEGRATION_APP",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T01:26:13.376Z",
+    "endedAt": "2026-11-16T01:27:55.420Z"
+  },
+  {
+    "id": "c2-workbench-browser-01",
+    "receipt": "docs/implementation/v3/m15-logs/c2-workbench-browser-01.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T00:39:53.873Z",
+    "endedAt": "2026-11-16T00:40:51.915Z"
+  },
+  {
+    "id": "c2-workbench-browser-02",
+    "receipt": "docs/implementation/v3/m15-logs/c2-workbench-browser-02.json",
+    "phase": "PERFORMANCE_BROWSER",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T01:28:09.748Z",
+    "endedAt": "2026-11-16T01:29:04.834Z"
+  },
+  {
     "id": "candidate-root-artifact-quiet-01",
     "receipt": "docs/implementation/v3/m15-logs/candidate-root-artifact-quiet-01.json",
-    "phase": "FULL_REPOSITORY_REGRESSION",
+    "phase": "ATTEMPT_HISTORY",
     "status": "FAIL",
     "exitCode": 1,
     "startedAt": "2026-11-15T22:38:51.552Z",
@@ -155,7 +767,7 @@
   {
     "id": "candidate-root-browser-01",
     "receipt": "docs/implementation/v3/m15-logs/candidate-root-browser-01.json",
-    "phase": "FULL_REPOSITORY_REGRESSION",
+    "phase": "ATTEMPT_HISTORY",
     "status": "FAIL",
     "exitCode": 1,
     "startedAt": "2026-11-15T22:00:41.283Z",
@@ -164,7 +776,7 @@
   {
     "id": "candidate-root-extra-six-01",
     "receipt": "docs/implementation/v3/m15-logs/candidate-root-extra-six-01.json",
-    "phase": "FULL_REPOSITORY_REGRESSION",
+    "phase": "ATTEMPT_HISTORY",
     "status": "FAIL",
     "exitCode": 1,
     "startedAt": "2026-11-15T22:18:32.399Z",
@@ -200,7 +812,7 @@
   {
     "id": "chat-view-modes-final-01",
     "receipt": "docs/implementation/v3/m15-logs/chat-view-modes-final-01.json",
-    "phase": "DRAFT_AND_CHAT_REGRESSION",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-15T22:20:04.458Z",
@@ -218,7 +830,7 @@
   {
     "id": "core-prerequisites",
     "receipt": "docs/implementation/v3/m15-logs/core-prerequisites.json",
-    "phase": "CORE",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-15T21:32:14.806Z",
@@ -299,7 +911,7 @@
   {
     "id": "evidence-controller-green-01",
     "receipt": "docs/implementation/v3/m15-logs/evidence-controller-green-01.json",
-    "phase": "EVIDENCE_INTEGRITY",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-15T22:46:17.355Z",
@@ -344,7 +956,7 @@
   {
     "id": "final-build-01",
     "receipt": "docs/implementation/v3/m15-logs/final-build-01.json",
-    "phase": "BUILD_AND_PACKAGING",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-15T22:36:53.233Z",
@@ -353,7 +965,7 @@
   {
     "id": "final-checkout-custody-01",
     "receipt": "docs/implementation/v3/m15-logs/final-checkout-custody-01.json",
-    "phase": "EVIDENCE_INTEGRITY",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-15T22:40:21.117Z",
@@ -362,7 +974,7 @@
   {
     "id": "final-focused-01",
     "receipt": "docs/implementation/v3/m15-logs/final-focused-01.json",
-    "phase": "CORE",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-15T22:23:29.123Z",
@@ -371,7 +983,7 @@
   {
     "id": "final-packaging-01",
     "receipt": "docs/implementation/v3/m15-logs/final-packaging-01.json",
-    "phase": "BUILD_AND_PACKAGING",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-15T22:47:26.349Z",
@@ -389,7 +1001,7 @@
   {
     "id": "final-typecheck-02",
     "receipt": "docs/implementation/v3/m15-logs/final-typecheck-02.json",
-    "phase": "BUILD_AND_PACKAGING",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-15T22:32:29.484Z",
@@ -398,7 +1010,7 @@
   {
     "id": "final-typecheck-03",
     "receipt": "docs/implementation/v3/m15-logs/final-typecheck-03.json",
-    "phase": "BUILD_AND_PACKAGING",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-15T22:47:26.357Z",
@@ -407,7 +1019,7 @@
   {
     "id": "full-repository-test-01",
     "receipt": "docs/implementation/v3/m15-logs/full-repository-test-01.json",
-    "phase": "FULL_REPOSITORY_REGRESSION",
+    "phase": "ATTEMPT_HISTORY",
     "status": "FAIL",
     "exitCode": 1,
     "startedAt": "2026-11-15T22:00:39.943Z",
@@ -416,7 +1028,7 @@
   {
     "id": "full-vitest-01",
     "receipt": "docs/implementation/v3/m15-logs/full-vitest-01.json",
-    "phase": "FULL_REPOSITORY_REGRESSION",
+    "phase": "ATTEMPT_HISTORY",
     "status": "FAIL",
     "exitCode": 1,
     "startedAt": "2026-11-15T22:02:07.090Z",
@@ -497,7 +1109,7 @@
   {
     "id": "host-recovery-final-07",
     "receipt": "docs/implementation/v3/m15-logs/host-recovery-final-07.json",
-    "phase": "INTEGRATION_HOST",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-15T22:17:52.343Z",
@@ -542,7 +1154,7 @@
   {
     "id": "host-route-composition-green-08",
     "receipt": "docs/implementation/v3/m15-logs/host-route-composition-green-08.json",
-    "phase": "INTEGRATION_HOST",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-15T22:20:05.703Z",
@@ -704,7 +1316,7 @@
   {
     "id": "output-browser-final-03",
     "receipt": "docs/implementation/v3/m15-logs/output-browser-final-03.json",
-    "phase": "PERFORMANCE_BROWSER",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-15T22:40:08.521Z",
@@ -749,7 +1361,7 @@
   {
     "id": "packaging-import-closure-green",
     "receipt": "docs/implementation/v3/m15-logs/packaging-import-closure-green.json",
-    "phase": "BUILD_AND_PACKAGING",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-15T22:19:15.421Z",
@@ -929,7 +1541,7 @@
   {
     "id": "review-final-core-green",
     "receipt": "docs/implementation/v3/m15-logs/review-final-core-green.json",
-    "phase": "CORE",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-15T22:32:01.270Z",
@@ -965,7 +1577,7 @@
   {
     "id": "saved-drafts-browser-full-04",
     "receipt": "docs/implementation/v3/m15-logs/saved-drafts-browser-full-04.json",
-    "phase": "DRAFT_AND_CHAT_REGRESSION",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-15T22:18:36.185Z",
@@ -1001,7 +1613,7 @@
   {
     "id": "scoped-conversation-chromium-01",
     "receipt": "docs/implementation/v3/m15-logs/scoped-conversation-chromium-01.json",
-    "phase": "CHANGED_PATH_CHROMIUM",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-15T22:27:40.260Z",
@@ -1010,7 +1622,7 @@
   {
     "id": "scoped-conversation-declared-01",
     "receipt": "docs/implementation/v3/m15-logs/scoped-conversation-declared-01.json",
-    "phase": "PLATFORM",
+    "phase": "ATTEMPT_HISTORY",
     "status": "FAIL",
     "exitCode": 1,
     "startedAt": "2026-11-15T22:23:27.087Z",
@@ -1019,7 +1631,7 @@
   {
     "id": "selection-review-green-01",
     "receipt": "docs/implementation/v3/m15-logs/selection-review-green-01.json",
-    "phase": "INTEGRATION_APP",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-15T22:29:02.151Z",
@@ -1190,7 +1802,7 @@
   {
     "id": "usage-context-chromium-01",
     "receipt": "docs/implementation/v3/m15-logs/usage-context-chromium-01.json",
-    "phase": "CHANGED_PATH_CHROMIUM",
+    "phase": "ATTEMPT_HISTORY",
     "status": "PASS",
     "exitCode": 0,
     "startedAt": "2026-11-15T22:24:39.620Z",
@@ -1199,7 +1811,7 @@
   {
     "id": "usage-context-declared-01",
     "receipt": "docs/implementation/v3/m15-logs/usage-context-declared-01.json",
-    "phase": "PLATFORM",
+    "phase": "ATTEMPT_HISTORY",
     "status": "FAIL",
     "exitCode": 1,
     "startedAt": "2026-11-15T22:23:26.750Z",

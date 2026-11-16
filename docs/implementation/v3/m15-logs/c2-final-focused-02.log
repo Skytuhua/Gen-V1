@@ -1,0 +1,54 @@
+argv: ["pnpm","exec","vitest","run","tests/source-selection-v3.test.ts","tests/source-workbench-host-v3.test.ts","tests/source-workbench-hermes-v3.test.ts","tests/source-selection-dom-v3.test.ts","tests/source-composer-v3.test.ts","tests/source-draft-transfer-v3.test.ts","tests/activity-output-v3.test.ts","tests/workbench-input-recovery-v3.test.ts","tests/workbench-performance-v3.test.ts","tests/workbench-recovery-v3.test.ts","tests/agents-workspace-composer.test.ts","tests/agents-workspace-dispatch.test.ts","tests/saved-drafts.test.ts","tests/draft-transfer.test.ts","tests/compact-draft-transfer.test.ts","tests/journal.test.ts","tests/editor-handoff.test.ts","tests/accounts.test.ts","tests/request-preparation-service-v3.test.ts","tests/hermes-client-startup.test.ts","tests/hermes-runtime.test.ts","tests/model-discovery.test.ts","tests/workspace-linked-pr.test.ts","tests/plugin-frame-custody.test.ts","--maxWorkers=1","--reporter=default","--reporter=json","--outputFile=docs/implementation/v3/m15-artifacts/c2-final-focused-02-results.json"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    apps/web/src/pdf-draft.ts:11:63:
+      11 │ ...('./pdf-draft.worker.ts', import.meta.url), { type: 'module', n...
+         ╵                              ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+ ✓ tests/plugin-frame-custody.test.ts (4 tests) 9888ms
+   ✓ restricts parent frames to installed plug-in documents and the explicit widget destination  2697ms
+   ✓ never gives a replacement document the bridge, pending results or a successful flush, even with the old session  1352ms
+   ✓ revokes an unexpected same-URL reload and recovers only through a fresh parent remount  1730ms
+   ✓ rejects a redirected replacement before the initial trusted bootstrap can connect  1121ms
+ ✓ tests/source-workbench-host-v3.test.ts (47 tests | 2 skipped) 3907ms
+   ✓ uses the existing authenticated host and CSRF boundaries for captures and source reads  758ms
+   ✓ cancels only a proven undispatched accepted input after rollback and preserves its canonical message  414ms
+ ✓ tests/hermes-runtime.test.ts (39 tests) 3119ms
+   ✓ launches the actual ACP server with an absolute loader from an isolated working directory  647ms
+ ✓ tests/request-preparation-service-v3.test.ts (34 tests) 2004ms
+   ✓ bounds abandoned preparations and retains only the newest 128 metadata receipts  1057ms
+ ✓ tests/workbench-recovery-v3.test.ts (11 tests) 563ms
+ ✓ tests/model-discovery.test.ts (19 tests) 1066ms
+ ✓ tests/source-draft-transfer-v3.test.ts (21 tests) 604ms
+ ✓ tests/workspace-linked-pr.test.ts (14 tests) 501ms
+ ✓ tests/saved-drafts.test.ts (41 tests) 228ms
+ ✓ tests/accounts.test.ts (16 tests) 648ms
+ ✓ tests/agents-workspace-dispatch.test.ts (4 tests) 407ms
+ ✓ tests/hermes-client-startup.test.ts (4 tests) 168ms
+ ✓ tests/workbench-performance-v3.test.ts (7 tests) 618ms
+ ✓ tests/source-selection-v3.test.ts (8 tests) 264ms
+ ✓ tests/agents-workspace-composer.test.ts (26 tests) 120ms
+ ✓ tests/source-composer-v3.test.ts (7 tests) 44ms
+ ✓ tests/activity-output-v3.test.ts (4 tests) 53ms
+ ✓ tests/compact-draft-transfer.test.ts (6 tests) 24ms
+ ✓ tests/journal.test.ts (6 tests) 15ms
+ ✓ tests/workbench-input-recovery-v3.test.ts (7 tests) 15ms
+ ✓ tests/editor-handoff.test.ts (3 tests) 12ms
+ ✓ tests/draft-transfer.test.ts (4 tests) 21ms
+ ✓ tests/source-selection-dom-v3.test.ts (4 tests) 10ms
+ ↓ tests/source-workbench-hermes-v3.test.ts (1 test | 1 skipped)
+
+ Test Files  23 passed | 1 skipped (24)
+      Tests  334 passed | 3 skipped (337)
+   Start at  09:15:10
+   Duration  49.73s (transform 5.60s, setup 0ms, import 14.01s, tests 24.30s, environment 5ms)
+
+JSON report written to /workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c2-final-focused-02-results.json

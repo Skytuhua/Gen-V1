@@ -1,0 +1,198 @@
+argv: ["pnpm","exec","playwright","test","--config","tests/e2e/saved-drafts.playwright.config.ts","--output","docs/implementation/v3/m15-artifacts/c2-saved-drafts-01/artifacts","--reporter=list,json"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 27 tests using 1 worker
+
+(node:78) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:78) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/e2e/saved-drafts.spec.ts:283:1 › named save, reload, delete/cancel and empty state stay local (7.7s)
+  ✓   2 tests/e2e/saved-drafts.spec.ts:319:1 › replace keeps recoverable text, insert respects caret and preserves selection, cancel preserves current input (6.5s)
+  ✘   3 tests/e2e/saved-drafts.spec.ts:361:1 › stale restore is rejected atomically after a concurrent window edit (10.5s)
+(node:217) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:217) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   4 tests/e2e/saved-drafts.spec.ts:393:1 › rich records list missing/revoked references but restore text only, preserving current excerpts (2.2s)
+  ✓   5 tests/e2e/saved-drafts.spec.ts:424:1 › account/profile/thread/project/working-copy libraries remain isolated (9.7s)
+  ✘   6 tests/e2e/saved-drafts.spec.ts:444:1 › quota failure and corrupt records keep the active draft and offer retry (7.1s)
+(node:336) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:336) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 tests/e2e/saved-drafts.spec.ts:488:1 › keyboard/IME does not save or send a composing name; focus returns to the trigger (1.7s)
+  ✘   8 tests/e2e/saved-drafts.spec.ts:524:1 › approved list captures and stress names remain usable at 1440/1024/768 with reduced motion (9.8s)
+(node:436) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:436) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 tests/e2e/saved-drafts.spec.ts:571:55 › empty-composer quota restore failure shows a keyboard-reachable alert and preserves drafts (4.7s)
+  ✓  10 tests/e2e/saved-drafts.spec.ts:571:55 › empty-composer abort restore failure shows a keyboard-reachable alert and preserves drafts (4.4s)
+  ✓  11 tests/e2e/saved-drafts.spec.ts:571:55 › empty-composer conflict restore failure shows a keyboard-reachable alert and preserves drafts (4.5s)
+  ✓  12 tests/e2e/saved-drafts.spec.ts:657:42 › new excerpt-only saves remain reviewable after the original selection is gone (4.0s)
+  ✓  13 tests/e2e/saved-drafts.spec.ts:657:42 › new skill-only saves remain reviewable after the original selection is gone (4.0s)
+  ✓  14 tests/e2e/saved-drafts.spec.ts:745:1 › source-only named metadata remains inspectable after selection removal without changing the current send mode (5.0s)
+  ✓  15 tests/e2e/saved-drafts.spec.ts:874:1 › legacy reference-only records expose IDs and keyboard-copyable excerpt text without restoring authority (4.0s)
+  ✘  16 tests/e2e/saved-drafts.spec.ts:973:1 › approved thread capacity blocks a new draft with an error message and keeps records in every working copy (7.6s)
+(node:645) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:645) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  17 tests/e2e/saved-drafts.spec.ts:1024:1 › idle expiry refreshes an open list and deletes only the expired saved record (3.3s)
+  ✓  18 tests/e2e/saved-drafts.spec.ts:1136:50 › global retention evicts inactive threads and copies on load (2.7s)
+  ✓  19 tests/e2e/saved-drafts.spec.ts:1136:50 › global retention evicts inactive threads and copies on list (1.5s)
+  ✓  20 tests/e2e/saved-drafts.spec.ts:1136:50 › global retention evicts inactive threads and copies on switch (2.5s)
+  ✓  21 tests/e2e/saved-drafts.spec.ts:1147:1 › empty active library schedules expiry for inactive threads and copies without reading their owner (2.8s)
+  ✓  22 tests/e2e/saved-drafts.spec.ts:1166:1 › another window adding an inactive library reschedules the empty active library deadline (2.9s)
+  ✓  23 tests/e2e/saved-drafts.spec.ts:1263:58 › malformed inactive library does not block valid load or inactive expiry (2.5s)
+  ✓  24 tests/e2e/saved-drafts.spec.ts:1263:58 › malformed inactive library does not block valid save or inactive expiry (2.3s)
+  ✓  25 tests/e2e/saved-drafts.spec.ts:1263:58 › malformed inactive library does not block valid list or inactive expiry (1.4s)
+  ✓  26 tests/e2e/saved-drafts.spec.ts:1263:58 › malformed inactive library does not block valid switch or inactive expiry (3.0s)
+  ✓  27 tests/e2e/saved-drafts.spec.ts:1303:1 › malformed inactive library does not stop the global expiry deadline (2.4s)
+
+
+  1) tests/e2e/saved-drafts.spec.ts:361:1 › stale restore is rejected atomically after a concurrent window edit 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByRole('dialog', { name: 'Restore saved draft' }).getByRole('status').filter({ hasNotText: 'Saving…' })
+    Expected substring: [32m"current draft changed"[39m
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('dialog', { name: 'Restore saved draft' }).getByRole('status').filter({ hasNotText: 'Saving…' })[22m
+
+
+      62 | });
+      63 | test('stale restore is rejected atomically after a concurrent window edit',async({page,context})=>{
+    > 64 |  await setup(page);await save(page,'Saved text','Named prompt');await draft(page).fill('Original current');await open(page);await page.getByRole('button',{name:'Restore',exact:true}).click();const other=await context.newPage();await setup(other);await draft(other).fill('Concurrent edit');await expect(draft(page)).toHaveValue('Concurrent edit');await page.getByRole('button',{name:'Replace text'}).click();await expect(page.getByRole('dialog',{name:'Restore saved draft'}).getByRole('status').filter({hasNotText:'Saving…'})).toContainText('current draft changed');await expect(draft(other)).toHaveValue('Concurrent edit');await page.getByRole('button',{name:'Cancel',exact:true}).click();await open(page);await expect(page.getByText(/Before replacing ·/)).toHaveCount(0);
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               ^
+      65 | });
+      66 | test('rich records list missing/revoked references but restore text only, preserving current excerpts',async({page})=>{
+      67 |  const writes=await setup(page);await seed(page,'rich');await draft(page).fill('Current text');await open(page);await page.getByRole('button',{name:'Restore text only',exact:true}).click();await expect(page.getByText(/Resource revoked-resource: unvalidated/)).toBeVisible();await expect(page.getByText(/Skill review: unvalidated revision/)).toBeVisible();await expect(page.getByText(/Terminal saved-terminal: saved excerpt not restored/)).toBeVisible();await expect(page.getByRole('button',{name:'Restore with references unavailable'})).toBeDisabled();await page.getByRole('button',{name:'Replace text'}).click();await expect(draft(page)).toHaveValue('Recovered text');await expect(page.getByRole('button',{name:'Terminal selection · current-terminal',exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Terminal selection · saved-terminal',exact:true})).toBeHidden();expect(writes).toEqual([]);
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:64:527
+
+    Error Context: docs/implementation/v3/m15-artifacts/c2-saved-drafts-01/artifacts/saved-drafts-stale-restore-d4216-er-a-concurrent-window-edit/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/implementation/v3/m15-artifacts/c2-saved-drafts-01/artifacts/saved-drafts-stale-restore-d4216-er-a-concurrent-window-edit/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/implementation/v3/m15-artifacts/c2-saved-drafts-01/artifacts/saved-drafts-stale-restore-d4216-er-a-concurrent-window-edit/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/e2e/saved-drafts.spec.ts:444:1 › quota failure and corrupt records keep the active draft and offer retry 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByRole('dialog', { name: 'Save prompt' }).getByRole('status').filter({ hasNotText: 'Saving…' })
+    Expected substring: [32m"Quota"[39m
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('dialog', { name: 'Save prompt' }).getByRole('status').filter({ hasNotText: 'Saving…' })[22m
+
+
+      71 | });
+      72 | test('quota failure and corrupt records keep the active draft and offer retry',async({page})=>{
+    > 73 |  await setup(page);await draft(page).fill('Keep through quota');await page.evaluate(()=>{const original=IDBObjectStore.prototype.put;IDBObjectStore.prototype.put=function(value,key){if(String(key).startsWith('saved-drafts:'))throw new DOMException('Quota exhausted','QuotaExceededError');return original.call(this,value,key);};});await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name').fill('Quota prompt');await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt'}).getByRole('status').filter({hasNotText:'Saving…'})).toContainText('Quota');await page.getByRole('button',{name:'Cancel',exact:true}).click();await expect(draft(page)).toHaveValue('Keep through quota');await page.reload();await expect(draft(page)).toHaveValue('Keep through quota');await seed(page,'corrupt');await open(page);await expect(page.getByRole('dialog',{name:'Saved drafts'}).getByRole('alert')).toContainText('could not load');await page.getByRole('button',{name:'Retry',exact:true}).click();await expect(draft(page)).toHaveValue('Keep through quota');
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^
+      74 | });
+      75 | test('keyboard/IME does not save or send a composing name; focus returns to the trigger',async({page})=>{
+      76 |  const writes=await setup(page);await draft(page).fill('IME draft');await draft(page).dispatchEvent('compositionstart');await expect(page.getByRole('button',{name:'Saved drafts',exact:true})).toBeDisabled();await draft(page).dispatchEvent('compositionend');await page.getByRole('button',{name:'Saved drafts',exact:true}).focus();await page.keyboard.press('Enter');await expect(page.getByRole('button',{name:'Save current prompt'})).toBeFocused();await page.keyboard.press('Enter');await expect(page.getByLabel('Draft name')).toBeFocused();await page.getByLabel('Draft name').fill('Name');await page.getByLabel('Draft name').dispatchEvent('keydown',{key:'Enter',isComposing:true});await expect(page.getByRole('dialog',{name:'Save prompt'})).toBeVisible();await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:'Saved drafts',exact:true})).toBeFocused();expect(writes).toEqual([]);
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:73:654
+
+    Error Context: docs/implementation/v3/m15-artifacts/c2-saved-drafts-01/artifacts/saved-drafts-quota-failure-ef0d5-ctive-draft-and-offer-retry/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/implementation/v3/m15-artifacts/c2-saved-drafts-01/artifacts/saved-drafts-quota-failure-ef0d5-ctive-draft-and-offer-retry/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/implementation/v3/m15-artifacts/c2-saved-drafts-01/artifacts/saved-drafts-quota-failure-ef0d5-ctive-draft-and-offer-retry/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/e2e/saved-drafts.spec.ts:524:1 › approved list captures and stress names remain usable at 1440/1024/768 with reduced motion 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('dialog', { name: 'Save prompt' }).getByRole('status').filter({ hasNotText: 'Saving…' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('dialog', { name: 'Save prompt' }).getByRole('status').filter({ hasNotText: 'Saving…' })[22m
+
+
+      79 |  await setup(page);await save(page);await save(page,'Group the notes by theme and cite each source.','Summarize interview notes');await draft(page).fill('');await open(page);
+      80 |  for(const width of [1440,1024,768]){await page.setViewportSize({width,height:900});await expect(page.getByRole('dialog',{name:'Saved drafts'})).toBeInViewport();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:info.outputPath(`2-after-${width}.png`)});}
+    > 81 |  await page.emulateMedia({reducedMotion:'reduce'});await page.keyboard.press('Escape');await seed(page,'full');await open(page);await page.screenshot({path:info.outputPath('stress-list.png')});await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name').fill('Overflow');await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt'}).getByRole('status').filter({hasNotText:'Saving…'})).toBeVisible();await page.screenshot({path:info.outputPath('save-error.png')});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ^
+      82 | });
+      83 |
+      84 | for(const failure of ['quota','abort','conflict'] as const)test(`empty-composer ${failure} restore failure shows a keyboard-reachable alert and preserves drafts`,async({page},info)=>{
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:81:496
+
+    Error Context: docs/implementation/v3/m15-artifacts/c2-saved-drafts-01/artifacts/saved-drafts-approved-list-931be-024-768-with-reduced-motion/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/implementation/v3/m15-artifacts/c2-saved-drafts-01/artifacts/saved-drafts-approved-list-931be-024-768-with-reduced-motion/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/implementation/v3/m15-artifacts/c2-saved-drafts-01/artifacts/saved-drafts-approved-list-931be-024-768-with-reduced-motion/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/e2e/saved-drafts.spec.ts:973:1 › approved thread capacity blocks a new draft with an error message and keeps records in every working copy 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByRole('dialog', { name: 'Save prompt', exact: true }).getByRole('status').filter({ hasNotText: 'Saving…' })
+    Expected substring: [32m"20 per thread"[39m
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('dialog', { name: 'Save prompt', exact: true }).getByRole('status').filter({ hasNotText: 'Saving…' })[22m
+
+
+      161 |  },owner);
+      162 |  await draft(page).fill('Keep this current text');await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name',{exact:true}).fill('Over capacity');await page.getByRole('button',{name:'Save draft',exact:true}).click();
+    > 163 |  await expect(page.getByRole('dialog',{name:'Save prompt',exact:true}).getByRole('status').filter({hasNotText:'Saving…'})).toContainText('20 per thread');await page.keyboard.press('Escape');await expect(draft(page)).toHaveValue('Keep this current text');
+          |                                                                                                                            ^
+      164 |  expect(await page.evaluate(async owner=>{const sp='/apps/web/src/saved-drafts.ts',s=await import(sp);return [(await s.loadSavedDrafts(owner)).library.records.length,(await s.loadSavedDrafts({...owner,workingCopyId:'other-copy'})).library.records.length];},owner)).toEqual([19,1]);expect(writes).toEqual([]);
+      165 | });
+      166 |
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:163:124
+
+    Error Context: docs/implementation/v3/m15-artifacts/c2-saved-drafts-01/artifacts/saved-drafts-approved-thre-cac5f-cords-in-every-working-copy/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/implementation/v3/m15-artifacts/c2-saved-drafts-01/artifacts/saved-drafts-approved-thre-cac5f-cords-in-every-working-copy/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace docs/implementation/v3/m15-artifacts/c2-saved-drafts-01/artifacts/saved-drafts-approved-thre-cac5f-cords-in-every-working-copy/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/e2e/saved-drafts.spec.ts:361:1 › stale restore is rejected atomically after a concurrent window edit 
+    tests/e2e/saved-drafts.spec.ts:444:1 › quota failure and corrupt records keep the active draft and offer retry 
+    tests/e2e/saved-drafts.spec.ts:524:1 › approved list captures and stress names remain usable at 1440/1024/768 with reduced motion 
+    tests/e2e/saved-drafts.spec.ts:973:1 › approved thread capacity blocks a new draft with an error message and keeps records in every working copy 
+  23 passed (2.2m)
