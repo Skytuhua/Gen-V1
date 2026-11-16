@@ -1,15 +1,11 @@
 {
   "schemaVersion": 3,
   "auditAncestorSha": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
-  "executionBaseSha": "399cde39ff4ee82272c7a7700944325c44b36070",
+  "executionBaseSha": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
   "inspectedPaths": [
     {
       "path": "apps/web/src/App.tsx",
-      "blobSha": "20342a3f9697d82c4d1e64b5e583ba19b186406e"
-    },
-    {
-      "path": "apps/web/src/CodeReviewHost.tsx",
-      "blobSha": "2a3b8e34ccc6faf5a59a7b9fd7160f6f1cea8d6b"
+      "blobSha": "aa2ff3d0986a962f58ce1756740b806e9cfbfa07"
     },
     {
       "path": "apps/web/src/ContextInspector.tsx",
@@ -25,7 +21,7 @@
     },
     {
       "path": "apps/web/src/UsageDialog.tsx",
-      "blobSha": "77dc9051c29ef23ecfcb7e5614cff5f1b36a93f8"
+      "blobSha": "2396e2d1b25d28d3243edfc4b05e5e9c2e1a1c6f"
     },
     {
       "path": "apps/web/src/agents-workspace/composer.ts",
@@ -49,7 +45,7 @@
     },
     {
       "path": "packages/contracts/index.ts",
-      "blobSha": "14c59034b8bb2c37137a266320fbeca90af95a52"
+      "blobSha": "7030ba17f06722387a14816ee239f4bb67508c57"
     },
     {
       "path": "packages/contracts/tool-effects.ts",
@@ -140,7 +136,7 @@
     },
     {
       "name": "packages/contracts/index.ts",
-      "version": "14c59034b8bb2c37137a266320fbeca90af95a52",
+      "version": "7030ba17f06722387a14816ee239f4bb67508c57",
       "testIds": [
         "tests/source-workbench-host-v3.test.ts",
         "tests/m01-m02-compatibility.test.ts"
@@ -156,7 +152,7 @@
     {
       "path": "apps/web/src/App.tsx",
       "fromBlob": "75d67d9c68cb6619caabbe3623ec67f85156b34f",
-      "toBlob": "20342a3f9697d82c4d1e64b5e583ba19b186406e",
+      "toBlob": "aa2ff3d0986a962f58ce1756740b806e9cfbfa07",
       "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
     },
     {
@@ -168,13 +164,13 @@
     {
       "path": "apps/web/src/UsageDialog.tsx",
       "fromBlob": "9c190e07fa319738d3782fdfff8c30f0f47fa276",
-      "toBlob": "77dc9051c29ef23ecfcb7e5614cff5f1b36a93f8",
+      "toBlob": "2396e2d1b25d28d3243edfc4b05e5e9c2e1a1c6f",
       "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
     },
     {
       "path": "packages/contracts/index.ts",
       "fromBlob": "15e6c254349ac6ad6ce1d1b16898d40bd1ea31d8",
-      "toBlob": "14c59034b8bb2c37137a266320fbeca90af95a52",
+      "toBlob": "7030ba17f06722387a14816ee239f4bb67508c57",
       "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
     },
     {

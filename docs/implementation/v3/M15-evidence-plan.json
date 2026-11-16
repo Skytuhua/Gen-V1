@@ -1,417 +1,463 @@
 {
-  "executionBaseSha": "399cde39ff4ee82272c7a7700944325c44b36070",
-  "auditAncestorSha": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
-  "acceptedDependencyCommits": [
-    "5f0958f4cb5b40bc10c1eea0e1cd517b57aaa1b9",
-    "f331cf16b268282da888a41da42fc776ea7befd5",
-    "e871257aa82beb06ab4b8f3989cbe436cb9a6a8c"
-  ],
-  "dependencyContracts": [
+ "executionBaseSha": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+ "auditAncestorSha": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
+ "acceptedDependencyCommits": [
+  "5f0958f4cb5b40bc10c1eea0e1cd517b57aaa1b9",
+  "f331cf16b268282da888a41da42fc776ea7befd5",
+  "e871257aa82beb06ab4b8f3989cbe436cb9a6a8c"
+ ],
+ "dependencyContracts": [
+  {
+   "name": "packages/contracts/implementation-evidence.ts",
+   "testIds": [
+    "tests/research-baseline.test.ts",
+    "tests/m01-m02-compatibility.test.ts"
+   ]
+  },
+  {
+   "name": "packages/contracts/tool-effects.ts",
+   "testIds": [
+    "tests/tool-effects-v3.test.ts",
+    "tests/tool-authority-v3.test.ts"
+   ]
+  },
+  {
+   "name": "packages/core/tool-effects.ts",
+   "testIds": [
+    "tests/tool-effects-v3.test.ts"
+   ]
+  },
+  {
+   "name": "packages/core/effect-recovery.ts",
+   "testIds": [
+    "tests/effect-recovery-v3.test.ts"
+   ]
+  },
+  {
+   "name": "packages/core/tool-authority.ts",
+   "testIds": [
+    "tests/tool-authority-v3.test.ts"
+   ]
+  },
+  {
+   "name": "packages/core/capability-flags.ts",
+   "testIds": [
+    "tests/source-workbench-host-v3.test.ts",
+    "tests/m01-m02-compatibility.test.ts"
+   ]
+  },
+  {
+   "name": "packages/storage/store.ts",
+   "testIds": [
+    "tests/research-baseline.test.ts",
+    "tests/source-workbench-host-v3.test.ts"
+   ]
+  },
+  {
+   "name": "packages/contracts/index.ts",
+   "testIds": [
+    "tests/source-workbench-host-v3.test.ts",
+    "tests/m01-m02-compatibility.test.ts"
+   ]
+  }
+ ],
+ "inspectedPaths": [
+  "packages/contracts/implementation-evidence.ts",
+  "packages/contracts/tool-effects.ts",
+  "packages/core/tool-effects.ts",
+  "packages/core/effect-recovery.ts",
+  "packages/core/tool-authority.ts",
+  "packages/core/capability-flags.ts",
+  "packages/storage/store.ts",
+  "packages/contracts/index.ts",
+  "apps/web/src/App.tsx",
+  "apps/web/src/ContextInspector.tsx",
+  "apps/web/src/UsageDialog.tsx",
+  "apps/web/src/FileCheckpoints.tsx",
+  "apps/web/src/conversation-workspace/reader.ts",
+  "packages/ui-shell/ChatView.tsx",
+  "packages/core/ui-admission.ts",
+  "apps/web/src/journal.ts",
+  "apps/web/src/editor-handoff.ts",
+  "apps/web/src/agents-workspace/composer.ts",
+  "apps/web/src/Markdown.tsx"
+ ],
+ "remainingGates": [
+  "Overall full-repository regression remains FAIL: merged-tree run on Windows recorded 3515 passed, 64 failed, 46 skipped across 343 files; failures concentrate in Windows-native/integration surfaces (node-pty, hermes Python, credential lease, account parity, workspace outcomes) and are unchanged in kind from the earlier overlapped run. See docs/implementation/v3/m15-logs/reconcile-full-vitest.log.",
+  "Current-main reconciliation performed on Windows: agent/m15-v3 merged origin/main 49cd6332 (commit d78c3a1b) with five conflicted paths resolved; lint/typecheck/focused Vitest and the workbench, workbench-app, chat-view-modes and saved-drafts Chromium suites pass on the merged tree. Linux-parity rerun remains outstanding and is required before merge.",
+  "Actual Windows file capture, native runtime/history continuity, installed-desktop handoff and native path/grant coverage remain blocked. The one Windows host test is skipped, not passed.",
+  "A truly empty account-unbound task can reject its first file capture send when ordinary admission pins a non-null account. Resolve and test on the actual native target without weakening account custody.",
+  "Linux file leaf reads are deliberately unsupported; do not enable FILE_RANGE on this platform from pure-contract evidence.",
+  "DIFF_HUNK capture requires an atomic complete comparison witness from the owning service; capture remains disabled.",
+  "Historical log/screenshot navigation needs an authenticated retained-artifact read contract. References are metadata, not working navigation.",
+  "Inline transformed-Markdown selection requires trusted source offsets. Exact canonical text remains accessible per message, including messages outside the bounded catalogue.",
+  "M05 memory review, M10 background work and M14 branches have no tested owning integration and remain unsupported.",
+  "Edge executable is absent. Usage/context and scoped-conversation Chromium equivalents pass; agents-workspace Chromium retains 2 failures. Chromium does not certify Edge or Windows.",
+  "Renderer performance is a controlled browser fixture, not whole-application/task-timeline scaling or universal-device performance.",
+  "Independent release approval, merge and production activation are not granted. ui.sourceWorkbenchV1 stays false; reviewerApproval stays false."
+ ],
+ "phases": [
+  {
+   "id": "CORE",
+   "status": "PASS",
+   "cases": [
     {
-      "name": "packages/contracts/implementation-evidence.ts",
-      "testIds": [
-        "tests/research-baseline.test.ts",
-        "tests/m01-m02-compatibility.test.ts"
-      ]
+     "id": "accepted-M01-M02-contracts",
+     "status": "PASS",
+     "evidence": "docs/implementation/v3/m15-logs/core-prerequisites.json"
     },
     {
-      "name": "packages/contracts/tool-effects.ts",
-      "testIds": [
-        "tests/tool-effects-v3.test.ts",
-        "tests/tool-authority-v3.test.ts"
-      ]
+     "id": "source-draft-recovery-composer-contracts",
+     "status": "PASS",
+     "evidence": "docs/implementation/v3/m15-logs/final-focused-01.json"
     },
     {
-      "name": "packages/core/tool-effects.ts",
-      "testIds": [
-        "tests/tool-effects-v3.test.ts"
-      ]
-    },
-    {
-      "name": "packages/core/effect-recovery.ts",
-      "testIds": [
-        "tests/effect-recovery-v3.test.ts"
-      ]
-    },
-    {
-      "name": "packages/core/tool-authority.ts",
-      "testIds": [
-        "tests/tool-authority-v3.test.ts"
-      ]
-    },
-    {
-      "name": "packages/core/capability-flags.ts",
-      "testIds": [
-        "tests/source-workbench-host-v3.test.ts",
-        "tests/m01-m02-compatibility.test.ts"
-      ]
-    },
-    {
-      "name": "packages/storage/store.ts",
-      "testIds": [
-        "tests/research-baseline.test.ts",
-        "tests/source-workbench-host-v3.test.ts"
-      ]
-    },
-    {
-      "name": "packages/contracts/index.ts",
-      "testIds": [
-        "tests/source-workbench-host-v3.test.ts",
-        "tests/m01-m02-compatibility.test.ts"
-      ]
+     "id": "final-host-source-evidence-review-corrections",
+     "status": "PASS",
+     "evidence": "docs/implementation/v3/m15-logs/review-final-core-green.json"
     }
-  ],
-  "inspectedPaths": [
-    "packages/contracts/implementation-evidence.ts",
-    "packages/contracts/tool-effects.ts",
-    "packages/core/tool-effects.ts",
-    "packages/core/effect-recovery.ts",
-    "packages/core/tool-authority.ts",
-    "packages/core/capability-flags.ts",
-    "packages/storage/store.ts",
-    "packages/contracts/index.ts",
-    "apps/web/src/App.tsx",
-    "apps/web/src/ContextInspector.tsx",
-    "apps/web/src/UsageDialog.tsx",
-    "apps/web/src/CodeReviewHost.tsx",
-    "apps/web/src/FileCheckpoints.tsx",
-    "apps/web/src/conversation-workspace/reader.ts",
-    "packages/ui-shell/ChatView.tsx",
-    "packages/core/ui-admission.ts",
-    "apps/web/src/journal.ts",
-    "apps/web/src/editor-handoff.ts",
-    "apps/web/src/agents-workspace/composer.ts",
-    "apps/web/src/Markdown.tsx"
-  ],
-  "remainingGates": [
-    "Overall full-repository regression remains FAIL: full Vitest 3202 passed, 289 failed, 51 skipped and 4 unhandled errors; root browser 74 passed, 38 failed and 1 skipped. Targeted corrections and reruns do not rewrite those full attempts.",
-    "Current-main reconciliation is unvalidated. Remote main was 62 commits ahead at 673ca733d306ade463635def2d09299bc37043ec; execution evidence remains pinned to 399cde39ff4ee82272c7a7700944325c44b36070.",
-    "Actual Windows file capture, native runtime/history continuity, installed-desktop handoff and native path/grant coverage remain blocked. The one Windows host test is skipped, not passed.",
-    "A truly empty account-unbound task can reject its first file capture send when ordinary admission pins a non-null account. Resolve and test on the actual native target without weakening account custody.",
-    "Linux file leaf reads are deliberately unsupported; do not enable FILE_RANGE on this platform from pure-contract evidence.",
-    "DIFF_HUNK capture requires an atomic complete comparison witness from the owning service; capture remains disabled.",
-    "Historical log/screenshot navigation needs an authenticated retained-artifact read contract. References are metadata, not working navigation.",
-    "Inline transformed-Markdown selection requires trusted source offsets. Exact canonical text remains accessible per message, including messages outside the bounded catalogue.",
-    "M05 memory review, M10 background work and M14 branches have no tested owning integration and remain unsupported.",
-    "Edge executable is absent. Usage/context and scoped-conversation Chromium equivalents pass; agents-workspace Chromium retains 2 failures. Chromium does not certify Edge or Windows.",
-    "Renderer performance is a controlled browser fixture, not whole-application/task-timeline scaling or universal-device performance.",
-    "Independent release approval, merge and production activation are not granted. ui.sourceWorkbenchV1 stays false; reviewerApproval stays false."
-  ],
-  "phases": [
+   ],
+   "commandIds": [
+    "core-prerequisites",
+    "final-focused-01",
+    "review-final-core-green"
+   ],
+   "artifactRefs": [
+    "docs/implementation/v3/M15-dependency-review.md"
+   ]
+  },
+  {
+   "id": "INTEGRATION_HOST",
+   "status": "PASS",
+   "cases": [
     {
-      "id": "CORE",
-      "status": "PASS",
-      "cases": [
-        {
-          "id": "accepted-M01-M02-contracts",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/core-prerequisites.json"
-        },
-        {
-          "id": "source-draft-recovery-composer-contracts",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/final-focused-01.json"
-        },
-        {
-          "id": "final-host-source-evidence-review-corrections",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/review-final-core-green.json"
-        }
-      ],
-      "commandIds": [
-        "core-prerequisites",
-        "final-focused-01",
-        "review-final-core-green"
-      ],
-      "artifactRefs": [
-        "docs/implementation/v3/M15-dependency-review.md"
-      ]
+     "id": "durable-source-admission-and-recovery",
+     "status": "PASS",
+     "evidence": "docs/implementation/v3/m15-logs/host-recovery-final-07.json"
     },
     {
-      "id": "INTEGRATION_HOST",
-      "status": "PASS",
-      "cases": [
-        {
-          "id": "durable-source-admission-and-recovery",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/host-recovery-final-07.json"
-        },
-        {
-          "id": "partial-host-composition-and-authenticated-routes",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/host-route-composition-green-08.json"
-        }
-      ],
-      "commandIds": [
-        "host-recovery-final-07",
-        "host-route-composition-green-08"
-      ],
-      "artifactRefs": []
-    },
-    {
-      "id": "INTEGRATION_APP",
-      "status": "PASS",
-      "cases": [
-        {
-          "id": "canonical-selection-durable-send-rollback-recovery-anchor",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/app-browser-final-03.json"
-        },
-        {
-          "id": "interior-clipping-and-transformed-source-negatives",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/selection-review-green-01.json"
-        }
-      ],
-      "commandIds": [
-        "app-browser-final-03",
-        "selection-review-green-01"
-      ],
-      "artifactRefs": [
-        "docs/implementation/v3/m15-artifacts/app-browser-final-03/results.json",
-        "docs/implementation/v3/m15-artifacts/app-browser-final-03/retained-source.png",
-        "docs/implementation/v3/m15-artifacts/app-browser-final-03/evidence-drawer.png"
-      ]
-    },
-    {
-      "id": "DRAFT_AND_CHAT_REGRESSION",
-      "status": "PASS",
-      "cases": [
-        {
-          "id": "saved-drafts-complete-browser-suite",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/saved-drafts-browser-full-04.json"
-        },
-        {
-          "id": "chat-layout-complete-browser-suite",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/chat-view-modes-final-01.json"
-        }
-      ],
-      "commandIds": [
-        "saved-drafts-browser-full-04",
-        "chat-view-modes-final-01"
-      ],
-      "artifactRefs": []
-    },
-    {
-      "id": "PERFORMANCE_BROWSER",
-      "status": "PASS",
-      "cases": [
-        {
-          "id": "large-renderer-layout-recovery-final",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/output-browser-final-03.json"
-        }
-      ],
-      "commandIds": [
-        "output-browser-final-03"
-      ],
-      "artifactRefs": [
-        "docs/implementation/v3/m15-artifacts/browser-final-03/renderer-performance.json",
-        "docs/implementation/v3/m15-artifacts/browser-final-03/results.json",
-        "docs/implementation/v3/m15-artifacts/browser-final-03/artifact-manifest.json"
-      ]
-    },
-    {
-      "id": "CHANGED_PATH_CHROMIUM",
-      "status": "FAIL",
-      "cases": [
-        {
-          "id": "usage-context",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/usage-context-chromium-01.json"
-        },
-        {
-          "id": "scoped-conversation",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/scoped-conversation-chromium-01.json"
-        },
-        {
-          "id": "agents-workspace",
-          "status": "FAIL",
-          "evidence": "docs/implementation/v3/m15-logs/agents-workspace-chromium-01.json"
-        }
-      ],
-      "commandIds": [
-        "usage-context-chromium-01",
-        "scoped-conversation-chromium-01",
-        "agents-workspace-chromium-01"
-      ],
-      "artifactRefs": [
-        "docs/implementation/v3/m15-artifacts/changed-path-browser-regressions-summary.json"
-      ]
-    },
-    {
-      "id": "FULL_REPOSITORY_REGRESSION",
-      "status": "FAIL",
-      "cases": [
-        {
-          "id": "declared-pnpm-test",
-          "status": "FAIL",
-          "evidence": "docs/implementation/v3/m15-logs/full-repository-test-01.json"
-        },
-        {
-          "id": "full-vitest-supported-loader",
-          "status": "FAIL",
-          "evidence": "docs/implementation/v3/m15-logs/full-vitest-01.json"
-        },
-        {
-          "id": "root-browser-baseline",
-          "status": "FAIL",
-          "evidence": "docs/implementation/v3/m15-logs/baseline-browser-root-native-ready.json"
-        },
-        {
-          "id": "root-browser-candidate",
-          "status": "FAIL",
-          "evidence": "docs/implementation/v3/m15-logs/candidate-root-browser-01.json"
-        },
-        {
-          "id": "isolated-artifact-startup-regression",
-          "status": "FAIL",
-          "evidence": "docs/implementation/v3/m15-logs/candidate-root-artifact-quiet-01.json"
-        }
-      ],
-      "commandIds": [
-        "full-repository-test-01",
-        "full-vitest-01",
-        "baseline-browser-root-native-ready",
-        "candidate-root-browser-01",
-        "candidate-root-extra-six-01",
-        "candidate-root-artifact-quiet-01"
-      ],
-      "artifactRefs": [
-        "docs/implementation/v3/m15-artifacts/full-vitest-01-audit-summary.json",
-        "docs/implementation/v3/m15-artifacts/candidate-root-browser-01-comparison.json",
-        "docs/implementation/v3/m15-artifacts/candidate-root-artifact-quiet-01/results.json"
-      ]
-    },
-    {
-      "id": "BUILD_AND_PACKAGING",
-      "status": "PASS",
-      "cases": [
-        {
-          "id": "typecheck",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/final-typecheck-02.json"
-        },
-        {
-          "id": "production-build",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/final-build-01.json"
-        },
-        {
-          "id": "public-source-runtime-import-closure",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/packaging-import-closure-green.json"
-        },
-        {
-          "id": "final-controller-typecheck",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/final-typecheck-03.json"
-        },
-        {
-          "id": "complete-reviewed-public-package",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/final-packaging-01.json"
-        }
-      ],
-      "commandIds": [
-        "final-typecheck-02",
-        "final-build-01",
-        "packaging-import-closure-green",
-        "final-typecheck-03",
-        "final-packaging-01"
-      ],
-      "artifactRefs": []
-    },
-    {
-      "id": "PLATFORM",
-      "status": "BLOCKED",
-      "cases": [
-        {
-          "id": "actual-Windows-file-capture",
-          "status": "NOT_RUN",
-          "evidence": "Linux host; explicit Windows test skip"
-        },
-        {
-          "id": "native-history-and-installed-desktop-handoff",
-          "status": "NOT_RUN",
-          "evidence": "No native target execution"
-        },
-        {
-          "id": "declared-Edge-browser",
-          "status": "NOT_RUN",
-          "evidence": "Declared attempts failed at missing executable before assertions"
-        }
-      ],
-      "commandIds": [
-        "usage-context-declared-01",
-        "agents-workspace-declared-01",
-        "scoped-conversation-declared-01"
-      ],
-      "artifactRefs": []
-    },
-    {
-      "id": "UNAVAILABLE_CAPABILITIES",
-      "status": "BLOCKED",
-      "cases": [
-        {
-          "id": "atomic-diff-capture",
-          "status": "NOT_RUN",
-          "evidence": "Owning comparison witness unavailable"
-        },
-        {
-          "id": "historical-evidence-artifact-navigation",
-          "status": "NOT_RUN",
-          "evidence": "Authorized retained-artifact reader unavailable"
-        },
-        {
-          "id": "transformed-inline-source-map",
-          "status": "NOT_RUN",
-          "evidence": "Canonical message selector is the supported fallback"
-        },
-        {
-          "id": "optional-M05-M10-M14",
-          "status": "NOT_RUN",
-          "evidence": "Typed owning contracts unavailable"
-        },
-        {
-          "id": "latest-main-reconciliation",
-          "status": "NOT_RUN",
-          "evidence": "Accepted source pin intentionally retained"
-        }
-      ],
-      "commandIds": [],
-      "artifactRefs": [
-        "docs/implementation/v3/M15-original-prompt-audit.md",
-        "docs/implementation/v3/m15-artifacts/publication-main-drift.json"
-      ]
-    },
-    {
-      "id": "EVIDENCE_INTEGRITY",
-      "status": "PASS",
-      "cases": [
-        {
-          "id": "actual-controller-rejects-altered-bundles",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/evidence-controller-green-01.json"
-        },
-        {
-          "id": "original-checkout-preserved",
-          "status": "PASS",
-          "evidence": "docs/implementation/v3/m15-logs/final-checkout-custody-01.json"
-        }
-      ],
-      "commandIds": [
-        "evidence-controller-green-01",
-        "final-checkout-custody-01"
-      ],
-      "artifactRefs": [
-        "docs/implementation/v3/m15-artifacts/evidence-controller-probes.json",
-        "docs/implementation/v3/M15-handoff.md",
-        "docs/implementation/v3/M15-final-review.md"
-      ]
+     "id": "partial-host-composition-and-authenticated-routes",
+     "status": "PASS",
+     "evidence": "docs/implementation/v3/m15-logs/host-route-composition-green-08.json"
     }
-  ]
+   ],
+   "commandIds": [
+    "host-recovery-final-07",
+    "host-route-composition-green-08"
+   ],
+   "artifactRefs": []
+  },
+  {
+   "id": "INTEGRATION_APP",
+   "status": "PASS",
+   "cases": [
+    {
+     "id": "canonical-selection-durable-send-rollback-recovery-anchor",
+     "status": "PASS",
+     "evidence": "docs/implementation/v3/m15-logs/app-browser-final-03.json"
+    },
+    {
+     "id": "interior-clipping-and-transformed-source-negatives",
+     "status": "PASS",
+     "evidence": "docs/implementation/v3/m15-logs/selection-review-green-01.json"
+    }
+   ],
+   "commandIds": [
+    "app-browser-final-03",
+    "selection-review-green-01"
+   ],
+   "artifactRefs": [
+    "docs/implementation/v3/m15-artifacts/app-browser-final-03/results.json",
+    "docs/implementation/v3/m15-artifacts/app-browser-final-03/retained-source.png",
+    "docs/implementation/v3/m15-artifacts/app-browser-final-03/evidence-drawer.png"
+   ]
+  },
+  {
+   "id": "DRAFT_AND_CHAT_REGRESSION",
+   "status": "PASS",
+   "cases": [
+    {
+     "id": "saved-drafts-complete-browser-suite",
+     "status": "PASS",
+     "evidence": "docs/implementation/v3/m15-logs/saved-drafts-browser-full-04.json"
+    },
+    {
+     "id": "chat-layout-complete-browser-suite",
+     "status": "PASS",
+     "evidence": "docs/implementation/v3/m15-logs/chat-view-modes-final-01.json"
+    }
+   ],
+   "commandIds": [
+    "saved-drafts-browser-full-04",
+    "chat-view-modes-final-01"
+   ],
+   "artifactRefs": []
+  },
+  {
+   "id": "PERFORMANCE_BROWSER",
+   "status": "PASS",
+   "cases": [
+    {
+     "id": "large-renderer-layout-recovery-final",
+     "status": "PASS",
+     "evidence": "docs/implementation/v3/m15-logs/output-browser-final-03.json"
+    }
+   ],
+   "commandIds": [
+    "output-browser-final-03"
+   ],
+   "artifactRefs": [
+    "docs/implementation/v3/m15-artifacts/browser-final-03/renderer-performance.json",
+    "docs/implementation/v3/m15-artifacts/browser-final-03/results.json",
+    "docs/implementation/v3/m15-artifacts/browser-final-03/artifact-manifest.json"
+   ]
+  },
+  {
+   "id": "CHANGED_PATH_CHROMIUM",
+   "status": "FAIL",
+   "cases": [
+    {
+     "id": "usage-context",
+     "status": "PASS",
+     "evidence": "docs/implementation/v3/m15-logs/usage-context-chromium-01.json"
+    },
+    {
+     "id": "scoped-conversation",
+     "status": "PASS",
+     "evidence": "docs/implementation/v3/m15-logs/scoped-conversation-chromium-01.json"
+    },
+    {
+     "id": "agents-workspace",
+     "status": "FAIL",
+     "evidence": "docs/implementation/v3/m15-logs/agents-workspace-chromium-01.json"
+    }
+   ],
+   "commandIds": [
+    "usage-context-chromium-01",
+    "scoped-conversation-chromium-01",
+    "agents-workspace-chromium-01"
+   ],
+   "artifactRefs": [
+    "docs/implementation/v3/m15-artifacts/changed-path-browser-regressions-summary.json"
+   ]
+  },
+  {
+   "id": "FULL_REPOSITORY_REGRESSION",
+   "status": "FAIL",
+   "cases": [
+    {
+     "id": "declared-pnpm-test",
+     "status": "FAIL",
+     "evidence": "docs/implementation/v3/m15-logs/full-repository-test-01.json"
+    },
+    {
+     "id": "full-vitest-supported-loader",
+     "status": "FAIL",
+     "evidence": "docs/implementation/v3/m15-logs/full-vitest-01.json"
+    },
+    {
+     "id": "root-browser-baseline",
+     "status": "FAIL",
+     "evidence": "docs/implementation/v3/m15-logs/baseline-browser-root-native-ready.json"
+    },
+    {
+     "id": "root-browser-candidate",
+     "status": "FAIL",
+     "evidence": "docs/implementation/v3/m15-logs/candidate-root-browser-01.json"
+    },
+    {
+     "id": "isolated-artifact-startup-regression",
+     "status": "FAIL",
+     "evidence": "docs/implementation/v3/m15-logs/candidate-root-artifact-quiet-01.json"
+    }
+   ],
+   "commandIds": [
+    "full-repository-test-01",
+    "full-vitest-01",
+    "baseline-browser-root-native-ready",
+    "candidate-root-browser-01",
+    "candidate-root-extra-six-01",
+    "candidate-root-artifact-quiet-01"
+   ],
+   "artifactRefs": [
+    "docs/implementation/v3/m15-artifacts/full-vitest-01-audit-summary.json",
+    "docs/implementation/v3/m15-artifacts/candidate-root-browser-01-comparison.json",
+    "docs/implementation/v3/m15-artifacts/candidate-root-artifact-quiet-01/results.json"
+   ]
+  },
+  {
+   "id": "BUILD_AND_PACKAGING",
+   "status": "PASS",
+   "cases": [
+    {
+     "id": "typecheck",
+     "status": "PASS",
+     "evidence": "docs/implementation/v3/m15-logs/final-typecheck-02.json"
+    },
+    {
+     "id": "production-build",
+     "status": "PASS",
+     "evidence": "docs/implementation/v3/m15-logs/final-build-01.json"
+    },
+    {
+     "id": "public-source-runtime-import-closure",
+     "status": "PASS",
+     "evidence": "docs/implementation/v3/m15-logs/packaging-import-closure-green.json"
+    },
+    {
+     "id": "final-controller-typecheck",
+     "status": "PASS",
+     "evidence": "docs/implementation/v3/m15-logs/final-typecheck-03.json"
+    },
+    {
+     "id": "complete-reviewed-public-package",
+     "status": "PASS",
+     "evidence": "docs/implementation/v3/m15-logs/final-packaging-01.json"
+    }
+   ],
+   "commandIds": [
+    "final-typecheck-02",
+    "final-build-01",
+    "packaging-import-closure-green",
+    "final-typecheck-03",
+    "final-packaging-01"
+   ],
+   "artifactRefs": []
+  },
+  {
+   "id": "PLATFORM",
+   "status": "BLOCKED",
+   "cases": [
+    {
+     "id": "actual-Windows-file-capture",
+     "status": "NOT_RUN",
+     "evidence": "Linux host; explicit Windows test skip"
+    },
+    {
+     "id": "native-history-and-installed-desktop-handoff",
+     "status": "NOT_RUN",
+     "evidence": "No native target execution"
+    },
+    {
+     "id": "declared-Edge-browser",
+     "status": "NOT_RUN",
+     "evidence": "Declared attempts failed at missing executable before assertions"
+    }
+   ],
+   "commandIds": [
+    "usage-context-declared-01",
+    "agents-workspace-declared-01",
+    "scoped-conversation-declared-01"
+   ],
+   "artifactRefs": []
+  },
+  {
+   "id": "UNAVAILABLE_CAPABILITIES",
+   "status": "BLOCKED",
+   "cases": [
+    {
+     "id": "atomic-diff-capture",
+     "status": "NOT_RUN",
+     "evidence": "Owning comparison witness unavailable"
+    },
+    {
+     "id": "historical-evidence-artifact-navigation",
+     "status": "NOT_RUN",
+     "evidence": "Authorized retained-artifact reader unavailable"
+    },
+    {
+     "id": "transformed-inline-source-map",
+     "status": "NOT_RUN",
+     "evidence": "Canonical message selector is the supported fallback"
+    },
+    {
+     "id": "optional-M05-M10-M14",
+     "status": "NOT_RUN",
+     "evidence": "Typed owning contracts unavailable"
+    },
+    {
+     "id": "latest-main-reconciliation",
+     "status": "NOT_RUN",
+     "evidence": "Accepted source pin intentionally retained"
+    }
+   ],
+   "commandIds": [],
+   "artifactRefs": [
+    "docs/implementation/v3/M15-original-prompt-audit.md",
+    "docs/implementation/v3/m15-artifacts/publication-main-drift.json"
+   ]
+  },
+  {
+   "id": "EVIDENCE_INTEGRITY",
+   "status": "PASS",
+   "cases": [
+    {
+     "id": "actual-controller-rejects-altered-bundles",
+     "status": "PASS",
+     "evidence": "docs/implementation/v3/m15-logs/evidence-controller-green-01.json"
+    },
+    {
+     "id": "original-checkout-preserved",
+     "status": "PASS",
+     "evidence": "docs/implementation/v3/m15-logs/final-checkout-custody-01.json"
+    }
+   ],
+   "commandIds": [
+    "evidence-controller-green-01",
+    "final-checkout-custody-01"
+   ],
+   "artifactRefs": [
+    "docs/implementation/v3/m15-artifacts/evidence-controller-probes.json",
+    "docs/implementation/v3/M15-handoff.md",
+    "docs/implementation/v3/M15-final-review.md"
+   ]
+  },
+  {
+   "id": "RECONCILIATION",
+   "status": "FAIL",
+   "cases": [
+    {
+     "id": "reconcile-merge-resolved-five-paths",
+     "status": "PASS",
+     "evidence": "merge commit d78c3a1b resolved App.tsx, browser-suites.ts, public-source-files.json, chat-view-modes.spec.ts, saved-drafts.spec.ts onto origin/main 49cd6332"
+    },
+    {
+     "id": "reconcile-ui-guard-lint",
+     "status": "PASS",
+     "evidence": "docs/implementation/v3/m15-logs/reconcile-lint.log"
+    },
+    {
+     "id": "reconcile-typecheck",
+     "status": "PASS",
+     "evidence": "docs/implementation/v3/m15-logs/reconcile-typecheck.log"
+    },
+    {
+     "id": "reconcile-focused-m15-vitest",
+     "status": "PASS",
+     "evidence": "docs/implementation/v3/m15-logs/reconcile-focused-vitest.log"
+    },
+    {
+     "id": "reconcile-browser-suites-workbench-family",
+     "status": "PASS",
+     "evidence": "docs/implementation/v3/m15-logs/reconcile-e2e-workbench.log; reconcile-e2e-workbench-app.log; reconcile-e2e-chat-view-modes.log; reconcile-e2e-saved-drafts.log"
+    },
+    {
+     "id": "reconcile-full-repo-vitest",
+     "status": "FAIL",
+     "evidence": "docs/implementation/v3/m15-logs/reconcile-full-vitest.log"
+    }
+   ],
+   "commandIds": [
+    "reconcile-lint",
+    "reconcile-typecheck",
+    "reconcile-focused-vitest",
+    "reconcile-e2e-workbench",
+    "reconcile-e2e-workbench-app",
+    "reconcile-e2e-chat-view-modes",
+    "reconcile-e2e-saved-drafts",
+    "reconcile-full-vitest"
+   ],
+   "artifactRefs": []
+  }
+ ]
 }

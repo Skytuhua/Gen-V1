@@ -792,6 +792,78 @@
     "endedAt": "2026-11-15T22:35:12.668Z"
   },
   {
+    "id": "reconcile-e2e-chat-view-modes",
+    "receipt": "docs/implementation/v3/m15-logs/reconcile-e2e-chat-view-modes.json",
+    "phase": "RECONCILIATION",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T02:25:04.412Z",
+    "endedAt": "2026-11-16T02:25:37.337Z"
+  },
+  {
+    "id": "reconcile-e2e-saved-drafts",
+    "receipt": "docs/implementation/v3/m15-logs/reconcile-e2e-saved-drafts.json",
+    "phase": "RECONCILIATION",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T02:21:21.306Z",
+    "endedAt": "2026-11-16T02:24:11.072Z"
+  },
+  {
+    "id": "reconcile-e2e-workbench-app",
+    "receipt": "docs/implementation/v3/m15-logs/reconcile-e2e-workbench-app.json",
+    "phase": "RECONCILIATION",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T02:22:56.241Z",
+    "endedAt": "2026-11-16T02:25:03.657Z"
+  },
+  {
+    "id": "reconcile-e2e-workbench",
+    "receipt": "docs/implementation/v3/m15-logs/reconcile-e2e-workbench.json",
+    "phase": "RECONCILIATION",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T02:20:45.246Z",
+    "endedAt": "2026-11-16T02:22:55.332Z"
+  },
+  {
+    "id": "reconcile-focused-vitest",
+    "receipt": "docs/implementation/v3/m15-logs/reconcile-focused-vitest.json",
+    "phase": "RECONCILIATION",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T02:20:11.786Z",
+    "endedAt": "2026-11-16T02:20:41.750Z"
+  },
+  {
+    "id": "reconcile-full-vitest",
+    "receipt": "docs/implementation/v3/m15-logs/reconcile-full-vitest.json",
+    "phase": "RECONCILIATION",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-16T02:18:57.614Z",
+    "endedAt": "2026-11-16T02:35:56.084Z"
+  },
+  {
+    "id": "reconcile-lint",
+    "receipt": "docs/implementation/v3/m15-logs/reconcile-lint.json",
+    "phase": "RECONCILIATION",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T02:19:12.263Z",
+    "endedAt": "2026-11-16T02:19:38.867Z"
+  },
+  {
+    "id": "reconcile-typecheck",
+    "receipt": "docs/implementation/v3/m15-logs/reconcile-typecheck.json",
+    "phase": "RECONCILIATION",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T02:19:39.093Z",
+    "endedAt": "2026-11-16T02:20:11.259Z"
+  },
+  {
     "id": "recovery-import-race-green-01",
     "receipt": "docs/implementation/v3/m15-logs/recovery-import-race-green-01.json",
     "phase": "ATTEMPT_HISTORY",

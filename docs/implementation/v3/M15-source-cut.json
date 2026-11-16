@@ -1,11 +1,11 @@
 {
-  "executionBaseSha": "399cde39ff4ee82272c7a7700944325c44b36070",
+  "executionBaseSha": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
   "files": [
     {
       "path": "apps/server/server.ts",
-      "bytes": 28324,
-      "sha256": "bad37847a060e0c04e98b3299f56e41ecd4b06893a34b42bd161a13a88cfb1cd",
-      "gitBlob": "11339502a7d5ecbc25d7c8c7f30ebb65bc673797"
+      "bytes": 28160,
+      "sha256": "0f0085ca4f858b6d0847a238fb6ed5b63c3ab17a1466071ddd97209aefceb5aa",
+      "gitBlob": "ae2794c2d1ebe48f2a7bb70060b011b2ca5dea47"
     },
     {
       "path": "apps/server/source-workbench-routes.ts",
@@ -15,9 +15,9 @@
     },
     {
       "path": "apps/web/src/App.tsx",
-      "bytes": 144004,
-      "sha256": "e594d0493470726990bea4239c301cf9522e214dd7bd3ee4662ceb2d972203cb",
-      "gitBlob": "2dd278fa68e22609ad59bdfe950cf0999eac5e05"
+      "bytes": 157983,
+      "sha256": "0406820da032f98b3ac8fd81a6dfdd52725751983a9981df2bceb277e505f6a8",
+      "gitBlob": "76cb64f78dc6bca0bdccc6d1ad8f440966a26e73"
     },
     {
       "path": "apps/web/src/ContextInspector.tsx",
@@ -33,15 +33,15 @@
     },
     {
       "path": "apps/web/src/SourceSelectionActions.tsx",
-      "bytes": 9433,
-      "sha256": "96f2144595c7bbd5a42696e96e617077533731d0de7cae6fe2d8dfd2470d6ced",
-      "gitBlob": "a0446cbe2b18468e665ae957e463846415a0d8c3"
+      "bytes": 9789,
+      "sha256": "e769d03c9e6c5980091796f987f6aacf7ee7bfefc64610d9d570c0e7de73ecd3",
+      "gitBlob": "50894e42732da69a11f97595c78d8574c77aefca"
     },
     {
       "path": "apps/web/src/SourceWorkbench.tsx",
-      "bytes": 28151,
-      "sha256": "6a6acf2b1f2094eef5fdaa4ac0cdc1b8fcf6dd33469f97e552865f5bad933d44",
-      "gitBlob": "f05e1d10d4b5a2e3171477fea1502f917eadeb65"
+      "bytes": 27808,
+      "sha256": "c24cd97996967590f80676618457f239706662c7cb1ec82d40ee7d21d1b82d54",
+      "gitBlob": "f9ca78dc31d3770c85e69246138c319de7aafb6d"
     },
     {
       "path": "apps/web/src/WorkActivity.tsx",
@@ -93,9 +93,9 @@
     },
     {
       "path": "apps/web/src/project-api.ts",
-      "bytes": 2532,
-      "sha256": "469f7b65deb5807ecfb1025f98498810ca1976c45581bca0be3e44517d5624c8",
-      "gitBlob": "20845d1a60f1b9eaebcbcbce3541e9ff077050b5"
+      "bytes": 2790,
+      "sha256": "9a56398ddf97b912d810a210ba610a1c8de5b711a446ab837f7c4c0a20c55621",
+      "gitBlob": "c9a745bb33cba1144f5e8ee783cdd99ca6584bd9"
     },
     {
       "path": "apps/web/src/saved-drafts.ts",
@@ -105,9 +105,9 @@
     },
     {
       "path": "apps/web/src/source-workbench.css",
-      "bytes": 2408,
-      "sha256": "32c8a4284c227f423a12e803a7960c7e2649c0ce4393587016d3064407f2d536",
-      "gitBlob": "c5bc21406f889aacfdd9ba0788c9090188ffae37"
+      "bytes": 2164,
+      "sha256": "f592c5472f27f82da056290206b991388d09c7a84d14692c5a12dbf86aa405de",
+      "gitBlob": "0508da1365075060fe7e5c82cf90d9435db53bab"
     },
     {
       "path": "apps/web/src/workbench-api.ts",
@@ -141,9 +141,9 @@
     },
     {
       "path": "packages/contracts/index.ts",
-      "bytes": 8804,
-      "sha256": "673f7c9dc46486a19fb2734db486c5b5c7d89ba44916b7926822af649132f225",
-      "gitBlob": "56cceed67c5665153dcc14f48372d4b8ea25c158"
+      "bytes": 8994,
+      "sha256": "5eb2cfbca95882bfb70460c4340b13bcdb3365e4eb89c774d3b3917ad4583d83",
+      "gitBlob": "985e5ee1ae01bbfe13b21af499a25771f543e87a"
     },
     {
       "path": "packages/contracts/source-selection.ts",
@@ -177,9 +177,9 @@
     },
     {
       "path": "scripts/browser-suites.ts",
-      "bytes": 6386,
-      "sha256": "c25ba451c142b37dbd0f4248f878b439f472cdfd52ad18d64f19b9d5beb624a7",
-      "gitBlob": "6b880ac1f1763f32674cee1f3e4cee56f9edaad0"
+      "bytes": 6256,
+      "sha256": "e98c24df5d2c6dc2a82b0821471ae4adc46942fc1f4a7651d5240d09496b5604",
+      "gitBlob": "a351f3024959d0a98cf404f2d6d5ce57576b1e12"
     },
     {
       "path": "scripts/m15-evidence-probe.mjs",
@@ -201,9 +201,9 @@
     },
     {
       "path": "scripts/public-source-files.json",
-      "bytes": 164702,
-      "sha256": "bfb29d0099bd7f9a60e0cba6c5ece4bc3fbc6253bbce7751af08746719fc7f78",
-      "gitBlob": "a5330a44f0239c477f646aaa088384d0488b4289"
+      "bytes": 163497,
+      "sha256": "d9f1dca9c242bbe345d3070dcb83925010bf60d8d2e9d753494f38f4236cb73f",
+      "gitBlob": "a5c5161311f29003f852a70a1358b004aa67c1ef"
     },
     {
       "path": "tests/activity-output-v3.test.ts",
@@ -225,15 +225,15 @@
     },
     {
       "path": "tests/e2e/chat-view-modes.spec.ts",
-      "bytes": 16998,
-      "sha256": "08dedf8294490babbfbc05c32d995b1e41f1042d528a13ea5b5562b452ada4bb",
-      "gitBlob": "d9fec55860934307c2122b567109e8d790da41f6"
+      "bytes": 3441,
+      "sha256": "f747d376d49a85fbc5a9f544d29c59ba513c43cf77f357a5b00d30b76c591ecf",
+      "gitBlob": "b3f59c789c3a054271386fd5689449202593ec1a"
     },
     {
       "path": "tests/e2e/saved-drafts.spec.ts",
-      "bytes": 36260,
-      "sha256": "f96e82cceabf77b564cb73d7fdfe8a422899965cbf1772c352fc4f7ed7210fd5",
-      "gitBlob": "1bcbd4ce9d807164af12b238bcb2daf088e5116a"
+      "bytes": 36268,
+      "sha256": "b9db11f1075ce820f854e9f750018a8b1b9b399d663f77316ac0c2e5f2b54c59",
+      "gitBlob": "6237282263ae55ca53e7605a0077b63f87d3cd8b"
     },
     {
       "path": "tests/e2e/workbench-app.playwright.config.ts",
@@ -243,9 +243,9 @@
     },
     {
       "path": "tests/e2e/workbench-app.spec.ts",
-      "bytes": 25234,
-      "sha256": "c1366285b5a59ee5698eb9c9a9ffb0e7cc00a860a3a0fdbbc066e94fa1cf6256",
-      "gitBlob": "62ff68ff20eb8073b2c635a5a9c1637d8bfac242"
+      "bytes": 25918,
+      "sha256": "aefddff23b45ffaba4442bd0b533984121b5e04d63006e8b9a37c52c4ec6e523",
+      "gitBlob": "15b33a07006e6e32186976d797faa3ea127902bf"
     },
     {
       "path": "tests/e2e/workbench-fixture.tsx",
@@ -261,9 +261,9 @@
     },
     {
       "path": "tests/e2e/workbench.spec.ts",
-      "bytes": 19763,
-      "sha256": "a6e5f5445dc82ffa0b7b2be71b23ff49fb44c38d2b3d882a9472cb10fce75821",
-      "gitBlob": "5b971fe07c534ab01802a5c7e31ff49dd0a98651"
+      "bytes": 19876,
+      "sha256": "dfa3cf9746c444fef57ba034a39abcbb5a9a6bc12b99e60db09cb6fac53e8268",
+      "gitBlob": "b89ed3e4b52f818ddbfcb97209f2e5947db35301"
     },
     {
       "path": "tests/e2e/workbench.vite.config.ts",
