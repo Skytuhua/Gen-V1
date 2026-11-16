@@ -4,6 +4,7 @@ import { ContextInspector, type ContextCompactionReport } from '../../apps/web/s
 import { UsageDialog } from '../../apps/web/src/UsageDialog';
 import { UsageFooter } from '../../apps/web/src/UsageFooter';
 import type { UsageProviderReport } from '../../apps/web/src/usage-presentation';
+import type { ModelRequestObservationV1 } from '../../packages/contracts/model-request';
 import { EMPTY_USAGE, type Thread } from '../../packages/contracts';
 import type { ContextUsage } from '../../apps/web/src/ContextMeter';
 import '../../apps/web/src/styles.css';
@@ -48,6 +49,20 @@ function Fixture() {
     ...(index % 2 ? {} : { cost: { amount: 0.00123456, currency: 'USD' }, inputTokens: 0, outputTokens: 1234,
       limits: [{ id: 'session', label: 'Session limit', usedPercent: 23.456, reset: '2030-01-01T12:34:56Z' }] }),
   }));
+  const requests: ModelRequestObservationV1[] = query.has('requests') ? [
+    { version: 1, requestId: 'fixture-request-1', owner: { threadId, runId: 'run-1', epoch, sequence: 1, inputIds: [], phase: 'foreground' },
+      binding: { providerId: 'provider-a', modelId: 'openai/model', accountId: null }, measurementSource: 'hermes-broker',
+      timings: { queued: Date.now(), acquired: 12, runtimeReady: 140, requestSent: 145, firstProviderDelta: 810, firstPublicDelta: 1980, settled: 1900, teardownConfirmed: 1950 },
+      usage: { inputTokens: 1024, outputTokens: 256, cacheReadTokens: 512, cacheWriteTokens: null, cost: 0.0004321 }, usageConvention: 'provider-reported', outcome: 'completed' },
+    { version: 1, requestId: 'fixture-request-2', owner: { threadId, runId: 'run-1', epoch, sequence: 2, inputIds: [], phase: 'background' },
+      binding: { providerId: 'provider-b', modelId: 'gemini-cli/model', accountId: null }, measurementSource: 'hermes-broker',
+      timings: { queued: Date.now(), acquired: null, runtimeReady: null, requestSent: null, firstProviderDelta: null, firstPublicDelta: null, settled: null, teardownConfirmed: null },
+      usage: { inputTokens: null, outputTokens: null, cacheReadTokens: null, cacheWriteTokens: null, cost: null }, usageConvention: 'unreported', outcome: 'failed', error: 'Synthetic request failure.' },
+    { version: 1, requestId: 'fixture-request-3', owner: { threadId, runId: 'run-2', epoch, sequence: 3, inputIds: [], phase: 'foreground' },
+      binding: { providerId: 'provider-a', modelId: 'openai/model', accountId: null }, measurementSource: 'hermes-broker',
+      timings: { queued: Date.now(), acquired: 10, runtimeReady: 120, requestSent: 125, firstProviderDelta: null, firstPublicDelta: null, settled: 900, teardownConfirmed: 910 },
+      usage: { inputTokens: 128, outputTokens: null, cacheReadTokens: null, cacheWriteTokens: null, cost: null }, usageConvention: 'provider-reported', outcome: 'cancelled' },
+  ] : [];
   return <main style={{ padding: 12 }}><p>Synthetic usage/context fixture</p>
     <button onClick={() => setUsageOpen(true)}>Open Usage</button>
     <span className="context-anchor" style={{ position: 'fixed', top: 74, right: 12 }}>
@@ -55,7 +70,7 @@ function Fixture() {
       {open && <ContextInspector anchor={anchor} usage={usage} thread={thread} compaction={compaction} close={() => setOpen(false)} refresh={async () => {}} />}
     </span>
     <UsageFooter usage={usage} visible onOpenUsage={() => setUsageOpen(true)} />
-    <UsageDialog open={usageOpen} onClose={() => setUsageOpen(false)} reports={reports} loading={mode === 'loading'} error={mode === 'error' ? 'Synthetic provider failure. Refresh to retry.' : undefined}
+    <UsageDialog open={usageOpen} onClose={() => setUsageOpen(false)} reports={reports} requests={requests} loading={mode === 'loading'} error={mode === 'error' ? 'Synthetic provider failure. Refresh to retry.' : undefined}
       onRefresh={async () => { if (mode === 'refresh-error') throw Error('Synthetic refresh failure'); }} />
   </main>;
 }

@@ -1,0 +1,47 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-v3
+
+fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+fatal: Not a valid commit name bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+ ❯ tests/public-source.test.ts (11 tests | 1 failed) 1702ms
+     × keeps a unique, sorted manifest and a runtime subset rather than source globs 24ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/public-source.test.ts > reviewed public source allowlist > keeps a unique, sorted manifest and a runtime subset rather than source globs
+AssertionError: expected [ '.gitattributes', …(2282) ] to deeply equal [ '.gitattributes', …(2282) ]
+
+- Expected
++ Received
+
+@@ -1181,12 +1181,12 @@
+    "tests/linux-path-guard.test.ts",
+    "tests/managed-git-family.test.ts",
+    "tests/memory-consolidation-v3.test.ts",
+    "tests/memory-enrollment-recovery-v3.test.ts",
+    "tests/memory-forget-v3.test.ts",
+-   "tests/memory-restored-index-v3.test.ts",
+    "tests/memory-retrieval-v3.test.ts",
++   "tests/memory-restored-index-v3.test.ts",
+    "tests/memory-review-extra-v3.test.ts",
+    "tests/memory-storage-boundary-v3.test.ts",
+    "tests/model-discovery.test.ts",
+    "tests/motion-spring.test.ts",
+    "tests/native-dock-regression.test.ts",
+
+ ❯ tests/public-source.test.ts:106:64
+    104|   it('keeps a unique, sorted manifest and a runtime subset rather than…
+    105|     const manifest=JSON.parse(readFileSync(new URL('../scripts/public-…
+    106|     expect(manifest.version).toBe(1);expect(publicSourceFiles).toEqual…
+       |                                                                ^
+    107|     expect(publicRuntimeSourceFiles).toEqual([...new Set(manifest.runt…
+    108|     expect(publicRuntimeSourceFiles.every(path=>publicSourceAllowed(pa…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 22 passed (23)
+      Tests  1 failed | 276 passed (277)
+   Start at  18:55:22
+   Duration  18.20s (transform 5.16s, setup 0ms, import 10.25s, tests 20.70s, environment 2ms)

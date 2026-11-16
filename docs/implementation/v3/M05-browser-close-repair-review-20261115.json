@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "reviewId": "M05-browser-close-repair-review-20261115",
+  "recordedAt": "2026-11-15T18:54:50.366380+00:00",
+  "status": "SOURCE_REVIEWED_TYPECHECK_PASS_WINDOWS_PENDING",
+  "sourceParentHead": "bbc07f07fe8957de846433d51ecde51cd8b0fe00",
+  "immutableFailureReviewRef": "docs/implementation/v3/M05-browser-close-review-43748168614.json",
+  "immutableFailureReviewSha256": "a00f5f026a68c916899ed2c0ebacaf38492be034e4bbb4bb397b280ea35d5c25",
+  "reviewers": [
+    "root",
+    "dependency_audit",
+    "memory_integration_audit"
+  ],
+  "sourceFiles": [
+    {
+      "path": "tests/table-overflow.test.ts",
+      "testedSha256": "d1935bb908c0ba8a8068c78acf0d563f5977c433dc60fa5221235910487a710b",
+      "currentSha256": "bd5a8b311d94413e3659ad9f7d6cd3d1e23bb2ef90006bed6f9840779f927512",
+      "currentBytes": 2385,
+      "independentIntermediateCommentSha256": "3d9c5057ea8fe5007535081cea6cf613c7c83e5ec3ef115594ed66dc80dbd5bb",
+      "onlyDifferenceFromIntermediateReview": "Comment wording clarifies that the closeOrKill race includes cleanup."
+    },
+    {
+      "path": "tests/startup-feedback.test.ts",
+      "testedSha256": "457255f95c48cb9aeb7ae348e376629a6c366e17aaf583ec5c17d27911933056",
+      "currentSha256": "a24f850c70c57c0fe9c2e81f502d50853ff0c17a25c9361131d51d9d1c9d4252",
+      "currentBytes": 5190,
+      "independentIntermediateCommentSha256": "ae5d05d100146dce0a79f839c4482fcc4c418b8ebbad9ec5a46b2dbbf055026b",
+      "onlyDifferenceFromIntermediateReview": "Comment wording clarifies that the closeOrKill race includes cleanup."
+    }
+  ],
+  "changeScope": "Only the afterAll hook in each of the two observed failing fixtures receives45000ms and an explanatory comment. Both retain the same awaited browser.close(), page cleanup, test bodies, assertions, startup hooks and launch options. No global test or hook timeout changes.",
+  "rationale": {
+    "observedOuterHookTimeoutMs": 10000,
+    "pinnedPlaywrightVersion": "1.56.1",
+    "pinnedCloseOrKillTimeoutMs": 30000,
+    "newOuterHookTimeoutMs": 45000,
+    "outerHeadroomMs": 15000,
+    "headroomIsInternalCleanupGuarantee": false,
+    "actualWindowsCloseDelayCause": "UNMEASURED",
+    "sourcePolicy": "The pinned closeOrKill races graceful close and cleanup for30000ms, then invokes the existing owned-process kill and awaits cleanup. The original10000ms outer hook can expire before that policy finishes."
+  },
+  "actualFailures": {
+    "runId": 43748168614,
+    "testBodyFailures": 0,
+    "suiteHookFailures": 2,
+    "failedJobs": [
+      132915985143,
+      132915985300
+    ],
+    "totalApplicationBodiesPassed": 3788,
+    "skippedApplicationBodies": 39,
+    "jobsRemainFailed": true
+  },
+  "localVerification": {
+    "fullTypecheck": "PASS",
+    "command": {
+      "argv": [
+        "/workspace/scratch/36f66011d961/bin/pnpm",
+        "typecheck"
+      ],
+      "cwdIdentity": "/workspace/scratch/36f66011d961/m05-continuation",
+      "executableIdentity": "/workspace/scratch/36f66011d961/bin/pnpm",
+      "startedAt": "2026-11-15T18:49:56.502937+00:00",
+      "endedAt": "2026-11-15T18:50:19.628030+00:00",
+      "exitCode": 0,
+      "termination": "NONE",
+      "status": "PASS",
+      "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-browser-teardown-full-typecheck.log",
+      "logDigest": "725c701c2df5342fc103cc0f823bf0beb594484b8ca3f9fe7f0bb3902999a5ca"
+    },
+    "commentWordingClarifiedAfterTypecheck": true,
+    "browserExecutionOnNewTestBytes": "NOT_RUN"
+  },
+  "reviewInputLogCustody": {
+    "boundedLogRef": "docs/implementation/v3/m05-logs/continuation-browser-teardown-full-typecheck.log",
+    "originalRecorderInputRef": "docs/implementation/v3/m05-review-inputs/continuation-browser-teardown-full-typecheck.log",
+    "originalRecorderInputBytes": 91,
+    "originalRecorderInputSha256": "f3cff193d9978242d1503c0371eec158299520a297549e43110e52d93f13fde6",
+    "publishedNormalizedBytes": 90,
+    "publishedNormalizedSha256": "725c701c2df5342fc103cc0f823bf0beb594484b8ca3f9fe7f0bb3902999a5ca",
+    "transformation": "DISPLAY_WHITESPACE_NORMALIZED"
+  },
+  "limitations": [
+    "This change does not diagnose why the two Edge close operations exceeded ten seconds.",
+    "The observed tests ran the old10000ms hooks. Actual Windows execution of the45000ms hooks remains required.",
+    "Installer and memory production code remain unchanged by these two fixture edits."
+  ]
+}

@@ -47,3 +47,21 @@ it('retains blocked ownership when cancellation races an unconfirmed startup fai
  const flows=createAccountLoginFlows(async(_provider,_account,signal)=>new Promise((_yes,no)=>signal.addEventListener('abort',()=>no(Object.assign(Error('unconfirmed'),{code:'RUNTIME_TEARDOWN_FAILED'})),{once:true})));
  const flow=await flows.start('openai',null);await expect(flows.cancel(flow.id)).rejects.toThrow();expect(flows.status(flow.id)?.state).toBe('blocked');await expect(flows.start('openai',null)).rejects.toThrow();
 });
+
+
+it('keeps cancellation custody if native completion resolves before cleanup is confirmed', async () => {
+  const completion = deferred(), cleanup = deferred();
+  const stop = vi.fn(() => cleanup.promise);
+  const flows = createAccountLoginFlows(async () => ({ completion: completion.promise, cancel: stop }));
+  const run = await flows.start('openai', null);
+  await vi.waitFor(() => expect(flows.status(run.id)?.state).toBe('waiting'));
+  const cancelling = flows.cancel(run.id);
+  await vi.waitFor(() => expect(stop).toHaveBeenCalledOnce());
+  completion.resolve();
+  await Promise.resolve();
+  expect(flows.status(run.id)?.state).toBe('cancelling');
+  await expect(flows.start('cursor-sdk', null)).rejects.toThrow();
+  cleanup.resolve();
+  await expect(cancelling).resolves.toMatchObject({id:run.id,state:'cancelled'});
+  expect(flows.isBusy()).toBe(false);
+});

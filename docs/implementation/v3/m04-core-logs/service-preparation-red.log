@@ -1,0 +1,204 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m04-core-dependency
+
+ ❯ tests/request-preparation-service-v3.test.ts (19 tests | 19 failed) 241497ms
+   × retains the same immutable preparation identity through the actual admitted request 15ms
+   × rejects a preview token used with a changed prompt before accepting the draft 3ms
+   × rejects a preview token used with a changed model before accepting the draft 3ms
+   × rejects a preview token used with a changed owner before accepting the draft 3ms
+   × rejects a removed grant and changed task note before accepting a prepared draft 3ms
+   × checks physical project identity again after preview 3ms
+   × checks current account selection and model binding again after preview 3ms
+   × prevents token reuse while preserving a retry of the accepted command 4ms
+   × fails preparation before message admission when the trusted preparation hook fails 12ms
+   × fails dispatch when the trusted finalization hook fails and retains the accepted input 1009ms
+   × revalidates after asynchronous finalization when stop changes 60003ms
+   × revalidates after asynchronous finalization when note changes 60050ms
+   × revalidates after asynchronous finalization when grant changes 60037ms
+   × revalidates after asynchronous finalization when hook assertion changes 60080ms
+   × dispatches queued token-bound follow-ups separately without losing later outbox inputs 148ms
+   × allocates default-send identity but leaves the default-off path unchanged 31ms
+   × rejects attached skills in preview exactly as the existing send path does 17ms
+   × increments the durable owner generation after Service replacement and rejects the old token 54ms
+   × expires abandoned previews, calls cleanup, and never resurrects the same identity 15ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 19 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/request-preparation-service-v3.test.ts > retains the same immutable preparation identity through the actual admitted request
+TypeError: service.prepareRequestContext is not a function
+ ❯ Object.prepare tests/request-preparation-service-v3.test.ts:25:72
+
+ ❯ tests/request-preparation-service-v3.test.ts:36:31
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/19]⎯
+
+ FAIL  tests/request-preparation-service-v3.test.ts > rejects a preview token used with a changed prompt before accepting the draft
+ FAIL  tests/request-preparation-service-v3.test.ts > rejects a preview token used with a changed model before accepting the draft
+ FAIL  tests/request-preparation-service-v3.test.ts > rejects a preview token used with a changed owner before accepting the draft
+TypeError: service.prepareRequestContext is not a function
+ ❯ Object.prepare tests/request-preparation-service-v3.test.ts:25:72
+
+ ❯ tests/request-preparation-service-v3.test.ts:63:52
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/19]⎯
+
+ FAIL  tests/request-preparation-service-v3.test.ts > rejects a removed grant and changed task note before accepting a prepared draft
+TypeError: service.prepareRequestContext is not a function
+ ❯ Object.prepare tests/request-preparation-service-v3.test.ts:25:72
+
+ ❯ tests/request-preparation-service-v3.test.ts:72:25
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/19]⎯
+
+ FAIL  tests/request-preparation-service-v3.test.ts > checks physical project identity again after preview
+TypeError: service.prepareRequestContext is not a function
+ ❯ Object.prepare tests/request-preparation-service-v3.test.ts:25:72
+
+ ❯ tests/request-preparation-service-v3.test.ts:89:31
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/19]⎯
+
+ FAIL  tests/request-preparation-service-v3.test.ts > checks current account selection and model binding again after preview
+TypeError: service.prepareRequestContext is not a function
+ ❯ Object.prepare tests/request-preparation-service-v3.test.ts:25:72
+
+ ❯ tests/request-preparation-service-v3.test.ts:96:52
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/19]⎯
+
+ FAIL  tests/request-preparation-service-v3.test.ts > prevents token reuse while preserving a retry of the accepted command
+TypeError: service.prepareRequestContext is not a function
+ ❯ Object.prepare tests/request-preparation-service-v3.test.ts:25:72
+
+ ❯ tests/request-preparation-service-v3.test.ts:103:52
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/19]⎯
+
+ FAIL  tests/request-preparation-service-v3.test.ts > fails preparation before message admission when the trusted preparation hook fails
+AssertionError: promise resolved "{ …(3) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "commandId": "166a110f-8c1b-44a1-b984-bfac6d548506",
++   "eventSeq": 2,
++   "result": {
++     "inputId": "166a110f-8c1b-44a1-b984-bfac6d548506",
++     "messageId": "69f1e710-a7c3-45c6-acfb-b5d872a9cfdf",
++   },
+  }
+
+ ❯ tests/request-preparation-service-v3.test.ts:113:43
+    111| it('fails preparation before message admission when the trusted prepar…
+    112|   const f = await fixture({ requestContextHooks: { prepare() { throw E…
+    113|   await expect(f.message('Retained draft')).rejects.toThrow('Preparati…
+       |                                           ^
+    114|   expect(f.store.all('outbox')).toEqual([]);
+    115|   expect(f.starts).toEqual([]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/19]⎯
+
+ FAIL  tests/request-preparation-service-v3.test.ts > fails dispatch when the trusted finalization hook fails and retains the accepted input
+AssertionError: expected { …(14) } to match object { status: 'interrupted', …(1) }
+(12 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "error": "Final source check failed",
+-   "status": "interrupted",
++   "error": null,
++   "status": "working",
+  }
+
+ ❯ tests/request-preparation-service-v3.test.ts:121:64
+    119|   const f = await fixture({ requestContextHooks: { prepare() {}, final…
+    120|   await f.message('Accepted but not dispatched');
+    121|   await vi.waitFor(() => expect(f.service.thread(f.thread.id)).toMatch…
+       |                                                                ^
+    122|   expect(f.starts).toEqual([]);
+    123|   expect(f.store.all('outbox', f.thread.id)).toEqual([expect.objectCon…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/19]⎯
+
+ FAIL  tests/request-preparation-service-v3.test.ts > revalidates after asynchronous finalization when stop changes
+ FAIL  tests/request-preparation-service-v3.test.ts > revalidates after asynchronous finalization when note changes
+ FAIL  tests/request-preparation-service-v3.test.ts > revalidates after asynchronous finalization when grant changes
+ FAIL  tests/request-preparation-service-v3.test.ts > revalidates after asynchronous finalization when hook assertion changes
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/request-preparation-service-v3.test.ts:126:61
+    124| });
+    125|
+    126| it.each(['stop', 'note', 'grant', 'hook assertion'] as const)('revalid…
+       |                                                             ^
+    127|   let enter!: () => void, release!: () => void;
+    128|   const entered = new Promise<void>(done => { enter = done; }), gate =…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/19]⎯
+
+ FAIL  tests/request-preparation-service-v3.test.ts > dispatches queued token-bound follow-ups separately without losing later outbox inputs
+TypeError: service.prepareRequestContext is not a function
+ ❯ Object.prepare tests/request-preparation-service-v3.test.ts:25:72
+
+ ❯ tests/request-preparation-service-v3.test.ts:146:27
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/19]⎯
+
+ FAIL  tests/request-preparation-service-v3.test.ts > allocates default-send identity but leaves the default-off path unchanged
+AssertionError: expected undefined to be 1 // Object.is equality
+
+- Expected:
+1
+
++ Received:
+undefined
+
+ ❯ tests/request-preparation-service-v3.test.ts:163:63
+    161|   const enabled = await fixture(); await enabled.message('Automatic pr…
+    162|   await vi.waitFor(() => expect(enabled.starts).toHaveLength(1));
+    163|   expect(enabled.starts[0].requestContext?.contextGeneration).toBe(1);
+       |                                                               ^
+    164|   const hooks = { prepare: vi.fn(), finalize: vi.fn(() => ({ sources: …
+    165|   const disabled = await fixture({ requestContextEnabled: false, reque…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/19]⎯
+
+ FAIL  tests/request-preparation-service-v3.test.ts > rejects attached skills in preview exactly as the existing send path does
+TypeError: f.service.prepareRequestContext is not a function
+ ❯ tests/request-preparation-service-v3.test.ts:174:26
+    172| it('rejects attached skills in preview exactly as the existing send pa…
+    173|   const f = await fixture();
+    174|   await expect(f.service.prepareRequestContext(f.thread.id, 'Selected …
+       |                          ^
+    175|   await expect(f.send('message.send', { content: 'Selected skill', mod…
+    176|   expect(f.starts).toEqual([]);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/19]⎯
+
+ FAIL  tests/request-preparation-service-v3.test.ts > increments the durable owner generation after Service replacement and rejects the old token
+TypeError: service.prepareRequestContext is not a function
+ ❯ Object.prepare tests/request-preparation-service-v3.test.ts:25:72
+
+ ❯ tests/request-preparation-service-v3.test.ts:180:46
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/19]⎯
+
+ FAIL  tests/request-preparation-service-v3.test.ts > expires abandoned previews, calls cleanup, and never resurrects the same identity
+TypeError: service.prepareRequestContext is not a function
+ ❯ Object.prepare tests/request-preparation-service-v3.test.ts:25:72
+
+ ❯ tests/request-preparation-service-v3.test.ts:192:25
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/19]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  19 failed (19)
+   Start at  19:28:44
+   Duration  242.51s (transform 635ms, setup 0ms, import 896ms, tests 241.50s, environment 0ms)
+

@@ -1,0 +1,52 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/project-memory-service-v3.test.ts (4 tests | 4 failed) 122ms
+   × uses one shared host ProjectMemory authority for routes and Service lifecycle 24ms
+   × carries the same prepared memory request identity through actual Service send and final dispatch 27ms
+   × excludes an exact revision only from the same preparing token and never mutates captured prompt bytes 28ms
+   × includes M04 framing within the real 4 KiB MEMORY segment and eight-item limit 41ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/project-memory-service-v3.test.ts > uses one shared host ProjectMemory authority for routes and Service lifecycle
+AssertionError: expected undefined to be an instance of ProjectMemory
+ ❯ tests/project-memory-service-v3.test.ts:54:35
+     52| it('uses one shared host ProjectMemory authority for routes and Servic…
+     53|   const f = await fixture();
+     54|   expect(f.service.projectMemory).toBeInstanceOf(ProjectMemory);
+       |                                   ^
+     55|   expect(f.service.projectMemory).toBe(f.service.projectMemory);
+     56|   expect(f.service.projectMemory.read(await f.currentAccess())).toMatc…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  tests/project-memory-service-v3.test.ts > carries the same prepared memory request identity through actual Service send and final dispatch
+TypeError: service.prepareProjectMemory is not a function
+ ❯ Object.prepare tests/project-memory-service-v3.test.ts:35:70
+
+ ❯ tests/project-memory-service-v3.test.ts:61:28
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  tests/project-memory-service-v3.test.ts > excludes an exact revision only from the same preparing token and never mutates captured prompt bytes
+TypeError: service.prepareProjectMemory is not a function
+ ❯ Object.prepare tests/project-memory-service-v3.test.ts:35:70
+
+ ❯ tests/project-memory-service-v3.test.ts:76:29
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  tests/project-memory-service-v3.test.ts > includes M04 framing within the real 4 KiB MEMORY segment and eight-item limit
+TypeError: service.prepareProjectMemory is not a function
+ ❯ Object.prepare tests/project-memory-service-v3.test.ts:35:70
+
+ ❯ tests/project-memory-service-v3.test.ts:93:29
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed (4)
+   Start at  19:55:50
+   Duration  1.79s (transform 1.09s, setup 0ms, import 1.50s, tests 122ms, environment 0ms)

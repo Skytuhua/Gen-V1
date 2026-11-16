@@ -1,0 +1,349 @@
+{
+  "schemaVersion": 3,
+  "bundleId": "M11",
+  "baseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+  "sourceLockDigest": "33aa9ce066986db05a4df3fdfe404a494f8e608590c1f6d433af997e04f3b241",
+  "platform": "windows-x86_64",
+  "nodeVersion": "v24.22.2",
+  "packageManagerVersion": "10.30.3",
+  "phases": [
+    {
+      "id": "m11.core.observation-contract",
+      "status": "PASS",
+      "requiredCases": [
+        { "id": "stable-request-id-and-monotonic-stages", "status": "PASS", "evidence": "RequestMetrics stamps queued/acquired/runtimeReady/requestSent/firstProviderDelta/firstPublicDelta/settled/teardownConfirmed; ordering invariants asserted" },
+        { "id": "first-provider-bytes-not-user-visible", "status": "PASS", "evidence": "buffered output records no firstPublicDelta until content is committed to the wire; absent stays null" },
+        { "id": "absent-does-not-mean-zero", "status": "PASS", "evidence": "nullable token/cost fields remain null when the adapter does not report them" },
+        { "id": "cancelled-outcome-retains-custody", "status": "PASS", "evidence": "aborted request finishes once with outcome cancelled and teardownConfirmed" },
+        { "id": "finish-exactly-once", "status": "PASS", "evidence": "RequestMetrics.finish returns a single frozen observation; first mark wins" }
+      ],
+      "commands": [
+        {
+          "argv": ["pnpm", "exec", "vitest", "run", "tests/model-transport-v3.test.ts"],
+          "cwdIdentity": "isolated M11 worktree C:\\Users\\Administrator\\repos\\Gen-V1-m11",
+          "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies",
+          "startedAt": "2026-11-15T10:29:27Z",
+          "endedAt": "2026-11-15T10:29:28Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/logs/m11-vitest.log",
+          "logDigest": "625919eab3cb112c78fe5efebf263195057dd358d3a0e7585a4bb298238810c6"
+        }
+      ],
+      "artifactRefs": ["docs/implementation/v3/logs/m11-red-fixtures.log", "docs/implementation/v3/logs/m11-vitest.log"]
+    },
+    {
+      "id": "m11.core.capabilities",
+      "status": "PASS",
+      "requiredCases": [
+        { "id": "asserted-not-inferred", "status": "PASS", "evidence": "assertCapabilities requires an explicit reason for every unsupported capability; nothing is inferred from a model name" },
+        { "id": "proofref-required", "status": "PASS", "evidence": "hermesModelTransportCapabilities carries proofRef to the asserting tests" }
+      ],
+      "commands": [
+        {
+          "argv": ["pnpm", "exec", "vitest", "run", "tests/model-transport-v3.test.ts"],
+          "cwdIdentity": "isolated M11 worktree C:\\Users\\Administrator\\repos\\Gen-V1-m11",
+          "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies",
+          "startedAt": "2026-11-15T10:29:27Z",
+          "endedAt": "2026-11-15T10:29:28Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/logs/m11-vitest.log",
+          "logDigest": "625919eab3cb112c78fe5efebf263195057dd358d3a0e7585a4bb298238810c6"
+        }
+      ],
+      "artifactRefs": ["docs/implementation/v3/logs/m11-vitest.log"]
+    },
+    {
+      "id": "m11.core.scheduling-and-budget",
+      "status": "PASS",
+      "requiredCases": [
+        { "id": "foreground-passes-queued-idle", "status": "PASS", "evidence": "foreground request jumps ahead of queued background waiters but never steals an active permit" },
+        { "id": "bounded-aging", "status": "PASS", "evidence": "background waiter promoted to foreground rank after agingMs; per-account limit retained" },
+        { "id": "queue-delay-recording-and-queued-cancellation", "status": "PASS", "evidence": "queued wait cancelled via AbortSignal rejects MODEL_REQUEST_CANCELLED; queue delays bounded-recorded" },
+        { "id": "budget-before-dispatch", "status": "PASS", "evidence": "RequestBudget.admit throws MODEL_BUDGET_EXCEEDED before dispatch; reconcile counts only measured spend; missing pricing reconciles to tokens/calls, never invented dollars" }
+      ],
+      "commands": [
+        {
+          "argv": ["pnpm", "exec", "vitest", "run", "tests/model-scheduling-v3.test.ts"],
+          "cwdIdentity": "isolated M11 worktree C:\\Users\\Administrator\\repos\\Gen-V1-m11",
+          "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies",
+          "startedAt": "2026-11-15T10:29:27Z",
+          "endedAt": "2026-11-15T10:29:28Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/logs/m11-vitest.log",
+          "logDigest": "625919eab3cb112c78fe5efebf263195057dd358d3a0e7585a4bb298238810c6"
+        }
+      ],
+      "artifactRefs": ["docs/implementation/v3/logs/m11-red-fixtures.log", "docs/implementation/v3/logs/m11-vitest.log"]
+    },
+    {
+      "id": "m11.core.stateless-pool-experiment",
+      "status": "PASS",
+      "requiredCases": [
+        { "id": "exact-key-match", "status": "PASS", "evidence": "take only serves the identical warmTransportKeyId; a different accountId returns null" },
+        { "id": "owner-state-cleared", "status": "PASS", "evidence": "transport.reset() awaited before a pooled transport is handed out" },
+        { "id": "idle-expiry-60s", "status": "PASS", "evidence": "pooled transport expires after STATELESS_IDLE_EXPIRY_MS and is closed" },
+        { "id": "invalidate-on-change", "status": "PASS", "evidence": "invalidate(key) closes the pooled transport; busy transports are never pooled" },
+        { "id": "two-accounts-two-threads-isolation", "status": "PASS", "evidence": "two accounts x two threads against recording fake transports: each take resolves exactly its own (account, thread) slot and recorded inputs never cross" },
+        { "id": "warm-key-canonical-identity", "status": "PASS", "evidence": "warmTransportKeySchema requires a hex configDigest; warmTransportKeyId is canonical" },
+        { "id": "task-role-routing-static-only", "status": "PASS", "evidence": "resolveNewTaskProfile only resolves operator-approved static mappings; unknown role and unavailable model throw" }
+      ],
+      "commands": [
+        {
+          "argv": ["pnpm", "exec", "vitest", "run", "tests/model-scheduling-v3.test.ts"],
+          "cwdIdentity": "isolated M11 worktree C:\\Users\\Administrator\\repos\\Gen-V1-m11",
+          "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies",
+          "startedAt": "2026-11-15T10:29:27Z",
+          "endedAt": "2026-11-15T10:29:28Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/logs/m11-vitest.log",
+          "logDigest": "625919eab3cb112c78fe5efebf263195057dd358d3a0e7585a4bb298238810c6"
+        }
+      ],
+      "artifactRefs": ["docs/implementation/v3/logs/m11-vitest.log"]
+    },
+    {
+      "id": "m11.integration.broker-instrumentation",
+      "status": "PASS",
+      "requiredCases": [
+        { "id": "per-request-observation", "status": "PASS", "evidence": "broker builds a RequestMetrics per request, marks stages through acquire/ready/send/firstProviderDelta/settled/teardown and exposes it via $transport.observation" },
+        { "id": "scheduler-and-budget-wired", "status": "PASS", "evidence": "broker admits budget before dispatch and routes capacity waits through RequestScheduler unless an external scheduler is supplied" },
+        { "id": "worker-receives-observation", "status": "PASS", "evidence": "worker.py appends the broker observation into native_usage after the response settles" },
+        { "id": "flag-gated-publish", "status": "PASS", "evidence": "service persists model.observation entities only when models.requestMetricsV1 is enabled and the owner thread/run matches" }
+      ],
+      "commands": [
+        {
+          "argv": ["pnpm", "typecheck"],
+          "cwdIdentity": "isolated M11 worktree C:\\Users\\Administrator\\repos\\Gen-V1-m11",
+          "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies",
+          "startedAt": "2026-11-15T10:30:30Z",
+          "endedAt": "2026-11-15T10:31:00Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/logs/m11-typecheck.log",
+          "logDigest": "f60acf446ec220999ecda5f3e636dc6af167d4b65446bc21d3d19e53638aa1f8"
+        }
+      ],
+      "artifactRefs": ["docs/implementation/v3/logs/m11-typecheck.log"]
+    },
+    {
+      "id": "m11.integration.usage-accounting",
+      "status": "PASS",
+      "requiredCases": [
+        { "id": "cache-fields-round-trip", "status": "PASS", "evidence": "cacheReadTokens/cacheWriteTokens carried adapter->broker->usage->RuntimeUsage->usage-presentation without double counting" },
+        { "id": "absent-stays-unknown", "status": "PASS", "evidence": "absent cache fields never surface as zero and are never folded into inputTokens" },
+        { "id": "zero-distinct-from-absent", "status": "PASS", "evidence": "measured zero remains distinguishable from unreported" },
+        { "id": "schema-rejects-fabrication", "status": "PASS", "evidence": "observation schema rejects extra fields, negative counts, unknown outcomes and unknown phases" }
+      ],
+      "commands": [
+        {
+          "argv": ["pnpm", "exec", "vitest", "run", "tests/usage-accounting-v3.test.ts"],
+          "cwdIdentity": "isolated M11 worktree C:\\Users\\Administrator\\repos\\Gen-V1-m11",
+          "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies",
+          "startedAt": "2026-11-15T10:29:27Z",
+          "endedAt": "2026-11-15T10:29:28Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/logs/m11-vitest.log",
+          "logDigest": "625919eab3cb112c78fe5efebf263195057dd358d3a0e7585a4bb298238810c6"
+        }
+      ],
+      "artifactRefs": ["docs/implementation/v3/logs/m11-vitest.log"]
+    },
+    {
+      "id": "m11.integration.ui-surface",
+      "status": "PASS",
+      "requiredCases": [
+        { "id": "usage-dialog-requests-tab", "status": "PASS", "evidence": "Requests tab renders per-request cards (model, provider, outcome badge, phase), a stage-timing chip strip with '—' for unmeasured stages, metrics strip and recorded errors, newest request first; Queued shows the admission clock time; tab placed after Limits so existing keyboard navigation is preserved (regression found and fixed)" },
+        { "id": "tokens-tab-cache-rows", "status": "PASS", "evidence": "Tokens tab reports cache read/write rows" },
+        { "id": "foreground-status-labels", "status": "PASS", "evidence": "working status distinguishes Queued for account / Starting runtime / Generating / Running tool / Cleaning up / Compacting context" },
+        { "id": "new-task-profile-picker", "status": "PASS", "evidence": "model picker shows 'Applies to new tasks' scope hint and 'Start new task with profile' action; existing conversation keeps its binding" },
+        { "id": "browser-suites", "status": "PASS", "evidence": "usage-context 21/21 pass including a Requests-tab spec; usage-app-integration, model-picker, compact-model-picker and composer-press failures are byte-identical on the pristine main checkout (baseline/environmental)" },
+        { "id": "root-baseline-parity", "status": "PASS", "evidence": "root browser suite run on the worktree (79 suites, 57 failed) and on pristine base fcaa52f (79 suites, the same 56 failed): identical failure sets (environmental/baseline); the single extra failure (code-review-workspace) passed 57/57 on isolated re-run — verified flake, no browser regression attributable to M11" }
+      ],
+      "commands": [
+        {
+          "argv": ["pnpm", "test:browser", "--suite", "usage-context"],
+          "cwdIdentity": "isolated M11 worktree C:\\Users\\Administrator\\repos\\Gen-V1-m11",
+          "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies; Playwright chromium",
+          "startedAt": "2026-11-15T10:26:00Z",
+          "endedAt": "2026-11-15T10:26:30Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/logs/m11-browser.log",
+          "logDigest": "76e7c2f6bf2c7395973893cec710fba4f6707ce1919b539a309cbbf8ec75f0e3"
+        },
+        {
+          "argv": ["pnpm", "build"],
+          "cwdIdentity": "isolated M11 worktree C:\\Users\\Administrator\\repos\\Gen-V1-m11",
+          "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies",
+          "startedAt": "2026-11-15T10:32:00Z",
+          "endedAt": "2026-11-15T10:32:30Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/logs/m11-build.log",
+          "logDigest": "f2f3b92a2896fe92884808e50dbbbd417444ca4717332960330acf736d01204b"
+        },
+        {
+          "argv": ["pnpm", "test:browser"],
+          "cwdIdentity": "isolated M11 worktree C:\\Users\\Administrator\\repos\\Gen-V1-m11 and pristine base checkout C:\\Users\\Administrator\\repos\\Gen-V1",
+          "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies; Playwright chromium",
+          "startedAt": "2026-11-15T10:35:00Z",
+          "endedAt": "2026-11-15T14:30:00Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "BLOCKED",
+          "boundedLogRef": "docs/implementation/v3/logs/m11-browser-root-baseline.log",
+          "logDigest": "59babbb0c8ed6a00de54d7982af8dc8c1353faa284a93bcbe53de591b8e5a098"
+        }
+      ],
+      "artifactRefs": ["docs/implementation/v3/logs/m11-browser.log", "docs/implementation/v3/logs/m11-build.log", "docs/implementation/v3/logs/m11-browser-root-baseline.log"]
+    },
+    {
+      "id": "m11.platform.full-suite",
+      "status": "BLOCKED",
+      "requiredCases": [
+        { "id": "baseline-classified-failures", "status": "PASS", "evidence": "all 57 full-suite failures re-run or pattern-matched on the pristine origin/main checkout: account-parity (11), runtime-router (1), integration-host (1), hermes-original-integration (1) verified identical on main; the remainder are environment failures (Python source worker, node-pty, MSVC) that cannot run on this box" }
+      ],
+      "commands": [
+        {
+          "argv": ["pnpm", "test:no-lease"],
+          "cwdIdentity": "isolated M11 worktree C:\\Users\\Administrator\\repos\\Gen-V1-m11",
+          "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies",
+          "startedAt": "2026-11-15T10:00:00Z",
+          "endedAt": "2026-11-15T10:12:00Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "BLOCKED",
+          "boundedLogRef": "docs/implementation/v3/logs/m11-full-suite.log",
+          "logDigest": "e9731ed12d94c6fa611ea3165e6ac8ceb319206442389b971ef1e952e37ffd50"
+        }
+      ],
+      "artifactRefs": ["docs/implementation/v3/logs/m11-full-suite.log"]
+    },
+    {
+      "id": "m11.platform.paired-benchmark",
+      "status": "BLOCKED",
+      "requiredCases": [
+        { "id": "cold-vs-repeated-identical-context", "status": "NOT_RUN", "evidence": "the paired cold-vs-warm benchmark requires live provider credentials; no authorized --host/--model exists for the eval runner so any live number would be MANIFEST_ONLY — not executed per spec" }
+      ],
+      "commands": [],
+      "artifactRefs": []
+    },
+    {
+      "id": "m11.platform.public-streaming",
+      "status": "BLOCKED",
+      "requiredCases": [
+        { "id": "real-source-parser-integration", "status": "NOT_RUN", "evidence": "public streaming stays behind models.publicStreamingV1 (off); the native adapter reports supportsStreaming=false with a reason, so no parser-approved public delta path exists to ship" }
+      ],
+      "commands": [],
+      "artifactRefs": []
+    },
+    {
+      "id": "m11.platform.live-pooling",
+      "status": "BLOCKED",
+      "requiredCases": [
+        { "id": "adapter-proof-required", "status": "NOT_RUN", "evidence": "stateless pooling primitives are unit-verified but a live adapter proof is absent (supportsStatelessReuse=false); models.statelessPoolExperimentV1 stays off and no live warm transport is enabled" }
+      ],
+      "commands": [],
+      "artifactRefs": []
+    },
+    {
+      "id": "m11.prereq.m04",
+      "status": "PASS",
+      "requiredCases": [
+        { "id": "m04-on-merged-head", "status": "PASS", "evidence": "M04 core request custody landed on main at b4281a4 / merge 9d4a514 during this session and was merged into the branch (b6dd091): request-context contracts, context-compiler and request-custody are present with reviewed evidence docs/implementation/v3/M04-core-verification.json; merged tree passes M04 contract tests (context-compiler-v3, request-preparation-service-v3) plus the M11 suites, 55/55" }
+      ],
+      "commands": [
+        {
+          "argv": ["pnpm", "exec", "vitest", "run", "tests/model-transport-v3.test.ts", "tests/model-scheduling-v3.test.ts", "tests/usage-accounting-v3.test.ts", "tests/context-compiler-v3.test.ts", "tests/request-preparation-service-v3.test.ts"],
+          "cwdIdentity": "isolated M11 worktree C:\\Users\\Administrator\\repos\\Gen-V1-m11",
+          "executableIdentity": "Node v24.22.2; locked pnpm 10.30.3 dependencies",
+          "startedAt": "2026-11-15T11:54:00Z",
+          "endedAt": "2026-11-15T11:54:05Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/logs/m11-m04-merge-vitest.log",
+          "logDigest": "d6e451825efe6011b59e8a5f153754fdd8a7708c88afa4f7c4369f87fee573eb"
+        }
+      ],
+      "artifactRefs": ["docs/implementation/v3/logs/m11-m04-merge-vitest.log"]
+    }
+  ],
+  "changedFiles": [
+    "apps/server/server.ts",
+    "apps/web/src/App.tsx",
+    "apps/web/src/ComposerToolbar.tsx",
+    "apps/web/src/ModelPicker.tsx",
+    "apps/web/src/UsageDialog.tsx",
+    "apps/web/src/model-picker.css",
+    "apps/web/src/snapshot-events.ts",
+    "apps/web/src/usage-dialog.css",
+    "apps/web/src/usage-presentation.ts",
+    "packages/contracts/index.ts",
+    "packages/contracts/model-request.ts",
+    "packages/runtime/model-capacity.ts",
+    "packages/core/capability-flags.ts",
+    "packages/core/service.ts",
+    "packages/runtime/request-capabilities.ts",
+    "packages/runtime/request-metrics.ts",
+    "packages/runtime/request-scheduler.ts",
+    "packages/runtime-hermes/acp-server.ts",
+    "packages/runtime-hermes/broker.ts",
+    "packages/runtime-hermes/index.ts",
+    "packages/runtime-hermes/worker.py",
+    "packages/storage/store.ts",
+    "scripts/public-source-files.json",
+    "tests/e2e/usage-context-fixture.tsx",
+    "tests/e2e/usage-context.spec.ts",
+    "tests/hermes_source_worker.py",
+    "tests/model-scheduling-v3.test.ts",
+    "tests/model-transport-v3.test.ts",
+    "tests/usage-accounting-v3.test.ts",
+    "docs/implementation/v3/M11-source-lock.json",
+    "docs/implementation/v3/M11-verification.json",
+    "docs/implementation/v3/logs/m11-browser.log",
+    "docs/implementation/v3/logs/m11-browser-root-baseline.log",
+    "docs/implementation/v3/logs/m11-build.log",
+    "docs/implementation/v3/logs/m11-full-suite.log",
+    "docs/implementation/v3/logs/m11-m04-merge-vitest.log",
+    "docs/implementation/v3/logs/m11-red-fixtures.log",
+    "docs/implementation/v3/logs/m11-typecheck.log",
+    "docs/implementation/v3/logs/m11-vitest.log"
+  ],
+  "dependencyContracts": [
+    { "name": "M01", "version": "465bbb9d5d11adf0f7a1f2cf6c07dc8668e6491d", "testIds": ["docs/implementation/v3/M01-verification.json"] },
+    { "name": "M02", "version": "41f7fc679f4e9bcbc48ac089e179cec34bb8fe8b", "testIds": ["docs/implementation/v3/M02-verification.json"] },
+    { "name": "M04", "version": "9d4a5141173f54f0f47ff70dcc5167a5c781389e", "testIds": ["docs/implementation/v3/M04-core-verification.json"] }
+  ],
+  "flags": [
+    { "key": "models.requestMetricsV1", "enabled": false },
+    { "key": "models.publicStreamingV1", "enabled": false },
+    { "key": "models.statelessPoolExperimentV1", "enabled": false },
+    { "key": "models.newTaskProfilesV1", "enabled": false }
+  ],
+  "remainingGates": [
+    "M04 core request custody merged into the branch at b6dd091 (main b4281a4 / PR #351): prereq verified present with contract tests green; any deeper context-dependent integration beyond the M11 scope remains for the M05-dependent milestone",
+    "models.publicStreamingV1 stays off: public streaming requires a real source parser integration; the buffered path records firstPublicDelta only when output is committed",
+    "models.statelessPoolExperimentV1 stays off: live pooling requires an adapter proof (supportsStatelessReuse=false today); enabling needs cold-start justification, exact request semantics and the 60s idle expiry already implemented",
+    "models.newTaskProfilesV1 stays off: task-role routing requires an operator-approved static mapping before dispatch",
+    "the paired cold-vs-repeated identical-context benchmark needs live provider credentials; the eval runner without authorized --host/--model is MANIFEST_ONLY by spec and was not executed",
+    "the perf comparison view ships only with that paired benchmark evidence; small samples would be labelled exploratory",
+    "models.requestMetricsV1 gates only the publish path; instrumentation runs unconditionally, so enabling metrics later requires no redeploy of the broker",
+    "full-suite parity on this box is blocked by environmental failures verified identical on main (Python source worker, node-pty, MSVC); hermes custody tests cannot run here",
+    "rollback: disabling pooling/streaming/routing independently returns to fresh-request transport; observations and account leases are preserved through teardown"
+  ],
+  "reviewerApproval": false
+}

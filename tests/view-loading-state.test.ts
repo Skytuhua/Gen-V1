@@ -8,8 +8,8 @@ import React, {useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {flushSync} from 'react-dom';
 import {LoadingState} from './apps/web/src/LoadingState';
-import {WorkspaceSkeleton, AgentsSkeleton, ReviewWorkspaceSkeleton, SettingsSkeleton} from './apps/web/src/ViewSkeletons';
-const skeletons = {workspace: WorkspaceSkeleton, agents: AgentsSkeleton, review: ReviewWorkspaceSkeleton, settings: SettingsSkeleton};
+import {WorkspaceSkeleton, AgentsSkeleton, SettingsSkeleton} from './apps/web/src/ViewSkeletons';
+const skeletons = {workspace: WorkspaceSkeleton, agents: AgentsSkeleton, settings: SettingsSkeleton};
 function Fixture() {
  const [pending, setPending] = useState(true), [loaded, setLoaded] = useState(false);
  window.resolveLoad = () => flushSync(() => {setLoaded(true); setPending(false);});
@@ -26,8 +26,7 @@ flushSync(() => createRoot(document.getElementById('root')).render(<Fixture/>));
 type FixtureWindow = Window & {view: string; resolveLoad(): void; refresh(): void; finish(): void; retained?: Element};
 const views = {
   workspace: ['.sidebar', '.workspace-header', '.loading-conversation', '.composer-dock .loading-composer'],
-  agents: ['.agents-project-header', '.agents-parent-strip', '.agents-transcript', '.agents-children'],
-  review: ['.cr-toolbar', '.cr-files', '.cr-diff .cr-patch', '.cr-context .cr-draft'],
+  agents: ['.agents-project-header', '.agents-agent-grid', '.agents-transcript', '.agents-children'],
   settings: ['.settings-navigation', '.settings-page-heading', '.settings-row-copy', '.settings-row'],
 };
 async function expectStableBox(locator: Locator, before: Awaited<ReturnType<Locator['boundingBox']>>) {
@@ -41,7 +40,7 @@ describe('structure-matched first-load feedback', () => {
   beforeAll(async () => {
     script = (await build({stdin: {contents: fixture, resolveDir: process.cwd(), loader: 'tsx'}, bundle: true, write: false, format: 'iife', platform: 'browser', jsx: 'automatic', define: {'process.env.NODE_ENV': '"production"'}, loader: {'.css': 'empty'}})).outputFiles[0]!.text;
     css = (await readFile('apps/web/src/styles.css', 'utf8')).replace(/^@import[^;]+;/, await readFile('packages/ui-shell/tokens.css', 'utf8'));
-    for (const path of ['shell.css', 'settings.css', 'workspace-host.css', 'agents-workspace/agents-workspace.css', 'code-review-workspace/code-review-workspace.css', 'loading-state.css']) css += (await readFile('apps/web/src/' + path, 'utf8')).replace(/^@import[^;]+;/, '');
+    for (const path of ['shell.css', 'settings.css', 'workspace-host.css', 'agents-workspace/agents-workspace.css', 'loading-state.css']) css += (await readFile('apps/web/src/' + path, 'utf8')).replace(/^@import[^;]+;/, '');
     browser = await chromium.launch({headless: true, ...(process.platform === 'win32' ? {channel: 'msedge'} : {})});
   });
   afterAll(async () => {await browser?.close();});
@@ -88,12 +87,6 @@ describe('structure-matched first-load feedback', () => {
         const narrative = await skeleton.locator('.loading-conversation').boundingBox(), composer = await skeleton.locator('.loading-composer').boundingBox();
         expect(narrative!.x).toBe(composer!.x); expect(narrative!.width).toBe(composer!.width);
         expect((await skeleton.locator('.sidebar').boundingBox())!.width).toBe(248);
-      }
-      if (view === 'review') {
-        const files = await skeleton.locator('.cr-files').boundingBox(), diff = await skeleton.locator('.cr-diff').boundingBox(), context = await skeleton.locator('.cr-context').boundingBox();
-        expect(diff!.x).toBeGreaterThan(files!.x + files!.width);
-        if (width === 1440) expect(context!.x).toBeGreaterThan(diff!.x + diff!.width);
-        else expect(context!.y).toBeGreaterThan(diff!.y + diff!.height);
       }
       await page.evaluate(() => (window as unknown as FixtureWindow).resolveLoad());
       const input = page.getByRole('textbox', {name: 'Retained draft'}); await input.waitFor();

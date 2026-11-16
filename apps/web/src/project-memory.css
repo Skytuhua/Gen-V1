@@ -1,0 +1,41 @@
+.project-memory-launcher {padding:8px 12px;border-top:1px solid var(--border);}
+.project-memory-launcher>button {width:100%;text-align:left;padding:7px 8px;font-size:13px;border-radius:7px;}
+.project-memory-review {width:min(820px,calc(100vw - 24px));max-width:calc(100vw - 24px);max-height:calc(100dvh - 24px);padding:0;color:var(--text);background:var(--surface);}
+.project-memory-review>.ui-modal-header {padding:16px 16px 0;margin-bottom:0;}
+.project-memory-body {padding:16px;overflow:auto;min-height:0;overscroll-behavior:contain;font-size:13px;line-height:1.5;}
+.project-memory-body :is(p,h3) {margin:0 0 8px;overflow-wrap:anywhere;}
+.project-memory-body h3 {font-size:14px;}
+.project-memory-heading,.project-memory-row>header,.project-memory-detail>header {display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.project-memory-heading>div {min-width:0;}
+.project-memory-heading p,.project-memory-caption,.project-memory-row>header>span {color:var(--muted);font-size:12px;}
+.project-memory-actions {display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+.project-memory-body button {min-height:32px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font:inherit;color:var(--text);background:var(--surface);}
+.project-memory-body button:hover:not(:disabled) {background:var(--hover);}
+.project-memory-body button:disabled {opacity:.55;cursor:default;}
+.project-memory-body :is(button,input,textarea,summary):focus-visible {outline:2px solid var(--accent);outline-offset:2px;}
+.project-memory-body .project-memory-danger {color:var(--danger);}
+.project-memory-consent {margin:14px 0;padding:12px;background:var(--subtle);border:1px solid var(--border);border-radius:8px;}
+.project-memory-consent summary {cursor:pointer;margin:4px 0 8px;}
+.project-memory-body fieldset {margin:8px 0 12px;padding:10px;border:1px solid var(--border);border-radius:6px;min-width:0;}
+.project-memory-body legend {padding:0 5px;}
+.project-memory-body fieldset label {display:flex;gap:8px;align-items:flex-start;margin:5px 0;overflow-wrap:anywhere;}
+.project-memory-body fieldset input {flex:none;margin-top:3px;}
+.project-memory-tabs {display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:8px;margin:12px 0;}
+.project-memory-tabs [aria-selected="true"] {background:var(--selection-bg);border-color:var(--accent);}
+.project-memory-row {padding:14px 0;border-bottom:1px solid var(--border);}
+.project-memory-text {white-space:pre-wrap;overflow-wrap:anywhere;}
+.project-memory-metadata {display:grid;grid-template-columns:90px minmax(0,1fr);gap:5px 12px;margin:10px 0;font-size:12px;}
+.project-memory-metadata dt {color:var(--muted);}
+.project-memory-metadata dd {margin:0;min-width:0;overflow-wrap:anywhere;}
+.project-memory-source {display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;}
+.project-memory-source button {padding:3px 7px;font-size:12px;}
+.project-memory-empty {padding:18px 0;color:var(--muted);}
+.project-memory-detail {margin:16px 0 0;padding:14px;border:1px solid var(--border);border-radius:8px;background:var(--subtle);}
+.project-memory-detail>label,.project-memory-conflict>label {display:grid;gap:5px;margin:10px 0;}
+.project-memory-body :is(textarea,input[type="datetime-local"]) {box-sizing:border-box;width:100%;min-width:0;padding:9px;border:1px solid var(--border);border-radius:6px;background:var(--input-bg,var(--surface));color:var(--text);font:inherit;}
+.project-memory-body textarea {resize:vertical;}
+.project-memory-detail pre {white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;max-height:320px;overflow:auto;}
+.project-memory-digest {font-size:11px;color:var(--muted);overflow-wrap:anywhere;}
+.project-memory-conflict fieldset>div+div {border-top:1px solid var(--border);padding-top:10px;margin-top:10px;}
+.project-memory-notice {padding:8px 10px;background:var(--subtle);border-radius:6px;}
+@media(max-width:480px) {.project-memory-body {padding:12px;}.project-memory-tabs {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));}.project-memory-tabs button {min-width:0;}.project-memory-metadata {grid-template-columns:70px minmax(0,1fr);gap:5px 8px;}}

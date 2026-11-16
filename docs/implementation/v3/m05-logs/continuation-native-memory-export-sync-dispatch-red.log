@@ -1,0 +1,71 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ↓ tests/desktop-memory-export.test.ts > keeps an ordinary download denied without an explicit memory export request
+ ↓ tests/desktop-memory-export.test.ts > admits canonical main-owned JSON once and acknowledges only a completed native save
+ ↓ tests/desktop-memory-export.test.ts > allows the owning detached {"kind":"thread","threadId":"thread-a"} surface
+ ↓ tests/desktop-memory-export.test.ts > allows the owning detached {"kind":"plan","threadId":"thread-a"} surface
+ ↓ tests/desktop-memory-export.test.ts > allows the owning detached {"kind":"workspace","threadId":"thread-a","tab":"context"} surface
+ ↓ tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"plugin","pluginId":"plugin-a","scopeId":"scope-a","surfaceId":"view-a"}
+ ↓ tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"browser","browserId":"browser-a"}
+ ↓ tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"navigation"}
+ ↓ tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"usage","threadId":"thread-a"}
+ ↓ tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"thread","threadId":"foreign"}
+ ↓ tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"plan","threadId":"foreign"}
+ ↓ tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"workspace","threadId":"foreign","tab":"context"}
+ ↓ tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"workspace","tab":"context"}
+ ↓ tests/desktop-memory-export.test.ts > does not consume the permit for a foreign origin
+ ↓ tests/desktop-memory-export.test.ts > does not consume the permit for a foreign url
+ ↓ tests/desktop-memory-export.test.ts > does not consume the permit for a foreign filename
+ ↓ tests/desktop-memory-export.test.ts > does not consume the permit for a foreign chain
+ ↓ tests/desktop-memory-export.test.ts > does not consume the permit for a foreign frame
+ ↓ tests/desktop-memory-export.test.ts > does not consume the permit for a foreign contents
+ ↓ tests/desktop-memory-export.test.ts > refuses a changed live owner before a pending native download is admitted
+ ↓ tests/desktop-memory-export.test.ts > revokes a pending export on navigation
+ ↓ tests/desktop-memory-export.test.ts > revokes a pending export on destroyed
+ ↓ tests/desktop-memory-export.test.ts > revokes a pending export on replacement frame
+ ↓ tests/desktop-memory-export.test.ts > expires an unused grant and never authorizes a late matching download
+ ↓ tests/desktop-memory-export.test.ts > cancels a hung admitted save within its separate completion bound
+ ↓ tests/desktop-memory-export.test.ts > reports native cancellation without claiming the file was saved
+ ↓ tests/desktop-memory-export.test.ts > refuses to acknowledge a completed export after interrupted
+ ↓ tests/desktop-memory-export.test.ts > refuses to acknowledge a completed export after short bytes
+ ↓ tests/desktop-memory-export.test.ts > revokes the grant when fixed-script execution fails
+ × tests/desktop-memory-export.test.ts > cleans native authority immediately when script dispatch throws synchronously 122ms
+   → expected 1 to be +0 // Object.is equality
+ ↓ tests/desktop-memory-export.test.ts > does not replace a live export with a second same-window request
+ ↓ tests/desktop-memory-export.test.ts > bounds active exports across windows and releases capacity after terminal cancellation
+ ↓ tests/desktop-memory-export.test.ts > cancels an admitted native download when its owning document is destroyed
+ ↓ tests/desktop-memory-export.test.ts > rejects invalid or unredacted input before creating a grant
+ ↓ tests/desktop-memory-export.test.ts > rejects invalid or unredacted input before creating a grant
+ ↓ tests/desktop-memory-export.test.ts > rejects invalid or unredacted input before creating a grant
+ ↓ tests/desktop-memory-export.test.ts > rejects invalid or unredacted input before creating a grant
+ ↓ tests/desktop-memory-export.test.ts > rejects invalid or unredacted input before creating a grant
+ ↓ tests/desktop-memory-export.test.ts > bounds UTF-8 input before JSON parsing or script execution
+ ↓ tests/desktop-memory-export.test.ts > supports the full schema with escaped control text without a one-megabyte truncation
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/desktop-memory-export.test.ts > cleans native authority immediately when script dispatch throws synchronously
+AssertionError: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ tests/desktop-memory-export.test.ts:151:30
+    149|   f.contents.executeJavaScriptInIsolatedWorld = () => {throw Error('Na…
+    150|   expect((await f.request()).error?.message).toContain('Native dispatc…
+    151|   expect(vi.getTimerCount()).toBe(0); expect(f.contents.listenerCount(…
+       |                              ^
+    152|   expect(f.download().event.preventDefault).toHaveBeenCalledOnce();
+    153| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 39 skipped (40)
+   Start at  03:34:19
+   Duration  379ms (transform 89ms, setup 0ms, import 56ms, tests 123ms, environment 0ms)

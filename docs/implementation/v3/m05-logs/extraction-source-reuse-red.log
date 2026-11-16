@@ -1,0 +1,273 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/memory-source-reuse-v3.test.ts (12 tests | 11 failed) 183ms
+   × reuses the original immutable capture across unchanged settled-cut retries without extra source copies or events 25ms
+   × reuses exact captures even at the retained-source limit 51ms
+   × captures a new exact revision when source evidence changes: {"content":"Use PostgreSQL for project persistence."} 26ms
+   × captures a new exact revision when source evidence changes: {"createdAt":"2020-01-01T00:00:00.000Z"} 11ms
+   × captures a new exact revision when source evidence changes: {"role":"assistant"} 5ms
+   × keeps identical text from different message IDs and approved source owners distinct 9ms
+   × does not reuse a prior account capture after the source thread changes account ownership 6ms
+   × reuses only the original authorized FILE capture and its exact private grant metadata 11ms
+   × creates a fresh FILE reference after an authorized content change 8ms
+   × creates a fresh FILE reference after an authorized grant change 7ms
+   × creates a fresh FILE reference after an authorized physical change 8ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 11 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-source-reuse-v3.test.ts > reuses the original immutable capture across unchanged settled-cut retries without extra source copies or events
+AssertionError: expected { ownerThreadId: 'thread', …(6) } to deeply equal { ownerThreadId: 'thread', …(6) }
+
+- Expected
++ Received
+
+@@ -1,7 +1,7 @@
+  {
+-   "capturedSeq": 4,
++   "capturedSeq": 6,
+    "digest": "4a55c04ba4b6ce663d4dcfdd2c192153bfee03bdf6463882b71607c65ebf7fb9",
+    "observedStatus": "REPORTED",
+    "ownerThreadId": "thread",
+    "sourceId": "source",
+    "sourceKind": "MESSAGE",
+
+ ❯ tests/memory-source-reuse-v3.test.ts:21:54
+     19|  const sequence=f.store.sequence;
+     20|  for(let n=0;n<4;n++){
+     21|   expect(f.memory.captureMessage(f.access,'source')).toEqual(f.ref);
+       |                                                      ^
+     22|   expect(f.memory.extractionCut(f.access,{threadId:'thread',runId:'run…
+     23|  }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/11]⎯
+
+ FAIL  tests/memory-source-reuse-v3.test.ts > reuses exact captures even at the retained-source limit
+HarnessError: The retained source limit was reached.
+ ❯ fail packages/core/project-memory.ts:25:72
+     23| const stamp = () => new Date().toISOString();
+     24| const sha256 = (text: string) => createHash('sha256').update(text, 'ut…
+     25| function fail(message: string, code = 'INVALID_MEMORY'): never { throw…
+       |                                                                        ^
+     26|
+     27| function checkedText(text: string): string {
+ ❯ ProjectMemory.saveSource packages/core/project-memory.ts:239:24
+ ❯ ProjectMemory.captureMessage packages/core/project-memory.ts:248:17
+ ❯ tests/memory-source-reuse-v3.test.ts:30:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/11]⎯
+
+ FAIL  tests/memory-source-reuse-v3.test.ts > captures a new exact revision when source evidence changes: {"content":"Use PostgreSQL for project persistence."}
+AssertionError: expected { ownerThreadId: 'thread', …(6) } to deeply equal { ownerThreadId: 'thread', …(6) }
+
+- Expected
++ Received
+
+@@ -1,7 +1,7 @@
+  {
+-   "capturedSeq": 6,
++   "capturedSeq": 7,
+    "digest": "6d50f8a5fad7a72a729ca7504694ab1aa292f33397ec1e6b2a839bcd25ebc5d9",
+    "observedStatus": "REPORTED",
+    "ownerThreadId": "thread",
+    "sourceId": "source",
+    "sourceKind": "MESSAGE",
+
+ ❯ tests/memory-source-reuse-v3.test.ts:36:53
+     34|  const f=await fixture();f.store.internal('fixture-source-edit','threa…
+     35|  const ref=f.memory.captureMessage(f.access,'source');expect(ref).not.…
+     36|  expect(f.memory.captureMessage(f.access,'source')).toEqual(ref);expec…
+       |                                                     ^
+     37| });
+     38|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/11]⎯
+
+ FAIL  tests/memory-source-reuse-v3.test.ts > captures a new exact revision when source evidence changes: {"createdAt":"2020-01-01T00:00:00.000Z"}
+AssertionError: expected { ownerThreadId: 'thread', …(6) } to deeply equal { ownerThreadId: 'thread', …(6) }
+
+- Expected
++ Received
+
+@@ -1,7 +1,7 @@
+  {
+-   "capturedSeq": 6,
++   "capturedSeq": 7,
+    "digest": "4a55c04ba4b6ce663d4dcfdd2c192153bfee03bdf6463882b71607c65ebf7fb9",
+    "observedStatus": "REPORTED",
+    "ownerThreadId": "thread",
+    "sourceId": "source",
+    "sourceKind": "MESSAGE",
+
+ ❯ tests/memory-source-reuse-v3.test.ts:36:53
+     34|  const f=await fixture();f.store.internal('fixture-source-edit','threa…
+     35|  const ref=f.memory.captureMessage(f.access,'source');expect(ref).not.…
+     36|  expect(f.memory.captureMessage(f.access,'source')).toEqual(ref);expec…
+       |                                                     ^
+     37| });
+     38|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/11]⎯
+
+ FAIL  tests/memory-source-reuse-v3.test.ts > captures a new exact revision when source evidence changes: {"role":"assistant"}
+AssertionError: expected { ownerThreadId: 'thread', …(6) } to deeply equal { ownerThreadId: 'thread', …(6) }
+
+- Expected
++ Received
+
+@@ -1,7 +1,7 @@
+  {
+-   "capturedSeq": 6,
++   "capturedSeq": 7,
+    "digest": "4a55c04ba4b6ce663d4dcfdd2c192153bfee03bdf6463882b71607c65ebf7fb9",
+    "observedStatus": "PROPOSED",
+    "ownerThreadId": "thread",
+    "sourceId": "source",
+    "sourceKind": "MESSAGE",
+
+ ❯ tests/memory-source-reuse-v3.test.ts:36:53
+     34|  const f=await fixture();f.store.internal('fixture-source-edit','threa…
+     35|  const ref=f.memory.captureMessage(f.access,'source');expect(ref).not.…
+     36|  expect(f.memory.captureMessage(f.access,'source')).toEqual(ref);expec…
+       |                                                     ^
+     37| });
+     38|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/11]⎯
+
+ FAIL  tests/memory-source-reuse-v3.test.ts > keeps identical text from different message IDs and approved source owners distinct
+AssertionError: expected { ownerThreadId: 'thread', …(6) } to deeply equal { ownerThreadId: 'thread', …(6) }
+
+- Expected
++ Received
+
+@@ -1,7 +1,7 @@
+  {
+-   "capturedSeq": 7,
++   "capturedSeq": 9,
+    "digest": "4a55c04ba4b6ce663d4dcfdd2c192153bfee03bdf6463882b71607c65ebf7fb9",
+    "observedStatus": "REPORTED",
+    "ownerThreadId": "thread",
+    "sourceId": "second",
+    "sourceKind": "MESSAGE",
+
+ ❯ tests/memory-source-reuse-v3.test.ts:48:53
+     46|  const second=f.memory.captureMessage(f.access,'second'),other=f.memor…
+     47|  expect(second.digest).toBe(f.ref.digest);expect(other.digest).toBe(f.…
+     48|  expect(f.memory.captureMessage(f.access,'second')).toEqual(second);ex…
+       |                                                     ^
+     49|  expect(f.store.all('projectMemorySource')).toHaveLength(3);
+     50| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/11]⎯
+
+ FAIL  tests/memory-source-reuse-v3.test.ts > does not reuse a prior account capture after the source thread changes account ownership
+AssertionError: expected { ownerThreadId: 'thread', …(6) } to deeply equal { ownerThreadId: 'thread', …(6) }
+
+- Expected
++ Received
+
+@@ -1,7 +1,7 @@
+  {
+-   "capturedSeq": 7,
++   "capturedSeq": 8,
+    "digest": "4a55c04ba4b6ce663d4dcfdd2c192153bfee03bdf6463882b71607c65ebf7fb9",
+    "observedStatus": "REPORTED",
+    "ownerThreadId": "thread",
+    "sourceId": "source",
+    "sourceKind": "MESSAGE",
+
+ ❯ tests/memory-source-reuse-v3.test.ts:56:51
+     54|  const access=await f.memory.access('project','thread');f.act({action:…
+     55|  const ref=f.memory.captureMessage(access,'source');expect(ref).not.to…
+     56|  expect(f.memory.captureMessage(access,'source')).toEqual(ref);expect(…
+       |                                                   ^
+     57| });
+     58|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/11]⎯
+
+ FAIL  tests/memory-source-reuse-v3.test.ts > reuses only the original authorized FILE capture and its exact private grant metadata
+AssertionError: expected { ownerThreadId: 'thread', …(6) } to deeply equal { ownerThreadId: 'thread', …(6) }
+
+- Expected
++ Received
+
+@@ -1,7 +1,7 @@
+  {
+-   "capturedSeq": 6,
++   "capturedSeq": 7,
+    "digest": "d2e20c7a13c14e6c82aee607d129db6b35868771a06fbc6a9921c015fc156771",
+    "observedStatus": "OBSERVED",
+    "ownerThreadId": "thread",
+    "sourceId": "source-file:",
+    "sourceKind": "FILE",
+
+ ❯ tests/memory-source-reuse-v3.test.ts:74:58
+     72| it('reuses only the original authorized FILE capture and its exact pri…
+     73|  const f=await fileFixture(),before=f.store.sequence;
+     74|  expect(await f.memory.captureFile(f.access,f.grant.id)).toEqual(f.ref…
+       |                                                          ^
+     75|  const source=f.store.get<MemorySourceSnapshot>('projectMemorySource',…
+     76| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/11]⎯
+
+ FAIL  tests/memory-source-reuse-v3.test.ts > creates a fresh FILE reference after an authorized content change
+AssertionError: expected { ownerThreadId: 'thread', …(6) } to deeply equal { ownerThreadId: 'thread', …(6) }
+
+- Expected
++ Received
+
+@@ -1,7 +1,7 @@
+  {
+-   "capturedSeq": 7,
++   "capturedSeq": 8,
+    "digest": "afe892dbcbca2c5f0e469c7c8728578fc509c5ca7104230207f26cfda5b2cbc1",
+    "observedStatus": "OBSERVED",
+    "ownerThreadId": "thread",
+    "sourceId": "source-file:",
+    "sourceKind": "FILE",
+
+ ❯ tests/memory-source-reuse-v3.test.ts:88:143
+     86|  }
+     87|  if(change!=='content')f.store.internal('fixture-reapproved-grant','th…
+     88|  const ref=await f.memory.captureFile(f.access,grant.id);expect(ref).n…
+       |                                                                                                                                               ^
+     89|  if(change!=='content')expect(f.memory.sourceAvailable(f.access,f.ref)…
+     90| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/11]⎯
+
+ FAIL  tests/memory-source-reuse-v3.test.ts > creates a fresh FILE reference after an authorized grant change
+ FAIL  tests/memory-source-reuse-v3.test.ts > creates a fresh FILE reference after an authorized physical change
+AssertionError: expected { ownerThreadId: 'thread', …(6) } to deeply equal { ownerThreadId: 'thread', …(6) }
+
+- Expected
++ Received
+
+@@ -1,7 +1,7 @@
+  {
+-   "capturedSeq": 8,
++   "capturedSeq": 9,
+    "digest": "d2e20c7a13c14e6c82aee607d129db6b35868771a06fbc6a9921c015fc156771",
+    "observedStatus": "OBSERVED",
+    "ownerThreadId": "thread",
+    "sourceId": "source-file:",
+    "sourceKind": "FILE",
+
+ ❯ tests/memory-source-reuse-v3.test.ts:88:143
+     86|  }
+     87|  if(change!=='content')f.store.internal('fixture-reapproved-grant','th…
+     88|  const ref=await f.memory.captureFile(f.access,grant.id);expect(ref).n…
+       |                                                                                                                                               ^
+     89|  if(change!=='content')expect(f.memory.sourceAvailable(f.access,f.ref)…
+     90| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/11]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  11 failed | 1 passed (12)
+   Start at  20:05:53
+   Duration  914ms (transform 306ms, setup 0ms, import 447ms, tests 183ms, environment 0ms)

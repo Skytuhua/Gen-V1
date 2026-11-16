@@ -12,7 +12,7 @@
 .task-graph-lines { position:absolute; inset:0 auto auto 0; pointer-events:none; overflow:visible; }
 .task-graph .graph-edge { fill:none; stroke:var(--border); stroke-width:1.6; stroke-dasharray:1; transition:stroke var(--ui-motion-status) var(--ui-ease-move); }
 .task-graph .graph-edge[data-reveal=true] { animation:task-path-in var(--ui-motion-insert) var(--ui-ease-enter) both; }
-.task-graph .graph-edge.status-running { stroke:var(--accent); }
+.task-graph .graph-edge.status-running { stroke:var(--accent-fg); }
 .task-graph .graph-edge.status-success { stroke:var(--success); }
 .task-graph .graph-edge.status-pending { stroke:var(--pending); }
 .task-graph .graph-edge.status-error { stroke:var(--danger); }

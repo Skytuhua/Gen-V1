@@ -1,0 +1,195 @@
+{
+  "schemaVersion": 1,
+  "scope": "Scratch-only independent review of the host publication readiness failure and parent-owned fixture repair. No new browser pass is claimed.",
+  "runId": 43727736261,
+  "browserJobId": 132853239765,
+  "headSha": "5e835ff71ad02298ce3a7c6c080d92f5f04deb47",
+  "treeSha": "d3dc4a903defee022d79be00391f6a52e7487cc3",
+  "testedCheckout": "a8629917231acf1950145684a38d2c0ff937e3eb",
+  "artifact": {
+    "id": 14167985660,
+    "name": "browser-43727736261-1",
+    "zipBytes": 3516156,
+    "zipSha256": "c730d745d8fbc03993cc04509ea5a264d81bb2a5231ef917444161b7b014de60",
+    "entries": 40,
+    "githubSizeAndDigestVerified": true,
+    "downloadCount": 1
+  },
+  "trace": {
+    "entry": "run-1794755478775-f5240b73-305e-45ef-87b4-3b8c480ea77e/root/artifacts/host-loop-generated-operat-44f07-s-without-repeating-effects/trace.zip",
+    "zipSha256": "8bd3f4d09ce985f4ec44f70c39a59676b7dda577514641881387a1614a1807f4",
+    "events": "0-trace.trace",
+    "network": "0-trace.network",
+    "timeUnit": "Milliseconds on the trace monotonic clock. These are not wall-clock timestamps or a performance benchmark."
+  },
+  "rawLog": {
+    "ref": "/workspace/scratch/36f66011d961/m05-ci-43727736261/job-132853239765.log",
+    "bytes": 115622,
+    "sha256": "e3b845eeff45195607784117d61d8800fa6158ec022b68676ca20a8de1fae45a"
+  },
+  "failure": {
+    "test": "host-loop.spec.ts: generated operation button requires native approval; restart restores without repeating effects",
+    "location": "tests/host-fixture.ts sendFixture, original line162",
+    "assertion": "expect(page.locator('[data-artifact-id]').first()).toBeVisible()",
+    "timeoutMs": 5000,
+    "stage": "Initial artifact publication/rendering, before native approval, replacement, stale-revision or restart assertions.",
+    "browserTotals": {
+      "passed": 266,
+      "failed": 1,
+      "skipped": 2,
+      "flaky": 0
+    },
+    "splitBaseline": {
+      "passed": 29,
+      "failed": 0
+    },
+    "archivedSuites": [
+      {
+        "suite": "project-memory",
+        "passed": 15,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0,
+        "resultsEntry": "run-1794755186851-af611f1b-d990-4a32-93f0-4901ee466017/project-memory/results.json"
+      },
+      {
+        "suite": "usage-context",
+        "passed": 21,
+        "failed": 0,
+        "skipped": 0,
+        "flaky": 0,
+        "resultsEntry": "run-1794755211816-8348651f-2cbc-403b-a509-e534e5f370ea/usage-context/results.json"
+      },
+      {
+        "suite": "frontend-refinement",
+        "passed": 90,
+        "failed": 0,
+        "skipped": 1,
+        "flaky": 0,
+        "resultsEntry": "run-1794755241585-bd7cb621-32d6-48b1-93e6-eb3a28d688df/frontend-refinement/results.json"
+      },
+      {
+        "suite": "root",
+        "passed": 111,
+        "failed": 1,
+        "skipped": 1,
+        "flaky": 0,
+        "resultsEntry": "run-1794755478775-f5240b73-305e-45ef-87b4-3b8c480ea77e/root/results.json"
+      }
+    ]
+  },
+  "sourceEquality": {
+    "greenHead": "d081973eedf23c684986076424cbbec9db7af951",
+    "failedHead": "5e835ff71ad02298ce3a7c6c080d92f5f04deb47",
+    "nonDocumentRootEntriesEqual": true,
+    "workflowBytesEqual": true,
+    "originalHostFixtureGitBlob": "47ac41180509eec0e9794bfc6d9dd7c86c7982cc",
+    "receipt": "/workspace/scratch/36f66011d961/m05-ci-43727736261/source-equality.json"
+  },
+  "observedChronology": [
+    {
+      "traceMs": 104892.72,
+      "event": "message.send HTTP request starts; completes200 about4.966ms later with eventSeq5."
+    },
+    {
+      "traceMs": 104903.014,
+      "event": "Five-second artifact visibility assertion starts, call@1751."
+    },
+    {
+      "traceMs": 104904.003,
+      "event": "Snapshot seq9 request starts; response has no artifact."
+    },
+    {
+      "traceMs": 104943.431,
+      "event": "Snapshot seq9 again has no artifact."
+    },
+    {
+      "traceMs": 104972.661,
+      "event": "Snapshot seq9 again has no artifact."
+    },
+    {
+      "traceMs": 109304.18,
+      "event": "Snapshot seq10 still has no artifact; operation tool-effects requests follow."
+    },
+    {
+      "traceMs": 109827.142,
+      "event": "First observed artifact-bearing snapshot request starts; seq12 includes Evidence document and its userState."
+    },
+    {
+      "traceMs": 109829.162,
+      "event": "First artifact-bearing snapshot response completes."
+    },
+    {
+      "traceMs": 109854.75,
+      "event": "Assertion log first resolves the artifact section; pending/measuring flags remain and visibility is hidden."
+    },
+    {
+      "traceMs": 109903.014,
+      "event": "Nominal deadline calculated from assertion start plus5000ms."
+    },
+    {
+      "traceMs": 109940.892,
+      "event": "Assertion returns failure after its timeout."
+    },
+    {
+      "traceMs": 109955.54,
+      "event": "After-failure DOM has the artifact with pending/measuring flags removed; entrance animation is still entering."
+    }
+  ],
+  "budgetArithmeticMs": {
+    "firstArtifactResponseAfterSendRequestStart": 4936.442,
+    "nominalVisibilityTimeRemainingAfterFirstArtifactResponse": 73.852,
+    "observedFailureBeyondNominalDeadline": 37.878,
+    "readyDomCaptureAfterFailure": 14.648,
+    "firstArtifactResponseAfterVisibilityAssertionStart": 4926.148
+  },
+  "finalDecodedDom": {
+    "traceMs": 109955.54,
+    "snapshot": "after@call@1751",
+    "attributes": {
+      "__playwright_target__": "call@1751",
+      "class": "artifact artifact-width-standard artifact-frame-card   ",
+      "aria-label": "Evidence document",
+      "data-artifact-id": "f6366599-9cf7-40b0-85a3-b54598cf302d",
+      "data-artifact-inline": "true",
+      "data-entry-phase": "entering"
+    },
+    "pendingAttributePresent": false,
+    "measuringAttributePresent": false
+  },
+  "screenshotReview": {
+    "resource": "page@f20c5360a17b73d986c85e4338adea4b-1794755588759.jpeg",
+    "traceMs": 109954.388,
+    "sha256": "750a2086afb26b2b2471625e0936fc86e744cf14580342a52640310d49e463ef",
+    "observation": "The final recorded frame contains the Evidence document, original source text, review-notes input and replacement button during its entrance animation. The native approval card is present below it. This frame does not establish execution of the later test actions."
+  },
+  "causalAssessment": {
+    "observed": "The five-second visibility budget included nearly4.93seconds waiting for the first observed artifact-bearing snapshot after the assertion began, leaving about74ms for state restoration and rendering. The artifact is no longer pending/measuring in the captured DOM immediately after failure.",
+    "inference": "A separate publication phase addresses the demonstrated budget coupling. The trace does not support a five-second renderer or journal stall.",
+    "limits": [
+      "The trace captures browser snapshots and HTTP responses, not individual native filesystem/PowerShell operation durations.",
+      "First observed artifact-bearing snapshot is an observation boundary; it is not an exact measurement of server-side artifact commit time.",
+      "The events stream response is recorded, but individual SSE payload timing is not available in this archive.",
+      "The final DOM capture follows assertion failure; it does not retroactively turn that failed assertion into a pass."
+    ]
+  },
+  "patchReview": {
+    "owner": "root",
+    "file": "tests/host-fixture.ts",
+    "reviewedSourceSha256": "54b7c58b1f02d7ec5adada5b638f32a4c5405d5609939ebb3f01c5ff9368bc11",
+    "change": "Create the existing first-artifact locator, await toBeAttached({timeout:15000}), then retain the existing toBeVisible() with the default5000ms timeout.",
+    "outcome": "Accepted as a bounded publication stage followed by the unchanged rendering contract.",
+    "budgetRationale": "The scripted host performs real guarded-file preparation/import before Service publication. Fifteen seconds allows that setup stage to complete while retaining the existing outer test bound. It is not a promised native latency target.",
+    "preserved": [
+      "The same artifact selector and visible-render assertion.",
+      "The existing30second outer test timeout, action limits and retry policy.",
+      "All native approval focus, no-premature-effect, stale-revision, exact replacement, restart restoration and no-repeated-effect assertions.",
+      "Production renderer, Service, native guard and application behavior."
+    ],
+    "productionChanges": false,
+    "assertionsRemovedOrWeakened": false
+  },
+  "validation": {
+    "newWindowsBrowserRun": "PENDING; this new publication-stage assertion has not yet been executed in Windows CI."
+  }
+}

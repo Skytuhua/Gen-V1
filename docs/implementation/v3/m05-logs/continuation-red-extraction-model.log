@@ -1,0 +1,39 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/memory-extraction-runtime-v3.test.ts (5 tests | 1 failed) 30062ms
+   × refuses a provider/model replacement before creating the extraction transport 30013ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-extraction-runtime-v3.test.ts > refuses a provider/model replacement before creating the extraction transport
+AssertionError: promise resolved "{ status: 'TIMEOUT', itemIds: [], …(1) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "itemIds": [],
++   "status": "TIMEOUT",
++   "usage": {
++     "cost": null,
++     "inputBytes": 1670,
++     "inputTokens": null,
++     "modelCalls": 1,
++     "outputBytes": 0,
++     "outputTokens": null,
++   },
+  }
+
+ ❯ tests/memory-extraction-runtime-v3.test.ts:92:90
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed (5)
+   Start at  19:28:27
+   Duration  30.69s (transform 317ms, setup 0ms, import 431ms, tests 30.06s, environment 0ms)

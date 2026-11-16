@@ -1,3 +1,4 @@
+import {requiresMemoryCheckpoint} from '../runtime/memory-checkpoint.ts';
 import { spawn, type ChildProcess } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { rm, stat } from 'node:fs/promises';
@@ -168,6 +169,8 @@ export function createOfficialRuntime({ dataDir,modelOnly:requestedModelOnly,pur
     await authority.driver!.submit({ uuid, text, inputIds: ids }); assert(authority);
   }
   function queue(input: StartRun, compact: boolean): Promise<void> {
+    if(purpose==='memory-extraction')return Promise.reject(new HarnessError('MEMORY_EXTRACTION_UNSUPPORTED','This external adapter cannot provide an ephemeral memory extraction session.'));
+    try{if(requiresMemoryCheckpoint(input.memoryCheckpoint))throw new HarnessError('MEMORY_CHECKPOINT_UNSUPPORTED','This external adapter cannot enforce required native memory checkpoints.');}catch(error){return Promise.reject(error);}
     if (disposed) return Promise.reject(new HarnessError('OFFICIAL_DISPOSED', 'Official runtime is disposed.'));
     if (!callbacks) return Promise.reject(new HarnessError('OFFICIAL_NOT_CONFIGURED', 'Configure runtime callbacks before starting work.'));
     if(modelOnly){try{assertModelOnlyInput(input,purpose);}catch(error){return Promise.reject(error);}}
@@ -225,8 +228,13 @@ export function createOfficialRuntime({ dataDir,modelOnly:requestedModelOnly,pur
       }
       return structuredClone(await modelDiscovery);
     },
+    async invalidateModels() {
+      modelCache = undefined;
+    },
     start(input) { return queue(input, false); },
     followUp(input) {
+      if(purpose==='memory-extraction')return Promise.reject(new HarnessError('MEMORY_EXTRACTION_SESSION_UNSUPPORTED','Memory extraction cannot continue a conversation.'));
+      try{if(requiresMemoryCheckpoint(input.memoryCheckpoint))throw new HarnessError('MEMORY_CHECKPOINT_UNSUPPORTED','This external adapter cannot enforce required native memory checkpoints.');}catch(error){return Promise.reject(error);}
       if(purpose==='prediction')return Promise.reject(new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions cannot continue a conversation.'));
       return serial(input.threadId, async () => {
         const authority = runs.get(input.threadId);
@@ -240,8 +248,9 @@ export function createOfficialRuntime({ dataDir,modelOnly:requestedModelOnly,pur
       await Promise.all(matches.map(stop));
       if (!disposed && matches.length && !matches[0].settled) { matches[0].settled = true; callbacks?.onEvent({ ...matches[0].ctx, type: 'settled', aborted: true }); }
     },
-    compact(ctx, sessionPath, modelId) { if(purpose==='prediction')return Promise.reject(new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions cannot compact conversations.'));return queue({ ...ctx, sessionPath, modelId, inputId: '', prompt: '', resources: [] }, true); },
+    compact(ctx, sessionPath, modelId,accountId,memoryCheckpoint) { if(purpose==='memory-extraction')return Promise.reject(new HarnessError('MEMORY_EXTRACTION_SESSION_UNSUPPORTED','Memory extraction cannot compact conversations.')); if(purpose==='prediction')return Promise.reject(new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions cannot compact conversations.'));return queue({ ...ctx, sessionPath, modelId,accountId,memoryCheckpoint, inputId: '', prompt: '', resources: [] }, true); },
     async history(sessionPath) {
+      if(purpose==='memory-extraction')throw new HarnessError('MEMORY_EXTRACTION_SESSION_UNSUPPORTED','Memory extraction cannot read conversations.');
       if(purpose==='prediction')throw new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions cannot read conversations.');
       if (disposed) throw new HarnessError('OFFICIAL_DISPOSED', 'Official runtime is disposed.');
       return serial(`official-history-${randomUUID()}`, async () => {

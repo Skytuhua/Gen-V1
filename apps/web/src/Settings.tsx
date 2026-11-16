@@ -7,6 +7,7 @@ import { getPreferences, type UiPreferences } from '../../../packages/contracts/
 import { Select } from '../../../packages/ui-shell/Select';
 import { command, getModels } from './api';
 import type { SettingsInventoryRow } from './settings-inventory';
+import { buildSupportedSettings, searchSettings } from './settings-registry';
 import { DEPENDENCY_NOTICES } from './dependency-notices';
 import { DraftTransfer } from './DraftTransfer';
 import { useDesktop } from './desktop-context';
@@ -67,6 +68,7 @@ export const SETTINGS_ROWS: SettingsInventoryRow[] = [
   ...DEPENDENCY_NOTICES.map(([name, installed, license]) => row(`license-${name}`, name, 'about', `dependency ${installed} ${license}`)),
 ];
 export function settingAvailability(item: SettingsInventoryRow): 'Working' | 'Unavailable' { return SETTINGS_ROWS.some(value => value.id === item.id) ? 'Working' : 'Unavailable'; }
+const SUPPORTED_SETTINGS = buildSupportedSettings(SETTINGS_ROWS, SETTINGS_SECTIONS);
 function PreferenceControl({ item, preferences, update, busy }: { item: SettingsInventoryRow; preferences: UiPreferences; update: (value: Partial<UiPreferences>) => Promise<void>; busy: boolean }) {
   const definition = preferenceRows[item.id]!, value = preferences[definition.key];
   if (definition.options) return <Select aria-label={item.title} disabled={busy} value={String(value)} onValueChange={next => void update({ [definition.key]: next })} options={definition.options.map((option, index) => ({ value: option, label: definition.labels?.[index] ?? option }))}/>;
@@ -120,8 +122,8 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
     }
     await persist({ preferences: value });
   };
-  const tokens = query.toLowerCase().trim().split(/\s+/).filter(Boolean), searching = tokens.length > 0;
-  const rows = SETTINGS_ROWS.filter(item => searching ? tokens.every(token => `${item.title} ${item.terms} ${SETTINGS_SECTIONS.find(([id]) => id === item.section)?.[1] ?? ''}`.toLowerCase().includes(token)) : item.section === section);
+  const searching = query.trim().length > 0;
+  const rows = searching ? searchSettings(query, SUPPORTED_SETTINGS, desktop ? 'desktop' : 'browser') : SUPPORTED_SETTINGS.filter(item => item.section === section);
   const matches = (id: string) => rows.some(item => item.id === id);
   const subscriptions = searching ? matchingSubscriptionConnections(query).length : 0;
   const heading = searching ? `Search results (${rows.length + subscriptions})` : SETTINGS_SECTIONS.find(([id]) => id === section)?.[1];
@@ -149,7 +151,7 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
       default: return { description: '', control: null };
     }
   };
-  return <div className="settings-layout">
+  return <div className={matches('harness-skills') ? 'settings-layout settings-skills' : 'settings-layout'}>
     <aside className="settings-navigation"><label className="settings-search"><Search size={14}/><input type="search" aria-label="Search all settings" placeholder="Search settings" value={query} onChange={event => setQuery(event.target.value)}/></label>
       <nav ref={navigation} aria-label="Settings sections" onKeyDown={event => { if (event.nativeEvent.isComposing || event.ctrlKey || event.metaKey || event.altKey || !['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return; const buttons = [...event.currentTarget.querySelectorAll('button')], index = buttons.indexOf(document.activeElement as HTMLButtonElement); event.preventDefault(); buttons[event.key === 'Home' ? 0 : event.key === 'End' ? buttons.length - 1 : (index + (event.key === 'ArrowDown' ? 1 : -1) + buttons.length) % buttons.length]?.focus(); }}>
         {SETTINGS_SECTIONS.map(([id, label]) => <button type="button" key={id} className={activeSection === id ? 'selected' : ''} onClick={() => chooseSection(id)} aria-current={!searching && section === id ? 'page' : undefined}>{label}</button>)}

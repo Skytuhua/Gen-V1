@@ -30,11 +30,13 @@ async function fixture(page:Page,options:{empty?:boolean;stale?:boolean;proposal
   if(command.type==='skill.decide'){snapshot.skillProposals=[];if(p.approve){saved=detail(2);snapshot.skills=[saved.skill];}}
   snapshot.seq++;await route.fulfill({json:{commandId:command.id,eventSeq:snapshot.seq,result:{status:'applied',changes:[saved.skill]}}});
  });
- const open=async()=>{await page.goto('/');const navigation=page.getByRole('button',{name:'Open navigation',exact:true});if(await navigation.isVisible())await navigation.click();await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByRole('button',{name:'Skills & Integrations',exact:true}).click();};
+ const open=async()=>{await page.goto('/');const settings=page.getByRole('button',{name:'Settings',exact:true});await expect(settings).toBeAttached();const navigation=page.getByRole('button',{name:'Open navigation',exact:true});if(await navigation.isVisible())await navigation.click();await settings.click();await page.getByRole('button',{name:'Skills & Integrations',exact:true}).click();};
  return{snapshot,host,open,historyControl,get saved(){return saved;},get reads(){return reads;}};
 }
 
 const unavailable={code:'SKILL_SOURCE_UNAVAILABLE',message:'The original source for this revision is no longer available.'};
+// Routine skill errors use the accepted polite live-region contract.
+const skillStatus=(page:Page,text:string)=>page.getByRole('region',{name:'Skill library',exact:true}).getByRole('status').filter({hasText:text});
 function heldResponse(){let release!:()=>void,entered!:()=>void;const gate=new Promise<void>(done=>{release=done;}),started=new Promise<void>(done=>{entered=done;});return{release,started,wait:async()=>{entered();await gate;}};}
 async function writeNewerSkillDraft(page:Page){return page.evaluate(async()=>{const path='/src/journal.ts',journal=await import(path);const key='skill-draft:verify-release';await journal.journalWrite(key,{content:'Newer recovered instructions.',description:'Keep this draft.',baseRevision:2});return journal.journalReadRecord(key);});}
 async function readSkillDraft(page:Page){return page.evaluate(async()=>{const path='/src/journal.ts';return(await import(path)).journalReadRecord('skill-draft:verify-release');});}
@@ -56,7 +58,7 @@ test('retirement during a history read marks only that row and preserves a newer
  const x=await fixture(page,{sourceHistory:true}),held=heldResponse();x.historyControl.beforeView=held.wait;await x.open();await inspectHistory(page);
  const input=page.getByRole('textbox',{name:'Instructions for verify-release',exact:true});await input.fill('Keep the open editor draft.');await page.getByRole('button',{name:'View revision 1',exact:true}).click();await held.started;
  const newer=await writeNewerSkillDraft(page);x.historyControl.error=unavailable;held.release();
- await expect(page.getByRole('alert')).toHaveText(unavailable.message);await expect(page.getByRole('button',{name:'View revision 1',exact:true})).toBeDisabled();await expect(page.getByRole('button',{name:'View revision 2',exact:true})).toBeEnabled();
+ await expect(skillStatus(page,unavailable.message)).toHaveText(unavailable.message);await expect(page.getByRole('button',{name:'View revision 1',exact:true})).toBeDisabled();await expect(page.getByRole('button',{name:'View revision 2',exact:true})).toBeEnabled();
  await expect(input).toHaveValue('Keep the open editor draft.');expect(await readSkillDraft(page)).toEqual(newer);expect(x.host.commands).toHaveLength(0);expect(x.reads).toBe(2);
  await x.open();await page.getByRole('button',{name:'Inspect verify-release',exact:true}).click();await expect(input).toHaveValue('Newer recovered instructions.');
 });
@@ -64,18 +66,18 @@ test('retirement after historical detail rejects restore once and preserves the 
  const x=await fixture(page,{sourceHistory:true}),held=heldResponse();await x.open();await inspectHistory(page);await page.getByRole('button',{name:'View revision 1',exact:true}).click();await expect(page.getByLabel('Historical skill version',{exact:true})).toBeVisible();
  x.historyControl.beforeRestore=held.wait;await page.getByRole('button',{name:'Restore this revision',exact:true}).click();await held.started;
  const newer=await writeNewerSkillDraft(page);x.historyControl.error=unavailable;held.release();
- await expect(page.getByRole('alert')).toHaveText(unavailable.message);await expect(page.getByRole('button',{name:'Restore this revision',exact:true})).toBeDisabled();await expect(page.getByRole('button',{name:'View revision 1',exact:true})).toBeDisabled();
+ await expect(skillStatus(page,unavailable.message)).toHaveText(unavailable.message);await expect(page.getByRole('button',{name:'Restore this revision',exact:true})).toBeDisabled();await expect(page.getByRole('button',{name:'View revision 1',exact:true})).toBeDisabled();
  await expect(page.getByLabel('Historical skill version',{exact:true})).toContainText(detail().content);await expect(page.getByRole('textbox',{name:'Instructions for verify-release',exact:true})).toHaveValue(detail(2).content);
  expect(await readSkillDraft(page)).toEqual(newer);expect(x.snapshot.skills[0].revision).toBe(2);expect(x.saved.content).toBe(detail(2).content);expect(x.host.commands.filter(row=>row.type==='skill.manage')).toHaveLength(1);expect(x.reads).toBe(2);
 });
 test('ordinary history transport failures stay retryable and do not retire source rows',async({page})=>{
  const x=await fixture(page,{sourceHistory:true});x.historyControl.error={code:'HERMES_SOURCE_BUSY',message:'The canonical source is busy.'};await x.open();await inspectHistory(page);await page.getByRole('button',{name:'View revision 1',exact:true}).click();
- await expect(page.getByRole('alert')).toHaveText('The canonical source is busy.');await expect(page.getByRole('button',{name:'View revision 1',exact:true})).toBeEnabled();await expect(page.getByText('Source unavailable',{exact:true})).toHaveCount(0);
+ await expect(skillStatus(page,'The canonical source is busy.')).toHaveText('The canonical source is busy.');await expect(page.getByRole('button',{name:'View revision 1',exact:true})).toBeEnabled();await expect(page.getByText('Source unavailable',{exact:true})).toHaveCount(0);
  x.historyControl.error=undefined;await page.getByRole('button',{name:'View revision 1',exact:true}).click();await expect(page.getByLabel('Historical skill version',{exact:true})).toContainText(detail().content);expect(x.host.commands).toHaveLength(0);expect(x.reads).toBe(3);
 });
 
 test('empty libraries and automatic review controls work with old snapshots',async({page})=>{
- const x=await fixture(page,{empty:true});delete (x.snapshot as Snapshot).skills;delete (x.snapshot as Snapshot).skillProposals;delete (x.snapshot as Snapshot).learning;await x.open();await expect(page.getByRole('heading',{name:'Skills & learning',exact:true})).toBeVisible();await expect(page.getByText('No saved skills yet.',{exact:true})).toBeVisible();expect(x.reads).toBe(0);
+ const x=await fixture(page,{empty:true});delete (x.snapshot as Snapshot).skills;delete (x.snapshot as Snapshot).skillProposals;delete (x.snapshot as Snapshot).learning;await x.open();await expect(page.getByRole('heading',{name:'Skills & Integrations',exact:true})).toBeVisible();await expect(page.getByText('No saved skills yet.',{exact:true})).toBeVisible();expect(x.reads).toBe(0);
  await page.getByRole('switch',{name:'Automatic learning reviews',exact:true}).click();await expect.poll(()=>x.snapshot.settings.preferences).toMatchObject({learningEnabled:false});
  await page.getByRole('switch',{name:'Require approval for agent writes',exact:true}).click();await expect.poll(()=>x.snapshot.settings.preferences).toMatchObject({learningApproval:true});
  await page.getByRole('spinbutton',{name:'Review after model iterations',exact:true}).fill('20');await expect.poll(()=>x.snapshot.settings.preferences).toMatchObject({learningInterval:20});
@@ -100,7 +102,7 @@ test('inspect, edit, supporting files, flags and recoverable archive use current
  await page.getByRole('button',{name:'Archive verify-release',exact:true}).click();await expect.poll(()=>x.snapshot.skills[0].state).toBe('archived');await page.getByRole('button',{name:'Restore verify-release',exact:true}).click();await expect.poll(()=>x.snapshot.skills[0].state).toBe('active');
 });
 test('a conflicting skill edit survives refresh and reload until the user chooses a saved version',async({page})=>{
- const x=await fixture(page,{stale:true});await x.open();await page.getByRole('button',{name:'Inspect verify-release',exact:true}).click();const input=page.getByRole('textbox',{name:'Instructions for verify-release',exact:true});await input.fill('Keep my local review of the procedure.');await page.getByRole('button',{name:'Save skill',exact:true}).click();await expect(page.getByRole('alert')).toContainText('Your draft is retained');await expect(input).toHaveValue('Keep my local review of the procedure.');
+ const x=await fixture(page,{stale:true});await x.open();await page.getByRole('button',{name:'Inspect verify-release',exact:true}).click();const input=page.getByRole('textbox',{name:'Instructions for verify-release',exact:true});await input.fill('Keep my local review of the procedure.');await page.getByRole('button',{name:'Save skill',exact:true}).click();await expect(skillStatus(page,'Your draft is retained')).toContainText('Your draft is retained');await expect(input).toHaveValue('Keep my local review of the procedure.');
  await page.reload();await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByRole('button',{name:'Skills & Integrations',exact:true}).click();await page.getByRole('button',{name:'Inspect verify-release',exact:true}).click();await expect(input).toHaveValue('Keep my local review of the procedure.');
  await page.getByRole('button',{name:'Review saved version',exact:true}).click();await expect(page.getByText(detail(2).content,{exact:true})).toBeVisible();await expect(input).toHaveValue('Keep my local review of the procedure.');await page.getByRole('button',{name:'Use saved version',exact:true}).click();await expect(input).toHaveValue(detail(2).content);
 });
@@ -119,7 +121,7 @@ test('rejecting a proposed change preserves the active skill',async({page})=>{
 });
 test('unconfirmed learning cleanup stays visibly blocked and allows an explicit stop retry',async({page})=>{
  const x=await fixture(page,{empty:true});x.snapshot.learning={supported:true,status:'blocked',lastReview:{sourceThreadId:'task-thread',sourceRunId:'review-1',modelId:'fixture-model',accountId:null,status:'failed',startedAt:now,toolCalls:0,inputBytes:0,appliedChanges:0,cleanupConfirmed:false,error:'Learning review could not stop. Runtime cleanup is unconfirmed.'}};
- await x.open();await expect(page.getByRole('alert')).toContainText('Runtime cleanup is unconfirmed.');await expect(page.getByText('Learning review is blocked.',{exact:true})).toBeVisible();await page.getByRole('button',{name:'Stop learning review',exact:true}).click();await expect.poll(()=>x.host.commands.some(command=>command.type==='learning.cancel')).toBe(true);
+ await x.open();await expect(skillStatus(page,'Runtime cleanup is unconfirmed.')).toContainText('Runtime cleanup is unconfirmed.');await expect(page.getByText('Learning review is blocked.',{exact:true})).toBeVisible();await page.getByRole('button',{name:'Stop learning review',exact:true}).click();await expect.poll(()=>x.host.commands.some(command=>command.type==='learning.cancel')).toBe(true);
 });
 test('skill controls and editors fit desktop and narrow light and dark views',async({page},info)=>{
  const x=await fixture(page);for(const width of [1440,390])for(const theme of ['dark','light'] as const){

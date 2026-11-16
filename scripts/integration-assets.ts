@@ -9,20 +9,53 @@ import {dependencyFile,ordinaryFile,payloadPath,readManifest,sha256,verifyDefini
 interface LockedFile {path:string;bytes:number;sha256:string}
 interface Distribution {name:string;version:string;wheelSha256?:string;sourceUrl?:string}
 interface PythonLock {version:1;python:'3.14';requirements:string[];distributions:Distribution[];files:LockedFile[];bytes:number}
-export interface IntegrationPayload {files:(LockedFile&{source:string})[];bytes:number;integrations:number}
+interface PayloadFile extends LockedFile {source?:string;content?:string}
+export interface CanonicalPythonOptions {wheelDirectory:string;pythonExecutable:string}
+export interface CanonicalPythonReceipt {version:2;mode:'wheel-canonical-record-v2';sourceLockSha256:string;wheels:{name:string;version:string;sha256:string}[];files:LockedFile[]}
+export interface CanonicalPythonProjection {files:PayloadFile[];bytes:number;receipt:CanonicalPythonReceipt;inputDiagnosis:unknown}
+export interface IntegrationPayload {files:PayloadFile[];bytes:number;integrations:number;pythonProjection?:CanonicalPythonReceipt;pythonInputDiagnosis?:unknown}
 const MAX_BYTES=1024*1024*1024,MAX_FILES=20000;
 const normalize=(name:string)=>name.toLowerCase().replace(/[-_.]+/g,'-');
-async function walk(root:string,prefix:string):Promise<LockedFile[]>{
+async function walk(root:string,prefix:string,omitInstallArtifacts=true):Promise<LockedFile[]>{
  const result:LockedFile[]=[];let bytes=0;
  async function visit(directory:string,part:string,depth:number):Promise<void>{
   if(depth>48)throw Error('Integration payload nesting exceeds its bound');const directoryInfo=await lstat(directory);if(!directoryInfo.isDirectory()||directoryInfo.isSymbolicLink())throw Error('Integration payload directory must be ordinary');
   for(const entry of await readdir(directory,{withFileTypes:true})){
-   if(['__pycache__','bin','Scripts'].includes(entry.name)||/\.py[co]$/i.test(entry.name))continue;
+   if(omitInstallArtifacts&&(['__pycache__','bin','Scripts'].includes(entry.name)||/\.py[co]$/i.test(entry.name)))continue;
    const path=part+'/'+entry.name,input=join(directory,entry.name);if(entry.isSymbolicLink())throw Error('Integration payload contains a link');
    if(entry.isDirectory())await visit(input,path,depth+1);else{const data=await ordinaryFile(input);bytes+=data.length;if(bytes>MAX_BYTES||result.length>=MAX_FILES)throw Error('Integration dependency payload exceeds budget');result.push({path,bytes:data.length,sha256:sha256(data)});}
   }
  }
  await visit(root,prefix,0);return result.sort((a,b)=>a.path.localeCompare(b.path));
+}
+
+/** Explicit v2 input: pinned wheels authenticate ownership; no cached RECORD is shipped. */
+export async function collectCanonicalPythonPayload(root:string,options:CanonicalPythonOptions):Promise<CanonicalPythonProjection>{
+ root=resolve(root);
+ if(!options.wheelDirectory||!options.pythonExecutable)throw Error('Canonical Python packaging requires explicit wheels and an interpreter');
+ const lockBytes=await ordinaryFile(join(root,'third-party/integrations/PYTHON_LOCK.json'),8*1024*1024),lock=JSON.parse(lockBytes.toString()) as PythonLock;
+ const helper=fileURLToPath(new URL('./integration_python_projection.py',import.meta.url));
+ const result=await promisify(execFile)(options.pythonExecutable,['-I','-S','-B',helper,'--root',root,'--wheel-directory',resolve(options.wheelDirectory)],{windowsHide:true,timeout:120000,maxBuffer:16*1024*1024});
+ const projection=JSON.parse(result.stdout) as CanonicalPythonProjection;
+ if(projection.receipt?.version!==2||projection.receipt.mode!=='wheel-canonical-record-v2'||projection.receipt.sourceLockSha256!==sha256(lockBytes)||!Array.isArray(projection.files)||projection.files.length!==lock.files.length)throw Error('Canonical Python projection does not match its original lock');
+ const expected=new Map(lock.files.map(file=>[file.path,file])),paths=new Set<string>();let total=0;
+ for(const file of projection.files){
+  const original=expected.get(file.path),source=payloadPath(root,file.path);
+  if(!original||paths.has(file.path)||Number(typeof file.source==='string')+Number(typeof file.content==='string')!==1||!Number.isSafeInteger(file.bytes)||file.bytes<0||!/^[a-f0-9]{64}$/.test(file.sha256))throw Error('Invalid canonical Python projected file');
+  paths.add(file.path);total+=file.bytes;
+  const record=/^\.harness-integrations-python-deps\/[^/]+\.dist-info\/RECORD$/.test(file.path),requested=/^\.harness-integrations-python-deps\/[^/]+\.dist-info\/REQUESTED$/.test(file.path);
+  if(!record&&(file.bytes!==original.bytes||file.sha256!==original.sha256))throw Error('Canonical projection changed a locked non-RECORD file');
+  if(typeof file.content==='string'){
+   if(!record&&!requested||Buffer.byteLength(file.content)!==file.bytes||sha256(file.content)!==file.sha256)throw Error('Canonical Python generated bookkeeping is invalid');
+  }else{
+   if(record||resolve(file.source!)!==source)throw Error('Canonical Python source is outside its locked input');
+   const bytes=await ordinaryFile(source);if(bytes.length!==file.bytes||sha256(bytes)!==file.sha256)throw Error('Canonical Python input changed after projection: '+file.path);
+  }
+ }
+ const inventory=projection.files.map(({path,bytes,sha256})=>({path,bytes,sha256}));
+ const wheels=lock.distributions.map(item=>({name:item.name,version:item.version,sha256:item.wheelSha256}));
+ if(total!==projection.bytes||total>MAX_BYTES||paths.size>MAX_FILES||JSON.stringify(inventory)!==JSON.stringify(projection.receipt.files)||JSON.stringify(wheels)!==JSON.stringify(projection.receipt.wheels))throw Error('Canonical Python projection inventory differs from its authenticated inputs');
+ return projection;
 }
 /** Explicit install-time lock, after the parent's wheel-only isolated installation. */
 export async function lockIntegrationDependencies(root:string,pipReport?:string){
@@ -40,23 +73,41 @@ export async function lockIntegrationDependencies(root:string,pipReport?:string)
  await writeFile(join(root,'third-party/integrations/NODE_LOCK.json'),JSON.stringify({version:1,node:'24.22.2',files:nodeFiles},null,2)+'\n');
  return {distributions:distributions.length,files:files.length,bytes:lock.bytes,nodeFiles:nodeFiles.length};
 }
-export async function collectIntegrationPayload(root:string):Promise<IntegrationPayload>{
+export async function collectIntegrationPayload(root:string,options:{canonicalPython?:CanonicalPythonOptions}={}):Promise<IntegrationPayload>{
  root=resolve(root);const manifest=await readManifest(root),payload:IntegrationPayload={files:[],bytes:0,integrations:manifest.integrations.length};
  const add=async(file:LockedFile|IntegrationFile)=>{const data=await ordinaryFile(payloadPath(root,file.path));if(data.length!==file.bytes||sha256(data)!==file.sha256)throw Error('Integration custody checksum mismatch: '+file.path);payload.bytes+=data.length;if(payload.bytes>MAX_BYTES||payload.files.length>=MAX_FILES)throw Error('Integration payload exceeds packaging budget');payload.files.push({path:file.path,bytes:data.length,sha256:file.sha256,source:payloadPath(root,file.path)});};
  for(const item of manifest.integrations){await verifyDefinition(root,item);for(const file of item.files)await add(file);}
  const python=JSON.parse((await ordinaryFile(join(root,'third-party/integrations/PYTHON_LOCK.json'),8*1024*1024)).toString()) as PythonLock;
  if(python.version!==1||python.python!=='3.14'||python.files.length>MAX_FILES)throw Error('Invalid integration Python lock');
- const actual=await walk(join(root,'.harness-integrations-python-deps'),'.harness-integrations-python-deps');if(actual.length!==python.files.length||actual.some((file,index)=>JSON.stringify(file)!==JSON.stringify(python.files[index])))throw Error('Installed Python integration payload differs from the exact lock');
- for(const file of python.files)await add(file);
+ if(options.canonicalPython){
+  const projection=await collectCanonicalPythonPayload(root,options.canonicalPython);
+  payload.files.push(...projection.files);payload.bytes+=projection.bytes;payload.pythonProjection=projection.receipt;payload.pythonInputDiagnosis=projection.inputDiagnosis;
+  const path='third-party/integrations/PYTHON_INSTALLATION_V2.json',content=JSON.stringify(projection.receipt,null,2)+'\n';
+  payload.files.push({path,content,bytes:Buffer.byteLength(content),sha256:sha256(content)});payload.bytes+=Buffer.byteLength(content);
+  if(payload.bytes>MAX_BYTES||payload.files.length>MAX_FILES)throw Error('Canonical integration payload exceeds packaging budget');
+ }else{
+  const actual=await walk(join(root,'.harness-integrations-python-deps'),'.harness-integrations-python-deps');if(actual.length!==python.files.length||actual.some((file,index)=>JSON.stringify(file)!==JSON.stringify(python.files[index])))throw Error('Installed Python integration payload differs from the exact lock');
+  for(const file of python.files)await add(file);
+ }
  for(const path of ['third-party/integrations/manifest.json','third-party/integrations/PYTHON_LOCK.json','third-party/integrations/NODE_LOCK.json','packages/integrations/hermes.py','packages/integrations/python-entry.py','packages/integrations/promptfoo-provider.mjs']){const data=await ordinaryFile(payloadPath(root,path));await add({path,bytes:data.length,sha256:sha256(data)});}
  return payload;
 }
 export async function stageIntegrationPayload(host:string,payload:IntegrationPayload){
- host=resolve(host);for(const file of payload.files){const path=payloadPath(host,file.path);await mkdir(dirname(path),{recursive:true});if(sha256(await ordinaryFile(file.source))!==file.sha256)throw Error('Integration source changed after preflight');try{await copyFile(file.source,path,constants.COPYFILE_EXCL);}catch(error){if((error as NodeJS.ErrnoException).code!=='EEXIST'||sha256(await ordinaryFile(path))!==file.sha256)throw error;}}
+ host=resolve(host);for(const file of payload.files){
+  const path=payloadPath(host,file.path);await mkdir(dirname(path),{recursive:true});
+  if(Number(typeof file.source==='string')+Number(typeof file.content==='string')!==1)throw Error('Integration payload source is ambiguous');
+  const data=file.source?await ordinaryFile(file.source):Buffer.from(file.content!);
+  if(data.length!==file.bytes||sha256(data)!==file.sha256)throw Error('Integration source changed after preflight');
+  try{if(file.source)await copyFile(file.source,path,constants.COPYFILE_EXCL);else await writeFile(path,data,{flag:'wx'});}catch(error){if((error as NodeJS.ErrnoException).code!=='EEXIST'||sha256(await ordinaryFile(path))!==file.sha256)throw error;}
+ }
  await verifyIntegrationPayload(host,payload);
 }
 export async function verifyIntegrationPayload(host:string,payload:IntegrationPayload){
  for(const file of payload.files)if(sha256(await ordinaryFile(payloadPath(host,file.path)))!==file.sha256)throw Error('Packaged integration checksum mismatch: '+file.path);
+ if(payload.pythonProjection){
+  const actual=await walk(resolve(host,'.harness-integrations-python-deps'),'.harness-integrations-python-deps',false),expected=new Map(payload.pythonProjection.files.map(file=>[file.path,file]));
+  if(actual.length!==expected.size||actual.some(file=>JSON.stringify(file)!==JSON.stringify(expected.get(file.path))))throw Error('Packaged canonical Python file set differs from its exact projection');
+ }
  const lock=JSON.parse((await ordinaryFile(resolve(host,'third-party/integrations/NODE_LOCK.json'))).toString()) as {version:number;files:LockedFile[]};if(lock.version!==1)throw Error('Invalid integration Node lock');for(const file of lock.files)if(sha256(await dependencyFile(payloadPath(host,file.path)))!==file.sha256)throw Error('Packaged Node integration changed: '+file.path);
 }
 export async function verifyRelocatedIntegrations(host:string){

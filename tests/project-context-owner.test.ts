@@ -29,7 +29,7 @@ function render(project?: string, thread?: string) {
 afterEach(() => { vi.unstubAllGlobals(); fixture.slots.length = 0; fixture.effect = undefined; });
 
 it('does not show one thread’s project context after selecting a different thread', async () => {
-  const context = { status: 'ready', title: 'Previous context' };
+  const context = { status: 'ready', title: 'Previous context', project: { id: 'project', name: 'Previous context' }, machineName: 'runner', editor: { available: false, label: '' }, branch: null, head: null, changes: { added: null, removed: null, files: null }, lineage: [], scripts: [], capabilities: { git: false, terminal: false, pullRequests: false } };
   vi.stubGlobal('fetch', vi.fn(async () => Response.json(context)));
   render('project', 'first'); fixture.effect!();
   await vi.waitFor(() => expect(render('project', 'first').context).toEqual(context));

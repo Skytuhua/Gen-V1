@@ -6,7 +6,6 @@ import {planDataId,PLANNING_PROVENANCE} from '../../packages/contracts/planning'
 import type {WorkspaceEnvelope,PanelPlacement} from '../../packages/contracts/workspace';
 import type {DesktopSurface} from '../../packages/desktop-contract';
 import {panelDesktopSurface} from '../../apps/web/src/workspace-native';
-import {createSplitWorkspaceLayout} from '../../packages/core/split-workspace-layout';
 
 const fixtureModule='/@fs/'+encodeURI(resolve(import.meta.dirname,'workspace-app-fixture.tsx').replaceAll('\\','/'));
 
@@ -53,11 +52,9 @@ async function fixture(page:Page,panels:PanelPlacement[],beforeCommand?:(type:st
  snapshot.messages=[{id:'parent-message',threadId:'task-thread',role:'assistant',content:'Parent transcript only',runId:null,createdAt:stamp},...Array.from({length:105},(_,index)=>({id:'child-'+index,threadId:'child',role:'assistant' as const,content:'Actual child message '+index,runId:null,createdAt:stamp}))];
  snapshot.data.push({id:planDataId('task-thread'),threadId:'task-thread',revision:1,provenance:PLANNING_PROVENANCE,createdAt:stamp,value:{version:1,title:'Parent plan',steps:[],agents:[{id:'agent-one',name:'Delegated investigation',commandId:'delegate-command',taskId:'delegate-task',createdAt:stamp,updatedAt:stamp,completedRequirementIds:[],reportedPercent:null,status:'working',task:'Inspect the child source',childThreadId:'child',requirements:[]}]}});
  const host=await serveTaskFixture(page,snapshot);
- const splitLayout=createSplitWorkspaceLayout('workspace');
- await page.route('**/api/split-workspace?workspaceId=workspace',route=>route.fulfill({json:splitLayout}));
  const envelope:WorkspaceEnvelope={projects:[],state:{version:1,revision:0,activeCanvasId:'canvas',canvases:[{version:1,id:'canvas',name:'Acceptance',preset,viewport:{x:0,y:0,zoom:1},panels,filter:'active',projectIds:[]}],profiles:[],disabledKinds:[],integrations:{}}};
  await page.route('**/api/workspace',route=>route.fulfill({json:envelope}));
- await page.route('**/api/workspace/commands',async route=>{const command=route.request().postDataJSON();const rejection=beforeCommand?.(command.type,envelope);if(rejection)return route.fulfill({status:409,json:{error:rejection}});if(command.payload.baseRevision!==undefined&&command.payload.baseRevision!==envelope.state.revision)return route.fulfill({status:400,json:{error:{code:'WORKSPACE_CHANGED',message:'The workspace revision changed.'}}});if(command.type==='workspace.canvas.viewport')Object.assign(envelope.state.canvases[0].viewport,command.payload);if(command.type==='workspace.canvas.select')envelope.state.activeCanvasId=command.payload.canvasId;if(command.type==='workspace.panel.add')panels.push({...command.payload.panel,canvasId:command.payload.canvasId,placement:'canvas',visible:true,collapsed:false,bounds:command.payload.bounds,order:panels.length,alwaysOnTop:false});if(command.type==='workspace.panel.update')Object.assign(panels.find(panel=>panel.id===command.payload.panelId)!,command.payload.patch);envelope.state.revision++;await route.fulfill({json:{commandId:command.id,seq:snapshot.seq,result:envelope}});});
+ await page.route('**/api/workspace/commands',async route=>{const command=route.request().postDataJSON();const rejection=beforeCommand?.(command.type,envelope);if(rejection)return route.fulfill({status:409,json:{error:rejection}});if(command.payload.baseRevision!==undefined&&command.payload.baseRevision!==envelope.state.revision)return route.fulfill({status:400,json:{error:{code:'WORKSPACE_CHANGED',message:'The workspace revision changed.'}}});if(command.type==='workspace.canvas.viewport'){const {x,y,zoom}=command.payload;Object.assign(envelope.state.canvases[0].viewport,{x,y,zoom});}if(command.type==='workspace.canvas.select')envelope.state.activeCanvasId=command.payload.canvasId;if(command.type==='workspace.panel.add')panels.push({...command.payload.panel,canvasId:command.payload.canvasId,placement:'canvas',visible:true,collapsed:false,bounds:command.payload.bounds,order:panels.length,alwaysOnTop:false});if(command.type==='workspace.panel.update')Object.assign(panels.find(panel=>panel.id===command.payload.panelId)!,command.payload.patch);envelope.state.revision++;await route.fulfill({json:{commandId:command.id,seq:snapshot.seq,result:envelope}});});
  await page.route('**/workspace-app-check',route=>route.fulfill({contentType:'text/html',body:`<html><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${fixtureModule}');</script></body></html>`}));
  const bootstrapped=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/bootstrap'&&response.ok());
  await page.goto('/workspace-app-check');await bootstrapped;
@@ -69,14 +66,18 @@ async function fixture(page:Page,panels:PanelPlacement[],beforeCommand?:(type:st
 
 test('primary Workspace keeps tools fixed and preserves its anchored draft through close reopen and reload',async({page})=>{
  const host=await fixture(page,[],undefined,'workspace'),draft=page.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Keep the primary draft');
- await page.getByRole('button',{name:'Panels',exact:false}).click();await page.getByRole('menuitem',{name:'Add Files panel',exact:true}).click();
+ await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();
  const files=page.getByRole('complementary',{name:'Workspace panel',exact:true});await expect(files).toBeVisible();
+ await files.getByRole('button',{name:'Add surface',exact:true}).click();await page.getByRole('menuitem',{name:'Files',exact:true}).click();
  await expect(files.getByRole('tab',{name:'Files',exact:true})).toHaveAttribute('aria-selected','true');
  await expect(page.locator('.canvas-panel-files')).toHaveCount(0);
- await files.getByRole('button',{name:'Close workspace panel',exact:true}).click();await expect(files).toHaveCount(0);
- await page.getByRole('button',{name:'Panels',exact:false}).click();await page.getByRole('menuitem',{name:'Add Files panel',exact:true}).click();
+ await page.getByRole('button',{name:'Hide workspace panel',exact:true}).click();await expect(files).toHaveCount(0);
+ await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();
  await expect(files).toBeVisible();await expect(draft).toHaveValue('Keep the primary draft');
  await page.reload();await expect(files).toBeVisible();await expect(draft).toHaveValue('Keep the primary draft');
+ await page.getByRole('button',{name:'Inspect changes',exact:true}).click();
+ await expect(files.getByRole('tab',{name:'Diff',exact:true})).toHaveAttribute('aria-selected','true');
+ await expect(draft).toHaveValue('Keep the primary draft');
  expect(host.commands.some(command=>command.type==='run.stop')).toBe(false);
  expect(host.envelope.state.canvases[0].panels).toHaveLength(0);
 });
@@ -158,7 +159,7 @@ test('live native dock retries a concurrent layout revision without losing eithe
  raceEnabled=true;
  await returnSavedNative(page,surface);
  await expect(tile).toBeVisible();await expect(main).toHaveValue('Main native handoff draft');await expect(side).toHaveValue('Independent side draft');
- expect(conflicts).toBe(1);expect(value.placement).toBe('canvas');expect(host.envelope.state.canvases[0].panels.map(panel=>panel.id)).toEqual(['main-origin','side-origin']);
+ await expect.poll(()=>value.placement).toBe('canvas');expect(conflicts).toBe(1);expect(host.envelope.state.canvases[0].panels.map(panel=>panel.id)).toEqual(['main-origin','side-origin']);
 });
 
 test('native dock refuses a panel retargeted by a concurrent profile change',async({page})=>{
@@ -166,7 +167,7 @@ test('native dock refuses a panel retargeted by a concurrent profile change',asy
  await fixture(page,[original],(type,envelope)=>{if(raceEnabled&&type==='workspace.panel.update'){raceEnabled=false;original.binding={...original.binding,threadId:'side'};original.visible=false;envelope.state.revision++;}});
  await expect(page.locator('[data-panel-id="origin"]')).toHaveCount(0);raceEnabled=true;
  await returnSavedNative(page,surface);
- await expect(page.getByRole('alert').filter({hasText:'owning panel changed'})).toBeVisible();
+ await expect(page.getByRole('status').filter({hasText:'owning panel changed'})).toBeVisible();
  expect(original).toMatchObject({binding:{threadId:'side'},placement:'native',visible:false});
 });
 
@@ -175,7 +176,7 @@ for(const geometryOnly of [true,false])test(`canvas command ${geometryOnly?'retr
  const host=await fixture(page,[owner],(type,envelope)=>{if(type==='workspace.panel.add'&&!conflicts){conflicts++;envelope.state.revision++;if(!geometryOnly)envelope.state.canvases[0].name='Changed by another layout';}});
  await page.locator('[data-panel-id="owner"]').getByRole('button',{name:'Inspect changes',exact:true}).click();
  if(geometryOnly){await expect(page.locator('.canvas-panel-diff')).toBeVisible();expect(host.envelope.state.canvases[0].panels.find(panel=>panel.kind==='diff')!.binding.threadId).toBe('task-thread');}
- else{await expect(page.getByRole('alert').filter({hasText:'workspace revision changed'})).toBeVisible();expect(host.envelope.state.canvases[0].panels.some(panel=>panel.kind==='diff')).toBe(false);}
+ else{await expect(page.getByRole('status').filter({hasText:'workspace revision changed'})).toBeVisible();expect(host.envelope.state.canvases[0].panels.some(panel=>panel.kind==='diff')).toBe(false);}
  expect(conflicts).toBe(1);
 });
 
@@ -281,15 +282,16 @@ test('canvas Connect project captures its owner across selection updates and pre
 test('obsolete model reads cancel on panel disposal and selection without cancelling another live owner',async({page})=>{
  const reads=await pendingReads(page,'models'),main=panel('selected-main','task-thread',24),other=panel('other-main','other-main',560),host=await fixture(page,[main,other]);
  host.snapshot.threads.push({...host.snapshot.threads[0],id:'other-main',title:'Other model owner'});await page.reload();
- await expect.poll(async()=>(await reads()).filter(read=>read.url.endsWith('threadId=task-thread')).length).toBe(2);
+ await expect.poll(async()=>(await reads()).filter(read=>read.url.endsWith('threadId=task-thread')).length).toBe(1);
  await expect.poll(async()=>(await reads()).filter(read=>read.url.endsWith('threadId=other-main')).length).toBe(1);
  other.visible=false;host.envelope.state.revision++;await page.evaluate(()=>window.dispatchEvent(new Event('harness:workspace-changed')));
  await expect(page.locator('[data-panel-id="other-main"]')).toHaveCount(0);
  await expect.poll(async()=>(await reads()).find(read=>read.url.endsWith('threadId=other-main'))?.aborted).toBe(true);
  expect((await reads()).filter(read=>read.url.endsWith('threadId=task-thread')).every(read=>!read.aborted)).toBe(true);
  await page.locator('.thread-item').filter({hasText:'Other model owner'}).click();
- await expect.poll(async()=>(await reads()).filter(read=>read.url.endsWith('threadId=task-thread')&&read.aborted).length).toBe(1);
- expect((await reads()).filter(read=>read.url.endsWith('threadId=task-thread')&&!read.aborted)).toHaveLength(1);
+ await expect.poll(async()=>(await reads()).filter(read=>read.url==='/api/models'&&read.aborted).length).toBe(1);
+ expect((await reads()).filter(read=>read.url.endsWith('threadId=task-thread'))).toMatchObject([{hasSignal:true,aborted:false}]);
+ expect((await reads()).filter(read=>read.url.endsWith('threadId=other-main')&&read.aborted)).toHaveLength(1);
  await expect.poll(async()=>(await reads()).filter(read=>read.url.endsWith('threadId=other-main')&&!read.aborted).length).toBe(1);
  await page.evaluate(()=>(window as any).__pendingWorkspaceReads.filter((read:any)=>!read.aborted).forEach((read:any)=>read.complete()));
  await expect(page.locator('[data-panel-id="selected-main"] .model-picker-trigger')).toContainText('Retained model');
@@ -298,12 +300,16 @@ test('obsolete model reads cancel on panel disposal and selection without cancel
 
 test('closing Settings cancels its pending catalog read and leaves the current workspace read alive',async({page})=>{
  const reads=await pendingReads(page,'models');await fixture(page,[panel('selected-main','task-thread',24)]);
- await expect.poll(async()=>(await reads()).filter(read=>read.url.includes('threadId=task-thread')).length).toBe(2);
+ await expect.poll(async()=>(await reads()).filter(read=>read.url.includes('threadId=task-thread')).length).toBe(1);
+ await expect.poll(async()=>(await reads()).filter(read=>read.url==='/api/models').length).toBe(1);
+ const retainedCatalog=(await reads()).find(read=>read.url==='/api/models')!.id;
  await page.getByRole('button',{name:'Settings',exact:true}).click();
  await expect(page.getByRole('dialog',{name:'Settings',exact:true})).toBeVisible();
- await expect.poll(async()=>(await reads()).filter(read=>read.url==='/api/models').length).toBe(1);
+ await expect.poll(async()=>(await reads()).filter(read=>read.url==='/api/models').length).toBe(2);
+ const settingsCatalog=(await reads()).find(read=>read.url==='/api/models'&&read.id!==retainedCatalog)!.id;
  await page.getByRole('dialog',{name:'Settings',exact:true}).getByRole('button',{name:'Close dialog',exact:true}).click();
- await expect.poll(async()=>(await reads()).find(read=>read.url==='/api/models')?.aborted).toBe(true);
+ await expect.poll(async()=>(await reads()).find(read=>read.id===settingsCatalog)?.aborted).toBe(true);
+ expect((await reads()).find(read=>read.id===retainedCatalog)).toMatchObject({hasSignal:true,aborted:false});
  expect((await reads()).filter(read=>read.url.includes('threadId=task-thread')).every(read=>!read.aborted)).toBe(true);
  await page.evaluate(()=>(window as any).__pendingWorkspaceReads.filter((read:any)=>!read.aborted).forEach((read:any)=>read.complete()));
  await expect(page.locator('[data-panel-id="selected-main"] .model-picker-trigger')).toContainText('Retained model');
@@ -337,11 +343,12 @@ test('a completed old project action cannot refresh over a retargeted context wh
  await expect.poll(async()=>(await reads()).filter(read=>read.url.includes('/new-project/context')).length).toBeGreaterThan(0);
  const oldReads=(await reads()).filter(read=>read.url.includes('/old-project/context')).length;
  const response=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/projects/old-project/actions');release();await response;
- await expect(editor).toBeEnabled();
+ // The previous owner's action stays unavailable until the new context resolves.
+ await expect(editor).toHaveCount(0);
  expect((await reads()).filter(read=>read.url.includes('/new-project/context')).every(read=>!read.aborted)).toBe(true);
  expect((await reads()).filter(read=>read.url.includes('/old-project/context'))).toHaveLength(oldReads);
  await page.evaluate(value=>(window as any).__pendingWorkspaceReads.filter((read:any)=>read.url.includes('/new-project/context')&&!read.aborted).forEach((read:any)=>read.complete(value)),value('new-project','Current owner'));
- await expect(tile).toContainText('Current owner');
+ await expect(tile).toContainText('Current owner');await expect(editor).toBeEnabled();
  let currentAction:any;await page.route('**/api/projects/new-project/actions',async route=>{currentAction=route.request().postDataJSON();await route.fulfill({json:{ok:true}});});
  const beforeRefresh=(await reads()).filter(read=>read.url.includes('/new-project/context')).length;
  if(await tile.locator('.project-context-tools').getAttribute('open')===null)await tile.getByText('Project tools',{exact:true}).click();await editor.click();await expect.poll(async()=>(await reads()).filter(read=>read.url.includes('/new-project/context')).length).toBe(beforeRefresh+1);

@@ -1,0 +1,93 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-v3
+
+ ❯ tests/memory-consolidation-v3.test.ts (49 tests | 12 failed) 632ms
+     × persists accepted constraints and exact pointers before authorizing compaction 8ms
+     × refuses unsupported checkpoint capability null without touching history 2ms
+     × refuses unsupported checkpoint capability {"adapterId":"legacy-adapter","apiVersion":1,"hostOwned":true} without touching history 2ms
+     × refuses unsupported checkpoint capability {"adapterId":"unknown-adapter","apiVersion":3,"hostOwned":true} without touching history 2ms
+     × refuses unsupported checkpoint capability {"adapterId":"untrusted-adapter","apiVersion":2,"hostOwned":false} without touching history 2ms
+     × blocks required compaction on persistence failure without exposing raw private errors 2ms
+     × requires durable acknowledgement of the exact saved checkpoint digest 8ms
+     × blocks compaction when correction changes while checkpoint persistence is pending 3ms
+     × blocks compaction when forget changes while checkpoint persistence is pending 3ms
+     × blocks compaction when account changes while checkpoint persistence is pending 1ms
+     × keeps existing compaction behavior when checkpointing is explicitly optional and unsupported 2ms
+     × refuses an oversized required checkpoint rather than dropping accepted constraints 2ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 12 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-consolidation-v3.test.ts > M05 adapter-gated pre-compaction checkpoint > persists accepted constraints and exact pointers before authorizing compaction
+TypeError: checkpointBeforeCompaction is not a function
+ ❯ tests/memory-consolidation-v3.test.ts:234:25
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/12]⎯
+
+ FAIL  tests/memory-consolidation-v3.test.ts > M05 adapter-gated pre-compaction checkpoint > refuses unsupported checkpoint capability null without touching history
+ FAIL  tests/memory-consolidation-v3.test.ts > M05 adapter-gated pre-compaction checkpoint > refuses unsupported checkpoint capability {"adapterId":"legacy-adapter","apiVersion":1,"hostOwned":true} without touching history
+ FAIL  tests/memory-consolidation-v3.test.ts > M05 adapter-gated pre-compaction checkpoint > refuses unsupported checkpoint capability {"adapterId":"unknown-adapter","apiVersion":3,"hostOwned":true} without touching history
+ FAIL  tests/memory-consolidation-v3.test.ts > M05 adapter-gated pre-compaction checkpoint > refuses unsupported checkpoint capability {"adapterId":"untrusted-adapter","apiVersion":2,"hostOwned":false} without touching history
+TypeError: checkpointBeforeCompaction is not a function
+ ❯ tests/memory-consolidation-v3.test.ts:248:18
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/12]⎯
+
+ FAIL  tests/memory-consolidation-v3.test.ts > M05 adapter-gated pre-compaction checkpoint > blocks required compaction on persistence failure without exposing raw private errors
+TypeError: checkpointBeforeCompaction is not a function
+ ❯ tests/memory-consolidation-v3.test.ts:254:19
+    252|   it('blocks required compaction on persistence failure without exposi…
+    253|     const x = fixture(), compact = vi.fn();
+    254|     const value = checkpointBeforeCompaction({ access, snapshot: x.sna…
+       |                   ^
+    255|     await expect(value).rejects.toMatchObject({ code: 'MEMORY_CHECKPOI…
+    256|     await expect(value).rejects.not.toThrow('PRIVATE'); expect(compact…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/12]⎯
+
+ FAIL  tests/memory-consolidation-v3.test.ts > M05 adapter-gated pre-compaction checkpoint > requires durable acknowledgement of the exact saved checkpoint digest
+TypeError: checkpointBeforeCompaction is not a function
+ ❯ tests/memory-consolidation-v3.test.ts:261:18
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/12]⎯
+
+ FAIL  tests/memory-consolidation-v3.test.ts > M05 adapter-gated pre-compaction checkpoint > blocks compaction when correction changes while checkpoint persistence is pending
+ FAIL  tests/memory-consolidation-v3.test.ts > M05 adapter-gated pre-compaction checkpoint > blocks compaction when forget changes while checkpoint persistence is pending
+ FAIL  tests/memory-consolidation-v3.test.ts > M05 adapter-gated pre-compaction checkpoint > blocks compaction when account changes while checkpoint persistence is pending
+TypeError: checkpointBeforeCompaction is not a function
+ ❯ tests/memory-consolidation-v3.test.ts:267:18
+    265|   it.each(['correction', 'forget', 'account'] as const)('blocks compac…
+    266|     const x = fixture(), compact = vi.fn();
+    267|     await expect(checkpointBeforeCompaction({ access, snapshot: x.snap…
+       |                  ^
+    268|       if (change === 'correction') x.set({ items: [item('utc', 2, 'The…
+    269|       if (change === 'forget') x.set({ tombstones: [tombstone()] });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/12]⎯
+
+ FAIL  tests/memory-consolidation-v3.test.ts > M05 adapter-gated pre-compaction checkpoint > keeps existing compaction behavior when checkpointing is explicitly optional and unsupported
+TypeError: checkpointBeforeCompaction is not a function
+ ❯ tests/memory-consolidation-v3.test.ts:278:18
+    276|   it('keeps existing compaction behavior when checkpointing is explici…
+    277|     const x = fixture(), persist = vi.fn(), compact = vi.fn(async () =…
+    278|     expect(await checkpointBeforeCompaction({ access, snapshot: x.snap…
+       |                  ^
+    279|     expect(persist).not.toHaveBeenCalled(); expect(compact).toHaveBeen…
+    280|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/12]⎯
+
+ FAIL  tests/memory-consolidation-v3.test.ts > M05 adapter-gated pre-compaction checkpoint > refuses an oversized required checkpoint rather than dropping accepted constraints
+TypeError: checkpointBeforeCompaction is not a function
+ ❯ tests/memory-consolidation-v3.test.ts:285:18
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/12]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  12 failed | 37 passed (49)
+   Start at  18:30:52
+   Duration  1.25s (transform 226ms, setup 0ms, import 350ms, tests 632ms, environment 0ms)

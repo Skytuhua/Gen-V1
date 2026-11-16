@@ -88,6 +88,20 @@ test('sort cycles numerically with one aria-sort and filter is literal, clearabl
   await expect(page.locator('.task-table [data-row-id=a] input')).toBeChecked();
 });
 
+test('filters numeric cells by copied display text or plain digits', async ({ page }) => {
+  const numericColumns = columns.map(column => column.key === 'hours' ? { ...column, type: 'number' as const } : column);
+  const data = rows.map(row => row.id === 'a' ? { ...row, hours: 1234567 } : row);
+  await open(page, data, 'dark', numericColumns);
+  const displayed = (await page.locator('[data-row-id="a"] td').last().innerText()).trim();
+  expect(displayed).not.toBe('1234567');
+  const filter = page.getByRole('textbox', { name: 'Filter rows' });
+  for (const query of [displayed, '1234567']) {
+    await filter.fill(query);
+    await expect(page.locator('.task-table tbody tr')).toHaveCount(1);
+    expect(await rowIds(page)).toEqual(['a']);
+  }
+});
+
 test('live rows and columns retain compatible settings; removing sorted column clears sort; remount resets controls', async ({ page }) => {
   const host = await open(page); await separator(page).focus(); await separator(page).press('Home');
   const grip = page.getByRole('button', { name: 'Move Task column' }); await grip.focus(); await grip.press('Alt+ArrowRight');

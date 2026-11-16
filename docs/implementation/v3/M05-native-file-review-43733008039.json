@@ -1,0 +1,326 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-11-15T16:08:28.027332+00:00",
+  "status": "PASS_NATIVE_FILE_CAPTURE_ONLY",
+  "scope": "Independent read-only verification of three real Windows FILE source capture tests. No local test run, installation, CI trigger, raw-log rewrite or ledger mutation was performed by the reviewer.",
+  "run": {
+    "id": 43733008039,
+    "attempt": 1,
+    "headSha": "5a647b04c14ba4de8d80411aeba7e649227664fc",
+    "headTreeSha": "2f8043bbb9dcd95c068eb91380ca5c897f0c754f",
+    "actualCheckoutSha": "a6853729ff49ce2b42ec5cb29526a731e38a07df",
+    "actualCheckoutTreeSha": "2f8043bbb9dcd95c068eb91380ca5c897f0c754f",
+    "checkoutParents": [
+      "399cde39ff4ee82272c7a7700944325c44b36070",
+      "5a647b04c14ba4de8d80411aeba7e649227664fc"
+    ],
+    "sourceTreeMatch": true,
+    "overallSuccessClaimed": false
+  },
+  "job": {
+    "id": 132869421442,
+    "name": "Tests (shard 4/4)",
+    "url": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43733008039/job/132869421442",
+    "status": "completed",
+    "conclusion": "success",
+    "startedAt": "2026-11-15T16:00:33Z",
+    "completedAt": "2026-11-15T16:05:50Z",
+    "labels": [
+      "windows-latest"
+    ],
+    "runnerName": "GitHub Actions 1000001170",
+    "testStep": {
+      "name": "Run application regression tests",
+      "status": "completed",
+      "conclusion": "success",
+      "number": 5,
+      "started_at": "2026-11-15T16:02:10Z",
+      "completed_at": "2026-11-15T16:05:45Z"
+    },
+    "observedCommand": {
+      "executable": "pnpm",
+      "args": [
+        "test",
+        "--maxWorkers=2",
+        "--shard=4/4"
+      ],
+      "cwd": "D:\\a\\Gen-V1\\Gen-V1",
+      "exitCode": null,
+      "exitCodeNote": "The raw log and GitHub step record success; a separate numeric subcommand exit code is not printed and is not invented."
+    }
+  },
+  "platform": {
+    "os": "Microsoft Windows Server 2025",
+    "version": "10.0.26100",
+    "edition": "Datacenter",
+    "runnerImage": "windows-2025-vs2026",
+    "runnerImageVersion": "20261103.298.1",
+    "evidence": "Raw job log lines 11-20; native test suite is explicitly skipped unless process.platform is win32."
+  },
+  "result": {
+    "file": "tests/memory-native-file-capture-v3.test.ts",
+    "passed": 3,
+    "failed": 0,
+    "skipped": 0,
+    "durationMs": 2669,
+    "suiteLogLine": 784,
+    "cases": [
+      {
+        "name": "captures exact UTF-8 bytes through the real guard and reuses the immutable FILE source without modifying the file",
+        "status": "PASS",
+        "durationMs": 1104,
+        "rawLogLine": 785,
+        "reportedAt": "2026-11-15T16:05:10.2613051Z"
+      },
+      {
+        "name": "rejects native-captured FILE recall, detail and recapture after grant revocation",
+        "status": "PASS",
+        "durationMs": 884,
+        "rawLogLine": 786,
+        "reportedAt": "2026-11-15T16:05:10.2618324Z"
+      },
+      {
+        "name": "rejects native-captured FILE recall, detail and recapture after physical replacement",
+        "status": "PASS",
+        "durationMs": 680,
+        "rawLogLine": 787,
+        "reportedAt": "2026-11-15T16:05:10.2620646Z"
+      }
+    ],
+    "shardTotals": {
+      "testFilesPassed": 86,
+      "testFilesSkipped": 2,
+      "testsPassed": 903,
+      "testsSkipped": 30
+    },
+    "otherShardSkipsDoNotApplyToTheseThreeCases": true
+  },
+  "evidence": {
+    "rawJobLog": {
+      "ref": "/workspace/scratch/36f66011d961/m05-ci-43733008039/job-132869421442.log",
+      "bytes": 112983,
+      "sha256": "61fd87f5fb3a5d6d3b0e67b42bfd6de05e8a97200d13844620fd36807e39bc38"
+    },
+    "jobApiSnapshot": {
+      "ref": "/workspace/scratch/36f66011d961/m05-ci-43733008039/jobs-api-20261115T160611223Z.json",
+      "bytes": 20687,
+      "sha256": "3e4808927742f6ec87fd06c1d132903a7156c40d442afe1ae55644d1059cd06c"
+    },
+    "checkoutCommitMetadata": {
+      "ref": "/workspace/scratch/36f66011d961/m05-ci-43733008039/checkout-commit.json",
+      "bytes": 2656,
+      "sha256": "50a2c704a0e44487cbb4bdc56be2ded58b79daa41bc989276cd99a3077eb2456"
+    },
+    "workflowRunSnapshot": {
+      "ref": "/workspace/scratch/36f66011d961/m05-ci-43733008039/workflow-run-20261115T160611223Z.json",
+      "bytes": 13086,
+      "sha256": "21a9fd5483948f5b8242c90dfd6c801d97898f060d51a7f4e7f850fa9b7fcc0f"
+    },
+    "excerptTransformation": "The following excerpt removes ANSI terminal formatting and the UTF-8 BOM only; the referenced raw job log is unchanged.",
+    "boundedExcerpt": [
+      {
+        "line": 12,
+        "text": "2026-11-15T16:00:33.7933844Z Microsoft Windows Server 2025"
+      },
+      {
+        "line": 13,
+        "text": "2026-11-15T16:00:33.7934323Z 10.0.26100"
+      },
+      {
+        "line": 17,
+        "text": "2026-11-15T16:00:33.7935960Z Image: windows-2025-vs2026"
+      },
+      {
+        "line": 18,
+        "text": "2026-11-15T16:00:33.7936442Z Version: 20261103.298.1"
+      },
+      {
+        "line": 32,
+        "text": "2026-11-15T16:00:34.2470056Z Complete job name: Tests (shard 4/4)"
+      },
+      {
+        "line": 132,
+        "text": "2026-11-15T16:00:43.6121461Z a6853729ff49ce2b42ec5cb29526a731e38a07df"
+      },
+      {
+        "line": 539,
+        "text": "2026-11-15T16:02:10.1748060Z ##[group]Run pnpm test --maxWorkers=2 --shard=4/4"
+      },
+      {
+        "line": 553,
+        "text": "2026-11-15T16:02:10.6871719Z > pnpm build:credential-lease && pnpm build:widgets && vitest run \"--maxWorkers=2\" \"--shard=4/4\""
+      },
+      {
+        "line": 784,
+        "text": "2026-11-15T16:05:10.2609212Z  ✓ tests/memory-native-file-capture-v3.test.ts (3 tests) 2669ms"
+      },
+      {
+        "line": 785,
+        "text": "2026-11-15T16:05:10.2613051Z      ✓ captures exact UTF-8 bytes through the real guard and reuses the immutable FILE source without modifying the file  1104ms"
+      },
+      {
+        "line": 786,
+        "text": "2026-11-15T16:05:10.2618324Z      ✓ rejects native-captured FILE recall, detail and recapture after grant revocation  884ms"
+      },
+      {
+        "line": 787,
+        "text": "2026-11-15T16:05:10.2620646Z      ✓ rejects native-captured FILE recall, detail and recapture after physical replacement  680ms"
+      },
+      {
+        "line": 914,
+        "text": "2026-11-15T16:05:45.1913197Z  Test Files  86 passed | 2 skipped (88)"
+      },
+      {
+        "line": 915,
+        "text": "2026-11-15T16:05:45.1918799Z       Tests  903 passed | 30 skipped (933)"
+      },
+      {
+        "line": 917,
+        "text": "2026-11-15T16:05:45.1921701Z    Duration  198.85s (transform 4.75s, setup 0ms, import 23.57s, tests 359.05s, environment 8ms)"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "path": "tests/memory-native-file-capture-v3.test.ts",
+      "gitBlob": "c2bc4a908a46e6daa454879b7ba3c11a99c73f69",
+      "sha256": "cf08e06d1b3c09f3b59fd10d319244d06fbd27375f7434cd673bd38bc36ac6d5",
+      "bytes": 7623,
+      "currentWorkingBytesMatch": true
+    },
+    {
+      "path": "tests/project-memory-fixture.ts",
+      "gitBlob": "dbdbc86830c06c6614f8df260d000d7035370b55",
+      "sha256": "71159ca52a41e8d1c6f00caa7d1f3ab01cb56d2ffce5fc12d2e4806d67d33852",
+      "bytes": 2523,
+      "currentWorkingBytesMatch": true
+    },
+    {
+      "path": "vitest.config.ts",
+      "gitBlob": "d6efe75f6d0a1c0a2d4cd325ea5cf54ea5c0f0cb",
+      "sha256": "142e0f1d5b6670f297873048317cfa53323676131db6793dd7095afef94720ea",
+      "bytes": 484,
+      "currentWorkingBytesMatch": true
+    },
+    {
+      "path": "packages/core/project-memory.ts",
+      "gitBlob": "08f522d2ebd1e82851f26c2a16575c1d469ab66b",
+      "sha256": "8a16e89273a6853e71237ca595b620e9864dc486ad28cfc3ac39e0672690dfd2",
+      "bytes": 63143,
+      "currentWorkingBytesMatch": true
+    },
+    {
+      "path": "packages/core/file-access.ts",
+      "gitBlob": "39c23109859e283e07628034a5a352a32958470e",
+      "sha256": "26d9f0d085923047881f96c64d8fdfa3928ab101ea27c4774eeb18ca68ac1f65",
+      "bytes": 11810,
+      "currentWorkingBytesMatch": true
+    },
+    {
+      "path": "packages/core/windows-path-guard.ps1",
+      "gitBlob": "4ee3427f44cf547d44aa5f5d01da3fc395241bfa",
+      "sha256": "31e4f87108c34d2db51e7999bb9b0b64a127c30711d4e7e921dbbc4ae00c6acb",
+      "bytes": 15955,
+      "currentWorkingBytesMatch": true
+    },
+    {
+      "path": "packages/core/security.ts",
+      "gitBlob": "b676d8f33fe10e52c3395116f0fa1cb4be52c6e2",
+      "sha256": "286df9991313997e0edc13fb1478ad095339ff93f8efe5448a28f71a500d7946",
+      "bytes": 5344,
+      "currentWorkingBytesMatch": true
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "gitBlob": "eb385f2c9fd578193d0688fc0d5cd70c865c2f1f",
+      "sha256": "f6784cbf55a423682a12729499fdb9c3b9fa3a7518039dc5750a13a66315c462",
+      "bytes": 10660,
+      "currentWorkingBytesMatch": true
+    }
+  ],
+  "nativePathReview": {
+    "testLocalOnlyEnablement": true,
+    "productionMemoryFlagsAssertedFalse": true,
+    "disposableFilesAndProfile": true,
+    "canonicalFilePathAndRealDevInoGrant": true,
+    "grantWritable": false,
+    "mocksOrStubsInTestFixtureOrConfig": 0,
+    "sourcePath": [
+      {
+        "path": "tests/memory-native-file-capture-v3.test.ts",
+        "lines": [
+          24,
+          45,
+          51,
+          73,
+          85,
+          123
+        ],
+        "role": "Creates a real temporary UTF-8 file and readonly physical resource grant; calls the actual ProjectMemory.captureFile; asserts enabled registry flags remain false."
+      },
+      {
+        "path": "tests/project-memory-fixture.ts",
+        "lines": [
+          9,
+          20,
+          22
+        ],
+        "role": "Creates real Store and ProjectMemory with a constructor-local enabled predicate; opts in the source thread. No file-access dependency replacement."
+      },
+      {
+        "path": "packages/core/project-memory.ts",
+        "lines": [
+          264,
+          273
+        ],
+        "role": "captureFile checks current physical grant, then awaits withResourceGrant and readBoundFile, revalidates ownership, and persists exact UTF-8 source/ref/private grant metadata."
+      },
+      {
+        "path": "packages/core/file-access.ts",
+        "lines": [
+          111,
+          125
+        ],
+        "role": "withResourceGrant resolves the readonly grant, enters withPathGuard, revalidates it and calls the real bound reader."
+      },
+      {
+        "path": "packages/core/file-access.ts",
+        "lines": [
+          33,
+          36,
+          78,
+          87
+        ],
+        "role": "The win32 guard branch spawns the fixed system Windows PowerShell executable with windows-path-guard.ps1, requires acquisition response, and awaits guard teardown."
+      },
+      {
+        "path": "packages/core/file-access.ts",
+        "lines": [
+          129,
+          146
+        ],
+        "role": "readBoundFile uses a real readonly file handle, regular/single-link checks and bounded byte reads."
+      }
+    ],
+    "nativeProcessIndividuallyInstrumented": false,
+    "executionBasis": "The actual Windows test result and immutable unmocked source path together establish native guarded FILE capture execution. No per-process PowerShell event trace or PID receipt was collected."
+  },
+  "provedBehavior": [
+    "Exact UTF-8 source bytes, full FILE reference, source digest, captured sequence and private grant metadata.",
+    "Second capture reuses the immutable source without a new Store mutation.",
+    "Source detail returns the captured bytes while the file bytes, identity, size and mtime remain unchanged.",
+    "Removing the current resource grant denies fresh accepted recall, pinned source detail and recapture.",
+    "Replacing the physical file with identical bytes but a different identity denies the same operations.",
+    "A caller retaining the prior accepted candidate list is still excluded by a fresh source-availability check, with empty injection and SOURCE_UNAVAILABLE reason.",
+    "Rejected recapture leaves sequence and stored source rows unchanged."
+  ],
+  "limitations": [
+    "These are three Windows source-integration cases using disposable test-owned FILE grants. They do not prove arbitrary project-directory grants, every filesystem/reparse configuration or installed-package execution.",
+    "The fixture uses synthetic account/model identifiers and constructor-local memory enablement. It does not activate either production memory flag.",
+    "No live provider calls, recall quality evaluation, model token usage or provider cost were measured.",
+    "This successful shard does not establish overall CI success. The separate installed-desktop job failed preflight and its retention scenario has not supplied execution proof.",
+    "Linux skips and compilation were not used as native execution evidence."
+  ],
+  "providerCallsMeasured": null,
+  "modelSpend": null
+}

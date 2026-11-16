@@ -1,0 +1,127 @@
+{
+  "version": 1,
+  "reviewedAt": "2026-11-15T17:56:09.896016+00:00",
+  "scope": "Read-only review of the frozen two-file7z config repair and readily available exact pinned Nsis7z wrapper/fallback source. No implementation tests, native installation, source edits or ledger writes.",
+  "configRepair": {
+    "status": "No concrete defect found; actual Windows package/install pending",
+    "files": [
+      {
+        "path": "/workspace/scratch/36f66011d961/m05-continuation/scripts/desktop-assets.ts",
+        "bytes": 7629,
+        "sha256": "e8c2a0f25f3b449c0704f9f240b95496279270a9b4f9aebe1390d3497a7d3022"
+      },
+      {
+        "path": "/workspace/scratch/36f66011d961/m05-continuation/tests/desktop-packaging.test.ts",
+        "bytes": 7814,
+        "sha256": "118804b89b0b99947b268cbcfa825f3e75032950e54f1b2b0fff4d2b9a622935"
+      }
+    ],
+    "changes": [
+      "useZip:true to false",
+      "Matching expectation in existing desktop packaging contract",
+      "Corrected comment: temporary copy occurs during installation, installed app launches directly"
+    ],
+    "unchanged": [
+      "NSIS/x64 target",
+      "oneClick/per-user/no elevation",
+      "packElevateHelper:false",
+      "differentialPackage:false",
+      "runAfterFinish:false",
+      "deleteAppDataOnUninstall:false",
+      "resource paths and source/payload custody",
+      "600000ms installer deadline",
+      "All existing installed full inventory assertions"
+    ],
+    "crlfPreserved": true,
+    "existingFocusedGreen": {
+      "path": "/workspace/scratch/36f66011d961/m05-continuation/docs/implementation/v3/m05-logs/continuation-nsis-7z-contract-green.log",
+      "bytes": 232,
+      "sha256": "682150b380c13433a5318111415609999ede3857a2e8358e071ecb75d8677315"
+    },
+    "greenResult": "11 passed; read supplied existing log, no rerun."
+  },
+  "actualPinnedPlugin": {
+    "resourcesArchive": {
+      "path": "/workspace/scratch/36f66011d961/m05-ci-43739565577/nsis-resources-3.4.1.7z",
+      "bytes": 730800,
+      "sha256": "593a9a92ef958321293ac6a2ee61e64bf1bd543142a5bd6b3d310709cc924103"
+    },
+    "resourcesUrl": "https://github.com/electron-userland/electron-builder-binaries/releases/download/nsis-resources-3.4.1/nsis-resources-3.4.1.7z",
+    "archiveMember": "plugins/x86-unicode/nsis7z.dll",
+    "plugin": {
+      "path": "/workspace/scratch/36f66011d961/m05-ci-43739565577/nsis-resource-analysis/nsis7z-x86-unicode.dll",
+      "bytes": 434176,
+      "sha256": "b393f05e8ff919ef071181050e1873c9a776e1a0ae8329aefff7007d0cadf592"
+    },
+    "peFileVersion": "19.00.0.0",
+    "peTimestamp": "2019-03-24T07:18:48Z",
+    "officialMatchingArchive": {
+      "path": "/workspace/scratch/36f66011d961/m05-ci-43739565577/Nsis7z_19.00-source.7z",
+      "bytes": 461078,
+      "sha256": "6f2f3730049926f40442ee0c8b7d3e3dee7ace544d82467ff8059ea3f4201c58"
+    },
+    "officialArchiveUrl": "https://nsis.sourceforge.io/mediawiki/images/6/69/Nsis7z_19.00.7z",
+    "officialLandingPage": "https://nsis.sourceforge.io/Nsis7z_plug-in",
+    "matchingOfficialMember": "Plugins/x86-unicode/nsis7z.dll",
+    "byteIdentical": true,
+    "provenanceQualification": "Actual checksum-pinned release bundle used; its Nsis7z differs from older repository-tag DLL. No assumption tag and release artifact are interchangeable."
+  },
+  "sourceFiles": [
+    {
+      "path": "/workspace/scratch/36f66011d961/m05-ci-43739565577/nsis-resource-analysis/nsis7z19-source/Contrib/nsis7z/CPP/7zip/Bundles/Nsis7z/nsis7z.cpp",
+      "bytes": 3554,
+      "sha256": "6e99ce3cef822ef32da6d3bf0827cd6c6c71af4e090759035094d12c17e631cd"
+    },
+    {
+      "path": "/workspace/scratch/36f66011d961/m05-ci-43739565577/nsis-resource-analysis/nsis7z19-source/Contrib/nsis7z/CPP/7zip/UI/NSIS/MainAr.cpp",
+      "bytes": 1790,
+      "sha256": "c21c4a85426d3fa350385e32eaead8a720c067c20b9804ccc4e3bc32af93d1c1"
+    },
+    {
+      "path": "/workspace/scratch/36f66011d961/m05-ci-43739565577/nsis-resource-analysis/nsis7z19-source/Contrib/nsis7z/CPP/7zip/UI/NSIS/Main.cpp",
+      "bytes": 4389,
+      "sha256": "f0a1844b9dd0ca1d97e594fc68a21f378a24ae7a78cdaf14dd4669cfdabb730d"
+    },
+    {
+      "path": "/workspace/scratch/36f66011d961/m05-ci-43739565577/nsis-resource-analysis/nsis7z19-source/Contrib/nsis7z/DOC/nsis7z.txt",
+      "bytes": 5875,
+      "sha256": "881f8ba4da0a0c30e281d324408baa596f14211b03d1f3bf99fe18c4621916c3"
+    },
+    {
+      "path": "/workspace/scratch/36f66011d961/m05-continuation/node_modules/.pnpm/app-builder-lib@26.18.0_dmg-builder@26.18.0_electron-builder-squirrel-windows@26.18.0/node_modules/app-builder-lib/templates/nsis/include/extractAppPackage.nsh",
+      "bytes": 3189,
+      "sha256": "e4174388a0f7a1df0b85a0742aa1ea7a4b2b18f9f29dccd6ef10a66212f68148"
+    }
+  ],
+  "pathFindings": [
+    {
+      "file": "nsis7z.cpp",
+      "fact": "Wrapper uses TCHAR sArchive[1024] for archive input and gets output directory from NSIS OUTDIR."
+    },
+    {
+      "file": "MainAr.cpp:65-83; Main.cpp:130-135",
+      "fact": "Destination converted to UString and assigned to CExtractOptions.OutputDir; no260-character destination cap established in these supplied files."
+    },
+    {
+      "file": "DOC/nsis7z.txt:135-137",
+      "fact": "Distribution instructs adding separate LZMA SDK19.00 sources; full SDK Windows filesystem implementation is not in the supplied plugin source archive."
+    }
+  ],
+  "fallbackFindings": {
+    "templateLines": [
+      92,
+      138
+    ],
+    "firstStage": "Extract into $PLUGINSDIR/7z-out; restore final OUTDIR before CopyFiles /SILENT.",
+    "copyFailure": "Four1-second retry sleeps; fifth copy error MessageBox has /SD IDRETRY. On retry choice, delete temporary tree and call Nsis7z::Extract directly into restored final destination.",
+    "limit": "Fallback is gated on CopyFiles error. Silent omissions in initial extraction with successful copy do not trigger fallback. Nsis7z wrapper discards DoExtract result, so native return success alone is insufficient.",
+    "finalAcceptance": "Installed verifier always enumerates exact installed relative paths, lengths andSHA256 hashes and compares complete inventory to prehashed expected unpacked tree before provider checks or native launches."
+  },
+  "remainingUnknowns": [
+    "Actual Windows PLUGINSDIR/temp path and its combined maximum extracted path were not captured in previous run.",
+    "Exact downstream SDK filesystem and native CopyFiles path limit not established by the readily available matched wrapper source.",
+    "The prior expected max installed path240 applies to final destination, not automatically to temporary extraction destination.",
+    "No actual7z package/install execution yet, no inferred root cause for previous600000ms installer timeout."
+  ],
+  "conclusion": "No speculative temporary-path change warranted by this bounded review. Actual exact-payload Windows installed verification is the acceptance gate."
+}

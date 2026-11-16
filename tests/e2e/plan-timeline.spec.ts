@@ -3,9 +3,7 @@ import { timelineSnapshot } from "./plan-timeline-fixture";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/plan-timeline.html");
-  await page.waitForFunction(
-    () => getComputedStyle(document.querySelector(".plan-overall-bar")!).height === "3px",
-  );
+  await expect(page.locator(".plan-overall-bar")).toHaveCSS("height", "3px", { timeout: 30000 });
   await page.evaluate(() => document.fonts.ready);
 });
 
@@ -87,13 +85,20 @@ test("retains a valid plan when the latest canonical graph is malformed", async 
   plan.agents[0].parentJobId = "missing";
   await page.evaluate((snapshot) => window.planFixture.update(snapshot), invalid);
   await expect(page.locator('[data-step-id="build"]')).toBeVisible();
-  await expect(page.getByRole("alert")).toContainText("last valid revision");
+  await expect(page.getByRole("region", { name: "Task plan: Improve the workspace", exact: true }).getByRole("status").filter({ hasText: "last valid revision" })).toContainText("last valid revision");
   await expect(page.getByText("Rev 1", { exact: true })).toBeVisible();
 });
 
 test("host replan preserves assignment, collapse and reading anchor when earlier details grow", async ({
   page,
 }) => {
+  // Completed details start closed; open them before exercising real height growth.
+  await page.getByRole("button", { name: "Plan actions" }).click();
+  await page.getByRole("menuitem", { name: "Expand all" }).click();
+  await expect(page.locator('[data-step-id="scope"] > .plan-step-summary')).toHaveAttribute(
+    "aria-expanded",
+    "true",
+  );
   const target = page.locator('[data-step-id="verify"] > .plan-step-summary');
   await target.scrollIntoViewIfNeeded();
   await target.focus();
@@ -161,6 +166,9 @@ test("deep nested agents and long output labels fit a 280px panel without hiding
     });
   plan.steps[1].outputs![0].label = "ExtremelyLongOutputLabelWithNoNaturalBreaks".repeat(3);
   await page.evaluate((snapshot) => window.planFixture.update(snapshot), snapshot);
+  // Reveal completed ancestors through the same user action before testing nested geometry.
+  await page.getByRole("button", { name: "Plan actions" }).click();
+  await page.getByRole("menuitem", { name: "Expand all" }).click();
   await expect(page.locator('[data-agent-id="nested-5"]')).toBeVisible();
   expect(await page.locator("main").evaluate((el) => el.scrollWidth)).toBeLessThanOrEqual(280);
   await page.locator('[data-step-id="build"]').scrollIntoViewIfNeeded();

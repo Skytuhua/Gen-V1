@@ -154,9 +154,10 @@ export function createDesktopUpdater(options:DesktopUpdaterOptions):DesktopUpdat
     publish({state:'installing',version:entry.version,message:'Installing the verified Gen update.'});
     if(!current(entry))return false;
     if(!safeClose(proof)){deferForClose(entry.version);return false;}
-    installationRequested=true;
     updater.quitAndInstall(true,restart);
-    return current(entry);
+    // The driver can emit an error synchronously even when it returns normally.
+    installationRequested=current(entry);
+    return installationRequested;
    }catch{if(current(entry))failure();return false;}
    finally{installPending=false;}
   },

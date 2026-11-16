@@ -6,7 +6,7 @@ import {createSplitWorkspaceLayout,applySplitWorkspaceCommand} from '../../packa
 import type {SplitWorkspaceLayout} from '../../packages/contracts/split-workspace';
 import {serveTaskFixture, taskFixture} from './task-interface-fixture';
 
-async function fixture(page: Page, {native = false, delayed = false, unavailable = false, invalidOwner = false, working = true, pinned = false, archiveConfirmation = true, emptyAgents = false, plugins = {} as {fail?: boolean; manifests?: unknown[]}} = {}) {
+async function fixture(page: Page, {native = false, delayed = false, unavailable = false, invalidOwner = false, working = true, pinned = false, archiveConfirmation = true, emptyAgents = false, retiredActive = '', plugins = {} as {fail?: boolean; manifests?: unknown[]}} = {}) {
   const snapshot = taskFixture({root: 'text', elements: {text: {type: 'Text', props: {text: 'Synthetic host fixture'}}}});
   snapshot.threads[0] = {...snapshot.threads[0], id: 'parent-a', title: 'Project investigation', projectId: 'project-a', projectName: 'Alpha', status: working ? 'working' : 'ready', runId: working ? 'run-a' : null};
   snapshot.activeThreadId = 'parent-a'; snapshot.artifacts = []; snapshot.userStates = []; snapshot.data = []; snapshot.messages = [];
@@ -34,12 +34,12 @@ async function fixture(page: Page, {native = false, delayed = false, unavailable
   }, {native});
   const requests: string[] = [];
   page.on('request', request => {const url = new URL(request.url()); if (url.pathname.startsWith('/api/')) requests.push(url.pathname + url.search);});
-  const rows: ThreadNavigationRow[] = snapshot.threads.map(({id, title, projectId, projectName, createdAt, updatedAt, status, runId, presentation}) => ({id, title, projectId, projectName, createdAt, updatedAt, status, runId, presentation}));
+  const rows: ThreadNavigationRow[] = snapshot.threads.map(({id, title, projectId, projectName, createdAt, updatedAt, status, runId, presentation}) => ({id, title, projectId, projectName, createdAt, updatedAt, status, runId, presentation, workspaceId: 'copy-a', threadRevision: 'rev-hover-1'}));
   let failed = unavailable, release!: () => void;
   const gate = delayed ? new Promise<void>(resolve => {release = resolve;}) : Promise.resolve();
   const projects = [{id: 'project-a', name: 'Alpha', authority: {kind: 'local'}, rootPath: 'C:/synthetic/alpha', createdAt: '2026-11-06T00:00:00.000Z'}];
   const canvases = ['workspace', 'all-agents', 'code-review', 'research', 'custom'].map(preset => ({id: preset, name: preset, preset, version: 1, panels: [], filter: 'all', projectIds: [], viewport: {x: 0, y: 0, zoom: 1}}));
-  const envelope = {projects, state: {version: 1, revision: 1, activeCanvasId: invalidOwner ? 'missing' : 'all-agents', canvases, profiles: [], disabledKinds: [], integrations: {}}};
+  const envelope = {projects, state: {version: 1, revision: 1, activeCanvasId: invalidOwner ? 'missing' : retiredActive || 'all-agents', canvases, profiles: [], disabledKinds: [], integrations: {}}};
   await page.route('**/api/workspace', async route => {await gate; return failed ? route.fulfill({status: 503, json: {error: {code: 'UNAVAILABLE', message: 'Workspace unavailable'}}}) : route.fulfill({json: envelope});});
   await page.route('**/api/workspace/commands', route => {
     const input = route.request().postDataJSON();
@@ -82,36 +82,7 @@ async function fixture(page: Page, {native = false, delayed = false, unavailable
   return {requests, commands, snapshot, publish, envelope, dockLayouts, dockCommands, profiles, dockReads, release: () => release?.(), recover: () => {failed = false; envelope.state.activeCanvasId = 'all-agents';}};
 }
 
-test('Custom saves its own dock arrangement without enabling the legacy split preference',async({page})=>{
- const h=await fixture(page,{working:false});
- await page.getByRole('button',{name:'Workspace',exact:true}).click();
- await page.getByRole('button',{name:'Custom',exact:true}).click();
- await page.getByRole('button',{name:'Layouts',exact:true}).click();
- await expect(page.getByRole('button',{name:'Save current layout…',exact:true})).toBeEnabled();
- await page.getByRole('button',{name:'Save current layout…',exact:true}).click();
- await page.getByRole('textbox',{name:'Layout name',exact:true}).fill('My tool desk');
- await page.getByRole('button',{name:'Save',exact:true}).click();
- await expect(page.getByRole('button',{name:'Apply My tool desk',exact:true})).toBeVisible();
- expect(h.dockCommands.filter(c=>c.type==='split-workspace.profile.save').map(c=>c.payload.workspaceId)).toEqual(['custom']);
- expect(Object.values(h.dockLayouts.get('custom')!.views).some(view=>view.kind==='thread')).toBe(false);
- expect(h.commands.filter(command=>command.type==='thread.create')).toEqual([]);
-});
 
-test('Custom keeps the anchored conversation and enables dock layout saving without creating a thread', async ({page}) => {
- const h=await fixture(page,{working:false});
- await page.getByRole('button',{name:'Open conversation Project investigation',exact:true}).click();
- const draft=page.getByRole('textbox',{name:'Message',exact:true});
- await draft.fill('Keep the anchored Custom draft');
- const node=await draft.elementHandle();
- await page.getByRole('button',{name:'Custom',exact:true}).click();
- await expect(draft).toBeVisible();
- await expect(draft).toHaveValue('Keep the anchored Custom draft');
- expect(await draft.evaluate((element,original)=>element===original,node)).toBe(true);
- await expect(page.locator('.workspace-canvas')).toHaveCount(0);
- await page.getByRole('button',{name:'Layouts',exact:true}).click();
- await expect(page.getByRole('button',{name:'Save current layout…',exact:true})).toBeEnabled();
- expect(h.commands.filter(command=>command.type==='thread.create')).toEqual([]);
-});
 
 test('cold restored monitor resolves its owner before any global conversation read', async ({page}) => {
   const h = await fixture(page, {delayed: true});
@@ -364,6 +335,16 @@ test('keyboard and status Stop share the ordinary composer pending owner', async
   await expect.poll(() => h.commands.filter(command => command.type === 'run.stop').length).toBe(1);
 });
 
+test('monitor Stop shortcut stops the focused working agent exactly once (AUD-06)', async ({page}) => {
+  const h = await fixture(page);
+  const stop = page.getByRole('button', {name: 'Stop Project investigation', exact: true});
+  await stop.waitFor({state: 'visible'});
+  await stop.focus();
+  await page.keyboard.press('Escape');
+  await expect.poll(() => h.commands.filter(command => command.type === 'run.stop').length).toBe(1);
+  expect(h.commands.find(command => command.type === 'run.stop')?.threadId).toBe('parent-a');
+});
+
 test('review: returning through All Agents retains the latest conversation selection', async ({page}) => {
  await fixture(page, {working:false});
  await page.getByRole('button',{name:'Open conversation Project investigation',exact:true}).click();
@@ -376,23 +357,45 @@ test('review: returning through All Agents retains the latest conversation selec
  await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('Draft belongs to latest B');
 });
 
-for (const fromMonitor of [false, true]) for (const [preset, label] of [['research', 'Research'], ['code-review', 'Code Review']]) test(`review: first ${label} canvas creation carries the selected conversation from ${fromMonitor ? 'monitor' : 'conversation'}`, async ({page}) => {
- const originalRoute=page.route.bind(page);
- page.route=async (url:any, handler:any, options:any)=>{
-  if(url==='**/api/workspace') return originalRoute(url, async route=>{
-   const fake={...route, fulfill:async (opts:any)=>{opts.json.state.canvases=opts.json.state.canvases.filter((c:any)=>c.preset!==preset);return route.fulfill(opts);}};
-   return handler(fake);
-  },options);
-  return originalRoute(url,handler,options);
- };
- await fixture(page, {working:false});
- await page.getByRole('button',{name:'Open conversation Project investigation',exact:true}).click();
- await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeVisible();
- await page.getByRole('button',{name:'Empty draft stays in navigation Ready',exact:true}).click();
- if (fromMonitor) {await page.getByRole('button',{name:'All Agents',exact:true}).click(); await expect(page.getByRole('region',{name:'Agent workspace',exact:true})).toBeVisible();}
- const created=page.waitForRequest(request=>request.url().endsWith('/api/workspace/commands')&&request.postDataJSON().type==='workspace.canvas.create');
- await page.getByRole('button',{name:label,exact:true}).click();
- expect((await created).postDataJSON().payload).toMatchObject({preset,threadId:'empty-draft'});
+test('the workspace switcher offers only supported presets (T05/R12)', async ({page}) => {
+  await fixture(page, {working: false});
+  await expect(page.getByRole('button', {name: 'Workspace', exact: true})).toBeVisible();
+  await expect(page.getByRole('button', {name: 'All Agents', exact: true})).toBeVisible();
+  for (const label of ['Code Review', 'Research', 'Custom']) await expect(page.getByRole('button', {name: label, exact: true})).toHaveCount(0);
+});
+
+for (const preset of ['code-review', 'custom'] as const) test(`a saved ${preset} canvas resolves to Workspace without rewriting the retired record (T05/R12)`, async ({page}) => {
+  const h = await fixture(page, {working: false, retiredActive: preset});
+  await expect(page.getByRole('textbox', {name: 'Message', exact: true})).toBeVisible();
+  expect(h.envelope.state.activeCanvasId).toBe('workspace');
+  expect(h.envelope.state.canvases).toHaveLength(5);
+  const retired = h.envelope.state.canvases.find(canvas => canvas.id === preset)!;
+  expect(retired.preset).toBe(preset);
+  for (const label of ['Code Review', 'Research', 'Custom']) await expect(page.getByRole('button', {name: label, exact: true})).toHaveCount(0);
+});
+
+test('explicit retained-canvas restoration still renders a saved retired canvas record (T05/R12)', async ({page}) => {
+  await page.addInitScript(() => localStorage.setItem('harness:workspace-mode:v3', 'retained-canvas'));
+  const h = await fixture(page, {working: false, retiredActive: 'custom'});
+  await expect(page.getByRole('region', {name: 'custom canvas', exact: true})).toBeVisible();
+  expect(h.envelope.state.activeCanvasId).toBe('custom');
+  expect(h.envelope.state.canvases.find(canvas => canvas.id === 'custom')!.preset).toBe('custom');
+});
+
+test('PR hover opens the shared linked-pull-requests surface in Workspace, not a retired review canvas (T05/R12)', async ({page}) => {
+  const h = await fixture(page, {working: false});
+  await page.route('**/api/projects/project-a/context*', route => route.fulfill({json: {project: {id: 'project-a', name: 'Alpha', authority: {kind: 'local'}, rootPath: 'C:/synthetic/alpha', createdAt: '2026-11-06T00:00:00.000Z'}, threadId: 'parent-a', workingCopy: {id: 'copy-a', path: 'C:/synthetic/alpha'}, threadRevision: 'rev-hover-1', machineName: 'Synthetic host', editor: {available: false, label: 'Editor'}, branch: 'feature/fixture', head: null, changes: {added: 1, removed: 0, files: 1}, lineage: [], scripts: [], capabilities: {git: true, terminal: false, pullRequests: true}}}));
+  await page.route('**/api/projects/project-a/pull-requests*', route => route.fulfill({json: {repo: 'synthetic/alpha', items: [{number: 7, title: 'Review me', state: 'open'}]}}));
+  await page.route('**/api/projects/project-a/git*', route => route.fulfill({json: {branch: 'feature/fixture', head: 'abcdef1234', revision: 'rev-1', files: [], gitWrite: false, stagedDiff: '', diff: ''}}));
+  await page.locator('[data-thread-id="parent-a"] .thread-item').hover();
+  const action = page.getByRole('button', {name: /Open PR #7/});
+  await action.waitFor({state: 'visible'});
+  await action.click();
+  await expect(page.getByRole('textbox', {name: 'Message', exact: true})).toBeVisible();
+  await expect(page.getByText('Linked pull requests', {exact: true}).first()).toBeVisible();
+  expect(h.envelope.state.activeCanvasId).toBe('workspace');
+  expect(h.envelope.state.canvases).toHaveLength(5);
+  await expect(page.getByRole('button', {name: 'Code Review', exact: true})).toHaveCount(0);
 });
 
 test('review: restored archived conversation becomes available in monitor navigation', async ({page})=>{
@@ -501,7 +504,7 @@ test('desktop ownership change prevents a slash mode retry after authentication 
  await input.fill('/plan');
  await expect(page.getByRole('option',{name:'/plan Switch to Plan'})).toBeVisible();
  await input.press('Enter');
- await expect(page.getByRole('alert').filter({hasText:'The command owner changed'})).toBeVisible();
+ await expect(page.getByRole('status').filter({hasText:'The command owner changed'})).toBeVisible();
  expect(attempts).toBe(1);
 });
 
@@ -531,7 +534,7 @@ test('a native owner roundtrip before auth retry still rejects the stale mode',a
  await expect.poll(()=>attempts).toBe(1);
  await page.evaluate(()=>(window as any).publishOwner(true));await expect(input).toBeDisabled();
  await page.evaluate(()=>(window as any).publishOwner(false));await expect(input).toBeEnabled();release();
- await expect(page.getByRole('alert').filter({hasText:'The command owner changed'})).toBeVisible();expect(attempts).toBe(1);
+ await expect(page.getByRole('status').filter({hasText:'The command owner changed'})).toBeVisible();expect(attempts).toBe(1);
 });
 
 test('unmounting the monitor before native takeover rejects a stale mode retry',async({page})=>{
@@ -548,7 +551,7 @@ test('unmounting the monitor before native takeover rejects a stale mode retry',
  await page.getByRole('button',{name:'Open conversation Project investigation',exact:true}).click();
  await expect(input).toHaveCount(0);
  await page.evaluate(()=>(window as any).publishOwner(true));
- await expect(page.getByText('This conversation is open in another window.',{exact:false})).toBeVisible();release();
+ await expect(page.getByText('Conversation open in another window.',{exact:false})).toBeVisible();release();
  await expect.poll(()=>attempts,{timeout:1500}).toBe(1);
  console.log(JSON.stringify({scenario:'unmount-then-native-takeover',attempts,sent}));
  expect(attempts).toBe(1);
@@ -569,7 +572,7 @@ test('synchronous native owner roundtrip fences the pending mode retry and permi
  // Both trusted callbacks run in one task: there is no DOM wait or React render between them.
  await page.evaluate(()=>{(window as any).publishOwner(true);(window as any).publishOwner(false);});
  release();
- await expect(page.getByRole('alert').filter({hasText:'The command owner changed'})).toBeVisible();
+ await expect(page.getByRole('status').filter({hasText:'The command owner changed'})).toBeVisible();
  expect(sent).toHaveLength(1);expect(sent[0]).toMatchObject({type:'thread.mode',threadId:'parent-a',payload:{mode:'plan'}});
  await expect(input).toBeEnabled();await input.fill('/default');
  await expect(page.getByRole('option',{name:'/default Switch to Build'})).toBeVisible();await input.press('Enter');
@@ -594,7 +597,7 @@ test('native takeover immediately before the mode callback prevents its initial 
   });
  });
  await input.press('Enter');
- await expect(page.getByRole('alert').filter({hasText:'The command owner changed'})).toBeVisible();
+ await expect(page.getByRole('status').filter({hasText:'The command owner changed'})).toBeVisible();
  expect(await page.evaluate(()=>(window as any).ownerCallbackSawEnabled)).toBe(true);
  expect(h.commands.filter(command=>command.type==='thread.mode')).toHaveLength(0);
  await expect(input).toBeDisabled();
@@ -640,94 +643,9 @@ for(const type of ['message.send','run.stop'] as const)test(`synchronous native 
 });
 
 
-test('Custom retains its previous canvas as explicit recovery without replacing the chat draft',async({page})=>{
- const h=await fixture(page,{working:false});
- const canvas=h.envelope.state.canvases.find(canvas=>canvas.preset==='custom')!;
- (canvas.panels as unknown[]).push({id:'old-custom-output',kind:'output',canvasId:canvas.id,binding:{authority:{kind:'local'},threadId:'parent-a'},placement:'canvas',visible:true,collapsed:false,bounds:{x:32,y:48,width:400,height:360},order:0,alwaysOnTop:false});
- h.profiles.set('modern',{id:'modern',name:'Modern tool desk',updatedAt:'2026-11-06T12:00:00.000Z',layout:createSplitWorkspaceLayout('custom')});
- const original=structuredClone(canvas);
- await page.getByRole('button',{name:'Open conversation Project investigation',exact:true}).click();
- await page.getByRole('textbox',{name:'Message',exact:true}).fill('Draft survives explicit old layout recovery');
- await page.getByRole('button',{name:'Custom',exact:true}).click();
- await page.getByRole('button',{name:'Layouts',exact:true}).click();
- await expect(page.getByRole('button',{name:'Apply Modern tool desk',exact:true})).toBeFocused();await page.keyboard.press('ArrowDown');await expect(page.getByRole('button',{name:'Recover Previous custom arrangement',exact:true})).toBeFocused();
- await page.getByRole('button',{name:'Recover Previous custom arrangement',exact:true}).click();
- await expect(page.locator('[data-panel-id="old-custom-output"]')).toBeVisible();
- expect(canvas).toEqual(original);
- await page.getByRole('button',{name:'Custom',exact:true}).click();
- await expect(page.locator('.workspace-canvas')).toHaveCount(0);
- await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('Draft survives explicit old layout recovery');
- expect(canvas).toEqual(original);
-});
-
-test('Custom arranges Terminal below Files while the anchored composer stays mounted',async({page})=>{
- await page.setViewportSize({width:1600,height:1000});
- const h=await fixture(page,{working:false});
- h.snapshot.usage['parent-a']={contextTokens:null,contextWindow:null,inputTokens:111,outputTokens:22,cost:1,activity:'idle',sessionPercent:null,weeklyPercent:null};
- h.snapshot.usage['empty-draft']={...h.snapshot.usage['parent-a'],inputTokens:222,cost:2};
- await page.route('**/api/projects/project-a/files?*',route=>route.fulfill({json:{path:'',entries:[{name:'fixture.ts',path:'fixture.ts',kind:'file'}]}}));
- let terminalStarts=0;const terminalIds:string[]=[],terminalReads:URL[]=[];
- await page.route('**/api/terminals**',route=>{
-  const request=route.request(),url=new URL(request.url());
-  if(request.method()==='POST'&&url.pathname==='/api/terminals'){terminalStarts++;const {terminalId:id,projectId,threadId}=request.postDataJSON();terminalIds.push(id);return route.fulfill({json:{id,projectId,threadId,output:'Synthetic terminal transcript',start:0,cursor:29,exited:terminalStarts>1,exitCode:terminalStarts>1?0:null}});}
-  if(request.method()==='GET'){terminalReads.push(url);if(terminalReads.length===1)return route.fulfill({status:503,json:{error:{code:'HTTP_ERROR',message:'Synthetic read interruption'}}});return route.fulfill({json:{id:decodeURIComponent(url.pathname.split('/')[3]),projectId:url.searchParams.get('projectId'),threadId:url.searchParams.get('threadId'),output:'',start:29,cursor:29,exited:true,exitCode:0}});}
-  if(request.method()==='POST'&&url.pathname.endsWith('/commands')){const {projectId,threadId}=request.postDataJSON();return route.fulfill({json:{id:decodeURIComponent(url.pathname.split('/')[3]),projectId,threadId,output:'',start:29,cursor:29,exited:false,exitCode:null}});}
-  return route.fulfill({status:404,json:{error:{code:'NOT_FOUND',message:'Unexpected synthetic terminal request'}}});
- });
- await page.getByRole('button',{name:'Open conversation Project investigation',exact:true}).click();
- const draft=page.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Chat is anchored beside tools');const node=await draft.elementHandle();
- await page.getByRole('button',{name:'Custom',exact:true}).click();
- await page.getByRole('button',{name:'Panels',exact:true}).click();await page.getByRole('menuitem',{name:'Add Files panel',exact:true}).click();
- const dock=page.getByRole('complementary',{name:'Custom tools',exact:true});
- await expect(dock.getByRole('navigation',{name:'Project files',exact:true})).toContainText('fixture.ts');
- await dock.getByLabel('Area actions',{exact:true}).click();
- await expect(page.getByRole('menuitem',{name:'Split above / below',exact:true})).toBeEnabled();
- await page.getByRole('menuitem',{name:'Split above / below',exact:true}).click();
- await expect.poll(()=>Object.keys(h.dockLayouts.get('custom')!.panes).length).toBe(2);
- const empty=dock.locator('[data-split-pane]').filter({hasText:'Add a tool'});
- await empty.getByLabel('Area actions',{exact:true}).click();await page.getByRole('menuitem',{name:'Editor: Terminal',exact:true}).click();
- await expect.poll(()=>terminalStarts).toBe(1);
- const terminalStatus=dock.locator('[data-split-view^="terminal:"] span[role="status"]');
- await expect(terminalStatus).toHaveText('Read interrupted');
- const terminalNode=await dock.locator('.xterm').elementHandle();
- await dock.getByRole('button',{name:'Retry',exact:true}).click();
- await expect(terminalStatus).toHaveText('Ended');
- expect(terminalReads.map(url=>[url.pathname,url.searchParams.get('projectId'),url.searchParams.get('threadId'),url.searchParams.get('cursor')])).toEqual(Array.from({length:2},()=>['/api/terminals/'+terminalIds[0],'project-a','parent-a','29']));
- expect(await dock.locator('.xterm').evaluate((element,original)=>element===original,terminalNode)).toBe(true);expect(terminalStarts).toBe(1);
- const files=await dock.locator('[data-split-view="files:parent-a"]').boundingBox(),terminal=await dock.locator('[data-split-view^="terminal:parent-a:"]').boundingBox();
- expect(terminal!.y).toBeGreaterThan(files!.y+files!.height);
- await expect(draft).toHaveValue('Chat is anchored beside tools');expect(await draft.evaluate((element,original)=>element===original,node)).toBe(true);
- const fileNode=await dock.getByRole('navigation',{name:'Project files',exact:true}).elementHandle();
- await page.getByRole('button',{name:'Layouts',exact:true}).click();await page.getByRole('button',{name:'Save current layout…',exact:true}).click();await page.getByRole('textbox',{name:'Layout name',exact:true}).fill('Files and terminal');await page.getByRole('button',{name:'Save',exact:true}).click();await expect(page.getByRole('button',{name:'Apply Files and terminal',exact:true})).toBeVisible();await page.keyboard.press('Escape');
- await page.getByRole('button',{name:/^Empty draft stays in navigation /}).click();await draft.fill('The other conversation keeps ownership');
- await dock.getByRole('tab',{name:'Files',exact:true}).click();await expect(draft).toHaveValue('The other conversation keeps ownership');
- await page.getByRole('button',{name:'Panels',exact:true}).click();await page.getByRole('menuitem',{name:'Add Usage panel',exact:true}).click();
- const usage=page.getByRole('dialog',{name:'Usage',exact:true});
- await expect(usage.getByRole('region',{name:'test · Empty draft stays in navigation',exact:true})).toBeVisible();
- await expect(usage.getByRole('region',{name:'test · Project investigation',exact:true})).toHaveCount(0);
- await usage.getByRole('button',{name:'Close dialog',exact:true}).click();await expect(draft).toHaveValue('The other conversation keeps ownership');
- await page.getByRole('button',{name:'Layouts',exact:true}).click();await page.getByRole('button',{name:'Apply Files and terminal',exact:true}).click();
- await expect(draft).toHaveValue('The other conversation keeps ownership');expect(await dock.getByRole('navigation',{name:'Project files',exact:true}).evaluate((element,original)=>element===original,fileNode)).toBe(true);expect(terminalStarts).toBe(1);
- await page.reload();await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('The other conversation keeps ownership');await expect.poll(()=>terminalStarts).toBe(2);expect(new Set(terminalIds).size).toBe(1);
- expect(Object.values(h.dockLayouts.get('custom')!.views).filter(view=>view.kind==='files'||view.kind==='terminal').every(view=>view.binding.threadId==='parent-a')).toBe(true);
- expect(Object.values(h.dockLayouts.get('custom')!.views).some(view=>view.kind==='thread')).toBe(false);
-});
 
 
-test('Custom dock stays inside its owner at wide, narrow and short sizes',async({page},info)=>{
- await fixture(page,{working:false});
- await page.getByRole('button',{name:'Open conversation Project investigation',exact:true}).click();
- await page.getByRole('button',{name:'Custom',exact:true}).click();
- await page.getByRole('button',{name:'Panels',exact:true}).click();await page.getByRole('menuitem',{name:'Add Notes panel',exact:true}).click();
- const dock=page.getByRole('complementary',{name:'Custom tools',exact:true});await expect(dock).toBeVisible();
- for(const [width,height] of [[1600,1000],[1024,768],[640,420]]){
-  await page.setViewportSize({width,height});
-  await expect.poll(()=>dock.evaluate(element=>{const outer=element.parentElement!.getBoundingClientRect(),inner=element.getBoundingClientRect();return {contained:inner.left>=outer.left-1&&inner.right<=outer.right+1&&inner.top>=outer.top-1&&inner.bottom<=outer.bottom+1,outer:{width:outer.width,height:outer.height},inner:{width:inner.width,height:inner.height}};}),{message:`Custom ${width}x${height} dock bounds`}).toMatchObject({contained:true});
-  const bounds=await page.locator('.shell-workarea').evaluate(element=>{const chat=element.querySelector('.workspace')!.getBoundingClientRect(),tools=element.querySelector('.workspace-tools')!.getBoundingClientRect();return{stacked:element.getAttribute('data-tool-layout')==='stacked',chat:{x:chat.x,y:chat.y,width:chat.width,height:chat.height,bottom:chat.bottom},tools:{x:tools.x,y:tools.y,width:tools.width,height:tools.height}};});
-  if(bounds.stacked)expect(bounds.tools.y).toBeGreaterThanOrEqual(bounds.chat.bottom);else{expect(bounds.chat.width).toBeGreaterThanOrEqual(419);expect(bounds.tools.width).toBeLessThanOrEqual(721);}
-  for(const theme of ['dark','light']){await page.evaluate(theme=>document.documentElement.dataset.theme=theme,theme);await page.screenshot({path:info.outputPath(`custom-${theme}-${width}x${height}.png`),fullPage:true,animations:'disabled'});}
- }
-});
+
 
 
 async function addCustomArtifacts(page:Page,h:Awaited<ReturnType<typeof fixture>>){
@@ -753,52 +671,13 @@ test('Workspace artifact uses the shared chooser and retains the anchored chat d
  expect(h.commands.filter(command=>['message.send','thread.create'].includes(command.type))).toHaveLength(0);
 });
 
-test('Custom keeps artifact contents mounted while its tools are hidden',async({page})=>{
- const h=await fixture(page,{working:false});await page.getByRole('button',{name:'Open conversation Project investigation',exact:true}).click();await page.getByRole('button',{name:'Custom',exact:true}).click();await addCustomArtifacts(page,h);
- await page.locator('.workspace [data-artifact-id="artifact-a"]').getByRole('button',{name:'Open artifact in workspace',exact:true}).click();
- const artifact=page.locator('.custom-tools-dock [data-artifact-id="artifact-a"]');await expect(artifact).toBeVisible();const node=await artifact.elementHandle();
- await page.getByRole('button',{name:'Hide workspace panel',exact:true}).click();await expect(artifact).toHaveCount(1);expect(await node!.evaluate(element=>element.isConnected)).toBe(true);await expect(artifact).toBeHidden();
- await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();await expect(artifact).toBeVisible();expect(await artifact.evaluate((element,original)=>element===original,node)).toBe(true);
-});
-
-test('Custom binds distinct artifacts and its Artifact menu resolves the active source',async({page})=>{
- const h=await fixture(page,{working:false});await page.getByRole('button',{name:'Open conversation Project investigation',exact:true}).click();await page.getByRole('button',{name:'Custom',exact:true}).click();await addCustomArtifacts(page,h);
- await page.locator('.workspace [data-artifact-id="artifact-a"]').getByRole('button',{name:'Open artifact in workspace',exact:true}).click();await expect(page.locator('.custom-tools-dock [data-artifact-id="artifact-a"]')).toBeVisible();
- await page.locator('.workspace [data-artifact-id="artifact-b"]').getByRole('button',{name:'Open artifact in workspace',exact:true}).click();await expect(page.locator('.custom-tools-dock [data-artifact-id="artifact-b"]')).toBeVisible();
- await page.getByRole('button',{name:'Panels',exact:true}).click();await page.getByRole('menuitem',{name:'Add Artifact panel',exact:true}).click();await expect(page.locator('.custom-tools-dock [data-artifact-id="artifact-a"]')).toBeVisible();
- const views=Object.values(h.dockLayouts.get('custom')!.views).filter(view=>view.kind==='artifact');expect(views).toHaveLength(2);expect(new Set(views.map(view=>view.id)).size).toBe(2);expect(views.every(view=>view.binding.threadId==='parent-a')).toBe(true);
-});
-
-test('Custom sidebar offers selection without movable conversation placement',async({page})=>{
- const h=await fixture(page,{working:false});await page.getByRole('button',{name:'Open conversation Project investigation',exact:true}).click();await page.getByRole('button',{name:'Custom',exact:true}).click();
- await page.getByRole('button',{name:'Options for Empty draft stays in navigation',exact:true}).click();await expect(page.getByRole('menuitem',{name:/^Place in workspace/})).toHaveCount(0);
- expect(h.dockCommands.filter(command=>JSON.stringify(command.payload).includes('"kind":"thread"'))).toEqual([]);
-});
-
-test('Custom metadata recovery keeps each canvas save receipt in its original scope',async({page})=>{
- const h=await fixture(page,{working:false});h.envelope.state.canvases.push({id:'custom-b',name:'Custom B',preset:'custom',version:1,panels:[],filter:'all',projectIds:[],viewport:{x:0,y:0,zoom:1}});
- await page.getByRole('button',{name:'Workspace',exact:true}).click();await page.getByRole('button',{name:'Custom',exact:true}).click();
- const save=async()=>{await page.getByRole('button',{name:'Layouts',exact:true}).click();await page.getByRole('button',{name:'Save current layout…',exact:true}).click();await page.getByRole('textbox',{name:'Layout name',exact:true}).fill('Tool desk');await page.getByRole('button',{name:'Save',exact:true}).click();};
- h.dockReads.failMetadata=true;await save();await expect(page.getByRole('alert').filter({hasText:'Synthetic layout metadata unavailable'}).last()).toBeVisible();await page.getByRole('button',{name:'Cancel',exact:true}).click();await page.keyboard.press('Escape');h.dockReads.failMetadata=false;
- await page.getByRole('combobox',{name:'Saved workspace',exact:true}).click();await page.getByRole('option',{name:'Custom B',exact:true}).click();await save();await expect(page.getByRole('dialog',{name:'Save current layout',exact:true})).toHaveCount(0);await page.keyboard.press('Escape');
- await page.getByRole('combobox',{name:'Saved workspace',exact:true}).click();await page.getByRole('option',{name:'custom',exact:true}).click();await save();await expect(page.getByRole('dialog',{name:'Save current layout',exact:true})).toHaveCount(0);
- expect(h.dockCommands.filter(command=>command.type==='split-workspace.profile.save').map(command=>command.payload.workspaceId)).toEqual(['custom','custom-b']);expect(h.profiles.size).toBe(2);
-});
 
 
-test('Custom selector captures the requested canvas before its asynchronous handoff',async({page})=>{
- const h=await fixture(page,{working:false});h.envelope.state.canvases.push({id:'custom-b',name:'Custom B',preset:'custom',version:1,panels:[],filter:'all',projectIds:[],viewport:{x:0,y:0,zoom:1}});
- await page.getByRole('button',{name:'Workspace',exact:true}).click();await page.getByRole('button',{name:'Custom',exact:true}).click();
- await page.getByRole('combobox',{name:'Saved workspace',exact:true}).click();await page.getByRole('option',{name:'Custom B',exact:true}).click();
- await expect(page.getByRole('combobox',{name:'Saved workspace',exact:true})).toHaveText('Custom B');
- await expect.poll(()=>h.envelope.state.activeCanvasId).toBe('custom-b');
-});
 
 
-test('Custom dock uses the shared surface colors in both themes',async({page})=>{
- await fixture(page,{working:false});await page.getByRole('button',{name:'Open conversation Project investigation',exact:true}).click();await page.getByRole('button',{name:'Custom',exact:true}).click();await page.getByRole('button',{name:'Panels',exact:true}).click();await page.getByRole('menuitem',{name:'Add Notes panel',exact:true}).click();
- for(const theme of ['light','dark']){await page.evaluate(theme=>document.documentElement.dataset.theme=theme,theme);await expect.poll(()=>page.locator('.custom-tools-dock .split-pane').evaluate(element=>{const probe=document.createElement('span');probe.style.backgroundColor='var(--surface)';document.body.append(probe);const expected=getComputedStyle(probe).backgroundColor;probe.style.backgroundColor='var(--selection-bg)';const selection=getComputedStyle(probe).backgroundColor;probe.remove();const tab=element.querySelector('[role=tab][aria-selected=true]');return getComputedStyle(element).backgroundColor===expected&&Boolean(tab)&&getComputedStyle(tab!).backgroundColor===selection;})).toBe(true);}
-});
+
+
+
 
 test('monitor Settings code loads only on open and remains reusable after closing during loading',async({page})=>{
  let release!:()=>void,requested!:()=>void;const gate=new Promise<void>(resolve=>release=resolve),firstChunk=new Promise<void>(resolve=>requested=resolve),chunks:string[]=[];
@@ -876,4 +755,27 @@ test('All Agents empty copy reconciles with existing conversations and shows a l
  await expect(connectivity).toContainText('Live');
  await expect(connectivity.locator('.agents-connectivity-dot')).toHaveCount(1);
  await expect(connectivity).toHaveAttribute('data-connected','true');
+});
+
+test('an unavailable main layout gives the user a retry without reloading the page', async ({page}) => {
+  await fixture(page, {working: false});
+  let reads = 0;
+  let unavailable = true;
+  await page.route('**/api/split-workspace?*', route => {
+    reads++;
+    if (unavailable) return route.fulfill({status: 503, json: {error: {code: 'UNAVAILABLE', message: 'Workspace layout temporarily unavailable.'}}});
+    return route.fallback();
+  });
+  await page.getByRole('button', {name: 'Workspace', exact: true}).click();
+  const retry = page.getByRole('button', {name: 'Retry workspace layout', exact: true});
+  await expect(page.getByRole('alert').filter({hasText: 'Workspace layout temporarily unavailable.'})).toBeVisible();
+  const failedReads = reads;
+  unavailable = false;
+  let navigations = 0;
+  page.on('framenavigated', frame => {if (frame === page.mainFrame()) navigations++;});
+  await retry.click();
+  await expect(page.getByRole('textbox', {name: 'Message', exact: true})).toBeVisible();
+  await expect(retry).toHaveCount(0);
+  expect(reads).toBeGreaterThan(failedReads);
+  expect(navigations).toBe(0);
 });

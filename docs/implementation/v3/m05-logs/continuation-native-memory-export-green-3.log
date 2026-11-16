@@ -1,0 +1,114 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ✓ tests/desktop-preload-accounts.test.ts > preserves explicit account IDs through the real preload bridge 2ms
+ ✓ tests/desktop-preload-accounts.test.ts > does not silently reinterpret invalid account "" as legacy authentication 1ms
+ ✓ tests/desktop-preload-accounts.test.ts > does not silently reinterpret invalid account null as legacy authentication 0ms
+ ✓ tests/desktop-preload-accounts.test.ts > forwards only serialized project memory through the explicit export channel 0ms
+ ✓ tests/desktop-memory-export.test.ts > keeps an ordinary download denied without an explicit memory export request 147ms
+ ✓ tests/desktop-memory-export.test.ts > admits canonical main-owned JSON once and acknowledges only a completed native save 15ms
+ ✓ tests/desktop-memory-export.test.ts > allows the owning detached {"kind":"thread","threadId":"thread-a"} surface 4ms
+ ✓ tests/desktop-memory-export.test.ts > allows the owning detached {"kind":"plan","threadId":"thread-a"} surface 3ms
+ ✓ tests/desktop-memory-export.test.ts > allows the owning detached {"kind":"workspace","threadId":"thread-a","tab":"context"} surface 2ms
+ ✓ tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"plugin","pluginId":"plugin-a","scopeId":"scope-a","surfaceId":"view-a"} 2ms
+ ✓ tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"browser","browserId":"browser-a"} 1ms
+ ✓ tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"navigation"} 1ms
+ ✓ tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"usage","threadId":"thread-a"} 1ms
+ ✓ tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"thread","threadId":"foreign"} 1ms
+ ✓ tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"plan","threadId":"foreign"} 1ms
+ ✓ tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"workspace","threadId":"foreign","tab":"context"} 1ms
+ ✓ tests/desktop-memory-export.test.ts > refuses a surface without this export authority: {"kind":"workspace","tab":"context"} 1ms
+ ✓ tests/desktop-memory-export.test.ts > does not consume the permit for a foreign origin 2ms
+ ✓ tests/desktop-memory-export.test.ts > does not consume the permit for a foreign url 3ms
+ ✓ tests/desktop-memory-export.test.ts > does not consume the permit for a foreign filename 2ms
+ ✓ tests/desktop-memory-export.test.ts > does not consume the permit for a foreign chain 2ms
+ ✓ tests/desktop-memory-export.test.ts > does not consume the permit for a foreign frame 11ms
+ ✓ tests/desktop-memory-export.test.ts > does not consume the permit for a foreign contents 2ms
+ ✓ tests/desktop-memory-export.test.ts > refuses a changed live owner before a pending native download is admitted 2ms
+ ✓ tests/desktop-memory-export.test.ts > revokes a pending export on navigation 2ms
+ ✓ tests/desktop-memory-export.test.ts > revokes a pending export on destroyed 1ms
+ ✓ tests/desktop-memory-export.test.ts > revokes a pending export on replacement frame 1ms
+ ✓ tests/desktop-memory-export.test.ts > revokes navigation from the current Electron main-frame event details 2ms
+ ✓ tests/desktop-memory-export.test.ts > uses current frame details before deprecated navigation arguments 2ms
+ ✓ tests/desktop-memory-export.test.ts > retains only a fixed origin refusal reason until admission expiry 2ms
+ ✓ tests/desktop-memory-export.test.ts > retains only a fixed url refusal reason until admission expiry 1ms
+ ✓ tests/desktop-memory-export.test.ts > retains only a fixed filename refusal reason until admission expiry 1ms
+ ✓ tests/desktop-memory-export.test.ts > retains only a fixed chain refusal reason until admission expiry 2ms
+ ✓ tests/desktop-memory-export.test.ts > retains only a fixed frame refusal reason until admission expiry 2ms
+ ✓ tests/desktop-memory-export.test.ts > expires an unused grant and never authorizes a late matching download 2ms
+ ✓ tests/desktop-memory-export.test.ts > cancels a hung admitted save within its separate completion bound 2ms
+ ✓ tests/desktop-memory-export.test.ts > reports native cancellation without claiming the file was saved 1ms
+ ✓ tests/desktop-memory-export.test.ts > refuses to acknowledge a completed export after interrupted 2ms
+ ✓ tests/desktop-memory-export.test.ts > refuses to acknowledge a completed export after short bytes 1ms
+ ✓ tests/desktop-memory-export.test.ts > cleans the admitted export when the native received-byte getter throws 2ms
+ ✓ tests/desktop-memory-export.test.ts > revokes the grant when fixed-script execution fails 1ms
+ ✓ tests/desktop-memory-export.test.ts > cleans native authority immediately when script dispatch throws synchronously 1ms
+ ✓ tests/desktop-memory-export.test.ts > does not replace a live export with a second same-window request 1ms
+ ✓ tests/memory-export-client-v3.test.ts > passes only a validated server export through the native bridge and binds its completed receipt 200ms
+ ✓ tests/memory-export-client-v3.test.ts > does not offer a foreign server scope to the native download policy 8ms
+ ✓ tests/memory-export-client-v3.test.ts > fails closed on an older desktop bridge instead of attempting the blocked browser download 5ms
+ ✓ tests/memory-export-client-v3.test.ts > does not fall back to an arbitrary browser download when native export is refused 6ms
+ ✓ tests/memory-export-client-v3.test.ts > rejects native completion metadata that does not attest the exact export 9ms
+ ✓ tests/memory-export-client-v3.test.ts > rejects native completion metadata that does not attest the exact export 4ms
+ ✓ tests/memory-export-client-v3.test.ts > rejects native completion metadata that does not attest the exact export 6ms
+ ✓ tests/memory-export-client-v3.test.ts > rejects native completion metadata that does not attest the exact export 8ms
+ ✓ tests/memory-export-client-v3.test.ts > rejects native completion metadata that does not attest the exact export 3ms
+ ✓ tests/memory-export-client-v3.test.ts > retains cancellation as cancellation rather than reporting a saved export 3ms
+ ✓ tests/memory-export-client-v3.test.ts > does not acknowledge a native save after the owning review has changed 3ms
+ ✓ tests/memory-export-client-v3.test.ts > keeps the ordinary browser export path without granting it native save status 3ms
+ ✓ tests/desktop-memory-export.test.ts > bounds active exports across windows and releases capacity after terminal cancellation 6ms
+ ✓ tests/desktop-memory-export.test.ts > cancels an admitted native download when its owning document is destroyed 1ms
+ ✓ tests/desktop-memory-export.test.ts > rejects invalid or unredacted input before creating a grant 0ms
+ ✓ tests/desktop-memory-export.test.ts > rejects invalid or unredacted input before creating a grant 1ms
+ ✓ tests/desktop-memory-export.test.ts > rejects invalid or unredacted input before creating a grant 1ms
+ ✓ tests/desktop-memory-export.test.ts > rejects invalid or unredacted input before creating a grant 1ms
+ ✓ tests/desktop-memory-export.test.ts > rejects invalid or unredacted input before creating a grant 0ms
+ ✓ tests/desktop-memory-export.test.ts > bounds UTF-8 input before JSON parsing or script execution 3ms
+ ✓ tests/desktop-memory-export.test.ts > supports the full schema with escaped control text without a one-megabyte truncation 240ms
+ ✓ tests/desktop-native.test.ts > bounded backend readiness > accepts the exact owned ready message after the former 25-second limit 5ms
+ ✓ tests/desktop-native.test.ts > bounded backend readiness > still refuses a backend that never becomes ready at the 60-second bound 2ms
+ ✓ tests/desktop-native.test.ts > bounded backend readiness > ignores foreign tokens, origins, PIDs and errors until its own ready message 1ms
+ ✓ tests/desktop-native.test.ts > bounded backend readiness > fails immediately on a child error and removes readiness listeners 1ms
+ ✓ tests/desktop-native.test.ts > bounded backend readiness > fails immediately on child exit with the bounded diagnostic tail 1ms
+ ✓ tests/desktop-native.test.ts > bounded backend readiness > fails immediately on an authenticated backend startup error 1ms
+ ✓ tests/desktop-native.test.ts > native desktop surface authority > retains the original personal sidecar and immutable native document URL 1ms
+ ✓ tests/desktop-native.test.ts > native desktop surface authority > restricts plug-in native IPC to its window lifecycle 0ms
+ ✓ tests/desktop-native.test.ts > native desktop surface authority > keeps plug-in task ownership distinct from personal surfaces 3ms
+ ✓ tests/desktop-native.test.ts > native desktop surface authority > passes only an explicitly supported subscription provider into the fixed sign-in helper 0ms
+ ✓ tests/desktop-native.test.ts > native desktop surface authority > rejects unrecognized provider or executable-shaped sign-in input before process creation 1ms
+ ✓ tests/desktop-native.test.ts > native desktop surface authority > launches the real Node sidecar loader through a file URL, including Windows paths with spaces 283ms
+ ✓ tests/desktop-native.test.ts > native desktop surface authority > admits only bounded typed identities and registered surface properties 1ms
+ ✓ tests/desktop-native.test.ts > native desktop surface authority > keeps task-specific windows distinct without accepting arbitrary window URLs 0ms
+ ✓ tests/desktop-native.test.ts > native desktop surface authority > requires the original main frame, exact URL and webContents identity 0ms
+ ✓ tests/desktop-native.test.ts > native desktop surface authority > requires the actual matching editor to flush when detachment starts in a sidebar 0ms
+ ✓ tests/desktop-native.test.ts > pinned outbound browser transport > resolves once and returns a numeric destination, rejecting private rebinds and custom ports 4ms
+ ✓ tests/desktop-native.test.ts > pinned outbound browser transport > sends HTTP only to the approved numeric address and rejects a later private response 13ms
+ ✓ tests/desktop-native.test.ts > pinned outbound browser transport > pins CONNECT to the approved numeric address and rejects loopback before opening a socket 3ms
+ ✓ tests/desktop-native.test.ts > native detached geometry > allows independent X/Y placement on a connected negative-coordinate display 0ms
+ ✓ tests/desktop-native.test.ts > native detached geometry > recovers removed-monitor bounds and oversized/invalid values inside a reachable work area 0ms
+ ✓ tests/desktop-native.test.ts > isolated built-in browser > closes explicitly removed browser views and frees their budget while preserving a reparented view 0ms
+ ✓ tests/desktop-native.test.ts > isolated built-in browser > rejects local/private/credentialled/non-web pages before native navigation 1ms
+ ✓ tests/desktop-native.test.ts > isolated built-in browser > fails closed for DNS failures and mixed public/private DNS responses 0ms
+ ✓ tests/desktop-native.test.ts > isolated built-in browser > does not admit mapped/private IPv6 addresses or arbitrary browser control arguments 0ms
+ ✓ tests/project-memory-ui.test.ts > makes project memory reachable from an owning main project context without making a request 506ms
+ ✓ tests/project-memory-ui.test.ts > rejects a view returned for a different projectId 22ms
+ ✓ tests/project-memory-ui.test.ts > rejects a view returned for a different threadId 7ms
+ ✓ tests/project-memory-ui.test.ts > rejects a view returned for a different accountId 5ms
+ ✓ tests/project-memory-ui.test.ts > rejects an item from a different physical project inside a valid response envelope 4ms
+ ✓ tests/project-memory-ui.test.ts > refuses a replacement physical binding during an open review 7ms
+ ✓ tests/project-memory-ui.test.ts > rejects a view that republishes text for an existing deletion tombstone 3ms
+ ✓ tests/project-memory-ui.test.ts > requests the exact item revision and source digest and rejects another source revision 3ms
+ ✓ tests/project-memory-ui.test.ts > pins the complete source reference when equal content has multiple origins 7ms
+ ✓ tests/project-memory-ui.test.ts > rejects source bytes that do not match the immutable recorded digest 3ms
+ ✓ tests/project-memory-ui.test.ts > does not publish source content when browser digest verification is unavailable 5ms
+ ✓ tests/project-memory-ui.test.ts > does not accept a forget preview for another revision 4ms
+ ✓ tests/project-memory-ui.test.ts > sends a revision-bound user action with CSRF and a stable command ID on a transport retry 10ms
+ ✓ tests/project-memory-ui.test.ts > does not dispatch a mutation after the owning view changes 3ms
+ ✓ tests/project-memory-ui.test.ts > rejects another command receipt instead of acknowledging the reviewed revision 4ms
+ ✓ tests/project-memory-ui.test.ts > rejects an export whose owner differs or whose redaction claim is absent 4ms
+ ✓ tests/project-memory-ui.test.ts > only exposes recall for the exact request generation and owner 31ms
+
+ Test Files  5 passed (5)
+      Tests  106 passed (106)
+   Start at  03:39:23
+   Duration  954ms (transform 871ms, setup 0ms, import 810ms, tests 1.71s, environment 0ms)

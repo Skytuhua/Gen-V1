@@ -1,0 +1,21 @@
+2026-11-15T12:59:58.5902629Z ##[group]Run python -I -S -B tests/hermes_atomic_controls.py -v
+2026-11-15T12:59:58.5903181Z python -I -S -B tests/hermes_atomic_controls.py -v
+2026-11-15T12:59:58.5977436Z shell: C:\Program Files\PowerShell\7\pwsh.EXE -command ". '{0}'"
+2026-11-15T12:59:58.5977790Z env:
+2026-11-15T12:59:58.5978055Z   PNPM_HOME: C:\Users\runneradmin\setup-pnpm\node_modules\.bin
+2026-11-15T12:59:58.5978493Z   pythonLocation: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T12:59:58.5978967Z   PKG_CONFIG_PATH: C:\hostedtoolcache\windows\Python\3.14.10\x64/lib/pkgconfig
+2026-11-15T12:59:58.5979427Z   Python_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T12:59:58.5979842Z   Python2_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T12:59:58.5980270Z   Python3_ROOT_DIR: C:\hostedtoolcache\windows\Python\3.14.10\x64
+2026-11-15T12:59:58.5980724Z   HARNESS_HERMES_PYTHON: C:\hostedtoolcache\windows\Python\3.14.10\x64\python.exe
+2026-11-15T12:59:58.5981141Z ##[endgroup]
+2026-11-15T13:00:02.6347488Z test_failed_atomic_writer_leaves_all_controls_unchanged (__main__.AtomicControls.test_failed_atomic_writer_leaves_all_controls_unchanged) ... ok
+2026-11-15T13:00:02.7010503Z test_later_writer_failure_cannot_leave_half_a_protection_state (__main__.AtomicControls.test_later_writer_failure_cannot_leave_half_a_protection_state) ... ok
+2026-11-15T13:00:02.8115983Z test_legacy_metrics_are_preserved_once_without_resetting_later_source_use (__main__.AtomicControls.test_legacy_metrics_are_preserved_once_without_resetting_later_source_use) ... ok
+2026-11-15T13:00:02.8969246Z test_matching_existing_source_keeps_its_newer_activity (__main__.AtomicControls.test_matching_existing_source_keeps_its_newer_activity) ... ok
+2026-11-15T13:00:02.9031031Z 
+2026-11-15T13:00:02.9031639Z ----------------------------------------------------------------------
+2026-11-15T13:00:02.9032316Z Ran 4 tests in 3.708s
+2026-11-15T13:00:02.9032473Z 
+2026-11-15T13:00:02.9032577Z OK

@@ -1,0 +1,14 @@
+{
+  "status": "MANIFEST_ONLY",
+  "summary": {
+    "controlCorrectness": null,
+    "treatmentCorrectness": null,
+    "recallUsefulness": null,
+    "totalAuxiliaryCost": null,
+    "injectedBytes": null,
+    "retrievalLatencyMs": null
+  },
+  "gates": [
+    "Supply an actual loopback host, available model, and explicitly opted-in disposable fixture project/source conversation."
+  ]
+}

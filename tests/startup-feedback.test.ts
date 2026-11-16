@@ -21,9 +21,10 @@ describe('static startup feedback', () => {
     browser = await chromium.launch({headless: true, ...(process.platform === 'win32' ? {channel: 'msedge'} : {})});
   });
 
+  // Playwright's closeOrKill window is 30 seconds; allow owned cleanup to finish.
   afterAll(async () => {
     await browser?.close();
-  });
+  }, 45000);
 
   for (const viewport of viewports) {
     it(`keeps all feedback below OS controls without overflow at ${viewport.width}x${viewport.height}`, async () => {

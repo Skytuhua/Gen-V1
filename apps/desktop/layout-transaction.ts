@@ -1,4 +1,26 @@
+import {randomUUID} from 'node:crypto';
 import {desktopSurfaceKey,parseDesktopLayout,type DesktopLayout,type DesktopLayoutEntry} from '../../packages/desktop-contract/index.ts';
+
+export interface NativeCloseOwner {
+ closePromise?:Promise<boolean>;
+ closeRequest?:{id:string;resolve:(allow:boolean)=>void;timer:ReturnType<typeof setTimeout>};
+}
+
+/** A delivery failure does not authorize closing an editor with unsaved changes. */
+export function requestNativeClose(owner:NativeCloseOwner,notify:(id:string)=>void):Promise<boolean>{
+ if(owner.closePromise)return owner.closePromise;
+ const id=randomUUID();
+ let settle!:(allow:boolean)=>void;
+ const pending=new Promise<boolean>(resolve=>{settle=resolve;});
+ const finish=(allow:boolean)=>{
+  const request=owner.closeRequest;if(request?.id!==id)return;
+  clearTimeout(request.timer);owner.closeRequest=undefined;owner.closePromise=undefined;settle(allow);
+ };
+ owner.closePromise=pending;
+ owner.closeRequest={id,resolve:finish,timer:setTimeout(()=>finish(false),15000)};
+ try{notify(id);}catch{finish(false);}
+ return pending;
+}
 
 interface NativeLayoutAdapter {
  current():DesktopLayoutEntry[];

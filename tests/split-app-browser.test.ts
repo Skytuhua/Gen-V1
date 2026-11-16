@@ -29,7 +29,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
  },60000);
  afterAll(async()=>{try{await browser?.close();}finally{if(server&&server.exitCode===null){server.kill();await new Promise<void>(resolve=>{const timer=setTimeout(resolve,2000);server!.once('exit',()=>{clearTimeout(timer);resolve();});});}}});
 
- async function fixture({plan=false,plugins=[],retainedCanvas=false,retainedPlan=false,unstarted=false,width=1600,height=1000,deferPluginFlush=false,mode='split'}:{plan?:boolean;plugins?:PluginManifest[];retainedCanvas?:boolean;retainedPlan?:boolean;unstarted?:boolean;width?:number;height?:number;deferPluginFlush?:boolean;mode?:'split'|'chat'}={}){
+ async function fixture({plan=false,plugins=[],retainedCanvas=false,retainedPlan=false,unstarted=false,width=1600,height=1000,deferPluginFlush=false,mode='split',singleThread=false,mainTabs=false}:{plan?:boolean;plugins?:PluginManifest[];retainedCanvas?:boolean;retainedPlan?:boolean;unstarted?:boolean;width?:number;height?:number;deferPluginFlush?:boolean;mode?:'split'|'chat'|'default';singleThread?:boolean;mainTabs?:boolean}={}){
   const page=await browser!.newPage({viewport:{width,height}});page.setDefaultTimeout(7000);
   const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));
   await page.addInitScript((initialMode)=>{if(window.parent===window){localStorage.setItem('harness:selected-thread','thread-a');if(initialMode==='split')localStorage.setItem('harness:workspace-mode:v3','split');}},mode);
@@ -41,8 +41,10 @@ describe.runIf(enabled)('actual App split workspace',()=>{
   snapshot.artifacts[0]={...snapshot.artifacts[0]!,threadId:'thread-a',messageId:'message-a'};snapshot.userStates[0]={...snapshot.userStates[0]!,threadId:'thread-a'};
   snapshot.data=[];if(plan)snapshot.data.push(canonicalPlan());
   const host=await serveTaskFixture(page,snapshot);
-  let layout=createSplitWorkspaceLayout();layout=applySplitWorkspaceCommand(layout,'view.open',{view:{id:'thread:thread-a',kind:'thread',binding:{authority:{kind:'local'},threadId:'thread-a',projectId:'project-a'}}});
-  layout=applySplitWorkspaceCommand(layout,'pane.split',{paneId:'pane-main',newPaneId:'right',splitId:'columns',axis:'horizontal',view:{id:'thread:thread-b',kind:'thread',binding:{authority:{kind:'local'},threadId:'thread-b',projectId:'project-b'}}});
+  let layout=createSplitWorkspaceLayout();
+  if(mainTabs){layout=applySplitWorkspaceCommand(layout,'view.open',{view:{id:'thread:thread-a',kind:'thread',binding:{authority:{kind:'local'},threadId:'thread-a',projectId:'project-a'}}});layout=applySplitWorkspaceCommand(layout,'view.open',{paneId:'pane-main',view:{id:'thread:thread-b',kind:'thread',binding:{authority:{kind:'local'},threadId:'thread-b',projectId:'project-b'}}});layout=applySplitWorkspaceCommand(layout,'view.activate',{paneId:'pane-main',viewId:'thread:thread-a'});}
+  else{layout=applySplitWorkspaceCommand(layout,'view.open',{view:{id:'thread:thread-a',kind:'thread',binding:{authority:{kind:'local'},threadId:'thread-a',projectId:'project-a'}}});
+  if(!singleThread)layout=applySplitWorkspaceCommand(layout,'pane.split',{paneId:'pane-main',newPaneId:'right',splitId:'columns',axis:'horizontal',view:{id:'thread:thread-b',kind:'thread',binding:{authority:{kind:'local'},threadId:'thread-b',projectId:'project-b'}}});}
   const envelope:WorkspaceEnvelope={projects:['a','b'].map(key=>({id:'project-'+key,name:key==='a'?'First project':'Second project',authority:{kind:'local'},rootPath:'C:/synthetic/'+key,createdAt:stamp})),state:{version:1,revision:0,activeCanvasId:'workspace-default',canvases:[{version:1,id:'workspace-default',name:'Workspace',preset:'workspace',viewport:{x:0,y:0,zoom:1},panels:[],filter:'active',projectIds:[]}],profiles:[],disabledKinds:[],integrations:{}}};
   if(retainedCanvas)envelope.state.canvases[0]!.panels.push({id:'retained-usage',canvasId:'workspace-default',kind:'usage',binding:{authority:{kind:'local'},threadId:'thread-a',projectId:'project-a'},placement:'canvas',visible:true,collapsed:false,bounds:{x:56,y:72,width:352,height:320},order:9,alwaysOnTop:false});
   if(retainedPlan)envelope.state.canvases[0]!.panels.push({id:'retained-plan',canvasId:'workspace-default',kind:'plan',binding:{authority:{kind:'local'},threadId:'thread-a',projectId:'project-a'},placement:'canvas',visible:true,collapsed:false,bounds:{x:56,y:72,width:480,height:560},order:10,alwaysOnTop:false});
@@ -53,7 +55,9 @@ describe.runIf(enabled)('actual App split workspace',()=>{
   await page.route('**/api/models?*',route=>route.fulfill({json:{models:[{id:'test/model-a',provider:'test',name:'Model A'},{id:'test/model-b',provider:'test',name:'Model B'}]}}));
   await page.route('**/api/workspace',route=>route.fulfill({json:envelope}));
   await page.route('**/api/workspace/commands',async route=>{const command=route.request().postDataJSON() as HostCommand;workspaceCommands.push(command);if(command.type==='workspace.profile.apply'){const saved=envelope.state.profiles.find(profile=>profile.id===command.payload.profileId)!;envelope.state.canvases=structuredClone(saved.canvases);envelope.state.activeCanvasId=saved.activeCanvasId;}if(command.type==='workspace.canvas.select')envelope.state.activeCanvasId=String(command.payload.canvasId);if(command.type==='workspace.project.connect'){const target=snapshot.threads.find(thread=>thread.id===command.payload.threadId),project=envelope.projects.find(item=>item.rootPath===command.payload.path&&item.name===command.payload.name);if(!target||!project)return route.fulfill({status:404,json:{error:{code:'NOT_FOUND',message:'The canonical project or conversation is unavailable.'}}});if(target.runId||target.sessionPath||target.workspaceId)return route.fulfill({status:409,json:{error:{code:'PROJECT_BUSY',message:'This started conversation keeps its existing project.'}}});target.projectId=project.id;target.projectName=project.name;}envelope.state.revision++;await route.fulfill({json:{commandId:command.id,eventSeq:snapshot.seq,result:envelope}});if(command.type==='workspace.project.connect')await host.publish();});
-  await page.route('**/api/commands',async route=>{const command=route.request().postDataJSON() as HostCommand;if(command.type!=='thread.create')return route.fallback();host.commands.push(command);const created={id:'new-thread-'+(snapshot.threads.filter(thread=>thread.id.startsWith('new-thread-')).length+1),title:'New conversation',projectName:null,createdAt:stamp,updatedAt:stamp,status:'ready' as const,epoch:0,runId:null,sessionPath:null,modelId:null,accountId:null,...(typeof command.payload.projectId==='string'?{projectId:command.payload.projectId,projectName:envelope.projects.find(project=>project.id===command.payload.projectId)?.name??null}:{})};snapshot.threads.push(created);snapshot.seq++;await route.fulfill({json:{commandId:command.id,eventSeq:snapshot.seq,result:created}});await host.publish();});
+  await page.route('**/api/commands',async route=>{const command=route.request().postDataJSON() as HostCommand;
+   if(command.type==='thread.archive'){host.commands.push(command);const id=String(command.threadId??'');snapshot.threads=snapshot.threads.filter(thread=>thread.id!==id);snapshot.activeThreadId=snapshot.threads.find(thread=>thread.kind!=='delegate'&&thread.kind!=='side')?.id??null;const viewId='thread:'+id;delete layout.views[viewId];for(const pane of Object.values(layout.panes)){pane.viewIds=pane.viewIds.filter(value=>value!==viewId);if(pane.activeViewId===viewId)pane.activeViewId=pane.viewIds.at(-1);}layout.parkedViewIds=layout.parkedViewIds.filter(value=>value!==viewId);layout={...layout,revision:layout.revision+1};snapshot.seq++;await route.fulfill({json:{commandId:command.id,eventSeq:snapshot.seq,result:{}}});await host.publish();await page.evaluate(()=>window.dispatchEvent(new Event('harness:workspace-changed')));return;}
+   if(command.type!=='thread.create')return route.fallback();host.commands.push(command);const created={id:'new-thread-'+(snapshot.threads.filter(thread=>thread.id.startsWith('new-thread-')).length+1),title:'New conversation',projectName:null,createdAt:stamp,updatedAt:stamp,status:'ready' as const,epoch:0,runId:null,sessionPath:null,modelId:null,accountId:null,...(typeof command.payload.projectId==='string'?{projectId:command.payload.projectId,projectName:envelope.projects.find(project=>project.id===command.payload.projectId)?.name??null}:{})};snapshot.threads.push(created);snapshot.seq++;await route.fulfill({json:{commandId:command.id,eventSeq:snapshot.seq,result:created}});await host.publish();});
   await page.route('**/api/split-workspace?*',route=>route.fulfill({json:layout}));
   await page.route('**/api/split-workspace/profiles?*',route=>route.fulfill({json:[...profiles.values()].map(({id,name,updatedAt})=>({id,name,updatedAt}))}));
   await page.route('**/api/split-workspace/commands',route=>{
@@ -90,11 +94,15 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    channel.port1.onmessage=e=>{if(e.data.type==='gen.plugin.connected'){window.fixtureConnected=true;channel.port1.postMessage({type:'gen.plugin.ready',pluginId:${JSON.stringify(pluginId)},session:${JSON.stringify(session)}});}if(e.data.type==='gen.plugin.flush'){if(hold)window.fixtureFlushPending.push(e.data);else acknowledge(e.data);}};channel.port1.start();parent.postMessage({type:'gen.plugin.connect',pluginId:${JSON.stringify(pluginId)},session:${JSON.stringify(session)}},'*',[channel.port2]);
   </script></body></html>`});});
   await page.route('**/split-app-check',route=>route.fulfill({contentType:'text/html',body:`<html><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${fixtureModule}');</script></body></html>`}));
-  await page.goto(origin+'/split-app-check');
+  // Cold Vite module loading has its own startup budget; interactions retain
+  // the seven-second timeout and each test's existing overall bound.
+  await page.goto(origin+'/split-app-check',{timeout:20000});
   if(mode==='split'){
    if(width<700){await page.getByRole('combobox',{name:'Active workspace area',exact:true}).click();await page.getByRole('option',{name:'First investigation',exact:true}).click();}
    await page.locator('[data-split-view="thread:thread-a"]').getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});
-  }else await page.locator('.shell-workarea').getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});
+  }else if(mode==='default'){
+   await page.locator('[data-split-view="thread:thread-a"] textarea[aria-label="Message"], .shell-workarea textarea[aria-label="Message"]').first().waitFor({state:'visible'});
+  }else await page.locator('.shell-workarea').getByRole('textbox',{name:'Message',exact:true}).first().waitFor({state:'visible'});
   return{...host,page,errors,splitCommands,workspaceCommands,envelope,profiles,get layout(){return layout;},async issue(type:string,payload:Record<string,unknown>){layout=applySplitWorkspaceCommand(layout,type,payload);await page.evaluate(()=>window.dispatchEvent(new Event('harness:workspace-changed')));}};
  }
 
@@ -111,6 +119,152 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    await page.route('**/api/commands',async route=>{const command=route.request().postDataJSON() as HostCommand;if(command.type==='message.send'){host.commands.push(command);return route.fulfill({status:409,json:{error:{code:'RUN_BUSY',message:'Synthetic send rejected'}}});}await route.fallback();});
    await second.getByRole('button',{name:'Send message',exact:true}).click();await page.getByRole('alert').filter({hasText:'Synthetic send rejected'}).waitFor();expect(host.commands.find(command=>command.type==='message.send')?.threadId).toBe('thread-b');
    await page.reload();const restoredA=first.locator('textarea[aria-label="Message"]'),restoredB=second.locator('textarea[aria-label="Message"]');await restoredA.waitFor({state:'attached'});await restoredB.waitFor({state:'attached'});expect(await restoredA.inputValue()).toBe('First independent draft');expect(await restoredB.inputValue()).toBe('Second independent draft');expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
+ it('archiving the selected conversation leaves an explicit empty main that never revives activeThreadId, even after reload (T02/R02)',async()=>{
+  const host=await fixture({mode:'default',singleThread:true}),{page}=host;try{
+   await page.locator('[data-split-view="thread:thread-a"]').getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});
+   await page.getByRole('button',{name:'Options for First investigation',exact:true}).click();
+   await page.getByRole('menuitem',{name:'Archive thread',exact:true}).click();
+   await page.getByRole('button',{name:'Archive thread',exact:true}).click();
+   await page.waitForFunction(()=>!document.querySelector('[data-split-view="thread:thread-a"]'));
+   // The host dropped thread-a and pointed activeThreadId at thread-b; give any revival time to land.
+   await page.waitForTimeout(750);
+   expect(await page.locator('[data-split-view="thread:thread-b"]').count()).toBe(0);
+   expect(await page.getByText('Second transcript only').count()).toBe(0);
+   await page.reload();
+   await page.locator('.shell-workarea, .split-workspace').first().waitFor({state:'visible'});
+   await page.waitForTimeout(750);
+   expect(await page.locator('[data-split-view="thread:thread-b"]').count()).toBe(0);
+   expect(await page.getByText('Second transcript only').count()).toBe(0);
+   expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
+ it('detaches a conversation to an independent float with an empty main, and returns it with placement recovery (T02/R02)',async()=>{
+  const host=await fixture({mode:'default',singleThread:true}),{page}=host;try{
+   const aView=page.locator('[data-split-view="thread:thread-a"]'),bView=page.locator('[data-split-view="thread:thread-b"]');
+   const a=aView.getByRole('textbox',{name:'Message',exact:true});
+   await a.waitFor({state:'visible'});await a.fill('Float draft A');
+   await page.evaluate(()=>{(window as any).floatTextarea=document.querySelector('[data-split-view="thread:thread-a"] textarea');});
+   await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();
+   await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();
+   await page.waitForFunction(()=>!!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
+   expect(await a.inputValue()).toBe('Float draft A');
+   expect(await page.evaluate(()=>(window as any).floatTextarea===document.querySelector('[data-split-view="thread:thread-a"] textarea'))).toBe(true);
+   expect(await page.locator('[data-split-pane="pane-main"] [role="tab"]').count()).toBe(0);
+   const floatSurface=page.locator('[data-split-view="thread:thread-a"]');
+   const gripBox=(await floatSurface.locator('.split-float-grip').boundingBox())!;
+   const startBox=(await floatSurface.boundingBox())!;
+   await page.mouse.move(gripBox.x+gripBox.width/2,gripBox.y+gripBox.height/2);await page.mouse.down();
+   await page.mouse.move(gripBox.x+gripBox.width/2+90,gripBox.y+gripBox.height/2+50,{steps:6});await page.mouse.up();
+   const movedBox=(await floatSurface.boundingBox())!;
+   expect(movedBox.x-startBox.x).toBeGreaterThan(60);expect(movedBox.y-startBox.y).toBeGreaterThan(30);
+   const resizeBox=(await floatSurface.locator('.split-float-resize').boundingBox())!;
+   await page.mouse.move(resizeBox.x+resizeBox.width/2,resizeBox.y+resizeBox.height/2);await page.mouse.down();
+   await page.mouse.move(resizeBox.x+resizeBox.width/2+70,resizeBox.y+resizeBox.height/2+60,{steps:6});await page.mouse.up();
+   const resizedBox=(await floatSurface.boundingBox())!;
+   expect(resizedBox.width-movedBox.width).toBeGreaterThan(40);expect(resizedBox.height-movedBox.height).toBeGreaterThan(30);
+   await page.reload();
+   await page.waitForFunction(()=>!!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
+   const restoredBox=(await floatSurface.boundingBox())!;
+   expect(Math.abs(restoredBox.x-resizedBox.x)).toBeLessThan(3);expect(Math.abs(restoredBox.width-resizedBox.width)).toBeLessThan(3);
+   await page.evaluate(()=>{(window as any).floatTextarea=document.querySelector('[data-split-view="thread:thread-a"] textarea');});
+   await page.getByRole('button',{name:/^Second investigation/}).click();
+   await bView.getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});
+   await page.waitForFunction(()=>!!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
+   expect(await page.locator('[data-split-pane="pane-main"]').getByRole('tab',{name:/Second investigation/}).count()).toBe(1);
+   await bView.getByRole('textbox',{name:'Message',exact:true}).fill('Main draft B');
+   await aView.getByRole('button',{name:'Send message',exact:true}).click();
+   await bView.getByRole('button',{name:'Send message',exact:true}).click();
+   await page.waitForFunction(()=>{const ta=document.querySelector<HTMLTextAreaElement>('[data-split-view="thread:thread-a"] textarea');const tb=document.querySelector<HTMLTextAreaElement>('[data-split-view="thread:thread-b"] textarea');return !!ta&&!!tb&&ta.value===''&&tb.value==='';});
+   const sends=host.commands.filter(command=>command.type==='message.send');
+   expect(sends.map(command=>command.threadId).sort()).toEqual(['thread-a','thread-b']);
+   const grip=page.locator('[data-split-view="thread:thread-a"] .split-float-grip');
+   await grip.focus();await page.keyboard.press('Enter');
+   await page.getByRole('menuitem',{name:'Return to main',exact:true}).waitFor({state:'visible'});
+   await page.keyboard.press('Escape');
+   await page.waitForFunction(()=>!document.querySelector('.split-float-menu'));
+   await grip.click();
+   await page.getByRole('menuitem',{name:'Return to main',exact:true}).click();
+   await page.waitForFunction(()=>!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
+   await a.waitFor({state:'visible'});expect(await a.inputValue()).toBe('');
+   expect(await page.evaluate(()=>(window as any).floatTextarea===document.querySelector('[data-split-view="thread:thread-a"] textarea'))).toBe(true);
+   await page.reload();
+   await page.locator('[data-split-view="thread:thread-a"]').getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});
+   expect(await page.locator('[data-split-view="thread:thread-a"][data-floating="true"]').count()).toBe(0);
+   expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
+ it('detaching from a multi-tab main overrides the previous tab with an explicit empty main, and navigation clears it (T02/R02)',async()=>{
+  const host=await fixture({mode:'default',mainTabs:true}),{page}=host;try{
+   const aView=page.locator('[data-split-view="thread:thread-a"]'),bView=page.locator('[data-split-view="thread:thread-b"]');
+   await aView.getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});
+   expect(await page.locator('[data-split-pane="pane-main"] [role="tab"]').count()).toBe(2);
+   await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();
+   await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();
+   await page.waitForFunction(()=>!!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
+   await page.waitForFunction(()=>!!document.querySelector('[data-split-pane="pane-main"] .split-empty'));
+   expect(await bView.isVisible()).toBe(false);
+   expect(await page.locator('[data-split-pane="pane-main"]').getByRole('tab',{name:/Second investigation/}).count()).toBe(1);
+   await page.locator('[data-split-pane="pane-main"]').getByRole('tab',{name:/Second investigation/}).click();
+   await bView.getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});
+   expect(await page.locator('[data-split-pane="pane-main"] .split-empty').count()).toBe(0);
+   expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
+ it('keyboard Stop targets the focused float owner exactly once and leaves the main run untouched (AUD-06)',async()=>{
+  const host=await fixture({mode:'default',singleThread:true}),{page}=host;try{
+   for(const [id,runId] of [['thread-a','run-a'],['thread-b','run-b']] as const){const thread=host.snapshot.threads.find(item=>item.id===id)!;thread.status='working';thread.runId=runId;}
+   await host.publish();
+   const aView=page.locator('[data-split-view="thread:thread-a"]'),bView=page.locator('[data-split-view="thread:thread-b"]');
+   await aView.locator('.working-status').waitFor({state:'visible'});
+   await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();
+   await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();
+   await page.waitForFunction(()=>!!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
+   await page.getByRole('button',{name:/^Second investigation/}).click();
+   await bView.locator('.working-status').waitFor({state:'visible'});
+   await aView.getByRole('textbox',{name:'Message',exact:true}).focus();
+   await page.keyboard.press('Escape');
+   await expect.poll(()=>host.commands.filter(command=>command.type==='run.stop').length).toBe(1);
+   expect(host.commands.filter(command=>command.type==='run.stop').map(command=>command.threadId)).toEqual(['thread-a']);
+   expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
+ it('docks a float into a real directional pane split at a main edge (T03/R03 #3/#4)',async()=>{
+  const host=await fixture({mode:'split'}),{page}=host;try{
+   await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();
+   await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();
+   await page.waitForFunction(()=>!!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
+   const gripBox=(await page.locator('[data-split-view="thread:thread-a"] .split-float-grip').boundingBox())!;
+   const rightSlot=(await page.locator('[data-split-pane="right"] .split-pane-slot').boundingBox())!;
+   await page.mouse.move(gripBox.x+gripBox.width/2,gripBox.y+gripBox.height/2);await page.mouse.down();
+   await page.mouse.move(rightSlot.x+8,rightSlot.y+rightSlot.height/2,{steps:8});await page.mouse.up();
+   await page.waitForFunction(()=>!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
+   expect(await page.locator('[data-split-pane]').count()).toBeGreaterThanOrEqual(3);
+   expect(await page.locator('[data-split-view="thread:thread-a"]').isVisible()).toBe(true);
+   expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
+ it('divider resize reflows real pane widths without scaling content (T03/R04 #4)',async()=>{
+  const host=await fixture({mode:'split'}),{page}=host;try{
+   const main=page.locator('[data-split-pane="pane-main"]'),divider=page.getByRole('separator',{name:'Resize columns'});
+   await divider.waitFor({state:'visible'});
+   const before=(await main.boundingBox())!;
+   const box=(await divider.boundingBox())!;
+   await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();
+   await page.mouse.move(box.x+box.width/2-120,box.y+box.height/2,{steps:6});await page.mouse.up();
+   await page.waitForFunction(width=>{const node=document.querySelector('[data-split-pane="pane-main"]');return !!node&&Math.abs(node.getBoundingClientRect().width-width)>40;},before.width);
+   const after=(await main.boundingBox())!;
+   expect(Math.abs(after.width-before.width)).toBeGreaterThan(40);
+   const scale=await page.locator('[data-split-view="thread:thread-a"]').evaluate(node=>{const m=new DOMMatrixReadOnly(getComputedStyle(node).transform);return m.a;});
+   expect(scale).toBe(1);
+   expect(host.errors).toEqual([]);
   }finally{await page.close();}
  },30000);
 
@@ -190,7 +344,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
 
  it('renders the canonical detailed plan requirements in an explicitly recovered canvas panel',async()=>{
   const host=await fixture({plan:true,retainedPlan:true}),{page}=host;try{
-   const retained=structuredClone(host.envelope);await page.getByRole('button',{name:'Layouts',exact:true}).click();await page.getByRole('button',{name:'Recover Retained desk',exact:true}).click();const panel=page.locator('[data-panel-id="retained-plan"]'),detail=panel.getByRole('region',{name:/^Task plan(?::|$)/});await detail.waitFor({state:'visible'});
+   const retained=structuredClone(host.envelope);await page.getByRole('button',{name:'Layouts',exact:true}).click();await page.getByRole('button',{name:'Recover Retained desk',exact:true}).click();const panel=page.locator('[data-panel-id="retained-plan"]'),detail=panel.getByRole('region',{name:/^Task plan(?::|$)/});await detail.waitFor({state:'visible'});await detail.locator('[data-step-id="inspect"] > .plan-step-summary').click();
    expect(await detail.getAttribute('aria-label')).toBe('Task plan: Inspect then verify');expect(await detail.getByText('Retain the original draft',{exact:true}).isVisible()).toBe(true);expect(await detail.locator('[data-step-id="inspect"] > .plan-step-summary').getAttribute('aria-expanded')).toBe('true');expect(await detail.getByText('Read the actual source',{exact:true}).isVisible()).toBe(true);expect(await panel.getByRole('region',{name:'Plan summary',exact:true}).count()).toBe(0);expect({...host.envelope,state:{...host.envelope.state,revision:retained.state.revision}}).toEqual(retained);expect(host.errors).toEqual([]);
   }finally{await page.close();}
  },30000);
@@ -265,38 +419,34 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    const scoped=await (await frame.elementHandle())!.contentFrame();if(!scoped)throw Error('The Studio iframe is unavailable.');await scoped.waitForFunction(()=>(window as any).fixtureConnected===true);await present.page.getByRole('navigation',{name:'Installed plug-ins',exact:true}).getByRole('button',{name:'Sample visuals',exact:true}).click();await scoped.waitForFunction(()=>(window as any).fixtureFlushPending.length>0);expect(await frame.isVisible()).toBe(true);expect(await studio.getAttribute('aria-pressed')).toBe('true');expect(await present.page.getByTitle('Sample visuals',{exact:true}).count()).toBe(0);await scoped.evaluate(()=>(window as any).releaseFixtureFlush());
    const conversationFrame=present.page.getByTitle('Sample visuals',{exact:true});await conversationFrame.waitFor({state:'visible'});expect(await frame.isVisible()).toBe(false);
    const conversation=await (await conversationFrame.elementHandle())!.contentFrame();if(!conversation)throw Error('The plug-in conversation iframe is unavailable.');await conversation.waitForFunction(()=>(window as any).fixtureConnected===true);
-   const workspace=present.page.getByRole('button',{name:'Workspace',exact:true});expect(await workspace.isVisible()).toBe(true);await workspace.click();await present.page.locator('.shell-workarea').getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});expect(await present.page.locator('.split-workspace').count()).toBe(0);expect(present.errors).toEqual([]);
+   const workspace=present.page.getByRole('button',{name:'Workspace',exact:true});expect(await workspace.isVisible()).toBe(true);await workspace.click();await present.page.locator('.shell-workarea').getByRole('textbox',{name:'Message',exact:true}).first().waitFor({state:'visible'});expect(await present.page.locator('.split-workspace').count()).toBeGreaterThan(0);expect(present.errors).toEqual([]);
    }finally{await present.page.close();}
  },30000);
 
- it('defaults to single-chat view with a top-right workspace panel toggle, hides right popups while open, and removes the split history bar',async()=>{
+ it('defaults ordinary Workspace to the shared split plane without a pre-seeded split mode (T02/R02)',async()=>{
+  const host=await fixture({mode:'default'}),{page}=host;try{
+   expect(await page.locator('.split-workspace').count()).toBeGreaterThan(0);
+   const main=page.locator('[data-split-view="thread:thread-a"]');
+   await main.getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});
+   expect(await main.textContent()).toContain('First transcript only');
+   expect(await main.textContent()).not.toContain('Second transcript only');
+   expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
+ it('defaults ordinary Workspace to the plane with a panel toggle, hides the overview while the panel is open, and removes the split history bar',async()=>{
   const host=await fixture({mode:'chat',plan:true}),{page}=host;try{
-   expect(await page.locator('.split-workspace').count()).toBe(0);
-   const message=page.locator('.shell-workarea').getByRole('textbox',{name:'Message',exact:true});await message.waitFor({state:'visible'});
-   const actionsBox=await page.locator('.composer .composer-secondary-actions').boundingBox(),inputBox=await message.boundingBox();
-   expect(actionsBox).not.toBeNull();expect(inputBox).not.toBeNull();expect(Math.abs(actionsBox!.y-inputBox!.y)).toBeLessThanOrEqual(6);expect(inputBox!.x+inputBox!.width).toBeLessThanOrEqual(actionsBox!.x);
+   expect(await page.locator('.split-workspace').count()).toBeGreaterThan(0);
+   const message=page.locator('[data-split-view="thread:thread-a"]').getByRole('textbox',{name:'Message',exact:true});await message.waitFor({state:'visible'});
    const overview=page.getByRole('region',{name:'Project overview window',exact:true});await overview.waitFor({state:'visible'});
-   await page.locator('.sidebar-thread-row').first().getByRole('button',{name:/Options for/}).click();
-   expect(await page.getByRole('menuitem',{name:'Place in workspace',exact:false}).count()).toBe(0);
-   await page.keyboard.press('Escape');
-   await page.getByRole('button',{name:'Panels',exact:true}).click();
-   expect(await page.getByRole('menuitem',{name:'Add Conversation panel',exact:true}).count()).toBe(0);
-   await page.getByRole('menuitem',{name:'Add Usage panel',exact:true}).click();
-   const usage=page.getByRole('dialog',{name:'Usage',exact:true});await usage.waitFor({state:'visible'});
-   expect(await page.getByRole('complementary',{name:'Workspace panel',exact:true}).isVisible()).toBe(false);
-   await page.keyboard.press('Escape');await usage.waitFor({state:'hidden'});
    await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();
    const panel=page.getByRole('complementary',{name:'Workspace panel',exact:true});await panel.waitFor({state:'visible'});
+    expect(await panel.getByRole('button',{name:'Close workspace panel',exact:true}).count()).toBe(0);
    await overview.waitFor({state:'hidden'});
-   expect(await panel.getByRole('tab',{name:'Plan',exact:true}).isVisible()).toBe(true);expect(await panel.getByRole('tab',{name:'Notes',exact:true}).isVisible()).toBe(true);
+    await panel.getByRole('button',{name:'Add surface',exact:true}).click();await page.getByRole('menuitem',{name:'Plan',exact:true}).click();
+    await panel.getByRole('button',{name:'Add surface',exact:true}).click();await page.getByRole('menuitem',{name:'Notes',exact:true}).click();
+    expect(await panel.getByRole('tab',{name:'Plan',exact:true}).isVisible()).toBe(true);expect(await panel.getByRole('tab',{name:'Notes',exact:true}).isVisible()).toBe(true);
    await page.getByRole('button',{name:'Hide workspace panel',exact:true}).click();await panel.waitFor({state:'hidden'});await overview.waitFor({state:'visible'});
-   if(await overview.getByRole('button',{name:'Expand Project overview',exact:true}).isVisible())await overview.getByRole('button',{name:'Expand Project overview',exact:true}).click();
-   await overview.getByRole('region',{name:'Plan summary',exact:true}).getByRole('button',{name:'Open full plan',exact:false}).click();
-   await panel.waitFor({state:'visible'});await overview.waitFor({state:'hidden'});await panel.getByRole('region',{name:/^Task plan(?::|$)/}).waitFor({state:'visible'});
-   expect(await panel.locator('.plan-overall-fill').evaluate(node=>(node as HTMLElement).style.width)).toBe('50%');
-   await page.getByRole('button',{name:'Close workspace panel',exact:true}).click();await panel.waitFor({state:'hidden'});await overview.waitFor({state:'visible'});
-   await page.evaluate(()=>localStorage.setItem('harness:workspace-mode:v3','split'));await page.reload();
-   await page.locator('[data-split-view="thread:thread-a"]').getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});
    expect(await page.getByRole('button',{name:'Undo layout',exact:true}).count()).toBe(0);expect(await page.getByRole('button',{name:'Redo',exact:true}).count()).toBe(0);expect(await page.getByRole('button',{name:'Restore last layout',exact:true}).count()).toBe(0);expect(await page.locator('.split-workspace-hint').count()).toBe(0);
    expect(host.errors).toEqual([]);
   }finally{await page.close();}
@@ -306,20 +456,19 @@ describe.runIf(enabled)('actual App split workspace',()=>{
   try{
    await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();
    await page.evaluate(()=>{const slot=document.createElement('section');slot.className='desktop-browser-dock';slot.setAttribute('aria-label','Synthetic browser geometry');slot.textContent='Browser slot geometry';(document.querySelector('.workspace-tools')??document.querySelector('.shell-workarea'))!.appendChild(slot);});
-   const boxes=await page.evaluate(()=>{const box=(selector:string)=>{const a=document.querySelector(selector)!.getBoundingClientRect();return{x:a.x,y:a.y,right:a.right,bottom:a.bottom,width:a.width};};return{chat:box('.chat-view-slot'),panel:box('.workspace-right'),browser:box('.desktop-browser-dock'),owner:box('.shell-workarea')};});
+   const boxes=await page.evaluate(()=>{const box=(selector:string)=>{const a=document.querySelector(selector)!.getBoundingClientRect();return{x:a.x,y:a.y,right:a.right,bottom:a.bottom,width:a.width};};return{chat:box('.split-root-workarea'),panel:box('.workspace-right'),browser:box('.desktop-browser-dock'),owner:box('.shell-workarea')};});
    expect(boxes.chat.width).toBeGreaterThanOrEqual(420);expect(boxes.chat.right).toBeLessThanOrEqual(boxes.panel.x);
    expect(boxes.browser.right).toBeLessThanOrEqual(boxes.owner.right+1);expect(boxes.browser.y).toBeGreaterThanOrEqual(boxes.panel.bottom);
   }finally{await page.close();}
  },20000);
- it('selected artifacts stay inside the stacked tool content without replacing their renderer',async()=>{
-  const{page}=await fixture({width:900,height:700,mode:'chat'});
+ it('artifacts stay inside the plane conversation without horizontal overflow (T02)',async()=>{
+  const{page}=await fixture({mode:'chat'});
   try{
-   const artifact=page.locator('.artifact').first(),original=await artifact.elementHandle();
-   await artifact.getByRole('button',{name:'Open artifact in workspace',exact:true}).click();
-   await page.locator('.artifact-in-workspace').waitFor({state:'visible'});
-   const bounds=await page.evaluate(()=>{const box=(selector:string)=>{const a=document.querySelector(selector)!.getBoundingClientRect();return{x:a.x,y:a.y,right:a.right,bottom:a.bottom};};return{artifact:box('.artifact-in-workspace'),content:box('.workspace-panel-content')};});
-   expect(bounds.artifact.y).toBeGreaterThanOrEqual(bounds.content.y);expect(bounds.artifact.bottom).toBeLessThanOrEqual(bounds.content.bottom);
-   expect(bounds.artifact.x).toBeGreaterThanOrEqual(bounds.content.x);expect(bounds.artifact.right).toBeLessThanOrEqual(bounds.content.right);
+   const artifact=page.locator('[data-split-view="thread:thread-a"] .artifact').first();await artifact.waitFor({state:'visible'});
+   const original=await artifact.elementHandle();await page.waitForTimeout(150);
+   const bounds=await page.evaluate(()=>{const a=document.querySelector('[data-split-view="thread:thread-a"] .artifact')!.getBoundingClientRect();const c=document.querySelector('[data-split-view="thread:thread-a"]')!.getBoundingClientRect();return{artifact:{x:a.x,right:a.right,y:a.y,bottom:a.bottom},view:{x:c.x,right:c.right,y:c.y,bottom:c.bottom},overflow:document.documentElement.scrollWidth-innerWidth};});
+   expect(bounds.artifact.x).toBeGreaterThanOrEqual(bounds.view.x-1);expect(bounds.artifact.right).toBeLessThanOrEqual(bounds.view.right+1);
+   expect(bounds.overflow).toBeLessThanOrEqual(1);
    expect(await artifact.evaluate((node,old)=>node===old,original)).toBe(true);
   }finally{await page.close();}
  },20000);
@@ -331,7 +480,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    for(const end of [1,size.width-1]){
     const handle=(await separator.boundingBox())!;await page.mouse.move(handle.x+handle.width/2,handle.y+30);await page.mouse.down();await page.mouse.move(end,handle.y+30,{steps:5});await page.mouse.up();
     await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
-    const boxes=await page.evaluate(()=>{const box=(selector:string)=>{const a=document.querySelector(selector)!.getBoundingClientRect();return{x:a.x,y:a.y,right:a.right,bottom:a.bottom,width:a.width,height:a.height};};return{chat:box('.chat-view-slot'),panel:box('.workspace-right'),owner:box('.shell-workarea'),title:box('.workspace-switcher'),overflow:document.documentElement.scrollWidth-innerWidth};});
+    const boxes=await page.evaluate(()=>{const box=(selector:string)=>{const a=document.querySelector(selector)!.getBoundingClientRect();return{x:a.x,y:a.y,right:a.right,bottom:a.bottom,width:a.width,height:a.height};};return{chat:box('.split-root-workarea'),panel:box('.workspace-right'),owner:box('.shell-workarea'),title:box('.workspace-switcher'),overflow:document.documentElement.scrollWidth-innerWidth};});
     expect(boxes.chat.width).toBeGreaterThanOrEqual(420);expect(boxes.panel.width).toBeLessThanOrEqual(Math.min(720,boxes.owner.width-426)+1);
     expect(boxes.chat.right).toBeLessThanOrEqual(boxes.panel.x);expect(boxes.panel.y).toBeGreaterThanOrEqual(boxes.title.bottom);
     expect(boxes.panel.right).toBeLessThanOrEqual(boxes.owner.right+1);expect(boxes.overflow).toBeLessThanOrEqual(1);
@@ -343,7 +492,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
   const{page}=await fixture({width:900,height:700,mode:'chat'});
   try{
    await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();
-   const boxes=await page.evaluate(()=>{const box=(selector:string)=>{const a=document.querySelector(selector)!.getBoundingClientRect();return{x:a.x,y:a.y,right:a.right,bottom:a.bottom,width:a.width,height:a.height};};return{chat:box('.chat-view-slot'),panel:box('.workspace-right'),owner:box('.shell-workarea'),title:box('.workspace-switcher')};});
+   const boxes=await page.evaluate(()=>{const box=(selector:string)=>{const a=document.querySelector(selector)!.getBoundingClientRect();return{x:a.x,y:a.y,right:a.right,bottom:a.bottom,width:a.width,height:a.height};};return{chat:box('.split-root-workarea'),panel:box('.workspace-right'),owner:box('.shell-workarea'),title:box('.workspace-switcher')};});
    expect(boxes.panel.y).toBeGreaterThanOrEqual(boxes.chat.bottom);expect(boxes.panel.bottom).toBeLessThanOrEqual(boxes.owner.bottom+1);
    expect(boxes.panel.height).toBeLessThanOrEqual(boxes.owner.height*.45+1);expect(boxes.chat.height).toBeGreaterThanOrEqual(240);
    expect(boxes.panel.y).toBeGreaterThanOrEqual(boxes.title.bottom);

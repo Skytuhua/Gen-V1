@@ -1,0 +1,46 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/installed-desktop-verification.test.ts (15 tests | 2 failed) 117ms
+     × retains only bounded fixed preflight milestones without copying child output or commands 7ms
+     × refuses malformed or unbounded preflight timings and bounds retained output 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/installed-desktop-verification.test.ts > installed desktop verification custody > retains only bounded fixed preflight milestones without copying child output or commands
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ tests/installed-desktop-verification.test.ts:16:24
+     14|  it('retains only bounded fixed preflight milestones without copying c…
+     15|   const parse=(installedVerification as unknown as {parseInstallPrefli…
+     16|   expect(typeof parse).toBe('function');
+       |                        ^
+     17|   const input=[
+     18|    'PRIVATE_COMMAND_SENTINEL provider-secret=[redacted]',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/installed-desktop-verification.test.ts > installed desktop verification custody > refuses malformed or unbounded preflight timings and bounds retained output
+AssertionError: expected 'undefined' to be 'function' // Object.is equality
+
+Expected: "function"
+Received: "undefined"
+
+ ❯ tests/installed-desktop-verification.test.ts:39:24
+     37|  it('refuses malformed or unbounded preflight timings and bounds retai…
+     38|   const parse=(installedVerification as unknown as {parseInstallPrefli…
+     39|   expect(typeof parse).toBe('function');
+       |                        ^
+     40|   for(const value of ['-1','NaN','Infinity','60001','1.5','1 trailing-…
+     41|   expect(parse('HARNESS_INSTALL_PREFLIGHT_PHASE=script-start:0\n'+'UNT…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 13 passed (15)
+   Start at  00:57:26
+   Duration  1.13s (transform 356ms, setup 0ms, import 819ms, tests 117ms, environment 0ms)

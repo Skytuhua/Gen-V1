@@ -1,0 +1,40 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/desktop-packaging.test.ts (11 tests | 1 failed) 33ms
+     × packages runtime resources outside ASAR and does not include workspace or credentials 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/desktop-packaging.test.ts > desktop distribution custody > packages runtime resources outside ASAR and does not include workspace or credentials
+AssertionError: expected { …(11) } to match object { perMachine: false, …(6) }
+(4 matching properties omitted from actual)
+
+- Expected
++ Received
+
+@@ -3,7 +3,7 @@
+    "deleteAppDataOnUninstall": false,
+    "differentialPackage": false,
+    "oneClick": true,
+    "perMachine": false,
+    "runAfterFinish": false,
+-   "useZip": false,
++   "useZip": true,
+  }
+
+ ❯ tests/desktop-packaging.test.ts:75:23
+     73|   expect(config.compression).toBe('normal');
+     74|   expect(config.win.target).toEqual([{target:'nsis',arch:['x64']}]);
+     75|   expect(config.nsis).toMatchObject({perMachine:false,oneClick:true,al…
+       |                       ^
+     76|   expect(config.npmRebuild).toBe(false);expect(config.files).toContain…
+     77|   expect(config.extraResources.map(row=>row.to)).toEqual(['host','host…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 passed (11)
+   Start at  01:51:45
+   Duration  348ms (transform 117ms, setup 0ms, import 152ms, tests 33ms, environment 0ms)

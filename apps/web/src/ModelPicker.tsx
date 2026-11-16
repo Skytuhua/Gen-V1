@@ -11,6 +11,8 @@ export interface ModelPickerProps {
  ref?:Ref<ModelPickerHandle>;
  models:ModelInfo[];modelId:string;onChange:(id:string)=>void;disabled?:boolean;
  thinkingLevel?:string;onThinkingChange?:(level:string)=>void;
+ /** New-task binding note; selecting a profile never rebinds an existing thread. */
+ scopeHint?:string;onNewTask?:(modelId:string)=>void;
 }
 const providerLabel=(provider:string)=>SUBSCRIPTION_CONNECTIONS.find(connection=>connection.id===provider)?.label??provider;
 const effortLabel=(value:string)=>value==='xhigh'?'Extra high':value.replaceAll('_',' ').replaceAll('-',' ').replace(/\b\w/g,letter=>letter.toUpperCase());
@@ -20,7 +22,7 @@ function readFavorites():string[]{
 }
 type ModelFilter={kind:'all'|'favorites'}|{kind:'provider';provider:string};
 
-export function ModelPicker({ref,models,modelId,onChange,disabled=false,thinkingLevel='',onThinkingChange}:ModelPickerProps){
+export function ModelPicker({ref,models,modelId,onChange,disabled=false,thinkingLevel='',onThinkingChange,scopeHint,onNewTask}:ModelPickerProps){
  const id=useId(),trigger=useRef<HTMLButtonElement>(null),popover=useRef<HTMLDivElement>(null),search=useRef<HTMLInputElement>(null),efforts=useRef<HTMLDivElement>(null);
  const [open,setOpen]=useState(false),[present,setPresent]=useState(false),[query,setQuery]=useState(''),[activeId,setActiveId]=useState(modelId);
  const [keyboard,setKeyboard]=useState(false),[filter,setFilter]=useState<ModelFilter>({kind:'all'}),[favorites,setFavorites]=useState(readFavorites);
@@ -115,6 +117,8 @@ export function ModelPicker({ref,models,modelId,onChange,disabled=false,thinking
       </div>;
      })}</div>)}
     </div>
+    {scopeHint&&<p className="model-picker-scope" role="note">{scopeHint}</p>}
+    {onNewTask&&<button type="button" className="model-picker-new-task" disabled={!modelId} onClick={()=>{onNewTask(modelId);close();}}>Start new task with {name}</button>}
     {!visible.length&&(filter.kind==='favorites'&&favoriteCount===0
      ?<p className="model-picker-empty" role="status">No favorites yet<span>Star a model to keep it here.</span></p>
      :<p className="model-picker-empty" role="status">No models found<span>Try another model or provider name.</span></p>)}

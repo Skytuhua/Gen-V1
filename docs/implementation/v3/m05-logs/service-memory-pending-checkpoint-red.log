@@ -1,0 +1,65 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-continuation
+
+ ❯ tests/project-memory-service-v3.test.ts (23 tests | 2 failed) 1115ms
+   × counts a scheduled and dispatched extraction as one pending auxiliary owner 71ms
+   × rejects a native checkpoint when its session changes while host access is awaited 17ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/project-memory-service-v3.test.ts > counts a scheduled and dispatched extraction as one pending auxiliary owner
+AssertionError: expected { modelCalls: 1, …(4) } to match object { modelCalls: 1, …(4) }
+
+- Expected
++ Received
+
+  {
+    "cost": null,
+    "inputTokens": null,
+    "modelCalls": 1,
+    "outputTokens": null,
+-   "pending": 1,
++   "pending": 2,
+  }
+
+ ❯ tests/project-memory-service-v3.test.ts:228:77
+    226|   await f.send('SQLite extraction with an active provider call.'); awa…
+    227|   await vi.waitFor(() => expect(auxiliary.starts).toHaveLength(1));
+    228|   expect(f.service.projectMemory.usage(await f.currentAccess()).extrac…
+       |                                                                             ^
+    229| });
+    230|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/project-memory-service-v3.test.ts > rejects a native checkpoint when its session changes while host access is awaited
+AssertionError: promise resolved "{ apiVersion: 2, …(4) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "apiVersion": 2,
++   "checkpointId": "memory-checkpoint:ce8b4ada-2df4-4a94-be98-62080297ff6d",
++   "digest": "2ca12217e54a53ae0e064f68d0fe3fd3231b13083c8a8e0bbd92ffc86e4d59fb",
++   "persisted": true,
++   "requestId": "checkpoint:f03cb083-a74f-4342-bf1a-d3647469d56b",
+  }
+
+ ❯ tests/project-memory-service-v3.test.ts:269:44
+    267|     await vi.waitFor(() => expect(entered).toBe(true));
+    268|     f.callbacks().onEvent({ ...input, type: 'session', sessionPath: jo…
+    269|     release(); await expect(acknowledgement).rejects.toThrow();
+       |                                            ^
+    270|     expect(f.store.all('projectMemoryDerived')).toEqual([]);
+    271|   } finally { release(); await acknowledgement.catch(() => {}); }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 21 passed (23)
+   Start at  20:08:07
+   Duration  2.46s (transform 855ms, setup 0ms, import 1.20s, tests 1.12s, environment 0ms)

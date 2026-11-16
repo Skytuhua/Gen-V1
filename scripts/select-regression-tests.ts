@@ -121,14 +121,16 @@ export function selectRegressionTests(changes: readonly SourceChange[], existing
 }
 
 export function changedSources(root: string, baseRef: string): SourceChange[] {
-  const out = execFileSync('git', ['-C', root, 'diff', '--name-status', '-M', `${baseRef}...HEAD`], { encoding: 'utf8', windowsHide: true });
+  const out = execFileSync('git', ['-C', root, 'diff', '--name-status', '-z', '-M', `${baseRef}...HEAD`], { encoding: 'utf8', windowsHide: true });
   const changes: SourceChange[] = [];
-  for (const line of out.split('\n').filter(Boolean)) {
-    const parts = line.split('\t');
-    const status = parts[0]!;
+  // NUL framing preserves the original filenames instead of Git's quoted display form.
+  const fields = out.split('\0');
+  for (let index = 0; index < fields.length - 1;) {
+    const status = fields[index++]!;
+    const path = fields[index++]!;
     if (status.startsWith('R') || status.startsWith('C'))
-      changes.push({ status: status[0] as 'R' | 'C', previousPath: parts[1]!, path: parts[2]! });
-    else changes.push({ status: status as SourceChange['status'], path: parts[1]! });
+      changes.push({ status: status[0] as 'R' | 'C', previousPath: path, path: fields[index++]! });
+    else changes.push({ status: status as SourceChange['status'], path });
   }
   return changes;
 }

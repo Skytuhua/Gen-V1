@@ -1,0 +1,66 @@
+
+ RUN  v4.1.12 /workspace/scratch/36f66011d961/m05-v3
+
+ ❯ tests/memory-forget-v3.test.ts (8 tests | 3 failed) 379ms
+   × invalidates derived references to every claim whose shared source becomes excluded 43ms
+   × bounds each physical purge batch even when an item has a long revision history 131ms
+   × reopens physical purge when a replay restores only an excluded source snapshot 8ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/memory-forget-v3.test.ts > invalidates derived references to every claim whose shared source becomes excluded
+AssertionError: expected [] to deeply equal [ 'related-index' ]
+
+- Expected
++ Received
+
+- [
+-   "related-index",
+- ]
++ []
+
+ ❯ tests/memory-forget-v3.test.ts:32:103
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  tests/memory-forget-v3.test.ts > bounds each physical purge batch even when an item has a long revision history
+HarnessError: Memory revisions are immutable.
+ ❯ fail packages/core/project-memory.ts:19:72
+     17| const stamp = () => new Date().toISOString();
+     18| const sha256 = (text: string) => createHash('sha256').update(text, 'ut…
+     19| function fail(message: string, code = 'INVALID_MEMORY'): never { throw…
+       |                                                                        ^
+     20|
+     21| /** This detector is a publication guard, never a claim that arbitrary…
+ ❯ ProjectMemory.save packages/core/project-memory.ts:150:55
+ ❯ packages/core/project-memory.ts:206:14
+ ❯ Store.commit packages/storage/store.ts:128:16
+ ❯ Store.command packages/storage/store.ts:119:31
+ ❯ ProjectMemory.review packages/core/project-memory.ts:192:23
+ ❯ Object.act tests/project-memory-fixture.ts:21:81
+ ❯ tests/memory-forget-v3.test.ts:45:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  tests/memory-forget-v3.test.ts > reopens physical purge when a replay restores only an excluded source snapshot
+AssertionError: expected 'COMPLETE' to be 'PENDING' // Object.is equality
+
+Expected: "PENDING"
+Received: "COMPLETE"
+
+ ❯ tests/memory-forget-v3.test.ts:117:61
+    115|   expect(f.memory.sourceAvailable(f.access, f.ref)).toBe(false);
+    116|   expect(f.memory.accepted(f.access)).toEqual([]);
+    117|   expect(f.memory.read(f.access).tombstones[0].purgeStatus).toBe('PEND…
+       |                                                             ^
+    118|   expect(f.memory.purge(afterRetention)).toBe(1);
+    119|   expect(f.store.get('projectMemorySource', sourceKey)).toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 5 passed (8)
+   Start at  18:43:01
+   Duration  1.32s (transform 532ms, setup 0ms, import 725ms, tests 379ms, environment 0ms)
