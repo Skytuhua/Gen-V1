@@ -161,16 +161,19 @@ test('compact Settings reserves sections while metadata loads and retains its se
     await expect(dialog.locator('.loading-state-skeleton .settings-navigation')).toBeVisible();
     release();
     const search = dialog.getByRole('searchbox', {name: 'Search all settings', exact: true});
-    await search.fill('workspace diagnostics'); const original = await search.elementHandle();
+    await dialog.getByRole('navigation', {name: 'Settings sections'}).getByRole('button', {name: 'Data & Recovery', exact: true}).click();
+    const original = await search.elementHandle();
     gate = new Promise<void>(resolve => {release = resolve;});
     await dialog.getByRole('button', {name: 'Refresh settings', exact: true}).click();
-    await search.focus();
     await expect(dialog.getByRole('status').filter({hasText: 'Opening settings'})).toBeVisible();
+    // Search results navigate to the real controls; they do not contain duplicate controls.
+    await search.fill('workspace diagnostics');
     await expect(dialog.locator('.loading-state-skeleton')).toHaveCount(0);
     await expect(search).toHaveValue('workspace diagnostics');
     expect(await search.evaluate((node, original) => node === original && document.activeElement === node, original)).toBe(true);
     release(); await expect(dialog.getByRole('status').filter({hasText: 'Opening settings'})).toHaveCount(0);
     await expect(search).toHaveValue('workspace diagnostics');
+    expect(await search.evaluate((node, original) => node === original && document.activeElement === node, original)).toBe(true);
   } finally {release();}
 });
 
