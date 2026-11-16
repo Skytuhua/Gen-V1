@@ -1641,10 +1641,10 @@
     "id": "reconcile-focused-vitest",
     "receipt": "docs/implementation/v3/m15-logs/reconcile-focused-vitest.json",
     "phase": "RECONCILIATION",
-    "status": "FAIL",
-    "exitCode": 1,
-    "startedAt": "2026-11-16T03:30:31.417Z",
-    "endedAt": "2026-11-16T03:30:59.590Z"
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-16T03:34:05.406Z",
+    "endedAt": "2026-11-16T03:34:36.211Z"
   },
   {
     "id": "reconcile-full-vitest",
@@ -1652,8 +1652,8 @@
     "phase": "RECONCILIATION",
     "status": "FAIL",
     "exitCode": 1,
-    "startedAt": "2026-11-16T03:09:56.642Z",
-    "endedAt": "2026-11-16T03:26:34.318Z"
+    "startedAt": "2026-11-16T03:34:44.102Z",
+    "endedAt": "2026-11-16T03:53:00.390Z"
   },
   {
     "id": "reconcile-lint",

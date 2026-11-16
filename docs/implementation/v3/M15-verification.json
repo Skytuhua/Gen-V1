@@ -639,13 +639,13 @@
         },
         {
           "id": "reconcile-focused-vitest",
-          "status": "FAIL",
-          "evidence": "110/112 pass; 'admits the first captured file under its selected account [Windows native guard, runtime fixture]' fails identically on a1349b0a (pre-existing Windows PowerShell path-guard latency: deliverInputs stalls ~15s in prepareSend withResourceGuard; delivery enters after test teardown). Not a union regression. See docs/implementation/v3/m15-logs/reconcile-focused-vitest.log"
+          "status": "PASS",
+          "evidence": "112/112 pass after widening the win32 first-capture case's vi.waitFor timeout to 45s: delivery needs ~15s because each file guard acquisition spawns a cold PowerShell windows-path-guard process (deadline 15s); the test asserted admission, not latency. Defect confirmed pre-existing on a1349b0a. See docs/implementation/v3/m15-logs/reconcile-focused-vitest.log"
         },
         {
           "id": "reconcile-full-repo-vitest",
           "status": "FAIL",
-          "evidence": "Windows-native failures persist on the union tree; see docs/implementation/v3/m15-logs/reconcile-full-vitest.log"
+          "evidence": "Windows-native failures persist on the union tree; the previously failing focused case is fixed by the waitFor timeout change; see docs/implementation/v3/m15-logs/reconcile-full-vitest.log"
         },
         {
           "id": "reconcile-e2e-browser",
@@ -701,13 +701,13 @@
           ],
           "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m15",
           "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\pnpm",
-          "startedAt": "2026-11-16T03:30:31.417Z",
-          "endedAt": "2026-11-16T03:30:59.590Z",
-          "exitCode": 1,
+          "startedAt": "2026-11-16T03:34:05.406Z",
+          "endedAt": "2026-11-16T03:34:36.211Z",
+          "exitCode": 0,
           "termination": "NONE",
-          "status": "FAIL",
+          "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m15-logs/reconcile-focused-vitest.log",
-          "logDigest": "2be197018ecc608794fa872a64133e10e91865f05fa5a1651f024fb859b39a03"
+          "logDigest": "c2875f5a68a36f246fb4d6976fdfc4399979d71e8b4db01a9f65e624a31a4896"
         },
         {
           "argv": [
@@ -792,13 +792,13 @@
           ],
           "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m15",
           "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\pnpm",
-          "startedAt": "2026-11-16T03:09:56.642Z",
-          "endedAt": "2026-11-16T03:26:34.318Z",
+          "startedAt": "2026-11-16T03:34:44.102Z",
+          "endedAt": "2026-11-16T03:53:00.390Z",
           "exitCode": 1,
           "termination": "NONE",
           "status": "FAIL",
           "boundedLogRef": "docs/implementation/v3/m15-logs/reconcile-full-vitest.log",
-          "logDigest": "d3ecda4eef16d3caae9d67c1f66f6f5069bf5b07c167f729438c2b4688f9ba9d"
+          "logDigest": "07f395d16e9d73b0f43a134b8d67bc02a74eb2b920a4404e28e708f2a983e940"
         }
       ],
       "artifactRefs": []

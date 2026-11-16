@@ -243,9 +243,9 @@
     },
     {
       "path": "scripts/public-source-files.json",
-      "bytes": 202956,
-      "sha256": "e7c28be0b9565f0c76664704d6b199dc17bd9052d8b6937f5f5941231d189c65",
-      "gitBlob": "fb80bd0acd30816e7abb177d229ee31506f55b66"
+      "bytes": 203008,
+      "sha256": "9713a69a77d19318286ecac5ca02f43ee57c4c6d787c86957cd799d3cf616329",
+      "gitBlob": "50ec003e970b5fa6984bb94ff9c179f12758cd3b"
     },
     {
       "path": "tests/accounts.test.ts",
@@ -417,9 +417,9 @@
     },
     {
       "path": "tests/source-workbench-host-v3.test.ts",
-      "bytes": 64040,
-      "sha256": "ebe41700ec8794fdee48791a37a50ebf7b5c809b8db00fabd5be98ea50e95281",
-      "gitBlob": "52413588df950d9ca7ce9878ac99a61d5e1a72b9"
+      "bytes": 64059,
+      "sha256": "c28ed707b387579b851ff37f43f681d56fd9f94362c88681ce4b21254d6fb58a",
+      "gitBlob": "632c9ac27be73a0ab663a79f2089ffeee05a6cce"
     },
     {
       "path": "tests/workbench-input-recovery-v3.test.ts",

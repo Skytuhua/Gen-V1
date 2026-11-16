@@ -32,8 +32,8 @@
     },
     {
       "path": "docs/implementation/v3/M15-evidence-plan.json",
-      "bytes": 27420,
-      "sha256": "e611b372b92d0826e76af222a90e722cc09813fb9684ab0ba2e6e889e9dc4e78"
+      "bytes": 27472,
+      "sha256": "869c59087faa1526904c0dad6cd92899bb3018075f0bf0cec57a2f8460ba4c05"
     },
     {
       "path": "docs/implementation/v3/M15-feature-comparison.md",
@@ -4118,22 +4118,22 @@
     {
       "path": "docs\\implementation\\v3\\m15-logs\\reconcile-focused-vitest.json",
       "bytes": 897,
-      "sha256": "ad8ae63c259f2ea50877ba3c09375938fa9c4b91c33a7d4b3fa42a5b420404d7"
+      "sha256": "b6e7ac2619d66a71ea665820c52eab90d243d5499df397ab7b35a3e9c1a16e7c"
     },
     {
       "path": "docs\\implementation\\v3\\m15-logs\\reconcile-focused-vitest.log",
-      "bytes": 1326,
-      "sha256": "2be197018ecc608794fa872a64133e10e91865f05fa5a1651f024fb859b39a03"
+      "bytes": 670,
+      "sha256": "c2875f5a68a36f246fb4d6976fdfc4399979d71e8b4db01a9f65e624a31a4896"
     },
     {
       "path": "docs\\implementation\\v3\\m15-logs\\reconcile-full-vitest.json",
-      "bytes": 512,
-      "sha256": "c308ee76e3586cde4dfc76f2ca30e5dd832a58aa5258f12be4ffe12f4d564fc4"
+      "bytes": 498,
+      "sha256": "49df0d53de454a9a108a66770e8fcfac0cfedbbf6ffa6a31a2969ffdec8b6d27"
     },
     {
       "path": "docs\\implementation\\v3\\m15-logs\\reconcile-full-vitest.log",
-      "bytes": 48018,
-      "sha256": "d3ecda4eef16d3caae9d67c1f66f6f5069bf5b07c167f729438c2b4688f9ba9d"
+      "bytes": 55158,
+      "sha256": "07f395d16e9d73b0f43a134b8d67bc02a74eb2b920a4404e28e708f2a983e940"
     },
     {
       "path": "docs\\implementation\\v3\\m15-logs\\reconcile-lint.json",
