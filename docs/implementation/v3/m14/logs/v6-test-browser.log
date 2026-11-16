@@ -1,0 +1,57 @@
+
+> gen-v1@0.6.5 test:browser /home/piadmin/Gen-V1-m14-v6
+> tsx scripts/test-browser.ts
+
+Browser results: /home/piadmin/Gen-V1-m14-v6/test-results/browser/run-1794835234792-b9dad3f0-4bb4-4ef2-b3f3-29fb7fe012e4
+
+Browser suite: root (16 spec files)
+(node:757684) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+Error: Failed to load native module: pty.node, checked: build/Release, build/Debug, prebuilds/linux-arm64: Error: Cannot find module './prebuilds/linux-arm64//pty.node'
+Require stack:
+- /home/piadmin/Gen-V1-m14-v6/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/lib/utils.js
+- /home/piadmin/Gen-V1-m14-v6/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/lib/index.js
+    at Object.loadNativeModule (/home/piadmin/Gen-V1-m14-v6/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/src/utils.ts:28:9)
+    at Object.<anonymous> (/home/piadmin/Gen-V1-m14-v6/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/src/unixTerminal.ts:15:16)
+    at Object.<anonymous> (/home/piadmin/Gen-V1-m14-v6/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/src/index.ts:15:18)
+Error: Failed to load native module: pty.node, checked: build/Release, build/Debug, prebuilds/linux-arm64: Error: Cannot find module './prebuilds/linux-arm64//pty.node'
+Require stack:
+- /home/piadmin/Gen-V1-m14-v6/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/lib/utils.js
+- /home/piadmin/Gen-V1-m14-v6/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/lib/index.js
+    at Object.loadNativeModule (/home/piadmin/Gen-V1-m14-v6/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/src/utils.ts:28:9)
+    at Object.<anonymous> (/home/piadmin/Gen-V1-m14-v6/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/src/unixTerminal.ts:15:16)
+    at Object.<anonymous> (/home/piadmin/Gen-V1-m14-v6/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/src/index.ts:15:18)
+
+
+Browser suite: agents-workspace (2 spec files)
+Error: http://127.0.0.1:5636 is already used, make sure that nothing is running on the port/url or set reuseExistingServer:true in config.webServer.
+
+
+Browser suite: artifact-settle (1 spec files)
+[WebServer] Error: EACCES: permission denied, scandir '/tmp/wo-3-1-artifact-settle-vite'
+[WebServer] [90m    at async Object.readdir (node:internal/fs/promises:958:18)[39m
+[WebServer]     at async cleanupDepsCacheStaleDirs [90m(file:///home/piadmin/Gen-V1-m14-v6/[39mnode_modules/[4m.pnpm[24m/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/[4mvite[24m/dist/node/chunks/config.js:32673:20[90m)[39m {
+[WebServer]   errno: [33m-13[39m,
+[WebServer]   code: [32m'EACCES'[39m,
+[WebServer]   syscall: [32m'scandir'[39m,
+[WebServer]   path: [32m'/tmp/wo-3-1-artifact-settle-vite'[39m
+[WebServer] }
+[WebServer] [31merror when starting dev server:
+[WebServer] Error: EACCES: permission denied, lstat '/tmp/wo-3-1-artifact-settle-vite/deps'[39m
+Error: Process from config.webServer was not able to start. Exit code: 1
+
+
+Browser suite: browser-action (1 spec files)
+
+Running 22 tests using 1 worker
+
+  ✘   1 tests/e2e/browser-action.spec.ts:14:2 › docked › successful Reload retry clears the action error without replacing page state or address edits (52ms)
+  ✘   2 tests/e2e/browser-action.spec.ts:30:2 › docked › keyboard navigation recovers after rejection and follows the trusted page URL (42ms)
+  ✘   3 tests/e2e/browser-action.spec.ts:39:2 › docked › an obsolete rejection cannot restore an error after newer navigation succeeds (84ms)
+  ✘   4 tests/e2e/browser-action.spec.ts:48:2 › docked › an older success cannot hide the newest action rejection (26ms)
+  ✘   5 tests/e2e/browser-action.spec.ts:58:2 › docked › an obsolete rejection stays silent while the latest action is pending (23ms)
+  ✘   6 tests/e2e/browser-action.spec.ts:68:2 › docked › successful action recovery preserves the native page error until a trusted state update clears it (29ms)
+  ✘   7 tests/e2e/browser-action.spec.ts:79:2 › docked › a failed retry retains the new action error including non-Error rejection fallback (14ms)
+  ✘   8 tests/e2e/browser-action.spec.ts:86:140 › docked › successful back clears the local error using current native control state (17ms)
+ ELIFECYCLE  Command failed.
+EXIT:124

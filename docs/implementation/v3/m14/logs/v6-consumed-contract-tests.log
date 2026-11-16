@@ -1,0 +1,120 @@
+     [32m✓[39m enforces independent category and mandatory novel gates over real-run evidence[32m 16[2mms[22m[39m
+(node:774699) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/tool-effects-v3.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 5436[2mms[22m[39m
+   [33m[2m✓[22m[39m admits then persists DISPATCHED before invoking the executor, then settles [33m 428[2mms[22m[39m
+   [33m[2m✓[22m[39m coalesces duplicate invocation IDs and conflicts on changed arguments [33m 558[2mms[22m[39m
+   [33m[2m✓[22m[39m lets two callers sharing one approval dispatch only once [33m 446[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses an expired approval before any dispatch is persisted [33m 474[2mms[22m[39m
+   [33m[2m✓[22m[39m issues an approval on operation.approve and consumes it at the single dispatch [33m 804[2mms[22m[39m
+   [33m[2m✓[22m[39m denies dispatch when the approved owner drifts (epoch bump) [33m 559[2mms[22m[39m
+   [33m[2m✓[22m[39m retains a historical result when the owner is archived mid-dispatch but publishes nothing current [33m 399[2mms[22m[39m
+   [33m[2m✓[22m[39m honors the latest approval when an operation is approved again [33m 447[2mms[22m[39m
+   [33m[2m✓[22m[39m still requires the bound approval under authorityV1 when effectsV1 is off [33m 487[2mms[22m[39m
+ [32m✓[39m tests/conversation-read-models.test.ts [2m([22m[2m29 tests[22m[2m)[22m[33m 17896[2mms[22m[39m
+   [33m[2m✓[22m[39m projects an actual empty Personal owner without requiring Agent inventory or exposing private fields [33m 478[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps side transcripts text-only and ineligible for Research with exact Personal parent linkage [33m 361[2mms[22m[39m
+   [33m[2m✓[22m[39m pages stable message identities chronologically despite concurrent append and streaming of another message [33m 306[2mms[22m[39m
+   [33m[2m✓[22m[39m bounds Unicode content in SQL, continues exactly and rejects same-length replacement [33m 1453[2mms[22m[39m
+   [33m[2m✓[22m[39m requires resync after an unobserved external commit or an expired update checkpoint [33m 9077[2mms[22m[39m
+   [33m[2m✓[22m[39m withholds a captured page if another canonical writer changes authority during its read [33m 535[2mms[22m[39m
+   [33m[2m✓[22m[39m reads no Snapshot, broad entities or event payloads even for multi-megabyte messages and progress [33m 797[2mms[22m[39m
+   [33m[2m✓[22m[39m fails closed after disposal or synchronous host revocation [33m 427[2mms[22m[39m
+ [32m✓[39m tests/m14-evidence-gates.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 65[2mms[22m[39m
+fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+fatal: Not a valid commit name bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+ [32m✓[39m tests/research-baseline.test.ts [2m([22m[2m26 tests[22m[2m)[22m[33m 4045[2mms[22m[39m
+     [33m[2m✓[22m[39m times out a hung child and kills its process tree [33m 1556[2mms[22m[39m
+     [33m[2m✓[22m[39m reproduce identical control actions and effect counts per fixed seed [33m 1152[2mms[22m[39m
+(node:774812) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/m01-m02-compatibility.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 50[2mms[22m[39m
+ [32m✓[39m tests/project-memory-v3.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 7535[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps proposals out of accepted memory and records exact user acceptance without source truth inflation [33m 1112[2mms[22m[39m
+   [33m[2m✓[22m[39m binds identity to physical enrollment and survives only a display rename [33m 1028[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects another account, unapproved source thread, fabricated source and oversized or secret payloads [33m 1010[2mms[22m[39m
+   [33m[2m✓[22m[39m captures exact settled source revisions and refuses an actively changing task [33m 754[2mms[22m[39m
+   [33m[2m✓[22m[39m supersedes a correction and retains both concurrent edits as an explicit conflict [33m 862[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps memory text out of mutation receipts and permits retained record review after disabling injection [33m 504[2mms[22m[39m
+   [33m[2m✓[22m[39m connects host revisions to local recall and a reference index without reviving corrected or forgotten text [33m 839[2mms[22m[39m
+   [33m[2m✓[22m[39m opens the exact reference when identical source bytes came from distinct messages [33m 408[2mms[22m[39m
+   [33m[2m✓[22m[39m allows disabling project memory after a selected source conversation becomes ineligible [33m 1005[2mms[22m[39m
+ [32m✓[39m tests/request-preparation-service-v3.test.ts [2m([22m[2m25 tests[22m[2m)[22m[33m 27881[2mms[22m[39m
+   [33m[2m✓[22m[39m retains the same immutable preparation identity through the actual admitted request [33m 593[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects a preview token used with a changed prompt before accepting the draft [33m 455[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects a preview token used with a changed model before accepting the draft [33m 403[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects a preview token used with a changed owner before accepting the draft [33m 455[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects a removed grant and changed task note before accepting a prepared draft [33m 653[2mms[22m[39m
+   [33m[2m✓[22m[39m checks physical project identity again after preview [33m 718[2mms[22m[39m
+   [33m[2m✓[22m[39m checks current account selection and model binding again after preview [33m 545[2mms[22m[39m
+   [33m[2m✓[22m[39m prevents token reuse while preserving a retry of the accepted command [33m 568[2mms[22m[39m
+   [33m[2m✓[22m[39m fails preparation before message admission when the trusted preparation hook fails [33m 344[2mms[22m[39m
+   [33m[2m✓[22m[39m fails dispatch when the trusted finalization hook fails and retains the accepted input [33m 443[2mms[22m[39m
+   [33m[2m✓[22m[39m revalidates after asynchronous finalization when stop changes [33m 626[2mms[22m[39m
+   [33m[2m✓[22m[39m revalidates after asynchronous finalization when note changes [33m 717[2mms[22m[39m
+   [33m[2m✓[22m[39m revalidates after asynchronous finalization when grant changes [33m 637[2mms[22m[39m
+   [33m[2m✓[22m[39m revalidates after asynchronous finalization when hook assertion changes [33m 554[2mms[22m[39m
+   [33m[2m✓[22m[39m dispatches queued token-bound follow-ups separately without losing later outbox inputs [33m 1093[2mms[22m[39m
+   [33m[2m✓[22m[39m allocates default-send identity but leaves the default-off path unchanged [33m 903[2mms[22m[39m
+   [33m[2m✓[22m[39m expires abandoned previews, calls cleanup, and never resurrects the same identity [33m 481[2mms[22m[39m
+   [33m[2m✓[22m[39m preserves an accepted queued token across the prior native session lifecycle event [33m 455[2mms[22m[39m
+   [33m[2m✓[22m[39m preserves an accepted queued token across the prior native settled lifecycle event [33m 380[2mms[22m[39m
+   [33m[2m✓[22m[39m preserves separately accepted previews queued before the first epoch is admitted [33m 489[2mms[22m[39m
+   [33m[2m✓[22m[39m bounds abandoned preparations and retains only the newest 128 metadata receipts [33m 12870[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps expired, hung preparation jobs in the admission bound until they actually settle [33m 2795[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 13 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/capabilities.test.ts[2m > [22mdomain permission wrapper and file operations[2m > [22mpublishes resource sourced text with an exact content hash
+[41m[1m FAIL [22m[49m tests/capabilities.test.ts[2m > [22mdomain permission wrapper and file operations[2m > [22mprepares without writing and rejects absent approval and changed source bytes
+[41m[1m FAIL [22m[49m tests/capabilities.test.ts[2m > [22mdomain permission wrapper and file operations[2m > [22mexecutes approved replacement, publishes actual results and re-resolves write permissions
+[41m[1m FAIL [22m[49m tests/capabilities.test.ts[2m > [22mdomain permission wrapper and file operations[2m > [22mreconciles before/after replacement hashes read-only and leaves changed bytes unknown
+[41m[1m FAIL [22m[49m tests/capabilities.test.ts[2m > [22mdomain permission wrapper and file operations[2m > [22mruns the exact node-test recipe and reports actual success and failure exits
+[41m[1m FAIL [22m[49m tests/capabilities.test.ts[2m > [22mdomain permission wrapper and file operations[2m > [22mcancels the actual process tree and records cancellation instead of success
+[41m[1m FAIL [22m[49m tests/capabilities.test.ts[2m > [22mreal selected SQLite[2m > [22minspects real rows and applies exact prepared counts with integrity/version checks
+[41m[1m FAIL [22m[49m tests/capabilities.test.ts[2m > [22mreal selected SQLite[2m > [22mbounds inspect rows by serialized bytes and reports truncation
+[41m[1m FAIL [22m[49m tests/capabilities.test.ts[2m > [22mreal selected SQLite[2m > [22mrolls back wrong counts, denies attachment and rejects stale database versions
+[41m[1m FAIL [22m[49m tests/capabilities.test.ts[2m > [22mreal selected SQLite[2m > [22mreports actual migration DML counts independently from schema statements
+[41m[1m FAIL [22m[49m tests/capabilities.test.ts[2m > [22mPDF local export[2m > [22minspects fields, fills supported types and places typed/drawn marks in a new local export
+[41m[1m FAIL [22m[49m tests/capabilities.test.ts[2m > [22mdisposable fixtures and held-out evaluations[2m > [22mcreates fixtures only at an exclusive new destination including real git conflict
+[31m[1mHarnessError[22m: File access check failed — the folder could not be opened safely for this action[39m
+[36m [2m❯[22m denied packages/core/linux-path-guard.ts:[2m11:18[22m[39m
+    [90m  9|[39m type DirectoryPath={path:string;leaf:boolean;dev?:string;ino?:string;e…
+    [90m 10|[39m interface Session {rpc(request:Record<string,unknown>):Promise<readonl…
+    [90m 11|[39m const denied=()=>new HarnessError('CAPABILITY_DENIED','File access che…
+    [90m   |[39m                  [31m^[39m
+    [90m 12|[39m const within=(root:string,path:string)=>path===root||path.startsWith(r…
+    [90m 13|[39m export function validateLinuxDirectoryPaths(paths:DirectoryPath[],root…
+[90m [2m❯[22m packages/core/linux-path-guard.ts:[2m88:24[22m[39m
+[90m [2m❯[22m withLinuxDirectoryGuard packages/core/linux-path-guard.ts:[2m152:42[22m[39m
+[90m [2m❯[22m handleDomainTool packages/capabilities/index.ts:[2m102:22[22m[39m
+[90m [2m❯[22m tests/capabilities.test.ts:[2m106:20[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/13]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/capabilities.test.ts[2m > [22mdomain permission wrapper and file operations[2m > [22mrejects readonly grants at prepare and rejects cross-thread or non-running operation dispatch
+[31m[1mAssertionError[22m: expected [Function] to throw error matching /read only/i but got 'File access check failed — the folder…'[39m
+
+[32m- Expected:[39m
+/read only/i
+
+[31m+ Received:[39m
+"File access check failed — the folder could not be opened safely for this action"
+
+[36m [2m❯[22m tests/capabilities.test.ts:[2m134:161[22m[39m
+    [90m132|[39m   it("rejects readonly grants at prepare and rejects cross-thread or n…
+    [90m133|[39m     const s = await sandbox(); await writeFile(join(s.root, "file.txt"…
+    [90m134|[39m     await expect(handleDomainTool("file_replace_prepare", { resourceId…
+    [90m   |[39m                                                                                                                                                                 [31m^[39m
+    [90m135|[39m     [34mexpect[39m(s[33m.[39moperations[33m.[39mlength)[33m.[39m[34mtoBe[39m([34m0[39m)[33m;[39m
+    [90m136|[39m     const op = await handleDomainTool("file_replace_prepare", { resour…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/13]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m8 passed[39m[22m[90m (9)[39m
+[2m      Tests [22m [1m[31m13 failed[39m[22m[2m | [22m[1m[32m134 passed[39m[22m[90m (147)[39m
+[2m   Start at [22m 05:44:03
+[2m   Duration [22m 41.32s[2m (transform 13.75s, setup 0ms, import 29.79s, tests 77.04s, environment 3ms)[22m
+

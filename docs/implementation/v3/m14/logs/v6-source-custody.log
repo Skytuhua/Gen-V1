@@ -1,0 +1,56 @@
+$ git rev-parse --show-toplevel
+/home/piadmin/Gen-V1-m14-v6
+$ git remote get-url origin
+https://github.com/skytuhua-org/Gen-V1.git
+$ git branch --show-current
+agent/m14-v3
+$ git worktree list --porcelain
+worktree /home/piadmin/Gen-V1
+HEAD 033d32cd3e14284a816a3e8aeaa66ffe92b34090
+branch refs/heads/fix/t10-agents-grid-v3
+
+worktree /home/piadmin/Gen-V1-m04-baseline
+HEAD ee2c7ad1d8137a355ae907ef0a340b04c8cb7c38
+detached
+
+worktree /home/piadmin/Gen-V1-m04-v6
+HEAD ee2c7ad1d8137a355ae907ef0a340b04c8cb7c38
+branch refs/heads/handoff/m04-context-v3
+
+worktree /home/piadmin/Gen-V1-m10-v6
+HEAD 1c09d492278b1014bc3ab5455191b1f5913c96d8
+branch refs/heads/agent/m10-v6
+
+worktree /home/piadmin/Gen-V1-m12-v6
+HEAD 44c19075a3341f85a0f6c2c8e8455f2f70a970df
+branch refs/heads/agent/m12-v3
+
+worktree /home/piadmin/Gen-V1-m14-v6
+HEAD 5de9d4a64649ea35f828d1d7d99082791c066104
+branch refs/heads/agent/m14-v3
+
+worktree /tmp/gv1-audit
+HEAD 819cc391320ad4a6a30005173c77faf55d32b80b
+detached
+
+worktree /tmp/gv1-f1
+HEAD 773b2441d5309c643f96144af89668b37d692173
+branch refs/heads/fix/model-bind-race
+
+$ git status --porcelain=v1 --untracked-files=all
+?? docs/implementation/v3/m14/logs/v6-build.log
+?? docs/implementation/v3/m14/logs/v6-lint.log
+?? docs/implementation/v3/m14/logs/v6-source-custody.log
+?? docs/implementation/v3/m14/logs/v6-test-browser.log
+?? docs/implementation/v3/m14/logs/v6-typecheck.log
+?? docs/implementation/v3/m14/logs/v6-vitest-full-tail.log
+?? docs/implementation/v3/m14/logs/v6-vitest-history-import-decisions-v6.log
+?? docs/implementation/v3/m14/logs/v6-vitest-history-import-v3.log
+?? docs/implementation/v3/m14/logs/v6-vitest-session-branch-v3.log
+?? docs/implementation/v6/M14/requirements.json
+?? docs/implementation/v6/M14/source-lock.json
+$ git log --oneline -4
+5de9d4a6 M14: branchable sessions and inert ArchiveV1 history imports
+ea48854b merge(main): integrate 71b3b405 into agent/m14-v3 for v6 continuation
+71b3b405 ci: retrigger installed retention (provider blocked flake)
+1c09d492 ci: retrigger checks (browser flake)

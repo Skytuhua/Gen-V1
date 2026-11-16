@@ -1,0 +1,12 @@
+$ pnpm build:credential-lease
+
+> gen-v1@0.6.5 build:credential-lease /home/piadmin/Gen-V1-m14-v6
+> tsx scripts/build-windows-credential-lease.ts
+
+EXIT:0
+$ pnpm build:widgets
+
+> gen-v1@0.6.5 build:widgets /home/piadmin/Gen-V1-m14-v6
+> node scripts/build-widgets.mjs
+
+EXIT:0

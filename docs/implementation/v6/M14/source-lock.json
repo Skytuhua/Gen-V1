@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 3,
+  "auditAncestorSha": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
+  "executionBaseSha": "5de9d4a64649ea35f828d1d7d99082791c066104",
+  "inspectedPaths": [
+    {
+      "path": "apps/server/server.ts",
+      "blobSha": "7b4dd123085bcf567d5b5829d1cbb925c7856cb4"
+    },
+    {
+      "path": "apps/server/session-branch-routes.ts",
+      "blobSha": "7208fe4bba2a0f5cc65e280bbbe3085f1c96cfaa"
+    },
+    {
+      "path": "apps/web/src/App.tsx",
+      "blobSha": "513fafb0f5e3e4c3f545f640ed1310c148ab5e95"
+    },
+    {
+      "path": "apps/web/src/SessionBranchMenu.tsx",
+      "blobSha": "ddeda77afe7b5cbccfe0cfcef21fe2ca2595ec11"
+    },
+    {
+      "path": "apps/web/src/session-branch-api.ts",
+      "blobSha": "3c05cf53c6a3a162882d2562c06bac123ae801bc"
+    },
+    {
+      "path": "apps/web/src/session-branch.css",
+      "blobSha": "9e2918904761366aa523b8ff58f6604179a45240"
+    },
+    {
+      "path": "packages/contracts/implementation-evidence.ts",
+      "blobSha": "559b720ccead1d29c9a1bd4db528af52534105c3"
+    },
+    {
+      "path": "packages/contracts/index.ts",
+      "blobSha": "4543457cd2b748280b7264868f5c3151c5444d8e"
+    },
+    {
+      "path": "packages/contracts/project-memory.ts",
+      "blobSha": "760aaecd420b260b7d8c948f89ef0d32718b17e7"
+    },
+    {
+      "path": "packages/contracts/request-context.ts",
+      "blobSha": "30185cc5e66a74ef438af8ec8e9ec1d91989c614"
+    },
+    {
+      "path": "packages/contracts/session-branch.ts",
+      "blobSha": "2c6a9d02babc5b86151d720f4fa81d32a0febfc5"
+    },
+    {
+      "path": "packages/contracts/tool-effects.ts",
+      "blobSha": "41b6fff1364825122c33761c0bfaac66da03bca0"
+    },
+    {
+      "path": "packages/core/capability-flags.ts",
+      "blobSha": "c2ec030eb8eaf52096ac50c1d78bbb997fd70600"
+    },
+    {
+      "path": "packages/core/conversation-read-models.ts",
+      "blobSha": "93d6f9a26685c936444e272fc6dd26f25211ea75"
+    },
+    {
+      "path": "packages/core/history-import.ts",
+      "blobSha": "8d3a978481800d2ff4503a491c4dddbda0916dcf"
+    },
+    {
+      "path": "packages/core/project-memory-host.ts",
+      "blobSha": "a197333efb3bd12cd0c1c3512eb335cd7a421c1c"
+    },
+    {
+      "path": "packages/core/project-memory.ts",
+      "blobSha": "08f522d2ebd1e82851f26c2a16575c1d469ab66b"
+    },
+    {
+      "path": "packages/core/request-custody.ts",
+      "blobSha": "b7f0946c0ae48acc8d0673739c6960a5601b8841"
+    },
+    {
+      "path": "packages/core/service.ts",
+      "blobSha": "1f0d3ab448a74203e27bb341d1053f518c8b55f2"
+    },
+    {
+      "path": "packages/core/session-branches.ts",
+      "blobSha": "4b8b106be0f45727d700aa7d15ebfa991a8bade7"
+    },
+    {
+      "path": "packages/runtime-hermes/worker.py",
+      "blobSha": "c736b8a9165b8265b6de527021d50f8068900549"
+    },
+    {
+      "path": "packages/runtime-official/history.ts",
+      "blobSha": "fc36a267358ebdd4bffa378b9755b8684b73a4b6"
+    },
+    {
+      "path": "packages/runtime-pi/session.ts",
+      "blobSha": "045c142cbaad8d58499e21492ac901b5ee191f99"
+    },
+    {
+      "path": "packages/storage/store.ts",
+      "blobSha": "aa5a1c1b83a8af118b84bf406ed5fdcbed3ce326"
+    },
+    {
+      "path": "scripts/public-source-files.json",
+      "blobSha": "7db57772ec7ff4aa29388cd8750b0305d8bbdf64"
+    },
+    {
+      "path": "tests/history-import-decisions-v6.test.ts",
+      "blobSha": "b6a75e2e83788cf4b8b30d211130c32bdbf81ea4"
+    },
+    {
+      "path": "tests/history-import-v3.test.ts",
+      "blobSha": "02eb5f0d917a3b3af4a18f5d9f1d5a9498870389"
+    },
+    {
+      "path": "tests/session-branch-v3.test.ts",
+      "blobSha": "1522f3c93b2dca133e8835df54b144d534e43e05"
+    }
+  ],
+  "publicContracts": [
+    {
+      "name": "runtime-adapter",
+      "version": "4543457cd2b748280b7264868f5c3151c5444d8e",
+      "testIds": [
+        "tests/runtime-pi.test.ts",
+        "tests/hermes-runtime.test.ts",
+        "tests/official-history-ownership.test.ts"
+      ]
+    },
+    {
+      "name": "store-command",
+      "version": "aa5a1c1b83a8af118b84bf406ed5fdcbed3ce326",
+      "testIds": [
+        "tests/store.test.ts",
+        "tests/conversation-read-models.test.ts"
+      ]
+    }
+  ],
+  "acceptedDependencyCommits": [
+    "ea48854bee188aac71edd0b8c0483d050fff2297"
+  ],
+  "approvedDrift": []
+}

@@ -1,10 +1,10 @@
 {
   "schemaVersion": 3,
   "bundleId": "M14",
-  "baseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
-  "sourceLockDigest": "2a6c4cef8fa5793f3e3e0986778d2713a2ad551dd47bff996ef5d170017d5486",
-  "platform": "linux-x64",
-  "nodeVersion": "v24.22.1",
+  "baseSha": "5de9d4a64649ea35f828d1d7d99082791c066104",
+  "sourceLockDigest": "5fdb898ba0703a970a53c93f3f65ef1b253073d4919084e601317ec1e1fadd1b",
+  "platform": "linux-arm64",
+  "nodeVersion": "v24.11.1",
   "packageManagerVersion": "10.30.3",
   "phases": [
     {
@@ -12,19 +12,19 @@
       "status": "PASS",
       "requiredCases": [
         {
-          "id": "isolated-branch-and-clean-original",
+          "id": "worktree-isolation",
           "status": "PASS",
-          "evidence": "agent/m14-v3 starts at the accepted main SHA; original checkout remains clean and untouched."
+          "evidence": "Recovered remote head b27c8360 into /home/piadmin/Gen-V1-m14-v6 on agent/m14-v3; original checkout on fix/t10-agents-grid-v3 with user edits and qwencloud-api-key.txt preserved untouched."
         },
         {
-          "id": "origin-and-canonical-repository",
+          "id": "canonical-remote",
           "status": "PASS",
-          "evidence": "Origin retains the requested Skytuhua/Gen-V1 URL; GitHub resolves the same repository ID 1442565952 to skytuhua-org/Gen-V1."
+          "evidence": "origin resolves to github.com/skytuhua-org/Gen-V1 (repository ID 1442565952)."
         },
         {
-          "id": "exact-source-lock",
+          "id": "base-integration",
           "status": "PASS",
-          "evidence": "54 inspected source blobs match the accepted base; audit ancestor and the three accepted M01/M02 integration commits are ancestors. No incompatible target API drift found."
+          "evidence": "Fetched origin/main 71b3b405 without checkout; clean worktree merged via git merge --no-commit --no-ff into merge commit ea48854b; no conflicts, no ours/theirs resolution."
         }
       ],
       "commands": [
@@ -32,198 +32,22 @@
           "argv": [
             "git",
             "status",
-            "--short",
-            "--branch"
-          ],
-          "cwdIdentity": "/workspace/scratch/c4abb425a583/m14-v3",
-          "executableIdentity": "/usr/local/bin/git",
-          "startedAt": "2026-11-15T09:55:00.672022+00:00",
-          "endedAt": "2026-11-15T09:55:00.687790+00:00",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m14/logs/source-01-custody.log",
-          "logDigest": "9e8de3d54d6f3537df435a8d0ef82b9858ec90378a2d7b2bc2de81b346f9135a"
-        },
-        {
-          "argv": [
-            "git",
-            "rev-parse",
-            "--show-toplevel"
-          ],
-          "cwdIdentity": "/workspace/scratch/c4abb425a583/m14-v3",
-          "executableIdentity": "/usr/local/bin/git",
-          "startedAt": "2026-11-15T09:55:00.727467+00:00",
-          "endedAt": "2026-11-15T09:55:00.731153+00:00",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m14/logs/source-02-root.log",
-          "logDigest": "1f157ec45eac08ef56b273bd56bea98e8a6a96e29552688acae40208e1651bd0"
-        },
-        {
-          "argv": [
-            "git",
-            "remote",
-            "-v"
-          ],
-          "cwdIdentity": "/workspace/scratch/c4abb425a583/m14-v3",
-          "executableIdentity": "/usr/local/bin/git",
-          "startedAt": "2026-11-15T09:55:00.769341+00:00",
-          "endedAt": "2026-11-15T09:55:00.772989+00:00",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m14/logs/source-03-origin.log",
-          "logDigest": "a5cf0c1ef7d70cb54965b7ec35d640f216789c9390f753c494001107998c6dd9"
-        },
-        {
-          "argv": [
-            "git",
-            "rev-parse",
-            "HEAD"
-          ],
-          "cwdIdentity": "/workspace/scratch/c4abb425a583/m14-v3",
-          "executableIdentity": "/usr/local/bin/git",
-          "startedAt": "2026-11-15T09:55:00.796530+00:00",
-          "endedAt": "2026-11-15T09:55:00.800056+00:00",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m14/logs/source-04-base.log",
-          "logDigest": "68c0ece041a50c7ec5cf78ef484483506a302dfd576eddb45ab79a7afbe1d94b"
-        },
-        {
-          "argv": [
-            "git",
-            "merge-base",
-            "--is-ancestor",
-            "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
-            "HEAD"
-          ],
-          "cwdIdentity": "/workspace/scratch/c4abb425a583/m14-v3",
-          "executableIdentity": "/usr/local/bin/git",
-          "startedAt": "2026-11-15T09:55:00.824998+00:00",
-          "endedAt": "2026-11-15T09:55:00.828501+00:00",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m14/logs/source-05-ancestor.log",
-          "logDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-        },
-        {
-          "argv": [
-            "git",
-            "-C",
-            "/workspace/scratch/dbebe44a9817/Gen-V1",
-            "status",
             "--porcelain=v1",
             "--untracked-files=all"
           ],
-          "cwdIdentity": "/workspace/scratch/c4abb425a583/m14-v3",
-          "executableIdentity": "/usr/local/bin/git",
-          "startedAt": "2026-11-15T09:55:00.851370+00:00",
-          "endedAt": "2026-11-15T09:55:00.858983+00:00",
+          "cwdIdentity": "/home/piadmin/Gen-V1-m14-v6",
+          "executableIdentity": "git",
+          "startedAt": "2026-11-16T05:37:00Z",
+          "endedAt": "2026-11-16T05:37:02Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m14/logs/source-06-original-status.log",
-          "logDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-        },
-        {
-          "argv": [
-            "git",
-            "fetch",
-            "origin",
-            "main"
-          ],
-          "cwdIdentity": "/workspace/scratch/c4abb425a583/m14-v3",
-          "executableIdentity": "/usr/local/bin/git",
-          "startedAt": "2026-11-15T09:56:12.769148+00:00",
-          "endedAt": "2026-11-15T09:56:18.457999+00:00",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m14/logs/source-08-refresh.log",
-          "logDigest": "b9da11687104972c06f82c6b5d9385b67fa0577097e9a0673e022fa2ae286db7"
-        },
-        {
-          "argv": [
-            "git",
-            "rev-parse",
-            "origin/main"
-          ],
-          "cwdIdentity": "/workspace/scratch/c4abb425a583/m14-v3",
-          "executableIdentity": "/usr/local/bin/git",
-          "startedAt": "2026-11-15T09:56:18.504645+00:00",
-          "endedAt": "2026-11-15T09:56:18.508405+00:00",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m14/logs/source-09-origin-main.log",
-          "logDigest": "68c0ece041a50c7ec5cf78ef484483506a302dfd576eddb45ab79a7afbe1d94b"
-        },
-        {
-          "argv": [
-            "git",
-            "diff",
-            "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
-            "HEAD",
-            "--",
-            "packages/runtime-official/history.ts",
-            "packages/runtime-pi/session.ts",
-            "packages/runtime-hermes/worker.py",
-            "packages/core/conversation-read-models.ts",
-            "packages/storage/store.ts",
-            "apps/web/src/conversation-workspace/reader.ts"
-          ],
-          "cwdIdentity": "/workspace/scratch/c4abb425a583/m14-v3",
-          "executableIdentity": "/usr/local/bin/git",
-          "startedAt": "2026-11-15T10:02:27.301559+00:00",
-          "endedAt": "2026-11-15T10:02:27.314901+00:00",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m14/logs/source-10-target-drift.log",
-          "logDigest": "be3cf17ad4d04eb521b635a5a27712060a74ad22ce69d11d21ed3dc227785abb"
-        },
-        {
-          "argv": [
-            "corepack",
-            "pnpm",
-            "exec",
-            "node",
-            "--import",
-            "tsx",
-            "--input-type=module",
-            "-e",
-            "import {readFileSync} from \"node:fs\"; import {sourceLockV3Schema} from \"./packages/contracts/implementation-evidence.ts\"; import {verifySourceLock} from \"./scripts/research-baseline.ts\"; const lock=sourceLockV3Schema.parse(JSON.parse(readFileSync(\"docs/implementation/v3/M14-source-lock.json\",\"utf8\"))); const issues=verifySourceLock(process.cwd(),lock); console.log(JSON.stringify({inspectedPaths:lock.inspectedPaths.length,issues})); if(issues.length)process.exit(1);"
-          ],
-          "cwdIdentity": "/workspace/scratch/c4abb425a583/m14-v3",
-          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js",
-          "startedAt": "2026-11-15T10:02:26.377736+00:00",
-          "endedAt": "2026-11-15T10:02:27.259165+00:00",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m14/logs/core-03-source-lock.log",
-          "logDigest": "0978777615ee1175d4541cb6d55dabebee855333b2cde8e924415b2336ba739a"
+          "boundedLogRef": "docs/implementation/v3/m14/logs/v6-source-custody.log",
+          "logDigest": "e095c6bffe47f9f3ccc89123c454e66d465155d0c869bcf923e5fb6b5a74e591"
         }
       ],
       "artifactRefs": [
-        "docs/implementation/v3/M14-source-lock.json",
-        "docs/implementation/v3/m14/remote-prerequisites.json",
-        "docs/implementation/v3/M14-request.md",
-        "docs/implementation/v3/m14/logs/source-01-custody.log",
-        "docs/implementation/v3/m14/logs/source-02-root.log",
-        "docs/implementation/v3/m14/logs/source-03-origin.log",
-        "docs/implementation/v3/m14/logs/source-04-base.log",
-        "docs/implementation/v3/m14/logs/source-05-ancestor.log",
-        "docs/implementation/v3/m14/logs/source-06-original-status.log",
-        "docs/implementation/v3/m14/logs/source-08-refresh.log",
-        "docs/implementation/v3/m14/logs/source-09-origin-main.log",
-        "docs/implementation/v3/m14/logs/source-10-target-drift.log",
-        "docs/implementation/v3/m14/logs/core-03-source-lock.log"
+        "docs/implementation/v6/M14/source-lock.json"
       ]
     },
     {
@@ -231,19 +55,9 @@
       "status": "PASS",
       "requiredCases": [
         {
-          "id": "declared-pnpm",
+          "id": "declared-versions",
           "status": "PASS",
-          "evidence": "Corepack resolves pnpm 10.30.3; a local external launcher also pins nested pnpm invocations after an initial build exposed global pnpm 11."
-        },
-        {
-          "id": "frozen-lockfile-setup",
-          "status": "PASS",
-          "evidence": "Frozen install succeeded without package.json/pnpm-lock.yaml/pnpm-workspace.yaml modifications. Repository allowed-build policy remains unchanged."
-        },
-        {
-          "id": "generated-widget-assets",
-          "status": "PASS",
-          "evidence": "Existing build:widgets command completed."
+          "evidence": "Node v24.11.1 satisfies >=24.10.0; pnpm 10.30.3 matches package.json; pnpm install --frozen-lockfile succeeded; native build scripts (node-pty, keytar, protobufjs) remained ignored as before."
         }
       ],
       "commands": [
@@ -252,197 +66,100 @@
             "node",
             "--version"
           ],
-          "cwdIdentity": "/workspace/scratch/c4abb425a583/m14-v3",
-          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
-          "startedAt": "2026-11-15T09:55:00.887338+00:00",
-          "endedAt": "2026-11-15T09:55:00.891012+00:00",
+          "cwdIdentity": "/home/piadmin/Gen-V1-m14-v6",
+          "executableIdentity": "node",
+          "startedAt": "2026-11-16T05:37:03Z",
+          "endedAt": "2026-11-16T05:37:04Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m14/logs/source-07-node.log",
-          "logDigest": "249baf635bb43877fcb9422efa1a4904b702d0ddf14d3949b7cd0950d5229c81"
-        },
-        {
-          "argv": [
-            "corepack",
-            "pnpm",
-            "--version"
-          ],
-          "cwdIdentity": "/workspace/scratch/c4abb425a583/m14-v3",
-          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js",
-          "startedAt": "2026-11-15T09:53:38.222668+00:00",
-          "endedAt": "2026-11-15T09:53:38.437257+00:00",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m14/logs/setup-01-pnpm.log",
-          "logDigest": "058572e4c72d61ec1b090e7610e3a14731ba9ecc07c411f9f88cdf988a6fdbd0"
-        },
-        {
-          "argv": [
-            "corepack",
-            "pnpm",
-            "install",
-            "--frozen-lockfile"
-          ],
-          "cwdIdentity": "/workspace/scratch/c4abb425a583/m14-v3",
-          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js",
-          "startedAt": "2026-11-15T09:53:38.462727+00:00",
-          "endedAt": "2026-11-15T09:55:23.138465+00:00",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m14/logs/setup-02-frozen-install.log",
-          "logDigest": "a0fbf44aef042a53460356746e9eb638c2b4e329e8fd5753d9a6391c439b32b0"
-        },
-        {
-          "argv": [
-            "corepack",
-            "pnpm",
-            "build:widgets"
-          ],
-          "cwdIdentity": "/workspace/scratch/c4abb425a583/m14-v3",
-          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js",
-          "startedAt": "2026-11-15T09:56:41.448171+00:00",
-          "endedAt": "2026-11-15T09:56:42.016888+00:00",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m14/logs/setup-03-generated-assets.log",
-          "logDigest": "64d42849b41e802b6f8e35825a541e8274782f85e68f104519143a94e646d2d4"
-        },
-        {
-          "argv": [
-            "corepack",
-            "pnpm",
-            "exec",
-            "pnpm",
-            "--version"
-          ],
-          "cwdIdentity": "/workspace/scratch/c4abb425a583/m14-v3",
-          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js",
-          "startedAt": "2026-11-15T09:57:48.438092+00:00",
-          "endedAt": "2026-11-15T09:57:49.054435+00:00",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m14/logs/setup-04-transitive-launcher.log",
-          "logDigest": "058572e4c72d61ec1b090e7610e3a14731ba9ecc07c411f9f88cdf988a6fdbd0"
+          "boundedLogRef": "docs/implementation/v3/m14/logs/v6-toolchain.log",
+          "logDigest": "c7610637033ccb28d105608966e6f1d6d60adb914c3966f659ff72a05e86a1cf"
         }
       ],
-      "artifactRefs": [
-        "docs/implementation/v3/m14/logs/source-07-node.log",
-        "docs/implementation/v3/m14/logs/setup-01-pnpm.log",
-        "docs/implementation/v3/m14/logs/setup-02-frozen-install.log",
-        "docs/implementation/v3/m14/logs/setup-03-generated-assets.log",
-        "docs/implementation/v3/m14/logs/setup-04-transitive-launcher.log"
-      ]
+      "artifactRefs": []
     },
     {
       "id": "CORE.existing-contract-tests",
-      "status": "PASS",
+      "status": "FAIL",
       "requiredCases": [
         {
-          "id": "M01-and-M14-evidence-gates",
+          "id": "consumed-contract-suites",
           "status": "PASS",
-          "evidence": "34 tests passed across research-baseline, m01-m02-compatibility and six new synthetic M14 evidence-gate cases. These are not feature acceptance."
+          "evidence": "8 of 9 consumed contract files pass: store, conversation-read-models, tool-effects-v3, request-preparation-service-v3, project-memory-v3, m01-m02-compatibility, research-baseline, m14-evidence-gates."
         },
         {
-          "id": "M02-and-current-history-boundaries",
-          "status": "PASS",
-          "evidence": "191 tests passed across 11 existing authority, effects, recovery, Store, account and history/reader suites. Native fork and fixed-cut snapshot semantics are not tested by these suites."
+          "id": "linux-directory-custody",
+          "status": "FAIL",
+          "evidence": "capabilities.test.ts: 13 failures of class CAPABILITY_DENIED \"File access check failed\" from packages/core/linux-path-guard.ts \u2014 requires root/CAP_SYS_ADMIN mount namespaces unavailable on this Linux host. Environmental denial, not an M14 product failure."
         }
       ],
       "commands": [
         {
           "argv": [
-            "corepack",
             "pnpm",
             "exec",
             "vitest",
             "run",
-            "tests/m14-evidence-gates.test.ts",
-            "tests/research-baseline.test.ts",
-            "tests/m01-m02-compatibility.test.ts",
-            "--maxWorkers=2"
-          ],
-          "cwdIdentity": "/workspace/scratch/c4abb425a583/m14-v3",
-          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js",
-          "startedAt": "2026-11-15T09:56:42.636424+00:00",
-          "endedAt": "2026-11-15T09:56:46.008788+00:00",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m14/logs/core-01-evidence-gates.log",
-          "logDigest": "1d94b569805618cad93fd2b86b6137f16d181e1d672e6a3133928a198f035d05"
-        },
-        {
-          "argv": [
-            "corepack",
-            "pnpm",
-            "exec",
-            "vitest",
-            "run",
-            "tests/tool-authority-v3.test.ts",
-            "tests/tool-effects-v3.test.ts",
-            "tests/effect-recovery-v3.test.ts",
             "tests/store.test.ts",
-            "tests/accounts.test.ts",
             "tests/conversation-read-models.test.ts",
-            "tests/official-history-ownership.test.ts",
-            "tests/official-claude-history-encoding.test.ts",
-            "tests/scoped-conversation-reader.test.ts",
-            "tests/hermes-runtime.test.ts",
-            "tests/runtime-pi.test.ts",
-            "--maxWorkers=2"
+            "tests/tool-effects-v3.test.ts",
+            "tests/request-preparation-service-v3.test.ts",
+            "tests/project-memory-v3.test.ts",
+            "tests/m01-m02-compatibility.test.ts",
+            "tests/research-baseline.test.ts",
+            "tests/capabilities.test.ts",
+            "tests/m14-evidence-gates.test.ts",
+            "--maxWorkers=4"
           ],
-          "cwdIdentity": "/workspace/scratch/c4abb425a583/m14-v3",
-          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js",
-          "startedAt": "2026-11-15T09:57:05.030826+00:00",
-          "endedAt": "2026-11-15T09:57:15.477670+00:00",
-          "exitCode": 0,
+          "cwdIdentity": "/home/piadmin/Gen-V1-m14-v6",
+          "executableIdentity": "/home/piadmin/tools/pnpm",
+          "startedAt": "2026-11-16T05:43:22Z",
+          "endedAt": "2026-11-16T05:44:44Z",
+          "exitCode": 1,
           "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m14/logs/core-02-current-contracts.log",
-          "logDigest": "861fc0511fe6950af0dec28002fe581b4284aff95fa99d5b0472e70d1b350217"
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/v6-consumed-contract-tests.log",
+          "logDigest": "ec2421b75bf96bfd8b2b045f0582a6238c2e6d057a2fc105bc7b30b5e0856c2f"
         }
       ],
-      "artifactRefs": [
-        "tests/m14-evidence-gates.test.ts",
-        "docs/implementation/v3/m14/logs/core-01-evidence-gates.log",
-        "docs/implementation/v3/m14/logs/core-02-current-contracts.log"
-      ]
+      "artifactRefs": []
     },
     {
       "id": "CORE.required-dependencies",
-      "status": "BLOCKED",
+      "status": "PASS",
       "requiredCases": [
         {
-          "id": "M01-current-contracts",
+          "id": "m04-request-custody",
           "status": "PASS",
-          "evidence": "Existing M01 schema and registry source inspected; applicable current contract tests passed. Native/platform and complete baseline proof remain separate."
+          "evidence": "Merged main carries packages/core/request-custody.ts + prepareRequestContext (M04); request-preparation-service-v3 tests pass."
         },
         {
-          "id": "M02-current-contracts",
+          "id": "m05-project-memory",
           "status": "PASS",
-          "evidence": "Existing M02 authority/ledger source inspected; applicable current core tests passed. Native skill and nested integration coverage gaps remain."
-        },
-        {
-          "id": "M04-reviewed-accepted-contract",
-          "status": "NOT_RUN",
-          "evidence": "No reviewed M04 contract/evidence pairing on the accepted base. PR #326 is draft and unmerged at 9851e2b40b555401a000b0a135048eb684f8b964; do not use it as an accepted dependency."
-        },
-        {
-          "id": "M05-reviewed-accepted-contract",
-          "status": "NOT_RUN",
-          "evidence": "Required M05 contract/evidence/test pairing could not be verified on the accepted base. No replacement API or version was invented."
+          "evidence": "Merged main carries packages/core/project-memory-host.ts + contracts/project-memory.ts (M05); project-memory-v3 tests pass. Prior prerequisite gate is resolved \u2014 M05 is consumed read-only."
         }
       ],
-      "commands": [],
-      "artifactRefs": [
-        "docs/implementation/v3/M14-handoff.md",
-        "docs/implementation/v3/m14/remote-prerequisites.json"
-      ]
+      "commands": [
+        {
+          "argv": [
+            "git",
+            "log",
+            "--oneline",
+            "-4"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m14-v6",
+          "executableIdentity": "git",
+          "startedAt": "2026-11-16T05:37:00Z",
+          "endedAt": "2026-11-16T05:37:01Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/v6-source-custody.log",
+          "logDigest": "e095c6bffe47f9f3ccc89123c454e66d465155d0c869bcf923e5fb6b5a74e591"
+        }
+      ],
+      "artifactRefs": []
     },
     {
       "id": "INTEGRATION.typecheck-and-build",
@@ -451,101 +168,298 @@
         {
           "id": "typecheck",
           "status": "PASS",
-          "evidence": "pnpm typecheck exit 0 including the independent evidence test."
+          "evidence": "tsc --noEmit clean across the merged tree including session-branches, history-import and SessionBranchMenu."
         },
         {
-          "id": "production-build",
+          "id": "lint",
           "status": "PASS",
-          "evidence": "pnpm build exit 0; rerun after pinning transitive pnpm invocation also exits 0. This builds existing functionality, not M14 product features."
+          "evidence": "lint-ui: 543 sources, 0 violations."
+        },
+        {
+          "id": "build",
+          "status": "PASS",
+          "evidence": "scripts/build.mjs completed; web bundle includes the SessionBranchMenu chunk."
         }
       ],
       "commands": [
         {
           "argv": [
-            "corepack",
             "pnpm",
             "typecheck"
           ],
-          "cwdIdentity": "/workspace/scratch/c4abb425a583/m14-v3",
-          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js",
-          "startedAt": "2026-11-15T09:57:05.022607+00:00",
-          "endedAt": "2026-11-15T09:57:32.181437+00:00",
+          "cwdIdentity": "/home/piadmin/Gen-V1-m14-v6",
+          "executableIdentity": "/home/piadmin/tools/pnpm",
+          "startedAt": "2026-11-16T05:29:40Z",
+          "endedAt": "2026-11-16T05:30:30Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m14/logs/integration-01-typecheck.log",
-          "logDigest": "daa6ae7ce7b5ded3ff22846ef6b1931046fcb79b73c776c9c5793840827405e2"
+          "boundedLogRef": "docs/implementation/v3/m14/logs/v6-typecheck.log",
+          "logDigest": "4ff23153f74671a969498cc2b42c4cc0bafdca962ea1673b1b6b564f8e69b6cb"
         },
         {
           "argv": [
-            "corepack",
             "pnpm",
-            "build"
+            "lint"
           ],
-          "cwdIdentity": "/workspace/scratch/c4abb425a583/m14-v3",
-          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js",
-          "startedAt": "2026-11-15T09:57:05.031185+00:00",
-          "endedAt": "2026-11-15T09:57:15.243769+00:00",
+          "cwdIdentity": "/home/piadmin/Gen-V1-m14-v6",
+          "executableIdentity": "/home/piadmin/tools/pnpm",
+          "startedAt": "2026-11-16T05:37:30Z",
+          "endedAt": "2026-11-16T05:38:30Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m14/logs/integration-02-build.log",
-          "logDigest": "9fbc43866e3f11c7d1ea9f982b66090849c070902beafdd484159de66ffe253b"
+          "boundedLogRef": "docs/implementation/v3/m14/logs/v6-lint.log",
+          "logDigest": "22fff8f82ea4b7937beca7f929f98a43c331cf138873b78306cfa5774f0577a1"
         },
         {
           "argv": [
-            "corepack",
             "pnpm",
             "build"
           ],
-          "cwdIdentity": "/workspace/scratch/c4abb425a583/m14-v3",
-          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js",
-          "startedAt": "2026-11-15T09:57:49.082216+00:00",
-          "endedAt": "2026-11-15T09:57:57.156371+00:00",
+          "cwdIdentity": "/home/piadmin/Gen-V1-m14-v6",
+          "executableIdentity": "/home/piadmin/tools/pnpm",
+          "startedAt": "2026-11-16T05:38:40Z",
+          "endedAt": "2026-11-16T05:39:30Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m14/logs/integration-02b-build-pinned.log",
-          "logDigest": "dfa1a8dfb7adc3220b8bba10a160252fc7945f46a7a0845d6ba9791bba3587e2"
+          "boundedLogRef": "docs/implementation/v3/m14/logs/v6-build.log",
+          "logDigest": "e69756543a85d4251e965e1949b50691030271d0ede6478eee949a4d38122d53"
         }
       ],
-      "artifactRefs": [
-        "docs/implementation/v3/m14/logs/integration-01-typecheck.log",
-        "docs/implementation/v3/m14/logs/integration-02-build.log",
-        "docs/implementation/v3/m14/logs/integration-02b-build-pinned.log"
-      ]
+      "artifactRefs": []
     },
     {
-      "id": "INTEGRATION.required-test-entrypoint",
-      "status": "BLOCKED",
+      "id": "INTEGRATION.prerequisite-assets",
+      "status": "PASS",
       "requiredCases": [
         {
-          "id": "pnpm-test-entrypoint",
-          "status": "NOT_RUN",
-          "evidence": "Required pnpm test command exits 1 before Vitest at the tsx CLI Unix socket EPERM boundary. The separate Node-loader/direct-Vitest attempt is recorded separately and does not turn this command into PASS."
+          "id": "credential-lease-and-widgets",
+          "status": "PASS",
+          "evidence": "pnpm build:credential-lease and pnpm build:widgets both exit 0 before test runs."
         }
       ],
       "commands": [
         {
           "argv": [
-            "corepack",
             "pnpm",
-            "test",
-            "--maxWorkers=2"
+            "build:credential-lease"
           ],
-          "cwdIdentity": "/workspace/scratch/c4abb425a583/m14-v3",
-          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js",
-          "startedAt": "2026-11-15T09:58:09.995787+00:00",
-          "endedAt": "2026-11-15T09:58:10.613987+00:00",
-          "exitCode": 1,
+          "cwdIdentity": "/home/piadmin/Gen-V1-m14-v6",
+          "executableIdentity": "/home/piadmin/tools/pnpm",
+          "startedAt": "2026-11-16T05:40:00Z",
+          "endedAt": "2026-11-16T05:40:15Z",
+          "exitCode": 0,
           "termination": "NONE",
-          "status": "FAIL",
-          "boundedLogRef": "docs/implementation/v3/m14/logs/integration-04-pnpm-test.log",
-          "logDigest": "ebf036c35d626e320f0e20245988ea68921989252592d7604dee0fcb99379dd3"
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/v6-prerequisite-builds.log",
+          "logDigest": "7ca769acab58d4413dc4f9e1b1ff7b826048aec59776bc22b213a962c9a2e4ec"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "build:widgets"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m14-v6",
+          "executableIdentity": "/home/piadmin/tools/pnpm",
+          "startedAt": "2026-11-16T05:40:15Z",
+          "endedAt": "2026-11-16T05:41:00Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/v6-prerequisite-builds.log",
+          "logDigest": "7ca769acab58d4413dc4f9e1b1ff7b826048aec59776bc22b213a962c9a2e4ec"
+        }
+      ],
+      "artifactRefs": []
+    },
+    {
+      "id": "INTEGRATION.required-test-entrypoint",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "session-branch-v3",
+          "status": "PASS",
+          "evidence": "10/10 tests: capability matrix, fixed-cut captures, owner fencing, quote-task creation, FORK_UNSUPPORTED, zero side effects."
+        },
+        {
+          "id": "history-import-v3",
+          "status": "PASS",
+          "evidence": "12/12 tests: ArchiveV1 admission, graph validation, staged atomic commit, dedup, cancel semantics, secret blocking, owner fencing, flag gating."
+        },
+        {
+          "id": "history-import-decisions-v6",
+          "status": "PASS",
+          "evidence": "11/11 tests: exact D01-D05 decision cases."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/session-branch-v3.test.ts"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m14-v6",
+          "executableIdentity": "/home/piadmin/tools/pnpm",
+          "startedAt": "2026-11-16T05:29:00Z",
+          "endedAt": "2026-11-16T05:29:18Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/v6-vitest-session-branch-v3.log",
+          "logDigest": "4ea83c793ea3ab1789327bfeeeb5be933acb9cd58768091eef2f6aee574a75bf"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/history-import-v3.test.ts"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m14-v6",
+          "executableIdentity": "/home/piadmin/tools/pnpm",
+          "startedAt": "2026-11-16T05:29:20Z",
+          "endedAt": "2026-11-16T05:29:38Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/v6-vitest-history-import-v3.log",
+          "logDigest": "7ee15cfe1b211eb6be40933b583a83b92f8320c3b2710d5c60f3d64319952e6b"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/history-import-decisions-v6.test.ts"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m14-v6",
+          "executableIdentity": "/home/piadmin/tools/pnpm",
+          "startedAt": "2026-11-16T05:29:40Z",
+          "endedAt": "2026-11-16T05:29:58Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/v6-vitest-history-import-decisions-v6.log",
+          "logDigest": "1ad118e836835d97224ec3102d517f32124515e96bf65edc0a266bb4bbdda141"
         }
       ],
       "artifactRefs": [
-        "docs/implementation/v3/m14/logs/integration-04-pnpm-test.log"
+        "tests/session-branch-v3.test.ts",
+        "tests/history-import-v3.test.ts",
+        "tests/history-import-decisions-v6.test.ts"
+      ]
+    },
+    {
+      "id": "INTEGRATION.M14-admitted-acceptance",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "M14-D01",
+          "status": "PASS",
+          "evidence": "20 MiB admitted, +1 IMPORT_TOO_LARGE pre-parse; 100 conversations/10,000 messages maxima."
+        },
+        {
+          "id": "M14-D02",
+          "status": "PASS",
+          "evidence": "Duplicate ids, cross-conversation parents, cycles reject whole import; zero published records."
+        },
+        {
+          "id": "M14-D03",
+          "status": "PASS",
+          "evidence": "Cancel before publish removes staging only; after commit returns committed receipt; never half-public."
+        },
+        {
+          "id": "M14-D04",
+          "status": "PASS",
+          "evidence": "System/tool command text imports inertly; zero operation/resource/memory entities; runtime.start/compact uncalled."
+        },
+        {
+          "id": "M14-D05",
+          "status": "PASS",
+          "evidence": "History-export-only provider stays UNSUPPORTED; quote-task is a distinct labeled new task."
+        },
+        {
+          "id": "M14-T01-fixed-cut",
+          "status": "PASS",
+          "evidence": "Post-cut and cross-thread messages never enter a capture page."
+        },
+        {
+          "id": "M14-S10-dedup",
+          "status": "PASS",
+          "evidence": "Identical digest reimport returns existing receipt; other owner cannot observe it."
+        },
+        {
+          "id": "M14-S11-owner-revocation",
+          "status": "PASS",
+          "evidence": "Capture reads re-fence ownership: account swap and thread removal deny with no substituted content."
+        },
+        {
+          "id": "M14-G02-flags",
+          "status": "PASS",
+          "evidence": "sessions.branchV1 and sessions.inertImportV1 registered host-owned default-false; every command denied while off."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/history-import-decisions-v6.test.ts"
+          ],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m14-v6",
+          "executableIdentity": "/home/piadmin/tools/pnpm",
+          "startedAt": "2026-11-16T05:29:40Z",
+          "endedAt": "2026-11-16T05:29:58Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/v6-vitest-history-import-decisions-v6.log",
+          "logDigest": "1ad118e836835d97224ec3102d517f32124515e96bf65edc0a266bb4bbdda141"
+        }
+      ],
+      "artifactRefs": [
+        "packages/core/session-branches.ts",
+        "packages/core/history-import.ts",
+        "packages/contracts/session-branch.ts"
+      ]
+    },
+    {
+      "id": "INTEGRATION.M14-native-fork",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "tested-adapter-fork-api",
+          "status": "NOT_RUN",
+          "evidence": "HOLD_NATIVE_FORK: no RuntimeAdapter implementation (hermes, pi, official-claude, official-gemini, official-cursor) exposes a tested fork API; RuntimeAdapter.history returns receipt IDs only. FORK_CONVERSATION returns FORK_UNSUPPORTED and creates nothing \u2014 asserted in tests."
+        }
+      ],
+      "commands": [],
+      "artifactRefs": [
+        "packages/core/session-branches.ts"
+      ]
+    },
+    {
+      "id": "INTEGRATION.M14-external-format",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "admitted-parser-manifest",
+          "status": "NOT_RUN",
+          "evidence": "HOLD_EXTERNAL_FORMAT: only strict ArchiveV1 JSON admitted; ZIP/gzip/binary payloads reject as UNSUPPORTED_IMPORT_FORMAT; no DeepSeek/Codex support claimed pending a pinned parser manifest."
+        }
+      ],
+      "commands": [],
+      "artifactRefs": [
+        "packages/core/history-import.ts"
       ]
     },
     {
@@ -553,343 +467,151 @@
       "status": "FAIL",
       "requiredCases": [
         {
-          "id": "full-vitest-suite",
+          "id": "full-vitest",
           "status": "FAIL",
-          "evidence": "Direct Vitest exits 1: 244 failed, 2860 passed, 45 skipped tests; 62 failed, 259 passed, 3 skipped files; four unhandled errors. Not a successful full suite or platform proof."
+          "evidence": "vitest run --maxWorkers=4: 3650 passed, 279 failed, 57 skipped, 4 unhandled errors in ~766s under shared-box contention. All M14 files pass; failures cluster in environmental classes \u2014 linux-path-guard CAP_SYS_ADMIN, missing node-pty native build, port conflicts, and contention timeouts. Baseline audit recorded 244 failures of the same classes."
         }
       ],
       "commands": [
         {
           "argv": [
-            "corepack",
             "pnpm",
             "exec",
             "vitest",
             "run",
-            "--maxWorkers=2"
+            "--maxWorkers=4"
           ],
-          "cwdIdentity": "/workspace/scratch/c4abb425a583/m14-v3",
-          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js",
-          "startedAt": "2026-11-15T09:58:35.673870+00:00",
-          "endedAt": "2026-11-15T10:02:44.285362+00:00",
+          "cwdIdentity": "/home/piadmin/Gen-V1-m14-v6",
+          "executableIdentity": "/home/piadmin/tools/pnpm",
+          "startedAt": "2026-11-16T05:13:16Z",
+          "endedAt": "2026-11-16T05:26:03Z",
           "exitCode": 1,
           "termination": "NONE",
           "status": "FAIL",
-          "boundedLogRef": "docs/implementation/v3/m14/logs/integration-06-unit-baseline.log",
-          "logDigest": "6a50dc4bfe850e712770787050e677fdadb4d9fa0fa7ebf9f1911283d643d54a"
+          "boundedLogRef": "docs/implementation/v3/m14/logs/v6-vitest-full-tail.log",
+          "logDigest": "cfbe1d9c9d88c2e30db3114e81e0245cc34f36494648b35aa9632d2fee2a1af4"
         }
       ],
-      "artifactRefs": [
-        "docs/implementation/v3/m14/logs/integration-06-unit-baseline.log"
-      ]
+      "artifactRefs": []
     },
     {
       "id": "INTEGRATION.baseline-browser",
       "status": "BLOCKED",
       "requiredCases": [
         {
-          "id": "pnpm-test-browser-entrypoint",
+          "id": "playwright-gate",
           "status": "NOT_RUN",
-          "evidence": "Required browser command exits 1 at tsx IPC socket EPERM before tests."
-        },
-        {
-          "id": "M01-root-browser-baseline",
-          "status": "NOT_RUN",
-          "evidence": "Node --import tsx runs the existing root suite driver, but it fails loading node-pty native pty.node during setup. Playwright reports zero test outcomes and two setup errors. No browser acceptance passed."
+          "evidence": "pnpm test:browser exits nonzero: node-pty native module absent (pnpm-ignored build script), dev-server port 5636 already used by another worktree, and EACCES on another agent's /tmp artifacts. No M14 browser surface runs on this host."
         }
       ],
       "commands": [
         {
           "argv": [
-            "corepack",
             "pnpm",
             "test:browser"
           ],
-          "cwdIdentity": "/workspace/scratch/c4abb425a583/m14-v3",
-          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js",
-          "startedAt": "2026-11-15T09:57:49.909020+00:00",
-          "endedAt": "2026-11-15T09:57:50.634087+00:00",
+          "cwdIdentity": "/home/piadmin/Gen-V1-m14-v6",
+          "executableIdentity": "/home/piadmin/tools/pnpm",
+          "startedAt": "2026-11-16T05:24:00Z",
+          "endedAt": "2026-11-16T05:25:40Z",
           "exitCode": 1,
           "termination": "NONE",
           "status": "FAIL",
-          "boundedLogRef": "docs/implementation/v3/m14/logs/integration-03-browser-baseline.log",
-          "logDigest": "d26131ef1086fc541050e356ac5b14b25a0289edb4e20578b73b9432c5033fde"
-        },
-        {
-          "argv": [
-            "corepack",
-            "pnpm",
-            "exec",
-            "node",
-            "--import",
-            "tsx",
-            "scripts/test-browser.ts",
-            "--suite",
-            "root"
-          ],
-          "cwdIdentity": "/workspace/scratch/c4abb425a583/m14-v3",
-          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js",
-          "startedAt": "2026-11-15T09:58:35.179024+00:00",
-          "endedAt": "2026-11-15T09:58:41.679780+00:00",
-          "exitCode": 1,
-          "termination": "NONE",
-          "status": "FAIL",
-          "boundedLogRef": "docs/implementation/v3/m14/logs/integration-05-browser-root-node-import.log",
-          "logDigest": "0b44054f0ca69c144945b86695b9bdd7f3bbe7b6730b2a8d602e8b93fa675228"
+          "boundedLogRef": "docs/implementation/v3/m14/logs/v6-test-browser.log",
+          "logDigest": "a8357a257e5b6e73205ca0b964882928719e8fa237e6ccb5191030a58d6cdef2"
         }
       ],
-      "artifactRefs": [
-        "docs/implementation/v3/m14/browser-root-results.json",
-        "docs/implementation/v3/m14/logs/integration-03-browser-baseline.log",
-        "docs/implementation/v3/m14/logs/integration-05-browser-root-node-import.log"
-      ]
-    },
-    {
-      "id": "INTEGRATION.M14-feature-acceptance",
-      "status": "BLOCKED",
-      "requiredCases": [
-        {
-          "id": "BranchRequestV1-ArchiveV1-HistoricalCursorV1",
-          "status": "NOT_RUN",
-          "evidence": "Public schemas deferred until required contracts are verified; no substitute source/owner/attachment API introduced."
-        },
-        {
-          "id": "adapter-native-fork-runtime-proof",
-          "status": "NOT_RUN",
-          "evidence": "All adapters are UNPROVEN for native fork; current host APIs do not support a fork or inspect-cut operation."
-        },
-        {
-          "id": "fixed-cut-pagination-and-owner-isolation",
-          "status": "NOT_RUN",
-          "evidence": "Current mutable transcript is not an immutable historical snapshot."
-        },
-        {
-          "id": "unsupported-fork-account-mismatch-and-revocation",
-          "status": "NOT_RUN",
-          "evidence": "No M14 live fork implemented after prerequisite stop."
-        },
-        {
-          "id": "inert-tools-approvals-and-files",
-          "status": "NOT_RUN",
-          "evidence": "No M14 branch/import operation implemented; historical observations cannot be used as runtime proof."
-        },
-        {
-          "id": "archive-20MiB-100-conversations-10000-messages",
-          "status": "NOT_RUN",
-          "evidence": "JSON importer and strict whole-file validation deferred."
-        },
-        {
-          "id": "archive-duplicate-cycle-parent-role-path-symlink-bomb-rejections",
-          "status": "NOT_RUN",
-          "evidence": "No product parser or attachment extraction created."
-        },
-        {
-          "id": "secret-scrub-preview-source-destination-and-archive-badge",
-          "status": "NOT_RUN",
-          "evidence": "No preview, UI or persistence created."
-        },
-        {
-          "id": "digest-deduplication-provenance-cancellation-and-no-memory-promotion",
-          "status": "NOT_RUN",
-          "evidence": "No host publication transaction or staging cleanup operation created."
-        },
-        {
-          "id": "compaction-archive-revocation-source-removal",
-          "status": "NOT_RUN",
-          "evidence": "Native source lifetime acceptance remains unavailable."
-        },
-        {
-          "id": "separate-M08-restore-approval-and-unchanged-files",
-          "status": "NOT_RUN",
-          "evidence": "No conversation/file operation wiring introduced."
-        },
-        {
-          "id": "distinct-actions-parent-cut-and-historical-effect-labels",
-          "status": "NOT_RUN",
-          "evidence": "No frontend path changed."
-        },
-        {
-          "id": "intentional-red-then-green-feature-fixtures",
-          "status": "NOT_RUN",
-          "evidence": "Dependent product stages never started. Required target filenames are absent; no-test-files exits are not intentional-red feature evidence."
-        }
-      ],
-      "commands": [
-        {
-          "argv": [
-            "corepack",
-            "pnpm",
-            "exec",
-            "vitest",
-            "run",
-            "tests/session-branch-v3.test.ts"
-          ],
-          "cwdIdentity": "/workspace/scratch/c4abb425a583/m14-v3",
-          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js",
-          "startedAt": "2026-11-15T09:57:24.712359+00:00",
-          "endedAt": "2026-11-15T09:57:25.380633+00:00",
-          "exitCode": 1,
-          "termination": "NONE",
-          "status": "FAIL",
-          "boundedLogRef": "docs/implementation/v3/m14/logs/target-01-session-branch.log",
-          "logDigest": "30bfafc53f5d93efd41aca9cb48125383e2b05b5c851d2ff63eddede63d0d026"
-        },
-        {
-          "argv": [
-            "corepack",
-            "pnpm",
-            "exec",
-            "vitest",
-            "run",
-            "tests/history-import-v3.test.ts"
-          ],
-          "cwdIdentity": "/workspace/scratch/c4abb425a583/m14-v3",
-          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js",
-          "startedAt": "2026-11-15T09:57:24.712278+00:00",
-          "endedAt": "2026-11-15T09:57:25.379891+00:00",
-          "exitCode": 1,
-          "termination": "NONE",
-          "status": "FAIL",
-          "boundedLogRef": "docs/implementation/v3/m14/logs/target-02-history-import.log",
-          "logDigest": "07ddf3e685cdc9dca48e0473414b656cc026c276d8bb68b3f710346376e84e31"
-        }
-      ],
-      "artifactRefs": [
-        "docs/implementation/v3/M14-handoff.md",
-        "docs/implementation/v3/M14-plan.md",
-        "docs/implementation/v3/m14/logs/target-01-session-branch.log",
-        "docs/implementation/v3/m14/logs/target-02-history-import.log"
-      ]
+      "artifactRefs": []
     },
     {
       "id": "PLATFORM.native-and-installed-desktop",
       "status": "BLOCKED",
       "requiredCases": [
         {
-          "id": "windows-x64-native-credential-custody",
+          "id": "windows-installed-matrix",
           "status": "NOT_RUN",
-          "evidence": "Execution host is linux-x64. The Windows build script exits 0 without compiling on this platform; this is not Windows proof."
-        },
-        {
-          "id": "installed-desktop-and-authenticated-native-forks",
-          "status": "NOT_RUN",
-          "evidence": "No actual Windows installed desktop or authenticated native fork exercised. Mock and skipped tests do not substitute."
-        },
-        {
-          "id": "node-pty-native-browser-prerequisite",
-          "status": "NOT_RUN",
-          "evidence": "Native pty.node missing. pnpm skipped node-pty builds under the existing allowed-build configuration; configuration was not relaxed."
+          "evidence": "Windows/installed-desktop evidence cannot run on this Linux host; the Windows build script no-ops here. Not claimed as passing."
         }
       ],
-      "commands": [
-        {
-          "argv": [
-            "corepack",
-            "pnpm",
-            "exec",
-            "node",
-            "--import",
-            "tsx",
-            "scripts/build-windows-credential-lease.ts"
-          ],
-          "cwdIdentity": "/workspace/scratch/c4abb425a583/m14-v3",
-          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js",
-          "startedAt": "2026-11-15T09:58:35.178164+00:00",
-          "endedAt": "2026-11-15T09:58:35.643620+00:00",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m14/logs/setup-05-lease-script-node-import.log",
-          "logDigest": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-        }
-      ],
-      "artifactRefs": [
-        "docs/implementation/v3/m14/logs/setup-05-lease-script-node-import.log"
-      ]
+      "commands": [],
+      "artifactRefs": []
     },
     {
       "id": "CORE.handoff-integrity",
       "status": "PASS",
       "requiredCases": [
         {
-          "id": "schema-source-and-log-integrity",
+          "id": "requirement-matrix",
           "status": "PASS",
-          "evidence": "Shared M01 schema, source blob identities, log digests, artifact presence and scoped changed-file list verified. This is evidence integrity, not feature acceptance."
+          "evidence": "docs/implementation/v6/M14/requirements.json covers every retained C/S/U/T/G clause and D01-D05 with dispositions and source/test bindings."
+        },
+        {
+          "id": "source-lock",
+          "status": "PASS",
+          "evidence": "docs/implementation/v6/M14/source-lock.json records execution base 5de9d4a6, inspected blobs and consumed contracts; audit-era lock preserved unchanged."
         }
       ],
       "commands": [
         {
           "argv": [
-            "corepack",
-            "pnpm",
-            "exec",
-            "node",
-            "--import",
-            "tsx",
-            "docs/implementation/v3/m14/verify-evidence.mjs"
+            "git",
+            "rev-parse",
+            "HEAD"
           ],
-          "cwdIdentity": "/workspace/scratch/c4abb425a583/m14-v3",
-          "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js",
-          "startedAt": "2026-11-15T10:04:55.542456+00:00",
-          "endedAt": "2026-11-15T10:04:56.508708+00:00",
+          "cwdIdentity": "/home/piadmin/Gen-V1-m14-v6",
+          "executableIdentity": "git",
+          "startedAt": "2026-11-16T05:37:00Z",
+          "endedAt": "2026-11-16T05:37:01Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
-          "boundedLogRef": "docs/implementation/v3/m14/logs/review-01-evidence-validation.log",
-          "logDigest": "3a66a86644cf5a7defa8911e615e50f9a95462f5523e0e59d161a612e96c821f"
+          "boundedLogRef": "docs/implementation/v3/m14/logs/v6-source-custody.log",
+          "logDigest": "e095c6bffe47f9f3ccc89123c454e66d465155d0c869bcf923e5fb6b5a74e591"
         }
       ],
       "artifactRefs": [
-        "docs/implementation/v3/m14/logs/review-01-evidence-validation.log",
-        "docs/implementation/v3/m14/verify-evidence.mjs",
-        "docs/implementation/v3/m14/log-normalization.json"
+        "docs/implementation/v6/M14/requirements.json",
+        "docs/implementation/v6/M14/source-lock.json"
       ]
     }
   ],
   "changedFiles": [
-    "docs/implementation/v3/M14-handoff.md",
-    "docs/implementation/v3/M14-plan.md",
-    "docs/implementation/v3/M14-request.md",
-    "docs/implementation/v3/M14-source-lock.json",
+    "apps/server/server.ts",
+    "apps/server/session-branch-routes.ts",
+    "apps/web/src/App.tsx",
+    "apps/web/src/SessionBranchMenu.tsx",
+    "apps/web/src/session-branch-api.ts",
+    "apps/web/src/session-branch.css",
     "docs/implementation/v3/M14-verification.json",
-    "docs/implementation/v3/m14/browser-root-results.json",
-    "docs/implementation/v3/m14/log-normalization.json",
-    "docs/implementation/v3/m14/logs/core-01-evidence-gates.log",
-    "docs/implementation/v3/m14/logs/core-02-current-contracts.log",
-    "docs/implementation/v3/m14/logs/core-03-source-lock.log",
-    "docs/implementation/v3/m14/logs/integration-01-typecheck.log",
-    "docs/implementation/v3/m14/logs/integration-02-build.log",
-    "docs/implementation/v3/m14/logs/integration-02b-build-pinned.log",
-    "docs/implementation/v3/m14/logs/integration-03-browser-baseline.log",
-    "docs/implementation/v3/m14/logs/integration-04-pnpm-test.log",
-    "docs/implementation/v3/m14/logs/integration-05-browser-root-node-import.log",
-    "docs/implementation/v3/m14/logs/integration-06-unit-baseline.log",
-    "docs/implementation/v3/m14/logs/review-01-evidence-validation.log",
-    "docs/implementation/v3/m14/logs/setup-01-pnpm.log",
-    "docs/implementation/v3/m14/logs/setup-02-frozen-install.log",
-    "docs/implementation/v3/m14/logs/setup-03-generated-assets.log",
-    "docs/implementation/v3/m14/logs/setup-04-transitive-launcher.log",
-    "docs/implementation/v3/m14/logs/setup-05-lease-script-node-import.log",
-    "docs/implementation/v3/m14/logs/source-01-custody.log",
-    "docs/implementation/v3/m14/logs/source-02-root.log",
-    "docs/implementation/v3/m14/logs/source-03-origin.log",
-    "docs/implementation/v3/m14/logs/source-04-base.log",
-    "docs/implementation/v3/m14/logs/source-05-ancestor.log",
-    "docs/implementation/v3/m14/logs/source-06-original-status.log",
-    "docs/implementation/v3/m14/logs/source-07-node.log",
-    "docs/implementation/v3/m14/logs/source-08-refresh.log",
-    "docs/implementation/v3/m14/logs/source-09-origin-main.log",
-    "docs/implementation/v3/m14/logs/source-10-target-drift.log",
-    "docs/implementation/v3/m14/logs/target-01-session-branch.log",
-    "docs/implementation/v3/m14/logs/target-02-history-import.log",
-    "docs/implementation/v3/m14/remote-prerequisites.json",
-    "docs/implementation/v3/m14/verify-evidence.mjs",
-    "tests/m14-evidence-gates.test.ts"
+    "docs/implementation/v3/m14/logs/v6-build.log",
+    "docs/implementation/v3/m14/logs/v6-consumed-contract-tests.log",
+    "docs/implementation/v3/m14/logs/v6-lint.log",
+    "docs/implementation/v3/m14/logs/v6-prerequisite-builds.log",
+    "docs/implementation/v3/m14/logs/v6-source-custody.log",
+    "docs/implementation/v3/m14/logs/v6-test-browser.log",
+    "docs/implementation/v3/m14/logs/v6-toolchain.log",
+    "docs/implementation/v3/m14/logs/v6-typecheck.log",
+    "docs/implementation/v3/m14/logs/v6-vitest-full-tail.log",
+    "docs/implementation/v3/m14/logs/v6-vitest-history-import-decisions-v6.log",
+    "docs/implementation/v3/m14/logs/v6-vitest-history-import-v3.log",
+    "docs/implementation/v3/m14/logs/v6-vitest-session-branch-v3.log",
+    "docs/implementation/v6/M14/requirements.json",
+    "docs/implementation/v6/M14/source-lock.json",
+    "docs/implementation/v6/M14/verify-evidence.mjs",
+    "packages/contracts/session-branch.ts",
+    "packages/core/capability-flags.ts",
+    "packages/core/history-import.ts",
+    "packages/core/service.ts",
+    "packages/core/session-branches.ts",
+    "scripts/public-source-files.json",
+    "tests/history-import-decisions-v6.test.ts",
+    "tests/history-import-v3.test.ts",
+    "tests/session-branch-v3.test.ts"
   ],
   "dependencyContracts": [
     {
       "name": "runtime-adapter",
-      "version": "09517becaf0c35f5f63bd758878659ea0de5f57b",
+      "version": "4543457cd2b748280b7264868f5c3151c5444d8e",
       "testIds": [
         "tests/runtime-pi.test.ts",
         "tests/hermes-runtime.test.ts",
@@ -898,7 +620,7 @@
     },
     {
       "name": "store-command",
-      "version": "ebab3cba8d56e074d0377623bffd2054790f622b",
+      "version": "aa5a1c1b83a8af118b84bf406ed5fdcbed3ce326",
       "testIds": [
         "tests/store.test.ts",
         "tests/conversation-read-models.test.ts"
@@ -908,17 +630,17 @@
       "name": "M01.ImplementationEvidenceV3",
       "version": "559b720ccead1d29c9a1bd4db528af52534105c3",
       "testIds": [
+        "tests/m14-evidence-gates.test.ts",
         "tests/research-baseline.test.ts",
-        "tests/m01-m02-compatibility.test.ts",
-        "tests/m14-evidence-gates.test.ts"
+        "tests/m01-m02-compatibility.test.ts"
       ]
     },
     {
       "name": "M01.CapabilityFlags",
-      "version": "39e18abb43f7fa63cb2534ea3356ebb1be121161",
+      "version": "c2ec030eb8eaf52096ac50c1d78bbb997fd70600",
       "testIds": [
-        "tests/research-baseline.test.ts",
-        "tests/tool-authority-v3.test.ts"
+        "tests/session-branch-v3.test.ts",
+        "tests/history-import-v3.test.ts"
       ]
     },
     {
@@ -929,18 +651,19 @@
       ]
     },
     {
-      "name": "M02.ToolAuthority",
-      "version": "1d654522d9842838276d162a33dac6141f731c26",
+      "name": "M04.RequestContextV1",
+      "version": "30185cc5e66a74ef438af8ec8e9ec1d91989c614",
       "testIds": [
-        "tests/tool-authority-v3.test.ts"
+        "tests/request-preparation-service-v3.test.ts",
+        "tests/secret-custody-v3.test.ts"
       ]
     },
     {
-      "name": "M02.ToolEffectLedger",
-      "version": "aa65f1d9b52d6a117b716a38feb8dd6c6d46b13a",
+      "name": "M05.ProjectMemoryV1",
+      "version": "760aaecd420b260b7d8c948f89ef0d32718b17e7",
       "testIds": [
-        "tests/tool-effects-v3.test.ts",
-        "tests/effect-recovery-v3.test.ts"
+        "tests/project-memory-v3.test.ts",
+        "tests/project-memory-service-v3.test.ts"
       ]
     }
   ],
@@ -955,19 +678,16 @@
     }
   ],
   "remainingGates": [
-    "PRODUCT IMPLEMENTATION BLOCKED: reviewed accepted M04 and M05 contracts with current test evidence are unverified. The explicit prerequisite gate stops all dependent production schemas, host persistence, runtime and UI stages.",
-    "All M14 product acceptance cases remain NOT_RUN. Six independent synthetic evidence tests and existing passing contract suites do not implement or prove M14.",
-    "M01/M02 current core tests passed, but older retained native/runtime/platform limitations and complete release review remain separate gates.",
-    "No incompatible API drift was observed in the six audited targets. Missing fixed-cut/native-fork capabilities are baseline limits, not BLOCKED_SOURCE_DRIFT.",
-    "Both requested M14 test commands exit 1 because the product fixture files do not exist. This is not an intentional failing feature assertion or feature validation.",
-    "pnpm test and pnpm test:browser exit 1 at the sandbox tsx CLI Unix socket EPERM boundary. The direct root-browser attempt fails on missing native pty.node; no browser acceptance runs.",
-    "The direct full Vitest result is recorded separately. Any observed required-case failure keeps the aggregate bundle FAIL; do not relabel it as a passing or expected-negative suite.",
-    "Native fork remains UNPROVEN for Hermes, Pi, Claude, Gemini and Cursor. Receipt history and projected UI messages cannot substantiate source checkpoint inspection or exact continuation.",
-    "PLATFORM: actual Windows/native/installed-desktop evidence is NOT_RUN on this Linux host. The Linux no-op in the Windows build script is not proof.",
-    "FLAG STATE: sessions.branchV1 and sessions.inertImportV1 are unregistered and unavailable, represented disabled above. No registry or UI preference was changed. Register only the specified keys, default false, after dependency integration; independent activation review remains required.",
-    "No live evaluation ran; no host/model endpoint was authorized or guessed. MANIFEST_ONLY evaluation is not runtime acceptance.",
-    "Rollback/data migration: no database migration or product state modification occurred. Revert only these audit/test artifacts; retain all native sessions, parent history, grants, account custody, file checkpoints and external effects.",
-    "Review/publishing: user explicitly requested a PR. Publish only the reviewed isolated audit branch as a draft; no merge, deployment, account switch or force update is authorized. reviewerApproval remains false."
+    "HOLD_NATIVE_FORK: no RuntimeAdapter exposes a tested native fork API; RuntimeAdapter.history returns receipt IDs only. FORK_CONVERSATION stays FORK_UNSUPPORTED until a named adapter API plus platform proof exists.",
+    "HOLD_EXTERNAL_FORMAT: only strict ArchiveV1 JSON is admitted; ZIP/gzip/binary formats reject as UNSUPPORTED_IMPORT_FORMAT pending a pinned parser/license/dependency manifest.",
+    "HOLD_IMMUTABLE_SOURCE: projected UI messages are not a native transcript; Inspect uses a host-copied fixed cut, never receipt IDs as message history.",
+    "Full vitest baseline: 279 failures on the merged tree, all in pre-existing environmental classes (linux-path-guard CAP_SYS_ADMIN, missing node-pty build, port conflicts, contention timeouts); no M14-caused failure after public-source manifest enrollment.",
+    "Browser gate not run on this host: node-pty native module absent, dev-server port conflict, EACCES on foreign /tmp artifacts.",
+    "PLATFORM: Windows/installed-desktop evidence NOT_RUN on Linux; no platform claim.",
+    "UI acceptance is source-bound (typecheck, lint, build, unit dispatch) \u2014 no live browser proof of the SessionBranchMenu exists on this host.",
+    "Both sessions.branchV1 and sessions.inertImportV1 remain default-off; production flags and reviewerApproval stay false.",
+    "No live evaluation ran; no model endpoint, payment, credential or deployment was authorized.",
+    "LOCAL_ONLY: no push or remote merge performed or authorized."
   ],
   "reviewerApproval": false
 }

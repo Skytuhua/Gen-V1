@@ -1,0 +1,14 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/home/piadmin/Gen-V1-m14-v6[39m
+
+(node:768150) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/session-branch-v3.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 7827[2mms[22m[39m
+     [33m[2m✓[22m[39m captures an owner-bound frozen view that new events never move [33m 399[2mms[22m[39m
+     [33m[2m✓[22m[39m records explicit incomplete coverage for a truncated capture [33m 6021[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m10 passed[39m[22m[90m (10)[39m
+[2m   Start at [22m 05:29:18
+[2m   Duration [22m 17.94s[2m (transform 5.99s, setup 0ms, import 8.94s, tests 7.83s, environment 0ms)[22m
+

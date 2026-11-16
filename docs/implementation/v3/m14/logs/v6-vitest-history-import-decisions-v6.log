@@ -1,0 +1,16 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/home/piadmin/Gen-V1-m14-v6[39m
+
+(node:768375) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/history-import-decisions-v6.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 3112[2mms[22m[39m
+     [33m[2m✓[22m[39m admits exactly 20 MiB for validation and rejects 20 MiB+1 before JSON parsing [33m 403[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects the whole import for cycles with nothing published [33m 343[2mms[22m[39m
+     [33m[2m✓[22m[39m cancel before publish leaves no active records; cancel after returns the committed receipt [33m 377[2mms[22m[39m
+     [33m[2m✓[22m[39m imported system/tool command text leaves executor, grant and memory counters at zero [33m 373[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m11 passed[39m[22m[90m (11)[39m
+[2m   Start at [22m 05:29:51
+[2m   Duration [22m 9.33s[2m (transform 3.92s, setup 0ms, import 5.79s, tests 3.11s, environment 0ms)[22m
+

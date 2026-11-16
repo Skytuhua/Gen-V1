@@ -1,0 +1,400 @@
+[90m [2m❯[22m tests/skill-invocation.test.ts:[2m111:13[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[91/314]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mrestores authenticated exact bytes across host restart without rediscovering changed skills
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
+[36m [2m❯[22m fixture tests/skill-invocation.test.ts:[2m29:48[22m[39m
+    [90m 27|[39m   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+    [90m 28|[39m   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+    [90m 29|[39m   [35mconst[39m ref [33m=[39m ([35mawait[39m catalog[33m.[39m[34mlist[39m())[33m.[39mskills[[34m0[39m][33m.[39mref[33m![39m[33m;[39m
+    [90m   |[39m                                                [31m^[39m
+    [90m 30|[39m   [35mlet[39m current [33m=[39m [34mauthority[39m()[33m;[39m
+    [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+[90m [2m❯[22m tests/skill-invocation.test.ts:[2m117:13[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[92/314]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mrejects command-ID reuse with changed content, model, thinking, reference or authority
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
+[36m [2m❯[22m fixture tests/skill-invocation.test.ts:[2m29:48[22m[39m
+    [90m 27|[39m   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+    [90m 28|[39m   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+    [90m 29|[39m   [35mconst[39m ref [33m=[39m ([35mawait[39m catalog[33m.[39m[34mlist[39m())[33m.[39mskills[[34m0[39m][33m.[39mref[33m![39m[33m;[39m
+    [90m   |[39m                                                [31m^[39m
+    [90m 30|[39m   [35mlet[39m current [33m=[39m [34mauthority[39m()[33m;[39m
+    [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+[90m [2m❯[22m tests/skill-invocation.test.ts:[2m128:13[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[93/314]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mdenies replay tampering and key loss instead of falling back to rediscovery
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
+[36m [2m❯[22m fixture tests/skill-invocation.test.ts:[2m29:48[22m[39m
+    [90m 27|[39m   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+    [90m 28|[39m   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+    [90m 29|[39m   [35mconst[39m ref [33m=[39m ([35mawait[39m catalog[33m.[39m[34mlist[39m())[33m.[39mskills[[34m0[39m][33m.[39mref[33m![39m[33m;[39m
+    [90m   |[39m                                                [31m^[39m
+    [90m 30|[39m   [35mlet[39m current [33m=[39m [34mauthority[39m()[33m;[39m
+    [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+[90m [2m❯[22m tests/skill-invocation.test.ts:[2m137:13[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[94/314]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mdenies forged admissions, mismatched runtime owners and arbitrary support paths
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
+[36m [2m❯[22m fixture tests/skill-invocation.test.ts:[2m29:48[22m[39m
+    [90m 27|[39m   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+    [90m 28|[39m   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+    [90m 29|[39m   [35mconst[39m ref [33m=[39m ([35mawait[39m catalog[33m.[39m[34mlist[39m())[33m.[39mskills[[34m0[39m][33m.[39mref[33m![39m[33m;[39m
+    [90m   |[39m                                                [31m^[39m
+    [90m 30|[39m   [35mlet[39m current [33m=[39m [34mauthority[39m()[33m;[39m
+    [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+[90m [2m❯[22m tests/skill-invocation.test.ts:[2m147:13[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[95/314]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mreads the exact Harness version/document with no latest-name or ambient projection fallback
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
+[36m [2m❯[22m fixture tests/skill-invocation.test.ts:[2m29:48[22m[39m
+    [90m 27|[39m   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+    [90m 28|[39m   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+    [90m 29|[39m   [35mconst[39m ref [33m=[39m ([35mawait[39m catalog[33m.[39m[34mlist[39m())[33m.[39mskills[[34m0[39m][33m.[39mref[33m![39m[33m;[39m
+    [90m   |[39m                                                [31m^[39m
+    [90m 30|[39m   [35mlet[39m current [33m=[39m [34mauthority[39m()[33m;[39m
+    [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+[90m [2m❯[22m tests/skill-invocation.test.ts:[2m156:13[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[96/314]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mdenies a package exceeding files instead of silently truncating it
+[41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mdenies a package exceeding fileBytes instead of silently truncating it
+[41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mdenies a package exceeding packageBytes instead of silently truncating it
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
+[36m [2m❯[22m fixture tests/skill-invocation.test.ts:[2m29:48[22m[39m
+    [90m 27|[39m   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+    [90m 28|[39m   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+    [90m 29|[39m   [35mconst[39m ref [33m=[39m ([35mawait[39m catalog[33m.[39m[34mlist[39m())[33m.[39mskills[[34m0[39m][33m.[39mref[33m![39m[33m;[39m
+    [90m   |[39m                                                [31m^[39m
+    [90m 30|[39m   [35mlet[39m current [33m=[39m [34mauthority[39m()[33m;[39m
+    [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+[90m [2m❯[22m tests/skill-invocation.test.ts:[2m171:13[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[97/314]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mrejects malformed payloads rather than accepting browser supplied text, paths or authority grants
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
+[36m [2m❯[22m fixture tests/skill-invocation.test.ts:[2m29:48[22m[39m
+    [90m 27|[39m   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+    [90m 28|[39m   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+    [90m 29|[39m   [35mconst[39m ref [33m=[39m ([35mawait[39m catalog[33m.[39m[34mlist[39m())[33m.[39mskills[[34m0[39m][33m.[39mref[33m![39m[33m;[39m
+    [90m   |[39m                                                [31m^[39m
+    [90m 30|[39m   [35mlet[39m current [33m=[39m [34mauthority[39m()[33m;[39m
+    [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+[90m [2m❯[22m tests/skill-invocation.test.ts:[2m182:13[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[98/314]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mselection preserves every reference field without a body read or admission capability, and bundles for browsers
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
+[36m [2m❯[22m fixture tests/skill-invocation.test.ts:[2m29:48[22m[39m
+    [90m 27|[39m   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+    [90m 28|[39m   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+    [90m 29|[39m   [35mconst[39m ref [33m=[39m ([35mawait[39m catalog[33m.[39m[34mlist[39m())[33m.[39mskills[[34m0[39m][33m.[39mref[33m![39m[33m;[39m
+    [90m   |[39m                                                [31m^[39m
+    [90m 30|[39m   [35mlet[39m current [33m=[39m [34mauthority[39m()[33m;[39m
+    [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+[90m [2m❯[22m tests/skill-invocation.test.ts:[2m187:13[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[99/314]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mdenies a changed runtime thinking level even when the model is unchanged
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
+[36m [2m❯[22m fixture tests/skill-invocation.test.ts:[2m29:48[22m[39m
+    [90m 27|[39m   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+    [90m 28|[39m   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+    [90m 29|[39m   [35mconst[39m ref [33m=[39m ([35mawait[39m catalog[33m.[39m[34mlist[39m())[33m.[39mskills[[34m0[39m][33m.[39mref[33m![39m[33m;[39m
+    [90m   |[39m                                                [31m^[39m
+    [90m 30|[39m   [35mlet[39m current [33m=[39m [34mauthority[39m()[33m;[39m
+    [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+[90m [2m❯[22m tests/skill-invocation.test.ts:[2m197:13[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[100/314]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mpreserves UTF-8 BOM and original line endings in admitted guidance
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
+[36m [2m❯[22m fixture tests/skill-invocation.test.ts:[2m29:48[22m[39m
+    [90m 27|[39m   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+    [90m 28|[39m   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+    [90m 29|[39m   [35mconst[39m ref [33m=[39m ([35mawait[39m catalog[33m.[39m[34mlist[39m())[33m.[39mskills[[34m0[39m][33m.[39mref[33m![39m[33m;[39m
+    [90m   |[39m                                                [31m^[39m
+    [90m 30|[39m   [35mlet[39m current [33m=[39m [34mauthority[39m()[33m;[39m
+    [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+[90m [2m❯[22m tests/skill-invocation.test.ts:[2m203:13[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[101/314]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22madmits all selected references in order, never silently dropping a stale second selection
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
+[36m [2m❯[22m fixture tests/skill-invocation.test.ts:[2m29:48[22m[39m
+    [90m 27|[39m   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+    [90m 28|[39m   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+    [90m 29|[39m   [35mconst[39m ref [33m=[39m ([35mawait[39m catalog[33m.[39m[34mlist[39m())[33m.[39mskills[[34m0[39m][33m.[39mref[33m![39m[33m;[39m
+    [90m   |[39m                                                [31m^[39m
+    [90m 30|[39m   [35mlet[39m current [33m=[39m [34mauthority[39m()[33m;[39m
+    [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+[90m [2m❯[22m tests/skill-invocation.test.ts:[2m211:13[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[102/314]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mbounds Harness entry bytes before materializing an oversized saved document
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
+[36m [2m❯[22m fixture tests/skill-invocation.test.ts:[2m29:48[22m[39m
+    [90m 27|[39m   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+    [90m 28|[39m   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+    [90m 29|[39m   [35mconst[39m ref [33m=[39m ([35mawait[39m catalog[33m.[39m[34mlist[39m())[33m.[39mskills[[34m0[39m][33m.[39mref[33m![39m[33m;[39m
+    [90m   |[39m                                                [31m^[39m
+    [90m 30|[39m   [35mlet[39m current [33m=[39m [34mauthority[39m()[33m;[39m
+    [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+[90m [2m❯[22m tests/skill-invocation.test.ts:[2m224:13[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[103/314]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mcaptures only a verified installed App package, without activating its host, and rechecks registry revocation
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
+[36m [2m❯[22m fixture tests/skill-invocation.test.ts:[2m29:48[22m[39m
+    [90m 27|[39m   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+    [90m 28|[39m   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+    [90m 29|[39m   [35mconst[39m ref [33m=[39m ([35mawait[39m catalog[33m.[39m[34mlist[39m())[33m.[39mskills[[34m0[39m][33m.[39mref[33m![39m[33m;[39m
+    [90m   |[39m                                                [31m^[39m
+    [90m 30|[39m   [35mlet[39m current [33m=[39m [34mauthority[39m()[33m;[39m
+    [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+[90m [2m❯[22m tests/skill-invocation.test.ts:[2m236:13[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[104/314]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22muses the bundled manifest pin and denies an index replacement between custody and capture
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
+[36m [2m❯[22m fixture tests/skill-invocation.test.ts:[2m29:48[22m[39m
+    [90m 27|[39m   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+    [90m 28|[39m   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+    [90m 29|[39m   [35mconst[39m ref [33m=[39m ([35mawait[39m catalog[33m.[39m[34mlist[39m())[33m.[39mskills[[34m0[39m][33m.[39mref[33m![39m[33m;[39m
+    [90m   |[39m                                                [31m^[39m
+    [90m 30|[39m   [35mlet[39m current [33m=[39m [34mauthority[39m()[33m;[39m
+    [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+[90m [2m❯[22m tests/skill-invocation.test.ts:[2m258:13[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[105/314]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mresolves only the connected canonical project/worktree and denies its root identity changing
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
+[36m [2m❯[22m fixture tests/skill-invocation.test.ts:[2m29:48[22m[39m
+    [90m 27|[39m   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+    [90m 28|[39m   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+    [90m 29|[39m   [35mconst[39m ref [33m=[39m ([35mawait[39m catalog[33m.[39m[34mlist[39m())[33m.[39mskills[[34m0[39m][33m.[39mref[33m![39m[33m;[39m
+    [90m   |[39m                                                [31m^[39m
+    [90m 30|[39m   [35mlet[39m current [33m=[39m [34mauthority[39m()[33m;[39m
+    [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+[90m [2m❯[22m tests/skill-invocation.test.ts:[2m274:13[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[106/314]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22maborts after capture while the final source recheck is in flight
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
+[36m [2m❯[22m fixture tests/skill-invocation.test.ts:[2m29:48[22m[39m
+    [90m 27|[39m   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+    [90m 28|[39m   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+    [90m 29|[39m   [35mconst[39m ref [33m=[39m ([35mawait[39m catalog[33m.[39m[34mlist[39m())[33m.[39mskills[[34m0[39m][33m.[39mref[33m![39m[33m;[39m
+    [90m   |[39m                                                [31m^[39m
+    [90m 30|[39m   [35mlet[39m current [33m=[39m [34mauthority[39m()[33m;[39m
+    [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+[90m [2m❯[22m tests/skill-invocation.test.ts:[2m293:13[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[107/314]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mreturns cancellation while an obsolete catalog read is still pending
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
+[36m [2m❯[22m fixture tests/skill-invocation.test.ts:[2m29:48[22m[39m
+    [90m 27|[39m   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+    [90m 28|[39m   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+    [90m 29|[39m   [35mconst[39m ref [33m=[39m ([35mawait[39m catalog[33m.[39m[34mlist[39m())[33m.[39mskills[[34m0[39m][33m.[39mref[33m![39m[33m;[39m
+    [90m   |[39m                                                [31m^[39m
+    [90m 30|[39m   [35mlet[39m current [33m=[39m [34mauthority[39m()[33m;[39m
+    [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+[90m [2m❯[22m tests/skill-invocation.test.ts:[2m299:13[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[108/314]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mreplays the same command after an actual Store reopen without another message or current-source read
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
+[36m [2m❯[22m fixture tests/skill-invocation.test.ts:[2m29:48[22m[39m
+    [90m 27|[39m   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+    [90m 28|[39m   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+    [90m 29|[39m   [35mconst[39m ref [33m=[39m ([35mawait[39m catalog[33m.[39m[34mlist[39m())[33m.[39mskills[[34m0[39m][33m.[39mref[33m![39m[33m;[39m
+    [90m   |[39m                                                [31m^[39m
+    [90m 30|[39m   [35mlet[39m current [33m=[39m [34mauthority[39m()[33m;[39m
+    [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+[90m [2m❯[22m tests/skill-invocation.test.ts:[2m310:13[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[109/314]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mprecommit authority revalidation leaves message/outbox/capture storage empty on a race
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
+[36m [2m❯[22m fixture tests/skill-invocation.test.ts:[2m29:48[22m[39m
+    [90m 27|[39m   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+    [90m 28|[39m   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+    [90m 29|[39m   [35mconst[39m ref [33m=[39m ([35mawait[39m catalog[33m.[39m[34mlist[39m())[33m.[39mskills[[34m0[39m][33m.[39mref[33m![39m[33m;[39m
+    [90m   |[39m                                                [31m^[39m
+    [90m 30|[39m   [35mlet[39m current [33m=[39m [34mauthority[39m()[33m;[39m
+    [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+[90m [2m❯[22m tests/skill-invocation.test.ts:[2m333:13[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[110/314]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22msanitizes authority-provider failures at precommit without leaking host paths
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
+[36m [2m❯[22m fixture tests/skill-invocation.test.ts:[2m29:48[22m[39m
+    [90m 27|[39m   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+    [90m 28|[39m   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+    [90m 29|[39m   [35mconst[39m ref [33m=[39m ([35mawait[39m catalog[33m.[39m[34mlist[39m())[33m.[39mskills[[34m0[39m][33m.[39mref[33m![39m[33m;[39m
+    [90m   |[39m                                                [31m^[39m
+    [90m 30|[39m   [35mlet[39m current [33m=[39m [34mauthority[39m()[33m;[39m
+    [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+[90m [2m❯[22m tests/skill-invocation.test.ts:[2m344:13[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[111/314]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22maccepts the parent raw skills array while taking expected authority only from host options
+[31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
+[36m [2m❯[22m fixture tests/skill-invocation.test.ts:[2m29:48[22m[39m
+    [90m 27|[39m   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+    [90m 28|[39m   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+    [90m 29|[39m   [35mconst[39m ref [33m=[39m ([35mawait[39m catalog[33m.[39m[34mlist[39m())[33m.[39mskills[[34m0[39m][33m.[39mref[33m![39m[33m;[39m
+    [90m   |[39m                                                [31m^[39m
+    [90m 30|[39m   [35mlet[39m current [33m=[39m [34mauthority[39m()[33m;[39m
+    [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+[90m [2m❯[22m tests/skill-invocation.test.ts:[2m352:13[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[112/314]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/skills-integration.test.ts[2m > [22mkeeps openai automatic skill review account-pinned through changed defaults, settlement and restart
+[41m[1m FAIL [22m[49m tests/skills-integration.test.ts[2m > [22mkeeps openai-codex automatic skill review account-pinned through changed defaults, settlement and restart
+[41m[1m FAIL [22m[49m tests/skills-integration.test.ts[2m > [22mkeeps github-copilot automatic skill review account-pinned through changed defaults, settlement and restart
+[41m[1m FAIL [22m[49m tests/skills-integration.test.ts[2m > [22mkeeps xai automatic skill review account-pinned through changed defaults, settlement and restart
+[41m[1m FAIL [22m[49m tests/skills-integration.test.ts[2m > [22mkeeps claude-code automatic skill review account-pinned through changed defaults, settlement and restart
+[41m[1m FAIL [22m[49m tests/skills-integration.test.ts[2m > [22mkeeps gemini-cli automatic skill review account-pinned through changed defaults, settlement and restart
+[41m[1m FAIL [22m[49m tests/skills-integration.test.ts[2m > [22mkeeps cursor-sdk automatic skill review account-pinned through changed defaults, settlement and restart
+[41m[1m FAIL [22m[49m tests/skills-integration.test.ts[2m > [22mkeeps kimi-coding automatic skill review account-pinned through changed defaults, settlement and restart
+[41m[1m FAIL [22m[49m tests/skills-integration.test.ts[2m > [22mkeeps opencode-go automatic skill review account-pinned through changed defaults, settlement and restart
+[31m[1mHarnessError[22m: File access check failed — the folder could not be opened safely for this action[39m
+[36m [2m❯[22m denied packages/core/linux-path-guard.ts:[2m11:18[22m[39m
+    [90m  9|[39m type DirectoryPath={path:string;leaf:boolean;dev?:string;ino?:string;e…
+    [90m 10|[39m interface Session {rpc(request:Record<string,unknown>):Promise<readonl…
+    [90m 11|[39m const denied=()=>new HarnessError('CAPABILITY_DENIED','File access che…
+    [90m   |[39m                  [31m^[39m
+    [90m 12|[39m const within=(root:string,path:string)=>path===root||path.startsWith(r…
+    [90m 13|[39m export function validateLinuxDirectoryPaths(paths:DirectoryPath[],root…
+[90m [2m❯[22m packages/core/linux-path-guard.ts:[2m88:24[22m[39m
+[90m [2m❯[22m withLinuxDirectoryGuard packages/core/linux-path-guard.ts:[2m152:42[22m[39m
+[90m [2m❯[22m Object.models packages/runtime/index.ts:[2m109:18[22m[39m
+[90m [2m❯[22m Service.sendMessage packages/core/service.ts:[2m931:18[22m[39m
+[90m [2m❯[22m Service.command packages/core/service.ts:[2m614:147[22m[39m
+[90m [2m❯[22m tests/skills-integration.test.ts:[2m52:61[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[113/314]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/task-memory-recovery.test.ts[2m > [22mkeeps artifacts, saved edits, accepted inputs and a completed effect authoritative after note recovery
+[31m[1mHarnessError[22m: File access check failed — the folder could not be opened safely for this action[39m
+[36m [2m❯[22m denied packages/core/linux-path-guard.ts:[2m11:18[22m[39m
+    [90m  9|[39m type DirectoryPath={path:string;leaf:boolean;dev?:string;ino?:string;e…
+    [90m 10|[39m interface Session {rpc(request:Record<string,unknown>):Promise<readonl…
+    [90m 11|[39m const denied=()=>new HarnessError('CAPABILITY_DENIED','File access che…
+    [90m   |[39m                  [31m^[39m
+    [90m 12|[39m const within=(root:string,path:string)=>path===root||path.startsWith(r…
+    [90m 13|[39m export function validateLinuxDirectoryPaths(paths:DirectoryPath[],root…
+[90m [2m❯[22m packages/core/linux-path-guard.ts:[2m88:24[22m[39m
+[90m [2m❯[22m withLinuxDirectoryGuard packages/core/linux-path-guard.ts:[2m152:42[22m[39m
+[90m [2m❯[22m Module.handleDomainTool packages/capabilities/index.ts:[2m115:66[22m[39m
+[90m [2m❯[22m tests/task-memory-recovery.test.ts:[2m120:14[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[114/314]⎯[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Unhandled Errors [49m[22m[31m⎯⎯⎯⎯⎯⎯[39m
+[31m[1m
+Vitest caught 4 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.[22m[39m
+
+[31m⎯⎯⎯⎯[39m[1m[41m Unhandled Rejection [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mAssertionError[22m: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }
+(2 matching properties omitted from actual)[39m
+[90m [2m❯[22m _Assertion.__VITEST_REJECTS__ node_modules/.pnpm/@vitest+expect@4.1.12/node_modules/@vitest/expect/dist/index.js:[2m1747:17[22m[39m
+[90m [2m❯[22m _Assertion.propertyGetter node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:[2m1607:27[22m[39m
+[90m [2m❯[22m Object.proxyGetter [as get] node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:[2m1696:22[22m[39m
+[36m [2m❯[22m tests/github-workspace.test.ts:[2m159:52[22m[39m
+
+[90m [2m❯[22m node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:[2m1903:20[22m[39m
+
+[31mThis error originated in "[1mtests/github-workspace.test.ts[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1mfences cancel during private credential writing before rename and preserves the prior token[22m". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.[39m
+
+[31m⎯⎯⎯⎯[39m[1m[41m Unhandled Rejection [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mAssertionError[22m: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }
+(2 matching properties omitted from actual)[39m
+[90m [2m❯[22m _Assertion.__VITEST_REJECTS__ node_modules/.pnpm/@vitest+expect@4.1.12/node_modules/@vitest/expect/dist/index.js:[2m1747:17[22m[39m
+[90m [2m❯[22m _Assertion.propertyGetter node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:[2m1607:27[22m[39m
+[90m [2m❯[22m Object.proxyGetter [as get] node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:[2m1696:22[22m[39m
+[36m [2m❯[22m tests/github-workspace.test.ts:[2m159:52[22m[39m
+
+[90m [2m❯[22m node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:[2m1903:20[22m[39m
+
+[31mThis error originated in "[1mtests/github-workspace.test.ts[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1mfences replace during private credential writing before rename and preserves the prior token[22m". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.[39m
+
+[31m⎯⎯⎯⎯[39m[1m[41m Unhandled Rejection [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mAssertionError[22m: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }
+(2 matching properties omitted from actual)[39m
+[90m [2m❯[22m _Assertion.__VITEST_REJECTS__ node_modules/.pnpm/@vitest+expect@4.1.12/node_modules/@vitest/expect/dist/index.js:[2m1747:17[22m[39m
+[90m [2m❯[22m _Assertion.propertyGetter node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:[2m1607:27[22m[39m
+[90m [2m❯[22m Object.proxyGetter [as get] node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:[2m1696:22[22m[39m
+[36m [2m❯[22m tests/github-workspace.test.ts:[2m159:52[22m[39m
+
+[90m [2m❯[22m node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:[2m1903:20[22m[39m
+
+[31mThis error originated in "[1mtests/github-workspace.test.ts[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1mfences expire during private credential writing before rename and preserves the prior token[22m". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.[39m
+
+[31m⎯⎯⎯⎯[39m[1m[41m Unhandled Rejection [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mHarnessError[22m: File access check failed — the folder could not be opened safely for this action[39m
+[36m [2m❯[22m denied packages/core/linux-path-guard.ts:[2m11:18[22m[39m
+    [90m  9|[39m type DirectoryPath={path:string;leaf:boolean;dev?:string;ino?:string;e…
+    [90m 10|[39m interface Session {rpc(request:Record<string,unknown>):Promise<readonl…
+    [90m 11|[39m const denied=()=>new HarnessError('CAPABILITY_DENIED','File access che…
+    [90m   |[39m                  [31m^[39m
+    [90m 12|[39m const within=(root:string,path:string)=>path===root||path.startsWith(r…
+    [90m 13|[39m export function validateLinuxDirectoryPaths(paths:DirectoryPath[],root…
+[90m [2m❯[22m packages/core/linux-path-guard.ts:[2m88:24[22m[39m
+[90m [2m❯[22m withLinuxDirectoryGuard packages/core/linux-path-guard.ts:[2m152:42[22m[39m
+[90m [2m❯[22m withAccountLogin packages/runtime-login/account-login.ts:[2m18:5[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'CAPABILITY_DENIED', details: undefined }[39m
+[31mThis error originated in "[1mtests/account-login.test.ts[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1mdoes not admit a successor sign-in when an expired lease still has a live owner[22m". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.[39m
+[31m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39m
+
+
+[2m Test Files [22m [1m[31m66 failed[39m[22m[2m | [22m[1m[32m312 passed[39m[22m[2m | [22m[33m4 skipped[39m[90m (382)[39m
+[2m      Tests [22m [1m[31m279 failed[39m[22m[2m | [22m[1m[32m3650 passed[39m[22m[2m | [22m[33m57 skipped[39m[90m (3986)[39m
+[2m     Errors [22m [1m[31m4 errors[39m[22m
+[2m   Start at [22m 05:13:16
+[2m   Duration [22m 766.52s[2m (transform 90.28s, setup 0ms, import 503.08s, tests 2134.55s, environment 212ms)[22m
+
+EXIT:1
