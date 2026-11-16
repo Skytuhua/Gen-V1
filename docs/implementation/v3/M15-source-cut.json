@@ -39,15 +39,15 @@
     },
     {
       "path": "apps/web/src/SourceSelectionActions.tsx",
-      "bytes": 9495,
-      "sha256": "89306758de311d070aa8f90b1a39c1be5a58a2dc01aa2ff1e26ace65fc292d2d",
-      "gitBlob": "a75c0d641f050d22fbec7d4dd694125712f20e8e"
+      "bytes": 9531,
+      "sha256": "691c685e96dee5ff1d4f76f1a0d4ab498b9ef15c71cd2725685a242e34896f5f",
+      "gitBlob": "23af71981dc0165e61b131adf232cdc6be6f07f8"
     },
     {
       "path": "apps/web/src/SourceWorkbench.tsx",
-      "bytes": 20550,
-      "sha256": "309199491dcede75bffbb08bc73bf7fd5d2493601191fd11fc5392c77820e419",
-      "gitBlob": "26786c8e3072e8dd7b0a991b40516f4d61498eb0"
+      "bytes": 20930,
+      "sha256": "b7f379cd4480cf875df04a92aeef93b8e96549582abb961bb44a077caa0b2917",
+      "gitBlob": "f67db02df093ead6b6b52cba21c98d9ef63db18e"
     },
     {
       "path": "apps/web/src/WorkActivity.tsx",
@@ -117,9 +117,9 @@
     },
     {
       "path": "apps/web/src/source-workbench.css",
-      "bytes": 1884,
-      "sha256": "b60a1aaa3596bef94b1ad2481f66c4378186b93221ec727065995293fe81b531",
-      "gitBlob": "8873575026a0dff51ed05e64f11fdb876bf12f77"
+      "bytes": 2034,
+      "sha256": "bc727719ad556ae68bfc555ff7410a8e51b01625ba3c1086445da26ee5dffcd7",
+      "gitBlob": "d05b22862908ebcdde25b3d80d00e35b9633f87e"
     },
     {
       "path": "apps/web/src/workbench-api.ts",
@@ -135,9 +135,9 @@
     },
     {
       "path": "apps/web/src/workbench-output.css",
-      "bytes": 1582,
-      "sha256": "56474ef2de65a728ba58a448775ae5b2d56cb2ffb4d7c696da0a9c14517774f2",
-      "gitBlob": "1dc47273892f721d8eee18b7acf22c9bf37cc8af"
+      "bytes": 1603,
+      "sha256": "513002e5cb95b9cac3912c90ac0e62046f6223da25fbee7bf1850e28705913c2",
+      "gitBlob": "d08e4a7a79c037cca9ef2704ebfdf6bfc5da8516"
     },
     {
       "path": "apps/web/src/workbench-recovery.ts",
