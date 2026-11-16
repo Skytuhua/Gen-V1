@@ -511,9 +511,10 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   }, [layout.rightPanelOpen, preferences.panelAnimations, panelLeaving]);
   const workspaceContext = { activeArtifactId: layout.activeArtifactId, requestOpenArtifact: (id: string) => {setDocumentWindow(null);revealWorkspaceTool('artifact',undefined,id);}, closeArtifact: () => setLayout(value => ({ ...value, activeArtifactId: null })), rightPanelOpen: layout.rightPanelOpen, activeTab: layout.activeTab, setActiveTab: (activeTab: typeof layout.activeTab) => setLayout(value => ({ ...value, activeTab, openTabs: value.openTabs.includes(activeTab) ? value.openTabs : [...value.openTabs, activeTab] })), openTabs: layout.openTabs, openTab: (tab: typeof layout.activeTab) => setLayout(value => ({ ...value, rightPanelOpen: true, activeTab: tab, openTabs: value.openTabs.includes(tab) ? value.openTabs : [...value.openTabs, tab] })), closeTab: (tab: typeof layout.activeTab) => setLayout(value => { const openTabs = value.openTabs.filter(item => item !== tab); return { ...value, openTabs, activeTab: value.activeTab === tab ? (openTabs[openTabs.length - 1] ?? 'artifact') : value.activeTab }; }), documentWindow, requestOpenDocument:(id:string)=>{closePanel();setDocumentWindow({id,placement:'docked'});},closeDocument:(id:string)=>setDocumentWindow(value=>value?.id===id?null:value),placeDocument:(id:string,placement:'docked'|'floating')=>setDocumentWindow(value=>value?.id===id?{id,placement}:value) };
   const [confirmArchive, setConfirmArchive] = useState<string | null>(null);
-  const [resourcePicker, setResourcePicker] = useState<string | null>(null);
-  const resourcePickerOpener = useRef<HTMLElement | null>(null);
-  const openResourcePicker = (id: string, opener: HTMLElement | null = document.activeElement as HTMLElement | null) => { resourcePickerOpener.current = opener; setResourcePicker(id); };
+  const [resourcePicker, setResourcePicker] = useState<{threadId: string; opener: HTMLElement | null; session: number} | null>(null);
+  const resourcePickerSession = useRef(0);
+  const openResourcePicker = (threadId: string, opener: HTMLElement | null = document.activeElement as HTMLElement | null) =>
+    setResourcePicker({threadId, opener, session: ++resourcePickerSession.current});
   const [composerBusy, setComposerBusy] = useState(false);
   const composerPending = useRef(false);
   const [threadCreating, setThreadCreating] = useState(false);
@@ -1119,7 +1120,8 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
     {!embeddedThreadId&&<><Toaster/><TooltipLayer/></>}
     {confirmArchive && <Dialog title="Archive thread?" close={() => setConfirmArchive(null)}><p>The saved conversation will move to Archive in Settings. Restore it there whenever you need it.</p><footer className="dialog-actions"><button className="quiet" onClick={() => setConfirmArchive(null)}>Cancel</button><button className="primary" onClick={() => { const id = confirmArchive; setConfirmArchive(null); void archive(id, false, true); }}>Archive thread</button></footer></Dialog>}
     {archiveThread && <Dialog title="Uncheckpointed widget edits" close={() => setArchiveThread(null)}><p>Checkpoint your widget edits before archiving this thread, or explicitly discard them.</p><footer className="dialog-actions"><button className="secondary" onClick={() => { select(archiveThread); setArchiveThread(null); }}>Return to checkpoint</button><button className="quiet" onClick={() => void archive(archiveThread, true)}>Discard edits and archive</button></footer></Dialog>}
-    {resourcePicker && <ResourcePicker threadId={resourcePicker} opener={resourcePickerOpener.current} close={() => setResourcePicker(null)} refresh={refresh} />}
+    {resourcePicker && <ResourcePicker key={resourcePicker.session} threadId={resourcePicker.threadId} opener={resourcePicker.opener}
+      close={() => setResourcePicker(current => current === resourcePicker ? null : current)} refresh={refresh} />}
     {projectPicker&&<ProjectPicker open authority={{kind:'local'}} projects={workspaceEnvelope?.projects??[]} selectedProjectId={snapshot.threads.find(value=>value.id===projectPicker.threadId)?.projectId}
       recentProjectIds={[...new Set([...snapshot.threads].sort((a,b)=>b.updatedAt.localeCompare(a.updatedAt)).flatMap(value=>value.projectId?[value.projectId]:[]))]}
       colors={preferences.projectColors} busy={projectPicking} error={projectPickerError} onClose={closeProjectSelection} onSelect={pickProject} onColorChange={saveProjectColor}
