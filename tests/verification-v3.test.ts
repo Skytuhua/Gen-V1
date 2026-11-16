@@ -1,4 +1,4 @@
-import {it,expect,afterEach} from 'vitest';
+import {describe,it,expect,afterEach} from 'vitest';
 import {mkdtempSync,mkdirSync,writeFileSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
@@ -344,4 +344,30 @@ it('the panel read model re-digests declared inputs so edits never keep a green 
  const unavailable=verificationPanelModel(store,'t1');
  expect(unavailable.rows.every(row=>row.freshness==='INDETERMINATE')).toBe(true);
  expect(unavailable.label).not.toBe('VERIFIED');
+});
+
+describe('M07 advisory evidence feed',()=>{
+ it('records review-advisory observations that inform review without satisfying requirements',async()=>{
+  const root=workspace();const store=stateStore();
+  const service=new ProjectVerificationService(store,FLAGS_ON);
+  const code=await sourceDigest(root,['app.ts']);const dep=await sourceDigest(root,['pnpm-lock.yaml']);
+  const envId='win32/24.10.0/pnpm@10.30.3';
+  const advisory={version:1 as const,executionId:'intel-test-1',codeDigest:code,dependencyDigest:dep,recipeDigest:'b'.repeat(64),environmentId:envId,argv:['typescript-language-server','--stdio'],cwdIdentity:root,phase:'BUILD' as const,startedAt:new Date().toISOString(),endedAt:new Date().toISOString(),exitCode:null,outcome:'PASS' as const,artifactRefs:[],detail:'diagnostics=0'};
+  const recorded=service.recordAdvisory(owner(),advisory);
+  expect(recorded.observationKind).toBe('review-advisory');
+  expect(recorded.checkId).toMatch(/^obs-/);
+  expect(service.observations('t1')).toHaveLength(1);
+  // An advisory PASS is evidence, not verification — it can never satisfy a declared requirement.
+  const assessed=computeAssessment({threadId:'t1',sourceCut:{headSha:null,codeDigest:code,dependencyDigest:dep,environmentId:envId},requirements:[{id:'diagnostics-clean',checkRefs:['intel-test-1']}],observations:[recorded],unresolvedEffects:[],verifierIdentity:'service/r1',provenance:'test'});
+  expect(assessed.requirements[0].assessment).toBe('UNVERIFIED');
+  // A failing advisory still counts against completion.
+  const failed=service.recordAdvisory(owner(),{...advisory,executionId:'intel-test-2',outcome:'FAIL',detail:'diagnostics=2 errors=1'});
+  const failing=computeAssessment({threadId:'t1',sourceCut:{headSha:null,codeDigest:code,dependencyDigest:dep,environmentId:envId},requirements:[{id:'diagnostics-clean',checkRefs:['intel-test-2']}],observations:[failed],unresolvedEffects:[],verifierIdentity:'service/r1',provenance:'test'});
+  expect(failing.requirements[0].assessment).toBe('FAILED');
+ });
+ it('advisory recording stays disabled until the verification flag enables it',()=>{
+  const root=workspace();const store=stateStore();
+  const service=new ProjectVerificationService(store,{});
+  expect(code(()=>service.recordAdvisory(owner(),{version:1,executionId:'x',codeDigest:'a'.repeat(64),dependencyDigest:'a'.repeat(64),recipeDigest:'a'.repeat(64),environmentId:'e',argv:['x'],cwdIdentity:root,phase:'BUILD',startedAt:new Date().toISOString(),endedAt:new Date().toISOString(),exitCode:null,outcome:'PASS',artifactRefs:[]}))).toBe('CAPABILITY_DENIED');
+ });
 });
