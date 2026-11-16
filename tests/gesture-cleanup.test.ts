@@ -154,6 +154,19 @@ describe('gesture cleanup', () => {
     await page.close();
   });
 
+  it('a second pointer cannot replace an active floating move', async () => {
+    const page = await openPage(), move = page.getByRole('button', { name: 'Move Gesture' }), shell = page.locator('[data-floating-id="gesture-window"]');
+    await expect.poll(() => shell.evaluate(node => node.getAnimations().filter(animation => animation.playState === 'running').length)).toBe(0);
+    const box = (await move.boundingBox())!, start = (await shell.boundingBox())!;
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2); await page.mouse.down();
+    await page.mouse.move(box.x + box.width / 2 - 30, box.y + box.height / 2);
+    await expect.poll(async () => (await shell.boundingBox())!.x).toBeLessThan(start.x - 10);
+    await move.dispatchEvent('pointerdown', { pointerId: 77, button: 0, bubbles: true });
+    await page.mouse.move(box.x + box.width / 2 - 80, box.y + box.height / 2);
+    await expect.poll(async () => (await shell.boundingBox())!.x).toBeLessThan(start.x - 60);
+    await page.mouse.up(); await pw(shell).toHaveAttribute('data-interacting', 'false'); await page.close();
+  });
+
   it('AUD-02: window blur cancels a split resize, clears the preview and releases capture', async () => {
     const page = await openPage('?split');
     const divider = page.getByRole('separator', { name: 'Resize columns' });

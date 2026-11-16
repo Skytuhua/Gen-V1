@@ -23,6 +23,15 @@ async function fixture(page: Page, differentSizes = false) {
   return { ...host, requests: () => requests, deny() { denied = true; }, allow() { denied = false; }, hold() { delayed = new Promise<void>(resolve => { release = resolve; }); }, release() { release(); } };
 }
 const ready = async (page: Page) => { await bootstraps.get(page); await expect(page.locator('html')).toHaveAttribute('data-motion', /^(system|reduced|off)$/); await expect(page.getByRole('slider', { name: 'Comparison position', exact: true })).toBeEnabled(); };
+test('another pointer losing capture cannot end the active comparison drag', async ({ page }) => {
+  await fixture(page); await page.goto('/'); await ready(page);
+  const stage = page.locator('.image-compare-stage'), slider = page.getByRole('slider', { name: 'Comparison position', exact: true }), bounds = (await stage.boundingBox())!;
+  await page.mouse.move(bounds.x + bounds.width * .3, bounds.y + bounds.height * .5); await page.mouse.down();
+  await stage.dispatchEvent('pointerdown', { pointerId: 77, pointerType: 'touch', isPrimary: true, button: 0, bubbles: true });
+  await stage.dispatchEvent('lostpointercapture', { pointerId: 77, pointerType: 'touch', bubbles: true });
+  await page.mouse.move(bounds.x + bounds.width * .72, bounds.y + bounds.height * .5); await page.mouse.up();
+  await expect(slider).toHaveValue('72');
+});
 test('comparison follows the pointer immediately and keeps keyboard and saved view state through reload', async ({ page }) => {
   const host = await fixture(page); await page.goto('/'); await ready(page);
   const slider = page.getByRole('slider', { name: 'Comparison position', exact: true }); await slider.focus(); await slider.press('End'); await expect(slider).toHaveValue('100'); await slider.press('Home'); await expect(slider).toHaveValue('0'); await slider.press('ArrowRight'); await expect(slider).toHaveValue('1');

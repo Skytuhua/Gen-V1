@@ -2,8 +2,6 @@ import {mkdtemp, realpath, lstat, rm, mkdir, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join, resolve, sep} from 'node:path';
 import {Store} from '../packages/storage/store.ts';
-import {PersonalResearchRepository} from '../packages/research/repository.ts';
-import type {VerifiedBrowserCaptureProvider} from '../packages/research/capture.ts';
 import type {HostCommand, ResourceGrant, Thread} from '../packages/contracts/index.ts';
 
 export const context = {authority: {kind: 'personal' as const}, threadId: 'thread-a', projectId: 'project-a'};
@@ -12,7 +10,7 @@ export function command(id: string, type: string, payload: Record<string, unknow
   return {id, type: 'research.' + type, threadId: context.threadId, payload: {...context, ...payload}};
 }
 export const textSource = (id = 'capture', text = 'abc', expectedRevision = 0) => command(id, 'source.capture', {sourceId: 'source-a', expectedRevision, title: 'Source A', input: {kind: 'text', text}});
-export async function researchFixture(browser?: VerifiedBrowserCaptureProvider) {
+export async function researchFixture() {
   const base = await realpath(tmpdir()), root = await mkdtemp(join(base, 'gen-research-'));
   await mkdir(join(root, 'sources')); await writeFile(join(root, 'sources', 'source.txt'), 'abc');
   const store = new Store(join(root, 'data'));
@@ -24,8 +22,7 @@ export async function researchFixture(browser?: VerifiedBrowserCaptureProvider) 
     store.put('workspaceProject', context.projectId, null, {id: context.projectId, name: 'Project A', authority: {kind: 'local'}, rootPath: join(root, 'sources')});
     store.put('resource', grant.id, thread.id, grant);
   });
-  const repository = new PersonalResearchRepository(store, {browser});
-  return {store, repository, root, path, grant, thread, close: async () => {
+  return {store, root, path, grant, thread, close: async () => {
     if (store.db.isOpen) store.close();
     if (await realpath(root) !== resolve(root) || !root.startsWith(base + sep) || (await lstat(root)).isSymbolicLink()) throw Error('Unsafe research fixture cleanup');
     await rm(root, {recursive: true, force: true, maxRetries: 10, retryDelay: 100});
