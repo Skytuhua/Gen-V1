@@ -36,7 +36,7 @@ function DockedWindow({layout,onLayout,notice,...props}:FloatingWindowProps&{lay
  * localStorage. Retain legacy placement fields, but only present bounded docks. */
 export function PluginFloatingWindow(props:FloatingWindowProps){
  const currentOwner=useMemo(()=>({id:props.id}),[props.id]),owner=useRef<typeof currentOwner|null>(currentOwner);
- useLayoutEffect(()=>{owner.current=currentOwner;return()=>{if(owner.current===currentOwner)owner.current=null;};},[currentOwner]);
+ useLayoutEffect(()=>{owner.current=currentOwner;},[currentOwner]);
  const [recovery,setRecovery]=useState<{owner:typeof currentOwner;layout:Partial<FloatingLayout>|null}>(),[failure,setFailure]=useState<{owner:typeof currentOwner;message:string}|null>(null),[retryRecovery,setRetryRecovery]=useState(0),saved=useRef<Partial<FloatingLayout>|null>(null),pending=useRef(Promise.resolve()),recovered=useRef(false);
  const error=failure?.owner===currentOwner?failure.message:'',setError=(message:string)=>setFailure(message?{owner:currentOwner,message}:null);
  const key=floatingLayoutKey(props.id);
@@ -53,7 +53,11 @@ export function PluginFloatingWindow(props:FloatingWindowProps){
  },[key,props.id,retryRecovery,currentOwner]);
  // Failed writes remain in the SDK's intent journal. Let its flush check the
  // current intent after an explicit retry, rather than retaining an old rejection.
- useEffect(()=>registerEditorHandoff('floating:'+props.id,async()=>{if(owner.current!==currentOwner||!recovered.current)throw Error('Window placement has not recovered.');await pending.current.catch(()=>{});if(owner.current!==currentOwner||!recovered.current)throw Error('Window placement has changed.');}),[props.id,currentOwner]);
+ // Suspense replays layout effects while the journal and handoff remain live.
+ useEffect(()=>{
+  const unregister=registerEditorHandoff('floating:'+props.id,async()=>{if(owner.current!==currentOwner||!recovered.current)throw Error('Window placement has not recovered.');await pending.current.catch(()=>{});if(owner.current!==currentOwner||!recovered.current)throw Error('Window placement has changed.');});
+  return()=>{if(owner.current===currentOwner)owner.current=null;unregister();};
+ },[props.id,currentOwner]);
  const write=useCallback((layout:Partial<FloatingLayout>)=>{
   if(owner.current!==currentOwner)return;
   saved.current={...saved.current,...layout};setRecovery({owner:currentOwner,layout:saved.current});
