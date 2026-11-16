@@ -103,6 +103,19 @@ describe('gesture cleanup', () => {
     await page.close();
   });
 
+  it('a foreign pointer cannot end or replace an active resize', async () => {
+    const page = await openPage();
+    const center = await handleCenter(page), handle = page.getByRole('separator', { name: 'Resize test panel' });
+    await page.mouse.move(center.x, center.y); await page.mouse.down();
+    await handle.dispatchEvent('pointerdown', { pointerId: 77, button: 0, bubbles: true });
+    await handle.dispatchEvent('lostpointercapture', { pointerId: 77, bubbles: true });
+    await page.evaluate(() => { window.dispatchEvent(new PointerEvent('pointerup', { pointerId: 77 })); window.dispatchEvent(new PointerEvent('pointercancel', { pointerId: 77 })); });
+    expect(await page.evaluate(() => document.documentElement.classList.contains('resizing-panel'))).toBe(true);
+    await page.mouse.move(center.x + 40, center.y); expect(await width(page)).toBe(340);
+    await page.mouse.up(); expect(await page.evaluate(() => document.documentElement.classList.contains('resizing-panel'))).toBe(false);
+    await page.close();
+  });
+
   it('AUD-01: window blur ends the resize and clears the root class', async () => {
     const page = await openPage();
     const center = await handleCenter(page);
