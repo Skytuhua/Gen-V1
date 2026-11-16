@@ -53,7 +53,7 @@ function ImagePair({ props, view, change }: { props: ImageCompareProps; view: Vi
     if (bounds.width) change({ percent: Math.round(Math.min(1, Math.max(0, (event.clientX - bounds.left) / bounds.width)) * 100) });
   };
   const start = (event: PointerEvent<HTMLDivElement>) => {
-    if (!ready || view.mode !== 'overlay' || !event.isPrimary || event.button !== 0) return;
+    if (!ready || view.mode !== 'overlay' || !event.isPrimary || event.button !== 0 || drag.current !== null) return;
     drag.current = event.pointerId; event.currentTarget.setPointerCapture(event.pointerId); slider.current?.focus({ preventScroll: true }); position(event);
   };
   const end = (event: PointerEvent<HTMLDivElement>) => {
@@ -67,7 +67,7 @@ function ImagePair({ props, view, change }: { props: ImageCompareProps; view: Vi
       <button type="button" aria-pressed={view.mode === 'split'} onClick={() => change({ mode: 'split' })}>Side by side</button>
     </div>
     <div ref={stage} className="image-compare-stage" data-mode={view.mode} data-ready={ready} aria-busy={!ready && !error} style={{ '--image-compare-position': `${view.percent}%` } as React.CSSProperties}
-      onPointerDown={start} onPointerMove={event => { if (drag.current === event.pointerId) position(event); }} onPointerUp={end} onPointerCancel={end} onLostPointerCapture={() => { drag.current = null; }}>
+      onPointerDown={start} onPointerMove={event => { if (drag.current === event.pointerId) position(event); }} onPointerUp={end} onPointerCancel={end} onLostPointerCapture={event => { if (drag.current === event.pointerId) drag.current = null; }}>
       {!error && <div className="image-compare-images" style={{ visibility: ready ? 'visible' : 'hidden' }} key={retry}>
         <div className="image-compare-after"><img src={resourceContentUrl(props.afterResourceId)} alt={afterLabel} draggable={false} onLoad={event => loaded(1, event.currentTarget)} onError={() => setError(`${afterLabel} image could not be loaded. Check access and retry.`)} /></div>
         <div className="image-compare-before"><img src={resourceContentUrl(props.beforeResourceId)} alt={beforeLabel} draggable={false} onLoad={event => loaded(0, event.currentTarget)} onError={() => setError(`${beforeLabel} image could not be loaded. Check access and retry.`)} /></div>
