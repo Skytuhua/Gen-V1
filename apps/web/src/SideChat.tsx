@@ -64,7 +64,7 @@ export function SideChat({parent,snapshot,modelId,open,onClose,refresh,ref}:{par
    {histories.length>0&&<label className="side-chat-history"><span className="sr-only">Side conversation history</span><Select aria-label="Side conversation history" disabled={busy} value={side?.id??''} onValueChange={value=>select(value||null)} options={[{value:'',label:'New question'},...histories.map(thread=>({value:thread.id,label:thread.title+(thread.runId?' · Working':'')}))]}/></label>}
    <div ref={scroll} className="side-chat-messages" role="log" aria-label="Side conversation messages" onScroll={()=>{const element=scroll.current;if(element)tail.current=element.scrollHeight-element.scrollTop-element.clientHeight<48;}}>
     {!messages.length&&<p className="side-chat-empty">Ask about this conversation without interrupting the main task.</p>}
-    {messages.map(message=><div key={message.id} className={'side-message side-message-'+message.role}><span className="sr-only">{message.role==='user'?'You':'Agent'}</span><CopyButton text={message.content} label="Copy message"/><Markdown text={message.content} animate={message.role==='assistant'&&working}/></div>)}
+    {messages.map(message=><div key={message.id} className={'side-message side-message-'+message.role}><span className="sr-only">{message.role==='user'?'You':'Agent'}</span><Markdown text={message.content} animate={message.role==='assistant'&&working}/><CopyButton text={message.content} label="Copy message"/></div>)}
     {working&&<div className="side-chat-working" role="status"><LoaderCircle size={13} className="spinning"/>Thinking…</div>}
     {side?.error&&<p className="error-text" role="status">{side.error}</p>}
    </div>
