@@ -209,7 +209,7 @@
 .artifact-in-workspace>.artifact-source { max-height:35%; flex-shrink:0; }
 .artifact-in-workspace .artifact-content { max-width:none; }
 .artifact-in-workspace .widget-frame { min-height:60vh; }
-.shell-workarea:has(.artifact-in-workspace)>.summary-layout-owner { position:relative; z-index:29; }
+.shell-workarea:has(.artifact-in-workspace)>:is(.summary-layout-owner,.split-root-workarea) { position:relative; z-index:29; }
 .app-shell[data-panel-animations=false] * { animation:none; transition:none; }
 @keyframes panel-enter { 0% { opacity:.45; transform:translateX(14px); } 78% { opacity:1; transform:translateX(-1px); } 100% { opacity:1; transform:translateX(0); } }
 @keyframes panel-exit { to { opacity:0; transform:translateX(14px); } }
